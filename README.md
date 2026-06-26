@@ -28,6 +28,20 @@ The Bluefin/agentic OS direction is to treat the agent stack like an operating s
 | [Arda-Council](https://github.com/dward1502/Arda-Council) | Multi-agent deliberation and consensus blueprint | Governance and boardroom decision surfaces |
 | [Arda-HUD](https://github.com/dward1502/Arda-HUD) | Operator-facing UI for Annunimas/ARDA state | Tauri/React control surface and 3D boardroom HUD |
 
+## Recommended Reading Order
+
+1. [Arda-Agent-Loop-Contract](https://github.com/dward1502/Arda-Agent-Loop-Contract) — learn the inspect-act-verify receipt shape first.
+2. [Arda-tool-gate](https://github.com/dward1502/Arda-tool-gate) — see how proposed actions become allow/deny/review receipts before execution.
+3. [Arda-Service-Registry](https://github.com/dward1502/Arda-Service-Registry) — inspect the service catalog and lifecycle contract that runtime surfaces can share.
+4. [Arda-Signal-Grid](https://github.com/dward1502/Arda-Signal-Grid) — review how comments, alerts, pauses, and escalations become governed route plans.
+5. [Arda-Council](https://github.com/dward1502/Arda-Council) — understand deliberation records, dissent, and bounded governance decisions.
+6. [Arda-HUD](https://github.com/dward1502/Arda-HUD) — open the operator-facing view that makes the state projections and governance surfaces visible.
+
+Each child README follows the same high-level path: `Vision`, `Getting Started`,
+`Architecture Overview`, `Relationship to ARDA`, and `Status`. That structure is
+intentional: it lets a reader move from purpose, to local proof, to system role,
+to maturity without needing private Annunimas context.
+
 ## Architecture Overview
 
 ```mermaid
@@ -104,6 +118,16 @@ flowchart TB
    npm run build
    npm run test
    ```
+
+5. Verify README structure after documentation edits:
+
+   ```bash
+   python3 scripts/verify-readmes.py
+   ```
+
+   This is a lightweight documentation gate for the ARDA repo family. It checks
+   the expected headings and Mermaid fence shape across the local sibling repos;
+   it is not a replacement for each repo's build or test suite.
 
 ## Design Principles
 

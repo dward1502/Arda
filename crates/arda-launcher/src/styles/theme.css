@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+@theme {
+  --color-gold: #c5a26f;
+  --color-gold-bright: #ffe070;
+  --color-cosmic: #0a0a0f;
+
+  --font-mono: ui-monospace, "SFMono-Regular", monospace;
+}

@@ -8,7 +8,6 @@ import Background from './components/Background'
 
 export default function App() {
   const [phase, setPhase] = useState(0)
-  const showSmoke = phase < 3
   const showLogo = phase >= 8.5
   const replay = () => setPhase(0)
 
@@ -27,7 +26,7 @@ export default function App() {
         {/* <Stars radius={280} depth={40} count={700} factor={2.8} fade /> */}
         <WorldTree phase={phase} />
 
-        <ParticleSmoke active={showSmoke} />
+        <ParticleSmoke />
       </Canvas>
 
       <OnboardingText phase={phase} />

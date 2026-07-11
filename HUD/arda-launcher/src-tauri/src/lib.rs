@@ -9,9 +9,6 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![greet])
-        .on_window_event(|event| {
-            eprintln!("[window-event] {event:?}");
-        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

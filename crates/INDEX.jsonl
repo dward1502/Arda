@@ -1,0 +1,18 @@
+{"name": "annunimas-core", "path": "annunimas-core/", "type": "crate", "sigil": "⚡", "domain": "operations", "purpose": "Shared types, traits, error handling"}
+{"name": "annunimas-ceo", "path": "annunimas-ceo/", "type": "crate", "sigil": "∇", "domain": "command", "purpose": "Compatibility shim re-exporting annunimas-prometheus"}
+{"name": "annunimas-prometheus", "path": "annunimas-prometheus/", "type": "crate", "sigil": "∇", "domain": "command", "purpose": "Canonical executive orchestrator aligned to PROMETHEUS plan"}
+{"name": "annunimas-mnemosyne", "path": "annunimas-mnemosyne/", "type": "crate", "sigil": "♥", "domain": "knowledge", "purpose": "Continuous memory and identity persistence service"}
+{"name": "annunimas-charon", "path": "annunimas-charon/", "type": "crate", "sigil": "⚡", "domain": "operations", "purpose": "Inference routing daemon and provider state manager"}
+{"name": "annunimas-cli", "path": "annunimas-cli/", "type": "crate", "sigil": "∇", "domain": "command", "purpose": "Binary entry point"}
+{"name": "annunimas-athena", "path": "annunimas-athena/", "type": "crate", "sigil": "◈", "domain": "knowledge", "purpose": "Knowledge ingestion agent"}
+{"name": "annunimas-hades", "path": "annunimas-hades/", "type": "crate", "sigil": "↝", "domain": "operations", "purpose": "Cleanup, lifecycle, and order maintenance agent"}
+{"name": "annunimas-chronos", "path": "annunimas-chronos/", "type": "crate", "sigil": "🕰", "domain": "temporal", "purpose": "Temporal scheduling, predictive maintenance, audit cadence, and time-series analysis"}
+{"name": "annunimas-hermes", "path": "annunimas-hermes/", "type": "crate", "sigil": "↝", "domain": "operations", "purpose": "Communications agent"}
+{"name": "annunimas-oracle", "path": "annunimas-oracle/", "type": "crate", "sigil": "◈", "domain": "knowledge", "purpose": "Reasoning, triad validation"}
+{"name": "annunimas-plutus", "path": "annunimas-plutus/", "type": "crate", "sigil": "⚡", "domain": "operations", "purpose": "JouleWork economics"}
+{"name": "annunimas-apollo", "path": "annunimas-apollo/", "type": "crate", "sigil": "↝", "domain": "operations", "purpose": "Workflow execution"}
+{"name": "annunimas-warden", "path": "annunimas-warden/", "type": "crate", "sigil": "∇", "domain": "command", "purpose": "Monitoring, security, podman"}
+{"name": "annunimas-governance", "path": "annunimas-governance/", "type": "crate", "sigil": "♥", "domain": "governance", "purpose": "Triad, Resonance, Game Theory"}
+{"name": "annunimas-comm", "path": "annunimas-comm/", "type": "crate", "sigil": "↝", "domain": "operations", "purpose": "A2H communication"}
+{"name": "annunimas-mcp", "path": "annunimas-mcp/", "type": "crate", "sigil": "↝", "domain": "operations", "purpose": "MCP protocol integration"}
+{"name": "annunimas-token-router", "path": "annunimas-token-router/", "type": "crate", "sigil": "⚡", "domain": "operations", "purpose": "LLM budget routing"}

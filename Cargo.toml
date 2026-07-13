@@ -1,15 +1,63 @@
 [workspace]
 resolver = "2"
 members = [
+    # Arda-native
     "crates/arda-core",
+    "crates/arda-engine",
+    # Vendored Annunimas crates (flat siblings; inter-crate paths stay valid)
+    "crates/annunimas-apollo",
+    "crates/annunimas-athena",
+    "crates/annunimas-ceo",
+    "crates/annunimas-charon",
+    "crates/annunimas-chronos",
+    "crates/annunimas-cli",
+    "crates/annunimas-comm",
+    "crates/annunimas-core",
+    "crates/annunimas-council",
+    "crates/annunimas-fleet",
+    "crates/annunimas-forge-mind",
+    "crates/annunimas-governance",
+    "crates/annunimas-hades",
+    "crates/annunimas-hermes",
+    "crates/annunimas-human",
+    "crates/annunimas-mcp",
+    "crates/annunimas-mnemosyne",
+    "crates/annunimas-onboarding",
+    "crates/annunimas-oracle",
+    "crates/annunimas-plutus",
+    "crates/annunimas-prometheus",
+    "crates/annunimas-service-registry",
+    "crates/annunimas-signal-grid",
+    "crates/annunimas-systemd",
+    "crates/annunimas-tool-harness",
+    "crates/annunimas-warden",
 ]
+
+[package]
+name = "arda"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "arda"
+path = "src/main.rs"
+
+[dependencies]
+arda-engine = { path = "crates/arda-engine" }
+tokio = { version = "1", features = ["full"] }
+clap = { version = "4", features = ["derive"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+anyhow = "1"
 
 [workspace.package]
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
+authors = ["dward"]
 
 [workspace.dependencies]
+# --- Arda originals ---
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 toml = "0.8"
@@ -18,3 +66,21 @@ anyhow = "1"
 chrono = { version = "0.4", features = ["serde"] }
 sysinfo = "0.30"
 tempfile = "3"
+# --- merged from Annunimas ---
+async-trait = "0.1"
+serde_yaml = "0.9"
+# Annunimas crates referenced via `workspace = true` inside the vendored crates
+annunimas-core = { path = "crates/annunimas-core" }
+annunimas-governance = { path = "crates/annunimas-governance" }
+annunimas-mnemosyne = { path = "crates/annunimas-mnemosyne" }
+annunimas-oracle = { path = "crates/annunimas-oracle" }
+annunimas-plutus = { path = "crates/annunimas-plutus" }
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+clap = { version = "4", features = ["derive"] }
+futures = "0.3"
+rand = "0.8"
+yaml-rust = "0.4"
+serenity = { version = "0.12", default-features = false, features = ["builder", "client", "gateway", "http", "model", "utils", "rustls_backend"] }

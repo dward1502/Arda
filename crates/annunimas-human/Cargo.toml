@@ -1,0 +1,19 @@
+[package]
+name = "annunimas-human"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "annunimas_human"
+path = "src/lib.rs"
+
+[dependencies]
+annunimas-core = { path = "../annunimas-core" }
+annunimas-mnemosyne = { path = "../annunimas-mnemosyne" }
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.9"
+serde_json = { workspace = true }
+anyhow = "1.0"
+walkdir = "2.3"
+regex = "1.10"
+tempfile = "3"

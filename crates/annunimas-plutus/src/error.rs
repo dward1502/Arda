@@ -1,0 +1,47 @@
+// sigil: REPAIR
+use annunimas_core::error::AnnunimasError;
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+pub enum PlutusError {
+    #[error("IPC transport error: {0}")]
+    Ipc(String),
+
+    #[error("HTTP transport error: {0}")]
+    Http(String),
+
+    #[error("invalid payload: {0}")]
+    InvalidPayload(String),
+
+    #[error("unknown command: {0}")]
+    UnknownCommand(String),
+
+    #[error("missing required payload key `{0}`")]
+    MissingPayloadKey(String),
+
+    #[error("missing required numeric payload key `{0}`")]
+    MissingNumericPayloadKey(String),
+
+    #[error("daemon task failed: {0}")]
+    DaemonTask(String),
+
+    #[error("runtime error: {0}")]
+    Runtime(String),
+
+    #[error(transparent)]
+    Io(#[from] std::io::Error),
+
+    #[error(transparent)]
+    Serde(#[from] serde_json::Error),
+}
+
+impl From<PlutusError> for AnnunimasError {
+    fn from(err: PlutusError) -> Self {
+        AnnunimasError::Agent {
+            agent: "plutus".to_owned(),
+            message: err.to_string(),
+        }
+    }
+}
+
+pub type Result<T> = std::result::Result<T, PlutusError>;

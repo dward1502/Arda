@@ -64,7 +64,7 @@ impl EdgeDispatcher {
 
         let (tailscale_name, ssh_user) = match node_id.as_str() {
             "node-ser9-worker" => ("bluefin", "citadel"),
-            "node-backbone-server-01" => ("beelink", "annunimasserver"),
+            "node-backbone-server-01" => ("beelink", "ardaserver"),
             "node-pi5-warden" => ("warden", "pi"),
             "node-pi5-citadel-avatar" => ("raspberrypi", "citadel"),
             _ => return Err(anyhow::anyhow!("Unknown node: {}", node_id)),
@@ -73,7 +73,7 @@ impl EdgeDispatcher {
         let ssh_target = format!("{}@{}", ssh_user, tailscale_name);
 
         let remote_cmd = format!(
-            "cd /var/home/annunimas && cargo run -- run -t execute '{}' --payload '{}'",
+            "cd /var/home/arda && cargo run -- run -t execute '{}' --payload '{}'",
             task_id, task_payload
         );
 

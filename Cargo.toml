@@ -4,11 +4,12 @@ members = [
     # Arda-native
     "crates/engine",
     "crates/spine/runtime/manwe",
-    # Migrated Arda governance/tooling crates
     "crates/spine/governance/arda-core",
+    "crates/spine/governance/arda-council",
     "crates/spine/governance/arda-tool-harness",
     "crates/spine/interface/arda-onboarding",
     "crates/spine/executors/arda-service-registry",
+    "crates/spine/runtime/arda-systemd",
 ]
 
 [package]

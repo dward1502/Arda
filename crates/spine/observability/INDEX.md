@@ -17,8 +17,8 @@ soterion:
 ## Contents
 
 - `INDEX.md`
-- `annunimas-prometheus`
-- `annunimas-signal-grid`
+- `arda-prometheus`
+- `arda-signal-grid`
 
 ## Purpose
 

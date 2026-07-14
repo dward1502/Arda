@@ -175,7 +175,7 @@ impl EdgeHealthMonitor {
     pub fn write_health_snapshot(&self) -> anyhow::Result<()> {
         let health = self.get_all_health();
         let snapshot = serde_json::json!({
-            "schema_version": "annunimas.edge-health.v1",
+            "schema_version": "arda.edge-health.v1",
             "generated_at_utc": chrono::Utc::now().to_rfc3339(),
             "nodes": health,
             "healthy_count": health.iter().filter(|n| n.status == NodeHealthStatus::Healthy).count(),

@@ -404,7 +404,7 @@ impl ProviderTokenTracker {
         let total_cost: f64 = providers.iter().map(|p| p.cost_estimate).sum();
 
         ProviderTokenUsageSnapshot {
-            schema_version: "annunimas.provider-usage.v1".to_owned(),
+            schema_version: "arda.provider-usage.v1".to_owned(),
             generated_at_utc: chrono::Utc::now().to_rfc3339(),
             providers,
             total_tokens,

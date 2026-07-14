@@ -12,12 +12,13 @@ soterion:
 
 > 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-13
 
-# Index: crates/runtime/INDEX.md
+# Index: crates/spine/runtime/INDEX.md
 
 ## Contents
 
 - `INDEX.md`
 - `manwe`
+- `arda-systemd`
 - `annunimas-hades`
 - `annunimas-oracle`
 - `annunimas-plutus`

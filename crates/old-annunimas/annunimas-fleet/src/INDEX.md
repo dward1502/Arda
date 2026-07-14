@@ -12,7 +12,7 @@ soterion:
 
 > 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-13
 
-# Index: crates/interface/annunimas-fleet/src/INDEX.md
+# Index: crates/interface/arda-fleet/src/INDEX.md
 
 ## Contents
 
@@ -25,7 +25,7 @@ soterion:
 
 ## Purpose
 
-Crate index for `crates/interface/annunimas-fleet/src/INDEX.md`. See sibling `INDEX.md` for bucket metadata.
+Crate index for `crates/interface/arda-fleet/src/INDEX.md`. See sibling `INDEX.md` for bucket metadata.
 
 ## Notes
 

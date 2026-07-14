@@ -17,13 +17,13 @@ soterion:
 ## Contents
 
 - `INDEX.md`
-- `annunimas-apollo`
-- `annunimas-cli`
-- `annunimas-comm`
-- `annunimas-fleet`
-- `annunimas-hermes`
-- `annunimas-mcp`
-- `annunimas-onboarding`
+- `arda-apollo`
+- `arda-cli`
+- `arda-comm`
+- `arda-fleet`
+- `arda-hermes`
+- `arda-mcp`
+- `arda-onboarding`
 
 ## Purpose
 

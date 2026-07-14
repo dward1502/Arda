@@ -1,5 +1,5 @@
-use annunimas_core::Task;
-use annunimas_governance::{
+use arda_core::Task;
+use arda_governance::{
     bacon_lite_validate, love_equation_score, profile_joulework, TriadResult,
 };
 use serde::{Deserialize, Serialize};
@@ -102,8 +102,8 @@ pub struct FleetGovernance {
     pub joule_efficient: bool,
     pub love_acceptable: bool,
     pub triad_result: TriadResult,
-    pub joule_profile: annunimas_governance::JouleWorkProfile,
-    pub love_score: annunimas_governance::LoveEquationScore,
+    pub joule_profile: arda_governance::JouleWorkProfile,
+    pub love_score: arda_governance::LoveEquationScore,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -374,7 +374,7 @@ impl FleetCapacityManager {
 
         if !bacon_result.passed {
             return FleetRoutingDecision {
-                schema_version: "annunimas.fleet-routing-decision.v1".to_string(),
+                schema_version: "arda.fleet-routing-decision.v1".to_string(),
                 generated_at_utc: chrono::Utc::now().to_rfc3339(),
                 authority: "fleet_capacity_manager + bacon_lite".to_string(),
                 task_id: task_id.to_string(),
@@ -394,7 +394,7 @@ impl FleetCapacityManager {
 
         if !joule_profile.efficient {
             return FleetRoutingDecision {
-                schema_version: "annunimas.fleet-routing-decision.v1".to_string(),
+                schema_version: "arda.fleet-routing-decision.v1".to_string(),
                 generated_at_utc: chrono::Utc::now().to_rfc3339(),
                 authority: "fleet_capacity_manager + triad".to_string(),
                 task_id: task_id.to_string(),
@@ -451,7 +451,7 @@ impl FleetCapacityManager {
         };
 
         FleetRoutingDecision {
-            schema_version: "annunimas.fleet-routing-decision.v1".to_string(),
+            schema_version: "arda.fleet-routing-decision.v1".to_string(),
             generated_at_utc: chrono::Utc::now().to_rfc3339(),
             authority: "fleet_capacity_manager + triad".to_string(),
             task_id: task_id.to_string(),
@@ -570,7 +570,7 @@ mod tests {
 [[nodes]]
 id = "node-core-hub"
 role = "main_hub"
-hostname = "annunimas-core"
+hostname = "arda-core"
 tailscale_ip = "100.64.0.1"
 node_class = "core_compute"
 enrollment_status = "active"
@@ -579,7 +579,7 @@ llm_runtime = "mesh_root"
 [[nodes]]
 id = "node-backbone-server"
 role = "backbone_inference"
-hostname = "annunimas-server"
+hostname = "arda-server"
 tailscale_ip = "100.64.0.2"
 node_class = "backbone_compute"
 enrollment_status = "offline"
@@ -625,7 +625,7 @@ llm_runtime = "hades"
 [[nodes]]
 id = "node-core-hub"
 role = "main_hub"
-hostname = "annunimas-core"
+hostname = "arda-core"
 tailscale_ip = "100.64.0.1"
 node_class = "core_compute"
 enrollment_status = "active"
@@ -634,7 +634,7 @@ llm_runtime = "mesh_root"
 [[nodes]]
 id = "node-backbone-server"
 role = "backbone_inference"
-hostname = "annunimas-server"
+hostname = "arda-server"
 tailscale_ip = "100.64.0.2"
 node_class = "backbone_compute"
 enrollment_status = "offline"
@@ -679,7 +679,7 @@ llm_runtime = "hades"
 [[nodes]]
 id = "node-backbone-server"
 role = "backbone_inference"
-hostname = "annunimas-server"
+hostname = "arda-server"
 tailscale_ip = "100.64.0.2"
 node_class = "backbone_compute"
 enrollment_status = "active"

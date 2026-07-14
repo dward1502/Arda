@@ -114,6 +114,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "arda-council"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "arda-engine"
 version = "0.1.0"
 dependencies = [
@@ -153,6 +162,16 @@ dependencies = [
  "serde_json",
  "thiserror 1.0.69",
  "tracing",
+]
+
+[[package]]
+name = "arda-systemd"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror 1.0.69",
 ]
 
 [[package]]

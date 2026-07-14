@@ -1,0 +1,49 @@
+# sigil: REPAIR
+[package]
+name = "annunimas-prometheus"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+default = ["http"]
+http = ["dep:axum", "dep:tower", "dep:tokio-stream"]
+
+[dependencies]
+annunimas-core = { path = "../../governance/annunimas-core" }
+annunimas-council = { path = "../../governance/annunimas-council" }
+annunimas-governance = { path = "../../governance/annunimas-governance" }
+annunimas-hermes = { path = "../../interface/annunimas-hermes" }
+annunimas-mnemosyne = { path = "../../memory/annunimas-mnemosyne" }
+annunimas-fleet = { path = "../../interface/annunimas-fleet" }
+annunimas-apollo = { path = "../../interface/annunimas-apollo", default-features = false }
+annunimas-oracle = { path = "../../runtime/annunimas-oracle", default-features = false }
+annunimas-comm = { path = "../../interface/annunimas-comm" }
+annunimas-systemd = { path = "../../executors/annunimas-systemd" }
+serde_json = "1"
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
+thiserror = "1"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+tracing = "0.1"
+tokio = { version = "1", features = ["full"] }
+sha2 = "0.10"
+async-trait.workspace = true
+axum = { version = "0.7", optional = true }
+tower = { version = "0.5", optional = true, features = ["util"] }
+tokio-stream = { version = "0.1", optional = true, features = ["time"] }
+
+[dev-dependencies]
+annunimas-charon = { path = "../../runtime/annunimas-charon" }
+anyhow = "1"
+tempfile = "3"
+proptest = "1"
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "prometheus"
+harness = false
+
+[[bin]]
+name = "ceo-autopilot"
+path = "src/bin/ceo_autopilot.rs"

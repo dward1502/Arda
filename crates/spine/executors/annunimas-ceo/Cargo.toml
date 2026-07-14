@@ -1,0 +1,15 @@
+# sigil: REPAIR
+[package]
+name = "annunimas-ceo"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+annunimas-prometheus = { path = "../../observability/annunimas-prometheus" }
+
+[dev-dependencies]
+tokio = { version = "1.0", features = ["full"] }
+async-trait = "0.1"
+tempdir = "0.3"
+annunimas-core = { path = "../../governance/annunimas-core" }
+serde_json = "1.0"

@@ -1,0 +1,42 @@
+# sigil: REPAIR
+[package]
+name = "annunimas-cli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+annunimas-core = { path = "../../governance/annunimas-core" }
+annunimas-onboarding = { path = "../annunimas-onboarding" }
+annunimas-prometheus = { path = "../../observability/annunimas-prometheus" }
+annunimas-athena = { path = "../../executors/annunimas-athena" }
+annunimas-hades = { path = "../../runtime/annunimas-hades" }
+annunimas-hermes = { path = "../annunimas-hermes", features = ["http"] }
+annunimas-charon = { path = "../../runtime/annunimas-charon" }
+annunimas-mnemosyne = { path = "../../memory/annunimas-mnemosyne" }
+annunimas-apollo = { path = "../annunimas-apollo" }
+annunimas-plutus = { path = "../../runtime/annunimas-plutus" }
+annunimas-oracle = { path = "../../runtime/annunimas-oracle" }
+annunimas-chronos = { path = "../../memory/annunimas-chronos" }
+annunimas-governance = { path = "../../governance/annunimas-governance" }
+annunimas-forge-mind = { path = "../../tooling/annunimas-forge-mind", default-features = false, features = ["mcp-bridge", "comfyui", "iterate"] }
+clap = { version = "4", features = ["derive"] }
+tokio = { version = "1", features = ["full"] }
+anyhow = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+chrono = { version = "0.4", features = ["serde"] }
+fs2 = "0.4"
+regex = "1"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+sha1 = "0.10"
+pathdiff = "0.2"
+prometheus = "0.13"
+axum = "0.7"
+sysinfo = "0.30"
+
+[dev-dependencies]
+annunimas-warden = { path = "../../tooling/annunimas-warden" }
+tempfile = "3"

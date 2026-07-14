@@ -3,7 +3,7 @@
 > The single entry point that unifies the ARDA ecosystem for the operator.
 
 Arda is the operator-facing shell for the broader ARDA project. Today it is a
-freshly scaffolded monorepo containing a **Rust workspace** (`arda` + `arda-core`)
+freshly scaffolded monorepo containing a **Rust workspace** and an
 and an **arda-launcher** desktop application (Tauri 2 + React + TypeScript +
 Tailwind v4) that renders the ARDA onboarding / world-tree experience. The rust
 packages are placeholder libraries; the launcher is the only executable surface
@@ -17,8 +17,7 @@ registry, signal grid, council, and HUD). The launcher is meant to feel less
 like "an app" and more like the title screen of a world — a starfield, a
 growing tree, and a single call to action.
 
-Long term, the `arda-core` crate is intended to host shared logic (domain types,
-receipts, config) that the launcher and the other ARDA repos can depend on.
+Long term, the `arda` binary is intended to be the single operator surface and
 
 ## Repository Map
 

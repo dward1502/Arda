@@ -1,0 +1,19 @@
+# manwe — local inference gateway provider catalog.
+#
+# base_url points at an OpenAI-compatible /v1 base (must end in /v1).
+# Models are referenced as "provider/model" (e.g. "ollama/llama3"); the
+# "provider/" prefix selects the upstream and is stripped before forwarding.
+# If you omit the prefix, `default_provider` is used.
+
+bind = "127.0.0.1"
+port = 7171
+default_provider = "ollama"
+
+[providers.ollama]
+base_url = "http://127.0.0.1:11434/v1"
+models = ["llama3", "mistral", "codellama"]
+
+# Example: a local llama.cpp server (uncomment and point at your port).
+# [providers.llamacpp]
+# base_url = "http://127.0.0.1:8080/v1"
+# models = ["local-model"]

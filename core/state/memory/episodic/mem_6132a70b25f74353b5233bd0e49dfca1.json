@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_6132a70b25f74353b5233bd0e49dfca1",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Wire sovereign crate adapters into ceo-autopilot",
+  "salience": 0.8045000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-31T17:32:17.694630511Z",
+  "last_seen_at": "2026-05-31T17:32:17.694630511Z"
+}

@@ -1,0 +1,26 @@
+{
+  "active_orders": 9,
+  "agents_online": 0,
+  "agents_silent": 7,
+  "confidence_threshold": 0.75,
+  "context_engineering": {
+    "compaction_target_ratio": 0.42,
+    "context_budget_chars": 14000,
+    "reminder_interval_messages": 4,
+    "required_sections": [
+      "mission",
+      "active_constraints",
+      "recent_decisions",
+      "open_work",
+      "verification_targets"
+    ]
+  },
+  "continuity_events_48h": 8,
+  "heartbeat_interval_ms": 500,
+  "heartbeat_mode": "interval",
+  "identity_focus": "CHARON routed openai_shim:chat [interactive:interactive] -> edge_guardhouse:Qwen3.5-4B-Q4_K_M.gguf triad_passed=false love_eq=0.71",
+  "pending_escalations": 6,
+  "resource_state": "stable",
+  "retinue_game_theory_score": 30.75,
+  "thought_count_today": 0
+}

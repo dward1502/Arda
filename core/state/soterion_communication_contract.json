@@ -1,0 +1,135 @@
+{
+  "schema_version": "annunimas.soterion-communication-contract.v1",
+  "status": "active",
+  "updated_at_utc": "2026-05-21T00:00:00Z",
+  "authority": {
+    "registry": "meta/soterion_sigils.yaml",
+    "render_contract": "core/state/soterion_render_contract.json",
+    "human_contract": "docs/contracts/soterion-communication-contract.md",
+    "transport_owner": "HERMES",
+    "validation_owner": "HADES",
+    "boundary_owner": "WARDEN"
+  },
+  "principles": [
+    "machine_semantics_first",
+    "glyphs_are_rendered_shorthand",
+    "receipts_required_for_state_claims",
+    "human_channels_require_plain_language_fallback",
+    "soterion_never_authorizes_destructive_action"
+  ],
+  "message_schema": {
+    "name": "annunimas.soterion.message.v1",
+    "required_fields": [
+      "schema",
+      "channel_class",
+      "source",
+      "target",
+      "flow",
+      "state",
+      "confidence",
+      "receipt"
+    ],
+    "optional_fields": [
+      "protocols",
+      "sigil_code",
+      "joule_estimate",
+      "fallback_required",
+      "glyph_signature",
+      "body"
+    ],
+    "channel_classes": [
+      "a2a",
+      "boardroom",
+      "discord",
+      "agent_user",
+      "hud"
+    ],
+    "registry_backed_fields": {
+      "source": "agent_identity",
+      "target": "agent_identity_or_surface",
+      "flow": "flow_directives",
+      "state": "state_signals",
+      "protocols": "protocol_markers",
+      "confidence": "confidence_levels",
+      "sigil_code": "machine_sigils"
+    }
+  },
+  "channel_rules": {
+    "a2a": {
+      "body_required": false,
+      "receipt_required": true,
+      "allowed_compact_only": true
+    },
+    "boardroom": {
+      "body_required": false,
+      "receipt_required": true,
+      "allowed_compact_only": true
+    },
+    "discord": {
+      "body_required": true,
+      "receipt_required": true,
+      "allowed_compact_only": false
+    },
+    "agent_user": {
+      "body_required": true,
+      "receipt_required": true,
+      "allowed_compact_only": false
+    },
+    "hud": {
+      "body_required": false,
+      "receipt_required": true,
+      "allowed_compact_only": true,
+      "expand_to_json_required": true
+    }
+  },
+  "high_risk_rules": {
+    "flows_requiring_body": [
+      "INTERRUPT",
+      "REJECT"
+    ],
+    "states_requiring_body": [
+      "DEGRADED",
+      "VETOED",
+      "ESCALATION",
+      "DEAD"
+    ],
+    "states_requiring_warden_gate": [
+      "VETOED",
+      "ESCALATION",
+      "DEAD"
+    ],
+    "protocol_claims_requiring_evidence": [
+      "TRIAD_GATE",
+      "ED25519",
+      "AIPKG"
+    ]
+  },
+  "compact_wire_form": {
+    "pattern_description": "<source_glyph><flow_glyph><target_glyph> <state_glyph> <protocol_glyphs> <confidence_glyph> c=<confidence> r=<receipt>",
+    "example": "☿►🜁 ◆ ⚖✦ ◕ c=0.87 r=data/hermes/boardroom.jsonl",
+    "example_decode": "CHARON delegated to HERMES | active | Triad consensus reached | high confidence | receipt recorded"
+  },
+  "validation": {
+    "hades_flags_malformed_when": [
+      "required_fields_missing",
+      "glyph_signature_disagrees_with_registry_keys",
+      "confidence_outside_zero_to_one",
+      "receipt_missing_for_state_claim",
+      "human_channel_missing_plain_language_fallback",
+      "high_risk_state_missing_cause_or_next_action"
+    ],
+    "warden_blocks_or_escalates_when": [
+      "interrupt_without_authority",
+      "escalation_vetoed_or_dead_without_receipt",
+      "consensus_claim_without_triad_evidence",
+      "external_message_exposes_secret_or_private_path_beyond_policy"
+    ]
+  },
+  "migration_path": [
+    "Hermes emits Soterion headers for status and boardroom messages",
+    "Charon includes Soterion headers in route handoffs",
+    "HADES validates message samples during organization maintenance",
+    "WARDEN gates high-risk flows",
+    "Discord uses compact header plus short fallback prose"
+  ]
+}

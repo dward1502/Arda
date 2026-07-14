@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_c377ff214a374724878973f1dfc741f0",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Create task for provider-matrix-hardening-contract.md",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-05T07:14:08.639823081Z",
+  "last_seen_at": "2026-06-05T07:14:08.639823081Z"
+}

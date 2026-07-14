@@ -1,0 +1,144 @@
+---
+soterion:
+  sigil: "SCROLL"
+  glyph: "📜"
+  code_point: "U+1F4DC"
+  role: "directory_index"
+  owner: "HADES"
+  status: "active"
+  last_reviewed: "2026-05-21"
+---
+
+> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-05-21
+
+# Index: core/state/memory/episodic
+
+- `README.md`
+- `mem_0027ffe39980457598c659e4b4e18984.json`
+- `mem_019ae1005d5b4e2a8246a7970a3f70f0.json`
+- `mem_043335714c0443c2bcef984a36df1301.json`
+- `mem_04d36cac5858455c832deca8498e1cd4.json`
+- `mem_05d1184561f24a07af29b0c409394303.json`
+- `mem_07c7b000f2894acd857de3dd5e0ef96a.json`
+- `mem_095cf21fdacc424ba758808380d83385.json`
+- `mem_09bb8793efc24319bda13c8f08b73397.json`
+- `mem_0f55bf804a7540f19d7ae58c8d34af75.json`
+- `mem_106e941abcdb40c3a7f896e0194c4a86.json`
+- `mem_11481607b7c24dcf956c7b6e72ce6eca.json`
+- `mem_11c814761ad24a09bf5c7ee68cec8031.json`
+- `mem_121f61d93cf94496924cd0a76cf2e353.json`
+- `mem_1274ebf9938c469ebbec4ae3072823d7.json`
+- `mem_137f8522913d465d8977854e23faf3e7.json`
+- `mem_16fef6b077624857b081b9d7fb456b4b.json`
+- `mem_18695dfda2a440b0a941ff11ca53f830.json`
+- `mem_1a79837c698d4e94ad49cd807c2c6d27.json`
+- `mem_1b70fb25434347c29ad8731fe7f7c53a.json`
+- `mem_1b711e1971814b9386676eaeefc9b2f1.json`
+- `mem_1c3181e8d3c34fd08f6f78606c2a5c0f.json`
+- `mem_1e1219da8c5a449dabcebff7f5ef41d5.json`
+- `mem_206bb13f5eaf422b95900e0f70fa9e7b.json`
+- `mem_23d8a83389d04dfcb2f9f55b2c731952.json`
+- `mem_24e4e76df15e475192a72a7f866c26ad.json`
+- `mem_2a837a7c972c4873a9d071a02650422a.json`
+- `mem_2ad5d4842c4f4ab584d4156f049b92d2.json`
+- `mem_2dcf60b7781e4255ad6958c77ea05b28.json`
+- `mem_30240d816d9949c4aeee0c33f3a15c17.json`
+- `mem_31068f959f0c49fda4a15bf4e2393fd2.json`
+- `mem_34150030a7b241faae776a513a395eb7.json`
+- `mem_35206f82f8a7476abebd40f574169e50.json`
+- `mem_359b69ca75e041babe9cc7ed29b64c2b.json`
+- `mem_38756bffab404bf4bc0f612737ffb43f.json`
+- `mem_3e4de9c1f64746daab67b4df673d2c41.json`
+- `mem_3ec8c46ab8b2402a97d75921f47da983.json`
+- `mem_3fe85272dd38451ea22df12cf874decf.json`
+- `mem_3ffe411bbd4848afac792a2a727633a9.json`
+- `mem_40189f3798334bdaa762d19bd418b53e.json`
+- `mem_43a014e6d33b446f881288b4f5e1ce15.json`
+- `mem_45c2639e2ceb45458c1e04cc3cff96cf.json`
+- `mem_465b2cc1549344aaa9e5764e2719542b.json`
+- `mem_47385d98ed794c89b2ec402fc88efe11.json`
+- `mem_4f37d417946542ca8da015bdd9008e15.json`
+- `mem_513e27b1f1d94ecb82f37cceab2e4146.json`
+- `mem_5142b20bd84c401bae469c5775597633.json`
+- `mem_5299c2ca7e2142b3b715c78bffc3c6dd.json`
+- `mem_52b1fee7503242eba25ec0d1e2f72c20.json`
+- `mem_5589e0fb89f24c76a8714a3cd49b1c36.json`
+- `mem_55cf4ba69d50423e997063e5e3019d22.json`
+- `mem_5604c5c869e346e092a4d77bc13a86a7.json`
+- `mem_5e7790d728f0456aab0294050eff22e7.json`
+- `mem_5ebd01d02c454d5080ff430b74cace7d.json`
+- `mem_6044a06562d44338a4b0254329723347.json`
+- `mem_61548894e3e8443e8a28932b0f9eb649.json`
+- `mem_62fa69eab2884599aa22042e8137d318.json`
+- `mem_661b832aa689431b80df9103d1ad6279.json`
+- `mem_6636f03de4ee46f8b2fbd564aacf91bf.json`
+- `mem_666abb7d286a41ce9d5ec8c42ef8abcb.json`
+- `mem_6878dc236f37456f82eaa5576c8f44ef.json`
+- `mem_6efd6b6e46d4498c96fc7df0341ee428.json`
+- `mem_6f3a1903a765456cad239410e072ef9f.json`
+- `mem_74e2cda6bca74d62ab8b981ade8d02df.json`
+- `mem_7933024ebb8e413281ff8411120f1e0e.json`
+- `mem_7a21a3d4fd8e4ff0ab51250a10eb55fe.json`
+- `mem_7a4c1675d177494390aac7c01e248f89.json`
+- `mem_7ec90a184a9248e6b07c89cfd6b10d12.json`
+- `mem_80c2633a48ce482f8e5885e2974d8a7c.json`
+- `mem_83171a1e928c4046b14e92bd009f8776.json`
+- `mem_831da2c0bf74484f862af1010951d2d4.json`
+- `mem_86c35ea8022f4f66857c183c995d7102.json`
+- `mem_87c3a136cbbc4f729d979a76c7ac5bea.json`
+- `mem_8a4f4e47033d4ef09f8a61ee9099eb28.json`
+- `mem_9162e1ec56694d7e9f8248b2b2d01aa6.json`
+- `mem_91ec3dccd9d34f9d8143d9fe40d22908.json`
+- `mem_93a33f8066b44f90ba548bdf29918ff6.json`
+- `mem_95643bf0b6a54b4d83761cb3f7e16622.json`
+- `mem_964ed650b7c844479ef54e918b1adbc8.json`
+- `mem_9650e22fd11a4a8788e9f6b1d531ac92.json`
+- `mem_971a210f560d44b3a4b9873ff79b250d.json`
+- `mem_9f82b7264ae04fb5bdb584f1ef3e8259.json`
+- `mem_a004df0a62ce4e77b5c0b6e944127239.json`
+- `mem_a387d752ed4d405b874d0007166a65f0.json`
+- `mem_a54f7f23834947929dadf3301cbd8020.json`
+- `mem_ac033abd120a4453864ca6efff7ff563.json`
+- `mem_b0c3669e2b87488c9836dd4ddcb23eb0.json`
+- `mem_b1165863c789431aaa36d5895c74d185.json`
+- `mem_b3497786fef14ae3a9e0ddd1d8e58878.json`
+- `mem_b49af0233ec64a34a0af5182a6429ae0.json`
+- `mem_b663028d4aad401c9245058f56ea3b43.json`
+- `mem_b69f4e5f5ce6468a9c73a42eb6225e34.json`
+- `mem_b9fef3be5a9b4fe5bc09ee2a71988da4.json`
+- `mem_bf3d16c8846041dd9f0e550317a7bb12.json`
+- `mem_bfb51e817b474fe589159506ffeb0112.json`
+- `mem_c1724ff697ae42238b9c00d09d3e7856.json`
+- `mem_c3966b19be4e41468d89b8e23f86bec1.json`
+- `mem_c3a477a33a22491495a4c9cc7d2d52a7.json`
+- `mem_c46fad93fdf846508c0bbc85afe58845.json`
+- `mem_c6b75c22dafd4e4ebf28aa33d1f49aed.json`
+- `mem_c7b383d13414475bb136fa7aa2445768.json`
+- `mem_c9e3b56ef77b48688f3e40fe617aee69.json`
+- `mem_cd75f4b269eb415198ea22ad49256ef0.json`
+- `mem_cfaae831a9b34106951b8146595a39bd.json`
+- `mem_d0827b8943ea479fbf5d42ae06991f06.json`
+- `mem_d0b583d50dcd46378408ed23b6bca7b9.json`
+- `mem_d677334346a24fc6b60a8dd5bf7d1210.json`
+- `mem_d99cf147cd454fd291176e69f2951746.json`
+- `mem_db055ae4b2f748bfb2470f3c5fd58ab3.json`
+- `mem_e140fbc1bc6c4b97a5a83544a9dd38d8.json`
+- `mem_e1a34c7504374631ac27495f08190a95.json`
+- `mem_e1e120c23b8c4d69814ac7ca89bb4998.json`
+- `mem_e30ea2a2fd994e8f8135289090854829.json`
+- `mem_e34d99c50ff5468d91ab3910fc4a6587.json`
+- `mem_e777d944fe294b0daed20aefdfa7b3a3.json`
+- `mem_ee2953856b694392a606630f919d998a.json`
+- `mem_f32a3a7d4d6a4363993963983d9b2bf5.json`
+- `mem_f4acad1b313c499c8ee91cdfb108d445.json`
+- `mem_f5f9f8aef04e4d7bb0965cf29958a365.json`
+- `mem_f77fd5ea062c41c9b4180c6b819c166c.json`
+- `mem_f791c8b761d04fdf97a41ea2090776d3.json`
+- `mem_f7e39c54022e48488c1777cadeb2583a.json`
+- `mem_f83af29c0166425c9ffb446f17e2f22d.json`
+- `mem_f85e1704200f452f95687cf21586f34d.json`
+- `mem_f8abceb1ffc945ed9987c82e2e3c0009.json`
+- `mem_faf6da18db34494796b44f1485d49ee6.json`
+- `mem_fbd5e7f06b954b98b26a88a24419ef51.json`
+- `mem_fdf0d8186c2f4d94ae0ceec5a303e7c2.json`
+- `mem_ff69838252d7435a8800f0e42f1d2cef.json`

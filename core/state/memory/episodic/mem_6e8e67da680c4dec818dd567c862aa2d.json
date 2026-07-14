@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_6e8e67da680c4dec818dd567c862aa2d",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Remove operator-approved human archive assets",
+  "salience": 0.6645,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-06T00:35:01.744874088Z",
+  "last_seen_at": "2026-06-06T00:35:01.744874088Z"
+}

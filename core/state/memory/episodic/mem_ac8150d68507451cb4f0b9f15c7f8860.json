@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_ac8150d68507451cb4f0b9f15c7f8860",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Charon workload lane taxonomy. Implemented compression/compaction workload role mapping, distinct compression lane scoring/caps/latency target, and preserved execution/private-local/monitoring policy separation through route profile tests.",
+  "salience": 0.7030555555555557,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-07T20:04:35.134874320Z",
+  "last_seen_at": "2026-06-07T20:04:35.134874320Z"
+}

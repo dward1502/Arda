@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_f522c69390fc4efbab37afb1da994498",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Implement read-only portability and config hygiene audit runner",
+  "salience": 0.7475,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-24T23:27:42.774986783Z",
+  "last_seen_at": "2026-05-24T23:27:42.774986783Z"
+}

@@ -1,0 +1,67 @@
+{
+  "athena_curation": {
+    "human_surface": "human/library/athena/sources/src_dc355aed.md",
+    "promotion_rule": "only promote a community-derived item when it points to a concrete runtime, framework, or policy artifact",
+    "retention_rule": "keep community observations as bounded signal records with source URL and captured-at timestamps"
+  },
+  "authority": "source_absorption_portfolio + communication_adapter_contract",
+  "campaign": {
+    "mission": "Treat community-server maps as governed signal sources rather than direct runtime dependencies.",
+    "name": "Community Signal Intake",
+    "owner": "hermes_athena",
+    "source_id": "src_dc355aed"
+  },
+  "doctrine": {
+    "athena_owns_signal_curation_and_retention": true,
+    "community_presence_does_not_imply_runtime_adoption": true,
+    "community_sources_are_signal_only": true,
+    "hermes_owns_external_community_policy": true
+  },
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "hermes_policy": {
+    "adapter_doctrine_ref": "core/state/communication_adapter_contract.json",
+    "boardroom_source": "core/state/matrix_boardrooms.json",
+    "discord_mode": "bounded_optional_bridge",
+    "next_action": "Route any high-signal community observations through the Hermes-owned bounded Discord bridge and boardroom policies before external engagement."
+  },
+  "intake_policy": {
+    "allowlist_actions": [
+      "capture references into ATHENA evidence",
+      "surface notable opportunities into HERMES/Matrix boardroom flows",
+      "preserve source provenance and observation timestamps"
+    ],
+    "disallowed_actions": [
+      "treat community rosters as sovereign identity sources",
+      "spawn adapters or bots solely because a community exists",
+      "promote external Discord presence into default communications doctrine"
+    ],
+    "signal_classes": [
+      "builder_communities",
+      "operator_communities",
+      "tooling_announcements",
+      "market_and_research_chatter"
+    ]
+  },
+  "schema_version": "annunimas.community-signal-intake.v1",
+  "sigil": "REPAIR",
+  "source": {
+    "implementation_brief": {
+      "implementation_implications": [
+        "Track community surfaces as signal sources rather than treating them as direct runtime dependencies.",
+        "Route useful community intelligence into HERMES and boardroom observation policies."
+      ],
+      "method_summary": "External community map for operator, builder, and market signals",
+      "risks": [
+        "Community lists drift quickly and can create noisy intake if not bounded by source quality controls."
+      ],
+      "source_url": "https://github.com/best-ai-agents/discord-servers-for-ai-agents"
+    },
+    "title": "https://github.com/best-ai-agents/discord-servers-for-ai-agents",
+    "url": "https://github.com/best-ai-agents/discord-servers-for-ai-agents"
+  },
+  "summary": {
+    "disallowed_actions_total": 3,
+    "discord_mode": "bounded_optional_bridge",
+    "signal_classes_total": 4
+  }
+}

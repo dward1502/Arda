@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_31fa0475423c437393fac28c888c0352",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Run HADES runtime ledger retention review",
+  "salience": 0.6675000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-06T01:11:28.715084570Z",
+  "last_seen_at": "2026-06-06T01:11:28.715084570Z"
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_88ab0aefdfe64d32a825fec5df3acb67",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Hermes Agent gateway live smoke receipt recorded. Started the live Hermes Agent gateway service after human approval, verified gateway_state reports discord connected, sent a human-approved live Discord smoke message to the configured tasks/work-stream channel, and fixed the hermes-agent-gateway-receipt CLI so --dry-run=false works. Recorded receipt hag_1780165757262040694 and subagent completion sac_1780165757276711133 for task:tsk_20260530_hermes_agent_gateway_live_discord_smoke. Verification: cargo fmt --check -p annunimas-cli -p annunimas-hermes; cargo test -p annunimas-cli parses_operator_command_surface_for_key_subsystems -- --nocapture; cargo run -p annunimas-cli -- utility hermes-agent-gateway-activation-check.",
+  "salience": 0.7432777777777778,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-30T18:30:21.597566040Z",
+  "last_seen_at": "2026-05-30T18:30:21.597566040Z"
+}

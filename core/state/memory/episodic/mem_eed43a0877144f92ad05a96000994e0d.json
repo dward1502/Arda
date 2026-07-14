@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_eed43a0877144f92ad05a96000994e0d",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Queue federation autonomy control projection verified. Implemented queue federation autonomy-control projection in autonomy_task_truth with safe-local receipt-valid selector, projection cache metadata, and control packet fields. Verification passed: focused annunimas-cli export_surface tests, queue-federation and autonomy-task-truth exporters, JSON/JSONL parser checks, git diff --check, and append-only guard before closeout. Current live selector selected_total=0 rejected_total=0 because current federation candidates remain blocked/not ready; no promotion/write performed.",
+  "salience": 0.959388888888889,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-15T00:27:35.503819198Z",
+  "last_seen_at": "2026-06-15T00:27:35.503819198Z"
+}

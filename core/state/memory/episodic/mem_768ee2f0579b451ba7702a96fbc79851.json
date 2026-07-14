@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_768ee2f0579b451ba7702a96fbc79851",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: S2/G3: migrate forge-mind into a staged feature project repo. Completed Forge-Mind staged feature extraction evidence. Created bounded external staged copy at /var/home/mythos/Eregion/annunimas-forge-mind-stage; retained workspace member for annunimas-cli compatibility; verified workspace and staged Forge-Mind tests, CLI forge compatibility, diff hygiene, and append-only guard. Fixed matching Forge-Mind governance test drift in source and mirrored it into staged copy.",
+  "salience": 0.9444444444444444,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-21T19:02:22.051593459Z",
+  "last_seen_at": "2026-06-21T19:02:22.051593459Z"
+}

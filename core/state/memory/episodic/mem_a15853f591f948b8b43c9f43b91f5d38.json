@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_a15853f591f948b8b43c9f43b91f5d38",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Create task for hermes-compression-credential-freshness-gate.md",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-05T07:11:49.078210481Z",
+  "last_seen_at": "2026-06-05T07:11:49.078210481Z"
+}

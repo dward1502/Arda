@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_70c7502e93de4fa8a8a4495b0fcf7184",
+  "kind": "episodic",
+  "agent": "charon",
+  "content": "CHARON routed hermes:chat [orchestrator:context_heavy] -> opencode:ring-2.6-1t-free triad_passed=false love_eq=0.74",
+  "salience": 0.43349999999999994,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-22T18:51:18.622813504Z",
+  "last_seen_at": "2026-05-22T18:51:18.622813504Z"
+}

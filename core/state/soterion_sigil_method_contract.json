@@ -1,0 +1,46 @@
+{
+  "schema_version": "annunimas.soterion-sigil-method-contract.v1",
+  "generated_at_utc": "2026-06-05T09:32:52Z",
+  "authority": {
+    "human_contract": "docs/contracts/SOTERION_SIGIL_METHOD.md",
+    "registry_source": "meta/soterion_sigils.yaml",
+    "render_projection": "core/state/soterion_render_contract.json",
+    "communication_contract": "core/state/soterion_communication_contract.json",
+    "core_registry_loader": "crates/annunimas-core/src/soterion.rs"
+  },
+  "status": "implemented",
+  "current_boundary": {
+    "machine_semantics_first": true,
+    "rendered_glyphs_optional": true,
+    "glyph_only_human_facing_messages_allowed": false,
+    "destructive_action_authorized_by_sigil": false,
+    "governance_claims_must_obey_governance_current_state": true
+  },
+  "registry_surfaces": {
+    "agent_identity": "meta/soterion_sigils.yaml#/agent_identity",
+    "state_signals": "meta/soterion_sigils.yaml#/state_signals",
+    "protocol_markers": "meta/soterion_sigils.yaml#/protocol_markers",
+    "flow_directives": "meta/soterion_sigils.yaml#/flow_directives",
+    "confidence_levels": "meta/soterion_sigils.yaml#/confidence_levels",
+    "file_lifecycle_sigils": "meta/soterion_sigils.yaml#/file_lifecycle_sigils",
+    "machine_sigils": "meta/soterion_sigils.yaml#/machine_sigils"
+  },
+  "implementation_evidence": [
+    {
+      "surface": "crates/annunimas-core/src/soterion.rs",
+      "claim": "Loads registry YAML, exposes machine sigil lookup, render signatures, lifecycle aliases, and Soterion metadata parsing."
+    },
+    {
+      "surface": "crates/annunimas-core/tests/core_contracts.rs",
+      "claim": "Tests default registry loading, machine sigil lookup, header parsing, and lifecycle alias resolution."
+    },
+    {
+      "surface": "core/state/soterion_render_contract.json",
+      "claim": "Runtime projection renders registry-derived glyph signatures and source defaults."
+    },
+    {
+      "surface": "core/state/soterion_communication_contract.json",
+      "claim": "Machine contract constrains message shape, channel rules, validation, and high-risk flow requirements."
+    }
+  ]
+}

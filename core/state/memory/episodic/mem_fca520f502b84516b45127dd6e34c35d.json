@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_fca520f502b84516b45127dd6e34c35d",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Plan task: Arda Citadel Presence Runtime Plan. Created from active plan registry; see docs/plans/2026-05-15-arda-citadel-presence-runtime-plan.md for task contract and verification gates.",
+  "salience": 0.8255,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-23T06:47:08.815237686Z",
+  "last_seen_at": "2026-05-23T06:47:08.815237686Z"
+}

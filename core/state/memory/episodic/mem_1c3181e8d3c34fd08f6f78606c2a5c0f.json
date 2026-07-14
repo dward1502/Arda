@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_1c3181e8d3c34fd08f6f78606c2a5c0f",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Gate 3.5M/3.5N ARDA presence event writer review and implementation. Completed design review and implemented bounded append-only presence-event writer; next Gate 3.5O is read-only ARDA HUD ingestion.",
+  "salience": 0.9055,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-18T23:10:16.306485781Z",
+  "last_seen_at": "2026-05-18T23:10:16.306485781Z"
+}

@@ -1,0 +1,26 @@
+{"domain":"operations","name":"clients/","path":"clients/","purpose":"Client registry - Skylight Pros, pool company","sigil":"REPAIR","type":"dir"}
+{"name": "personal/", "path": "personal/", "type": "dir", "sigil": "♥", "domain": "governance", "purpose": "Daniel's identity, values, research domains"}
+{"name": "projects/", "path": "projects/", "type": "dir", "sigil": "∇", "domain": "command", "purpose": "Project registry - CITADEL, RELIC, CRUSTIES, ARDA, AetherScan"}
+{"name": "queue/queue.jsonl", "path": "queue/queue.jsonl", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": "Primary task queue ledger for project execution"}
+{"name": "realm/", "path": "realm/", "type": "dir", "sigil": "∇", "domain": "command", "purpose": "System identity, governance configs, agent roster"}
+{"name": "state/", "path": "state/", "type": "dir", "sigil": "⚡", "domain": "operations", "purpose": "World state, agent state"}
+{"name": "clients/_registry.toml", "path": "clients/_registry.toml", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": "Client registry"}
+{"name": "personal/personal-identity.toml", "path": "personal/personal-identity.toml", "type": "file", "sigil": "♥", "domain": "governance", "purpose": "Daniel's identity"}
+{"name": "projects/_registry.toml", "path": "projects/_registry.toml", "type": "file", "sigil": "∇", "domain": "command", "purpose": "Project registry"}
+{"name": "projects/Plans/ATHENA.md", "path": "projects/Plans/ATHENA.md", "type": "file", "sigil": "◈", "domain": "knowledge", "purpose": "Execution plan and implementation record for ATHENA"}
+{"name": "projects/Plans/PROMETHEUS.md", "path": "projects/Plans/PROMETHEUS.md", "type": "file", "sigil": "∇", "domain": "command", "purpose": "Execution plan and implementation record for PROMETHEUS"}
+{"name": "projects/Plans/MNEMOSYNE.md", "path": "projects/Plans/MNEMOSYNE.md", "type": "file", "sigil": "♥", "domain": "knowledge", "purpose": "Execution plan and implementation record for MNEMOSYNE"}
+{"name": "projects/Plans/HERMES.md", "path": "projects/Plans/HERMES.md", "type": "file", "sigil": "↝", "domain": "operations", "purpose": "Execution plan and implementation record for HERMES"}
+{"name": "projects/Plans/HADES.md", "path": "projects/Plans/HADES.md", "type": "file", "sigil": "↝", "domain": "operations", "purpose": "Execution plan and implementation record for HADES"}
+{"name": "projects/Plans/CHARON.md", "path": "projects/Plans/CHARON.md", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": "Execution plan and implementation record for CHARON"}
+{"name": "realm/annunimas.toml", "path": "realm/annunimas.toml", "type": "file", "sigil": "∇", "domain": "command", "purpose": "System identity, realms, Soterion marks"}
+{"name": "realm/agents.toml", "path": "realm/agents.toml", "type": "file", "sigil": "∇", "domain": "command", "purpose": "Agent roster"}
+{"name": "realm/boot.toml", "path": "realm/boot.toml", "type": "file", "sigil": "∇", "domain": "command", "purpose": "Startup sequence, ARDA config"}
+{"name": "realm/triad_gate.rs", "path": "realm/triad_gate.rs", "type": "file", "sigil": "◈", "domain": "knowledge", "purpose": "TODO: Triad gate - impl in crates/annunimas-governance/", "status": "stub"}
+{"name": "realm/joulework.rs", "path": "realm/joulework.rs", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": "TODO: JouleWork - impl in crates/annunimas-plutus/", "status": "stub"}
+{"name": "realm/love_equation.rs", "path": "realm/love_equation.rs", "type": "file", "sigil": "♥", "domain": "governance", "purpose": "TODO: Love Equation - impl in crates/annunimas-governance/", "status": "stub"}
+{"name": "realm/game_theory.rs", "path": "realm/game_theory.rs", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": "TODO: Game theory - impl in crates/annunimas-governance/", "status": "stub"}
+{"name": "realm/soterion.rs", "path": "realm/soterion.rs", "type": "file", "sigil": "◈", "domain": "knowledge", "purpose": "TODO: Soterion - impl in crates/annunimas-core/", "status": "stub"}
+{"name": "realm/llm_hook.rs", "path": "realm/llm_hook.rs", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": "TODO: LLM routing - impl in crates/annunimas-token-router/", "status": "stub"}
+{"name":"metrics","path":"metrics","type":"dir","sigil":"◈","domain":"operations","purpose":"Centralized crate metrics snapshots for ARDA_HUB"}
+{"name":"edge","path":"edge","type":"dir","sigil":"⚡","domain":"operations","purpose":"Edge connectivity and model placement references"}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_67d38df950f146e59c82ef9559c4c1d7",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Queue: tool-gate public repo skeleton plan exists with 3 proofs needed. Verified docs/plans/tool-gate-public-repo-skeleton.md exists, includes Annunimas-to-public rename map and extraction guardrails/implementation packet, and is referenced by the decomposition plan as PUBEXT-P1 completed evidence.",
+  "salience": 0.9305000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-20T11:05:14.509459443Z",
+  "last_seen_at": "2026-06-20T11:05:14.509459443Z"
+}

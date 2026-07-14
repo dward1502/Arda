@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_0310c5fe0364409fab5200a1ed9f23b6",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Audit workspace for exact 18-crate core manifest after mismatch found. Current Cargo.toml and crates/ do not match a frozen 18-crate core; now auditing docs/manifest instead of blocked tests.",
+  "salience": 0.8725,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-19T17:18:48.899102146Z",
+  "last_seen_at": "2026-06-19T17:18:48.899102146Z"
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_654bca15a7cd40e69c43efc1720963e1",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: PUBEXT-P6 signal-router public skeleton plan completed",
+  "salience": 0.9155,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-13T10:20:21.353488053Z",
+  "last_seen_at": "2026-06-13T10:20:21.353488053Z"
+}

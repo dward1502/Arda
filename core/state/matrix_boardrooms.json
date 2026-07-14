@@ -1,0 +1,132 @@
+{
+  "activation_requirements": {
+    "element_client_ready": true,
+    "federated_rooms_ready": false,
+    "matrix_bot_access_token_env": "ANNUNIMAS_MATRIX_ACCESS_TOKEN",
+    "matrix_homeserver_env": "ANNUNIMAS_MATRIX_HOMESERVER"
+  },
+  "adapter_policy": {
+    "doctrine_anchor": "matrix",
+    "human_visible_channel": "element",
+    "strategy": "agnostic_bridges"
+  },
+  "adapters": {
+    "discord": true,
+    "email": false,
+    "webhook": true
+  },
+  "authority": "matrix_element_boardroom_contract",
+  "bridge_contracts": {
+    "discord": {
+      "enabled": true,
+      "mode": "hermes_moderated",
+      "requires_policy_guard": true,
+      "source_room_id": "client-bridge"
+    },
+    "webhook": {
+      "enabled": true,
+      "mode": "receipt_fanout",
+      "requires_policy_guard": true,
+      "source_room_id": "ops-boardroom"
+    }
+  },
+  "config_path": "config/matrix_boardrooms.toml",
+  "defaults": {
+    "audit_bot_enabled": true,
+    "client_surface": "element",
+    "e2ee_by_default": true,
+    "provider": "matrix",
+    "retention_mode": "operator_defined",
+    "spaces_enabled": true
+  },
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "governance_validators": {
+    "bacon_lite_required": true,
+    "joulework_required": true,
+    "love_equation_required": true,
+    "triad_required": true
+  },
+  "implementation_targets": {
+    "command_surface": "core/state/hermes_command.json",
+    "doctrine_surface": "core/state/federated_comms.json",
+    "primary_owner": "hermes",
+    "runtime_surface": "core/state/federated_comms_runtime.json"
+  },
+  "rooms": [
+    {
+      "e2ee_required": true,
+      "id": "ceo-boardroom",
+      "logging_mode": "receipt_only",
+      "name": "CEO Boardroom",
+      "participants": [
+        "arandur",
+        "oracle",
+        "warden",
+        "athena"
+      ],
+      "type": "decision_room"
+    },
+    {
+      "e2ee_required": true,
+      "id": "ops-boardroom",
+      "logging_mode": "summary_plus_receipts",
+      "name": "Operations Boardroom",
+      "participants": [
+        "apollo",
+        "hermes",
+        "hades",
+        "charon"
+      ],
+      "type": "operations_room"
+    },
+    {
+      "e2ee_required": true,
+      "id": "client-bridge",
+      "logging_mode": "policy_guarded",
+      "name": "Client Bridge",
+      "participants": [
+        "hermes"
+      ],
+      "type": "adapter_room"
+    },
+    {
+      "e2ee_required": true,
+      "id": "research-forge",
+      "logging_mode": "summary_plus_receipts",
+      "name": "Research Forge",
+      "participants": [
+        "athena",
+        "mnemosyne",
+        "apollo"
+      ],
+      "type": "knowledge_room"
+    },
+    {
+      "e2ee_required": true,
+      "id": "governance-audit",
+      "logging_mode": "receipt_only",
+      "name": "Governance Audit",
+      "participants": [
+        "oracle",
+        "warden",
+        "hades"
+      ],
+      "type": "audit_room"
+    }
+  ],
+  "root_space": {
+    "alias": "#annunimas:matrix.local",
+    "name": "Annunimas Boardrooms",
+    "operator_entrypoint": "#annunimas-ops:matrix.local",
+    "purpose": "sovereign_operator_and_agent_coordination"
+  },
+  "routing_contract": {
+    "audit_room_id": "governance-audit",
+    "client_adapter_room_id": "client-bridge",
+    "human_decision_room_id": "ceo-boardroom",
+    "knowledge_room_id": "research-forge",
+    "primary_boardroom_room_id": "ops-boardroom"
+  },
+  "schema_version": "annunimas.matrix-boardrooms.v1",
+  "sigil": "REPAIR"
+}

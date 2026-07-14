@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_a8e61fbff8464b9dbe7459d89e3c4368",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: S2/G1: migrate annunimas-human into a private second-brain tenant repo. Created external private tenant copy at /var/home/mythos/Eregion/annunimas-human-tenant; copied tracked annunimas-human source/tests/docs plus synthetic fixtures; did not copy live human/** vault data; retained Annunimas workspace member pending downstream dependency seam. Verified tenant cargo test, original annunimas-human target_local test, forbidden private payload scan, and append-only guard.",
+  "salience": 0.8527222222222224,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-21T13:15:21.487554802Z",
+  "last_seen_at": "2026-06-21T13:15:21.487554802Z"
+}

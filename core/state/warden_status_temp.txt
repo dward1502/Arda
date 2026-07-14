@@ -1,0 +1,41 @@
+Recent warden alerts (newest first):
+  2026-05-06 03:59:32Z MarketCollapse subject=chaos_market_collapse
+    chaos market collapse marker contained as market alert
+  2026-05-06 03:59:32Z RunawayLoop subject=chaos_planner_loop
+    chaos planner loop marker contained as runaway-loop risk
+  2026-05-06 03:59:32Z BudgetBlocked subject=chaos_joule_overrun
+    chaos joule overrun marker contained as budget pressure
+  2026-05-06 03:59:32Z BudgetBlocked subject=chaos_joule_overrun
+    chaos joule overrun marker contained as budget pressure
+  2026-05-06 03:59:32Z BudgetBlocked subject=chaos_joule_overrun
+    chaos joule overrun marker contained as budget pressure
+  2026-05-06 03:59:32Z BudgetBlocked subject=chaos_joule_overrun
+    chaos joule overrun marker contained as budget pressure
+  2026-05-06 03:59:32Z BudgetBlocked subject=chaos_joule_overrun
+    chaos joule overrun marker contained as budget pressure
+  2026-05-06 03:59:32Z BudgetBlocked subject=chaos_joule_overrun
+    chaos joule overrun marker contained as budget pressure
+  2026-05-06 03:59:32Z BudgetBlocked subject=4f0f2cd6-3773-45a6-a99d-dbeafdf918ea
+    daily joule budget exhausted: 4f0f2cd6-3773-45a6-a99d-dbeafdf918ea:goal=goal_council_presence:spent=0.00/budget=60.00
+  2026-05-06 03:59:32Z BudgetBlocked subject=2eb043ab-9862-4675-abaf-fd40d789d31c
+    daily joule budget exhausted: 2eb043ab-9862-4675-abaf-fd40d789d31c:goal=goal_knowledge_index_freshness:spent=48.00/budget=80.00
+  2026-05-06 03:59:32Z BudgetBlocked subject=2ad93072-a32b-4b35-9222-a8de58d898fc
+    daily joule budget exhausted: 2ad93072-a32b-4b35-9222-a8de58d898fc:goal=goal_council_presence:spent=0.00/budget=60.00
+  2026-05-06 03:59:32Z BudgetBlocked subject=d533223c-ad7e-42d8-894e-1cb14c0f8719
+    daily joule budget exhausted: d533223c-ad7e-42d8-894e-1cb14c0f8719:goal=goal_daily_joulework_report:spent=20.00/budget=20.00
+  2026-05-06 03:59:32Z BudgetBlocked subject=11e5415a-c8a5-4f36-ae89-a09796e1efc1
+    daily joule budget exhausted: 11e5415a-c8a5-4f36-ae89-a09796e1efc1:goal=goal_knowledge_index_freshness:spent=48.00/budget=80.00
+  2026-05-06 03:59:32Z BudgetBlocked subject=580514c2-2d25-4e75-92a5-46cb3225d211
+    daily joule budget exhausted: 580514c2-2d25-4e75-92a5-46cb3225d211:goal=goal_daily_joulework_report:spent=20.00/budget=20.00
+  2026-05-06 03:59:32Z BudgetBlocked subject=0afe02e3-2e10-48d9-a87b-134e21e475a6
+    daily joule budget exhausted: 0afe02e3-2e10-48d9-a87b-134e21e475a6:goal=goal_council_presence:spent=0.00/budget=60.00
+  2026-05-06 03:59:32Z BudgetBlocked subject=26fcb47e-b911-422b-bbc4-98adbebe93a3
+    daily joule budget exhausted: 26fcb47e-b911-422b-bbc4-98adbebe93a3:goal=goal_council_presence:spent=0.00/budget=60.00
+  2026-05-06 03:58:32Z MarketCollapse subject=chaos_market_collapse
+    chaos market collapse marker contained as market alert
+  2026-05-06 03:58:32Z RunawayLoop subject=chaos_planner_loop
+    chaos planner loop marker contained as runaway-loop risk
+  2026-05-06 03:58:32Z BudgetBlocked subject=chaos_joule_overrun
+    chaos joule overrun marker contained as budget pressure
+  2026-05-06 03:58:32Z BudgetBlocked subject=chaos_joule_overrun
+    chaos joule overrun marker contained as budget pressure

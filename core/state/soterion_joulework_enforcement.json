@@ -1,0 +1,483 @@
+{
+  "authority": "task_agent_boundaries + runtime_budget_policy + hades_status + charon_status",
+  "doctrine": {
+    "charon_routing_must_observe_joule_pressure_before_expensive_work": true,
+    "hades_joulework_integrity_must_remain_clean": true,
+    "high_cost_or_high_priority_work_requires_joulework_budget_awareness": true,
+    "meaningful_tasks_should_carry_soterion_trace": true
+  },
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "runtime_enforcement": {
+    "charon_status": {
+      "providers_degraded": 0,
+      "providers_ready": 16,
+      "recent_route_failures": 0,
+      "runtime_build_cache_status": "ok"
+    },
+    "hades_status": {
+      "malformed_joulework_records": 0,
+      "orphans_active": 25,
+      "pending_actions": 25
+    },
+    "runtime_governor_budget_lane": {
+      "owner": "plutus_charon",
+      "provider_budgets": [
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": 0.0,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": null,
+          "monthly_requests_hard_cap": null,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": null,
+          "monthly_soft_cap_usage_percent": null,
+          "provider_id": "opencode",
+          "requests_per_day": 100000,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": null,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": null,
+          "monthly_requests_hard_cap": null,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": null,
+          "monthly_soft_cap_usage_percent": null,
+          "provider_id": "mesh_worker_light",
+          "requests_per_day": null,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": null,
+          "enabled": false,
+          "healthy": false,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": 0.0,
+          "monthly_requests_hard_cap": 250000.0,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": 100000.0,
+          "monthly_soft_cap_usage_percent": 0.0,
+          "provider_id": "edge_backbone",
+          "requests_per_day": null,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": null,
+          "enabled": true,
+          "healthy": false,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": null,
+          "monthly_requests_hard_cap": null,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": null,
+          "monthly_soft_cap_usage_percent": null,
+          "provider_id": "edge_laptop",
+          "requests_per_day": null,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": null,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": 0.0,
+          "monthly_requests_hard_cap": 50000.0,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": 25000.0,
+          "monthly_soft_cap_usage_percent": 0.0,
+          "provider_id": "edge_guardhouse",
+          "requests_per_day": null,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": null,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": null,
+          "monthly_requests_hard_cap": null,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": null,
+          "monthly_soft_cap_usage_percent": null,
+          "provider_id": "mesh_local",
+          "requests_per_day": null,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": 0.0,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": null,
+          "monthly_requests_hard_cap": null,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": null,
+          "monthly_soft_cap_usage_percent": null,
+          "provider_id": "openrouter_free",
+          "requests_per_day": 50,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": 0.0,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": 0.0,
+          "monthly_requests_hard_cap": 120000.0,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": 60000.0,
+          "monthly_soft_cap_usage_percent": 0.0,
+          "provider_id": "openrouter",
+          "requests_per_day": 100000,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": 0.0,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": null,
+          "monthly_requests_hard_cap": null,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": null,
+          "monthly_soft_cap_usage_percent": null,
+          "provider_id": "openai",
+          "requests_per_day": 10000,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": 0.0,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": 0.0,
+          "monthly_requests_hard_cap": 60000.0,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": 30000.0,
+          "monthly_soft_cap_usage_percent": 0.0,
+          "provider_id": "google",
+          "requests_per_day": 1500,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": 0.0,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": null,
+          "monthly_requests_hard_cap": null,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": null,
+          "monthly_soft_cap_usage_percent": null,
+          "provider_id": "mistral",
+          "requests_per_day": 10000,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": 0.0,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": null,
+          "monthly_requests_hard_cap": null,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": null,
+          "monthly_soft_cap_usage_percent": null,
+          "provider_id": "zai",
+          "requests_per_day": 10000,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": 0.0,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": null,
+          "monthly_requests_hard_cap": null,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": null,
+          "monthly_soft_cap_usage_percent": null,
+          "provider_id": "nvidia",
+          "requests_per_day": 10000,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": 0.0,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": null,
+          "monthly_requests_hard_cap": null,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": null,
+          "monthly_soft_cap_usage_percent": null,
+          "provider_id": "anthropic",
+          "requests_per_day": 10000,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": 0.0,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": null,
+          "monthly_hard_cap_usage_percent": null,
+          "monthly_requests_hard_cap": null,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": null,
+          "monthly_soft_cap_usage_percent": null,
+          "provider_id": "openai_sub",
+          "requests_per_day": 10000,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": 0.0,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": 0.0,
+          "monthly_requests_hard_cap": 60000000.0,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": 30000000.0,
+          "monthly_soft_cap_usage_percent": 0.0,
+          "provider_id": "cerebras",
+          "requests_per_day": 1000000,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": 0.0,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": 0.0,
+          "monthly_requests_hard_cap": 864000.0,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": 432000.0,
+          "monthly_soft_cap_usage_percent": 0.0,
+          "provider_id": "groq",
+          "requests_per_day": 14400,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": null,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": 0.0,
+          "monthly_requests_hard_cap": 100000.0,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": 50000.0,
+          "monthly_soft_cap_usage_percent": 0.0,
+          "provider_id": "local_fallback",
+          "requests_per_day": null,
+          "requests_used_day": 0
+        }
+      ],
+      "summary": {
+        "daily_spend_pressure": false,
+        "local_joule_pressure": false,
+        "monthly_spend_hard_pressure": false,
+        "monthly_spend_soft_pressure": false,
+        "provider_budget_pressure_total": 0,
+        "providers_tracked_total": 18
+      },
+      "surfaces": [
+        "core/state/runtime_budget_policy.json",
+        "core/state/charon_router.json",
+        "data/plutus/runtime_status.json"
+      ],
+      "user_plan_budget": {
+        "daily_spend_usd_observed": 0.0,
+        "daily_spend_usd_remaining": 100.0,
+        "daily_spend_usd_soft_cap": 100.0,
+        "daily_spend_usd_usage_percent": 0.0,
+        "edge_model_storage_gib_soft_cap": 250.0,
+        "local_joulework_daily_soft_cap": 1500.0,
+        "local_joulework_observed": 0.0,
+        "local_joulework_observed_cumulative": 90081.88805868078,
+        "local_joulework_usage_percent": 0.0,
+        "local_joulework_window_span_seconds": 0.0,
+        "local_joulework_window_valid": false,
+        "monthly_spend_hard_cap_usage_percent": 0.0,
+        "monthly_spend_soft_cap_usage_percent": 0.0,
+        "monthly_spend_usd_hard_cap": 400.0,
+        "monthly_spend_usd_inferred_used": 0.0,
+        "monthly_spend_usd_soft_cap": 250.0
+      }
+    },
+    "task_boundaries_summary": {
+      "in_progress_total": 0,
+      "joulework_budget_required_total": 14,
+      "local_joulework_usage_percent": 0.0,
+      "queued_total": 59,
+      "recent_completed_total": 8,
+      "sampled_tasks_total": 14,
+      "soterion_trace_missing_total": 0,
+      "soterion_trace_present_total": 14
+    }
+  },
+  "schema_version": "annunimas.soterion-joulework-enforcement.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "charon_providers_degraded": 0,
+    "charon_providers_ready": 16,
+    "hades_malformed_joulework_records": 0,
+    "joulework_budget_required_total": 12,
+    "local_joule_pressure": false,
+    "local_joulework_usage_percent": 0.0,
+    "sampled_tasks_total": 12,
+    "soterion_trace_missing_total": 0,
+    "soterion_trace_present_total": 12
+  },
+  "task_trace_audit": {
+    "missing_soterion_trace": [],
+    "recent_tasks": [
+      {
+        "joulework_budget_required": true,
+        "owner": "prometheus",
+        "priority": "high",
+        "soterion_trace_present": true,
+        "status": "completed",
+        "task_id": "tsk_20260424_force_rebuild_annunimas_cli_release_binary_on_ch",
+        "title": "Force rebuild annunimas-cli release binary on Charon service start"
+      },
+      {
+        "joulework_budget_required": true,
+        "owner": "prometheus",
+        "priority": "high",
+        "soterion_trace_present": true,
+        "status": "completed",
+        "task_id": "tsk_20260424_disable_echo_gate_pause_local_only_enforcement_i",
+        "title": "Disable Echo Gate PAUSE local-only enforcement in Charon"
+      },
+      {
+        "joulework_budget_required": true,
+        "owner": "prometheus",
+        "priority": "high",
+        "soterion_trace_present": true,
+        "status": "completed",
+        "task_id": "tsk_20260423_execute_data_directory_audit_priority_items",
+        "title": "Execute data-directory audit priority items"
+      },
+      {
+        "joulework_budget_required": true,
+        "owner": "prometheus",
+        "priority": "high",
+        "soterion_trace_present": true,
+        "status": "completed",
+        "task_id": "tsk_20260423_execute_system_analysis_p2_8_runtime_ownership_c",
+        "title": "Execute system-analysis P2.8 runtime ownership contract"
+      },
+      {
+        "joulework_budget_required": true,
+        "owner": "prometheus",
+        "priority": "high",
+        "soterion_trace_present": true,
+        "status": "completed",
+        "task_id": "tsk_20260423_refresh_second_audit_system_analysis_after_core_",
+        "title": "Refresh second-audit system analysis after core closure"
+      },
+      {
+        "joulework_budget_required": true,
+        "owner": "prometheus",
+        "priority": "high",
+        "soterion_trace_present": true,
+        "status": "completed",
+        "task_id": "tsk_20260423_close_annunimas_core_audit_action_list",
+        "title": "Close annunimas-core audit action list"
+      },
+      {
+        "joulework_budget_required": true,
+        "owner": "prometheus",
+        "priority": "high",
+        "soterion_trace_present": true,
+        "status": "completed",
+        "task_id": "tsk_20260423_complete_annunimas_core_watcher_resilience_cover",
+        "title": "Complete annunimas-core watcher resilience coverage"
+      },
+      {
+        "joulework_budget_required": true,
+        "owner": "prometheus",
+        "priority": "high",
+        "soterion_trace_present": true,
+        "status": "completed",
+        "task_id": "tsk_20260423_reduce_annunimas_core_shared_allocation_churn",
+        "title": "Reduce annunimas-core shared allocation churn"
+      },
+      {
+        "joulework_budget_required": true,
+        "owner": "prometheus",
+        "priority": "high",
+        "soterion_trace_present": true,
+        "status": "completed",
+        "task_id": "tsk_20260423_advance_annunimas_core_panic_path_hardening",
+        "title": "Advance annunimas-core panic-path hardening"
+      },
+      {
+        "joulework_budget_required": true,
+        "owner": "athena",
+        "priority": "medium",
+        "soterion_trace_present": true,
+        "status": "completed",
+        "task_id": "tsk_20260423_complete_athena_medium_audit_follow_up_and_resto",
+        "title": "Complete Athena medium audit follow-up and restore full test pass"
+      },
+      {
+        "joulework_budget_required": true,
+        "owner": "athena",
+        "priority": "high",
+        "soterion_trace_present": true,
+        "status": "completed",
+        "task_id": "tsk_20260423_finish_athena_high_priority_clear_boundary_inges",
+        "title": "Finish Athena high-priority clear-boundary ingest split"
+      },
+      {
+        "joulework_budget_required": true,
+        "owner": "athena",
+        "priority": "high",
+        "soterion_trace_present": true,
+        "status": "completed",
+        "task_id": "tsk_20260423_advance_athena_ingest_split_with_knowledge_view_",
+        "title": "Advance Athena ingest split with knowledge-view lifecycle module extraction"
+      }
+    ],
+    "source": "core/projects/tasks/queue.jsonl"
+  },
+  "verdicts": [
+    {
+      "id": "task_trace_coverage",
+      "reason": "Recent sampled tasks carry Soterion trace markers.",
+      "status": "healthy"
+    },
+    {
+      "id": "local_joule_budget",
+      "reason": "Local JouleWork usage is 0.00% of soft cap.",
+      "status": "healthy"
+    },
+    {
+      "id": "hades_joule_integrity",
+      "reason": "HADES malformed JouleWork records: 0.",
+      "status": "healthy"
+    }
+  ]
+}

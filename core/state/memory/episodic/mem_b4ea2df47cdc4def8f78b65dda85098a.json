@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_b4ea2df47cdc4def8f78b65dda85098a",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Document Charon router hardening and improvement plan",
+  "salience": 0.7475,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-03T06:27:18.660501058Z",
+  "last_seen_at": "2026-06-03T06:27:18.660501058Z"
+}

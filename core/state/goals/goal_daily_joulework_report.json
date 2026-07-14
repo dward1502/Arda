@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "goal_daily_joulework_report",
+  "title": "Report daily JouleWork",
+  "intent": "At each day boundary, emit a single LedgerEntry summarizing total joules spent, joules per agent, and joules per provider tier. Operator-readable.",
+  "owner_agent": "plutus",
+  "status": "active",
+  "priority": "medium",
+  "joule_budget_per_day": 20.0,
+  "created_at": "2026-05-04T02:48:59.870388399Z",
+  "updated_at": "2026-05-04T02:48:59.870388399Z"
+}

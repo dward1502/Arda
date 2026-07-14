@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_7882c6b69cdb41acb2d54c9c2db54b14",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Queue: LEGION_HIERARCHY plan review",
+  "salience": 0.7111666666666666,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-22T04:09:47.416361388Z",
+  "last_seen_at": "2026-06-22T04:09:47.416361388Z"
+}

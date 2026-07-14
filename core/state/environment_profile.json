@@ -1,0 +1,166 @@
+{
+  "contract": "annunimas.environment_profile.v1",
+  "endpoints": {
+    "crawl4ai_url": {
+      "health": "healthy",
+      "source": "environment",
+      "value": "http://127.0.0.1:11235"
+    },
+    "search_runtime_url": {
+      "health": "unreachable",
+      "source": "environment",
+      "value": "http://127.0.0.1:18080"
+    }
+  },
+  "generated_at": "2026-06-02T06:21:22Z",
+  "machine_role": "container",
+  "missing_gates": [
+    "CHARON_BASE_URL",
+    "HERMES_BASE_URL"
+  ],
+  "operator": {
+    "annunimas_user": null,
+    "source": "environment"
+  },
+  "paths": {
+    "agent_homes": {
+      "apollo": {
+        "portable_expression": "${HOME}/.local/share/annunimas/apollo",
+        "source": "environment",
+        "value": "/var/home/mythos/.local/share/annunimas/apollo"
+      },
+      "athena": {
+        "portable_expression": "${HOME}/.local/share/annunimas/athena",
+        "source": "environment",
+        "value": "/var/home/mythos/.local/share/annunimas/athena"
+      },
+      "charon": {
+        "portable_expression": "${HOME}/.local/share/annunimas/charon",
+        "source": "environment",
+        "value": "/var/home/mythos/.local/share/annunimas/charon"
+      },
+      "hades": {
+        "portable_expression": "${HOME}/.local/share/annunimas/hades",
+        "source": "environment",
+        "value": "/var/home/mythos/.local/share/annunimas/hades"
+      },
+      "hermes": {
+        "portable_expression": "${HOME}/.local/share/annunimas/hermes",
+        "source": "environment",
+        "value": "/var/home/mythos/.local/share/annunimas/hermes"
+      },
+      "mnemosyne": {
+        "portable_expression": "${HOME}/.local/share/annunimas/mnemosyne",
+        "source": "environment",
+        "value": "/var/home/mythos/.local/share/annunimas/mnemosyne"
+      },
+      "oracle": {
+        "portable_expression": "${HOME}/.local/share/annunimas/oracle",
+        "source": "environment",
+        "value": "/var/home/mythos/.local/share/annunimas/oracle"
+      },
+      "prometheus": {
+        "portable_expression": "${HOME}/.local/share/annunimas/prometheus",
+        "source": "environment",
+        "value": "/var/home/mythos/.local/share/annunimas/prometheus"
+      }
+    },
+    "annunimas_root": {
+      "exists": true,
+      "portable_expression": "${HOME}/Annunimas",
+      "source": "detected",
+      "value": "/var/home/mythos/Annunimas"
+    },
+    "build_cache_root": {
+      "exists": true,
+      "portable_expression": "${HOME}/.cache/annunimas-build",
+      "source": "environment",
+      "value": "/var/home/mythos/.cache/annunimas-build"
+    },
+    "cache_dir": {
+      "portable_expression": "${HOME}/.cache/annunimas",
+      "source": "environment",
+      "value": "/var/home/mythos/.cache/annunimas"
+    },
+    "config_dir": {
+      "portable_expression": "${HOME}/.config/annunimas",
+      "source": "environment",
+      "value": "/var/home/mythos/.config/annunimas"
+    },
+    "data_dir": {
+      "portable_expression": "${HOME}/.local/share/annunimas",
+      "source": "environment",
+      "value": "/var/home/mythos/.local/share/annunimas"
+    },
+    "home": {
+      "exists": true,
+      "portable_expression": "${HOME}",
+      "source": "environment",
+      "value": "/var/home/mythos"
+    },
+    "runtime_dir": {
+      "exists": true,
+      "source": "environment",
+      "value": "/run/user/1000/annunimas"
+    },
+    "sockets": {
+      "apollo": {
+        "source": "detected",
+        "value": "/run/user/1000/annunimas/apollo.sock"
+      },
+      "athena": {
+        "exists": true,
+        "source": "detected",
+        "value": "/run/user/1000/annunimas/athena.sock"
+      },
+      "charon": {
+        "exists": true,
+        "source": "detected",
+        "value": "/run/user/1000/annunimas/charon.sock"
+      },
+      "hades": {
+        "exists": true,
+        "source": "detected",
+        "value": "/run/user/1000/annunimas/hades.sock"
+      },
+      "hermes": {
+        "exists": true,
+        "source": "detected",
+        "value": "/run/user/1000/annunimas/hermes.sock"
+      },
+      "mnemosyne": {
+        "exists": true,
+        "source": "detected",
+        "value": "/run/user/1000/annunimas/mnemosyne.sock"
+      },
+      "oracle": {
+        "source": "detected",
+        "value": "/run/user/1000/annunimas/oracle.sock"
+      },
+      "plutus": {
+        "source": "detected",
+        "value": "/run/user/1000/annunimas/plutus.sock"
+      },
+      "prometheus": {
+        "exists": true,
+        "source": "detected",
+        "value": "/run/user/1000/annunimas/prometheus.sock"
+      }
+    }
+  },
+  "profile": "local",
+  "receipts": [],
+  "safety": {
+    "autonomy_posture": "read_only",
+    "destructive_allowed_by_default": false,
+    "mutation_requires_human_gate": true
+  },
+  "systemd": {
+    "environment_file_pattern": "%h/.config/annunimas/annunimas.env",
+    "notes": [
+      "Mutations remain receipt-only in slice 1",
+      "Paths prefer XDG/env precedence and avoid hard-coded /var/home names."
+    ],
+    "user_units_available": true
+  }
+}

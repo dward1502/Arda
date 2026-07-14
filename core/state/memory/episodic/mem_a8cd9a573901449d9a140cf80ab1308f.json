@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_a8cd9a573901449d9a140cf80ab1308f",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Completed Charon provider-internal and matrix-wide model fallback hardening",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-03T09:35:47.136625275Z",
+  "last_seen_at": "2026-06-03T09:35:47.136625275Z"
+}

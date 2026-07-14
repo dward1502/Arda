@@ -1,0 +1,64 @@
+{
+  "authority": "controlled_external_corpus_promotion",
+  "batch_id": "numenor_prime_promotion_batch_04",
+  "destination_surfaces": [
+    "human/plans/NUMENOR_PRIME_BATCH_04_TOOL_RESEARCH.md",
+    "core/state/numenor_prime_merge_registry.json",
+    "core/state/numenor_prime_promotion_batch_03.json"
+  ],
+  "focus": "actionable_tool_research_inheritance",
+  "generated_at_utc": "2026-03-13T03:28:00Z",
+  "next_candidates": [
+    "/var/home/dward/Numenor_Prime/Knowledge/Research/Tools/agentsmd_research.md",
+    "/var/home/dward/Numenor_Prime/Knowledge/Research/Tools/ARSCONTEXTA_PATTERNS_2026-02-21.md",
+    "/var/home/dward/Numenor_Prime/Knowledge/Research/Operations-Ideas/GITHUB REPOS.md",
+    "/var/home/dward/Numenor_Prime/Knowledge/Research/Operations-Ideas/Tools 2026.md"
+  ],
+  "promoted_items": [
+    {
+      "destination": "human/plans/NUMENOR_PRIME_BATCH_04_TOOL_RESEARCH.md",
+      "kind": "tool_research",
+      "project": "knowledge_systems",
+      "source": "/var/home/dward/Numenor_Prime/Knowledge/Research/Tools/ARSCONTEXTA_PATTERNS_2026-02-21.md",
+      "summary": "Promoted arscontexta patterns as historical design memory for three-space knowledge architecture, 6R processing, hooks, and queue-driven fresh-context orchestration."
+    },
+    {
+      "destination": "human/plans/NUMENOR_PRIME_BATCH_04_TOOL_RESEARCH.md",
+      "kind": "tool_ingest",
+      "project": "knowledge_systems",
+      "source": "/var/home/dward/Numenor_Prime/Knowledge/Ingest/arscontexta_2026-02-21.md",
+      "summary": "Promoted the concise arscontexta ingest as the short-form complement to the deeper patterns document."
+    },
+    {
+      "destination": "human/plans/NUMENOR_PRIME_BATCH_04_TOOL_RESEARCH.md",
+      "kind": "tool_research",
+      "project": "ATHENA / crawl4ai",
+      "source": "/var/home/dward/Numenor_Prime/Knowledge/Research/Tools/crawl4ai_research.md",
+      "summary": "Promoted crawl4ai research as the fuller capability and deployment reference behind the prior mission and ingest summaries."
+    },
+    {
+      "destination": "human/plans/NUMENOR_PRIME_BATCH_04_TOOL_RESEARCH.md",
+      "kind": "tool_research",
+      "project": "HERMES / Discord",
+      "source": "/var/home/dward/Numenor_Prime/Knowledge/Research/Tools/discord_mcp_research.md",
+      "summary": "Promoted discord-mcp research as the fuller capability surface behind the earlier Discord mission and ingest note."
+    },
+    {
+      "destination": "human/plans/NUMENOR_PRIME_BATCH_04_TOOL_RESEARCH.md",
+      "kind": "tool_research",
+      "project": "model_selection",
+      "source": "/var/home/dward/Numenor_Prime/Knowledge/Research/Tools/llmfit_research.md",
+      "summary": "Promoted llmfit research as the deeper technical foundation for hardware-aware model routing and Joule-conscious deployment."
+    }
+  ],
+  "schema_version": "annunimas.numenor-prime-promotion-batch.v1",
+  "selection_rule": {
+    "do_not_copy_full_external_corpus": true,
+    "prefer_research_that_informs_current_operations": true,
+    "project_adjacent_only": true,
+    "promotion_mode": "summary_and_crosslink"
+  },
+  "sigil": "REPAIR",
+  "source_root": "/var/home/dward/Numenor_Prime",
+  "status": "promoted_into_readable_annunimas_surfaces"
+}

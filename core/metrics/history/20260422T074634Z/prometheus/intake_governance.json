@@ -1,0 +1,67 @@
+{
+  "authority": "project_dossier_standard + imported_memory_intake_contract + portfolio_classification_posture + project_intake_lifecycle",
+  "binding": {
+    "dossier_workflow": "core/state/valinor_project_dossiers.json",
+    "queue_workflow": "core/state/task_agent_boundaries.json",
+    "restart_resume_workflow": "core/state/autonomy_resume.json",
+    "review_digest": "core/state/imported_corpus_review_digest.json"
+  },
+  "dossier_overview": [
+    {
+      "compliant": true,
+      "readiness": "ready_for_content_and_code",
+      "review_posture": "build_now",
+      "slug": "skylight-pros"
+    },
+    {
+      "compliant": true,
+      "readiness": "blocked_on_infra_mapping",
+      "review_posture": "incubate",
+      "slug": "wgtt"
+    },
+    {
+      "compliant": true,
+      "readiness": "guided",
+      "review_posture": "incubate",
+      "slug": "realmgate-warriors"
+    },
+    {
+      "compliant": true,
+      "readiness": "planned",
+      "review_posture": "incubate",
+      "slug": "crusties"
+    },
+    {
+      "compliant": true,
+      "readiness": "guided",
+      "review_posture": "incubate",
+      "slug": "citadel-arda"
+    }
+  ],
+  "first_execution_tranche": [
+    "write project_dossier_standard into active intake law surfaces",
+    "write imported_memory_intake_contract into active intake law surfaces",
+    "write portfolio_classification_posture into active intake law surfaces",
+    "write project_intake_lifecycle into active intake law surfaces",
+    "bind those four into existing queue/dossier/export workflows"
+  ],
+  "generated_at_utc": "2026-04-22T11:17:49Z",
+  "schema_version": "annunimas.project-intake-governance.v1",
+  "second_execution_tranche": [
+    "reconcile crawl4ai against current package/runtime activation",
+    "reconcile Discord capability against current Hermes posture",
+    "write tool-fit decision memo for imported tools"
+  ],
+  "status": "active_governance_surface",
+  "summary": {
+    "build_now_total": 1,
+    "classification_labels_total": 4,
+    "dossier_standard_compliant_total": 5,
+    "execution_eligible_total": 1,
+    "intake_states_total": 5,
+    "lifecycle_stages_total": 6,
+    "portfolio_entries_total": 49,
+    "required_dossier_fields_total": 10,
+    "tracked_dossiers_total": 5
+  }
+}

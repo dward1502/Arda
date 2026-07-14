@@ -1,0 +1,57 @@
+{
+  "authority": "openfang_alignment_plus_sovereign_spawn_blueprint",
+  "continuity_requirements": {
+    "arda_visibility_required": true,
+    "mnemosyne_checkpoint_required": true,
+    "task_pivot_linkage_required": true
+  },
+  "defaults": {
+    "metrics_export": "core/state/<crate>.json",
+    "productizable": true,
+    "realm": "operations",
+    "runtime_mode": "local-sovereign",
+    "workspace_dependencies_required": [
+      "annunimas-core",
+      "annunimas-governance"
+    ]
+  },
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "governance_validators": {
+    "bacon_lite_required": true,
+    "joulework_required": true,
+    "love_equation_required": true,
+    "soterion_trace_required": true,
+    "triad_required": true
+  },
+  "scaffold_flow": {
+    "command": "annunimas-cli utility create-crate-spawn-blueprint",
+    "required_contracts": [
+      "task_ledger_linked",
+      "state_export_defined",
+      "soterion_trace_defined",
+      "arda_visibility_defined",
+      "productizable_boundary_declared",
+      "memory_checkpoint_expected"
+    ],
+    "required_files": [
+      "Cargo.toml",
+      "src/lib.rs",
+      "src/contract.rs",
+      "src/service.rs",
+      "README.md",
+      "tests/contract_smoke.rs"
+    ],
+    "target_root_default": "crates"
+  },
+  "schema_version": "annunimas.crate-spawn-contract.v1",
+  "sigil": "REPAIR",
+  "source_alignment": {
+    "pattern": {
+      "annunimas_adaptation": "crate-spawn templates with sovereign task, metrics, ARDA, and control-plane hooks from first boot",
+      "openfang_pattern": "autonomous Hands as prebuilt capability packages with lifecycle verbs",
+      "priority": "high"
+    },
+    "source_id": "src_cebb6abe",
+    "source_url": "https://github.com/RightNow-AI/openfang"
+  }
+}

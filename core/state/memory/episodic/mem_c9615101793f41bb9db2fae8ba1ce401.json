@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_c9615101793f41bb9db2fae8ba1ce401",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: S3/G2: extract CITADEL Avatar as a private consumer of the core API. Moved CITADEL Avatar and CITADEL Avatar Pure to /var/home/mythos/Eregion/citadel-avatar and /var/home/mythos/Eregion/citadel-avatar-pure; old Annunimas app dirs absent; bridge script uses CITADEL_AVATAR_APP_DIR; external docs patched away from retired apps path; verified package JSON, shell syntax, quick-verify scripts, git diff --check scoped, and append-only guard pre-closeout.",
+  "salience": 0.8680555555555557,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-22T00:44:36.193592830Z",
+  "last_seen_at": "2026-06-22T00:44:36.193592830Z"
+}

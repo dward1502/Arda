@@ -1,0 +1,14 @@
+{
+  "authority": "project_task_queue + athena_cli_handoff",
+  "failed": [],
+  "generated_at_utc": "2026-04-28T09:49:24Z",
+  "processed": [],
+  "route_summary": {},
+  "schema_version": "annunimas.async-user-intake-runtime.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "failed_total": 0,
+    "processed_total": 0,
+    "queued_total": 0
+  }
+}

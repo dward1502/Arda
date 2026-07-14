@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_2e191633821c4f2981fc3c96a8e8ba6d",
+  "kind": "episodic",
+  "agent": "hermes",
+  "content": "HERMES classified inbound message from dward1502 on 1472515093848916020 to Athena tier=tier3_charon triad_passed=true",
+  "salience": 0.5115,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-06T01:23:16.699654556Z",
+  "last_seen_at": "2026-06-06T01:23:16.699654556Z"
+}

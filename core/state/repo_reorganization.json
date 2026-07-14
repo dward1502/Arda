@@ -1,0 +1,50 @@
+{
+  "actions_taken": [
+    {
+      "action": "generated_arda_source_map",
+      "path": "core/state/arda_source_map.json"
+    },
+    {
+      "action": "documented_arda_integration_map",
+      "path": "docs/integrations/ARDA_INTEGRATION_MAP.md"
+    },
+    {
+      "action": "documented_repo_reorganization_plan",
+      "path": "docs/REPO_REORGANIZATION_PLAN.md"
+    }
+  ],
+  "arda_hints": {
+    "alert_on_crate_mirrors": false,
+    "primary_panel": "ops_hygiene"
+  },
+  "artifacts": {
+    "integration_docs": [
+      "docs/integrations/ECHO_ROOT_LOCAL_CIPHER_BRIDGE.md"
+    ]
+  },
+  "authority": "repo_reorganization_projection",
+  "canonical_targets": {
+    "human_reference": "human/library",
+    "human_working_notes": "human/Notes",
+    "integration_contracts": "docs/integrations",
+    "system_projections": "core/state",
+    "time_series_ledgers": "data"
+  },
+  "generated_at_utc": "2026-07-14T05:03:01.359120428+00:00",
+  "phase": "phase_1_audit_and_canonicalization",
+  "pressure_points": {
+    "crate_embedded_state": [],
+    "human_layout": {
+      "reference_library": "human/library",
+      "summaries": "human/summaries",
+      "working_notes": "human/Notes"
+    },
+    "mixed_machine_outputs": [
+      "core/state",
+      "core/metrics",
+      "data"
+    ]
+  },
+  "schema_version": "annunimas.core.state.v1",
+  "status": "completed"
+}

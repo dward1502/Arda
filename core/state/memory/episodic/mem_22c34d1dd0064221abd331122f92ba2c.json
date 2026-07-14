@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_22c34d1dd0064221abd331122f92ba2c",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Release evidence bundle manifest",
+  "salience": 0.7625,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-24T21:55:14.534263069Z",
+  "last_seen_at": "2026-05-24T21:55:14.534263069Z"
+}

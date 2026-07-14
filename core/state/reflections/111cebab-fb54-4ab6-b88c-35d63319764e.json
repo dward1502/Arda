@@ -1,0 +1,13 @@
+{
+  "contract_version": "0.1.0",
+  "id": "ref_111cebab-fb54-4ab6-b88c-35d63319764e",
+  "task_id": "111cebab-fb54-4ab6-b88c-35d63319764e",
+  "plan_id": "plan_goal_council_presence_20260504",
+  "completed_at": "2026-05-04T02:57:48.499692282Z",
+  "outcome": "success",
+  "score": 1.0,
+  "narrative": "v0.1 trivial score: task ended in Complete; plan_step_index=Some(3)",
+  "joule_estimated": 0.0,
+  "joule_actual": 0.0,
+  "lessons_emitted": []
+}

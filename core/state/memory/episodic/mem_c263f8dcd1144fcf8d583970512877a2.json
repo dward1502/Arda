@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_c263f8dcd1144fcf8d583970512877a2",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Extract ARDA HUD, CITADEL, and RELIC/Kiosk as private consumers of the core API. Batch 4: moved ARDA HUD to external/private-consumers/arda-hud; updated compatibility paths; verified diff hygiene and append-only guard; same-id closeout",
+  "salience": 1.0,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-20T10:26:32.000891991Z",
+  "last_seen_at": "2026-06-20T10:26:32.000891991Z"
+}

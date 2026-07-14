@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_a004df0a62ce4e77b5c0b6e944127239",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Gate 3.5H companion file handoff runner",
+  "salience": 0.7655000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-18T20:14:15.013791513Z",
+  "last_seen_at": "2026-05-18T20:14:15.013791513Z"
+}

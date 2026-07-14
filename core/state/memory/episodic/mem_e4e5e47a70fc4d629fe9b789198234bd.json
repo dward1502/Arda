@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_e4e5e47a70fc4d629fe9b789198234bd",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Queue: AGENT_FRAMEWORK_COMPARATIVE plan review",
+  "salience": 0.7222777777777777,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-19T07:36:16.012550287Z",
+  "last_seen_at": "2026-06-19T07:36:16.012550287Z"
+}

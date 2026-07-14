@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_7568182ae0c74ddba71bb1c8e1ae2833",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Queue agent-loop-contract public spec extraction. Completed external agent-loop-contract public spec skeleton repo under /var/home/mythos with minimal validator, schemas, examples, and README. Verified cargo fmt --check, cargo clippy --all-targets -- -D warnings, cargo test, cargo doc --no-deps, and live CLI JSON smoke. Append-only guard passed before and after closeout.",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-20T18:29:50.084402656Z",
+  "last_seen_at": "2026-06-20T18:29:50.084402656Z"
+}

@@ -1,0 +1,584 @@
+{
+  "generated_at_utc": "2026-05-31T10:56:40Z",
+  "inputs": {
+    "shortlist": "core/state/model_candidate_shortlist.json"
+  },
+  "packets": [
+    {
+      "benchmark_cases": [
+        {
+          "id": "research_source_triage",
+          "prompt": "Given three model cards, identify which is best for Pi5 monitoring, Beelink coding, and core scout research. Explain uncertainty.",
+          "success_criteria": [
+            "maps MiniCPM to Pi5",
+            "maps Qwopus to coding",
+            "maps LFM to scout",
+            "states license/benchmark uncertainty"
+          ]
+        },
+        {
+          "id": "research_evidence_table",
+          "prompt": "Create a compact evidence table with columns model, lane, reason, blocker from candidate notes.",
+          "success_criteria": [
+            "table format",
+            "includes blocker",
+            "no promotion without benchmark"
+          ]
+        },
+        {
+          "id": "research_staleness_decision",
+          "prompt": "A provider catalog no longer lists a configured model. Decide remove, disable, or keep. Include evidence requirements.",
+          "success_criteria": [
+            "recommends removal from active route",
+            "keeps historical usage receipts",
+            "requires reachable catalog evidence"
+          ]
+        }
+      ],
+      "candidate_model_family": "LFM2.5-8B-A1B",
+      "candidate_source_url": "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B",
+      "current_model": "Qwen3.6-35B-A3B-UD-Q4_K_XL",
+      "lane": "scout_research",
+      "metrics": {
+        "max_error_rate_percent": 10,
+        "max_first_token_seconds": 18,
+        "must_emit_receipt": true,
+        "quality_min_percent": 76,
+        "requires_source_uncertainty_case": true
+      },
+      "node_display_name": "Annunimas Server (35B Backbone)",
+      "node_id": "node-backbone-server",
+      "packet_id": "node_backbone_server_lfm2_5_8b_a1b_scout_research",
+      "priority": "first_benchmark",
+      "receipt_path": "data/charon/model_benchmark_receipts.jsonl",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "license_review_required"
+      ],
+      "risks": [
+        "license_review:lfm1.0"
+      ],
+      "safety": {
+        "config_rewrite_allowed_by_packet": false,
+        "download_allowed_by_packet": false,
+        "service_switch_allowed_by_packet": false
+      },
+      "schema_version": "annunimas.model_benchmark_packet.v1",
+      "shortlist_score": 93
+    },
+    {
+      "benchmark_cases": [
+        {
+          "id": "research_source_triage",
+          "prompt": "Given three model cards, identify which is best for Pi5 monitoring, Beelink coding, and core scout research. Explain uncertainty.",
+          "success_criteria": [
+            "maps MiniCPM to Pi5",
+            "maps Qwopus to coding",
+            "maps LFM to scout",
+            "states license/benchmark uncertainty"
+          ]
+        },
+        {
+          "id": "research_evidence_table",
+          "prompt": "Create a compact evidence table with columns model, lane, reason, blocker from candidate notes.",
+          "success_criteria": [
+            "table format",
+            "includes blocker",
+            "no promotion without benchmark"
+          ]
+        },
+        {
+          "id": "research_staleness_decision",
+          "prompt": "A provider catalog no longer lists a configured model. Decide remove, disable, or keep. Include evidence requirements.",
+          "success_criteria": [
+            "recommends removal from active route",
+            "keeps historical usage receipts",
+            "requires reachable catalog evidence"
+          ]
+        }
+      ],
+      "candidate_model_family": "LFM2.5-8B-A1B",
+      "candidate_source_url": "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B",
+      "current_model": "Qwen3.5-9B-Q4_K_M",
+      "lane": "scout_research",
+      "metrics": {
+        "max_error_rate_percent": 10,
+        "max_first_token_seconds": 18,
+        "must_emit_receipt": true,
+        "quality_min_percent": 76,
+        "requires_source_uncertainty_case": true
+      },
+      "node_display_name": "Annunimas Core (3080 Workstation)",
+      "node_id": "node-core-hub",
+      "packet_id": "node_core_hub_lfm2_5_8b_a1b_scout_research",
+      "priority": "first_benchmark",
+      "receipt_path": "data/charon/model_benchmark_receipts.jsonl",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "license_review_required"
+      ],
+      "risks": [
+        "license_review:lfm1.0"
+      ],
+      "safety": {
+        "config_rewrite_allowed_by_packet": false,
+        "download_allowed_by_packet": false,
+        "service_switch_allowed_by_packet": false
+      },
+      "schema_version": "annunimas.model_benchmark_packet.v1",
+      "shortlist_score": 103
+    },
+    {
+      "benchmark_cases": [
+        {
+          "id": "code_bug_localization",
+          "prompt": "A Python function uses Path(path).stem to strip .gguf, but model names contain dots like Qwen3.6. Explain the bug and propose the minimal fix.",
+          "success_criteria": [
+            "identifies dotted model name issue",
+            "suggests suffix-specific removal",
+            "minimal patch"
+          ]
+        },
+        {
+          "id": "code_patch_plan",
+          "prompt": "Plan a safe patch to remove two dead provider model IDs from a TOML config while preserving audit evidence.",
+          "success_criteria": [
+            "removes only dead routes",
+            "preserves receipt",
+            "validates TOML"
+          ]
+        },
+        {
+          "id": "tool_call_shape",
+          "prompt": "Return a tool call plan as JSON only for: run py_compile, parse TOML, rerun dry-run audit. Keys: steps, mutation_risk, expected_outputs.",
+          "success_criteria": [
+            "valid JSON",
+            "ordered steps",
+            "marks mutation_risk low/read-only"
+          ]
+        }
+      ],
+      "candidate_model_family": "Qwopus3.5-4B-Coder-MTP-GGUF",
+      "candidate_source_url": "https://huggingface.co/Jackrong/Qwopus3.5-4B-Coder-MTP-GGUF",
+      "current_model": "Qwen3.5-9B-Q4_K_M",
+      "lane": "code_forge_mind",
+      "metrics": {
+        "max_error_rate_percent": 10,
+        "max_first_token_seconds": 15,
+        "must_emit_receipt": true,
+        "quality_min_percent": 78,
+        "requires_json_validity_case": true
+      },
+      "node_display_name": "Annunimas Core (3080 Workstation)",
+      "node_id": "node-core-hub",
+      "packet_id": "node_core_hub_qwopus3_5_4b_coder_mtp_gguf_code_forge_mind",
+      "priority": "first_benchmark",
+      "receipt_path": "data/charon/model_benchmark_receipts.jsonl",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "community_model_safety_review_required"
+      ],
+      "risks": [
+        "community_release_requires_extra_review"
+      ],
+      "safety": {
+        "config_rewrite_allowed_by_packet": false,
+        "download_allowed_by_packet": false,
+        "service_switch_allowed_by_packet": false
+      },
+      "schema_version": "annunimas.model_benchmark_packet.v1",
+      "shortlist_score": 100
+    },
+    {
+      "benchmark_cases": [
+        {
+          "id": "monitoring_health_summary",
+          "prompt": "Summarize this service status for an operator in 5 bullets: Charon healthy, Hermes bridge degraded, Warden queue depth 12, edge_guardhouse latency high, no active halt.",
+          "success_criteria": [
+            "mentions degraded Hermes bridge",
+            "mentions high edge latency",
+            "does not recommend service restart without evidence"
+          ]
+        },
+        {
+          "id": "monitoring_json_extract",
+          "prompt": "Return JSON only with keys status, risks, next_check_seconds for: provider edge_core reachable; provider edge_laptop timed out; queue depth normal.",
+          "success_criteria": [
+            "valid JSON",
+            "captures edge_laptop timeout",
+            "no extra prose"
+          ]
+        },
+        {
+          "id": "monitoring_no_panic",
+          "prompt": "A single model endpoint timed out once. Decide whether to page the operator, retry, or ignore. Keep it brief.",
+          "success_criteria": [
+            "chooses retry or observe",
+            "does not over-escalate",
+            "brief answer"
+          ]
+        }
+      ],
+      "candidate_model_family": "MiniCPM5-1B",
+      "candidate_source_url": "https://huggingface.co/openbmb/MiniCPM5-1B",
+      "current_model": "none",
+      "lane": "monitoring_warden",
+      "metrics": {
+        "max_error_rate_percent": 10,
+        "max_first_token_seconds": 8,
+        "max_total_seconds": 45,
+        "must_emit_receipt": true,
+        "quality_min_percent": 80
+      },
+      "node_display_name": "Pi5 CITADEL Avatar",
+      "node_id": "node-pi5-citadel-avatar",
+      "packet_id": "node_pi5_citadel_avatar_minicpm5_1b_monitoring_warden",
+      "priority": "first_benchmark",
+      "receipt_path": "data/charon/model_benchmark_receipts.jsonl",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required"
+      ],
+      "risks": [],
+      "safety": {
+        "config_rewrite_allowed_by_packet": false,
+        "download_allowed_by_packet": false,
+        "service_switch_allowed_by_packet": false
+      },
+      "schema_version": "annunimas.model_benchmark_packet.v1",
+      "shortlist_score": 120
+    },
+    {
+      "benchmark_cases": [
+        {
+          "id": "monitoring_health_summary",
+          "prompt": "Summarize this service status for an operator in 5 bullets: Charon healthy, Hermes bridge degraded, Warden queue depth 12, edge_guardhouse latency high, no active halt.",
+          "success_criteria": [
+            "mentions degraded Hermes bridge",
+            "mentions high edge latency",
+            "does not recommend service restart without evidence"
+          ]
+        },
+        {
+          "id": "monitoring_json_extract",
+          "prompt": "Return JSON only with keys status, risks, next_check_seconds for: provider edge_core reachable; provider edge_laptop timed out; queue depth normal.",
+          "success_criteria": [
+            "valid JSON",
+            "captures edge_laptop timeout",
+            "no extra prose"
+          ]
+        },
+        {
+          "id": "monitoring_no_panic",
+          "prompt": "A single model endpoint timed out once. Decide whether to page the operator, retry, or ignore. Keep it brief.",
+          "success_criteria": [
+            "chooses retry or observe",
+            "does not over-escalate",
+            "brief answer"
+          ]
+        }
+      ],
+      "candidate_model_family": "MiniCPM5-1B",
+      "candidate_source_url": "https://huggingface.co/openbmb/MiniCPM5-1B",
+      "current_model": "Qwen3.5-4B-Q4_K_M.gguf",
+      "lane": "monitoring_warden",
+      "metrics": {
+        "max_error_rate_percent": 10,
+        "max_first_token_seconds": 8,
+        "max_total_seconds": 45,
+        "must_emit_receipt": true,
+        "quality_min_percent": 80
+      },
+      "node_display_name": "Pi5 Guardhouse (Warden)",
+      "node_id": "node-pi5-warden",
+      "packet_id": "node_pi5_warden_minicpm5_1b_monitoring_warden",
+      "priority": "first_benchmark",
+      "receipt_path": "data/charon/model_benchmark_receipts.jsonl",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required"
+      ],
+      "risks": [],
+      "safety": {
+        "config_rewrite_allowed_by_packet": false,
+        "download_allowed_by_packet": false,
+        "service_switch_allowed_by_packet": false
+      },
+      "schema_version": "annunimas.model_benchmark_packet.v1",
+      "shortlist_score": 127
+    },
+    {
+      "benchmark_cases": [
+        {
+          "id": "code_bug_localization",
+          "prompt": "A Python function uses Path(path).stem to strip .gguf, but model names contain dots like Qwen3.6. Explain the bug and propose the minimal fix.",
+          "success_criteria": [
+            "identifies dotted model name issue",
+            "suggests suffix-specific removal",
+            "minimal patch"
+          ]
+        },
+        {
+          "id": "code_patch_plan",
+          "prompt": "Plan a safe patch to remove two dead provider model IDs from a TOML config while preserving audit evidence.",
+          "success_criteria": [
+            "removes only dead routes",
+            "preserves receipt",
+            "validates TOML"
+          ]
+        },
+        {
+          "id": "tool_call_shape",
+          "prompt": "Return a tool call plan as JSON only for: run py_compile, parse TOML, rerun dry-run audit. Keys: steps, mutation_risk, expected_outputs.",
+          "success_criteria": [
+            "valid JSON",
+            "ordered steps",
+            "marks mutation_risk low/read-only"
+          ]
+        }
+      ],
+      "candidate_model_family": "Qwopus3.5-4B-Coder-MTP-GGUF",
+      "candidate_source_url": "https://huggingface.co/Jackrong/Qwopus3.5-4B-Coder-MTP-GGUF",
+      "current_model": "Qwen3.5-4B-Q4_K_M.gguf",
+      "lane": "code_forge_mind",
+      "metrics": {
+        "max_error_rate_percent": 10,
+        "max_first_token_seconds": 15,
+        "must_emit_receipt": true,
+        "quality_min_percent": 78,
+        "requires_json_validity_case": true
+      },
+      "node_display_name": "Pi5 Guardhouse (Warden)",
+      "node_id": "node-pi5-warden",
+      "packet_id": "node_pi5_warden_qwopus3_5_4b_coder_mtp_gguf_code_forge_mind",
+      "priority": "first_benchmark",
+      "receipt_path": "data/charon/model_benchmark_receipts.jsonl",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "community_model_safety_review_required"
+      ],
+      "risks": [
+        "community_release_requires_extra_review"
+      ],
+      "safety": {
+        "config_rewrite_allowed_by_packet": false,
+        "download_allowed_by_packet": false,
+        "service_switch_allowed_by_packet": false
+      },
+      "schema_version": "annunimas.model_benchmark_packet.v1",
+      "shortlist_score": 74
+    },
+    {
+      "benchmark_cases": [
+        {
+          "id": "code_bug_localization",
+          "prompt": "A Python function uses Path(path).stem to strip .gguf, but model names contain dots like Qwen3.6. Explain the bug and propose the minimal fix.",
+          "success_criteria": [
+            "identifies dotted model name issue",
+            "suggests suffix-specific removal",
+            "minimal patch"
+          ]
+        },
+        {
+          "id": "code_patch_plan",
+          "prompt": "Plan a safe patch to remove two dead provider model IDs from a TOML config while preserving audit evidence.",
+          "success_criteria": [
+            "removes only dead routes",
+            "preserves receipt",
+            "validates TOML"
+          ]
+        },
+        {
+          "id": "tool_call_shape",
+          "prompt": "Return a tool call plan as JSON only for: run py_compile, parse TOML, rerun dry-run audit. Keys: steps, mutation_risk, expected_outputs.",
+          "success_criteria": [
+            "valid JSON",
+            "ordered steps",
+            "marks mutation_risk low/read-only"
+          ]
+        }
+      ],
+      "candidate_model_family": "Qwopus3.5-4B-Coder-MTP-GGUF",
+      "candidate_source_url": "https://huggingface.co/Jackrong/Qwopus3.5-4B-Coder-MTP-GGUF",
+      "current_model": "Qwen_Qwen3.5-4B-Q6_K",
+      "lane": "code_forge_mind",
+      "metrics": {
+        "max_error_rate_percent": 10,
+        "max_first_token_seconds": 15,
+        "must_emit_receipt": true,
+        "quality_min_percent": 78,
+        "requires_json_validity_case": true
+      },
+      "node_display_name": "Beelink SER9 Pro",
+      "node_id": "node-ser9-worker",
+      "packet_id": "node_ser9_worker_qwopus3_5_4b_coder_mtp_gguf_code_forge_mind",
+      "priority": "first_benchmark",
+      "receipt_path": "data/charon/model_benchmark_receipts.jsonl",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "community_model_safety_review_required"
+      ],
+      "risks": [
+        "community_release_requires_extra_review"
+      ],
+      "safety": {
+        "config_rewrite_allowed_by_packet": false,
+        "download_allowed_by_packet": false,
+        "service_switch_allowed_by_packet": false
+      },
+      "schema_version": "annunimas.model_benchmark_packet.v1",
+      "shortlist_score": 112
+    },
+    {
+      "benchmark_cases": [
+        {
+          "id": "research_source_triage",
+          "prompt": "Given three model cards, identify which is best for Pi5 monitoring, Beelink coding, and core scout research. Explain uncertainty.",
+          "success_criteria": [
+            "maps MiniCPM to Pi5",
+            "maps Qwopus to coding",
+            "maps LFM to scout",
+            "states license/benchmark uncertainty"
+          ]
+        },
+        {
+          "id": "research_evidence_table",
+          "prompt": "Create a compact evidence table with columns model, lane, reason, blocker from candidate notes.",
+          "success_criteria": [
+            "table format",
+            "includes blocker",
+            "no promotion without benchmark"
+          ]
+        },
+        {
+          "id": "research_staleness_decision",
+          "prompt": "A provider catalog no longer lists a configured model. Decide remove, disable, or keep. Include evidence requirements.",
+          "success_criteria": [
+            "recommends removal from active route",
+            "keeps historical usage receipts",
+            "requires reachable catalog evidence"
+          ]
+        }
+      ],
+      "candidate_model_family": "LFM2.5-8B-A1B",
+      "candidate_source_url": "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B",
+      "current_model": "Qwen_Qwen3.5-4B-Q6_K",
+      "lane": "scout_research",
+      "metrics": {
+        "max_error_rate_percent": 10,
+        "max_first_token_seconds": 18,
+        "must_emit_receipt": true,
+        "quality_min_percent": 76,
+        "requires_source_uncertainty_case": true
+      },
+      "node_display_name": "Beelink SER9 Pro",
+      "node_id": "node-ser9-worker",
+      "packet_id": "node_ser9_worker_lfm2_5_8b_a1b_scout_research",
+      "priority": "first_benchmark",
+      "receipt_path": "data/charon/model_benchmark_receipts.jsonl",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "license_review_required"
+      ],
+      "risks": [
+        "license_review:lfm1.0"
+      ],
+      "safety": {
+        "config_rewrite_allowed_by_packet": false,
+        "download_allowed_by_packet": false,
+        "service_switch_allowed_by_packet": false
+      },
+      "schema_version": "annunimas.model_benchmark_packet.v1",
+      "shortlist_score": 95
+    },
+    {
+      "benchmark_cases": [
+        {
+          "id": "monitoring_health_summary",
+          "prompt": "Summarize this service status for an operator in 5 bullets: Charon healthy, Hermes bridge degraded, Warden queue depth 12, edge_guardhouse latency high, no active halt.",
+          "success_criteria": [
+            "mentions degraded Hermes bridge",
+            "mentions high edge latency",
+            "does not recommend service restart without evidence"
+          ]
+        },
+        {
+          "id": "monitoring_json_extract",
+          "prompt": "Return JSON only with keys status, risks, next_check_seconds for: provider edge_core reachable; provider edge_laptop timed out; queue depth normal.",
+          "success_criteria": [
+            "valid JSON",
+            "captures edge_laptop timeout",
+            "no extra prose"
+          ]
+        },
+        {
+          "id": "monitoring_no_panic",
+          "prompt": "A single model endpoint timed out once. Decide whether to page the operator, retry, or ignore. Keep it brief.",
+          "success_criteria": [
+            "chooses retry or observe",
+            "does not over-escalate",
+            "brief answer"
+          ]
+        }
+      ],
+      "candidate_model_family": "MiniCPM5-1B",
+      "candidate_source_url": "https://huggingface.co/openbmb/MiniCPM5-1B",
+      "current_model": "Qwen_Qwen3.5-4B-Q6_K",
+      "lane": "monitoring_warden",
+      "metrics": {
+        "max_error_rate_percent": 10,
+        "max_first_token_seconds": 8,
+        "max_total_seconds": 45,
+        "must_emit_receipt": true,
+        "quality_min_percent": 80
+      },
+      "node_display_name": "Beelink SER9 Pro",
+      "node_id": "node-ser9-worker",
+      "packet_id": "node_ser9_worker_minicpm5_1b_monitoring_warden",
+      "priority": "first_benchmark",
+      "receipt_path": "data/charon/model_benchmark_receipts.jsonl",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required"
+      ],
+      "risks": [],
+      "safety": {
+        "config_rewrite_allowed_by_packet": false,
+        "download_allowed_by_packet": false,
+        "service_switch_allowed_by_packet": false
+      },
+      "schema_version": "annunimas.model_benchmark_packet.v1",
+      "shortlist_score": 92
+    }
+  ],
+  "safety": {
+    "config_rewrites": "not_performed",
+    "downloads": "not_performed",
+    "model_switches": "not_performed",
+    "service_restarts": "not_performed"
+  },
+  "schema_version": "annunimas.model_benchmark_plan.v1",
+  "summary": {
+    "benchmark_packets": 0,
+    "first_benchmark_packets": 9,
+    "lanes": [
+      "code_forge_mind",
+      "monitoring_warden",
+      "scout_research"
+    ],
+    "nodes": [
+      "node-backbone-server",
+      "node-core-hub",
+      "node-pi5-citadel-avatar",
+      "node-pi5-warden",
+      "node-ser9-worker"
+    ],
+    "packets": 9
+  }
+}

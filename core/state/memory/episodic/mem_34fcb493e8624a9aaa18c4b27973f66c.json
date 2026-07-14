@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_34fcb493e8624a9aaa18c4b27973f66c",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Evaluate comm+hermes combine without breaking Hermes CLI command surface. Completed evaluation artifact docs/plans/comm-hermes-combine-evaluation.md. Recommendation: keep annunimas-comm as protocol crate for now; use staged annunimas_hermes::a2h namespaced re-export before any internalization to avoid Hermes CLI/import breakage. Verified cargo test -p annunimas-comm, focused cargo test -p annunimas-cli hermes, and queue append-only guard. Full annunimas-hermes lib suite has one pre-existing/unrelated Plutus relationship assertion failure in service::tests::interrupt_capture_writes_audit_and_context.",
+  "salience": 0.9125000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-20T08:45:39.357930372Z",
+  "last_seen_at": "2026-06-20T08:45:39.357930372Z"
+}

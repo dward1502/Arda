@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "goal_provider_mesh_health",
+  "title": "Keep provider mesh healthy",
+  "intent": "Detect provider failures within one tick and route around them. Retire any provider failing two consecutive checks; raise alert if no provider is reachable.",
+  "owner_agent": "prometheus",
+  "status": "active",
+  "priority": "high",
+  "joule_budget_per_day": 200.0,
+  "created_at": "2026-05-04T02:48:59.870240808Z",
+  "updated_at": "2026-05-04T02:48:59.870240808Z"
+}

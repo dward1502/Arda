@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_9a3d972fa75f47ea937fef8e03da4b7a",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA lower-traffic source coverage badges",
+  "salience": 0.8225000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-21T16:51:12.369196944Z",
+  "last_seen_at": "2026-05-21T16:51:12.369196944Z"
+}

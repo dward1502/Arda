@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_a85bbb1b1bb447d697f6d067528b7c9e",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: G7/G8 governance policy and capability selection slices completed",
+  "salience": 0.7875,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-29T11:51:37.468242717Z",
+  "last_seen_at": "2026-05-29T11:51:37.468242717Z"
+}

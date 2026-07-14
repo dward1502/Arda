@@ -1,0 +1,75 @@
+{
+  "authority": "community_signal_intake + communication_adapter_contract + matrix_boardrooms",
+  "campaign": {
+    "mission": "Treat community-server maps as governed signal sources rather than direct runtime dependencies.",
+    "name": "Community Signal Intake",
+    "owner": "hermes_athena",
+    "source_id": "src_dc355aed"
+  },
+  "doctrine": {
+    "boardroom_signal_routing_enabled": true,
+    "community_sources_are_observation_inputs": true,
+    "direct_runtime_adoption_forbidden": true,
+    "discord_mode": "bounded_optional_bridge",
+    "hermes_discord_bridge_is_optional_and_policy_guarded": true
+  },
+  "generated_at_utc": "2026-04-28T09:49:24Z",
+  "routing": {
+    "artifact_link_route": "athena",
+    "boardroom_source": "core/state/matrix_boardrooms.json",
+    "default_discord_route": "prometheus"
+  },
+  "schema_version": "annunimas.hermes-community-sources.v1",
+  "sigil": "REPAIR",
+  "sources": [
+    {
+      "channels": [
+        "boardroom",
+        "discord"
+      ],
+      "provider": "discord",
+      "retention_mode": "bounded_signal_record",
+      "route_to": "prometheus",
+      "signal_class": "builder_communities",
+      "source_id": "discord_builder_communities"
+    },
+    {
+      "channels": [
+        "boardroom",
+        "discord"
+      ],
+      "provider": "discord",
+      "retention_mode": "bounded_signal_record",
+      "route_to": "prometheus",
+      "signal_class": "operator_communities",
+      "source_id": "discord_operator_communities"
+    },
+    {
+      "channels": [
+        "ops-boardroom",
+        "ceo-boardroom"
+      ],
+      "provider": "matrix_boardroom",
+      "retention_mode": "boardroom_signal_record",
+      "route_to": "hermes",
+      "signal_class": "tooling_announcements",
+      "source_id": "matrix_boardrooms"
+    },
+    {
+      "channels": [
+        "boardroom",
+        "discord"
+      ],
+      "provider": "discord",
+      "retention_mode": "bounded_signal_record",
+      "route_to": "athena",
+      "signal_class": "market_and_research_chatter",
+      "source_id": "external_market_chatter"
+    }
+  ],
+  "summary": {
+    "matrix_room_count": 0,
+    "signal_classes_total": 4,
+    "sources_total": 4
+  }
+}

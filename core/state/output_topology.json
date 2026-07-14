@@ -1,0 +1,104 @@
+{
+  "arda_hints": {
+    "alert_on_large_history_surface": false,
+    "boardroom_section": "state_vs_history",
+    "primary_panel": "output_topology"
+  },
+  "authority": "output_topology_projection",
+  "counts": {
+    "data_jsonl_files": 89248,
+    "human_markdown_files": 1126,
+    "metrics_history_snapshots": 17
+  },
+  "generated_at_utc": "2026-07-14T05:03:01.359197409+00:00",
+  "long_term_accounting_candidates": [
+    {
+      "compress_globs": [
+        "*.log"
+      ],
+      "estimated_joulework": 1.0,
+      "exclude_globs": [
+        "bin/**"
+      ],
+      "path": "data/prometheus/autopilot",
+      "priority": "high",
+      "reason": "valuable audit/history surface but not required as sovereign runtime truth",
+      "recommended_action": "mirror_tree_compact"
+    },
+    {
+      "compress_globs": [
+        "*.log"
+      ],
+      "estimated_joulework": 0.8,
+      "path": "data/prometheus/supervisor",
+      "priority": "high",
+      "reason": "operator/support telemetry, not primary runtime authority",
+      "recommended_action": "mirror_tree_compact"
+    },
+    {
+      "estimated_joulework": 2.0,
+      "path": "core/metrics/history",
+      "priority": "medium",
+      "reason": "longitudinal accountability and replay, distinct from live runtime control",
+      "recommended_action": "mirror_tree"
+    },
+    {
+      "estimated_joulework": 0.5,
+      "path": "target",
+      "priority": "low",
+      "reason": "rebuildable local artifacts that should stay outside long-term operational truth",
+      "recommended_action": "snapshot_manifest"
+    }
+  ],
+  "schema_version": "annunimas.core.state.v1",
+  "surfaces": [
+    {
+      "classification": "operational_authority",
+      "id": "sovereign_runtime",
+      "path": "core/state",
+      "purpose": "machine-readable runtime truth consumed by ARDA and local agents"
+    },
+    {
+      "classification": "operational_authority",
+      "id": "execution_ledgers",
+      "path": "core/projects/tasks/queue.jsonl",
+      "purpose": "authoritative project/task ledger"
+    },
+    {
+      "classification": "operational_authority",
+      "id": "runtime_queue",
+      "path": "core/queue/queue.jsonl",
+      "purpose": "active runtime task queue"
+    },
+    {
+      "classification": "operational_observability",
+      "id": "metrics_latest",
+      "path": "core/metrics/by_crate",
+      "purpose": "latest exported metrics snapshots"
+    },
+    {
+      "classification": "accounted_history",
+      "id": "metrics_history",
+      "path": "core/metrics/history",
+      "purpose": "immutable metrics snapshots for audit and longitudinal analysis"
+    },
+    {
+      "classification": "operational_ledgers",
+      "id": "append_only_ledgers",
+      "path": "data",
+      "purpose": "raw append-only system stores and durable histories"
+    },
+    {
+      "classification": "human_visualization",
+      "id": "human_visual_layer",
+      "path": "human",
+      "purpose": "graph-oriented human and machine thought surfaces"
+    },
+    {
+      "classification": "non_operational_rebuildable",
+      "id": "build_artifacts",
+      "path": "target",
+      "purpose": "local build cache and temp execution artifacts"
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "authority": "package_runtime_activation + communication_adapter_contract + extension_activation_backlog",
+  "bridge_contract": {
+    "artifact_dir": "data/mcp/playwright/artifacts",
+    "crate_surface": "crates/annunimas-mcp/src/browser.rs",
+    "env_contract": [
+      "ANNUNIMAS_PLAYWRIGHT_MCP_CMD"
+    ],
+    "launcher": "scripts/playwright_mcp_bridge.sh",
+    "log_path": "data/mcp/playwright/bridge.log",
+    "profile_dir": "data/mcp/playwright/profile"
+  },
+  "doctrine": {
+    "agent_first_contract": true,
+    "approval_required_for_browser_session": true,
+    "ephemeral_stdio_only": true,
+    "governed_browser_capability_not_background_daemon": true,
+    "network_requires_explicit_allow": true,
+    "ui_optional": true
+  },
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "productization_lanes": [
+    {
+      "lane": "mcp_browser_session",
+      "next_action": "Start the supervised bridge only for governed browser sessions; keep it on-demand rather than daemonized",
+      "owner": "hermes_charon",
+      "purpose": "Expose browser navigation/page interaction as a governed on-demand MCP session tool.",
+      "runtime_status": "contract_ready",
+      "write_through": [
+        "scripts/playwright_mcp_bridge.sh",
+        "core/state/package_runtime_activation.json",
+        "core/state/communication_adapter_contract.json"
+      ]
+    },
+    {
+      "lane": "workflow_execution",
+      "next_action": "bind approved browser sessions into APOLLO recipes and explicit task flows",
+      "owner": "apollo",
+      "purpose": "Use browser sessions as explicit workflow steps rather than ambient daemon capability.",
+      "runtime_status": "contract_ready",
+      "write_through": [
+        "core/state/extension_surface_contract.json",
+        "core/state/playwright_mcp_productization_contract.json",
+        "core/state/package_runtime_activation.json"
+      ]
+    },
+    {
+      "lane": "ui_agent_consumers",
+      "next_action": "ingest the same governed browser contract through system snapshot/source-map consumers",
+      "owner": "prometheus_arda",
+      "purpose": "Let ARDA or other agents consume the same browser-session contract without becoming the source of authority.",
+      "runtime_status": "contract_ready",
+      "write_through": [
+        "core/state/system_snapshot.json",
+        "core/state/system_source_map.json",
+        "core/state/playwright_mcp_productization_contract.json"
+      ]
+    }
+  ],
+  "recommended_activation_sequence": [
+    "keep Playwright MCP on-demand and approval-gated",
+    "use the supervised bridge only for explicit governed browser sessions",
+    "promote recurring browser steps into APOLLO workflow recipes instead of long-lived background service",
+    "expose the same contract to UI and agent consumers through sovereign state exports"
+  ],
+  "schema_version": "annunimas.playwright-mcp-productization-contract.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "approval_required": true,
+    "lanes_total": 3,
+    "runtime_ready": true
+  },
+  "tool": {
+    "activation_status": "governed_on_demand",
+    "command": "npx @playwright/mcp@latest --stdio",
+    "integration_state": "ready_for_activation",
+    "name": "playwright-mcp",
+    "repo": "microsoft/playwright-mcp",
+    "repo_url": "https://github.com/microsoft/playwright-mcp",
+    "runtime_mode": "ephemeral_stdio",
+    "runtime_status": "contract_ready"
+  }
+}

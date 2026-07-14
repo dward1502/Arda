@@ -1,0 +1,229 @@
+{
+  "generated_at_utc": "2026-04-22T18:24:20.813373Z",
+  "crate": "warden",
+  "status": "healthy",
+  "informant_queue_total": 633,
+  "informant_status_counts": {
+    "attention_required": 581,
+    "observed": 4,
+    "ok": 1,
+    "healthy": 47
+  },
+  "informant_severity_counts": {
+    "unknown": 90,
+    "warning": 531,
+    "info": 12
+  },
+  "informant_source_counts": {
+    "repair_pipeline": 68,
+    "unknown": 3,
+    "fleet_control": 2,
+    "athena": 6,
+    "prometheus_maintenance": 489,
+    "repair_pipeline_low_value": 1,
+    "metrics_export": 54,
+    "health_workflow_router": 10
+  },
+  "informant_event_counts": {
+    "orphan_found": 48,
+    "interrupt_captured": 3,
+    "repair_detected": 20,
+    "command_tower_scan_inventory_refresh": 1,
+    "destructive_quorum_blocked_execution": 1,
+    "athena_policy_remediation_queued": 1,
+    "athena_deep_backlog_warning": 1,
+    "athena_opposition_harvested": 1,
+    "athena_deep_failed": 1,
+    "command_tower_scan_completed": 1,
+    "athena_deep_queued": 1,
+    "athena_deep_complete": 1,
+    "maintenance_health_heartbeat": 489,
+    "crate_health_heartbeat": 54,
+    "health_workflow_planned": 10
+  },
+  "recent_informants": [
+    {
+      "content": "prometheus_maintenance completed with 2 issues",
+      "crate_name": "prometheus",
+      "event": "maintenance_health_heartbeat",
+      "event_type": "maintenance_health_heartbeat",
+      "informant_id": "prometheus_maintenance",
+      "issues": [
+        "hades_pending_actions=25",
+        "hades_orphans_active=25"
+      ],
+      "severity": "warning",
+      "source": "prometheus_maintenance",
+      "status": "attention_required",
+      "ts_utc": "2026-04-22T17:33:20.002840861+00:00",
+      "event_name": "maintenance_health_heartbeat",
+      "normalized_source": "prometheus_maintenance",
+      "normalized_status": "attention_required"
+    },
+    {
+      "content": "prometheus_maintenance completed with 2 issues",
+      "crate_name": "prometheus",
+      "event": "maintenance_health_heartbeat",
+      "event_type": "maintenance_health_heartbeat",
+      "informant_id": "prometheus_maintenance",
+      "issues": [
+        "hades_pending_actions=25",
+        "hades_orphans_active=25"
+      ],
+      "severity": "warning",
+      "source": "prometheus_maintenance",
+      "status": "attention_required",
+      "ts_utc": "2026-04-22T17:38:57.835038888+00:00",
+      "event_name": "maintenance_health_heartbeat",
+      "normalized_source": "prometheus_maintenance",
+      "normalized_status": "attention_required"
+    },
+    {
+      "content": "prometheus_maintenance completed with 2 issues",
+      "crate_name": "prometheus",
+      "event": "maintenance_health_heartbeat",
+      "event_type": "maintenance_health_heartbeat",
+      "informant_id": "prometheus_maintenance",
+      "issues": [
+        "hades_pending_actions=25",
+        "hades_orphans_active=25"
+      ],
+      "severity": "warning",
+      "source": "prometheus_maintenance",
+      "status": "attention_required",
+      "ts_utc": "2026-04-22T17:44:35.900067104+00:00",
+      "event_name": "maintenance_health_heartbeat",
+      "normalized_source": "prometheus_maintenance",
+      "normalized_status": "attention_required"
+    },
+    {
+      "content": "prometheus_maintenance completed with 2 issues",
+      "crate_name": "prometheus",
+      "event": "maintenance_health_heartbeat",
+      "event_type": "maintenance_health_heartbeat",
+      "informant_id": "prometheus_maintenance",
+      "issues": [
+        "hades_pending_actions=25",
+        "hades_orphans_active=25"
+      ],
+      "severity": "warning",
+      "source": "prometheus_maintenance",
+      "status": "attention_required",
+      "ts_utc": "2026-04-22T17:50:13.606109958+00:00",
+      "event_name": "maintenance_health_heartbeat",
+      "normalized_source": "prometheus_maintenance",
+      "normalized_status": "attention_required"
+    },
+    {
+      "content": "prometheus_maintenance completed with 2 issues",
+      "crate_name": "prometheus",
+      "event": "maintenance_health_heartbeat",
+      "event_type": "maintenance_health_heartbeat",
+      "informant_id": "prometheus_maintenance",
+      "issues": [
+        "hades_pending_actions=25",
+        "hades_orphans_active=25"
+      ],
+      "severity": "warning",
+      "source": "prometheus_maintenance",
+      "status": "attention_required",
+      "ts_utc": "2026-04-22T17:55:52.441910730+00:00",
+      "event_name": "maintenance_health_heartbeat",
+      "normalized_source": "prometheus_maintenance",
+      "normalized_status": "attention_required"
+    },
+    {
+      "content": "prometheus_maintenance completed with 2 issues",
+      "crate_name": "prometheus",
+      "event": "maintenance_health_heartbeat",
+      "event_type": "maintenance_health_heartbeat",
+      "informant_id": "prometheus_maintenance",
+      "issues": [
+        "hades_pending_actions=25",
+        "hades_orphans_active=25"
+      ],
+      "severity": "warning",
+      "source": "prometheus_maintenance",
+      "status": "attention_required",
+      "ts_utc": "2026-04-22T18:01:30.056450917+00:00",
+      "event_name": "maintenance_health_heartbeat",
+      "normalized_source": "prometheus_maintenance",
+      "normalized_status": "attention_required"
+    },
+    {
+      "content": "prometheus_maintenance completed with 2 issues",
+      "crate_name": "prometheus",
+      "event": "maintenance_health_heartbeat",
+      "event_type": "maintenance_health_heartbeat",
+      "informant_id": "prometheus_maintenance",
+      "issues": [
+        "hades_pending_actions=25",
+        "hades_orphans_active=25"
+      ],
+      "severity": "warning",
+      "source": "prometheus_maintenance",
+      "status": "attention_required",
+      "ts_utc": "2026-04-22T18:07:08.230186437+00:00",
+      "event_name": "maintenance_health_heartbeat",
+      "normalized_source": "prometheus_maintenance",
+      "normalized_status": "attention_required"
+    },
+    {
+      "content": "prometheus_maintenance completed with 2 issues",
+      "crate_name": "prometheus",
+      "event": "maintenance_health_heartbeat",
+      "event_type": "maintenance_health_heartbeat",
+      "informant_id": "prometheus_maintenance",
+      "issues": [
+        "hades_pending_actions=25",
+        "hades_orphans_active=25"
+      ],
+      "severity": "warning",
+      "source": "prometheus_maintenance",
+      "status": "attention_required",
+      "ts_utc": "2026-04-22T18:12:45.795310345+00:00",
+      "event_name": "maintenance_health_heartbeat",
+      "normalized_source": "prometheus_maintenance",
+      "normalized_status": "attention_required"
+    },
+    {
+      "content": "prometheus_maintenance completed with 2 issues",
+      "crate_name": "prometheus",
+      "event": "maintenance_health_heartbeat",
+      "event_type": "maintenance_health_heartbeat",
+      "informant_id": "prometheus_maintenance",
+      "issues": [
+        "hades_pending_actions=25",
+        "hades_orphans_active=25"
+      ],
+      "severity": "warning",
+      "source": "prometheus_maintenance",
+      "status": "attention_required",
+      "ts_utc": "2026-04-22T18:18:24.266906579+00:00",
+      "event_name": "maintenance_health_heartbeat",
+      "normalized_source": "prometheus_maintenance",
+      "normalized_status": "attention_required"
+    },
+    {
+      "content": "prometheus_maintenance completed with 2 issues",
+      "crate_name": "prometheus",
+      "event": "maintenance_health_heartbeat",
+      "event_type": "maintenance_health_heartbeat",
+      "informant_id": "prometheus_maintenance",
+      "issues": [
+        "hades_pending_actions=25",
+        "hades_orphans_active=25"
+      ],
+      "severity": "warning",
+      "source": "prometheus_maintenance",
+      "status": "attention_required",
+      "ts_utc": "2026-04-22T18:24:02.165530458+00:00",
+      "event_name": "maintenance_health_heartbeat",
+      "normalized_source": "prometheus_maintenance",
+      "normalized_status": "attention_required"
+    }
+  ],
+  "permission_audit_total": 15762,
+  "permission_allowed_total": 15519,
+  "permission_denied_total": 243
+}

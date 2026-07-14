@@ -1,0 +1,113 @@
+{
+  "already_open": [
+    {
+      "source_id": "src_d46d1480",
+      "status": "completed",
+      "subsystem": "athena",
+      "task_id": "tsk_absorb_0bb9d6447477"
+    },
+    {
+      "source_id": "src_d46d1480",
+      "status": "completed",
+      "subsystem": "ingestion",
+      "task_id": "tsk_absorb_85d71dcf5662"
+    },
+    {
+      "source_id": "src_dab89283",
+      "status": "completed",
+      "subsystem": "charon",
+      "task_id": "tsk_absorb_01d788dea271"
+    },
+    {
+      "source_id": "src_dab89283",
+      "status": "completed",
+      "subsystem": "routing",
+      "task_id": "tsk_absorb_1ed60e9be68d"
+    },
+    {
+      "source_id": "src_234088bc",
+      "status": "completed",
+      "subsystem": "charon",
+      "task_id": "tsk_absorb_aca37e3144ba"
+    },
+    {
+      "source_id": "src_234088bc",
+      "status": "completed",
+      "subsystem": "routing",
+      "task_id": "tsk_absorb_6914886fc667"
+    },
+    {
+      "source_id": "src_bfd43480",
+      "status": "completed",
+      "subsystem": "charon",
+      "task_id": "tsk_absorb_06c8df28db04"
+    },
+    {
+      "source_id": "src_bfd43480",
+      "status": "completed",
+      "subsystem": "runtime",
+      "task_id": "tsk_absorb_228ea894ca6d"
+    },
+    {
+      "source_id": "src_df11630e",
+      "status": "completed",
+      "subsystem": "athena",
+      "task_id": "tsk_absorb_ccea6fe0cc28"
+    },
+    {
+      "source_id": "src_df11630e",
+      "status": "completed",
+      "subsystem": "prometheus",
+      "task_id": "tsk_absorb_02336ffc42af"
+    },
+    {
+      "source_id": "src_33fa61b2",
+      "status": "completed",
+      "subsystem": "prometheus",
+      "task_id": "tsk_absorb_4f2fe8107e17"
+    },
+    {
+      "source_id": "src_33fa61b2",
+      "status": "completed",
+      "subsystem": "athena",
+      "task_id": "tsk_absorb_6d49c3da66c4"
+    },
+    {
+      "source_id": "src_ca2f031e",
+      "status": "completed",
+      "subsystem": "prometheus",
+      "task_id": "tsk_absorb_00ed8cbaf4a2"
+    },
+    {
+      "source_id": "src_ca2f031e",
+      "status": "completed",
+      "subsystem": "athena",
+      "task_id": "tsk_absorb_268cf22d52e7"
+    },
+    {
+      "source_id": "src_dc355aed",
+      "status": "completed",
+      "subsystem": "prometheus",
+      "task_id": "tsk_absorb_100a326c88f0"
+    },
+    {
+      "source_id": "src_dc355aed",
+      "status": "completed",
+      "subsystem": "athena",
+      "task_id": "tsk_absorb_67e0c17e36d2"
+    }
+  ],
+  "authority": "source_absorption_pipeline + project_task_queue",
+  "emitted_tasks": [],
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "schema_version": "annunimas.source-absorption-execution.v1",
+  "sigil": "REPAIR",
+  "skipped": [],
+  "source_surface": "core/state/source_absorption_pipeline.json",
+  "summary": {
+    "already_open_total": 16,
+    "emitted_total": 0,
+    "promote_now_candidates_total": 8,
+    "skipped_total": 0
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_515238a4450c4837af764817082b485d",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Public extraction plan completed",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-13T10:45:57.221933611Z",
+  "last_seen_at": "2026-06-13T10:45:57.221933611Z"
+}

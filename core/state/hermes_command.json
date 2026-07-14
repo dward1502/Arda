@@ -1,0 +1,1177 @@
+{
+  "arda_hints": {
+    "alert_on_fleet_recovery_failure": true,
+    "alert_on_interrupt_denials": false,
+    "alert_on_matrix_activation_gap": true,
+    "alert_on_reroute_backpressure": false,
+    "boardroom_section": "matrix_boardrooms",
+    "primary_panel": "boardroom_and_comms"
+  },
+  "authority": "hermes_command_projection",
+  "communications": {
+    "boardroom_contract": {
+      "activation_requirements": {
+        "element_client_ready": true,
+        "federated_rooms_ready": false,
+        "matrix_bot_access_token_env": "ANNUNIMAS_MATRIX_ACCESS_TOKEN",
+        "matrix_homeserver_env": "ANNUNIMAS_MATRIX_HOMESERVER"
+      },
+      "bridge_contracts": {
+        "discord": {
+          "enabled": true,
+          "mode": "hermes_moderated",
+          "requires_policy_guard": true,
+          "source_room_id": "client-bridge"
+        },
+        "webhook": {
+          "enabled": true,
+          "mode": "receipt_fanout",
+          "requires_policy_guard": true,
+          "source_room_id": "ops-boardroom"
+        }
+      },
+      "client_surface": "element",
+      "matrix_ready": false,
+      "provider": "matrix",
+      "room_count": 5,
+      "rooms": [
+        {
+          "e2ee_required": true,
+          "id": "ceo-boardroom",
+          "logging_mode": "receipt_only",
+          "name": "CEO Boardroom",
+          "participants": [
+            "arandur",
+            "oracle",
+            "warden",
+            "athena"
+          ],
+          "type": "decision_room"
+        },
+        {
+          "e2ee_required": true,
+          "id": "ops-boardroom",
+          "logging_mode": "summary_plus_receipts",
+          "name": "Operations Boardroom",
+          "participants": [
+            "apollo",
+            "hermes",
+            "hades",
+            "charon"
+          ],
+          "type": "operations_room"
+        },
+        {
+          "e2ee_required": true,
+          "id": "client-bridge",
+          "logging_mode": "policy_guarded",
+          "name": "Client Bridge",
+          "participants": [
+            "hermes"
+          ],
+          "type": "adapter_room"
+        },
+        {
+          "e2ee_required": true,
+          "id": "research-forge",
+          "logging_mode": "summary_plus_receipts",
+          "name": "Research Forge",
+          "participants": [
+            "athena",
+            "mnemosyne",
+            "apollo"
+          ],
+          "type": "knowledge_room"
+        },
+        {
+          "e2ee_required": true,
+          "id": "governance-audit",
+          "logging_mode": "receipt_only",
+          "name": "Governance Audit",
+          "participants": [
+            "oracle",
+            "warden",
+            "hades"
+          ],
+          "type": "audit_room"
+        }
+      ],
+      "root_space": {
+        "alias": "#annunimas:matrix.local",
+        "name": "Annunimas Boardrooms",
+        "operator_entrypoint": "#annunimas-ops:matrix.local",
+        "purpose": "sovereign_operator_and_agent_coordination"
+      },
+      "routing_contract": {
+        "audit_room_id": "governance-audit",
+        "client_adapter_room_id": "client-bridge",
+        "human_decision_room_id": "ceo-boardroom",
+        "knowledge_room_id": "research-forge",
+        "primary_boardroom_room_id": "ops-boardroom"
+      },
+      "source": "core/state/matrix_boardrooms.json"
+    }
+  },
+  "fleet_recovery": {
+    "summary": {
+      "recovered_total": 0,
+      "restart_attempted_total": 6,
+      "restart_failed_total": 6
+    },
+    "targets": [
+      {
+        "charon_provider_id": "edge_backbone",
+        "recovery": {
+          "attempted": true,
+          "attempts": [
+            {
+              "attempt": 1,
+              "restart": {
+                "attempted": false,
+                "command": "systemctl --user --no-block restart llama-server-lfm25.service",
+                "error": "tailscale_peer_offline",
+                "ok": false,
+                "peer_online": false,
+                "scope": "ssh",
+                "ssh_target": "annunimas-server.tail91c3c1.ts.net"
+              }
+            }
+          ],
+          "recovered": false
+        },
+        "status": "offline",
+        "target_id": "node-backbone-server"
+      },
+      {
+        "charon_provider_id": "edge_core",
+        "recovery": null,
+        "status": "online",
+        "target_id": "node-core-hub"
+      },
+      {
+        "charon_provider_id": "edge_backbone_coder",
+        "recovery": {
+          "attempted": true,
+          "attempts": [
+            {
+              "attempt": 1,
+              "restart": {
+                "attempted": false,
+                "command": "systemctl --user --no-block restart llama-server-gemma4-coder.service",
+                "error": "tailscale_peer_offline",
+                "ok": false,
+                "peer_online": false,
+                "scope": "ssh",
+                "ssh_target": "annunimas-server.tail91c3c1.ts.net"
+              }
+            }
+          ],
+          "recovered": false
+        },
+        "status": "offline",
+        "target_id": "node-backbone-gemma4-coder"
+      },
+      {
+        "charon_provider_id": "edge_backbone_vision",
+        "recovery": {
+          "attempted": true,
+          "attempts": [
+            {
+              "attempt": 1,
+              "restart": {
+                "attempted": false,
+                "command": "systemctl --user --no-block restart llama-server-vision.service",
+                "error": "tailscale_peer_offline",
+                "ok": false,
+                "peer_online": false,
+                "scope": "ssh",
+                "ssh_target": "annunimas-server.tail91c3c1.ts.net"
+              }
+            }
+          ],
+          "recovered": false
+        },
+        "status": "offline",
+        "target_id": "node-backbone-vision"
+      },
+      {
+        "charon_provider_id": "edge_beelink_light",
+        "recovery": null,
+        "status": "online",
+        "target_id": "node-ser9-worker"
+      },
+      {
+        "charon_provider_id": "edge_carnice",
+        "recovery": {
+          "attempted": true,
+          "attempts": [
+            {
+              "attempt": 1,
+              "restart": {
+                "attempted": true,
+                "command": "systemctl --user --no-block restart llama-server.service",
+                "exit_code": 255,
+                "ok": false,
+                "scope": "ssh",
+                "stderr": "No ED25519 host key is known for beelink.tail91c3c1.ts.net. and you have requested strict checking.\r\nHost key verification failed.",
+                "stdout": ""
+              }
+            }
+          ],
+          "recovered": false
+        },
+        "status": "offline",
+        "target_id": "node-ser9-carnice"
+      },
+      {
+        "charon_provider_id": "edge_laptop",
+        "recovery": {
+          "attempted": true,
+          "attempts": [
+            {
+              "attempt": 1,
+              "restart": {
+                "attempted": false,
+                "command": "systemctl --user --no-block restart llama-server",
+                "error": "tailscale_peer_offline",
+                "ok": false,
+                "peer_online": false,
+                "scope": "ssh",
+                "ssh_target": "laptop.tail91c3c1.ts.net"
+              }
+            }
+          ],
+          "recovered": false
+        },
+        "status": "offline",
+        "target_id": "node-laptop"
+      },
+      {
+        "charon_provider_id": "edge_guardhouse",
+        "recovery": null,
+        "status": "online",
+        "target_id": "node-pi5-warden"
+      },
+      {
+        "charon_provider_id": null,
+        "recovery": {
+          "attempted": true,
+          "attempts": [
+            {
+              "attempt": 1,
+              "restart": {
+                "attempted": false,
+                "command": "systemctl --user --no-block restart citadel-companion.service && systemctl --user --no-block restart citadel-kiosk.service",
+                "error": "tailscale_peer_offline",
+                "ok": false,
+                "peer_online": false,
+                "scope": "ssh",
+                "ssh_target": "raspberrypi-1.tail91c3c1.ts.net"
+              }
+            }
+          ],
+          "recovered": false
+        },
+        "status": "offline",
+        "target_id": "node-pi5-citadel-avatar"
+      }
+    ]
+  },
+  "generated_at_utc": "2026-07-14T05:03:07.152537254+00:00",
+  "github_repo_integration": {
+    "communications_registry_tools": [
+      {
+        "athena": {
+          "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_b711210b.jsonl",
+          "confidence": 0.6916666666666667,
+          "human_ref": "human/library/athena/sources/src_b711210b.md",
+          "status": "deep",
+          "triad_passed": true,
+          "updated_at_utc": "2026-03-11T02:49:36.931730605+00:00"
+        },
+        "disposition": {
+          "mode": "extension_candidate",
+          "rationale": "The repo is digested and mapped, but should remain an optional extension until bounded runtime surfaces exist.",
+          "runtime_status": null
+        },
+        "package_enablement": {
+          "activation_status": "planned",
+          "integration_lane": "mcp_communications",
+          "integration_state": "observed_only",
+          "next_action": "promote from evidence into a bounded runtime or product surface",
+          "policy_confidence": 0.6916666666666667,
+          "policy_readiness": "reference_only"
+        },
+        "repo": "SaseQ/discord-mcp",
+        "repo_url": "https://github.com/SaseQ/discord-mcp",
+        "runtime": null,
+        "source_id": "src_b711210b",
+        "system_surfaces": [
+          "core/state/package_enablement.json",
+          "core/state/package_runtime_activation.json",
+          "core/state/operator_actions.json"
+        ],
+        "tool": "discord-mcp"
+      },
+      {
+        "athena": {
+          "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_dab89283.jsonl",
+          "confidence": 0.7516666666666667,
+          "human_ref": "human/library/athena/sources/src_dab89283.md",
+          "status": "deep",
+          "triad_passed": true,
+          "updated_at_utc": "2026-03-12T04:30:26.494223273+00:00"
+        },
+        "disposition": {
+          "mode": "implementation_lane",
+          "rationale": "ATHENA digestion is strong enough; next work is runtime or product surface implementation.",
+          "runtime_status": "running"
+        },
+        "package_enablement": {
+          "activation_status": "planned",
+          "integration_lane": "charon_provider",
+          "integration_state": "evidence_ready",
+          "next_action": "promote from evidence into a bounded runtime or product surface",
+          "policy_confidence": 0.7516666666666667,
+          "policy_readiness": "policy_ready"
+        },
+        "repo": "BerriAI/litellm",
+        "repo_url": "https://github.com/BerriAI/litellm",
+        "runtime": {
+          "config_path": "config/litellm.proxy.yaml",
+          "log_path": "data/prometheus/litellm/proxy.log",
+          "models_ready": true,
+          "ok": true,
+          "pid": 1814,
+          "proxy_url": "http://127.0.0.1:4000/v1",
+          "status": "running",
+          "tool_bin_dir": "/var/home/mythos/.local/bin"
+        },
+        "source_id": "src_dab89283",
+        "system_surfaces": [
+          "core/state/package_enablement.json",
+          "core/state/package_runtime_activation.json",
+          "core/state/operator_actions.json"
+        ],
+        "tool": "litellm"
+      }
+    ],
+    "framework_surfaces": [
+      {
+        "annunimas_adaptation": null,
+        "follow_ons": [
+          "crate_spawn_blueprint_contract",
+          "network_native_node_onboarding_contract",
+          "aipkg_marketplace_separation",
+          "arda_embodied_tauri_slice"
+        ],
+        "implementation_targets": null,
+        "name": "OpenFang",
+        "path": "core/state/openfang_alignment.json",
+        "pattern_extraction": {
+          "desktop_embodiment": {
+            "annunimas_adaptation": "carry forward into ARDA embodied interface and Pepper's Ghost controller surfaces",
+            "openfang_pattern": "Tauri desktop as a first-class native surface",
+            "priority": "medium"
+          },
+          "hands_to_spawnable_crates": {
+            "annunimas_adaptation": "crate-spawn templates with sovereign task, metrics, ARDA, and control-plane hooks from first boot",
+            "openfang_pattern": "autonomous Hands as prebuilt capability packages with lifecycle verbs",
+            "priority": "high"
+          },
+          "security_stack": {
+            "annunimas_adaptation": "map to WARDEN, HADES, `.aipkg` receipts/signatures, and control-plane lockdown projections",
+            "openfang_pattern": "explicit signing, taint tracking, sandboxing, and audit trail",
+            "priority": "high"
+          },
+          "skills_marketplace_boundary": {
+            "annunimas_adaptation": "align with `.aipkg` as open package law and keep marketplace economics out of core truth",
+            "openfang_pattern": "skills and marketplace framing around reusable packages",
+            "priority": "high"
+          },
+          "wire_to_network_onboarding": {
+            "annunimas_adaptation": "keep Unix sockets local, Tailscale internal, and fold network-native node onboarding above the sovereign local layer",
+            "openfang_pattern": "network-native OFP onboarding and mutual auth",
+            "priority": "high"
+          }
+        },
+        "source_id": "src_cebb6abe",
+        "source_url": "https://github.com/RightNow-AI/openfang"
+      },
+      {
+        "annunimas_adaptation": {
+          "adapt": [
+            "yaml_personas_into_operator_product_profiles",
+            "low_code_templates_into_crate_spawn_blueprints"
+          ],
+          "adopt": [
+            "forge_style_creation_flow",
+            "declarative_workflow_templates",
+            "memory_node_contracts_for_spawned_systems"
+          ],
+          "reject": [
+            "framework_centrality_over_sovereign_core",
+            "single_memory_backend_assumption"
+          ]
+        },
+        "follow_ons": null,
+        "implementation_targets": null,
+        "name": "AgentForge",
+        "path": "core/state/agentforge_alignment.json",
+        "pattern_extraction": null,
+        "source_id": "src_75bbe2e4",
+        "source_url": "https://github.com/DataBassGit/AgentForge"
+      },
+      {
+        "annunimas_adaptation": {
+          "adapt": [
+            "persona_shells_into_productizable_client_experiences",
+            "plugin_registry_patterns_into_aipkg_marketplace_extensions"
+          ],
+          "adopt": [
+            "plugin_boundary_patterns",
+            "connector_surfaces_as_optional_adapters",
+            "client_surface_packaging_lessons"
+          ],
+          "reject": [
+            "identity_persona_as_core_doctrine",
+            "chat_platform_connectors_as_sovereign_base_layer"
+          ]
+        },
+        "follow_ons": null,
+        "implementation_targets": null,
+        "name": "eliza",
+        "path": "core/state/eliza_alignment.json",
+        "pattern_extraction": null,
+        "source_id": "src_4169b219",
+        "source_url": "https://github.com/elizaOS/eliza"
+      },
+      {
+        "annunimas_adaptation": null,
+        "follow_ons": null,
+        "implementation_targets": null,
+        "name": "Tauri",
+        "path": "core/state/tauri_embodiment.json",
+        "pattern_extraction": null,
+        "source_id": "src_d48f6cc9",
+        "source_url": null
+      }
+    ],
+    "source": "core/state/github_repo_integration.json",
+    "summary": {
+      "framework_linked_total": 4,
+      "github_sources_total": 68,
+      "integration_coverage_total": 68,
+      "observed_only_total": 5,
+      "ready_for_activation_total": 5,
+      "registry_linked_total": 11,
+      "registry_tools_total": 11,
+      "research_backlog_total": 53
+    }
+  },
+  "providers": {
+    "configured": [
+      "discord",
+      "email",
+      "slack"
+    ],
+    "offline": [
+      "email",
+      "slack"
+    ],
+    "online": [
+      "discord"
+    ]
+  },
+  "recent_activity": {
+    "boardroom": [
+      {
+        "body": "[charon] council input for topic 'test dispatch to warden because evidence'. context={\"confidence_adjusted\":0.8799999999999999,\"confidence_base\":0.95,\"description\":\"test dispatch to warden because evidence\",\"escalation_required\":false,\"participating_seats\":[\"strategist\",\"operator\"],\"query_mode\":\"dual_seat\",\"responders_available\":0,\"responders_expected\":4,\"task_id\":\"d4a1d0ff-2932-453b-99b4-e4a35cf88a7b\",\"task_type\":\"ingest\",\"timed_out\":true}",
+        "from_agent": "charon",
+        "mentions": [
+          "prometheus"
+        ],
+        "message_type": "council_report",
+        "posted_at_utc": "2026-03-13T09:59:29.016853940+00:00",
+        "priority": "normal",
+        "subject": "Council report from charon",
+        "thread_id": "council_908a4a99"
+      },
+      {
+        "body": "[mnemosyne] council input for topic 'test dispatch to warden because evidence'. context={\"confidence_adjusted\":0.8799999999999999,\"confidence_base\":0.95,\"description\":\"test dispatch to warden because evidence\",\"escalation_required\":false,\"participating_seats\":[\"strategist\",\"operator\"],\"query_mode\":\"dual_seat\",\"responders_available\":0,\"responders_expected\":4,\"task_id\":\"d4a1d0ff-2932-453b-99b4-e4a35cf88a7b\",\"task_type\":\"ingest\",\"timed_out\":true}",
+        "from_agent": "mnemosyne",
+        "mentions": [
+          "prometheus"
+        ],
+        "message_type": "council_report",
+        "posted_at_utc": "2026-03-13T09:59:29.041626723+00:00",
+        "priority": "normal",
+        "subject": "Council report from mnemosyne",
+        "thread_id": "council_908a4a99"
+      },
+      {
+        "body": "Council fanout complete with 4 participants.",
+        "from_agent": "prometheus",
+        "mentions": [],
+        "message_type": "council_close",
+        "posted_at_utc": "2026-03-13T09:59:29.064726315+00:00",
+        "priority": "normal",
+        "subject": "Council session closed",
+        "thread_id": "council_908a4a99"
+      },
+      {
+        "body": "Convening council gate discussion.",
+        "from_agent": "prometheus",
+        "mentions": [
+          "athena",
+          "hades",
+          "charon"
+        ],
+        "message_type": "council_open",
+        "posted_at_utc": "2026-03-13T10:03:41.193656516+00:00",
+        "priority": "high",
+        "subject": "Council Session Opened: test warden dispatch because evidence",
+        "thread_id": "council_5803f642"
+      },
+      {
+        "body": "[athena] council input for topic 'test warden dispatch because evidence'. context={\"confidence_adjusted\":0.8799999999999999,\"confidence_base\":0.95,\"description\":\"test warden dispatch because evidence\",\"escalation_required\":false,\"participating_seats\":[\"strategist\",\"operator\"],\"query_mode\":\"dual_seat\",\"responders_available\":0,\"responders_expected\":4,\"task_id\":\"a1d4f6d3-daad-4930-b3a0-ff04880b082e\",\"task_type\":\"ingest\",\"timed_out\":true}",
+        "from_agent": "athena",
+        "mentions": [
+          "prometheus"
+        ],
+        "message_type": "council_report",
+        "posted_at_utc": "2026-03-13T10:03:41.209973106+00:00",
+        "priority": "normal",
+        "subject": "Council report from athena",
+        "thread_id": "council_5803f642"
+      },
+      {
+        "body": "[hades] council input for topic 'test warden dispatch because evidence'. context={\"confidence_adjusted\":0.8799999999999999,\"confidence_base\":0.95,\"description\":\"test warden dispatch because evidence\",\"escalation_required\":false,\"participating_seats\":[\"strategist\",\"operator\"],\"query_mode\":\"dual_seat\",\"responders_available\":0,\"responders_expected\":4,\"task_id\":\"a1d4f6d3-daad-4930-b3a0-ff04880b082e\",\"task_type\":\"ingest\",\"timed_out\":true}",
+        "from_agent": "hades",
+        "mentions": [
+          "prometheus"
+        ],
+        "message_type": "council_report",
+        "posted_at_utc": "2026-03-13T10:03:41.228392125+00:00",
+        "priority": "normal",
+        "subject": "Council report from hades",
+        "thread_id": "council_5803f642"
+      },
+      {
+        "body": "[charon] council input for topic 'test warden dispatch because evidence'. context={\"confidence_adjusted\":0.8799999999999999,\"confidence_base\":0.95,\"description\":\"test warden dispatch because evidence\",\"escalation_required\":false,\"participating_seats\":[\"strategist\",\"operator\"],\"query_mode\":\"dual_seat\",\"responders_available\":0,\"responders_expected\":4,\"task_id\":\"a1d4f6d3-daad-4930-b3a0-ff04880b082e\",\"task_type\":\"ingest\",\"timed_out\":true}",
+        "from_agent": "charon",
+        "mentions": [
+          "prometheus"
+        ],
+        "message_type": "council_report",
+        "posted_at_utc": "2026-03-13T10:03:41.244007435+00:00",
+        "priority": "normal",
+        "subject": "Council report from charon",
+        "thread_id": "council_5803f642"
+      },
+      {
+        "body": "[mnemosyne] council input for topic 'test warden dispatch because evidence'. context={\"confidence_adjusted\":0.8799999999999999,\"confidence_base\":0.95,\"description\":\"test warden dispatch because evidence\",\"escalation_required\":false,\"participating_seats\":[\"strategist\",\"operator\"],\"query_mode\":\"dual_seat\",\"responders_available\":0,\"responders_expected\":4,\"task_id\":\"a1d4f6d3-daad-4930-b3a0-ff04880b082e\",\"task_type\":\"ingest\",\"timed_out\":true}",
+        "from_agent": "mnemosyne",
+        "mentions": [
+          "prometheus"
+        ],
+        "message_type": "council_report",
+        "posted_at_utc": "2026-03-13T10:03:41.261061335+00:00",
+        "priority": "normal",
+        "subject": "Council report from mnemosyne",
+        "thread_id": "council_5803f642"
+      },
+      {
+        "body": "Council fanout complete with 4 participants.",
+        "from_agent": "prometheus",
+        "mentions": [],
+        "message_type": "council_close",
+        "posted_at_utc": "2026-03-13T10:03:41.277856752+00:00",
+        "priority": "normal",
+        "subject": "Council session closed",
+        "thread_id": "council_5803f642"
+      },
+      {
+        "body": "Convening council gate discussion.",
+        "from_agent": "prometheus",
+        "mentions": [
+          "athena",
+          "hades",
+          "charon"
+        ],
+        "message_type": "council_open",
+        "posted_at_utc": "2026-03-14T13:32:16.890899707+00:00",
+        "priority": "high",
+        "subject": "Council Session Opened: https://github.com/ggerganov/llama.cpp",
+        "thread_id": "council_76d83530"
+      },
+      {
+        "body": "[athena] council input for topic 'https://github.com/ggerganov/llama.cpp'. context={\"confidence_adjusted\":0.8799999999999999,\"confidence_base\":0.95,\"description\":\"https://github.com/ggerganov/llama.cpp\",\"escalation_required\":false,\"participating_seats\":[\"strategist\",\"operator\"],\"query_mode\":\"dual_seat\",\"responders_available\":0,\"responders_expected\":4,\"task_id\":\"fd752f36-67eb-4fa9-acab-308efd6b4da7\",\"task_type\":\"ingest\",\"timed_out\":true}",
+        "from_agent": "athena",
+        "mentions": [
+          "prometheus"
+        ],
+        "message_type": "council_report",
+        "posted_at_utc": "2026-03-14T13:32:16.894147700+00:00",
+        "priority": "normal",
+        "subject": "Council report from athena",
+        "thread_id": "council_76d83530"
+      },
+      {
+        "body": "[hades] council input for topic 'https://github.com/ggerganov/llama.cpp'. context={\"confidence_adjusted\":0.8799999999999999,\"confidence_base\":0.95,\"description\":\"https://github.com/ggerganov/llama.cpp\",\"escalation_required\":false,\"participating_seats\":[\"strategist\",\"operator\"],\"query_mode\":\"dual_seat\",\"responders_available\":0,\"responders_expected\":4,\"task_id\":\"fd752f36-67eb-4fa9-acab-308efd6b4da7\",\"task_type\":\"ingest\",\"timed_out\":true}",
+        "from_agent": "hades",
+        "mentions": [
+          "prometheus"
+        ],
+        "message_type": "council_report",
+        "posted_at_utc": "2026-03-14T13:32:16.896894925+00:00",
+        "priority": "normal",
+        "subject": "Council report from hades",
+        "thread_id": "council_76d83530"
+      },
+      {
+        "body": "[charon] council input for topic 'https://github.com/ggerganov/llama.cpp'. context={\"confidence_adjusted\":0.8799999999999999,\"confidence_base\":0.95,\"description\":\"https://github.com/ggerganov/llama.cpp\",\"escalation_required\":false,\"participating_seats\":[\"strategist\",\"operator\"],\"query_mode\":\"dual_seat\",\"responders_available\":0,\"responders_expected\":4,\"task_id\":\"fd752f36-67eb-4fa9-acab-308efd6b4da7\",\"task_type\":\"ingest\",\"timed_out\":true}",
+        "from_agent": "charon",
+        "mentions": [
+          "prometheus"
+        ],
+        "message_type": "council_report",
+        "posted_at_utc": "2026-03-14T13:32:16.899753983+00:00",
+        "priority": "normal",
+        "subject": "Council report from charon",
+        "thread_id": "council_76d83530"
+      },
+      {
+        "body": "[mnemosyne] council input for topic 'https://github.com/ggerganov/llama.cpp'. context={\"confidence_adjusted\":0.8799999999999999,\"confidence_base\":0.95,\"description\":\"https://github.com/ggerganov/llama.cpp\",\"escalation_required\":false,\"participating_seats\":[\"strategist\",\"operator\"],\"query_mode\":\"dual_seat\",\"responders_available\":0,\"responders_expected\":4,\"task_id\":\"fd752f36-67eb-4fa9-acab-308efd6b4da7\",\"task_type\":\"ingest\",\"timed_out\":true}",
+        "from_agent": "mnemosyne",
+        "mentions": [
+          "prometheus"
+        ],
+        "message_type": "council_report",
+        "posted_at_utc": "2026-03-14T13:32:16.902681551+00:00",
+        "priority": "normal",
+        "subject": "Council report from mnemosyne",
+        "thread_id": "council_76d83530"
+      },
+      {
+        "body": "Council fanout complete with 4 participants.",
+        "from_agent": "prometheus",
+        "mentions": [],
+        "message_type": "council_close",
+        "posted_at_utc": "2026-03-14T13:32:16.905568208+00:00",
+        "priority": "normal",
+        "subject": "Council session closed",
+        "thread_id": "council_76d83530"
+      },
+      {
+        "body": "Completed and pushed feature/audit commit 11e6423c78239f39deabbe1ca318b527a7e8f9ca. ARDA HUD now surfaces autonomy readiness checkpoints, evidence, mutation gate status, and next unlocks. Validation passed: npm run build, distrobox lothlorien tauri:build:stable, JSON/JSONL parse checks, git diff --check, and human/inbox unchanged. Direct Discord send was blocked by policy_guard: autonomy_runtime degraded (athena_lookup_stale, required_ipc_sockets_missing).",
+        "from_agent": "arandur",
+        "mentions": [],
+        "message_type": "report",
+        "posted_at_utc": "2026-05-17T18:56:57.090356840+00:00",
+        "priority": "normal",
+        "subject": "ARDA HUD autonomy readiness update pushed",
+        "thread_id": null
+      }
+    ],
+    "council_sessions": [
+      {
+        "body": "[mnemosyne] council input for topic 'test dispatch to warden because evidence'. context={\"confidence_adjusted\":0.8799999999999999,\"confidence_base\":0.95,\"description\":\"test dispatch to warden because evidence\",\"escalation_required\":false,\"participating_seats\":[\"strategist\",\"operator\"],\"query_mode\":\"dual_seat\",\"responders_available\":0,\"responders_expected\":4,\"task_id\":\"d4a1d0ff-2932-453b-99b4-e4a35cf88a7b\",\"task_type\":\"ingest\",\"timed_out\":true}",
+        "event": "report",
+        "from_agent": "mnemosyne",
+        "session_id": "council_908a4a99",
+        "ts_utc": "2026-03-13T09:59:29.035183856+00:00"
+      },
+      {
+        "event": "closed",
+        "outcome": "Council fanout complete with 4 participants.",
+        "session_id": "council_908a4a99",
+        "ts_utc": "2026-03-13T09:59:29.056437373+00:00"
+      },
+      {
+        "event": "opened",
+        "participants": [
+          "athena",
+          "hades",
+          "charon",
+          "mnemosyne"
+        ],
+        "session_id": "council_5803f642",
+        "topic": "test warden dispatch because evidence",
+        "ts_utc": "2026-03-13T10:03:41.187124118+00:00"
+      },
+      {
+        "body": "[athena] council input for topic 'test warden dispatch because evidence'. context={\"confidence_adjusted\":0.8799999999999999,\"confidence_base\":0.95,\"description\":\"test warden dispatch because evidence\",\"escalation_required\":false,\"participating_seats\":[\"strategist\",\"operator\"],\"query_mode\":\"dual_seat\",\"responders_available\":0,\"responders_expected\":4,\"task_id\":\"a1d4f6d3-daad-4930-b3a0-ff04880b082e\",\"task_type\":\"ingest\",\"timed_out\":true}",
+        "event": "report",
+        "from_agent": "athena",
+        "session_id": "council_5803f642",
+        "ts_utc": "2026-03-13T10:03:41.207114588+00:00"
+      },
+      {
+        "body": "[hades] council input for topic 'test warden dispatch because evidence'. context={\"confidence_adjusted\":0.8799999999999999,\"confidence_base\":0.95,\"description\":\"test warden dispatch because evidence\",\"escalation_required\":false,\"participating_seats\":[\"strategist\",\"operator\"],\"query_mode\":\"dual_seat\",\"responders_available\":0,\"responders_expected\":4,\"task_id\":\"a1d4f6d3-daad-4930-b3a0-ff04880b082e\",\"task_type\":\"ingest\",\"timed_out\":true}",
+        "event": "report",
+        "from_agent": "hades",
+        "session_id": "council_5803f642",
+        "ts_utc": "2026-03-13T10:03:41.223270855+00:00"
+      },
+      {
+        "body": "[charon] council input for topic 'test warden dispatch because evidence'. context={\"confidence_adjusted\":0.8799999999999999,\"confidence_base\":0.95,\"description\":\"test warden dispatch because evidence\",\"escalation_required\":false,\"participating_seats\":[\"strategist\",\"operator\"],\"query_mode\":\"dual_seat\",\"responders_available\":0,\"responders_expected\":4,\"task_id\":\"a1d4f6d3-daad-4930-b3a0-ff04880b082e\",\"task_type\":\"ingest\",\"timed_out\":true}",
+        "event": "report",
+        "from_agent": "charon",
+        "session_id": "council_5803f642",
+        "ts_utc": "2026-03-13T10:03:41.241062086+00:00"
+      },
+      {
+        "body": "[mnemosyne] council input for topic 'test warden dispatch because evidence'. context={\"confidence_adjusted\":0.8799999999999999,\"confidence_base\":0.95,\"description\":\"test warden dispatch because evidence\",\"escalation_required\":false,\"participating_seats\":[\"strategist\",\"operator\"],\"query_mode\":\"dual_seat\",\"responders_available\":0,\"responders_expected\":4,\"task_id\":\"a1d4f6d3-daad-4930-b3a0-ff04880b082e\",\"task_type\":\"ingest\",\"timed_out\":true}",
+        "event": "report",
+        "from_agent": "mnemosyne",
+        "session_id": "council_5803f642",
+        "ts_utc": "2026-03-13T10:03:41.258018584+00:00"
+      },
+      {
+        "event": "closed",
+        "outcome": "Council fanout complete with 4 participants.",
+        "session_id": "council_5803f642",
+        "ts_utc": "2026-03-13T10:03:41.274930992+00:00"
+      },
+      {
+        "event": "opened",
+        "participants": [
+          "athena",
+          "hades",
+          "charon",
+          "mnemosyne"
+        ],
+        "session_id": "council_76d83530",
+        "topic": "https://github.com/ggerganov/llama.cpp",
+        "ts_utc": "2026-03-14T13:32:16.889682162+00:00"
+      },
+      {
+        "body": "[athena] council input for topic 'https://github.com/ggerganov/llama.cpp'. context={\"confidence_adjusted\":0.8799999999999999,\"confidence_base\":0.95,\"description\":\"https://github.com/ggerganov/llama.cpp\",\"escalation_required\":false,\"participating_seats\":[\"strategist\",\"operator\"],\"query_mode\":\"dual_seat\",\"responders_available\":0,\"responders_expected\":4,\"task_id\":\"fd752f36-67eb-4fa9-acab-308efd6b4da7\",\"task_type\":\"ingest\",\"timed_out\":true}",
+        "event": "report",
+        "from_agent": "athena",
+        "session_id": "council_76d83530",
+        "ts_utc": "2026-03-14T13:32:16.893701044+00:00"
+      },
+      {
+        "body": "[hades] council input for topic 'https://github.com/ggerganov/llama.cpp'. context={\"confidence_adjusted\":0.8799999999999999,\"confidence_base\":0.95,\"description\":\"https://github.com/ggerganov/llama.cpp\",\"escalation_required\":false,\"participating_seats\":[\"strategist\",\"operator\"],\"query_mode\":\"dual_seat\",\"responders_available\":0,\"responders_expected\":4,\"task_id\":\"fd752f36-67eb-4fa9-acab-308efd6b4da7\",\"task_type\":\"ingest\",\"timed_out\":true}",
+        "event": "report",
+        "from_agent": "hades",
+        "session_id": "council_76d83530",
+        "ts_utc": "2026-03-14T13:32:16.896448820+00:00"
+      },
+      {
+        "body": "[charon] council input for topic 'https://github.com/ggerganov/llama.cpp'. context={\"confidence_adjusted\":0.8799999999999999,\"confidence_base\":0.95,\"description\":\"https://github.com/ggerganov/llama.cpp\",\"escalation_required\":false,\"participating_seats\":[\"strategist\",\"operator\"],\"query_mode\":\"dual_seat\",\"responders_available\":0,\"responders_expected\":4,\"task_id\":\"fd752f36-67eb-4fa9-acab-308efd6b4da7\",\"task_type\":\"ingest\",\"timed_out\":true}",
+        "event": "report",
+        "from_agent": "charon",
+        "session_id": "council_76d83530",
+        "ts_utc": "2026-03-14T13:32:16.899301737+00:00"
+      },
+      {
+        "body": "[mnemosyne] council input for topic 'https://github.com/ggerganov/llama.cpp'. context={\"confidence_adjusted\":0.8799999999999999,\"confidence_base\":0.95,\"description\":\"https://github.com/ggerganov/llama.cpp\",\"escalation_required\":false,\"participating_seats\":[\"strategist\",\"operator\"],\"query_mode\":\"dual_seat\",\"responders_available\":0,\"responders_expected\":4,\"task_id\":\"fd752f36-67eb-4fa9-acab-308efd6b4da7\",\"task_type\":\"ingest\",\"timed_out\":true}",
+        "event": "report",
+        "from_agent": "mnemosyne",
+        "session_id": "council_76d83530",
+        "ts_utc": "2026-03-14T13:32:16.902229615+00:00"
+      },
+      {
+        "event": "closed",
+        "outcome": "Council fanout complete with 4 participants.",
+        "session_id": "council_76d83530",
+        "ts_utc": "2026-03-14T13:32:16.905113812+00:00"
+      },
+      {
+        "created_at_utc": "2026-06-02T04:46:14.940194452+00:00",
+        "evidence_only": true,
+        "human_approval_granted": false,
+        "is_authoritative": false,
+        "message_class": "local_summary_note",
+        "note_id": "local_council_summary_1780375574940156592",
+        "policy_boundary": {
+          "canonical_write_authorized": false,
+          "conversation_is_not_execution_approval": true,
+          "external_messages_sent": false,
+          "model_switch_performed": false,
+          "objective_mutated": false,
+          "queue_mutated": false,
+          "service_restart_performed": false
+        },
+        "promotable": true,
+        "route": {
+          "is_authoritative": false,
+          "kind": "local_council_summary",
+          "requires_human_promotion": true
+        },
+        "schema_version": "annunimas.hermes.local_council_summary_route.v1",
+        "seat": "discussion",
+        "semantic_channel": "council",
+        "session_id": "council_discord_20260602T044614Z",
+        "source": "discord_slash_command_council_note",
+        "speaker_agent": "discord-council-local-summary",
+        "summary": "\"Council local smoke: discussion evidence only; no canonical mutation.\"",
+        "task_promotion_allowed": false,
+        "task_ref": "\"task:discord-council-local-summary\""
+      },
+      {
+        "canonical_refs": [
+          "local_council_summary_1780375574940156592",
+          "task:discord-council-local-summary",
+          "council_promotion_1780377339326367417"
+        ],
+        "note_id": "local_council_summary_1780375574940156592",
+        "promoted_at_utc": "2026-06-02T05:15:39.326386827+00:00",
+        "promoted_by": "discord_work_stream",
+        "promotion_id": "council_promotion_1780377339326367417",
+        "promotion_state": "projected",
+        "schema_version": "annunimas.hermes.council_discussion_promotion.v1",
+        "task_ref": "task:discord-council-local-summary"
+      }
+    ],
+    "counts": {
+      "boardroom_contract_rooms": 5,
+      "boardroom_posts": 176,
+      "deferred_reroutes": 0,
+      "denied_interrupts": 0,
+      "open_councils": 0
+    },
+    "decision_metrics": [
+      {
+        "action": null,
+        "channel": "1472515093848916020",
+        "choice": null,
+        "error": null,
+        "ok": true,
+        "prompt_id": null,
+        "provider": "discord",
+        "report_excerpt": null,
+        "sender": "dward1502",
+        "stage": "inbound_classified",
+        "ts_utc": "2026-06-06T07:59:43.013499427+00:00"
+      },
+      {
+        "action": null,
+        "channel": "1472515093848916020",
+        "choice": null,
+        "error": null,
+        "ok": true,
+        "prompt_id": null,
+        "provider": "discord",
+        "report_excerpt": null,
+        "sender": "dward1502",
+        "stage": "inbound_classified",
+        "ts_utc": "2026-06-06T07:59:43.528686696+00:00"
+      },
+      {
+        "action": null,
+        "channel": "1472515093848916020",
+        "choice": null,
+        "error": null,
+        "ok": true,
+        "prompt_id": null,
+        "provider": "discord",
+        "report_excerpt": null,
+        "sender": "dward1502",
+        "stage": "inbound_classified",
+        "ts_utc": "2026-06-06T08:05:14.639149844+00:00"
+      },
+      {
+        "action": null,
+        "channel": "1472515093848916020",
+        "choice": null,
+        "error": null,
+        "ok": true,
+        "prompt_id": null,
+        "provider": "discord",
+        "report_excerpt": null,
+        "sender": "dward1502",
+        "stage": "inbound_classified",
+        "ts_utc": "2026-06-06T08:05:15.142106347+00:00"
+      },
+      {
+        "action": null,
+        "channel": "1472515093848916020",
+        "choice": null,
+        "error": null,
+        "ok": true,
+        "prompt_id": null,
+        "provider": "discord",
+        "report_excerpt": null,
+        "sender": "dward1502",
+        "stage": "inbound_classified",
+        "ts_utc": "2026-06-08T16:11:54.173912254+00:00"
+      },
+      {
+        "action": null,
+        "channel": "1472515093848916020",
+        "choice": null,
+        "error": null,
+        "ok": true,
+        "prompt_id": null,
+        "provider": "discord",
+        "report_excerpt": null,
+        "sender": "dward1502",
+        "stage": "inbound_classified",
+        "ts_utc": "2026-06-08T16:11:55.341668146+00:00"
+      },
+      {
+        "action": null,
+        "channel": "1472515093848916020",
+        "choice": null,
+        "error": null,
+        "ok": true,
+        "prompt_id": null,
+        "provider": "discord",
+        "report_excerpt": null,
+        "sender": "dward1502",
+        "stage": "inbound_classified",
+        "ts_utc": "2026-06-11T00:51:23.236803656+00:00"
+      },
+      {
+        "action": null,
+        "channel": "1472515093848916020",
+        "choice": null,
+        "error": null,
+        "ok": true,
+        "prompt_id": null,
+        "provider": "discord",
+        "report_excerpt": null,
+        "sender": "dward1502",
+        "stage": "inbound_classified",
+        "ts_utc": "2026-06-11T00:51:24.301081477+00:00"
+      },
+      {
+        "action": null,
+        "channel": "1472515093848916020",
+        "choice": null,
+        "error": null,
+        "ok": true,
+        "prompt_id": null,
+        "provider": "discord",
+        "report_excerpt": null,
+        "sender": "dward1502",
+        "stage": "inbound_classified",
+        "ts_utc": "2026-06-17T15:18:39.142331310+00:00"
+      },
+      {
+        "action": null,
+        "channel": "1472515093848916020",
+        "choice": null,
+        "error": null,
+        "ok": true,
+        "prompt_id": null,
+        "provider": "discord",
+        "report_excerpt": null,
+        "sender": "dward1502",
+        "stage": "inbound_classified",
+        "ts_utc": "2026-06-17T15:18:40.418510567+00:00"
+      },
+      {
+        "action": null,
+        "channel": "1472515093848916020",
+        "choice": null,
+        "error": null,
+        "ok": true,
+        "prompt_id": null,
+        "provider": "discord",
+        "report_excerpt": null,
+        "sender": "dward1502",
+        "stage": "inbound_classified",
+        "ts_utc": "2026-06-22T17:25:59.399195255+00:00"
+      },
+      {
+        "action": null,
+        "channel": "1472515093848916020",
+        "choice": null,
+        "error": null,
+        "ok": true,
+        "prompt_id": null,
+        "provider": "discord",
+        "report_excerpt": null,
+        "sender": "dward1502",
+        "stage": "inbound_classified",
+        "ts_utc": "2026-06-22T17:26:00.787626078+00:00"
+      },
+      {
+        "action": null,
+        "channel": "1472515093848916020",
+        "choice": null,
+        "error": null,
+        "ok": true,
+        "prompt_id": null,
+        "provider": "discord",
+        "report_excerpt": null,
+        "sender": "dward1502",
+        "stage": "inbound_classified",
+        "ts_utc": "2026-06-22T21:27:57.122436632+00:00"
+      },
+      {
+        "action": null,
+        "channel": "1472515093848916020",
+        "choice": null,
+        "error": null,
+        "ok": true,
+        "prompt_id": null,
+        "provider": "discord",
+        "report_excerpt": null,
+        "sender": "dward1502",
+        "stage": "inbound_classified",
+        "ts_utc": "2026-06-22T21:28:02.840733074+00:00"
+      },
+      {
+        "action": null,
+        "channel": "1472515093848916020",
+        "choice": null,
+        "error": null,
+        "ok": true,
+        "prompt_id": null,
+        "provider": "discord",
+        "report_excerpt": null,
+        "sender": "dward1502",
+        "stage": "inbound_classified",
+        "ts_utc": "2026-07-03T04:43:28.468873969+00:00"
+      },
+      {
+        "action": null,
+        "channel": "1472515093848916020",
+        "choice": null,
+        "error": null,
+        "ok": true,
+        "prompt_id": null,
+        "provider": "discord",
+        "report_excerpt": null,
+        "sender": "dward1502",
+        "stage": "inbound_classified",
+        "ts_utc": "2026-07-03T04:43:29.228301653+00:00"
+      }
+    ],
+    "interruptions": [
+      {
+        "action": {
+          "executed": "none_non_blocking",
+          "recommended": "record_note_and_continue"
+        },
+        "context": null,
+        "disposition": "note",
+        "disposition_reason": "defaulted to note capture (no override/reroute signal)",
+        "event_id": "int_5bf64070d9",
+        "message": {
+          "channel": "discord",
+          "content": "test interruption note while task running",
+          "received_at_utc": "2026-03-09T06:28:57.262760303+00:00",
+          "run_id": null,
+          "sender": "operator",
+          "session_id": null,
+          "source": "voice",
+          "task_id": null
+        },
+        "policy_safe": true,
+        "requires_operator_review": true,
+        "triad_passed": false,
+        "triad_score": 0.6166666666666667,
+        "ts_utc": "2026-03-09T06:28:57.263334129+00:00"
+      }
+    ],
+    "reroute_acks": [],
+    "reroute_metrics": []
+  },
+  "schema_version": "annunimas.core.state.v1",
+  "status": {
+    "agent_activity": [
+      {
+        "active_tasks": 0,
+        "agent_id": "apollo",
+        "comms_style": null,
+        "personality": null,
+        "status": "OFFLINE"
+      },
+      {
+        "active_tasks": 0,
+        "agent_id": "arandur",
+        "comms_style": null,
+        "personality": null,
+        "status": "ONLINE"
+      },
+      {
+        "active_tasks": 0,
+        "agent_id": "athena",
+        "comms_style": null,
+        "personality": null,
+        "status": "OFFLINE"
+      },
+      {
+        "active_tasks": 0,
+        "agent_id": "hermes",
+        "comms_style": "concise",
+        "personality": "liaison",
+        "status": "OFFLINE"
+      },
+      {
+        "active_tasks": 0,
+        "agent_id": "oracle",
+        "comms_style": null,
+        "personality": null,
+        "status": "OFFLINE"
+      },
+      {
+        "active_tasks": 0,
+        "agent_id": "plutus",
+        "comms_style": null,
+        "personality": null,
+        "status": "OFFLINE"
+      },
+      {
+        "active_tasks": 0,
+        "agent_id": "warden",
+        "comms_style": null,
+        "personality": null,
+        "status": "OFFLINE"
+      }
+    ],
+    "agents_active": 1,
+    "agents_idle": 6,
+    "boardroom_active": true,
+    "malformed_boardroom_records": 0,
+    "malformed_interrupt_records": 0,
+    "malformed_message_records": 0,
+    "malformed_queue_records": 0,
+    "messages_today": {
+      "avg_joulework": 0.0,
+      "avg_love_eq": 0.0,
+      "escalated_to_prometheus": 0,
+      "inbound": 0,
+      "outbound": 0,
+      "outbound_failed": 0,
+      "outbound_retried": 0,
+      "tier1_resolved": 0,
+      "tier2_resolved": 0,
+      "tier3_resolved": 0,
+      "triad_pass_rate": 0.0
+    },
+    "providers_offline": [
+      "email",
+      "slack"
+    ],
+    "providers_online": [
+      "discord"
+    ],
+    "queue_depth": 0,
+    "subcomponents_running": 3
+  },
+  "subcomponents": [
+    {
+      "id": "discord_listener",
+      "kind": "persistent",
+      "status": "running"
+    },
+    {
+      "id": "boardroom_manager",
+      "kind": "persistent",
+      "status": "running"
+    },
+    {
+      "id": "outbound_queue",
+      "kind": "persistent",
+      "status": "running"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "authority": "mnemosyne_continuity + agent_continuity_contract",
+  "doctrine": {
+    "consolidation_should_not_go_stale_during_active_system_work": true,
+    "continuity_requires_fresh_checkpointing": true,
+    "memory_must_drive_retrieval_not_prompt_bloat": true
+  },
+  "generated_at_utc": "2026-05-30T08:26:38Z",
+  "operator_message": "memory posture healthy",
+  "recommended_actions": [],
+  "schema_version": "annunimas.memory-governor.v1",
+  "signals": {
+    "consolidation_age_hours": 0,
+    "consolidation_stale": false,
+    "continuity_drought": false,
+    "high_significance_memories": 0,
+    "malformed_episodic_records": 0,
+    "noise_dominant": false,
+    "noise_events": 12,
+    "recent_memory_count": 12
+  },
+  "summary": {
+    "continuity_capabilities_total": 4,
+    "continuity_pressure": "low",
+    "high_significance_memories": 0,
+    "noise_events": 12,
+    "recent_memory_count": 12,
+    "recommended_actions_total": 0
+  }
+}

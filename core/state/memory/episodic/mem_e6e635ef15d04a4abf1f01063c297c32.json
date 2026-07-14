@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_e6e635ef15d04a4abf1f01063c297c32",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Move misplaced Charon model staging artifacts out of Annunimas. Moved data/charon/model_staging to /var/home/mythos/models/annunimas-staging/2026-06-05/model_staging; added model artifact storage policy and updated staging/preflight defaults to external model store.",
+  "salience": 0.6825,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-05T22:32:51.485823161Z",
+  "last_seen_at": "2026-06-05T22:32:51.485823161Z"
+}

@@ -1,0 +1,95 @@
+{
+  "authority": "numenor_architecture_contracts_extraction",
+  "crate_candidates": [
+    "annunimas-tool-harness",
+    "annunimas-service-registry"
+  ],
+  "deterministic_errors": [
+    "missing_trace_id",
+    "missing_actor",
+    "missing_idempotency_key",
+    "invalid_request",
+    "policy_deny",
+    "timeout",
+    "temporary_unavailable",
+    "not_found",
+    "internal_error"
+  ],
+  "doctrine": {
+    "deterministic_error_envelopes_are_required": true,
+    "mutating_tools_require_trace_actor_idempotency": true,
+    "policy_and_budget_guards_precede_execution": true,
+    "stable_tool_interfaces_must_outlive_runtime_implementation": true
+  },
+  "fixture_replay_contract": {
+    "default_dry_run": true,
+    "deterministic_id_rule": "stable hash from fixture_id",
+    "network_calls_allowed": false,
+    "process_spawning_allowed": false,
+    "required_assertions": [
+      "response_fields",
+      "error_code",
+      "policy_decision",
+      "event_result",
+      "state_mutation_flag"
+    ]
+  },
+  "generated_at_utc": "2026-06-05T09:59:38Z",
+  "pipeline_layers": [
+    "validate_input",
+    "policy_gate",
+    "budget_guard",
+    "idempotency_gate",
+    "execute",
+    "normalize_output",
+    "observe",
+    "record"
+  ],
+  "required_metadata": [
+    "tool_id",
+    "version",
+    "owner",
+    "description",
+    "input_schema_ref",
+    "output_schema_ref",
+    "risk_level",
+    "side_effect_class",
+    "retry_policy",
+    "timeout_policy",
+    "policy_requirements",
+    "redaction_hints"
+  ],
+  "schema_version": "annunimas.tool-harness-architecture-contract.v1",
+  "service_registry_contract": {
+    "api_endpoints": [
+      "GET /health",
+      "GET /services",
+      "POST /services/{service_id}/start",
+      "POST /services/{service_id}/stop",
+      "POST /services/{service_id}/restart",
+      "GET /profiles",
+      "POST /profiles/{profile_id}/switch",
+      "GET /events",
+      "POST /policy/evaluate"
+    ],
+    "required_fields": [
+      "service_id",
+      "display_name",
+      "zone",
+      "criticality",
+      "profile_modes",
+      "startup_order",
+      "shutdown_order",
+      "healthcheck",
+      "commands",
+      "dependencies",
+      "resource_class",
+      "max_retries",
+      "cooldown_seconds"
+    ]
+  },
+  "source_group": "numenor_architecture_contracts",
+  "source_ids": [
+    "src_d6c35301"
+  ]
+}

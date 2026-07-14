@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_bd79ef888f45437787f89ec72128e75e",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Separate tenants: private second-brain repo for annunimas-human and staged feature projects for council, forge-mind, signal-grid, and service-registry",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-19T07:02:58.957995560Z",
+  "last_seen_at": "2026-06-19T07:02:58.957995560Z"
+}

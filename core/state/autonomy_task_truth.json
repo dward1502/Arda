@@ -1,0 +1,156 @@
+{
+  "authority": "annunimas-cli export autonomy-task-truth",
+  "autonomy_resume_projection": {
+    "flywheel_packet_summary": {
+      "blocked_total": 0,
+      "packet_total": 7,
+      "readiness_counts": {
+        "completed": 7
+      },
+      "ready_total": 0
+    },
+    "generated_at_utc": "2026-06-30T19:42:41Z",
+    "queued_tasks_top_total": 8
+  },
+  "flywheel_packet_runtime": {
+    "generated_at_utc": "2026-07-14T01:09:40Z",
+    "next_ready_packet": null,
+    "summary": {
+      "blocked_total": 0,
+      "packet_total": 7,
+      "readiness_counts": {
+        "completed": 7
+      },
+      "ready_total": 0
+    }
+  },
+  "generated_at_utc": "2026-07-14T01:09:40Z",
+  "mutation_policy": "read_only_reconciliation",
+  "next_actions": [
+    "keep autonomy expansion held until task truth surfaces agree",
+    "refresh queue_summary projection through the updated source path",
+    "regenerate only active Flywheel work packets from the canonical autonomy reconciliation plan",
+    "route HADES link/archive findings into review packets before any cleanup mutation"
+  ],
+  "plan_map": {
+    "generated_at_utc": "2026-06-21T02:52:23Z",
+    "summary": {
+      "open_task_total": 0,
+      "plans_total": 1,
+      "plans_with_open_tasks_total": 0
+    }
+  },
+  "preflight": {
+    "broken_markdown_link_count": 663,
+    "generated_at_utc": "2026-07-14T01:09:39Z",
+    "mutation_hold_reason": "first_slice_is_non_mutating_cleanup_requires_operator_approval",
+    "ready_for_mutation": false,
+    "review_candidate_total": 9,
+    "safe_local_ready": false
+  },
+  "queue_federation_projection": {
+    "control": {
+      "control_packets": [],
+      "projection_cache": {
+        "source_paths": [
+          "core/state/queue_federation.json",
+          "core/state/flywheel_packet_runtime.json"
+        ],
+        "source_schema_versions": {
+          "flywheel_packet_runtime": "annunimas.flywheel.packet_runtime.v1",
+          "queue_federation": "annunimas.queue-federation.v1"
+        }
+      },
+      "schema_version": "annunimas.queue-federation-control.v1",
+      "selector": {
+        "mode": "safe_local_receipt_valid_only",
+        "next_safe_local_candidate": null,
+        "rejected": [],
+        "rejected_total": 0,
+        "selected_total": 0
+      }
+    },
+    "generated_at_utc": "2026-07-14T01:09:40Z",
+    "next_promotion_candidate": null,
+    "promotion_policy": {
+      "allowed_contracts": [
+        "flywheel_plan_packet",
+        "prometheus_safe_local_task_promotion",
+        "annunimas.arandur.queue_operation.v1"
+      ],
+      "blocked_without_explicit_human_or_triad_gate": [
+        "credential_sensitive",
+        "external_side_effect",
+        "destructive_delete",
+        "archive_or_retention",
+        "funds_movement",
+        "legal_commitment",
+        "service_restart",
+        "provider_reload",
+        "fleet_reimage",
+        "customer_commitment"
+      ],
+      "default": "passive_projection_only",
+      "human_lane": {
+        "path": "human/",
+        "rule": "human notes, decisions, and task templates are visible as source signals but never auto-promoted without explicit human/promotion receipt"
+      },
+      "safe_local_initial_scope": true
+    },
+    "summary": {
+      "blocked_total": 6,
+      "promotion_candidates_total": 6,
+      "promotion_ready_total": 0,
+      "sources_total": 17
+    }
+  },
+  "queue_hygiene_projection": {
+    "generated_at_utc": "2026-07-14T01:09:40Z",
+    "latest_open_total": 0,
+    "latest_task_ids_total": 175,
+    "raw_ledger_rows_total": 336,
+    "stale_raw_queued_rows_total": 130
+  },
+  "queue_ledger_latest_by_id": {
+    "counts_by_status": {
+      "cancelled": 4,
+      "completed": 171
+    },
+    "open_compact": [],
+    "open_total": 0,
+    "total": 175
+  },
+  "queue_summary_projection": {
+    "counts_by_status": {
+      "cancelled": 4,
+      "completed": 171
+    },
+    "generated_at_utc": "2026-07-14T01:09:39Z",
+    "has_agent_reading_policy": true,
+    "has_compact_views": true
+  },
+  "recommendation": "hold_expansion_and_reconcile_task_truth",
+  "schema_version": "annunimas.autonomy-task-truth.v1",
+  "sources": {
+    "autonomy_resume": "core/state/autonomy_resume.json",
+    "flywheel_packet_runtime": "core/state/flywheel_packet_runtime.json",
+    "plan_map": "core/state/plan_map.json",
+    "preflight": "data/prometheus/autonomy_operating_loop_preflight.json",
+    "queue_federation": "core/state/queue_federation.json",
+    "queue_hygiene": "core/state/queue_hygiene.json",
+    "queue_ledger": "core/projects/tasks/queue.jsonl",
+    "queue_summary": "core/state/queue_summary.json"
+  },
+  "warnings": [
+    {
+      "id": "autonomy_preflight_not_ready_for_safe_local",
+      "message": "Autonomy operating loop preflight is not ready for safe-local packet selection.",
+      "severity": "hold"
+    },
+    {
+      "id": "autonomy_preflight_mutation_hold",
+      "message": "Mutation remains held: first_slice_is_non_mutating_cleanup_requires_operator_approval.",
+      "severity": "info"
+    }
+  ]
+}

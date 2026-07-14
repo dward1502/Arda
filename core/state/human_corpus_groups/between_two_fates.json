@@ -1,0 +1,34 @@
+{
+  "authority": "bounded_human_corpus_group_extraction",
+  "extraction": {
+    "contract_candidates": [
+      "creative_world_contract",
+      "game_design_memory_contract"
+    ],
+    "crate_candidates": [
+      "annunimas-storyworld"
+    ],
+    "extracted_primitives": [
+      "world_lore_bible",
+      "quest_and_faction_structure",
+      "ending_matrix",
+      "production_scope_frame"
+    ],
+    "next_downstream_tasks": [
+      "Formalize Between Two Fates design primitives into world/game contract surfaces"
+    ]
+  },
+  "generated_at_utc": "2026-04-21T20:15:18Z",
+  "group_id": "between_two_fates",
+  "lane": "creative_world",
+  "owner": "athena",
+  "schema_version": "annunimas.human-corpus-group.v1",
+  "sigil": "REPAIR",
+  "source_ids": [
+    "src_696f5abe"
+  ],
+  "source_paths": [
+    "human/notes/between_two_fates_gdd.docx"
+  ],
+  "task_title": "Extract Between Two Fates into world/game design contract"
+}

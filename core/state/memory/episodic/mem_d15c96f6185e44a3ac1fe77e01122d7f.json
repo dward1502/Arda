@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_d15c96f6185e44a3ac1fe77e01122d7f",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA runtime asset deferral",
+  "salience": 0.7275,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T07:37:20.364565964Z",
+  "last_seen_at": "2026-06-01T07:37:20.364565964Z"
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_46410a07f7944296ae1510d1348c6923",
+  "kind": "episodic",
+  "agent": "charon",
+  "content": "CHARON routed athena:research [planning:context_heavy] -> groq:llama-3.3-70b-versatile triad_passed=false love_eq=0.74",
+  "salience": 0.3334999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T03:12:10.922584587Z",
+  "last_seen_at": "2026-06-01T03:12:10.922584587Z"
+}

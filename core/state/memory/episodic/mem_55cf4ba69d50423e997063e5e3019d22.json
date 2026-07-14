@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_55cf4ba69d50423e997063e5e3019d22",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Gate 3.5D typed Arandur presence state",
+  "salience": 0.7625,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-18T19:48:20.675590653Z",
+  "last_seen_at": "2026-05-18T19:48:20.675590653Z"
+}

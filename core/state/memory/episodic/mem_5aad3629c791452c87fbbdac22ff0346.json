@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_5aad3629c791452c87fbbdac22ff0346",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA world surface assignment contract",
+  "salience": 0.8045000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T07:21:16.223156622Z",
+  "last_seen_at": "2026-06-01T07:21:16.223156622Z"
+}

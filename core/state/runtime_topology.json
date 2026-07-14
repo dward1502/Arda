@@ -1,0 +1,125 @@
+{
+  "authority": "runtime_topology_projection",
+  "backbone_compute": {
+    "configured_node": {
+      "base_url": "http://100.102.250.115:8093/v1",
+      "charon_provider_id": "edge_backbone",
+      "display_name": "Annunimas Server (LFM2.5 Fast Lane)",
+      "enrollment_status": "active",
+      "expected_models": [
+        "lfm2.5-8b-a1b-q4km"
+      ],
+      "health_url": "http://100.102.250.115:8093/health",
+      "hostname": "annunimas-server",
+      "id": "node-backbone-server",
+      "llm_runtime": "llama_cpp_fast_general",
+      "models_url": "http://100.102.250.115:8093/v1/models",
+      "node_class": "backbone_compute",
+      "notes": "Updated 2026-06-16. Active fast/general lane is llama.cpp inside the eregion distrobox, serving LFM2.5-8B-A1B-Q4_K_M on :8093 with 32K context, Q4_0 KV cache, --jinja, and metrics. Qwen3-Coder remains installed on disk but its service is disabled to free VRAM for LFM and Gemma4.",
+      "restart_cmd": "systemctl --user --no-block restart llama-server-lfm25.service",
+      "restart_scope": "ssh",
+      "role": "backbone_fast_general",
+      "ssh_user": "annunimas-server",
+      "startup_priority": 5,
+      "tailscale_ip": "100.102.250.115",
+      "tailscale_name": "annunimas-server"
+    },
+    "intended_role": "heavy_reasoning_and_backbone_model_execution"
+  },
+  "edge_guardhouse": {
+    "ack_mode": "queue_only_no_edge_ack",
+    "authority_mode": "guardian_enforcement_and_queue_observation",
+    "configured_node": {
+      "base_url": "http://100.110.85.37:1234",
+      "charon_provider_id": "edge_guardhouse",
+      "display_name": "Pi5 Guardhouse (Warden)",
+      "enrollment_status": "active",
+      "expected_models": [
+        "Qwen3.5-4B-Q4_K_M.gguf"
+      ],
+      "health_url": "http://100.110.85.37:1234/health",
+      "hostname": "warden",
+      "id": "node-pi5-warden",
+      "llm_runtime": "edge_llm_light",
+      "models_url": "http://100.110.85.37:1234/v1/models",
+      "node_class": "edge_guardhouse",
+      "notes": "Home-network edge guardhouse on a regular Raspberry Pi 5. Cut over to OpenSSH key-only on 2026-04-27 (numenor@100.110.85.37, no password auth). Serving llama.cpp with Qwen3.5-4B-Q4_K_M.gguf on http://100.110.85.37:1234, with model metadata exposed at /v1/models, at 4096 context via a persistent user systemd service.",
+      "restart_cmd": "systemctl --user --no-block restart llama-server",
+      "restart_scope": "ssh",
+      "role": "warden_guardhouse",
+      "ssh_user": "numenor",
+      "startup_priority": 40,
+      "tailscale_ip": "100.110.85.37",
+      "tailscale_name": "warden"
+    },
+    "edge_target": {
+      "athena_enabled": false,
+      "charon_enabled": false,
+      "enrollment_status": "active",
+      "hermes_enabled": true,
+      "hostname": "raspberrypi",
+      "id": "node-pi5-warden",
+      "llm_runtime": "edge_llm_light",
+      "node_class": "edge_guardhouse",
+      "notes": "Home-network Pi5 guardhouse node. WARDEN authority, edge informant boundary, and CEO-callable utility agent surface for local tasks.",
+      "oracle_enabled": false,
+      "plutus_enabled": false,
+      "role": "warden_guardhouse",
+      "ssh_user": "numenor",
+      "tailscale_ip": "100.110.85.37",
+      "warden_enabled": true
+    },
+    "queue_path": "data/warden/informant_queue.jsonl"
+  },
+  "findings": [
+    "arandur_remains_the_sovereign_ceo_identity",
+    "prometheus_is_the_local_executable_ceo_control_plane",
+    "warden_authority_is_assigned_to_the_edge_guardhouse_node",
+    "local_agent_supervisor_is_bounded_to_same_host_daemons"
+  ],
+  "generated_at_utc": "2026-07-14T05:03:05.604577176+00:00",
+  "identity": {
+    "compatibility_shim": "annunimas-ceo reexports annunimas-prometheus",
+    "local_executable_ceo_runtime": "prometheus",
+    "sovereign_ceo_agent_id": "arandur",
+    "sovereign_ceo_title": "Sovereign Executive Intelligence"
+  },
+  "local_control_plane": {
+    "ceo_authority_surface": "core/state/world.json",
+    "deferred_or_remote_agents": [
+      "warden",
+      "oracle",
+      "plutus",
+      "apollo"
+    ],
+    "hostname": "bluefin",
+    "managed_agents": [
+      "prometheus",
+      "charon",
+      "hermes",
+      "hades",
+      "athena",
+      "mnemosyne"
+    ],
+    "max_starts_per_pass": "1",
+    "node_id": "bluefin",
+    "primary_runtime_agent": "prometheus",
+    "start_stagger_ms": "750",
+    "supervisor_order": [
+      "prometheus",
+      "charon",
+      "hermes",
+      "hades",
+      "athena",
+      "mnemosyne"
+    ],
+    "supervisor_scope": "same_host_daemons_only"
+  },
+  "schema_version": "annunimas.core.state.v1",
+  "topology": {
+    "backbone_role": "heavy_reasoning_and_multi_model_execution",
+    "control_plane_split": "sovereign_identity_vs_executable_runtime",
+    "edge_guardhouse_role": "warden_guardhouse",
+    "local_workstation_role": "same_host_control_plane"
+  }
+}

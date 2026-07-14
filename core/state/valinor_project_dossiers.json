@@ -1,0 +1,185 @@
+{
+  "authority": "valinor_merge_registry + client_delivery_portfolio + curated_project_conversion + project_dossier_standard + portfolio_classification_posture",
+  "conversion_rules": {
+    "client_delivery_uses_client_portfolio_as_anchor": true,
+    "do_not_import_old_tasks_as_live_queue": true,
+    "prefer_current_annunimas_runtime_truth": true,
+    "valinor_archive_is_reference_memory_not_authority": true
+  },
+  "dossiers": [
+    {
+      "current_anchor": "/var/home/dward/Numenor_Prime/Eregion/KhazadForge/skylightpros",
+      "current_status": "active_delivery",
+      "dossier_standard_compliance": {
+        "compliant": true,
+        "missing_required_fields": [],
+        "required_fields_total": 10,
+        "standard_loaded": true
+      },
+      "execution_constraints": [
+        "Do not import historical tasks directly into the live queue.",
+        "Keep Valinor lineage as reference memory, not sovereign authority.",
+        "Execution requires client delivery mapping and current repo/deployment anchor."
+      ],
+      "kind": "client_delivery_project",
+      "lane": "client_delivery",
+      "next_actions": [
+        "Continue real site/content execution in the live Skylight repo.",
+        "Use Valinor hardening pack only as reference memory for backlog shaping and quality gates."
+      ],
+      "owner": "prometheus",
+      "readiness": "ready_for_content_and_code",
+      "reason": "Live repo, Amplify app id, deploy branch, and delivery posture are already known.",
+      "review_posture": "build_now",
+      "slug": "skylight-pros",
+      "source_lineage": "valinor + client_delivery_portfolio",
+      "valinor_lineage": [
+        "/var/home/mythos/Numenor_Prime/Valinor/archive/BUSINESS_OPPORTUNITIES/SKYLIGHTPROS_HARDENING",
+        "/var/home/mythos/Numenor_Prime/Valinor/DECISIONS_2026-02-14.md"
+      ]
+    },
+    {
+      "current_anchor": "/var/home/dward/Numenor_Prime/Eregion/KhazadForge/wgtt",
+      "current_status": "delivery_pending_inputs",
+      "dossier_standard_compliance": {
+        "compliant": true,
+        "missing_required_fields": [],
+        "required_fields_total": 10,
+        "standard_loaded": true
+      },
+      "execution_constraints": [
+        "Do not import historical tasks directly into the live queue.",
+        "Keep Valinor lineage as reference memory, not sovereign authority.",
+        "Execution requires client delivery mapping and current repo/deployment anchor.",
+        "Do not open execution until infrastructure mapping is explicit."
+      ],
+      "kind": "client_delivery_project",
+      "lane": "client_delivery",
+      "next_actions": [
+        "Capture Amplify app id/app name and branch mapping.",
+        "Then convert the Valinor hardening pack into a bounded delivery plan rather than raw archive reference."
+      ],
+      "owner": "prometheus",
+      "readiness": "blocked_on_infra_mapping",
+      "reason": "Repo is known, but Amplify app id and deployment mapping are still missing.",
+      "review_posture": "incubate",
+      "slug": "wgtt",
+      "source_lineage": "valinor + client_delivery_portfolio",
+      "valinor_lineage": [
+        "/var/home/mythos/Numenor_Prime/Valinor/archive/BUSINESS_OPPORTUNITIES/WGTT_HARDENING",
+        "/var/home/mythos/Numenor_Prime/Valinor/OPPORTUNITIES/Games/Weathertop_v2_Grand_Line_Vision.md"
+      ]
+    },
+    {
+      "current_anchor": "/var/home/mythos/Numenor_Prime/Eregion/KhazadForge/realmgateWarriors",
+      "current_status": "cataloged_not_active",
+      "dossier_standard_compliance": {
+        "compliant": true,
+        "missing_required_fields": [],
+        "required_fields_total": 10,
+        "standard_loaded": true
+      },
+      "execution_constraints": [
+        "Do not import historical tasks directly into the live queue.",
+        "Keep Valinor lineage as reference memory, not sovereign authority."
+      ],
+      "kind": "internal_project",
+      "lane": "internal_product",
+      "next_actions": [
+        "Promote a bounded hardening or product direction before reopening execution.",
+        "Do not import the old task plan directly into the live queue."
+      ],
+      "owner": "prometheus",
+      "readiness": "guided",
+      "reason": "Historical task plan and hardening pack exist, but no active execution lane is currently open.",
+      "review_posture": "incubate",
+      "slug": "realmgate-warriors",
+      "source_lineage": "valinor_project_memory",
+      "valinor_lineage": [
+        "/var/home/mythos/Numenor_Prime/Valinor/Realmgate_Warriors_Task_Plan.txt",
+        "/var/home/mythos/Numenor_Prime/Valinor/archive/BUSINESS_OPPORTUNITIES/REALMGATEWARRIORS_HARDENING"
+      ]
+    },
+    {
+      "current_anchor": "/var/home/mythos/Numenor_Prime/Eregion/KhazadForge/crusties",
+      "current_status": "structured_memory_ready",
+      "dossier_standard_compliance": {
+        "compliant": true,
+        "missing_required_fields": [],
+        "required_fields_total": 10,
+        "standard_loaded": true
+      },
+      "execution_constraints": [
+        "Do not import historical tasks directly into the live queue.",
+        "Keep Valinor lineage as reference memory, not sovereign authority."
+      ],
+      "kind": "internal_product",
+      "lane": "internal_product",
+      "next_actions": [
+        "Convert CRUSTIES memory into an Annunimas-native product dossier and ship/no-ship decision gate.",
+        "Keep whimsical framing subordinate to actual product and economics discipline."
+      ],
+      "owner": "prometheus",
+      "readiness": "planned",
+      "reason": "CRUSTIES now has both a canonical doc suite and an archived MVP pack, but no current Annunimas execution plan has been raised yet.",
+      "review_posture": "incubate",
+      "slug": "crusties",
+      "source_lineage": "valinor_project_memory",
+      "valinor_lineage": [
+        "/var/home/mythos/Numenor_Prime/Valinor/CRUSTIES",
+        "/var/home/mythos/Numenor_Prime/Valinor/archive/BUSINESS_OPPORTUNITIES/CRUSTIES_MVP"
+      ]
+    },
+    {
+      "current_anchor": "/var/home/mythos/Annunimas/apps",
+      "current_status": "pattern_memory_only",
+      "dossier_standard_compliance": {
+        "compliant": true,
+        "missing_required_fields": [],
+        "required_fields_total": 10,
+        "standard_loaded": true
+      },
+      "execution_constraints": [
+        "Do not import historical tasks directly into the live queue.",
+        "Keep Valinor lineage as reference memory, not sovereign authority.",
+        "Platform memory must be pattern-mined, not replayed as a parallel architecture."
+      ],
+      "kind": "platform_memory",
+      "lane": "platform_design_and_runtime",
+      "next_actions": [
+        "Mine the refactor and CITADEL archive only when current ARDA or platform design work opens a bounded lane.",
+        "Prefer modern Annunimas runtime truth over older Valinor platform theory."
+      ],
+      "owner": "prometheus",
+      "readiness": "guided",
+      "reason": "This lineage is strategically important, but it should feed current ARDA/Annunimas work as pattern memory, not as a direct backlog import.",
+      "review_posture": "incubate",
+      "slug": "citadel-arda",
+      "source_lineage": "valinor_platform_memory",
+      "valinor_lineage": [
+        "/var/home/mythos/Numenor_Prime/Valinor/archive/CITADEL",
+        "/var/home/mythos/Numenor_Prime/Valinor/refactor/ARDA_HUB_HTML_COMPONENTIZATION_PLAN_2026-02-26.md",
+        "/var/home/mythos/Numenor_Prime/Valinor/refactor/ARDA_HUD_CORPORATE_DESK_INTEGRATION_PLAN_2026-02-26.md"
+      ]
+    }
+  ],
+  "generated_at_utc": "2026-04-28T09:49:24Z",
+  "governance_binding": {
+    "portfolio_classification_posture_loaded": true,
+    "project_dossier_standard_loaded": true
+  },
+  "schema_version": "annunimas.valinor-project-dossiers.v1",
+  "sigil": "REPAIR",
+  "status": "converted_to_annunimas_native_dossiers",
+  "summary": {
+    "active_delivery_total": 1,
+    "blocked_total": 1,
+    "build_now_total": 1,
+    "dossier_standard_compliant_total": 5,
+    "dossiers_total": 5,
+    "guided_total": 2,
+    "incubate_total": 4,
+    "park_total": 0,
+    "planned_total": 1
+  }
+}

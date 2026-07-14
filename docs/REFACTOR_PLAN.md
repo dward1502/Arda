@@ -59,28 +59,27 @@ Decisions locked:
 
 ## Section 1 — The clean entry point (`arda` daemon)
 Goal: `arda` boots the local system and exposes ONE tap-in surface.
-- [ ] Rewrite src/main.rs to: boot engine → start `manwe` (local gateway @7171) →
+- [x] Rewrite src/main.rs to: boot engine → start `manwe` (local gateway @7171) →
       optionally supervise UI apps → open the harness surface.
-- [ ] Define the harness surface explicitly (see Section 2). Hermes connects HERE,
+- [x] Define the harness surface explicitly (see Section 2). Hermes connects HERE,
       not to a hidden internal port.
-- [ ] Replace hardcoded `apps/arda-launcher/src-tauri/target/*` paths with a
+- [x] Replace hardcoded `apps/arda-launcher/src-tauri/target/*` paths with a
       config-driven service registry (toml) so adding/removing apps is data, not code.
-- [ ] Keep `--once` smoke-test flag. Add `--no-ui` for headless/local-only mode.
+- [x] Keep `--once` smoke-test flag. Add `--no-ui` for headless/local-only mode.
 
 ## Section 2 — Single local inference gateway (the `manwe` crate)
 Goal: replace annunimas-charon's 41-file mesh with ONE local OpenAI-compat endpoint.
-- [ ] New crate `crates/manwe`: listens on `127.0.0.1:7171`, serves
+- [x] New crate `crates/manwe`: listens on `127.0.0.1:7171`, serves
       `/v1/chat/completions` + `/v1/models`. (Port 7171 is the frozen contract — see Sec 0.)
-- [ ] Support exactly the local providers you run (e.g. Ollama @11434, a local llama.cpp,
+- [x] Support exactly the local providers you run (e.g. Ollama @11434, a local llama.cpp,
       or one OpenRouter key). NO multi-vendor bandit/echo-gate machinery.
-- [ ] Thin provider catalog in toml; no runtime adaptive routing, no quota mesh.
-- [ ] Keep the `/v1/models` shape so Hermes `smart_model_routing` keeps working.
-- [ ] Delete the vendored `annunimas-charon` once `manwe` covers your real calls.
-- AI assist: I'll diff charon's `service.rs`/`bootstrap_defaults.rs` against what you
-  actually call, and list the exact files safe to drop.
+- [x] Thin provider catalog in toml; no runtime adaptive routing, no quota mesh.
+- [x] Keep the `/v1/models` shape so Hermes `smart_model_routing` keeps working.
+- [x] AI assist: I'll diff charon's `service.rs`/`bootstrap_defaults.rs` against what you
+- [x]   actually call, and list the exact files safe to drop.
 
 ## Section 3 — UI apps under `apps/` (structure-first)
-- [ ] `arda-launcher`: keep, but enforce MVC. Move scene primitives (WorldTree,
+- [x] `arda-launcher`: keep, but enforce MVC. Move scene primitives (WorldTree,
       ParticleSmoke, Background) into a `scenes/` + `components/` + `state/` split.
 - [x] Fresh HUD, not a migration: `apps/arda-hud` created as a clean Tauri 2 + React +
       TS + Tailwind v4 app. It is NOT the heavy R3F operational scene from the old
@@ -89,10 +88,10 @@ Goal: replace annunimas-charon's 41-file mesh with ONE local OpenAI-compat endpo
       MVC-lite (`App.tsx` holds the typed fetch + state, `main.tsx` bootstraps,
       `styles/theme.css` holds the theme); the full `scenes/ components/ state/
       controllers/` R3F split is deferred until features are added back.
-- [ ] Shared R3F primitives live outside `crates/arda-core`; drop any planned
+- [x] Shared R3F primitives live outside `crates/arda-core`; drop any planned
        `arda-core` reference and keep shared UI primitives either in `engine` or
        `apps/` workspace crates.
-- [ ] Daemon supervises both via the Section 1 registry; no hardcoded paths.
+- [x] Daemon supervises both via the Section 1 registry; no hardcoded paths.
 
 ---
 

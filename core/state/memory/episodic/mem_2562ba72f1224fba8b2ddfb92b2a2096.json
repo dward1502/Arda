@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_2562ba72f1224fba8b2ddfb92b2a2096",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Restore HADES nightly organization maintenance scheduling",
+  "salience": 0.6645,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-25T21:39:59.389131331Z",
+  "last_seen_at": "2026-05-25T21:39:59.389131331Z"
+}

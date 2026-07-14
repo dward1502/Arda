@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_0f55bf804a7540f19d7ae58c8d34af75",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Arandur dog-run: technical architecture convention extraction. Operator relaxed review gates for ATHENA Phase 2F dog-run; promoted from candidate_technical_architecture_notes; read existing APIs before code changes.",
+  "salience": 0.6855000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-20T02:50:39.937237258Z",
+  "last_seen_at": "2026-05-20T02:50:39.937237258Z"
+}

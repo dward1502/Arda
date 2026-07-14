@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_206bb13f5eaf422b95900e0f70fa9e7b",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: CHARON redeploy cache autorun guard",
+  "salience": 0.7475,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-09T20:56:29.788211722Z",
+  "last_seen_at": "2026-05-09T20:56:29.788211722Z"
+}

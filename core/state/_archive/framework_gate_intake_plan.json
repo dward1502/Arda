@@ -1,0 +1,72 @@
+{
+  "authority": "system_lift_activation_review + imported_corpus_plan_portfolio",
+  "deliverables": [
+    {
+      "goal": "Define the minimum canonical fields every active project dossier must carry before execution opens.",
+      "planned_outputs": [
+        "core/state/project_dossier_standard.json",
+        "human/plans/PROJECT_DOSSIER_STANDARD.md"
+      ],
+      "rank": 1,
+      "slug": "project_dossier_standard"
+    },
+    {
+      "goal": "Make the law for importing external corpora explicit: what can become reference, plan, dossier, or queue work.",
+      "planned_outputs": [
+        "core/state/imported_memory_intake_contract.json",
+        "human/plans/IMPORTED_MEMORY_INTAKE_CONTRACT.md"
+      ],
+      "rank": 2,
+      "slug": "imported_memory_intake_contract"
+    },
+    {
+      "goal": "Standardize Build Now / Incubate / Park / Archive posture as a readable and machine-usable review layer.",
+      "planned_outputs": [
+        "core/state/portfolio_classification_posture.json",
+        "human/plans/PORTFOLIO_CLASSIFICATION_POSTURE.md"
+      ],
+      "rank": 3,
+      "slug": "portfolio_classification_posture"
+    },
+    {
+      "goal": "Show how imported memory moves from corpus -> summary -> dossier -> plan -> execution eligibility.",
+      "planned_outputs": [
+        "core/state/project_intake_lifecycle.json",
+        "human/plans/PROJECT_INTAKE_LIFECYCLE.md"
+      ],
+      "rank": 4,
+      "slug": "project_intake_lifecycle_map"
+    }
+  ],
+  "execution_constraints": [
+    "Do not reopen historical task memory as active queue work.",
+    "Do not let imported corpora become a second authority layer.",
+    "Do not collapse runtime queue and strategic ledger roles.",
+    "Do not allow project execution without a canonical dossier anchor."
+  ],
+  "generated_at_utc": "2026-03-13T03:55:00Z",
+  "implementation_rule": {
+    "no_runtime_or_code_execution_changes_yet": true,
+    "planning_only_in_this_pass": true,
+    "prefer_authoritative_machine_surfaces_plus_human_readable_companions": true
+  },
+  "mission": "Tighten project admission, dossier quality, intake law, and portfolio classification before new imported-memory execution begins.",
+  "review_questions": [
+    "What are the minimum fields a project dossier must contain before execution can start?",
+    "Which imported-memory states are reference-only versus execution-eligible?",
+    "How should Build Now / Incubate / Park / Archive interact with client delivery versus internal products?",
+    "What explicit rule prevents archive or prototype memory from bypassing the intake law?"
+  ],
+  "schema_version": "annunimas.framework-gate-intake-plan.v1",
+  "scope": "framework_gate_and_project_intake_discipline",
+  "sigil": "REPAIR",
+  "source_clusters": [
+    "framework alignment gate",
+    "project overview registry",
+    "project relevance matrix",
+    "Valinor root doctrine",
+    "Valinor decision and execution-board memory",
+    "existing queue-layer boundary doctrine"
+  ],
+  "status": "implementation_plan_prepared_for_review"
+}

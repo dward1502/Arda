@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_efaa6a194fbc4f64993f676edbd313c5",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Skylight Pros gated readiness review. Human approved next knowledge triage batch. Scope: review Skylight Pros hardening/testing/social task surfaces and produce a bounded readiness plan; no credentials, account access, external publishing, production deployment, money, or destructive mutation.",
+  "salience": 0.6675000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-23T18:37:16.803560737Z",
+  "last_seen_at": "2026-05-23T18:37:16.803560737Z"
+}

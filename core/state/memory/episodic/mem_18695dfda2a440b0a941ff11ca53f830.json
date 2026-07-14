@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_18695dfda2a440b0a941ff11ca53f830",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Gate 3.5I CITADEL Pi bootstrap and companion server active. raspberrypi-1/100.119.130.127: SSH key auth, passwordless sudo, linger, and citadel-companion.service active; physical kiosk/display validation remains pending",
+  "salience": 0.7625,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-18T20:37:33.847080199Z",
+  "last_seen_at": "2026-05-18T20:37:33.847080199Z"
+}

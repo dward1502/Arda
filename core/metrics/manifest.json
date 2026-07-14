@@ -1,0 +1,32 @@
+{
+  "audit_path": "core/metrics/history/20260422T182427Z/audit_summary.json",
+  "auxiliary": [
+    "prometheus/package_health",
+    "oracle/verdicts",
+    "apollo/queue",
+    "athena/queue",
+    "plutus/economics",
+    "oracle/governance",
+    "warden/queue"
+  ],
+  "base_path": "core/metrics",
+  "crates": [
+    "prometheus",
+    "athena",
+    "charon",
+    "mnemosyne",
+    "hades",
+    "hermes",
+    "apollo",
+    "plutus",
+    "oracle",
+    "warden",
+    "core",
+    "governance"
+  ],
+  "generated_at_utc": "2026-04-22T22:04:22Z",
+  "history_path": "core/metrics/history/20260422T182427Z",
+  "latest_audit_path": "core/metrics/audit_latest.json",
+  "sigil": "REPAIR",
+  "snapshot_id": "20260422T182427Z"
+}

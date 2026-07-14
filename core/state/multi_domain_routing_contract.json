@@ -1,0 +1,259 @@
+{
+  "authority": "charon_prometheus_domain_routing_projection",
+  "doctrine": {
+    "async_intake_should_not_block_foreground_conversation": true,
+    "domain_expansion_should_prefer_adapting_existing_primitives_over_rebuilding_from_zero": true,
+    "domain_routing_must_write_through_sovereign_state": true,
+    "human_override_points_must_remain_explicit": true
+  },
+  "domains": [
+    {
+      "contracts": [
+        "core/state/project_task_executor.json",
+        "core/state/runtime_governor_contract.json",
+        "core/state/model_control_surface.json"
+      ],
+      "deliberation_owner": "prometheus",
+      "domain_id": "development",
+      "mission": "Implement, harden, and operate the sovereign software stack.",
+      "primary_executor": "apollo",
+      "primary_intake": "chat_or_queue",
+      "readiness": "guided",
+      "routing_policy": {
+        "async_allowed": true,
+        "default_provider_profile": "backbone_reasoning",
+        "human_override_points": [
+          "arda_hud",
+          "opencode_agent_routes",
+          "task_ledger"
+        ],
+        "routing_targets": []
+      },
+      "signals": [
+        "core/state/project_task_executor.json",
+        "core/state/runtime_budget_policy.json",
+        "core/state/opencode_route_governor.json"
+      ]
+    },
+    {
+      "contracts": [
+        "core/state/async_user_intake_contract.json",
+        "core/state/source_absorption_pipeline.json",
+        "core/state/research_workflow_contract.json",
+        "core/state/search_runtime_contract.json"
+      ],
+      "deliberation_owner": "prometheus",
+      "domain_id": "research",
+      "mission": "Absorb sources, produce evidence, and emit implementation work from validated knowledge.",
+      "primary_executor": "athena",
+      "primary_intake": "athena_async_intake",
+      "readiness": "guided",
+      "routing_policy": {
+        "async_allowed": true,
+        "default_provider_profile": "backbone_router",
+        "human_override_points": [
+          "athena_book_override",
+          "task_ledger",
+          "arda_hud"
+        ],
+        "routing_targets": []
+      },
+      "signals": [
+        "core/state/async_user_intake_queue.json",
+        "core/state/async_user_intake_runtime.json",
+        "core/state/source_absorption_portfolio.json"
+      ]
+    },
+    {
+      "contracts": [
+        "core/state/runtime_governor_contract.json",
+        "core/state/operator_actions.json",
+        "core/state/fleet_steward_actions.json"
+      ],
+      "deliberation_owner": "charon_prometheus",
+      "domain_id": "operations",
+      "mission": "Route maintenance, monitoring, remediation, and fleet posture work through bounded execution.",
+      "primary_executor": "warden",
+      "primary_intake": "operator_signal_or_alert",
+      "readiness": "guided",
+      "routing_policy": {
+        "async_allowed": true,
+        "default_provider_profile": "backbone_reasoning",
+        "human_override_points": [
+          "operator_actions",
+          "fleet_steward_write_intents",
+          "task_ledger"
+        ],
+        "routing_targets": []
+      },
+      "signals": [
+        "core/state/operator_actions.json",
+        "core/state/fleet_power_guard.json",
+        "core/state/edge_endpoint_verification.json"
+      ]
+    },
+    {
+      "contracts": [
+        "core/state/communication_adapter_contract.json",
+        "core/state/async_user_intake_contract.json"
+      ],
+      "deliberation_owner": "prometheus",
+      "domain_id": "communications",
+      "mission": "Classify inbound human/network signals and hand them into the right sovereign queues without blocking dialogue.",
+      "primary_executor": "hermes",
+      "primary_intake": "hermes",
+      "readiness": "guided",
+      "routing_policy": {
+        "async_allowed": true,
+        "default_provider_profile": "backbone_router",
+        "human_override_points": [
+          "matrix_boardroom",
+          "discord_boardroom",
+          "task_ledger"
+        ],
+        "routing_targets": []
+      },
+      "signals": [
+        "data/hermes/messages.jsonl",
+        "core/state/community_signal_intake.json",
+        "core/state/async_user_intake_runtime.json"
+      ]
+    },
+    {
+      "contracts": [
+        "core/state/runtime_governor_contract.json",
+        "core/state/socratic_validator_contract.json"
+      ],
+      "deliberation_owner": "prometheus",
+      "domain_id": "governance",
+      "mission": "Pressure-test plans and pivots with triad, joulework, and resonance before expensive commitment.",
+      "primary_executor": "oracle",
+      "primary_intake": "plan_or_pivot",
+      "readiness": "guided",
+      "routing_policy": {
+        "async_allowed": false,
+        "default_provider_profile": "backbone_reasoning",
+        "human_override_points": [
+          "human_session",
+          "arda_hud",
+          "task_ledger"
+        ],
+        "routing_targets": []
+      },
+      "signals": [
+        "core/state/runtime_budget_policy.json",
+        "core/state/operator_actions.json",
+        "core/state/socratic_validator_audit.json"
+      ]
+    },
+    {
+      "contracts": [
+        "core/state/multi_domain_routing_contract.json"
+      ],
+      "deliberation_owner": "prometheus",
+      "domain_id": "commercial",
+      "mission": "Support market, customer, and business process tasks once bounded commercial policies exist.",
+      "primary_executor": "apollo",
+      "primary_intake": "future_async_intake",
+      "readiness": "planned",
+      "routing_policy": {
+        "async_allowed": false,
+        "default_provider_profile": "backbone_reasoning",
+        "human_override_points": [
+          "human_session",
+          "policy_gate",
+          "task_ledger"
+        ],
+        "routing_targets": []
+      },
+      "signals": [
+        "core/state/source_absorption_pipeline.json"
+      ]
+    },
+    {
+      "contracts": [
+        "core/state/multi_domain_routing_contract.json"
+      ],
+      "deliberation_owner": "oracle",
+      "domain_id": "personal",
+      "mission": "Support human augmentation tasks with bounded privacy, resonance, and override posture.",
+      "primary_executor": "apollo",
+      "primary_intake": "future_async_intake",
+      "readiness": "planned",
+      "routing_policy": {
+        "async_allowed": false,
+        "default_provider_profile": "backbone_router",
+        "human_override_points": [
+          "human_session",
+          "privacy_override",
+          "task_ledger"
+        ],
+        "routing_targets": []
+      },
+      "signals": [
+        "core/state/runtime_budget_policy.json"
+      ]
+    },
+    {
+      "contracts": [
+        "core/state/multi_domain_routing_contract.json",
+        "core/state/runtime_governor_contract.json"
+      ],
+      "deliberation_owner": "warden",
+      "domain_id": "embodied",
+      "mission": "Coordinate physical or device-adjacent workflows through monitored, bounded interfaces.",
+      "primary_executor": "apollo",
+      "primary_intake": "embodied_interface",
+      "readiness": "guided",
+      "routing_policy": {
+        "async_allowed": false,
+        "default_provider_profile": "backbone_reasoning",
+        "human_override_points": [
+          "operator_console",
+          "arda_hud",
+          "task_ledger"
+        ],
+        "routing_targets": []
+      },
+      "signals": [
+        "core/state/embodied_interface.json",
+        "core/state/fleet_power_guard.json"
+      ]
+    }
+  ],
+  "generated_at_utc": "2026-04-28T09:49:24Z",
+  "input_surfaces": {
+    "async_user_intake_contract": "core/state/async_user_intake_contract.json",
+    "communication_adapter_contract": "core/state/communication_adapter_contract.json",
+    "model_control_surface": "core/state/model_control_surface.json",
+    "operator_actions": "core/state/operator_actions.json",
+    "project_task_executor": "core/state/project_task_executor.json",
+    "research_workflow_contract": "core/state/research_workflow_contract.json",
+    "runtime_governor_contract": "core/state/runtime_governor_contract.json",
+    "source_absorption_pipeline": "core/state/source_absorption_pipeline.json"
+  },
+  "next_expansion_order": [
+    "operations",
+    "communications",
+    "governance",
+    "embodied",
+    "commercial",
+    "personal"
+  ],
+  "purpose": {
+    "current_bias": "development_first_bootstrap",
+    "mission": "Map work beyond development into bounded domains with explicit intake, deliberation, routing, and execution ownership.",
+    "target_state": "human augmentation biosystem across multiple task domains"
+  },
+  "schema_version": "annunimas.multi-domain-routing-contract.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "async_user_intake_ready": true,
+    "domains_total": 8,
+    "guided_total": 6,
+    "planned_total": 2,
+    "promote_now_sources_total": 8,
+    "ready_total": 0,
+    "search_runtime_activation_status": "governed_on_demand"
+  }
+}

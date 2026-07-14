@@ -1,0 +1,660 @@
+{
+  "active_canonical_tasks": [],
+  "authority": "annunimas-cli export queue-federation",
+  "central_backlog": {
+    "active_total": 0,
+    "latest_task_ids_total": 175,
+    "path": "core/projects/tasks/queue.jsonl",
+    "raw_rows_total": 336,
+    "role": "canonical latest-by-id execution backlog"
+  },
+  "control": {
+    "control_packets": [],
+    "projection_cache": {
+      "source_paths": [
+        "core/state/queue_federation.json",
+        "core/state/flywheel_packet_runtime.json"
+      ],
+      "source_schema_versions": {
+        "flywheel_packet_runtime": "annunimas.flywheel.packet_runtime.v1",
+        "queue_federation": "annunimas.queue-federation.v1"
+      }
+    },
+    "schema_version": "annunimas.queue-federation-control.v1",
+    "selector": {
+      "mode": "safe_local_receipt_valid_only",
+      "next_safe_local_candidate": null,
+      "rejected": [],
+      "rejected_total": 0,
+      "selected_total": 0
+    }
+  },
+  "generated_at_utc": "2026-07-14T04:56:38Z",
+  "mutation_policy": "read_only_projection_no_task_queue_mutation",
+  "promotion_candidates": [
+    {
+      "blocked_reason": "requires_explicit_arandur_queue_operation_approval",
+      "lane_subclass": "promotion_candidate",
+      "owner": "arandur",
+      "promotion_ready": false,
+      "provenance": {
+        "phase": "6I",
+        "review_required": true,
+        "source_queue_proposal_id": "phase6h_queue_proposal_0b8b859268d3"
+      },
+      "record_class": "approval",
+      "required_contract": "annunimas.arandur.queue_operation.v1",
+      "risk_lane": "human_review_required",
+      "source_queue": "data/arandur/mission_queue_write_requests.jsonl",
+      "source_record_id": "phase6i_queue_write_request_7624977eb5dd",
+      "title": "Review mission candidate: Review approved Arandur pattern: queue owner focus"
+    },
+    {
+      "blocked_reason": "requires_explicit_arandur_queue_operation_approval",
+      "lane_subclass": "promotion_candidate",
+      "owner": "arandur",
+      "promotion_ready": false,
+      "provenance": {
+        "phase": "6I",
+        "review_required": true,
+        "source_queue_proposal_id": "phase6h_queue_proposal_0b8b859268d3"
+      },
+      "record_class": "approval",
+      "required_contract": "annunimas.arandur.queue_operation.v1",
+      "risk_lane": "human_review_required",
+      "source_queue": "data/arandur/mission_queue_write_requests.jsonl",
+      "source_record_id": "phase6i_queue_write_request_c4d9a01cbbca",
+      "title": "Review mission candidate: Review approved Arandur pattern: queue owner focus"
+    },
+    {
+      "blocked_reason": "requires_explicit_arandur_queue_operation_approval",
+      "lane_subclass": "promotion_candidate",
+      "owner": "arandur",
+      "promotion_ready": false,
+      "provenance": {
+        "phase": "6I",
+        "review_required": true,
+        "source_queue_proposal_id": "phase6h_queue_proposal_01670948334b"
+      },
+      "record_class": "approval",
+      "required_contract": "annunimas.arandur.queue_operation.v1",
+      "risk_lane": "human_review_required",
+      "source_queue": "data/arandur/mission_queue_write_requests.jsonl",
+      "source_record_id": "phase6i_queue_write_request_576c480bcf61",
+      "title": "Review mission candidate: Review approved Arandur pattern: scout scope focus"
+    },
+    {
+      "blocked_reason": "requires_explicit_arandur_queue_operation_approval",
+      "lane_subclass": "promotion_candidate",
+      "owner": "arandur",
+      "promotion_ready": false,
+      "provenance": {
+        "phase": "6I",
+        "review_required": true,
+        "source_queue_proposal_id": "phase6h_queue_proposal_c02ac6920e49"
+      },
+      "record_class": "approval",
+      "required_contract": "annunimas.arandur.queue_operation.v1",
+      "risk_lane": "human_review_required",
+      "source_queue": "data/arandur/mission_queue_write_requests.jsonl",
+      "source_record_id": "phase6i_queue_write_request_cc3652b8cdae",
+      "title": "Review mission candidate: Review approved Arandur pattern: episode type focus"
+    },
+    {
+      "blocked_reason": "requires_explicit_human_promotion_receipt",
+      "lane_subclass": "human_signal",
+      "owner": "human",
+      "promotion_ready": false,
+      "provenance": {
+        "kind": "human_task_template",
+        "path": "human/00-Templates/agent_task.md"
+      },
+      "record_class": "evidence",
+      "required_contract": "prometheus_safe_local_task_promotion",
+      "risk_lane": "human_review_required",
+      "source_queue": "human/",
+      "source_record_id": "human/00-Templates/agent_task.md",
+      "title": "Human workspace signal: human_task_template"
+    },
+    {
+      "blocked_reason": "requires_explicit_human_promotion_receipt",
+      "lane_subclass": "human_signal",
+      "owner": "human",
+      "promotion_ready": false,
+      "provenance": {
+        "kind": "human_task_notes",
+        "path": "human/05-Projects/summaries/task-notes.md"
+      },
+      "record_class": "evidence",
+      "required_contract": "prometheus_safe_local_task_promotion",
+      "risk_lane": "human_review_required",
+      "source_queue": "human/",
+      "source_record_id": "human/05-Projects/summaries/task-notes.md",
+      "title": "Human workspace signal: human_task_notes"
+    }
+  ],
+  "promotion_policy": {
+    "allowed_contracts": [
+      "flywheel_plan_packet",
+      "prometheus_safe_local_task_promotion",
+      "annunimas.arandur.queue_operation.v1"
+    ],
+    "blocked_without_explicit_human_or_triad_gate": [
+      "credential_sensitive",
+      "external_side_effect",
+      "destructive_delete",
+      "archive_or_retention",
+      "funds_movement",
+      "legal_commitment",
+      "service_restart",
+      "provider_reload",
+      "fleet_reimage",
+      "customer_commitment"
+    ],
+    "default": "passive_projection_only",
+    "human_lane": {
+      "path": "human/",
+      "rule": "human notes, decisions, and task templates are visible as source signals but never auto-promoted without explicit human/promotion receipt"
+    },
+    "safe_local_initial_scope": true
+  },
+  "schema_version": "annunimas.queue-federation.v1",
+  "sources": [
+    {
+      "allowed_emits": [
+        "execution_attempt",
+        "terminal_result"
+      ],
+      "allowed_mutations": [
+        "core/projects/tasks/queue.jsonl:append_only"
+      ],
+      "canonical": true,
+      "default_record_class": "execution_attempt",
+      "exists": true,
+      "feed_policy": "latest_by_id_execution_backlog",
+      "human_gated": false,
+      "id": "canonical_project_tasks",
+      "is_directory": false,
+      "lane_subclass": "canonical_task",
+      "newest_observed_at_utc": "2026-07-03T05:38:04Z",
+      "owner": "prometheus",
+      "path": "core/projects/tasks/queue.jsonl",
+      "promotion_receipt_required": "none_already_canonical",
+      "record_count": 336,
+      "source_type": "canonical_task_queue",
+      "status_counts": {
+        "cancelled": 4,
+        "completed": 190,
+        "in_progress": 2,
+        "pending": 10,
+        "queued": 130
+      }
+    },
+    {
+      "allowed_emits": [
+        "evidence"
+      ],
+      "allowed_mutations": [],
+      "canonical": false,
+      "default_record_class": "evidence",
+      "exists": true,
+      "feed_policy": "legacy_or_runtime_messages_not_canonical_tasks",
+      "human_gated": false,
+      "id": "runtime_queue",
+      "is_directory": false,
+      "lane_subclass": "runtime_message",
+      "newest_observed_at_utc": "2026-05-25T15:26:14.614758468+00:00",
+      "owner": "prometheus",
+      "path": "core/queue/queue.jsonl",
+      "promotion_receipt_required": "flywheel_plan_packet_or_prometheus_safe_local_task_promotion",
+      "record_count": 0,
+      "source_type": "runtime_queue",
+      "status_counts": {}
+    },
+    {
+      "allowed_emits": [
+        "proposal",
+        "evidence"
+      ],
+      "allowed_mutations": [],
+      "canonical": false,
+      "default_record_class": "evidence",
+      "exists": true,
+      "feed_policy": "human_or_triad_review_required_before_task_mutation",
+      "human_gated": true,
+      "id": "knowledge_actionable_review",
+      "is_directory": false,
+      "lane_subclass": "review_signal",
+      "newest_observed_at_utc": "2026-05-23T07:39:10.801879180Z",
+      "owner": "athena",
+      "path": "core/knowledge/actionable_review_queue.jsonl",
+      "promotion_receipt_required": "human_or_triad_review_receipt",
+      "record_count": 8,
+      "source_type": "review_queue",
+      "status_counts": {
+        "active": 5,
+        "blocked": 2,
+        "unknown": 1
+      }
+    },
+    {
+      "allowed_emits": [
+        "proposal",
+        "evidence"
+      ],
+      "allowed_mutations": [],
+      "canonical": false,
+      "default_record_class": "proposal",
+      "exists": false,
+      "feed_policy": "requires_prometheus_safe_local_task_promotion_receipt",
+      "human_gated": false,
+      "id": "athena_policy_tasks",
+      "is_directory": false,
+      "lane_subclass": "promotion_candidate",
+      "newest_observed_at_utc": null,
+      "owner": "athena",
+      "path": "crates/annunimas-athena/core/projects/tasks/queue.jsonl",
+      "promotion_receipt_required": "prometheus_safe_local_task_promotion",
+      "record_count": 0,
+      "source_type": "subsystem_task_queue",
+      "status_counts": {}
+    },
+    {
+      "allowed_emits": [
+        "approval",
+        "execution_attempt",
+        "terminal_result"
+      ],
+      "allowed_mutations": [
+        "data/hades/action_queue_closeouts.jsonl:append_only"
+      ],
+      "canonical": false,
+      "default_record_class": "approval",
+      "exists": true,
+      "feed_policy": "lifecycle_action_queue_closeout_controls_completion",
+      "human_gated": true,
+      "id": "hades_action_queue",
+      "is_directory": false,
+      "lane_subclass": "review_signal",
+      "newest_observed_at_utc": "2026-07-14T00:59:33.906029716+00:00",
+      "owner": "hades",
+      "path": "data/hades/action_queue.jsonl",
+      "promotion_receipt_required": "hades_lifecycle_action_receipt",
+      "record_count": 40,
+      "source_type": "action_queue",
+      "status_counts": {
+        "unknown": 40
+      }
+    },
+    {
+      "allowed_emits": [
+        "evidence",
+        "terminal_result"
+      ],
+      "allowed_mutations": [],
+      "canonical": false,
+      "default_record_class": "terminal_result",
+      "exists": true,
+      "feed_policy": "append_only_closeouts_for_hades_action_queue",
+      "human_gated": false,
+      "id": "hades_action_closeouts",
+      "is_directory": false,
+      "lane_subclass": "closeout",
+      "newest_observed_at_utc": "2026-06-12T02:34:43Z",
+      "owner": "hades",
+      "path": "data/hades/action_queue_closeouts.jsonl",
+      "promotion_receipt_required": "result_evidence_receipt",
+      "record_count": 32,
+      "source_type": "closeout_ledger",
+      "status_counts": {
+        "cancelled_obsolete": 1,
+        "completed_remediated": 31
+      }
+    },
+    {
+      "allowed_emits": [
+        "evidence",
+        "proposal"
+      ],
+      "allowed_mutations": [],
+      "canonical": false,
+      "default_record_class": "evidence",
+      "exists": true,
+      "feed_policy": "attention_required_records_may_become_review_packets",
+      "human_gated": false,
+      "id": "warden_informant",
+      "is_directory": false,
+      "lane_subclass": "telemetry",
+      "newest_observed_at_utc": "2026-07-14T04:56:38.675950Z",
+      "owner": "warden",
+      "path": "data/warden/informant_queue.jsonl",
+      "promotion_receipt_required": "warden_review_packet_receipt",
+      "record_count": 28534,
+      "source_type": "telemetry_queue",
+      "status_counts": {
+        "attention_required": 20325,
+        "healthy": 835,
+        "interrupt_captured": 69,
+        "observed": 7289,
+        "runaway_loop": 16
+      }
+    },
+    {
+      "allowed_emits": [
+        "evidence",
+        "proposal"
+      ],
+      "allowed_mutations": [],
+      "canonical": false,
+      "default_record_class": "evidence",
+      "exists": true,
+      "feed_policy": "warden_hades_review_packet_source_not_direct_task_mutation",
+      "human_gated": false,
+      "id": "hades_warden_handoff",
+      "is_directory": false,
+      "lane_subclass": "review_signal",
+      "newest_observed_at_utc": "2026-07-14T04:56:31.546581281+00:00",
+      "owner": "hades",
+      "path": "data/hades/warden_queue.jsonl",
+      "promotion_receipt_required": "warden_hades_review_packet_receipt",
+      "record_count": 2301,
+      "source_type": "handoff_queue",
+      "status_counts": {
+        "attention_required": 2301
+      }
+    },
+    {
+      "allowed_emits": [
+        "evidence",
+        "proposal"
+      ],
+      "allowed_mutations": [],
+      "canonical": false,
+      "default_record_class": "evidence",
+      "exists": true,
+      "feed_policy": "athena_handoff_evidence_not_direct_task_mutation",
+      "human_gated": false,
+      "id": "hades_athena_handoff",
+      "is_directory": false,
+      "lane_subclass": "review_signal",
+      "newest_observed_at_utc": "2026-07-14T04:56:31.546543490+00:00",
+      "owner": "hades",
+      "path": "data/hades/athena_handoff_queue.jsonl",
+      "promotion_receipt_required": "athena_handoff_review_receipt",
+      "record_count": 2301,
+      "source_type": "handoff_queue",
+      "status_counts": {
+        "live_sent": 2016,
+        "queued_fallback": 285
+      }
+    },
+    {
+      "allowed_emits": [
+        "evidence",
+        "execution_attempt",
+        "terminal_result"
+      ],
+      "allowed_mutations": [
+        "data/hermes/outbound_queue.jsonl:delivery_attempts_only"
+      ],
+      "canonical": false,
+      "default_record_class": "execution_attempt",
+      "exists": true,
+      "feed_policy": "outbound_delivery_status_not_execution_backlog",
+      "human_gated": true,
+      "id": "hermes_outbound",
+      "is_directory": false,
+      "lane_subclass": "delivery",
+      "newest_observed_at_utc": "2026-06-02T00:07:41.334470899+00:00",
+      "owner": "hermes",
+      "path": "data/hermes/outbound_queue.jsonl",
+      "promotion_receipt_required": "external_side_effect_approval_receipt_for_non_delivery_promotion",
+      "record_count": 6,
+      "source_type": "delivery_queue",
+      "status_counts": {
+        "completed": 3,
+        "queued": 3
+      }
+    },
+    {
+      "allowed_emits": [
+        "proposal",
+        "approval"
+      ],
+      "allowed_mutations": [],
+      "canonical": false,
+      "default_record_class": "proposal",
+      "exists": true,
+      "feed_policy": "requires_explicit_arandur_queue_operation_approval",
+      "human_gated": true,
+      "id": "arandur_queue_proposals",
+      "is_directory": false,
+      "lane_subclass": "proposal",
+      "newest_observed_at_utc": "2026-05-18T10:28:11.311232736+00:00",
+      "owner": "arandur",
+      "path": "data/arandur/mission_queue_proposals.jsonl",
+      "promotion_receipt_required": "explicit_arandur_queue_operation_approval",
+      "record_count": 3,
+      "source_type": "proposal_queue",
+      "status_counts": {
+        "unknown": 3
+      }
+    },
+    {
+      "allowed_emits": [
+        "approval",
+        "execution_attempt"
+      ],
+      "allowed_mutations": [],
+      "canonical": false,
+      "default_record_class": "approval",
+      "exists": true,
+      "feed_policy": "requires_annunimas_arandur_queue_operation_v1",
+      "human_gated": true,
+      "id": "arandur_queue_write_requests",
+      "is_directory": false,
+      "lane_subclass": "promotion_candidate",
+      "newest_observed_at_utc": "2026-05-18T18:02:30.479545789+00:00",
+      "owner": "arandur",
+      "path": "data/arandur/mission_queue_write_requests.jsonl",
+      "promotion_receipt_required": "annunimas.arandur.queue_operation.v1",
+      "record_count": 4,
+      "source_type": "write_request_queue",
+      "status_counts": {
+        "unknown": 4
+      }
+    },
+    {
+      "allowed_emits": [
+        "proposal",
+        "evidence",
+        "approval"
+      ],
+      "allowed_mutations": [],
+      "canonical": false,
+      "default_record_class": "evidence",
+      "exists": true,
+      "feed_policy": "human_notes_are_signal_sources_and_require_explicit_promotion",
+      "human_gated": true,
+      "id": "human_workspace",
+      "is_directory": true,
+      "lane_subclass": "human_signal",
+      "newest_observed_at_utc": "2026-07-14T00:42:33.159102504+00:00",
+      "owner": "human",
+      "path": "human/",
+      "promotion_receipt_required": "explicit_human_promotion_receipt",
+      "record_count": 0,
+      "source_type": "human_knowledge_lane",
+      "status_counts": {}
+    },
+    {
+      "allowed_emits": [
+        "proposal",
+        "evidence"
+      ],
+      "allowed_mutations": [],
+      "canonical": false,
+      "default_record_class": "proposal",
+      "exists": true,
+      "feed_policy": "oracle_warden_gate_before_prometheus_promotion_or_hades_packet",
+      "human_gated": true,
+      "id": "learning_loop_v1_state",
+      "is_directory": false,
+      "lane_subclass": "learning_loop_proposal",
+      "newest_observed_at_utc": "2026-06-12T09:12:29.412735498+00:00",
+      "owner": "prometheus",
+      "path": "core/state/learning_loop_v1.json",
+      "promotion_receipt_required": "oracle_warden_gate_verdict_plus_prometheus_safe_local_task_promotion_or_hades_lifecycle_packet",
+      "record_count": 0,
+      "source_type": "learning_loop_state",
+      "status_counts": {}
+    },
+    {
+      "allowed_emits": [
+        "proposal",
+        "evidence",
+        "approval"
+      ],
+      "allowed_mutations": [],
+      "canonical": false,
+      "default_record_class": "proposal",
+      "exists": true,
+      "feed_policy": "readiness_projection_only_requires_flywheel_packet_receipt_before_queue_append",
+      "human_gated": false,
+      "id": "flywheel_packet_runtime",
+      "is_directory": false,
+      "lane_subclass": "flywheel_plan_packet",
+      "newest_observed_at_utc": "2026-07-14T04:56:38.784407011+00:00",
+      "owner": "prometheus",
+      "path": "core/state/flywheel_packet_runtime.json",
+      "promotion_receipt_required": "flywheel_plan_packet_readiness_receipt",
+      "record_count": 0,
+      "source_type": "flywheel_packet_projection",
+      "status_counts": {}
+    },
+    {
+      "allowed_emits": [
+        "evidence",
+        "proposal"
+      ],
+      "allowed_mutations": [],
+      "canonical": false,
+      "default_record_class": "evidence",
+      "exists": true,
+      "feed_policy": "read_only_truth_reconciliation_not_execution_authority",
+      "human_gated": false,
+      "id": "ceo_autopilot_task_truth",
+      "is_directory": false,
+      "lane_subclass": "ceo_autopilot_reconciliation",
+      "newest_observed_at_utc": "2026-07-14T01:09:40.208215308+00:00",
+      "owner": "prometheus",
+      "path": "core/state/autonomy_task_truth.json",
+      "promotion_receipt_required": "autonomy_task_truth_reconciliation_receipt",
+      "record_count": 0,
+      "source_type": "ceo_autopilot_reconciliation",
+      "status_counts": {}
+    },
+    {
+      "allowed_emits": [
+        "evidence",
+        "approval"
+      ],
+      "allowed_mutations": [],
+      "canonical": false,
+      "default_record_class": "evidence",
+      "exists": true,
+      "feed_policy": "preflight_readiness_requires_action_class_receipt_before_mutation",
+      "human_gated": true,
+      "id": "ceo_autopilot_preflight",
+      "is_directory": false,
+      "lane_subclass": "autonomy_preflight",
+      "newest_observed_at_utc": "2026-07-14T04:56:38.500224960+00:00",
+      "owner": "prometheus",
+      "path": "data/prometheus/autonomy_operating_loop_preflight.json",
+      "promotion_receipt_required": "bounded_action_class_preflight_receipt_and_human_gate_for_mutation",
+      "record_count": 0,
+      "source_type": "ceo_autopilot_preflight",
+      "status_counts": {}
+    }
+  ],
+  "summary": {
+    "blocked_total": 6,
+    "promotion_candidates_total": 6,
+    "promotion_ready_total": 0,
+    "sources_total": 17
+  },
+  "validation": {
+    "checks": [
+      "canonical_record_class_vocabulary",
+      "proposal_ready_requires_source_risk_contract_receipt",
+      "evidence_not_promotion_ready_without_binding_receipt",
+      "approval_requires_authority_target_scope_action_class",
+      "central_terminal_result_requires_result_evidence"
+    ],
+    "errors": [],
+    "errors_total": 0,
+    "mode": "lightweight_stage_transition_warnings",
+    "status": "clean",
+    "warnings": [
+      {
+        "id": "federation_promotion_missing_source_receipt",
+        "message": "queue_federation_promotion record should bind source queue, source record id, and promotion receipt before terminal closeout",
+        "severity": "warn",
+        "task_id": "tsk_20260612T071658Z_federated_tsk_policy_4cb7a3ecb538"
+      },
+      {
+        "id": "federation_promotion_missing_source_receipt",
+        "message": "queue_federation_promotion record should bind source queue, source record id, and promotion receipt before terminal closeout",
+        "severity": "warn",
+        "task_id": "tsk_20260612T071658Z_federated_tsk_policy_95b32e5b6148"
+      },
+      {
+        "id": "federation_promotion_missing_source_receipt",
+        "message": "queue_federation_promotion record should bind source queue, source record id, and promotion receipt before terminal closeout",
+        "severity": "warn",
+        "task_id": "tsk_20260612T071658Z_federated_tsk_policy_a7d8f4de0fbc"
+      },
+      {
+        "id": "federation_promotion_missing_source_receipt",
+        "message": "queue_federation_promotion record should bind source queue, source record id, and promotion receipt before terminal closeout",
+        "severity": "warn",
+        "task_id": "tsk_20260612T071658Z_federated_tsk_policy_5fd487231789"
+      },
+      {
+        "id": "federation_promotion_missing_source_receipt",
+        "message": "queue_federation_promotion record should bind source queue, source record id, and promotion receipt before terminal closeout",
+        "severity": "warn",
+        "task_id": "tsk_20260612T071658Z_federated_tsk_policy_7dbb93878f97"
+      },
+      {
+        "id": "approval_missing_scope_receipt_fields",
+        "message": "approval records should name authority, target, scope, and bounded action class before execution",
+        "severity": "warn",
+        "source_queue": "data/arandur/mission_queue_write_requests.jsonl",
+        "source_record_id": "phase6i_queue_write_request_7624977eb5dd"
+      },
+      {
+        "id": "approval_missing_scope_receipt_fields",
+        "message": "approval records should name authority, target, scope, and bounded action class before execution",
+        "severity": "warn",
+        "source_queue": "data/arandur/mission_queue_write_requests.jsonl",
+        "source_record_id": "phase6i_queue_write_request_c4d9a01cbbca"
+      },
+      {
+        "id": "approval_missing_scope_receipt_fields",
+        "message": "approval records should name authority, target, scope, and bounded action class before execution",
+        "severity": "warn",
+        "source_queue": "data/arandur/mission_queue_write_requests.jsonl",
+        "source_record_id": "phase6i_queue_write_request_576c480bcf61"
+      },
+      {
+        "id": "approval_missing_scope_receipt_fields",
+        "message": "approval records should name authority, target, scope, and bounded action class before execution",
+        "severity": "warn",
+        "source_queue": "data/arandur/mission_queue_write_requests.jsonl",
+        "source_record_id": "phase6i_queue_write_request_cc3652b8cdae"
+      }
+    ],
+    "warnings_total": 9
+  }
+}

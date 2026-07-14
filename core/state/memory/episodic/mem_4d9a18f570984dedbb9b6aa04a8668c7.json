@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_4d9a18f570984dedbb9b6aa04a8668c7",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ATHENA x_bookmarks source policy-ready",
+  "salience": 0.6825,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T04:33:29.219898384Z",
+  "last_seen_at": "2026-06-01T04:33:29.219898384Z"
+}

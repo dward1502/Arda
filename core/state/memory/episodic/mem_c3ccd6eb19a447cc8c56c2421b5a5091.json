@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_c3ccd6eb19a447cc8c56c2421b5a5091",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: CHARON Adaptive Routing v1: evaluation loop. Added charon eval dry-run command and daemon IPC handler for Hermes tool, multi-tool, code, structured JSON, long-context, streaming, and background eval families; receipts path is data/charon/model_eval_receipts.jsonl.",
+  "salience": 0.6855000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-07T06:22:43.755095954Z",
+  "last_seen_at": "2026-06-07T06:22:43.755095954Z"
+}

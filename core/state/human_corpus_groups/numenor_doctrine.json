@@ -1,0 +1,34 @@
+{
+  "authority": "bounded_human_corpus_group_extraction",
+  "extraction": {
+    "contract_candidates": [
+      "operator_cosmology_contract",
+      "archive_governance_doctrine"
+    ],
+    "crate_candidates": [],
+    "extracted_primitives": [
+      "nation_model",
+      "agent_as_employee_model",
+      "archive_not_delete_posture",
+      "symbolic_protocol_lineage"
+    ],
+    "next_downstream_tasks": [
+      "Absorb surviving doctrine primitives without importing obsolete org metaphors wholesale"
+    ]
+  },
+  "generated_at_utc": "2026-03-13T11:32:02.537547Z",
+  "group_id": "numenor_doctrine",
+  "lane": "doctrine",
+  "owner": "prometheus",
+  "schema_version": "annunimas.human-corpus-group.v1",
+  "sigil": "REPAIR",
+  "source_ids": [
+    "src_394f799e",
+    "src_02c58d10"
+  ],
+  "source_paths": [
+    "/var/home/dward/Numenor_Prime/Elros/MASTER_OPERATIONS_PLAN.md",
+    "/var/home/dward/Numenor_Prime/Elros/the_soterion.md"
+  ],
+  "task_title": "Absorb doctrine source: master_operations_plan"
+}

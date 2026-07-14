@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_cf261fd84e9e440d86ba9ed28c8aaf71",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Implement CITADEL companion embodied roadmap",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-29T02:37:38.943946949Z",
+  "last_seen_at": "2026-05-29T02:37:38.943946949Z"
+}

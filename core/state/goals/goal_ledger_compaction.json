@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "goal_ledger_compaction",
+  "title": "Compact ledger segments",
+  "intent": "Roll any ledger segment older than 14 days into the archive. Preserve audit lineage; never rewrite an existing segment in place.",
+  "owner_agent": "supervisor",
+  "status": "active",
+  "priority": "low",
+  "joule_budget_per_day": 10.0,
+  "created_at": "2026-05-04T02:48:59.870538991Z",
+  "updated_at": "2026-05-04T02:48:59.870538991Z"
+}

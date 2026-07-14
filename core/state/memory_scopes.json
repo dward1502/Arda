@@ -1,0 +1,195 @@
+{
+  "arda_hints": {
+    "boardroom_section": "identity_and_growth",
+    "primary_panel": "memory_scope_map",
+    "scope_count": 4
+  },
+  "authority": "memory_scopes_projection",
+  "generated_at_utc": "2026-07-14T05:03:01.348687859+00:00",
+  "schema_version": "annunimas.core.state.v1",
+  "scopes": {
+    "boardroom_council": {
+      "event_types": {},
+      "most_recent_age_minutes": 9999,
+      "most_recent_ts": null,
+      "recent_count": 0,
+      "recent_memories": [],
+      "source_crates": {}
+    },
+    "edge_runtime": {
+      "event_types": {
+        "provider_result": 2,
+        "proxy_success": 2,
+        "route_failed": 30,
+        "route_selected": 2
+      },
+      "most_recent_age_minutes": 0,
+      "most_recent_ts": "2026-07-14T05:02:26.615372859+00:00",
+      "recent_count": 36,
+      "recent_memories": [
+        {
+          "bacon_lite_confidence": 0.47,
+          "content": "CHARON failed route for openai_shim:code priority=normal",
+          "event_type": "route_failed",
+          "joulework": 0.35,
+          "love_eq": 0.5,
+          "memory_scope": "edge_runtime",
+          "significance": 0.2879999999999999,
+          "source_crate": "charon",
+          "tags": [
+            "charon",
+            "route",
+            "failure"
+          ],
+          "triad": false,
+          "ts_utc": "2026-07-14T04:39:50.505223828+00:00",
+          "type": "episodic"
+        },
+        {
+          "bacon_lite_confidence": 0.47,
+          "content": "CHARON failed route for openai_shim:code priority=normal",
+          "event_type": "route_failed",
+          "joulework": 0.35,
+          "love_eq": 0.5,
+          "memory_scope": "edge_runtime",
+          "significance": 0.2879999999999999,
+          "source_crate": "charon",
+          "tags": [
+            "charon",
+            "route",
+            "failure"
+          ],
+          "triad": false,
+          "ts_utc": "2026-07-14T04:39:53.172007161+00:00",
+          "type": "episodic"
+        },
+        {
+          "bacon_lite_confidence": 0.47,
+          "content": "CHARON failed route for openai_shim:code priority=normal",
+          "event_type": "route_failed",
+          "joulework": 0.35,
+          "love_eq": 0.5,
+          "memory_scope": "edge_runtime",
+          "significance": 0.2879999999999999,
+          "source_crate": "charon",
+          "tags": [
+            "charon",
+            "route",
+            "failure"
+          ],
+          "triad": false,
+          "ts_utc": "2026-07-14T04:39:55.981033303+00:00",
+          "type": "episodic"
+        },
+        {
+          "bacon_lite_confidence": 0.5900000000000001,
+          "content": "CHARON routed openai_shim:chat [interactive:interactive] -> edge_beelink_light:Qwen_Qwen3.5-4B-Q6_K triad_passed=true love_eq=0.83",
+          "event_type": "route_selected",
+          "joulework": 1.0,
+          "love_eq": 0.5,
+          "memory_scope": "edge_runtime",
+          "significance": 0.3834999999999999,
+          "source_crate": "charon",
+          "tags": [
+            "charon",
+            "route",
+            "interactive",
+            "triad_passed"
+          ],
+          "triad": true,
+          "ts_utc": "2026-07-14T04:46:16.303942425+00:00",
+          "type": "episodic"
+        },
+        {
+          "bacon_lite_confidence": 0.5700000000000001,
+          "content": "CHARON provider edge_beelink_light result ok=true failures=0 cooldown=false",
+          "event_type": "provider_result",
+          "joulework": 0.8,
+          "love_eq": 0.5,
+          "memory_scope": "edge_runtime",
+          "significance": 0.31049999999999994,
+          "source_crate": "charon",
+          "tags": [
+            "charon",
+            "provider"
+          ],
+          "triad": true,
+          "ts_utc": "2026-07-14T04:46:17.809366563+00:00",
+          "type": "episodic"
+        },
+        {
+          "bacon_lite_confidence": 0.5700000000000001,
+          "content": "CHARON proxy forwarded via edge_beelink_light in 506ms",
+          "event_type": "proxy_success",
+          "joulework": 0.85,
+          "love_eq": 0.5,
+          "memory_scope": "edge_runtime",
+          "significance": 0.478,
+          "source_crate": "charon",
+          "tags": [
+            "charon",
+            "proxy"
+          ],
+          "triad": true,
+          "ts_utc": "2026-07-14T04:46:19.757250195+00:00",
+          "type": "episodic"
+        },
+        {
+          "bacon_lite_confidence": 0.47,
+          "content": "CHARON failed route for openai_shim:code priority=normal",
+          "event_type": "route_failed",
+          "joulework": 0.35,
+          "love_eq": 0.5,
+          "memory_scope": "edge_runtime",
+          "significance": 0.2879999999999999,
+          "source_crate": "charon",
+          "tags": [
+            "charon",
+            "route",
+            "failure"
+          ],
+          "triad": false,
+          "ts_utc": "2026-07-14T04:46:54.506580316+00:00",
+          "type": "episodic"
+        },
+        {
+          "bacon_lite_confidence": 0.47,
+          "content": "CHARON failed route for openai_shim:code priority=normal",
+          "event_type": "route_failed",
+          "joulework": 0.35,
+          "love_eq": 0.5,
+          "memory_scope": "edge_runtime",
+          "significance": 0.2879999999999999,
+          "source_crate": "charon",
+          "tags": [
+            "charon",
+            "route",
+            "failure"
+          ],
+          "triad": false,
+          "ts_utc": "2026-07-14T04:46:56.329592115+00:00",
+          "type": "episodic"
+        }
+      ],
+      "source_crates": {
+        "charon": 36
+      }
+    },
+    "human_context": {
+      "event_types": {},
+      "most_recent_age_minutes": 9999,
+      "most_recent_ts": null,
+      "recent_count": 0,
+      "recent_memories": [],
+      "source_crates": {}
+    },
+    "system_continuity": {
+      "event_types": {},
+      "most_recent_age_minutes": 9999,
+      "most_recent_ts": null,
+      "recent_count": 0,
+      "recent_memories": [],
+      "source_crates": {}
+    }
+  }
+}

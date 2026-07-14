@@ -1,0 +1,13 @@
+{
+  "contract_version": "0.1.0",
+  "id": "ref_ecfac801-052f-41bd-b541-e8e0713c2edb",
+  "task_id": "ecfac801-052f-41bd-b541-e8e0713c2edb",
+  "plan_id": "plan_goal_provider_mesh_health_20260505",
+  "completed_at": "2026-05-05T23:06:45.943988793Z",
+  "outcome": "success",
+  "score": 1.0,
+  "narrative": "v0.1 trivial score: task ended in Complete; plan_step_index=Some(0)",
+  "joule_estimated": 2.5,
+  "joule_actual": 0.0,
+  "lessons_emitted": []
+}

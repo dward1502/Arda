@@ -1,0 +1,80 @@
+{
+  "authority": "edge_identity_remediation_export",
+  "generated_at_utc": "2026-04-22T21:57:53Z",
+  "identity_doctrine": {
+    "bind_identity_before_bootstrap": true,
+    "generic_hostname_is_not_identity": true,
+    "mesh_transport_does_not_replace_identity_registry": true,
+    "operator_confirmation_required_for_identity_cleanup": true,
+    "retire_stale_duplicates_before_promoting_new_role": true
+  },
+  "mesh_context": {
+    "ack_gap_present": true,
+    "stale_hostname_clusters": [],
+    "transport_mode": "informant_queue_over_tailscale",
+    "unresolved_stale_total": 0
+  },
+  "schema_version": "annunimas.edge-identity-remediation-contract.v1",
+  "shared_actions": [],
+  "sigil": "REPAIR",
+  "summary": {
+    "operator_confirmation_targets_total": 1,
+    "stale_hostname_clusters_total": 0,
+    "target_remediation_total": 2
+  },
+  "target_remediation": [
+    {
+      "binding_strategy": "reserve_canonical_identity_before_enrollment",
+      "candidate_stale_node_ids": [],
+      "current_state": "active_staging",
+      "expected_hostname": "raspberrypi-aihat",
+      "hostname": "raspberrypi",
+      "node_class": "edge_avatar_product",
+      "onboarding_stage": "bootstrap_and_promotion",
+      "operator_confirmation_required": true,
+      "remediation_sequence": [
+        {
+          "evidence": "core/state/fleet_identity_reconciliation.json",
+          "status": "pending",
+          "step": "Confirm canonical hostname and Tailscale identity before enrollment"
+        },
+        {
+          "evidence": "core/edge/targets.toml",
+          "status": "completed",
+          "step": "Assign the live Tailscale IP and establish SSH trust for the Pi5 AI HAT controller"
+        },
+        {
+          "evidence": "scripts/bootstrap_embodied_controller.sh",
+          "status": "ready",
+          "step": "Run embodied controller bootstrap once the canonical identity is bound"
+        }
+      ],
+      "role": "citadel_avatar_controller",
+      "target_id": "node-pi5-citadel-avatar"
+    },
+    {
+      "binding_strategy": null,
+      "candidate_stale_node_ids": [],
+      "current_state": "active_staging",
+      "expected_hostname": null,
+      "hostname": "beelink",
+      "node_class": "edge_worker",
+      "onboarding_stage": "bootstrap_and_promotion",
+      "operator_confirmation_required": false,
+      "remediation_sequence": [
+        {
+          "evidence": "core/state/fleet_identity_reconciliation.json",
+          "status": "completed",
+          "step": "Recover networking or enroll the SER9 host under the expected hostname"
+        },
+        {
+          "evidence": "core/edge/targets.toml",
+          "status": "completed",
+          "step": "Populate Tailscale IP and promote runtime roles after first successful informant scan"
+        }
+      ],
+      "role": "ser9_sovereign_worker",
+      "target_id": "node-ser9-worker"
+    }
+  ]
+}

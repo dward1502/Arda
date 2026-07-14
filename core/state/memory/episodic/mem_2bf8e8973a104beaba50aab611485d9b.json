@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_2bf8e8973a104beaba50aab611485d9b",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: S1/G3: freeze workspace Cargo.toml and add boundary review gate for new crates",
+  "salience": 0.8325000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-19T08:00:20.688079236Z",
+  "last_seen_at": "2026-06-19T08:00:20.688079236Z"
+}

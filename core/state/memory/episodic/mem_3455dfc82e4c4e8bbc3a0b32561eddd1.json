@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_3455dfc82e4c4e8bbc3a0b32561eddd1",
+  "kind": "episodic",
+  "agent": "athena",
+  "content": "ATHENA marked src_a667d4e6 policy_ready with confidence 0.7350. Context: digest lifecycle side-effect",
+  "salience": 0.5177499999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T07:02:33.752581678Z",
+  "last_seen_at": "2026-06-01T07:02:33.752581678Z"
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_7ec90a184a9248e6b07c89cfd6b10d12",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Gate 3.5F clean CITADEL companion client",
+  "salience": 0.7625,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-18T20:05:26.704893102Z",
+  "last_seen_at": "2026-05-18T20:05:26.704893102Z"
+}

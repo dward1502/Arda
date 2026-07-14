@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_f98cb234b6ec4c50b3bad334e313dea4",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA add scoped media library focused viewer",
+  "salience": 0.8045000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T08:58:28.502118402Z",
+  "last_seen_at": "2026-06-01T08:58:28.502118402Z"
+}

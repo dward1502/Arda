@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_c4a7c89273144c7fb97705fd285933dd",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: S2/G4 migrate signal-grid into a staged feature project repo completed. Staged bounded external copy at /var/home/mythos/Eregion/annunimas-signal-grid-stage; retained Annunimas workspace member; verified workspace cargo test -p annunimas-signal-grid, external cargo test, forbidden payload scan excluding target, evidence doc, diff hygiene, and append-only guard.",
+  "salience": 0.8638333333333335,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-21T19:20:04.495363729Z",
+  "last_seen_at": "2026-06-21T19:20:04.495363729Z"
+}

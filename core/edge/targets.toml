@@ -1,0 +1,113 @@
+# sigil: SCROLL
+
+[[node]]
+id = "node-core-hub"
+role = "main_hub"
+hostname = "annunimas-core"
+tailscale_ip = "100.78.138.113"
+ssh_user = "mythos"
+athena_enabled = true
+hermes_enabled = true
+warden_enabled = false
+charon_enabled = true
+oracle_enabled = true
+plutus_enabled = true
+node_class = "core_compute"
+enrollment_status = "active"
+llm_runtime = "local_inference_worker"
+notes = "Home RTX 3080 workstation reachable over Tailscale as annunimas-core / 100.78.138.113. Primary remote fallback when the portable operator is away from the home LAN."
+
+[[node]]
+id = "node-pi5-warden"
+role = "warden_guardhouse"
+hostname = "raspberrypi"
+tailscale_ip = "100.110.85.37"
+ssh_user = "numenor"
+athena_enabled = false
+hermes_enabled = true
+warden_enabled = true
+charon_enabled = false
+oracle_enabled = false
+plutus_enabled = false
+node_class = "edge_guardhouse"
+enrollment_status = "active"
+llm_runtime = "edge_llm_light"
+notes = "Home-network Pi5 guardhouse node. WARDEN authority, edge informant boundary, and CEO-callable utility agent surface for local tasks."
+
+[[node]]
+id = "node-pi5-citadel-avatar"
+role = "citadel_avatar_controller"
+hostname = "raspberrypi"
+tailscale_ip = "100.119.130.127"
+ssh_user = "citadel"
+athena_enabled = false
+hermes_enabled = false
+warden_enabled = true
+charon_enabled = false
+oracle_enabled = false
+plutus_enabled = false
+node_class = "edge_avatar_product"
+enrollment_status = "active_staging"
+llm_runtime = "cloud_only_inference"
+deployment_phase = "pepper_ghost_display_active"
+capabilities = ["embodied_controller", "led_geometry_driver", "camera_runtime", "ceo_callable_edge_agent"]
+notes = "Dedicated Pi5 + AI HAT+ node for the CITADEL avatar product. Reflashed and rediscovered 2026-05-18 as Tailscale `raspberrypi-1` / `100.119.130.127` with OS hostname `raspberrypi`; OpenSSH key auth, passwordless sudo, and linger are active. Known-good 2026-05-27 display baseline: Waveshare 3.4-inch 800x800 round DSI LCD on Pi5 CAM/DISP 1, `display_auto_detect=0`, `dtoverlay=vc4-kms-dsi-waveshare-panel,3_4_inch`, `DSI-2` scaled to 1.5 by kanshi, transform normal, Chromium app fullscreen mode, and Pepper's Ghost projection confirmed. As of 2026-05-28, RELIC is the forward running visualization: `relic.service` serves `/home/citadel/annunimas_embodied/relic` on port 8091, `citadel-kiosk.service` opens `http://127.0.0.1:8091/`, and `citadel-companion.service` is disabled as fallback. Avoid `vc4-kms-dsi-waveshare-panel-v2,3_4_inch_c` on the current reflashed OS."
+
+[[node]]
+id = "node-ser9-worker"
+role = "ser9_sovereign_worker"
+hostname = "beelink"
+tailscale_ip = "100.103.125.88"
+ssh_user = "citadel"
+athena_enabled = true
+hermes_enabled = false
+warden_enabled = false
+charon_enabled = true
+oracle_enabled = true
+plutus_enabled = true
+node_class = "edge_worker"
+enrollment_status = "active_staging"
+llm_runtime = "local_inference_worker"
+notes = "Beelink SER9 Pro edge worker verified live over Tailscale and SSH as `citadel@100.103.125.88`, with canonical tailnet identity `beelink`."
+
+[[node]]
+id = "node-laptop"
+role = "portable_operator"
+hostname = "laptop"
+tailscale_ip = "100.97.15.88"
+ssh_user = "mythos"
+athena_enabled = true
+hermes_enabled = true
+warden_enabled = false
+charon_enabled = true
+oracle_enabled = true
+plutus_enabled = true
+node_class = "portable_compute"
+enrollment_status = "active"
+llm_runtime = "local_inference_worker"
+notes = "Portable operator laptop on Tailscale as `laptop` / 100.97.15.88. Use this node identity when dispatching back into the laptop from another enrolled device."
+
+[[node]]
+id = "node-backbone-server-01"
+role = "backbone_inference"
+hostname = "beelink"
+tailscale_ip = "100.118.123.88"
+ssh_user = "annunimasserver"
+athena_enabled = true
+hermes_enabled = false
+warden_enabled = false
+charon_enabled = true
+oracle_enabled = true
+plutus_enabled = true
+node_class = "backbone_compute"
+enrollment_status = "active_staging"
+llm_runtime = "multi_gpu_sovereign_backbone"
+deployment_phase = "staging_install"
+placement_plan = "local_burn_in_then_remote_server_room"
+routing_priority = "primary"
+reasoning_priority = "primary"
+gpu_profile = "dual_rtx_2080_super_8g_observed"
+cpu_profile = "threadripper_2950x_observed"
+memory_profile = "128_gib_observed"
+capabilities = ["charon_primary", "oracle_primary", "athena_deep_analysis", "plutus_accounting", "multi_gpu_compute"]
+notes = "Observed Threadripper 2950X staging server with dual RTX 2080 SUPER 8 GiB GPUs, verified live over Tailscale and SSH as `annunimasserver@100.118.123.88`, currently visible on the mesh as `beelink`."

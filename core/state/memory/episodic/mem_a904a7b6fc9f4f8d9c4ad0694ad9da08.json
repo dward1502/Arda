@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_a904a7b6fc9f4f8d9c4ad0694ad9da08",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Extract annunimas-human into a private tenant repo",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-19T07:00:44.473883002Z",
+  "last_seen_at": "2026-06-19T07:00:44.473883002Z"
+}

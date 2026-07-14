@@ -1,0 +1,61 @@
+{
+  "authority": "bounded_human_corpus_group_extraction",
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "groups": [
+    {
+      "contract_candidates": [
+        "agent_framework_comparison_contract"
+      ],
+      "crate_candidates": [],
+      "group_id": "agent_framework_comparison",
+      "group_path": "core/state/human_corpus_groups/agent_framework_comparison.json",
+      "lane": "comparison",
+      "owner": "prometheus",
+      "source_ids": [
+        "src_63d7efe5"
+      ]
+    },
+    {
+      "contract_candidates": [
+        "tool_harness_contract",
+        "service_registry_contract",
+        "daemon_api_contract",
+        "deterministic_fixture_replay_contract"
+      ],
+      "crate_candidates": [
+        "annunimas-tool-harness",
+        "annunimas-service-registry"
+      ],
+      "group_id": "numenor_architecture_contracts",
+      "group_path": "core/state/human_corpus_groups/numenor_architecture_contracts.json",
+      "lane": "architecture",
+      "owner": "core",
+      "source_ids": [
+        "src_d6c35301"
+      ]
+    },
+    {
+      "contract_candidates": [],
+      "crate_candidates": [],
+      "group_id": "unclassified",
+      "group_path": "core/state/human_corpus_groups/unclassified.json",
+      "lane": "misc",
+      "owner": "athena",
+      "source_ids": [
+        "src_64427488",
+        "src_72855a5d",
+        "src_a5082baf",
+        "src_28a46da2",
+        "src_12ae01f6",
+        "src_24260afa"
+      ]
+    }
+  ],
+  "schema_version": "annunimas.human-corpus-extraction-registry.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "contract_candidates_total": 5,
+    "crate_candidates_total": 2,
+    "groups_total": 3
+  }
+}

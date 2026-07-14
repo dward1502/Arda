@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_f44dbd76bb134f9ba2b956716706cf40",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Release evidence bundle manifest includes crash-path inventory",
+  "salience": 0.7625,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-24T22:40:33.191438538Z",
+  "last_seen_at": "2026-05-24T22:40:33.191438538Z"
+}

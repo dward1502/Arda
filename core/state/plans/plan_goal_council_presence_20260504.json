@@ -1,0 +1,36 @@
+{
+  "contract_version": "0.1.0",
+  "id": "plan_goal_council_presence_20260504",
+  "goal_id": "goal_council_presence",
+  "summary": "Probe each Council seat; escalate after two consecutive failures.",
+  "steps": [
+    {
+      "intent": "probe_seat",
+      "params": {
+        "seat": "aurelius"
+      }
+    },
+    {
+      "intent": "probe_seat",
+      "params": {
+        "seat": "bacon"
+      }
+    },
+    {
+      "intent": "probe_seat",
+      "params": {
+        "seat": "sun_tzu"
+      }
+    },
+    {
+      "intent": "escalate_if_repeat_failure",
+      "params": {
+        "consecutive_failures": 2
+      }
+    }
+  ],
+  "status": "draft",
+  "lessons_consulted": [],
+  "created_at": "2026-05-04T02:55:11.928752246Z",
+  "updated_at": "2026-05-04T02:55:11.928752246Z"
+}

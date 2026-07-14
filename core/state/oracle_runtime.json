@@ -1,0 +1,114 @@
+{
+  "authority": "oracle_runtime_projection",
+  "generated_at_utc": "2026-07-14T05:03:01.354289189+00:00",
+  "runtime": {
+    "authority": "oracle_service",
+    "evidence_plane": {
+      "recent_persisted_verdicts": [
+        {
+          "conditions": null,
+          "gates": {
+            "aurelius": {
+              "concerns": [],
+              "passed": true,
+              "score": 1.0
+            },
+            "bacon": {
+              "concerns": [],
+              "passed": true,
+              "score": 0.55
+            },
+            "sun_tzu": {
+              "concerns": [],
+              "passed": true,
+              "score": 1.0
+            }
+          },
+          "outcome": "Pass",
+          "query_id": "oracle_cli",
+          "reasoning": [
+            {
+              "evidence": [],
+              "gate": "Aurelius",
+              "reasoning": "Task is logically consistent and well-formed"
+            },
+            {
+              "evidence": [],
+              "gate": "Bacon",
+              "reasoning": "Task has sufficient evidence grounding"
+            },
+            {
+              "evidence": [],
+              "gate": "Sun Tzu",
+              "reasoning": "Task timing and strategy are appropriate"
+            }
+          ],
+          "resonance_score": 0.96,
+          "timestamp": "2026-03-10T05:19:31.887002732Z"
+        }
+      ],
+      "verdict_ledger_entries": 1
+    },
+    "generated_at_utc": "2026-03-10T05:19:31.887330597+00:00",
+    "paths": {
+      "home": "/var/home/dward/Annunimas/data/oracle",
+      "status_path": "/var/home/dward/Annunimas/data/oracle/runtime_status.json",
+      "verdict_ledger_path": "/var/home/dward/Annunimas/data/oracle/verdict_history.jsonl"
+    },
+    "schema_version": "annunimas.oracle.runtime.v1",
+    "verdict_runtime": {
+      "generated_at_utc": "2026-03-10T05:19:31.887225285+00:00",
+      "history_total": 1,
+      "recent_verdicts": [
+        {
+          "conditions": null,
+          "gates": {
+            "aurelius": {
+              "concerns": [],
+              "passed": true,
+              "score": 1.0
+            },
+            "bacon": {
+              "concerns": [],
+              "passed": true,
+              "score": 0.55
+            },
+            "sun_tzu": {
+              "concerns": [],
+              "passed": true,
+              "score": 1.0
+            }
+          },
+          "outcome": "Pass",
+          "query_id": "oracle_cli",
+          "reasoning": [
+            {
+              "evidence": [],
+              "gate": "Aurelius",
+              "reasoning": "Task is logically consistent and well-formed"
+            },
+            {
+              "evidence": [],
+              "gate": "Bacon",
+              "reasoning": "Task has sufficient evidence grounding"
+            },
+            {
+              "evidence": [],
+              "gate": "Sun Tzu",
+              "reasoning": "Task timing and strategy are appropriate"
+            }
+          ],
+          "resonance_score": 0.96,
+          "timestamp": "2026-03-10T05:19:31.887002732Z"
+        }
+      ],
+      "schema_version": "annunimas.oracle.v1",
+      "verdict_counts": {
+        "conditional": 0,
+        "fail": 0,
+        "pass": 1
+      }
+    }
+  },
+  "schema_version": "annunimas.core.state.v1"
+}

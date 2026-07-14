@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_bb347243106f426c8fe47cd7ca1bbca1",
+  "kind": "episodic",
+  "agent": "charon",
+  "content": "CHARON routed athena:research [planning:context_heavy] -> opencode:ring-2.6-1t-free triad_passed=false love_eq=0.74",
+  "salience": 0.3334999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T03:11:55.550028819Z",
+  "last_seen_at": "2026-06-01T03:11:55.550028819Z"
+}

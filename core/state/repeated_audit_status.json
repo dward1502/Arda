@@ -1,0 +1,536 @@
+{
+  "candidate_task_count": 0,
+  "candidate_tasks": [],
+  "contract": "annunimas.audit.repeated_run.v1",
+  "gate_status": "pass",
+  "generated_at_utc": "2026-06-02T05:30:28Z",
+  "mode": "read_only",
+  "mutation_policy": "receipts_and_projection_state_only_no_source_config_service_or_queue_mutation",
+  "outputs": {
+    "regressions_jsonl": "audit/repeated-audit-runs/2026-06-02/repeated-audit-20260602T052900Z/regressions.jsonl",
+    "state_json": "core/state/repeated_audit_status.json",
+    "summary_json": "audit/repeated-audit-runs/2026-06-02/repeated-audit-20260602T052900Z/summary.json",
+    "summary_md": "audit/repeated-audit-runs/2026-06-02/repeated-audit-20260602T052900Z/SUMMARY.md",
+    "tasks_candidate_jsonl": "audit/repeated-audit-runs/2026-06-02/repeated-audit-20260602T052900Z/tasks-candidate.jsonl"
+  },
+  "regression_count": 0,
+  "regressions": [],
+  "run_id": "repeated-audit-20260602T052900Z",
+  "snapshot": {
+    "portability": {
+      "active_blocker_findings": 0,
+      "classification_counts": {
+        "archive_historical_ok": 85,
+        "documentation_example_review": 555,
+        "generated_runtime_state_ignore_or_regenerate": 7593,
+        "test_fixture_ok": 5
+      },
+      "findings_total": 8238,
+      "path": "audit/PORTABILITY_AUDIT_2026-05-24/summary.json",
+      "pattern_counts": {
+        "hardcoded_home_mythos": 4044,
+        "hardcoded_var_home_mythos": 4042,
+        "loopback_endpoint": 141,
+        "private_lan_ip_endpoint": 2,
+        "tailscale_hostname": 9
+      },
+      "status": "present",
+      "top_active_blockers": []
+    },
+    "setup_console": {
+      "gate_status": "pass",
+      "path": "audit/SETUP_CONSOLE_READINESS_2026-05-25/setup_console_readiness_receipt.json",
+      "portability_status": {
+        "active_blocker_findings": 0,
+        "findings_total": 8238,
+        "label": "zero active portability blockers",
+        "source": "audit/PORTABILITY_AUDIT_2026-05-24/summary.json",
+        "status": "pass"
+      },
+      "status": "present",
+      "summary": {
+        "pass": 8
+      }
+    },
+    "system_audit": {
+      "candidate_task_count": 0,
+      "findings_count": 0,
+      "path": "audit/system-audit-runs/2026-06-02/system-audit-20260602T052900Z/summary.json",
+      "run_id": "system-audit-20260602T052900Z",
+      "scores": {
+        "ANNUNIMAS-APOLLO": {
+          "score": 97,
+          "score_breakdown": {
+            "implementation_completeness": 20,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "ANNUNIMAS-ATHENA": {
+          "score": 97,
+          "score_breakdown": {
+            "implementation_completeness": 20,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "ANNUNIMAS-CEO": {
+          "score": 94,
+          "score_breakdown": {
+            "implementation_completeness": 17,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "ANNUNIMAS-CHRONOS": {
+          "score": 97,
+          "score_breakdown": {
+            "implementation_completeness": 20,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "ANNUNIMAS-CLI": {
+          "score": 100,
+          "score_breakdown": {
+            "implementation_completeness": 20,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 10
+          }
+        },
+        "ANNUNIMAS-COMM": {
+          "score": 91,
+          "score_breakdown": {
+            "implementation_completeness": 14,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "ANNUNIMAS-CORE": {
+          "score": 97,
+          "score_breakdown": {
+            "implementation_completeness": 20,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "ANNUNIMAS-COUNCIL": {
+          "score": 94,
+          "score_breakdown": {
+            "implementation_completeness": 17,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "ANNUNIMAS-FLEET": {
+          "score": 94,
+          "score_breakdown": {
+            "implementation_completeness": 17,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "ANNUNIMAS-FORGE-MIND": {
+          "score": 97,
+          "score_breakdown": {
+            "implementation_completeness": 20,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "ANNUNIMAS-GOVERNANCE": {
+          "score": 97,
+          "score_breakdown": {
+            "implementation_completeness": 20,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "ANNUNIMAS-HERMES": {
+          "score": 97,
+          "score_breakdown": {
+            "implementation_completeness": 20,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "ANNUNIMAS-HUMAN": {
+          "score": 94,
+          "score_breakdown": {
+            "implementation_completeness": 14,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 10
+          }
+        },
+        "ANNUNIMAS-MCP": {
+          "score": 96,
+          "score_breakdown": {
+            "implementation_completeness": 19,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "ANNUNIMAS-MNEMOSYNE": {
+          "score": 97,
+          "score_breakdown": {
+            "implementation_completeness": 20,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "ANNUNIMAS-ORACLE": {
+          "score": 97,
+          "score_breakdown": {
+            "implementation_completeness": 20,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "ANNUNIMAS-PLUTUS": {
+          "score": 97,
+          "score_breakdown": {
+            "implementation_completeness": 20,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "ANNUNIMAS-SERVICE-REGISTRY": {
+          "score": 94,
+          "score_breakdown": {
+            "implementation_completeness": 17,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "ANNUNIMAS-SIGNAL-GRID": {
+          "score": 94,
+          "score_breakdown": {
+            "implementation_completeness": 17,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "ANNUNIMAS-SYSTEMD": {
+          "score": 94,
+          "score_breakdown": {
+            "implementation_completeness": 14,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 10
+          }
+        },
+        "ANNUNIMAS-TOOL-HARNESS": {
+          "score": 94,
+          "score_breakdown": {
+            "implementation_completeness": 17,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "ANNUNIMAS-WARDEN": {
+          "score": 97,
+          "score_breakdown": {
+            "implementation_completeness": 20,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "CHARON": {
+          "score": 100,
+          "score_breakdown": {
+            "implementation_completeness": 20,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 10
+          }
+        },
+        "FOLDER-APPS": {
+          "score": 92,
+          "score_breakdown": {
+            "implementation_completeness": 15,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "FOLDER-ARCHIVE": {
+          "score": 93,
+          "score_breakdown": {
+            "implementation_completeness": 16,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "FOLDER-ARCHIVED-SCRIPTS": {
+          "score": 83,
+          "score_breakdown": {
+            "implementation_completeness": 10,
+            "mission_fit": 20,
+            "observability_auditability": 11,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "FOLDER-AUDIT": {
+          "score": 89,
+          "score_breakdown": {
+            "implementation_completeness": 12,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "FOLDER-CONFIG": {
+          "score": 88,
+          "score_breakdown": {
+            "implementation_completeness": 11,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "FOLDER-CORE": {
+          "score": 94,
+          "score_breakdown": {
+            "implementation_completeness": 17,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "FOLDER-CRATES": {
+          "score": 100,
+          "score_breakdown": {
+            "implementation_completeness": 20,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 10
+          }
+        },
+        "FOLDER-DATA": {
+          "score": 89,
+          "score_breakdown": {
+            "implementation_completeness": 12,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "FOLDER-DOCS": {
+          "score": 87,
+          "score_breakdown": {
+            "implementation_completeness": 10,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "FOLDER-HUMAN": {
+          "score": 89,
+          "score_breakdown": {
+            "implementation_completeness": 12,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "FOLDER-SCRIPTS": {
+          "score": 89,
+          "score_breakdown": {
+            "implementation_completeness": 12,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "FOLDER-TESTS": {
+          "score": 89,
+          "score_breakdown": {
+            "implementation_completeness": 12,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "HADES": {
+          "score": 100,
+          "score_breakdown": {
+            "implementation_completeness": 20,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 10
+          }
+        },
+        "PROMETHEUS": {
+          "score": 100,
+          "score_breakdown": {
+            "implementation_completeness": 20,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 10
+          }
+        }
+      },
+      "status": "present",
+      "target_count": 37
+    }
+  },
+  "trends": {
+    "aggregate_deltas": {
+      "portability_active_blocker_findings": 0,
+      "portability_findings_total": 0,
+      "system_candidate_task_count": 0,
+      "system_findings_count": 0
+    },
+    "baseline": "compared_to_previous_repeated_run",
+    "previous_run_id": "repeated-audit-objective-completion-check-20260602",
+    "score_deltas": {
+      "ANNUNIMAS-APOLLO": 0,
+      "ANNUNIMAS-ATHENA": 0,
+      "ANNUNIMAS-CEO": 0,
+      "ANNUNIMAS-CHRONOS": 0,
+      "ANNUNIMAS-CLI": 0,
+      "ANNUNIMAS-COMM": 0,
+      "ANNUNIMAS-CORE": 0,
+      "ANNUNIMAS-COUNCIL": 0,
+      "ANNUNIMAS-FLEET": 0,
+      "ANNUNIMAS-FORGE-MIND": 0,
+      "ANNUNIMAS-GOVERNANCE": 0,
+      "ANNUNIMAS-HERMES": 0,
+      "ANNUNIMAS-HUMAN": 0,
+      "ANNUNIMAS-MCP": 1,
+      "ANNUNIMAS-MNEMOSYNE": 0,
+      "ANNUNIMAS-ORACLE": 0,
+      "ANNUNIMAS-PLUTUS": 0,
+      "ANNUNIMAS-SERVICE-REGISTRY": 0,
+      "ANNUNIMAS-SIGNAL-GRID": 0,
+      "ANNUNIMAS-SYSTEMD": 0,
+      "ANNUNIMAS-TOOL-HARNESS": 0,
+      "ANNUNIMAS-WARDEN": 0,
+      "CHARON": 0,
+      "FOLDER-APPS": 0,
+      "FOLDER-ARCHIVE": 0,
+      "FOLDER-ARCHIVED-SCRIPTS": 0,
+      "FOLDER-AUDIT": 0,
+      "FOLDER-CONFIG": 0,
+      "FOLDER-CORE": 0,
+      "FOLDER-CRATES": 0,
+      "FOLDER-DATA": 0,
+      "FOLDER-DOCS": 0,
+      "FOLDER-HUMAN": 0,
+      "FOLDER-SCRIPTS": 0,
+      "FOLDER-TESTS": 0,
+      "HADES": 0,
+      "PROMETHEUS": 0
+    },
+    "setup_gate_transition": {
+      "current": "pass",
+      "previous": "pass"
+    }
+  },
+  "visibility": {
+    "portability_active_blocker_findings": 0,
+    "portability_status_label": "zero active portability blockers",
+    "portability_summary_path": "audit/PORTABILITY_AUDIT_2026-05-24/summary.json",
+    "portability_zero_active_blockers": true,
+    "setup_console_portability_active_blocker_findings": 0,
+    "setup_console_portability_source": "audit/PORTABILITY_AUDIT_2026-05-24/summary.json",
+    "setup_console_portability_status": "pass",
+    "setup_console_portability_status_label": "zero active portability blockers"
+  }
+}

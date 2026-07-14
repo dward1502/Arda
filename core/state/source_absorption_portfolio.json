@@ -1,0 +1,412 @@
+{
+  "authority": "source_absorption_pipeline + athena_books + project_task_queue",
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "schema_version": "annunimas.source-absorption-portfolio.v1",
+  "sigil": "REPAIR",
+  "sources": [
+    {
+      "absorption_pattern": "registry_linked_tool",
+      "disposition": "promote_now",
+      "domain": "knowledge",
+      "downstream_task_templates": [
+        {
+          "emitter_owner": "athena",
+          "notes": "Extract bounded implementation deltas from the absorbed source into ATHENA books and contracts.",
+          "owner": "athena",
+          "priority": "high",
+          "slug": "implementation_mapping",
+          "title": "Absorption follow-through for src_d46d1480: map implementation deltas from crawl4ai"
+        },
+        {
+          "emitter_owner": "prometheus",
+          "notes": "Convert the absorbed source into an explicit sovereign productization path instead of leaving it as passive evidence.",
+          "owner": "prometheus",
+          "priority": "high",
+          "slug": "productization_mapping",
+          "title": "Absorption follow-through for src_d46d1480: define productization mapping for crawl4ai"
+        }
+      ],
+      "implementation_brief": {
+        "implementation_implications": [
+          "Keep crawl4ai as the continuously available primary ingest runtime until Scrapling has a bounded runtime contract.",
+          "Verify repeated ATHENA crawl captures against external sources and persist receipts as activation evidence.",
+          "Route crawl service lifecycle through package runtime activation and steward surfaces instead of ad hoc shell state."
+        ],
+        "method_summary": "Containerized sovereign crawl service for continuous ATHENA ingest",
+        "risks": [
+          "Container health alone is insufficient; activation requires verified ATHENA crawl captures.",
+          "Large markdown captures can inflate storage pressure if receipts and artifact retention are not tracked."
+        ],
+        "source_url": "https://github.com/unclecode/crawl4ai"
+      },
+      "policy_confidence": 0.7683333333333333,
+      "queued_absorption_tasks": [],
+      "rationale": "Evidence is policy-ready and should promote into a bounded sovereign contract or execution task.",
+      "source_id": "src_d46d1480",
+      "subsystem_targets": [
+        "athena",
+        "ingestion"
+      ],
+      "system_surfaces": [
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json",
+        "core/state/operator_actions.json"
+      ],
+      "title": "crawl4ai",
+      "url": "https://github.com/unclecode/crawl4ai"
+    },
+    {
+      "absorption_pattern": "registry_linked_tool",
+      "disposition": "promote_now",
+      "domain": "operations",
+      "downstream_task_templates": [
+        {
+          "emitter_owner": "athena",
+          "notes": "Extract bounded implementation deltas from the absorbed source into ATHENA books and contracts.",
+          "owner": "athena",
+          "priority": "high",
+          "slug": "implementation_mapping",
+          "title": "Absorption follow-through for src_dab89283: map implementation deltas from litellm"
+        },
+        {
+          "emitter_owner": "prometheus",
+          "notes": "Convert the absorbed source into an explicit sovereign productization path instead of leaving it as passive evidence.",
+          "owner": "prometheus",
+          "priority": "high",
+          "slug": "productization_mapping",
+          "title": "Absorption follow-through for src_dab89283: define productization mapping for litellm"
+        }
+      ],
+      "implementation_brief": {
+        "implementation_implications": [
+          "Keep the LiteLLM gateway live as the normalized routing layer for local and edge model access.",
+          "Bind provider-health and model-policy checks to the same package activation surface used by ATHENA and CHARON.",
+          "Prefer explicit gateway runtime wrappers over manual process launches so restart posture remains deterministic."
+        ],
+        "method_summary": "Local gateway-based provider normalization for CHARON and downstream consumers",
+        "risks": [
+          "Gateway runtime drift can silently break routing if wrapper dependencies and backend availability diverge.",
+          "Unbounded proxy configuration can obscure which sovereign providers are actually serving requests."
+        ],
+        "source_url": "https://github.com/BerriAI/litellm"
+      },
+      "policy_confidence": 0.7516666666666667,
+      "queued_absorption_tasks": [],
+      "rationale": "Evidence is policy-ready and should promote into a bounded sovereign contract or execution task.",
+      "source_id": "src_dab89283",
+      "subsystem_targets": [
+        "charon",
+        "routing"
+      ],
+      "system_surfaces": [
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json",
+        "core/state/operator_actions.json"
+      ],
+      "title": "litellm",
+      "url": "https://github.com/BerriAI/litellm"
+    },
+    {
+      "absorption_pattern": "registry_linked_tool",
+      "disposition": "promote_now",
+      "domain": "operations",
+      "downstream_task_templates": [
+        {
+          "emitter_owner": "athena",
+          "notes": "Extract bounded implementation deltas from the absorbed source into ATHENA books and contracts.",
+          "owner": "athena",
+          "priority": "high",
+          "slug": "implementation_mapping",
+          "title": "Absorption follow-through for src_234088bc: map implementation deltas from llmfit"
+        },
+        {
+          "emitter_owner": "prometheus",
+          "notes": "Convert the absorbed source into an explicit sovereign productization path instead of leaving it as passive evidence.",
+          "owner": "prometheus",
+          "priority": "high",
+          "slug": "productization_mapping",
+          "title": "Absorption follow-through for src_234088bc: define productization mapping for llmfit"
+        }
+      ],
+      "implementation_brief": {
+        "implementation_implications": [
+          "Use llmfit recommendations to tune route heuristics and model-profile policy instead of spawning a separate long-lived service.",
+          "Project fit recommendations into CHARON and governor state so routing changes remain auditable."
+        ],
+        "method_summary": "Decision-support model selection integrated as an active signal rather than a daemon runtime",
+        "risks": [
+          "Treating llmfit as authoritative runtime policy would bypass sovereign routing controls."
+        ],
+        "source_url": "https://github.com/AlexsJones/llmfit"
+      },
+      "policy_confidence": 0.7516666666666667,
+      "queued_absorption_tasks": [],
+      "rationale": "Evidence is policy-ready and should promote into a bounded sovereign contract or execution task.",
+      "source_id": "src_234088bc",
+      "subsystem_targets": [
+        "charon",
+        "routing"
+      ],
+      "system_surfaces": [
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json",
+        "core/state/operator_actions.json"
+      ],
+      "title": "llmfit",
+      "url": "https://github.com/AlexsJones/llmfit"
+    },
+    {
+      "absorption_pattern": "registry_linked_tool",
+      "disposition": "promote_now",
+      "domain": "operations",
+      "downstream_task_templates": [
+        {
+          "emitter_owner": "athena",
+          "notes": "Extract bounded implementation deltas from the absorbed source into ATHENA books and contracts.",
+          "owner": "athena",
+          "priority": "high",
+          "slug": "implementation_mapping",
+          "title": "Absorption follow-through for src_bfd43480: map implementation deltas from nanoclaw"
+        },
+        {
+          "emitter_owner": "prometheus",
+          "notes": "Convert the absorbed source into an explicit sovereign productization path instead of leaving it as passive evidence.",
+          "owner": "prometheus",
+          "priority": "high",
+          "slug": "productization_mapping",
+          "title": "Absorption follow-through for src_bfd43480: define productization mapping for nanoclaw"
+        }
+      ],
+      "implementation_brief": {
+        "implementation_implications": [
+          "Keep NanoClaw behind explicit edge-target, transport, and auth contracts rather than treating channel assumptions as readiness law.",
+          "Promote live edge visibility before changing doctrine or broadening runtime scope."
+        ],
+        "method_summary": "Governed-on-demand edge runtime with bounded transport and auth posture",
+        "risks": [
+          "Channel/auth assumptions can create false readiness if edge visibility and target reachability are not verified."
+        ],
+        "source_url": "https://github.com/qwibitai/nanoclaw"
+      },
+      "policy_confidence": 0.7516666666666667,
+      "queued_absorption_tasks": [],
+      "rationale": "Evidence is policy-ready and should promote into a bounded sovereign contract or execution task.",
+      "source_id": "src_bfd43480",
+      "subsystem_targets": [
+        "charon",
+        "runtime"
+      ],
+      "system_surfaces": [
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json",
+        "core/state/operator_actions.json"
+      ],
+      "title": "nanoclaw",
+      "url": "https://github.com/qwibitai/nanoclaw"
+    },
+    {
+      "absorption_pattern": "bounded_ingest_runtime",
+      "disposition": "promote_now",
+      "domain": "knowledge",
+      "downstream_task_templates": [
+        {
+          "emitter_owner": "athena",
+          "notes": "Use the absorbed source to harden ATHENA receipts, artifact capture, and bounded native runtime verification.",
+          "owner": "athena",
+          "priority": "high",
+          "slug": "native_runtime_receipts",
+          "title": "Absorption follow-through for src_df11630e: validate native runtime receipts for https://github.com/D4Vinci/Scrapling"
+        },
+        {
+          "emitter_owner": "prometheus",
+          "notes": "Translate the absorbed source into explicit route and promotion-gate policy instead of relying on informal preference.",
+          "owner": "charon",
+          "priority": "high",
+          "slug": "promotion_gate_policy",
+          "title": "Absorption follow-through for src_df11630e: codify promotion-gate routing policy for https://github.com/D4Vinci/Scrapling"
+        }
+      ],
+      "implementation_brief": {
+        "implementation_implications": [
+          "Promote Scrapling from shim-backed fetch path into a bounded runtime contract with explicit env and install requirements.",
+          "Define provider-order policy so ATHENA can prefer Scrapling without silently bypassing the live crawl4ai lane.",
+          "Capture stable receipts and markdown artifacts through the same ATHENA crawl surface used by other providers."
+        ],
+        "method_summary": "Provider-directed sovereign crawl ingestion with a bounded alternative fetch stack",
+        "risks": [
+          "Scrapling cannot become the default until browser and fetcher dependencies are bounded in sovereign runtime surfaces.",
+          "Provider-order drift can create inconsistent captures if Scrapling and crawl4ai are not governed by one policy surface."
+        ],
+        "source_url": "https://github.com/D4Vinci/Scrapling"
+      },
+      "policy_confidence": 0.7683333333333333,
+      "queued_absorption_tasks": [],
+      "rationale": "Research backlog source is already deep, triad-passed, and high-confidence; it should emit implementation or integration work instead of remaining passive evidence.",
+      "source_id": "src_df11630e",
+      "subsystem_targets": [
+        "athena",
+        "prometheus"
+      ],
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "title": "https://github.com/D4Vinci/Scrapling",
+      "url": "https://github.com/D4Vinci/Scrapling"
+    },
+    {
+      "absorption_pattern": "ecosystem_catalog",
+      "disposition": "promote_now",
+      "domain": "development",
+      "downstream_task_templates": [
+        {
+          "emitter_owner": "athena",
+          "notes": "Convert the absorbed catalog into deduplicated ATHENA candidate records with bounded relevance tags and evidence links.",
+          "owner": "athena",
+          "priority": "high",
+          "slug": "candidate_extraction",
+          "title": "Absorption follow-through for src_33fa61b2: extract ranked candidates from https://github.com/kaushikb11/awesome-llm-agents"
+        },
+        {
+          "emitter_owner": "prometheus",
+          "notes": "Use the absorbed catalog to define a promote-now/signal/reference portfolio rather than leaving the list as passive evidence.",
+          "owner": "prometheus",
+          "priority": "high",
+          "slug": "portfolio_ranking",
+          "title": "Absorption follow-through for src_33fa61b2: rank promotion portfolio from https://github.com/kaushikb11/awesome-llm-agents"
+        }
+      ],
+      "implementation_brief": {
+        "implementation_implications": [
+          "Extract the highest-signal projects from the catalog into bounded sovereign candidate records.",
+          "Separate framework references from directly productizable runtimes so promotion pressure stays disciplined."
+        ],
+        "method_summary": "Curated ecosystem map for agent frameworks and tool candidates",
+        "risks": [
+          "List repos can inflate backlog volume unless they are deduplicated and scored before promotion."
+        ],
+        "source_url": "https://github.com/kaushikb11/awesome-llm-agents"
+      },
+      "policy_confidence": 0.7683333333333333,
+      "queued_absorption_tasks": [],
+      "rationale": "Research backlog source is already deep, triad-passed, and high-confidence; it should emit implementation or integration work instead of remaining passive evidence.",
+      "source_id": "src_33fa61b2",
+      "subsystem_targets": [
+        "prometheus",
+        "athena"
+      ],
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "title": "https://github.com/kaushikb11/awesome-llm-agents",
+      "url": "https://github.com/kaushikb11/awesome-llm-agents"
+    },
+    {
+      "absorption_pattern": "ecosystem_catalog",
+      "disposition": "promote_now",
+      "domain": "development",
+      "downstream_task_templates": [
+        {
+          "emitter_owner": "athena",
+          "notes": "Convert the absorbed catalog into deduplicated ATHENA candidate records with bounded relevance tags and evidence links.",
+          "owner": "athena",
+          "priority": "high",
+          "slug": "candidate_extraction",
+          "title": "Absorption follow-through for src_ca2f031e: extract ranked candidates from https://github.com/e2b-dev/awesome-ai-agents"
+        },
+        {
+          "emitter_owner": "prometheus",
+          "notes": "Use the absorbed catalog to define a promote-now/signal/reference portfolio rather than leaving the list as passive evidence.",
+          "owner": "prometheus",
+          "priority": "high",
+          "slug": "portfolio_ranking",
+          "title": "Absorption follow-through for src_ca2f031e: rank promotion portfolio from https://github.com/e2b-dev/awesome-ai-agents"
+        }
+      ],
+      "implementation_brief": {
+        "implementation_implications": [
+          "Extract the highest-signal projects from the catalog into bounded sovereign candidate records.",
+          "Separate framework references from directly productizable runtimes so promotion pressure stays disciplined."
+        ],
+        "method_summary": "Curated ecosystem map for agent frameworks and tool candidates",
+        "risks": [
+          "List repos can inflate backlog volume unless they are deduplicated and scored before promotion."
+        ],
+        "source_url": "https://github.com/e2b-dev/awesome-ai-agents"
+      },
+      "policy_confidence": 0.7683333333333333,
+      "queued_absorption_tasks": [],
+      "rationale": "Research backlog source is already deep, triad-passed, and high-confidence; it should emit implementation or integration work instead of remaining passive evidence.",
+      "source_id": "src_ca2f031e",
+      "subsystem_targets": [
+        "prometheus",
+        "athena"
+      ],
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "title": "https://github.com/e2b-dev/awesome-ai-agents",
+      "url": "https://github.com/e2b-dev/awesome-ai-agents"
+    },
+    {
+      "absorption_pattern": "community_signal_map",
+      "disposition": "promote_now",
+      "domain": "communications",
+      "downstream_task_templates": [
+        {
+          "emitter_owner": "athena",
+          "notes": "Turn the absorbed community map into bounded ATHENA signal records rather than broad unfiltered community backlog.",
+          "owner": "athena",
+          "priority": "medium",
+          "slug": "community_signal_curation",
+          "title": "Absorption follow-through for src_dc355aed: curate community signals from https://github.com/best-ai-agents/discord-servers-for-ai-agents"
+        },
+        {
+          "emitter_owner": "prometheus",
+          "notes": "Bind community-source monitoring to HERMES and boardroom policies instead of treating external communities as direct dependencies.",
+          "owner": "hermes",
+          "priority": "medium",
+          "slug": "community_intel_policy",
+          "title": "Absorption follow-through for src_dc355aed: define community-intelligence intake policy for https://github.com/best-ai-agents/discord-servers-for-ai-agents"
+        }
+      ],
+      "implementation_brief": {
+        "implementation_implications": [
+          "Track community surfaces as signal sources rather than treating them as direct runtime dependencies.",
+          "Route useful community intelligence into HERMES and boardroom observation policies."
+        ],
+        "method_summary": "External community map for operator, builder, and market signals",
+        "risks": [
+          "Community lists drift quickly and can create noisy intake if not bounded by source quality controls."
+        ],
+        "source_url": "https://github.com/best-ai-agents/discord-servers-for-ai-agents"
+      },
+      "policy_confidence": 0.7516666666666667,
+      "queued_absorption_tasks": [],
+      "rationale": "Research backlog source is already deep, triad-passed, and high-confidence; it should emit implementation or integration work instead of remaining passive evidence.",
+      "source_id": "src_dc355aed",
+      "subsystem_targets": [
+        "prometheus",
+        "athena"
+      ],
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "title": "https://github.com/best-ai-agents/discord-servers-for-ai-agents",
+      "url": "https://github.com/best-ai-agents/discord-servers-for-ai-agents"
+    }
+  ],
+  "summary": {
+    "patterns": {
+      "bounded_ingest_runtime": 1,
+      "community_signal_map": 1,
+      "ecosystem_catalog": 2,
+      "registry_linked_tool": 4
+    },
+    "promote_now_sources_total": 8,
+    "queued_absorption_tasks_total": 0
+  }
+}

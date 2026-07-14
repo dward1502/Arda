@@ -1,0 +1,858 @@
+{
+  "audit_storage_pressure": {
+    "data_top_15_bytes": [
+      "34323505:data/hades/archive/backups/hades_log.jsonl/hades_log.jsonl.bak.20260422T182425Z",
+      "34285084:data/hades/archive/backups/hades_log.jsonl/hades_log.jsonl.bak.20260422T145150Z",
+      "34285054:data/hades/hades_log.jsonl",
+      "22384161:data/charon/state.jsonl",
+      "16903185:data/governance/bacon_lite.jsonl",
+      "16894940:data/governance/bacon_lite.jsonl.bak.20260422T182425Z",
+      "16894610:data/governance/bacon_lite.jsonl.bak.20260422T145150Z",
+      "13256526:data/hades/athena_handoff_queue.jsonl",
+      "9823626:data/athena/digest.jsonl.bak.20260422T145150Z",
+      "9730594:data/athena/digest.jsonl.bak.20260422T182425Z",
+      "9719454:data/athena/digest.jsonl",
+      "7860947:data/prometheus/gate_metrics_history.jsonl",
+      "6082052:data/prometheus/policy_guard.jsonl.bak.20260422T182425Z",
+      "5989065:data/prometheus/policy_guard.jsonl.bak.20260422T145150Z",
+      "5950726:data/prometheus/policy_guard.jsonl"
+    ],
+    "largest_file": "core/metrics/history/20260422T182427Z/prometheus/ops_dashboard.json",
+    "largest_file_bytes": 163655,
+    "oversize_files_gte_100mb": 0,
+    "oversize_present": false,
+    "total_bytes": 476262
+  },
+  "authority": "storage_pressure_projection",
+  "compaction": {
+    "apply": true,
+    "backup_cleanup": {
+      "apply": true,
+      "deleted": [
+        {
+          "mtime_utc": "2026-05-05T05:01:45.881335+00:00",
+          "path": "/var/home/mythos/Annunimas/data/hades/hades_log.jsonl.bak.20260505T050145Z"
+        },
+        {
+          "mtime_utc": "2026-05-05T05:01:45.853334+00:00",
+          "path": "/var/home/mythos/Annunimas/data/hades/warden_queue.jsonl.bak.20260505T050145Z"
+        },
+        {
+          "mtime_utc": "2026-05-05T05:01:45.881335+00:00",
+          "path": "/var/home/mythos/Annunimas/data/hades/joulework.jsonl.bak.20260505T050145Z"
+        },
+        {
+          "mtime_utc": "2026-05-05T05:00:20.759226+00:00",
+          "path": "/var/home/mythos/Annunimas/data/governance/bacon_lite.jsonl.bak.20260505T050145Z"
+        },
+        {
+          "mtime_utc": "2026-05-05T05:01:45.854334+00:00",
+          "path": "/var/home/mythos/Annunimas/data/warden/informant_queue.jsonl.bak.20260505T050145Z"
+        },
+        {
+          "mtime_utc": "2026-05-05T05:01:45.414329+00:00",
+          "path": "/var/home/mythos/Annunimas/data/warden/permission_profile_audit.jsonl.bak.20260505T050145Z"
+        },
+        {
+          "mtime_utc": "2026-05-05T05:01:45.414329+00:00",
+          "path": "/var/home/mythos/Annunimas/data/prometheus/policy_guard.jsonl.bak.20260505T050145Z"
+        },
+        {
+          "mtime_utc": "2026-05-02T05:12:15.370325+00:00",
+          "path": "/var/home/mythos/Annunimas/data/prometheus/gate_matrix_history.jsonl.bak.20260503T051638Z"
+        }
+      ],
+      "kept": [
+        {
+          "mtime_utc": "2026-05-05T05:21:46.354044+00:00",
+          "path": "/var/home/mythos/Annunimas/data/hades/hades_log.jsonl.bak.20260505T052145Z"
+        },
+        {
+          "mtime_utc": "2026-05-05T05:11:45.888758+00:00",
+          "path": "/var/home/mythos/Annunimas/data/hades/hades_log.jsonl.bak.20260505T051145Z"
+        },
+        {
+          "mtime_utc": "2026-05-05T05:21:46.256001+00:00",
+          "path": "/var/home/mythos/Annunimas/data/hades/warden_queue.jsonl.bak.20260505T052145Z"
+        },
+        {
+          "mtime_utc": "2026-05-05T05:11:45.797163+00:00",
+          "path": "/var/home/mythos/Annunimas/data/hades/warden_queue.jsonl.bak.20260505T051145Z"
+        },
+        {
+          "mtime_utc": "2026-05-05T05:21:46.354044+00:00",
+          "path": "/var/home/mythos/Annunimas/data/hades/joulework.jsonl.bak.20260505T052145Z"
+        },
+        {
+          "mtime_utc": "2026-05-05T05:11:45.889164+00:00",
+          "path": "/var/home/mythos/Annunimas/data/hades/joulework.jsonl.bak.20260505T051145Z"
+        },
+        {
+          "mtime_utc": "2026-05-05T05:19:20.847545+00:00",
+          "path": "/var/home/mythos/Annunimas/data/governance/bacon_lite.jsonl.bak.20260505T052145Z"
+        },
+        {
+          "mtime_utc": "2026-05-05T05:03:37.792793+00:00",
+          "path": "/var/home/mythos/Annunimas/data/governance/bacon_lite.jsonl.bak.20260505T051145Z"
+        },
+        {
+          "mtime_utc": "2026-05-05T05:21:46.257001+00:00",
+          "path": "/var/home/mythos/Annunimas/data/warden/informant_queue.jsonl.bak.20260505T052145Z"
+        },
+        {
+          "mtime_utc": "2026-05-05T05:11:45.798163+00:00",
+          "path": "/var/home/mythos/Annunimas/data/warden/informant_queue.jsonl.bak.20260505T051145Z"
+        },
+        {
+          "mtime_utc": "2026-05-05T05:21:45.921997+00:00",
+          "path": "/var/home/mythos/Annunimas/data/warden/permission_profile_audit.jsonl.bak.20260505T052145Z"
+        },
+        {
+          "mtime_utc": "2026-05-05T05:11:45.468159+00:00",
+          "path": "/var/home/mythos/Annunimas/data/warden/permission_profile_audit.jsonl.bak.20260505T051145Z"
+        },
+        {
+          "mtime_utc": "2026-05-04T00:50:16.974254+00:00",
+          "path": "/var/home/mythos/Annunimas/data/prometheus/supervisor/heartbeats.jsonl.bak.20260505T050145Z"
+        },
+        {
+          "mtime_utc": "2026-05-03T19:57:12.517174+00:00",
+          "path": "/var/home/mythos/Annunimas/data/prometheus/supervisor/heartbeats.jsonl.bak.20260503T195711Z"
+        },
+        {
+          "mtime_utc": "2026-05-05T05:21:45.921997+00:00",
+          "path": "/var/home/mythos/Annunimas/data/prometheus/policy_guard.jsonl.bak.20260505T052145Z"
+        },
+        {
+          "mtime_utc": "2026-05-05T05:11:45.468159+00:00",
+          "path": "/var/home/mythos/Annunimas/data/prometheus/policy_guard.jsonl.bak.20260505T051145Z"
+        },
+        {
+          "mtime_utc": "2026-05-04T00:48:36.245231+00:00",
+          "path": "/var/home/mythos/Annunimas/data/prometheus/autopilot/ceo_autopilot.log.bak.20260505T050145Z"
+        },
+        {
+          "mtime_utc": "2026-05-03T19:53:42.414422+00:00",
+          "path": "/var/home/mythos/Annunimas/data/prometheus/autopilot/ceo_autopilot.log.bak.20260503T195711Z"
+        },
+        {
+          "mtime_utc": "2026-05-03T05:16:41.420223+00:00",
+          "path": "/var/home/mythos/Annunimas/data/prometheus/gate_matrix_history.jsonl.bak.20260505T050145Z"
+        }
+      ],
+      "max_keep_per_store": 2,
+      "retention_days": 3,
+      "stores": [
+        {
+          "backups_found": 3,
+          "deleted": [
+            {
+              "mtime_utc": "2026-05-05T05:01:45.881335+00:00",
+              "path": "/var/home/mythos/Annunimas/data/hades/hades_log.jsonl.bak.20260505T050145Z"
+            }
+          ],
+          "kept": [
+            {
+              "mtime_utc": "2026-05-05T05:21:46.354044+00:00",
+              "path": "/var/home/mythos/Annunimas/data/hades/hades_log.jsonl.bak.20260505T052145Z"
+            },
+            {
+              "mtime_utc": "2026-05-05T05:11:45.888758+00:00",
+              "path": "/var/home/mythos/Annunimas/data/hades/hades_log.jsonl.bak.20260505T051145Z"
+            }
+          ],
+          "store": "/var/home/mythos/Annunimas/data/hades/hades_log.jsonl"
+        },
+        {
+          "backups_found": 3,
+          "deleted": [
+            {
+              "mtime_utc": "2026-05-05T05:01:45.853334+00:00",
+              "path": "/var/home/mythos/Annunimas/data/hades/warden_queue.jsonl.bak.20260505T050145Z"
+            }
+          ],
+          "kept": [
+            {
+              "mtime_utc": "2026-05-05T05:21:46.256001+00:00",
+              "path": "/var/home/mythos/Annunimas/data/hades/warden_queue.jsonl.bak.20260505T052145Z"
+            },
+            {
+              "mtime_utc": "2026-05-05T05:11:45.797163+00:00",
+              "path": "/var/home/mythos/Annunimas/data/hades/warden_queue.jsonl.bak.20260505T051145Z"
+            }
+          ],
+          "store": "/var/home/mythos/Annunimas/data/hades/warden_queue.jsonl"
+        },
+        {
+          "backups_found": 3,
+          "deleted": [
+            {
+              "mtime_utc": "2026-05-05T05:01:45.881335+00:00",
+              "path": "/var/home/mythos/Annunimas/data/hades/joulework.jsonl.bak.20260505T050145Z"
+            }
+          ],
+          "kept": [
+            {
+              "mtime_utc": "2026-05-05T05:21:46.354044+00:00",
+              "path": "/var/home/mythos/Annunimas/data/hades/joulework.jsonl.bak.20260505T052145Z"
+            },
+            {
+              "mtime_utc": "2026-05-05T05:11:45.889164+00:00",
+              "path": "/var/home/mythos/Annunimas/data/hades/joulework.jsonl.bak.20260505T051145Z"
+            }
+          ],
+          "store": "/var/home/mythos/Annunimas/data/hades/joulework.jsonl"
+        },
+        {
+          "backups_found": 0,
+          "deleted": [],
+          "kept": [],
+          "store": "/var/home/mythos/Annunimas/data/athena/digest.jsonl"
+        },
+        {
+          "backups_found": 3,
+          "deleted": [
+            {
+              "mtime_utc": "2026-05-05T05:00:20.759226+00:00",
+              "path": "/var/home/mythos/Annunimas/data/governance/bacon_lite.jsonl.bak.20260505T050145Z"
+            }
+          ],
+          "kept": [
+            {
+              "mtime_utc": "2026-05-05T05:19:20.847545+00:00",
+              "path": "/var/home/mythos/Annunimas/data/governance/bacon_lite.jsonl.bak.20260505T052145Z"
+            },
+            {
+              "mtime_utc": "2026-05-05T05:03:37.792793+00:00",
+              "path": "/var/home/mythos/Annunimas/data/governance/bacon_lite.jsonl.bak.20260505T051145Z"
+            }
+          ],
+          "store": "/var/home/mythos/Annunimas/data/governance/bacon_lite.jsonl"
+        },
+        {
+          "backups_found": 0,
+          "deleted": [],
+          "kept": [],
+          "store": "/var/home/mythos/Annunimas/data/knowledge/athena/index/sources.jsonl"
+        },
+        {
+          "backups_found": 3,
+          "deleted": [
+            {
+              "mtime_utc": "2026-05-05T05:01:45.854334+00:00",
+              "path": "/var/home/mythos/Annunimas/data/warden/informant_queue.jsonl.bak.20260505T050145Z"
+            }
+          ],
+          "kept": [
+            {
+              "mtime_utc": "2026-05-05T05:21:46.257001+00:00",
+              "path": "/var/home/mythos/Annunimas/data/warden/informant_queue.jsonl.bak.20260505T052145Z"
+            },
+            {
+              "mtime_utc": "2026-05-05T05:11:45.798163+00:00",
+              "path": "/var/home/mythos/Annunimas/data/warden/informant_queue.jsonl.bak.20260505T051145Z"
+            }
+          ],
+          "store": "/var/home/mythos/Annunimas/data/warden/informant_queue.jsonl"
+        },
+        {
+          "backups_found": 3,
+          "deleted": [
+            {
+              "mtime_utc": "2026-05-05T05:01:45.414329+00:00",
+              "path": "/var/home/mythos/Annunimas/data/warden/permission_profile_audit.jsonl.bak.20260505T050145Z"
+            }
+          ],
+          "kept": [
+            {
+              "mtime_utc": "2026-05-05T05:21:45.921997+00:00",
+              "path": "/var/home/mythos/Annunimas/data/warden/permission_profile_audit.jsonl.bak.20260505T052145Z"
+            },
+            {
+              "mtime_utc": "2026-05-05T05:11:45.468159+00:00",
+              "path": "/var/home/mythos/Annunimas/data/warden/permission_profile_audit.jsonl.bak.20260505T051145Z"
+            }
+          ],
+          "store": "/var/home/mythos/Annunimas/data/warden/permission_profile_audit.jsonl"
+        },
+        {
+          "backups_found": 2,
+          "deleted": [],
+          "kept": [
+            {
+              "mtime_utc": "2026-05-04T00:50:16.974254+00:00",
+              "path": "/var/home/mythos/Annunimas/data/prometheus/supervisor/heartbeats.jsonl.bak.20260505T050145Z"
+            },
+            {
+              "mtime_utc": "2026-05-03T19:57:12.517174+00:00",
+              "path": "/var/home/mythos/Annunimas/data/prometheus/supervisor/heartbeats.jsonl.bak.20260503T195711Z"
+            }
+          ],
+          "store": "/var/home/mythos/Annunimas/data/prometheus/supervisor/heartbeats.jsonl"
+        },
+        {
+          "backups_found": 3,
+          "deleted": [
+            {
+              "mtime_utc": "2026-05-05T05:01:45.414329+00:00",
+              "path": "/var/home/mythos/Annunimas/data/prometheus/policy_guard.jsonl.bak.20260505T050145Z"
+            }
+          ],
+          "kept": [
+            {
+              "mtime_utc": "2026-05-05T05:21:45.921997+00:00",
+              "path": "/var/home/mythos/Annunimas/data/prometheus/policy_guard.jsonl.bak.20260505T052145Z"
+            },
+            {
+              "mtime_utc": "2026-05-05T05:11:45.468159+00:00",
+              "path": "/var/home/mythos/Annunimas/data/prometheus/policy_guard.jsonl.bak.20260505T051145Z"
+            }
+          ],
+          "store": "/var/home/mythos/Annunimas/data/prometheus/policy_guard.jsonl"
+        },
+        {
+          "backups_found": 2,
+          "deleted": [],
+          "kept": [
+            {
+              "mtime_utc": "2026-05-04T00:48:36.245231+00:00",
+              "path": "/var/home/mythos/Annunimas/data/prometheus/autopilot/ceo_autopilot.log.bak.20260505T050145Z"
+            },
+            {
+              "mtime_utc": "2026-05-03T19:53:42.414422+00:00",
+              "path": "/var/home/mythos/Annunimas/data/prometheus/autopilot/ceo_autopilot.log.bak.20260503T195711Z"
+            }
+          ],
+          "store": "/var/home/mythos/Annunimas/data/prometheus/autopilot/ceo_autopilot.log"
+        },
+        {
+          "backups_found": 2,
+          "deleted": [
+            {
+              "mtime_utc": "2026-05-02T05:12:15.370325+00:00",
+              "path": "/var/home/mythos/Annunimas/data/prometheus/gate_matrix_history.jsonl.bak.20260503T051638Z"
+            }
+          ],
+          "kept": [
+            {
+              "mtime_utc": "2026-05-03T05:16:41.420223+00:00",
+              "path": "/var/home/mythos/Annunimas/data/prometheus/gate_matrix_history.jsonl.bak.20260505T050145Z"
+            }
+          ],
+          "store": "/var/home/mythos/Annunimas/data/prometheus/gate_matrix_history.jsonl"
+        },
+        {
+          "backups_found": 0,
+          "deleted": [],
+          "kept": [],
+          "store": "/var/home/mythos/Annunimas/data/prometheus/output_accounting_runs.jsonl"
+        }
+      ]
+    },
+    "retention": {
+      "athena_digest_max_bytes": 12582912,
+      "athena_digest_max_keep": 4000,
+      "athena_digest_recent_keep": 512,
+      "athena_sources_max_bytes": 6291456,
+      "athena_sources_max_keep": 2000,
+      "athena_sources_recent_keep": 256,
+      "bacon_lite_days": 14,
+      "bacon_lite_max_bytes": 16777216,
+      "bacon_lite_max_keep": 12000,
+      "hades_backup_days": 3,
+      "hades_joulework_days": 30,
+      "hades_log_days": 30,
+      "hades_queue_days": 14,
+      "hades_warden_queue_days": 7,
+      "hermes_decisions_days": 30,
+      "hermes_messages_days": 30,
+      "hermes_queue_days": 14,
+      "mnemosyne_compact_days": 180,
+      "prometheus_gate_matrix_days": 14,
+      "prometheus_heartbeats_days": 7,
+      "prometheus_output_accounting_days": 14,
+      "prometheus_policy_guard_days": 14,
+      "warden_informant_max_bytes": 8388608,
+      "warden_informant_max_keep": 6000,
+      "warden_informant_recent_keep": 512,
+      "warden_permission_audit_days": 14,
+      "warden_permission_audit_max_bytes": 6291456,
+      "warden_permission_audit_max_keep": 12000
+    },
+    "stores": [
+      {
+        "apply": true,
+        "backup": null,
+        "bytes_after": 4991097,
+        "bytes_before": 4991097,
+        "changed": false,
+        "dropped_by_group_compaction": 0,
+        "dropped_by_max_bytes": 0,
+        "dropped_by_max_keep": 0,
+        "exists": true,
+        "groups_total": 1386,
+        "invalid_lines": 0,
+        "kept_lines": 1727,
+        "path": "/var/home/mythos/Annunimas/data/athena/digest.jsonl",
+        "recent_keep": 512,
+        "total_lines": 1727,
+        "valid_lines": 1727
+      },
+      {
+        "apply": true,
+        "backup": "/var/home/mythos/Annunimas/data/governance/bacon_lite.jsonl.bak.20260505T052145Z",
+        "bytes_after": 11758320,
+        "bytes_before": 11761773,
+        "changed": true,
+        "dropped_by_max_bytes": 0,
+        "dropped_by_max_keep": 5,
+        "dropped_by_retention": 0,
+        "exists": true,
+        "invalid_lines": 0,
+        "kept_lines": 12000,
+        "path": "/var/home/mythos/Annunimas/data/governance/bacon_lite.jsonl",
+        "retention_days": 14,
+        "total_lines": 12005,
+        "valid_lines": 12005
+      },
+      {
+        "apply": true,
+        "backup": null,
+        "bytes_after": 497450,
+        "bytes_before": 497450,
+        "changed": false,
+        "dropped_by_group_compaction": 0,
+        "dropped_by_max_bytes": 0,
+        "dropped_by_max_keep": 0,
+        "exists": true,
+        "groups_total": 1013,
+        "invalid_lines": 0,
+        "kept_lines": 1085,
+        "path": "/var/home/mythos/Annunimas/data/knowledge/athena/index/sources.jsonl",
+        "recent_keep": 256,
+        "total_lines": 1085,
+        "valid_lines": 1085
+      },
+      {
+        "apply": true,
+        "backup": "/var/home/mythos/Annunimas/data/warden/informant_queue.jsonl.bak.20260505T052145Z",
+        "bytes_after": 158263,
+        "bytes_before": 159381,
+        "changed": true,
+        "dropped_by_group_compaction": 4,
+        "dropped_by_max_bytes": 0,
+        "dropped_by_max_keep": 0,
+        "exists": true,
+        "groups_total": 58,
+        "invalid_lines": 0,
+        "kept_lines": 546,
+        "path": "/var/home/mythos/Annunimas/data/warden/informant_queue.jsonl",
+        "recent_keep": 512,
+        "total_lines": 550,
+        "valid_lines": 550
+      },
+      {
+        "apply": true,
+        "backup": "/var/home/mythos/Annunimas/data/warden/permission_profile_audit.jsonl.bak.20260505T052145Z",
+        "bytes_after": 3560829,
+        "bytes_before": 3562497,
+        "changed": true,
+        "dropped_by_max_bytes": 0,
+        "dropped_by_max_keep": 6,
+        "dropped_by_retention": 0,
+        "exists": true,
+        "invalid_lines": 0,
+        "kept_lines": 12000,
+        "path": "/var/home/mythos/Annunimas/data/warden/permission_profile_audit.jsonl",
+        "retention_days": 14,
+        "total_lines": 12006,
+        "valid_lines": 12006
+      },
+      {
+        "apply": true,
+        "backup": "/var/home/mythos/Annunimas/data/hades/action_queue.jsonl.bak.20260505T052145Z",
+        "bytes_after": 11941,
+        "bytes_before": 11341,
+        "changed": true,
+        "dropped_by_max_bytes": 0,
+        "dropped_by_max_keep": 0,
+        "dropped_by_retention": 0,
+        "exists": true,
+        "invalid_lines": 0,
+        "kept_lines": 40,
+        "path": "/var/home/mythos/Annunimas/data/hades/action_queue.jsonl",
+        "retention_days": 14,
+        "total_lines": 40,
+        "valid_lines": 40
+      },
+      {
+        "apply": true,
+        "backup": "/var/home/mythos/Annunimas/data/hades/hades_log.jsonl.bak.20260505T052145Z",
+        "bytes_after": 33554290,
+        "bytes_before": 33586432,
+        "changed": true,
+        "dropped_by_max_bytes": 143,
+        "dropped_by_max_keep": 0,
+        "dropped_by_retention": 0,
+        "exists": true,
+        "invalid_lines": 0,
+        "kept_lines": 131621,
+        "path": "/var/home/mythos/Annunimas/data/hades/hades_log.jsonl",
+        "retention_days": 30,
+        "total_lines": 131764,
+        "valid_lines": 131764
+      },
+      {
+        "apply": true,
+        "backup": "/var/home/mythos/Annunimas/data/hades/joulework.jsonl.bak.20260505T052145Z",
+        "bytes_after": 3547857,
+        "bytes_before": 3549060,
+        "changed": true,
+        "dropped_by_max_bytes": 0,
+        "dropped_by_max_keep": 0,
+        "dropped_by_retention": 3,
+        "exists": true,
+        "invalid_lines": 0,
+        "kept_lines": 8833,
+        "path": "/var/home/mythos/Annunimas/data/hades/joulework.jsonl",
+        "retention_days": 30,
+        "total_lines": 8836,
+        "valid_lines": 8836
+      },
+      {
+        "apply": true,
+        "backup": "/var/home/mythos/Annunimas/data/hades/warden_queue.jsonl.bak.20260505T052145Z",
+        "bytes_after": 906575,
+        "bytes_before": 906518,
+        "changed": true,
+        "dropped_by_max_bytes": 0,
+        "dropped_by_max_keep": 0,
+        "dropped_by_retention": 0,
+        "exists": true,
+        "invalid_lines": 0,
+        "kept_lines": 3190,
+        "path": "/var/home/mythos/Annunimas/data/hades/warden_queue.jsonl",
+        "retention_days": 7,
+        "total_lines": 3190,
+        "valid_lines": 3190
+      },
+      {
+        "apply": true,
+        "backup": "/var/home/mythos/Annunimas/data/hermes/messages.jsonl.bak.20260505T052145Z",
+        "bytes_after": 189908,
+        "bytes_before": 193384,
+        "changed": true,
+        "dropped_by_max_bytes": 0,
+        "dropped_by_max_keep": 0,
+        "dropped_by_retention": 4,
+        "exists": true,
+        "invalid_lines": 0,
+        "kept_lines": 277,
+        "path": "/var/home/mythos/Annunimas/data/hermes/messages.jsonl",
+        "retention_days": 30,
+        "total_lines": 281,
+        "valid_lines": 281
+      },
+      {
+        "apply": true,
+        "backup": null,
+        "bytes_after": 0,
+        "bytes_before": 0,
+        "changed": false,
+        "dropped_by_max_bytes": 0,
+        "dropped_by_max_keep": 0,
+        "dropped_by_retention": 0,
+        "exists": true,
+        "invalid_lines": 0,
+        "kept_lines": 0,
+        "path": "/var/home/mythos/Annunimas/data/hermes/outbound_queue.jsonl",
+        "retention_days": 14,
+        "total_lines": 0,
+        "valid_lines": 0
+      },
+      {
+        "apply": true,
+        "backup": "/var/home/mythos/Annunimas/data/hermes/decision_prompts.jsonl.bak.20260505T052145Z",
+        "bytes_after": 26520,
+        "bytes_before": 27560,
+        "changed": true,
+        "dropped_by_max_bytes": 0,
+        "dropped_by_max_keep": 0,
+        "dropped_by_retention": 2,
+        "exists": true,
+        "invalid_lines": 0,
+        "kept_lines": 51,
+        "path": "/var/home/mythos/Annunimas/data/hermes/decision_prompts.jsonl",
+        "retention_days": 30,
+        "total_lines": 53,
+        "valid_lines": 53
+      },
+      {
+        "apply": true,
+        "backup": null,
+        "bytes_after": 0,
+        "bytes_before": 0,
+        "changed": false,
+        "dropped_by_max_bytes": 0,
+        "dropped_by_max_keep": 0,
+        "dropped_by_retention": 0,
+        "exists": true,
+        "invalid_lines": 0,
+        "kept_lines": 0,
+        "path": "/var/home/mythos/Annunimas/data/hermes/decision_responses.jsonl",
+        "retention_days": 30,
+        "total_lines": 0,
+        "valid_lines": 0
+      },
+      {
+        "apply": true,
+        "backup": null,
+        "bytes_after": 0,
+        "bytes_before": 0,
+        "changed": false,
+        "dropped_by_max_bytes": 0,
+        "dropped_by_max_keep": 0,
+        "dropped_by_retention": 0,
+        "exists": true,
+        "invalid_lines": 0,
+        "kept_lines": 0,
+        "path": "/var/home/mythos/Annunimas/data/hermes/decision_metrics.jsonl",
+        "retention_days": 30,
+        "total_lines": 0,
+        "valid_lines": 0
+      },
+      {
+        "apply": true,
+        "backup": null,
+        "bytes_after": 4621444,
+        "bytes_before": 4621444,
+        "changed": false,
+        "dropped_by_max_bytes": 0,
+        "dropped_by_max_keep": 0,
+        "dropped_by_retention": 0,
+        "exists": true,
+        "invalid_lines": 0,
+        "kept_lines": 4000,
+        "path": "/var/home/mythos/Annunimas/data/prometheus/supervisor/heartbeats.jsonl",
+        "retention_days": 7,
+        "total_lines": 4000,
+        "valid_lines": 4000
+      },
+      {
+        "apply": true,
+        "backup": "/var/home/mythos/Annunimas/data/prometheus/policy_guard.jsonl.bak.20260505T052145Z",
+        "bytes_after": 4690501,
+        "bytes_before": 4692703,
+        "changed": true,
+        "dropped_by_max_bytes": 0,
+        "dropped_by_max_keep": 6,
+        "dropped_by_retention": 0,
+        "exists": true,
+        "invalid_lines": 0,
+        "kept_lines": 12000,
+        "path": "/var/home/mythos/Annunimas/data/prometheus/policy_guard.jsonl",
+        "retention_days": 14,
+        "total_lines": 12006,
+        "valid_lines": 12006
+      },
+      {
+        "apply": true,
+        "backup": null,
+        "bytes_after": 574256,
+        "bytes_before": 574256,
+        "changed": false,
+        "dropped_by_max_bytes": 0,
+        "dropped_by_max_keep": 0,
+        "dropped_by_retention": 0,
+        "exists": true,
+        "invalid_lines": 0,
+        "kept_lines": 11,
+        "path": "/var/home/mythos/Annunimas/data/prometheus/gate_matrix_history.jsonl",
+        "retention_days": 14,
+        "total_lines": 11,
+        "valid_lines": 11
+      },
+      {
+        "apply": true,
+        "backup": null,
+        "bytes_after": 14089,
+        "bytes_before": 14089,
+        "changed": false,
+        "dropped_by_max_bytes": 0,
+        "dropped_by_max_keep": 0,
+        "dropped_by_retention": 0,
+        "exists": true,
+        "invalid_lines": 0,
+        "kept_lines": 77,
+        "path": "/var/home/mythos/Annunimas/data/prometheus/output_accounting_runs.jsonl",
+        "retention_days": 14,
+        "total_lines": 77,
+        "valid_lines": 77
+      },
+      {
+        "apply": true,
+        "backup": null,
+        "bytes_after": 109534,
+        "bytes_before": 109534,
+        "changed": false,
+        "exists": true,
+        "keep_lines": 4000,
+        "kept_lines": 4000,
+        "max_bytes": 2097152,
+        "path": "/var/home/mythos/Annunimas/data/prometheus/autopilot/ceo_autopilot.log"
+      },
+      {
+        "apply": true,
+        "compacted_months": [
+          {
+            "files": 12,
+            "month": "2026-05",
+            "output": "/var/home/mythos/Annunimas/data/mnemosyne/episodic_compact/2026-05.jsonl"
+          }
+        ],
+        "deleted_compact_files": [],
+        "path": "data/mnemosyne/episodic_compact"
+      }
+    ],
+    "ts_utc": "2026-05-05T05:21:45.961088+00:00"
+  },
+  "generated_at_utc": "2026-07-14T05:03:01.761282980+00:00",
+  "pressure_guard": {
+    "authority": "runtime_admission_pressure_projection",
+    "generated_at_utc": "2026-05-30T17:15:05Z",
+    "observed": {
+      "budget_summary": {
+        "daily_spend_pressure": false,
+        "local_joule_pressure": false,
+        "monthly_spend_hard_pressure": false,
+        "monthly_spend_soft_pressure": false,
+        "provider_budget_pressure_total": 0,
+        "providers_tracked_total": 21
+      },
+      "storage_pressure": {
+        "data_top_15_bytes": [
+          "34323505:data/hades/archive/backups/hades_log.jsonl/hades_log.jsonl.bak.20260422T182425Z",
+          "34285084:data/hades/archive/backups/hades_log.jsonl/hades_log.jsonl.bak.20260422T145150Z",
+          "34285054:data/hades/hades_log.jsonl",
+          "22384161:data/charon/state.jsonl",
+          "16903185:data/governance/bacon_lite.jsonl",
+          "16894940:data/governance/bacon_lite.jsonl.bak.20260422T182425Z",
+          "16894610:data/governance/bacon_lite.jsonl.bak.20260422T145150Z",
+          "13256526:data/hades/athena_handoff_queue.jsonl",
+          "9823626:data/athena/digest.jsonl.bak.20260422T145150Z",
+          "9730594:data/athena/digest.jsonl.bak.20260422T182425Z",
+          "9719454:data/athena/digest.jsonl",
+          "7860947:data/prometheus/gate_metrics_history.jsonl",
+          "6082052:data/prometheus/policy_guard.jsonl.bak.20260422T182425Z",
+          "5989065:data/prometheus/policy_guard.jsonl.bak.20260422T145150Z",
+          "5950726:data/prometheus/policy_guard.jsonl"
+        ],
+        "largest_file": "core/metrics/history/20260422T182427Z/prometheus/ops_dashboard.json",
+        "largest_file_bytes": 163655,
+        "oversize_files_gte_100mb": 0,
+        "oversize_present": false,
+        "total_bytes": 476262
+      },
+      "user_plan_budget": {
+        "daily_spend_usd_observed": 0.0,
+        "daily_spend_usd_remaining": 100.0,
+        "daily_spend_usd_soft_cap": 100.0,
+        "daily_spend_usd_usage_percent": 0.0,
+        "edge_model_storage_gib_soft_cap": 250.0,
+        "local_joulework_daily_soft_cap": 1500.0,
+        "local_joulework_observed": 0.0,
+        "local_joulework_observed_cumulative": 270127.5219004357,
+        "local_joulework_usage_percent": 0.0,
+        "local_joulework_window_span_seconds": 0.0,
+        "local_joulework_window_valid": false,
+        "monthly_spend_hard_cap_usage_percent": 0.0,
+        "monthly_spend_soft_cap_usage_percent": 0.0,
+        "monthly_spend_usd_hard_cap": 400.0,
+        "monthly_spend_usd_inferred_used": 0.0,
+        "monthly_spend_usd_soft_cap": 250.0
+      }
+    },
+    "rationale": {
+      "first_class_runtime_surface": true,
+      "reason": "the legacy pressure guard producer lives only in archived scripts; Chronos and admission control now consume this live core/state projection generated by runtime budget export",
+      "supersedes_legacy_pressure_guard_path": "data/prometheus/pressure_guard_last.json"
+    },
+    "schema_version": "annunimas.runtime-admission-pressure.v1",
+    "source_surfaces": {
+      "audit_latest": "core/metrics/audit_latest.json",
+      "runtime_budget_policy": "core/state/runtime_budget_policy.json"
+    },
+    "status": "ok",
+    "violations": []
+  },
+  "reclaim_candidates": [
+    {
+      "bytes": 85041427,
+      "classification": "rebuildable_artifacts",
+      "path": "target",
+      "recommended_action": "prune_rebuildable"
+    },
+    {
+      "bytes": 14417631,
+      "classification": "accounted_history",
+      "path": "core/metrics/history",
+      "recommended_action": "retention_guard"
+    },
+    {
+      "bytes": 25727228,
+      "classification": "accounting_mirror",
+      "path": "data/accounting/output_mirror",
+      "recommended_action": "compact_mirror"
+    }
+  ],
+  "schema_version": "annunimas.core.state.v1",
+  "status": {
+    "backup_cleanup_configured": true,
+    "disk_alert_active": false,
+    "oversize_present": false
+  },
+  "summary": {
+    "accounting_mirror_bytes": 25727228,
+    "history_bytes": 14417631,
+    "operational_bytes": 3249292014,
+    "rebuildable_bytes": 85041427,
+    "total_observed_workspace_bytes": 3381302352
+  },
+  "workspace_roots": [
+    {
+      "bytes": 85041427,
+      "classification": "rebuildable_artifacts",
+      "exists": true,
+      "path": "target",
+      "purpose": "cargo build outputs"
+    },
+    {
+      "bytes": 3249292014,
+      "classification": "operational_ledgers",
+      "exists": true,
+      "path": "data",
+      "purpose": "runtime stores and append-only ledgers"
+    },
+    {
+      "bytes": 14417631,
+      "classification": "accounted_history",
+      "exists": true,
+      "path": "core/metrics/history",
+      "purpose": "audited metrics history snapshots"
+    },
+    {
+      "bytes": 25727228,
+      "classification": "accounting_mirror",
+      "exists": true,
+      "path": "data/accounting/output_mirror",
+      "purpose": "non-destructive long-term output mirror"
+    },
+    {
+      "bytes": 6824052,
+      "classification": "human_visual_layer",
+      "exists": true,
+      "path": "human",
+      "purpose": "human-facing markdown and graph notes"
+    }
+  ]
+}

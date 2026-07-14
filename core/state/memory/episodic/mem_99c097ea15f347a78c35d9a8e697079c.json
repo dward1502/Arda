@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_99c097ea15f347a78c35d9a8e697079c",
+  "kind": "episodic",
+  "agent": "charon",
+  "content": "CHARON failed route for openai_shim:code priority=normal",
+  "salience": 0.2879999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-22T21:27:53.142727976Z",
+  "last_seen_at": "2026-06-22T21:27:53.142727976Z"
+}

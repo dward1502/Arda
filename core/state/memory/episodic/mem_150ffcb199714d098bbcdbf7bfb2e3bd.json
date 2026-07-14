@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_150ffcb199714d098bbcdbf7bfb2e3bd",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Create task for athena-source-receipt-contract.md",
+  "salience": 0.7625,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-05T07:15:01.944348922Z",
+  "last_seen_at": "2026-06-05T07:15:01.944348922Z"
+}

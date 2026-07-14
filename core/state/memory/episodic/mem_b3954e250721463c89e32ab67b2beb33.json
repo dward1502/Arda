@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_b3954e250721463c89e32ab67b2beb33",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Add human-gated private config baseline apply",
+  "salience": 0.6645,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-02T05:48:07.769718349Z",
+  "last_seen_at": "2026-06-02T05:48:07.769718349Z"
+}

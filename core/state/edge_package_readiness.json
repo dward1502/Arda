@@ -1,0 +1,123 @@
+{
+  "authority": "annunimas-cli export edge-package-readiness",
+  "decision": {
+    "activation_allowed_without_operator": false,
+    "next_safe_local_work": "keep package readiness and edge identity state visible; do not start services or mutate devices",
+    "operator_required": true,
+    "recommended_followup": "operator confirms canonical edge identity for node-pi5-citadel-avatar before embodied bootstrap; fleet recovery failures remain human-gated"
+  },
+  "generated_at_utc": "2026-06-05T22:42:33Z",
+  "human_gated_actions": {
+    "fleet_recovery": [
+      {
+        "kind": "fleet_recovery_failed",
+        "note": "Latest recovery path targeted `unknown` and reported: No ED25519 host key is known for annunimas-server.tail91c3c1.ts.net. and you have requested strict checking.\r\nHost key verification failed..",
+        "owner": "charon_hermes",
+        "status": "operator_confirmation_required",
+        "title": "node-backbone-server-long requires fleet recovery remediation"
+      },
+      {
+        "kind": "fleet_recovery_failed",
+        "note": "Latest recovery path targeted `laptop.tail91c3c1.ts.net` and reported: tailscale_peer_offline.",
+        "owner": "charon_hermes",
+        "status": "operator_confirmation_required",
+        "title": "node-laptop requires fleet recovery remediation"
+      },
+      {
+        "kind": "fleet_recovery_failed",
+        "note": "Latest recovery path targeted `unknown` and reported: No ED25519 host key is known for raspberrypi-1.tail91c3c1.ts.net. and you have requested strict checking.\r\nHost key verification failed..",
+        "owner": "charon_hermes",
+        "status": "operator_confirmation_required",
+        "title": "node-pi5-citadel-avatar requires fleet recovery remediation"
+      }
+    ],
+    "identity_binding": [
+      {
+        "kind": "identity_binding",
+        "note": "Bind `node-pi5-citadel-avatar` to expected hostname `raspberrypi-aihat` before enrollment. Candidate Tailscale names: raspberrypi-aihat, raspberrypi-2.",
+        "owner": "warden",
+        "status": "operator_confirmation_required",
+        "title": "node-pi5-citadel-avatar requires canonical edge identity binding"
+      }
+    ],
+    "other": []
+  },
+  "mutation_policy": "read_only_reconciliation_no_service_start_no_device_mutation",
+  "observed_not_running_surfaces": [
+    {
+      "ok": true,
+      "ready": null,
+      "runtime_ready": null,
+      "status": "not_running",
+      "tool": "crawl4ai"
+    },
+    {
+      "ok": true,
+      "ready": null,
+      "runtime_ready": false,
+      "status": "not_configured",
+      "tool": "nanoclaw"
+    },
+    {
+      "ok": true,
+      "ready": false,
+      "runtime_ready": null,
+      "status": "not_running",
+      "tool": "search_runtime"
+    }
+  ],
+  "safe_local_ready_surfaces": [
+    {
+      "ok": true,
+      "ready": null,
+      "runtime_ready": null,
+      "status": "running",
+      "tool": "litellm"
+    },
+    {
+      "ok": true,
+      "ready": null,
+      "runtime_ready": null,
+      "status": "optional_signal_absent",
+      "tool": "llmfit"
+    },
+    {
+      "ok": true,
+      "ready": null,
+      "runtime_ready": null,
+      "status": "ready",
+      "tool": "oh_my_opencode"
+    },
+    {
+      "ok": true,
+      "ready": null,
+      "runtime_ready": null,
+      "status": "contract_ready",
+      "tool": "playwright_mcp"
+    },
+    {
+      "ok": true,
+      "ready": null,
+      "runtime_ready": null,
+      "status": "shim_only",
+      "tool": "scrapling"
+    }
+  ],
+  "schema_version": "annunimas.edge-package-readiness.v1",
+  "sources": {
+    "edge_enrollment_plan": "core/state/edge_enrollment_plan.json",
+    "operator_actions": "core/state/operator_actions.json",
+    "package_enablement": "core/state/package_enablement.json",
+    "package_runtime_activation": "core/state/package_runtime_activation.json"
+  },
+  "summary": {
+    "edge_identity_binding_required_total": 1,
+    "fleet_recovery_failed_total": 3,
+    "human_gated_action_total": 4,
+    "observed_not_running_surface_total": 3,
+    "operator_human_needed_total": 4,
+    "package_policy_ready_total": 6,
+    "package_ready_for_activation_total": 4,
+    "safe_local_ready_surface_total": 5
+  }
+}

@@ -1,0 +1,1498 @@
+{
+  "authority": "plutus_service",
+  "economics": {
+    "budget_remaining": 100.0,
+    "budget_usage_percent": 0.0,
+    "daily_budget": 100.0,
+    "providers": [],
+    "total_spend": 0.0
+  },
+  "generated_at_utc": "2026-04-22T18:24:14.172603804+00:00",
+  "governance": {
+    "bacon_lite_passed_total": 25,
+    "recent_records": [
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "passed": true,
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-03-12T15:51:37.444298860+00:00",
+        "resonance": {
+          "ecst_components": {
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "phi_harmonic": 39.888695154960715,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "hades",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "passed": true,
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "passed": true,
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-03-12T15:46:02.514917029+00:00",
+        "resonance": {
+          "ecst_components": {
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "phi_harmonic": 39.888695154960715,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "mnemosyne",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "passed": true,
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "passed": true,
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-03-12T15:38:39.863898755+00:00",
+        "resonance": {
+          "ecst_components": {
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "phi_harmonic": 39.888695154960715,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "hades",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "passed": true,
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "passed": true,
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-03-12T15:29:31.839552084+00:00",
+        "resonance": {
+          "ecst_components": {
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "phi_harmonic": 39.888695154960715,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "hades",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "passed": true,
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "passed": true,
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-03-12T15:20:23.192706168+00:00",
+        "resonance": {
+          "ecst_components": {
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "phi_harmonic": 39.888695154960715,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "hades",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "passed": true,
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "passed": true,
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-03-12T15:11:32.026415247+00:00",
+        "resonance": {
+          "ecst_components": {
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "phi_harmonic": 39.888695154960715,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "hades",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "passed": true,
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "passed": true,
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-03-12T15:02:23.724042272+00:00",
+        "resonance": {
+          "ecst_components": {
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "phi_harmonic": 39.888695154960715,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "hades",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "passed": true,
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "passed": true,
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-03-12T14:54:15.104805079+00:00",
+        "resonance": {
+          "ecst_components": {
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "phi_harmonic": 39.888695154960715,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "hades",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "passed": true,
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "passed": true,
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-03-12T14:46:06.767844623+00:00",
+        "resonance": {
+          "ecst_components": {
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "phi_harmonic": 39.888695154960715,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "hades",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "passed": true,
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "passed": true,
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-03-12T14:38:37.549853197+00:00",
+        "resonance": {
+          "ecst_components": {
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "phi_harmonic": 39.888695154960715,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "hades",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "passed": true,
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "passed": true,
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-03-12T14:25:34.583158516+00:00",
+        "resonance": {
+          "ecst_components": {
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "phi_harmonic": 39.888695154960715,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "hades",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "passed": true,
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "passed": true,
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-03-12T14:09:19.769523649+00:00",
+        "resonance": {
+          "ecst_components": {
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "phi_harmonic": 39.888695154960715,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "hades",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "passed": true,
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "passed": true,
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-03-12T14:17:30.675670878+00:00",
+        "resonance": {
+          "ecst_components": {
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "phi_harmonic": 39.888695154960715,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "hades",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "passed": true,
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "passed": true,
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-03-12T14:33:42.594808369+00:00",
+        "resonance": {
+          "ecst_components": {
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "phi_harmonic": 39.888695154960715,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "hades",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "passed": true,
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "passed": true,
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-03-12T14:39:07.986065250+00:00",
+        "resonance": {
+          "ecst_components": {
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "phi_harmonic": 39.888695154960715,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "hades",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "passed": true,
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "passed": true,
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-03-12T14:48:37.803450308+00:00",
+        "resonance": {
+          "ecst_components": {
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "phi_harmonic": 39.888695154960715,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "hades",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "passed": true,
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "passed": true,
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-03-12T14:58:38.299927701+00:00",
+        "resonance": {
+          "ecst_components": {
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "phi_harmonic": 39.888695154960715,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "hades",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "passed": true,
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "passed": true,
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-03-12T15:08:38.818569058+00:00",
+        "resonance": {
+          "ecst_components": {
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "phi_harmonic": 39.888695154960715,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "hades",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "passed": true,
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "passed": true,
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-03-12T15:18:39.029224336+00:00",
+        "resonance": {
+          "ecst_components": {
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "phi_harmonic": 39.888695154960715,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "hades",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "passed": true,
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "passed": true,
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-03-12T15:28:31.485999422+00:00",
+        "resonance": {
+          "ecst_components": {
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "phi_harmonic": 39.888695154960715,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "hades",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "passed": true,
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "passed": true,
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-03-12T15:36:39.974656762+00:00",
+        "resonance": {
+          "ecst_components": {
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "phi_harmonic": 39.888695154960715,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "hades",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "passed": true,
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "passed": true,
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-03-12T15:44:48.230932689+00:00",
+        "resonance": {
+          "ecst_components": {
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "phi_harmonic": 39.888695154960715,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "hades",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "passed": true,
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "passed": true,
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-03-12T15:48:43.775261271+00:00",
+        "resonance": {
+          "ecst_components": {
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "phi_harmonic": 39.888695154960715,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "hades",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "passed": true,
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "passed": true,
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-03-12T15:58:41.298664913+00:00",
+        "resonance": {
+          "ecst_components": {
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "phi_harmonic": 39.888695154960715,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "hades",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "passed": true,
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "passed": true,
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-04-22T18:23:26.775179101+00:00",
+        "resonance": {
+          "ecst_components": {
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "phi_harmonic": 39.888695154960715,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "hades",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "passed": true,
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      }
+    ],
+    "records_total": 25,
+    "triad_passed_total": 25
+  },
+  "joulework": {
+    "by_agent": {
+      "athena": 242.75333333333325,
+      "charon": 25366.59550005233,
+      "hades": 2970.6037500004454,
+      "hermes": 816.2499999999678,
+      "mnemosyne": 44493.72446862959
+    },
+    "by_unit": [
+      {
+        "amount": 73889.92705201567,
+        "unit": "Reasoning"
+      }
+    ],
+    "period_end": "2026-04-22T18:24:14.171602951Z",
+    "period_start": "2026-04-22T18:24:14.171602951Z",
+    "total": 73889.92705201567
+  },
+  "ledger": {
+    "accounts": [],
+    "accounts_total": 0
+  },
+  "love_equation": {
+    "relationships": [
+      {
+        "agent_a": "openai_shim",
+        "agent_b": "mesh_worker_light",
+        "timestamp": "2026-04-22T18:24:14.171588740Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "openai_shim",
+        "agent_b": "zai",
+        "timestamp": "2026-04-22T18:24:14.171545770Z",
+        "value": 0.70388
+      },
+      {
+        "agent_a": "opencode",
+        "agent_b": "openrouter",
+        "timestamp": "2026-04-22T18:24:14.171553550Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "athena",
+        "agent_b": "knowledge_corpus",
+        "timestamp": "2026-04-22T18:24:14.171514199Z",
+        "value": 0.6506666666666667
+      },
+      {
+        "agent_a": "charon",
+        "agent_b": "prometheus",
+        "timestamp": "2026-04-22T18:24:14.171557310Z",
+        "value": 0.784
+      },
+      {
+        "agent_a": "hermes",
+        "agent_b": "opencode",
+        "timestamp": "2026-04-22T18:24:14.171591520Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "opencode",
+        "agent_b": "zai",
+        "timestamp": "2026-04-22T18:24:14.171594240Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "hermes",
+        "agent_b": "1472529224911945770",
+        "timestamp": "2026-04-22T18:24:14.171580560Z",
+        "value": 0.6779999999999999
+      },
+      {
+        "agent_a": "opencode",
+        "agent_b": "local_fallback",
+        "timestamp": "2026-04-22T18:24:14.171528640Z",
+        "value": 0.336
+      },
+      {
+        "agent_a": "remote_operator",
+        "agent_b": "edge_worker",
+        "timestamp": "2026-04-22T18:24:14.171533510Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "hermes",
+        "agent_b": "cerebras",
+        "timestamp": "2026-04-22T18:24:14.171535430Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "openai_shim",
+        "agent_b": "openai",
+        "timestamp": "2026-04-22T18:24:14.171567710Z",
+        "value": 0.7059920000000001
+      },
+      {
+        "agent_a": "openai_shim",
+        "agent_b": "mistral",
+        "timestamp": "2026-04-22T18:24:14.171529790Z",
+        "value": 0.70388
+      },
+      {
+        "agent_a": "opencode",
+        "agent_b": "cerebras",
+        "timestamp": "2026-04-22T18:24:14.171541980Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "openai_shim",
+        "agent_b": "cerebras",
+        "timestamp": "2026-04-22T18:24:14.171593320Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "openai_shim",
+        "agent_b": "nvidia",
+        "timestamp": "2026-04-22T18:24:14.171596930Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "hermes",
+        "agent_b": "google",
+        "timestamp": "2026-04-22T18:24:14.171597910Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "openai_shim",
+        "agent_b": "openrouter",
+        "timestamp": "2026-04-22T18:24:14.171598791Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "mnemosyne",
+        "agent_b": "prometheus",
+        "timestamp": "2026-04-22T18:24:14.171599671Z",
+        "value": 0.784
+      },
+      {
+        "agent_a": "hermes",
+        "agent_b": "discord",
+        "timestamp": "2026-04-22T18:24:14.171601461Z",
+        "value": 0.68
+      },
+      {
+        "agent_a": "hermes",
+        "agent_b": "groq",
+        "timestamp": "2026-04-22T18:24:14.171584220Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "opencode",
+        "agent_b": "openai",
+        "timestamp": "2026-04-22T18:24:14.171542930Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "hermes",
+        "agent_b": "edge_backbone",
+        "timestamp": "2026-04-22T18:24:14.171536420Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "openai_shim",
+        "agent_b": "groq",
+        "timestamp": "2026-04-22T18:24:14.171539990Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "opencode",
+        "agent_b": "edge_hub_3080",
+        "timestamp": "2026-04-22T18:24:14.171561720Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "hermes",
+        "agent_b": "boardroom",
+        "timestamp": "2026-04-22T18:24:14.171562740Z",
+        "value": 0.648
+      },
+      {
+        "agent_a": "opencode",
+        "agent_b": "edge_guardhouse",
+        "timestamp": "2026-04-22T18:24:14.171585080Z",
+        "value": 0.7239093333333333
+      },
+      {
+        "agent_a": "openai_shim",
+        "agent_b": "anthropic",
+        "timestamp": "2026-04-22T18:24:14.171540970Z",
+        "value": 0.66715
+      },
+      {
+        "agent_a": "opencode",
+        "agent_b": "mesh_local",
+        "timestamp": "2026-04-22T18:24:14.171558690Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "hermes",
+        "agent_b": "1472515093848916020",
+        "timestamp": "2026-04-22T18:24:14.171586910Z",
+        "value": 0.6779999999999999
+      },
+      {
+        "agent_a": "openai_shim",
+        "agent_b": "openrouter_free",
+        "timestamp": "2026-04-22T18:24:14.171585970Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "prometheus",
+        "agent_b": "boardroom",
+        "timestamp": "2026-04-22T18:24:14.171595160Z",
+        "value": 0.784
+      },
+      {
+        "agent_a": "hermes",
+        "agent_b": "openrouter_free",
+        "timestamp": "2026-04-22T18:24:14.171534480Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "opencode",
+        "agent_b": "nvidia",
+        "timestamp": "2026-04-22T18:24:14.171543840Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "openai_shim",
+        "agent_b": "opencode",
+        "timestamp": "2026-04-22T18:24:14.171578710Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "remote_operator",
+        "agent_b": "edge_hub_3080",
+        "timestamp": "2026-04-22T18:24:14.171560740Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "hades",
+        "agent_b": "prometheus",
+        "timestamp": "2026-04-22T18:24:14.171544790Z",
+        "value": 0.784
+      },
+      {
+        "agent_a": "remote_operator",
+        "agent_b": "local_fallback",
+        "timestamp": "2026-04-22T18:24:14.171577690Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "hermes",
+        "agent_b": "openai",
+        "timestamp": "2026-04-22T18:24:14.171581530Z",
+        "value": 0.60316
+      },
+      {
+        "agent_a": "opencode",
+        "agent_b": "edge_worker",
+        "timestamp": "2026-04-22T18:24:14.171552510Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "opencode",
+        "agent_b": "opencode",
+        "timestamp": "2026-04-22T18:24:14.171582390Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "opencode",
+        "agent_b": "openrouter_free",
+        "timestamp": "2026-04-22T18:24:14.171563720Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "openai_shim",
+        "agent_b": "edge_guardhouse",
+        "timestamp": "2026-04-22T18:24:14.171590530Z",
+        "value": 0.7275093333333333
+      },
+      {
+        "agent_a": "hermes",
+        "agent_b": "openrouter",
+        "timestamp": "2026-04-22T18:24:14.171579670Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "openai_shim",
+        "agent_b": "mesh_local",
+        "timestamp": "2026-04-22T18:24:14.171566660Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "openai_shim",
+        "agent_b": "local_fallback",
+        "timestamp": "2026-04-22T18:24:14.171596010Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "opencode",
+        "agent_b": "edge_laptop",
+        "timestamp": "2026-04-22T18:24:14.171600621Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "openai_shim",
+        "agent_b": "google",
+        "timestamp": "2026-04-22T18:24:14.171530800Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "opencode",
+        "agent_b": "mistral",
+        "timestamp": "2026-04-22T18:24:14.171564750Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "opencode",
+        "agent_b": "mesh_worker_light",
+        "timestamp": "2026-04-22T18:24:14.171559740Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "hermes",
+        "agent_b": "nvidia",
+        "timestamp": "2026-04-22T18:24:14.171592460Z",
+        "value": 0.336
+      },
+      {
+        "agent_a": "hermes",
+        "agent_b": "mistral",
+        "timestamp": "2026-04-22T18:24:14.171587820Z",
+        "value": 0.42104
+      },
+      {
+        "agent_a": "athena",
+        "agent_b": "prometheus",
+        "timestamp": "2026-04-22T18:24:14.171589690Z",
+        "value": 0.784
+      },
+      {
+        "agent_a": "hermes",
+        "agent_b": "edge_hub_3080",
+        "timestamp": "2026-04-22T18:24:14.171583300Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "opencode",
+        "agent_b": "google",
+        "timestamp": "2026-04-22T18:24:14.171565670Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "probe",
+        "agent_b": "edge_worker",
+        "timestamp": "2026-04-22T18:24:14.171551530Z",
+        "value": 0.7360000000000001
+      }
+    ],
+    "relationships_total": 56,
+    "top_relationships": [
+      {
+        "agent_a": "charon",
+        "agent_b": "prometheus",
+        "timestamp": "2026-04-22T18:24:14.171557310Z",
+        "value": 0.784
+      },
+      {
+        "agent_a": "mnemosyne",
+        "agent_b": "prometheus",
+        "timestamp": "2026-04-22T18:24:14.171599671Z",
+        "value": 0.784
+      },
+      {
+        "agent_a": "prometheus",
+        "agent_b": "boardroom",
+        "timestamp": "2026-04-22T18:24:14.171595160Z",
+        "value": 0.784
+      },
+      {
+        "agent_a": "hades",
+        "agent_b": "prometheus",
+        "timestamp": "2026-04-22T18:24:14.171544790Z",
+        "value": 0.784
+      },
+      {
+        "agent_a": "athena",
+        "agent_b": "prometheus",
+        "timestamp": "2026-04-22T18:24:14.171589690Z",
+        "value": 0.784
+      },
+      {
+        "agent_a": "openai_shim",
+        "agent_b": "mesh_worker_light",
+        "timestamp": "2026-04-22T18:24:14.171588740Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "opencode",
+        "agent_b": "openrouter",
+        "timestamp": "2026-04-22T18:24:14.171553550Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "hermes",
+        "agent_b": "opencode",
+        "timestamp": "2026-04-22T18:24:14.171591520Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "opencode",
+        "agent_b": "zai",
+        "timestamp": "2026-04-22T18:24:14.171594240Z",
+        "value": 0.7360000000000001
+      },
+      {
+        "agent_a": "remote_operator",
+        "agent_b": "edge_worker",
+        "timestamp": "2026-04-22T18:24:14.171533510Z",
+        "value": 0.7360000000000001
+      }
+    ]
+  },
+  "paths": {
+    "home": "/var/home/mythos/Annunimas/data/plutus",
+    "status_path": "/var/home/mythos/Annunimas/data/plutus/runtime_status.json"
+  },
+  "schema_version": "annunimas.plutus.runtime.v1"
+}

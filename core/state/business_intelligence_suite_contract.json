@@ -1,0 +1,44 @@
+{
+  "authority": "council_engine_extraction",
+  "crate_candidate": "annunimas-council",
+  "generated_at_utc": "2026-06-05T09:59:38Z",
+  "guardrails": {
+    "document_review_must_preserve_source_context": true,
+    "legal_financial_tax_outputs_require_caveat": true,
+    "licensed_escalation_on_high_stakes": true
+  },
+  "positioning": {
+    "not_a_substitute_for_licensed_professionals": true,
+    "primary_value": "prepare operator with specialist-context insight before high-stakes decisions",
+    "suite_role": "bounded business intelligence and legal operating layer"
+  },
+  "query_modes": [
+    "single_seat_query",
+    "dual_seat_query",
+    "full_council_brief",
+    "devils_advocate_mode",
+    "scenario_stress_test",
+    "document_review_mode"
+  ],
+  "required_outputs": [
+    "seat_opinions",
+    "points_of_agreement",
+    "points_of_tension",
+    "synthesis_recommendation",
+    "licensed_professional_escalation_flag"
+  ],
+  "schema_version": "annunimas.business-intelligence-suite-contract.v1",
+  "seats": [
+    "economist",
+    "attorney",
+    "cfo",
+    "tax_strategist",
+    "contract_specialist",
+    "strategist",
+    "operator"
+  ],
+  "source_group": "council_engine",
+  "source_ids": [
+    "src_ce18b5cf"
+  ]
+}

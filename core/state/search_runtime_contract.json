@@ -1,0 +1,68 @@
+{
+  "athena_retrieval_adapter": {
+    "adapter_boundary": "retrieval happens behind ATHENA-owned query and evidence surfaces",
+    "mode": "governed_on_demand",
+    "required_controls": [
+      "explicit query provenance",
+      "retention and privacy posture",
+      "receipt capture for retrieved result sets"
+    ],
+    "runtime_base_url": "http://127.0.0.1:18080"
+  },
+  "authority": "source_absorption_portfolio",
+  "campaign": {
+    "mission": "Define the governed retrieval adapter and package posture for self-hosted search backends before any activation decision.",
+    "name": "Search Runtime Absorption",
+    "owner": "athena_prometheus",
+    "source_id": "src_86fa4360"
+  },
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "governor_notes": {
+    "acceptable_uses": [
+      "operator-approved retrieval augmentation",
+      "ATHENA evidence harvest with receipts",
+      "bounded internal search experiments"
+    ],
+    "launcher": "scripts/searxng_service.sh",
+    "why_not_default": [
+      "search backends broaden network and privacy exposure",
+      "operational indexing and retention costs need explicit budgeting",
+      "retrieval quality does not justify default activation without a bounded contract"
+    ]
+  },
+  "package_posture": {
+    "activation_status": "governed_on_demand",
+    "integration_state": "contract_ready_not_activated",
+    "promotion_rule": "do not activate until privacy, indexing, and operational cost posture are bounded",
+    "runtime_env_contract": [
+      "ANNUNIMAS_SEARCH_RUNTIME_URL",
+      "ANNUNIMAS_SEARCH_RUNTIME_HOST",
+      "ANNUNIMAS_SEARCH_RUNTIME_PORT",
+      "ANNUNIMAS_SEARCH_RUNTIME_IMAGE",
+      "ANNUNIMAS_SEARCH_RUNTIME_CONTAINER_NAME"
+    ],
+    "runtime_mode": "optional_self_hosted_search",
+    "service_probe": {
+      "base_url": "http://127.0.0.1:18080",
+      "container_name": "annunimas-searxng",
+      "image": "docker.io/searxng/searxng:latest",
+      "ok": true,
+      "ready": false,
+      "status": "not_running"
+    }
+  },
+  "schema_version": "annunimas.search-runtime-contract.v1",
+  "sigil": "REPAIR",
+  "source": {
+    "implementation_brief": {},
+    "title": null,
+    "url": null
+  },
+  "summary": {
+    "activation_status": "governed_on_demand",
+    "adapter_mode": "governed_on_demand",
+    "ready": false,
+    "required_controls_total": 3,
+    "service_status": "not_running"
+  }
+}

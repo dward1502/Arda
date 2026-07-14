@@ -1,0 +1,138 @@
+{
+  "authority": "extension_activation_backlog_export",
+  "entries": [
+    {
+      "activation_status": "planned",
+      "disposition_mode": "extension_candidate",
+      "human_needed": true,
+      "lane": "client_shells_and_embodiment",
+      "next_action": "promote from evidence into a bounded runtime or product surface",
+      "owner": "arda",
+      "phase": "research_to_contract",
+      "repo_url": "https://github.com/SaseQ/discord-mcp",
+      "runtime_status": null,
+      "system_surfaces": [
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json",
+        "core/state/operator_actions.json"
+      ],
+      "tool": "discord-mcp"
+    },
+    {
+      "activation_status": "active_signal",
+      "disposition_mode": "active_signal",
+      "human_needed": true,
+      "lane": "client_shells_and_embodiment",
+      "next_action": "OpenCode is already bounded by sovereign route contracts; tune agent route mappings rather than treating it as an unintegrated package",
+      "owner": "arda",
+      "phase": "tune_and_productize",
+      "repo_url": "https://github.com/code-yeongyu/oh-my-opencode",
+      "runtime_status": "ready",
+      "system_surfaces": [
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json",
+        "core/state/operator_actions.json"
+      ],
+      "tool": "oh-my-opencode"
+    },
+    {
+      "activation_status": "planned",
+      "disposition_mode": "extension_candidate",
+      "human_needed": true,
+      "lane": "communication_adapters",
+      "next_action": "promote from evidence into a bounded runtime or product surface",
+      "owner": "hermes",
+      "phase": "research_to_contract",
+      "repo_url": "https://github.com/SaseQ/discord-mcp",
+      "runtime_status": null,
+      "system_surfaces": [
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json",
+        "core/state/operator_actions.json"
+      ],
+      "tool": "discord-mcp"
+    },
+    {
+      "activation_status": "governed_on_demand",
+      "disposition_mode": "governed_on_demand",
+      "human_needed": true,
+      "lane": "communication_adapters",
+      "next_action": "Start the supervised bridge only for governed browser sessions; keep it on-demand rather than daemonized",
+      "owner": "hermes",
+      "phase": "contract_ready",
+      "repo_url": "https://github.com/microsoft/playwright-mcp",
+      "runtime_status": "contract_ready",
+      "system_surfaces": [
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json",
+        "core/state/operator_actions.json"
+      ],
+      "tool": "playwright-mcp"
+    },
+    {
+      "activation_status": "active_signal",
+      "disposition_mode": "active_signal",
+      "human_needed": true,
+      "lane": "skills_plugins_and_optional_extensions",
+      "next_action": "OpenCode is already bounded by sovereign route contracts; tune agent route mappings rather than treating it as an unintegrated package",
+      "owner": "prometheus",
+      "phase": "tune_and_productize",
+      "repo_url": "https://github.com/code-yeongyu/oh-my-opencode",
+      "runtime_status": "ready",
+      "system_surfaces": [
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json",
+        "core/state/operator_actions.json"
+      ],
+      "tool": "oh-my-opencode"
+    },
+    {
+      "activation_status": "planned",
+      "disposition_mode": "extension_candidate",
+      "human_needed": true,
+      "lane": "skills_plugins_and_optional_extensions",
+      "next_action": "promote from evidence into a bounded runtime or product surface",
+      "owner": "prometheus",
+      "phase": "research_to_contract",
+      "repo_url": "https://github.com/obra/superpowers",
+      "runtime_status": null,
+      "system_surfaces": [
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json",
+        "core/state/operator_actions.json"
+      ],
+      "tool": "superpowers"
+    },
+    {
+      "activation_status": "active_signal",
+      "disposition_mode": "active_signal",
+      "human_needed": true,
+      "lane": "workflow_templates",
+      "next_action": "OpenCode is already bounded by sovereign route contracts; tune agent route mappings rather than treating it as an unintegrated package",
+      "owner": "apollo_prometheus",
+      "phase": "tune_and_productize",
+      "repo_url": "https://github.com/code-yeongyu/oh-my-opencode",
+      "runtime_status": "ready",
+      "system_surfaces": [
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json",
+        "core/state/operator_actions.json"
+      ],
+      "tool": "oh-my-opencode"
+    }
+  ],
+  "generated_at_utc": "2026-04-28T09:49:25Z",
+  "rules": [
+    "Extension backlog must resolve through sovereign contracts before runtime activation.",
+    "Registry or plugin ecosystems may inform activation order but cannot bypass operator or governance gates.",
+    "HUD presence is not a prerequisite for extension activation planning."
+  ],
+  "schema_version": "annunimas.extension-activation-backlog.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "backlog_total": 7,
+    "contract_ready_total": 1,
+    "research_to_contract_total": 3,
+    "tune_and_productize_total": 3
+  }
+}

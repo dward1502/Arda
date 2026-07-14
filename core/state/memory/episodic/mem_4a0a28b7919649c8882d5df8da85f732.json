@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_4a0a28b7919649c8882d5df8da85f732",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Install HADES storage hygiene audit lane",
+  "salience": 0.6645,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-05T23:10:24.869047427Z",
+  "last_seen_at": "2026-06-05T23:10:24.869047427Z"
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_a3b317315c55478d86602d49e98acde8",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Create task for citadel-voice-physical-interaction-safety-contract.md",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-05T07:15:55.210300810Z",
+  "last_seen_at": "2026-06-05T07:15:55.210300810Z"
+}

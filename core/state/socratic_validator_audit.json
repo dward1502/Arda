@@ -1,0 +1,54 @@
+{
+  "arda_hints": {
+    "invocation_reason_visible": true,
+    "primary_panel": "decision_audit",
+    "show_empty_state": true
+  },
+  "authority": "prometheus_oracle_deliberation_projection",
+  "generated_at_utc": "2026-04-28T09:49:24Z",
+  "queued_pivot_context": [
+    {
+      "id": "tsk_20260330_extract_mnemosyne_store_retrieval_and_promot",
+      "owner": "prometheus",
+      "title": "Extract Mnemosyne store retrieval promotion and status seams"
+    },
+    {
+      "id": "tsk_20260411_charon_multi_provider_intelligence_expansion",
+      "owner": "prometheus",
+      "title": "Charon Multi-Provider Intelligence Expansion"
+    },
+    {
+      "id": "tsk_20260329_make_citadel_presentation_state_changes_unmistak",
+      "owner": "prometheus",
+      "title": "Make Citadel presentation state changes unmistakable and offline-safe"
+    },
+    {
+      "id": "tsk_20260330_extract_prometheus_core_link_package_enab",
+      "owner": "prometheus",
+      "title": "Extract Prometheus core link package enablement projection"
+    },
+    {
+      "id": "tsk_20260423_refresh_annunimas_prometheus_audit_and_raise_htt",
+      "owner": "prometheus",
+      "title": "Refresh annunimas-prometheus audit and raise HTTP transport test coverage"
+    }
+  ],
+  "recent_invocations": [],
+  "schema_version": "annunimas.socratic-validator-audit.v1",
+  "sigil": "REPAIR",
+  "status": {
+    "armed": true,
+    "current_trigger_pressure": {
+      "operator_attention_total": 4,
+      "provider_budget_pressure_total": 0,
+      "strategic_queued_total": 59
+    },
+    "mode": "bounded_not_yet_invoked"
+  },
+  "summary": {
+    "auto_handoffs_total": 0,
+    "human_overrides_total": 0,
+    "invocations_total": 0,
+    "open_verdicts_total": 0
+  }
+}

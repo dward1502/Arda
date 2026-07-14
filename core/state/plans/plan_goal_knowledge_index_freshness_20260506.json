@@ -1,0 +1,24 @@
+{
+  "contract_version": "0.1.0",
+  "id": "plan_goal_knowledge_index_freshness_20260506",
+  "goal_id": "goal_knowledge_index_freshness",
+  "summary": "Reindex any knowledge source whose mtime moved since last pass.",
+  "steps": [
+    {
+      "intent": "scan_knowledge_sources",
+      "params": {}
+    },
+    {
+      "intent": "diff_against_last_index",
+      "params": {}
+    },
+    {
+      "intent": "reindex_changed",
+      "params": {}
+    }
+  ],
+  "status": "draft",
+  "lessons_consulted": [],
+  "created_at": "2026-05-06T00:00:48.850229787Z",
+  "updated_at": "2026-05-06T00:00:48.850229787Z"
+}

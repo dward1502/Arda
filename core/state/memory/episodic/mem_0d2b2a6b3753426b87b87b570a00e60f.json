@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_0d2b2a6b3753426b87b87b570a00e60f",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Honor Charon route metadata headers for Hermes tool traffic",
+  "salience": 0.6675000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-06T06:55:11.902702940Z",
+  "last_seen_at": "2026-06-06T06:55:11.902702940Z"
+}

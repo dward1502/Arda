@@ -1,0 +1,70 @@
+{
+  "actions": [
+    {
+      "kind": "identity_binding",
+      "note": "Bind `node-pi5-citadel-avatar` to expected hostname `raspberrypi-aihat` before enrollment. Candidate Tailscale names: raspberrypi-aihat, raspberrypi-2.",
+      "owner": "warden",
+      "status": "operator_confirmation_required",
+      "title": "node-pi5-citadel-avatar requires canonical edge identity binding"
+    },
+    {
+      "kind": "fleet_recovery_failed",
+      "note": "Latest recovery path targeted `annunimas-server.tail91c3c1.ts.net` and reported: tailscale_peer_offline.",
+      "owner": "charon_hermes",
+      "status": "operator_confirmation_required",
+      "title": "node-backbone-server requires fleet recovery remediation"
+    },
+    {
+      "kind": "fleet_recovery_failed",
+      "note": "Latest recovery path targeted `annunimas-server.tail91c3c1.ts.net` and reported: tailscale_peer_offline.",
+      "owner": "charon_hermes",
+      "status": "operator_confirmation_required",
+      "title": "node-backbone-gemma4-coder requires fleet recovery remediation"
+    },
+    {
+      "kind": "fleet_recovery_failed",
+      "note": "Latest recovery path targeted `annunimas-server.tail91c3c1.ts.net` and reported: tailscale_peer_offline.",
+      "owner": "charon_hermes",
+      "status": "operator_confirmation_required",
+      "title": "node-backbone-vision requires fleet recovery remediation"
+    },
+    {
+      "kind": "fleet_recovery_failed",
+      "note": "Latest recovery path targeted `unknown` and reported: No ED25519 host key is known for beelink.tail91c3c1.ts.net. and you have requested strict checking.\r\nHost key verification failed..",
+      "owner": "charon_hermes",
+      "status": "operator_confirmation_required",
+      "title": "node-ser9-carnice requires fleet recovery remediation"
+    },
+    {
+      "kind": "fleet_recovery_failed",
+      "note": "Latest recovery path targeted `laptop.tail91c3c1.ts.net` and reported: tailscale_peer_offline.",
+      "owner": "charon_hermes",
+      "status": "operator_confirmation_required",
+      "title": "node-laptop requires fleet recovery remediation"
+    },
+    {
+      "kind": "fleet_recovery_failed",
+      "note": "Latest recovery path targeted `raspberrypi-1.tail91c3c1.ts.net` and reported: tailscale_peer_offline.",
+      "owner": "charon_hermes",
+      "status": "operator_confirmation_required",
+      "title": "node-pi5-citadel-avatar requires fleet recovery remediation"
+    }
+  ],
+  "arda_hints": {
+    "alert_on_human_needed": true,
+    "boardroom_section": "human_needed",
+    "primary_panel": "operations_and_packages"
+  },
+  "authority": "operator_actions_projection",
+  "generated_at_utc": "2026-07-14T05:03:01.771866911+00:00",
+  "schema_version": "annunimas.core.state.v1",
+  "summary": {
+    "auth_required_total": 0,
+    "configuration_required_total": 0,
+    "external_blockers_total": 0,
+    "fleet_recovery_failed_total": 6,
+    "human_needed_total": 7,
+    "identity_binding_total": 1,
+    "identity_cleanup_total": 0
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_121f61d93cf94496924cd0a76cf2e353",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: WARDEN HADES signed approval packet gate",
+  "salience": 0.6645,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-19T16:37:13.775951910Z",
+  "last_seen_at": "2026-05-19T16:37:13.775951910Z"
+}

@@ -1,0 +1,43 @@
+{
+  "authority": "system_lift_activation_review + framework_gate_intake_plan",
+  "generated_at_utc": "2026-03-13T04:19:00Z",
+  "phases": [
+    {
+      "human_plan": "human/plans/FRAMEWORK_GATE_AND_INTAKE_DISCIPLINE_IMPLEMENTATION.md",
+      "machine_plan": "core/state/framework_gate_intake_plan.json",
+      "phase": 1,
+      "slug": "framework_gate_and_intake_discipline"
+    },
+    {
+      "human_plan": "human/plans/ATHENA_HERMES_IMPORTED_CAPABILITY_RECONCILIATION.md",
+      "machine_plan": "core/state/athena_hermes_capability_reconciliation_plan.json",
+      "phase": 2,
+      "slug": "athena_hermes_capability_reconciliation"
+    },
+    {
+      "human_plan": "human/plans/ARDA_CITADEL_PATTERN_EXTRACTION.md",
+      "machine_plan": "core/state/arda_citadel_pattern_extraction_plan.json",
+      "phase": 3,
+      "slug": "arda_citadel_pattern_extraction"
+    },
+    {
+      "human_plan": "human/plans/ENGINEERING_PROCESS_AUTOMATION_SECURITY_UPLIFT.md",
+      "machine_plan": "core/state/engineering_process_automation_security_uplift_plan.json",
+      "phase": 4,
+      "slug": "engineering_process_automation_security_uplift"
+    },
+    {
+      "human_plan": "human/plans/IMPORTED_CORPUS_EXECUTION_PORTFOLIO.md",
+      "machine_plan": "core/state/imported_corpus_plan_portfolio.json",
+      "phase": 5,
+      "slug": "review_to_execution_gate"
+    }
+  ],
+  "rule": {
+    "complete_review_before_code_execution": true,
+    "system_lift_before_delivery_and_product": true
+  },
+  "schema_version": "annunimas.imported-corpus-activation-program.v1",
+  "sigil": "REPAIR",
+  "status": "full_planning_flow_prepared_for_review"
+}

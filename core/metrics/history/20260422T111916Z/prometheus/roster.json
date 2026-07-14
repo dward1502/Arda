@@ -1,0 +1,49 @@
+{
+  "agents": [
+    {
+      "id": "arandur",
+      "last_heartbeat": "2026-03-11T23:46:33.420192413+00:00",
+      "name": "Arandur",
+      "status": "SILENT"
+    },
+    {
+      "id": "athena",
+      "last_heartbeat": null,
+      "name": "Athena",
+      "status": "OFFLINE"
+    },
+    {
+      "id": "oracle",
+      "last_heartbeat": null,
+      "name": "Oracle",
+      "status": "OFFLINE"
+    },
+    {
+      "id": "plutus",
+      "last_heartbeat": null,
+      "name": "Plutus",
+      "status": "OFFLINE"
+    },
+    {
+      "id": "hermes",
+      "last_heartbeat": null,
+      "name": "Hermes",
+      "status": "OFFLINE"
+    },
+    {
+      "id": "warden",
+      "last_heartbeat": null,
+      "name": "Warden",
+      "status": "OFFLINE"
+    },
+    {
+      "id": "apollo",
+      "last_heartbeat": null,
+      "name": "Apollo",
+      "status": "OFFLINE"
+    }
+  ],
+  "online_agents": 0,
+  "silent_agents": 7,
+  "total_agents": 7
+}

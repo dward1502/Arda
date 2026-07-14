@@ -1,0 +1,16 @@
+{
+  "authority": "numenor_prime_external_intake_registry",
+  "generated_at_utc": "2026-03-22T12:34:55Z",
+  "project_codebases": [],
+  "schema_version": "annunimas.numenor-prime-merge-registry.v1",
+  "sigil": "REPAIR",
+  "source_root": "/var/home/dward/Numenor_Prime",
+  "status": "inventory_ready_for_controlled_absorption",
+  "summary": {
+    "historical_corpora_total": 0,
+    "project_codebases_total": 0,
+    "project_review_total": 0,
+    "top_level_surfaces_total": 0
+  },
+  "top_level_surfaces": []
+}

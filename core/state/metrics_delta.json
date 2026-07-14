@@ -1,0 +1,177 @@
+{
+  "authority": "metrics_delta_export",
+  "baseline_history_path": "core/metrics/history/20260422T064345Z",
+  "baseline_snapshot_id": "20260422T064345Z",
+  "current_history_path": "core/metrics/history/20260422T182427Z",
+  "current_snapshot_id": "20260422T182427Z",
+  "generated_at_utc": "2026-04-22T22:04:23Z",
+  "github_corpus": {
+    "source": "core/state/github_repo_integration.json",
+    "summary": {
+      "framework_linked_total": 4,
+      "github_sources_total": 68,
+      "integration_coverage_total": 68,
+      "observed_only_total": 5,
+      "ready_for_activation_total": 5,
+      "registry_linked_total": 11,
+      "registry_tools_total": 11,
+      "research_backlog_total": 53
+    }
+  },
+  "headline": {
+    "athena_digest_growth": {
+      "baseline": null,
+      "current": 1783,
+      "delta": null,
+      "metric": "digest_events"
+    },
+    "athena_ingest_growth": {
+      "baseline": null,
+      "current": 975,
+      "delta": null,
+      "metric": "ingest_success_total"
+    },
+    "athena_queue_relief": {
+      "baseline": null,
+      "current": 0,
+      "delta": null,
+      "metric": "deep_queue_depth"
+    },
+    "hades_pending_relief": {
+      "baseline": null,
+      "current": 25,
+      "delta": null,
+      "metric": "pending_actions"
+    },
+    "hermes_inbound_growth": {
+      "baseline": null,
+      "current": 0,
+      "delta": null,
+      "metric": "messages_today.inbound"
+    }
+  },
+  "schema_version": "annunimas.metrics-delta.v1",
+  "sigil": "REPAIR",
+  "systems": {
+    "athena": {
+      "metrics": [
+        {
+          "baseline": null,
+          "current": 498,
+          "delta": null,
+          "metric": "books_count"
+        },
+        {
+          "baseline": null,
+          "current": 625,
+          "delta": null,
+          "metric": "deduplicated_ingests_total"
+        },
+        {
+          "baseline": null,
+          "current": 864,
+          "delta": null,
+          "metric": "deep_graph_events"
+        },
+        {
+          "baseline": null,
+          "current": 0,
+          "delta": null,
+          "metric": "deep_queue_depth"
+        },
+        {
+          "baseline": null,
+          "current": 1783,
+          "delta": null,
+          "metric": "digest_events"
+        },
+        {
+          "baseline": null,
+          "current": 975,
+          "delta": null,
+          "metric": "ingest_success_total"
+        },
+        {
+          "baseline": null,
+          "current": 123,
+          "delta": null,
+          "metric": "policy_ready_count"
+        },
+        {
+          "baseline": null,
+          "current": 113,
+          "delta": null,
+          "metric": "primary_policy_ready_count"
+        },
+        {
+          "baseline": null,
+          "current": 276,
+          "delta": null,
+          "metric": "reference_only_count"
+        }
+      ]
+    },
+    "hades": {
+      "metrics": [
+        {
+          "baseline": null,
+          "current": 25,
+          "delta": null,
+          "metric": "orphans_active"
+        },
+        {
+          "baseline": null,
+          "current": 25,
+          "delta": null,
+          "metric": "pending_actions"
+        }
+      ]
+    },
+    "hermes": {
+      "metrics": [
+        {
+          "baseline": null,
+          "current": 0,
+          "delta": null,
+          "metric": "messages_today.inbound"
+        },
+        {
+          "baseline": null,
+          "current": 0,
+          "delta": null,
+          "metric": "messages_today.escalated_to_prometheus"
+        },
+        {
+          "baseline": null,
+          "current": [
+            "discord"
+          ],
+          "metric": "providers_online"
+        },
+        {
+          "baseline": null,
+          "current": [
+            "email",
+            "slack"
+          ],
+          "metric": "providers_offline"
+        }
+      ]
+    },
+    "package_health": {
+      "metrics": [
+        {
+          "baseline": null,
+          "current": 4,
+          "delta": null,
+          "metric": "summary.observed_with_version"
+        },
+        {
+          "baseline": null,
+          "current": null,
+          "metric": "critical_version_blind"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_6dcc2f39be0844eba76e5a0db99e893d",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Refresh active queue and select next task",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-20T23:30:43.341174844Z",
+  "last_seen_at": "2026-06-20T23:30:43.341174844Z"
+}

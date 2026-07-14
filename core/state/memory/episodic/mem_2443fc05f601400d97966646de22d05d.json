@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_2443fc05f601400d97966646de22d05d",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: PUBEXT-P4 service-graph public skeleton plan completed. Created docs/plans/service-graph-public-repo-skeleton.md with self-contained validator/graph CLI design, examples, validation semantics, CI gates, and Annunimas-to-public rename map; verified annunimas-service-registry tests/docs and diff hygiene.",
+  "salience": 0.9125000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-13T05:10:02.861977867Z",
+  "last_seen_at": "2026-06-13T05:10:02.861977867Z"
+}

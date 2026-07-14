@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_90049db38482419c80efb6ed98721152",
+  "kind": "episodic",
+  "agent": "charon",
+  "content": "CHARON routed athena:research [planning:context_heavy] -> litellm_gateway:litellm-router triad_passed=false love_eq=0.74",
+  "salience": 0.43349999999999994,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T04:41:35.920729356Z",
+  "last_seen_at": "2026-06-01T04:41:35.920729356Z"
+}

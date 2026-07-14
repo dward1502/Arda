@@ -1,0 +1,67 @@
+{
+  "authority": "client_delivery_portfolio + local_repo_truth",
+  "clients": [
+    {
+      "amplify_app_id": "d3g7l1wk5fo7pv",
+      "blockers": [
+        "env_template_missing"
+      ],
+      "build_verified": true,
+      "deploy_branch": "main",
+      "env_template": {
+        "groups": {},
+        "present": false,
+        "variables_total": 0
+      },
+      "next_step": "execute_content_and_delivery_changes",
+      "readiness": "ready_for_content_and_code",
+      "repo_path_present": false,
+      "slug": "skylight-pros"
+    },
+    {
+      "amplify_app_id": null,
+      "blockers": [
+        "repo_identity_unknown",
+        "amplify_app_identifier_missing",
+        "env_template_missing"
+      ],
+      "build_verified": false,
+      "deploy_branch": null,
+      "env_template": {
+        "groups": {},
+        "present": false,
+        "variables_total": 0
+      },
+      "next_step": "map_amplify_app_and_deploy_branch",
+      "readiness": "blocked_on_infra_mapping",
+      "repo_path_present": false,
+      "slug": "ais-pool-co"
+    },
+    {
+      "amplify_app_id": null,
+      "blockers": [
+        "amplify_app_identifier_missing",
+        "env_template_missing"
+      ],
+      "build_verified": false,
+      "deploy_branch": null,
+      "env_template": {
+        "groups": {},
+        "present": false,
+        "variables_total": 0
+      },
+      "next_step": "map_amplify_app_and_deploy_branch",
+      "readiness": "blocked_on_infra_mapping",
+      "repo_path_present": false,
+      "slug": "wgtt"
+    }
+  ],
+  "generated_at_utc": "2026-04-28T09:49:24Z",
+  "schema_version": "annunimas.client-delivery-readiness.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "blocked_on_infra_total": 2,
+    "build_verified_total": 1,
+    "clients_total": 3
+  }
+}

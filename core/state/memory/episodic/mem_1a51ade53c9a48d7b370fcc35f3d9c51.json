@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_1a51ade53c9a48d7b370fcc35f3d9c51",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: G7 dispatch policy and G9 governance readiness closeout",
+  "salience": 0.7875,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-29T13:18:58.973934460Z",
+  "last_seen_at": "2026-05-29T13:18:58.973934460Z"
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_8a4f4e47033d4ef09f8a61ee9099eb28",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Charon edge_core restart recovery",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-13T22:19:59.156252069Z",
+  "last_seen_at": "2026-05-13T22:19:59.156252069Z"
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_8e2da8554fd04571b1f97c9eb98401fa",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Deploy RELIC to CITADEL as forward visualization",
+  "salience": 0.7475,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-29T02:51:14.065831533Z",
+  "last_seen_at": "2026-05-29T02:51:14.065831533Z"
+}

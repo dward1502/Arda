@@ -1,0 +1,1264 @@
+{
+  "arda_hints": {
+    "alert_on_fallback_handoffs": true,
+    "pending_actions": 25,
+    "primary_panel": "lifecycle_maintenance"
+  },
+  "authority": "hades_lifecycle_projection",
+  "generated_at_utc": "2026-07-14T05:03:07.151768813+00:00",
+  "queue": [
+    {
+      "action": "investigate_orphan",
+      "authorized_by": null,
+      "execute_after_utc": null,
+      "file": "config/offsite_operator.env",
+      "queued_at_utc": "2026-04-18T19:08:43.138785240+00:00",
+      "quorum_proof": null,
+      "reason": "missing sigil header",
+      "task_id": "hds_65d6795e"
+    },
+    {
+      "action": "investigate_orphan",
+      "authorized_by": null,
+      "execute_after_utc": null,
+      "file": "docs/plans/2026-04-08-mesh-llm-charon-integration-plan.md",
+      "queued_at_utc": "2026-04-18T19:08:43.116798690+00:00",
+      "quorum_proof": null,
+      "reason": "missing sigil header",
+      "task_id": "hds_f638d654"
+    },
+    {
+      "action": "investigate_orphan",
+      "authorized_by": null,
+      "execute_after_utc": null,
+      "file": "docs/CITADEL_PI5_DEMO_RUNDOWN.md",
+      "queued_at_utc": "2026-04-18T19:08:43.109040475+00:00",
+      "quorum_proof": null,
+      "reason": "missing sigil header",
+      "task_id": "hds_54282729"
+    },
+    {
+      "action": "investigate_orphan",
+      "authorized_by": null,
+      "execute_after_utc": null,
+      "file": "docs/HERMES_LAPTOP_SYNC.md",
+      "queued_at_utc": "2026-04-18T19:08:43.102742229+00:00",
+      "quorum_proof": null,
+      "reason": "missing sigil header",
+      "task_id": "hds_3b52c0bb"
+    },
+    {
+      "action": "investigate_orphan",
+      "authorized_by": null,
+      "execute_after_utc": null,
+      "file": "docs/script-consolidation-plan.md",
+      "queued_at_utc": "2026-04-18T19:08:43.092041663+00:00",
+      "quorum_proof": null,
+      "reason": "missing sigil header",
+      "task_id": "hds_93e0534f"
+    },
+    {
+      "action": "investigate_orphan",
+      "authorized_by": null,
+      "execute_after_utc": null,
+      "file": "docs/repo-hygiene.md",
+      "queued_at_utc": "2026-04-18T19:08:43.086277874+00:00",
+      "quorum_proof": null,
+      "reason": "missing sigil header",
+      "task_id": "hds_07c6e544"
+    },
+    {
+      "action": "investigate_orphan",
+      "authorized_by": null,
+      "execute_after_utc": null,
+      "file": "docs/migration/phase1_plan.md",
+      "queued_at_utc": "2026-04-18T19:08:43.080625157+00:00",
+      "quorum_proof": null,
+      "reason": "missing sigil header",
+      "task_id": "hds_b5164438"
+    },
+    {
+      "action": "investigate_orphan",
+      "authorized_by": null,
+      "execute_after_utc": null,
+      "file": "docs/migration/PRIORITY_LIST.md",
+      "queued_at_utc": "2026-04-18T19:08:43.074548364+00:00",
+      "quorum_proof": null,
+      "reason": "missing sigil header",
+      "task_id": "hds_ab3d7a14"
+    },
+    {
+      "action": "investigate_orphan",
+      "authorized_by": null,
+      "execute_after_utc": null,
+      "file": "docs/integrations/AGENT_AGNOSTIC_ROUTING_CONTRACT.md",
+      "queued_at_utc": "2026-04-18T19:08:43.063322321+00:00",
+      "quorum_proof": null,
+      "reason": "missing sigil header",
+      "task_id": "hds_482881e4"
+    },
+    {
+      "action": "investigate_orphan",
+      "authorized_by": null,
+      "execute_after_utc": null,
+      "file": "docs/INSTALLATION_CHECKLIST.md",
+      "queued_at_utc": "2026-04-18T19:08:43.043693094+00:00",
+      "quorum_proof": null,
+      "reason": "missing sigil header",
+      "task_id": "hds_8635a832"
+    },
+    {
+      "action": "investigate_orphan",
+      "authorized_by": null,
+      "execute_after_utc": null,
+      "file": "docs/BLUEFIN_LMSTUDIO_BEST_PRACTICES.md",
+      "queued_at_utc": "2026-04-18T19:08:43.035329360+00:00",
+      "quorum_proof": null,
+      "reason": "missing sigil header",
+      "task_id": "hds_a2b6299f"
+    },
+    {
+      "action": "investigate_orphan",
+      "authorized_by": null,
+      "execute_after_utc": null,
+      "file": "core/personal/README.md",
+      "queued_at_utc": "2026-04-19T23:58:17.263314017+00:00",
+      "quorum_proof": null,
+      "reason": "missing sigil header",
+      "task_id": "hds_023df99d"
+    },
+    {
+      "action": "investigate_orphan",
+      "authorized_by": null,
+      "execute_after_utc": null,
+      "file": "core/core_audit.json",
+      "queued_at_utc": "2026-04-19T23:58:17.286573160+00:00",
+      "quorum_proof": null,
+      "reason": "missing sigil header",
+      "task_id": "hds_a7e2ac9b"
+    },
+    {
+      "action": "investigate_orphan",
+      "authorized_by": null,
+      "execute_after_utc": null,
+      "file": "docs/script-feature-inventory.md",
+      "queued_at_utc": "2026-04-19T23:58:17.388318994+00:00",
+      "quorum_proof": null,
+      "reason": "missing sigil header",
+      "task_id": "hds_73e93aa5"
+    },
+    {
+      "action": "investigate_orphan",
+      "authorized_by": null,
+      "execute_after_utc": null,
+      "file": "docs/CURRENT_ARCHITECTURE_STATUS_2026-03-22.md",
+      "queued_at_utc": "2026-04-19T23:58:17.409506089+00:00",
+      "quorum_proof": null,
+      "reason": "missing sigil header",
+      "task_id": "hds_adb635ea"
+    },
+    {
+      "action": "investigate_orphan",
+      "authorized_by": null,
+      "execute_after_utc": null,
+      "file": "docs/ANNUNIMAS_ON_BLUEFIN_PLAN.md",
+      "queued_at_utc": "2026-04-19T23:58:17.433063724+00:00",
+      "quorum_proof": null,
+      "reason": "missing sigil header",
+      "task_id": "hds_d4f52454"
+    },
+    {
+      "action": "investigate_orphan",
+      "authorized_by": null,
+      "execute_after_utc": null,
+      "file": "docs/context-optimization-plan.md",
+      "queued_at_utc": "2026-04-19T23:58:17.453847703+00:00",
+      "quorum_proof": null,
+      "reason": "missing sigil header",
+      "task_id": "hds_e66d58ec"
+    },
+    {
+      "action": "investigate_orphan",
+      "authorized_by": null,
+      "execute_after_utc": null,
+      "file": "docs/soterion-sigil-plan.md",
+      "queued_at_utc": "2026-04-19T23:58:17.476552708+00:00",
+      "quorum_proof": null,
+      "reason": "missing sigil header",
+      "task_id": "hds_c9f0918d"
+    },
+    {
+      "action": "investigate_orphan",
+      "authorized_by": null,
+      "execute_after_utc": null,
+      "file": "docs/SELINUX_RUNTIME_CONTRACT.md",
+      "queued_at_utc": "2026-04-19T23:58:17.498659434+00:00",
+      "quorum_proof": null,
+      "reason": "missing sigil header",
+      "task_id": "hds_8cf4d3b0"
+    },
+    {
+      "action": "investigate_orphan",
+      "authorized_by": null,
+      "execute_after_utc": null,
+      "file": "docs/REMOTE_OPERATOR_SYNC.md",
+      "queued_at_utc": "2026-04-19T23:58:17.523439517+00:00",
+      "quorum_proof": null,
+      "reason": "missing sigil header",
+      "task_id": "hds_147852b8"
+    },
+    {
+      "action": "investigate_orphan",
+      "authorized_by": null,
+      "execute_after_utc": null,
+      "file": "docs/CITADEL_PRESENTATION_READINESS.md",
+      "queued_at_utc": "2026-04-19T23:58:17.551519783+00:00",
+      "quorum_proof": null,
+      "reason": "missing sigil header",
+      "task_id": "hds_b577f827"
+    },
+    {
+      "action": "investigate_orphan",
+      "authorized_by": null,
+      "execute_after_utc": null,
+      "file": "docs/CITADEL_VISUAL_LOCK.md",
+      "queued_at_utc": "2026-04-19T23:58:17.579276016+00:00",
+      "quorum_proof": null,
+      "reason": "missing sigil header",
+      "task_id": "hds_18ffe4fe"
+    },
+    {
+      "action": "investigate_orphan",
+      "authorized_by": null,
+      "execute_after_utc": null,
+      "file": "docs/plans/2026-04-08-workstation-mesh-cutover-plan.md",
+      "queued_at_utc": "2026-04-19T23:58:17.605364186+00:00",
+      "quorum_proof": null,
+      "reason": "missing sigil header",
+      "task_id": "hds_871210bb"
+    },
+    {
+      "action": "investigate_orphan",
+      "authorized_by": null,
+      "execute_after_utc": null,
+      "file": "docs/plans/OS_VISION.md",
+      "queued_at_utc": "2026-04-19T23:58:17.630164849+00:00",
+      "quorum_proof": null,
+      "reason": "missing sigil header",
+      "task_id": "hds_5cf2cc82"
+    },
+    {
+      "action": "investigate_orphan",
+      "authorized_by": null,
+      "execute_after_utc": null,
+      "file": "docs/DELIVERY_WORKFLOW.md",
+      "queued_at_utc": "2026-04-19T23:58:17.652130813+00:00",
+      "quorum_proof": null,
+      "reason": "missing sigil header",
+      "task_id": "hds_ab80086c"
+    }
+  ],
+  "recent_activity": {
+    "athena_handoffs": [
+      {
+        "event": "repair_detected",
+        "file": "docs/operations/ARANDUR_PROTOCOL.md",
+        "payload": {
+          "input": "docs/operations/ARANDUR_PROTOCOL.md",
+          "submitted_by": "hades",
+          "task_context": "hades_repair_detected"
+        },
+        "reason": "athena socket missing: /run/user/1000/annunimas/athena.sock",
+        "status": "queued_fallback",
+        "ts_utc": "2026-07-14T04:46:33.187651105+00:00"
+      },
+      {
+        "event": "repair_detected",
+        "file": "docs/operations/CEO_AUTOPILOT.md",
+        "payload": {
+          "input": "docs/operations/CEO_AUTOPILOT.md",
+          "submitted_by": "hades",
+          "task_context": "hades_repair_detected"
+        },
+        "reason": "athena socket missing: /run/user/1000/annunimas/athena.sock",
+        "status": "queued_fallback",
+        "ts_utc": "2026-07-14T04:46:33.187773937+00:00"
+      },
+      {
+        "event": "repair_detected",
+        "file": "docs/operations/INDEX.md",
+        "payload": {
+          "input": "docs/operations/INDEX.md",
+          "submitted_by": "hades",
+          "task_context": "hades_repair_detected"
+        },
+        "reason": "athena socket missing: /run/user/1000/annunimas/athena.sock",
+        "status": "queued_fallback",
+        "ts_utc": "2026-07-14T04:46:33.187893179+00:00"
+      },
+      {
+        "event": "repair_detected",
+        "file": "docs/operations/README.md",
+        "payload": {
+          "input": "docs/operations/README.md",
+          "submitted_by": "hades",
+          "task_context": "hades_repair_detected"
+        },
+        "reason": "athena socket missing: /run/user/1000/annunimas/athena.sock",
+        "status": "queued_fallback",
+        "ts_utc": "2026-07-14T04:46:33.187977230+00:00"
+      },
+      {
+        "event": "repair_detected",
+        "file": "docs/operations/RUNTIME_STATE_POLICY.md",
+        "payload": {
+          "input": "docs/operations/RUNTIME_STATE_POLICY.md",
+          "submitted_by": "hades",
+          "task_context": "hades_repair_detected"
+        },
+        "reason": "athena socket missing: /run/user/1000/annunimas/athena.sock",
+        "status": "queued_fallback",
+        "ts_utc": "2026-07-14T04:46:33.188071681+00:00"
+      },
+      {
+        "event": "repair_detected",
+        "file": "docs/operations/AUTOMATION_EXPANSION_PLAN.md",
+        "payload": {
+          "input": "docs/operations/AUTOMATION_EXPANSION_PLAN.md",
+          "submitted_by": "hades",
+          "task_context": "hades_repair_detected"
+        },
+        "reason": "athena socket missing: /run/user/1000/annunimas/athena.sock",
+        "status": "queued_fallback",
+        "ts_utc": "2026-07-14T04:46:33.188173893+00:00"
+      },
+      {
+        "event": "repair_detected",
+        "file": "docs/operations/HADES_ORGANIZATION_AUTOMATION_PLAN.md",
+        "payload": {
+          "input": "docs/operations/HADES_ORGANIZATION_AUTOMATION_PLAN.md",
+          "submitted_by": "hades",
+          "task_context": "hades_repair_detected"
+        },
+        "reason": "athena socket missing: /run/user/1000/annunimas/athena.sock",
+        "status": "queued_fallback",
+        "ts_utc": "2026-07-14T04:46:33.188255214+00:00"
+      },
+      {
+        "event": "repair_detected",
+        "file": "docs/contracts/index-contract.md",
+        "payload": {
+          "input": "docs/contracts/index-contract.md",
+          "submitted_by": "hades",
+          "task_context": "hades_repair_detected"
+        },
+        "reason": "athena socket missing: /run/user/1000/annunimas/athena.sock",
+        "status": "queued_fallback",
+        "ts_utc": "2026-07-14T04:46:33.189773766+00:00"
+      },
+      {
+        "event": "repair_detected",
+        "file": "docs/operations/ARANDUR_PROTOCOL.md",
+        "payload": {
+          "input": "docs/operations/ARANDUR_PROTOCOL.md",
+          "submitted_by": "hades",
+          "task_context": "hades_repair_detected"
+        },
+        "reason": "athena socket missing: /run/user/1000/annunimas/athena.sock",
+        "status": "queued_fallback",
+        "ts_utc": "2026-07-14T04:56:31.535580523+00:00"
+      },
+      {
+        "event": "repair_detected",
+        "file": "docs/operations/CEO_AUTOPILOT.md",
+        "payload": {
+          "input": "docs/operations/CEO_AUTOPILOT.md",
+          "submitted_by": "hades",
+          "task_context": "hades_repair_detected"
+        },
+        "reason": "athena socket missing: /run/user/1000/annunimas/athena.sock",
+        "status": "queued_fallback",
+        "ts_utc": "2026-07-14T04:56:31.535850437+00:00"
+      },
+      {
+        "event": "repair_detected",
+        "file": "docs/operations/INDEX.md",
+        "payload": {
+          "input": "docs/operations/INDEX.md",
+          "submitted_by": "hades",
+          "task_context": "hades_repair_detected"
+        },
+        "reason": "athena socket missing: /run/user/1000/annunimas/athena.sock",
+        "status": "queued_fallback",
+        "ts_utc": "2026-07-14T04:56:31.536243783+00:00"
+      },
+      {
+        "event": "repair_detected",
+        "file": "docs/operations/README.md",
+        "payload": {
+          "input": "docs/operations/README.md",
+          "submitted_by": "hades",
+          "task_context": "hades_repair_detected"
+        },
+        "reason": "athena socket missing: /run/user/1000/annunimas/athena.sock",
+        "status": "queued_fallback",
+        "ts_utc": "2026-07-14T04:56:31.536360304+00:00"
+      },
+      {
+        "event": "repair_detected",
+        "file": "docs/operations/RUNTIME_STATE_POLICY.md",
+        "payload": {
+          "input": "docs/operations/RUNTIME_STATE_POLICY.md",
+          "submitted_by": "hades",
+          "task_context": "hades_repair_detected"
+        },
+        "reason": "athena socket missing: /run/user/1000/annunimas/athena.sock",
+        "status": "queued_fallback",
+        "ts_utc": "2026-07-14T04:56:31.536458956+00:00"
+      },
+      {
+        "event": "repair_detected",
+        "file": "docs/operations/AUTOMATION_EXPANSION_PLAN.md",
+        "payload": {
+          "input": "docs/operations/AUTOMATION_EXPANSION_PLAN.md",
+          "submitted_by": "hades",
+          "task_context": "hades_repair_detected"
+        },
+        "reason": "athena socket missing: /run/user/1000/annunimas/athena.sock",
+        "status": "queued_fallback",
+        "ts_utc": "2026-07-14T04:56:31.536752420+00:00"
+      },
+      {
+        "event": "repair_detected",
+        "file": "docs/operations/HADES_ORGANIZATION_AUTOMATION_PLAN.md",
+        "payload": {
+          "input": "docs/operations/HADES_ORGANIZATION_AUTOMATION_PLAN.md",
+          "submitted_by": "hades",
+          "task_context": "hades_repair_detected"
+        },
+        "reason": "athena socket missing: /run/user/1000/annunimas/athena.sock",
+        "status": "queued_fallback",
+        "ts_utc": "2026-07-14T04:56:31.536857661+00:00"
+      },
+      {
+        "event": "repair_detected",
+        "file": "docs/contracts/index-contract.md",
+        "payload": {
+          "input": "docs/contracts/index-contract.md",
+          "submitted_by": "hades",
+          "task_context": "hades_repair_detected"
+        },
+        "reason": "athena socket missing: /run/user/1000/annunimas/athena.sock",
+        "status": "queued_fallback",
+        "ts_utc": "2026-07-14T04:56:31.546543490+00:00"
+      }
+    ],
+    "counts": {
+      "athena_fallback_handoffs": 16,
+      "orphan_events": 0,
+      "repair_events": 0,
+      "soterion_consistency_holds": 0
+    },
+    "joulework": [
+      {
+        "actions_taken": 8,
+        "baseline_joules": 250.0,
+        "component": "hades",
+        "estimated_joules": 18.65,
+        "files_scanned": 245,
+        "held_for_review": 0,
+        "inference_model": "none",
+        "inference_origin": "none",
+        "inference_provider": "none",
+        "notes": "HADES maintenance sweep telemetry",
+        "operation": "sweep",
+        "orphans_found": 40,
+        "outside_historical_scope": false,
+        "ts_utc": "2026-07-14T02:21:31.953784949+00:00"
+      },
+      {
+        "actions_taken": 8,
+        "baseline_joules": 250.0,
+        "component": "hades",
+        "estimated_joules": 18.65,
+        "files_scanned": 245,
+        "held_for_review": 0,
+        "inference_model": "none",
+        "inference_origin": "none",
+        "inference_provider": "none",
+        "notes": "HADES maintenance sweep telemetry",
+        "operation": "sweep",
+        "orphans_found": 40,
+        "outside_historical_scope": false,
+        "ts_utc": "2026-07-14T02:31:33.129286154+00:00"
+      },
+      {
+        "actions_taken": 8,
+        "baseline_joules": 250.0,
+        "component": "hades",
+        "estimated_joules": 18.65,
+        "files_scanned": 245,
+        "held_for_review": 0,
+        "inference_model": "none",
+        "inference_origin": "none",
+        "inference_provider": "none",
+        "notes": "HADES maintenance sweep telemetry",
+        "operation": "sweep",
+        "orphans_found": 40,
+        "outside_historical_scope": false,
+        "ts_utc": "2026-07-14T02:42:34.153954302+00:00"
+      },
+      {
+        "actions_taken": 8,
+        "baseline_joules": 250.0,
+        "component": "hades",
+        "estimated_joules": 18.65,
+        "files_scanned": 245,
+        "held_for_review": 0,
+        "inference_model": "none",
+        "inference_origin": "none",
+        "inference_provider": "none",
+        "notes": "HADES maintenance sweep telemetry",
+        "operation": "sweep",
+        "orphans_found": 40,
+        "outside_historical_scope": false,
+        "ts_utc": "2026-07-14T02:52:33.193574472+00:00"
+      },
+      {
+        "actions_taken": 8,
+        "baseline_joules": 250.0,
+        "component": "hades",
+        "estimated_joules": 18.65,
+        "files_scanned": 245,
+        "held_for_review": 0,
+        "inference_model": "none",
+        "inference_origin": "none",
+        "inference_provider": "none",
+        "notes": "HADES maintenance sweep telemetry",
+        "operation": "sweep",
+        "orphans_found": 40,
+        "outside_historical_scope": false,
+        "ts_utc": "2026-07-14T03:03:33.320849873+00:00"
+      },
+      {
+        "actions_taken": 8,
+        "baseline_joules": 250.0,
+        "component": "hades",
+        "estimated_joules": 18.65,
+        "files_scanned": 245,
+        "held_for_review": 0,
+        "inference_model": "none",
+        "inference_origin": "none",
+        "inference_provider": "none",
+        "notes": "HADES maintenance sweep telemetry",
+        "operation": "sweep",
+        "orphans_found": 40,
+        "outside_historical_scope": false,
+        "ts_utc": "2026-07-14T03:13:33.878582254+00:00"
+      },
+      {
+        "actions_taken": 8,
+        "baseline_joules": 250.0,
+        "component": "hades",
+        "estimated_joules": 18.65,
+        "files_scanned": 245,
+        "held_for_review": 0,
+        "inference_model": "none",
+        "inference_origin": "none",
+        "inference_provider": "none",
+        "notes": "HADES maintenance sweep telemetry",
+        "operation": "sweep",
+        "orphans_found": 40,
+        "outside_historical_scope": false,
+        "ts_utc": "2026-07-14T03:23:33.166330046+00:00"
+      },
+      {
+        "actions_taken": 8,
+        "baseline_joules": 250.0,
+        "component": "hades",
+        "estimated_joules": 18.65,
+        "files_scanned": 245,
+        "held_for_review": 0,
+        "inference_model": "none",
+        "inference_origin": "none",
+        "inference_provider": "none",
+        "notes": "HADES maintenance sweep telemetry",
+        "operation": "sweep",
+        "orphans_found": 40,
+        "outside_historical_scope": false,
+        "ts_utc": "2026-07-14T03:34:32.498512484+00:00"
+      },
+      {
+        "actions_taken": 8,
+        "baseline_joules": 250.0,
+        "component": "hades",
+        "estimated_joules": 18.65,
+        "files_scanned": 245,
+        "held_for_review": 0,
+        "inference_model": "none",
+        "inference_origin": "none",
+        "inference_provider": "none",
+        "notes": "HADES maintenance sweep telemetry",
+        "operation": "sweep",
+        "orphans_found": 40,
+        "outside_historical_scope": false,
+        "ts_utc": "2026-07-14T03:44:32.452180874+00:00"
+      },
+      {
+        "actions_taken": 8,
+        "baseline_joules": 250.0,
+        "component": "hades",
+        "estimated_joules": 18.65,
+        "files_scanned": 245,
+        "held_for_review": 0,
+        "inference_model": "none",
+        "inference_origin": "none",
+        "inference_provider": "none",
+        "notes": "HADES maintenance sweep telemetry",
+        "operation": "sweep",
+        "orphans_found": 40,
+        "outside_historical_scope": false,
+        "ts_utc": "2026-07-14T03:55:31.957119614+00:00"
+      },
+      {
+        "actions_taken": 8,
+        "baseline_joules": 250.0,
+        "component": "hades",
+        "estimated_joules": 18.65,
+        "files_scanned": 245,
+        "held_for_review": 0,
+        "inference_model": "none",
+        "inference_origin": "none",
+        "inference_provider": "none",
+        "notes": "HADES maintenance sweep telemetry",
+        "operation": "sweep",
+        "orphans_found": 40,
+        "outside_historical_scope": false,
+        "ts_utc": "2026-07-14T04:05:31.946324853+00:00"
+      },
+      {
+        "actions_taken": 8,
+        "baseline_joules": 250.0,
+        "component": "hades",
+        "estimated_joules": 18.65,
+        "files_scanned": 245,
+        "held_for_review": 0,
+        "inference_model": "none",
+        "inference_origin": "none",
+        "inference_provider": "none",
+        "notes": "HADES maintenance sweep telemetry",
+        "operation": "sweep",
+        "orphans_found": 40,
+        "outside_historical_scope": false,
+        "ts_utc": "2026-07-14T04:15:31.932634937+00:00"
+      },
+      {
+        "actions_taken": 8,
+        "baseline_joules": 250.0,
+        "component": "hades",
+        "estimated_joules": 18.65,
+        "files_scanned": 245,
+        "held_for_review": 0,
+        "inference_model": "none",
+        "inference_origin": "none",
+        "inference_provider": "none",
+        "notes": "HADES maintenance sweep telemetry",
+        "operation": "sweep",
+        "orphans_found": 40,
+        "outside_historical_scope": false,
+        "ts_utc": "2026-07-14T04:25:32.046125348+00:00"
+      },
+      {
+        "actions_taken": 8,
+        "baseline_joules": 250.0,
+        "component": "hades",
+        "estimated_joules": 18.65,
+        "files_scanned": 245,
+        "held_for_review": 0,
+        "inference_model": "none",
+        "inference_origin": "none",
+        "inference_provider": "none",
+        "notes": "HADES maintenance sweep telemetry",
+        "operation": "sweep",
+        "orphans_found": 40,
+        "outside_historical_scope": false,
+        "ts_utc": "2026-07-14T04:36:33.291197757+00:00"
+      },
+      {
+        "actions_taken": 8,
+        "baseline_joules": 250.0,
+        "component": "hades",
+        "estimated_joules": 18.65,
+        "files_scanned": 245,
+        "held_for_review": 0,
+        "inference_model": "none",
+        "inference_origin": "none",
+        "inference_provider": "none",
+        "notes": "HADES maintenance sweep telemetry",
+        "operation": "sweep",
+        "orphans_found": 40,
+        "outside_historical_scope": false,
+        "ts_utc": "2026-07-14T04:46:33.193416519+00:00"
+      },
+      {
+        "actions_taken": 8,
+        "baseline_joules": 250.0,
+        "component": "hades",
+        "estimated_joules": 18.65,
+        "files_scanned": 245,
+        "held_for_review": 0,
+        "inference_model": "none",
+        "inference_origin": "none",
+        "inference_provider": "none",
+        "notes": "HADES maintenance sweep telemetry",
+        "operation": "sweep",
+        "orphans_found": 40,
+        "outside_historical_scope": false,
+        "ts_utc": "2026-07-14T04:56:31.560391378+00:00"
+      }
+    ],
+    "log": [
+      {
+        "details": {
+          "action": "dedup_skip"
+        },
+        "event": "orphan_existing",
+        "file": "config/monitoring-setup/grafana/dashboards/audit-governance-runtime.json",
+        "sigil_code": null,
+        "sigil_retention": null,
+        "sigil_source": null,
+        "sigil_tags": [],
+        "ts": "2026-07-14T04:56:31.557924423+00:00"
+      },
+      {
+        "details": {
+          "action": "none",
+          "sigil": "Scroll"
+        },
+        "event": "sigil_read",
+        "file": "config/monitoring-setup/grafana/README.md",
+        "sigil_code": null,
+        "sigil_retention": null,
+        "sigil_source": null,
+        "sigil_tags": [],
+        "ts": "2026-07-14T04:56:31.557951663+00:00"
+      },
+      {
+        "details": {
+          "action": "none",
+          "sigil": "Scroll"
+        },
+        "event": "sigil_read",
+        "file": "config/monitoring-setup/grafana/INDEX.md",
+        "sigil_code": null,
+        "sigil_retention": null,
+        "sigil_source": null,
+        "sigil_tags": [],
+        "ts": "2026-07-14T04:56:31.557973273+00:00"
+      },
+      {
+        "details": {
+          "action": "none",
+          "sigil": "Scroll"
+        },
+        "event": "sigil_read",
+        "file": "config/runtime.env.example",
+        "sigil_code": null,
+        "sigil_retention": null,
+        "sigil_source": null,
+        "sigil_tags": [],
+        "ts": "2026-07-14T04:56:31.558000054+00:00"
+      },
+      {
+        "details": {
+          "action": "none",
+          "sigil": "Scroll"
+        },
+        "event": "sigil_read",
+        "file": "config/system_constitution.yaml",
+        "sigil_code": null,
+        "sigil_retention": null,
+        "sigil_source": null,
+        "sigil_tags": [],
+        "ts": "2026-07-14T04:56:31.558089305+00:00"
+      },
+      {
+        "details": {
+          "action": "none",
+          "sigil": "Scroll"
+        },
+        "event": "sigil_read",
+        "file": "config/topology_registry.yaml",
+        "sigil_code": null,
+        "sigil_retention": null,
+        "sigil_source": null,
+        "sigil_tags": [],
+        "ts": "2026-07-14T04:56:31.558183746+00:00"
+      },
+      {
+        "details": {
+          "action": "none",
+          "sigil": "Scroll"
+        },
+        "event": "sigil_read",
+        "file": "config/model_registry.toml",
+        "sigil_code": null,
+        "sigil_retention": null,
+        "sigil_source": null,
+        "sigil_tags": [],
+        "ts": "2026-07-14T04:56:31.558330488+00:00"
+      },
+      {
+        "details": {
+          "action": "none",
+          "sigil": "Scroll"
+        },
+        "event": "sigil_read",
+        "file": "config/.env.example",
+        "sigil_code": null,
+        "sigil_retention": null,
+        "sigil_source": null,
+        "sigil_tags": [],
+        "ts": "2026-07-14T04:56:31.558356929+00:00"
+      },
+      {
+        "details": {
+          "action": "none",
+          "sigil": "Scroll"
+        },
+        "event": "sigil_read",
+        "file": "config/INDEX.md",
+        "sigil_code": null,
+        "sigil_retention": null,
+        "sigil_source": null,
+        "sigil_tags": [],
+        "ts": "2026-07-14T04:56:31.558378209+00:00"
+      },
+      {
+        "details": {
+          "action": "dedup_skip"
+        },
+        "event": "orphan_existing",
+        "file": "config/README.md",
+        "sigil_code": null,
+        "sigil_retention": null,
+        "sigil_source": null,
+        "sigil_tags": [],
+        "ts": "2026-07-14T04:56:31.558407540+00:00"
+      },
+      {
+        "details": {
+          "action": "none",
+          "sigil": "Scroll"
+        },
+        "event": "sigil_read",
+        "file": "config/annunimas.env.example",
+        "sigil_code": null,
+        "sigil_retention": null,
+        "sigil_source": null,
+        "sigil_tags": [],
+        "ts": "2026-07-14T04:56:31.558545182+00:00"
+      },
+      {
+        "details": {
+          "action": "none",
+          "sigil": "Scroll"
+        },
+        "event": "sigil_read",
+        "file": "config/arda_hud.settings.json",
+        "sigil_code": null,
+        "sigil_retention": null,
+        "sigil_source": null,
+        "sigil_tags": [],
+        "ts": "2026-07-14T04:56:31.558667353+00:00"
+      },
+      {
+        "details": {
+          "action": "none",
+          "sigil": "Scroll"
+        },
+        "event": "sigil_read",
+        "file": "config/ceo_startup.yaml",
+        "sigil_code": null,
+        "sigil_retention": null,
+        "sigil_source": null,
+        "sigil_tags": [],
+        "ts": "2026-07-14T04:56:31.558762625+00:00"
+      },
+      {
+        "details": {
+          "action": "none",
+          "sigil": "Scroll"
+        },
+        "event": "sigil_read",
+        "file": "config/charon.providers.toml",
+        "sigil_code": null,
+        "sigil_retention": null,
+        "sigil_source": null,
+        "sigil_tags": [],
+        "ts": "2026-07-14T04:56:31.558792545+00:00"
+      },
+      {
+        "details": {
+          "action": "none",
+          "sigil": "Scroll"
+        },
+        "event": "sigil_read",
+        "file": "config/fleet.toml",
+        "sigil_code": null,
+        "sigil_retention": null,
+        "sigil_source": null,
+        "sigil_tags": [],
+        "ts": "2026-07-14T04:56:31.558814065+00:00"
+      },
+      {
+        "details": {
+          "action": "none",
+          "sigil": "Scroll"
+        },
+        "event": "sigil_read",
+        "file": "config/hermes_agent_bridge.example.toml",
+        "sigil_code": null,
+        "sigil_retention": null,
+        "sigil_source": null,
+        "sigil_tags": [],
+        "ts": "2026-07-14T04:56:31.558915777+00:00"
+      },
+      {
+        "details": {
+          "action": "none",
+          "sigil": "Scroll"
+        },
+        "event": "sigil_read",
+        "file": "config/litellm.proxy.yaml",
+        "sigil_code": null,
+        "sigil_retention": null,
+        "sigil_source": null,
+        "sigil_tags": [],
+        "ts": "2026-07-14T04:56:31.558941617+00:00"
+      },
+      {
+        "details": {
+          "action": "none",
+          "sigil": "Scroll"
+        },
+        "event": "sigil_read",
+        "file": "config/systemd/INDEX.md",
+        "sigil_code": null,
+        "sigil_retention": null,
+        "sigil_source": null,
+        "sigil_tags": [],
+        "ts": "2026-07-14T04:56:31.558970908+00:00"
+      },
+      {
+        "details": {
+          "action": "none",
+          "sigil": "Scroll"
+        },
+        "event": "sigil_read",
+        "file": "config/systemd/README.md",
+        "sigil_code": null,
+        "sigil_retention": null,
+        "sigil_source": null,
+        "sigil_tags": [],
+        "ts": "2026-07-14T04:56:31.558992918+00:00"
+      },
+      {
+        "details": {
+          "action": "dedup_skip"
+        },
+        "event": "orphan_existing",
+        "file": "config/systemd/annunimas-mesh-llm.service",
+        "sigil_code": null,
+        "sigil_retention": null,
+        "sigil_source": null,
+        "sigil_tags": [],
+        "ts": "2026-07-14T04:56:31.559021258+00:00"
+      },
+      {
+        "details": {
+          "action": "dedup_skip"
+        },
+        "event": "orphan_existing",
+        "file": "config/systemd/annunimas-queue-hygiene-monitor.service",
+        "sigil_code": null,
+        "sigil_retention": null,
+        "sigil_source": null,
+        "sigil_tags": [],
+        "ts": "2026-07-14T04:56:31.559050229+00:00"
+      },
+      {
+        "details": {
+          "action": "dedup_skip"
+        },
+        "event": "orphan_existing",
+        "file": "config/systemd/annunimas-queue-hygiene-monitor.timer",
+        "sigil_code": null,
+        "sigil_retention": null,
+        "sigil_source": null,
+        "sigil_tags": [],
+        "ts": "2026-07-14T04:56:31.559085419+00:00"
+      },
+      {
+        "details": {
+          "action": "none",
+          "sigil": "Scroll"
+        },
+        "event": "sigil_read",
+        "file": "config/hermes_agent_gateway_annunimas.example.yaml",
+        "sigil_code": null,
+        "sigil_retention": null,
+        "sigil_source": null,
+        "sigil_tags": [],
+        "ts": "2026-07-14T04:56:31.559194181+00:00"
+      },
+      {
+        "details": {
+          "actions_taken": 8,
+          "completed_at_utc": "2026-07-14T04:56:31.560374258+00:00",
+          "files_scanned": 245,
+          "held_for_review": 0,
+          "orphans_found": 40,
+          "started_at_utc": "2026-07-14T04:56:31.523070004+00:00",
+          "sweep_type": "scheduled"
+        },
+        "event": "sweep_complete",
+        "file": null,
+        "sigil_code": null,
+        "sigil_retention": null,
+        "sigil_source": null,
+        "sigil_tags": [],
+        "ts": "2026-07-14T04:56:31.560376628+00:00"
+      }
+    ],
+    "policy_summary": {
+      "has_scope_aware_policy": true,
+      "has_soterion_consistency_checks": true,
+      "memory_scope_counts": {
+        "boardroom_council": 0,
+        "edge_runtime": 0,
+        "human_context": 0,
+        "system_continuity": 0
+      }
+    },
+    "warden_handoffs": [
+      {
+        "crate_name": "hades",
+        "event": "repair_detected",
+        "event_type": "repair_detected",
+        "file": "docs/operations/ARANDUR_PROTOCOL.md",
+        "repair_class": null,
+        "severity": "warning",
+        "source": "repair_pipeline",
+        "status": "attention_required",
+        "synced": false,
+        "ts": "2026-07-14T04:46:33.187685156+00:00"
+      },
+      {
+        "crate_name": "hades",
+        "event": "repair_detected",
+        "event_type": "repair_detected",
+        "file": "docs/operations/CEO_AUTOPILOT.md",
+        "repair_class": null,
+        "severity": "warning",
+        "source": "repair_pipeline",
+        "status": "attention_required",
+        "synced": false,
+        "ts": "2026-07-14T04:46:33.187797707+00:00"
+      },
+      {
+        "crate_name": "hades",
+        "event": "repair_detected",
+        "event_type": "repair_detected",
+        "file": "docs/operations/INDEX.md",
+        "repair_class": null,
+        "severity": "warning",
+        "source": "repair_pipeline",
+        "status": "attention_required",
+        "synced": false,
+        "ts": "2026-07-14T04:46:33.187918889+00:00"
+      },
+      {
+        "crate_name": "hades",
+        "event": "repair_detected",
+        "event_type": "repair_detected",
+        "file": "docs/operations/README.md",
+        "repair_class": null,
+        "severity": "warning",
+        "source": "repair_pipeline",
+        "status": "attention_required",
+        "synced": false,
+        "ts": "2026-07-14T04:46:33.188004510+00:00"
+      },
+      {
+        "crate_name": "hades",
+        "event": "repair_detected",
+        "event_type": "repair_detected",
+        "file": "docs/operations/RUNTIME_STATE_POLICY.md",
+        "repair_class": null,
+        "severity": "warning",
+        "source": "repair_pipeline",
+        "status": "attention_required",
+        "synced": false,
+        "ts": "2026-07-14T04:46:33.188094282+00:00"
+      },
+      {
+        "crate_name": "hades",
+        "event": "repair_detected",
+        "event_type": "repair_detected",
+        "file": "docs/operations/AUTOMATION_EXPANSION_PLAN.md",
+        "repair_class": null,
+        "severity": "warning",
+        "source": "repair_pipeline",
+        "status": "attention_required",
+        "synced": false,
+        "ts": "2026-07-14T04:46:33.188193633+00:00"
+      },
+      {
+        "crate_name": "hades",
+        "event": "repair_detected",
+        "event_type": "repair_detected",
+        "file": "docs/operations/HADES_ORGANIZATION_AUTOMATION_PLAN.md",
+        "repair_class": null,
+        "severity": "warning",
+        "source": "repair_pipeline",
+        "status": "attention_required",
+        "synced": false,
+        "ts": "2026-07-14T04:46:33.188275614+00:00"
+      },
+      {
+        "crate_name": "hades",
+        "event": "repair_detected",
+        "event_type": "repair_detected",
+        "file": "docs/contracts/index-contract.md",
+        "repair_class": null,
+        "severity": "warning",
+        "source": "repair_pipeline",
+        "status": "attention_required",
+        "synced": false,
+        "ts": "2026-07-14T04:46:33.189794796+00:00"
+      },
+      {
+        "crate_name": "hades",
+        "event": "repair_detected",
+        "event_type": "repair_detected",
+        "file": "docs/operations/ARANDUR_PROTOCOL.md",
+        "repair_class": null,
+        "severity": "warning",
+        "source": "repair_pipeline",
+        "status": "attention_required",
+        "synced": false,
+        "ts": "2026-07-14T04:56:31.535617484+00:00"
+      },
+      {
+        "crate_name": "hades",
+        "event": "repair_detected",
+        "event_type": "repair_detected",
+        "file": "docs/operations/CEO_AUTOPILOT.md",
+        "repair_class": null,
+        "severity": "warning",
+        "source": "repair_pipeline",
+        "status": "attention_required",
+        "synced": false,
+        "ts": "2026-07-14T04:56:31.535881357+00:00"
+      },
+      {
+        "crate_name": "hades",
+        "event": "repair_detected",
+        "event_type": "repair_detected",
+        "file": "docs/operations/INDEX.md",
+        "repair_class": null,
+        "severity": "warning",
+        "source": "repair_pipeline",
+        "status": "attention_required",
+        "synced": false,
+        "ts": "2026-07-14T04:56:31.536276983+00:00"
+      },
+      {
+        "crate_name": "hades",
+        "event": "repair_detected",
+        "event_type": "repair_detected",
+        "file": "docs/operations/README.md",
+        "repair_class": null,
+        "severity": "warning",
+        "source": "repair_pipeline",
+        "status": "attention_required",
+        "synced": false,
+        "ts": "2026-07-14T04:56:31.536387945+00:00"
+      },
+      {
+        "crate_name": "hades",
+        "event": "repair_detected",
+        "event_type": "repair_detected",
+        "file": "docs/operations/RUNTIME_STATE_POLICY.md",
+        "repair_class": null,
+        "severity": "warning",
+        "source": "repair_pipeline",
+        "status": "attention_required",
+        "synced": false,
+        "ts": "2026-07-14T04:56:31.536487096+00:00"
+      },
+      {
+        "crate_name": "hades",
+        "event": "repair_detected",
+        "event_type": "repair_detected",
+        "file": "docs/operations/AUTOMATION_EXPANSION_PLAN.md",
+        "repair_class": null,
+        "severity": "warning",
+        "source": "repair_pipeline",
+        "status": "attention_required",
+        "synced": false,
+        "ts": "2026-07-14T04:56:31.536783170+00:00"
+      },
+      {
+        "crate_name": "hades",
+        "event": "repair_detected",
+        "event_type": "repair_detected",
+        "file": "docs/operations/HADES_ORGANIZATION_AUTOMATION_PLAN.md",
+        "repair_class": null,
+        "severity": "warning",
+        "source": "repair_pipeline",
+        "status": "attention_required",
+        "synced": false,
+        "ts": "2026-07-14T04:56:31.536886962+00:00"
+      },
+      {
+        "crate_name": "hades",
+        "event": "repair_detected",
+        "event_type": "repair_detected",
+        "file": "docs/contracts/index-contract.md",
+        "repair_class": null,
+        "severity": "warning",
+        "source": "repair_pipeline",
+        "status": "attention_required",
+        "synced": false,
+        "ts": "2026-07-14T04:56:31.546581281+00:00"
+      }
+    ]
+  },
+  "schema_version": "annunimas.core.state.v1",
+  "status": {
+    "condemned_pending": 0,
+    "last_sweep_utc": "2026-04-22T22:00:36.330183266+00:00",
+    "malformed_athena_handoff_records": 0,
+    "malformed_joulework_records": 0,
+    "malformed_log_records": 0,
+    "malformed_queue_records": 0,
+    "malformed_warden_queue_records": 0,
+    "next_sweep_utc": "2026-04-23T06:02:49.283772403+00:00",
+    "orphans_active": 25,
+    "pending_actions": 25,
+    "quarantined": 0,
+    "scheduler": {
+      "morning_hour_utc": 14,
+      "nightly_hour_utc": 4,
+      "sweep_interval_hours": 8,
+      "watch_paths": [
+        "core",
+        "docs",
+        "config"
+      ]
+    },
+    "warden_connected": true
+  }
+}

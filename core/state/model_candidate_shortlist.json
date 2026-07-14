@@ -1,0 +1,2067 @@
+{
+  "all_scores": [
+    {
+      "candidate_model_family": "Qwen3-Coder-30B-A3B-Instruct-GGUF",
+      "candidate_source_url": "https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct",
+      "current_model": "Qwen3.6-35B-A3B-UD-Q4_K_XL",
+      "gguf_source_url": "https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF",
+      "lane": "code_forge_mind",
+      "license": "apache-2.0",
+      "native_context_window": 262144,
+      "node_class": "backbone_compute",
+      "node_display_name": "Annunimas Server (35B Backbone)",
+      "node_id": "node-backbone-server",
+      "reasons": [
+        "explicit_target_node",
+        "lane_fit:code_forge_mind",
+        "node_size_fit:backbone_compute:mid",
+        "gguf_or_gguf_candidate",
+        "permissive_license:apache-2.0",
+        "agent_tool_use_candidate",
+        "long_context:262144",
+        "non_thinking_tool_lane_fit"
+      ],
+      "recommendation": "first_benchmark",
+      "recommended_quantization": "UD-Q4_K_XL",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required"
+      ],
+      "risks": [],
+      "runtime_format": "gguf",
+      "score": 132,
+      "size_class": "mid"
+    },
+    {
+      "candidate_model_family": "LFM2.5-8B-A1B",
+      "candidate_source_url": "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B",
+      "current_model": "Qwen3.6-35B-A3B-UD-Q4_K_XL",
+      "gguf_source_url": null,
+      "lane": "scout_research",
+      "license": "lfm1.0",
+      "native_context_window": null,
+      "node_class": "backbone_compute",
+      "node_display_name": "Annunimas Server (35B Backbone)",
+      "node_id": "node-backbone-server",
+      "reasons": [
+        "explicit_target_node",
+        "lane_fit:scout_research",
+        "node_size_fit:backbone_compute:mid",
+        "gguf_or_gguf_candidate",
+        "agent_tool_use_candidate"
+      ],
+      "recommendation": "first_benchmark",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "license_review_required"
+      ],
+      "risks": [
+        "license_review:lfm1.0"
+      ],
+      "runtime_format": "gguf",
+      "score": 93,
+      "size_class": "mid"
+    },
+    {
+      "candidate_model_family": "Qwen3.6-35B-A3B-GGUF",
+      "candidate_source_url": "https://huggingface.co/Infatoshi/Qwen3.6-35B-A3B-GGUF",
+      "current_model": "Qwen3.6-35B-A3B-UD-Q4_K_XL",
+      "gguf_source_url": null,
+      "lane": "council",
+      "license": "unknown",
+      "native_context_window": null,
+      "node_class": "backbone_compute",
+      "node_display_name": "Annunimas Server (35B Backbone)",
+      "node_id": "node-backbone-server",
+      "reasons": [
+        "lane_fit:council",
+        "node_size_fit:backbone_compute:mid",
+        "gguf_or_gguf_candidate"
+      ],
+      "recommendation": "benchmark",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "license_review_required"
+      ],
+      "risks": [
+        "license_unknown"
+      ],
+      "runtime_format": "gguf",
+      "score": 60,
+      "size_class": "mid"
+    },
+    {
+      "candidate_model_family": "Qwopus3.5-4B-Coder-MTP-GGUF",
+      "candidate_source_url": "https://huggingface.co/Jackrong/Qwopus3.5-4B-Coder-MTP-GGUF",
+      "current_model": "Qwen3.6-35B-A3B-UD-Q4_K_XL",
+      "gguf_source_url": null,
+      "lane": "code_forge_mind",
+      "license": "apache-2.0",
+      "native_context_window": null,
+      "node_class": "backbone_compute",
+      "node_display_name": "Annunimas Server (35B Backbone)",
+      "node_id": "node-backbone-server",
+      "reasons": [
+        "lane_fit:code_forge_mind",
+        "node_size_fit:backbone_compute:small",
+        "gguf_or_gguf_candidate",
+        "permissive_license:apache-2.0",
+        "agent_tool_use_candidate"
+      ],
+      "recommendation": "benchmark",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "community_model_safety_review_required"
+      ],
+      "risks": [
+        "not_listed_as_target_node",
+        "community_release_requires_extra_review"
+      ],
+      "runtime_format": "gguf",
+      "score": 39,
+      "size_class": "small"
+    },
+    {
+      "candidate_model_family": "MiniCPM5-1B",
+      "candidate_source_url": "https://huggingface.co/openbmb/MiniCPM5-1B",
+      "current_model": "Qwen3.6-35B-A3B-UD-Q4_K_XL",
+      "gguf_source_url": null,
+      "lane": "monitoring_warden",
+      "license": "apache-2.0",
+      "native_context_window": null,
+      "node_class": "backbone_compute",
+      "node_display_name": "Annunimas Server (35B Backbone)",
+      "node_id": "node-backbone-server",
+      "reasons": [
+        "gguf_or_gguf_candidate",
+        "permissive_license:apache-2.0",
+        "agent_tool_use_candidate"
+      ],
+      "recommendation": "defer",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required"
+      ],
+      "risks": [
+        "not_listed_as_target_node",
+        "weak_lane_fit:monitoring_warden",
+        "node_size_risk:backbone_compute:tiny"
+      ],
+      "runtime_format": "gguf",
+      "score": 3,
+      "size_class": "tiny"
+    },
+    {
+      "candidate_model_family": "Qwen3-Coder-30B-A3B-Instruct-GGUF",
+      "candidate_source_url": "https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct",
+      "current_model": "Qwen3.6-35B-A3B-UD-Q4_K_XL-128K",
+      "gguf_source_url": "https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF",
+      "lane": "code_forge_mind",
+      "license": "apache-2.0",
+      "native_context_window": 262144,
+      "node_class": "backbone_compute",
+      "node_display_name": "Annunimas Server (35B Long Context)",
+      "node_id": "node-backbone-server-long",
+      "reasons": [
+        "node_size_fit:backbone_compute:mid",
+        "gguf_or_gguf_candidate",
+        "permissive_license:apache-2.0",
+        "agent_tool_use_candidate",
+        "long_context:262144",
+        "non_thinking_tool_lane_fit"
+      ],
+      "recommendation": "benchmark",
+      "recommended_quantization": "UD-Q4_K_XL",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required"
+      ],
+      "risks": [
+        "not_listed_as_target_node",
+        "weak_lane_fit:code_forge_mind"
+      ],
+      "runtime_format": "gguf",
+      "score": 47,
+      "size_class": "mid"
+    },
+    {
+      "candidate_model_family": "Qwen3.6-35B-A3B-GGUF",
+      "candidate_source_url": "https://huggingface.co/Infatoshi/Qwen3.6-35B-A3B-GGUF",
+      "current_model": "Qwen3.6-35B-A3B-UD-Q4_K_XL-128K",
+      "gguf_source_url": null,
+      "lane": "council",
+      "license": "unknown",
+      "native_context_window": null,
+      "node_class": "backbone_compute",
+      "node_display_name": "Annunimas Server (35B Long Context)",
+      "node_id": "node-backbone-server-long",
+      "reasons": [
+        "node_size_fit:backbone_compute:mid",
+        "gguf_or_gguf_candidate"
+      ],
+      "recommendation": "defer",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "license_review_required"
+      ],
+      "risks": [
+        "weak_lane_fit:council",
+        "license_unknown"
+      ],
+      "runtime_format": "gguf",
+      "score": 26,
+      "size_class": "mid"
+    },
+    {
+      "candidate_model_family": "LFM2.5-8B-A1B",
+      "candidate_source_url": "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B",
+      "current_model": "Qwen3.6-35B-A3B-UD-Q4_K_XL-128K",
+      "gguf_source_url": null,
+      "lane": "scout_research",
+      "license": "lfm1.0",
+      "native_context_window": null,
+      "node_class": "backbone_compute",
+      "node_display_name": "Annunimas Server (35B Long Context)",
+      "node_id": "node-backbone-server-long",
+      "reasons": [
+        "node_size_fit:backbone_compute:mid",
+        "gguf_or_gguf_candidate",
+        "agent_tool_use_candidate"
+      ],
+      "recommendation": "defer",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "license_review_required"
+      ],
+      "risks": [
+        "not_listed_as_target_node",
+        "weak_lane_fit:scout_research",
+        "license_review:lfm1.0"
+      ],
+      "runtime_format": "gguf",
+      "score": 16,
+      "size_class": "mid"
+    },
+    {
+      "candidate_model_family": "Qwopus3.5-4B-Coder-MTP-GGUF",
+      "candidate_source_url": "https://huggingface.co/Jackrong/Qwopus3.5-4B-Coder-MTP-GGUF",
+      "current_model": "Qwen3.6-35B-A3B-UD-Q4_K_XL-128K",
+      "gguf_source_url": null,
+      "lane": "code_forge_mind",
+      "license": "apache-2.0",
+      "native_context_window": null,
+      "node_class": "backbone_compute",
+      "node_display_name": "Annunimas Server (35B Long Context)",
+      "node_id": "node-backbone-server-long",
+      "reasons": [
+        "node_size_fit:backbone_compute:small",
+        "gguf_or_gguf_candidate",
+        "permissive_license:apache-2.0",
+        "agent_tool_use_candidate"
+      ],
+      "recommendation": "defer",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "community_model_safety_review_required"
+      ],
+      "risks": [
+        "not_listed_as_target_node",
+        "weak_lane_fit:code_forge_mind",
+        "community_release_requires_extra_review"
+      ],
+      "runtime_format": "gguf",
+      "score": 9,
+      "size_class": "small"
+    },
+    {
+      "candidate_model_family": "MiniCPM5-1B",
+      "candidate_source_url": "https://huggingface.co/openbmb/MiniCPM5-1B",
+      "current_model": "Qwen3.6-35B-A3B-UD-Q4_K_XL-128K",
+      "gguf_source_url": null,
+      "lane": "monitoring_warden",
+      "license": "apache-2.0",
+      "native_context_window": null,
+      "node_class": "backbone_compute",
+      "node_display_name": "Annunimas Server (35B Long Context)",
+      "node_id": "node-backbone-server-long",
+      "reasons": [
+        "gguf_or_gguf_candidate",
+        "permissive_license:apache-2.0",
+        "agent_tool_use_candidate"
+      ],
+      "recommendation": "defer",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required"
+      ],
+      "risks": [
+        "not_listed_as_target_node",
+        "weak_lane_fit:monitoring_warden",
+        "node_size_risk:backbone_compute:tiny"
+      ],
+      "runtime_format": "gguf",
+      "score": 3,
+      "size_class": "tiny"
+    },
+    {
+      "candidate_model_family": "LFM2.5-8B-A1B",
+      "candidate_source_url": "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B",
+      "current_model": "LFM2.5-8B-A1B-Q4_K_M",
+      "gguf_source_url": null,
+      "lane": "scout_research",
+      "license": "lfm1.0",
+      "native_context_window": null,
+      "node_class": "core_compute",
+      "node_display_name": "Annunimas Core (3080 Workstation)",
+      "node_id": "node-core-hub",
+      "reasons": [
+        "explicit_target_node",
+        "lane_fit:scout_research",
+        "node_size_fit:core_compute:mid",
+        "gguf_or_gguf_candidate",
+        "agent_tool_use_candidate"
+      ],
+      "recommendation": "first_benchmark",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "license_review_required"
+      ],
+      "risks": [
+        "license_review:lfm1.0"
+      ],
+      "runtime_format": "gguf",
+      "score": 103,
+      "size_class": "mid"
+    },
+    {
+      "candidate_model_family": "Qwopus3.5-4B-Coder-MTP-GGUF",
+      "candidate_source_url": "https://huggingface.co/Jackrong/Qwopus3.5-4B-Coder-MTP-GGUF",
+      "current_model": "LFM2.5-8B-A1B-Q4_K_M",
+      "gguf_source_url": null,
+      "lane": "code_forge_mind",
+      "license": "apache-2.0",
+      "native_context_window": null,
+      "node_class": "core_compute",
+      "node_display_name": "Annunimas Core (3080 Workstation)",
+      "node_id": "node-core-hub",
+      "reasons": [
+        "explicit_target_node",
+        "lane_fit:code_forge_mind",
+        "node_size_fit:core_compute:small",
+        "gguf_or_gguf_candidate",
+        "permissive_license:apache-2.0",
+        "agent_tool_use_candidate"
+      ],
+      "recommendation": "first_benchmark",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "community_model_safety_review_required"
+      ],
+      "risks": [
+        "community_release_requires_extra_review"
+      ],
+      "runtime_format": "gguf",
+      "score": 100,
+      "size_class": "small"
+    },
+    {
+      "candidate_model_family": "Qwen3-Coder-30B-A3B-Instruct-GGUF",
+      "candidate_source_url": "https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct",
+      "current_model": "LFM2.5-8B-A1B-Q4_K_M",
+      "gguf_source_url": "https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF",
+      "lane": "code_forge_mind",
+      "license": "apache-2.0",
+      "native_context_window": 262144,
+      "node_class": "core_compute",
+      "node_display_name": "Annunimas Core (3080 Workstation)",
+      "node_id": "node-core-hub",
+      "reasons": [
+        "lane_fit:code_forge_mind",
+        "node_size_fit:core_compute:mid",
+        "gguf_or_gguf_candidate",
+        "permissive_license:apache-2.0",
+        "agent_tool_use_candidate",
+        "long_context:262144",
+        "non_thinking_tool_lane_fit"
+      ],
+      "recommendation": "first_benchmark",
+      "recommended_quantization": "UD-Q4_K_XL",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required"
+      ],
+      "risks": [
+        "not_listed_as_target_node"
+      ],
+      "runtime_format": "gguf",
+      "score": 75,
+      "size_class": "mid"
+    },
+    {
+      "candidate_model_family": "Qwen3.6-35B-A3B-GGUF",
+      "candidate_source_url": "https://huggingface.co/Infatoshi/Qwen3.6-35B-A3B-GGUF",
+      "current_model": "LFM2.5-8B-A1B-Q4_K_M",
+      "gguf_source_url": null,
+      "lane": "council",
+      "license": "unknown",
+      "native_context_window": null,
+      "node_class": "core_compute",
+      "node_display_name": "Annunimas Core (3080 Workstation)",
+      "node_id": "node-core-hub",
+      "reasons": [
+        "node_size_fit:core_compute:mid",
+        "gguf_or_gguf_candidate"
+      ],
+      "recommendation": "defer",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "license_review_required"
+      ],
+      "risks": [
+        "weak_lane_fit:council",
+        "license_unknown"
+      ],
+      "runtime_format": "gguf",
+      "score": 28,
+      "size_class": "mid"
+    },
+    {
+      "candidate_model_family": "MiniCPM5-1B",
+      "candidate_source_url": "https://huggingface.co/openbmb/MiniCPM5-1B",
+      "current_model": "LFM2.5-8B-A1B-Q4_K_M",
+      "gguf_source_url": null,
+      "lane": "monitoring_warden",
+      "license": "apache-2.0",
+      "native_context_window": null,
+      "node_class": "core_compute",
+      "node_display_name": "Annunimas Core (3080 Workstation)",
+      "node_id": "node-core-hub",
+      "reasons": [
+        "lane_fit:monitoring_warden",
+        "node_size_fit:core_compute:tiny",
+        "gguf_or_gguf_candidate",
+        "permissive_license:apache-2.0",
+        "agent_tool_use_candidate"
+      ],
+      "recommendation": "defer",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required"
+      ],
+      "risks": [
+        "not_listed_as_target_node"
+      ],
+      "runtime_format": "gguf",
+      "score": 25,
+      "size_class": "tiny"
+    },
+    {
+      "candidate_model_family": "Qwen3-Coder-30B-A3B-Instruct-GGUF",
+      "candidate_source_url": "https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct",
+      "current_model": "none",
+      "gguf_source_url": "https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF",
+      "lane": "code_forge_mind",
+      "license": "apache-2.0",
+      "native_context_window": 262144,
+      "node_class": "portable_compute",
+      "node_display_name": "RTX 3050 Laptop",
+      "node_id": "node-laptop",
+      "reasons": [
+        "gguf_or_gguf_candidate",
+        "permissive_license:apache-2.0",
+        "agent_tool_use_candidate",
+        "long_context:262144",
+        "non_thinking_tool_lane_fit"
+      ],
+      "recommendation": "defer",
+      "recommended_quantization": "UD-Q4_K_XL",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required"
+      ],
+      "risks": [
+        "not_listed_as_target_node",
+        "weak_lane_fit:code_forge_mind"
+      ],
+      "runtime_format": "gguf",
+      "score": 25,
+      "size_class": "mid"
+    },
+    {
+      "candidate_model_family": "MiniCPM5-1B",
+      "candidate_source_url": "https://huggingface.co/openbmb/MiniCPM5-1B",
+      "current_model": "none",
+      "gguf_source_url": null,
+      "lane": "monitoring_warden",
+      "license": "apache-2.0",
+      "native_context_window": null,
+      "node_class": "portable_compute",
+      "node_display_name": "RTX 3050 Laptop",
+      "node_id": "node-laptop",
+      "reasons": [
+        "gguf_or_gguf_candidate",
+        "permissive_license:apache-2.0",
+        "agent_tool_use_candidate"
+      ],
+      "recommendation": "defer",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required"
+      ],
+      "risks": [
+        "not_listed_as_target_node",
+        "weak_lane_fit:monitoring_warden"
+      ],
+      "runtime_format": "gguf",
+      "score": 9,
+      "size_class": "tiny"
+    },
+    {
+      "candidate_model_family": "Qwen3.6-35B-A3B-GGUF",
+      "candidate_source_url": "https://huggingface.co/Infatoshi/Qwen3.6-35B-A3B-GGUF",
+      "current_model": "none",
+      "gguf_source_url": null,
+      "lane": "council",
+      "license": "unknown",
+      "native_context_window": null,
+      "node_class": "portable_compute",
+      "node_display_name": "RTX 3050 Laptop",
+      "node_id": "node-laptop",
+      "reasons": [
+        "gguf_or_gguf_candidate"
+      ],
+      "recommendation": "defer",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "license_review_required"
+      ],
+      "risks": [
+        "weak_lane_fit:council",
+        "license_unknown"
+      ],
+      "runtime_format": "gguf",
+      "score": 4,
+      "size_class": "mid"
+    },
+    {
+      "candidate_model_family": "Qwopus3.5-4B-Coder-MTP-GGUF",
+      "candidate_source_url": "https://huggingface.co/Jackrong/Qwopus3.5-4B-Coder-MTP-GGUF",
+      "current_model": "none",
+      "gguf_source_url": null,
+      "lane": "code_forge_mind",
+      "license": "apache-2.0",
+      "native_context_window": null,
+      "node_class": "portable_compute",
+      "node_display_name": "RTX 3050 Laptop",
+      "node_id": "node-laptop",
+      "reasons": [
+        "gguf_or_gguf_candidate",
+        "permissive_license:apache-2.0",
+        "agent_tool_use_candidate"
+      ],
+      "recommendation": "defer",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "community_model_safety_review_required"
+      ],
+      "risks": [
+        "not_listed_as_target_node",
+        "weak_lane_fit:code_forge_mind",
+        "community_release_requires_extra_review"
+      ],
+      "runtime_format": "gguf",
+      "score": 1,
+      "size_class": "small"
+    },
+    {
+      "candidate_model_family": "LFM2.5-8B-A1B",
+      "candidate_source_url": "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B",
+      "current_model": "none",
+      "gguf_source_url": null,
+      "lane": "scout_research",
+      "license": "lfm1.0",
+      "native_context_window": null,
+      "node_class": "portable_compute",
+      "node_display_name": "RTX 3050 Laptop",
+      "node_id": "node-laptop",
+      "reasons": [
+        "gguf_or_gguf_candidate",
+        "agent_tool_use_candidate"
+      ],
+      "recommendation": "defer",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "license_review_required"
+      ],
+      "risks": [
+        "not_listed_as_target_node",
+        "weak_lane_fit:scout_research",
+        "license_review:lfm1.0"
+      ],
+      "runtime_format": "gguf",
+      "score": -6,
+      "size_class": "mid"
+    },
+    {
+      "candidate_model_family": "MiniCPM5-1B",
+      "candidate_source_url": "https://huggingface.co/openbmb/MiniCPM5-1B",
+      "current_model": "none",
+      "gguf_source_url": null,
+      "lane": "monitoring_warden",
+      "license": "apache-2.0",
+      "native_context_window": null,
+      "node_class": "edge_avatar_product",
+      "node_display_name": "Pi5 CITADEL Avatar",
+      "node_id": "node-pi5-citadel-avatar",
+      "reasons": [
+        "explicit_target_node",
+        "lane_fit:monitoring_warden",
+        "node_size_fit:edge_avatar_product:tiny",
+        "gguf_or_gguf_candidate",
+        "permissive_license:apache-2.0",
+        "agent_tool_use_candidate"
+      ],
+      "recommendation": "first_benchmark",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required"
+      ],
+      "risks": [],
+      "runtime_format": "gguf",
+      "score": 120,
+      "size_class": "tiny"
+    },
+    {
+      "candidate_model_family": "Qwopus3.5-4B-Coder-MTP-GGUF",
+      "candidate_source_url": "https://huggingface.co/Jackrong/Qwopus3.5-4B-Coder-MTP-GGUF",
+      "current_model": "none",
+      "gguf_source_url": null,
+      "lane": "code_forge_mind",
+      "license": "apache-2.0",
+      "native_context_window": null,
+      "node_class": "edge_avatar_product",
+      "node_display_name": "Pi5 CITADEL Avatar",
+      "node_id": "node-pi5-citadel-avatar",
+      "reasons": [
+        "node_size_fit:edge_avatar_product:small",
+        "gguf_or_gguf_candidate",
+        "permissive_license:apache-2.0",
+        "agent_tool_use_candidate"
+      ],
+      "recommendation": "defer",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "community_model_safety_review_required"
+      ],
+      "risks": [
+        "not_listed_as_target_node",
+        "weak_lane_fit:code_forge_mind",
+        "community_release_requires_extra_review"
+      ],
+      "runtime_format": "gguf",
+      "score": 9,
+      "size_class": "small"
+    },
+    {
+      "candidate_model_family": "Qwen3-Coder-30B-A3B-Instruct-GGUF",
+      "candidate_source_url": "https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct",
+      "current_model": "none",
+      "gguf_source_url": "https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF",
+      "lane": "code_forge_mind",
+      "license": "apache-2.0",
+      "native_context_window": 262144,
+      "node_class": "edge_avatar_product",
+      "node_display_name": "Pi5 CITADEL Avatar",
+      "node_id": "node-pi5-citadel-avatar",
+      "reasons": [
+        "gguf_or_gguf_candidate",
+        "permissive_license:apache-2.0",
+        "agent_tool_use_candidate",
+        "long_context:262144",
+        "non_thinking_tool_lane_fit"
+      ],
+      "recommendation": "defer",
+      "recommended_quantization": "UD-Q4_K_XL",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required"
+      ],
+      "risks": [
+        "not_listed_as_target_node",
+        "weak_lane_fit:code_forge_mind",
+        "node_size_risk:edge_avatar_product:mid"
+      ],
+      "runtime_format": "gguf",
+      "score": 1,
+      "size_class": "mid"
+    },
+    {
+      "candidate_model_family": "Qwen3.6-35B-A3B-GGUF",
+      "candidate_source_url": "https://huggingface.co/Infatoshi/Qwen3.6-35B-A3B-GGUF",
+      "current_model": "none",
+      "gguf_source_url": null,
+      "lane": "council",
+      "license": "unknown",
+      "native_context_window": null,
+      "node_class": "edge_avatar_product",
+      "node_display_name": "Pi5 CITADEL Avatar",
+      "node_id": "node-pi5-citadel-avatar",
+      "reasons": [
+        "gguf_or_gguf_candidate"
+      ],
+      "recommendation": "defer",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "license_review_required"
+      ],
+      "risks": [
+        "weak_lane_fit:council",
+        "node_size_risk:edge_avatar_product:mid",
+        "license_unknown"
+      ],
+      "runtime_format": "gguf",
+      "score": -20,
+      "size_class": "mid"
+    },
+    {
+      "candidate_model_family": "LFM2.5-8B-A1B",
+      "candidate_source_url": "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B",
+      "current_model": "none",
+      "gguf_source_url": null,
+      "lane": "scout_research",
+      "license": "lfm1.0",
+      "native_context_window": null,
+      "node_class": "edge_avatar_product",
+      "node_display_name": "Pi5 CITADEL Avatar",
+      "node_id": "node-pi5-citadel-avatar",
+      "reasons": [
+        "gguf_or_gguf_candidate",
+        "agent_tool_use_candidate"
+      ],
+      "recommendation": "defer",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "license_review_required"
+      ],
+      "risks": [
+        "not_listed_as_target_node",
+        "weak_lane_fit:scout_research",
+        "node_size_risk:edge_avatar_product:mid",
+        "license_review:lfm1.0"
+      ],
+      "runtime_format": "gguf",
+      "score": -30,
+      "size_class": "mid"
+    },
+    {
+      "candidate_model_family": "MiniCPM5-1B",
+      "candidate_source_url": "https://huggingface.co/openbmb/MiniCPM5-1B",
+      "current_model": "Qwen3.5-4B-Q4_K_M.gguf",
+      "gguf_source_url": null,
+      "lane": "monitoring_warden",
+      "license": "apache-2.0",
+      "native_context_window": null,
+      "node_class": "edge_guardhouse",
+      "node_display_name": "Pi5 Guardhouse (Warden)",
+      "node_id": "node-pi5-warden",
+      "reasons": [
+        "explicit_target_node",
+        "lane_fit:monitoring_warden",
+        "node_size_fit:edge_guardhouse:tiny",
+        "gguf_or_gguf_candidate",
+        "permissive_license:apache-2.0",
+        "agent_tool_use_candidate"
+      ],
+      "recommendation": "first_benchmark",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required"
+      ],
+      "risks": [],
+      "runtime_format": "gguf",
+      "score": 127,
+      "size_class": "tiny"
+    },
+    {
+      "candidate_model_family": "Qwopus3.5-4B-Coder-MTP-GGUF",
+      "candidate_source_url": "https://huggingface.co/Jackrong/Qwopus3.5-4B-Coder-MTP-GGUF",
+      "current_model": "Qwen3.5-4B-Q4_K_M.gguf",
+      "gguf_source_url": null,
+      "lane": "code_forge_mind",
+      "license": "apache-2.0",
+      "native_context_window": null,
+      "node_class": "edge_guardhouse",
+      "node_display_name": "Pi5 Guardhouse (Warden)",
+      "node_id": "node-pi5-warden",
+      "reasons": [
+        "explicit_target_node",
+        "lane_fit:code_forge_mind",
+        "node_size_fit:edge_guardhouse:small",
+        "gguf_or_gguf_candidate",
+        "permissive_license:apache-2.0",
+        "agent_tool_use_candidate"
+      ],
+      "recommendation": "first_benchmark",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "community_model_safety_review_required"
+      ],
+      "risks": [
+        "community_release_requires_extra_review"
+      ],
+      "runtime_format": "gguf",
+      "score": 74,
+      "size_class": "small"
+    },
+    {
+      "candidate_model_family": "Qwen3-Coder-30B-A3B-Instruct-GGUF",
+      "candidate_source_url": "https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct",
+      "current_model": "Qwen3.5-4B-Q4_K_M.gguf",
+      "gguf_source_url": "https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF",
+      "lane": "code_forge_mind",
+      "license": "apache-2.0",
+      "native_context_window": 262144,
+      "node_class": "edge_guardhouse",
+      "node_display_name": "Pi5 Guardhouse (Warden)",
+      "node_id": "node-pi5-warden",
+      "reasons": [
+        "lane_fit:code_forge_mind",
+        "gguf_or_gguf_candidate",
+        "permissive_license:apache-2.0",
+        "agent_tool_use_candidate",
+        "long_context:262144",
+        "non_thinking_tool_lane_fit"
+      ],
+      "recommendation": "defer",
+      "recommended_quantization": "UD-Q4_K_XL",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required"
+      ],
+      "risks": [
+        "not_listed_as_target_node",
+        "node_size_risk:edge_guardhouse:mid"
+      ],
+      "runtime_format": "gguf",
+      "score": 11,
+      "size_class": "mid"
+    },
+    {
+      "candidate_model_family": "Qwen3.6-35B-A3B-GGUF",
+      "candidate_source_url": "https://huggingface.co/Infatoshi/Qwen3.6-35B-A3B-GGUF",
+      "current_model": "Qwen3.5-4B-Q4_K_M.gguf",
+      "gguf_source_url": null,
+      "lane": "council",
+      "license": "unknown",
+      "native_context_window": null,
+      "node_class": "edge_guardhouse",
+      "node_display_name": "Pi5 Guardhouse (Warden)",
+      "node_id": "node-pi5-warden",
+      "reasons": [
+        "gguf_or_gguf_candidate"
+      ],
+      "recommendation": "defer",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "license_review_required"
+      ],
+      "risks": [
+        "weak_lane_fit:council",
+        "node_size_risk:edge_guardhouse:mid",
+        "license_unknown"
+      ],
+      "runtime_format": "gguf",
+      "score": -14,
+      "size_class": "mid"
+    },
+    {
+      "candidate_model_family": "LFM2.5-8B-A1B",
+      "candidate_source_url": "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B",
+      "current_model": "Qwen3.5-4B-Q4_K_M.gguf",
+      "gguf_source_url": null,
+      "lane": "scout_research",
+      "license": "lfm1.0",
+      "native_context_window": null,
+      "node_class": "edge_guardhouse",
+      "node_display_name": "Pi5 Guardhouse (Warden)",
+      "node_id": "node-pi5-warden",
+      "reasons": [
+        "gguf_or_gguf_candidate",
+        "agent_tool_use_candidate"
+      ],
+      "recommendation": "defer",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "license_review_required"
+      ],
+      "risks": [
+        "not_listed_as_target_node",
+        "weak_lane_fit:scout_research",
+        "node_size_risk:edge_guardhouse:mid",
+        "license_review:lfm1.0"
+      ],
+      "runtime_format": "gguf",
+      "score": -24,
+      "size_class": "mid"
+    },
+    {
+      "candidate_model_family": "Qwen3-Coder-30B-A3B-Instruct-GGUF",
+      "candidate_source_url": "https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct",
+      "current_model": "Carnice-9b-Q6_K",
+      "gguf_source_url": "https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF",
+      "lane": "code_forge_mind",
+      "license": "apache-2.0",
+      "native_context_window": 262144,
+      "node_class": "edge_worker",
+      "node_display_name": "Beelink SER9 Pro \u2014 Carnice 9B Lane",
+      "node_id": "node-ser9-carnice",
+      "reasons": [
+        "lane_fit:code_forge_mind",
+        "node_size_fit:edge_worker:mid",
+        "gguf_or_gguf_candidate",
+        "permissive_license:apache-2.0",
+        "agent_tool_use_candidate",
+        "long_context:262144",
+        "non_thinking_tool_lane_fit"
+      ],
+      "recommendation": "benchmark",
+      "recommended_quantization": "UD-Q4_K_XL",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required"
+      ],
+      "risks": [
+        "not_listed_as_target_node"
+      ],
+      "runtime_format": "gguf",
+      "score": 69,
+      "size_class": "mid"
+    },
+    {
+      "candidate_model_family": "Qwopus3.5-4B-Coder-MTP-GGUF",
+      "candidate_source_url": "https://huggingface.co/Jackrong/Qwopus3.5-4B-Coder-MTP-GGUF",
+      "current_model": "Carnice-9b-Q6_K",
+      "gguf_source_url": null,
+      "lane": "code_forge_mind",
+      "license": "apache-2.0",
+      "native_context_window": null,
+      "node_class": "edge_worker",
+      "node_display_name": "Beelink SER9 Pro \u2014 Carnice 9B Lane",
+      "node_id": "node-ser9-carnice",
+      "reasons": [
+        "lane_fit:code_forge_mind",
+        "node_size_fit:edge_worker:small",
+        "gguf_or_gguf_candidate",
+        "permissive_license:apache-2.0",
+        "agent_tool_use_candidate"
+      ],
+      "recommendation": "benchmark",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "community_model_safety_review_required"
+      ],
+      "risks": [
+        "not_listed_as_target_node",
+        "community_release_requires_extra_review"
+      ],
+      "runtime_format": "gguf",
+      "score": 53,
+      "size_class": "small"
+    },
+    {
+      "candidate_model_family": "LFM2.5-8B-A1B",
+      "candidate_source_url": "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B",
+      "current_model": "Carnice-9b-Q6_K",
+      "gguf_source_url": null,
+      "lane": "scout_research",
+      "license": "lfm1.0",
+      "native_context_window": null,
+      "node_class": "edge_worker",
+      "node_display_name": "Beelink SER9 Pro \u2014 Carnice 9B Lane",
+      "node_id": "node-ser9-carnice",
+      "reasons": [
+        "lane_fit:scout_research",
+        "node_size_fit:edge_worker:mid",
+        "gguf_or_gguf_candidate",
+        "agent_tool_use_candidate"
+      ],
+      "recommendation": "defer",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "license_review_required"
+      ],
+      "risks": [
+        "not_listed_as_target_node",
+        "license_review:lfm1.0"
+      ],
+      "runtime_format": "gguf",
+      "score": 34,
+      "size_class": "mid"
+    },
+    {
+      "candidate_model_family": "Qwen3.6-35B-A3B-GGUF",
+      "candidate_source_url": "https://huggingface.co/Infatoshi/Qwen3.6-35B-A3B-GGUF",
+      "current_model": "Carnice-9b-Q6_K",
+      "gguf_source_url": null,
+      "lane": "council",
+      "license": "unknown",
+      "native_context_window": null,
+      "node_class": "edge_worker",
+      "node_display_name": "Beelink SER9 Pro \u2014 Carnice 9B Lane",
+      "node_id": "node-ser9-carnice",
+      "reasons": [
+        "node_size_fit:edge_worker:mid",
+        "gguf_or_gguf_candidate"
+      ],
+      "recommendation": "defer",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "license_review_required"
+      ],
+      "risks": [
+        "weak_lane_fit:council",
+        "license_unknown"
+      ],
+      "runtime_format": "gguf",
+      "score": 22,
+      "size_class": "mid"
+    },
+    {
+      "candidate_model_family": "MiniCPM5-1B",
+      "candidate_source_url": "https://huggingface.co/openbmb/MiniCPM5-1B",
+      "current_model": "Carnice-9b-Q6_K",
+      "gguf_source_url": null,
+      "lane": "monitoring_warden",
+      "license": "apache-2.0",
+      "native_context_window": null,
+      "node_class": "edge_worker",
+      "node_display_name": "Beelink SER9 Pro \u2014 Carnice 9B Lane",
+      "node_id": "node-ser9-carnice",
+      "reasons": [
+        "node_size_fit:edge_worker:tiny",
+        "gguf_or_gguf_candidate",
+        "permissive_license:apache-2.0",
+        "agent_tool_use_candidate"
+      ],
+      "recommendation": "defer",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required"
+      ],
+      "risks": [
+        "not_listed_as_target_node",
+        "weak_lane_fit:monitoring_warden"
+      ],
+      "runtime_format": "gguf",
+      "score": 19,
+      "size_class": "tiny"
+    },
+    {
+      "candidate_model_family": "Qwopus3.5-4B-Coder-MTP-GGUF",
+      "candidate_source_url": "https://huggingface.co/Jackrong/Qwopus3.5-4B-Coder-MTP-GGUF",
+      "current_model": "Qwen_Qwen3.5-4B-Q6_K",
+      "gguf_source_url": null,
+      "lane": "code_forge_mind",
+      "license": "apache-2.0",
+      "native_context_window": null,
+      "node_class": "edge_worker",
+      "node_display_name": "Beelink SER9 Pro",
+      "node_id": "node-ser9-worker",
+      "reasons": [
+        "explicit_target_node",
+        "lane_fit:code_forge_mind",
+        "node_size_fit:edge_worker:small",
+        "gguf_or_gguf_candidate",
+        "permissive_license:apache-2.0",
+        "agent_tool_use_candidate"
+      ],
+      "recommendation": "first_benchmark",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "community_model_safety_review_required"
+      ],
+      "risks": [
+        "community_release_requires_extra_review"
+      ],
+      "runtime_format": "gguf",
+      "score": 112,
+      "size_class": "small"
+    },
+    {
+      "candidate_model_family": "LFM2.5-8B-A1B",
+      "candidate_source_url": "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B",
+      "current_model": "Qwen_Qwen3.5-4B-Q6_K",
+      "gguf_source_url": null,
+      "lane": "scout_research",
+      "license": "lfm1.0",
+      "native_context_window": null,
+      "node_class": "edge_worker",
+      "node_display_name": "Beelink SER9 Pro",
+      "node_id": "node-ser9-worker",
+      "reasons": [
+        "explicit_target_node",
+        "lane_fit:scout_research",
+        "node_size_fit:edge_worker:mid",
+        "gguf_or_gguf_candidate",
+        "agent_tool_use_candidate"
+      ],
+      "recommendation": "first_benchmark",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "license_review_required"
+      ],
+      "risks": [
+        "license_review:lfm1.0"
+      ],
+      "runtime_format": "gguf",
+      "score": 95,
+      "size_class": "mid"
+    },
+    {
+      "candidate_model_family": "MiniCPM5-1B",
+      "candidate_source_url": "https://huggingface.co/openbmb/MiniCPM5-1B",
+      "current_model": "Qwen_Qwen3.5-4B-Q6_K",
+      "gguf_source_url": null,
+      "lane": "monitoring_warden",
+      "license": "apache-2.0",
+      "native_context_window": null,
+      "node_class": "edge_worker",
+      "node_display_name": "Beelink SER9 Pro",
+      "node_id": "node-ser9-worker",
+      "reasons": [
+        "explicit_target_node",
+        "lane_fit:monitoring_warden",
+        "node_size_fit:edge_worker:tiny",
+        "gguf_or_gguf_candidate",
+        "permissive_license:apache-2.0",
+        "agent_tool_use_candidate"
+      ],
+      "recommendation": "first_benchmark",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required"
+      ],
+      "risks": [],
+      "runtime_format": "gguf",
+      "score": 92,
+      "size_class": "tiny"
+    },
+    {
+      "candidate_model_family": "Qwen3-Coder-30B-A3B-Instruct-GGUF",
+      "candidate_source_url": "https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct",
+      "current_model": "Qwen_Qwen3.5-4B-Q6_K",
+      "gguf_source_url": "https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF",
+      "lane": "code_forge_mind",
+      "license": "apache-2.0",
+      "native_context_window": 262144,
+      "node_class": "edge_worker",
+      "node_display_name": "Beelink SER9 Pro",
+      "node_id": "node-ser9-worker",
+      "reasons": [
+        "lane_fit:code_forge_mind",
+        "node_size_fit:edge_worker:mid",
+        "gguf_or_gguf_candidate",
+        "permissive_license:apache-2.0",
+        "agent_tool_use_candidate",
+        "long_context:262144",
+        "non_thinking_tool_lane_fit"
+      ],
+      "recommendation": "first_benchmark",
+      "recommended_quantization": "UD-Q4_K_XL",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required"
+      ],
+      "risks": [
+        "not_listed_as_target_node"
+      ],
+      "runtime_format": "gguf",
+      "score": 73,
+      "size_class": "mid"
+    },
+    {
+      "candidate_model_family": "Qwen3.6-35B-A3B-GGUF",
+      "candidate_source_url": "https://huggingface.co/Infatoshi/Qwen3.6-35B-A3B-GGUF",
+      "current_model": "Qwen_Qwen3.5-4B-Q6_K",
+      "gguf_source_url": null,
+      "lane": "council",
+      "license": "unknown",
+      "native_context_window": null,
+      "node_class": "edge_worker",
+      "node_display_name": "Beelink SER9 Pro",
+      "node_id": "node-ser9-worker",
+      "reasons": [
+        "node_size_fit:edge_worker:mid",
+        "gguf_or_gguf_candidate"
+      ],
+      "recommendation": "defer",
+      "recommended_quantization": null,
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "license_review_required"
+      ],
+      "risks": [
+        "weak_lane_fit:council",
+        "license_unknown"
+      ],
+      "runtime_format": "gguf",
+      "score": 22,
+      "size_class": "mid"
+    }
+  ],
+  "generated_at_utc": "2026-06-06T04:03:28Z",
+  "inputs": {
+    "fleet": "config/fleet.toml",
+    "registry": "config/model_registry.toml"
+  },
+  "safety": {
+    "config_rewrites": "not_performed",
+    "downloads": "not_performed",
+    "model_switches": "not_performed",
+    "service_restarts": "not_performed"
+  },
+  "schema_version": "annunimas.model_candidate_shortlist.v1",
+  "shortlist_by_node": {
+    "node-backbone-server": [
+      {
+        "candidate_model_family": "Qwen3-Coder-30B-A3B-Instruct-GGUF",
+        "candidate_source_url": "https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct",
+        "current_model": "Qwen3.6-35B-A3B-UD-Q4_K_XL",
+        "gguf_source_url": "https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF",
+        "lane": "code_forge_mind",
+        "license": "apache-2.0",
+        "native_context_window": 262144,
+        "node_class": "backbone_compute",
+        "node_display_name": "Annunimas Server (35B Backbone)",
+        "node_id": "node-backbone-server",
+        "reasons": [
+          "explicit_target_node",
+          "lane_fit:code_forge_mind",
+          "node_size_fit:backbone_compute:mid",
+          "gguf_or_gguf_candidate",
+          "permissive_license:apache-2.0",
+          "agent_tool_use_candidate",
+          "long_context:262144",
+          "non_thinking_tool_lane_fit"
+        ],
+        "recommendation": "first_benchmark",
+        "recommended_quantization": "UD-Q4_K_XL",
+        "required_gates": [
+          "benchmark_required",
+          "rollback_receipt_required"
+        ],
+        "risks": [],
+        "runtime_format": "gguf",
+        "score": 132,
+        "size_class": "mid"
+      },
+      {
+        "candidate_model_family": "LFM2.5-8B-A1B",
+        "candidate_source_url": "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B",
+        "current_model": "Qwen3.6-35B-A3B-UD-Q4_K_XL",
+        "gguf_source_url": null,
+        "lane": "scout_research",
+        "license": "lfm1.0",
+        "native_context_window": null,
+        "node_class": "backbone_compute",
+        "node_display_name": "Annunimas Server (35B Backbone)",
+        "node_id": "node-backbone-server",
+        "reasons": [
+          "explicit_target_node",
+          "lane_fit:scout_research",
+          "node_size_fit:backbone_compute:mid",
+          "gguf_or_gguf_candidate",
+          "agent_tool_use_candidate"
+        ],
+        "recommendation": "first_benchmark",
+        "recommended_quantization": null,
+        "required_gates": [
+          "benchmark_required",
+          "rollback_receipt_required",
+          "license_review_required"
+        ],
+        "risks": [
+          "license_review:lfm1.0"
+        ],
+        "runtime_format": "gguf",
+        "score": 93,
+        "size_class": "mid"
+      },
+      {
+        "candidate_model_family": "Qwen3.6-35B-A3B-GGUF",
+        "candidate_source_url": "https://huggingface.co/Infatoshi/Qwen3.6-35B-A3B-GGUF",
+        "current_model": "Qwen3.6-35B-A3B-UD-Q4_K_XL",
+        "gguf_source_url": null,
+        "lane": "council",
+        "license": "unknown",
+        "native_context_window": null,
+        "node_class": "backbone_compute",
+        "node_display_name": "Annunimas Server (35B Backbone)",
+        "node_id": "node-backbone-server",
+        "reasons": [
+          "lane_fit:council",
+          "node_size_fit:backbone_compute:mid",
+          "gguf_or_gguf_candidate"
+        ],
+        "recommendation": "benchmark",
+        "recommended_quantization": null,
+        "required_gates": [
+          "benchmark_required",
+          "rollback_receipt_required",
+          "license_review_required"
+        ],
+        "risks": [
+          "license_unknown"
+        ],
+        "runtime_format": "gguf",
+        "score": 60,
+        "size_class": "mid"
+      }
+    ],
+    "node-backbone-server-long": [
+      {
+        "candidate_model_family": "Qwen3-Coder-30B-A3B-Instruct-GGUF",
+        "candidate_source_url": "https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct",
+        "current_model": "Qwen3.6-35B-A3B-UD-Q4_K_XL-128K",
+        "gguf_source_url": "https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF",
+        "lane": "code_forge_mind",
+        "license": "apache-2.0",
+        "native_context_window": 262144,
+        "node_class": "backbone_compute",
+        "node_display_name": "Annunimas Server (35B Long Context)",
+        "node_id": "node-backbone-server-long",
+        "reasons": [
+          "node_size_fit:backbone_compute:mid",
+          "gguf_or_gguf_candidate",
+          "permissive_license:apache-2.0",
+          "agent_tool_use_candidate",
+          "long_context:262144",
+          "non_thinking_tool_lane_fit"
+        ],
+        "recommendation": "benchmark",
+        "recommended_quantization": "UD-Q4_K_XL",
+        "required_gates": [
+          "benchmark_required",
+          "rollback_receipt_required"
+        ],
+        "risks": [
+          "not_listed_as_target_node",
+          "weak_lane_fit:code_forge_mind"
+        ],
+        "runtime_format": "gguf",
+        "score": 47,
+        "size_class": "mid"
+      },
+      {
+        "candidate_model_family": "Qwen3.6-35B-A3B-GGUF",
+        "candidate_source_url": "https://huggingface.co/Infatoshi/Qwen3.6-35B-A3B-GGUF",
+        "current_model": "Qwen3.6-35B-A3B-UD-Q4_K_XL-128K",
+        "gguf_source_url": null,
+        "lane": "council",
+        "license": "unknown",
+        "native_context_window": null,
+        "node_class": "backbone_compute",
+        "node_display_name": "Annunimas Server (35B Long Context)",
+        "node_id": "node-backbone-server-long",
+        "reasons": [
+          "node_size_fit:backbone_compute:mid",
+          "gguf_or_gguf_candidate"
+        ],
+        "recommendation": "defer",
+        "recommended_quantization": null,
+        "required_gates": [
+          "benchmark_required",
+          "rollback_receipt_required",
+          "license_review_required"
+        ],
+        "risks": [
+          "weak_lane_fit:council",
+          "license_unknown"
+        ],
+        "runtime_format": "gguf",
+        "score": 26,
+        "size_class": "mid"
+      },
+      {
+        "candidate_model_family": "LFM2.5-8B-A1B",
+        "candidate_source_url": "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B",
+        "current_model": "Qwen3.6-35B-A3B-UD-Q4_K_XL-128K",
+        "gguf_source_url": null,
+        "lane": "scout_research",
+        "license": "lfm1.0",
+        "native_context_window": null,
+        "node_class": "backbone_compute",
+        "node_display_name": "Annunimas Server (35B Long Context)",
+        "node_id": "node-backbone-server-long",
+        "reasons": [
+          "node_size_fit:backbone_compute:mid",
+          "gguf_or_gguf_candidate",
+          "agent_tool_use_candidate"
+        ],
+        "recommendation": "defer",
+        "recommended_quantization": null,
+        "required_gates": [
+          "benchmark_required",
+          "rollback_receipt_required",
+          "license_review_required"
+        ],
+        "risks": [
+          "not_listed_as_target_node",
+          "weak_lane_fit:scout_research",
+          "license_review:lfm1.0"
+        ],
+        "runtime_format": "gguf",
+        "score": 16,
+        "size_class": "mid"
+      }
+    ],
+    "node-core-hub": [
+      {
+        "candidate_model_family": "LFM2.5-8B-A1B",
+        "candidate_source_url": "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B",
+        "current_model": "LFM2.5-8B-A1B-Q4_K_M",
+        "gguf_source_url": null,
+        "lane": "scout_research",
+        "license": "lfm1.0",
+        "native_context_window": null,
+        "node_class": "core_compute",
+        "node_display_name": "Annunimas Core (3080 Workstation)",
+        "node_id": "node-core-hub",
+        "reasons": [
+          "explicit_target_node",
+          "lane_fit:scout_research",
+          "node_size_fit:core_compute:mid",
+          "gguf_or_gguf_candidate",
+          "agent_tool_use_candidate"
+        ],
+        "recommendation": "first_benchmark",
+        "recommended_quantization": null,
+        "required_gates": [
+          "benchmark_required",
+          "rollback_receipt_required",
+          "license_review_required"
+        ],
+        "risks": [
+          "license_review:lfm1.0"
+        ],
+        "runtime_format": "gguf",
+        "score": 103,
+        "size_class": "mid"
+      },
+      {
+        "candidate_model_family": "Qwopus3.5-4B-Coder-MTP-GGUF",
+        "candidate_source_url": "https://huggingface.co/Jackrong/Qwopus3.5-4B-Coder-MTP-GGUF",
+        "current_model": "LFM2.5-8B-A1B-Q4_K_M",
+        "gguf_source_url": null,
+        "lane": "code_forge_mind",
+        "license": "apache-2.0",
+        "native_context_window": null,
+        "node_class": "core_compute",
+        "node_display_name": "Annunimas Core (3080 Workstation)",
+        "node_id": "node-core-hub",
+        "reasons": [
+          "explicit_target_node",
+          "lane_fit:code_forge_mind",
+          "node_size_fit:core_compute:small",
+          "gguf_or_gguf_candidate",
+          "permissive_license:apache-2.0",
+          "agent_tool_use_candidate"
+        ],
+        "recommendation": "first_benchmark",
+        "recommended_quantization": null,
+        "required_gates": [
+          "benchmark_required",
+          "rollback_receipt_required",
+          "community_model_safety_review_required"
+        ],
+        "risks": [
+          "community_release_requires_extra_review"
+        ],
+        "runtime_format": "gguf",
+        "score": 100,
+        "size_class": "small"
+      },
+      {
+        "candidate_model_family": "Qwen3-Coder-30B-A3B-Instruct-GGUF",
+        "candidate_source_url": "https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct",
+        "current_model": "LFM2.5-8B-A1B-Q4_K_M",
+        "gguf_source_url": "https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF",
+        "lane": "code_forge_mind",
+        "license": "apache-2.0",
+        "native_context_window": 262144,
+        "node_class": "core_compute",
+        "node_display_name": "Annunimas Core (3080 Workstation)",
+        "node_id": "node-core-hub",
+        "reasons": [
+          "lane_fit:code_forge_mind",
+          "node_size_fit:core_compute:mid",
+          "gguf_or_gguf_candidate",
+          "permissive_license:apache-2.0",
+          "agent_tool_use_candidate",
+          "long_context:262144",
+          "non_thinking_tool_lane_fit"
+        ],
+        "recommendation": "first_benchmark",
+        "recommended_quantization": "UD-Q4_K_XL",
+        "required_gates": [
+          "benchmark_required",
+          "rollback_receipt_required"
+        ],
+        "risks": [
+          "not_listed_as_target_node"
+        ],
+        "runtime_format": "gguf",
+        "score": 75,
+        "size_class": "mid"
+      }
+    ],
+    "node-laptop": [
+      {
+        "candidate_model_family": "Qwen3-Coder-30B-A3B-Instruct-GGUF",
+        "candidate_source_url": "https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct",
+        "current_model": "none",
+        "gguf_source_url": "https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF",
+        "lane": "code_forge_mind",
+        "license": "apache-2.0",
+        "native_context_window": 262144,
+        "node_class": "portable_compute",
+        "node_display_name": "RTX 3050 Laptop",
+        "node_id": "node-laptop",
+        "reasons": [
+          "gguf_or_gguf_candidate",
+          "permissive_license:apache-2.0",
+          "agent_tool_use_candidate",
+          "long_context:262144",
+          "non_thinking_tool_lane_fit"
+        ],
+        "recommendation": "defer",
+        "recommended_quantization": "UD-Q4_K_XL",
+        "required_gates": [
+          "benchmark_required",
+          "rollback_receipt_required"
+        ],
+        "risks": [
+          "not_listed_as_target_node",
+          "weak_lane_fit:code_forge_mind"
+        ],
+        "runtime_format": "gguf",
+        "score": 25,
+        "size_class": "mid"
+      },
+      {
+        "candidate_model_family": "MiniCPM5-1B",
+        "candidate_source_url": "https://huggingface.co/openbmb/MiniCPM5-1B",
+        "current_model": "none",
+        "gguf_source_url": null,
+        "lane": "monitoring_warden",
+        "license": "apache-2.0",
+        "native_context_window": null,
+        "node_class": "portable_compute",
+        "node_display_name": "RTX 3050 Laptop",
+        "node_id": "node-laptop",
+        "reasons": [
+          "gguf_or_gguf_candidate",
+          "permissive_license:apache-2.0",
+          "agent_tool_use_candidate"
+        ],
+        "recommendation": "defer",
+        "recommended_quantization": null,
+        "required_gates": [
+          "benchmark_required",
+          "rollback_receipt_required"
+        ],
+        "risks": [
+          "not_listed_as_target_node",
+          "weak_lane_fit:monitoring_warden"
+        ],
+        "runtime_format": "gguf",
+        "score": 9,
+        "size_class": "tiny"
+      },
+      {
+        "candidate_model_family": "Qwen3.6-35B-A3B-GGUF",
+        "candidate_source_url": "https://huggingface.co/Infatoshi/Qwen3.6-35B-A3B-GGUF",
+        "current_model": "none",
+        "gguf_source_url": null,
+        "lane": "council",
+        "license": "unknown",
+        "native_context_window": null,
+        "node_class": "portable_compute",
+        "node_display_name": "RTX 3050 Laptop",
+        "node_id": "node-laptop",
+        "reasons": [
+          "gguf_or_gguf_candidate"
+        ],
+        "recommendation": "defer",
+        "recommended_quantization": null,
+        "required_gates": [
+          "benchmark_required",
+          "rollback_receipt_required",
+          "license_review_required"
+        ],
+        "risks": [
+          "weak_lane_fit:council",
+          "license_unknown"
+        ],
+        "runtime_format": "gguf",
+        "score": 4,
+        "size_class": "mid"
+      }
+    ],
+    "node-pi5-citadel-avatar": [
+      {
+        "candidate_model_family": "MiniCPM5-1B",
+        "candidate_source_url": "https://huggingface.co/openbmb/MiniCPM5-1B",
+        "current_model": "none",
+        "gguf_source_url": null,
+        "lane": "monitoring_warden",
+        "license": "apache-2.0",
+        "native_context_window": null,
+        "node_class": "edge_avatar_product",
+        "node_display_name": "Pi5 CITADEL Avatar",
+        "node_id": "node-pi5-citadel-avatar",
+        "reasons": [
+          "explicit_target_node",
+          "lane_fit:monitoring_warden",
+          "node_size_fit:edge_avatar_product:tiny",
+          "gguf_or_gguf_candidate",
+          "permissive_license:apache-2.0",
+          "agent_tool_use_candidate"
+        ],
+        "recommendation": "first_benchmark",
+        "recommended_quantization": null,
+        "required_gates": [
+          "benchmark_required",
+          "rollback_receipt_required"
+        ],
+        "risks": [],
+        "runtime_format": "gguf",
+        "score": 120,
+        "size_class": "tiny"
+      },
+      {
+        "candidate_model_family": "Qwopus3.5-4B-Coder-MTP-GGUF",
+        "candidate_source_url": "https://huggingface.co/Jackrong/Qwopus3.5-4B-Coder-MTP-GGUF",
+        "current_model": "none",
+        "gguf_source_url": null,
+        "lane": "code_forge_mind",
+        "license": "apache-2.0",
+        "native_context_window": null,
+        "node_class": "edge_avatar_product",
+        "node_display_name": "Pi5 CITADEL Avatar",
+        "node_id": "node-pi5-citadel-avatar",
+        "reasons": [
+          "node_size_fit:edge_avatar_product:small",
+          "gguf_or_gguf_candidate",
+          "permissive_license:apache-2.0",
+          "agent_tool_use_candidate"
+        ],
+        "recommendation": "defer",
+        "recommended_quantization": null,
+        "required_gates": [
+          "benchmark_required",
+          "rollback_receipt_required",
+          "community_model_safety_review_required"
+        ],
+        "risks": [
+          "not_listed_as_target_node",
+          "weak_lane_fit:code_forge_mind",
+          "community_release_requires_extra_review"
+        ],
+        "runtime_format": "gguf",
+        "score": 9,
+        "size_class": "small"
+      },
+      {
+        "candidate_model_family": "Qwen3-Coder-30B-A3B-Instruct-GGUF",
+        "candidate_source_url": "https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct",
+        "current_model": "none",
+        "gguf_source_url": "https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF",
+        "lane": "code_forge_mind",
+        "license": "apache-2.0",
+        "native_context_window": 262144,
+        "node_class": "edge_avatar_product",
+        "node_display_name": "Pi5 CITADEL Avatar",
+        "node_id": "node-pi5-citadel-avatar",
+        "reasons": [
+          "gguf_or_gguf_candidate",
+          "permissive_license:apache-2.0",
+          "agent_tool_use_candidate",
+          "long_context:262144",
+          "non_thinking_tool_lane_fit"
+        ],
+        "recommendation": "defer",
+        "recommended_quantization": "UD-Q4_K_XL",
+        "required_gates": [
+          "benchmark_required",
+          "rollback_receipt_required"
+        ],
+        "risks": [
+          "not_listed_as_target_node",
+          "weak_lane_fit:code_forge_mind",
+          "node_size_risk:edge_avatar_product:mid"
+        ],
+        "runtime_format": "gguf",
+        "score": 1,
+        "size_class": "mid"
+      }
+    ],
+    "node-pi5-warden": [
+      {
+        "candidate_model_family": "MiniCPM5-1B",
+        "candidate_source_url": "https://huggingface.co/openbmb/MiniCPM5-1B",
+        "current_model": "Qwen3.5-4B-Q4_K_M.gguf",
+        "gguf_source_url": null,
+        "lane": "monitoring_warden",
+        "license": "apache-2.0",
+        "native_context_window": null,
+        "node_class": "edge_guardhouse",
+        "node_display_name": "Pi5 Guardhouse (Warden)",
+        "node_id": "node-pi5-warden",
+        "reasons": [
+          "explicit_target_node",
+          "lane_fit:monitoring_warden",
+          "node_size_fit:edge_guardhouse:tiny",
+          "gguf_or_gguf_candidate",
+          "permissive_license:apache-2.0",
+          "agent_tool_use_candidate"
+        ],
+        "recommendation": "first_benchmark",
+        "recommended_quantization": null,
+        "required_gates": [
+          "benchmark_required",
+          "rollback_receipt_required"
+        ],
+        "risks": [],
+        "runtime_format": "gguf",
+        "score": 127,
+        "size_class": "tiny"
+      },
+      {
+        "candidate_model_family": "Qwopus3.5-4B-Coder-MTP-GGUF",
+        "candidate_source_url": "https://huggingface.co/Jackrong/Qwopus3.5-4B-Coder-MTP-GGUF",
+        "current_model": "Qwen3.5-4B-Q4_K_M.gguf",
+        "gguf_source_url": null,
+        "lane": "code_forge_mind",
+        "license": "apache-2.0",
+        "native_context_window": null,
+        "node_class": "edge_guardhouse",
+        "node_display_name": "Pi5 Guardhouse (Warden)",
+        "node_id": "node-pi5-warden",
+        "reasons": [
+          "explicit_target_node",
+          "lane_fit:code_forge_mind",
+          "node_size_fit:edge_guardhouse:small",
+          "gguf_or_gguf_candidate",
+          "permissive_license:apache-2.0",
+          "agent_tool_use_candidate"
+        ],
+        "recommendation": "first_benchmark",
+        "recommended_quantization": null,
+        "required_gates": [
+          "benchmark_required",
+          "rollback_receipt_required",
+          "community_model_safety_review_required"
+        ],
+        "risks": [
+          "community_release_requires_extra_review"
+        ],
+        "runtime_format": "gguf",
+        "score": 74,
+        "size_class": "small"
+      },
+      {
+        "candidate_model_family": "Qwen3-Coder-30B-A3B-Instruct-GGUF",
+        "candidate_source_url": "https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct",
+        "current_model": "Qwen3.5-4B-Q4_K_M.gguf",
+        "gguf_source_url": "https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF",
+        "lane": "code_forge_mind",
+        "license": "apache-2.0",
+        "native_context_window": 262144,
+        "node_class": "edge_guardhouse",
+        "node_display_name": "Pi5 Guardhouse (Warden)",
+        "node_id": "node-pi5-warden",
+        "reasons": [
+          "lane_fit:code_forge_mind",
+          "gguf_or_gguf_candidate",
+          "permissive_license:apache-2.0",
+          "agent_tool_use_candidate",
+          "long_context:262144",
+          "non_thinking_tool_lane_fit"
+        ],
+        "recommendation": "defer",
+        "recommended_quantization": "UD-Q4_K_XL",
+        "required_gates": [
+          "benchmark_required",
+          "rollback_receipt_required"
+        ],
+        "risks": [
+          "not_listed_as_target_node",
+          "node_size_risk:edge_guardhouse:mid"
+        ],
+        "runtime_format": "gguf",
+        "score": 11,
+        "size_class": "mid"
+      }
+    ],
+    "node-ser9-carnice": [
+      {
+        "candidate_model_family": "Qwen3-Coder-30B-A3B-Instruct-GGUF",
+        "candidate_source_url": "https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct",
+        "current_model": "Carnice-9b-Q6_K",
+        "gguf_source_url": "https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF",
+        "lane": "code_forge_mind",
+        "license": "apache-2.0",
+        "native_context_window": 262144,
+        "node_class": "edge_worker",
+        "node_display_name": "Beelink SER9 Pro \u2014 Carnice 9B Lane",
+        "node_id": "node-ser9-carnice",
+        "reasons": [
+          "lane_fit:code_forge_mind",
+          "node_size_fit:edge_worker:mid",
+          "gguf_or_gguf_candidate",
+          "permissive_license:apache-2.0",
+          "agent_tool_use_candidate",
+          "long_context:262144",
+          "non_thinking_tool_lane_fit"
+        ],
+        "recommendation": "benchmark",
+        "recommended_quantization": "UD-Q4_K_XL",
+        "required_gates": [
+          "benchmark_required",
+          "rollback_receipt_required"
+        ],
+        "risks": [
+          "not_listed_as_target_node"
+        ],
+        "runtime_format": "gguf",
+        "score": 69,
+        "size_class": "mid"
+      },
+      {
+        "candidate_model_family": "Qwopus3.5-4B-Coder-MTP-GGUF",
+        "candidate_source_url": "https://huggingface.co/Jackrong/Qwopus3.5-4B-Coder-MTP-GGUF",
+        "current_model": "Carnice-9b-Q6_K",
+        "gguf_source_url": null,
+        "lane": "code_forge_mind",
+        "license": "apache-2.0",
+        "native_context_window": null,
+        "node_class": "edge_worker",
+        "node_display_name": "Beelink SER9 Pro \u2014 Carnice 9B Lane",
+        "node_id": "node-ser9-carnice",
+        "reasons": [
+          "lane_fit:code_forge_mind",
+          "node_size_fit:edge_worker:small",
+          "gguf_or_gguf_candidate",
+          "permissive_license:apache-2.0",
+          "agent_tool_use_candidate"
+        ],
+        "recommendation": "benchmark",
+        "recommended_quantization": null,
+        "required_gates": [
+          "benchmark_required",
+          "rollback_receipt_required",
+          "community_model_safety_review_required"
+        ],
+        "risks": [
+          "not_listed_as_target_node",
+          "community_release_requires_extra_review"
+        ],
+        "runtime_format": "gguf",
+        "score": 53,
+        "size_class": "small"
+      },
+      {
+        "candidate_model_family": "LFM2.5-8B-A1B",
+        "candidate_source_url": "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B",
+        "current_model": "Carnice-9b-Q6_K",
+        "gguf_source_url": null,
+        "lane": "scout_research",
+        "license": "lfm1.0",
+        "native_context_window": null,
+        "node_class": "edge_worker",
+        "node_display_name": "Beelink SER9 Pro \u2014 Carnice 9B Lane",
+        "node_id": "node-ser9-carnice",
+        "reasons": [
+          "lane_fit:scout_research",
+          "node_size_fit:edge_worker:mid",
+          "gguf_or_gguf_candidate",
+          "agent_tool_use_candidate"
+        ],
+        "recommendation": "defer",
+        "recommended_quantization": null,
+        "required_gates": [
+          "benchmark_required",
+          "rollback_receipt_required",
+          "license_review_required"
+        ],
+        "risks": [
+          "not_listed_as_target_node",
+          "license_review:lfm1.0"
+        ],
+        "runtime_format": "gguf",
+        "score": 34,
+        "size_class": "mid"
+      }
+    ],
+    "node-ser9-worker": [
+      {
+        "candidate_model_family": "Qwopus3.5-4B-Coder-MTP-GGUF",
+        "candidate_source_url": "https://huggingface.co/Jackrong/Qwopus3.5-4B-Coder-MTP-GGUF",
+        "current_model": "Qwen_Qwen3.5-4B-Q6_K",
+        "gguf_source_url": null,
+        "lane": "code_forge_mind",
+        "license": "apache-2.0",
+        "native_context_window": null,
+        "node_class": "edge_worker",
+        "node_display_name": "Beelink SER9 Pro",
+        "node_id": "node-ser9-worker",
+        "reasons": [
+          "explicit_target_node",
+          "lane_fit:code_forge_mind",
+          "node_size_fit:edge_worker:small",
+          "gguf_or_gguf_candidate",
+          "permissive_license:apache-2.0",
+          "agent_tool_use_candidate"
+        ],
+        "recommendation": "first_benchmark",
+        "recommended_quantization": null,
+        "required_gates": [
+          "benchmark_required",
+          "rollback_receipt_required",
+          "community_model_safety_review_required"
+        ],
+        "risks": [
+          "community_release_requires_extra_review"
+        ],
+        "runtime_format": "gguf",
+        "score": 112,
+        "size_class": "small"
+      },
+      {
+        "candidate_model_family": "LFM2.5-8B-A1B",
+        "candidate_source_url": "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B",
+        "current_model": "Qwen_Qwen3.5-4B-Q6_K",
+        "gguf_source_url": null,
+        "lane": "scout_research",
+        "license": "lfm1.0",
+        "native_context_window": null,
+        "node_class": "edge_worker",
+        "node_display_name": "Beelink SER9 Pro",
+        "node_id": "node-ser9-worker",
+        "reasons": [
+          "explicit_target_node",
+          "lane_fit:scout_research",
+          "node_size_fit:edge_worker:mid",
+          "gguf_or_gguf_candidate",
+          "agent_tool_use_candidate"
+        ],
+        "recommendation": "first_benchmark",
+        "recommended_quantization": null,
+        "required_gates": [
+          "benchmark_required",
+          "rollback_receipt_required",
+          "license_review_required"
+        ],
+        "risks": [
+          "license_review:lfm1.0"
+        ],
+        "runtime_format": "gguf",
+        "score": 95,
+        "size_class": "mid"
+      },
+      {
+        "candidate_model_family": "MiniCPM5-1B",
+        "candidate_source_url": "https://huggingface.co/openbmb/MiniCPM5-1B",
+        "current_model": "Qwen_Qwen3.5-4B-Q6_K",
+        "gguf_source_url": null,
+        "lane": "monitoring_warden",
+        "license": "apache-2.0",
+        "native_context_window": null,
+        "node_class": "edge_worker",
+        "node_display_name": "Beelink SER9 Pro",
+        "node_id": "node-ser9-worker",
+        "reasons": [
+          "explicit_target_node",
+          "lane_fit:monitoring_warden",
+          "node_size_fit:edge_worker:tiny",
+          "gguf_or_gguf_candidate",
+          "permissive_license:apache-2.0",
+          "agent_tool_use_candidate"
+        ],
+        "recommendation": "first_benchmark",
+        "recommended_quantization": null,
+        "required_gates": [
+          "benchmark_required",
+          "rollback_receipt_required"
+        ],
+        "risks": [],
+        "runtime_format": "gguf",
+        "score": 92,
+        "size_class": "tiny"
+      }
+    ]
+  },
+  "summary": {
+    "benchmark_count": 5,
+    "candidate_rows": 40,
+    "defer_count": 23,
+    "first_benchmark_count": 12,
+    "nodes_scored": 8
+  }
+}

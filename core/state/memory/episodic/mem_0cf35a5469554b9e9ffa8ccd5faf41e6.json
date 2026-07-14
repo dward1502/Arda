@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_0cf35a5469554b9e9ffa8ccd5faf41e6",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: G4 JouleWork measurement source-aware governance metadata",
+  "salience": 0.8055,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-29T11:20:07.437730030Z",
+  "last_seen_at": "2026-05-29T11:20:07.437730030Z"
+}

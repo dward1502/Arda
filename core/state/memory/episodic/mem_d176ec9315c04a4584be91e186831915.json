@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_d176ec9315c04a4584be91e186831915",
+  "kind": "episodic",
+  "agent": "hermes",
+  "content": "HERMES classified inbound message from dward1502 on 1472515093848916020 to Prometheus tier=tier3_fallback triad_passed=true",
+  "salience": 0.5235,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-07-03T04:43:29.228103230Z",
+  "last_seen_at": "2026-07-03T04:43:29.228103230Z"
+}

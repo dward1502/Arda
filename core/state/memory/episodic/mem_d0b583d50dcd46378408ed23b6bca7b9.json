@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_d0b583d50dcd46378408ed23b6bca7b9",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Persist CITADEL DSI backlight and framebuffer restore",
+  "salience": 0.6645,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-20T05:44:16.395570328Z",
+  "last_seen_at": "2026-05-20T05:44:16.395570328Z"
+}

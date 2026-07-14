@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_1a50ef19c59e43448a876899d12e6dbf",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA planning workstation action contract",
+  "salience": 0.8045000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T06:53:32.147505229Z",
+  "last_seen_at": "2026-06-01T06:53:32.147505229Z"
+}

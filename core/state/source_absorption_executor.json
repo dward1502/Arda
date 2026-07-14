@@ -1,0 +1,24 @@
+{
+  "authority": "source_absorption_execution + project_task_queue",
+  "doctrine": {
+    "executor_reads_absorption_queue_not_chat_memory": true,
+    "manual_review_remains_possible_for_any_batch": true,
+    "owner_batching_is_required": true,
+    "safe_owner_classes_can_be_auto_run": true
+  },
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "owner_batches": [],
+  "schema_version": "annunimas.source-absorption-executor.v1",
+  "sigil": "REPAIR",
+  "source_surfaces": {
+    "execution": "core/state/source_absorption_execution.json",
+    "pipeline": "core/state/source_absorption_pipeline.json",
+    "queue": "core/projects/tasks/queue.jsonl"
+  },
+  "summary": {
+    "auto_runnable_total": 0,
+    "owners_total": 0,
+    "promote_now_candidates_total": 8,
+    "queued_total": 0
+  }
+}

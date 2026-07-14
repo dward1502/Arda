@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_757e409a8dcd4016b851e50f455a1bcb",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Create task for model-staging-contract.md",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-05T07:18:35.681255590Z",
+  "last_seen_at": "2026-06-05T07:18:35.681255590Z"
+}

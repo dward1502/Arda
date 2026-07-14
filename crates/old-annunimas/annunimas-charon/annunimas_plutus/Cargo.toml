@@ -1,0 +1,4 @@
+[package]
+name="annunimas_plutus"
+version="0.1"
+edition="2021"

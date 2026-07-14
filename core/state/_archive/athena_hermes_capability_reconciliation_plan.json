@@ -1,0 +1,24 @@
+{
+  "authority": "system_lift_activation_review + imported_corpus_plan_portfolio",
+  "constraints": [
+    "Do not activate tools just because they were researched before.",
+    "Prefer current runtime and package-enablement surfaces over historical enthusiasm.",
+    "Keep Discord and crawl capability bounded and observable."
+  ],
+  "deliverables": [
+    "ATHENA imported capability roadmap",
+    "HERMES imported capability roadmap",
+    "tool-fit decision memo for crawl4ai, discord-mcp, arscontexta, llmfit, and agentsmd"
+  ],
+  "generated_at_utc": "2026-03-13T04:13:00Z",
+  "mission": "Reconcile imported crawl4ai, Discord, and tool-fit memory against current Annunimas runtime truth and derive bounded capability roadmaps.",
+  "review_focus": [
+    "Which imported capabilities are still aligned with current package/runtime activation?",
+    "Which imported tools should remain reference-only?",
+    "Which capabilities belong on edge, local control plane, or external service layers?"
+  ],
+  "schema_version": "annunimas.athena-hermes-capability-reconciliation-plan.v1",
+  "scope": "athena_hermes_capability_reconciliation",
+  "sigil": "REPAIR",
+  "status": "implementation_plan_prepared_for_review"
+}

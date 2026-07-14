@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_7bd70d36779f495d9aa2b5083f082614",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Completed Charon provider-internal model pool fallback implementation. Completed implementation for tsk_20260603_implement_charon_provider_internal_model_pool_fa; Charon now builds provider/model candidate pools so model-scoped failures can retry another compatible model within the same provider.",
+  "salience": 0.7625,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-03T09:04:06.942511909Z",
+  "last_seen_at": "2026-06-03T09:04:06.942511909Z"
+}

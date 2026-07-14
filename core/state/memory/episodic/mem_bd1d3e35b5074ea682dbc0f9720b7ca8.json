@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_bd1d3e35b5074ea682dbc0f9720b7ca8",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Repeated audit next-task refresh found no candidates",
+  "salience": 0.6645,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-25T19:51:22.986051197Z",
+  "last_seen_at": "2026-05-25T19:51:22.986051197Z"
+}

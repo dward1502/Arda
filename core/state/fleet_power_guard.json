@@ -1,0 +1,58 @@
+{
+  "authority": "fleet_power_guard_probe",
+  "doctrine": {
+    "logind_idle_actions_must_be_ignored": true,
+    "sleep_is_not_permitted_on_runtime_nodes": true,
+    "systemd_sleep_targets_must_be_masked": true
+  },
+  "generated_at_utc": "2026-04-22T21:57:06Z",
+  "probe_status": "ok",
+  "schema_version": "annunimas.fleet-power-guard.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "targets_hardened_total": 0,
+    "targets_probe_blocked_total": 0,
+    "targets_total": 3
+  },
+  "targets": [
+    {
+      "canonical_hostname": "bluefin",
+      "error": "# Tailscale SSH requires an additional check.\n# To authenticate, visit: https://login.tailscale.com/a/l10e9545d322aba\ntailscale: failed to fetch next SSH action\nConnection closed by 100.103.125.88 port 22",
+      "logind_override": [],
+      "logind_override_present": false,
+      "mask_states": [],
+      "observed_hostname": null,
+      "probe_status": "ok",
+      "return_code": 255,
+      "sleep_targets_masked": false,
+      "ssh_target": "citadel@100.103.125.88",
+      "target_id": "node-ser9-worker"
+    },
+    {
+      "canonical_hostname": "backbone-server-01",
+      "error": "ssh: connect to host 100.118.123.88 port 22: Connection timed out",
+      "logind_override": [],
+      "logind_override_present": false,
+      "mask_states": [],
+      "observed_hostname": null,
+      "probe_status": "ok",
+      "return_code": 255,
+      "sleep_targets_masked": false,
+      "ssh_target": "annunimasserver@100.118.123.88",
+      "target_id": "node-backbone-server-01"
+    },
+    {
+      "canonical_hostname": "raspberrypi",
+      "error": "numenor@100.110.85.37: Permission denied (publickey,password).",
+      "logind_override": [],
+      "logind_override_present": false,
+      "mask_states": [],
+      "observed_hostname": null,
+      "probe_status": "ok",
+      "return_code": 255,
+      "sleep_targets_masked": false,
+      "ssh_target": "numenor@100.110.85.37",
+      "target_id": "node-pi5-warden"
+    }
+  ]
+}

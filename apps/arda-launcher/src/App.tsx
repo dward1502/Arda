@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import ParticleSmoke from './components/ParticleSmoke'
-import OnboardingText from './components/OnboardingText'
-import WorldTree from './components/WorldTree'
+import OnboardingText from './scenes/state/OnboardingText'
+import WorldTree from './scenes/components/WorldTree'
 import ArdaLogo from './components/ArdaLogo'
-import Background from './components/Background'
+import Background from './scenes/Background'
 
 export default function App() {
   const [phase, setPhase] = useState(0)

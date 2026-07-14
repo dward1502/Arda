@@ -1,0 +1,298 @@
+{
+  "authority": "source_ecosystem_registry + github_repo_integration",
+  "catalogs": [
+    {
+      "lane": "llm_agent_landscape",
+      "promote_now": [
+        {
+          "activation_status": "governed_on_demand",
+          "integration_lane": "mcp_browser",
+          "labels": [
+            "browser",
+            "code"
+          ],
+          "matched_labels": [
+            "code"
+          ],
+          "next_action": "Start the supervised bridge only for governed browser sessions; keep it on-demand rather than daemonized",
+          "policy_confidence": 0.7516666666666667,
+          "repo_url": "https://github.com/microsoft/playwright-mcp",
+          "score": 133.17,
+          "source_id": "src_ba31bde2",
+          "tool": "playwright-mcp"
+        },
+        {
+          "activation_status": "active_signal",
+          "integration_lane": "agent_framework",
+          "labels": [
+            "agent",
+            "code",
+            "framework",
+            "reasoning"
+          ],
+          "matched_labels": [
+            "agent",
+            "code",
+            "reasoning"
+          ],
+          "next_action": "OpenCode is already bounded by sovereign route contracts; tune agent route mappings rather than treating it as an unintegrated package",
+          "policy_confidence": 0.7516666666666667,
+          "repo_url": "https://github.com/code-yeongyu/oh-my-opencode",
+          "score": 129.17,
+          "source_id": "src_275d929b",
+          "tool": "oh-my-opencode"
+        }
+      ],
+      "ranked_candidates_total": 10,
+      "recurring_batches": [
+        {
+          "cadence": "on_absorption_refresh",
+          "inputs": [
+            "core/state/github_repo_integration.json",
+            "core/state/source_ecosystem_registry.json"
+          ],
+          "name": "candidate_extraction",
+          "outputs": [
+            "curated candidate shortlist",
+            "ATHENA follow-up ingest candidates"
+          ],
+          "owner": "athena"
+        },
+        {
+          "cadence": "daily_or_on_major_digest",
+          "inputs": [
+            "core/state/source_ecosystem_registry.json",
+            "core/state/source_absorption_pipeline.json"
+          ],
+          "name": "portfolio_ranking",
+          "outputs": [
+            "promote_now portfolio",
+            "signal_only watchlist"
+          ],
+          "owner": "prometheus"
+        }
+      ],
+      "research_watchlist": [
+        {
+          "activation_status": "planned",
+          "integration_lane": "charon_provider",
+          "labels": [
+            "reasoning",
+            "tooling"
+          ],
+          "matched_labels": [
+            "reasoning",
+            "tooling"
+          ],
+          "next_action": "promote from evidence into a bounded runtime or product surface",
+          "policy_confidence": 0.7516666666666667,
+          "repo_url": "https://github.com/BerriAI/litellm",
+          "score": 95.17,
+          "source_id": "src_dab89283",
+          "tool": "litellm"
+        },
+        {
+          "activation_status": "planned",
+          "integration_lane": "research",
+          "labels": [
+            "reasoning"
+          ],
+          "matched_labels": [
+            "reasoning"
+          ],
+          "next_action": "promote from evidence into a bounded runtime or product surface",
+          "policy_confidence": 0.6916666666666667,
+          "repo_url": "https://github.com/lyogavin/airllm",
+          "score": 81.17,
+          "source_id": "src_759119ab",
+          "tool": "airllm"
+        },
+        {
+          "activation_status": "planned",
+          "integration_lane": "knowledge",
+          "labels": [
+            "agent",
+            "reasoning"
+          ],
+          "matched_labels": [
+            "agent",
+            "reasoning"
+          ],
+          "next_action": "promote from evidence into a bounded runtime or product surface",
+          "policy_confidence": 0.6916666666666667,
+          "repo_url": "https://github.com/agenticnotetaking/arscontexta",
+          "score": 81.17,
+          "source_id": "src_e0115360",
+          "tool": "arscontexta"
+        },
+        {
+          "activation_status": "planned",
+          "integration_lane": "mcp_communications",
+          "labels": [
+            "code"
+          ],
+          "matched_labels": [
+            "code"
+          ],
+          "next_action": "promote from evidence into a bounded runtime or product surface",
+          "policy_confidence": 0.6916666666666667,
+          "repo_url": "https://github.com/SaseQ/discord-mcp",
+          "score": 81.17,
+          "source_id": "src_b711210b",
+          "tool": "discord-mcp"
+        },
+        {
+          "activation_status": "planned",
+          "integration_lane": "agent_skills",
+          "labels": [
+            "agent",
+            "reasoning"
+          ],
+          "matched_labels": [
+            "agent",
+            "reasoning"
+          ],
+          "next_action": "promote from evidence into a bounded runtime or product surface",
+          "policy_confidence": 0.6916666666666667,
+          "repo_url": "https://github.com/obra/superpowers",
+          "score": 81.17,
+          "source_id": "src_8c6014a3",
+          "tool": "superpowers"
+        }
+      ],
+      "selection_rule": "match catalog focus labels against already-digested registry tools, then sort by bounded product posture plus ATHENA confidence",
+      "source_id": "src_33fa61b2",
+      "status": "operationalized",
+      "title": "https://github.com/kaushikb11/awesome-llm-agents",
+      "url": "https://github.com/kaushikb11/awesome-llm-agents"
+    },
+    {
+      "lane": "agent_ecosystem_landscape",
+      "promote_now": [
+        {
+          "activation_status": "governed_on_demand",
+          "integration_lane": "mcp_browser",
+          "labels": [
+            "browser",
+            "code"
+          ],
+          "matched_labels": [
+            "browser"
+          ],
+          "next_action": "Start the supervised bridge only for governed browser sessions; keep it on-demand rather than daemonized",
+          "policy_confidence": 0.7516666666666667,
+          "repo_url": "https://github.com/microsoft/playwright-mcp",
+          "score": 133.17,
+          "source_id": "src_ba31bde2",
+          "tool": "playwright-mcp"
+        },
+        {
+          "activation_status": "active_signal",
+          "integration_lane": "agent_framework",
+          "labels": [
+            "agent",
+            "code",
+            "framework",
+            "reasoning"
+          ],
+          "matched_labels": [
+            "agent",
+            "framework"
+          ],
+          "next_action": "OpenCode is already bounded by sovereign route contracts; tune agent route mappings rather than treating it as an unintegrated package",
+          "policy_confidence": 0.7516666666666667,
+          "repo_url": "https://github.com/code-yeongyu/oh-my-opencode",
+          "score": 129.17,
+          "source_id": "src_275d929b",
+          "tool": "oh-my-opencode"
+        }
+      ],
+      "ranked_candidates_total": 4,
+      "recurring_batches": [
+        {
+          "cadence": "on_absorption_refresh",
+          "inputs": [
+            "core/state/github_repo_integration.json",
+            "core/state/source_ecosystem_registry.json"
+          ],
+          "name": "candidate_extraction",
+          "outputs": [
+            "curated candidate shortlist",
+            "ATHENA follow-up ingest candidates"
+          ],
+          "owner": "athena"
+        },
+        {
+          "cadence": "daily_or_on_major_digest",
+          "inputs": [
+            "core/state/source_ecosystem_registry.json",
+            "core/state/source_absorption_pipeline.json"
+          ],
+          "name": "portfolio_ranking",
+          "outputs": [
+            "promote_now portfolio",
+            "signal_only watchlist"
+          ],
+          "owner": "prometheus"
+        }
+      ],
+      "research_watchlist": [
+        {
+          "activation_status": "planned",
+          "integration_lane": "knowledge",
+          "labels": [
+            "agent",
+            "reasoning"
+          ],
+          "matched_labels": [
+            "agent"
+          ],
+          "next_action": "promote from evidence into a bounded runtime or product surface",
+          "policy_confidence": 0.6916666666666667,
+          "repo_url": "https://github.com/agenticnotetaking/arscontexta",
+          "score": 81.17,
+          "source_id": "src_e0115360",
+          "tool": "arscontexta"
+        },
+        {
+          "activation_status": "planned",
+          "integration_lane": "agent_skills",
+          "labels": [
+            "agent",
+            "reasoning"
+          ],
+          "matched_labels": [
+            "agent"
+          ],
+          "next_action": "promote from evidence into a bounded runtime or product surface",
+          "policy_confidence": 0.6916666666666667,
+          "repo_url": "https://github.com/obra/superpowers",
+          "score": 81.17,
+          "source_id": "src_8c6014a3",
+          "tool": "superpowers"
+        }
+      ],
+      "selection_rule": "match catalog focus labels against already-digested registry tools, then sort by bounded product posture plus ATHENA confidence",
+      "source_id": "src_ca2f031e",
+      "status": "operationalized",
+      "title": "https://github.com/e2b-dev/awesome-ai-agents",
+      "url": "https://github.com/e2b-dev/awesome-ai-agents"
+    }
+  ],
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "mission": {
+    "goal": "Turn ecosystem catalogs into recurring candidate extraction and portfolio ranking lanes instead of static reference lists.",
+    "operator_rule": "Only already-digested and bounded candidates may enter the ranking surface automatically."
+  },
+  "schema_version": "annunimas.source-ecosystem-operationalization.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "catalogs_operationalized_total": 2,
+    "lanes": {
+      "agent_ecosystem_landscape": 1,
+      "llm_agent_landscape": 1
+    },
+    "promote_now_candidates_total": 4,
+    "research_watchlist_total": 7
+  }
+}

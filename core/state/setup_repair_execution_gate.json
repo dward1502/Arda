@@ -1,0 +1,123 @@
+{
+  "checks": [
+    {
+      "check_id": "AGENTS.md",
+      "evidence": [
+        "present: AGENTS.md"
+      ],
+      "recommendation": "Keep AGENTS.md current as setup-console operator context.",
+      "severity": "high",
+      "status": "pass",
+      "title": "Agent/project operating instructions available"
+    },
+    {
+      "check_id": "ANNUNIMAS_ROOT_PROTOCOL.md",
+      "evidence": [
+        "present: ANNUNIMAS_ROOT_PROTOCOL.md"
+      ],
+      "recommendation": "Preserve root protocol pointer for new-machine onboarding.",
+      "severity": "high",
+      "status": "pass",
+      "title": "Root protocol available"
+    },
+    {
+      "check_id": "CODEMAP.md",
+      "evidence": [
+        "present: CODEMAP.md"
+      ],
+      "recommendation": "Regenerate CODEMAP when repository structure materially changes.",
+      "severity": "medium",
+      "status": "pass",
+      "title": "Low-token codemap available"
+    },
+    {
+      "check_id": "scripts.runtime_build_env.sh",
+      "evidence": [
+        "present: scripts/runtime_build_env.sh"
+      ],
+      "recommendation": "Keep build output/cache paths centralized in runtime_build_env.sh.",
+      "severity": "medium",
+      "status": "pass",
+      "title": "Runtime build environment script available"
+    },
+    {
+      "check_id": "config.charon.providers.toml",
+      "evidence": [
+        "present: config/charon.providers.toml"
+      ],
+      "recommendation": "Use provider registry values rather than hardcoded endpoints in setup flows.",
+      "severity": "medium",
+      "status": "pass",
+      "title": "Charon provider registry available"
+    },
+    {
+      "check_id": "environment.surface",
+      "evidence": [
+        "present: config/annunimas.template.toml",
+        "present: config/annunimas.example.toml",
+        "present: config/.env.example",
+        "present: .env.example",
+        "present: core/state/environment_profile.schema.json"
+      ],
+      "recommendation": "Expose a single setup-console path from environment profile schema to local override templates.",
+      "severity": "medium",
+      "status": "pass",
+      "title": "Environment profile/template surface discoverable"
+    },
+    {
+      "check_id": "portability.receipt",
+      "evidence": [
+        "receipt: audit/PORTABILITY_AUDIT_2026-05-24/summary.json",
+        "total_findings=8238",
+        "active_blocker_findings=0",
+        "high=0",
+        "medium=0"
+      ],
+      "recommendation": "No high/medium portability blockers recorded in the latest receipt.",
+      "severity": "medium",
+      "status": "pass",
+      "title": "Portability/config hygiene findings classified"
+    },
+    {
+      "check_id": "endpoint.assumptions",
+      "evidence": [
+        "portability_summary=audit/PORTABILITY_AUDIT_2026-05-24/summary.json",
+        "active_blocker_findings=0",
+        "active_config_must_parameterize=0",
+        "active_script_must_parameterize=0",
+        "active_source_must_fix=0",
+        "loopback_endpoint=141",
+        "private_lan_ip_endpoint=2",
+        "hardcoded_home_mythos=4044",
+        "hardcoded_var_home_mythos=4042"
+      ],
+      "recommendation": "Keep setup console read-only until assumptions are parameterized behind environment profiles.",
+      "severity": "low",
+      "status": "pass",
+      "title": "Hardcoded endpoint/local-path assumptions inventoried"
+    }
+  ],
+  "gate_status": "pass",
+  "generated_at_utc": "2026-05-28T23:24:43Z",
+  "mode": "read_only",
+  "mutation_policy": "receipts_only_no_source_config_or_service_rewrites",
+  "portability_status": {
+    "active_blocker_findings": 0,
+    "findings_total": 8238,
+    "label": "zero active portability blockers",
+    "source": "audit/PORTABILITY_AUDIT_2026-05-24/summary.json",
+    "status": "pass"
+  },
+  "runner": "scripts/audit/setup_console_audit.py",
+  "runtime": {
+    "cwd": "/var/home/mythos/Annunimas",
+    "host": "annunimas-core",
+    "platform": "Linux-6.17.12-200.fc42.x86_64-x86_64-with-glibc2.39",
+    "python": "3.14.5",
+    "repo_root": "/var/home/mythos/Annunimas"
+  },
+  "schema_version": 1,
+  "summary": {
+    "pass": 8
+  }
+}

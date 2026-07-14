@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_84e1b51562e54d3389c76ffabbac6eed",
+  "kind": "episodic",
+  "agent": "charon",
+  "content": "CHARON routed hermes:chat [orchestrator:context_heavy] -> cerebras:zai-glm-4.7 triad_passed=false love_eq=0.74",
+  "salience": 0.23349999999999993,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-06T01:49:51.559809435Z",
+  "last_seen_at": "2026-06-06T01:49:51.559809435Z"
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_7b49111b83a5400e98d28feeb7e1dd12",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA repeated audit preview local CLI action closed",
+  "salience": 0.8845000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-28T20:32:40.251496933Z",
+  "last_seen_at": "2026-05-28T20:32:40.251496933Z"
+}

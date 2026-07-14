@@ -1,0 +1,49 @@
+{
+  "authority": "hermes_inbound + athena_ingest + project_task_queue",
+  "doctrine": {
+    "athena_owns_background_ingest_and_deepening": true,
+    "continuity_contract_keeps_background_work_linked_to_operator_context": true,
+    "detected_inputs_must_record_sender_source_and_time": true,
+    "foreground_conversation_must_not_block_on_intake": true,
+    "intake_confidence_ladder_guides_follow_on_routing": true,
+    "only_bounded_source_like_inputs_auto_handoff": true,
+    "planning_tasks_may_emit_after_policy_ready_evidence_exists": true
+  },
+  "generated_at_utc": "2026-04-28T09:49:24Z",
+  "governor_boundary": {
+    "manual_override_remains_possible": true,
+    "no_direct_execution_from_chat_classifier": true,
+    "non_source_conversation_stays_in_chat_lane": true,
+    "only_url_or_source_payloads_auto_handoff": true
+  },
+  "handoff_sequence": [
+    "detect inbound candidate",
+    "classify with intake confidence ladder",
+    "emit bounded async intake task",
+    "run ATHENA ingest",
+    "run ATHENA deep analysis",
+    "generate planning tasks if evidence is promotable",
+    "record runtime and queue reconciliation surfaces"
+  ],
+  "input_surface": {
+    "confidence_ladder": "core/state/intake_confidence_ladder.json",
+    "continuity_contract": "core/state/agent_continuity_contract.json",
+    "eligible_direction": "inbound",
+    "hermes_messages": "data/hermes/messages.jsonl",
+    "trigger_signals": [
+      "url_detected",
+      "source_like_payload",
+      "link_drop_during_chat"
+    ]
+  },
+  "mission": {
+    "goal": "Detect link-bearing or source-bearing inbound messages and hand them into ATHENA background processing while foreground conversation continues.",
+    "name": "Async User Intake"
+  },
+  "schema_version": "annunimas.async-user-intake-contract.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "handoff_steps_total": 7,
+    "trigger_signals_total": 3
+  }
+}

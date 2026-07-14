@@ -1,0 +1,39 @@
+{
+  "authority": "rank2_capability_reconciliation",
+  "current_truth": {
+    "activation_status": "planned",
+    "backlog_phase": "research_to_contract",
+    "bridge_delivery_posture": "online_no_recent_delivery_receipt",
+    "bridge_provider_configured": true,
+    "bridge_provider_online": true,
+    "bridge_recent_failed_total": 0,
+    "community_discord_mode": "bounded_optional_bridge",
+    "community_sources_are_observation_inputs": true,
+    "integration_state": "observed_only",
+    "policy_readiness": "reference_only"
+  },
+  "decision": {
+    "posture": "keep_bounded_optional_bridge_and_defer_mcp",
+    "why": "Discord is now treated as a Hermes-owned optional bridge rather than a sovereign base layer. Keep the live bridge compact and policy-guarded, reflect degraded delivery truth honestly when the provider is offline, and keep discord-mcp deferred until the bridge proves insufficient."
+  },
+  "deferments": [
+    "do not treat community Discord maps as runtime dependencies",
+    "do not activate discord-mcp just because research exists"
+  ],
+  "execution_steps": [
+    "keep current Hermes Discord bridge compact and governed",
+    "track bridge delivery posture explicitly instead of treating offline delivery as deferred doctrine",
+    "define the narrow use cases where discord-mcp would add real value beyond the existing Hermes bridge",
+    "promote it only if those use cases require a bounded runtime/product surface",
+    "otherwise keep Discord in the bounded optional bridge lane"
+  ],
+  "generated_at_utc": "2026-04-22T14:50:24Z",
+  "mission": "Use imported Discord memory to clarify Hermes comms posture without treating community or MCP surfaces as mandatory runtime dependencies.",
+  "schema_version": "annunimas.hermes-imported-capability-roadmap.v1",
+  "source_lineage": [
+    "/var/home/mythos/Numenor_Prime/Elros/missions/MISSION_DISCORD_MCP.md",
+    "/var/home/mythos/Numenor_Prime/Knowledge/Ingest/discord-mcp_2026-02-21.md",
+    "/var/home/mythos/Numenor_Prime/Knowledge/Research/Tools/discord_mcp_research.md"
+  ],
+  "status": "roadmap_ready_for_execution_review"
+}

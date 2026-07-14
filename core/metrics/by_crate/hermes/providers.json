@@ -1,0 +1,14 @@
+{
+  "configured": [
+    "discord",
+    "email",
+    "slack"
+  ],
+  "offline": [
+    "email",
+    "slack"
+  ],
+  "online": [
+    "discord"
+  ]
+}

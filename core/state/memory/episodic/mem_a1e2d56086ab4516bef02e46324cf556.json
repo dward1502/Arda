@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_a1e2d56086ab4516bef02e46324cf556",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA legacy Numenor runtime archive",
+  "salience": 0.8075,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T07:09:32.995705036Z",
+  "last_seen_at": "2026-06-01T07:09:32.995705036Z"
+}

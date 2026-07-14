@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_20008addaa674698b230b4b740af2b28",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA asset performance budget",
+  "salience": 0.8045000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T07:31:51.020777592Z",
+  "last_seen_at": "2026-06-01T07:31:51.020777592Z"
+}

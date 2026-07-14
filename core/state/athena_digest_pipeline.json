@@ -1,0 +1,404 @@
+{
+  "authority": "human_corpus_digest_plan + human_corpus_extraction_registry + source_absorption_pipeline + source_absorption_portfolio + project_task_queue",
+  "doctrine": {
+    "digest_outputs_bind_to_bounded_plans_before_execution": true,
+    "executor_eligibility_is_explicit": true,
+    "receipts_live_in_shared_state": true
+  },
+  "entries": [
+    {
+      "execution_ready": true,
+      "execution_stage": "contract_emitted",
+      "executor_binding": {
+        "executor_surface": "core/state/project_task_executor.json",
+        "receipt_surface": "core/state/athena_digest_pipeline.json",
+        "rule_id": "human_corpus_digest_handoff"
+      },
+      "group_id": "unclassified",
+      "lane": "misc",
+      "latest_task": null,
+      "owner": "athena",
+      "pipeline_family": "human_corpus_digest",
+      "pipeline_id": "human:unclassified",
+      "plan_binding": {
+        "group_contract_surface": "core/state/human_corpus_groups/unclassified.json",
+        "owner_plan_node": "human/plans/ATHENA.md",
+        "plan_id": "unclassified",
+        "plan_surface": "core/state/human_corpus_digest_plan.json",
+        "plan_type": "human_corpus_digest_group"
+      },
+      "source_ids": [
+        "src_64427488",
+        "src_72855a5d",
+        "src_a5082baf",
+        "src_28a46da2",
+        "src_12ae01f6",
+        "src_24260afa"
+      ],
+      "task_id": "tsk_humancorpus_89d1bd5605fa",
+      "title": "Digest source FRAMEWORK_GATE_AND_INTAKE_DISCIPLINE_IMPLEMENTATION"
+    },
+    {
+      "execution_ready": true,
+      "execution_stage": "contract_emitted",
+      "executor_binding": {
+        "executor_surface": "core/state/project_task_executor.json",
+        "receipt_surface": "core/state/athena_digest_pipeline.json",
+        "rule_id": "human_corpus_digest_handoff"
+      },
+      "group_id": "numenor_architecture_contracts",
+      "lane": "architecture",
+      "latest_task": null,
+      "owner": "core",
+      "pipeline_family": "human_corpus_digest",
+      "pipeline_id": "human:numenor_architecture_contracts",
+      "plan_binding": {
+        "group_contract_surface": "core/state/human_corpus_groups/numenor_architecture_contracts.json",
+        "owner_plan_node": null,
+        "plan_id": "numenor_architecture_contracts",
+        "plan_surface": "core/state/human_corpus_digest_plan.json",
+        "plan_type": "human_corpus_digest_group"
+      },
+      "source_ids": [
+        "src_d6c35301"
+      ],
+      "task_id": "tsk_humancorpus_77fc051e477d",
+      "title": "Extract contract primitives from NUMENOR_PRIME_BATCH_03_FRAMEWORK_AND_TOOLS"
+    },
+    {
+      "execution_ready": true,
+      "execution_stage": "contract_emitted",
+      "executor_binding": {
+        "executor_surface": "core/state/project_task_executor.json",
+        "receipt_surface": "core/state/athena_digest_pipeline.json",
+        "rule_id": "human_corpus_digest_handoff"
+      },
+      "group_id": "agent_framework_comparison",
+      "lane": "comparison",
+      "latest_task": null,
+      "owner": "prometheus",
+      "pipeline_family": "human_corpus_digest",
+      "pipeline_id": "human:agent_framework_comparison",
+      "plan_binding": {
+        "group_contract_surface": "core/state/human_corpus_groups/agent_framework_comparison.json",
+        "owner_plan_node": "human/plans/PROMETHEUS.md",
+        "plan_id": "agent_framework_comparison",
+        "plan_surface": "core/state/human_corpus_digest_plan.json",
+        "plan_type": "human_corpus_digest_group"
+      },
+      "source_ids": [
+        "src_63d7efe5"
+      ],
+      "task_id": "tsk_humancorpus_2d7bad6a31ef",
+      "title": "Update sovereign agent framework comparison from human plan"
+    },
+    {
+      "domain": "operations",
+      "execution_ready": true,
+      "execution_stage": "portfolio_bound",
+      "executor_binding": {
+        "executor_surface": "core/state/project_task_executor.json",
+        "receipt_surface": "core/state/athena_digest_pipeline.json",
+        "rule_id": "absorption_pipeline_autopilot"
+      },
+      "latest_anchor_tasks": [],
+      "latest_downstream_tasks": [],
+      "owner_targets": [
+        "charon",
+        "routing"
+      ],
+      "pipeline_family": "source_absorption",
+      "pipeline_id": "source:src_234088bc",
+      "plan_binding": {
+        "plan_id": "src_234088bc",
+        "plan_surface": "core/state/source_absorption_pipeline.json",
+        "plan_type": "source_absorption_candidate",
+        "portfolio_surface": "core/state/source_absorption_portfolio.json"
+      },
+      "source_id": "src_234088bc",
+      "title": "llmfit"
+    },
+    {
+      "domain": "development",
+      "execution_ready": true,
+      "execution_stage": "portfolio_bound",
+      "executor_binding": {
+        "executor_surface": "core/state/project_task_executor.json",
+        "receipt_surface": "core/state/athena_digest_pipeline.json",
+        "rule_id": "absorption_pipeline_autopilot"
+      },
+      "latest_anchor_tasks": [],
+      "latest_downstream_tasks": [],
+      "owner_targets": [
+        "prometheus",
+        "athena"
+      ],
+      "pipeline_family": "source_absorption",
+      "pipeline_id": "source:src_33fa61b2",
+      "plan_binding": {
+        "plan_id": "src_33fa61b2",
+        "plan_surface": "core/state/source_absorption_pipeline.json",
+        "plan_type": "source_absorption_candidate",
+        "portfolio_surface": "core/state/source_absorption_portfolio.json"
+      },
+      "source_id": "src_33fa61b2",
+      "title": "https://github.com/kaushikb11/awesome-llm-agents"
+    },
+    {
+      "domain": "operations",
+      "execution_ready": true,
+      "execution_stage": "portfolio_bound",
+      "executor_binding": {
+        "executor_surface": "core/state/project_task_executor.json",
+        "receipt_surface": "core/state/athena_digest_pipeline.json",
+        "rule_id": "absorption_pipeline_autopilot"
+      },
+      "latest_anchor_tasks": [],
+      "latest_downstream_tasks": [],
+      "owner_targets": [
+        "charon",
+        "runtime"
+      ],
+      "pipeline_family": "source_absorption",
+      "pipeline_id": "source:src_bfd43480",
+      "plan_binding": {
+        "plan_id": "src_bfd43480",
+        "plan_surface": "core/state/source_absorption_pipeline.json",
+        "plan_type": "source_absorption_candidate",
+        "portfolio_surface": "core/state/source_absorption_portfolio.json"
+      },
+      "source_id": "src_bfd43480",
+      "title": "nanoclaw"
+    },
+    {
+      "domain": "development",
+      "execution_ready": true,
+      "execution_stage": "portfolio_bound",
+      "executor_binding": {
+        "executor_surface": "core/state/project_task_executor.json",
+        "receipt_surface": "core/state/athena_digest_pipeline.json",
+        "rule_id": "absorption_pipeline_autopilot"
+      },
+      "latest_anchor_tasks": [],
+      "latest_downstream_tasks": [],
+      "owner_targets": [
+        "prometheus",
+        "athena"
+      ],
+      "pipeline_family": "source_absorption",
+      "pipeline_id": "source:src_ca2f031e",
+      "plan_binding": {
+        "plan_id": "src_ca2f031e",
+        "plan_surface": "core/state/source_absorption_pipeline.json",
+        "plan_type": "source_absorption_candidate",
+        "portfolio_surface": "core/state/source_absorption_portfolio.json"
+      },
+      "source_id": "src_ca2f031e",
+      "title": "https://github.com/e2b-dev/awesome-ai-agents"
+    },
+    {
+      "domain": "knowledge",
+      "execution_ready": true,
+      "execution_stage": "portfolio_bound",
+      "executor_binding": {
+        "executor_surface": "core/state/project_task_executor.json",
+        "receipt_surface": "core/state/athena_digest_pipeline.json",
+        "rule_id": "absorption_pipeline_autopilot"
+      },
+      "latest_anchor_tasks": [],
+      "latest_downstream_tasks": [],
+      "owner_targets": [
+        "athena",
+        "ingestion"
+      ],
+      "pipeline_family": "source_absorption",
+      "pipeline_id": "source:src_d46d1480",
+      "plan_binding": {
+        "plan_id": "src_d46d1480",
+        "plan_surface": "core/state/source_absorption_pipeline.json",
+        "plan_type": "source_absorption_candidate",
+        "portfolio_surface": "core/state/source_absorption_portfolio.json"
+      },
+      "source_id": "src_d46d1480",
+      "title": "crawl4ai"
+    },
+    {
+      "domain": "operations",
+      "execution_ready": true,
+      "execution_stage": "portfolio_bound",
+      "executor_binding": {
+        "executor_surface": "core/state/project_task_executor.json",
+        "receipt_surface": "core/state/athena_digest_pipeline.json",
+        "rule_id": "absorption_pipeline_autopilot"
+      },
+      "latest_anchor_tasks": [],
+      "latest_downstream_tasks": [],
+      "owner_targets": [
+        "charon",
+        "routing"
+      ],
+      "pipeline_family": "source_absorption",
+      "pipeline_id": "source:src_dab89283",
+      "plan_binding": {
+        "plan_id": "src_dab89283",
+        "plan_surface": "core/state/source_absorption_pipeline.json",
+        "plan_type": "source_absorption_candidate",
+        "portfolio_surface": "core/state/source_absorption_portfolio.json"
+      },
+      "source_id": "src_dab89283",
+      "title": "litellm"
+    },
+    {
+      "domain": "communications",
+      "execution_ready": true,
+      "execution_stage": "portfolio_bound",
+      "executor_binding": {
+        "executor_surface": "core/state/project_task_executor.json",
+        "receipt_surface": "core/state/athena_digest_pipeline.json",
+        "rule_id": "absorption_pipeline_autopilot"
+      },
+      "latest_anchor_tasks": [],
+      "latest_downstream_tasks": [],
+      "owner_targets": [
+        "prometheus",
+        "athena"
+      ],
+      "pipeline_family": "source_absorption",
+      "pipeline_id": "source:src_dc355aed",
+      "plan_binding": {
+        "plan_id": "src_dc355aed",
+        "plan_surface": "core/state/source_absorption_pipeline.json",
+        "plan_type": "source_absorption_candidate",
+        "portfolio_surface": "core/state/source_absorption_portfolio.json"
+      },
+      "source_id": "src_dc355aed",
+      "title": "https://github.com/best-ai-agents/discord-servers-for-ai-agents"
+    },
+    {
+      "domain": "knowledge",
+      "execution_ready": true,
+      "execution_stage": "portfolio_bound",
+      "executor_binding": {
+        "executor_surface": "core/state/project_task_executor.json",
+        "receipt_surface": "core/state/athena_digest_pipeline.json",
+        "rule_id": "absorption_pipeline_autopilot"
+      },
+      "latest_anchor_tasks": [],
+      "latest_downstream_tasks": [],
+      "owner_targets": [
+        "athena",
+        "prometheus"
+      ],
+      "pipeline_family": "source_absorption",
+      "pipeline_id": "source:src_df11630e",
+      "plan_binding": {
+        "plan_id": "src_df11630e",
+        "plan_surface": "core/state/source_absorption_pipeline.json",
+        "plan_type": "source_absorption_candidate",
+        "portfolio_surface": "core/state/source_absorption_portfolio.json"
+      },
+      "source_id": "src_df11630e",
+      "title": "https://github.com/D4Vinci/Scrapling"
+    }
+  ],
+  "generated_at_utc": "2026-05-28T19:48:36Z",
+  "human_corpus_summary": {
+    "extraction_registry": {
+      "contract_candidates_total": 5,
+      "crate_candidates_total": 2,
+      "groups_total": 3
+    },
+    "plan": {
+      "groups_total": 3,
+      "high_priority_total": 5,
+      "sources_total": 8
+    },
+    "reconciliation": {
+      "completed_total": 0
+    },
+    "tasks": {
+      "already_open_total": 3,
+      "emitted_total": 0,
+      "groups_total": 3
+    }
+  },
+  "project_executor_summary": {
+    "eligible_total": 0,
+    "ineligible_total": 4,
+    "queued_total": 4,
+    "rules_ran_total": 0,
+    "rules_succeeded_total": 0
+  },
+  "schema_version": "annunimas.athena-digest-pipeline.v1",
+  "source_absorption_summary": {
+    "autopilot": {
+      "completed_absorption_tasks_total": 0,
+      "downstream_cancelled_total": 0,
+      "downstream_emitted_total": 0,
+      "downstream_skipped_total": 9,
+      "remaining_absorption_queue_total": 0
+    },
+    "execution": {
+      "already_open_total": 16,
+      "emitted_total": 0,
+      "promote_now_candidates_total": 8,
+      "skipped_total": 0
+    },
+    "executor": {
+      "auto_runnable_total": 0,
+      "owners_total": 0,
+      "promote_now_candidates_total": 8,
+      "queued_total": 0
+    },
+    "pipeline": {
+      "by_disposition": {
+        "adapted": 2,
+        "promote_now": 8,
+        "reference_only": 399,
+        "signal_only": 5
+      },
+      "by_domain": {
+        "communications": 2,
+        "development": 2,
+        "knowledge": 3,
+        "operations": 8,
+        "research": 399
+      },
+      "candidates_total": 414,
+      "recent_primary_sources_total": 399,
+      "registry_candidates_total": 11,
+      "research_backlog_promotions_total": 4
+    },
+    "portfolio": {
+      "patterns": {
+        "bounded_ingest_runtime": 1,
+        "community_signal_map": 1,
+        "ecosystem_catalog": 2,
+        "registry_linked_tool": 4
+      },
+      "promote_now_sources_total": 8,
+      "queued_absorption_tasks_total": 0
+    }
+  },
+  "summary": {
+    "contract_ready_total": 0,
+    "downstream_bound_total": 0,
+    "execution_ready_total": 11,
+    "human_corpus_entries_total": 3,
+    "pipeline_entries_total": 11,
+    "source_absorption_entries_total": 8
+  },
+  "surfaces": {
+    "human_corpus_digest_plan": "core/state/human_corpus_digest_plan.json",
+    "human_corpus_digest_reconciliation": "core/state/human_corpus_digest_reconciliation.json",
+    "human_corpus_digest_tasks": "core/state/human_corpus_digest_tasks.json",
+    "human_corpus_extraction_registry": "core/state/human_corpus_extraction_registry.json",
+    "plan_map": "core/state/plan_map.json",
+    "project_task_executor": "core/state/project_task_executor.json",
+    "source_absorption_autopilot": "core/state/source_absorption_autopilot.json",
+    "source_absorption_execution": "core/state/source_absorption_execution.json",
+    "source_absorption_executor": "core/state/source_absorption_executor.json",
+    "source_absorption_pipeline": "core/state/source_absorption_pipeline.json",
+    "source_absorption_portfolio": "core/state/source_absorption_portfolio.json"
+  }
+}

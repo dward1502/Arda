@@ -1,0 +1,32 @@
+{
+  "chain_integrity": "head_present",
+  "checkpoint_policy": {
+    "checkpoint_interval_events": 4,
+    "consolidation_bias": "semantic",
+    "memory_pressure": "high",
+    "priority_tags": [
+      "charon",
+      "route",
+      "triad_failed",
+      "interactive"
+    ],
+    "recall_window_hours": 24
+  },
+  "generated_at_utc": "2026-04-22T22:02:48.970853156+00:00",
+  "informants_connected": 0,
+  "last_consolidation_utc": "2026-03-12T11:24:55.513689134+00:00",
+  "malformed_archive_records": 0,
+  "malformed_episodic_records": 0,
+  "malformed_noise_records": 0,
+  "malformed_obsidian_records": 0,
+  "memory_counts": {
+    "active": 4,
+    "archived": 4,
+    "consolidated": 3,
+    "core": 2,
+    "peripheral": 15,
+    "released": 9477,
+    "transient": 39
+  },
+  "next_consolidation_utc": "2026-03-13T11:24:55.513689134+00:00"
+}

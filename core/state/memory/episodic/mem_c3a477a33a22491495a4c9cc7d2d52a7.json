@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_c3a477a33a22491495a4c9cc7d2d52a7",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Gate 3.5P HUD live presence ledger wiring. Loaded data/prometheus/arda_presence_events.jsonl into ARDA HUD bundle and wired derived AgentPresenceState into BoardroomViewport presence avatar.",
+  "salience": 0.9025000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-18T23:47:13.820055977Z",
+  "last_seen_at": "2026-05-18T23:47:13.820055977Z"
+}

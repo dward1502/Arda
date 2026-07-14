@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_964ed650b7c844479ef54e918b1adbc8",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Generate WARDEN/HADES post-closeout review packet",
+  "salience": 0.6645,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-19T21:53:14.598597759Z",
+  "last_seen_at": "2026-05-19T21:53:14.598597759Z"
+}

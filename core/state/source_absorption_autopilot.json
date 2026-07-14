@@ -1,0 +1,63 @@
+{
+  "authority": "source_absorption_portfolio + project_task_queue",
+  "completed_absorption_tasks": [],
+  "downstream_cancelled": [],
+  "downstream_emitted": [],
+  "downstream_skipped": [
+    {
+      "reason": "already_present",
+      "status": "completed",
+      "task_id": "tsk_absorb_exec_7f67ecc75e27"
+    },
+    {
+      "reason": "already_present",
+      "status": "completed",
+      "task_id": "tsk_absorb_exec_924882a6132e"
+    },
+    {
+      "reason": "already_present",
+      "status": "completed",
+      "task_id": "tsk_absorb_exec_f113a9b6f28e"
+    },
+    {
+      "reason": "already_present",
+      "status": "completed",
+      "task_id": "tsk_absorb_exec_7a67264d5eb0"
+    },
+    {
+      "reason": "already_present",
+      "status": "completed",
+      "task_id": "tsk_absorb_exec_98c662f16dfa"
+    },
+    {
+      "reason": "already_present",
+      "status": "completed",
+      "task_id": "tsk_absorb_exec_b6da10c785b3"
+    },
+    {
+      "reason": "already_present",
+      "status": "completed",
+      "task_id": "tsk_absorb_exec_27d8896b399b"
+    },
+    {
+      "reason": "already_present",
+      "status": "completed",
+      "task_id": "tsk_absorb_exec_d8f45b89478b"
+    },
+    {
+      "reason": "already_present",
+      "status": "completed",
+      "task_id": "tsk_absorb_exec_63571263b241"
+    }
+  ],
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "schema_version": "annunimas.source-absorption-autopilot.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "completed_absorption_tasks_total": 0,
+    "downstream_cancelled_total": 0,
+    "downstream_emitted_total": 0,
+    "downstream_skipped_total": 9,
+    "remaining_absorption_queue_total": 0
+  }
+}

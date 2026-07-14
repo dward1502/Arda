@@ -1,0 +1,73 @@
+{
+  "authority": "controlled_external_corpus_promotion",
+  "batch_id": "numenor_prime_promotion_batch_02",
+  "destination_surfaces": [
+    "human/plans/NUMENOR_PRIME_BATCH_02_PROJECTS.md",
+    "core/state/numenor_prime_merge_registry.json",
+    "core/state/numenor_prime_promotion_batch_01.json"
+  ],
+  "focus": "platform_and_ingest_project_material",
+  "generated_at_utc": "2026-03-13T03:15:00Z",
+  "next_candidates": [
+    "/var/home/dward/Numenor_Prime/Operations/Project_Overviews/FRAMEWORK_ALIGNMENT_GATE_2026-02-14.md",
+    "/var/home/dward/Numenor_Prime/Operations/Project_Overviews/PROJECT_OVERVIEW_REGISTRY_2026-02-14.md",
+    "/var/home/dward/Numenor_Prime/Knowledge/Ingest/agentsmd_2026-02-21.md",
+    "/var/home/dward/Numenor_Prime/Knowledge/Ingest/llmfit_2026-02-21.md",
+    "/var/home/dward/Numenor_Prime/Knowledge/Research/Tools/TOOL_DIGEST_2026-02-21.md",
+    "/var/home/dward/Numenor_Prime/Knowledge/Research/Tools/OBSIDIAN_TOOL_INDEX.md"
+  ],
+  "promoted_items": [
+    {
+      "destination": "human/plans/NUMENOR_PRIME_BATCH_02_PROJECTS.md",
+      "kind": "project_overview",
+      "project": "crusties",
+      "source": "/var/home/dward/Numenor_Prime/Operations/Project_Overviews/PROJECT_OVERVIEW_crusties_2026-02-14.md",
+      "summary": "Promoted Crusties as a polyglot monorepo that needs a root orchestration contract, secret hardening, and dependency hygiene before feature growth."
+    },
+    {
+      "destination": "human/plans/NUMENOR_PRIME_BATCH_02_PROJECTS.md",
+      "kind": "project_overview",
+      "project": "CITADEL",
+      "source": "/var/home/dward/Numenor_Prime/Operations/Project_Overviews/PROJECT_OVERVIEW_citadel_2026-02-14.md",
+      "summary": "Promoted CITADEL as the prior sovereign local-first operating-system vision with triad, WARDEN, audit lineage, and human critical override as non-negotiable constraints."
+    },
+    {
+      "destination": "human/plans/NUMENOR_PRIME_BATCH_02_PROJECTS.md",
+      "kind": "project_overview",
+      "project": "CITADEL_BASE",
+      "source": "/var/home/dward/Numenor_Prime/Operations/Project_Overviews/PROJECT_OVERVIEW_citadel_base_2026-02-14.md",
+      "summary": "Promoted CITADEL_BASE as the immutable platform/distribution baseline rather than a product doctrine surface."
+    },
+    {
+      "destination": "human/plans/NUMENOR_PRIME_BATCH_02_PROJECTS.md",
+      "kind": "knowledge_ingest",
+      "project": "ARDA_HUD",
+      "source": "/var/home/dward/Numenor_Prime/Knowledge/Ingest/ARDA_HUD/DIGESTION_PROCESS.md",
+      "summary": "Promoted the ARDA HUD digestion pipeline as historical evidence for staged ingest, clustering, and triad-verified promotion of design docs."
+    },
+    {
+      "destination": "human/plans/NUMENOR_PRIME_BATCH_02_PROJECTS.md",
+      "kind": "knowledge_ingest",
+      "project": "ATHENA / crawl4ai",
+      "source": "/var/home/dward/Numenor_Prime/Knowledge/Ingest/crawl4ai_2026-02-21.md",
+      "summary": "Promoted crawl4ai immediate-ingest notes as concise technical justification for ATHENA crawling, markdown extraction, and containerized deployment."
+    },
+    {
+      "destination": "human/plans/NUMENOR_PRIME_BATCH_02_PROJECTS.md",
+      "kind": "knowledge_ingest",
+      "project": "HERMES / Discord",
+      "source": "/var/home/dward/Numenor_Prime/Knowledge/Ingest/discord-mcp_2026-02-21.md",
+      "summary": "Promoted discord-mcp immediate-ingest notes as concise capability reference for additive Discord automation."
+    }
+  ],
+  "schema_version": "annunimas.numenor-prime-promotion-batch.v1",
+  "selection_rule": {
+    "do_not_copy_full_external_corpus": true,
+    "prefer_platform_and_ingest_value": true,
+    "project_adjacent_only": true,
+    "promotion_mode": "summary_and_crosslink"
+  },
+  "sigil": "REPAIR",
+  "source_root": "/var/home/dward/Numenor_Prime",
+  "status": "promoted_into_readable_annunimas_surfaces"
+}

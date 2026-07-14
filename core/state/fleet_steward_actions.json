@@ -1,0 +1,217 @@
+{
+  "actions": [
+    {
+      "action_id": "restore_node-core-hub",
+      "kind": "fleet_recovery",
+      "owner": "warden",
+      "priority": "high",
+      "reason": "Configured node `node-core-hub` is offline and should be recovered or demoted from active routing.",
+      "title": "Restore offline node node-core-hub",
+      "writes_through": [
+        "config/fleet.toml",
+        "core/edge/targets.toml",
+        "core/state/fleet_runtime.json"
+      ]
+    },
+    {
+      "action_id": "restore_node-pi5-citadel-avatar",
+      "kind": "fleet_recovery",
+      "owner": "warden",
+      "priority": "high",
+      "reason": "Configured node `node-pi5-citadel-avatar` is offline and should be recovered or demoted from active routing.",
+      "title": "Restore offline node node-pi5-citadel-avatar",
+      "writes_through": [
+        "config/fleet.toml",
+        "core/edge/targets.toml",
+        "core/state/fleet_runtime.json"
+      ]
+    },
+    {
+      "action_id": "restore_node-laptop",
+      "kind": "fleet_recovery",
+      "owner": "warden",
+      "priority": "high",
+      "reason": "Configured node `node-laptop` is offline and should be recovered or demoted from active routing.",
+      "title": "Restore offline node node-laptop",
+      "writes_through": [
+        "config/fleet.toml",
+        "core/edge/targets.toml",
+        "core/state/fleet_runtime.json"
+      ]
+    },
+    {
+      "action_id": "launch_missing_endpoint_node-laptop",
+      "kind": "endpoint_launch",
+      "owner": "charon",
+      "priority": "medium",
+      "reason": "`node-laptop` has model/runtime state but no live local inference endpoint detected on the governed ports.",
+      "title": "Launch local endpoint for node-laptop",
+      "writes_through": [
+        "core/state/edge_endpoint_verification.json",
+        "core/edge/model_profiles.toml",
+        "config/charon.providers.toml"
+      ]
+    },
+    {
+      "action_id": "launch_missing_endpoint_node-backbone-server",
+      "kind": "endpoint_launch",
+      "owner": "charon",
+      "priority": "medium",
+      "reason": "`node-backbone-server` has model/runtime state but no live local inference endpoint detected on the governed ports.",
+      "title": "Launch local endpoint for node-backbone-server",
+      "writes_through": [
+        "core/state/edge_endpoint_verification.json",
+        "core/edge/model_profiles.toml",
+        "config/charon.providers.toml"
+      ]
+    },
+    {
+      "action_id": "launch_missing_endpoint_node-pi5-citadel-avatar",
+      "kind": "endpoint_launch",
+      "owner": "charon",
+      "priority": "medium",
+      "reason": "`node-pi5-citadel-avatar` has model/runtime state but no live local inference endpoint detected on the governed ports.",
+      "title": "Launch local endpoint for node-pi5-citadel-avatar",
+      "writes_through": [
+        "core/state/edge_endpoint_verification.json",
+        "core/edge/model_profiles.toml",
+        "config/charon.providers.toml"
+      ]
+    },
+    {
+      "action_id": "runtime_recovery_athena_deep_analyze",
+      "kind": "runtime_admission_recovery",
+      "owner": "athena",
+      "priority": "high",
+      "reason": "Shed receipts observed for `athena_deep_analyze`; recommended action is `retry_when_pressure_ok`. Automatic execution failed and needs review.",
+      "title": "Retry deferred ATHENA deep work when pressure clears",
+      "writes_through": [
+        "core/state/runtime_admission_receipts.json",
+        "core/state/runtime_budget_policy.json",
+        "core/state/athena_digest_pipeline.json"
+      ]
+    },
+    {
+      "action_id": "runtime_recovery_athena_deep_queue",
+      "kind": "runtime_admission_recovery",
+      "owner": "athena",
+      "priority": "medium",
+      "reason": "Shed receipts observed for `athena_deep_queue`; recommended action is `retry_when_pressure_ok`.",
+      "title": "Retry deferred ATHENA deep work when pressure clears",
+      "writes_through": [
+        "core/state/runtime_admission_receipts.json",
+        "core/state/runtime_budget_policy.json",
+        "core/state/athena_digest_pipeline.json"
+      ]
+    },
+    {
+      "action_id": "runtime_recovery_athena_http_request",
+      "kind": "runtime_admission_recovery",
+      "owner": "charon",
+      "priority": "high",
+      "reason": "Shed receipts observed for `athena_http_request`; recommended action is `prefer_backbone_or_gateway`.",
+      "title": "Shift burst ATHENA demand off the local lane",
+      "writes_through": [
+        "config/model_route_matrix.toml",
+        "core/state/charon_router.json",
+        "core/state/runtime_budget_policy.json"
+      ]
+    },
+    {
+      "action_id": "runtime_recovery_athena_ingest",
+      "kind": "runtime_admission_recovery",
+      "owner": "athena",
+      "priority": "medium",
+      "reason": "Shed receipts observed for `athena_ingest`; recommended action is `retry_when_pressure_ok`.",
+      "title": "Retry deferred ATHENA deep work when pressure clears",
+      "writes_through": [
+        "core/state/runtime_admission_receipts.json",
+        "core/state/runtime_budget_policy.json",
+        "core/state/athena_digest_pipeline.json"
+      ]
+    },
+    {
+      "action_id": "runtime_recovery_athena_plutus_signal",
+      "kind": "runtime_admission_recovery",
+      "owner": "athena",
+      "priority": "medium",
+      "reason": "Shed receipts observed for `athena_plutus_signal`; recommended action is `retry_when_pressure_ok`.",
+      "title": "Retry deferred ATHENA deep work when pressure clears",
+      "writes_through": [
+        "core/state/runtime_admission_receipts.json",
+        "core/state/runtime_budget_policy.json",
+        "core/state/athena_digest_pipeline.json"
+      ]
+    },
+    {
+      "action_id": "runtime_recovery_hermes_plutus_signal",
+      "kind": "runtime_admission_recovery",
+      "owner": "hermes",
+      "priority": "high",
+      "reason": "Shed receipts observed for `hermes_plutus_signal`; recommended action is `retry_outbound_then_reroute`. Automatic execution failed and needs review.",
+      "title": "Retry or reroute deferred Hermes outbound work",
+      "writes_through": [
+        "core/state/runtime_admission_receipts.json",
+        "core/state/charon_router.json",
+        "core/state/model_control_surface.json"
+      ]
+    },
+    {
+      "action_id": "runtime_recovery_hermes_provider_send",
+      "kind": "runtime_admission_recovery",
+      "owner": "hermes",
+      "priority": "high",
+      "reason": "Shed receipts observed for `hermes_provider_send`; recommended action is `retry_outbound_then_reroute`. Automatic execution failed and needs review.",
+      "title": "Retry or reroute deferred Hermes outbound work",
+      "writes_through": [
+        "core/state/runtime_admission_receipts.json",
+        "core/state/charon_router.json",
+        "core/state/model_control_surface.json"
+      ]
+    },
+    {
+      "action_id": "activation_frontier_crawl4ai",
+      "kind": "activation_review",
+      "owner": "prometheus",
+      "priority": "medium",
+      "reason": "run `annunimas athena crawl <url>` to capture markdown into ATHENA via the local crawl4ai service",
+      "title": "Review activation frontier for crawl4ai",
+      "writes_through": [
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json"
+      ]
+    }
+  ],
+  "authority": "fleet_steward_action_projection",
+  "doctrine": {
+    "actions_are_recommendations_not_implicit_mutations": true,
+    "agent_consumable": true,
+    "ui_optional": true,
+    "writes_must_flow_through_sovereign_config_and_state_surfaces": true
+  },
+  "generated_at_utc": "2026-04-22T21:57:53Z",
+  "runtime_recovery_status": {
+    "executor_generated_at_utc": "2026-03-22T11:33:13.979206873+00:00",
+    "governor_origin": "edge",
+    "governor_status": "unchanged"
+  },
+  "schema_version": "annunimas.fleet-steward-actions.v1",
+  "sigil": "REPAIR",
+  "source_surfaces": {
+    "edge_endpoint_verification": "core/state/edge_endpoint_verification.json",
+    "edge_model_rollout": "core/state/edge_model_rollout.json",
+    "operator_actions": "core/state/operator_actions.json",
+    "package_enablement": "core/state/package_enablement.json",
+    "runtime_admission_recovery": "core/state/runtime_admission_recovery.json",
+    "runtime_admission_recovery_executor": "core/state/runtime_admission_recovery_executor.json",
+    "runtime_budget_policy": "core/state/runtime_budget_policy.json",
+    "runtime_governor_contract": "core/state/runtime_governor_contract.json",
+    "runtime_recovery_route_governor": "core/state/runtime_recovery_route_governor.json"
+  },
+  "summary": {
+    "actions_total": 14,
+    "executed_runtime_recoveries_total": 1,
+    "high_priority_total": 7,
+    "steady_state": false
+  }
+}

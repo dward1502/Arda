@@ -1,0 +1,70 @@
+{
+  "authority": "system_inventory + operator_directive",
+  "edge_devices_using_llama_cpp": [
+    {
+      "backend": "llama.cpp",
+      "hostname": "warden / raspberrypi",
+      "llm_runtime": "edge_llm_light",
+      "node_id": "node-pi5-warden"
+    },
+    {
+      "backend": "cloud_fallback",
+      "hostname": "raspberrypi-aihat",
+      "llm_runtime": "cloud_only_inference",
+      "node_id": "node-pi5-citadel-avatar"
+    },
+    {
+      "backend": "llama.cpp",
+      "hostname": "bluefin",
+      "llm_runtime": "local_inference_worker",
+      "node_id": "node-ser9-worker"
+    },
+    {
+      "backend": "llama.cpp",
+      "hostname": "beelink",
+      "llm_runtime": "multi_gpu_sovereign_backbone",
+      "node_id": "node-backbone-server-01"
+    }
+  ],
+  "generated_at_utc": "2026-03-14T13:15:00Z",
+  "integration_notes": [
+    "llama.cpp is on host system, not in distrobox",
+    "All edge devices use llama.cpp for local inference",
+    "Local fallback provider uses qwen2.5-coder:3b via llama.cpp",
+    "Distrobox needs host access method to call llama.cpp binaries"
+  ],
+  "llama_cpp_location": {
+    "access_method": "host_system_calls_required",
+    "binaries": [
+      "llama-server",
+      "llama-cli",
+      "llamafile"
+    ],
+    "installed_on": "host_system_outside_distrobox"
+  },
+  "models_available": {
+    "edge_models": [
+      "qwen3-30b-a3b-reasoning",
+      "qwen3.5-2b-edge"
+    ],
+    "local_models": [
+      "qwen2.5-coder:3b",
+      "qwen3.5:cloud",
+      "qwen2.5-coder:7b",
+      "opencode/auto",
+      "qwen2.5-coder:14b-instruct-q5_K_M",
+      "kimi-k2.5:cloud",
+      "minimax-m2.5:cloud"
+    ]
+  },
+  "runtime_environment": {
+    "container": "distrobox",
+    "host_system": "has llama.cpp installed",
+    "llm_backend": "llama.cpp",
+    "not_using": [
+      "ollama"
+    ]
+  },
+  "schema_version": "annunimas.llama-cpp-integration.v1",
+  "sigil": "REPAIR"
+}

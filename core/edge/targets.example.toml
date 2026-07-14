@@ -1,0 +1,18 @@
+# sigil: SCROLL
+[[node]]
+id = "edge-pi5-01"
+role = "hermes-relay"
+hostname = "pi5-hermes"
+tailscale_ip = "100.64.0.10"
+ssh_user = "annunimas"
+athena_enabled = true
+hermes_enabled = true
+
+[[node]]
+id = "edge-mini-01"
+role = "athena-worker"
+hostname = "mini-athena"
+tailscale_ip = "100.64.0.11"
+ssh_user = "annunimas"
+athena_enabled = true
+hermes_enabled = false

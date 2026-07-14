@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_30d86e7c64424d188edda6491be2744e",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ATHENA GitHub source coverage audit closeout. Wrote core/state/athena_github_coverage_audit.json with 70 GitHub repos classified: 21 policy_mapped, 49 source_book_or_index_only. Verification passed: JSON/JSONL parse checks, projection refresh, append-only guard before receipt. No source promotion or runtime activation performed.",
+  "salience": 0.9335,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-14T20:23:10.857355649Z",
+  "last_seen_at": "2026-06-14T20:23:10.857355649Z"
+}

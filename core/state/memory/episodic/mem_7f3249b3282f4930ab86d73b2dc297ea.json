@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_7f3249b3282f4930ab86d73b2dc297ea",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA capability descriptor expansion",
+  "salience": 0.8845000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-27T20:13:52.441744860Z",
+  "last_seen_at": "2026-05-27T20:13:52.441744860Z"
+}

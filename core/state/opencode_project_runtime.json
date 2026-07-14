@@ -1,0 +1,513 @@
+{
+  "authority": "model_control_surface + bounded_opencode_project_runtime",
+  "generated_at_utc": "2026-04-22T22:02:47Z",
+  "generated_config": {
+    "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/master/assets/oh-my-opencode.schema.json",
+    "agents": {
+      "explore": {
+        "fallback_models": [
+          "ollama/qwen2.5-coder-7b",
+          "openrouter/auto"
+        ],
+        "model": "ollama/qwen2.5-coder-3b"
+      },
+      "hephaestus": {
+        "fallback_models": [
+          "openrouter/auto",
+          "ollama/qwen2.5-coder-7b",
+          "ollama/qwen2.5-coder-3b"
+        ],
+        "model": "openrouter/auto"
+      },
+      "librarian": {
+        "fallback_models": [
+          "ollama/qwen2.5-coder-7b",
+          "openrouter/auto"
+        ],
+        "model": "ollama/qwen2.5-coder-3b"
+      },
+      "oracle": {
+        "fallback_models": [
+          "openrouter/auto",
+          "ollama/qwen2.5-coder-7b",
+          "ollama/qwen2.5-coder-3b"
+        ],
+        "model": "openrouter/auto"
+      },
+      "prometheus": {
+        "fallback_models": [
+          "openrouter/auto",
+          "ollama/qwen2.5-coder-7b",
+          "ollama/qwen2.5-coder-3b"
+        ],
+        "model": "openrouter/auto"
+      },
+      "sisyphus": {
+        "fallback_models": [
+          "openrouter/auto",
+          "ollama/qwen2.5-coder-14b-q5km",
+          "ollama/qwen2.5-coder-7b",
+          "ollama/qwen2.5-coder-3b"
+        ],
+        "model": "openrouter/auto"
+      }
+    },
+    "background_task": {
+      "defaultConcurrency": 1,
+      "messageStalenessTimeoutMs": 180000,
+      "modelConcurrency": {
+        "ollama/qwen2.5-coder-14b-q5km": 1,
+        "ollama/qwen2.5-coder-3b": 2,
+        "ollama/qwen2.5-coder-7b": 1,
+        "openrouter/auto": 1
+      },
+      "providerConcurrency": {
+        "google": 1,
+        "ollama": 1,
+        "openai": 1,
+        "openrouter": 1
+      },
+      "staleTimeoutMs": 120000,
+      "syncPollTimeoutMs": 120000
+    },
+    "categories": {
+      "deep": {
+        "fallback_models": [
+          "ollama/qwen2.5-coder-7b",
+          "openrouter/auto",
+          "ollama/qwen2.5-coder-3b"
+        ],
+        "model": "openrouter/auto"
+      },
+      "quick": {
+        "fallback_models": [
+          "ollama/qwen2.5-coder-7b"
+        ],
+        "model": "ollama/qwen2.5-coder-3b"
+      },
+      "ultrabrain": {
+        "fallback_models": [
+          "openrouter/auto",
+          "ollama/qwen2.5-coder-14b-q5km",
+          "ollama/qwen2.5-coder-7b"
+        ],
+        "model": "openrouter/auto"
+      },
+      "unspecified-high": {
+        "fallback_models": [
+          "openrouter/auto",
+          "ollama/qwen2.5-coder-7b",
+          "ollama/qwen2.5-coder-3b"
+        ],
+        "model": "openrouter/auto"
+      },
+      "unspecified-low": {
+        "fallback_models": [
+          "ollama/qwen2.5-coder-7b"
+        ],
+        "model": "ollama/qwen2.5-coder-3b"
+      },
+      "writing": {
+        "fallback_models": [
+          "ollama/qwen2.5-coder-7b",
+          "openrouter/auto"
+        ],
+        "model": "ollama/qwen2.5-coder-3b"
+      }
+    },
+    "disabled_hooks": [
+      "agent-usage-reminder",
+      "todo-continuation-enforcer",
+      "unstable-agent-babysitter"
+    ],
+    "model_fallback": true,
+    "project_name": "Annunimas",
+    "sisyphus_agent": {
+      "planner_enabled": false,
+      "replace_plan": false
+    },
+    "tmux": {
+      "enabled": false
+    }
+  },
+  "routing_inputs": {
+    "opencode_agents": {
+      "explore": {
+        "current_model_profile": "backbone_router",
+        "current_provider": "openrouter",
+        "load_shed_active": false,
+        "load_shed_reasons": [],
+        "preferred_order": [
+          "edge_hub_3080",
+          "edge_worker",
+          "edge_guardhouse",
+          "openrouter",
+          "edge_backbone",
+          "litellm_gateway",
+          "local_fallback"
+        ],
+        "pressure_snapshot": [
+          {
+            "available": false,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "cooldown": false,
+            "day_pressure_ratio": 0.0,
+            "enabled": false,
+            "free_model_available": false,
+            "healthy": false,
+            "minute_pressure_ratio": 0.0,
+            "provider_id": "edge_hub_3080",
+            "score": 10.0
+          },
+          {
+            "available": false,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "cooldown": false,
+            "day_pressure_ratio": 0.0,
+            "enabled": false,
+            "free_model_available": false,
+            "healthy": false,
+            "minute_pressure_ratio": 0.0,
+            "provider_id": "edge_worker",
+            "score": 10.0
+          },
+          {
+            "available": true,
+            "avg_latency_ms": 13,
+            "budget_pressure": "normal",
+            "cooldown": false,
+            "day_pressure_ratio": 0.0,
+            "enabled": true,
+            "free_model_available": false,
+            "healthy": true,
+            "minute_pressure_ratio": 0.0,
+            "provider_id": "edge_guardhouse",
+            "score": 0.013
+          },
+          {
+            "available": true,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "cooldown": false,
+            "day_pressure_ratio": 0.0,
+            "enabled": true,
+            "free_model_available": false,
+            "healthy": true,
+            "minute_pressure_ratio": 0.0,
+            "provider_id": "openrouter",
+            "score": 0.0
+          },
+          {
+            "available": false,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "cooldown": false,
+            "day_pressure_ratio": 0.0,
+            "enabled": false,
+            "free_model_available": false,
+            "healthy": false,
+            "minute_pressure_ratio": 0.0,
+            "provider_id": "edge_backbone",
+            "score": 10.0
+          },
+          {
+            "available": false,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "cooldown": false,
+            "day_pressure_ratio": 0.0,
+            "enabled": false,
+            "free_model_available": false,
+            "healthy": false,
+            "minute_pressure_ratio": 0.0,
+            "provider_id": "litellm_gateway",
+            "score": 10.0
+          },
+          {
+            "available": false,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "cooldown": false,
+            "day_pressure_ratio": 0.0,
+            "enabled": false,
+            "free_model_available": false,
+            "healthy": true,
+            "minute_pressure_ratio": 0.0,
+            "provider_id": "local_fallback",
+            "score": 10.0
+          }
+        ],
+        "reason": "Recommended from profile `backbone_router` against current availability, cooldown, and request-pressure posture.",
+        "recommended_model_profile": "backbone_router",
+        "recommended_provider": "openrouter",
+        "task_type": "research"
+      },
+      "librarian": {
+        "current_model_profile": "backbone_reasoning",
+        "current_provider": "openrouter",
+        "load_shed_active": false,
+        "load_shed_reasons": [],
+        "preferred_order": [
+          "edge_backbone",
+          "edge_hub_3080",
+          "openrouter",
+          "litellm_gateway",
+          "local_fallback"
+        ],
+        "pressure_snapshot": [
+          {
+            "available": false,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "cooldown": false,
+            "day_pressure_ratio": 0.0,
+            "enabled": false,
+            "free_model_available": false,
+            "healthy": false,
+            "minute_pressure_ratio": 0.0,
+            "provider_id": "edge_backbone",
+            "score": 10.0
+          },
+          {
+            "available": false,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "cooldown": false,
+            "day_pressure_ratio": 0.0,
+            "enabled": false,
+            "free_model_available": false,
+            "healthy": false,
+            "minute_pressure_ratio": 0.0,
+            "provider_id": "edge_hub_3080",
+            "score": 10.0
+          },
+          {
+            "available": true,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "cooldown": false,
+            "day_pressure_ratio": 0.0,
+            "enabled": true,
+            "free_model_available": false,
+            "healthy": true,
+            "minute_pressure_ratio": 0.0,
+            "provider_id": "openrouter",
+            "score": 0.0
+          },
+          {
+            "available": false,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "cooldown": false,
+            "day_pressure_ratio": 0.0,
+            "enabled": false,
+            "free_model_available": false,
+            "healthy": false,
+            "minute_pressure_ratio": 0.0,
+            "provider_id": "litellm_gateway",
+            "score": 10.0
+          },
+          {
+            "available": false,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "cooldown": false,
+            "day_pressure_ratio": 0.0,
+            "enabled": false,
+            "free_model_available": false,
+            "healthy": true,
+            "minute_pressure_ratio": 0.0,
+            "provider_id": "local_fallback",
+            "score": 10.0
+          }
+        ],
+        "reason": "Recommended from profile `backbone_reasoning` against current availability, cooldown, and request-pressure posture.",
+        "recommended_model_profile": "backbone_reasoning",
+        "recommended_provider": "openrouter",
+        "task_type": "research"
+      },
+      "oracle": {
+        "current_model_profile": "backbone_reasoning",
+        "current_provider": "openrouter",
+        "load_shed_active": false,
+        "load_shed_reasons": [],
+        "preferred_order": [
+          "edge_backbone",
+          "edge_hub_3080",
+          "openrouter",
+          "litellm_gateway",
+          "local_fallback"
+        ],
+        "pressure_snapshot": [
+          {
+            "available": false,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "cooldown": false,
+            "day_pressure_ratio": 0.0,
+            "enabled": false,
+            "free_model_available": false,
+            "healthy": false,
+            "minute_pressure_ratio": 0.0,
+            "provider_id": "edge_backbone",
+            "score": 10.0
+          },
+          {
+            "available": false,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "cooldown": false,
+            "day_pressure_ratio": 0.0,
+            "enabled": false,
+            "free_model_available": false,
+            "healthy": false,
+            "minute_pressure_ratio": 0.0,
+            "provider_id": "edge_hub_3080",
+            "score": 10.0
+          },
+          {
+            "available": true,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "cooldown": false,
+            "day_pressure_ratio": 0.0,
+            "enabled": true,
+            "free_model_available": false,
+            "healthy": true,
+            "minute_pressure_ratio": 0.0,
+            "provider_id": "openrouter",
+            "score": 0.0
+          },
+          {
+            "available": false,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "cooldown": false,
+            "day_pressure_ratio": 0.0,
+            "enabled": false,
+            "free_model_available": false,
+            "healthy": false,
+            "minute_pressure_ratio": 0.0,
+            "provider_id": "litellm_gateway",
+            "score": 10.0
+          },
+          {
+            "available": false,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "cooldown": false,
+            "day_pressure_ratio": 0.0,
+            "enabled": false,
+            "free_model_available": false,
+            "healthy": true,
+            "minute_pressure_ratio": 0.0,
+            "provider_id": "local_fallback",
+            "score": 10.0
+          }
+        ],
+        "reason": "Recommended from profile `backbone_reasoning` against current availability, cooldown, and request-pressure posture.",
+        "recommended_model_profile": "backbone_reasoning",
+        "recommended_provider": "openrouter",
+        "task_type": "reasoning"
+      },
+      "plan": {
+        "current_model_profile": "backbone_reasoning",
+        "current_provider": "openrouter",
+        "load_shed_active": false,
+        "load_shed_reasons": [],
+        "preferred_order": [
+          "edge_backbone",
+          "edge_hub_3080",
+          "openrouter",
+          "litellm_gateway",
+          "local_fallback"
+        ],
+        "pressure_snapshot": [
+          {
+            "available": false,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "cooldown": false,
+            "day_pressure_ratio": 0.0,
+            "enabled": false,
+            "free_model_available": false,
+            "healthy": false,
+            "minute_pressure_ratio": 0.0,
+            "provider_id": "edge_backbone",
+            "score": 10.0
+          },
+          {
+            "available": false,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "cooldown": false,
+            "day_pressure_ratio": 0.0,
+            "enabled": false,
+            "free_model_available": false,
+            "healthy": false,
+            "minute_pressure_ratio": 0.0,
+            "provider_id": "edge_hub_3080",
+            "score": 10.0
+          },
+          {
+            "available": true,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "cooldown": false,
+            "day_pressure_ratio": 0.0,
+            "enabled": true,
+            "free_model_available": false,
+            "healthy": true,
+            "minute_pressure_ratio": 0.0,
+            "provider_id": "openrouter",
+            "score": 0.0
+          },
+          {
+            "available": false,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "cooldown": false,
+            "day_pressure_ratio": 0.0,
+            "enabled": false,
+            "free_model_available": false,
+            "healthy": false,
+            "minute_pressure_ratio": 0.0,
+            "provider_id": "litellm_gateway",
+            "score": 10.0
+          },
+          {
+            "available": false,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "cooldown": false,
+            "day_pressure_ratio": 0.0,
+            "enabled": false,
+            "free_model_available": false,
+            "healthy": true,
+            "minute_pressure_ratio": 0.0,
+            "provider_id": "local_fallback",
+            "score": 10.0
+          }
+        ],
+        "reason": "Recommended from profile `backbone_reasoning` against current availability, cooldown, and request-pressure posture.",
+        "recommended_model_profile": "backbone_reasoning",
+        "recommended_provider": "openrouter",
+        "task_type": "reasoning"
+      }
+    },
+    "recommended_origin": "auto"
+  },
+  "schema_version": "annunimas.opencode-project-runtime.v1",
+  "sigil": "REPAIR",
+  "source_surfaces": {
+    "model_control_surface": "core/state/model_control_surface.json",
+    "project_config": ".opencode/oh-my-opencode.json"
+  },
+  "summary": {
+    "cloud_reasoning_available": true,
+    "code_primary": "openrouter/auto",
+    "reasoning_primary": "openrouter/auto"
+  }
+}

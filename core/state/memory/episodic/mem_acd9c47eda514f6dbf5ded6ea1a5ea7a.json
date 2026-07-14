@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_acd9c47eda514f6dbf5ded6ea1a5ea7a",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Operator package: annunimas-cli.tar.gz with README + readiness report. completed operator package refresh; dist/README.txt and dist/L3_READINESS_REPORT.md updated with valid CLI surfaces and live state validation evidence; dist/annunimas-cli.tar.gz rebuilt; SHA256SUMS verified OK; archive contains annunimas-cli README.txt L3_READINESS_REPORT.md; binary help/status/tools/state validate/export smokes passed; state validate exit 0 with 1206 records visited, 0 errors, 408 legacy warnings, 10 skipped; append-only guard passed before closeout",
+  "salience": 0.8505000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-22T02:45:53.963984757Z",
+  "last_seen_at": "2026-06-22T02:45:53.963984757Z"
+}

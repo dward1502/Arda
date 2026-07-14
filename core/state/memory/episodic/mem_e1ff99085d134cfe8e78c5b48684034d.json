@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_e1ff99085d134cfe8e78c5b48684034d",
+  "kind": "episodic",
+  "agent": "charon",
+  "content": "CHARON routed hermes:chat [orchestrator:context_heavy] -> groq:qwen/qwen3.6-27b triad_passed=true love_eq=0.83",
+  "salience": 0.5834999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-22T21:27:55.880561580Z",
+  "last_seen_at": "2026-06-22T21:27:55.880561580Z"
+}

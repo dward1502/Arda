@@ -1,0 +1,126 @@
+{
+  "schema_version": "annunimas.arda_boardroom_slots.v1",
+  "authority": "core/state/arda_boardroom_slots.json",
+  "operator_profile_id": null,
+  "updated_at_utc": "2026-05-22T10:25:00Z",
+  "assignments": [
+    {
+      "slot_id": "monitor_left_1",
+      "component_id": "warp-dev-service-surface",
+      "source_zone_id": "service_warp_dev",
+      "title": "Warp Surface",
+      "module_ids": [
+        "service_embed"
+      ],
+      "presentation_modes": [
+        "in_scene",
+        "native_window"
+      ],
+      "updated_at_utc": "2026-05-22T10:25:00Z"
+    },
+    {
+      "slot_id": "monitor_left_2",
+      "component_id": "routing-providers-workstation",
+      "source_zone_id": "routing_and_comms",
+      "title": "Routing Providers",
+      "module_ids": [
+        "operations_and_packages",
+        "governance_controls"
+      ],
+      "presentation_modes": [
+        "in_scene",
+        "native_window"
+      ],
+      "updated_at_utc": "2026-05-22T09:00:36Z"
+    },
+    {
+      "slot_id": "monitor_left_3",
+      "component_id": "knowledge-workstation",
+      "source_zone_id": "memory_and_continuity",
+      "title": "Knowledge + Memory",
+      "module_ids": [
+        "section_focus",
+        "human_realm"
+      ],
+      "presentation_modes": [
+        "in_scene",
+        "native_window"
+      ],
+      "updated_at_utc": "2026-05-22T09:00:36Z"
+    },
+    {
+      "slot_id": "monitor_left_4",
+      "component_id": "queue-plans-workstation",
+      "source_zone_id": "planning_and_queue",
+      "title": "Queue + Plans",
+      "module_ids": [
+        "planning",
+        "section_focus"
+      ],
+      "presentation_modes": [
+        "in_scene",
+        "native_window"
+      ],
+      "updated_at_utc": "2026-05-22T09:00:36Z"
+    },
+    {
+      "slot_id": "view_desk_l",
+      "component_id": "review-gates-workstation",
+      "source_zone_id": "governance_guardhouse",
+      "title": "Review Gates",
+      "module_ids": [
+        "governance_controls",
+        "section_focus"
+      ],
+      "presentation_modes": [
+        "in_scene",
+        "native_window"
+      ],
+      "updated_at_utc": "2026-05-22T09:00:36Z"
+    },
+    {
+      "slot_id": "view_desk_control_panel",
+      "component_id": "command-podium-workstation",
+      "source_zone_id": "sovereign_world",
+      "title": "Command Podium",
+      "module_ids": [
+        "executive_overview",
+        "systems"
+      ],
+      "presentation_modes": [
+        "in_scene"
+      ],
+      "updated_at_utc": "2026-05-22T09:00:36Z"
+    },
+    {
+      "slot_id": "view_desk_r",
+      "component_id": "human-business-workstation",
+      "source_zone_id": "human_realm",
+      "title": "Human + Business",
+      "module_ids": [
+        "human_realm",
+        "business"
+      ],
+      "presentation_modes": [
+        "in_scene",
+        "native_window"
+      ],
+      "updated_at_utc": "2026-05-22T09:00:36Z"
+    },
+    {
+      "slot_id": "view_desk_aux",
+      "component_id": "hermes-dashboard-workstation",
+      "source_zone_id": "hermes_dashboard",
+      "title": "Hermes Dashboard",
+      "module_ids": [
+        "hermes_dashboard",
+        "operations_and_packages"
+      ],
+      "presentation_modes": [
+        "in_scene",
+        "native_window"
+      ],
+      "updated_at_utc": "2026-05-22T09:00:36Z"
+    }
+  ]
+}

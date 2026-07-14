@@ -1,0 +1,131 @@
+{
+  "contract": "annunimas.hades.storage_hygiene_apply.v1",
+  "deleted": [
+    {
+      "action": "delete",
+      "bytes": 4509040,
+      "category": "stale_runtime_backup",
+      "path": "data/accounting/output_mirror/data__prometheus__supervisor/heartbeats.jsonl.bak.20260428T093233Z"
+    },
+    {
+      "action": "delete",
+      "bytes": 1094877,
+      "category": "stale_runtime_backup",
+      "path": "data/charon/governance_events.jsonl.bak.20260430-rename"
+    },
+    {
+      "action": "delete",
+      "bytes": 11761773,
+      "category": "stale_runtime_backup",
+      "path": "data/governance/bacon_lite.jsonl.bak.20260505T052145Z"
+    },
+    {
+      "action": "delete",
+      "bytes": 11341,
+      "category": "stale_runtime_backup",
+      "path": "data/hades/action_queue.jsonl.bak.20260505T052145Z"
+    },
+    {
+      "action": "delete",
+      "bytes": 9345,
+      "category": "stale_runtime_backup",
+      "path": "data/hades/archive/backups/action_queue.jsonl/action_queue.jsonl.bak.20260428T094234Z"
+    },
+    {
+      "action": "delete",
+      "bytes": 33586432,
+      "category": "stale_runtime_backup",
+      "path": "data/hades/hades_log.jsonl.bak.20260505T052145Z"
+    },
+    {
+      "action": "delete",
+      "bytes": 3549060,
+      "category": "stale_runtime_backup",
+      "path": "data/hades/joulework.jsonl.bak.20260505T052145Z"
+    },
+    {
+      "action": "delete",
+      "bytes": 906518,
+      "category": "stale_runtime_backup",
+      "path": "data/hades/warden_queue.jsonl.bak.20260505T052145Z"
+    },
+    {
+      "action": "delete",
+      "bytes": 263,
+      "category": "stale_runtime_backup",
+      "path": "data/hermes/decision_metrics.jsonl.bak.20260428T220844Z"
+    },
+    {
+      "action": "delete",
+      "bytes": 27560,
+      "category": "stale_runtime_backup",
+      "path": "data/hermes/decision_prompts.jsonl.bak.20260505T052145Z"
+    },
+    {
+      "action": "delete",
+      "bytes": 240,
+      "category": "stale_runtime_backup",
+      "path": "data/hermes/decision_responses.jsonl.bak.20260407T233006Z"
+    },
+    {
+      "action": "delete",
+      "bytes": 193384,
+      "category": "stale_runtime_backup",
+      "path": "data/hermes/messages.jsonl.bak.20260505T052145Z"
+    },
+    {
+      "action": "delete",
+      "bytes": 7776,
+      "category": "stale_runtime_backup",
+      "path": "data/hermes/outbound_queue.jsonl.bak.20260422T074630Z"
+    },
+    {
+      "action": "delete",
+      "bytes": 932934,
+      "category": "stale_runtime_backup",
+      "path": "data/prometheus/gate_matrix_history.jsonl.bak.20260505T050145Z"
+    },
+    {
+      "action": "delete",
+      "bytes": 4692703,
+      "category": "stale_runtime_backup",
+      "path": "data/prometheus/policy_guard.jsonl.bak.20260505T052145Z"
+    },
+    {
+      "action": "delete",
+      "bytes": 5523607,
+      "category": "stale_runtime_backup",
+      "path": "data/prometheus/supervisor/heartbeats.jsonl.bak.20260505T050145Z"
+    },
+    {
+      "action": "delete",
+      "bytes": 159381,
+      "category": "stale_runtime_backup",
+      "path": "data/warden/informant_queue.jsonl.bak.20260505T052145Z"
+    },
+    {
+      "action": "delete",
+      "bytes": 3562497,
+      "category": "stale_runtime_backup",
+      "path": "data/warden/permission_profile_audit.jsonl.bak.20260505T052145Z"
+    }
+  ],
+  "dry_run_candidates": [],
+  "generated_at_utc": "2026-06-06T03:49:53Z",
+  "mode": "apply_delete",
+  "policy": {
+    "backup_scope": "only data/** backup-shaped files are eligible",
+    "tick_scope": "only core/state/tick_output_*.txt is eligible",
+    "tmp_active_process_check": ".tmp is skipped when active process command lines reference the workspace temp root"
+  },
+  "scopes": [
+    "stale-backups"
+  ],
+  "skipped": [],
+  "summary": {
+    "candidate_total": 18,
+    "deleted_bytes": 70528731,
+    "deleted_total": 18,
+    "skipped_total": 0
+  }
+}

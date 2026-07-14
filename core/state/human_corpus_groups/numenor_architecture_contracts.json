@@ -1,0 +1,39 @@
+{
+  "authority": "bounded_human_corpus_group_extraction",
+  "extraction": {
+    "contract_candidates": [
+      "tool_harness_contract",
+      "service_registry_contract",
+      "daemon_api_contract",
+      "deterministic_fixture_replay_contract"
+    ],
+    "crate_candidates": [
+      "annunimas-tool-harness",
+      "annunimas-service-registry"
+    ],
+    "extracted_primitives": [
+      "tool_harness_pipeline",
+      "daemon_api_contract",
+      "fixture_runner_contract",
+      "stub_handler_contract",
+      "service_registry_schema"
+    ],
+    "next_downstream_tasks": [
+      "Formalize tool harness contract from Numenor architecture sources",
+      "Formalize service registry and daemon API contracts"
+    ]
+  },
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "group_id": "numenor_architecture_contracts",
+  "lane": "architecture",
+  "owner": "core",
+  "schema_version": "annunimas.human-corpus-group.v1",
+  "sigil": "REPAIR",
+  "source_ids": [
+    "src_d6c35301"
+  ],
+  "source_paths": [
+    "human/plans/NUMENOR_PRIME_BATCH_03_FRAMEWORK_AND_TOOLS.md"
+  ],
+  "task_title": "Extract contract primitives from NUMENOR_PRIME_BATCH_03_FRAMEWORK_AND_TOOLS"
+}

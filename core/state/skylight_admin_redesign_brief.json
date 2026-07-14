@@ -1,0 +1,52 @@
+{
+  "authority": "ceo_delivery_brief",
+  "client_slug": "skylight-pros",
+  "design_doctrine": {
+    "north_star": "Command center first, reporting screen second.",
+    "visual_direction": [
+      "warm industrial premium rather than cold enterprise blue",
+      "clear hierarchy with a left rail, hero status strip, and dense but readable work grid",
+      "high-contrast action cards with restrained accent color",
+      "surface live risk, readiness, and flow state before detail tables"
+    ],
+    "workflow_alignment": [
+      "CEO sees throughput, risk, schedule load, lead health, and campaign posture",
+      "Worker sees readiness, next jobs, blockers, and field capture flow",
+      "Marketing sees content queue, campaign posture, and proof-of-work media"
+    ]
+  },
+  "first_pass_scope": [
+    "admin layout shell",
+    "dashboard landing page",
+    "top navigation and left rail",
+    "shared dashboard visual language",
+    "selected card modernization without changing backend contracts"
+  ],
+  "generated_at_utc": "2026-03-12T09:00:00Z",
+  "mission": {
+    "goal": "Redesign the Skylight Pros admin surface into a modern command center that feels operationally serious, visually distinctive, and aligned with real business workflow.",
+    "positioning": "Not a generic SaaS dashboard and not an AI chat shell. A field-and-office command surface for a premium skylight business."
+  },
+  "project_lane": "skylight-pros-web",
+  "reference_direction": {
+    "avoid": [
+      "generic pastel SaaS admin kits",
+      "chat-first layouts for non-chat work",
+      "feature-card collage without operational hierarchy"
+    ],
+    "borrow_from": [
+      "elizaOS control-plane density",
+      "Laddr observability rails",
+      "Open WebUI workspace polish",
+      "agent-ui result-card clarity"
+    ]
+  },
+  "schema_version": "annunimas.client-redesign-brief.v1",
+  "sigil": "REPAIR",
+  "success_criteria": [
+    "Dashboard reads as one integrated operating surface.",
+    "Leadership, field, and marketing priorities are visible on first load.",
+    "No backend contract changes required for first pass.",
+    "Visual system is strong enough to extend across sub-pages later."
+  ]
+}

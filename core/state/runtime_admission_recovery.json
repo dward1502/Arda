@@ -1,0 +1,30 @@
+{
+  "authority": "runtime_admission_recovery_policy",
+  "doctrine": {
+    "agent_consumable": true,
+    "maintenance_work_should_defer_under_pressure": true,
+    "recovery_prefers_reroute_before_human_escalation": true,
+    "shed_receipts_must_project_into_recovery_actions": true,
+    "ui_optional": true
+  },
+  "generated_at_utc": "2026-05-30T17:15:05Z",
+  "recovery_actions": [],
+  "schema_version": "annunimas.runtime-admission-recovery.v1",
+  "source_surfaces": {
+    "runtime_admission_pressure": "core/state/runtime_admission_pressure.json",
+    "runtime_admission_receipts": "core/state/runtime_admission_receipts.json",
+    "runtime_budget_policy": "core/state/runtime_budget_policy.json"
+  },
+  "summary": {
+    "active_recovery_window_minutes": 60,
+    "control_plane_defer_total": 0,
+    "deferred_retry_total": 0,
+    "local_joule_pressure": false,
+    "pressure_guard_status": "ok",
+    "recovery_actions_total": 0,
+    "reroute_retry_total": 0,
+    "route_shift_total": 0,
+    "stale_shed_receipts_ignored_total": 50,
+    "steady_state": true
+  }
+}

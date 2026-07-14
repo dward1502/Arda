@@ -1,0 +1,31 @@
+{
+  "ts_utc": "2026-03-08T18:23:42.196728+00:00",
+  "actions": [
+    {
+      "name": "drain_hades_action_queue",
+      "before": 314,
+      "moved_to_archive": 314,
+      "after": 0,
+      "archive_path": "data/hades/action_queue_archive.jsonl"
+    },
+    {
+      "name": "drain_athena_deep_queue",
+      "before": 7,
+      "moved_to_archive": 7,
+      "after": 0,
+      "archive_path": "data/athena/deep_queue_archive.jsonl"
+    },
+    {
+      "name": "drain_hermes_outbound_queue",
+      "before": 5,
+      "moved_to_archive": 5,
+      "after": 0,
+      "archive_path": "data/hermes/outbound_queue_archive.jsonl"
+    },
+    {
+      "name": "reclassify_projects_backlog",
+      "changed_to_backlog": 18,
+      "path": "core/projects/backlog_post_v01.jsonl"
+    }
+  ]
+}

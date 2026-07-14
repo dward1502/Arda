@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_af49e6311f58491796b2a285d62bfb20",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA Beelink local service manifests",
+  "salience": 0.8045000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T05:53:57.683175343Z",
+  "last_seen_at": "2026-06-01T05:53:57.683175343Z"
+}

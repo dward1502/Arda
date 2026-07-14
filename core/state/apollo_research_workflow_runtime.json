@@ -1,0 +1,147 @@
+{
+  "authority": "research_workflow_contract + apollo_runtime",
+  "campaign": {
+    "mission": "Translate autoresearch-style loops into bounded ATHENA evidence primitives and APOLLO execution stages.",
+    "name": "Research Workflow Absorption",
+    "owner": "apollo_athena",
+    "source_id": "src_f226959a"
+  },
+  "execution_template": {
+    "agent_id": "apollo",
+    "payload": {
+      "checkpoints": [
+        "stop if evidence remains reference_only",
+        "stop if runtime budget pressure exceeds policy",
+        "only emit downstream work once implementation brief exists"
+      ],
+      "goal": "<goal>",
+      "source_anchor": "<source_url>",
+      "source_id": "<source_id>",
+      "success_boundary": "<success_boundary>",
+      "workflow_kind": "research_absorption_loop"
+    },
+    "priority": "High",
+    "task_id": "research_absorption::<source_id>",
+    "timeout_secs": 1800
+  },
+  "generated_at_utc": "2026-04-28T09:49:24Z",
+  "governor_gate": {
+    "provider_budget_tracking": {
+      "cooldown_active_total": 0,
+      "providers_with_daily_limits": 14,
+      "providers_with_minute_limits": 14
+    },
+    "stop_conditions": [
+      "stop if evidence remains reference_only",
+      "stop if runtime budget pressure exceeds policy",
+      "only emit downstream work once implementation brief exists"
+    ]
+  },
+  "schema_version": "annunimas.apollo-research-workflow-runtime.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "checkpoints_total": 3,
+    "runtime_path_ready": true,
+    "stages_total": 6,
+    "workflow_name": "research_absorption_loop"
+  },
+  "workflow": {
+    "created_at": "2026-04-28T09:49:24Z",
+    "id": "research_absorption_loop_v1",
+    "name": "research_absorption_loop",
+    "status": "Pending",
+    "steps": [
+      {
+        "action": "capture_research_goal",
+        "dependencies": [],
+        "id": "define_goal",
+        "max_retries": 1,
+        "name": "Define Goal",
+        "payload": {
+          "required_fields": [
+            "goal",
+            "success_boundary",
+            "source_anchor"
+          ]
+        },
+        "retry_count": 0
+      },
+      {
+        "action": "athena_harvest_sources",
+        "dependencies": [
+          "define_goal"
+        ],
+        "id": "harvest_sources",
+        "max_retries": 1,
+        "name": "Harvest Sources",
+        "payload": {
+          "output": "harvest_receipts",
+          "requires_receipts": true
+        },
+        "retry_count": 0
+      },
+      {
+        "action": "athena_deepen_and_triad_validate",
+        "dependencies": [
+          "harvest_sources"
+        ],
+        "id": "deepen_and_validate",
+        "max_retries": 1,
+        "name": "Deepen And Validate",
+        "payload": {
+          "output": "validated_evidence",
+          "stop_if_reference_only": true
+        },
+        "retry_count": 0
+      },
+      {
+        "action": "athena_emit_implementation_brief",
+        "dependencies": [
+          "deepen_and_validate"
+        ],
+        "id": "emit_brief",
+        "max_retries": 1,
+        "name": "Emit Implementation Brief",
+        "payload": {
+          "output": "implementation_brief"
+        },
+        "retry_count": 0
+      },
+      {
+        "action": "prometheus_queue_contract_work",
+        "dependencies": [
+          "emit_brief"
+        ],
+        "id": "queue_downstream_contracts",
+        "max_retries": 1,
+        "name": "Queue Downstream Contracts",
+        "payload": {
+          "task_surface": "core/projects/tasks/queue.jsonl"
+        },
+        "retry_count": 0
+      },
+      {
+        "action": "governor_budget_and_pressure_review",
+        "dependencies": [
+          "queue_downstream_contracts"
+        ],
+        "id": "review_runtime_governor_signals",
+        "max_retries": 1,
+        "name": "Review Runtime Governor Signals",
+        "payload": {
+          "runtime_governor_contract": "core/state/runtime_governor_contract.json"
+        },
+        "retry_count": 0
+      }
+    ]
+  },
+  "workflow_engine_contract": {
+    "apollo_runtime_paths": {
+      "home": "/var/home/dward/Annunimas/data/apollo",
+      "requests_path": "/var/home/dward/Annunimas/data/apollo/pending_requests.json",
+      "status_path": "/var/home/dward/Annunimas/data/apollo/runtime_status.json"
+    },
+    "execution_request_struct_source": "crates/annunimas-apollo/src/executor.rs",
+    "workflow_struct_source": "crates/annunimas-apollo/src/workflow.rs"
+  }
+}

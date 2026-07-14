@@ -1,0 +1,42 @@
+{
+  "arda_hints": {
+    "boardroom_section": "identity_and_growth",
+    "highlight_focus": true,
+    "primary_panel": "identity_continuity"
+  },
+  "authority": "memory_identity_projection",
+  "derived_state": {
+    "active_memory_count": 4,
+    "core_memory_count": 2,
+    "identity_ready": true,
+    "recent_focus_present": true
+  },
+  "generated_at_utc": "2026-07-14T05:03:08.018983776+00:00",
+  "identity": {
+    "current_mission_focus": "CHARON failed route for openai_shim:code priority=normal",
+    "memory_counts": {
+      "active": 4,
+      "archived": 4,
+      "consolidated": 3,
+      "core": 2,
+      "peripheral": 15,
+      "released": 9477,
+      "transient": 39
+    },
+    "top_priority_tags": [
+      {
+        "count": 12,
+        "tag": "route"
+      },
+      {
+        "count": 12,
+        "tag": "failure"
+      },
+      {
+        "count": 12,
+        "tag": "charon"
+      }
+    ]
+  },
+  "schema_version": "annunimas.core.state.v1"
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_c480fd585b114c00a3cfab4069b61a1b",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Hermes Agent gateway activation verifier implemented. Added the read-only annunimas-cli utility hermes-agent-gateway-activation-check. It audits plan/runbook/template artifacts, work-stream semantic channel registration, Hermes Agent CLI and gateway status, redacted env readiness, unsafe allow-all toggles, receipt adapter readiness, and human-gated live smoke-test steps. Current verifier output is safe_local_ready_live_human_gates_pending because ANNUNIMAS_DISCORD_WORK_STREAM_CHANNEL_ID and ANNUNIMAS_OPERATOR_DISCORD_USER_ID are unset and hermes-gateway.service is inactive. Verification: cargo fmt --check -p annunimas-cli; cargo test -p annunimas-cli hermes_agent_gateway_activation_check -- --nocapture; cargo test -p annunimas-cli hermes_gateway_status_parser -- --nocapture; cargo run -p annunimas-cli -- utility hermes-agent-gateway-activation-check.",
+  "salience": 0.8055,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-30T18:06:47.445982009Z",
+  "last_seen_at": "2026-05-30T18:06:47.445982009Z"
+}

@@ -1,0 +1,22 @@
+{
+  "arda_hints": {
+    "machine_semantics_first": true,
+    "primary_panel": "soterion_language",
+    "render_contract_ready": true
+  },
+  "authority": "soterion_render_projection",
+  "generated_at_utc": "2026-07-14T00:44:57.998059939+00:00",
+  "glyph_groups": {
+    "agent_identity": {},
+    "confidence_levels": {},
+    "flow_directives": {},
+    "protocol_markers": {},
+    "state_signals": {}
+  },
+  "machine_sigils": {},
+  "principles": [],
+  "registry_status": null,
+  "registry_version": null,
+  "schema_version": "annunimas.core.state.v1",
+  "source_defaults": {}
+}

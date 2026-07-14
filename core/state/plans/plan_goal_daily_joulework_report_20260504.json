@@ -1,0 +1,32 @@
+{
+  "contract_version": "0.1.0",
+  "id": "plan_goal_daily_joulework_report_20260504",
+  "goal_id": "goal_daily_joulework_report",
+  "summary": "Roll up today's joule spend and emit a single summary LedgerEntry.",
+  "steps": [
+    {
+      "intent": "collect_joule_samples",
+      "params": {
+        "since": "day_start_utc"
+      }
+    },
+    {
+      "intent": "summarize_by_agent",
+      "params": {}
+    },
+    {
+      "intent": "summarize_by_provider_tier",
+      "params": {}
+    },
+    {
+      "intent": "emit_ledger_summary",
+      "params": {
+        "kind": "joulework_daily"
+      }
+    }
+  ],
+  "status": "draft",
+  "lessons_consulted": [],
+  "created_at": "2026-05-04T02:55:11.927985256Z",
+  "updated_at": "2026-05-04T02:55:11.927985256Z"
+}

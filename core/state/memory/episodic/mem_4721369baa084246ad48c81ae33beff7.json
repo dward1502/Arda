@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_4721369baa084246ad48c81ae33beff7",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: S1/G1: audit current workspace for exact 18-crate core manifest and mark stable surface. S1/G1 audit complete. Evidence artifacts: core/state/platform_os_core_manifest_audit.json and docs/plans/platform-os-core-manifest-audit.md. Result: current workspace has 26 members; frozen Platform OS core surface has 18 members; no frozen core members missing; eight non-core members remain pending S1/G3 boundary enforcement and later S2/S3 separation. Append-only guard passed before closeout.",
+  "salience": 0.8505000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-21T03:21:07.621631377Z",
+  "last_seen_at": "2026-06-21T03:21:07.621631377Z"
+}

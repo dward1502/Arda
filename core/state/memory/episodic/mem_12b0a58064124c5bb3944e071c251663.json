@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_12b0a58064124c5bb3944e071c251663",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Hermes Discord work-stream continuation command deployed. Added /continue to the Annunimas Discord operating-room surface. It records annunimas.hermes.work_stream_continuation_request.v1 entries in data/hermes/work_stream_continuations.jsonl and preserves the boundary that continuation does not approve execution or close tasks. Refreshed the canonical plan, runbook, and activation check so the full command set /plans, /tasks, /task, /review, /continue, /council, /gateway is verified. Built release and restarted annunimas-hermes-discord.service after approval; service is active and reconnected as Annunimas_CEO. Verification: cargo fmt --check -p annunimas-cli -p annunimas-hermes; cargo test -p annunimas-hermes serenity_bot -- --nocapture; cargo test -p annunimas-cli hermes_agent_gateway_activation_check -- --nocapture; cargo run -p annunimas-cli -- utility hermes-agent-gateway-activation-check reports ready_for_live_gateway/live_ready=true/operating_room_surface.ready=true.",
+  "salience": 0.7210555555555557,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-30T18:49:01.639428557Z",
+  "last_seen_at": "2026-05-30T18:49:01.639428557Z"
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_ca42c92ce6fb40e5b904515869960fd6",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Create task for model-benchmark-receipt-contract.md",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-05T07:19:03.303577421Z",
+  "last_seen_at": "2026-06-05T07:19:03.303577421Z"
+}

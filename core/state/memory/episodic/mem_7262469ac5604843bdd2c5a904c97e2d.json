@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_7262469ac5604843bdd2c5a904c97e2d",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA add focused media and remote session adapter contracts",
+  "salience": 0.8045000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T08:51:26.872615400Z",
+  "last_seen_at": "2026-06-01T08:51:26.872615400Z"
+}

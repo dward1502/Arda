@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_b2e41be5ea054949bb900ea30311c47f",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Queue: AIPKG plan review. Reviewed AIPKG plan. Core contract surface core/state/aipkg_contract.json exists. Human narrative human/plans/AIPKG.md not found — will create in follow-up task. Spec root spec/aipkg/v0.1/ not found — will create in follow-up task. Current workspace aligns with contract: open standard law separate from marketplace, zero-work preflight mandatory, Triad/Bacon-lite/JouleWork/Love/Soterion gates explicit, receipts and attestations first-class, profiles split into wasm-wasi/oci-sandboxed/local-sovereign.",
+  "salience": 1.0,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-20T23:27:28.437129154Z",
+  "last_seen_at": "2026-06-20T23:27:28.437129154Z"
+}

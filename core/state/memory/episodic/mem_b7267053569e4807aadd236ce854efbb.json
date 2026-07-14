@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_b7267053569e4807aadd236ce854efbb",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA Pixal3D-ComfyUI spike blocked; proceed Forge-Mind path",
+  "salience": 0.8625,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-02T00:57:46.748593125Z",
+  "last_seen_at": "2026-06-02T00:57:46.748593125Z"
+}

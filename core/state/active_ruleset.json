@@ -1,0 +1,230 @@
+{
+  "sigil": "REPAIR",
+  "active_ruleset": "annunimas_totality",
+  "expires_at_utc": null,
+  "policy": {
+    "autonomy_score_threshold": 0.65,
+    "enable_exec_council": true,
+    "gate_strict": false,
+    "network_unlock_templates": [
+      "git push",
+      "cargo run -p annunimas-cli -- hermes send"
+    ],
+    "build_verification_routing": {
+      "contract_version": "annunimas.build_verification_routing.v1",
+      "authority_split": {
+        "workstation": "canonical_build_and_export_executor",
+        "laptop": "operator_terminal_not_default_build_executor"
+      },
+      "required_remote_surface": "scripts/remote/operator/remote_operator_workstation.sh",
+      "remote_actions": [
+        "sync-check",
+        "cargo-check-cli",
+        "cargo-check-athena",
+        "cargo-check-prometheus",
+        "export-athena-plan"
+      ],
+      "rules": {
+        "laptop_must_prefer_remote_for_cargo_check_test_run": true,
+        "laptop_local_builds_only_for_tiny_emergency_edits": true,
+        "agentic_execution_should_use_named_remote_actions_before_raw_ssh": true
+      }
+    },
+    "validators": {
+      "schema_version": "annunimas.validators.v2",
+      "core": {
+        "joulework": {
+          "validator": "joulework",
+          "version": "v1.2.0",
+          "mode": "always_on",
+          "required": true,
+          "threshold": 0.45,
+          "scope": "system"
+        },
+        "love_equation": {
+          "validator": "love_equation",
+          "version": "v1.2.0",
+          "mode": "always_on",
+          "required": true,
+          "threshold": 0.45,
+          "scope": "system"
+        },
+        "philosopher_triad": {
+          "validator": "philosopher_triad",
+          "version": "v2.0.0",
+          "mode": "consensus_2_of_3",
+          "required": true,
+          "threshold": 0.45,
+          "members": [
+            {
+              "id": "aurelius",
+              "version": "v1.0.0",
+              "role": "ethics_and_sovereignty"
+            },
+            {
+              "id": "bacon",
+              "version": "v1.0.0",
+              "role": "evidence_and_method"
+            },
+            {
+              "id": "sun_tzu",
+              "version": "v1.0.0",
+              "role": "strategy_and_adversarial_review"
+            }
+          ]
+        }
+      },
+      "light": [
+        {
+          "validator": "philosopher_light.bacon_lite",
+          "version": "v1.1.0",
+          "scope": "bounded_research_and_tool_selection",
+          "required_for": [
+            "planning",
+            "analysis",
+            "research"
+          ]
+        },
+        {
+          "validator": "philosopher_light.marcus_lite",
+          "version": "v1.0.0",
+          "scope": "local_exec_and_recovery_hygiene",
+          "required_for": [
+            "runtime_recovery",
+            "maintenance",
+            "bounded_exec"
+          ]
+        },
+        {
+          "validator": "philosopher_light.sun_tzu_lite",
+          "version": "v1.0.0",
+          "scope": "routing_and_competitive_positioning",
+          "required_for": [
+            "routing",
+            "provider_selection",
+            "go_to_market"
+          ]
+        }
+      ]
+    },
+    "human_augmentation": {
+      "mode": "human_augmentation",
+      "operating_model": "zero_human_company_with_sovereign_escalation",
+      "critical_decision_routing": {
+        "autonomous_classes": [
+          "bounded_research",
+          "local_refactors",
+          "safe_exports",
+          "routine_maintenance"
+        ],
+        "triad_quorum_classes": [
+          "strategy_change",
+          "provider_reroute",
+          "pricing_change",
+          "customer_commitment",
+          "data_retention_change"
+        ],
+        "human_required_classes": [
+          "funds_movement",
+          "legal_commitment",
+          "human_identity_or_access_change",
+          "destructive_delete",
+          "fleet_reimage"
+        ]
+      },
+      "consensus": {
+        "triad_required": true,
+        "triad_mode": "2_of_3",
+        "triad_quorum_ratio": 0.66,
+        "sovereign_override_required_for": [
+          "funds_movement",
+          "legal_commitment",
+          "fleet_reimage"
+        ]
+      }
+    },
+    "ceo_council": {
+      "protocol_version": "annunimas.ceo_council.v1",
+      "ceo_identity": "arandur",
+      "cto_seat": {
+        "mode": "hybrid",
+        "default_identity": "warden",
+        "infrastructure_fill_allowed": true
+      },
+      "ingress": {
+        "primary": "discord",
+        "target_end_state": "matrix",
+        "messaging_is_not_source_of_truth": true
+      },
+      "memory_policy": {
+        "private_working_memory_expires_by_default": true,
+        "private_memory_requires_promotion_for_irreversible_action": true,
+        "auto_write_low_risk": true
+      },
+      "loop_policy": {
+        "triad_for_medium_high_and_high": true,
+        "lightweight_for_everything_else": true
+      }
+    },
+    "task_lifecycle": {
+      "contract_version": "annunimas.task_lifecycle.v1",
+      "canonical_pipeline": [
+        "plan",
+        "task_emission",
+        "task_retrieval",
+        "bounded_execution",
+        "completion_evidence",
+        "hades_disposal_review",
+        "archive_or_retention"
+      ],
+      "rules": {
+        "completion_is_not_disposal": true,
+        "disposal_is_not_deletion": true,
+        "hades_controls_final_lifecycle_boundary": true,
+        "disposal_marker_glyph": "\u219d"
+      }
+    },
+    "selinux_safe_runtime": {
+      "contract_version": "annunimas.selinux_runtime_contract.v1",
+      "host_family": "bluefin_fedora_atomic",
+      "enforcement_mode": "selinux_enforcing_preferred",
+      "service_owner": "systemd",
+      "authority_split": {
+        "workstation": "canonical_execution_authority",
+        "beelink": "bounded_edge_worker",
+        "laptop": "terminal_operator_optional_compute"
+      },
+      "required_paths": {
+        "runtime_dir": "${XDG_RUNTIME_DIR}/annunimas",
+        "state_dir": "${XDG_STATE_HOME:-$HOME/.local/state}/annunimas",
+        "cache_dir": "${XDG_CACHE_HOME:-$HOME/.cache}/annunimas"
+      },
+      "remote_control_plane": {
+        "preferred": [
+          "tailscale_http",
+          "tailscale_https"
+        ],
+        "restricted_default_use": [
+          "tailscale_ssh"
+        ]
+      },
+      "forbidden_patterns": [
+        "sockets_under_plain_tmp_for_core_runtime",
+        "laptop_as_required_backbone_inference_target",
+        "ad_hoc_backgrounding_as_canonical_service_model"
+      ]
+    },
+    "profile": "annunimas_totality",
+    "triad_required_pass_rate": 0.45,
+    "action_classes": {
+      "strategy_change": "record_and_proceed"
+    },
+    "governance_policy": {
+      "action_class_modes": {
+        "strategy_change": "record_and_proceed"
+      }
+    }
+  },
+  "reason": "restore totality default",
+  "selected_at_utc": "2026-03-09T05:13:34.765906605+00:00"
+}

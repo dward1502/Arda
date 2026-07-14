@@ -1,0 +1,36 @@
+{
+  "schema_version": "annunimas.ceo.beliefs.v1",
+  "generated_at_utc": "2026-04-22T00:00:00Z",
+  "source": "human/CEO/beliefs.md",
+  "summary": {
+    "beliefs_total": 7,
+    "by_mark": {
+      "◈": 4,
+      "◇": 2,
+      "⚔": 1,
+      "∆": 0
+    },
+    "by_category": {
+      "system_runtime": 3,
+      "governance_identity": 2,
+      "clients_billing": 1,
+      "human_principal": 2
+    },
+    "revisions_total": 0,
+    "last_updated_utc": "2026-04-22T00:00:00Z"
+  },
+  "confidence_distribution": {
+    "high_conf_ge_0_90": 5,
+    "med_conf_0_70_to_0_89": 2,
+    "low_conf_lt_0_70": 0
+  },
+  "conventions": {
+    "marks": {
+      "◈": "evidence-backed",
+      "◇": "working belief (plausible)",
+      "⚔": "under active challenge",
+      "∆": "just updated"
+    },
+    "line_format": "<mark> <statement> — <evidence> (<confidence>)"
+  }
+}

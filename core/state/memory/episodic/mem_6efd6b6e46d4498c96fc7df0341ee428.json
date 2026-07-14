@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_6efd6b6e46d4498c96fc7df0341ee428",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Embed Hermes dashboard in ARDA scene floating workstation",
+  "salience": 0.8845000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-17T04:35:26.400423234Z",
+  "last_seen_at": "2026-05-17T04:35:26.400423234Z"
+}

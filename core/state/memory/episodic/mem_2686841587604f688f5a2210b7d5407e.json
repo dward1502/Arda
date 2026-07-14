@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_2686841587604f688f5a2210b7d5407e",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Phase 8 P8-HARD-002 Phase 7 closeout packet published",
+  "salience": 0.6825,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-26T12:33:36.336011770Z",
+  "last_seen_at": "2026-05-26T12:33:36.336011770Z"
+}

@@ -1,0 +1,53 @@
+{
+  "schema_version": "annunimas.human-inbox-phase2f-promotion-gates.v1",
+  "generated_at_utc": "2026-05-16T05:37:29Z",
+  "safety_boundary": {
+    "raw_inbox_mutation_allowed": false,
+    "raw_inbox_move_delete_allowed": false,
+    "canonical_promotion_performed_in_phase2f": false,
+    "allowed_outputs": [
+      "audit/HUMAN_INBOX_PHASE2F_2026-05-15/**",
+      "core/state/human_inbox_phase2f_*.json"
+    ]
+  },
+  "global_gates": [
+    "Preserve source path and sha256 for every promoted claim or candidate.",
+    "Do not use AI transcript claims as canonical truth without independent review.",
+    "Separate hypothesis/speculation/evidence for ECST/MythOS research material.",
+    "For ARDA asset/spec material, verify media-to-requirement mapping before asset-pipeline promotion.",
+    "Check Phase 2E promoted surfaces for duplicates before creating new canonical candidates.",
+    "Use reviewed-candidate status unless human/governance explicitly upgrades authority."
+  ],
+  "batches": [
+    {
+      "id": "batch-01-arda-boardroom-spec-pack",
+      "title": "ARDA boardroom visual/spec intake pack",
+      "referenced_files": 43,
+      "promotion_gate": "All referenced images/metadata stubs must map to an asset requirement, have hashes preserved, and be marked candidate_asset_spec before any ARDA asset-pipeline promotion."
+    },
+    {
+      "id": "batch-02-existing-extracted-candidates",
+      "title": "Existing extracted candidate notes",
+      "referenced_files": 23,
+      "promotion_gate": "Only unpromoted deltas with explicit source backlinks and no Phase 2E duplicate may become reviewed candidates."
+    },
+    {
+      "id": "batch-03-ai-conversations-and-mixed-longform",
+      "title": "AI conversations and mixed longform residues",
+      "referenced_files": 8,
+      "promotion_gate": "Each extracted claim needs source file hash, excerpt pointer, candidate authority, and contradiction pass."
+    },
+    {
+      "id": "batch-04-research-and-binary-documents",
+      "title": "Research PDFs/DOCX and speculative knowledge",
+      "referenced_files": 7,
+      "promotion_gate": "Evidence separation, source extraction verification, and explicit speculative/candidate labeling required."
+    },
+    {
+      "id": "batch-05-project-business-technical-residue",
+      "title": "Project/business/technical residue not yet normalized",
+      "referenced_files": 24,
+      "promotion_gate": "Scope review, owner/path assignment, duplicate check against Phase 2E outputs, and frontmatter completeness."
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "sigil": "COIN",
+  "enabled": true,
+  "required_approvers": 2,
+  "triad_approvers": [
+    "aurelius",
+    "bacon",
+    "sun_tzu"
+  ],
+  "require_evidence": true
+}

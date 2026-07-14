@@ -1,0 +1,107 @@
+{
+  "allowed_action_classes": [
+    "l3_local_doc_fixture_patch",
+    "local_refactor_with_tests",
+    "documentation_indexing"
+  ],
+  "authority": "annunimas-cli export l3-readiness-projection",
+  "blocked_action_classes": [
+    "destructive_delete",
+    "archive_or_retention_mutation_without_hades_approval",
+    "credential_change",
+    "external_message_send",
+    "service_restart",
+    "provider_reload_or_reroute",
+    "fleet_reimage_or_remote_mutation",
+    "funds_movement",
+    "legal_or_customer_commitment"
+  ],
+  "federation": {
+    "blocked_total": 16,
+    "human_lane_included": true,
+    "promotion_candidates_total": 16,
+    "promotion_ready_total": 0,
+    "sources_total": 13
+  },
+  "flywheel": {
+    "blocked_total": 0,
+    "next_ready_packet": null,
+    "packet_total": 7,
+    "readiness_counts": {
+      "completed": 7
+    },
+    "ready_total": 0
+  },
+  "generated_at_utc": "2026-06-12T08:53:20Z",
+  "hades_lifecycle": {
+    "cleanup_authorized": false,
+    "executed": true,
+    "no_file_moves_or_deletes_performed": false,
+    "planned_actions_total": 8,
+    "requires_operator_approval_for_mutation": true,
+    "review_completed": true,
+    "source_findings_total": 100
+  },
+  "harness": {
+    "append_only_guard": "passed",
+    "class_id": "l3_local_doc_fixture_patch",
+    "policy_mode": "block_on_fail",
+    "task_id": "tsk_plan_l3c_p6_ded5b63c05",
+    "verify_status": "passed"
+  },
+  "operator_surfaces": {
+    "arda": {
+      "bundle_field": "l3ReadinessProjection",
+      "mode": "read_only_projection",
+      "path": "apps/arda-hud/src/lib/ardaSource.ts"
+    },
+    "hermes": {
+      "ipc_command": "l3_readiness",
+      "mode": "read_only_projection",
+      "path": "crates/annunimas-hermes/src/service/runtime.rs"
+    }
+  },
+  "projection_policy": {
+    "approval_authority": "none_projection_only",
+    "grants_mutation_authority": false,
+    "operator_surface_only": true,
+    "read_only": true
+  },
+  "queue": {
+    "active_total": 18,
+    "canonical_path": "core/projects/tasks/queue.jsonl",
+    "completed_total": 22,
+    "latest_task_ids_total": 40,
+    "pending_total": 5,
+    "queued_total": 13,
+    "raw_ledger_rows_total": 73
+  },
+  "recommendation": "l3_readiness_closure_plan_complete_select_next_non_l3_backlog_or_hades_lifecycle_review",
+  "schema_version": "annunimas.l3-readiness-projection.v1",
+  "source_paths": {
+    "flywheel": "core/state/flywheel_packet_runtime.json",
+    "hades_lifecycle_report": "data/hades/lifecycle_policy_automation_report.json",
+    "hades_rollback_evidence": "data/hades/lifecycle_cleanup_rollback_evidence.json",
+    "l3_receipt": "data/prometheus/l3_e2e_receipt.json",
+    "queue_federation": "core/state/queue_federation.json",
+    "queue_hygiene": "core/state/queue_hygiene.json",
+    "task_lifecycle": "core/state/task_lifecycle_runtime.json"
+  },
+  "status": {
+    "bounded_mutation_ready": true,
+    "broad_mutation_authorized": false,
+    "destructive_actions_authorized": false,
+    "external_side_effects_authorized": false,
+    "level": "l3_safe_local_harness_proven_projection_only"
+  },
+  "task_lifecycle": {
+    "archive_ready_total": 3,
+    "contract": {
+      "completion_is_not_disposal": true,
+      "disposal_is_not_deletion": true,
+      "hades_is_lifecycle_boundary": true,
+      "pipeline": "plan -> task_emission -> task_retrieval -> bounded_execution -> completion_evidence -> hades_disposal_review -> archive_or_retention"
+    },
+    "disposal_review_total": 19
+  }
+}

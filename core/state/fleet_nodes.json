@@ -1,0 +1,1430 @@
+{
+  "authority": "fleet_nodes_projection",
+  "counts": {
+    "configured_total": 9,
+    "matched_total": 9,
+    "online_total": 4,
+    "unconfigured_observed_total": 0
+  },
+  "generated_at_utc": "2026-07-14T05:03:05.418222671+00:00",
+  "nodes": [
+    {
+      "configured": {
+        "base_url": "http://100.78.138.113:9337/v1",
+        "charon_provider_id": "edge_core",
+        "display_name": "Annunimas Core (3080 Workstation)",
+        "enrollment_status": "active",
+        "expected_models": [
+          "LFM2.5-8B-A1B-Q4_K_M"
+        ],
+        "health_url": "http://100.78.138.113:9337/v1/models",
+        "hostname": "annunimas-core",
+        "id": "node-core-hub",
+        "llm_runtime": "mesh_root",
+        "models_url": "http://100.78.138.113:9337/v1/models",
+        "node_class": "core_compute",
+        "notes": "Updated 2026-06-03. RTX 3080 10GB. Core mesh lane now serves LiquidAI LFM2.5-8B-A1B-Q4_K_M via mesh-llm with 128K context target. Qwen3.5-9B-Q4_K_M remains staged as rollback.",
+        "restart_cmd": "systemctl --user --no-block restart mesh-llm.service",
+        "restart_scope": "local",
+        "role": "main_hub",
+        "ssh_user": "mythos",
+        "startup_priority": 10,
+        "tailscale_ip": "100.78.138.113",
+        "tailscale_name": "annunimas-core"
+      },
+      "display_name": "Annunimas Core (3080 Workstation)",
+      "matched": true,
+      "observed": {
+        "active": true,
+        "capabilities": [
+          "ingest",
+          "comms",
+          "workflow_execution",
+          "monitoring",
+          "maintenance",
+          "hardware_inventory"
+        ],
+        "dns_name": "annunimas-core.tail91c3c1.ts.net.",
+        "hardware": {
+          "block_devices": [
+            {
+              "children": [
+                {
+                  "model": null,
+                  "mountpoint": null,
+                  "name": "sda1",
+                  "size": "300M",
+                  "type": "part"
+                },
+                {
+                  "model": null,
+                  "mountpoint": null,
+                  "name": "sda2",
+                  "size": "99M",
+                  "type": "part"
+                },
+                {
+                  "model": null,
+                  "mountpoint": null,
+                  "name": "sda3",
+                  "size": "128M",
+                  "type": "part"
+                },
+                {
+                  "model": null,
+                  "mountpoint": null,
+                  "name": "sda4",
+                  "size": "464.8G",
+                  "type": "part"
+                },
+                {
+                  "model": null,
+                  "mountpoint": null,
+                  "name": "sda5",
+                  "size": "450M",
+                  "type": "part"
+                }
+              ],
+              "model": "Samsung SSD 850 ",
+              "mountpoint": null,
+              "name": "sda",
+              "size": "465.8G",
+              "type": "disk"
+            },
+            {
+              "children": [
+                {
+                  "model": null,
+                  "mountpoint": null,
+                  "name": "sdb1",
+                  "size": "100M",
+                  "type": "part"
+                },
+                {
+                  "model": null,
+                  "mountpoint": null,
+                  "name": "sdb2",
+                  "size": "931.4G",
+                  "type": "part"
+                }
+              ],
+              "model": "WDC WD1003FBYX-0",
+              "mountpoint": null,
+              "name": "sdb",
+              "size": "931.5G",
+              "type": "disk"
+            },
+            {
+              "children": [
+                {
+                  "model": null,
+                  "mountpoint": null,
+                  "name": "sdc1",
+                  "size": "16M",
+                  "type": "part"
+                },
+                {
+                  "model": null,
+                  "mountpoint": null,
+                  "name": "sdc2",
+                  "size": "931.5G",
+                  "type": "part"
+                }
+              ],
+              "model": "WDC WD1003FZEX-0",
+              "mountpoint": null,
+              "name": "sdc",
+              "size": "931.5G",
+              "type": "disk"
+            },
+            {
+              "children": [
+                {
+                  "model": null,
+                  "mountpoint": null,
+                  "name": "sdd1",
+                  "size": "238.5G",
+                  "type": "part"
+                }
+              ],
+              "model": "Samsung SSD 860 ",
+              "mountpoint": null,
+              "name": "sdd",
+              "size": "238.5G",
+              "type": "disk"
+            },
+            {
+              "model": null,
+              "mountpoint": "[SWAP]",
+              "name": "zram0",
+              "size": "8G",
+              "type": "disk"
+            },
+            {
+              "children": [
+                {
+                  "model": null,
+                  "mountpoint": "/boot/efi",
+                  "name": "nvme1n1p1",
+                  "size": "600M",
+                  "type": "part"
+                },
+                {
+                  "model": null,
+                  "mountpoint": "/boot",
+                  "name": "nvme1n1p2",
+                  "size": "1G",
+                  "type": "part"
+                },
+                {
+                  "children": [
+                    {
+                      "model": null,
+                      "mountpoint": "/sysroot",
+                      "name": "bluefin_bluefin--lts00-root",
+                      "size": "70G",
+                      "type": "lvm"
+                    },
+                    {
+                      "model": null,
+                      "mountpoint": "/var",
+                      "name": "bluefin_bluefin--lts00-var",
+                      "size": "882.3G",
+                      "type": "lvm"
+                    }
+                  ],
+                  "model": null,
+                  "mountpoint": null,
+                  "name": "nvme1n1p3",
+                  "size": "952.3G",
+                  "type": "part"
+                }
+              ],
+              "model": "ADATA SX8200PNP                         ",
+              "mountpoint": null,
+              "name": "nvme1n1",
+              "size": "953.9G",
+              "type": "disk"
+            },
+            {
+              "children": [
+                {
+                  "model": null,
+                  "mountpoint": null,
+                  "name": "nvme0n1p1",
+                  "size": "600M",
+                  "type": "part"
+                },
+                {
+                  "model": null,
+                  "mountpoint": null,
+                  "name": "nvme0n1p2",
+                  "size": "1G",
+                  "type": "part"
+                },
+                {
+                  "children": [
+                    {
+                      "model": null,
+                      "mountpoint": null,
+                      "name": "bluefin_bluefin--lts-root",
+                      "size": "70G",
+                      "type": "lvm"
+                    },
+                    {
+                      "model": null,
+                      "mountpoint": null,
+                      "name": "bluefin_bluefin--lts-var",
+                      "size": "161.3G",
+                      "type": "lvm"
+                    }
+                  ],
+                  "model": null,
+                  "mountpoint": null,
+                  "name": "nvme0n1p3",
+                  "size": "231.3G",
+                  "type": "part"
+                }
+              ],
+              "model": "Samsung SSD 970 EVO 250GB               ",
+              "mountpoint": null,
+              "name": "nvme0n1",
+              "size": "232.9G",
+              "type": "disk"
+            }
+          ],
+          "cpu": {
+            "architecture": "x86_64",
+            "cores_per_socket": "6",
+            "cpu_max_mhz": "4654.2881",
+            "model_name": "AMD Ryzen 5 5600X 6-Core Processor",
+            "sockets": "1",
+            "threads_per_core": "2"
+          },
+          "gpu_inventory": [
+            "00:00.0 Host bridge: Advanced Micro Devices, Inc. [AMD] Starship/Matisse Root Complex",
+            "00:00.2 IOMMU: Advanced Micro Devices, Inc. [AMD] Starship/Matisse IOMMU",
+            "00:01.0 Host bridge: Advanced Micro Devices, Inc. [AMD] Starship/Matisse PCIe Dummy Host Bridge",
+            "00:01.1 PCI bridge: Advanced Micro Devices, Inc. [AMD] Starship/Matisse GPP Bridge",
+            "00:01.2 PCI bridge: Advanced Micro Devices, Inc. [AMD] Starship/Matisse GPP Bridge",
+            "00:02.0 Host bridge: Advanced Micro Devices, Inc. [AMD] Starship/Matisse PCIe Dummy Host Bridge",
+            "00:03.0 Host bridge: Advanced Micro Devices, Inc. [AMD] Starship/Matisse PCIe Dummy Host Bridge",
+            "00:03.1 PCI bridge: Advanced Micro Devices, Inc. [AMD] Starship/Matisse GPP Bridge",
+            "00:04.0 Host bridge: Advanced Micro Devices, Inc. [AMD] Starship/Matisse PCIe Dummy Host Bridge",
+            "00:05.0 Host bridge: Advanced Micro Devices, Inc. [AMD] Starship/Matisse PCIe Dummy Host Bridge",
+            "00:07.0 Host bridge: Advanced Micro Devices, Inc. [AMD] Starship/Matisse PCIe Dummy Host Bridge",
+            "00:07.1 PCI bridge: Advanced Micro Devices, Inc. [AMD] Starship/Matisse Internal PCIe GPP Bridge 0 to bus[E:B]",
+            "00:08.0 Host bridge: Advanced Micro Devices, Inc. [AMD] Starship/Matisse PCIe Dummy Host Bridge",
+            "00:08.1 PCI bridge: Advanced Micro Devices, Inc. [AMD] Starship/Matisse Internal PCIe GPP Bridge 0 to bus[E:B]",
+            "00:14.0 SMBus: Advanced Micro Devices, Inc. [AMD] FCH SMBus Controller (rev 61)",
+            "00:14.3 ISA bridge: Advanced Micro Devices, Inc. [AMD] FCH LPC Bridge (rev 51)",
+            "00:18.0 Host bridge: Advanced Micro Devices, Inc. [AMD] Matisse/Vermeer Data Fabric: Device 18h; Function 0",
+            "00:18.1 Host bridge: Advanced Micro Devices, Inc. [AMD] Matisse/Vermeer Data Fabric: Device 18h; Function 1",
+            "00:18.2 Host bridge: Advanced Micro Devices, Inc. [AMD] Matisse/Vermeer Data Fabric: Device 18h; Function 2",
+            "00:18.3 Host bridge: Advanced Micro Devices, Inc. [AMD] Matisse/Vermeer Data Fabric: Device 18h; Function 3",
+            "00:18.4 Host bridge: Advanced Micro Devices, Inc. [AMD] Matisse/Vermeer Data Fabric: Device 18h; Function 4",
+            "00:18.5 Host bridge: Advanced Micro Devices, Inc. [AMD] Matisse/Vermeer Data Fabric: Device 18h; Function 5",
+            "00:18.6 Host bridge: Advanced Micro Devices, Inc. [AMD] Matisse/Vermeer Data Fabric: Device 18h; Function 6",
+            "00:18.7 Host bridge: Advanced Micro Devices, Inc. [AMD] Matisse/Vermeer Data Fabric: Device 18h; Function 7",
+            "02:00.0 USB controller: Advanced Micro Devices, Inc. [AMD] 500 Series Chipset USB 3.1 XHCI Controller",
+            "02:00.1 SATA controller: Advanced Micro Devices, Inc. [AMD] 500 Series Chipset SATA Controller",
+            "02:00.2 PCI bridge: Advanced Micro Devices, Inc. [AMD] 500 Series Chipset Switch Upstream Port",
+            "03:00.0 PCI bridge: Advanced Micro Devices, Inc. [AMD] 500 Series Chipset Switch Downstream Port",
+            "03:04.0 PCI bridge: Advanced Micro Devices, Inc. [AMD] 500 Series Chipset Switch Downstream Port",
+            "03:08.0 PCI bridge: Advanced Micro Devices, Inc. [AMD] 500 Series Chipset Switch Downstream Port",
+            "03:09.0 PCI bridge: Advanced Micro Devices, Inc. [AMD] 500 Series Chipset Switch Downstream Port",
+            "08:00.0 VGA compatible controller: NVIDIA Corporation GA102 [GeForce RTX 3080] (rev a1)",
+            "08:00.1 Audio device: NVIDIA Corporation GA102 High Definition Audio Controller (rev a1)",
+            "09:00.0 Non-Essential Instrumentation [1300]: Advanced Micro Devices, Inc. [AMD] Starship/Matisse PCIe Dummy Function",
+            "0a:00.0 Non-Essential Instrumentation [1300]: Advanced Micro Devices, Inc. [AMD] Starship/Matisse Reserved SPP",
+            "0a:00.1 Encryption controller: Advanced Micro Devices, Inc. [AMD] Starship/Matisse Cryptographic Coprocessor PSPCPP",
+            "0a:00.3 USB controller: Advanced Micro Devices, Inc. [AMD] Matisse USB 3.0 Host Controller",
+            "0a:00.4 Audio device: Advanced Micro Devices, Inc. [AMD] Starship/Matisse HD Audio Controller"
+          ],
+          "hostname": "annunimas-core",
+          "memory": {
+            "available": "2.1Gi",
+            "buff_cache": "22Gi",
+            "free": "914Mi",
+            "shared": "20Gi",
+            "total": "31Gi",
+            "used": "29Gi"
+          },
+          "mounts": [
+            {
+              "available": "495G",
+              "filesystem": "/dev/mapper/bluefin_bluefin--lts00-var",
+              "mountpoint": "/var",
+              "size": "882G",
+              "use_percent": "44%",
+              "used": "388G"
+            },
+            {
+              "available": "16G",
+              "filesystem": "tmpfs",
+              "mountpoint": "/tmp",
+              "size": "16G",
+              "use_percent": "1%",
+              "used": "57M"
+            }
+          ],
+          "nvidia_gpus": [
+            {
+              "driver_version": "590.48.01",
+              "memory_total_mib": "10240",
+              "name": "NVIDIA GeForce RTX 3080",
+              "power_draw_w": "34.03",
+              "temperature_c": "50"
+            }
+          ],
+          "nvme_devices": [
+            {
+              "device": "/dev/nvme0n1",
+              "fw_rev": "2B2QEXE7",
+              "model": "Samsung SSD 970 EVO 250GB 0x1 192.48 GB / 250.06 GB 512",
+              "usage": "B + 0 B"
+            },
+            {
+              "device": "/dev/nvme1n1",
+              "fw_rev": "S0118C",
+              "model": "ADATA SX8200PNP 0x1 1.02 TB / 1.02 TB 512",
+              "usage": "B + 0 B"
+            }
+          ]
+        },
+        "hostname": "annunimas-core",
+        "informant_source": "data/fleet/informants/annunimas-core_last.json",
+        "informant_ts_utc": "2026-05-30T15:16:42.804265Z",
+        "last_handshake_utc": "0001-01-01T00:00:00Z",
+        "last_seen_age_days": null,
+        "last_seen_utc": "0001-01-01T00:00:00Z",
+        "node_declared_id": "nTR2EHErqX11CNTRL",
+        "node_id": "nTR2EHErqX11CNTRL",
+        "online": true,
+        "os_hostname": "annunimas-core",
+        "relay": "lax",
+        "runtime": {},
+        "tailscale_ips": [
+          "100.78.138.113",
+          "fd7a:115c:a1e0::ca37:8a71"
+        ],
+        "usage": {}
+      },
+      "online": true
+    },
+    {
+      "configured": {
+        "base_url": "http://100.110.85.37:1234",
+        "charon_provider_id": "edge_guardhouse",
+        "display_name": "Pi5 Guardhouse (Warden)",
+        "enrollment_status": "active",
+        "expected_models": [
+          "Qwen3.5-4B-Q4_K_M.gguf"
+        ],
+        "health_url": "http://100.110.85.37:1234/health",
+        "hostname": "warden",
+        "id": "node-pi5-warden",
+        "llm_runtime": "edge_llm_light",
+        "models_url": "http://100.110.85.37:1234/v1/models",
+        "node_class": "edge_guardhouse",
+        "notes": "Home-network edge guardhouse on a regular Raspberry Pi 5. Cut over to OpenSSH key-only on 2026-04-27 (numenor@100.110.85.37, no password auth). Serving llama.cpp with Qwen3.5-4B-Q4_K_M.gguf on http://100.110.85.37:1234, with model metadata exposed at /v1/models, at 4096 context via a persistent user systemd service.",
+        "restart_cmd": "systemctl --user --no-block restart llama-server",
+        "restart_scope": "ssh",
+        "role": "warden_guardhouse",
+        "ssh_user": "numenor",
+        "startup_priority": 40,
+        "tailscale_ip": "100.110.85.37",
+        "tailscale_name": "warden"
+      },
+      "display_name": "Pi5 Guardhouse (Warden)",
+      "matched": true,
+      "observed": {
+        "active": false,
+        "capabilities": [
+          "embodied_controller_candidate",
+          "camera_runtime_present",
+          "tailscale_edge_node"
+        ],
+        "dns_name": "warden.tail91c3c1.ts.net.",
+        "hardware": {
+          "i2c_devices": [
+            "/dev/i2c-13",
+            "/dev/i2c-14"
+          ],
+          "kernel_modules": [
+            "spidev",
+            "rp1_pio",
+            "i2c_brcmstb",
+            "spi_bcm2835",
+            "rp1_fw",
+            "rp1_mailbox",
+            "rp1_adc",
+            "i2c_dev"
+          ],
+          "model": "Raspberry Pi 5 Model B Rev 1.1",
+          "packages_present": [
+            "i2c-tools",
+            "python3-venv",
+            "librpicam-app1:arm64",
+            "rpicam-apps",
+            "rpicam-apps-core",
+            "rpicam-apps-encoder:arm64",
+            "rpicam-apps-lite",
+            "rpicam-apps-opencv-postprocess",
+            "rpicam-apps-preview:arm64"
+          ]
+        },
+        "hostname": "warden",
+        "informant_source": "data/fleet/informants/node-pi5-warden_last.json",
+        "informant_ts_utc": "2026-03-11T10:17:00Z",
+        "last_handshake_utc": "2026-07-13T21:54:44.403128956-07:00",
+        "last_seen_age_days": null,
+        "last_seen_utc": "0001-01-01T00:00:00Z",
+        "node_declared_id": "node-pi5-warden",
+        "node_id": "nZMArV866311CNTRL",
+        "online": true,
+        "os_hostname": "warden",
+        "relay": "lax",
+        "runtime": {
+          "cargo": "missing",
+          "node": "missing",
+          "python": "Python 3.13.5"
+        },
+        "tailscale_ips": [
+          "100.110.85.37",
+          "fd7a:115c:a1e0::bc37:5525"
+        ],
+        "usage": {}
+      },
+      "online": true
+    },
+    {
+      "configured": {
+        "base_url": "http://100.103.125.88:9337/v1",
+        "charon_provider_id": "edge_beelink_light",
+        "display_name": "Beelink SER9 Pro",
+        "enrollment_status": "active",
+        "expected_models": [
+          "Qwen_Qwen3.5-4B-Q6_K"
+        ],
+        "health_url": "http://100.103.125.88:9337/v1/models",
+        "hostname": "beelink",
+        "id": "node-ser9-worker",
+        "llm_runtime": "llama_cpp_standalone",
+        "models_url": "http://100.103.125.88:9337/v1/models",
+        "node_class": "edge_worker",
+        "notes": "Beelink SER9 Pro worker. Also runs Bluefin and hosts fleet observability: Grafana :3000, Prometheus :9090, OpenWebUI :8080, Postgres, Redis, MinIO. As of 2026-06-16 the lighter Qwen_Qwen3.5-4B-Q6_K lane is served directly by llama.cpp/Vulkan on http://100.103.125.88:9337/v1 via llama-server-light.service. The old mesh-llm-worker.service was disabled after crash-looping because it calls `distrobox enter eregion` and that container no longer exists.",
+        "restart_cmd": "systemctl --user --no-block restart llama-server-light.service",
+        "restart_scope": "ssh",
+        "role": "ser9_sovereign_worker",
+        "ssh_user": "citadel",
+        "startup_priority": 20,
+        "tailscale_ip": "100.103.125.88",
+        "tailscale_name": "beelink"
+      },
+      "display_name": "Beelink SER9 Pro",
+      "matched": true,
+      "observed": {
+        "active": true,
+        "capabilities": [
+          "ingest",
+          "comms",
+          "workflow_execution",
+          "monitoring",
+          "maintenance",
+          "hardware_inventory"
+        ],
+        "dns_name": "beelink.tail91c3c1.ts.net.",
+        "hardware": {
+          "block_devices": [
+            {
+              "model": null,
+              "mountpoint": "[SWAP]",
+              "name": "zram0",
+              "size": "8G",
+              "type": "disk"
+            },
+            {
+              "children": [
+                {
+                  "model": null,
+                  "mountpoint": "/boot/efi",
+                  "name": "nvme0n1p1",
+                  "size": "600M",
+                  "type": "part"
+                },
+                {
+                  "model": null,
+                  "mountpoint": "/boot",
+                  "name": "nvme0n1p2",
+                  "size": "2G",
+                  "type": "part"
+                },
+                {
+                  "model": null,
+                  "mountpoint": "/usr/bin/swtpm",
+                  "name": "nvme0n1p3",
+                  "size": "928.9G",
+                  "type": "part"
+                }
+              ],
+              "model": "CT1000E100SSD8",
+              "mountpoint": null,
+              "name": "nvme0n1",
+              "size": "931.5G",
+              "type": "disk"
+            }
+          ],
+          "cpu": {
+            "architecture": "x86_64",
+            "cores_per_socket": "12",
+            "cpu_max_mhz": "5157.8950",
+            "model_name": "AMD Ryzen AI 9 HX PRO 370 w/ Radeon 890M",
+            "sockets": "1",
+            "threads_per_core": "2"
+          },
+          "gpu_inventory": [],
+          "hostname": "bluefin",
+          "memory": {
+            "available": "3.1Gi",
+            "buff_cache": "2.3Gi",
+            "free": "1.2Gi",
+            "shared": "780Ki",
+            "total": "27Gi",
+            "used": "23Gi"
+          },
+          "mounts": [
+            {
+              "available": "818G",
+              "filesystem": "/dev/nvme0n1p3",
+              "mountpoint": "/var",
+              "size": "929G",
+              "use_percent": "12%",
+              "used": "110G"
+            },
+            {
+              "available": "14G",
+              "filesystem": "tmpfs",
+              "mountpoint": "/tmp",
+              "size": "14G",
+              "use_percent": "1%",
+              "used": "5.5M"
+            }
+          ],
+          "nvidia_gpus": [],
+          "nvme_devices": [
+            {
+              "device": "/dev/nvme0n1",
+              "fw_rev": "VDCR4014",
+              "model": "CT1000E100SSD8 0x1 1.00 TB / 1.00 TB 512",
+              "usage": "B + 0 B"
+            }
+          ]
+        },
+        "hostname": "beelink",
+        "informant_source": "data/fleet/informants/beelink_last.json",
+        "informant_ts_utc": "2026-06-01T02:25:29.383264Z",
+        "last_handshake_utc": "2026-07-13T21:54:43.669507454-07:00",
+        "last_seen_age_days": null,
+        "last_seen_utc": "0001-01-01T00:00:00Z",
+        "node_declared_id": "np3T7tVYP521CNTRL",
+        "node_id": "np3T7tVYP521CNTRL",
+        "online": true,
+        "os_hostname": "bluefin",
+        "relay": "lax",
+        "runtime": {},
+        "tailscale_ips": [
+          "100.103.125.88",
+          "fd7a:115c:a1e0::4337:7d58"
+        ],
+        "usage": {}
+      },
+      "online": true
+    },
+    {
+      "configured": {
+        "base_url": "http://100.103.125.88:1234",
+        "charon_provider_id": "edge_carnice",
+        "display_name": "Beelink SER9 Pro — Carnice 9B Lane",
+        "enrollment_status": "active",
+        "expected_models": [
+          "Carnice-9b-Q6_K"
+        ],
+        "health_url": "http://100.103.125.88:1234/health",
+        "hostname": "beelink",
+        "id": "node-ser9-carnice",
+        "llm_runtime": "llama_cpp_standalone_inactive",
+        "models_url": "http://100.103.125.88:1234/v1/models",
+        "node_class": "edge_worker",
+        "notes": "Second LLM lane co-tenanted on Beelink. Local Carnice-9b-Q6_K weights are present and should be servable through llama.cpp/ROCm, but as of 2026-06-16 :1234 is not listening. The old llama-server.service was disabled after crash-looping because it calls `distrobox enter eregion` and that container no longer exists. Treat Beelink inference as installed-but-inactive until the service is rebuilt to run directly on Bluefin or a replacement distrobox.",
+        "restart_cmd": "systemctl --user --no-block restart llama-server.service",
+        "restart_scope": "ssh",
+        "role": "ser9_standalone_lane",
+        "ssh_user": "citadel",
+        "startup_priority": 25,
+        "tailscale_ip": "100.103.125.88",
+        "tailscale_name": "beelink"
+      },
+      "display_name": "Beelink SER9 Pro — Carnice 9B Lane",
+      "matched": true,
+      "observed": {
+        "active": true,
+        "capabilities": [
+          "ingest",
+          "comms",
+          "workflow_execution",
+          "monitoring",
+          "maintenance",
+          "hardware_inventory"
+        ],
+        "dns_name": "beelink.tail91c3c1.ts.net.",
+        "hardware": {
+          "block_devices": [
+            {
+              "model": null,
+              "mountpoint": "[SWAP]",
+              "name": "zram0",
+              "size": "8G",
+              "type": "disk"
+            },
+            {
+              "children": [
+                {
+                  "model": null,
+                  "mountpoint": "/boot/efi",
+                  "name": "nvme0n1p1",
+                  "size": "600M",
+                  "type": "part"
+                },
+                {
+                  "model": null,
+                  "mountpoint": "/boot",
+                  "name": "nvme0n1p2",
+                  "size": "2G",
+                  "type": "part"
+                },
+                {
+                  "model": null,
+                  "mountpoint": "/usr/bin/swtpm",
+                  "name": "nvme0n1p3",
+                  "size": "928.9G",
+                  "type": "part"
+                }
+              ],
+              "model": "CT1000E100SSD8",
+              "mountpoint": null,
+              "name": "nvme0n1",
+              "size": "931.5G",
+              "type": "disk"
+            }
+          ],
+          "cpu": {
+            "architecture": "x86_64",
+            "cores_per_socket": "12",
+            "cpu_max_mhz": "5157.8950",
+            "model_name": "AMD Ryzen AI 9 HX PRO 370 w/ Radeon 890M",
+            "sockets": "1",
+            "threads_per_core": "2"
+          },
+          "gpu_inventory": [],
+          "hostname": "bluefin",
+          "memory": {
+            "available": "3.1Gi",
+            "buff_cache": "2.3Gi",
+            "free": "1.2Gi",
+            "shared": "780Ki",
+            "total": "27Gi",
+            "used": "23Gi"
+          },
+          "mounts": [
+            {
+              "available": "818G",
+              "filesystem": "/dev/nvme0n1p3",
+              "mountpoint": "/var",
+              "size": "929G",
+              "use_percent": "12%",
+              "used": "110G"
+            },
+            {
+              "available": "14G",
+              "filesystem": "tmpfs",
+              "mountpoint": "/tmp",
+              "size": "14G",
+              "use_percent": "1%",
+              "used": "5.5M"
+            }
+          ],
+          "nvidia_gpus": [],
+          "nvme_devices": [
+            {
+              "device": "/dev/nvme0n1",
+              "fw_rev": "VDCR4014",
+              "model": "CT1000E100SSD8 0x1 1.00 TB / 1.00 TB 512",
+              "usage": "B + 0 B"
+            }
+          ]
+        },
+        "hostname": "beelink",
+        "informant_source": "data/fleet/informants/beelink_last.json",
+        "informant_ts_utc": "2026-06-01T02:25:29.383264Z",
+        "last_handshake_utc": "2026-07-13T21:54:43.669507454-07:00",
+        "last_seen_age_days": null,
+        "last_seen_utc": "0001-01-01T00:00:00Z",
+        "node_declared_id": "np3T7tVYP521CNTRL",
+        "node_id": "np3T7tVYP521CNTRL",
+        "online": true,
+        "os_hostname": "bluefin",
+        "relay": "lax",
+        "runtime": {},
+        "tailscale_ips": [
+          "100.103.125.88",
+          "fd7a:115c:a1e0::4337:7d58"
+        ],
+        "usage": {}
+      },
+      "online": true
+    },
+    {
+      "configured": {
+        "base_url": "http://100.97.15.88:1234",
+        "charon_provider_id": "edge_laptop",
+        "display_name": "RTX 3050 Laptop",
+        "enrollment_status": "offline",
+        "expected_models": [],
+        "health_url": "http://100.97.15.88:1234/health",
+        "hostname": "laptop",
+        "id": "node-laptop",
+        "llm_runtime": "local_voice_stt_operator",
+        "models_url": "http://100.97.15.88:1234/v1/models",
+        "node_class": "portable_compute",
+        "notes": "Actual laptop node. As of 2026-03-23 this machine is configured for local Hermes voice input with Qwen3-ASR-0.6B rather than as a required fleet llama.cpp inference host. Treat it as optional and intermittently offline; do not assume qwen3.5-4b is present or try to keep fleet routing pinned to this node.",
+        "restart_cmd": "systemctl --user --no-block restart llama-server",
+        "restart_scope": "ssh",
+        "role": "portable_operator",
+        "ssh_user": "mythos",
+        "startup_priority": 30,
+        "tailscale_ip": "100.97.15.88",
+        "tailscale_name": "laptop"
+      },
+      "display_name": "RTX 3050 Laptop",
+      "matched": true,
+      "observed": {
+        "active": false,
+        "capabilities": [
+          "unknown_until_informant"
+        ],
+        "dns_name": "laptop.tail91c3c1.ts.net.",
+        "hostname": "laptop",
+        "last_handshake_utc": "0001-01-01T00:00:00Z",
+        "last_seen_age_days": 0.39,
+        "last_seen_utc": "2026-07-13T19:29:14.1Z",
+        "node_id": "n2rrkAo9iR11CNTRL",
+        "online": false,
+        "os_hostname": "laptop",
+        "relay": "lax",
+        "tailscale_ips": [
+          "100.97.15.88",
+          "fd7a:115c:a1e0::37:f58"
+        ],
+        "usage": {}
+      },
+      "online": false
+    },
+    {
+      "configured": {
+        "base_url": "http://100.102.250.115:8093/v1",
+        "charon_provider_id": "edge_backbone",
+        "display_name": "Annunimas Server (LFM2.5 Fast Lane)",
+        "enrollment_status": "active",
+        "expected_models": [
+          "lfm2.5-8b-a1b-q4km"
+        ],
+        "health_url": "http://100.102.250.115:8093/health",
+        "hostname": "annunimas-server",
+        "id": "node-backbone-server",
+        "llm_runtime": "llama_cpp_fast_general",
+        "models_url": "http://100.102.250.115:8093/v1/models",
+        "node_class": "backbone_compute",
+        "notes": "Updated 2026-06-16. Active fast/general lane is llama.cpp inside the eregion distrobox, serving LFM2.5-8B-A1B-Q4_K_M on :8093 with 32K context, Q4_0 KV cache, --jinja, and metrics. Qwen3-Coder remains installed on disk but its service is disabled to free VRAM for LFM and Gemma4.",
+        "restart_cmd": "systemctl --user --no-block restart llama-server-lfm25.service",
+        "restart_scope": "ssh",
+        "role": "backbone_fast_general",
+        "ssh_user": "annunimas-server",
+        "startup_priority": 5,
+        "tailscale_ip": "100.102.250.115",
+        "tailscale_name": "annunimas-server"
+      },
+      "display_name": "Annunimas Server (LFM2.5 Fast Lane)",
+      "matched": true,
+      "observed": {
+        "active": true,
+        "capabilities": [
+          "ingest",
+          "comms",
+          "workflow_execution",
+          "monitoring",
+          "maintenance",
+          "hardware_inventory"
+        ],
+        "dns_name": "annunimas-server.tail91c3c1.ts.net.",
+        "hardware": {
+          "block_devices": [
+            {
+              "children": [
+                {
+                  "model": null,
+                  "mountpoint": null,
+                  "name": "sda1",
+                  "size": "1M",
+                  "type": "part"
+                },
+                {
+                  "model": null,
+                  "mountpoint": "/boot",
+                  "name": "sda2",
+                  "size": "1G",
+                  "type": "part"
+                },
+                {
+                  "children": [
+                    {
+                      "model": null,
+                      "mountpoint": "/sysroot",
+                      "name": "bluefin_bluefin--lts-root",
+                      "size": "70G",
+                      "type": "lvm"
+                    },
+                    {
+                      "model": null,
+                      "mountpoint": "/var",
+                      "name": "bluefin_bluefin--lts-var",
+                      "size": "3.6T",
+                      "type": "lvm"
+                    }
+                  ],
+                  "model": null,
+                  "mountpoint": null,
+                  "name": "sda3",
+                  "size": "3.6T",
+                  "type": "part"
+                }
+              ],
+              "model": "TOSHIBA MG04ACA400E",
+              "mountpoint": null,
+              "name": "sda",
+              "size": "3.6T",
+              "type": "disk"
+            },
+            {
+              "model": null,
+              "mountpoint": "[SWAP]",
+              "name": "zram0",
+              "size": "8G",
+              "type": "disk"
+            }
+          ],
+          "cpu": {
+            "architecture": "x86_64",
+            "cores_per_socket": "16",
+            "cpu_max_mhz": "3500.0000",
+            "model_name": "AMD Ryzen Threadripper 2950X 16-Core Processor",
+            "sockets": "1",
+            "threads_per_core": "2"
+          },
+          "gpu_inventory": [],
+          "hostname": "bluefin",
+          "memory": {
+            "available": "113Gi",
+            "buff_cache": "37Gi",
+            "free": "81Gi",
+            "shared": "4.8Gi",
+            "total": "125Gi",
+            "used": "12Gi"
+          },
+          "mounts": [
+            {
+              "available": "3.3T",
+              "filesystem": "/dev/mapper/bluefin_bluefin--lts-var",
+              "mountpoint": "/var",
+              "size": "3.6T",
+              "use_percent": "9%",
+              "used": "298G"
+            },
+            {
+              "available": "63G",
+              "filesystem": "tmpfs",
+              "mountpoint": "/tmp",
+              "size": "63G",
+              "use_percent": "1%",
+              "used": "48K"
+            }
+          ],
+          "nvidia_gpus": [
+            {
+              "driver_version": "595.71.05",
+              "memory_total_mib": "8192",
+              "name": "NVIDIA GeForce RTX 2080 SUPER",
+              "power_draw_w": "5.00",
+              "temperature_c": "34"
+            },
+            {
+              "driver_version": "595.71.05",
+              "memory_total_mib": "8192",
+              "name": "NVIDIA GeForce RTX 2080 SUPER",
+              "power_draw_w": "16.19",
+              "temperature_c": "38"
+            }
+          ],
+          "nvme_devices": []
+        },
+        "hostname": "annunimas-server",
+        "informant_source": "data/fleet/informants/annunimas-server_last.json",
+        "informant_ts_utc": "2026-06-01T02:28:59.821385Z",
+        "last_handshake_utc": "2026-07-13T03:12:21.776670014-07:00",
+        "last_seen_age_days": 0.78,
+        "last_seen_utc": "2026-07-13T10:14:33.1Z",
+        "node_declared_id": "nwR1131aMk11CNTRL",
+        "node_id": "nwR1131aMk11CNTRL",
+        "online": false,
+        "os_hostname": "bluefin",
+        "relay": "lax",
+        "runtime": {},
+        "tailscale_ips": [
+          "100.102.250.115",
+          "fd7a:115c:a1e0::8632:fa73"
+        ],
+        "usage": {}
+      },
+      "online": false
+    },
+    {
+      "configured": {
+        "base_url": "http://100.102.250.115:8094/v1",
+        "charon_provider_id": "edge_backbone_coder",
+        "display_name": "Annunimas Server (Gemma4 12B Coder Lane)",
+        "enrollment_status": "active",
+        "expected_models": [
+          "gemma4-12b-coder-q4km"
+        ],
+        "health_url": "http://100.102.250.115:8094/health",
+        "hostname": "annunimas-server",
+        "id": "node-backbone-gemma4-coder",
+        "llm_runtime": "llama_cpp_coder",
+        "models_url": "http://100.102.250.115:8094/v1/models",
+        "node_class": "backbone_compute",
+        "notes": "Added 2026-06-16. Active llama.cpp coding lane on annunimas-server :8094, serving gemma4-coding-Q4_K_M with 8K context and 28 GPU layers on the second RTX 2080 Super so it can coexist with the LFM fast lane and Qwen2.5-VL vision endpoint.",
+        "restart_cmd": "systemctl --user --no-block restart llama-server-gemma4-coder.service",
+        "restart_scope": "ssh",
+        "role": "backbone_coder",
+        "ssh_user": "annunimas-server",
+        "startup_priority": 10,
+        "tailscale_ip": "100.102.250.115",
+        "tailscale_name": "annunimas-server"
+      },
+      "display_name": "Annunimas Server (Gemma4 12B Coder Lane)",
+      "matched": true,
+      "observed": {
+        "active": true,
+        "capabilities": [
+          "ingest",
+          "comms",
+          "workflow_execution",
+          "monitoring",
+          "maintenance",
+          "hardware_inventory"
+        ],
+        "dns_name": "annunimas-server.tail91c3c1.ts.net.",
+        "hardware": {
+          "block_devices": [
+            {
+              "children": [
+                {
+                  "model": null,
+                  "mountpoint": null,
+                  "name": "sda1",
+                  "size": "1M",
+                  "type": "part"
+                },
+                {
+                  "model": null,
+                  "mountpoint": "/boot",
+                  "name": "sda2",
+                  "size": "1G",
+                  "type": "part"
+                },
+                {
+                  "children": [
+                    {
+                      "model": null,
+                      "mountpoint": "/sysroot",
+                      "name": "bluefin_bluefin--lts-root",
+                      "size": "70G",
+                      "type": "lvm"
+                    },
+                    {
+                      "model": null,
+                      "mountpoint": "/var",
+                      "name": "bluefin_bluefin--lts-var",
+                      "size": "3.6T",
+                      "type": "lvm"
+                    }
+                  ],
+                  "model": null,
+                  "mountpoint": null,
+                  "name": "sda3",
+                  "size": "3.6T",
+                  "type": "part"
+                }
+              ],
+              "model": "TOSHIBA MG04ACA400E",
+              "mountpoint": null,
+              "name": "sda",
+              "size": "3.6T",
+              "type": "disk"
+            },
+            {
+              "model": null,
+              "mountpoint": "[SWAP]",
+              "name": "zram0",
+              "size": "8G",
+              "type": "disk"
+            }
+          ],
+          "cpu": {
+            "architecture": "x86_64",
+            "cores_per_socket": "16",
+            "cpu_max_mhz": "3500.0000",
+            "model_name": "AMD Ryzen Threadripper 2950X 16-Core Processor",
+            "sockets": "1",
+            "threads_per_core": "2"
+          },
+          "gpu_inventory": [],
+          "hostname": "bluefin",
+          "memory": {
+            "available": "113Gi",
+            "buff_cache": "37Gi",
+            "free": "81Gi",
+            "shared": "4.8Gi",
+            "total": "125Gi",
+            "used": "12Gi"
+          },
+          "mounts": [
+            {
+              "available": "3.3T",
+              "filesystem": "/dev/mapper/bluefin_bluefin--lts-var",
+              "mountpoint": "/var",
+              "size": "3.6T",
+              "use_percent": "9%",
+              "used": "298G"
+            },
+            {
+              "available": "63G",
+              "filesystem": "tmpfs",
+              "mountpoint": "/tmp",
+              "size": "63G",
+              "use_percent": "1%",
+              "used": "48K"
+            }
+          ],
+          "nvidia_gpus": [
+            {
+              "driver_version": "595.71.05",
+              "memory_total_mib": "8192",
+              "name": "NVIDIA GeForce RTX 2080 SUPER",
+              "power_draw_w": "5.00",
+              "temperature_c": "34"
+            },
+            {
+              "driver_version": "595.71.05",
+              "memory_total_mib": "8192",
+              "name": "NVIDIA GeForce RTX 2080 SUPER",
+              "power_draw_w": "16.19",
+              "temperature_c": "38"
+            }
+          ],
+          "nvme_devices": []
+        },
+        "hostname": "annunimas-server",
+        "informant_source": "data/fleet/informants/annunimas-server_last.json",
+        "informant_ts_utc": "2026-06-01T02:28:59.821385Z",
+        "last_handshake_utc": "2026-07-13T03:12:21.776670014-07:00",
+        "last_seen_age_days": 0.78,
+        "last_seen_utc": "2026-07-13T10:14:33.1Z",
+        "node_declared_id": "nwR1131aMk11CNTRL",
+        "node_id": "nwR1131aMk11CNTRL",
+        "online": false,
+        "os_hostname": "bluefin",
+        "relay": "lax",
+        "runtime": {},
+        "tailscale_ips": [
+          "100.102.250.115",
+          "fd7a:115c:a1e0::8632:fa73"
+        ],
+        "usage": {}
+      },
+      "online": false
+    },
+    {
+      "configured": {
+        "base_url": "http://100.102.250.115:8081/v1",
+        "charon_provider_id": "edge_backbone_vision",
+        "display_name": "Annunimas Server (Qwen2.5-VL Vision Lane)",
+        "enrollment_status": "active",
+        "expected_models": [
+          "Qwen2.5-VL-7B-Instruct"
+        ],
+        "health_url": "http://100.102.250.115:8081/health",
+        "hostname": "annunimas-server",
+        "id": "node-backbone-vision",
+        "llm_runtime": "llama_cpp_vision",
+        "models_url": "http://100.102.250.115:8081/v1/models",
+        "node_class": "backbone_compute",
+        "notes": "Updated 2026-06-16. Active llama.cpp multimodal endpoint on annunimas-server :8081, serving Qwen2.5-VL-7B-Instruct-Q5_K_M with mmproj-F16.",
+        "restart_cmd": "systemctl --user --no-block restart llama-server-vision.service",
+        "restart_scope": "ssh",
+        "role": "backbone_vision",
+        "ssh_user": "annunimas-server",
+        "startup_priority": 15,
+        "tailscale_ip": "100.102.250.115",
+        "tailscale_name": "annunimas-server"
+      },
+      "display_name": "Annunimas Server (Qwen2.5-VL Vision Lane)",
+      "matched": true,
+      "observed": {
+        "active": true,
+        "capabilities": [
+          "ingest",
+          "comms",
+          "workflow_execution",
+          "monitoring",
+          "maintenance",
+          "hardware_inventory"
+        ],
+        "dns_name": "annunimas-server.tail91c3c1.ts.net.",
+        "hardware": {
+          "block_devices": [
+            {
+              "children": [
+                {
+                  "model": null,
+                  "mountpoint": null,
+                  "name": "sda1",
+                  "size": "1M",
+                  "type": "part"
+                },
+                {
+                  "model": null,
+                  "mountpoint": "/boot",
+                  "name": "sda2",
+                  "size": "1G",
+                  "type": "part"
+                },
+                {
+                  "children": [
+                    {
+                      "model": null,
+                      "mountpoint": "/sysroot",
+                      "name": "bluefin_bluefin--lts-root",
+                      "size": "70G",
+                      "type": "lvm"
+                    },
+                    {
+                      "model": null,
+                      "mountpoint": "/var",
+                      "name": "bluefin_bluefin--lts-var",
+                      "size": "3.6T",
+                      "type": "lvm"
+                    }
+                  ],
+                  "model": null,
+                  "mountpoint": null,
+                  "name": "sda3",
+                  "size": "3.6T",
+                  "type": "part"
+                }
+              ],
+              "model": "TOSHIBA MG04ACA400E",
+              "mountpoint": null,
+              "name": "sda",
+              "size": "3.6T",
+              "type": "disk"
+            },
+            {
+              "model": null,
+              "mountpoint": "[SWAP]",
+              "name": "zram0",
+              "size": "8G",
+              "type": "disk"
+            }
+          ],
+          "cpu": {
+            "architecture": "x86_64",
+            "cores_per_socket": "16",
+            "cpu_max_mhz": "3500.0000",
+            "model_name": "AMD Ryzen Threadripper 2950X 16-Core Processor",
+            "sockets": "1",
+            "threads_per_core": "2"
+          },
+          "gpu_inventory": [],
+          "hostname": "bluefin",
+          "memory": {
+            "available": "113Gi",
+            "buff_cache": "37Gi",
+            "free": "81Gi",
+            "shared": "4.8Gi",
+            "total": "125Gi",
+            "used": "12Gi"
+          },
+          "mounts": [
+            {
+              "available": "3.3T",
+              "filesystem": "/dev/mapper/bluefin_bluefin--lts-var",
+              "mountpoint": "/var",
+              "size": "3.6T",
+              "use_percent": "9%",
+              "used": "298G"
+            },
+            {
+              "available": "63G",
+              "filesystem": "tmpfs",
+              "mountpoint": "/tmp",
+              "size": "63G",
+              "use_percent": "1%",
+              "used": "48K"
+            }
+          ],
+          "nvidia_gpus": [
+            {
+              "driver_version": "595.71.05",
+              "memory_total_mib": "8192",
+              "name": "NVIDIA GeForce RTX 2080 SUPER",
+              "power_draw_w": "5.00",
+              "temperature_c": "34"
+            },
+            {
+              "driver_version": "595.71.05",
+              "memory_total_mib": "8192",
+              "name": "NVIDIA GeForce RTX 2080 SUPER",
+              "power_draw_w": "16.19",
+              "temperature_c": "38"
+            }
+          ],
+          "nvme_devices": []
+        },
+        "hostname": "annunimas-server",
+        "informant_source": "data/fleet/informants/annunimas-server_last.json",
+        "informant_ts_utc": "2026-06-01T02:28:59.821385Z",
+        "last_handshake_utc": "2026-07-13T03:12:21.776670014-07:00",
+        "last_seen_age_days": 0.78,
+        "last_seen_utc": "2026-07-13T10:14:33.1Z",
+        "node_declared_id": "nwR1131aMk11CNTRL",
+        "node_id": "nwR1131aMk11CNTRL",
+        "online": false,
+        "os_hostname": "bluefin",
+        "relay": "lax",
+        "runtime": {},
+        "tailscale_ips": [
+          "100.102.250.115",
+          "fd7a:115c:a1e0::8632:fa73"
+        ],
+        "usage": {}
+      },
+      "online": false
+    },
+    {
+      "configured": {
+        "base_url": "http://100.119.130.127:8080",
+        "charon_provider_id": null,
+        "display_name": "Pi5 CITADEL Avatar",
+        "enrollment_status": "active_staging",
+        "expected_models": [],
+        "health_url": "http://100.119.130.127:8080/public/state.json",
+        "hostname": "raspberrypi",
+        "id": "node-pi5-citadel-avatar",
+        "llm_runtime": "cloud_only_inference",
+        "models_url": "",
+        "node_class": "edge_avatar_product",
+        "notes": "Reflashed Pi5 CITADEL avatar node. Rediscovered 2026-05-18 in Tailscale as raspberrypi-1 / 100.119.130.127; OS hostname reports raspberrypi. OpenSSH, operator key auth, passwordless sudo, linger, citadel-companion.service, and citadel-kiosk.service are active. Known-good display baseline as of 2026-05-27: Waveshare 3.4-inch 800x800 round DSI LCD on Pi5 CAM/DISP 1 with AI HAT+ stack, display_auto_detect=0, dtoverlay=vc4-kms-dsi-waveshare-panel,3_4_inch, DSI-2 mode 800x800@63.034Hz, kanshi scale 1.5, transform normal, Chromium app fullscreen mode, and Pepper's Ghost visual confirmed. Avoid the v2 3_4_inch_c overlay on this reflashed OS because it detected DSI logically but left the physical panel dark.",
+        "restart_cmd": "systemctl --user --no-block restart citadel-companion.service && systemctl --user --no-block restart citadel-kiosk.service",
+        "restart_scope": "ssh",
+        "role": "citadel_avatar_controller",
+        "ssh_user": "citadel",
+        "startup_priority": 100,
+        "tailscale_ip": "100.119.130.127",
+        "tailscale_name": "raspberrypi-1"
+      },
+      "display_name": "Pi5 CITADEL Avatar",
+      "matched": true,
+      "observed": {
+        "active": false,
+        "capabilities": [
+          "ingest",
+          "comms",
+          "workflow_execution",
+          "monitoring",
+          "maintenance",
+          "hardware_inventory"
+        ],
+        "dns_name": "raspberrypi-1.tail91c3c1.ts.net.",
+        "hardware": {
+          "block_devices": [
+            {
+              "model": null,
+              "mountpoint": null,
+              "name": "loop0",
+              "size": "2G",
+              "type": "loop"
+            },
+            {
+              "children": [
+                {
+                  "model": null,
+                  "mountpoint": "/boot/firmware",
+                  "name": "mmcblk0p1",
+                  "size": "512M",
+                  "type": "part"
+                },
+                {
+                  "model": null,
+                  "mountpoint": "/",
+                  "name": "mmcblk0p2",
+                  "size": "118.9G",
+                  "type": "part"
+                }
+              ],
+              "model": null,
+              "mountpoint": null,
+              "name": "mmcblk0",
+              "size": "119.4G",
+              "type": "disk"
+            },
+            {
+              "model": null,
+              "mountpoint": "[SWAP]",
+              "name": "zram0",
+              "size": "2G",
+              "type": "disk"
+            }
+          ],
+          "cpu": {
+            "architecture": "aarch64",
+            "cores_per_socket": null,
+            "cpu_max_mhz": "2400.0000",
+            "model_name": "Cortex-A76",
+            "sockets": "-",
+            "threads_per_core": "1"
+          },
+          "gpu_inventory": [],
+          "hostname": "raspberrypi",
+          "memory": {
+            "available": "7.0Gi",
+            "buff_cache": "1.5Gi",
+            "free": "5.8Gi",
+            "shared": "168Mi",
+            "total": "7.9Gi",
+            "used": "904Mi"
+          },
+          "mounts": [
+            {
+              "available": "105G",
+              "filesystem": "/dev/mmcblk0p2",
+              "mountpoint": "/",
+              "size": "117G",
+              "use_percent": "7%",
+              "used": "7.7G"
+            },
+            {
+              "available": "4.0G",
+              "filesystem": "tmpfs",
+              "mountpoint": "/tmp",
+              "size": "4.0G",
+              "use_percent": "1%",
+              "used": "1.8M"
+            }
+          ],
+          "nvidia_gpus": [],
+          "nvme_devices": []
+        },
+        "hostname": "raspberrypi-1",
+        "informant_source": "data/fleet/informants/raspberrypi-aihat_last.json",
+        "informant_ts_utc": "2026-06-01T02:25:29.335309Z",
+        "last_handshake_utc": "0001-01-01T00:00:00Z",
+        "last_seen_age_days": 0.42,
+        "last_seen_utc": "2026-07-13T18:44:42.1Z",
+        "node_declared_id": "nkYHnFrt4e11CNTRL",
+        "node_id": "nkYHnFrt4e11CNTRL",
+        "online": false,
+        "os_hostname": "raspberrypi",
+        "relay": "lax",
+        "runtime": {},
+        "tailscale_ips": [
+          "100.119.130.127",
+          "fd7a:115c:a1e0::be32:827f"
+        ],
+        "usage": {}
+      },
+      "online": false
+    }
+  ],
+  "schema_version": "annunimas.core.state.v1"
+}

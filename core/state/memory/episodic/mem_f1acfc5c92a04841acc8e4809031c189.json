@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_f1acfc5c92a04841acc8e4809031c189",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA add scoped video previews for media library",
+  "salience": 0.8045000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T09:16:42.344723466Z",
+  "last_seen_at": "2026-06-01T09:16:42.344723466Z"
+}

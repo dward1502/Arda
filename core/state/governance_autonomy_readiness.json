@@ -1,0 +1,238 @@
+{
+  "contract": "docs/contracts/governance-autonomy-readiness.md",
+  "default_autonomy_ready": false,
+  "requirements": [
+    {
+      "level": "documented_only",
+      "required_evidence": [
+        "documentation"
+      ]
+    },
+    {
+      "level": "heuristic_local",
+      "required_evidence": [
+        "documentation",
+        "local_heuristic"
+      ]
+    },
+    {
+      "level": "source_metadata_disclosed",
+      "required_evidence": [
+        "documentation",
+        "local_heuristic",
+        "source_metadata"
+      ]
+    },
+    {
+      "level": "runtime_receipted",
+      "required_evidence": [
+        "documentation",
+        "local_heuristic",
+        "source_metadata",
+        "runtime_receipts"
+      ]
+    },
+    {
+      "level": "policy_enforced",
+      "required_evidence": [
+        "documentation",
+        "local_heuristic",
+        "source_metadata",
+        "runtime_receipts",
+        "policy_enforcement"
+      ]
+    },
+    {
+      "level": "independent_review_receipted",
+      "required_evidence": [
+        "documentation",
+        "local_heuristic",
+        "source_metadata",
+        "runtime_receipts",
+        "policy_enforcement",
+        "independent_review_receipts"
+      ]
+    },
+    {
+      "level": "autonomy_ready_for_scope",
+      "required_evidence": [
+        "documentation",
+        "local_heuristic",
+        "source_metadata",
+        "runtime_receipts",
+        "policy_enforcement",
+        "independent_review_receipts",
+        "scoped_autonomy_policy"
+      ]
+    }
+  ],
+  "schema_version": "annunimas.governance.readiness.v1",
+  "subsystems": [
+    {
+      "autonomy_ready": false,
+      "claimed_level": "autonomy_ready_for_scope",
+      "current_level": "source_metadata_disclosed",
+      "evidence": {
+        "documentation": true,
+        "independent_review_receipts": false,
+        "local_heuristic": true,
+        "policy_enforcement": false,
+        "runtime_receipts": false,
+        "scoped_autonomy_policy": false,
+        "source_metadata": true
+      },
+      "maturity_label": "heuristic_local",
+      "missing_evidence": [
+        "runtime_receipts",
+        "policy_enforcement",
+        "independent_review_receipts",
+        "scoped_autonomy_policy"
+      ],
+      "receipts": [
+        "crates/annunimas-governance/src/triad.rs",
+        "docs/contracts/GOVERNANCE_CURRENT_STATE.md"
+      ],
+      "subsystem": "triad_gate"
+    },
+    {
+      "autonomy_ready": false,
+      "claimed_level": "policy_enforced",
+      "current_level": "policy_enforced",
+      "evidence": {
+        "documentation": true,
+        "independent_review_receipts": false,
+        "local_heuristic": true,
+        "policy_enforcement": true,
+        "runtime_receipts": true,
+        "scoped_autonomy_policy": false,
+        "source_metadata": true
+      },
+      "maturity_label": "policy_record_and_proceed_default",
+      "missing_evidence": [],
+      "receipts": [
+        "crates/annunimas-core/src/governance_gates.rs",
+        "crates/annunimas-core/src/loop_engine.rs"
+      ],
+      "subsystem": "triad_dispatch_policy"
+    },
+    {
+      "autonomy_ready": false,
+      "claimed_level": "autonomy_ready_for_scope",
+      "current_level": "source_metadata_disclosed",
+      "evidence": {
+        "documentation": true,
+        "independent_review_receipts": false,
+        "local_heuristic": true,
+        "policy_enforcement": false,
+        "runtime_receipts": false,
+        "scoped_autonomy_policy": false,
+        "source_metadata": true
+      },
+      "maturity_label": "draft_human_authored",
+      "missing_evidence": [
+        "runtime_receipts",
+        "policy_enforcement",
+        "independent_review_receipts",
+        "scoped_autonomy_policy"
+      ],
+      "receipts": [
+        "config/governance/philosophers.toml",
+        "docs/contracts/governance-philosopher-profiles.md"
+      ],
+      "subsystem": "philosopher_profiles"
+    },
+    {
+      "autonomy_ready": false,
+      "claimed_level": "runtime_receipted",
+      "current_level": "source_metadata_disclosed",
+      "evidence": {
+        "documentation": true,
+        "independent_review_receipts": false,
+        "local_heuristic": true,
+        "policy_enforcement": false,
+        "runtime_receipts": false,
+        "scoped_autonomy_policy": false,
+        "source_metadata": true
+      },
+      "maturity_label": "live_source_disclosed_when_explicitly_called",
+      "missing_evidence": [
+        "runtime_receipts"
+      ],
+      "receipts": [
+        "crates/annunimas-governance/src/resonance.rs",
+        "docs/contracts/GOVERNANCE_CURRENT_STATE.md"
+      ],
+      "subsystem": "resonance_governance_chain"
+    },
+    {
+      "autonomy_ready": false,
+      "claimed_level": "autonomy_ready_for_scope",
+      "current_level": "source_metadata_disclosed",
+      "evidence": {
+        "documentation": true,
+        "independent_review_receipts": false,
+        "local_heuristic": true,
+        "policy_enforcement": false,
+        "runtime_receipts": false,
+        "scoped_autonomy_policy": false,
+        "source_metadata": true
+      },
+      "maturity_label": "capability_weighted_heuristic_not_autonomous_consensus",
+      "missing_evidence": [
+        "runtime_receipts",
+        "policy_enforcement",
+        "independent_review_receipts",
+        "scoped_autonomy_policy"
+      ],
+      "receipts": [
+        "crates/annunimas-governance/src/game_theory.rs",
+        "docs/contracts/GOVERNANCE_CURRENT_STATE.md"
+      ],
+      "subsystem": "game_theory_selection"
+    },
+    {
+      "autonomy_ready": false,
+      "claimed_level": "runtime_receipted",
+      "current_level": "runtime_receipted",
+      "evidence": {
+        "documentation": true,
+        "independent_review_receipts": false,
+        "local_heuristic": true,
+        "policy_enforcement": false,
+        "runtime_receipts": true,
+        "scoped_autonomy_policy": false,
+        "source_metadata": true
+      },
+      "maturity_label": "source_aware_default_fallback_not_autonomy_truth",
+      "missing_evidence": [],
+      "receipts": [
+        "docs/contracts/joulework-measurement-contract.md",
+        "crates/annunimas-core/src/task.rs"
+      ],
+      "subsystem": "joulework_measurement"
+    },
+    {
+      "autonomy_ready": false,
+      "claimed_level": "runtime_receipted",
+      "current_level": "source_metadata_disclosed",
+      "evidence": {
+        "documentation": true,
+        "independent_review_receipts": false,
+        "local_heuristic": true,
+        "policy_enforcement": false,
+        "runtime_receipts": false,
+        "scoped_autonomy_policy": false,
+        "source_metadata": true
+      },
+      "maturity_label": "canonical_formula_source_disclosed",
+      "missing_evidence": [
+        "runtime_receipts"
+      ],
+      "receipts": [
+        "crates/annunimas-governance/src/love_dynamics.rs",
+        "docs/contracts/GOVERNANCE_CURRENT_STATE.md"
+      ],
+      "subsystem": "love_dynamics"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_435d0c4d35ae414fb7a34c4d208cfb2a",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Reconcile HADES nightly docs/plans archival automation gap",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-24T10:46:19.067809291Z",
+  "last_seen_at": "2026-05-24T10:46:19.067809291Z"
+}

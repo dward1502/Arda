@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_4936300eba9d424d83508dcf559063bc",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Create RELIC geometry avatar prototype",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-28T16:46:25.108806855Z",
+  "last_seen_at": "2026-05-28T16:46:25.108806855Z"
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_275b793721c34859aee029aec8dc8a32",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Queue: OPENFANG plan review",
+  "salience": 0.5845,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-19T07:47:37.336026028Z",
+  "last_seen_at": "2026-06-19T07:47:37.336026028Z"
+}

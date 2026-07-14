@@ -1,0 +1,204 @@
+{
+  "arda_hud": {
+    "primary_console": true,
+    "projection_mode": "local_runtime_state_file",
+    "target_state_path": "/var/home/mythos/Annunimas/core/state/remote_confidence_snapshot.json"
+  },
+  "attention": [
+    "1 task(s) require human attention"
+  ],
+  "autonomy": {
+    "holds": [],
+    "mode": "unknown",
+    "state_path": "/var/home/mythos/Annunimas/core/control/autonomy/state.json",
+    "state_present": false
+  },
+  "checked_at_utc": "2026-05-31T03:38:36Z",
+  "discord": {
+    "connected": true,
+    "expected_command_path": "/gateway action:remote_confidence or utility remote-confidence",
+    "primary_console": false,
+    "role": "remote_confidence_surface",
+    "runtime_required": false
+  },
+  "env": {
+    "ANNUNIMAS_DISCORD_WORK_STREAM_CHANNEL_ID": "missing",
+    "ANNUNIMAS_OPERATOR_DISCORD_USER_ID": "missing",
+    "DISCORD_ALLOWED_USERS": "set_redacted",
+    "DISCORD_ALLOW_ALL_USERS": "false",
+    "GATEWAY_ALLOW_ALL_USERS": "missing"
+  },
+  "flywheel": {
+    "latest_packet": {},
+    "latest_packet_path": "/var/home/mythos/Annunimas/data/flywheel/latest_packet.json",
+    "readiness": {},
+    "readiness_path": "/var/home/mythos/Annunimas/core/state/flywheel_packet_readiness.json"
+  },
+  "gateway": {
+    "discord_connected": true,
+    "gateway_state_path": "/var/home/mythos/.hermes/gateway_state.json",
+    "gateway_state_present": true,
+    "gateway_status": {
+      "ok": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "● hermes-gateway.service - Hermes Agent Gateway - Messaging Platform Integration\n     Loaded: loaded (/var/home/mythos/.config/systemd/user/hermes-gateway.service; disabled; preset: disabled)\n     Active: active (running) since Sat 2026-05-30 14:37:45 PDT; 6h ago\n Invocation: d52fc934d40041fcadb9eb1de493cea8\n   Main PID: 2358205 (python)\n      Tasks: 9 (limit: 201943)\n     Memory: 37.4M (peak: 479.9M, swap: 165.8M, swap peak: 178.1M)\n        CPU: 2min 20.769s\n     CGroup: /user.slice/user-1000.slice/user@1000.service/app.slice/hermes-gateway.service\n             └─2358205 /var/home/mythos/.hermes/hermes-agent/venv/bin/python -m hermes_cli.main gateway run --replace\n\nMay 30 20:05:27 annunimas-core python[2358205]:   File \"/var/home/mythos/.hermes/hermes-agent/gateway/run.py\", line 4445, in _handoff_watcher\nMay 30 20:05:27 annunimas-core python[2358205]:     pending = self._session_db.list_pending_handoffs()\nMay 30 20:05:27 annunimas-core python[2358205]:   File \"/var/home/mythos/.hermes/hermes-agent/hermes_state.py\", line 3275, in list_pending_handoffs\nMay 30 20:05:27 annunimas-core python[2358205]:     cur = self._conn.execute(\nMay 30 20:05:45 annunimas-core python[2358205]: WARNING discord.gateway: Can't keep up, shard ID None websocket is 16.6s behind.\nMay 30 20:15:29 annunimas-core python[2358205]: WARNING agent.tool_executor: Tool skill_view returned error (0.07s): {\"success\": false, \"error\": \"Skill 'System Status Verification' not found.\", \"available_skills\": [\"audit-large-codebase\", \"crate-audit\", \"dogfood\", \"pi5-dsi-waveshare-enable\", \"premortem\", \"project-au\nMay 30 20:15:38 annunimas-core python[2358205]: WARNING agent.tool_executor: Tool terminal returned error (0.46s): {\"output\": \"[ALERT] Heartbeat lane 'paid' is FAILING\\n  Provider: openai\\n  Model: gpt-4.1-mini\\n  Failure Class: exit_code_1\\n  Output: \\n  Stderr: Traceback (most recent call last):\\n  File \\\"/var/h\nMay 30 20:30:50 annunimas-core python[2358205]: WARNING agent.tool_executor: Tool skill_view returned error (0.07s): {\"success\": false, \"error\": \"Skill 'System Status Verification' not found.\", \"available_skills\": [\"audit-large-codebase\", \"crate-audit\", \"dogfood\", \"pi5-dsi-waveshare-enable\", \"premortem\", \"project-au\nMay 30 20:30:54 annunimas-core python[2358205]: WARNING agent.tool_executor: Tool skill_view returned error (0.27s): {\"success\": false, \"error\": \"Skill 'System Status Verification' not found.\", \"available_skills\": [\"audit-large-codebase\", \"crate-audit\", \"dogfood\", \"pi5-dsi-waveshare-enable\", \"premortem\", \"project-au\nMay 30 20:31:05 annunimas-core python[2358205]: WARNING agent.tool_executor: Tool terminal returned error (0.06s): {\"output\": \"[ALERT] Heartbeat lane 'paid' is FAILING\\n  Provider: openai\\n  Model: gpt-4.1-mini\\n  Failure Class: exit_code_1\\n  Output: \\n  Stderr: Traceback (most recent call last):\\n  File \\\"/var/h\n✓ User gateway service is running\n✓ Systemd linger is enabled (service survives logout)"
+    },
+    "hermes_binary": {
+      "ok": true,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "/var/home/mythos/.local/bin/hermes"
+    },
+    "running": true,
+    "state_running": true,
+    "status_running": true
+  },
+  "human_required_gates": [
+    {
+      "id": "tsk_20260527_flywheel_f6_end_to_end_probe",
+      "owner": "prometheus",
+      "priority": "high",
+      "status": "blocked",
+      "title": "F6 Flywheel end-to-end safe-local probe"
+    }
+  ],
+  "last_completion_receipts": [
+    {
+      "background_task_id": "discord_message_1510348765972791456",
+      "blockers": [],
+      "changed_files": [
+        "docs/operations/hermes-agent-discord-gateway-runbook.md"
+      ],
+      "created_at_utc": "2026-05-30T18:29:17Z",
+      "next_action": "Review Hermes Agent gateway result and decide whether to close or continue the task.",
+      "platform": "discord",
+      "policy_boundary": {
+        "annunimas_records_authority": true,
+        "gateway_result_is_not_approval": true,
+        "requires_review_when_unverified_or_blocked": true
+      },
+      "receipt_id": "hag_1780165757262040694",
+      "schema_version": "annunimas.hermes_agent_gateway_background_result.v1",
+      "semantic_channel": "work-stream",
+      "source": "hermes_agent_gateway",
+      "status": "completed",
+      "summary": "Hermes Agent Discord delivery smoke succeeded via hermes send to the configured tasks/work-stream channel.",
+      "task_ref": "task:tsk_20260530_hermes_agent_gateway_live_discord_smoke",
+      "verification": [
+        "hermes send returned success=true, platform=discord, message_id=1510348765972791456"
+      ]
+    }
+  ],
+  "last_council_decision": {},
+  "mode": "local_runtime_published",
+  "overall_status": "attention_required",
+  "primary_consoles": [
+    "ARDA HUD",
+    "Hermes Agent CLI/TUI"
+  ],
+  "publisher": {
+    "external_messages_sent": false,
+    "live_discord_validation": "human_gated_separate",
+    "schema_version": "annunimas.remote_confidence_publisher.v1",
+    "target_state_path": "/var/home/mythos/Annunimas/core/state/remote_confidence_snapshot.json",
+    "writes_only_local_state_file": true
+  },
+  "schema_version": "annunimas.remote_confidence_snapshot.v1",
+  "scout_queue": {
+    "finding_count": 0,
+    "finding_path": "/var/home/mythos/Annunimas/data/athena/scout_findings.jsonl",
+    "latest_finding": {},
+    "latest_request": {},
+    "open_request_count": 0,
+    "request_count": 0,
+    "request_path": "/var/home/mythos/Annunimas/data/athena/scout_requests.jsonl"
+  },
+  "side_effect_policy": {
+    "credential_change": false,
+    "external_messages_sent": false,
+    "read_only": false,
+    "service_restart": false,
+    "writes_generated_state": true
+  },
+  "summary": "System is inspectable remotely, but attention gates are present.",
+  "tasks": {
+    "completed_count": 641,
+    "human_gated_count": 1,
+    "open": [
+      {
+        "id": "tsk_20260527_flywheel_packet_contract",
+        "owner": "prometheus",
+        "priority": "high",
+        "status": "queued",
+        "title": "Define Annunimas Flywheel work-packet contract"
+      },
+      {
+        "id": "tsk_20260527_flywheel_packet_selector",
+        "owner": "prometheus",
+        "priority": "high",
+        "status": "queued",
+        "title": "Add Flywheel packet selector and readiness projection"
+      },
+      {
+        "id": "tsk_20260527_flywheel_hermes_dispatch_rule",
+        "owner": "prometheus",
+        "priority": "high",
+        "status": "queued",
+        "title": "Add bounded Hermes dispatch rule for Flywheel packets"
+      },
+      {
+        "id": "tsk_20260527_flywheel_review_receipts",
+        "owner": "hades",
+        "priority": "high",
+        "status": "queued",
+        "title": "Add Flywheel review and completion receipts"
+      },
+      {
+        "id": "tsk_20260527_flywheel_memory_surfaces",
+        "owner": "mnemosyne",
+        "priority": "normal",
+        "status": "queued",
+        "title": "Expose Flywheel packet runtime and memory surfaces"
+      },
+      {
+        "id": "tsk_20260527_flywheel_f6_end_to_end_probe",
+        "owner": "prometheus",
+        "priority": "high",
+        "status": "queued",
+        "title": "F6 Flywheel end-to-end safe-local probe"
+      },
+      {
+        "id": "tsk_20260527_flywheel_f7_bounded_live_dispatch_timeout",
+        "owner": "prometheus",
+        "priority": "high",
+        "status": "queued",
+        "title": "F7 Add bounded timeout for live Flywheel dispatch"
+      },
+      {
+        "id": "tsk_20260527_flywheel_f8_bridge_target_reconciliation",
+        "owner": "prometheus",
+        "priority": "high",
+        "status": "queued",
+        "title": "F8 Reconcile Flywheel Hermes bridge target selection"
+      },
+      {
+        "id": "tsk_20260530_model_m6_first_benchmark_execution_human_gated",
+        "owner": "warden_charon_athena",
+        "priority": "high",
+        "status": "queued",
+        "title": "M6 human-gated first model benchmark execution"
+      },
+      {
+        "id": "tsk_20260530_model_m7_config_patch_switch_rollback_generator",
+        "owner": "charon_hades",
+        "priority": "high",
+        "status": "queued",
+        "title": "M7 model route config patch and rollback generator"
+      }
+    ],
+    "open_count": 11,
+    "queue_path": "/var/home/mythos/Annunimas/core/projects/tasks/queue.jsonl",
+    "total_count": 694
+  }
+}

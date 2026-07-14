@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_2caaa686c286447c91bac9c35ef9d777",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Automate Charon live model catalog learning and stale model quarantine completed",
+  "salience": 0.7111666666666666,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-03T00:56:51.926725217Z",
+  "last_seen_at": "2026-06-03T00:56:51.926725217Z"
+}

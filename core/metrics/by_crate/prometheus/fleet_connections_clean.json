@@ -1,0 +1,417 @@
+{
+  "ts_utc": "2026-03-11T23:52:13.384714Z",
+  "status_view_mode": "active_only",
+  "active_view_count": 5,
+  "active_view": [
+    {
+      "node_id": "n44fqYbE8321CNTRL",
+      "hostname": "annunimas-core",
+      "dns_name": "annunimas-core.tail91c3c1.ts.net.",
+      "online": true,
+      "tailscale_ips": [
+        "100.127.2.59",
+        "fd7a:115c:a1e0::501:294"
+      ],
+      "llm_local_models": [
+        "qwen2.5-coder:3b",
+        "qwen3.5:cloud",
+        "qwen2.5-coder:7b",
+        "opencode/auto",
+        "qwen2.5-coder:14b-instruct-q5_K_M",
+        "kimi-k2.5:cloud",
+        "minimax-m2.5:cloud"
+      ],
+      "capabilities": [
+        "ingest",
+        "comms",
+        "workflow_execution",
+        "monitoring",
+        "maintenance"
+      ],
+      "usage": {
+        "prometheus_pending_escalations": 0,
+        "hermes_queue_depth": 6,
+        "hades_pending_actions": 0
+      }
+    },
+    {
+      "node_id": "noXnkGwNbw11CNTRL",
+      "hostname": "raspberrypi-aihat",
+      "dns_name": "raspberrypi-aihat.tail91c3c1.ts.net.",
+      "online": true,
+      "tailscale_ips": [
+        "100.79.194.31",
+        "fd7a:115c:a1e0::e837:c21f"
+      ],
+      "last_seen_utc": "0001-01-01T00:00:00Z",
+      "last_seen_age_days": null,
+      "relay": "lax",
+      "capabilities": [
+        "unknown_until_informant"
+      ],
+      "usage": {}
+    },
+    {
+      "node_id": "np3T7tVYP521CNTRL",
+      "hostname": "bluefin",
+      "dns_name": "bluefin.tail91c3c1.ts.net.",
+      "online": true,
+      "tailscale_ips": [
+        "100.103.125.88",
+        "fd7a:115c:a1e0::4337:7d58"
+      ],
+      "last_seen_utc": "0001-01-01T00:00:00Z",
+      "last_seen_age_days": null,
+      "relay": "lax",
+      "capabilities": [
+        "ingest",
+        "comms",
+        "workflow_execution",
+        "monitoring",
+        "maintenance",
+        "hardware_inventory"
+      ],
+      "usage": {},
+      "informant_source": "data/fleet/informants/local_last.json",
+      "node_declared_id": "bluefin",
+      "runtime": {},
+      "hardware": {
+        "hostname": "bluefin",
+        "cpu": {
+          "model_name": "AMD Ryzen 5 5600X 6-Core Processor",
+          "architecture": "x86_64",
+          "cores_per_socket": "6",
+          "threads_per_core": "2",
+          "sockets": "1",
+          "cpu_max_mhz": "4654.2881"
+        },
+        "memory": {
+          "total": "15Gi",
+          "used": "7.9Gi",
+          "free": "4.3Gi",
+          "shared": "298Mi",
+          "buff_cache": "4.0Gi",
+          "available": "7.6Gi"
+        },
+        "mounts": [
+          {
+            "filesystem": "/dev/mapper/bluefin_bluefin--lts-var",
+            "size": "162G",
+            "used": "149G",
+            "available": "13G",
+            "use_percent": "93%",
+            "mountpoint": "/var"
+          },
+          {
+            "filesystem": "tmpfs",
+            "size": "7.8G",
+            "used": "177M",
+            "available": "7.6G",
+            "use_percent": "3%",
+            "mountpoint": "/tmp"
+          }
+        ],
+        "block_devices": [
+          {
+            "name": "sda",
+            "size": "465.8G",
+            "type": "disk",
+            "mountpoint": null,
+            "model": "Samsung SSD 850 ",
+            "children": [
+              {
+                "name": "sda1",
+                "size": "300M",
+                "type": "part",
+                "mountpoint": null,
+                "model": null
+              },
+              {
+                "name": "sda2",
+                "size": "99M",
+                "type": "part",
+                "mountpoint": null,
+                "model": null
+              },
+              {
+                "name": "sda3",
+                "size": "128M",
+                "type": "part",
+                "mountpoint": null,
+                "model": null
+              },
+              {
+                "name": "sda4",
+                "size": "464.8G",
+                "type": "part",
+                "mountpoint": null,
+                "model": null
+              },
+              {
+                "name": "sda5",
+                "size": "450M",
+                "type": "part",
+                "mountpoint": null,
+                "model": null
+              }
+            ]
+          },
+          {
+            "name": "sdb",
+            "size": "931.5G",
+            "type": "disk",
+            "mountpoint": null,
+            "model": "WDC WD1003FBYX-0",
+            "children": [
+              {
+                "name": "sdb1",
+                "size": "100M",
+                "type": "part",
+                "mountpoint": null,
+                "model": null
+              },
+              {
+                "name": "sdb2",
+                "size": "931.4G",
+                "type": "part",
+                "mountpoint": null,
+                "model": null
+              }
+            ]
+          },
+          {
+            "name": "sdc",
+            "size": "931.5G",
+            "type": "disk",
+            "mountpoint": null,
+            "model": "WDC WD1003FZEX-0",
+            "children": [
+              {
+                "name": "sdc1",
+                "size": "16M",
+                "type": "part",
+                "mountpoint": null,
+                "model": null
+              },
+              {
+                "name": "sdc2",
+                "size": "931.5G",
+                "type": "part",
+                "mountpoint": null,
+                "model": null
+              }
+            ]
+          },
+          {
+            "name": "sdd",
+            "size": "238.5G",
+            "type": "disk",
+            "mountpoint": null,
+            "model": "Samsung SSD 860 ",
+            "children": [
+              {
+                "name": "sdd1",
+                "size": "238.5G",
+                "type": "part",
+                "mountpoint": null,
+                "model": null
+              }
+            ]
+          },
+          {
+            "name": "nvme1n1",
+            "size": "953.9G",
+            "type": "disk",
+            "mountpoint": null,
+            "model": "ADATA SX8200PNP                         ",
+            "children": [
+              {
+                "name": "nvme1n1p1",
+                "size": "600M",
+                "type": "part",
+                "mountpoint": null,
+                "model": null
+              }
+            ]
+          },
+          {
+            "name": "nvme0n1",
+            "size": "232.9G",
+            "type": "disk",
+            "mountpoint": null,
+            "model": "Samsung SSD 970 EVO 250GB               ",
+            "children": [
+              {
+                "name": "nvme0n1p1",
+                "size": "600M",
+                "type": "part",
+                "mountpoint": "/boot/efi",
+                "model": null
+              },
+              {
+                "name": "nvme0n1p2",
+                "size": "1G",
+                "type": "part",
+                "mountpoint": "/boot",
+                "model": null
+              },
+              {
+                "name": "nvme0n1p3",
+                "size": "231.3G",
+                "type": "part",
+                "mountpoint": null,
+                "model": null,
+                "children": [
+                  {
+                    "name": "bluefin_bluefin--lts-root",
+                    "size": "70G",
+                    "type": "lvm",
+                    "mountpoint": "/sysroot",
+                    "model": null
+                  },
+                  {
+                    "name": "bluefin_bluefin--lts-var",
+                    "size": "161.3G",
+                    "type": "lvm",
+                    "mountpoint": "/var",
+                    "model": null
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "nvme_devices": [
+          {
+            "device": "/dev/nvme0n1",
+            "model": "Samsung SSD 970 EVO 250GB 0x1 191.20 GB / 250.06 GB 512",
+            "usage": "B + 0 B",
+            "fw_rev": "2B2QEXE7"
+          },
+          {
+            "device": "/dev/nvme1n1",
+            "model": "ADATA SX8200PNP 0x1 1.02 TB / 1.02 TB 512",
+            "usage": "B + 0 B",
+            "fw_rev": "S0118C"
+          }
+        ],
+        "gpu_inventory": [
+          "00:00.0 Host bridge: Advanced Micro Devices, Inc. [AMD] Starship/Matisse Root Complex",
+          "00:00.2 IOMMU: Advanced Micro Devices, Inc. [AMD] Starship/Matisse IOMMU",
+          "00:01.0 Host bridge: Advanced Micro Devices, Inc. [AMD] Starship/Matisse PCIe Dummy Host Bridge",
+          "00:01.1 PCI bridge: Advanced Micro Devices, Inc. [AMD] Starship/Matisse GPP Bridge",
+          "00:01.2 PCI bridge: Advanced Micro Devices, Inc. [AMD] Starship/Matisse GPP Bridge",
+          "00:02.0 Host bridge: Advanced Micro Devices, Inc. [AMD] Starship/Matisse PCIe Dummy Host Bridge",
+          "00:03.0 Host bridge: Advanced Micro Devices, Inc. [AMD] Starship/Matisse PCIe Dummy Host Bridge",
+          "00:03.1 PCI bridge: Advanced Micro Devices, Inc. [AMD] Starship/Matisse GPP Bridge",
+          "00:04.0 Host bridge: Advanced Micro Devices, Inc. [AMD] Starship/Matisse PCIe Dummy Host Bridge",
+          "00:05.0 Host bridge: Advanced Micro Devices, Inc. [AMD] Starship/Matisse PCIe Dummy Host Bridge",
+          "00:07.0 Host bridge: Advanced Micro Devices, Inc. [AMD] Starship/Matisse PCIe Dummy Host Bridge",
+          "00:07.1 PCI bridge: Advanced Micro Devices, Inc. [AMD] Starship/Matisse Internal PCIe GPP Bridge 0 to bus[E:B]",
+          "00:08.0 Host bridge: Advanced Micro Devices, Inc. [AMD] Starship/Matisse PCIe Dummy Host Bridge",
+          "00:08.1 PCI bridge: Advanced Micro Devices, Inc. [AMD] Starship/Matisse Internal PCIe GPP Bridge 0 to bus[E:B]",
+          "00:14.0 SMBus: Advanced Micro Devices, Inc. [AMD] FCH SMBus Controller (rev 61)",
+          "00:14.3 ISA bridge: Advanced Micro Devices, Inc. [AMD] FCH LPC Bridge (rev 51)",
+          "00:18.0 Host bridge: Advanced Micro Devices, Inc. [AMD] Matisse/Vermeer Data Fabric: Device 18h; Function 0",
+          "00:18.1 Host bridge: Advanced Micro Devices, Inc. [AMD] Matisse/Vermeer Data Fabric: Device 18h; Function 1",
+          "00:18.2 Host bridge: Advanced Micro Devices, Inc. [AMD] Matisse/Vermeer Data Fabric: Device 18h; Function 2",
+          "00:18.3 Host bridge: Advanced Micro Devices, Inc. [AMD] Matisse/Vermeer Data Fabric: Device 18h; Function 3",
+          "00:18.4 Host bridge: Advanced Micro Devices, Inc. [AMD] Matisse/Vermeer Data Fabric: Device 18h; Function 4",
+          "00:18.5 Host bridge: Advanced Micro Devices, Inc. [AMD] Matisse/Vermeer Data Fabric: Device 18h; Function 5",
+          "00:18.6 Host bridge: Advanced Micro Devices, Inc. [AMD] Matisse/Vermeer Data Fabric: Device 18h; Function 6",
+          "00:18.7 Host bridge: Advanced Micro Devices, Inc. [AMD] Matisse/Vermeer Data Fabric: Device 18h; Function 7",
+          "02:00.0 USB controller: Advanced Micro Devices, Inc. [AMD] 500 Series Chipset USB 3.1 XHCI Controller",
+          "02:00.1 SATA controller: Advanced Micro Devices, Inc. [AMD] 500 Series Chipset SATA Controller",
+          "02:00.2 PCI bridge: Advanced Micro Devices, Inc. [AMD] 500 Series Chipset Switch Upstream Port",
+          "03:00.0 PCI bridge: Advanced Micro Devices, Inc. [AMD] 500 Series Chipset Switch Downstream Port",
+          "03:04.0 PCI bridge: Advanced Micro Devices, Inc. [AMD] 500 Series Chipset Switch Downstream Port",
+          "03:08.0 PCI bridge: Advanced Micro Devices, Inc. [AMD] 500 Series Chipset Switch Downstream Port",
+          "03:09.0 PCI bridge: Advanced Micro Devices, Inc. [AMD] 500 Series Chipset Switch Downstream Port",
+          "08:00.0 VGA compatible controller: NVIDIA Corporation GA102 [GeForce RTX 3080] (rev a1)",
+          "08:00.1 Audio device: NVIDIA Corporation GA102 High Definition Audio Controller (rev a1)",
+          "09:00.0 Non-Essential Instrumentation [1300]: Advanced Micro Devices, Inc. [AMD] Starship/Matisse PCIe Dummy Function",
+          "0a:00.0 Non-Essential Instrumentation [1300]: Advanced Micro Devices, Inc. [AMD] Starship/Matisse Reserved SPP",
+          "0a:00.1 Encryption controller: Advanced Micro Devices, Inc. [AMD] Starship/Matisse Cryptographic Coprocessor PSPCPP",
+          "0a:00.3 USB controller: Advanced Micro Devices, Inc. [AMD] Matisse USB 3.0 Host Controller",
+          "0a:00.4 Audio device: Advanced Micro Devices, Inc. [AMD] Starship/Matisse HD Audio Controller"
+        ],
+        "nvidia_gpus": []
+      }
+    },
+    {
+      "node_id": "nZMArV866311CNTRL",
+      "hostname": "warden",
+      "dns_name": "warden.tail91c3c1.ts.net.",
+      "online": true,
+      "tailscale_ips": [
+        "100.110.85.37",
+        "fd7a:115c:a1e0::bc37:5525"
+      ],
+      "last_seen_utc": "0001-01-01T00:00:00Z",
+      "last_seen_age_days": null,
+      "relay": "lax",
+      "capabilities": [
+        "embodied_controller_candidate",
+        "camera_runtime_present",
+        "tailscale_edge_node"
+      ],
+      "usage": {},
+      "informant_source": "data/fleet/informants/node-pi5-warden_last.json",
+      "node_declared_id": "node-pi5-warden",
+      "runtime": {
+        "python": "Python 3.13.5",
+        "node": "missing",
+        "cargo": "missing"
+      },
+      "hardware": {
+        "model": "Raspberry Pi 5 Model B Rev 1.1",
+        "i2c_devices": [
+          "/dev/i2c-13",
+          "/dev/i2c-14"
+        ],
+        "kernel_modules": [
+          "spidev",
+          "rp1_pio",
+          "i2c_brcmstb",
+          "spi_bcm2835",
+          "rp1_fw",
+          "rp1_mailbox",
+          "rp1_adc",
+          "i2c_dev"
+        ],
+        "packages_present": [
+          "i2c-tools",
+          "python3-venv",
+          "librpicam-app1:arm64",
+          "rpicam-apps",
+          "rpicam-apps-core",
+          "rpicam-apps-encoder:arm64",
+          "rpicam-apps-lite",
+          "rpicam-apps-opencv-postprocess",
+          "rpicam-apps-preview:arm64"
+        ]
+      }
+    },
+    {
+      "node_id": "nSLZ4aQNkd11CNTRL",
+      "hostname": "beelink",
+      "dns_name": "beelink.tail91c3c1.ts.net.",
+      "online": true,
+      "tailscale_ips": [
+        "100.118.123.88",
+        "fd7a:115c:a1e0::537:7b58"
+      ],
+      "last_seen_utc": "0001-01-01T00:00:00Z",
+      "last_seen_age_days": null,
+      "relay": "lax",
+      "capabilities": [
+        "unknown_until_informant"
+      ],
+      "usage": {}
+    }
+  ],
+  "stale_candidates_count": 0,
+  "stale_candidates": [],
+  "offline_recent_count": 0,
+  "offline_recent": []
+}

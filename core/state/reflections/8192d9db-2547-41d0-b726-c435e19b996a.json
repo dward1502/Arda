@@ -1,0 +1,13 @@
+{
+  "contract_version": "0.1.0",
+  "id": "ref_8192d9db-2547-41d0-b726-c435e19b996a",
+  "task_id": "8192d9db-2547-41d0-b726-c435e19b996a",
+  "plan_id": "plan_goal_ledger_compaction_20260504",
+  "completed_at": "2026-05-04T02:57:48.499504730Z",
+  "outcome": "success",
+  "score": 1.0,
+  "narrative": "v0.1 trivial score: task ended in Complete; plan_step_index=Some(0)",
+  "joule_estimated": 0.0,
+  "joule_actual": 0.0,
+  "lessons_emitted": []
+}

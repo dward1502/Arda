@@ -1,0 +1,13 @@
+{
+  "contract_version": "0.1.0",
+  "id": "ref_cd8c7667-a226-49b6-a541-b9b871d3a153",
+  "task_id": "cd8c7667-a226-49b6-a541-b9b871d3a153",
+  "plan_id": "plan_goal_daily_joulework_report_20260504",
+  "completed_at": "2026-05-04T02:57:48.499183216Z",
+  "outcome": "success",
+  "score": 1.0,
+  "narrative": "v0.1 trivial score: task ended in Complete; plan_step_index=Some(2)",
+  "joule_estimated": 0.0,
+  "joule_actual": 0.0,
+  "lessons_emitted": []
+}

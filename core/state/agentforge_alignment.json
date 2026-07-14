@@ -1,0 +1,74 @@
+{
+  "annunimas_adaptation": {
+    "adapt": [
+      "yaml_personas_into_operator_product_profiles",
+      "low_code_templates_into_crate_spawn_blueprints"
+    ],
+    "adopt": [
+      "forge_style_creation_flow",
+      "declarative_workflow_templates",
+      "memory_node_contracts_for_spawned_systems"
+    ],
+    "reject": [
+      "framework_centrality_over_sovereign_core",
+      "single_memory_backend_assumption"
+    ]
+  },
+  "authority": "athena_source_src_75bbe2e4 + official_readme_extraction",
+  "generated_at_utc": "2026-04-28T09:49:25Z",
+  "implementation_mappings": {
+    "crate_boundaries": [
+      {
+        "surfaces": [
+          "core/state/crate_spawn_contract.json",
+          "annunimas-cli utility create-crate-spawn-blueprint"
+        ],
+        "target": "crate_spawn_blueprint_flow",
+        "why": "AgentForge's forge metaphor maps cleanly to sovereign crate scaffolding rather than a permanent meta-framework."
+      },
+      {
+        "surfaces": [
+          "core/state/operations_flow.json",
+          "crates/annunimas-apollo"
+        ],
+        "target": "workflow_execution_contracts",
+        "why": "Declarative cog-style flows should become bounded execution recipes owned by APOLLO."
+      },
+      {
+        "surfaces": [
+          "core/state/athena_runtime.json",
+          "core/state/mnemosyne_continuity.json"
+        ],
+        "target": "memory_node_topology",
+        "why": "Integrated memory nodes belong in sovereign knowledge and continuity surfaces, not inside an external framework shell."
+      }
+    ],
+    "productization_sequence": [
+      "freeze reusable forge metadata in crate_spawn_contract",
+      "promote selected workflow recipes into productizable crate templates",
+      "keep personas and memory policies as optional overlays instead of base doctrine"
+    ],
+    "stateful_boundaries": {
+      "core_contracts": [
+        "core/state/crate_spawn_contract.json",
+        "core/state/agent_framework_alignment.json"
+      ],
+      "extension_lane": [
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json"
+      ]
+    }
+  },
+  "official_traits": {
+    "core_model": "low_code_framework_for_agents_and_cognitive_architectures",
+    "llm_posture": "model_agnostic",
+    "memory_model": "integrated_memory_nodes",
+    "persona_model": "yaml_personas",
+    "storage_posture": "database_flexible_with_chromadb_reference",
+    "workflow_primitive": "declarative_cogs"
+  },
+  "schema_version": "annunimas.agentforge.alignment.v1",
+  "sigil": "REPAIR",
+  "source_id": "src_75bbe2e4",
+  "source_url": "https://github.com/DataBassGit/AgentForge"
+}

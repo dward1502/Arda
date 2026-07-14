@@ -1,0 +1,345 @@
+{
+  "anomalies": [],
+  "audit_runner": {
+    "configured_audit_classes": [
+      "fleet_informant_coverage",
+      "governance_receipt_continuity",
+      "runtime_admission_pressure",
+      "state_feed_freshness",
+      "warden_repair_pressure_triage"
+    ],
+    "latest_receipt_at_utc": "2026-07-14T04:56:16.434618504Z",
+    "mode": "scheduled_task_projection",
+    "next_runner_steps": [
+      "execute read-only collectors before enabling mutating remediation",
+      "write append-only audit receipts with source evidence",
+      "promote Chronos from projection to bounded runner after receipt contract validation"
+    ],
+    "ready_task_count": 5,
+    "ready_task_ids": [
+      "chronos_state_feed_freshness_20260530",
+      "chronos_runtime_admission_pressure_20260530",
+      "chronos_governance_receipt_continuity_20260530",
+      "chronos_fleet_informant_coverage_20260530",
+      "chronos_warden_repair_pressure_triage_20260601"
+    ],
+    "receipt_count": 16515,
+    "receipt_path": "data/chronos/audit_receipts.jsonl",
+    "runner_status": "scheduled_audit_tasks_ready",
+    "scheduled_task_count": 5,
+    "scheduled_tasks": [
+      {
+        "audit_class": "state_feed_freshness",
+        "cadence": "hourly",
+        "due": true,
+        "id": "chronos_state_feed_freshness_20260530",
+        "name": "Chronos state feed freshness audit",
+        "owner": "chronos",
+        "read_only": true,
+        "scheduled_time_utc": "2026-05-30T00:00:00Z",
+        "source_surfaces": [
+          {
+            "path": "core/state/chronos_runtime.json",
+            "present": true
+          },
+          {
+            "path": "core/state/warden_guardhouse.json",
+            "present": true
+          },
+          {
+            "path": "core/state/athena_runtime.json",
+            "present": true
+          },
+          {
+            "path": "core/state/plutus_runtime.json",
+            "present": true
+          },
+          {
+            "path": "core/state/charon_router.json",
+            "present": true
+          }
+        ],
+        "write_through": [
+          "core/state/chronos_runtime.json",
+          "data/chronos/audit_receipts.jsonl"
+        ]
+      },
+      {
+        "audit_class": "runtime_admission_pressure",
+        "cadence": "hourly",
+        "due": true,
+        "id": "chronos_runtime_admission_pressure_20260530",
+        "name": "Runtime admission pressure audit",
+        "owner": "chronos_prometheus",
+        "read_only": true,
+        "scheduled_time_utc": "2026-05-30T00:00:00Z",
+        "source_surfaces": [
+          {
+            "path": "core/state/runtime_admission_receipts.json",
+            "present": true
+          },
+          {
+            "path": "core/state/runtime_admission_recovery.json",
+            "present": true
+          },
+          {
+            "path": "core/state/runtime_budget_policy.json",
+            "present": true
+          },
+          {
+            "path": "core/state/runtime_admission_pressure.json",
+            "present": true
+          }
+        ],
+        "write_through": [
+          "core/state/runtime_admission_recovery.json",
+          "data/chronos/audit_receipts.jsonl"
+        ]
+      },
+      {
+        "audit_class": "governance_receipt_continuity",
+        "cadence": "hourly",
+        "due": true,
+        "id": "chronos_governance_receipt_continuity_20260530",
+        "name": "Governance receipt continuity audit",
+        "owner": "chronos_plutus",
+        "read_only": true,
+        "scheduled_time_utc": "2026-05-30T00:00:00Z",
+        "source_surfaces": [
+          {
+            "path": "core/state/plutus_runtime.json",
+            "present": true
+          },
+          {
+            "path": "core/projects/tasks/queue.jsonl",
+            "present": true
+          },
+          {
+            "path": "data/plutus/governance_receipts.jsonl",
+            "present": true
+          },
+          {
+            "path": "data/athena/policy_readiness.jsonl",
+            "present": true
+          },
+          {
+            "path": "data/athena/planning_task_receipts.jsonl",
+            "present": true
+          }
+        ],
+        "write_through": [
+          "core/state/plutus_runtime.json",
+          "data/chronos/audit_receipts.jsonl"
+        ]
+      },
+      {
+        "audit_class": "fleet_informant_coverage",
+        "cadence": "hourly",
+        "due": true,
+        "id": "chronos_fleet_informant_coverage_20260530",
+        "name": "Fleet informant coverage audit",
+        "owner": "chronos_warden",
+        "read_only": true,
+        "scheduled_time_utc": "2026-05-30T00:00:00Z",
+        "source_surfaces": [
+          {
+            "path": "core/edge/targets.toml",
+            "present": true
+          },
+          {
+            "path": "data/fleet/informants/raspberrypi-aihat_last.json",
+            "present": true
+          },
+          {
+            "path": "data/fleet/informants/beelink_last.json",
+            "present": true
+          },
+          {
+            "path": "core/state/warden_guardhouse.json",
+            "present": true
+          }
+        ],
+        "write_through": [
+          "core/state/chronos_runtime.json",
+          "data/chronos/audit_receipts.jsonl"
+        ]
+      },
+      {
+        "audit_class": "warden_repair_pressure_triage",
+        "cadence": "hourly",
+        "due": true,
+        "id": "chronos_warden_repair_pressure_triage_20260601",
+        "name": "WARDEN repair pressure triage audit",
+        "owner": "chronos_warden",
+        "read_only": true,
+        "scheduled_time_utc": "2026-06-01T00:00:00Z",
+        "source_surfaces": [
+          {
+            "path": "data/warden/repair_pressure_triage_last.json",
+            "present": true
+          },
+          {
+            "path": "data/warden/informant_queue.jsonl",
+            "present": true
+          },
+          {
+            "path": "core/state/warden_guardhouse.json",
+            "present": true
+          },
+          {
+            "path": "data/fleet/informants/raspberrypi-aihat_last.json",
+            "present": true
+          },
+          {
+            "path": "data/fleet/informants/beelink_last.json",
+            "present": true
+          }
+        ],
+        "write_through": [
+          "data/warden/repair_pressure_triage_last.json",
+          "data/chronos/audit_receipts.jsonl"
+        ]
+      }
+    ],
+    "task_definitions_path": "config/chronos_audit_tasks.json"
+  },
+  "authority": "annunimas-chronos",
+  "capabilities": {
+    "audit_orchestration": true,
+    "live_data_feeds": true,
+    "predictive_maintenance": true,
+    "scheduler": true,
+    "time_series_analysis": true
+  },
+  "feed_summary": {
+    "anomalies": [],
+    "domains": [
+      {
+        "anomaly": null,
+        "authority": "warden_system_projection",
+        "bytes": 115073,
+        "drift_seconds": 3,
+        "freshness": "current",
+        "generated_at_utc": "2026-07-14T04:56:12.927733549+00:00",
+        "path": "core/state/warden_guardhouse.json",
+        "present": true,
+        "source": "warden",
+        "valid_json": true
+      },
+      {
+        "anomaly": null,
+        "authority": "memory_activity_projection",
+        "bytes": 47333,
+        "drift_seconds": 0,
+        "freshness": "current",
+        "generated_at_utc": "2026-07-14T04:56:16.407401635+00:00",
+        "path": "core/state/memory_activity.json",
+        "present": true,
+        "source": "mnemosyne",
+        "valid_json": true
+      },
+      {
+        "anomaly": null,
+        "authority": "plutus_runtime_projection",
+        "bytes": 93672,
+        "drift_seconds": 24,
+        "freshness": "current",
+        "generated_at_utc": "2026-07-14T04:55:52.306315741+00:00",
+        "path": "core/state/plutus_runtime.json",
+        "present": true,
+        "source": "plutus",
+        "valid_json": true
+      },
+      {
+        "anomaly": null,
+        "authority": "charon_router_projection",
+        "bytes": 715358,
+        "drift_seconds": 1,
+        "freshness": "current",
+        "generated_at_utc": "2026-07-14T04:56:14.559049980+00:00",
+        "path": "core/state/charon_router.json",
+        "present": true,
+        "source": "charon",
+        "valid_json": true
+      }
+    ],
+    "feed_count": 4,
+    "invalid_json_count": 0,
+    "max_age_seconds": 24,
+    "missing_count": 0,
+    "present_count": 4,
+    "stale_count": 0
+  },
+  "generated_at_utc": "2026-07-14T04:56:16.434878948Z",
+  "mode": "oneshot_runtime_projection",
+  "next_integration_steps": [
+    "execute scheduled read-only audit tasks and write receipts",
+    "promote CLI status readers beyond snapshot-only projection",
+    "persist temporal deltas for trend-aware admission pressure"
+  ],
+  "prediction": {
+    "anomaly_detected": false,
+    "confidence": 0.9,
+    "predicted_cpu": 0.0,
+    "predicted_memory": 0.0
+  },
+  "schema_version": "annunimas.chronos-runtime.v1",
+  "state_feeds": [
+    {
+      "anomaly": null,
+      "authority": "warden_system_projection",
+      "bytes": 115073,
+      "drift_seconds": 3,
+      "freshness": "current",
+      "generated_at_utc": "2026-07-14T04:56:12.927733549+00:00",
+      "path": "core/state/warden_guardhouse.json",
+      "present": true,
+      "source": "warden",
+      "valid_json": true
+    },
+    {
+      "anomaly": null,
+      "authority": "memory_activity_projection",
+      "bytes": 47333,
+      "drift_seconds": 0,
+      "freshness": "current",
+      "generated_at_utc": "2026-07-14T04:56:16.407401635+00:00",
+      "path": "core/state/memory_activity.json",
+      "present": true,
+      "source": "mnemosyne",
+      "valid_json": true
+    },
+    {
+      "anomaly": null,
+      "authority": "plutus_runtime_projection",
+      "bytes": 93672,
+      "drift_seconds": 24,
+      "freshness": "current",
+      "generated_at_utc": "2026-07-14T04:55:52.306315741+00:00",
+      "path": "core/state/plutus_runtime.json",
+      "present": true,
+      "source": "plutus",
+      "valid_json": true
+    },
+    {
+      "anomaly": null,
+      "authority": "charon_router_projection",
+      "bytes": 715358,
+      "drift_seconds": 1,
+      "freshness": "current",
+      "generated_at_utc": "2026-07-14T04:56:14.559049980+00:00",
+      "path": "core/state/charon_router.json",
+      "present": true,
+      "source": "charon",
+      "valid_json": true
+    }
+  ],
+  "status": "baseline_active",
+  "time_series_summary": {
+    "count": 1,
+    "max": 0.0,
+    "mean": 0.0,
+    "min": 0.0,
+    "trend": "InsufficientData"
+  }
+}

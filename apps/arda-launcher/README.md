@@ -5,9 +5,8 @@ the world. It is a Tauri 2 application with a React + TypeScript + Tailwind v4
 frontend that renders a calm, atmospheric onboarding experience: a starfield, a
 slowly growing world-tree, and a single **Begin** call to action.
 
-This is the front door Arda provides. It currently stands alone (the **Begin**
-gate and the `arda-core` crate are placeholders), but it is the surface that will
-eventually boot the operator into the surrounding ARDA services.
+This is the front door Arda provides. It currently stands alone, but it is the
+surface that will eventually boot the operator into the surrounding ARDA services.
 
 ## Stack
 
@@ -120,13 +119,12 @@ root. The launcher is the first screen an operator sees before the surrounding
 services (agent loop, tool gate, service registry, signal grid, council, HUD)
 come online.
 
-The shared `arda-core` Rust crate is intended to host domain types/receipts that
-both the launcher and the sibling repos can depend on; today it is a scaffold.
+No planned shared `arda-core` Rust crate; shared types, if any, live in
+dedicated workspace crates such as `engine` or `manwe`.
 
 ## Status
 
 - Runnable: `pnpm tauri dev` launches the atmospheric onboarding scene.
 - Visual experience implemented (background, particles, world-tree, logo, CTA).
-- **Begin** CTA and `arda-core` integration are placeholders — not yet wired to
-  live ARDA services.
+- **Begin** CTA is a placeholder — not yet wired to live ARDA services.
 - `src/App.css` is orphaned legacy CSS (delete-safe).

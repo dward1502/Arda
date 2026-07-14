@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_a963dbef98a34c889f4a66eff3603b2e",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Completed G7 core governance policy-mode enforcement slice",
+  "salience": 0.8674999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-29T10:32:41.242737976Z",
+  "last_seen_at": "2026-05-29T10:32:41.242737976Z"
+}

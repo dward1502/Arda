@@ -1,0 +1,2 @@
+{"domain":"knowledge","name":"README.md","path":"README.md","purpose":"Reference contract for centralized crate metrics snapshots","sigil":"REPAIR","type":"file"}
+{"name":"manifest.json","path":"manifest.json","type":"file","sigil":"◈","domain":"operations","purpose":"Snapshot manifest with generated metadata and pointers"}

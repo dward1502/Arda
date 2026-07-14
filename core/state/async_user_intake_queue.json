@@ -1,0 +1,14 @@
+{
+  "already_open": [],
+  "authority": "hermes_messages + project_task_queue",
+  "candidates": [],
+  "emitted_tasks": [],
+  "generated_at_utc": "2026-04-28T09:49:24Z",
+  "schema_version": "annunimas.async-user-intake-queue.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "already_open_total": 0,
+    "candidates_total": 0,
+    "emitted_total": 0
+  }
+}

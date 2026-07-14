@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_9b3c2d911b24434ca44a39ecbc6b4504",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Refresh active queue and select next task. project_task_executor matched queue_sequencer queue_management_executor; refreshed autonomy-task-truth, queue-hygiene, queue-active, autonomy-resume; eligible_total=6 rules_ran_total=2 rules_succeeded_total=2; queue_active_total=33; append-only guard passed before closeout",
+  "salience": 0.8902777777777778,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-21T02:53:33.689210284Z",
+  "last_seen_at": "2026-06-21T02:53:33.689210284Z"
+}

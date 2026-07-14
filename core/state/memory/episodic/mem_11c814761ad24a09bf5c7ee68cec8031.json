@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_11c814761ad24a09bf5c7ee68cec8031",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Gate 3.5V: ECST/MythOS research evidence classification",
+  "salience": 0.7249444444444444,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-19T04:30:53.895642246Z",
+  "last_seen_at": "2026-05-19T04:30:53.895642246Z"
+}

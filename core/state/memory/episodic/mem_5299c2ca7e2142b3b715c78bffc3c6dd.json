@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_5299c2ca7e2142b3b715c78bffc3c6dd",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Gate 3.5Q HUD presence ledger status indicator",
+  "salience": 0.7625,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-19T00:02:26.584082637Z",
+  "last_seen_at": "2026-05-19T00:02:26.584082637Z"
+}

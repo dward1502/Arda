@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_a12b39e10e374da4a3bff4f7582c66b1",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA reference component archive cleanup",
+  "salience": 0.8045000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T06:46:45.970183925Z",
+  "last_seen_at": "2026-06-01T06:46:45.970183925Z"
+}

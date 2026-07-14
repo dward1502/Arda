@@ -1,0 +1,246 @@
+{
+  "authority": "framework_digestion_materialization",
+  "doctrine": {
+    "client_persona_shells_are_product_layers_not_core_identity": true,
+    "connector_plugins_live_under_hermes_or_package_boundaries": true,
+    "core_must_stay_small": true,
+    "extensions_optional_by_default": true,
+    "registry_hot_path_forbidden": true,
+    "workflow_templates_promote_into_crate_spawn_or_apollo_recipes": true
+  },
+  "extension_lanes": {
+    "client_shells_and_embodiment": {
+      "contract_surfaces": [
+        "core/state/embodied_interface.json",
+        "core/state/tauri_embodiment.json",
+        "core/state/eliza_alignment.json"
+      ],
+      "owner": "arda",
+      "tools": [
+        {
+          "activation_status": "planned",
+          "category": "communication",
+          "integration_lane": "mcp_communications",
+          "next_action": "promote from evidence into a bounded runtime or product surface",
+          "repo": "SaseQ/discord-mcp",
+          "repo_url": "https://github.com/SaseQ/discord-mcp",
+          "tool": "discord-mcp",
+          "type": "mcp-server"
+        },
+        {
+          "activation_status": "active_signal",
+          "category": "agent-framework",
+          "integration_lane": "agent_framework",
+          "next_action": "OpenCode is already bounded by sovereign route contracts; tune agent route mappings rather than treating it as an unintegrated package",
+          "repo": "code-yeongyu/oh-my-opencode",
+          "repo_url": "https://github.com/code-yeongyu/oh-my-opencode",
+          "tool": "oh-my-opencode",
+          "type": "npm-package"
+        }
+      ]
+    },
+    "communication_adapters": {
+      "contract_surfaces": [
+        "core/state/federated_comms_runtime.json",
+        "core/state/matrix_boardrooms.json",
+        "core/state/package_runtime_activation.json"
+      ],
+      "owner": "hermes",
+      "tools": [
+        {
+          "activation_status": "planned",
+          "category": "communication",
+          "integration_lane": "mcp_communications",
+          "next_action": "promote from evidence into a bounded runtime or product surface",
+          "repo": "SaseQ/discord-mcp",
+          "repo_url": "https://github.com/SaseQ/discord-mcp",
+          "tool": "discord-mcp",
+          "type": "mcp-server"
+        },
+        {
+          "activation_status": "governed_on_demand",
+          "category": "browser",
+          "integration_lane": "mcp_browser",
+          "next_action": "Start the supervised bridge only for governed browser sessions; keep it on-demand rather than daemonized",
+          "repo": "microsoft/playwright-mcp",
+          "repo_url": "https://github.com/microsoft/playwright-mcp",
+          "tool": "playwright-mcp",
+          "type": "mcp-server"
+        }
+      ]
+    },
+    "skills_plugins_and_optional_extensions": {
+      "contract_surfaces": [
+        "core/state/aipkg_contract.json",
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json"
+      ],
+      "owner": "prometheus",
+      "tools": [
+        {
+          "activation_status": "active_signal",
+          "category": "agent-framework",
+          "integration_lane": "agent_framework",
+          "next_action": "OpenCode is already bounded by sovereign route contracts; tune agent route mappings rather than treating it as an unintegrated package",
+          "repo": "code-yeongyu/oh-my-opencode",
+          "repo_url": "https://github.com/code-yeongyu/oh-my-opencode",
+          "tool": "oh-my-opencode",
+          "type": "npm-package"
+        },
+        {
+          "activation_status": "planned",
+          "category": "agent-skills",
+          "integration_lane": "agent_skills",
+          "next_action": "promote from evidence into a bounded runtime or product surface",
+          "repo": "obra/superpowers",
+          "repo_url": "https://github.com/obra/superpowers",
+          "tool": "superpowers",
+          "type": "plugin"
+        }
+      ]
+    },
+    "workflow_templates": {
+      "contract_surfaces": [
+        "core/state/crate_spawn_contract.json",
+        "core/state/operations_flow.json",
+        "core/state/agentforge_alignment.json"
+      ],
+      "owner": "apollo_prometheus",
+      "tools": [
+        {
+          "activation_status": "active_signal",
+          "category": "agent-framework",
+          "integration_lane": "agent_framework",
+          "next_action": "OpenCode is already bounded by sovereign route contracts; tune agent route mappings rather than treating it as an unintegrated package",
+          "repo": "code-yeongyu/oh-my-opencode",
+          "repo_url": "https://github.com/code-yeongyu/oh-my-opencode",
+          "tool": "oh-my-opencode",
+          "type": "npm-package"
+        }
+      ]
+    }
+  },
+  "framework_sources": {
+    "agentforge": {
+      "productization_sequence": [
+        "freeze reusable forge metadata in crate_spawn_contract",
+        "promote selected workflow recipes into productizable crate templates",
+        "keep personas and memory policies as optional overlays instead of base doctrine"
+      ],
+      "source_id": "src_75bbe2e4",
+      "targets": [
+        {
+          "surfaces": [
+            "core/state/crate_spawn_contract.json",
+            "annunimas-cli utility create-crate-spawn-blueprint"
+          ],
+          "target": "crate_spawn_blueprint_flow",
+          "why": "AgentForge's forge metaphor maps cleanly to sovereign crate scaffolding rather than a permanent meta-framework."
+        },
+        {
+          "surfaces": [
+            "core/state/operations_flow.json",
+            "crates/annunimas-apollo"
+          ],
+          "target": "workflow_execution_contracts",
+          "why": "Declarative cog-style flows should become bounded execution recipes owned by APOLLO."
+        },
+        {
+          "surfaces": [
+            "core/state/athena_runtime.json",
+            "core/state/mnemosyne_continuity.json"
+          ],
+          "target": "memory_node_topology",
+          "why": "Integrated memory nodes belong in sovereign knowledge and continuity surfaces, not inside an external framework shell."
+        }
+      ]
+    },
+    "eliza": {
+      "delivery_sequence": [
+        "stabilize Matrix/Element adapter contract under HERMES",
+        "model connector plugins as optional package/runtime extensions",
+        "carry character-shell lessons into product UI and embodiment surfaces without moving doctrine out of core"
+      ],
+      "source_id": "src_4169b219",
+      "targets": [
+        {
+          "surfaces": [
+            "core/state/federated_comms_runtime.json",
+            "core/state/matrix_boardrooms.json",
+            "crates/annunimas-hermes"
+          ],
+          "target": "communication_adapter_plugins",
+          "why": "eliza's connector ecosystem is useful when constrained to HERMES-owned adapter boundaries."
+        },
+        {
+          "surfaces": [
+            "core/state/aipkg_contract.json",
+            "core/state/package_enablement.json"
+          ],
+          "target": "packageable_runtime_extensions",
+          "why": "Plugin registry lessons should become optional package extensions rather than implicit core dependencies."
+        },
+        {
+          "surfaces": [
+            "core/state/embodied_interface.json",
+            "core/state/tauri_embodiment.json",
+            "apps/arda-hud"
+          ],
+          "target": "client_shells_and_embodiment",
+          "why": "Client-facing agent shells should package into product experiences without redefining sovereign identity."
+        }
+      ]
+    },
+    "framework_decision_summary": {
+      "core_should_absorb": [
+        "spawn_blueprint_contracts",
+        "security_by_default_runtime_baselines",
+        "strict_adapter_boundary_contracts"
+      ],
+      "extensions_should_absorb": [
+        "connector_plugins",
+        "client_persona_shells",
+        "workflow_starter_templates"
+      ],
+      "must_remain_rejected": [
+        "framework-first identity",
+        "marketplace or registry hot-path dependence",
+        "chat-platform assumptions as sovereign base layer"
+      ]
+    }
+  },
+  "generated_at_utc": "2026-04-28T09:49:25Z",
+  "governance_contract": {
+    "annunimas_mapping": {
+      "joulework": "data/hades/joulework.jsonl",
+      "love_eq": "core/metrics/by_crate/governance/signals.json",
+      "operator_actions": "core/state/operator_actions.json",
+      "soterion": "data/soterion_index.json",
+      "triad_gate": "core/state/governance_runtime.json"
+    },
+    "extensions": [
+      "crusader_security",
+      "beacon_reputation",
+      "marketplace_discovery"
+    ],
+    "required_validators": [
+      "bacon_lite",
+      "joulework",
+      "love_equation",
+      "triad"
+    ],
+    "runtime_profiles": [
+      "wasm-wasi",
+      "oci-sandboxed",
+      "local-sovereign"
+    ]
+  },
+  "integration_rules": [
+    "Every extension must resolve to sovereign state exports before human-facing packaging.",
+    "Connector or plugin registries may assist discovery but cannot become runtime law.",
+    "Extensions must stay callable without requiring ARDA HUD presence.",
+    "Package and plugin activation must remain bounded by operator actions and package/runtime contracts."
+  ],
+  "schema_version": "annunimas.extension-surface-contract.v1",
+  "sigil": "REPAIR"
+}

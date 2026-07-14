@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_60fcaa120cb24ced9b0d58b6ba644084",
+  "kind": "episodic",
+  "agent": "charon",
+  "content": "CHARON routed athena:research [planning:context_heavy] -> openrouter:openrouter/owl-alpha triad_passed=false love_eq=0.74",
+  "salience": 0.2834999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T04:41:29.271069488Z",
+  "last_seen_at": "2026-06-01T04:41:29.271069488Z"
+}

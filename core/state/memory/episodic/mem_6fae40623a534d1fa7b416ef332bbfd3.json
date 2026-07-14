@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_6fae40623a534d1fa7b416ef332bbfd3",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Hermes Charon route attribution and Charon route audit surface",
+  "salience": 0.6675000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-05T08:09:26.828912941Z",
+  "last_seen_at": "2026-06-05T08:09:26.828912941Z"
+}

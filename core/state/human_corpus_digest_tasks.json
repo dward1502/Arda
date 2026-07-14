@@ -1,0 +1,29 @@
+{
+  "already_open": [
+    {
+      "group_id": "agent_framework_comparison",
+      "status": "completed",
+      "task_id": "tsk_humancorpus_ae384f6e15fe"
+    },
+    {
+      "group_id": "numenor_architecture_contracts",
+      "status": "completed",
+      "task_id": "tsk_humancorpus_308672ec63fe"
+    },
+    {
+      "group_id": "unclassified",
+      "status": "completed",
+      "task_id": "tsk_humancorpus_34f307fe88d3"
+    }
+  ],
+  "authority": "human_corpus_digest_plan + project_task_queue",
+  "emitted_tasks": [],
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "schema_version": "annunimas.human-corpus-digest-tasks.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "already_open_total": 3,
+    "emitted_total": 0,
+    "groups_total": 3
+  }
+}

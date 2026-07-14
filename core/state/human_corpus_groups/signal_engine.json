@@ -1,0 +1,34 @@
+{
+  "authority": "bounded_human_corpus_group_extraction",
+  "extraction": {
+    "contract_candidates": [
+      "marketing_automation_contract",
+      "review_threshold_contract"
+    ],
+    "crate_candidates": [
+      "annunimas-signal-engine"
+    ],
+    "extracted_primitives": [
+      "autonomous_marketing_loop",
+      "content_to_distribution_pipeline",
+      "weekly_review_thresholds",
+      "campaign_feedback_controls"
+    ],
+    "next_downstream_tasks": [
+      "Formalize Signal Engine into bounded marketing automation contract"
+    ]
+  },
+  "generated_at_utc": "2026-04-21T20:15:18Z",
+  "group_id": "signal_engine",
+  "lane": "suite_spec",
+  "owner": "athena",
+  "schema_version": "annunimas.human-corpus-group.v1",
+  "sigil": "REPAIR",
+  "source_ids": [
+    "src_a8620699"
+  ],
+  "source_paths": [
+    "human/notes/signal_engine_marketing_spec.docx"
+  ],
+  "task_title": "Extract Signal Engine into bounded marketing automation contract"
+}

@@ -1,0 +1,116 @@
+{
+  "agents": [
+    {
+      "agent": "explore",
+      "inference_origin": "auto",
+      "model_profile": "backbone_router",
+      "provider": "openrouter",
+      "task_type": "research"
+    },
+    {
+      "agent": "librarian",
+      "inference_origin": "auto",
+      "model_profile": "backbone_reasoning",
+      "provider": "openrouter",
+      "task_type": "research"
+    },
+    {
+      "agent": "oracle",
+      "inference_origin": "auto",
+      "model_profile": "backbone_reasoning",
+      "provider": "openrouter",
+      "task_type": "reasoning"
+    },
+    {
+      "agent": "plan",
+      "inference_origin": "auto",
+      "model_profile": "backbone_reasoning",
+      "provider": "openrouter",
+      "task_type": "reasoning"
+    }
+  ],
+  "authority": "opencode_route_contract + package_runtime_activation + extension_activation_backlog",
+  "doctrine": {
+    "agent_first_contract": true,
+    "client_shell_use_is_consumer_not_authority": true,
+    "routes_define_usage_not_hud_state": true,
+    "skills_and_plugins_remain_bounded_extensions": true,
+    "ui_optional": true,
+    "workflow_templates_must_promote_into_sovereign_recipes": true
+  },
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "lanes": [
+    {
+      "activation_status": "active_signal",
+      "integration_state": "ready_for_activation",
+      "lane": "workflow_templates",
+      "next_action": "OpenCode is already bounded by sovereign route contracts; tune agent route mappings rather than treating it as an unintegrated package",
+      "owner": "apollo_prometheus",
+      "purpose": "Promote OpenCode agent route recipes into bounded workflow templates and crate-spawn scaffolds.",
+      "runtime_status": "ready",
+      "write_through": [
+        "config/opencode_agent_routes.toml",
+        "core/state/package_runtime_activation.json",
+        "core/state/extension_surface_contract.json"
+      ]
+    },
+    {
+      "activation_status": "active_signal",
+      "integration_state": "ready_for_activation",
+      "lane": "client_shells_and_embodiment",
+      "next_action": "OpenCode is already bounded by sovereign route contracts; tune agent route mappings rather than treating it as an unintegrated package",
+      "owner": "arda",
+      "purpose": "Use OpenCode as a governed agent shell and embodiment consumer rather than a source of machine truth.",
+      "runtime_status": "ready",
+      "write_through": [
+        "config/opencode_agent_routes.toml",
+        "core/state/embodied_interface.json",
+        "core/state/package_runtime_activation.json"
+      ]
+    },
+    {
+      "activation_status": "active_signal",
+      "integration_state": "ready_for_activation",
+      "lane": "skills_plugins_and_optional_extensions",
+      "next_action": "OpenCode is already bounded by sovereign route contracts; tune agent route mappings rather than treating it as an unintegrated package",
+      "owner": "prometheus",
+      "purpose": "Bound optional OpenCode skills and plugin behavior behind sovereign route and package contracts.",
+      "runtime_status": "ready",
+      "write_through": [
+        "config/opencode_agent_routes.toml",
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json"
+      ]
+    }
+  ],
+  "recommended_productization_sequence": [
+    "stabilize route mappings for existing OpenCode agents",
+    "promote high-value route recipes into APOLLO or crate-spawn workflow surfaces",
+    "bind embodiment/client-shell usage through ARDA or other consumers without making them authoritative",
+    "keep optional skills/plugins behind bounded package and route contracts"
+  ],
+  "route_defaults": {
+    "inference_origin": "auto",
+    "privacy_tier": "internal",
+    "provider": "auto"
+  },
+  "schema_version": "annunimas.opencode-productization-contract.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "agents_total": 4,
+    "lanes_total": 3,
+    "route_contract_ready": true,
+    "runtime_ready": true
+  },
+  "tool": {
+    "activation_status": "active_signal",
+    "binary_path": "/var/home/mythos/.opencode/bin/opencode",
+    "integration_state": "ready_for_activation",
+    "name": "oh-my-opencode",
+    "repo": "code-yeongyu/oh-my-opencode",
+    "repo_url": "https://github.com/code-yeongyu/oh-my-opencode",
+    "route_contract_path": "config/opencode_agent_routes.toml",
+    "route_contract_ready": true,
+    "runtime_status": "ready"
+  }
+}

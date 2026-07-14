@@ -1,0 +1,55 @@
+{
+  "authority": "controlled_external_corpus_promotion",
+  "batch_id": "valinor_promotion_batch_01",
+  "destination_surfaces": [
+    "human/plans/VALINOR_BATCH_01_ROOT_AND_CRUSTIES.md",
+    "human/library/valinor/README.md",
+    "core/state/valinor_merge_registry.json"
+  ],
+  "focus": "root_governance_and_crusties_project_suite",
+  "generated_at_utc": "2026-03-13T04:10:00Z",
+  "next_candidates": [
+    "/var/home/dward/Numenor_Prime/Valinor/INFRA/deployments/INDEX.yaml",
+    "/var/home/dward/Numenor_Prime/Valinor/OPPORTUNITIES/PRODUCTIZATION_TEMPLATE.md",
+    "/var/home/dward/Numenor_Prime/Valinor/Realmgate_Warriors_Task_Plan.txt"
+  ],
+  "promoted_items": [
+    {
+      "destination": "human/plans/VALINOR_BATCH_01_ROOT_AND_CRUSTIES.md",
+      "kind": "root_doctrine",
+      "project": "valinor",
+      "source": "/var/home/dward/Numenor_Prime/Valinor/INDEX.md",
+      "summary": "Promoted Valinor's explicit non-authoritative incubation doctrine so the corpus can be absorbed without treating it as a second sovereign layer."
+    },
+    {
+      "destination": "human/plans/VALINOR_BATCH_01_ROOT_AND_CRUSTIES.md",
+      "kind": "decision_memory",
+      "project": "portfolio_prioritization",
+      "source": "/var/home/dward/Numenor_Prime/Valinor/DECISIONS_2026-02-14.md",
+      "summary": "Promoted strategic sequencing memory: CITADEL first, ARDA long-horizon, CRUSTIES active, GUARDIAN and non-canonical games parked behind stronger gates."
+    },
+    {
+      "destination": "human/plans/VALINOR_BATCH_01_ROOT_AND_CRUSTIES.md",
+      "kind": "decision_memory",
+      "project": "portfolio_prioritization",
+      "source": "/var/home/dward/Numenor_Prime/Valinor/EXECUTION_BOARD_2026-02-14.md",
+      "summary": "Promoted the Build Now / Incubate / Park framework as historical sequencing logic for project triage."
+    },
+    {
+      "destination": "human/plans/VALINOR_BATCH_01_ROOT_AND_CRUSTIES.md",
+      "kind": "project_doc_suite",
+      "project": "crusties",
+      "source": "/var/home/dward/Numenor_Prime/Valinor/CRUSTIES",
+      "summary": "Promoted CRUSTIES as a coherent project memory lane centered on visible proof-of-work for agent labor, multi-device display, and economy/reputation layers."
+    }
+  ],
+  "schema_version": "annunimas.valinor-promotion-batch.v1",
+  "selection_rule": {
+    "do_not_copy_full_external_corpus": true,
+    "promotion_mode": "summary_and_crosslink",
+    "valinor_non_authoritative": true
+  },
+  "sigil": "REPAIR",
+  "source_root": "/var/home/dward/Numenor_Prime/Valinor",
+  "status": "promoted_into_readable_annunimas_surfaces"
+}

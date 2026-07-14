@@ -1,0 +1,83 @@
+{
+  "authority": "framework_gate_intake_plan + imported_corpus_planning",
+  "execution_gate": {
+    "must_have_anchor": true,
+    "must_have_bounded_next_actions": true,
+    "must_have_owner": true,
+    "must_have_readiness": true,
+    "must_not_be_historical_task_memory_only": true,
+    "must_not_be_reference_only": true
+  },
+  "generated_at_utc": "2026-03-13T04:05:00Z",
+  "optional_fields": [
+    "delivery_posture",
+    "framework_alignment",
+    "tool_relevance",
+    "deployment_owner",
+    "queue_policy",
+    "review_posture"
+  ],
+  "purpose": "Define the minimum canonical fields a project must expose before it becomes execution-eligible.",
+  "rejection_reasons": [
+    "memory_without_current_anchor",
+    "project_state_without_owner",
+    "archive_material_presented_as_live_plan",
+    "historical_tasks_presented_as_current_queue",
+    "multiple_conflicting_authority_surfaces"
+  ],
+  "required_fields": [
+    {
+      "name": "slug",
+      "purpose": "Stable project identity across human, state, and queue surfaces.",
+      "required": true
+    },
+    {
+      "name": "kind",
+      "purpose": "Distinguish client delivery, internal product, platform memory, research lane, or infrastructure lane.",
+      "required": true
+    },
+    {
+      "name": "current_anchor",
+      "purpose": "Canonical repo, app, state surface, or owned path that grounds the dossier in present reality.",
+      "required": true
+    },
+    {
+      "name": "owner",
+      "purpose": "Named accountable owner for planning and execution decisions.",
+      "required": true
+    },
+    {
+      "name": "current_status",
+      "purpose": "Current lifecycle state such as active_delivery, planned, blocked, guided, or archive_reference.",
+      "required": true
+    },
+    {
+      "name": "readiness",
+      "purpose": "Execution posture such as ready, guided, planned, blocked_on_infra_mapping, or reference_only.",
+      "required": true
+    },
+    {
+      "name": "reason",
+      "purpose": "Short evidence-backed explanation for why the project is in its current posture.",
+      "required": true
+    },
+    {
+      "name": "next_actions",
+      "purpose": "Bounded next steps; must not be a vague backlog dump.",
+      "required": true
+    },
+    {
+      "name": "source_lineage",
+      "purpose": "Imported corpus, client contract, or internal origin lineage that explains where the project memory came from.",
+      "required": true
+    },
+    {
+      "name": "execution_constraints",
+      "purpose": "Explicit boundaries that must hold before execution begins.",
+      "required": true
+    }
+  ],
+  "schema_version": "annunimas.project-dossier-standard.v1",
+  "sigil": "REPAIR",
+  "status": "planning_standard_ready_for_review"
+}

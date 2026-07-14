@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_7de6cccd63c94164ad15d1ad30b7f2ed",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA world terminal preview rendering",
+  "salience": 0.8045000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T08:02:28.633984138Z",
+  "last_seen_at": "2026-06-01T08:02:28.633984138Z"
+}

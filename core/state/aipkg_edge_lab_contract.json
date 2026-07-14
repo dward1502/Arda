@@ -1,0 +1,90 @@
+{
+  "aipkg_law": {
+    "governance_required": {
+      "bacon_lite_required": true,
+      "canonical_checksums_inventory_required": true,
+      "deny_by_default_runtime": true,
+      "joulework_budget_required": true,
+      "love_eq_guard_required": true,
+      "package_digest_required": true,
+      "receipt_signatures_required": true,
+      "soterion_trace_required": true,
+      "triad_gate_required": true,
+      "zero_work_preflight_required": true
+    },
+    "receipt_chain": [
+      "preflight_receipt",
+      "execution_receipt",
+      "validation_receipt",
+      "settlement_receipt",
+      "denial_receipt"
+    ],
+    "runtime_profiles": [
+      "wasm-wasi",
+      "oci-sandboxed",
+      "local-sovereign"
+    ]
+  },
+  "authority": "aipkg_edge_lab_export",
+  "edge_target": {
+    "athena_role": null,
+    "charon_role": null,
+    "deployment_phase": null,
+    "display_name": null,
+    "oracle_role": null,
+    "placement_plan": null,
+    "remote_use_ready": false,
+    "tailscale_ip": null,
+    "target_id": null
+  },
+  "first_lab_package": {
+    "execution_shape": "preflight_first_then_remote_proving_ground",
+    "intended_target": "node-backbone-server-01",
+    "manifest_path": "spec/aipkg/v0.1/examples/edge-backbone-lab.manifest.json",
+    "package_id": "org.annunimas.edge.backbone-lab",
+    "runtime_profile": "local-sovereign"
+  },
+  "generated_at_utc": "2026-04-28T09:49:24Z",
+  "operator_message": "Backbone relocation is compatible with Annunimas doctrine as long as the node stays on Tailscale and CHARON keeps the Tailscale provider contract authoritative.",
+  "purpose": {
+    "primary_goal": "Use the backbone server as the first off-site `.aipkg` proving ground.",
+    "transport_model": "tailscale_internal_mesh",
+    "why_this_node": "The backbone server already anchors CHARON edge reasoning over its Tailscale address."
+  },
+  "readiness_checks": [
+    {
+      "check": "tailscale_mesh_addressable",
+      "evidence": "http://100.102.250.115:8080/v1",
+      "status": "ready"
+    },
+    {
+      "check": "edge_backbone_provider_points_to_tailscale",
+      "evidence": "http://100.102.250.115:8080/v1",
+      "status": "ready"
+    },
+    {
+      "check": "cloud_fallback_available_for_offsite_degradation",
+      "evidence": "openrouter",
+      "status": "ready"
+    },
+    {
+      "check": "aipkg_manifest_example_bound_to_edge_lab",
+      "evidence": "org.annunimas.edge.backbone-lab",
+      "status": "ready"
+    }
+  ],
+  "runtime_contract": {
+    "charon_reads_through_provider_contract": true,
+    "internet_required_when_offsite": true,
+    "openrouter_fallback_models": [
+      "openrouter/auto"
+    ],
+    "openrouter_fallback_provider_id": "openrouter",
+    "primary_provider_base_url": "http://100.102.250.115:8080/v1",
+    "primary_provider_id": "edge_backbone",
+    "primary_transport": "tailscale",
+    "tailscale_required": true
+  },
+  "schema_version": "annunimas.aipkg-edge-lab-contract.v1",
+  "sigil": "REPAIR"
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_8c49d6993f1b431ba7039fe9861fde0f",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Hermes Agent gateway live Discord smoke test. Live Discord smoke message sent to the configured tasks/work-stream channel via hermes send. Delivery returned success=true, platform=discord, chat_id redacted_in_summary, message_id=1510348765972791456. No task approval or execution was implied by the smoke message.",
+  "salience": 0.7513888888888889,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-30T18:27:39.994544648Z",
+  "last_seen_at": "2026-05-30T18:27:39.994544648Z"
+}

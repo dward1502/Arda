@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_be256d44c7714aeeaf4e9dd36695b31e",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Start S1 stage-gate confirmation: 18-crate core manifest stabilization. Stage-gate S1 is now active. Confirm stable 18-crate core surface before tenant/public extractions. Revert to queued if blocked.",
+  "salience": 0.8725,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-19T17:15:39.190612311Z",
+  "last_seen_at": "2026-06-19T17:15:39.190612311Z"
+}

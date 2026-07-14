@@ -1,0 +1,17 @@
+[
+  {
+    "id": "discord_listener",
+    "kind": "persistent",
+    "status": "running"
+  },
+  {
+    "id": "boardroom_manager",
+    "kind": "persistent",
+    "status": "running"
+  },
+  {
+    "id": "outbound_queue",
+    "kind": "persistent",
+    "status": "running"
+  }
+]

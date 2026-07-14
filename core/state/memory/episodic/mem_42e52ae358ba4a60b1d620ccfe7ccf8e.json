@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_42e52ae358ba4a60b1d620ccfe7ccf8e",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: G2 philosopher profile CLI status surface",
+  "salience": 0.6825,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-31T12:43:13.200318789Z",
+  "last_seen_at": "2026-05-31T12:43:13.200318789Z"
+}

@@ -1,0 +1,225 @@
+{
+  "authority": "runtime_admission_recovery + bounded_executor",
+  "generated_at_utc": "2026-03-22T11:33:13.979206873+00:00",
+  "runs": [
+    {
+      "events": [
+        {
+          "cmd": [
+            "cargo",
+            "run",
+            "--quiet",
+            "--",
+            "athena",
+            "deep-process",
+            "--limit",
+            "25",
+            "--retry-failed"
+          ],
+          "exit_code": 124,
+          "ok": false,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": true,
+          "timeout_seconds": 20
+        }
+      ],
+      "kind": "deferred_retry",
+      "label": "athena_deep_analyze",
+      "status": "failed",
+      "title": "Retry deferred ATHENA deep work when pressure clears"
+    },
+    {
+      "events": [
+        {
+          "cmd": [
+            "cargo",
+            "run",
+            "--quiet",
+            "--",
+            "hades",
+            "sweep",
+            "--sweep-type",
+            "manual"
+          ],
+          "exit_code": 0,
+          "ok": true,
+          "stderr": "warning: function `valid_manifest` is never used\n   --> crates/annunimas-core/src/aipkg.rs:156:8\n    |\n156 |     fn valid_manifest() -> AipkgManifest {\n    |        ^^^^^^^^^^^^^^\n    |\n    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default\n\nwarning: function `recall_weighted_score` is never used\n   --> crates/annunimas-mnemosyne/src/service.rs:932:4\n    |\n932 | fn recall_weighted_score(entry: &RecallRecentEntry, cutoff: DateTime<Utc>) -> f64 {\n    |    ^^^^^^^^^^^^^^^^^^^^^\n    |\n    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default\n\nwarning: field `check_interval_secs` is never read\n  --> crates/annunimas-fleet/src/health.rs:29:5\n   |\n26 | pub struct EdgeHealthMonitor {\n   |            ----------------- field in this struct\n...\n29 |     check_interval_secs: u64,\n   |     ^^^^^^^^^^^^^^^^^^^\n   |\n   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default\n\nwarning: multiple fields are never read\n   --> crates/annunimas-prometheus/src/core_link.rs:245:5\n    |\n236 | struct FleetNodeConfig {\n    |        --------------- fields in this struct\n...\n245 |     charon_provider_id: Option<String>,\n    |     ^^^^^^^^^^^^^^^^^^\n246 |     base_url: Option<String>,\n    |     ^^^^^^^^\n247 |     health_url: Option<String>,\n    |     ^^^^^^^^^^\n248 |     models_url: Option<String>,\n    |     ^^^^^^^^^^\n249 |     expected_models: Option<Vec<String>>,\n    |     ^^^^^^^^^^^^^^^\n250 |     startup_priority: Option<u64>,\n    |     ^^^^^^^^^^^^^^^^\n251 |     restart_scope: Option<String>,\n    |     ^^^^^^^^^^^^^\n252 |     restart_cmd: Option<String>,\n    |     ^^^^^^^^^^^\n    |\n    = note: `FleetNodeConfig` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis\n    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default\n\nwarning: function `shell_command` is never used\n   --> crates/annunimas-cli/src/commands/pipeline.rs:149:4\n    |\n149 | fn shell_command(program: &str, args: &[&str]) -> CommandEvent {\n    |    ^^^^^^^^^^^^^\n    |\n    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default\n\nwarning: function `parse_env_example` is never used\n   --> crates/annunimas-cli/src/export_surface.rs:367:4\n    |\n367 | fn parse_env_example(path: &Path) -> Vec<String> {\n    |    ^^^^^^^^^^^^^^^^^\n\nwarning: function `find_binary` is never used\n   --> crates/annunimas-cli/src/export_surface.rs:381:4\n    |\n381 | fn find_binary(name: &str) -> Option<PathBuf> {\n    |    ^^^^^^^^^^^\n\nwarning: function `command_version` is never used\n   --> crates/annunimas-cli/src/export_surface.rs:393:4\n    |\n393 | fn command_version(cmd: &[&str], cwd: &Path) -> Option<String> {\n    |    ^^^^^^^^^^^^^^^\n\nwarning: function `pct` is never used\n    --> crates/annunimas-cli/src/export_surface.rs:1016:4\n     |\n1016 | fn pct(used: f64, cap: Option<f64>) -> Option<f64> {\n     |    ^^^\n\nwarning: function `parse_utc_datetime` is never used\n    --> crates/annunimas-cli/src/export_surface.rs:1024:4\n     |\n1024 | fn parse_utc_datetime(value: Option<&str>) -> Option<chrono::DateTime<chrono::Utc>> {\n     |    ^^^^^^^^^^^^^^^^^^\n\nwarning: function `toml_table` is never used\n    --> crates/annunimas-cli/src/export_surface.rs:1031:4\n     |\n1031 | fn toml_table<'a>(\n     |    ^^^^^^^^^^\n\nwarning: function `first_value` is never used\n    --> crates/annunimas-cli/src/export_surface.rs:1050:4\n     |\n1050 | fn first_value<'a>(data: &'a Value, path: &[&str]) -> Option<&'a Value> {\n     |    ^^^^^^^^^^^\n\nwarning: function `metric_delta` is never used\n    --> crates/annunimas-cli/src/export_surface.rs:1058:4\n     |\n1058 | fn metric_delta(baseline: &Value, current: &Value, path: &[&str]) -> Value {\n     |    ^^^^^^^^^^^^\n\nwarning: function `normalize_playwright` is never used\n    --> crates/annunimas-cli/src/export_surface.rs:1114:4\n     |\n1114 | fn normalize_playwright(surface: Value) -> Value {\n     |    ^^^^^^^^^^^^^^^^^^^^\n\nwarning: function `workspace_reference_count` is nev",
+          "stdout": "2026-03-22T11:30:53.624631Z  INFO annunimas_cli::ipc_bridge: HADES IPC unavailable, using local fallback error=Agent error: hades — failed to connect to HADES socket /run/user/1000/annunimas/hades.sock: Operation not permitted (os error 1) cmd=\"sweep\"\n{\n  \"actions_taken\": 0,\n  \"completed_at_utc\": \"2026-03-22T11:30:53.673500238+00:00\",\n  \"files_scanned\": 63,\n  \"held_for_review\": 0,\n  \"orphans_found\": 7,\n  \"started_at_utc\": \"2026-03-22T11:30:53.624928644+00:00\",\n  \"sweep_type\": \"manual\"\n}",
+          "timed_out": false,
+          "timeout_seconds": 20
+        }
+      ],
+      "kind": "deferred_retry",
+      "label": "hades_sweep",
+      "status": "executed",
+      "title": "Defer HADES maintenance until pressure drops"
+    },
+    {
+      "events": [
+        {
+          "cmd": [
+            "cargo",
+            "run",
+            "--quiet",
+            "--",
+            "hermes",
+            "retry-outbound",
+            "--limit",
+            "100"
+          ],
+          "exit_code": 124,
+          "ok": false,
+          "stderr": "warning: function `valid_manifest` is never used\n   --> crates/annunimas-core/src/aipkg.rs:156:8\n    |\n156 |     fn valid_manifest() -> AipkgManifest {\n    |        ^^^^^^^^^^^^^^\n    |\n    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default\n\nwarning: function `recall_weighted_score` is never used\n   --> crates/annunimas-mnemosyne/src/service.rs:932:4\n    |\n932 | fn recall_weighted_score(entry: &RecallRecentEntry, cutoff: DateTime<Utc>) -> f64 {\n    |    ^^^^^^^^^^^^^^^^^^^^^\n    |\n    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default\n\nwarning: field `check_interval_secs` is never read\n  --> crates/annunimas-fleet/src/health.rs:29:5\n   |\n26 | pub struct EdgeHealthMonitor {\n   |            ----------------- field in this struct\n...\n29 |     check_interval_secs: u64,\n   |     ^^^^^^^^^^^^^^^^^^^\n   |\n   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default",
+          "stdout": "",
+          "timed_out": true,
+          "timeout_seconds": 20
+        },
+        {
+          "cmd": [
+            "cargo",
+            "run",
+            "--quiet",
+            "--",
+            "hermes",
+            "retry-reroute-dlq",
+            "--limit",
+            "100"
+          ],
+          "exit_code": 124,
+          "ok": false,
+          "stderr": "warning: function `valid_manifest` is never used\n   --> crates/annunimas-core/src/aipkg.rs:156:8\n    |\n156 |     fn valid_manifest() -> AipkgManifest {\n    |        ^^^^^^^^^^^^^^\n    |\n    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default\n\nwarning: function `recall_weighted_score` is never used\n   --> crates/annunimas-mnemosyne/src/service.rs:932:4\n    |\n932 | fn recall_weighted_score(entry: &RecallRecentEntry, cutoff: DateTime<Utc>) -> f64 {\n    |    ^^^^^^^^^^^^^^^^^^^^^\n    |\n    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default\n\nwarning: field `check_interval_secs` is never read\n  --> crates/annunimas-fleet/src/health.rs:29:5\n   |\n26 | pub struct EdgeHealthMonitor {\n   |            ----------------- field in this struct\n...\n29 |     check_interval_secs: u64,\n   |     ^^^^^^^^^^^^^^^^^^^\n   |\n   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default",
+          "stdout": "",
+          "timed_out": true,
+          "timeout_seconds": 20
+        }
+      ],
+      "kind": "reroute_retry",
+      "label": "hermes_plutus_signal",
+      "status": "failed",
+      "title": "Retry or reroute deferred Hermes outbound work"
+    },
+    {
+      "events": [
+        {
+          "cmd": [
+            "cargo",
+            "run",
+            "--quiet",
+            "--",
+            "hermes",
+            "retry-outbound",
+            "--limit",
+            "100"
+          ],
+          "exit_code": 124,
+          "ok": false,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": true,
+          "timeout_seconds": 20
+        },
+        {
+          "cmd": [
+            "cargo",
+            "run",
+            "--quiet",
+            "--",
+            "hermes",
+            "retry-reroute-dlq",
+            "--limit",
+            "100"
+          ],
+          "exit_code": 124,
+          "ok": false,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": true,
+          "timeout_seconds": 20
+        }
+      ],
+      "kind": "reroute_retry",
+      "label": "hermes_provider_poll",
+      "status": "failed",
+      "title": "Retry or reroute deferred Hermes outbound work"
+    },
+    {
+      "events": [
+        {
+          "cmd": [
+            "cargo",
+            "run",
+            "--quiet",
+            "--",
+            "hermes",
+            "retry-outbound",
+            "--limit",
+            "100"
+          ],
+          "exit_code": 124,
+          "ok": false,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": true,
+          "timeout_seconds": 20
+        },
+        {
+          "cmd": [
+            "cargo",
+            "run",
+            "--quiet",
+            "--",
+            "hermes",
+            "retry-reroute-dlq",
+            "--limit",
+            "100"
+          ],
+          "exit_code": 124,
+          "ok": false,
+          "stderr": "",
+          "stdout": "",
+          "timed_out": true,
+          "timeout_seconds": 20
+        }
+      ],
+      "kind": "reroute_retry",
+      "label": "hermes_provider_send",
+      "status": "failed",
+      "title": "Retry or reroute deferred Hermes outbound work"
+    },
+    {
+      "events": [
+        {
+          "cmd": [
+            "cargo",
+            "run",
+            "--quiet",
+            "--",
+            "control",
+            "apply-runtime-recovery-route-governor"
+          ],
+          "exit_code": 124,
+          "ok": false,
+          "stderr": "warning: function `valid_manifest` is never used\n   --> crates/annunimas-core/src/aipkg.rs:156:8\n    |\n156 |     fn valid_manifest() -> AipkgManifest {\n    |        ^^^^^^^^^^^^^^\n    |\n    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default\n\nwarning: function `recall_weighted_score` is never used\n   --> crates/annunimas-mnemosyne/src/service.rs:932:4\n    |\n932 | fn recall_weighted_score(entry: &RecallRecentEntry, cutoff: DateTime<Utc>) -> f64 {\n    |    ^^^^^^^^^^^^^^^^^^^^^\n    |\n    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default\n\nwarning: field `check_interval_secs` is never read\n  --> crates/annunimas-fleet/src/health.rs:29:5\n   |\n26 | pub struct EdgeHealthMonitor {\n   |            ----------------- field in this struct\n...\n29 |     check_interval_secs: u64,\n   |     ^^^^^^^^^^^^^^^^^^^\n   |\n   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default",
+          "stdout": "",
+          "timed_out": true,
+          "timeout_seconds": 20
+        }
+      ],
+      "kind": "route_shift",
+      "label": "runtime_route_shift",
+      "status": "failed",
+      "title": "Apply runtime route shift governor"
+    }
+  ],
+  "schema_version": "annunimas.runtime-admission-recovery-executor.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "executed_total": 1,
+    "failed_total": 5,
+    "local_joule_pressure": false,
+    "pressure_guard_status": "ok",
+    "recovery_actions_total": 7,
+    "skipped_total": 0
+  }
+}

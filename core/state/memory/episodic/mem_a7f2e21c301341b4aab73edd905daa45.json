@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_a7f2e21c301341b4aab73edd905daa45",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: S1/G4: update architecture docs to reflect frozen 18-crate core surface",
+  "salience": 0.8325000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-19T08:01:28.801914307Z",
+  "last_seen_at": "2026-06-19T08:01:28.801914307Z"
+}

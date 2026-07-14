@@ -1,0 +1,61 @@
+{
+  "annunimas_follow_ons": [
+    "crate_spawn_blueprint_contract",
+    "network_native_node_onboarding_contract",
+    "aipkg_marketplace_separation",
+    "arda_embodied_tauri_slice"
+  ],
+  "authority": "athena_policy_ready_source_src_cebb6abe",
+  "generated_at_utc": "2026-04-28T09:49:25Z",
+  "governance_validators": {
+    "bacon_lite_required": true,
+    "joulework_required": true,
+    "love_equation_required": true,
+    "triad_required": true
+  },
+  "pattern_extraction": {
+    "desktop_embodiment": {
+      "annunimas_adaptation": "carry forward into ARDA embodied interface and Pepper's Ghost controller surfaces",
+      "openfang_pattern": "Tauri desktop as a first-class native surface",
+      "priority": "medium"
+    },
+    "hands_to_spawnable_crates": {
+      "annunimas_adaptation": "crate-spawn templates with sovereign task, metrics, ARDA, and control-plane hooks from first boot",
+      "openfang_pattern": "autonomous Hands as prebuilt capability packages with lifecycle verbs",
+      "priority": "high"
+    },
+    "security_stack": {
+      "annunimas_adaptation": "map to WARDEN, HADES, `.aipkg` receipts/signatures, and control-plane lockdown projections",
+      "openfang_pattern": "explicit signing, taint tracking, sandboxing, and audit trail",
+      "priority": "high"
+    },
+    "skills_marketplace_boundary": {
+      "annunimas_adaptation": "align with `.aipkg` as open package law and keep marketplace economics out of core truth",
+      "openfang_pattern": "skills and marketplace framing around reusable packages",
+      "priority": "high"
+    },
+    "wire_to_network_onboarding": {
+      "annunimas_adaptation": "keep Unix sockets local, Tailscale internal, and fold network-native node onboarding above the sovereign local layer",
+      "openfang_pattern": "network-native OFP onboarding and mutual auth",
+      "priority": "high"
+    }
+  },
+  "posture": {
+    "aligned_domains": [
+      "crate_native_system_decomposition",
+      "network_native_onboarding",
+      "agent_capability_packaging",
+      "desktop_embodiment",
+      "security_by_default_runtime"
+    ],
+    "misaligned_domains": [
+      "whatsapp_first_channel_assumption",
+      "marketplace_in_hot_path",
+      "single_distribution_surface_bias"
+    ]
+  },
+  "schema_version": "annunimas.openfang.alignment.v1",
+  "sigil": "REPAIR",
+  "source_id": "src_cebb6abe",
+  "source_url": "https://github.com/RightNow-AI/openfang"
+}

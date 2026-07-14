@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_e34b20ca9fd54d5fbd1250d0de1872da",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Harden local control-plane demo artifact path handling",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-24T22:28:53.411389113Z",
+  "last_seen_at": "2026-05-24T22:28:53.411389113Z"
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_312926c3839840e6a34bc73d131fcbe8",
+  "kind": "episodic",
+  "agent": "charon",
+  "content": "CHARON routed athena:research [planning:context_heavy] -> nvidia:ai21labs/jamba-1.5-large-instruct triad_passed=false love_eq=0.74",
+  "salience": 0.3334999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T07:02:33.270157462Z",
+  "last_seen_at": "2026-06-01T07:02:33.270157462Z"
+}

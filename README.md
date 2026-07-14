@@ -9,15 +9,6 @@ Tailwind v4) that renders the ARDA onboarding / world-tree experience. The rust
 packages are placeholder libraries; the launcher is the only executable surface
 so far and is where active development lives.
 
-## Vision
-
-One calm, beautiful surface that boots the operator into the ARDA world and
-gates the way to the surrounding services (agent loop, tool gate, service
-registry, signal grid, council, and HUD). The launcher is meant to feel less
-like "an app" and more like the title screen of a world — a starfield, a
-growing tree, and a single call to action.
-
-Long term, the `arda` binary is intended to be the single operator surface and
 
 ## Repository Map
 

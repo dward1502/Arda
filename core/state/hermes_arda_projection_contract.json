@@ -1,0 +1,117 @@
+{
+  "schema_version": "annunimas.hermes.arda_hud_projection_contract.v1",
+  "surface": "arda",
+  "risk_class": "low_risk_projection",
+  "source_map_path": "core/state/arda_source_map.json",
+  "triage_registry_path": "core/state/knowledge_triage_registry.jsonl",
+  "subscriptions": [
+    {
+      "schema_version": "annunimas.hermes.arda_hud_projection.v1",
+      "surface": "arda",
+      "semantic_channel": "general",
+      "panel": "world",
+      "state_key": "hermes.semantic_channel.general",
+      "ui_identity": "arda:world:general",
+      "risk_class": "low_risk_projection",
+      "trust_boundary": "semantic_projection_only_external_identity_noncanonical",
+      "source_map_path": "core/state/arda_source_map.json",
+      "triage_registry_path": "core/state/knowledge_triage_registry.jsonl",
+      "subscribable": true,
+      "canonical_refs": [
+        "semantic_channel:general",
+        "state:hermes.semantic_channel.general"
+      ],
+      "external_refs": {}
+    },
+    {
+      "schema_version": "annunimas.hermes.arda_hud_projection.v1",
+      "surface": "arda",
+      "semantic_channel": "tasks",
+      "panel": "workstation",
+      "state_key": "hermes.semantic_channel.tasks",
+      "ui_identity": "arda:workstation:tasks",
+      "risk_class": "low_risk_projection",
+      "trust_boundary": "semantic_projection_only_external_identity_noncanonical",
+      "source_map_path": "core/state/arda_source_map.json",
+      "triage_registry_path": "core/state/knowledge_triage_registry.jsonl",
+      "subscribable": true,
+      "canonical_refs": [
+        "semantic_channel:tasks",
+        "state:hermes.semantic_channel.tasks"
+      ],
+      "external_refs": {}
+    },
+    {
+      "schema_version": "annunimas.hermes.arda_hud_projection.v1",
+      "surface": "arda",
+      "semantic_channel": "subagents",
+      "panel": "workstation",
+      "state_key": "hermes.semantic_channel.subagents",
+      "ui_identity": "arda:workstation:subagents",
+      "risk_class": "low_risk_projection",
+      "trust_boundary": "semantic_projection_only_external_identity_noncanonical",
+      "source_map_path": "core/state/arda_source_map.json",
+      "triage_registry_path": "core/state/knowledge_triage_registry.jsonl",
+      "subscribable": true,
+      "canonical_refs": [
+        "semantic_channel:subagents",
+        "state:hermes.semantic_channel.subagents"
+      ],
+      "external_refs": {}
+    },
+    {
+      "schema_version": "annunimas.hermes.arda_hud_projection.v1",
+      "surface": "arda",
+      "semantic_channel": "council",
+      "panel": "boardroom",
+      "state_key": "hermes.semantic_channel.council",
+      "ui_identity": "arda:boardroom:council",
+      "risk_class": "low_risk_projection",
+      "trust_boundary": "semantic_projection_only_external_identity_noncanonical",
+      "source_map_path": "core/state/arda_source_map.json",
+      "triage_registry_path": "core/state/knowledge_triage_registry.jsonl",
+      "subscribable": true,
+      "canonical_refs": [
+        "semantic_channel:council",
+        "state:hermes.semantic_channel.council"
+      ],
+      "external_refs": {}
+    },
+    {
+      "schema_version": "annunimas.hermes.arda_hud_projection.v1",
+      "surface": "arda",
+      "semantic_channel": "research-forge",
+      "panel": "world",
+      "state_key": "hermes.semantic_channel.research-forge",
+      "ui_identity": "arda:world:research-forge",
+      "risk_class": "low_risk_projection",
+      "trust_boundary": "semantic_projection_only_external_identity_noncanonical",
+      "source_map_path": "core/state/arda_source_map.json",
+      "triage_registry_path": "core/state/knowledge_triage_registry.jsonl",
+      "subscribable": true,
+      "canonical_refs": [
+        "semantic_channel:research-forge",
+        "state:hermes.semantic_channel.research-forge"
+      ],
+      "external_refs": {}
+    },
+    {
+      "schema_version": "annunimas.hermes.arda_hud_projection.v1",
+      "surface": "arda",
+      "semantic_channel": "governance-audit",
+      "panel": "boardroom",
+      "state_key": "hermes.semantic_channel.governance-audit",
+      "ui_identity": "arda:boardroom:governance-audit",
+      "risk_class": "low_risk_projection",
+      "trust_boundary": "semantic_projection_only_external_identity_noncanonical",
+      "source_map_path": "core/state/arda_source_map.json",
+      "triage_registry_path": "core/state/knowledge_triage_registry.jsonl",
+      "subscribable": true,
+      "canonical_refs": [
+        "semantic_channel:governance-audit",
+        "state:hermes.semantic_channel.governance-audit"
+      ],
+      "external_refs": {}
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "activation_requirements": [
+    "bounded_scope_declared",
+    "time_window_declared",
+    "jw_budget_declared",
+    "receipt_capture_enabled",
+    "operator_visibility_in_arda"
+  ],
+  "allowed_domains": [
+    {
+      "allowed": true,
+      "domain": "marketing_campaigns",
+      "reason": "bounded campaign orchestration benefits from explicit hierarchy"
+    },
+    {
+      "allowed": true,
+      "domain": "finance_risk_drills",
+      "reason": "high-stakes simulations benefit from disciplined delegation"
+    },
+    {
+      "allowed": true,
+      "domain": "business_ops_campaigns",
+      "reason": "coordinated multi-step execution can use temporary chain of command"
+    },
+    {
+      "allowed": false,
+      "domain": "personal_companion_flows",
+      "reason": "human intimacy and adaptability are better served by softer coordination"
+    },
+    {
+      "allowed": false,
+      "domain": "core_sovereign_control_plane",
+      "reason": "core authority remains realm-based, not militarized"
+    }
+  ],
+  "authority": "prometheus_governance_evaluation",
+  "decision": "selective_only",
+  "doctrine": {
+    "default_mode": "flat_sovereign_crate",
+    "marketplace_or_client_overlays_only": true,
+    "military_hierarchy_in_base_systems": false,
+    "requires_governance_validation": true
+  },
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "operator_guidance": {
+    "do_not_use_for": [
+      "base system authority",
+      "default crate topology",
+      "human relationship surfaces"
+    ],
+    "use_for": [
+      "temporary campaign structures",
+      "product or client execution swarms",
+      "high-stakes domain drills"
+    ]
+  },
+  "rank_mapping": {
+    "centurion": {
+      "role": "specialist relay and coordination node",
+      "source": "hermes_charon_specialists"
+    },
+    "legate": {
+      "role": "strategic coordinator for bounded campaign",
+      "source": "prometheus_or_ceo_overlay"
+    },
+    "legionary": {
+      "role": "execution cohort under bounded plan",
+      "source": "apollo_execution_workers"
+    }
+  },
+  "schema_version": "annunimas.legion-hierarchy.v1",
+  "sigil": "REPAIR",
+  "validator_harnesses": {
+    "bacon_lite_required": true,
+    "joulework_required": true,
+    "love_equation_required": true,
+    "triad_required": true
+  }
+}

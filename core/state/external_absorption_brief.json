@@ -1,0 +1,243 @@
+{
+  "adopt_now": [
+    {
+      "decision": "adapt",
+      "primary_source_id": "src_ec2b8bd4",
+      "productization_move": "Turn memory/skill continuity into a bounded operator-facing capability, not just a backend concept.",
+      "reason": "Hermes Agent validates cross-session memory, skill self-improvement, and user-model continuity, which fit Annunimas biosystem goals.",
+      "target_surfaces": [
+        "core/state/async_user_intake_contract.json",
+        "core/state/research_workflow_contract.json",
+        "core/state/multi_domain_routing_contract.json"
+      ],
+      "theme": "persistent agent memory and skill loops"
+    },
+    {
+      "decision": "adopt",
+      "primary_source_id": "src_16c075a2",
+      "productization_move": "Keep execution behind explicit safety and verification phases while improving context compaction across long-running work.",
+      "reason": "Terminal-Bench is already policy-ready and directly supports workload routing, memory retrieval, context compaction, and harnessed execution.",
+      "target_surfaces": [
+        "core/state/model_control_surface.json",
+        "core/state/soterion_joulework_enforcement.json",
+        "core/state/project_task_executor.json"
+      ],
+      "theme": "terminal harness with context controls"
+    },
+    {
+      "decision": "adapt",
+      "primary_source_id": "src_8b5ab500",
+      "productization_move": "Improve ATHENA crawl policies and receipts rather than copying Cloudflare-specific APIs.",
+      "reason": "Cloudflare’s /crawl endpoint reinforces async crawl jobs, site guidance compliance, and incremental crawl controls already relevant to ATHENA.",
+      "target_surfaces": [
+        "core/state/search_runtime_contract.json",
+        "core/state/athena_integration_plan.json",
+        "core/state/source_absorption_pipeline.json"
+      ],
+      "theme": "bounded whole-site crawling"
+    }
+  ],
+  "authority": "athena_books + sovereign_system_state",
+  "comparison_set": [
+    {
+      "confidence": 0.7316666666666667,
+      "implementation_brief": {
+        "implementation_implications": [
+          "Promote the source from evidence into a bounded runtime, package, or workflow contract before activation.",
+          "Attach implementation work to sovereign state exports so UI and agents consume the same source of truth."
+        ],
+        "method_summary": "Repo-backed implementation candidate requiring sovereign contract mapping",
+        "risks": [
+          "Digesting a GitHub repo is not sufficient for runtime adoption without bounded activation surfaces."
+        ],
+        "source_url": "https://github.com/NousResearch/hermes-agent"
+      },
+      "label": "Nous Hermes Agent",
+      "policy_readiness": "reference_only",
+      "source_id": "src_ec2b8bd4",
+      "title": "https://github.com/NousResearch/hermes-agent"
+    },
+    {
+      "confidence": 0.6916666666666667,
+      "implementation_brief": {
+        "implementation_implications": [
+          "Promote the source from evidence into a bounded runtime, package, or workflow contract before activation.",
+          "Attach implementation work to sovereign state exports so UI and agents consume the same source of truth."
+        ],
+        "method_summary": "Repo-backed implementation candidate requiring sovereign contract mapping",
+        "risks": [
+          "Digesting a GitHub repo is not sufficient for runtime adoption without bounded activation surfaces."
+        ],
+        "source_url": "https://github.com/builderz-labs/mission-control"
+      },
+      "label": "Mission Control",
+      "policy_readiness": "reference_only",
+      "source_id": "src_c2fef5eb",
+      "title": "https://github.com/builderz-labs/mission-control"
+    },
+    {
+      "confidence": 0.7083333333333334,
+      "implementation_brief": null,
+      "label": "Cloudflare Browser Rendering /crawl",
+      "policy_readiness": "reference_only",
+      "source_id": "src_8b5ab500",
+      "title": "https://developers.cloudflare.com/changelog/post/2026-03-10-br-crawl-endpoint"
+    },
+    {
+      "confidence": 0.7483333333333333,
+      "implementation_brief": null,
+      "label": "APS Research Link",
+      "policy_readiness": "reference_only",
+      "source_id": "src_8422185f",
+      "title": "https://journals.aps.org/prresearch/abstract/10.1103/t8g2-n22v"
+    },
+    {
+      "confidence": 0.7416666666666666,
+      "implementation_brief": {
+        "implementation_implications": [
+          "Add workload-specialized model routing between planning and execution lanes.",
+          "Persist project-specific memory across sessions with retrieval hooks during execution.",
+          "Use context compaction and explicit reminder mechanisms to limit context bloat.",
+          "Keep command execution behind a harness with explicit safety phases and verification checkpoints."
+        ],
+        "method_summary": "Terminal-native coding-agent architecture with context controls",
+        "risks": [
+          "Context bloat can degrade reasoning quality over long-horizon tasks.",
+          "Autonomy without explicit harness controls can create unsafe command execution.",
+          "Instruction fade-out across long sessions can erode policy adherence."
+        ],
+        "source_url": "https://arxiv.org/abs/2603.05344"
+      },
+      "label": "Terminal-Bench",
+      "policy_readiness": "policy_ready",
+      "source_id": "src_16c075a2",
+      "title": "Terminal-Bench: A Benchmark for Interactive Coding Agents"
+    }
+  ],
+  "executive_verdict": {
+    "annunimas_is_deeper_than_the_compared_projects": true,
+    "annunimas_is_less_legible_as_a_product": true,
+    "next_competitive_gap_to_close": "turn sovereign depth into clearer operator-facing continuity, memory, and orchestration productization"
+  },
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "ignore_or_defer": [
+    {
+      "decision": "defer",
+      "primary_source_id": "src_c2fef5eb",
+      "reason": "Mission Control is useful as packaging signal, but Annunimas should not fork into another full TypeScript control plane.",
+      "theme": "foreign all-in-one dashboard clones",
+      "what_to_keep": [
+        "panel legibility",
+        "operator workflow clarity",
+        "gateway abstraction ideas"
+      ],
+      "what_to_reject": [
+        "whole-dashboard reimplementation",
+        "duplicate orchestration authority outside sovereign state surfaces"
+      ]
+    },
+    {
+      "decision": "defer",
+      "primary_source_id": "src_53a02919",
+      "reason": "Nemotron is useful as routing/model-selection signal, but it does not change the control-plane architecture by itself.",
+      "theme": "model-hype as architecture substitute",
+      "what_to_keep": [
+        "reasoning-vs-efficiency tradeoff framing",
+        "long-context routing implications"
+      ],
+      "what_to_reject": [
+        "chasing vendor model announcements as product strategy"
+      ]
+    },
+    {
+      "decision": "defer",
+      "primary_source_id": "src_8422185f",
+      "reason": "The APS source is currently only a verification/challenge artifact, not a paper extraction.",
+      "theme": "blocked scholarly fetches without body evidence",
+      "what_to_keep": [
+        "pointer for later verified paper retrieval"
+      ],
+      "what_to_reject": [
+        "using challenge-page content as implementation evidence"
+      ]
+    }
+  ],
+  "mission": {
+    "goal": "Convert externally observed systems into adopt/ignore/productize decisions for Annunimas without diluting sovereignty.",
+    "operator_rule": "Absorb mechanisms and workflows, not branding or entire foreign architectures."
+  },
+  "productize_next": [
+    {
+      "driven_by": [
+        "src_ec2b8bd4",
+        "src_16c075a2"
+      ],
+      "goal": "Expose persistent memory, skill evolution, and session continuity as a first-class Annunimas operator capability.",
+      "name": "operator-visible persistent agent continuity"
+    },
+    {
+      "driven_by": [
+        "src_c2fef5eb"
+      ],
+      "goal": "Make ARDA/HUD read as clearly as public orchestration dashboards without ceding sovereign authority.",
+      "name": "legible multi-lane operator surface"
+    },
+    {
+      "driven_by": [
+        "src_8b5ab500"
+      ],
+      "goal": "Advance ATHENA toward asynchronous job-based crawl control with stronger scope/delta/compliance posture.",
+      "name": "bounded async crawl orchestration"
+    },
+    {
+      "driven_by": [
+        "src_ec2b8bd4",
+        "src_c2fef5eb",
+        "src_53a02919",
+        "src_8422185f",
+        "src_16c075a2"
+      ],
+      "goal": "Distinguish policy-ready anchors from comparison signals, product signals, routing signals, and blocked-fetch artifacts so new intake can be routed without confusion.",
+      "name": "clear external-intake confidence ladder"
+    }
+  ],
+  "recent_intake_status": [
+    {
+      "label": "Nous Hermes Agent",
+      "reason": "Strong overlap in memory, skills, delegation, and messaging, but not yet policy-ready implementation authority.",
+      "source_id": "src_ec2b8bd4",
+      "status": "comparison_signal"
+    },
+    {
+      "label": "Mission Control",
+      "reason": "Useful as operator-surface and workflow-packaging signal, but not a sovereign architecture template.",
+      "source_id": "src_c2fef5eb",
+      "status": "product_legibility_signal"
+    },
+    {
+      "label": "Cloudflare Browser Rendering /crawl",
+      "reason": "Relevant to ATHENA async crawl posture, compliance, and job-based collection.",
+      "source_id": "src_8b5ab500",
+      "status": "crawl_policy_signal"
+    },
+    {
+      "reason": "Useful for model-selection and long-context efficiency framing, not direct system architecture.",
+      "source_id": "src_53a02919",
+      "status": "routing_signal"
+    },
+    {
+      "label": "APS Research Link",
+      "reason": "Current ingest hit a Cloudflare verification page rather than paper body, so it is not trustworthy implementation evidence yet.",
+      "source_id": "src_8422185f",
+      "status": "blocked_fetch_artifact"
+    },
+    {
+      "label": "Terminal-Bench",
+      "reason": "Already policy-ready and the strongest recent scholarly source for execution harness, routing, memory, and context controls.",
+      "source_id": "src_16c075a2",
+      "status": "policy_ready_anchor"
+    }
+  ],
+  "schema_version": "annunimas.external-absorption-brief.v1",
+  "sigil": "REPAIR"
+}

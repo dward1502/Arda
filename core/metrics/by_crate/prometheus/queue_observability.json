@@ -1,0 +1,40 @@
+{
+  "breakdown": {
+    "athena_deep_queue": {
+      "path": "data/athena/deep_queue.jsonl",
+      "pending_deep": 0
+    },
+    "core_queue": {
+      "path": "core/queue/queue.jsonl",
+      "queued": 0
+    },
+    "hades_action_queue": {
+      "path": "data/hades/action_queue.jsonl",
+      "pending_records": 31
+    },
+    "hermes_outbound_queue": {
+      "path": "data/hermes/outbound_queue.jsonl",
+      "pending_records": 0
+    },
+    "projects_backlog": {
+      "open": 0,
+      "path": "core/projects/backlog_post_v01.jsonl",
+      "queued": 0,
+      "total_records": 0
+    },
+    "projects_queue": {
+      "path": "core/projects/tasks/queue.jsonl",
+      "queued": 0
+    }
+  },
+  "generated_at_utc": "2026-04-29T09:42:30.536712058+00:00",
+  "summary": {
+    "backlog_open": 0,
+    "backlog_queued": 0,
+    "backlog_total_records": 0,
+    "primary_queue_queued": 0,
+    "projects_queue_queued": 0,
+    "total_active_internal_tasks": 31,
+    "total_known_work_items": 31
+  }
+}

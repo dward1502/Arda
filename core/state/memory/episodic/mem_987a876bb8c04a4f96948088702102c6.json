@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_987a876bb8c04a4f96948088702102c6",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Open plan review 1-5 completed",
+  "salience": 0.7625,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-29T05:21:48.159349729Z",
+  "last_seen_at": "2026-05-29T05:21:48.159349729Z"
+}

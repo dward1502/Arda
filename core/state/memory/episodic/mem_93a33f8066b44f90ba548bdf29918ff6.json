@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_93a33f8066b44f90ba548bdf29918ff6",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Gate 3.5S Ledger-derived CITADEL companion export",
+  "salience": 0.7402777777777777,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-19T00:31:43.339444972Z",
+  "last_seen_at": "2026-05-19T00:31:43.339444972Z"
+}

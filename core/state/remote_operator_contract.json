@@ -1,0 +1,165 @@
+{
+  "arda_hud_implications": {
+    "long_term_model": "run_hud_on_any_operator_node_observe_state_from_annunimas_and_dispatch_work_to_system_nodes",
+    "needed_panels": [
+      "execution_target_preview",
+      "operator_node_status",
+      "backbone_reachability",
+      "local_inference_eligibility",
+      "workstation_action_surface"
+    ]
+  },
+  "authority": "fleet_capability_ranking + model_control_surface + opencode_productization_contract",
+  "execution_doctrine": {
+    "default_dispatch": "remote_system_execution",
+    "governor_authority": "charon + opencode_route_governor",
+    "hud_authority": "observer_and_override_only",
+    "opencode_shell_role": "consumer_of_route_contracts_not_hidden_authority",
+    "tailscale_is_required_for_offsite_backbone": true
+  },
+  "generated_at_utc": "2026-04-28T09:49:24Z",
+  "mission": {
+    "goal": "Allow ARDA and OpenCode to be used from any enrolled operator node while execution lands on the sovereign system by default, with optional local inference contribution when the operator node is suitable.",
+    "operator_device_is_not_execution_authority": true
+  },
+  "next_productization_steps": [
+    "Expose execution-target preview in ARDA so the operator can see laptop vs backbone vs cloud before dispatch.",
+    "Let CHARON publish operator-node eligibility for local inference based on health and memory posture.",
+    "Keep OpenCode as the primary governed shell for system operation; use Codex as specialist repo surgery when needed."
+  ],
+  "readiness": {
+    "backbone_provider_healthy": false,
+    "local_fallback_healthy": false,
+    "opencode_ready": true,
+    "openrouter_auth_ready": true,
+    "route_governor_present": true,
+    "workstation_action_surface_ready": true
+  },
+  "routing_policy": {
+    "cloud_fallback": {
+      "auth_ready": true,
+      "preferred_models": [
+        "nvidia/nemotron-3-super-120b-a12b:free",
+        "openrouter/auto"
+      ],
+      "provider_id": "openrouter"
+    },
+    "default_execution_targets": [
+      "edge_backbone",
+      "litellm_gateway",
+      "local_fallback"
+    ],
+    "operator_local_inference_allowed_when": [
+      "task_is_privacy_restricted_or_operator_requested",
+      "local_fallback_provider_is_healthy",
+      "workload_fits_operator_node_memory_and_gpu_constraints"
+    ],
+    "operator_local_inference_not_preferred_for": [
+      "deep_reasoning_bursts",
+      "parallel_background_work",
+      "always_on_backbone_services"
+    ]
+  },
+  "schema_version": "annunimas.remote-operator-contract.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "openrouter_auth_ready": true,
+    "primary_execution_node": null,
+    "primary_operator_node": null,
+    "remote_backbone_ready": false
+  },
+  "tool_surface": {
+    "workstation_command_surface": {
+      "actions": [
+        {
+          "action": "status",
+          "class": "inspection",
+          "effect": "show_remote_operator_workstation_config"
+        },
+        {
+          "action": "probe",
+          "class": "inspection",
+          "effect": "check_remote_operator_network_and_endpoint_health"
+        },
+        {
+          "action": "charon-smoke",
+          "class": "governed_remote_execution",
+          "effect": "verify_charon_routing_path_from_operator_node"
+        },
+        {
+          "action": "sync",
+          "class": "code_sync",
+          "effect": "push_repo_to_workstation_without_remote_check"
+        },
+        {
+          "action": "sync-check",
+          "class": "code_sync_and_verification",
+          "effect": "push_repo_to_workstation_then_run_focused_remote_cli_check"
+        },
+        {
+          "action": "pull",
+          "class": "code_sync",
+          "effect": "pull_repo_from_workstation_to_operator_node"
+        },
+        {
+          "action": "cargo-check-cli",
+          "class": "verification",
+          "effect": "run_remote_cli_focused_cargo_check"
+        },
+        {
+          "action": "cargo-check-athena",
+          "class": "verification",
+          "effect": "run_remote_athena_focused_cargo_check"
+        },
+        {
+          "action": "cargo-check-prometheus",
+          "class": "verification",
+          "effect": "run_remote_prometheus_focused_cargo_check"
+        },
+        {
+          "action": "athena-status",
+          "class": "runtime_inspection",
+          "effect": "run_remote_athena_status_surface"
+        },
+        {
+          "action": "export-athena-plan",
+          "class": "export",
+          "effect": "regenerate_remote_athena_integration_plan"
+        },
+        {
+          "action": "git-status",
+          "class": "inspection",
+          "effect": "show_remote_repo_worktree_state"
+        },
+        {
+          "action": "command",
+          "class": "break_glass_remote_command",
+          "effect": "run_explicit_remote_shell_command",
+          "guardrails": [
+            "operator_or_governance_approved_only",
+            "prefer_named_actions_first"
+          ]
+        }
+      ],
+      "authority": "remote_operator_workstation + remote_operator_sync + remote_operator_probe + remote_operator_charon",
+      "last_result_path": "data/remote_operator/workstation_last_result.json",
+      "latest_receipt": {},
+      "receipt_log": "data/remote_operator/workstation_attempts.jsonl",
+      "script": "scripts/remote_operator_workstation.sh",
+      "transport": "tailscale_ssh_with_managed_operator_alias"
+    }
+  },
+  "topology": {
+    "primary_execution_node": {
+      "display_name": null,
+      "node_id": null,
+      "remote_use_ready": false,
+      "transport": "tailscale"
+    },
+    "primary_operator_node": {
+      "display_name": null,
+      "intended_role": "arda_hud + opencode shell + optional local fallback inference",
+      "node_id": null
+    }
+  }
+}

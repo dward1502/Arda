@@ -1,0 +1,280 @@
+{
+  "schema_version": "annunimas.arda_world_surfaces.v1",
+  "authority": "core/state/arda_world_surfaces.json",
+  "operator_profile_id": null,
+  "updated_at_utc": "2026-06-01T00:00:00.000Z",
+  "assignments": [
+    {
+      "surface_id": "district_command",
+      "component_id": "world-command-district",
+      "source_zone_id": "sovereign_world",
+      "title": "Command District",
+      "role": "district",
+      "module_ids": ["operating_surface", "executive_overview", "systems"],
+      "presentation_modes": ["in_scene", "native_window"],
+      "surface_layout": {
+        "enabled": true,
+        "adapter_type": "component_grid",
+        "preview": {
+          "mode": "component_grid",
+          "refresh_ms": 3000,
+          "widgets": [
+            { "id": "district_command.pressure", "kind": "particle_stream", "title": "Pressure", "data_binding": "district.command.urgency", "grid_area": "main" },
+            { "id": "district_command.metrics", "kind": "metric_strip", "title": "Signals", "data_binding": "sovereign_world.summary", "grid_area": "top" },
+            { "id": "district_command.state", "kind": "status_grid", "title": "State", "data_binding": "sovereign_world.status", "grid_area": "side" }
+          ]
+        },
+        "focus": { "mode": "in_scene_workstation", "target": "sovereign_world", "refresh_ms": 1000 },
+        "embed": { "url": null, "allow_inline": false }
+      },
+      "updated_at_utc": "2026-06-01T00:00:00.000Z"
+    },
+    {
+      "surface_id": "district_knowledge",
+      "component_id": "world-knowledge-district",
+      "source_zone_id": "knowledge_and_reasoning",
+      "title": "Knowledge District",
+      "role": "district",
+      "module_ids": ["section_focus", "human_realm"],
+      "presentation_modes": ["in_scene", "native_window"],
+      "surface_layout": {
+        "enabled": true,
+        "adapter_type": "component_grid",
+        "preview": {
+          "mode": "component_grid",
+          "refresh_ms": 3000,
+          "widgets": [
+            { "id": "district_knowledge.pressure", "kind": "particle_stream", "title": "Pressure", "data_binding": "district.knowledge.urgency", "grid_area": "main" },
+            { "id": "district_knowledge.metrics", "kind": "metric_strip", "title": "Signals", "data_binding": "knowledge_and_reasoning.summary", "grid_area": "top" },
+            { "id": "district_knowledge.state", "kind": "status_grid", "title": "State", "data_binding": "knowledge_and_reasoning.status", "grid_area": "side" }
+          ]
+        },
+        "focus": { "mode": "in_scene_workstation", "target": "knowledge_and_reasoning", "refresh_ms": 1000 },
+        "embed": { "url": null, "allow_inline": false }
+      },
+      "updated_at_utc": "2026-06-01T00:00:00.000Z"
+    },
+    {
+      "surface_id": "district_operations",
+      "component_id": "world-operations-district",
+      "source_zone_id": "planning_and_queue",
+      "title": "Operations District",
+      "role": "district",
+      "module_ids": ["planning", "operations_and_packages"],
+      "presentation_modes": ["in_scene", "native_window"],
+      "surface_layout": {
+        "enabled": true,
+        "adapter_type": "component_grid",
+        "preview": {
+          "mode": "component_grid",
+          "refresh_ms": 3000,
+          "widgets": [
+            { "id": "district_operations.pressure", "kind": "particle_stream", "title": "Pressure", "data_binding": "district.operations.urgency", "grid_area": "main" },
+            { "id": "district_operations.metrics", "kind": "metric_strip", "title": "Signals", "data_binding": "planning_and_queue.summary", "grid_area": "top" },
+            { "id": "district_operations.state", "kind": "status_grid", "title": "State", "data_binding": "planning_and_queue.status", "grid_area": "side" }
+          ]
+        },
+        "focus": { "mode": "in_scene_workstation", "target": "planning_and_queue", "refresh_ms": 1000 },
+        "embed": { "url": null, "allow_inline": false }
+      },
+      "updated_at_utc": "2026-06-01T00:00:00.000Z"
+    },
+    {
+      "surface_id": "district_finance",
+      "component_id": "world-economy-district",
+      "source_zone_id": "lifecycle_execution_economics",
+      "title": "Economy District",
+      "role": "district",
+      "module_ids": ["planning", "operations_and_packages"],
+      "presentation_modes": ["in_scene", "native_window"],
+      "surface_layout": {
+        "enabled": true,
+        "adapter_type": "component_grid",
+        "preview": {
+          "mode": "component_grid",
+          "refresh_ms": 3000,
+          "widgets": [
+            { "id": "district_finance.pressure", "kind": "particle_stream", "title": "Pressure", "data_binding": "district.finance.urgency", "grid_area": "main" },
+            { "id": "district_finance.metrics", "kind": "metric_strip", "title": "Signals", "data_binding": "lifecycle_execution_economics.summary", "grid_area": "top" },
+            { "id": "district_finance.state", "kind": "status_grid", "title": "State", "data_binding": "lifecycle_execution_economics.status", "grid_area": "side" }
+          ]
+        },
+        "focus": { "mode": "in_scene_workstation", "target": "lifecycle_execution_economics", "refresh_ms": 1000 },
+        "embed": { "url": null, "allow_inline": false }
+      },
+      "updated_at_utc": "2026-06-01T00:00:00.000Z"
+    },
+    {
+      "surface_id": "district_communications",
+      "component_id": "world-routing-comms-district",
+      "source_zone_id": "routing_and_comms",
+      "title": "Routing & Comms District",
+      "role": "district",
+      "module_ids": ["section_focus", "operations_and_packages"],
+      "presentation_modes": ["in_scene", "native_window"],
+      "surface_layout": {
+        "enabled": true,
+        "adapter_type": "component_grid",
+        "preview": {
+          "mode": "component_grid",
+          "refresh_ms": 3000,
+          "widgets": [
+            { "id": "district_communications.pressure", "kind": "particle_stream", "title": "Pressure", "data_binding": "district.communications.urgency", "grid_area": "main" },
+            { "id": "district_communications.metrics", "kind": "metric_strip", "title": "Signals", "data_binding": "routing_and_comms.summary", "grid_area": "top" },
+            { "id": "district_communications.state", "kind": "status_grid", "title": "State", "data_binding": "routing_and_comms.status", "grid_area": "side" }
+          ]
+        },
+        "focus": { "mode": "in_scene_workstation", "target": "routing_and_comms", "refresh_ms": 1000 },
+        "embed": { "url": null, "allow_inline": false }
+      },
+      "updated_at_utc": "2026-06-01T00:00:00.000Z"
+    },
+    {
+      "surface_id": "district_governance",
+      "component_id": "world-governance-district",
+      "source_zone_id": "governance_guardhouse",
+      "title": "Governance District",
+      "role": "district",
+      "module_ids": ["governance_controls", "operating_surface"],
+      "presentation_modes": ["in_scene", "native_window"],
+      "surface_layout": {
+        "enabled": true,
+        "adapter_type": "component_grid",
+        "preview": {
+          "mode": "component_grid",
+          "refresh_ms": 3000,
+          "widgets": [
+            { "id": "district_governance.pressure", "kind": "particle_stream", "title": "Pressure", "data_binding": "district.governance.urgency", "grid_area": "main" },
+            { "id": "district_governance.metrics", "kind": "metric_strip", "title": "Signals", "data_binding": "governance_guardhouse.summary", "grid_area": "top" },
+            { "id": "district_governance.state", "kind": "status_grid", "title": "State", "data_binding": "governance_guardhouse.status", "grid_area": "side" }
+          ]
+        },
+        "focus": { "mode": "in_scene_workstation", "target": "governance_guardhouse", "refresh_ms": 1000 },
+        "embed": { "url": null, "allow_inline": false }
+      },
+      "updated_at_utc": "2026-06-01T00:00:00.000Z"
+    },
+    {
+      "surface_id": "district_monitoring",
+      "component_id": "world-monitoring-district",
+      "source_zone_id": "systems_health",
+      "title": "Fleet & Monitoring District",
+      "role": "district",
+      "module_ids": ["systems", "operations_and_packages"],
+      "presentation_modes": ["in_scene", "native_window"],
+      "surface_layout": {
+        "enabled": true,
+        "adapter_type": "component_grid",
+        "preview": {
+          "mode": "component_grid",
+          "refresh_ms": 3000,
+          "widgets": [
+            { "id": "district_monitoring.pressure", "kind": "particle_stream", "title": "Pressure", "data_binding": "district.monitoring.urgency", "grid_area": "main" },
+            { "id": "district_monitoring.metrics", "kind": "metric_strip", "title": "Signals", "data_binding": "systems_health.summary", "grid_area": "top" },
+            { "id": "district_monitoring.state", "kind": "status_grid", "title": "State", "data_binding": "systems_health.status", "grid_area": "side" }
+          ]
+        },
+        "focus": { "mode": "in_scene_workstation", "target": "systems_health", "refresh_ms": 1000 },
+        "embed": { "url": null, "allow_inline": false }
+      },
+      "updated_at_utc": "2026-06-01T00:00:00.000Z"
+    },
+    {
+      "surface_id": "district_human_business",
+      "component_id": "world-human-business-district",
+      "source_zone_id": "human_realm",
+      "title": "Human & Business District",
+      "role": "district",
+      "module_ids": ["human_realm", "business"],
+      "presentation_modes": ["in_scene", "native_window"],
+      "surface_layout": {
+        "enabled": true,
+        "adapter_type": "component_grid",
+        "preview": {
+          "mode": "component_grid",
+          "refresh_ms": 3000,
+          "widgets": [
+            { "id": "district_human_business.pressure", "kind": "particle_stream", "title": "Pressure", "data_binding": "district.human.business.urgency", "grid_area": "main" },
+            { "id": "district_human_business.metrics", "kind": "metric_strip", "title": "Signals", "data_binding": "human_realm.summary", "grid_area": "top" },
+            { "id": "district_human_business.state", "kind": "status_grid", "title": "State", "data_binding": "human_realm.status", "grid_area": "side" }
+          ]
+        },
+        "focus": { "mode": "in_scene_workstation", "target": "human_realm", "refresh_ms": 1000 },
+        "embed": { "url": null, "allow_inline": false }
+      },
+      "updated_at_utc": "2026-06-01T00:00:00.000Z"
+    },
+    {
+      "surface_id": "terminal_queue",
+      "component_id": "world-queue-terminal",
+      "source_zone_id": "planning_and_queue",
+      "title": "Queue Terminal",
+      "role": "terminal",
+      "module_ids": ["planning", "section_focus"],
+      "presentation_modes": ["in_scene", "native_window"],
+      "surface_layout": {
+        "enabled": true,
+        "adapter_type": "streaming_text",
+        "preview": {
+          "mode": "stream_feed",
+          "refresh_ms": 1500,
+          "widgets": [
+            { "id": "terminal_queue.status", "kind": "status_grid", "title": "Terminal Status", "data_binding": "planning_and_queue.status", "grid_area": "top" },
+            { "id": "terminal_queue.feed", "kind": "agent_comms", "title": "Activity Feed", "data_binding": "planning_and_queue.feed", "grid_area": "main" }
+          ]
+        },
+        "focus": { "mode": "in_scene_workstation", "target": "planning_and_queue", "refresh_ms": 1000 },
+        "embed": { "url": null, "allow_inline": false }
+      },
+      "updated_at_utc": "2026-06-01T00:00:00.000Z"
+    },
+    {
+      "surface_id": "terminal_tools",
+      "component_id": "world-tools-terminal",
+      "source_zone_id": "systems_health",
+      "title": "Tools Terminal",
+      "role": "terminal",
+      "module_ids": ["systems", "operations_and_packages"],
+      "presentation_modes": ["in_scene", "native_window"],
+      "surface_layout": {
+        "enabled": true,
+        "adapter_type": "streaming_text",
+        "preview": {
+          "mode": "stream_feed",
+          "refresh_ms": 1500,
+          "widgets": [
+            { "id": "terminal_tools.status", "kind": "status_grid", "title": "Terminal Status", "data_binding": "systems_health.status", "grid_area": "top" },
+            { "id": "terminal_tools.feed", "kind": "agent_comms", "title": "Activity Feed", "data_binding": "systems_health.feed", "grid_area": "main" }
+          ]
+        },
+        "focus": { "mode": "in_scene_workstation", "target": "systems_health", "refresh_ms": 1000 },
+        "embed": { "url": null, "allow_inline": false }
+      },
+      "updated_at_utc": "2026-06-01T00:00:00.000Z"
+    },
+    {
+      "surface_id": "terminal_status",
+      "component_id": "world-status-terminal",
+      "source_zone_id": "sovereign_world",
+      "title": "Status Terminal",
+      "role": "terminal",
+      "module_ids": ["operating_surface", "executive_overview"],
+      "presentation_modes": ["in_scene", "native_window"],
+      "surface_layout": {
+        "enabled": true,
+        "adapter_type": "streaming_text",
+        "preview": {
+          "mode": "stream_feed",
+          "refresh_ms": 1500,
+          "widgets": [
+            { "id": "terminal_status.status", "kind": "status_grid", "title": "Terminal Status", "data_binding": "sovereign_world.status", "grid_area": "top" },
+            { "id": "terminal_status.feed", "kind": "agent_comms", "title": "Activity Feed", "data_binding": "sovereign_world.feed", "grid_area": "main" }
+          ]
+        },
+        "focus": { "mode": "in_scene_workstation", "target": "sovereign_world", "refresh_ms": 1000 },
+        "embed": { "url": null, "allow_inline": false }
+      },
+      "updated_at_utc": "2026-06-01T00:00:00.000Z"
+    }
+  ]
+}

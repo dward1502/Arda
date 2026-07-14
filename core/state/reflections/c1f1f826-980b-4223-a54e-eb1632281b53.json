@@ -1,0 +1,13 @@
+{
+  "contract_version": "0.1.0",
+  "id": "ref_c1f1f826-980b-4223-a54e-eb1632281b53",
+  "task_id": "c1f1f826-980b-4223-a54e-eb1632281b53",
+  "plan_id": "plan_goal_council_presence_20260504",
+  "completed_at": "2026-05-04T02:57:48.499369228Z",
+  "outcome": "success",
+  "score": 1.0,
+  "narrative": "v0.1 trivial score: task ended in Complete; plan_step_index=Some(0)",
+  "joule_estimated": 0.0,
+  "joule_actual": 0.0,
+  "lessons_emitted": []
+}

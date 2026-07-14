@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_d0827b8943ea479fbf5d42ae06991f06",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Gate 3.5L CITADEL key-only companion state push",
+  "salience": 0.7625,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-18T22:57:19.844452399Z",
+  "last_seen_at": "2026-05-18T22:57:19.844452399Z"
+}

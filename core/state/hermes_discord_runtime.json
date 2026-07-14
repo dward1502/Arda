@@ -1,0 +1,584 @@
+{
+  "authority": "federated_comms_runtime + communication_adapter_contract + hermes_metrics",
+  "contract": {
+    "adapter_strategy": "agnostic_bridges",
+    "bridge_enabled": true,
+    "discord_mode": "bounded_optional_bridge",
+    "discord_not_sovereign_base_layer": true,
+    "matrix_primary_surface": true
+  },
+  "delivery": {
+    "latest_attempt_at_utc": null,
+    "posture": "online_no_recent_delivery_receipt",
+    "recent_dispatched_total": 0,
+    "recent_failed_total": 0,
+    "recent_outbound_total": 0
+  },
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "inbound_receipts": [
+    {
+      "authority": {
+        "action_execution_allowed": false,
+        "level": "observer",
+        "policy": "discord_inbound_bounded_optional_bridge",
+        "reason": "sender is not in the Discord authority allowlists",
+        "schema": "annunimas.hermes.discord.authority.v1"
+      },
+      "channel": "1472515093848916020",
+      "classification": {
+        "confidence": 0.78,
+        "intent": "question",
+        "priority": "normal",
+        "route_to": "athena",
+        "tier": "tier3_fallback",
+        "triad_passed": true,
+        "triad_score": 0.6833333333333332
+      },
+      "content_redacted": true,
+      "direction": "inbound",
+      "policy_decision": "classified_only",
+      "provider": "discord",
+      "receipt_contract": "hermes.discord.inbound_receipt.v1",
+      "received_at_utc": "2026-06-06T07:48:33.223301513+00:00",
+      "sender": "dward1502"
+    },
+    {
+      "authority": {
+        "action_execution_allowed": false,
+        "level": "observer",
+        "policy": "discord_inbound_bounded_optional_bridge",
+        "reason": "sender is not in the Discord authority allowlists",
+        "schema": "annunimas.hermes.discord.authority.v1"
+      },
+      "channel": "1472515093848916020",
+      "classification": {
+        "confidence": 0.78,
+        "intent": "unknown",
+        "priority": "normal",
+        "route_to": "prometheus",
+        "tier": "tier3_fallback",
+        "triad_passed": true,
+        "triad_score": 0.6833333333333332
+      },
+      "content_redacted": true,
+      "direction": "inbound",
+      "policy_decision": "classified_only",
+      "provider": "discord",
+      "receipt_contract": "hermes.discord.inbound_receipt.v1",
+      "received_at_utc": "2026-06-06T07:48:33.769771282+00:00",
+      "sender": "dward1502"
+    },
+    {
+      "authority": {
+        "action_execution_allowed": false,
+        "level": "observer",
+        "policy": "discord_inbound_bounded_optional_bridge",
+        "reason": "sender is not in the Discord authority allowlists",
+        "schema": "annunimas.hermes.discord.authority.v1"
+      },
+      "channel": "1472515093848916020",
+      "classification": {
+        "confidence": 0.78,
+        "intent": "question",
+        "priority": "normal",
+        "route_to": "athena",
+        "tier": "tier3_fallback",
+        "triad_passed": true,
+        "triad_score": 0.6833333333333332
+      },
+      "content_redacted": true,
+      "direction": "inbound",
+      "policy_decision": "classified_only",
+      "provider": "discord",
+      "receipt_contract": "hermes.discord.inbound_receipt.v1",
+      "received_at_utc": "2026-06-06T07:55:23.122698598+00:00",
+      "sender": "dward1502"
+    },
+    {
+      "authority": {
+        "action_execution_allowed": false,
+        "level": "observer",
+        "policy": "discord_inbound_bounded_optional_bridge",
+        "reason": "sender is not in the Discord authority allowlists",
+        "schema": "annunimas.hermes.discord.authority.v1"
+      },
+      "channel": "1472515093848916020",
+      "classification": {
+        "confidence": 0.78,
+        "intent": "unknown",
+        "priority": "normal",
+        "route_to": "prometheus",
+        "tier": "tier3_fallback",
+        "triad_passed": true,
+        "triad_score": 0.6833333333333332
+      },
+      "content_redacted": true,
+      "direction": "inbound",
+      "policy_decision": "classified_only",
+      "provider": "discord",
+      "receipt_contract": "hermes.discord.inbound_receipt.v1",
+      "received_at_utc": "2026-06-06T07:55:23.677807644+00:00",
+      "sender": "dward1502"
+    },
+    {
+      "authority": {
+        "action_execution_allowed": false,
+        "level": "observer",
+        "policy": "discord_inbound_bounded_optional_bridge",
+        "reason": "sender is not in the Discord authority allowlists",
+        "schema": "annunimas.hermes.discord.authority.v1"
+      },
+      "channel": "1472515093848916020",
+      "classification": {
+        "confidence": 0.78,
+        "intent": "question",
+        "priority": "normal",
+        "route_to": "athena",
+        "tier": "tier3_fallback",
+        "triad_passed": true,
+        "triad_score": 0.6833333333333332
+      },
+      "content_redacted": true,
+      "direction": "inbound",
+      "policy_decision": "classified_only",
+      "provider": "discord",
+      "receipt_contract": "hermes.discord.inbound_receipt.v1",
+      "received_at_utc": "2026-06-06T07:59:42.461269696+00:00",
+      "sender": "dward1502"
+    },
+    {
+      "authority": {
+        "action_execution_allowed": false,
+        "level": "observer",
+        "policy": "discord_inbound_bounded_optional_bridge",
+        "reason": "sender is not in the Discord authority allowlists",
+        "schema": "annunimas.hermes.discord.authority.v1"
+      },
+      "channel": "1472515093848916020",
+      "classification": {
+        "confidence": 0.78,
+        "intent": "unknown",
+        "priority": "normal",
+        "route_to": "prometheus",
+        "tier": "tier3_fallback",
+        "triad_passed": true,
+        "triad_score": 0.6833333333333332
+      },
+      "content_redacted": true,
+      "direction": "inbound",
+      "policy_decision": "classified_only",
+      "provider": "discord",
+      "receipt_contract": "hermes.discord.inbound_receipt.v1",
+      "received_at_utc": "2026-06-06T07:59:43.014095065+00:00",
+      "sender": "dward1502"
+    },
+    {
+      "authority": {
+        "action_execution_allowed": false,
+        "level": "observer",
+        "policy": "discord_inbound_bounded_optional_bridge",
+        "reason": "sender is not in the Discord authority allowlists",
+        "schema": "annunimas.hermes.discord.authority.v1"
+      },
+      "channel": "1472515093848916020",
+      "classification": {
+        "confidence": 0.78,
+        "intent": "question",
+        "priority": "normal",
+        "route_to": "athena",
+        "tier": "tier3_fallback",
+        "triad_passed": true,
+        "triad_score": 0.6833333333333332
+      },
+      "content_redacted": true,
+      "direction": "inbound",
+      "policy_decision": "classified_only",
+      "provider": "discord",
+      "receipt_contract": "hermes.discord.inbound_receipt.v1",
+      "received_at_utc": "2026-06-06T08:05:14.115111385+00:00",
+      "sender": "dward1502"
+    },
+    {
+      "authority": {
+        "action_execution_allowed": false,
+        "level": "observer",
+        "policy": "discord_inbound_bounded_optional_bridge",
+        "reason": "sender is not in the Discord authority allowlists",
+        "schema": "annunimas.hermes.discord.authority.v1"
+      },
+      "channel": "1472515093848916020",
+      "classification": {
+        "confidence": 0.78,
+        "intent": "unknown",
+        "priority": "normal",
+        "route_to": "prometheus",
+        "tier": "tier3_fallback",
+        "triad_passed": true,
+        "triad_score": 0.6833333333333332
+      },
+      "content_redacted": true,
+      "direction": "inbound",
+      "policy_decision": "classified_only",
+      "provider": "discord",
+      "receipt_contract": "hermes.discord.inbound_receipt.v1",
+      "received_at_utc": "2026-06-06T08:05:14.639742592+00:00",
+      "sender": "dward1502"
+    },
+    {
+      "authority": {
+        "action_execution_allowed": false,
+        "level": "observer",
+        "policy": "discord_inbound_bounded_optional_bridge",
+        "reason": "sender is not in the Discord authority allowlists",
+        "schema": "annunimas.hermes.discord.authority.v1"
+      },
+      "channel": "1472515093848916020",
+      "classification": {
+        "confidence": 0.86,
+        "intent": "question",
+        "priority": "normal",
+        "route_to": "athena",
+        "tier": "tier3_charon",
+        "triad_passed": true,
+        "triad_score": 0.6833333333333332
+      },
+      "content_redacted": true,
+      "direction": "inbound",
+      "policy_decision": "classified_only",
+      "provider": "discord",
+      "receipt_contract": "hermes.discord.inbound_receipt.v1",
+      "received_at_utc": "2026-06-08T16:11:53.062406371+00:00",
+      "sender": "dward1502"
+    },
+    {
+      "authority": {
+        "action_execution_allowed": false,
+        "level": "observer",
+        "policy": "discord_inbound_bounded_optional_bridge",
+        "reason": "sender is not in the Discord authority allowlists",
+        "schema": "annunimas.hermes.discord.authority.v1"
+      },
+      "channel": "1472515093848916020",
+      "classification": {
+        "confidence": 0.86,
+        "intent": "unknown",
+        "priority": "normal",
+        "route_to": "prometheus",
+        "tier": "tier3_charon",
+        "triad_passed": true,
+        "triad_score": 0.6833333333333332
+      },
+      "content_redacted": true,
+      "direction": "inbound",
+      "policy_decision": "classified_only",
+      "provider": "discord",
+      "receipt_contract": "hermes.discord.inbound_receipt.v1",
+      "received_at_utc": "2026-06-08T16:11:54.174447742+00:00",
+      "sender": "dward1502"
+    },
+    {
+      "authority": {
+        "action_execution_allowed": false,
+        "level": "observer",
+        "policy": "discord_inbound_bounded_optional_bridge",
+        "reason": "sender is not in the Discord authority allowlists",
+        "schema": "annunimas.hermes.discord.authority.v1"
+      },
+      "channel": "1472515093848916020",
+      "classification": {
+        "confidence": 0.86,
+        "intent": "question",
+        "priority": "normal",
+        "route_to": "athena",
+        "tier": "tier3_charon",
+        "triad_passed": true,
+        "triad_score": 0.6833333333333332
+      },
+      "content_redacted": true,
+      "direction": "inbound",
+      "policy_decision": "classified_only",
+      "provider": "discord",
+      "receipt_contract": "hermes.discord.inbound_receipt.v1",
+      "received_at_utc": "2026-06-11T00:51:22.116647311+00:00",
+      "sender": "dward1502"
+    },
+    {
+      "authority": {
+        "action_execution_allowed": false,
+        "level": "observer",
+        "policy": "discord_inbound_bounded_optional_bridge",
+        "reason": "sender is not in the Discord authority allowlists",
+        "schema": "annunimas.hermes.discord.authority.v1"
+      },
+      "channel": "1472515093848916020",
+      "classification": {
+        "confidence": 0.86,
+        "intent": "unknown",
+        "priority": "normal",
+        "route_to": "prometheus",
+        "tier": "tier3_charon",
+        "triad_passed": true,
+        "triad_score": 0.6833333333333332
+      },
+      "content_redacted": true,
+      "direction": "inbound",
+      "policy_decision": "classified_only",
+      "provider": "discord",
+      "receipt_contract": "hermes.discord.inbound_receipt.v1",
+      "received_at_utc": "2026-06-11T00:51:23.237364014+00:00",
+      "sender": "dward1502"
+    },
+    {
+      "authority": {
+        "action_execution_allowed": false,
+        "level": "observer",
+        "policy": "discord_inbound_bounded_optional_bridge",
+        "reason": "sender is not in the Discord authority allowlists",
+        "schema": "annunimas.hermes.discord.authority.v1"
+      },
+      "channel": "1472515093848916020",
+      "classification": {
+        "confidence": 0.86,
+        "intent": "question",
+        "priority": "normal",
+        "route_to": "athena",
+        "tier": "tier3_charon",
+        "triad_passed": true,
+        "triad_score": 0.6833333333333332
+      },
+      "content_redacted": true,
+      "direction": "inbound",
+      "policy_decision": "classified_only",
+      "provider": "discord",
+      "receipt_contract": "hermes.discord.inbound_receipt.v1",
+      "received_at_utc": "2026-06-17T15:18:37.859476803+00:00",
+      "sender": "dward1502"
+    },
+    {
+      "authority": {
+        "action_execution_allowed": false,
+        "level": "observer",
+        "policy": "discord_inbound_bounded_optional_bridge",
+        "reason": "sender is not in the Discord authority allowlists",
+        "schema": "annunimas.hermes.discord.authority.v1"
+      },
+      "channel": "1472515093848916020",
+      "classification": {
+        "confidence": 0.86,
+        "intent": "unknown",
+        "priority": "normal",
+        "route_to": "prometheus",
+        "tier": "tier3_charon",
+        "triad_passed": true,
+        "triad_score": 0.6833333333333332
+      },
+      "content_redacted": true,
+      "direction": "inbound",
+      "policy_decision": "classified_only",
+      "provider": "discord",
+      "receipt_contract": "hermes.discord.inbound_receipt.v1",
+      "received_at_utc": "2026-06-17T15:18:39.142849888+00:00",
+      "sender": "dward1502"
+    },
+    {
+      "authority": {
+        "action_execution_allowed": false,
+        "level": "observer",
+        "policy": "discord_inbound_bounded_optional_bridge",
+        "reason": "sender is not in the Discord authority allowlists",
+        "schema": "annunimas.hermes.discord.authority.v1"
+      },
+      "channel": "1472515093848916020",
+      "classification": {
+        "confidence": 0.86,
+        "intent": "question",
+        "priority": "normal",
+        "route_to": "athena",
+        "tier": "tier3_charon",
+        "triad_passed": true,
+        "triad_score": 0.6833333333333332
+      },
+      "content_redacted": true,
+      "direction": "inbound",
+      "policy_decision": "classified_only",
+      "provider": "discord",
+      "receipt_contract": "hermes.discord.inbound_receipt.v1",
+      "received_at_utc": "2026-06-22T17:25:57.818413105+00:00",
+      "sender": "dward1502"
+    },
+    {
+      "authority": {
+        "action_execution_allowed": false,
+        "level": "observer",
+        "policy": "discord_inbound_bounded_optional_bridge",
+        "reason": "sender is not in the Discord authority allowlists",
+        "schema": "annunimas.hermes.discord.authority.v1"
+      },
+      "channel": "1472515093848916020",
+      "classification": {
+        "confidence": 0.86,
+        "intent": "unknown",
+        "priority": "normal",
+        "route_to": "prometheus",
+        "tier": "tier3_charon",
+        "triad_passed": true,
+        "triad_score": 0.6833333333333332
+      },
+      "content_redacted": true,
+      "direction": "inbound",
+      "policy_decision": "classified_only",
+      "provider": "discord",
+      "receipt_contract": "hermes.discord.inbound_receipt.v1",
+      "received_at_utc": "2026-06-22T17:25:59.399690742+00:00",
+      "sender": "dward1502"
+    },
+    {
+      "authority": {
+        "action_execution_allowed": false,
+        "level": "observer",
+        "policy": "discord_inbound_bounded_optional_bridge",
+        "reason": "sender is not in the Discord authority allowlists",
+        "schema": "annunimas.hermes.discord.authority.v1"
+      },
+      "channel": "1472515093848916020",
+      "classification": {
+        "confidence": 0.86,
+        "intent": "question",
+        "priority": "normal",
+        "route_to": "athena",
+        "tier": "tier3_charon",
+        "triad_passed": true,
+        "triad_score": 0.6833333333333332
+      },
+      "content_redacted": true,
+      "direction": "inbound",
+      "policy_decision": "classified_only",
+      "provider": "discord",
+      "receipt_contract": "hermes.discord.inbound_receipt.v1",
+      "received_at_utc": "2026-06-22T21:27:52.973946618+00:00",
+      "sender": "dward1502"
+    },
+    {
+      "authority": {
+        "action_execution_allowed": false,
+        "level": "observer",
+        "policy": "discord_inbound_bounded_optional_bridge",
+        "reason": "sender is not in the Discord authority allowlists",
+        "schema": "annunimas.hermes.discord.authority.v1"
+      },
+      "channel": "1472515093848916020",
+      "classification": {
+        "confidence": 0.86,
+        "intent": "unknown",
+        "priority": "normal",
+        "route_to": "prometheus",
+        "tier": "tier3_charon",
+        "triad_passed": true,
+        "triad_score": 0.6833333333333332
+      },
+      "content_redacted": true,
+      "direction": "inbound",
+      "policy_decision": "classified_only",
+      "provider": "discord",
+      "receipt_contract": "hermes.discord.inbound_receipt.v1",
+      "received_at_utc": "2026-06-22T21:27:57.123169172+00:00",
+      "sender": "dward1502"
+    },
+    {
+      "authority": {
+        "action_execution_allowed": false,
+        "level": "observer",
+        "policy": "discord_inbound_bounded_optional_bridge",
+        "reason": "sender is not in the Discord authority allowlists",
+        "schema": "annunimas.hermes.discord.authority.v1"
+      },
+      "channel": "1472515093848916020",
+      "classification": {
+        "confidence": 0.78,
+        "intent": "question",
+        "priority": "normal",
+        "route_to": "athena",
+        "tier": "tier3_fallback",
+        "triad_passed": true,
+        "triad_score": 0.6833333333333332
+      },
+      "content_redacted": true,
+      "direction": "inbound",
+      "policy_decision": "classified_only",
+      "provider": "discord",
+      "receipt_contract": "hermes.discord.inbound_receipt.v1",
+      "received_at_utc": "2026-07-03T04:43:27.672561314+00:00",
+      "sender": "dward1502"
+    },
+    {
+      "authority": {
+        "action_execution_allowed": false,
+        "level": "observer",
+        "policy": "discord_inbound_bounded_optional_bridge",
+        "reason": "sender is not in the Discord authority allowlists",
+        "schema": "annunimas.hermes.discord.authority.v1"
+      },
+      "channel": "1472515093848916020",
+      "classification": {
+        "confidence": 0.78,
+        "intent": "unknown",
+        "priority": "normal",
+        "route_to": "prometheus",
+        "tier": "tier3_fallback",
+        "triad_passed": true,
+        "triad_score": 0.6833333333333332
+      },
+      "content_redacted": true,
+      "direction": "inbound",
+      "policy_decision": "classified_only",
+      "provider": "discord",
+      "receipt_contract": "hermes.discord.inbound_receipt.v1",
+      "received_at_utc": "2026-07-03T04:43:28.469430476+00:00",
+      "sender": "dward1502"
+    }
+  ],
+  "last_inbound": {
+    "authority": {
+      "action_execution_allowed": false,
+      "level": "observer",
+      "policy": "discord_inbound_bounded_optional_bridge",
+      "reason": "sender is not in the Discord authority allowlists",
+      "schema": "annunimas.hermes.discord.authority.v1"
+    },
+    "channel": "1472515093848916020",
+    "classification": {
+      "confidence": 0.78,
+      "intent": "unknown",
+      "priority": "normal",
+      "route_to": "prometheus",
+      "tier": "tier3_fallback",
+      "triad_passed": true,
+      "triad_score": 0.6833333333333332
+    },
+    "content_redacted": true,
+    "direction": "inbound",
+    "policy_decision": "classified_only",
+    "provider": "discord",
+    "receipt_contract": "hermes.discord.inbound_receipt.v1",
+    "received_at_utc": "2026-07-03T04:43:28.469430476+00:00",
+    "sender": "dward1502"
+  },
+  "provider": {
+    "configured": true,
+    "listener_status": "running",
+    "offline": false,
+    "online": true
+  },
+  "rank2_alignment": {
+    "activation_status": "planned",
+    "roadmap_posture": "keep_bounded_optional_bridge_and_defer_mcp"
+  },
+  "schema": "annunimas.hermes.discord.runtime.v1",
+  "schema_version": "annunimas.hermes-discord-runtime.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "bridge_governed": true,
+    "delivery_posture": "online_no_recent_delivery_receipt",
+    "recent_failed_total": 0
+  }
+}

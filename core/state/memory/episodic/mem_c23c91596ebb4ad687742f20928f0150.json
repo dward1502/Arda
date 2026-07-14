@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_c23c91596ebb4ad687742f20928f0150",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Close governance receipt continuity verification refresh. Verification refresh: Chronos audit-runner wrote 4 read-only receipts; governance_receipt_continuity completed_read_only with missing_source_surfaces=[] at 2026-05-30T19:08:22.145905868Z; ops briefing keeps Athena gated with policy_ready_recent=0 and task_receipts=0.",
+  "salience": 0.8329444444444445,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-30T19:12:38.622982340Z",
+  "last_seen_at": "2026-05-30T19:12:38.622982340Z"
+}

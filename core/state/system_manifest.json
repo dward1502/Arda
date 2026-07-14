@@ -1,0 +1,536 @@
+{
+  "authority": "core_realm",
+  "ceo": {
+    "heartbeat_ms": 500,
+    "id": "arandur",
+    "triad_bypass": true
+  },
+  "generated_at_utc": "2026-07-14T05:03:05.415900318+00:00",
+  "governance": {
+    "active_ruleset": {
+      "active_ruleset": "annunimas_totality",
+      "expires_at_utc": null,
+      "policy": {
+        "action_classes": {
+          "strategy_change": "record_and_proceed"
+        },
+        "autonomy_score_threshold": 0.65,
+        "build_verification_routing": {
+          "authority_split": {
+            "laptop": "operator_terminal_not_default_build_executor",
+            "workstation": "canonical_build_and_export_executor"
+          },
+          "contract_version": "annunimas.build_verification_routing.v1",
+          "remote_actions": [
+            "sync-check",
+            "cargo-check-cli",
+            "cargo-check-athena",
+            "cargo-check-prometheus",
+            "export-athena-plan"
+          ],
+          "required_remote_surface": "scripts/remote/operator/remote_operator_workstation.sh",
+          "rules": {
+            "agentic_execution_should_use_named_remote_actions_before_raw_ssh": true,
+            "laptop_local_builds_only_for_tiny_emergency_edits": true,
+            "laptop_must_prefer_remote_for_cargo_check_test_run": true
+          }
+        },
+        "ceo_council": {
+          "ceo_identity": "arandur",
+          "cto_seat": {
+            "default_identity": "warden",
+            "infrastructure_fill_allowed": true,
+            "mode": "hybrid"
+          },
+          "ingress": {
+            "messaging_is_not_source_of_truth": true,
+            "primary": "discord",
+            "target_end_state": "matrix"
+          },
+          "loop_policy": {
+            "lightweight_for_everything_else": true,
+            "triad_for_medium_high_and_high": true
+          },
+          "memory_policy": {
+            "auto_write_low_risk": true,
+            "private_memory_requires_promotion_for_irreversible_action": true,
+            "private_working_memory_expires_by_default": true
+          },
+          "protocol_version": "annunimas.ceo_council.v1"
+        },
+        "enable_exec_council": true,
+        "gate_strict": false,
+        "governance_policy": {
+          "action_class_modes": {
+            "strategy_change": "record_and_proceed"
+          }
+        },
+        "human_augmentation": {
+          "consensus": {
+            "sovereign_override_required_for": [
+              "funds_movement",
+              "legal_commitment",
+              "fleet_reimage"
+            ],
+            "triad_mode": "2_of_3",
+            "triad_quorum_ratio": 0.66,
+            "triad_required": true
+          },
+          "critical_decision_routing": {
+            "autonomous_classes": [
+              "bounded_research",
+              "local_refactors",
+              "safe_exports",
+              "routine_maintenance"
+            ],
+            "human_required_classes": [
+              "funds_movement",
+              "legal_commitment",
+              "human_identity_or_access_change",
+              "destructive_delete",
+              "fleet_reimage"
+            ],
+            "triad_quorum_classes": [
+              "strategy_change",
+              "provider_reroute",
+              "pricing_change",
+              "customer_commitment",
+              "data_retention_change"
+            ]
+          },
+          "mode": "human_augmentation",
+          "operating_model": "zero_human_company_with_sovereign_escalation"
+        },
+        "network_unlock_templates": [
+          "git push",
+          "cargo run -p annunimas-cli -- hermes send"
+        ],
+        "profile": "annunimas_totality",
+        "selinux_safe_runtime": {
+          "authority_split": {
+            "beelink": "bounded_edge_worker",
+            "laptop": "terminal_operator_optional_compute",
+            "workstation": "canonical_execution_authority"
+          },
+          "contract_version": "annunimas.selinux_runtime_contract.v1",
+          "enforcement_mode": "selinux_enforcing_preferred",
+          "forbidden_patterns": [
+            "sockets_under_plain_tmp_for_core_runtime",
+            "laptop_as_required_backbone_inference_target",
+            "ad_hoc_backgrounding_as_canonical_service_model"
+          ],
+          "host_family": "bluefin_fedora_atomic",
+          "remote_control_plane": {
+            "preferred": [
+              "tailscale_http",
+              "tailscale_https"
+            ],
+            "restricted_default_use": [
+              "tailscale_ssh"
+            ]
+          },
+          "required_paths": {
+            "cache_dir": "${XDG_CACHE_HOME:-$HOME/.cache}/annunimas",
+            "runtime_dir": "${XDG_RUNTIME_DIR}/annunimas",
+            "state_dir": "${XDG_STATE_HOME:-$HOME/.local/state}/annunimas"
+          },
+          "service_owner": "systemd"
+        },
+        "task_lifecycle": {
+          "canonical_pipeline": [
+            "plan",
+            "task_emission",
+            "task_retrieval",
+            "bounded_execution",
+            "completion_evidence",
+            "hades_disposal_review",
+            "archive_or_retention"
+          ],
+          "contract_version": "annunimas.task_lifecycle.v1",
+          "rules": {
+            "completion_is_not_disposal": true,
+            "disposal_is_not_deletion": true,
+            "disposal_marker_glyph": "↝",
+            "hades_controls_final_lifecycle_boundary": true
+          }
+        },
+        "triad_required_pass_rate": 0.45,
+        "validators": {
+          "core": {
+            "joulework": {
+              "mode": "always_on",
+              "required": true,
+              "scope": "system",
+              "threshold": 0.45,
+              "validator": "joulework",
+              "version": "v1.2.0"
+            },
+            "love_equation": {
+              "mode": "always_on",
+              "required": true,
+              "scope": "system",
+              "threshold": 0.45,
+              "validator": "love_equation",
+              "version": "v1.2.0"
+            },
+            "philosopher_triad": {
+              "members": [
+                {
+                  "id": "aurelius",
+                  "role": "ethics_and_sovereignty",
+                  "version": "v1.0.0"
+                },
+                {
+                  "id": "bacon",
+                  "role": "evidence_and_method",
+                  "version": "v1.0.0"
+                },
+                {
+                  "id": "sun_tzu",
+                  "role": "strategy_and_adversarial_review",
+                  "version": "v1.0.0"
+                }
+              ],
+              "mode": "consensus_2_of_3",
+              "required": true,
+              "threshold": 0.45,
+              "validator": "philosopher_triad",
+              "version": "v2.0.0"
+            }
+          },
+          "light": [
+            {
+              "required_for": [
+                "planning",
+                "analysis",
+                "research"
+              ],
+              "scope": "bounded_research_and_tool_selection",
+              "validator": "philosopher_light.bacon_lite",
+              "version": "v1.1.0"
+            },
+            {
+              "required_for": [
+                "runtime_recovery",
+                "maintenance",
+                "bounded_exec"
+              ],
+              "scope": "local_exec_and_recovery_hygiene",
+              "validator": "philosopher_light.marcus_lite",
+              "version": "v1.0.0"
+            },
+            {
+              "required_for": [
+                "routing",
+                "provider_selection",
+                "go_to_market"
+              ],
+              "scope": "routing_and_competitive_positioning",
+              "validator": "philosopher_light.sun_tzu_lite",
+              "version": "v1.0.0"
+            }
+          ],
+          "schema_version": "annunimas.validators.v2"
+        }
+      },
+      "reason": "restore totality default",
+      "selected_at_utc": "2026-03-09T05:13:34.765906605+00:00",
+      "sigil": "REPAIR"
+    },
+    "autonomy_runtime": {
+      "auto_degraded": true,
+      "mode": "degraded",
+      "source": "autonomy_error_budget_guard",
+      "updated_at_utc": "2026-07-14T04:56:37.658067Z",
+      "violations": [
+        "queue_staleness_high",
+        "athena_lookup_stale",
+        "required_ipc_sockets_missing"
+      ]
+    },
+    "destructive_quorum": {
+      "enabled": true,
+      "require_evidence": true,
+      "required_approvers": 2,
+      "sigil": "COIN",
+      "triad_approvers": [
+        "aurelius",
+        "bacon",
+        "sun_tzu"
+      ]
+    },
+    "interrupt_authority": {
+      "default": {
+        "allow": [
+          "note"
+        ]
+      },
+      "senders": {
+        "illuvatar": {
+          "allow": [
+            "note",
+            "reroute",
+            "override"
+          ]
+        },
+        "operator": {
+          "allow": [
+            "note",
+            "reroute"
+          ]
+        }
+      },
+      "sigil": "REPAIR"
+    },
+    "permission_profile": {
+      "active_profile": "ceo_operator",
+      "profiles": {
+        "ceo_operator": {
+          "command_allowlist": [
+            "cargo run -p annunimas-cli -- hermes send",
+            "cargo run -p annunimas-cli -- hermes network-op",
+            "cargo run -p annunimas-cli -- charon network-op",
+            "cargo run -p annunimas-cli -- charon route-governor",
+            "cargo run -p annunimas-cli -- control route-governor",
+            "cargo run -p annunimas-cli -- hades remove"
+          ],
+          "expires_at_utc": null,
+          "last_scope_refresh": {
+            "expires_at_utc": "2026-07-03T06:34:07Z",
+            "previous_expires_at_utc": "2026-06-23T00:05:11Z",
+            "reason": "reload charon config",
+            "refreshed_at_utc": "2026-07-03T04:34:07Z",
+            "scope": "network",
+            "ttl_hours": 2
+          },
+          "scopes": {
+            "destructive": {
+              "allowed": false,
+              "expires_at_utc": "2026-05-20T07:34:21Z"
+            },
+            "network": {
+              "allowed": true,
+              "expires_at_utc": "2026-07-03T06:34:07Z"
+            }
+          },
+          "subject": "ceo",
+          "updated_at_utc": "2026-07-03T04:34:07Z"
+        }
+      },
+      "sigil": "REPAIR"
+    }
+  },
+  "realms": [
+    {
+      "color": "#ffd700",
+      "id": "command"
+    },
+    {
+      "color": "#00e5ff",
+      "id": "knowledge"
+    },
+    {
+      "color": "#44aaff",
+      "id": "operations"
+    },
+    {
+      "color": "#88ccff",
+      "id": "temporal"
+    },
+    {
+      "color": "#00ff88",
+      "id": "finance"
+    },
+    {
+      "color": "#ff88ff",
+      "id": "communications"
+    },
+    {
+      "color": "#cc44ff",
+      "id": "governance"
+    },
+    {
+      "color": "#ff4444",
+      "id": "monitoring"
+    }
+  ],
+  "schema_version": "annunimas.core.state.v1",
+  "startup": {
+    "on_failure": "halt_and_log",
+    "sequence": [
+      "verify_sovereignty",
+      "load_realm_identity",
+      "read_human_philosophy",
+      "scan_soterion_index",
+      "initialize_agent_roster",
+      "open_task_queue",
+      "calculate_system_resonance",
+      "start_warden",
+      "emit_world_state",
+      "announce_readiness"
+    ]
+  },
+  "system": {
+    "name": "Annunimas",
+    "sigil": "𓀀",
+    "version": "0.1.0",
+    "world_resonance": 0.9342857142857142,
+    "world_status": "READY"
+  },
+  "systems": [
+    {
+      "clearance": "sovereign",
+      "id": "arandur",
+      "is_ceo": true,
+      "name": "Arandur",
+      "realm": "command",
+      "role": "sovereign_orchestrator",
+      "sigil": "𓀀",
+      "summary": "Arandur is the CEO of Annunimas.",
+      "title": "Sovereign Executive Intelligence"
+    },
+    {
+      "clearance": "guardian",
+      "id": "athena",
+      "is_ceo": false,
+      "name": "Athena",
+      "realm": "knowledge",
+      "role": "domain_agent",
+      "sigil": "𓁿",
+      "summary": "Athena is the memory of Annunimas.",
+      "title": "Keeper of the Living Library"
+    },
+    {
+      "clearance": "guardian",
+      "id": "oracle",
+      "is_ceo": false,
+      "name": "Oracle",
+      "realm": "governance",
+      "role": "domain_agent",
+      "sigil": "𓊝",
+      "summary": "Oracle is the triad gate made manifest.",
+      "title": "The Three-Gated Seer"
+    },
+    {
+      "clearance": "guardian",
+      "id": "plutus",
+      "is_ceo": false,
+      "name": "Plutus",
+      "realm": "finance",
+      "role": "domain_agent",
+      "sigil": "𓆣",
+      "summary": "Plutus tracks the energy economy of Annunimas.",
+      "title": "The JouleWork Sovereign"
+    },
+    {
+      "clearance": "worker",
+      "id": "hermes",
+      "is_ceo": false,
+      "name": "Hermes",
+      "realm": "communications",
+      "role": "domain_agent",
+      "sigil": "𓅃",
+      "summary": "Hermes is the nervous system of Annunimas.",
+      "title": "The Sovereign Messenger"
+    },
+    {
+      "clearance": "guardian",
+      "id": "warden",
+      "is_ceo": false,
+      "name": "Warden",
+      "realm": "monitoring",
+      "role": "domain_agent",
+      "sigil": "𓃭",
+      "summary": "Warden is the immune system of Annunimas.",
+      "title": "The Sovereign Guardian"
+    },
+    {
+      "clearance": "worker",
+      "id": "apollo",
+      "is_ceo": false,
+      "name": "Apollo",
+      "realm": "operations",
+      "role": "domain_agent",
+      "sigil": "𓂀",
+      "summary": "Apollo does the work.",
+      "title": "The Sovereign Executor"
+    },
+    {
+      "clearance": "guardian",
+      "id": "prometheus",
+      "is_ceo": false,
+      "name": "Prometheus",
+      "realm": "command",
+      "role": "domain_agent",
+      "sigil": "𓇳",
+      "summary": "Prometheus is the executive pipeline of Annunimas.",
+      "title": "The Executor Pipeline"
+    },
+    {
+      "clearance": "worker",
+      "id": "charon",
+      "is_ceo": false,
+      "name": "Charon",
+      "realm": "command",
+      "role": "domain_agent",
+      "sigil": "𓊪",
+      "summary": "Charon routes every inference call to the best currently available provider.",
+      "title": "Ferryman of Inference"
+    },
+    {
+      "clearance": "guardian",
+      "id": "hades",
+      "is_ceo": false,
+      "name": "Hades",
+      "realm": "operations",
+      "role": "domain_agent",
+      "sigil": "𓁷",
+      "summary": "Hades ends things properly.",
+      "title": "Keeper of the Ledger of Endings"
+    },
+    {
+      "clearance": "guardian",
+      "id": "chronos",
+      "is_ceo": false,
+      "name": "Chronos",
+      "realm": "temporal",
+      "role": "domain_agent",
+      "sigil": "🕰",
+      "summary": "Chronos owns time-aware orchestration.",
+      "title": "The Temporal Sovereign"
+    },
+    {
+      "clearance": "guardian",
+      "id": "mnemosyne",
+      "is_ceo": false,
+      "name": "Mnemosyne",
+      "realm": "knowledge",
+      "role": "domain_agent",
+      "sigil": "𓎬",
+      "summary": "Where Athena structures knowledge, Mnemosyne keeps continuity.",
+      "title": "The Continuous Remembrance"
+    },
+    {
+      "clearance": "worker",
+      "id": "governance",
+      "is_ceo": false,
+      "name": "Governance",
+      "realm": "governance",
+      "role": "domain_agent",
+      "sigil": "𓏏",
+      "summary": "Governance is the deterministic library that Oracle and Prometheus both depend on.",
+      "title": "Triad Scoring Substrate"
+    },
+    {
+      "clearance": "guardian",
+      "id": "counsel",
+      "is_ceo": false,
+      "name": "Counsel",
+      "realm": "command",
+      "role": "domain_agent",
+      "sigil": "𓎛",
+      "summary": "Counsel is the orchestrator's thinking partner.",
+      "title": "Advisor to the Orchestrator"
+    }
+  ]
+}

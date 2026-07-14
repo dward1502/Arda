@@ -1,0 +1,238 @@
+{
+  "arda_hints": {
+    "boardroom_section": "operations_flow",
+    "highlight_disposal_review": true,
+    "primary_panel": "task_lifecycle_runtime"
+  },
+  "authority": "task_lifecycle_runtime_export",
+  "contract": {
+    "completion_is_not_disposal": true,
+    "disposal_is_not_deletion": true,
+    "hades_is_lifecycle_boundary": true,
+    "pipeline": "plan -> task_emission -> task_retrieval -> bounded_execution -> completion_evidence -> hades_disposal_review -> archive_or_retention"
+  },
+  "disposal_candidates": [
+    {
+      "completed_at_utc": "2026-06-07T20:04:45Z",
+      "disposal_marker": "↝",
+      "id": "tsk_20260607_charon_cloud_spend_governor",
+      "next_phase": "hades_disposal_review",
+      "owner": "plutus",
+      "title": "Charon cloud spend governor"
+    },
+    {
+      "completed_at_utc": "2026-06-07T20:04:51Z",
+      "disposal_marker": "↝",
+      "id": "tsk_20260607_charon_low_end_eval_suite",
+      "next_phase": "hades_disposal_review",
+      "owner": "charon",
+      "title": "Charon low-end routing eval suite"
+    },
+    {
+      "completed_at_utc": "2026-06-07T20:03:00Z",
+      "disposal_marker": "↝",
+      "id": "tsk_20260607_charon_low_power_device_pressure",
+      "next_phase": "hades_disposal_review",
+      "owner": "charon",
+      "title": "Charon low-power device pressure scoring"
+    },
+    {
+      "completed_at_utc": "2026-06-07T20:04:57Z",
+      "disposal_marker": "↝",
+      "id": "tsk_20260607_charon_route_reason_display",
+      "next_phase": "hades_disposal_review",
+      "owner": "charon",
+      "title": "Charon route reason display for low-power routing"
+    },
+    {
+      "completed_at_utc": "2026-06-07T19:55:37Z",
+      "disposal_marker": "↝",
+      "id": "tsk_20260607_charon_tool_default_auto_origin",
+      "next_phase": "hades_disposal_review",
+      "owner": "charon",
+      "title": "Charon tool traffic defaults to auto origin"
+    },
+    {
+      "completed_at_utc": "2026-06-07T20:04:04Z",
+      "disposal_marker": "↝",
+      "id": "tsk_20260607_charon_workload_lane_taxonomy",
+      "next_phase": "hades_disposal_review",
+      "owner": "charon",
+      "title": "Charon workload lane taxonomy"
+    },
+    {
+      "completed_at_utc": "2026-06-07T09:22:56Z",
+      "disposal_marker": "↝",
+      "id": "tsk_20260607_fix_charon_edge_coder_structured_output_routing",
+      "next_phase": "hades_disposal_review",
+      "owner": "charon",
+      "title": "Fix Charon edge coder structured-output routing"
+    },
+    {
+      "completed_at_utc": "2026-06-07T20:22:50Z",
+      "disposal_marker": "↝",
+      "id": "tsk_20260607_learning_loop_v1_e2e_integration_harness",
+      "next_phase": "hades_disposal_review",
+      "owner": "prometheus",
+      "title": "Learning Loop v1 end-to-end integration harness"
+    },
+    {
+      "completed_at_utc": "2026-06-07T20:23:56Z",
+      "disposal_marker": "↝",
+      "id": "tsk_20260607_learning_loop_v1_e2e_validation",
+      "next_phase": "hades_disposal_review",
+      "owner": "prometheus",
+      "title": "Learning Loop v1: end-to-end validation"
+    },
+    {
+      "completed_at_utc": "2026-06-08T08:45:00Z",
+      "disposal_marker": "↝",
+      "id": "tsk_20260607_learning_loop_v1_gate_error_recovery",
+      "next_phase": "hades_disposal_review",
+      "owner": "warden",
+      "title": "Learning Loop v1 gate and recovery hardening"
+    },
+    {
+      "completed_at_utc": "2026-06-07T20:14:50Z",
+      "disposal_marker": "↝",
+      "id": "tsk_20260607_queue_active_projection_reconciler",
+      "next_phase": "hades_disposal_review",
+      "owner": "hades",
+      "title": "Queue active projection reconciler automation"
+    },
+    {
+      "completed_at_utc": "2026-06-12T02:39:37Z",
+      "disposal_marker": "↝",
+      "id": "tsk_20260612_queue_hygiene_repair_and_hades_action_closeout_r",
+      "next_phase": "hades_disposal_review",
+      "owner": "hades",
+      "title": "Queue hygiene repair and HADES action closeout reconciliation"
+    },
+    {
+      "completed_at_utc": "2026-06-08T10:22:27Z",
+      "disposal_marker": "↝",
+      "id": "tsk_plan_l3c_p1_ec8cf4e6d2",
+      "next_phase": "hades_disposal_review",
+      "owner": "prometheus,warden",
+      "title": "Produce L3 capability and blocker inventory"
+    },
+    {
+      "completed_at_utc": "2026-06-08T10:26:08Z",
+      "disposal_marker": "↝",
+      "id": "tsk_plan_l3c_p2_a8c2112c32",
+      "next_phase": "hades_disposal_review",
+      "owner": "governance,warden,prometheus",
+      "title": "Define first bounded mutation class"
+    },
+    {
+      "completed_at_utc": "2026-06-12T04:45:02Z",
+      "disposal_marker": "↝",
+      "id": "tsk_plan_l3c_p4_ebcc514f4e",
+      "next_phase": "hades_disposal_review",
+      "owner": "governance,warden,oracle",
+      "title": "Wire action-class enforcement into mutating dispatch"
+    },
+    {
+      "completed_at_utc": "2026-06-12T04:45:02Z",
+      "disposal_marker": "↝",
+      "id": "tsk_plan_l3c_p5_2f6c873175",
+      "next_phase": "hades_disposal_review",
+      "owner": "charon,hermes,plutus",
+      "title": "Harden Hermes/Charon L3 routing and compression behavior"
+    },
+    {
+      "completed_at_utc": "2026-06-12T07:16:58Z",
+      "disposal_marker": "↝",
+      "id": "tsk_plan_l3c_p6_ded5b63c05",
+      "next_phase": "hades_disposal_review",
+      "owner": "apollo,prometheus,chronos",
+      "title": "Build L3 end-to-end autonomous mutation harness"
+    },
+    {
+      "completed_at_utc": "2026-06-12T07:59:59Z",
+      "disposal_marker": "↝",
+      "id": "tsk_plan_l3c_p7_eb7ad461ff",
+      "next_phase": "hades_disposal_review",
+      "owner": "arda,hermes,hades",
+      "title": "Project L3 readiness into ARDA and Hermes"
+    },
+    {
+      "completed_at_utc": "2026-06-12T08:09:44Z",
+      "disposal_marker": "↝",
+      "id": "tsk_plan_l3c_p8_bebf2d0faf",
+      "next_phase": "hades_disposal_review",
+      "owner": "onboarding,hades,prometheus",
+      "title": "Align onboarding and First Light with L3 readiness"
+    }
+  ],
+  "generated_at_utc": "2026-06-12T08:10:56Z",
+  "metrics": {
+    "active_total": 18,
+    "archive_ready_total": 3,
+    "cancelled_total": 0,
+    "completed_total": 22,
+    "disposal_review_total": 19,
+    "latest_task_ids_total": 40,
+    "owner_counts": {
+      "apollo,prometheus,chronos": 1,
+      "arda": 1,
+      "arda,hermes,hades": 1,
+      "athena": 1,
+      "charon": 6,
+      "charon,hermes,plutus": 1,
+      "chronos": 2,
+      "governance,warden,oracle": 1,
+      "governance,warden,prometheus": 1,
+      "hades": 6,
+      "onboarding,hades,prometheus": 1,
+      "oracle": 1,
+      "plutus": 1,
+      "prometheus": 11,
+      "prometheus,hades,apollo": 1,
+      "prometheus,warden": 1,
+      "unknown": 1,
+      "warden": 2
+    },
+    "queued_total": 18,
+    "raw_ledger_rows_total": 73
+  },
+  "paths": {
+    "core_plan_index": "core/state/plan_map.json",
+    "queue": "core/projects/tasks/queue.jsonl"
+  },
+  "phases": [
+    {
+      "description": "Doctrine or strategy source that defines desired work.",
+      "id": "plan"
+    },
+    {
+      "description": "Executable task emitted into the queue ledger.",
+      "id": "task_emission"
+    },
+    {
+      "description": "Retrieval of queued work by subsystem, operator, or pipeline.",
+      "id": "task_retrieval"
+    },
+    {
+      "description": "Execution by a bounded subsystem or operator workflow.",
+      "id": "bounded_execution"
+    },
+    {
+      "description": "Completion result written back into queue state with evidence.",
+      "id": "completion_evidence"
+    },
+    {
+      "description": "Completed work marked with ↝ is eligible for HADES lifecycle review, not immediate deletion.",
+      "id": "hades_disposal_review"
+    },
+    {
+      "description": "Final posture after HADES review: archive, retain, compact, or remove.",
+      "id": "archive_or_retention"
+    }
+  ],
+  "plan_context": {
+    "core_plan_index_present": true,
+    "core_plan_sections": 0
+  },
+  "schema_version": "annunimas.task-lifecycle-runtime.v1"
+}

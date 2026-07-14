@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_1fa7b22fdc6545259d804ff778a616cd",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Hermes Agent gateway receipt adapter and runbook implemented. Added config/hermes_agent_gateway_annunimas.example.yaml, docs/operations/hermes-agent-discord-gateway-runbook.md, and the annunimas-cli utility hermes-agent-gateway-receipt dry-run/write adapter. The adapter turns Hermes Agent Discord/background results into durable HERMES gateway/subagent receipts while preserving the policy boundary that gateway output is evidence, not approval. Verification: cargo fmt --check -p annunimas-cli -p annunimas-hermes; cargo test -p annunimas-cli hermes_agent_gateway_receipt -- --nocapture; cargo test -p annunimas-hermes serenity_bot -- --nocapture; dry-run receipt command.",
+  "salience": 0.7655000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-30T18:01:12.762803236Z",
+  "last_seen_at": "2026-05-30T18:01:12.762803236Z"
+}

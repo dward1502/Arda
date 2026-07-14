@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_d387e4e1293547c89f8297f10f5b6125",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: PUBEXT-P5 typed-systemctl public skeleton plan completed",
+  "salience": 0.9125000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-13T08:52:14.785158872Z",
+  "last_seen_at": "2026-06-13T08:52:14.785158872Z"
+}

@@ -1,0 +1,56 @@
+{
+  "authority": "external_absorption_brief + model_control_surface + runtime_governor",
+  "generated_at_utc": "2026-04-28T09:49:24Z",
+  "mission": {
+    "driver": "Mission Control comparison signal",
+    "goal": "Make Annunimas readable as a product and operator surface without creating a second authority plane."
+  },
+  "non_goals": [
+    "Do not fork a second orchestration runtime outside Annunimas state authority.",
+    "Do not rebuild another generic dashboard for parity theater.",
+    "Do not privilege UI preferences over sovereign routing/governor truth."
+  ],
+  "operator_promises": [
+    "One control plane backed by sovereign state, not hidden side channels.",
+    "Health, routing, cost, and queue posture must be readable without code spelunking.",
+    "Foreground chat and background work must appear as one system, not unrelated subsystems."
+  ],
+  "productization_lanes": [
+    {
+      "goal": "Compress core system truth into a smaller set of obvious operator panels.",
+      "lane": "dashboard_legibility",
+      "source_signals": [
+        "core/state/model_control_surface.json",
+        "core/state/runtime_governor_contract.json",
+        "core/state/async_user_intake_runtime.json"
+      ]
+    },
+    {
+      "goal": "Expose background intake, memory continuity, and routed execution as one lifecycle.",
+      "lane": "continuity_legibility",
+      "source_signals": [
+        "core/state/async_user_intake_contract.json",
+        "core/state/agent_continuity_contract.json",
+        "core/state/project_task_executor.json"
+      ]
+    },
+    {
+      "goal": "Show Soterion, JouleWork, and route pressure without making the operator read raw ledgers.",
+      "lane": "governance_legibility",
+      "source_signals": [
+        "core/state/soterion_joulework_enforcement.json",
+        "core/state/runtime_budget_policy.json",
+        "core/state/opencode_route_governor.json"
+      ]
+    }
+  ],
+  "schema_version": "annunimas.operator-legibility-contract.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "async_handoff_steps_total": 7,
+    "comparison_sources_total": 5,
+    "governor_capability_lanes_total": 7,
+    "productization_lanes_total": 3,
+    "provider_catalog_total": 14
+  }
+}

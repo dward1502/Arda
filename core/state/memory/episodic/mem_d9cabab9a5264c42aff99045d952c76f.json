@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_d9cabab9a5264c42aff99045d952c76f",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Add Flywheel packet selector and readiness projection. Add read-only selection/projection for queued flywheel_plan_packet records. It should classify ready, dependency-blocked, missing-fields, and human-gated packets. Plan: docs/plans/2026-05-27-annunimas-flywheel-automation-loop-plan.md Phase F2.",
+  "salience": 0.8025,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-27T19:10:29.389692769Z",
+  "last_seen_at": "2026-05-27T19:10:29.389692769Z"
+}

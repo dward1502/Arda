@@ -1,0 +1,76 @@
+{
+  "annunimas_adaptation": {
+    "adapt": [
+      "persona_shells_into_productizable_client_experiences",
+      "plugin_registry_patterns_into_aipkg_marketplace_extensions"
+    ],
+    "adopt": [
+      "plugin_boundary_patterns",
+      "connector_surfaces_as_optional_adapters",
+      "client_surface_packaging_lessons"
+    ],
+    "reject": [
+      "identity_persona_as_core_doctrine",
+      "chat_platform_connectors_as_sovereign_base_layer"
+    ]
+  },
+  "authority": "athena_source_src_4169b219 + official_readme_extraction",
+  "generated_at_utc": "2026-04-28T09:49:25Z",
+  "implementation_mappings": {
+    "crate_boundaries": [
+      {
+        "surfaces": [
+          "core/state/federated_comms_runtime.json",
+          "core/state/matrix_boardrooms.json",
+          "crates/annunimas-hermes"
+        ],
+        "target": "communication_adapter_plugins",
+        "why": "eliza's connector ecosystem is useful when constrained to HERMES-owned adapter boundaries."
+      },
+      {
+        "surfaces": [
+          "core/state/aipkg_contract.json",
+          "core/state/package_enablement.json"
+        ],
+        "target": "packageable_runtime_extensions",
+        "why": "Plugin registry lessons should become optional package extensions rather than implicit core dependencies."
+      },
+      {
+        "surfaces": [
+          "core/state/embodied_interface.json",
+          "core/state/tauri_embodiment.json",
+          "apps/arda-hud"
+        ],
+        "target": "client_shells_and_embodiment",
+        "why": "Client-facing agent shells should package into product experiences without redefining sovereign identity."
+      }
+    ],
+    "delivery_sequence": [
+      "stabilize Matrix/Element adapter contract under HERMES",
+      "model connector plugins as optional package/runtime extensions",
+      "carry character-shell lessons into product UI and embodiment surfaces without moving doctrine out of core"
+    ],
+    "runtime_partitioning": {
+      "connectors_optional": true,
+      "core_stays_small": true,
+      "persona_layers_productized": true,
+      "registry_hot_path_forbidden": true
+    }
+  },
+  "official_traits": {
+    "connectivity": [
+      "discord",
+      "telegram",
+      "farcaster",
+      "more"
+    ],
+    "core_model": "open_source_multi_agent_platform",
+    "model_posture": "model_agnostic",
+    "plugin_ecosystem": "large_plugin_registry",
+    "runtime_posture": "extensible_platform_with_cli_and_web_ui"
+  },
+  "schema_version": "annunimas.eliza.alignment.v1",
+  "sigil": "REPAIR",
+  "source_id": "src_4169b219",
+  "source_url": "https://github.com/elizaOS/eliza"
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_80c2633a48ce482f8e5885e2974d8a7c",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Arandur: ARDA world district presence cues. Operator approved candidate_arda_visualization_and_presence. Implement minimal world-scene district cue from presence ledger state; audit packet: audit/ARANDUR_CANDIDATE_ARDA_WORLD_DISTRICT_PRESENCE_CUES_2026-05-21/README.md",
+  "salience": 0.8225000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-21T00:24:17.459895705Z",
+  "last_seen_at": "2026-05-21T00:24:17.459895705Z"
+}

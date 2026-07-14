@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_88edf1988a824346a407af1d382f2dd2",
+  "kind": "episodic",
+  "agent": "hermes",
+  "content": "HERMES queued outbound message provider=discord transport=discord channel=1472515093848916020 priority=normal dispatched=true",
+  "salience": 0.3605,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-22T11:59:02.197373377Z",
+  "last_seen_at": "2026-05-22T11:59:02.197373377Z"
+}

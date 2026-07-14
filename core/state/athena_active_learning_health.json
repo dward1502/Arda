@@ -1,0 +1,31 @@
+{
+  "authority": "annunimas-cli export athena-active-learning-health",
+  "contract": "docs/contracts/athena-active-learning-mvp-contract.md",
+  "generated_at_utc": "2026-06-05T07:09:10Z",
+  "metric_contract": [
+    "confidence_score",
+    "promotion_readiness",
+    "coverage_gap",
+    "staleness_score",
+    "quality_flags"
+  ],
+  "metrics": {
+    "coverage_gap_total": 0,
+    "human_review_total": 0,
+    "promotion_allowed_total": 0,
+    "reviewed_sources_total": 5,
+    "stale_or_low_confidence_total": 0,
+    "uncertainty_selection_receipts_total": 0
+  },
+  "receipt_surfaces": {
+    "uncertainty_selections": "data/athena/uncertainty_selections.jsonl"
+  },
+  "safe_promotion_boundary": {
+    "provenance_required": true,
+    "quality_flags_must_not_be_high_severity": true,
+    "receipt_required": true,
+    "silent_memory_promotion_allowed": false
+  },
+  "schema_version": "annunimas.athena-active-learning-health.v1",
+  "status": "mvp_health_surface_defined"
+}

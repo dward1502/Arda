@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_a291d8845d7f404484f257c2c95a1ac8",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Charon low-power device pressure scoring. Implemented lane-aware local device pressure scoring via ANNUNIMAS_CHARON_LOCAL_DEVICE_PRESSURE/ANNUNIMAS_LOCAL_DEVICE_PRESSURE, combined with observed provider/model latency and active route pressure. Verified with focused Charon device-pressure route scoring test and cargo check.",
+  "salience": 0.7141666666666667,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-07T20:03:30.364714296Z",
+  "last_seen_at": "2026-06-07T20:03:30.364714296Z"
+}

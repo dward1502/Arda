@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_afe1ef31ef964fcd98e01f36d5968805",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA add scoped native media open action",
+  "salience": 0.8045000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T09:03:30.608272450Z",
+  "last_seen_at": "2026-06-01T09:03:30.608272450Z"
+}

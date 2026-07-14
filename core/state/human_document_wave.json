@@ -1,0 +1,13 @@
+{
+  "authority": "bounded_docx_and_archive_extraction_wave",
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "results": [],
+  "schema_version": "annunimas.human-document-wave.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "attempted_total": 0,
+    "extracted_root": "/var/home/mythos/Annunimas/data/human/extracted",
+    "failed_total": 0,
+    "ok_total": 0
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "applied_origin": "edge",
+  "authority": "runtime_admission_recovery + sovereign_route_matrix",
+  "current_origin": "edge",
+  "desired_origin": "edge",
+  "generated_at_utc": "2026-03-22T11:25:16.368060677+00:00",
+  "governor_controlled": true,
+  "reason": "Route matrix already aligned with desired recovery posture.",
+  "schema_version": "annunimas.runtime-recovery-route-governor.v1",
+  "sigil": "REPAIR",
+  "source_surfaces": {
+    "charon_router": "core/state/charon_router.json",
+    "route_matrix": "config/model_route_matrix.toml",
+    "runtime_admission_recovery": "core/state/runtime_admission_recovery.json"
+  },
+  "status": "unchanged",
+  "summary": {
+    "changed": false,
+    "route_shift_active": true
+  }
+}

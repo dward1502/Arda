@@ -1,0 +1,45 @@
+{
+  "authority": "rank2_capability_reconciliation",
+  "generated_at_utc": "2026-04-22T11:17:49Z",
+  "ordering": [
+    "crawl4ai",
+    "llmfit",
+    "agentsmd",
+    "discord-mcp",
+    "arscontexta"
+  ],
+  "schema_version": "annunimas.imported-tool-fit-decision-memo.v1",
+  "status": "decision_memo_ready_for_execution_review",
+  "tools": [
+    {
+      "current_status": "not_running",
+      "fit_decision": "activate_now_bounded",
+      "reason": "Policy-ready, runtime-contract aligned, doctrinally primary for ATHENA crawling; missing piece is simply service activation and verification.",
+      "tool": "crawl4ai"
+    },
+    {
+      "current_status": "planned",
+      "fit_decision": "defer_until_bounded_use_case",
+      "reason": "Imported research is real, but Hermes now has a bounded optional Discord bridge already. discord-mcp should only be promoted if a concrete use case exceeds that bridge.",
+      "tool": "discord-mcp"
+    },
+    {
+      "current_status": "planned",
+      "fit_decision": "reference_only_for_now",
+      "reason": "Good knowledge-system research, but current package surfaces still mark it observed_only/reference_only with no bounded runtime need.",
+      "tool": "arscontexta"
+    },
+    {
+      "current_status": "planned",
+      "fit_decision": "keep_as_active_signal",
+      "reason": "Already providing value as model-selection input. This is tuning work, not first activation work.",
+      "tool": "llmfit"
+    },
+    {
+      "current_status": null,
+      "fit_decision": "treat_as_repo_discipline_not_runtime",
+      "reason": "Its value is explicit agent-readable repo guidance. It supports governance and operator discipline, not a separate runtime activation lane.",
+      "tool": "agentsmd"
+    }
+  ]
+}

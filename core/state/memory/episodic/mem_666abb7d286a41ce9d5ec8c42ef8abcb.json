@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_666abb7d286a41ce9d5ec8c42ef8abcb",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Gate 3.5O HUD presence ledger ingestion adapter",
+  "salience": 0.7655000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-18T23:33:55.426877253Z",
+  "last_seen_at": "2026-05-18T23:33:55.426877253Z"
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "goal_knowledge_index_freshness",
+  "title": "Maintain knowledge index freshness",
+  "intent": "Keep the soterion knowledge map and triage registry current. Re-emit any record whose source-of-truth file has changed since last index pass.",
+  "owner_agent": "athena",
+  "status": "active",
+  "priority": "medium",
+  "joule_budget_per_day": 80.0,
+  "created_at": "2026-05-04T02:48:59.870464210Z",
+  "updated_at": "2026-05-04T02:48:59.870464210Z"
+}

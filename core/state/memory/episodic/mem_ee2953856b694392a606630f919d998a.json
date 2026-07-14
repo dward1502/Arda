@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_ee2953856b694392a606630f919d998a",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Integrate Hermes dashboard into ARDA HUD. Plan: docs/plans/2026-05-16-hermes-dashboard-arda-hud-plan.md. Add ARDA-native Hermes Dashboard workstation launched from boardroom desk; MVP is read-only capability map with in-scene/native-window modes and guarded future mutations.",
+  "salience": 0.9025000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-17T01:20:53.393864017Z",
+  "last_seen_at": "2026-05-17T01:20:53.393864017Z"
+}

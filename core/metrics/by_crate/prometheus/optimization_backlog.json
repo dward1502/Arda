@@ -1,0 +1,56 @@
+{
+  "sigil": "REPAIR",
+  "schema_version": "annunimas.optimization.backlog.v1",
+  "generated_at_utc": "2026-03-09T14:30:00Z",
+  "authority": "prometheus_repo_audit",
+  "entries": [
+    {
+      "id": "opt_cli_main_split",
+      "crate": "annunimas-cli",
+      "priority": "medium",
+      "area": "code_size",
+      "summary": "Split operator presentation, policy-guard, and daemon command handling out of main.rs.",
+      "reason": "main.rs is carrying parsing, policy, reporting, and live runtime composition in one file, which increases drift risk."
+    },
+    {
+      "id": "opt_core_link_projection_split",
+      "crate": "annunimas-prometheus",
+      "priority": "high",
+      "area": "duplication",
+      "summary": "Factor /core projection writers into smaller modules with shared helpers.",
+      "reason": "core_link.rs now owns startup reconciliation plus many projection writers, which makes future subsystem additions brittle."
+    },
+    {
+      "id": "opt_runtime_service_shared_contract",
+      "crate": "apollo/plutus/oracle",
+      "priority": "medium",
+      "area": "duplication",
+      "summary": "Extract a shared persisted-runtime contract for status path, schema tagging, and snapshot persistence.",
+      "reason": "The new service layers follow the same file-backed runtime pattern and can share helpers without hard-coupling subsystem logic."
+    },
+    {
+      "id": "opt_hades_log_pressure",
+      "crate": "annunimas-hades",
+      "priority": "high",
+      "area": "performance",
+      "summary": "Reduce hades log and backup growth with stronger compaction/rotation defaults.",
+      "reason": "Pressure guard history already shows oversize-file alerts centered on HADES logs."
+    },
+    {
+      "id": "opt_ceo_shim_review",
+      "crate": "annunimas-ceo",
+      "priority": "medium",
+      "area": "dead_paths",
+      "summary": "Review whether the ceo compatibility shim should stay as-is or fold into a cleaner package boundary.",
+      "reason": "The shim is intentional today, but it should be kept explicit so it does not become accidental duplication."
+    },
+    {
+      "id": "opt_governance_metadata_unification",
+      "crate": "annunimas-comm/annunimas-mcp",
+      "priority": "medium",
+      "area": "testability",
+      "summary": "Unify governance metadata builders across exposed transport crates.",
+      "reason": "COMM and MCP now both emit symbolic/governance metadata and would benefit from one shared contract."
+    }
+  ]
+}

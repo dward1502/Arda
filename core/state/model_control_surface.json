@@ -1,0 +1,2778 @@
+{
+  "schema_version": "annunimas.model.control.surface.v1",
+  "generated_at_utc": "2026-05-21T07:45:28.631397+00:00",
+  "authority": "runtime_model_control_projection",
+  "sources": {
+    "route_matrix": "config/model_route_matrix.toml",
+    "opencode_agent_routes": "config/opencode_agent_routes.toml",
+    "charon_providers": "config/charon.providers.toml",
+    "model_profiles": "core/edge/model_profiles.toml"
+  },
+  "route_matrix": {
+    "contract": {
+      "schema_version": "annunimas.model.route.v1",
+      "authority": "sovereign_route_matrix",
+      "default_inference_origin": "edge"
+    },
+    "weights": {
+      "local": 0.15,
+      "cloud": 0.45,
+      "edge": 0.85
+    },
+    "tiers": {
+      "code": {
+        "primary_origin": "edge",
+        "fallback_order": [
+          "edge",
+          "local",
+          "cloud"
+        ],
+        "privacy": "restricted",
+        "cost": "balanced"
+      },
+      "research": {
+        "primary_origin": "edge",
+        "fallback_order": [
+          "edge",
+          "local",
+          "cloud"
+        ],
+        "privacy": "restricted",
+        "cost": "balanced"
+      },
+      "chat": {
+        "primary_origin": "edge",
+        "fallback_order": [
+          "edge",
+          "local",
+          "cloud"
+        ],
+        "privacy": "restricted",
+        "cost": "balanced"
+      }
+    },
+    "providers": {
+      "edge": {
+        "enabled": true,
+        "allow_as_primary": true,
+        "preferred": [
+          "edge_backbone",
+          "edge_core",
+          "edge_worker_light",
+          "edge_guardhouse"
+        ]
+      },
+      "cloud": {
+        "enabled": true,
+        "allow_as_fallback_only": true,
+        "approved": [
+          "cerebras",
+          "groq",
+          "google",
+          "openrouter"
+        ]
+      }
+    }
+  },
+  "opencode_agent_routes": {
+    "contract": {
+      "schema_version": "annunimas.opencode.routes.v1",
+      "authority": "charon_sovereign_routing"
+    },
+    "defaults": {
+      "provider": "auto",
+      "inference_origin": "auto",
+      "privacy_tier": "internal"
+    },
+    "agents": {
+      "explore": {
+        "task_type": "research",
+        "model_profile": "backbone_router",
+        "provider": "openrouter",
+        "inference_origin": "auto"
+      },
+      "librarian": {
+        "task_type": "research",
+        "model_profile": "backbone_reasoning",
+        "provider": "openrouter",
+        "inference_origin": "auto"
+      },
+      "plan": {
+        "task_type": "reasoning",
+        "model_profile": "backbone_reasoning",
+        "provider": "openrouter",
+        "inference_origin": "auto"
+      },
+      "oracle": {
+        "task_type": "reasoning",
+        "model_profile": "backbone_reasoning",
+        "provider": "openrouter",
+        "inference_origin": "auto"
+      }
+    }
+  },
+  "charon_providers": [
+    {
+      "id": "opencode",
+      "name": "OpenCode Zen",
+      "provider_class": "cloud",
+      "enabled": true,
+      "healthy": true,
+      "available": true,
+      "auth_ready": true,
+      "has_api_key": true,
+      "api_key_env": "OPENCODE_API_KEY",
+      "base_url": "https://opencode.ai/zen/v1",
+      "models": [
+        {
+          "id": "ring-2.6-1t-free",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 262144,
+          "is_default": true
+        },
+        {
+          "id": "minimax-m2.5-free",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 128000,
+          "is_default": false
+        },
+        {
+          "id": "nemotron-3-super-free",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 128000,
+          "is_default": false
+        },
+        {
+          "id": "trinity-large-preview-free",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 128000,
+          "is_default": false
+        },
+        {
+          "id": "hy3-preview-free",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 128000,
+          "is_default": false
+        },
+        {
+          "id": "ling-2.6-flash-free",
+          "capable_tasks": [
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 128000,
+          "is_default": false
+        }
+      ],
+      "default_model": "ring-2.6-1t-free"
+    },
+    {
+      "id": "edge_worker_light",
+      "name": "Beelink Mesh Worker",
+      "provider_class": "edge",
+      "enabled": true,
+      "healthy": false,
+      "available": false,
+      "auth_ready": true,
+      "has_api_key": true,
+      "api_key_env": null,
+      "base_url": "http://100.103.125.88:9337/v1",
+      "models": [
+        {
+          "id": "Qwen_Qwen3.5-4B-Q6_K",
+          "capable_tasks": [
+            "chat",
+            "summary",
+            "background",
+            "monitoring"
+          ],
+          "context_window": 32768,
+          "is_default": true
+        },
+        {
+          "id": "Qwen3.5-9B-Q4_K_M",
+          "capable_tasks": [
+            "chat",
+            "summary",
+            "background",
+            "monitoring"
+          ],
+          "context_window": 32768,
+          "is_default": false
+        }
+      ],
+      "default_model": "Qwen_Qwen3.5-4B-Q6_K"
+    },
+    {
+      "id": "edge_core",
+      "name": "Annunimas Core (3080 Workstation)",
+      "provider_class": "edge",
+      "enabled": true,
+      "healthy": false,
+      "available": false,
+      "auth_ready": true,
+      "has_api_key": true,
+      "api_key_env": null,
+      "base_url": "http://100.78.138.113:9337/v1",
+      "models": [
+        {
+          "id": "Qwen3.5-9B-Q4_K_M",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 32768,
+          "is_default": false
+        },
+        {
+          "id": "Qwen_Qwen3.5-4B-Q6_K",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 32768,
+          "is_default": true
+        }
+      ],
+      "default_model": "Qwen_Qwen3.5-4B-Q6_K"
+    },
+    {
+      "id": "edge_backbone",
+      "name": "Annunimas Server",
+      "provider_class": "edge",
+      "enabled": true,
+      "healthy": false,
+      "available": false,
+      "auth_ready": true,
+      "has_api_key": true,
+      "api_key_env": null,
+      "base_url": "http://100.102.250.115:8080/v1",
+      "models": [
+        {
+          "id": "Qwen3.6-35B-A3B-UD-Q4_K_XL",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 8192,
+          "is_default": true
+        }
+      ],
+      "default_model": "Qwen3.6-35B-A3B-UD-Q4_K_XL"
+    },
+    {
+      "id": "edge_laptop",
+      "name": "RTX 3050 Laptop",
+      "provider_class": "edge",
+      "enabled": false,
+      "healthy": false,
+      "available": false,
+      "auth_ready": true,
+      "has_api_key": true,
+      "api_key_env": null,
+      "base_url": "http://100.97.15.88:1234/v1",
+      "models": [
+        {
+          "id": "qwen3.5-4b",
+          "capable_tasks": [
+            "chat",
+            "summary",
+            "background",
+            "research"
+          ],
+          "context_window": 32768,
+          "is_default": true
+        }
+      ],
+      "default_model": "qwen3.5-4b"
+    },
+    {
+      "id": "edge_guardhouse",
+      "name": "Warden Pi5 Guardhouse",
+      "provider_class": "edge",
+      "enabled": true,
+      "healthy": true,
+      "available": true,
+      "auth_ready": true,
+      "has_api_key": true,
+      "api_key_env": null,
+      "base_url": "http://100.110.85.37:1234/v1",
+      "models": [
+        {
+          "id": "Qwen3.5-4B-Q4_K_M.gguf",
+          "capable_tasks": [
+            "chat",
+            "summary",
+            "background",
+            "monitoring"
+          ],
+          "context_window": 4096,
+          "is_default": true
+        }
+      ],
+      "default_model": "Qwen3.5-4B-Q4_K_M.gguf"
+    },
+    {
+      "id": "openrouter",
+      "name": "OpenRouter",
+      "provider_class": "cloud",
+      "enabled": true,
+      "healthy": true,
+      "available": true,
+      "auth_ready": true,
+      "has_api_key": true,
+      "api_key_env": "OPENROUTER_API_KEY",
+      "base_url": "https://openrouter.ai/api/v1",
+      "models": [
+        {
+          "id": "inclusionai/ring-2.6-1t:free",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 262144,
+          "is_default": false
+        },
+        {
+          "id": "nvidia/nemotron-3-super-120b-a12b:free",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 128000,
+          "is_default": false
+        },
+        {
+          "id": "qwen/qwen3-coder:free",
+          "capable_tasks": [
+            "code",
+            "reasoning"
+          ],
+          "context_window": 131072,
+          "is_default": false
+        },
+        {
+          "id": "qwen/qwen3-next-80b-a3b-instruct:free",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary"
+          ],
+          "context_window": 131072,
+          "is_default": false
+        },
+        {
+          "id": "openai/gpt-oss-120b:free",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary"
+          ],
+          "context_window": 131072,
+          "is_default": false
+        },
+        {
+          "id": "openai/gpt-oss-20b:free",
+          "capable_tasks": [
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 131072,
+          "is_default": false
+        },
+        {
+          "id": "z-ai/glm-4.5-air:free",
+          "capable_tasks": [
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 128000,
+          "is_default": false
+        },
+        {
+          "id": "google/gemma-3-12b-it:free",
+          "capable_tasks": [
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 96000,
+          "is_default": false
+        },
+        {
+          "id": "minimax/minimax-m2.5:free",
+          "capable_tasks": [
+            "code",
+            "research",
+            "chat",
+            "summary"
+          ],
+          "context_window": 200000,
+          "is_default": false
+        },
+        {
+          "id": "openrouter/auto",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 128000,
+          "is_default": false
+        }
+      ],
+      "default_model": null
+    },
+    {
+      "id": "openai",
+      "name": "OpenAI API (raw, requires credits)",
+      "provider_class": "cloud",
+      "enabled": false,
+      "healthy": true,
+      "available": false,
+      "auth_ready": true,
+      "has_api_key": true,
+      "api_key_env": "OPENAI_API_KEY",
+      "base_url": "https://api.openai.com/v1",
+      "models": [],
+      "default_model": null
+    },
+    {
+      "id": "litellm_gateway",
+      "name": "LiteLLM Gateway",
+      "provider_class": "local",
+      "enabled": true,
+      "healthy": false,
+      "available": false,
+      "auth_ready": true,
+      "has_api_key": true,
+      "api_key_env": "LITELLM_API_KEY",
+      "base_url": "http://127.0.0.1:4000/v1",
+      "models": [
+        {
+          "id": "litellm-router",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 128000,
+          "is_default": true
+        },
+        {
+          "id": "claude-sonnet-4-6",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 200000,
+          "is_default": false
+        },
+        {
+          "id": "claude-opus-4-6",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary"
+          ],
+          "context_window": 200000,
+          "is_default": false
+        },
+        {
+          "id": "claude-haiku-4-5",
+          "capable_tasks": [
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 200000,
+          "is_default": false
+        }
+      ],
+      "default_model": "litellm-router"
+    },
+    {
+      "id": "google",
+      "name": "Google Gemini",
+      "provider_class": "cloud",
+      "enabled": true,
+      "healthy": true,
+      "available": true,
+      "auth_ready": true,
+      "has_api_key": true,
+      "api_key_env": "GEMINI_API_KEY",
+      "base_url": "https://generativelanguage.googleapis.com/v1beta/openai",
+      "models": [
+        {
+          "id": "gemini-2.0-flash",
+          "capable_tasks": [
+            "code",
+            "research",
+            "chat",
+            "summary"
+          ],
+          "context_window": 1048576,
+          "is_default": true
+        },
+        {
+          "id": "gemini-2.5-flash",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 1048576,
+          "is_default": false
+        },
+        {
+          "id": "gemini-2.5-flash-lite",
+          "capable_tasks": [
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 1048576,
+          "is_default": false
+        },
+        {
+          "id": "gemini-3-flash-preview",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary"
+          ],
+          "context_window": 1048576,
+          "is_default": false
+        }
+      ],
+      "default_model": "gemini-2.0-flash"
+    },
+    {
+      "id": "mistral",
+      "name": "Mistral API",
+      "provider_class": "cloud",
+      "enabled": true,
+      "healthy": true,
+      "available": true,
+      "auth_ready": true,
+      "has_api_key": true,
+      "api_key_env": "MISTRAL_API_KEY",
+      "base_url": "https://api.mistral.ai/v1",
+      "models": [
+        {
+          "id": "mistral-small-2603",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 256000,
+          "is_default": true
+        }
+      ],
+      "default_model": "mistral-small-2603"
+    },
+    {
+      "id": "zai",
+      "name": "Z.AI / GLM",
+      "provider_class": "cloud",
+      "enabled": true,
+      "healthy": true,
+      "available": true,
+      "auth_ready": true,
+      "has_api_key": true,
+      "api_key_env": "ZAI_API_KEY",
+      "base_url": "https://api.z.ai/api/paas/v4",
+      "models": [
+        {
+          "id": "glm-4.5-flash",
+          "capable_tasks": [
+            "chat",
+            "summary",
+            "background",
+            "code"
+          ],
+          "context_window": 128000,
+          "is_default": true
+        },
+        {
+          "id": "glm-4.7-flash",
+          "capable_tasks": [
+            "chat",
+            "summary",
+            "background",
+            "code",
+            "research"
+          ],
+          "context_window": 128000,
+          "is_default": false
+        },
+        {
+          "id": "glm-4.5-air",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 200000,
+          "is_default": false
+        }
+      ],
+      "default_model": "glm-4.5-flash"
+    },
+    {
+      "id": "nvidia",
+      "name": "NVIDIA API Catalog",
+      "provider_class": "cloud",
+      "enabled": true,
+      "healthy": true,
+      "available": true,
+      "auth_ready": true,
+      "has_api_key": true,
+      "api_key_env": "NVIDIA_API_KEY",
+      "base_url": "https://integrate.api.nvidia.com/v1",
+      "models": [
+        {
+          "id": "meta/llama-3.1-8b-instruct",
+          "capable_tasks": [
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 128000,
+          "is_default": true
+        },
+        {
+          "id": "qwen/qwen3-coder-480b-a35b-instruct",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 256000,
+          "is_default": false
+        },
+        {
+          "id": "qwen/qwen3.5-397b-a17b",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 128000,
+          "is_default": false
+        },
+        {
+          "id": "mistralai/devstral-2-123b-instruct-2512",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 128000,
+          "is_default": false
+        },
+        {
+          "id": "mistralai/mistral-large-3-675b-instruct-2512",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 128000,
+          "is_default": false
+        },
+        {
+          "id": "moonshotai/kimi-k2.5",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 128000,
+          "is_default": false
+        },
+        {
+          "id": "moonshotai/kimi-k2-instruct",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 128000,
+          "is_default": false
+        },
+        {
+          "id": "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 128000,
+          "is_default": false
+        },
+        {
+          "id": "openai/gpt-oss-20b",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 128000,
+          "is_default": false
+        },
+        {
+          "id": "deepseek-ai/deepseek-v3.1-terminus",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 128000,
+          "is_default": false
+        },
+        {
+          "id": "google/gemma-3-12b-it",
+          "capable_tasks": [
+            "chat",
+            "summary",
+            "background",
+            "research"
+          ],
+          "context_window": 128000,
+          "is_default": false
+        },
+        {
+          "id": "microsoft/phi-4-mini-instruct",
+          "capable_tasks": [
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 128000,
+          "is_default": false
+        },
+        {
+          "id": "meta/llama-3.2-3b-instruct",
+          "capable_tasks": [
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 128000,
+          "is_default": false
+        },
+        {
+          "id": "meta/llama-3.3-70b-instruct",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 128000,
+          "is_default": false
+        },
+        {
+          "id": "nvidia/llama-3.1-nemotron-nano-8b-v1",
+          "capable_tasks": [
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 128000,
+          "is_default": false
+        }
+      ],
+      "default_model": "meta/llama-3.1-8b-instruct"
+    },
+    {
+      "id": "anthropic",
+      "name": "Anthropic Claude (via hermes-agent subscription)",
+      "provider_class": "cloud",
+      "enabled": false,
+      "healthy": true,
+      "available": false,
+      "auth_ready": true,
+      "has_api_key": true,
+      "api_key_env": "LITELLM_API_KEY",
+      "base_url": null,
+      "models": [
+        {
+          "id": "claude-sonnet-4-6",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 200000,
+          "is_default": true
+        },
+        {
+          "id": "claude-opus-4-6",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 200000,
+          "is_default": false
+        },
+        {
+          "id": "claude-haiku-4-5",
+          "capable_tasks": [
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 200000,
+          "is_default": false
+        }
+      ],
+      "default_model": "claude-sonnet-4-6"
+    },
+    {
+      "id": "openai_sub",
+      "name": "OpenAI Codex (via hermes-agent subscription)",
+      "provider_class": "cloud",
+      "enabled": true,
+      "healthy": false,
+      "available": false,
+      "auth_ready": false,
+      "has_api_key": false,
+      "api_key_env": null,
+      "base_url": null,
+      "models": [
+        {
+          "id": "gpt-5.3-codex",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 128000,
+          "is_default": true
+        },
+        {
+          "id": "gpt-5-codex",
+          "capable_tasks": [
+            "code",
+            "reasoning"
+          ],
+          "context_window": 128000,
+          "is_default": false
+        },
+        {
+          "id": "gpt-5",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 128000,
+          "is_default": false
+        }
+      ],
+      "default_model": "gpt-5.3-codex"
+    },
+    {
+      "id": "cerebras",
+      "name": "Cerebras Cloud",
+      "provider_class": "cloud",
+      "enabled": true,
+      "healthy": true,
+      "available": true,
+      "auth_ready": true,
+      "has_api_key": true,
+      "api_key_env": "CEREBRAS_API_KEY",
+      "base_url": "https://api.cerebras.ai/v1",
+      "models": [
+        {
+          "id": "qwen-3-235b-a22b-instruct-2507",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 131072,
+          "is_default": true
+        },
+        {
+          "id": "gpt-oss-120b",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary"
+          ],
+          "context_window": 131072,
+          "is_default": false
+        },
+        {
+          "id": "llama3.1-8b",
+          "capable_tasks": [
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 128000,
+          "is_default": false
+        },
+        {
+          "id": "zai-glm-4.7",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary"
+          ],
+          "context_window": 131072,
+          "is_default": false
+        }
+      ],
+      "default_model": "qwen-3-235b-a22b-instruct-2507"
+    },
+    {
+      "id": "groq",
+      "name": "Groq",
+      "provider_class": "cloud",
+      "enabled": true,
+      "healthy": true,
+      "available": true,
+      "auth_ready": true,
+      "has_api_key": true,
+      "api_key_env": "GROQ_API_KEY",
+      "base_url": "https://api.groq.com/openai/v1",
+      "models": [
+        {
+          "id": "llama-3.3-70b-versatile",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 131072,
+          "is_default": true
+        },
+        {
+          "id": "llama-3.1-8b-instant",
+          "capable_tasks": [
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 131072,
+          "is_default": false
+        },
+        {
+          "id": "qwen/qwen3-32b",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary"
+          ],
+          "context_window": 131072,
+          "is_default": false
+        },
+        {
+          "id": "openai/gpt-oss-120b",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary"
+          ],
+          "context_window": 131072,
+          "is_default": false
+        },
+        {
+          "id": "openai/gpt-oss-20b",
+          "capable_tasks": [
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 131072,
+          "is_default": false
+        },
+        {
+          "id": "meta-llama/llama-4-scout-17b-16e-instruct",
+          "capable_tasks": [
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 131072,
+          "is_default": false
+        },
+        {
+          "id": "groq/compound",
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary"
+          ],
+          "context_window": 131072,
+          "is_default": false
+        }
+      ],
+      "default_model": "llama-3.3-70b-versatile"
+    }
+  ],
+  "placement": {
+    "command_tower": "node-main-workstation",
+    "guardhouse": "node-pi5-warden",
+    "edge_worker": "node-ser9-worker",
+    "backbone": "node-backbone-server-01"
+  },
+  "defaults": {
+    "runtime": "ramalama",
+    "quant_family": "unsloth_gguf",
+    "policy": "dynamic_hybrid",
+    "cleanup_policy": "keep_only_assigned_models",
+    "bluefin_runtime_mode": "pod_openai_endpoint",
+    "endpoint_shape": "openai_compatible"
+  },
+  "catalog": {
+    "providers": [
+      {
+        "id": "opencode",
+        "label": "OpenCode Zen",
+        "provider_class": "cloud",
+        "enabled": true,
+        "healthy": true,
+        "available": true,
+        "auth_ready": true,
+        "default_model": "ring-2.6-1t-free",
+        "models": [
+          {
+            "id": "ring-2.6-1t-free",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 262144,
+            "is_default": true
+          },
+          {
+            "id": "minimax-m2.5-free",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 128000,
+            "is_default": false
+          },
+          {
+            "id": "nemotron-3-super-free",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 128000,
+            "is_default": false
+          },
+          {
+            "id": "trinity-large-preview-free",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 128000,
+            "is_default": false
+          },
+          {
+            "id": "hy3-preview-free",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 128000,
+            "is_default": false
+          },
+          {
+            "id": "ling-2.6-flash-free",
+            "capable_tasks": [
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 128000,
+            "is_default": false
+          }
+        ]
+      },
+      {
+        "id": "edge_worker_light",
+        "label": "Beelink Mesh Worker",
+        "provider_class": "edge",
+        "enabled": true,
+        "healthy": false,
+        "available": false,
+        "auth_ready": true,
+        "default_model": "Qwen_Qwen3.5-4B-Q6_K",
+        "models": [
+          {
+            "id": "Qwen_Qwen3.5-4B-Q6_K",
+            "capable_tasks": [
+              "chat",
+              "summary",
+              "background",
+              "monitoring"
+            ],
+            "context_window": 32768,
+            "is_default": true
+          },
+          {
+            "id": "Qwen3.5-9B-Q4_K_M",
+            "capable_tasks": [
+              "chat",
+              "summary",
+              "background",
+              "monitoring"
+            ],
+            "context_window": 32768,
+            "is_default": false
+          }
+        ]
+      },
+      {
+        "id": "edge_core",
+        "label": "Annunimas Core (3080 Workstation)",
+        "provider_class": "edge",
+        "enabled": true,
+        "healthy": false,
+        "available": false,
+        "auth_ready": true,
+        "default_model": "Qwen_Qwen3.5-4B-Q6_K",
+        "models": [
+          {
+            "id": "Qwen3.5-9B-Q4_K_M",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 32768,
+            "is_default": false
+          },
+          {
+            "id": "Qwen_Qwen3.5-4B-Q6_K",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 32768,
+            "is_default": true
+          }
+        ]
+      },
+      {
+        "id": "edge_backbone",
+        "label": "Annunimas Server",
+        "provider_class": "edge",
+        "enabled": true,
+        "healthy": false,
+        "available": false,
+        "auth_ready": true,
+        "default_model": "Qwen3.6-35B-A3B-UD-Q4_K_XL",
+        "models": [
+          {
+            "id": "Qwen3.6-35B-A3B-UD-Q4_K_XL",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 8192,
+            "is_default": true
+          }
+        ]
+      },
+      {
+        "id": "edge_laptop",
+        "label": "RTX 3050 Laptop",
+        "provider_class": "edge",
+        "enabled": false,
+        "healthy": false,
+        "available": false,
+        "auth_ready": true,
+        "default_model": "qwen3.5-4b",
+        "models": [
+          {
+            "id": "qwen3.5-4b",
+            "capable_tasks": [
+              "chat",
+              "summary",
+              "background",
+              "research"
+            ],
+            "context_window": 32768,
+            "is_default": true
+          }
+        ]
+      },
+      {
+        "id": "edge_guardhouse",
+        "label": "Warden Pi5 Guardhouse",
+        "provider_class": "edge",
+        "enabled": true,
+        "healthy": true,
+        "available": true,
+        "auth_ready": true,
+        "default_model": "Qwen3.5-4B-Q4_K_M.gguf",
+        "models": [
+          {
+            "id": "Qwen3.5-4B-Q4_K_M.gguf",
+            "capable_tasks": [
+              "chat",
+              "summary",
+              "background",
+              "monitoring"
+            ],
+            "context_window": 4096,
+            "is_default": true
+          }
+        ]
+      },
+      {
+        "id": "openrouter",
+        "label": "OpenRouter",
+        "provider_class": "cloud",
+        "enabled": true,
+        "healthy": true,
+        "available": true,
+        "auth_ready": true,
+        "default_model": null,
+        "models": [
+          {
+            "id": "inclusionai/ring-2.6-1t:free",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 262144,
+            "is_default": false
+          },
+          {
+            "id": "nvidia/nemotron-3-super-120b-a12b:free",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 128000,
+            "is_default": false
+          },
+          {
+            "id": "qwen/qwen3-coder:free",
+            "capable_tasks": [
+              "code",
+              "reasoning"
+            ],
+            "context_window": 131072,
+            "is_default": false
+          },
+          {
+            "id": "qwen/qwen3-next-80b-a3b-instruct:free",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary"
+            ],
+            "context_window": 131072,
+            "is_default": false
+          },
+          {
+            "id": "openai/gpt-oss-120b:free",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary"
+            ],
+            "context_window": 131072,
+            "is_default": false
+          },
+          {
+            "id": "openai/gpt-oss-20b:free",
+            "capable_tasks": [
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 131072,
+            "is_default": false
+          },
+          {
+            "id": "z-ai/glm-4.5-air:free",
+            "capable_tasks": [
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 128000,
+            "is_default": false
+          },
+          {
+            "id": "google/gemma-3-12b-it:free",
+            "capable_tasks": [
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 96000,
+            "is_default": false
+          },
+          {
+            "id": "minimax/minimax-m2.5:free",
+            "capable_tasks": [
+              "code",
+              "research",
+              "chat",
+              "summary"
+            ],
+            "context_window": 200000,
+            "is_default": false
+          },
+          {
+            "id": "openrouter/auto",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 128000,
+            "is_default": false
+          }
+        ]
+      },
+      {
+        "id": "openai",
+        "label": "OpenAI API (raw, requires credits)",
+        "provider_class": "cloud",
+        "enabled": false,
+        "healthy": true,
+        "available": false,
+        "auth_ready": true,
+        "default_model": null,
+        "models": []
+      },
+      {
+        "id": "litellm_gateway",
+        "label": "LiteLLM Gateway",
+        "provider_class": "local",
+        "enabled": true,
+        "healthy": false,
+        "available": false,
+        "auth_ready": true,
+        "default_model": "litellm-router",
+        "models": [
+          {
+            "id": "litellm-router",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 128000,
+            "is_default": true
+          },
+          {
+            "id": "claude-sonnet-4-6",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 200000,
+            "is_default": false
+          },
+          {
+            "id": "claude-opus-4-6",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary"
+            ],
+            "context_window": 200000,
+            "is_default": false
+          },
+          {
+            "id": "claude-haiku-4-5",
+            "capable_tasks": [
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 200000,
+            "is_default": false
+          }
+        ]
+      },
+      {
+        "id": "google",
+        "label": "Google Gemini",
+        "provider_class": "cloud",
+        "enabled": true,
+        "healthy": true,
+        "available": true,
+        "auth_ready": true,
+        "default_model": "gemini-2.0-flash",
+        "models": [
+          {
+            "id": "gemini-2.0-flash",
+            "capable_tasks": [
+              "code",
+              "research",
+              "chat",
+              "summary"
+            ],
+            "context_window": 1048576,
+            "is_default": true
+          },
+          {
+            "id": "gemini-2.5-flash",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 1048576,
+            "is_default": false
+          },
+          {
+            "id": "gemini-2.5-flash-lite",
+            "capable_tasks": [
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 1048576,
+            "is_default": false
+          },
+          {
+            "id": "gemini-3-flash-preview",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary"
+            ],
+            "context_window": 1048576,
+            "is_default": false
+          }
+        ]
+      },
+      {
+        "id": "mistral",
+        "label": "Mistral API",
+        "provider_class": "cloud",
+        "enabled": true,
+        "healthy": true,
+        "available": true,
+        "auth_ready": true,
+        "default_model": "mistral-small-2603",
+        "models": [
+          {
+            "id": "mistral-small-2603",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 256000,
+            "is_default": true
+          }
+        ]
+      },
+      {
+        "id": "zai",
+        "label": "Z.AI / GLM",
+        "provider_class": "cloud",
+        "enabled": true,
+        "healthy": true,
+        "available": true,
+        "auth_ready": true,
+        "default_model": "glm-4.5-flash",
+        "models": [
+          {
+            "id": "glm-4.5-flash",
+            "capable_tasks": [
+              "chat",
+              "summary",
+              "background",
+              "code"
+            ],
+            "context_window": 128000,
+            "is_default": true
+          },
+          {
+            "id": "glm-4.7-flash",
+            "capable_tasks": [
+              "chat",
+              "summary",
+              "background",
+              "code",
+              "research"
+            ],
+            "context_window": 128000,
+            "is_default": false
+          },
+          {
+            "id": "glm-4.5-air",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 200000,
+            "is_default": false
+          }
+        ]
+      },
+      {
+        "id": "nvidia",
+        "label": "NVIDIA API Catalog",
+        "provider_class": "cloud",
+        "enabled": true,
+        "healthy": true,
+        "available": true,
+        "auth_ready": true,
+        "default_model": "meta/llama-3.1-8b-instruct",
+        "models": [
+          {
+            "id": "meta/llama-3.1-8b-instruct",
+            "capable_tasks": [
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 128000,
+            "is_default": true
+          },
+          {
+            "id": "qwen/qwen3-coder-480b-a35b-instruct",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 256000,
+            "is_default": false
+          },
+          {
+            "id": "qwen/qwen3.5-397b-a17b",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 128000,
+            "is_default": false
+          },
+          {
+            "id": "mistralai/devstral-2-123b-instruct-2512",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 128000,
+            "is_default": false
+          },
+          {
+            "id": "mistralai/mistral-large-3-675b-instruct-2512",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 128000,
+            "is_default": false
+          },
+          {
+            "id": "moonshotai/kimi-k2.5",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 128000,
+            "is_default": false
+          },
+          {
+            "id": "moonshotai/kimi-k2-instruct",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 128000,
+            "is_default": false
+          },
+          {
+            "id": "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 128000,
+            "is_default": false
+          },
+          {
+            "id": "openai/gpt-oss-20b",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 128000,
+            "is_default": false
+          },
+          {
+            "id": "deepseek-ai/deepseek-v3.1-terminus",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 128000,
+            "is_default": false
+          },
+          {
+            "id": "google/gemma-3-12b-it",
+            "capable_tasks": [
+              "chat",
+              "summary",
+              "background",
+              "research"
+            ],
+            "context_window": 128000,
+            "is_default": false
+          },
+          {
+            "id": "microsoft/phi-4-mini-instruct",
+            "capable_tasks": [
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 128000,
+            "is_default": false
+          },
+          {
+            "id": "meta/llama-3.2-3b-instruct",
+            "capable_tasks": [
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 128000,
+            "is_default": false
+          },
+          {
+            "id": "meta/llama-3.3-70b-instruct",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 128000,
+            "is_default": false
+          },
+          {
+            "id": "nvidia/llama-3.1-nemotron-nano-8b-v1",
+            "capable_tasks": [
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 128000,
+            "is_default": false
+          }
+        ]
+      },
+      {
+        "id": "anthropic",
+        "label": "Anthropic Claude (via hermes-agent subscription)",
+        "provider_class": "cloud",
+        "enabled": false,
+        "healthy": true,
+        "available": false,
+        "auth_ready": true,
+        "default_model": "claude-sonnet-4-6",
+        "models": [
+          {
+            "id": "claude-sonnet-4-6",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 200000,
+            "is_default": true
+          },
+          {
+            "id": "claude-opus-4-6",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 200000,
+            "is_default": false
+          },
+          {
+            "id": "claude-haiku-4-5",
+            "capable_tasks": [
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 200000,
+            "is_default": false
+          }
+        ]
+      },
+      {
+        "id": "openai_sub",
+        "label": "OpenAI Codex (via hermes-agent subscription)",
+        "provider_class": "cloud",
+        "enabled": true,
+        "healthy": false,
+        "available": false,
+        "auth_ready": false,
+        "default_model": "gpt-5.3-codex",
+        "models": [
+          {
+            "id": "gpt-5.3-codex",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 128000,
+            "is_default": true
+          },
+          {
+            "id": "gpt-5-codex",
+            "capable_tasks": [
+              "code",
+              "reasoning"
+            ],
+            "context_window": 128000,
+            "is_default": false
+          },
+          {
+            "id": "gpt-5",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 128000,
+            "is_default": false
+          }
+        ]
+      },
+      {
+        "id": "cerebras",
+        "label": "Cerebras Cloud",
+        "provider_class": "cloud",
+        "enabled": true,
+        "healthy": true,
+        "available": true,
+        "auth_ready": true,
+        "default_model": "qwen-3-235b-a22b-instruct-2507",
+        "models": [
+          {
+            "id": "qwen-3-235b-a22b-instruct-2507",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 131072,
+            "is_default": true
+          },
+          {
+            "id": "gpt-oss-120b",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary"
+            ],
+            "context_window": 131072,
+            "is_default": false
+          },
+          {
+            "id": "llama3.1-8b",
+            "capable_tasks": [
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 128000,
+            "is_default": false
+          },
+          {
+            "id": "zai-glm-4.7",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary"
+            ],
+            "context_window": 131072,
+            "is_default": false
+          }
+        ]
+      },
+      {
+        "id": "groq",
+        "label": "Groq",
+        "provider_class": "cloud",
+        "enabled": true,
+        "healthy": true,
+        "available": true,
+        "auth_ready": true,
+        "default_model": "llama-3.3-70b-versatile",
+        "models": [
+          {
+            "id": "llama-3.3-70b-versatile",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 131072,
+            "is_default": true
+          },
+          {
+            "id": "llama-3.1-8b-instant",
+            "capable_tasks": [
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 131072,
+            "is_default": false
+          },
+          {
+            "id": "qwen/qwen3-32b",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary"
+            ],
+            "context_window": 131072,
+            "is_default": false
+          },
+          {
+            "id": "openai/gpt-oss-120b",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary"
+            ],
+            "context_window": 131072,
+            "is_default": false
+          },
+          {
+            "id": "openai/gpt-oss-20b",
+            "capable_tasks": [
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 131072,
+            "is_default": false
+          },
+          {
+            "id": "meta-llama/llama-4-scout-17b-16e-instruct",
+            "capable_tasks": [
+              "chat",
+              "summary",
+              "background"
+            ],
+            "context_window": 131072,
+            "is_default": false
+          },
+          {
+            "id": "groq/compound",
+            "capable_tasks": [
+              "code",
+              "research",
+              "reasoning",
+              "chat",
+              "summary"
+            ],
+            "context_window": 131072,
+            "is_default": false
+          }
+        ]
+      }
+    ],
+    "profiles": [
+      {
+        "id": "edge_guardhouse",
+        "profile_class": "edge",
+        "model_id": "Qwen3.5-4B-Q4_K_M.gguf",
+        "runtime_model_name": "Qwen3.5-4B-Q4_K_M.gguf",
+        "runtime_backend": "llama.cpp",
+        "context_window": 4096,
+        "target_agents": [
+          "warden"
+        ],
+        "target_nodes": [
+          "node-pi5-warden"
+        ],
+        "install_priority": "installed",
+        "compatible_providers": [
+          "edge_guardhouse"
+        ],
+        "available": true,
+        "reason": "Guardhouse lane is currently backed by the Pi5 llama.cpp service on port 1234, so the canonical profile should match the deployed Qwen3.5 4B GGUF runtime instead of the older Ollama placeholder."
+      },
+      {
+        "id": "edge_comms",
+        "profile_class": "edge",
+        "model_id": "unsloth/Qwen3-8B-GGUF",
+        "runtime_model_name": "qwen3-8b-edge-comms",
+        "runtime_backend": "ramalama",
+        "context_window": 16384,
+        "target_agents": [
+          "hermes",
+          "charon"
+        ],
+        "target_nodes": [
+          "node-ser9-worker",
+          "node-main-workstation"
+        ],
+        "install_priority": "phase_2",
+        "compatible_providers": [
+          "edge_backbone",
+          "edge_backbone",
+          "edge_worker_light",
+          "edge_guardhouse",
+          "local_fallback"
+        ],
+        "available": true,
+        "reason": "Good edge fit for concise relay, intent triage, and lightweight routing on workstation and SER9 class nodes."
+      },
+      {
+        "id": "edge_reasoning",
+        "profile_class": "edge",
+        "model_id": "unsloth/Qwen3-8B-GGUF",
+        "runtime_model_name": "qwen3-8b-edge-reasoning",
+        "runtime_backend": "ramalama",
+        "context_window": 32768,
+        "target_agents": [
+          "oracle",
+          "athena"
+        ],
+        "target_nodes": [
+          "node-ser9-worker",
+          "node-main-workstation"
+        ],
+        "install_priority": "phase_2",
+        "compatible_providers": [
+          "edge_backbone",
+          "edge_backbone",
+          "edge_worker_light",
+          "edge_guardhouse",
+          "local_fallback"
+        ],
+        "available": true,
+        "reason": "Balanced edge reasoning profile for shallow verdicts, summaries, and short-horizon synthesis."
+      },
+      {
+        "id": "backbone_router",
+        "profile_class": "backbone",
+        "model_id": "unsloth/Qwen3-8B-GGUF",
+        "runtime_model_name": "qwen3-8b-router",
+        "runtime_backend": "ramalama",
+        "context_window": 32768,
+        "target_agents": [
+          "charon"
+        ],
+        "target_nodes": [
+          "node-backbone-server-01",
+          "node-main-workstation"
+        ],
+        "install_priority": "phase_1",
+        "compatible_providers": [
+          "edge_backbone",
+          "edge_backbone",
+          "litellm_gateway",
+          "edge_worker_light",
+          "local_fallback"
+        ],
+        "available": false,
+        "reason": "Fast local routing and fallback brokerage profile. Cheap enough to keep warm."
+      },
+      {
+        "id": "backbone_coding",
+        "profile_class": "backbone",
+        "model_id": "unsloth/Devstral-Small-2507-GGUF",
+        "runtime_model_name": "devstral-small-coding",
+        "runtime_backend": "ramalama",
+        "context_window": 32768,
+        "target_agents": [
+          "apollo",
+          "athena",
+          "ceo"
+        ],
+        "target_nodes": [
+          "node-backbone-server-01",
+          "node-main-workstation"
+        ],
+        "install_priority": "phase_1",
+        "compatible_providers": [
+          "edge_backbone",
+          "edge_backbone",
+          "litellm_gateway",
+          "edge_worker_light",
+          "local_fallback"
+        ],
+        "available": false,
+        "reason": "Primary coding and tool-use profile for CLI, patching, and repo-facing agent workflows."
+      },
+      {
+        "id": "backbone_reasoning",
+        "profile_class": "backbone",
+        "model_id": "unsloth/Qwen3-30B-A3B-GGUF",
+        "runtime_model_name": "qwen3-30b-a3b-reasoning",
+        "runtime_backend": "ramalama",
+        "context_window": 65536,
+        "target_agents": [
+          "oracle",
+          "athena"
+        ],
+        "target_nodes": [
+          "node-backbone-server-01"
+        ],
+        "install_priority": "phase_1",
+        "compatible_providers": [
+          "edge_backbone",
+          "edge_backbone",
+          "litellm_gateway",
+          "edge_worker_light",
+          "local_fallback"
+        ],
+        "available": false,
+        "reason": "Best first backbone reasoning target for dual 8 GiB 2080-class GPUs because active MoE footprint is friendlier than dense 32B."
+      },
+      {
+        "id": "backbone_long_context",
+        "profile_class": "backbone",
+        "model_id": "unsloth/Qwen3-32B-128K-GGUF",
+        "runtime_model_name": "qwen3-32b-128k",
+        "runtime_backend": "ramalama",
+        "context_window": 131072,
+        "target_agents": [
+          "athena",
+          "oracle"
+        ],
+        "target_nodes": [
+          "node-backbone-server-01"
+        ],
+        "install_priority": "phase_3_evaluate",
+        "compatible_providers": [
+          "edge_backbone",
+          "edge_backbone",
+          "litellm_gateway",
+          "edge_worker_light",
+          "local_fallback"
+        ],
+        "available": false,
+        "reason": "Selective long-context synthesis profile for deep digest jobs only after baseline throughput is proven acceptable."
+      },
+      {
+        "id": "backbone_accounting",
+        "profile_class": "backbone",
+        "model_id": "unsloth/Qwen3-8B-GGUF",
+        "runtime_model_name": "qwen3-8b-accounting",
+        "runtime_backend": "ramalama",
+        "context_window": 16384,
+        "target_agents": [
+          "plutus"
+        ],
+        "target_nodes": [
+          "node-backbone-server-01"
+        ],
+        "install_priority": "phase_2",
+        "compatible_providers": [
+          "edge_backbone",
+          "edge_backbone",
+          "litellm_gateway",
+          "edge_worker_light",
+          "local_fallback"
+        ],
+        "available": false,
+        "reason": "Accounting and JouleWork planning do not need the heaviest model. Keep this lane inexpensive and deterministic."
+      }
+    ],
+    "selection_policy": {
+      "agent_route_field": "provider",
+      "profile_route_field": "model_profile",
+      "local_classes": [
+        "local",
+        "edge",
+        "gateway"
+      ],
+      "remote_classes": [
+        "cloud"
+      ],
+      "only_available_should_be_selectable": true
+    }
+  },
+  "runtime_hints": {
+    "default_provider": "config/charon.providers.toml",
+    "boardroom_section": "configuration_and_controls"
+  },
+  "routing_advisor": {
+    "strategy": "dynamic_selector",
+    "recommended_origin": "auto",
+    "autonomy_mode": "degraded",
+    "disk_used_pct": null,
+    "llmfit": {
+      "detected": false,
+      "binary_path": null,
+      "status": null
+    },
+    "load_shed_policy": {
+      "prefer_gateway_when_local_joule_pressure": true,
+      "prefer_gateway_when_provider_budget_pressure": true,
+      "reasoning_day_pressure_soft": 0.75,
+      "reasoning_latency_ms_hard": 4000,
+      "reasoning_latency_ms_soft": 2500,
+      "reasoning_minute_pressure_hard": 0.85,
+      "reasoning_minute_pressure_soft": 0.65
+    },
+    "opencode_agents": {
+      "explore": {
+        "task_type": "research",
+        "current_provider": "openrouter",
+        "current_model_profile": "backbone_router",
+        "recommended_provider": "openrouter",
+        "recommended_model_profile": "backbone_router",
+        "reason": "Recommended from profile `backbone_router` against current availability, cooldown, and request-pressure posture.",
+        "preferred_order": [
+          "edge_backbone",
+          "edge_backbone",
+          "edge_worker_light",
+          "edge_guardhouse",
+          "openrouter",
+          "litellm_gateway",
+          "local_fallback"
+        ],
+        "pressure_snapshot": [
+          {
+            "provider_id": "edge_backbone",
+            "cooldown": false,
+            "healthy": false,
+            "enabled": true,
+            "available": false,
+            "minute_pressure_ratio": 0.0,
+            "day_pressure_ratio": 0.0,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "free_model_available": false,
+            "score": 10.0
+          },
+          {
+            "provider_id": "edge_backbone",
+            "cooldown": false,
+            "healthy": false,
+            "enabled": true,
+            "available": false,
+            "minute_pressure_ratio": 0.0,
+            "day_pressure_ratio": 0.0,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "free_model_available": false,
+            "score": 10.0
+          },
+          {
+            "provider_id": "edge_worker_light",
+            "cooldown": false,
+            "healthy": false,
+            "enabled": true,
+            "available": false,
+            "minute_pressure_ratio": 0.0,
+            "day_pressure_ratio": 0.0,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "free_model_available": false,
+            "score": 10.0
+          },
+          {
+            "provider_id": "edge_guardhouse",
+            "cooldown": false,
+            "healthy": true,
+            "enabled": true,
+            "available": true,
+            "minute_pressure_ratio": 0.0,
+            "day_pressure_ratio": 0.0,
+            "avg_latency_ms": 13,
+            "budget_pressure": "normal",
+            "free_model_available": false,
+            "score": 0.013
+          },
+          {
+            "provider_id": "openrouter",
+            "cooldown": false,
+            "healthy": true,
+            "enabled": true,
+            "available": true,
+            "minute_pressure_ratio": 0.0,
+            "day_pressure_ratio": 0.0,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "free_model_available": true,
+            "score": -1.5
+          },
+          {
+            "provider_id": "litellm_gateway",
+            "cooldown": false,
+            "healthy": false,
+            "enabled": true,
+            "available": false,
+            "minute_pressure_ratio": 0.0,
+            "day_pressure_ratio": 0.0,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "free_model_available": false,
+            "score": 10.0
+          },
+          {
+            "provider_id": "local_fallback",
+            "cooldown": false,
+            "healthy": true,
+            "enabled": false,
+            "available": false,
+            "minute_pressure_ratio": 0.0,
+            "day_pressure_ratio": 0.0,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "free_model_available": false,
+            "score": 10.0
+          }
+        ],
+        "load_shed_active": false,
+        "load_shed_reasons": []
+      },
+      "librarian": {
+        "task_type": "research",
+        "current_provider": "openrouter",
+        "current_model_profile": "backbone_reasoning",
+        "recommended_provider": "openrouter",
+        "recommended_model_profile": "backbone_reasoning",
+        "reason": "Recommended from profile `backbone_reasoning` against current availability, cooldown, and request-pressure posture.",
+        "preferred_order": [
+          "edge_backbone",
+          "edge_backbone",
+          "openrouter",
+          "litellm_gateway",
+          "local_fallback"
+        ],
+        "pressure_snapshot": [
+          {
+            "provider_id": "edge_backbone",
+            "cooldown": false,
+            "healthy": false,
+            "enabled": true,
+            "available": false,
+            "minute_pressure_ratio": 0.0,
+            "day_pressure_ratio": 0.0,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "free_model_available": false,
+            "score": 10.0
+          },
+          {
+            "provider_id": "edge_backbone",
+            "cooldown": false,
+            "healthy": false,
+            "enabled": true,
+            "available": false,
+            "minute_pressure_ratio": 0.0,
+            "day_pressure_ratio": 0.0,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "free_model_available": false,
+            "score": 10.0
+          },
+          {
+            "provider_id": "openrouter",
+            "cooldown": false,
+            "healthy": true,
+            "enabled": true,
+            "available": true,
+            "minute_pressure_ratio": 0.0,
+            "day_pressure_ratio": 0.0,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "free_model_available": true,
+            "score": -1.5
+          },
+          {
+            "provider_id": "litellm_gateway",
+            "cooldown": false,
+            "healthy": false,
+            "enabled": true,
+            "available": false,
+            "minute_pressure_ratio": 0.0,
+            "day_pressure_ratio": 0.0,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "free_model_available": false,
+            "score": 10.0
+          },
+          {
+            "provider_id": "local_fallback",
+            "cooldown": false,
+            "healthy": true,
+            "enabled": false,
+            "available": false,
+            "minute_pressure_ratio": 0.0,
+            "day_pressure_ratio": 0.0,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "free_model_available": false,
+            "score": 10.0
+          }
+        ],
+        "load_shed_active": false,
+        "load_shed_reasons": []
+      },
+      "plan": {
+        "task_type": "reasoning",
+        "current_provider": "openrouter",
+        "current_model_profile": "backbone_reasoning",
+        "recommended_provider": "openrouter",
+        "recommended_model_profile": "backbone_reasoning",
+        "reason": "Recommended from profile `backbone_reasoning` against current availability, cooldown, and request-pressure posture.",
+        "preferred_order": [
+          "edge_backbone",
+          "edge_backbone",
+          "openrouter",
+          "litellm_gateway",
+          "local_fallback"
+        ],
+        "pressure_snapshot": [
+          {
+            "provider_id": "edge_backbone",
+            "cooldown": false,
+            "healthy": false,
+            "enabled": true,
+            "available": false,
+            "minute_pressure_ratio": 0.0,
+            "day_pressure_ratio": 0.0,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "free_model_available": false,
+            "score": 10.0
+          },
+          {
+            "provider_id": "edge_backbone",
+            "cooldown": false,
+            "healthy": false,
+            "enabled": true,
+            "available": false,
+            "minute_pressure_ratio": 0.0,
+            "day_pressure_ratio": 0.0,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "free_model_available": false,
+            "score": 10.0
+          },
+          {
+            "provider_id": "openrouter",
+            "cooldown": false,
+            "healthy": true,
+            "enabled": true,
+            "available": true,
+            "minute_pressure_ratio": 0.0,
+            "day_pressure_ratio": 0.0,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "free_model_available": true,
+            "score": -1.5
+          },
+          {
+            "provider_id": "litellm_gateway",
+            "cooldown": false,
+            "healthy": false,
+            "enabled": true,
+            "available": false,
+            "minute_pressure_ratio": 0.0,
+            "day_pressure_ratio": 0.0,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "free_model_available": false,
+            "score": 10.0
+          },
+          {
+            "provider_id": "local_fallback",
+            "cooldown": false,
+            "healthy": true,
+            "enabled": false,
+            "available": false,
+            "minute_pressure_ratio": 0.0,
+            "day_pressure_ratio": 0.0,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "free_model_available": false,
+            "score": 10.0
+          }
+        ],
+        "load_shed_active": false,
+        "load_shed_reasons": []
+      },
+      "oracle": {
+        "task_type": "reasoning",
+        "current_provider": "openrouter",
+        "current_model_profile": "backbone_reasoning",
+        "recommended_provider": "openrouter",
+        "recommended_model_profile": "backbone_reasoning",
+        "reason": "Recommended from profile `backbone_reasoning` against current availability, cooldown, and request-pressure posture.",
+        "preferred_order": [
+          "edge_backbone",
+          "edge_backbone",
+          "openrouter",
+          "litellm_gateway",
+          "local_fallback"
+        ],
+        "pressure_snapshot": [
+          {
+            "provider_id": "edge_backbone",
+            "cooldown": false,
+            "healthy": false,
+            "enabled": true,
+            "available": false,
+            "minute_pressure_ratio": 0.0,
+            "day_pressure_ratio": 0.0,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "free_model_available": false,
+            "score": 10.0
+          },
+          {
+            "provider_id": "edge_backbone",
+            "cooldown": false,
+            "healthy": false,
+            "enabled": true,
+            "available": false,
+            "minute_pressure_ratio": 0.0,
+            "day_pressure_ratio": 0.0,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "free_model_available": false,
+            "score": 10.0
+          },
+          {
+            "provider_id": "openrouter",
+            "cooldown": false,
+            "healthy": true,
+            "enabled": true,
+            "available": true,
+            "minute_pressure_ratio": 0.0,
+            "day_pressure_ratio": 0.0,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "free_model_available": true,
+            "score": -1.5
+          },
+          {
+            "provider_id": "litellm_gateway",
+            "cooldown": false,
+            "healthy": false,
+            "enabled": true,
+            "available": false,
+            "minute_pressure_ratio": 0.0,
+            "day_pressure_ratio": 0.0,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "free_model_available": false,
+            "score": 10.0
+          },
+          {
+            "provider_id": "local_fallback",
+            "cooldown": false,
+            "healthy": true,
+            "enabled": false,
+            "available": false,
+            "minute_pressure_ratio": 0.0,
+            "day_pressure_ratio": 0.0,
+            "avg_latency_ms": null,
+            "budget_pressure": "normal",
+            "free_model_available": false,
+            "score": 10.0
+          }
+        ],
+        "load_shed_active": false,
+        "load_shed_reasons": []
+      }
+    }
+  }
+}

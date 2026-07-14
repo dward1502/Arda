@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_031c4fa505294874a8b424942312ebda",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Evaluate comm+hermes combine without breaking Hermes CLI command surface",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-19T07:01:50.636662288Z",
+  "last_seen_at": "2026-06-19T07:01:50.636662288Z"
+}

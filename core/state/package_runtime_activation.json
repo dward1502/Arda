@@ -1,0 +1,106 @@
+{
+  "authority": "package_enablement + live wrapper/probe checks",
+  "generated_at_utc": "2026-06-05T03:12:17Z",
+  "schema_version": "annunimas.package.runtime-activation.v1",
+  "surfaces": {
+    "crawl4ai": {
+      "base_url": "http://127.0.0.1:11235",
+      "container_name": "annunimas-crawl4ai",
+      "image": "unclecode/crawl4ai:latest",
+      "ok": true,
+      "status": "not_running"
+    },
+    "litellm": {
+      "active_state": "active",
+      "config_path": "/var/home/mythos/Annunimas/config/litellm.proxy.yaml",
+      "fragment_path": "/var/home/mythos/.config/systemd/user/annunimas-litellm.service",
+      "models_http_status": "200",
+      "models_ready": true,
+      "ok": true,
+      "pid": 2536,
+      "process_visible": true,
+      "proxy_url": "http://127.0.0.1:4000/v1",
+      "status": "running",
+      "sub_state": "running",
+      "systemd_available": true,
+      "systemd_error": "",
+      "unit": "annunimas-litellm.service"
+    },
+    "llmfit": {
+      "binary_present": false,
+      "ok": true,
+      "status": "optional_signal_absent",
+      "summary": "optional signal not installed"
+    },
+    "nanoclaw": {
+      "auth_dir": "/store/auth",
+      "auth_ready": false,
+      "binary_present": false,
+      "container_runtime": "podman",
+      "container_runtime_ready": true,
+      "control_mode": "headless",
+      "db_path": "/store/messages.db",
+      "db_present": false,
+      "edge_target": "node-pi5-warden",
+      "edge_target_visible": false,
+      "edge_transport": "tailscale",
+      "entrypoint": "/dist/index.js",
+      "error_log_path": "/logs/nanoclaw.error.log",
+      "legacy_root": false,
+      "log_path": "/logs/nanoclaw.log",
+      "ok": true,
+      "pid": null,
+      "pid_file": "/nanoclaw.pid",
+      "project_root": "",
+      "root_configured": false,
+      "runtime_ready": false,
+      "status": "not_configured",
+      "tailscale_ready": true
+    },
+    "oh_my_opencode": {
+      "ok": true,
+      "route_agents_total": 4,
+      "route_contract_path": "config/opencode_agent_routes.toml",
+      "route_contract_ready": true,
+      "route_defaults": {
+        "inference_origin": "auto",
+        "privacy_tier": "internal",
+        "provider": "auto"
+      },
+      "status": "ready",
+      "summary": "\u001b[0m▄\u001b[0m\n\u001b[90m█\u001b[0m\u001b[90m▀\u001b[0m\u001b[90m▀\u001b[0m\u001b[90m█\u001b[0m \u001b[90m█\u001b[0m\u001b[90m▀\u001b[0m\u001b[90m▀\u001b[0m\u001b[90m█\u001b[0m \u001b[90m█\u001b[0m\u001b[90m▀\u001b[0m\u001b[90m▀\u001b[0m\u001b[90m█\u001b[0m \u001b[90m█\u001b[0m\u001b[90m▀\u001b[0m\u001b[90m▀\u001b[0m\u001b[90m▄\u001b[0m \u001b[0m█\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m \u001b[0m█\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m█\u001b[0m \u001b[0m█\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m█\u001b[0m \u001b[0m█\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m█\u001b[0m\n\u001b[90m█\u001b[0m\u001b[48;5;235m \u001b[0m\u001b[48;5;235m \u001b[0m\u001b[90m█\u001b[0m \u001b[90m█\u001b[0m\u001b[48;5;235m \u001b[0m\u001b[48;5;235m \u001b[0m\u001b[90m█\u001b[0m \u001b[90m█\u001b[0m\u001b[90m\u001b[48;5;235m▀\u001b[0m\u001b[90m\u001b[48;5;235m▀\u001b[0m\u001b[90m\u001b[48;5;235m▀\u001b[0m \u001b[90m█\u001b[0m\u001b[48;5;235m \u001b[0m\u001b[48;5;235m \u001b[0m\u001b[90m█\u001b[0m \u001b[0m█\u001b[0m\u001b[48;5;238m \u001b[0m\u001b[48;5;238m \u001b[0m\u001b[48;5;238m \u001b[0m \u001b[0m█\u001b[0m\u001b[48;5;238m \u001b[0m\u001b[48;5;238m \u001b[0m\u001b[0m█\u001b[0m \u001b[0m█\u001b[0m\u001b[48;5;238m \u001b[0m\u001b[48;5;238m \u001b[0m\u001b[0m█\u001b[0m \u001b[0m█\u001b[0m\u001b[0m\u001b[48;5;238m▀\u001b[0m\u001b[0m\u001b[48;5;238m▀\u001b[0m\u001b[0m\u001b[48;5;238m▀\u001b[0m\n\u001b[90m▀\u001b[0m\u001b[90m▀\u001b[0m\u001b[90m▀\u001b[0m\u001b[90m▀\u001b[0m \u001b[90m█\u001b[0m\u001b[90m▀\u001b[0m\u001b[90m▀\u001b[0m\u001b[90m▀\u001b[0m \u001b[90m▀\u001b[0m\u001b[90m▀\u001b[0m\u001b[90m▀\u001b[0m\u001b[90m▀\u001b[0m \u001b[90m▀\u001b[0m\u001b[38;5;235m▀\u001b[0m\u001b[38;5;235m▀\u001b[0m\u001b[90m▀\u001b[0m \u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m \u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m \u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m \u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m\n\nCommands:\n  opencode completion          generate shell completion script\n  opencode acp  "
+    },
+    "playwright_mcp": {
+      "approval_required": true,
+      "artifact_dir": "data/mcp/playwright/artifacts",
+      "command": "npx @playwright/mcp@latest --stdio",
+      "log_path": "data/mcp/playwright/bridge.log",
+      "network_requires_explicit_allow": true,
+      "note": "Playwright MCP is expected to run on-demand for a stdio client session rather than remain daemonized.",
+      "ok": true,
+      "pid": null,
+      "profile_dir": "data/mcp/playwright/profile",
+      "runtime_mode": "ephemeral_stdio",
+      "status": "contract_ready"
+    },
+    "scrapling": {
+      "command_kind": "cli_command",
+      "fail_closed_native_required": true,
+      "fetch_command": "annunimas-cli utility scrapling-fetch",
+      "module_origin": null,
+      "native_available": false,
+      "ok": true,
+      "python_bin": "python3",
+      "runtime_mode": "shim_allowed",
+      "status": "shim_only"
+    },
+    "search_runtime": {
+      "base_url": "http://127.0.0.1:18080",
+      "container_name": "annunimas-searxng",
+      "image": "docker.io/searxng/searxng:latest",
+      "ok": true,
+      "ready": false,
+      "status": "not_running"
+    }
+  }
+}

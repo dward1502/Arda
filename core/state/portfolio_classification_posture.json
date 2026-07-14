@@ -1,0 +1,66 @@
+{
+  "anti_drift_rules": [
+    "Incubate must not silently become Build Now without review.",
+    "Park must not accumulate execution tasks.",
+    "Archive must not be treated as current doctrine."
+  ],
+  "authority": "framework_gate_intake_plan + valinor_decision_memory",
+  "domain_overrides": {
+    "client_delivery": {
+      "build_now_requires": [
+        "current_anchor",
+        "owner",
+        "deployment_or_delivery_mapping"
+      ]
+    },
+    "internal_product": {
+      "build_now_requires": [
+        "product_dossier",
+        "ship_pause_kill_posture"
+      ]
+    },
+    "platform_memory": {
+      "build_now_requires": [
+        "pattern_extraction_scope",
+        "conflict_check_against_current_runtime_truth"
+      ]
+    }
+  },
+  "generated_at_utc": "2026-03-13T04:09:00Z",
+  "labels": [
+    {
+      "label": "build_now",
+      "meaning": "Ready to move toward execution planning or active work immediately after review.",
+      "permits": [
+        "bounded plan creation",
+        "execution eligibility review"
+      ]
+    },
+    {
+      "label": "incubate",
+      "meaning": "Worth preserving and refining, but not yet ready for active execution.",
+      "permits": [
+        "summary work",
+        "dossier refinement",
+        "future plan shaping"
+      ]
+    },
+    {
+      "label": "park",
+      "meaning": "Not active now; keep memory but do not spend execution energy on it.",
+      "permits": [
+        "reference retention only"
+      ]
+    },
+    {
+      "label": "archive",
+      "meaning": "Historical memory kept for lineage or pattern extraction only.",
+      "permits": [
+        "selective pattern mining"
+      ]
+    }
+  ],
+  "schema_version": "annunimas.portfolio-classification-posture.v1",
+  "sigil": "REPAIR",
+  "status": "classification_posture_ready_for_review"
+}

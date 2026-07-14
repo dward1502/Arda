@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_55df2771ae684a429211e1f989b91a62",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Queue signal-router public repo skeleton plan review. public_repo_skeleton_executor matched session_pivot public repo skeleton plan review; docs/plans/signal-router-public-repo-skeleton.md exists and defines repo identity, data-source agnostic RawSignal API, routing policy, receipts, schemas, CLI contract, CI gates, and conservative crisis/legal escalation; PASS cargo test -p annunimas-signal-grid; PASS cargo doc -p annunimas-signal-grid --no-deps; append-only guard passed before closeout",
+  "salience": 0.8599444444444444,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-21T02:59:52.601960135Z",
+  "last_seen_at": "2026-06-21T02:59:52.601960135Z"
+}

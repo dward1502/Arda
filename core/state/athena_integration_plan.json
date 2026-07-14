@@ -1,0 +1,214 @@
+{
+  "authority": "athena_runtime + package_enablement + github_repo_integration + extension_surface_contract",
+  "campaign": {
+    "mission": "Turn ATHENA digestion into bounded runtime activation, implementation briefs, and downstream execution contracts across ingestion, frameworks, and workflow surfaces.",
+    "name": "ATHENA sovereign integration execution",
+    "owner": "athena_prometheus"
+  },
+  "current_posture": {
+    "crawl_preferred_future": {
+      "configured_primary": "crawl4ai",
+      "implementation_state": "bounded_native_contract_ready",
+      "integration_status": "prototype_integrated",
+      "shim_backed": true,
+      "source_id": "src_df11630e",
+      "tool": "scrapling"
+    },
+    "crawl_primary": {
+      "activation_status": "activation_frontier",
+      "next_action": "run `annunimas athena crawl <url>` to capture markdown into ATHENA via the local crawl4ai service",
+      "runtime_status": "not_running",
+      "tool": "crawl4ai"
+    },
+    "deep_queue_recent": 16,
+    "downstream_runtime_signals": {
+      "litellm": {
+        "activation_status": "planned",
+        "runtime_status": "running"
+      },
+      "nanoclaw": {
+        "activation_status": "activation_frontier",
+        "runtime_status": "not_configured"
+      },
+      "playwright_mcp": {
+        "activation_status": "governed_on_demand",
+        "runtime_status": "contract_ready"
+      }
+    },
+    "execution_authority": "workstation",
+    "execution_posture": "workstation_first_laptop_operator_fallback",
+    "policy_ready_recent": 0,
+    "reference_only_recent": 16,
+    "source_provenance_coverage_ratio": 1.0,
+    "task_emission_receipts_total": 0
+  },
+  "doctrine": {
+    "crawl4ai_remains_live_primary_until_scrapling_runtime_is_bounded": true,
+    "deep_digestion_must_surface_in_human_and_machine_books": true,
+    "framework_patterns_must_land_in_sovereign_crate_and_state_boundaries": true,
+    "laptop_is_operator_ingress_and_optional_fallback": true,
+    "policy_ready_evidence_should_promote_into_implementation_contracts": true,
+    "scrapling_is_preferred_long_term_ingest_direction": true,
+    "source_provenance_must_survive_task_emission": true,
+    "task_emission_must_be_receipt_backed": true,
+    "ui_optional": true,
+    "workstation_is_canonical_athena_execution_authority": true
+  },
+  "generated_at_utc": "2026-04-28T09:49:25Z",
+  "integration_lanes": [
+    {
+      "current_primary": "crawl4ai",
+      "execution_frontier": [
+        "activate crawl4ai as verified live ingest runtime",
+        "materialize scrapling runtime contract beyond shim-only invocation",
+        "promote explicit provider-selection policy for ATHENA crawl flows"
+      ],
+      "goal": "Stabilize dual-provider crawl ingestion while preserving a clear sovereign default.",
+      "lane": "ingest_runtime",
+      "owner": "athena",
+      "preferred_future": "scrapling",
+      "write_through": [
+        "crates/annunimas-athena/src/ingest.rs",
+        "crates/annunimas-cli/src/main.rs",
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json",
+        "core/state/scrapling_runtime_contract.json"
+      ]
+    },
+    {
+      "execution_frontier": [
+        "emit implementation briefs for policy-ready sources",
+        "use ATHENA planning-task generation to seed bounded execution work",
+        "separate reference-only framework evidence from promotion-ready contracts"
+      ],
+      "goal": "Convert deep/policy-ready ATHENA evidence into reusable implementation briefs and deterministic planning tasks.",
+      "lane": "evidence_to_implementation",
+      "owner": "athena_prometheus",
+      "write_through": [
+        "data/athena/books/",
+        "human/library/athena/sources/",
+        "core/projects/tasks/queue.jsonl",
+        "core/state/github_repo_integration.json"
+      ]
+    },
+    {
+      "execution_frontier": [
+        "promote AgentForge learnings into crate-spawn and workflow recipes",
+        "promote eliza learnings into HERMES adapter and embodiment contracts",
+        "keep framework-first identity out of core doctrine"
+      ],
+      "framework_targets": {
+        "agentforge": [
+          {
+            "surfaces": [
+              "core/state/crate_spawn_contract.json",
+              "annunimas-cli utility create-crate-spawn-blueprint"
+            ],
+            "target": "crate_spawn_blueprint_flow",
+            "why": "AgentForge's forge metaphor maps cleanly to sovereign crate scaffolding rather than a permanent meta-framework."
+          },
+          {
+            "surfaces": [
+              "core/state/operations_flow.json",
+              "crates/annunimas-apollo"
+            ],
+            "target": "workflow_execution_contracts",
+            "why": "Declarative cog-style flows should become bounded execution recipes owned by APOLLO."
+          },
+          {
+            "surfaces": [
+              "core/state/athena_runtime.json",
+              "core/state/mnemosyne_continuity.json"
+            ],
+            "target": "memory_node_topology",
+            "why": "Integrated memory nodes belong in sovereign knowledge and continuity surfaces, not inside an external framework shell."
+          }
+        ],
+        "eliza": [
+          {
+            "surfaces": [
+              "core/state/federated_comms_runtime.json",
+              "core/state/matrix_boardrooms.json",
+              "crates/annunimas-hermes"
+            ],
+            "target": "communication_adapter_plugins",
+            "why": "eliza's connector ecosystem is useful when constrained to HERMES-owned adapter boundaries."
+          },
+          {
+            "surfaces": [
+              "core/state/aipkg_contract.json",
+              "core/state/package_enablement.json"
+            ],
+            "target": "packageable_runtime_extensions",
+            "why": "Plugin registry lessons should become optional package extensions rather than implicit core dependencies."
+          },
+          {
+            "surfaces": [
+              "core/state/embodied_interface.json",
+              "core/state/tauri_embodiment.json",
+              "apps/arda-hud"
+            ],
+            "target": "client_shells_and_embodiment",
+            "why": "Client-facing agent shells should package into product experiences without redefining sovereign identity."
+          }
+        ]
+      },
+      "goal": "Absorb useful framework patterns into sovereign crate, adapter, and workflow contracts instead of external shells.",
+      "lane": "framework_absorption",
+      "owner": "prometheus_apollo_hermes",
+      "write_through": [
+        "core/state/extension_surface_contract.json",
+        "core/state/crate_spawn_contract.json",
+        "core/state/communication_adapter_contract.json",
+        "core/state/operations_flow.json"
+      ]
+    },
+    {
+      "execution_frontier": [
+        "keep litellm as the live reasoning/router integration lane",
+        "promote crawl runtime readiness into regular ATHENA ingest operation",
+        "surface generated implementation tasks into APOLLO and PROMETHEUS execution fronts"
+      ],
+      "goal": "Bind ATHENA outputs to active runtime and execution surfaces so evidence immediately affects routing and workflows.",
+      "governor_inputs": {
+        "charon_router": "core/state/charon_router.json",
+        "edge_endpoint_verification": "core/state/edge_endpoint_verification.json",
+        "edge_model_rollout": "core/state/edge_model_rollout.json",
+        "fleet_control": "core/metrics/by_crate/prometheus/fleet_control.json",
+        "fleet_runtime": "core/state/fleet_runtime.json",
+        "metrics_manifest": "core/metrics/manifest.json",
+        "model_control_surface": "core/state/model_control_surface.json",
+        "opencode_route_governor": "core/state/opencode_route_governor.json",
+        "operator_actions": "core/state/operator_actions.json",
+        "package_enablement": "core/state/package_enablement.json",
+        "runtime_budget_policy": "core/state/runtime_budget_policy.json",
+        "soterion_joulework_enforcement": "core/state/soterion_joulework_enforcement.json"
+      },
+      "lane": "runtime_and_execution_handoff",
+      "owner": "athena_charon_apollo",
+      "write_through": [
+        "core/state/runtime_governor_contract.json",
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json",
+        "core/state/autonomy_resume.json"
+      ]
+    }
+  ],
+  "recommended_execution_sequence": [
+    "finish crawl4ai activation so ATHENA ingest runtime is continuously usable",
+    "materialize a Scrapling runtime contract and provider policy before switching live primary crawl direction",
+    "emit implementation briefs from policy-ready ATHENA sources so evidence becomes executable work",
+    "promote framework digestion into crate/adapter/workflow contracts instead of reference-only notes",
+    "bind ATHENA-generated work directly into runtime governor and APOLLO execution surfaces"
+  ],
+  "schema_version": "annunimas.athena-integration-plan.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "crawl4ai_frontier_open": true,
+    "integration_lanes_total": 4,
+    "litellm_active": false,
+    "policy_ready_recent": 0,
+    "reference_only_recent": 16,
+    "scrapling_contract_bounded": false
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "authority": "controlled_external_corpus_promotion",
+  "batch_id": "numenor_prime_promotion_batch_06",
+  "destination_surfaces": [
+    "human/plans/NUMENOR_PRIME_BATCH_06_OPS_PROCESS_AND_TASK_MEMORY.md",
+    "core/state/numenor_prime_merge_registry.json",
+    "core/state/numenor_prime_promotion_batch_05.json"
+  ],
+  "focus": "operations_process_and_historical_task_memory",
+  "generated_at_utc": "2026-03-13T03:40:00Z",
+  "next_candidates": [
+    "/var/home/dward/Numenor_Prime/Knowledge/Research/Operations-Ideas/Notes.md",
+    "/var/home/dward/Numenor_Prime/Knowledge/Research/Operations-Ideas/Local Voice Narration System (Victorian Exploration).md",
+    "/var/home/dward/Numenor_Prime/Knowledge/Research/Operations-Ideas/Project - Offline-Librarian-Device-GUARDIAN-Vagal-Integration.md",
+    "/var/home/dward/Numenor_Prime/Knowledge/Research/Operations-Ideas/RELIC Top-Down Pepper's Ghost Design.md"
+  ],
+  "promoted_items": [
+    {
+      "destination": "human/plans/NUMENOR_PRIME_BATCH_06_OPS_PROCESS_AND_TASK_MEMORY.md",
+      "kind": "operations_process",
+      "project": "engineering_process",
+      "source": "/var/home/dward/Numenor_Prime/Knowledge/Research/Operations-Ideas/GuidelinesCoding.md",
+      "summary": "Promoted coding-process guidance around canonical docs, CLAUDE/lessons/progress files, and design-system clarity as historical process memory."
+    },
+    {
+      "destination": "human/plans/NUMENOR_PRIME_BATCH_06_OPS_PROCESS_AND_TASK_MEMORY.md",
+      "kind": "operations_process",
+      "project": "automation",
+      "source": "/var/home/dward/Numenor_Prime/Knowledge/Research/Operations-Ideas/Automation opportunities.md",
+      "summary": "Promoted automation opportunities as a historical idea bank for practical workflow automation, to be mined selectively rather than executed wholesale."
+    },
+    {
+      "destination": "human/plans/NUMENOR_PRIME_BATCH_06_OPS_PROCESS_AND_TASK_MEMORY.md",
+      "kind": "operations_process",
+      "project": "security",
+      "source": "/var/home/dward/Numenor_Prime/Knowledge/Research/Operations-Ideas/Network security for clawdbot.md",
+      "summary": "Promoted clawdbot security notes as concise VPS-hardening and access-boundary memory."
+    },
+    {
+      "destination": "human/plans/NUMENOR_PRIME_BATCH_06_OPS_PROCESS_AND_TASK_MEMORY.md",
+      "kind": "historical_task_memory",
+      "project": "multi_project",
+      "source": "/var/home/dward/Numenor_Prime/Knowledge/Research/Operations-Ideas/Tasks for coding projects 12.8.2025.md",
+      "summary": "Promoted old project task notes as historical state only; explicitly not imported into the current Annunimas execution ledger."
+    },
+    {
+      "destination": "human/plans/NUMENOR_PRIME_BATCH_06_OPS_PROCESS_AND_TASK_MEMORY.md",
+      "kind": "historical_tool_memory",
+      "project": "clawdbot",
+      "source": "/var/home/dward/Numenor_Prime/Knowledge/Research/Operations-Ideas/clawdbot.md",
+      "summary": "Promoted clawdbot notes as a lightweight memory of earlier model/tool preferences and gateway-agent framing."
+    }
+  ],
+  "schema_version": "annunimas.numenor-prime-promotion-batch.v1",
+  "selection_rule": {
+    "do_not_copy_full_external_corpus": true,
+    "historical_tasks_must_not_become_live_queue_entries": true,
+    "project_adjacent_only": true,
+    "promotion_mode": "summary_and_crosslink"
+  },
+  "sigil": "REPAIR",
+  "source_root": "/var/home/dward/Numenor_Prime",
+  "status": "promoted_into_readable_annunimas_surfaces"
+}

@@ -1,0 +1,1745 @@
+{
+  "action_contracts": [
+    {
+      "action": "monitor_provider_budgets",
+      "description": "Observe daily/minute request limits, used counters, cooldowns, and provider health.",
+      "writes_through": [
+        "core/state/charon_router.json"
+      ]
+    },
+    {
+      "action": "monitor_fleet_uptime",
+      "description": "Track online/offline posture and recent usage across configured nodes.",
+      "writes_through": [
+        "core/metrics/by_crate/prometheus/fleet_control.json"
+      ]
+    },
+    {
+      "action": "propose_role_switches",
+      "description": "Recommend changes in node duty or routing posture, but only through sovereign config and projection surfaces.",
+      "writes_through": [
+        "config/fleet.toml",
+        "core/edge/targets.toml",
+        "core/state/model_control_surface.json"
+      ]
+    },
+    {
+      "action": "surface_plan_budget_pressure",
+      "description": "Expose user-plan and provider-plan pressure to downstream agents and UIs without hard-coding a frontend.",
+      "writes_through": [
+        "core/state/operator_actions.json",
+        "core/state/runtime_governor_contract.json",
+        "core/state/runtime_budget_policy.json"
+      ]
+    },
+    {
+      "action": "monitor_edge_model_rollout",
+      "description": "Track model artifact rollout on edge and backbone nodes so routing and local serving can activate from machine truth.",
+      "writes_through": [
+        "core/state/edge_model_rollout.json",
+        "core/state/runtime_governor_contract.json"
+      ]
+    },
+    {
+      "action": "verify_edge_endpoints",
+      "description": "Probe live node-local inference endpoints and detect contract drift between configured provider URLs and observed serving ports.",
+      "writes_through": [
+        "core/state/edge_endpoint_verification.json",
+        "config/charon.providers.toml",
+        "core/state/charon_router.json"
+      ]
+    }
+  ],
+  "authority": "agnostic_runtime_governor_projection",
+  "capability_lanes": {
+    "edge_endpoint_verification": {
+      "owner": "charon",
+      "summary": {
+        "intentional_offline_total": 0,
+        "recovered_total": 0,
+        "restart_attempted_total": 3,
+        "restart_failed_total": 3,
+        "targets_total": 7,
+        "targets_unexpected_offline_total": 3,
+        "targets_with_live_endpoints_total": 4
+      },
+      "surfaces": [
+        "core/state/edge_endpoint_verification.json",
+        "config/charon.providers.toml"
+      ],
+      "targets": [
+        {
+          "charon_provider_id": "mesh_local",
+          "configured_base_url": "http://100.78.138.113:9337/v1",
+          "display_name": "Annunimas Core (3080 Workstation)",
+          "expected_models": [
+            "Qwen3.5-9B-Q4_K_M"
+          ],
+          "has_live_endpoint": true,
+          "health_url": "http://100.78.138.113:9337/v1/models",
+          "initial_probe": {
+            "has_live_endpoint": true,
+            "observed_models": [
+              "Qwen3.5-9B-Q4_K_M",
+              "Qwen_Qwen3.5-4B-Q6_K"
+            ],
+            "status": "online"
+          },
+          "intentional_offline": false,
+          "models_url": "http://100.78.138.113:9337/v1/models",
+          "observed_models": [
+            "Qwen3.5-9B-Q4_K_M",
+            "Qwen_Qwen3.5-4B-Q6_K"
+          ],
+          "ports": [
+            {
+              "health_error": null,
+              "health_http_code": "200",
+              "health_ok": true,
+              "live": true,
+              "models": [
+                "Qwen3.5-9B-Q4_K_M",
+                "Qwen_Qwen3.5-4B-Q6_K"
+              ],
+              "models_error": null,
+              "models_http_code": "200",
+              "port": 1234
+            }
+          ],
+          "provider_hint": "mesh_root",
+          "recovery": null,
+          "startup_priority": 10,
+          "status": "online",
+          "target_id": "node-core-hub",
+          "transport": {
+            "ssh_target": "annunimas-core",
+            "tailscale_dns_name": null,
+            "tailscale_peer_found": false,
+            "tailscale_peer_online": null
+          }
+        },
+        {
+          "charon_provider_id": "mesh_worker_light",
+          "configured_base_url": "http://100.103.125.88:9337/v1",
+          "display_name": "Beelink SER9 Pro",
+          "expected_models": [
+            "Qwen_Qwen3.5-4B-Q6_K"
+          ],
+          "has_live_endpoint": true,
+          "health_url": "http://100.103.125.88:9337/v1/models",
+          "initial_probe": {
+            "has_live_endpoint": true,
+            "observed_models": [
+              "Qwen3.5-9B-Q4_K_M",
+              "Qwen_Qwen3.5-4B-Q6_K"
+            ],
+            "status": "online"
+          },
+          "intentional_offline": false,
+          "models_url": "http://100.103.125.88:9337/v1/models",
+          "observed_models": [
+            "Qwen3.5-9B-Q4_K_M",
+            "Qwen_Qwen3.5-4B-Q6_K"
+          ],
+          "ports": [
+            {
+              "health_error": null,
+              "health_http_code": "200",
+              "health_ok": true,
+              "live": true,
+              "models": [
+                "Qwen3.5-9B-Q4_K_M",
+                "Qwen_Qwen3.5-4B-Q6_K"
+              ],
+              "models_error": null,
+              "models_http_code": "200",
+              "port": 1234
+            }
+          ],
+          "provider_hint": "mesh_worker",
+          "recovery": null,
+          "startup_priority": 20,
+          "status": "online",
+          "target_id": "node-ser9-worker",
+          "transport": {
+            "ssh_target": "beelink.tail91c3c1.ts.net",
+            "tailscale_dns_name": "beelink.tail91c3c1.ts.net.",
+            "tailscale_peer_found": true,
+            "tailscale_peer_online": true
+          }
+        },
+        {
+          "charon_provider_id": "edge_carnice",
+          "configured_base_url": "http://100.103.125.88:1234",
+          "display_name": "Beelink SER9 Pro — Carnice 9B Lane",
+          "expected_models": [
+            "Carnice-9b-Q6_K"
+          ],
+          "has_live_endpoint": true,
+          "health_url": "http://100.103.125.88:1234/health",
+          "initial_probe": {
+            "has_live_endpoint": true,
+            "observed_models": [
+              "Carnice-9b-Q6_K"
+            ],
+            "status": "online"
+          },
+          "intentional_offline": false,
+          "models_url": "http://100.103.125.88:1234/v1/models",
+          "observed_models": [
+            "Carnice-9b-Q6_K"
+          ],
+          "ports": [
+            {
+              "health_error": null,
+              "health_http_code": "200",
+              "health_ok": true,
+              "live": true,
+              "models": [
+                "Carnice-9b-Q6_K"
+              ],
+              "models_error": null,
+              "models_http_code": "200",
+              "port": 1234
+            }
+          ],
+          "provider_hint": "llama_cpp_standalone",
+          "recovery": null,
+          "startup_priority": 25,
+          "status": "online",
+          "target_id": "node-ser9-carnice",
+          "transport": {
+            "ssh_target": "beelink.tail91c3c1.ts.net",
+            "tailscale_dns_name": "beelink.tail91c3c1.ts.net.",
+            "tailscale_peer_found": true,
+            "tailscale_peer_online": true
+          }
+        },
+        {
+          "charon_provider_id": "edge_laptop",
+          "configured_base_url": "http://100.97.15.88:1234",
+          "display_name": "RTX 3050 Laptop",
+          "expected_models": [],
+          "has_live_endpoint": false,
+          "health_url": "http://100.97.15.88:1234/health",
+          "initial_probe": {
+            "has_live_endpoint": false,
+            "observed_models": [],
+            "status": "offline"
+          },
+          "intentional_offline": false,
+          "models_url": "http://100.97.15.88:1234/v1/models",
+          "observed_models": [],
+          "ports": [
+            {
+              "health_error": "curl: (28) Connection timed out after 2002 milliseconds",
+              "health_http_code": "0",
+              "health_ok": false,
+              "live": false,
+              "models": [],
+              "models_error": "curl: (28) Connection timed out after 2001 milliseconds",
+              "models_http_code": "0",
+              "port": 1234
+            }
+          ],
+          "provider_hint": "local_voice_stt_operator",
+          "recovery": {
+            "attempted": true,
+            "attempts": [
+              {
+                "attempt": 1,
+                "restart": {
+                  "attempted": false,
+                  "command": "systemctl --user restart llama-server",
+                  "error": "tailscale_peer_offline",
+                  "ok": false,
+                  "peer_online": false,
+                  "scope": "ssh",
+                  "ssh_target": "laptop.tail91c3c1.ts.net"
+                }
+              }
+            ],
+            "recovered": false
+          },
+          "startup_priority": 30,
+          "status": "offline",
+          "target_id": "node-laptop",
+          "transport": {
+            "ssh_target": "laptop.tail91c3c1.ts.net",
+            "tailscale_dns_name": "laptop.tail91c3c1.ts.net.",
+            "tailscale_peer_found": true,
+            "tailscale_peer_online": false
+          }
+        },
+        {
+          "charon_provider_id": "edge_guardhouse",
+          "configured_base_url": "http://100.110.85.37:1234",
+          "display_name": "Pi5 Guardhouse (Warden)",
+          "expected_models": [
+            "Qwen3.5-4B-Q4_K_M.gguf"
+          ],
+          "has_live_endpoint": true,
+          "health_url": "http://100.110.85.37:1234/health",
+          "initial_probe": {
+            "has_live_endpoint": true,
+            "observed_models": [
+              "Qwen3.5-4B-Q4_K_M.gguf"
+            ],
+            "status": "online"
+          },
+          "intentional_offline": false,
+          "models_url": "http://100.110.85.37:1234/v1/models",
+          "observed_models": [
+            "Qwen3.5-4B-Q4_K_M.gguf"
+          ],
+          "ports": [
+            {
+              "health_error": null,
+              "health_http_code": "200",
+              "health_ok": true,
+              "live": true,
+              "models": [
+                "Qwen3.5-4B-Q4_K_M.gguf"
+              ],
+              "models_error": null,
+              "models_http_code": "200",
+              "port": 1234
+            }
+          ],
+          "provider_hint": "edge_llm_light",
+          "recovery": null,
+          "startup_priority": 40,
+          "status": "online",
+          "target_id": "node-pi5-warden",
+          "transport": {
+            "ssh_target": "warden.tail91c3c1.ts.net",
+            "tailscale_dns_name": "warden.tail91c3c1.ts.net.",
+            "tailscale_peer_found": true,
+            "tailscale_peer_online": true
+          }
+        },
+        {
+          "charon_provider_id": "edge_backbone",
+          "configured_base_url": "http://100.102.250.115:8080",
+          "display_name": "Annunimas Server",
+          "expected_models": [
+            "Qwen3.6-35B-A3B-UD-Q4_K_XL"
+          ],
+          "has_live_endpoint": false,
+          "health_url": "http://100.102.250.115:8080/health",
+          "initial_probe": {
+            "has_live_endpoint": false,
+            "observed_models": [],
+            "status": "offline"
+          },
+          "intentional_offline": false,
+          "models_url": "http://100.102.250.115:8080/v1/models",
+          "observed_models": [],
+          "ports": [
+            {
+              "health_error": "curl: (28) Connection timed out after 2001 milliseconds",
+              "health_http_code": "0",
+              "health_ok": false,
+              "live": false,
+              "models": [],
+              "models_error": "curl: (28) Connection timed out after 2001 milliseconds",
+              "models_http_code": "0",
+              "port": 1234
+            }
+          ],
+          "provider_hint": "multi_gpu_sovereign_backbone",
+          "recovery": {
+            "attempted": true,
+            "attempts": [
+              {
+                "attempt": 1,
+                "restart": {
+                  "attempted": false,
+                  "command": "systemctl --user restart llama-server",
+                  "error": "tailscale_peer_offline",
+                  "ok": false,
+                  "peer_online": false,
+                  "scope": "ssh",
+                  "ssh_target": "annunimas-server.tail91c3c1.ts.net"
+                }
+              }
+            ],
+            "recovered": false
+          },
+          "startup_priority": 90,
+          "status": "offline",
+          "target_id": "node-backbone-server",
+          "transport": {
+            "ssh_target": "annunimas-server.tail91c3c1.ts.net",
+            "tailscale_dns_name": "annunimas-server.tail91c3c1.ts.net.",
+            "tailscale_peer_found": true,
+            "tailscale_peer_online": false
+          }
+        },
+        {
+          "charon_provider_id": null,
+          "configured_base_url": "http://100.123.187.77:1234",
+          "display_name": "Pi5 CITADEL Avatar",
+          "expected_models": [],
+          "has_live_endpoint": false,
+          "health_url": "http://100.123.187.77:1234/health",
+          "initial_probe": {
+            "has_live_endpoint": false,
+            "observed_models": [],
+            "status": "offline"
+          },
+          "intentional_offline": false,
+          "models_url": "http://100.123.187.77:1234/v1/models",
+          "observed_models": [],
+          "ports": [
+            {
+              "health_error": "curl: (7) Failed to connect to 100.123.187.77 port 1234 after 412 ms: Could not connect to server",
+              "health_http_code": "0",
+              "health_ok": false,
+              "live": false,
+              "models": [],
+              "models_error": "curl: (7) Failed to connect to 100.123.187.77 port 1234 after 3 ms: Could not connect to server",
+              "models_http_code": "0",
+              "port": 1234
+            }
+          ],
+          "provider_hint": "cloud_only_inference",
+          "recovery": {
+            "attempted": true,
+            "attempts": [
+              {
+                "attempt": 1,
+                "restart": {
+                  "attempted": true,
+                  "command": "systemctl --user restart llama-server",
+                  "exit_code": 255,
+                  "ok": false,
+                  "scope": "ssh",
+                  "stderr": "No ED25519 host key is known for raspberrypi.tail91c3c1.ts.net. and you have requested strict checking.\r\nHost key verification failed.",
+                  "stdout": ""
+                }
+              }
+            ],
+            "recovered": false
+          },
+          "startup_priority": 100,
+          "status": "offline",
+          "target_id": "node-pi5-citadel-avatar",
+          "transport": {
+            "ssh_target": "raspberrypi.tail91c3c1.ts.net",
+            "tailscale_dns_name": "raspberrypi.tail91c3c1.ts.net.",
+            "tailscale_peer_found": true,
+            "tailscale_peer_online": true
+          }
+        }
+      ]
+    },
+    "edge_model_rollout_and_readiness": {
+      "owner": "charon",
+      "summary": {
+        "targets_active_total": 0,
+        "targets_complete_total": 0,
+        "targets_probe_blocked_total": 0,
+        "targets_total": 3
+      },
+      "surfaces": [
+        "core/state/edge_model_rollout.json",
+        "core/state/fleet_runtime.json"
+      ],
+      "targets": [
+        {
+          "active_pull": false,
+          "artifacts_present": [],
+          "completion_percent": 0.0,
+          "models_completed": 0,
+          "models_total": 2,
+          "status": "attention_required",
+          "target_id": "node-ser9-worker"
+        },
+        {
+          "active_pull": false,
+          "artifacts_present": [],
+          "completion_percent": 0.0,
+          "models_completed": 0,
+          "models_total": 3,
+          "status": "attention_required",
+          "target_id": "node-backbone-server-01"
+        },
+        {
+          "active_pull": false,
+          "artifacts_present": [],
+          "completion_percent": 0.0,
+          "models_completed": 0,
+          "models_total": 1,
+          "status": "attention_required",
+          "target_id": "node-pi5-warden"
+        }
+      ]
+    },
+    "fleet_uptime_and_downtime": {
+      "fleet_status": "ok",
+      "network": {
+        "active_peers": 4,
+        "fleet_enabled": true,
+        "peers_discovered_total": 4,
+        "tailscale_error": null,
+        "tailscale_ok": true
+      },
+      "nodes": [
+        {
+          "canonical_hostname": "annunimas-core",
+          "enrollment_status": "active",
+          "node_class": "core_compute",
+          "observed_dns_name": null,
+          "observed_hostname": null,
+          "online": false,
+          "role": "main_hub",
+          "tailscale_ip": "100.78.138.113",
+          "target_id": "node-core-hub",
+          "usage": {}
+        },
+        {
+          "canonical_hostname": "raspberrypi",
+          "enrollment_status": "active",
+          "node_class": "edge_guardhouse",
+          "observed_dns_name": "warden.tail91c3c1.ts.net.",
+          "observed_hostname": "warden",
+          "online": true,
+          "role": "warden_guardhouse",
+          "tailscale_ip": "100.110.85.37",
+          "target_id": "node-pi5-warden",
+          "usage": {}
+        },
+        {
+          "canonical_hostname": "raspberrypi",
+          "enrollment_status": "active_staging",
+          "node_class": "edge_avatar_product",
+          "observed_dns_name": null,
+          "observed_hostname": null,
+          "online": false,
+          "role": "citadel_avatar_controller",
+          "tailscale_ip": "100.123.187.77",
+          "target_id": "node-pi5-citadel-avatar",
+          "usage": {}
+        },
+        {
+          "canonical_hostname": "beelink",
+          "enrollment_status": "active_staging",
+          "node_class": "edge_worker",
+          "observed_dns_name": "bluefin.tail91c3c1.ts.net.",
+          "observed_hostname": "bluefin",
+          "online": true,
+          "role": "ser9_sovereign_worker",
+          "tailscale_ip": "100.103.125.88",
+          "target_id": "node-ser9-worker",
+          "usage": {}
+        },
+        {
+          "canonical_hostname": "laptop",
+          "enrollment_status": "active",
+          "node_class": "portable_compute",
+          "observed_dns_name": null,
+          "observed_hostname": null,
+          "online": false,
+          "role": "portable_operator",
+          "tailscale_ip": "100.97.15.88",
+          "target_id": "node-laptop",
+          "usage": {}
+        },
+        {
+          "canonical_hostname": "beelink",
+          "enrollment_status": "active_staging",
+          "node_class": "backbone_compute",
+          "observed_dns_name": "beelink.tail91c3c1.ts.net.",
+          "observed_hostname": "beelink",
+          "online": true,
+          "role": "backbone_inference",
+          "tailscale_ip": "100.118.123.88",
+          "target_id": "node-backbone-server-01",
+          "usage": {}
+        }
+      ],
+      "owner": "warden",
+      "surfaces": [
+        "core/metrics/by_crate/prometheus/fleet_control.json",
+        "core/state/fleet_runtime.json"
+      ]
+    },
+    "provider_budget_tracking": {
+      "owner": "charon",
+      "providers": [
+        {
+          "base_url": "https://opencode.ai/zen/v1",
+          "cooldown_until_utc": null,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "models": [
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "reasoning",
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 128000,
+              "id": "opencode/minimax-m2.5-free",
+              "is_default": true
+            },
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "reasoning",
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 128000,
+              "id": "opencode/nemotron-3-super-free",
+              "is_default": false
+            },
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "reasoning",
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 128000,
+              "id": "opencode/big-pickle",
+              "is_default": false
+            },
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "reasoning",
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 128000,
+              "id": "opencode/glm-5.1",
+              "is_default": false
+            },
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "reasoning",
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 128000,
+              "id": "opencode/kimi-k2.5",
+              "is_default": false
+            },
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "reasoning",
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 128000,
+              "id": "opencode/trinity-large-preview-free",
+              "is_default": false
+            }
+          ],
+          "provider_id": "opencode",
+          "requests_per_day": 100000,
+          "requests_per_minute": 120,
+          "requests_used_day": 0,
+          "requests_used_minute": 0
+        },
+        {
+          "base_url": "http://100.103.125.88:9337/v1",
+          "cooldown_until_utc": null,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "models": [
+            {
+              "capable_tasks": [
+                "chat",
+                "summary",
+                "background",
+                "monitoring"
+              ],
+              "context_window": 32768,
+              "id": "Qwen_Qwen3.5-4B-Q6_K",
+              "is_default": true
+            }
+          ],
+          "provider_id": "mesh_worker_light",
+          "requests_per_day": null,
+          "requests_per_minute": 120,
+          "requests_used_day": 0,
+          "requests_used_minute": 0
+        },
+        {
+          "base_url": "http://annunimas-server:1234",
+          "cooldown_until_utc": null,
+          "enabled": false,
+          "healthy": false,
+          "in_cooldown": false,
+          "models": [
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "reasoning",
+                "chat"
+              ],
+              "context_window": 65536,
+              "id": "qwen-3.5-35b-a3b-gguf",
+              "is_default": true
+            }
+          ],
+          "provider_id": "edge_backbone",
+          "requests_per_day": null,
+          "requests_per_minute": 60,
+          "requests_used_day": 0,
+          "requests_used_minute": 0
+        },
+        {
+          "base_url": "http://100.97.15.88:1234",
+          "cooldown_until_utc": null,
+          "enabled": true,
+          "healthy": false,
+          "in_cooldown": false,
+          "models": [
+            {
+              "capable_tasks": [
+                "chat",
+                "summary",
+                "background",
+                "research"
+              ],
+              "context_window": 32768,
+              "id": "qwen3.5-4b",
+              "is_default": true
+            }
+          ],
+          "provider_id": "edge_laptop",
+          "requests_per_day": null,
+          "requests_per_minute": 60,
+          "requests_used_day": 0,
+          "requests_used_minute": 0
+        },
+        {
+          "base_url": "http://100.110.85.37:1234",
+          "cooldown_until_utc": null,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "models": [
+            {
+              "capable_tasks": [
+                "chat",
+                "summary",
+                "background",
+                "monitoring"
+              ],
+              "context_window": 4096,
+              "id": "Qwen3.5-4B-Q4_K_M.gguf",
+              "is_default": true
+            }
+          ],
+          "provider_id": "edge_guardhouse",
+          "requests_per_day": null,
+          "requests_per_minute": 60,
+          "requests_used_day": 0,
+          "requests_used_minute": 0
+        },
+        {
+          "base_url": "http://127.0.0.1:9337/v1",
+          "cooldown_until_utc": null,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "models": [
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "reasoning",
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 8192,
+              "id": "Harmonic-Hermes-9B-Q6_K",
+              "is_default": true
+            }
+          ],
+          "provider_id": "mesh_local",
+          "requests_per_day": null,
+          "requests_per_minute": 180,
+          "requests_used_day": 0,
+          "requests_used_minute": 0
+        },
+        {
+          "base_url": "https://openrouter.ai/api/v1",
+          "cooldown_until_utc": null,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "models": [
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "reasoning",
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 128000,
+              "id": "openrouter/free",
+              "is_default": true
+            }
+          ],
+          "provider_id": "openrouter_free",
+          "requests_per_day": 50,
+          "requests_per_minute": 20,
+          "requests_used_day": 0,
+          "requests_used_minute": 0
+        },
+        {
+          "base_url": "https://openrouter.ai/api/v1",
+          "cooldown_until_utc": null,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "models": [
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "reasoning",
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 128000,
+              "id": "openrouter/auto",
+              "is_default": true
+            }
+          ],
+          "provider_id": "openrouter",
+          "requests_per_day": 100000,
+          "requests_per_minute": 30,
+          "requests_used_day": 0,
+          "requests_used_minute": 0
+        },
+        {
+          "base_url": "https://api.openai.com/v1",
+          "cooldown_until_utc": null,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "models": [
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "reasoning",
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 128000,
+              "id": "gpt-5.4",
+              "is_default": true
+            },
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 128000,
+              "id": "gpt-5.4-mini",
+              "is_default": false
+            },
+            {
+              "capable_tasks": [
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 128000,
+              "id": "gpt-5.4-nano",
+              "is_default": false
+            },
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "reasoning",
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 128000,
+              "id": "gpt-5.1",
+              "is_default": false
+            },
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "reasoning",
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 128000,
+              "id": "gpt-4.1",
+              "is_default": false
+            },
+            {
+              "capable_tasks": [
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 128000,
+              "id": "gpt-4.1-mini",
+              "is_default": false
+            }
+          ],
+          "provider_id": "openai",
+          "requests_per_day": 10000,
+          "requests_per_minute": 500,
+          "requests_used_day": 0,
+          "requests_used_minute": 0
+        },
+        {
+          "base_url": "https://generativelanguage.googleapis.com/v1beta/openai",
+          "cooldown_until_utc": null,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "models": [
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "reasoning",
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 1048576,
+              "id": "gemini-2.5-flash",
+              "is_default": true
+            },
+            {
+              "capable_tasks": [
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 1048576,
+              "id": "gemini-2.5-flash-lite",
+              "is_default": false
+            },
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "reasoning",
+                "chat",
+                "summary"
+              ],
+              "context_window": 1048576,
+              "id": "gemini-3-flash-preview",
+              "is_default": false
+            },
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "chat",
+                "summary"
+              ],
+              "context_window": 1048576,
+              "id": "gemini-2.0-flash",
+              "is_default": false
+            }
+          ],
+          "provider_id": "google",
+          "requests_per_day": 1500,
+          "requests_per_minute": 15,
+          "requests_used_day": 0,
+          "requests_used_minute": 0
+        },
+        {
+          "base_url": "https://api.mistral.ai/v1",
+          "cooldown_until_utc": null,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "models": [
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "reasoning",
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 256000,
+              "id": "mistral-small-2603",
+              "is_default": true
+            }
+          ],
+          "provider_id": "mistral",
+          "requests_per_day": 10000,
+          "requests_per_minute": 60,
+          "requests_used_day": 0,
+          "requests_used_minute": 0
+        },
+        {
+          "base_url": "https://api.z.ai/api/paas/v4",
+          "cooldown_until_utc": null,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "models": [
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "reasoning",
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 200000,
+              "id": "glm-5",
+              "is_default": true
+            }
+          ],
+          "provider_id": "zai",
+          "requests_per_day": 10000,
+          "requests_per_minute": 60,
+          "requests_used_day": 0,
+          "requests_used_minute": 0
+        },
+        {
+          "base_url": "https://integrate.api.nvidia.com/v1",
+          "cooldown_until_utc": null,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "models": [
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "reasoning",
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 256000,
+              "id": "qwen/qwen3-coder-480b-a35b-instruct",
+              "is_default": true
+            },
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "reasoning",
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 256000,
+              "id": "qwen/qwen3.5-397b-a17b",
+              "is_default": false
+            },
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "reasoning",
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 128000,
+              "id": "deepseek-ai/deepseek-v3.1-terminus",
+              "is_default": false
+            },
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "reasoning",
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 256000,
+              "id": "mistralai/devstral-2-123b-instruct-2512",
+              "is_default": false
+            },
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "reasoning",
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 256000,
+              "id": "mistralai/mistral-large-3-675b-instruct-2512",
+              "is_default": false
+            },
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "reasoning",
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 128000,
+              "id": "moonshotai/kimi-k2.5",
+              "is_default": false
+            },
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "reasoning",
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 128000,
+              "id": "moonshotai/kimi-k2-instruct",
+              "is_default": false
+            },
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "reasoning",
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 128000,
+              "id": "nvidia/llama-3.1-nemotron-ultra-253b-v1",
+              "is_default": false
+            },
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "reasoning",
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 128000,
+              "id": "nvidia/llama-3.3-nemotron-super-49b-v1.5",
+              "is_default": false
+            }
+          ],
+          "provider_id": "nvidia",
+          "requests_per_day": 10000,
+          "requests_per_minute": 60,
+          "requests_used_day": 0,
+          "requests_used_minute": 0
+        },
+        {
+          "base_url": "http://127.0.0.1:4000/v1",
+          "cooldown_until_utc": null,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "models": [
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "reasoning",
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 200000,
+              "id": "claude-sonnet-4-6",
+              "is_default": true
+            },
+            {
+              "capable_tasks": [
+                "code",
+                "research",
+                "reasoning",
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 200000,
+              "id": "claude-opus-4-6",
+              "is_default": false
+            },
+            {
+              "capable_tasks": [
+                "chat",
+                "summary",
+                "background"
+              ],
+              "context_window": 200000,
+              "id": "claude-haiku-4-5",
+              "is_default": false
+            }
+          ],
+          "provider_id": "anthropic",
+          "requests_per_day": 10000,
+          "requests_per_minute": 60,
+          "requests_used_day": 0,
+          "requests_used_minute": 0
+        }
+      ],
+      "summary": {
+        "cooldown_active_total": 0,
+        "providers_with_daily_limits": 14,
+        "providers_with_minute_limits": 14
+      },
+      "surfaces": [
+        "core/state/charon_router.json",
+        "core/state/model_control_surface.json"
+      ]
+    },
+    "runtime_role_posture": {
+      "nodes": [
+        {
+          "node_class": "core_compute",
+          "online": false,
+          "role": "main_hub",
+          "target_id": "node-core-hub"
+        },
+        {
+          "node_class": "edge_guardhouse",
+          "online": true,
+          "role": "warden_guardhouse",
+          "target_id": "node-pi5-warden"
+        },
+        {
+          "node_class": "edge_avatar_product",
+          "online": false,
+          "role": "citadel_avatar_controller",
+          "target_id": "node-pi5-citadel-avatar"
+        },
+        {
+          "node_class": "edge_worker",
+          "online": true,
+          "role": "ser9_sovereign_worker",
+          "target_id": "node-ser9-worker"
+        },
+        {
+          "node_class": "portable_compute",
+          "online": false,
+          "role": "portable_operator",
+          "target_id": "node-laptop"
+        },
+        {
+          "node_class": "backbone_compute",
+          "online": true,
+          "role": "backbone_inference",
+          "target_id": "node-backbone-server-01"
+        }
+      ],
+      "opencode_route_governor": {
+        "applied_total": 0,
+        "changed": false,
+        "manual_override_total": 0
+      },
+      "owner": "hermes_charon",
+      "placement": {
+        "backbone": "node-backbone-server-01",
+        "command_tower": "node-main-workstation",
+        "edge_worker": "node-ser9-worker",
+        "guardhouse": "node-pi5-warden"
+      },
+      "runtime_defaults": {
+        "bluefin_runtime_mode": "pod_openai_endpoint",
+        "cleanup_policy": "keep_only_assigned_models",
+        "endpoint_shape": "openai_compatible",
+        "policy": "dynamic_hybrid",
+        "quant_family": "unsloth_gguf",
+        "runtime": "ramalama"
+      },
+      "surfaces": [
+        "core/state/fleet_runtime.json",
+        "core/state/model_control_surface.json",
+        "core/state/opencode_route_governor.json"
+      ]
+    },
+    "tool_activation_and_health": {
+      "human_needed_total": 4,
+      "owner": "prometheus",
+      "summary": {
+        "configuration_ready_total": 0,
+        "evidence_ready_total": 1,
+        "observed_only_total": 5,
+        "policy_ready_total": 6,
+        "ready_for_activation_total": 5,
+        "tools_total": 11
+      },
+      "surfaces": [
+        "core/state/package_enablement.json",
+        "core/state/operator_actions.json"
+      ],
+      "tools": [
+        {
+          "activation_status": "planned",
+          "integration_state": "observed_only",
+          "next_action": "promote from evidence into a bounded runtime or product surface",
+          "tool": "airllm"
+        },
+        {
+          "activation_status": "planned",
+          "integration_state": "observed_only",
+          "next_action": "promote from evidence into a bounded runtime or product surface",
+          "tool": "arscontexta"
+        },
+        {
+          "activation_status": "activation_frontier",
+          "integration_state": "ready_for_activation",
+          "next_action": "run `annunimas athena crawl <url>` to capture markdown into ATHENA via the local crawl4ai service",
+          "tool": "crawl4ai"
+        },
+        {
+          "activation_status": "planned",
+          "integration_state": "observed_only",
+          "next_action": "promote from evidence into a bounded runtime or product surface",
+          "tool": "discord-mcp"
+        },
+        {
+          "activation_status": "planned",
+          "integration_state": "observed_only",
+          "next_action": "promote from evidence into a bounded runtime or product surface",
+          "tool": "ironclaw"
+        },
+        {
+          "activation_status": "planned",
+          "integration_state": "evidence_ready",
+          "next_action": "promote from evidence into a bounded runtime or product surface",
+          "tool": "litellm"
+        },
+        {
+          "activation_status": "activation_frontier",
+          "integration_state": "ready_for_activation",
+          "next_action": "promote from evidence into a bounded runtime or product surface",
+          "tool": "llmfit"
+        },
+        {
+          "activation_status": "activation_frontier",
+          "integration_state": "ready_for_activation",
+          "next_action": "run `bash scripts/nanoclaw_runtime.sh start` after channel auth is present, or route NanoClaw to the configured Tailscale edge target",
+          "tool": "nanoclaw"
+        },
+        {
+          "activation_status": "active_signal",
+          "integration_state": "ready_for_activation",
+          "next_action": "OpenCode is already bounded by sovereign route contracts; tune agent route mappings rather than treating it as an unintegrated package",
+          "tool": "oh-my-opencode"
+        },
+        {
+          "activation_status": "governed_on_demand",
+          "integration_state": "ready_for_activation",
+          "next_action": "Start the supervised bridge only for governed browser sessions; keep it on-demand rather than daemonized",
+          "tool": "playwright-mcp"
+        },
+        {
+          "activation_status": "planned",
+          "integration_state": "observed_only",
+          "next_action": "promote from evidence into a bounded runtime or product surface",
+          "tool": "superpowers"
+        }
+      ]
+    },
+    "user_and_provider_budget_pressure": {
+      "owner": "plutus_charon",
+      "provider_budgets": [
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": 0.0,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": null,
+          "monthly_requests_hard_cap": null,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": null,
+          "monthly_soft_cap_usage_percent": null,
+          "provider_id": "opencode",
+          "requests_per_day": 100000,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": null,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": null,
+          "monthly_requests_hard_cap": null,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": null,
+          "monthly_soft_cap_usage_percent": null,
+          "provider_id": "mesh_worker_light",
+          "requests_per_day": null,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": null,
+          "enabled": false,
+          "healthy": false,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": 0.0,
+          "monthly_requests_hard_cap": 250000.0,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": 100000.0,
+          "monthly_soft_cap_usage_percent": 0.0,
+          "provider_id": "edge_backbone",
+          "requests_per_day": null,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": null,
+          "enabled": true,
+          "healthy": false,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": null,
+          "monthly_requests_hard_cap": null,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": null,
+          "monthly_soft_cap_usage_percent": null,
+          "provider_id": "edge_laptop",
+          "requests_per_day": null,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": null,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": 0.0,
+          "monthly_requests_hard_cap": 50000.0,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": 25000.0,
+          "monthly_soft_cap_usage_percent": 0.0,
+          "provider_id": "edge_guardhouse",
+          "requests_per_day": null,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": null,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": null,
+          "monthly_requests_hard_cap": null,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": null,
+          "monthly_soft_cap_usage_percent": null,
+          "provider_id": "mesh_local",
+          "requests_per_day": null,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": 0.0,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": null,
+          "monthly_requests_hard_cap": null,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": null,
+          "monthly_soft_cap_usage_percent": null,
+          "provider_id": "openrouter_free",
+          "requests_per_day": 50,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": 0.0,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": 0.0,
+          "monthly_requests_hard_cap": 120000.0,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": 60000.0,
+          "monthly_soft_cap_usage_percent": 0.0,
+          "provider_id": "openrouter",
+          "requests_per_day": 100000,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": 0.0,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": null,
+          "monthly_requests_hard_cap": null,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": null,
+          "monthly_soft_cap_usage_percent": null,
+          "provider_id": "openai",
+          "requests_per_day": 10000,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": 0.0,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": 0.0,
+          "monthly_requests_hard_cap": 60000.0,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": 30000.0,
+          "monthly_soft_cap_usage_percent": 0.0,
+          "provider_id": "google",
+          "requests_per_day": 1500,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": 0.0,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": null,
+          "monthly_requests_hard_cap": null,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": null,
+          "monthly_soft_cap_usage_percent": null,
+          "provider_id": "mistral",
+          "requests_per_day": 10000,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": 0.0,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": null,
+          "monthly_requests_hard_cap": null,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": null,
+          "monthly_soft_cap_usage_percent": null,
+          "provider_id": "zai",
+          "requests_per_day": 10000,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": 0.0,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": null,
+          "monthly_requests_hard_cap": null,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": null,
+          "monthly_soft_cap_usage_percent": null,
+          "provider_id": "nvidia",
+          "requests_per_day": 10000,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": 0.0,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": null,
+          "monthly_requests_hard_cap": null,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": null,
+          "monthly_soft_cap_usage_percent": null,
+          "provider_id": "anthropic",
+          "requests_per_day": 10000,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": 0.0,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": null,
+          "monthly_hard_cap_usage_percent": null,
+          "monthly_requests_hard_cap": null,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": null,
+          "monthly_soft_cap_usage_percent": null,
+          "provider_id": "openai_sub",
+          "requests_per_day": 10000,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": 0.0,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": 0.0,
+          "monthly_requests_hard_cap": 60000000.0,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": 30000000.0,
+          "monthly_soft_cap_usage_percent": 0.0,
+          "provider_id": "cerebras",
+          "requests_per_day": 1000000,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": 0.0,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": 0.0,
+          "monthly_requests_hard_cap": 864000.0,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": 432000.0,
+          "monthly_soft_cap_usage_percent": 0.0,
+          "provider_id": "groq",
+          "requests_per_day": 14400,
+          "requests_used_day": 0
+        },
+        {
+          "budget_pressure": "normal",
+          "daily_request_usage_percent": null,
+          "enabled": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "monthly_hard_cap_usage_percent": 0.0,
+          "monthly_requests_hard_cap": 100000.0,
+          "monthly_requests_inferred_used": 0,
+          "monthly_requests_soft_cap": 50000.0,
+          "monthly_soft_cap_usage_percent": 0.0,
+          "provider_id": "local_fallback",
+          "requests_per_day": null,
+          "requests_used_day": 0
+        }
+      ],
+      "summary": {
+        "daily_spend_pressure": false,
+        "local_joule_pressure": false,
+        "monthly_spend_hard_pressure": false,
+        "monthly_spend_soft_pressure": false,
+        "provider_budget_pressure_total": 0,
+        "providers_tracked_total": 18
+      },
+      "surfaces": [
+        "core/state/runtime_budget_policy.json",
+        "core/state/charon_router.json",
+        "data/plutus/runtime_status.json"
+      ],
+      "user_plan_budget": {
+        "daily_spend_usd_observed": 0.0,
+        "daily_spend_usd_remaining": 100.0,
+        "daily_spend_usd_soft_cap": 100.0,
+        "daily_spend_usd_usage_percent": 0.0,
+        "edge_model_storage_gib_soft_cap": 250.0,
+        "local_joulework_daily_soft_cap": 1500.0,
+        "local_joulework_observed": 0.0,
+        "local_joulework_observed_cumulative": 90081.88805868078,
+        "local_joulework_usage_percent": 0.0,
+        "local_joulework_window_span_seconds": 0.0,
+        "local_joulework_window_valid": false,
+        "monthly_spend_hard_cap_usage_percent": 0.0,
+        "monthly_spend_soft_cap_usage_percent": 0.0,
+        "monthly_spend_usd_hard_cap": 400.0,
+        "monthly_spend_usd_inferred_used": 0.0,
+        "monthly_spend_usd_soft_cap": 250.0
+      }
+    }
+  },
+  "doctrine": {
+    "arda_hud_not_required": true,
+    "can_recommend_role_switches_but_must_write_through_authority_surfaces": true,
+    "finds_existing_connections_before_change": true,
+    "joulework_budget_review_required_before_expensive_shift": true,
+    "provider_limits_and_user_plan_budgets_are_first_class_inputs": true,
+    "reads_sovereign_state_before_ui": true,
+    "soterion_trace_required_for_meaningful_runtime_changes": true
+  },
+  "generated_at_utc": "2026-04-28T09:49:24Z",
+  "input_surfaces": {
+    "charon_router": "core/state/charon_router.json",
+    "edge_endpoint_verification": "core/state/edge_endpoint_verification.json",
+    "edge_model_rollout": "core/state/edge_model_rollout.json",
+    "fleet_control": "core/metrics/by_crate/prometheus/fleet_control.json",
+    "fleet_runtime": "core/state/fleet_runtime.json",
+    "metrics_manifest": "core/metrics/manifest.json",
+    "model_control_surface": "core/state/model_control_surface.json",
+    "opencode_route_governor": "core/state/opencode_route_governor.json",
+    "operator_actions": "core/state/operator_actions.json",
+    "package_enablement": "core/state/package_enablement.json",
+    "runtime_budget_policy": "core/state/runtime_budget_policy.json",
+    "soterion_joulework_enforcement": "core/state/soterion_joulework_enforcement.json"
+  },
+  "latest_snapshot": {
+    "metrics_generated_at_utc": "2026-04-22T22:04:22Z",
+    "metrics_snapshot_id": "20260422T182427Z"
+  },
+  "purpose": {
+    "agent_kind": "control_plane_subagent",
+    "consumer_agnostic": true,
+    "mission": "Monitor usage, uptime, downtime, provider budgets, and role posture across sovereign runtime surfaces.",
+    "ui_optional": true
+  },
+  "schema_version": "annunimas.runtime-governor-contract.v1",
+  "sigil": "REPAIR",
+  "ui_ingestion_contract": {
+    "display_ready": true,
+    "editable_surfaces": [
+      "config/fleet.toml",
+      "core/edge/targets.toml",
+      "config/charon.providers.toml",
+      "config/model_route_matrix.toml"
+    ],
+    "read_only_state_surfaces": [
+      "core/state/runtime_governor_contract.json",
+      "core/state/runtime_budget_policy.json",
+      "core/state/edge_model_rollout.json",
+      "core/state/edge_endpoint_verification.json",
+      "core/state/charon_router.json",
+      "core/metrics/by_crate/prometheus/fleet_control.json",
+      "core/state/package_enablement.json"
+    ]
+  }
+}

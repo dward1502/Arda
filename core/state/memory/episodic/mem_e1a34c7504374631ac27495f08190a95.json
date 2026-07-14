@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_e1a34c7504374631ac27495f08190a95",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Gate 3.5M ARDA presence event writer design review. Selected after Gate 3.5L; review CLI/Prometheus/Core/ARDA paths before implementing event writer.",
+  "salience": 0.9025000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-18T23:02:27.138273099Z",
+  "last_seen_at": "2026-05-18T23:02:27.138273099Z"
+}

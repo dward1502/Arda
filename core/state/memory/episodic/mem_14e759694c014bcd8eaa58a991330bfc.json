@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_14e759694c014bcd8eaa58a991330bfc",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Queue agent-loop-contract demo fixtures receipt schema and policy review. Reviewed and validated agent-loop-contract demo fixtures receipt schema and policy. Verified cargo run -- check examples/demo-config.toml examples/demo-cycle.json returned ok with stages and mutation_default. Schema at schemas/cycle.schema.json matches demo-cycle.json structure.",
+  "salience": 0.7475,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-20T23:21:23.089738821Z",
+  "last_seen_at": "2026-06-20T23:21:23.089738821Z"
+}

@@ -1,0 +1,55 @@
+{
+  "authority": "package_enablement + package_runtime_activation + charon_router + runtime_governor_contract",
+  "generated_at_utc": "2026-05-29T19:00:24Z",
+  "governor_binding": {
+    "governor_next_action": "promote from evidence into a bounded runtime or product surface",
+    "input_surface_present": true,
+    "package_tool_projection_present": true,
+    "writes_through": [
+      "core/state/charon_router.json",
+      "core/state/model_control_surface.json",
+      "core/state/runtime_governor_contract.json"
+    ]
+  },
+  "provider_contract": {
+    "base_url": null,
+    "configured": true,
+    "enabled": null,
+    "healthy": null,
+    "models": null,
+    "provider_id": "litellm_gateway"
+  },
+  "routing_contract": {
+    "charon_router": "core/state/charon_router.json",
+    "model_control_surface": "core/state/model_control_surface.json",
+    "preferred_for": [
+      "planning",
+      "context_heavy",
+      "provider_normalization"
+    ],
+    "provider_priority": [
+      "litellm_gateway",
+      "local_fallback",
+      "edge_backbone"
+    ],
+    "role": "normalized gateway for CHARON and downstream consumers"
+  },
+  "schema_version": "annunimas.litellm-routing-contract.v1",
+  "summary": {
+    "active_in_system": true,
+    "models_ready": true,
+    "provider_healthy": null,
+    "runtime_ok": true
+  },
+  "tool": {
+    "activation_status": "active_in_system",
+    "integration_state": "ready_for_activation",
+    "models_ready": true,
+    "name": "litellm",
+    "provider_id": "litellm_gateway",
+    "proxy_url": "http://127.0.0.1:4000/v1",
+    "repo": "BerriAI/litellm",
+    "repo_url": "https://github.com/BerriAI/litellm",
+    "runtime_status": "running"
+  }
+}

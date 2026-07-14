@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_2ff877763ded47a2a9d47f5e7e346c0f",
+  "kind": "episodic",
+  "agent": "charon",
+  "content": "CHARON routed athena:research [planning:context_heavy] -> mistral:mistral-medium-latest triad_passed=false love_eq=0.74",
+  "salience": 0.3334999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T05:02:18.648976350Z",
+  "last_seen_at": "2026-06-01T05:02:18.648976350Z"
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_d99cf147cd454fd291176e69f2951746",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Review ATHENA human info cluster: ECST, MythOS, Digital Alexandria, and Research Claims. Candidate ATHENA Phase 2F review task. Source cluster: ecst_mythos_research. Review artifact: audit/HUMAN_INBOX_PHASE2F_2026-05-17/CORE_TASK_SYNTHESIS.md",
+  "salience": 0.7805,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-17T06:52:21.161470656Z",
+  "last_seen_at": "2026-05-17T06:52:21.161470656Z"
+}

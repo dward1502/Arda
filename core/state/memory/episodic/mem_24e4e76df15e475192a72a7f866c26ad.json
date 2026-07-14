@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_24e4e76df15e475192a72a7f866c26ad",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: CHARON B2 scored candidate cache",
+  "salience": 0.7625,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-09T19:28:34.687365223Z",
+  "last_seen_at": "2026-05-09T19:28:34.687365223Z"
+}

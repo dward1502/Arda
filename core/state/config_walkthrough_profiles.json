@@ -1,0 +1,136 @@
+{
+  "schema_version": "annunimas.config_walkthrough_profiles.v1",
+  "authority": "operator_legibility_contract",
+  "generated_at_utc": "2026-04-30T00:00:00Z",
+  "active_profile_id": "local_only",
+  "purpose": "Canonical guided configuration profiles for ARDA HUD productization and future write-backed setup flows.",
+  "canonical_files": {
+    "operator_profile": "config/operator_profile.json",
+    "hud_settings": "config/arda_hud.settings.json",
+    "runtime_settings": "core/state/runtime_settings.json",
+    "governance_runtime": "core/state/governance_runtime.json",
+    "runtime_budget_policy": "core/state/runtime_budget_policy.json",
+    "model_control_surface": "core/state/model_control_surface.json",
+    "operator_runtime_status": "core/state/operator_runtime_status.json",
+    "permission_profiles": "core/state/permission_profiles.json",
+    "charon_router": "core/state/charon_router.json"
+  },
+  "dimensions": [
+    {
+      "id": "runtime_mode",
+      "label": "Runtime Mode",
+      "kind": "segmented",
+      "canonical_home": "core/state/runtime_settings.json",
+      "options": ["local_only", "business", "research"]
+    },
+    {
+      "id": "autonomy_level",
+      "label": "Autonomy Level",
+      "kind": "stepper",
+      "canonical_home": "config/operator_profile.json",
+      "min": 0,
+      "max": 4
+    },
+    {
+      "id": "node_visibility",
+      "label": "Node Visibility",
+      "kind": "segmented",
+      "canonical_home": "core/state/operator_runtime_status.json",
+      "options": ["minimal", "operational", "full"]
+    },
+    {
+      "id": "provider_budget",
+      "label": "Provider Budget",
+      "kind": "segmented",
+      "canonical_home": "core/state/runtime_budget_policy.json",
+      "options": ["local_free", "balanced", "paid_allowed"]
+    },
+    {
+      "id": "governance_strictness",
+      "label": "Governance Strictness",
+      "kind": "slider",
+      "canonical_home": "core/state/governance_runtime.json",
+      "min": 1,
+      "max": 5
+    }
+  ],
+  "profiles": [
+    {
+      "id": "local_only",
+      "title": "Local-Only Mode",
+      "glyph": "∇",
+      "product_posture": "sovereign_private_default",
+      "summary": "Route work to local and controlled endpoints first; preserve strict operator approval for external spend or exposure.",
+      "settings": {
+        "runtime_mode": "local_only",
+        "autonomy_level": 1,
+        "node_visibility": "operational",
+        "provider_budget": "local_free",
+        "governance_strictness": 5
+      },
+      "writes": [
+        "core/state/runtime_settings.json",
+        "core/state/runtime_budget_policy.json",
+        "core/state/governance_runtime.json",
+        "core/state/model_control_surface.json",
+        "core/state/operator_runtime_status.json",
+        "core/state/charon_router.json",
+        "core/state/config_walkthrough_validation.json"
+      ],
+      "next_action": "Add write-backed ARDA apply flow with dry-run diff and operator approval."
+    },
+    {
+      "id": "business",
+      "title": "Business Mode",
+      "glyph": "⚡",
+      "product_posture": "client_delivery_ready",
+      "summary": "Enable business workstreams, budget-aware provider routing, and delivery-oriented dashboards.",
+      "settings": {
+        "runtime_mode": "business",
+        "autonomy_level": 2,
+        "node_visibility": "operational",
+        "provider_budget": "balanced",
+        "governance_strictness": 4
+      },
+      "writes": [
+        "core/state/runtime_settings.json",
+        "core/state/runtime_budget_policy.json",
+        "core/state/governance_runtime.json",
+        "core/state/model_control_surface.json",
+        "core/state/operator_runtime_status.json",
+        "core/state/charon_router.json",
+        "core/state/config_walkthrough_validation.json"
+      ],
+      "next_action": "Bind business profile to client delivery package templates and intake governance."
+    },
+    {
+      "id": "research",
+      "title": "Research Mode",
+      "glyph": "◈",
+      "product_posture": "knowledge_derivation_ready",
+      "summary": "Prioritize ATHENA ingestion, MNEMOSYNE recall, evidence trails, and controlled exploration loops.",
+      "settings": {
+        "runtime_mode": "research",
+        "autonomy_level": 2,
+        "node_visibility": "full",
+        "provider_budget": "balanced",
+        "governance_strictness": 3
+      },
+      "writes": [
+        "core/state/runtime_settings.json",
+        "core/state/runtime_budget_policy.json",
+        "core/state/governance_runtime.json",
+        "core/state/model_control_surface.json",
+        "core/state/operator_runtime_status.json",
+        "core/state/charon_router.json",
+        "core/state/config_walkthrough_validation.json"
+      ],
+      "next_action": "Connect profile activation to ATHENA batch ingest and MNEMOSYNE seed recall previews."
+    }
+  ],
+  "safety": {
+    "apply_mode": "read_only_until_diff_approval",
+    "requires_operator_approval": true,
+    "blocked_without_rotation": ["credential_file_rewrite", "external_provider_spend", "public_sharing"]
+  }
+}

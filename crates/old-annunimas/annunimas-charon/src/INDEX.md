@@ -6,17 +6,13 @@ soterion:
   role: "directory_index"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-13"
+  last_reviewed: "2026-05-21"
 ---
 
+> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-05-21
 
-> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-13
+# Index: crates/annunimas-charon/src
 
-# Index: crates/runtime/annunimas-charon/src/INDEX.md
-
-## Contents
-
-- `INDEX.md`
 - `README.md`
 - `error.rs`
 - `lib.rs`
@@ -24,11 +20,3 @@ soterion:
 - `service.rs`
 - `transport`
 - `types.rs`
-
-## Purpose
-
-Crate index for `crates/runtime/annunimas-charon/src/INDEX.md`. See sibling `INDEX.md` for bucket metadata.
-
-## Notes
-
-Normalized from on-disk contents; review cadence is quarterly unless owner changes.

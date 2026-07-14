@@ -17,9 +17,9 @@ soterion:
 ## Contents
 
 - `INDEX.md`
-- `annunimas-core`
-- `annunimas-council`
-- `annunimas-governance`
+- `arda-core`
+- `arda-council`
+- `arda-governance`
 
 ## Purpose
 

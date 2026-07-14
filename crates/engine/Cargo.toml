@@ -4,12 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-# Core spine — the first set of Annunimas systems wired into Arda.
+arda-core = { path = "../spine/governance/arda-core" }
+# Core spine — the first set of Arda systems wired into Arda.
 # Add more crates here as the engine's responsibilities grows.
-annunimas-core = { path = "../spine/governance/annunimas-core" }
-annunimas-charon = { path = "../spine/runtime/annunimas-charon" }
-annunimas-service-registry = { path = "../spine/executors/annunimas-service-registry" }
-annunimas-onboarding = { path = "../spine/interface/annunimas-onboarding" }
+arda-onboarding = { path = "../spine/interface/arda-onboarding" }
+arda-service-registry = { path = "../spine/executors/arda-service-registry" }
+manwe = { path = "../spine/runtime/manwe" }
 
 # Process supervision
 tokio = { workspace = true }

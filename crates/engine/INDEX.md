@@ -18,7 +18,7 @@ reaching into vendored crates directly.
 
 - `Cargo.toml`
 - `src`
-  - `lib.rs` — `boot()` placeholder + re-exports (`charon`, `core`, `onboarding`, `service_registry`)
+  - `lib.rs` — `boot()` placeholder + aliased re-exports (`charon`, `core`, `onboarding`, `service_registry`)
   - `supervisor.rs` — `Supervisor` / `Service` / `Shutdown`: spawn, watch, restart
     with exponential backoff; clean shutdown via a shared `Notify`.
 
@@ -28,3 +28,7 @@ HUD, `manwe` gateway) and keeps them alive.
 
 ## Silmarillion rename
 Stays `arda-engine` (Arda-native, not an annunimas import).
+
+## TODO
+- Rename aliased crates (`annunimas_*` -> Arda-native names) once the
+  targeted crate scope is decided; keep `arda_engine` stable until then.

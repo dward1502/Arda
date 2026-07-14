@@ -134,24 +134,6 @@ where
     }
 }
 
-pub(crate) async fn mnemosyne_call_or_local<F>(
-    socket_path: &std::path::Path,
-    cmd: &str,
-    payload: serde_json::Value,
-    local_fallback: F,
-) -> anyhow::Result<serde_json::Value>
-where
-    F: FnOnce() -> anyhow::Result<serde_json::Value>,
-{
-    match mnemosyne_ipc_send_command(socket_path.to_path_buf(), cmd, payload).await {
-        Ok(value) => Ok(value),
-        Err(err) => {
-            tracing::info!(error = %err, cmd, "MNEMOSYNE IPC unavailable, using local fallback");
-            local_fallback()
-        }
-    }
-}
-
 pub(crate) async fn hades_call_or_local<F>(
     socket_path: &std::path::Path,
     cmd: &str,

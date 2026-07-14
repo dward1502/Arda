@@ -12,10 +12,10 @@ http = ["dep:axum", "dep:tower", "dep:tokio-stream"]
 rtk = []
 
 [dependencies]
-annunimas-core = { path = "../../governance/annunimas-core" }
-annunimas-governance = { path = "../../governance/annunimas-governance" }
-annunimas-plutus = { path = "../../runtime/annunimas-plutus" }
-annunimas-warden = { path = "../../tooling/annunimas-warden" }
+annunimas-core = { path = "../annunimas-core" }
+annunimas-governance = { path = "../annunimas-governance" }
+annunimas-plutus = { path = "../annunimas-plutus" }
+annunimas-warden = { path = "../annunimas-warden" }
 serde.workspace = true
 serde_json.workspace = true
 tokio.workspace = true

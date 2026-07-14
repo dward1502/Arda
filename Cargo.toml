@@ -3,34 +3,12 @@ resolver = "2"
 members = [
     # Arda-native
     "crates/engine",
-    "crates/manwe",
-    # Vendored Annunimas crates (reorganized under crates/spine/<category>/)
-    "crates/spine/interface/annunimas-apollo",
-    "crates/spine/executors/annunimas-athena",
-    "crates/spine/executors/annunimas-ceo",
-    "crates/spine/runtime/annunimas-charon",
-    "crates/spine/memory/annunimas-chronos",
-    "crates/spine/interface/annunimas-cli",
-    "crates/spine/interface/annunimas-comm",
-    "crates/spine/governance/annunimas-core",
-    "crates/spine/governance/annunimas-council",
-    "crates/spine/interface/annunimas-fleet",
-    "crates/spine/tooling/annunimas-forge-mind",
-    "crates/spine/governance/annunimas-governance",
-    "crates/spine/runtime/annunimas-hades",
-    "crates/spine/interface/annunimas-hermes",
-    "crates/spine/executors/annunimas-human",
-    "crates/spine/interface/annunimas-mcp",
-    "crates/spine/memory/annunimas-mnemosyne",
-    "crates/spine/interface/annunimas-onboarding",
-    "crates/spine/runtime/annunimas-oracle",
-    "crates/spine/runtime/annunimas-plutus",
-    "crates/spine/observability/annunimas-prometheus",
-    "crates/spine/executors/annunimas-service-registry",
-    "crates/spine/observability/annunimas-signal-grid",
-    "crates/spine/executors/annunimas-systemd",
-    "crates/spine/tooling/annunimas-tool-harness",
-    "crates/spine/tooling/annunimas-warden",
+    "crates/spine/runtime/manwe",
+    # Migrated Arda governance/tooling crates
+    "crates/spine/governance/arda-core",
+    "crates/spine/governance/arda-tool-harness",
+    "crates/spine/interface/arda-onboarding",
+    "crates/spine/executors/arda-service-registry",
 ]
 
 [package]
@@ -70,11 +48,12 @@ tempfile = "3"
 async-trait = "0.1"
 serde_yaml = "0.9"
 # Annunimas crates referenced via `workspace = true` inside the vendored crates
-annunimas-core = { path = "crates/spine/governance/annunimas-core" }
-annunimas-governance = { path = "crates/spine/governance/annunimas-governance" }
-annunimas-mnemosyne = { path = "crates/spine/memory/annunimas-mnemosyne" }
-annunimas-oracle = { path = "crates/spine/runtime/annunimas-oracle" }
-annunimas-plutus = { path = "crates/spine/runtime/annunimas-plutus" }
+annunimas-charon = { path = "crates/old-annunimas/annunimas-charon" }
+arda-core = { path = "crates/spine/governance/arda-core" }
+annunimas-governance = { path = "crates/old-annunimas/annunimas-governance" }
+annunimas-mnemosyne = { path = "crates/old-annunimas/annunimas-mnemosyne" }
+annunimas-oracle = { path = "crates/old-annunimas/annunimas-oracle" }
+annunimas-plutus = { path = "crates/old-annunimas/annunimas-plutus" }
 tokio = { version = "1", features = ["full"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }

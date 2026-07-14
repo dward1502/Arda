@@ -5,20 +5,20 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-annunimas-core = { path = "../../governance/annunimas-core" }
-annunimas-onboarding = { path = "../annunimas-onboarding" }
-annunimas-prometheus = { path = "../../observability/annunimas-prometheus" }
-annunimas-athena = { path = "../../executors/annunimas-athena" }
-annunimas-hades = { path = "../../runtime/annunimas-hades" }
+annunimas-core = { path = "../annunimas-core" }
+arda-onboarding = { path = "../../spine/interface/arda-onboarding" }
+annunimas-prometheus = { path = "../annunimas-prometheus" }
+annunimas-athena = { path = "../annunimas-athena" }
+annunimas-hades = { path = "../annunimas-hades" }
 annunimas-hermes = { path = "../annunimas-hermes", features = ["http"] }
-annunimas-charon = { path = "../../runtime/annunimas-charon" }
-annunimas-mnemosyne = { path = "../../memory/annunimas-mnemosyne" }
+annunimas-charon = { path = "../annunimas-charon" }
+annunimas-mnemosyne = { path = "../annunimas-mnemosyne" }
 annunimas-apollo = { path = "../annunimas-apollo" }
-annunimas-plutus = { path = "../../runtime/annunimas-plutus" }
-annunimas-oracle = { path = "../../runtime/annunimas-oracle" }
-annunimas-chronos = { path = "../../memory/annunimas-chronos" }
-annunimas-governance = { path = "../../governance/annunimas-governance" }
-annunimas-forge-mind = { path = "../../tooling/annunimas-forge-mind", default-features = false, features = ["mcp-bridge", "comfyui", "iterate"] }
+annunimas-plutus = { path = "../annunimas-plutus" }
+annunimas-oracle = { path = "../annunimas-oracle" }
+annunimas-chronos = { path = "../annunimas-chronos" }
+annunimas-governance = { path = "../annunimas-governance" }
+annunimas-forge-mind = { path = "../annunimas-forge-mind", default-features = false, features = ["mcp-bridge", "comfyui", "iterate"] }
 clap = { version = "4", features = ["derive"] }
 tokio = { version = "1", features = ["full"] }
 anyhow = "1"
@@ -38,5 +38,5 @@ axum = "0.7"
 sysinfo = "0.30"
 
 [dev-dependencies]
-annunimas-warden = { path = "../../tooling/annunimas-warden" }
+annunimas-warden = { path = "../annunimas-warden" }
 tempfile = "3"

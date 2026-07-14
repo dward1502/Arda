@@ -12,8 +12,8 @@ http = ["dep:axum", "dep:tower", "dep:tokio-stream"]
 pageindex = []
 
 [dependencies]
-annunimas-core = { path = "../../governance/annunimas-core" }
-annunimas-governance = { path = "../../governance/annunimas-governance" }
+annunimas-core = { path = "../annunimas-core" }
+annunimas-governance = { path = "../annunimas-governance" }
 annunimas-plutus = { path = "../annunimas-plutus" }
 serde.workspace = true
 serde_json.workspace = true

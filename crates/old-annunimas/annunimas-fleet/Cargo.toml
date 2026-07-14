@@ -11,8 +11,8 @@ default = []
 ssh-dispatch = []
 
 [dependencies]
-annunimas-core = { path = "../../governance/annunimas-core" }
-annunimas-governance = { path = "../../governance/annunimas-governance" }
+annunimas-core = { path = "../annunimas-core" }
+annunimas-governance = { path = "../annunimas-governance" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 toml = { workspace = true }

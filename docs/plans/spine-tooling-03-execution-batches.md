@@ -11,15 +11,15 @@ decommission the dead weight (hades, ceo, fleet, signal-grid).
 BATCH 0 — Prereqs (no code change, do once)
 =====================================================================
 - [x] `mkdir -p docs/plans` (done).
-- [ ] Confirm `cargo build` is green baseline: `cargo build --workspace`.
-- [ ] Snapshot `Cargo.lock` (git stash / tag) so we can diff later.
+- [x] Confirm `cargo build` is green baseline: `cargo build --workspace`.
+- [x] Snapshot `Cargo.lock` (git stash / tag) so we can diff later.
 GATE: baseline build passes.
 
 =====================================================================
 BATCH 1 — mnemosyne → library (substrate)
 =====================================================================
 [MANUAL] you move this; steps for when you do:
-- [ ] In `crates/spine/memory/annunimas-mnemosyne/Cargo.toml`: add lib
+- [ ] In `crates/old-annunimas/annunimas-mnemosyne/Cargo.toml`: add lib
       target if missing; keep `MnemosyneService` public.
 - [ ] For each of the 8 consumers (athena, charon, chronos, cli, hades,
       hermes, human, prometheus): replace

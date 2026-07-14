@@ -1,11 +1,11 @@
 //! Data-driven service registry for the Arda daemon.
 //!
-//! Services (launcher, HUD, the [`manwe`] gateway, later others) are described
+//! Services (launcher, HUD, the [`uinen`] gateway, later others) are described
 //! declaratively in a `services.toml` file instead of being hardcoded in
 //! `main.rs`. To add or remove an app, edit the toml in one place — no Rust
 //! source changes required.
 //!
-//! [`manwe`]: note the gateway's reserved local port `7171` is pinned in
+//! [`uinen`]: note the gateway's reserved local port `7171` is pinned in
 //! `services.toml`; per the frozen refactor contract nothing else may claim it.
 
 use std::path::PathBuf;
@@ -18,7 +18,7 @@ use crate::supervisor::Service;
 /// One entry in `services.toml`.
 #[derive(Debug, Clone, Deserialize)]
 pub struct ServiceSpec {
-    /// Stable identifier (e.g. `"arda-launcher"`, `"manwe"`).
+    /// Stable identifier (e.g. `"arda-launcher"`, `"uinen"`).
     pub name: String,
     /// Directory candidates (relative to the repo root) to search for the exe.
     #[serde(default)]

@@ -1,4 +1,4 @@
-# manwe — local inference gateway provider catalog.
+# uinen — local inference gateway provider catalog.
 #
 # base_url points at an OpenAI-compatible /v1 base (must end in /v1).
 # Models are referenced as "provider/model" (e.g. "ollama/llama3"); the

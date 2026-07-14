@@ -8,8 +8,8 @@ name = "annunimas_chronos"
 path = "src/lib.rs"
 
 [dependencies]
-annunimas-core = { path = "../../governance/annunimas-core" }
-annunimas-plutus = { path = "../../runtime/annunimas-plutus" }
+annunimas-core = { path = "../annunimas-core" }
+annunimas-plutus = { path = "../annunimas-plutus" }
 annunimas-mnemosyne = { path = "../annunimas-mnemosyne" }
 chrono = { version = "0.4", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }

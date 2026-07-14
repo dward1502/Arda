@@ -14,8 +14,8 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 sha2 = "0.10"
 annunimas-tool-harness = { path = "../annunimas-tool-harness" }
-annunimas-core = { path = "../../governance/annunimas-core", optional = true }
-annunimas-governance = { path = "../../governance/annunimas-governance", optional = true }
+annunimas-core = { path = "../annunimas-core", optional = true }
+annunimas-governance = { path = "../annunimas-governance", optional = true }
 chrono = { version = "0.4", features = ["serde"], optional = true }
 # ComfyUI HTTP transport (used by the generate pipeline)
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"], optional = true }

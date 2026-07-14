@@ -44,7 +44,7 @@ Actions:
 - annunimas-council -> staged feature project.
 - annunimas-forge-mind -> staged feature project.
 - annunimas-signal-grid -> staged feature project.
-- annunimas-service-registry -> staged feature project.
+- arda-service-registry -> staged feature project.
 - Keep backward-compatible remote references if integration is still desired.
 
 ## Stage S3. App extraction

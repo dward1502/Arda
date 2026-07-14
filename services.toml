@@ -28,7 +28,7 @@ names = ["arda-hud", "arda_hud"]
 required = false
 no_ui = true
 
-# Gateway (Annunimas `manwe`). Port 7171 is reserved workspace-wide per the
+# Gateway (`manwe`). Port 7171 is reserved workspace-wide per the
 # frozen refactor contract — nothing else may claim it.
 [[services]]
 name = "manwe"

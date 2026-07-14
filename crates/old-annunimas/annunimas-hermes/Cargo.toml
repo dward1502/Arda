@@ -23,13 +23,13 @@ native-tls = "0.2"
 annunimas-core.workspace = true
 annunimas-governance.workspace = true
 annunimas-oracle.workspace = true
-annunimas-mnemosyne = { path = "../../memory/annunimas-mnemosyne" }
-annunimas-plutus = { path = "../../runtime/annunimas-plutus" }
+annunimas-mnemosyne = { path = "../annunimas-mnemosyne" }
+annunimas-plutus = { path = "../annunimas-plutus" }
 annunimas-mcp = { path = "../annunimas-mcp" }
-annunimas-athena = { path = "../../executors/annunimas-athena" }
-annunimas-charon = { path = "../../runtime/annunimas-charon" }
-annunimas-hades = { path = "../../runtime/annunimas-hades" }
-annunimas-warden = { path = "../../tooling/annunimas-warden" }
+annunimas-athena = { path = "../annunimas-athena" }
+annunimas-charon = { path = "../annunimas-charon" }
+annunimas-hades = { path = "../annunimas-hades" }
+annunimas-warden = { path = "../annunimas-warden" }
 serenity.workspace = true
 axum = { version = "0.7", optional = true }
 tower = { version = "0.5", optional = true, features = ["util"] }

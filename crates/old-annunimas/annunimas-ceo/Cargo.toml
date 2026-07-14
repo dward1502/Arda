@@ -5,11 +5,11 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-annunimas-prometheus = { path = "../../observability/annunimas-prometheus" }
+annunimas-prometheus = { path = "../annunimas-prometheus" }
 
 [dev-dependencies]
 tokio = { version = "1.0", features = ["full"] }
 async-trait = "0.1"
 tempdir = "0.3"
-annunimas-core = { path = "../../governance/annunimas-core" }
+arda-core = { path = "../../spine/governance/arda-core" }
 serde_json = "1.0"

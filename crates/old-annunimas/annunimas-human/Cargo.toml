@@ -8,8 +8,8 @@ name = "annunimas_human"
 path = "src/lib.rs"
 
 [dependencies]
-annunimas-core = { path = "../../governance/annunimas-core" }
-annunimas-mnemosyne = { path = "../../memory/annunimas-mnemosyne" }
+annunimas-core = { path = "../annunimas-core" }
+annunimas-mnemosyne = { path = "../annunimas-mnemosyne" }
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9"
 serde_json = { workspace = true }

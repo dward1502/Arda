@@ -159,10 +159,10 @@ import fix is required (both apps have it).
 ## Section 4 — Parsing the vendored annunimas crates
 Goal: keep useful logic, drop the fleet/bloat, rename to Silmarillion.
 - [ ] For each `annunimas-*` crate: read its `lib.rs` + `INDEX.md`, list what it
-      actually does vs what the new local system needs.
+      actually does vs what the new local system needs. crates/old-annunimas/
 - [ ] Extract the useful core into a Silmarillion-named crate; delete the rest.
 - [ ] Order: manwe (Sec 2) → varda (ingest) → mandos (reasoning) → vaire (memory)
-      → orome (comms). Leave orchestration (arandur/aulë) for last.
+      → orome (comms). Leave orchestration (aulë) for last.
 - AI assist: per crate I'll produce a "keep / shrink / delete" sheet with file-level
   evidence before you touch anything.
 

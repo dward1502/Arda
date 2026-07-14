@@ -27,8 +27,6 @@ use annunimas_hermes::transport::{HermesDaemon, HermesDaemonConfig};
 use annunimas_hermes::{
     BoardroomPost, DiscordBot, HermesService, InboundMessage, InterruptionMessage,
 };
-use annunimas_mnemosyne::transport::ipc::send_command as mnemosyne_ipc_send_command;
-use annunimas_mnemosyne::transport::{MnemosyneDaemon, MnemosyneDaemonConfig};
 use annunimas_mnemosyne::{InformantEvent, MnemosyneService};
 use annunimas_oracle::transport::ipc::send_command as oracle_ipc_send_command;
 use annunimas_oracle::transport::{
@@ -85,7 +83,7 @@ use ipc_bridge::{
     apollo_call_or_local, athena_call_or_local, athena_ingest_batch_chunk,
     build_aipkg_preflight_receipt, charon_call_or_local, charon_call_or_local_async,
     hades_call_or_local, hermes_call_or_local, hermes_call_or_local_async, load_aipkg_manifest,
-    merge_batch_report, mnemosyne_call_or_local, oracle_call_or_local, parse_execution_priority,
+    merge_batch_report, oracle_call_or_local, parse_execution_priority,
     parse_joulework_unit, parse_json_input, plutus_call_or_local, prometheus_call_or_local,
     socket_path_from_env,
 };
@@ -1275,15 +1273,6 @@ enum RulesetCommands {
 
 #[derive(Subcommand)]
 enum MnemosyneCommands {
-    /// Start MNEMOSYNE daemon (IPC + optional HTTP/SSE)
-    Start {
-        #[arg(long, default_value_t = default_runtime_socket("mnemosyne.sock"))]
-        socket_path: String,
-        #[arg(long, default_value_t = default_loopback_addr(5115))]
-        http_addr: String,
-        #[arg(long, default_value_t = true, action = clap::ArgAction::Set)]
-        http_enabled: bool,
-    },
     /// Show memory service status
     Status,
     /// Show configured memory storage paths

@@ -9,10 +9,10 @@ name = "informant"                # New: sidecar binary
 path = "src/informant/main.rs"
 
 [dependencies]
-annunimas-core = { path = "../../governance/annunimas-core" }
-annunimas-governance = { path = "../../governance/annunimas-governance" }
-annunimas-oracle = { path = "../../runtime/annunimas-oracle" }
-annunimas-plutus = { path = "../../runtime/annunimas-plutus" }
+annunimas-core = { path = "../annunimas-core" }
+annunimas-governance = { path = "../annunimas-governance" }
+annunimas-oracle = { path = "../annunimas-oracle" }
+annunimas-plutus = { path = "../annunimas-plutus" }
 podman-api = "0.11"                # Podman API client
 tokio = { version = "1", features = ["full", "time"] }
 serde = { version = "1", features = ["derive"] }

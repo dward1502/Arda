@@ -17,11 +17,11 @@ soterion:
 ## Contents
 
 - `INDEX.md`
-- `annunimas-athena`
-- `annunimas-ceo`
-- `annunimas-human`
-- `annunimas-service-registry`
-- `annunimas-systemd`
+- `arda-athena`
+- `arda-ceo`
+- `arda-human`
+- `arda-service-registry`
+- `arda-systemd`
 
 ## Purpose
 

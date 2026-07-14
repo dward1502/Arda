@@ -17,7 +17,7 @@ soterion:
 ## Contents
 
 - `INDEX.md`
-- `annunimas-charon`
+- `manwe`
 - `annunimas-hades`
 - `annunimas-oracle`
 - `annunimas-plutus`

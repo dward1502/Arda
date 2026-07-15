@@ -17,9 +17,9 @@ soterion:
 ## Contents
 
 - `INDEX.md`
-- `annunimas-forge-mind`
-- `annunimas-tool-harness`
-- `annunimas-warden`
+- `arda-forge-mind`
+- `arda-tool-harness`
+- `arda-warden`
 
 ## Purpose
 

@@ -1,19 +1,19 @@
 // sigil: REPAIR
 //! CEO autopilot binary — runs the autonomous loop or a single cycle.
 
-use annunimas_prometheus::autopilot::{ceo_loop, AutopilotConfig, CeoAutopilot};
+use arda_prometheus::autopilot::{ceo_loop, AutopilotConfig, CeoAutopilot};
 use std::path::PathBuf;
 use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 use std::time::Duration;
 
 fn parse_args() -> (PathBuf, bool, bool, Option<u64>) {
-    let mut root = std::env::var("ANNUNIMAS_ROOT")
+    let mut root = std::env::var("ARDA_ROOT")
         .map(PathBuf::from)
         .unwrap_or_else(|_| std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")));
     let mut once = false;
-    let mut read_only = std::env::var("ANNUNIMAS_CEO_READ_ONLY").ok().as_deref() == Some("1");
-    let mut interval: Option<u64> = std::env::var("ANNUNIMAS_CEO_INTERVAL_SECONDS")
+    let mut read_only = std::env::var("ARDA_CEO_READ_ONLY").ok().as_deref() == Some("1");
+    let mut interval: Option<u64> = std::env::var("ARDA_CEO_INTERVAL_SECONDS")
         .ok()
         .and_then(|s| s.parse().ok());
     let mut args = std::env::args().skip(1);
@@ -49,12 +49,12 @@ async fn main() -> std::io::Result<()> {
     if let Some(s) = interval {
         cfg.interval = Duration::from_secs(s);
     }
-    if let Ok(raw) = std::env::var("ANNUNIMAS_CEO_JOULE_CYCLE_LIMIT") {
+    if let Ok(raw) = std::env::var("ARDA_CEO_JOULE_CYCLE_LIMIT") {
         if let Ok(limit) = raw.parse::<f64>() {
             cfg.joule_cycle_limit = limit;
         }
     }
-    if let Ok(raw) = std::env::var("ANNUNIMAS_CEO_JOULE_HOURLY_LIMIT") {
+    if let Ok(raw) = std::env::var("ARDA_CEO_JOULE_HOURLY_LIMIT") {
         if let Ok(limit) = raw.parse::<f64>() {
             cfg.joule_hourly_limit = limit;
         }

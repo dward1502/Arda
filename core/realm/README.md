@@ -13,13 +13,13 @@ soterion:
 
 # Realm
 
-**Location:** `/var/home/mythos/Annunimas/core/realm`
+**Location:** `/var/home/mythos/Arda/core/realm`
 **Created:** 2026-04-12
 
 ## Overview
 
 This directory contains realm configuration and identity files.
-Realms represent sovereign domains within the Annunimas system.
+Realms represent sovereign domains within the Arda system.
 
 ## Structure
 
@@ -34,19 +34,19 @@ Realms represent sovereign domains within the Annunimas system.
 ## Key Files
 
 **All Files:**
-- [`agents.toml`](/var/home/mythos/Annunimas/core/realm/agents.toml) - 20,383 bytes
-- [`annunimas.toml`](/var/home/mythos/Annunimas/core/realm/annunimas.toml) - 4,953 bytes
-- [`boot.toml`](/var/home/mythos/Annunimas/core/realm/boot.toml) - 5,032 bytes
-- [`game_theory.rs`](/var/home/mythos/Annunimas/core/realm/game_theory.rs) - 174 bytes
-- [`joulework.rs`](/var/home/mythos/Annunimas/core/realm/joulework.rs) - 193 bytes
-- [`llm_hook.rs`](/var/home/mythos/Annunimas/core/realm/llm_hook.rs) - 164 bytes
-- [`love_equation.rs`](/var/home/mythos/Annunimas/core/realm/love_equation.rs) - 165 bytes
-- [`soterion.rs`](/var/home/mythos/Annunimas/core/realm/soterion.rs) - 153 bytes
-- [`triad_gate.rs`](/var/home/mythos/Annunimas/core/realm/triad_gate.rs) - 267 bytes
+- [`agents.toml`](/var/home/mythos/Arda/core/realm/agents.toml) - 20,383 bytes
+- [`arda.toml`](/var/home/mythos/Arda/core/realm/arda.toml) - 4,953 bytes
+- [`boot.toml`](/var/home/mythos/Arda/core/realm/boot.toml) - 5,032 bytes
+- [`game_theory.rs`](/var/home/mythos/Arda/core/realm/game_theory.rs) - 174 bytes
+- [`joulework.rs`](/var/home/mythos/Arda/core/realm/joulework.rs) - 193 bytes
+- [`llm_hook.rs`](/var/home/mythos/Arda/core/realm/llm_hook.rs) - 164 bytes
+- [`love_equation.rs`](/var/home/mythos/Arda/core/realm/love_equation.rs) - 165 bytes
+- [`soterion.rs`](/var/home/mythos/Arda/core/realm/soterion.rs) - 153 bytes
+- [`triad_gate.rs`](/var/home/mythos/Arda/core/realm/triad_gate.rs) - 267 bytes
 
 ## Usage
 
-This directory is managed by the Annunimas system. Do not modify files directly unless you understand the system implications.
+This directory is managed by the Arda system. Do not modify files directly unless you understand the system implications.
 
 ## Maintenance
 
@@ -56,4 +56,4 @@ This directory is managed by the Annunimas system. Do not modify files directly 
 
 ## Related Components
 
-- [annunimas-governance](/var/home/mythos/Annunimas/crates/annunimas-governance) - Realm management
+- [arda-governance](/var/home/mythos/Arda/crates/arda-governance) - Realm management

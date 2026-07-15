@@ -17,8 +17,8 @@ soterion:
 ## Contents
 
 - `INDEX.md`
-- `annunimas-chronos`
-- `annunimas-mnemosyne`
+- `arda-chronos`
+- `arda-mnemosyne`
 
 ## Purpose
 

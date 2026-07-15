@@ -13,7 +13,7 @@ soterion:
 
 # Projects
 
-**Location:** `/var/home/mythos/Annunimas/core/projects`
+**Location:** `/var/home/mythos/Arda/core/projects`
 **Created:** 2026-04-12
 
 ## Overview
@@ -35,9 +35,9 @@ Projects represent ongoing initiatives and workstreams.
 ## Key Files
 
 **All Files:**
-- [`_registry.toml`](/var/home/mythos/Annunimas/core/projects/_registry.toml) - 5,504 bytes
-- [`backlog_post_v01.jsonl`](/var/home/mythos/Annunimas/core/projects/backlog_post_v01.jsonl) - 12,875 bytes
-- [`plan.md`](/var/home/mythos/Annunimas/core/projects/plan.md) - 5,865 bytes
+- [`_registry.toml`](/var/home/mythos/Arda/core/projects/_registry.toml) - 5,504 bytes
+- [`backlog_post_v01.jsonl`](/var/home/mythos/Arda/core/projects/backlog_post_v01.jsonl) - 12,875 bytes
+- [`plan.md`](/var/home/mythos/Arda/core/projects/plan.md) - 5,865 bytes
 
 ## Subdirectories
 
@@ -56,4 +56,4 @@ This directory contains operational data that drives system workflows. Modify wi
 
 ## Related Components
 
-- [annunimas-apollo](/var/home/mythos/Annunimas/crates/annunimas-apollo) - Project workflows
+- [arda-apollo](/var/home/mythos/Arda/crates/arda-apollo) - Project workflows

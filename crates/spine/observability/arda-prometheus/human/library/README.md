@@ -13,7 +13,7 @@ soterion:
 
 # library
 
-Purpose: HADES-generated directory overview for `crates/annunimas-prometheus/human/library`.
+Purpose: HADES-generated directory overview for `crates/arda-prometheus/human/library`.
 
 ## Contents
 

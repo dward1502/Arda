@@ -1,16 +1,16 @@
 // sigil: REPAIR
 use crate::service::PrometheusService;
-use annunimas_core::daemon::{CommandEnvelope, ResponseEnvelope};
-use annunimas_core::error::{AnnunimasError, Result};
-use annunimas_core::spawn_bounded_background;
+use arda_core::daemon::{CommandEnvelope, ResponseEnvelope};
+use arda_core::error::{ArdaError, Result};
+use arda_core::spawn_bounded_background;
 use serde_json::{json, Value};
 use std::path::PathBuf;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::{UnixListener, UnixStream};
 
 #[inline]
-fn agent_err(message: impl Into<String>) -> AnnunimasError {
-    AnnunimasError::Agent {
+fn agent_err(message: impl Into<String>) -> ArdaError {
+    ArdaError::Agent {
         agent: "prometheus".to_owned(),
         message: message.into(),
     }
@@ -49,7 +49,7 @@ pub async fn run_ipc_server(service: PrometheusService, socket_path: PathBuf) ->
 }
 
 fn ipc_connection_limit() -> usize {
-    std::env::var("ANNUNIMAS_PROMETHEUS_IPC_MAX_CONCURRENCY")
+    std::env::var("ARDA_PROMETHEUS_IPC_MAX_CONCURRENCY")
         .ok()
         .and_then(|raw| raw.parse::<usize>().ok())
         .filter(|value| *value > 0)

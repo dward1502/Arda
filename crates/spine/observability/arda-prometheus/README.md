@@ -13,7 +13,7 @@ soterion:
 
 # sigil: REPAIR
 ---
-crate: annunimas-prometheus
+crate: arda-prometheus
 kind: orchestrator
 agent: prometheus
 realm: command
@@ -27,7 +27,7 @@ status: active
 search_tags: [prometheus, ceo, pipeline, orchestration, command]
 ---
 
-# annunimas-prometheus
+# arda-prometheus
 
 Canonical executive orchestrator crate aligned with `core/projects/Plans/PROMETHEUS.md`.
 

@@ -1491,8 +1491,8 @@
     ]
   },
   "paths": {
-    "home": "/var/home/mythos/Annunimas/data/plutus",
-    "status_path": "/var/home/mythos/Annunimas/data/plutus/runtime_status.json"
+    "home": "/var/home/mythos/Arda/data/plutus",
+    "status_path": "/var/home/mythos/Arda/data/plutus/runtime_status.json"
   },
-  "schema_version": "annunimas.plutus.runtime.v1"
+  "schema_version": "arda.plutus.runtime.v1"
 }

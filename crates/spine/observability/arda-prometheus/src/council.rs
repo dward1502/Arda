@@ -1,8 +1,8 @@
 // sigil: REPAIR
 use crate::registry::AgentRosterSnapshot;
-use annunimas_core::task::Task;
-use annunimas_council::council::{CouncilQuery, CouncilSeat, QueryMode};
-use annunimas_council::service::build_brief;
+use arda_core::task::Task;
+use arda_council::council::{CouncilQuery, CouncilSeat, QueryMode};
+use arda_council::service::build_brief;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -178,7 +178,7 @@ fn council_seat_name(seat: CouncilSeat) -> &'static str {
 mod tests {
     use super::{run_council_gate, CouncilGateConfig};
     use crate::registry::{AgentRosterSnapshot, AgentStatus};
-    use annunimas_core::task::Task;
+    use arda_core::task::Task;
 
     #[test]
     fn council_reduces_when_low_availability() {

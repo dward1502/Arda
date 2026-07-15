@@ -5,11 +5,11 @@
 
 use super::decomposer::{Objective, PlannedTask};
 use super::oracle_gate::GateDecision;
-use annunimas_core::agent::Agent;
-use annunimas_core::error::Result;
-use annunimas_core::ledger::Ledger;
-use annunimas_core::router::Router;
-use annunimas_core::task::Task;
+use arda_core::agent::Agent;
+use arda_core::error::Result;
+use arda_core::ledger::Ledger;
+use arda_core::router::Router;
+use arda_core::task::Task;
 use async_trait::async_trait;
 use std::path::Path;
 
@@ -75,7 +75,7 @@ impl Agent for AutopilotPipelineAgent {
 mod tests {
     use super::super::decomposer::Priority;
     use super::*;
-    use annunimas_core::task::TaskStatus;
+    use arda_core::task::TaskStatus;
 
     #[tokio::test]
     async fn submits_approved_plan_to_pipeline() {

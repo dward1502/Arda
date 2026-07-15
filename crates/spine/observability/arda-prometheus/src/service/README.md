@@ -13,7 +13,7 @@ soterion:
 
 # service
 
-Purpose: HADES-generated directory overview for `crates/annunimas-prometheus/src/service`.
+Purpose: HADES-generated directory overview for `crates/arda-prometheus/src/service`.
 
 ## Contents
 

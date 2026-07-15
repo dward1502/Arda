@@ -49,6 +49,9 @@ impl ServiceRegistry {
     }
 
     /// Validate and insert a contract. Returns the new `ServiceRecord`.
+    ///
+    /// Rejects duplicate names with `RegistryError::Duplicate`; use
+    /// `unregister` first if a contract must be re-registered.
     pub fn upsert_contract(&mut self, contract: ServiceContract) -> Result<ServiceRecord, RegistryError> {
         if contract.name.trim().is_empty() {
             return Err(RegistryError::Invalid(
@@ -57,11 +60,12 @@ impl ServiceRegistry {
             ));
         }
 
-        let record = self
-            .records
-            .entry(contract.name.clone())
-            .or_insert_with(|| ServiceRecord::new(contract))
-            .clone();
+        if self.records.contains_key(&contract.name) {
+            return Err(RegistryError::Duplicate(contract.name));
+        }
+
+        let record = ServiceRecord::new(contract);
+        self.records.insert(record.contract.name.clone(), record.clone());
 
         Ok(record)
     }

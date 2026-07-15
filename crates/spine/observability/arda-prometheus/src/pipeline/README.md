@@ -13,7 +13,7 @@ soterion:
 
 # pipeline
 
-Purpose: HADES-generated directory overview for `crates/annunimas-prometheus/src/pipeline`.
+Purpose: HADES-generated directory overview for `crates/arda-prometheus/src/pipeline`.
 
 ## Contents
 

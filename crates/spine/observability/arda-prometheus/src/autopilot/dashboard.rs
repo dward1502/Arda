@@ -47,7 +47,7 @@ pub fn build_snapshot(
         snap.alerts.push(Alert {
             severity: AlertSeverity::Critical,
             source: "systemd".into(),
-            message: format!("{} annunimas service(s) failed", services.failed),
+            message: format!("{} arda service(s) failed", services.failed),
         });
     }
     if queue.aging_oldest_pending_secs.unwrap_or(0) > 86_400 {

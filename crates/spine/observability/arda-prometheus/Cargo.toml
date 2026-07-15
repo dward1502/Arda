@@ -1,6 +1,6 @@
 # sigil: REPAIR
 [package]
-name = "annunimas-prometheus"
+name = "arda-prometheus"
 version = "0.1.0"
 edition = "2021"
 
@@ -9,16 +9,16 @@ default = ["http"]
 http = ["dep:axum", "dep:tower", "dep:tokio-stream"]
 
 [dependencies]
-annunimas-core = { path = "../annunimas-core" }
-annunimas-council = { path = "../annunimas-council" }
-annunimas-governance = { path = "../annunimas-governance" }
-annunimas-hermes = { path = "../annunimas-hermes" }
-annunimas-mnemosyne = { path = "../annunimas-mnemosyne" }
-annunimas-fleet = { path = "../annunimas-fleet" }
-annunimas-apollo = { path = "../annunimas-apollo", default-features = false }
-annunimas-oracle = { path = "../annunimas-oracle", default-features = false }
-annunimas-comm = { path = "../annunimas-comm" }
-annunimas-systemd = { path = "../annunimas-systemd" }
+arda-core.workspace = true
+arda-council = { path = "../arda-council" }
+arda-governance = { path = "../arda-governance" }
+arda-hermes = { path = "../arda-hermes" }
+arda-mnemosyne = { path = "../arda-mnemosyne" }
+arda-fleet = { path = "../arda-fleet" }
+arda-apollo = { path = "../arda-apollo", default-features = false }
+arda-oracle = { path = "../arda-oracle", default-features = false }
+arda-comm = { path = "../arda-comm" }
+arda-systemd = { path = "../arda-systemd" }
 serde_json = "1"
 serde = { version = "1", features = ["derive"] }
 toml = "0.8"
@@ -34,7 +34,7 @@ tower = { version = "0.5", optional = true, features = ["util"] }
 tokio-stream = { version = "0.1", optional = true, features = ["time"] }
 
 [dev-dependencies]
-annunimas-charon = { path = "../annunimas-charon" }
+arda-charon = { path = "../arda-charon" }
 anyhow = "1"
 tempfile = "3"
 proptest = "1"

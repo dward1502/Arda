@@ -21,7 +21,6 @@ soterion:
 - `arda-ceo`
 - `arda-human`
 - `arda-service-registry`
-- `arda-systemd`
 
 ## Purpose
 

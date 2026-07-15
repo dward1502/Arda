@@ -12,7 +12,7 @@ soterion:
 
 > 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-13
 
-# Index: crates/executors/annunimas-service-registry/tests/INDEX.md
+# Index: crates/executors/arda-service-registry/tests/INDEX.md
 
 ## Contents
 

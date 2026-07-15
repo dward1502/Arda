@@ -1,16 +1,16 @@
-use annunimas_charon::types::{RouteGovernance, RouteLoveEquationGuard};
-use annunimas_charon::RouteDecision;
-use annunimas_core::agent::Agent;
-use annunimas_core::error::Result as AnnunimasResult;
-use annunimas_core::ledger::Ledger;
-use annunimas_core::router::Router;
-use annunimas_core::task::{Task, TaskStatus};
-use annunimas_governance::{triad_validate, TriadConfig};
-use annunimas_prometheus::autopilot::decomposer::{Objective, PlannedTask, Priority};
-use annunimas_prometheus::autopilot::governance_policy::{
+use arda_charon::types::{RouteGovernance, RouteLoveEquationGuard};
+use arda_charon::RouteDecision;
+use arda_core::agent::Agent;
+use arda_core::error::Result as ArdaResult;
+use arda_core::ledger::Ledger;
+use arda_core::router::Router;
+use arda_core::task::{Task, TaskStatus};
+use arda_governance::{triad_validate, TriadConfig};
+use arda_prometheus::autopilot::decomposer::{Objective, PlannedTask, Priority};
+use arda_prometheus::autopilot::governance_policy::{
     GovernanceDecision, GovernanceGate, GovernancePolicy, TriadGateScore, TriadQuorumEvidence,
 };
-use annunimas_prometheus::Pipeline;
+use arda_prometheus::Pipeline;
 use async_trait::async_trait;
 use chrono::Utc;
 use serde_json::{json, Value};
@@ -35,7 +35,7 @@ impl Agent for HermesMeshSmokeAgent {
         &["dispatch"]
     }
 
-    async fn execute(&self, task: &mut Task) -> AnnunimasResult<()> {
+    async fn execute(&self, task: &mut Task) -> ArdaResult<()> {
         task.start_execution();
         task.complete(json!({
             "status": "completed",
@@ -51,7 +51,7 @@ impl Agent for HermesMeshSmokeAgent {
 async fn gate3_end_to_end_mesh_proof_is_reloadable_and_isolated() -> anyhow::Result<()> {
     let root = artifact_root()?;
     prepare_root(&root)?;
-    env::set_var("ANNUNIMAS_ROOT", &root);
+    env::set_var("ARDA_ROOT", &root);
 
     let evidence_path = root.join("data/mesh_smoke/evidence.jsonl");
     let queue_path = root.join("core/projects/tasks/queue.jsonl");
@@ -321,7 +321,7 @@ async fn gate3_end_to_end_mesh_proof_is_reloadable_and_isolated() -> anyhow::Res
 }
 
 fn artifact_root() -> anyhow::Result<PathBuf> {
-    if let Ok(path) = env::var("ANNUNIMAS_MESH_SMOKE_ARTIFACT_DIR") {
+    if let Ok(path) = env::var("ARDA_MESH_SMOKE_ARTIFACT_DIR") {
         return Ok(PathBuf::from(path));
     }
     let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
@@ -333,7 +333,7 @@ fn artifact_root() -> anyhow::Result<PathBuf> {
 }
 
 fn prepare_root(root: &Path) -> anyhow::Result<()> {
-    let keep = env::var("ANNUNIMAS_MESH_SMOKE_KEEP_ARTIFACTS")
+    let keep = env::var("ARDA_MESH_SMOKE_KEEP_ARTIFACTS")
         .map(|value| value == "1" || value.eq_ignore_ascii_case("true"))
         .unwrap_or(false);
     if root.exists() && !keep {
@@ -348,7 +348,7 @@ fn prepare_root(root: &Path) -> anyhow::Result<()> {
 
 fn deterministic_task() -> anyhow::Result<Task> {
     let mut task = Task::new(
-        "route dispatch evidence via https://annunimas.local/gate3 because proof 3 needs deterministic source evidence",
+        "route dispatch evidence via https://arda.local/gate3 because proof 3 needs deterministic source evidence",
         "dispatch",
     );
     task.id = Uuid::parse_str(TASK_ID)?;

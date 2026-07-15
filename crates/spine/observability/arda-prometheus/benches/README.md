@@ -13,7 +13,7 @@ soterion:
 
 # benches
 
-Purpose: HADES-generated directory overview for `crates/annunimas-prometheus/benches`.
+Purpose: HADES-generated directory overview for `crates/arda-prometheus/benches`.
 
 ## Contents
 

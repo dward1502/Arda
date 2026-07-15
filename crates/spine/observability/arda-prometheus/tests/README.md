@@ -13,7 +13,7 @@ soterion:
 
 # tests
 
-Purpose: HADES-generated directory overview for `crates/annunimas-prometheus/tests`.
+Purpose: HADES-generated directory overview for `crates/arda-prometheus/tests`.
 
 ## Contents
 

@@ -4,7 +4,7 @@
 use serde::Serialize;
 use std::path::{Path, PathBuf};
 
-pub const SOURCE_REGISTRY_CONTRACT: &str = "annunimas.arandur.source_registry.v1";
+pub const SOURCE_REGISTRY_CONTRACT: &str = "arda.arandur.source_registry.v1";
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -39,7 +39,7 @@ impl SourceRegistry {
             contract: SOURCE_REGISTRY_CONTRACT.into(),
             sources: vec![
                 SourceDescriptor {
-                    contract: "annunimas.h2a.approvals.v1".into(),
+                    contract: "arda.h2a.approvals.v1".into(),
                     source_type: ArandurSourceType::HumanApproval,
                     path: root.join("data/comm/h2a.jsonl"),
                     record_id_field: "objective.id".into(),
@@ -47,7 +47,7 @@ impl SourceRegistry {
                     canonical_queue_mutation_allowed: false,
                 },
                 SourceDescriptor {
-                    contract: "annunimas.prometheus.objective_inbox.v1".into(),
+                    contract: "arda.prometheus.objective_inbox.v1".into(),
                     source_type: ArandurSourceType::ObjectiveInbox,
                     path: root.join("core/projects/objectives/inbox.jsonl"),
                     record_id_field: "id".into(),
@@ -55,7 +55,7 @@ impl SourceRegistry {
                     canonical_queue_mutation_allowed: false,
                 },
                 SourceDescriptor {
-                    contract: "annunimas.arandur.recommendations.v1".into(),
+                    contract: "arda.arandur.recommendations.v1".into(),
                     source_type: ArandurSourceType::ArandurRecommendation,
                     path: root.join("data/arandur/recommendations.jsonl"),
                     record_id_field: "recommendation_id".into(),
@@ -63,7 +63,7 @@ impl SourceRegistry {
                     canonical_queue_mutation_allowed: false,
                 },
                 SourceDescriptor {
-                    contract: "annunimas.canonical_task_queue.v1".into(),
+                    contract: "arda.canonical_task_queue.v1".into(),
                     source_type: ArandurSourceType::CanonicalQueue,
                     path: root.join("core/projects/tasks/queue.jsonl"),
                     record_id_field: "source_record_id|id".into(),
@@ -93,12 +93,12 @@ mod tests {
 
     #[test]
     fn arandur_default_declares_universal_discovery_sources() {
-        let registry = SourceRegistry::arandur_default("/annunimas");
+        let registry = SourceRegistry::arandur_default("/arda");
 
         assert_eq!(registry.contract, SOURCE_REGISTRY_CONTRACT);
         assert_eq!(registry.active_sources().count(), 4);
         assert!(registry
-            .by_contract("annunimas.canonical_task_queue.v1")
+            .by_contract("arda.canonical_task_queue.v1")
             .is_some());
         assert!(registry
             .sources
@@ -108,9 +108,9 @@ mod tests {
 
     #[test]
     fn canonical_queue_source_declares_effective_record_key() {
-        let registry = SourceRegistry::arandur_default("/annunimas");
+        let registry = SourceRegistry::arandur_default("/arda");
         let queue = registry
-            .by_contract("annunimas.canonical_task_queue.v1")
+            .by_contract("arda.canonical_task_queue.v1")
             .expect("canonical queue source should exist");
 
         assert_eq!(queue.record_id_field, "source_record_id|id");

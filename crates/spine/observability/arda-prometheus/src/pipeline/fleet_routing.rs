@@ -1,8 +1,8 @@
 use crate::orders::OrderStatus;
 use crate::pipeline::Pipeline;
-use annunimas_core::error::Result;
-use annunimas_core::message::Message;
-use annunimas_core::task::{Task, TaskStatus};
+use Arda_core::error::Result;
+use Arda_core::message::Message;
+use Arda_core::task::{Task, TaskStatus};
 
 impl Pipeline {
     pub(super) async fn try_fleet_or_external_route(
@@ -93,7 +93,7 @@ impl Pipeline {
                         let messages = vec![
                             serde_json::json!({
                                 "role": "system",
-                                "content": "You are Annunimas, an autonomous CEO agent system."
+                                "content": "You are Arda, an autonomous CEO agent system."
                             }),
                             serde_json::json!({
                                 "role": "user",

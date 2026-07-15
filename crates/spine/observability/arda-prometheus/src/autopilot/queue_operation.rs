@@ -8,7 +8,7 @@ use super::queue_writer::append_plan_to_queue_with_gate_metadata;
 use serde::Serialize;
 use std::path::Path;
 
-pub const QUEUE_OPERATION_CONTRACT: &str = "annunimas.arandur.queue_operation.v1";
+pub const QUEUE_OPERATION_CONTRACT: &str = "arda.arandur.queue_operation.v1";
 
 #[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
@@ -178,7 +178,7 @@ mod tests {
 
     fn packet(selected: bool, approval_packet_id: Option<String>) -> ObjectivePacket {
         let mut packet = ObjectivePacket::from_report(
-            "annunimas.arandur.recommendations.v1",
+            "arda.arandur.recommendations.v1",
             ArandurSourceType::ArandurRecommendation,
             ObjectivePacketInput {
                 source_path: "/repo/data/arandur/recommendations.jsonl".into(),

@@ -260,7 +260,7 @@ pub fn write_package_health_projection(core_root: &Path) {
     )
     .unwrap_or_else(|| {
         json!({
-            "schema_version": "annunimas.package.health.v1",
+            "schema_version": "arda.package.health.v1",
             "authority": "package_observation_export",
             "summary": {"tools_total": 0, "critical_tools_total": 0, "critical_attention_required": []},
             "tools": []

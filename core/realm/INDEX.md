@@ -15,7 +15,7 @@ soterion:
 
 - `README.md`
 - `agents.toml`
-- `annunimas.toml`
+- `arda.toml`
 - `boot.toml`
 - `game_theory.rs`
 - `joulework.rs`

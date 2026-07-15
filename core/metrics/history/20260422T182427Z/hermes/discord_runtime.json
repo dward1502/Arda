@@ -25,7 +25,7 @@
     "activation_status": "planned",
     "roadmap_posture": "keep_bounded_optional_bridge_and_defer_mcp"
   },
-  "schema_version": "annunimas.hermes-discord-runtime.v1",
+  "schema_version": "arda.hermes-discord-runtime.v1",
   "summary": {
     "bridge_governed": true,
     "delivery_posture": "online_no_recent_delivery_receipt",

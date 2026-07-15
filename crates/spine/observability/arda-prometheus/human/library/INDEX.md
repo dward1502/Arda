@@ -12,7 +12,7 @@ soterion:
 
 > 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-13
 
-# Index: crates/observability/annunimas-prometheus/human/library/INDEX.md
+# Index: crates/observability/arda-prometheus/human/library/INDEX.md
 
 ## Contents
 
@@ -22,7 +22,7 @@ soterion:
 
 ## Purpose
 
-Crate index for `crates/observability/annunimas-prometheus/human/library/INDEX.md`. See sibling `INDEX.md` for bucket metadata.
+Crate index for `crates/observability/arda-prometheus/human/library/INDEX.md`. See sibling `INDEX.md` for bucket metadata.
 
 ## Notes
 

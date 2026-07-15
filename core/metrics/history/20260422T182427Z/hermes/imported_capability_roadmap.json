@@ -29,7 +29,7 @@
   ],
   "generated_at_utc": "2026-04-22T21:57:54Z",
   "mission": "Use imported Discord memory to clarify Hermes comms posture without treating community or MCP surfaces as mandatory runtime dependencies.",
-  "schema_version": "annunimas.hermes-imported-capability-roadmap.v1",
+  "schema_version": "arda.hermes-imported-capability-roadmap.v1",
   "source_lineage": [
     "/var/home/mythos/Numenor_Prime/Elros/missions/MISSION_DISCORD_MCP.md",
     "/var/home/mythos/Numenor_Prime/Knowledge/Ingest/discord-mcp_2026-02-21.md",

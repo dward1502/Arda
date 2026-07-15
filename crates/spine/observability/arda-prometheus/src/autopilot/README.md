@@ -13,7 +13,7 @@ soterion:
 
 # autopilot
 
-Purpose: HADES-generated directory overview for `crates/annunimas-prometheus/src/autopilot`.
+Purpose: HADES-generated directory overview for `crates/arda-prometheus/src/autopilot`.
 
 ## Contents
 

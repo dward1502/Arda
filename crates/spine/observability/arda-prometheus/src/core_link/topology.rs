@@ -44,7 +44,7 @@ pub(super) fn write_runtime_topology_projection(core_root: &Path) {
         .cloned()
         .unwrap_or_else(|| json!({}));
 
-    let supervisor_order_raw = std::env::var("ANNUNIMAS_SUPERVISOR_AGENT_ORDER")
+    let supervisor_order_raw = std::env::var("ARDA_SUPERVISOR_AGENT_ORDER")
         .unwrap_or_else(|_| "prometheus,charon,hermes,hades,athena,mnemosyne".to_string());
     let local_supervisor_order = supervisor_order_raw
         .split(',')
@@ -60,7 +60,7 @@ pub(super) fn write_runtime_topology_projection(core_root: &Path) {
             "sovereign_ceo_agent_id": "arandur",
             "sovereign_ceo_title": "Sovereign Executive Intelligence",
             "local_executable_ceo_runtime": "prometheus",
-            "compatibility_shim": "annunimas-ceo reexports annunimas-prometheus"
+            "compatibility_shim": "arda-ceo reexports arda-prometheus"
         },
         "topology": {
             "control_plane_split": "sovereign_identity_vs_executable_runtime",
@@ -74,8 +74,8 @@ pub(super) fn write_runtime_topology_projection(core_root: &Path) {
             "primary_runtime_agent": "prometheus",
             "supervisor_scope": "same_host_daemons_only",
             "supervisor_order": local_supervisor_order,
-            "max_starts_per_pass": std::env::var("ANNUNIMAS_SUPERVISOR_MAX_STARTS_PER_PASS").unwrap_or_else(|_| "1".to_string()),
-            "start_stagger_ms": std::env::var("ANNUNIMAS_SUPERVISOR_START_STAGGER_MS").unwrap_or_else(|_| "750".to_string()),
+            "max_starts_per_pass": std::env::var("ARDA_SUPERVISOR_MAX_STARTS_PER_PASS").unwrap_or_else(|_| "1".to_string()),
+            "start_stagger_ms": std::env::var("ARDA_SUPERVISOR_START_STAGGER_MS").unwrap_or_else(|_| "750".to_string()),
             "managed_agents": ["prometheus", "charon", "hermes", "hades", "athena", "mnemosyne"],
             "deferred_or_remote_agents": ["warden", "oracle", "plutus", "apollo"],
             "ceo_authority_surface": "core/state/world.json"
@@ -216,7 +216,7 @@ pub(super) fn write_charon_router_projection(core_root: &Path) {
         .find(|provider| provider.get("id").and_then(Value::as_str) == Some("local_fallback"))
         .cloned()
         .unwrap_or_else(|| json!({}));
-    let tool_context_floor = std::env::var("ANNUNIMAS_CHARON_TOOL_EXECUTION_MIN_CONTEXT")
+    let tool_context_floor = std::env::var("ARDA_CHARON_TOOL_EXECUTION_MIN_CONTEXT")
         .ok()
         .and_then(|value| value.parse::<u64>().ok())
         .filter(|value| *value >= 16_000)
@@ -238,11 +238,11 @@ pub(super) fn write_charon_router_projection(core_root: &Path) {
         "authority": "charon_router_projection",
         "status": status,
         "routing_defaults": {
-            "privacy_tier": std::env::var("ANNUNIMAS_ROUTE_PRIVACY_DEFAULT").unwrap_or_else(|_| "public".to_string()),
-            "cost_tier": std::env::var("ANNUNIMAS_ROUTE_COST_DEFAULT").unwrap_or_else(|_| "balanced".to_string()),
-            "quality_tier": std::env::var("ANNUNIMAS_ROUTE_QUALITY_DEFAULT").unwrap_or_else(|_| "balanced".to_string()),
-            "origin_preference": std::env::var("ANNUNIMAS_ROUTE_ORIGIN_DEFAULT").unwrap_or_else(|_| "auto".to_string()),
-            "latency_sla_ms": std::env::var("ANNUNIMAS_ROUTE_LATENCY_SLA_MS").ok().and_then(|v| v.parse::<u64>().ok())
+            "privacy_tier": std::env::var("ARDA_ROUTE_PRIVACY_DEFAULT").unwrap_or_else(|_| "public".to_string()),
+            "cost_tier": std::env::var("ARDA_ROUTE_COST_DEFAULT").unwrap_or_else(|_| "balanced".to_string()),
+            "quality_tier": std::env::var("ARDA_ROUTE_QUALITY_DEFAULT").unwrap_or_else(|_| "balanced".to_string()),
+            "origin_preference": std::env::var("ARDA_ROUTE_ORIGIN_DEFAULT").unwrap_or_else(|_| "auto".to_string()),
+            "latency_sla_ms": std::env::var("ARDA_ROUTE_LATENCY_SLA_MS").ok().and_then(|v| v.parse::<u64>().ok())
         },
         "provider_pressure": {
             "providers": provider_rows,
@@ -283,11 +283,11 @@ fn read_charon_http_json(workspace_root: &Path, path: &str) -> Option<Value> {
         return None;
     }
 
-    let addr = std::env::var("ANNUNIMAS_CHARON_HTTP_HOST")
+    let addr = std::env::var("ARDA_CHARON_HTTP_HOST")
         .ok()
         .filter(|host| matches!(host.as_str(), "127.0.0.1" | "localhost"))
         .map(|host| {
-            let port = std::env::var("ANNUNIMAS_CHARON_HTTP_PORT")
+            let port = std::env::var("ARDA_CHARON_HTTP_PORT")
                 .ok()
                 .and_then(|value| value.parse::<u16>().ok())
                 .unwrap_or(5110);

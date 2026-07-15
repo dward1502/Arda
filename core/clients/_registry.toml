@@ -1,10 +1,10 @@
 # sigil: REPAIR
 # ============================================================
-# ANNUNIMAS CLIENT REGISTRY
+# Arda CLIENT REGISTRY
 # core/clients/_registry.toml
 #
 # 𓆣 Plutus — JouleWork Sovereign
-# ◈ Master record of all clients served by Annunimas
+# ◈ Master record of all clients served by Arda
 # ============================================================
 # RULES:
 #   - Every client gets a slug (directory name)
@@ -129,7 +129,7 @@ industry    = "Pool installation and maintenance"
 revenue_range = "$1M-$5M"
 description = """
 First external AIS client. Pool company in San Diego area.
-Annunimas deployed as on-premises AI business operating system.
+Arda deployed as on-premises AI business operating system.
 Positioned as alternative to expensive enterprise software.
 Full data sovereignty — no data leaves their premises.
 Focus: operations automation, customer management, scheduling,

@@ -1,0 +1,42 @@
+# sigil: REPAIR
+[package]
+name = "annunimas-cli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+arda-core.workspace = true
+arda-onboarding = { path = "../../spine/interface/arda-onboarding" }
+annunimas-prometheus = { path = "../annunimas-prometheus" }
+annunimas-athena = { path = "../annunimas-athena" }
+annunimas-hades = { path = "../annunimas-hades" }
+annunimas-hermes = { path = "../annunimas-hermes", features = ["http"] }
+annunimas-charon = { path = "../annunimas-charon" }
+annunimas-mnemosyne = { path = "../annunimas-mnemosyne" }
+annunimas-apollo = { path = "../annunimas-apollo" }
+annunimas-plutus = { path = "../annunimas-plutus" }
+annunimas-oracle = { path = "../annunimas-oracle" }
+annunimas-chronos = { path = "../annunimas-chronos" }
+annunimas-governance = { path = "../annunimas-governance" }
+annunimas-forge-mind = { path = "../annunimas-forge-mind", default-features = false, features = ["mcp-bridge", "comfyui", "iterate"] }
+clap = { version = "4", features = ["derive"] }
+tokio = { version = "1", features = ["full"] }
+anyhow = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+chrono = { version = "0.4", features = ["serde"] }
+fs2 = "0.4"
+regex = "1"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+sha1 = "0.10"
+pathdiff = "0.2"
+prometheus = "0.13"
+axum = "0.7"
+sysinfo = "0.30"
+
+[dev-dependencies]
+annunimas-warden = { path = "../annunimas-warden" }
+tempfile = "3"

@@ -10,8 +10,8 @@ use crate::heartbeat::HeartbeatState;
 use crate::orders::OrderStore;
 use crate::registry::AgentRosterSnapshot;
 use crate::thought::ThoughtLedger;
-use annunimas_core::error::Result;
-use annunimas_mnemosyne::MnemosyneService;
+use arda_core::error::Result;
+use arda_mnemosyne::MnemosyneService;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
@@ -100,8 +100,8 @@ mod tests {
 
         let prometheus_home = dir.path().join("prometheus_home");
         let minds_home = dir.path().join("minds");
-        std::env::set_var("ANNUNIMAS_PROMETHEUS_HOME", &prometheus_home);
-        std::env::set_var("ANNUNIMAS_PROMETHEUS_MINDS", &minds_home);
+        std::env::set_var("ARDA_PROMETHEUS_HOME", &prometheus_home);
+        std::env::set_var("ARDA_PROMETHEUS_MINDS", &minds_home);
 
         let service = PrometheusService::from_core(&core_root).expect("service");
         let out = service
@@ -137,8 +137,8 @@ mod tests {
 
         let prometheus_home = dir.path().join("prometheus_home");
         let minds_home = dir.path().join("minds");
-        std::env::set_var("ANNUNIMAS_PROMETHEUS_HOME", &prometheus_home);
-        std::env::set_var("ANNUNIMAS_PROMETHEUS_MINDS", &minds_home);
+        std::env::set_var("ARDA_PROMETHEUS_HOME", &prometheus_home);
+        std::env::set_var("ARDA_PROMETHEUS_MINDS", &minds_home);
 
         let service = PrometheusService::from_core(&core_root).expect("service");
         let payload = serde_json::json!({
@@ -188,8 +188,8 @@ mod tests {
 
         let prometheus_home = dir.path().join("prometheus_home");
         let minds_home = dir.path().join("minds");
-        std::env::set_var("ANNUNIMAS_PROMETHEUS_HOME", &prometheus_home);
-        std::env::set_var("ANNUNIMAS_PROMETHEUS_MINDS", &minds_home);
+        std::env::set_var("ARDA_PROMETHEUS_HOME", &prometheus_home);
+        std::env::set_var("ARDA_PROMETHEUS_MINDS", &minds_home);
 
         let service = PrometheusService::from_core(&core_root).expect("service");
         let created = service
@@ -232,8 +232,8 @@ mod tests {
 
         let prometheus_home = dir.path().join("prometheus_home");
         let minds_home = dir.path().join("minds");
-        std::env::set_var("ANNUNIMAS_PROMETHEUS_HOME", &prometheus_home);
-        std::env::set_var("ANNUNIMAS_PROMETHEUS_MINDS", &minds_home);
+        std::env::set_var("ARDA_PROMETHEUS_HOME", &prometheus_home);
+        std::env::set_var("ARDA_PROMETHEUS_MINDS", &minds_home);
 
         let service = PrometheusService::from_core(&core_root).expect("service");
         let intents_path = prometheus_home.join("execution_intents.jsonl");
@@ -268,8 +268,8 @@ mod tests {
 
         let prometheus_home = dir.path().join("prometheus_home");
         let minds_home = dir.path().join("minds");
-        std::env::set_var("ANNUNIMAS_PROMETHEUS_HOME", &prometheus_home);
-        std::env::set_var("ANNUNIMAS_PROMETHEUS_MINDS", &minds_home);
+        std::env::set_var("ARDA_PROMETHEUS_HOME", &prometheus_home);
+        std::env::set_var("ARDA_PROMETHEUS_MINDS", &minds_home);
 
         let service = PrometheusService::from_core(&core_root).expect("service");
         let recovery = service.execution_intents_recovery().expect("recovery");
@@ -291,8 +291,8 @@ mod tests {
 
         let prometheus_home = dir.path().join("prometheus_home");
         let minds_home = dir.path().join("minds");
-        std::env::set_var("ANNUNIMAS_PROMETHEUS_HOME", &prometheus_home);
-        std::env::set_var("ANNUNIMAS_PROMETHEUS_MINDS", &minds_home);
+        std::env::set_var("ARDA_PROMETHEUS_HOME", &prometheus_home);
+        std::env::set_var("ARDA_PROMETHEUS_MINDS", &minds_home);
 
         let service = PrometheusService::from_core(&core_root).expect("service");
         let status = service.status().expect("status");
@@ -329,8 +329,8 @@ mod tests {
 
         let prometheus_home = dir.path().join("prometheus_home");
         let minds_home = dir.path().join("minds");
-        std::env::set_var("ANNUNIMAS_PROMETHEUS_HOME", &prometheus_home);
-        std::env::set_var("ANNUNIMAS_PROMETHEUS_MINDS", &minds_home);
+        std::env::set_var("ARDA_PROMETHEUS_HOME", &prometheus_home);
+        std::env::set_var("ARDA_PROMETHEUS_MINDS", &minds_home);
 
         let service = PrometheusService::from_core(&core_root).expect("service");
         let status = service.status().expect("status");
@@ -366,7 +366,7 @@ mod tests {
         assert!(super::read_recent_jsonl(&dir.path().join("missing.jsonl"), 5).is_empty());
 
         let file = dir.path().join("hash.txt");
-        fs::write(&file, "annunimas").expect("hash file");
+        fs::write(&file, "arda").expect("hash file");
         let hash = super::sha256_file_if_exists(&file).expect("hash");
         assert!(hash.starts_with("sha256:"));
         assert_eq!(
@@ -403,8 +403,8 @@ mod tests {
 
         let prometheus_home = dir.path().join("prometheus_home");
         let minds_home = dir.path().join("minds");
-        std::env::set_var("ANNUNIMAS_PROMETHEUS_HOME", &prometheus_home);
-        std::env::set_var("ANNUNIMAS_PROMETHEUS_MINDS", &minds_home);
+        std::env::set_var("ARDA_PROMETHEUS_HOME", &prometheus_home);
+        std::env::set_var("ARDA_PROMETHEUS_MINDS", &minds_home);
 
         let service = PrometheusService::from_core(&core_root).expect("service");
         assert!(service.latest_drift_report().is_none());

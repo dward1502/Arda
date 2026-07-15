@@ -1,6 +1,6 @@
 #![recursion_limit = "512"]
 // sigil: REPAIR
-//! Annunimas PROMETHEUS Module
+//! Arda PROMETHEUS Module
 //!
 //! Executive orchestration and autonomy integration.
 

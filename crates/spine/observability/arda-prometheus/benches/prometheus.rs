@@ -1,9 +1,9 @@
-use annunimas_prometheus::autopilot::{
+use arda_prometheus::autopilot::{
     AgentCapabilities, AgentRegistry, LearningState, OutcomeObserver, TaskQueueAnalyzer,
 };
-use annunimas_prometheus::core_link::CoreAutonomyProfile;
-use annunimas_prometheus::heartbeat::select_heartbeat_mode;
-use annunimas_prometheus::orders::{OrderStatus, OrderStore};
+use arda_prometheus::core_link::CoreAutonomyProfile;
+use arda_prometheus::heartbeat::select_heartbeat_mode;
+use arda_prometheus::orders::{OrderStatus, OrderStore};
 use criterion::{criterion_group, criterion_main, BatchSize, BenchmarkId, Criterion};
 use std::collections::HashMap;
 use std::io::Write;

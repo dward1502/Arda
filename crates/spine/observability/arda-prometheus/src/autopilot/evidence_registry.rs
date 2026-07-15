@@ -7,9 +7,9 @@ use std::collections::BTreeMap;
 use std::fs;
 use std::path::Path;
 
-pub const EVIDENCE_REGISTRY_CONTRACT: &str = "annunimas.arandur.evidence_registry.v1";
+pub const EVIDENCE_REGISTRY_CONTRACT: &str = "arda.arandur.evidence_registry.v1";
 pub const OPERATOR_EXECUTION_RECEIPT_CONTRACT: &str =
-    "annunimas.arandur.operator_approved_candidates_execution.v1";
+    "arda.arandur.operator_approved_candidates_execution.v1";
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct EvidenceRecord {
@@ -148,7 +148,7 @@ mod tests {
         std::fs::write(
             receipt_dir.join("execution_receipt.json"),
             r#"{
-              "contract":"annunimas.arandur.operator_approved_candidates_execution.v1",
+              "contract":"arda.arandur.operator_approved_candidates_execution.v1",
               "tasks":[
                 {"candidate_id":"candidate-a","approval_packet_id":"approval-a","source_record_id":"rec-a","status":"executed_verified"},
                 {"candidate_id":"candidate-b","approval_packet_id":"approval-b","status":"blocked"}

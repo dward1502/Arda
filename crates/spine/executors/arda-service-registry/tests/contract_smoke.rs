@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod tests {
-    use crate::contract::ServiceContract;
-    use crate::registry::{RegistryError, ServiceRegistry};
-    use crate::service::{ServiceKind, ServiceRecord, ServiceStatus};
+    use arda_service_registry::contract::{ServiceContract, ServiceKind};
+    use arda_service_registry::registry::{RegistryError, ServiceRegistry};
+    use arda_service_registry::service::{ServiceHandle, ServiceRecord, ServiceStatus};
 
     #[test]
     fn registers_a_new_contract_with_default_status() {
@@ -30,7 +30,7 @@ mod tests {
         registry.upsert_contract(ServiceContract::new("alpha", ServiceKind::Gateway, "a", ".")).unwrap();
         let record = registry.upsert_contract(ServiceContract::new("beta", ServiceKind::Gateway, "b", ".")).unwrap();
 
-        registry.mark_started("beta", record.handle.unwrap()).unwrap();
+        registry.mark_started("beta", ServiceHandle::new(1)).unwrap();
 
         let snap = registry.snapshot();
         let beta = snap.iter().find(|r| r.contract.name == "beta").unwrap();

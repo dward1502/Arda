@@ -1,7 +1,7 @@
 use crate::service::{
     append_jsonl, prometheus_home, queue_contains_task, sha256_file_if_exists, PrometheusService,
 };
-use annunimas_core::error::Result;
+use arda_core::error::Result;
 use sha2::{Digest, Sha256};
 use std::fs;
 use std::path::PathBuf;

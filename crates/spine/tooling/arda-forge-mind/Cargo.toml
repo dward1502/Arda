@@ -1,0 +1,36 @@
+[package]
+name = "arda-forge-mind"
+version = "0.1.0"
+edition = "2021"
+description = "Sovereign 3D asset forge for Arda — Blender, texturing, slicing, and ARDA scene production"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+anyhow = "1.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+sha2 = "0.10"
+arda-tool-harness = { path = "../arda-tool-harness" }
+arda-core = { workspace = true, optional = true }
+arda-governance = { path = "../arda-governance", optional = true }
+chrono = { version = "0.4", features = ["serde"], optional = true }
+# ComfyUI HTTP transport (used by the generate pipeline)
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"], optional = true }
+base64 = { version = "0.22", optional = true }
+
+# Blender control (native best choice)
+blr = { version = "0.1", optional = true }        # https://github.com/AndrejOrsula/blr
+
+[features]
+default = ["native-blender"]
+native-blender = ["dep:blr"]
+# Bridge to the ahujasid/blender-mcp Blender addon over TCP (port 9876).
+# Pure-tokio transport, no extra runtime deps.
+mcp-bridge = []
+# ComfyUI HTTP client for prompt-driven asset generation (text→3D via Hunyuan3D-2 etc.)
+comfyui = ["dep:reqwest"]
+# Vision-LLM-driven iteration loop with governance gating (forge iterate).
+iterate = ["comfyui", "mcp-bridge", "dep:base64", "dep:arda-core", "dep:arda-governance", "dep:chrono"]

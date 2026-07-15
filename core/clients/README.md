@@ -13,13 +13,13 @@ soterion:
 
 # Clients
 
-**Location:** `/var/home/mythos/Annunimas/core/clients`
+**Location:** `/var/home/mythos/Arda/core/clients`
 **Created:** 2026-04-12
 
 ## Overview
 
 This directory contains client-related configuration and state files.
-Clients represent external systems or users that interact with Annunimas.
+Clients represent external systems or users that interact with Arda.
 
 ## Structure
 
@@ -33,11 +33,11 @@ Clients represent external systems or users that interact with Annunimas.
 ## Key Files
 
 **All Files:**
-- [`_registry.toml`](/var/home/mythos/Annunimas/core/clients/_registry.toml) - 5,600 bytes
+- [`_registry.toml`](/var/home/mythos/Arda/core/clients/_registry.toml) - 5,600 bytes
 
 ## Usage
 
-This directory is managed by the Annunimas system. Do not modify files directly unless you understand the system implications.
+This directory is managed by the Arda system. Do not modify files directly unless you understand the system implications.
 
 ## Maintenance
 
@@ -47,4 +47,4 @@ This directory is managed by the Annunimas system. Do not modify files directly 
 
 ## Related Components
 
-- [annunimas-hermes](/var/home/mythos/Annunimas/crates/annunimas-hermes) - Client communication
+- [arda-hermes](/var/home/mythos/Arda/crates/spine/arda-hermes) - Client communication

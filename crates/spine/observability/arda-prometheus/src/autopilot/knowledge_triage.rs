@@ -14,13 +14,13 @@ use std::fs::{self, File};
 use std::io::{BufWriter, Write};
 use std::path::{Path, PathBuf};
 
-pub const KNOWLEDGE_TRIAGE_SCHEMA: &str = "annunimas.knowledge_triage.v1";
-pub const KNOWLEDGE_SOURCE_INVENTORY_SCHEMA: &str = "annunimas.knowledge_source_inventory.v1";
-pub const KNOWLEDGE_ACTIONABLE_REVIEW_SCHEMA: &str = "annunimas.knowledge_actionable_review.v1";
+pub const KNOWLEDGE_TRIAGE_SCHEMA: &str = "arda.knowledge_triage.v1";
+pub const KNOWLEDGE_SOURCE_INVENTORY_SCHEMA: &str = "arda.knowledge_source_inventory.v1";
+pub const KNOWLEDGE_ACTIONABLE_REVIEW_SCHEMA: &str = "arda.knowledge_actionable_review.v1";
 pub const KNOWLEDGE_TASK_PROMOTION_RECEIPT_SCHEMA: &str =
-    "annunimas.knowledge_task_promotion_receipt.v1";
+    "arda.knowledge_task_promotion_receipt.v1";
 pub const KNOWLEDGE_TASK_EXECUTION_RECEIPT_SCHEMA: &str =
-    "annunimas.knowledge_task_execution_receipt.v1";
+    "arda.knowledge_task_execution_receipt.v1";
 pub const KNOWLEDGE_ACTIONABLE_REVIEW_GATE: &str =
     "human_review_required_before_task_queue_mutation";
 pub const KNOWLEDGE_SAFE_LOCAL_PROMOTION_GATE: &str = "prometheus_safe_local_task_promotion";
@@ -1102,8 +1102,8 @@ fn has_explicit_task_source_marker(content_lower: &str) -> bool {
             "autopilot_task: true",
             "task_source: true",
             "operational_signal: true",
-            "annunimas_task: true",
-            "## annunimas tasks",
+            "arda_task: true",
+            "## arda tasks",
             "## project actions",
             "## autopilot candidates",
         ],
@@ -1772,7 +1772,7 @@ mod tests {
     fn historical_audit_summary_headings_do_not_create_tasks_without_item_evidence() {
         let summary = classify_knowledge_source(
             &eregion_fixture_path("audits/master-summary.md"),
-            "# Eregion Audit Summary\n**Date:** 2026-03-26\n\n## Project Audits Completed\n| Project | Audits Done |\n| Annunimas | 4 |\n\n**Next Steps:**\n1. Review Annunimas critical issues\n2. Implement memory persistence\n3. Add monitoring infrastructure\n",
+            "# Eregion Audit Summary\n**Date:** 2026-03-26\n\n## Project Audits Completed\n| Project | Audits Done |\n| Arda | 4 |\n\n**Next Steps:**\n1. Review Arda critical issues\n2. Implement memory persistence\n3. Add monitoring infrastructure\n",
         );
 
         assert_eq!(summary.source_domain, SourceDomain::Eregion);
@@ -1882,7 +1882,7 @@ Next step: rotate production credential.",
         let review_queue = std::fs::read_to_string(&cfg.review_queue_path)
             .unwrap_or_else(|err| panic!("read review queue failed: {err}"));
         assert_eq!(review_queue.lines().count(), 1);
-        assert!(review_queue.contains("annunimas.knowledge_actionable_review.v1"));
+        assert!(review_queue.contains("arda.knowledge_actionable_review.v1"));
         assert!(review_queue.contains("human_review_required_before_task_queue_mutation"));
     }
 
@@ -1930,10 +1930,10 @@ TODO: implement historical task.",
     #[test]
     fn athena_stage_records_never_mutate_task_queue_directly() {
         let human = classify_knowledge_source(
-            "human/Projects/Annunimas/action.md",
-            "# Annunimas Tasks
+            "human/Projects/Arda/action.md",
+            "# Arda Tasks
 autopilot: true
-- [ ] Annunimas: implement dry-run source triage CLI.",
+- [ ] Arda: implement dry-run source triage CLI.",
         );
         assert_eq!(human.source_domain, SourceDomain::Human);
         assert!(human.actionable_operational_signal);

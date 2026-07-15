@@ -1,11 +1,11 @@
 use crate::pipeline::Pipeline;
-use annunimas_core::message::Message;
+use arda_core::message::Message;
 
 impl Pipeline {
     pub async fn run_fleet_health_check(&self) {
         if let Some(ref monitor) = self.health_monitor {
             if let Some(ref fleet) = self.fleet_manager {
-                let nodes: Vec<annunimas_fleet::FleetNode> =
+                let nodes: Vec<arda_fleet::FleetNode> =
                     fleet.get_all_nodes().into_iter().cloned().collect();
                 monitor.init_from_fleet(&nodes);
             }
@@ -29,7 +29,7 @@ impl Pipeline {
             tracing::info!(
                 healthy = results
                     .iter()
-                    .filter(|h| h.status == annunimas_fleet::NodeHealthStatus::Healthy)
+                    .filter(|h| h.status == arda_fleet::NodeHealthStatus::Healthy)
                     .count(),
                 total = results.len(),
                 "fleet health check complete"

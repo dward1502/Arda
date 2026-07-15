@@ -1,6 +1,6 @@
 {
   "active_ruleset": {
-    "active_ruleset": "annunimas_totality",
+    "active_ruleset": "arda_totality",
     "expires_at_utc": null,
     "policy": {
       "autonomy_score_threshold": 0.65,
@@ -9,7 +9,7 @@
           "laptop": "operator_terminal_not_default_build_executor",
           "workstation": "canonical_build_and_export_executor"
         },
-        "contract_version": "annunimas.build_verification_routing.v1",
+        "contract_version": "arda.build_verification_routing.v1",
         "remote_actions": [
           "sync-check",
           "cargo-check-cli",
@@ -45,7 +45,7 @@
           "private_memory_requires_promotion_for_irreversible_action": true,
           "private_working_memory_expires_by_default": true
         },
-        "protocol_version": "annunimas.ceo_council.v1"
+        "protocol_version": "arda.ceo_council.v1"
       },
       "enable_exec_council": true,
       "gate_strict": false,
@@ -87,16 +87,16 @@
       },
       "network_unlock_templates": [
         "git push",
-        "cargo run -p annunimas-cli -- hermes send"
+        "cargo run -p arda-cli -- hermes send"
       ],
-      "profile": "annunimas_totality",
+      "profile": "arda_totality",
       "selinux_safe_runtime": {
         "authority_split": {
           "beelink": "bounded_edge_worker",
           "laptop": "terminal_operator_optional_compute",
           "workstation": "canonical_execution_authority"
         },
-        "contract_version": "annunimas.selinux_runtime_contract.v1",
+        "contract_version": "arda.selinux_runtime_contract.v1",
         "enforcement_mode": "selinux_enforcing_preferred",
         "forbidden_patterns": [
           "sockets_under_plain_tmp_for_core_runtime",
@@ -114,9 +114,9 @@
           ]
         },
         "required_paths": {
-          "cache_dir": "${XDG_CACHE_HOME:-$HOME/.cache}/annunimas",
-          "runtime_dir": "${XDG_RUNTIME_DIR}/annunimas",
-          "state_dir": "${XDG_STATE_HOME:-$HOME/.local/state}/annunimas"
+          "cache_dir": "${XDG_CACHE_HOME:-$HOME/.cache}/arda",
+          "runtime_dir": "${XDG_RUNTIME_DIR}/arda",
+          "state_dir": "${XDG_STATE_HOME:-$HOME/.local/state}/arda"
         },
         "service_owner": "systemd"
       },
@@ -137,7 +137,7 @@
           "hades_disposal_review",
           "archive_or_retention"
         ],
-        "contract_version": "annunimas.task_lifecycle.v1",
+        "contract_version": "arda.task_lifecycle.v1",
         "rules": {
           "completion_is_not_disposal": true,
           "disposal_is_not_deletion": true,
@@ -221,7 +221,7 @@
             "version": "v1.0.0"
           }
         ],
-        "schema_version": "annunimas.validators.v2"
+        "schema_version": "arda.validators.v2"
       }
     },
     "reason": "restore totality default",
@@ -253,7 +253,7 @@
           "task_id": "task_apollo_live_fix"
         }
       ],
-      "schema_version": "annunimas.apollo.executor.v1",
+      "schema_version": "arda.apollo.executor.v1",
       "summary": {
         "cancelled_total": 0,
         "completed_total": 1,
@@ -264,23 +264,23 @@
     },
     "generated_at_utc": "2026-04-22T21:58:36.054341296+00:00",
     "paths": {
-      "home": "/var/home/mythos/Annunimas/data/apollo",
-      "requests_path": "/var/home/mythos/Annunimas/data/apollo/pending_requests.json",
-      "status_path": "/var/home/mythos/Annunimas/data/apollo/runtime_status.json"
+      "home": "/var/home/mythos/Arda/data/apollo",
+      "requests_path": "/var/home/mythos/Arda/data/apollo/pending_requests.json",
+      "status_path": "/var/home/mythos/Arda/data/apollo/runtime_status.json"
     },
-    "schema_version": "annunimas.apollo.runtime.v1"
+    "schema_version": "arda.apollo.runtime.v1"
   },
   "athena": {
     "avg_deep_queue_latency_seconds": 120.24695370370378,
     "books_count": 498,
     "deduplicated_ingests_total": 625,
     "deep_graph_events": 864,
-    "deep_graph_path": "/var/home/mythos/Annunimas/data/athena/deep_graph.jsonl",
+    "deep_graph_path": "/var/home/mythos/Arda/data/athena/deep_graph.jsonl",
     "deep_queue_depth": 0,
     "deep_queue_failed": 0,
-    "deep_queue_path": "/var/home/mythos/Annunimas/data/athena/deep_queue.jsonl",
+    "deep_queue_path": "/var/home/mythos/Arda/data/athena/deep_queue.jsonl",
     "digest_events": 1783,
-    "digest_path": "/var/home/mythos/Annunimas/data/athena/digest.jsonl",
+    "digest_path": "/var/home/mythos/Arda/data/athena/digest.jsonl",
     "duplicate_hit_rate": 0.6410256410256411,
     "execution_authority": "workstation",
     "execution_posture": "workstation_first_laptop_operator_fallback",
@@ -292,8 +292,8 @@
       "implementation_ready"
     ],
     "operator_ingress_role": "laptop_terminal_optional_fallback",
-    "planning_task_receipts_path": "/var/home/mythos/Annunimas/data/athena/planning_task_receipts.jsonl",
-    "policy_readiness_path": "/var/home/mythos/Annunimas/data/athena/policy_readiness.jsonl",
+    "planning_task_receipts_path": "/var/home/mythos/Arda/data/athena/planning_task_receipts.jsonl",
+    "policy_readiness_path": "/var/home/mythos/Arda/data/athena/policy_readiness.jsonl",
     "policy_ready_count": 123,
     "policy_ready_promotions_total": 107,
     "policy_ready_regressions_total": 0,
@@ -301,7 +301,7 @@
     "primary_reference_only_count": 38,
     "reference_only_count": 276,
     "source_provenance_coverage_ratio": 1.0,
-    "storage_root": "/var/home/mythos/Annunimas/data/athena",
+    "storage_root": "/var/home/mythos/Arda/data/athena",
     "synthetic_policy_ready_count": 10,
     "synthetic_reference_only_count": 238,
     "task_emission_last_run_at_utc": null,
@@ -1082,113 +1082,113 @@
     ],
     "env_templates": {
       "runtime": [
-        "ANNUNIMAS_ATHENA_HOME",
-        "ANNUNIMAS_PROMETHEUS_HOME",
-        "ANNUNIMAS_CHARON_HOME",
-        "ANNUNIMAS_HADES_HOME",
-        "ANNUNIMAS_HERMES_HOME",
-        "ANNUNIMAS_MNEMOSYNE_HOME",
-        "ANNUNIMAS_RUNTIME_SOCKET_DIR",
-        "ANNUNIMAS_ATHENA_SOCKET",
-        "ANNUNIMAS_PROMETHEUS_SOCKET",
-        "ANNUNIMAS_CHARON_SOCKET",
-        "ANNUNIMAS_HADES_SOCKET",
-        "ANNUNIMAS_HERMES_SOCKET",
-        "ANNUNIMAS_MNEMOSYNE_SOCKET",
-        "ANNUNIMAS_WORLD_STATE_PATH",
-        "ANNUNIMAS_SOTERION_INDEX_PATH",
-        "ANNUNIMAS_BUILD_CACHE_ROOT",
-        "ANNUNIMAS_SUPERVISOR_AGENT_ORDER",
-        "ANNUNIMAS_SUPERVISOR_MAX_STARTS_PER_PASS",
-        "ANNUNIMAS_SUPERVISOR_START_STAGGER_MS",
-        "ANNUNIMAS_SUPERVISOR_PREFLIGHT_REQUIRED",
-        "ANNUNIMAS_BACKGROUND_SIGNAL_MAX_CONCURRENCY",
-        "ANNUNIMAS_ATHENA_DIGEST_RECENT_KEEP",
-        "ANNUNIMAS_ATHENA_DIGEST_MAX_KEEP",
-        "ANNUNIMAS_ATHENA_DIGEST_MAX_BYTES",
-        "ANNUNIMAS_RETENTION_DAYS_BACON_LITE",
-        "ANNUNIMAS_BACON_LITE_MAX_KEEP",
-        "ANNUNIMAS_BACON_LITE_MAX_BYTES",
-        "ANNUNIMAS_ATHENA_SOURCES_RECENT_KEEP",
-        "ANNUNIMAS_ATHENA_SOURCES_MAX_KEEP",
-        "ANNUNIMAS_ATHENA_SOURCES_MAX_BYTES",
-        "ANNUNIMAS_WARDEN_INFORMANT_RECENT_KEEP",
-        "ANNUNIMAS_WARDEN_INFORMANT_MAX_KEEP",
-        "ANNUNIMAS_WARDEN_INFORMANT_MAX_BYTES",
-        "ANNUNIMAS_RETENTION_DAYS_WARDEN_PERMISSION_AUDIT",
-        "ANNUNIMAS_WARDEN_PERMISSION_AUDIT_MAX_KEEP",
-        "ANNUNIMAS_WARDEN_PERMISSION_AUDIT_MAX_BYTES",
-        "ANNUNIMAS_PRESSURE_ADMISSION_ENABLED",
-        "ANNUNIMAS_PRESSURE_ADMISSION_CACHE_MS",
-        "ANNUNIMAS_PRESSURE_ADMISSION_DEGRADED_FACTOR",
-        "ANNUNIMAS_PRESSURE_ADMISSION_SEVERE_FACTOR",
-        "ANNUNIMAS_PRESSURE_ADMISSION_MEM_AVAILABLE_DEGRADED_PCT",
-        "ANNUNIMAS_PRESSURE_ADMISSION_MEM_AVAILABLE_SEVERE_PCT",
-        "ANNUNIMAS_PRESSURE_ADMISSION_RECEIPTS_PATH",
-        "ANNUNIMAS_PRESSURE_ADMISSION_RECOVERY_PATH",
-        "ANNUNIMAS_ATHENA_INGEST_MAX_CONCURRENCY",
-        "ANNUNIMAS_ATHENA_DEEP_QUEUE_MAX_CONCURRENCY",
-        "ANNUNIMAS_ATHENA_CRAWL_MAX_CONCURRENCY",
-        "ANNUNIMAS_ATHENA_IPC_MAX_CONCURRENCY",
-        "ANNUNIMAS_ATHENA_HTTP_MAX_CONCURRENCY",
-        "ANNUNIMAS_PROMETHEUS_IPC_MAX_CONCURRENCY",
-        "ANNUNIMAS_PROMETHEUS_HTTP_MAX_CONCURRENCY",
-        "ANNUNIMAS_CHARON_IPC_MAX_CONCURRENCY",
-        "ANNUNIMAS_CHARON_HTTP_MAX_CONCURRENCY",
-        "ANNUNIMAS_HERMES_SEND_MAX_CONCURRENCY",
-        "ANNUNIMAS_HERMES_POLL_MAX_CONCURRENCY",
-        "ANNUNIMAS_HERMES_OUTBOUND_RETRY_MAX_CONCURRENCY",
-        "ANNUNIMAS_HERMES_PROVIDER_DISPATCH_MAX_CONCURRENCY",
-        "ANNUNIMAS_HERMES_PROVIDER_POLL_MAX_CONCURRENCY",
-        "ANNUNIMAS_HERMES_IPC_MAX_CONCURRENCY",
-        "ANNUNIMAS_HERMES_HTTP_MAX_CONCURRENCY",
-        "ANNUNIMAS_HERMES_DISCORD_ACTIVITY_PANEL",
-        "ANNUNIMAS_HADES_SWEEP_MAX_CONCURRENCY",
-        "ANNUNIMAS_HADES_REMOVAL_STEP_MAX_CONCURRENCY",
-        "ANNUNIMAS_HADES_IPC_MAX_CONCURRENCY",
-        "ANNUNIMAS_HADES_HTTP_MAX_CONCURRENCY",
-        "ANNUNIMAS_APOLLO_IPC_MAX_CONCURRENCY",
-        "ANNUNIMAS_APOLLO_HTTP_MAX_CONCURRENCY",
-        "ANNUNIMAS_ORACLE_IPC_MAX_CONCURRENCY",
-        "ANNUNIMAS_ORACLE_HTTP_MAX_CONCURRENCY",
-        "ANNUNIMAS_PLUTUS_IPC_MAX_CONCURRENCY",
-        "ANNUNIMAS_PLUTUS_HTTP_MAX_CONCURRENCY",
-        "ANNUNIMAS_MNEMOSYNE_IPC_MAX_CONCURRENCY",
-        "ANNUNIMAS_MNEMOSYNE_HTTP_MAX_CONCURRENCY",
-        "ANNUNIMAS_LAUNCH_PREFLIGHT_DEGRADED_AGENTS",
-        "ANNUNIMAS_LAUNCH_PREFLIGHT_ENFORCE_SWAP",
-        "ANNUNIMAS_FLEET_CONFIG_PATH",
-        "ANNUNIMAS_FLEET_ENABLED",
-        "ANNUNIMAS_FLEET_STATUS_VIEW_MODE",
-        "ANNUNIMAS_FLEET_STALE_DAYS",
-        "ANNUNIMAS_FLEET_INCLUDE_RECENT_OFFLINE_IN_STATUS",
-        "ANNUNIMAS_FLEET_BOOTSTRAP_STATE",
-        "ANNUNIMAS_FLEET_BOOTSTRAP_RECOVER",
-        "ANNUNIMAS_FLEET_BOOTSTRAP_RECOVER_WAIT_SECONDS",
-        "ANNUNIMAS_FLEET_BOOTSTRAP_RECOVER_RETRIES",
-        "ANNUNIMAS_FLEET_BOOTSTRAP_SSH_TIMEOUT_SECONDS",
-        "ANNUNIMAS_ROUTE_ORIGIN_DEFAULT",
-        "ANNUNIMAS_LOCAL_INFERENCE_SURFACE",
-        "ANNUNIMAS_FLEET_PROMETHEUS_DIR",
-        "ANNUNIMAS_FLEET_CEO_LAYER_PROMETHEUS_DIR",
-        "ANNUNIMAS_FLEET_WARDEN_QUEUE_PATH",
-        "ANNUNIMAS_LOCAL_MODEL",
-        "ANNUNIMAS_ATHENA_CRAWL_PROFILE",
-        "ANNUNIMAS_ATHENA_CRAWL_PROVIDER",
-        "ANNUNIMAS_SCRAPLING_RUNTIME_MODE",
+        "ARDA_ATHENA_HOME",
+        "ARDA_PROMETHEUS_HOME",
+        "ARDA_CHARON_HOME",
+        "ARDA_HADES_HOME",
+        "ARDA_HERMES_HOME",
+        "ARDA_MNEMOSYNE_HOME",
+        "ARDA_RUNTIME_SOCKET_DIR",
+        "ARDA_ATHENA_SOCKET",
+        "ARDA_PROMETHEUS_SOCKET",
+        "ARDA_CHARON_SOCKET",
+        "ARDA_HADES_SOCKET",
+        "ARDA_HERMES_SOCKET",
+        "ARDA_MNEMOSYNE_SOCKET",
+        "ARDA_WORLD_STATE_PATH",
+        "ARDA_SOTERION_INDEX_PATH",
+        "ARDA_BUILD_CACHE_ROOT",
+        "ARDA_SUPERVISOR_AGENT_ORDER",
+        "ARDA_SUPERVISOR_MAX_STARTS_PER_PASS",
+        "ARDA_SUPERVISOR_START_STAGGER_MS",
+        "ARDA_SUPERVISOR_PREFLIGHT_REQUIRED",
+        "ARDA_BACKGROUND_SIGNAL_MAX_CONCURRENCY",
+        "ARDA_ATHENA_DIGEST_RECENT_KEEP",
+        "ARDA_ATHENA_DIGEST_MAX_KEEP",
+        "ARDA_ATHENA_DIGEST_MAX_BYTES",
+        "ARDA_RETENTION_DAYS_BACON_LITE",
+        "ARDA_BACON_LITE_MAX_KEEP",
+        "ARDA_BACON_LITE_MAX_BYTES",
+        "ARDA_ATHENA_SOURCES_RECENT_KEEP",
+        "ARDA_ATHENA_SOURCES_MAX_KEEP",
+        "ARDA_ATHENA_SOURCES_MAX_BYTES",
+        "ARDA_WARDEN_INFORMANT_RECENT_KEEP",
+        "ARDA_WARDEN_INFORMANT_MAX_KEEP",
+        "ARDA_WARDEN_INFORMANT_MAX_BYTES",
+        "ARDA_RETENTION_DAYS_WARDEN_PERMISSION_AUDIT",
+        "ARDA_WARDEN_PERMISSION_AUDIT_MAX_KEEP",
+        "ARDA_WARDEN_PERMISSION_AUDIT_MAX_BYTES",
+        "ARDA_PRESSURE_ADMISSION_ENABLED",
+        "ARDA_PRESSURE_ADMISSION_CACHE_MS",
+        "ARDA_PRESSURE_ADMISSION_DEGRADED_FACTOR",
+        "ARDA_PRESSURE_ADMISSION_SEVERE_FACTOR",
+        "ARDA_PRESSURE_ADMISSION_MEM_AVAILABLE_DEGRADED_PCT",
+        "ARDA_PRESSURE_ADMISSION_MEM_AVAILABLE_SEVERE_PCT",
+        "ARDA_PRESSURE_ADMISSION_RECEIPTS_PATH",
+        "ARDA_PRESSURE_ADMISSION_RECOVERY_PATH",
+        "ARDA_ATHENA_INGEST_MAX_CONCURRENCY",
+        "ARDA_ATHENA_DEEP_QUEUE_MAX_CONCURRENCY",
+        "ARDA_ATHENA_CRAWL_MAX_CONCURRENCY",
+        "ARDA_ATHENA_IPC_MAX_CONCURRENCY",
+        "ARDA_ATHENA_HTTP_MAX_CONCURRENCY",
+        "ARDA_PROMETHEUS_IPC_MAX_CONCURRENCY",
+        "ARDA_PROMETHEUS_HTTP_MAX_CONCURRENCY",
+        "ARDA_CHARON_IPC_MAX_CONCURRENCY",
+        "ARDA_CHARON_HTTP_MAX_CONCURRENCY",
+        "ARDA_HERMES_SEND_MAX_CONCURRENCY",
+        "ARDA_HERMES_POLL_MAX_CONCURRENCY",
+        "ARDA_HERMES_OUTBOUND_RETRY_MAX_CONCURRENCY",
+        "ARDA_HERMES_PROVIDER_DISPATCH_MAX_CONCURRENCY",
+        "ARDA_HERMES_PROVIDER_POLL_MAX_CONCURRENCY",
+        "ARDA_HERMES_IPC_MAX_CONCURRENCY",
+        "ARDA_HERMES_HTTP_MAX_CONCURRENCY",
+        "ARDA_HERMES_DISCORD_ACTIVITY_PANEL",
+        "ARDA_HADES_SWEEP_MAX_CONCURRENCY",
+        "ARDA_HADES_REMOVAL_STEP_MAX_CONCURRENCY",
+        "ARDA_HADES_IPC_MAX_CONCURRENCY",
+        "ARDA_HADES_HTTP_MAX_CONCURRENCY",
+        "ARDA_APOLLO_IPC_MAX_CONCURRENCY",
+        "ARDA_APOLLO_HTTP_MAX_CONCURRENCY",
+        "ARDA_ORACLE_IPC_MAX_CONCURRENCY",
+        "ARDA_ORACLE_HTTP_MAX_CONCURRENCY",
+        "ARDA_PLUTUS_IPC_MAX_CONCURRENCY",
+        "ARDA_PLUTUS_HTTP_MAX_CONCURRENCY",
+        "ARDA_MNEMOSYNE_IPC_MAX_CONCURRENCY",
+        "ARDA_MNEMOSYNE_HTTP_MAX_CONCURRENCY",
+        "ARDA_LAUNCH_PREFLIGHT_DEGRADED_AGENTS",
+        "ARDA_LAUNCH_PREFLIGHT_ENFORCE_SWAP",
+        "ARDA_FLEET_CONFIG_PATH",
+        "ARDA_FLEET_ENABLED",
+        "ARDA_FLEET_STATUS_VIEW_MODE",
+        "ARDA_FLEET_STALE_DAYS",
+        "ARDA_FLEET_INCLUDE_RECENT_OFFLINE_IN_STATUS",
+        "ARDA_FLEET_BOOTSTRAP_STATE",
+        "ARDA_FLEET_BOOTSTRAP_RECOVER",
+        "ARDA_FLEET_BOOTSTRAP_RECOVER_WAIT_SECONDS",
+        "ARDA_FLEET_BOOTSTRAP_RECOVER_RETRIES",
+        "ARDA_FLEET_BOOTSTRAP_SSH_TIMEOUT_SECONDS",
+        "ARDA_ROUTE_ORIGIN_DEFAULT",
+        "ARDA_LOCAL_INFERENCE_SURFACE",
+        "ARDA_FLEET_PROMETHEUS_DIR",
+        "ARDA_FLEET_CEO_LAYER_PROMETHEUS_DIR",
+        "ARDA_FLEET_WARDEN_QUEUE_PATH",
+        "ARDA_LOCAL_MODEL",
+        "ARDA_ATHENA_CRAWL_PROFILE",
+        "ARDA_ATHENA_CRAWL_PROVIDER",
+        "ARDA_SCRAPLING_RUNTIME_MODE",
         "LITELLM_PROXY_URL",
-        "ANNUNIMAS_CRAWL4AI_URL",
-        "ANNUNIMAS_SEARCH_RUNTIME_URL",
-        "ANNUNIMAS_SEARCH_RUNTIME_HOST",
-        "ANNUNIMAS_SEARCH_RUNTIME_PORT",
-        "ANNUNIMAS_SEARCH_RUNTIME_IMAGE",
-        "ANNUNIMAS_SEARCH_RUNTIME_CONTAINER_NAME",
-        "ANNUNIMAS_PLAYWRIGHT_MCP_CMD",
-        "ANNUNIMAS_NANOCLAW_ROOT",
-        "ANNUNIMAS_NANOCLAW_EDGE_TARGET",
-        "ANNUNIMAS_NANOCLAW_EDGE_TRANSPORT",
-        "ANNUNIMAS_NANOCLAW_CONTROL_MODE",
-        "ANNUNIMAS_PROMETHEUS_MINDS"
+        "ARDA_CRAWL4AI_URL",
+        "ARDA_SEARCH_RUNTIME_URL",
+        "ARDA_SEARCH_RUNTIME_HOST",
+        "ARDA_SEARCH_RUNTIME_PORT",
+        "ARDA_SEARCH_RUNTIME_IMAGE",
+        "ARDA_SEARCH_RUNTIME_CONTAINER_NAME",
+        "ARDA_PLAYWRIGHT_MCP_CMD",
+        "ARDA_NANOCLAW_ROOT",
+        "ARDA_NANOCLAW_EDGE_TARGET",
+        "ARDA_NANOCLAW_EDGE_TRANSPORT",
+        "ARDA_NANOCLAW_CONTROL_MODE",
+        "ARDA_PROMETHEUS_MINDS"
       ],
       "shared": [
         "OPEN_AI_KEY",
@@ -1198,21 +1198,21 @@
         "GROQ_API_KEY",
         "GEMINI_API_KEY",
         "LITELLM_API_KEY",
-        "ANNUNIMAS_ATHENA_CRAWL_PROFILE",
-        "ANNUNIMAS_ATHENA_CRAWL_PROVIDER",
-        "ANNUNIMAS_LOCAL_INFERENCE_SURFACE",
-        "ANNUNIMAS_SCRAPLING_RUNTIME_MODE",
-        "ANNUNIMAS_CRAWL4AI_URL",
-        "ANNUNIMAS_SEARCH_RUNTIME_URL",
-        "ANNUNIMAS_SEARCH_RUNTIME_HOST",
-        "ANNUNIMAS_SEARCH_RUNTIME_PORT",
-        "ANNUNIMAS_SEARCH_RUNTIME_IMAGE",
-        "ANNUNIMAS_SEARCH_RUNTIME_CONTAINER_NAME",
-        "ANNUNIMAS_PLAYWRIGHT_MCP_CMD",
-        "ANNUNIMAS_NANOCLAW_ROOT",
-        "ANNUNIMAS_NANOCLAW_EDGE_TARGET",
-        "ANNUNIMAS_NANOCLAW_EDGE_TRANSPORT",
-        "ANNUNIMAS_NANOCLAW_CONTROL_MODE",
+        "ARDA_ATHENA_CRAWL_PROFILE",
+        "ARDA_ATHENA_CRAWL_PROVIDER",
+        "ARDA_LOCAL_INFERENCE_SURFACE",
+        "ARDA_SCRAPLING_RUNTIME_MODE",
+        "ARDA_CRAWL4AI_URL",
+        "ARDA_SEARCH_RUNTIME_URL",
+        "ARDA_SEARCH_RUNTIME_HOST",
+        "ARDA_SEARCH_RUNTIME_PORT",
+        "ARDA_SEARCH_RUNTIME_IMAGE",
+        "ARDA_SEARCH_RUNTIME_CONTAINER_NAME",
+        "ARDA_PLAYWRIGHT_MCP_CMD",
+        "ARDA_NANOCLAW_ROOT",
+        "ARDA_NANOCLAW_EDGE_TARGET",
+        "ARDA_NANOCLAW_EDGE_TRANSPORT",
+        "ARDA_NANOCLAW_CONTROL_MODE",
         "DISCORD_BOT_TOKEN",
         "DISCORD_APP_ID",
         "DISCORD_CHANNEL_ID",
@@ -1232,7 +1232,7 @@
     },
     "generated_at_utc": "2026-04-22T18:24:20Z",
     "registry_path": "docs/registry.toml",
-    "schema_version": "annunimas.package.health.v1",
+    "schema_version": "ARDA.package.health.v1",
     "summary": {
       "critical_attention_required": [],
       "critical_tools_total": 5,
@@ -2893,10 +2893,10 @@
       ]
     },
     "paths": {
-      "home": "/var/home/mythos/Annunimas/data/plutus",
-      "status_path": "/var/home/mythos/Annunimas/data/plutus/runtime_status.json"
+      "home": "/var/home/mythos/Arda/data/plutus",
+      "status_path": "/var/home/mythos/Arda/data/plutus/runtime_status.json"
     },
-    "schema_version": "annunimas.plutus.runtime.v1"
+    "schema_version": "arda.plutus.runtime.v1"
   },
   "prometheus": {
     "active_orders": 9,
@@ -2974,7 +2974,7 @@
   },
   "runtime_surface": {
     "models": {
-      "ANNUNIMAS_LOCAL_MODEL": "qwen2.5-coder:3b"
+      "ARDA_LOCAL_MODEL": "qwen2.5-coder:3b"
     },
     "paths": {
       "ANNUNIMAS_APOLLO_HOME": "/var/home/mythos/Annunimas/data/apollo",
@@ -2993,7 +2993,7 @@
       "ANNUNIMAS_WORLD_STATE_PATH": "core/state/world.json"
     },
     "ruleset": {
-      "active_ruleset": "annunimas_totality",
+      "active_ruleset": "arda_totality",
       "expires_at_utc": null,
       "policy": {
         "autonomy_score_threshold": 0.65,
@@ -3002,7 +3002,7 @@
             "laptop": "operator_terminal_not_default_build_executor",
             "workstation": "canonical_build_and_export_executor"
           },
-          "contract_version": "annunimas.build_verification_routing.v1",
+          "contract_version": "arda.build_verification_routing.v1",
           "remote_actions": [
             "sync-check",
             "cargo-check-cli",
@@ -3038,7 +3038,7 @@
             "private_memory_requires_promotion_for_irreversible_action": true,
             "private_working_memory_expires_by_default": true
           },
-          "protocol_version": "annunimas.ceo_council.v1"
+          "protocol_version": "arda.ceo_council.v1"
         },
         "enable_exec_council": true,
         "gate_strict": false,
@@ -3080,16 +3080,16 @@
         },
         "network_unlock_templates": [
           "git push",
-          "cargo run -p annunimas-cli -- hermes send"
+          "cargo run -p arda-cli -- hermes send"
         ],
-        "profile": "annunimas_totality",
+        "profile": "arda_totality",
         "selinux_safe_runtime": {
           "authority_split": {
             "beelink": "bounded_edge_worker",
             "laptop": "terminal_operator_optional_compute",
             "workstation": "canonical_execution_authority"
           },
-          "contract_version": "annunimas.selinux_runtime_contract.v1",
+          "contract_version": "arda.selinux_runtime_contract.v1",
           "enforcement_mode": "selinux_enforcing_preferred",
           "forbidden_patterns": [
             "sockets_under_plain_tmp_for_core_runtime",
@@ -3107,9 +3107,9 @@
             ]
           },
           "required_paths": {
-            "cache_dir": "${XDG_CACHE_HOME:-$HOME/.cache}/annunimas",
-            "runtime_dir": "${XDG_RUNTIME_DIR}/annunimas",
-            "state_dir": "${XDG_STATE_HOME:-$HOME/.local/state}/annunimas"
+            "cache_dir": "${XDG_CACHE_HOME:-$HOME/.cache}/arda",
+            "runtime_dir": "${XDG_RUNTIME_DIR}/arda",
+            "state_dir": "${XDG_STATE_HOME:-$HOME/.local/state}/arda"
           },
           "service_owner": "systemd"
         },
@@ -3130,7 +3130,7 @@
             "hades_disposal_review",
             "archive_or_retention"
           ],
-          "contract_version": "annunimas.task_lifecycle.v1",
+          "contract_version": "arda.task_lifecycle.v1",
           "rules": {
             "completion_is_not_disposal": true,
             "disposal_is_not_deletion": true,
@@ -3214,7 +3214,7 @@
               "version": "v1.0.0"
             }
           ],
-          "schema_version": "annunimas.validators.v2"
+          "schema_version": "arda.validators.v2"
         }
       },
       "reason": "restore totality default",
@@ -3222,15 +3222,15 @@
       "sigil": "REPAIR"
     },
     "sockets": {
-      "ANNUNIMAS_APOLLO_SOCKET": "/run/user/1000/annunimas/apollo.sock",
-      "ANNUNIMAS_ATHENA_SOCKET": "/run/user/1000/annunimas/athena.sock",
-      "ANNUNIMAS_CHARON_SOCKET": "/run/user/1000/annunimas/charon.sock",
-      "ANNUNIMAS_HADES_SOCKET": "/run/user/1000/annunimas/hades.sock",
-      "ANNUNIMAS_HERMES_SOCKET": "/run/user/1000/annunimas/hermes.sock",
-      "ANNUNIMAS_MNEMOSYNE_SOCKET": "/run/user/1000/annunimas/mnemosyne.sock",
-      "ANNUNIMAS_ORACLE_SOCKET": "/run/user/1000/annunimas/oracle.sock",
-      "ANNUNIMAS_PLUTUS_SOCKET": "/run/user/1000/annunimas/plutus.sock",
-      "ANNUNIMAS_PROMETHEUS_SOCKET": "/run/user/1000/annunimas/prometheus.sock"
+      "ARDA_APOLLO_SOCKET": "/run/user/1000/arda/apollo.sock",
+      "ARDA_ATHENA_SOCKET": "/run/user/1000/arda/athena.sock",
+      "ARDA_CHARON_SOCKET": "/run/user/1000/arda/charon.sock",
+      "ARDA_HADES_SOCKET": "/run/user/1000/arda/hades.sock",
+      "ARDA_HERMES_SOCKET": "/run/user/1000/arda/hermes.sock",
+      "ARDA_MNEMOSYNE_SOCKET": "/run/user/1000/arda/mnemosyne.sock",
+      "ARDA_ORACLE_SOCKET": "/run/user/1000/arda/oracle.sock",
+      "ARDA_PLUTUS_SOCKET": "/run/user/1000/arda/plutus.sock",
+      "ARDA_PROMETHEUS_SOCKET": "/run/user/1000/arda/prometheus.sock"
     }
   },
   "storage_observation": {

@@ -46,7 +46,7 @@
     "bind those four into existing queue/dossier/export workflows"
   ],
   "generated_at_utc": "2026-04-22T21:57:54Z",
-  "schema_version": "annunimas.project-intake-governance.v1",
+  "schema_version": "arda.project-intake-governance.v1",
   "second_execution_tranche": [
     "reconcile crawl4ai against current package/runtime activation",
     "reconcile Discord capability against current Hermes posture",

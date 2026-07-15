@@ -1,8 +1,8 @@
 use crate::pipeline::Pipeline;
-use annunimas_core::error::Result;
-use annunimas_core::message::Message;
-use annunimas_core::task::Task;
-use annunimas_governance::record_bacon_lite;
+use arda_core::error::Result;
+use arda_core::message::Message;
+use arda_core::task::Task;
+use arda_governance::record_bacon_lite;
 
 impl Pipeline {
     pub(super) async fn route_and_execute_locally(
@@ -190,10 +190,10 @@ impl Pipeline {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use annunimas_core::agent::Agent;
-    use annunimas_core::ledger::Ledger;
-    use annunimas_core::router::Router;
-    use annunimas_core::task::{Task, TaskStatus};
+    use arda_core::agent::Agent;
+    use arda_core::ledger::Ledger;
+    use arda_core::router::Router;
+    use arda_core::task::{Task, TaskStatus};
     use async_trait::async_trait;
     use tempfile::tempdir;
 

@@ -9,18 +9,18 @@ soterion:
   last_reviewed: "2026-06-19"
 ---
 
-# Annunimas Platform OS Plan
-Goal: shape Annunimas into an auditable local agent control plane that can later become a bootable appliance, without blocking current operator work.
+# Arda Platform OS Plan
+Goal: shape Arda into an auditable local agent control plane that can later become a bootable appliance, without blocking current operator work.
 Scope: crate boundary, queue contract freeze, privatization of tenant crates/apps, staging of unimplemented features.
 
 ## North star
-Bluefin Linux appliance: USB boots into an Annunimas-first environment with local-first runtime, deterministic state, and composable app modules.
+Bluefin Linux appliance: USB boots into an ARDA-first environment with local-first runtime, deterministic state, and composable app modules.
 
 ## Current reality
 - Core plating is stronger than app maturity.
 - Several crates are aspirational means to influence the OS, not required for first-runtime.
 - Apps currently share the OS workspace and build surface.
-- ANNUNIMAS-HUMAN, council, forge-mind, signal-grid, and service-registry are each implemented or scaffolded enough to plan a migration path, not a greenfield.
+- ARDA-HUMAN, council, forge-mind, signal-grid, and service-registry are each implemented or scaffolded enough to plan a migration path, not a greenfield.
 
 ## Principles
 1. OS core is small and stable.

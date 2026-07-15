@@ -13,7 +13,7 @@ soterion:
 
 # Queue
 
-**Location:** `/var/home/mythos/Annunimas/core/queue`
+**Location:** `/var/home/mythos/Arda/core/queue`
 **Created:** 2026-04-12
 
 ## Overview
@@ -33,7 +33,7 @@ Queues manage the flow of work through the system.
 ## Key Files
 
 **All Files:**
-- [`queue.jsonl`](/var/home/mythos/Annunimas/core/queue/queue.jsonl) - 1,776 bytes
+- [`queue.jsonl`](/var/home/mythos/Arda/core/queue/queue.jsonl) - 1,776 bytes
 
 ## Usage
 
@@ -47,4 +47,4 @@ This directory contains operational data that drives system workflows. Modify wi
 
 ## Related Components
 
-- [annunimas-prometheus](/var/home/mythos/Annunimas/crates/annunimas-prometheus) - Queue processing
+- [arda-prometheus](/var/home/mythos/Arda/crates/spin/arda-prometheus) - Queue processing

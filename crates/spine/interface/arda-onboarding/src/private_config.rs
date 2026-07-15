@@ -217,7 +217,7 @@ pub fn write_private_config_stage(stage: &PrivateConfigStage, root: &Path) -> Re
     }
 
     let mut rendered = String::new();
-    rendered.push_str("# annunimas.onboarding.private_config_stage.v1\n");
+    rendered.push_str("# arda.onboarding.private_config_stage.v1\n");
     rendered.push_str("# Audit-stage proposal only. Do not commit secrets.\n");
     for entry in &stage.entries {
         let value = if entry.secret {
@@ -298,7 +298,7 @@ pub(crate) fn merge_private_env(
         {
             lines.push(String::new());
         }
-        lines.push("# Added by annunimas onboarding private config apply.".to_string());
+        lines.push("# Added by arda onboarding private config apply.".to_string());
         for (key, value) in updates {
             lines.push(render_env_assignment(&key, &value));
             changed_keys.push(key);

@@ -12,7 +12,7 @@ soterion:
 
 > 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-13
 
-# Index: crates/governance/annunimas-governance/tests/INDEX.md
+# Index: crates/governance/arda-governance/tests/INDEX.md
 
 ## Contents
 
@@ -23,7 +23,7 @@ soterion:
 
 ## Purpose
 
-Crate index for `crates/governance/annunimas-governance/tests/INDEX.md`. See sibling `INDEX.md` for bucket metadata.
+Crate index for `crates/governance/arda-governance/tests/INDEX.md`. See sibling `INDEX.md` for bucket metadata.
 
 ## Notes
 

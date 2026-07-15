@@ -29,7 +29,7 @@ use super::task_queue::{QueueRecord, TaskQueueAnalyzer, TaskQueueMetrics};
 use super::taxonomy::is_apollo_dispatchable;
 use super::validator::{PlanValidator, ValidationResult};
 use crate::orders::{OrderStatus, OrderStore};
-use annunimas_apollo::ExecutionStatus;
+use arda_apollo::ExecutionStatus;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -99,7 +99,7 @@ impl AutopilotConfig {
             heartbeat_max_bytes: 5 * 1024 * 1024,
             oracle_joule_threshold: 100.0,
             read_only: false,
-            systemd_pattern: "annunimas-*".into(),
+            systemd_pattern: "arda-*".into(),
             apollo_socket_path: apollo_socket_default(&root),
             apollo_max_attempts: 2,
             joule_cycle_limit: joule_budget,
@@ -415,17 +415,17 @@ pub struct CeoAutopilot {
     decomposer: ObjectiveDecomposer,
     validator: PlanValidator,
     registry: AgentRegistry,
-    learning: annunimas_core::learning::LearningState,
+    learning: arda_core::learning::LearningState,
     oracle: OracleGate,
     governance_policy: GovernancePolicy,
     apollo: ApolloClient,
     consecutive_failures: usize,
 }
 
-const HADES_INTROSPECTION_CONTRACT: &str = "annunimas.prometheus.hades_introspection_projection.v1";
-const SOVEREIGN_ADAPTERS_CONTRACT: &str = "annunimas.prometheus.sovereign_adapter_projection.v1";
-const COUNCIL_RUNTIME_CONTRACT: &str = "annunimas.prometheus.council_runtime_projection.v1";
-const AUTONOMY_READINESS_GATE_CONTRACT: &str = "annunimas.prometheus.autonomy_readiness_gate.v1";
+const HADES_INTROSPECTION_CONTRACT: &str = "arda.prometheus.hades_introspection_projection.v1";
+const SOVEREIGN_ADAPTERS_CONTRACT: &str = "arda.prometheus.sovereign_adapter_projection.v1";
+const COUNCIL_RUNTIME_CONTRACT: &str = "arda.prometheus.council_runtime_projection.v1";
+const AUTONOMY_READINESS_GATE_CONTRACT: &str = "arda.prometheus.autonomy_readiness_gate.v1";
 
 fn load_hades_introspection(root: &Path) -> HadesIntrospectionProjection {
     let policy_report_path = root.join("data/hades/lifecycle_policy_automation_report.json");
@@ -631,7 +631,7 @@ fn adapter_receipt(
                 .count();
             base(
                 true,
-                "crates/annunimas-prometheus/src/autopilot/governance_policy.rs".into(),
+                "crates/arda-prometheus/src/autopilot/governance_policy.rs".into(),
                 plans.len(),
                 plans.len(),
                 "task_promotion_gate".into(),
@@ -654,7 +654,7 @@ fn adapter_receipt(
                 .count();
             base(
                 true,
-                "crates/annunimas-prometheus/src/autopilot/oracle_gate.rs".into(),
+                "crates/arda-prometheus/src/autopilot/oracle_gate.rs".into(),
                 plans.len(),
                 invoked,
                 "validation_gate".into(),
@@ -676,7 +676,7 @@ fn adapter_receipt(
             let joule_limited = plans.iter().filter(|plan| plan.joule_limited).count();
             base(
                 true,
-                "crates/annunimas-prometheus/src/autopilot/runner.rs".into(),
+                "crates/arda-prometheus/src/autopilot/runner.rs".into(),
                 plans.len(),
                 plans.len(),
                 "budget_gate".into(),
@@ -721,7 +721,7 @@ fn adapter_receipt(
         }
         "ceo" => base(
             true,
-            "crates/annunimas-prometheus/src/autopilot/runner.rs".into(),
+            "crates/arda-prometheus/src/autopilot/runner.rs".into(),
             plans.len(),
             plans.len(),
             "canonical_engine_guard".into(),
@@ -824,7 +824,7 @@ fn council_cycle_record(
         })
         .count();
     serde_json::json!({
-        "schema_version": "annunimas.council.agent_conversation.v1",
+        "schema_version": "arda.council.agent_conversation.v1",
         "conversation_id": conversation_id,
         "ts_utc": ts,
         "topic": "ceo-autopilot cycle assessment",
@@ -1738,7 +1738,7 @@ struct ObjectiveCandidate {
     requires_review: bool,
 }
 
-const OBJECTIVE_SELECTION_CONTRACT: &str = "annunimas.arandur.objective_selection.v1";
+const OBJECTIVE_SELECTION_CONTRACT: &str = "arda.arandur.objective_selection.v1";
 
 fn select_cycle_objectives(
     cfg: &AutopilotConfig,
@@ -1749,15 +1749,15 @@ fn select_cycle_objectives(
 ) -> (Vec<CycleObjective>, ObjectiveSelectionReport) {
     let source_registry = SourceRegistry::arandur_default(&cfg.root);
     let h2a_source_path = source_registry
-        .by_contract("annunimas.h2a.approvals.v1")
+        .by_contract("arda.h2a.approvals.v1")
         .map(|source| source.path.to_string_lossy().to_string())
         .unwrap_or_else(|| cfg.h2a_path.to_string_lossy().to_string());
     let objective_inbox_source_path = source_registry
-        .by_contract("annunimas.prometheus.objective_inbox.v1")
+        .by_contract("arda.prometheus.objective_inbox.v1")
         .map(|source| source.path.to_string_lossy().to_string())
         .unwrap_or_else(|| cfg.objectives_path.to_string_lossy().to_string());
     let canonical_queue_source_path = source_registry
-        .by_contract("annunimas.canonical_task_queue.v1")
+        .by_contract("arda.canonical_task_queue.v1")
         .map(|source| source.path.to_string_lossy().to_string())
         .unwrap_or_else(|| cfg.queue_path.to_string_lossy().to_string());
     let (effective_queue_records, stale_raw_queue_record_count) =
@@ -2599,9 +2599,9 @@ fn dispatch_retryable(dispatch: &Dispatch) -> bool {
 
 /// Resolve the Apollo IPC socket path used for autopilot dispatch.
 ///
-/// Order: explicit `ANNUNIMAS_APOLLO_SOCKET` env var > `<root>/data/apollo/apollo.sock`.
+/// Order: explicit `ARDA_APOLLO_SOCKET` env var > `<root>/data/apollo/apollo.sock`.
 fn apollo_socket_default(root: &Path) -> PathBuf {
-    if let Ok(raw) = std::env::var("ANNUNIMAS_APOLLO_SOCKET") {
+    if let Ok(raw) = std::env::var("ARDA_APOLLO_SOCKET") {
         if !raw.is_empty() {
             return PathBuf::from(raw);
         }
@@ -2698,32 +2698,32 @@ mod tests {
             r#"
 [[sovereign_crates]]
 id = "governance"
-crate = "annunimas-governance"
+crate = "arda-governance"
 status = "contract_required"
 
 [[sovereign_crates]]
 id = "oracle"
-crate = "annunimas-oracle"
+crate = "arda-oracle"
 status = "active_prototype"
 
 [[sovereign_crates]]
 id = "plutus"
-crate = "annunimas-plutus"
+crate = "arda-plutus"
 status = "contract_required"
 
 [[sovereign_crates]]
 id = "human"
-crate = "annunimas-human"
+crate = "arda-human"
 status = "contract_required"
 
 [[sovereign_crates]]
 id = "council"
-crate = "annunimas-council"
+crate = "arda-council"
 status = "active_subordinate"
 
 [[sovereign_crates]]
 id = "ceo"
-crate = "annunimas-ceo"
+crate = "arda-ceo"
 status = "active_subordinate"
 "#,
         )
@@ -2732,7 +2732,7 @@ status = "active_subordinate"
         std::fs::write(
             root.join("data/prometheus/autonomy_operating_loop_preflight.json"),
             serde_json::json!({
-                "schema_version": "annunimas.autonomy_operating_loop_preflight.v1",
+                "schema_version": "arda.autonomy_operating_loop_preflight.v1",
                 "loop": {"missing_required_stages": []},
                 "summary": {
                     "lane_count": 12,
@@ -2747,7 +2747,7 @@ status = "active_subordinate"
         std::fs::write(
             root.join("data/hades/autonomy_cleanup_approval_packets.json"),
             serde_json::json!({
-                "schema_version": "annunimas.hades.cleanup_approval_packets.v1",
+                "schema_version": "arda.hades.cleanup_approval_packets.v1",
                 "candidate_count": 0,
                 "cleanup_authorized": false,
                 "requires_operator_approval_for_mutation": true,
@@ -2760,7 +2760,7 @@ status = "active_subordinate"
         std::fs::create_dir_all(root.join("data/athena")).expect("athena data");
         std::fs::write(
             root.join("data/athena/external_source_lane_ledger.jsonl"),
-            r#"{"schema_version":"annunimas.athena.external_source_lane.v1","source_id":"web","task_promotion_allowed":true,"canonical_url":"https://example.invalid/source","verification_status":"source_receipted"}
+            r#"{"schema_version":"arda.athena.external_source_lane.v1","source_id":"web","task_promotion_allowed":true,"canonical_url":"https://example.invalid/source","verification_status":"source_receipted"}
 "#,
         )
         .expect("external ledger");
@@ -3425,7 +3425,7 @@ status = "active_subordinate"
         .unwrap_or_else(|err| panic!("mkdir receipt parent failed: {err}"));
         std::fs::write(
             &receipt_path,
-            r#"{"contract":"annunimas.arandur.operator_approved_candidates_execution.v1","tasks":[{"candidate_id":"candidate_arda_visualization_and_presence","approval_packet_id":"arandur_approval_20260521T191923Z_candidate_arda_visualization_and_presence","status":"executed_verified"},{"candidate_id":"candidate_ais_smb_os_and_relic","approval_packet_id":"arandur_approval_20260521T205014Z_candidate_ais_smb_os_and_relic","status":"executed_verified"}]}"#,
+            r#"{"contract":"arda.arandur.operator_approved_candidates_execution.v1","tasks":[{"candidate_id":"candidate_arda_visualization_and_presence","approval_packet_id":"arandur_approval_20260521T191923Z_candidate_arda_visualization_and_presence","status":"executed_verified"},{"candidate_id":"candidate_ais_smb_os_and_relic","approval_packet_id":"arandur_approval_20260521T205014Z_candidate_ais_smb_os_and_relic","status":"executed_verified"}]}"#,
         )
         .unwrap_or_else(|err| panic!("write receipt failed: {err}"));
 
@@ -3499,7 +3499,7 @@ status = "active_subordinate"
         .unwrap_or_else(|err| panic!("mkdir receipt parent failed: {err}"));
         std::fs::write(
             &receipt_path,
-            r#"{"contract":"annunimas.arandur.operator_approved_candidates_execution.v1","tasks":[{"candidate_id":"candidate_arda_visualization_and_presence","approval_packet_id":"arandur_approval_20260521T191923Z_candidate_arda_visualization_and_presence","status":"executed_verified"}]}"#,
+            r#"{"contract":"arda.arandur.operator_approved_candidates_execution.v1","tasks":[{"candidate_id":"candidate_arda_visualization_and_presence","approval_packet_id":"arandur_approval_20260521T191923Z_candidate_arda_visualization_and_presence","status":"executed_verified"}]}"#,
         )
         .unwrap_or_else(|err| panic!("write receipt failed: {err}"));
 

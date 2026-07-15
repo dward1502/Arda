@@ -1,6 +1,6 @@
 # sigil: REPAIR
 # ============================================================
-# ANNUNIMAS PROJECT REGISTRY
+# ARDA PROJECT REGISTRY
 # core/projects/_registry.toml
 #
 # 𓀀 Arandur — All projects report to command
@@ -67,7 +67,7 @@ sigil           = "𓂀"
 clearance       = "guardian"
 realm           = "operations"
 
-description     = "Holographic AI avatar using Pepper's Ghost technique. The physical face of Annunimas."
+description     = "Holographic AI avatar using Pepper's Ghost technique. The physical face of Arda."
 phase           = "prototyping"
 
 [project.agents]

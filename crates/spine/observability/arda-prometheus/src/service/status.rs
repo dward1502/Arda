@@ -2,8 +2,8 @@ use crate::heartbeat::HeartbeatMode;
 use crate::service::{
     append_jsonl, read_recent_jsonl, ContextEngineeringPolicy, PrometheusService, PrometheusStatus,
 };
-use annunimas_core::error::Result;
-use annunimas_hermes::HermesService;
+use arda_core::error::Result;
+use arda_hermes::HermesService;
 use serde_json::Value;
 use std::{fs, path::Path};
 

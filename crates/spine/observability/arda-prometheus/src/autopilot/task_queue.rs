@@ -243,7 +243,7 @@ impl ActiveQueueExecutor {
         task: &QueueRecord,
     ) -> std::io::Result<ActiveQueueExecutionAttempt> {
         let attempt = ActiveQueueExecutionAttempt {
-            contract: "annunimas.prometheus.active_queue_execution_attempt.v1".to_owned(),
+            contract: "arda.prometheus.active_queue_execution_attempt.v1".to_owned(),
             executor: "prometheus.active_queue_executor".to_owned(),
             task_id: task.id.clone(),
             status: "attempted".to_owned(),
@@ -286,7 +286,7 @@ impl ActiveQueueExecutor {
                 "status": "completed",
                 "result": result,
                 "completed_at_utc": Utc::now().to_rfc3339(),
-                "contract": "annunimas.prometheus.active_queue_terminal_record.v1",
+                "contract": "arda.prometheus.active_queue_terminal_record.v1",
                 "executor": "prometheus.active_queue_executor",
                 "hades_projection_repair": true,
             }),
@@ -511,7 +511,7 @@ mod tests {
         std::fs::write(
             &active_path,
             serde_json::to_string(&json!({
-                "contract": "annunimas.hades.queue_active_projection.v1",
+                "contract": "arda.hades.queue_active_projection.v1",
                 "active": [{"id": "safe-local-task"}, {"id": "human-required-task"}]
             }))
             .expect("serialize active projection"),
@@ -567,7 +567,7 @@ mod tests {
 
         assert_eq!(
             attempt.contract,
-            "annunimas.prometheus.active_queue_execution_attempt.v1"
+            "arda.prometheus.active_queue_execution_attempt.v1"
         );
         let records = TaskQueueAnalyzer::new(&queue_path)
             .load()
@@ -647,13 +647,13 @@ mod tests {
         std::fs::write(
             &receipt_path,
             serde_json::to_vec_pretty(&json!({
-                "schema_version": "annunimas.l3.bounded_mutation_receipt.v1",
+                "schema_version": "arda.l3.bounded_mutation_receipt.v1",
                 "task_id": selected.id,
                 "class_id": "l3_local_doc_fixture_patch",
                 "action_class": "local_refactors",
                 "policy_mode": "block_on_fail",
                 "changed_paths": ["tests/fixtures/l3/p6_harness.md"],
-                "verify_command": "cargo test -p annunimas-prometheus l3",
+                "verify_command": "cargo test -p arda-prometheus l3",
                 "verify_status": verify_status,
                 "rollback": {
                     "strategy": "restore_previous_content_or_remove_fixture",
@@ -685,7 +685,7 @@ mod tests {
             receipt
                 .get("schema_version")
                 .and_then(serde_json::Value::as_str),
-            Some("annunimas.l3.bounded_mutation_receipt.v1")
+            Some("arda.l3.bounded_mutation_receipt.v1")
         );
         assert_eq!(
             receipt

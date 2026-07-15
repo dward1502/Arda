@@ -858,12 +858,12 @@ mod tests {
     #[test]
     fn source_map_semantic_equality_ignores_generated_at_only() {
         let left = json!({
-            "schema_version": "annunimas.core.state.v1",
+            "schema_version": "arda.core.state.v1",
             "generated_at_utc": "2026-05-20T01:00:00Z",
             "sections": [{"id": "routing", "status": "ready"}]
         });
         let right = json!({
-            "schema_version": "annunimas.core.state.v1",
+            "schema_version": "arda.core.state.v1",
             "generated_at_utc": "2026-05-20T02:00:00Z",
             "sections": [{"id": "routing", "status": "ready"}]
         });
@@ -874,12 +874,12 @@ mod tests {
     #[test]
     fn source_map_semantic_equality_detects_source_changes() {
         let left = json!({
-            "schema_version": "annunimas.core.state.v1",
+            "schema_version": "arda.core.state.v1",
             "generated_at_utc": "2026-05-20T01:00:00Z",
             "sections": [{"id": "routing", "supplemental_sources": ["data/hermes/boardroom.jsonl"]}]
         });
         let right = json!({
-            "schema_version": "annunimas.core.state.v1",
+            "schema_version": "arda.core.state.v1",
             "generated_at_utc": "2026-05-20T02:00:00Z",
             "sections": [{"id": "routing", "supplemental_sources": ["data/hermes/interruptions.jsonl"]}]
         });

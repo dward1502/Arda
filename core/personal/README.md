@@ -14,7 +14,7 @@ soterion:
 # sigil: REPAIR
 # Personal
 
-**Location:** `/var/home/mythos/Annunimas/core/personal`
+**Location:** `/var/home/mythos/Arda/core/personal`
 **Created:** 2026-04-12
 
 ## Overview
@@ -35,12 +35,12 @@ Personal files are used for user preferences and customization.
 ## Key Files
 
 **All Files:**
-- [`data.rs`](/var/home/mythos/Annunimas/core/personal/data.rs) - 19,144 bytes
-- [`personal-identity.toml`](/var/home/mythos/Annunimas/core/personal/personal-identity.toml) - 4,058 bytes
+- [`data.rs`](/var/home/mythos/Arda/core/personal/data.rs) - 19,144 bytes
+- [`personal-identity.toml`](/var/home/mythos/Arda/core/personal/personal-identity.toml) - 4,058 bytes
 
 ## Usage
 
-This directory contains configuration and data files used by various Annunimas components.
+This directory contains configuration and data files used by various Arda components.
 
 ## Maintenance
 
@@ -50,4 +50,4 @@ This directory contains configuration and data files used by various Annunimas c
 
 ## Related Components
 
-- [annunimas-core](/var/home/mythos/Annunimas/core) - Core system components
+- [arda-core](/var/home/mythos/Arda/core) - Core system components

@@ -5,7 +5,7 @@
 
 use std::{fs, path::Path};
 
-use annunimas_core::task::Task;
+use arda_core::task::Task;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -114,7 +114,7 @@ pub struct GovernanceChainResult {
 }
 
 impl GovernanceChainConfig {
-    pub const SCHEMA_VERSION: &'static str = "annunimas.governance.chains.v1";
+    pub const SCHEMA_VERSION: &'static str = "arda.governance.chains.v1";
 
     pub fn default_triad() -> Self {
         Self {
@@ -499,13 +499,13 @@ fn has_action_verb(desc: &str) -> bool {
 // ---------------------------------------------------------------
 // loop_engine integration: a TriadConsultant impl that calls
 // triad_validate() and maps TriadResult into the contract-shaped
-// TriadOutcome. Used by `annunimas-cli loop tick`.
+// TriadOutcome. Used by `arda-cli loop tick`.
 // ---------------------------------------------------------------
 
-use annunimas_core::contract::{
+use arda_core::contract::{
     PhilosopherVerdict, TriadOutcome as ContractTriadOutcome, TriadVerdict,
 };
-use annunimas_core::loop_engine::TriadConsultant;
+use arda_core::loop_engine::TriadConsultant;
 
 /// Live triad consultant. Wraps `triad_validate` and reshapes the
 /// result into the contract `TriadOutcome` ledgered on every Decision.
@@ -619,7 +619,7 @@ mod tests {
     #[test]
     fn configurable_chain_can_project_non_execution_metadata() {
         let raw = r#"
-schema_version = "annunimas.governance.chains.v1"
+schema_version = "arda.governance.chains.v1"
 chain_id = "default_triad"
 chain_version = "heuristic_local_v1"
 profile_source = "config/governance/philosophers.toml"

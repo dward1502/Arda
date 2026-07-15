@@ -13,7 +13,7 @@ soterion:
 
 # bin
 
-Purpose: HADES-generated directory overview for `crates/annunimas-prometheus/src/bin`.
+Purpose: HADES-generated directory overview for `crates/arda-prometheus/src/bin`.
 
 ## Contents
 

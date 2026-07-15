@@ -6,13 +6,13 @@
 //! later phase wires explicit, audited approval evidence.
 
 use super::decomposer::{Objective, PlannedTask, Priority};
-use annunimas_governance::{PhilosopherAction, TriadPhilosopherVerdict};
+use arda_governance::{PhilosopherAction, TriadPhilosopherVerdict};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::BTreeSet;
 use std::path::Path;
 
-pub const ACTION_CLASS_CONTRACT: &str = "annunimas.action_classification.v1";
+pub const ACTION_CLASS_CONTRACT: &str = "arda.action_classification.v1";
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -714,8 +714,8 @@ mod tests {
                 },
             ],
             concerns: Vec::new(),
-            triad_philosopher: Some(annunimas_governance::TriadPhilosopherVerdict {
-                action: annunimas_governance::PhilosopherAction::Hold,
+            triad_philosopher: Some(arda_governance::TriadPhilosopherVerdict {
+                action: arda_governance::PhilosopherAction::Hold,
                 reason: "evidence grounding is insufficient for confident action".into(),
                 alignment_score: 0.42,
             }),

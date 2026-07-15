@@ -1,5 +1,5 @@
 // sigil: REPAIR
-//! Annunimas CEO Pipeline
+//! arda CEO Pipeline
 //!
 //! Simplified orchestration - routes tasks to agents
 
@@ -15,14 +15,14 @@ use crate::heartbeat::{select_heartbeat_mode, HeartbeatState};
 use crate::orders::OrderStore;
 use crate::registry::AgentRosterSnapshot;
 use crate::thought::ThoughtLedger;
-use annunimas_core::error::Result;
-use annunimas_core::ledger::Ledger;
-use annunimas_core::router::Router;
-use annunimas_core::task::Task;
-use annunimas_fleet::{
+use arda_core::error::Result;
+use arda_core::ledger::Ledger;
+use arda_core::router::Router;
+use arda_core::task::Task;
+use arda_fleet::{
     EdgeDispatcher, EdgeHealthMonitor, FleetCapacityManager, ProviderTokenTracker,
 };
-use annunimas_mnemosyne::MnemosyneService;
+use arda_mnemosyne::MnemosyneService;
 
 pub struct Pipeline {
     router: Router,

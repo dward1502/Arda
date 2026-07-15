@@ -41,12 +41,12 @@ It is not a chatbot. It is not an assistant. It is an operating system with agen
 ## Current State (2026-03-12)
 
 **What exists:**
-- Annunimas core architecture complete (Soterion, triad governance, resonance scoring, Warden, CEO pipeline)
+- Arda core architecture complete (Soterion, triad governance, resonance scoring, Warden, CEO pipeline)
 - `core/` authority surfaces are live and exported into machine-readable runtime state
 - ARDA-facing shared state and world view projections are operational
 - Local control plane is explicit: sovereign CEO identity is `arandur`, executable CEO runtime is `prometheus`
 - Runtime topology is explicit: WARDEN authority belongs to the Pi5 guardhouse; heavy reasoning belongs on the backbone server
-- `annunimas-oracle`, `annunimas-plutus`, `annunimas-hermes`, and `annunimas-apollo` crates already exist in-repo
+- `arda-oracle`, `arda-plutus`, `arda-hermes`, and `arda-apollo` crates already exist in-repo
 - Priority human-derived crates are present and integrated into contract/autonomy exports
 - Launch posture is now governed by preflight checks for governance, swap, storage pressure, and runtime budget validity
 

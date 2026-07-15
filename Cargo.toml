@@ -6,10 +6,12 @@ members = [
     "crates/spine/runtime/manwe",
     "crates/spine/governance/arda-core",
     "crates/spine/governance/arda-council",
-    "crates/spine/governance/arda-tool-harness",
+    "crates/spine/tooling/arda-tool-harness",
     "crates/spine/interface/arda-onboarding",
     "crates/spine/executors/arda-service-registry",
     "crates/spine/runtime/arda-systemd",
+    "crates/old-annunimas/arda-charon",
+    "crates/old-annunimas/arda-fleet",
 ]
 
 [package]
@@ -48,13 +50,8 @@ tempfile = "3"
 # --- merged from Annunimas ---
 async-trait = "0.1"
 serde_yaml = "0.9"
-# Annunimas crates referenced via `workspace = true` inside the vendored crates
-annunimas-charon = { path = "crates/old-annunimas/annunimas-charon" }
+# Arda crates (formerly annunimas-*) referenced via `workspace = true`
 arda-core = { path = "crates/spine/governance/arda-core" }
-annunimas-governance = { path = "crates/old-annunimas/annunimas-governance" }
-annunimas-mnemosyne = { path = "crates/old-annunimas/annunimas-mnemosyne" }
-annunimas-oracle = { path = "crates/old-annunimas/annunimas-oracle" }
-annunimas-plutus = { path = "crates/old-annunimas/annunimas-plutus" }
 tokio = { version = "1", features = ["full"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }

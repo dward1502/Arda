@@ -1,9 +1,9 @@
-use annunimas_governance::{
+use arda_governance::{
     load_philosopher_profiles_from_str, PhilosopherProfileMaturity, PhilosopherProfileSet,
 };
 
 const BOOTSTRAP_PROFILES: &str = r#"
-schema_version = "annunimas.governance.philosopher_profiles.v1"
+schema_version = "arda.governance.philosopher_profiles.v1"
 authority = "human_authored_bootstrap"
 default_maturity = "draft_human_authored"
 autonomous_blocking_enabled = false

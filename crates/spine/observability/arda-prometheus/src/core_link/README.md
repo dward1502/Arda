@@ -13,7 +13,7 @@ soterion:
 
 # core_link
 
-Purpose: HADES-generated directory overview for `crates/annunimas-prometheus/src/core_link`.
+Purpose: HADES-generated directory overview for `crates/arda-prometheus/src/core_link`.
 
 ## Contents
 

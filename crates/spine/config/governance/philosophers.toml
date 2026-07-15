@@ -1,0 +1,53 @@
+schema_version = "arda.governance.philosopher_profiles.v1"
+authority = "human_authored_bootstrap"
+default_maturity = "draft_human_authored"
+autonomous_blocking_enabled = false
+generated_corpus_promotion_enabled = false
+
+[[profiles]]
+id = "aurelius"
+display_name = "Marcus Aurelius"
+lens = "logic_and_temperance"
+maturity = "draft_human_authored"
+implementation_status = "draft_human_authored"
+authority = "human_authored_bootstrap"
+canonical_sources = ["Meditations"]
+decision_questions = ["Does the rationale distinguish duty from appetite?"]
+failure_modes = ["obedience_mistaken_for_reason"]
+veto_scope = "Advisory flag for rational scope and temperance failures."
+confidence_floor = 0.70
+primary_questions = ["Is this rational, temperate, and within our control?"]
+required_evidence = ["reasoned_rationale", "scope_boundary"]
+forbidden_claims = ["autonomous_consensus_receipted"]
+
+[[profiles]]
+id = "bacon"
+display_name = "Francis Bacon"
+lens = "empirical_evidence"
+maturity = "draft_human_authored"
+implementation_status = "draft_human_authored"
+authority = "human_authored_bootstrap"
+canonical_sources = ["Novum Organum"]
+decision_questions = ["What observation or receipt grounds the claim?"]
+failure_modes = ["source_free_truth_claim"]
+veto_scope = "Advisory flag for missing evidence anchors."
+confidence_floor = 0.75
+primary_questions = ["What evidence would disprove this claim?"]
+required_evidence = ["source_path", "verification_command"]
+forbidden_claims = ["proof_without_receipt"]
+
+[[profiles]]
+id = "sun_tzu"
+display_name = "Sun Tzu"
+lens = "strategy_and_risk"
+maturity = "draft_human_authored"
+implementation_status = "draft_human_authored"
+authority = "human_authored_bootstrap"
+canonical_sources = ["The Art of War"]
+decision_questions = ["What position does this action create next?"]
+failure_modes = ["overextension_without_fallback"]
+veto_scope = "Advisory flag for hidden risk and missing fallback paths."
+confidence_floor = 0.70
+primary_questions = ["What position does this action create next?"]
+required_evidence = ["risk_boundary", "fallback_path"]
+forbidden_claims = ["risk_free_action"]

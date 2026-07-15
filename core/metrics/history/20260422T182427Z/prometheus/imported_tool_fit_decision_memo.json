@@ -8,7 +8,7 @@
     "discord-mcp",
     "arscontexta"
   ],
-  "schema_version": "annunimas.imported-tool-fit-decision-memo.v1",
+  "schema_version": "arda.imported-tool-fit-decision-memo.v1",
   "status": "decision_memo_ready_for_execution_review",
   "tools": [
     {

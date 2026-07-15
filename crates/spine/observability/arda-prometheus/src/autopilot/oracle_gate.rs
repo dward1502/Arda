@@ -5,8 +5,8 @@
 
 use super::decomposer::{Objective, PlannedTask, Priority};
 use super::governance_policy::{TriadGateScore, TriadQuorumEvidence};
-use annunimas_governance::{interpret_alignment, AlignmentSignals, LoveDynamicsTrend};
-use annunimas_oracle::{GateResult, OracleEngine, OracleQuery, Verdict, VerdictOutcome};
+use arda_governance::{interpret_alignment, AlignmentSignals, LoveDynamicsTrend};
+use arda_oracle::{GateResult, OracleEngine, OracleQuery, Verdict, VerdictOutcome};
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 
@@ -280,10 +280,10 @@ mod tests {
 
         assert!(matches!(
             philosopher.action,
-            annunimas_governance::PhilosopherAction::Proceed
-                | annunimas_governance::PhilosopherAction::Revise
-                | annunimas_governance::PhilosopherAction::Hold
-                | annunimas_governance::PhilosopherAction::Reject
+            arda_governance::PhilosopherAction::Proceed
+                | arda_governance::PhilosopherAction::Revise
+                | arda_governance::PhilosopherAction::Hold
+                | arda_governance::PhilosopherAction::Reject
         ));
         assert!(philosopher.alignment_score >= 0.0);
         assert!(philosopher.alignment_score <= 1.0);

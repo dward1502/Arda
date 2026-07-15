@@ -1,1 +1,1 @@
-pub use annunimas_core::learning::{LearningState, LearningStore, OutcomeStats};
+pub use arda_core::learning::{LearningState, LearningStore, OutcomeStats};

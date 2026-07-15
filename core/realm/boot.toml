@@ -1,6 +1,6 @@
 # sigil: REPAIR
 # ============================================================
-# ANNUNIMAS BOOT SEQUENCE
+# ARDA BOOT SEQUENCE
 # ∇ Sovereign Work | 𓀀 Command Authority
 # ============================================================
 # "In the beginning was the Word, and the Word was with God"
@@ -8,7 +8,7 @@
 # ============================================================
 
 [system]
-name        = "Annunimas"
+name        = "Arda"
 sigil       = "𓀀"
 realm       = "sovereign"
 version     = "0.1.0"
@@ -49,7 +49,7 @@ heartbeat_ms = 500
 
 sequence = [
     "verify_sovereignty",       # ∇ Check system has not been compromised
-    "load_realm_identity",      # Load annunimas.toml, agents.toml, sigils.toml
+    "load_realm_identity",      # Load arda.toml, agents.toml, sigils.toml
     "read_human_philosophy",    # CEO reads thoughts.md and index.md
     "scan_soterion_index",      # Index all .md and .jsonl in data/, docs/, human/
     "initialize_agent_roster",  # Spawn agents from agents.toml definitions

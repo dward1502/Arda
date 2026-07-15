@@ -1,6 +1,6 @@
 // sigil: ANKH
 // ============================================================
-// ANNUNIMAS DATA LAYER (prototype reference module)
+// Arda DATA LAYER (prototype reference module)
 // core/personal/data.rs
 //
 // Clearance-gated access to clients, projects, and personal data.

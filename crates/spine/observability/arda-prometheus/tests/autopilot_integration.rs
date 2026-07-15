@@ -1,4 +1,4 @@
-use annunimas_prometheus::autopilot::{
+use arda_prometheus::autopilot::{
     AgentCapabilities, AgentRegistry, AutopilotConfig, CeoAutopilot, LearningStore,
 };
 
@@ -35,32 +35,32 @@ fn write_allow_readiness_artifacts(root: &std::path::Path) {
         r#"
 [[sovereign_crates]]
 id = "governance"
-crate = "annunimas-governance"
+crate = "arda-governance"
 status = "contract_required"
 
 [[sovereign_crates]]
 id = "oracle"
-crate = "annunimas-oracle"
+crate = "arda-oracle"
 status = "active_prototype"
 
 [[sovereign_crates]]
 id = "plutus"
-crate = "annunimas-plutus"
+crate = "arda-plutus"
 status = "contract_required"
 
 [[sovereign_crates]]
 id = "human"
-crate = "annunimas-human"
+crate = "arda-human"
 status = "contract_required"
 
 [[sovereign_crates]]
 id = "council"
-crate = "annunimas-council"
+crate = "arda-council"
 status = "active_subordinate"
 
 [[sovereign_crates]]
 id = "ceo"
-crate = "annunimas-ceo"
+crate = "arda-ceo"
 status = "active_subordinate"
 "#,
     )
@@ -69,7 +69,7 @@ status = "active_subordinate"
     std::fs::write(
         root.join("data/prometheus/autonomy_operating_loop_preflight.json"),
         serde_json::json!({
-            "schema_version": "annunimas.autonomy_operating_loop_preflight.v1",
+            "schema_version": "arda.autonomy_operating_loop_preflight.v1",
             "loop": {"missing_required_stages": []},
             "summary": {
                 "lane_count": 12,
@@ -84,7 +84,7 @@ status = "active_subordinate"
     std::fs::write(
         root.join("data/hades/autonomy_cleanup_approval_packets.json"),
         serde_json::json!({
-            "schema_version": "annunimas.hades.cleanup_approval_packets.v1",
+            "schema_version": "arda.hades.cleanup_approval_packets.v1",
             "candidate_count": 0,
             "cleanup_authorized": false,
             "requires_operator_approval_for_mutation": true,
@@ -97,7 +97,7 @@ status = "active_subordinate"
     std::fs::create_dir_all(root.join("data/athena")).unwrap();
     std::fs::write(
         root.join("data/athena/external_source_lane_ledger.jsonl"),
-        r#"{"schema_version":"annunimas.athena.external_source_lane.v1","source_id":"web","task_promotion_allowed":true,"canonical_url":"https://example.invalid/source","verification_status":"source_receipted"}
+        r#"{"schema_version":"arda.athena.external_source_lane.v1","source_id":"web","task_promotion_allowed":true,"canonical_url":"https://example.invalid/source","verification_status":"source_receipted"}
 "#,
     )
     .unwrap();
@@ -109,7 +109,7 @@ status = "active_subordinate"
 async fn objective_cycle_executes_apollo_updates_learning_and_reports() {
     let dir = tempfile::tempdir().unwrap();
     let mut cfg = AutopilotConfig::from_root(dir.path());
-    cfg.systemd_pattern = "annunimas-ceo-autopilot-integration-*".into();
+    cfg.systemd_pattern = "arda-ceo-autopilot-integration-*".into();
     write_allow_readiness_artifacts(dir.path());
 
     std::fs::create_dir_all(cfg.queue_path.parent().unwrap()).unwrap();
@@ -187,13 +187,13 @@ async fn objective_cycle_executes_apollo_updates_learning_and_reports() {
 async fn readiness_gate_holds_incomplete_lane_before_queue_promotion() {
     let dir = tempfile::tempdir().unwrap();
     let mut cfg = AutopilotConfig::from_root(dir.path());
-    cfg.systemd_pattern = "annunimas-ceo-autopilot-readiness-hold-*".into();
+    cfg.systemd_pattern = "arda-ceo-autopilot-readiness-hold-*".into();
     write_allow_readiness_artifacts(dir.path());
     std::fs::write(
         dir.path()
             .join("data/prometheus/autonomy_operating_loop_preflight.json"),
         serde_json::json!({
-            "schema_version": "annunimas.autonomy_operating_loop_preflight.v1",
+            "schema_version": "arda.autonomy_operating_loop_preflight.v1",
             "loop": {"missing_required_stages": []},
             "summary": {
                 "lane_count": 12,
@@ -233,7 +233,7 @@ async fn readiness_gate_holds_incomplete_lane_before_queue_promotion() {
             .queue_operation
             .as_ref()
             .map(|operation| &operation.result_status),
-        Some(&annunimas_prometheus::autopilot::QueueOperationStatus::BlockedAutonomyReadiness)
+        Some(&arda_prometheus::autopilot::QueueOperationStatus::BlockedAutonomyReadiness)
     );
     assert_eq!(std::fs::read_to_string(&cfg.queue_path).unwrap(), "");
 }
@@ -242,13 +242,13 @@ async fn readiness_gate_holds_incomplete_lane_before_queue_promotion() {
 async fn readiness_gate_requires_human_for_hades_cleanup_approval_packets() {
     let dir = tempfile::tempdir().unwrap();
     let mut cfg = AutopilotConfig::from_root(dir.path());
-    cfg.systemd_pattern = "annunimas-ceo-autopilot-readiness-human-*".into();
+    cfg.systemd_pattern = "arda-ceo-autopilot-readiness-human-*".into();
     write_allow_readiness_artifacts(dir.path());
     std::fs::write(
         dir.path()
             .join("data/hades/autonomy_cleanup_approval_packets.json"),
         serde_json::json!({
-            "schema_version": "annunimas.hades.cleanup_approval_packets.v1",
+            "schema_version": "arda.hades.cleanup_approval_packets.v1",
             "candidate_count": 1,
             "cleanup_authorized": false,
             "requires_operator_approval_for_mutation": true,
@@ -287,7 +287,7 @@ async fn readiness_gate_requires_human_for_hades_cleanup_approval_packets() {
             .queue_operation
             .as_ref()
             .map(|operation| &operation.result_status),
-        Some(&annunimas_prometheus::autopilot::QueueOperationStatus::BlockedAutonomyReadiness)
+        Some(&arda_prometheus::autopilot::QueueOperationStatus::BlockedAutonomyReadiness)
     );
     assert_eq!(std::fs::read_to_string(&cfg.queue_path).unwrap(), "");
 }
@@ -296,12 +296,12 @@ async fn readiness_gate_requires_human_for_hades_cleanup_approval_packets() {
 async fn readiness_gate_holds_external_source_lanes_without_receipts() {
     let dir = tempfile::tempdir().unwrap();
     let mut cfg = AutopilotConfig::from_root(dir.path());
-    cfg.systemd_pattern = "annunimas-ceo-autopilot-readiness-external-*".into();
+    cfg.systemd_pattern = "arda-ceo-autopilot-readiness-external-*".into();
     write_allow_readiness_artifacts(dir.path());
     std::fs::write(
         dir.path()
             .join("data/athena/external_source_lane_ledger.jsonl"),
-        r#"{"schema_version":"annunimas.athena.external_source_lane.v1","source_id":"reddit","task_promotion_allowed":false,"verification_status":"not_ingested"}
+        r#"{"schema_version":"arda.athena.external_source_lane.v1","source_id":"reddit","task_promotion_allowed":false,"verification_status":"not_ingested"}
 "#,
     )
     .unwrap();
@@ -334,11 +334,11 @@ async fn readiness_gate_holds_external_source_lanes_without_receipts() {
 async fn readiness_gate_requires_human_for_council_unresolved_escalation() {
     let dir = tempfile::tempdir().unwrap();
     let mut cfg = AutopilotConfig::from_root(dir.path());
-    cfg.systemd_pattern = "annunimas-ceo-autopilot-readiness-council-*".into();
+    cfg.systemd_pattern = "arda-ceo-autopilot-readiness-council-*".into();
     write_allow_readiness_artifacts(dir.path());
     std::fs::write(
         dir.path().join("data/council/agent_conversations.jsonl"),
-        r#"{"schema_version":"annunimas.council.agent_conversation.v1","conversation_id":"council-escalation","actionability":"gated_action","risk_lane":"human_gated","summary":"needs operator approval"}
+        r#"{"schema_version":"arda.council.agent_conversation.v1","conversation_id":"council-escalation","actionability":"gated_action","risk_lane":"human_gated","summary":"needs operator approval"}
 "#,
     )
     .unwrap();
@@ -371,7 +371,7 @@ async fn readiness_gate_requires_human_for_council_unresolved_escalation() {
 async fn readiness_gate_holds_when_sovereign_adapter_contract_is_missing() {
     let dir = tempfile::tempdir().unwrap();
     let mut cfg = AutopilotConfig::from_root(dir.path());
-    cfg.systemd_pattern = "annunimas-ceo-autopilot-readiness-sovereign-*".into();
+    cfg.systemd_pattern = "arda-ceo-autopilot-readiness-sovereign-*".into();
     write_allow_readiness_artifacts(dir.path());
     std::fs::remove_file(dir.path().join("config/autonomy_operating_loop.toml")).unwrap();
     std::fs::create_dir_all(cfg.queue_path.parent().unwrap()).unwrap();
@@ -404,7 +404,7 @@ async fn read_only_cycle_reports_hades_introspection_without_mutating_runtime_su
     let dir = tempfile::tempdir().expect("tempdir");
     let mut cfg = AutopilotConfig::from_root(dir.path());
     cfg.read_only = true;
-    cfg.systemd_pattern = "annunimas-ceo-autopilot-read-only-hades-*".into();
+    cfg.systemd_pattern = "arda-ceo-autopilot-read-only-hades-*".into();
 
     std::fs::create_dir_all(cfg.queue_path.parent().expect("queue parent")).expect("queue dir");
     std::fs::write(&cfg.queue_path, "").expect("queue seed");
@@ -418,14 +418,14 @@ async fn read_only_cycle_reports_hades_introspection_without_mutating_runtime_su
     let review_queue_path = hades_dir.join("lifecycle_review_queue.jsonl");
     std::fs::write(
         &review_queue_path,
-        r#"{"contract":"annunimas.hades.lifecycle_review_queue_projection.v1","review_id":"hlq_stale_plan","path":"docs/plans/stale.md","review_required":true,"destructive_allowed":false}
+        r#"{"contract":"arda.hades.lifecycle_review_queue_projection.v1","review_id":"hlq_stale_plan","path":"docs/plans/stale.md","review_required":true,"destructive_allowed":false}
 "#,
     )
     .expect("review queue");
     std::fs::write(
         &policy_report_path,
         serde_json::json!({
-            "contract": "annunimas.hades.lifecycle_policy_automation_report.v1",
+            "contract": "arda.hades.lifecycle_policy_automation_report.v1",
             "generated_at_utc": "2026-05-31T00:00:00Z",
             "source_findings_total": 1,
             "report_path": policy_report_path.display().to_string(),
@@ -462,11 +462,11 @@ async fn read_only_cycle_reports_hades_introspection_without_mutating_runtime_su
     assert_eq!(report.weekly_report_path, None);
     assert_eq!(
         report.hades_introspection.contract,
-        "annunimas.prometheus.hades_introspection_projection.v1"
+        "arda.prometheus.hades_introspection_projection.v1"
     );
     assert_eq!(
         report.hades_introspection.source_contract.as_deref(),
-        Some("annunimas.hades.lifecycle_policy_automation_report.v1")
+        Some("arda.hades.lifecycle_policy_automation_report.v1")
     );
     assert_eq!(report.hades_introspection.source_findings_total, 1);
     assert_eq!(report.hades_introspection.consistency_holds_total, 1);
@@ -489,7 +489,7 @@ async fn cycle_reports_sovereign_adapter_receipts_from_portable_loop_contract() 
     let dir = tempfile::tempdir().expect("tempdir");
     let mut cfg = AutopilotConfig::from_root(dir.path());
     cfg.read_only = true;
-    cfg.systemd_pattern = "annunimas-ceo-autopilot-sovereign-adapters-*".into();
+    cfg.systemd_pattern = "arda-ceo-autopilot-sovereign-adapters-*".into();
 
     std::fs::create_dir_all(cfg.queue_path.parent().expect("queue parent")).expect("queue dir");
     std::fs::write(&cfg.queue_path, "").expect("queue seed");
@@ -502,35 +502,35 @@ async fn cycle_reports_sovereign_adapter_receipts_from_portable_loop_contract() 
         r#"
 [[sovereign_crates]]
 id = "governance"
-crate = "annunimas-governance"
+crate = "arda-governance"
 loop_stages = ["assess", "plan", "task"]
 gate = "classify_action_and_required_authority_before_task_or_execute"
 status = "contract_required"
 
 [[sovereign_crates]]
 id = "oracle"
-crate = "annunimas-oracle"
+crate = "arda-oracle"
 loop_stages = ["assess", "review", "confirm"]
 gate = "validate_before_high_risk_promotion_and_before_claiming_done"
 status = "active_prototype"
 
 [[sovereign_crates]]
 id = "plutus"
-crate = "annunimas-plutus"
+crate = "arda-plutus"
 loop_stages = ["plan", "execute", "audit"]
 gate = "budget_receipt_before_delegation_and_review_after_execution"
 status = "contract_required"
 
 [[sovereign_crates]]
 id = "human"
-crate = "annunimas-human"
+crate = "arda-human"
 loop_stages = ["deliberate", "review", "confirm"]
 gate = "human_required_action_classes_need_explicit_human_approval"
 status = "contract_required"
 
 [[sovereign_crates]]
 id = "council"
-crate = "annunimas-council"
+crate = "arda-council"
 loop_stages = ["deliberate", "review", "replan"]
 gate = "evidence_for_governance_not_approval_by_itself"
 status = "active_subordinate"
@@ -551,7 +551,7 @@ status = "active_subordinate"
 
     assert_eq!(
         report.sovereign_adapters.contract,
-        "annunimas.prometheus.sovereign_adapter_projection.v1"
+        "arda.prometheus.sovereign_adapter_projection.v1"
     );
     assert!(report.sovereign_adapters.source_available);
     assert_eq!(report.sovereign_adapters.adapter_count, 5);
@@ -571,7 +571,7 @@ status = "active_subordinate"
 async fn mutating_cycle_appends_evidence_only_council_runtime_record() {
     let dir = tempfile::tempdir().expect("tempdir");
     let mut cfg = AutopilotConfig::from_root(dir.path());
-    cfg.systemd_pattern = "annunimas-ceo-autopilot-council-runtime-*".into();
+    cfg.systemd_pattern = "arda-ceo-autopilot-council-runtime-*".into();
     write_allow_readiness_artifacts(dir.path());
 
     std::fs::create_dir_all(cfg.queue_path.parent().expect("queue parent")).expect("queue dir");
@@ -593,7 +593,7 @@ async fn mutating_cycle_appends_evidence_only_council_runtime_record() {
 
     assert_eq!(
         report.council_runtime.contract,
-        "annunimas.prometheus.council_runtime_projection.v1"
+        "arda.prometheus.council_runtime_projection.v1"
     );
     assert_eq!(report.council_runtime.appended_record_count, 1);
     assert_eq!(report.council_runtime.existing_record_count, 1);
@@ -604,7 +604,7 @@ async fn mutating_cycle_appends_evidence_only_council_runtime_record() {
     let value: serde_json::Value = serde_json::from_str(ledger.trim()).expect("council json");
     assert_eq!(
         value["schema_version"],
-        "annunimas.council.agent_conversation.v1"
+        "arda.council.agent_conversation.v1"
     );
     assert_eq!(value["speaker_agent"], "prometheus");
     assert_eq!(value["message_class"], "receipt");

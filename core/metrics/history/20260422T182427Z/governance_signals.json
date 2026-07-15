@@ -133,7 +133,7 @@
           "version": "v1.0.0"
         }
       ],
-      "schema_version": "annunimas.validators.v2"
+      "schema_version": "arda.validators.v2"
     },
     "weights": {
       "bacon_lite_confidence": 0.1,
@@ -149,7 +149,7 @@
   },
   "generated_at_utc": "2026-04-22T22:01:34.266506226+00:00",
   "goal": {
-    "active_ruleset": "annunimas_totality",
+    "active_ruleset": "arda_totality",
     "attention_required": [],
     "autonomy_ready": true,
     "autonomy_threshold": 0.65,

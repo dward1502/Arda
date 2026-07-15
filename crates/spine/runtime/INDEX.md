@@ -19,9 +19,9 @@ soterion:
 - `INDEX.md`
 - `manwe`
 - `arda-systemd`
-- `annunimas-hades`
-- `annunimas-oracle`
-- `annunimas-plutus`
+- `arda-hades`
+- `arda-oracle`
+- `arda-plutus`
 
 ## Purpose
 

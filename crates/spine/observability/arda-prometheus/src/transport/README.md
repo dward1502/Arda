@@ -13,7 +13,7 @@ soterion:
 
 # transport
 
-Purpose: HADES-generated directory overview for `crates/annunimas-prometheus/src/transport`.
+Purpose: HADES-generated directory overview for `crates/arda-prometheus/src/transport`.
 
 ## Contents
 

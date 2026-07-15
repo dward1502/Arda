@@ -5,7 +5,7 @@
 use super::apollo_bridge::Dispatch;
 use super::decomposer::PlannedTask;
 use super::delegation::DelegationReport;
-use annunimas_apollo::ExecutionStatus;
+use arda_apollo::ExecutionStatus;
 use chrono::Utc;
 use serde_json::json;
 use std::io::Write;

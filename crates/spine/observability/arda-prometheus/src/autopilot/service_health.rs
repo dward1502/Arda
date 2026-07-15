@@ -1,9 +1,9 @@
 // sigil: REPAIR
-//! Service health monitor — consumes the `annunimas-systemd` typed client
+//! Service health monitor — consumes the `arda-systemd` typed client
 //! and applies unit-type-aware scoring (timers in `active/waiting` healthy;
 //! oneshot services with sibling timers healthy when inactive; etc.).
 
-use annunimas_systemd::{SystemctlClient, SystemdClient, Unit, UnitKind};
+use arda_systemd::{SystemctlClient, SystemdClient, Unit, UnitKind};
 use serde::Serialize;
 use std::collections::HashSet;
 use std::process::Command;
@@ -28,12 +28,12 @@ pub struct ServiceHealthReport {
 }
 
 /// Re-export for backwards compatibility — older code (and tests) used
-/// `service_health::SystemdQuery`. Now delegates to `annunimas-systemd`.
+/// `service_health::SystemdQuery`. Now delegates to `arda-systemd`.
 pub trait SystemdQuery {
     fn list_units(&self, pattern: &str) -> std::io::Result<String>;
 }
 
-/// Default implementation — shells out via `annunimas-systemd::SystemctlClient`.
+/// Default implementation — shells out via `arda-systemd::SystemctlClient`.
 pub struct UserSystemd;
 impl SystemdQuery for UserSystemd {
     fn list_units(&self, pattern: &str) -> std::io::Result<String> {
@@ -52,7 +52,7 @@ impl Default for ServiceHealthMonitor<UserSystemd> {
     fn default() -> Self {
         Self {
             systemd: UserSystemd,
-            pattern: "annunimas-*".into(),
+            pattern: "arda-*".into(),
         }
     }
 }
@@ -66,7 +66,7 @@ impl<S: SystemdQuery> ServiceHealthMonitor<S> {
         }
         if report.services.is_empty() {
             report = score_units(
-                &annunimas_systemd::parse_list_units(
+                &arda_systemd::parse_list_units(
                     &fallback_list_units(None).unwrap_or_default(),
                 )
                 .into_iter()
@@ -84,7 +84,7 @@ impl<S: SystemdQuery> ServiceHealthMonitor<S> {
     }
 
     pub fn parse(raw: &str) -> ServiceHealthReport {
-        let units = annunimas_systemd::parse_list_units(raw);
+        let units = arda_systemd::parse_list_units(raw);
         score_units(&units)
     }
 }
@@ -142,12 +142,12 @@ fn fallback_shell_list_units(pattern: &str) -> std::io::Result<String> {
 fn missing_systemd_query_report() -> ServiceHealthReport {
     ServiceHealthReport {
         services: vec![ServiceHealth {
-            unit: "annunimas-systemd-query".to_string(),
+            unit: "arda-systemd-query".to_string(),
             load: "not-found".to_string(),
             active: "failed".to_string(),
             sub: "empty".to_string(),
             score: 0.2,
-            note: "systemd query returned no annunimas units".to_string(),
+            note: "systemd query returned no arda units".to_string(),
         }],
         healthy: 0,
         degraded: 0,
@@ -252,14 +252,14 @@ mod tests {
     use super::*;
     #[test]
     fn timer_active_waiting_is_healthy() {
-        let raw = "annunimas-foo.timer loaded active waiting Foo timer\n";
+        let raw = "arda-foo.timer loaded active waiting Foo timer\n";
         let r = ServiceHealthMonitor::<UserSystemd>::parse(raw);
         assert_eq!(r.healthy, 1);
         assert_eq!(r.failed, 0);
     }
     #[test]
     fn oneshot_with_sibling_timer_is_healthy() {
-        let raw = "annunimas-foo.service loaded inactive dead Foo\nannunimas-foo.timer loaded active waiting Foo timer\n";
+        let raw = "arda-foo.service loaded inactive dead Foo\narda-foo.timer loaded active waiting Foo timer\n";
         let r = ServiceHealthMonitor::<UserSystemd>::parse(raw);
         assert_eq!(r.failed, 0);
         assert!(
@@ -273,7 +273,7 @@ mod tests {
     }
     #[test]
     fn activating_oneshot_with_sibling_timer_is_healthy() {
-        let raw = "annunimas-foo.service loaded activating start Foo\nannunimas-foo.timer loaded active waiting Foo timer\n";
+        let raw = "arda-foo.service loaded activating start Foo\narda-foo.timer loaded active waiting Foo timer\n";
         let r = ServiceHealthMonitor::<UserSystemd>::parse(raw);
         assert_eq!(r.failed, 0);
         assert_eq!(r.degraded, 0);
@@ -288,13 +288,13 @@ mod tests {
     }
     #[test]
     fn standalone_service_inactive_is_degraded() {
-        let raw = "annunimas-warden.service loaded inactive dead Warden\n";
+        let raw = "arda-warden.service loaded inactive dead Warden\n";
         let r = ServiceHealthMonitor::<UserSystemd>::parse(raw);
         assert_eq!(r.degraded, 1);
     }
     #[test]
     fn failed_active_state_is_failed() {
-        let raw = "annunimas-x.service loaded failed failed X\n";
+        let raw = "arda-x.service loaded failed failed X\n";
         let r = ServiceHealthMonitor::<UserSystemd>::parse(raw);
         assert_eq!(r.failed, 1);
     }
@@ -308,15 +308,15 @@ mod tests {
     }
 
     #[test]
-    fn unit_prefix_pattern_matches_annunimas_units() {
+    fn unit_prefix_pattern_matches_arda_units() {
         assert!(unit_matches_pattern(
-            "annunimas-charon.service",
-            "annunimas-*"
+            "arda-charon.service",
+            "arda-*"
         ));
-        assert!(!unit_matches_pattern("llama-server.service", "annunimas-*"));
+        assert!(!unit_matches_pattern("llama-server.service", "arda-*"));
         assert!(unit_matches_pattern(
-            "annunimas-charon.service",
-            "annunimas-charon.service"
+            "arda-charon.service",
+            "arda-charon.service"
         ));
     }
 }

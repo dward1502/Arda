@@ -2789,13 +2789,13 @@
   ],
   "runtime_build_cache": {
     "authority": "runtime_build_cache_compactor",
-    "build_root": "/var/home/mythos/.cache/annunimas-build",
+    "build_root": "/var/home/mythos/.cache/arda-build",
     "generated_at_utc": "2026-04-22T22:01:33Z",
     "observed_bytes": 1687068470,
     "removed_bytes": 3692311553,
     "status": "ok",
     "target_bytes": 1552899014,
-    "target_dir": "/var/home/mythos/.cache/annunimas-build/target"
+    "target_dir": "/var/home/mythos/.cache/arda-build/target"
   },
   "timestamp_utc": "2026-04-22T22:01:33.358969917+00:00"
 }

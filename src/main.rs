@@ -1,7 +1,7 @@
 //! The `arda` daemon — the single Rust entry point for the Arda system.
 //!
 //! Responsibilities:
-//!   - boot the engine (Annunimas spine),
+//!   - boot the engine (Arda spine),
 //!   - supervise the Tauri `arda-launcher`, the HUD, and the `manwe` gateway
 //!     (declared in `services.toml`),
 //!   - shut everything down cleanly on ctrl-c.
@@ -20,7 +20,7 @@ use arda_engine::supervisor::{Shutdown, Supervisor};
 #[derive(Parser, Debug)]
 #[command(name = "arda", version, about = "Arda system daemon")]
 struct Cli {
-    /// Log filter (e.g. `arda=debug,annunimas_charon=trace`).
+    /// Log filter (e.g. `arda=debug,arda_charon=trace`).
     #[arg(short, long, default_value = "info")]
     log: String,
 

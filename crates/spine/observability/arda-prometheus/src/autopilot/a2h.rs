@@ -1,12 +1,12 @@
 // sigil: REPAIR
-//! Agent-to-Human (A2H) message writer using `annunimas-comm` schemas.
+//! Agent-to-Human (A2H) message writer using `arda-comm` schemas.
 //! Appends JSON-encoded `A2HMessage` records to `data/comm/a2h.jsonl`
 //! when the autopilot needs human approval (Oracle escalation, budget
 //! exhaustion, etc.).
 
 use super::decomposer::Objective;
 use super::oracle_gate::GateDecision;
-use annunimas_comm::{A2HMessage, Priority as CommPriority, ResponseAction};
+use arda_comm::{A2HMessage, Priority as CommPriority, ResponseAction};
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;

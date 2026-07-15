@@ -5,8 +5,8 @@ use super::governance_policy::GovernanceGate;
 use super::source_registry::{ArandurSourceType, SourceRegistry};
 use serde::Serialize;
 
-pub const OBJECTIVE_PACKET_CONTRACT: &str = "annunimas.arandur.objective_packet.v1";
-pub const OBJECTIVE_PACKET_REPORT_CONTRACT: &str = "annunimas.arandur.objective_packet_report.v1";
+pub const OBJECTIVE_PACKET_CONTRACT: &str = "arda.arandur.objective_packet.v1";
+pub const OBJECTIVE_PACKET_REPORT_CONTRACT: &str = "arda.arandur.objective_packet_report.v1";
 
 #[derive(Debug, Clone, Serialize)]
 pub struct ObjectivePacket {
@@ -82,7 +82,7 @@ impl ObjectivePacket {
     #[cfg(test)]
     fn test_packet(candidate_id: &str, review_gate: GovernanceGate, selected: bool) -> Self {
         Self::from_report(
-            "annunimas.test.source.v1",
+            "arda.test.source.v1",
             ArandurSourceType::Unknown,
             ObjectivePacketInput {
                 source_path: "/tmp/source.jsonl".into(),
@@ -185,7 +185,7 @@ mod tests {
     #[test]
     fn planner_normalizes_candidate_report_into_objective_packet_contract() {
         let packet = ObjectivePacket::from_report(
-            "annunimas.arandur.recommendations.v1",
+            "arda.arandur.recommendations.v1",
             ArandurSourceType::ArandurRecommendation,
             ObjectivePacketInput {
                 source_path: "/repo/data/arandur/recommendations.jsonl".into(),
@@ -209,7 +209,7 @@ mod tests {
         assert_eq!(packet.contract, OBJECTIVE_PACKET_CONTRACT);
         assert_eq!(
             packet.source_contract,
-            "annunimas.arandur.recommendations.v1"
+            "arda.arandur.recommendations.v1"
         );
         assert_eq!(packet.source_type, ArandurSourceType::ArandurRecommendation);
         assert_eq!(packet.source_record_id, "reco-1");

@@ -17,22 +17,22 @@ pub enum PrometheusError {
     Io(#[from] std::io::Error),
 }
 
-impl From<PrometheusError> for annunimas_core::error::AnnunimasError {
+impl From<PrometheusError> for arda_core::error::ArdaError {
     fn from(e: PrometheusError) -> Self {
         match e {
             PrometheusError::BootConfigMissing { path } => {
-                annunimas_core::error::AnnunimasError::Config(format!(
+                arda_core::error::ArdaError::Config(format!(
                     "boot config not found: {}",
                     path.display()
                 ))
             }
             PrometheusError::BootConfigInvalid { path, source } => {
-                annunimas_core::error::AnnunimasError::Config(format!(
+                arda_core::error::ArdaError::Config(format!(
                     "boot config invalid at {}: {source}",
                     path.display()
                 ))
             }
-            PrometheusError::Io(e) => annunimas_core::error::AnnunimasError::Ledger(e),
+            PrometheusError::Io(e) => arda_core::error::ArdaError::Ledger(e),
         }
     }
 }

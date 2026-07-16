@@ -1,0 +1,88 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--body-font);
+  color: var(--text);
+  background: 
+    linear-gradient(180deg, #080b12, #030508 55%, #020305 100%);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar {
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-pill);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--accent), var(--accent-tertiary));
+  border-radius: var(--radius-pill);
+  box-shadow: 0 0 0.5rem var(--accent-soft);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--accent), #00ffcc);
+  box-shadow: 0 0 0.75rem var(--accent);
+}
+
+::selection {
+  background: var(--accent);
+  color: #000;
+  text-shadow: none;
+}
+
+html.arda-scene-window-interaction,
+body.arda-scene-window-interaction,
+html.arda-scene-window-interaction *,
+body.arda-scene-window-interaction * {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+html.arda-scene-window-interaction ::selection,
+body.arda-scene-window-interaction ::selection {
+  background: transparent !important;
+  color: inherit !important;
+  text-shadow: none !important;
+}
+
+body.arda-scene-window-interaction iframe {
+  pointer-events: none !important;
+}
+
+body.arda-scene-window-interaction {
+  cursor: grabbing;
+}
+
+body.arda-scene-window-interaction .scene-workstation--resizing {
+  cursor: se-resize;
+}
+
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 0.125rem;
+  box-shadow: 0 0 1rem var(--accent-soft);
+}
+
+html {
+  scroll-behavior: smooth;
+}

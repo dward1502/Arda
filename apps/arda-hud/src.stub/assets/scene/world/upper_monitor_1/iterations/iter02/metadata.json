@@ -1,0 +1,15 @@
+{
+  "domain": "world/upper_monitor_1/iterations",
+  "forge": {
+    "comfyui_prompt_id": "e587db46-85cf-4515-8d8e-08bdd1f1d986",
+    "idempotency_key": "forge-18afe58dd9091d86",
+    "negative_prompt": "people, character, person, gingerbread, hand, body, face, text, watermark, signature, blurry, low quality, low resolution, multiple objects, scene, environment, room, cluttered background",
+    "pipeline": "comfyui_text_to_3d_hunyuan",
+    "positive_prompt": "isolated on plain white background, centered product render, 3D model, single object, no humans, no environment, black and dark graphite cyber-noir suspended wall/ceiling monitor assembly, slim rectangular upper display with thick rugged beveled graphite bezel, cyan emissive edge accents and cyan screen glow, compact articulated monitor arm with visible rotary hinge discs, layered mounting bracket, hard-surface panel seams, industrial premium sci-fi boardroom hardware"
+  },
+  "id": "world/upper_monitor_1/iterations_iter02",
+  "license": "Internal",
+  "material_family": "arda_boardroom_monitor_graphite_cyan",
+  "scene_binding": "upper_monitor_1",
+  "source": "forge_mind_comfyui_hunyuan3d"
+}

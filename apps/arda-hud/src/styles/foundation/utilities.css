@@ -1,0 +1,68 @@
+.glow-accent {
+  box-shadow: 0 0 1rem var(--accent), 0 0 2rem var(--accent-soft);
+}
+
+.glow-text {
+  text-shadow: 0 0 0.625rem var(--accent), 0 0 1.25rem var(--accent-soft);
+}
+
+.glow-border {
+  border: 1px solid var(--accent);
+  box-shadow: inset 0 0 1rem var(--accent-soft), 0 0 1rem var(--accent-soft);
+}
+
+
+
+.keyboard-hints {
+  position: fixed;
+  bottom: var(--space-4);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9998;
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-pill);
+  background: rgba(10, 14, 22, 0.75);
+  backdrop-filter: blur(0.5rem);
+  border: 1px solid var(--line);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  opacity: 0.7;
+  transition: opacity 200ms ease;
+}
+
+.keyboard-hints:hover {
+  opacity: 1;
+}
+
+.keyboard-hints .kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.25rem;
+  padding: 0 var(--space-1);
+  margin-right: var(--space-1);
+  border-radius: var(--radius-sm);
+  background: var(--surface-strong);
+  border: 1px solid var(--line);
+  font-family: var(--body-font);
+  font-size: 0.65rem;
+  color: var(--accent);
+}
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

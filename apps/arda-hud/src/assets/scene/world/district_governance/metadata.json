@@ -1,0 +1,8 @@
+{
+  "id": "world_district_governance",
+  "domain": "world",
+  "scene_binding": "district_governance",
+  "material_family": "world_district_structure",
+  "source": "procedural_script_tools_generate_arda_assets_py",
+  "license": "Internal"
+}

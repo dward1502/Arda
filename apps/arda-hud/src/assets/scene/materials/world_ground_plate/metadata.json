@@ -1,0 +1,17 @@
+{
+  "id": "world_ground_plate",
+  "domain": "materials",
+  "scene_binding": "shared",
+  "material_family": "world_ground_plate",
+  "source": "procedural_script_tools_generate_arda_assets_py",
+  "license": "Internal",
+  "channels": {
+    "albedo": "world_ground_plate_albedo.png",
+    "normal": "world_ground_plate_normal.png",
+    "roughness": "world_ground_plate_roughness.png",
+    "metalness": "world_ground_plate_metalness.png",
+    "emissive": "world_ground_plate_emissive.png"
+  },
+  "status": "active",
+  "notes": "Procedural starter material for the world traversal ground plate."
+}

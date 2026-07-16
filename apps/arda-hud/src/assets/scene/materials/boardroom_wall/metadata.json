@@ -1,0 +1,16 @@
+{
+  "id": "boardroom_wall",
+  "domain": "materials",
+  "scene_binding": "shared",
+  "material_family": "boardroom_wall",
+  "source": "procedural_script_tools_generate_arda_assets_py",
+  "license": "Internal",
+  "channels": {
+    "albedo": "boardroom_wall_albedo.png",
+    "normal": "boardroom_wall_normal.png",
+    "roughness": "boardroom_wall_roughness.png",
+    "metalness": "boardroom_wall_metalness.png"
+  },
+  "status": "active",
+  "notes": "Procedural starter material synced over previous wall texture files. Oversized AO and emissive channels are excluded from the default runtime budget until resized or compressed."
+}

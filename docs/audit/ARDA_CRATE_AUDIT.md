@@ -179,3 +179,6 @@ and direct source inspection of representative implementation files.
 - `arda-mandos` and `arda-vaire` retain Annunimas-era `ARDA_PLUTUS_HOME`
   test paths; should migrate to `arda-economics` service paths/resolution.
 - `arda-mandos/lib.rs` has added re-exports for `context`, `notify`, `pageindex`, `transport`, but those modules are not yet reflected in public docs.
+- `cargo check --workspace --all-targets` fails today because of those stale
+  plutus imports, which indicates this is not just a doc issue—it’s a live
+  compilation blocker.

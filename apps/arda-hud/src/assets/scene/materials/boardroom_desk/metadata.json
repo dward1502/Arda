@@ -1,0 +1,17 @@
+{
+  "id": "boardroom_desk",
+  "domain": "materials",
+  "scene_binding": "shared",
+  "material_family": "boardroom_desk",
+  "source": "procedural_script_tools_generate_arda_assets_py",
+  "license": "Internal",
+  "channels": {
+    "albedo": "boardroom_desk_albedo.png",
+    "normal": "boardroom_desk_normal.png",
+    "roughness": "boardroom_desk_roughness.png",
+    "metalness": "boardroom_desk_metalness.png",
+    "emissive": "boardroom_desk_emissive.png"
+  },
+  "status": "active",
+"notes": "Semi-reflective obsidian with strong edge emissive inlays. Primary surface for foreground desks."
+}

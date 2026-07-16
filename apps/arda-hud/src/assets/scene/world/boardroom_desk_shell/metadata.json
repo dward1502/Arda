@@ -1,0 +1,105 @@
+{
+  "id": "world_boardroom_desk_shell",
+  "domain": "world",
+  "scene_binding": "boardroom_desk_shell",
+  "material_family": "world_terminal_housing",
+  "source": "forge_mind_parametric_desk_shell_v1",
+  "license": "Internal",
+  "forge": {
+    "generator": "build_desk_shell.py",
+    "parameters": {
+      "arc_length_m": 3.0,
+      "arc_radius_m": 2.5,
+      "middle_width_m": 1.4,
+      "surface_depth_m": 0.7,
+      "desk_height_m": 0.78,
+      "floor_z_m": 0.0,
+      "tilt_deg": 10.0,
+      "segments_per_arc": 32
+    },
+    "mount_points": [
+      {
+        "name": "socket_monitor_1",
+        "kind": "monitor_mount",
+        "position": [
+          -3.059,
+          0.0993,
+          0.79
+        ]
+      },
+      {
+        "name": "socket_monitor_2",
+        "kind": "monitor_mount",
+        "position": [
+          -2.1285,
+          0.9662,
+          0.79
+        ]
+      },
+      {
+        "name": "socket_monitor_3",
+        "kind": "monitor_mount",
+        "position": [
+          -0.9135,
+          1.342,
+          0.79
+        ]
+      },
+      {
+        "name": "socket_monitor_4",
+        "kind": "monitor_mount",
+        "position": [
+          0.8068,
+          1.348,
+          0.79
+        ]
+      },
+      {
+        "name": "socket_monitor_5",
+        "kind": "monitor_mount",
+        "position": [
+          2.035,
+          1.018,
+          0.79
+        ]
+      },
+      {
+        "name": "socket_monitor_6",
+        "kind": "monitor_mount",
+        "position": [
+          2.9973,
+          0.1866,
+          0.79
+        ]
+      },
+      {
+        "name": "socket_center_console",
+        "kind": "console_well",
+        "position": [
+          0.0,
+          1.0,
+          0.7368
+        ]
+      },
+      {
+        "name": "socket_side_left",
+        "kind": "side_panel",
+        "position": [
+          -0.78,
+          1.0,
+          0.7183
+        ]
+      },
+      {
+        "name": "socket_side_right",
+        "kind": "side_panel",
+        "position": [
+          0.78,
+          1.0,
+          0.7183
+        ]
+      }
+    ],
+    "asset_relpath": "boardroom_desk_shell.glb"
+  }
+}

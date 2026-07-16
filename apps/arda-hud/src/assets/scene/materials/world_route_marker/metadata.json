@@ -1,0 +1,16 @@
+{
+  "id": "world_route_marker",
+  "domain": "materials",
+  "scene_binding": "shared",
+  "material_family": "world_route_marker",
+  "source": "procedural_script_tools_generate_arda_assets_py",
+  "license": "Internal",
+  "channels": {
+    "albedo": "world_route_marker_albedo.png",
+    "normal": "world_route_marker_normal.png",
+    "roughness": "world_route_marker_roughness.png",
+    "emissive": "world_route_marker_emissive.png"
+  },
+  "status": "active",
+  "notes": "Procedural starter material for traversal route markers."
+}

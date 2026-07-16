@@ -1,0 +1,9 @@
+{
+  "id": "boardroom_monitor_bezel",
+  "domain": "materials",
+  "scene_binding": "boardroom_monitors",
+  "material_family": "thin_modern_metal",
+  "source": "custom_authoring_blender",
+  "license": "Internal",
+  "notes": "Thin modern bezel with subtle wear and accent glow lines."
+}

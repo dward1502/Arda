@@ -1,0 +1,16 @@
+{
+  "id": "world_atmosphere_plate",
+  "domain": "materials",
+  "scene_binding": "shared",
+  "material_family": "world_atmosphere_plate",
+  "source": "procedural_script_tools_generate_arda_assets_py",
+  "license": "Internal",
+  "channels": {
+    "albedo": "world_atmosphere_plate_albedo.png",
+    "normal": "world_atmosphere_plate_normal.png",
+    "roughness": "world_atmosphere_plate_roughness.png",
+    "emissive": "world_atmosphere_plate_emissive.png"
+  },
+  "status": "active",
+  "notes": "Procedural starter material for world atmospheric plates."
+}

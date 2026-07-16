@@ -1,0 +1,12 @@
+{
+  "domain": "world",
+  "forge": {
+    "idempotency_key": "forge-18aeab35eebc3764",
+    "persistent": false
+  },
+  "id": "world_desk_right_surface",
+  "license": "Internal",
+  "material_family": "world_terminal_housing",
+  "scene_binding": "desk_right_surface",
+  "source": "forge_mind_builtin_prompt_1_geometry_cleanup"
+}

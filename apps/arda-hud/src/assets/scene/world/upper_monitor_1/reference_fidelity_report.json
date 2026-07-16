@@ -1,0 +1,44 @@
+{
+  "aspect_width_over_height": 1.3678224741044247,
+  "asset": "apps/arda-hud/src/assets/scene/world/upper_monitor_1/upper_monitor_1.glb",
+  "asset_sha256": "de8f7a89a72fe5057a58c75ee35bbc05f9efd9671d938e6a7238bda1315d93cb",
+  "checks": {
+    "has_required_hard_surface_features": true,
+    "metadata_asset_hash_matches": true,
+    "metadata_license_resolved": true,
+    "metadata_quality_gate_present": true,
+    "metadata_reference_hash_matches": true,
+    "metadata_source_names_reference": true,
+    "no_generic_office_stand_remnants": true,
+    "object_count_at_least_30": true,
+    "wide_monitor_aspect_ratio": true
+  },
+  "forbidden_hits": [],
+  "notes": [
+    "Deterministic structural gate; visual reference comparison still required for final art approval.",
+    "Rejects plain office-monitor outputs by requiring armored bezel, side modules, hinges, articulated arms, and cyan accents."
+  ],
+  "object_count": 36,
+  "passed": true,
+  "reference": "human/inbox/arda_boardroom_spec_pack_v0_2/monitors.jpg",
+  "reference_sha256": "c257a6397a056b22d052d949bad2e1bffcde106ac00296f061685a2eaa090c2b",
+  "required_features": {
+    "base_hinge_disc": true,
+    "cyan_bottom_lightbar": true,
+    "left_articulated_arm": true,
+    "left_side_armor": true,
+    "rear_backplate": true,
+    "rear_hinge_bridge": true,
+    "rear_hinge_disc": true,
+    "right_articulated_arm": true,
+    "right_side_armor": true,
+    "rugged_bottom_armor": true,
+    "rugged_top_armor": true,
+    "screen_surface": true
+  },
+  "scene_extent": [
+    1.85744,
+    0.30225,
+    1.357954
+  ]
+}

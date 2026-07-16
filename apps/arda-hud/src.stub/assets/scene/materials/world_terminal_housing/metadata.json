@@ -1,0 +1,17 @@
+{
+  "id": "world_terminal_housing",
+  "domain": "materials",
+  "scene_binding": "shared",
+  "material_family": "world_terminal_housing",
+  "source": "procedural_script_tools_generate_arda_assets_py",
+  "license": "Internal",
+  "channels": {
+    "albedo": "world_terminal_housing_albedo.png",
+    "normal": "world_terminal_housing_normal.png",
+    "roughness": "world_terminal_housing_roughness.png",
+    "metalness": "world_terminal_housing_metalness.png",
+    "emissive": "world_terminal_housing_emissive.png"
+  },
+  "status": "active",
+  "notes": "Procedural starter material for boardroom controls, workstation terminals, and monitor housings."
+}

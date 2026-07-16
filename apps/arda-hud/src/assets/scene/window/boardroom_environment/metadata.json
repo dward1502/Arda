@@ -1,0 +1,8 @@
+{
+  "id": "window_boardroom_environment",
+  "domain": "window",
+  "scene_binding": "shared",
+  "material_family": "boardroom_environment",
+  "source": "procedural_hdr_generated_no_flying_cars",
+  "license": "Internal"
+}

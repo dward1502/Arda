@@ -1,0 +1,8 @@
+{
+  "id": "window_boardroom_skyline_plate",
+  "domain": "window",
+  "scene_binding": "shared",
+  "material_family": "boardroom_skyline_plate",
+  "source": "procedural_image_generated_no_flying_cars",
+  "license": "Internal"
+}

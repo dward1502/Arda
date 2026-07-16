@@ -1,0 +1,8 @@
+{
+  "id": "hologram_presence_rig",
+  "domain": "hologram",
+  "scene_binding": "hologram_anchor",
+  "material_family": "hologram_presence",
+  "source": "procedural_script_tools_generate_arda_assets_py",
+  "license": "Internal"
+}

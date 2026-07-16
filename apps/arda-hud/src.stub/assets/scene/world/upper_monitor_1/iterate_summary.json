@@ -1,0 +1,262 @@
+{
+  "asset_id": "upper_monitor_1",
+  "domain": "world",
+  "accepted_iteration": null,
+  "iterations": [
+    {
+      "iteration": 1,
+      "prompt": "isolated production-quality 3D asset matching the ARDA boardroom upper monitor reference: black and dark graphite cyber-noir suspended wall/ceiling monitor assembly, slim rectangular upper display with thick rugged beveled graphite bezel, cyan emissive edge accents and cyan screen glow, compact articulated monitor arm with visible rotary hinge discs, layered mounting bracket, hard-surface panel seams, industrial premium sci-fi boardroom hardware, single object centered on plain white background, no humans, no environment",
+      "glb_path": "apps/arda-hud/src/assets/scene/world/upper_monitor_1/iterations/iter01/iter01.glb",
+      "reference_image_path": "apps/arda-hud/src/assets/scene/world/upper_monitor_1/iterations/iter01/iter01_reference.png",
+      "angle_renders": [
+        "/var/home/mythos/Arda/apps/arda-hud/src/assets/scene/world/upper_monitor_1/iterations/iter01/iter01_front.png",
+        "/var/home/mythos/Arda/apps/arda-hud/src/assets/scene/world/upper_monitor_1/iterations/iter01/iter01_three_quarter.png",
+        "/var/home/mythos/Arda/apps/arda-hud/src/assets/scene/world/upper_monitor_1/iterations/iter01/iter01_side.png"
+      ],
+      "comparison": {
+        "match_score": 0.1,
+        "missing": [
+          "cyan emissive edge accents",
+          "cyan screen glow",
+          "compact articulated monitor arm",
+          "visible rotary hinge discs",
+          "hard-surface panel seams",
+          "industrial premium sci-fi boardroom hardware",
+          "black and dark graphite cyber-noir",
+          "suspended wall/ceiling monitor assembly",
+          "slim rectangular upper display",
+          "thick rugged beveled graphite bezel"
+        ],
+        "wrong": [
+          "white background",
+          "no environment",
+          "no humans"
+        ],
+        "strengths": [
+          "single object"
+        ],
+        "suggested_prompt_edit": "isolated on plain white background, centered product render, 3D model, single object, no humans, no environment, black and dark graphite cyber-noir suspended wall/ceiling monitor assembly, slim rectangular upper display with thick rugged beveled graphite bezel, cyan emissive edge accents and cyan screen glow, compact articulated monitor arm with visible rotary hinge discs, layered mounting bracket, hard-surface panel seams, industrial premium sci-fi boardroom hardware",
+        "raw_response": "{\n\"match_score\": 0.1,\n\"missing\": [\"cyan emissive edge accents\", \"cyan screen glow\", \"compact articulated monitor arm\", \"visible rotary hinge discs\", \"hard-surface panel seams\", \"industrial premium sci-fi boardroom hardware\", \"black and dark graphite cyber-noir\", \"suspended wall/ceiling monitor assembly\", \"slim rectangular upper display\", \"thick rugged beveled graphite bezel\"],\n\"wrong\": [\"white background\", \"no environment\", \"no humans\"],\n\"strengths\": [\"single object\"],\n\"suggested_prompt_edit\": \"isolated on plain white background, centered product render, 3D model, single object, no humans, no environment, black and dark graphite cyber-noir suspended wall/ceiling monitor assembly, slim rectangular upper display with thick rugged beveled graphite bezel, cyan emissive edge accents and cyan screen glow, compact articulated monitor arm with visible rotary hinge discs, layered mounting bracket, hard-surface panel seams, industrial premium sci-fi boardroom hardware\"\n}"
+      },
+      "governance": {
+        "task_id": "37e80775-e4e1-4802-9d6b-ec8e26eab63a",
+        "triad": {
+          "aurelius": "Pass",
+          "bacon": "Pass",
+          "sun_tzu": "Conditional",
+          "aurelius_score": 0.8999999999999999,
+          "bacon_score": 0.7999999999999999,
+          "sun_tzu_score": 0.45000000000000007,
+          "passed": false,
+          "veto_reason": "INSUFFICIENT_PASS_COUNT"
+        },
+        "bacon_lite": {
+          "passed": true,
+          "confidence": 0.75,
+          "mode": "bacon_lite",
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "bacon": "Pass",
+            "sun_tzu": "Conditional",
+            "aurelius_score": 0.8999999999999999,
+            "bacon_score": 0.7999999999999999,
+            "sun_tzu_score": 0.45000000000000007,
+            "passed": true,
+            "veto_reason": null
+          }
+        },
+        "joule": {
+          "estimated": 3.0,
+          "actual": 1.0,
+          "variance": 0.6666666666666666,
+          "honesty_ratio": 0.3333333333333333,
+          "efficient": false
+        },
+        "love": {
+          "score": 1.0,
+          "impact": 0.7,
+          "reach": 0.6,
+          "energy": 1.0,
+          "time": 1.0
+        },
+        "veto_stop": false,
+        "veto_reason": null
+      },
+      "accepted": false,
+      "elapsed_secs": 116.957781465
+    },
+    {
+      "iteration": 2,
+      "prompt": "isolated on plain white background, centered product render, 3D model, single object, no humans, no environment, black and dark graphite cyber-noir suspended wall/ceiling monitor assembly, slim rectangular upper display with thick rugged beveled graphite bezel, cyan emissive edge accents and cyan screen glow, compact articulated monitor arm with visible rotary hinge discs, layered mounting bracket, hard-surface panel seams, industrial premium sci-fi boardroom hardware",
+      "glb_path": "apps/arda-hud/src/assets/scene/world/upper_monitor_1/iterations/iter02/iter02.glb",
+      "reference_image_path": "apps/arda-hud/src/assets/scene/world/upper_monitor_1/iterations/iter02/iter02_reference.png",
+      "angle_renders": [
+        "/var/home/mythos/Arda/apps/arda-hud/src/assets/scene/world/upper_monitor_1/iterations/iter02/iter02_front.png",
+        "/var/home/mythos/Arda/apps/arda-hud/src/assets/scene/world/upper_monitor_1/iterations/iter02/iter02_three_quarter.png",
+        "/var/home/mythos/Arda/apps/arda-hud/src/assets/scene/world/upper_monitor_1/iterations/iter02/iter02_side.png"
+      ],
+      "comparison": {
+        "match_score": 0.0,
+        "missing": [
+          "black and dark graphite cyber-noir",
+          "slim rectangular upper display",
+          "thick rugged beveled graphite bezel",
+          "cyan emissive edge accents",
+          "cyan screen glow",
+          "compact articulated monitor arm",
+          "visible rotary hinge discs",
+          "layered mounting bracket",
+          "hard-surface panel seams",
+          "industrial premium sci-fi boardroom hardware"
+        ],
+        "wrong": [
+          "white background",
+          "no details"
+        ],
+        "strengths": [],
+        "suggested_prompt_edit": "isolated on plain white background, centered product render, 3D model, single object, no humans, no environment, black and dark graphite cyber-noir suspended wall/ceiling monitor assembly, slim rectangular upper display with thick rugged beveled graphite bezel, cyan emissive edge accents and cyan screen glow, compact articulated monitor arm with visible rotary hinge discs, layered mounting bracket, hard-surface panel seams, industrial premium sci-fi boardroom hardware",
+        "raw_response": "{\n\"match_score\": 0.0,\n\"missing\": [\"black and dark graphite cyber-noir\", \"slim rectangular upper display\", \"thick rugged beveled graphite bezel\", \"cyan emissive edge accents\", \"cyan screen glow\", \"compact articulated monitor arm\", \"visible rotary hinge discs\", \"layered mounting bracket\", \"hard-surface panel seams\", \"industrial premium sci-fi boardroom hardware\"],\n\"wrong\": [\"white background\", \"no details\"],\n\"strengths\": [],\n\"suggested_prompt_edit\": \"isolated on plain white background, centered product render, 3D model, single object, no humans, no environment, black and dark graphite cyber-noir suspended wall/ceiling monitor assembly, slim rectangular upper display with thick rugged beveled graphite bezel, cyan emissive edge accents and cyan screen glow, compact articulated monitor arm with visible rotary hinge discs, layered mounting bracket, hard-surface panel seams, industrial premium sci-fi boardroom hardware\"\n}"
+      },
+      "governance": {
+        "task_id": "8cb53836-9758-4981-ac26-2256776967f1",
+        "triad": {
+          "aurelius": "Pass",
+          "bacon": "Pass",
+          "sun_tzu": "Conditional",
+          "aurelius_score": 0.8999999999999999,
+          "bacon_score": 0.7,
+          "sun_tzu_score": 0.45000000000000007,
+          "passed": false,
+          "veto_reason": "INSUFFICIENT_PASS_COUNT"
+        },
+        "bacon_lite": {
+          "passed": true,
+          "confidence": 0.69,
+          "mode": "bacon_lite",
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "bacon": "Pass",
+            "sun_tzu": "Conditional",
+            "aurelius_score": 0.8999999999999999,
+            "bacon_score": 0.7,
+            "sun_tzu_score": 0.45000000000000007,
+            "passed": true,
+            "veto_reason": null
+          }
+        },
+        "joule": {
+          "estimated": 3.0,
+          "actual": 2.0,
+          "variance": 0.3333333333333333,
+          "honesty_ratio": 0.6666666666666666,
+          "efficient": false
+        },
+        "love": {
+          "score": 1.0,
+          "impact": 0.7,
+          "reach": 0.6,
+          "energy": 2.0,
+          "time": 1.0
+        },
+        "veto_stop": false,
+        "veto_reason": null
+      },
+      "accepted": false,
+      "elapsed_secs": 98.833271283
+    },
+    {
+      "iteration": 3,
+      "prompt": "isolated on plain white background, centered product render, 3D model, single object, no humans, no environment, black and dark graphite cyber-noir suspended wall/ceiling monitor assembly, slim rectangular upper display with thick rugged beveled graphite bezel, cyan emissive edge accents and cyan screen glow, compact articulated monitor arm with visible rotary hinge discs, layered mounting bracket, hard-surface panel seams, industrial premium sci-fi boardroom hardware",
+      "glb_path": "apps/arda-hud/src/assets/scene/world/upper_monitor_1/iterations/iter03/iter03.glb",
+      "reference_image_path": "apps/arda-hud/src/assets/scene/world/upper_monitor_1/iterations/iter03/iter03_reference.png",
+      "angle_renders": [
+        "/var/home/mythos/Arda/apps/arda-hud/src/assets/scene/world/upper_monitor_1/iterations/iter03/iter03_front.png",
+        "/var/home/mythos/Arda/apps/arda-hud/src/assets/scene/world/upper_monitor_1/iterations/iter03/iter03_three_quarter.png",
+        "/var/home/mythos/Arda/apps/arda-hud/src/assets/scene/world/upper_monitor_1/iterations/iter03/iter03_side.png"
+      ],
+      "comparison": {
+        "match_score": 0.0,
+        "missing": [
+          "black and dark graphite cyber-noir",
+          "slim rectangular upper display",
+          "thick rugged beveled graphite bezel",
+          "cyan emissive edge accents",
+          "cyan screen glow",
+          "compact articulated monitor arm",
+          "visible rotary hinge discs",
+          "layered mounting bracket",
+          "hard-surface panel seams",
+          "industrial premium sci-fi boardroom hardware"
+        ],
+        "wrong": [
+          "white background",
+          "no black and dark graphite cyber-noir",
+          "no slim rectangular upper display",
+          "no thick rugged beveled graphite bezel",
+          "no cyan emissive edge accents",
+          "no cyan screen glow",
+          "no compact articulated monitor arm",
+          "no visible rotary hinge discs",
+          "no layered mounting bracket",
+          "no hard-surface panel seams",
+          "no industrial premium sci-fi boardroom hardware"
+        ],
+        "strengths": [],
+        "suggested_prompt_edit": "isolated on plain white background, centered product render, 3D model, single object, no humans, no environment, black and dark graphite cyber-noir suspended wall/ceiling monitor assembly, slim rectangular upper display with thick rugged beveled graphite bezel, cyan emissive edge accents and cyan screen glow, compact articulated monitor arm with visible rotary hinge discs, layered mounting bracket, hard-surface panel seams, industrial premium sci-fi boardroom hardware",
+        "raw_response": "{\n\"match_score\": 0.0,\n\"missing\": [\"black and dark graphite cyber-noir\", \"slim rectangular upper display\", \"thick rugged beveled graphite bezel\", \"cyan emissive edge accents\", \"cyan screen glow\", \"compact articulated monitor arm\", \"visible rotary hinge discs\", \"layered mounting bracket\", \"hard-surface panel seams\", \"industrial premium sci-fi boardroom hardware\"],\n\"wrong\": [\"white background\", \"no black and dark graphite cyber-noir\", \"no slim rectangular upper display\", \"no thick rugged beveled graphite bezel\", \"no cyan emissive edge accents\", \"no cyan screen glow\", \"no compact articulated monitor arm\", \"no visible rotary hinge discs\", \"no layered mounting bracket\", \"no hard-surface panel seams\", \"no industrial premium sci-fi boardroom hardware\"],\n\"strengths\": [],\n\"suggested_prompt_edit\": \"isolated on plain white background, centered product render, 3D model, single object, no humans, no environment, black and dark graphite cyber-noir suspended wall/ceiling monitor assembly, slim rectangular upper display with thick rugged beveled graphite bezel, cyan emissive edge accents and cyan screen glow, compact articulated monitor arm with visible rotary hinge discs, layered mounting bracket, hard-surface panel seams, industrial premium sci-fi boardroom hardware\"\n}"
+      },
+      "governance": {
+        "task_id": "b1780b5b-b54e-449d-ac42-d7bd1122f825",
+        "triad": {
+          "aurelius": "Pass",
+          "bacon": "Pass",
+          "sun_tzu": "Conditional",
+          "aurelius_score": 0.8999999999999999,
+          "bacon_score": 0.7,
+          "sun_tzu_score": 0.45000000000000007,
+          "passed": false,
+          "veto_reason": "INSUFFICIENT_PASS_COUNT"
+        },
+        "bacon_lite": {
+          "passed": true,
+          "confidence": 0.69,
+          "mode": "bacon_lite",
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "bacon": "Pass",
+            "sun_tzu": "Conditional",
+            "aurelius_score": 0.8999999999999999,
+            "bacon_score": 0.7,
+            "sun_tzu_score": 0.45000000000000007,
+            "passed": true,
+            "veto_reason": null
+          }
+        },
+        "joule": {
+          "estimated": 3.0,
+          "actual": 3.0,
+          "variance": 0.0,
+          "honesty_ratio": 1.0,
+          "efficient": true
+        },
+        "love": {
+          "score": 1.0,
+          "impact": 0.7,
+          "reach": 0.6,
+          "energy": 3.0,
+          "time": 1.0
+        },
+        "veto_stop": false,
+        "veto_reason": null
+      },
+      "accepted": false,
+      "elapsed_secs": 87.170113242
+    }
+  ],
+  "final_glb": "apps/arda-hud/src/assets/scene/world/upper_monitor_1/upper_monitor_1.glb",
+  "summary_path": "apps/arda-hud/src/assets/scene/world/upper_monitor_1/iterate_summary.json",
+  "total_elapsed_secs": 302.962121274
+}

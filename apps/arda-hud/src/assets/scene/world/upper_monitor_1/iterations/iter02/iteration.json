@@ -1,0 +1,80 @@
+{
+  "iteration": 2,
+  "prompt": "isolated on plain white background, centered product render, 3D model, single object, no humans, no environment, black and dark graphite cyber-noir suspended wall/ceiling monitor assembly, slim rectangular upper display with thick rugged beveled graphite bezel, cyan emissive edge accents and cyan screen glow, compact articulated monitor arm with visible rotary hinge discs, layered mounting bracket, hard-surface panel seams, industrial premium sci-fi boardroom hardware",
+  "glb_path": "apps/arda-hud/src/assets/scene/world/upper_monitor_1/iterations/iter02/iter02.glb",
+  "reference_image_path": "apps/arda-hud/src/assets/scene/world/upper_monitor_1/iterations/iter02/iter02_reference.png",
+  "angle_renders": [
+    "/var/home/mythos/Arda/apps/arda-hud/src/assets/scene/world/upper_monitor_1/iterations/iter02/iter02_front.png",
+    "/var/home/mythos/Arda/apps/arda-hud/src/assets/scene/world/upper_monitor_1/iterations/iter02/iter02_three_quarter.png",
+    "/var/home/mythos/Arda/apps/arda-hud/src/assets/scene/world/upper_monitor_1/iterations/iter02/iter02_side.png"
+  ],
+  "comparison": {
+    "match_score": 0.0,
+    "missing": [
+      "black and dark graphite cyber-noir",
+      "slim rectangular upper display",
+      "thick rugged beveled graphite bezel",
+      "cyan emissive edge accents",
+      "cyan screen glow",
+      "compact articulated monitor arm",
+      "visible rotary hinge discs",
+      "layered mounting bracket",
+      "hard-surface panel seams",
+      "industrial premium sci-fi boardroom hardware"
+    ],
+    "wrong": [
+      "white background",
+      "no details"
+    ],
+    "strengths": [],
+    "suggested_prompt_edit": "isolated on plain white background, centered product render, 3D model, single object, no humans, no environment, black and dark graphite cyber-noir suspended wall/ceiling monitor assembly, slim rectangular upper display with thick rugged beveled graphite bezel, cyan emissive edge accents and cyan screen glow, compact articulated monitor arm with visible rotary hinge discs, layered mounting bracket, hard-surface panel seams, industrial premium sci-fi boardroom hardware",
+    "raw_response": "{\n\"match_score\": 0.0,\n\"missing\": [\"black and dark graphite cyber-noir\", \"slim rectangular upper display\", \"thick rugged beveled graphite bezel\", \"cyan emissive edge accents\", \"cyan screen glow\", \"compact articulated monitor arm\", \"visible rotary hinge discs\", \"layered mounting bracket\", \"hard-surface panel seams\", \"industrial premium sci-fi boardroom hardware\"],\n\"wrong\": [\"white background\", \"no details\"],\n\"strengths\": [],\n\"suggested_prompt_edit\": \"isolated on plain white background, centered product render, 3D model, single object, no humans, no environment, black and dark graphite cyber-noir suspended wall/ceiling monitor assembly, slim rectangular upper display with thick rugged beveled graphite bezel, cyan emissive edge accents and cyan screen glow, compact articulated monitor arm with visible rotary hinge discs, layered mounting bracket, hard-surface panel seams, industrial premium sci-fi boardroom hardware\"\n}"
+  },
+  "governance": {
+    "task_id": "8cb53836-9758-4981-ac26-2256776967f1",
+    "triad": {
+      "aurelius": "Pass",
+      "bacon": "Pass",
+      "sun_tzu": "Conditional",
+      "aurelius_score": 0.8999999999999999,
+      "bacon_score": 0.7,
+      "sun_tzu_score": 0.45000000000000007,
+      "passed": false,
+      "veto_reason": "INSUFFICIENT_PASS_COUNT"
+    },
+    "bacon_lite": {
+      "passed": true,
+      "confidence": 0.69,
+      "mode": "bacon_lite",
+      "rationale": "bacon-lite pass: evidence gate plus one support gate",
+      "triad": {
+        "aurelius": "Pass",
+        "bacon": "Pass",
+        "sun_tzu": "Conditional",
+        "aurelius_score": 0.8999999999999999,
+        "bacon_score": 0.7,
+        "sun_tzu_score": 0.45000000000000007,
+        "passed": true,
+        "veto_reason": null
+      }
+    },
+    "joule": {
+      "estimated": 3.0,
+      "actual": 2.0,
+      "variance": 0.3333333333333333,
+      "honesty_ratio": 0.6666666666666666,
+      "efficient": false
+    },
+    "love": {
+      "score": 1.0,
+      "impact": 0.7,
+      "reach": 0.6,
+      "energy": 2.0,
+      "time": 1.0
+    },
+    "veto_stop": false,
+    "veto_reason": null
+  },
+  "accepted": false,
+  "elapsed_secs": 98.833271283
+}

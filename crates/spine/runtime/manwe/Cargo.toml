@@ -5,6 +5,18 @@ edition = "2021"
 license.workspace = true
 authors.workspace = true
 
+[lib]
+name = "manwe"
+path = "src/lib.rs"
+
+[[bin]]
+name = "manwe"
+path = "src/main.rs"
+
+[features]
+default = []
+adaptive = []
+
 [dependencies]
 tokio = { workspace = true }
 axum = { workspace = true }

@@ -1,0 +1,28 @@
+# sigil: SCROLL
+schema_version = "annunimas.governance.chains.v1"
+chain_id = "default_triad"
+chain_version = "heuristic_local_v1"
+profile_source = "config/governance/philosophers.toml"
+review_mode = "heuristic_local"
+profile_maturity = "draft_human_authored"
+strict = false
+required_passes = 2
+autonomous_blocking_enabled = false
+
+[[lenses]]
+id = "aurelius"
+display_name = "Marcus Aurelius"
+profile_id = "aurelius"
+pass_threshold = 0.60
+
+[[lenses]]
+id = "bacon"
+display_name = "Francis Bacon"
+profile_id = "bacon"
+pass_threshold = 0.50
+
+[[lenses]]
+id = "sun_tzu"
+display_name = "Sun Tzu"
+profile_id = "sun_tzu"
+pass_threshold = 0.50

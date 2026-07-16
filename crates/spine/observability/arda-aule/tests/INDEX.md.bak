@@ -1,0 +1,26 @@
+---
+soterion:
+  sigil: "ANKH"
+  glyph: "🜃"
+  code_point: "U+1F728"
+  role: "directory_index"
+  owner: "ARDA"
+  status: "active"
+  last_reviewed: "2026-07-14"
+---
+
+> 🜃 Arda-Council: 📜 directory_index | owner: ARDA | status: active | reviewed: 2026-07-14
+
+# Index: crates/spine/governance/arda-aule/tests
+
+## Contents
+
+- `contract_smoke.rs`
+- `README.md`
+- `INDEX.md`
+
+## Purpose
+
+Integration tests for the `arda-aule` blueprint crate. `contract_smoke.rs`
+asserts the sovereign baseline contract is present, that `service::status()`
+reports `governance_ready`, and that legal/financial seats trigger escalation.

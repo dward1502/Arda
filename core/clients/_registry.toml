@@ -107,53 +107,6 @@ resonance   = 0.93
 clearance   = "guardian"
 
 # ============================================================
-[[client]]
-# ============================================================
-slug        = "ais-pool-co"
-name        = "AIS Client — Pool Company"
-type        = "external"
-status      = "active"
-clearance   = "guardian"          # Guardian+ required to read client data
-realm       = "operations"
-sigil       = "𓂀"
-priority    = 2
-
-[client.contact]
-primary     = "TBD"
-role        = "Owner"
-location    = "San Diego, CA"
-notes       = "Initial AIS client. Pool installation/maintenance company."
-
-[client.context]
-industry    = "Pool installation and maintenance"
-revenue_range = "$1M-$5M"
-description = """
-First external AIS client. Pool company in San Diego area.
-Arda deployed as on-premises AI business operating system.
-Positioned as alternative to expensive enterprise software.
-Full data sovereignty — no data leaves their premises.
-Focus: operations automation, customer management, scheduling,
-financial reporting via CITADEL agent stack.
-"""
-
-[client.agents_assigned]
-primary     = ["hermes", "apollo"]
-read_access = ["athena", "plutus", "oracle"]
-restricted  = ["warden"]          # Warden does not touch client data
-
-[client.joulework]
-monthly_budget  = 150.0
-alert_threshold = 0.80
-current_spend   = 0.0
-billing_model   = "subscription"
-rate_per_jw     = 0.0             # TBD — set when contract signed
-
-[client.soterion]
-tags        = ["external", "ais-client", "pool", "san-diego", "priority-2"]
-resonance   = 0.88
-clearance   = "guardian"
-
-# ============================================================
 # PROSPECT CLIENTS (not yet active)
 # ============================================================
 

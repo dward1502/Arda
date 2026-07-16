@@ -1,0 +1,63 @@
+# Soterion: 📜 joulework_configuration | owner: HADES | status: active | reviewed: 2026-05-30
+# Sigil: SCROLL (U+1F4DC); purpose: repository-visible governed configuration.
+
+# Per-provider/model joule tariffs for the EstimatorMeter.
+#
+# Numbers are order-of-magnitude estimates derived from public
+# datacenter PUE figures and per-token energy reports. They are
+# DELIBERATELY rough — the goal is to give the loop a non-zero
+# signal it can use for budget arithmetic and bid selection.
+#
+# Refresh by editing this file; the loader picks up changes via
+# TariffTable::reload_from_path(). No redeploy needed.
+#
+# Schema:
+#   [defaults]               # used when no [[entries]] match
+#   joules_per_input_token  = <f64>
+#   joules_per_output_token = <f64>
+#
+#   [[entries]]
+#   provider = "<name>"
+#   model    = "<name>"
+#   joules_per_input_token  = <f64>
+#   joules_per_output_token = <f64>
+
+[defaults]
+joules_per_input_token = 0.02
+joules_per_output_token = 0.06
+
+[[entries]]
+provider = "anthropic"
+model = "claude-opus-4-7"
+joules_per_input_token = 0.05
+joules_per_output_token = 0.15
+
+[[entries]]
+provider = "anthropic"
+model = "claude-sonnet-4-6"
+joules_per_input_token = 0.02
+joules_per_output_token = 0.06
+
+[[entries]]
+provider = "anthropic"
+model = "claude-haiku-4-5"
+joules_per_input_token = 0.005
+joules_per_output_token = 0.015
+
+[[entries]]
+provider = "openai"
+model = "gpt-4o"
+joules_per_input_token = 30.0
+joules_per_output_token = 90.0
+
+[[entries]]
+provider = "openai"
+model = "gpt-4o-mini"
+joules_per_input_token = 0.008
+joules_per_output_token = 0.024
+
+[[entries]]
+provider = "local"
+model = "llama3-8b"
+joules_per_input_token = 0.001
+joules_per_output_token = 0.003

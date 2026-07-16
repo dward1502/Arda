@@ -20,7 +20,7 @@ soterion:
 - `manwe`
 - `arda-systemd`
 - `arda-hades`
-- `arda-oracle`
+- `arda-mandos`
 - `arda-plutus`
 
 ## Purpose

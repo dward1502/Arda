@@ -30,7 +30,7 @@ pub async fn submit_plan(
         .map(|task| task.joule_cost.ceil() as u64)
         .sum::<u64>()
         .max(100);
-    let pipeline = crate::Pipeline::new(router, ledger, joule_budget);
+    let pipeline = crate::pipeline::Pipeline::new(router, ledger, joule_budget);
     let mut task = Task::new(
         format!(
             "CEO autopilot approved objective `{}` with {} planned tasks under gate {:?}",

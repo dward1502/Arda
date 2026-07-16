@@ -8,7 +8,7 @@ pub mod manwe;
 pub mod supervisor;
 pub mod harness;
 pub mod registry;
-pub use arda_service_registry as service_registry;
+pub use arda_core::service_registry as service_registry;
 
 use tracing::info;
 

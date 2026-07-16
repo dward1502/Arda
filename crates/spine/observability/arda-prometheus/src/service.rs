@@ -11,8 +11,7 @@ use crate::orders::OrderStore;
 use crate::registry::AgentRosterSnapshot;
 use crate::thought::ThoughtLedger;
 use arda_core::error::Result;
-use arda_mnemosyne::MnemosyneService;
-use serde::{Deserialize, Serialize};
+use arda_vaire::MnemosyneService;use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

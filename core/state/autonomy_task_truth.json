@@ -1,5 +1,5 @@
 {
-  "authority": "annunimas-cli export autonomy-task-truth",
+  "authority": "arda-cli export autonomy-task-truth",
   "autonomy_resume_projection": {
     "flywheel_packet_summary": {
       "blocked_total": 0,

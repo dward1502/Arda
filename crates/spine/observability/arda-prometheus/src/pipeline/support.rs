@@ -1,8 +1,7 @@
 use crate::orders::OrderStatus;
 use crate::pipeline::Pipeline;
 use arda_core::task::Task;
-use arda_mnemosyne::InformantEvent;
-
+use arda_vaire::InformantEvent;
 impl Pipeline {
     pub(super) fn estimate_joule_cost(&self, task_type: &str) -> u64 {
         let default_cost = 10u64;

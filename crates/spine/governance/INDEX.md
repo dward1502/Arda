@@ -18,7 +18,6 @@ soterion:
 
 - `INDEX.md`
 - `arda-core`
-- `arda-council`
 - `arda-governance`
 
 ## Purpose

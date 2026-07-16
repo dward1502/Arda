@@ -46,7 +46,7 @@ It is not a chatbot. It is not an assistant. It is an operating system with agen
 - ARDA-facing shared state and world view projections are operational
 - Local control plane is explicit: sovereign CEO identity is `arandur`, executable CEO runtime is `prometheus`
 - Runtime topology is explicit: WARDEN authority belongs to the Pi5 guardhouse; heavy reasoning belongs on the backbone server
-- `arda-oracle`, `arda-plutus`, `arda-hermes`, and `arda-apollo` crates already exist in-repo
+- `arda-mandos`, `arda-plutus`, `arda-hermes`, and `arda-apollo` crates already exist in-repo
 - Priority human-derived crates are present and integrated into contract/autonomy exports
 - Launch posture is now governed by preflight checks for governance, swap, storage pressure, and runtime budget validity
 

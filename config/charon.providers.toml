@@ -1,0 +1,1046 @@
+# sigil: SCROLL
+# Dynamic CHARON provider/model configuration.
+# Reload live via: annunimas-cli charon reload-config
+#
+# Provider taxonomy:
+# - direct cloud provider: concrete upstream such as OpenAI, z.ai, Gemini, Groq
+# - aggregator provider: multi-upstream surface such as OpenRouter
+# - direct local/local-mesh surfaces: node-backed endpoints such as
+#   edge_backbone (sovereign backbone), edge_core, edge_worker_light
+#
+# NOTE: do not set `healthy = true/false` on a provider — Charon's runtime
+# probe owns the live healthy flag. Setting it triggers a deprecation warning
+# at config load and is otherwise ignored. Use `enabled = true/false` to
+# control whether a provider participates in routing at all.
+
+[[provider]]
+id = "opencode"
+name = "OpenCode Zen"
+base_url = "https://opencode.ai/zen/v1" # OpenCode Zen /chat/completions lane
+enabled = true
+api_key_env = "OPENCODE_API_KEY"
+access_tier = "free_cloud"
+quality_band = "high"
+requests_per_minute = 120
+requests_per_day = 100000
+
+  # Model IDs are bare (no "opencode/" prefix) — that's what the live
+  # /models catalog returns. Free-tier models carry the -free suffix.
+
+  [[provider.model]]
+  id = "deepseek-v4-flash-free"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 128000
+  is_default = true
+
+  [[provider.model]]
+  id = "mimo-v2.5-free"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 128000
+  is_default = false
+
+  [[provider.model]]
+  id = "nemotron-3-super-free"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 128000
+  is_default = false
+
+  [[provider.model]]
+  id = "qwen3.6-plus-free"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 128000
+  is_default = false
+
+  [[provider.model]]
+  id = "minimax-m3-free"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 128000
+  is_default = false
+
+
+[[provider]]
+id = "edge_beelink_light"
+name = "Beelink Light Qwen Worker"
+base_url = "http://100.103.125.88:9337/v1"
+enabled = true
+access_tier = "local"
+quality_band = "medium"
+requests_per_minute = 120
+
+  [[provider.model]]
+  id = "Qwen_Qwen3.5-4B-Q6_K"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background", "monitoring"]
+  context_window = 32768
+  is_default = true
+  capabilities = { tools = true, structured_output = true, streaming = true }
+  aliases = ["qwen3.5-4b", "qwen35-4b", "Qwen3.5-4B", "4B"]
+
+[[provider]]
+id = "edge_core"
+name = "Annunimas Core (3080 Workstation)"
+base_url = "http://100.78.138.113:9337/v1"
+enabled = true
+access_tier = "local"
+quality_band = "medium"
+requests_per_minute = 60
+max_completion_tokens = 2048
+# CRASH-GUARD: this provider runs on the operator's main PC alongside heavy
+# GPU workloads such as browsers and VS Code. The 3080 workstation is VRAM-
+# constrained; avoid tool/concurrency spikes here without first confirming
+# GPU headroom. Do not raise requests_per_minute or max_completion_tokens
+# while browsers/other GPU apps are active.
+
+  [[provider.model]]
+  id = "LFM2.5-8B-A1B-Q4_K_M"
+  capable_tasks = ["research", "reasoning", "chat", "summary", "background"]
+  context_window = 131072
+  is_default = false
+  capabilities = { tools = true, structured_output = false, streaming = true, visible_reasoning = true }
+  aliases = ["lfm2.5-8b-a1b", "lfm-2.5-8b-a1b", "liquidai-core", "lfm-core"]
+
+  [[provider.model]]
+  id = "Qwen3.5-9B-Q4_K_M"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 32768
+  is_default = true
+  capabilities = { tools = true, structured_output = true, streaming = true }
+  aliases = ["qwen3.5-9b", "qwen35-9b"]
+
+  [[provider.model]]
+  id = "Qwen_Qwen3.5-4B-Q6_K"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 32768
+  is_default = false
+  capabilities = { tools = true, structured_output = true, streaming = true }
+  aliases = ["qwen3.5-4b", "qwen35-4b", "Qwen3.5-4B"]
+
+[[provider]]
+id = "edge_backbone"
+name = "Annunimas Server LFM2.5 Fast Lane"
+# Sovereign annunimas-server lane. Updated 2026-06-16: LFM2.5 is the
+# always-on fast/general local provider on port 8093. Charon's runtime probe
+# owns the live healthy flag.
+#
+# CRASH-GUARD: this provider runs on the operator's main PC alongside heavy
+# GPU workloads such as browsers and VS Code. Keep this lane lightweight:
+# non-tool, moderate rate, low max tokens, and by default only for low-risk
+# non-coding traffic. Do not change `tools = false` or raise
+# `requests_per_minute` without confirming headroom via this machine's GPU
+# pressure monitor / task manager first.
+base_url = "http://100.102.250.115:8093/v1"
+enabled = true
+access_tier = "local"
+quality_band = "medium"
+requests_per_minute = 30
+max_completion_tokens = 2048
+
+  [[provider.model]]
+  id = "lfm2.5-8b-a1b-q4km"
+  capable_tasks = ["research", "reasoning", "chat", "summary", "background"]
+  context_window = 32768
+  is_default = true
+  capabilities = { tools = false, structured_output = true, streaming = true, visible_reasoning = true }
+  aliases = ["lfm2.5", "lfm25", "lfm2.5-8b"]
+
+[[provider]]
+id = "edge_backbone_coder"
+name = "Annunimas Server Gemma4 Coder"
+# Local Gemma4 12B coder lane on annunimas-server. Updated 2026-06-16 after
+# stopping/disabling the Qwen3-Coder service to free VRAM.
+base_url = "http://100.102.250.115:8094/v1"
+enabled = true
+access_tier = "local"
+quality_band = "high"
+requests_per_minute = 60
+max_completion_tokens = 4096
+
+  [[provider.model]]
+  id = "gemma4-12b-coder-q4km"
+  capable_tasks = ["code", "reasoning", "chat", "summary", "background"]
+  context_window = 8192
+  is_default = true
+  capabilities = { tools = true, structured_output = false, streaming = true, visible_reasoning = false }
+  aliases = ["gemma4-coder", "gemma4-12b-coder", "gemma-coder", "annunimas-server-coder"]
+
+[[provider]]
+id = "edge_backbone_vision"
+name = "Annunimas Server Qwen2.5-VL Vision"
+base_url = "http://100.102.250.115:8081/v1"
+enabled = true
+access_tier = "local"
+quality_band = "medium"
+requests_per_minute = 60
+max_completion_tokens = 2048
+
+  [[provider.model]]
+  id = "Qwen2.5-VL-7B-Instruct"
+  capable_tasks = ["vision", "chat", "summary"]
+  context_window = 4096
+  is_default = true
+  capabilities = { tools = false, structured_output = false, streaming = true }
+  aliases = ["qwen2.5-vl", "qwen-vl", "vision-local"]
+
+[[provider]]
+id = "edge_laptop"
+name = "RTX 3050 Laptop"
+base_url = "http://100.97.15.88:1234/v1"
+enabled = false
+# Port 1234 unreachable on laptop. Re-enable once inference server is running.
+access_tier = "local"
+quality_band = "medium"
+requests_per_minute = 60
+
+  [[provider.model]]
+  id = "qwen3.5-4b"
+  capable_tasks = ["chat", "summary", "background", "research"]
+  context_window = 32768
+  is_default = true
+
+[[provider]]
+id = "edge_guardhouse"
+name = "Warden Pi5 Guardhouse"
+base_url = "http://100.110.85.37:1234/v1"
+enabled = true
+access_tier = "local"
+quality_band = "low"
+requests_per_minute = 60
+
+  [[provider.model]]
+  id = "Qwen3.5-4B-Q4_K_M.gguf"
+  capable_tasks = ["chat", "summary", "background", "monitoring"]
+  context_window = 4096
+  is_default = true
+  aliases = ["qwen3.5-4b", "Qwen3.5-4B", "4B"]
+
+[[provider]]
+id = "local_fallback"
+name = "Legacy Local Fallback Disabled"
+base_url = "http://127.0.0.1:9337/v1"
+enabled = false
+access_tier = "local"
+quality_band = "low"
+requests_per_minute = 0
+
+  [[provider.model]]
+  id = "LFM2.5-8B-A1B-Q4_K_M"
+  capable_tasks = ["chat", "summary", "background"]
+  context_window = 131072
+  is_default = true
+  capabilities = { tools = true, structured_output = false, streaming = true, visible_reasoning = true }
+
+[[provider]]
+id = "openrouter"
+name = "OpenRouter"
+# Single entry covering both the free :free-suffix lane and openrouter/auto.
+# Previously split into openrouter_free + openrouter, which double-counted the
+# upstream and produced a base_url-collision warning on every reload.
+# Default is the aggregator auto route. Explicit :free models remain available
+# for cheap non-tool spillover, but they must not silently win generic fallback
+# after OpenRouter's free-models-per-day pool is exhausted.
+base_url = "https://openrouter.ai/api/v1"
+enabled = true
+api_key_env = "OPENROUTER_API_KEY"
+access_tier = "mixed"
+quality_band = "high"
+probe_model = "nvidia/nemotron-nano-9b-v2:free"
+probe_profile = "free_low_latency"
+requests_per_minute = 30
+# Keep this aligned with config/runtime_governor_budget.toml:
+# providers.openrouter.monthly_requests_soft_cap = 60000.
+# OpenRouter is an aggregator with many free-model lanes, so a 50/day
+# provider-wide cap prematurely blocks otherwise available spillover routes.
+requests_per_day = 2000
+
+  [[provider.model]]
+  id = "openrouter/auto"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 1048756
+  is_default = true
+
+  [[provider.model]]
+  id = "openrouter/owl-alpha"
+  capable_tasks = ["background", "chat", "code", "research", "summary"]
+  context_window = 1048756
+  is_default = false
+
+  [[provider.model]]
+  id = "deepseek/deepseek-v4-flash:free"
+  capable_tasks = ["background", "chat", "code", "reasoning", "research", "summary"]
+  context_window = 1048576
+  is_default = false
+
+  [[provider.model]]
+  id = "google/lyria-3-clip-preview"
+  capable_tasks = ["background", "chat", "research", "summary"]
+  context_window = 1048576
+  is_default = false
+
+  [[provider.model]]
+  id = "google/lyria-3-pro-preview"
+  capable_tasks = ["background", "chat", "research", "summary"]
+  context_window = 1048576
+  is_default = false
+
+  [[provider.model]]
+  id = "qwen/qwen3-coder:free"
+  capable_tasks = ["background", "chat", "code", "reasoning", "research", "summary"]
+  context_window = 1048576
+  is_default = false
+
+  [[provider.model]]
+  id = "nvidia/nemotron-3-super-120b-a12b:free"
+  capable_tasks = ["background", "chat", "code", "reasoning", "research", "summary"]
+  context_window = 1000000
+  is_default = false
+
+  [[provider.model]]
+  id = "arcee-ai/trinity-large-thinking:free"
+  capable_tasks = ["background", "chat", "code", "reasoning", "research", "summary"]
+  context_window = 262144
+  is_default = false
+
+  [[provider.model]]
+  id = "google/gemma-4-26b-a4b-it:free"
+  capable_tasks = ["background", "chat", "code", "reasoning", "research", "summary"]
+  context_window = 262144
+  is_default = false
+
+  [[provider.model]]
+  id = "google/gemma-4-31b-it:free"
+  capable_tasks = ["background", "chat", "code", "reasoning", "research", "summary"]
+  context_window = 262144
+  is_default = false
+
+  [[provider.model]]
+  id = "qwen/qwen3-next-80b-a3b-instruct:free"
+  capable_tasks = ["background", "chat", "code", "research", "summary"]
+  context_window = 262144
+  is_default = false
+  capabilities = { tools = false, structured_output = true, streaming = true }
+
+  [[provider.model]]
+  id = "nvidia/nemotron-3-nano-30b-a3b:free"
+  capable_tasks = ["background", "chat", "code", "reasoning", "research", "summary"]
+  context_window = 256000
+  is_default = false
+
+  [[provider.model]]
+  id = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free"
+  capable_tasks = ["background", "chat", "code", "reasoning", "research", "summary"]
+  context_window = 256000
+  is_default = false
+
+  [[provider.model]]
+  id = "minimax/minimax-m2.5:free"
+  capable_tasks = ["background", "chat", "code", "reasoning", "research", "summary"]
+  context_window = 204800
+  is_default = false
+
+  [[provider.model]]
+  id = "openrouter/free"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 200000
+  is_default = false
+
+  [[provider.model]]
+  id = "baidu/cobuddy:free"
+  capable_tasks = ["background", "chat", "code", "reasoning", "research", "summary"]
+  context_window = 131072
+  is_default = false
+
+[[provider]]
+id = "openai"
+name = "OpenAI API (raw, requires credits)"
+# Disabled: console account has no API credits. Use the openai_sub
+# provider (driver=hermes_agent_cli, provider=openai-codex) instead,
+# which routes through the ChatGPT subscription.
+base_url = "https://api.openai.com/v1"
+enabled = false
+api_key_env = "OPENAI_API_KEY"
+access_tier = "paid_cloud"
+quality_band = "high"
+requests_per_minute = 500
+requests_per_day = 10000
+
+[[provider]]
+id = "litellm_gateway"
+name = "LiteLLM Gateway"
+base_url = "http://${LITELLM_PROXY_HOST}:${LITELLM_PROXY_PORT}/v1"
+# Disabled for the default operator profile: this gateway can normalize paid
+# upstreams such as Claude/OpenAI and should only be enabled by explicit opt-in.
+enabled = true
+access_tier = "normalized"
+quality_band = "high"
+requests_per_minute = 1000
+api_key_env = "LITELLM_API_KEY"
+
+  [[provider.model]]
+  id = "litellm-router"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 128000
+  is_default = true
+
+  [[provider.model]]
+  id = "claude-sonnet-4-6"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 200000
+  is_default = false
+
+  [[provider.model]]
+  id = "claude-opus-4-6"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary"]
+  context_window = 200000
+  is_default = false
+
+  [[provider.model]]
+  id = "claude-haiku-4-5"
+  capable_tasks = ["chat", "summary", "background"]
+  context_window = 200000
+  is_default = false
+[[provider]]
+id = "google"
+name = "Google Gemini"
+base_url = "https://generativelanguage.googleapis.com/v1beta/openai"
+enabled = true
+api_key_env = "GEMINI_API_KEY"
+access_tier = "free_cloud"
+quality_band = "high"
+requests_per_minute = 15
+requests_per_day = 1500
+
+  # Confirmed working via OpenAI-compat endpoint.
+  # Pro models (2.5-pro, 3.x-pro) are available in the Gemini API but
+  # timeout on the free tier quota — excluded until a paid key is configured.
+
+  [[provider.model]]
+  id = "gemini-2.0-flash"
+  capable_tasks = ["code", "research", "chat", "summary"]
+  context_window = 1048576
+  is_default = true
+
+  [[provider.model]]
+  id = "gemini-2.5-flash"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 1048576
+  is_default = false
+  capabilities = { visible_reasoning = true }
+
+  [[provider.model]]
+  id = "gemini-2.5-flash-lite"
+  capable_tasks = ["chat", "summary", "background"]
+  context_window = 1048576
+  is_default = false
+
+  [[provider.model]]
+  id = "gemini-3-flash-preview"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary"]
+  context_window = 1048576
+  is_default = false
+  capabilities = { visible_reasoning = true }
+
+[[provider]]
+id = "mistral"
+name = "Mistral API"
+base_url = "https://api.mistral.ai/v1"
+# Direct API has free evaluation capacity on some accounts, but is not a
+# guaranteed-free lane. Keep it enabled as controlled mixed fallback.
+enabled = true
+api_key_env = "MISTRAL_API_KEY"
+access_tier = "mixed"
+quality_band = "high"
+probe_model = "ministral-8b-latest"
+probe_profile = "mixed_catalog_low_latency"
+supports_tools = true
+supports_structured_output = true
+requests_per_minute = 60
+requests_per_day = 1000
+
+  [[provider.model]]
+  id = "mistral-medium-latest"
+  capable_tasks = ["background", "chat", "reasoning", "research", "summary"]
+  context_window = 131072
+  is_default = false
+
+  [[provider.model]]
+  id = "mistral-medium-2508"
+  capable_tasks = ["background", "chat", "reasoning", "research", "summary"]
+  context_window = 131072
+  is_default = false
+
+  [[provider.model]]
+  id = "mistral-medium-2505"
+  capable_tasks = ["background", "chat", "reasoning", "research", "summary"]
+  context_window = 131072
+  is_default = false
+
+  [[provider.model]]
+  id = "mistral-medium"
+  capable_tasks = ["background", "chat", "reasoning", "research", "summary"]
+  context_window = 131072
+  is_default = false
+
+  [[provider.model]]
+  id = "mistral-small-latest"
+  capable_tasks = ["background", "chat", "research", "summary"]
+  context_window = 262144
+  is_default = true
+
+  [[provider.model]]
+  id = "mistral-small-2603"
+  capable_tasks = ["background", "chat", "research", "summary"]
+  context_window = 262144
+  is_default = false
+
+  [[provider.model]]
+  id = "codestral-latest"
+  capable_tasks = ["background", "chat", "code", "reasoning", "research", "summary"]
+  context_window = 256000
+  is_default = false
+
+  [[provider.model]]
+  id = "codestral-2508"
+  capable_tasks = ["background", "chat", "code", "reasoning", "research", "summary"]
+  context_window = 256000
+  is_default = false
+
+  [[provider.model]]
+  id = "devstral-latest"
+  capable_tasks = ["background", "chat", "code", "reasoning", "research", "summary"]
+  context_window = 262144
+  is_default = false
+  capabilities = { tools = false, structured_output = true, streaming = true }
+
+  [[provider.model]]
+  id = "devstral-medium-latest"
+  capable_tasks = ["background", "chat", "code", "reasoning", "research", "summary"]
+  context_window = 262144
+  is_default = false
+
+  [[provider.model]]
+  id = "devstral-2512"
+  capable_tasks = ["background", "chat", "code", "reasoning", "research", "summary"]
+  context_window = 262144
+  is_default = false
+
+  [[provider.model]]
+  id = "magistral-small-latest"
+  capable_tasks = ["background", "chat", "reasoning", "research", "summary"]
+  context_window = 262144
+  is_default = false
+
+  [[provider.model]]
+  id = "ministral-14b-2512"
+  capable_tasks = ["background", "chat", "research", "summary"]
+  context_window = 262144
+  is_default = false
+
+  [[provider.model]]
+  id = "ministral-14b-latest"
+  capable_tasks = ["background", "chat", "research", "summary"]
+  context_window = 262144
+  is_default = false
+
+  [[provider.model]]
+  id = "ministral-8b-2512"
+  capable_tasks = ["background", "chat", "research", "summary"]
+  context_window = 262144
+  is_default = false
+
+  [[provider.model]]
+  id = "ministral-8b-latest"
+  capable_tasks = ["background", "chat", "research", "summary"]
+  context_window = 262144
+  is_default = false
+
+  [[provider.model]]
+  id = "mistral-code-agent-latest"
+  capable_tasks = ["background", "chat", "code", "reasoning", "research", "summary"]
+  context_window = 262144
+  is_default = false
+  capabilities = { tools = true, structured_output = true, streaming = true }
+
+  [[provider.model]]
+  id = "mistral-large-2512"
+  capable_tasks = ["background", "chat", "research", "summary"]
+  context_window = 262144
+  is_default = false
+
+  [[provider.model]]
+  id = "mistral-large-latest"
+  capable_tasks = ["background", "chat", "research", "summary"]
+  context_window = 262144
+  is_default = false
+
+  [[provider.model]]
+  id = "mistral-medium-2604"
+  capable_tasks = ["background", "chat", "reasoning", "research", "summary"]
+  context_window = 262144
+  is_default = false
+
+  [[provider.model]]
+  id = "mistral-medium-3"
+  capable_tasks = ["background", "chat", "reasoning", "research", "summary"]
+  context_window = 262144
+  is_default = false
+
+  [[provider.model]]
+  id = "mistral-medium-3-5"
+  capable_tasks = ["background", "chat", "reasoning", "research", "summary"]
+  context_window = 262144
+  is_default = false
+
+  [[provider.model]]
+  id = "mistral-medium-3.5"
+  capable_tasks = ["background", "chat", "reasoning", "research", "summary"]
+  context_window = 262144
+  is_default = false
+
+  [[provider.model]]
+  id = "mistral-medium-c21211-r0-75"
+  capable_tasks = ["background", "chat", "reasoning", "research", "summary"]
+  context_window = 262144
+  is_default = false
+
+[[provider]]
+id = "zai"
+name = "Z.AI / GLM"
+base_url = "https://api.z.ai/api/paas/v4"
+# Paid API path kept configured for future/operator opt-in, disabled by default.
+enabled = false
+api_key_env = "ZAI_API_KEY"
+access_tier = "paid_cloud"
+quality_band = "high"
+requests_per_minute = 60
+requests_per_day = 10000
+
+  [[provider.model]]
+  id = "glm-5.1"
+  capable_tasks = ["background", "chat", "code", "reasoning", "research", "summary"]
+  context_window = 200000
+  is_default = true
+
+  [[provider.model]]
+  id = "glm-5"
+  capable_tasks = ["background", "chat", "code", "reasoning", "research", "summary"]
+  context_window = 200000
+  is_default = false
+
+  [[provider.model]]
+  id = "glm-5-turbo"
+  capable_tasks = ["background", "chat", "code", "reasoning", "research", "summary"]
+  context_window = 200000
+  is_default = false
+
+  [[provider.model]]
+  id = "glm-4.7"
+  capable_tasks = ["background", "chat", "code", "reasoning", "research", "summary"]
+  context_window = 200000
+  is_default = false
+
+  [[provider.model]]
+  id = "glm-4.6"
+  capable_tasks = ["background", "chat", "code", "reasoning", "research", "summary"]
+  context_window = 200000
+  is_default = false
+
+  [[provider.model]]
+  id = "glm-4.5"
+  capable_tasks = ["background", "chat", "code", "reasoning", "research", "summary"]
+  context_window = 200000
+  is_default = false
+
+  [[provider.model]]
+  id = "glm-4.5-air"
+  capable_tasks = ["background", "chat", "code", "reasoning", "research", "summary"]
+  context_window = 200000
+  is_default = false
+
+[[provider]]
+id = "nvidia"
+name = "NVIDIA API Catalog"
+base_url = "https://integrate.api.nvidia.com/v1"
+enabled = true
+api_key_env = "NVIDIA_API_KEY"
+# Refreshed from NVIDIA's live /models catalog. Availability can still vary by
+# account despite catalog visibility, so route smoke remains the final proof.
+# Direct API Catalog access has developer/trial capacity on some accounts, but
+# it is not a guaranteed-free lane. Keep it as controlled mixed fallback.
+access_tier = "mixed"
+quality_band = "high"
+probe_model = "openai/gpt-oss-20b"
+probe_profile = "mixed_catalog_low_latency"
+supports_tools = true
+supports_structured_output = true
+requests_per_minute = 60
+requests_per_day = 1000
+
+  [[provider.model]]
+  id = "qwen/qwen3-coder-480b-a35b-instruct"
+  capable_tasks = ["background", "chat", "code", "reasoning", "summary"]
+  context_window = 128000
+  is_default = false
+
+  [[provider.model]]
+  id = "qwen/qwen3.5-397b-a17b"
+  capable_tasks = ["background", "chat", "summary"]
+  context_window = 128000
+  is_default = false
+
+  [[provider.model]]
+  id = "mistralai/mistral-large-3-675b-instruct-2512"
+  capable_tasks = ["background", "chat", "research", "summary"]
+  context_window = 128000
+  is_default = false
+
+  [[provider.model]]
+  id = "nvidia/llama-3.3-nemotron-super-49b-v1.5"
+  capable_tasks = ["background", "chat", "reasoning", "summary"]
+  context_window = 128000
+  is_default = false
+
+  [[provider.model]]
+  id = "meta/llama-3.3-70b-instruct"
+  capable_tasks = ["background", "chat", "code", "reasoning", "research", "summary"]
+  context_window = 128000
+  is_default = false
+
+  [[provider.model]]
+  id = "bigcode/starcoder2-15b"
+  capable_tasks = ["background", "chat", "code", "reasoning", "summary"]
+  context_window = 128000
+  is_default = false
+  capabilities = { tools = false, structured_output = true, streaming = true }
+
+  [[provider.model]]
+  id = "deepseek-ai/deepseek-coder-6.7b-instruct"
+  capable_tasks = ["background", "chat", "code", "reasoning", "summary"]
+  context_window = 128000
+  is_default = false
+
+  [[provider.model]]
+  id = "openai/gpt-oss-120b"
+  capable_tasks = ["background", "chat", "reasoning", "summary"]
+  context_window = 131072
+  is_default = true
+
+  [[provider.model]]
+  id = "openai/gpt-oss-20b"
+  capable_tasks = ["background", "chat", "reasoning", "summary"]
+  context_window = 131072
+  is_default = false
+
+  [[provider.model]]
+  id = "qwen/qwen3-next-80b-a3b-instruct"
+  capable_tasks = ["background", "chat", "summary"]
+  context_window = 131072
+  is_default = false
+
+  [[provider.model]]
+  id = "qwen/qwen3.5-122b-a10b"
+  capable_tasks = ["background", "chat", "summary"]
+  context_window = 131072
+  is_default = false
+
+  [[provider.model]]
+  id = "minimaxai/minimax-m2.7"
+  capable_tasks = ["background", "chat", "research", "summary"]
+  context_window = 128000
+  is_default = false
+
+  [[provider.model]]
+  id = "moonshotai/kimi-k2.6"
+  capable_tasks = ["background", "chat", "reasoning", "summary"]
+  context_window = 128000
+  is_default = false
+
+  [[provider.model]]
+  id = "z-ai/glm-5.1"
+  capable_tasks = ["background", "chat", "reasoning", "research", "summary"]
+  context_window = 128000
+  is_default = false
+
+  [[provider.model]]
+  id = "01-ai/yi-large"
+  capable_tasks = ["background", "chat", "research", "summary"]
+  context_window = 128000
+  is_default = false
+
+  [[provider.model]]
+  id = "abacusai/dracarys-llama-3.1-70b-instruct"
+  capable_tasks = ["background", "chat", "summary"]
+  context_window = 128000
+  is_default = false
+
+  [[provider.model]]
+  id = "adept/fuyu-8b"
+  capable_tasks = ["background", "chat", "summary"]
+  context_window = 128000
+  is_default = false
+
+  [[provider.model]]
+  id = "ai21labs/jamba-1.5-large-instruct"
+  capable_tasks = ["background", "chat", "research", "summary"]
+  context_window = 128000
+  is_default = false
+
+  [[provider.model]]
+  id = "aisingapore/sea-lion-7b-instruct"
+  capable_tasks = ["background", "chat", "summary"]
+  context_window = 128000
+  is_default = false
+
+  [[provider.model]]
+  id = "baai/bge-m3"
+  capable_tasks = ["background", "chat", "summary"]
+  context_window = 128000
+  is_default = false
+
+  [[provider.model]]
+  id = "bytedance/seed-oss-36b-instruct"
+  capable_tasks = ["background", "chat", "summary"]
+  context_window = 128000
+  is_default = false
+
+  [[provider.model]]
+  id = "databricks/dbrx-instruct"
+  capable_tasks = ["background", "chat", "summary"]
+  context_window = 128000
+  is_default = false
+
+  [[provider.model]]
+  id = "deepseek-ai/deepseek-v4-flash"
+  capable_tasks = ["background", "chat", "summary"]
+  context_window = 128000
+  is_default = false
+
+  [[provider.model]]
+  id = "deepseek-ai/deepseek-v4-pro"
+  capable_tasks = ["background", "chat", "summary"]
+  context_window = 128000
+  is_default = false
+
+[[provider]]
+id = "minimax"
+name = "MiniMax"
+base_url = "https://api.minimax.io/v1"
+# Paid API path kept configured for future/operator opt-in, disabled by default.
+enabled = false
+api_key_env = "MINIMAX_API_KEY"
+access_tier = "paid_cloud"
+quality_band = "high"
+requests_per_minute = 60
+requests_per_day = 10000
+
+  [[provider.model]]
+  id = "MiniMax-M2.7"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 128000
+  is_default = true
+
+  [[provider.model]]
+  id = "MiniMax-M2.7-highspeed"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 128000
+  is_default = false
+
+  [[provider.model]]
+  id = "MiniMax-M2.5"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 128000
+  is_default = false
+
+[[provider]]
+id = "kimi"
+name = "Kimi / Moonshot"
+base_url = "https://api.moonshot.ai/v1"
+# Paid API path kept configured for future/operator opt-in, disabled by default.
+enabled = false
+api_key_env = "MOONSHOT_API_KEY"
+access_tier = "paid_cloud"
+quality_band = "high"
+requests_per_minute = 60
+requests_per_day = 10000
+
+  [[provider.model]]
+  id = "kimi-k2.6"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 256000
+  is_default = true
+
+  [[provider.model]]
+  id = "kimi-k2.5"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 256000
+  is_default = false
+
+  [[provider.model]]
+  id = "moonshot-v1-128k"
+  capable_tasks = ["research", "chat", "summary", "background"]
+  context_window = 128000
+  is_default = false
+[[provider]]
+id = "anthropic"
+name = "Anthropic Claude (via hermes-agent subscription)"
+# Subscription-backed path: charon shells out to the local `hermes` CLI,
+# which owns the CLAUDE_CODE_OAUTH_TOKEN / subscription auth. No API
+# credits needed on the console.anthropic.com account.
+driver = "hermes_agent_cli"
+hermes_provider = "anthropic"
+# hermes_bin defaults to $ANNUNIMAS_HERMES_BIN then `hermes` on PATH.
+# hermes_toolsets defaults to "" (disable hermes's internal tool loop).
+# DISABLED 2026-05 — no subscription funds / invalid key; router must not fail when provider is broke
+enabled = false
+access_tier = "paid_cloud"
+quality_band = "high"
+requests_per_minute = 60
+requests_per_day = 10000
+# Tools aren't surfaced through the CLI driver; Hermes-the-Annunimas-agent
+# runs its own tool loop at the charon caller level instead.
+supports_tools = false
+supports_structured_output = false
+
+  [[provider.model]]
+  id = "claude-sonnet-4-6"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 200000
+  is_default = true
+
+  [[provider.model]]
+  id = "claude-opus-4-6"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 200000
+  is_default = false
+
+  [[provider.model]]
+  id = "claude-haiku-4-5"
+  capable_tasks = ["chat", "summary", "background"]
+  context_window = 200000
+  is_default = false
+
+[[provider]]
+id = "openai_sub"
+name = "OpenAI Codex (ChatGPT subscription via Hermes auth)"
+# Uses Hermes' openai-codex OAuth token store, but Charon talks directly to
+# the Codex Responses API to avoid spawning `hermes chat` per request.
+driver = "codex_responses"
+hermes_provider = "openai-codex"
+base_url = "https://chatgpt.com/backend-api/codex"
+enabled = true
+access_tier = "paid_cloud"
+quality_band = "high"
+requests_per_minute = 60
+requests_per_day = 10000
+supports_tools = true
+supports_structured_output = false
+
+  [[provider.model]]
+  id = "gpt-5.5"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 1050000
+  is_default = true
+
+[[provider]]
+id = "hermes_nous_proxy"
+name = "Hermes Nous Portal Proxy"
+# Persistent Hermes OAuth proxy. Enable when `hermes proxy providers` shows
+# Nous ready; Charon keeps `hermes proxy start --provider nous` warm and routes
+# through this OpenAI-compatible local endpoint instead of shelling out per call.
+driver = "hermes_proxy"
+hermes_provider = "nous"
+base_url = "http://127.0.0.1:8645/v1"
+enabled = false
+access_tier = "paid_cloud"
+quality_band = "high"
+requests_per_minute = 60
+requests_per_day = 10000
+supports_tools = true
+supports_structured_output = true
+
+  [[provider.model]]
+  id = "auto"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 128000
+  is_default = true
+
+[[provider]]
+id = "cerebras"
+name = "Cerebras Cloud"
+base_url = "https://api.cerebras.ai/v1"
+enabled = true
+api_key_env = "CEREBRAS_API_KEY"
+access_tier = "free_cloud"
+quality_band = "high"
+requests_per_minute = 30
+requests_per_day = 1000000
+
+  [[provider.model]]
+  id = "qwen-3-235b-a22b-instruct-2507"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 131072
+  is_default = true
+
+  [[provider.model]]
+  id = "gpt-oss-120b"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary"]
+  context_window = 131072
+  capabilities = { tools = false, structured_output = true, streaming = true, visible_reasoning = true }
+
+  [[provider.model]]
+  id = "llama3.1-8b"
+  capable_tasks = ["chat", "summary", "background"]
+  context_window = 128000
+
+  [[provider.model]]
+  id = "zai-glm-4.7"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary"]
+  context_window = 131072
+  capabilities = { tools = true, structured_output = true, streaming = true, visible_reasoning = true }
+
+[[provider]]
+id = "groq"
+name = "Groq"
+base_url = "https://api.groq.com/openai/v1"
+enabled = true
+api_key_env = "GROQ_API_KEY"
+access_tier = "free_cloud"
+quality_band = "high"
+requests_per_minute = 30
+requests_per_day = 14400
+
+  [[provider.model]]
+  id = "llama-3.3-70b-versatile"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 131072
+  is_default = true
+  capabilities = { tools = false, structured_output = true, streaming = true }
+
+  [[provider.model]]
+  id = "llama-3.1-8b-instant"
+  capable_tasks = ["chat", "summary", "background"]
+  context_window = 131072
+
+  [[provider.model]]
+  id = "qwen/qwen3-32b"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary"]
+  context_window = 131072
+
+  [[provider.model]]
+  id = "openai/gpt-oss-120b"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary"]
+  context_window = 131072
+
+  [[provider.model]]
+  id = "openai/gpt-oss-20b"
+  capable_tasks = ["chat", "summary", "background"]
+  context_window = 131072
+
+  [[provider.model]]
+  id = "meta-llama/llama-4-scout-17b-16e-instruct"
+  capable_tasks = ["chat", "summary", "background"]
+  context_window = 131072
+
+  [[provider.model]]
+  id = "groq/compound"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary"]
+  context_window = 131072
+  capabilities = { tools = false, structured_output = true, streaming = true }

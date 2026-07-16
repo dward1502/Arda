@@ -98,7 +98,7 @@
     ]
   },
   "mode": "full",
-  "schema_version": "annunimas.core.state.v1",
+  "schema_version": "arda.core.state.v1",
   "state": {
     "authority": "business_realm_index",
     "generated_note": "Baseline business realm record for ARDA and future ATHENA enrichment.",
@@ -111,9 +111,9 @@
     "offers": [
       {
         "description": "Sovereign agent operating system with governance, auditability, and ARDA command surfaces.",
-        "id": "annunimas-core",
+        "id": "arda-core",
         "status": "internal-first",
-        "title": "Annunimas Core"
+        "title": "Arda Core"
       }
     ],
     "operating_posture": {

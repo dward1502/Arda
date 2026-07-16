@@ -22,8 +22,7 @@ use arda_core::task::Task;
 use arda_fleet::{
     EdgeDispatcher, EdgeHealthMonitor, FleetCapacityManager, ProviderTokenTracker,
 };
-use arda_mnemosyne::MnemosyneService;
-
+use arda_vaire::MnemosyneService;
 pub struct Pipeline {
     router: Router,
     ledger: Ledger,

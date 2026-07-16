@@ -17,11 +17,14 @@ pub mod loop_engine;
 pub mod message;
 pub mod pipeline;
 pub mod router;
+pub mod service_registry;
 pub mod soterion;
 pub mod soterion_watcher;
 pub mod state;
+pub mod systemd;
 pub mod task;
 pub mod tool;
+pub mod tool_contract;
 
 pub use agent::Agent;
 pub use aipkg::{AipkgGovernance, AipkgManifest, AipkgPreflight, AipkgReceiptPolicy};
@@ -42,5 +45,13 @@ pub use soterion::{
     SoterionMachineSigil, SoterionMeta, SoterionRegistry, SoterionRegistryEntry, SIGIL_DICTIONARY,
 };
 pub use soterion_watcher::SoterionWatcher;
+pub use service_registry::{
+    ArdaServiceRegistryStatus, ContractConfig, ContinuityConfig, GovernanceConfig, RegistryError,
+    ServiceContract, ServiceHandle, ServiceKind, ServiceRecord, ServiceRegistry,
+    ServiceRegistryState, ServiceRegistryStateValidator, ServiceStatus,
+};
+pub use systemd::{
+    SystemctlClient, SystemdClient, SystemdError, Unit, UnitKind, parse_list_units,
+};
 pub use task::{JouleWorkMeasurementSource, Task, TaskId, TaskStatus};
 pub use tool::ToolRegistry;

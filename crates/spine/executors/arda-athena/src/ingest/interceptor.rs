@@ -3,7 +3,7 @@
 // Side-effects that are not part of ATHENA's core book/digest write path live
 // here so new source capture flows can attach behavior without changing ingest.
 
-use arda_mnemosyne::{InformantEvent, MnemosyneService};
+use arda_vaire::{InformantEvent, MnemosyneService};
 use chrono::Utc;
 use fs2::FileExt;
 use serde::Serialize;

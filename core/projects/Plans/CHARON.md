@@ -17,7 +17,7 @@ soterion:
 Status: in_progress (updated 2026-06-22)
 Owner: charon
 Human plan: `human/plans/CHARON.md`
-Crate: `crates/annunimas-charon`
+Crate: `crates/arda-charon`
 Core runtime: `core/state/charon_router.json`
 Task ledger: `core/projects/tasks/queue.jsonl`
 

@@ -1,0 +1,23 @@
+# sigil: SCROLL
+[business]
+mode = "full"
+operating_posture = "build"
+default_currency = "USD"
+primary_surface = "arda_hud"
+boardroom_enabled = true
+
+[business.strategy]
+thesis = "Annunimas is a sovereign AI operating system for business and personal command."
+focus = "stabilize core systems, shape reusable product surfaces, and prepare ARDA_HUD as the main interaction layer."
+go_to_market = "local-first system first, product surfaces second"
+
+[business.pipeline]
+stage = "foundational"
+active_offers = 1
+priority = "system-hardening"
+
+[business.observation]
+track_clients = true
+track_marketing = true
+track_revenue = true
+track_partnerships = true

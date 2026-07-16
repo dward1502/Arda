@@ -1,7 +1,7 @@
-pub mod human;
-pub mod ingest;
-pub mod learning;
-pub mod transport;
+// sigil: REPAIR
+//! ATHENA executor
+//!
+//! Knowledge ingest, synthesis, and learning loop agent
 
 use arda_core::agent::{Agent, AgentManifest};
 use arda_core::error::{ArdaError, Result};
@@ -9,16 +9,23 @@ use arda_core::llm::{ChatMessage, ChatRequest, LlmProvider};
 use arda_core::task::Task;
 use arda_core::SoterionMeta;
 use async_trait::async_trait;
-use ingest::AthenaStore;
 use std::collections::HashMap;
 use std::sync::Arc;
+
+#[cfg(test)]
+pub mod human;
+#[cfg(test)]
+pub mod ingest;
+#[cfg(test)]
+pub mod learning;
+#[cfg(test)]
+pub mod test_support;
 
 pub struct AthenaAgent {
     manifest: AgentManifest,
     capabilities: Vec<&'static str>,
     llm: Arc<dyn LlmProvider>,
     model_routes: HashMap<String, String>,
-    store: AthenaStore,
 }
 
 impl AthenaAgent {
@@ -40,12 +47,6 @@ impl AthenaAgent {
             "decision",
             "general",
         ];
-        let store = AthenaStore::from_default_or_workspace_fallback().map_err(|e| {
-            ArdaError::Agent {
-                agent: "athena".to_string(),
-                message: format!("failed to initialize Athena storage: {e}"),
-            }
-        })?;
 
         let manifest = AgentManifest {
             name: "athena".to_string(),
@@ -69,7 +70,6 @@ impl AthenaAgent {
             capabilities,
             llm,
             model_routes,
-            store,
         })
     }
 
@@ -97,48 +97,8 @@ impl Agent for AthenaAgent {
     async fn execute(&self, task: &mut Task) -> Result<()> {
         task.start_execution();
 
-        if task.task_type == "ingest" {
-            let record = self
-                .store
-                .ingest(&task.description, "orchestrator", "pipeline task")?;
-
-            task.complete(serde_json::json!({
-                "agent": self.name(),
-                "mode": "local_ingest_mvp",
-                "storage_root": self.store.root().display().to_string(),
-                "record": record,
-            }));
-            return Ok(());
-        }
-
-        if task.task_type == "query" {
-            let response = self.store.query(&task.description, 8)?;
-            task.complete(serde_json::json!({
-                "agent": self.name(),
-                "mode": "local_query_mvp",
-                "query": response,
-            }));
-            return Ok(());
-        }
-
-        if task.task_type == "deep_analyze" || task.task_type == "deep" {
-            let source_id = task.description.trim();
-            let queued =
-                self.store
-                    .queue_deep_analysis(source_id, "orchestrator", "pipeline deep task")?;
-            let deep = self.store.deep_analyze(source_id)?;
-            task.complete(serde_json::json!({
-                "agent": self.name(),
-                "mode": "local_deep_analysis_mvp",
-                "queued": queued,
-                "deep": deep,
-            }));
-            return Ok(());
-        }
-
         let system_prompt = self.build_system_prompt(&task.task_type);
 
-        // Get model for task type, fall back to default
         let model = self
             .model_routes
             .get(&task.task_type)
@@ -156,13 +116,6 @@ impl Agent for AthenaAgent {
             .model
             .clone()
             .unwrap_or_else(|| self.llm.default_model().to_string());
-        tracing::info!(
-            agent = self.name(),
-            provider = self.llm.provider_name(),
-            model = model_used.as_str(),
-            task_type = task.task_type.as_str(),
-            "Executing task"
-        );
 
         match self.llm.chat(request).await {
             Ok(response) => {
@@ -190,19 +143,5 @@ impl Agent for AthenaAgent {
                 Err(e)
             }
         }
-    }
-}
-
-#[cfg(test)]
-pub(crate) mod test_support {
-    use std::sync::{Mutex, MutexGuard, OnceLock};
-
-    static ENV_LOCK: OnceLock<Mutex<()>> = OnceLock::new();
-
-    pub(crate) fn env_guard() -> MutexGuard<'static, ()> {
-        ENV_LOCK
-            .get_or_init(|| Mutex::new(()))
-            .lock()
-            .unwrap_or_else(|poisoned| poisoned.into_inner())
     }
 }

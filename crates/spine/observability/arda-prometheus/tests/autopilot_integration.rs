@@ -55,13 +55,13 @@ status = "contract_required"
 
 [[sovereign_crates]]
 id = "council"
-crate = "arda-council"
+crate = "arda-aule"
 status = "active_subordinate"
 
 [[sovereign_crates]]
 id = "ceo"
-crate = "arda-ceo"
-status = "active_subordinate"
+role = "productized CEO/orchestration API surface; current runtime authority remains Prometheus ceo-autopilot"
+status = "prometheus_cea_autopilot_only"
 "#,
     )
     .unwrap();
@@ -530,7 +530,7 @@ status = "contract_required"
 
 [[sovereign_crates]]
 id = "council"
-crate = "arda-council"
+crate = "arda-aule"
 loop_stages = ["deliberate", "review", "replan"]
 gate = "evidence_for_governance_not_approval_by_itself"
 status = "active_subordinate"

@@ -9,10 +9,10 @@ default = ["http"]
 http = ["dep:axum", "dep:tower", "dep:tokio-stream"]
 
 [dependencies]
-arda-core = { path = "../arda-core" }
-arda-governance = { path = "../arda-governance" }
-arda-mnemosyne = { path = "../arda-mnemosyne" }
-arda-plutus = { path = "../arda-plutus" }
+arda-core = { path = "../../../../crates/spine/governance/arda-core" }
+arda-governance = { path = "../../../../crates/spine/governance/arda-governance" }
+arda-vaire = { path = "../../../../crates/spine/memory/arda-vaire" }
+arda-plutus = { path = "../../../../crates/spine/runtime/arda-plutus" }
 async-trait = "0.1"
 futures = "0.3"
 serde = { version = "1", features = ["derive"] }

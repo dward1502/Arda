@@ -32,7 +32,7 @@ Adopt gradually; rename a crate when you actually touch it, not all at once.
 | annunimas-charon       | `manwe`                 | single local inference gateway (port 7171) |
 | annunimas-athena       | `varda`                 | ingest / knowledge triage             |
 | annunimas-oracle       | `mandos`                | reasoning / validation                |
-| annunimas-prometheus   | `melkor-council`→`aule` | orchestration / autopilot (TBD)       |
+| annunimas-prometheus   | `aule`                  | orchestration / autopilot (TBD)       |
 | annunimas-mnemosyne    | `vaire`                 | memory continuity                     |
 | annunimas-hermes       | `orome`                 | comms bridge (harness taps here)      |
 | annunimas-warden       | `tulkas`                | monitoring / guardhouse               |

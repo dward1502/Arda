@@ -16,7 +16,7 @@
     },
     "crawl_primary": {
       "activation_status": "activation_frontier",
-      "next_action": "run `annunimas athena crawl <url>` to capture markdown into ATHENA via the local crawl4ai service",
+      "next_action": "run `arda athena crawl <url>` to capture markdown into ATHENA via the local crawl4ai service",
       "runtime_status": "not_running",
       "tool": "crawl4ai"
     },
@@ -68,8 +68,8 @@
       "owner": "athena",
       "preferred_future": "scrapling",
       "write_through": [
-        "crates/annunimas-athena/src/ingest.rs",
-        "crates/annunimas-cli/src/main.rs",
+        "crates/arda-athena/src/ingest.rs",
+        "crates/arda-cli/src/main.rs",
         "core/state/package_enablement.json",
         "core/state/package_runtime_activation.json",
         "core/state/scrapling_runtime_contract.json"
@@ -102,7 +102,7 @@
           {
             "surfaces": [
               "core/state/crate_spawn_contract.json",
-              "annunimas-cli utility create-crate-spawn-blueprint"
+              "arda-cli utility create-crate-spawn-blueprint"
             ],
             "target": "crate_spawn_blueprint_flow",
             "why": "AgentForge's forge metaphor maps cleanly to sovereign crate scaffolding rather than a permanent meta-framework."
@@ -110,7 +110,7 @@
           {
             "surfaces": [
               "core/state/operations_flow.json",
-              "crates/annunimas-apollo"
+              "crates/arda-apollo"
             ],
             "target": "workflow_execution_contracts",
             "why": "Declarative cog-style flows should become bounded execution recipes owned by APOLLO."
@@ -129,7 +129,7 @@
             "surfaces": [
               "core/state/federated_comms_runtime.json",
               "core/state/matrix_boardrooms.json",
-              "crates/annunimas-hermes"
+              "crates/arda-hermes"
             ],
             "target": "communication_adapter_plugins",
             "why": "eliza's connector ecosystem is useful when constrained to HERMES-owned adapter boundaries."
@@ -201,7 +201,7 @@
     "promote framework digestion into crate/adapter/workflow contracts instead of reference-only notes",
     "bind ATHENA-generated work directly into runtime governor and APOLLO execution surfaces"
   ],
-  "schema_version": "annunimas.athena-integration-plan.v1",
+  "schema_version": "arda.athena-integration-plan.v1",
   "sigil": "REPAIR",
   "summary": {
     "crawl4ai_frontier_open": true,

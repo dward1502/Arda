@@ -3,6 +3,5 @@
 //! `arda-engine` re-exports these spine crates so app code can depend on one
 //! crate path instead of reaching into the vendored layer directly.
 
-pub use arda_onboarding as onboarding;
-pub use arda_service_registry as service_registry;
+pub use arda_core::service_registry;
 pub use manwe;

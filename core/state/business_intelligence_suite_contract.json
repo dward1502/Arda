@@ -1,6 +1,6 @@
 {
-  "authority": "council_engine_extraction",
-  "crate_candidate": "annunimas-council",
+  "authority": "aule_orchestration_extraction",
+  "crate_candidate": "arda-aule",
   "generated_at_utc": "2026-06-05T09:59:38Z",
   "guardrails": {
     "document_review_must_preserve_source_context": true,
@@ -27,7 +27,7 @@
     "synthesis_recommendation",
     "licensed_professional_escalation_flag"
   ],
-  "schema_version": "annunimas.business-intelligence-suite-contract.v1",
+  "schema_version": "arda.business-intelligence-suite-contract.v1",
   "seats": [
     "economist",
     "attorney",

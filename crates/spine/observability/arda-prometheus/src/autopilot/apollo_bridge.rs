@@ -6,8 +6,8 @@
 
 use super::decomposer::{PlannedTask, Priority};
 use super::taxonomy::is_apollo_dispatchable;
-use arda_apollo::transport::ipc::send_command;
-use arda_apollo::{ApolloExecutor, ExecutionPriority, ExecutionRequest, ExecutionStatus};
+use arda_aule::transport::ipc::send_command;
+use arda_aule::{ApolloExecutor, ExecutionPriority, ExecutionRequest, ExecutionStatus};
 use serde::Serialize;
 use serde_json::{json, Value};
 use std::path::PathBuf;
@@ -296,8 +296,8 @@ mod tests {
 
     #[tokio::test]
     async fn dispatches_apollo_task_via_daemon() {
-        use arda_apollo::transport::ipc::run_ipc_server;
-        use arda_apollo::ApolloService;
+        use arda_aule::transport::ipc::run_ipc_server;
+        use arda_aule::ApolloService;
         use tokio::time::{sleep, Duration};
 
         let dir = tempfile::tempdir().unwrap();

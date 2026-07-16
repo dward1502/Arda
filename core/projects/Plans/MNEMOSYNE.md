@@ -17,7 +17,7 @@ soterion:
 Status: complete (reviewed 2026-04-30; v0.1 baseline; coin-marked for cleanup/archive targeting)
 Owner: mnemosyne
 Human plan: `human/plans/MNEMOSYNE.md`
-Crate: `crates/annunimas-mnemosyne`
+Crate: `crates/arda-mnemosyne`
 Core runtime: `core/state/mnemosyne_continuity.json`
 Task ledger: `core/projects/tasks/queue.jsonl`
 

@@ -1,4 +1,12 @@
-// Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
+//! Arda launcher backend.
+//!
+//! Thin Tauri + app harness surface over the Arda spine.
+//!
+//! The onboarding flow is implemented under `onboarding/`, and exposed to
+//! the frontend via Tauri commands below.
+
+pub mod onboarding;
+
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)

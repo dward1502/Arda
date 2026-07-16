@@ -18,7 +18,7 @@ reaching into vendored crates directly.
 
 - `Cargo.toml`
 - `src`
-  - `lib.rs` — `boot()` placeholder + aliased re-exports (`charon`, `core`, `onboarding`, `service_registry`)
+  - `lib.rs` — `boot()` placeholder + aliased re-exports (`core`, `onboarding`, `service_registry`)
   - `supervisor.rs` — `Supervisor` / `Service` / `Shutdown`: spawn, watch, restart
     with exponential backoff; clean shutdown via a shared `Notify`.
 

@@ -1,0 +1,56 @@
+# sigil: SCROLL
+#
+# Annunimas-side template for the Hermes Agent Discord gateway.
+# Copy the relevant values into the active Hermes Agent config/env on the gateway
+# host. Do not commit live tokens or Discord user/channel IDs.
+
+gateway:
+  platforms:
+    discord:
+      enabled: true
+      home_chat_id: "${ANNUNIMAS_DISCORD_WORK_STREAM_CHANNEL_ID}"
+      gateway_restart_notification: true
+      extra:
+        allow_from:
+          - "${ANNUNIMAS_OPERATOR_DISCORD_USER_ID}"
+        allow_admin_from:
+          - "${ANNUNIMAS_OPERATOR_DISCORD_USER_ID}"
+        group_allow_admin_from:
+          - "${ANNUNIMAS_OPERATOR_DISCORD_USER_ID}"
+        user_allowed_commands:
+          - help
+          - whoami
+          - status
+        group_user_allowed_commands:
+          - help
+          - whoami
+          - status
+  display:
+    busy_input_mode: steer
+    busy_ack_enabled: true
+    tool_progress: new
+    background_process_notifications: result
+    platforms:
+      discord:
+        cleanup_progress: true
+
+annunimas:
+  authority_boundary:
+    policy_owner: annunimas-hermes
+    gateway_role: conversation_and_background_worker
+    work_stream_channel: work-stream
+    general_channel: general
+    council_channel: council
+    receipt_adapter:
+      command: cargo run -p annunimas-cli -- utility hermes-agent-gateway-receipt
+      writes:
+        - data/hermes/hermes_agent_gateway_receipts.jsonl
+        - data/hermes/messages.jsonl
+        - data/hermes/comms_events.jsonl
+    invariant: Hermes Agent output is evidence, not task approval.
+  rollback:
+    pause_discord_adapter: /platform pause discord
+    inspect_adapters: /platform list
+    resume_discord_adapter: /platform resume discord
+    stop_user_service: hermes gateway stop
+    status_user_service: hermes gateway status

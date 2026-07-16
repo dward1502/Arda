@@ -15,14 +15,10 @@ soterion:
 # Index: crates/interface/INDEX.md
 
 ## Contents
-
 - `INDEX.md`
-- `arda-apollo`
-- `arda-cli`
-- `arda-comm`
+- `arda-aule`
 - `arda-fleet`
 - `arda-hermes`
-- `arda-mcp`
 - `arda-onboarding`
 
 ## Purpose

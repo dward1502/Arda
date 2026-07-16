@@ -17,7 +17,7 @@ soterion:
 Status: in_progress (updated 2026-06-22)
 Owner: hermes
 Human plan: `human/plans/HERMES.md`
-Crate: `crates/annunimas-hermes`
+Crate: `crates/arda-hermes`
 Core runtime: `core/state/hermes_command.json`
 Task ledger: `core/projects/tasks/queue.jsonl`
 
@@ -60,7 +60,7 @@ Current evidence:
 
 Safe next live-dispatch steps:
 
-1. Send one low-risk receipt-backed canary to `general` using `cargo run -p annunimas-cli -- hermes send --provider discord --channel general ...` after policy guard accepts the network scope.
+1. Send one low-risk receipt-backed canary to `general` using `cargo run -p arda-cli -- hermes send --provider discord --channel general ...` after policy guard accepts the network scope.
 2. Verify a concrete delivery receipt or message id before treating the lane as active.
 3. Send one bounded task-status canary to `tasks` with the same Soterion-plus-plain-language format and no secrets/private payloads.
 4. Refresh `core/state/hermes_discord_runtime.json` or the equivalent Hermes delivery receipt projection so ARDA/Hermes visibility reports recent outbound/dispatched totals.

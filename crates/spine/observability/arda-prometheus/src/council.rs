@@ -1,8 +1,8 @@
 // sigil: REPAIR
 use crate::registry::AgentRosterSnapshot;
 use arda_core::task::Task;
-use arda_council::council::{CouncilQuery, CouncilSeat, QueryMode};
-use arda_council::service::build_brief;
+use arda_aule::council::{CouncilQuery, CouncilSeat, QueryMode};
+use arda_aule::service::build_brief;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

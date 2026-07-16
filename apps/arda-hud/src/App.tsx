@@ -1,10 +1,5 @@
 import { useState, useEffect } from 'react'
 
-// The HUD's only job: surface the live `manwe` gateway (port 7171, reserved
-// workspace-wide) so an operator can see what models are available locally.
-// It talks OpenAI-compatible REST — same contract the daemon-supervised
-// `manwe` already serves.
-
 type Model = { id: string; object?: string; owned_by?: string }
 
 function gatewayUrl(): string {
@@ -39,10 +34,10 @@ export default function App() {
 
   return (
     <div className="w-screen h-screen bg-cosmic text-white/80 font-mono p-6 flex flex-col gap-4">
-      <header className="flex items-baseline justify-between border-b border-white/10 pb-3">
+      {/* <header className="flex items-baseline justify-between border-b border-white/10 pb-3">
         <h1 className="text-gold-bright text-lg tracking-widest">ARDA · HUD</h1>
         <span className="text-xs text-white/40">manwe gateway @ :7171</span>
-      </header>
+      </header> */}
 
       <div className="flex items-center gap-3">
         <button

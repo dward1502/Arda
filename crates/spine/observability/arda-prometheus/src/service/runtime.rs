@@ -5,7 +5,7 @@ use crate::registry::AgentRosterSnapshot;
 use crate::service::{prometheus_home, PrometheusService};
 use crate::thought::ThoughtLedger;
 use arda_core::error::Result;
-use arda_mnemosyne::MnemosyneService;
+use arda_vaire::MnemosyneService;
 use chrono::{DateTime, Utc};
 use std::fs::{self, OpenOptions};
 use std::path::{Path, PathBuf};

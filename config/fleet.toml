@@ -1,0 +1,253 @@
+# sigil: SCROLL
+[fleet]
+enabled = true
+status_view_mode = "active_only" # active_only | active_plus_recent | full
+stale_offline_threshold_days = 14
+include_recent_offline_in_status = false
+
+[exports]
+prometheus_dir = "data/prometheus"
+ceo_layer_prometheus_dir = "core/metrics/by_crate/prometheus"
+
+[events]
+warden_event_queue_path = "data/warden/informant_queue.jsonl"
+
+[scheduler]
+fleet_scan_interval_minutes = 15
+
+[routing]
+local_runtime = "llamacpp" # mesh-llm | llamacpp | hybrid
+local_execution_provider_id = "edge_backbone_coder"
+local_fallback_provider_ids = ["edge_guardhouse", "local_fallback"]
+
+[[nodes]]
+id = "node-core-hub"
+role = "main_hub"
+hostname = "annunimas-core"
+display_name = "Annunimas Core (3080 Workstation)"
+tailscale_ip = "100.78.138.113"
+tailscale_name = "annunimas-core"
+ssh_user = "mythos"
+node_class = "core_compute"
+enrollment_status = "active"
+llm_runtime = "mesh_root"
+charon_provider_id = "edge_core"
+base_url = "http://100.78.138.113:9337/v1"
+health_url = "http://100.78.138.113:9337/v1/models"
+models_url = "http://100.78.138.113:9337/v1/models"
+expected_models = ["LFM2.5-8B-A1B-Q4_K_M"]
+runtime_model_alias = "LFM2.5-8B-A1B-Q4_K_M"
+runtime_host = "127.0.0.1"
+runtime_port = 9337
+runtime_context_window = 131072
+runtime_gpu_layers = 999
+startup_priority = 10
+restart_scope = "local"
+restart_cmd = "systemctl --user --no-block restart mesh-llm.service"
+notes = "Updated 2026-06-03. RTX 3080 10GB. Core mesh lane now serves LiquidAI LFM2.5-8B-A1B-Q4_K_M via mesh-llm with 128K context target. Qwen3.5-9B-Q4_K_M remains staged as rollback."
+
+[[nodes]]
+id = "node-pi5-warden"
+role = "warden_guardhouse"
+hostname = "warden"
+display_name = "Pi5 Guardhouse (Warden)"
+tailscale_ip = "100.110.85.37"
+tailscale_name = "warden"
+ssh_user = "numenor"
+node_class = "edge_guardhouse"
+enrollment_status = "active"
+llm_runtime = "edge_llm_light"
+charon_provider_id = "edge_guardhouse"
+base_url = "http://100.110.85.37:1234"
+health_url = "http://100.110.85.37:1234/health"
+models_url = "http://100.110.85.37:1234/v1/models"
+expected_models = ["Qwen3.5-4B-Q4_K_M.gguf"]
+runtime_backend = "llama.cpp"
+runtime_model_alias = "Qwen3.5-4B-Q4_K_M.gguf"
+runtime_context_window = 4096
+runtime_port = 1234
+startup_priority = 40
+restart_scope = "ssh"
+restart_cmd = "systemctl --user --no-block restart llama-server"
+notes = "Home-network edge guardhouse on a regular Raspberry Pi 5. Cut over to OpenSSH key-only on 2026-04-27 (numenor@100.110.85.37, no password auth). Serving llama.cpp with Qwen3.5-4B-Q4_K_M.gguf on http://100.110.85.37:1234, with model metadata exposed at /v1/models, at 4096 context via a persistent user systemd service."
+
+[[nodes]]
+id = "node-ser9-worker"
+role = "ser9_sovereign_worker"
+hostname = "beelink"
+display_name = "Beelink SER9 Pro"
+tailscale_ip = "100.103.125.88"
+tailscale_name = "beelink"
+ssh_user = "citadel"
+node_class = "edge_worker"
+enrollment_status = "active"
+llm_runtime = "llama_cpp_standalone"
+charon_provider_id = "edge_beelink_light"
+base_url = "http://100.103.125.88:9337/v1"
+health_url = "http://100.103.125.88:9337/v1/models"
+models_url = "http://100.103.125.88:9337/v1/models"
+expected_models = ["Qwen_Qwen3.5-4B-Q6_K"]
+runtime_backend = "llama.cpp"
+runtime_model_alias = "Qwen_Qwen3.5-4B-Q6_K"
+runtime_model_path = "/home/citadel/models/Qwen_Qwen3.5-4B-Q6_K.gguf"
+runtime_context_window = 131072
+runtime_port = 9337
+startup_priority = 20
+restart_scope = "ssh"
+restart_cmd = "systemctl --user --no-block restart llama-server-light.service"
+notes = "Beelink SER9 Pro worker. Also runs Bluefin and hosts fleet observability: Grafana :3000, Prometheus :9090, OpenWebUI :8080, Postgres, Redis, MinIO. As of 2026-06-16 the lighter Qwen_Qwen3.5-4B-Q6_K lane is served directly by llama.cpp/Vulkan on http://100.103.125.88:9337/v1 via llama-server-light.service. The old mesh-llm-worker.service was disabled after crash-looping because it calls `distrobox enter eregion` and that container no longer exists."
+
+[[nodes]]
+id = "node-ser9-carnice"
+role = "ser9_standalone_lane"
+hostname = "beelink"
+display_name = "Beelink SER9 Pro — Carnice 9B Lane"
+tailscale_ip = "100.103.125.88"
+tailscale_name = "beelink"
+ssh_user = "citadel"
+node_class = "edge_worker"
+enrollment_status = "active"
+llm_runtime = "llama_cpp_standalone_inactive"
+charon_provider_id = "edge_carnice"
+base_url = "http://100.103.125.88:1234"
+health_url = "http://100.103.125.88:1234/health"
+models_url = "http://100.103.125.88:1234/v1/models"
+expected_models = ["Carnice-9b-Q6_K"]
+runtime_backend = "llama.cpp"
+runtime_model_alias = "Carnice-9b-Q6_K"
+runtime_model_path = "/home/citadel/models/Carnice-9b-Q6_K.gguf"
+runtime_context_window = 65536
+runtime_port = 1234
+runtime_gpu_layers = 999
+startup_priority = 25
+restart_scope = "ssh"
+restart_cmd = "systemctl --user --no-block restart llama-server.service"
+notes = "Second LLM lane co-tenanted on Beelink. Local Carnice-9b-Q6_K weights are present and should be servable through llama.cpp/ROCm, but as of 2026-06-16 :1234 is not listening. The old llama-server.service was disabled after crash-looping because it calls `distrobox enter eregion` and that container no longer exists. Treat Beelink inference as installed-but-inactive until the service is rebuilt to run directly on Bluefin or a replacement distrobox."
+
+[[nodes]]
+id = "node-laptop"
+role = "portable_operator"
+hostname = "laptop"
+display_name = "RTX 3050 Laptop"
+tailscale_ip = "100.97.15.88"
+tailscale_name = "laptop"
+ssh_user = "mythos"
+node_class = "portable_compute"
+enrollment_status = "offline"
+llm_runtime = "local_voice_stt_operator"
+charon_provider_id = "edge_laptop"
+base_url = "http://100.97.15.88:1234"
+health_url = "http://100.97.15.88:1234/health"
+models_url = "http://100.97.15.88:1234/v1/models"
+expected_models = []
+runtime_context_window = 32768
+runtime_port = 1234
+startup_priority = 30
+restart_scope = "ssh"
+restart_cmd = "systemctl --user --no-block restart llama-server"
+notes = "Actual laptop node. As of 2026-03-23 this machine is configured for local Hermes voice input with Qwen3-ASR-0.6B rather than as a required fleet llama.cpp inference host. Treat it as optional and intermittently offline; do not assume qwen3.5-4b is present or try to keep fleet routing pinned to this node."
+
+[[nodes]]
+id = "node-backbone-server"
+role = "backbone_fast_general"
+hostname = "annunimas-server"
+display_name = "Annunimas Server (LFM2.5 Fast Lane)"
+tailscale_ip = "100.102.250.115"
+tailscale_name = "annunimas-server"
+ssh_user = "annunimas-server"
+node_class = "backbone_compute"
+enrollment_status = "active"
+llm_runtime = "llama_cpp_fast_general"
+charon_provider_id = "edge_backbone"
+base_url = "http://100.102.250.115:8093/v1"
+health_url = "http://100.102.250.115:8093/health"
+models_url = "http://100.102.250.115:8093/v1/models"
+expected_models = ["lfm2.5-8b-a1b-q4km"]
+runtime_backend = "llama.cpp"
+runtime_model_alias = "lfm2.5-8b-a1b-q4km"
+runtime_model_path = "/var/home/annunimas-server/models/lfm2.5-8b-a1b/LFM2.5-8B-A1B-Q4_K_M.gguf"
+runtime_host = "0.0.0.0"
+runtime_port = 8093
+runtime_context_window = 32768
+runtime_gpu_layers = 999
+startup_priority = 5
+restart_scope = "ssh"
+restart_cmd = "systemctl --user --no-block restart llama-server-lfm25.service"
+notes = "Updated 2026-06-16. Active fast/general lane is llama.cpp inside the eregion distrobox, serving LFM2.5-8B-A1B-Q4_K_M on :8093 with 32K context, Q4_0 KV cache, --jinja, and metrics. Qwen3-Coder remains installed on disk but its service is disabled to free VRAM for LFM and Gemma4."
+
+[[nodes]]
+id = "node-backbone-gemma4-coder"
+role = "backbone_coder"
+hostname = "annunimas-server"
+display_name = "Annunimas Server (Gemma4 12B Coder Lane)"
+tailscale_ip = "100.102.250.115"
+tailscale_name = "annunimas-server"
+ssh_user = "annunimas-server"
+node_class = "backbone_compute"
+enrollment_status = "active"
+llm_runtime = "llama_cpp_coder"
+charon_provider_id = "edge_backbone_coder"
+base_url = "http://100.102.250.115:8094/v1"
+health_url = "http://100.102.250.115:8094/health"
+models_url = "http://100.102.250.115:8094/v1/models"
+expected_models = ["gemma4-12b-coder-q4km"]
+runtime_backend = "llama.cpp"
+runtime_model_alias = "gemma4-12b-coder-q4km"
+runtime_model_path = "/var/home/annunimas-server/models/gemma4-12b-coder-/gemma4-coding-Q4_K_M.gguf"
+runtime_host = "0.0.0.0"
+runtime_port = 8094
+runtime_context_window = 8192
+runtime_gpu_layers = 28
+startup_priority = 10
+restart_scope = "ssh"
+restart_cmd = "systemctl --user --no-block restart llama-server-gemma4-coder.service"
+notes = "Added 2026-06-16. Active llama.cpp coding lane on annunimas-server :8094, serving gemma4-coding-Q4_K_M with 8K context and 28 GPU layers on the second RTX 2080 Super so it can coexist with the LFM fast lane and Qwen2.5-VL vision endpoint."
+
+[[nodes]]
+id = "node-backbone-vision"
+role = "backbone_vision"
+hostname = "annunimas-server"
+display_name = "Annunimas Server (Qwen2.5-VL Vision Lane)"
+tailscale_ip = "100.102.250.115"
+tailscale_name = "annunimas-server"
+ssh_user = "annunimas-server"
+node_class = "backbone_compute"
+enrollment_status = "active"
+llm_runtime = "llama_cpp_vision"
+charon_provider_id = "edge_backbone_vision"
+base_url = "http://100.102.250.115:8081/v1"
+health_url = "http://100.102.250.115:8081/health"
+models_url = "http://100.102.250.115:8081/v1/models"
+expected_models = ["Qwen2.5-VL-7B-Instruct"]
+runtime_backend = "llama.cpp"
+runtime_model_alias = "Qwen2.5-VL-7B-Instruct"
+runtime_model_path = "/var/home/annunimas-server/models/qwen2.5-vl-7b/Qwen2.5-VL-7B-Instruct-Q5_K_M.gguf"
+runtime_mmproj_path = "/var/home/annunimas-server/models/qwen2.5-vl-7b/mmproj-F16.gguf"
+runtime_host = "0.0.0.0"
+runtime_port = 8081
+runtime_context_window = 4096
+runtime_gpu_layers = 0
+startup_priority = 15
+restart_scope = "ssh"
+restart_cmd = "systemctl --user --no-block restart llama-server-vision.service"
+notes = "Updated 2026-06-16. Active llama.cpp multimodal endpoint on annunimas-server :8081, serving Qwen2.5-VL-7B-Instruct-Q5_K_M with mmproj-F16."
+
+[[nodes]]
+id = "node-pi5-citadel-avatar"
+role = "citadel_avatar_controller"
+hostname = "raspberrypi"
+display_name = "Pi5 CITADEL Avatar"
+tailscale_ip = "100.119.130.127"
+tailscale_name = "raspberrypi-1"
+ssh_user = "citadel"
+node_class = "edge_avatar_product"
+enrollment_status = "active_staging"
+llm_runtime = "cloud_only_inference"
+base_url = "http://100.119.130.127:8080"
+health_url = "http://100.119.130.127:8080/public/state.json"
+models_url = ""
+expected_models = []
+startup_priority = 100
+restart_scope = "ssh"
+restart_cmd = "systemctl --user --no-block restart citadel-companion.service && systemctl --user --no-block restart citadel-kiosk.service"
+notes = "Reflashed Pi5 CITADEL avatar node. Rediscovered 2026-05-18 in Tailscale as raspberrypi-1 / 100.119.130.127; OS hostname reports raspberrypi. OpenSSH, operator key auth, passwordless sudo, linger, citadel-companion.service, and citadel-kiosk.service are active. Known-good display baseline as of 2026-05-27: Waveshare 3.4-inch 800x800 round DSI LCD on Pi5 CAM/DISP 1 with AI HAT+ stack, display_auto_detect=0, dtoverlay=vc4-kms-dsi-waveshare-panel,3_4_inch, DSI-2 mode 800x800@63.034Hz, kanshi scale 1.5, transform normal, Chromium app fullscreen mode, and Pepper's Ghost visual confirmed. Avoid the v2 3_4_inch_c overlay on this reflashed OS because it detected DSI logically but left the physical panel dark."

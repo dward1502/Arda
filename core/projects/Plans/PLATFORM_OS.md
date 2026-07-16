@@ -40,10 +40,10 @@ Actions:
 ## Stage S2. Tenant separation
 Decision gate: choose private repo ownership for withdrawn crates.
 Actions:
-- annunimas-human -> second-brain tenant.
-- annunimas-council -> staged feature project.
-- annunimas-forge-mind -> staged feature project.
-- annunimas-signal-grid -> staged feature project.
+- arda-human -> second-brain tenant.
+- arda-council -> staged feature project.
+- arda-forge-mind -> staged feature project.
+- arda-signal-grid -> staged feature project.
 - arda-service-registry -> staged feature project.
 - Keep backward-compatible remote references if integration is still desired.
 
@@ -58,7 +58,7 @@ Actions:
 ## Stage S4. Bootable proof
 Decision gate: bootable image boots and health checks pass.
 Actions:
-- Produce an image from Bluefin that boots Annunimas core services.
+- Produce an image from Bluefin that boots arda core services.
 - Prove first-boot health check via CLI status.
 - Prove queue and runtime state are readable at first boot.
 - Use `docs/operations/operator-start-of-day-boot-tasks.md` as the bounded operator start-of-day boot checklist for build, user-systemd, CLI status, queue/runtime projection, packaging, and evidence capture.
@@ -66,27 +66,26 @@ Actions:
 ## Crate disposition
 
 Keep in OS core:
-- annunimas-core
-- annunimas-cli
-- annunimas-charon
-- annunimas-prometheus
-- annunimas-apollo
-- annunimas-hermes
-- annunimas-comm
-- annunimas-oracle
-- annunimas-governance
-- annunimas-plutus
-- annunimas-athena
-- annunimas-mnemosyne
-- annunimas-hades
-- annunimas-warden
-- annunimas-chronos
-- annunimas-systemd
-- annunimas-tool-harness
-- annunimas-mcp
+- arda-core
+- arda-cli
+- arda-charon
+- arda-prometheus
+- arda-apollo
+- arda-hermes
+- arda-comm
+- arda-mandos
+- arda-governance
+- arda-plutus
+- arda-athena
+- arda-mnemosyne
+- arda-hades
+- arda-warden
+- arda-chronos
+- arda-systemd
+- arda-tool-harness
 
 Move out of OS core:
-- annunimas-human -> second-brain tenant
+- arda-human -> second-brain tenant
 - council -> staged feature project
 - forge-mind -> staged feature project
 - signal-grid -> staged feature project
@@ -112,7 +111,7 @@ Model: a read responder that ingests audit/output artifacts, returns a verdict/r
 
 ## Next action items
 - P0: confirm stage gate S1 and finalize the 18-crate core set.
-- P1: extract annunimas-human into a private tenant repo.
+- P1: extract arda-human into a private tenant repo.
 - P1: evaluate comm+hermes combine without breaking Hermes CLI command surface.
 - P2: extract council, forge-mind, signal-grid, service-registry into staged feature projects.
 - P3: extract ARDA HUD, CITADEL, RELIC as private consumers of core API.

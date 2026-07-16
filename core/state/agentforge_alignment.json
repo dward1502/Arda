@@ -1,5 +1,5 @@
 {
-  "annunimas_adaptation": {
+  "arda_adaptation": {
     "adapt": [
       "yaml_personas_into_operator_product_profiles",
       "low_code_templates_into_crate_spawn_blueprints"
@@ -21,7 +21,7 @@
       {
         "surfaces": [
           "core/state/crate_spawn_contract.json",
-          "annunimas-cli utility create-crate-spawn-blueprint"
+          "arda-cli utility create-crate-spawn-blueprint"
         ],
         "target": "crate_spawn_blueprint_flow",
         "why": "AgentForge's forge metaphor maps cleanly to sovereign crate scaffolding rather than a permanent meta-framework."
@@ -29,7 +29,7 @@
       {
         "surfaces": [
           "core/state/operations_flow.json",
-          "crates/annunimas-apollo"
+          "crates/arda-apollo"
         ],
         "target": "workflow_execution_contracts",
         "why": "Declarative cog-style flows should become bounded execution recipes owned by APOLLO."
@@ -67,7 +67,7 @@
     "storage_posture": "database_flexible_with_chromadb_reference",
     "workflow_primitive": "declarative_cogs"
   },
-  "schema_version": "annunimas.agentforge.alignment.v1",
+  "schema_version": "arda.agentforge.alignment.v1",
   "sigil": "REPAIR",
   "source_id": "src_75bbe2e4",
   "source_url": "https://github.com/DataBassGit/AgentForge"

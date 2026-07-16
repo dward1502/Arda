@@ -1,6 +1,6 @@
 {
   "sigil": "REPAIR",
-  "active_ruleset": "annunimas_totality",
+  "active_ruleset": "arda_totality",
   "expires_at_utc": null,
   "policy": {
     "autonomy_score_threshold": 0.65,
@@ -8,10 +8,10 @@
     "gate_strict": false,
     "network_unlock_templates": [
       "git push",
-      "cargo run -p annunimas-cli -- hermes send"
+      "cargo run -p arda-cli -- hermes send"
     ],
     "build_verification_routing": {
-      "contract_version": "annunimas.build_verification_routing.v1",
+      "contract_version": "arda.build_verification_routing.v1",
       "authority_split": {
         "workstation": "canonical_build_and_export_executor",
         "laptop": "operator_terminal_not_default_build_executor"
@@ -31,7 +31,7 @@
       }
     },
     "validators": {
-      "schema_version": "annunimas.validators.v2",
+      "schema_version": "arda.validators.v2",
       "core": {
         "joulework": {
           "validator": "joulework",
@@ -144,7 +144,7 @@
       }
     },
     "ceo_council": {
-      "protocol_version": "annunimas.ceo_council.v1",
+      "protocol_version": "arda.ceo_council.v1",
       "ceo_identity": "arandur",
       "cto_seat": {
         "mode": "hybrid",
@@ -167,7 +167,7 @@
       }
     },
     "task_lifecycle": {
-      "contract_version": "annunimas.task_lifecycle.v1",
+      "contract_version": "arda.task_lifecycle.v1",
       "canonical_pipeline": [
         "plan",
         "task_emission",
@@ -185,7 +185,7 @@
       }
     },
     "selinux_safe_runtime": {
-      "contract_version": "annunimas.selinux_runtime_contract.v1",
+      "contract_version": "arda.selinux_runtime_contract.v1",
       "host_family": "bluefin_fedora_atomic",
       "enforcement_mode": "selinux_enforcing_preferred",
       "service_owner": "systemd",
@@ -195,9 +195,9 @@
         "laptop": "terminal_operator_optional_compute"
       },
       "required_paths": {
-        "runtime_dir": "${XDG_RUNTIME_DIR}/annunimas",
-        "state_dir": "${XDG_STATE_HOME:-$HOME/.local/state}/annunimas",
-        "cache_dir": "${XDG_CACHE_HOME:-$HOME/.cache}/annunimas"
+        "runtime_dir": "${XDG_RUNTIME_DIR}/arda",
+        "state_dir": "${XDG_STATE_HOME:-$HOME/.local/state}/arda",
+        "cache_dir": "${XDG_CACHE_HOME:-$HOME/.cache}/arda"
       },
       "remote_control_plane": {
         "preferred": [
@@ -214,7 +214,7 @@
         "ad_hoc_backgrounding_as_canonical_service_model"
       ]
     },
-    "profile": "annunimas_totality",
+    "profile": "arda_totality",
     "triad_required_pass_rate": 0.45,
     "action_classes": {
       "strategy_change": "record_and_proceed"

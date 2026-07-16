@@ -17,7 +17,7 @@ soterion:
 Status: complete (reviewed 2026-04-30; v0.1 baseline; coin-marked for cleanup/archive targeting)
 Owner: athena
 Human plan: `human/plans/ATHENA.md`
-Crate: `crates/annunimas-athena`
+Crate: `crates/arda-athena`
 Core runtime: `core/state/athena_runtime.json`
 Task ledger: `core/projects/tasks/queue.jsonl`
 

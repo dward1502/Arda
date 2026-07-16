@@ -1,5 +1,5 @@
 {
-  "authority": "annunimas-cli export athena-active-learning-health",
+  "authority": "arda-cli export athena-active-learning-health",
   "contract": "docs/contracts/athena-active-learning-mvp-contract.md",
   "generated_at_utc": "2026-06-05T07:09:10Z",
   "metric_contract": [
@@ -26,6 +26,6 @@
     "receipt_required": true,
     "silent_memory_promotion_allowed": false
   },
-  "schema_version": "annunimas.athena-active-learning-health.v1",
+  "schema_version": "arda.athena-active-learning-health.v1",
   "status": "mvp_health_surface_defined"
 }

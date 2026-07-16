@@ -18,7 +18,6 @@ soterion:
 
 - `INDEX.md`
 - `arda-athena`
-- `arda-ceo`
 - `arda-human`
 - `arda-service-registry`
 

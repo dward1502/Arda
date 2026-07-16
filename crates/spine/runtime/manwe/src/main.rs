@@ -1,17 +1,12 @@
+#![allow(path_statements)]
 //! `manwe` — single local OpenAI-compatible inference gateway.
 //!
-//! Frozen contract (REFACTOR_PLAN.md §0/§2): listens on `127.0.0.1:7171` and
-//! serves `/v1/chat/completions` + `/v1/models`. A thin static provider catalog
-//! (toml) is forwarded to — no runtime adaptive routing, no quota mesh. This is
-//! the surface Hermes connects to for local inference; it is the clean local
-//! root that later grows a `remote` adapter (NOT before).
-//!
-//! Models are referenced as `"provider/model"` (e.g. `"ollama/llama3"`); the
-//! `provider/` prefix selects the upstream and is stripped before forwarding.
+//! Default: listens on `127.0.0.1:7171` and serves `/v1/chat/completions`
+//! + `/v1/models` against a static provider catalog. When `MANWE_ROUTING_MODE=adaptive`
+//! is set, requests may flow through the routing adapter.
 
 mod config;
 
-use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -24,21 +19,18 @@ use axum::{
     Json, Router,
 };
 use clap::Parser;
-use serde::Deserialize;
 use serde_json::{json, Value};
 
+use manwe::routing_adapter::AdaptiveRoutingAdapter;
 use config::ManweConfig;
 
 #[derive(Parser, Debug)]
 #[command(name = "manwe", version, about = "Local OpenAI-compat inference gateway")]
 struct Cli {
-    /// HTTP port (overrides config / embedded default 7171).
     #[arg(long)]
     port: Option<u16>,
-    /// Bind address (default 127.0.0.1).
     #[arg(long)]
     bind: Option<String>,
-    /// Path to manwe.toml (default: ./manwe.toml).
     #[arg(long, default_value = "manwe.toml")]
     config: PathBuf,
 }
@@ -47,6 +39,7 @@ struct Cli {
 struct AppState {
     config: Arc<ManweConfig>,
     client: reqwest::Client,
+    adapter: Arc<AdaptiveRoutingAdapter>,
 }
 
 #[tokio::main]
@@ -70,9 +63,10 @@ async fn main() -> anyhow::Result<()> {
     let state = AppState {
         config: Arc::new(cfg.clone()),
         client: reqwest::Client::new(),
+        adapter: Arc::new(AdaptiveRoutingAdapter::new()),
     };
 
-    let app = Router::new()
+    let app: Router = Router::new()
         .route("/healthz", get(healthz))
         .route("/v1/models", get(list_models))
         .route("/v1/chat/completions", post(chat_completions))
@@ -97,36 +91,56 @@ async fn healthz() -> &'static str {
 
 async fn list_models(State(state): State<AppState>) -> Response {
     let created = chrono::Utc::now().timestamp();
-    let mut data = Vec::new();
-    for (name, p) in &state.config.providers {
+    let mut data: Vec<Value> = Vec::new();
+    for (_name, p) in &state.config.providers {
         let models = if p.models.is_empty() {
-            vec![name.clone()]
+            vec!["default".to_string()]
         } else {
             p.models.clone()
         };
         for m in models {
             data.push(json!({
-                "id": format!("{name}/{m}"),
+                "id": m,
                 "object": "model",
                 "created": created,
-                "owned_by": name,
+                "owned_by": "manwe",
             }));
         }
     }
     Json(json!({ "object": "list", "data": data })).into_response()
 }
 
-#[derive(Debug, Deserialize)]
-struct ChatRequest {
-    model: String,
-    #[serde(default)]
-    messages: Value,
-    #[serde(flatten)]
-    extra: HashMap<String, Value>,
+async fn chat_completions(State(state): State<AppState>, Json(req): Json<Value>) -> Response {
+    if state.adapter.route_chat_completions(req.clone()).is_ok() {
+        return (
+            StatusCode::NOT_IMPLEMENTED,
+            Json(json!({
+                "error": {
+                    "message": "adaptive routing not wired yet",
+                    "type": "manwe_error"
+                }
+            })),
+        )
+            .into_response();
+    }
+
+    fallback_static(state.config, state.client, req).await
 }
 
-async fn chat_completions(State(state): State<AppState>, Json(req): Json<ChatRequest>) -> Response {
-    let Some((_prov_name, prov)) = state.config.resolve_provider(&req.model) else {
+async fn fallback_static(
+    config: Arc<ManweConfig>,
+    client: reqwest::Client,
+    req: Value,
+) -> Response {
+    let Some(model) = req.get("model").and_then(|v| v.as_str()) else {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(json!({ "error": { "message": "missing model", "type": "manwe_error" } })),
+        )
+            .into_response();
+    };
+
+    let Some((_, prov)) = config.resolve_provider(model) else {
         return (
             StatusCode::SERVICE_UNAVAILABLE,
             Json(json!({ "error": { "message": "manwe: no providers configured", "type": "manwe_error" } })),
@@ -135,36 +149,26 @@ async fn chat_completions(State(state): State<AppState>, Json(req): Json<ChatReq
     };
 
     let upstream = format!("{}/chat/completions", prov.base_url.trim_end_matches('/'));
-
-    // Strip a "provider/" prefix before forwarding the model name upstream.
-    let bare_model = match req.model.split_once('/') {
-        Some((_, m)) => m.to_string(),
-        None => req.model.clone(),
-    };
-    let mut body = req.extra;
-    body.insert("model".to_string(), json!(bare_model));
-    body.insert("messages".to_string(), req.messages.clone());
-
-    let mut builder = state.client.post(&upstream).json(&body);
+    let mut request = client.post(&upstream).json(&req);
     if let Some(key) = &prov.api_key {
-        builder = builder.header(header::AUTHORIZATION, format!("Bearer {key}"));
+        request = request.header(header::AUTHORIZATION, format!("Bearer {key}"));
     }
 
-    match builder.send().await {
+    match request.send().await {
         Ok(resp) => {
             let status = resp.status();
             match resp.json::<Value>().await {
                 Ok(v) => (status, Json(v)).into_response(),
-                Err(e) => (
+                Err(_) => (
                     StatusCode::BAD_GATEWAY,
-                    Json(json!({ "error": { "message": format!("manwe: upstream returned non-JSON: {e}"), "type": "manwe_error" } })),
+                    Json(json!({ "error": { "message": "manwe: upstream returned non-JSON", "type": "manwe_error" } })),
                 )
                     .into_response(),
             }
         }
-        Err(e) => (
+        Err(_) => (
             StatusCode::BAD_GATEWAY,
-            Json(json!({ "error": { "message": format!("manwe: upstream {upstream} unreachable: {e}"), "type": "manwe_error" } })),
+            Json(json!({ "error": { "message": "manwe: upstream unreachable", "type": "manwe_error" } })),
         )
             .into_response(),
     }

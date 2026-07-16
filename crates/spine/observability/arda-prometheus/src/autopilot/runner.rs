@@ -29,7 +29,7 @@ use super::task_queue::{QueueRecord, TaskQueueAnalyzer, TaskQueueMetrics};
 use super::taxonomy::is_apollo_dispatchable;
 use super::validator::{PlanValidator, ValidationResult};
 use crate::orders::{OrderStatus, OrderStore};
-use arda_apollo::ExecutionStatus;
+use arda_aule::ExecutionStatus;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -2718,7 +2718,7 @@ status = "contract_required"
 
 [[sovereign_crates]]
 id = "council"
-crate = "arda-council"
+crate = "arda-aule"
 status = "active_subordinate"
 
 [[sovereign_crates]]

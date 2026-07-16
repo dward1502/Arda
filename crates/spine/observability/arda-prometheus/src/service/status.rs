@@ -3,7 +3,7 @@ use crate::service::{
     append_jsonl, read_recent_jsonl, ContextEngineeringPolicy, PrometheusService, PrometheusStatus,
 };
 use arda_core::error::Result;
-use arda_hermes::HermesService;
+use arda_orome::service::HermesService;
 use serde_json::Value;
 use std::{fs, path::Path};
 
@@ -93,7 +93,7 @@ impl PrometheusService {
         let opened = hermes.council_open(topic, participants.clone())?;
         let session_id = opened
             .get("session_id")
-            .and_then(|v| v.as_str())
+            .and_then(|v: &serde_json::Value| v.as_str())
             .unwrap_or("unknown")
             .to_string();
 

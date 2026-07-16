@@ -1,0 +1,104 @@
+# Soterion: 📜 governance_configuration | owner: HADES | status: active | reviewed: 2026-05-30
+# Sigil: SCROLL (U+1F4DC); purpose: repository-visible governed configuration.
+
+# Council/Oracle deliberation policy by DecisionClass.
+#
+# When `require_council: true`, the dispatcher ledgers an extra
+# `Decision { class: Governance }` line before/alongside the
+# decision being gated, with `joule_estimate = council_joule_cost`.
+# That joule cost counts against the goal's daily joule budget,
+# so high-impact classes pay for the deliberation that authorizes
+# them.
+#
+# `policy_mode` controls staged enforcement. The default is
+# `record_and_proceed`: dispatch records governance evidence without
+# autonomous blocking. `block_on_fail` is the explicit blocking mode;
+# legacy `block_on_triad_fail: true` remains supported and resolves to
+# `block_on_fail` for compatibility.
+#
+# Schema:
+#   default:
+#     policy_mode: observe_only | record_and_proceed | block_on_fail | escalate_to_human | require_independent_receipts
+#     require_council: <bool>
+#     council_joule_cost: <f64>
+#     block_on_triad_fail: <bool> # legacy compatibility flag
+#   classes:
+#     <decision_class>:
+#       policy_mode: <mode>
+#       require_council: <bool>
+#       council_joule_cost: <f64>
+#       block_on_triad_fail: <bool>
+#   action_classes:
+#     <action_class>:
+#       policy_mode: <mode>
+#
+# decision_class is one of: dispatch, bid, governance, budget, retire.
+
+default:
+  policy_mode: record_and_proceed
+  require_council: false
+  council_joule_cost: 0.0
+  block_on_triad_fail: false
+
+classes:
+  dispatch:
+    policy_mode: record_and_proceed
+    require_council: false
+    council_joule_cost: 0.0
+    block_on_triad_fail: false
+  bid:
+    policy_mode: record_and_proceed
+    require_council: false
+    council_joule_cost: 0.0
+    block_on_triad_fail: false
+  # Governance/Budget/Retire are higher-impact classes; when the
+  # dispatcher (or a later phase's writer) emits one, it should
+  # pay for a council look. v0.2 leaves them off because the
+  # dispatcher does not emit them today.
+  governance:
+    policy_mode: record_and_proceed
+    require_council: false
+    council_joule_cost: 2.0
+    block_on_triad_fail: false
+  budget:
+    policy_mode: record_and_proceed
+    require_council: false
+    council_joule_cost: 1.0
+    block_on_triad_fail: false
+  retire:
+    policy_mode: record_and_proceed
+    require_council: false
+    council_joule_cost: 5.0
+    block_on_triad_fail: false
+
+action_classes:
+  read_only_audit:
+    policy_mode: observe_only
+  documentation_indexing:
+    policy_mode: record_and_proceed
+  local_refactors:
+    policy_mode: record_and_proceed
+  provider_status_check:
+    policy_mode: observe_only
+  archive_or_retention:
+    policy_mode: escalate_to_human
+  destructive_delete:
+    policy_mode: require_independent_receipts
+  credential_rotation_or_disclosure:
+    policy_mode: escalate_to_human
+  funds_movement:
+    policy_mode: escalate_to_human
+  legal_commitment:
+    policy_mode: escalate_to_human
+  external_customer_commitment_without_prior_scope:
+    policy_mode: escalate_to_human
+  service_restart:
+    policy_mode: escalate_to_human
+  service_disable:
+    policy_mode: escalate_to_human
+  fleet_reimage:
+    policy_mode: escalate_to_human
+  provider_reroute:
+    policy_mode: escalate_to_human
+  governance_policy_change:
+    policy_mode: block_on_fail

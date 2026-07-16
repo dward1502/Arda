@@ -1,32 +1,20 @@
----
-soterion:
-  sigil: "SCROLL"
-  glyph: "📜"
-  code_point: "U+1F4DC"
-  role: "directory_index"
-  owner: "HADES"
-  status: "active"
-  last_reviewed: "2026-07-13"
----
+# Index: crates/spine/governance/arda-core
 
-
-> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-13
-
-# Index: crates/governance/arda-core/INDEX.md
-
-## Contents
+The foundational Spine governance crate for Arda. It owns the shared spine
+surface: contract versioning, routing, message types, learning primitives,
+registry types, and the unified Arda error type.
 
 - `Cargo.toml`
-- `INDEX.jsonl`
-- `INDEX.md`
-- `README.md`
 - `src`
-- `tests`
+  - `lib.rs` — unified exports for the Arda spine
+  - `agent.rs`, `config.rs`, `contract.rs`, `daemon.rs`, `error.rs`,
+    `governance.rs`, `ledger.rs`, `llm.rs`, `message.rs`, `router.rs`,
+    `soterion.rs`, `state.rs`, `task.rs`, `tool.rs` — focused spine modules
+  - `service_registry.rs` — folded standalone registry crate
 
-## Purpose
-
-Crate index for `crates/governance/arda-core/INDEX.md`. See sibling `INDEX.md` for bucket metadata.
+## Purpose (one line)
+Shared spine surface for the Arda governance bus.
 
 ## Notes
-
-Normalized from on-disk contents; review cadence is quarterly unless owner changes.
+`arda-service-registry` functionality is folded into this crate via the
+`service_registry` module; the standalone executor crate is retired.

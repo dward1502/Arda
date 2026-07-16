@@ -3,7 +3,7 @@
 //! and applies unit-type-aware scoring (timers in `active/waiting` healthy;
 //! oneshot services with sibling timers healthy when inactive; etc.).
 
-use arda_systemd::{SystemctlClient, SystemdClient, Unit, UnitKind};
+use arda_core::systemd::{SystemctlClient, SystemdClient, Unit, UnitKind, parse_list_units};
 use serde::Serialize;
 use std::collections::HashSet;
 use std::process::Command;
@@ -66,7 +66,7 @@ impl<S: SystemdQuery> ServiceHealthMonitor<S> {
         }
         if report.services.is_empty() {
             report = score_units(
-                &arda_systemd::parse_list_units(
+                &parse_list_units(
                     &fallback_list_units(None).unwrap_or_default(),
                 )
                 .into_iter()
@@ -84,7 +84,7 @@ impl<S: SystemdQuery> ServiceHealthMonitor<S> {
     }
 
     pub fn parse(raw: &str) -> ServiceHealthReport {
-        let units = arda_systemd::parse_list_units(raw);
+        let units = parse_list_units(raw);
         score_units(&units)
     }
 }

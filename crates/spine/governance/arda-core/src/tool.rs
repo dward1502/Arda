@@ -1,6 +1,6 @@
 // sigil: REPAIR
 use crate::error::Result as CrateResult;
-use arda_tool_harness::types::{RiskLevel, SideEffectClass, ToolMetadata};
+use crate::tool_contract::types::{RiskLevel, SideEffectClass, ToolMetadata};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 

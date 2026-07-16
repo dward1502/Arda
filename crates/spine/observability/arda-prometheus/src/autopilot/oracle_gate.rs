@@ -6,7 +6,7 @@
 use super::decomposer::{Objective, PlannedTask, Priority};
 use super::governance_policy::{TriadGateScore, TriadQuorumEvidence};
 use arda_governance::{interpret_alignment, AlignmentSignals, LoveDynamicsTrend};
-use arda_oracle::{GateResult, OracleEngine, OracleQuery, Verdict, VerdictOutcome};
+use arda_mandos::{GateResult, OracleEngine, OracleQuery, Verdict, VerdictOutcome};
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 

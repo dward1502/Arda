@@ -1,6 +1,5 @@
 // sigil: REPAIR
 mod arda;
-mod chronos;
 mod fleet;
 mod governance_runtime;
 mod hermes_command;
@@ -92,7 +91,6 @@ impl CoreAutonomyProfile {
         arda::write_apollo_runtime_projection(&core_root);
         arda::write_plutus_runtime_projection(&core_root);
         arda::write_oracle_runtime_projection(&core_root);
-        chronos::write_chronos_status_projection(&core_root);
         human_context::write_business_runtime_projection(&core_root);
         human_context::write_personal_runtime_projection(&core_root);
         human_context::write_human_context_projection(&core_root);

@@ -137,11 +137,11 @@
   },
   "workflow_engine_contract": {
     "apollo_runtime_paths": {
-      "home": "/var/home/dward/Annunimas/data/apollo",
-      "requests_path": "/var/home/dward/Annunimas/data/apollo/pending_requests.json",
-      "status_path": "/var/home/dward/Annunimas/data/apollo/runtime_status.json"
+      "home": "/var/home/dward/Arda/data/apollo",
+      "requests_path": "/var/home/dward/Arda/data/apollo/pending_requests.json",
+      "status_path": "/var/home/dward/Arda/data/apollo/runtime_status.json"
     },
-    "execution_request_struct_source": "crates/annunimas-apollo/src/executor.rs",
-    "workflow_struct_source": "crates/annunimas-apollo/src/workflow.rs"
+    "execution_request_struct_source": "crates/arda-apollo/src/executor.rs",
+    "workflow_struct_source": "crates/arda-apollo/src/workflow.rs"
   }
 }

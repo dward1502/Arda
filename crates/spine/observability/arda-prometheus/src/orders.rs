@@ -146,10 +146,10 @@ impl OrderStore {
     pub fn resolve_escalation(&self, escalation_id: &str, note: &str) -> Result<EscalationEvent> {
         let latest = self.latest_escalations_by_id()?;
         let current = latest.get(escalation_id).ok_or_else(|| {
-            ardaError::Task(format!("escalation not found: {escalation_id}"))
+            ArdaError::Task(format!("escalation not found: {escalation_id}"))
         })?;
         if matches!(current.status, EscalationStatus::Resolved) {
-            return Err(ardaError::Task(format!(
+            return Err(ArdaError::Task(format!(
                 "escalation already resolved: {escalation_id}"
             )));
         }

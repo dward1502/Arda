@@ -12,10 +12,12 @@ pub mod config;
 pub mod gateway;
 pub mod provider;
 pub mod route;
+pub mod routing_adapter;
 pub mod transport;
 
 pub use charon_remote::{CharonRemote, GatewayDependencyInjection, GatewayProviders};
 pub use gateway::{ProviderRecord, SpannedManweGateway};
 pub use provider::ProviderCatalog;
 pub use route::{CharonCore, CharonGovernance, CharonMnemosyne, CharonPlutus};
+pub use routing_adapter::AdaptiveRoutingAdapter;
 pub use transport::{ApiTransport, CharonTransport, Transport};

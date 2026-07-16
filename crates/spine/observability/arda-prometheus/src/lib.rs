@@ -4,21 +4,17 @@
 //!
 //! Executive orchestration and autonomy integration.
 
-pub mod autopilot;
-pub mod core_link;
-pub mod council;
+pub(crate) mod core_link;
+pub(crate) mod council;
 pub mod error;
-pub mod heartbeat;
-pub mod orders;
-pub mod pipeline;
-pub mod planner;
-pub mod registry;
-pub mod router;
+pub(crate) mod heartbeat;
+pub(crate) mod orders;
 pub mod service;
-pub mod thought;
-pub mod transport;
+pub(crate) mod pipeline;
+pub(crate) mod planner;
+pub(crate) mod registry;
+pub(crate) mod router;
+pub(crate) mod thought;
 
-pub use core_link::CoreAutonomyProfile;
-pub use error::PrometheusError;
-pub use pipeline::Pipeline;
 pub use service::{PrometheusService, PrometheusStatus};
+pub use error::PrometheusError;

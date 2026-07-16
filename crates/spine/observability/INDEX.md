@@ -17,8 +17,8 @@ soterion:
 ## Contents
 
 - `INDEX.md`
+- `arda-aule`
 - `arda-prometheus`
-- `arda-signal-grid`
 
 ## Purpose
 

@@ -17,7 +17,7 @@ soterion:
 Status: complete (reviewed 2026-04-30; v0.1 baseline; coin-marked for cleanup/archive targeting)
 Owner: hades
 Human plan: `human/plans/HADES.md`
-Crate: `crates/annunimas-hades`
+Crate: `crates/arda-hades`
 Core runtime: `core/state/hades_lifecycle.json`
 Task ledger: `core/projects/tasks/queue.jsonl`
 

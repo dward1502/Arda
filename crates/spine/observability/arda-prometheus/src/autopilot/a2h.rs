@@ -6,7 +6,8 @@
 
 use super::decomposer::Objective;
 use super::oracle_gate::GateDecision;
-use arda_comm::{A2HMessage, Priority as CommPriority, ResponseAction};
+use arda_orome::A2HMessage;
+use arda_orome::ResponseAction;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;

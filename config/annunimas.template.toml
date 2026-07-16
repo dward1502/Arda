@@ -1,0 +1,35 @@
+# sigil: SCROLL
+# Template consumed by the future setup console.
+# Values wrapped in {{...}} are filled from detected environment, operator
+# input, or generated setup receipts.
+
+[profile]
+id = "{{profile_id}}"
+machine_role = "{{machine_role}}"
+
+[paths]
+annunimas_root = "{{annunimas_root}}"
+config_dir = "{{config_dir}}"
+data_dir = "{{data_dir}}"
+cache_dir = "{{cache_dir}}"
+runtime_dir = "{{runtime_dir}}"
+build_cache_root = "{{build_cache_root}}"
+task_queue = "core/projects/tasks/queue.jsonl"
+project_task_queue = "core/projects/tasks/queue.jsonl"
+daily_queue = "core/queue/queue.jsonl"
+warden_queue = "data/warden/informant_queue.jsonl"
+
+[endpoints]
+charon_base_url = "{{charon_base_url}}"
+hermes_base_url = "{{hermes_base_url}}"
+arda_hud_url = "{{arda_hud_url}}"
+local_model_base_url = "{{local_model_base_url}}"
+litellm_proxy_url = "{{litellm_proxy_url}}"
+
+[safety]
+autonomy_posture = "{{autonomy_posture}}"
+mutation_requires_human_gate = true
+destructive_allowed_by_default = false
+
+[providers]
+selected = ["{{primary_provider}}"]

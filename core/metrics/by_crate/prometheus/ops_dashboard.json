@@ -87,16 +87,16 @@
       },
       "network_unlock_templates": [
         "git push",
-        "cargo run -p annunimas-cli -- hermes send"
+        "cargo run -p arda-cli -- hermes send"
       ],
-      "profile": "annunimas_totality",
+      "profile": "arda_totality",
       "selinux_safe_runtime": {
         "authority_split": {
           "beelink": "bounded_edge_worker",
           "laptop": "terminal_operator_optional_compute",
           "workstation": "canonical_execution_authority"
         },
-        "contract_version": "annunimas.selinux_runtime_contract.v1",
+        "contract_version": "arda.selinux_runtime_contract.v1",
         "enforcement_mode": "selinux_enforcing_preferred",
         "forbidden_patterns": [
           "sockets_under_plain_tmp_for_core_runtime",
@@ -114,9 +114,9 @@
           ]
         },
         "required_paths": {
-          "cache_dir": "${XDG_CACHE_HOME:-$HOME/.cache}/annunimas",
-          "runtime_dir": "${XDG_RUNTIME_DIR}/annunimas",
-          "state_dir": "${XDG_STATE_HOME:-$HOME/.local/state}/annunimas"
+          "cache_dir": "${XDG_CACHE_HOME:-$HOME/.cache}/arda",
+          "runtime_dir": "${XDG_RUNTIME_DIR}/arda",
+          "state_dir": "${XDG_STATE_HOME:-$HOME/.local/state}/arda"
         },
         "service_owner": "systemd"
       },
@@ -137,7 +137,7 @@
           "hades_disposal_review",
           "archive_or_retention"
         ],
-        "contract_version": "annunimas.task_lifecycle.v1",
+        "contract_version": "arda.task_lifecycle.v1",
         "rules": {
           "completion_is_not_disposal": true,
           "disposal_is_not_deletion": true,
@@ -221,7 +221,7 @@
             "version": "v1.0.0"
           }
         ],
-        "schema_version": "annunimas.validators.v2"
+        "schema_version": "arda.validators.v2"
       }
     },
     "reason": "restore totality default",
@@ -253,7 +253,7 @@
           "task_id": "task_apollo_live_fix"
         }
       ],
-      "schema_version": "annunimas.apollo.executor.v1",
+      "schema_version": "arda.apollo.executor.v1",
       "summary": {
         "cancelled_total": 0,
         "completed_total": 1,
@@ -264,23 +264,23 @@
     },
     "generated_at_utc": "2026-04-22T21:58:36.054341296+00:00",
     "paths": {
-      "home": "/var/home/mythos/Annunimas/data/apollo",
-      "requests_path": "/var/home/mythos/Annunimas/data/apollo/pending_requests.json",
-      "status_path": "/var/home/mythos/Annunimas/data/apollo/runtime_status.json"
+      "home": "/var/home/mythos/Arda/data/apollo",
+      "requests_path": "/var/home/mythos/Arda/data/apollo/pending_requests.json",
+      "status_path": "/var/home/mythos/Arda/data/apollo/runtime_status.json"
     },
-    "schema_version": "annunimas.apollo.runtime.v1"
+    "schema_version": "arda.apollo.runtime.v1"
   },
   "athena": {
     "avg_deep_queue_latency_seconds": 120.24695370370378,
     "books_count": 498,
     "deduplicated_ingests_total": 625,
     "deep_graph_events": 864,
-    "deep_graph_path": "/var/home/mythos/Annunimas/data/athena/deep_graph.jsonl",
+    "deep_graph_path": "/var/home/mythos/Arda/data/athena/deep_graph.jsonl",
     "deep_queue_depth": 0,
     "deep_queue_failed": 0,
-    "deep_queue_path": "/var/home/mythos/Annunimas/data/athena/deep_queue.jsonl",
+    "deep_queue_path": "/var/home/mythos/Arda/data/athena/deep_queue.jsonl",
     "digest_events": 1783,
-    "digest_path": "/var/home/mythos/Annunimas/data/athena/digest.jsonl",
+    "digest_path": "/var/home/mythos/Arda/data/athena/digest.jsonl",
     "duplicate_hit_rate": 0.6410256410256411,
     "execution_authority": "workstation",
     "execution_posture": "workstation_first_laptop_operator_fallback",
@@ -292,8 +292,8 @@
       "implementation_ready"
     ],
     "operator_ingress_role": "laptop_terminal_optional_fallback",
-    "planning_task_receipts_path": "/var/home/mythos/Annunimas/data/athena/planning_task_receipts.jsonl",
-    "policy_readiness_path": "/var/home/mythos/Annunimas/data/athena/policy_readiness.jsonl",
+    "planning_task_receipts_path": "/var/home/mythos/Arda/data/athena/planning_task_receipts.jsonl",
+    "policy_readiness_path": "/var/home/mythos/Arda/data/athena/policy_readiness.jsonl",
     "policy_ready_count": 123,
     "policy_ready_promotions_total": 107,
     "policy_ready_regressions_total": 0,
@@ -301,7 +301,7 @@
     "primary_reference_only_count": 38,
     "reference_only_count": 276,
     "source_provenance_coverage_ratio": 1.0,
-    "storage_root": "/var/home/mythos/Annunimas/data/athena",
+    "storage_root": "/var/home/mythos/Arda/data/athena",
     "synthetic_policy_ready_count": 10,
     "synthetic_reference_only_count": 238,
     "task_emission_last_run_at_utc": null,
@@ -3080,16 +3080,16 @@
         },
         "network_unlock_templates": [
           "git push",
-          "cargo run -p annunimas-cli -- hermes send"
+          "cargo run -p arda-cli -- hermes send"
         ],
-        "profile": "annunimas_totality",
+        "profile": "arda_totality",
         "selinux_safe_runtime": {
           "authority_split": {
             "beelink": "bounded_edge_worker",
             "laptop": "terminal_operator_optional_compute",
             "workstation": "canonical_execution_authority"
           },
-          "contract_version": "annunimas.selinux_runtime_contract.v1",
+          "contract_version": "arda.selinux_runtime_contract.v1",
           "enforcement_mode": "selinux_enforcing_preferred",
           "forbidden_patterns": [
             "sockets_under_plain_tmp_for_core_runtime",
@@ -4152,7 +4152,7 @@
           },
           {
             "access_tier": "local",
-            "base_url": "http://annunimas-server:1234",
+            "base_url": "http://arda-server:1234",
             "enabled": false,
             "healthy": false,
             "id": "edge_backbone",
@@ -4169,7 +4169,7 @@
                 "is_default": true
               }
             ],
-            "name": "Annunimas Server",
+            "name": "Arda Server",
             "quality_band": "high",
             "requests_per_minute": 60
           },

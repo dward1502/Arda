@@ -17,7 +17,6 @@ soterion:
 ## Contents
 
 - `INDEX.md`
-- `arda-chronos`
 - `arda-mnemosyne`
 
 ## Purpose

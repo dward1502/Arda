@@ -7,12 +7,12 @@
     "providers": [],
     "total_spend": 0.0
   },
-  "generated_at_utc": "2026-07-15T08:22:58.456130017+00:00",
+  "generated_at_utc": "2026-07-15T21:14:53.047799992+00:00",
   "governance": {
     "bacon_lite_passed_total": 26,
     "recent_records": [
       {
-        "action": "track_work",
+        "action": "record_relationship",
         "bacon_lite": {
           "confidence": 0.6900000000000001,
           "mode": "bacon_lite",
@@ -34,7 +34,7 @@
             "veto_reason": null
           }
         },
-        "recorded_at_utc": "2026-07-15T08:22:58.455573129+00:00",
+        "recorded_at_utc": "2026-07-15T21:14:53.047247954+00:00",
         "resonance": {
           "ecst_components": {
             "audio_coherence": null,
@@ -63,7 +63,7 @@
           },
           "value": 73.32241790259285
         },
-        "subject": "mnemosyne",
+        "subject": "apollo:athena",
         "triad": {
           "aurelius": "Pass",
           "aurelius_score": 0.8999999999999999,
@@ -1742,35 +1742,32 @@
   },
   "joulework": {
     "by_agent": {
+      "apollo": 11.2,
       "charon": 42.0,
       "mnemosyne": 45.599999999999994
     },
     "by_source": [
       {
-        "amount": 85.6,
+        "amount": 98.8,
         "source": "default_fallback"
-      },
-      {
-        "amount": 2.0,
-        "source": "operator_estimate"
       }
     ],
     "by_unit": [
       {
-        "amount": 87.6,
+        "amount": 98.8,
         "unit": "Reasoning"
       }
     ],
     "measurement_metadata": {
       "autonomy_truth_warning": true,
-      "average_confidence": 0.16666666666666666,
+      "average_confidence": 0.0,
       "default_fallback_autonomy_truth": false,
-      "default_fallback_total": 85.6,
+      "default_fallback_total": 98.8,
       "observed_total": 0.0
     },
-    "period_end": "2026-07-15T08:22:58.455518668Z",
-    "period_start": "2026-07-15T08:22:58.454877389Z",
-    "total": 87.6
+    "period_end": "2026-07-15T21:14:53.046470113Z",
+    "period_start": "2026-07-15T21:14:53.046470113Z",
+    "total": 98.8
   },
   "ledger": {
     "accounts": [],
@@ -1781,29 +1778,41 @@
       {
         "agent_a": "openai_shim",
         "agent_b": "local_test",
-        "timestamp": "2026-07-15T08:22:58.454876279Z",
+        "timestamp": "2026-07-15T21:14:53.046468953Z",
         "value": 0.8320000000000001
+      },
+      {
+        "agent_a": "apollo",
+        "agent_b": "athena",
+        "timestamp": "2026-07-15T21:14:53.047174693Z",
+        "value": 0.6900999569320966
       },
       {
         "agent_a": "athena",
         "agent_b": "google",
-        "timestamp": "2026-07-15T08:22:58.454872819Z",
+        "timestamp": "2026-07-15T21:14:53.046467933Z",
         "value": 0.8320000000000001
       }
     ],
-    "relationships_total": 2,
+    "relationships_total": 3,
     "top_relationships": [
       {
         "agent_a": "openai_shim",
         "agent_b": "local_test",
-        "timestamp": "2026-07-15T08:22:58.454876279Z",
+        "timestamp": "2026-07-15T21:14:53.046468953Z",
         "value": 0.8320000000000001
       },
       {
         "agent_a": "athena",
         "agent_b": "google",
-        "timestamp": "2026-07-15T08:22:58.454872819Z",
+        "timestamp": "2026-07-15T21:14:53.046467933Z",
         "value": 0.8320000000000001
+      },
+      {
+        "agent_a": "apollo",
+        "agent_b": "athena",
+        "timestamp": "2026-07-15T21:14:53.047174693Z",
+        "value": 0.6900999569320966
       }
     ]
   },

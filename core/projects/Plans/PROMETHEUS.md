@@ -17,7 +17,7 @@ soterion:
 Status: in_progress (updated 2026-06-22)
 Owner: prometheus
 Human plan: `human/plans/PROMETHEUS.md`
-Crate: `crates/annunimas-prometheus`
+Crate: `crates/arda-prometheus`
 Core runtime: `core/state/arda_snapshot.json`
 Task ledger: `core/projects/tasks/queue.jsonl`
 

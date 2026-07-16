@@ -64,9 +64,9 @@ Expected current level: `runtime_receipted` for existing lane receipts; `policy_
 
 ## CLI behavior
 
-- `annunimas eval run <task_id>` executes one smoker eval task.
-- `annunimas eval receipt <run_id>` prints eval receipt bundle.
-- `annunimas learning delta <run_id>` prints learning delta receipt.
+- `arda eval run <task_id>` executes one smoker eval task.
+- `arda eval receipt <run_id>` prints eval receipt bundle.
+- `arda learning delta <run_id>` prints learning delta receipt.
 
 ## Stop condition
 

@@ -77,7 +77,7 @@ Keep in OS core:
 - arda-governance
 - arda-plutus
 - arda-athena
-- arda-mnemosyne
+- arda-vaire
 - arda-hades
 - arda-warden
 - arda-chronos

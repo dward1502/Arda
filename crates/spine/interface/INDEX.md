@@ -15,11 +15,9 @@ soterion:
 # Index: crates/interface/INDEX.md
 
 ## Contents
+
 - `INDEX.md`
 - `arda-aule`
-- `arda-fleet`
-- `arda-hermes`
-- `arda-onboarding`
 
 ## Purpose
 

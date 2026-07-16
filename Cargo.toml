@@ -1,17 +1,19 @@
 [workspace]
 resolver = "2"
 members = [
-    # Arda-native
     "crates/engine",
     "crates/spine/runtime/manwe",
     "crates/spine/governance/arda-core",
     "crates/spine/governance/arda-council",
-    "crates/spine/tooling/arda-tool-harness",
-    "crates/spine/interface/arda-onboarding",
+    "crates/spine/governance/arda-governance",
+    "crates/spine/interface/arda-orome",
+    "crates/spine/observability/arda-aule",
+    "apps/arda-launcher/src-tauri",
+    "crates/spine/executors/arda-varda",
     "crates/spine/executors/arda-service-registry",
-    "crates/spine/runtime/arda-systemd",
-    "crates/old-annunimas/arda-charon",
-    "crates/old-annunimas/arda-fleet",
+    "crates/spine/runtime/arda-economics",
+    "crates/spine/runtime/arda-mandos",
+    "crates/spine/memory/arda-vaire",
 ]
 
 [package]

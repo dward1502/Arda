@@ -5,7 +5,7 @@ use std::str::FromStr;
 use crate::mcp::tools::{McpError, McpMethod, McpRequest, McpResponse, McpTool, ToolRegistry};
 use arda_core::task::Task;
 use arda_governance::{bacon_lite_validate, triad_validate};
-use arda_plutus::{JouleWorkUnit, LoveEquation, PlutusService};
+use arda_economics::{JouleWorkUnit, LoveEquation, PlutusService};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 

@@ -7,12 +7,12 @@
     "providers": [],
     "total_spend": 0.0
   },
-  "generated_at_utc": "2026-07-15T21:14:53.047799992+00:00",
+  "generated_at_utc": "2026-07-16T14:21:53.045505124+00:00",
   "governance": {
     "bacon_lite_passed_total": 26,
     "recent_records": [
       {
-        "action": "record_relationship",
+        "action": "track_work",
         "bacon_lite": {
           "confidence": 0.6900000000000001,
           "mode": "bacon_lite",
@@ -34,7 +34,7 @@
             "veto_reason": null
           }
         },
-        "recorded_at_utc": "2026-07-15T21:14:53.047247954+00:00",
+        "recorded_at_utc": "2026-07-16T14:21:53.044839355+00:00",
         "resonance": {
           "ecst_components": {
             "audio_coherence": null,
@@ -63,76 +63,7 @@
           },
           "value": 73.32241790259285
         },
-        "subject": "apollo:athena",
-        "triad": {
-          "aurelius": "Pass",
-          "aurelius_score": 0.8999999999999999,
-          "bacon": "Pass",
-          "bacon_score": 0.6,
-          "chain_id": "default_triad",
-          "chain_version": "heuristic_local_v1",
-          "passed": true,
-          "profile_maturity": "draft_human_authored",
-          "profile_source": "config/governance/philosophers.toml",
-          "review_mode": "heuristic_local",
-          "sun_tzu": "Pass",
-          "sun_tzu_score": 0.75,
-          "veto_reason": null
-        }
-      },
-      {
-        "action": "record_relationship",
-        "bacon_lite": {
-          "confidence": 0.6900000000000001,
-          "mode": "bacon_lite",
-          "passed": true,
-          "rationale": "bacon-lite pass: evidence gate plus one support gate",
-          "triad": {
-            "aurelius": "Pass",
-            "aurelius_score": 0.8999999999999999,
-            "bacon": "Pass",
-            "bacon_score": 0.6,
-            "chain_id": "default_triad",
-            "chain_version": "heuristic_local_v1",
-            "passed": true,
-            "profile_maturity": "draft_human_authored",
-            "profile_source": "config/governance/philosophers.toml",
-            "review_mode": "heuristic_local",
-            "sun_tzu": "Pass",
-            "sun_tzu_score": 0.75,
-            "veto_reason": null
-          }
-        },
-        "recorded_at_utc": "2026-07-15T07:48:56.228197633+00:00",
-        "resonance": {
-          "ecst_components": {
-            "audio_coherence": null,
-            "freq_harmony": 96.77419354838707,
-            "joule_balance": 100.0,
-            "love_delta_empathy": 0.19953622981233624,
-            "love_projected_empathy": 1.0,
-            "phi_harmonic": 39.888695154960715,
-            "phi_harmonic_semantic": "not_empirical_autonomy_proof",
-            "phi_harmonic_source": "golden_ratio_task_flow_heuristic",
-            "phi_question_score": 4.978706836786395,
-            "phi_resource_score": 64.55232174029534,
-            "phi_time_score": 31.98491220877071,
-            "philosopher_action": "Hold",
-            "philosopher_alignment_score": 0.6816601371015534,
-            "status_coherence": 100.0,
-            "time_harmony": 96.77419354838707,
-            "triad_purity": 0.7,
-            "triad_purity_source": "compatibility_default",
-            "vision_coherence": null
-          },
-          "triad_philosopher": {
-            "action": "Hold",
-            "alignment_score": 0.6816601371015534,
-            "reason": "evidence grounding is insufficient for confident action"
-          },
-          "value": 73.32241790259285
-        },
-        "subject": "openai_shim:local_test",
+        "subject": "mnemosyne",
         "triad": {
           "aurelius": "Pass",
           "aurelius_score": 0.8999999999999999,
@@ -172,7 +103,7 @@
             "veto_reason": null
           }
         },
-        "recorded_at_utc": "2026-07-15T07:48:55.332399664+00:00",
+        "recorded_at_utc": "2026-07-15T07:48:56.234229578+00:00",
         "resonance": {
           "ecst_components": {
             "audio_coherence": null,
@@ -241,7 +172,7 @@
             "veto_reason": null
           }
         },
-        "recorded_at_utc": "2026-07-15T07:48:55.323641372+00:00",
+        "recorded_at_utc": "2026-07-15T07:48:56.223213024+00:00",
         "resonance": {
           "ecst_components": {
             "audio_coherence": null,
@@ -310,7 +241,7 @@
             "veto_reason": null
           }
         },
-        "recorded_at_utc": "2026-07-15T07:47:37.483787289+00:00",
+        "recorded_at_utc": "2026-07-15T07:48:55.327926021+00:00",
         "resonance": {
           "ecst_components": {
             "audio_coherence": null,
@@ -379,7 +310,7 @@
             "veto_reason": null
           }
         },
-        "recorded_at_utc": "2026-07-15T07:47:36.633790630+00:00",
+        "recorded_at_utc": "2026-07-15T07:47:37.487726594+00:00",
         "resonance": {
           "ecst_components": {
             "audio_coherence": null,
@@ -448,7 +379,7 @@
             "veto_reason": null
           }
         },
-        "recorded_at_utc": "2026-07-15T07:47:36.627368630+00:00",
+        "recorded_at_utc": "2026-07-15T07:47:37.479915575+00:00",
         "resonance": {
           "ecst_components": {
             "audio_coherence": null,
@@ -517,7 +448,7 @@
             "veto_reason": null
           }
         },
-        "recorded_at_utc": "2026-07-15T07:46:34.080329870+00:00",
+        "recorded_at_utc": "2026-07-15T07:47:36.630555705+00:00",
         "resonance": {
           "ecst_components": {
             "audio_coherence": null,
@@ -586,7 +517,7 @@
             "veto_reason": null
           }
         },
-        "recorded_at_utc": "2026-07-15T07:46:33.198759050+00:00",
+        "recorded_at_utc": "2026-07-15T07:46:34.082953457+00:00",
         "resonance": {
           "ecst_components": {
             "audio_coherence": null,
@@ -655,7 +586,7 @@
             "veto_reason": null
           }
         },
-        "recorded_at_utc": "2026-07-15T07:46:33.194688363+00:00",
+        "recorded_at_utc": "2026-07-15T07:46:34.077665043+00:00",
         "resonance": {
           "ecst_components": {
             "audio_coherence": null,
@@ -724,7 +655,7 @@
             "veto_reason": null
           }
         },
-        "recorded_at_utc": "2026-07-15T07:22:10.789759864+00:00",
+        "recorded_at_utc": "2026-07-15T07:46:33.196645950+00:00",
         "resonance": {
           "ecst_components": {
             "audio_coherence": null,
@@ -753,7 +684,7 @@
           },
           "value": 73.32241790259285
         },
-        "subject": "athena:google",
+        "subject": "openai_shim:local_test",
         "triad": {
           "aurelius": "Pass",
           "aurelius_score": 0.8999999999999999,
@@ -793,7 +724,7 @@
             "veto_reason": null
           }
         },
-        "recorded_at_utc": "2026-07-15T07:22:10.499414625+00:00",
+        "recorded_at_utc": "2026-07-15T07:22:10.791600170+00:00",
         "resonance": {
           "ecst_components": {
             "audio_coherence": null,
@@ -862,7 +793,7 @@
             "veto_reason": null
           }
         },
-        "recorded_at_utc": "2026-07-15T07:22:10.497788512+00:00",
+        "recorded_at_utc": "2026-07-15T07:22:10.788205212+00:00",
         "resonance": {
           "ecst_components": {
             "audio_coherence": null,
@@ -1000,7 +931,7 @@
             "veto_reason": null
           }
         },
-        "recorded_at_utc": "2026-07-15T07:22:10.788205212+00:00",
+        "recorded_at_utc": "2026-07-15T07:22:10.497788512+00:00",
         "resonance": {
           "ecst_components": {
             "audio_coherence": null,
@@ -1069,7 +1000,7 @@
             "veto_reason": null
           }
         },
-        "recorded_at_utc": "2026-07-15T07:22:10.791600170+00:00",
+        "recorded_at_utc": "2026-07-15T07:22:10.499414625+00:00",
         "resonance": {
           "ecst_components": {
             "audio_coherence": null,
@@ -1138,7 +1069,7 @@
             "veto_reason": null
           }
         },
-        "recorded_at_utc": "2026-07-15T07:46:33.196645950+00:00",
+        "recorded_at_utc": "2026-07-15T07:22:10.789759864+00:00",
         "resonance": {
           "ecst_components": {
             "audio_coherence": null,
@@ -1167,7 +1098,7 @@
           },
           "value": 73.32241790259285
         },
-        "subject": "openai_shim:local_test",
+        "subject": "athena:google",
         "triad": {
           "aurelius": "Pass",
           "aurelius_score": 0.8999999999999999,
@@ -1207,7 +1138,7 @@
             "veto_reason": null
           }
         },
-        "recorded_at_utc": "2026-07-15T07:46:34.077665043+00:00",
+        "recorded_at_utc": "2026-07-15T07:46:33.194688363+00:00",
         "resonance": {
           "ecst_components": {
             "audio_coherence": null,
@@ -1276,7 +1207,7 @@
             "veto_reason": null
           }
         },
-        "recorded_at_utc": "2026-07-15T07:46:34.082953457+00:00",
+        "recorded_at_utc": "2026-07-15T07:46:33.198759050+00:00",
         "resonance": {
           "ecst_components": {
             "audio_coherence": null,
@@ -1345,7 +1276,7 @@
             "veto_reason": null
           }
         },
-        "recorded_at_utc": "2026-07-15T07:47:36.630555705+00:00",
+        "recorded_at_utc": "2026-07-15T07:46:34.080329870+00:00",
         "resonance": {
           "ecst_components": {
             "audio_coherence": null,
@@ -1414,7 +1345,7 @@
             "veto_reason": null
           }
         },
-        "recorded_at_utc": "2026-07-15T07:47:37.479915575+00:00",
+        "recorded_at_utc": "2026-07-15T07:47:36.627368630+00:00",
         "resonance": {
           "ecst_components": {
             "audio_coherence": null,
@@ -1483,7 +1414,7 @@
             "veto_reason": null
           }
         },
-        "recorded_at_utc": "2026-07-15T07:47:37.487726594+00:00",
+        "recorded_at_utc": "2026-07-15T07:47:36.633790630+00:00",
         "resonance": {
           "ecst_components": {
             "audio_coherence": null,
@@ -1552,7 +1483,7 @@
             "veto_reason": null
           }
         },
-        "recorded_at_utc": "2026-07-15T07:48:55.327926021+00:00",
+        "recorded_at_utc": "2026-07-15T07:47:37.483787289+00:00",
         "resonance": {
           "ecst_components": {
             "audio_coherence": null,
@@ -1621,7 +1552,7 @@
             "veto_reason": null
           }
         },
-        "recorded_at_utc": "2026-07-15T07:48:56.223213024+00:00",
+        "recorded_at_utc": "2026-07-15T07:48:55.323641372+00:00",
         "resonance": {
           "ecst_components": {
             "audio_coherence": null,
@@ -1690,7 +1621,7 @@
             "veto_reason": null
           }
         },
-        "recorded_at_utc": "2026-07-15T07:48:56.234229578+00:00",
+        "recorded_at_utc": "2026-07-15T07:48:55.332399664+00:00",
         "resonance": {
           "ecst_components": {
             "audio_coherence": null,
@@ -1720,6 +1651,75 @@
           "value": 73.32241790259285
         },
         "subject": "mnemosyne",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "chain_id": "default_triad",
+          "chain_version": "heuristic_local_v1",
+          "passed": true,
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "record_relationship",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "chain_id": "default_triad",
+            "chain_version": "heuristic_local_v1",
+            "passed": true,
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-07-15T07:48:56.228197633+00:00",
+        "resonance": {
+          "ecst_components": {
+            "audio_coherence": null,
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "love_delta_empathy": 0.19953622981233624,
+            "love_projected_empathy": 1.0,
+            "phi_harmonic": 39.888695154960715,
+            "phi_harmonic_semantic": "not_empirical_autonomy_proof",
+            "phi_harmonic_source": "golden_ratio_task_flow_heuristic",
+            "phi_question_score": 4.978706836786395,
+            "phi_resource_score": 64.55232174029534,
+            "phi_time_score": 31.98491220877071,
+            "philosopher_action": "Hold",
+            "philosopher_alignment_score": 0.6816601371015534,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7,
+            "triad_purity_source": "compatibility_default",
+            "vision_coherence": null
+          },
+          "triad_philosopher": {
+            "action": "Hold",
+            "alignment_score": 0.6816601371015534,
+            "reason": "evidence grounding is insufficient for confident action"
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "openai_shim:local_test",
         "triad": {
           "aurelius": "Pass",
           "aurelius_score": 0.8999999999999999,
@@ -1744,9 +1744,13 @@
     "by_agent": {
       "apollo": 11.2,
       "charon": 42.0,
-      "mnemosyne": 45.599999999999994
+      "mnemosyne": 47.39999999999999
     },
     "by_source": [
+      {
+        "amount": 1.8,
+        "source": "operator_estimate"
+      },
       {
         "amount": 98.8,
         "source": "default_fallback"
@@ -1754,20 +1758,20 @@
     ],
     "by_unit": [
       {
-        "amount": 98.8,
+        "amount": 100.6,
         "unit": "Reasoning"
       }
     ],
     "measurement_metadata": {
       "autonomy_truth_warning": true,
-      "average_confidence": 0.0,
+      "average_confidence": 0.125,
       "default_fallback_autonomy_truth": false,
       "default_fallback_total": 98.8,
       "observed_total": 0.0
     },
-    "period_end": "2026-07-15T21:14:53.046470113Z",
-    "period_start": "2026-07-15T21:14:53.046470113Z",
-    "total": 98.8
+    "period_end": "2026-07-16T14:21:53.044772104Z",
+    "period_start": "2026-07-16T14:21:53.043916792Z",
+    "total": 100.6
   },
   "ledger": {
     "accounts": [],
@@ -1778,19 +1782,19 @@
       {
         "agent_a": "openai_shim",
         "agent_b": "local_test",
-        "timestamp": "2026-07-15T21:14:53.046468953Z",
+        "timestamp": "2026-07-16T14:21:53.043904442Z",
         "value": 0.8320000000000001
       },
       {
         "agent_a": "apollo",
         "agent_b": "athena",
-        "timestamp": "2026-07-15T21:14:53.047174693Z",
+        "timestamp": "2026-07-16T14:21:53.043909842Z",
         "value": 0.6900999569320966
       },
       {
         "agent_a": "athena",
         "agent_b": "google",
-        "timestamp": "2026-07-15T21:14:53.046467933Z",
+        "timestamp": "2026-07-16T14:21:53.043915362Z",
         "value": 0.8320000000000001
       }
     ],
@@ -1799,19 +1803,19 @@
       {
         "agent_a": "openai_shim",
         "agent_b": "local_test",
-        "timestamp": "2026-07-15T21:14:53.046468953Z",
+        "timestamp": "2026-07-16T14:21:53.043904442Z",
         "value": 0.8320000000000001
       },
       {
         "agent_a": "athena",
         "agent_b": "google",
-        "timestamp": "2026-07-15T21:14:53.046467933Z",
+        "timestamp": "2026-07-16T14:21:53.043915362Z",
         "value": 0.8320000000000001
       },
       {
         "agent_a": "apollo",
         "agent_b": "athena",
-        "timestamp": "2026-07-15T21:14:53.047174693Z",
+        "timestamp": "2026-07-16T14:21:53.043909842Z",
         "value": 0.6900999569320966
       }
     ]

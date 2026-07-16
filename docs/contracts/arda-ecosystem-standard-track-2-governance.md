@@ -67,8 +67,8 @@ Expected current level: `policy_enforced` for configured lanes; system-wide defa
 
 ## CLI behavior
 
-- `annunimas governance policy <policy_id>` prints policy source text and version metadata.
-- `annunimas governance receipt <receipt_id>` prints a typed governance receipt.
+- `arda governance policy <policy_id>` prints policy source text and version metadata.
+- `arda governance receipt <receipt_id>` prints a typed governance receipt.
 
 ## Stop condition
 

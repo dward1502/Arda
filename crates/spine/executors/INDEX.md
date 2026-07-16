@@ -17,8 +17,7 @@ soterion:
 ## Contents
 
 - `INDEX.md`
-- `arda-athena`
-- `arda-human`
+- `arda-varda`
 - `arda-service-registry`
 
 ## Purpose

@@ -23,7 +23,6 @@ soterion:
 - `memory`
 - `observability`
 - `runtime`
-- `tooling`
 
 ## Purpose
 

@@ -1,0 +1,126 @@
+.boardroom-layout {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.boardroom-layout__row {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.boardroom-layout__row--monitors {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.boardroom-layout__row--lower {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.boardroom-layout__row--control {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  max-width: 42rem;
+}
+
+.boardroom-zone {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  background: rgba(255, 255, 255, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-height: 7.5rem;
+}
+
+.boardroom-zone--primary {
+  border-color: rgba(232, 240, 255, 0.18);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.boardroom-zone--monitor {
+  background: rgba(24, 40, 52, 0.75);
+  border-color: rgba(123, 241, 255, 0.16);
+}
+
+.boardroom-zone--desk {
+  background: rgba(12, 20, 26, 0.88);
+}
+
+.boardroom-zone--portal {
+  border-color: rgba(108, 230, 255, 0.22);
+  background: rgba(12, 28, 36, 0.9);
+}
+
+.boardroom-zone__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.boardroom-zone__title {
+  color: rgba(242, 249, 255, 0.95);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.boardroom-zone__detail {
+  color: rgba(123, 241, 255, 0.62);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+}
+
+.boardroom-zone__body {
+  margin-top: 0.25rem;
+  color: rgba(200, 228, 255, 0.72);
+  font-size: 0.8rem;
+}
+
+.boardroom-zone__meta {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.boardroom-zone__meta span {
+  color: rgba(220, 238, 255, 0.55);
+  font-size: 0.68rem;
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+}
+
+.boardroom-button {
+  border: none;
+  color: #fff;
+  font-weight: 900;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.38rem 0.6rem;
+  border-radius: 0.55rem;
+  background: rgba(120, 70, 255, 0.18);
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  cursor: pointer;
+}
+
+.boardroom-button:hover {
+  background: rgba(140, 85, 255, 0.32);
+}
+
+.boardroom-button--primary {
+  background: rgba(168, 85, 247, 0.35);
+  border-color: rgba(232, 209, 255, 0.45);
+}
+
+.boardroom-button--ghost {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: rgba(242, 249, 255, 0.84);
+}
+
+.boardroom-button--ghost:hover {
+  background: rgba(255, 255, 255, 0.08);
+}

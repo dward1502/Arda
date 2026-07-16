@@ -5,8 +5,8 @@ use std::process::Command;
 use std::thread;
 use std::time::Duration;
 
-use crate::device_scan;
-use crate::environment::build_environment_profile;
+use crate::onboarding::device_scan;
+use crate::onboarding::environment::build_environment_profile;
 use crate::onboarding::guided::build_guided_session;
 use crate::onboarding::helpers::now_utc;
 use crate::onboarding::io::{onboarding_run_dir, write_json, write_profile, write_readiness};

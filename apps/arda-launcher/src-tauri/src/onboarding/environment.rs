@@ -8,7 +8,7 @@ use crate::onboarding::helpers::{
     canonical_home, check_url_health, command_output, make_local_model_default, make_path_value,
     make_url_value, now_utc,
 };
-use crate::{
+use crate::onboarding::types::{
     EndpointSection, EnvironmentProfile, OperatorProfile, PathsSection, SafetySection,
     SystemdSection, UrlValue, ValueSource,
 };

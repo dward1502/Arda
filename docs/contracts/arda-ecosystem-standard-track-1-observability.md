@@ -26,7 +26,7 @@ Telemetry events are durable evidence behind those views.
 
 ## Event schema
 
-All events use `annunimas.telemetry` or `arda.telemetry` namespace.
+All events use `arda.telemetry` or `arda.telemetry` namespace.
 Canonical event groups:
 - `agent.<crate>.command`
 - `llm.call`
@@ -67,8 +67,8 @@ Expected current level: `runtime_receipted` after one validated pilot crate; sys
 
 ## CLI behavior
 
-- `annunimas telemetry schema` prints current schema document.
-- `annunimas telemetry receipt <run_id>` prints persisted telemetry bundle metadata for a run.
+- `arda telemetry schema` prints current schema document.
+- `arda telemetry receipt <run_id>` prints persisted telemetry bundle metadata for a run.
 
 ## Stop condition
 

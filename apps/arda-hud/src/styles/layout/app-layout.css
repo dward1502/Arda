@@ -1,0 +1,9 @@
+html,
+body,
+#root {
+  min-height: 100vh;
+  margin: 0;
+  background: radial-gradient(ellipse at center, #0d1520 0%, #02040a 100%);
+  color: #e6f1ff;
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+}

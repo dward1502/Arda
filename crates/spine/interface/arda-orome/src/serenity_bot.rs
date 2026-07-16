@@ -1477,13 +1477,13 @@ fn render_gateway_activation_check(root: &Path, gateway_status: Option<&str>) ->
         .join("config/hermes_agent_gateway_annunimas.example.yaml")
         .exists();
     let semantic_source =
-        fs::read_to_string(root.join("crates/annunimas-hermes/src/service/semantic_channel.rs"))
+        fs::read_to_string(root.join("crates/spine/interface/arda-orome/src/service/semantic_channel.rs"))
             .unwrap_or_default();
     let work_stream_ready = semantic_source.contains("\"work-stream\"")
         && semantic_source.contains("\"workstream\"")
         && semantic_source.contains("\"tasks\"");
     let adapter_ready = root
-        .join("crates/annunimas-cli/src/commands/utility.rs")
+        .join("apps/arda-launcher/src-tauri/src/main.rs")
         .exists();
     let gateway_running = gateway_status
         .map(hermes_gateway_status_is_running)
@@ -1561,7 +1561,7 @@ fn render_gateway_activation_check(root: &Path, gateway_status: Option<&str>) ->
             .join("\n")
     };
     format!(
-        "**Hermes Agent Gateway Activation**\nstatus: `{status_label}`\nsafe_local_ready: `{safe_local_ready}` | live_ready: `{live_ready}`\nwork-stream: `{work_stream_ready}` | receipt_adapter: `{adapter_ready}` | gateway_running: `{gateway_running}`\n\n**Blockers**\n{blockers}\n\nRun `cargo run -p annunimas-cli -- utility hermes-agent-gateway-activation-check` for full JSON."
+        "**Hermes Agent Gateway Activation**\nstatus: `{status_label}`\nsafe_local_ready: `{safe_local_ready}` | live_ready: `{live_ready}`\nwork-stream: `{work_stream_ready}` | receipt_adapter: `{adapter_ready}` | gateway_running: `{gateway_running}`\n\n**Blockers**\n{blockers}\n\nRun `cargo run -p arda -- utility hermes-agent-gateway-activation-check` for full JSON."
     )
 }
 
@@ -2132,9 +2132,9 @@ mod tests {
         fs::create_dir_all(dir.path().join("docs/plans")).expect("plans dir");
         fs::create_dir_all(dir.path().join("docs/operations")).expect("ops dir");
         fs::create_dir_all(dir.path().join("config")).expect("config dir");
-        fs::create_dir_all(dir.path().join("crates/annunimas-hermes/src/service"))
+        fs::create_dir_all(dir.path().join("crates/arda-orome/src/service"))
             .expect("service dir");
-        fs::create_dir_all(dir.path().join("crates/annunimas-cli/src/commands"))
+        fs::create_dir_all(dir.path().join("crates/arda/src/commands"))
             .expect("cli commands dir");
         fs::write(
             dir.path()
@@ -2156,13 +2156,13 @@ mod tests {
         .expect("write template");
         fs::write(
             dir.path()
-                .join("crates/annunimas-hermes/src/service/semantic_channel.rs"),
+                .join("crates/spine/interface/arda-orome/src/service/semantic_channel.rs"),
             r#""work-stream" "workstream" "tasks""#,
         )
         .expect("write semantic source");
         fs::write(
             dir.path()
-                .join("crates/annunimas-cli/src/commands/utility.rs"),
+                .join("apps/arda-launcher/src-tauri/src/main.rs"),
             "hermes-agent-gateway-receipt\n",
         )
         .expect("write utility source");
@@ -2262,8 +2262,8 @@ mod tests {
                 background_task_id: Some("bg_42".to_string()),
                 status: Some("completed".to_string()),
                 summary: Some("Hermes Agent finished the requested dry-run probe.".to_string()),
-                verification: Some("cargo test -p annunimas-hermes serenity_bot".to_string()),
-                changed_file: Some("crates/annunimas-hermes/src/serenity_bot.rs".to_string()),
+                verification: Some("cargo test -p arda-orome serenity_bot".to_string()),
+                changed_file: Some("crates/arda-orome/src/serenity_bot.rs".to_string()),
                 blockers: None,
                 next_action: Some("Review and close if acceptable.".to_string()),
             },

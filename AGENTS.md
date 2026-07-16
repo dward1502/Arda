@@ -7,6 +7,7 @@ Read it before editing code, docs, or planning work.
 - Arda canonical root: `/var/home/mythos/Eregion/Arda`
 - Reference architecture lives in `~/Annunimas`
 - Do not modify `~/Annunimas` unless the user explicitly asks
+- Legacy `annunimas-*` crate names should be read as `arda-*`; Arda is the slimmed-down continuation of Annunimas
 
 ## Tooling
 - Use `pnpm run tauri dev` and `pnpm run tauri build` by default

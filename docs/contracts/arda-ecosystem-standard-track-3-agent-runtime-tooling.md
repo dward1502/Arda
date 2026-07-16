@@ -30,7 +30,7 @@ New services join by schema, not by bespoke systemd coupling.
 ## Tool manifest
 
 Each agent has a stable tool manifest.
-Tools are executed via MCP or `annunimas-tool-harness`.
+Tools are executed via MCP or `arda-tool-harness`.
 Manifests must declare:
 - `tool_id`
 - `agent_id`
@@ -77,9 +77,9 @@ Expected current level: `runtime_receipted` for existing supervisor output; syst
 
 ## CLI behavior
 
-- `annunimas service graph` prints typed service graph, cache recent snapshot without network I/O.
-- `annunimas tool manifest <agent_id>` prints accepted tool manifest.
-- `annunimas runtime receipt <run_id>` prints service/tool execution receipt bundle.
+- `arda service graph` prints typed service graph, cache recent snapshot without network I/O.
+- `arda tool manifest <agent_id>` prints accepted tool manifest.
+- `arda runtime receipt <run_id>` prints service/tool execution receipt bundle.
 
 ## Stop condition
 

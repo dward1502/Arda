@@ -1,0 +1,43 @@
+@import '../foundation/tokens.css';
+
+.dashboard-panel {
+  display: grid;
+  gap: 1rem;
+  min-height: 72vh;
+  grid-template-rows: auto minmax(0, 1fr);
+  border: 1px solid rgba(123, 241, 255, 0.14);
+  border-radius: 1rem;
+  background: rgba(2, 8, 14, 0.86);
+  overflow: hidden;
+}
+
+.dashboard-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0.85rem;
+  border-bottom: 1px solid rgba(123, 241, 255, 0.12);
+  background: rgba(7, 17, 26, 0.82);
+}
+
+.dashboard-panel__header strong {
+  color: rgba(242, 249, 255, 0.95);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dashboard-panel__header p {
+  margin: 0.2rem 0 0;
+  color: rgba(200, 235, 255, 0.62);
+  font-size: 0.72rem;
+}
+
+.dashboard-panel__frame {
+  width: 100%;
+  min-height: 0;
+  height: 100%;
+  border: 0;
+  background: #05070b;
+}

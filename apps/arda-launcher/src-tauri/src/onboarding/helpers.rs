@@ -6,7 +6,7 @@ use std::process::Command;
 use std::time::Duration;
 
 use crate::onboarding::constants::ONBOARDING_APPLY_RESULT_CONTRACT;
-use crate::{
+use crate::onboarding::types::{
     ApplyResult, ApprovalReceipt, LocalModelDefaultValue, PathValue, PrerequisiteCheck,
     PrivateConfigEntry, ProviderSignupHint, UrlValue, ValueSource,
 };
@@ -366,7 +366,7 @@ pub(crate) fn secret_safe_preview(
             ValueSource::Default,
         ),
     }
-    .pipe(|(preview, present, source)| {
+    .pipe(|(preview, present, source): (String, bool, crate::onboarding::types::ValueSource)| {
         if secret && preview.contains(key) {
             ("<secret-present>".to_string(), present, source)
         } else {

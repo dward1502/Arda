@@ -21,7 +21,3 @@ soterion:
 | 2. Governance | `arda-ecosystem-standard-track-2-governance.md` |
 | 3. Agent Runtime and Tooling | `arda-ecosystem-standard-track-3-agent-runtime-tooling.md` |
 | 4. Evaluation and Learning | `arda-ecosystem-standard-track-4-evaluation-learning.md` |
-
-## Related root guide
-
-`/var/home/mythos/Eregion/Arda/docs/ARDA_ECOSYSTEM_STANDARD_IMPLEMENTATION.md`

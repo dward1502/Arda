@@ -12,16 +12,15 @@ soterion:
 
 > 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-13
 
-# Index: crates/spine/runtime/INDEX.md
+# Index: crates/runtime/INDEX.md
 
 ## Contents
 
 - `INDEX.md`
 - `manwe`
 - `arda-systemd`
-- `arda-hades`
 - `arda-mandos`
-- `arda-plutus`
+- `arda-economics`
 
 ## Purpose
 
@@ -29,4 +28,4 @@ Crate index for `crates/runtime/INDEX.md`. See sibling `INDEX.md` for bucket met
 
 ## Notes
 
-Normalized from on-disk contents; review cadence is quarterly unless owner changes.
+Normalized on-disk tree; review cadence is quarterly unless owner changes.

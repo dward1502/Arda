@@ -18,7 +18,6 @@ soterion:
 
 - `INDEX.md`
 - `arda-aule`
-- `arda-prometheus`
 
 ## Purpose
 

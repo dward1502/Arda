@@ -9,7 +9,7 @@ use crate::onboarding::constants::{
     ONBOARDING_APPLY_RESULT_CONTRACT, ONBOARDING_APPROVAL_CONTRACT,
     ONBOARDING_SERVICE_PLAN_CONTRACT,
 };
-use crate::device_scan;
+use crate::onboarding::device_scan;
 use crate::onboarding::guided::build_guided_session;
 use crate::onboarding::helpers::{action_is_approved, action_receipt_path, make_apply_result, now_utc};
 use crate::onboarding::io::{
@@ -20,7 +20,7 @@ use crate::onboarding::private_config::{
     apply_private_config_baseline, build_operator_answers_template, build_private_config_stage,
     write_private_config_stage,
 };
-use crate::provider_checklist;
+use crate::onboarding::provider_checklist;
 use crate::onboarding::readiness::build_readiness_projection;
 use crate::onboarding::types::*;
 

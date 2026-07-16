@@ -18,7 +18,7 @@ use arda_core::task::Task;
 use arda_core::{spawn_bounded_background, try_run_bounded_async};
 use arda_governance::{record_bacon_lite, triad_validate, TriadConfig};
 use arda_vaire::{InformantEvent, MnemosyneService};
-use arda_plutus::{JouleWorkUnit, PlutusService};
+use arda_economics::{JouleWorkUnit, PlutusService};
 use chrono::Utc;
 use fs2::FileExt;
 use serde::{Deserialize, Serialize};
@@ -1295,7 +1295,7 @@ mod tests {
                 "tsk_gate_4",
                 "forge-mind",
                 "Implemented the Discord completion lane",
-                vec!["cargo test -p annunimas-hermes subagent_completion_lane".to_string()],
+                vec!["cargo test -p arda-orome subagent_completion_lane".to_string()],
                 vec!["crates/annunimas-hermes/src/service/subagent_completion.rs".to_string()],
                 Vec::new(),
                 CommsEventRisk::Medium,
@@ -1345,7 +1345,7 @@ mod tests {
                 "task:tsk_gate_4_verified",
                 "athena",
                 "Validated documentation reconciliation",
-                vec!["cargo test -p annunimas-hermes --lib".to_string()],
+                vec!["cargo test -p arda-orome --lib".to_string()],
                 Vec::new(),
                 Vec::new(),
                 CommsEventRisk::Low,

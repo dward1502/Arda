@@ -17,7 +17,7 @@ soterion:
 ## Contents
 
 - `INDEX.md`
-- `arda-mnemosyne`
+- `arda-vaire`
 
 ## Purpose
 

@@ -3,16 +3,16 @@
 - source_id: `src_df11630e`
 - status: `deep`
 - source_type: `GithubRepo`
-- updated_at_utc: `2026-07-17T12:35:01.976922973+00:00`
+- updated_at_utc: `2026-07-18T05:37:21.973520071+00:00`
 - url: https://github.com/D4Vinci/Scrapling
-- athena_book: `/var/home/mythos/.cache/annunimas-build/tmp/.tmp4b8atw/books/src_df11630e.jsonl`
+- athena_book: `/tmp/.tmpxWtnVW/books/src_df11630e.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary
 
 **Title**: D4Vinci/Scrapling — 🕷️ An adaptive Web Scraping framework that handles everything from a single request to a full-scale 
 
-🕷️ An adaptive Web Scraping framework that handles everything from a single request to a full-scale crawl! Primary language: Python. License: BSD-3-Clause. Stars: 69850; last pushed 2026-07-15T15:21:20Z. Top deps: authors, classifiers, cssselect>, description, keywords, license, lxml>, maintainers (+8 more). README excerpt: <!-- mcp-name: io.github.D4Vinci/Scrapling -->
+🕷️ An adaptive Web Scraping framework that handles everything from a single request to a full-scale crawl! Primary language: Python. License: BSD-3-Clause. Stars: 69918; last pushed 2026-07-15T15:21:20Z. Top deps: authors, classifiers, cssselect>, description, keywords, license, lxml>, maintainers (+8 more). README excerpt: <!-- mcp-name: io.github.D4Vinci/Scrapling -->
 
 <h1 align="center">
     <a href="https://scrapling.readthedocs.io">
@@ -28,7 +28,7 @@
 
 ## Deep Analysis
 
-🕷️ An adaptive Web Scraping framework that handles everything from a single request to a full-scale crawl! Primary language: Python. License: BSD-3-Clause. Stars: 69850; last pushed 2026-07-15T15:21:20Z. Top deps: authors, classifiers, cssselect>, description, keywords, license, lxml>, maintainers (+8 more). README excerpt: <!-- mcp-name: io.github.D4Vinci/Scrapling -->
+🕷️ An adaptive Web Scraping framework that handles everything from a single request to a full-scale crawl! Primary language: Python. License: BSD-3-Clause. Stars: 69918; last pushed 2026-07-15T15:21:20Z. Top deps: authors, classifiers, cssselect>, description, keywords, license, lxml>, maintainers (+8 more). README excerpt: <!-- mcp-name: io.github.D4Vinci/Scrapling -->
 
 <h1 align="center">
     <a href="https://scrapling.readthedocs.io">

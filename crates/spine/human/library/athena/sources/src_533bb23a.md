@@ -3,9 +3,9 @@
 - source_id: `src_533bb23a`
 - status: `deep`
 - source_type: `NewsArticle`
-- updated_at_utc: `2026-07-17T12:35:03.670065355+00:00`
+- updated_at_utc: `2026-07-18T05:37:23.559510667+00:00`
 - url: https://example.com/governance-rust
-- athena_book: `/var/home/mythos/.cache/annunimas-build/tmp/.tmpqfH6pP/books/src_533bb23a.jsonl`
+- athena_book: `/tmp/.tmpPg9Q4O/books/src_533bb23a.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

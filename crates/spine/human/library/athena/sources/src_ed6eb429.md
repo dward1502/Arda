@@ -3,9 +3,9 @@
 - source_id: `src_ed6eb429`
 - status: `deep`
 - source_type: `NewsArticle`
-- updated_at_utc: `2026-07-17T12:35:00.233781230+00:00`
+- updated_at_utc: `2026-07-18T05:37:20.672069979+00:00`
 - url: https://example.com/governance-report
-- athena_book: `/var/home/mythos/.cache/annunimas-build/tmp/.tmpbQw07U/books/src_ed6eb429.jsonl`
+- athena_book: `/tmp/.tmpvHtfwP/books/src_ed6eb429.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

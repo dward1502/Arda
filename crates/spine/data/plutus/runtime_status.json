@@ -7,7 +7,7 @@
     "providers": [],
     "total_spend": 0.0
   },
-  "generated_at_utc": "2026-07-17T12:35:03.673839660+00:00",
+  "generated_at_utc": "2026-07-18T07:43:10.350456891+00:00",
   "governance": {
     "bacon_lite_passed_total": 26,
     "recent_records": [
@@ -34,7 +34,7 @@
             "veto_reason": null
           }
         },
-        "recorded_at_utc": "2026-07-17T12:35:03.673187050+00:00",
+        "recorded_at_utc": "2026-07-18T07:43:10.349781522+00:00",
         "resonance": {
           "ecst_components": {
             "audio_coherence": null,
@@ -63,7 +63,7 @@
           },
           "value": 73.32241790259285
         },
-        "subject": "athena",
+        "subject": "mnemosyne",
         "triad": {
           "aurelius": "Pass",
           "aurelius_score": 0.8999999999999999,
@@ -1743,36 +1743,37 @@
   "joulework": {
     "by_agent": {
       "apollo": 11.2,
-      "athena": 15.133333333333336,
+      "athena": 19.693333333333335,
       "charon": 42.0,
-      "mnemosyne": 62.53333333333333
+      "mnemosyne": 68.89333333333332,
+      "oracle": 1.87
     },
     "by_source": [
       {
-        "amount": 1.5533333333333332,
+        "amount": 1.8,
         "source": "operator_estimate"
       },
       {
-        "amount": 129.31333333333333,
+        "amount": 141.85666666666665,
         "source": "default_fallback"
       }
     ],
     "by_unit": [
       {
-        "amount": 130.86666666666667,
+        "amount": 143.65666666666667,
         "unit": "Reasoning"
       }
     ],
     "measurement_metadata": {
       "autonomy_truth_warning": true,
-      "average_confidence": 0.1,
+      "average_confidence": 0.08333333333333333,
       "default_fallback_autonomy_truth": false,
-      "default_fallback_total": 129.31333333333333,
+      "default_fallback_total": 141.85666666666665,
       "observed_total": 0.0
     },
-    "period_end": "2026-07-17T12:35:03.673119559Z",
-    "period_start": "2026-07-17T12:35:03.672247707Z",
-    "total": 130.86666666666667
+    "period_end": "2026-07-18T07:43:10.349715061Z",
+    "period_start": "2026-07-18T07:43:10.348867689Z",
+    "total": 143.65666666666667
   },
   "ledger": {
     "accounts": [],
@@ -1781,54 +1782,66 @@
   "love_equation": {
     "relationships": [
       {
-        "agent_a": "openai_shim",
-        "agent_b": "local_test",
-        "timestamp": "2026-07-17T12:35:03.672244466Z",
-        "value": 0.8320000000000001
+        "agent_a": "oracle",
+        "agent_b": "oracle",
+        "timestamp": "2026-07-18T07:43:10.348861169Z",
+        "value": 0.8089999999999999
       },
       {
         "agent_a": "athena",
         "agent_b": "knowledge_corpus",
-        "timestamp": "2026-07-17T12:35:03.672245397Z",
+        "timestamp": "2026-07-18T07:43:10.348862369Z",
         "value": 0.7816666666666666
+      },
+      {
+        "agent_a": "openai_shim",
+        "agent_b": "local_test",
+        "timestamp": "2026-07-18T07:43:10.348855939Z",
+        "value": 0.8320000000000001
       },
       {
         "agent_a": "athena",
         "agent_b": "google",
-        "timestamp": "2026-07-17T12:35:03.672240196Z",
+        "timestamp": "2026-07-18T07:43:10.348863629Z",
         "value": 0.8320000000000001
       },
       {
         "agent_a": "apollo",
         "agent_b": "athena",
-        "timestamp": "2026-07-17T12:35:03.672243586Z",
+        "timestamp": "2026-07-18T07:43:10.348866299Z",
         "value": 0.6900999569320966
       }
     ],
-    "relationships_total": 4,
+    "relationships_total": 5,
     "top_relationships": [
       {
         "agent_a": "openai_shim",
         "agent_b": "local_test",
-        "timestamp": "2026-07-17T12:35:03.672244466Z",
+        "timestamp": "2026-07-18T07:43:10.348855939Z",
         "value": 0.8320000000000001
       },
       {
         "agent_a": "athena",
         "agent_b": "google",
-        "timestamp": "2026-07-17T12:35:03.672240196Z",
+        "timestamp": "2026-07-18T07:43:10.348863629Z",
         "value": 0.8320000000000001
+      },
+      {
+        "agent_a": "oracle",
+        "agent_b": "oracle",
+        "timestamp": "2026-07-18T07:43:10.348861169Z",
+        "value": 0.8089999999999999
       },
       {
         "agent_a": "athena",
         "agent_b": "knowledge_corpus",
-        "timestamp": "2026-07-17T12:35:03.672245397Z",
+        "timestamp": "2026-07-18T07:43:10.348862369Z",
         "value": 0.7816666666666666
       },
       {
         "agent_a": "apollo",
         "agent_b": "athena",
-        "timestamp": "2026-07-17T12:35:03.672243586Z",
+        "timestamp": "2026-07-18T07:43:10.348866299Z",
         "value": 0.6900999569320966
       }
     ]

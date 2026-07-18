@@ -207,7 +207,7 @@ impl OracleService {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use arda_plutus::PlutusService;
+    use arda_economics::PlutusService;
     use chrono::Utc;
 
     #[tokio::test]

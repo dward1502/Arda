@@ -3,9 +3,9 @@
 - source_id: `src_2a46e1ab`
 - status: `shallow`
 - source_type: `Documentation`
-- updated_at_utc: `2026-07-17T12:35:00.864662184+00:00`
+- updated_at_utc: `2026-07-18T05:37:21.240173385+00:00`
 - url: https://docs.rs/tokio/latest/tokio
-- athena_book: `/var/home/mythos/.cache/annunimas-build/tmp/.tmpcSelV6/books/src_2a46e1ab.jsonl`
+- athena_book: `/tmp/.tmpuuy2m3/books/src_2a46e1ab.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

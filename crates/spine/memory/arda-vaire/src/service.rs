@@ -300,7 +300,7 @@ impl MnemosyneService {
 #[cfg(test)]
 mod tests {
     use super::{store::append_jsonl, InformantEvent, MnemosyneService};
-    use arda_plutus::PlutusService;
+    use arda_economics::PlutusService;
     use chrono::Utc;
     use std::fs;
     use std::sync::{Mutex, MutexGuard, OnceLock};

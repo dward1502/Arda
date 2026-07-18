@@ -3,9 +3,9 @@
 - source_id: `src_8417aee8`
 - status: `deep`
 - source_type: `NewsArticle`
-- updated_at_utc: `2026-07-17T12:35:00.217370160+00:00`
+- updated_at_utc: `2026-07-18T05:37:20.666747392+00:00`
 - url: https://example.com/scrapling-like-source
-- athena_book: `/var/home/mythos/.cache/annunimas-build/tmp/.tmpXultMR/books/src_8417aee8.jsonl`
+- athena_book: `/tmp/.tmp46fzwA/books/src_8417aee8.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

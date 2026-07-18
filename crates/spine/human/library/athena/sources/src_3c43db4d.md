@@ -3,9 +3,9 @@
 - source_id: `src_3c43db4d`
 - status: `deep`
 - source_type: `RawNote`
-- updated_at_utc: `2026-07-17T12:35:03.656744050+00:00`
+- updated_at_utc: `2026-07-18T05:37:23.553114625+00:00`
 - url: governance routing memory safety context tooling
-- athena_book: `/var/home/mythos/.cache/annunimas-build/tmp/.tmpa9bEJy/books/src_3c43db4d.jsonl`
+- athena_book: `/tmp/.tmpCr5Pn8/books/src_3c43db4d.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

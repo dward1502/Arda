@@ -3,9 +3,9 @@
 - source_id: `src_ea7a1c0f`
 - status: `deep`
 - source_type: `RawNote`
-- updated_at_utc: `2026-07-17T12:35:03.298021419+00:00`
+- updated_at_utc: `2026-07-18T05:37:23.216306407+00:00`
 - url: context memory routing safety tooling terminal agent harness
-- athena_book: `/var/home/mythos/.cache/annunimas-build/tmp/.tmpeZxqne/books/src_ea7a1c0f.jsonl`
+- athena_book: `/tmp/.tmpah7odF/books/src_ea7a1c0f.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

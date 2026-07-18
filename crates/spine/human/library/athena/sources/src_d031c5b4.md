@@ -3,9 +3,9 @@
 - source_id: `src_d031c5b4`
 - status: `shallow`
 - source_type: `ScholarlyLink`
-- updated_at_utc: `2026-07-17T12:35:00.917358995+00:00`
+- updated_at_utc: `2026-07-18T05:37:21.281217567+00:00`
 - url: https://arxiv.org/abs/2401.00001
-- athena_book: `/var/home/mythos/.cache/annunimas-build/tmp/.tmpcSelV6/books/src_d031c5b4.jsonl`
+- athena_book: `/tmp/.tmpuuy2m3/books/src_d031c5b4.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

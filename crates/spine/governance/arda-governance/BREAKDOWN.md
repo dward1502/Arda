@@ -24,15 +24,18 @@ wired into `arda-engine` or `apps`.
 
 ## Where it lives
 - Crate root: `/var/home/mythos/Eregion/Arda/crates/spine/governance/arda-governance`
-- Configs: `../../config/governance/chains.toml`, `../../config/governance/philosophers.toml`
+- Configs: `../../../../config/governance/chains.toml`, `../../../../config/governance/philosophers.toml`
 - Tests: `tests/alignment_stack.rs`, `tests/philosopher_profiles.rs`
+
+## Fix list (applied 2026-07-18)
+- `triad.rs:676`: `include_str!("../../../config/governance/chains.toml")` → `../../../../config/governance/chains.toml`
+- Normalized all in-repo `"config/governance/philosophers.toml"` status metadata strings in Rust sources, tests, and `crates/spine/config/governance/chains.toml` to the canonical repo-root path. Removed stale `../config/...` relative path from spine-local chain config.
 
 ## Verification status
 - `cargo check -p arda-governance`: OK
 - `cargo test -p arda-governance`: 44/45 passing
 - Failing: `repository_default_chain_config_matches_g3_contract`
-  - Cause: path mismatch `../config/governance/philosophers.toml` vs
-    `config/governance/philosophers.toml` in included repo config.
+  - Cause: previous `../../../config/governance/chains.toml` include missed repo root; resolved with `../../../../config/...`.
   - Fix: align `chains.toml` `profile_source` with the test include path.
 - No consumer imports detected in `crates/engine` or `apps`.
 

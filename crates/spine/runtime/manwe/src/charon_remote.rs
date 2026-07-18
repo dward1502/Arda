@@ -1,10 +1,5 @@
-//! `public-bridge` — charon → gateway port.
-//!
-//! Provides `CharonRemote`, adapters, and `GatewayDependencyInjection`
-//! so callers can start with a local transport and swap to manwe when
-//! upstream connectors are ready.
-
 use std::future::Future;
+use std::path::PathBuf;
 
 use anyhow::{anyhow, Context as _, Result};
 use reqwest::Client;

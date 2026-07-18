@@ -205,7 +205,7 @@
       "lane_subclass": "runtime_message",
       "newest_observed_at_utc": "2026-05-25T15:26:14.614758468+00:00",
       "owner": "prometheus",
-      "path": "core/queue/queue.jsonl",
+      "path": "core/projects/tasks/queue.jsonl",
       "promotion_receipt_required": "flywheel_plan_packet_or_prometheus_safe_local_task_promotion",
       "record_count": 0,
       "source_type": "runtime_queue",

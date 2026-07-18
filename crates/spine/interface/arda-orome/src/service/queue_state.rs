@@ -31,7 +31,7 @@ pub(super) fn default_task_queue_path() -> PathBuf {
     if let Ok(custom) = std::env::var("ANNUNIMAS_TASK_QUEUE_PATH") {
         return PathBuf::from(custom);
     }
-    PathBuf::from("data/hermes/task_queue.jsonl")
+    PathBuf::from("core/projects/tasks/queue.jsonl")
 }
 
 fn read_queue_values(path: &PathBuf) -> Result<Vec<Value>> {

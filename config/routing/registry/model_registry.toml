@@ -1,0 +1,206 @@
+# DERIVED VIEW: this file is intake/reference only.
+# Source of truth: config/charon.providers.toml
+
+# sigil: SCROLL
+[contract]
+schema_version = "arda.model.registry.v1"
+authority = "charon_model_lifecycle"
+status = "draft"
+last_reviewed = "2026-05-30"
+source_audit_json = "core/state/model_freshness_audit.json"
+source_audit_markdown = "data/charon/model_freshness_audit.md"
+
+[policy]
+default_selection = "auto_via_charon"
+download_requires_human_approval = true
+service_switch_requires_human_approval = true
+benchmark_required_before_promotion = true
+removed_route_usage_receipts = "Keep usage/benchmark/audit receipts after route removal; do not keep dead route strings active in provider config."
+
+[[lane]]
+id = "council"
+purpose = "Boardroom strategy, critique, and multi-agent deliberation."
+selection = "auto_via_charon"
+preferred_provider_classes = ["edge", "subscription", "cloud"]
+required_capabilities = ["reasoning", "long_context", "instruction_following"]
+current_provider_ids = ["edge_backbone_coder", "openai_sub", "opencode", "openrouter"]
+replacement_policy = "Prefer high-quality reasoning models with benchmark receipts; keep council seats logical, not fixed to model personas."
+rollback_target = "openai_sub/gpt-5.5"
+
+[[lane]]
+id = "scout_research"
+purpose = "ATHENA/Scout research, source summarization, and broad catalog discovery."
+selection = "auto_via_charon"
+preferred_provider_classes = ["edge", "free_cloud", "mixed_cloud"]
+required_capabilities = ["research", "summary", "long_context", "low_cost"]
+current_provider_ids = ["edge_backbone_coder", "edge_core", "opencode", "openrouter", "nvidia"]
+replacement_policy = "Prefer long-context low-cost models; cloud candidates remain routing candidates unless privacy policy permits source text egress."
+rollback_target = "edge_core/Qwen_Qwen3.5-4B-Q6_K"
+
+[[lane]]
+id = "code_forge_mind"
+purpose = "Code patch planning, tool-oriented reasoning, and repository work."
+selection = "auto_via_charon"
+preferred_provider_classes = ["edge", "subscription", "cloud"]
+required_capabilities = ["code", "reasoning", "tool_use", "repo_context"]
+current_provider_ids = ["edge_backbone_coder", "openai_sub", "nvidia", "openrouter"]
+replacement_policy = "Benchmark candidates on Annunimas code tasks before promotion."
+rollback_target = "edge_core/LFM2.5-8B-A1B-Q4_K_M"
+
+[[lane]]
+id = "monitoring_warden"
+purpose = "Fast local monitoring, health summaries, and guardhouse fallback."
+selection = "prefer_small_local"
+preferred_provider_classes = ["local", "edge"]
+required_capabilities = ["chat", "summary", "monitoring", "low_latency"]
+current_provider_ids = ["edge_guardhouse", "edge_worker_light", "local_fallback"]
+replacement_policy = "Prefer small GGUF models that fit Pi5/edge worker memory envelopes; benchmark latency and failure mode robustness."
+rollback_target = "edge_guardhouse/Qwen3.5-4B-Q4_K_M.gguf"
+
+[[lane]]
+id = "local_fallback"
+purpose = "Offline/local fallback when primary Charon routes are unavailable."
+selection = "pinned_fallback"
+preferred_provider_classes = ["local"]
+required_capabilities = ["chat", "summary"]
+current_provider_ids = ["local_fallback", "edge_core"]
+replacement_policy = "Only replace after staged download, checksum, benchmark, and rollback receipt."
+rollback_target = "local_fallback/Qwen3-8B-Q4_K_M"
+
+[[live_model]]
+provider_id = "edge_core"
+model_id = "LFM2.5-8B-A1B-Q4_K_M"
+status = "active_rollout"
+source_config = "config/charon.providers.toml"
+serving_endpoint = "http://100.78.138.113:9337/v1"
+lanes = ["scout_research", "monitoring_warden", "local_fallback"]
+freshness_notes = ["staged_2026_06_03_liquidai_core_candidate", "128k_context_target", "qwen3_5_9b_retained_as_rollback"]
+
+[[live_model]]
+provider_id = "edge_core"
+model_id = "Qwen3.5-9B-Q4_K_M"
+status = "rollback_staged"
+source_config = "config/charon.providers.toml"
+serving_endpoint = "http://100.78.138.113:9337/v1"
+lanes = ["scout_research", "monitoring_warden", "local_fallback"]
+freshness_notes = ["previous_core_default", "retained_for_rollback_after_liquidai_rollout"]
+
+[[live_model]]
+provider_id = "edge_core"
+model_id = "Qwen_Qwen3.5-4B-Q6_K"
+status = "secondary_staged"
+source_config = "config/charon.providers.toml"
+serving_endpoint = "http://100.78.138.113:9337/v1"
+lanes = ["scout_research", "monitoring_warden", "local_fallback"]
+freshness_notes = ["older_qwen_generation_present"]
+
+[[live_model]]
+provider_id = "edge_backbone"
+model_id = "Qwen3.6-35B-A3B-UD-Q4_K_XL"
+status = "disabled_superseded"
+source_config = "config/charon.providers.toml"
+serving_endpoint = "http://100.102.250.115:8080/v1"
+lanes = ["council"]
+freshness_notes = ["stopped_and_disabled_2026_06_06_to_free_vram_for_qwen3_coder", "retain_as_manual_rollback_only"]
+
+[[live_model]]
+provider_id = "edge_backbone_coder"
+model_id = "Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL"
+status = "active"
+source_config = "config/charon.providers.toml"
+serving_endpoint = "http://100.102.250.115:8092/v1"
+lanes = ["scout_research", "code_forge_mind"]
+freshness_notes = ["promoted_2026_06_06_gpu_backed_64k_context", "primary_local_tool_code_lane", "old_qwen3_6_service_disabled_to_free_vram"]
+
+[[live_model]]
+provider_id = "edge_worker_light"
+model_id = "Qwen_Qwen3.5-4B-Q6_K"
+status = "active_stale_review"
+source_config = "config/fleet.toml"
+serving_endpoint = "http://100.103.125.88:9337/v1"
+lanes = ["scout_research", "monitoring_warden"]
+freshness_notes = ["older_qwen_generation_present"]
+
+[[live_model]]
+provider_id = "edge_guardhouse"
+model_id = "Qwen3.5-4B-Q4_K_M.gguf"
+status = "active_stale_review"
+source_config = "config/charon.providers.toml"
+serving_endpoint = "http://100.110.85.37:1234/v1"
+lanes = ["monitoring_warden"]
+freshness_notes = ["older_qwen_generation_present", "quantized_local_artifact_should_have_freshness_review"]
+
+[[removed_route]]
+provider_id = "openrouter"
+model_id = "arcee-ai/trinity-large-thinking:free"
+removed_at_utc = "2026-05-30T23:20:00Z"
+reason = "live_openrouter_catalog_missing"
+evidence = "data/charon/model_route_removals.jsonl"
+usage_data_policy = "Preserve historical usage/benchmark receipts if present; do not keep active provider route."
+
+[[removed_route]]
+provider_id = "openrouter"
+model_id = "baidu/cobuddy:free"
+removed_at_utc = "2026-05-30T23:20:00Z"
+reason = "live_openrouter_catalog_missing"
+evidence = "data/charon/model_route_removals.jsonl"
+usage_data_policy = "Preserve historical usage/benchmark receipts if present; do not keep active provider route."
+
+[[candidate_discovery]]
+source = "huggingface"
+source_url = "https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct"
+gguf_source_url = "https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF"
+lane = "code_forge_mind"
+model_family = "Qwen3-Coder-30B-A3B-Instruct-GGUF"
+license = "apache-2.0"
+target_nodes = ["node-backbone-server"]
+status = "research_candidate"
+native_context_window = 262144
+active_parameters = "3.3B"
+recommended_quantization = "UD-Q4_K_XL"
+notes = "Official Qwen3-Coder-30B-A3B-Instruct is a non-thinking 30.5B/3.3B-active MoE coder/agent model with native 256K context and agentic coding/tool-call support. Unsloth GGUF provides llama.cpp-ready UD-Q4_K_XL quantization. Primary local Hermes/Codex tool-lane candidate for annunimas-server; requires hardware-fit benchmark, OpenAI tool-call probe, checksum, rollback receipt, and explicit human approval before any download or switch."
+
+[[candidate_discovery]]
+source = "huggingface"
+source_url = "https://huggingface.co/Infatoshi/Qwen3.6-35B-A3B-GGUF"
+lane = "council"
+model_family = "Qwen3.6-35B-A3B-GGUF"
+status = "research_candidate"
+notes = "Potential backbone reasoning refresh candidate; likely too large for small edge nodes, benchmark only against backbone-class hardware."
+
+[[candidate_discovery]]
+source = "huggingface"
+lane = "monitoring_warden"
+model_family = "small GGUF monitoring candidates"
+status = "research_needed"
+notes = "Search specifically for 3B-8B Apache/MIT/permissive models that fit Pi5/edge-worker memory and latency constraints."
+
+[[candidate_discovery]]
+source = "huggingface"
+source_url = "https://huggingface.co/openbmb/MiniCPM5-1B"
+lane = "monitoring_warden"
+model_family = "MiniCPM5-1B"
+status = "research_candidate"
+license = "apache-2.0"
+target_nodes = ["node-pi5-warden", "node-pi5-citadel-avatar", "node-ser9-worker"]
+notes = "Dense 1B long-context on-device model; promising for Warden/Citadel low-memory monitoring, tool-assistant, and quick-summary lanes. Needs GGUF quant selection, llama.cpp compatibility proof, latency benchmark, and hallucination/failure-mode checks."
+
+[[candidate_discovery]]
+source = "huggingface"
+source_url = "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B"
+lane = "scout_research"
+model_family = "LFM2.5-8B-A1B"
+status = "research_candidate"
+license = "lfm1.0"
+target_nodes = ["node-core-hub", "node-ser9-worker", "node-backbone-server"]
+notes = "8.3B total / 1.5B active edge-oriented tool-use model with GGUF availability; candidate for Beelink/core scout and structured-agent lanes, but license and heavy-programming limitations require review before promotion."
+
+[[candidate_discovery]]
+source = "huggingface"
+source_url = "https://huggingface.co/Jackrong/Qwopus3.5-4B-Coder-MTP-GGUF"
+lane = "code_forge_mind"
+model_family = "Qwopus3.5-4B-Coder-MTP-GGUF"
+status = "research_candidate"
+license = "apache-2.0"
+target_nodes = ["node-ser9-worker", "node-core-hub", "node-pi5-warden"]
+notes = "Compact 4B coder/tool-use GGUF candidate for Beelink/core code lanes and possibly Warden scripted-diagnostics. Community release; requires independent Annunimas benchmark before replacing Qwen_Qwen3.5-4B-Q6_K or guardhouse routes."

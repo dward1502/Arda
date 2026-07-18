@@ -572,7 +572,7 @@ fn yaml_string_hash(value: &Yaml) -> HashMap<String, String> {
 #[cfg(test)]
 mod tests {
     use super::{
-        file_sigil_name_from_registry, machine_sigil_or_default, parse_header_from_content,
+        machine_sigil_or_default, parse_header_from_content,
         render_signature, SoterionGlyphEntry, SoterionIndex, SoterionRegistry,
     };
     use chrono::{Duration, Utc};

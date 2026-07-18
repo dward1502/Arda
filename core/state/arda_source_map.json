@@ -177,7 +177,7 @@
       "status": "ready",
       "supplemental_sources": [
         "core/projects/tasks/queue.jsonl",
-        "core/queue/queue.jsonl",
+        "core/projects/tasks/queue.jsonl",
         "core/projects/Plans",
         "data/prometheus/orders.jsonl",
         "data/prometheus/escalations.jsonl"

@@ -1,7 +1,7 @@
 use super::council::redact_operating_room_body;
 use super::*;
 
-const SUBAGENT_COMPLETION_PACKET_SCHEMA: &str = "annunimas.hermes.subagent_completion_packet.v1";
+const SUBAGENT_COMPLETION_PACKET_SCHEMA: &str = "arda.hermes.subagent_completion_packet.v1";
 
 impl HermesService {
     #[allow(clippy::too_many_arguments)]

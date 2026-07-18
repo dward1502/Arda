@@ -2,9 +2,8 @@
 //! downstream crates can statically assert harness readiness without pulling
 //! the retired `arda-tool-harness` crate.
 
-use crate::tool_contract::types::HarnessError;
 use crate::tool_contract::types::{
-    InvocationDisposition, InvocationEnvelope, InvocationPlan, ToolMetadata,
+    InvocationEnvelope, InvocationPlan, ToolMetadata,
 };
 use serde::{Deserialize, Serialize};
 
@@ -98,6 +97,7 @@ pub fn status() -> ServiceStatus {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tool_contract::types::InvocationDisposition;
 
     fn high_metadata() -> ToolMetadata {
         ToolMetadata {

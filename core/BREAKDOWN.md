@@ -27,14 +27,9 @@ This is the messiest tree in the repo. It needs domain separation, not just file
 - `knowledge/*.jsonl`
 
 ### Keep but relocate
-- `realm/*.rs` → proper crate under `crates/`
-- `personal/` → `core/personal_crate/` or app-local
 - `edge/*` → `config/edge/` after confirming consumers
 - `clients/*` → `integrations/clients/` if not core-state
-- `projects/` → `docs/plans/` or archive; plan artifacts do not belong under `core/`
 - `metrics/` → `ops/metrics/` or `monitoring/metrics/`
-- `core_audit.json` → `audit/`
-- `state/_archive/*` → top-level `archive/core_state/`
 
 ### Retire or archive
 - `state/tick_output_0.txt` .. `tick_output_221.txt` — 222 committed log files; never should have been committed.

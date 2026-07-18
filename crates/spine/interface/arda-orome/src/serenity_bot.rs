@@ -746,7 +746,7 @@ fn build_operating_room_interaction_receipt(
     response_len: usize,
 ) -> Value {
     serde_json::json!({
-        "schema_version": "annunimas.hermes.discord_operating_room_interaction.v1",
+        "schema_version": "arda.hermes.discord_operating_room_interaction.v1",
         "recorded_at_utc": Utc::now().to_rfc3339(),
         "command": format!("/{command}"),
         "semantic_channel": semantic_channel,
@@ -968,7 +968,7 @@ fn request_task_run(root: &Path, task_id: &str, notes: Option<&str>) -> String {
         Utc::now().timestamp_nanos_opt().unwrap_or_default()
     );
     let receipt = serde_json::json!({
-        "schema_version": "annunimas.hermes.work_stream_task_run_request.v1",
+        "schema_version": "arda.hermes.work_stream_task_run_request.v1",
         "receipt_id": receipt_id,
         "task_ref": format!("task:{canonical_task_id}"),
         "task_title": task_str(task, "title"),
@@ -1022,7 +1022,7 @@ fn promote_council_note_request(root: &Path, note_id: &str, task_ref: Option<&st
         Utc::now().timestamp_nanos_opt().unwrap_or_default()
     );
     let promotion = serde_json::json!({
-        "schema_version": "annunimas.hermes.council_discussion_promotion.v1",
+        "schema_version": "arda.hermes.council_discussion_promotion.v1",
         "promotion_id": promotion_id.clone(),
         "note_id": note_id,
         "task_ref": task_ref,
@@ -1090,7 +1090,7 @@ fn render_continue_command(root: &Path, target: &str, notes: Option<&str>) -> St
         Utc::now().timestamp_nanos_opt().unwrap_or_default()
     );
     let continuation = serde_json::json!({
-        "schema_version": "annunimas.hermes.work_stream_continuation_request.v1",
+        "schema_version": "arda.hermes.work_stream_continuation_request.v1",
         "continuation_id": continuation_id,
         "semantic_channel": "work-stream",
         "target_kind": target_kind,
@@ -1145,7 +1145,7 @@ fn render_council_command(
 
 fn council_note_schema_is_promotable(schema: &str) -> bool {
     schema.ends_with("council_discussion_note.v1")
-        || schema == "annunimas.hermes.local_council_summary_route.v1"
+        || schema == "arda.hermes.local_council_summary_route.v1"
 }
 
 fn record_local_council_summary_route(
@@ -1162,7 +1162,7 @@ fn record_local_council_summary_route(
         Utc::now().timestamp_nanos_opt().unwrap_or_default()
     );
     let receipt = serde_json::json!({
-        "schema_version": "annunimas.hermes.local_council_summary_route.v1",
+        "schema_version": "arda.hermes.local_council_summary_route.v1",
         "note_id": note_id,
         "session_id": format!("council_discord_{}", Utc::now().format("%Y%m%dT%H%M%SZ")),
         "created_at_utc": Utc::now().to_rfc3339(),
@@ -1387,7 +1387,7 @@ fn record_gateway_receipt(root: &Path, input: GatewayReceiptInput) -> String {
         format!("task:{task_id}")
     };
     let receipt = serde_json::json!({
-        "schema_version": "annunimas.hermes_agent_gateway_background_result.v1",
+        "schema_version": "arda.hermes_agent_gateway_background_result.v1",
         "receipt_id": receipt_id,
         "task_ref": task_ref,
         "source": "hermes_agent_gateway",
@@ -1474,7 +1474,7 @@ fn render_gateway_activation_check(root: &Path, gateway_status: Option<&str>) ->
         .join("docs/operations/hermes-agent-discord-gateway-runbook.md")
         .exists();
     let template_exists = root
-        .join("config/hermes_agent_gateway_annunimas.example.yaml")
+        .join("config/hermes_agent_gateway_arda.example.yaml")
         .exists();
     let semantic_source =
         fs::read_to_string(root.join("crates/spine/interface/arda-orome/src/service/semantic_channel.rs"))
@@ -1888,14 +1888,14 @@ mod tests {
         let receipts =
             fs::read_to_string(dir.path().join("data/hermes/work_stream_requests.jsonl"))
                 .expect("receipt read");
-        assert!(receipts.contains("annunimas.hermes.work_stream_task_run_request.v1"));
+        assert!(receipts.contains("arda.hermes.work_stream_task_run_request.v1"));
         assert!(receipts.contains("not_started_by_discord"));
 
         let sessions_path = dir.path().join("data/hermes");
         fs::create_dir_all(&sessions_path).expect("sessions dir");
         fs::write(
             sessions_path.join("council_sessions.jsonl"),
-            r#"{"schema_version":"annunimas.hermes.council_discussion_note.v1","note_id":"council_note_1","session_id":"council_alpha","agent":"counsel","summary":"discussion-only: promote after review"}
+            r#"{"schema_version":"arda.hermes.council_discussion_note.v1","note_id":"council_note_1","session_id":"council_alpha","agent":"counsel","summary":"discussion-only: promote after review"}
 "#,
         )
         .expect("council note write");
@@ -1909,7 +1909,7 @@ mod tests {
         assert!(promoted.contains("Council Note Promoted"));
         let sessions = fs::read_to_string(sessions_path.join("council_sessions.jsonl"))
             .expect("sessions read");
-        assert!(sessions.contains("annunimas.hermes.council_discussion_promotion.v1"));
+        assert!(sessions.contains("arda.hermes.council_discussion_promotion.v1"));
         assert!(sessions.contains("task:tsk_a"));
 
         let continued = render_continue_command(
@@ -1924,7 +1924,7 @@ mod tests {
                 .join("data/hermes/work_stream_continuations.jsonl"),
         )
         .expect("continuation read");
-        assert!(continuations.contains("annunimas.hermes.work_stream_continuation_request.v1"));
+        assert!(continuations.contains("arda.hermes.work_stream_continuation_request.v1"));
         assert!(
             continuations.contains("conversation_only_until_explicit_task_run_or_gateway_receipt")
         );
@@ -1967,7 +1967,7 @@ mod tests {
         assert!(rendered.contains("data/hermes/council_sessions.jsonl"));
         let sessions = fs::read_to_string(dir.path().join("data/hermes/council_sessions.jsonl"))
             .expect("sessions read");
-        assert!(sessions.contains("annunimas.hermes.local_council_summary_route.v1"));
+        assert!(sessions.contains("arda.hermes.local_council_summary_route.v1"));
         assert!(sessions.contains("\"is_authoritative\":false"));
         assert!(sessions.contains("\"promotable\":true"));
         assert!(sessions.contains("task:discord-council-local-summary"));
@@ -2008,8 +2008,8 @@ mod tests {
 
         assert!(promoted.contains("Council Note Promoted"));
         let sessions = fs::read_to_string(sessions_path).expect("sessions reread");
-        assert!(sessions.contains("annunimas.hermes.local_council_summary_route.v1"));
-        assert!(sessions.contains("annunimas.hermes.council_discussion_promotion.v1"));
+        assert!(sessions.contains("arda.hermes.local_council_summary_route.v1"));
+        assert!(sessions.contains("arda.hermes.council_discussion_promotion.v1"));
         assert!(sessions.contains("task:tsk_discord_council_local_summary"));
         assert!(!dir.path().join("core/projects/tasks/queue.jsonl").exists());
     }
@@ -2053,7 +2053,7 @@ mod tests {
             .filter_map(|line| serde_json::from_str::<Value>(line).ok())
             .find(|value| {
                 value.get("schema_version").and_then(Value::as_str)
-                    == Some("annunimas.hermes.council_discussion_promotion.v1")
+                    == Some("arda.hermes.council_discussion_promotion.v1")
             })
             .expect("promotion row");
         assert_eq!(promotion["is_authoritative"], false);
@@ -2082,7 +2082,7 @@ mod tests {
 
         assert_eq!(
             receipt["schema_version"],
-            "annunimas.hermes.discord_operating_room_interaction.v1"
+            "arda.hermes.discord_operating_room_interaction.v1"
         );
         assert_eq!(receipt["command"], "/continue");
         assert_eq!(receipt["user_id_redacted"], "redacted:1752");
@@ -2150,7 +2150,7 @@ mod tests {
         .expect("write runbook");
         fs::write(
             dir.path()
-                .join("config/hermes_agent_gateway_annunimas.example.yaml"),
+                .join("config/hermes_agent_gateway_arda.example.yaml"),
             "template\n",
         )
         .expect("write template");
@@ -2276,12 +2276,12 @@ mod tests {
                 .join("data/hermes/hermes_agent_gateway_receipts.jsonl"),
         )
         .expect("gateway receipts");
-        assert!(gateway_receipts.contains("annunimas.hermes_agent_gateway_background_result.v1"));
+        assert!(gateway_receipts.contains("arda.hermes_agent_gateway_background_result.v1"));
         assert!(gateway_receipts.contains("gateway_result_is_not_approval"));
         assert!(gateway_receipts.contains("bg_42"));
         let messages =
             fs::read_to_string(dir.path().join("data/hermes/messages.jsonl")).expect("messages");
-        assert!(messages.contains("annunimas.hermes.subagent_completion_packet.v1"));
+        assert!(messages.contains("arda.hermes.subagent_completion_packet.v1"));
         assert!(messages.contains("hermes_agent_gateway"));
         let comms = fs::read_to_string(dir.path().join("data/hermes/comms_events.jsonl"))
             .expect("comms events");

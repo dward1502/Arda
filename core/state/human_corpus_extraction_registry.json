@@ -8,7 +8,6 @@
       ],
       "crate_candidates": [],
       "group_id": "agent_framework_comparison",
-      "group_path": "core/state/human_corpus_groups/agent_framework_comparison.json",
       "lane": "comparison",
       "owner": "prometheus",
       "source_ids": [
@@ -27,7 +26,6 @@
         "annunimas-service-registry"
       ],
       "group_id": "numenor_architecture_contracts",
-      "group_path": "core/state/human_corpus_groups/numenor_architecture_contracts.json",
       "lane": "architecture",
       "owner": "core",
       "source_ids": [
@@ -38,7 +36,6 @@
       "contract_candidates": [],
       "crate_candidates": [],
       "group_id": "unclassified",
-      "group_path": "core/state/human_corpus_groups/unclassified.json",
       "lane": "misc",
       "owner": "athena",
       "source_ids": [

@@ -105,7 +105,7 @@ impl HermesService {
         let path = self.l3_readiness_projection_path();
         if !path.exists() {
             return Ok(serde_json::json!({
-                "schema_version": "annunimas.l3-readiness-projection.missing.v1",
+                "schema_version": "arda.l3-readiness-projection.missing.v1",
                 "status": {
                     "level": "missing",
                     "bounded_mutation_ready": false,

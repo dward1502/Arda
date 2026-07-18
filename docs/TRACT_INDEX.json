@@ -1,0 +1,56 @@
+{
+  "root": "/var/home/mythos/Annunimas",
+  "entrypoint": "DIRECTORY_INDEX.md",
+  "sections": {
+    "apps": {
+      "path": "apps",
+      "kind": "surface",
+      "entry": "README.md"
+    },
+    "audit": {
+      "path": "audit",
+      "kind": "archive",
+      "entry": "README.md"
+    },
+    "config": {
+      "path": "config",
+      "kind": "config",
+      "entry": "README.md"
+    },
+    "core": {
+      "path": "core",
+      "kind": "policy",
+      "entry": "README.md"
+    },
+    "crates": {
+      "path": "crates",
+      "kind": "source",
+      "entry": "TRACT_INDEX.json"
+    },
+    "data": {
+      "path": "data",
+      "kind": "state",
+      "entry": "TRACT_INDEX.json"
+    },
+    "docs": {
+      "path": "docs",
+      "kind": "docs",
+      "entry": "README.md"
+    },
+    "human": {
+      "path": "human",
+      "kind": "knowledge",
+      "entry": "README.md"
+    },
+    "scripts": {
+      "path": "scripts",
+      "kind": "scripts",
+      "entry": "README.md"
+    },
+    "tests": {
+      "path": "tests",
+      "kind": "fixtures",
+      "entry": "README.md"
+    }
+  }
+}

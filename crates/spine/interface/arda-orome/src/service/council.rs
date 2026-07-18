@@ -149,7 +149,7 @@ impl HermesService {
             Utc::now().timestamp_nanos_opt().unwrap_or_default()
         );
         let note = CouncilDiscussionNote {
-            schema_version: "annunimas.hermes.council_discussion_note.v1".to_string(),
+            schema_version: "arda.hermes.council_discussion_note.v1".to_string(),
             note_id: note_id.clone(),
             session_id: session_id.to_string(),
             agent: agent.to_string(),
@@ -229,7 +229,7 @@ impl HermesService {
             Utc::now().timestamp_nanos_opt().unwrap_or_default()
         );
         let promotion = CouncilDiscussionPromotion {
-            schema_version: "annunimas.hermes.council_discussion_promotion.v1".to_string(),
+            schema_version: "arda.hermes.council_discussion_promotion.v1".to_string(),
             promotion_id: promotion_id.clone(),
             note_id: note.note_id.clone(),
             session_id: note.session_id.clone(),
@@ -282,7 +282,7 @@ impl HermesService {
             canonical_refs.push(note_id.to_string());
         }
         let decision = CouncilApprovalDecision {
-            schema_version: "annunimas.hermes.council_approval_decision.v1".to_string(),
+            schema_version: "arda.hermes.council_approval_decision.v1".to_string(),
             decision_id,
             session_id: session_id.to_string(),
             promotion_id: promotion_id.map(ToOwned::to_owned),
@@ -428,7 +428,7 @@ impl HermesService {
             }
         });
         let route = LocalCouncilSummaryRoute {
-            schema_version: "annunimas.hermes.local_council_summary_route.v1".to_string(),
+            schema_version: "arda.hermes.local_council_summary_route.v1".to_string(),
             route_id: format!("lcsr_{}", uuid::Uuid::new_v4().simple()),
             session_id: session_id.to_string(),
             summary: format!("non-authoritative local inference summary: {summary}"),
@@ -588,7 +588,7 @@ impl HermesService {
             "observe_only"
         };
         let event = OperatingRoomEvent {
-            schema_version: "annunimas.hermes.operating_room_event.v1".to_string(),
+            schema_version: "arda.hermes.operating_room_event.v1".to_string(),
             event_id: format!("ore_{}", uuid::Uuid::new_v4().simple()),
             kind,
             topic: topic.to_string(),
@@ -779,7 +779,7 @@ impl HermesService {
             ("review_required".to_string(), review_reasons.join(";"))
         };
         let packet = BoardroomQuorumPacket {
-            schema_version: "annunimas.hermes.boardroom_quorum.v1".to_string(),
+            schema_version: "arda.hermes.boardroom_quorum.v1".to_string(),
             packet_id: format!("boardroom_quorum_{}", uuid::Uuid::new_v4().simple()),
             session_id: session_id.to_string(),
             topic: topic.to_string(),

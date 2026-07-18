@@ -1,0 +1,36 @@
+# DERIVED VIEW: this file is intake/reference only.
+# Source of truth: config/charon.providers.toml
+
+# sigil: SCROLL
+[contract]
+schema_version = "arda.opencode.routes.v1"
+authority = "charon_sovereign_routing"
+
+[defaults]
+provider = "auto"
+inference_origin = "auto"
+privacy_tier = "internal"
+
+[agents.explore]
+task_type = "research"
+model_profile = "backbone_router"
+provider = "openrouter"
+inference_origin = "auto"
+
+[agents.librarian]
+task_type = "research"
+model_profile = "backbone_reasoning"
+provider = "openrouter"
+inference_origin = "auto"
+
+[agents.plan]
+task_type = "reasoning"
+model_profile = "backbone_reasoning"
+provider = "openrouter"
+inference_origin = "auto"
+
+[agents.oracle]
+task_type = "reasoning"
+model_profile = "backbone_reasoning"
+provider = "openrouter"
+inference_origin = "auto"

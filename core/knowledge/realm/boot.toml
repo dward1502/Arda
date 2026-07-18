@@ -1,0 +1,149 @@
+# sigil: REPAIR
+# ============================================================
+# ARDA BOOT SEQUENCE
+# ∇ Sovereign Work | 𓀀 Command Authority
+# ============================================================
+# "In the beginning was the Word, and the Word was with God"
+# The first instruction is the most sacred.
+# ============================================================
+
+[system]
+name        = "Arda"
+sigil       = "𓀀"
+realm       = "sovereign"
+version     = "0.1.0"
+created     = "2026-02-28"
+author      = "Daniel / Arandur"
+
+# The mission statement — read by every agent at initialization
+# This is what the system IS, not what it does
+mission = """
+A sovereign intelligence operating system for businesses that refuse mediocrity.
+Built on truth. Governed by triad. Measured by phi.
+Not a product. A living system.
+"""
+
+# ============================================================
+[ceo]
+# ============================================================
+agent_id    = "arandur"
+sigil       = "𓀀"
+clearance   = "sovereign"
+
+# CEO does not pass through the triad gate
+# CEO IS the triad gate for the system
+triad_bypass = true
+
+# CEO reads human philosophy before every decision
+philosophy_path = "human/thoughts.md"
+index_path      = "human/index.md"
+
+# CEO heartbeat — how often to emit world state
+heartbeat_ms = 500
+
+# ============================================================
+[startup]
+# ============================================================
+# Executed in strict order. A failed step halts the sequence.
+# Each step emits a Soterion mark to the ledger on completion.
+
+sequence = [
+    "verify_sovereignty",       # ∇ Check system has not been compromised
+    "load_realm_identity",      # Load arda.toml, agents.toml, sigils.toml
+    "read_human_philosophy",    # CEO reads thoughts.md and index.md
+    "scan_soterion_index",      # Index all .md and .jsonl in data/, docs/, human/
+    "initialize_agent_roster",  # Spawn agents from agents.toml definitions
+    "open_task_queue",          # Connect to core/queue/ directories
+    "calculate_system_resonance", # Initial resonance baseline
+    "start_warden",             # Warden begins monitoring all agents
+    "emit_world_state",         # core/state/world.json written — ARDA wakes
+    "announce_readiness",       # ⚡ JouleWork log: system online
+]
+
+# What to do if a step fails
+on_failure = "halt_and_log"  # options: halt_and_log | retry_once | skip
+
+# ============================================================
+[arda]
+# ============================================================
+# ARDA reads from here. Do not move these paths.
+world_state_path    = "core/state/world.json"
+agent_state_path    = "core/state/agents.json"
+ledger_path         = "core/state/ledger/"
+refresh_ms          = 500
+
+# Visual parameters passed to the Three.js renderer
+[arda.visual]
+base_color          = "#0a0f1e"     # Deep space
+sovereign_color     = "#ffd700"     # Gold — CEO / command
+knowledge_color     = "#00e5ff"     # Cyan — Athena / memory
+guardian_color      = "#ff4444"     # Red — Warden / protection
+hermes_color        = "#00ff88"     # Green — Messenger / flow
+balance_color       = "#cc44ff"     # Violet — Love Equation / balance
+phi_glow_color      = "#ffaa00"     # Amber — phi harmonic highlight
+
+particle_speed      = 2.0
+tower_scale         = 1.0
+resonance_pulse     = true
+phi_spiral_visible  = true
+
+# ============================================================
+[governance]
+# ============================================================
+# Default triad configuration for task validation
+default_required_passes = 3
+strict_mode             = false
+
+# Clearance levels (ascending authority)
+clearance_levels = [
+    "observer",
+    "worker",
+    "guardian",
+    "sovereign",
+]
+
+# Realms — domains of authority
+realms = [
+    "command",
+    "knowledge",
+    "operations",
+    "finance",
+    "communications",
+    "governance",
+    "monitoring",
+]
+
+# ============================================================
+[joulework]
+# ============================================================
+# JouleWork is the unit of sovereign labor
+# Every task must declare its cost. Every cost must be accounted.
+
+# Base costs by task type
+[joulework.base_costs]
+ingest          = 2.0
+analyze         = 5.0
+synthesize      = 8.0
+decide          = 12.0
+communicate     = 3.0
+monitor         = 1.0
+archive         = 0.5
+
+# Phi harmonic weights
+[joulework.phi_weights]
+time_ratio      = 0.30
+resource_ratio  = 0.45
+question_ratio  = 0.25
+
+# ============================================================
+[nightly]
+# ============================================================
+# Soterion-guided nightly maintenance
+enabled                 = true
+run_at                  = "03:00"
+archive_complete_after_days = 7
+prune_low_resonance     = true
+min_resonance_threshold = 25.0     # Below this, archive to cold storage
+compact_ledger          = true
+emit_daily_summary      = true
+summary_path            = "data/summaries/"

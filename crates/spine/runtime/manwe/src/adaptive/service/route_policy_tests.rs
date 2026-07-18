@@ -1,5 +1,5 @@
 use crate::adaptive::service::route_sessions::RouteHistoryEntry;
-use crate::adaptive::service::types::ProviderState;
+use crate::adaptive::service::types::{ModelState, ProviderState};
 use chrono::Utc;
 use std::sync::Mutex;
 

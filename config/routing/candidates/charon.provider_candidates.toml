@@ -1,0 +1,225 @@
+# DERIVED VIEW: this file is intake/reference only.
+# Source of truth: config/charon.providers.toml
+
+# Charon provider candidates are research/intake metadata only.
+# This file is intentionally not consumed by live routing until Charon grows an
+# explicit candidate promotion path. Keep `config/charon.providers.toml` as the
+# source of truth for enabled providers.
+
+schema_version = "arda.charon.provider-candidates.v1"
+generated_at_utc = "2026-06-05T00:00:00Z"
+authority = "operator_research"
+
+[policy]
+allowed_statuses = ["candidate", "enabled", "rejected"]
+allowed_free_kinds = ["permanent", "trial", "credits", "community", "unknown"]
+promotion_requires_probe = true
+promotion_requires_rate_cap = true
+promotion_requires_payload_compatibility = true
+promotion_target = "config/charon.providers.toml"
+
+[probe_budget]
+# Capability discovery should prefer passive receipts from real traffic. Active
+# probes are opt-in because many free/mixed providers expose 1000 calls/day or
+# less, and probing every capability can consume useful operator quota.
+active_capability_probes_enabled = false
+positive_receipt_ttl_hours = 168
+negative_receipt_ttl_hours = 24
+max_active_probe_calls_per_provider_per_day = 5
+max_active_probe_calls_per_model_per_day = 1
+skip_active_probes_when_daily_remaining_ratio_below = 0.20
+skip_active_probes_when_provider_requests_per_day_lte = 1000
+passive_receipt_path = "data/charon/provider_capability_receipts.json"
+operator_surfaces = [
+  "GET /providers/capabilities",
+  "GET /provider_candidates",
+  "GET /status capability_summary",
+  "GET /health capability_summary"
+]
+next_integration_stage = "stream_capability_and_promotion_guard_data_to_arda_hud"
+
+[[provider_candidate]]
+id = "github_models"
+name = "GitHub Models"
+status = "candidate"
+free_kind = "unknown"
+requires_adapter = true
+base_url = "https://models.github.ai/inference"
+api_key_env = "GITHUB_TOKEN"
+access_tier_candidate = "mixed"
+priority = 1
+notes = "Official REST inference with free limits and paid overage path. Endpoint is OpenAI-like but uses GitHub auth/scopes and may need a small adapter."
+source_urls = ["https://docs.github.com/en/rest/models/inference"]
+candidate_models = [
+  "openai/gpt-4.1",
+  "deepseek/DeepSeek-R1",
+  "meta/Llama-3.3-70B-Instruct",
+  "microsoft/Phi-4"
+]
+
+[[provider_candidate]]
+id = "sambanova"
+name = "SambaNova Cloud"
+status = "candidate"
+free_kind = "credits"
+requires_adapter = false
+base_url = "https://api.sambanova.ai/v1"
+api_key_env = "SAMBANOVA_API_KEY"
+access_tier_candidate = "mixed"
+priority = 2
+notes = "Free API credits/trial capacity. Treat as mixed fallback and cap tightly until live probes confirm current limits and model catalog."
+source_urls = ["https://cloud.sambanova.ai/plans"]
+candidate_models = [
+  "Meta-Llama-3.3-70B-Instruct",
+  "DeepSeek-V3.1",
+  "DeepSeek-R1"
+]
+
+[[provider_candidate]]
+id = "cloudflare_workers_ai"
+name = "Cloudflare Workers AI"
+status = "candidate"
+free_kind = "permanent"
+requires_adapter = true
+base_url = "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/ai/run"
+api_key_env = "CLOUDFLARE_API_TOKEN"
+access_tier_candidate = "free_cloud"
+priority = 3
+notes = "Useful free/edge AI lane, but endpoint is per-model rather than standard /v1/chat/completions. Add only through an adapter."
+source_urls = [
+  "https://developers.cloudflare.com/workers-ai/platform/limits/",
+  "https://developers.cloudflare.com/workers/platform/limits/"
+]
+candidate_models = [
+  "@cf/meta/llama-3.1-8b-instruct",
+  "@cf/mistral/mistral-7b-instruct-v0.1",
+  "@cf/qwen/qwen1.5-14b-chat-awq"
+]
+
+[[provider_candidate]]
+id = "cohere"
+name = "Cohere"
+status = "candidate"
+free_kind = "trial"
+requires_adapter = true
+base_url = "https://api.cohere.com/v2"
+api_key_env = "COHERE_API_KEY"
+access_tier_candidate = "mixed"
+priority = 4
+notes = "Free evaluation keys are limited and not for production. Useful for chat, rerank, and embeddings once a driver normalizes request/response shape."
+source_urls = ["https://docs.cohere.com/v2/docs/rate-limits"]
+candidate_models = [
+  "command-a-03-2025",
+  "command-r-plus",
+  "command-r"
+]
+
+[[provider_candidate]]
+id = "chutes"
+name = "Chutes"
+status = "candidate"
+free_kind = "community"
+requires_adapter = false
+base_url = "https://llm.chutes.ai/v1"
+api_key_env = "CHUTES_API_KEY"
+access_tier_candidate = "mixed"
+priority = 5
+notes = "Community/decentralized capacity with variable availability. Add as experimental only, with strict probe gates and low daily caps."
+source_urls = [
+  "https://docs.chutes.ai/",
+  "https://chutes.ai/"
+]
+candidate_models = [
+  "deepseek-ai/DeepSeek-R1",
+  "meta-llama/Llama-3.1-70B-Instruct",
+  "Qwen/Qwen2.5-72B-Instruct"
+]
+
+[[provider_candidate]]
+id = "huggingface_inference"
+name = "Hugging Face Inference Providers"
+status = "candidate"
+free_kind = "credits"
+requires_adapter = true
+base_url = "https://router.huggingface.co"
+api_key_env = "HF_TOKEN"
+access_tier_candidate = "mixed"
+priority = 6
+notes = "Monthly free credits are small. Track for occasional experimental use, not default routing."
+source_urls = ["https://huggingface.co/docs/api-inference/en/pricing"]
+candidate_models = [
+  "openai/gpt-oss-120b",
+  "meta-llama/Llama-3.3-70B-Instruct",
+  "deepseek-ai/DeepSeek-R1"
+]
+
+[[provider_candidate]]
+id = "siliconflow"
+name = "SiliconFlow"
+status = "candidate"
+free_kind = "credits"
+requires_adapter = false
+base_url = "https://api.siliconflow.com/v1"
+api_key_env = "SILICONFLOW_API_KEY"
+access_tier_candidate = "mixed"
+priority = 7
+notes = "OpenAI-compatible API with signup credits. Low priority for free pool because credits are finite."
+source_urls = [
+  "https://docs.siliconflow.com/en/userguide/quickstart",
+  "https://www.siliconflow.com/pricing"
+]
+candidate_models = [
+  "Qwen/Qwen3-Coder-480B-A35B-Instruct",
+  "deepseek-ai/DeepSeek-R1",
+  "THUDM/GLM-4.5"
+]
+
+[[provider_candidate]]
+id = "deepinfra"
+name = "DeepInfra"
+status = "candidate"
+free_kind = "unknown"
+requires_adapter = false
+base_url = "https://api.deepinfra.com/v1/openai"
+api_key_env = "DEEPINFRA_TOKEN"
+access_tier_candidate = "mixed"
+priority = 8
+notes = "Strong OpenAI-compatible provider, but no stable public free tier confirmed. Keep out of free-first routing."
+source_urls = ["https://docs.deepinfra.com/"]
+candidate_models = [
+  "deepseek-ai/DeepSeek-V3",
+  "meta-llama/Llama-3.3-70B-Instruct",
+  "Qwen/Qwen3-Coder-480B-A35B-Instruct"
+]
+
+[[provider_candidate]]
+id = "fireworks"
+name = "Fireworks AI"
+status = "candidate"
+free_kind = "credits"
+requires_adapter = false
+base_url = "https://api.fireworks.ai/inference/v1"
+api_key_env = "FIREWORKS_API_KEY"
+access_tier_candidate = "mixed"
+priority = 9
+notes = "Credit/trial-based inference provider. Useful only if operator wants another mixed paid/credit fallback."
+source_urls = ["https://fireworks.ai/"]
+candidate_models = [
+  "accounts/fireworks/models/llama-v3p1-70b-instruct",
+  "accounts/fireworks/models/deepseek-v3",
+  "accounts/fireworks/models/qwen3-coder-480b-a35b-instruct"
+]
+
+[[provider_candidate]]
+id = "together"
+name = "Together AI"
+status = "rejected"
+free_kind = "unknown"
+requires_adapter = false
+base_url = "https://api.together.xyz/v1"
+api_key_env = "TOGETHER_API_KEY"
+access_tier_candidate = "paid_cloud"
+priority = 99
+notes = "Rejected for free-pool expansion because current billing docs state there is no free trial and platform access requires a minimum credit purchase."
+source_urls = ["https://docs.together.ai/docs/billing"]
+candidate_models = []

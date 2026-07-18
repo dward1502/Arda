@@ -1,9 +1,0 @@
-{
-  "generated_at_utc": "2026-04-22T22:04:21Z",
-  "crate": "core",
-  "status": "baseline_only",
-  "crate_path": "crates/arda-core",
-  "src_files": 17,
-  "queue_queued": 0,
-  "autonomy_runtime_mode": "degraded"
-}

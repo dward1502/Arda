@@ -111,7 +111,7 @@ async fn main() -> anyhow::Result<()> {
         .transpose()
         .map_err(|e| anyhow::anyhow!("invalid --harness-addr: {e}"))?;
     let harness_shutdown = Arc::new(tokio::sync::Notify::new());
-    let (_bound, harness_handle) = arda_engine::harness::serve(
+    let (_bound, _harness_handle) = arda_engine::harness::serve(
         harness_addr,
         harness_state,
         harness_shutdown.clone(),

@@ -149,7 +149,7 @@ fn classify_inbound_authority(msg: &InboundMessage) -> serde_json::Value {
     };
 
     serde_json::json!({
-        "schema": "annunimas.hermes.discord.authority.v1",
+        "schema": "arda.hermes.discord.authority.v1",
         "level": level,
         "action_execution_allowed": action_execution_allowed,
         "reason": reason,
@@ -216,7 +216,7 @@ fn append_discord_inbound_runtime(
         .and_then(|content| serde_json::from_str::<serde_json::Value>(&content).ok())
         .unwrap_or_else(|| {
             serde_json::json!({
-                "schema": "annunimas.hermes.discord.runtime.v1",
+                "schema": "arda.hermes.discord.runtime.v1",
                 "last_inbound": null,
                 "last_outbound": null,
                 "inbound_receipts": [],
@@ -226,14 +226,14 @@ fn append_discord_inbound_runtime(
 
     if !state.is_object() {
         state = serde_json::json!({
-            "schema": "annunimas.hermes.discord.runtime.v1",
+            "schema": "arda.hermes.discord.runtime.v1",
             "last_inbound": null,
             "last_outbound": null,
             "inbound_receipts": [],
             "outbound_receipts": [],
         });
     }
-    state["schema"] = serde_json::Value::String("annunimas.hermes.discord.runtime.v1".to_string());
+    state["schema"] = serde_json::Value::String("arda.hermes.discord.runtime.v1".to_string());
     state["last_inbound"] = receipt.clone();
     if !state
         .get("inbound_receipts")

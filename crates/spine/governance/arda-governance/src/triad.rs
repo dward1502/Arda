@@ -673,7 +673,7 @@ pass_threshold = 0.50
     #[test]
     fn repository_default_chain_config_matches_g3_contract() {
         let chain =
-            load_governance_chain_from_str(include_str!("../../../config/governance/chains.toml"))
+            load_governance_chain_from_str(include_str!("../../../../../config/governance/chains.toml"))
                 .expect("repository default governance chain should parse and validate");
         let default_chain = GovernanceChainConfig::default_triad();
 

@@ -139,7 +139,7 @@ mod tests {
         fs::write(
             core_state.join("l3_readiness_projection.json"),
             r#"{
-              "schema_version": "annunimas.l3-readiness-projection.v1",
+              "schema_version": "arda.l3-readiness-projection.v1",
               "status": {
                 "level": "l3_safe_local_harness_proven_projection_only",
                 "bounded_mutation_ready": true,
@@ -400,7 +400,7 @@ mod tests {
         let runtime: serde_json::Value = serde_json::from_str(&runtime).expect("runtime json");
         assert_eq!(
             runtime.get("schema").and_then(|v| v.as_str()),
-            Some("annunimas.hermes.discord.runtime.v1")
+            Some("arda.hermes.discord.runtime.v1")
         );
         assert_eq!(
             runtime
@@ -652,7 +652,7 @@ mod tests {
 
         assert_eq!(
             route.schema_version,
-            "annunimas.hermes.local_council_summary_route.v1"
+            "arda.hermes.local_council_summary_route.v1"
         );
         assert_eq!(route.semantic_channel, "council");
         assert_eq!(route.output_classification, "low_risk_summary");
@@ -832,7 +832,7 @@ mod tests {
 
         assert_eq!(
             projection.schema_version,
-            "annunimas.hermes.arda_hud_projection.v1"
+            "arda.hermes.arda_hud_projection.v1"
         );
         assert_eq!(projection.surface, "arda");
         assert_eq!(projection.semantic_channel, "council");
@@ -880,7 +880,7 @@ mod tests {
 
         assert_eq!(
             contract.schema_version,
-            "annunimas.hermes.arda_hud_projection_contract.v1"
+            "arda.hermes.arda_hud_projection_contract.v1"
         );
         assert_eq!(contract.surface, "arda");
         assert!(contract
@@ -926,7 +926,7 @@ mod tests {
         std::fs::write(
             &source_map_path,
             serde_json::json!({
-                "schema_version": "annunimas.core.state.v1",
+                "schema_version": "arda.core.state.v1",
                 "sections": []
             })
             .to_string(),
@@ -1574,7 +1574,7 @@ mod tests {
 
         assert_eq!(
             event.schema_version,
-            "annunimas.hermes.operating_room_event.v1"
+            "arda.hermes.operating_room_event.v1"
         );
         assert_eq!(event.kind, OperatingRoomEventKind::Status);
         assert_eq!(event.topic, "hermes_discord_operating_room");
@@ -1584,7 +1584,7 @@ mod tests {
 
         let events = fs::read_to_string(dir.path().join("operating_room_events.jsonl"))
             .expect("events read");
-        assert!(events.contains("annunimas.hermes.operating_room_event.v1"));
+        assert!(events.contains("arda.hermes.operating_room_event.v1"));
         assert!(events.contains("core/state/hermes_discord_runtime.json"));
         let outbound =
             fs::read_to_string(dir.path().join("outbound_queue.jsonl")).expect("outbound read");
@@ -1640,7 +1640,7 @@ mod tests {
             )
             .expect("comms event");
 
-        assert_eq!(event.schema_version, "annunimas.hermes.comms_event.v1");
+        assert_eq!(event.schema_version, "arda.hermes.comms_event.v1");
         assert!(event.event_id.starts_with("comms_"));
         assert_eq!(event.semantic_channel, "governance-audit");
         assert_eq!(event.event_type, CommsEventType::Inbound);
@@ -1659,7 +1659,7 @@ mod tests {
             recent[0]
                 .get("schema_version")
                 .and_then(|value| value.as_str()),
-            Some("annunimas.hermes.comms_event.v1")
+            Some("arda.hermes.comms_event.v1")
         );
     }
 
@@ -1696,7 +1696,7 @@ mod tests {
 
         let events =
             fs::read_to_string(dir.path().join("comms_events.jsonl")).expect("comms events read");
-        assert!(events.contains("annunimas.hermes.comms_event.v1"));
+        assert!(events.contains("arda.hermes.comms_event.v1"));
         assert!(!events.contains("ghp_abc123"));
     }
 
@@ -1888,7 +1888,7 @@ mod tests {
 
         assert_eq!(
             packet.schema_version,
-            "annunimas.hermes.boardroom_quorum.v1"
+            "arda.hermes.boardroom_quorum.v1"
         );
         assert_eq!(packet.session_id, "council_gate_36");
         assert_eq!(packet.status, "review_required");
@@ -1906,7 +1906,7 @@ mod tests {
 
         let packets = fs::read_to_string(dir.path().join("boardroom_quorum_packets.jsonl"))
             .expect("packets read");
-        assert!(packets.contains("\"schema_version\":\"annunimas.hermes.boardroom_quorum.v1\""));
+        assert!(packets.contains("\"schema_version\":\"arda.hermes.boardroom_quorum.v1\""));
         assert!(packets.contains("\"status\":\"review_required\""));
         let outbound =
             fs::read_to_string(dir.path().join("outbound_queue.jsonl")).expect("outbound read");
@@ -2135,7 +2135,7 @@ mod tests {
 
         assert_eq!(
             plan.schema_version,
-            "annunimas.hermes.discord_channel_plan.v1"
+            "arda.hermes.discord_channel_plan.v1"
         );
         assert_eq!(plan.mode, "read_only_discovery");
         assert_eq!(plan.guild_id.as_deref(), Some("[REDACTED]"));

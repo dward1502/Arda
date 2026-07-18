@@ -19,7 +19,7 @@
         "core/state/*_merge_registry.json"
       ],
       "forbidden_surfaces": [
-        "core/queue/queue.jsonl",
+        "core/projects/tasks/queue.jsonl",
         "core/projects/tasks/queue.jsonl as live execution demand"
       ],
       "meaning": "Memory is preserved for context and reading only.",
@@ -61,7 +61,7 @@
     {
       "allowed_surfaces": [
         "core/projects/tasks/queue.jsonl",
-        "core/queue/queue.jsonl where appropriate"
+        "core/projects/tasks/queue.jsonl where appropriate"
       ],
       "forbidden_surfaces": [],
       "meaning": "The project has passed intake law, dossier quality, and review posture.",

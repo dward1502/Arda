@@ -1,6 +1,6 @@
 {
   "generated_at_utc": "2026-05-06T03:59:32.373036366Z",
-  "ledger_path": "/var/home/mythos/Annunimas/core/state/ledger/ledger_2026-05-06.jsonl",
+  "ledger_path": "/var/home/mythos/Eregion/Arda/core/state/ledger/ledger_2026-05-06.jsonl",
   "decisions_today": 32,
   "total_joules_today": 1022.0,
   "joules_per_minute_last_60s": 0.0,

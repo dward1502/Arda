@@ -62,7 +62,7 @@ export interface ArdaHudSettings {
   hermes_dashboard_service_base_url: string
 }
 
-export const ARDA_HUD_SETTINGS_RELATIVE_PATH = 'config/arda_hud.settings.json'
+export const ARDA_HUD_SETTINGS_RELATIVE_PATH = 'apps/arda-hud/arda_hud.settings.json'
 
 export const DEFAULT_ARDA_HUD_SETTINGS: ArdaHudSettings = {
   schema_version: 'arda.arda_hud.settings.v1',

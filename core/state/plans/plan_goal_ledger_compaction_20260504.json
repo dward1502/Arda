@@ -12,7 +12,7 @@
       "intent": "archive_older_than",
       "params": {
         "days": 14,
-        "destination": "core/state/ledger/_archive/"
+        "destination": "archive/core_state/ledger/"
       }
     }
   ],

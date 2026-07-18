@@ -215,7 +215,7 @@
         "short-lived execution work",
         "runtime queue observability"
       ],
-      "path": "core/queue/queue.jsonl",
+      "path": "core/projects/tasks/queue.jsonl",
       "role": "ephemeral_runtime_work_packets"
     }
   },

@@ -103,7 +103,6 @@ soterion:
 - `human_corpus_digest_reconciliation.json`
 - `human_corpus_digest_tasks.json`
 - `human_corpus_extraction_registry.json`
-- `human_corpus_groups`
 - `human_corpus_registry.json`
 - `human_corpus_wave.json`
 - `human_document_wave.json`

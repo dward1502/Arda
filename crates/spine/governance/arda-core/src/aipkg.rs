@@ -158,7 +158,7 @@ mod tests {
     fn valid_manifest() -> AipkgManifest {
         AipkgManifest {
             manifest_version: "0.1".into(),
-            package_id: "org.annunimas.demo".into(),
+            package_id: "org.arda.demo".into(),
             version: "0.1.0".into(),
             package_digest:
                 "sha256:1111111111111111111111111111111111111111111111111111111111111111".into(),

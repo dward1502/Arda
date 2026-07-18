@@ -41,7 +41,7 @@ core/
 │   │   ├── queue/                  # queue domain files
 │   │   ├── plans/                  # only active/live plans
 │   │   ├── ledger/                 # ledger data
-│   │   └── reflections/            # ephemeral runtime reflections
+│   │   └── outcomes/               # ephemeral runtime outcome records
 │   ├── knowledge/                  # Tier 3 cool state
 │   │   ├── triage_registry.jsonl
 │   │   ├── source_inventory.jsonl

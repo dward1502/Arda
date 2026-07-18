@@ -21,7 +21,6 @@
       "pipeline_family": "human_corpus_digest",
       "pipeline_id": "human:unclassified",
       "plan_binding": {
-        "group_contract_surface": "core/state/human_corpus_groups/unclassified.json",
         "owner_plan_node": "human/plans/ATHENA.md",
         "plan_id": "unclassified",
         "plan_surface": "core/state/human_corpus_digest_plan.json",
@@ -53,7 +52,6 @@
       "pipeline_family": "human_corpus_digest",
       "pipeline_id": "human:numenor_architecture_contracts",
       "plan_binding": {
-        "group_contract_surface": "core/state/human_corpus_groups/numenor_architecture_contracts.json",
         "owner_plan_node": null,
         "plan_id": "numenor_architecture_contracts",
         "plan_surface": "core/state/human_corpus_digest_plan.json",
@@ -80,7 +78,6 @@
       "pipeline_family": "human_corpus_digest",
       "pipeline_id": "human:agent_framework_comparison",
       "plan_binding": {
-        "group_contract_surface": "core/state/human_corpus_groups/agent_framework_comparison.json",
         "owner_plan_node": "human/plans/PROMETHEUS.md",
         "plan_id": "agent_framework_comparison",
         "plan_surface": "core/state/human_corpus_digest_plan.json",

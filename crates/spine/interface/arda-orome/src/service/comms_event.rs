@@ -21,7 +21,7 @@ impl HermesService {
             Utc::now().timestamp_nanos_opt().unwrap_or_default()
         );
         let event = CommsEvent {
-            schema_version: "annunimas.hermes.comms_event.v1".to_string(),
+            schema_version: "arda.hermes.comms_event.v1".to_string(),
             event_id,
             event_type,
             semantic_channel: resolution.semantic_channel,

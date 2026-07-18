@@ -65,7 +65,7 @@ impl ToolMetadata {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Default)]
 pub struct InvocationEnvelope {
     pub trace_id: Option<String>,
     pub actor: Option<String>,

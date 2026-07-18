@@ -221,7 +221,7 @@ async fn supervise_one(
             .stdout(Stdio::inherit())
             .stderr(Stdio::inherit());
 
-        let mut child = match cmd.spawn() {
+        let child = match cmd.spawn() {
             Ok(c) => c,
             Err(e) => {
                 error!("supervisor: failed to spawn '{}': {e}", svc.name);

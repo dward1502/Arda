@@ -67,7 +67,7 @@
     {
       "classification": "operational_authority",
       "id": "runtime_queue",
-      "path": "core/queue/queue.jsonl",
+      "path": "core/projects/tasks/queue.jsonl",
       "purpose": "active runtime task queue"
     },
     {

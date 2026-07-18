@@ -1,0 +1,41 @@
+# DERIVED VIEW: this file is intake/reference only.
+# Source of truth: config/charon.providers.toml
+
+# sigil: SCROLL
+[contract]
+schema_version = "arda.model.route.v1"
+authority = "sovereign_route_matrix"
+default_inference_origin = "edge"
+
+[weights]
+local = 0.15
+cloud = 0.45
+edge = 0.85
+
+[tiers.code]
+primary_origin = "edge"
+fallback_order = ["edge", "local", "cloud"]
+privacy = "restricted"
+cost = "balanced"
+
+[tiers.research]
+primary_origin = "edge"
+fallback_order = ["edge", "local", "cloud"]
+privacy = "restricted"
+cost = "balanced"
+
+[tiers.chat]
+primary_origin = "edge"
+fallback_order = ["edge", "local", "cloud"]
+privacy = "restricted"
+cost = "balanced"
+
+[providers.edge]
+enabled = true
+allow_as_primary = true
+preferred = ["edge_backbone_coder", "edge_core", "edge_worker_light", "edge_guardhouse"]
+
+[providers.cloud]
+enabled = true
+allow_as_fallback_only = true
+approved = ["cerebras", "groq", "google", "openrouter", "mistral", "nvidia"]

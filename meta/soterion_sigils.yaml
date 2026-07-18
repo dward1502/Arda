@@ -1,0 +1,321 @@
+version: 0.1.0
+status: draft
+updated_at_utc: 2026-03-30T18:01:54Z
+
+principles:
+  - machine_semantics_first
+  - rendered_glyphs_optional
+  - no_hardcoded_runtime_glyph_drift
+  - retention_defined_by_registry
+
+agent_identity:
+  PROMETHEUS:
+    glyph: "🜂"
+    code_point: "U+1F702"
+    role: "forge_fire"
+    description: "compute validation and reasoning primitives"
+  MNEMOSYNE:
+    glyph: "🜄"
+    code_point: "U+1F704"
+    role: "memory_water"
+    description: "persistent memory and context continuity"
+  HERMES:
+    glyph: "🜁"
+    code_point: "U+1F701"
+    role: "messenger_air"
+    description: "communications and message passing"
+  ATHENA:
+    glyph: "🜃"
+    code_point: "U+1F703"
+    role: "library_earth"
+    description: "knowledge ingestion and epistemic review"
+  CHARON:
+    glyph: "☿"
+    code_point: "U+263F"
+    role: "ferry_mercury"
+    description: "routing and delegation authority"
+  WARDEN:
+    glyph: "🜔"
+    code_point: "U+1F714"
+    role: "guardian_sulfur"
+    description: "trust state and boundary monitoring"
+  CRUSTIES:
+    glyph: "🝆"
+    code_point: "U+1F746"
+    role: "covenant_salt"
+    description: "identity covenant and package signing"
+
+state_signals:
+  ACTIVE:
+    glyph: "◆"
+    code_point: "U+25C6"
+    meaning: "operational hot"
+  IDLE:
+    glyph: "◇"
+    code_point: "U+25C7"
+    meaning: "online cold"
+  DEGRADED:
+    glyph: "▽"
+    code_point: "U+25BD"
+    meaning: "partial function"
+  CONSENSUS:
+    glyph: "✦"
+    code_point: "U+2726"
+    meaning: "triad approval reached"
+  VETOED:
+    glyph: "✗"
+    code_point: "U+2717"
+    meaning: "triad blocked"
+  ESCALATION:
+    glyph: "⚠"
+    code_point: "U+26A0"
+    meaning: "human or higher-level review needed"
+  NODE:
+    glyph: "⬡"
+    code_point: "U+2B21"
+    meaning: "mesh node marker"
+  DEAD:
+    glyph: "☠"
+    code_point: "U+2620"
+    meaning: "agent unreachable"
+
+protocol_markers:
+  TRIAD_GATE:
+    glyph: "⚖"
+    code_point: "U+2696"
+  JOULE_WORK:
+    glyph: "⚡"
+    code_point: "U+26A1"
+  LOVE_EQUATION:
+    glyph: "♾"
+    code_point: "U+267E"
+  AIPKG:
+    glyph: "📦"
+    code_point: "U+1F4E6"
+  ED25519:
+    glyph: "🔑"
+    code_point: "U+1F511"
+  REVIEW:
+    glyph: "👁"
+    code_point: "U+1F441"
+  SOTERION:
+    glyph: "🜏"
+    code_point: "U+1F70F"
+
+flow_directives:
+  DELEGATE:
+    glyph: "►"
+    code_point: "U+25BA"
+  RETURN:
+    glyph: "◀"
+    code_point: "U+25C4"
+  SYNC:
+    glyph: "⇌"
+    code_point: "U+21CC"
+  INTERRUPT:
+    glyph: "↯"
+    code_point: "U+21AF"
+  CONCLUDE:
+    glyph: "∴"
+    code_point: "U+2234"
+  MERGE:
+    glyph: "⊕"
+    code_point: "U+2295"
+  REJECT:
+    glyph: "⊗"
+    code_point: "U+2297"
+
+confidence_levels:
+  FULL:
+    glyph: "●"
+    code_point: "U+25CF"
+    min: 1.0
+  HIGH:
+    glyph: "◕"
+    code_point: "U+25D5"
+    min: 0.75
+  MEDIUM:
+    glyph: "◑"
+    code_point: "U+25D1"
+    min: 0.50
+  LOW:
+    glyph: "◔"
+    code_point: "U+25D4"
+    min: 0.25
+  NONE:
+    glyph: "○"
+    code_point: "U+25CB"
+    min: 0.0
+
+file_lifecycle_sigils:
+  ANKH:
+    glyph: "☥"
+    code_point: "U+2625"
+    meaning: "executable continuity; script or operational action surface"
+    retention: keep
+    aliases: ["ANKH"]
+  EYE:
+    glyph: "👁"
+    code_point: "U+1F441"
+    meaning: "observation; review, ingest, or inspection surface"
+    retention: summarize
+    aliases: ["EYE"]
+  SCROLL:
+    glyph: "📜"
+    code_point: "U+1F4DC"
+    meaning: "documentation or reference surface"
+    retention: keep
+    aliases: ["SCROLL"]
+  COIN:
+    glyph: "🪙"
+    code_point: "U+1FA99"
+    meaning: "completed, vacuum candidate, or explicit cleanup/archive targeting marker"
+    retention: vacuum
+    aliases: ["COIN", "U+1FA99"]
+  REPAIR:
+    glyph: "🛠"
+    code_point: "U+1F6E0"
+    meaning: "repair, implementation, or active maintenance surface"
+    retention: keep
+    aliases: ["REPAIR"]
+  ORPHAN_TEMP:
+    glyph: "⌛"
+    code_point: "U+231B"
+    meaning: "temporary orphan under observation"
+    retention: summarize
+    aliases: ["ORPHAN_TEMP"]
+  QUARANTINE:
+    glyph: "⛔"
+    code_point: "U+26D4"
+    meaning: "unsafe or blocked artifact requiring hold"
+    retention: quarantine
+    aliases: ["QUARANTINE"]
+  CONDEMNED:
+    glyph: "☠"
+    code_point: "U+2620"
+    meaning: "approved destructive removal target"
+    retention: vacuum
+    aliases: ["CONDEMNED"]
+  ARCHIVED:
+    glyph: "🗄"
+    code_point: "U+1F5C4"
+    meaning: "archived continuity artifact"
+    retention: summarize
+    aliases: ["ARCHIVED", "ARCHIVE"]
+
+machine_sigils:
+  SG_ROUTE_PRIMARY:
+    id: 0x0101
+    source: charon
+    tags: [routing, primary]
+    severity: low
+    retention: summarize
+    render:
+      agent: CHARON
+      state: ACTIVE
+      flow: DELEGATE
+  SG_ROUTE_FAILOVER:
+    id: 0x0102
+    source: charon
+    tags: [routing, fallback, edge]
+    severity: medium
+    retention: summarize
+    render:
+      agent: CHARON
+      state: DEGRADED
+      flow: DELEGATE
+  SG_ROUTE_EDGE_DOWN:
+    id: 0x0103
+    source: charon
+    tags: [routing, edge, outage]
+    severity: high
+    retention: quarantine
+    render:
+      agent: CHARON
+      state: ESCALATION
+  SG_ROUTE_PROVIDER_COOLDOWN:
+    id: 0x0104
+    source: charon
+    tags: [routing, provider, cooldown]
+    severity: medium
+    retention: summarize
+    render:
+      agent: CHARON
+      state: DEGRADED
+  SG_HERMES_DELIVERY_OK:
+    id: 0x0201
+    source: hermes
+    tags: [delivery, success, outbound]
+    severity: low
+    retention: summarize
+    render:
+      agent: HERMES
+      state: ACTIVE
+      flow: RETURN
+  SG_HERMES_DELIVERY_RETRY:
+    id: 0x0202
+    source: hermes
+    tags: [delivery, retry, outbound]
+    severity: medium
+    retention: summarize
+    render:
+      agent: HERMES
+      state: DEGRADED
+  SG_HERMES_DELIVERY_FAILED:
+    id: 0x0203
+    source: hermes
+    tags: [delivery, failure, quarantine]
+    severity: high
+    retention: quarantine
+    render:
+      agent: HERMES
+      state: ESCALATION
+  SG_HERMES_CLASSIFY_AUTO:
+    id: 0x0204
+    source: hermes
+    tags: [classification, auto]
+    severity: low
+    retention: summarize
+    render:
+      agent: HERMES
+      state: ACTIVE
+  SG_HADES_VACUUM_CANDIDATE:
+    id: 0x0301
+    source: hades
+    tags: [vacuum, cleanup]
+    severity: medium
+    retention: vacuum
+    render:
+      state: DEGRADED
+  SG_HADES_QUARANTINE:
+    id: 0x0302
+    source: hades
+    tags: [quarantine, destructive_guard]
+    severity: high
+    retention: quarantine
+    render:
+      state: ESCALATION
+  SG_MEMORY_EPHEMERAL:
+    id: 0x0401
+    source: mnemosyne
+    tags: [memory, ephemeral]
+    severity: low
+    retention: vacuum
+    render:
+      agent: MNEMOSYNE
+      state: IDLE
+  SG_OPERATOR_OFFSITE:
+    id: 0x0501
+    source: prometheus
+    tags: [operator, remote]
+    severity: medium
+    retention: keep
+    render:
+      state: NODE
+
+regex:
+  agent_glyph: "[\\u{1F700}-\\u{1F77F}\\u{263F}]"
+  state_signal: "[\\u{25A0}-\\u{25FF}\\u{2726}\\u{2717}]"
+  route_directive: "[\\u{25BA}\\u{25C4}\\u{21CC}\\u{21AF}\\u{2234}\\u{2295}\\u{2297}]"
+  confidence_dot: "[\\u{25CF}\\u{25D5}\\u{25D1}\\u{25D4}\\u{25CB}]"
+  protocol_marker: "[\\u{2696}\\u{26A1}\\u{267E}\\u{1F4E6}\\u{1F511}\\u{1F441}]"

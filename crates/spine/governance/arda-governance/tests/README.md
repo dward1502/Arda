@@ -13,7 +13,8 @@ soterion:
 
 # tests
 
-Purpose: HADES-generated directory overview for `crates/annunimas-governance/tests`.
+- Purpose: HADES-generated directory overview for `crates/spine/governance/arda-governance/tests`
+- Verified: `cargo test -p arda-governance --test '*'` passes, all tests compile and pass as of 2026-07-18
 
 ## Contents
 

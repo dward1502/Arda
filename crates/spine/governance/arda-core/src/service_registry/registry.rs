@@ -34,7 +34,7 @@ impl ServiceRegistry {
     pub fn from_snapshot(records: Vec<ServiceRecord>) -> Self {
         let mut registry = Self::new();
         for record in records {
-            registry.upsert_contract(record.contract.clone());
+            let _ = registry.upsert_contract(record.contract.clone());
         }
         registry
     }

@@ -125,7 +125,7 @@ impl HermesService {
             .map(|channel| render_arda_hud_projection_for_channel(&channel, None))
             .collect();
         ArdaHudProjectionContract {
-            schema_version: "annunimas.hermes.arda_hud_projection_contract.v1".to_string(),
+            schema_version: "arda.hermes.arda_hud_projection_contract.v1".to_string(),
             surface: "arda".to_string(),
             risk_class: "low_risk_projection".to_string(),
             source_map_path: arda_source_map_path(),
@@ -152,7 +152,7 @@ impl HermesService {
         append_arda_projection_triage_entries(&triage_registry_path, &contract)?;
 
         Ok(ArdaHudProjectionStateReceipt {
-            schema_version: "annunimas.hermes.arda_hud_projection_state_receipt.v1".to_string(),
+            schema_version: "arda.hermes.arda_hud_projection_state_receipt.v1".to_string(),
             contract_path: contract_path.to_string_lossy().to_string(),
             source_map_path: source_map_path.to_string_lossy().to_string(),
             triage_registry_path: triage_registry_path.to_string_lossy().to_string(),
@@ -185,7 +185,7 @@ impl HermesService {
             None
         };
         DiscordChannelDryRunReceipt {
-            schema_version: "annunimas.hermes.discord_channel_dry_run_receipt.v1".to_string(),
+            schema_version: "arda.hermes.discord_channel_dry_run_receipt.v1".to_string(),
             dry_run: true,
             approved,
             would_create,
@@ -276,7 +276,7 @@ fn discord_channel_plan() -> DiscordChannelPlan {
         .count();
     let missing_channel_count = entries.len().saturating_sub(existing_channel_count);
     DiscordChannelPlan {
-        schema_version: "annunimas.hermes.discord_channel_plan.v1".to_string(),
+        schema_version: "arda.hermes.discord_channel_plan.v1".to_string(),
         mode: "read_only_discovery".to_string(),
         guild_id: redacted_env_value("DISCORD_GUILD_ID"),
         category_id: redacted_env_value("DISCORD_CATEGORY_ID"),
@@ -400,7 +400,7 @@ fn render_arda_hud_projection_for_channel(
         );
     }
     ArdaHudProjection {
-        schema_version: "annunimas.hermes.arda_hud_projection.v1".to_string(),
+        schema_version: "arda.hermes.arda_hud_projection.v1".to_string(),
         surface: "arda".to_string(),
         semantic_channel: channel.name.clone(),
         panel: panel.clone(),
@@ -504,14 +504,14 @@ fn upsert_arda_source_map_projection(
         .and_then(|raw| serde_json::from_str::<serde_json::Value>(&raw).ok());
     let mut source_map = existing_source_map.clone().unwrap_or_else(|| {
         serde_json::json!({
-            "schema_version": "annunimas.core.state.v1",
+            "schema_version": "arda.core.state.v1",
             "sections": []
         })
     });
 
     if !source_map.is_object() {
         source_map = serde_json::json!({
-            "schema_version": "annunimas.core.state.v1",
+            "schema_version": "arda.core.state.v1",
             "sections": []
         });
     }
@@ -521,7 +521,7 @@ fn upsert_arda_source_map_projection(
     })?;
     source_map_object
         .entry("schema_version".to_string())
-        .or_insert_with(|| serde_json::Value::String("annunimas.core.state.v1".to_string()));
+        .or_insert_with(|| serde_json::Value::String("arda.core.state.v1".to_string()));
     let sections_value = source_map_object
         .entry("sections".to_string())
         .or_insert_with(|| serde_json::Value::Array(Vec::new()));
@@ -567,7 +567,7 @@ fn append_arda_projection_triage_entries(
     let observed_at_utc = Utc::now().to_rfc3339();
     for subscription in &contract.subscriptions {
         let entry = serde_json::json!({
-            "schema_version": "annunimas.hermes.arda_projection_triage.v1",
+            "schema_version": "arda.hermes.arda_projection_triage.v1",
             "observed_at_utc": observed_at_utc,
             "source": "annunimas-hermes",
             "state_key": subscription.state_key,

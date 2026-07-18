@@ -67,9 +67,7 @@ Destination: `/var/home/mythos/Eregion/Arda/*`
 ## Suggested transfer order
 
 1. **Docs/metadata first** — low risk: `docs/*`, `meta/*`, `spec/*`, top-level `*.md` except `README.md`/`AGENTS.md`
-2. **Human assets** — `human/*`, `job-search-assets/*`
-3. **Configs** — diff `~/Annunimas/config/` against `Eregion/Arda/config/`; transfer only missing or newer files
-4. **Core state** — do not copy in bulk; diff and transfer only files missing from `Eregion/Arda/core/`
-5. **Scripts** — diff `scripts/` and transfer only missing/updated scripts; retire duplicates
-6. **Tests** — verify CI still runs from `~/Annunimas/tests/`; if Arda has equivalents, archive Annunimas tests
-7. **Data/audit artifacts** — transfer if missing from `Eregion/Arda/data/` and `audit/`
+2. **Configs** — diff `~/Annunimas/config/` against `Eregion/Arda/config/`; transfer only missing or newer files
+3. **Scripts** — diff `scripts/` and transfer only missing/updated scripts; retire duplicates
+4. **Tests** — verify CI still runs from `~/Annunimas/tests/`; if Arda has equivalents, archive Annunimas tests
+5. **Data/audit artifacts** — transfer if missing from `Eregion/Arda/data/` and `audit/`

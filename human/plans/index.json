@@ -1,0 +1,27 @@
+{
+  "authority": "plan_index_export",
+  "core_plan_root": "core/projects/Plans",
+  "generated_at_utc": "2026-06-21T02:52:23Z",
+  "human_plan_root": "human/plans",
+  "plans": [
+    {
+      "core_quick_ref_path": "core/projects/Plans/AIPKG.md",
+      "human_plan_path": "human/plans/AIPKG.md",
+      "id": "aipkg",
+      "open_task_count": 0,
+      "owner": "aipkg",
+      "present": {
+        "core_quick_ref": true,
+        "human_plan": true
+      },
+      "title": "AIPKG Plan Review"
+    }
+  ],
+  "schema_version": "annunimas.plan.index.v1",
+  "summary": {
+    "open_task_total": 0,
+    "plans_total": 1,
+    "plans_with_open_tasks_total": 0
+  },
+  "task_queue_path": "core/projects/tasks/queue.jsonl"
+}

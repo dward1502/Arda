@@ -1,4 +1,5 @@
 // sigil: REPAIR
+use crate::error::Result;
 use serde::{Deserialize, Serialize};
 
 use crate::adaptive::service::types::{

@@ -15,7 +15,7 @@ Owner: arda | Sigil: 📜 SCROLL | Status: active
 ## Summary
 `arda-core` is the foundational governance/data-model crate of the Arda
 agentic OS surface. It owns the canonical contract for tasks, agents,
-routing, state/goals/plans/reflections, an append-only Decision ledger,
+routing, state/goals/plans/outcomes, an append-only Decision ledger,
 LLM provider abstraction, force-capped background execution, learning
 state, governance gates, tooling registry, systemd unit introspection,
 and service-registry types moved into this crate from standalone
@@ -64,7 +64,7 @@ without adding a second direct dependency.
 | `loop_economy.rs` | Leaderboard-style economy snapshot from ledger. |
 | `loop_alerts.rs` | Alert primitives tied to loop telemetry. |
 | `router.rs` | Capability-based agent router over `AgentManifest`/`Agent`. |
-| `state.rs` | `StateRoot` + typed read/write helpers for goals/plans/reflections/memory/queue. |
+| `state.rs` | `StateRoot` + typed read/write helpers for goals/plans/outcomes/memory/queue. |
 | `systemd.rs` | systemd list-units query surface for supervised services. |
 | `task.rs` | `Task`, `TaskStatus`, joule/phased timing/resonance metrics. |
 | `tool.rs` | `ToolRegistry`, `ToolEntry`, sigil/harness classification from `registry.toml`. |

@@ -1,0 +1,90 @@
+{
+  "sigil": "SCROLL",
+  "profile": "annunimas_default",
+  "paths": {
+    "system_snapshot": "core/state/system_snapshot.json",
+    "system_source_map": "core/state/system_source_map.json",
+    "extension_surface_contract": "core/state/extension_surface_contract.json",
+    "extension_activation_backlog": "core/state/extension_activation_backlog.json",
+    "opencode_productization_contract": "core/state/opencode_productization_contract.json",
+    "playwright_mcp_productization_contract": "core/state/playwright_mcp_productization_contract.json",
+    "nanoclaw_productization_contract": "core/state/nanoclaw_productization_contract.json",
+    "communication_adapter_contract": "core/state/communication_adapter_contract.json",
+    "runtime_governor_contract": "core/state/runtime_governor_contract.json",
+    "runtime_budget_policy": "core/state/runtime_budget_policy.json",
+    "edge_model_rollout": "core/state/edge_model_rollout.json",
+    "edge_endpoint_verification": "core/state/edge_endpoint_verification.json",
+    "fleet_power_guard": "core/state/fleet_power_guard.json",
+    "fleet_steward_actions": "core/state/fleet_steward_actions.json",
+    "fleet_steward_write_intents": "core/state/fleet_steward_write_intents.json",
+    "aipkg_marketplace_separation_contract": "core/state/aipkg_marketplace_separation_contract.json",
+    "network_native_node_onboarding_contract": "core/state/network_native_node_onboarding_contract.json",
+    "task_queue": "core/projects/tasks/queue.jsonl",
+    "project_task_queue": "core/projects/tasks/queue.jsonl",
+    "daily_queue": "core/projects/tasks/queue.jsonl",
+    "warden_queue": "data/warden/informant_queue.jsonl",
+    "hades_watch_paths": [
+      "core",
+      "docs",
+      "config"
+    ]
+  },
+  "routing": {
+    "privacy_default": "public",
+    "cost_default": "balanced",
+    "quality_default": "balanced",
+    "origin_default": "auto",
+    "latency_sla_ms": null
+  },
+  "retention": {
+    "hades_queue_days": 14,
+    "hades_log_days": 30,
+    "hades_joulework_days": 30,
+    "hermes_messages_days": 30,
+    "hermes_queue_days": 14,
+    "mnemosyne_compact_days": 180
+  },
+  "pressure": {
+    "max_total_known_work": 120,
+    "max_projects_queue_queued": 20,
+    "max_oversize_count": 0,
+    "max_disk_used_pct": 92,
+    "max_invalid_json": 0,
+    "require_coverage_ok": true
+  },
+  "handoff": {
+    "lookback_hours": 24,
+    "max_p95_ms": 2500,
+    "min_success_rate": 0.95,
+    "max_defer_rate": 0.2,
+    "max_duplicate_rate": 0.25,
+    "max_stuck_intents": 5,
+    "stuck_minutes": 30
+  },
+  "autonomy": {
+    "min_ack_success_rate": 0.95,
+    "max_p95_latency_ms": 2500,
+    "max_queue_stale_minutes": 30,
+    "min_safety_score": 0.65,
+    "require_athena_lookup_before_action": true,
+    "max_athena_lookup_age_minutes": 60,
+    "required_live_sockets": [
+      "{runtime_dir}/athena.sock",
+      "{runtime_dir}/hades.sock",
+      "{runtime_dir}/charon.sock"
+    ],
+    "max_missing_required_sockets": 0
+  },
+  "integrations": {
+    "secret_keys": [
+      "OPENROUTER_API_KEY",
+      "CEREBRAS_API_KEY",
+      "GROQ_API_KEY",
+      "GEMINI_API_KEY",
+      "DISCORD_BOT_TOKEN",
+      "DISCORD_CHANNEL_ID",
+      "SLACK_BOT_TOKEN",
+      "WARDEN_WEBHOOK_URL"
+    ]
+  }
+}

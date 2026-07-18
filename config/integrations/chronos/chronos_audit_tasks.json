@@ -1,0 +1,104 @@
+{
+  "schema_version": "arda.chronos-audit-tasks.v1",
+  "authority": "operator_approved_chronos_schedule",
+  "tasks": [
+    {
+      "id": "chronos_state_feed_freshness_20260530",
+      "name": "Chronos state feed freshness audit",
+      "audit_class": "state_feed_freshness",
+      "scheduled_time_utc": "2026-05-30T00:00:00Z",
+      "cadence": "hourly",
+      "owner": "chronos",
+      "source_surfaces": [
+        "core/state/chronos_runtime.json",
+        "core/state/warden_guardhouse.json",
+        "core/state/athena_runtime.json",
+        "core/state/plutus_runtime.json",
+        "core/state/charon_router.json"
+      ],
+      "write_through": [
+        "core/state/chronos_runtime.json",
+        "data/chronos/audit_receipts.jsonl"
+      ],
+      "read_only": true
+    },
+    {
+      "id": "chronos_runtime_admission_pressure_20260530",
+      "name": "Runtime admission pressure audit",
+      "audit_class": "runtime_admission_pressure",
+      "scheduled_time_utc": "2026-05-30T00:00:00Z",
+      "cadence": "hourly",
+      "owner": "chronos_prometheus",
+      "source_surfaces": [
+        "core/state/runtime_admission_receipts.json",
+        "core/state/runtime_admission_recovery.json",
+        "core/state/runtime_budget_policy.json",
+        "core/state/runtime_admission_pressure.json"
+      ],
+      "write_through": [
+        "core/state/runtime_admission_recovery.json",
+        "data/chronos/audit_receipts.jsonl"
+      ],
+      "read_only": true
+    },
+    {
+      "id": "chronos_governance_receipt_continuity_20260530",
+      "name": "Governance receipt continuity audit",
+      "audit_class": "governance_receipt_continuity",
+      "scheduled_time_utc": "2026-05-30T00:00:00Z",
+      "cadence": "hourly",
+      "owner": "chronos_plutus",
+      "source_surfaces": [
+        "core/state/plutus_runtime.json",
+        "core/projects/tasks/queue.jsonl",
+        "data/plutus/governance_receipts.jsonl",
+        "data/athena/policy_readiness.jsonl",
+        "data/athena/planning_task_receipts.jsonl"
+      ],
+      "write_through": [
+        "core/state/plutus_runtime.json",
+        "data/chronos/audit_receipts.jsonl"
+      ],
+      "read_only": true
+    },
+    {
+      "id": "chronos_fleet_informant_coverage_20260530",
+      "name": "Fleet informant coverage audit",
+      "audit_class": "fleet_informant_coverage",
+      "scheduled_time_utc": "2026-05-30T00:00:00Z",
+      "cadence": "hourly",
+      "owner": "chronos_warden",
+      "source_surfaces": [
+        "core/edge/targets.toml",
+        "data/fleet/informants/raspberrypi-aihat_last.json",
+        "data/fleet/informants/beelink_last.json",
+        "core/state/warden_guardhouse.json"
+      ],
+      "write_through": [
+        "core/state/chronos_runtime.json",
+        "data/chronos/audit_receipts.jsonl"
+      ],
+      "read_only": true
+    },
+    {
+      "id": "chronos_warden_repair_pressure_triage_20260601",
+      "name": "WARDEN repair pressure triage audit",
+      "audit_class": "warden_repair_pressure_triage",
+      "scheduled_time_utc": "2026-06-01T00:00:00Z",
+      "cadence": "hourly",
+      "owner": "chronos_warden",
+      "source_surfaces": [
+        "data/warden/repair_pressure_triage_last.json",
+        "data/warden/informant_queue.jsonl",
+        "core/state/warden_guardhouse.json",
+        "data/fleet/informants/raspberrypi-aihat_last.json",
+        "data/fleet/informants/beelink_last.json"
+      ],
+      "write_through": [
+        "data/warden/repair_pressure_triage_last.json",
+        "data/chronos/audit_receipts.jsonl"
+      ],
+      "read_only": true
+    }
+  ]
+}

@@ -286,15 +286,6 @@ fn default_driver() -> String {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct DefaultFreezeNone;
-
-impl Default for DefaultFreezeNone {
-    fn default() -> Self {
-        Self
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RouteDecision {
     pub provider_id: String,
     pub model_id: String,

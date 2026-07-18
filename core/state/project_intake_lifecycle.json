@@ -3,7 +3,7 @@
   "generated_at_utc": "2026-03-13T04:11:00Z",
   "queue_boundary": {
     "project_task_queue": "core/projects/tasks/queue.jsonl for strategic and project work",
-    "runtime_queue": "core/queue/queue.jsonl for ephemeral operational jobs"
+    "runtime_queue": "core/projects/tasks/queue.jsonl for ephemeral operational jobs"
   },
   "schema_version": "annunimas.project-intake-lifecycle.v1",
   "sigil": "REPAIR",

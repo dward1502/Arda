@@ -2,8 +2,8 @@ use super::council::redact_operating_room_body;
 use super::*;
 use std::collections::BTreeMap;
 
-const TASK_APPROVAL_PROPOSAL_SCHEMA: &str = "annunimas.hermes.task_approval_proposal.v1";
-const TASK_APPROVAL_PACKET_SCHEMA: &str = "annunimas.hermes.task_approval_packet.v1";
+const TASK_APPROVAL_PROPOSAL_SCHEMA: &str = "arda.hermes.task_approval_proposal.v1";
+const TASK_APPROVAL_PACKET_SCHEMA: &str = "arda.hermes.task_approval_packet.v1";
 
 impl HermesService {
     pub fn create_task_approval_proposal(

@@ -1,7 +1,4 @@
 //! Foundational service registry / contract / crate_identity.
-//!
-//! This module was folded into `arda-core` from the standalone
-//! `arda-service-registry` crate, which is now retired.
 
 pub mod contract;
 pub mod crate_identity;

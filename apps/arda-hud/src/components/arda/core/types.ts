@@ -26,7 +26,7 @@ export interface ThemeOption {
   label: string
 }
 
-export type ViewMode = 'boardroom' | 'world' | 'panel'
+export type ViewMode = 'boardroom' | 'world' | 'panel' | 'terminal'
 
 export type OperatingSurfaceNavKey =
   | 'Now'

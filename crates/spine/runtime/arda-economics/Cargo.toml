@@ -4,8 +4,8 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
-arda-core = { path = "../../governance/arda-core" }
-arda-governance = { path = "../../governance/arda-governance" }
+arda-core = { workspace = true }
+arda-governance = { workspace = true }
 serde = { version = "1", features = ["derive"] }
 serde_json.workspace = true
 chrono = { version = "0.4", features = ["serde"] }

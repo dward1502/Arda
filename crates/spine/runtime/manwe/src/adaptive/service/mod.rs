@@ -1,0 +1,39 @@
+// sigil: REPAIR
+//! Adaptive gateway service tree. Feature-gated under `adaptive` both here
+//! and at the crate root.
+
+pub mod adaptive_routing;
+pub mod agent_quotas;
+pub mod bandit;
+pub mod bootstrap_defaults;
+pub mod bootstrap_overlay;
+pub mod bootstrap;
+pub mod bootstrap_runtime;
+pub mod capabilities;
+pub mod catalog_reconciliation;
+pub mod codex_responses_driver;
+pub mod echo_gate;
+pub mod error;
+pub mod event_writer;
+pub mod health_probe;
+pub mod hermes_cli_driver;
+pub mod hermes_proxy_driver;
+pub mod http_clients;
+pub mod metrics;
+pub mod observability;
+pub mod paths;
+pub mod provider_admin;
+pub mod proxy;
+pub mod route_candidate_cache;
+pub mod route_policy;
+pub mod route_policy_tests;
+pub mod route_scoring;
+pub mod route_selection;
+pub mod route_sessions;
+pub mod routing;
+pub mod runtime_state;
+pub mod service_events;
+pub mod state_io;
+pub mod state_mutation;
+pub mod status;
+pub mod types;

@@ -31,10 +31,9 @@ soterion:
 - `hermes_agent_bridge.example.toml`
 - `hermes_agent_bridge.toml`
 - `hermes_agent_gateway_annunimas.example.yaml`
-- `joule_tariffs.toml`
+- `governance/joule_tariffs.toml`
 - `litellm.proxy.yaml`
 - `llm.toml`
-- `llm_model_routes.json`
 - `llm_usage_limits.yaml`
 - `matrix_boardrooms.toml`
 - `model_route_matrix.toml`
@@ -46,7 +45,4 @@ soterion:
 - `runtime.generated.env`
 - `runtime_governor_budget.toml`
 - `selinux_runtime_contract.yaml`
-- `system_constitution.yaml`
 - `systemd`
-- `topology_registry.yaml`
-- `warden.toml`

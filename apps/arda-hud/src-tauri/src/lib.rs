@@ -1,9 +1,10 @@
 // sigil: REPAIR
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 use base64::{engine::general_purpose, Engine as _};
+use portable_pty::CommandBuilder;
 use serde::{Deserialize, Serialize};
 use std::fs;
-use std::io::{Read, Write};
+use std::io::{BufRead, BufReader, Read, Write};
 use std::net::{SocketAddr, TcpStream, ToSocketAddrs};
 use std::path::{Component, Path, PathBuf};
 use std::process::{Child, Command, Output, Stdio};
@@ -17,6 +18,7 @@ use std::time::UNIX_EPOCH;
 use tauri::{
     AppHandle, Emitter, Manager, State, WebviewUrl, WebviewWindowBuilder,
 };
+use tauri::async_runtime::Mutex as AsyncMutex;
 use tauri_plugin_opener::OpenerExt;
 
 const IMAGE_PREVIEW_MAX_BYTES: u64 = 2 * 1024 * 1024;
@@ -2575,9 +2577,86 @@ fn toggle_fullscreen(app: AppHandle, window_label: Option<String>) -> Result<(),
         .map_err(|e| e.to_string())
 }
 
+
+struct AppState {
+    pty_pair: Arc<AsyncMutex<portable_pty::PtyPair>>,
+    writer: Arc<AsyncMutex<Box<dyn Write + Send>>>,
+    reader: Arc<AsyncMutex<Box<dyn BufRead + Send>>>,
+}
+
+#[tauri::command]
+async fn async_create_shell(state: State<'_, AppState>) -> Result<(), String> {
+    state
+        .pty_pair
+        .lock()
+        .await
+        .slave
+        .spawn_command(CommandBuilder::new("bash"))
+        .map_err(|error| error.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+async fn async_write_to_pty(data: &str, state: State<'_, AppState>) -> Result<(), String> {
+    write!(state.writer.lock().await, "{data}").map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+async fn async_read_from_pty(state: State<'_, AppState>) -> Result<Option<String>, String> {
+    let mut reader = state.reader.lock().await;
+    let data = {
+        let data = reader.fill_buf().map_err(|error| error.to_string())?;
+        if data.is_empty() {
+            return Ok(None);
+        }
+        data.to_vec()
+    };
+    let text = String::from_utf8(data.clone())
+        .map_err(|error| error.to_string())?;
+    reader.consume(data.len());
+    Ok(Some(text))
+}
+
+#[tauri::command]
+async fn async_resize_pty(
+    rows: u16,
+    cols: u16,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    state
+        .pty_pair
+        .lock()
+        .await
+        .master
+        .resize(portable_pty::PtySize {
+            rows,
+            cols,
+            pixel_width: 0,
+            pixel_height: 0,
+        })
+        .map_err(|error| error.to_string())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    let pty_system = portable_pty::native_pty_system();
+    let pty_pair = pty_system
+        .openpty(portable_pty::PtySize {
+            rows: 24,
+            cols: 80,
+            pixel_width: 0,
+            pixel_height: 0,
+        })
+        .expect("failed to open pty");
+    let reader = pty_pair.master.try_clone_reader().expect("failed to clone pty reader");
+    let writer = pty_pair.master.take_writer().expect("failed to take pty writer");
+
     tauri::Builder::default()
+        .manage(AppState {
+            pty_pair: Arc::new(AsyncMutex::new(pty_pair)),
+            writer: Arc::new(AsyncMutex::new(writer)),
+            reader: Arc::new(AsyncMutex::new(Box::new(BufReader::new(reader)))),
+        })
         .manage(HudPulseStreamState::default())
         .manage(HermesRuntimeState::default())
         .plugin(tauri_plugin_opener::init())
@@ -2619,6 +2698,10 @@ pub fn run() {
             minimize_window,
             start_dragging,
             toggle_fullscreen,
+            async_create_shell,
+            async_write_to_pty,
+            async_read_from_pty,
+            async_resize_pty,
         ])
         .build(tauri::generate_context!())
         .unwrap_or_else(|error| {

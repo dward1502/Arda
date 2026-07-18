@@ -6,11 +6,11 @@ soterion:
   role: "directory_index"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-13"
+  last_reviewed: "2026-07-17"
 ---
 
 
-> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-13
+> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-17
 
 # Index: crates/executors/INDEX.md
 
@@ -18,7 +18,6 @@ soterion:
 
 - `INDEX.md`
 - `arda-varda`
-- `arda-service-registry`
 
 ## Purpose
 

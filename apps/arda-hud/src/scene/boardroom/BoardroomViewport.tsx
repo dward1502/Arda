@@ -48,6 +48,7 @@ interface BoardroomViewportProps {
   onActivate: (anchorId: string) => void
   onOpenWorkstation: (zoneId: string) => void
   onOpenHermesDashboard: () => void
+  onOpenHermesCli: () => void
   onOpenSettings: () => void
 }
 
@@ -649,11 +650,13 @@ function FleetPreviewSurface({
 function CommandCoreSurface({
   onOpenWorkstation,
   onOpenHermesDashboard,
+  onOpenHermesCli,
   onOpenSettings,
   onEnterWorld,
 }: {
   onOpenWorkstation: (zoneId: string) => void
   onOpenHermesDashboard: () => void
+  onOpenHermesCli: () => void
   onOpenSettings: () => void
   onEnterWorld: () => void
 }) {
@@ -676,7 +679,8 @@ function CommandCoreSurface({
           <button type="button" className="command-core-terminal__button command-core-terminal__button--stop" onClick={() => onOpenWorkstation('governance_guardhouse')}>STOP</button>
           <button type="button" className="command-core-terminal__button" onClick={() => onOpenWorkstation('routing_and_comms')}>ROUTE</button>
           <button type="button" className="command-core-terminal__button" onClick={onOpenHermesDashboard}>HERMES</button>
-          <button type="button" className="command-core-terminal__button" onClick={onEnterWorld}>WORLD</button>
+          <button type="button" className="command-core-terminal__button command-core-terminal__button--cli" onClick={onOpenHermesCli}>CLI</button>
+          <button type="button" className="command-core-terminal__button" onClick={() => onOpenWorkstation('settings')}>WORLD</button>
           <button type="button" className="command-core-terminal__button" onClick={onOpenSettings}>SET</button>
         </div>
       </div>
@@ -701,6 +705,22 @@ function HermesTerminalSurface({ onOpenHermesDashboard }: { onOpenHermesDashboar
         <strong>DASHBOARD TERMINAL</strong>
       </button>
     </Html>
+  )
+}
+
+function HermesCliButtonSurface({ onClick, position, rotation }: { onClick: () => void; position: BoardroomVec3; rotation: BoardroomVec3 }) {
+  return (
+    <group position={position} rotation={rotation}>
+      <mesh position={[0, 0, 0]} onClick={(event) => { event.stopPropagation(); onClick() }}>
+        <boxGeometry args={[0.84, 0.2, 0.34]} />
+        <meshStandardMaterial color="#22d3ee" emissive="#0e7490" emissiveIntensity={0.45} roughness={0.28} metalness={0.35} />
+      </mesh>
+      <Html center distanceFactor={7} position={[0, 0.18, 0]}>
+        <button type="button" className="scene-anchor-label" onClick={(event) => { event.stopPropagation(); onClick() }}>
+          CLI
+        </button>
+      </Html>
+    </group>
   )
 }
 
@@ -775,6 +795,7 @@ function BoardroomScene({
   onActivate,
   onOpenWorkstation,
   onOpenHermesDashboard,
+  onOpenHermesCli,
   onOpenSettings,
 }: Omit<BoardroomViewportProps, 'active'>) {
   const sceneWorkstations = getSceneWorkstations(workstations)
@@ -789,6 +810,7 @@ function BoardroomScene({
     [zonePositionOverrides],
   )
   const hermesButtonZone = withPositionOverride(getBoardroomSpatialZone('boardroom.button.hermes')!, zonePositionOverrides)
+  const hermesCliButtonZone = withPositionOverride(getBoardroomSpatialZone('boardroom.button.hermes_cli')!, zonePositionOverrides)
   const settingsButtonZone = withPositionOverride(getBoardroomSpatialZone('boardroom.control.center')!, zonePositionOverrides)
   const avatarEmitterZone = withPositionOverride(getBoardroomSpatialZone('boardroom.avatar.emitter')!, zonePositionOverrides)
   const worldWindowZone = withPositionOverride(getBoardroomSpatialZone('boardroom.world.window')!, zonePositionOverrides)
@@ -992,6 +1014,12 @@ function BoardroomScene({
           )}
         />
       </InteractionPad>
+
+      <HermesCliButtonSurface
+        onClick={onOpenHermesCli}
+        position={hermesCliButtonZone.position}
+        rotation={hermesCliButtonZone.rotation}
+      />
 
       <AvatarEmitterBase zone={avatarEmitterZone} />
       <PresenceAvatar position={avatarEmitterZone.position} scale={0.82} presenceState={presenceState} />

@@ -18,7 +18,7 @@ soterion:
 
 - `INDEX.md`
 - `manwe`
-- `arda-systemd`
+- `manwe`
 - `arda-mandos`
 - `arda-economics`
 

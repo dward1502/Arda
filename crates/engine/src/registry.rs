@@ -18,7 +18,7 @@ use crate::supervisor::Service;
 /// One entry in `services.toml`.
 #[derive(Debug, Clone, Deserialize)]
 pub struct ServiceSpec {
-    /// Stable identifier (e.g. `"arda-launcher"`, `"uinen"`).
+    /// Stable identifier (e.g. `"arda-launcher"`).
     pub name: String,
     /// Directory candidates (relative to the repo root) to search for the exe.
     #[serde(default)]

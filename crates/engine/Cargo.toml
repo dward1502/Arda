@@ -1,23 +1,17 @@
+# sigil: REPAIR
 [package]
 name = "arda-engine"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-arda-core = { path = "../spine/governance/arda-core" }
-# Core spine — the first set of Arda systems wired into Arda.
-# Add more crates here as the engine's responsibilities grows.
-manwe = { path = "../spine/runtime/manwe" }
-# Process supervision
+arda-core = { workspace = true }
+manwe = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
 anyhow = { workspace = true }
-
-# Service registry (data-driven services.toml)
 serde = { workspace = true }
 toml = { workspace = true }
-
-# Harness tap-in surface (axum HTTP — the single port Hermes connects to)
 axum = { workspace = true }
 serde_json = { workspace = true }
 reqwest = { workspace = true }

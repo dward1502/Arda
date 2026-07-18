@@ -41,7 +41,7 @@ a stable boundary even as routing/auth subsystems are ported incrementally.
 
 - `arda-engine`: supervises the manwe process, uses the crate types for spawn-time wiring.
 - `arda-hud`: operator dashboard reads `/v1/models` from manwe.
-- `arda-launcher`: relies on engine + darowm-side routes that assume manwe at `:7171`.
+- `arda-launcher`: relies on engine + downstream-side routes that assume manwe at `:7171`.
 - workspace registry/contracts: service registry classifies `manwe` as the gateway.
 
 Relevant verified references:
@@ -55,7 +55,7 @@ Relevant verified references:
 ## Reception / known gaps
 
 - current integration: files define a `CharonRemote` and authority trait shims, but these surface runtime `NotImplemented` gaps now; error translation is best-effort
-- adaptive routing: explicitly deferred; there is no quota mesh or runtime rerouting
+- adaptive routing: explicitly deferred; there is no quota mesh or runtime rerouting in the stable root
 - provider catalog is static; governance/governed transport selection is not complete
 - placeholder counters exist in `ProviderCatalog` for migration staging, but real governance sources are not wired yet
 - error path conventions are inconsistent in small places (e.g. `local_placeholder` vs `local` usage, misnamed log line in one branch)

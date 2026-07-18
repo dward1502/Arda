@@ -17,7 +17,7 @@ soterion:
 ## Contents
 
 - `INDEX.md`
-- `arda-aule`
+- `arda-orome`
 
 ## Purpose
 

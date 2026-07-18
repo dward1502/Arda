@@ -9,28 +9,30 @@ members = [
     "crates/spine/interface/arda-orome",
     "crates/spine/observability/arda-aule",
     "apps/arda-launcher/src-tauri",
-    "crates/spine/executors/arda-varda",
-    "crates/spine/executors/arda-service-registry",
     "crates/spine/runtime/arda-economics",
     "crates/spine/runtime/arda-mandos",
     "crates/spine/memory/arda-vaire",
+    "crates/spine/executors/arda-varda",
 ]
+exclude = []
 
 [package]
 name = "arda"
 version = "0.1.0"
 edition = "2021"
+license.workspace = true
+authors.workspace = true
 
 [[bin]]
 name = "arda"
 path = "src/main.rs"
 
 [dependencies]
-arda-engine = { path = "crates/engine" }
-tokio = { version = "1", features = ["full"] }
-clap = { version = "4", features = ["derive"] }
-tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+arda-engine = { workspace = true }
+tokio = { workspace = true }
+clap = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
 anyhow = "1"
 
 [workspace.package]
@@ -54,6 +56,16 @@ async-trait = "0.1"
 serde_yaml = "0.9"
 # Arda crates (formerly annunimas-*) referenced via `workspace = true`
 arda-core = { path = "crates/spine/governance/arda-core" }
+arda-council = { path = "crates/spine/governance/arda-council" }
+arda-governance = { path = "crates/spine/governance/arda-governance" }
+arda-orome = { path = "crates/spine/interface/arda-orome" }
+arda-vaire = { path = "crates/spine/memory/arda-vaire" }
+arda-aule = { path = "crates/spine/observability/arda-aule" }
+arda-economics = { path = "crates/spine/runtime/arda-economics" }
+arda-mandos = { path = "crates/spine/runtime/arda-mandos" }
+manwe = { path = "crates/spine/runtime/manwe" }
+arda-varda = { path = "crates/spine/executors/arda-varda" }
+arda-engine = { path = "crates/engine" }
 tokio = { version = "1", features = ["full"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
@@ -62,6 +74,8 @@ clap = { version = "4", features = ["derive"] }
 futures = "0.3"
 rand = "0.8"
 yaml-rust = "0.4"
+base64 = "0.22"
+fs2 = "0.4"
 # --- manwe gateway ---
 axum = "0.7"
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }

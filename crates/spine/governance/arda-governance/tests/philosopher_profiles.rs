@@ -91,7 +91,7 @@ fn loads_bootstrap_philosopher_profiles_without_enabling_autonomy() {
 #[test]
 fn repository_bootstrap_config_matches_g2_contract() {
     let profiles = load_philosopher_profiles_from_str(include_str!(
-        "../../../config/governance/philosophers.toml"
+        "../../../../../config/governance/philosophers.toml"
     ))
     .expect("repository bootstrap config should parse and validate");
 

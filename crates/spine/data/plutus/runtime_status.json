@@ -7,7 +7,7 @@
     "providers": [],
     "total_spend": 0.0
   },
-  "generated_at_utc": "2026-07-16T14:21:53.045505124+00:00",
+  "generated_at_utc": "2026-07-17T12:35:03.673839660+00:00",
   "governance": {
     "bacon_lite_passed_total": 26,
     "recent_records": [
@@ -34,7 +34,7 @@
             "veto_reason": null
           }
         },
-        "recorded_at_utc": "2026-07-16T14:21:53.044839355+00:00",
+        "recorded_at_utc": "2026-07-17T12:35:03.673187050+00:00",
         "resonance": {
           "ecst_components": {
             "audio_coherence": null,
@@ -63,7 +63,7 @@
           },
           "value": 73.32241790259285
         },
-        "subject": "mnemosyne",
+        "subject": "athena",
         "triad": {
           "aurelius": "Pass",
           "aurelius_score": 0.8999999999999999,
@@ -1743,35 +1743,36 @@
   "joulework": {
     "by_agent": {
       "apollo": 11.2,
+      "athena": 15.133333333333336,
       "charon": 42.0,
-      "mnemosyne": 47.39999999999999
+      "mnemosyne": 62.53333333333333
     },
     "by_source": [
       {
-        "amount": 1.8,
+        "amount": 1.5533333333333332,
         "source": "operator_estimate"
       },
       {
-        "amount": 98.8,
+        "amount": 129.31333333333333,
         "source": "default_fallback"
       }
     ],
     "by_unit": [
       {
-        "amount": 100.6,
+        "amount": 130.86666666666667,
         "unit": "Reasoning"
       }
     ],
     "measurement_metadata": {
       "autonomy_truth_warning": true,
-      "average_confidence": 0.125,
+      "average_confidence": 0.1,
       "default_fallback_autonomy_truth": false,
-      "default_fallback_total": 98.8,
+      "default_fallback_total": 129.31333333333333,
       "observed_total": 0.0
     },
-    "period_end": "2026-07-16T14:21:53.044772104Z",
-    "period_start": "2026-07-16T14:21:53.043916792Z",
-    "total": 100.6
+    "period_end": "2026-07-17T12:35:03.673119559Z",
+    "period_start": "2026-07-17T12:35:03.672247707Z",
+    "total": 130.86666666666667
   },
   "ledger": {
     "accounts": [],
@@ -1782,40 +1783,52 @@
       {
         "agent_a": "openai_shim",
         "agent_b": "local_test",
-        "timestamp": "2026-07-16T14:21:53.043904442Z",
+        "timestamp": "2026-07-17T12:35:03.672244466Z",
+        "value": 0.8320000000000001
+      },
+      {
+        "agent_a": "athena",
+        "agent_b": "knowledge_corpus",
+        "timestamp": "2026-07-17T12:35:03.672245397Z",
+        "value": 0.7816666666666666
+      },
+      {
+        "agent_a": "athena",
+        "agent_b": "google",
+        "timestamp": "2026-07-17T12:35:03.672240196Z",
         "value": 0.8320000000000001
       },
       {
         "agent_a": "apollo",
         "agent_b": "athena",
-        "timestamp": "2026-07-16T14:21:53.043909842Z",
+        "timestamp": "2026-07-17T12:35:03.672243586Z",
         "value": 0.6900999569320966
-      },
-      {
-        "agent_a": "athena",
-        "agent_b": "google",
-        "timestamp": "2026-07-16T14:21:53.043915362Z",
-        "value": 0.8320000000000001
       }
     ],
-    "relationships_total": 3,
+    "relationships_total": 4,
     "top_relationships": [
       {
         "agent_a": "openai_shim",
         "agent_b": "local_test",
-        "timestamp": "2026-07-16T14:21:53.043904442Z",
+        "timestamp": "2026-07-17T12:35:03.672244466Z",
         "value": 0.8320000000000001
       },
       {
         "agent_a": "athena",
         "agent_b": "google",
-        "timestamp": "2026-07-16T14:21:53.043915362Z",
+        "timestamp": "2026-07-17T12:35:03.672240196Z",
         "value": 0.8320000000000001
+      },
+      {
+        "agent_a": "athena",
+        "agent_b": "knowledge_corpus",
+        "timestamp": "2026-07-17T12:35:03.672245397Z",
+        "value": 0.7816666666666666
       },
       {
         "agent_a": "apollo",
         "agent_b": "athena",
-        "timestamp": "2026-07-16T14:21:53.043909842Z",
+        "timestamp": "2026-07-17T12:35:03.672243586Z",
         "value": 0.6900999569320966
       }
     ]

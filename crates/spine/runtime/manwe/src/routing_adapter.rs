@@ -1,39 +1,33 @@
+// sigil: REPAIR
+
 //! Adaptive routing adapter for `manwe`.
 //!
-//! When the `adaptive` feature is enabled, callers may use
-//! [`route_chat_completions()`] to run the ported charon routing logic.
-//! Without `adaptive`, the adapter is a placeholder that returns the input
-//! request unchanged so existing static gateway behavior is preserved.
+//! This surface is always available; default builds expose a stub adapter,
+//! while the `adaptive` feature swaps in the real adaptive implementation.
 
-use anyhow::{anyhow, Result};
+#[cfg(feature = "adaptive")]
+pub use crate::adaptive::routing_adapter::AdaptiveRoutingAdapter;
+
+#[cfg(not(feature = "adaptive"))]
+use anyhow::anyhow;
+#[cfg(not(feature = "adaptive"))]
 use serde_json::Value;
 
-#[derive(Debug, Clone, Default)]
+#[cfg(not(feature = "adaptive"))]
+#[derive(Debug, Clone)]
 pub struct AdaptiveRoutingAdapter {
     _flag: (),
 }
 
+#[cfg(not(feature = "adaptive"))]
 impl AdaptiveRoutingAdapter {
     pub fn new() -> Self {
-        Self::default()
+        Self { _flag: () }
     }
 
-    /// Route an OpenAI-compatible chat request.
-    ///
-    /// * `adaptive` feature: returns a routing decision envelope.
-    /// * default feature: echoes the input payload back unchanged so the
-    ///   gateway can keep using the static upstream path.
-    pub fn route_chat_completions(&self, request: Value) -> Result<Value> {
-        #[cfg(feature = "adaptive")]
-        {
-            let _ = request;
-            Err(anyhow!("adaptive routing adapter not wired yet"))
-        }
-
-        #[cfg(not(feature = "adaptive"))]
-        {
-            let _ = self;
-            Ok(request)
-        }
+    /// Route an OpenAI-compatible chat request and return the complete response.
+    pub fn route_chat_completions(&self, request: Value) -> anyhow::Result<Value> {
+        let _ = request;
+        Err(anyhow!("adaptive routing adapter not wired yet"))
     }
 }

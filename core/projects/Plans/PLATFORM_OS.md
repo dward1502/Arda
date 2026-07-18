@@ -81,7 +81,6 @@ Keep in OS core:
 - arda-hades
 - arda-warden
 - arda-chronos
-- arda-systemd
 - arda-tool-harness
 
 Move out of OS core:

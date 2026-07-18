@@ -13,7 +13,7 @@ soterion:
 
 # src
 
-Purpose: HADES-generated directory overview for `crates/arda-varda/src`.
+Purpose: HADES-generated directory overview for `crates/annunimas-athena/src`.
 
 ## Contents
 

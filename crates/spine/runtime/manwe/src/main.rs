@@ -3,7 +3,7 @@
 //!
 //! Default: listens on `127.0.0.1:7171` and serves `/v1/chat/completions`
 //! + `/v1/models` against a static provider catalog. When `MANWE_ROUTING_MODE=adaptive`
-//! is set, requests may flow through the routing adapter.
+//! or `--adaptive` is set, requests may flow through the routing adapter.
 
 mod config;
 
@@ -33,6 +33,8 @@ struct Cli {
     bind: Option<String>,
     #[arg(long, default_value = "manwe.toml")]
     config: PathBuf,
+    #[arg(long)]
+    adaptive: bool,
 }
 
 #[derive(Clone)]
@@ -40,6 +42,7 @@ struct AppState {
     config: Arc<ManweConfig>,
     client: reqwest::Client,
     adapter: Arc<AdaptiveRoutingAdapter>,
+    adaptive: bool,
 }
 
 #[tokio::main]
@@ -60,10 +63,18 @@ async fn main() -> anyhow::Result<()> {
         cfg.bind = b;
     }
 
+    let adaptive = cli.adaptive
+        || std::env::var("MANWE_ROUTING_MODE")
+            .ok()
+            .as_deref()
+            .map(|v| v.eq_ignore_ascii_case("adaptive"))
+            .unwrap_or(false);
+
     let state = AppState {
         config: Arc::new(cfg.clone()),
         client: reqwest::Client::new(),
         adapter: Arc::new(AdaptiveRoutingAdapter::new()),
+        adaptive,
     };
 
     let app: Router = Router::new()
@@ -77,8 +88,10 @@ async fn main() -> anyhow::Result<()> {
         .map_err(|e| anyhow::anyhow!("invalid bind/port: {e}"))?;
 
     tracing::info!(
-        "manwe: gateway listening on {addr} ({n} providers)",
-        n = cfg.providers.len()
+        "manwe: gateway listening on {} ({} providers, adaptive={})",
+        addr,
+        cfg.providers.len(),
+        adaptive
     );
     let listener = tokio::net::TcpListener::bind(addr).await?;
     axum::serve(listener, app).await?;
@@ -111,17 +124,11 @@ async fn list_models(State(state): State<AppState>) -> Response {
 }
 
 async fn chat_completions(State(state): State<AppState>, Json(req): Json<Value>) -> Response {
-    if state.adapter.route_chat_completions(req.clone()).is_ok() {
-        return (
-            StatusCode::NOT_IMPLEMENTED,
-            Json(json!({
-                "error": {
-                    "message": "adaptive routing not wired yet",
-                    "type": "manwe_error"
-                }
-            })),
-        )
-            .into_response();
+    if state.adaptive {
+        match state.adapter.route_chat_completions(req.clone()) {
+            Ok(adapted) => return fallback_static(state.config, state.client, adapted).await,
+            Err(_) => {}
+        }
     }
 
     fallback_static(state.config, state.client, req).await

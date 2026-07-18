@@ -45,7 +45,7 @@ pub async fn run_ipc_server(store: AthenaStore, socket_path: PathBuf) -> Result<
 }
 
 fn ipc_connection_limit() -> usize {
-    std::env::var("ARDA_VARDA_IPC_MAX_CONCURRENCY")
+    std::env::var("ARDA_ATHENA_IPC_MAX_CONCURRENCY")
         .ok()
         .and_then(|raw| raw.parse::<usize>().ok())
         .filter(|value| *value > 0)
@@ -53,7 +53,7 @@ fn ipc_connection_limit() -> usize {
 }
 
 fn ipc_connect_timeout() -> Duration {
-    let secs = std::env::var("ARDA_VARDA_IPC_CONNECT_TIMEOUT_SECS")
+    let secs = std::env::var("ARDA_ATHENA_IPC_CONNECT_TIMEOUT_SECS")
         .ok()
         .and_then(|raw| raw.parse::<u64>().ok())
         .filter(|value| *value > 0)
@@ -62,7 +62,7 @@ fn ipc_connect_timeout() -> Duration {
 }
 
 fn ipc_idle_timeout() -> Duration {
-    let secs = std::env::var("ARDA_VARDA_IPC_IDLE_TIMEOUT_SECS")
+    let secs = std::env::var("ARDA_ATHENA_IPC_IDLE_TIMEOUT_SECS")
         .ok()
         .and_then(|raw| raw.parse::<u64>().ok())
         .filter(|value| *value > 0)
@@ -73,9 +73,9 @@ fn ipc_idle_timeout() -> Duration {
 fn ipc_io_timeout() -> Duration {
     // Default 120s: ATHENA deep_analyze runs LLM-driven knowledge extraction
     // through Charon's model router, which can take 30-90s on large models.
-    // Override via ARDA_VARDA_IPC_IO_TIMEOUT_SECS for fast-path tools
+    // Override via ARDA_ATHENA_IPC_IO_TIMEOUT_SECS for fast-path tools
     // that need tighter timeouts.
-    let secs = std::env::var("ARDA_VARDA_IPC_IO_TIMEOUT_SECS")
+    let secs = std::env::var("ARDA_ATHENA_IPC_IO_TIMEOUT_SECS")
         .ok()
         .and_then(|raw| raw.parse::<u64>().ok())
         .filter(|value| *value > 0)
@@ -427,7 +427,7 @@ mod tests {
     #[tokio::test]
     async fn ipc_client_connect_times_out_on_dead_socket() {
         let _guard = env_guard();
-        std::env::set_var("ARDA_VARDA_IPC_CONNECT_TIMEOUT_SECS", "1");
+        std::env::set_var("ARDA_ATHENA_IPC_CONNECT_TIMEOUT_SECS", "1");
 
         let dir = tempdir().expect("tempdir");
         let socket_path = dir.path().join("nonexistent.sock");
@@ -451,13 +451,13 @@ mod tests {
             "unexpected error: {msg}"
         );
 
-        std::env::remove_var("ARDA_VARDA_IPC_CONNECT_TIMEOUT_SECS");
+        std::env::remove_var("ARDA_ATHENA_IPC_CONNECT_TIMEOUT_SECS");
     }
 
     #[tokio::test]
     async fn ipc_server_closes_idle_connection() {
         let _guard = env_guard();
-        std::env::set_var("ARDA_VARDA_IPC_IDLE_TIMEOUT_SECS", "1");
+        std::env::set_var("ARDA_ATHENA_IPC_IDLE_TIMEOUT_SECS", "1");
 
         let dir = tempdir().expect("tempdir");
         let store = AthenaStore::new(dir.path()).expect("store");
@@ -467,7 +467,7 @@ mod tests {
             Err(err) => {
                 let msg = err.to_string();
                 if msg.contains("Operation not permitted") || msg.contains("Permission denied") {
-                    std::env::remove_var("ARDA_VARDA_IPC_IDLE_TIMEOUT_SECS");
+                    std::env::remove_var("ARDA_ATHENA_IPC_IDLE_TIMEOUT_SECS");
                     return;
                 }
                 panic!("bind: {err}");
@@ -501,6 +501,6 @@ mod tests {
             "server waited past the idle timeout: {elapsed:?}"
         );
 
-        std::env::remove_var("ARDA_VARDA_IPC_IDLE_TIMEOUT_SECS");
+        std::env::remove_var("ARDA_ATHENA_IPC_IDLE_TIMEOUT_SECS");
     }
 }

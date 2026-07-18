@@ -6,29 +6,16 @@ soterion:
   role: "directory_index"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-13"
+  last_reviewed: "2026-05-21"
 ---
 
+> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-05-21
 
-> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-13
+# Index: crates/annunimas-athena/src
 
-# Index: crates/executors/arda-varda/src/INDEX.md
-
-## Contents
-
-- `INDEX.md`
 - `README.md`
 - `human.rs`
 - `ingest`
 - `ingest.rs`
-- `learning.rs`
 - `lib.rs`
 - `transport`
-
-## Purpose
-
-Crate index for `crates/executors/arda-varda/src/INDEX.md`. See sibling `INDEX.md` for bucket metadata.
-
-## Notes
-
-Normalized from on-disk contents; review cadence is quarterly unless owner changes.

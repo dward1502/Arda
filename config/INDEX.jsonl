@@ -5,11 +5,8 @@
 {"name":"llm_usage_limits.yaml","path":"llm_usage_limits.yaml","type":"file","sigil":"⚡","domain":"operations","purpose":"Usage ceilings and safety limits"}
 {"name":"model_route_matrix.toml","path":"model_route_matrix.toml","type":"file","sigil":"⚡","domain":"operations","purpose":"Sovereign local/edge/cloud route matrix and fallback contract"}
 {"name":"opencode_agent_routes.toml","path":"opencode_agent_routes.toml","type":"file","sigil":"⚡","domain":"operations","purpose":"Mapping of OpenCode agent roles into sovereign CHARON model routing contract"}
-{"name":"warden.toml","path":"warden.toml","type":"file","sigil":"∇","domain":"command","purpose":"Warden monitoring and security configuration"}
 {"name":"ceo_startup.yaml","path":"ceo_startup.yaml","type":"file","sigil":"∇","domain":"command","purpose":"Legacy startup profile compatible with PROMETHEUS/CEO shim"}
-{"name":"topology_registry.yaml","path":"topology_registry.yaml","type":"file","sigil":"⚡","domain":"operations","purpose":"Machine and topology registry"}
-{"name":"system_constitution.yaml","path":"system_constitution.yaml","type":"file","sigil":"♥","domain":"governance","purpose":"High-level constitutional constraints"}
-{"name":"business.toml","path":"business.toml","type":"file","sigil":"♥","domain":"governance","purpose":"Business and operating context"}
+{"domain":"governance","name":"business.toml","path":"business.toml","sigil":"♥","type":"file","purpose":"Business and operating context"}
 {"name":".env","path":".env","type":"file","sigil":"⚡","domain":"operations","purpose":"Environment overrides for local runtime"}
 {"name":"gen_keys.rs","path":"gen_keys.rs","type":"file","sigil":"◈","domain":"knowledge","purpose":"Key generation helper script"}
 {"name":"runtime.env.example","path":"runtime.env.example","type":"file","sigil":"⚡","domain":"operations","purpose":"Canonical runtime env surface for homes, sockets, shared paths, and local model"}

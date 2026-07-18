@@ -2243,6 +2243,16 @@ export default function App() {
     window.open(dashboardUrl, '_blank', 'noopener')
   }
 
+  const handleOpenHermesCli = async () => {
+    try {
+      const { invoke } = await import('@tauri-apps/api/core')
+      await invoke('open_hermes_terminal_window')
+    } catch (error) {
+      console.error('[boardroom] terminal launch failed', error)
+      window.open('http://127.0.0.1:9119', '_blank', 'noopener')
+    }
+  }
+
   const handleHotspotActivate = (hotspotId: string): boolean => {
     if (hotspotId === 'city_window') {
       runSceneTransition('Entering World Mode', 'world')
@@ -2271,6 +2281,11 @@ export default function App() {
 
     if (hotspotId === 'hermes_dashboard') {
       handleOpenHermesDashboard()
+      return true
+    }
+
+    if (hotspotId === 'hermes_cli') {
+      handleOpenHermesCli()
       return true
     }
 
@@ -2445,6 +2460,7 @@ export default function App() {
             onActivate={handleSceneAnchorActivate}
             onOpenWorkstation={spawnFloatingWorkstation}
             onOpenHermesDashboard={handleOpenHermesDashboard}
+            onOpenHermesCli={handleOpenHermesCli}
             onOpenSettings={() => spawnFloatingWorkstation('settings')}
           />
           {floatingWorkstations.length > 0 ? (
@@ -2573,13 +2589,17 @@ export default function App() {
           title={panelModeKey === 'settings' ? 'Settings' : titleForSectionOrPanel(panelModeKey ?? activeSectionId, bundle?.sections ?? [])}
           subtitle="Detailed modules for the active section. Open externally for multi-monitor command flow."
           modules={activePanelModules}
-          activeModuleId={activePanelWorkstationId ? (workstationModuleById[activePanelWorkstationId] ?? null) : null}
+          activeModuleId={activePanelWorkstationId ? (workstationModuleById[activePanelWorkstationId] ?? null) : undefined}
           onActiveModuleChange={activePanelWorkstationId ? (moduleId) => setWorkstationActiveModule(activePanelWorkstationId, moduleId) : undefined}
           onOpenExternal={panelModeKey === 'settings' || panelModeKey === 'hermes_dashboard'
             ? undefined
             : () => openWorkstationWindow(getWorkstationManifestByZoneId(workstationManifests, panelModeKey ?? activeSectionId))}
           onBack={() => runSceneTransition('Returning To Boardroom', 'boardroom')}
         />
+      ) : null}
+      {viewMode === 'terminal' ? (
+        <div style={{ height: '100vh' }}>
+        </div>
       ) : null}
       <SceneTransitionOverlay active={transitionLabel !== null} label={transitionLabel ?? ''} />
     </div>

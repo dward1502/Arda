@@ -3,7 +3,7 @@
 # G2 contract: data-only, human-authored draft profiles. These records do not
 # enable autonomous blocking, generated corpus promotion, or consensus claims.
 
-schema_version = "annunimas.governance.philosopher_profiles.v1"
+schema_version = "arda.governance.philosopher_profiles.v1"
 authority = "human_authored_bootstrap"
 default_maturity = "draft_human_authored"
 autonomous_blocking_enabled = false

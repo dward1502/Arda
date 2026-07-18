@@ -162,7 +162,7 @@ async fn http_timeout_gate(req: Request, next: Next) -> Response {
 }
 
 fn http_request_limit() -> usize {
-    std::env::var("ARDA_VARDA_HTTP_MAX_CONCURRENCY")
+    std::env::var("ARDA_ATHENA_HTTP_MAX_CONCURRENCY")
         .ok()
         .and_then(|raw| raw.parse::<usize>().ok())
         .filter(|value| *value > 0)
@@ -170,7 +170,7 @@ fn http_request_limit() -> usize {
 }
 
 fn http_request_body_limit() -> usize {
-    std::env::var("ARDA_VARDA_HTTP_BODY_LIMIT_BYTES")
+    std::env::var("ARDA_ATHENA_HTTP_BODY_LIMIT_BYTES")
         .ok()
         .and_then(|raw| raw.parse::<usize>().ok())
         .filter(|value| *value > 0)
@@ -178,7 +178,7 @@ fn http_request_body_limit() -> usize {
 }
 
 fn http_request_timeout_seconds() -> u64 {
-    std::env::var("ARDA_VARDA_HTTP_REQUEST_TIMEOUT_SECS")
+    std::env::var("ARDA_ATHENA_HTTP_REQUEST_TIMEOUT_SECS")
         .ok()
         .and_then(|raw| raw.parse::<u64>().ok())
         .filter(|value| *value > 0)
@@ -546,7 +546,7 @@ mod tests {
     async fn http_admission_gate_sheds_excess_burst_requests() {
         let _guard = env_guard();
         let dir = tempdir().expect("tempdir");
-        std::env::set_var("ARDA_VARDA_HTTP_MAX_CONCURRENCY", "1");
+        std::env::set_var("ARDA_ATHENA_HTTP_MAX_CONCURRENCY", "1");
         let store = AthenaStore::new(dir.path()).expect("store");
         let app = build_router(store);
         let (tx, rx) = oneshot::channel::<()>();
@@ -581,14 +581,14 @@ mod tests {
 
         let _ = tx.send(());
         holder.await.expect("holder");
-        std::env::remove_var("ARDA_VARDA_HTTP_MAX_CONCURRENCY");
+        std::env::remove_var("ARDA_ATHENA_HTTP_MAX_CONCURRENCY");
     }
 
     #[tokio::test]
     async fn http_rejects_oversized_request_body() {
         let _guard = env_guard();
         let dir = tempdir().expect("tempdir");
-        std::env::set_var("ARDA_VARDA_HTTP_BODY_LIMIT_BYTES", "256");
+        std::env::set_var("ARDA_ATHENA_HTTP_BODY_LIMIT_BYTES", "256");
         let store = AthenaStore::new(dir.path()).expect("store");
         let app = build_router(store);
 
@@ -608,7 +608,7 @@ mod tests {
             .await
             .expect("oversized dispatch");
         assert_eq!(response.status(), StatusCode::PAYLOAD_TOO_LARGE);
-        std::env::remove_var("ARDA_VARDA_HTTP_BODY_LIMIT_BYTES");
+        std::env::remove_var("ARDA_ATHENA_HTTP_BODY_LIMIT_BYTES");
     }
 
     #[tokio::test]
@@ -618,7 +618,7 @@ mod tests {
         use axum::Router;
 
         let _guard = env_guard();
-        std::env::set_var("ARDA_VARDA_HTTP_REQUEST_TIMEOUT_SECS", "1");
+        std::env::set_var("ARDA_ATHENA_HTTP_REQUEST_TIMEOUT_SECS", "1");
 
         // Test the timeout middleware in isolation around a handler that
         // intentionally outlives the configured timeout.
@@ -656,7 +656,7 @@ mod tests {
             Some(1)
         );
 
-        std::env::remove_var("ARDA_VARDA_HTTP_REQUEST_TIMEOUT_SECS");
+        std::env::remove_var("ARDA_ATHENA_HTTP_REQUEST_TIMEOUT_SECS");
     }
 
     #[tokio::test]
@@ -668,7 +668,7 @@ mod tests {
         let _guard = env_guard();
         // Timeout would fire before the "slow" handler returns, but the
         // middleware must short-circuit the /events path.
-        std::env::set_var("ARDA_VARDA_HTTP_REQUEST_TIMEOUT_SECS", "1");
+        std::env::set_var("ARDA_ATHENA_HTTP_REQUEST_TIMEOUT_SECS", "1");
         let app: Router = Router::new()
             .route(
                 "/events",
@@ -689,7 +689,7 @@ mod tests {
             .await
             .expect("events");
         assert_eq!(response.status(), StatusCode::OK);
-        std::env::remove_var("ARDA_VARDA_HTTP_REQUEST_TIMEOUT_SECS");
+        std::env::remove_var("ARDA_ATHENA_HTTP_REQUEST_TIMEOUT_SECS");
     }
 
     #[test]

@@ -12,9 +12,9 @@ http = ["dep:axum", "dep:tower", "dep:tokio-stream"]
 pageindex = []
 
 [dependencies]
-arda-economics = { path = "../../../../crates/spine/runtime/arda-economics" }
-arda-core = { path = "../../../../crates/spine/governance/arda-core" }
-arda-governance = { path = "../../../../crates/spine/governance/arda-governance" }
+arda-economics = { workspace = true }
+arda-core = { workspace = true }
+arda-governance = { workspace = true }
 serde.workspace = true
 serde_json.workspace = true
 tokio.workspace = true

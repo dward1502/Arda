@@ -117,7 +117,7 @@ struct TariffEntry {
     joules_per_output_token: f64,
 }
 
-/// Per-provider/model joule rates. Loaded from `joule_tariffs.toml`;
+/// Per-provider/model joule rates. Loaded from `config/governance/joule_tariffs.toml`;
 /// a hand-tuned default table is the fallback when no file is given.
 #[derive(Debug, Clone)]
 pub struct TariffTable {
@@ -159,7 +159,7 @@ impl TariffTable {
     }
 
     /// Load a tariff table from a TOML file. See
-    /// `config/joule_tariffs.toml` for the schema. Reload by calling
+    /// `config/governance/joule_tariffs.toml` for the schema. Reload by calling
     /// this again — there's no daemon, the caller decides cadence.
     pub fn load_from_path(path: &Path) -> Result<Self, TariffError> {
         let raw = std::fs::read_to_string(path).map_err(TariffError::Io)?;
@@ -226,7 +226,7 @@ impl EstimatorMeter {
     }
 
     /// Build an estimator from a tariffs TOML at `path`. The file
-    /// schema lives in `config/joule_tariffs.toml`.
+    /// schema lives in `config/governance/joule_tariffs.toml`.
     pub fn load_from_path(path: &Path) -> Result<Self, TariffError> {
         Ok(Self::new(TariffTable::load_from_path(path)?))
     }
@@ -558,16 +558,23 @@ mod tests {
 
     #[test]
     fn shipped_tariffs_file_parses() {
-        // Sanity-check that config/joule_tariffs.toml stays in sync
-        // with the loader. CARGO_MANIFEST_DIR points at the crate.
-        let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("..")
-            .join("..")
-            .join("config")
-            .join("joule_tariffs.toml");
+        // Sanity-check that config/governance/joule_tariffs.toml stays in sync
+        // with the loader. CARGO_MANIFEST_DIR points at the crate, but tests
+        // run from the target/debug/deps/... tree, so search upward for the
+        // repo root.
+        let mut dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let path = loop {
+            let candidate = dir.join("config").join("governance").join("joule_tariffs.toml");
+            if candidate.exists() {
+                break candidate;
+            }
+            if !dir.pop() {
+                panic!("joule_tariffs.toml not found");
+            }
+        };
         let table = TariffTable::load_from_path(&path).expect("ship file parses");
         // Known entry from the file.
-        let (i, o) = table.rates("anthropic", "claude-haiku-4-5");
+        let (i, o) = table.rates("edge_beelink_light", "Qwen_Qwen3.5-4B-Q6_K");
         assert!(i > 0.0 && o > 0.0);
     }
 

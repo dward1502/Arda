@@ -20,7 +20,7 @@ mod extraction;
 mod github;
 mod importers;
 mod index;
-mod interceptor;
+pub mod interceptor;
 mod io;
 mod layout;
 mod metrics;
@@ -1250,7 +1250,7 @@ fn athena_ingest_limit() -> usize {
     #[cfg(not(test))]
     let default = 2;
 
-    std::env::var("ARDA_VARDA_INGEST_MAX_CONCURRENCY")
+    std::env::var("ARDA_ATHENA_INGEST_MAX_CONCURRENCY")
         .ok()
         .and_then(|raw| raw.parse::<usize>().ok())
         .filter(|value| *value > 0)
@@ -1263,7 +1263,7 @@ fn athena_deep_queue_limit() -> usize {
     #[cfg(not(test))]
     let default = 1;
 
-    std::env::var("ARDA_VARDA_DEEP_QUEUE_MAX_CONCURRENCY")
+    std::env::var("ARDA_ATHENA_DEEP_QUEUE_MAX_CONCURRENCY")
         .ok()
         .and_then(|raw| raw.parse::<usize>().ok())
         .filter(|value| *value > 0)
@@ -1276,7 +1276,7 @@ fn athena_crawl_limit() -> usize {
     #[cfg(not(test))]
     let default = 1;
 
-    std::env::var("ARDA_VARDA_CRAWL_MAX_CONCURRENCY")
+    std::env::var("ARDA_ATHENA_CRAWL_MAX_CONCURRENCY")
         .ok()
         .and_then(|raw| raw.parse::<usize>().ok())
         .filter(|value| *value > 0)
@@ -1296,7 +1296,7 @@ mod tests {
         source_id_from_input, AthenaStore, CrawlMarkdownResult,
     };
     use arda_core::try_run_bounded_async;
-    use arda_plutus::PlutusService;
+    use arda_economics::PlutusService;
     use std::fs;
     use std::io::{Read, Write};
     use std::net::TcpListener;
@@ -1387,7 +1387,7 @@ mod tests {
         fs::create_dir_all(root.join("data/knowledge")).expect("knowledge dir");
 
         let previous_root = std::env::var_os("ARDA_ROOT");
-        // SAFETY: warden-owned by `arda-athena` test scaffolding — single-threaded
+        // SAFETY: warden-owned by `annunimas-athena` test scaffolding — single-threaded
         // test process with no concurrent env reader at this point.
         unsafe {
             std::env::set_var("ARDA_ROOT", &root);
@@ -1419,7 +1419,7 @@ mod tests {
         assert_eq!(entry["canonical_home"], "data/athena");
         assert_eq!(entry["soterion"]["glyph"], "🜄");
 
-        // SAFETY: warden-owned by `arda-athena` test scaffolding — single-threaded
+        // SAFETY: warden-owned by `annunimas-athena` test scaffolding — single-threaded
         // test process with no concurrent env reader at this point.
         unsafe {
             if let Some(value) = previous_root {
@@ -1438,7 +1438,7 @@ mod tests {
         fs::create_dir_all(root.join("core/state")).expect("core state dir");
 
         let previous_root = std::env::var_os("ARDA_ROOT");
-        // SAFETY: warden-owned by `arda-athena` test scaffolding — single-threaded
+        // SAFETY: warden-owned by `annunimas-athena` test scaffolding — single-threaded
         // test process with no concurrent env reader at this point.
         unsafe {
             std::env::set_var("ARDA_ROOT", &root);
@@ -1462,7 +1462,7 @@ mod tests {
             );
         }
 
-        // SAFETY: warden-owned by `arda-athena` test scaffolding — single-threaded
+        // SAFETY: warden-owned by `annunimas-athena` test scaffolding — single-threaded
         // test process with no concurrent env reader at this point.
         unsafe {
             if let Some(value) = previous_root {
@@ -1790,7 +1790,7 @@ mod tests {
     #[test]
     fn deep_analysis_recovers_missing_scholarly_metadata_from_ingest_url() {
         let _guard = env_guard();
-        std::env::set_var("ARDA_VARDA_FORCE_OFFLINE_SCHOLARLY_METADATA", "true");
+        std::env::set_var("ARDA_ATHENA_FORCE_OFFLINE_SCHOLARLY_METADATA", "true");
         let dir = tempdir().expect("tempdir");
         let store = AthenaStore::new(dir.path()).expect("store");
         let record = store
@@ -1832,7 +1832,7 @@ mod tests {
         );
         assert!(deep.data.full_summary.contains("context management"));
         assert!(deep.data.implementation_brief.is_some());
-        std::env::remove_var("ARDA_VARDA_FORCE_OFFLINE_SCHOLARLY_METADATA");
+        std::env::remove_var("ARDA_ATHENA_FORCE_OFFLINE_SCHOLARLY_METADATA");
     }
 
     #[test]
@@ -1840,7 +1840,7 @@ mod tests {
         let _guard = env_guard();
         let dir = tempdir().expect("tempdir");
         let queue_path = dir.path().join("queue.jsonl");
-        // SAFETY: warden-owned by `arda-athena` test scaffolding — single-threaded
+        // SAFETY: warden-owned by `annunimas-athena` test scaffolding — single-threaded
         // test process with no concurrent env reader at this point.
         unsafe {
             std::env::set_var("ARDA_PROJECT_TASK_QUEUE_PATH", &queue_path);
@@ -1899,7 +1899,7 @@ mod tests {
         let _guard = env_guard();
         let dir = tempdir().expect("tempdir");
         let queue_path = dir.path().join("queue.jsonl");
-        // SAFETY: warden-owned by `arda-athena` test scaffolding — single-threaded
+        // SAFETY: warden-owned by `annunimas-athena` test scaffolding — single-threaded
         // test process with no concurrent env reader at this point.
         unsafe {
             std::env::set_var("ARDA_PROJECT_TASK_QUEUE_PATH", &queue_path);
@@ -1928,7 +1928,7 @@ mod tests {
         let _guard = env_guard();
         let dir = tempdir().expect("tempdir");
         let plutus_home = dir.path().join("plutus");
-        // SAFETY: warden-owned by `ARDA-athena` test scaffolding — single-threaded
+        // SAFETY: warden-owned by `annunimas-athena` test scaffolding — single-threaded
         // test process with no concurrent env reader at this point.
         unsafe {
             std::env::set_var("ARDA_PLUTUS_HOME", &plutus_home);
@@ -1989,7 +1989,7 @@ mod tests {
                 .unwrap_or_default(),
             0.0
         );
-        // SAFETY: warden-owned by `ARDA-athena` test scaffolding — single-threaded
+        // SAFETY: warden-owned by `annunimas-athena` test scaffolding — single-threaded
         // test process with no concurrent env reader at this point.
         unsafe {
             std::env::remove_var("ARDA_PLUTUS_HOME");
@@ -2081,7 +2081,7 @@ mod tests {
         let dir = tempdir().expect("tempdir");
         let hades_queue = dir.path().join("hades_queue.jsonl");
         let warden_queue = dir.path().join("warden_queue.jsonl");
-        // SAFETY: warden-owned by `ARDA-athena` test scaffolding — single-threaded
+        // SAFETY: warden-owned by `annunimas-athena` test scaffolding — single-threaded
         // test process with no concurrent env reader at this point.
         unsafe {
             std::env::set_var("ARDA_HADES_ACTION_QUEUE_PATH", &hades_queue);
@@ -2101,7 +2101,7 @@ mod tests {
         let warden = fs::read_to_string(warden_queue).expect("warden queue");
         assert!(hades.contains("athena lifecycle event"));
         assert!(warden.contains("athena_deep_"));
-        // SAFETY: warden-owned by `ARDA-athena` test scaffolding — single-threaded
+        // SAFETY: warden-owned by `annunimas-athena` test scaffolding — single-threaded
         // test process with no concurrent env reader at this point.
         unsafe {
             std::env::remove_var("ARDA_HADES_ACTION_QUEUE_PATH");
@@ -2115,7 +2115,7 @@ mod tests {
         let dir = tempdir().expect("tempdir");
         let hades_queue = dir.path().join("hades_queue.jsonl");
         let warden_queue = dir.path().join("warden_queue.jsonl");
-        // SAFETY: warden-owned by `ARDA-athena` test scaffolding — single-threaded
+        // SAFETY: warden-owned by `annunimas-athena` test scaffolding — single-threaded
         // test process with no concurrent env reader at this point.
         unsafe {
             std::env::set_var("ARDA_HADES_ACTION_QUEUE_PATH", &hades_queue);
@@ -2134,7 +2134,7 @@ mod tests {
         let warden = fs::read_to_string(warden_queue).expect("warden queue");
         assert!(digest.contains("deep_queue_backlog_warning"));
         assert!(warden.contains("athena_deep_backlog_warning"));
-        // SAFETY: warden-owned by `ARDA-athena` test scaffolding — single-threaded
+        // SAFETY: warden-owned by `annunimas-athena` test scaffolding — single-threaded
         // test process with no concurrent env reader at this point.
         unsafe {
             std::env::remove_var("ARDA_HADES_ACTION_QUEUE_PATH");
@@ -2147,7 +2147,7 @@ mod tests {
         let _guard = env_guard();
         let dir = tempdir().expect("tempdir");
         let plutus_home = dir.path().join("plutus");
-        // SAFETY: warden-owned by `ARDA-athena` test scaffolding — single-threaded
+        // SAFETY: warden-owned by `annunimas-athena` test scaffolding — single-threaded
         // test process with no concurrent env reader at this point.
         unsafe {
             std::env::set_var("ARDA_PLUTUS_HOME", &plutus_home);
@@ -2193,7 +2193,7 @@ mod tests {
                 .unwrap_or_default(),
             0
         );
-        // SAFETY: warden-owned by `ARDA-athena` test scaffolding — single-threaded
+        // SAFETY: warden-owned by `annunimas-athena` test scaffolding — single-threaded
         // test process with no concurrent env reader at this point.
         unsafe {
             std::env::remove_var("ARDA_PLUTUS_HOME");
@@ -2205,7 +2205,7 @@ mod tests {
         let _guard = env_guard();
         let dir = tempdir().expect("tempdir");
         let plutus_home = dir.path().join("plutus");
-        // SAFETY: warden-owned by `ARDA-athena` test scaffolding — single-threaded
+        // SAFETY: warden-owned by `annunimas-athena` test scaffolding — single-threaded
         // test process with no concurrent env reader at this point.
         unsafe {
             std::env::set_var("ARDA_PLUTUS_HOME", &plutus_home);
@@ -2265,7 +2265,7 @@ mod tests {
                 .unwrap_or_default()
                 >= 1
         );
-        // SAFETY: warden-owned by `ARDA-athena` test scaffolding — single-threaded
+        // SAFETY: warden-owned by `annunimas-athena` test scaffolding — single-threaded
         // test process with no concurrent env reader at this point.
         unsafe {
             std::env::remove_var("ARDA_PLUTUS_HOME");
@@ -2440,13 +2440,13 @@ mod tests {
     #[test]
     fn scrapling_fetch_markdown_supports_raw_html_shim() {
         let _guard = env_guard();
-        // SAFETY: warden-owned by `ARDA-athena` test scaffolding — single-threaded
+        // SAFETY: warden-owned by `annunimas-athena` test scaffolding — single-threaded
         // test process with no concurrent env reader at this point.
         unsafe {
             std::env::remove_var("ARDA_SCRAPLING_RUNTIME_MODE");
         }
         let out = scrapling_fetch_markdown(
-            "raw:<html><body><main><h1>ARDA Scrapling</h1><p>Shim body.</p></main></body></html>",
+            "raw:<html><body><main><h1>Arda Scrapling</h1><p>Shim body.</p></main></body></html>",
             "fit",
             Some("knowledge"),
         )
@@ -2465,13 +2465,13 @@ mod tests {
     #[test]
     fn scrapling_fetch_markdown_fails_when_native_required_without_package() {
         let _guard = env_guard();
-        // SAFETY: warden-owned by `ARDA-athena` test scaffolding — single-threaded
+        // SAFETY: warden-owned by `annunimas-athena` test scaffolding — single-threaded
         // test process with no concurrent env reader at this point.
         unsafe {
             std::env::set_var("ARDA_SCRAPLING_RUNTIME_MODE", "native_required");
         }
         let err = scrapling_fetch_markdown(
-            "raw:<html><body><main><h1>ARDA Scrapling</h1></main></body></html>",
+            "raw:<html><body><main><h1>Arda Scrapling</h1></main></body></html>",
             "fit",
             None,
         )
@@ -2479,7 +2479,7 @@ mod tests {
         assert!(err
             .to_string()
             .contains("native Scrapling runtime required"));
-        // SAFETY: warden-owned by `ARDA-athena` test scaffolding — single-threaded
+        // SAFETY: warden-owned by `annunimas-athena` test scaffolding — single-threaded
         // test process with no concurrent env reader at this point.
         unsafe {
             std::env::remove_var("ARDA_SCRAPLING_RUNTIME_MODE");
@@ -2506,7 +2506,7 @@ mod tests {
     async fn deep_analyze_sheds_excess_burst_work() {
         let _guard = env_guard();
         let dir = tempdir().expect("tempdir");
-        std::env::set_var("ARDA_VARDA_DEEP_QUEUE_MAX_CONCURRENCY", "1");
+        std::env::set_var("ARDA_ATHENA_DEEP_QUEUE_MAX_CONCURRENCY", "1");
         let store = AthenaStore::new(dir.path()).expect("store");
         let record = store
             .ingest("https://example.com/burst-deep", "test", "burst")
@@ -2530,6 +2530,6 @@ mod tests {
 
         let _ = tx.send(());
         holder.await.expect("holder");
-        std::env::remove_var("ARDA_VARDA_DEEP_QUEUE_MAX_CONCURRENCY");
+        std::env::remove_var("ARDA_ATHENA_DEEP_QUEUE_MAX_CONCURRENCY");
     }
 }

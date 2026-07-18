@@ -17,4 +17,4 @@ Shared spine surface for the Arda governance bus.
 
 ## Notes
 `arda-service-registry` functionality is folded into this crate via the
-`service_registry` module; the standalone executor crate is retired.
+`service_registry` module. No separate workspace crate is needed.

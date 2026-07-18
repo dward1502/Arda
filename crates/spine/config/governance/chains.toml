@@ -1,7 +1,8 @@
 schema_version = "arda.governance.chains.v1"
 chain_id = "default_triad"
 chain_version = "heuristic_local_v1"
-profile_source = "config/governance/philosophers.toml"
+# Spine-driven governance chain; delegates profile store to the canonical repo plan root.
+profile_source = "../config/governance/philosophers.toml"
 review_mode = "heuristic_local"
 profile_maturity = "draft_human_authored"
 strict = false

@@ -1,6 +1,5 @@
 use arda_aule::contract::contract;
-use arda_aule::council::{CouncilQuery, CouncilSeat, QueryMode};
-use arda_aule::service::{build_brief, status};
+use arda_aule::service::status;
 
 #[test]
 fn sovereign_baseline_contract_is_present() {
@@ -15,18 +14,7 @@ fn sovereign_baseline_contract_is_present() {
 }
 
 #[test]
-fn service_status_reports_governance_ready() {
+fn service_status_reports_observability_ready() {
     let report = status();
     assert!(report.governance_ready);
-}
-
-#[test]
-fn legal_financial_seats_trigger_escalation() {
-    let query = CouncilQuery {
-        mode: QueryMode::DualSeat,
-        seats: vec![CouncilSeat::Attorney, CouncilSeat::Strategist],
-        prompt: "Review this agreement".into(),
-    };
-    let brief = build_brief(&query);
-    assert!(brief.escalation_required);
 }

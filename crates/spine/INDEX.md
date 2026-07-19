@@ -17,17 +17,20 @@ soterion:
 ## Contents
 
 - `INDEX.md`
-- `executors`
-- `governance`
-- `interface`
-- `memory`
-- `observability`
-- `runtime`
+- `executors/arda-varda`
+- `governance/arda-core`
+- `governance/arda-governance`
+- `interface/arda-orome`
+- `memory/arda-vaire`
+- `observability/arda-aule`
+- `runtime/arda-economics`
+- `runtime/arda-mandos`
+- `runtime/manwe`
 
 ## Purpose
 
-Crate index for `crates/INDEX.md`. See sibling `INDEX.md` for bucket metadata.
+Crate index for `crates/spine/INDEX.md`. See sibling `INDEX.md` for bucket metadata.
 
 ## Notes
 
-Normalized from on-disk contents; review cadence is quarterly unless owner changes.
+Current spine crates compile under `cargo check --workspace`. Rename migration from `annunimas-*` to `arda-*` is reflected in crate names and paths under `crates/spine/`.

@@ -1,104 +1,50 @@
----
-soterion:
-  sigil: "SCROLL"
-  glyph: "📜"
-  code_point: "U+1F4DC"
-  role: "directory_index"
-  owner: "HADES"
-  status: "active"
-  last_reviewed: "2026-07-18"
----
+# INDEX
 
-> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-18
+## Key active docs
 
-# Index: docs
+- `docs/CODEMAP.md`
+- `docs/FILE_TREE.jsonl`
+- `docs/INDEX.md`
+- `docs/operations/INDEX.md`
+- `docs/contracts/ARDA_ECOSYSTEM_STANDARD_INDEX.md`
+- `docs/contracts/arda-ecosystem-standard-track-1-observability.md`
+- `docs/contracts/arda-ecosystem-standard-track-2-governance.md`
+- `docs/contracts/arda-ecosystem-standard-track-3-agent-runtime-tooling.md`
+- `docs/contracts/arda-ecosystem-standard-track-4-evaluation-learning.md`
 
-- `FIELD_NOTES.md`
-- `GROK_CONVERSATIONS.md`
-- `STRATEGIC_ASSESSMENT.md`
-- `TRACT_INDEX.json`
-- `VAIRE_MNEMOSYNE_RECONCEPTUALIZATION.md`
-- `archive/ARDA_VARDA_ATHENA_REINTEGRATION_PLAN.md`
-- `archive/ARDA_VARDA_ATHENA_REINTEGRATION_PLAN_V2.md`
-- `archive/ARDA_VARDA_ROLE_ANALYSIS.md`
-- `archive/REFACTOR_PLAN.md`
-- `archive/arda-varda-tests/INDEX.md.archived-2026-07-16`
-- `archive/arda-varda-tests/README.md.archived-2026-07-16`
-- `archive/arda-varda-tests/ingest.rs.archived-2026-07-16`
-- `archive/arda-varda-tests/learning_contract_test.rs.archived-2026-07-16`
-- `archive/arda-varda-tests/local_harness.rs.archived-2026-07-16`
-- `archive/charon-manwe-migration-phases.md`
-- `archive/charon-manwe-migration.md`
-- `archive/extracted-executor-crates/arda-human.archived-2026-07-17/Cargo.toml`
-- `archive/extracted-executor-crates/arda-human.archived-2026-07-17/src/lib.rs`
-- `archive/extracted-executor-crates/arda-human.archived-2026-07-17/tests/canary.rs`
-- `archive/extracted-executor-crates/arda-learning.archived-2026-07-17/Cargo.toml`
-- `archive/extracted-executor-crates/arda-learning.archived-2026-07-17/src/lib.rs`
-- `archive/extracted-executor-crates/arda-learning.archived-2026-07-17/tests/canary.rs`
-- `archive/extracted-executor-crates/arda-service-registry.archived-2026-07-17/Cargo.toml`
-- `archive/extracted-executor-crates/arda-service-registry.archived-2026-07-17/INDEX.md`
-- `archive/extracted-executor-crates/arda-service-registry.archived-2026-07-17/README.md`
-- `archive/extracted-executor-crates/arda-service-registry.archived-2026-07-17/src/INDEX.md`
-- `archive/extracted-executor-crates/arda-service-registry.archived-2026-07-17/src/README.md`
-- `archive/extracted-executor-crates/arda-service-registry.archived-2026-07-17/src/contract.rs`
-- `archive/extracted-executor-crates/arda-service-registry.archived-2026-07-17/src/lib.rs`
-- `archive/extracted-executor-crates/arda-service-registry.archived-2026-07-17/src/registry.rs`
-- `archive/extracted-executor-crates/arda-service-registry.archived-2026-07-17/src/service.rs`
-- `archive/extracted-executor-crates/arda-service-registry.archived-2026-07-17/src/test_support.rs`
-- `archive/extracted-executor-crates/arda-service-registry.archived-2026-07-17/tests/INDEX.md`
-- `archive/extracted-executor-crates/arda-service-registry.archived-2026-07-17/tests/README.md`
-- `archive/extracted-executor-crates/arda-service-registry.archived-2026-07-17/tests/canary.rs`
-- `archive/extracted-executor-crates/arda-service-registry.archived-2026-07-17/tests/contract_smoke.rs`
-- `archive/extracted-executor-crates/arda-transport.archived-2026-07-17/Cargo.toml`
-- `archive/extracted-executor-crates/arda-transport.archived-2026-07-17/src/config.rs`
-- `archive/extracted-executor-crates/arda-transport.archived-2026-07-17/src/error.rs`
-- `archive/extracted-executor-crates/arda-transport.archived-2026-07-17/src/home.rs`
-- `archive/extracted-executor-crates/arda-transport.archived-2026-07-17/src/lib.rs`
-- `archive/extracted-executor-crates/arda-transport.archived-2026-07-17/tests/canary.rs`
+## Archive
+
 - `archive/spine-tooling-00-index.md`
 - `archive/spine-tooling-01-disposition-matrix.md`
 - `archive/spine-tooling-02-focus-deep-dives.md`
 - `archive/spine-tooling-03-execution-batches.md`
 - `archive/spine-tooling-04-crate-audit.md`
+
+## Contracts
+
 - `contracts/ARDA_ECOSYSTEM_STANDARD_INDEX.md`
 - `contracts/arda-ecosystem-standard-track-1-observability.md`
 - `contracts/arda-ecosystem-standard-track-2-governance.md`
 - `contracts/arda-ecosystem-standard-track-3-agent-runtime-tooling.md`
 - `contracts/arda-ecosystem-standard-track-4-evaluation-learning.md`
+
+## Plans
+
+- `plans/INDEX.md`
+- `plans/README.md`
+- `plans/AGENT_FRAMEWORK_COMPARATIVE.md`
+- `plans/AIPKG.md`
+- `plans/ATHENA.md`
+- `plans/CHARON.md`
+- `plans/EMBODIED_INTERFACE.md`
+- `plans/FEDERATED_COMMS.md`
+- `plans/HADES.md`
+- `plans/HERMES.md`
+- `plans/LEGION_HIERARCHY.md`
+- `plans/MNEMOSYNE.md`
+- `plans/OPENFANG.md`
+- `plans/PLATFORM_OS.md`
+- `plans/PROMETHEUS.md`
 - `plans/VAIRE_IMPLEMENTATION_PLAN.md`
 - `plans/hud-incremental-build.md`
-- `plans/projects/INDEX.md`
-- `plans/projects/Plans/AGENT_FRAMEWORK_COMPARATIVE.md`
-- `plans/projects/Plans/AIPKG.md`
-- `plans/projects/Plans/ATHENA.md`
-- `plans/projects/Plans/CHARON.md`
-- `plans/projects/Plans/EMBODIED_INTERFACE.md`
-- `plans/projects/Plans/FEDERATED_COMMS.md`
-- `plans/projects/Plans/HADES.md`
-- `plans/projects/Plans/HERMES.md`
-- `plans/projects/Plans/INDEX.md`
-- `plans/projects/Plans/LEGION_HIERARCHY.md`
-- `plans/projects/Plans/MNEMOSYNE.md`
-- `plans/projects/Plans/OPENFANG.md`
-- `plans/projects/Plans/PLATFORM_OS.md`
-- `plans/projects/Plans/PROMETHEUS.md`
-- `plans/projects/Plans/README.md`
-- `plans/projects/README.md`
-- `plans/projects/_registry.toml`
-- `plans/projects/backlog_post_v01.jsonl`
-- `plans/projects/plan.md`
-- `plans/projects/tasks/INDEX.md`
-- `plans/projects/tasks/README.md`
-- `plans/projects/tasks/completion_record.json`
-- `plans/projects/tasks/human_gate_requests.jsonl`
-- `plans/projects/tasks/learning_loop_v1/ARDA_OPERATOR_SURFACE_IMPLEMENTATION_SUMMARY.md`
-- `plans/projects/tasks/learning_loop_v1/arda_operator_surface_demo.py`
-- `plans/projects/tasks/learning_loop_v1/chronos_runner_demo.py`
-- `plans/projects/tasks/learning_loop_v1/e2e_validation_demo.py`
-- `plans/projects/tasks/learning_loop_v1/hades_lifecycle_packet_demo.py`
-- `plans/projects/tasks/learning_loop_v1/mnemosyne_memory_bridge_demo.py`
-- `plans/projects/tasks/learning_loop_v1/oracle_warden_gate_demo.py`
-- `plans/projects/tasks/learning_loop_v1/oracle_warden_gate_production.py`
-- `plans/projects/tasks/learning_loop_v1/prometheus_task_proposals_demo.py`
-- `plans/projects/tasks/queue.jsonl`
 - `plans/substrate-build-plan.md`

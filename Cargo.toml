@@ -4,7 +4,6 @@ members = [
     "crates/engine",
     "crates/spine/runtime/manwe",
     "crates/spine/governance/arda-core",
-    "crates/spine/governance/arda-council",
     "crates/spine/governance/arda-governance",
     "crates/spine/interface/arda-orome",
     "crates/spine/observability/arda-aule",
@@ -56,7 +55,6 @@ async-trait = "0.1"
 serde_yaml = "0.9"
 # Arda crates (formerly annunimas-*) referenced via `workspace = true`
 arda-core = { path = "crates/spine/governance/arda-core" }
-arda-council = { path = "crates/spine/governance/arda-council" }
 arda-governance = { path = "crates/spine/governance/arda-governance" }
 arda-orome = { path = "crates/spine/interface/arda-orome" }
 arda-vaire = { path = "crates/spine/memory/arda-vaire" }

@@ -1,4 +1,3 @@
-{"path": "core/BREAKDOWN.md", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "core surface"}
 {"path": "core/knowledge/clients/_registry.toml", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "knowledge clients/edge metrics"}
 {"path": "core/knowledge/edge/model_profiles.toml", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "knowledge clients/edge metrics"}
 {"path": "core/knowledge/edge/targets.example.toml", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "knowledge clients/edge metrics"}

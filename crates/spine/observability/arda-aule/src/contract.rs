@@ -1,24 +1,11 @@
 // sigil: ANKH
-//! Blueprint contract definition for the Arda Council agent.
-//!
-//! Defines the governance and continuity baselines that all new sovereign
-//! agents must implement to ensure consistency across the system.
-//!
-//! # Example
-//! ```rust
-//! use arda_aule::contract::{contract, ArdaCouncilContract};
-//!
-//! let c: ArdaCouncilContract = contract();
-//! assert_eq!(c.realm, "command");
-//! assert!(c.productizable);
-//! assert_eq!(c.state_export_path, "core/state/arda-aule.json");
-//! ```
+//! Observability contract definition for the Arda observability home crate.
 
 use serde::Serialize;
 
 /// The contract that defines required governance and continuity baselines.
 #[derive(Debug, Clone, Serialize)]
-pub struct ArdaCouncilContract {
+pub struct ArdaAuleContract {
     pub crate_name: &'static str,
     pub realm: &'static str,
     pub productizable: bool,
@@ -27,7 +14,7 @@ pub struct ArdaCouncilContract {
     pub continuity: ContinuityBaseline,
 }
 
-/// Governance requirements that must be satisfied by any sovereign agent.
+/// Governance requirements that must be satisfied by observability surfaces.
 #[derive(Debug, Clone, Serialize)]
 pub struct GovernanceBaseline {
     pub triad_required: bool,
@@ -45,11 +32,11 @@ pub struct ContinuityBaseline {
     pub arda_visibility_defined: bool,
 }
 
-/// Returns the canonical contract for the Arda Council blueprint.
-pub fn contract() -> ArdaCouncilContract {
-    ArdaCouncilContract {
+/// Returns the canonical contract for the Arda observability crate.
+pub fn contract() -> ArdaAuleContract {
+    ArdaAuleContract {
         crate_name: "arda-aule",
-        realm: "command",
+        realm: "observability",
         productizable: true,
         state_export_path: "core/state/arda-aule.json",
         governance: GovernanceBaseline {

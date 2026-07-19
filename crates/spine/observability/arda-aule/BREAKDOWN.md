@@ -78,18 +78,16 @@ and on sibling `annunimas-*` crates, not on `arda-*` crates.
    `~/Annunimas/crates/annunimas-*` sources under
    `crates/spine/observability/arda-aule/`, then rewrite their deps from
    `annunimas-*` to `arda-*` equivalents
-2. **Create arda-* aliases**: add `arda-prometheus`, `arda-ceo`, `arda-cli`
-   crates that re-export from `arda-aule` to preserve CLI command paths
-3. **Retire annunimas-* naming in Arda**: replace all `annunimas-*` crate
+2. **Retire annunimas-* naming in Arda**: replace all `annunimas-*` crate
    references with `arda-*` equivalents to align with active tree
-4. **Keep council blueprint minimal**: once the real observability code
+3. **Keep council blueprint minimal**: once the real observability code
    moves in, reduce or remove the council copy; re-export from
    `arda-council` instead
-5. **Fix stale docs**: generate real `INDEX.md`/`README.md` for `arda-aule`
+4. **Fix stale docs**: generate real `INDEX.md`/`README.md` for `arda-aule`
    describing its actual contents after migration
-6. **Update core/state contracts**: `business_intelligence_suite_contract.json`
+5. **Update core/state contracts**: `business_intelligence_suite_contract.json`
    already points to `arda-aule`; ensure it matches the migrated surface
-7. **Wire CLI commands into engine/HUD**: make `annunimas-cli` commands
+6. **Wire CLI commands into engine/HUD**: make `annunimas-cli` commands
    accessible via engine API or Tauri launcher
-8. **Add workspace-level tests**: once migrated, add integration tests
+7. **Add workspace-level tests**: once migrated, add integration tests
    proving prometheus pipeline runs end-to-end from Arda workspace

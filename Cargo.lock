@@ -113,9 +113,42 @@ dependencies = [
 name = "arda-aule"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
+ "arda-core",
+ "arda-economics",
+ "arda-governance",
+ "arda-mandos",
+ "arda-orome",
+ "arda-vaire",
+ "arda-varda",
+ "async-trait",
+ "axum",
+ "base64 0.22.1",
  "chrono",
+ "clap",
+ "dotenv",
+ "fs2",
+ "futures",
+ "manwe",
+ "notify",
+ "once_cell",
+ "phf 0.11.3",
+ "prometheus",
+ "rand 0.8.7",
+ "regex",
+ "reqwest 0.12.28",
  "serde",
  "serde_json",
+ "sha2",
+ "tempfile",
+ "thiserror 1.0.69",
+ "tokio",
+ "tokio-stream",
+ "toml 0.8.2",
+ "tower",
+ "tracing",
+ "tracing-subscriber",
+ "uuid",
 ]
 
 [[package]]
@@ -140,13 +173,6 @@ dependencies = [
  "tracing",
  "uuid",
  "yaml-rust",
-]
-
-[[package]]
-name = "arda-council"
-version = "0.1.0"
-dependencies = [
- "serde",
 ]
 
 [[package]]
@@ -1199,6 +1225,12 @@ dependencies = [
  "selectors",
  "tendril",
 ]
+
+[[package]]
+name = "dotenv"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "77c90badedccf4105eca100756a0b1289e191f6fcbdadd3cee1d2f614f97da8f"
 
 [[package]]
 name = "dpi"
@@ -3298,6 +3330,27 @@ checksum = "8fd00f0bb2e90d81d1044c2b32617f68fcb9fa3bb7640c23e9c748e53fb30934"
 dependencies = [
  "unicode-ident",
 ]
+
+[[package]]
+name = "prometheus"
+version = "0.13.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3d33c28a30771f7f96db69893f78b857f7450d7e0237e9c8fc6427a81bae7ed1"
+dependencies = [
+ "cfg-if",
+ "fnv",
+ "lazy_static",
+ "memchr",
+ "parking_lot",
+ "protobuf",
+ "thiserror 1.0.69",
+]
+
+[[package]]
+name = "protobuf"
+version = "2.28.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "106dd99e98437432fed6519dedecfade6a06a73bb7b2a1e019fdd2bee5778d94"
 
 [[package]]
 name = "quick-xml"

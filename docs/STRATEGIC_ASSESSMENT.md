@@ -9,7 +9,7 @@ soterion:
   last_reviewed: "2026-07-17"
 ---
 
-# Strategic Assessment: Arda / Annunimas
+# Strategic Assessment: Arda 
 
 Source: Grok conversation analysis, 2026-07-17
 

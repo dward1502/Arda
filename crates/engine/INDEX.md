@@ -29,6 +29,6 @@ HUD, `manwe` gateway) and keeps them alive.
 ## Silmarillion rename
 Stays `arda-engine` (Arda-native, not an annunimas import).
 
-## TODO
-- Rename aliased crates (`annunimas_*` -> Arda-native names) once the
-  targeted crate scope is decided; keep `arda_engine` stable until then.
+## Current status
+- Part of the verified `arda-*` workspace.
+- Used by the `arda` daemon at `src/main.rs` for boot, service resolution, and harness serving.

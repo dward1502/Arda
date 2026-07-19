@@ -1,165 +1,20 @@
-# Soterion: 📜 joulework_configuration | owner: HADES | status: active | reviewed: 2026-07-17
-# Sigil: SCROLL (U+1F4DC); purpose: repository-visible governed configuration.
-
-# Per-provider/model joule tariffs for the EstimatorMeter.
-#
-# Numbers are order-of-magnitude estimates derived from public
-# datacenter PUE figures and per-token energy reports. They are
-# DELIBERATELY rough — the goal is to give the loop a non-zero
-# signal it can use for budget arithmetic and bid selection.
-#
-# Refresh by editing this file; the loader picks up changes via
-# TariffTable::reload_from_path(). No redeploy needed.
-#
-# Schema:
-#   [defaults]               # used when no [[entries]] match
-#   joules_per_input_token  = <f64>
-#   joules_per_output_token = <f64>
-#
-#   [[entries]]
-#   provider = "<name>"
-#   model    = "<name>"
-#   joules_per_input_token  = <f64>
-#   joules_per_output_token = <f64>
+# Arda-plutus shipped joule tariff table.
+# Schema (see TariffFile in crates/spine/runtime/arda-plutus/src/meter.rs):
+#   [defaults]
+#   joules_per_input_token = f64
+#   joules_per_output_token = f64
+#   [[entries]]   (optional; one per provider/model override)
+#   provider = "..."
+#   model = "..."
+#   joules_per_input_token = f64
+#   joules_per_output_token = f64
 
 [defaults]
 joules_per_input_token = 0.02
 joules_per_output_token = 0.06
 
 [[entries]]
-provider = "local"
-model = "llama3-8b"
-joules_per_input_token = 0.001
-joules_per_output_token = 0.003
-
-[[entries]]
-provider = "edge_beelink_light"
-model = "Qwen_Qwen3.5-4B-Q6_K"
-joules_per_input_token = 0.002
-joules_per_output_token = 0.006
-
-[[entries]]
-provider = "edge_core"
-model = "LFM2.5-8B-A1B-Q4_K_M"
-joules_per_input_token = 0.003
-joules_per_output_token = 0.009
-
-[[entries]]
-provider = "edge_backbone"
-model = "lfm2.5-8b-a1b-q4km"
-joules_per_input_token = 0.003
-joules_per_output_token = 0.009
-
-[[entries]]
-provider = "edge_backbone_coder"
-model = "gemma4-12b-coder-q4km"
-joules_per_input_token = 0.004
-joules_per_output_token = 0.012
-
-[[entries]]
-provider = "edge_backbone_vision"
-model = "Qwen2.5-VL-7B-Instruct"
-joules_per_input_token = 0.004
-joules_per_output_token = 0.012
-
-[[entries]]
-provider = "openrouter"
-model = "openrouter/auto"
-joules_per_input_token = 0.015
-joules_per_output_token = 0.045
-
-[[entries]]
-provider = "litellm_gateway"
-model = "litellm-router"
-joules_per_input_token = 0.02
-joules_per_output_token = 0.06
-
-[[entries]]
-provider = "openai_sub"
-model = "gpt-5.5"
-joules_per_input_token = 0.025
-joules_per_output_token = 0.075
-
-[[entries]]
 provider = "anthropic"
 model = "claude-haiku-4-5"
 joules_per_input_token = 0.005
 joules_per_output_token = 0.015
-
-[[entries]]
-provider = "anthropic"
-model = "claude-sonnet-4-6"
-joules_per_input_token = 0.02
-joules_per_output_token = 0.06
-
-[[entries]]
-provider = "anthropic"
-model = "claude-opus-4-7"
-joules_per_input_token = 0.05
-joules_per_output_token = 0.15
-
-[[entries]]
-provider = "openai"
-model = "gpt-4o-mini"
-joules_per_input_token = 0.008
-joules_per_output_token = 0.024
-
-[[entries]]
-provider = "openai"
-model = "gpt-4o"
-joules_per_input_token = 0.03
-joules_per_output_token = 0.09
-
-[[entries]]
-provider = "cerebras"
-model = "qwen-3-235b-a22b-instruct-2507"
-joules_per_input_token = 0.04
-joules_per_output_token = 0.12
-
-[[entries]]
-provider = "mistral"
-model = "mistral-small-latest"
-joules_per_input_token = 0.018
-joules_per_output_token = 0.054
-
-[[entries]]
-provider = "nvidia"
-model = "openai/gpt-oss-20b"
-joules_per_input_token = 0.012
-joules_per_output_token = 0.036
-
-[[entries]]
-provider = "google"
-model = "gemini-2.0-flash"
-joules_per_input_token = 0.016
-joules_per_output_token = 0.048
-
-[[entries]]
-provider = "google"
-model = "gemini-2.5-flash"
-joules_per_input_token = 0.016
-joules_per_output_token = 0.048
-
-[[entries]]
-provider = "zai"
-model = "glm-5.1"
-joules_per_input_token = 0.014
-joules_per_output_token = 0.042
-
-[[entries]]
-provider = "local"
-model = "llama3.1-8b"
-joules_per_input_token = 0.001
-joules_per_output_token = 0.003
-
-[[entries]]
-provider = "minimax"
-model = "MiniMax-M2.7"
-joules_per_input_token = 0.017
-joules_per_output_token = 0.051
-
-[[entries]]
-provider = "kimi"
-model = "kimi-k2.6"
-joules_per_input_token = 0.019
-joules_per_output_token = 0.057

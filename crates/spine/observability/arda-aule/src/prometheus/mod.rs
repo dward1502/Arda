@@ -1,0 +1,14 @@
+#![cfg(feature = "full-cli")]
+pub mod autopilot;
+pub mod core_link;
+pub mod council;
+pub mod error;
+pub mod heartbeat;
+pub mod orders;
+pub mod pipeline;
+pub mod planner;
+pub mod registry;
+pub mod router;
+pub mod service;
+pub mod thought;
+pub mod transport;

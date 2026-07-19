@@ -1,4 +1,3 @@
-{"path": "config/BREAKDOWN.md", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}
 {"path": "config/autonomy_operating_loop.toml", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}
 {"path": "config/business.toml", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}
 {"path": "config/ceo_startup.yaml", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}
@@ -25,7 +24,6 @@
 {"path": "config/model_route_matrix.toml", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}
 {"path": "config/monitoring-setup/MONITORING_STATUS_REPORT.md", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}
 {"path": "config/monitoring-setup/centralized-monitoring-config.md", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}
-{"path": "config/monitoring-setup/grafana/dashboards/audit-governance-runtime.json", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}
 {"path": "config/monitoring-setup/grafana-dashboards/annunimas-fleet-overview.json", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}
 {"path": "config/monitoring-setup/grafana-dashboards/charon-routing.json", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}
 {"path": "config/monitoring-setup/grafana-dashboards/cluster-health.json", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}

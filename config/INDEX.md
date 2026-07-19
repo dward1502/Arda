@@ -13,7 +13,6 @@ soterion:
 
 # Index: config
 
-- `BREAKDOWN.md`
 - `autonomy_operating_loop.toml`
 - `business.toml`
 - `ceo_startup.yaml`
@@ -38,14 +37,13 @@ soterion:
 - `matrix_boardrooms.toml`
 - `model_registry.toml`
 - `model_route_matrix.toml`
-- `monitoring-setup/MONITORING_STATUS_REPORT.md`
-- `monitoring-setup/centralized-monitoring-config.md`
-- `monitoring-setup/grafana/dashboards/audit-governance-runtime.json`
-- `monitoring-setup/grafana-dashboards/annunimas-fleet-overview.json`
-- `monitoring-setup/grafana-dashboards/charon-routing.json`
-- `monitoring-setup/grafana-dashboards/cluster-health.json`
-- `monitoring-setup/prometheus-central.yml`
-- `monitoring-setup/prometheus-rules/health-alerts.yml`
+|- `monitoring-setup/MONITORING_STATUS_REPORT.md`
+|- `monitoring-setup/centralized-monitoring-config.md`
+|- `monitoring-setup/grafana-dashboards/annunimas-fleet-overview.json`
+|- `monitoring-setup/grafana-dashboards/charon-routing.json`
+|- `monitoring-setup/grafana-dashboards/cluster-health.json`
+|- `monitoring-setup/prometheus-central.yml`
+|- `monitoring-setup/prometheus-rules/health-alerts.yml`
 - `opencode_agent_routes.toml`
 - `operator_profile.json`
 - `runtime_governor_budget.toml`

@@ -13,7 +13,6 @@ soterion:
 
 # Index: core
 
-- `BREAKDOWN.md`
 - `knowledge/clients/_registry.toml`
 - `knowledge/edge/model_profiles.toml`
 - `knowledge/edge/targets.example.toml`

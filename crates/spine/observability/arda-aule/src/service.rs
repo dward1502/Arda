@@ -1,19 +1,23 @@
 // sigil: ANKH
+//! Observability readiness probe for the Arda `arda-aule` crate.
+//!
+//! This module exposes status/build_brief utilities tied to the
+//! observability contract, not governance-only council semantics.
+
 use crate::contract::contract;
-use crate::council::{CouncilBrief, CouncilQuery};
 use serde::Serialize;
 
 #[derive(Debug, Clone, Serialize)]
-pub struct ArdaCouncilStatus {
+pub struct ArdaAuleStatus {
     pub crate_name: &'static str,
     pub realm: &'static str,
     pub productizable: bool,
     pub state_export_path: &'static str,
     pub governance_ready: bool,
-    pub seats_total: usize,
+    pub observability_ready: bool,
 }
 
-pub fn status() -> ArdaCouncilStatus {
+pub fn status() -> ArdaAuleStatus {
     let base = contract();
     let governance_ready = base.governance.triad_required
         && base.governance.bacon_lite_required
@@ -23,16 +27,29 @@ pub fn status() -> ArdaCouncilStatus {
         && base.continuity.task_ledger_linked
         && base.continuity.memory_checkpoint_expected
         && base.continuity.arda_visibility_defined;
-    ArdaCouncilStatus {
+    ArdaAuleStatus {
         crate_name: "arda-aule",
         realm: base.realm,
         productizable: base.productizable,
         state_export_path: base.state_export_path,
         governance_ready,
-        seats_total: 7,
+        observability_ready: governance_ready,
     }
 }
 
-pub fn build_brief(query: &CouncilQuery) -> CouncilBrief {
-    CouncilBrief::from_query(query)
+#[derive(Debug, Clone, Serialize)]
+pub struct ObservabilityBrief {
+    pub crate_name: &'static str,
+    pub state_export_path: &'static str,
+    pub governance_ready: bool,
+}
+
+impl ObservabilityBrief {
+    pub fn from_status(status: &ArdaAuleStatus) -> Self {
+        Self {
+            crate_name: status.crate_name,
+            state_export_path: status.state_export_path,
+            governance_ready: status.governance_ready,
+        }
+    }
 }

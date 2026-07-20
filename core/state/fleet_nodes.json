@@ -465,7 +465,7 @@
         "display_name": "Beelink SER9 Pro",
         "enrollment_status": "active",
         "expected_models": [
-          "Qwen_Qwen3.5-4B-Q6_K"
+          "Ternary-Bonsai-8B-Q2_0"
         ],
         "health_url": "http://100.103.125.88:9337/v1/models",
         "hostname": "beelink",
@@ -473,7 +473,7 @@
         "llm_runtime": "llama_cpp_standalone",
         "models_url": "http://100.103.125.88:9337/v1/models",
         "node_class": "edge_worker",
-        "notes": "Beelink SER9 Pro worker. Also runs Bluefin and hosts fleet observability: Grafana :3000, Prometheus :9090, OpenWebUI :8080, Postgres, Redis, MinIO. As of 2026-06-16 the lighter Qwen_Qwen3.5-4B-Q6_K lane is served directly by llama.cpp/Vulkan on http://100.103.125.88:9337/v1 via llama-server-light.service. The old mesh-llm-worker.service was disabled after crash-looping because it calls `distrobox enter eregion` and that container no longer exists.",
+        "notes": "Beelink SER9 Pro worker. Also runs Bluefin and hosts fleet observability: Grafana :3000, Prometheus :9090, OpenWebUI :8080, Postgres, Redis, MinIO. As of 2026-07-18 the lane on http://100.103.125.88:9337/v1 is now the Ternary-Bonsai-8B-Q2_0 (ternary) GGUF served by the Prism-ML llama.cpp fork (Q2_0 ternary-quant support; mainline rejects it) built with GGML_VULKAN against the AMD Radeon 890M (Vulkan0, RADV GFX1150), 32K ctx, --flash-attn, --metrics, via llama-server-light.service. Replaces the prior Qwen3.5-4B-Q6_K mainline lane (disabled). Measured ~44 t/s gen / ~297 t/s prompt on Vulkan vs ~13 t/s gen CPU-only. Built from ~/llama.cpp-prism (build dir build-prism) using linuxbrew gcc-16/g++-16 + linuxbrew vulkan-headers/shaderc since the original distrobox toolchain is gone.",
         "restart_cmd": "systemctl --user --no-block restart llama-server-light.service",
         "restart_scope": "ssh",
         "role": "ser9_sovereign_worker",
@@ -961,10 +961,10 @@
       "configured": {
         "base_url": "http://100.102.250.115:8094/v1",
         "charon_provider_id": "edge_backbone_coder",
-        "display_name": "Annunimas Server (Gemma4 12B Coder Lane)",
+        "display_name": "Annunimas Server (Qwen2.5-Coder 7B Lane)",
         "enrollment_status": "active",
         "expected_models": [
-          "gemma4-12b-coder-q4km"
+          "qwen2.5-coder-7b-q4km"
         ],
         "health_url": "http://100.102.250.115:8094/health",
         "hostname": "annunimas-server",
@@ -972,8 +972,8 @@
         "llm_runtime": "llama_cpp_coder",
         "models_url": "http://100.102.250.115:8094/v1/models",
         "node_class": "backbone_compute",
-        "notes": "Added 2026-06-16. Active llama.cpp coding lane on annunimas-server :8094, serving gemma4-coding-Q4_K_M with 8K context and 28 GPU layers on the second RTX 2080 Super so it can coexist with the LFM fast lane and Qwen2.5-VL vision endpoint.",
-        "restart_cmd": "systemctl --user --no-block restart llama-server-gemma4-coder.service",
+        "notes": "Swapped 2026-07-19: replaced Gemma4 12B coder with Qwen2.5-Coder-7B-Instruct-Q4_K_M on :8094. 28 GPU layers on GPU0, 32K context, stock llama.cpp build-cuda2. Benchmarked ~70 tok/s on code prompt; fits 2x RTX 2080 Super 8GB.",
+        "restart_cmd": "systemctl --user --no-block restart llama-server-qwen2.5-coder.service",
         "restart_scope": "ssh",
         "role": "backbone_coder",
         "ssh_user": "annunimas-server",
@@ -981,7 +981,7 @@
         "tailscale_ip": "100.102.250.115",
         "tailscale_name": "annunimas-server"
       },
-      "display_name": "Annunimas Server (Gemma4 12B Coder Lane)",
+      "display_name": "Annunimas Server (Qwen2.5-Coder 7B Lane)",
       "matched": true,
       "observed": {
         "active": true,

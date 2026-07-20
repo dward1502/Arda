@@ -33,7 +33,13 @@ cost = "balanced"
 [providers.edge]
 enabled = true
 allow_as_primary = true
-preferred = ["edge_backbone_coder", "edge_core", "edge_worker_light", "edge_guardhouse"]
+# edge_backbone_bonsai27 promoted 2026-07-19 to the default high-quality local
+# route (27B ternary, Prism/CUDA on annunimas-server :8095). edge_core (LFM2.5-8B)
+# stays the fast/low-latency lane; edge_backbone_coder stays the tool/code lane.
+# NOTE: Bonsai-27B served ctx is capped at 8192; the router context floor was
+# lowered to 8192 (ANNUNIMAS_CHARON_MIN_CONTEXT_WINDOW) so it clears. Tool/execution
+# lanes keep the >=32K/64K guard to protect Hermes tool-call stability.
+preferred = ["edge_backbone_bonsai27", "edge_backbone_coder", "edge_core", "edge_worker_light", "edge_guardhouse"]
 
 [providers.cloud]
 enabled = true

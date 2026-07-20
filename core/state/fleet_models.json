@@ -38,7 +38,7 @@
       "llm_runtime": "llama_cpp_fast_general"
     },
     {
-      "display_name": "Annunimas Server (Gemma4 12B Coder Lane)",
+      "display_name": "Annunimas Server (Qwen2.5-Coder 7B Lane)",
       "hostname": "annunimas-server",
       "id": "node-backbone-gemma4-coder",
       "llm_runtime": "llama_cpp_coder"

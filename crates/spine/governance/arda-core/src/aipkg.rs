@@ -44,9 +44,7 @@ pub struct AipkgReceiptPolicy {
 impl AipkgManifest {
     pub fn validate(&self) -> Result<()> {
         if self.manifest_version != "0.1" {
-            return Err(ArdaError::Task(
-                "aipkg manifest_version must be 0.1".into(),
-            ));
+            return Err(ArdaError::Task("aipkg manifest_version must be 0.1".into()));
         }
         if !self.package_id.contains('.') {
             return Err(ArdaError::Task(

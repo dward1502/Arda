@@ -1,8 +1,8 @@
 // sigil: REPAIR
 use arda_core::Ledger;
 use arda_core::Task;
-use arda_governance::{bacon_lite_validate, triad_validate, BaconLiteResult, TriadResult};
 use arda_economics::LoveEquation;
+use arda_governance::{bacon_lite_validate, triad_validate, BaconLiteResult, TriadResult};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::json;

@@ -13,7 +13,14 @@ full-cli = [
   "arda-orome",
   "arda-mandos",
   "arda-varda",
-  "manwe",
+  "telemetry",
+]
+telemetry = [
+  "opentelemetry",
+  "opentelemetry-otlp",
+  "tracing-opentelemetry",
+  "opentelemetry_sdk",
+  "tonic",
 ]
 
 [dependencies]
@@ -50,12 +57,21 @@ arda-core = { path = "../../governance/arda-core", optional = true }
 arda-governance = { path = "../../governance/arda-governance", optional = true }
 arda-economics = { path = "../../runtime/arda-economics", optional = true }
 arda-vaire = { path = "../../memory/arda-vaire", optional = true }
-manwe = { path = "../../runtime/manwe", optional = true }
 arda-mandos = { path = "../../runtime/arda-mandos", optional = true }
 arda-varda = { path = "../../executors/arda-varda", optional = true }
 arda-orome = { path = "../../interface/arda-orome", optional = true }
+
+opentelemetry = { version = "0.32", default-features = false, features = ["trace", "logs"], optional = true }
+opentelemetry-otlp = { version = "0.32", default-features = false, features = ["tonic", "tls-roots"], optional = true }
+tracing-opentelemetry = { version = "0.33", optional = true }
+opentelemetry_sdk = { version = "0.32", features = ["tokio", "rt-tokio"], optional = true }
+tonic = { version = "0.14", features = ["tls-webpki-roots", "transport"], optional = true }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["test-util", "macros"] }
 tempfile = "3"
 tracing-subscriber = "0.3"
+
+[[bin]]
+name = "arda-cli"
+path = "src/cli/main.rs"

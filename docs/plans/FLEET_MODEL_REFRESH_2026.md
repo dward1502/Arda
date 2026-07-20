@@ -7,7 +7,7 @@ Current live fleet serving these models:
 - node-pi5-warden: Qwen3.5-4B-Q4_K_M.gguf
 - node-ser9-worker: Qwen_Qwen3.5-4B-Q6_K
 - node-backbone-server: lfm2.5-8b-a1b-q4km
-- node-backbone-gemma4-coder: gemma4-12b-coder-q4km
+- node-backbone-gemma4-coder: qwen2.5-coder-7b-q4km
 - node-backbone-vision: Qwen2.5-VL-7B-Instruct
 - node-ser9-carnice: Carnice-9b-Q6_K — inactive
 - node-laptop: voice/ASR only, not inference
@@ -71,8 +71,8 @@ Top candidates:
 - `unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF` — community GGUF for 30B-A3B.
 
 Preferred:
-- backbone-gemma4-coder: `Qwen3-Coder-30B-A3B` GGUF with 28 GPU layers fits current RTX 2080 Super lane.
-- When ser9-carnice reactivates: `Qwen3-Coder-Next` or smaller distilled coder model.
+- backbone-gemma4-coder: `Qwen2.5-Coder-7B-Instruct` GGUF Q4_K_M with 28 GPU layers on a single RTX 2080 Super at 32K context. Defer `Qwen3-Coder-30B-A3B` until GPU/VRAM upgrade/next hardware pass.
+- When ser9-carnice reactivates: lighter coder model can mirror validation.
 
 ### Edge / Light
 
@@ -84,15 +84,12 @@ Top candidates:
 
 Preferred:
 - ser9-worker: keep `Qwen_Qwen3.5-4B-Q6_K` until a smaller Gemma-4/E4B GGUF is validated on Pi5-class.
-- pi5-warden: same, or migrate to `Qwen3.5-9B` only if a second GPU/thread config allows.
+- pi5-warden: Qwen3.5-4B-Q4_K_M.gguf validated at 65536 context on aarch64/Raspberry Pi 5 8GB; tested performance was ~14.2 prompt tok/s, ~4.0 predicted tok/s, ~3.5 GB memory during serve; 131072 remains unvalidated on this device
 
 ### Vision / Multimodal
 
 Top candidates:
 - `Qwen2.5-VL-7B-Instruct` — current, still reasonable in 2026.
-- `Qwen2.5-VL-72B`/larger are too large for dedicated 0-GPU-layers vision lane.
-- `google/gemma-4-12B-it` or `gemma-4-E4B-it` multimodal — stronger than older Qwen2.5-VL if VRAM allows.
-- `itzune/Latxa-Qwen3-VL-2B-GGUF` — tiny vision if we want true guardhouse vision.
 
 Preferred:
 - backbone-vision: stay with Qwen2.5-VL-7B unless we validate Gemma-4 multimodal on the same lane.

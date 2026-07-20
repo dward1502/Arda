@@ -206,10 +206,7 @@ fn effective_limit(limit: usize) -> (usize, Arc<PressureSnapshot>) {
 
     let severe_factor = env_factor("ARDA_PRESSURE_ADMISSION_SEVERE_FACTOR", 0.25);
     let degraded_factor = env_factor("ARDA_PRESSURE_ADMISSION_DEGRADED_FACTOR", 0.5);
-    let mem_degraded = env_factor(
-        "ARDA_PRESSURE_ADMISSION_MEM_AVAILABLE_DEGRADED_PCT",
-        10.0,
-    );
+    let mem_degraded = env_factor("ARDA_PRESSURE_ADMISSION_MEM_AVAILABLE_DEGRADED_PCT", 10.0);
     let mem_severe = env_factor("ARDA_PRESSURE_ADMISSION_MEM_AVAILABLE_SEVERE_PCT", 5.0);
 
     let severe = !snapshot.swap_ok

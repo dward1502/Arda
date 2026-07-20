@@ -366,13 +366,15 @@ pub(crate) fn secret_safe_preview(
             ValueSource::Default,
         ),
     }
-    .pipe(|(preview, present, source): (String, bool, crate::onboarding::types::ValueSource)| {
-        if secret && preview.contains(key) {
-            ("<secret-present>".to_string(), present, source)
-        } else {
-            (preview, present, source)
-        }
-    })
+    .pipe(
+        |(preview, present, source): (String, bool, crate::onboarding::types::ValueSource)| {
+            if secret && preview.contains(key) {
+                ("<secret-present>".to_string(), present, source)
+            } else {
+                (preview, present, source)
+            }
+        },
+    )
 }
 
 pub(crate) trait Pipe: Sized {

@@ -57,9 +57,19 @@ It must never be used as programmatic truth.
 | `local_heuristic` | one policy.cpp/rs or TOML parser exists |
 | `source_metadata` | policy version and hash emitted with each receipt |
 | `runtime_receipts` | governance actions write immutable receipts |
-| `policy_enforcement` | typed verdict engine accepts policy_version and gates actions |
+| `policy_enforcement` | typed verdict engine accepts `policy_version` and gates actions |
 | `independent_review_receipts` | operator-audited receipts exist for policy changes |
 | `scoped_autonomy_policy` | named scope has explicit policy state |
+
+## Scoped autonomy policy rules
+
+- `<actor>` has nominated policy state for `<scope>`.
+- `<crate>` policy state is engine-enforced for `<scope>`.
+
+## Source of truth
+
+Live track registry: `core/state/contract_registry.json`
+Track id: `arda-ecosystem-standard-track-2-governance`
 
 ## Current default projection
 
@@ -73,4 +83,3 @@ Expected current level: `policy_enforced` for configured lanes; system-wide defa
 ## Stop condition
 
 Every gatepass or denial writes an immutable contract receipt tied to an exact policy version, policy hash, and actor.
-

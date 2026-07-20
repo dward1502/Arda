@@ -1,5 +1,5 @@
-use crate::adaptive::service::types::{CharonService, ProviderState};
 use crate::adaptive::service::types::ModelState;
+use crate::adaptive::service::types::{CharonService, ProviderState};
 use arda_core::error::Result;
 use chrono::Utc;
 use serde_json::{json, Value as JsonValue};
@@ -155,7 +155,8 @@ impl CharonService {
         }
         if mutated {
             if let Some(providers) = snapshot.as_deref() {
-                self.persist_provider_runtime_state_snapshot(providers).await?;
+                self.persist_provider_runtime_state_snapshot(providers)
+                    .await?;
             }
         }
 
@@ -199,7 +200,8 @@ impl CharonService {
             }
         }
         if let Some(providers) = snapshot.as_deref() {
-            self.persist_provider_runtime_state_snapshot(providers).await?;
+            self.persist_provider_runtime_state_snapshot(providers)
+                .await?;
         }
 
         Ok(Some((model, profile)))
@@ -303,10 +305,7 @@ fn select_default_replacement(
         .map(|model| model.id.clone())
 }
 
-fn default_replacement_candidate(
-    provider: &ProviderState,
-    model: &ModelState,
-) -> bool {
+fn default_replacement_candidate(provider: &ProviderState, model: &ModelState) -> bool {
     if provider.id == "openrouter" {
         return model.id == "openrouter/free" || model.id.ends_with(":free");
     }
@@ -330,10 +329,7 @@ fn model_ids_equivalent(configured_id: &str, live_id: &str) -> bool {
             .is_some_and(|stripped| stripped == live_id)
 }
 
-fn clear_catalog_missing_quarantine_if_live(
-    model: &mut ModelState,
-    live_set: &BTreeSet<String>,
-) {
+fn clear_catalog_missing_quarantine_if_live(model: &mut ModelState, live_set: &BTreeSet<String>) {
     if model_is_live(&model.id, live_set)
         && model
             .last_error

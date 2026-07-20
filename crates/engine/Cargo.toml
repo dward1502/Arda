@@ -19,3 +19,5 @@ reqwest = { workspace = true }
 [dev-dependencies]
 tokio = { workspace = true }
 tracing-subscriber = { workspace = true }
+tonic = { version = "0.14", default-features = false, features = ["tls-webpki-roots", "transport"] }
+prost = "0.13"

@@ -1,5 +1,5 @@
-use arda_mandos::{OracleQuery, OracleService};
 use anyhow::Result;
+use arda_mandos::{OracleQuery, OracleService};
 use chrono::Utc;
 
 fn query(id: &str) -> OracleQuery {

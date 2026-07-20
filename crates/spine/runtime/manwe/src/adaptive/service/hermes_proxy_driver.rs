@@ -1,5 +1,5 @@
-use crate::adaptive::service::types::ProviderState;
 use crate::adaptive::service::error::{ArdaError, Result};
+use crate::adaptive::service::types::ProviderState;
 use std::collections::BTreeMap;
 use std::process::{Child, Command, Stdio};
 use std::sync::{Mutex, OnceLock};

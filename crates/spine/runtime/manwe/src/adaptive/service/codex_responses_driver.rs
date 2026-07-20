@@ -1,7 +1,7 @@
-use crate::adaptive::service::types::ProviderState;
-use serde_json::Value as JsonValue;
 use crate::adaptive::service::error::{ArdaError, Result};
+use crate::adaptive::service::types::ProviderState;
 use base64::Engine;
+use serde_json::Value as JsonValue;
 use std::path::PathBuf;
 use std::time::Duration;
 

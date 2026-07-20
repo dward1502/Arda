@@ -51,13 +51,12 @@ struct RelationshipRequest {
 
 pub async fn run_http_server(service: PlutusService, addr: &str) -> Result<()> {
     let app = build_router(service);
-    let listener =
-        tokio::net::TcpListener::bind(addr)
-            .await
-            .map_err(|e| ArdaError::Agent {
-                agent: "plutus".to_owned(),
-                message: format!("failed to bind HTTP listener on {addr}: {e}"),
-            })?;
+    let listener = tokio::net::TcpListener::bind(addr)
+        .await
+        .map_err(|e| ArdaError::Agent {
+            agent: "plutus".to_owned(),
+            message: format!("failed to bind HTTP listener on {addr}: {e}"),
+        })?;
     tracing::info!(addr = %addr, "PLUTUS HTTP server listening");
     axum::serve(listener, app)
         .await

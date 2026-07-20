@@ -2,9 +2,7 @@
 //! downstream crates can statically assert harness readiness without pulling
 //! the retired `arda-tool-harness` crate.
 
-use crate::tool_contract::types::{
-    InvocationEnvelope, InvocationPlan, ToolMetadata,
-};
+use crate::tool_contract::types::{InvocationEnvelope, InvocationPlan, ToolMetadata};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -126,7 +124,10 @@ mod tests {
         };
         let plan = build_invocation_plan(&high_metadata(), &envelope)
             .expect("plans critical mutating invocation");
-        assert_eq!(plan.disposition, InvocationDisposition::HoldForOperatorReview);
+        assert_eq!(
+            plan.disposition,
+            InvocationDisposition::HoldForOperatorReview
+        );
         assert!(plan.idempotency_required);
         assert!(plan.operator_review_required);
     }

@@ -58,7 +58,7 @@
               "attempt": 1,
               "restart": {
                 "attempted": false,
-                "command": "systemctl --user --no-block restart llama-server-gemma4-coder.service",
+                "command": "systemctl --user --no-block restart llama-server-qwen2.5-coder.service",
                 "error": "tailscale_peer_offline",
                 "ok": false,
                 "peer_online": false,
@@ -349,9 +349,9 @@
       {
         "charon_provider_id": "edge_backbone_coder",
         "configured_base_url": "http://100.102.250.115:8094/v1",
-        "display_name": "Annunimas Server (Gemma4 12B Coder Lane)",
+        "display_name": "Annunimas Server (Qwen2.5-Coder 7B Lane)",
         "expected_models": [
-          "gemma4-12b-coder-q4km"
+          "qwen2.5-coder-7b-q4km"
         ],
         "has_live_endpoint": false,
         "health_url": "http://100.102.250.115:8094/health",
@@ -383,7 +383,7 @@
               "attempt": 1,
               "restart": {
                 "attempted": false,
-                "command": "systemctl --user --no-block restart llama-server-gemma4-coder.service",
+                "command": "systemctl --user --no-block restart llama-server-qwen2.5-coder.service",
                 "error": "tailscale_peer_offline",
                 "ok": false,
                 "peer_online": false,
@@ -10293,19 +10293,19 @@
             "cost_per_million_tokens_in": null,
             "cost_per_million_tokens_out": null,
             "healthy": true,
-            "id": "gemma4-12b-coder-q4km",
+            "id": "qwen2.5-coder-7b-q4km",
             "in_cooldown": false,
             "is_default": true,
             "last_error": null,
             "streaming_validated": null
           }
         ],
-        "name": "Annunimas Server (Gemma4 12B Coder Lane)",
+        "name": "Annunimas Server (Qwen2.5-Coder 7B Lane)",
         "operational_blocked": true,
         "operational_reason": "local health probe failed for http://100.102.250.115:8094/health: error sending request for url (http://100.102.250.115:8094/health)",
         "operational_state": "unhealthy",
         "probe_eligible": false,
-        "probe_model": "gemma4-12b-coder-q4km",
+        "probe_model": "qwen2.5-coder-7b-q4km",
         "probe_profile": "configured_probe_model",
         "provider_id": "edge_backbone_coder",
         "quality_band": "high",
@@ -16413,7 +16413,7 @@
           "level": "ok",
           "minute_usage_ratio": 0.0,
           "provider_id": "edge_backbone_coder",
-          "provider_name": "Annunimas Server (Gemma4 12B Coder Lane)"
+          "provider_name": "Annunimas Server (Qwen2.5-Coder 7B Lane)"
         },
         {
           "cooldown_until_utc": null,
@@ -17717,15 +17717,15 @@
             "cost_per_million_tokens_in": null,
             "cost_per_million_tokens_out": null,
             "healthy": true,
-            "id": "gemma4-12b-coder-q4km",
+            "id": "qwen2.5-coder-7b-q4km",
             "in_cooldown": false,
             "is_default": true,
             "last_error": null,
             "streaming_validated": null
           }
         ],
-        "name": "Annunimas Server (Gemma4 12B Coder Lane)",
-        "probe_model": "gemma4-12b-coder-q4km",
+        "name": "Annunimas Server (Qwen2.5-Coder 7B Lane)",
+        "probe_model": "qwen2.5-coder-7b-q4km",
         "probe_profile": "configured_probe_model",
         "quality_band": "high",
         "requests_per_day": null,
@@ -22001,7 +22001,7 @@
           "level": "ok",
           "minute_usage_ratio": 0.0,
           "provider_id": "edge_backbone_coder",
-          "provider_name": "Annunimas Server (Gemma4 12B Coder Lane)"
+          "provider_name": "Annunimas Server (Qwen2.5-Coder 7B Lane)"
         },
         {
           "cooldown_until_utc": null,

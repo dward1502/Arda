@@ -4,8 +4,8 @@ use crate::adaptive::service::route_policy::{
     provider_supports_request_capabilities, HybridRoutePolicy, RouteExecutionProfile,
     RouteSelectionCandidate,
 };
-use crate::adaptive::service::types::CharonService;
 use crate::adaptive::service::status::PackageRuntimeSignals;
+use crate::adaptive::service::types::CharonService;
 use crate::adaptive::service::types::{CharonRequestEnvelope, ProviderState};
 use std::collections::BTreeMap;
 use std::hash::{Hash, Hasher};

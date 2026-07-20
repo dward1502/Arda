@@ -225,11 +225,7 @@ pub fn authorize_request(
     }
 }
 
-pub fn notify(
-    event: &str,
-    payload: serde_json::Value,
-    priority: Priority,
-) -> OutboundMessage {
+pub fn notify(event: &str, payload: serde_json::Value, priority: Priority) -> OutboundMessage {
     OutboundMessage {
         id: Uuid::new_v4(),
         channel: Channel::Discord,

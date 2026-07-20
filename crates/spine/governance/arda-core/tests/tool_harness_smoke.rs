@@ -3,7 +3,9 @@
 // asserts that the migrated smoke contract remains available there.
 
 use arda_core::tool_contract::service::build_invocation_plan;
-use arda_core::tool_contract::types::{InvocationEnvelope, RiskLevel, SideEffectClass, ToolMetadata};
+use arda_core::tool_contract::types::{
+    InvocationEnvelope, RiskLevel, SideEffectClass, ToolMetadata,
+};
 
 #[test]
 fn sovereign_baseline_contract_is_migrated() {

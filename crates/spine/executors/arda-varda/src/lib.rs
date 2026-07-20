@@ -40,12 +40,11 @@ impl AthenaAgent {
             "decision",
             "general",
         ];
-        let store = AthenaStore::from_default_or_workspace_fallback().map_err(|e| {
-            ArdaError::Agent {
+        let store =
+            AthenaStore::from_default_or_workspace_fallback().map_err(|e| ArdaError::Agent {
                 agent: "athena".to_string(),
                 message: format!("failed to initialize Athena storage: {e}"),
-            }
-        })?;
+            })?;
 
         let manifest = AgentManifest {
             name: "athena".to_string(),

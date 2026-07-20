@@ -1573,7 +1573,7 @@
       "failures": 0,
       "first_seen_utc": "2026-07-01T00:41:23.167365537+00:00",
       "last_seen_utc": "2026-07-01T00:41:23.167365537+00:00",
-      "model_id": "gemma4-12b-coder-q4km",
+      "model_id": "qwen2.5-coder-7b-q4km",
       "outcome_counts": {
         "success": 1
       },
@@ -7071,7 +7071,7 @@
       "failures": 0,
       "first_seen_utc": "2026-07-01T00:41:23.167365537+00:00",
       "last_seen_utc": "2026-07-01T00:41:23.167365537+00:00",
-      "model_id": "gemma4-12b-coder-q4km",
+      "model_id": "qwen2.5-coder-7b-q4km",
       "outcome_counts": {
         "success": 1
       },

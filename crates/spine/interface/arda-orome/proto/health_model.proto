@@ -1,0 +1,26 @@
+syntax = "proto3";
+package arda.orome.health_model;
+
+option java_package = "dev.arda.orome.healthmodel";
+option java_multiple_files = true;
+
+message HealthRequest {}
+message HealthResponse {
+  string status = 1;
+}
+
+message ModelInfo {
+  string id = 1;
+  string object = 2;
+  int64 created = 3;
+  string owned_by = 4;
+}
+message ListModelsRequest {}
+message ListModelsResponse {
+  repeated ModelInfo data = 1;
+}
+
+service HealthModelService {
+  rpc Health (HealthRequest) returns (HealthResponse);
+  rpc ListModels (ListModelsRequest) returns (ListModelsResponse);
+}

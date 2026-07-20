@@ -22,6 +22,8 @@ adaptive = [
   "dep:arda-economics",
   "dep:arda-vaire",
 ]
+telemetry = ["arda-aule/telemetry"]
+
 [dependencies]
 regex = "1"
 tokio = { workspace = true }
@@ -38,9 +40,13 @@ tracing-subscriber = { workspace = true }
 clap = { workspace = true }
 chrono = { workspace = true }
 thiserror = { workspace = true }
-rand = { workspace = true }
 
 arda-core = { workspace = true, optional = true }
 arda-governance = { workspace = true, optional = true }
 arda-economics = { workspace = true, optional = true }
 arda-vaire = { workspace = true, optional = true }
+arda-aule = { workspace = true, optional = true }
+
+[build-dependencies]
+tonic = { version = "0.14", default-features = false, features = ["tls-webpki-roots", "transport"] }
+prost-build = "0.13"

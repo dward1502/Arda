@@ -64,12 +64,12 @@ models_url = "http://100.110.85.37:1234/v1/models"
 expected_models = ["Qwen3.5-4B-Q4_K_M.gguf"]
 runtime_backend = "llama.cpp"
 runtime_model_alias = "Qwen3.5-4B-Q4_K_M.gguf"
-runtime_context_window = 4096
+runtime_context_window = 262144
 runtime_port = 1234
 startup_priority = 40
 restart_scope = "ssh"
 restart_cmd = "systemctl --user --no-block restart llama-server"
-notes = "Home-network edge guardhouse on a regular Raspberry Pi 5. Cut over to OpenSSH key-only on 2026-04-27 (numenor@100.110.85.37, no password auth). Serving llama.cpp with Qwen3.5-4B-Q4_K_M.gguf on http://100.110.85.37:1234, with model metadata exposed at /v1/models, at 4096 context via a persistent user systemd service."
+notes = "Home-network edge guardhouse on a regular Raspberry Pi 5. Cut over to OpenSSH key-only on 2026-04-27 (numenor@100.110.85.37, no password auth). Serving llama.cpp with Qwen3.5-4B-Q4_K_M.gguf on http://100.110.85.37:1234, with model metadata exposed at /v1/models, at 65536 validated context via a persistent user systemd service. 131072 remains unvalidated on this device."
 
 [[nodes]]
 id = "node-ser9-worker"
@@ -86,16 +86,18 @@ charon_provider_id = "edge_beelink_light"
 base_url = "http://100.103.125.88:9337/v1"
 health_url = "http://100.103.125.88:9337/v1/models"
 models_url = "http://100.103.125.88:9337/v1/models"
-expected_models = ["Qwen_Qwen3.5-4B-Q6_K"]
-runtime_backend = "llama.cpp"
-runtime_model_alias = "Qwen_Qwen3.5-4B-Q6_K"
-runtime_model_path = "/home/citadel/models/Qwen_Qwen3.5-4B-Q6_K.gguf"
+expected_models = ["Ternary-Bonsai-8B-Q2_0"]
+runtime_backend = "llama.cpp-prism"
+runtime_model_alias = "Ternary-Bonsai-8B-Q2_0"
+runtime_model_path = "/home/citadel/models/Ternary-Bonsai-8B-Q2_0.gguf"
 runtime_context_window = 131072
 runtime_port = 9337
+runtime_gpu_layers = 999
+runtime_device = "Vulkan0"
 startup_priority = 20
 restart_scope = "ssh"
 restart_cmd = "systemctl --user --no-block restart llama-server-light.service"
-notes = "Beelink SER9 Pro worker. Also runs Bluefin and hosts fleet observability: Grafana :3000, Prometheus :9090, OpenWebUI :8080, Postgres, Redis, MinIO. As of 2026-06-16 the lighter Qwen_Qwen3.5-4B-Q6_K lane is served directly by llama.cpp/Vulkan on http://100.103.125.88:9337/v1 via llama-server-light.service. The old mesh-llm-worker.service was disabled after crash-looping because it calls `distrobox enter eregion` and that container no longer exists."
+notes = "Beelink SER9 Pro worker. Also runs Bluefin and hosts fleet observability: Grafana :3000, Prometheus :9090, OpenWebUI :8080, Postgres, Redis, MinIO. As of 2026-07-18 the lane on http://100.103.125.88:9337/v1 is now the Ternary-Bonsai-8B-Q2_0 (ternary) GGUF served by the Prism-ML llama.cpp fork (Q2_0 ternary-quant support; mainline rejects it) built with GGML_VULKAN against the AMD Radeon 890M (Vulkan0, RADV GFX1150), 32K ctx, --flash-attn, --metrics, via llama-server-light.service. Replaces the prior Qwen3.5-4B-Q6_K mainline lane (disabled). Measured ~44 t/s gen / ~297 t/s prompt on Vulkan vs ~13 t/s gen CPU-only. Built from ~/llama.cpp-prism (build dir build-prism) using linuxbrew gcc-16/g++-16 + linuxbrew vulkan-headers/shaderc since the original distrobox toolchain is gone."
 
 [[nodes]]
 id = "node-ser9-carnice"
@@ -179,7 +181,7 @@ notes = "Updated 2026-06-16. Active fast/general lane is llama.cpp inside the er
 id = "node-backbone-gemma4-coder"
 role = "backbone_coder"
 hostname = "annunimas-server"
-display_name = "Annunimas Server (Gemma4 12B Coder Lane)"
+display_name = "Annunimas Server (Qwen2.5-Coder 7B Lane)"
 tailscale_ip = "100.102.250.115"
 tailscale_name = "annunimas-server"
 ssh_user = "annunimas-server"
@@ -190,18 +192,18 @@ charon_provider_id = "edge_backbone_coder"
 base_url = "http://100.102.250.115:8094/v1"
 health_url = "http://100.102.250.115:8094/health"
 models_url = "http://100.102.250.115:8094/v1/models"
-expected_models = ["gemma4-12b-coder-q4km"]
+expected_models = ["qwen2.5-coder-7b-q4km"]
 runtime_backend = "llama.cpp"
-runtime_model_alias = "gemma4-12b-coder-q4km"
-runtime_model_path = "/var/home/annunimas-server/models/gemma4-12b-coder-/gemma4-coding-Q4_K_M.gguf"
+runtime_model_alias = "qwen2.5-coder-7b-q4km"
+runtime_model_path = "/var/home/annunimas-server/models/qwen2.5-coder-7b/Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf"
 runtime_host = "0.0.0.0"
 runtime_port = 8094
-runtime_context_window = 8192
+runtime_context_window = 32768
 runtime_gpu_layers = 28
 startup_priority = 10
 restart_scope = "ssh"
-restart_cmd = "systemctl --user --no-block restart llama-server-gemma4-coder.service"
-notes = "Added 2026-06-16. Active llama.cpp coding lane on annunimas-server :8094, serving gemma4-coding-Q4_K_M with 8K context and 28 GPU layers on the second RTX 2080 Super so it can coexist with the LFM fast lane and Qwen2.5-VL vision endpoint."
+restart_cmd = "systemctl --user --no-block restart llama-server-qwen2.5-coder.service"
+notes = "Swapped 2026-07-19: replaced Gemma4 12B coder with Qwen2.5-Coder-7B-Instruct-Q4_K_M on :8094. 28 GPU layers on GPU0, 32K context, stock llama.cpp build-cuda2. Benchmarked ~70 tok/s on simple code prompt; fits within 2x RTX 2080 Super 8GB."
 
 [[nodes]]
 id = "node-backbone-vision"
@@ -231,6 +233,35 @@ startup_priority = 15
 restart_scope = "ssh"
 restart_cmd = "systemctl --user --no-block restart llama-server-vision.service"
 notes = "Updated 2026-06-16. Active llama.cpp multimodal endpoint on annunimas-server :8081, serving Qwen2.5-VL-7B-Instruct-Q5_K_M with mmproj-F16."
+
+[[nodes]]
+id = "node-backbone-bonsai27"
+role = "backbone_ternary_27b"
+hostname = "annunimas-server"
+display_name = "Annunimas Server (Ternary Bonsai 27B Lane)"
+tailscale_ip = "100.102.250.115"
+tailscale_name = "annunimas-server"
+ssh_user = "annunimas-server"
+node_class = "backbone_compute"
+enrollment_status = "active"
+llm_runtime = "llama_cpp_prism_cuda"
+charon_provider_id = "edge_backbone_bonsai27"
+base_url = "http://100.102.250.115:8095/v1"
+health_url = "http://100.102.250.115:8095/v1/models"
+models_url = "http://100.102.250.115:8095/v1/models"
+expected_models = ["ternary-bonsai-27b-q2_0"]
+runtime_backend = "llama.cpp-prism"
+runtime_model_alias = "ternary-bonsai-27b-q2_0"
+runtime_model_path = "/var/home/annunimas-server/models/Ternary-Bonsai-27B-Q2_0.gguf"
+runtime_host = "0.0.0.0"
+runtime_port = 8095
+runtime_context_window = 8192
+runtime_gpu_layers = 999
+runtime_device = "cuda:0,cuda:1"
+startup_priority = 12
+restart_scope = "ssh"
+restart_cmd = "systemctl --user --no-block restart llama-server-bonsai27.service"
+notes = "Added 2026-07-18. Active llama.cpp (Prism-ML fork, CUDA build) lane on annunimas-server :8095 serving Ternary-Bonsai-27B-Q2_0 (ternary Q2_0, 6.7G). The stock ggerganov/llama.cpp (build-cuda2) CANNOT parse this ternary gguf (offset/tensor-layout mismatch), so a Prism fork was built from ~/llama.cpp-prism with GGML_CUDA using the miniforge3 CUDA 13.2 toolchain (nvcc/g++/gcc) + host /usr/lib64 libcuda.so.1 symlinked into the conda linker dir to fix the cuMem* undefined-reference link error. Tensor-split 0.05/0.95 across the 2x RTX 2080 Super (8G each): GPU0 is VRAM-tight (LFM25 + Gemma4 resident, ~1.2G free) so ~95% of weights go to GPU1; ctx capped at 8192 because a 27B KV cache at 32768 OOMs GPU1. Model emits a reasoning trace (thinking=1) before the final answer, so clients should budget max_tokens generously. Service: llama-server-bonsai27.service (user systemd, enabled)."
 
 [[nodes]]
 id = "node-pi5-citadel-avatar"

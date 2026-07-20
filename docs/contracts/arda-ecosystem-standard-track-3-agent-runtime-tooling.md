@@ -4,12 +4,12 @@ soterion:
   glyph: "📜"
   code_point: "U+1F4DC"
   role: "contract"
-  owner: "PROMETHEUS"
+  owner: "PLUTUS"
   status: "active"
   reviewed: "2026-07-13"
 ---
 
-> 🜏 Soterion: 📜 contract | owner: PROMETHEUS | status: active | reviewed: 2026-07-13
+> 🜏 Soterion: 📜 contract | owner: PLUTUS | status: active | reviewed: 2026-07-13
 
 # Agent Runtime and Tooling Contract
 
@@ -70,6 +70,12 @@ Tool manifest record:
 | `policy_enforcement` | worker lifecycle is gated by supervisor policy, not ad hoc restarts |
 | `independent_review_receipts` | independent checks validate service graph/health |
 | `scoped_autonomy_policy` | named agent scope has explicit manifest and runtime policy |
+| `service_init` | crate/service init emits typed `schema_version` runtime surface |
+
+## Source of truth
+
+Live track registry: `core/state/contract_registry.json`
+Track id: `arda-ecosystem-standard-track-3-agent-runtime-tooling`
 
 ## Current default projection
 

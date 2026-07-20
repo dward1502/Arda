@@ -5,9 +5,9 @@
 pub mod adaptive_routing;
 pub mod agent_quotas;
 pub mod bandit;
+pub mod bootstrap;
 pub mod bootstrap_defaults;
 pub mod bootstrap_overlay;
-pub mod bootstrap;
 pub mod bootstrap_runtime;
 pub mod capabilities;
 pub mod catalog_reconciliation;

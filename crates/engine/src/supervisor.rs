@@ -127,7 +127,11 @@ impl Supervisor {
                     );
                     continue;
                 }
-                info!("supervisor: starting '{}' ({})", svc.name, svc.exe.display());
+                info!(
+                    "supervisor: starting '{}' ({})",
+                    svc.name,
+                    svc.exe.display()
+                );
                 let state = self.inner.state.clone();
                 let pids = self.inner.pids.clone();
                 let shutdown = self.inner.shutdown.clone();
@@ -238,7 +242,11 @@ async fn supervise_one(
         };
 
         let pid = child.id();
-        info!("supervisor: '{}' spawned (pid {})", svc.name, pid.unwrap_or(0));
+        info!(
+            "supervisor: '{}' spawned (pid {})",
+            svc.name,
+            pid.unwrap_or(0)
+        );
         {
             let mut guard = state.write().await;
             guard[idx] = Some(child);
@@ -293,7 +301,10 @@ async fn supervise_one(
             _ = tokio::time::sleep(backoff) => {}
         }
         backoff = (backoff * 2).min(MAX_BACKOFF);
-        info!("supervisor: restarting '{}' (backoff {:?})", svc.name, backoff);
+        info!(
+            "supervisor: restarting '{}' (backoff {:?})",
+            svc.name, backoff
+        );
     }
 }
 
@@ -329,7 +340,10 @@ mod tests {
             }
             tokio::time::sleep(Duration::from_millis(50)).await;
         }
-        assert!(!pids.is_empty(), "expected a supervised child pid (exe exists: {exists}), got none");
+        assert!(
+            !pids.is_empty(),
+            "expected a supervised child pid (exe exists: {exists}), got none"
+        );
 
         shutdown.trigger();
         let _ = tokio::time::timeout(Duration::from_secs(5), sup_handle).await;
@@ -346,4 +360,3 @@ mod tests {
         }
     }
 }
-

@@ -145,7 +145,10 @@ pub(super) fn refresh_provider_windows(
     }
 }
 
-fn refresh_model_windows(models: &mut [crate::adaptive::service::types::ModelState], now: chrono::DateTime<Utc>) {
+fn refresh_model_windows(
+    models: &mut [crate::adaptive::service::types::ModelState],
+    now: chrono::DateTime<Utc>,
+) {
     for model in models {
         if let Some(until) = model.cooldown_until_utc.as_deref() {
             if let Ok(dt) = chrono::DateTime::parse_from_rfc3339(until) {
@@ -271,7 +274,9 @@ pub(super) fn provider_unavailable_reason(
     if strict && crate::adaptive::service::route_scoring::near_day_quota(p, 0.85) {
         return Some(serde_json::json!({"provider_id": p.id, "reason": "strict_near_day_quota"}));
     }
-    if crate::adaptive::service::route_scoring::is_high_priority(priority) && p.consecutive_failures >= 2 {
+    if crate::adaptive::service::route_scoring::is_high_priority(priority)
+        && p.consecutive_failures >= 2
+    {
         return Some(
             serde_json::json!({"provider_id": p.id, "reason": "high_priority_failure_streak"}),
         );
@@ -341,7 +346,10 @@ impl CharonService {
                 .find(|provider| provider.id == provider_id)
             {
                 provider.intelligence_refreshed_at_utc = Some(now.to_rfc3339());
-                provider.avg_latency_ms = crate::adaptive::service::route_policy::merge_latency(provider.avg_latency_ms, latency_ms);
+                provider.avg_latency_ms = crate::adaptive::service::route_policy::merge_latency(
+                    provider.avg_latency_ms,
+                    latency_ms,
+                );
                 if healthy {
                     provider.healthy = true;
                     provider.last_error = None;
@@ -362,7 +370,10 @@ impl CharonService {
                             continue;
                         };
                         model.avg_latency_ms =
-                            crate::adaptive::service::route_policy::merge_latency(model.avg_latency_ms, model_latency_ms);
+                            crate::adaptive::service::route_policy::merge_latency(
+                                model.avg_latency_ms,
+                                model_latency_ms,
+                            );
                         if model_healthy {
                             model.healthy = true;
                             model.in_cooldown = false;

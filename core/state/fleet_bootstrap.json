@@ -169,9 +169,9 @@
     {
       "charon_provider_id": "edge_backbone_coder",
       "configured_base_url": "http://100.102.250.115:8094/v1",
-      "display_name": "Annunimas Server (Gemma4 12B Coder Lane)",
+      "display_name": "Annunimas Server (Qwen2.5-Coder 7B Lane)",
       "expected_models": [
-        "gemma4-12b-coder-q4km"
+        "qwen2.5-coder-7b-q4km"
       ],
       "has_live_endpoint": false,
       "health_url": "http://100.102.250.115:8094/health",
@@ -203,7 +203,7 @@
             "attempt": 1,
             "restart": {
               "attempted": false,
-              "command": "systemctl --user --no-block restart llama-server-gemma4-coder.service",
+              "command": "systemctl --user --no-block restart llama-server-qwen2.5-coder.service",
               "error": "tailscale_peer_offline",
               "ok": false,
               "peer_online": false,

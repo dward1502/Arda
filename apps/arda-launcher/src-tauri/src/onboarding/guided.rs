@@ -1,7 +1,9 @@
 use serde_json::Value;
 use std::path::Path;
 
-use crate::onboarding::constants::{ONBOARDING_GUIDED_SESSION_CONTRACT, ONBOARDING_OPERATOR_ANSWERS_CONTRACT};
+use crate::onboarding::constants::{
+    ONBOARDING_GUIDED_SESSION_CONTRACT, ONBOARDING_OPERATOR_ANSWERS_CONTRACT,
+};
 use crate::onboarding::device::device_scan;
 use crate::onboarding::helpers::now_utc;
 use crate::onboarding::prerequisites::build_prerequisite_report;

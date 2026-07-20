@@ -15,12 +15,12 @@ use crate::adaptive::service::types::{
     RouteGovernanceLens, RouteLoveEquationGuard,
 };
 use arda_core::JouleWorkMeasurementSource;
+use arda_economics::LoveEquation;
 use arda_governance::{
     calculate_resonance_with_governance_chain, evaluate_governance_chain, profile_joulework,
     GateOutcome, GovernanceChainConfig, GovernanceChainResult, GovernanceLensConfig,
     GovernanceReviewMode, TriadPuritySource,
 };
-use arda_economics::LoveEquation;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 
@@ -753,9 +753,7 @@ fn lane_fitness_prune_hours() -> f64 {
         .unwrap_or(72.0)
 }
 
-fn parse_freeze_until(
-    p: &ProviderState,
-) -> Option<chrono::DateTime<chrono::Utc>> {
+fn parse_freeze_until(p: &ProviderState) -> Option<chrono::DateTime<chrono::Utc>> {
     p.cooldown_until_utc
         .as_deref()?
         .parse::<chrono::DateTime<chrono::Utc>>()
@@ -770,7 +768,11 @@ fn provider_freeze_threshold(p: &ProviderState) -> u32 {
 }
 
 fn model_consecutive_failures(models: &[ModelState]) -> u32 {
-    models.iter().map(|m| m.consecutive_failures).max().unwrap_or(0)
+    models
+        .iter()
+        .map(|m| m.consecutive_failures)
+        .max()
+        .unwrap_or(0)
 }
 
 pub(super) fn provider_freeze_banned(p: &ProviderState) -> bool {
@@ -779,9 +781,7 @@ pub(super) fn provider_freeze_banned(p: &ProviderState) -> bool {
         .unwrap_or(false)
 }
 
-pub(super) fn provider_freeze_gate_blackout_allowed(
-    p: &ProviderState,
-) -> bool {
+pub(super) fn provider_freeze_gate_blackout_allowed(p: &ProviderState) -> bool {
     if provider_freeze_banned(p) {
         return true;
     }
@@ -807,14 +807,13 @@ pub(super) fn provider_freeze_request_has_clear_failure(p: &ProviderState) -> bo
         })
 }
 
-pub(super) fn provider_freeze_record_metadata(
-    p: &ProviderState,
-) -> (String, String) {
+pub(super) fn provider_freeze_record_metadata(p: &ProviderState) -> (String, String) {
     let banned = provider_freeze_banned(p);
     match p.access_tier.as_str() {
-        "paid_cloud" | "local" => {
-            ("heavy_frz".to_string(), if banned { "freeze" } else { "retain" }.to_string())
-        }
+        "paid_cloud" | "local" => (
+            "heavy_frz".to_string(),
+            if banned { "freeze" } else { "retain" }.to_string(),
+        ),
         _ => (
             "light_frz".to_string(),
             if banned { "freeze" } else { "retry" }.to_string(),
@@ -826,10 +825,7 @@ pub(super) fn provider_freeze_failure_class_allowed(p: &ProviderState) -> bool {
     matches!(p.access_tier.as_str(), "paid_cloud" | "local")
 }
 
-pub(super) fn gate_update_freeze_until(
-    p: &mut ProviderState,
-    freeze_until: Option<String>,
-) {
+pub(super) fn gate_update_freeze_until(p: &mut ProviderState, freeze_until: Option<String>) {
     if freeze_until
         .as_deref()
         .is_some_and(|raw| !raw.trim().is_empty())
@@ -946,7 +942,9 @@ pub(super) fn provider_eligible(p: &ProviderState, priority: &str, strict: bool)
         return false;
     }
     let threshold = provider_freeze_threshold(&p);
-    let consecutive = p.consecutive_failures.saturating_add(model_consecutive_failures(&p.models));
+    let consecutive = p
+        .consecutive_failures
+        .saturating_add(model_consecutive_failures(&p.models));
     if consecutive >= threshold {
         return false;
     }
@@ -981,7 +979,9 @@ pub(super) fn provider_eligible_ignoring_cooldown(p: &ProviderState, priority: &
         return false;
     }
     let threshold = provider_freeze_threshold(&p).saturating_add(2);
-    let consecutive = p.consecutive_failures.saturating_add(model_consecutive_failures(&p.models));
+    let consecutive = p
+        .consecutive_failures
+        .saturating_add(model_consecutive_failures(&p.models));
     if consecutive >= threshold {
         return false;
     }

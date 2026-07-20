@@ -66,11 +66,10 @@ pub async fn crawl4ai_fetch_markdown(
                 agent: "athena".to_owned(),
                 message: format!("crawl4ai markdown endpoint returned failure: {e}"),
             })?;
-        let value: serde_json::Value =
-            response.json().await.map_err(|e| ArdaError::Agent {
-                agent: "athena".to_owned(),
-                message: format!("invalid crawl4ai markdown response JSON: {e}"),
-            })?;
+        let value: serde_json::Value = response.json().await.map_err(|e| ArdaError::Agent {
+            agent: "athena".to_owned(),
+            message: format!("invalid crawl4ai markdown response JSON: {e}"),
+        })?;
         let markdown = value
             .get("markdown")
             .and_then(|v| v.as_str())

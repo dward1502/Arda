@@ -10,11 +10,11 @@ use crate::adaptive::service::route_policy::{
     request_allows_hermes_cli_fast_lane, select_model_for_provider_request, HybridRoutePolicy,
     RouteExecutionProfile, RouteSelectionCandidate,
 };
-use crate::adaptive::service::types::CharonService;
-use serde_json::Value as JsonValue;
 use crate::adaptive::service::status::PackageRuntimeSignals;
+use crate::adaptive::service::types::CharonService;
 use crate::adaptive::service::types::{CharonRequestEnvelope, ProviderState};
 use arda_core::error::{ArdaError, Result};
+use serde_json::Value as JsonValue;
 
 impl CharonService {
     fn retain_preferred_local_surface_candidates(
@@ -1156,10 +1156,7 @@ mod tests {
     #[test]
     fn free_pool_provider_ids_are_env_configurable() {
         let _guard = ENV_LOCK.lock().expect("env lock");
-        std::env::set_var(
-            "ARDA_CHARON_FREE_POOL_PROVIDER_IDS",
-            "openrouter,google",
-        );
+        std::env::set_var("ARDA_CHARON_FREE_POOL_PROVIDER_IDS", "openrouter,google");
         assert!(configured_free_pool_provider("openrouter"));
         assert!(configured_free_pool_provider("google"));
         assert!(!configured_free_pool_provider("nvidia"));

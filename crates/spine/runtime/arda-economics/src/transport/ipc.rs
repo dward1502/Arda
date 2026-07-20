@@ -74,16 +74,15 @@ async fn handle_connection(stream: UnixStream, service: PlutusService) -> Result
 }
 
 pub async fn send_command(socket_path: PathBuf, cmd: &str, payload: Value) -> Result<Value> {
-    let mut stream =
-        UnixStream::connect(&socket_path)
-            .await
-            .map_err(|e| ArdaError::Agent {
-                agent: "plutus".to_owned(),
-                message: format!(
-                    "failed to connect to PLUTUS socket {}: {e}",
-                    socket_path.display()
-                ),
-            })?;
+    let mut stream = UnixStream::connect(&socket_path)
+        .await
+        .map_err(|e| ArdaError::Agent {
+            agent: "plutus".to_owned(),
+            message: format!(
+                "failed to connect to PLUTUS socket {}: {e}",
+                socket_path.display()
+            ),
+        })?;
     let mut encoded = serde_json::to_vec(&json!({"cmd": cmd, "payload": payload}))?;
     encoded.push(b'\n');
     stream

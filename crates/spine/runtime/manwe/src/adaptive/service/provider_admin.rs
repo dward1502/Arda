@@ -1,5 +1,3 @@
-
-
 #[derive(Debug, Clone, Default)]
 pub(super) struct ProviderCapacityProbeRecord {
     pub(super) generated_at_utc: String,

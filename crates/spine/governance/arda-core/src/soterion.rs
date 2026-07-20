@@ -572,8 +572,8 @@ fn yaml_string_hash(value: &Yaml) -> HashMap<String, String> {
 #[cfg(test)]
 mod tests {
     use super::{
-        machine_sigil_or_default, parse_header_from_content,
-        render_signature, SoterionGlyphEntry, SoterionIndex, SoterionRegistry,
+        machine_sigil_or_default, parse_header_from_content, render_signature, SoterionGlyphEntry,
+        SoterionIndex, SoterionRegistry,
     };
     use chrono::{Duration, Utc};
     use std::collections::HashMap;
@@ -582,10 +582,7 @@ mod tests {
     use uuid::Uuid;
 
     fn temp_dir(label: &str) -> PathBuf {
-        std::env::temp_dir().join(format!(
-            "arda-core-soterion-{label}-{}",
-            Uuid::new_v4()
-        ))
+        std::env::temp_dir().join(format!("arda-core-soterion-{label}-{}", Uuid::new_v4()))
     }
 
     #[test]
@@ -712,5 +709,4 @@ soterion:
         assert_eq!(fallback.sigil_retention.as_deref(), Some("summarize"));
         assert_eq!(fallback.sigil_source.as_deref(), Some("core"));
     }
-
 }

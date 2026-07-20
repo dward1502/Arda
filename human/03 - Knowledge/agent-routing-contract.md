@@ -109,7 +109,8 @@ into `options`.
 `execution`
 
 - prefer the sovereign local execution surface first
-- current Annunimas default local surface: `edge_backbone`
+- `edge_backbone_bonsai27` (Ternary-Bonsai-27B-Q2_0 on :8095) is the DEFAULT high-quality local route as of 2026-07-19: registered as a primary local surface and routable for normal chat/reasoning (router context floor lowered to 8192 via `ANNUNIMAS_CHARON_MIN_CONTEXT_WINDOW` so its 8192-ctx cap clears). Tool/execution lanes keep the ≥32K/64K guard to protect Hermes tool-call stability.
+- fast/low-latency local surface: `edge_core` (LFM2.5-8B on :9337)
 - direct llama.cpp nodes are fallback capacity
 
 `validator`

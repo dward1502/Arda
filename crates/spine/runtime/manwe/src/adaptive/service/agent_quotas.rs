@@ -1,5 +1,5 @@
-use crate::adaptive::service::types::{CharonRequestEnvelope, ProviderState};
 use crate::adaptive::service::types::CharonService;
+use crate::adaptive::service::types::{CharonRequestEnvelope, ProviderState};
 use chrono::{Duration, Utc};
 use std::collections::BTreeMap;
 

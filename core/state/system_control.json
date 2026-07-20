@@ -243,14 +243,14 @@
           "model": [
             {
               "aliases": [
-                "gemma4-coder",
-                "gemma4-12b-coder",
-                "gemma-coder",
+                "qwen2.5-coder-7b",
+                "qwen25-coder-7b",
+                "qwen2.5-coder",
                 "annunimas-server-coder"
               ],
               "capabilities": {
                 "streaming": true,
-                "structured_output": false,
+                "structured_output": true,
                 "tools": true,
                 "visible_reasoning": false
               },
@@ -261,12 +261,12 @@
                 "summary",
                 "background"
               ],
-              "context_window": 8192,
-              "id": "gemma4-12b-coder-q4km",
+              "context_window": 32768,
+              "id": "qwen2.5-coder-7b-q4km",
               "is_default": true
             }
           ],
-          "name": "Annunimas Server Gemma4 Coder",
+          "name": "Annunimas Server Qwen2.5-Coder 7B",
           "quality_band": "high",
           "requests_per_minute": 60
         },

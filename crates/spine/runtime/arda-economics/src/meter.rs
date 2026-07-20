@@ -564,7 +564,10 @@ mod tests {
         // repo root.
         let mut dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let path = loop {
-            let candidate = dir.join("config").join("governance").join("joule_tariffs.toml");
+            let candidate = dir
+                .join("config")
+                .join("governance")
+                .join("joule_tariffs.toml");
             if candidate.exists() {
                 break candidate;
             }

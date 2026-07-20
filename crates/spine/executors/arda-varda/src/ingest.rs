@@ -3,10 +3,10 @@ use arda_core::error::{ArdaError, Result};
 use arda_core::llm::LlmProvider;
 use arda_core::task::Task;
 use arda_core::try_run_bounded;
+use arda_economics::JouleWorkUnit;
 use arda_governance::{
     calculate_resonance_basic, record_bacon_lite, triad_validate, GateOutcome, TriadConfig,
 };
-use arda_economics::JouleWorkUnit;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use std::fs::{self, OpenOptions};
@@ -1353,8 +1353,8 @@ mod tests {
             .expect("ingest");
 
         assert!(!record.id.is_empty());
-        let workspace_registry = crate::ingest::layout::arda_root()
-            .join("core/state/knowledge_triage_registry.jsonl");
+        let workspace_registry =
+            crate::ingest::layout::arda_root().join("core/state/knowledge_triage_registry.jsonl");
         let registry = fs::read_to_string(&workspace_registry).unwrap_or_default();
         let expected_path = format!("data/athena/books/{}.jsonl", record.id);
         assert!(

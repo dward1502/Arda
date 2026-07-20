@@ -1,18 +1,36 @@
+use std::sync::OnceLock;
+
 use crate::adaptive::service::types::CharonService;
 use crate::adaptive::service::types::RouteLoveEquationGuard;
 use arda_core::error::{ArdaError, Result};
-use arda_vaire::InformantEvent;
 use arda_economics::{JouleWorkUnit, PlutusService};
+use arda_vaire::InformantEvent;
 use chrono::Utc;
+
+#[cfg(feature = "telemetry")]
+use arda_aule::telemetry::{Destination, TelemetryEvent};
 
 #[derive(Debug, Clone, Default)]
 pub(super) struct MnemosyneClient;
 
+#[cfg(feature = "telemetry")]
+static TELEMETRY_CRATE: OnceLock<String> = OnceLock::new();
+
+#[cfg(feature = "telemetry")]
+pub(super) fn telemetry_crate() -> &'static str {
+    TELEMETRY_CRATE.get_or_init(|| "charon".to_string())
+}
+
+#[cfg(feature = "telemetry")]
+fn emit_telemetry(name: impl Into<std::borrow::Cow<'static, str>>) {
+    let _ = crate::adaptive::service::observability::tracer::instrument_span(
+        &tracing::Span::current(),
+        &TelemetryEvent::new(name).destination(Destination::Both),
+    );
+}
+
 impl MnemosyneClient {
-    pub(super) fn encode(
-        &self,
-        event: InformantEvent,
-    ) -> Result<()> {
+    pub(super) fn encode(&self, event: InformantEvent) -> Result<()> {
         let _ = event;
         Ok(())
     }
@@ -20,9 +38,18 @@ impl MnemosyneClient {
 
 impl CharonService {
     pub(super) fn append_state_event(&self, event: &str, payload: serde_json::Value) -> Result<()> {
-        // Hot path: enqueue onto the async event writer; falls back to a sync
-        // append_jsonl if the writer task isn't running (no tokio runtime
-        // present, e.g. in unit tests) or its channel is full.
+        #[cfg(feature = "telemetry")]
+        {
+            let _ = arda_aule::telemetry::emit(
+                ardea_aule::telemetry::TelemetryEvent::new(format!("charon.state.{}", event))
+                    .attr(
+                        "crate",
+                        crate::adaptive::service::telemetry::telemetry_crate(),
+                    )
+                    .attr("event", event)
+                    .attr("schema", arda_aule::telemetry::semantic::SCHEMA_VERSION),
+            );
+        }
         self.event_writer.send_state(&serde_json::json!({
             "ts": Utc::now().to_rfc3339(),
             "event": event,
@@ -35,6 +62,18 @@ impl CharonService {
         event: &str,
         payload: serde_json::Value,
     ) -> Result<()> {
+        #[cfg(feature = "telemetry")]
+        {
+            let _ = arda_aule::telemetry::emit(
+                ardea_aule::telemetry::TelemetryEvent::new(format!("charon.governance.{}", event))
+                    .attr(
+                        "crate",
+                        crate::adaptive::service::telemetry::telemetry_crate(),
+                    )
+                    .attr("event", event)
+                    .attr("schema", arda_aule::telemetry::semantic::SCHEMA_VERSION),
+            );
+        }
         self.event_writer.send_governance(&serde_json::json!({
             "ts": Utc::now().to_rfc3339(),
             "event": event,
@@ -49,6 +88,18 @@ impl CharonService {
         confidence_hint: Option<f64>,
         tags: Vec<String>,
     ) {
+        #[cfg(feature = "telemetry")]
+        {
+            let _ = arda_aule::telemetry::emit(
+                arda_aule::telemetry::TelemetryEvent::new("charon.memory.")
+                    .attr(
+                        "crate",
+                        crate::adaptive::service::telemetry::telemetry_crate(),
+                    )
+                    .attr("event", event_type)
+                    .attr("schema", arda_aule::telemetry::semantic::SCHEMA_VERSION),
+            );
+        }
         if let Some(service) = &self.mnemosyne {
             let event = InformantEvent {
                 informant_id: "charon_mneme".to_string(),

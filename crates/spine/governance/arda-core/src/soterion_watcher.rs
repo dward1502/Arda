@@ -237,10 +237,7 @@ body
     #[test]
     fn default_soterion_index_path_prefers_env_override() {
         let path = temp_path("env-index", "json");
-        let _env = EnvGuard::set(
-            "ARDA_SOTERION_INDEX_PATH",
-            path.to_string_lossy().as_ref(),
-        );
+        let _env = EnvGuard::set("ARDA_SOTERION_INDEX_PATH", path.to_string_lossy().as_ref());
         assert_eq!(default_soterion_index_path(), path.to_string_lossy());
     }
 }

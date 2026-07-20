@@ -7,9 +7,9 @@
 //! `hermes chat -q <prompt> --provider <name> -Q --toolsets ""`, capture
 //! stdout, and wrap it in an OpenAI `chat.completion` envelope so the
 //! rest of charon doesn't need to know the difference.
+use crate::adaptive::service::error::{ArdaError, Result};
 use crate::adaptive::service::types::ProviderState;
 use serde_json::Value as JsonValue;
-use crate::adaptive::service::error::{ArdaError, Result};
 use std::collections::BTreeMap;
 use std::sync::{Mutex, OnceLock};
 use std::time::{Duration, Instant};

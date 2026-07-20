@@ -48,9 +48,8 @@ impl Config {
         let content = std::fs::read_to_string(path.as_ref()).map_err(|e| {
             crate::error::ArdaError::Config(format!("Failed to read config: {}", e))
         })?;
-        toml::from_str(&content).map_err(|e| {
-            crate::error::ArdaError::Config(format!("Failed to parse config: {}", e))
-        })
+        toml::from_str(&content)
+            .map_err(|e| crate::error::ArdaError::Config(format!("Failed to parse config: {}", e)))
     }
 }
 

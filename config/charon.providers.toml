@@ -60,7 +60,7 @@ requests_per_day = 100000
 
 [[provider]]
 id = "edge_beelink_light"
-name = "Beelink Light Qwen Worker"
+name = "Beelink Light Ternary Bonsai 8B Worker"
 base_url = "http://100.103.125.88:9337/v1"
 enabled = true
 access_tier = "local"
@@ -68,12 +68,13 @@ quality_band = "medium"
 requests_per_minute = 120
 
   [[provider.model]]
-  id = "Qwen_Qwen3.5-4B-Q6_K"
+  id = "Ternary-Bonsai-8B-Q2_0"
   capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background", "monitoring"]
-  context_window = 32768
+  context_window = 131072
   is_default = true
   capabilities = { tools = true, structured_output = true, streaming = true }
-  aliases = ["qwen3.5-4b", "qwen35-4b", "Qwen3.5-4B", "4B"]
+  aliases = ["ternary-bonsai-8b", "bonsai-8b", "b8", "Ternary-Bonsai-8B-Q2_0"]
+  notes = "Updated 2026-07-18. Beelink SER9 Pro :9337 now serves Ternary-Bonsai-8B-Q2_0 (ternary Q2_0 GGUF) via the Prism-ML llama.cpp fork built with GGML_VULKAN against the AMD Radeon 890M (Vulkan0). The stock ggerganov/llama.cpp rejects this ternary quant (tensor-layout mismatch), so only the Prism fork parses it. Replaces the prior Qwen_Qwen3.5-4B-Q6_K mainline lane."
 
 [[provider]]
 id = "edge_core"
@@ -144,9 +145,9 @@ max_completion_tokens = 2048
 
 [[provider]]
 id = "edge_backbone_coder"
-name = "Annunimas Server Gemma4 Coder"
-# Local Gemma4 12B coder lane on annunimas-server. Updated 2026-06-16 after
-# stopping/disabling the Qwen3-Coder service to free VRAM.
+name = "Annunimas Server Qwen2.5-Coder 7B"
+# Replaced 2026-07-19: Genma4 12B coder retired; this lane now serves
+# Qwen2.5-Coder-7B-Instruct-Q4_K_M on the same :8094 endpoint.
 base_url = "http://100.102.250.115:8094/v1"
 enabled = true
 access_tier = "local"
@@ -155,12 +156,12 @@ requests_per_minute = 60
 max_completion_tokens = 4096
 
   [[provider.model]]
-  id = "gemma4-12b-coder-q4km"
+  id = "qwen2.5-coder-7b-q4km"
   capable_tasks = ["code", "reasoning", "chat", "summary", "background"]
-  context_window = 8192
+  context_window = 32768
   is_default = true
-  capabilities = { tools = true, structured_output = false, streaming = true, visible_reasoning = false }
-  aliases = ["gemma4-coder", "gemma4-12b-coder", "gemma-coder", "annunimas-server-coder"]
+  capabilities = { tools = true, structured_output = true, streaming = true, visible_reasoning = false }
+  aliases = ["qwen2.5-coder-7b", "qwen25-coder-7b", "qwen2.5-coder", "annunimas-server-coder"]
 
 [[provider]]
 id = "edge_backbone_vision"
@@ -179,6 +180,31 @@ max_completion_tokens = 2048
   is_default = true
   capabilities = { tools = false, structured_output = false, streaming = true }
   aliases = ["qwen2.5-vl", "qwen-vl", "vision-local"]
+
+[[provider]]
+id = "edge_backbone_bonsai27"
+name = "Annunimas Server Ternary Bonsai 27B Lane"
+# Sovereign annunimas-server lane. Added 2026-07-18: Ternary-Bonsai-27B-Q2_0
+# (ternary Q2_0 GGUF) served by the Prism-ML llama.cpp fork built with
+# GGML_CUDA against the 2x RTX 2080 Super (8G each) on annunimas-server,
+# tensor-split 0.05/0.95 across both GPUs (GPU0 is VRAM-tight behind the
+# LFM25 + Gemma4 lanes). The stock ggerganov/llama.cpp cannot parse this
+# ternary quant (tensor-layout mismatch), so only the Prism fork works.
+base_url = "http://100.102.250.115:8095/v1"
+enabled = true
+access_tier = "local"
+quality_band = "high"
+requests_per_minute = 20
+max_completion_tokens = 1024
+
+  [[provider.model]]
+  id = "ternary-bonsai-27b-q2_0"
+  capable_tasks = ["research", "reasoning", "chat", "summary", "background"]
+  context_window = 8192
+  is_default = true
+  capabilities = { tools = false, structured_output = false, streaming = true, visible_reasoning = false }
+  aliases = ["ternary-bonsai-27b", "bonsai-27b", "b27", "Ternary-Bonsai-27B-Q2_0"]
+  notes = "27B ternary Q2_0 (~6.7G). Served via llama-server-bonsai27.service (user systemd, enabled). ctx capped at 8192 because a 27B KV cache at 32K OOMs GPU1; tensor-split biases ~95% of weights to GPU1. Model emits a reasoning trace (thinking=1) before the final answer; visible_reasoning set false so the router treats it as a default-capable local model (the trace still arrives in reasoning_content for clients that read it)."
 
 [[provider]]
 id = "edge_laptop"
@@ -208,7 +234,7 @@ requests_per_minute = 60
   [[provider.model]]
   id = "Qwen3.5-4B-Q4_K_M.gguf"
   capable_tasks = ["chat", "summary", "background", "monitoring"]
-  context_window = 4096
+  context_window = 262144
   is_default = true
   aliases = ["qwen3.5-4b", "Qwen3.5-4B", "4B"]
 

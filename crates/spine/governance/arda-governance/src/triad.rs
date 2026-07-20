@@ -502,9 +502,7 @@ fn has_action_verb(desc: &str) -> bool {
 // TriadOutcome. Used by `arda-cli loop tick`.
 // ---------------------------------------------------------------
 
-use arda_core::contract::{
-    PhilosopherVerdict, TriadOutcome as ContractTriadOutcome, TriadVerdict,
-};
+use arda_core::contract::{PhilosopherVerdict, TriadOutcome as ContractTriadOutcome, TriadVerdict};
 use arda_core::loop_engine::TriadConsultant;
 
 /// Live triad consultant. Wraps `triad_validate` and reshapes the
@@ -672,9 +670,10 @@ pass_threshold = 0.50
 
     #[test]
     fn repository_default_chain_config_matches_g3_contract() {
-        let chain =
-            load_governance_chain_from_str(include_str!("../../../../../config/governance/chains.toml"))
-                .expect("repository default governance chain should parse and validate");
+        let chain = load_governance_chain_from_str(include_str!(
+            "../../../../../config/governance/chains.toml"
+        ))
+        .expect("repository default governance chain should parse and validate");
         let default_chain = GovernanceChainConfig::default_triad();
 
         assert_eq!(chain.schema_version, GovernanceChainConfig::SCHEMA_VERSION);

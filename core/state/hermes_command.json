@@ -157,7 +157,7 @@
               "attempt": 1,
               "restart": {
                 "attempted": false,
-                "command": "systemctl --user --no-block restart llama-server-gemma4-coder.service",
+                "command": "systemctl --user --no-block restart llama-server-qwen2.5-coder.service",
                 "error": "tailscale_peer_offline",
                 "ok": false,
                 "peer_online": false,

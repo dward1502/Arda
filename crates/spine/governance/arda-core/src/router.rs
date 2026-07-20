@@ -25,9 +25,7 @@ impl Router {
                 return Ok(&**agent);
             }
         }
-        Err(crate::error::ArdaError::NoRoute(
-            task.task_type.clone(),
-        ))
+        Err(crate::error::ArdaError::NoRoute(task.task_type.clone()))
     }
 
     pub fn list_agents(&self) -> Vec<&str> {

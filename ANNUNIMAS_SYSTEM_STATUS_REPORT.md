@@ -46,7 +46,9 @@ Live listener/runtime snapshot:
 | LiteLLM bridge | ✅ listening on `127.0.0.1:4000` |
 | Metrics exporter | ✅ listening on `0.0.0.0:9101` |
 | Node exporter | ✅ listening on `*:9100` |
-| Local mesh-llm | ✅ listening on `0.0.0.0:3131` and `0.0.0.0:9337` |
+| Local mesh-llm | ✅ listening on `0.0.0.0:3131` |
+| Beelink SER9 :9337 (Ternary-Bonsai-8B-Q2_0) | ✅ Prism-ML llama.cpp fork + Vulkan (AMD Radeon 890M), reachable on `http://100.103.125.88:9337/v1` |
+| Annunimas-Server :8095 (Ternary-Bonsai-27B-Q2_0) | ✅ Prism-ML llama.cpp fork + CUDA, tensor-split across 2× RTX 2080 Super, reachable on `http://100.102.250.115:8095/v1` — **promoted 2026-07-19 to the default high-quality local route** (`edge_backbone_bonsai27` primary local surface; `ANNUNIMAS_CHARON_MIN_CONTEXT_WINDOW=8192` lets its 8192-ctx cap clear the router's context floor). Tool/execution lanes keep the ≥32K guard to protect Hermes tool-call stability. |
 | Arda user systemd units | ⚠️ none loaded |
 
 Evidence basis: `ss -ltnp`, process ownership, repo workspace validation.
@@ -58,7 +60,7 @@ Evidence basis: `ss -ltnp`, process ownership, repo workspace validation.
 - **Router/binary surface:** active Charon router listener on `0.0.0.0:5110`
 - **Local gateway crate:** `manwe` at `crates/spine/runtime/manwe`; default static gateway is `127.0.0.1:7171`
 - **Provider state projection:** no live `core/state/charon_router.json` or `core/state/queue_summary.json` state observed under the Arda root
-- **Active local mesh-llm endpoints:** `3131`, `9337`
+- **Active local mesh-llm endpoints:** `3131`; Beelink SER9 :9337 (Ternary-Bonsai-8B-Q2_0, Prism/Vulkan); Annunimas-Server :8095 (Ternary-Bonsai-27B-Q2_0, Prism/CUDA tensor-split)
 - **Active LiteLLM endpoint:** `4000`
 
 Operational note: This review does not verify provider/model count from state files because those files were not present at scan time. Route behavior should be validated directly against the running router on `:5110`.
@@ -73,7 +75,7 @@ Workspace root surface:
 
 Known subsystem surfs currently documented/implemented:
 - Charon router / manwe gateway
-- Local inference endpoints: mesh-llm on `3131` / `9337`
+- Local inference endpoints: mesh-llm on `3131`; Beelink SER9 :9337 (Ternary-Bonsai-8B-Q2_0, Prism/Vulkan); Annunimas-Server :8095 (Ternary-Bonsai-27B-Q2_0, Prism/CUDA tensor-split)
 - LiteLLM gateway on `4000`
 - Metrics exporter `9101`
 - Node exporter `9100`

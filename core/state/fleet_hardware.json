@@ -50,7 +50,7 @@
       "node_class": "backbone_compute"
     },
     {
-      "display_name": "Annunimas Server (Gemma4 12B Coder Lane)",
+      "display_name": "Annunimas Server (Qwen2.5-Coder 7B Lane)",
       "enrollment_status": "active",
       "hostname": "annunimas-server",
       "id": "node-backbone-gemma4-coder",

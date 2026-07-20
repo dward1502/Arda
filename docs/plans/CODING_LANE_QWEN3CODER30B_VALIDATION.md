@@ -1,17 +1,17 @@
 # Code/Agentic lane — Qwen3-Coder-30B-A3B validation checklist
 
 Target node: `node-backbone-gemma4-coder`
-Current: `gemma4-12b-coder-q4km` on `:8094`
+Current: `qwen2.5-coder-7b-q4km` on `:8094`
 Hardware: RTX 2080 Super, 28 GPU layers, 8K context
 OS: annunimas-server / eregion distrobox
-Service: `llama-server-gemma4-coder.service`
+Service: `llama-server-qwen2.5-coder.service`
 
 ## 1. Pre-flight hardware check
 
 On `annunimas-server` via SSH:
 - [ ] `nvidia-smi` — confirm RTX 2080 Super detected, VRAM total ~8GB
 - [ ] `df -h /home/annunimas-server/models` — confirm ≥45GB free for 30B-MoE GGUF
-- [ ] `systemctl --user status llama-server-gemma4-coder.service` — stop/disable current lane before swap
+- [ ] `systemctl --user status llama-server-qwen2.5-coder.service` — stop/disable current lane before swap
 
 ## 2. Model selection
 
@@ -34,7 +34,7 @@ On `annunimas-server`:
 
 ## 4. Service command rewrite
 
-Replace `llama-server-gemma4-coder.service` with:
+Replace `llama-server-qwen2.5-coder.service` with:
 - [ ] Model path pointing to new GGUF
 - [ ] `--ctx-size 8192` (can reduce to 4096 if VRAM tight)
 - [ ] `--n-gpu-layers 28` or lower based on dry-run
@@ -45,8 +45,8 @@ Replace `llama-server-gemma4-coder.service` with:
 ## 5. Startup validation
 
 - [ ] `systemctl --user daemon-reload`
-- [ ] `systemctl --user start llama-server-gemma4-coder.service`
-- [ ] `journalctl -u llama-server-gemma4-coder.service -f` — watch for OOM/load errors
+- [ ] `systemctl --user start llama-server-qwen2.5-coder.service`
+- [ ] `journalctl -u llama-server-qwen2.5-coder.service -f` — watch for OOM/load errors
 - [ ] Wait for `server is listening on :8094`
 - [ ] `curl -s http://127.0.0.1:8094/v1/models` — confirm model id
 - [ ] `curl -s http://127.0.0.1:8094/health` — HTTP 200
@@ -67,15 +67,15 @@ Replace `llama-server-gemma4-coder.service` with:
 
 ## 8. Rollback criteria
 
-Roll back to `gemma4-12b-coder-q4km` if:
+Roll back to `qwen2.5-coder-7b-q4km` if:
 - [ ] VRAM OOM persists at Q4_K_M with 28 GPU layers
 - [ ] Tokens/sec < 8 on 2080 Super at 8K context
 - [ ] Service crashes within 10 minutes of idle/load
 - [ ] `/v1/chat/completions` returns malformed output
 
 Rollback command:
-- [ ] `systemctl --user stop llama-server-gemma4-coder.service`
-- [ ] Restore previous service file with `gemma4-12b-coder-q4km` path
+- [ ] `systemctl --user stop llama-server-qwen2.5-coder.service`
+- [ ] Restore previous service file with `qwen2.5-coder-7b-q4km` path
 - [ ] Restart and verify `/v1/models`
 
 ## 9. Manwe integration gate

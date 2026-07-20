@@ -114,12 +114,12 @@ freshness_notes = ["promoted_2026_06_06_gpu_backed_64k_context", "primary_local_
 
 [[live_model]]
 provider_id = "edge_worker_light"
-model_id = "Qwen_Qwen3.5-4B-Q6_K"
-status = "active_stale_review"
+model_id = "Ternary-Bonsai-8B-Q2_0"
+status = "active"
 source_config = "config/fleet.toml"
 serving_endpoint = "http://100.103.125.88:9337/v1"
 lanes = ["scout_research", "monitoring_warden"]
-freshness_notes = ["older_qwen_generation_present"]
+freshness_notes = ["updated_2026_07_18", "beelink_ser9_pro_9337_now_serves_ternary_8b_q2_0_via_prism_fork_vulkan", "replaces_prior_qwen_qwen3.5_4b_q6_k_mainline_lane"]
 
 [[live_model]]
 provider_id = "edge_guardhouse"
@@ -129,6 +129,17 @@ source_config = "config/charon.providers.toml"
 serving_endpoint = "http://100.110.85.37:1234/v1"
 lanes = ["monitoring_warden"]
 freshness_notes = ["older_qwen_generation_present", "quantized_local_artifact_should_have_freshness_review"]
+
+[[live_model]]
+provider_id = "edge_backbone_bonsai27"
+model_id = "ternary-bonsai-27b-q2_0"
+status = "active"
+source_config = "config/fleet.toml"
+serving_endpoint = "http://100.102.250.115:8095/v1"
+# Promoted 2026-07-19 to the default high-quality local route (see model_route_matrix.toml).
+# tools=false so it does NOT join the tool/code lane (edge_backbone_coder owns that).
+lanes = ["council", "scout_research"]
+freshness_notes = ["added_2026_07_18", "annunimas_server_8095_serves_ternary_27b_q2_0_via_prism_fork_cuda", "tensor_split_0.05_0.95_across_2x_rtx2080s", "ctx_capped_8192_to_avoid_kv_oom", "model_emits_reasoning_trace_before_final_answer", "promoted_2026_07_19_default_high_quality_local_route"]
 
 [[removed_route]]
 provider_id = "openrouter"

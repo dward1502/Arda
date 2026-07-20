@@ -1,0 +1,122 @@
+{
+  "schema_version": "arda.contract-registry.v1",
+  "generated_at_utc": "2026-07-19T00:00:00Z",
+  "authority": "contract_registry",
+  "tracks": [
+    {
+      "track_id": "arda-ecosystem-standard-track-1-observability",
+      "title": "Telemetry Contract",
+      "owner": "WARDEN",
+      "status": "active",
+      "source_modules": [
+        "crates/spine/observability/arda-aule/src/cli/export_surface/runtime_exports.rs",
+        "crates/spine/observability/arda-aule/src/cli/commands/charon_telemetry.rs",
+        "crates/spine/observability/arda-aule/src/cli/support.rs"
+      ],
+      "evidence_class_current": "runtime_receipted",
+      "evidence_class_target": "service_init",
+      "schema_versions": [
+        "arda.runtime-admission-receipts.v1",
+        "arda.memory-governor.v1",
+        "arda.core.state.v1"
+      ],
+      "receipt_stores": [
+        "data/telemetry/",
+        "core/state/runtime_admission_receipts.json"
+      ],
+      "cli_verbs": [
+        "arda telemetry schema",
+        "arda telemetry receipt <run_id>"
+      ]
+    },
+    {
+      "track_id": "arda-ecosystem-standard-track-2-governance",
+      "title": "Governance Contract",
+      "owner": "PROMETHEUS",
+      "status": "active",
+      "source_modules": [
+        "crates/spine/governance/arda-governance/src/triad.rs",
+        "crates/spine/governance/arda-governance/src/readiness.rs",
+        "crates/spine/governance/arda-governance/src/game_theory.rs",
+        "crates/spine/governance/arda-governance/src/bacon_lite.rs",
+        "crates/spine/governance/arda-governance/src/resonance.rs",
+        "crates/spine/governance/arda-governance/src/philosopher_profiles.rs"
+      ],
+      "evidence_class_current": "runtime_receipted",
+      "evidence_class_target": "policy_enforced",
+      "schema_versions": [
+        "arda.governance.chains.v1",
+        "arda.governance.readiness.v1"
+      ],
+      "receipt_stores": [
+        "core/state/governance_receipts.json",
+        "data/prometheus/"
+      ],
+      "cli_verbs": [
+        "arda governance policy <policy_id>",
+        "arda governance receipt <receipt_id>"
+      ]
+    },
+    {
+      "track_id": "arda-ecosystem-standard-track-3-agent-runtime-tooling",
+      "title": "Agent Runtime and Tooling Contract",
+      "owner": "PLUTUS",
+      "status": "active",
+      "source_modules": [
+        "crates/spine/interface/arda-orome/src/service.rs",
+        "crates/spine/interface/arda-orome/src/mcp/server.rs",
+        "crates/spine/interface/arda-orome/src/mcp/tools.rs",
+        "crates/spine/interface/arda-orome/src/service/council.rs",
+        "crates/spine/interface/arda-orome/src/types.rs",
+        "crates/spine/runtime/manwe/src/adaptive/service/runtime_state.rs",
+        "crates/spine/runtime/manwe/src/adaptive/service/capabilities.rs",
+        "crates/spine/runtime/manwe/src/adaptive/transport/http.rs"
+      ],
+      "evidence_class_current": "runtime_receipted",
+      "evidence_class_target": "policy_enforced",
+      "schema_versions": [
+        "arda.core.state.v1",
+        "arda.mcp.v1",
+        "arda.mcp.tool.v1",
+        "arda.l3-readiness-projection.v1"
+      ],
+      "receipt_stores": [
+        "core/state/",
+        "data/prometheus/"
+      ],
+      "cli_verbs": [
+        "arda service graph",
+        "arda tool manifest <agent_id>",
+        "arda runtime receipt <run_id>"
+      ]
+    },
+    {
+      "track_id": "arda-ecosystem-standard-track-4-evaluation-learning",
+      "title": "Evaluation and Learning Loop Contract",
+      "owner": "ATHENA",
+      "status": "active",
+      "source_modules": [
+        "crates/spine/executors/arda-varda/src/learning.rs",
+        "crates/spine/executors/arda-varda/src/human.rs",
+        "crates/spine/executors/arda-varda/src/ingest.rs",
+        "crates/spine/executors/arda-varda/src/ingest/io.rs"
+      ],
+      "evidence_class_current": "runtime_receipted",
+      "evidence_class_target": "policy_enforced",
+      "schema_versions": [
+        "arda.athena.knowledge_delta.v1",
+        "arda.athena-policy-ready-memory.v1",
+        "arda.human-scan-report.v1"
+      ],
+      "receipt_stores": [
+        "core/projects/tasks/queue.jsonl",
+        "data/prometheus/"
+      ],
+      "cli_verbs": [
+        "arda eval run <task_id>",
+        "arda eval receipt <run_id>",
+        "arda learning delta <run_id>"
+      ]
+    }
+  ]
+}

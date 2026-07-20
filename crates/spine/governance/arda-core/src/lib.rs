@@ -38,6 +38,11 @@ pub use llm::{
     ChatMessage, ChatRequest, ChatResponse, LlmConfig, LlmProvider, OpenAiCompatibleProvider,
 };
 pub use message::Message;
+pub use service_registry::{
+    ArdaServiceRegistryStatus, ContinuityConfig, ContractConfig, GovernanceConfig, RegistryError,
+    ServiceContract, ServiceHandle, ServiceKind, ServiceRecord, ServiceRegistry,
+    ServiceRegistryState, ServiceRegistryStateValidator, ServiceStatus,
+};
 pub use soterion::{
     default_soterion_registry_path, file_sigil_name_from_registry, load_default_soterion_registry,
     load_soterion_registry, machine_sigil_from_registry, machine_sigil_or_default,
@@ -45,13 +50,6 @@ pub use soterion::{
     SoterionMachineSigil, SoterionMeta, SoterionRegistry, SoterionRegistryEntry, SIGIL_DICTIONARY,
 };
 pub use soterion_watcher::SoterionWatcher;
-pub use service_registry::{
-    ArdaServiceRegistryStatus, ContractConfig, ContinuityConfig, GovernanceConfig, RegistryError,
-    ServiceContract, ServiceHandle, ServiceKind, ServiceRecord, ServiceRegistry,
-    ServiceRegistryState, ServiceRegistryStateValidator, ServiceStatus,
-};
-pub use systemd::{
-    SystemctlClient, SystemdClient, SystemdError, Unit, UnitKind, parse_list_units,
-};
+pub use systemd::{parse_list_units, SystemctlClient, SystemdClient, SystemdError, Unit, UnitKind};
 pub use task::{JouleWorkMeasurementSource, Task, TaskId, TaskStatus};
 pub use tool::ToolRegistry;

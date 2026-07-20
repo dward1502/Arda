@@ -82,7 +82,11 @@ async fn main() -> anyhow::Result<()> {
         );
     } else {
         for svc in &services {
-            info!("arda daemon: will supervise '{}' ({})", svc.name, svc.exe.display());
+            info!(
+                "arda daemon: will supervise '{}' ({})",
+                svc.name,
+                svc.exe.display()
+            );
         }
     }
 
@@ -91,7 +95,8 @@ async fn main() -> anyhow::Result<()> {
 
     // Shared live-PID mirror so the harness status surface can report what is
     // actually running without reaching into the supervisor's internals.
-    let harness_pids: Arc<tokio::sync::RwLock<Vec<u32>>> = Arc::new(tokio::sync::RwLock::new(Vec::new()));
+    let harness_pids: Arc<tokio::sync::RwLock<Vec<u32>>> =
+        Arc::new(tokio::sync::RwLock::new(Vec::new()));
     supervisor.set_pid_mirror(Some(harness_pids.clone())).await;
 
     // Harness tap-in surface: the ONE port Hermes/Agent connects to. Honours
@@ -99,9 +104,7 @@ async fn main() -> anyhow::Result<()> {
     // to 127.0.0.1:7878.
     let harness_state = arda_engine::harness::HarnessState {
         child_pids: harness_pids,
-        service_names: Arc::new(
-            reg.services.iter().map(|s| s.name.clone()).collect(),
-        ),
+        service_names: Arc::new(reg.services.iter().map(|s| s.name.clone()).collect()),
         manwe_url: "http://127.0.0.1:7171".to_string(),
     };
     let harness_addr: Option<SocketAddr> = cli
@@ -111,12 +114,8 @@ async fn main() -> anyhow::Result<()> {
         .transpose()
         .map_err(|e| anyhow::anyhow!("invalid --harness-addr: {e}"))?;
     let harness_shutdown = Arc::new(tokio::sync::Notify::new());
-    let (_bound, _harness_handle) = arda_engine::harness::serve(
-        harness_addr,
-        harness_state,
-        harness_shutdown.clone(),
-    )
-    .await?;
+    let (_bound, _harness_handle) =
+        arda_engine::harness::serve(harness_addr, harness_state, harness_shutdown.clone()).await?;
 
     // Fire shutdown on ctrl-c.
     let shutdown_on_signal = shutdown.clone();

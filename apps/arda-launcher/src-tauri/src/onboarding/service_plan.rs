@@ -11,7 +11,9 @@ use crate::onboarding::constants::{
 };
 use crate::onboarding::device_scan;
 use crate::onboarding::guided::build_guided_session;
-use crate::onboarding::helpers::{action_is_approved, action_receipt_path, make_apply_result, now_utc};
+use crate::onboarding::helpers::{
+    action_is_approved, action_receipt_path, make_apply_result, now_utc,
+};
 use crate::onboarding::io::{
     build_proposed_config, onboarding_run_dir, write_json, write_profile, write_readiness,
 };
@@ -125,9 +127,15 @@ pub fn build_service_plan(profile: &EnvironmentProfile, root: &Path) -> ServiceP
         action_type: "emit_projection".to_string(),
         title: "Emit proposed configuration artifact".to_string(),
         command_hint: "cargo run -p arda-cli -- onboarding propose-config".to_string(),
-        target_path: Some(root.join("audit/onboarding-runs").to_string_lossy().to_string()),
+        target_path: Some(
+            root.join("audit/onboarding-runs")
+                .to_string_lossy()
+                .to_string(),
+        ),
         requires_human_gate: false,
-        description: "Render a machine-specific proposal from arda.template.toml into an audit artifact.".to_string(),
+        description:
+            "Render a machine-specific proposal from arda.template.toml into an audit artifact."
+                .to_string(),
         risk: "read_only".to_string(),
     });
 
@@ -169,10 +177,17 @@ pub fn build_service_plan(profile: &EnvironmentProfile, root: &Path) -> ServiceP
             action_id: "onboarding.set_charon_endpoint".to_string(),
             action_type: "human_gate".to_string(),
             title: "Set CHARON_BASE_URL before service start work".to_string(),
-            command_hint: "export CHARON_BASE_URL=http://127.0.0.1:3001 and write to ~/.config/arda/arda.env".to_string(),
-            target_path: Some(format!("{}/.config/arda/arda.env", env::var("HOME").unwrap_or_default())),
+            command_hint:
+                "export CHARON_BASE_URL=http://127.0.0.1:3001 and write to ~/.config/arda/arda.env"
+                    .to_string(),
+            target_path: Some(format!(
+                "{}/.config/arda/arda.env",
+                env::var("HOME").unwrap_or_default()
+            )),
             requires_human_gate: true,
-            description: "CHARON endpoint is required for full active runtime setup and launch steps.".to_string(),
+            description:
+                "CHARON endpoint is required for full active runtime setup and launch steps."
+                    .to_string(),
             risk: "human_gated".to_string(),
         });
     }

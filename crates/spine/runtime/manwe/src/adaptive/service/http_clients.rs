@@ -1,5 +1,5 @@
-use crate::adaptive::service::types::CharonService;
 use crate::adaptive::service::proxy;
+use crate::adaptive::service::types::CharonService;
 use arda_core::error::{ArdaError, Result};
 use std::sync::Arc;
 use std::time::Duration as StdDuration;
@@ -17,18 +17,11 @@ pub struct HttpClientCache {
 }
 
 impl HttpClientCache {
-    pub(crate) fn get(
-        &self,
-        key: &HttpClientCacheKey,
-    ) -> Option<Arc<reqwest::Client>> {
+    pub(crate) fn get(&self, key: &HttpClientCacheKey) -> Option<Arc<reqwest::Client>> {
         self.clients.get(key).cloned()
     }
 
-    pub(crate) fn insert(
-        &mut self,
-        key: HttpClientCacheKey,
-        client: Arc<reqwest::Client>,
-    ) {
+    pub(crate) fn insert(&mut self, key: HttpClientCacheKey, client: Arc<reqwest::Client>) {
         self.clients.insert(key, client);
     }
 }
@@ -56,7 +49,8 @@ impl CharonService {
                 return Ok(client.clone());
             }
             let timeout = proxy::proxy_timeout_for_provider(provider_id, execution_lane);
-            let mut builder = reqwest::Client::builder().connect_timeout(StdDuration::from_secs(15));
+            let mut builder =
+                reqwest::Client::builder().connect_timeout(StdDuration::from_secs(15));
             builder = if is_stream {
                 builder.read_timeout(timeout)
             } else {
@@ -74,7 +68,8 @@ impl CharonService {
             Ok(client)
         } else {
             let timeout = proxy::proxy_timeout_for_provider(provider_id, execution_lane);
-            let mut builder = reqwest::Client::builder().connect_timeout(StdDuration::from_secs(15));
+            let mut builder =
+                reqwest::Client::builder().connect_timeout(StdDuration::from_secs(15));
             builder = if is_stream {
                 builder.read_timeout(timeout)
             } else {

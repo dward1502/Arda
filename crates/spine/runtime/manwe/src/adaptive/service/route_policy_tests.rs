@@ -210,10 +210,7 @@ fn single_governance_method_is_boolean_pass_fail() {
 
     assert_eq!(result.lenses.len(), 1);
     assert_eq!(result.lenses[0].lens_id, "bacon");
-    assert_eq!(
-        result.lenses[0].outcome,
-        arda_governance::GateOutcome::Fail
-    );
+    assert_eq!(result.lenses[0].outcome, arda_governance::GateOutcome::Fail);
     assert!(!result.passed);
 }
 
@@ -235,8 +232,7 @@ fn route_decision_carries_live_governance_chain_metadata() {
     );
     task.joule_cost_estimated = 1.0;
     task.joule_cost_actual = 1.0;
-    task.joulework_measurement_source =
-        arda_core::JouleWorkMeasurementSource::OperatorEstimate;
+    task.joulework_measurement_source = arda_core::JouleWorkMeasurementSource::OperatorEstimate;
     task.joulework_measurement_confidence = 0.55;
     let chain = evaluate_route_governance_chain(
         &task,

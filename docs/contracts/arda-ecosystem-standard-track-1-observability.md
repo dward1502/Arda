@@ -60,10 +60,16 @@ Required event fields:
 | `runtime_receipts` | events persisted to `data/telemetry/` per agent run |
 | `policy_enforcement` | telemetry writes are gated so they cannot affect critical command latency |
 | `independent_review_receipts` | dashboard/log/receipt cross-checks verify event parity |
+| `service_init` | crate/service init emits typed `schema_version` runtime surface |
+
+## Source of truth
+
+Live track registry: `core/state/contract_registry.json`
+Track id: `arda-ecosystem-standard-track-1-observability`
 
 ## Current default projection
 
-Expected current level: `runtime_receipted` after one validated pilot crate; system-wide is `local_heuristic.local`.
+Expected current level: `service_init` after registry-backed runtime checks; system-wide remains `runtime_receipted` until dry-run manifests are validated end-to-end.
 
 ## CLI behavior
 
@@ -73,4 +79,3 @@ Expected current level: `runtime_receipted` after one validated pilot crate; sys
 ## Stop condition
 
 Logs and dashboards reflect the same event schema as in-process receipts and persisted bundles.
-

@@ -3,7 +3,9 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use crate::onboarding::constants::ONBOARDING_PREREQUISITE_CONTRACT;
-use crate::onboarding::helpers::{command_available, command_version, make_prerequisite_check, now_utc};
+use crate::onboarding::helpers::{
+    command_available, command_version, make_prerequisite_check, now_utc,
+};
 use crate::onboarding::types::*;
 
 pub fn build_prerequisite_report(profile: &EnvironmentProfile, root: &Path) -> PrerequisiteReport {

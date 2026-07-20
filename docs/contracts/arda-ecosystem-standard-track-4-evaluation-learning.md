@@ -52,11 +52,17 @@ Learning loop receipt fields:
 |---------------|---------|
 | `documentation` | eval task schemas and learning receipt schema documented |
 | `local_heuristic` | one eval task implemented |
-| `source_metadata` | schema_version emitted on all receipts |
+| `source_metadata` | `schema_version` emitted on all receipts |
 | `runtime_receipts` | `core/projects/tasks/queue.jsonl`, `data/prometheus/` contain durable receipts |
 | `policy_enforcement` | approval gates are explicit for threshold divergences |
 | `independent_review_receipts` | independent review receipts validate learning claims |
 | `scoped_autonomy_policy` | named loop scope has explicit execution policy |
+| `service_init` | crate/service init emits typed `schema_version` runtime surface |
+
+## Source of truth
+
+Live track registry: `core/state/contract_registry.json`
+Track id: `arda-ecosystem-standard-track-4-evaluation-learning`
 
 ## Current default projection
 

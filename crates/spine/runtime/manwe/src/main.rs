@@ -21,11 +21,15 @@ use axum::{
 use clap::Parser;
 use serde_json::{json, Value};
 
-use manwe::routing_adapter::AdaptiveRoutingAdapter;
 use config::ManweConfig;
+use manwe::routing_adapter::AdaptiveRoutingAdapter;
 
 #[derive(Parser, Debug)]
-#[command(name = "manwe", version, about = "Local OpenAI-compat inference gateway")]
+#[command(
+    name = "manwe",
+    version,
+    about = "Local OpenAI-compat inference gateway"
+)]
 struct Cli {
     #[arg(long)]
     port: Option<u16>,
@@ -49,8 +53,7 @@ struct AppState {
 async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt()
         .with_env_filter(
-            tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "info".into()),
+            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into()),
         )
         .init();
 

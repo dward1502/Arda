@@ -74,9 +74,7 @@ impl ManweConfig {
                     cfg
                 }
                 Err(e) => {
-                    tracing::warn!(
-                        "manwe: failed to parse {path:?} ({e}); using embedded default"
-                    );
+                    tracing::warn!("manwe: failed to parse {path:?} ({e}); using embedded default");
                     ManweConfig::embedded()
                 }
             },
@@ -103,9 +101,6 @@ impl ManweConfig {
                 return Some((name.as_str(), p));
             }
         }
-        self.providers
-            .iter()
-            .next()
-            .map(|(k, v)| (k.as_str(), v))
+        self.providers.iter().next().map(|(k, v)| (k.as_str(), v))
     }
 }

@@ -1,5 +1,5 @@
-use crate::adaptive::service::types::{CharonService, ProviderState};
 use crate::adaptive::service::paths;
+use crate::adaptive::service::types::{CharonService, ProviderState};
 use arda_core::error::Result;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
@@ -147,7 +147,10 @@ impl CharonService {
     pub async fn provider_capability_view(&self) -> Result<ProviderCapabilityView> {
         let providers = self.providers_read().await;
         let receipts = self.capability_receipts_file.read().await;
-        Ok(build_provider_capability_view(&providers, receipts.clone().unwrap_or_default()))
+        Ok(build_provider_capability_view(
+            &providers,
+            receipts.clone().unwrap_or_default(),
+        ))
     }
 
     pub(crate) async fn provider_promotion_guard_view(&self) -> ProviderPromotionGuardView {

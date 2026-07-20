@@ -27,15 +27,19 @@ pub struct CharonService {
     pub provider_runtime_state_path: PathBuf,
     pub provider_capability_receipts_path: PathBuf,
     pub tool_fit_ledger_path: PathBuf,
-    pub route_history: Arc<RwLock<VecDeque<crate::adaptive::service::route_sessions::RouteHistoryEntry>>>,
-    pub route_sessions: Arc<RwLock<BTreeMap<String, crate::adaptive::service::route_sessions::StickyRouteSession>>>,
+    pub route_history:
+        Arc<RwLock<VecDeque<crate::adaptive::service::route_sessions::RouteHistoryEntry>>>,
+    pub route_sessions:
+        Arc<RwLock<BTreeMap<String, crate::adaptive::service::route_sessions::StickyRouteSession>>>,
     pub charon_eval_receipts_path: PathBuf,
     pub bandit: crate::adaptive::service::bandit::BanditStore,
     pub agent_quota_windows: crate::adaptive::service::agent_quotas::AgentQuotaWindows,
     pub route_candidate_cache: crate::adaptive::service::route_candidate_cache::RouteCandidateCache,
     pub http_clients: Arc<RwLock<Option<crate::adaptive::service::http_clients::HttpClientCache>>>,
-    pub sticky_sessions: Arc<RwLock<BTreeMap<String, crate::adaptive::service::route_sessions::StickyRouteSession>>>,
-    pub capability_receipts_file: Arc<RwLock<Option<crate::adaptive::service::capabilities::ProviderCapabilityReceiptsFile>>>,
+    pub sticky_sessions:
+        Arc<RwLock<BTreeMap<String, crate::adaptive::service::route_sessions::StickyRouteSession>>>,
+    pub capability_receipts_file:
+        Arc<RwLock<Option<crate::adaptive::service::capabilities::ProviderCapabilityReceiptsFile>>>,
 }
 
 impl CharonService {
@@ -63,7 +67,8 @@ impl CharonService {
                 root.join("bandit_state.json"),
             ),
             agent_quota_windows: crate::adaptive::service::agent_quotas::AgentQuotaWindows::new(),
-            route_candidate_cache: crate::adaptive::service::route_candidate_cache::RouteCandidateCache::new(),
+            route_candidate_cache:
+                crate::adaptive::service::route_candidate_cache::RouteCandidateCache::new(),
             http_clients: Arc::new(RwLock::new(None)),
             sticky_sessions: Arc::new(RwLock::new(BTreeMap::new())),
             capability_receipts_file: Arc::new(RwLock::new(None)),
@@ -119,10 +124,7 @@ impl CharonService {
         crate::adaptive::service::metrics::CharonMetrics::default()
     }
 
-    pub async fn recent_state_events(
-        &self,
-        _limit: usize,
-    ) -> Vec<serde_json::Value> {
+    pub async fn recent_state_events(&self, _limit: usize) -> Vec<serde_json::Value> {
         let _ = self.state_path;
         Vec::new()
     }

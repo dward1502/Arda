@@ -1,4 +1,3 @@
-
 use arda_core::error::{ArdaError, Result};
 use fs2::FileExt;
 use serde::Serialize;
@@ -6,14 +5,10 @@ use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
-
-
 pub(crate) fn runtime_build_cache_state_path() -> PathBuf {
     std::env::var("ARDA_RUNTIME_BUILD_CACHE_STATE_PATH")
         .map(PathBuf::from)
-        .unwrap_or_else(|_| {
-            super::paths::arda_root().join("core/state/runtime_build_cache.json")
-        })
+        .unwrap_or_else(|_| super::paths::arda_root().join("core/state/runtime_build_cache.json"))
 }
 
 pub(crate) fn runtime_build_cache_command_program() -> String {

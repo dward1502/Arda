@@ -50,16 +50,15 @@ fn ipc_connection_limit() -> usize {
 }
 
 pub async fn send_command(socket_path: PathBuf, cmd: &str, payload: Value) -> Result<Value> {
-    let mut stream =
-        UnixStream::connect(&socket_path)
-            .await
-            .map_err(|e| ArdaError::Agent {
-                agent: "mnemosyne".to_owned(),
-                message: format!(
-                    "failed to connect to MNEMOSYNE socket {}: {e}",
-                    socket_path.display()
-                ),
-            })?;
+    let mut stream = UnixStream::connect(&socket_path)
+        .await
+        .map_err(|e| ArdaError::Agent {
+            agent: "mnemosyne".to_owned(),
+            message: format!(
+                "failed to connect to MNEMOSYNE socket {}: {e}",
+                socket_path.display()
+            ),
+        })?;
 
     let request = json!({
         "cmd": cmd,

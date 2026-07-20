@@ -68,6 +68,7 @@ Recommended concrete additions:
     `arda-transport` crate.
 - Backends:
   - Prometheus: already running on Beelink.
+  - Grafana: running on Beelink
   - Loki: add for aggregate logs/trace tails.
   - Tempo: add for Jaeger-compatible trace UI.
 
@@ -95,12 +96,12 @@ Recommended concrete additions:
      - `router.route`
      - `system.supervisor`
      - `queue.event`
-3. Instrument manwe, plutus, mandos, vaire, varda, auge, aule.
+3. Instrument manwe, plutus, mandos, vaire, varda, aule.
 4. Export OTLP/gRPC to Beelink Tempo; logs to Loki.
 
 ### Phase C — CLI surface
 
-Implement these in engine or auge CLI:
+Implement these in engine or aule CLI:
 
 - `arda telemetry schema`
 - `arda telemetry receipt <run_id>`
@@ -117,7 +118,7 @@ Each reads from the same durable receipt stores, so no data duplication.
 ### Phase D — gRPC typed surfaces
 
 1. Define `.proto` files for service-to-service contracts.
-2. Generate Rust stubs into `arda-orome` or a dedicated transport crate.
+2. Generate Rust code into `arda-orome` 
 3. Wire manwe and supervisor to expose typed health/model endpoints over gRPC
    in addition to HTTP.
 4. Replace ad-hoc JSON-over-HTTP internal paths with typed RPC where latency

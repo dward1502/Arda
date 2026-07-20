@@ -60,10 +60,7 @@ impl CharonService {
         Ok(StreamingProxyOutcome)
     }
 
-    async fn proxy_openai_request(
-        &self,
-        _req: CharonRequestEnvelope,
-    ) -> Result<serde_json::Value> {
+    async fn proxy_openai_request(&self, _req: CharonRequestEnvelope) -> Result<serde_json::Value> {
         Ok(serde_json::json!({"ok": true}))
     }
 }
@@ -80,7 +77,10 @@ pub(crate) fn strip_optional_tool_payload(
     }
 }
 
-pub(crate) fn proxy_timeout_for_provider(_provider_id: &str, _execution_lane: &str) -> std::time::Duration {
+pub(crate) fn proxy_timeout_for_provider(
+    _provider_id: &str,
+    _execution_lane: &str,
+) -> std::time::Duration {
     std::time::Duration::from_secs(60)
 }
 

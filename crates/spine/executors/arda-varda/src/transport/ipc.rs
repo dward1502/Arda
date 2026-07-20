@@ -324,14 +324,13 @@ fn payload_str_optional<'a>(payload: &'a Value, key: &str) -> Option<&'a str> {
 }
 
 fn payload_string_vec(payload: &Value, key: &str) -> Result<Vec<String>> {
-    let items =
-        payload
-            .get(key)
-            .and_then(|v| v.as_array())
-            .ok_or_else(|| ArdaError::Agent {
-                agent: "athena".to_string(),
-                message: format!("missing required payload key: {key}"),
-            })?;
+    let items = payload
+        .get(key)
+        .and_then(|v| v.as_array())
+        .ok_or_else(|| ArdaError::Agent {
+            agent: "athena".to_string(),
+            message: format!("missing required payload key: {key}"),
+        })?;
 
     let values = items
         .iter()

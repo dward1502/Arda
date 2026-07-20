@@ -84,13 +84,12 @@ struct GeneratePlanningTasksRequest {
 pub async fn run_http_server(store: AthenaStore, addr: &str) -> Result<()> {
     let app = build_router(store);
 
-    let listener =
-        tokio::net::TcpListener::bind(addr)
-            .await
-            .map_err(|e| ArdaError::Agent {
-                agent: "athena".to_string(),
-                message: format!("failed to bind HTTP listener on {addr}: {e}"),
-            })?;
+    let listener = tokio::net::TcpListener::bind(addr)
+        .await
+        .map_err(|e| ArdaError::Agent {
+            agent: "athena".to_string(),
+            message: format!("failed to bind HTTP listener on {addr}: {e}"),
+        })?;
 
     tracing::info!(addr = %addr, "ATHENA HTTP server listening");
     axum::serve(listener, app)

@@ -1,7 +1,11 @@
-use crate::adaptive::service::adaptive_routing::{capability_truth_rows, pacing_state_for_provider};
-use crate::adaptive::service::route_policy::{configured_local_device_pressure, derive_route_execution_profile};
-use crate::adaptive::service::types::CharonService;
+use crate::adaptive::service::adaptive_routing::{
+    capability_truth_rows, pacing_state_for_provider,
+};
+use crate::adaptive::service::route_policy::{
+    configured_local_device_pressure, derive_route_execution_profile,
+};
 use crate::adaptive::service::status::classify_provider_operational_state;
+use crate::adaptive::service::types::CharonService;
 use arda_core::error::Result;
 use chrono::Utc;
 use serde_json::{json, Value as JsonValue};
@@ -370,7 +374,9 @@ impl CharonService {
     }
 }
 
-fn free_provider_pool_rollup(providers: &[crate::adaptive::service::types::ProviderState]) -> JsonValue {
+fn free_provider_pool_rollup(
+    providers: &[crate::adaptive::service::types::ProviderState],
+) -> JsonValue {
     let default_pool = default_free_pool_provider_ids();
     let mut rows = providers
         .iter()

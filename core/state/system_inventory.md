@@ -4,11 +4,11 @@ Generated from current fleet/state and core configuration.
 
 ## Fleet Nodes
 
-| Host | Address | Services |
-| --- | --- | --- |
-| beelink | 100.103.125.88 | Qwen3.5-4B :9337, Grafana :3000, Prometheus :9090, OpenWebUI :8080, MinIO :9000 |
-| warden | 100.110.85.37 | llama.cpp :1234 |
-| annunimas-server | 100.102.250.115 | 3 LLM lanes (:8093, :8094, :8081) |
+|| Host | Address | Services |
+|| --- | --- | --- |
+|| beelink | 100.103.125.88 | llama.cpp Prism :9337 (`Ternary-Bonsai-8B-Q2_0`, context=32768) |
+|| warden | 100.110.85.37 | llama.cpp :1234 (`Qwen3.5-4B-Q4_K_M.gguf`, context=65536 validated on Pi5) |
+|| annunimas-server | 100.102.250.115 | llama.cpp :8093 LFM Fast General, :8094 Qwen Coder |
 
 ## Annunimas Agents / Services
 

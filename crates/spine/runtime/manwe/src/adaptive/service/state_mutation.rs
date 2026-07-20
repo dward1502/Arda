@@ -1,8 +1,8 @@
-use crate::adaptive::service::types::CharonService;
 use crate::adaptive::service::bootstrap_overlay::load_providers_from_config;
 use crate::adaptive::service::runtime_state::refresh_provider_windows;
 use crate::adaptive::service::runtime_state::{failure_backoff_seconds, merge_runtime_state};
 use crate::adaptive::service::state_io::append_jsonl;
+use crate::adaptive::service::types::CharonService;
 use crate::adaptive::service::types::RouteDecision;
 use arda_core::error::Result;
 use arda_core::machine_sigil_or_default;
@@ -270,7 +270,10 @@ impl CharonService {
         if provider.active_connections == 0 {
             provider.last_reservation_utc = None;
         }
-        provider.avg_latency_ms = crate::adaptive::service::route_policy::merge_latency(provider.avg_latency_ms, latency_ms);
+        provider.avg_latency_ms = crate::adaptive::service::route_policy::merge_latency(
+            provider.avg_latency_ms,
+            latency_ms,
+        );
 
         let sigil = if ok {
             if provider.consecutive_failures == 0 && !provider.in_cooldown {
@@ -445,8 +448,7 @@ impl CharonService {
                 generated_at_utc: now.to_rfc3339(),
                 receipts: BTreeMap::new(),
             });
-        receipt_file.schema_version =
-            "arda.charon.provider-capability-receipts.v1".to_string();
+        receipt_file.schema_version = "arda.charon.provider-capability-receipts.v1".to_string();
         receipt_file.generated_at_utc = now.to_rfc3339();
 
         let key = capability_receipt_key(&observation.provider_id, &observation.model_id);
@@ -569,7 +571,10 @@ impl CharonService {
         if provider.active_connections == 0 {
             provider.last_reservation_utc = None;
         }
-        provider.avg_latency_ms = crate::adaptive::service::route_policy::merge_latency(provider.avg_latency_ms, latency_ms);
+        provider.avg_latency_ms = crate::adaptive::service::route_policy::merge_latency(
+            provider.avg_latency_ms,
+            latency_ms,
+        );
 
         let sigil = machine_sigil_or_default(
             "SG_ROUTE_CLIENT_ERROR",
@@ -653,7 +658,8 @@ impl CharonService {
                 Some((Utc::now() + Duration::seconds(backoff_seconds)).to_rfc3339());
         }
 
-        model.avg_latency_ms = crate::adaptive::service::route_policy::merge_latency(model.avg_latency_ms, latency_ms);
+        model.avg_latency_ms =
+            crate::adaptive::service::route_policy::merge_latency(model.avg_latency_ms, latency_ms);
         self.append_state_event(
             "model_result",
             serde_json::json!({
@@ -744,7 +750,8 @@ impl CharonService {
         let total = merged.len();
         let enabled = merged.iter().filter(|provider| provider.enabled).count();
         *providers = merged;
-        self.persist_provider_runtime_state_snapshot(&providers).await?;
+        self.persist_provider_runtime_state_snapshot(&providers)
+            .await?;
         self.append_state_event(
             "providers_reloaded",
             serde_json::json!({

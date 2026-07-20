@@ -1,7 +1,7 @@
 # INDEX Plan Review
 
 ## Overview
-INDEX is the Annunimas plan-directory navigation surface for `core/projects/Plans`. It is the operator and agent entry point for discovering core plan quick references and ensuring the plan portfolio remains visible, deterministic, and aligned with generated queue projections.
+INDEX is the Arda plan-directory navigation surface for `core/projects/Plans`. It is the operator and agent entry point for discovering core plan quick references and ensuring the plan portfolio remains visible, deterministic, and aligned with generated queue projections.
 
 The active queue packet is `tsk_20260619_queue_index_plan_review` / `Queue: INDEX plan review`. This human plan narrative documents the observed INDEX contract and closes the missing operator-facing artifact gap for the plan review batch.
 
@@ -51,13 +51,13 @@ The inspected surfaces show INDEX is present but projection coverage is partiall
 
 ## Follow-up Work
 1. **Plan-map exporter coverage**
-   - Re-run or repair `cargo run -p annunimas-cli -- export plan-index` so `core/state/plan_map.json` reflects all current core plan quick references, not just AIPKG.
+   - Re-run or repair `cargo run -p arda-cli -- export plan-index` so `core/state/plan_map.json` reflects all current core plan quick references, not just AIPKG.
 
 2. **Core plan index reconciliation**
    - Regenerate or patch `core/projects/Plans/INDEX.md` through the approved HADES/index workflow if `PLATFORM_OS.md` is still missing from the deterministic listing after export refresh.
 
 3. **Index contract hardening**
-   - Apply the contract pattern from `docs/contracts/index-contract.md` to plan indexes explicitly if a dedicated `annunimas.plan.index.v1` contract surface is needed.
+   - Apply the contract pattern from `docs/contracts/index-contract.md` to plan indexes explicitly if a dedicated `arda.plan.index.v1` contract surface is needed.
 
 4. **Queue projection consistency**
    - Keep `queue_active`, `queue_summary`, and `plan_map` aligned so agents can select active plan-review packets without falling back to stale raw queue rows.
@@ -78,16 +78,16 @@ scripts/check_task_queue_append_only.sh
 Refresh projection evidence before closeout or next active queue selection:
 
 ```bash
-cargo run -p annunimas-cli -- export queue-hygiene
+cargo run -p arda-cli -- export queue-hygiene
 ```
 
 If the plan-index exporter is in scope for the next packet, also run:
 
 ```bash
-cargo run -p annunimas-cli -- export plan-index
+cargo run -p arda-cli -- export plan-index
 ```
 
-## Alignment with Annunimas Principles
+## Alignment with Arda Principles
 - **Evidence-first navigation:** index surfaces describe what exists and should be regenerated or reconciled when projections drift.
 - **Append-only truth:** queue closeout is recorded through same-id terminal records rather than raw ledger rewrites.
 - **HADES ownership:** generated index files preserve Soterion metadata and HADES review authority.

@@ -78,12 +78,12 @@ Policy boundary enforced: external lanes stay `task_promotion_allowed=false` unt
 ## Verification Commands
 
 ```bash
-cargo test -p annunimas-athena
-cargo run -p annunimas-cli -- status
-cargo run -p annunimas-cli -- export queue-hygiene
+cargo test -p arda-athena
+cargo run -p arda-cli -- status
+cargo run -p arda-cli -- export queue-hygiene
 ```
 
-## Alignment with Annunimas Principles
+## Alignment with Arda Principles
 
 - Evidence and append-only receipting are preserved through every ingest/gate surface.
 - Governance-first promotion: nothing becomes a task until every canonical gate records evidence.

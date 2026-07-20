@@ -1,7 +1,7 @@
 # CHARON Plan Review
 
 ## Overview
-CHARON is the Annunimas inference routing and provider health subsystem. It owns model/provider selection, route-class policy, local and edge-capable backend posture, cooldown/degradation tracking, and routing evidence for operator-facing autonomy decisions.
+CHARON is the Arda inference routing and provider health subsystem. It owns model/provider selection, route-class policy, local and edge-capable backend posture, cooldown/degradation tracking, and routing evidence for operator-facing autonomy decisions.
 
 ## Core Runtime Surfaces
 The current CHARON contract is represented by these primary surfaces:
@@ -19,7 +19,7 @@ CHARON owns:
 1. **Inference routing** across local, edge, and cloud/aggregator providers.
 2. **Provider health and cooldown state** exported for operator and ARDA visibility.
 3. **Route-class policy** including task capability, context window, streaming, structured-output, tool, latency, privacy, and execution-lane constraints.
-4. **Config reload posture** through `annunimas-cli charon reload-config` and `config/charon.providers.toml`.
+4. **Config reload posture** through `arda-cli charon reload-config` and `config/charon.providers.toml`.
 5. **Serialized runtime evidence** through JSON/JSONL state surfaces where malformed records are surfaced rather than silently hidden.
 6. **Fleet-aware local routing** where edge/backbone providers depend on live Tailscale/fleet node health.
 
@@ -48,7 +48,7 @@ The file explicitly warns that `healthy = true/false` should not be set in provi
 ## Implementation Status
 
 ### Completed / Present
-- Core CHARON crate exists at `crates/annunimas-charon`.
+- Core CHARON crate exists at `crates/arda-charon`.
 - Dynamic provider configuration exists at `config/charon.providers.toml`.
 - Router projection exists at `core/state/charon_router.json`.
 - Provider state/cooldown/degradation posture is exported for ARDA/operator visibility.
@@ -84,26 +84,26 @@ The file explicitly warns that `healthy = true/false` should not be set in provi
 Useful focused checks:
 
 ```bash
-cargo run -p annunimas-cli -- charon reload-config
-cargo run -p annunimas-cli -- export queue-active
+cargo run -p arda-cli -- charon reload-config
+cargo run -p arda-cli -- export queue-active
 scripts/check_task_queue_append_only.sh
 ```
 
 For live runtime validation, prefer fresh service and route checks before claiming provider availability:
 
 ```bash
-systemctl --user status annunimas-charon.service
+systemctl --user status arda-charon.service
 scripts/check_charon_health.sh
 ```
 
-## Alignment with Annunimas Principles
+## Alignment with Arda Principles
 - **Sovereign routing:** local and edge providers are first-class where healthy and capable.
 - **Evidence-first operations:** router state, provider health, cooldowns, and recovery attempts are projected into auditable state files.
 - **Safety gates:** route policy should respect capability, privacy, budget, context, and governance signals before dispatch.
 - **Operator clarity:** degraded provider posture must be surfaced explicitly rather than hidden behind generic routing failures.
 
 ## Open Questions
-1. Which shared metrics crate and label convention should become the Annunimas-wide observability standard?
+1. Which shared metrics crate and label convention should become the Arda-wide observability standard?
 2. Which provider classes should be allowed for compression-heavy and tool-heavy L3 work when high-context local lanes are offline?
 3. Should fleet recovery failures from SSH host-key trust be represented as a separate operator action class from ordinary provider degradation?
 
@@ -111,6 +111,6 @@ scripts/check_charon_health.sh
 - Quick reference: `core/projects/Plans/CHARON.md`
 - Router projection: `core/state/charon_router.json`
 - Provider config: `config/charon.providers.toml`
-- Charon crate: `crates/annunimas-charon`
+- Charon crate: `crates/spine/runtime/manwe`
 - L3 routing plan reference: `docs/plans/2026-06-08-l3-readiness-closure-plan.md`
 - Compression credential gate: `docs/contracts/hermes-compression-credential-freshness-gate.md`

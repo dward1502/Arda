@@ -1,7 +1,7 @@
 # OPENFANG Plan Review
 
 ## Overview
-OPENFANG is the Annunimas comparative-architecture plan surface for extracting useful OpenFang patterns into sovereign Annunimas contracts without adopting OpenFang as a replacement system.
+OPENFANG is the Arda comparative-architecture plan surface for extracting useful OpenFang patterns into sovereign Arda contracts without adopting OpenFang as a replacement system.
 
 The active queue packet is `tsk_20260619_queue_openfang_plan_review` / `Queue: OPENFANG plan review`. This human plan narrative documents the observed OPENFANG contract and closes the missing operator-facing artifact gap for the plan-review batch.
 
@@ -9,7 +9,7 @@ The active queue packet is `tsk_20260619_queue_openfang_plan_review` / `Queue: O
 The reviewed OPENFANG contract is represented by these primary surfaces:
 
 - `core/projects/Plans/OPENFANG.md` — core quick reference for the OPENFANG plan surface
-- `core/state/openfang_alignment.json` — policy-ready OpenFang pattern extraction and Annunimas adaptation map
+- `core/state/openfang_alignment.json` — policy-ready OpenFang pattern extraction and Arda adaptation map
 - `core/state/crate_spawn_contract.json` — crate-spawn contract derived from OpenFang-style capability packaging
 - `core/state/crate_spawn_blueprint_contract.json` — crate-spawn blueprint contract and required sovereign hooks
 - `core/state/network_native_node_onboarding_contract.json` — network-native node onboarding contract aligned with OpenFang onboarding/mutual-auth patterns
@@ -20,8 +20,8 @@ The reviewed OPENFANG contract is represented by these primary surfaces:
 OPENFANG currently owns:
 
 1. **Comparative architecture extraction**: treat OpenFang as a source of useful architecture patterns, not as a replacement control plane.
-2. **Crate-native decomposition**: adapt autonomous “Hands” / capability packages into Annunimas crate-spawn templates with sovereign hooks from first boot.
-3. **Network-native onboarding**: carry forward onboarding and mutual-auth ideas while preserving Annunimas local socket authority and Tailscale-as-internal-mesh doctrine.
+2. **Crate-native decomposition**: adapt autonomous “Hands” / capability packages into Arda crate-spawn templates with sovereign hooks from first boot.
+3. **Network-native onboarding**: carry forward onboarding and mutual-auth ideas while preserving Arda local socket authority and Tailscale-as-internal-mesh doctrine.
 4. **Security-by-default runtime posture**: map signing, taint tracking, sandboxing, audit trails, receipts, and signatures onto WARDEN, HADES, `.aipkg`, and control-plane lockdown surfaces.
 5. **Marketplace boundary discipline**: keep reusable package law and `.aipkg` open-standard contracts separate from marketplace economics and out of core truth/hot paths.
 6. **Embodiment pattern reuse**: carry Tauri/native desktop embodiment forward into ARDA embodied interface and Pepper’s Ghost controller surfaces where it supports operator experience.
@@ -30,19 +30,19 @@ OPENFANG currently owns:
 The inspected surfaces show OPENFANG is present and policy-ready as a pattern-extraction surface:
 
 - `core/projects/Plans/OPENFANG.md` exists and points to `human/plans/OPENFANG.md`, `core/state/openfang_alignment.json`, and ATHENA source evidence.
-- `core/state/openfang_alignment.json` exists with schema `annunimas.openfang.alignment.v1`, source id `src_cebb6abe`, and source URL `https://github.com/RightNow-AI/openfang`.
+- `core/state/openfang_alignment.json` exists with schema `arda.openfang.alignment.v1`, source id `src_cebb6abe`, and source URL `https://github.com/RightNow-AI/openfang`.
 - ATHENA ingest evidence exists at `data/athena/books/src_cebb6abe.jsonl`; the deep record reports `policy_readiness: policy_ready`, triad pass, hash-chain/citation checks, and confidence above the policy threshold.
-- `core/state/crate_spawn_blueprint_contract.json` exists with authority `openfang_pattern_extraction + annunimas_spawn_law` and requires core/governance dependencies, ARDA visibility, state/metrics paths, and governance gates.
+- `core/state/crate_spawn_blueprint_contract.json` exists with authority `openfang_pattern_extraction + arda_spawn_law` and requires core/governance dependencies, ARDA visibility, state/metrics paths, and governance gates.
 - `core/state/network_native_node_onboarding_contract.json` exists with local socket authority retained, Tailscale as internal mesh, identity binding before role promotion, and operator confirmation required for stale identity cleanup.
 - Search evidence found no existing `human/plans/OPENFANG.md` prior to this review, so this narrative fills the missing human/operator artifact.
 
 ## Accepted Patterns
 
 ### Crate-spawn / capability packaging
-OpenFang’s autonomous Hands map cleanly to Annunimas crate-spawn templates. Annunimas adaptation keeps new crates wired to sovereign task execution, metrics, ARDA visibility, governance checks, and control-plane boundaries from first boot.
+OpenFang’s autonomous Hands map cleanly to Arda crate-spawn templates. Arda adaptation keeps new crates wired to sovereign task execution, metrics, ARDA visibility, governance checks, and control-plane boundaries from first boot.
 
 ### Network-native node onboarding
-OpenFang’s network-native onboarding and mutual-auth posture maps to Annunimas fleet onboarding above the local runtime layer. Unix sockets remain local; Tailscale remains an internal mesh transport; role promotion requires identity binding plus live informant/runtime evidence.
+OpenFang’s network-native onboarding and mutual-auth posture maps to Arda fleet onboarding above the local runtime layer. Unix sockets remain local; Tailscale remains an internal mesh transport; role promotion requires identity binding plus live informant/runtime evidence.
 
 ### Security stack
 OpenFang’s signing, taint tracking, sandboxing, and audit-trail emphasis maps to WARDEN, HADES, `.aipkg` receipts/signatures, and lockdown projections.
@@ -52,9 +52,9 @@ OpenFang’s Tauri desktop emphasis remains useful for ARDA embodied interface a
 
 ## Rejected / Bounded Patterns
 
-- **WhatsApp-first control path** is not adopted as Annunimas core doctrine.
+- **WhatsApp-first control path** is not adopted as Arda core doctrine.
 - **Marketplace in the hot path** is rejected; package law, receipts, and attestations remain separate from economics.
-- **Single distribution surface bias** is rejected; Annunimas keeps sovereign local, internal mesh, and package/runtime boundaries explicit.
+- **Single distribution surface bias** is rejected; Arda keeps sovereign local, internal mesh, and package/runtime boundaries explicit.
 
 ## Follow-up Work
 1. **Crate-spawn blueprint contract hardening**
@@ -85,10 +85,10 @@ scripts/check_task_queue_append_only.sh
 Refresh projection evidence before closeout or next active queue selection:
 
 ```bash
-cargo run -p annunimas-cli -- export queue-hygiene
+cargo run -p arda-cli -- export queue-hygiene
 ```
 
-## Alignment with Annunimas Principles
+## Alignment with Arda Principles
 - **Evidence-first extraction:** accepted patterns are grounded in ATHENA source evidence and runtime contract files.
 - **Sovereign local authority:** network-native patterns do not replace local Unix socket authority or operator identity gates.
 - **Append-only truth:** queue closeout is recorded through same-id terminal records rather than raw ledger rewrites.

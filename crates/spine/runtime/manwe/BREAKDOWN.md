@@ -5,7 +5,7 @@ soterion:
   role: "inference_gateway"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-17"
+  last_reviewed: "2026-07-19"
 ---
 
 # manwe
@@ -21,10 +21,9 @@ Owner: hades | Sigil: 🜏 SCROLL | Status: active
 `manwe` replaces the legacy hosted multi-process `annunimas-charon` runtime
 with a single local gateway root. The default surface is intentionally thin:
 static TOML-backed provider catalog, upstream forwarding, and admin-style
-endpoints. Active evolving logic lives under `src/adaptive/` behind the
-`adaptive` feature: provider/bootstrap/catalog reconciliation, route scoring/
-selection/bandit, state mutation/IO, HTTP + IPC transports, and
-`CharonService`.
+endpoints. Active adaptive logic lives under `src/adaptive/`, but is
+currently deferred for baseline rebuild because the service tree does not
+compile cleanly.
 
 ## Where it lives
 
@@ -36,28 +35,34 @@ selection/bandit, state mutation/IO, HTTP + IPC transports, and
 
 ## Verification status
 
-- `cargo check -p manwe`: OK
+- `cargo check -p manwe`: PASS
 - `cargo test -p manwe`: 0 unit, 0 doc tests found in this build
-- `cargo check -p manwe --features adaptive`: **FAILS** with 14 errors gated
-  behind feature. Current known issues:
-  - `src/transport.rs` adaptive stubs reference `config` and `socket_path`
-    instead of the function parameters (`_config`, `_socket_path`)
-  - `src/adaptive/service/proxy.rs` uses single-generic `Result` where
-    `Result<T, E>` is required at 5 call sites
-  - `src/adaptive/service/route_policy_tests.rs` references `ModelState`,
-    which is not in scope for that module
+- `cargo check -p manwe --features adaptive`: FAILS
+  - `src/adaptive/service/route_policy.rs`: unresolved `arda_economics`,
+    `arda_governance`
+  - `src/adaptive/service/service_events.rs`: unresolved `arda_economics`,
+    `arda_vaire`
+  - `src/adaptive/service/state_mutation.rs`: unresolved `arda_economics`
+  - `src/adaptive/service/service_events.rs`: type inference failures on
+    `track_work` / `record_relationship`
+  - `src/adaptive/service/adaptive_routing.rs`: parser failure /
+    unparseable module state
+  - `src/adaptive/service/route_scoring.rs`: type inference failures
+  - `src/adaptive/service/route_candidate_cache.rs`,
+    `service_events.rs`, `bandit.rs`, `agent_quotas.rs`: `pub(super)`
+    visibility/method access failures across sibling modules
+- `BREAKDOWN.md` last_reviewed: 2026-07-19
 
 ## Binary / runtime
 
-- `src/main.rs`: CLI via `clap`, accepts `--port`, `--bind`, `--config`,
-  `--adaptive`
-- `AppState`: `Arc<ManweConfig>` + `reqwest::Client` + `Arc<AdaptiveRoutingAdapter>`
+- `src/main.rs`: CLI via `clap`, accepts `--port`, `--bind`, `--config`
+- `AppState`: `Arc<ManweConfig>` + `reqwest::Client` +
+  `Arc<AdaptiveRoutingAdapter>`
 - `/v1/chat/completions`: requires `model`, resolves provider by prefix or
   `default_provider`, strips/local prefix if needed, forwards upstream with
   optional bearer
-- Adaptive mode requires `MANWE_ROUTING_MODE=adaptive` or `--adaptive`; when
-  set, passes through `AdaptiveRoutingAdapter::route_chat_completions`
-  before static fallback
+- gRPC module/files exist in the crate, but server wiring is not active in
+  the default binary path
 
 ## Consumer wiring
 
@@ -130,10 +135,13 @@ selection/bandit, state mutation/IO, HTTP + IPC transports, and
 
 ## Improvement ideas
 
-1. Repair the `adaptive` feature so it compiles: update `transport.rs`
-   parameter references and fix `Result` generics in `proxy.rs`
-2. Remove or scope `route_policy_tests.rs` so `ModelState` is reachable in
-   tests, or move tests into `types.rs` test module
+1. Restore adaptive baseline as a separate quiet pass: bring back a
+   known-good `service_events.rs`, `route_policy.rs`, `route_selection.rs`,
+   `route_scoring.rs`, `adaptive_routing.rs`, and related visibility/type
+   fixes before re-enabling adaptive compilation
+2. Defer fleet/bootstrap config loading entirely to the adaptive baseline
+   restoration pass, or keep the current static-only config surface until
+   then rather than reintroducing it in `config.rs`
 3. Replace `local_placeholder` bootstrap with a real local provider or
    configurable null/mesh provider for tests
 4. Replace `Arc<AdaptiveRoutingAdapter>` placeholder error with a real scoring

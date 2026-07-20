@@ -14,6 +14,51 @@
 # control whether a provider participates in routing at all.
 
 [[provider]]
+id = "opencode"
+name = "OpenCode Zen"
+base_url = "https://opencode.ai/zen/v1" # OpenCode Zen /chat/completions lane
+enabled = true
+api_key_env = "OPENCODE_API_KEY"
+access_tier = "free_cloud"
+quality_band = "high"
+requests_per_minute = 120
+requests_per_day = 100000
+
+  # Model IDs are bare (no "opencode/" prefix) — that's what the live
+  # /models catalog returns. Free-tier models carry the -free suffix.
+
+  [[provider.model]]
+  id = "deepseek-v4-flash-free"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 128000
+  is_default = true
+
+  [[provider.model]]
+  id = "mimo-v2.5-free"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 128000
+  is_default = false
+
+  [[provider.model]]
+  id = "nemotron-3-super-free"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 128000
+  is_default = false
+
+  [[provider.model]]
+  id = "qwen3.6-plus-free"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 128000
+  is_default = false
+
+  [[provider.model]]
+  id = "minimax-m3-free"
+  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
+  context_window = 128000
+  is_default = false
+
+
+[[provider]]
 id = "edge_beelink_light"
 name = "Beelink Light Ternary Bonsai 8B Worker"
 base_url = "http://100.103.125.88:9337/v1"
@@ -212,7 +257,6 @@ requests_per_minute = 0
 [[provider]]
 id = "openrouter"
 name = "OpenRouter"
-enabled = true
 # Single entry covering both the free :free-suffix lane and openrouter/auto.
 # Previously split into openrouter_free + openrouter, which double-counted the
 # upstream and produced a base_url-collision warning on every reload.

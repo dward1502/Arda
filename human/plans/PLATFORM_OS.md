@@ -48,37 +48,31 @@ Platform OS should preserve these boundaries:
 
 The current planned OS core surface is:
 
-- `annunimas-core`
-- `annunimas-cli`
-- `annunimas-charon`
-- `annunimas-prometheus`
-- `annunimas-apollo`
-- `annunimas-hermes`
-- `annunimas-comm`
-- `annunimas-oracle`
-- `annunimas-governance`
-- `annunimas-plutus`
-- `annunimas-athena`
-- `annunimas-mnemosyne`
-- `annunimas-hades`
-- `annunimas-warden`
-- `annunimas-chronos`
-- `annunimas-systemd`
-- `annunimas-tool-harness`
-- `annunimas-mcp`
+- `arda-core`
+- `arda-cli`
+- `arda-charon`
+- `arda-prometheus`
+- `arda-apollo`
+- `arda-hermes`
+- `arda-comm`
+- `arda-oracle`
+- `arda-governance`
+- `arda-plutus`
+- `arda-athena`
+- `arda-mnemosyne`
 
 ## Current Workspace Drift
 
 `Cargo.toml` currently lists 26 workspace members. The 8 non-core members still present are:
 
-- `annunimas-ceo`
-- `annunimas-onboarding`
-- `annunimas-service-registry`
-- `annunimas-council`
-- `annunimas-forge-mind`
-- `annunimas-signal-grid`
-- `annunimas-fleet`
-- `annunimas-human`
+- `arda-ceo`
+- `arda-onboarding`
+- `arda-service-registry`
+- `arda-council`
+- `arda-forge-mind`
+- `arda-signal-grid`
+- `arda-fleet`
+- `arda-human`
 
 This is acceptable for the current plan-review closeout because the review packet is documentation/evidence closure, not the S1/G3 enforcement task. Enforcement belongs to the queued S1/G3 boundary review gate.
 
@@ -99,7 +93,7 @@ This is acceptable for the current plan-review closeout because the review packe
 1. Execute S1/G3: freeze workspace `Cargo.toml` and add a boundary review gate for new crates.
 2. Preserve the 18-crate OS core as the stable surface while tenant/staged crates are migrated or isolated.
 3. Keep queue, federation, and runtime-state projection contracts frozen while adding standalone JSON Schema hardening.
-4. Execute tenant separation for `annunimas-human`, council, forge-mind, signal-grid, and service-registry.
+4. Execute tenant separation for `arda-human`(arda-human deprecated), council, forge-mind, signal-grid, and service-registry.
 5. Extract ARDA HUD, CITADEL Avatar, and RELIC/Kiosk as private consumers under the external/private-consumer pattern.
 6. Defer Bluefin bootable proof until first-runtime health checks, queue readability, and runtime state readability are stable.
 

@@ -5,7 +5,6 @@
 //! Merged surface: resident messaging + A2A/A2H protocol types.
 
 pub mod comm;
-#[cfg(feature = "grpc")]
 pub mod grpc;
 pub mod message;
 pub use comm::{

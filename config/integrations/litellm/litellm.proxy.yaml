@@ -24,6 +24,9 @@ model_list:
 general_settings:
   master_key: annunimas-local
   disable_spend_logs: true
+  disable_spend_updates: true
+  store_model_in_db: false
+  database_url: null
 
 litellm_settings:
   set_verbose: false

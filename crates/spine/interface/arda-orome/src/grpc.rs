@@ -1,24 +1,23 @@
-//! Generated gRPC types + service traits for
-//! `arda.orome.health_model` and `arda.orome.route_governance`.
-//!
 //! Re-export the prost-generated messages alongside tonic service traits so
 //! server implementations can import one surface.
 
 #[rustfmt::skip]
 mod health_model {
-    tonic::include_proto!("arda.orome.health_model");
+    include!(concat!(env!("CARGO_MANIFEST_DIR"), "/src/grpc/arda.orome.health_model.rs"));
 }
 
 #[rustfmt::skip]
 mod route_governance {
-    tonic::include_proto!("arda.orome.route_governance");
+    include!(concat!(env!("CARGO_MANIFEST_DIR"), "/src/grpc/arda.orome.route_governance.rs"));
 }
 
 pub use health_model::{
-    health_model_service_client, health_model_service_server, HealthRequest, HealthResponse,
-    ListModelsRequest, ListModelsResponse, ModelInfo,
+    health_model_service_server::{HealthModelService, HealthModelServiceServer},
+    health_model_service_client::HealthModelServiceClient,
+    HealthRequest, HealthResponse, ListModelsRequest, ListModelsResponse, ModelInfo,
 };
 pub use route_governance::{
-    route_governance_service_client, route_governance_service_server, GovernanceVerdictRequest,
-    GovernanceVerdictResponse, RouteGovernanceService, RouteRequest, RouteResponse,
+    route_governance_service_server::{RouteGovernanceService, RouteGovernanceServiceServer},
+    route_governance_service_client::RouteGovernanceServiceClient,
+    GovernanceVerdictRequest, GovernanceVerdictResponse, RouteRequest, RouteResponse,
 };

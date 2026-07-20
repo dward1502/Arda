@@ -16,12 +16,7 @@ path = "src/main.rs"
 
 [features]
 default = []
-adaptive = [
-  "dep:arda-core",
-  "dep:arda-governance",
-  "dep:arda-economics",
-  "dep:arda-vaire",
-]
+adaptive = []
 telemetry = ["arda-aule/telemetry"]
 
 [dependencies]
@@ -40,13 +35,17 @@ tracing-subscriber = { workspace = true }
 clap = { workspace = true }
 chrono = { workspace = true }
 thiserror = { workspace = true }
-
-arda-core = { workspace = true, optional = true }
-arda-governance = { workspace = true, optional = true }
-arda-economics = { workspace = true, optional = true }
-arda-vaire = { workspace = true, optional = true }
+tonic = { workspace = true, default-features = false, features = ["router", "tls-webpki-roots", "transport"] }
+arda-orome = { workspace = true }
+arda-core = { workspace = true }
+arda-governance = { workspace = true }
+arda-economics = { workspace = true }
+arda-vaire = { workspace = true }
 arda-aule = { workspace = true, optional = true }
 
 [build-dependencies]
 tonic = { version = "0.14", default-features = false, features = ["tls-webpki-roots", "transport"] }
 prost-build = "0.13"
+
+[dependencies.rand]
+version = "0.8"

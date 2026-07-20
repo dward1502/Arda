@@ -6,6 +6,7 @@ use serde::Deserialize;
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
 use std::path::{Path, PathBuf};
+use tracing::warn;
 
 pub(super) fn default_provider_intelligence_path() -> PathBuf {
     if let Ok(path) = std::env::var("ARDA_PROVIDER_INTELLIGENCE_PATH") {
@@ -468,6 +469,10 @@ fn apply_provider_intelligence_overlay(
             ),
         })?;
 
+    let quarantine_enabled = std::env::var("ARDA_ENABLE_QUARANTINE")
+        .map(|value| value == "1" || value.eq_ignore_ascii_case("true"))
+        .unwrap_or(false);
+
     for provider in &mut providers {
         let Some(overlay) = parsed.providers.get(&provider.id) else {
             continue;
@@ -611,7 +616,15 @@ fn apply_provider_intelligence_overlay(
                 }
             }
         }
-        quarantine_stale_configured_models(provider, overlay);
+        if quarantine_enabled {
+            quarantine_stale_configured_models(provider, overlay);
+        } else if !overlay.metadata.stale_configured_models.is_empty() {
+            warn!(
+                provider_id = %provider.id,
+                stale_count = overlay.metadata.stale_configured_models.len(),
+                "skipping provider intelligence quarantine because ARDA_ENABLE_QUARANTINE is not set"
+            );
+        }
     }
 
     Ok(providers)

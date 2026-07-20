@@ -6,6 +6,7 @@
 //! or `--adaptive` is set, requests may flow through the routing adapter.
 
 mod config;
+mod grpc;
 
 use std::net::SocketAddr;
 use std::path::PathBuf;
@@ -39,6 +40,8 @@ struct Cli {
     config: PathBuf,
     #[arg(long)]
     adaptive: bool,
+    #[arg(long)]
+    grpc: bool,
 }
 
 #[derive(Clone)]
@@ -80,7 +83,48 @@ async fn main() -> anyhow::Result<()> {
         adaptive,
     };
 
-    let app: Router = Router::new()
+    let bind = cfg.bind.clone();
+    let port = cfg.port;
+
+    let addr: SocketAddr = format!("{}:{}", bind, port)
+        .parse()
+        .map_err(|e| anyhow::anyhow!("invalid bind/port: {e}"))?;
+    let listener = tokio::net::TcpListener::bind(addr).await?;
+    let bound = listener.local_addr()?;
+    tracing::info!(
+        "manwe: gateway listening on {} ({} providers, adaptive={})",
+        bound,
+        cfg.providers.len(),
+        adaptive
+    );
+
+    if cli.grpc {
+        let http_state = state.clone();
+        let grpc_state = grpc::GrpcState {
+            config: state.config.clone(),
+            client: state.client.clone(),
+        };
+        let http_handle = tokio::spawn(async move {
+            if let Err(e) = run_http(http_state).await {
+                tracing::error!("manwe http exited: {e}");
+            }
+        });
+        let grpc_handle = tokio::spawn(async move {
+            if let Err(e) = grpc::serve_grpc(grpc_state).await {
+                tracing::error!("manwe grpc exited: {e}");
+            }
+        });
+        let _ = tokio::join!(http_handle, grpc_handle);
+    } else {
+        run_http(state).await?;
+    }
+    Ok(())
+}
+
+async fn run_http(state: AppState) -> anyhow::Result<()> {
+    let adaptive = state.adaptive;
+    let cfg = state.config.clone();
+    let _app: Router = Router::new()
         .route("/healthz", get(healthz))
         .route("/v1/models", get(list_models))
         .route("/v1/chat/completions", post(chat_completions))
@@ -89,15 +133,15 @@ async fn main() -> anyhow::Result<()> {
     let addr: SocketAddr = format!("{}:{}", cfg.bind, cfg.port)
         .parse()
         .map_err(|e| anyhow::anyhow!("invalid bind/port: {e}"))?;
-
+    let listener = tokio::net::TcpListener::bind(addr).await?;
+    let bound = listener.local_addr()?;
     tracing::info!(
-        "manwe: gateway listening on {} ({} providers, adaptive={})",
-        addr,
+        "manwe http: listening on {} (providers={}, adaptive={})",
+        bound,
         cfg.providers.len(),
         adaptive
     );
-    let listener = tokio::net::TcpListener::bind(addr).await?;
-    axum::serve(listener, app).await?;
+    axum::serve(listener, _app).await?;
     Ok(())
 }
 

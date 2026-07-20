@@ -16,7 +16,7 @@ soterion:
 Status: in_progress; runtime degraded by autonomy error-budget guard
 Owner: prometheus
 Core quick reference: `core/projects/Plans/PROMETHEUS.md`
-Crate: `crates/annunimas-prometheus`
+Crate: `crates/spine/observability/arda-aule`
 Primary runtime projection: `core/state/arda_snapshot.json`
 Control-plane projection: `core/state/control_plane_lockdown.json`
 Runtime settings projection: `core/state/runtime_settings.json`
@@ -24,7 +24,7 @@ Task ledger: `core/projects/tasks/queue.jsonl`
 
 ## Purpose
 
-PROMETHEUS owns Annunimas orchestration, executive state, control-plane projections, automation policy export, and the sovereign `/core` bridge consumed by operator surfaces and downstream agents.
+PROMETHEUS owns Arda orchestration, executive state, control-plane projections, automation policy export, and the sovereign `/core` bridge consumed by operator surfaces and downstream agents.
 
 ## Current Review Summary
 

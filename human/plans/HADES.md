@@ -1,7 +1,7 @@
 # HADES Plan Review
 
 ## Overview
-HADES is the Annunimas lifecycle maintenance, cleanup, orphan-handling, and disposal-boundary subsystem. It owns repository hygiene surfaces, lifecycle projections, WARDEN/ATHENA handoff queues, storage hygiene evidence, and the final archive/retention review boundary for artifacts and ledgers.
+HADES is the Arda lifecycle maintenance, cleanup, orphan-handling, and disposal-boundary subsystem. It owns repository hygiene surfaces, lifecycle projections, WARDEN/ATHENA handoff queues, storage hygiene evidence, and the final archive/retention review boundary for artifacts and ledgers.
 
 The current quick reference is `core/projects/Plans/HADES.md`, which points here as the operator-facing plan narrative and graph node.
 

@@ -1,7 +1,7 @@
 # EMBODIED_INTERFACE Plan Review
 
 ## Overview
-EMBODIED_INTERFACE is the Annunimas physical presence and embodied display planning surface. It covers the Pi5 / Pepper's Ghost path, CITADEL Companion, RELIC visualization, runtime-truth-bound visual doctrine, and future gated voice/physical interaction boundaries.
+EMBODIED_INTERFACE is the Arda physical presence and embodied display planning surface. It covers the Pi5 / Pepper's Ghost path, CITADEL Companion, RELIC visualization, runtime-truth-bound visual doctrine, and future gated voice/physical interaction boundaries.
 
 The current quick reference is `core/projects/Plans/EMBODIED_INTERFACE.md`. It points to the CITADEL Companion roadmap and runtime state surfaces rather than a separate human plan file.
 
@@ -28,8 +28,8 @@ EMBODIED_INTERFACE currently owns:
 ## Observed Runtime / Plan State
 The reviewed surfaces show the embodied interface is present as a documented and partially deployed physical visualization lane:
 
-- `core/state/embodied_interface.json` declares schema `annunimas.embodied-interface.v1`, hardware targets for Pi5 guardhouse, Pi5 CITADEL avatar controller, and Pepper's Ghost enclosure, plus realm-to-geometry visual mapping.
-- `core/state/tauri_embodiment.json` declares schema `annunimas.tauri-embodiment.v1`, preferred stack guidance around Tauri / Vite React / Three.js / react-three-fiber / Theatre.js, and explicitly requires event-driven runtime-truth binding.
+- `core/state/embodied_interface.json` declares schema `arda.embodied-interface.v1`, hardware targets for Pi5 guardhouse, Pi5 CITADEL avatar controller, and Pepper's Ghost enclosure, plus realm-to-geometry visual mapping.
+- `core/state/tauri_embodiment.json` declares schema `arda.tauri-embodiment.v1`, preferred stack guidance around Tauri / Vite React / Three.js / react-three-fiber / Theatre.js, and explicitly requires event-driven runtime-truth binding.
 - The CITADEL Companion roadmap is `completed-queue-backed` through visual projection, state normalization, ARDA/CITADEL presence bridging, shared presence schema, and RELIC forward visualization evidence.
 - RELIC is documented as the active forward CITADEL Pi visualization as of 2026-05-29, with `relic.service` on port `8091` and `citadel-companion.service` disabled during RELIC deploys.
 - Fleet/edge readiness remains operator-sensitive: `node-pi5-citadel-avatar` identity and recovery failures are represented as operator-confirmation or human-gated work rather than autonomous mutation.
@@ -85,7 +85,7 @@ bash scripts/deploy_citadel_companion.sh
 
 Run remote deploy or service mutation only when the active task carries explicit operator authority.
 
-## Alignment with Annunimas Principles
+## Alignment with Arda Principles
 - **Evidence-first embodiment:** visual behavior is tied to runtime truth, projection payloads, and receipts rather than decorative motion.
 - **Safety-gated physical presence:** physical sensors, microphone/camera, wake-word, service control, credentials, and queue mutation remain human-gated.
 - **Operator clarity:** CITADEL is a physical display/presence surface, while ARDA/Hermes/CLI remain the richer inspection and action surfaces.

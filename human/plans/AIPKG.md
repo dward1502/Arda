@@ -59,9 +59,9 @@ The core contract surface is defined in `core/state/aipkg_contract.json` and inc
    - Developer guide
    - Safety and governance documentation
 
-## Alignment with Annunimas Principles
+## Alignment with Arda Principles
 
-The AIPKG system aligns with core Annunimas principles:
+The AIPKG system aligns with core Arda principles:
 - **Autonomy with Governance**: Packages must pass governance gates before execution
 - **Receipt-Based Validation**: All operations generate verifiable receipts
 - **Safety First**: Zero-work preflight and comprehensive validation
@@ -76,5 +76,5 @@ The AIPKG system aligns with core Annunimas principles:
 ## References
 
 - Core contract: `core/state/aipkg_contract.json`
-- Annunimas governance: `docs/SAFETY_MODEL.md`
-- Triad validation: `docs/operations/TRIAD_GATE_OPERATIONS.md`
+- Arda governance: `docs/SAFETY_MODEL.md` 
+- Triad validation: `docs/operations/TRIAD_GATE_OPERATIONS.md` 

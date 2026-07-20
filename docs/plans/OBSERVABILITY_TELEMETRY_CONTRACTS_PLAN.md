@@ -101,17 +101,20 @@ Recommended concrete additions:
 
 ### Phase C — CLI surface
 
-Implement these in engine or aule CLI:
+These are implemented in the existing `arda-cli` binary tree under
+`crates/spine/observability/arda-aule/src/cli/main.rs` behind the
+`full-cli` feature. Use the exact subcommand grammar below; they are
+kebab-case subcommands, not double-nested verbs like `arda telemetry schema`.
 
-- `arda telemetry schema`
-- `arda telemetry receipt <run_id>`
-- `arda governance policy <policy_id>`
-- `arda governance receipt <receipt_id>`
-- `arda service graph`
-- `arda tool manifest <agent_id>`
-- `arda runtime receipt <run_id>`
-- `arda eval run <task_id>`
-- `arda learning delta <run_id>`
+- `arda-cli telemetry-schema`
+- `arda-cli receipt <id>`
+- `arda-cli governance-policy <policy_id>`
+- `arda-cli governance-receipt <receipt_id>`
+- `arda-cli service-graph`
+- `arda-cli tool-manifest <agent_id>`
+- `arda-cli runtime-receipt <run_id>`
+- `arda-cli eval-run <task_id>`
+- `arda-cli learning-delta <run_id>`
 
 Each reads from the same durable receipt stores, so no data duplication.
 

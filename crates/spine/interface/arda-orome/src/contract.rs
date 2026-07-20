@@ -1,21 +1,12 @@
-//! Factorization of observability types shared between engine and generated
-//! tonic handers. This avoids leaking Rust QUERY-like literals upstream.
-mod sensor_response {
-    pub struct SensorResponse {
-        pub status: String,
-    }
-}
+//! Phase D typed surface for supervisor observability.
 
-mod route_decision {
-    pub struct RouteDecision {
-        pub upstream: String,
-        pub status: i32,
-    }
-}
+use std::path::PathBuf;
 
-mod budget_status {
-    pub struct BudgetStatus {
-        pub used: u64,
-        pub limit: u64,
-    }
+/// Resolve generated proto message roots for health/model and route/governance
+/// surfaces.
+pub fn generated_proto_roots() -> Vec<PathBuf> {
+    vec![
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/grpc"),
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/contract"),
+    ]
 }

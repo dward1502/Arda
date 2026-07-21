@@ -21,7 +21,7 @@ const AGENT_DISTRICT_COLORS: Record<SovereignAgentId, string> = {
   arandur: '#dffcff',
   athena: '#b98cff',
   hermes: '#6ea8ff',
-  charon: '#42f5d7',
+  manwe: '#42f5d7',
   warden: '#ffb14a',
   oracle: '#ffd76a',
   plutus: '#68f58f',

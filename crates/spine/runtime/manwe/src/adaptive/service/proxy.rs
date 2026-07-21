@@ -3,7 +3,7 @@ use crate::error::Result;
 use serde::{Deserialize, Serialize};
 
 use crate::adaptive::service::types::{
-    CharonRequestEnvelope, CharonService, ProviderState, RouteDecision,
+    CharonService, ManweRequestEnvelope, ProviderState, RouteDecision,
 };
 
 #[derive(Debug, Clone)]
@@ -22,14 +22,14 @@ pub(crate) struct ProxyAttemptSummary {
 }
 
 impl CharonService {
-    pub async fn proxy_openai(&self, req: CharonRequestEnvelope) -> Result<serde_json::Value> {
+    pub async fn proxy_openai(&self, req: ManweRequestEnvelope) -> Result<serde_json::Value> {
         let _ = req;
         Ok(serde_json::json!({"ok": true}))
     }
 
     pub async fn proxy_openai_passthrough(
         &self,
-        _envelope: CharonRequestEnvelope,
+        _envelope: ManweRequestEnvelope,
         _body: serde_json::Value,
     ) -> Result<PassthroughProxyOutcome> {
         Ok(PassthroughProxyOutcome)
@@ -37,7 +37,7 @@ impl CharonService {
 
     pub async fn proxy_openai_passthrough_with_route(
         &self,
-        _req: CharonRequestEnvelope,
+        _req: ManweRequestEnvelope,
         _body: serde_json::Value,
     ) -> Result<RouteDecision> {
         Ok(RouteDecision {
@@ -54,19 +54,19 @@ impl CharonService {
 
     pub async fn proxy_openai_streaming(
         &self,
-        _req: CharonRequestEnvelope,
+        _req: ManweRequestEnvelope,
         _body: serde_json::Value,
     ) -> Result<StreamingProxyOutcome> {
         Ok(StreamingProxyOutcome)
     }
 
-    async fn proxy_openai_request(&self, _req: CharonRequestEnvelope) -> Result<serde_json::Value> {
+    async fn proxy_openai_request(&self, _req: ManweRequestEnvelope) -> Result<serde_json::Value> {
         Ok(serde_json::json!({"ok": true}))
     }
 }
 
 pub(crate) fn strip_optional_tool_payload(
-    _req: &CharonRequestEnvelope,
+    _req: &ManweRequestEnvelope,
     body: &mut serde_json::Value,
 ) {
     if let Some(obj) = body.as_object_mut() {
@@ -92,7 +92,7 @@ pub(crate) fn provider_has_alternate_routable_model(
 }
 
 fn apply_exclusions(
-    routed_req: &mut CharonRequestEnvelope,
+    routed_req: &mut ManweRequestEnvelope,
     excluded_provider_ids: &[String],
     excluded_model_ids: &[String],
 ) {

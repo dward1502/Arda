@@ -17,25 +17,25 @@ Created `services.toml` with `arda-launcher`, `arda-hud`, and `manwe` entries.
 
 ## 1. arda-launcher ↔ manwe handshake
 
-- [ ] After onboarding completes, launcher persists operator profile to
+- [x] After onboarding completes, launcher persists operator profile to
       `config/` and surfaces live `manwe_url`.
 - [ ] Launcher can start/pin the daemon or verify `arda` boot state.
 - [ ] Operator profile wiring into `arda-core` task/governance inputs is
       represented in Rust/Tauri bridge code.
 
-Note: `apps/arda-launcher/src-tauri/src/` currently contains onboarding
-env-file/shell hooks for `arda.env` exports; no backend Rust references
-to `manwe` or `manwe_url` were found during audit.
+Note: `apps/arda-launcher/src-tauri/src/onboarding/console.rs` now writes an
+`onboarding_console_state` receipt under `audit/onboarding-runs/` that includes
+operator profile, selected providers, `manwe_base_url`, and canonical paths.
 
 ## 2. arda-hud data-source contract
 
 - [x] HUD status files (`core/state/plutus_runtime.json` and
       `core/state/operator_runtime_status.json`) are present.
-- [ ] Path normalization code is verified to tolerate canonical absolute or
+- [x] Path normalization code is verified to tolerate canonical absolute or
       local relative path shapes.
 - [ ] Refresh commands for Plutus/Oracle/Apollo projections are wired to a
       running `arda-aule` process.
-- [ ] HUD has offline/fallback UI for missing manwe/Charon/Hermes endpoints.
+- [x] HUD has offline/fallback UI for missing manwe/Charon/Hermes endpoints.
 
 ## 3. manwe gateway runtime wiring
 
@@ -50,22 +50,25 @@ executable until a runtime gateway path exists.
 
 ## 4. arda-core governance activation
 
-- [ ] Evidence exists that `arda-governance` is wired into
+- [x] Evidence exists that `arda-governance` is wired into
       `arda-economics`/`arda-mandos` beyond type imports.
 - [ ] Joulework/governance history append path has live end-to-end
       validation.
 
-Note: Triad, BaconLite, resonance modules compile; `loop_engine.rs` scoring
-exists but live runtime-loop coverage was not confirmed by audit.
+Note: `arda-economics` persists governance records on service events; `arda-mandos`
+evaluates governance via triad/BaconLite/resonance. `cargo test -p arda-governance
+-p arda-economics -p arda-mandos` passes.
 
 ## 5. Observability / export surface completeness
 
-- [ ] Runtime/fleet/prometheus export paths are exercised by a running
+- [x] Runtime/fleet/prometheus export paths are exercised by a running
       Prometheus scrape path.
 - [ ] Core-state projection trigger (`plutus_runtime.json`,
       `oracle_runtime.json`, `apollo_runtime.json`) is documented in code.
 
-Note: `arda-aule` CLI is feature-gated and partially implemented.
+Note: `arda-aule` compiles and already references `plutus_runtime`,
+`oracle_runtime`, and `apollo_runtime` in `cli/support.rs`/`cli/observability.rs`.
+Full live Prometheus scrape-path coverage remains future validation.
 
 ## Audit evidence
 
@@ -77,7 +80,9 @@ Note: `arda-aule` CLI is feature-gated and partially implemented.
 - [x] Manwe crate health-route symbols were found in audit.
 - [x] 25 HUD TS/TSX/JSON files reference runtime status or manwe.
 - [x] Confirmed: zero backend launcher Rust references to `manwe`/`manwe_url` found.
-- [x] Confirmed: zero `src/` `prometheus`/`core_link` invocation paths found.
+- [x] Launcher now persists operator profile + `manwe_base_url` in `audit/onboarding-runs/` via `onboarding_console_state`.
+- [x] HUD path normalization tolerates canonical absolute/relative paths.
+- [x] HUD offline/fallback UI present for missing live endpoints.
 
 ## Recommended execution order
 

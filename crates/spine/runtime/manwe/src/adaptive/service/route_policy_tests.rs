@@ -1,6 +1,10 @@
+use super::super::route_scoring::*;
+use super::super::status::PackageRuntimeSignals;
+use super::*;
 use crate::adaptive::service::route_sessions::RouteHistoryEntry;
-use crate::adaptive::service::types::{ModelState, ProviderState};
+use crate::adaptive::service::types::{ManweRequestEnvelope, ModelState, ProviderState};
 use chrono::Utc;
+use std::collections::BTreeMap;
 use std::sync::Mutex;
 
 static ENV_LOCK: Mutex<()> = Mutex::new(());
@@ -114,7 +118,7 @@ fn exclusion_helpers_accept_legacy_and_alias_keys() {
 
 #[test]
 fn derive_execution_profile_respects_background_priority() {
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "athena".to_string(),
         task_type: "chat".to_string(),
         priority: "background".to_string(),
@@ -129,7 +133,7 @@ fn derive_execution_profile_respects_background_priority() {
 
 #[test]
 fn derive_execution_profile_uses_health_probe_for_probe_requests() {
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "charon_probe".to_string(),
         task_type: "chat".to_string(),
         priority: "normal".to_string(),
@@ -216,7 +220,7 @@ fn single_governance_method_is_boolean_pass_fail() {
 
 #[test]
 fn route_decision_carries_live_governance_chain_metadata() {
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "hermes".to_string(),
         task_type: "chat".to_string(),
         priority: "normal".to_string(),
@@ -272,7 +276,7 @@ fn route_decision_carries_live_governance_chain_metadata() {
 
 #[test]
 fn orchestrator_role_prefers_cloud_policy_and_large_context() {
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "router".to_string(),
         task_type: "chat".to_string(),
         priority: "normal".to_string(),
@@ -293,7 +297,7 @@ fn orchestrator_role_prefers_cloud_policy_and_large_context() {
 
 #[test]
 fn execution_role_uses_auto_origin_and_execution_lane() {
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "worker".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -312,7 +316,7 @@ fn execution_role_uses_auto_origin_and_execution_lane() {
 
 #[test]
 fn available_tool_schemas_do_not_promote_chat_to_execution_lane() {
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "hermes".to_string(),
         task_type: "chat".to_string(),
         priority: "normal".to_string(),
@@ -336,7 +340,7 @@ fn available_tool_schemas_do_not_promote_chat_to_execution_lane() {
 
 #[test]
 fn compression_role_uses_auto_origin_and_compression_lane() {
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "hermes".to_string(),
         task_type: "summary".to_string(),
         priority: "normal".to_string(),
@@ -360,14 +364,14 @@ fn compression_role_uses_auto_origin_and_compression_lane() {
 
 #[test]
 fn cost_target_aliases_map_to_cost_tiers() {
-    let cheap_req = CharonRequestEnvelope {
+    let cheap_req = ManweRequestEnvelope {
         agent_id: "router".to_string(),
         task_type: "chat".to_string(),
         priority: "normal".to_string(),
         messages: vec![],
         options: serde_json::json!({"cost_target": "cheap"}),
     };
-    let premium_req = CharonRequestEnvelope {
+    let premium_req = ManweRequestEnvelope {
         agent_id: "router".to_string(),
         task_type: "chat".to_string(),
         priority: "normal".to_string(),
@@ -387,7 +391,7 @@ fn cost_target_aliases_map_to_cost_tiers() {
 
 #[test]
 fn interactive_profile_uses_message_estimate_not_oversized_default() {
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "hermes".to_string(),
         task_type: "chat".to_string(),
         priority: "normal".to_string(),
@@ -408,7 +412,7 @@ fn model_supports_request_rejects_models_below_context_target() {
     let mut large = small.clone();
     large.id = "large-context".to_string();
     large.context_window = 128_000;
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "athena".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -430,7 +434,7 @@ fn model_supports_request_enforces_execution_lane_context_floor() {
     let mut large = small.clone();
     large.id = "execution-large-context".to_string();
     large.context_window = tool_execution_min_context_window();
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "apollo".to_string(),
         task_type: "chat".to_string(),
         priority: "normal".to_string(),
@@ -456,7 +460,7 @@ fn model_supports_request_enforces_compression_context_floor() {
     let mut large = small.clone();
     large.id = "compression-large-context".to_string();
     large.context_window = 128_000;
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "hermes".to_string(),
         task_type: "summary".to_string(),
         priority: "normal".to_string(),
@@ -482,7 +486,7 @@ fn model_supports_request_rejects_visible_reasoning_models_for_code_tools() {
     thinking.capable_tasks = vec!["chat".to_string(), "code".to_string()];
     thinking.context_window = 128_000;
     thinking.capabilities.tools = Some(true);
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "hermes".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -513,7 +517,7 @@ fn model_supports_request_rejects_visible_reasoning_models_for_orchestration() {
     thinking.id = "provider/context-thinking-model".to_string();
     thinking.capable_tasks = vec!["chat".to_string(), "research".to_string()];
     thinking.context_window = 128_000;
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "openai_shim".to_string(),
         task_type: "chat".to_string(),
         priority: "normal".to_string(),
@@ -541,7 +545,7 @@ fn model_supports_request_rejects_prompt_guard_generation_models() {
     guard_model.id = "meta-llama/llama-prompt-guard-2-22m".to_string();
     guard_model.capable_tasks = vec!["chat".to_string(), "summary".to_string()];
     guard_model.context_window = 128_000;
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "openai_shim".to_string(),
         task_type: "chat".to_string(),
         priority: "normal".to_string(),
@@ -569,7 +573,7 @@ fn model_supports_request_does_not_treat_reasoning_capability_as_visible_reasoni
     ];
     model.context_window = 1_050_000;
     model.capabilities.tools = Some(true);
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "hermes".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -597,7 +601,7 @@ fn model_supports_request_allows_visible_reasoning_when_explicitly_requested() {
     ];
     reasoning.context_window = 128_000;
     reasoning.capabilities.tools = Some(true);
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "oracle".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -626,7 +630,7 @@ fn select_model_skips_visible_reasoning_candidate_for_code_route() {
     let mut coder = thinking.clone();
     coder.id = "provider/high-context-coder".to_string();
     coder.is_default = false;
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "hermes".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -648,7 +652,7 @@ fn select_model_skips_visible_reasoning_candidate_for_code_route() {
 
 #[test]
 fn tool_schema_bytes_count_toward_context_target() {
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "hermes".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -682,7 +686,7 @@ fn tool_schema_bytes_count_toward_context_target() {
 // not hardcoded provider/model family allowlists.
 #[test]
 fn provider_supports_request_blocks_local_fallback_for_high_context_audit() {
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "hermes".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -713,7 +717,7 @@ fn provider_capabilities_block_tool_required_continuations() {
     let mut provider = provider("text_only");
     provider.supports_tools = false;
     provider.models[0].capabilities.tools = Some(false);
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "openai_shim".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -736,7 +740,7 @@ fn provider_capabilities_allow_model_level_tool_truth() {
     provider.supports_tools = false;
     provider.models[0].capabilities.tools = Some(true);
     provider.models[0].context_window = 128_000;
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "openai_shim".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -758,7 +762,7 @@ fn provider_capabilities_block_implicit_code_execution_routes_without_tools_payl
     let mut provider = provider("text_only");
     provider.supports_tools = false;
     provider.models[0].capabilities.tools = Some(false);
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "openai_shim".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -776,7 +780,7 @@ fn provider_capabilities_block_implicit_code_execution_routes_without_tools_payl
 fn provider_supports_request_blocks_hermes_cli_for_streaming() {
     let mut provider = provider("openai_sub");
     provider.driver = "hermes_agent_cli".to_string();
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "openai_shim".to_string(),
         task_type: "chat".to_string(),
         priority: "normal".to_string(),
@@ -851,7 +855,7 @@ fn hermes_cli_driver_is_penalized_on_fast_interactive_lane() {
 fn provider_supports_request_blocks_unresolved_base_url_templates() {
     let mut provider = provider("litellm_gateway");
     provider.base_url = Some("http://${LITELLM_PROXY_HOST}:${LITELLM_PROXY_PORT}/v1".to_string());
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "hermes".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -870,7 +874,7 @@ fn groq_large_tool_payload_stays_eligible_for_request_scoped_retry_handling() {
     let mut model = provider("groq").models.remove(0);
     model.id = "qwen/qwen3-32b".to_string();
     model.context_window = 131_072;
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "hermes".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -898,7 +902,7 @@ fn groq_small_tool_payload_stays_eligible() {
     let mut model = provider("groq").models.remove(0);
     model.id = "qwen/qwen3-32b".to_string();
     model.context_window = 131_072;
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "hermes".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -922,7 +926,7 @@ fn groq_compound_models_are_not_admitted_for_tool_calls_without_positive_metadat
     let mut model = provider("groq").models.remove(0);
     model.id = "groq/compound-mini".to_string();
     model.context_window = 131_072;
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "hermes".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -955,7 +959,7 @@ fn configured_tool_incompatible_models_are_not_admitted_for_tool_calls() {
     model.id = "provider/fragile-tools-v1".to_string();
     model.capable_tasks = vec!["code".to_string()];
     model.context_window = 128_000;
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "hermes".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -981,7 +985,7 @@ fn cerebras_gpt_oss_is_not_admitted_for_tool_calls_without_positive_metadata() {
     let mut model = provider("cerebras").models.remove(0);
     model.id = "gpt-oss-120b".to_string();
     model.context_window = 131_072;
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "hermes".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -1001,7 +1005,7 @@ fn cerebras_gpt_oss_is_not_admitted_for_tool_calls_without_positive_metadata() {
     assert!(!model_supports_request("cerebras", &model, Some(&req)));
     model.capabilities.tools = Some(true);
     assert!(!model_supports_request("cerebras", &model, Some(&req)));
-    let explicit_reasoning_req = CharonRequestEnvelope {
+    let explicit_reasoning_req = ManweRequestEnvelope {
         options: serde_json::json!({
             "tools": [{
                 "type": "function",
@@ -1042,7 +1046,7 @@ fn local_fallback_is_blocked_for_hermes_tool_routes_below_context_floor() {
         capabilities: crate::adaptive::service::types::ModelCapabilities::default(),
         streaming_validated: None,
     };
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "hermes".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -1097,7 +1101,7 @@ fn declared_streaming_tool_model_survives_stale_streaming_validation() {
         },
         streaming_validated: Some(false),
     };
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "openai_shim".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -1155,7 +1159,7 @@ fn local_tool_routes_require_context_headroom_above_floor() {
         },
         streaming_validated: Some(true),
     };
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "openai_shim".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -1211,7 +1215,7 @@ fn structured_output_demotion_does_not_block_tool_routes() {
         },
         streaming_validated: Some(true),
     };
-    let schema_req = CharonRequestEnvelope {
+    let schema_req = ManweRequestEnvelope {
         agent_id: "openai_shim".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -1221,7 +1225,7 @@ fn structured_output_demotion_does_not_block_tool_routes() {
             "max_tokens": 512
         }),
     };
-    let tool_req = CharonRequestEnvelope {
+    let tool_req = ManweRequestEnvelope {
         agent_id: "openai_shim".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -1273,7 +1277,7 @@ fn explicit_emergency_flag_allows_low_context_tool_fallback() {
         },
         streaming_validated: None,
     };
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "hermes".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -1312,7 +1316,7 @@ fn explicit_emergency_flag_allows_low_context_tool_fallback() {
 
 #[test]
 fn agentic_tool_requests_block_models_marked_without_tool_support() {
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "hermes".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -1377,7 +1381,7 @@ fn agentic_tool_requests_block_models_marked_without_tool_support() {
 
 #[test]
 fn implicit_code_execution_routes_block_models_marked_without_tool_support() {
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "openai_shim".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -1404,7 +1408,7 @@ fn implicit_code_execution_routes_block_models_marked_without_tool_support() {
 
 #[test]
 fn audit_style_requests_use_audit_stability_route_class() {
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "hermes".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -1429,7 +1433,7 @@ fn audit_style_requests_use_audit_stability_route_class() {
 
 #[test]
 fn nvidia_agentic_tool_requests_use_catalog_metadata_not_model_allowlist() {
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "hermes".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -1492,7 +1496,7 @@ fn provider_model_pool_keeps_catalog_live_nvidia_models_outside_old_allowlist() 
         capabilities: crate::adaptive::service::types::ModelCapabilities::default(),
         streaming_validated: None,
     });
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "hermes".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -2402,7 +2406,7 @@ fn orchestrator_free_cloud_pool_prefers_fast_healthy_metadata_over_provider_name
 
 #[test]
 fn multi_turn_chat_uses_estimated_context_without_forcing_128k() {
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "hermes".to_string(),
         task_type: "chat".to_string(),
         priority: "normal".to_string(),
@@ -2426,7 +2430,7 @@ fn multi_turn_chat_uses_estimated_context_without_forcing_128k() {
 
 #[test]
 fn openrouter_free_models_are_not_agentic_tool_candidates_by_default() {
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "openai_shim".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -2458,7 +2462,7 @@ fn openrouter_free_models_are_not_agentic_tool_candidates_by_default() {
         Some(&req)
     ));
 
-    let explicit_free_req = CharonRequestEnvelope {
+    let explicit_free_req = ManweRequestEnvelope {
         options: serde_json::json!({
             "tools": [{
                 "type": "function",
@@ -2504,7 +2508,7 @@ fn named_free_cloud_pool_providers_remain_eligible_when_metadata_is_valid() {
         assert!(
             provider_supports_request(
                 &candidate,
-                &CharonRequestEnvelope {
+                &ManweRequestEnvelope {
                     agent_id: "router".to_string(),
                     task_type: "chat".to_string(),
                     priority: "normal".to_string(),
@@ -2677,7 +2681,7 @@ fn select_model_honors_request_scoped_model_exclusions() {
             streaming_validated: None,
         },
     ];
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "test".to_string(),
         task_type: "chat".to_string(),
         priority: "normal".to_string(),
@@ -2715,7 +2719,7 @@ fn prefer_probe_model_selects_provider_probe_model_before_default() {
     });
     p.probe_model = Some("provider/nano-probe-free".to_string());
     p.probe_profile = Some("low_latency_terse".to_string());
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "charon_probe".to_string(),
         task_type: "chat".to_string(),
         priority: "normal".to_string(),
@@ -2753,7 +2757,7 @@ fn provider_model_pool_keeps_alternate_after_dead_nvidia_model_excluded() {
         capabilities: crate::adaptive::service::types::ModelCapabilities::default(),
         streaming_validated: None,
     });
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "hermes".to_string(),
         task_type: "code".to_string(),
         priority: "normal".to_string(),
@@ -2796,7 +2800,7 @@ fn provider_model_pool_includes_probe_model_and_default_for_fallback() {
         streaming_validated: None,
     });
     p.probe_model = Some("openrouter/nano-probe-free".to_string());
-    let req = CharonRequestEnvelope {
+    let req = ManweRequestEnvelope {
         agent_id: "charon_probe".to_string(),
         task_type: "chat".to_string(),
         priority: "normal".to_string(),

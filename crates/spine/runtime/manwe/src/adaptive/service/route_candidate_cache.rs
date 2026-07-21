@@ -6,7 +6,7 @@ use crate::adaptive::service::route_policy::{
 };
 use crate::adaptive::service::status::PackageRuntimeSignals;
 use crate::adaptive::service::types::CharonService;
-use crate::adaptive::service::types::{CharonRequestEnvelope, ProviderState};
+use crate::adaptive::service::types::{ManweRequestEnvelope, ProviderState};
 use std::collections::BTreeMap;
 use std::hash::{Hash, Hasher};
 use std::sync::Mutex;
@@ -116,7 +116,7 @@ fn route_options_hash(options: &serde_json::Value) -> u64 {
 
 impl CharonService {
     fn route_candidate_cache_key(
-        req: &CharonRequestEnvelope,
+        req: &ManweRequestEnvelope,
         priority: &str,
         strict: bool,
         forced_provider_id: Option<&str>,
@@ -140,7 +140,7 @@ impl CharonService {
     pub(super) fn cached_route_candidates(
         &self,
         providers: &[ProviderState],
-        req: &CharonRequestEnvelope,
+        req: &ManweRequestEnvelope,
         priority: &str,
         strict: bool,
         forced_provider_id: Option<&str>,
@@ -224,7 +224,7 @@ impl CharonService {
     pub(super) fn cache_route_candidates(
         &self,
         providers: &[ProviderState],
-        req: &CharonRequestEnvelope,
+        req: &ManweRequestEnvelope,
         priority: &str,
         strict: bool,
         forced_provider_id: Option<&str>,
@@ -248,7 +248,7 @@ impl CharonService {
     pub(super) fn build_scored_route_candidates(
         &self,
         providers: &[ProviderState],
-        req: &CharonRequestEnvelope,
+        req: &ManweRequestEnvelope,
         priority: &str,
         strict: bool,
         forced_provider_id: Option<&str>,

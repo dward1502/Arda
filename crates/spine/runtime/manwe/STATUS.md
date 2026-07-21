@@ -3,6 +3,35 @@
 Crate: `crates/spine/runtime/manwe`
 Status: live / actively supervised runtime component
 
+## Verified compile/test snapshot — 2026-07-21 16:27 PDT
+
+The three commands documented in `docs/plans/CHARON.md` were run from the
+workspace root. None currently pass:
+
+| Command | Result | Primary evidence |
+|---|---|---|
+| `cargo check -p manwe` | failed | 35 errors, 2 warnings: E0432 ×9 and E0282 ×26 |
+| `cargo test -p manwe` | failed during compilation | 305 errors, 2 warnings; 255 diagnostics originate in `route_policy_tests.rs` |
+| `cargo check -p manwe --features adaptive` | failed | same 35 errors and 2 warnings as the default check |
+
+The first blocking defect is a partial `CharonRequestEnvelope` →
+`ManweRequestEnvelope` rename. `src/adaptive/types.rs` defines only
+`ManweRequestEnvelope`, while nine adaptive service imports/re-exports still request
+`CharonRequestEnvelope`. The 26 E0282 inference errors are downstream fallout from
+that missing request type, concentrated in `route_policy.rs`,
+`route_selection.rs`, `route_sessions.rs`, and `bandit.rs`.
+
+The default and adaptive checks are currently identical because `src/lib.rs`
+unconditionally declares `pub mod adaptive`; the `adaptive = []` feature does not
+isolate the adaptive subtree. The stable gateway therefore no longer has the clean
+default-build boundary described below.
+
+Test compilation exposes a second layer after the same root failure: stale CHARON
+symbols in `route_policy_tests.rs`, duplicate and incompatible root/adaptive
+`ModelState` types, and tests that still expect `CharonService::new` to return a
+`Result`. These should be repaired only after restoring one canonical adaptive type
+surface and the default feature boundary.
+
 ## What it does
 
 `manwe` is the local OpenAI-compatible inference gateway. It listens on `127.0.0.1:7171`

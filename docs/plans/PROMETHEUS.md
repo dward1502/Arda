@@ -6,21 +6,31 @@ soterion:
   role: "documentation"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-06-21"
+  last_reviewed: "2026-07-21"
+crate: arda-aule
+owner: prometheus
+status: in_progress
+reviewed: "2026-06-21"
 ---
 
-> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-06-21
+> Arda-AULE: 📜 observability / orchestration telemetry | owner: prometheus | status: in_progress | reviewed: 2026-06-21
 
-# 🪙 PROMETHEUS Plan
+# Prometheus Plan Narrative
+
+`PROMETHEUS` is the current Arda observability and orchestration telemetry surface.
+Historic narration is preserved at
+`docs/plans/original-human-plan-narration/PROMETHEUS.md`. This document merges
+the prior operator narrative with the current Arda surface names so old detail is
+retained without stale crate assumptions.
 
 Status: in_progress; runtime degraded by autonomy error-budget guard
+Status: active
 Owner: prometheus
-Core quick reference: `core/projects/Plans/PROMETHEUS.md`
-Crate: `crates/spine/observability/arda-aule`
+Operator plan: `docs/plans/PROMETHEUS.md`
 Primary runtime projection: `core/state/arda_snapshot.json`
 Control-plane projection: `core/state/control_plane_lockdown.json`
 Runtime settings projection: `core/state/runtime_settings.json`
-Task ledger: `core/projects/tasks/queue.jsonl`
+Task ledger: `core/state/queue.jsonl`
 
 ## Purpose
 
@@ -83,6 +93,8 @@ PROMETHEUS work remains subject to:
 - Love/resonance checks for operator-facing and user-impacting flows;
 - Soterion traceability for queue, plan, and runtime evidence.
 
-## Closeout Criteria
+## References
 
-The PROMETHEUS plan review queue packet can be closed when this human narrative exists, the core quick reference and runtime projections are present, and append-only queue integrity passes before the same-id terminal record is appended.
+- `docs/plans/PROMETHEUS.md`
+- Original narration archive: `docs/plans/original-human-plan-narration/PROMETHEUS.md`
+- Runtime projections: `core/state/arda_snapshot.json`, `core/state/control_plane_lockdown.json`, `core/state/runtime_settings.json`

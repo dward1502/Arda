@@ -3,12 +3,12 @@
 ## Overview
 EMBODIED_INTERFACE is the Arda physical presence and embodied display planning surface. It covers the Pi5 / Pepper's Ghost path, CITADEL Companion, RELIC visualization, runtime-truth-bound visual doctrine, and future gated voice/physical interaction boundaries.
 
-The current quick reference is `core/projects/Plans/EMBODIED_INTERFACE.md`. It points to the CITADEL Companion roadmap and runtime state surfaces rather than a separate human plan file.
+The current quick reference is `docs/plans/EMBODIED_INTERFACE.md`. It points to the CITADEL Companion roadmap and runtime state surfaces rather than a separate human plan file.
 
 ## Core Runtime Surfaces
 The reviewed contract is represented by these primary surfaces:
 
-- `core/projects/Plans/EMBODIED_INTERFACE.md` — quick reference and plan pointer
+- `docs/plans/EMBODIED_INTERFACE.md` — quick reference and plan pointer
 - `docs/plans/2026-05-27-citadel-companion-embodied-roadmap.md` — current operator-facing CITADEL Companion roadmap
 - `core/state/embodied_interface.json` — embodied interface design/runtime mapping
 - `core/state/tauri_embodiment.json` — rendering doctrine and stack guidance
@@ -37,7 +37,7 @@ The reviewed surfaces show the embodied interface is present as a documented and
 ## Implementation Status
 
 ### Completed / Present
-- Quick reference exists at `core/projects/Plans/EMBODIED_INTERFACE.md`.
+- Quick reference exists at `docs/plans/EMBODIED_INTERFACE.md`.
 - Current CITADEL Companion roadmap exists at `docs/plans/2026-05-27-citadel-companion-embodied-roadmap.md`.
 - Runtime embodiment contract exists at `core/state/embodied_interface.json`.
 - Rendering doctrine exists at `core/state/tauri_embodiment.json`.
@@ -97,7 +97,7 @@ Run remote deploy or service mutation only when the active task carries explicit
 3. Which future voice or physical interaction capability should be scoped first under the safety contract?
 
 ## References
-- Quick reference: `core/projects/Plans/EMBODIED_INTERFACE.md`
+Quick reference: `docs/plans/EMBODIED_INTERFACE.md`
 - CITADEL Companion roadmap: `docs/plans/2026-05-27-citadel-companion-embodied-roadmap.md`
 - Embodied runtime state: `core/state/embodied_interface.json`
 - Tauri embodiment guidance: `core/state/tauri_embodiment.json`

@@ -6,9 +6,8 @@ CHARON is the Arda inference routing and provider health subsystem. It owns mode
 ## Core Runtime Surfaces
 The current CHARON contract is represented by these primary surfaces:
 
-- `core/projects/Plans/CHARON.md` — quick reference and plan pointer
-- `core/state/manwe_router.json` — router projection and provider posture
-- `config/charon.providers.toml` — dynamic provider/model configuration
+- `docs/plans/CHARON.md` — quick reference and plan pointer
+- `crates/spine/runtime/manwe/src/grpc_types.rs` — live router/provider state surface
 - `data/charon/state.jsonl` — runtime route/provider state ledger
 - `core/metrics/by_crate/charon/` — crate-level metrics output path
 - `core/state/fleet_backbone.json` — fleet/node context for local and edge providers
@@ -50,7 +49,7 @@ The file explicitly warns that `healthy = true/false` should not be set in provi
 ### Completed / Present
 - Core CHARON crate exists at `crates/arda-charon`.
 - Dynamic provider configuration exists at `config/charon.providers.toml`.
-- Router projection exists at `core/state/manwe_router.json`.
+- Router projection exists at `crates/spine/runtime/manwe/src/grpc_types.rs`.
 - Provider state/cooldown/degradation posture is exported for ARDA/operator visibility.
 - Provider model capabilities are represented in config for routing decisions.
 - Fleet bootstrap recovery evidence is embedded in the router projection.
@@ -77,7 +76,8 @@ The file explicitly warns that `healthy = true/false` should not be set in provi
    - Ensure weak local providers are not selected for tasks requiring high context, tool support, structured output, or privacy constraints they cannot satisfy.
 
 4. **Operator documentation**
-   - Keep this human plan synchronized with `core/projects/Plans/CHARON.md` and `core/state/manwe_router.json`.
+   - Keep this human plan synchronized with `docs/plans/original-human-plan-narration/CHARON.md`
+     and `crates/spine/runtime/manwe/src/grpc_types.rs`.
    - Treat runtime posture as evidence-based and timestamp-sensitive.
 
 ## Verification Commands
@@ -108,8 +108,8 @@ scripts/check_charon_health.sh
 3. Should fleet recovery failures from SSH host-key trust be represented as a separate operator action class from ordinary provider degradation?
 
 ## References
-- Quick reference: `core/projects/Plans/CHARON.md`
-- Router projection: `core/state/manwe_router.json`
+- Quick reference: `docs/plans/CHARON.md`
+- Router projection: `crates/spine/runtime/manwe/src/grpc_types.rs`
 - Provider config: `config/charon.providers.toml`
 - Charon crate: `crates/spine/runtime/manwe`
 - L3 routing plan reference: `docs/plans/2026-06-08-l3-readiness-closure-plan.md`

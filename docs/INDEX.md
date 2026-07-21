@@ -32,16 +32,14 @@
 
 - `plans/INDEX.md`
 - `plans/README.md`
-- `plans/AGENT_FRAMEWORK_COMPARATIVE.md`
-- `plans/AIPKG.md`
+
 - `plans/ATHENA.md`
 - `plans/CHARON.md`
 - `plans/EMBODIED_INTERFACE.md`
 - `plans/FEDERATED_COMMS.md`
 - `plans/HADES.md`
 - `plans/HERMES.md`
-- `plans/LEGION_HIERARCHY.md`
-- `plans/MNEMOSYNE.md`
+
 - `plans/OPENFANG.md`
 - `plans/PLATFORM_OS.md`
 - `plans/PROMETHEUS.md`

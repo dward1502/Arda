@@ -120,7 +120,7 @@ Recommendation:
 
 ## Recommended next steps
 
-1. Confirm lane purpose map in `docs/plans/ARDA_REMAINING_WORK.md`.
+1. Confirm lane purpose map in this repo’s active plan set: `docs/plans/FLEET_MODEL_REFRESH_2026.md`, `docs/plans/hud-incremental-build.md`, `docs/plans/substrate-build-plan.md`, and `docs/plans/VAIRE_IMPLEMENTATION_PLAN.md`.
 2. For each node, pick one candidate from above and testllama.cpp startup latency/memory locally.
 3. Update `config/fleet.toml` `expected_models` and `runtime_model_alias` after validation.
 4. Keep `node-laptop` as offline voice node unless an explicit chat model seat is needed.

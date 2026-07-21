@@ -1259,6 +1259,8 @@ mod tests {
 
     #[test]
     fn provider_intelligence_quarantines_stale_configured_models() {
+        let _guard = ENV_LOCK.lock().expect("env lock");
+        std::env::set_var("ARDA_ENABLE_QUARANTINE", "true");
         let dir = tempdir().expect("tempdir");
         let intelligence_path = dir.path().join("provider_intelligence.json");
         fs::write(
@@ -1313,6 +1315,7 @@ mod tests {
         assert!(live.healthy);
         assert!(!live.in_cooldown);
         assert!(live.is_default);
+        std::env::remove_var("ARDA_ENABLE_QUARANTINE");
     }
 
     #[test]

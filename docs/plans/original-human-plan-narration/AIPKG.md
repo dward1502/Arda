@@ -30,8 +30,8 @@ The core contract surface is defined in `core/state/aipkg_contract.json` and inc
 - Validator harnesses specification
 
 ### Pending
-- Human narrative documentation (`human/plans/AIPKG.md`) - **This document**
-- Specification files (`spec/aipkg/v0.1/`) - **Need to be created**
+- Human narrative documentation (`docs/plans/AIPKG.md`) - **This document**
+- operator narrative (`docs/plans/AIPKG.md`) - quick reference
 - Reference implementations
 - Test harnesses
 

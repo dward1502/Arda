@@ -6,19 +6,28 @@ soterion:
   role: "documentation"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-05-21"
+  last_reviewed: "2026-07-21"
+crate: federated-comms
+owner: prometheus
+status: active
+reviewed: "2026-07-21"
 ---
 
-> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-05-21
+> Arda Federated Comms: 📜 layered communications doctrine | owner: prometheus | status: active | reviewed: 2026-07-21
 
-# sigil: REPAIR
-# Federated Comms Quick Reference
+# Federated Comms Plan Narrative
 
-Status: active (reviewed 2026-04-30; architecture extraction, keep)
+`FEDERATED_COMMS` is the current Arda layered communications doctrine surface.
+Historic narration is preserved at
+`docs/plans/original-human-plan-narration/FEDERATED_COMMS.md`. This document
+retains the prior operator narrative; only references/metadata are updated for
+the post-Annunimas Arda layout.
+
+Status: active
 Owner: prometheus
 Human plan: `docs/plans/FEDERATED_COMMS.md`
 Core runtime: `core/state/federated_comms.json`
-Task ledger: `core/projects/tasks/queue.jsonl`
+Task ledger: `core/state/queue.jsonl`
 
 ## Purpose
 
@@ -38,9 +47,10 @@ Defines the layered communications doctrine above local sovereign control.
 
 - `core/state/federated_comms.json`
 - `core/state/federated_comms_runtime.json`
-- `core/state/operations_flow.json`
 - `core/edge/targets.toml`
 
-## Readable Context
+## References
 
-Use `docs/plans/FEDERATED_COMMS.md` for the operator-facing plan narrative and graph node.
+- Crate/surface: `docs/plans/FEDERATED_COMMS.md`
+- Original narration archive: `docs/plans/original-human-plan-narration/FEDERATED_COMMS.md`
+- Core runtime: `core/state/federated_comms.json`

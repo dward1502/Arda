@@ -11,7 +11,8 @@ function asRecord(value: unknown): JsonRecord | null {
 }
 
 export async function readJson(rootPath: string, relativePath: string): Promise<JsonRecord | null> {
-  const result = await readFile(`${rootPath}/${relativePath}`)
+  const normalized = normalizeProjectionPath(rootPath, relativePath)
+  const result = await readFile(normalized)
   if (!result.success || !result.content) {
     return null
   }
@@ -19,8 +20,17 @@ export async function readJson(rootPath: string, relativePath: string): Promise<
   return asRecord(parseJsonOrNull<unknown>(result.content))
 }
 
+export function normalizeProjectionPath(rootPath: string, relativePath: string): string {
+  const trimmed = relativePath.trim()
+  if (!trimmed) return rootPath
+  if (trimmed.startsWith('/') || trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed
+  }
+  return `${rootPath}/${trimmed}`
+}
+
 export async function readJsonLines(rootPath: string, relativePath: string): Promise<JsonRecord[]> {
-  const result = await readFile(`${rootPath}/${relativePath}`)
+  const result = await readFile(normalizeProjectionPath(rootPath, relativePath))
   if (!result.success || !result.content) {
     return []
   }

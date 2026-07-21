@@ -11,7 +11,7 @@ pub(super) use super::route_scoring::{
 #[allow(unused_imports)]
 use crate::adaptive::service::status::PackageRuntimeSignals;
 use crate::adaptive::service::types::{
-    CharonRequestEnvelope, ModelState, ProviderState, RouteDecision, RouteGovernance,
+    ManweRequestEnvelope, ModelState, ProviderState, RouteDecision, RouteGovernance,
     RouteGovernanceLens, RouteLoveEquationGuard,
 };
 use arda_core::JouleWorkMeasurementSource;
@@ -210,7 +210,7 @@ pub(super) fn build_route_decision(
     provider: &ProviderState,
     model: ModelState,
     score: f64,
-    req: &CharonRequestEnvelope,
+    req: &ManweRequestEnvelope,
     priority: &str,
     strict: bool,
     policy: &HybridRoutePolicy,
@@ -263,7 +263,7 @@ pub(super) fn build_route_decision_with_governance_chain(
     provider: &ProviderState,
     model: ModelState,
     score: f64,
-    req: &CharonRequestEnvelope,
+    req: &ManweRequestEnvelope,
     priority: &str,
     strict: bool,
     policy: &HybridRoutePolicy,
@@ -395,7 +395,7 @@ pub(super) fn select_model_for_request(
     models: &[ModelState],
     task_type: &str,
     forced_model_id: Option<&str>,
-    req: Option<&CharonRequestEnvelope>,
+    req: Option<&ManweRequestEnvelope>,
 ) -> Option<ModelState> {
     if let Some(forced_model_id) = forced_model_id {
         return models
@@ -447,7 +447,7 @@ pub(super) fn select_model_for_provider_request(
     provider: &ProviderState,
     task_type: &str,
     forced_model_id: Option<&str>,
-    req: Option<&CharonRequestEnvelope>,
+    req: Option<&ManweRequestEnvelope>,
 ) -> Option<ModelState> {
     if forced_model_id.is_none()
         && req
@@ -480,7 +480,7 @@ pub(super) fn candidate_models_for_provider_request(
     provider: &ProviderState,
     task_type: &str,
     forced_model_id: Option<&str>,
-    req: Option<&CharonRequestEnvelope>,
+    req: Option<&ManweRequestEnvelope>,
 ) -> Vec<ModelState> {
     if let Some(forced_model_id) = forced_model_id {
         return select_model_for_provider_request(provider, task_type, Some(forced_model_id), req)
@@ -635,7 +635,7 @@ pub(super) fn model_has_visible_reasoning_surface(model: &ModelState) -> bool {
         })
 }
 
-fn request_allows_visible_reasoning(req: &CharonRequestEnvelope) -> bool {
+fn request_allows_visible_reasoning(req: &ManweRequestEnvelope) -> bool {
     req.task_type == "reasoning"
         || [
             "allow_visible_reasoning",
@@ -681,7 +681,7 @@ pub(super) fn excluded_model_ids(options: &serde_json::Value) -> Vec<String> {
         .unwrap_or_default()
 }
 
-pub(super) fn request_allows_hermes_cli_fast_lane(req: &CharonRequestEnvelope) -> bool {
+pub(super) fn request_allows_hermes_cli_fast_lane(req: &ManweRequestEnvelope) -> bool {
     req.options
         .get("allow_hermes_cli")
         .or_else(|| req.options.get("allow_slow_subscription_routes"))
@@ -842,7 +842,7 @@ pub(super) struct GateFreezeMetadataRequest {
 
 pub(super) fn gate_request_freeze_metadata(
     p: &ProviderState,
-    _req: &CharonRequestEnvelope,
+    _req: &ManweRequestEnvelope,
 ) -> GateFreezeMetadataRequest {
     GateFreezeMetadataRequest {
         provider_id: p.id.clone(),
@@ -1063,7 +1063,7 @@ fn half_open_probe_stride() -> u32 {
         .min(1_000)
 }
 
-fn request_requires_agentic_tool_use(req: &CharonRequestEnvelope) -> bool {
+fn request_requires_agentic_tool_use(req: &ManweRequestEnvelope) -> bool {
     // Explicit flags in options
     if req
         .options
@@ -1136,7 +1136,7 @@ fn local_tool_context_headroom_tokens() -> usize {
         .unwrap_or(8_192)
 }
 
-fn request_allows_low_context_tool_fallback(req: &CharonRequestEnvelope) -> bool {
+fn request_allows_low_context_tool_fallback(req: &ManweRequestEnvelope) -> bool {
     req.options
         .get("allow_low_context_tool_fallback")
         .or_else(|| req.options.get("emergency_low_context_tool_fallback"))
@@ -1144,7 +1144,7 @@ fn request_allows_low_context_tool_fallback(req: &CharonRequestEnvelope) -> bool
         .unwrap_or(false)
 }
 
-fn request_needs_tool_capable_route(req: &CharonRequestEnvelope) -> bool {
+fn request_needs_tool_capable_route(req: &ManweRequestEnvelope) -> bool {
     if request_requires_agentic_tool_use(req) {
         return true;
     }
@@ -1160,7 +1160,7 @@ fn request_needs_tool_capable_route(req: &CharonRequestEnvelope) -> bool {
         || req.task_type == "code"
 }
 
-fn request_prefers_high_context_tool_use(req: &CharonRequestEnvelope) -> bool {
+fn request_prefers_high_context_tool_use(req: &ManweRequestEnvelope) -> bool {
     if !request_requires_agentic_tool_use(req) {
         return false;
     }
@@ -1189,7 +1189,7 @@ fn request_prefers_high_context_tool_use(req: &CharonRequestEnvelope) -> bool {
         .is_some_and(|value| value.eq_ignore_ascii_case("orchestrator"))
 }
 
-fn request_prefers_audit_stability(req: &CharonRequestEnvelope) -> bool {
+fn request_prefers_audit_stability(req: &ManweRequestEnvelope) -> bool {
     if !request_prefers_high_context_tool_use(req) {
         return false;
     }
@@ -1225,7 +1225,7 @@ fn request_prefers_audit_stability(req: &CharonRequestEnvelope) -> bool {
 /// removed from candidates *before* a 400 ever happens.
 pub(super) fn provider_supports_request_capabilities(
     p: &ProviderState,
-    req: &CharonRequestEnvelope,
+    req: &ManweRequestEnvelope,
 ) -> bool {
     if request_needs_tool_capable_route(req) && !provider_or_model_supports_tools(p, req) {
         return false;
@@ -1237,7 +1237,7 @@ pub(super) fn provider_supports_request_capabilities(
     true
 }
 
-fn provider_or_model_supports_tools(p: &ProviderState, req: &CharonRequestEnvelope) -> bool {
+fn provider_or_model_supports_tools(p: &ProviderState, req: &ManweRequestEnvelope) -> bool {
     p.supports_tools
         || select_model_for_provider_request(p, &req.task_type, None, Some(req))
             .is_some_and(|model| model.capabilities.tools == Some(true))
@@ -1245,14 +1245,14 @@ fn provider_or_model_supports_tools(p: &ProviderState, req: &CharonRequestEnvelo
 
 fn provider_or_model_supports_structured_output(
     p: &ProviderState,
-    req: &CharonRequestEnvelope,
+    req: &ManweRequestEnvelope,
 ) -> bool {
     p.supports_structured_output
         || select_model_for_provider_request(p, &req.task_type, None, Some(req))
             .is_some_and(|model| model.capabilities.structured_output == Some(true))
 }
 
-pub(super) fn provider_supports_request(p: &ProviderState, req: &CharonRequestEnvelope) -> bool {
+pub(super) fn provider_supports_request(p: &ProviderState, req: &ManweRequestEnvelope) -> bool {
     if request_requires_streaming(req)
         && matches!(p.driver.as_str(), "hermes_agent_cli" | "codex_responses")
     {
@@ -1283,7 +1283,7 @@ pub(super) fn provider_supports_request(p: &ProviderState, req: &CharonRequestEn
 pub(super) fn model_supports_request(
     provider_id: &str,
     model: &ModelState,
-    req: Option<&CharonRequestEnvelope>,
+    req: Option<&ManweRequestEnvelope>,
 ) -> bool {
     let Some(req) = req else {
         return true;
@@ -1393,7 +1393,7 @@ fn openrouter_free_model_id(model_id: &str) -> bool {
     model_id.ends_with(":free") || model_id.ends_with("/free") || model_id.contains("/free/")
 }
 
-fn request_allows_free_tool_pool(req: &CharonRequestEnvelope) -> bool {
+fn request_allows_free_tool_pool(req: &ManweRequestEnvelope) -> bool {
     req.options
         .get("allow_free_tool_pool")
         .or_else(|| req.options.get("free_tool_pool"))
@@ -1422,7 +1422,7 @@ fn configured_tool_incompatible_model(provider_id: &str, model_id: &str) -> bool
         })
 }
 
-fn local_slimmed_tool_context_target(req: &CharonRequestEnvelope) -> usize {
+fn local_slimmed_tool_context_target(req: &ManweRequestEnvelope) -> usize {
     let message_tokens = req
         .messages
         .iter()
@@ -1454,14 +1454,14 @@ fn local_slimmed_tool_context_target(req: &CharonRequestEnvelope) -> usize {
     round_up_context_tier(message_tokens + tool_tokens + output_tokens).min(16_000)
 }
 
-fn request_requires_streaming(req: &CharonRequestEnvelope) -> bool {
+fn request_requires_streaming(req: &ManweRequestEnvelope) -> bool {
     req.options
         .get("stream")
         .and_then(|value| value.as_bool())
         .unwrap_or(false)
 }
 
-fn request_uses_structured_output(req: &CharonRequestEnvelope) -> bool {
+fn request_uses_structured_output(req: &ManweRequestEnvelope) -> bool {
     req.options.get("response_format").is_some()
 }
 
@@ -1583,7 +1583,7 @@ fn estimate_message_tokens(messages: &[serde_json::Value]) -> usize {
     estimate_json_tokens(&serde_json::Value::Array(messages.to_vec()))
 }
 
-fn estimate_request_tokens(req: &CharonRequestEnvelope) -> usize {
+fn estimate_request_tokens(req: &ManweRequestEnvelope) -> usize {
     let mut total = estimate_message_tokens(&req.messages);
     for key in ["tools", "tool_choice", "response_format", "stop"] {
         if let Some(value) = req.options.get(key) {
@@ -1613,7 +1613,7 @@ fn round_up_context_tier(tokens: usize) -> usize {
 }
 
 pub(super) fn derive_route_execution_profile(
-    req: &CharonRequestEnvelope,
+    req: &ManweRequestEnvelope,
     priority: &str,
 ) -> RouteExecutionProfile {
     let options = &req.options;

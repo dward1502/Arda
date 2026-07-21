@@ -364,7 +364,7 @@ impl CharonService {
     pub(crate) fn record_tool_fit_observation(
         &self,
         decision: &RouteDecision,
-        req: &crate::adaptive::service::types::CharonRequestEnvelope,
+        req: &crate::adaptive::service::types::ManweRequestEnvelope,
         attempt_body: &JsonValue,
         outcome: ToolFitOutcome,
     ) -> Result<()> {
@@ -967,15 +967,17 @@ mod tests {
     #[tokio::test]
     async fn openrouter_rate_limit_hints_do_not_lower_configured_daily_cap() {
         let dir = tempdir().expect("tempdir");
-        let service = CharonService::new(dir.path()).expect("service");
+        let service = CharonService::new(dir.path());
         {
             let mut providers = service.providers.write().await;
-            let openrouter = providers
-                .iter_mut()
-                .find(|provider| provider.id == "openrouter")
-                .expect("openrouter provider");
+            let mut openrouter = crate::adaptive::service::bootstrap_defaults::default_providers()
+                .into_iter()
+                .next()
+                .expect("default provider fixture");
+            openrouter.id = "openrouter".to_string();
             openrouter.requests_per_day = Some(2_000);
             openrouter.requests_used_day = 7;
+            providers.push(openrouter);
         }
 
         let mut headers = HeaderMap::new();

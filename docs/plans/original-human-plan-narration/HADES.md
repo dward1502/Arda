@@ -3,20 +3,20 @@
 ## Overview
 HADES is the Arda lifecycle maintenance, cleanup, orphan-handling, and disposal-boundary subsystem. It owns repository hygiene surfaces, lifecycle projections, WARDEN/ATHENA handoff queues, storage hygiene evidence, and the final archive/retention review boundary for artifacts and ledgers.
 
-The current quick reference is `core/projects/Plans/HADES.md`, which points here as the operator-facing plan narrative and graph node.
+The current quick reference is `docs/plans/HADES.md`, which points here as the operator-facing plan narrative and graph node.
 
 ## Core Runtime Surfaces
 The reviewed HADES contract is represented by these primary surfaces:
 
-- `core/projects/Plans/HADES.md` — quick reference and plan pointer
+- `docs/plans/HADES.md` — quick reference and plan pointer
 - `core/state/hades_lifecycle.json` — lifecycle projection and current HADES queue
 - `data/hades/hades_log.jsonl` — HADES runtime/sweep ledger
 - `data/hades/warden_queue.jsonl` — WARDEN handoff queue
 - `data/hades/athena_handoff_queue.jsonl` — ATHENA handoff queue
-- `core/state/warden_guardhouse.json` — WARDEN projection consuming HADES/guardhouse lifecycle signals
 - `core/state/storage_hygiene.json` — storage hygiene audit surface
 - `core/state/storage_hygiene_apply.json` — storage hygiene apply/delete receipt surface
 - `core/state/active_ruleset.json` — task lifecycle rules naming HADES as final lifecycle boundary
+- `core/state/hades_lifecycle.json` — HADES lifecycle projection/hints
 
 ## Current Contract
 HADES currently owns:
@@ -31,20 +31,20 @@ HADES currently owns:
 ## Observed Runtime / Plan State
 The inspected surfaces show HADES is present and active:
 
-- `core/projects/Plans/HADES.md` marks the v0.1 baseline complete and coin-marked for cleanup/archive targeting.
 - `core/state/hades_lifecycle.json` exists and is actively regenerated; latest inspected projection had `authority = hades_lifecycle_projection` and `pending_actions = 25` in ARDA hints.
 - The HADES lifecycle queue primarily contains `investigate_orphan` actions for files missing sigil headers, with no `authorized_by`, `quorum_proof`, or `execute_after_utc` fields populated.
-- Recent activity shows ATHENA handoffs for discovered orphan documentation/planning surfaces, including recent platform OS plan artifacts.
+- Recent activity shows ATHENA handoffs for discovered orphan documentation/planning surfaces, including recent platform OS and substrate plan artifacts.
 - JouleWork entries record HADES maintenance sweep telemetry with no actions taken and held-for-review counts, reinforcing read-only/audit-first behavior.
-- `core/state/warden_guardhouse.json` consumes WARDEN/HADES cleanup posture and reports no fleet cleanup action required for current fleet status.
-- `core/state/storage_hygiene.json` and `core/state/storage_hygiene_apply.json` document storage hygiene audit/apply contracts, including stale runtime backup cleanup and archive review candidates.
-- `core/state/active_ruleset.json` names the task lifecycle pipeline and explicitly states that HADES controls the final lifecycle boundary.
+- `core/state/storage_hygiene.json` and `core/state/storage_hygiene_apply.json` document storage hygiene audit/apply contracts.
+- `core/state/active_ruleset.json` names the task lifecycle pipeline and HADES final-boundary status.
+- `core/state/hades_lifecycle.json` carries the live lifecycle projection.
+- WARDEN/guardhouse handoff assumptions are historical until `core/state/warden_guardhouse.json` is reintroduced.
 
 ## Implementation Status
 
 ### Completed / Present
 - HADES crate exists at `crates/annunimas-hades`.
-- Quick reference exists at `core/projects/Plans/HADES.md`.
+- Quick reference exists at `docs/plans/HADES.md`.
 - Lifecycle projection exists at `core/state/hades_lifecycle.json`.
 - WARDEN and ATHENA handoff paths are represented through HADES queues and recent activity.
 - Storage hygiene audit/apply surfaces exist and include receipt-backed cleanup evidence.
@@ -79,14 +79,13 @@ Useful focused checks for this plan surface:
 python -m json.tool core/state/hades_lifecycle.json >/dev/null
 python -m json.tool core/state/storage_hygiene.json >/dev/null
 python -m json.tool core/state/storage_hygiene_apply.json >/dev/null
-python -m json.tool core/state/warden_guardhouse.json >/dev/null
 scripts/check_task_queue_append_only.sh
 ```
 
 Refresh queue/lifecycle projection evidence before closeout or active queue selection:
 
 ```bash
-cargo run -p annunimas-cli -- export queue-hygiene
+cargo run -p arda-cli -- export queue-hygiene
 ```
 
 ## Alignment with Annunimas Principles
@@ -101,9 +100,8 @@ cargo run -p annunimas-cli -- export queue-hygiene
 3. Should ARDA expose separate counts for review signals, approval-ready cleanup packets, and completed lifecycle receipts?
 
 ## References
-- Quick reference: `core/projects/Plans/HADES.md`
+- Quick reference: `docs/plans/HADES.md`
 - Lifecycle projection: `core/state/hades_lifecycle.json`
-- WARDEN projection: `core/state/warden_guardhouse.json`
 - Storage hygiene audit: `core/state/storage_hygiene.json`
 - Storage hygiene apply receipts: `core/state/storage_hygiene_apply.json`
 - Active task lifecycle rules: `core/state/active_ruleset.json`

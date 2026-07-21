@@ -394,7 +394,7 @@ fn free_provider_pool_rollup(
                 .count();
             let skip_reasons = free_pool_skip_reasons(provider, healthy_model_count);
             let profile = derive_route_execution_profile(
-                &crate::adaptive::service::types::CharonRequestEnvelope {
+                &crate::adaptive::service::types::ManweRequestEnvelope {
                     agent_id: "observability".to_string(),
                     task_type: "code".to_string(),
                     priority: "normal".to_string(),

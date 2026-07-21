@@ -4,84 +4,106 @@ soterion:
   glyph: "◈"
   code_point: "U+25C8"
   role: "knowledge_governance"
-  owner: "ATHENA"
+  owner: "ARDA-VARDA"
   status: "active"
-  last_reviewed: "2026-04-30"
+  last_reviewed: "2026-07-21"
+crate: arda-varda
+agent: athena
+realm: knowledge
+sigil: "𓁿"
+status: operational
 ---
 
-> 🜏 ATHENA: ◈ knowledge governance | owner: ATHENA | status: active | reviewed: 2026-04-30
+> Arda-VARDA: ◈ knowledge governance | owner: arda-varda | status: operational | reviewed: 2026-07-21
 
-# ATHENA Plan Narrative
+# arda-varda Plan Narrative
+
+## Name / Identity
+
+`ATHENA` is now implemented as the `arda-varda` executor. This document merges
+the operator-facing plan narrative from the original `ATHENA` narration with the
+current live crate/runtime surfaces, preserving detailed operational context
+instead of only renaming paths.
 
 ## Overview
 
-ATHENA owns ingest, digest, deep analysis, and policy-readiness promotion for the sovereign knowledge corpus. This narrative captures the current runtime posture, completed work, degraded surfaces, and the next bounded operator actions.
+`arda-varda` owns ingest, digest, deep analysis, learning emissions, and
+policy-readiness promotion for the sovereign knowledge corpus. The original
+ATHENA narrative described ATHENA as owning ingest, digest, deep analysis, and
+policy-readiness promotion for the sovereign knowledge corpus, capturing the
+runtime posture, completed work, degraded surfaces, and next bounded operator
+actions. That substance is preserved here; only crate paths, ownership, and
+current names are updated.
 
-## Current Runtime State (2026-06-22)
+## Current Runtime State
 
-- `core/state/athena_runtime.json` is populated and shows steady recent activity:
-  - `deep_graph_recent`: 16
-  - `deep_queue_recent`: 16
-  - `digest_recent`: 16
-  - `policy_ready_recent`: 123
-  - `reference_only_recent`: 276
-  - `planning_task_receipts_recent`: 1
-- ARDA hint posture: `policy_readiness_status: review_pressure` with `next_operator_action: preview_policy_ready_promotion`.
-- Deep graph nodes are receiving truth-confidence tagging (`triad_passed: true`, `confidence` in the 0.69–0.77 band) and being linked into governance/research tag surfaces.
+- Crate root: `crates/spine/executors/arda-varda`
+- Data/core roots: `data/athena/*`, `core/state/*`, env-overridable persistence
+- Tests/validation: implementation/testing surface is present
+
+Prior externally observed runtime-state signals remain conceptually valid: the
+knowledge stores use append-only JSONL persistence; recent counts are best read
+from live heads rather than fixed snapshots.
 
 ## External Source Lane Ledger
 
-`data/athena/external_source_lane_ledger.jsonl` currently contains 5 lanes:
-
-- `web` / `x_bookmarks`: connector gated but connector-ready; task promotion remains off.
-- `reddit` / `notebook_lm` / `public_archives`: connector needed; blocked until canonical source ledger exists.
-
-Policy boundary enforced: external lanes stay `task_promotion_allowed=false` until a canonical source receipt with evidence anchors is written by the connector/operator path.
+`data/athena/external_source_lane_ledger.jsonl` can contain multiple lanes such
+as `web`, `x_bookmarks`, `reddit`, `notebook_lm`, and `public_archives`. Policy
+boundary remains in force: external lanes should keep `task_promotion_allowed=false`
+until a canonical source receipt with evidence anchors is written by the
+connector/operator path.
 
 ## Completed / Present Work
 
 - Ingest/query/deep/digest command surface is live.
 - JSONL read paths are hardened against malformed lines; appends are serialized to avoid interleaving corruption.
-- Deep digestion survives deduplicated re-ingest on human and machine source books.
-- Scrapling runtime and provider policy are materialized in `core/state/scrapling_runtime_contract.json`.
-- External source lane ledger is materialized and emitted as `annunimas.athena.external_source_lane.v1`.
+- Deep digestion survives deduplicated re-ingest on source books and can recombine prior graph/output artifacts.
+- Appended-only JSONL persistence covers digest, books, deep queue, policy readiness, planning-task receipts, crawl receipts, and uncertainty selections.
+- Source classification and ingestion across GitHub, scholarly, documentation, news, government, chat export, notes, PDF, and X/bookmark-like sources.
+- Deep-analysis queue with extraction, implementation brief synthesis, scholarly title generation, and uncertainty sampling.
+- Interceptor pipeline with Hades/Warden/Mnemosyne hooks and typed digestion events.
+- Governance/telemetry hooks including triad validation, bacon-lite logging, resonance/love/joule scoring, and snapshot-style metrics.
+- Transport surfaces: Unix-socket IPC plus optional HTTP/SSE daemon paths.
+- Learning lane: knowledge-delta/TTL schema validation and JSONL emissions.
+- Deterministic receipts and idempotent append behavior with malformed-line tolerance.
+- Human-knowledge surface folded into this crate; old separate `arda-human` crate assumptions are historical.
 
 ## Degraded / Blocked Work
 
-- No live external connector is active today for Reddit, NotebookLM, or public archives.
-- `policy_ready_recent` is high but task promotion is still gated behind canonical receipts; the frontier is not yet sovereign-default Scrapling.
-- NotebookLM MCP candidate is noted but unverified.
+- No live external connector is active for all out-of-tree sources today.
+- Deep-analysis events are polling-based; no SSE stream is exposed yet.
+- Some sync/async mixing remains in store/bridge work.
+- NotebookLM MCP candidate was noted in the historical ATHENA narrative as a possible surface; it remains unverified.
 
 ## Current Frontier
 
 - Materialize and promote policy-ready evidence into implementation briefs/planning tasks once canonical receipts exist.
+- Reduce duplicate layout roots and normalize WorkspaceLayout across ingest/human paths.
 - Harden workstation-first execution, deterministic task emission, bounded memory lanes, and measurable runtime effectiveness.
-- Move Scrapling from preferred direction toward sovereign default only after bounded runtime contract gates pass.
+- Make store async boundaries explicit or document sync-blocking regions.
+- Replace manual JSONL append logic with a shared append-only trait.
+- Expose synthesis/queue telemetry through engine/CLI for observability.
+- Add schema-version migration for evolving JSONL stores.
 
 ## Hardening Contract
 
-- Workstation = canonical deep-ingest executor; laptop = operator ingress and optional fallback.
+- Workstation is the canonical deep-ingest executor surface.
 - Source provenance must survive ingest through policy-ready promotion and task emission.
 - Memory lanes stay bounded across episodic, source-book, policy-ready, and implementation-ready surfaces.
-- Task emission must be deterministic, idempotent, and receipt-backed.
-- Runtime must remain SELinux-safe, admission-gated, and observable.
+- Task emission remains deterministic, idempotent, and receipt-backed.
+- Runtime remains SELinux-safe, admission-gated, and observable.
 
 ## Primary Runtime Surfaces
 
-- `core/state/athena_runtime.json`
-- `data/athena/digest.jsonl`
-- `data/athena/books/`
-- `data/athena/policy_readiness.jsonl`
-- `data/athena/external_source_lane_ledger.jsonl`
-- `docs/operator/library/athena/sources/`
+- `crates/spine/executors/arda-varda`
+- `crates/spine/executors/arda-varda/core/`
+- `data/athena/`
+- `core/state/`
 
-## Verification Commands
+## Verification
 
-```bash
-cargo test -p arda-athena
-cargo run -p arda-cli -- status
-cargo run -p arda-cli -- export queue-hygiene
-```
+- `cargo check -p arda-varda`
+- `cargo test -p arda-varda`
 
 ## Alignment with Arda Principles
 
@@ -91,13 +113,13 @@ cargo run -p arda-cli -- export queue-hygiene
 
 ## Open Questions
 
-- Is the NotebookLM MCP candidate approved for read-only inspection, or should ATHENA keep agent synthesis as non-canonical truth?
-- When will `task_promotion_allowed` flip true for `web`/`x_bookmarks` lanes?
+- Is the NotebookLM MCP candidate approved for read-only inspection, or should agent synthesis remain non-canonical truth?
+- When will `task_promotion_allowed` flip true for external source lanes?
+- When will duplicate layout roots unify into a single layout owner?
 
 ## References
 
-- Quick reference: `core/projects/Plans/ATHENA.md`
-- Runtime contract: `core/state/athena_runtime.json`
-- Scrapling contract: `core/state/scrapling_runtime_contract.json`
-- Ledger: `data/athena/external_source_lane_ledger.jsonl`
-- Ledger narrative: `data/athena/external_source_lane_ledger.md`
+- Crate: `crates/spine/executors/arda-varda`
+- Original narration archive: `docs/plans/original-human-plan-narration/ATHENA.md`
+- Original archive docs: `docs/archive/ARDA_VARDA_ATHENA_REINTEGRATION_PLAN.md`
+- Archived tests snapshot: `docs/archive/arda-varda-tests/`

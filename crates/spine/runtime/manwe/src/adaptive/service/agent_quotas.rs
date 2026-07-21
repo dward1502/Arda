@@ -1,5 +1,5 @@
 use crate::adaptive::service::types::CharonService;
-use crate::adaptive::service::types::{CharonRequestEnvelope, ProviderState};
+use crate::adaptive::service::types::{ManweRequestEnvelope, ProviderState};
 use chrono::{Duration, Utc};
 use std::collections::BTreeMap;
 
@@ -46,7 +46,7 @@ impl CharonService {
     pub(super) fn provider_agent_quota_available(
         &self,
         provider: &ProviderState,
-        req: &CharonRequestEnvelope,
+        req: &ManweRequestEnvelope,
     ) -> bool {
         let limits = agent_quota_limits(provider, req);
         if limits.minute.is_none() && limits.day.is_none() {
@@ -65,11 +65,7 @@ impl CharonService {
             && limits.day.is_none_or(|limit| entry.day_used < limit)
     }
 
-    pub(super) fn reserve_agent_quota(
-        &self,
-        provider: &ProviderState,
-        req: &CharonRequestEnvelope,
-    ) {
+    pub(super) fn reserve_agent_quota(&self, provider: &ProviderState, req: &ManweRequestEnvelope) {
         let limits = agent_quota_limits(provider, req);
         if limits.minute.is_none() && limits.day.is_none() {
             return;
@@ -124,7 +120,7 @@ fn agent_quota_key(provider_id: &str, agent_id: &str) -> String {
     format!("{provider_id}:{agent_id}")
 }
 
-fn agent_quota_limits(provider: &ProviderState, req: &CharonRequestEnvelope) -> AgentQuotaLimits {
+fn agent_quota_limits(provider: &ProviderState, req: &ManweRequestEnvelope) -> AgentQuotaLimits {
     let mut limits = agent_quota_limits_for_request(req);
     if limits.minute.is_none() {
         limits.minute = provider_fraction_limit(
@@ -141,7 +137,7 @@ fn agent_quota_limits(provider: &ProviderState, req: &CharonRequestEnvelope) -> 
     limits
 }
 
-fn agent_quota_limits_for_request(req: &CharonRequestEnvelope) -> AgentQuotaLimits {
+fn agent_quota_limits_for_request(req: &ManweRequestEnvelope) -> AgentQuotaLimits {
     AgentQuotaLimits {
         minute: option_u64(&req.options, "agent_requests_per_minute")
             .or_else(|| option_u64(&req.options, "per_agent_requests_per_minute"))

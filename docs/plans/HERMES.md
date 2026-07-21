@@ -7,19 +7,30 @@ soterion:
   owner: "HADES"
   status: "active"
   last_reviewed: "2026-06-30"
+crate: arda-orome
+agent: hermes
+realm: interface
+reviewed: "2026-06-22"
 ---
 
 > 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-05-21
 
 # 🪙
-# HERMES Quick Reference
+# HERMES Plan Narrative
 
-Status: in_progress (updated 2026-06-22)
+`HERMES` is now implemented in `crates/spine/interface/arda-orome`. Historic
+narration is preserved at `docs/plans/original-human-plan-narration/HERMES.md`.
+This document preserves the detailed HERMES operator narrative while updating
+Arda crate and surface names. The prior Hermes crate surface now maps to
+`arda-orome`; the plan below retains both current runtime claims and older
+state evidence useful for operator review.
+
+Status: in_progress
 Owner: hermes
 Human plan: `docs/plans/HERMES.md`
-Crate: `crates/arda-hermes`
+Crate: `crates/spine/interface/arda-orome`
 Core runtime: `core/state/hermes_command.json`
-Task ledger: `core/projects/tasks/queue.jsonl`
+Task ledger: `core/state/queue.jsonl`
 
 ## Purpose
 
@@ -45,7 +56,7 @@ HERMES owns communication routing, boardroom state, provider messaging, and exte
 
 ## Readable Context
 
-Use `docs/plans/HERMES.md` for the operator-facing plan narrative and graph node.
+Use `docs/plans/HERMES.md` for the operator-facing plan narrative and graph node. Historic narration is preserved at `docs/plans/original-human-plan-narration/HERMES.md`.
 
 ## 2026-05-25 Live Discord Dispatch Decision
 
@@ -66,34 +77,64 @@ Safe next live-dispatch steps:
 4. Refresh `core/state/hermes_discord_runtime.json` or the equivalent Hermes delivery receipt projection so ARDA/Hermes visibility reports recent outbound/dispatched totals.
 5. Keep high-risk, external/private, queue-mutating, or approval-changing Discord dispatches gated through Review Gate packets; Discord channel/message IDs remain delivery metadata, not canonical task identity.
 
-## Open Tasks (0 active)
+## Open Tasks (4 total)
 
-Open tasks are reconciled from `core/state/queue_active.json`, which reports `active_task_count: 0` at `2026-06-30T05:06:17Z`. Prior plan-only entries below had no matching active task and are closed as stale under the reconcile-on-projection policy.
-
-### Stale plan-only items closed as invalid
-
-The following plan entries had no active queue record under `core/state/queue_active.json` and are closed as stale under the reconcile-on-projection policy.
-
-#### 1. Implement richer provider adapters and live streaming surfaces
+### 1. Implement richer provider adapters and live streaming surfaces
 
 Current provider adapters are basic. Need to support more providers and streaming responses.
 
-**Status:** Closed as stale — no active queue record; closed 2026-06-22.
+**Status:** Pending
 
-#### 2. Strengthen fanout and routing orchestration
+### 2. Strengthen fanout and routing orchestration
 
 Improve message routing for multi-agent coordination and boardroom discussions.
 
-**Status:** Closed as stale — no active queue record; closed 2026-06-22.
+**Status:** Pending
 
-#### 3. Expand edge-worker and fleet communication policy
+### 3. Expand edge-worker and fleet communication policy
 
 Document and implement policies for edge worker communication and fleet coordination.
 
-**Status:** Closed as stale — no active queue record; closed 2026-06-22.
+**Status:** Pending
 
-#### 4. Broaden ARDA HUD consumption of core and human plan surfaces
+### 4. Broaden ARDA HUD consumption of core and human plan surfaces
 
 Enhance ARDA HUD to better display HERMES-related data and status.
 
-**Status:** Closed as stale — no active queue record; closed 2026-06-22.
+**Status:** Pending
+
+## Degraded / Blocked Work
+
+The older narration also notes an earlier degraded-system posture; that remains useful operator context. Current state indicates live Discord provider status, but prior degradation signals should not be assumed cleared until delivery receipts appear in `core/state/hermes_discord_runtime.json` or equivalent projection.
+
+## Hardening Contract
+
+- Commands remain gated by Soterion headers, plain-language fallback, and receipt/cause/next-action requirements for nontrivial claims.
+- External messaging lanes require explicit approval, receipt proofs, and human/WARDEN review before high-risk or queue-changing dispatch.
+
+## Verification
+
+- `cargo check -p arda-orome` / corresponding interface-path workspace checks
+- `python -m json.tool core/state/hermes_discord_runtime.json >/dev/null`
+- `python -m json.tool core/state/soterion_communication_contract.json >/dev/null`
+- `scripts/check_task_queue_append_only.sh`
+
+## Alignment with Arda Principles
+
+- Evidence-first dispatch
+- Receipt-backed messaging truth
+- Operator-visible comms state
+- Safety-gated external interaction
+
+## Open Questions
+
+1. Which additional provider adapters beyond Discord/Matrix are viable without broadening blast radius?
+2. When should `online_no_recent_delivery_receipt` be considered stale enough to trigger Hermes self-recovery versus operator review?
+3. What richer HUD surfaces should consume boardroom/reroute/interruption streams without becoming a mutation path?
+
+## References
+
+- Crate: `crates/spine/interface/arda-orome`
+- Original narration archive: `docs/plans/original-human-plan-narration/HERMES.md`
+- Core runtime: `core/state/hermes_command.json`
+- Operator contract: `docs/contracts/soterion-communication-contract.md`

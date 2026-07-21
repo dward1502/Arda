@@ -126,7 +126,8 @@ async function readCharonJson<T>(path: string): Promise<T> {
   if (IS_TAURI) {
     return invoke<T>('read_charon_json', { path })
   }
-  const response = await fetch(`${MANWE_BASE_URL}${path}`, {
+  const charonUrl = `${MANWE_BASE_URL}${path}`
+  const response = await fetch(charonUrl, {
     headers: { Accept: 'application/json' },
   })
   if (!response.ok) {
@@ -135,11 +136,21 @@ async function readCharonJson<T>(path: string): Promise<T> {
   return response.json() as Promise<T>
 }
 
+async function readManweJson<T>(path: string): Promise<T> {
+  const response = await fetch(`${MANWE_BASE_URL}${path}`, {
+    headers: { Accept: 'application/json' },
+  })
+  if (!response.ok) {
+    throw new Error(`Manwe ${path} returned ${response.status}`)
+  }
+  return response.json() as Promise<T>
+}
+
 export async function loadManweLiveSnapshot(): Promise<ManweLiveSnapshot> {
   const [health, capabilities, providerCandidates] = await Promise.all([
-    readCharonJson<CharonHealthPayload>('/health'),
-    readCharonJson<CharonCapabilitiesPayload>('/providers/capabilities'),
-    readCharonJson<CharonProviderCandidatesPayload>('/provider_candidates'),
+    readManweJson<CharonHealthPayload>('/healthz').catch(() => readCharonJson<CharonHealthPayload>('/health')),
+    readManweJson<CharonCapabilitiesPayload>('/providers/capabilities').catch(() => readCharonJson<CharonCapabilitiesPayload>('/providers/capabilities')),
+    readManweJson<CharonProviderCandidatesPayload>('/provider_candidates').catch(() => readCharonJson<CharonProviderCandidatesPayload>('/provider_candidates')),
   ])
   return {
     health,

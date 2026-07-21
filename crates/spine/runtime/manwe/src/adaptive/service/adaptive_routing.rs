@@ -7,7 +7,7 @@ use crate::adaptive::service::state_io::{append_jsonl, read_recent_jsonl};
 use crate::adaptive::service::types::CharonService;
 #[cfg(test)]
 use crate::adaptive::service::types::ModelState;
-use crate::adaptive::service::types::{CharonRequestEnvelope, ProviderState};
+use crate::adaptive::service::types::{ManweRequestEnvelope, ProviderState};
 use arda_core::error::Result;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
@@ -343,7 +343,7 @@ pub(crate) fn build_route_explanation(
     route_id: &str,
     providers: &[ProviderState],
     candidate: &RouteSelectionCandidate,
-    req: &CharonRequestEnvelope,
+    req: &ManweRequestEnvelope,
     priority: &str,
     policy: &HybridRoutePolicy,
     route_profile: &RouteExecutionProfile,
@@ -733,7 +733,7 @@ mod tests {
             model: provider.models[0].clone(),
             score: 142.0,
         };
-        let req = CharonRequestEnvelope {
+        let req = ManweRequestEnvelope {
             agent_id: "hermes".to_string(),
             task_type: "summary".to_string(),
             priority: "normal".to_string(),

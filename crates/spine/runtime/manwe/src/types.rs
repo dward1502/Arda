@@ -255,7 +255,7 @@ pub struct ProviderState {
     #[serde(default = "default_driver")]
     pub driver: String,
     /// For driver=hermes_agent_cli/hermes_proxy: path to the hermes binary.
-    /// When empty, falls back to env ANNUNIMAS_HERMES_BIN, then "hermes" on PATH.
+    /// When empty, falls back to env ARDA_HERMES_BIN, then "hermes" on PATH.
     #[serde(default)]
     pub hermes_bin: Option<String>,
     /// For driver=hermes_agent_cli/hermes_proxy: the --provider argument

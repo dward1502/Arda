@@ -10,7 +10,7 @@ use std::sync::Arc;
 use tokio::sync::{RwLock, RwLockReadGuard};
 
 pub use crate::adaptive::types::{
-    CharonRequestEnvelope, ModelCapabilities, ModelState, ProviderState, RouteDecision,
+    ManweRequestEnvelope, ModelCapabilities, ModelState, ProviderState, RouteDecision,
     RouteGovernance, RouteGovernanceLens, RouteLoveEquationGuard,
 };
 
@@ -47,7 +47,9 @@ impl CharonService {
         let root = root.into();
         Self {
             root: root.clone(),
-            providers: Arc::new(RwLock::new(Vec::new())),
+            providers: Arc::new(RwLock::new(
+                crate::adaptive::service::bootstrap_defaults::default_providers(),
+            )),
             event_writer: crate::adaptive::service::event_writer::EventWriter::new(
                 root.join("events"),
                 root.join("governance_events.jsonl"),

@@ -1,6 +1,6 @@
 use crate::adaptive::service::adaptive_routing::RouteExplanation;
 use crate::adaptive::service::types::CharonService;
-use crate::adaptive::service::types::{CharonRequestEnvelope, RouteDecision};
+use crate::adaptive::service::types::{ManweRequestEnvelope, RouteDecision};
 use chrono::Utc;
 use serde::Serialize;
 
@@ -35,14 +35,14 @@ pub(super) fn route_history_limit() -> usize {
         .unwrap_or(256)
 }
 
-fn request_wants_sticky_session(req: &CharonRequestEnvelope) -> bool {
+fn request_wants_sticky_session(req: &ManweRequestEnvelope) -> bool {
     req.options
         .get("session_affinity")
         .and_then(serde_json::Value::as_str)
         .is_some_and(|value| value.eq_ignore_ascii_case("sticky"))
 }
 
-fn sticky_session_key(req: &CharonRequestEnvelope) -> String {
+fn sticky_session_key(req: &ManweRequestEnvelope) -> String {
     req.options
         .get("session_id")
         .or_else(|| req.options.get("conversation_id"))
@@ -79,7 +79,7 @@ impl CharonService {
 
     pub(super) async fn sticky_route_override(
         &self,
-        req: &CharonRequestEnvelope,
+        req: &ManweRequestEnvelope,
     ) -> Option<(String, String)> {
         if !request_wants_sticky_session(req) {
             return None;
@@ -94,7 +94,7 @@ impl CharonService {
 
     pub(super) async fn update_sticky_route_session(
         &self,
-        req: &CharonRequestEnvelope,
+        req: &ManweRequestEnvelope,
         decision: &RouteDecision,
     ) {
         if !request_wants_sticky_session(req) {

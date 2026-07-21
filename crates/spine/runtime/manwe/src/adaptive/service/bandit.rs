@@ -1,5 +1,5 @@
-use crate::adaptive::service::types::CharonRequestEnvelope;
 use crate::adaptive::service::types::CharonService;
+use crate::adaptive::service::types::ManweRequestEnvelope;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, VecDeque};
 use std::fs;
@@ -64,7 +64,7 @@ struct BanditArm {
 impl CharonService {
     pub(super) fn record_bandit_route(
         &self,
-        req: &CharonRequestEnvelope,
+        req: &ManweRequestEnvelope,
         provider_id: &str,
         model_id: &str,
     ) {
@@ -106,7 +106,7 @@ impl CharonService {
 
     pub(super) fn bandit_score_bonus(
         &self,
-        req: &CharonRequestEnvelope,
+        req: &ManweRequestEnvelope,
         provider_id: &str,
         model_id: &str,
     ) -> f64 {
@@ -145,7 +145,7 @@ fn bandit_key(task_type: &str, provider_id: &str, model_id: &str) -> String {
     format!("{task_type}\u{1f}{provider_id}\u{1f}{model_id}")
 }
 
-fn request_learning_key(req: &CharonRequestEnvelope) -> String {
+fn request_learning_key(req: &ManweRequestEnvelope) -> String {
     let has_tools = req.options.get("tools").is_some()
         || req.options.get("tool_choice").is_some()
         || req.messages.iter().any(|message| {

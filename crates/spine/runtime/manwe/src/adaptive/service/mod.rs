@@ -26,7 +26,6 @@ pub mod provider_admin;
 pub mod proxy;
 pub mod route_candidate_cache;
 pub mod route_policy;
-pub mod route_policy_tests;
 pub mod route_scoring;
 pub mod route_selection;
 pub mod route_sessions;

@@ -12,7 +12,7 @@ use crate::adaptive::service::route_policy::{
 };
 use crate::adaptive::service::status::PackageRuntimeSignals;
 use crate::adaptive::service::types::CharonService;
-use crate::adaptive::service::types::{CharonRequestEnvelope, ProviderState};
+use crate::adaptive::service::types::{ManweRequestEnvelope, ProviderState};
 use arda_core::error::{ArdaError, Result};
 use serde_json::Value as JsonValue;
 
@@ -72,7 +72,7 @@ impl CharonService {
     fn retain_fast_lane_non_hermes_cli_candidates(
         candidates: &mut Vec<RouteSelectionCandidate>,
         providers: &[ProviderState],
-        req: &CharonRequestEnvelope,
+        req: &ManweRequestEnvelope,
         route_profile: &RouteExecutionProfile,
         forced_provider_id: Option<&str>,
     ) {
@@ -144,7 +144,7 @@ impl CharonService {
     fn retain_free_external_tool_route_candidates(
         candidates: &mut Vec<RouteSelectionCandidate>,
         providers: &[ProviderState],
-        req: &CharonRequestEnvelope,
+        req: &ManweRequestEnvelope,
         policy: &HybridRoutePolicy,
         route_profile: &RouteExecutionProfile,
         forced_provider_id: Option<&str>,
@@ -229,7 +229,7 @@ impl CharonService {
     pub(super) fn select_route_candidate(
         &self,
         providers: &[ProviderState],
-        req: &CharonRequestEnvelope,
+        req: &ManweRequestEnvelope,
         priority: &str,
         strict: bool,
         forced_provider_id: Option<&str>,
@@ -808,7 +808,7 @@ fn external_tool_candidate(
 
 pub(super) fn route_rejection_records(
     providers: &[ProviderState],
-    req: &CharonRequestEnvelope,
+    req: &ManweRequestEnvelope,
     priority: &str,
     strict: bool,
     forced_model_id: Option<&str>,
@@ -841,7 +841,7 @@ pub(super) fn route_rejection_records(
 
 fn route_rejection_error_message(
     providers: &[ProviderState],
-    req: &CharonRequestEnvelope,
+    req: &ManweRequestEnvelope,
     priority: &str,
     strict: bool,
     forced_model_id: Option<&str>,
@@ -879,7 +879,7 @@ fn route_rejection_error_message(
 
 fn provider_rejection_reason(
     provider: &ProviderState,
-    req: &CharonRequestEnvelope,
+    req: &ManweRequestEnvelope,
     priority: &str,
     strict: bool,
     forced_model_id: Option<&str>,
@@ -1040,7 +1040,7 @@ fn free_external_tool_pool_min_candidates() -> usize {
         .min(16)
 }
 
-fn request_allows_free_tool_pool(req: &CharonRequestEnvelope) -> bool {
+fn request_allows_free_tool_pool(req: &ManweRequestEnvelope) -> bool {
     req.options
         .get("allow_free_tool_pool")
         .or_else(|| req.options.get("free_tool_pool"))
@@ -1140,8 +1140,8 @@ mod tests {
         provider
     }
 
-    fn execution_req() -> CharonRequestEnvelope {
-        CharonRequestEnvelope {
+    fn execution_req() -> ManweRequestEnvelope {
+        ManweRequestEnvelope {
             agent_id: "hermes".to_string(),
             task_type: "code".to_string(),
             priority: "normal".to_string(),
@@ -1646,7 +1646,7 @@ mod tests {
     #[test]
     fn route_rejection_message_explains_provider_filters() {
         let dir = tempdir().expect("tempdir");
-        let service = CharonService::new(dir.path()).expect("service");
+        let service = CharonService::new(dir.path());
         let mut no_tools = provider("openai_sub");
         no_tools.access_tier = "paid_cloud".to_string();
         no_tools.supports_tools = false;
@@ -1654,7 +1654,7 @@ mod tests {
         exhausted.access_tier = "free_cloud".to_string();
         exhausted.requests_per_day = Some(10);
         exhausted.requests_used_day = 10;
-        let req = CharonRequestEnvelope {
+        let req = ManweRequestEnvelope {
             agent_id: "hermes".to_string(),
             task_type: "code".to_string(),
             priority: "normal".to_string(),
@@ -1873,7 +1873,7 @@ mod tests {
                 score: 20.0,
             },
         ];
-        let req = CharonRequestEnvelope {
+        let req = ManweRequestEnvelope {
             agent_id: "hermes".to_string(),
             task_type: "chat".to_string(),
             priority: "normal".to_string(),
@@ -1916,7 +1916,7 @@ mod tests {
                 score: 20.0,
             },
         ];
-        let req = CharonRequestEnvelope {
+        let req = ManweRequestEnvelope {
             agent_id: "hermes".to_string(),
             task_type: "chat".to_string(),
             priority: "normal".to_string(),

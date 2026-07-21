@@ -9,7 +9,7 @@ use crate::onboarding::device_scan;
 use crate::onboarding::environment::build_environment_profile;
 use crate::onboarding::guided::build_guided_session;
 use crate::onboarding::helpers::now_utc;
-use crate::onboarding::io::{onboarding_run_dir, write_json, write_profile, write_readiness};
+use crate::onboarding::io::{onboarding_run_dir, write_json, write_onboarding_receipt, write_profile, write_readiness};
 use crate::onboarding::prerequisites::build_prerequisite_report;
 use crate::onboarding::private_config::{
     build_operator_answers_template, build_private_config_stage, write_private_config_stage,
@@ -65,6 +65,32 @@ pub fn launch_console(
     write_json(
         &root.join("audit/onboarding-runs/latest-guided-session.json"),
         &serde_json::to_value(&guided_session)?,
+    )?;
+    write_onboarding_receipt(
+        root,
+        &format!("console-{}", now_utc().replace(':', "-")),
+        "onboarding_console_state",
+        &json!({
+            "contract": "arda.onboarding.console_state.v1",
+            "profile": profile.profile,
+            "machine_role": profile.machine_role,
+            "operator": profile.operator,
+            "endpoints": {
+                "manwe_base_url": profile.endpoints.manwe_base_url.as_ref().map(|u| u.value.clone()),
+                "hermes_base_url": profile.endpoints.hermes_base_url.as_ref().map(|u| u.value.clone()),
+                "arda_hud_url": profile.endpoints.arda_hud_url.as_ref().map(|u| u.value.clone()),
+                "local_model_base_url": profile.endpoints.local_model_base_url.as_ref().map(|u| u.value.clone()),
+                "local_model_default": profile.endpoints.local_model_default.as_ref().map(|u| u.value.clone()),
+            },
+            "paths": {
+                "arda_root": profile.paths.arda_root.value,
+                "config_dir": profile.paths.config_dir.value,
+                "data_dir": profile.paths.data_dir.value,
+            },
+            "selected_providers": operator_answers.selected_providers,
+            "missing_gates": profile.missing_gates,
+            "service_plan": format!("audit/onboarding-runs/latest-service-plan.json"),
+        }),
     )?;
     write_json(
         &root.join("audit/onboarding-runs/latest-service-plan.json"),

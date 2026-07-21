@@ -1,6 +1,6 @@
 // sigil: REPAIR
 use crate::adaptive::service::CharonService;
-use crate::types::CharonRequestEnvelope;
+use crate::types::ManweRequestEnvelope;
 use arda_core::daemon::{CommandEnvelope, ResponseEnvelope};
 use arda_core::error::{ArdaError, Result};
 use arda_core::spawn_bounded_background;
@@ -150,7 +150,7 @@ async fn execute_command(service: &CharonService, cmd: CommandEnvelope) -> Resul
             }))
         }
         "route" | "request" => {
-            let req: CharonRequestEnvelope =
+            let req: ManweRequestEnvelope =
                 serde_json::from_value(cmd.payload).map_err(|e| ArdaError::Agent {
                     agent: "charon".to_string(),
                     message: format!("invalid route payload: {e}"),
@@ -158,7 +158,7 @@ async fn execute_command(service: &CharonService, cmd: CommandEnvelope) -> Resul
             Ok(serde_json::to_value(service.route(req).await?)?)
         }
         "proxy" => {
-            let req: CharonRequestEnvelope =
+            let req: ManweRequestEnvelope =
                 serde_json::from_value(cmd.payload).map_err(|e| ArdaError::Agent {
                     agent: "charon".to_string(),
                     message: format!("invalid proxy payload: {e}"),

@@ -519,7 +519,7 @@ mod tests {
     #[tokio::test]
     async fn configured_catalog_reconciliation_persists_probe_choice_without_live_catalog() {
         let dir = tempdir().expect("tempdir");
-        let service = CharonService::new(dir.path()).expect("service");
+        let service = CharonService::new(dir.path());
         let provider = provider(vec![
             model("provider/reasoning-ultra-120b", true),
             model("llama-3.1-8b-instant", false),

@@ -76,7 +76,7 @@ base64 = "0.22"
 fs2 = "0.4"
 # --- manwe gateway ---
 axum = "0.7"
-reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "stream"] }
 serenity = { version = "0.12", default-features = false, features = ["builder", "client", "gateway", "http", "model", "utils", "rustls_backend"] }
 tonic = { version = "0.14", default-features = false, features = ["tls-webpki-roots", "transport"] }
 prost = "0.13"

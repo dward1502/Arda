@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_c2110d3476da4163a96cafdaee8c12a9",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Promote annunimas-server backbone to 128K Charon context",
+  "salience": 0.6825,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-05T19:56:49.318011524Z",
+  "last_seen_at": "2026-06-05T19:56:49.318011524Z"
+}

@@ -1,0 +1,1223 @@
+{
+  "authority": "operator_runtime_status",
+  "charon": {
+    "alerts": [
+      {
+        "level": "critical",
+        "message": "OpenCode Zen is in cooldown until 2026-06-24T20:21:21.313036446+00:00",
+        "provider_id": "opencode",
+        "provider_name": "OpenCode Zen"
+      }
+    ],
+    "budget_pressure": {
+      "cooldown_total": 1,
+      "critical_total": 1,
+      "exhausted_total": 0,
+      "highest_level": "critical",
+      "providers": [
+        {
+          "cooldown_until_utc": "2026-06-24T20:21:21.313036446+00:00",
+          "day_usage_ratio": 0.00001,
+          "exhausted_day": false,
+          "exhausted_minute": false,
+          "in_cooldown": true,
+          "level": "critical",
+          "minute_usage_ratio": 0.0,
+          "provider_id": "opencode",
+          "provider_name": "OpenCode Zen"
+        },
+        {
+          "cooldown_until_utc": null,
+          "day_usage_ratio": 0.0,
+          "exhausted_day": false,
+          "exhausted_minute": false,
+          "in_cooldown": false,
+          "level": "ok",
+          "minute_usage_ratio": 0.0,
+          "provider_id": "cerebras",
+          "provider_name": "Cerebras Cloud"
+        },
+        {
+          "cooldown_until_utc": null,
+          "day_usage_ratio": null,
+          "exhausted_day": false,
+          "exhausted_minute": false,
+          "in_cooldown": false,
+          "level": "ok",
+          "minute_usage_ratio": 0.0,
+          "provider_id": "edge_backbone",
+          "provider_name": "Annunimas Server (LFM2.5 Fast Lane)"
+        },
+        {
+          "cooldown_until_utc": null,
+          "day_usage_ratio": null,
+          "exhausted_day": false,
+          "exhausted_minute": false,
+          "in_cooldown": false,
+          "level": "ok",
+          "minute_usage_ratio": 0.0,
+          "provider_id": "edge_backbone_coder",
+          "provider_name": "Annunimas Server (Qwen2.5-Coder 7B Lane)"
+        },
+        {
+          "cooldown_until_utc": null,
+          "day_usage_ratio": null,
+          "exhausted_day": false,
+          "exhausted_minute": false,
+          "in_cooldown": false,
+          "level": "ok",
+          "minute_usage_ratio": 0.0,
+          "provider_id": "edge_backbone_vision",
+          "provider_name": "Annunimas Server (Qwen2.5-VL Vision Lane)"
+        },
+        {
+          "cooldown_until_utc": null,
+          "day_usage_ratio": null,
+          "exhausted_day": false,
+          "exhausted_minute": false,
+          "in_cooldown": false,
+          "level": "ok",
+          "minute_usage_ratio": 0.0,
+          "provider_id": "edge_beelink_light",
+          "provider_name": "Beelink SER9 Pro"
+        },
+        {
+          "cooldown_until_utc": null,
+          "day_usage_ratio": null,
+          "exhausted_day": false,
+          "exhausted_minute": false,
+          "in_cooldown": false,
+          "level": "ok",
+          "minute_usage_ratio": 0.0,
+          "provider_id": "edge_core",
+          "provider_name": "Annunimas Core (3080 Workstation)"
+        },
+        {
+          "cooldown_until_utc": null,
+          "day_usage_ratio": null,
+          "exhausted_day": false,
+          "exhausted_minute": false,
+          "in_cooldown": false,
+          "level": "ok",
+          "minute_usage_ratio": 0.0,
+          "provider_id": "edge_guardhouse",
+          "provider_name": "Pi5 Guardhouse (Warden)"
+        },
+        {
+          "cooldown_until_utc": null,
+          "day_usage_ratio": 0.0,
+          "exhausted_day": false,
+          "exhausted_minute": false,
+          "in_cooldown": false,
+          "level": "ok",
+          "minute_usage_ratio": 0.0,
+          "provider_id": "google",
+          "provider_name": "Google Gemini"
+        },
+        {
+          "cooldown_until_utc": null,
+          "day_usage_ratio": 0.007430555555555556,
+          "exhausted_day": false,
+          "exhausted_minute": false,
+          "in_cooldown": false,
+          "level": "ok",
+          "minute_usage_ratio": 0.0,
+          "provider_id": "groq",
+          "provider_name": "Groq"
+        },
+        {
+          "cooldown_until_utc": null,
+          "day_usage_ratio": null,
+          "exhausted_day": false,
+          "exhausted_minute": false,
+          "in_cooldown": false,
+          "level": "ok",
+          "minute_usage_ratio": 0.0,
+          "provider_id": "litellm_gateway",
+          "provider_name": "LiteLLM Gateway"
+        },
+        {
+          "cooldown_until_utc": null,
+          "day_usage_ratio": 0.0,
+          "exhausted_day": false,
+          "exhausted_minute": false,
+          "in_cooldown": false,
+          "level": "ok",
+          "minute_usage_ratio": 0.0,
+          "provider_id": "mistral",
+          "provider_name": "Mistral API"
+        },
+        {
+          "cooldown_until_utc": null,
+          "day_usage_ratio": 0.02,
+          "exhausted_day": false,
+          "exhausted_minute": false,
+          "in_cooldown": false,
+          "level": "ok",
+          "minute_usage_ratio": 0.0,
+          "provider_id": "nvidia",
+          "provider_name": "NVIDIA API Catalog"
+        },
+        {
+          "cooldown_until_utc": null,
+          "day_usage_ratio": 0.025,
+          "exhausted_day": false,
+          "exhausted_minute": false,
+          "in_cooldown": false,
+          "level": "ok",
+          "minute_usage_ratio": 0.0,
+          "provider_id": "openai_sub",
+          "provider_name": "OpenAI Codex (ChatGPT subscription via Hermes auth)"
+        },
+        {
+          "cooldown_until_utc": null,
+          "day_usage_ratio": 0.0,
+          "exhausted_day": false,
+          "exhausted_minute": false,
+          "in_cooldown": false,
+          "level": "ok",
+          "minute_usage_ratio": 0.0,
+          "provider_id": "openrouter",
+          "provider_name": "OpenRouter"
+        }
+      ],
+      "providers_total": 15,
+      "warning_total": 0
+    },
+    "capability_summary": {
+      "models_with_failed_streaming_receipts": 0,
+      "models_with_failed_structured_output_receipts": 0,
+      "models_with_failed_tool_receipts": 1,
+      "providers_with_no_capability_evidence": 2,
+      "receipt_model_count": 47,
+      "recent_capability_failures": 1
+    },
+    "charon_version": "0.1.0",
+    "governance_events_path": "/var/home/mythos/Annunimas/data/charon/governance_events.jsonl",
+    "llmfit_backend": "optional_signal_absent",
+    "llmfit_recommendation_count": 0,
+    "malformed_governance_events": 0,
+    "malformed_state_events": 31,
+    "nanoclaw_probe_state": "not_configured",
+    "nanoclaw_runtime_ready": false,
+    "provider_state_counts": {
+      "cooldown": 1,
+      "disabled": 8,
+      "ready": 10,
+      "unhealthy": 4
+    },
+    "providers_degraded": 1,
+    "providers_enabled": 15,
+    "providers_exhausted": 0,
+    "providers_healthy": 10,
+    "providers_in_cooldown": 1,
+    "providers_ready": 15,
+    "providers_total": 23,
+    "recent_local_fallback_routes": 0,
+    "recent_route_failures": 0,
+    "recent_route_successes": 3,
+    "route_guardrails": {
+      "hermes_tool_routing": "tool/code routes require tool-capable non-visible-reasoning models at or above the context floor unless an explicit emergency low-context fallback flag is present",
+      "low_context_tool_model_total": 17,
+      "tool_execution_min_context_window": 64000,
+      "tool_incompatible_model_total": 11,
+      "visible_reasoning_model_total": 17
+    },
+    "runtime_build_cache_observed_bytes": 9568654849,
+    "runtime_build_cache_removed_bytes": 3948552094,
+    "runtime_build_cache_status": "pressure_remaining",
+    "socket_path": "/run/user/1000/annunimas/charon.sock",
+    "state_path": "/var/home/mythos/Annunimas/data/charon/state.jsonl"
+  },
+  "fleet": {
+    "intentional_offline_total": 0,
+    "recovered_total": 0,
+    "restart_attempted_total": 6,
+    "restart_failed_total": 6,
+    "targets_total": 9,
+    "targets_unexpected_offline_total": 6,
+    "targets_with_live_endpoints_total": 3
+  },
+  "generated_at_utc": "2026-06-24T10:32:46Z",
+  "intentional_offline_targets": [],
+  "lane_fitness": {
+    "execution": {
+      "nvidia": {
+        "avg_latency_ms": 22210,
+        "failure_count": 8,
+        "last_result_utc": "2026-06-24T09:26:44.017929568+00:00",
+        "success_count": 3
+      },
+      "openai_sub": {
+        "avg_latency_ms": 35001,
+        "failure_count": 0,
+        "last_result_utc": "2026-06-24T08:02:03.843485626+00:00",
+        "success_count": 1
+      }
+    },
+    "interactive": {
+      "groq": {
+        "avg_latency_ms": 617,
+        "failure_count": 1,
+        "last_result_utc": "2026-06-24T10:25:39.444612005+00:00",
+        "success_count": 52
+      }
+    }
+  },
+  "lane_headroom": {
+    "background": {
+      "edge_beelink_light": 1.0,
+      "edge_core": 1.0,
+      "edge_guardhouse": 1.0
+    },
+    "execution": {
+      "edge_beelink_light": 1.0,
+      "edge_core": 1.0,
+      "edge_guardhouse": 1.0
+    },
+    "interactive": {
+      "edge_beelink_light": 1.0,
+      "edge_core": 1.0,
+      "edge_guardhouse": 1.0
+    }
+  },
+  "lane_routes": {
+    "background": {
+      "context_window_target": 16000,
+      "execution_lane": "background",
+      "governance": {
+        "autonomous_blocking_enabled": false,
+        "chain_id": "default_triad",
+        "chain_version": "heuristic_local_v1",
+        "governance_method": "triad",
+        "joule_autonomy_truth_allowed": true,
+        "joule_measurement_confidence": 0.55,
+        "joule_measurement_source": "operator_estimate",
+        "lenses": [
+          {
+            "display_name": "Marcus Aurelius",
+            "lens_id": "aurelius",
+            "outcome": "pass",
+            "pass_threshold": 0.6,
+            "profile_id": "aurelius",
+            "score": 1.0
+          },
+          {
+            "display_name": "Francis Bacon",
+            "lens_id": "bacon",
+            "outcome": "conditional",
+            "pass_threshold": 0.5,
+            "profile_id": "bacon",
+            "score": 0.4
+          },
+          {
+            "display_name": "Sun Tzu",
+            "lens_id": "sun_tzu",
+            "outcome": "pass",
+            "pass_threshold": 0.5,
+            "profile_id": "sun_tzu",
+            "score": 0.75
+          }
+        ],
+        "love_delta_empathy": 0.0649498601987452,
+        "love_equation_guard": {
+          "attention": 0.68,
+          "reciprocity": 0.76,
+          "resonance": 1.0,
+          "score": 0.8320000000000001
+        },
+        "love_projected_empathy": 0.3649498601987452,
+        "philosopher_action": "hold",
+        "philosopher_alignment_score": 0.530259110128938,
+        "profile_maturity": "draft_human_authored",
+        "profile_source": "config/governance/philosophers.toml",
+        "resonance_score": 66.86265548256628,
+        "review_mode": "heuristic_local",
+        "triad_aurelius_score": 1.0,
+        "triad_bacon_score": 0.4,
+        "triad_passed": true,
+        "triad_purity_source": "live_governance_chain",
+        "triad_sun_tzu_score": 0.75
+      },
+      "model_id": "Qwen_Qwen3.5-4B-Q6_K",
+      "provider_id": "edge_beelink_light",
+      "reason": "policy route priority=low strict=false score=120.00 task_type=background privacy=public cost=balanced quality=balanced origin=auto latency_sla_ms=none lane=background class=background_maintenance context_target=16000",
+      "route_class": "background_maintenance",
+      "route_id": ""
+    },
+    "execution": {
+      "context_window_target": 32000,
+      "execution_lane": "execution",
+      "governance": {
+        "autonomous_blocking_enabled": false,
+        "chain_id": "default_triad",
+        "chain_version": "heuristic_local_v1",
+        "governance_method": "triad",
+        "joule_autonomy_truth_allowed": true,
+        "joule_measurement_confidence": 0.55,
+        "joule_measurement_source": "operator_estimate",
+        "lenses": [
+          {
+            "display_name": "Marcus Aurelius",
+            "lens_id": "aurelius",
+            "outcome": "pass",
+            "pass_threshold": 0.6,
+            "profile_id": "aurelius",
+            "score": 1.0
+          },
+          {
+            "display_name": "Francis Bacon",
+            "lens_id": "bacon",
+            "outcome": "conditional",
+            "pass_threshold": 0.5,
+            "profile_id": "bacon",
+            "score": 0.4
+          },
+          {
+            "display_name": "Sun Tzu",
+            "lens_id": "sun_tzu",
+            "outcome": "pass",
+            "pass_threshold": 0.5,
+            "profile_id": "sun_tzu",
+            "score": 0.75
+          }
+        ],
+        "love_delta_empathy": 0.0649498601987452,
+        "love_equation_guard": {
+          "attention": 0.68,
+          "reciprocity": 0.76,
+          "resonance": 0.0,
+          "score": 0.432
+        },
+        "love_projected_empathy": 0.3649498601987452,
+        "philosopher_action": "hold",
+        "philosopher_alignment_score": 0.530259110128938,
+        "profile_maturity": "draft_human_authored",
+        "profile_source": "config/governance/philosophers.toml",
+        "resonance_score": 66.86265548256628,
+        "review_mode": "heuristic_local",
+        "triad_aurelius_score": 1.0,
+        "triad_bacon_score": 0.4,
+        "triad_passed": true,
+        "triad_purity_source": "live_governance_chain",
+        "triad_sun_tzu_score": 0.75
+      },
+      "model_id": "gpt-5.5",
+      "provider_id": "openai_sub",
+      "reason": "policy route priority=high strict=false score=0.00 task_type=code privacy=public cost=balanced quality=balanced origin=auto latency_sla_ms=none lane=execution class=tool_oriented context_target=32000",
+      "route_class": "tool_oriented",
+      "route_id": ""
+    },
+    "interactive": {
+      "context_window_target": 16000,
+      "execution_lane": "interactive",
+      "governance": {
+        "autonomous_blocking_enabled": false,
+        "chain_id": "default_triad",
+        "chain_version": "heuristic_local_v1",
+        "governance_method": "triad",
+        "joule_autonomy_truth_allowed": true,
+        "joule_measurement_confidence": 0.55,
+        "joule_measurement_source": "operator_estimate",
+        "lenses": [
+          {
+            "display_name": "Marcus Aurelius",
+            "lens_id": "aurelius",
+            "outcome": "pass",
+            "pass_threshold": 0.6,
+            "profile_id": "aurelius",
+            "score": 1.0
+          },
+          {
+            "display_name": "Francis Bacon",
+            "lens_id": "bacon",
+            "outcome": "conditional",
+            "pass_threshold": 0.5,
+            "profile_id": "bacon",
+            "score": 0.4
+          },
+          {
+            "display_name": "Sun Tzu",
+            "lens_id": "sun_tzu",
+            "outcome": "pass",
+            "pass_threshold": 0.5,
+            "profile_id": "sun_tzu",
+            "score": 0.75
+          }
+        ],
+        "love_delta_empathy": 0.0649498601987452,
+        "love_equation_guard": {
+          "attention": 0.68,
+          "reciprocity": 0.76,
+          "resonance": 1.0,
+          "score": 0.8320000000000001
+        },
+        "love_projected_empathy": 0.3649498601987452,
+        "philosopher_action": "hold",
+        "philosopher_alignment_score": 0.530259110128938,
+        "profile_maturity": "draft_human_authored",
+        "profile_source": "config/governance/philosophers.toml",
+        "resonance_score": 66.86265548256628,
+        "review_mode": "heuristic_local",
+        "triad_aurelius_score": 1.0,
+        "triad_bacon_score": 0.4,
+        "triad_passed": true,
+        "triad_purity_source": "live_governance_chain",
+        "triad_sun_tzu_score": 0.75
+      },
+      "model_id": "llama-3.1-8b-instant",
+      "provider_id": "groq",
+      "reason": "policy route priority=normal strict=false score=161.04 task_type=chat privacy=public cost=balanced quality=balanced origin=auto latency_sla_ms=none lane=interactive class=interactive context_target=16000",
+      "route_class": "interactive",
+      "route_id": ""
+    }
+  },
+  "live_targets": [
+    {
+      "charon_provider_id": "edge_core",
+      "configured_base_url": "http://100.78.138.113:9337/v1",
+      "display_name": "Annunimas Core (3080 Workstation)",
+      "expected_models": [
+        "LFM2.5-8B-A1B-Q4_K_M"
+      ],
+      "has_live_endpoint": true,
+      "health_url": "http://100.78.138.113:9337/v1/models",
+      "initial_probe": {
+        "has_live_endpoint": true,
+        "observed_models": [
+          "LFM2.5-8B-A1B-Q4_K_M"
+        ],
+        "status": "online"
+      },
+      "intentional_offline": false,
+      "models_url": "http://100.78.138.113:9337/v1/models",
+      "observed_models": [
+        "LFM2.5-8B-A1B-Q4_K_M"
+      ],
+      "ports": [
+        {
+          "health_error": null,
+          "health_http_code": "200",
+          "health_ok": true,
+          "live": true,
+          "models": [
+            "LFM2.5-8B-A1B-Q4_K_M"
+          ],
+          "models_error": null,
+          "models_http_code": "200",
+          "port": 1234
+        }
+      ],
+      "provider_hint": "mesh_root",
+      "recovery": null,
+      "startup_priority": 10,
+      "status": "online",
+      "target_id": "node-core-hub",
+      "transport": {
+        "ssh_target": "annunimas-core",
+        "tailscale_dns_name": null,
+        "tailscale_peer_found": false,
+        "tailscale_peer_online": null
+      }
+    },
+    {
+      "charon_provider_id": "edge_beelink_light",
+      "configured_base_url": "http://100.103.125.88:9337/v1",
+      "display_name": "Beelink SER9 Pro",
+      "expected_models": [
+        "Qwen_Qwen3.5-4B-Q6_K"
+      ],
+      "has_live_endpoint": true,
+      "health_url": "http://100.103.125.88:9337/v1/models",
+      "initial_probe": {
+        "has_live_endpoint": true,
+        "observed_models": [
+          "Qwen_Qwen3.5-4B-Q6_K"
+        ],
+        "status": "online"
+      },
+      "intentional_offline": false,
+      "models_url": "http://100.103.125.88:9337/v1/models",
+      "observed_models": [
+        "Qwen_Qwen3.5-4B-Q6_K"
+      ],
+      "ports": [
+        {
+          "health_error": null,
+          "health_http_code": "200",
+          "health_ok": true,
+          "live": true,
+          "models": [
+            "Qwen_Qwen3.5-4B-Q6_K"
+          ],
+          "models_error": null,
+          "models_http_code": "200",
+          "port": 1234
+        }
+      ],
+      "provider_hint": "llama_cpp_standalone",
+      "recovery": null,
+      "startup_priority": 20,
+      "status": "online",
+      "target_id": "node-ser9-worker",
+      "transport": {
+        "ssh_target": "beelink.tail91c3c1.ts.net",
+        "tailscale_dns_name": "beelink.tail91c3c1.ts.net.",
+        "tailscale_peer_found": true,
+        "tailscale_peer_online": true
+      }
+    },
+    {
+      "charon_provider_id": "edge_guardhouse",
+      "configured_base_url": "http://100.110.85.37:1234",
+      "display_name": "Pi5 Guardhouse (Warden)",
+      "expected_models": [
+        "Qwen3.5-4B-Q4_K_M.gguf"
+      ],
+      "has_live_endpoint": true,
+      "health_url": "http://100.110.85.37:1234/health",
+      "initial_probe": {
+        "has_live_endpoint": true,
+        "observed_models": [
+          "Qwen3.5-4B-Q4_K_M.gguf"
+        ],
+        "status": "online"
+      },
+      "intentional_offline": false,
+      "models_url": "http://100.110.85.37:1234/v1/models",
+      "observed_models": [
+        "Qwen3.5-4B-Q4_K_M.gguf"
+      ],
+      "ports": [
+        {
+          "health_error": null,
+          "health_http_code": "200",
+          "health_ok": true,
+          "live": true,
+          "models": [
+            "Qwen3.5-4B-Q4_K_M.gguf"
+          ],
+          "models_error": null,
+          "models_http_code": "200",
+          "port": 1234
+        }
+      ],
+      "provider_hint": "edge_llm_light",
+      "recovery": null,
+      "startup_priority": 40,
+      "status": "online",
+      "target_id": "node-pi5-warden",
+      "transport": {
+        "ssh_target": "warden.tail91c3c1.ts.net",
+        "tailscale_dns_name": "warden.tail91c3c1.ts.net.",
+        "tailscale_peer_found": true,
+        "tailscale_peer_online": true
+      }
+    }
+  ],
+  "routable_providers": [
+    {
+      "access_tier": "local",
+      "active_connections": 0,
+      "api_key_env": null,
+      "avg_latency_ms": 68,
+      "base_url": "http://100.103.125.88:9337/v1",
+      "capacity_probe": null,
+      "consecutive_failures": 0,
+      "consecutive_successes": 0,
+      "cooldown_backoff_seconds": 120,
+      "cooldown_until_utc": null,
+      "day_window_started_utc": null,
+      "driver": "openai_compat",
+      "enabled": true,
+      "error_count": 0,
+      "has_api_key": true,
+      "healthy": true,
+      "hermes_bin": null,
+      "hermes_bridge": {
+        "persistent": false,
+        "type": "openai_compat"
+      },
+      "hermes_provider": null,
+      "hermes_toolsets": null,
+      "id": "edge_beelink_light",
+      "in_cooldown": false,
+      "intelligence_refreshed_at_utc": "2026-06-24T10:32:37.100082544+00:00",
+      "last_error": null,
+      "last_failure_class": null,
+      "last_failure_utc": null,
+      "last_reservation_utc": null,
+      "last_success_utc": null,
+      "minute_window_started_utc": null,
+      "model_count": 1,
+      "models": [
+        {
+          "aliases": [],
+          "avg_latency_ms": null,
+          "capabilities": {
+            "streaming": true,
+            "structured_output": true,
+            "tools": true,
+            "visible_reasoning": null
+          },
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background",
+            "monitoring"
+          ],
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "context_window": 32768,
+          "cooldown_until_utc": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "healthy": true,
+          "id": "Qwen_Qwen3.5-4B-Q6_K",
+          "in_cooldown": false,
+          "is_default": true,
+          "last_error": null,
+          "streaming_validated": null
+        }
+      ],
+      "name": "Beelink SER9 Pro",
+      "operational_blocked": false,
+      "operational_reason": "provider available for routing",
+      "operational_state": "ready",
+      "probe_eligible": true,
+      "probe_model": "Qwen_Qwen3.5-4B-Q6_K",
+      "probe_profile": "configured_probe_model",
+      "provider_id": "edge_beelink_light",
+      "quality_band": "medium",
+      "requests_per_day": null,
+      "requests_per_minute": 120,
+      "requests_used_day": 0,
+      "requests_used_minute": 0,
+      "reset_seconds_estimate": null,
+      "supports_streaming": true,
+      "supports_structured_output": true,
+      "supports_tools": true
+    },
+    {
+      "access_tier": "local",
+      "active_connections": 0,
+      "api_key_env": null,
+      "avg_latency_ms": 2,
+      "base_url": "http://100.78.138.113:9337/v1",
+      "capacity_probe": null,
+      "consecutive_failures": 0,
+      "consecutive_successes": 0,
+      "cooldown_backoff_seconds": 120,
+      "cooldown_until_utc": null,
+      "day_window_started_utc": null,
+      "driver": "openai_compat",
+      "enabled": true,
+      "error_count": 0,
+      "has_api_key": true,
+      "healthy": true,
+      "hermes_bin": null,
+      "hermes_bridge": {
+        "persistent": false,
+        "type": "openai_compat"
+      },
+      "hermes_provider": null,
+      "hermes_toolsets": null,
+      "id": "edge_core",
+      "in_cooldown": false,
+      "intelligence_refreshed_at_utc": "2026-06-24T10:32:37.100082544+00:00",
+      "last_error": null,
+      "last_failure_class": null,
+      "last_failure_utc": null,
+      "last_reservation_utc": null,
+      "last_success_utc": null,
+      "minute_window_started_utc": null,
+      "model_count": 1,
+      "models": [
+        {
+          "aliases": [],
+          "avg_latency_ms": null,
+          "capabilities": {
+            "streaming": true,
+            "structured_output": false,
+            "tools": true,
+            "visible_reasoning": true
+          },
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "context_window": 131072,
+          "cooldown_until_utc": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "healthy": true,
+          "id": "LFM2.5-8B-A1B-Q4_K_M",
+          "in_cooldown": false,
+          "is_default": true,
+          "last_error": null,
+          "streaming_validated": true
+        }
+      ],
+      "name": "Annunimas Core (3080 Workstation)",
+      "operational_blocked": false,
+      "operational_reason": "provider available for routing",
+      "operational_state": "ready",
+      "probe_eligible": true,
+      "probe_model": "LFM2.5-8B-A1B-Q4_K_M",
+      "probe_profile": "configured_probe_model",
+      "provider_id": "edge_core",
+      "quality_band": "medium",
+      "requests_per_day": null,
+      "requests_per_minute": 180,
+      "requests_used_day": 0,
+      "requests_used_minute": 0,
+      "reset_seconds_estimate": null,
+      "supports_streaming": true,
+      "supports_structured_output": true,
+      "supports_tools": true
+    },
+    {
+      "access_tier": "local",
+      "active_connections": 0,
+      "api_key_env": null,
+      "avg_latency_ms": 84,
+      "base_url": "http://100.110.85.37:1234",
+      "capacity_probe": null,
+      "consecutive_failures": 0,
+      "consecutive_successes": 0,
+      "cooldown_backoff_seconds": 120,
+      "cooldown_until_utc": null,
+      "day_window_started_utc": null,
+      "driver": "openai_compat",
+      "enabled": true,
+      "error_count": 0,
+      "has_api_key": true,
+      "healthy": true,
+      "hermes_bin": null,
+      "hermes_bridge": {
+        "persistent": false,
+        "type": "openai_compat"
+      },
+      "hermes_provider": null,
+      "hermes_toolsets": null,
+      "id": "edge_guardhouse",
+      "in_cooldown": false,
+      "intelligence_refreshed_at_utc": "2026-06-24T10:31:23.108210093+00:00",
+      "last_error": null,
+      "last_failure_class": null,
+      "last_failure_utc": null,
+      "last_reservation_utc": null,
+      "last_success_utc": null,
+      "minute_window_started_utc": null,
+      "model_count": 1,
+      "models": [
+        {
+          "aliases": [],
+          "avg_latency_ms": null,
+          "capabilities": {
+            "streaming": null,
+            "structured_output": null,
+            "tools": null,
+            "visible_reasoning": null
+          },
+          "capable_tasks": [
+            "chat",
+            "summary",
+            "background",
+            "monitoring"
+          ],
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "context_window": 4096,
+          "cooldown_until_utc": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "healthy": true,
+          "id": "Qwen3.5-4B-Q4_K_M.gguf",
+          "in_cooldown": false,
+          "is_default": true,
+          "last_error": null,
+          "streaming_validated": null
+        }
+      ],
+      "name": "Pi5 Guardhouse (Warden)",
+      "operational_blocked": false,
+      "operational_reason": "provider available for routing",
+      "operational_state": "ready",
+      "probe_eligible": true,
+      "probe_model": "Qwen3.5-4B-Q4_K_M.gguf",
+      "probe_profile": "configured_probe_model",
+      "provider_id": "edge_guardhouse",
+      "quality_band": "low",
+      "requests_per_day": null,
+      "requests_per_minute": 60,
+      "requests_used_day": 0,
+      "requests_used_minute": 0,
+      "reset_seconds_estimate": null,
+      "supports_streaming": true,
+      "supports_structured_output": true,
+      "supports_tools": true
+    }
+  ],
+  "summary": {
+    "charon_http_ok": true,
+    "fleet_live_llm_nodes_total": 3,
+    "fleet_routable_local_providers_total": 3,
+    "unexpected_offline_total": 6
+  },
+  "unexpected_offline_targets": [
+    {
+      "charon_provider_id": "edge_backbone",
+      "configured_base_url": "http://100.102.250.115:8093/v1",
+      "display_name": "Annunimas Server (LFM2.5 Fast Lane)",
+      "expected_models": [
+        "lfm2.5-8b-a1b-q4km"
+      ],
+      "has_live_endpoint": false,
+      "health_url": "http://100.102.250.115:8093/health",
+      "initial_probe": {
+        "has_live_endpoint": false,
+        "observed_models": [],
+        "status": "offline"
+      },
+      "intentional_offline": false,
+      "models_url": "http://100.102.250.115:8093/v1/models",
+      "observed_models": [],
+      "ports": [
+        {
+          "health_error": "curl: (28) Connection timed out after 2002 milliseconds",
+          "health_http_code": "0",
+          "health_ok": false,
+          "live": false,
+          "models": [],
+          "models_error": "curl: (28) Connection timed out after 2001 milliseconds",
+          "models_http_code": "0",
+          "port": 1234
+        }
+      ],
+      "provider_hint": "llama_cpp_fast_general",
+      "recovery": {
+        "attempted": true,
+        "attempts": [
+          {
+            "attempt": 1,
+            "restart": {
+              "attempted": false,
+              "command": "systemctl --user --no-block restart llama-server-lfm25.service",
+              "error": "tailscale_peer_offline",
+              "ok": false,
+              "peer_online": false,
+              "scope": "ssh",
+              "ssh_target": "annunimas-server.tail91c3c1.ts.net"
+            }
+          }
+        ],
+        "recovered": false
+      },
+      "startup_priority": 5,
+      "status": "offline",
+      "target_id": "node-backbone-server",
+      "transport": {
+        "ssh_target": "annunimas-server.tail91c3c1.ts.net",
+        "tailscale_dns_name": "annunimas-server.tail91c3c1.ts.net.",
+        "tailscale_peer_found": true,
+        "tailscale_peer_online": false
+      }
+    },
+    {
+      "charon_provider_id": "edge_backbone_coder",
+      "configured_base_url": "http://100.102.250.115:8094/v1",
+      "display_name": "Annunimas Server (Qwen2.5-Coder 7B Lane)",
+      "expected_models": [
+        "qwen2.5-coder-7b-q4km"
+      ],
+      "has_live_endpoint": false,
+      "health_url": "http://100.102.250.115:8094/health",
+      "initial_probe": {
+        "has_live_endpoint": false,
+        "observed_models": [],
+        "status": "offline"
+      },
+      "intentional_offline": false,
+      "models_url": "http://100.102.250.115:8094/v1/models",
+      "observed_models": [],
+      "ports": [
+        {
+          "health_error": "curl: (28) Connection timed out after 2001 milliseconds",
+          "health_http_code": "0",
+          "health_ok": false,
+          "live": false,
+          "models": [],
+          "models_error": "curl: (28) Connection timed out after 2002 milliseconds",
+          "models_http_code": "0",
+          "port": 1234
+        }
+      ],
+      "provider_hint": "llama_cpp_coder",
+      "recovery": {
+        "attempted": true,
+        "attempts": [
+          {
+            "attempt": 1,
+            "restart": {
+              "attempted": false,
+              "command": "systemctl --user --no-block restart llama-server-qwen2.5-coder.service",
+              "error": "tailscale_peer_offline",
+              "ok": false,
+              "peer_online": false,
+              "scope": "ssh",
+              "ssh_target": "annunimas-server.tail91c3c1.ts.net"
+            }
+          }
+        ],
+        "recovered": false
+      },
+      "startup_priority": 10,
+      "status": "offline",
+      "target_id": "node-backbone-gemma4-coder",
+      "transport": {
+        "ssh_target": "annunimas-server.tail91c3c1.ts.net",
+        "tailscale_dns_name": "annunimas-server.tail91c3c1.ts.net.",
+        "tailscale_peer_found": true,
+        "tailscale_peer_online": false
+      }
+    },
+    {
+      "charon_provider_id": "edge_backbone_vision",
+      "configured_base_url": "http://100.102.250.115:8081/v1",
+      "display_name": "Annunimas Server (Qwen2.5-VL Vision Lane)",
+      "expected_models": [
+        "Qwen2.5-VL-7B-Instruct"
+      ],
+      "has_live_endpoint": false,
+      "health_url": "http://100.102.250.115:8081/health",
+      "initial_probe": {
+        "has_live_endpoint": false,
+        "observed_models": [],
+        "status": "offline"
+      },
+      "intentional_offline": false,
+      "models_url": "http://100.102.250.115:8081/v1/models",
+      "observed_models": [],
+      "ports": [
+        {
+          "health_error": "curl: (28) Connection timed out after 2001 milliseconds",
+          "health_http_code": "0",
+          "health_ok": false,
+          "live": false,
+          "models": [],
+          "models_error": "curl: (28) Connection timed out after 2001 milliseconds",
+          "models_http_code": "0",
+          "port": 1234
+        }
+      ],
+      "provider_hint": "llama_cpp_vision",
+      "recovery": {
+        "attempted": true,
+        "attempts": [
+          {
+            "attempt": 1,
+            "restart": {
+              "attempted": false,
+              "command": "systemctl --user --no-block restart llama-server-vision.service",
+              "error": "tailscale_peer_offline",
+              "ok": false,
+              "peer_online": false,
+              "scope": "ssh",
+              "ssh_target": "annunimas-server.tail91c3c1.ts.net"
+            }
+          }
+        ],
+        "recovered": false
+      },
+      "startup_priority": 15,
+      "status": "offline",
+      "target_id": "node-backbone-vision",
+      "transport": {
+        "ssh_target": "annunimas-server.tail91c3c1.ts.net",
+        "tailscale_dns_name": "annunimas-server.tail91c3c1.ts.net.",
+        "tailscale_peer_found": true,
+        "tailscale_peer_online": false
+      }
+    },
+    {
+      "charon_provider_id": "edge_carnice",
+      "configured_base_url": "http://100.103.125.88:1234",
+      "display_name": "Beelink SER9 Pro — Carnice 9B Lane",
+      "expected_models": [
+        "Carnice-9b-Q6_K"
+      ],
+      "has_live_endpoint": false,
+      "health_url": "http://100.103.125.88:1234/health",
+      "initial_probe": {
+        "has_live_endpoint": false,
+        "observed_models": [],
+        "status": "offline"
+      },
+      "intentional_offline": false,
+      "models_url": "http://100.103.125.88:1234/v1/models",
+      "observed_models": [],
+      "ports": [
+        {
+          "health_error": "curl: (7) Failed to connect to 100.103.125.88 port 1234 after 3 ms: Could not connect to server",
+          "health_http_code": "0",
+          "health_ok": false,
+          "live": false,
+          "models": [],
+          "models_error": "curl: (7) Failed to connect to 100.103.125.88 port 1234 after 7 ms: Could not connect to server",
+          "models_http_code": "0",
+          "port": 1234
+        }
+      ],
+      "provider_hint": "llama_cpp_standalone_inactive",
+      "recovery": {
+        "attempted": true,
+        "attempts": [
+          {
+            "attempt": 1,
+            "restart": {
+              "attempted": true,
+              "command": "systemctl --user --no-block restart llama-server.service",
+              "exit_code": 255,
+              "ok": false,
+              "scope": "ssh",
+              "stderr": "No ED25519 host key is known for beelink.tail91c3c1.ts.net. and you have requested strict checking.\r\nHost key verification failed.",
+              "stdout": ""
+            }
+          }
+        ],
+        "recovered": false
+      },
+      "startup_priority": 25,
+      "status": "offline",
+      "target_id": "node-ser9-carnice",
+      "transport": {
+        "ssh_target": "beelink.tail91c3c1.ts.net",
+        "tailscale_dns_name": "beelink.tail91c3c1.ts.net.",
+        "tailscale_peer_found": true,
+        "tailscale_peer_online": true
+      }
+    },
+    {
+      "charon_provider_id": "edge_laptop",
+      "configured_base_url": "http://100.97.15.88:1234",
+      "display_name": "RTX 3050 Laptop",
+      "expected_models": [],
+      "has_live_endpoint": false,
+      "health_url": "http://100.97.15.88:1234/health",
+      "initial_probe": {
+        "has_live_endpoint": false,
+        "observed_models": [],
+        "status": "offline"
+      },
+      "intentional_offline": false,
+      "models_url": "http://100.97.15.88:1234/v1/models",
+      "observed_models": [],
+      "ports": [
+        {
+          "health_error": "curl: (28) Connection timed out after 2002 milliseconds",
+          "health_http_code": "0",
+          "health_ok": false,
+          "live": false,
+          "models": [],
+          "models_error": "curl: (28) Connection timed out after 2001 milliseconds",
+          "models_http_code": "0",
+          "port": 1234
+        }
+      ],
+      "provider_hint": "local_voice_stt_operator",
+      "recovery": {
+        "attempted": true,
+        "attempts": [
+          {
+            "attempt": 1,
+            "restart": {
+              "attempted": false,
+              "command": "systemctl --user --no-block restart llama-server",
+              "error": "tailscale_peer_offline",
+              "ok": false,
+              "peer_online": false,
+              "scope": "ssh",
+              "ssh_target": "laptop.tail91c3c1.ts.net"
+            }
+          }
+        ],
+        "recovered": false
+      },
+      "startup_priority": 30,
+      "status": "offline",
+      "target_id": "node-laptop",
+      "transport": {
+        "ssh_target": "laptop.tail91c3c1.ts.net",
+        "tailscale_dns_name": "laptop.tail91c3c1.ts.net.",
+        "tailscale_peer_found": true,
+        "tailscale_peer_online": false
+      }
+    },
+    {
+      "charon_provider_id": null,
+      "configured_base_url": "http://100.119.130.127:8080",
+      "display_name": "Pi5 CITADEL Avatar",
+      "expected_models": [],
+      "has_live_endpoint": false,
+      "health_url": "http://100.119.130.127:8080/public/state.json",
+      "initial_probe": {
+        "has_live_endpoint": false,
+        "observed_models": [],
+        "status": "offline"
+      },
+      "intentional_offline": false,
+      "models_url": "",
+      "observed_models": [],
+      "ports": [
+        {
+          "health_error": "curl: (7) Failed to connect to 100.119.130.127 port 8080 after 13 ms: Could not connect to server",
+          "health_http_code": "0",
+          "health_ok": false,
+          "live": false,
+          "models": [],
+          "models_error": "curl: option : blank argument where content is expected\ncurl: try 'curl --help' or 'curl --manual' for more information",
+          "models_http_code": "000",
+          "port": 1234
+        }
+      ],
+      "provider_hint": "cloud_only_inference",
+      "recovery": {
+        "attempted": true,
+        "attempts": [
+          {
+            "attempt": 1,
+            "restart": {
+              "attempted": true,
+              "command": "systemctl --user --no-block restart citadel-companion.service && systemctl --user --no-block restart citadel-kiosk.service",
+              "exit_code": 255,
+              "ok": false,
+              "scope": "ssh",
+              "stderr": "No ED25519 host key is known for raspberrypi-1.tail91c3c1.ts.net. and you have requested strict checking.\r\nHost key verification failed.",
+              "stdout": ""
+            }
+          }
+        ],
+        "recovered": false
+      },
+      "startup_priority": 100,
+      "status": "offline",
+      "target_id": "node-pi5-citadel-avatar",
+      "transport": {
+        "ssh_target": "raspberrypi-1.tail91c3c1.ts.net",
+        "tailscale_dns_name": "raspberrypi-1.tail91c3c1.ts.net.",
+        "tailscale_peer_found": true,
+        "tailscale_peer_online": true
+      }
+    }
+  ]
+}

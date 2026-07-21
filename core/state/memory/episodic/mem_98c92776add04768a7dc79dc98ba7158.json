@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_98c92776add04768a7dc79dc98ba7158",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Remediate ARDA Tauri config fixed loopback endpoint blockers",
+  "salience": 0.8067222222222223,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-25T06:00:45.555979757Z",
+  "last_seen_at": "2026-05-25T06:00:45.555979757Z"
+}

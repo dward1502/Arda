@@ -1,0 +1,27 @@
+{
+  "generated_at_utc": "2026-03-07T21:58:33.690088+00:00",
+  "scope": "hades_full_queue_validation",
+  "status": {
+    "condemned_pending": 0,
+    "last_sweep_utc": "2026-03-07T21:55:08.954088715+00:00",
+    "next_sweep_utc": "2026-03-08T05:58:33.490497137+00:00",
+    "orphans_active": 10000,
+    "pending_actions": 10000,
+    "quarantined": 0,
+    "warden_connected": true
+  },
+  "queue_total": 81775,
+  "queue_actions": {
+    "investigate_orphan": 81775
+  },
+  "queue_top_prefixes": [
+    [
+      "data",
+      81700
+    ],
+    [
+      "core",
+      75
+    ]
+  ]
+}

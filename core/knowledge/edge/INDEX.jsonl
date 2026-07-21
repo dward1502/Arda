@@ -1,0 +1,3 @@
+{"domain":"operations","name":"README.md","path":"README.md","purpose":"Edge connectivity reference for ATHENA/HERMES","sigil":"REPAIR","type":"file"}
+{"name":"targets.example.toml","path":"targets.example.toml","type":"file","sigil":"⚡","domain":"operations","purpose":"Device inventory template with Tailscale transport fields"}
+{"name":"model_profiles.toml","path":"model_profiles.toml","type":"file","sigil":"⚡","domain":"operations","purpose":"Edge model assignment profiles including qwen3.5 quantized role mapping"}

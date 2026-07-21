@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_17721548e2b24b479dd9201000cb843b",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: tsk_20260619_s2_g4_migrate_signal_grid_into_a_staged_feature_. Confirmed completion via queue.jsonl terminal record at line 205: external copy at /var/home/mythos/Eregion/annunimas-signal-grid-stage with workspace retention and all verification evidence recorded; stale queued row remains but effective status is completed.",
+  "salience": 0.8971666666666668,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-22T06:51:40.569548039Z",
+  "last_seen_at": "2026-06-22T06:51:40.569548039Z"
+}

@@ -1,0 +1,121 @@
+# sigil: SCROLL
+
+[defaults]
+runtime = "ramalama"
+quant_family = "unsloth_gguf"
+policy = "dynamic_hybrid"
+cleanup_policy = "keep_only_assigned_models"
+bluefin_runtime_mode = "pod_openai_endpoint"
+endpoint_shape = "openai_compatible"
+
+[placement]
+command_tower = "node-main-workstation"
+guardhouse = "node-pi5-warden"
+edge_worker = "node-ser9-worker"
+backbone = "node-backbone-server-01"
+
+[runtime.bluefin]
+engine = "ramalama"
+execution_model = "pod"
+endpoint_contract = "openai_compatible_http"
+reason = "Bluefin nodes should preserve the container/pod mentality. MANWE routes to local pod endpoints rather than assuming host-level model binaries."
+
+[profiles.edge_guardhouse]
+model_id = "Qwen3.5-4B-Q4_K_M.gguf"
+runtime_model_name = "Qwen3.5-4B-Q4_K_M.gguf"
+quantization = "Q4_K_M"
+context_window = 4096
+runtime_backend = "llama.cpp"
+target_nodes = ["node-pi5-warden"]
+target_agents = ["warden"]
+install_priority = "installed"
+reason = "Guardhouse lane is currently backed by the Pi5 llama.cpp service on port 1234, so the canonical profile should match the deployed Qwen3.5 4B GGUF runtime instead of the older Ollama placeholder."
+
+[profiles.edge_comms]
+model_id = "unsloth/Qwen3-8B-GGUF"
+runtime_model_name = "qwen3-8b-edge-comms"
+quantization = "Q4_K_M"
+context_window = 16384
+runtime_backend = "ramalama"
+target_nodes = ["node-ser9-worker", "node-main-workstation"]
+target_agents = ["hermes", "manwe"]
+install_priority = "phase_2"
+reason = "Good edge fit for concise relay, intent triage, and lightweight routing on workstation and SER9 class nodes."
+
+[profiles.edge_reasoning]
+model_id = "unsloth/Qwen3-8B-GGUF"
+runtime_model_name = "qwen3-8b-edge-reasoning"
+quantization = "Q5_K_M"
+context_window = 32768
+runtime_backend = "ramalama"
+target_nodes = ["node-ser9-worker", "node-main-workstation"]
+target_agents = ["oracle", "athena"]
+install_priority = "phase_2"
+reason = "Balanced edge reasoning profile for shallow verdicts, summaries, and short-horizon synthesis."
+
+[profiles.backbone_router]
+model_id = "unsloth/Qwen3-8B-GGUF"
+runtime_model_name = "qwen3-8b-router"
+quantization = "Q4_K_M"
+context_window = 32768
+runtime_backend = "ramalama"
+target_nodes = ["node-backbone-server-01", "node-main-workstation"]
+target_agents = ["manwe"]
+install_priority = "phase_1"
+reason = "Fast local routing and fallback brokerage profile. Cheap enough to keep warm."
+
+[profiles.backbone_coding]
+model_id = "unsloth/Devstral-Small-2507-GGUF"
+runtime_model_name = "devstral-small-coding"
+quantization = "Q4_K_M"
+context_window = 32768
+runtime_backend = "ramalama"
+target_nodes = ["node-backbone-server-01", "node-main-workstation"]
+target_agents = ["apollo", "athena", "ceo"]
+install_priority = "phase_1"
+reason = "Primary coding and tool-use profile for CLI, patching, and repo-facing agent workflows."
+
+[profiles.backbone_reasoning]
+model_id = "unsloth/Qwen3-30B-A3B-GGUF"
+runtime_model_name = "qwen3-30b-a3b-reasoning"
+quantization = "Q4_K_M"
+context_window = 65536
+runtime_backend = "ramalama"
+target_nodes = ["node-backbone-server-01"]
+target_agents = ["oracle", "athena"]
+install_priority = "phase_1"
+reason = "Best first backbone reasoning target for dual 8 GiB 2080-class GPUs because active MoE footprint is friendlier than dense 32B."
+
+[profiles.backbone_long_context]
+model_id = "unsloth/Qwen3-32B-128K-GGUF"
+runtime_model_name = "qwen3-32b-128k"
+quantization = "IQ4_XS"
+context_window = 131072
+runtime_backend = "ramalama"
+target_nodes = ["node-backbone-server-01"]
+target_agents = ["athena", "oracle"]
+install_priority = "phase_3_evaluate"
+reason = "Selective long-context synthesis profile for deep digest jobs only after baseline throughput is proven acceptable."
+
+[profiles.backbone_accounting]
+model_id = "unsloth/Qwen3-8B-GGUF"
+runtime_model_name = "qwen3-8b-accounting"
+quantization = "Q4_K_M"
+context_window = 16384
+runtime_backend = "ramalama"
+target_nodes = ["node-backbone-server-01"]
+target_agents = ["plutus"]
+install_priority = "phase_2"
+reason = "Accounting and JouleWork planning do not need the heaviest model. Keep this lane inexpensive and deterministic."
+
+[cleanup]
+remove_unassigned_models = true
+keep_runtime_names = [
+  "qwen3-8b-router",
+  "devstral-small-coding",
+  "qwen3-30b-a3b-reasoning",
+  "qwen3-8b-accounting",
+  "qwen3-8b-edge-comms",
+  "qwen3-8b-edge-reasoning"
+]
+notes = "Once nodes are enrolled and models are loaded, remove any Ollama models not assigned through this contract to control disk growth."

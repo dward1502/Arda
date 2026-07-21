@@ -1,0 +1,15 @@
+{
+  "domain": "world",
+  "forge": {
+    "comfyui_prompt_id": "fbddfd73-397b-4b76-9462-9971527f4faf",
+    "idempotency_key": "forge-18aebc656605b982",
+    "negative_prompt": "people, character, person, gingerbread, hand, body, face, text, watermark, signature, blurry, low quality, low resolution, multiple objects, scene, environment, room, cluttered background",
+    "pipeline": "comfyui_text_to_3d_hunyuan",
+    "positive_prompt": "obsidian black wraparound cyberpunk command desk, glossy reflective curved surface, isolated on plain white background, centered product render, sharp focus, 3D model"
+  },
+  "id": "world_boardroom_main_desk",
+  "license": "Internal",
+  "material_family": "world_terminal_housing",
+  "scene_binding": "boardroom_main_desk",
+  "source": "forge_mind_comfyui_hunyuan3d"
+}

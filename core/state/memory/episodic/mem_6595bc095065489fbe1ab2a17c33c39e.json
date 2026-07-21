@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_6595bc095065489fbe1ab2a17c33c39e",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA runtime parity contract and structure cleanup",
+  "salience": 0.8075,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T04:27:30.145432191Z",
+  "last_seen_at": "2026-06-01T04:27:30.145432191Z"
+}

@@ -1,0 +1,86 @@
+{
+  "arda_integration": {
+    "optional": [
+      "Socket path in config for IPC",
+      "HTTP port for transport",
+      "Database path for state"
+    ],
+    "required": [
+      "Agent crate name in ARDA sections",
+      "State path in core/state/<agent>.json",
+      "Metrics path in core/metrics/by_crate/<agent>/"
+    ]
+  },
+  "authority": "openfang_pattern_extraction + annunimas_spawn_law",
+  "example_agent": {
+    "capabilities": [
+      "example_action"
+    ],
+    "name": "annunimas-example",
+    "realm": "operations",
+    "status": "experimental"
+  },
+  "generated_at_utc": "2026-03-13T08:50:00.000000Z",
+  "governance_requirements": {
+    "bacon_lite": "required for all crates",
+    "joulework": "required for runtime crates",
+    "love_equation": "required for user-facing crates",
+    "triad_gate": "required for production crates"
+  },
+  "purpose": "Template contract for spawning new Annunimas crates with sovereign hooks from first boot",
+  "schema_version": "annunimas.crate-spawn.blueprint.v1",
+  "sigil": "REPAIR",
+  "spawn_command": "cargo new --lib crates/annunimas-<name>",
+  "template_sections": {
+    "agent_rs": {
+      "required_elements": [
+        "Agent struct with manifest/config",
+        "impl Agent for <AgentName>Agent",
+        "execute match on task_type"
+      ]
+    },
+    "cargo_toml": {
+      "optional_dependencies": [
+        "annunimas-plutus",
+        "annunimas-mnemosyne"
+      ],
+      "required_dependencies": [
+        "annunimas-core",
+        "annunimas-governance"
+      ],
+      "required_fields": [
+        "package.name (annunimas-<agent-name>)",
+        "package.version (semver)",
+        "package.edition (2021)",
+        "features.default"
+      ]
+    },
+    "lib_rs": {
+      "recommended_patterns": [
+        "use annunimas_core::{Agent, Task, Result}",
+        "use annunimas_governance::{bacon_lite_validate, profile_joulework}",
+        "derive(Debug, Clone) on agent struct",
+        "serde derive for serialization"
+      ],
+      "required_elements": [
+        "Agent trait implementation",
+        "Agent trait: fn name() -> &str",
+        "Agent trait: fn capabilities() -> &[&str]",
+        "Agent trait: async fn execute(&self, task: &mut Task) -> Result<()>",
+        "Module exports for agent struct"
+      ]
+    },
+    "readme_md": {
+      "required_sections": [
+        "sigil (from Soterion)",
+        "crate: <name>",
+        "kind: agent|service|governance",
+        "agent: <name>",
+        "realm: <command|knowledge|governance|operations|communications>",
+        "capabilities: [<list>]",
+        "status: active-mvp|active|staging|experimental",
+        "search_tags: [<tags>]"
+      ]
+    }
+  }
+}

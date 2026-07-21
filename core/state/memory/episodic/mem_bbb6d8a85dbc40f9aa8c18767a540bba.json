@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_bbb6d8a85dbc40f9aa8c18767a540bba",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA scoped native source reveal",
+  "salience": 0.8225000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T08:25:09.236300629Z",
+  "last_seen_at": "2026-06-01T08:25:09.236300629Z"
+}

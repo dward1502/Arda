@@ -1,0 +1,703 @@
+{
+  "generated_at_utc": "2026-06-06T04:03:56Z",
+  "inputs": {
+    "shortlist": "core/state/model_candidate_shortlist.json"
+  },
+  "manifests": [
+    {
+      "active_model_path_overwrite_allowed": false,
+      "candidate_gguf_source_url": "https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF",
+      "candidate_model_artifact": "Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL.gguf",
+      "candidate_model_family": "Qwen3-Coder-30B-A3B-Instruct-GGUF",
+      "candidate_source_url": "https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct",
+      "checksum": "2841aa314d916434860cfb8990347528dcdfe5c350dbcb9d1461dbee88ff2533",
+      "checksum_required": true,
+      "current_model": "Qwen3.6-35B-A3B-UD-Q4_K_XL",
+      "disk_estimate": {
+        "basis": "size_class:mid",
+        "bytes": 22000000000
+      },
+      "download_allowed": true,
+      "human_approval_required": true,
+      "lane": "code_forge_mind",
+      "license": "apache-2.0",
+      "manifest_id": "m5_node-backbone-server_qwen3-coder-30b-a3b-instruct-gguf_code_forge_mind",
+      "node_display_name": "Annunimas Server (35B Backbone)",
+      "planned_at_utc": "2026-06-06T04:03:56Z",
+      "quantization": "UD-Q4_K_XL",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required"
+      ],
+      "risks": [],
+      "rollback_target": "Qwen3.6-35B-A3B-UD-Q4_K_XL",
+      "runtime_format": "gguf",
+      "safety_contract": {
+        "active_model_overwrite_allowed": false,
+        "config_rewrite_allowed": false,
+        "download_allowed": true,
+        "external_send_allowed": false,
+        "model_switch_allowed": false,
+        "service_restart_allowed": false
+      },
+      "schema_version": "annunimas.model_stage_manifest.v1",
+      "shortlist_recommendation": "first_benchmark",
+      "shortlist_score": 132,
+      "staging_path": "/var/home/annunimas-server/models/qwen3-coder-30b-a3b/Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL.gguf",
+      "target_node": "node-backbone-server"
+    },
+    {
+      "active_model_path_overwrite_allowed": false,
+      "candidate_gguf_source_url": null,
+      "candidate_model_artifact": "LFM2.5-8B-A1B-Q4_K_M.gguf",
+      "candidate_model_family": "LFM2.5-8B-A1B",
+      "candidate_source_url": "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B",
+      "checksum": null,
+      "checksum_required": true,
+      "current_model": "Qwen3.6-35B-A3B-UD-Q4_K_XL",
+      "disk_estimate": {
+        "basis": "size_class:mid",
+        "bytes": 22000000000
+      },
+      "download_allowed": false,
+      "human_approval_required": true,
+      "lane": "scout_research",
+      "license": "lfm1.0",
+      "manifest_id": "m5_node-backbone-server_lfm2_5-8b-a1b_scout_research",
+      "node_display_name": "Annunimas Server (35B Backbone)",
+      "planned_at_utc": "2026-06-06T04:03:56Z",
+      "quantization": "Q4_K_M",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "license_review_required"
+      ],
+      "risks": [
+        "license_review:lfm1.0"
+      ],
+      "rollback_target": "Qwen3.6-35B-A3B-UD-Q4_K_XL",
+      "runtime_format": "gguf",
+      "safety_contract": {
+        "active_model_overwrite_allowed": false,
+        "config_rewrite_allowed": false,
+        "download_allowed": false,
+        "external_send_allowed": false,
+        "model_switch_allowed": false,
+        "service_restart_allowed": false
+      },
+      "schema_version": "annunimas.model_stage_manifest.v1",
+      "shortlist_recommendation": "first_benchmark",
+      "shortlist_score": 93,
+      "staging_path": "/var/home/mythos/models/annunimas-staging/current/node-backbone-server/LFM2.5-8B-A1B-Q4_K_M.gguf",
+      "target_node": "node-backbone-server"
+    },
+    {
+      "active_model_path_overwrite_allowed": false,
+      "candidate_gguf_source_url": null,
+      "candidate_model_artifact": "LFM2.5-8B-A1B-Q4_K_M.gguf",
+      "candidate_model_family": "LFM2.5-8B-A1B",
+      "candidate_source_url": "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B",
+      "checksum": null,
+      "checksum_required": true,
+      "current_model": "LFM2.5-8B-A1B-Q4_K_M",
+      "disk_estimate": {
+        "basis": "size_class:mid",
+        "bytes": 22000000000
+      },
+      "download_allowed": false,
+      "human_approval_required": true,
+      "lane": "scout_research",
+      "license": "lfm1.0",
+      "manifest_id": "m5_node-core-hub_lfm2_5-8b-a1b_scout_research",
+      "node_display_name": "Annunimas Core (3080 Workstation)",
+      "planned_at_utc": "2026-06-06T04:03:56Z",
+      "quantization": "Q4_K_M",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "license_review_required"
+      ],
+      "risks": [
+        "license_review:lfm1.0"
+      ],
+      "rollback_target": "LFM2.5-8B-A1B-Q4_K_M",
+      "runtime_format": "gguf",
+      "safety_contract": {
+        "active_model_overwrite_allowed": false,
+        "config_rewrite_allowed": false,
+        "download_allowed": false,
+        "external_send_allowed": false,
+        "model_switch_allowed": false,
+        "service_restart_allowed": false
+      },
+      "schema_version": "annunimas.model_stage_manifest.v1",
+      "shortlist_recommendation": "first_benchmark",
+      "shortlist_score": 103,
+      "staging_path": "/var/home/mythos/models/annunimas-staging/current/node-core-hub/LFM2.5-8B-A1B-Q4_K_M.gguf",
+      "target_node": "node-core-hub"
+    },
+    {
+      "active_model_path_overwrite_allowed": false,
+      "candidate_gguf_source_url": null,
+      "candidate_model_artifact": "Qwopus3.5-4B-Coder-MTP-Q4_K_M.gguf",
+      "candidate_model_family": "Qwopus3.5-4B-Coder-MTP-GGUF",
+      "candidate_source_url": "https://huggingface.co/Jackrong/Qwopus3.5-4B-Coder-MTP-GGUF",
+      "checksum": null,
+      "checksum_required": true,
+      "current_model": "LFM2.5-8B-A1B-Q4_K_M",
+      "disk_estimate": {
+        "basis": "size_class:small",
+        "bytes": 3500000000
+      },
+      "download_allowed": false,
+      "human_approval_required": true,
+      "lane": "code_forge_mind",
+      "license": "apache-2.0",
+      "manifest_id": "m5_node-core-hub_qwopus3_5-4b-coder-mtp-gguf_code_forge_mind",
+      "node_display_name": "Annunimas Core (3080 Workstation)",
+      "planned_at_utc": "2026-06-06T04:03:56Z",
+      "quantization": "Q4_K_M",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "community_model_safety_review_required"
+      ],
+      "risks": [
+        "community_release_requires_extra_review"
+      ],
+      "rollback_target": "LFM2.5-8B-A1B-Q4_K_M",
+      "runtime_format": "gguf",
+      "safety_contract": {
+        "active_model_overwrite_allowed": false,
+        "config_rewrite_allowed": false,
+        "download_allowed": false,
+        "external_send_allowed": false,
+        "model_switch_allowed": false,
+        "service_restart_allowed": false
+      },
+      "schema_version": "annunimas.model_stage_manifest.v1",
+      "shortlist_recommendation": "first_benchmark",
+      "shortlist_score": 100,
+      "staging_path": "/var/home/mythos/models/annunimas-staging/current/node-core-hub/Qwopus3.5-4B-Coder-MTP-Q4_K_M.gguf",
+      "target_node": "node-core-hub"
+    },
+    {
+      "active_model_path_overwrite_allowed": false,
+      "candidate_gguf_source_url": "https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF",
+      "candidate_model_artifact": "Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL.gguf",
+      "candidate_model_family": "Qwen3-Coder-30B-A3B-Instruct-GGUF",
+      "candidate_source_url": "https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct",
+      "checksum": null,
+      "checksum_required": true,
+      "current_model": "LFM2.5-8B-A1B-Q4_K_M",
+      "disk_estimate": {
+        "basis": "size_class:mid",
+        "bytes": 22000000000
+      },
+      "download_allowed": false,
+      "human_approval_required": true,
+      "lane": "code_forge_mind",
+      "license": "apache-2.0",
+      "manifest_id": "m5_node-core-hub_qwen3-coder-30b-a3b-instruct-gguf_code_forge_mind",
+      "node_display_name": "Annunimas Core (3080 Workstation)",
+      "planned_at_utc": "2026-06-06T04:03:56Z",
+      "quantization": "UD-Q4_K_XL",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required"
+      ],
+      "risks": [
+        "not_listed_as_target_node"
+      ],
+      "rollback_target": "LFM2.5-8B-A1B-Q4_K_M",
+      "runtime_format": "gguf",
+      "safety_contract": {
+        "active_model_overwrite_allowed": false,
+        "config_rewrite_allowed": false,
+        "download_allowed": false,
+        "external_send_allowed": false,
+        "model_switch_allowed": false,
+        "service_restart_allowed": false
+      },
+      "schema_version": "annunimas.model_stage_manifest.v1",
+      "shortlist_recommendation": "first_benchmark",
+      "shortlist_score": 75,
+      "staging_path": "/var/home/mythos/models/annunimas-staging/current/node-core-hub/Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL.gguf",
+      "target_node": "node-core-hub"
+    },
+    {
+      "active_model_path_overwrite_allowed": false,
+      "candidate_gguf_source_url": null,
+      "candidate_model_artifact": "MiniCPM5-1B-Q4_K_M.gguf",
+      "candidate_model_family": "MiniCPM5-1B",
+      "candidate_source_url": "https://huggingface.co/openbmb/MiniCPM5-1B",
+      "checksum": null,
+      "checksum_required": true,
+      "current_model": "none",
+      "disk_estimate": {
+        "basis": "size_class:tiny",
+        "bytes": 1200000000
+      },
+      "download_allowed": false,
+      "human_approval_required": true,
+      "lane": "monitoring_warden",
+      "license": "apache-2.0",
+      "manifest_id": "m5_node-pi5-citadel-avatar_minicpm5-1b_monitoring_warden",
+      "node_display_name": "Pi5 CITADEL Avatar",
+      "planned_at_utc": "2026-06-06T04:03:56Z",
+      "quantization": "Q4_K_M",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required"
+      ],
+      "risks": [],
+      "rollback_target": "none",
+      "runtime_format": "gguf",
+      "safety_contract": {
+        "active_model_overwrite_allowed": false,
+        "config_rewrite_allowed": false,
+        "download_allowed": false,
+        "external_send_allowed": false,
+        "model_switch_allowed": false,
+        "service_restart_allowed": false
+      },
+      "schema_version": "annunimas.model_stage_manifest.v1",
+      "shortlist_recommendation": "first_benchmark",
+      "shortlist_score": 120,
+      "staging_path": "/var/home/mythos/models/annunimas-staging/current/node-pi5-citadel-avatar/MiniCPM5-1B-Q4_K_M.gguf",
+      "target_node": "node-pi5-citadel-avatar"
+    },
+    {
+      "active_model_path_overwrite_allowed": false,
+      "candidate_gguf_source_url": null,
+      "candidate_model_artifact": "MiniCPM5-1B-Q4_K_M.gguf",
+      "candidate_model_family": "MiniCPM5-1B",
+      "candidate_source_url": "https://huggingface.co/openbmb/MiniCPM5-1B",
+      "checksum": null,
+      "checksum_required": true,
+      "current_model": "Qwen3.5-4B-Q4_K_M.gguf",
+      "disk_estimate": {
+        "basis": "size_class:tiny",
+        "bytes": 1200000000
+      },
+      "download_allowed": false,
+      "human_approval_required": true,
+      "lane": "monitoring_warden",
+      "license": "apache-2.0",
+      "manifest_id": "m5_node-pi5-warden_minicpm5-1b_monitoring_warden",
+      "node_display_name": "Pi5 Guardhouse (Warden)",
+      "planned_at_utc": "2026-06-06T04:03:56Z",
+      "quantization": "Q4_K_M",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required"
+      ],
+      "risks": [],
+      "rollback_target": "Qwen3.5-4B-Q4_K_M.gguf",
+      "runtime_format": "gguf",
+      "safety_contract": {
+        "active_model_overwrite_allowed": false,
+        "config_rewrite_allowed": false,
+        "download_allowed": false,
+        "external_send_allowed": false,
+        "model_switch_allowed": false,
+        "service_restart_allowed": false
+      },
+      "schema_version": "annunimas.model_stage_manifest.v1",
+      "shortlist_recommendation": "first_benchmark",
+      "shortlist_score": 127,
+      "staging_path": "/var/home/mythos/models/annunimas-staging/current/node-pi5-warden/MiniCPM5-1B-Q4_K_M.gguf",
+      "target_node": "node-pi5-warden"
+    },
+    {
+      "active_model_path_overwrite_allowed": false,
+      "candidate_gguf_source_url": null,
+      "candidate_model_artifact": "Qwopus3.5-4B-Coder-MTP-Q4_K_M.gguf",
+      "candidate_model_family": "Qwopus3.5-4B-Coder-MTP-GGUF",
+      "candidate_source_url": "https://huggingface.co/Jackrong/Qwopus3.5-4B-Coder-MTP-GGUF",
+      "checksum": null,
+      "checksum_required": true,
+      "current_model": "Qwen3.5-4B-Q4_K_M.gguf",
+      "disk_estimate": {
+        "basis": "size_class:small",
+        "bytes": 3500000000
+      },
+      "download_allowed": false,
+      "human_approval_required": true,
+      "lane": "code_forge_mind",
+      "license": "apache-2.0",
+      "manifest_id": "m5_node-pi5-warden_qwopus3_5-4b-coder-mtp-gguf_code_forge_mind",
+      "node_display_name": "Pi5 Guardhouse (Warden)",
+      "planned_at_utc": "2026-06-06T04:03:56Z",
+      "quantization": "Q4_K_M",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "community_model_safety_review_required"
+      ],
+      "risks": [
+        "community_release_requires_extra_review"
+      ],
+      "rollback_target": "Qwen3.5-4B-Q4_K_M.gguf",
+      "runtime_format": "gguf",
+      "safety_contract": {
+        "active_model_overwrite_allowed": false,
+        "config_rewrite_allowed": false,
+        "download_allowed": false,
+        "external_send_allowed": false,
+        "model_switch_allowed": false,
+        "service_restart_allowed": false
+      },
+      "schema_version": "annunimas.model_stage_manifest.v1",
+      "shortlist_recommendation": "first_benchmark",
+      "shortlist_score": 74,
+      "staging_path": "/var/home/mythos/models/annunimas-staging/current/node-pi5-warden/Qwopus3.5-4B-Coder-MTP-Q4_K_M.gguf",
+      "target_node": "node-pi5-warden"
+    },
+    {
+      "active_model_path_overwrite_allowed": false,
+      "candidate_gguf_source_url": null,
+      "candidate_model_artifact": "Qwopus3.5-4B-Coder-MTP-Q4_K_M.gguf",
+      "candidate_model_family": "Qwopus3.5-4B-Coder-MTP-GGUF",
+      "candidate_source_url": "https://huggingface.co/Jackrong/Qwopus3.5-4B-Coder-MTP-GGUF",
+      "checksum": null,
+      "checksum_required": true,
+      "current_model": "Qwen_Qwen3.5-4B-Q6_K",
+      "disk_estimate": {
+        "basis": "size_class:small",
+        "bytes": 3500000000
+      },
+      "download_allowed": false,
+      "human_approval_required": true,
+      "lane": "code_forge_mind",
+      "license": "apache-2.0",
+      "manifest_id": "m5_node-ser9-worker_qwopus3_5-4b-coder-mtp-gguf_code_forge_mind",
+      "node_display_name": "Beelink SER9 Pro",
+      "planned_at_utc": "2026-06-06T04:03:56Z",
+      "quantization": "Q4_K_M",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "community_model_safety_review_required"
+      ],
+      "risks": [
+        "community_release_requires_extra_review"
+      ],
+      "rollback_target": "Qwen_Qwen3.5-4B-Q6_K",
+      "runtime_format": "gguf",
+      "safety_contract": {
+        "active_model_overwrite_allowed": false,
+        "config_rewrite_allowed": false,
+        "download_allowed": false,
+        "external_send_allowed": false,
+        "model_switch_allowed": false,
+        "service_restart_allowed": false
+      },
+      "schema_version": "annunimas.model_stage_manifest.v1",
+      "shortlist_recommendation": "first_benchmark",
+      "shortlist_score": 112,
+      "staging_path": "/var/home/mythos/models/annunimas-staging/current/node-ser9-worker/Qwopus3.5-4B-Coder-MTP-Q4_K_M.gguf",
+      "target_node": "node-ser9-worker"
+    },
+    {
+      "active_model_path_overwrite_allowed": false,
+      "candidate_gguf_source_url": null,
+      "candidate_model_artifact": "LFM2.5-8B-A1B-Q4_K_M.gguf",
+      "candidate_model_family": "LFM2.5-8B-A1B",
+      "candidate_source_url": "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B",
+      "checksum": null,
+      "checksum_required": true,
+      "current_model": "Qwen_Qwen3.5-4B-Q6_K",
+      "disk_estimate": {
+        "basis": "size_class:mid",
+        "bytes": 22000000000
+      },
+      "download_allowed": false,
+      "human_approval_required": true,
+      "lane": "scout_research",
+      "license": "lfm1.0",
+      "manifest_id": "m5_node-ser9-worker_lfm2_5-8b-a1b_scout_research",
+      "node_display_name": "Beelink SER9 Pro",
+      "planned_at_utc": "2026-06-06T04:03:56Z",
+      "quantization": "Q4_K_M",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "license_review_required"
+      ],
+      "risks": [
+        "license_review:lfm1.0"
+      ],
+      "rollback_target": "Qwen_Qwen3.5-4B-Q6_K",
+      "runtime_format": "gguf",
+      "safety_contract": {
+        "active_model_overwrite_allowed": false,
+        "config_rewrite_allowed": false,
+        "download_allowed": false,
+        "external_send_allowed": false,
+        "model_switch_allowed": false,
+        "service_restart_allowed": false
+      },
+      "schema_version": "annunimas.model_stage_manifest.v1",
+      "shortlist_recommendation": "first_benchmark",
+      "shortlist_score": 95,
+      "staging_path": "/var/home/mythos/models/annunimas-staging/current/node-ser9-worker/LFM2.5-8B-A1B-Q4_K_M.gguf",
+      "target_node": "node-ser9-worker"
+    },
+    {
+      "active_model_path_overwrite_allowed": false,
+      "candidate_gguf_source_url": null,
+      "candidate_model_artifact": "MiniCPM5-1B-Q4_K_M.gguf",
+      "candidate_model_family": "MiniCPM5-1B",
+      "candidate_source_url": "https://huggingface.co/openbmb/MiniCPM5-1B",
+      "checksum": null,
+      "checksum_required": true,
+      "current_model": "Qwen_Qwen3.5-4B-Q6_K",
+      "disk_estimate": {
+        "basis": "size_class:tiny",
+        "bytes": 1200000000
+      },
+      "download_allowed": false,
+      "human_approval_required": true,
+      "lane": "monitoring_warden",
+      "license": "apache-2.0",
+      "manifest_id": "m5_node-ser9-worker_minicpm5-1b_monitoring_warden",
+      "node_display_name": "Beelink SER9 Pro",
+      "planned_at_utc": "2026-06-06T04:03:56Z",
+      "quantization": "Q4_K_M",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required"
+      ],
+      "risks": [],
+      "rollback_target": "Qwen_Qwen3.5-4B-Q6_K",
+      "runtime_format": "gguf",
+      "safety_contract": {
+        "active_model_overwrite_allowed": false,
+        "config_rewrite_allowed": false,
+        "download_allowed": false,
+        "external_send_allowed": false,
+        "model_switch_allowed": false,
+        "service_restart_allowed": false
+      },
+      "schema_version": "annunimas.model_stage_manifest.v1",
+      "shortlist_recommendation": "first_benchmark",
+      "shortlist_score": 92,
+      "staging_path": "/var/home/mythos/models/annunimas-staging/current/node-ser9-worker/MiniCPM5-1B-Q4_K_M.gguf",
+      "target_node": "node-ser9-worker"
+    },
+    {
+      "active_model_path_overwrite_allowed": false,
+      "candidate_gguf_source_url": null,
+      "candidate_model_artifact": "Qwen3.6-35B-A3B-Q4_K_M.gguf",
+      "candidate_model_family": "Qwen3.6-35B-A3B-GGUF",
+      "candidate_source_url": "https://huggingface.co/Infatoshi/Qwen3.6-35B-A3B-GGUF",
+      "checksum": null,
+      "checksum_required": true,
+      "current_model": "Qwen3.6-35B-A3B-UD-Q4_K_XL",
+      "disk_estimate": {
+        "basis": "size_class:mid",
+        "bytes": 22000000000
+      },
+      "download_allowed": false,
+      "human_approval_required": true,
+      "lane": "council",
+      "license": "unknown",
+      "manifest_id": "m5_node-backbone-server_qwen3_6-35b-a3b-gguf_council",
+      "node_display_name": "Annunimas Server (35B Backbone)",
+      "planned_at_utc": "2026-06-06T04:03:56Z",
+      "quantization": "Q4_K_M",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "license_review_required"
+      ],
+      "risks": [
+        "license_unknown"
+      ],
+      "rollback_target": "Qwen3.6-35B-A3B-UD-Q4_K_XL",
+      "runtime_format": "gguf",
+      "safety_contract": {
+        "active_model_overwrite_allowed": false,
+        "config_rewrite_allowed": false,
+        "download_allowed": false,
+        "external_send_allowed": false,
+        "model_switch_allowed": false,
+        "service_restart_allowed": false
+      },
+      "schema_version": "annunimas.model_stage_manifest.v1",
+      "shortlist_recommendation": "benchmark",
+      "shortlist_score": 60,
+      "staging_path": "/var/home/mythos/models/annunimas-staging/current/node-backbone-server/Qwen3.6-35B-A3B-Q4_K_M.gguf",
+      "target_node": "node-backbone-server"
+    },
+    {
+      "active_model_path_overwrite_allowed": false,
+      "candidate_gguf_source_url": "https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF",
+      "candidate_model_artifact": "Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL.gguf",
+      "candidate_model_family": "Qwen3-Coder-30B-A3B-Instruct-GGUF",
+      "candidate_source_url": "https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct",
+      "checksum": null,
+      "checksum_required": true,
+      "current_model": "Qwen3.6-35B-A3B-UD-Q4_K_XL-128K",
+      "disk_estimate": {
+        "basis": "size_class:mid",
+        "bytes": 22000000000
+      },
+      "download_allowed": false,
+      "human_approval_required": true,
+      "lane": "code_forge_mind",
+      "license": "apache-2.0",
+      "manifest_id": "m5_node-backbone-server-long_qwen3-coder-30b-a3b-instruct-gguf_code_forge_mind",
+      "node_display_name": "Annunimas Server (35B Long Context)",
+      "planned_at_utc": "2026-06-06T04:03:56Z",
+      "quantization": "UD-Q4_K_XL",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required"
+      ],
+      "risks": [
+        "not_listed_as_target_node",
+        "weak_lane_fit:code_forge_mind"
+      ],
+      "rollback_target": "Qwen3.6-35B-A3B-UD-Q4_K_XL-128K",
+      "runtime_format": "gguf",
+      "safety_contract": {
+        "active_model_overwrite_allowed": false,
+        "config_rewrite_allowed": false,
+        "download_allowed": false,
+        "external_send_allowed": false,
+        "model_switch_allowed": false,
+        "service_restart_allowed": false
+      },
+      "schema_version": "annunimas.model_stage_manifest.v1",
+      "shortlist_recommendation": "benchmark",
+      "shortlist_score": 47,
+      "staging_path": "/var/home/mythos/models/annunimas-staging/current/node-backbone-server-long/Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL.gguf",
+      "target_node": "node-backbone-server-long"
+    },
+    {
+      "active_model_path_overwrite_allowed": false,
+      "candidate_gguf_source_url": "https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF",
+      "candidate_model_artifact": "Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL.gguf",
+      "candidate_model_family": "Qwen3-Coder-30B-A3B-Instruct-GGUF",
+      "candidate_source_url": "https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct",
+      "checksum": null,
+      "checksum_required": true,
+      "current_model": "Carnice-9b-Q6_K",
+      "disk_estimate": {
+        "basis": "size_class:mid",
+        "bytes": 22000000000
+      },
+      "download_allowed": false,
+      "human_approval_required": true,
+      "lane": "code_forge_mind",
+      "license": "apache-2.0",
+      "manifest_id": "m5_node-ser9-carnice_qwen3-coder-30b-a3b-instruct-gguf_code_forge_mind",
+      "node_display_name": "Beelink SER9 Pro — Carnice 9B Lane",
+      "planned_at_utc": "2026-06-06T04:03:56Z",
+      "quantization": "UD-Q4_K_XL",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required"
+      ],
+      "risks": [
+        "not_listed_as_target_node"
+      ],
+      "rollback_target": "Carnice-9b-Q6_K",
+      "runtime_format": "gguf",
+      "safety_contract": {
+        "active_model_overwrite_allowed": false,
+        "config_rewrite_allowed": false,
+        "download_allowed": false,
+        "external_send_allowed": false,
+        "model_switch_allowed": false,
+        "service_restart_allowed": false
+      },
+      "schema_version": "annunimas.model_stage_manifest.v1",
+      "shortlist_recommendation": "benchmark",
+      "shortlist_score": 69,
+      "staging_path": "/var/home/mythos/models/annunimas-staging/current/node-ser9-carnice/Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL.gguf",
+      "target_node": "node-ser9-carnice"
+    },
+    {
+      "active_model_path_overwrite_allowed": false,
+      "candidate_gguf_source_url": null,
+      "candidate_model_artifact": "Qwopus3.5-4B-Coder-MTP-Q4_K_M.gguf",
+      "candidate_model_family": "Qwopus3.5-4B-Coder-MTP-GGUF",
+      "candidate_source_url": "https://huggingface.co/Jackrong/Qwopus3.5-4B-Coder-MTP-GGUF",
+      "checksum": null,
+      "checksum_required": true,
+      "current_model": "Carnice-9b-Q6_K",
+      "disk_estimate": {
+        "basis": "size_class:small",
+        "bytes": 3500000000
+      },
+      "download_allowed": false,
+      "human_approval_required": true,
+      "lane": "code_forge_mind",
+      "license": "apache-2.0",
+      "manifest_id": "m5_node-ser9-carnice_qwopus3_5-4b-coder-mtp-gguf_code_forge_mind",
+      "node_display_name": "Beelink SER9 Pro — Carnice 9B Lane",
+      "planned_at_utc": "2026-06-06T04:03:56Z",
+      "quantization": "Q4_K_M",
+      "required_gates": [
+        "benchmark_required",
+        "rollback_receipt_required",
+        "community_model_safety_review_required"
+      ],
+      "risks": [
+        "not_listed_as_target_node",
+        "community_release_requires_extra_review"
+      ],
+      "rollback_target": "Carnice-9b-Q6_K",
+      "runtime_format": "gguf",
+      "safety_contract": {
+        "active_model_overwrite_allowed": false,
+        "config_rewrite_allowed": false,
+        "download_allowed": false,
+        "external_send_allowed": false,
+        "model_switch_allowed": false,
+        "service_restart_allowed": false
+      },
+      "schema_version": "annunimas.model_stage_manifest.v1",
+      "shortlist_recommendation": "benchmark",
+      "shortlist_score": 53,
+      "staging_path": "/var/home/mythos/models/annunimas-staging/current/node-ser9-carnice/Qwopus3.5-4B-Coder-MTP-Q4_K_M.gguf",
+      "target_node": "node-ser9-carnice"
+    }
+  ],
+  "outputs": {
+    "manifest_receipts": "data/charon/model_stage_manifests.jsonl"
+  },
+  "safety": {
+    "active_model_overwrites": "not_performed",
+    "config_rewrites": "not_performed",
+    "downloads": "not_performed",
+    "external_sends": "not_performed",
+    "model_switches": "not_performed",
+    "service_restarts": "not_performed"
+  },
+  "schema_version": "annunimas.model_stage_manifest_plan.v1",
+  "summary": {
+    "first_benchmark_manifests": 11,
+    "lanes": [
+      "code_forge_mind",
+      "council",
+      "monitoring_warden",
+      "scout_research"
+    ],
+    "manifests": 15,
+    "nodes": [
+      "node-backbone-server",
+      "node-backbone-server-long",
+      "node-core-hub",
+      "node-pi5-citadel-avatar",
+      "node-pi5-warden",
+      "node-ser9-carnice",
+      "node-ser9-worker"
+    ],
+    "secondary_manifests": 4,
+    "write_mode": "dry_run"
+  }
+}

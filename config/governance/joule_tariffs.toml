@@ -1,0 +1,20 @@
+# Arda-plutus shipped joule tariff table.
+# Schema (see TariffFile in crates/spine/runtime/arda-plutus/src/meter.rs):
+#   [defaults]
+#   joules_per_input_token = f64
+#   joules_per_output_token = f64
+#   [[entries]]   (optional; one per provider/model override)
+#   provider = "..."
+#   model = "..."
+#   joules_per_input_token = f64
+#   joules_per_output_token = f64
+
+[defaults]
+joules_per_input_token = 0.02
+joules_per_output_token = 0.06
+
+[[entries]]
+provider = "anthropic"
+model = "claude-haiku-4-5"
+joules_per_input_token = 0.005
+joules_per_output_token = 0.015

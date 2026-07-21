@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_806caf7ec9b1435bbfb780c35b36f1c5",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Queue: INDEX plan review",
+  "salience": 0.5845,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-19T07:44:32.067559945Z",
+  "last_seen_at": "2026-06-19T07:44:32.067559945Z"
+}

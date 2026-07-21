@@ -1,0 +1,20 @@
+{
+  "generated_at_utc": "2026-04-22T22:04:21.875784Z",
+  "crate": "plutus",
+  "status": "healthy",
+  "economics": {
+    "budget_remaining": 100.0,
+    "budget_usage_percent": 0.0,
+    "daily_budget": 100.0,
+    "providers": [],
+    "total_spend": 0.0
+  },
+  "joulework": {
+    "tracked_subjects_total": 0,
+    "total_observed": null
+  },
+  "governance": {
+    "bacon_lite_passed_total": 26,
+    "recent_records_total": 25
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_467bd07d8008406bb3bd7035da3ab27d",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: LSRH-P5 operator stage contract projection. Added ARDA operator surface projection for queue-federation stage contracts: command console shows Stage Contract lane summary, work items show canonical stage/lane/receipt copy, and Queue Source Freshness shows queue stage contracts. Verified npm test -- --run QueueProvenancePanel and OperatingSurfacePlanModule, npm run build, cargo test -p annunimas-cli queue_federation --all-targets, export queue-federation, queue_federation contract field parser, git diff --check, and append-only guard. Remaining drift: queue_federation.validation reports 9 existing lightweight warnings for legacy federation/Arandur records missing source/approval receipts.",
+  "salience": 1.0,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-12T17:43:11.111969525Z",
+  "last_seen_at": "2026-06-12T17:43:11.111969525Z"
+}

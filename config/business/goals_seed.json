@@ -1,0 +1,46 @@
+{
+  "_doc": "Seed goals for the Phase 1 autonomy loop. Materialized into core/state/goals/<id>.json by `annunimas-cli loop seed-goals`. Hand-authored. See spec/agent-state-contract.md §4.1 and docs/plans/PHASE_1_PLAN.md step 2.",
+  "_contract_version_target": "0.1.0",
+  "goals": [
+    {
+      "id": "goal_provider_mesh_health",
+      "title": "Keep provider mesh healthy",
+      "intent": "Detect provider failures within one tick and route around them. Retire any provider failing two consecutive checks; raise alert if no provider is reachable.",
+      "owner_agent": "prometheus",
+      "priority": "high",
+      "joule_budget_per_day": 200.0
+    },
+    {
+      "id": "goal_daily_joulework_report",
+      "title": "Report daily JouleWork",
+      "intent": "At each day boundary, emit a single LedgerEntry summarizing total joules spent, joules per agent, and joules per provider tier. Operator-readable.",
+      "owner_agent": "plutus",
+      "priority": "medium",
+      "joule_budget_per_day": 20.0
+    },
+    {
+      "id": "goal_knowledge_index_freshness",
+      "title": "Maintain knowledge index freshness",
+      "intent": "Keep the soterion knowledge map and triage registry current. Re-emit any record whose source-of-truth file has changed since last index pass.",
+      "owner_agent": "athena",
+      "priority": "medium",
+      "joule_budget_per_day": 80.0
+    },
+    {
+      "id": "goal_ledger_compaction",
+      "title": "Compact ledger segments",
+      "intent": "Roll any ledger segment older than 14 days into the archive. Preserve audit lineage; never rewrite an existing segment in place.",
+      "owner_agent": "supervisor",
+      "priority": "low",
+      "joule_budget_per_day": 10.0
+    },
+    {
+      "id": "goal_council_presence",
+      "title": "Keep the council reachable",
+      "intent": "Verify each Council seat (Aurelius, Bacon, Sun Tzu) responds to a triad health probe. If any seat is unreachable for two consecutive ticks, escalate to the operator.",
+      "owner_agent": "oracle",
+      "priority": "high",
+      "joule_budget_per_day": 60.0
+    }
+  ]
+}

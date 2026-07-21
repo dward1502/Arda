@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_c3fb75913bd449249575b03f0348ef2d",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Queue service-graph public repo skeleton plan",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-19T07:26:24.537352252Z",
+  "last_seen_at": "2026-06-19T07:26:24.537352252Z"
+}

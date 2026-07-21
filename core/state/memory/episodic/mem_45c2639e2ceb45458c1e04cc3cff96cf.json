@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_45c2639e2ceb45458c1e04cc3cff96cf",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Rationalize Charon local routing topology",
+  "salience": 0.6645,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-13T22:05:13.760332989Z",
+  "last_seen_at": "2026-05-13T22:05:13.760332989Z"
+}

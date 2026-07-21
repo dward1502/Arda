@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_915b562a27f647c390223a6dbf516808",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Extract ARDA HUD, CITADEL, and RELIC/Kiosk as private consumers of the core API. Same-id closeout for original queued record. ARDA HUD moved to /var/home/mythos/Eregion/arda-hud, Annunimas references updated to external path, external app structure verified, portability test passed, and append-only guard previously passed.",
+  "salience": 0.8845000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-20T11:06:29.657242975Z",
+  "last_seen_at": "2026-06-20T11:06:29.657242975Z"
+}

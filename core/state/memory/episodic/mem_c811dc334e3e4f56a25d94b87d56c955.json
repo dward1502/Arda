@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_c811dc334e3e4f56a25d94b87d56c955",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA review gate inspect decide record",
+  "salience": 0.8045000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T06:30:00.074651124Z",
+  "last_seen_at": "2026-06-01T06:30:00.074651124Z"
+}

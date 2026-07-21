@@ -1,0 +1,54 @@
+# sigil: REPAIR
+[package]
+name = "manwe"
+version = "0.1.0"
+edition = "2021"
+license.workspace = true
+authors.workspace = true
+
+[lib]
+name = "manwe"
+path = "src/lib.rs"
+
+[[bin]]
+name = "manwe"
+path = "src/main.rs"
+
+[features]
+default = []
+adaptive = []
+telemetry = ["arda-aule/telemetry"]
+
+[dependencies]
+regex = "1"
+tokio = { workspace = true }
+axum = { workspace = true }
+reqwest = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+toml = { workspace = true }
+anyhow = { workspace = true }
+base64 = { workspace = true }
+fs2 = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+clap = { workspace = true }
+chrono = { workspace = true }
+thiserror = { workspace = true }
+tonic = { workspace = true, default-features = false, features = ["router", "tls-webpki-roots", "transport"] }
+arda-orome = { workspace = true }
+arda-core = { workspace = true }
+arda-governance = { workspace = true }
+arda-economics = { workspace = true }
+arda-vaire = { workspace = true }
+arda-aule = { workspace = true, optional = true }
+
+[build-dependencies]
+tonic = { version = "0.14", default-features = false, features = ["tls-webpki-roots", "transport"] }
+prost-build = "0.13"
+
+[dependencies.rand]
+version = "0.8"
+
+[dev-dependencies]
+tempfile = "3"

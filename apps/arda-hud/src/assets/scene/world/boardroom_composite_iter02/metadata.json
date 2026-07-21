@@ -1,0 +1,75 @@
+{
+  "id": "world_boardroom_composite_iter02",
+  "domain": "world",
+  "scene_binding": "boardroom_main_desk",
+  "material_family": "world_terminal_housing",
+  "source": "procedural_blender_5_1_controlled_iteration",
+  "license": "Internal",
+  "status": "controlled_spike_iteration_not_art_locked",
+  "iteration_basis": "iter01 visual gap inspection: stronger avatar silhouette, denser skyline, segmented curved desk lip, visible monitor arm spines and hinges",
+  "reference_paths": [
+    {
+      "path": "apps/arda-hud/desk.jpg",
+      "role": "primary composition reference"
+    },
+    {
+      "path": "apps/arda-hud/desk.jpg",
+      "role": "desk and operator cockpit reference"
+    },
+    {
+      "path": "apps/arda-hud/avatar.jpg",
+      "role": "presence/avatar hologram reference"
+    },
+    {
+      "path": "docs/arda/ARDA_BOARDROOM_ASSET_INGESTION_BRIEF.md",
+      "role": "asset sequence and fidelity gates"
+    },
+    {
+      "path": "apps/arda-hud/ARDA_PRD.md",
+      "role": "product and scene authority"
+    }
+  ],
+  "outputs": {
+    "repo_glb": "apps/arda-hud/src/assets/scene/world/boardroom_composite_iter02/boardroom_composite_iter02.glb",
+    "spike_workspace": "/var/home/mythos/arda_pixal3d_spike/outputs/boardroom_composite_iter02",
+    "render_previews": [
+      "/var/home/mythos/arda_pixal3d_spike/outputs/boardroom_composite_iter02/front_reference_composition.png",
+      "/var/home/mythos/arda_pixal3d_spike/outputs/boardroom_composite_iter02/left_three_quarter.png",
+      "/var/home/mythos/arda_pixal3d_spike/outputs/boardroom_composite_iter02/hologram_and_monitors_closeup.png"
+    ],
+    "generation_log": "/var/home/mythos/arda_pixal3d_spike/logs/boardroom_composite_iter02_blender.log",
+    "inspection_json": "/var/home/mythos/arda_pixal3d_spike/logs/boardroom_composite_iter02_glb_inspection.json",
+    "inspection_log": "/var/home/mythos/arda_pixal3d_spike/logs/boardroom_composite_iter02_glb_inspection.log"
+  },
+  "verification": {
+    "blender_export_exit_code": 0,
+    "object_count": 259,
+    "scene_extent": [8.087503, 3.46, 3.3125],
+    "repo_glb_sha256": "562424b11e183f8ee6ec0925201a1d352374a69de8d206a245e1600775bf0a24",
+    "front_render_sha256": "6937f020d4365ea23ad2b1eb8627940da8e6f6bebeb850b806eeda3fcd7823a1",
+    "closeup_render_sha256": "145183d094053c28050458c78f8ddf13632f8a4657f95739458a72ffa5def3b6"
+  },
+  "reference_targets": [
+    "C-wrap glossy obsidian command desk",
+    "six wide rectangular monitor surfaces plus upper articulated monitor family",
+    "raised central console with dense status controls",
+    "sloped touch tablets on left and right desk wings",
+    "panoramic rainy neon skyline window shell",
+    "central cyan/magenta holographic female presence silhouette",
+    "surface-bound cyan/magenta emissive strips"
+  ],
+  "visual_improvements_over_iter01": [
+    "Segmented neon lip makes the front desk read more curved/wrapped instead of one flat slab",
+    "Avatar gains hair lobes, neck, shoulders, lower body, legs, and scan-sheet accents",
+    "Window gains more micro city columns and horizontal neon horizon bands",
+    "Monitor arms gain visible vertical spines and hinge cylinders",
+    "Object count increased to 259 with deterministic repo/spike GLB hash match"
+  ],
+  "known_gaps_next_iteration": [
+    "Avatar remains too abstract/glowing; next pass needs a clearer anime/female mesh silhouette with face/hair/torso separation and lower opacity so shape is visible",
+    "Desk is still built from primitives; next pass should use bevelled curved topology rather than segmented rectangular approximations",
+    "Monitor faces still lack real UI texture maps, bezels, clamps, cabling, and rear mechanical detail",
+    "Skyline remains decorative bars; next pass needs layered billboards/rain planes/depth and stronger outside-city parallax",
+    "Scene still needs runtime placement/load validation inside the active Three.js/WebGL ARDA layer"
+  ]
+}

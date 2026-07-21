@@ -1,0 +1,151 @@
+{
+  "contract": "annunimas.human_inbox_phase2e_final_audit_state.v1",
+  "generated_at_utc": "2026-05-15T21:55:43Z",
+  "authority": "athena_phase2e_final_verification",
+  "status": "verified-with-remaining-review-gates",
+  "safety_boundary": {
+    "raw_inbox_files_mutated_by_phase2e": false,
+    "raw_inbox_files_moved_by_phase2e": false,
+    "raw_inbox_files_deleted_by_phase2e": false,
+    "canonical_truth_claims_performed": false,
+    "promoted_status": "reviewed_candidate"
+  },
+  "counts": {
+    "raw_inbox_files_current": 108,
+    "raw_inbox_markdown_current": 61,
+    "raw_inbox_binary_or_media_current": 31,
+    "athena_ingestion_records": 965,
+    "athena_contradiction_candidate_records": 0,
+    "phase2d_review_packets": 11,
+    "phase2e_promotions": 6,
+    "phase2e_indexes": 3
+  },
+  "verification": {
+    "promotions": [
+      {
+        "key": "annunimas_ais_agent_suite",
+        "dest": "human/05-Projects/plans/product-candidates/annunimas-ais-agent-suite.md",
+        "dest_exists": true,
+        "source_exists": true,
+        "brief_exists": true,
+        "frontmatter_boundary_ok": true,
+        "title_frontmatter_ok": true,
+        "canonical_hash_matches_state": true,
+        "source_hash_matches_state": true,
+        "actual_canonical_hash": "sha256:48d13c4c1732c8d163938587afc828431b0479a4f93c78b8ae39cbd0185fcab9",
+        "expected_canonical_hash": "sha256:48d13c4c1732c8d163938587afc828431b0479a4f93c78b8ae39cbd0185fcab9",
+        "actual_source_hash": "sha256:63faf9e5bdf5f2c818a141e472de991d0f0f08dfeebbac3c3e4b7e93245064e1",
+        "expected_source_hash": "sha256:63faf9e5bdf5f2c818a141e472de991d0f0f08dfeebbac3c3e4b7e93245064e1"
+      },
+      {
+        "key": "forge_a2a_marketplace",
+        "dest": "human/05-Projects/plans/product-candidates/forge-a2a-marketplace.md",
+        "dest_exists": true,
+        "source_exists": true,
+        "brief_exists": true,
+        "frontmatter_boundary_ok": true,
+        "title_frontmatter_ok": true,
+        "canonical_hash_matches_state": true,
+        "source_hash_matches_state": true,
+        "actual_canonical_hash": "sha256:f60e3519a8eaaaaf715a289dbb2debaf9736c28b128dc90eb37013a7aea7ebe4",
+        "expected_canonical_hash": "sha256:f60e3519a8eaaaaf715a289dbb2debaf9736c28b128dc90eb37013a7aea7ebe4",
+        "actual_source_hash": "sha256:68f682c5caa16b4cfc49405e1abcb09b4a9112f974ee9a96e75c092e16d40658",
+        "expected_source_hash": "sha256:68f682c5caa16b4cfc49405e1abcb09b4a9112f974ee9a96e75c092e16d40658"
+      },
+      {
+        "key": "muse_phoenix_music",
+        "dest": "human/05-Projects/plans/product-candidates/muse-phoenix-music.md",
+        "dest_exists": true,
+        "source_exists": true,
+        "brief_exists": true,
+        "frontmatter_boundary_ok": true,
+        "title_frontmatter_ok": true,
+        "canonical_hash_matches_state": true,
+        "source_hash_matches_state": true,
+        "actual_canonical_hash": "sha256:32446583a4ebe0b7f329945a8ecb033f63935e372917e9a0df17427c1029b191",
+        "expected_canonical_hash": "sha256:32446583a4ebe0b7f329945a8ecb033f63935e372917e9a0df17427c1029b191",
+        "actual_source_hash": "sha256:72548cc4d88ec8177711b3bc7161d323882b79ff757b23351a4f4d39695a9ba1",
+        "expected_source_hash": "sha256:72548cc4d88ec8177711b3bc7161d323882b79ff757b23351a4f4d39695a9ba1"
+      },
+      {
+        "key": "arda_hud_ops_visualization",
+        "dest": "human/05-Projects/plans/product-candidates/arda-hud-ops-visualization.md",
+        "dest_exists": true,
+        "source_exists": true,
+        "brief_exists": true,
+        "frontmatter_boundary_ok": true,
+        "title_frontmatter_ok": true,
+        "canonical_hash_matches_state": true,
+        "source_hash_matches_state": true,
+        "actual_canonical_hash": "sha256:9754b19213db3323c511c0d49e43b52e899efa6c5bff71cf017f4283985d25c7",
+        "expected_canonical_hash": "sha256:9754b19213db3323c511c0d49e43b52e899efa6c5bff71cf017f4283985d25c7",
+        "actual_source_hash": "sha256:0977e3b2ea8a1bbfd237216ed48bd5df0d44f0e752edf2221b8ee27702eca5c9",
+        "expected_source_hash": "sha256:0977e3b2ea8a1bbfd237216ed48bd5df0d44f0e752edf2221b8ee27702eca5c9"
+      },
+      {
+        "key": "warden_hades_security",
+        "dest": "human/03-Knowledge/Architecture/security/warden-hades-security.md",
+        "dest_exists": true,
+        "source_exists": true,
+        "brief_exists": true,
+        "frontmatter_boundary_ok": true,
+        "title_frontmatter_ok": true,
+        "canonical_hash_matches_state": true,
+        "source_hash_matches_state": true,
+        "actual_canonical_hash": "sha256:5f12805ef7e207c68ddc7c4a8c470fc5dc13e3bdfe46f0ea7d6d73376529a59a",
+        "expected_canonical_hash": "sha256:5f12805ef7e207c68ddc7c4a8c470fc5dc13e3bdfe46f0ea7d6d73376529a59a",
+        "actual_source_hash": "sha256:7b147d94b375949812b7a1c4bc6eddf927fd771b45761134fba77f5d36da6f28",
+        "expected_source_hash": "sha256:7b147d94b375949812b7a1c4bc6eddf927fd771b45761134fba77f5d36da6f28"
+      },
+      {
+        "key": "digital_alexandria_mythos_research",
+        "dest": "human/03-Knowledge/Research/digital-alexandria-mythos-research.md",
+        "dest_exists": true,
+        "source_exists": true,
+        "brief_exists": true,
+        "frontmatter_boundary_ok": true,
+        "title_frontmatter_ok": true,
+        "canonical_hash_matches_state": true,
+        "source_hash_matches_state": true,
+        "actual_canonical_hash": "sha256:245f30e004289e5b6ffeabc27edc0a3205212dd465f4c9e14e547c79c780674a",
+        "expected_canonical_hash": "sha256:245f30e004289e5b6ffeabc27edc0a3205212dd465f4c9e14e547c79c780674a",
+        "actual_source_hash": "sha256:3b1e8c482bb79bb36e12eb5fc714726d597cc51c6956456b36bffeb42ff2028b",
+        "expected_source_hash": "sha256:3b1e8c482bb79bb36e12eb5fc714726d597cc51c6956456b36bffeb42ff2028b"
+      }
+    ],
+    "indexes": [
+      {
+        "path": "human/05-Projects/plans/product-candidates/README.md",
+        "exists": true,
+        "links_checked": 4,
+        "missing_links": []
+      },
+      {
+        "path": "human/03-Knowledge/Research/README.md",
+        "exists": true,
+        "links_checked": 1,
+        "missing_links": []
+      },
+      {
+        "path": "human/03-Knowledge/Architecture/security/README.md",
+        "exists": true,
+        "links_checked": 1,
+        "missing_links": []
+      }
+    ],
+    "missing_raw_references_sample": [],
+    "all_promoted_destinations_exist": true,
+    "all_promoted_sources_exist": true,
+    "all_frontmatter_boundaries_ok": true,
+    "all_index_links_ok": true,
+    "all_state_hashes_match": true,
+    "missing_raw_reference_count_sampled": 0,
+    "structured_raw_references_checked": 103
+  },
+  "remaining_gates": [
+    "PROMETHEUS/owner decision before product candidates become active implementation plans.",
+    "ORACLE/source verification before speculative research becomes canonical knowledge.",
+    "Code-level verification before WARDEN/HADES/ARDA/AIPKG claims become architecture commitments.",
+    "Semantic deduplication and frontmatter validator hardening before fully automated promotion."
+  ]
+}

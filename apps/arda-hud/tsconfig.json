@@ -1,0 +1,56 @@
+{
+  "sigil": "REPAIR",
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": false,
+    "types": [
+      "node"
+    ],
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": false
+  },
+  "include": [
+    "src/main.tsx",
+    "src/App.tsx",
+    "src/vite-env.d.ts",
+    "src/lib/**/*",
+    "src/components/arda/**/*.tsx",
+    "src/components/kit/**/*.tsx",
+    "src/components/ui/**/*.tsx",
+    "src/components/hud/**/*.tsx",
+    "src/utils/**/*"
+  ],
+  "exclude": [
+    "src/test",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "src/components/hud",
+    "src/components/kit",
+    "src/components/ui",
+    "src/lib/avatarPersona.ts",
+    "src/lib/hudEventSchema.ts",
+    "src/lib/systemActionBus.ts",
+    "src/utils"
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
+}

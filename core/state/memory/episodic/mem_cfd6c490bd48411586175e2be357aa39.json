@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_cfd6c490bd48411586175e2be357aa39",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Canonicalize system audit run layout",
+  "salience": 0.6675000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-27T05:28:13.186783167Z",
+  "last_seen_at": "2026-05-27T05:28:13.186783167Z"
+}

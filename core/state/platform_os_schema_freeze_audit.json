@@ -1,0 +1,192 @@
+{
+  "conclusion": {
+    "formal_json_schema_files_required_followup": true,
+    "freeze_class": "projection_abi_evidence_freeze",
+    "schema_freeze_complete": true,
+    "summary": "The queue, federation, and runtime-state projection ABI is evidence-frozen to current generated surfaces and producer functions. Formal standalone JSON Schema files remain a follow-on hardening gate, not a blocker for S1/G2 closeout."
+  },
+  "generated_at_utc": "2026-06-21T03:43:15Z",
+  "open_contract_gaps": [
+    "No standalone JSON Schema files exist yet for queue_active, queue_hygiene, queue_federation, autonomy_task_truth, or queue_summary projections.",
+    "queue_hygiene expresses mutation safety via doctrine rather than a top-level mutation_policy field.",
+    "queue_summary uses shared annunimas.core.state.v1 instead of a queue-summary-specific schema and has no top-level mutation_policy."
+  ],
+  "producer_evidence": [
+    {
+      "functions": [
+        "write_queue_active_projection",
+        "write_queue_hygiene_projection",
+        "write_queue_federation_projection",
+        "export_autonomy_task_truth",
+        "write_compact_queue_summary_projection"
+      ],
+      "path": "crates/annunimas-cli/src/export_surface.rs"
+    },
+    {
+      "functions": [
+        "write_queue_summary_projection"
+      ],
+      "path": "crates/annunimas-prometheus/src/core_link/operations_flow.rs"
+    }
+  ],
+  "schema_version": "annunimas.platform-os-schema-freeze-audit.v1",
+  "scope": "platform_os_s1_core_freeze",
+  "source_plan": "core/projects/Plans/PLATFORM_OS.md",
+  "status": "schema_freeze_evidence_defined",
+  "surfaces": [
+    {
+      "authority": "queue_active_projection",
+      "exists": true,
+      "freeze_status": "projection_contract_frozen",
+      "mutation_policy": "read_only_latest_by_id_projection_no_queue_compaction",
+      "notes": "Schema, authority, and mutation policy are explicit in generated projection.",
+      "path": "core/state/queue_active.json",
+      "producer_code": "crates/annunimas-cli/src/export_surface.rs::write_queue_active_projection",
+      "required_top_level_fields": [
+        "schema_version",
+        "generated_at_utc",
+        "authority",
+        "source",
+        "mutation_policy",
+        "raw_ledger_rows_total",
+        "latest_task_ids_total",
+        "active_task_count",
+        "agent_reading_policy",
+        "tasks"
+      ],
+      "required_top_level_fields_missing": [],
+      "required_top_level_fields_present": [
+        "schema_version",
+        "generated_at_utc",
+        "authority",
+        "source",
+        "mutation_policy",
+        "raw_ledger_rows_total",
+        "latest_task_ids_total",
+        "active_task_count",
+        "agent_reading_policy",
+        "tasks"
+      ],
+      "schema_version": "annunimas.queue_active.v1"
+    },
+    {
+      "authority": "annunimas-cli export queue-hygiene",
+      "exists": true,
+      "freeze_status": "projection_contract_frozen_with_policy_gap",
+      "mutation_policy": null,
+      "notes": "No top-level mutation_policy; hygiene doctrine/summary reading policy are the effective contract.",
+      "path": "core/state/queue_hygiene.json",
+      "producer_code": "crates/annunimas-cli/src/export_surface.rs::write_queue_hygiene_projection",
+      "required_top_level_fields": [
+        "schema_version",
+        "generated_at_utc",
+        "authority",
+        "doctrine",
+        "metrics",
+        "stale_raw_queued_compact"
+      ],
+      "required_top_level_fields_missing": [],
+      "required_top_level_fields_present": [
+        "schema_version",
+        "generated_at_utc",
+        "authority",
+        "doctrine",
+        "metrics",
+        "stale_raw_queued_compact"
+      ],
+      "schema_version": "annunimas.queue-hygiene.v1"
+    },
+    {
+      "authority": "annunimas-cli export queue-federation",
+      "exists": true,
+      "freeze_status": "projection_contract_frozen",
+      "mutation_policy": "read_only_projection_no_task_queue_mutation",
+      "notes": "Schema, authority, and mutation policy are explicit in generated projection.",
+      "path": "core/state/queue_federation.json",
+      "producer_code": "crates/annunimas-cli/src/export_surface.rs::write_queue_federation_projection",
+      "required_top_level_fields": [
+        "schema_version",
+        "generated_at_utc",
+        "authority",
+        "mutation_policy",
+        "central_backlog",
+        "summary",
+        "sources"
+      ],
+      "required_top_level_fields_missing": [],
+      "required_top_level_fields_present": [
+        "schema_version",
+        "generated_at_utc",
+        "authority",
+        "mutation_policy",
+        "central_backlog",
+        "summary",
+        "sources"
+      ],
+      "schema_version": "annunimas.queue-federation.v1"
+    },
+    {
+      "authority": "annunimas-cli export autonomy-task-truth",
+      "exists": true,
+      "freeze_status": "projection_contract_frozen",
+      "mutation_policy": "read_only_reconciliation",
+      "notes": "Schema, authority, and mutation policy are explicit in generated projection.",
+      "path": "core/state/autonomy_task_truth.json",
+      "producer_code": "crates/annunimas-cli/src/export_surface.rs::export_autonomy_task_truth",
+      "required_top_level_fields": [
+        "schema_version",
+        "generated_at_utc",
+        "authority",
+        "mutation_policy",
+        "recommendation",
+        "sources"
+      ],
+      "required_top_level_fields_missing": [],
+      "required_top_level_fields_present": [
+        "schema_version",
+        "generated_at_utc",
+        "authority",
+        "mutation_policy",
+        "recommendation",
+        "sources"
+      ],
+      "schema_version": "annunimas.autonomy-task-truth.v1"
+    },
+    {
+      "authority": "queue_summary_projection",
+      "exists": true,
+      "freeze_status": "projection_contract_frozen_with_policy_gap",
+      "mutation_policy": null,
+      "notes": "No queue-specific schema or top-level mutation_policy; uses shared core-state schema and agent_reading_policy.",
+      "path": "core/state/queue_summary.json",
+      "producer_code": "crates/annunimas-cli/src/export_surface.rs::write_compact_queue_summary_projection; crates/annunimas-prometheus/src/core_link/operations_flow.rs::write_queue_summary_projection",
+      "required_top_level_fields": [
+        "schema_version",
+        "generated_at_utc",
+        "authority",
+        "agent_reading_policy",
+        "project_tasks",
+        "runtime_queue",
+        "arda_hints"
+      ],
+      "required_top_level_fields_missing": [],
+      "required_top_level_fields_present": [
+        "schema_version",
+        "generated_at_utc",
+        "authority",
+        "agent_reading_policy",
+        "project_tasks",
+        "runtime_queue",
+        "arda_hints"
+      ],
+      "schema_version": "annunimas.core.state.v1"
+    }
+  ],
+  "task_id": "tsk_20260619_s1_g2_freeze_queue_federation_and_runtime_state_",
+  "verification_plan": [
+    "Parse audited JSON surfaces and confirm schema_version/authority/mutation_policy or doctrine fields.",
+    "Confirm producer function names are present in Rust source.",
+    "Run append-only guard before and after same-id closeout.",
+    "Refresh compact queue projections after closeout."
+  ]
+}

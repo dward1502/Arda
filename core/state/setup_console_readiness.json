@@ -1,0 +1,88 @@
+{
+  "checks": [
+    {
+      "check_id": "AGENTS.md",
+      "evidence": [
+        "present: AGENTS.md"
+      ],
+      "recommendation": "Keep AGENTS.md current as setup instruction context.",
+      "severity": "high",
+      "status": "pass",
+      "title": "Agent/project operating instructions available"
+    },
+    {
+      "check_id": "ANNUNIMAS_ROOT_PROTOCOL.md",
+      "evidence": [
+        "present: ANNUNIMAS_ROOT_PROTOCOL.md"
+      ],
+      "recommendation": "Preserve root protocol pointer for new-machine onboarding.",
+      "severity": "high",
+      "status": "pass",
+      "title": "Root protocol available"
+    },
+    {
+      "check_id": "environment.surface",
+      "evidence": [
+        "present: core/state/environment_profile.schema.json",
+        "present: config/annunimas.template.toml"
+      ],
+      "recommendation": "Expose a setup-console path from the profile contract to local override templates.",
+      "severity": "medium",
+      "status": "pass",
+      "title": "Environment profile/template surface discoverable"
+    },
+    {
+      "check_id": "portability.receipt",
+      "evidence": [
+        "receipt: /var/home/mythos/Annunimas/audit/PORTABILITY_AUDIT_2026-05-24/summary.json"
+      ],
+      "recommendation": "Keep setup console read-only until portability findings are parameterized.",
+      "severity": "medium",
+      "status": "pass",
+      "title": "Portability/config hygiene findings classified"
+    },
+    {
+      "check_id": "endpoint.missing_gates",
+      "evidence": [
+        "missing: MANWE_BASE_URL",
+        "missing: HERMES_BASE_URL"
+      ],
+      "recommendation": "Populate missing endpoints before enabling service start helpers.",
+      "severity": "medium",
+      "status": "warn",
+      "title": "Service assumptions are explicit"
+    }
+  ],
+  "gate_status": "warn",
+  "generated_at_utc": "2026-06-05T22:42:33Z",
+  "mode": "read_only",
+  "mutation_policy": "receipts_only_no_source_config_or_service_rewrites",
+  "pass": [
+    "AGENTS.md",
+    "ANNUNIMAS_ROOT_PROTOCOL.md",
+    "environment.surface",
+    "portability.receipt"
+  ],
+  "portability_status": {
+    "active_blocker_findings": 0,
+    "findings_total": 8238,
+    "label": "zero active portability blockers",
+    "source": "/var/home/mythos/Annunimas/audit/PORTABILITY_AUDIT_2026-05-24/summary.json",
+    "status": "pass"
+  },
+  "runner": "annunimas-onboarding",
+  "runtime": {
+    "cwd": "/var/home/mythos/Annunimas",
+    "host": "annunimas-core",
+    "platform": "linux",
+    "repo_root": "/var/home/mythos/Annunimas"
+  },
+  "schema_version": 1,
+  "summary": {
+    "pass": 4,
+    "warn": 1
+  },
+  "warn": [
+    "endpoint.missing_gates"
+  ]
+}

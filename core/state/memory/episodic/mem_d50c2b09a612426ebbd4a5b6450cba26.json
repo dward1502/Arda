@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_d50c2b09a612426ebbd4a5b6450cba26",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Create task for 2026-05-30-hermes-discord-gateway-unification-plan.md",
+  "salience": 0.6825,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-05T07:29:16.787352014Z",
+  "last_seen_at": "2026-06-05T07:29:16.787352014Z"
+}

@@ -1,0 +1,37 @@
+:root {
+  --bg: #050508;
+  --bg-deep: #090b12;
+  --surface: rgba(9, 14, 24, 0.74);
+  --surface-strong: rgba(13, 18, 30, 0.92);
+  --line: rgba(0, 212, 255, 0.12);
+  --line-strong: rgba(0, 212, 255, 0.26);
+  --text: #ecf4ff;
+  --text-muted: #8fa6c0;
+  --accent: #00d4ff;
+  --accent-soft: rgba(0, 212, 255, 0.12);
+  --accent-secondary: #ff6b35;
+  --accent-tertiary: #c724ff;
+  --success: #39ff14;
+  --warning: #ffb347;
+  --danger: #ff3366;
+  --shadow: 0 1.5rem 3.375rem rgba(0, 0, 0, 0.28);
+  --title-font: "Orbitron", "Space Grotesk", "Sora", sans-serif;
+  --body-font: "IBM Plex Sans", "Inter", sans-serif;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-7: 1.75rem;
+  --space-8: 2rem;
+  --radius-sm: 0.75rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.5rem;
+  --radius-xl: 1.75rem;
+  --radius-pill: 999rem;
+  --scene-height: 47rem;
+  --sidebar-width: 17.5rem;
+  --panel-width: 13.75rem;
+  --hotspot-width: 10.625rem;
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_91978a23655143d483f53760c2c719ff",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: S3/G3 extract RELIC/Kiosk surfaces as a private consumer of the core API. S3/G3 RELIC/Kiosk external private-consumer extraction completed: moved former in-tree RELIC app to /var/home/mythos/Eregion/relic-kiosk; external npm run validate passed with 3 tests; forbidden/stale external payload scan clean; active source/doc stale apps/RELIC scan clean excluding generated/historical state; scoped git diff check passed; no CITADEL Pi deployment or private data copy.",
+  "salience": 0.8779444444444444,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-22T01:29:41.349156499Z",
+  "last_seen_at": "2026-06-22T01:29:41.349156499Z"
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_f9e0bb170e2a455187a7d7d745de0f45",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA HUD remote confidence in-scene local indicator",
+  "salience": 0.8045000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-31T02:59:24.532469435Z",
+  "last_seen_at": "2026-05-31T02:59:24.532469435Z"
+}

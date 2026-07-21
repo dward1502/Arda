@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_23710e3d55a640a1b74aa49ca7dbfc51",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Update RELIC embodied roadmap docs",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-28T23:26:29.186592402Z",
+  "last_seen_at": "2026-05-28T23:26:29.186592402Z"
+}

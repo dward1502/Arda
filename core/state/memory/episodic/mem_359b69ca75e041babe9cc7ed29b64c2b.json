@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_359b69ca75e041babe9cc7ed29b64c2b",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Gate 3.5 ARDA presence contract review packet complete",
+  "salience": 0.9025000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-18T19:04:50.915890369Z",
+  "last_seen_at": "2026-05-18T19:04:50.915890369Z"
+}

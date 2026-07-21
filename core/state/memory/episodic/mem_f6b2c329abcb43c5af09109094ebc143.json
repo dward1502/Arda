@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_f6b2c329abcb43c5af09109094ebc143",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Hermes Discord work-stream command surface implemented. Implemented work-stream semantic channel, retired CITADEL slash commands from main Discord bot, added read-only /plans /tasks /review /council surfaces, and defined Arandur/Prometheus/Counsel-or-Oracle council command seats. Evidence: crates/annunimas-hermes/src/service/semantic_channel.rs; crates/annunimas-hermes/src/serenity_bot.rs; crates/annunimas-hermes/src/service/council.rs; crates/annunimas-hermes/src/types.rs. Verification: cargo fmt --check -p annunimas-hermes; cargo test -p annunimas-hermes -- --test-threads=1.",
+  "salience": 0.7805,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-30T17:44:47.048812808Z",
+  "last_seen_at": "2026-05-30T17:44:47.048812808Z"
+}

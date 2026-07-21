@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_562ed6c122ee4fb8995e9dee0e58beb7",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA source export action contract",
+  "salience": 0.8225000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T07:57:13.159746560Z",
+  "last_seen_at": "2026-06-01T07:57:13.159746560Z"
+}

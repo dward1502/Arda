@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_df02b0f81ce5482ca4df9686610725e4",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Bounded Prometheus knowledge triage fixture portability remediation",
+  "salience": 0.6667222222222222,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-25T02:36:40.119369757Z",
+  "last_seen_at": "2026-05-25T02:36:40.119369757Z"
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_000241db81e64f65a738878553ad941c",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Queue: AGENT_FRAMEWORK_COMPARATIVE plan review. Reviewed AGENT_FRAMEWORK_COMPARATIVE plan. Core contract surface core/state/agent_framework_alignment.json exists. Human narrative human/plans/AGENT_FRAMEWORK_COMPARATIVE.md not found — will create in follow-up task. Current workspace aligns with contract: frameworks are reference inputs, patterns may become sovereign contracts or extension crates, misaligned assumptions recorded and rejected.",
+  "salience": 0.8845000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-20T23:24:08.356248788Z",
+  "last_seen_at": "2026-06-20T23:24:08.356248788Z"
+}

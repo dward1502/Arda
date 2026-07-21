@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_234213f4c3b04f5cb8d9ab94ca4ff14a",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Create task for shared-device-projection-contract.md",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-05T07:16:22.133183190Z",
+  "last_seen_at": "2026-06-05T07:16:22.133183190Z"
+}

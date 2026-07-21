@@ -1,0 +1,102 @@
+{
+  "authority": "edge_model_rollout_probe",
+  "generated_at_utc": "2026-04-22T21:25:03Z",
+  "probe_status": "ok",
+  "schema_version": "annunimas.edge-model-rollout.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "targets_active_total": 0,
+    "targets_complete_total": 0,
+    "targets_probe_blocked_total": 0,
+    "targets_total": 3
+  },
+  "targets": [
+    {
+      "active_pull": false,
+      "completion_percent": 0.0,
+      "log_error": "# Tailscale SSH requires an additional check.\n# To authenticate, visit: https://login.tailscale.com/a/lc4e000d323fdb\ntailscale: failed to fetch next SSH action\nConnection closed by 100.103.125.88 port 22",
+      "log_tail": [],
+      "models": [
+        {
+          "error": "# Tailscale SSH requires an additional check.\n# To authenticate, visit: https://login.tailscale.com/a/l162b1deb326105\ntailscale: failed to fetch next SSH action\nConnection closed by 100.103.125.88 port 22",
+          "model_artifact": "Qwen3-8B-Q4_K_M.gguf",
+          "partial_bytes": null,
+          "partial_path": null,
+          "path": null,
+          "present": false
+        },
+        {
+          "error": "# Tailscale SSH requires an additional check.\n# To authenticate, visit: https://login.tailscale.com/a/l171bd703329256\ntailscale: failed to fetch next SSH action\nConnection closed by 100.103.125.88 port 22",
+          "model_artifact": "Qwen3-8B-Q5_K_M.gguf",
+          "partial_bytes": null,
+          "partial_path": null,
+          "path": null,
+          "present": false
+        }
+      ],
+      "models_completed": 0,
+      "models_total": 2,
+      "probe_status": "ok",
+      "ssh_target": "citadel@100.103.125.88",
+      "target_id": "node-ser9-worker"
+    },
+    {
+      "active_pull": false,
+      "completion_percent": 0.0,
+      "log_error": "ssh: connect to host 100.118.123.88 port 22: Connection timed out",
+      "log_tail": [],
+      "models": [
+        {
+          "error": "ssh: connect to host 100.118.123.88 port 22: Network is unreachable",
+          "model_artifact": "Qwen3-8B-Q4_K_M.gguf",
+          "partial_bytes": null,
+          "partial_path": null,
+          "path": null,
+          "present": false
+        },
+        {
+          "error": "ssh: connect to host 100.118.123.88 port 22: Network is unreachable",
+          "model_artifact": "Devstral-Small-2507-Q4_K_M.gguf",
+          "partial_bytes": null,
+          "partial_path": null,
+          "path": null,
+          "present": false
+        },
+        {
+          "error": "ssh: connect to host 100.118.123.88 port 22: Network is unreachable",
+          "model_artifact": "Qwen3-30B-A3B-Q4_K_M.gguf",
+          "partial_bytes": null,
+          "partial_path": null,
+          "path": null,
+          "present": false
+        }
+      ],
+      "models_completed": 0,
+      "models_total": 3,
+      "probe_status": "ok",
+      "ssh_target": "annunimasserver@100.118.123.88",
+      "target_id": "node-backbone-server-01"
+    },
+    {
+      "active_pull": false,
+      "completion_percent": 0.0,
+      "log_error": "numenor@100.110.85.37: Permission denied (publickey,password).",
+      "log_tail": [],
+      "models": [
+        {
+          "error": "numenor@100.110.85.37: Permission denied (publickey,password).",
+          "model_artifact": "qwen2.5-coder:3b",
+          "partial_bytes": null,
+          "partial_path": null,
+          "path": null,
+          "present": false
+        }
+      ],
+      "models_completed": 0,
+      "models_total": 1,
+      "probe_status": "ok",
+      "ssh_target": "numenor@100.110.85.37",
+      "target_id": "node-pi5-warden"
+    }
+  ]
+}

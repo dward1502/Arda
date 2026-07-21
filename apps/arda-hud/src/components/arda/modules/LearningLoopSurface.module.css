@@ -1,0 +1,183 @@
+
+/* Learning Loop Surface Styles */
+.arda-learning-loop-surface {
+  background: var(--arda-surface-bg);
+  border-radius: var(--arda-radius);
+  padding: var(--arda-spacing-4);
+  margin-bottom: var(--arda-spacing-4);
+  border: 1px solid var(--arda-border);
+}
+
+.operator-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--arda-spacing-3);
+  padding-bottom: var(--arda-spacing-2);
+  border-bottom: 1px solid var(--arda-border);
+}
+
+.operator-header h2 {
+  margin: 0;
+  font-size: var(--arda-font-size-lg);
+  color: var(--arda-text-primary);
+}
+
+.status-badge {
+  padding: var(--arda-spacing-1) var(--arda-spacing-2);
+  border-radius: var(--arda-radius-sm);
+  font-size: var(--arda-font-size-xs);
+  font-weight: var(--arda-font-weight-medium);
+  text-transform: uppercase;
+}
+
+.status-badge.active {
+  background: var(--arda-status-active-bg);
+  color: var(--arda-status-active-text);
+}
+
+.status-badge.blocked {
+  background: var(--arda-status-blocked-bg);
+  color: var(--arda-status-blocked-text);
+}
+
+.status-badge.completed {
+  background: var(--arda-status-completed-bg);
+  color: var(--arda-status-completed-text);
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--arda-spacing-2);
+  margin-bottom: var(--arda-spacing-3);
+}
+
+.metric-card {
+  background: var(--arda-surface-subtle);
+  padding: var(--arda-spacing-2);
+  border-radius: var(--arda-radius-sm);
+  text-align: center;
+}
+
+.metric-label {
+  display: block;
+  font-size: var(--arda-font-size-xs);
+  color: var(--arda-text-secondary);
+  margin-bottom: var(--arda-spacing-1);
+}
+
+.metric-value {
+  font-size: var(--arda-font-size-xl);
+  font-weight: var(--arda-font-weight-bold);
+  color: var(--arda-text-primary);
+}
+
+.blockers-section {
+  background: var(--arda-surface-warning);
+  padding: var(--arda-spacing-3);
+  border-radius: var(--arda-radius);
+  margin-bottom: var(--arda-spacing-3);
+}
+
+.blockers-section h3 {
+  margin-top: 0;
+  color: var(--arda-text-warning);
+}
+
+.blockers-section ul {
+  margin: var(--arda-spacing-2) 0;
+  padding-left: var(--arda-spacing-3);
+}
+
+.deltas-section, .proposals-section {
+  margin-bottom: var(--arda-spacing-3);
+}
+
+.deltas-section h3, .proposals-section h3 {
+  margin-top: 0;
+  margin-bottom: var(--arda-spacing-2);
+  color: var(--arda-text-primary);
+}
+
+.delta-card, .proposal-card {
+  background: var(--arda-surface-subtle);
+  padding: var(--arda-spacing-2);
+  border-radius: var(--arda-radius-sm);
+  margin-bottom: var(--arda-spacing-2);
+}
+
+.delta-header, .proposal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--arda-spacing-1);
+}
+
+.delta-id, .delta-confidence {
+  font-size: var(--arda-font-size-xs);
+  color: var(--arda-text-secondary);
+}
+
+.delta-content, .proposal-card p {
+  margin: var(--arda-spacing-1) 0;
+  color: var(--arda-text-primary);
+}
+
+.delta-source {
+  font-size: var(--arda-font-size-xs);
+  color: var(--arda-text-tertiary);
+}
+
+.proposal-header h4 {
+  margin: 0;
+  font-size: var(--arda-font-size-sm);
+}
+
+.proposal-risk {
+  padding: var(--arda-spacing-1) var(--arda-spacing-2);
+  border-radius: var(--arda-radius-sm);
+  font-size: var(--arda-font-size-xs);
+  font-weight: var(--arda-font-weight-medium);
+  text-transform: uppercase;
+}
+
+.proposal-risk.high {
+  background: var(--arda-status-blocked-bg);
+  color: var(--arda-status-blocked-text);
+}
+
+.proposal-risk.medium {
+  background: var(--arda-status-warning-bg);
+  color: var(--arda-status-warning-text);
+}
+
+.proposal-risk.low {
+  background: var(--arda-status-active-bg);
+  color: var(--arda-status-active-text);
+}
+
+.proposal-meta {
+  display: flex;
+  gap: var(--arda-spacing-2);
+  font-size: var(--arda-font-size-xs);
+  color: var(--arda-text-secondary);
+  margin-top: var(--arda-spacing-1);
+}
+
+.next-action {
+  background: var(--arda-surface-subtle);
+  padding: var(--arda-spacing-3);
+  border-radius: var(--arda-radius);
+  text-align: center;
+}
+
+.next-action h3 {
+  margin-top: 0;
+  margin-bottom: var(--arda-spacing-2);
+}
+
+.next-action p {
+  margin: 0;
+  font-weight: var(--arda-font-weight-medium);
+}

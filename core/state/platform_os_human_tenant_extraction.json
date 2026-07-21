@@ -1,0 +1,26 @@
+{
+  "schema_version": "annunimas.platform_os_human_tenant_extraction.v1",
+  "task_id": "tsk_20260619_s2_g1_migrate_annunimas_human_into_a_private_sec",
+  "status": "tenant_copy_created_workspace_member_retained",
+  "tenant_path": "/var/home/mythos/Eregion/annunimas-human-tenant",
+  "source_crate": "crates/annunimas-human",
+  "mutation_policy": "external_private_tenant_copy_no_live_human_vault_data_no_workspace_removal",
+  "copied_surfaces": [
+    "Cargo.toml",
+    "README.md",
+    "INDEX.md",
+    "src/lib.rs",
+    "tests/target_local.rs",
+    "docs/human-knowledge-ingestion-contract.md",
+    "docs/migration-notes.md",
+    "fixtures/vault-basic/Main.md",
+    "fixtures/vault-basic/Known.md"
+  ],
+  "non_actions": [
+    "did_not_copy_human_vault",
+    "did_not_copy_data_athena_human_ingestion_results",
+    "did_not_remove_annunimas_human_workspace_member",
+    "did_not_push_or_create_remote_repository"
+  ],
+  "compatibility_hold": "Keep Annunimas workspace member until downstream dependency path/remote seam is verified."
+}

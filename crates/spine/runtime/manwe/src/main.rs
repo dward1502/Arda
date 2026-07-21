@@ -1,0 +1,271 @@
+#![allow(path_statements)]
+//! `manwe` — single local OpenAI-compatible inference gateway.
+//!
+//! Default: listens on `127.0.0.1:7171` and serves `/v1/chat/completions`
+//! + `/v1/models` against a static provider catalog. When `MANWE_ROUTING_MODE=adaptive`
+//! or `--adaptive` is set, requests may flow through the routing adapter.
+
+mod config;
+mod grpc;
+mod provider;
+
+use std::net::SocketAddr;
+use std::path::PathBuf;
+use std::sync::Arc;
+
+use axum::{
+    extract::State,
+    http::{header, StatusCode},
+    response::{IntoResponse, Response},
+    routing::{get, post},
+    Json, Router,
+};
+use clap::Parser;
+use serde_json::{json, Value};
+
+use config::ManweConfig;
+use manwe::routing_adapter::AdaptiveRoutingAdapter;
+use provider::ProviderCatalog;
+
+#[derive(Parser, Debug)]
+#[command(
+    name = "manwe",
+    version,
+    about = "Local OpenAI-compat inference gateway"
+)]
+struct Cli {
+    #[arg(long)]
+    port: Option<u16>,
+    #[arg(long)]
+    bind: Option<String>,
+    #[arg(long, default_value = "manwe.toml")]
+    config: PathBuf,
+    #[arg(long)]
+    adaptive: bool,
+    #[arg(long)]
+    grpc: bool,
+}
+
+#[derive(Clone)]
+struct AppState {
+    config: Arc<ManweConfig>,
+    client: reqwest::Client,
+    adapter: Arc<AdaptiveRoutingAdapter>,
+    adaptive: bool,
+    catalog: ProviderCatalog,
+}
+
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into()),
+        )
+        .init();
+
+    let cli = Cli::parse();
+    let mut cfg = ManweConfig::load(&cli.config);
+    if let Some(p) = cli.port {
+        cfg.port = p;
+    }
+    if let Some(b) = cli.bind {
+        cfg.bind = b;
+    }
+
+    let adaptive = cli.adaptive
+        || std::env::var("MANWE_ROUTING_MODE")
+            .ok()
+            .as_deref()
+            .map(|v| v.eq_ignore_ascii_case("adaptive"))
+            .unwrap_or(false);
+
+    let fleet_path = PathBuf::from("config/fleet.toml");
+    let catalog = ProviderCatalog::default_bootstrap();
+
+    let state = AppState {
+        config: Arc::new(cfg.clone()),
+        client: reqwest::Client::new(),
+        adapter: Arc::new(AdaptiveRoutingAdapter::new()),
+        adaptive,
+        catalog,
+    };
+
+    let bind = cfg.bind.clone();
+    let port = cfg.port;
+
+    let addr: SocketAddr = format!("{}:{}", bind, port)
+        .parse()
+        .map_err(|e| anyhow::anyhow!("invalid bind/port: {e}"))?;
+    let listener = tokio::net::TcpListener::bind(addr).await?;
+    let bound = listener.local_addr()?;
+    tracing::info!(
+        "manwe: gateway listening on {} ({} config providers, {} fleet providers, adaptive={})",
+        bound,
+        cfg.providers.len(),
+        state.catalog.len(),
+        adaptive
+    );
+
+    if cli.grpc {
+        let http_state = state.clone();
+        let grpc_state = grpc::GrpcState {
+            config: state.config.clone(),
+            client: state.client.clone(),
+        };
+        let http_handle = tokio::spawn(async move {
+            if let Err(e) = run_http(http_state).await {
+                tracing::error!("manwe http exited: {e}");
+            }
+        });
+        let grpc_handle = tokio::spawn(async move {
+            if let Err(e) = grpc::serve_grpc(grpc_state).await {
+                tracing::error!("manwe grpc exited: {e}");
+            }
+        });
+        let _ = tokio::join!(http_handle, grpc_handle);
+    } else {
+        run_http(state).await?;
+    }
+    Ok(())
+}
+
+async fn run_http(state: AppState) -> anyhow::Result<()> {
+    let adaptive = state.adaptive;
+    let cfg = state.config.clone();
+    let _app: Router = Router::new()
+        .route("/healthz", get(healthz))
+        .route("/v1/models", get(list_models))
+        .route("/v1/chat/completions", post(chat_completions))
+        .route("/v1/capabilities", get(manifest_capabilities))
+        .with_state(state);
+
+    let addr: SocketAddr = format!("{}:{}", cfg.bind, cfg.port)
+        .parse()
+        .map_err(|e| anyhow::anyhow!("invalid bind/port: {e}"))?;
+    let listener = tokio::net::TcpListener::bind(addr).await?;
+    let bound = listener.local_addr()?;
+    tracing::info!(
+        "manwe http: listening on {} (providers={}, adaptive={})",
+        bound,
+        cfg.providers.len(),
+        adaptive
+    );
+    axum::serve(listener, _app).await?;
+    Ok(())
+}
+
+async fn healthz() -> Response {
+    Json(json!({
+        "status": "ok",
+        "fleet_providers": 0,
+    }))
+    .into_response()
+}
+
+async fn manifest_capabilities(State(state): State<AppState>) -> Response {
+    let mode = if state.adaptive { "adaptive" } else { "static" };
+    let configured = state.config.providers.len();
+    let fleet_providers = state.catalog.len();
+    let healthy = if state.adaptive {
+        0
+    } else if fleet_providers == 0 {
+        configured
+    } else {
+        fleet_providers
+    };
+    Json(json!({
+        "mode": mode,
+        "adaptive_routing": state.adaptive,
+        "governance": false,
+        "quota_mesh": false,
+        "configured_providers": configured,
+        "healthy_providers": healthy,
+        "fleet_providers": fleet_providers,
+    }))
+    .into_response()
+}
+
+async fn list_models(State(state): State<AppState>) -> Response {
+    let created = chrono::Utc::now().timestamp();
+    let source = if state.catalog.is_empty() {
+        state.config.providers.as_slice()
+    } else {
+        state.catalog.iter().map(|(_, p)| p).collect::<Vec<_>>()
+    };
+
+    let mut data: Vec<Value> = Vec::new();
+    for p in source {
+        let models = if p.models.is_empty() {
+            vec!["default".to_string()]
+        } else {
+            p.models.clone()
+        };
+        for m in models {
+            data.push(json!({
+                "id": m,
+                "object": "model",
+                "created": created,
+                "owned_by": "manwe",
+            }));
+        }
+    }
+    Json(json!({ "object": "list", "data": data })).into_response()
+}
+
+async fn chat_completions(State(state): State<AppState>, Json(req): Json<Value>) -> Response {
+    if state.adaptive {
+        match state.adapter.route_chat_completions(req.clone()) {
+            Ok(adapted) => return fallback_static(state.config, state.client, adapted).await,
+            Err(_) => {}
+        }
+    }
+
+    fallback_static(state.config, state.client, req).await
+}
+
+async fn fallback_static(
+    config: Arc<ManweConfig>,
+    client: reqwest::Client,
+    req: Value,
+) -> Response {
+    let Some(model) = req.get("model").and_then(|v| v.as_str()) else {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(json!({ "error": { "message": "missing model", "type": "manwe_error" } })),
+        )
+            .into_response();
+    };
+
+    let Some((_, prov)) = config.resolve_provider(model) else {
+        return (
+            StatusCode::SERVICE_UNAVAILABLE,
+            Json(json!({ "error": { "message": "manwe: no providers configured", "type": "manwe_error" } })),
+        )
+            .into_response();
+    };
+
+    let upstream = format!("{}/chat/completions", prov.base_url.trim_end_matches('/'));
+    let mut request = client.post(&upstream).json(&req);
+    if let Some(key) = &prov.api_key {
+        request = request.header(header::AUTHORIZATION, format!("Bearer {key}"));
+    }
+
+    match request.send().await {
+        Ok(resp) => {
+            let status = resp.status();
+            match resp.json::<Value>().await {
+                Ok(v) => (status, Json(v)).into_response(),
+                Err(_) => (
+                    StatusCode::BAD_GATEWAY,
+                    Json(json!({ "error": { "message": "manwe: upstream returned non-JSON", "type": "manwe_error" } })),
+                )
+                    .into_response(),
+            }
+        }
+        Err(_) => (
+            StatusCode::BAD_GATEWAY,
+            Json(json!({ "error": { "message": "manwe: upstream unreachable", "type": "manwe_error" } })),
+        )
+            .into_response(),
+    }
+}

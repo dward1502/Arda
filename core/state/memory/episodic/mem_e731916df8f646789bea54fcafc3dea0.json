@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_e731916df8f646789bea54fcafc3dea0",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: HADES organization remediation for recent audit run directories",
+  "salience": 0.6919444444444445,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-06T09:17:20.516850578Z",
+  "last_seen_at": "2026-06-06T09:17:20.516850578Z"
+}

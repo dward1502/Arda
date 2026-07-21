@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_31b82713773a4c08b81571dc84d5126d",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Remote confidence ARDA runtime publisher implemented. Implemented utility remote-confidence-publish safe-local publisher for core/state/remote_confidence_snapshot.json. Contract test proves only intended local state file is written; no external messages, service restarts, or credential changes. Validation: cargo test -p annunimas-cli remote_confidence; cargo test -p annunimas-cli; parsed publisher report and generated snapshot.",
+  "salience": 0.8075,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-31T00:35:48.487847911Z",
+  "last_seen_at": "2026-05-31T00:35:48.487847911Z"
+}

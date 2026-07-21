@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_fdf0d8186c2f4d94ae0ceec5a303e7c2",
+  "kind": "episodic",
+  "agent": "illuvatar",
+  "content": "Phase 1 step 9 dual-write smoke test",
+  "salience": 0.7535,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-04T03:24:34.565249649Z",
+  "last_seen_at": "2026-05-04T03:24:34.565249649Z"
+}

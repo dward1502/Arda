@@ -1,0 +1,30 @@
+# sigil: SCROLL
+
+[defaults]
+transport = "ssh"
+hermes_bin = "hermes"
+remote_cwd = "~"
+# Optional: set `toolsets` only when you intentionally want to constrain Hermes Agent.
+# If omitted, the bridge does not pass `--toolsets`, so Hermes Agent uses its own
+# current config/default tool registry instead of an Annunimas-side allowlist.
+provider = "custom"
+base_url = "http://100.78.138.113:5110/v1"
+api_key = "no-key-required"
+model = "auto"
+timeout_seconds = 180
+
+[node.node-backbone-server]
+enabled = true
+target_id = "node-backbone-server-01"
+remote_cwd = "/var/home/annunimasserver/hermes-agent"
+hermes_bin = "/var/home/annunimasserver/hermes-agent/.venv/bin/hermes"
+purpose = "Backbone node running Hermes Agent over SSH, pinned to Manwe's canonical OpenAI-compatible endpoint. Alias reconciles Flywheel target_node records to the current edge target node-backbone-server-01."
+
+[node.node-ser9-worker]
+enabled = true
+host = "100.103.125.88"
+ssh_user = "citadel"
+remote_cwd = "~"
+hermes_bin = "hermes"
+provider = "custom"
+purpose = "SER9 sovereign worker running Hermes Agent over SSH, pinned to Manwe's canonical OpenAI-compatible endpoint."

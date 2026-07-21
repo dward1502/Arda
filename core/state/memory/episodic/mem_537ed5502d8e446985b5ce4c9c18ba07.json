@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_537ed5502d8e446985b5ce4c9c18ba07",
+  "kind": "episodic",
+  "agent": "charon",
+  "content": "CHARON routed athena:research [planning:context_heavy] -> cerebras:qwen-3-235b-a22b-instruct-2507 triad_passed=false love_eq=0.74",
+  "salience": 0.43349999999999994,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T03:12:09.783064488Z",
+  "last_seen_at": "2026-06-01T03:12:09.783064488Z"
+}

@@ -1,0 +1,4051 @@
+{
+  "apply_candidates": [],
+  "contract": "annunimas.hades.lifecycle_review.v1",
+  "families": [
+    {
+      "apply_eligible": false,
+      "bytes": 92973400,
+      "disposition": "index_and_compact_review",
+      "family": "audit.WARDEN_QUEUE_TRIAGE_2026-05-19.operator_review_packet",
+      "files": 47,
+      "ignored_files": 0,
+      "largest_files": [
+        {
+          "bytes": 19485694,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/clear_delete_cleanup_live_20260519T212223Z/review_packet_command_output.json",
+          "tracked": true
+        },
+        {
+          "bytes": 19485693,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/clear_delete_cleanup_live_20260519T212223Z/warden_hades_operator_review_packet.json",
+          "tracked": true
+        },
+        {
+          "bytes": 19441425,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/warden_hades_operator_review_packet.json",
+          "tracked": true
+        },
+        {
+          "bytes": 14305117,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/clear_delete_cleanup_live_20260519T212223Z/warden_hades_operator_review_queue.jsonl",
+          "tracked": true
+        },
+        {
+          "bytes": 14272898,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/warden_hades_operator_review_queue.jsonl",
+          "tracked": true
+        },
+        {
+          "bytes": 5623016,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/clear_delete_cleanup_live_20260519T212223Z/informant_queue_approved_archive_20260519T212223Z.jsonl",
+          "tracked": true
+        },
+        {
+          "bytes": 95765,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/review_packet_command_output.json",
+          "tracked": true
+        },
+        {
+          "bytes": 95764,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/warden_hades_operator_review_packet.json",
+          "tracked": true
+        },
+        {
+          "bytes": 69419,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/warden_hades_operator_review_queue.jsonl",
+          "tracked": true
+        },
+        {
+          "bytes": 4690,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/final_apply_approval_command_output.json",
+          "tracked": true
+        },
+        {
+          "bytes": 4689,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/warden_hades_final_apply_approval_packet_archive_after_approval.json",
+          "tracked": true
+        },
+        {
+          "bytes": 4393,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/warden_hades_final_apply_approval_packet_archive_after_approval.json",
+          "tracked": true
+        },
+        {
+          "bytes": 4225,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/mutation_plan_receipt_command_output.json",
+          "tracked": true
+        },
+        {
+          "bytes": 4224,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/warden_hades_mutation_plan_receipt_archive_after_approval.json",
+          "tracked": true
+        },
+        {
+          "bytes": 3981,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/warden_hades_mutation_plan_receipt_archive_after_approval.json",
+          "tracked": true
+        },
+        {
+          "bytes": 3878,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/dry_run_receipt_command_output.json",
+          "tracked": true
+        },
+        {
+          "bytes": 3877,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/warden_hades_dry_run_receipt_retain_acknowledgement.json",
+          "tracked": true
+        },
+        {
+          "bytes": 3837,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/mutation_approval_command_output.json",
+          "tracked": true
+        },
+        {
+          "bytes": 3836,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/warden_hades_operator_signed_mutation_approval_packet.json",
+          "tracked": true
+        },
+        {
+          "bytes": 3701,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/warden_hades_dry_run_receipt_retain_acknowledgement.json",
+          "tracked": true
+        }
+      ],
+      "members": [
+        {
+          "bytes": 1288,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/INDEX.md",
+          "reference_check": {
+            "hit_count": 8,
+            "sample_hits": [
+              "apps/README.md",
+              "apps/arda-hud/public/README.md",
+              "apps/arda-hud/public/ops/README.md",
+              "apps/arda-hud/scripts/README.md",
+              "apps/arda-hud/src-tauri/README.md",
+              "apps/arda-hud/src-tauri/capabilities/README.md",
+              "apps/arda-hud/src-tauri/icons/README.md",
+              "apps/arda-hud/src-tauri/src/README.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 468,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/README.md",
+          "reference_check": {
+            "hit_count": 8,
+            "sample_hits": [
+              "apps/INDEX.md",
+              "apps/RELIC/INDEX.md",
+              "apps/arda-hud/ARDA_OPERATING_SURFACE_PLAN_2026-05-27.md",
+              "apps/arda-hud/INDEX.md",
+              "apps/arda-hud/RUNTIME.md",
+              "apps/arda-hud/public/INDEX.md",
+              "apps/arda-hud/public/ops/INDEX.md",
+              "apps/arda-hud/scripts/INDEX.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 678,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/WARDEN_HADES_OPERATOR_REVIEW_PACKET.md",
+          "reference_check": {
+            "hit_count": 1,
+            "sample_hits": [
+              "crates/annunimas-hades/src/service/lifecycle_audit.rs"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 830,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/clear_delete_cleanup_live_20260519T212223Z/INDEX.md",
+          "reference_check": {
+            "hit_count": 8,
+            "sample_hits": [
+              "apps/README.md",
+              "apps/arda-hud/public/README.md",
+              "apps/arda-hud/public/ops/README.md",
+              "apps/arda-hud/scripts/README.md",
+              "apps/arda-hud/src-tauri/README.md",
+              "apps/arda-hud/src-tauri/capabilities/README.md",
+              "apps/arda-hud/src-tauri/icons/README.md",
+              "apps/arda-hud/src-tauri/src/README.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 531,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/clear_delete_cleanup_live_20260519T212223Z/README.md",
+          "reference_check": {
+            "hit_count": 8,
+            "sample_hits": [
+              "apps/INDEX.md",
+              "apps/RELIC/INDEX.md",
+              "apps/arda-hud/ARDA_OPERATING_SURFACE_PLAN_2026-05-27.md",
+              "apps/arda-hud/INDEX.md",
+              "apps/arda-hud/RUNTIME.md",
+              "apps/arda-hud/public/INDEX.md",
+              "apps/arda-hud/public/ops/INDEX.md",
+              "apps/arda-hud/scripts/INDEX.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 419,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/clear_delete_cleanup_live_20260519T212223Z/WARDEN_HADES_OPERATOR_REVIEW_PACKET.md",
+          "reference_check": {
+            "hit_count": 1,
+            "sample_hits": [
+              "crates/annunimas-hades/src/service/lifecycle_audit.rs"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 5623016,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/clear_delete_cleanup_live_20260519T212223Z/informant_queue_approved_archive_20260519T212223Z.jsonl",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 2283,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/clear_delete_cleanup_live_20260519T212223Z/operator_approval_clear_delete_cleanup_manifest.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 1185,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/clear_delete_cleanup_live_20260519T212223Z/operator_approved_clear_execution_report.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 19485694,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/clear_delete_cleanup_live_20260519T212223Z/review_packet_command_output.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 573,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/clear_delete_cleanup_live_20260519T212223Z/rollback_restore_informant_queue_from_archive.md",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 19485693,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/clear_delete_cleanup_live_20260519T212223Z/warden_hades_operator_review_packet.json",
+          "reference_check": {
+            "hit_count": 2,
+            "sample_hits": [
+              "crates/annunimas-cli/src/main.rs",
+              "crates/annunimas-hades/src/service/lifecycle_audit.rs"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 14305117,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/clear_delete_cleanup_live_20260519T212223Z/warden_hades_operator_review_queue.jsonl",
+          "reference_check": {
+            "hit_count": 1,
+            "sample_hits": [
+              "crates/annunimas-hades/src/service/lifecycle_audit.rs"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 1009,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/clear_delete_cleanup_live_20260519T212223Z/warden_security_enforcement_after_clear.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 1307,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/INDEX.md",
+          "reference_check": {
+            "hit_count": 8,
+            "sample_hits": [
+              "apps/README.md",
+              "apps/arda-hud/public/README.md",
+              "apps/arda-hud/public/ops/README.md",
+              "apps/arda-hud/scripts/README.md",
+              "apps/arda-hud/src-tauri/README.md",
+              "apps/arda-hud/src-tauri/capabilities/README.md",
+              "apps/arda-hud/src-tauri/icons/README.md",
+              "apps/arda-hud/src-tauri/src/README.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 533,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/README.md",
+          "reference_check": {
+            "hit_count": 8,
+            "sample_hits": [
+              "apps/INDEX.md",
+              "apps/RELIC/INDEX.md",
+              "apps/arda-hud/ARDA_OPERATING_SURFACE_PLAN_2026-05-27.md",
+              "apps/arda-hud/INDEX.md",
+              "apps/arda-hud/RUNTIME.md",
+              "apps/arda-hud/public/INDEX.md",
+              "apps/arda-hud/public/ops/INDEX.md",
+              "apps/arda-hud/scripts/INDEX.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 417,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/WARDEN_HADES_OPERATOR_REVIEW_PACKET.md",
+          "reference_check": {
+            "hit_count": 1,
+            "sample_hits": [
+              "crates/annunimas-hades/src/service/lifecycle_audit.rs"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 3315,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/approval_packet_command_output.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 3878,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/dry_run_receipt_command_output.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 4690,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/final_apply_approval_command_output.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 2351,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/final_apply_execution_command_output.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 3837,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/mutation_approval_command_output.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 4225,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/mutation_plan_receipt_command_output.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 95765,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/review_packet_command_output.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 3877,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/warden_hades_dry_run_receipt_retain_acknowledgement.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 4689,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/warden_hades_final_apply_approval_packet_archive_after_approval.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 2415,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/warden_hades_final_apply_archive.jsonl",
+          "reference_check": {
+            "hit_count": 1,
+            "sample_hits": [
+              "crates/annunimas-cli/src/main.rs"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 3063,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/warden_hades_final_apply_execution_live_report.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 2350,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/warden_hades_final_apply_execution_receipt.json",
+          "reference_check": {
+            "hit_count": 1,
+            "sample_hits": [
+              "crates/annunimas-cli/src/main.rs"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 4224,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/warden_hades_mutation_plan_receipt_archive_after_approval.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 95764,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/warden_hades_operator_review_packet.json",
+          "reference_check": {
+            "hit_count": 2,
+            "sample_hits": [
+              "crates/annunimas-cli/src/main.rs",
+              "crates/annunimas-hades/src/service/lifecycle_audit.rs"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 69419,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/warden_hades_operator_review_queue.jsonl",
+          "reference_check": {
+            "hit_count": 1,
+            "sample_hits": [
+              "crates/annunimas-hades/src/service/lifecycle_audit.rs"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 3314,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/warden_hades_operator_signed_approval_packet_defer_retain_raw.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 3836,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/warden_hades_operator_signed_mutation_approval_packet.json",
+          "reference_check": {
+            "hit_count": 1,
+            "sample_hits": [
+              "crates/annunimas-cli/src/main.rs"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 3661,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/warden_hades_dry_run_receipt.json",
+          "reference_check": {
+            "hit_count": 1,
+            "sample_hits": [
+              "crates/annunimas-cli/src/main.rs"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 2916,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/warden_hades_dry_run_receipt_execution_report_2026-05-19.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 3701,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/warden_hades_dry_run_receipt_retain_acknowledgement.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 3081,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/warden_hades_final_apply_approval_execution_report_2026-05-19.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 4393,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/warden_hades_final_apply_approval_packet_archive_after_approval.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 2019,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/warden_hades_final_apply_execution_implementation_report_2026-05-19.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        }
+      ],
+      "newest_mtime_utc": "2026-05-25T15:26:14Z",
+      "oldest_date_hint": "2026-05-19",
+      "rationale": "Large historical review packets should be indexed and possibly compacted by family, not deleted blindly.",
+      "reference_hits": 61,
+      "sample_references": [
+        {
+          "hit_count": 8,
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/INDEX.md",
+          "sample_hits": [
+            "apps/README.md",
+            "apps/arda-hud/public/README.md",
+            "apps/arda-hud/public/ops/README.md",
+            "apps/arda-hud/scripts/README.md",
+            "apps/arda-hud/src-tauri/README.md",
+            "apps/arda-hud/src-tauri/capabilities/README.md",
+            "apps/arda-hud/src-tauri/icons/README.md",
+            "apps/arda-hud/src-tauri/src/README.md"
+          ]
+        },
+        {
+          "hit_count": 8,
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/README.md",
+          "sample_hits": [
+            "apps/INDEX.md",
+            "apps/RELIC/INDEX.md",
+            "apps/arda-hud/ARDA_OPERATING_SURFACE_PLAN_2026-05-27.md",
+            "apps/arda-hud/INDEX.md",
+            "apps/arda-hud/RUNTIME.md",
+            "apps/arda-hud/public/INDEX.md",
+            "apps/arda-hud/public/ops/INDEX.md",
+            "apps/arda-hud/scripts/INDEX.md"
+          ]
+        },
+        {
+          "hit_count": 1,
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/WARDEN_HADES_OPERATOR_REVIEW_PACKET.md",
+          "sample_hits": [
+            "crates/annunimas-hades/src/service/lifecycle_audit.rs"
+          ]
+        },
+        {
+          "hit_count": 8,
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/clear_delete_cleanup_live_20260519T212223Z/INDEX.md",
+          "sample_hits": [
+            "apps/README.md",
+            "apps/arda-hud/public/README.md",
+            "apps/arda-hud/public/ops/README.md",
+            "apps/arda-hud/scripts/README.md",
+            "apps/arda-hud/src-tauri/README.md",
+            "apps/arda-hud/src-tauri/capabilities/README.md",
+            "apps/arda-hud/src-tauri/icons/README.md",
+            "apps/arda-hud/src-tauri/src/README.md"
+          ]
+        },
+        {
+          "hit_count": 8,
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/clear_delete_cleanup_live_20260519T212223Z/README.md",
+          "sample_hits": [
+            "apps/INDEX.md",
+            "apps/RELIC/INDEX.md",
+            "apps/arda-hud/ARDA_OPERATING_SURFACE_PLAN_2026-05-27.md",
+            "apps/arda-hud/INDEX.md",
+            "apps/arda-hud/RUNTIME.md",
+            "apps/arda-hud/public/INDEX.md",
+            "apps/arda-hud/public/ops/INDEX.md",
+            "apps/arda-hud/scripts/INDEX.md"
+          ]
+        },
+        {
+          "hit_count": 1,
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/clear_delete_cleanup_live_20260519T212223Z/WARDEN_HADES_OPERATOR_REVIEW_PACKET.md",
+          "sample_hits": [
+            "crates/annunimas-hades/src/service/lifecycle_audit.rs"
+          ]
+        },
+        {
+          "hit_count": 2,
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/clear_delete_cleanup_live_20260519T212223Z/warden_hades_operator_review_packet.json",
+          "sample_hits": [
+            "crates/annunimas-cli/src/main.rs",
+            "crates/annunimas-hades/src/service/lifecycle_audit.rs"
+          ]
+        },
+        {
+          "hit_count": 1,
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/clear_delete_cleanup_live_20260519T212223Z/warden_hades_operator_review_queue.jsonl",
+          "sample_hits": [
+            "crates/annunimas-hades/src/service/lifecycle_audit.rs"
+          ]
+        },
+        {
+          "hit_count": 8,
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/INDEX.md",
+          "sample_hits": [
+            "apps/README.md",
+            "apps/arda-hud/public/README.md",
+            "apps/arda-hud/public/ops/README.md",
+            "apps/arda-hud/scripts/README.md",
+            "apps/arda-hud/src-tauri/README.md",
+            "apps/arda-hud/src-tauri/capabilities/README.md",
+            "apps/arda-hud/src-tauri/icons/README.md",
+            "apps/arda-hud/src-tauri/src/README.md"
+          ]
+        },
+        {
+          "hit_count": 8,
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/README.md",
+          "sample_hits": [
+            "apps/INDEX.md",
+            "apps/RELIC/INDEX.md",
+            "apps/arda-hud/ARDA_OPERATING_SURFACE_PLAN_2026-05-27.md",
+            "apps/arda-hud/INDEX.md",
+            "apps/arda-hud/RUNTIME.md",
+            "apps/arda-hud/public/INDEX.md",
+            "apps/arda-hud/public/ops/INDEX.md",
+            "apps/arda-hud/scripts/INDEX.md"
+          ]
+        },
+        {
+          "hit_count": 1,
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/WARDEN_HADES_OPERATOR_REVIEW_PACKET.md",
+          "sample_hits": [
+            "crates/annunimas-hades/src/service/lifecycle_audit.rs"
+          ]
+        },
+        {
+          "hit_count": 1,
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/warden_hades_final_apply_archive.jsonl",
+          "sample_hits": [
+            "crates/annunimas-cli/src/main.rs"
+          ]
+        },
+        {
+          "hit_count": 1,
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/warden_hades_final_apply_execution_receipt.json",
+          "sample_hits": [
+            "crates/annunimas-cli/src/main.rs"
+          ]
+        },
+        {
+          "hit_count": 2,
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/warden_hades_operator_review_packet.json",
+          "sample_hits": [
+            "crates/annunimas-cli/src/main.rs",
+            "crates/annunimas-hades/src/service/lifecycle_audit.rs"
+          ]
+        },
+        {
+          "hit_count": 1,
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/warden_hades_operator_review_queue.jsonl",
+          "sample_hits": [
+            "crates/annunimas-hades/src/service/lifecycle_audit.rs"
+          ]
+        },
+        {
+          "hit_count": 1,
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/final_apply_execution_live_20260519T210910Z/warden_hades_operator_signed_mutation_approval_packet.json",
+          "sample_hits": [
+            "crates/annunimas-cli/src/main.rs"
+          ]
+        },
+        {
+          "hit_count": 1,
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet/warden_hades_dry_run_receipt.json",
+          "sample_hits": [
+            "crates/annunimas-cli/src/main.rs"
+          ]
+        }
+      ],
+      "tracked_files": 47
+    },
+    {
+      "apply_eligible": false,
+      "bytes": 70528731,
+      "disposition": "runtime_backup_retention_review",
+      "family": "data.runtime_stale_backups",
+      "files": 18,
+      "ignored_files": 18,
+      "largest_files": [
+        {
+          "bytes": 33586432,
+          "date_hint": "2026-05-05",
+          "ignored": true,
+          "mtime_utc": "2026-05-05T05:21:46Z",
+          "path": "data/hades/hades_log.jsonl.bak.20260505T052145Z",
+          "tracked": false
+        },
+        {
+          "bytes": 11761773,
+          "date_hint": "2026-05-05",
+          "ignored": true,
+          "mtime_utc": "2026-05-05T05:19:20Z",
+          "path": "data/governance/bacon_lite.jsonl.bak.20260505T052145Z",
+          "tracked": false
+        },
+        {
+          "bytes": 5523607,
+          "date_hint": "2026-05-05",
+          "ignored": true,
+          "mtime_utc": "2026-05-04T00:50:16Z",
+          "path": "data/prometheus/supervisor/heartbeats.jsonl.bak.20260505T050145Z",
+          "tracked": false
+        },
+        {
+          "bytes": 4692703,
+          "date_hint": "2026-05-05",
+          "ignored": true,
+          "mtime_utc": "2026-05-05T05:21:45Z",
+          "path": "data/prometheus/policy_guard.jsonl.bak.20260505T052145Z",
+          "tracked": false
+        },
+        {
+          "bytes": 4509040,
+          "date_hint": "2026-04-28",
+          "ignored": true,
+          "mtime_utc": "2026-04-28T09:49:24Z",
+          "path": "data/accounting/output_mirror/data__prometheus__supervisor/heartbeats.jsonl.bak.20260428T093233Z",
+          "tracked": false
+        },
+        {
+          "bytes": 3562497,
+          "date_hint": "2026-05-05",
+          "ignored": true,
+          "mtime_utc": "2026-05-05T05:21:45Z",
+          "path": "data/warden/permission_profile_audit.jsonl.bak.20260505T052145Z",
+          "tracked": false
+        },
+        {
+          "bytes": 3549060,
+          "date_hint": "2026-05-05",
+          "ignored": true,
+          "mtime_utc": "2026-05-05T05:21:46Z",
+          "path": "data/hades/joulework.jsonl.bak.20260505T052145Z",
+          "tracked": false
+        },
+        {
+          "bytes": 1094877,
+          "date_hint": "2026-04-30",
+          "ignored": true,
+          "mtime_utc": "2026-04-30T11:58:26Z",
+          "path": "data/charon/governance_events.jsonl.bak.20260430-rename",
+          "tracked": false
+        },
+        {
+          "bytes": 932934,
+          "date_hint": "2026-05-05",
+          "ignored": true,
+          "mtime_utc": "2026-05-03T05:16:41Z",
+          "path": "data/prometheus/gate_matrix_history.jsonl.bak.20260505T050145Z",
+          "tracked": false
+        },
+        {
+          "bytes": 906518,
+          "date_hint": "2026-05-05",
+          "ignored": true,
+          "mtime_utc": "2026-05-05T05:21:46Z",
+          "path": "data/hades/warden_queue.jsonl.bak.20260505T052145Z",
+          "tracked": false
+        },
+        {
+          "bytes": 193384,
+          "date_hint": "2026-05-05",
+          "ignored": true,
+          "mtime_utc": "2026-05-05T05:11:47Z",
+          "path": "data/hermes/messages.jsonl.bak.20260505T052145Z",
+          "tracked": false
+        },
+        {
+          "bytes": 159381,
+          "date_hint": "2026-05-05",
+          "ignored": true,
+          "mtime_utc": "2026-05-05T05:21:46Z",
+          "path": "data/warden/informant_queue.jsonl.bak.20260505T052145Z",
+          "tracked": false
+        },
+        {
+          "bytes": 27560,
+          "date_hint": "2026-05-05",
+          "ignored": true,
+          "mtime_utc": "2026-05-05T05:11:47Z",
+          "path": "data/hermes/decision_prompts.jsonl.bak.20260505T052145Z",
+          "tracked": false
+        },
+        {
+          "bytes": 11341,
+          "date_hint": "2026-05-05",
+          "ignored": true,
+          "mtime_utc": "2026-05-05T05:21:46Z",
+          "path": "data/hades/action_queue.jsonl.bak.20260505T052145Z",
+          "tracked": false
+        },
+        {
+          "bytes": 9345,
+          "date_hint": "2026-04-28",
+          "ignored": true,
+          "mtime_utc": "2026-04-28T09:38:49Z",
+          "path": "data/hades/archive/backups/action_queue.jsonl/action_queue.jsonl.bak.20260428T094234Z",
+          "tracked": false
+        },
+        {
+          "bytes": 7776,
+          "date_hint": "2026-04-22",
+          "ignored": true,
+          "mtime_utc": "2026-04-19T09:47:06Z",
+          "path": "data/hermes/outbound_queue.jsonl.bak.20260422T074630Z",
+          "tracked": false
+        },
+        {
+          "bytes": 263,
+          "date_hint": "2026-04-28",
+          "ignored": true,
+          "mtime_utc": "2026-04-12T11:46:14Z",
+          "path": "data/hermes/decision_metrics.jsonl.bak.20260428T220844Z",
+          "tracked": false
+        },
+        {
+          "bytes": 240,
+          "date_hint": "2026-04-07",
+          "ignored": true,
+          "mtime_utc": "2026-03-19T15:53:25Z",
+          "path": "data/hermes/decision_responses.jsonl.bak.20260407T233006Z",
+          "tracked": false
+        }
+      ],
+      "members": [
+        {
+          "bytes": 4509040,
+          "date_hint": "2026-04-28",
+          "ignored": true,
+          "mtime_utc": "2026-04-28T09:49:24Z",
+          "path": "data/accounting/output_mirror/data__prometheus__supervisor/heartbeats.jsonl.bak.20260428T093233Z",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": false
+        },
+        {
+          "bytes": 1094877,
+          "date_hint": "2026-04-30",
+          "ignored": true,
+          "mtime_utc": "2026-04-30T11:58:26Z",
+          "path": "data/charon/governance_events.jsonl.bak.20260430-rename",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": false
+        },
+        {
+          "bytes": 11761773,
+          "date_hint": "2026-05-05",
+          "ignored": true,
+          "mtime_utc": "2026-05-05T05:19:20Z",
+          "path": "data/governance/bacon_lite.jsonl.bak.20260505T052145Z",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": false
+        },
+        {
+          "bytes": 33586432,
+          "date_hint": "2026-05-05",
+          "ignored": true,
+          "mtime_utc": "2026-05-05T05:21:46Z",
+          "path": "data/hades/hades_log.jsonl.bak.20260505T052145Z",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": false
+        },
+        {
+          "bytes": 3549060,
+          "date_hint": "2026-05-05",
+          "ignored": true,
+          "mtime_utc": "2026-05-05T05:21:46Z",
+          "path": "data/hades/joulework.jsonl.bak.20260505T052145Z",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": false
+        },
+        {
+          "bytes": 906518,
+          "date_hint": "2026-05-05",
+          "ignored": true,
+          "mtime_utc": "2026-05-05T05:21:46Z",
+          "path": "data/hades/warden_queue.jsonl.bak.20260505T052145Z",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": false
+        },
+        {
+          "bytes": 11341,
+          "date_hint": "2026-05-05",
+          "ignored": true,
+          "mtime_utc": "2026-05-05T05:21:46Z",
+          "path": "data/hades/action_queue.jsonl.bak.20260505T052145Z",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": false
+        },
+        {
+          "bytes": 9345,
+          "date_hint": "2026-04-28",
+          "ignored": true,
+          "mtime_utc": "2026-04-28T09:38:49Z",
+          "path": "data/hades/archive/backups/action_queue.jsonl/action_queue.jsonl.bak.20260428T094234Z",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": false
+        },
+        {
+          "bytes": 263,
+          "date_hint": "2026-04-28",
+          "ignored": true,
+          "mtime_utc": "2026-04-12T11:46:14Z",
+          "path": "data/hermes/decision_metrics.jsonl.bak.20260428T220844Z",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": false
+        },
+        {
+          "bytes": 193384,
+          "date_hint": "2026-05-05",
+          "ignored": true,
+          "mtime_utc": "2026-05-05T05:11:47Z",
+          "path": "data/hermes/messages.jsonl.bak.20260505T052145Z",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": false
+        },
+        {
+          "bytes": 240,
+          "date_hint": "2026-04-07",
+          "ignored": true,
+          "mtime_utc": "2026-03-19T15:53:25Z",
+          "path": "data/hermes/decision_responses.jsonl.bak.20260407T233006Z",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": false
+        },
+        {
+          "bytes": 27560,
+          "date_hint": "2026-05-05",
+          "ignored": true,
+          "mtime_utc": "2026-05-05T05:11:47Z",
+          "path": "data/hermes/decision_prompts.jsonl.bak.20260505T052145Z",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": false
+        },
+        {
+          "bytes": 7776,
+          "date_hint": "2026-04-22",
+          "ignored": true,
+          "mtime_utc": "2026-04-19T09:47:06Z",
+          "path": "data/hermes/outbound_queue.jsonl.bak.20260422T074630Z",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": false
+        },
+        {
+          "bytes": 4692703,
+          "date_hint": "2026-05-05",
+          "ignored": true,
+          "mtime_utc": "2026-05-05T05:21:45Z",
+          "path": "data/prometheus/policy_guard.jsonl.bak.20260505T052145Z",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": false
+        },
+        {
+          "bytes": 932934,
+          "date_hint": "2026-05-05",
+          "ignored": true,
+          "mtime_utc": "2026-05-03T05:16:41Z",
+          "path": "data/prometheus/gate_matrix_history.jsonl.bak.20260505T050145Z",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": false
+        },
+        {
+          "bytes": 5523607,
+          "date_hint": "2026-05-05",
+          "ignored": true,
+          "mtime_utc": "2026-05-04T00:50:16Z",
+          "path": "data/prometheus/supervisor/heartbeats.jsonl.bak.20260505T050145Z",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": false
+        },
+        {
+          "bytes": 159381,
+          "date_hint": "2026-05-05",
+          "ignored": true,
+          "mtime_utc": "2026-05-05T05:21:46Z",
+          "path": "data/warden/informant_queue.jsonl.bak.20260505T052145Z",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": false
+        },
+        {
+          "bytes": 3562497,
+          "date_hint": "2026-05-05",
+          "ignored": true,
+          "mtime_utc": "2026-05-05T05:21:45Z",
+          "path": "data/warden/permission_profile_audit.jsonl.bak.20260505T052145Z",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": false
+        }
+      ],
+      "newest_mtime_utc": "2026-05-05T05:21:46Z",
+      "oldest_date_hint": "2026-04-07",
+      "rationale": "Ignored runtime backup files are retention candidates, but this pass keeps one backup per source stem unless a narrower apply packet overrides retention.",
+      "reference_hits": 0,
+      "sample_references": [],
+      "tracked_files": 0
+    },
+    {
+      "apply_eligible": false,
+      "bytes": 36491389,
+      "disposition": "archive_compaction_candidate",
+      "family": "archive.citadel_avatar_backup.node_modules",
+      "files": 1157,
+      "ignored_files": 0,
+      "largest_files": [
+        {
+          "bytes": 4522713,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/fonts/MPLUSRounded1c/MPLUSRounded1c-Regular.typeface.json.zip",
+          "tracked": true
+        },
+        {
+          "bytes": 2545991,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/jsm/libs/rhino3dm/rhino3dm.wasm",
+          "tracked": true
+        },
+        {
+          "bytes": 2061112,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/build/three.cjs",
+          "tracked": true
+        },
+        {
+          "bytes": 2016388,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/build/three.webgpu.js",
+          "tracked": true
+        },
+        {
+          "bytes": 2009288,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/build/three.webgpu.nodes.js",
+          "tracked": true
+        },
+        {
+          "bytes": 1421746,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/build/three.core.js",
+          "tracked": true
+        },
+        {
+          "bytes": 954360,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/jsm/libs/draco/gltf/draco_encoder.js",
+          "tracked": true
+        },
+        {
+          "bytes": 928718,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/jsm/libs/draco/draco_encoder.js",
+          "tracked": true
+        },
+        {
+          "bytes": 719410,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/jsm/libs/draco/draco_decoder.js",
+          "tracked": true
+        },
+        {
+          "bytes": 651386,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/jsm/libs/ammo.wasm.wasm",
+          "tracked": true
+        },
+        {
+          "bytes": 649318,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/fonts/gentilis_bold.typeface.json",
+          "tracked": true
+        },
+        {
+          "bytes": 639046,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/build/three.module.js",
+          "tracked": true
+        },
+        {
+          "bytes": 627529,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/fonts/gentilis_regular.typeface.json",
+          "tracked": true
+        },
+        {
+          "bytes": 623734,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/build/three.webgpu.min.js",
+          "tracked": true
+        },
+        {
+          "bytes": 622315,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/build/three.webgpu.nodes.min.js",
+          "tracked": true
+        },
+        {
+          "bytes": 527333,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/jsm/libs/basis/basis_transcoder.wasm",
+          "tracked": true
+        },
+        {
+          "bytes": 512465,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/jsm/libs/draco/gltf/draco_decoder.js",
+          "tracked": true
+        },
+        {
+          "bytes": 485403,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/fonts/droid/droid_serif_bold.typeface.json",
+          "tracked": true
+        },
+        {
+          "bytes": 477058,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/fonts/droid/droid_serif_regular.typeface.json",
+          "tracked": true
+        },
+        {
+          "bytes": 476971,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/jsm/libs/lottie_canvas.module.js",
+          "tracked": true
+        }
+      ],
+      "members": [
+        {
+          "bytes": 373,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/.package-lock.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 1081,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/LICENSE",
+          "reference_check": {
+            "hit_count": 2,
+            "sample_hits": [
+              "crates/annunimas-athena/src/ingest/extraction.rs",
+              "human/05-Projects/summaries/src-meta.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 2969,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/README.md",
+          "reference_check": {
+            "hit_count": 8,
+            "sample_hits": [
+              "apps/INDEX.md",
+              "apps/RELIC/INDEX.md",
+              "apps/arda-hud/ARDA_OPERATING_SURFACE_PLAN_2026-05-27.md",
+              "apps/arda-hud/INDEX.md",
+              "apps/arda-hud/RUNTIME.md",
+              "apps/arda-hud/public/INDEX.md",
+              "apps/arda-hud/public/ops/INDEX.md",
+              "apps/arda-hud/scripts/INDEX.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 2061112,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/build/three.cjs",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 1421746,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/build/three.core.js",
+          "reference_check": {
+            "hit_count": 1,
+            "sample_hits": [
+              "apps/RELIC/scripts/deploy_to_citadel.sh"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 382617,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/build/three.core.min.js",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 639046,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/build/three.module.js",
+          "reference_check": {
+            "hit_count": 8,
+            "sample_hits": [
+              "apps/citadel-avatar-pure/AGENT_KINETIC_VISUALIZATION.md",
+              "apps/citadel-avatar-pure/DEPLOYMENT_SUMMARY.md",
+              "apps/citadel-avatar-pure/DEPLOYMENT_TO_PI5.md",
+              "apps/citadel-avatar-pure/quick-verify.sh",
+              "apps/citadel-avatar-pure/test-visualization.sh",
+              "apps/citadel-avatar/AGENT_KINETIC_VISUALIZATION.md",
+              "apps/citadel-avatar/DEPLOYMENT_SUMMARY.md",
+              "apps/citadel-avatar/quick-verify.sh"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 359158,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/build/three.module.min.js",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 33431,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/build/three.tsl.js",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 23133,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/build/three.tsl.min.js",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 2016388,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/build/three.webgpu.js",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 623734,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/build/three.webgpu.min.js",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 2009288,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/build/three.webgpu.nodes.js",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 622315,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/build/three.webgpu.nodes.min.js",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 2006,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/fonts/LICENSE",
+          "reference_check": {
+            "hit_count": 2,
+            "sample_hits": [
+              "crates/annunimas-athena/src/ingest/extraction.rs",
+              "human/05-Projects/summaries/src-meta.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 4522713,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/fonts/MPLUSRounded1c/MPLUSRounded1c-Regular.typeface.json.zip",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 4303,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/fonts/MPLUSRounded1c/OFL.txt",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 334,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/fonts/README.md",
+          "reference_check": {
+            "hit_count": 8,
+            "sample_hits": [
+              "apps/INDEX.md",
+              "apps/RELIC/INDEX.md",
+              "apps/arda-hud/ARDA_OPERATING_SURFACE_PLAN_2026-05-27.md",
+              "apps/arda-hud/INDEX.md",
+              "apps/arda-hud/RUNTIME.md",
+              "apps/arda-hud/public/INDEX.md",
+              "apps/arda-hud/public/ops/INDEX.md",
+              "apps/arda-hud/scripts/INDEX.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 10695,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/fonts/droid/NOTICE",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 692,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/fonts/droid/README.txt",
+          "reference_check": {
+            "hit_count": 2,
+            "sample_hits": [
+              "docs/RELEASE.md",
+              "scripts/package_release_artifacts.sh"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 329885,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/fonts/droid/droid_sans_bold.typeface.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 190569,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/fonts/droid/droid_sans_mono_regular.typeface.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 319895,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/fonts/droid/droid_sans_regular.typeface.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 485403,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/fonts/droid/droid_serif_bold.typeface.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 477058,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/fonts/droid/droid_serif_regular.typeface.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 649318,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/fonts/gentilis_bold.typeface.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 627529,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/fonts/gentilis_regular.typeface.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 61632,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/fonts/helvetiker_bold.typeface.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 63182,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/fonts/helvetiker_regular.typeface.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 112249,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/fonts/optimer_bold.typeface.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 110666,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/fonts/optimer_regular.typeface.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 188,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/fonts/ttf/README.md",
+          "reference_check": {
+            "hit_count": 8,
+            "sample_hits": [
+              "apps/INDEX.md",
+              "apps/RELIC/INDEX.md",
+              "apps/arda-hud/ARDA_OPERATING_SURFACE_PLAN_2026-05-27.md",
+              "apps/arda-hud/INDEX.md",
+              "apps/arda-hud/RUNTIME.md",
+              "apps/arda-hud/public/INDEX.md",
+              "apps/arda-hud/public/ops/INDEX.md",
+              "apps/arda-hud/scripts/INDEX.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 18068,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/fonts/ttf/kenpixel.ttf",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 11655,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/jsm/Addons.js",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 4543,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/jsm/animation/AnimationClipCreator.js",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 13348,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/jsm/animation/CCDIKSolver.js",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 2555,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/jsm/capabilities/WebGL.js",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 1485,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/jsm/capabilities/WebGPU.js",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 86877,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/jsm/controls/ArcballControls.js",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 9490,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/jsm/controls/DragControls.js",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        }
+      ],
+      "newest_mtime_utc": "2026-05-25T15:26:14Z",
+      "oldest_date_hint": "2026-05-02",
+      "rationale": "Archived dependency cache is large and reconstructable, but tracked archive evidence requires explicit compaction approval.",
+      "reference_hits": 39,
+      "sample_references": [
+        {
+          "hit_count": 2,
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/LICENSE",
+          "sample_hits": [
+            "crates/annunimas-athena/src/ingest/extraction.rs",
+            "human/05-Projects/summaries/src-meta.md"
+          ]
+        },
+        {
+          "hit_count": 8,
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/README.md",
+          "sample_hits": [
+            "apps/INDEX.md",
+            "apps/RELIC/INDEX.md",
+            "apps/arda-hud/ARDA_OPERATING_SURFACE_PLAN_2026-05-27.md",
+            "apps/arda-hud/INDEX.md",
+            "apps/arda-hud/RUNTIME.md",
+            "apps/arda-hud/public/INDEX.md",
+            "apps/arda-hud/public/ops/INDEX.md",
+            "apps/arda-hud/scripts/INDEX.md"
+          ]
+        },
+        {
+          "hit_count": 1,
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/build/three.core.js",
+          "sample_hits": [
+            "apps/RELIC/scripts/deploy_to_citadel.sh"
+          ]
+        },
+        {
+          "hit_count": 8,
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/build/three.module.js",
+          "sample_hits": [
+            "apps/citadel-avatar-pure/AGENT_KINETIC_VISUALIZATION.md",
+            "apps/citadel-avatar-pure/DEPLOYMENT_SUMMARY.md",
+            "apps/citadel-avatar-pure/DEPLOYMENT_TO_PI5.md",
+            "apps/citadel-avatar-pure/quick-verify.sh",
+            "apps/citadel-avatar-pure/test-visualization.sh",
+            "apps/citadel-avatar/AGENT_KINETIC_VISUALIZATION.md",
+            "apps/citadel-avatar/DEPLOYMENT_SUMMARY.md",
+            "apps/citadel-avatar/quick-verify.sh"
+          ]
+        },
+        {
+          "hit_count": 2,
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/fonts/LICENSE",
+          "sample_hits": [
+            "crates/annunimas-athena/src/ingest/extraction.rs",
+            "human/05-Projects/summaries/src-meta.md"
+          ]
+        },
+        {
+          "hit_count": 8,
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/fonts/README.md",
+          "sample_hits": [
+            "apps/INDEX.md",
+            "apps/RELIC/INDEX.md",
+            "apps/arda-hud/ARDA_OPERATING_SURFACE_PLAN_2026-05-27.md",
+            "apps/arda-hud/INDEX.md",
+            "apps/arda-hud/RUNTIME.md",
+            "apps/arda-hud/public/INDEX.md",
+            "apps/arda-hud/public/ops/INDEX.md",
+            "apps/arda-hud/scripts/INDEX.md"
+          ]
+        },
+        {
+          "hit_count": 2,
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/fonts/droid/README.txt",
+          "sample_hits": [
+            "docs/RELEASE.md",
+            "scripts/package_release_artifacts.sh"
+          ]
+        },
+        {
+          "hit_count": 8,
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/node_modules/three/examples/fonts/ttf/README.md",
+          "sample_hits": [
+            "apps/INDEX.md",
+            "apps/RELIC/INDEX.md",
+            "apps/arda-hud/ARDA_OPERATING_SURFACE_PLAN_2026-05-27.md",
+            "apps/arda-hud/INDEX.md",
+            "apps/arda-hud/RUNTIME.md",
+            "apps/arda-hud/public/INDEX.md",
+            "apps/arda-hud/public/ops/INDEX.md",
+            "apps/arda-hud/scripts/INDEX.md"
+          ]
+        }
+      ],
+      "tracked_files": 1157
+    },
+    {
+      "apply_eligible": false,
+      "bytes": 3682942,
+      "disposition": "archive_log_retention_review",
+      "family": "archive.logs.ceo_autopilot_backups",
+      "files": 4,
+      "ignored_files": 0,
+      "largest_files": [
+        {
+          "bytes": 2983100,
+          "date_hint": "2026-05-05",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/logs/ceo_autopilot.log.bak.20260505T050145Z",
+          "tracked": true
+        },
+        {
+          "bytes": 271426,
+          "date_hint": "2026-04-28",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/logs/ceo_autopilot.log.bak.20260428T094234Z",
+          "tracked": true
+        },
+        {
+          "bytes": 231256,
+          "date_hint": "2026-05-03",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/logs/ceo_autopilot.log.bak.20260503T195711Z",
+          "tracked": true
+        },
+        {
+          "bytes": 197160,
+          "date_hint": "2026-04-28",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/logs/ceo_autopilot.log.bak.20260428T093233Z",
+          "tracked": true
+        }
+      ],
+      "members": [
+        {
+          "bytes": 197160,
+          "date_hint": "2026-04-28",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/logs/ceo_autopilot.log.bak.20260428T093233Z",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 271426,
+          "date_hint": "2026-04-28",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/logs/ceo_autopilot.log.bak.20260428T094234Z",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 231256,
+          "date_hint": "2026-05-03",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/logs/ceo_autopilot.log.bak.20260503T195711Z",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 2983100,
+          "date_hint": "2026-05-05",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/logs/ceo_autopilot.log.bak.20260505T050145Z",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        }
+      ],
+      "newest_mtime_utc": "2026-05-25T15:26:14Z",
+      "oldest_date_hint": "2026-04-28",
+      "rationale": "Tracked historical logs need a retention decision before deletion.",
+      "reference_hits": 0,
+      "sample_references": [],
+      "tracked_files": 4
+    },
+    {
+      "apply_eligible": false,
+      "bytes": 2914601,
+      "disposition": "index_and_compact_review",
+      "family": "audit.WARDEN_QUEUE_TRIAGE_2026-05-19",
+      "files": 42,
+      "ignored_files": 0,
+      "largest_files": [
+        {
+          "bytes": 604176,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/hades_soterion_l1_classification_packet_2026-05-19.json",
+          "tracked": true
+        },
+        {
+          "bytes": 558695,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/informant_queue_approved_archive_2026-05-19.jsonl",
+          "tracked": true
+        },
+        {
+          "bytes": 530868,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/hades_discovery_packet_2026-05-19.json",
+          "tracked": true
+        },
+        {
+          "bytes": 510190,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/hades_soterion_l1_classifications_2026-05-19.jsonl",
+          "tracked": true
+        },
+        {
+          "bytes": 83537,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/pressure_post_relief_verification_2026-05-19.json",
+          "tracked": true
+        },
+        {
+          "bytes": 70726,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/archive_candidate_reference_refinement_2026-05-19.json",
+          "tracked": true
+        },
+        {
+          "bytes": 62647,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/archive_candidate_subset_validation_2026-05-19.json",
+          "tracked": true
+        },
+        {
+          "bytes": 59622,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/archive_candidate_reference_refinement_2026-05-19.jsonl",
+          "tracked": true
+        },
+        {
+          "bytes": 57803,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/hades_l1_verification_2026-05-19.json",
+          "tracked": true
+        },
+        {
+          "bytes": 54090,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet_verification_2026-05-19.json",
+          "tracked": true
+        },
+        {
+          "bytes": 52486,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/archive_candidate_subset_validation_2026-05-19.jsonl",
+          "tracked": true
+        },
+        {
+          "bytes": 48183,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_discovery_2026-05-19.json",
+          "tracked": true
+        },
+        {
+          "bytes": 32440,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/informant_review_queue.jsonl",
+          "tracked": true
+        },
+        {
+          "bytes": 31591,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/additional_gui_pressure_relief_2026-05-19.json",
+          "tracked": true
+        },
+        {
+          "bytes": 25137,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet_2026-05-19.json",
+          "tracked": true
+        },
+        {
+          "bytes": 20564,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_queue_2026-05-19.jsonl",
+          "tracked": true
+        },
+        {
+          "bytes": 13816,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/next_actions_execution_report.json",
+          "tracked": true
+        },
+        {
+          "bytes": 10547,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/queue_triage.json",
+          "tracked": true
+        },
+        {
+          "bytes": 10265,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/routing_pressure_posture_2026-05-19.json",
+          "tracked": true
+        },
+        {
+          "bytes": 8730,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/HADES_SOTERION_L1_CLASSIFICATION_REPORT_2026-05-19.md",
+          "tracked": true
+        }
+      ],
+      "members": [
+        {
+          "bytes": 4541,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/ARCHIVE_CANDIDATE_REFERENCE_REFINEMENT_2026-05-19.md",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 7817,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/ARCHIVE_CANDIDATE_SUBSET_VALIDATION_2026-05-19.md",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 8730,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/HADES_SOTERION_L1_CLASSIFICATION_REPORT_2026-05-19.md",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 2391,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/INDEX.md",
+          "reference_check": {
+            "hit_count": 8,
+            "sample_hits": [
+              "apps/README.md",
+              "apps/arda-hud/public/README.md",
+              "apps/arda-hud/public/ops/README.md",
+              "apps/arda-hud/scripts/README.md",
+              "apps/arda-hud/src-tauri/README.md",
+              "apps/arda-hud/src-tauri/capabilities/README.md",
+              "apps/arda-hud/src-tauri/icons/README.md",
+              "apps/arda-hud/src-tauri/src/README.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 2418,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/NEXT_ACTIONS_REPORT.md",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 3022,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/OPERATOR_REVIEW_PACKET_2026-05-19.md",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 1905,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/README.md",
+          "reference_check": {
+            "hit_count": 8,
+            "sample_hits": [
+              "apps/INDEX.md",
+              "apps/RELIC/INDEX.md",
+              "apps/arda-hud/ARDA_OPERATING_SURFACE_PLAN_2026-05-27.md",
+              "apps/arda-hud/INDEX.md",
+              "apps/arda-hud/RUNTIME.md",
+              "apps/arda-hud/public/INDEX.md",
+              "apps/arda-hud/public/ops/INDEX.md",
+              "apps/arda-hud/scripts/INDEX.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 31591,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/additional_gui_pressure_relief_2026-05-19.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 70726,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/archive_candidate_reference_refinement_2026-05-19.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 59622,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/archive_candidate_reference_refinement_2026-05-19.jsonl",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 2559,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/archive_candidate_reference_refinement_verification_2026-05-19.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 62647,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/archive_candidate_subset_validation_2026-05-19.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 52486,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/archive_candidate_subset_validation_2026-05-19.jsonl",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 3824,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/archive_candidate_subset_validation_verification_2026-05-19.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 530868,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/hades_discovery_packet_2026-05-19.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 57803,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/hades_l1_verification_2026-05-19.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 8315,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/hades_policy_lifecycle_automation_execution_2026-05-19.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 604176,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/hades_soterion_l1_classification_packet_2026-05-19.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 510190,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/hades_soterion_l1_classifications_2026-05-19.jsonl",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 558695,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/informant_queue_approved_archive_2026-05-19.jsonl",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 1752,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/informant_review_packet.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 32440,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/informant_review_queue.jsonl",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 13816,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/next_actions_execution_report.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 5348,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/next_actions_followup_execution_report.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 1531,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_approval_and_archive_manifest.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 2715,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_approved_clear_execution_report.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 48183,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_discovery_2026-05-19.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 25137,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet_2026-05-19.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 54090,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_packet_verification_2026-05-19.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 20564,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/operator_review_queue_2026-05-19.jsonl",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 83537,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/pressure_post_relief_verification_2026-05-19.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 10547,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/queue_triage.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 6806,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/routing_pressure_gui_shutdown_approval_2026-05-19.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 10265,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/routing_pressure_posture_2026-05-19.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 2129,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/warden_hades_operator_review_packet_execution_report_2026-05-19.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 2844,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/warden_hades_signed_approval_packet_execution_report_2026-05-19.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 1780,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/warden_p1_permission_profile_posture_report.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 1089,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/warden_security_enforcement_after_archive.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 1009,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/warden_security_enforcement_after_permission_fix.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 1939,
+          "date_hint": "2026-05-19",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/warden_security_enforcement_dry_run.json",
+          "reference_check": {
+            "hit_count": 0,
+            "sample_hits": []
+          },
+          "tracked": true
+        }
+      ],
+      "newest_mtime_utc": "2026-05-25T15:26:14Z",
+      "oldest_date_hint": "2026-05-19",
+      "rationale": "Large historical review packets should be indexed and possibly compacted by family, not deleted blindly.",
+      "reference_hits": 16,
+      "sample_references": [
+        {
+          "hit_count": 8,
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/INDEX.md",
+          "sample_hits": [
+            "apps/README.md",
+            "apps/arda-hud/public/README.md",
+            "apps/arda-hud/public/ops/README.md",
+            "apps/arda-hud/scripts/README.md",
+            "apps/arda-hud/src-tauri/README.md",
+            "apps/arda-hud/src-tauri/capabilities/README.md",
+            "apps/arda-hud/src-tauri/icons/README.md",
+            "apps/arda-hud/src-tauri/src/README.md"
+          ]
+        },
+        {
+          "hit_count": 8,
+          "path": "audit/WARDEN_QUEUE_TRIAGE_2026-05-19/README.md",
+          "sample_hits": [
+            "apps/INDEX.md",
+            "apps/RELIC/INDEX.md",
+            "apps/arda-hud/ARDA_OPERATING_SURFACE_PLAN_2026-05-27.md",
+            "apps/arda-hud/INDEX.md",
+            "apps/arda-hud/RUNTIME.md",
+            "apps/arda-hud/public/INDEX.md",
+            "apps/arda-hud/public/ops/INDEX.md",
+            "apps/arda-hud/scripts/INDEX.md"
+          ]
+        }
+      ],
+      "tracked_files": 42
+    },
+    {
+      "apply_eligible": false,
+      "bytes": 2510061,
+      "disposition": "retain_or_cold_archive",
+      "family": "core.projects.tasks.queue_backups",
+      "files": 9,
+      "ignored_files": 0,
+      "largest_files": [
+        {
+          "bytes": 289913,
+          "date_hint": "2026-03-10",
+          "ignored": false,
+          "mtime_utc": "2026-03-23T15:05:40Z",
+          "path": "core/projects/tasks/queue.jsonl.bak.20260310T225700Z",
+          "tracked": true
+        },
+        {
+          "bytes": 289680,
+          "date_hint": "2026-03-10",
+          "ignored": false,
+          "mtime_utc": "2026-03-23T15:05:40Z",
+          "path": "core/projects/tasks/queue.jsonl.bak.20260310T224800Z",
+          "tracked": true
+        },
+        {
+          "bytes": 288386,
+          "date_hint": "2026-03-10",
+          "ignored": false,
+          "mtime_utc": "2026-03-23T15:05:40Z",
+          "path": "core/projects/tasks/queue.jsonl.bak.20260310T223800Z",
+          "tracked": true
+        },
+        {
+          "bytes": 286230,
+          "date_hint": "2026-03-10",
+          "ignored": false,
+          "mtime_utc": "2026-03-23T15:05:40Z",
+          "path": "core/projects/tasks/queue.jsonl.bak.20260310T222300Z",
+          "tracked": true
+        },
+        {
+          "bytes": 283838,
+          "date_hint": "2026-03-10",
+          "ignored": false,
+          "mtime_utc": "2026-03-23T15:05:40Z",
+          "path": "core/projects/tasks/queue.jsonl.bak.20260310T221000Z",
+          "tracked": true
+        },
+        {
+          "bytes": 283700,
+          "date_hint": "2026-03-10",
+          "ignored": false,
+          "mtime_utc": "2026-03-23T15:05:40Z",
+          "path": "core/projects/tasks/queue.jsonl.bak.20260310T220500Z",
+          "tracked": true
+        },
+        {
+          "bytes": 282616,
+          "date_hint": "2026-03-10",
+          "ignored": false,
+          "mtime_utc": "2026-03-23T15:05:40Z",
+          "path": "core/projects/tasks/queue.jsonl.bak.20260310T220000Z",
+          "tracked": true
+        },
+        {
+          "bytes": 265740,
+          "date_hint": "2026-03-10",
+          "ignored": false,
+          "mtime_utc": "2026-03-23T15:05:40Z",
+          "path": "core/projects/tasks/queue.jsonl.bak.20260310T215500Z",
+          "tracked": true
+        },
+        {
+          "bytes": 239958,
+          "date_hint": "2026-03-10",
+          "ignored": false,
+          "mtime_utc": "2026-03-23T15:05:40Z",
+          "path": "core/projects/tasks/queue.jsonl.bak.20260310T215400Z",
+          "tracked": true
+        }
+      ],
+      "members": [
+        {
+          "bytes": 239958,
+          "date_hint": "2026-03-10",
+          "ignored": false,
+          "mtime_utc": "2026-03-23T15:05:40Z",
+          "path": "core/projects/tasks/queue.jsonl.bak.20260310T215400Z",
+          "reference_check": {
+            "hit_count": 2,
+            "sample_hits": [
+              "core/core_audit.json",
+              "core/projects/tasks/INDEX.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 265740,
+          "date_hint": "2026-03-10",
+          "ignored": false,
+          "mtime_utc": "2026-03-23T15:05:40Z",
+          "path": "core/projects/tasks/queue.jsonl.bak.20260310T215500Z",
+          "reference_check": {
+            "hit_count": 2,
+            "sample_hits": [
+              "core/core_audit.json",
+              "core/projects/tasks/INDEX.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 282616,
+          "date_hint": "2026-03-10",
+          "ignored": false,
+          "mtime_utc": "2026-03-23T15:05:40Z",
+          "path": "core/projects/tasks/queue.jsonl.bak.20260310T220000Z",
+          "reference_check": {
+            "hit_count": 2,
+            "sample_hits": [
+              "core/core_audit.json",
+              "core/projects/tasks/INDEX.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 283700,
+          "date_hint": "2026-03-10",
+          "ignored": false,
+          "mtime_utc": "2026-03-23T15:05:40Z",
+          "path": "core/projects/tasks/queue.jsonl.bak.20260310T220500Z",
+          "reference_check": {
+            "hit_count": 2,
+            "sample_hits": [
+              "core/core_audit.json",
+              "core/projects/tasks/INDEX.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 283838,
+          "date_hint": "2026-03-10",
+          "ignored": false,
+          "mtime_utc": "2026-03-23T15:05:40Z",
+          "path": "core/projects/tasks/queue.jsonl.bak.20260310T221000Z",
+          "reference_check": {
+            "hit_count": 2,
+            "sample_hits": [
+              "core/core_audit.json",
+              "core/projects/tasks/INDEX.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 286230,
+          "date_hint": "2026-03-10",
+          "ignored": false,
+          "mtime_utc": "2026-03-23T15:05:40Z",
+          "path": "core/projects/tasks/queue.jsonl.bak.20260310T222300Z",
+          "reference_check": {
+            "hit_count": 2,
+            "sample_hits": [
+              "core/core_audit.json",
+              "core/projects/tasks/INDEX.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 288386,
+          "date_hint": "2026-03-10",
+          "ignored": false,
+          "mtime_utc": "2026-03-23T15:05:40Z",
+          "path": "core/projects/tasks/queue.jsonl.bak.20260310T223800Z",
+          "reference_check": {
+            "hit_count": 2,
+            "sample_hits": [
+              "core/core_audit.json",
+              "core/projects/tasks/INDEX.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 289680,
+          "date_hint": "2026-03-10",
+          "ignored": false,
+          "mtime_utc": "2026-03-23T15:05:40Z",
+          "path": "core/projects/tasks/queue.jsonl.bak.20260310T224800Z",
+          "reference_check": {
+            "hit_count": 2,
+            "sample_hits": [
+              "core/core_audit.json",
+              "core/projects/tasks/INDEX.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 289913,
+          "date_hint": "2026-03-10",
+          "ignored": false,
+          "mtime_utc": "2026-03-23T15:05:40Z",
+          "path": "core/projects/tasks/queue.jsonl.bak.20260310T225700Z",
+          "reference_check": {
+            "hit_count": 2,
+            "sample_hits": [
+              "core/core_audit.json",
+              "core/projects/tasks/INDEX.md"
+            ]
+          },
+          "tracked": true
+        }
+      ],
+      "newest_mtime_utc": "2026-03-23T15:05:40Z",
+      "oldest_date_hint": "2026-03-10",
+      "rationale": "Queue backups are tracked and referenced by historical knowledge/audit records; do not delete in this pass.",
+      "reference_hits": 18,
+      "sample_references": [
+        {
+          "hit_count": 2,
+          "path": "core/projects/tasks/queue.jsonl.bak.20260310T215400Z",
+          "sample_hits": [
+            "core/core_audit.json",
+            "core/projects/tasks/INDEX.md"
+          ]
+        },
+        {
+          "hit_count": 2,
+          "path": "core/projects/tasks/queue.jsonl.bak.20260310T215500Z",
+          "sample_hits": [
+            "core/core_audit.json",
+            "core/projects/tasks/INDEX.md"
+          ]
+        },
+        {
+          "hit_count": 2,
+          "path": "core/projects/tasks/queue.jsonl.bak.20260310T220000Z",
+          "sample_hits": [
+            "core/core_audit.json",
+            "core/projects/tasks/INDEX.md"
+          ]
+        },
+        {
+          "hit_count": 2,
+          "path": "core/projects/tasks/queue.jsonl.bak.20260310T220500Z",
+          "sample_hits": [
+            "core/core_audit.json",
+            "core/projects/tasks/INDEX.md"
+          ]
+        },
+        {
+          "hit_count": 2,
+          "path": "core/projects/tasks/queue.jsonl.bak.20260310T221000Z",
+          "sample_hits": [
+            "core/core_audit.json",
+            "core/projects/tasks/INDEX.md"
+          ]
+        },
+        {
+          "hit_count": 2,
+          "path": "core/projects/tasks/queue.jsonl.bak.20260310T222300Z",
+          "sample_hits": [
+            "core/core_audit.json",
+            "core/projects/tasks/INDEX.md"
+          ]
+        },
+        {
+          "hit_count": 2,
+          "path": "core/projects/tasks/queue.jsonl.bak.20260310T223800Z",
+          "sample_hits": [
+            "core/core_audit.json",
+            "core/projects/tasks/INDEX.md"
+          ]
+        },
+        {
+          "hit_count": 2,
+          "path": "core/projects/tasks/queue.jsonl.bak.20260310T224800Z",
+          "sample_hits": [
+            "core/core_audit.json",
+            "core/projects/tasks/INDEX.md"
+          ]
+        },
+        {
+          "hit_count": 2,
+          "path": "core/projects/tasks/queue.jsonl.bak.20260310T225700Z",
+          "sample_hits": [
+            "core/core_audit.json",
+            "core/projects/tasks/INDEX.md"
+          ]
+        }
+      ],
+      "tracked_files": 9
+    },
+    {
+      "apply_eligible": false,
+      "bytes": 137807,
+      "disposition": "review_required",
+      "family": "archive.citadel_avatar_backup",
+      "files": 24,
+      "ignored_files": 0,
+      "largest_files": [
+        {
+          "bytes": 62227,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/index.html",
+          "tracked": true
+        },
+        {
+          "bytes": 17422,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/bridge_query.sh",
+          "tracked": true
+        },
+        {
+          "bytes": 15966,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/scene-runtime.js",
+          "tracked": true
+        },
+        {
+          "bytes": 14618,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/metatron-cube.js",
+          "tracked": true
+        },
+        {
+          "bytes": 4243,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/emit_scene_event.sh",
+          "tracked": true
+        },
+        {
+          "bytes": 3732,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/set_scene_state.sh",
+          "tracked": true
+        },
+        {
+          "bytes": 3401,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/openai_tts.sh",
+          "tracked": true
+        },
+        {
+          "bytes": 3040,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/README.md",
+          "tracked": true
+        },
+        {
+          "bytes": 2973,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/speak_on_citadel.sh",
+          "tracked": true
+        },
+        {
+          "bytes": 2114,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/SCENE_STATE.md",
+          "tracked": true
+        },
+        {
+          "bytes": 1963,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/set_media_state.sh",
+          "tracked": true
+        },
+        {
+          "bytes": 791,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/client_lookup_query.sh",
+          "tracked": true
+        },
+        {
+          "bytes": 750,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/day_metrics_query.sh",
+          "tracked": true
+        },
+        {
+          "bytes": 690,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/demo_scene_flow.sh",
+          "tracked": true
+        },
+        {
+          "bytes": 669,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/remote_scene_event.sh",
+          "tracked": true
+        },
+        {
+          "bytes": 615,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/video-playlist.json",
+          "tracked": true
+        },
+        {
+          "bytes": 544,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/remote_media_state.sh",
+          "tracked": true
+        },
+        {
+          "bytes": 534,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/play_audio.sh",
+          "tracked": true
+        },
+        {
+          "bytes": 505,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/remote_demo_scene_flow.sh",
+          "tracked": true
+        },
+        {
+          "bytes": 450,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/package-lock.json",
+          "tracked": true
+        }
+      ],
+      "members": [
+        {
+          "bytes": 61,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/.gitignore",
+          "reference_check": {
+            "hit_count": 5,
+            "sample_hits": [
+              "apps/arda-hud/INDEX.md",
+              "apps/arda-hud/src-tauri/INDEX.md",
+              "apps/citadel-avatar-pure/INDEX.md",
+              "apps/citadel-avatar/INDEX.md",
+              "docs/operations/STORAGE_HYGIENE_POLICY.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 3040,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/README.md",
+          "reference_check": {
+            "hit_count": 8,
+            "sample_hits": [
+              "apps/INDEX.md",
+              "apps/RELIC/INDEX.md",
+              "apps/arda-hud/ARDA_OPERATING_SURFACE_PLAN_2026-05-27.md",
+              "apps/arda-hud/INDEX.md",
+              "apps/arda-hud/RUNTIME.md",
+              "apps/arda-hud/public/INDEX.md",
+              "apps/arda-hud/public/ops/INDEX.md",
+              "apps/arda-hud/scripts/INDEX.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 2114,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/SCENE_STATE.md",
+          "reference_check": {
+            "hit_count": 3,
+            "sample_hits": [
+              "apps/citadel-avatar-pure/INDEX.md",
+              "apps/citadel-avatar/INDEX.md",
+              "human/03-Knowledge/Architecture/pi5-demo-rundown.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 17422,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/bridge_query.sh",
+          "reference_check": {
+            "hit_count": 8,
+            "sample_hits": [
+              "apps/citadel-avatar-pure/DEPLOYMENT_TO_PI5.md",
+              "apps/citadel-avatar-pure/INDEX.md",
+              "apps/citadel-avatar-pure/README.md",
+              "apps/citadel-avatar-pure/client_lookup_query.sh",
+              "apps/citadel-avatar-pure/day_metrics_query.sh",
+              "apps/citadel-avatar/INDEX.md",
+              "apps/citadel-avatar/README.md",
+              "apps/citadel-avatar/client_lookup_query.sh"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 791,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/client_lookup_query.sh",
+          "reference_check": {
+            "hit_count": 4,
+            "sample_hits": [
+              "apps/citadel-avatar-pure/INDEX.md",
+              "apps/citadel-avatar-pure/client_lookup_query.sh",
+              "apps/citadel-avatar/INDEX.md",
+              "apps/citadel-avatar/client_lookup_query.sh"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 750,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/day_metrics_query.sh",
+          "reference_check": {
+            "hit_count": 2,
+            "sample_hits": [
+              "apps/citadel-avatar-pure/INDEX.md",
+              "apps/citadel-avatar/INDEX.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 690,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/demo_scene_flow.sh",
+          "reference_check": {
+            "hit_count": 3,
+            "sample_hits": [
+              "human/03-Knowledge/Architecture/citadel-presentation.md",
+              "human/03-Knowledge/Architecture/pi5-demo-rundown.md",
+              "scripts/deploy_citadel_avatar.sh"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 4243,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/emit_scene_event.sh",
+          "reference_check": {
+            "hit_count": 8,
+            "sample_hits": [
+              "apps/citadel-avatar-pure/DEPLOYMENT_TO_PI5.md",
+              "apps/citadel-avatar-pure/INDEX.md",
+              "apps/citadel-avatar-pure/README.md",
+              "apps/citadel-avatar-pure/SCENE_STATE.md",
+              "apps/citadel-avatar-pure/bridge_query.sh",
+              "apps/citadel-avatar-pure/remote_scene_event.sh",
+              "apps/citadel-avatar-pure/speak_on_citadel.sh",
+              "apps/citadel-avatar/INDEX.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 62227,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/index.html",
+          "reference_check": {
+            "hit_count": 8,
+            "sample_hits": [
+              "apps/RELIC/INDEX.md",
+              "apps/arda-hud/INDEX.md",
+              "apps/arda-hud/src-tauri/src/lib.rs",
+              "apps/citadel-avatar-pure/DEPLOYMENT_TO_PI5.md",
+              "apps/citadel-avatar-pure/INDEX.md",
+              "apps/citadel-avatar/INDEX.md",
+              "apps/citadel-companion/INDEX.md",
+              "apps/first-light/package.json"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 210,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/media-state.json",
+          "reference_check": {
+            "hit_count": 5,
+            "sample_hits": [
+              "apps/citadel-avatar-pure/DEPLOYMENT_TO_PI5.md",
+              "apps/citadel-avatar-pure/INDEX.md",
+              "apps/citadel-avatar-pure/set_media_state.sh",
+              "apps/citadel-avatar/INDEX.md",
+              "apps/citadel-avatar/set_media_state.sh"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 14618,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/metatron-cube.js",
+          "reference_check": {
+            "hit_count": 3,
+            "sample_hits": [
+              "apps/citadel-avatar-pure/INDEX.md",
+              "apps/citadel-avatar/INDEX.md",
+              "human/03-Knowledge/Architecture/pi5-demo-rundown.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 3401,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/openai_tts.sh",
+          "reference_check": {
+            "hit_count": 7,
+            "sample_hits": [
+              "apps/citadel-avatar-pure/INDEX.md",
+              "apps/citadel-avatar-pure/README.md",
+              "apps/citadel-avatar-pure/speak_on_citadel.sh",
+              "apps/citadel-avatar/INDEX.md",
+              "apps/citadel-avatar/README.md",
+              "apps/citadel-avatar/speak_on_citadel.sh",
+              "scripts/deploy_citadel_avatar.sh"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 450,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/package-lock.json",
+          "reference_check": {
+            "hit_count": 3,
+            "sample_hits": [
+              "apps/arda-hud/INDEX.md",
+              "core/knowledge/source_inventory.jsonl",
+              "crates/annunimas-cli/src/export_surface/package_exports.rs"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 52,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/package.json",
+          "reference_check": {
+            "hit_count": 8,
+            "sample_hits": [
+              "apps/RELIC/INDEX.md",
+              "apps/arda-hud/INDEX.md",
+              "apps/citadel-avatar-pure/INDEX.md",
+              "apps/citadel-avatar/INDEX.md",
+              "apps/citadel-companion/INDEX.md",
+              "core/knowledge/source_inventory.jsonl",
+              "crates/annunimas-athena/src/ingest/github.rs",
+              "crates/annunimas-cli/src/export_surface/business_exports.rs"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 534,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/play_audio.sh",
+          "reference_check": {
+            "hit_count": 7,
+            "sample_hits": [
+              "apps/citadel-avatar-pure/INDEX.md",
+              "apps/citadel-avatar-pure/README.md",
+              "apps/citadel-avatar-pure/speak_on_citadel.sh",
+              "apps/citadel-avatar/INDEX.md",
+              "apps/citadel-avatar/README.md",
+              "apps/citadel-avatar/speak_on_citadel.sh",
+              "scripts/deploy_citadel_avatar.sh"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 505,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/remote_demo_scene_flow.sh",
+          "reference_check": {
+            "hit_count": 1,
+            "sample_hits": [
+              "human/03-Knowledge/Architecture/citadel-presentation.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 544,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/remote_media_state.sh",
+          "reference_check": {
+            "hit_count": 4,
+            "sample_hits": [
+              "apps/citadel-avatar-pure/INDEX.md",
+              "apps/citadel-avatar-pure/remote_media_state.sh",
+              "apps/citadel-avatar/INDEX.md",
+              "apps/citadel-avatar/remote_media_state.sh"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 669,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/remote_scene_event.sh",
+          "reference_check": {
+            "hit_count": 5,
+            "sample_hits": [
+              "apps/citadel-avatar-pure/INDEX.md",
+              "apps/citadel-avatar-pure/remote_scene_event.sh",
+              "apps/citadel-avatar/INDEX.md",
+              "apps/citadel-avatar/remote_scene_event.sh",
+              "human/03-Knowledge/Architecture/citadel-presentation.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 237,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/run.sh",
+          "reference_check": {
+            "hit_count": 4,
+            "sample_hits": [
+              "apps/citadel-avatar-pure/INDEX.md",
+              "apps/citadel-avatar/INDEX.md",
+              "scripts/deploy_citadel_avatar.sh",
+              "tests/test_portability_audit.py"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 15966,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/scene-runtime.js",
+          "reference_check": {
+            "hit_count": 8,
+            "sample_hits": [
+              "apps/citadel-avatar-pure/AGENT_KINETIC_VISUALIZATION.md",
+              "apps/citadel-avatar-pure/DEPLOYMENT_SUMMARY.md",
+              "apps/citadel-avatar-pure/DEPLOYMENT_TO_PI5.md",
+              "apps/citadel-avatar-pure/INDEX.md",
+              "apps/citadel-avatar-pure/quick-verify.sh",
+              "apps/citadel-avatar-pure/test-visualization.sh",
+              "apps/citadel-avatar/AGENT_KINETIC_VISUALIZATION.md",
+              "apps/citadel-avatar/DEPLOYMENT_SUMMARY.md"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 1963,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/set_media_state.sh",
+          "reference_check": {
+            "hit_count": 8,
+            "sample_hits": [
+              "apps/citadel-avatar-pure/INDEX.md",
+              "apps/citadel-avatar-pure/bridge_query.sh",
+              "apps/citadel-avatar-pure/remote_media_state.sh",
+              "apps/citadel-avatar-pure/remote_scene_event.sh",
+              "apps/citadel-avatar-pure/speak_on_citadel.sh",
+              "apps/citadel-avatar/INDEX.md",
+              "apps/citadel-avatar/bridge_query.sh",
+              "apps/citadel-avatar/remote_media_state.sh"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 3732,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/set_scene_state.sh",
+          "reference_check": {
+            "hit_count": 5,
+            "sample_hits": [
+              "apps/citadel-avatar-pure/INDEX.md",
+              "apps/citadel-avatar-pure/README.md",
+              "apps/citadel-avatar/INDEX.md",
+              "apps/citadel-avatar/README.md",
+              "scripts/deploy_citadel_avatar.sh"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 2973,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/speak_on_citadel.sh",
+          "reference_check": {
+            "hit_count": 8,
+            "sample_hits": [
+              "apps/citadel-avatar-pure/INDEX.md",
+              "apps/citadel-avatar-pure/README.md",
+              "apps/citadel-avatar-pure/bridge_query.sh",
+              "apps/citadel-avatar-pure/speak_on_citadel.sh",
+              "apps/citadel-avatar/INDEX.md",
+              "apps/citadel-avatar/README.md",
+              "apps/citadel-avatar/bridge_query.sh",
+              "apps/citadel-avatar/speak_on_citadel.sh"
+            ]
+          },
+          "tracked": true
+        },
+        {
+          "bytes": 615,
+          "date_hint": "2026-05-02",
+          "ignored": false,
+          "mtime_utc": "2026-05-25T15:26:14Z",
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/video-playlist.json",
+          "reference_check": {
+            "hit_count": 2,
+            "sample_hits": [
+              "apps/citadel-avatar-pure/set_media_state.sh",
+              "apps/citadel-avatar/set_media_state.sh"
+            ]
+          },
+          "tracked": true
+        }
+      ],
+      "newest_mtime_utc": "2026-05-25T15:26:14Z",
+      "oldest_date_hint": "2026-05-02",
+      "rationale": "Family needs owner-specific lifecycle policy before mutation.",
+      "reference_hits": 127,
+      "sample_references": [
+        {
+          "hit_count": 5,
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/.gitignore",
+          "sample_hits": [
+            "apps/arda-hud/INDEX.md",
+            "apps/arda-hud/src-tauri/INDEX.md",
+            "apps/citadel-avatar-pure/INDEX.md",
+            "apps/citadel-avatar/INDEX.md",
+            "docs/operations/STORAGE_HYGIENE_POLICY.md"
+          ]
+        },
+        {
+          "hit_count": 8,
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/README.md",
+          "sample_hits": [
+            "apps/INDEX.md",
+            "apps/RELIC/INDEX.md",
+            "apps/arda-hud/ARDA_OPERATING_SURFACE_PLAN_2026-05-27.md",
+            "apps/arda-hud/INDEX.md",
+            "apps/arda-hud/RUNTIME.md",
+            "apps/arda-hud/public/INDEX.md",
+            "apps/arda-hud/public/ops/INDEX.md",
+            "apps/arda-hud/scripts/INDEX.md"
+          ]
+        },
+        {
+          "hit_count": 3,
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/SCENE_STATE.md",
+          "sample_hits": [
+            "apps/citadel-avatar-pure/INDEX.md",
+            "apps/citadel-avatar/INDEX.md",
+            "human/03-Knowledge/Architecture/pi5-demo-rundown.md"
+          ]
+        },
+        {
+          "hit_count": 8,
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/bridge_query.sh",
+          "sample_hits": [
+            "apps/citadel-avatar-pure/DEPLOYMENT_TO_PI5.md",
+            "apps/citadel-avatar-pure/INDEX.md",
+            "apps/citadel-avatar-pure/README.md",
+            "apps/citadel-avatar-pure/client_lookup_query.sh",
+            "apps/citadel-avatar-pure/day_metrics_query.sh",
+            "apps/citadel-avatar/INDEX.md",
+            "apps/citadel-avatar/README.md",
+            "apps/citadel-avatar/client_lookup_query.sh"
+          ]
+        },
+        {
+          "hit_count": 4,
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/client_lookup_query.sh",
+          "sample_hits": [
+            "apps/citadel-avatar-pure/INDEX.md",
+            "apps/citadel-avatar-pure/client_lookup_query.sh",
+            "apps/citadel-avatar/INDEX.md",
+            "apps/citadel-avatar/client_lookup_query.sh"
+          ]
+        },
+        {
+          "hit_count": 2,
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/day_metrics_query.sh",
+          "sample_hits": [
+            "apps/citadel-avatar-pure/INDEX.md",
+            "apps/citadel-avatar/INDEX.md"
+          ]
+        },
+        {
+          "hit_count": 3,
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/demo_scene_flow.sh",
+          "sample_hits": [
+            "human/03-Knowledge/Architecture/citadel-presentation.md",
+            "human/03-Knowledge/Architecture/pi5-demo-rundown.md",
+            "scripts/deploy_citadel_avatar.sh"
+          ]
+        },
+        {
+          "hit_count": 8,
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/emit_scene_event.sh",
+          "sample_hits": [
+            "apps/citadel-avatar-pure/DEPLOYMENT_TO_PI5.md",
+            "apps/citadel-avatar-pure/INDEX.md",
+            "apps/citadel-avatar-pure/README.md",
+            "apps/citadel-avatar-pure/SCENE_STATE.md",
+            "apps/citadel-avatar-pure/bridge_query.sh",
+            "apps/citadel-avatar-pure/remote_scene_event.sh",
+            "apps/citadel-avatar-pure/speak_on_citadel.sh",
+            "apps/citadel-avatar/INDEX.md"
+          ]
+        },
+        {
+          "hit_count": 8,
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/index.html",
+          "sample_hits": [
+            "apps/RELIC/INDEX.md",
+            "apps/arda-hud/INDEX.md",
+            "apps/arda-hud/src-tauri/src/lib.rs",
+            "apps/citadel-avatar-pure/DEPLOYMENT_TO_PI5.md",
+            "apps/citadel-avatar-pure/INDEX.md",
+            "apps/citadel-avatar/INDEX.md",
+            "apps/citadel-companion/INDEX.md",
+            "apps/first-light/package.json"
+          ]
+        },
+        {
+          "hit_count": 5,
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/media-state.json",
+          "sample_hits": [
+            "apps/citadel-avatar-pure/DEPLOYMENT_TO_PI5.md",
+            "apps/citadel-avatar-pure/INDEX.md",
+            "apps/citadel-avatar-pure/set_media_state.sh",
+            "apps/citadel-avatar/INDEX.md",
+            "apps/citadel-avatar/set_media_state.sh"
+          ]
+        },
+        {
+          "hit_count": 3,
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/metatron-cube.js",
+          "sample_hits": [
+            "apps/citadel-avatar-pure/INDEX.md",
+            "apps/citadel-avatar/INDEX.md",
+            "human/03-Knowledge/Architecture/pi5-demo-rundown.md"
+          ]
+        },
+        {
+          "hit_count": 7,
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/openai_tts.sh",
+          "sample_hits": [
+            "apps/citadel-avatar-pure/INDEX.md",
+            "apps/citadel-avatar-pure/README.md",
+            "apps/citadel-avatar-pure/speak_on_citadel.sh",
+            "apps/citadel-avatar/INDEX.md",
+            "apps/citadel-avatar/README.md",
+            "apps/citadel-avatar/speak_on_citadel.sh",
+            "scripts/deploy_citadel_avatar.sh"
+          ]
+        },
+        {
+          "hit_count": 3,
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/package-lock.json",
+          "sample_hits": [
+            "apps/arda-hud/INDEX.md",
+            "core/knowledge/source_inventory.jsonl",
+            "crates/annunimas-cli/src/export_surface/package_exports.rs"
+          ]
+        },
+        {
+          "hit_count": 8,
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/package.json",
+          "sample_hits": [
+            "apps/RELIC/INDEX.md",
+            "apps/arda-hud/INDEX.md",
+            "apps/citadel-avatar-pure/INDEX.md",
+            "apps/citadel-avatar/INDEX.md",
+            "apps/citadel-companion/INDEX.md",
+            "core/knowledge/source_inventory.jsonl",
+            "crates/annunimas-athena/src/ingest/github.rs",
+            "crates/annunimas-cli/src/export_surface/business_exports.rs"
+          ]
+        },
+        {
+          "hit_count": 7,
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/play_audio.sh",
+          "sample_hits": [
+            "apps/citadel-avatar-pure/INDEX.md",
+            "apps/citadel-avatar-pure/README.md",
+            "apps/citadel-avatar-pure/speak_on_citadel.sh",
+            "apps/citadel-avatar/INDEX.md",
+            "apps/citadel-avatar/README.md",
+            "apps/citadel-avatar/speak_on_citadel.sh",
+            "scripts/deploy_citadel_avatar.sh"
+          ]
+        },
+        {
+          "hit_count": 1,
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/remote_demo_scene_flow.sh",
+          "sample_hits": [
+            "human/03-Knowledge/Architecture/citadel-presentation.md"
+          ]
+        },
+        {
+          "hit_count": 4,
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/remote_media_state.sh",
+          "sample_hits": [
+            "apps/citadel-avatar-pure/INDEX.md",
+            "apps/citadel-avatar-pure/remote_media_state.sh",
+            "apps/citadel-avatar/INDEX.md",
+            "apps/citadel-avatar/remote_media_state.sh"
+          ]
+        },
+        {
+          "hit_count": 5,
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/remote_scene_event.sh",
+          "sample_hits": [
+            "apps/citadel-avatar-pure/INDEX.md",
+            "apps/citadel-avatar-pure/remote_scene_event.sh",
+            "apps/citadel-avatar/INDEX.md",
+            "apps/citadel-avatar/remote_scene_event.sh",
+            "human/03-Knowledge/Architecture/citadel-presentation.md"
+          ]
+        },
+        {
+          "hit_count": 4,
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/run.sh",
+          "sample_hits": [
+            "apps/citadel-avatar-pure/INDEX.md",
+            "apps/citadel-avatar/INDEX.md",
+            "scripts/deploy_citadel_avatar.sh",
+            "tests/test_portability_audit.py"
+          ]
+        },
+        {
+          "hit_count": 8,
+          "path": "archive/backups/citadel-avatar-backup-20260502-174847/scene-runtime.js",
+          "sample_hits": [
+            "apps/citadel-avatar-pure/AGENT_KINETIC_VISUALIZATION.md",
+            "apps/citadel-avatar-pure/DEPLOYMENT_SUMMARY.md",
+            "apps/citadel-avatar-pure/DEPLOYMENT_TO_PI5.md",
+            "apps/citadel-avatar-pure/INDEX.md",
+            "apps/citadel-avatar-pure/quick-verify.sh",
+            "apps/citadel-avatar-pure/test-visualization.sh",
+            "apps/citadel-avatar/AGENT_KINETIC_VISUALIZATION.md",
+            "apps/citadel-avatar/DEPLOYMENT_SUMMARY.md"
+          ]
+        }
+      ],
+      "tracked_files": 24
+    }
+  ],
+  "generated_at_utc": "2026-06-06T00:11:00Z",
+  "mode": "review_packet_no_delete",
+  "policy": {
+    "delete_requires": [
+      "family disposition apply_eligible=true",
+      "candidate is ignored and untracked",
+      "fresh apply receipt",
+      "post-apply storage audit refresh"
+    ],
+    "destructive_actions_performed": false,
+    "review_gated": [
+      "tracked archive material",
+      "queue backups",
+      "historical audit packets",
+      "human/source/docs/config surfaces"
+    ]
+  },
+  "summary": {
+    "apply_candidate_count": 0,
+    "bytes": 209238931,
+    "dispositions": {
+      "archive_compaction_candidate": 1,
+      "archive_log_retention_review": 1,
+      "index_and_compact_review": 2,
+      "retain_or_cold_archive": 1,
+      "review_required": 1,
+      "runtime_backup_retention_review": 1
+    },
+    "families": 7,
+    "files": 1301
+  }
+}

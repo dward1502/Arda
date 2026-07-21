@@ -1,0 +1,24 @@
+{
+  "contract": "annunimas.hades.storage_hygiene_apply.v1",
+  "deleted": [],
+  "dry_run_candidates": [],
+  "generated_at_utc": "2026-06-06T01:09:14Z",
+  "mode": "dry_run_no_delete",
+  "policy": {
+    "backup_scope": "only data/** backup-shaped files are eligible",
+    "tick_scope": "only core/state/tick_output_*.txt is eligible",
+    "tmp_active_process_check": ".tmp is skipped when active process command lines reference the workspace temp root"
+  },
+  "scopes": [
+    "stale-backups",
+    "tick-output",
+    "tmp"
+  ],
+  "skipped": [],
+  "summary": {
+    "candidate_total": 0,
+    "deleted_bytes": 0,
+    "deleted_total": 0,
+    "skipped_total": 0
+  }
+}

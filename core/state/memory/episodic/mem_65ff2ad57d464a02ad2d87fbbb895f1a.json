@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_65ff2ad57d464a02ad2d87fbbb895f1a",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: LSRH-P3 lightweight stage-transition validators",
+  "salience": 0.9125000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-12T10:34:06.190552960Z",
+  "last_seen_at": "2026-06-12T10:34:06.190552960Z"
+}

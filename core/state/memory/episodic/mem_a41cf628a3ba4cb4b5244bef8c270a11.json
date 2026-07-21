@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_a41cf628a3ba4cb4b5244bef8c270a11",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Plan task: Arda Milestone 3 Meaningful World Plan. Created from active plan registry; see docs/plans/2026-05-22-arda-milestone-3-meaningful-world-plan.md for task contract and verification gates.",
+  "salience": 0.8225000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-23T06:47:13.152460924Z",
+  "last_seen_at": "2026-05-23T06:47:13.152460924Z"
+}

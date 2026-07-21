@@ -1,0 +1,122 @@
+{
+  "authority": "prometheus_oracle_deliberation_projection",
+  "doctrine": {
+    "max_questions": 7,
+    "max_rounds": 3,
+    "must_emit_structured_verdict": true,
+    "must_handoff_to_prometheus_or_human_after_verdict": true,
+    "must_write_audit_artifact": true,
+    "never_free_run": true,
+    "no_self_reinvocation": true,
+    "only_invoked_for_defined_intent": true
+  },
+  "evaluation_axes": {
+    "joulework": [
+      "estimated_cost",
+      "budget_pressure",
+      "time_pressure"
+    ],
+    "love_equation": [
+      "alignment_score",
+      "human_resonance",
+      "mission_fit"
+    ],
+    "triad": [
+      "aurelius",
+      "bacon",
+      "sun_tzu"
+    ]
+  },
+  "generated_at_utc": "2026-04-28T09:49:24Z",
+  "input_surfaces": {
+    "async_user_intake_contract": "core/state/async_user_intake_contract.json",
+    "multi_domain_routing_contract": "core/state/multi_domain_routing_contract.json",
+    "operator_actions": "core/state/operator_actions.json",
+    "project_task_queue": "core/projects/tasks/queue.jsonl",
+    "runtime_budget_policy": "core/state/runtime_budget_policy.json",
+    "runtime_governor_contract": "core/state/runtime_governor_contract.json"
+  },
+  "invocation_policy": {
+    "allowed_intents": [
+      "plan_clarification",
+      "strategic_pivot",
+      "high_cost_operation",
+      "conflicting_priorities",
+      "domain_expansion"
+    ],
+    "explicit_non_goals": [
+      "general_chat_companion",
+      "recursive_self-reflection",
+      "direct_command_execution",
+      "persistent_conversational_presence"
+    ],
+    "trigger_signals": [
+      {
+        "active": true,
+        "observed": 59,
+        "signal": "queued_session_pivots"
+      },
+      {
+        "active": false,
+        "observed": 0,
+        "signal": "provider_budget_pressure"
+      },
+      {
+        "active": false,
+        "observed_percent": 0.0,
+        "signal": "local_joule_pressure"
+      },
+      {
+        "active": true,
+        "observed": 4,
+        "signal": "operator_attention_needed"
+      },
+      {
+        "active": true,
+        "observed": 2,
+        "signal": "domain_expansion_frontier"
+      }
+    ]
+  },
+  "output_contract": {
+    "handoff_targets": [
+      "prometheus",
+      "athena",
+      "apollo",
+      "task_ledger"
+    ],
+    "hud_visibility": {
+      "panel": "decision_audit",
+      "show_cost_and_alignment": true,
+      "show_invocation_reason": true,
+      "show_override_outcome": true
+    },
+    "verdict_fields": [
+      "objective",
+      "assumptions",
+      "contradictions",
+      "risks",
+      "recommended_path",
+      "human_override_needed",
+      "triad_score",
+      "joulework_estimate",
+      "love_equation_score"
+    ]
+  },
+  "purpose": {
+    "execution_authority": "none",
+    "mission": "Pressure-test plans and pivots with bounded philosophical challenge before expensive execution.",
+    "role": "non-executing deliberation module"
+  },
+  "schema_version": "annunimas.socratic-validator-contract.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "async_handoff_steps_total": 7,
+    "local_joule_pressure_active": false,
+    "operator_attention_total": 4,
+    "promote_now_sources_total": 8,
+    "provider_budget_pressure_total": 0,
+    "runtime_governor_provider_budget_lanes": 14,
+    "strategic_queued_total": 59
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "authority": "core_realm_identity + embodied_interface_design",
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "hardware_targets": [
+    {
+      "bootstrap_state": "tailscale_visible_ssh_ready",
+      "device": "raspberry_pi_5_guardhouse",
+      "node": {
+        "enrollment_status": "active",
+        "hostname": "raspberrypi",
+        "llm_runtime": "edge_llm_light",
+        "node_class": "edge_guardhouse",
+        "node_id": "node-pi5-warden",
+        "role": "warden_guardhouse",
+        "ssh_user": "numenor",
+        "tailscale_ip": "100.110.85.37"
+      },
+      "role": "home network guardhouse and CEO-callable utility node"
+    },
+    {
+      "bootstrap_state": "tailscale_visible_ssh_ready",
+      "device": "raspberry_pi_5_ai_hat_plus",
+      "node": {
+        "enrollment_status": "active_staging",
+        "hostname": "raspberrypi",
+        "llm_runtime": "cloud_only_inference",
+        "node_class": "edge_avatar_product",
+        "node_id": "node-pi5-citadel-avatar",
+        "role": "citadel_avatar_controller",
+        "ssh_user": "citadel",
+        "tailscale_ip": "100.123.187.77"
+      },
+      "role": "dedicated citadel avatar controller"
+    },
+    {
+      "device": "peppers_ghost_avatar_enclosure",
+      "role": "visual projection and LED diffusion shell"
+    }
+  ],
+  "realms": [
+    {
+      "activation_rule": "derive from live runtime state, queue pressure, and agent heartbeat rather than decorative timers",
+      "agents": [
+        "arandur",
+        "prometheus",
+        "charon",
+        "counsel"
+      ],
+      "color": "#ffd700",
+      "motion": "axial_pulse",
+      "name": "Command",
+      "realm_id": "command",
+      "shape": "tetrahedron"
+    },
+    {
+      "activation_rule": "derive from live runtime state, queue pressure, and agent heartbeat rather than decorative timers",
+      "agents": [
+        "athena",
+        "mnemosyne"
+      ],
+      "color": "#00e5ff",
+      "motion": "orbital_spin",
+      "name": "Knowledge",
+      "realm_id": "knowledge",
+      "shape": "octahedron"
+    },
+    {
+      "activation_rule": "derive from live runtime state, queue pressure, and agent heartbeat rather than decorative timers",
+      "agents": [
+        "apollo",
+        "hades"
+      ],
+      "color": "#44aaff",
+      "motion": "step_lattice",
+      "name": "Operations",
+      "realm_id": "operations",
+      "shape": "cube"
+    },
+    {
+      "activation_rule": "derive from live runtime state, queue pressure, and agent heartbeat rather than decorative timers",
+      "agents": [
+        "plutus"
+      ],
+      "color": "#00ff88",
+      "motion": "breathing_expansion",
+      "name": "Finance",
+      "realm_id": "finance",
+      "shape": "dodecahedron"
+    },
+    {
+      "activation_rule": "derive from live runtime state, queue pressure, and agent heartbeat rather than decorative timers",
+      "agents": [
+        "hermes"
+      ],
+      "color": "#ff88ff",
+      "motion": "signal_ripple",
+      "name": "Communications",
+      "realm_id": "communications",
+      "shape": "icosahedron"
+    },
+    {
+      "activation_rule": "derive from live runtime state, queue pressure, and agent heartbeat rather than decorative timers",
+      "agents": [
+        "oracle",
+        "governance"
+      ],
+      "color": "#cc44ff",
+      "motion": "counter_rotation",
+      "name": "Governance",
+      "realm_id": "governance",
+      "shape": "merkaba"
+    },
+    {
+      "activation_rule": "derive from live runtime state, queue pressure, and agent heartbeat rather than decorative timers",
+      "agents": [
+        "warden"
+      ],
+      "color": "#ff4444",
+      "motion": "sentinel_sweep",
+      "name": "Monitoring",
+      "realm_id": "monitoring",
+      "shape": "cube_frame"
+    }
+  ],
+  "rendering_rules": {
+    "color_source": "core/realm/annunimas.toml realm colors",
+    "fallback_mode": "idle_resonance_glow",
+    "geometry_family": "sacred_geometry_and_platonic_solids",
+    "truth_binding": "only animate state changes grounded in sovereign runtime truth"
+  },
+  "schema_version": "annunimas.embodied-interface.v1",
+  "sigil": "REPAIR"
+}

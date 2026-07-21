@@ -1,0 +1,56 @@
+/target
+**/target
+Cargo.lock
+.cargo/
+release/
+debug/
+
+# Tauri / Rust native build artifacts
+src-tauri/target
+src-tauri/gen
+*.tgz
+src-tauri/wix/
+WixTools/
+*.bundle
+*.AppImage
+*.deb
+*.rpm
+*.msi
+*.msix
+*.dmg
+
+# Node
+node_modules
+dist
+dist-ssr
+*.local
+*.tsbuildinfo
+.vite-cache
+.v8-packages
+.cache
+.temp
+.tmp
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Env / secrets
+.env
+.env.*
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

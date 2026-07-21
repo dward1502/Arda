@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_023d020b39074b228ea620141ec7058d",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Create task for model-lifecycle-contract.md",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-05T07:19:29.805083250Z",
+  "last_seen_at": "2026-06-05T07:19:29.805083250Z"
+}

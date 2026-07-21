@@ -1,0 +1,8 @@
+{
+  "id": "world_world_ground_plate",
+  "domain": "world",
+  "scene_binding": "world_ground_plate",
+  "material_family": "world_ground_plate",
+  "source": "procedural_script_tools_generate_arda_assets_py",
+  "license": "Internal"
+}

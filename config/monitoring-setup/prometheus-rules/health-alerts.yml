@@ -1,0 +1,96 @@
+# Soterion: 📜 monitoring_rules | owner: HADES | status: active | reviewed: 2026-05-30
+# Sigil: SCROLL (U+1F4DC); purpose: repository-visible governed configuration.
+
+groups:
+  - name: annunimas-scrape-health
+    rules:
+      - alert: AnnunimasScrapeTargetDown
+        expr: up == 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Annunimas scrape target down: {{ $labels.job }} {{ $labels.node }}"
+          description: "Prometheus on Beelink cannot scrape {{ $labels.instance }} for job {{ $labels.job }}."
+
+      - alert: ManweMetricsUnavailable
+        expr: up{job="manwe", node="annunimas-core"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Manwe metrics endpoint is unavailable"
+          description: "Grafana can show the Manwe scrape failure, but live Manwe internals require annunimas-manwe on 100.78.138.113:5110 to expose /metrics."
+
+  - name: annunimas-fleet-capacity
+    rules:
+      - alert: AnnunimasNodeHighCpu
+        expr: 1 - avg by (node) (rate(node_cpu_seconds_total{job="node", mode="idle"}[5m])) > 0.90
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU on {{ $labels.node }}"
+
+      - alert: AnnunimasNodeLowMemory
+        expr: node_memory_MemAvailable_bytes{job="node"} / node_memory_MemTotal_bytes{job="node"} < 0.10
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low memory on {{ $labels.node }}"
+
+      - alert: AnnunimasRootDiskLow
+        expr: node_filesystem_avail_bytes{job="node", mountpoint="/", fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes{job="node", mountpoint="/", fstype!~"tmpfs|overlay"} < 0.10
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Root disk low on {{ $labels.node }}"
+
+  - name: annunimas-inference-health
+    rules:
+      - alert: LlamaServerDown
+        expr: up{job="llama-server"} == 0
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          summary: "llama.cpp server down on {{ $labels.node }} {{ $labels.lane }}"
+
+      - alert: LlamaServerDeferredRequests
+        expr: sum by (node, lane) (llamacpp:requests_deferred{job="llama-server"}) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "llama.cpp deferred requests on {{ $labels.node }} {{ $labels.lane }}"
+
+  - name: annunimas-audit-governance-health
+    rules:
+      - alert: AnnunimasQueueBacklogHigh
+        expr: annunimas_queue_latest_open_total > 30
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Annunimas latest task backlog is above 30"
+          description: "Latest-by-id open project task count is {{ $value }}. Use `annunimas-cli export queue-hygiene` and `annunimas-cli export governance-priority-runtime` before reading the raw queue ledger."
+
+      - alert: AnnunimasPressureGuardAlert
+        expr: annunimas_pressure_guard_status{status=~"alert|error"} == 1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Annunimas pressure guard is not green"
+          description: "Pressure guard is reporting {{ $labels.status }}. Inspect data/prometheus/pressure_guard_last.json and data/prometheus/escalations.jsonl."
+
+      - alert: AnnunimasAuditHealthNotGreen
+        expr: annunimas_audit_health_status{status=~"alert|error|fail"} == 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Annunimas audit health surface is not green: {{ $labels.surface }}"
+          description: "Audit surface {{ $labels.surface }} is reporting {{ $labels.status }}. Check /health/audit on the metrics exporter and the corresponding core/state or data/prometheus receipt."

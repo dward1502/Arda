@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_47d14e5d6da2471ebfcc86a0f3cfe2e5",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Repair Charon Hermes Agent bridge health probes",
+  "salience": 0.7222777777777777,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-03T01:09:39.063136777Z",
+  "last_seen_at": "2026-06-03T01:09:39.063136777Z"
+}

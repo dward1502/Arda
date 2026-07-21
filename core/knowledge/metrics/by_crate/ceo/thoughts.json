@@ -1,0 +1,20 @@
+{
+  "schema_version": "annunimas.ceo.thoughts.v1",
+  "generated_at_utc": "2026-04-22T00:00:00Z",
+  "source": "human/CEO/thoughts.md",
+  "summary": {
+    "entries_total": 1,
+    "latest_entry_utc": "2026-04-22T00:00:00Z",
+    "latest_entry_heading": "scaffolding opened",
+    "topics_seen": ["role_persona_split", "phantom_backfill", "counsel_activation"]
+  },
+  "soterion_marks_used": {
+    "𓀀": 1,
+    "∇": 1,
+    "⬡": 1
+  },
+  "conventions": {
+    "entry_heading_format": "### YYYY-MM-DD — <short subject>",
+    "signature_format": "<persona_sigil> <sovereign_mark> <optional_extra_marks>"
+  }
+}

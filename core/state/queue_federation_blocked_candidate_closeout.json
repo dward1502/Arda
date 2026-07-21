@@ -1,0 +1,1127 @@
+{
+  "athena_github_integration_audit": {
+    "coverage_counts": {
+      "audited_unique_entries_total": 40,
+      "entries_by_coverage_class": {
+        "policy_ready_reference_or_backlog": 6,
+        "reference_only_or_backlog": 29,
+        "shallow_or_untracked": 1,
+        "specialized_contract_or_framework": 4
+      },
+      "entries_by_disposition": {
+        "activate_now": 3,
+        "active_signal": 1,
+        "extension_candidate": 5,
+        "framework_surface": 4,
+        "governed_on_demand": 1,
+        "implementation_lane": 1,
+        "research_backlog": 25
+      },
+      "entries_by_integration_state": {
+        "digested_not_promoted": 25,
+        "evidence_ready": 1,
+        "framework_linked": 4,
+        "observed_only": 5,
+        "ready_for_activation": 5
+      },
+      "entries_by_readiness": {
+        "framework_contract": 4,
+        "policy_ready": 6,
+        "reference_only": 4,
+        "research_backlog": 25,
+        "untracked": 1
+      },
+      "entries_by_surface": {
+        "framework_surfaces": 4,
+        "registry_tools": 11,
+        "research_backlog_top": 25
+      },
+      "github_repo_integration_summary": {
+        "framework_linked_total": 4,
+        "github_sources_total": 68,
+        "integration_coverage_total": 68,
+        "observed_only_total": 5,
+        "ready_for_activation_total": 5,
+        "registry_linked_total": 11,
+        "registry_tools_total": 11,
+        "research_backlog_total": 53
+      },
+      "source_absorption_github_candidates_total": 11
+    },
+    "entries": [
+      {
+        "confidence": 0.6916666666666667,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "extension_candidate",
+        "integration_state": "observed_only",
+        "name": "airllm",
+        "readiness": "reference_only",
+        "runtime_status": null,
+        "source_id": "src_759119ab",
+        "status": "deep",
+        "surface": "registry_tools",
+        "triad_passed": true,
+        "url": "https://github.com/lyogavin/airllm"
+      },
+      {
+        "confidence": 0.6916666666666667,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "extension_candidate",
+        "integration_state": "observed_only",
+        "name": "arscontexta",
+        "readiness": "reference_only",
+        "runtime_status": null,
+        "source_id": "src_e0115360",
+        "status": "deep",
+        "surface": "registry_tools",
+        "triad_passed": true,
+        "url": "https://github.com/agenticnotetaking/arscontexta"
+      },
+      {
+        "confidence": 0.7683333333333333,
+        "coverage_class": "policy_ready_reference_or_backlog",
+        "disposition": "activate_now",
+        "integration_state": "ready_for_activation",
+        "name": "crawl4ai",
+        "readiness": "policy_ready",
+        "runtime_status": "not_running",
+        "source_id": "src_d46d1480",
+        "status": "deep",
+        "surface": "registry_tools",
+        "triad_passed": true,
+        "url": "https://github.com/unclecode/crawl4ai"
+      },
+      {
+        "confidence": 0.6916666666666667,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "extension_candidate",
+        "integration_state": "observed_only",
+        "name": "discord-mcp",
+        "readiness": "reference_only",
+        "runtime_status": null,
+        "source_id": "src_b711210b",
+        "status": "deep",
+        "surface": "registry_tools",
+        "triad_passed": true,
+        "url": "https://github.com/SaseQ/discord-mcp"
+      },
+      {
+        "confidence": null,
+        "coverage_class": "shallow_or_untracked",
+        "disposition": "extension_candidate",
+        "integration_state": "observed_only",
+        "name": "ironclaw",
+        "readiness": "untracked",
+        "runtime_status": null,
+        "source_id": "src_c1c7f9c9",
+        "status": "shallow",
+        "surface": "registry_tools",
+        "triad_passed": null,
+        "url": "https://github.com/nearai/ironclaw"
+      },
+      {
+        "confidence": 0.7516666666666667,
+        "coverage_class": "policy_ready_reference_or_backlog",
+        "disposition": "implementation_lane",
+        "integration_state": "evidence_ready",
+        "name": "litellm",
+        "readiness": "policy_ready",
+        "runtime_status": "running",
+        "source_id": "src_dab89283",
+        "status": "deep",
+        "surface": "registry_tools",
+        "triad_passed": true,
+        "url": "https://github.com/BerriAI/litellm"
+      },
+      {
+        "confidence": 0.7516666666666667,
+        "coverage_class": "policy_ready_reference_or_backlog",
+        "disposition": "activate_now",
+        "integration_state": "ready_for_activation",
+        "name": "llmfit",
+        "readiness": "policy_ready",
+        "runtime_status": "optional_signal_absent",
+        "source_id": "src_234088bc",
+        "status": "deep",
+        "surface": "registry_tools",
+        "triad_passed": true,
+        "url": "https://github.com/AlexsJones/llmfit"
+      },
+      {
+        "confidence": 0.7516666666666667,
+        "coverage_class": "policy_ready_reference_or_backlog",
+        "disposition": "activate_now",
+        "integration_state": "ready_for_activation",
+        "name": "nanoclaw",
+        "readiness": "policy_ready",
+        "runtime_status": "not_configured",
+        "source_id": "src_bfd43480",
+        "status": "deep",
+        "surface": "registry_tools",
+        "triad_passed": true,
+        "url": "https://github.com/qwibitai/nanoclaw"
+      },
+      {
+        "confidence": 0.7516666666666667,
+        "coverage_class": "policy_ready_reference_or_backlog",
+        "disposition": "active_signal",
+        "integration_state": "ready_for_activation",
+        "name": "oh-my-opencode",
+        "readiness": "policy_ready",
+        "runtime_status": "ready",
+        "source_id": "src_275d929b",
+        "status": "deep",
+        "surface": "registry_tools",
+        "triad_passed": true,
+        "url": "https://github.com/code-yeongyu/oh-my-opencode"
+      },
+      {
+        "confidence": 0.7516666666666667,
+        "coverage_class": "policy_ready_reference_or_backlog",
+        "disposition": "governed_on_demand",
+        "integration_state": "ready_for_activation",
+        "name": "playwright-mcp",
+        "readiness": "policy_ready",
+        "runtime_status": "contract_ready",
+        "source_id": "src_ba31bde2",
+        "status": "deep",
+        "surface": "registry_tools",
+        "triad_passed": true,
+        "url": "https://github.com/microsoft/playwright-mcp"
+      },
+      {
+        "confidence": 0.6916666666666667,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "extension_candidate",
+        "integration_state": "observed_only",
+        "name": "superpowers",
+        "readiness": "reference_only",
+        "runtime_status": null,
+        "source_id": "src_8c6014a3",
+        "status": "deep",
+        "surface": "registry_tools",
+        "triad_passed": true,
+        "url": "https://github.com/obra/superpowers"
+      },
+      {
+        "confidence": null,
+        "coverage_class": "specialized_contract_or_framework",
+        "disposition": "framework_surface",
+        "integration_state": "framework_linked",
+        "name": "OpenFang",
+        "readiness": "framework_contract",
+        "runtime_status": null,
+        "source_id": "src_cebb6abe",
+        "status": "framework_linked",
+        "surface": "framework_surfaces",
+        "triad_passed": null,
+        "url": "https://github.com/RightNow-AI/openfang"
+      },
+      {
+        "confidence": null,
+        "coverage_class": "specialized_contract_or_framework",
+        "disposition": "framework_surface",
+        "integration_state": "framework_linked",
+        "name": "AgentForge",
+        "readiness": "framework_contract",
+        "runtime_status": null,
+        "source_id": "src_75bbe2e4",
+        "status": "framework_linked",
+        "surface": "framework_surfaces",
+        "triad_passed": null,
+        "url": "https://github.com/DataBassGit/AgentForge"
+      },
+      {
+        "confidence": null,
+        "coverage_class": "specialized_contract_or_framework",
+        "disposition": "framework_surface",
+        "integration_state": "framework_linked",
+        "name": "eliza",
+        "readiness": "framework_contract",
+        "runtime_status": null,
+        "source_id": "src_4169b219",
+        "status": "framework_linked",
+        "surface": "framework_surfaces",
+        "triad_passed": null,
+        "url": "https://github.com/elizaOS/eliza"
+      },
+      {
+        "confidence": null,
+        "coverage_class": "specialized_contract_or_framework",
+        "disposition": "framework_surface",
+        "integration_state": "framework_linked",
+        "name": "Tauri",
+        "readiness": "framework_contract",
+        "runtime_status": null,
+        "source_id": "src_d48f6cc9",
+        "status": "framework_linked",
+        "surface": "framework_surfaces",
+        "triad_passed": null,
+        "url": null
+      },
+      {
+        "confidence": null,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "research_backlog",
+        "integration_state": "digested_not_promoted",
+        "name": "https://github.com/ggerganov/llama.cpp",
+        "readiness": "research_backlog",
+        "runtime_status": null,
+        "source_id": "src_3047ffaa",
+        "status": "shallow",
+        "surface": "research_backlog_top",
+        "triad_passed": null,
+        "url": "https://github.com/ggerganov/llama.cpp"
+      },
+      {
+        "confidence": 0.7316666666666667,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "research_backlog",
+        "integration_state": "digested_not_promoted",
+        "name": "https://github.com/NousResearch/hermes-agent",
+        "readiness": "research_backlog",
+        "runtime_status": null,
+        "source_id": "src_ec2b8bd4",
+        "status": "deep",
+        "surface": "research_backlog_top",
+        "triad_passed": true,
+        "url": "https://github.com/NousResearch/hermes-agent"
+      },
+      {
+        "confidence": 0.6916666666666667,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "research_backlog",
+        "integration_state": "digested_not_promoted",
+        "name": "https://github.com/builderz-labs/mission-control",
+        "readiness": "research_backlog",
+        "runtime_status": null,
+        "source_id": "src_c2fef5eb",
+        "status": "deep",
+        "surface": "research_backlog_top",
+        "triad_passed": true,
+        "url": "https://github.com/builderz-labs/mission-control"
+      },
+      {
+        "confidence": 0.7683333333333333,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "research_backlog",
+        "integration_state": "digested_not_promoted",
+        "name": "https://github.com/D4Vinci/Scrapling",
+        "readiness": "research_backlog",
+        "runtime_status": null,
+        "source_id": "src_df11630e",
+        "status": "deep",
+        "surface": "research_backlog_top",
+        "triad_passed": true,
+        "url": "https://github.com/D4Vinci/Scrapling"
+      },
+      {
+        "confidence": 0.75,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "research_backlog",
+        "integration_state": "digested_not_promoted",
+        "name": "src_c623c7c2",
+        "readiness": "research_backlog",
+        "runtime_status": null,
+        "source_id": "src_c623c7c2",
+        "status": "deep",
+        "surface": "research_backlog_top",
+        "triad_passed": true,
+        "url": null
+      },
+      {
+        "confidence": 0.75,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "research_backlog",
+        "integration_state": "digested_not_promoted",
+        "name": "src_349063d2",
+        "readiness": "research_backlog",
+        "runtime_status": null,
+        "source_id": "src_349063d2",
+        "status": "deep",
+        "surface": "research_backlog_top",
+        "triad_passed": true,
+        "url": null
+      },
+      {
+        "confidence": 0.75,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "research_backlog",
+        "integration_state": "digested_not_promoted",
+        "name": "src_b709b4a0",
+        "readiness": "research_backlog",
+        "runtime_status": null,
+        "source_id": "src_b709b4a0",
+        "status": "deep",
+        "surface": "research_backlog_top",
+        "triad_passed": true,
+        "url": null
+      },
+      {
+        "confidence": 0.75,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "research_backlog",
+        "integration_state": "digested_not_promoted",
+        "name": "src_58052dc5",
+        "readiness": "research_backlog",
+        "runtime_status": null,
+        "source_id": "src_58052dc5",
+        "status": "deep",
+        "surface": "research_backlog_top",
+        "triad_passed": true,
+        "url": null
+      },
+      {
+        "confidence": 0.75,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "research_backlog",
+        "integration_state": "digested_not_promoted",
+        "name": "src_201e5d87",
+        "readiness": "research_backlog",
+        "runtime_status": null,
+        "source_id": "src_201e5d87",
+        "status": "deep",
+        "surface": "research_backlog_top",
+        "triad_passed": true,
+        "url": null
+      },
+      {
+        "confidence": 0.75,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "research_backlog",
+        "integration_state": "digested_not_promoted",
+        "name": "src_09cdae85",
+        "readiness": "research_backlog",
+        "runtime_status": null,
+        "source_id": "src_09cdae85",
+        "status": "deep",
+        "surface": "research_backlog_top",
+        "triad_passed": true,
+        "url": null
+      },
+      {
+        "confidence": 0.75,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "research_backlog",
+        "integration_state": "digested_not_promoted",
+        "name": "src_2b71e3d5",
+        "readiness": "research_backlog",
+        "runtime_status": null,
+        "source_id": "src_2b71e3d5",
+        "status": "deep",
+        "surface": "research_backlog_top",
+        "triad_passed": true,
+        "url": null
+      },
+      {
+        "confidence": 0.75,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "research_backlog",
+        "integration_state": "digested_not_promoted",
+        "name": "src_94ec52fc",
+        "readiness": "research_backlog",
+        "runtime_status": null,
+        "source_id": "src_94ec52fc",
+        "status": "deep",
+        "surface": "research_backlog_top",
+        "triad_passed": true,
+        "url": null
+      },
+      {
+        "confidence": 0.75,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "research_backlog",
+        "integration_state": "digested_not_promoted",
+        "name": "src_9cad18f2",
+        "readiness": "research_backlog",
+        "runtime_status": null,
+        "source_id": "src_9cad18f2",
+        "status": "deep",
+        "surface": "research_backlog_top",
+        "triad_passed": true,
+        "url": null
+      },
+      {
+        "confidence": 0.75,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "research_backlog",
+        "integration_state": "digested_not_promoted",
+        "name": "src_0c48d91a",
+        "readiness": "research_backlog",
+        "runtime_status": null,
+        "source_id": "src_0c48d91a",
+        "status": "deep",
+        "surface": "research_backlog_top",
+        "triad_passed": true,
+        "url": null
+      },
+      {
+        "confidence": 0.75,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "research_backlog",
+        "integration_state": "digested_not_promoted",
+        "name": "src_86a91025",
+        "readiness": "research_backlog",
+        "runtime_status": null,
+        "source_id": "src_86a91025",
+        "status": "deep",
+        "surface": "research_backlog_top",
+        "triad_passed": true,
+        "url": null
+      },
+      {
+        "confidence": 0.75,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "research_backlog",
+        "integration_state": "digested_not_promoted",
+        "name": "src_1d61766b",
+        "readiness": "research_backlog",
+        "runtime_status": null,
+        "source_id": "src_1d61766b",
+        "status": "deep",
+        "surface": "research_backlog_top",
+        "triad_passed": true,
+        "url": null
+      },
+      {
+        "confidence": 0.75,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "research_backlog",
+        "integration_state": "digested_not_promoted",
+        "name": "src_c410e7ab",
+        "readiness": "research_backlog",
+        "runtime_status": null,
+        "source_id": "src_c410e7ab",
+        "status": "deep",
+        "surface": "research_backlog_top",
+        "triad_passed": true,
+        "url": null
+      },
+      {
+        "confidence": 0.75,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "research_backlog",
+        "integration_state": "digested_not_promoted",
+        "name": "src_cc43941d",
+        "readiness": "research_backlog",
+        "runtime_status": null,
+        "source_id": "src_cc43941d",
+        "status": "deep",
+        "surface": "research_backlog_top",
+        "triad_passed": true,
+        "url": null
+      },
+      {
+        "confidence": 0.75,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "research_backlog",
+        "integration_state": "digested_not_promoted",
+        "name": "src_73c61c5a",
+        "readiness": "research_backlog",
+        "runtime_status": null,
+        "source_id": "src_73c61c5a",
+        "status": "deep",
+        "surface": "research_backlog_top",
+        "triad_passed": true,
+        "url": null
+      },
+      {
+        "confidence": 0.75,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "research_backlog",
+        "integration_state": "digested_not_promoted",
+        "name": "src_3310efd0",
+        "readiness": "research_backlog",
+        "runtime_status": null,
+        "source_id": "src_3310efd0",
+        "status": "deep",
+        "surface": "research_backlog_top",
+        "triad_passed": true,
+        "url": null
+      },
+      {
+        "confidence": 0.75,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "research_backlog",
+        "integration_state": "digested_not_promoted",
+        "name": "src_d180c5b9",
+        "readiness": "research_backlog",
+        "runtime_status": null,
+        "source_id": "src_d180c5b9",
+        "status": "deep",
+        "surface": "research_backlog_top",
+        "triad_passed": true,
+        "url": null
+      },
+      {
+        "confidence": 0.75,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "research_backlog",
+        "integration_state": "digested_not_promoted",
+        "name": "src_b9676ba9",
+        "readiness": "research_backlog",
+        "runtime_status": null,
+        "source_id": "src_b9676ba9",
+        "status": "deep",
+        "surface": "research_backlog_top",
+        "triad_passed": true,
+        "url": null
+      },
+      {
+        "confidence": 0.7683333333333333,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "research_backlog",
+        "integration_state": "digested_not_promoted",
+        "name": "https://github.com/kaushikb11/awesome-llm-agents",
+        "readiness": "research_backlog",
+        "runtime_status": null,
+        "source_id": "src_33fa61b2",
+        "status": "deep",
+        "surface": "research_backlog_top",
+        "triad_passed": true,
+        "url": "https://github.com/kaushikb11/awesome-llm-agents"
+      },
+      {
+        "confidence": 0.7683333333333333,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "research_backlog",
+        "integration_state": "digested_not_promoted",
+        "name": "https://github.com/e2b-dev/awesome-ai-agents",
+        "readiness": "research_backlog",
+        "runtime_status": null,
+        "source_id": "src_ca2f031e",
+        "status": "deep",
+        "surface": "research_backlog_top",
+        "triad_passed": true,
+        "url": "https://github.com/e2b-dev/awesome-ai-agents"
+      },
+      {
+        "confidence": 0.7516666666666667,
+        "coverage_class": "reference_only_or_backlog",
+        "disposition": "research_backlog",
+        "integration_state": "digested_not_promoted",
+        "name": "https://github.com/best-ai-agents/discord-servers-for-ai-agents",
+        "readiness": "research_backlog",
+        "runtime_status": null,
+        "source_id": "src_dc355aed",
+        "status": "deep",
+        "surface": "research_backlog_top",
+        "triad_passed": true,
+        "url": "https://github.com/best-ai-agents/discord-servers-for-ai-agents"
+      }
+    ],
+    "source_files": [
+      "core/state/github_repo_integration.json",
+      "core/state/source_absorption_pipeline.json"
+    ]
+  },
+  "authority": "hermes_session_closeout_read_only_classification",
+  "central_queue_evidence": {
+    "active_task_count": 0,
+    "latest_status_counts": {
+      "completed": 57
+    },
+    "open_total": 0,
+    "queue_active_generated_at_utc": "2026-06-14T19:34:48Z",
+    "queue_summary_generated_at_utc": "2026-06-14T19:35:34.986062151+00:00"
+  },
+  "classification_matrix": [
+    {
+      "blocked_reason": "confidence_threshold",
+      "category": "evidence_needed",
+      "disposition": "Do not promote; source row remains proposal requiring gate evidence before safe-local promotion receipt.",
+      "evidence": [
+        {
+          "id": "tsk_policy_4ba11e3136e1",
+          "kind": "source_queue_row",
+          "line": 1,
+          "owner": "athena",
+          "path": "crates/annunimas-athena/core/projects/tasks/queue.jsonl",
+          "priority": "high",
+          "status": "queued"
+        }
+      ],
+      "index": 1,
+      "owner": "athena",
+      "promotion_ready": false,
+      "record_class": "proposal",
+      "required_contract": "prometheus_safe_local_task_promotion",
+      "risk_lane": "safe-local_candidate_unverified",
+      "source_id": "src_23dcfccf",
+      "source_record_id": "tsk_policy_4ba11e3136e1",
+      "title": "Improve confidence evidence for src_23dcfccf"
+    },
+    {
+      "blocked_reason": "opposition_coverage",
+      "category": "evidence_needed",
+      "disposition": "Do not promote; source row remains proposal requiring gate evidence before safe-local promotion receipt.",
+      "evidence": [
+        {
+          "id": "tsk_policy_fdd090b1bd2d",
+          "kind": "source_queue_row",
+          "line": 2,
+          "owner": "athena",
+          "path": "crates/annunimas-athena/core/projects/tasks/queue.jsonl",
+          "priority": "high",
+          "status": "queued"
+        }
+      ],
+      "index": 2,
+      "owner": "athena",
+      "promotion_ready": false,
+      "record_class": "proposal",
+      "required_contract": "prometheus_safe_local_task_promotion",
+      "risk_lane": "safe-local_candidate_unverified",
+      "source_id": "src_23dcfccf",
+      "source_record_id": "tsk_policy_fdd090b1bd2d",
+      "title": "Add opposing viewpoints for src_23dcfccf"
+    },
+    {
+      "blocked_reason": "already_promoted_to_canonical_queue",
+      "category": "duplicate_already_handled",
+      "disposition": "No promotion needed; canonical latest-by-id queue already has completed matching record.",
+      "evidence": [
+        {
+          "id": "tsk_policy_4cb7a3ecb538",
+          "kind": "source_queue_row",
+          "line": 3,
+          "owner": "prometheus",
+          "path": "crates/annunimas-athena/core/projects/tasks/queue.jsonl",
+          "priority": "high",
+          "status": "queued"
+        },
+        {
+          "id": "tsk_20260612T071658Z_federated_tsk_policy_4cb7a3ecb538",
+          "kind": "canonical_completed_latest_by_title",
+          "line": 87,
+          "origin": null,
+          "path": "core/projects/tasks/queue.jsonl",
+          "result": "completed",
+          "status": "completed"
+        }
+      ],
+      "index": 3,
+      "owner": "prometheus",
+      "promotion_ready": false,
+      "record_class": "evidence",
+      "required_contract": "prometheus_safe_local_task_promotion",
+      "risk_lane": "safe-local_candidate_unverified",
+      "source_id": "src_ea7a1c0f",
+      "source_record_id": "tsk_policy_4cb7a3ecb538",
+      "title": "ATHENA evidence plan for src_ea7a1c0f: context-engineering workflow"
+    },
+    {
+      "blocked_reason": "already_promoted_to_canonical_queue",
+      "category": "duplicate_already_handled",
+      "disposition": "No promotion needed; canonical latest-by-id queue already has completed matching record.",
+      "evidence": [
+        {
+          "id": "tsk_policy_95b32e5b6148",
+          "kind": "source_queue_row",
+          "line": 4,
+          "owner": "mnemosyne",
+          "path": "crates/annunimas-athena/core/projects/tasks/queue.jsonl",
+          "priority": "high",
+          "status": "queued"
+        },
+        {
+          "id": "tsk_20260612T071658Z_federated_tsk_policy_95b32e5b6148",
+          "kind": "canonical_completed_latest_by_title",
+          "line": 88,
+          "origin": null,
+          "path": "core/projects/tasks/queue.jsonl",
+          "result": "completed",
+          "status": "completed"
+        }
+      ],
+      "index": 4,
+      "owner": "mnemosyne",
+      "promotion_ready": false,
+      "record_class": "evidence",
+      "required_contract": "prometheus_safe_local_task_promotion",
+      "risk_lane": "safe-local_candidate_unverified",
+      "source_id": "src_ea7a1c0f",
+      "source_record_id": "tsk_policy_95b32e5b6148",
+      "title": "ATHENA evidence plan for src_ea7a1c0f: memory accumulation strategy"
+    },
+    {
+      "blocked_reason": "already_promoted_to_canonical_queue",
+      "category": "duplicate_already_handled",
+      "disposition": "No promotion needed; canonical latest-by-id queue already has completed matching record.",
+      "evidence": [
+        {
+          "id": "tsk_policy_a7d8f4de0fbc",
+          "kind": "source_queue_row",
+          "line": 5,
+          "owner": "charon",
+          "path": "crates/annunimas-athena/core/projects/tasks/queue.jsonl",
+          "priority": "high",
+          "status": "queued"
+        },
+        {
+          "id": "tsk_20260612T071658Z_federated_tsk_policy_a7d8f4de0fbc",
+          "kind": "canonical_completed_latest_by_title",
+          "line": 89,
+          "origin": null,
+          "path": "core/projects/tasks/queue.jsonl",
+          "result": "completed",
+          "status": "completed"
+        }
+      ],
+      "index": 5,
+      "owner": "charon",
+      "promotion_ready": false,
+      "record_class": "evidence",
+      "required_contract": "prometheus_safe_local_task_promotion",
+      "risk_lane": "safe-local_candidate_unverified",
+      "source_id": "src_ea7a1c0f",
+      "source_record_id": "tsk_policy_a7d8f4de0fbc",
+      "title": "ATHENA evidence plan for src_ea7a1c0f: workload-specialized routing"
+    },
+    {
+      "blocked_reason": "already_promoted_to_canonical_queue",
+      "category": "duplicate_already_handled",
+      "disposition": "No promotion needed; canonical latest-by-id queue already has completed matching record.",
+      "evidence": [
+        {
+          "id": "tsk_policy_5fd487231789",
+          "kind": "source_queue_row",
+          "line": 6,
+          "owner": "warden",
+          "path": "crates/annunimas-athena/core/projects/tasks/queue.jsonl",
+          "priority": "high",
+          "status": "queued"
+        },
+        {
+          "id": "tsk_20260612T071658Z_federated_tsk_policy_5fd487231789",
+          "kind": "canonical_completed_latest_by_title",
+          "line": 90,
+          "origin": null,
+          "path": "core/projects/tasks/queue.jsonl",
+          "result": "completed",
+          "status": "completed"
+        }
+      ],
+      "index": 6,
+      "owner": "warden",
+      "promotion_ready": false,
+      "record_class": "evidence",
+      "required_contract": "prometheus_safe_local_task_promotion",
+      "risk_lane": "safe-local_candidate_unverified",
+      "source_id": "src_ea7a1c0f",
+      "source_record_id": "tsk_policy_5fd487231789",
+      "title": "ATHENA evidence plan for src_ea7a1c0f: harness and safety controls"
+    },
+    {
+      "blocked_reason": "already_promoted_to_canonical_queue",
+      "category": "duplicate_already_handled",
+      "disposition": "No promotion needed; canonical latest-by-id queue already has completed matching record.",
+      "evidence": [
+        {
+          "id": "tsk_policy_7dbb93878f97",
+          "kind": "source_queue_row",
+          "line": 7,
+          "owner": "apollo",
+          "path": "crates/annunimas-athena/core/projects/tasks/queue.jsonl",
+          "priority": "medium",
+          "status": "queued"
+        },
+        {
+          "id": "tsk_20260612T071658Z_federated_tsk_policy_7dbb93878f97",
+          "kind": "canonical_completed_latest_by_title",
+          "line": 91,
+          "origin": null,
+          "path": "core/projects/tasks/queue.jsonl",
+          "result": "completed",
+          "status": "completed"
+        }
+      ],
+      "index": 7,
+      "owner": "apollo",
+      "promotion_ready": false,
+      "record_class": "evidence",
+      "required_contract": "prometheus_safe_local_task_promotion",
+      "risk_lane": "safe-local_candidate_unverified",
+      "source_id": "src_ea7a1c0f",
+      "source_record_id": "tsk_policy_7dbb93878f97",
+      "title": "ATHENA evidence plan for src_ea7a1c0f: lazy tool discovery"
+    },
+    {
+      "blocked_reason": "triad_threshold",
+      "category": "evidence_needed",
+      "disposition": "Do not promote; source row remains proposal requiring gate evidence before safe-local promotion receipt.",
+      "evidence": [
+        {
+          "id": "tsk_policy_c921f0b24e19",
+          "kind": "source_queue_row",
+          "line": 8,
+          "owner": "prometheus",
+          "path": "crates/annunimas-athena/core/projects/tasks/queue.jsonl",
+          "priority": "high",
+          "status": "queued"
+        }
+      ],
+      "index": 8,
+      "owner": "prometheus",
+      "promotion_ready": false,
+      "record_class": "proposal",
+      "required_contract": "prometheus_safe_local_task_promotion",
+      "risk_lane": "safe-local_candidate_unverified",
+      "source_id": "src_ea7a1c0f",
+      "source_record_id": "tsk_policy_c921f0b24e19",
+      "title": "Raise triad readiness for src_ea7a1c0f"
+    },
+    {
+      "blocked_reason": "confidence_threshold",
+      "category": "evidence_needed",
+      "disposition": "Do not promote; source row remains proposal requiring gate evidence before safe-local promotion receipt.",
+      "evidence": [
+        {
+          "id": "tsk_policy_50b27747c219",
+          "kind": "source_queue_row",
+          "line": 9,
+          "owner": "athena",
+          "path": "crates/annunimas-athena/core/projects/tasks/queue.jsonl",
+          "priority": "high",
+          "status": "queued"
+        }
+      ],
+      "index": 9,
+      "owner": "athena",
+      "promotion_ready": false,
+      "record_class": "proposal",
+      "required_contract": "prometheus_safe_local_task_promotion",
+      "risk_lane": "safe-local_candidate_unverified",
+      "source_id": "src_ea7a1c0f",
+      "source_record_id": "tsk_policy_50b27747c219",
+      "title": "Improve confidence evidence for src_ea7a1c0f"
+    },
+    {
+      "blocked_reason": "opposition_coverage",
+      "category": "evidence_needed",
+      "disposition": "Do not promote; source row remains proposal requiring gate evidence before safe-local promotion receipt.",
+      "evidence": [
+        {
+          "id": "tsk_policy_0c1511418dc3",
+          "kind": "source_queue_row",
+          "line": 10,
+          "owner": "athena",
+          "path": "crates/annunimas-athena/core/projects/tasks/queue.jsonl",
+          "priority": "high",
+          "status": "queued"
+        }
+      ],
+      "index": 10,
+      "owner": "athena",
+      "promotion_ready": false,
+      "record_class": "proposal",
+      "required_contract": "prometheus_safe_local_task_promotion",
+      "risk_lane": "safe-local_candidate_unverified",
+      "source_id": "src_ea7a1c0f",
+      "source_record_id": "tsk_policy_0c1511418dc3",
+      "title": "Add opposing viewpoints for src_ea7a1c0f"
+    },
+    {
+      "blocked_reason": "requires_explicit_arandur_queue_operation_approval",
+      "category": "explicit_approval_blocked",
+      "disposition": "Do not promote or mutate; explicit operator approval/receipt is required.",
+      "evidence": [
+        {
+          "canonical_queue_policy": "not_mutated_by_phase6i_mission_queue_write_request",
+          "contract": "annunimas.arandur.phase6i_mission_queue_write_request.v1",
+          "kind": "arandur_write_request",
+          "line": 1,
+          "path": "data/arandur/mission_queue_write_requests.jsonl",
+          "queue_write_request_id": "phase6i_queue_write_request_7624977eb5dd",
+          "requires_future_human_approval": true,
+          "requires_separate_future_canonical_queue_write": true,
+          "review_required": true
+        }
+      ],
+      "index": 11,
+      "owner": "arandur",
+      "promotion_ready": false,
+      "record_class": "approval",
+      "required_contract": "annunimas.arandur.queue_operation.v1",
+      "risk_lane": "human_review_required",
+      "source_id": null,
+      "source_record_id": "phase6i_queue_write_request_7624977eb5dd",
+      "title": "Review mission candidate: Review approved Arandur pattern: queue owner focus"
+    },
+    {
+      "blocked_reason": "requires_explicit_arandur_queue_operation_approval",
+      "category": "explicit_approval_blocked",
+      "disposition": "Do not promote or mutate; explicit operator approval/receipt is required.",
+      "evidence": [
+        {
+          "canonical_queue_policy": "not_mutated_by_phase6i_mission_queue_write_request",
+          "contract": "annunimas.arandur.phase6i_mission_queue_write_request.v1",
+          "kind": "arandur_write_request",
+          "line": 2,
+          "path": "data/arandur/mission_queue_write_requests.jsonl",
+          "queue_write_request_id": "phase6i_queue_write_request_c4d9a01cbbca",
+          "requires_future_human_approval": true,
+          "requires_separate_future_canonical_queue_write": true,
+          "review_required": true
+        }
+      ],
+      "index": 12,
+      "owner": "arandur",
+      "promotion_ready": false,
+      "record_class": "approval",
+      "required_contract": "annunimas.arandur.queue_operation.v1",
+      "risk_lane": "human_review_required",
+      "source_id": null,
+      "source_record_id": "phase6i_queue_write_request_c4d9a01cbbca",
+      "title": "Review mission candidate: Review approved Arandur pattern: queue owner focus"
+    },
+    {
+      "blocked_reason": "requires_explicit_arandur_queue_operation_approval",
+      "category": "explicit_approval_blocked",
+      "disposition": "Do not promote or mutate; explicit operator approval/receipt is required.",
+      "evidence": [
+        {
+          "canonical_queue_policy": "not_mutated_by_phase6i_mission_queue_write_request",
+          "contract": "annunimas.arandur.phase6i_mission_queue_write_request.v1",
+          "kind": "arandur_write_request",
+          "line": 3,
+          "path": "data/arandur/mission_queue_write_requests.jsonl",
+          "queue_write_request_id": "phase6i_queue_write_request_576c480bcf61",
+          "requires_future_human_approval": true,
+          "requires_separate_future_canonical_queue_write": true,
+          "review_required": true
+        }
+      ],
+      "index": 13,
+      "owner": "arandur",
+      "promotion_ready": false,
+      "record_class": "approval",
+      "required_contract": "annunimas.arandur.queue_operation.v1",
+      "risk_lane": "human_review_required",
+      "source_id": null,
+      "source_record_id": "phase6i_queue_write_request_576c480bcf61",
+      "title": "Review mission candidate: Review approved Arandur pattern: scout scope focus"
+    },
+    {
+      "blocked_reason": "requires_explicit_arandur_queue_operation_approval",
+      "category": "explicit_approval_blocked",
+      "disposition": "Do not promote or mutate; explicit operator approval/receipt is required.",
+      "evidence": [
+        {
+          "canonical_queue_policy": "not_mutated_by_phase6i_mission_queue_write_request",
+          "contract": "annunimas.arandur.phase6i_mission_queue_write_request.v1",
+          "kind": "arandur_write_request",
+          "line": 4,
+          "path": "data/arandur/mission_queue_write_requests.jsonl",
+          "queue_write_request_id": "phase6i_queue_write_request_cc3652b8cdae",
+          "requires_future_human_approval": true,
+          "requires_separate_future_canonical_queue_write": true,
+          "review_required": true
+        }
+      ],
+      "index": 14,
+      "owner": "arandur",
+      "promotion_ready": false,
+      "record_class": "approval",
+      "required_contract": "annunimas.arandur.queue_operation.v1",
+      "risk_lane": "human_review_required",
+      "source_id": null,
+      "source_record_id": "phase6i_queue_write_request_cc3652b8cdae",
+      "title": "Review mission candidate: Review approved Arandur pattern: episode type focus"
+    },
+    {
+      "blocked_reason": "requires_explicit_human_promotion_receipt",
+      "category": "explicit_approval_blocked",
+      "disposition": "Do not promote or mutate; explicit operator approval/receipt is required.",
+      "evidence": [
+        {
+          "exists": true,
+          "kind": "human_workspace_signal",
+          "path": "human/00-Templates/agent_task.md",
+          "promotion_rule": "human notes, decisions, and task templates are visible as source signals but never auto-promoted without explicit human/promotion receipt"
+        }
+      ],
+      "index": 15,
+      "owner": "human",
+      "promotion_ready": false,
+      "record_class": "evidence",
+      "required_contract": "prometheus_safe_local_task_promotion",
+      "risk_lane": "human_review_required",
+      "source_id": null,
+      "source_record_id": "human/00-Templates/agent_task.md",
+      "title": "Human workspace signal: human_task_template"
+    },
+    {
+      "blocked_reason": "requires_explicit_human_promotion_receipt",
+      "category": "explicit_approval_blocked",
+      "disposition": "Do not promote or mutate; explicit operator approval/receipt is required.",
+      "evidence": [
+        {
+          "exists": true,
+          "kind": "human_workspace_signal",
+          "path": "human/05-Projects/summaries/task-notes.md",
+          "promotion_rule": "human notes, decisions, and task templates are visible as source signals but never auto-promoted without explicit human/promotion receipt"
+        }
+      ],
+      "index": 16,
+      "owner": "human",
+      "promotion_ready": false,
+      "record_class": "evidence",
+      "required_contract": "prometheus_safe_local_task_promotion",
+      "risk_lane": "human_review_required",
+      "source_id": null,
+      "source_record_id": "human/05-Projects/summaries/task-notes.md",
+      "title": "Human workspace signal: human_task_notes"
+    }
+  ],
+  "classification_summary": {
+    "duplicate_already_handled": 5,
+    "evidence_needed": 5,
+    "explicit_approval_blocked": 6
+  },
+  "generated_at_utc": "2026-06-14T19:35:36Z",
+  "mutation_policy": "read_only_audit_artifact_no_arandur_or_human_promotion",
+  "safe_resolution": {
+    "arandur_mutations_performed": 0,
+    "held_evidence_needed": [
+      "tsk_policy_4ba11e3136e1",
+      "tsk_policy_fdd090b1bd2d",
+      "tsk_policy_c921f0b24e19",
+      "tsk_policy_50b27747c219",
+      "tsk_policy_0c1511418dc3"
+    ],
+    "held_explicit_approval_blocked": [
+      "phase6i_queue_write_request_7624977eb5dd",
+      "phase6i_queue_write_request_c4d9a01cbbca",
+      "phase6i_queue_write_request_576c480bcf61",
+      "phase6i_queue_write_request_cc3652b8cdae",
+      "human/00-Templates/agent_task.md",
+      "human/05-Projects/summaries/task-notes.md"
+    ],
+    "human_workspace_promotions_performed": 0,
+    "promotions_performed": 0,
+    "resolved_as_noop_duplicates": [
+      "tsk_policy_4cb7a3ecb538",
+      "tsk_policy_95b32e5b6148",
+      "tsk_policy_a7d8f4de0fbc",
+      "tsk_policy_5fd487231789",
+      "tsk_policy_7dbb93878f97"
+    ]
+  },
+  "schema_version": "annunimas.queue_federation_blocked_candidate_closeout.v1",
+  "source_projection": {
+    "generated_at_utc": "2026-06-14T19:34:48Z",
+    "path": "core/state/queue_federation.json",
+    "summary": {
+      "blocked_total": 16,
+      "promotion_candidates_total": 16,
+      "promotion_ready_total": 0,
+      "sources_total": 17
+    },
+    "validation": {
+      "errors_total": 0,
+      "status": "clean",
+      "warnings_total": 9
+    }
+  }
+}

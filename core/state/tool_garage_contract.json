@@ -1,0 +1,180 @@
+{
+  "authority": "remote_operator_contract + active_ruleset + system_constitution",
+  "doctrine": {
+    "governance_lane_must_be_explicit": true,
+    "placement_must_be_explicit": true,
+    "prefer_named_tool_actions_before_break_glass_shell": true,
+    "tool_calls_must_be_named_and_receipt_backed": true
+  },
+  "families": [
+    {
+      "actions": [
+        {
+          "action": "status",
+          "class": "inspection",
+          "effect": "show_remote_operator_workstation_config"
+        },
+        {
+          "action": "probe",
+          "class": "inspection",
+          "effect": "check_remote_operator_network_and_endpoint_health"
+        },
+        {
+          "action": "charon-smoke",
+          "class": "governed_remote_execution",
+          "effect": "verify_charon_routing_path_from_operator_node"
+        },
+        {
+          "action": "sync",
+          "class": "code_sync",
+          "effect": "push_repo_to_workstation_without_remote_check"
+        },
+        {
+          "action": "sync-check",
+          "class": "code_sync_and_verification",
+          "effect": "push_repo_to_workstation_then_run_focused_remote_cli_check"
+        },
+        {
+          "action": "pull",
+          "class": "code_sync",
+          "effect": "pull_repo_from_workstation_to_operator_node"
+        },
+        {
+          "action": "cargo-check-cli",
+          "class": "verification",
+          "effect": "run_remote_cli_focused_cargo_check"
+        },
+        {
+          "action": "cargo-check-athena",
+          "class": "verification",
+          "effect": "run_remote_athena_focused_cargo_check"
+        },
+        {
+          "action": "cargo-check-prometheus",
+          "class": "verification",
+          "effect": "run_remote_prometheus_focused_cargo_check"
+        },
+        {
+          "action": "athena-status",
+          "class": "runtime_inspection",
+          "effect": "run_remote_athena_status_surface"
+        },
+        {
+          "action": "export-athena-plan",
+          "class": "export",
+          "effect": "regenerate_remote_athena_integration_plan"
+        },
+        {
+          "action": "git-status",
+          "class": "inspection",
+          "effect": "show_remote_repo_worktree_state"
+        },
+        {
+          "action": "command",
+          "class": "break_glass_remote_command",
+          "effect": "run_explicit_remote_shell_command",
+          "guardrails": [
+            "operator_or_governance_approved_only",
+            "prefer_named_actions_first"
+          ]
+        }
+      ],
+      "family_id": "universal_workstation",
+      "governance_lane": "bounded_remote_operator_actions",
+      "kind": "universal",
+      "placement": "workstation",
+      "receipt_log": "data/remote_operator/workstation_attempts.jsonl",
+      "surface": "scripts/remote_operator_workstation.sh"
+    },
+    {
+      "actions": [
+        {
+          "action": "sync",
+          "class": "code_sync"
+        },
+        {
+          "action": "probe",
+          "class": "inspection"
+        },
+        {
+          "action": "charon-smoke",
+          "class": "governed_remote_execution"
+        }
+      ],
+      "family_id": "remote_operator_transport",
+      "governance_lane": "remote_operator_transport",
+      "kind": "universal",
+      "placement": "operator_terminal",
+      "receipt_log": "data/remote_operator/",
+      "surface": "scripts/remote_operator_sync.sh + scripts/remote_operator_probe.sh + scripts/remote_operator_charon.sh"
+    }
+  ],
+  "generated_at_utc": "2026-03-24T21:23:54Z",
+  "governance_mapping": {
+    "break_glass_actions_require_explicit_operator_or_policy_approval": true,
+    "remote_build_and_export_actions_prefer_workstation": {
+      "authority_split": {
+        "laptop": "operator_terminal_not_default_build_executor",
+        "workstation": "canonical_build_and_export_executor"
+      },
+      "contract_version": "annunimas.build_verification_routing.v1",
+      "remote_actions": [
+        "sync-check",
+        "cargo-check-cli",
+        "cargo-check-athena",
+        "cargo-check-prometheus",
+        "export-athena-plan"
+      ],
+      "required_remote_surface": "scripts/remote_operator_workstation.sh",
+      "rules": {
+        "agentic_execution_should_use_named_remote_actions_before_raw_ssh": true,
+        "laptop_local_builds_only_for_tiny_emergency_edits": true,
+        "laptop_must_prefer_remote_for_cargo_check_test_run": true
+      }
+    }
+  },
+  "mission": {
+    "do_not_duplicate_shell_habits_as_hidden_authority": true,
+    "goal": "Provide one governed registry of callable capabilities across universal and subsystem-specific tool families."
+  },
+  "schema_version": "annunimas.tool-garage-contract.v1",
+  "sigil": "REPAIR",
+  "subsystem_tool_families_planned": [
+    {
+      "family_id": "athena_tools",
+      "kind": "subsystem_specific",
+      "placement": "workstation_first",
+      "planned_actions": [
+        "ingest",
+        "deep_process",
+        "policy_promote",
+        "generate_planning_tasks"
+      ]
+    },
+    {
+      "family_id": "hermes_tools",
+      "kind": "subsystem_specific",
+      "placement": "operator_terminal + workstation",
+      "planned_actions": [
+        "voice_ingress",
+        "boardroom_dispatch",
+        "discord_ingress"
+      ]
+    },
+    {
+      "family_id": "charon_tools",
+      "kind": "subsystem_specific",
+      "placement": "workstation",
+      "planned_actions": [
+        "route_probe",
+        "provider_reload",
+        "governor_apply"
+      ]
+    }
+  ],
+  "summary": {
+    "has_universal_workstation_surface": true,
+    "registered_workstation_actions_total": 13,
+    "tool_families_total": 2
+  }
+}

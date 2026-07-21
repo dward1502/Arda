@@ -1,0 +1,194 @@
+{
+  "authority": "core/projects/tasks/queue.jsonl + docs/contracts/flywheel-work-packet-contract.md",
+  "contract": "docs/contracts/flywheel-work-packet-contract.md",
+  "doctrine": {
+    "completion": false,
+    "dispatch": false,
+    "read_only_projection": true,
+    "task_queue_mutation": false
+  },
+  "generated_at_utc": "2026-07-14T04:56:38Z",
+  "packets": [
+    {
+      "dependencies": [],
+      "harness": "",
+      "human_approved": false,
+      "missing_fields": [
+        "depends_on",
+        "risk",
+        "harness",
+        "acceptance",
+        "verify",
+        "plan_path_exists"
+      ],
+      "owner": "prometheus,warden",
+      "packet_id": "L3C-P1",
+      "plan": "docs/plans/2026-06-08-l3-readiness-closure-plan.md",
+      "readiness": "completed",
+      "receipt_surface": "core/state/l3_readiness_inventory.json",
+      "risk": "",
+      "scope": "l3_readiness",
+      "status": "completed",
+      "target_node": null,
+      "task_id": "tsk_plan_l3c_p1_ec8cf4e6d2",
+      "title": "Produce L3 capability and blocker inventory"
+    },
+    {
+      "dependencies": [
+        {
+          "id": "tsk_plan_l3c_p1_ec8cf4e6d2",
+          "present": true,
+          "result": "completed",
+          "status": "completed",
+          "terminal_success": true
+        }
+      ],
+      "harness": "annunimas-governance",
+      "human_approved": false,
+      "missing_fields": [
+        "plan_path_exists"
+      ],
+      "owner": "governance,warden,prometheus",
+      "packet_id": "L3C-P2",
+      "plan": "docs/plans/2026-06-08-l3-readiness-closure-plan.md",
+      "readiness": "completed",
+      "receipt_surface": "docs/contracts/l3-bounded-mutation-class.md",
+      "risk": "safe-local",
+      "scope": "l3_readiness",
+      "status": "completed",
+      "target_node": null,
+      "task_id": "tsk_plan_l3c_p2_a8c2112c32",
+      "title": "Define first bounded mutation class"
+    },
+    {
+      "dependencies": [],
+      "harness": "",
+      "human_approved": false,
+      "missing_fields": [
+        "depends_on",
+        "risk",
+        "harness",
+        "acceptance",
+        "verify",
+        "plan_path_exists"
+      ],
+      "owner": "governance,warden,oracle",
+      "packet_id": "L3C-P4",
+      "plan": "docs/plans/2026-06-08-l3-readiness-closure-plan.md",
+      "readiness": "completed",
+      "receipt_surface": "data/governance/action_gate_receipts.jsonl",
+      "risk": "",
+      "scope": "l3_readiness",
+      "status": "completed",
+      "target_node": null,
+      "task_id": "tsk_plan_l3c_p4_ebcc514f4e",
+      "title": "Wire action-class enforcement into mutating dispatch"
+    },
+    {
+      "dependencies": [],
+      "harness": "",
+      "human_approved": false,
+      "missing_fields": [
+        "depends_on",
+        "risk",
+        "harness",
+        "acceptance",
+        "verify",
+        "plan_path_exists"
+      ],
+      "owner": "charon,hermes,plutus",
+      "packet_id": "L3C-P5",
+      "plan": "docs/plans/2026-06-08-l3-readiness-closure-plan.md",
+      "readiness": "completed",
+      "receipt_surface": "data/charon/route_receipts.jsonl",
+      "risk": "",
+      "scope": "l3_readiness",
+      "status": "completed",
+      "target_node": null,
+      "task_id": "tsk_plan_l3c_p5_2f6c873175",
+      "title": "Harden Hermes/Charon L3 routing and compression behavior"
+    },
+    {
+      "dependencies": [],
+      "harness": "",
+      "human_approved": false,
+      "missing_fields": [
+        "depends_on",
+        "risk",
+        "harness",
+        "acceptance",
+        "verify",
+        "plan_path_exists"
+      ],
+      "owner": "apollo,prometheus,chronos",
+      "packet_id": "L3C-P6",
+      "plan": "docs/plans/2026-06-08-l3-readiness-closure-plan.md",
+      "readiness": "completed",
+      "receipt_surface": "data/prometheus/l3_e2e_receipt.json",
+      "risk": "",
+      "scope": "l3_readiness",
+      "status": "completed",
+      "target_node": null,
+      "task_id": "tsk_plan_l3c_p6_ded5b63c05",
+      "title": "Build L3 end-to-end autonomous mutation harness"
+    },
+    {
+      "dependencies": [],
+      "harness": "",
+      "human_approved": false,
+      "missing_fields": [
+        "depends_on",
+        "risk",
+        "harness",
+        "acceptance",
+        "verify",
+        "plan_path_exists"
+      ],
+      "owner": "arda,hermes,hades",
+      "packet_id": "L3C-P7",
+      "plan": "docs/plans/2026-06-08-l3-readiness-closure-plan.md",
+      "readiness": "completed",
+      "receipt_surface": "core/state/l3_readiness_projection.json",
+      "risk": "",
+      "scope": "l3_readiness",
+      "status": "completed",
+      "target_node": null,
+      "task_id": "tsk_plan_l3c_p7_eb7ad461ff",
+      "title": "Project L3 readiness into ARDA and Hermes"
+    },
+    {
+      "dependencies": [],
+      "harness": "",
+      "human_approved": false,
+      "missing_fields": [
+        "depends_on",
+        "risk",
+        "harness",
+        "acceptance",
+        "verify",
+        "plan_path_exists"
+      ],
+      "owner": "onboarding,hades,prometheus",
+      "packet_id": "L3C-P8",
+      "plan": "docs/plans/2026-06-08-l3-readiness-closure-plan.md",
+      "readiness": "completed",
+      "receipt_surface": "docs/operations/l3-readiness-onboarding.md",
+      "risk": "",
+      "scope": "l3_readiness",
+      "status": "completed",
+      "target_node": null,
+      "task_id": "tsk_plan_l3c_p8_bebf2d0faf",
+      "title": "Align onboarding and First Light with L3 readiness"
+    }
+  ],
+  "schema_version": "annunimas.flywheel.packet_runtime.v1",
+  "source_queue": "core/projects/tasks/queue.jsonl",
+  "summary": {
+    "blocked_total": 0,
+    "packet_total": 7,
+    "readiness_counts": {
+      "completed": 7
+    },
+    "ready_total": 0
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "authority": "package_runtime_activation + package_enablement + runtime_governor_contract",
+  "doctrine": {
+    "agent_first_contract": true,
+    "edge_target_visibility_controls_promotion": true,
+    "headless_and_tailscale_mode_is_primary": true,
+    "ui_optional": true,
+    "whatsapp_auth_is_optional_not_global_gate": true
+  },
+  "edge_dependency": {
+    "control_mode": "headless",
+    "fleet_target": {
+      "canonical_hostname": "raspberrypi",
+      "enrollment_status": "active",
+      "node_class": "edge_guardhouse",
+      "observed_dns_name": "warden.tail91c3c1.ts.net.",
+      "observed_hostname": "warden",
+      "online": true,
+      "role": "warden_guardhouse",
+      "tailscale_ip": "100.110.85.37",
+      "target_id": "node-pi5-warden",
+      "usage": {}
+    },
+    "tailscale_ready": true,
+    "target_id": "node-pi5-warden",
+    "target_visible": false,
+    "transport": "tailscale"
+  },
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "productization_lanes": [
+    {
+      "lane": "edge_runtime",
+      "next_action": "run `bash scripts/nanoclaw_runtime.sh start` after channel auth is present, or route NanoClaw to the configured Tailscale edge target",
+      "owner": "charon_warden",
+      "purpose": "Promote NanoClaw as a bounded edge runtime tied to a visible Tailnet target rather than unmanaged local auth state.",
+      "runtime_status": "not_configured",
+      "write_through": [
+        "scripts/nanoclaw_runtime.sh",
+        "core/state/package_runtime_activation.json",
+        "core/edge/targets.toml"
+      ]
+    },
+    {
+      "lane": "headless_message_control",
+      "next_action": "preserve headless control doctrine and promote only after the configured edge target is visible",
+      "owner": "hermes",
+      "purpose": "Keep message/control flows in headless or Tailscale mode without reintroducing WhatsApp as a global readiness gate.",
+      "runtime_status": "not_configured",
+      "write_through": [
+        "config/federated_comms.toml",
+        "core/state/federated_comms_runtime.json",
+        "core/state/nanoclaw_productization_contract.json"
+      ]
+    },
+    {
+      "lane": "remediation_and_promotion",
+      "next_action": "promote from contract-ready to actively governed runtime when the configured edge target is visible and the runtime is started intentionally",
+      "owner": "prometheus",
+      "purpose": "Turn runtime posture into explicit remediation/promotion criteria for operator, steward, and UI consumers.",
+      "runtime_status": "not_configured",
+      "write_through": [
+        "core/state/package_enablement.json",
+        "core/state/fleet_steward_actions.json",
+        "core/state/nanoclaw_productization_contract.json"
+      ]
+    }
+  ],
+  "recommended_promotion_sequence": [
+    "preserve headless or tailscale mode as the primary doctrine",
+    "verify the configured edge target is visible on the mesh",
+    "start NanoClaw intentionally through the governed launcher",
+    "promote runtime posture into steward and routing consumers only after live runtime confirmation"
+  ],
+  "runtime_contract": {
+    "entrypoint": "/dist/index.js",
+    "env_contract": [
+      "ANNUNIMAS_NANOCLAW_ROOT",
+      "ANNUNIMAS_NANOCLAW_EDGE_TARGET",
+      "ANNUNIMAS_NANOCLAW_EDGE_TRANSPORT"
+    ],
+    "error_log_path": "/logs/nanoclaw.error.log",
+    "launcher": "scripts/nanoclaw_runtime.sh",
+    "log_path": "/logs/nanoclaw.log",
+    "pid_file": "/nanoclaw.pid",
+    "project_root": ""
+  },
+  "schema_version": "annunimas.nanoclaw-productization-contract.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "edge_target_visible": false,
+    "lanes_total": 3,
+    "runtime_ready": false,
+    "tailscale_ready": true
+  },
+  "tool": {
+    "activation_status": "activation_frontier",
+    "binary_path": null,
+    "control_mode": "headless",
+    "edge_target": "node-pi5-warden",
+    "edge_transport": "tailscale",
+    "integration_state": "ready_for_activation",
+    "name": "nanoclaw",
+    "repo": "qwibitai/nanoclaw",
+    "repo_url": "https://github.com/qwibitai/nanoclaw",
+    "runtime_status": "not_configured"
+  }
+}

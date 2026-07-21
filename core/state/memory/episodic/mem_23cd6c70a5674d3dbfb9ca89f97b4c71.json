@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_23cd6c70a5674d3dbfb9ca89f97b4c71",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA safe refresh affordance contract",
+  "salience": 0.8045000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T06:14:06.324513039Z",
+  "last_seen_at": "2026-06-01T06:14:06.324513039Z"
+}

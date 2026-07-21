@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_4169c1dc77e449e5a6af54036662365a",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Plan LLM model lifecycle and freshness audit. Created docs/plans/2026-05-30-llm-model-lifecycle-and-freshness-plan.md. Findings: council/scout roles are not currently fixed model personas; practical model selection routes through Charon provider/model config and Hermes Agent bridge targets. Current live local models include Qwen3.5-9B-Q4_K_M and Qwen_Qwen3.5-4B-Q6_K, with edge_backbone defaulting to Qwen3.6-35B-A3B-UD-Q4_K_XL. Next task is a read-only M1 inventory and hardcoded-model audit before any download/stage/switch automation.",
+  "salience": 0.6855000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-30T22:17:23.120559933Z",
+  "last_seen_at": "2026-05-30T22:17:23.120559933Z"
+}

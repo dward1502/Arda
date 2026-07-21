@@ -1,0 +1,1152 @@
+{
+  "schema_version": "annunimas.human-inbox-ingestion-plan.v1",
+  "generated_at_utc": "2026-05-15T21:30:29Z",
+  "authority": "athena_phase2b_inbox_planner",
+  "status": "candidate-review-plan",
+  "sigil": "↝",
+  "doctrine": {
+    "raw_inbox_is_not_canonical": true,
+    "promotion_requires_review": true,
+    "delete_or_move_human_sources": false,
+    "binary_documents_require_derived_extraction": true,
+    "ai_transcripts_require_provenance_labels": true
+  },
+  "source_surfaces": {
+    "scan_jsonl": "data/athena/human_ingestion_results.jsonl",
+    "contradictions_jsonl": "data/athena/human_contradiction_candidates.jsonl",
+    "triage_manifest": "human/inbox/TRIAGE.md",
+    "contract": "docs/contracts/human-knowledge-ingestion-contract.md",
+    "scan_summary": "core/state/human_inbox_scan_summary.json",
+    "phase2b_plan": "core/state/human_inbox_ingestion_plan.json"
+  },
+  "summary": {
+    "review_batches_total": 11,
+    "review_items_total": 103,
+    "candidate_clusters_total": 6,
+    "next_gate": "human-or-explicit-agent-review-before-promotion"
+  },
+  "review_batches": [
+    {
+      "lane": "projects",
+      "owner": "prometheus",
+      "items_total": 10,
+      "review_required": true,
+      "default_action": "Consolidate project-shaped candidates and decide which become reviewed project briefs.",
+      "items": [
+        {
+          "source_path": "human/inbox/extracted-candidates/projects/ais-business-appliance-small-business-os.md",
+          "content_hash": "sha256:242850ea011ba7d8f1a3890069a3f906050f486a69539945f39b7b924b646ec6",
+          "detected_status": "candidate",
+          "detected_authority": "raw",
+          "source_type": "summary",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "annunimas_contract: human_knowledge.v1"
+        },
+        {
+          "source_path": "human/inbox/extracted-candidates/projects/annunimas-agent-suite.md",
+          "content_hash": "sha256:8f73e879dc71213423a39ad37b4722fe8fbd52621944fed7af56d95d207c929d",
+          "detected_status": "candidate",
+          "detected_authority": "raw",
+          "source_type": "summary",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "annunimas_contract: human_knowledge.v1"
+        },
+        {
+          "source_path": "human/inbox/extracted-candidates/projects/digital-alexandria-knowledge-platform.md",
+          "content_hash": "sha256:da5f54e1c74bb8ddf375cfab0896f30f2b0d2b45cb6d3d94fd9149d8feb3afb1",
+          "detected_status": "candidate",
+          "detected_authority": "raw",
+          "source_type": "summary",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "annunimas_contract: human_knowledge.v1"
+        },
+        {
+          "source_path": "human/inbox/extracted-candidates/projects/forge-ai-agent-marketplace.md",
+          "content_hash": "sha256:9e1c4d6ac869b472340791d594e95f788e430f2e3c003e6572dd3d5d8712bf26",
+          "detected_status": "candidate",
+          "detected_authority": "raw",
+          "source_type": "summary",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "annunimas_contract: human_knowledge.v1"
+        },
+        {
+          "source_path": "human/inbox/extracted-candidates/projects/muse-live-music-ai.md",
+          "content_hash": "sha256:e446b8a9bb76c7e45fe5ba15234fd82bd289ed047f88bd805fd721f6cfa6a43f",
+          "detected_status": "candidate",
+          "detected_authority": "raw",
+          "source_type": "plan",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "annunimas_contract: human_knowledge.v1"
+        },
+        {
+          "source_path": "human/inbox/extracted-candidates/projects/phoenix-player-digital-music-ownership-device.md",
+          "content_hash": "sha256:8e78be7f80c80524490f8e4ca6ede5e32b2013c0ecabe73de4e08db1f028f4e3",
+          "detected_status": "candidate",
+          "detected_authority": "raw",
+          "source_type": "plan",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "annunimas_contract: human_knowledge.v1"
+        },
+        {
+          "source_path": "human/inbox/project-drafts/ais-business-appliance-pod-definitions.md",
+          "content_hash": "sha256:24c12047dda025d400a316a5c07f085fd143cec41233288e329c028112cf7e06",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "# AIS Business Appliance: Pod Service Definitions"
+        },
+        {
+          "source_path": "human/inbox/project-drafts/muse-live-music-ai-build-note.md",
+          "content_hash": "sha256:48f37f4ae2729942dd7870301c6e363697565bbaf88b2995449d15b66959c8a1",
+          "detected_status": "inbox",
+          "detected_authority": "agent_generated",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "type: project"
+        },
+        {
+          "source_path": "human/inbox/project-drafts/phoenix-player-build-note.md",
+          "content_hash": "sha256:0742cf8fa41bc08cd627e1e183a3d962f05de147081ed87d9697bb6777275e4a",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "type: project"
+        },
+        {
+          "source_path": "human/inbox/project-drafts/relic-bom-final.md",
+          "content_hash": "sha256:d9b69cfd5ebf7db731dea4711b2188998dd069f0bd8ffce78a934d9c006697df",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "# AVATAR RELIC - Final Bill of Materials"
+        }
+      ]
+    },
+    {
+      "lane": "business",
+      "owner": "prometheus",
+      "items_total": 6,
+      "review_required": true,
+      "default_action": "Merge market-positioning duplicates and separate revenue hypotheses from implementation plans.",
+      "items": [
+        {
+          "source_path": "human/inbox/extracted-candidates/business/a2a-agent-marketplace-positioning.md",
+          "content_hash": "sha256:e5321f15506e16c9e3d7e493743248932de512a31d7991cc07bf0c0ce86241a2",
+          "detected_status": "candidate",
+          "detected_authority": "raw",
+          "source_type": "summary",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "annunimas_contract: human_knowledge.v1"
+        },
+        {
+          "source_path": "human/inbox/extracted-candidates/business/annunimas-agent-suite-positioning.md",
+          "content_hash": "sha256:96b03d0083dd995f7f3be0ac99ce374f5ad114dd9d676cee433aa45195fa8f88",
+          "detected_status": "candidate",
+          "detected_authority": "raw",
+          "source_type": "summary",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "annunimas_contract: human_knowledge.v1"
+        },
+        {
+          "source_path": "human/inbox/extracted-candidates/business/sovereign-agent-marketplace.md",
+          "content_hash": "sha256:efbd75b94033625a89fc582b9b876ff070e738026bb3c07d3258f36b1a8d6bb0",
+          "detected_status": "candidate",
+          "detected_authority": "raw",
+          "source_type": "summary",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "annunimas_contract: human_knowledge.v1"
+        },
+        {
+          "source_path": "human/inbox/extracted-candidates/business/warden-ai-security-market-positioning.md",
+          "content_hash": "sha256:9315018c1dba6955ab76a8b8110cb1d27b0b6fa8ef0db85ff2d2da891af071b0",
+          "detected_status": "candidate",
+          "detected_authority": "raw",
+          "source_type": "summary",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "annunimas_contract: human_knowledge.v1"
+        },
+        {
+          "source_path": "human/inbox/ideas/business-opportunities/fullstack-dev-freelance-ideas.md",
+          "content_hash": "sha256:d426e2d13c595841e87b40d59327e31bda278c1299a9891c48da5c614803f4d8",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "Here are **proven monthly recurring income streams** you can build as a fullstack developer:"
+        },
+        {
+          "source_path": "human/inbox/ideas/business-opportunities/political-business-idea.md",
+          "content_hash": "sha256:ab8e7bb94b2b60e3e6cb3728e002a49ff4490b16faf1cfbb8e06324bd9f57649",
+          "detected_status": "inbox",
+          "detected_authority": "agent_generated",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "I would like to make some agents that will help local candidates for political office get their name out faster with AI setup"
+        }
+      ]
+    },
+    {
+      "lane": "technical-architecture",
+      "owner": "athena",
+      "items_total": 25,
+      "review_required": true,
+      "default_action": "Extract durable architecture contracts only after code/docs contradiction review.",
+      "items": [
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/ARDA_BOARDROOM_ASSET_INTAKE_INDEX.md",
+          "content_hash": "sha256:d2c250d31217d82b75b7750e3db016fb9901e163db53d520721848a0ad123b3d",
+          "detected_status": "candidate",
+          "detected_authority": "raw",
+          "source_type": "source",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "annunimas_contract: human_knowledge.v1"
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/ARDA_BOARDROOM_BUILD_WORKSHEET.md",
+          "content_hash": "sha256:95a45edc6219b0803c604c3c9a1a473879ea97d8021f9481b2359bfb270cc20d",
+          "detected_status": "inbox",
+          "detected_authority": "agent_generated",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "# ARDA Boardroom — Build Order / Modeling Worksheet v0.2"
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/ARDA_BOARDROOM_GENERATION_PROMPTS.md",
+          "content_hash": "sha256:80cdeccc40d628e7d8a85a16458c698cbb915a1b1661baee981edc26c7261d30",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "# ARDA Boardroom — Generation Prompt Pack v0.2"
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/ARDA_BOARDROOM_MASTER_ASSET_SPEC.md",
+          "content_hash": "sha256:fb1f4c66ffb644b59495f52d63a5e7b62614bb6320749bd93e5a5e3ae5ee723b",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "# ARDA Boardroom — Master Asset Spec Sheet v0.2"
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/ARDA_BOARDROOM_TOOL_PIPELINE.md",
+          "content_hash": "sha256:9eb2c1ae02d06dc3e2c050bb18db471e322989326e12dbe34209e504a9b5cffb",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "# ARDA Boardroom — Tool Pipeline for Low-Blender-Skill Workflow v0.2"
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/metadata_stubs/boardroom_environment.metadata.json",
+          "content_hash": "sha256:51d5b85fb011f16ad03535393a46fee936b13a4af2b4e8a8e99f79886104b78d",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "source",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "{"
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/metadata_stubs/boardroom_skyline_plate.metadata.json",
+          "content_hash": "sha256:97d2e34bc8fd2a3a06e1b887df88a6070175bc17efa160c4e8f7129703b88842",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "source",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "{"
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/metadata_stubs/boardroom_window_frame.metadata.json",
+          "content_hash": "sha256:60ff75d6298c7dc9573df269672fa2d4e4bf2d466d5c04c0ccd875ca160865da",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "source",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "{"
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/metadata_stubs/center_console.metadata.json",
+          "content_hash": "sha256:4072913721da99366f9ac1ae43a0063f81ba84ca5c36e30754861d43ed91cf94",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "source",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "{"
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/metadata_stubs/desk_left_surface.metadata.json",
+          "content_hash": "sha256:b626ea0c62729f993cb1e6d1e0f53f1048d7fe0f7862cae823d1ccf3eac3b7f2",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "source",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "{"
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/metadata_stubs/desk_right_surface.metadata.json",
+          "content_hash": "sha256:d2ab7cd752931e144fd65f64cc6e9b54550d3e0edffdb7c73f9a756d6184d781",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "source",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "{"
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/metadata_stubs/presence_rig.metadata.json",
+          "content_hash": "sha256:bc3df8c54e2d0fcefcc7a61dcd6720346304fc4509a4ed3750ff4b4c0c3a7e76",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "source",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "{"
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/metadata_stubs/upper_monitor_1.metadata.json",
+          "content_hash": "sha256:2ba1041c37ba78e7147b405e3a4d8b97c768548125fbd7cea3d85cd2d1de98cc",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "source",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "{"
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/metadata_stubs/upper_monitor_2.metadata.json",
+          "content_hash": "sha256:14fe40d37c6d4fc9965778d597ef8463ffa5e2b20ff0bc5ea87718108e6d1746",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "source",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "{"
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/metadata_stubs/upper_monitor_3.metadata.json",
+          "content_hash": "sha256:28e3418d306365346e117a0e56de73d58adf66ad3db1a57ac52ddd00b7d7c7d9",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "source",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "{"
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/metadata_stubs/upper_monitor_4.metadata.json",
+          "content_hash": "sha256:4d567c40e3ff8dd1abc10226e7d531fe9a8130be5c7b835c11b3cdaf3e9f647c",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "source",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "{"
+        },
+        {
+          "source_path": "human/inbox/extracted-candidates/technical/aipkg-agent-package-format.md",
+          "content_hash": "sha256:d6f176891b97cc274b83c078940bbd11fe4bd09841025ac6bde5a49756ff88af",
+          "detected_status": "candidate",
+          "detected_authority": "raw",
+          "source_type": "summary",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "annunimas_contract: human_knowledge.v1"
+        },
+        {
+          "source_path": "human/inbox/extracted-candidates/technical/arda-hud-agent-ops-visualizer.md",
+          "content_hash": "sha256:c86f1226d411530d37bdd0e51946a0344b5c88a5dd9fd6c83bdbcdba3cef15ae",
+          "detected_status": "candidate",
+          "detected_authority": "raw",
+          "source_type": "summary",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "annunimas_contract: human_knowledge.v1"
+        },
+        {
+          "source_path": "human/inbox/extracted-candidates/technical/project-product-extraction-index.md",
+          "content_hash": "sha256:157498737d4bc70ed5ae2b3fd69526bb7565786a32f7bd3280d9116e5114a8af",
+          "detected_status": "candidate",
+          "detected_authority": "raw",
+          "source_type": "summary",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "annunimas_contract: human_knowledge.v1"
+        },
+        {
+          "source_path": "human/inbox/extracted-candidates/technical/warden-hades-ai-security-layer.md",
+          "content_hash": "sha256:3bd57926eb2b1d984e59eaec57cb653aafa7af8b2b12f8e0af6cc0a32223afcc",
+          "detected_status": "candidate",
+          "detected_authority": "raw",
+          "source_type": "summary",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "annunimas_contract: human_knowledge.v1"
+        },
+        {
+          "source_path": "human/inbox/technical-notes/coding-style-checklist.md",
+          "content_hash": "sha256:9f32bfe8fa4fcce9c74382e640152aaf0714fc6b96611be64495d298488ebc8a",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "# Fullstack Developer - Coding Style & Preferences Checklist"
+        },
+        {
+          "source_path": "human/inbox/technical-notes/rust-hooks.md",
+          "content_hash": "sha256:5b69bb6a7b017556d5355c49e7157af37e75d3a6d00987122a32b8bb9b0805d5",
+          "detected_status": "inbox",
+          "detected_authority": "agent_generated",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "Apr 28"
+        },
+        {
+          "source_path": "human/inbox/technical-notes/scss-os-component-idea.md",
+          "content_hash": "sha256:a124dabb2d7f8f8230a8ce272a083608edca52576d716602495c59c737b97697",
+          "detected_status": "inbox",
+          "detected_authority": "agent_generated",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "To make a UI/UX components for an OS pod agent to grab and use to make UI/UX on the fly."
+        },
+        {
+          "source_path": "human/inbox/technical-notes/setting-up-local-llm.md",
+          "content_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "note file with no textual summary candidate"
+        },
+        {
+          "source_path": "human/inbox/technical-notes/ui-ux-terminology.md",
+          "content_hash": "sha256:5e9d22602e2ad1b37dba8749a1ba0a44434c7520843b5d9aff21c75bc0cbcf92",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "Kinetic UI Layer > scan lines (crt sweep artifacts), glitch bursts, strobe flickers, typewriter reveal"
+        }
+      ]
+    },
+    {
+      "lane": "research-speculative",
+      "owner": "athena",
+      "items_total": 7,
+      "review_required": true,
+      "default_action": "Separate claim, evidence, conjecture, and citation; keep non-canonical until reviewed.",
+      "items": [
+        {
+          "source_path": "human/inbox/extracted-candidates/research/ai-conversation-source-review-note.md",
+          "content_hash": "sha256:2663ac66625c43e3eac21de230836a15557200551a66fcd17811937882f77fe1",
+          "detected_status": "candidate",
+          "detected_authority": "raw",
+          "source_type": "summary",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "annunimas_contract: human_knowledge.v1"
+        },
+        {
+          "source_path": "human/inbox/extracted-candidates/research/ecst-celtic-knot-speculative-implications.md",
+          "content_hash": "sha256:777474b31754ddb728788eb9d2a4baeb09f790af603da9bf7cbd588cf5494dd9",
+          "detected_status": "candidate",
+          "detected_authority": "raw",
+          "source_type": "research",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "annunimas_contract: human_knowledge.v1"
+        },
+        {
+          "source_path": "human/inbox/extracted-candidates/research/ecst-field-measurement-haunting-protocol.md",
+          "content_hash": "sha256:16a0777335b1e37ce2c93884bcefdcc654e2f0bcab572c4292be7a6b7a00d4ba",
+          "detected_status": "candidate",
+          "detected_authority": "raw",
+          "source_type": "transcript",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "annunimas_contract: human_knowledge.v1"
+        },
+        {
+          "source_path": "human/inbox/extracted-candidates/research/embedding-space-error-minimization-research-bridge.md",
+          "content_hash": "sha256:14b5e6e8c77bd616c3418cbf10895326e3c82d7f71bfe067cdd73bda453e7e6a",
+          "detected_status": "candidate",
+          "detected_authority": "raw",
+          "source_type": "research",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "annunimas_contract: human_knowledge.v1"
+        },
+        {
+          "source_path": "human/inbox/extracted-candidates/research/mythos-geometric-triad-validation-architecture.md",
+          "content_hash": "sha256:6a651b1e955f78a840bc5d3e4c06822907fc82f34712671d0f72604122ebcade",
+          "detected_status": "candidate",
+          "detected_authority": "raw",
+          "source_type": "transcript",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "annunimas_contract: human_knowledge.v1"
+        },
+        {
+          "source_path": "human/inbox/research/ecst-celtic-knot-implications.md",
+          "content_hash": "sha256:7ba79b4932b21dde071558d8d69df3c82292e612012d9c80e4154e3ced0cc939",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "The Celtic knot first — you're right. Continuous, unbroken, no beginning and no end. The same line folding back through itself infinitely. It's not decorative, it's a diagram. The same thing the ouroboros is doing, the same thing the torus "
+        },
+        {
+          "source_path": "human/inbox/research/embedding-space-error-minimization-paper-note.md",
+          "content_hash": "sha256:2e2d7243f3f946d48d3af197543fe7fb59f32c7c49c2c93c4aa6d365b0965365",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "[https://arxiv.org/abs/2601.14096](https://arxiv.org/abs/2601.14096) Short analysis please"
+        }
+      ]
+    },
+    {
+      "lane": "creative-media",
+      "owner": "athena",
+      "items_total": 8,
+      "review_required": true,
+      "default_action": "Preserve concepts and audience strategy; avoid converting to active project tasks without approval.",
+      "items": [
+        {
+          "source_path": "human/inbox/extracted-candidates/creative-media/digital-alexandria-explorer-media.md",
+          "content_hash": "sha256:455ca4e3ede87b3e2f37f1080a1c247dec1ed164ff9aa3306c1af7c4273c7cb8",
+          "detected_status": "candidate",
+          "detected_authority": "raw",
+          "source_type": "summary",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "annunimas_contract: human_knowledge.v1"
+        },
+        {
+          "source_path": "human/inbox/extracted-candidates/creative-media/muse-live-music-ai-market-positioning.md",
+          "content_hash": "sha256:01214d1ad8a625d77b019b44e8daef346b177ab3ec3d6cfa94150cb2e858f384",
+          "detected_status": "candidate",
+          "detected_authority": "raw",
+          "source_type": "summary",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "annunimas_contract: human_knowledge.v1"
+        },
+        {
+          "source_path": "human/inbox/extracted-candidates/creative-media/phoenix-player-market-positioning.md",
+          "content_hash": "sha256:f783fa8e40473fe8dc5a64a97026972597a3186219c6f8bedf0b1a45dbf1f63f",
+          "detected_status": "candidate",
+          "detected_authority": "raw",
+          "source_type": "summary",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "annunimas_contract: human_knowledge.v1"
+        },
+        {
+          "source_path": "human/inbox/ideas/creative-media/ai-powered-rpg-streaming-platform.md",
+          "content_hash": "sha256:a971b6296a4d1e7442375dc5c028a62bfc47cd9318ad81f8eee8a3924a795f25",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "The rough stack for an MVP:"
+        },
+        {
+          "source_path": "human/inbox/ideas/creative-media/explorers-lantern-could-be-big.md",
+          "content_hash": "sha256:6e3cebdd6152a58ad38dc170c51c5b9f224b773c137e6a41698b3a56c3dd1c4f",
+          "detected_status": "inbox",
+          "detected_authority": "agent_generated",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "did we talk about a business idea that involved taking stories from the exploration days of european journals and litearture like dumas , verne, louis lamour. Frontier stories."
+        },
+        {
+          "source_path": "human/inbox/ideas/creative-media/hobbit-home-idea.md",
+          "content_hash": "sha256:0ad1ffdae974f683c20cdac71e52c1d4a475c782485e75f79a1f45f432b71160",
+          "detected_status": "inbox",
+          "detected_authority": "agent_generated",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "is the tech possible to build a hobbit like home. say 2 layers multiple rooms , all with the hobbit style and build it into a hill side. put dirt on top, plant item. I have seen awesome 3d print type infrstructure. have 2 other units nearby"
+        },
+        {
+          "source_path": "human/inbox/ideas/creative-media/interesting-game-builder-idea.md",
+          "content_hash": "sha256:6bce7d53654bbecc5cbcb4942cfee2ddcb53f2c807eace6b4937595616642c27",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "Looking at some video game making. let me know how this idea sounds. do not go into implementation."
+        },
+        {
+          "source_path": "human/inbox/ideas/creative-media/social-business-idea.md",
+          "content_hash": "sha256:943d607d1c733f928667e3c4a78bd9f8ed22f76ed2de5bfe189d38aa6a0ad2ba",
+          "detected_status": "inbox",
+          "detected_authority": "agent_generated",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "OH FUCK. Now I get it."
+        }
+      ]
+    },
+    {
+      "lane": "ai-conversation-provenance",
+      "owner": "athena",
+      "items_total": 5,
+      "review_required": true,
+      "default_action": "Summarize transcripts with provenance and mark generated claims as candidate.",
+      "items": [
+        {
+          "source_path": "human/inbox/ai-conversations/claude-convo.md",
+          "content_hash": "sha256:f9c5e0a3a8109b75b8cf0fc77a63fb12f50f950d8ba95f20c7526103b7a4182a",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "**What type of personality woudl you become based on our chats and interactions?"
+        },
+        {
+          "source_path": "human/inbox/ai-conversations/claude-notes-3.md",
+          "content_hash": "sha256:9a05a0de6bdc4389d8473e15f195e2ef76ac1ed01c4d198ee09ac002f311260d",
+          "detected_status": "inbox",
+          "detected_authority": "agent_generated",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "cI found this post by an account on X and I find it interesting that peopler who have been in AI field so long cant see through the trees. I think my philosophy validation protocols solve this but I could be wrong as well."
+        },
+        {
+          "source_path": "human/inbox/ai-conversations/claude-notes.md",
+          "content_hash": "sha256:0c874e879ec47540afb06367d63cd019a4b18a2232ad932011ad2a0ffc679e56",
+          "detected_status": "inbox",
+          "detected_authority": "agent_generated",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "Here's the straight viability read, Daniel."
+        },
+        {
+          "source_path": "human/inbox/ai-conversations/ideas-claude.md",
+          "content_hash": "sha256:0aa7b3a95de55904d5fc7c603a264be167aa7f8de0c850d383f94d1c33253a68",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "You are building a local-first, multi-vector, multi-lens reasoning engine called MythOS, designed to function as a “Digital Renaissance Mind.”"
+        },
+        {
+          "source_path": "human/inbox/ai-conversations/mix-of-ideas-claude.md",
+          "content_hash": "sha256:8090df26f4ff4411de943b1602f306ed4eb683f0d5b5840b0dcda8a08c2a5711",
+          "detected_status": "inbox",
+          "detected_authority": "agent_generated",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "## AgentCraft vs CRUSTIES - Key Differences"
+        }
+      ]
+    },
+    {
+      "lane": "mixed-longform-splitting",
+      "owner": "athena",
+      "items_total": 3,
+      "review_required": true,
+      "default_action": "Split large mixed documents into smaller candidate notes before promotion.",
+      "items": [
+        {
+          "source_path": "human/inbox/mixed-longform/initial-idea-for-small-business-operating-system.md",
+          "content_hash": "sha256:bcc6d54246522beb78aec07f5f210732bbbc547a93099bd7a382758acb9ce21e",
+          "detected_status": "inbox",
+          "detected_authority": "agent_generated",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "**Excellent architectural thinking** - you're separating concerns properly: display/graphics compute vs business logic/AI orchestration."
+        },
+        {
+          "source_path": "human/inbox/mixed-longform/several-ideas-parse-out.md",
+          "content_hash": "sha256:b616e01e8e30f35b73d3ba0421e162c255af96a8587a4c1bbec40ba9f07a7c92",
+          "detected_status": "inbox",
+          "detected_authority": "agent_generated",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "### Rethinking MUSE in mythOS Context"
+        },
+        {
+          "source_path": "human/inbox/mixed-longform/variety-of-ideas-some-implemented-some-not.md",
+          "content_hash": "sha256:e8519f568811ffbeab7dc4fec449ff05f1449a373b61e2dc750882e0a935a972",
+          "detected_status": "inbox",
+          "detected_authority": "agent_generated",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "Feb 25"
+        }
+      ]
+    },
+    {
+      "lane": "candidate-review",
+      "owner": "athena",
+      "items_total": 1,
+      "review_required": true,
+      "default_action": "Review extracted candidate notes for duplicates, provenance, and promotion eligibility.",
+      "items": [
+        {
+          "source_path": "human/inbox/extracted-candidates/README.md",
+          "content_hash": "sha256:54f249e18f072831bba0456a16cf95490ce573bb9ae5841b374cf91456a0b40b",
+          "detected_status": "candidate",
+          "detected_authority": "raw",
+          "source_type": "summary",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "annunimas_contract: human_knowledge.v1"
+        }
+      ]
+    },
+    {
+      "lane": "general-inbox-normalization",
+      "owner": "athena",
+      "items_total": 7,
+      "review_required": true,
+      "default_action": "Add/repair frontmatter and keep raw material staged.",
+      "items": [
+        {
+          "source_path": "human/inbox/README.md",
+          "content_hash": "sha256:30aff612eb3337d2ffcf0395fd75f028b1f827f2a2396aab7f1f6712b88c95ff",
+          "detected_status": "inbox",
+          "detected_authority": "human",
+          "source_type": "note",
+          "frontmatter_valid": true,
+          "recommendation": "retain-working-review",
+          "summary": "annunimas_contract: human_knowledge.v1"
+        },
+        {
+          "source_path": "human/inbox/TRIAGE.md",
+          "content_hash": "sha256:c7602d3e1b3920702afa1ea86e95843cb0477fe152a5a9678a462d2606dc7bf2",
+          "detected_status": "inbox",
+          "detected_authority": "agent_generated",
+          "source_type": "summary",
+          "frontmatter_valid": true,
+          "recommendation": "retain-working-review",
+          "summary": "annunimas_contract: human_knowledge.v1"
+        },
+        {
+          "source_path": "human/inbox/ideas/product-concepts/3d-print-idea.md",
+          "content_hash": "sha256:fc0e91227ece260120adb1ba262c59d827f4555ea5dc92dc53e303c51a575acc",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "Good. I have a solid picture of the landscape now. Here's the full analysis:"
+        },
+        {
+          "source_path": "human/inbox/ideas/product-concepts/ai-marketplace-system.md",
+          "content_hash": "sha256:2697b7d8c60c1889a447a209bf8024dadb3f475bf6cdae153cd4288b93d47cab",
+          "detected_status": "inbox",
+          "detected_authority": "agent_generated",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "orning, i had an idea hit me."
+        },
+        {
+          "source_path": "human/inbox/ideas/product-concepts/holographic-miniature-companion.md",
+          "content_hash": "sha256:e8a6a6e09ed7991f8b6ccb05007d6e714c2ead37513a56f98c092a4f8bcb5ea3",
+          "detected_status": "inbox",
+          "detected_authority": "agent_generated",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "type: project"
+        },
+        {
+          "source_path": "human/inbox/ideas/product-concepts/library-mirror.md",
+          "content_hash": "sha256:af50b9a2aa14f703bf67c2a1bbe87513276daf22f0baa6262c07c2a8542bf960",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "Woah idea just hit. mirror but librarian that can be with a kid. unique to each one that comes to the library"
+        },
+        {
+          "source_path": "human/inbox/notes/untitled-2.md",
+          "content_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "detected_status": "inbox",
+          "detected_authority": "raw",
+          "source_type": "note",
+          "frontmatter_valid": false,
+          "recommendation": "retain-working-review",
+          "summary": "note file with no textual summary candidate"
+        }
+      ]
+    },
+    {
+      "lane": "binary-document-extraction",
+      "owner": "athena",
+      "items_total": 5,
+      "review_required": true,
+      "default_action": "Extract PDF/DOCX text into derived summaries with source hashes; do not overwrite originals.",
+      "items": [
+        {
+          "source_path": "human/inbox/ideas/business-opportunities/daniel-ward-freelance-kit.docx",
+          "extension": ".docx",
+          "size_bytes": 13381,
+          "recommended_lane": "binary-document-extraction",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/research/ECST_Executive_Summary_v2.docx",
+          "extension": ".docx",
+          "size_bytes": 9442,
+          "recommended_lane": "binary-document-extraction",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/research/ECST_Scientific_Paper_v2.docx",
+          "extension": ".docx",
+          "size_bytes": 15269,
+          "recommended_lane": "binary-document-extraction",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/research/MythOS_v3.6_Scientific_Paper.docx",
+          "extension": ".docx",
+          "size_bytes": 30823,
+          "recommended_lane": "binary-document-extraction",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/research/electric-current-soul-hypothesis.pdf",
+          "extension": ".pdf",
+          "size_bytes": 18200,
+          "recommended_lane": "binary-document-extraction",
+          "review_required": true
+        }
+      ]
+    },
+    {
+      "lane": "media-asset-inventory",
+      "owner": "athena",
+      "items_total": 26,
+      "review_required": true,
+      "default_action": "Inventory images/assets and attach metadata without treating visual content as canonical text.",
+      "items": [
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/ChatGPT Image May 15, 2026, 03_58_57 AM (1).png",
+          "extension": ".png",
+          "size_bytes": 2425070,
+          "recommended_lane": "media-asset-inventory",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/ChatGPT Image May 15, 2026, 04_15_14 AM.png",
+          "extension": ".png",
+          "size_bytes": 2027432,
+          "recommended_lane": "media-asset-inventory",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/ChatGPT Image May 15, 2026, 04_15_21 AM.png",
+          "extension": ".png",
+          "size_bytes": 2098874,
+          "recommended_lane": "media-asset-inventory",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/ChatGPT Image May 15, 2026, 04_15_27 AM.png",
+          "extension": ".png",
+          "size_bytes": 2240409,
+          "recommended_lane": "media-asset-inventory",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/analogSwitches.jpg",
+          "extension": ".jpg",
+          "size_bytes": 414205,
+          "recommended_lane": "media-asset-inventory",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/analogbuttons.jpg",
+          "extension": ".jpg",
+          "size_bytes": 311607,
+          "recommended_lane": "media-asset-inventory",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/avatar emitter.jpg",
+          "extension": ".jpg",
+          "size_bytes": 227940,
+          "recommended_lane": "media-asset-inventory",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/avatar transparency closeup.jpg",
+          "extension": ".jpg",
+          "size_bytes": 384357,
+          "recommended_lane": "media-asset-inventory",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/avatar.jpg",
+          "extension": ".jpg",
+          "size_bytes": 295710,
+          "recommended_lane": "media-asset-inventory",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/backwallcontext.jpg",
+          "extension": ".jpg",
+          "size_bytes": 257048,
+          "recommended_lane": "media-asset-inventory",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/closeupMonitorJoints.jpg",
+          "extension": ".jpg",
+          "size_bytes": 228566,
+          "recommended_lane": "media-asset-inventory",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/closeupavataremitter.jpg",
+          "extension": ".jpg",
+          "size_bytes": 222056,
+          "recommended_lane": "media-asset-inventory",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/cyberpunkSkyline.jpg",
+          "extension": ".jpg",
+          "size_bytes": 276324,
+          "recommended_lane": "media-asset-inventory",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/deskCollage.jpg",
+          "extension": ".jpg",
+          "size_bytes": 231229,
+          "recommended_lane": "media-asset-inventory",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/deskmaterial.jpg",
+          "extension": ".jpg",
+          "size_bytes": 302070,
+          "recommended_lane": "media-asset-inventory",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/deskmaterialclose.jpg",
+          "extension": ".jpg",
+          "size_bytes": 268948,
+          "recommended_lane": "media-asset-inventory",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/dualArmmonitorL+R.jpg",
+          "extension": ".jpg",
+          "size_bytes": 150614,
+          "recommended_lane": "media-asset-inventory",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/floormat.jpg",
+          "extension": ".jpg",
+          "size_bytes": 314598,
+          "recommended_lane": "media-asset-inventory",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/floormatapplies.jpg",
+          "extension": ".jpg",
+          "size_bytes": 202170,
+          "recommended_lane": "media-asset-inventory",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/fullrender.jpg",
+          "extension": ".jpg",
+          "size_bytes": 351234,
+          "recommended_lane": "media-asset-inventory",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/fullrenderFar.jpg",
+          "extension": ".jpg",
+          "size_bytes": 314975,
+          "recommended_lane": "media-asset-inventory",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/monitors.jpg",
+          "extension": ".jpg",
+          "size_bytes": 199362,
+          "recommended_lane": "media-asset-inventory",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/orbDisk.jpg",
+          "extension": ".jpg",
+          "size_bytes": 296949,
+          "recommended_lane": "media-asset-inventory",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/orbDiskCloseup.jpg",
+          "extension": ".jpg",
+          "size_bytes": 268760,
+          "recommended_lane": "media-asset-inventory",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/wallMat.jpg",
+          "extension": ".jpg",
+          "size_bytes": 258876,
+          "recommended_lane": "media-asset-inventory",
+          "review_required": true
+        },
+        {
+          "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/windowFrame.jpg",
+          "extension": ".jpg",
+          "size_bytes": 224328,
+          "recommended_lane": "media-asset-inventory",
+          "review_required": true
+        }
+      ]
+    }
+  ],
+  "candidate_consolidation_hypotheses": [
+    {
+      "cluster_id": "annunimas_ais_agent_suite",
+      "candidate_paths": [
+        "human/inbox/extracted-candidates/business/annunimas-agent-suite-positioning.md",
+        "human/inbox/extracted-candidates/projects/ais-business-appliance-small-business-os.md",
+        "human/inbox/extracted-candidates/projects/annunimas-agent-suite.md"
+      ],
+      "recommendation": "review-and-merge-overlapping-candidates"
+    },
+    {
+      "cluster_id": "warden_hades_security",
+      "candidate_paths": [
+        "human/inbox/extracted-candidates/business/warden-ai-security-market-positioning.md",
+        "human/inbox/extracted-candidates/technical/warden-hades-ai-security-layer.md"
+      ],
+      "recommendation": "review-and-merge-overlapping-candidates"
+    },
+    {
+      "cluster_id": "forge_a2a_marketplace",
+      "candidate_paths": [
+        "human/inbox/extracted-candidates/business/a2a-agent-marketplace-positioning.md",
+        "human/inbox/extracted-candidates/business/sovereign-agent-marketplace.md",
+        "human/inbox/extracted-candidates/projects/forge-ai-agent-marketplace.md",
+        "human/inbox/extracted-candidates/technical/aipkg-agent-package-format.md"
+      ],
+      "recommendation": "review-and-merge-overlapping-candidates"
+    },
+    {
+      "cluster_id": "muse_phoenix_music",
+      "candidate_paths": [
+        "human/inbox/extracted-candidates/creative-media/muse-live-music-ai-market-positioning.md",
+        "human/inbox/extracted-candidates/creative-media/phoenix-player-market-positioning.md",
+        "human/inbox/extracted-candidates/projects/muse-live-music-ai.md",
+        "human/inbox/extracted-candidates/projects/phoenix-player-digital-music-ownership-device.md"
+      ],
+      "recommendation": "review-and-merge-overlapping-candidates"
+    },
+    {
+      "cluster_id": "digital_alexandria_mythos_research",
+      "candidate_paths": [
+        "human/inbox/extracted-candidates/creative-media/digital-alexandria-explorer-media.md",
+        "human/inbox/extracted-candidates/projects/digital-alexandria-knowledge-platform.md",
+        "human/inbox/extracted-candidates/research/ecst-celtic-knot-speculative-implications.md",
+        "human/inbox/extracted-candidates/research/ecst-field-measurement-haunting-protocol.md",
+        "human/inbox/extracted-candidates/research/embedding-space-error-minimization-research-bridge.md",
+        "human/inbox/extracted-candidates/research/mythos-geometric-triad-validation-architecture.md"
+      ],
+      "recommendation": "review-and-merge-overlapping-candidates"
+    },
+    {
+      "cluster_id": "arda_hud_ops_visualization",
+      "candidate_paths": [
+        "human/inbox/extracted-candidates/technical/arda-hud-agent-ops-visualizer.md"
+      ],
+      "recommendation": "single-candidate-review"
+    }
+  ],
+  "promotion_gates": [
+    {
+      "gate": "provenance",
+      "requirement": "source_path and content_hash preserved for every promoted claim"
+    },
+    {
+      "gate": "authority",
+      "requirement": "raw and agent_generated material cannot become canonical without review"
+    },
+    {
+      "gate": "contradiction",
+      "requirement": "compare against docs/contracts, core/realm, and existing canonical human knowledge"
+    },
+    {
+      "gate": "scope",
+      "requirement": "separate project, research, business, technical, and creative claims before task creation"
+    },
+    {
+      "gate": "binary-docs",
+      "requirement": "extract text into derived summaries; keep original PDF/DOCX unchanged"
+    }
+  ],
+  "recommended_next_actions": [
+    "Repair or attach frontmatter to raw supported inbox markdown/json files as derived metadata, not by overwriting raw imports unless approved.",
+    "Run focused binary-document extraction for ECST/MythOS PDF/DOCX sources.",
+    "Review candidate consolidation hypotheses and merge duplicates into canonical candidate briefs.",
+    "Only then promote selected material into human knowledge/project surfaces or task queue."
+  ]
+}

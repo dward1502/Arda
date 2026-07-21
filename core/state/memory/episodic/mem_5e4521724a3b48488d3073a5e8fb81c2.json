@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_5e4521724a3b48488d3073a5e8fb81c2",
+  "kind": "episodic",
+  "agent": "charon",
+  "content": "CHARON routed athena:research [planning:context_heavy] -> openai_sub:gpt-5.5 triad_passed=false love_eq=0.74",
+  "salience": 0.3334999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T07:02:32.042869867Z",
+  "last_seen_at": "2026-06-01T07:02:32.042869867Z"
+}

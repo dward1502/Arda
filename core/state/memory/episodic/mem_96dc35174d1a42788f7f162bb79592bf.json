@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_96dc35174d1a42788f7f162bb79592bf",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Hermes Discord operating-room interaction receipts deployed. Added redacted operating-room slash command receipts for /plans, /tasks, /task, /review, /continue, /council, and /gateway. Receipts write annunimas.hermes.discord_operating_room_interaction.v1 to data/hermes/discord_operating_room_interactions.jsonl and intentionally omit option values and response content. Updated the canonical plan, runbook, and activation check to verify this proof surface. Built release and restarted annunimas-hermes-discord.service after approval; service is active and reconnected as Annunimas_CEO. Verification: cargo fmt --check -p annunimas-cli -p annunimas-hermes; cargo test -p annunimas-hermes serenity_bot -- --nocapture; cargo test -p annunimas-cli hermes_agent_gateway_activation_check -- --nocapture; cargo run -p annunimas-cli -- utility hermes-agent-gateway-activation-check reports ready_for_live_gateway/live_ready=true and interaction_receipts=data/hermes/discord_operating_room_interactions.jsonl.",
+  "salience": 0.7099444444444445,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-30T18:55:27.788700674Z",
+  "last_seen_at": "2026-05-30T18:55:27.788700674Z"
+}

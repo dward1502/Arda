@@ -1,0 +1,59 @@
+{
+  "schema_version": "autonomy_readiness.v1",
+  "authority": "audit/AUTONOMY_READINESS_2026-05-13",
+  "updated_at_utc": "2026-05-24T05:19:18.595575712+00:00",
+  "checkpoint": {
+    "read_only_autonomy": "closed_verified",
+    "supervised_timer": "enabled_active",
+    "mutating_autonomy": "gated",
+    "overall_posture": "read_only_closed_mutation_locked"
+  },
+  "evidence": [
+    {
+      "phase": "5A",
+      "title": "Benchmark harness",
+      "status": "passed",
+      "claim": "No human filesystem mutation during read-only autonomy run",
+      "source": "audit/AUTONOMY_READINESS_2026-05-13/phase5-autonomy-benchmark-report.json"
+    },
+    {
+      "phase": "5B",
+      "title": "ORACLE quorum propagation",
+      "status": "verified",
+      "claim": "ORACLE quorum evidence propagation verified",
+      "source": "audit/AUTONOMY_READINESS_2026-05-13/00-INDEX.md"
+    },
+    {
+      "phase": "5C",
+      "title": "Governance reporting path",
+      "status": "verified",
+      "claim": "Governance reporting path verified",
+      "source": "audit/AUTONOMY_READINESS_2026-05-13/00-INDEX.md"
+    },
+    {
+      "phase": "5D",
+      "title": "Supervised read-only timer path",
+      "status": "enabled",
+      "claim": "Supervised read-only timer path implemented, verified, and enabled",
+      "source": "audit/AUTONOMY_READINESS_2026-05-13/00-INDEX.md"
+    }
+  ],
+  "next_unlocks": [
+    {
+      "title": "Define first bounded mutation class",
+      "status": "open",
+      "requires": [
+        "rollback contract",
+        "evidence contract",
+        "operator approval gate"
+      ]
+    }
+  ],
+  "sources": [
+    "audit/AUTONOMY_READINESS_2026-05-13/00-INDEX.md",
+    "audit/AUTONOMY_READINESS_2026-05-13/phase5-autonomy-benchmark-report.json",
+    "audit/AUTONOMY_READINESS_2026-05-13/phase5-autonomy-benchmark-summary.md",
+    "docs/contracts/autonomy-governance-action-classes.md",
+    "docs/operations/CEO_AUTOPILOT.md"
+  ]
+}

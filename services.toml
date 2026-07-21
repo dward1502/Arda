@@ -1,0 +1,54 @@
+# Arda supervised service registry.
+# To add/remove services, edit this file — not src/main.rs.
+
+[[service]]
+name = "arda-launcher"
+path = "apps/arda-launcher/src-tauri"
+required = true
+optional = false
+tags = ["ui"]
+
+  [service.start]
+  command = "cargo"
+  args = ["tauri", "dev"]
+  cwd = "apps/arda-launcher"
+
+  [service.health]
+  url = "http://127.0.0.1:1420"
+  interval_secs = 5
+  timeout_secs = 2
+
+[[service]]
+name = "arda-hud"
+path = "apps/arda-hud"
+required = false
+optional = true
+tags = ["ui"]
+
+  [service.start]
+  command = "pnpm"
+  args = ["dev"]
+  cwd = "apps/arda-hud"
+
+  [service.health]
+  url = "http://127.0.0.1:5173"
+  interval_secs = 5
+  timeout_secs = 2
+
+[[service]]
+name = "manwe"
+path = "crates/spine/runtime/manwe"
+required = true
+optional = false
+tags = ["gateway"]
+
+  [service.start]
+  command = "cargo"
+  args = ["run", "-p", "arda-aule", "--", "serve"]
+  cwd = "."
+
+  [service.health]
+  url = "http://127.0.0.1:7171"
+  path = "/health"
+  interval_secs = 5
+  timeout_secs = 2

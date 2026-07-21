@@ -1,0 +1,521 @@
+{
+  "arda_primary_entrypoint_recommended": "core/state/arda_snapshot.json",
+  "arda_primary_entrypoint_status": "implemented",
+  "authority": "arda_source_map_projection",
+  "generated_at_utc": "2026-07-14T01:06:31.784116256+00:00",
+  "purpose": "backend source map for system consumers including ARDA_HUD and external agents",
+  "repo_reorganization": {
+    "notes": [
+      "Do not move user notes blindly; project them first.",
+      "Remove crate-local data/human mirrors after confirming they are generated artifacts or stale copies.",
+      "ARDA should consume core/state projections first and raw ledgers second."
+    ],
+    "pressure_points": {
+      "crate_embedded_state": [],
+      "mixed_runtime_and_reference_outputs": [
+        "core/state",
+        "core/metrics",
+        "data/*"
+      ],
+      "scattered_human_notes": [
+        "docs/operator/notes",
+        "docs/operator/library",
+        "docs/operator/summaries"
+      ]
+    },
+    "recommended_targets": {
+      "human_reference": "docs/operator/library",
+      "human_working_notes": "docs/operator/notes",
+      "integration_contracts": "docs/integrations",
+      "machine_read_models": "core/state",
+      "time_series_and_ledgers": "data"
+    },
+    "status": "phase_1_completed"
+  },
+  "schema_version": "annunimas.core.state.v1",
+  "sections": [
+    {
+      "arda_panels": [
+        "3d_world",
+        "executive_overview"
+      ],
+      "id": "sovereign_world",
+      "owner": "prometheus",
+      "primary_sources": [
+        "core/state/world.json",
+        "core/state/system_manifest.json",
+        "core/state/system_control.json"
+      ],
+      "status": "ready",
+      "supplemental_sources": [
+        "core/state/active_ruleset.json",
+        "core/state/autonomy_runtime.json"
+      ],
+      "title": "Sovereign World"
+    },
+    {
+      "arda_panels": [
+        "security_posture",
+        "edge_guardhouse",
+        "policy_authority"
+      ],
+      "id": "governance_guardhouse",
+      "owner": "warden",
+      "primary_sources": [
+        "core/state/warden_guardhouse.json",
+        "core/state/warden_policy_authority.json",
+        "core/state/warden_edge_contract.json",
+        "core/state/warden_nightly_doctrine.json"
+      ],
+      "status": "ready",
+      "supplemental_sources": [
+        "data/prometheus/gate_matrix_last.json",
+        "data/prometheus/gate_metrics_last.json"
+      ],
+      "title": "Governance And Guardhouse"
+    },
+    {
+      "arda_panels": [
+        "knowledge_corpus",
+        "verdict_stream",
+        "source_graph"
+      ],
+      "id": "knowledge_and_reasoning",
+      "missing_projections": [
+        "human_library_projection_for_boardroom_consumption"
+      ],
+      "owner": "athena_oracle",
+      "primary_sources": [
+        "core/state/athena_runtime.json",
+        "core/state/oracle_runtime.json"
+      ],
+      "status": "ready",
+      "supplemental_sources": [
+        "data/athena/digest.jsonl",
+        "data/athena/deep_graph.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "data/athena/policy_readiness.jsonl",
+        "data/athena/deep_queue.jsonl"
+      ],
+      "title": "Knowledge And Reasoning"
+    },
+    {
+      "arda_panels": [
+        "boardroom",
+        "inference_router",
+        "interrupts"
+      ],
+      "id": "routing_and_comms",
+      "owner": "charon_hermes",
+      "primary_sources": [
+        "core/state/manwe_router.json",
+        "core/state/hermes_command.json"
+      ],
+      "status": "ready",
+      "supplemental_sources": [
+        "data/hermes/boardroom.jsonl",
+        "data/hermes/interruptions.jsonl",
+        "data/prometheus/arda_presence_events.jsonl"
+      ],
+      "title": "Routing And Communications"
+    },
+    {
+      "arda_panels": [
+        "maintenance",
+        "task_execution",
+        "joulework_and_budget"
+      ],
+      "id": "lifecycle_execution_economics",
+      "owner": "hades_apollo_plutus",
+      "primary_sources": [
+        "core/state/hades_lifecycle.json",
+        "core/state/apollo_runtime.json",
+        "core/state/plutus_runtime.json"
+      ],
+      "status": "ready",
+      "supplemental_sources": [
+        "data/prometheus/health_workflow_last.json",
+        "data/prometheus/pressure_guard_last.json",
+        "data/hades/joulework.jsonl"
+      ],
+      "title": "Lifecycle Execution Economics"
+    },
+    {
+      "arda_panels": [
+        "memory",
+        "identity_continuity",
+        "memory_activity",
+        "memory_scope_map"
+      ],
+      "id": "memory_and_continuity",
+      "owner": "mnemosyne",
+      "primary_sources": [
+        "core/state/mnemosyne_continuity.json",
+        "core/state/memory_identity.json",
+        "core/state/memory_activity.json",
+        "core/state/memory_scopes.json"
+      ],
+      "status": "ready",
+      "supplemental_sources": [
+        "data/mnemosyne/obsidian_index.jsonl",
+        "data/mnemosyne/noise.jsonl"
+      ],
+      "title": "Memory And Continuity"
+    },
+    {
+      "arda_panels": [
+        "task_board",
+        "plan_progress",
+        "escalation_queue"
+      ],
+      "id": "planning_and_queue",
+      "owner": "prometheus",
+      "primary_sources": [
+        "core/state/queue_summary.json",
+        "core/state/escalation_runtime.json"
+      ],
+      "status": "ready",
+      "supplemental_sources": [
+        "core/projects/tasks/queue.jsonl",
+        "core/projects/tasks/queue.jsonl",
+        "core/projects/Plans",
+        "data/prometheus/orders.jsonl",
+        "data/prometheus/escalations.jsonl"
+      ],
+      "title": "Planning And Queue"
+    },
+    {
+      "arda_panels": [
+        "soterion_language",
+        "operations_flow",
+        "executive_overview"
+      ],
+      "id": "soterion_language",
+      "owner": "prometheus_core",
+      "primary_sources": [
+        "core/state/soterion_render_contract.json"
+      ],
+      "status": "ready",
+      "supplemental_sources": [
+        "meta/soterion_sigils.yaml"
+      ],
+      "title": "Soterion Language"
+    },
+    {
+      "arda_panels": [
+        "governance_runtime",
+        "operations_flow",
+        "executive_overview"
+      ],
+      "id": "governance_and_operations",
+      "owner": "prometheus",
+      "primary_sources": [
+        "core/state/governance_runtime.json",
+        "core/state/operations_flow.json"
+      ],
+      "status": "ready",
+      "supplemental_sources": [
+        "core/metrics/by_crate/governance/signals.json",
+        "core/metrics/by_crate/prometheus/ops_dashboard.json"
+      ],
+      "title": "Governance And Operations"
+    },
+    {
+      "arda_panels": [
+        "paperclip_alignment",
+        "governance_runtime",
+        "operations_flow"
+      ],
+      "id": "paperclip_alignment",
+      "owner": "prometheus_charon_hades_athena",
+      "primary_sources": [
+        "core/state/paperclip_alignment.json"
+      ],
+      "status": "ready",
+      "supplemental_sources": [
+        "core/state/governance_runtime.json",
+        "core/state/manwe_router.json",
+        "core/state/control_plane_lockdown.json",
+        "core/state/athena_runtime.json",
+        "data/athena/policy_readiness.jsonl",
+        "core/projects/tasks/queue.jsonl"
+      ],
+      "title": "Paperclip Alignment"
+    },
+    {
+      "arda_panels": [
+        "storage_pressure",
+        "package_health",
+        "package_enablement",
+        "runtime_settings",
+        "control_plane_lockdown"
+      ],
+      "id": "operations_health",
+      "owner": "prometheus_hades",
+      "primary_sources": [
+        "core/state/storage_pressure.json",
+        "core/state/package_health.json",
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json",
+        "core/state/extension_surface_contract.json",
+        "core/state/extension_activation_backlog.json",
+        "core/state/aipkg_marketplace_separation_contract.json",
+        "core/state/network_native_node_onboarding_contract.json",
+        "core/state/operator_actions.json",
+        "core/state/task_agent_boundaries.json",
+        "core/state/runtime_settings.json",
+        "core/state/control_plane_lockdown.json"
+      ],
+      "status": "ready",
+      "supplemental_sources": [
+        "data/prometheus/compaction_last.json",
+        "data/prometheus/package_health_last.json",
+        "core/metrics/audit_latest.json",
+        "data/prometheus/control_plane/policy_snapshot.json",
+        "config/runtime.generated.env"
+      ],
+      "title": "Operations Health"
+    },
+    {
+      "arda_panels": [
+        "package_enablement",
+        "operations_flow",
+        "executive_overview"
+      ],
+      "id": "framework_extensions",
+      "owner": "prometheus_athena",
+      "primary_sources": [
+        "core/state/agent_framework_alignment.json",
+        "core/state/agentforge_alignment.json",
+        "core/state/eliza_alignment.json",
+        "core/state/extension_surface_contract.json",
+        "core/state/extension_activation_backlog.json",
+        "core/state/aipkg_marketplace_separation_contract.json"
+      ],
+      "status": "ready",
+      "supplemental_sources": [
+        "core/state/aipkg_contract.json",
+        "core/state/crate_spawn_contract.json",
+        "core/state/package_enablement.json"
+      ],
+      "title": "Framework Extensions"
+    },
+    {
+      "arda_panels": [
+        "package_enablement",
+        "operations_flow",
+        "executive_overview"
+      ],
+      "id": "package_marketplace_doctrine",
+      "owner": "prometheus",
+      "primary_sources": [
+        "core/state/aipkg_contract.json",
+        "core/state/aipkg_marketplace_separation_contract.json"
+      ],
+      "status": "ready",
+      "supplemental_sources": [
+        "core/state/openfang_alignment.json",
+        "core/state/extension_surface_contract.json",
+        "core/state/extension_activation_backlog.json",
+        "core/state/package_runtime_activation.json"
+      ],
+      "title": "Package Marketplace Doctrine"
+    },
+    {
+      "arda_panels": [
+        "boardroom",
+        "operations_flow",
+        "package_enablement"
+      ],
+      "id": "communication_adapters",
+      "owner": "hermes",
+      "primary_sources": [
+        "core/state/federated_comms_runtime.json",
+        "core/state/hermes_command.json",
+        "core/state/communication_adapter_contract.json"
+      ],
+      "status": "ready",
+      "supplemental_sources": [
+        "core/state/extension_surface_contract.json",
+        "core/state/extension_activation_backlog.json",
+        "core/state/package_runtime_activation.json"
+      ],
+      "title": "Communication Adapters"
+    },
+    {
+      "arda_panels": [
+        "fleet_health",
+        "edge_guardhouse",
+        "operations_flow"
+      ],
+      "id": "edge_enrollment",
+      "owner": "warden_arda",
+      "primary_sources": [
+        "core/state/fleet_identity_reconciliation.json",
+        "core/state/edge_enrollment_plan.json",
+        "core/state/operator_actions.json"
+      ],
+      "status": "ready",
+      "supplemental_sources": [
+        "core/state/task_agent_boundaries.json",
+        "core/edge/targets.toml",
+        "data/fleet/informants"
+      ],
+      "title": "Edge Enrollment"
+    },
+    {
+      "arda_panels": [
+        "fleet_health",
+        "edge_guardhouse",
+        "operations_flow"
+      ],
+      "id": "network_native_onboarding",
+      "owner": "warden_prometheus",
+      "primary_sources": [
+        "core/state/openfang_alignment.json",
+        "core/state/network_native_node_onboarding_contract.json",
+        "core/state/edge_enrollment_plan.json"
+      ],
+      "status": "ready",
+      "supplemental_sources": [
+        "core/state/fleet_identity_reconciliation.json",
+        "core/state/fleet_runtime.json",
+        "core/state/warden_edge_contract.json",
+        "core/state/operator_actions.json"
+      ],
+      "title": "Network Native Onboarding"
+    },
+    {
+      "arda_panels": [
+        "output_topology",
+        "storage_pressure",
+        "ops_hygiene"
+      ],
+      "id": "output_topology",
+      "owner": "prometheus",
+      "primary_sources": [
+        "core/state/output_topology.json"
+      ],
+      "status": "ready",
+      "supplemental_sources": [
+        "core/metrics/history",
+        "data/prometheus/autopilot",
+        "data/prometheus/supervisor",
+        "target"
+      ],
+      "title": "Output Topology"
+    },
+    {
+      "arda_panels": [
+        "output_topology",
+        "ops_hygiene",
+        "storage_pressure"
+      ],
+      "id": "output_accounting",
+      "owner": "prometheus",
+      "primary_sources": [
+        "core/state/output_accounting.json"
+      ],
+      "status": "ready",
+      "supplemental_sources": [
+        "core/state/output_topology.json",
+        "data/prometheus/output_accounting_runs.jsonl"
+      ],
+      "title": "Output Accounting"
+    },
+    {
+      "arda_panels": [
+        "fleet_health",
+        "node_inventory",
+        "model_inventory",
+        "hardware_inventory",
+        "backbone_topology"
+      ],
+      "id": "fleet_and_backbone",
+      "owner": "fleet_observation",
+      "primary_sources": [
+        "core/state/fleet_runtime.json",
+        "core/state/fleet_nodes.json",
+        "core/state/fleet_models.json",
+        "core/state/fleet_health.json",
+        "core/state/fleet_hardware.json",
+        "core/state/fleet_backbone.json"
+      ],
+      "status": "ready",
+      "supplemental_sources": [
+        "config/fleet.toml",
+        "core/edge/targets.toml",
+        "data/prometheus/fleet_control_last.json",
+        "data/fleet/informants/local_last.json"
+      ],
+      "title": "Fleet And Backbone"
+    },
+    {
+      "arda_panels": [
+        "human_notes",
+        "business_ops",
+        "personal_growth"
+      ],
+      "id": "human_business_personal",
+      "owner": "human_operator",
+      "primary_sources": [
+        "core/state/human_context.json"
+      ],
+      "status": "ready",
+      "supplemental_sources": [
+        "docs/operator/index.md",
+        "docs/operator/onboard.md",
+        "docs/operator/company-view.md",
+        "config/business.toml",
+        "data/business/soterion-business.json",
+        "docs/operator/notes",
+        "data/personal",
+        "core/personal"
+      ],
+      "title": "Human Business Personal"
+    },
+    {
+      "arda_panels": [
+        "business_ops",
+        "boardroom",
+        "settings"
+      ],
+      "id": "business_ops",
+      "owner": "human_operator",
+      "primary_sources": [
+        "core/state/business_runtime.json"
+      ],
+      "status": "ready",
+      "supplemental_sources": [
+        "docs/operator/company-view.md",
+        "config/business.toml",
+        "data/business/soterion-business.json",
+        "data/business/clients"
+      ],
+      "title": "Business Operations"
+    },
+    {
+      "arda_panels": [
+        "personal_growth",
+        "human_notes",
+        "boardroom"
+      ],
+      "id": "personal_growth",
+      "owner": "human_operator",
+      "primary_sources": [
+        "core/state/personal_runtime.json"
+      ],
+      "status": "ready",
+      "supplemental_sources": [
+        "core/personal/personal-identity.toml",
+        "data/personal/soterion-personal.json",
+        "data/personal",
+        "docs/operator/onboard.md",
+        "docs/operator/notes"
+      ],
+      "title": "Personal Growth"
+    }
+  ],
+  "system_primary_entrypoint_recommended": "core/state/system_snapshot.json",
+  "system_primary_entrypoint_status": "implemented"
+}

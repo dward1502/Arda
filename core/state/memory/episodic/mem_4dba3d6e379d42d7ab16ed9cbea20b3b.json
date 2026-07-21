@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_4dba3d6e379d42d7ab16ed9cbea20b3b",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: CHARON Adaptive Routing v1: budget-aware pacing. Added provider pacing states available/paced/reserved/exhausted and route selection gating for quota-reserved execution/planning lanes; observability now reports execution pacing state for free provider pool.",
+  "salience": 0.6855000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-07T06:22:51.260314504Z",
+  "last_seen_at": "2026-06-07T06:22:51.260314504Z"
+}

@@ -1,0 +1,66 @@
+{
+  "authority": "fleet_models_projection",
+  "configured_nodes": [
+    {
+      "display_name": "Annunimas Core (3080 Workstation)",
+      "hostname": "annunimas-core",
+      "id": "node-core-hub",
+      "llm_runtime": "mesh_root"
+    },
+    {
+      "display_name": "Pi5 Guardhouse (Warden)",
+      "hostname": "warden",
+      "id": "node-pi5-warden",
+      "llm_runtime": "edge_llm_light"
+    },
+    {
+      "display_name": "Beelink SER9 Pro",
+      "hostname": "beelink",
+      "id": "node-ser9-worker",
+      "llm_runtime": "llama_cpp_standalone"
+    },
+    {
+      "display_name": "Beelink SER9 Pro — Carnice 9B Lane",
+      "hostname": "beelink",
+      "id": "node-ser9-carnice",
+      "llm_runtime": "llama_cpp_standalone_inactive"
+    },
+    {
+      "display_name": "RTX 3050 Laptop",
+      "hostname": "laptop",
+      "id": "node-laptop",
+      "llm_runtime": "local_voice_stt_operator"
+    },
+    {
+      "display_name": "Annunimas Server (LFM2.5 Fast Lane)",
+      "hostname": "annunimas-server",
+      "id": "node-backbone-server",
+      "llm_runtime": "llama_cpp_fast_general"
+    },
+    {
+      "display_name": "Annunimas Server (Qwen2.5-Coder 7B Lane)",
+      "hostname": "annunimas-server",
+      "id": "node-backbone-gemma4-coder",
+      "llm_runtime": "llama_cpp_coder"
+    },
+    {
+      "display_name": "Annunimas Server (Qwen2.5-VL Vision Lane)",
+      "hostname": "annunimas-server",
+      "id": "node-backbone-vision",
+      "llm_runtime": "llama_cpp_vision"
+    },
+    {
+      "display_name": "Pi5 CITADEL Avatar",
+      "hostname": "raspberrypi",
+      "id": "node-pi5-citadel-avatar",
+      "llm_runtime": "cloud_only_inference"
+    }
+  ],
+  "generated_at_utc": "2026-07-14T05:03:05.419020052+00:00",
+  "local_models": {
+    "command_tower": [],
+    "informant": []
+  },
+  "provider_inventory": [],
+  "schema_version": "annunimas.core.state.v1"
+}

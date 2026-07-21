@@ -1,0 +1,53 @@
+{
+  "approve_after_rank_1": [
+    {
+      "reason": "High value but high sprawl risk; should wait until intake law and capability discipline are settled.",
+      "scope": "arda_citadel_platform_pattern_extraction"
+    },
+    {
+      "reason": "Useful, but better informed after earlier priorities clarify what the system is really emphasizing.",
+      "scope": "engineering_process_automation_security_uplift"
+    }
+  ],
+  "approve_now": [
+    {
+      "reason": "Highest leverage and lowest sprawl risk. Establishes law before capability or platform expansion.",
+      "scope": "framework_gate_and_intake_discipline"
+    },
+    {
+      "reason": "Direct system-value path once intake law is in place.",
+      "scope": "athena_hermes_capability_reconciliation"
+    }
+  ],
+  "authority": "imported_corpus_activation_program + ranked_system_lift_review",
+  "defer": [
+    {
+      "reason": "Context only.",
+      "scope": "historical_task_memory"
+    },
+    {
+      "reason": "Archive is a reservoir, not a backlog.",
+      "scope": "broad_archive_replay"
+    },
+    {
+      "reason": "Patterns only until a live need exists.",
+      "scope": "full_valinor_infra_activation"
+    }
+  ],
+  "first_execution_tranche_after_approval": [
+    "write project_dossier_standard into active intake law surfaces",
+    "write imported_memory_intake_contract into active intake law surfaces",
+    "write portfolio_classification_posture into active intake law surfaces",
+    "write project_intake_lifecycle into active intake law surfaces",
+    "bind those four into existing queue/dossier/export workflows"
+  ],
+  "generated_at_utc": "2026-03-13T04:24:00Z",
+  "schema_version": "annunimas.imported-corpus-review-digest.v1",
+  "second_execution_tranche_after_approval": [
+    "reconcile crawl4ai against current package/runtime activation",
+    "reconcile Discord capability against current Hermes posture",
+    "write tool-fit decision memo for imported tools"
+  ],
+  "sigil": "REPAIR",
+  "status": "review_digest_ready"
+}

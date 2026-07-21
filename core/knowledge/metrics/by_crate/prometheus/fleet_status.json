@@ -1,0 +1,15 @@
+{
+  "ts_utc": "2026-03-11T23:52:13.384714Z",
+  "status": "ok",
+  "status_view_mode": "active_only",
+  "network": {
+    "tailscale_ok": true,
+    "tailscale_error": null,
+    "fleet_enabled": true,
+    "peers_discovered_total": 4,
+    "active_peers": 4
+  },
+  "active_connections": 5,
+  "status_connections": 5,
+  "stale_connections": 0
+}

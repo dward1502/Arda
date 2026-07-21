@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_364c470fe5aa4ba69c09717e667bf175",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Align fleet local execution provider to Qwen3-Coder lane",
+  "salience": 0.7180555555555556,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-07T03:33:56.305669855Z",
+  "last_seen_at": "2026-06-07T03:33:56.305669855Z"
+}

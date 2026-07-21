@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_4f37d417946542ca8da015bdd9008e15",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Gate 3.5T live ledger-derived CITADEL promotion",
+  "salience": 0.7291666666666666,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-19T01:58:07.409105911Z",
+  "last_seen_at": "2026-05-19T01:58:07.409105911Z"
+}

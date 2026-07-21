@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_93b2a7dd74c94fde8008947cf9368380",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: HG-P1 live gate prompted and remains blocked on operator slash receipt",
+  "salience": 0.7225,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T01:40:18.125133605Z",
+  "last_seen_at": "2026-06-01T01:40:18.125133605Z"
+}

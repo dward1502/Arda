@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_0391f9f7afec4aef893e9c12c4ac658f",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Queue: HADES plan review",
+  "salience": 0.5867222222222221,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-19T07:42:33.904258330Z",
+  "last_seen_at": "2026-06-19T07:42:33.904258330Z"
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_59e3cd2b0b2e4eb68cd449be8d50697b",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Queue: MNEMOSYNE plan review",
+  "salience": 0.7111666666666666,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-22T04:11:30.407171873Z",
+  "last_seen_at": "2026-06-22T04:11:30.407171873Z"
+}

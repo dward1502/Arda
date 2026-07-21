@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_513e27b1f1d94ecb82f37cceab2e4146",
+  "kind": "episodic",
+  "agent": "hermes",
+  "content": "HERMES posted boardroom message from arandur mentions=none topic=Completed and pushed feature/audit commit 11e6423c78239f39deabbe1ca318b527a7e8f9ca. ARDA HUD now surfaces autonomy readi",
+  "salience": 0.958,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-17T18:56:57.265326489Z",
+  "last_seen_at": "2026-05-17T18:56:57.265326489Z"
+}

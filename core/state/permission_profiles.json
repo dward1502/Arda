@@ -1,0 +1,37 @@
+{
+  "active_profile": "ceo_operator",
+  "profiles": {
+    "ceo_operator": {
+      "command_allowlist": [
+        "cargo run -p annunimas-cli -- hermes send",
+        "cargo run -p annunimas-cli -- hermes network-op",
+        "cargo run -p annunimas-cli -- charon network-op",
+        "cargo run -p annunimas-cli -- charon route-governor",
+        "cargo run -p annunimas-cli -- control route-governor",
+        "cargo run -p annunimas-cli -- hades remove"
+      ],
+      "expires_at_utc": null,
+      "last_scope_refresh": {
+        "expires_at_utc": "2026-07-03T06:34:07Z",
+        "previous_expires_at_utc": "2026-06-23T00:05:11Z",
+        "reason": "reload charon config",
+        "refreshed_at_utc": "2026-07-03T04:34:07Z",
+        "scope": "network",
+        "ttl_hours": 2
+      },
+      "scopes": {
+        "destructive": {
+          "allowed": false,
+          "expires_at_utc": "2026-05-20T07:34:21Z"
+        },
+        "network": {
+          "allowed": true,
+          "expires_at_utc": "2026-07-03T06:34:07Z"
+        }
+      },
+      "subject": "ceo",
+      "updated_at_utc": "2026-07-03T04:34:07Z"
+    }
+  },
+  "sigil": "REPAIR"
+}

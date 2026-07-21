@@ -1,0 +1,78 @@
+{
+  "authority": "framework_gate_intake_plan + valinor_merge_registry + numenor_prime_merge_registry",
+  "generated_at_utc": "2026-03-13T04:07:00Z",
+  "hard_rules": [
+    "Imported corpora never become sovereign authority by default.",
+    "Historical task notes do not become live queue entries without fresh bounded rewrite.",
+    "Archive and prototype material must pass through summary or dossier form before execution planning.",
+    "Client delivery work must remain anchored to the client portfolio surfaces.",
+    "Runtime queue and strategic ledger remain separate."
+  ],
+  "purpose": "Define how external memory enters Annunimas without becoming a second authority.",
+  "schema_version": "annunimas.imported-memory-intake-contract.v1",
+  "sigil": "REPAIR",
+  "states": [
+    {
+      "allowed_surfaces": [
+        "humadocs/plans/library/**",
+        "docs/plans/**",
+        "core/state/*_merge_registry.json"
+      ],
+      "forbidden_surfaces": [
+        "core/projects/tasks/queue.jsonl",
+        "core/projects/tasks/queue.jsonl as live execution demand"
+      ],
+      "meaning": "Memory is preserved for context and reading only.",
+      "state": "reference_only"
+    },
+    {
+      "allowed_surfaces": [
+        "docs/plans/**",
+        "core/state/*_promotion_batch_*.json"
+      ],
+      "forbidden_surfaces": [
+        "automatic execution backlog"
+      ],
+      "meaning": "Material has been curated into readable Annunimas surfaces.",
+      "state": "summary_promoted"
+    },
+    {
+      "allowed_surfaces": [
+        "core/state/*_project_dossiers.json",
+        "docs/plans/*_PROJECT_DOSSIERS.md"
+      ],
+      "forbidden_surfaces": [
+        "execution without readiness and owner"
+      ],
+      "meaning": "Imported memory has a current anchor and bounded project identity.",
+      "state": "dossier_ready"
+    },
+    {
+      "allowed_surfaces": [
+        "docs/plans/**",
+        "core/state/*_plan*.json"
+      ],
+      "forbidden_surfaces": [
+        "direct queue execution without explicit review"
+      ],
+      "meaning": "A bounded implementation or execution plan exists.",
+      "state": "plan_ready"
+    },
+    {
+      "allowed_surfaces": [
+        "core/projects/tasks/queue.jsonl",
+        "core/projects/tasks/queue.jsonl where appropriate"
+      ],
+      "forbidden_surfaces": [],
+      "meaning": "The project has passed intake law, dossier quality, and review posture.",
+      "state": "execution_eligible"
+    }
+  ],
+  "status": "intake_contract_ready_for_review",
+  "transition_rules": [
+    "reference_only -> summary_promoted requires curated selection",
+    "summary_promoted -> dossier_ready requires current anchor plus owner",
+    "dossier_ready -> plan_ready requires bounded next actions",
+    "plan_ready -> execution_eligible requires explicit review and readiness confirmation"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_ca85b491e20b40f6b8f73fa8ae8c9f1d",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Governance fleshing toward full autonomy plan",
+  "salience": 0.7695,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-26T19:15:28.568516525Z",
+  "last_seen_at": "2026-05-26T19:15:28.568516525Z"
+}

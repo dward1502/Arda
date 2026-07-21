@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_04968a81aca24399ba6ba1a057bb356b",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Hermes Discord gateway readiness slash command implemented. Added read-only /gateway action:activation_check to the Annunimas Discord bot. The command summarizes Hermes Agent gateway readiness in the work-stream operating room: safe-local status, live-ready status, work-stream registration, receipt adapter presence, gateway running status, and blockers. It does not start services, mutate credentials, or send external Discord messages. Verification: cargo fmt --check -p annunimas-hermes -p annunimas-cli; cargo test -p annunimas-hermes serenity_bot -- --nocapture; cargo test -p annunimas-cli hermes_agent_gateway_activation_check -- --nocapture.",
+  "salience": 0.7475,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-30T18:10:35.790856389Z",
+  "last_seen_at": "2026-05-30T18:10:35.790856389Z"
+}

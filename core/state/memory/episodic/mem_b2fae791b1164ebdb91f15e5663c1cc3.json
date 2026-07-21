@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_b2fae791b1164ebdb91f15e5663c1cc3",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Qwopus node-core-hub staged model download receipt recorded",
+  "salience": 0.6645,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-31T03:33:29.617819683Z",
+  "last_seen_at": "2026-05-31T03:33:29.617819683Z"
+}

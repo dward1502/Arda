@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_3ec8c46ab8b2402a97d75921f47da983",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: edge_backbone online with bounded 8K context",
+  "salience": 0.7625,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-13T22:42:00.693920839Z",
+  "last_seen_at": "2026-05-13T22:42:00.693920839Z"
+}

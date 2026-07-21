@@ -1,0 +1,1854 @@
+{
+  "authority": "plutus_service",
+  "economics": {
+    "budget_remaining": 100.0,
+    "budget_usage_percent": 0.0,
+    "daily_budget": 100.0,
+    "providers": [],
+    "total_spend": 0.0
+  },
+  "generated_at_utc": "2026-07-18T07:43:10.350456891+00:00",
+  "governance": {
+    "bacon_lite_passed_total": 26,
+    "recent_records": [
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "chain_id": "default_triad",
+            "chain_version": "heuristic_local_v1",
+            "passed": true,
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-07-18T07:43:10.349781522+00:00",
+        "resonance": {
+          "ecst_components": {
+            "audio_coherence": null,
+            "freq_harmony": 96.77419354838709,
+            "joule_balance": 100.0,
+            "love_delta_empathy": 0.19953622981233626,
+            "love_projected_empathy": 1.0,
+            "phi_harmonic": 39.888695154960715,
+            "phi_harmonic_semantic": "not_empirical_autonomy_proof",
+            "phi_harmonic_source": "golden_ratio_task_flow_heuristic",
+            "phi_question_score": 4.978706836786395,
+            "phi_resource_score": 64.55232174029534,
+            "phi_time_score": 31.98491220877071,
+            "philosopher_action": "Hold",
+            "philosopher_alignment_score": 0.6816601371015534,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838709,
+            "triad_purity": 0.7,
+            "triad_purity_source": "compatibility_default",
+            "vision_coherence": null
+          },
+          "triad_philosopher": {
+            "action": "Hold",
+            "alignment_score": 0.6816601371015534,
+            "reason": "evidence grounding is insufficient for confident action"
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "mnemosyne",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "chain_id": "default_triad",
+          "chain_version": "heuristic_local_v1",
+          "passed": true,
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "chain_id": "default_triad",
+            "chain_version": "heuristic_local_v1",
+            "passed": true,
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-07-15T07:48:56.234229578+00:00",
+        "resonance": {
+          "ecst_components": {
+            "audio_coherence": null,
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "love_delta_empathy": 0.19953622981233624,
+            "love_projected_empathy": 1.0,
+            "phi_harmonic": 39.888695154960715,
+            "phi_harmonic_semantic": "not_empirical_autonomy_proof",
+            "phi_harmonic_source": "golden_ratio_task_flow_heuristic",
+            "phi_question_score": 4.978706836786395,
+            "phi_resource_score": 64.55232174029534,
+            "phi_time_score": 31.98491220877071,
+            "philosopher_action": "Hold",
+            "philosopher_alignment_score": 0.6816601371015534,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7,
+            "triad_purity_source": "compatibility_default",
+            "vision_coherence": null
+          },
+          "triad_philosopher": {
+            "action": "Hold",
+            "alignment_score": 0.6816601371015534,
+            "reason": "evidence grounding is insufficient for confident action"
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "mnemosyne",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "chain_id": "default_triad",
+          "chain_version": "heuristic_local_v1",
+          "passed": true,
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "chain_id": "default_triad",
+            "chain_version": "heuristic_local_v1",
+            "passed": true,
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-07-15T07:48:56.223213024+00:00",
+        "resonance": {
+          "ecst_components": {
+            "audio_coherence": null,
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "love_delta_empathy": 0.19953622981233624,
+            "love_projected_empathy": 1.0,
+            "phi_harmonic": 39.888695154960715,
+            "phi_harmonic_semantic": "not_empirical_autonomy_proof",
+            "phi_harmonic_source": "golden_ratio_task_flow_heuristic",
+            "phi_question_score": 4.978706836786395,
+            "phi_resource_score": 64.55232174029534,
+            "phi_time_score": 31.98491220877071,
+            "philosopher_action": "Hold",
+            "philosopher_alignment_score": 0.6816601371015534,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7,
+            "triad_purity_source": "compatibility_default",
+            "vision_coherence": null
+          },
+          "triad_philosopher": {
+            "action": "Hold",
+            "alignment_score": 0.6816601371015534,
+            "reason": "evidence grounding is insufficient for confident action"
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "manwe",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "chain_id": "default_triad",
+          "chain_version": "heuristic_local_v1",
+          "passed": true,
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "record_relationship",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "chain_id": "default_triad",
+            "chain_version": "heuristic_local_v1",
+            "passed": true,
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-07-15T07:48:55.327926021+00:00",
+        "resonance": {
+          "ecst_components": {
+            "audio_coherence": null,
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "love_delta_empathy": 0.19953622981233624,
+            "love_projected_empathy": 1.0,
+            "phi_harmonic": 39.888695154960715,
+            "phi_harmonic_semantic": "not_empirical_autonomy_proof",
+            "phi_harmonic_source": "golden_ratio_task_flow_heuristic",
+            "phi_question_score": 4.978706836786395,
+            "phi_resource_score": 64.55232174029534,
+            "phi_time_score": 31.98491220877071,
+            "philosopher_action": "Hold",
+            "philosopher_alignment_score": 0.6816601371015534,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7,
+            "triad_purity_source": "compatibility_default",
+            "vision_coherence": null
+          },
+          "triad_philosopher": {
+            "action": "Hold",
+            "alignment_score": 0.6816601371015534,
+            "reason": "evidence grounding is insufficient for confident action"
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "openai_shim:local_test",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "chain_id": "default_triad",
+          "chain_version": "heuristic_local_v1",
+          "passed": true,
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "chain_id": "default_triad",
+            "chain_version": "heuristic_local_v1",
+            "passed": true,
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-07-15T07:47:37.487726594+00:00",
+        "resonance": {
+          "ecst_components": {
+            "audio_coherence": null,
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "love_delta_empathy": 0.19953622981233624,
+            "love_projected_empathy": 1.0,
+            "phi_harmonic": 39.888695154960715,
+            "phi_harmonic_semantic": "not_empirical_autonomy_proof",
+            "phi_harmonic_source": "golden_ratio_task_flow_heuristic",
+            "phi_question_score": 4.978706836786395,
+            "phi_resource_score": 64.55232174029534,
+            "phi_time_score": 31.98491220877071,
+            "philosopher_action": "Hold",
+            "philosopher_alignment_score": 0.6816601371015534,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7,
+            "triad_purity_source": "compatibility_default",
+            "vision_coherence": null
+          },
+          "triad_philosopher": {
+            "action": "Hold",
+            "alignment_score": 0.6816601371015534,
+            "reason": "evidence grounding is insufficient for confident action"
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "mnemosyne",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "chain_id": "default_triad",
+          "chain_version": "heuristic_local_v1",
+          "passed": true,
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "chain_id": "default_triad",
+            "chain_version": "heuristic_local_v1",
+            "passed": true,
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-07-15T07:47:37.479915575+00:00",
+        "resonance": {
+          "ecst_components": {
+            "audio_coherence": null,
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "love_delta_empathy": 0.19953622981233624,
+            "love_projected_empathy": 1.0,
+            "phi_harmonic": 39.888695154960715,
+            "phi_harmonic_semantic": "not_empirical_autonomy_proof",
+            "phi_harmonic_source": "golden_ratio_task_flow_heuristic",
+            "phi_question_score": 4.978706836786395,
+            "phi_resource_score": 64.55232174029534,
+            "phi_time_score": 31.98491220877071,
+            "philosopher_action": "Hold",
+            "philosopher_alignment_score": 0.6816601371015534,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7,
+            "triad_purity_source": "compatibility_default",
+            "vision_coherence": null
+          },
+          "triad_philosopher": {
+            "action": "Hold",
+            "alignment_score": 0.6816601371015534,
+            "reason": "evidence grounding is insufficient for confident action"
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "manwe",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "chain_id": "default_triad",
+          "chain_version": "heuristic_local_v1",
+          "passed": true,
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "record_relationship",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "chain_id": "default_triad",
+            "chain_version": "heuristic_local_v1",
+            "passed": true,
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-07-15T07:47:36.630555705+00:00",
+        "resonance": {
+          "ecst_components": {
+            "audio_coherence": null,
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "love_delta_empathy": 0.19953622981233624,
+            "love_projected_empathy": 1.0,
+            "phi_harmonic": 39.888695154960715,
+            "phi_harmonic_semantic": "not_empirical_autonomy_proof",
+            "phi_harmonic_source": "golden_ratio_task_flow_heuristic",
+            "phi_question_score": 4.978706836786395,
+            "phi_resource_score": 64.55232174029534,
+            "phi_time_score": 31.98491220877071,
+            "philosopher_action": "Hold",
+            "philosopher_alignment_score": 0.6816601371015534,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7,
+            "triad_purity_source": "compatibility_default",
+            "vision_coherence": null
+          },
+          "triad_philosopher": {
+            "action": "Hold",
+            "alignment_score": 0.6816601371015534,
+            "reason": "evidence grounding is insufficient for confident action"
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "openai_shim:local_test",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "chain_id": "default_triad",
+          "chain_version": "heuristic_local_v1",
+          "passed": true,
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "chain_id": "default_triad",
+            "chain_version": "heuristic_local_v1",
+            "passed": true,
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-07-15T07:46:34.082953457+00:00",
+        "resonance": {
+          "ecst_components": {
+            "audio_coherence": null,
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "love_delta_empathy": 0.19953622981233624,
+            "love_projected_empathy": 1.0,
+            "phi_harmonic": 39.888695154960715,
+            "phi_harmonic_semantic": "not_empirical_autonomy_proof",
+            "phi_harmonic_source": "golden_ratio_task_flow_heuristic",
+            "phi_question_score": 4.978706836786395,
+            "phi_resource_score": 64.55232174029534,
+            "phi_time_score": 31.98491220877071,
+            "philosopher_action": "Hold",
+            "philosopher_alignment_score": 0.6816601371015534,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7,
+            "triad_purity_source": "compatibility_default",
+            "vision_coherence": null
+          },
+          "triad_philosopher": {
+            "action": "Hold",
+            "alignment_score": 0.6816601371015534,
+            "reason": "evidence grounding is insufficient for confident action"
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "mnemosyne",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "chain_id": "default_triad",
+          "chain_version": "heuristic_local_v1",
+          "passed": true,
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "chain_id": "default_triad",
+            "chain_version": "heuristic_local_v1",
+            "passed": true,
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-07-15T07:46:34.077665043+00:00",
+        "resonance": {
+          "ecst_components": {
+            "audio_coherence": null,
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "love_delta_empathy": 0.19953622981233624,
+            "love_projected_empathy": 1.0,
+            "phi_harmonic": 39.888695154960715,
+            "phi_harmonic_semantic": "not_empirical_autonomy_proof",
+            "phi_harmonic_source": "golden_ratio_task_flow_heuristic",
+            "phi_question_score": 4.978706836786395,
+            "phi_resource_score": 64.55232174029534,
+            "phi_time_score": 31.98491220877071,
+            "philosopher_action": "Hold",
+            "philosopher_alignment_score": 0.6816601371015534,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7,
+            "triad_purity_source": "compatibility_default",
+            "vision_coherence": null
+          },
+          "triad_philosopher": {
+            "action": "Hold",
+            "alignment_score": 0.6816601371015534,
+            "reason": "evidence grounding is insufficient for confident action"
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "manwe",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "chain_id": "default_triad",
+          "chain_version": "heuristic_local_v1",
+          "passed": true,
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "record_relationship",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "chain_id": "default_triad",
+            "chain_version": "heuristic_local_v1",
+            "passed": true,
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-07-15T07:46:33.196645950+00:00",
+        "resonance": {
+          "ecst_components": {
+            "audio_coherence": null,
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "love_delta_empathy": 0.19953622981233624,
+            "love_projected_empathy": 1.0,
+            "phi_harmonic": 39.888695154960715,
+            "phi_harmonic_semantic": "not_empirical_autonomy_proof",
+            "phi_harmonic_source": "golden_ratio_task_flow_heuristic",
+            "phi_question_score": 4.978706836786395,
+            "phi_resource_score": 64.55232174029534,
+            "phi_time_score": 31.98491220877071,
+            "philosopher_action": "Hold",
+            "philosopher_alignment_score": 0.6816601371015534,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7,
+            "triad_purity_source": "compatibility_default",
+            "vision_coherence": null
+          },
+          "triad_philosopher": {
+            "action": "Hold",
+            "alignment_score": 0.6816601371015534,
+            "reason": "evidence grounding is insufficient for confident action"
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "openai_shim:local_test",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "chain_id": "default_triad",
+          "chain_version": "heuristic_local_v1",
+          "passed": true,
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "chain_id": "default_triad",
+            "chain_version": "heuristic_local_v1",
+            "passed": true,
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-07-15T07:22:10.791600170+00:00",
+        "resonance": {
+          "ecst_components": {
+            "audio_coherence": null,
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "love_delta_empathy": 0.19953622981233624,
+            "love_projected_empathy": 1.0,
+            "phi_harmonic": 39.888695154960715,
+            "phi_harmonic_semantic": "not_empirical_autonomy_proof",
+            "phi_harmonic_source": "golden_ratio_task_flow_heuristic",
+            "phi_question_score": 4.978706836786395,
+            "phi_resource_score": 64.55232174029534,
+            "phi_time_score": 31.98491220877071,
+            "philosopher_action": "Hold",
+            "philosopher_alignment_score": 0.6816601371015534,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7,
+            "triad_purity_source": "compatibility_default",
+            "vision_coherence": null
+          },
+          "triad_philosopher": {
+            "action": "Hold",
+            "alignment_score": 0.6816601371015534,
+            "reason": "evidence grounding is insufficient for confident action"
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "mnemosyne",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "chain_id": "default_triad",
+          "chain_version": "heuristic_local_v1",
+          "passed": true,
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "chain_id": "default_triad",
+            "chain_version": "heuristic_local_v1",
+            "passed": true,
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-07-15T07:22:10.788205212+00:00",
+        "resonance": {
+          "ecst_components": {
+            "audio_coherence": null,
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "love_delta_empathy": 0.19953622981233624,
+            "love_projected_empathy": 1.0,
+            "phi_harmonic": 39.888695154960715,
+            "phi_harmonic_semantic": "not_empirical_autonomy_proof",
+            "phi_harmonic_source": "golden_ratio_task_flow_heuristic",
+            "phi_question_score": 4.978706836786395,
+            "phi_resource_score": 64.55232174029534,
+            "phi_time_score": 31.98491220877071,
+            "philosopher_action": "Hold",
+            "philosopher_alignment_score": 0.6816601371015534,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7,
+            "triad_purity_source": "compatibility_default",
+            "vision_coherence": null
+          },
+          "triad_philosopher": {
+            "action": "Hold",
+            "alignment_score": 0.6816601371015534,
+            "reason": "evidence grounding is insufficient for confident action"
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "manwe",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "chain_id": "default_triad",
+          "chain_version": "heuristic_local_v1",
+          "passed": true,
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "record_relationship",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "chain_id": "default_triad",
+            "chain_version": "heuristic_local_v1",
+            "passed": true,
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-07-15T07:22:10.498524492+00:00",
+        "resonance": {
+          "ecst_components": {
+            "audio_coherence": null,
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "love_delta_empathy": 0.19953622981233624,
+            "love_projected_empathy": 1.0,
+            "phi_harmonic": 39.888695154960715,
+            "phi_harmonic_semantic": "not_empirical_autonomy_proof",
+            "phi_harmonic_source": "golden_ratio_task_flow_heuristic",
+            "phi_question_score": 4.978706836786395,
+            "phi_resource_score": 64.55232174029534,
+            "phi_time_score": 31.98491220877071,
+            "philosopher_action": "Hold",
+            "philosopher_alignment_score": 0.6816601371015534,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7,
+            "triad_purity_source": "compatibility_default",
+            "vision_coherence": null
+          },
+          "triad_philosopher": {
+            "action": "Hold",
+            "alignment_score": 0.6816601371015534,
+            "reason": "evidence grounding is insufficient for confident action"
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "openai_shim:local_test",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "chain_id": "default_triad",
+          "chain_version": "heuristic_local_v1",
+          "passed": true,
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "chain_id": "default_triad",
+            "chain_version": "heuristic_local_v1",
+            "passed": true,
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-07-15T07:22:10.497788512+00:00",
+        "resonance": {
+          "ecst_components": {
+            "audio_coherence": null,
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "love_delta_empathy": 0.19953622981233624,
+            "love_projected_empathy": 1.0,
+            "phi_harmonic": 39.888695154960715,
+            "phi_harmonic_semantic": "not_empirical_autonomy_proof",
+            "phi_harmonic_source": "golden_ratio_task_flow_heuristic",
+            "phi_question_score": 4.978706836786395,
+            "phi_resource_score": 64.55232174029534,
+            "phi_time_score": 31.98491220877071,
+            "philosopher_action": "Hold",
+            "philosopher_alignment_score": 0.6816601371015534,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7,
+            "triad_purity_source": "compatibility_default",
+            "vision_coherence": null
+          },
+          "triad_philosopher": {
+            "action": "Hold",
+            "alignment_score": 0.6816601371015534,
+            "reason": "evidence grounding is insufficient for confident action"
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "manwe",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "chain_id": "default_triad",
+          "chain_version": "heuristic_local_v1",
+          "passed": true,
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "chain_id": "default_triad",
+            "chain_version": "heuristic_local_v1",
+            "passed": true,
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-07-15T07:22:10.499414625+00:00",
+        "resonance": {
+          "ecst_components": {
+            "audio_coherence": null,
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "love_delta_empathy": 0.19953622981233624,
+            "love_projected_empathy": 1.0,
+            "phi_harmonic": 39.888695154960715,
+            "phi_harmonic_semantic": "not_empirical_autonomy_proof",
+            "phi_harmonic_source": "golden_ratio_task_flow_heuristic",
+            "phi_question_score": 4.978706836786395,
+            "phi_resource_score": 64.55232174029534,
+            "phi_time_score": 31.98491220877071,
+            "philosopher_action": "Hold",
+            "philosopher_alignment_score": 0.6816601371015534,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7,
+            "triad_purity_source": "compatibility_default",
+            "vision_coherence": null
+          },
+          "triad_philosopher": {
+            "action": "Hold",
+            "alignment_score": 0.6816601371015534,
+            "reason": "evidence grounding is insufficient for confident action"
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "mnemosyne",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "chain_id": "default_triad",
+          "chain_version": "heuristic_local_v1",
+          "passed": true,
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "record_relationship",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "chain_id": "default_triad",
+            "chain_version": "heuristic_local_v1",
+            "passed": true,
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-07-15T07:22:10.789759864+00:00",
+        "resonance": {
+          "ecst_components": {
+            "audio_coherence": null,
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "love_delta_empathy": 0.19953622981233624,
+            "love_projected_empathy": 1.0,
+            "phi_harmonic": 39.888695154960715,
+            "phi_harmonic_semantic": "not_empirical_autonomy_proof",
+            "phi_harmonic_source": "golden_ratio_task_flow_heuristic",
+            "phi_question_score": 4.978706836786395,
+            "phi_resource_score": 64.55232174029534,
+            "phi_time_score": 31.98491220877071,
+            "philosopher_action": "Hold",
+            "philosopher_alignment_score": 0.6816601371015534,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7,
+            "triad_purity_source": "compatibility_default",
+            "vision_coherence": null
+          },
+          "triad_philosopher": {
+            "action": "Hold",
+            "alignment_score": 0.6816601371015534,
+            "reason": "evidence grounding is insufficient for confident action"
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "athena:google",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "chain_id": "default_triad",
+          "chain_version": "heuristic_local_v1",
+          "passed": true,
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "chain_id": "default_triad",
+            "chain_version": "heuristic_local_v1",
+            "passed": true,
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-07-15T07:46:33.194688363+00:00",
+        "resonance": {
+          "ecst_components": {
+            "audio_coherence": null,
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "love_delta_empathy": 0.19953622981233624,
+            "love_projected_empathy": 1.0,
+            "phi_harmonic": 39.888695154960715,
+            "phi_harmonic_semantic": "not_empirical_autonomy_proof",
+            "phi_harmonic_source": "golden_ratio_task_flow_heuristic",
+            "phi_question_score": 4.978706836786395,
+            "phi_resource_score": 64.55232174029534,
+            "phi_time_score": 31.98491220877071,
+            "philosopher_action": "Hold",
+            "philosopher_alignment_score": 0.6816601371015534,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7,
+            "triad_purity_source": "compatibility_default",
+            "vision_coherence": null
+          },
+          "triad_philosopher": {
+            "action": "Hold",
+            "alignment_score": 0.6816601371015534,
+            "reason": "evidence grounding is insufficient for confident action"
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "manwe",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "chain_id": "default_triad",
+          "chain_version": "heuristic_local_v1",
+          "passed": true,
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "chain_id": "default_triad",
+            "chain_version": "heuristic_local_v1",
+            "passed": true,
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-07-15T07:46:33.198759050+00:00",
+        "resonance": {
+          "ecst_components": {
+            "audio_coherence": null,
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "love_delta_empathy": 0.19953622981233624,
+            "love_projected_empathy": 1.0,
+            "phi_harmonic": 39.888695154960715,
+            "phi_harmonic_semantic": "not_empirical_autonomy_proof",
+            "phi_harmonic_source": "golden_ratio_task_flow_heuristic",
+            "phi_question_score": 4.978706836786395,
+            "phi_resource_score": 64.55232174029534,
+            "phi_time_score": 31.98491220877071,
+            "philosopher_action": "Hold",
+            "philosopher_alignment_score": 0.6816601371015534,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7,
+            "triad_purity_source": "compatibility_default",
+            "vision_coherence": null
+          },
+          "triad_philosopher": {
+            "action": "Hold",
+            "alignment_score": 0.6816601371015534,
+            "reason": "evidence grounding is insufficient for confident action"
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "mnemosyne",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "chain_id": "default_triad",
+          "chain_version": "heuristic_local_v1",
+          "passed": true,
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "record_relationship",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "chain_id": "default_triad",
+            "chain_version": "heuristic_local_v1",
+            "passed": true,
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-07-15T07:46:34.080329870+00:00",
+        "resonance": {
+          "ecst_components": {
+            "audio_coherence": null,
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "love_delta_empathy": 0.19953622981233624,
+            "love_projected_empathy": 1.0,
+            "phi_harmonic": 39.888695154960715,
+            "phi_harmonic_semantic": "not_empirical_autonomy_proof",
+            "phi_harmonic_source": "golden_ratio_task_flow_heuristic",
+            "phi_question_score": 4.978706836786395,
+            "phi_resource_score": 64.55232174029534,
+            "phi_time_score": 31.98491220877071,
+            "philosopher_action": "Hold",
+            "philosopher_alignment_score": 0.6816601371015534,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7,
+            "triad_purity_source": "compatibility_default",
+            "vision_coherence": null
+          },
+          "triad_philosopher": {
+            "action": "Hold",
+            "alignment_score": 0.6816601371015534,
+            "reason": "evidence grounding is insufficient for confident action"
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "openai_shim:local_test",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "chain_id": "default_triad",
+          "chain_version": "heuristic_local_v1",
+          "passed": true,
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "chain_id": "default_triad",
+            "chain_version": "heuristic_local_v1",
+            "passed": true,
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-07-15T07:47:36.627368630+00:00",
+        "resonance": {
+          "ecst_components": {
+            "audio_coherence": null,
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "love_delta_empathy": 0.19953622981233624,
+            "love_projected_empathy": 1.0,
+            "phi_harmonic": 39.888695154960715,
+            "phi_harmonic_semantic": "not_empirical_autonomy_proof",
+            "phi_harmonic_source": "golden_ratio_task_flow_heuristic",
+            "phi_question_score": 4.978706836786395,
+            "phi_resource_score": 64.55232174029534,
+            "phi_time_score": 31.98491220877071,
+            "philosopher_action": "Hold",
+            "philosopher_alignment_score": 0.6816601371015534,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7,
+            "triad_purity_source": "compatibility_default",
+            "vision_coherence": null
+          },
+          "triad_philosopher": {
+            "action": "Hold",
+            "alignment_score": 0.6816601371015534,
+            "reason": "evidence grounding is insufficient for confident action"
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "manwe",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "chain_id": "default_triad",
+          "chain_version": "heuristic_local_v1",
+          "passed": true,
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "chain_id": "default_triad",
+            "chain_version": "heuristic_local_v1",
+            "passed": true,
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-07-15T07:47:36.633790630+00:00",
+        "resonance": {
+          "ecst_components": {
+            "audio_coherence": null,
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "love_delta_empathy": 0.19953622981233624,
+            "love_projected_empathy": 1.0,
+            "phi_harmonic": 39.888695154960715,
+            "phi_harmonic_semantic": "not_empirical_autonomy_proof",
+            "phi_harmonic_source": "golden_ratio_task_flow_heuristic",
+            "phi_question_score": 4.978706836786395,
+            "phi_resource_score": 64.55232174029534,
+            "phi_time_score": 31.98491220877071,
+            "philosopher_action": "Hold",
+            "philosopher_alignment_score": 0.6816601371015534,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7,
+            "triad_purity_source": "compatibility_default",
+            "vision_coherence": null
+          },
+          "triad_philosopher": {
+            "action": "Hold",
+            "alignment_score": 0.6816601371015534,
+            "reason": "evidence grounding is insufficient for confident action"
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "mnemosyne",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "chain_id": "default_triad",
+          "chain_version": "heuristic_local_v1",
+          "passed": true,
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "record_relationship",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "chain_id": "default_triad",
+            "chain_version": "heuristic_local_v1",
+            "passed": true,
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-07-15T07:47:37.483787289+00:00",
+        "resonance": {
+          "ecst_components": {
+            "audio_coherence": null,
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "love_delta_empathy": 0.19953622981233624,
+            "love_projected_empathy": 1.0,
+            "phi_harmonic": 39.888695154960715,
+            "phi_harmonic_semantic": "not_empirical_autonomy_proof",
+            "phi_harmonic_source": "golden_ratio_task_flow_heuristic",
+            "phi_question_score": 4.978706836786395,
+            "phi_resource_score": 64.55232174029534,
+            "phi_time_score": 31.98491220877071,
+            "philosopher_action": "Hold",
+            "philosopher_alignment_score": 0.6816601371015534,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7,
+            "triad_purity_source": "compatibility_default",
+            "vision_coherence": null
+          },
+          "triad_philosopher": {
+            "action": "Hold",
+            "alignment_score": 0.6816601371015534,
+            "reason": "evidence grounding is insufficient for confident action"
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "openai_shim:local_test",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "chain_id": "default_triad",
+          "chain_version": "heuristic_local_v1",
+          "passed": true,
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "chain_id": "default_triad",
+            "chain_version": "heuristic_local_v1",
+            "passed": true,
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-07-15T07:48:55.323641372+00:00",
+        "resonance": {
+          "ecst_components": {
+            "audio_coherence": null,
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "love_delta_empathy": 0.19953622981233624,
+            "love_projected_empathy": 1.0,
+            "phi_harmonic": 39.888695154960715,
+            "phi_harmonic_semantic": "not_empirical_autonomy_proof",
+            "phi_harmonic_source": "golden_ratio_task_flow_heuristic",
+            "phi_question_score": 4.978706836786395,
+            "phi_resource_score": 64.55232174029534,
+            "phi_time_score": 31.98491220877071,
+            "philosopher_action": "Hold",
+            "philosopher_alignment_score": 0.6816601371015534,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7,
+            "triad_purity_source": "compatibility_default",
+            "vision_coherence": null
+          },
+          "triad_philosopher": {
+            "action": "Hold",
+            "alignment_score": 0.6816601371015534,
+            "reason": "evidence grounding is insufficient for confident action"
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "manwe",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "chain_id": "default_triad",
+          "chain_version": "heuristic_local_v1",
+          "passed": true,
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "track_work",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "chain_id": "default_triad",
+            "chain_version": "heuristic_local_v1",
+            "passed": true,
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-07-15T07:48:55.332399664+00:00",
+        "resonance": {
+          "ecst_components": {
+            "audio_coherence": null,
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "love_delta_empathy": 0.19953622981233624,
+            "love_projected_empathy": 1.0,
+            "phi_harmonic": 39.888695154960715,
+            "phi_harmonic_semantic": "not_empirical_autonomy_proof",
+            "phi_harmonic_source": "golden_ratio_task_flow_heuristic",
+            "phi_question_score": 4.978706836786395,
+            "phi_resource_score": 64.55232174029534,
+            "phi_time_score": 31.98491220877071,
+            "philosopher_action": "Hold",
+            "philosopher_alignment_score": 0.6816601371015534,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7,
+            "triad_purity_source": "compatibility_default",
+            "vision_coherence": null
+          },
+          "triad_philosopher": {
+            "action": "Hold",
+            "alignment_score": 0.6816601371015534,
+            "reason": "evidence grounding is insufficient for confident action"
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "mnemosyne",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "chain_id": "default_triad",
+          "chain_version": "heuristic_local_v1",
+          "passed": true,
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      },
+      {
+        "action": "record_relationship",
+        "bacon_lite": {
+          "confidence": 0.6900000000000001,
+          "mode": "bacon_lite",
+          "passed": true,
+          "rationale": "bacon-lite pass: evidence gate plus one support gate",
+          "triad": {
+            "aurelius": "Pass",
+            "aurelius_score": 0.8999999999999999,
+            "bacon": "Pass",
+            "bacon_score": 0.6,
+            "chain_id": "default_triad",
+            "chain_version": "heuristic_local_v1",
+            "passed": true,
+            "profile_maturity": "draft_human_authored",
+            "profile_source": "config/governance/philosophers.toml",
+            "review_mode": "heuristic_local",
+            "sun_tzu": "Pass",
+            "sun_tzu_score": 0.75,
+            "veto_reason": null
+          }
+        },
+        "recorded_at_utc": "2026-07-15T07:48:56.228197633+00:00",
+        "resonance": {
+          "ecst_components": {
+            "audio_coherence": null,
+            "freq_harmony": 96.77419354838707,
+            "joule_balance": 100.0,
+            "love_delta_empathy": 0.19953622981233624,
+            "love_projected_empathy": 1.0,
+            "phi_harmonic": 39.888695154960715,
+            "phi_harmonic_semantic": "not_empirical_autonomy_proof",
+            "phi_harmonic_source": "golden_ratio_task_flow_heuristic",
+            "phi_question_score": 4.978706836786395,
+            "phi_resource_score": 64.55232174029534,
+            "phi_time_score": 31.98491220877071,
+            "philosopher_action": "Hold",
+            "philosopher_alignment_score": 0.6816601371015534,
+            "status_coherence": 100.0,
+            "time_harmony": 96.77419354838707,
+            "triad_purity": 0.7,
+            "triad_purity_source": "compatibility_default",
+            "vision_coherence": null
+          },
+          "triad_philosopher": {
+            "action": "Hold",
+            "alignment_score": 0.6816601371015534,
+            "reason": "evidence grounding is insufficient for confident action"
+          },
+          "value": 73.32241790259285
+        },
+        "subject": "openai_shim:local_test",
+        "triad": {
+          "aurelius": "Pass",
+          "aurelius_score": 0.8999999999999999,
+          "bacon": "Pass",
+          "bacon_score": 0.6,
+          "chain_id": "default_triad",
+          "chain_version": "heuristic_local_v1",
+          "passed": true,
+          "profile_maturity": "draft_human_authored",
+          "profile_source": "config/governance/philosophers.toml",
+          "review_mode": "heuristic_local",
+          "sun_tzu": "Pass",
+          "sun_tzu_score": 0.75,
+          "veto_reason": null
+        }
+      }
+    ],
+    "records_total": 26,
+    "triad_passed_total": 26
+  },
+  "joulework": {
+    "by_agent": {
+      "apollo": 11.2,
+      "athena": 19.693333333333335,
+      "manwe": 42.0,
+      "mnemosyne": 68.89333333333332,
+      "oracle": 1.87
+    },
+    "by_source": [
+      {
+        "amount": 1.8,
+        "source": "operator_estimate"
+      },
+      {
+        "amount": 141.85666666666665,
+        "source": "default_fallback"
+      }
+    ],
+    "by_unit": [
+      {
+        "amount": 143.65666666666667,
+        "unit": "Reasoning"
+      }
+    ],
+    "measurement_metadata": {
+      "autonomy_truth_warning": true,
+      "average_confidence": 0.08333333333333333,
+      "default_fallback_autonomy_truth": false,
+      "default_fallback_total": 141.85666666666665,
+      "observed_total": 0.0
+    },
+    "period_end": "2026-07-18T07:43:10.349715061Z",
+    "period_start": "2026-07-18T07:43:10.348867689Z",
+    "total": 143.65666666666667
+  },
+  "ledger": {
+    "accounts": [],
+    "accounts_total": 0
+  },
+  "love_equation": {
+    "relationships": [
+      {
+        "agent_a": "oracle",
+        "agent_b": "oracle",
+        "timestamp": "2026-07-18T07:43:10.348861169Z",
+        "value": 0.8089999999999999
+      },
+      {
+        "agent_a": "athena",
+        "agent_b": "knowledge_corpus",
+        "timestamp": "2026-07-18T07:43:10.348862369Z",
+        "value": 0.7816666666666666
+      },
+      {
+        "agent_a": "openai_shim",
+        "agent_b": "local_test",
+        "timestamp": "2026-07-18T07:43:10.348855939Z",
+        "value": 0.8320000000000001
+      },
+      {
+        "agent_a": "athena",
+        "agent_b": "google",
+        "timestamp": "2026-07-18T07:43:10.348863629Z",
+        "value": 0.8320000000000001
+      },
+      {
+        "agent_a": "apollo",
+        "agent_b": "athena",
+        "timestamp": "2026-07-18T07:43:10.348866299Z",
+        "value": 0.6900999569320966
+      }
+    ],
+    "relationships_total": 5,
+    "top_relationships": [
+      {
+        "agent_a": "openai_shim",
+        "agent_b": "local_test",
+        "timestamp": "2026-07-18T07:43:10.348855939Z",
+        "value": 0.8320000000000001
+      },
+      {
+        "agent_a": "athena",
+        "agent_b": "google",
+        "timestamp": "2026-07-18T07:43:10.348863629Z",
+        "value": 0.8320000000000001
+      },
+      {
+        "agent_a": "oracle",
+        "agent_b": "oracle",
+        "timestamp": "2026-07-18T07:43:10.348861169Z",
+        "value": 0.8089999999999999
+      },
+      {
+        "agent_a": "athena",
+        "agent_b": "knowledge_corpus",
+        "timestamp": "2026-07-18T07:43:10.348862369Z",
+        "value": 0.7816666666666666
+      },
+      {
+        "agent_a": "apollo",
+        "agent_b": "athena",
+        "timestamp": "2026-07-18T07:43:10.348866299Z",
+        "value": 0.6900999569320966
+      }
+    ]
+  },
+  "paths": {
+    "home": "/var/home/mythos/Eregion/Arda/data/plutus",
+    "status_path": "/var/home/mythos/Eregion/Arda/data/plutus/runtime_status.json"
+  },
+  "schema_version": "arda.plutus.runtime.v1"
+}

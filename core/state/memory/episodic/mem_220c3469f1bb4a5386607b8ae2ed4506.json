@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_220c3469f1bb4a5386607b8ae2ed4506",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: S2/G5 migrate service-registry into a staged feature project repo completed. Staged bounded external copy at /var/home/mythos/Eregion/annunimas-service-registry-stage; retained Annunimas workspace member; verified workspace cargo test -p annunimas-service-registry, external cargo test, forbidden payload scan excluding target, evidence doc, diff hygiene, and append-only guard.",
+  "salience": 0.8527222222222224,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-21T20:13:39.770940142Z",
+  "last_seen_at": "2026-06-21T20:13:39.770940142Z"
+}

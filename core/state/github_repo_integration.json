@@ -1,0 +1,1007 @@
+{
+  "arda_hints": {
+    "alert_on_research_backlog": true,
+    "boardroom_section": "github_corpus_integration",
+    "primary_panel": "operations_and_packages"
+  },
+  "authority": "athena_github_repo_integration_export",
+  "framework_surfaces": [
+    {
+      "annunimas_adaptation": null,
+      "follow_ons": [
+        "crate_spawn_blueprint_contract",
+        "network_native_node_onboarding_contract",
+        "aipkg_marketplace_separation",
+        "arda_embodied_tauri_slice"
+      ],
+      "implementation_targets": null,
+      "name": "OpenFang",
+      "path": "core/state/openfang_alignment.json",
+      "pattern_extraction": {
+        "desktop_embodiment": {
+          "annunimas_adaptation": "carry forward into ARDA embodied interface and Pepper's Ghost controller surfaces",
+          "openfang_pattern": "Tauri desktop as a first-class native surface",
+          "priority": "medium"
+        },
+        "hands_to_spawnable_crates": {
+          "annunimas_adaptation": "crate-spawn templates with sovereign task, metrics, ARDA, and control-plane hooks from first boot",
+          "openfang_pattern": "autonomous Hands as prebuilt capability packages with lifecycle verbs",
+          "priority": "high"
+        },
+        "security_stack": {
+          "annunimas_adaptation": "map to WARDEN, HADES, `.aipkg` receipts/signatures, and control-plane lockdown projections",
+          "openfang_pattern": "explicit signing, taint tracking, sandboxing, and audit trail",
+          "priority": "high"
+        },
+        "skills_marketplace_boundary": {
+          "annunimas_adaptation": "align with `.aipkg` as open package law and keep marketplace economics out of core truth",
+          "openfang_pattern": "skills and marketplace framing around reusable packages",
+          "priority": "high"
+        },
+        "wire_to_network_onboarding": {
+          "annunimas_adaptation": "keep Unix sockets local, Tailscale internal, and fold network-native node onboarding above the sovereign local layer",
+          "openfang_pattern": "network-native OFP onboarding and mutual auth",
+          "priority": "high"
+        }
+      },
+      "source_id": "src_cebb6abe",
+      "source_url": "https://github.com/RightNow-AI/openfang"
+    },
+    {
+      "annunimas_adaptation": {
+        "adapt": [
+          "yaml_personas_into_operator_product_profiles",
+          "low_code_templates_into_crate_spawn_blueprints"
+        ],
+        "adopt": [
+          "forge_style_creation_flow",
+          "declarative_workflow_templates",
+          "memory_node_contracts_for_spawned_systems"
+        ],
+        "reject": [
+          "framework_centrality_over_sovereign_core",
+          "single_memory_backend_assumption"
+        ]
+      },
+      "follow_ons": null,
+      "implementation_targets": null,
+      "name": "AgentForge",
+      "path": "core/state/agentforge_alignment.json",
+      "pattern_extraction": null,
+      "source_id": "src_75bbe2e4",
+      "source_url": "https://github.com/DataBassGit/AgentForge"
+    },
+    {
+      "annunimas_adaptation": {
+        "adapt": [
+          "persona_shells_into_productizable_client_experiences",
+          "plugin_registry_patterns_into_aipkg_marketplace_extensions"
+        ],
+        "adopt": [
+          "plugin_boundary_patterns",
+          "connector_surfaces_as_optional_adapters",
+          "client_surface_packaging_lessons"
+        ],
+        "reject": [
+          "identity_persona_as_core_doctrine",
+          "chat_platform_connectors_as_sovereign_base_layer"
+        ]
+      },
+      "follow_ons": null,
+      "implementation_targets": null,
+      "name": "eliza",
+      "path": "core/state/eliza_alignment.json",
+      "pattern_extraction": null,
+      "source_id": "src_4169b219",
+      "source_url": "https://github.com/elizaOS/eliza"
+    },
+    {
+      "annunimas_adaptation": null,
+      "follow_ons": null,
+      "implementation_targets": null,
+      "name": "Tauri",
+      "path": "core/state/tauri_embodiment.json",
+      "pattern_extraction": null,
+      "source_id": "src_d48f6cc9",
+      "source_url": null
+    }
+  ],
+  "generated_at_utc": "2026-04-28T09:49:25Z",
+  "registry_tools": [
+    {
+      "athena": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_759119ab.jsonl",
+        "confidence": 0.6916666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_759119ab.md",
+        "status": "deep",
+        "triad_passed": true,
+        "updated_at_utc": "2026-03-11T02:49:35.860504075+00:00"
+      },
+      "disposition": {
+        "mode": "extension_candidate",
+        "rationale": "The repo is digested and mapped, but should remain an optional extension until bounded runtime surfaces exist.",
+        "runtime_status": null
+      },
+      "package_enablement": {
+        "activation_status": "planned",
+        "integration_lane": "research",
+        "integration_state": "observed_only",
+        "next_action": "promote from evidence into a bounded runtime or product surface",
+        "policy_confidence": 0.6916666666666667,
+        "policy_readiness": "reference_only"
+      },
+      "repo": "lyogavin/airllm",
+      "repo_url": "https://github.com/lyogavin/airllm",
+      "runtime": null,
+      "source_id": "src_759119ab",
+      "system_surfaces": [
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json",
+        "core/state/operator_actions.json"
+      ],
+      "tool": "airllm"
+    },
+    {
+      "athena": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_e0115360.jsonl",
+        "confidence": 0.6916666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_e0115360.md",
+        "status": "deep",
+        "triad_passed": true,
+        "updated_at_utc": "2026-03-11T02:49:36.218904882+00:00"
+      },
+      "disposition": {
+        "mode": "extension_candidate",
+        "rationale": "The repo is digested and mapped, but should remain an optional extension until bounded runtime surfaces exist.",
+        "runtime_status": null
+      },
+      "package_enablement": {
+        "activation_status": "planned",
+        "integration_lane": "knowledge",
+        "integration_state": "observed_only",
+        "next_action": "promote from evidence into a bounded runtime or product surface",
+        "policy_confidence": 0.6916666666666667,
+        "policy_readiness": "reference_only"
+      },
+      "repo": "agenticnotetaking/arscontexta",
+      "repo_url": "https://github.com/agenticnotetaking/arscontexta",
+      "runtime": null,
+      "source_id": "src_e0115360",
+      "system_surfaces": [
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json",
+        "core/state/operator_actions.json"
+      ],
+      "tool": "arscontexta"
+    },
+    {
+      "athena": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_d46d1480.jsonl",
+        "confidence": 0.7683333333333333,
+        "human_ref": "docs/operator/library/athena/sources/src_d46d1480.md",
+        "status": "deep",
+        "triad_passed": true,
+        "updated_at_utc": "2026-03-12T04:30:24.842216904+00:00"
+      },
+      "disposition": {
+        "mode": "activate_now",
+        "rationale": "Evidence, runtime visibility, and env contracts are already aligned.",
+        "runtime_status": "not_running"
+      },
+      "package_enablement": {
+        "activation_status": "activation_frontier",
+        "integration_lane": "athena_ingestion",
+        "integration_state": "ready_for_activation",
+        "next_action": "run `annunimas athena crawl <url>` to capture markdown into ATHENA via the local crawl4ai service",
+        "policy_confidence": 0.7683333333333333,
+        "policy_readiness": "policy_ready"
+      },
+      "repo": "unclecode/crawl4ai",
+      "repo_url": "https://github.com/unclecode/crawl4ai",
+      "runtime": {
+        "base_url": "http://127.0.0.1:11235",
+        "container_name": "annunimas-crawl4ai",
+        "image": "unclecode/crawl4ai:latest",
+        "ok": true,
+        "status": "not_running"
+      },
+      "source_id": "src_d46d1480",
+      "system_surfaces": [
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json",
+        "core/state/operator_actions.json"
+      ],
+      "tool": "crawl4ai"
+    },
+    {
+      "athena": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_b711210b.jsonl",
+        "confidence": 0.6916666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_b711210b.md",
+        "status": "deep",
+        "triad_passed": true,
+        "updated_at_utc": "2026-03-11T02:49:36.931730605+00:00"
+      },
+      "disposition": {
+        "mode": "extension_candidate",
+        "rationale": "The repo is digested and mapped, but should remain an optional extension until bounded runtime surfaces exist.",
+        "runtime_status": null
+      },
+      "package_enablement": {
+        "activation_status": "planned",
+        "integration_lane": "mcp_communications",
+        "integration_state": "observed_only",
+        "next_action": "promote from evidence into a bounded runtime or product surface",
+        "policy_confidence": 0.6916666666666667,
+        "policy_readiness": "reference_only"
+      },
+      "repo": "SaseQ/discord-mcp",
+      "repo_url": "https://github.com/SaseQ/discord-mcp",
+      "runtime": null,
+      "source_id": "src_b711210b",
+      "system_surfaces": [
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json",
+        "core/state/operator_actions.json"
+      ],
+      "tool": "discord-mcp"
+    },
+    {
+      "athena": {
+        "book_ref": "data/athena/books/src_c1c7f9c9.jsonl",
+        "confidence": null,
+        "human_ref": "docs/operator/library/athena/sources/src_c1c7f9c9.md",
+        "status": "shallow",
+        "triad_passed": null,
+        "updated_at_utc": "2026-03-07T22:41:05.886494570+00:00"
+      },
+      "disposition": {
+        "mode": "extension_candidate",
+        "rationale": "The repo is digested and mapped, but should remain an optional extension until bounded runtime surfaces exist.",
+        "runtime_status": null
+      },
+      "package_enablement": {
+        "activation_status": "planned",
+        "integration_lane": "research",
+        "integration_state": "observed_only",
+        "next_action": "promote from evidence into a bounded runtime or product surface",
+        "policy_confidence": null,
+        "policy_readiness": "untracked"
+      },
+      "repo": "nearai/ironclaw",
+      "repo_url": "https://github.com/nearai/ironclaw",
+      "runtime": null,
+      "source_id": "src_c1c7f9c9",
+      "system_surfaces": [
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json",
+        "core/state/operator_actions.json"
+      ],
+      "tool": "ironclaw"
+    },
+    {
+      "athena": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_dab89283.jsonl",
+        "confidence": 0.7516666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_dab89283.md",
+        "status": "deep",
+        "triad_passed": true,
+        "updated_at_utc": "2026-03-12T04:30:26.494223273+00:00"
+      },
+      "disposition": {
+        "mode": "implementation_lane",
+        "rationale": "ATHENA digestion is strong enough; next work is runtime or product surface implementation.",
+        "runtime_status": "running"
+      },
+      "package_enablement": {
+        "activation_status": "planned",
+        "integration_lane": "charon_provider",
+        "integration_state": "evidence_ready",
+        "next_action": "promote from evidence into a bounded runtime or product surface",
+        "policy_confidence": 0.7516666666666667,
+        "policy_readiness": "policy_ready"
+      },
+      "repo": "BerriAI/litellm",
+      "repo_url": "https://github.com/BerriAI/litellm",
+      "runtime": {
+        "config_path": "config/litellm.proxy.yaml",
+        "log_path": "data/prometheus/litellm/proxy.log",
+        "models_ready": true,
+        "ok": true,
+        "pid": 1814,
+        "proxy_url": "http://127.0.0.1:4000/v1",
+        "status": "running",
+        "tool_bin_dir": "/var/home/mythos/.local/bin"
+      },
+      "source_id": "src_dab89283",
+      "system_surfaces": [
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json",
+        "core/state/operator_actions.json"
+      ],
+      "tool": "litellm"
+    },
+    {
+      "athena": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_234088bc.jsonl",
+        "confidence": 0.7516666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_234088bc.md",
+        "status": "deep",
+        "triad_passed": true,
+        "updated_at_utc": "2026-03-12T04:30:28.151166473+00:00"
+      },
+      "disposition": {
+        "mode": "activate_now",
+        "rationale": "Evidence, runtime visibility, and env contracts are already aligned.",
+        "runtime_status": "optional_signal_absent"
+      },
+      "package_enablement": {
+        "activation_status": "activation_frontier",
+        "integration_lane": "model_selection",
+        "integration_state": "ready_for_activation",
+        "next_action": "promote from evidence into a bounded runtime or product surface",
+        "policy_confidence": 0.7516666666666667,
+        "policy_readiness": "policy_ready"
+      },
+      "repo": "AlexsJones/llmfit",
+      "repo_url": "https://github.com/AlexsJones/llmfit",
+      "runtime": {
+        "binary_present": false,
+        "ok": true,
+        "status": "optional_signal_absent",
+        "summary": "optional signal not installed"
+      },
+      "source_id": "src_234088bc",
+      "system_surfaces": [
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json",
+        "core/state/operator_actions.json"
+      ],
+      "tool": "llmfit"
+    },
+    {
+      "athena": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_bfd43480.jsonl",
+        "confidence": 0.7516666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_bfd43480.md",
+        "status": "deep",
+        "triad_passed": true,
+        "updated_at_utc": "2026-03-12T04:30:29.804407059+00:00"
+      },
+      "disposition": {
+        "mode": "activate_now",
+        "rationale": "Evidence, runtime visibility, and env contracts are already aligned.",
+        "runtime_status": "not_configured"
+      },
+      "package_enablement": {
+        "activation_status": "activation_frontier",
+        "integration_lane": "edge_runtime",
+        "integration_state": "ready_for_activation",
+        "next_action": "run `bash scripts/nanoclaw_runtime.sh start` after channel auth is present, or route NanoClaw to the configured Tailscale edge target",
+        "policy_confidence": 0.7516666666666667,
+        "policy_readiness": "policy_ready"
+      },
+      "repo": "qwibitai/nanoclaw",
+      "repo_url": "https://github.com/qwibitai/nanoclaw",
+      "runtime": {
+        "auth_dir": "/store/auth",
+        "auth_ready": false,
+        "binary_present": false,
+        "container_runtime": "podman",
+        "container_runtime_ready": true,
+        "control_mode": "headless",
+        "db_path": "/store/messages.db",
+        "db_present": false,
+        "edge_target": "node-pi5-warden",
+        "edge_target_visible": false,
+        "edge_transport": "tailscale",
+        "entrypoint": "/dist/index.js",
+        "error_log_path": "/logs/nanoclaw.error.log",
+        "legacy_root": false,
+        "log_path": "/logs/nanoclaw.log",
+        "ok": true,
+        "pid": null,
+        "pid_file": "/nanoclaw.pid",
+        "project_root": "",
+        "root_configured": false,
+        "runtime_ready": false,
+        "status": "not_configured",
+        "tailscale_ready": true
+      },
+      "source_id": "src_bfd43480",
+      "system_surfaces": [
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json",
+        "core/state/operator_actions.json"
+      ],
+      "tool": "nanoclaw"
+    },
+    {
+      "athena": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_275d929b.jsonl",
+        "confidence": 0.7516666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_275d929b.md",
+        "status": "deep",
+        "triad_passed": true,
+        "updated_at_utc": "2026-03-11T02:50:10.697587022+00:00"
+      },
+      "disposition": {
+        "mode": "active_signal",
+        "rationale": "This repo is already feeding sovereign decision signals rather than waiting on first activation.",
+        "runtime_status": "ready"
+      },
+      "package_enablement": {
+        "activation_status": "active_signal",
+        "integration_lane": "agent_framework",
+        "integration_state": "ready_for_activation",
+        "next_action": "OpenCode is already bounded by sovereign route contracts; tune agent route mappings rather than treating it as an unintegrated package",
+        "policy_confidence": 0.7516666666666667,
+        "policy_readiness": "policy_ready"
+      },
+      "repo": "code-yeongyu/oh-my-opencode",
+      "repo_url": "https://github.com/code-yeongyu/oh-my-opencode",
+      "runtime": {
+        "ok": true,
+        "route_agents_total": 4,
+        "route_contract_path": "config/opencode_agent_routes.toml",
+        "route_contract_ready": true,
+        "route_defaults": {
+          "inference_origin": "auto",
+          "privacy_tier": "internal",
+          "provider": "auto"
+        },
+        "status": "ready",
+        "summary": "\u001b[0m▄\u001b[0m\n\u001b[90m█\u001b[0m\u001b[90m▀\u001b[0m\u001b[90m▀\u001b[0m\u001b[90m█\u001b[0m \u001b[90m█\u001b[0m\u001b[90m▀\u001b[0m\u001b[90m▀\u001b[0m\u001b[90m█\u001b[0m \u001b[90m█\u001b[0m\u001b[90m▀\u001b[0m\u001b[90m▀\u001b[0m\u001b[90m█\u001b[0m \u001b[90m█\u001b[0m\u001b[90m▀\u001b[0m\u001b[90m▀\u001b[0m\u001b[90m▄\u001b[0m \u001b[0m█\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m \u001b[0m█\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m█\u001b[0m \u001b[0m█\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m█\u001b[0m \u001b[0m█\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m█\u001b[0m\n\u001b[90m█\u001b[0m\u001b[48;5;235m \u001b[0m\u001b[48;5;235m \u001b[0m\u001b[90m█\u001b[0m \u001b[90m█\u001b[0m\u001b[48;5;235m \u001b[0m\u001b[48;5;235m \u001b[0m\u001b[90m█\u001b[0m \u001b[90m█\u001b[0m\u001b[90m\u001b[48;5;235m▀\u001b[0m\u001b[90m\u001b[48;5;235m▀\u001b[0m\u001b[90m\u001b[48;5;235m▀\u001b[0m \u001b[90m█\u001b[0m\u001b[48;5;235m \u001b[0m\u001b[48;5;235m \u001b[0m\u001b[90m█\u001b[0m \u001b[0m█\u001b[0m\u001b[48;5;238m \u001b[0m\u001b[48;5;238m \u001b[0m\u001b[48;5;238m \u001b[0m \u001b[0m█\u001b[0m\u001b[48;5;238m \u001b[0m\u001b[48;5;238m \u001b[0m\u001b[0m█\u001b[0m \u001b[0m█\u001b[0m\u001b[48;5;238m \u001b[0m\u001b[48;5;238m \u001b[0m\u001b[0m█\u001b[0m \u001b[0m█\u001b[0m\u001b[0m\u001b[48;5;238m▀\u001b[0m\u001b[0m\u001b[48;5;238m▀\u001b[0m\u001b[0m\u001b[48;5;238m▀\u001b[0m\n\u001b[90m▀\u001b[0m\u001b[90m▀\u001b[0m\u001b[90m▀\u001b[0m\u001b[90m▀\u001b[0m \u001b[90m█\u001b[0m\u001b[90m▀\u001b[0m\u001b[90m▀\u001b[0m\u001b[90m▀\u001b[0m \u001b[90m▀\u001b[0m\u001b[90m▀\u001b[0m\u001b[90m▀\u001b[0m\u001b[90m▀\u001b[0m \u001b[90m▀\u001b[0m\u001b[38;5;235m▀\u001b[0m\u001b[38;5;235m▀\u001b[0m\u001b[90m▀\u001b[0m \u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m \u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m \u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m \u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m\u001b[0m▀\u001b[0m\n\nCommands:\n  opencode completion          generate shell completion script\n  opencode acp  "
+      },
+      "source_id": "src_275d929b",
+      "system_surfaces": [
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json",
+        "core/state/operator_actions.json"
+      ],
+      "tool": "oh-my-opencode"
+    },
+    {
+      "athena": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_ba31bde2.jsonl",
+        "confidence": 0.7516666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_ba31bde2.md",
+        "status": "deep",
+        "triad_passed": true,
+        "updated_at_utc": "2026-03-11T02:50:18.198685258+00:00"
+      },
+      "disposition": {
+        "mode": "governed_on_demand",
+        "rationale": "This repo is integrated as an on-demand governed capability, not a resident daemon.",
+        "runtime_status": "contract_ready"
+      },
+      "package_enablement": {
+        "activation_status": "governed_on_demand",
+        "integration_lane": "mcp_browser",
+        "integration_state": "ready_for_activation",
+        "next_action": "Start the supervised bridge only for governed browser sessions; keep it on-demand rather than daemonized",
+        "policy_confidence": 0.7516666666666667,
+        "policy_readiness": "policy_ready"
+      },
+      "repo": "microsoft/playwright-mcp",
+      "repo_url": "https://github.com/microsoft/playwright-mcp",
+      "runtime": {
+        "approval_required": true,
+        "artifact_dir": "data/mcp/playwright/artifacts",
+        "command": "npx @playwright/mcp@latest --stdio",
+        "log_path": "data/mcp/playwright/bridge.log",
+        "network_requires_explicit_allow": true,
+        "note": "Playwright MCP is expected to run on-demand for a stdio client session rather than remain daemonized.",
+        "ok": true,
+        "pid": null,
+        "profile_dir": "data/mcp/playwright/profile",
+        "runtime_mode": "ephemeral_stdio",
+        "status": "contract_ready"
+      },
+      "source_id": "src_ba31bde2",
+      "system_surfaces": [
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json",
+        "core/state/operator_actions.json"
+      ],
+      "tool": "playwright-mcp"
+    },
+    {
+      "athena": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_8c6014a3.jsonl",
+        "confidence": 0.6916666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_8c6014a3.md",
+        "status": "deep",
+        "triad_passed": true,
+        "updated_at_utc": "2026-03-11T02:49:39.049720696+00:00"
+      },
+      "disposition": {
+        "mode": "extension_candidate",
+        "rationale": "The repo is digested and mapped, but should remain an optional extension until bounded runtime surfaces exist.",
+        "runtime_status": null
+      },
+      "package_enablement": {
+        "activation_status": "planned",
+        "integration_lane": "agent_skills",
+        "integration_state": "observed_only",
+        "next_action": "promote from evidence into a bounded runtime or product surface",
+        "policy_confidence": 0.6916666666666667,
+        "policy_readiness": "reference_only"
+      },
+      "repo": "obra/superpowers",
+      "repo_url": "https://github.com/obra/superpowers",
+      "runtime": null,
+      "source_id": "src_8c6014a3",
+      "system_surfaces": [
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json",
+        "core/state/operator_actions.json"
+      ],
+      "tool": "superpowers"
+    }
+  ],
+  "research_backlog_top": [
+    {
+      "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_3047ffaa.jsonl",
+      "confidence": null,
+      "disposition": {
+        "mode": "research_backlog",
+        "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
+      },
+      "human_ref": "docs/operator/library/athena/sources/src_3047ffaa.md",
+      "source_id": "src_3047ffaa",
+      "status": "shallow",
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "triad_passed": null,
+      "updated_at_utc": "2026-03-14T13:32:16.912559599+00:00",
+      "url": "https://github.com/ggerganov/llama.cpp"
+    },
+    {
+      "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_ec2b8bd4.jsonl",
+      "confidence": 0.7316666666666667,
+      "disposition": {
+        "mode": "research_backlog",
+        "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
+      },
+      "human_ref": "docs/operator/library/athena/sources/src_ec2b8bd4.md",
+      "source_id": "src_ec2b8bd4",
+      "status": "deep",
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "triad_passed": true,
+      "updated_at_utc": "2026-03-12T08:04:05.740082140+00:00",
+      "url": "https://github.com/NousResearch/hermes-agent"
+    },
+    {
+      "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_c2fef5eb.jsonl",
+      "confidence": 0.6916666666666667,
+      "disposition": {
+        "mode": "research_backlog",
+        "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
+      },
+      "human_ref": "docs/operator/library/athena/sources/src_c2fef5eb.md",
+      "source_id": "src_c2fef5eb",
+      "status": "deep",
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "triad_passed": true,
+      "updated_at_utc": "2026-03-12T07:55:17.463312039+00:00",
+      "url": "https://github.com/builderz-labs/mission-control"
+    },
+    {
+      "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_df11630e.jsonl",
+      "confidence": 0.7683333333333333,
+      "disposition": {
+        "mode": "research_backlog",
+        "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
+      },
+      "human_ref": "docs/operator/library/athena/sources/src_df11630e.md",
+      "source_id": "src_df11630e",
+      "status": "deep",
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "triad_passed": true,
+      "updated_at_utc": "2026-03-12T04:30:24.025362129+00:00",
+      "url": "https://github.com/D4Vinci/Scrapling"
+    },
+    {
+      "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_c623c7c2.jsonl",
+      "confidence": 0.75,
+      "disposition": {
+        "mode": "research_backlog",
+        "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
+      },
+      "human_ref": "docs/operator/library/athena/sources/src_c623c7c2.md",
+      "source_id": "src_c623c7c2",
+      "status": "deep",
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "triad_passed": true,
+      "updated_at_utc": "2026-03-11T08:43:51.404953580+00:00",
+      "url": null
+    },
+    {
+      "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_349063d2.jsonl",
+      "confidence": 0.75,
+      "disposition": {
+        "mode": "research_backlog",
+        "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
+      },
+      "human_ref": "docs/operator/library/athena/sources/src_349063d2.md",
+      "source_id": "src_349063d2",
+      "status": "deep",
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "triad_passed": true,
+      "updated_at_utc": "2026-03-11T08:43:51.175204118+00:00",
+      "url": null
+    },
+    {
+      "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_b709b4a0.jsonl",
+      "confidence": 0.75,
+      "disposition": {
+        "mode": "research_backlog",
+        "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
+      },
+      "human_ref": "docs/operator/library/athena/sources/src_b709b4a0.md",
+      "source_id": "src_b709b4a0",
+      "status": "deep",
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "triad_passed": true,
+      "updated_at_utc": "2026-03-11T08:40:47.808780396+00:00",
+      "url": null
+    },
+    {
+      "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_58052dc5.jsonl",
+      "confidence": 0.75,
+      "disposition": {
+        "mode": "research_backlog",
+        "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
+      },
+      "human_ref": "docs/operator/library/athena/sources/src_58052dc5.md",
+      "source_id": "src_58052dc5",
+      "status": "deep",
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "triad_passed": true,
+      "updated_at_utc": "2026-03-11T08:40:47.565935847+00:00",
+      "url": null
+    },
+    {
+      "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_201e5d87.jsonl",
+      "confidence": 0.75,
+      "disposition": {
+        "mode": "research_backlog",
+        "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
+      },
+      "human_ref": "docs/operator/library/athena/sources/src_201e5d87.md",
+      "source_id": "src_201e5d87",
+      "status": "deep",
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "triad_passed": true,
+      "updated_at_utc": "2026-03-11T08:40:47.330030656+00:00",
+      "url": null
+    },
+    {
+      "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_09cdae85.jsonl",
+      "confidence": 0.75,
+      "disposition": {
+        "mode": "research_backlog",
+        "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
+      },
+      "human_ref": "docs/operator/library/athena/sources/src_09cdae85.md",
+      "source_id": "src_09cdae85",
+      "status": "deep",
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "triad_passed": true,
+      "updated_at_utc": "2026-03-11T08:40:47.101609832+00:00",
+      "url": null
+    },
+    {
+      "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_2b71e3d5.jsonl",
+      "confidence": 0.75,
+      "disposition": {
+        "mode": "research_backlog",
+        "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
+      },
+      "human_ref": "docs/operator/library/athena/sources/src_2b71e3d5.md",
+      "source_id": "src_2b71e3d5",
+      "status": "deep",
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "triad_passed": true,
+      "updated_at_utc": "2026-03-11T08:40:46.863705706+00:00",
+      "url": null
+    },
+    {
+      "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_94ec52fc.jsonl",
+      "confidence": 0.75,
+      "disposition": {
+        "mode": "research_backlog",
+        "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
+      },
+      "human_ref": "docs/operator/library/athena/sources/src_94ec52fc.md",
+      "source_id": "src_94ec52fc",
+      "status": "deep",
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "triad_passed": true,
+      "updated_at_utc": "2026-03-11T08:40:46.620766705+00:00",
+      "url": null
+    },
+    {
+      "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_9cad18f2.jsonl",
+      "confidence": 0.75,
+      "disposition": {
+        "mode": "research_backlog",
+        "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
+      },
+      "human_ref": "docs/operator/library/athena/sources/src_9cad18f2.md",
+      "source_id": "src_9cad18f2",
+      "status": "deep",
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "triad_passed": true,
+      "updated_at_utc": "2026-03-11T08:40:46.382582705+00:00",
+      "url": null
+    },
+    {
+      "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_0c48d91a.jsonl",
+      "confidence": 0.75,
+      "disposition": {
+        "mode": "research_backlog",
+        "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
+      },
+      "human_ref": "docs/operator/library/athena/sources/src_0c48d91a.md",
+      "source_id": "src_0c48d91a",
+      "status": "deep",
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "triad_passed": true,
+      "updated_at_utc": "2026-03-11T08:40:46.141655040+00:00",
+      "url": null
+    },
+    {
+      "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_86a91025.jsonl",
+      "confidence": 0.75,
+      "disposition": {
+        "mode": "research_backlog",
+        "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
+      },
+      "human_ref": "docs/operator/library/athena/sources/src_86a91025.md",
+      "source_id": "src_86a91025",
+      "status": "deep",
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "triad_passed": true,
+      "updated_at_utc": "2026-03-11T08:40:45.902631390+00:00",
+      "url": null
+    },
+    {
+      "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_1d61766b.jsonl",
+      "confidence": 0.75,
+      "disposition": {
+        "mode": "research_backlog",
+        "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
+      },
+      "human_ref": "docs/operator/library/athena/sources/src_1d61766b.md",
+      "source_id": "src_1d61766b",
+      "status": "deep",
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "triad_passed": true,
+      "updated_at_utc": "2026-03-11T08:40:45.192732641+00:00",
+      "url": null
+    },
+    {
+      "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_c410e7ab.jsonl",
+      "confidence": 0.75,
+      "disposition": {
+        "mode": "research_backlog",
+        "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
+      },
+      "human_ref": "docs/operator/library/athena/sources/src_c410e7ab.md",
+      "source_id": "src_c410e7ab",
+      "status": "deep",
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "triad_passed": true,
+      "updated_at_utc": "2026-03-11T08:40:44.958069386+00:00",
+      "url": null
+    },
+    {
+      "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_cc43941d.jsonl",
+      "confidence": 0.75,
+      "disposition": {
+        "mode": "research_backlog",
+        "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
+      },
+      "human_ref": "docs/operator/library/athena/sources/src_cc43941d.md",
+      "source_id": "src_cc43941d",
+      "status": "deep",
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "triad_passed": true,
+      "updated_at_utc": "2026-03-11T08:40:44.716335420+00:00",
+      "url": null
+    },
+    {
+      "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_73c61c5a.jsonl",
+      "confidence": 0.75,
+      "disposition": {
+        "mode": "research_backlog",
+        "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
+      },
+      "human_ref": "docs/operator/library/athena/sources/src_73c61c5a.md",
+      "source_id": "src_73c61c5a",
+      "status": "deep",
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "triad_passed": true,
+      "updated_at_utc": "2026-03-11T08:40:44.478599187+00:00",
+      "url": null
+    },
+    {
+      "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_3310efd0.jsonl",
+      "confidence": 0.75,
+      "disposition": {
+        "mode": "research_backlog",
+        "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
+      },
+      "human_ref": "docs/operator/library/athena/sources/src_3310efd0.md",
+      "source_id": "src_3310efd0",
+      "status": "deep",
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "triad_passed": true,
+      "updated_at_utc": "2026-03-11T08:40:44.012002472+00:00",
+      "url": null
+    },
+    {
+      "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_d180c5b9.jsonl",
+      "confidence": 0.75,
+      "disposition": {
+        "mode": "research_backlog",
+        "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
+      },
+      "human_ref": "docs/operator/library/athena/sources/src_d180c5b9.md",
+      "source_id": "src_d180c5b9",
+      "status": "deep",
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "triad_passed": true,
+      "updated_at_utc": "2026-03-11T08:40:43.776083631+00:00",
+      "url": null
+    },
+    {
+      "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_b9676ba9.jsonl",
+      "confidence": 0.75,
+      "disposition": {
+        "mode": "research_backlog",
+        "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
+      },
+      "human_ref": "docs/operator/library/athena/sources/src_b9676ba9.md",
+      "source_id": "src_b9676ba9",
+      "status": "deep",
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "triad_passed": true,
+      "updated_at_utc": "2026-03-11T08:40:43.538826614+00:00",
+      "url": null
+    },
+    {
+      "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_33fa61b2.jsonl",
+      "confidence": 0.7683333333333333,
+      "disposition": {
+        "mode": "research_backlog",
+        "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
+      },
+      "human_ref": "docs/operator/library/athena/sources/src_33fa61b2.md",
+      "source_id": "src_33fa61b2",
+      "status": "deep",
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "triad_passed": true,
+      "updated_at_utc": "2026-03-11T08:22:26.934265785+00:00",
+      "url": "https://github.com/kaushikb11/awesome-llm-agents"
+    },
+    {
+      "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_ca2f031e.jsonl",
+      "confidence": 0.7683333333333333,
+      "disposition": {
+        "mode": "research_backlog",
+        "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
+      },
+      "human_ref": "docs/operator/library/athena/sources/src_ca2f031e.md",
+      "source_id": "src_ca2f031e",
+      "status": "deep",
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "triad_passed": true,
+      "updated_at_utc": "2026-03-11T08:22:26.675393126+00:00",
+      "url": "https://github.com/e2b-dev/awesome-ai-agents"
+    },
+    {
+      "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_dc355aed.jsonl",
+      "confidence": 0.7516666666666667,
+      "disposition": {
+        "mode": "research_backlog",
+        "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
+      },
+      "human_ref": "docs/operator/library/athena/sources/src_dc355aed.md",
+      "source_id": "src_dc355aed",
+      "status": "deep",
+      "system_surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/athena_runtime.json"
+      ],
+      "triad_passed": true,
+      "updated_at_utc": "2026-03-11T08:22:26.409390236+00:00",
+      "url": "https://github.com/best-ai-agents/discord-servers-for-ai-agents"
+    }
+  ],
+  "schema_version": "annunimas.github-repo-integration.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "framework_linked_total": 4,
+    "github_sources_total": 68,
+    "integration_coverage_total": 68,
+    "observed_only_total": 5,
+    "ready_for_activation_total": 5,
+    "registry_linked_total": 11,
+    "registry_tools_total": 11,
+    "research_backlog_total": 53
+  }
+}

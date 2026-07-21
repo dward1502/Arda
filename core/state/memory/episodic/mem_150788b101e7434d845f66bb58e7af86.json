@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_150788b101e7434d845f66bb58e7af86",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Create task for autonomy-governance-action-classes.md",
+  "salience": 0.8272777777777777,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-05T07:21:16.350875914Z",
+  "last_seen_at": "2026-06-05T07:21:16.350875914Z"
+}

@@ -1,0 +1,101 @@
+{
+  "authority": "athena_comparative_framework_pass",
+  "decision_summary": {
+    "core_should_absorb": [
+      "spawn_blueprint_contracts",
+      "security_by_default_runtime_baselines",
+      "strict_adapter_boundary_contracts"
+    ],
+    "extensions_should_absorb": [
+      "connector_plugins",
+      "client_persona_shells",
+      "workflow_starter_templates"
+    ],
+    "must_remain_rejected": [
+      "framework-first identity",
+      "marketplace or registry hot-path dependence",
+      "chat-platform assumptions as sovereign base layer"
+    ]
+  },
+  "frameworks": [
+    {
+      "adapt": [
+        "desktop_embodiment",
+        "packaged agent lifecycle verbs"
+      ],
+      "adopt": [
+        "crate_spawn_blueprints",
+        "security_by_default_runtime"
+      ],
+      "name": "OpenFang",
+      "reject": [
+        "marketplace_in_hot_path",
+        "single_distribution_surface_bias"
+      ],
+      "role": "capability-packaging and network-native onboarding reference",
+      "source_id": "src_cebb6abe"
+    },
+    {
+      "adapt": [
+        "workflow_templates_into_productizable_crates"
+      ],
+      "adopt": [
+        "forge_style_creation_flow",
+        "composable_agent_pipeline_patterns"
+      ],
+      "name": "AgentForge",
+      "reject": [
+        "framework_centrality_over_sovereign_core"
+      ],
+      "role": "agent workflow topology and build/forge pattern reference",
+      "source_id": "src_75bbe2e4"
+    },
+    {
+      "adapt": [
+        "communication_surface_plugins",
+        "client_facing_agent_shells"
+      ],
+      "adopt": [
+        "plugin_boundary_patterns",
+        "character_runtime_packaging_lessons"
+      ],
+      "name": "eliza",
+      "reject": [
+        "identity_persona_as_core_doctrine"
+      ],
+      "role": "plugin/runtime and agent persona system reference",
+      "source_id": "src_4169b219"
+    }
+  ],
+  "generated_at_utc": "2026-04-28T09:49:25Z",
+  "governance_validators": {
+    "bacon_lite_required": true,
+    "joulework_required": true,
+    "love_equation_required": true,
+    "triad_required": true
+  },
+  "implementation_targets": {
+    "crate_and_package_lifecycle": [
+      "core/state/crate_spawn_contract.json",
+      "core/state/aipkg_contract.json",
+      "core/state/package_runtime_activation.json"
+    ],
+    "federated_boardrooms": [
+      "core/state/federated_comms_runtime.json",
+      "core/state/matrix_boardrooms.json",
+      "core/state/hermes_command.json"
+    ],
+    "product_shells_and_embodiment": [
+      "core/state/embodied_interface.json",
+      "core/state/tauri_embodiment.json",
+      "apps/arda-hud"
+    ]
+  },
+  "linked_runtime_exports": [
+    "core/state/openfang_alignment.json",
+    "core/state/agentforge_alignment.json",
+    "core/state/eliza_alignment.json"
+  ],
+  "schema_version": "annunimas.agent-framework-alignment.v1",
+  "sigil": "REPAIR"
+}

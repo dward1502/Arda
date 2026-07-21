@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_c25aba757abc4b9e8eba7c248cd228a3",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Discord Gate 5 council discussion lane implemented",
+  "salience": 0.6825,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-22T20:28:52.081476254Z",
+  "last_seen_at": "2026-05-22T20:28:52.081476254Z"
+}

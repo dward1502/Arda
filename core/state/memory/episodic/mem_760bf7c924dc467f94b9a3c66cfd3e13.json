@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_760bf7c924dc467f94b9a3c66cfd3e13",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Implement ATHENA uncertainty selection receipts. Implemented attached-LLM uncertainty selection path with explicit Athena-local JSONL receipt ledger; updated active-learning contract and health export to name data/athena/uncertainty_selections.jsonl; verified cargo check -p annunimas-cli and cargo test -p annunimas-athena.",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-05T07:10:03.408230092Z",
+  "last_seen_at": "2026-06-05T07:10:03.408230092Z"
+}

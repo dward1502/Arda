@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_2ad5d4842c4f4ab584d4156f049b92d2",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Hermes dashboard ARDA HUD workstation shell implemented. Implemented read-only Hermes Dashboard workstation shell in ARDA HUD: typed ModuleId, module export, desk button, floating workstation routing, in-scene/native manifest, and dashboard UI using package enablement/runtime activation data. Verified npm run build, npm test, and soterion unicode guard pass. Native cargo check is blocked by missing host gdk-3.0.pc/gtk3-devel, not by Rust code changes.",
+  "salience": 0.9455,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-17T01:42:58.720751792Z",
+  "last_seen_at": "2026-05-17T01:42:58.720751792Z"
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_6e559943f9684d868bca5a89b0159286",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Athena evidence improvement: confidence/opposition/triad for promoted sources. No verifiable local source evidence files were found for this task. Closing via contractless-task pivot per policy; central task was created from earlier stale policy-gate closeout and is now resolved.",
+  "salience": 0.9125000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-07-03T05:38:33.403606102Z",
+  "last_seen_at": "2026-07-03T05:38:33.403606102Z"
+}

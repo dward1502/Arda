@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_9eb9f418c403427e8b85e0e9a9d6b75b",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Expose ATHENA policy readiness approval gates in ARDA HUD",
+  "salience": 0.8045000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-21T11:50:18.122277453Z",
+  "last_seen_at": "2026-05-21T11:50:18.122277453Z"
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_f5f9f8aef04e4d7bb0965cf29958a365",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Gate 3.5A ARDA presence schema adapter design complete",
+  "salience": 0.9025000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-18T19:11:48.718451615Z",
+  "last_seen_at": "2026-05-18T19:11:48.718451615Z"
+}

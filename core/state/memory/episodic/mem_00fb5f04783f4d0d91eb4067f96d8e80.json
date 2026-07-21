@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_00fb5f04783f4d0d91eb4067f96d8e80",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Implement onboarding crate and First Light guided flow",
+  "salience": 0.6645,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-02T05:26:52.146975760Z",
+  "last_seen_at": "2026-06-02T05:26:52.146975760Z"
+}

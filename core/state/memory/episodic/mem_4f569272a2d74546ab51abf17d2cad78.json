@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_4f569272a2d74546ab51abf17d2cad78",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: HADES organization remediation for crate test indexes",
+  "salience": 0.6645,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-06T09:52:51.068538220Z",
+  "last_seen_at": "2026-06-06T09:52:51.068538220Z"
+}

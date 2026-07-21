@@ -1,0 +1,104 @@
+# sigil: SCROLL
+version: 1
+authority: arda.selinux_runtime_contract.v1
+generated_on: '2026-03-24'
+
+platform:
+  host_os_family: bluefin_fedora_atomic
+  selinux_mode: enforcing_preferred
+  service_supervisor: systemd
+  design_posture: selinux_safe_by_default
+
+principles:
+  - keep_selinux_enabled
+  - prefer_systemd_owned_services_over_ad_hoc_background_processes
+  - keep_operator_terminals_lightweight
+  - prefer_remote_http_control_paths_over_remote_shell_for_routine_operations
+  - place_runtime_sockets_in_user_runtime_dir
+  - place_state_in_user_state_dir
+  - place_cache_in_user_cache_dir
+  - treat_laptops_as_terminal_first_optional_compute
+
+approved_paths:
+  runtime_dir:
+    primary: "${XDG_RUNTIME_DIR}/annunimas"
+    allowed:
+      - "${XDG_RUNTIME_DIR}/annunimas"
+      - "/run/user/${UID}/annunimas"
+  state_dir:
+    primary: "${XDG_STATE_HOME:-$HOME/.local/state}/annunimas"
+  cache_dir:
+    primary: "${XDG_CACHE_HOME:-$HOME/.cache}/annunimas"
+  config_dir:
+    primary: "${XDG_CONFIG_HOME:-$HOME/.config}/annunimas"
+  logs_dir:
+    primary: "${XDG_STATE_HOME:-$HOME/.local/state}/annunimas/logs"
+
+service_model:
+  ownership:
+    workstation:
+      role: canonical_execution_authority
+      owns:
+        - manwe
+        - agent_supervisor
+        - ceo_autopilot
+        - bootstrap_reconcile
+        - athena_execution
+    beelink:
+      role: bounded_edge_worker
+      owns:
+        - inference_worker
+        - bounded_background_jobs
+    laptop:
+      role: terminal_operator
+      owns:
+        - arda_hud
+        - hermes_voice_ingress
+        - optional_local_stt
+      does_not_own:
+        - canonical_manwe
+        - primary_agent_supervisor
+        - heavy_autonomy_loops
+        - persistent_backbone_inference
+  launch_rules:
+    - use_systemd_user_units_for_long_running_services
+    - use_execstart_with_explicit_working_directory_and_env
+    - avoid_nohup_setsid_screen_tmux_as_canonical_service_owners
+    - avoid_random_tmp_execution_roots_for_persistent_services
+
+network_control_plane:
+  preferred_remote_protocols:
+    - tailscale_http
+    - tailscale_https
+  restricted_remote_protocols:
+    - tailscale_ssh_for_break_glass_or_admin_only
+  workstation_authority:
+    manwe_control_base_url: "http://100.78.138.113:5110"
+    manwe_openai_base_url: "http://100.78.138.113:5110/v1"
+    inference_base_url: "http://100.78.138.113:1234"
+  edge_worker_authority:
+    beelink_inference_base_url: "http://100.103.125.88:9337/v1"
+
+forbidden_patterns:
+  - persistent_services_bound_to_repo_tmp_paths
+  - sockets_under_plain_tmp_for_core_runtime
+  - laptop_as_required_backbone_inference_target
+  - local_only_control_paths_for_remote_operator_workflows
+  - ungoverned_shell_backgrounding_of_core_services
+
+operator_rules:
+  remote_founder_cockpit:
+    laptop_default_provider_order:
+      - edge_backbone
+      - edge_core
+      - edge_worker_light
+      - local_fallback
+    laptop_local_models_are_fallback_only: true
+    arda_reads_remote_runtime_when_available: true
+    hermes_defaults_to_workstation_manwe: true
+
+enforcement_backlog:
+  - move_all_core_runtime_sockets_to_xdg_runtime_dir
+  - make_remote_operator_bootstrap_the_default_laptop_start_path
+  - remove_remaining_laptop_primary_execution_assumptions
+  - codify_selinux_avc_audit_and_repair_playbook

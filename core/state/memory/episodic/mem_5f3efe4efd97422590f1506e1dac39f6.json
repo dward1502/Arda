@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_5f3efe4efd97422590f1506e1dac39f6",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Platform OS plan and crate boundary decisions",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-19T06:42:18.122083653Z",
+  "last_seen_at": "2026-06-19T06:42:18.122083653Z"
+}

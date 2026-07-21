@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_069d5faf8e854703a028876f94455b51",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Queue: HERMES plan review",
+  "salience": 0.5845,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-19T07:43:28.839819238Z",
+  "last_seen_at": "2026-06-19T07:43:28.839819238Z"
+}

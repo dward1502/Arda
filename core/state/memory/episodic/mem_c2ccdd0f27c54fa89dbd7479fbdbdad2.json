@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_c2ccdd0f27c54fa89dbd7479fbdbdad2",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Close false-positive crash-token audit scoring for test fixtures",
+  "salience": 0.6645,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-25T10:30:33.044303801Z",
+  "last_seen_at": "2026-05-25T10:30:33.044303801Z"
+}

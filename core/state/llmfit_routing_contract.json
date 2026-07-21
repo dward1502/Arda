@@ -1,0 +1,49 @@
+{
+  "authority": "package_enablement + package_runtime_activation + charon_router + runtime_governor_contract",
+  "doctrine": {
+    "governor_consumes_llmfit_as_policy_input": true,
+    "llmfit_is_an_active_signal_not_a_daemon_runtime": true,
+    "llmfit_recommendations_shape_routing_but_do_not_override_sovereign_controls": true
+  },
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "governor_contract": {
+    "governor_next_action": "promote from evidence into a bounded runtime or product surface",
+    "package_tool_projection_present": true,
+    "runtime_governor_surface": "core/state/runtime_governor_contract.json"
+  },
+  "routing_contract": {
+    "intended_effects": [
+      "tune route heuristics from local fit recommendations",
+      "bound route classes against available local parameter budgets",
+      "keep provider selection auditable instead of implicit"
+    ],
+    "signal_source": "core/state/manwe_router.json",
+    "signals": {
+      "backend": "optional_signal_absent",
+      "local_max_params_b": null,
+      "recommendation_count": 0,
+      "top_model_names": []
+    },
+    "writes_through": [
+      "core/state/manwe_router.json",
+      "core/state/model_control_surface.json"
+    ]
+  },
+  "schema_version": "annunimas.llmfit-routing-contract.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "active_signal": false,
+    "backend": "optional_signal_absent",
+    "recommendation_count": 0,
+    "runtime_ok": true
+  },
+  "tool": {
+    "activation_status": "activation_frontier",
+    "binary_path": null,
+    "integration_state": "ready_for_activation",
+    "name": "llmfit",
+    "repo": "AlexsJones/llmfit",
+    "repo_url": "https://github.com/AlexsJones/llmfit",
+    "runtime_status": "optional_signal_absent"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "contract": "annunimas.human_inbox_phase2g_promotion_state.v1",
+  "phase": "Phase 2G",
+  "generated_at_utc": "2026-05-16T06:01:52Z",
+  "status": "completed",
+  "raw_inbox_preserved": true,
+  "raw_inbox_file_count": 108,
+  "athena_scan_records_from_phase2f": 72,
+  "contradiction_records_from_phase2f": 0,
+  "promotion_summary": {
+    "promoted_reviewed_candidate_documents": 5,
+    "updated_indexes": 3,
+    "audit_artifacts_created": 4
+  },
+  "promoted_paths": [
+    "human/docs/arda/ARDA_BOARDROOM_ASSET_INGESTION_BRIEF.md",
+    "human/05-Projects/plans/product-candidates/arda-boardroom-asset-pipeline.md",
+    "human/03-Knowledge/Architecture/ai-conversation-ingestion-boundary.md",
+    "human/03-Knowledge/Research/ecst-mythos-source-extraction-review.md",
+    "human/05-Projects/plans/product-candidates/inbox-project-business-residue.md"
+  ],
+  "updated_indexes": [
+    "human/docs/arda/README.md",
+    "human/03-Knowledge/Research/README.md",
+    "human/05-Projects/plans/product-candidates/README.md"
+  ],
+  "audit_artifacts": [
+    "audit/HUMAN_INBOX_PHASE2G_2026-05-16/README.md",
+    "audit/HUMAN_INBOX_PHASE2G_2026-05-16/PROMOTION_LEDGER.md",
+    "audit/HUMAN_INBOX_PHASE2G_2026-05-16/promotion_ledger.json",
+    "audit/HUMAN_INBOX_PHASE2G_2026-05-16/raw_inventory.jsonl"
+  ],
+  "deferred_or_blocked": [
+    {
+      "item": "Phase 2F batch 02 existing extracted candidates",
+      "reason": "Already represented by Phase 2E reviewed candidate surfaces; duplicate canonical docs intentionally not created."
+    },
+    {
+      "item": "DOCX/PDF claim-level research promotion",
+      "reason": "Requires derived extraction artifacts with extraction-tool provenance before claim-level review."
+    },
+    {
+      "item": "Raw reference image runtime import",
+      "reason": "Requires source/license decision and asset-pipeline metadata sidecar."
+    }
+  ],
+  "gates_enforced": [
+    "No raw human/inbox mutation, move, delete, or overwrite",
+    "Reviewed-candidate status only",
+    "No canonical truth claim",
+    "Hash-backed provenance retained",
+    "Duplicate check against Phase 2E promoted surfaces",
+    "Binary/research extraction held behind separate provenance gate"
+  ]
+}

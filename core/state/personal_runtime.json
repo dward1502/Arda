@@ -1,0 +1,126 @@
+{
+  "authority": "personal_runtime_projection",
+  "counts": {
+    "creative_domains_total": 4,
+    "personal_docs_total": 1,
+    "research_domains_total": 8,
+    "state_keys_total": 0
+  },
+  "creative_domains": [
+    "Miniature painting",
+    "3D printing",
+    "Holographic display (RELIC / Pepper's Ghost)",
+    "Tabletop gaming (Age of Sigmar)"
+  ],
+  "documents": [
+    {
+      "body_preview": "**Date:** 2026-02-27   **Status:** In Progress   **Goal:** Document current state for Annuminas reorganization",
+      "path": "data/personal/PROJECT_AUDIT.md",
+      "title": "NUMENOR_PRIME — PROJECT AUDIT"
+    }
+  ],
+  "generated_at_utc": "2026-07-14T05:03:01.355041250+00:00",
+  "highlights": {
+    "priorities": [
+      "Daughter — museum visits, baseball games, shared experiences",
+      "Deep work — engineering and building",
+      "Client relationships"
+    ],
+    "state_keys": [],
+    "values": [
+      "depth",
+      "family",
+      "history",
+      "quality",
+      "sovereignty",
+      "truth"
+    ]
+  },
+  "identity": {
+    "ais": {
+      "company": "Augmented Integrated Systems",
+      "current_clients": [
+        "pool company (San Diego)"
+      ],
+      "infrastructure": [
+        "Pi cluster",
+        "Beelink machines",
+        "distributed compute network"
+      ],
+      "mission": "On-premises AI business operating systems for $1M-$5M companies",
+      "partners": [
+        "Wall Street finance professional",
+        "sales expert"
+      ]
+    },
+    "clearance": "sovereign",
+    "location": "Point Loma, San Diego, California",
+    "name": "Daniel",
+    "professional": {
+      "handle_x": "DarkSkiesMajic",
+      "primary_role": "CTO, Skylight Pros",
+      "secondary_role": "Founder, Augmented Integrated Systems (AIS)",
+      "skills": [
+        "full-stack development",
+        "biotech",
+        "systems architecture",
+        "AI infrastructure"
+      ],
+      "workspace": "engineer deck"
+    },
+    "role": "Founder / Principal / Human Override Authority",
+    "sigil": "𓋹",
+    "time": {
+      "note": "Daniel's time is the scarcest resource. Plutus accounts for it above all else.",
+      "priority_1": "Daughter — museum visits, baseball games, shared experiences",
+      "priority_2": "Deep work — engineering and building",
+      "priority_3": "Client relationships",
+      "priority_4": "Research and reading"
+    },
+    "values": {
+      "depth": "Deep work over shallow breadth. Mastery over mediocrity.",
+      "family": "Decisions must honor time with daughter.",
+      "history": "Pre-1940s texts and primary sources over modern summaries.",
+      "quality": "Build things that actually work. No vaporware.",
+      "sovereignty": "Full data sovereignty. No cloud dependency for core function.",
+      "truth": "Honest assessment over comfortable answers."
+    }
+  },
+  "notes_readme": {
+    "body_preview": "",
+    "path": "docs/operator/notes/README.md",
+    "title": "README"
+  },
+  "onboard": {
+    "body_preview": "--- soterion:   sigil: \"SCROLL\"",
+    "path": "docs/operator/onboard.md",
+    "title": "Onboard"
+  },
+  "research_domains": [
+    "UAP disclosure (active participant, X community)",
+    "Consciousness research (ECST — Electric Current Soul Theory)",
+    "Sacred geometry and phi harmonic patterns",
+    "Pre-1940s historical texts (digitization projects)",
+    "Mythology (Greek, Sumerian, Egyptian)",
+    "Genealogy (Mac an Baird lineage)",
+    "Biophotonic cellular signaling",
+    "Semiconductor physics and consciousness"
+  ],
+  "schema_version": "annunimas.core.state.v1",
+  "state": {},
+  "time": {
+    "note": "Daniel's time is the scarcest resource. Plutus accounts for it above all else.",
+    "priority_1": "Daughter — museum visits, baseball games, shared experiences",
+    "priority_2": "Deep work — engineering and building",
+    "priority_3": "Client relationships",
+    "priority_4": "Research and reading"
+  },
+  "values": {
+    "depth": "Deep work over shallow breadth. Mastery over mediocrity.",
+    "family": "Decisions must honor time with daughter.",
+    "history": "Pre-1940s texts and primary sources over modern summaries.",
+    "quality": "Build things that actually work. No vaporware.",
+    "sovereignty": "Full data sovereignty. No cloud dependency for core function.",
+    "truth": "Honest assessment over comfortable answers."
+  }
+}

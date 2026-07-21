@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_66e3878e68704554848747eecf9141ae",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Operate recurring plan lifecycle cycle: discuss ideas, plan, build, audit, fix, review, repeat. Make parsed plan tasks into an ongoing user+agent cycle: discuss ideas with the user, write/refresh plans, build scoped slices, audit implementation, execute audit fixes, review evidence with user, then repeat until plans are whittled down or archived by approval.",
+  "salience": 0.7625,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-24T11:19:13.350534626Z",
+  "last_seen_at": "2026-05-24T11:19:13.350534626Z"
+}

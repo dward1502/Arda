@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_33fcb169431540e0923ea32145cfb859",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Implement tool-gate CI and blog post artifacts",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-19T07:24:24.420983483Z",
+  "last_seen_at": "2026-06-19T07:24:24.420983483Z"
+}

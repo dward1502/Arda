@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_99a49d2bbb1c4d86a19fa1bfd0dcbf29",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: HADES organization remediation for First Light onboarding apps",
+  "salience": 0.6645,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-06T09:46:46.378456642Z",
+  "last_seen_at": "2026-06-06T09:46:46.378456642Z"
+}

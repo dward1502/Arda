@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_47fe9ebc4d1348cbbf0df13ee0d5458a",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Create task for GOVERNANCE_CURRENT_STATE.md",
+  "salience": 0.8494999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-05T07:18:09.737890595Z",
+  "last_seen_at": "2026-06-05T07:18:09.737890595Z"
+}

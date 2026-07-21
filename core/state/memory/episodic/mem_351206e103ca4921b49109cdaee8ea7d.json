@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_351206e103ca4921b49109cdaee8ea7d",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Surface First Light artifacts in ARDA setup console",
+  "salience": 0.8045000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-02T06:01:01.991852916Z",
+  "last_seen_at": "2026-06-02T06:01:01.991852916Z"
+}

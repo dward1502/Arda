@@ -1,0 +1,55 @@
+{
+  "arda_hints": {
+    "boardroom_section": "executive_council",
+    "highlight_escalations": false,
+    "primary_panel": "ceo_council_runtime"
+  },
+  "authority": "seed",
+  "generated_at_utc": "2026-03-23T22:10:00Z",
+  "paths": {
+    "active_ruleset": "core/state/active_ruleset.json",
+    "sessions": "core/state/ceo_council_sessions.json"
+  },
+  "policy": {
+    "memory_lanes": [
+      {
+        "id": "human_sovereign",
+        "promotion_required": false,
+        "retention": "durable"
+      },
+      {
+        "id": "ceo_private_working",
+        "promotion_required": true,
+        "retention": "expiring"
+      },
+      {
+        "id": "shared_executive",
+        "promotion_required": false,
+        "retention": "durable"
+      },
+      {
+        "id": "institutional",
+        "promotion_required": true,
+        "retention": "durable"
+      },
+      {
+        "id": "episodic",
+        "promotion_required": false,
+        "retention": "expiring"
+      }
+    ]
+  },
+  "schema_version": "annunimas.ceo-council-runtime.v1",
+  "sessions": [],
+  "sigil": "REPAIR",
+  "summary": {
+    "human_escalations": 0,
+    "lightweight_sessions": 0,
+    "memory_lane_usage": {},
+    "memory_write_counts": {},
+    "promoted_private_memory_total": 0,
+    "total_sessions": 0,
+    "triad_sessions": 0,
+    "validator_invocation_counts": {}
+  }
+}

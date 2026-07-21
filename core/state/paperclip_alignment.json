@@ -1,0 +1,189 @@
+{
+  "arda_hints": {
+    "alert_on_evidence_gap": false,
+    "alert_on_open_tasks": true,
+    "boardroom_section": "paperclip_alignment",
+    "primary_panel": "paperclip_alignment"
+  },
+  "authority": "paperclip_alignment_projection",
+  "deployment_posture_alignment": {
+    "annunimas_surface": {
+      "active_permission_profile": "ceo_operator",
+      "destructive_quorum_enabled": true,
+      "orphan_repairs_pending": 25,
+      "required_sockets_live": false,
+      "runtime_socket_contract_present": true
+    },
+    "derived": {
+      "alignment_ready": false,
+      "follow_on_task_open": true
+    },
+    "paperclip_pattern": {
+      "bootstrap_claim_flow": true,
+      "modes": [
+        "local_trusted",
+        "authenticated_private",
+        "authenticated_public"
+      ],
+      "private_network_posture": true,
+      "public_hardening": true
+    }
+  },
+  "derived": {
+    "comparison_tasks_open": 4,
+    "evidence_ready": true,
+    "paperclip_readiness": {
+      "deployment": false,
+      "edge_runtime": false,
+      "governance": true,
+      "ledger_topology": false
+    }
+  },
+  "edge_runtime_alignment": {
+    "annunimas_surface": {
+      "boardroom_active": true,
+      "local_fallback_ready": false,
+      "online_comms_providers": 1,
+      "provider_count": 23,
+      "recent_local_fallback_routes": 0,
+      "route_defaults": {
+        "cost_tier": "balanced",
+        "latency_sla_ms": null,
+        "origin_preference": "auto",
+        "privacy_tier": "public",
+        "quality_tier": "balanced"
+      }
+    },
+    "derived": {
+      "alignment_ready": false,
+      "follow_on_task_open": true
+    },
+    "paperclip_pattern": {
+      "adapter_types": [
+        "process",
+        "http"
+      ],
+      "bring_your_own_agents": true,
+      "context_delivery": [
+        "thin_ping",
+        "fat_payload"
+      ],
+      "heartbeat_modes": [
+        "scheduled",
+        "event_driven"
+      ]
+    }
+  },
+  "evidence": {
+    "comparison_tasks": [
+      {},
+      {},
+      {},
+      {}
+    ],
+    "expected_policy_ready_sources": 6,
+    "policy_ready_sources": 6,
+    "source_ids": [
+      "src_a5e43b15",
+      "src_21116bd0",
+      "src_23b9ebad",
+      "src_c06996a5",
+      "src_dd9de6e2",
+      "src_1382c99a"
+    ],
+    "sources": [
+      {
+        "confidence": 0.7516666666666667,
+        "opposition_coverage": 2,
+        "policy_readiness": "policy_ready",
+        "source_id": "src_a5e43b15",
+        "triad_passed": true
+      },
+      {
+        "confidence": 0.7016666666666667,
+        "opposition_coverage": 2,
+        "policy_readiness": "policy_ready",
+        "source_id": "src_21116bd0",
+        "triad_passed": true
+      },
+      {
+        "confidence": 0.7016666666666667,
+        "opposition_coverage": 2,
+        "policy_readiness": "policy_ready",
+        "source_id": "src_23b9ebad",
+        "triad_passed": true
+      },
+      {
+        "confidence": 0.7016666666666667,
+        "opposition_coverage": 2,
+        "policy_readiness": "policy_ready",
+        "source_id": "src_c06996a5",
+        "triad_passed": true
+      },
+      {
+        "confidence": 0.7016666666666667,
+        "opposition_coverage": 2,
+        "policy_readiness": "policy_ready",
+        "source_id": "src_dd9de6e2",
+        "triad_passed": true
+      },
+      {
+        "confidence": 0.7016666666666667,
+        "opposition_coverage": 2,
+        "policy_readiness": "policy_ready",
+        "source_id": "src_1382c99a",
+        "triad_passed": true
+      }
+    ],
+    "task_ids": [
+      "tsk_20260311_compare_paperclip_board_governance_and_budget_de",
+      "tsk_20260311_assess_paperclip_heartbeat_and_bring_your_own_ag",
+      "tsk_20260311_map_paperclip_deployment_auth_modes_to_annunimas",
+      "tsk_20260311_evaluate_paperclip_multi_company_isolation_and_i"
+    ]
+  },
+  "generated_at_utc": "2026-07-14T05:03:01.768601124+00:00",
+  "governance_alignment": {
+    "annunimas_surface": {
+      "active_ruleset": "annunimas_totality",
+      "autonomy_ready": false,
+      "boardroom_posts": 176,
+      "destructive_quorum_enabled": true,
+      "open_councils": 0,
+      "permission_profile_active": true
+    },
+    "derived": {
+      "alignment_ready": true,
+      "follow_on_task_open": true
+    },
+    "paperclip_pattern": {
+      "board_governance": true,
+      "budget_delegation": true,
+      "company_control_plane": true,
+      "human_override_power": true
+    }
+  },
+  "ledger_topology_alignment": {
+    "annunimas_surface": {
+      "athena_policy_ready_count": 123,
+      "core_plan_root": "core/projects/Plans",
+      "history_snapshots": 17,
+      "human_plan_root": "docs/plans",
+      "mirrored_files": 0,
+      "plan_nodes": 1,
+      "task_queue_open": 0
+    },
+    "derived": {
+      "alignment_ready": false,
+      "follow_on_task_open": true,
+      "open_plan_count": 0
+    },
+    "paperclip_pattern": {
+      "immutable_audit_log": true,
+      "multi_company_isolation": true,
+      "snapshot_export": true,
+      "template_export": true
+    }
+  },
+  "schema_version": "annunimas.core.state.v1"
+}

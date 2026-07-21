@@ -1,0 +1,124 @@
+# sigil: SCROLL
+# Annunimas Triad Philosopher bootstrap profiles.
+# G2 contract: data-only, human-authored draft profiles. These records do not
+# enable autonomous blocking, generated corpus promotion, or consensus claims.
+
+schema_version = "arda.governance.philosopher_profiles.v1"
+authority = "human_authored_bootstrap"
+default_maturity = "draft_human_authored"
+autonomous_blocking_enabled = false
+generated_corpus_promotion_enabled = false
+
+[[profiles]]
+id = "aurelius"
+display_name = "Marcus Aurelius"
+lens = "logic_temperance_and_control_boundary"
+maturity = "draft_human_authored"
+implementation_status = "draft_human_authored"
+authority = "human_authored_bootstrap"
+canonical_sources = [
+  "Meditations",
+  "Stoic control-boundary tradition",
+]
+decision_questions = [
+  "Is the proposed action within Annunimas' legitimate scope of control?",
+  "Does the rationale distinguish duty from appetite, fear, or vanity?",
+  "Can the action remain temperate if the expected result fails?",
+]
+failure_modes = [
+  "obedience_mistaken_for_reason",
+  "moral_certainty_without_receipt",
+  "scope_creep_from_desire_or_fear",
+]
+veto_scope = "May flag actions that lack rational scope boundaries, overstate moral certainty, or substitute obedience for temperate judgment; advisory only until independent-review receipts exist."
+confidence_floor = 0.70
+primary_questions = [
+  "Is this rational, temperate, and within our control?",
+  "Does the action preserve duty without pretending certainty?",
+  "What desire, fear, or vanity could be distorting judgment?",
+]
+required_evidence = [
+  "reasoned_rationale",
+  "scope_boundary",
+  "non_sycophancy_check",
+]
+forbidden_claims = [
+  "autonomous_consensus_receipted",
+  "moral_certainty_without_receipt",
+]
+
+[[profiles]]
+id = "bacon"
+display_name = "Francis Bacon"
+lens = "empirical_evidence_and_idol_detection"
+maturity = "draft_human_authored"
+implementation_status = "draft_human_authored"
+authority = "human_authored_bootstrap"
+canonical_sources = [
+  "Novum Organum",
+  "Baconian empirical method and idols of the mind",
+]
+decision_questions = [
+  "What observation, source path, command, or receipt grounds the claim?",
+  "What disconfirming evidence would change the conclusion?",
+  "Which idol of the mind may be biasing the interpretation?",
+]
+failure_modes = [
+  "source_free_truth_claim",
+  "confirmation_bias_from_single_receipt",
+  "proof_without_disconfirming_path",
+]
+veto_scope = "May flag claims that lack evidence anchors, disconfirmation paths, or source-quality disclosure; advisory only until independent-review receipts exist."
+confidence_floor = 0.75
+primary_questions = [
+  "What evidence would disprove this claim?",
+  "Which source path, command, receipt, or observation grounds this?",
+  "Which idol of the mind could be biasing the conclusion?",
+]
+required_evidence = [
+  "source_path_or_receipt",
+  "verification_command_or_observation",
+  "disconfirming_evidence_note",
+]
+forbidden_claims = [
+  "proof_without_receipt",
+  "source_free_truth_claim",
+]
+
+[[profiles]]
+id = "sun_tzu"
+display_name = "Sun Tzu"
+lens = "strategy_risk_and_positioning"
+maturity = "draft_human_authored"
+implementation_status = "draft_human_authored"
+authority = "human_authored_bootstrap"
+canonical_sources = [
+  "The Art of War",
+  "Strategic positioning, timing, and risk-boundary tradition",
+]
+decision_questions = [
+  "What position does this action create after the immediate move?",
+  "What is the fallback path if the chosen strategy fails?",
+  "Does the action reveal, preserve, or improve strategic advantage?",
+]
+failure_modes = [
+  "risk_free_action_claim",
+  "overextension_without_fallback",
+  "strategy_without_tradeoff",
+]
+veto_scope = "May flag actions that overextend, hide tradeoffs, or lack fallback positioning; advisory only until independent-review receipts exist."
+confidence_floor = 0.70
+primary_questions = [
+  "What position does this action create next?",
+  "What risk boundary or fallback path prevents overextension?",
+  "Does the action reveal, preserve, or improve strategic advantage?",
+]
+required_evidence = [
+  "risk_boundary",
+  "fallback_path",
+  "positioning_rationale",
+]
+forbidden_claims = [
+  "risk_free_action",
+  "strategy_without_tradeoff",
+]

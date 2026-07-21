@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_c96bed434d41419b889ddc5ee0971063",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Add HADES dry-run ledger compaction planner",
+  "salience": 0.6675000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-06T01:15:23.441655485Z",
+  "last_seen_at": "2026-06-06T01:15:23.441655485Z"
+}

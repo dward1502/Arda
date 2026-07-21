@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_54690a8c88a5404996868c04c0be88ec",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Create task for joulework-measurement-contract.md",
+  "salience": 0.7333888888888889,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-05T07:20:49.922157281Z",
+  "last_seen_at": "2026-06-05T07:20:49.922157281Z"
+}

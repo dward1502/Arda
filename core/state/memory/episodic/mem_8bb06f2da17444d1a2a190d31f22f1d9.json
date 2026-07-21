@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_8bb06f2da17444d1a2a190d31f22f1d9",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Completed Charon request-scoped 429 fallback hardening. Fixed the Hermes failure class where Cerebras/OpenRouter/Mistral 429s put providers into cooldown and caused later retries to report no provider available. Non-billing 429 and token_quota_exceeded/TPM errors are now request-scoped fallback signals.",
+  "salience": 0.7655000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-03T09:20:32.177084943Z",
+  "last_seen_at": "2026-06-03T09:20:32.177084943Z"
+}

@@ -1,0 +1,38 @@
+{
+  "audit_id": "hades_cto_20260307T215446Z",
+  "generated_at_utc": "2026-03-07T21:55:08.774985+00:00",
+  "scope_path": "core/projects",
+  "before": {
+    "total": 10000,
+    "valid": 10000,
+    "malformed": 0,
+    "actions": {
+      "investigate_orphan": 10000
+    }
+  },
+  "after": {
+    "total": 10000,
+    "valid": 10000,
+    "malformed": 0,
+    "actions": {
+      "investigate_orphan": 10000
+    },
+    "unique_files": 9967
+  },
+  "sweep": {
+    "actions_taken": 0,
+    "completed_at_utc": "2026-03-07T21:55:08.954088715+00:00",
+    "files_scanned": 9,
+    "held_for_review": 0,
+    "orphans_found": 9,
+    "started_at_utc": "2026-03-07T21:55:08.732696954+00:00",
+    "sweep_type": "cto_audit"
+  },
+  "stderr_warn_count": 0,
+  "status": "pass",
+  "notes": [
+    "dedupe_orphan_queue prevents re-adding existing orphan records",
+    "queue parser skips malformed historical lines",
+    "actions_taken reflects net new queue actions in scoped sweep"
+  ]
+}

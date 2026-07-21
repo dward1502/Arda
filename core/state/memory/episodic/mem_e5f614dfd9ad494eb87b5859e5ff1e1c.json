@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_e5f614dfd9ad494eb87b5859e5ff1e1c",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Select local Hermes/Charon tool model for annunimas-server",
+  "salience": 0.6645,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-06T04:05:48.775432297Z",
+  "last_seen_at": "2026-06-06T04:05:48.775432297Z"
+}

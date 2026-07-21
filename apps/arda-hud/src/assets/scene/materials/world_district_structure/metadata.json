@@ -1,0 +1,16 @@
+{
+  "id": "world_district_structure",
+  "domain": "materials",
+  "scene_binding": "shared",
+  "material_family": "world_district_structure",
+  "source": "procedural_script_tools_generate_arda_assets_py",
+  "license": "Internal",
+  "channels": {
+    "albedo": "world_district_structure_albedo.png",
+    "normal": "world_district_structure_normal.png",
+    "roughness": "world_district_structure_roughness.png",
+    "metalness": "world_district_structure_metalness.png"
+  },
+  "status": "active",
+  "notes": "Procedural starter material for district structures."
+}

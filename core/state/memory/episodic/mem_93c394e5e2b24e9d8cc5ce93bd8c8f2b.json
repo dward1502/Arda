@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_93c394e5e2b24e9d8cc5ce93bd8c8f2b",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Complete Soterion Batch 4 HUD/rendering conformance",
+  "salience": 0.7625,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-24T10:08:46.722091783Z",
+  "last_seen_at": "2026-05-24T10:08:46.722091783Z"
+}

@@ -1,0 +1,60 @@
+{
+  "authority": "annunimas-fleet-crate + prometheus-pipeline",
+  "behavior": {
+    "on_accept_edge": "SSH dispatch to edge node via EdgeDispatcher",
+    "on_accept_local": "Execute locally with fleet context logged",
+    "on_no_capacity_all": "Task queued (backpressure) - escalates to Pending status",
+    "on_no_capacity_edge": "Try external provider (OpenRouter free tier first)",
+    "on_task_submit": "FleetCapacityManager.evaluate_task() runs triad/joule/love governance"
+  },
+  "crate": "annunimas-fleet",
+  "dispatch": {
+    "feature_flag": "ssh-dispatch",
+    "ready": true,
+    "ssh_dispatch_enabled": true
+  },
+  "external_providers": {
+    "enabled_providers": [
+      "openrouter"
+    ],
+    "fallback_order": [
+      "openrouter",
+      "cerebras",
+      "groq",
+      "google"
+    ],
+    "for_arda_display": true,
+    "token_usage_file": "core/state/provider_token_usage.json"
+  },
+  "fleet_config": {
+    "nodes_loaded": 4,
+    "primary_backbone": "node-backbone-server-01",
+    "source": "config/fleet.toml"
+  },
+  "flow": [
+    "1. Task submitted to pipeline",
+    "2. FleetCapacityManager.evaluate_task() runs governance gates",
+    "3. If Accept + edge node: dispatch via SSH",
+    "4. If Accept + local: execute locally",
+    "5. If Reject + no capacity: try external provider (OpenRouter free)",
+    "6. If external available: route externally, write usage to provider_token_usage.json for ARDA",
+    "7. If no external: backpressure - task queued"
+  ],
+  "generated_at_utc": "2026-03-13T06:45:00.000000Z",
+  "governance": {
+    "joulework_integration": true,
+    "love_equation_integration": true,
+    "triad_integration": true
+  },
+  "integration": {
+    "backpressure": true,
+    "edge_dispatch": true,
+    "external_provider_fallback": true,
+    "hook_location": "before_router.route()",
+    "prometheus_pipeline": true,
+    "wired": true
+  },
+  "schema_version": "annunimas.fleet-routing-contract.v1",
+  "sigil": "REPAIR",
+  "status": "active"
+}

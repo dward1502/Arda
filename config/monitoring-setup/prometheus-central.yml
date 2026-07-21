@@ -1,0 +1,89 @@
+# Soterion: 📜 monitoring_configuration | owner: HADES | status: active | reviewed: 2026-05-30
+# Sigil: SCROLL (U+1F4DC); purpose: repository-visible governed configuration.
+
+global:
+  scrape_interval: 10s
+  evaluation_interval: 10s
+  external_labels:
+    cluster: annunimas
+    monitor_node: beelink
+    monitor_ip: 100.103.125.88
+
+rule_files:
+  - /etc/prometheus/prometheus-rules/*.yml
+
+scrape_configs:
+  - job_name: annunimas-orchestrator
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['100.78.138.113:9101']
+        labels:
+          node: annunimas-core
+          fleet_role: core_compute
+
+  - job_name: manwe
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['100.78.138.113:5110']
+        labels:
+          node: annunimas-core
+          fleet_role: core_compute
+          crate: manwe
+
+  - job_name: llama-server
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['100.102.250.115:8080']
+        labels:
+          node: annunimas-server
+          lane: backbone
+          model: Qwen3.6-35B-A3B-UD-Q4_K_XL
+      - targets: ['100.103.125.88:1234']
+        labels:
+          node: beelink
+          lane: standalone
+          model: Carnice-9b-Q6_K
+      - targets: ['100.110.85.37:1234']
+        labels:
+          node: warden
+          lane: guardhouse
+          model: Qwen3.5-4B-Q4_K_M
+
+  - job_name: node
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['100.78.138.113:9100']
+        labels:
+          node: annunimas-core
+          fleet_role: core_compute
+      - targets: ['100.102.250.115:9100']
+        labels:
+          node: annunimas-server
+          fleet_role: backbone_compute
+      - targets: ['100.103.125.88:9100']
+        labels:
+          node: beelink
+          fleet_role: edge_worker
+      - targets: ['100.110.85.37:9100']
+        labels:
+          node: warden
+          fleet_role: edge_guardhouse
+      - targets: ['100.123.187.77:9100']
+        labels:
+          node: raspberrypi
+          fleet_role: edge_avatar
+      - targets: ['100.97.15.88:9100']
+        labels:
+          node: laptop
+          fleet_role: portable_compute
+
+  - job_name: prometheus
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['${PROMETHEUS_HOST}:${PROMETHEUS_PORT}']
+        labels:
+          node: beelink
+
+  - job_name: annunimas-crates
+    metrics_path: /metrics
+    static_configs: []

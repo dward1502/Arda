@@ -1,0 +1,55 @@
+{
+  "schema_version": "annunimas.human-inbox-phase2f-state.v1",
+  "generated_at_utc": "2026-05-16T05:37:29Z",
+  "branch_context": "feature/audit",
+  "phase_dir": "audit/HUMAN_INBOX_PHASE2F_2026-05-15",
+  "raw_inbox_file_total": 108,
+  "athena_scan": {
+    "path": "audit/HUMAN_INBOX_PHASE2F_2026-05-15/human_inbox_scan.jsonl",
+    "scanned_total": 72,
+    "review_required": 72,
+    "frontmatter_invalid": 70,
+    "contradiction_total": 0
+  },
+  "inventory": {
+    "by_extension": {
+      ".csv": 1,
+      ".docx": 4,
+      ".jpg": 22,
+      ".json": 11,
+      ".md": 61,
+      ".pdf": 1,
+      ".png": 4,
+      "<none>": 4
+    },
+    "by_lane": {
+      "human/inbox/README.md": 1,
+      "human/inbox/TRIAGE.md": 1,
+      "human/inbox/ai-conversations": 5,
+      "human/inbox/arda_boardroom_spec_pack_v0_2": 43,
+      "human/inbox/extracted-candidates": 23,
+      "human/inbox/github": 1,
+      "human/inbox/ideas": 12,
+      "human/inbox/links": 1,
+      "human/inbox/mixed-longform": 3,
+      "human/inbox/notes": 1,
+      "human/inbox/project-drafts": 4,
+      "human/inbox/research": 7,
+      "human/inbox/technical-notes": 5,
+      "human/inbox/websites-projects": 1
+    }
+  },
+  "gaps": [
+    "ATHENA human-scan covers text/json/yaml/toml only; PDF/DOCX/images/CSV need separate extract/visual/metadata review.",
+    "When scanning `human/inbox` as root, ATHENA source_path currently normalizes to `human/<relative>` instead of `human/inbox/<relative>`; use full inventory hashes as authoritative provenance for this phase.",
+    "ARDA boardroom spec-pack lane is large and underrepresented in older TRIAGE narrative.",
+    "Canonical promotion is intentionally blocked in Phase 2F until themed batches are reviewed against promotion gates."
+  ],
+  "outputs": [
+    "audit/HUMAN_INBOX_PHASE2F_2026-05-15/TRIAGE_DELTA.md",
+    "audit/HUMAN_INBOX_PHASE2F_2026-05-15/README.md",
+    "audit/HUMAN_INBOX_PHASE2F_2026-05-15/themed-review-batches/",
+    "core/state/human_inbox_phase2f_state.json",
+    "core/state/human_inbox_phase2f_promotion_gates.json"
+  ]
+}

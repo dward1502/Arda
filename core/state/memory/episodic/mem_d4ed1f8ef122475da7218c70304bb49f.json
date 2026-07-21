@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_d4ed1f8ef122475da7218c70304bb49f",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Add bounded permission scope refresh for guarded Charon reloads",
+  "salience": 0.8289444444444445,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-07T03:47:45.590096641Z",
+  "last_seen_at": "2026-06-07T03:47:45.590096641Z"
+}

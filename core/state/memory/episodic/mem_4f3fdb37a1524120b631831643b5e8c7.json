@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_4f3fdb37a1524120b631831643b5e8c7",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Phase 2 environment profile contract completed",
+  "salience": 0.7625,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-24T23:58:19.128338164Z",
+  "last_seen_at": "2026-05-24T23:58:19.128338164Z"
+}

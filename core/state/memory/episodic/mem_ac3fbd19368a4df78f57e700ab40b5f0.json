@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_ac3fbd19368a4df78f57e700ab40b5f0",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA routing action contract",
+  "salience": 0.8045000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T07:46:47.194459004Z",
+  "last_seen_at": "2026-06-01T07:46:47.194459004Z"
+}

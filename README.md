@@ -1,142 +1,46 @@
-# ARDA
+# Arda
 
-ARDA is the public map for the Annunimas agentic OS work: a set of small, inspectable repositories that define how autonomous agents register capabilities, route signals, deliberate governance choices, gate tool use, and expose operator-facing state.
+> The slimmed-down continuation of Annunimas: a local-first, auditable agent control plane.
 
-The goal is not a single opaque agent runtime. The goal is a Bluefin-style operating surface for autonomous systems: immutable where it should be stable, inspectable where humans need evidence, and modular enough that contracts, policy gates, state projections, and UI surfaces can evolve independently.
+Arda is the operator-facing shell that evolved from Annunimas. It keeps the same control-plane purpose — routing model calls, coordinating agents, recording decisions, gating autonomy, and visualizing operational state — but refactored into a smaller, more composable `arda-*` crate layout. The canonical Rust workspace lives in this repo; `~/Annunimas` remains the live reference architecture and should not be modified unless explicitly requested.
 
-## Vision
+## Current workspace status
 
-ARDA is the connective layer around Annunimas:
-
-- local-first agent operations with explicit inspect-act-verify cycles;
-- governance contracts before unchecked execution;
-- deterministic receipts for tool-use decisions;
-- service discovery and signal routing as auditable state surfaces;
-- an operator HUD that makes system posture visible instead of hidden in logs;
-- small Rust crates and focused UI surfaces that can be tested, reviewed, and reused.
-
-The Bluefin/agentic OS direction is to treat the agent stack like an operating system distribution: stable contracts, governed updates, composable services, and a human-readable control plane for daily operation.
+- Verified with `cargo check --workspace` on the current `arda-*` crate set.
+- `arda` daemon entrypoint: `src/main.rs`
+- Service supervision spine: `crates/engine` (`arda-engine`)
+- Observability/CLI surface: `crates/spine/observability/arda-aule`
+- Reference/legacy sources remain in `~/Annunimas`; migrated sources in this repo are source-of-truth.
 
 ## Repository Map
 
-| Repository | Role | Primary surface |
-| --- | --- | --- |
-| [Arda-Agent-Loop-Contract](https://github.com/dward1502/Arda-Agent-Loop-Contract) | Portable inspect-act-verify contract and validator | Agent operating-loop receipts |
-| [Arda-tool-gate](https://github.com/dward1502/Arda-tool-gate) | Policy gate for autonomous tool invocation | Allow/deny/review JSON receipts |
-| [Arda-Service-Registry](https://github.com/dward1502/Arda-Service-Registry) | Service discovery and governance registry blueprint | Service contracts and lifecycle status |
-| [Arda-Signal-Grid](https://github.com/dward1502/Arda-Signal-Grid) | Governed signal routing blueprint | Communications, alerts, suppression, review routing |
-| [Arda-Council](https://github.com/dward1502/Arda-Council) | Multi-agent deliberation and consensus blueprint | Governance and boardroom decision surfaces |
-| [Arda-HUD](https://github.com/dward1502/Arda-HUD) | Operator-facing UI for Annunimas/ARDA state | Tauri/React control surface and 3D boardroom HUD |
+| Path | Kind | Purpose |
+|---|---|---|
+| `src/main.rs` | Rust binary | `arda` daemon entrypoint; boots `arda-engine`, supervises services from `services.toml` |
+| `crates/engine` | Rust library | Service supervision spine: registry, supervisor, harness, manwe bridge |
+| `crates/spine/governance/arda-core` | Rust library | Core types, config, ledger, tasks, LLM provider/routing, systemd client |
+| `crates/spine/governance/arda-governance` | Rust library | Governance, triad validation, resonance, philosopher profiles |
+| `crates/spine/runtime/arda-economics` | Rust library | Plutus model: economics, joule work, cost/ledger/service transport |
+| `crates/spine/runtime/arda-mandos` | Rust library | Oracle/runtime: reasoning, verdicts, scoring, transport |
+| `crates/spine/memory/arda-vaire` | Rust library | Memory service: informant events, transport |
+| `crates/spine/runtime/manwe` | Rust library | Charon/manwe gateway types and routing adapter |
+| `crates/spine/interface/arda-orome` | Rust library | Comms/bridge: A2H/A2A message types |
+| `crates/spine/executors/arda-varda` | Rust library | Athena agent + ingest/query/deep-analysis + HTTP transport |
+| `crates/spine/observability/arda-aule` | Rust library + CLI | Prometheus/CEO autopilot, CLI, observability surfaces |
+| `apps/arda-launcher` | Tauri app | Operator desktop launcher |
+| `config/` | Config | Operator-managed config and generated runtime env files |
+| `docs/` | Docs | Architecture, operations, plans, identity docs |
 
 ## Recommended Reading Order
 
-1. [Arda-Agent-Loop-Contract](https://github.com/dward1502/Arda-Agent-Loop-Contract) — learn the inspect-act-verify receipt shape first.
-2. [Arda-tool-gate](https://github.com/dward1502/Arda-tool-gate) — see how proposed actions become allow/deny/review receipts before execution.
-3. [Arda-Service-Registry](https://github.com/dward1502/Arda-Service-Registry) — inspect the service catalog and lifecycle contract that runtime surfaces can share.
-4. [Arda-Signal-Grid](https://github.com/dward1502/Arda-Signal-Grid) — review how comments, alerts, pauses, and escalations become governed route plans.
-5. [Arda-Council](https://github.com/dward1502/Arda-Council) — understand deliberation records, dissent, and bounded governance decisions.
-6. [Arda-HUD](https://github.com/dward1502/Arda-HUD) — open the operator-facing view that makes the state projections and governance surfaces visible.
+1. This file (`README.md`).
+2. `AGENTS.md` — working rules and canonical source layout.
+3. `docs/identity/ARDA_IDENTITY.md` — Annunimas-to-Arda identity transfer and operating assumptions.
+4. `crates/engine/README.md` / `BREAKDOWN.md` — how the daemon bootstraps and supervises services.
+5. `apps/arda-launcher/README.md` — what the launcher is and how to run it.
+6. `apps/arda-launcher/src-tauri/tauri.conf.json` — desktop packaging/config.
 
-Each child README follows the same high-level path: `Vision`, `Getting Started`,
-`Architecture Overview`, `Relationship to ARDA`, and `Status`. That structure is
-intentional: it lets a reader move from purpose, to local proof, to system role,
-to maturity without needing private Annunimas context.
+## Verification
 
-## Architecture Overview
-
-```mermaid
-flowchart TB
-    human[Human Operator]
-    hud[ARDA HUD\nTauri + React operator surface]
-    council[ARDA Council\nMulti-agent governance + deliberation]
-    loop[Agent Loop Contract\nInspect → Act → Verify]
-    gate[Tool Gate\nPolicy decisions + receipts]
-    registry[Service Registry\nContracts + discovery]
-    signal[Signal Grid\nRouting + alert projection]
-    services[Agentic Services\nWorkers, tools, queues, runtimes]
-    state[(Auditable State\nreceipts, projections, status)]
-
-    human --> hud
-    hud --> state
-    hud --> council
-    council --> loop
-    loop --> gate
-    gate --> services
-    services --> registry
-    services --> signal
-    registry --> state
-    signal --> state
-    gate --> state
-    loop --> state
-    state --> hud
-
-    classDef surface fill:#083344,stroke:#22d3ee,color:#e0f2fe
-    classDef governance fill:#064e3b,stroke:#34d399,color:#dcfce7
-    classDef policy fill:#881337,stroke:#fb7185,color:#ffe4e6
-    classDef state fill:#4c1d95,stroke:#a78bfa,color:#ede9fe
-    classDef runtime fill:#78350f,stroke:#fbbf24,color:#fef3c7
-
-    class human,hud surface
-    class council,loop governance
-    class gate policy
-    class registry,signal,state state
-    class services runtime
-```
-
-## Getting Started
-
-1. Start with the operating loop contract:
-
-   ```bash
-   git clone https://github.com/dward1502/Arda-Agent-Loop-Contract.git
-   cd Arda-Agent-Loop-Contract
-   cargo run -- check examples/demo-config.toml examples/demo-cycle.json
-   ```
-
-2. Inspect tool-governance decisions:
-
-   ```bash
-   git clone https://github.com/dward1502/Arda-tool-gate.git
-   cd Arda-tool-gate
-   cargo run -- check examples/readonly-tool.metadata.json examples/readonly-tool.invocation.json
-   ```
-
-3. Explore the blueprint crates:
-
-   ```bash
-   git clone https://github.com/dward1502/Arda-Service-Registry.git
-   git clone https://github.com/dward1502/Arda-Signal-Grid.git
-   git clone https://github.com/dward1502/Arda-Council.git
-   ```
-
-4. Open the operator surface:
-
-   ```bash
-   git clone https://github.com/dward1502/Arda-HUD.git
-   cd Arda-HUD
-   npm install
-   npm run build
-   npm run test
-   ```
-
-5. Verify README structure after documentation edits:
-
-   ```bash
-   python3 scripts/verify-readmes.py
-   ```
-
-   This is a lightweight documentation gate for the ARDA repo family. It checks
-   the expected headings and Mermaid fence shape across the local sibling repos;
-   it is not a replacement for each repo's build or test suite.
-
-## Design Principles
-
-- Evidence first: every action should leave a receipt or state projection.
-- Governance before mutation: execution paths should cross policy gates before changing state.
-- Modular surfaces: contracts, gates, registries, signals, councils, and HUD views stay independently understandable.
-- Local-first operation: demos and validators should work from local files before depending on hosted infrastructure.
-- Human-operable autonomy: the system should expose enough context for a person to audit, pause, or redirect it.
-
-## Status
-
-ARDA is an active blueprint and implementation track. Some repositories are intentionally contract-first or blueprint-stage; that is part of the architecture. The system favors explicit boundaries and reviewable receipts over premature monoliths.
+- Workspace check: `cargo check --workspace`
+- Daemon boot smoke path: `cargo run -p arda -- --once`

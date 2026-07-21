@@ -1,0 +1,260 @@
+{
+  "authority": "core_clients_registry + business_client_controls",
+  "clients": [
+    {
+      "business": {
+        "description": "Friend-owned skylight company where Daniel serves as CTO. Primary near-term responsibility is website and deployment reliability.",
+        "industry": "Skylight installation and repair",
+        "location": "San Diego, CA"
+      },
+      "clearance": "guardian",
+      "client_type": "external",
+      "delivery_posture": {
+        "amplify_app_id": "d3g7l1wk5fo7pv",
+        "amplify_app_identifiers_known": true,
+        "amplify_app_name": null,
+        "aws_amplify_connected": true,
+        "canonical_repo_path": "/var/home/dward/Numenor_Prime/Eregion/KhazadForge/skylightpros",
+        "default_branch": "main",
+        "deploy_branch": "main",
+        "github_connected": true,
+        "github_remote": "git@github.com:dward1502/skylightpros.git",
+        "repo_identifiers_known": true,
+        "website_operations": true
+      },
+      "engagement": {
+        "compensation_model": "minimal_pay",
+        "decision_owner": "client_owners",
+        "payment_posture": "underpaid_priority",
+        "relationship": "friend_owned",
+        "strategic_priority": "high",
+        "tech_lead_role": "cto"
+      },
+      "name": "Skylight Pros",
+      "next_required_inputs": [
+        "List of website content/pages to update first"
+      ],
+      "priority": 1,
+      "project_lanes": [
+        {
+          "kind": "website_delivery",
+          "slug": "skylight-pros-web",
+          "status": "pending_import"
+        },
+        {
+          "kind": "content_and_updates",
+          "slug": "skylight-pros-content",
+          "status": "pending_import"
+        }
+      ],
+      "slug": "skylight-pros",
+      "status": "active",
+      "technical_baseline": {
+        "commands": {
+          "build": "pnpm build",
+          "dev": "pnpm dev",
+          "release_gate": "pnpm release:gate",
+          "test": "pnpm test"
+        },
+        "deployment_surface": "AWS Amplify",
+        "operational_notes": [
+          "CI workflow indexed in .github/workflows/ci.yml",
+          "High secret and webhook surface across HubSpot, Twilio, Google, and AWS"
+        ],
+        "stack": [
+          "Next.js 15",
+          "React 19",
+          "Tailwind",
+          "Supabase",
+          "Prisma",
+          "pnpm"
+        ]
+      }
+    },
+    {
+      "business": {
+        "description": null,
+        "industry": null,
+        "location": null
+      },
+      "clearance": "guardian",
+      "client_type": "external",
+      "delivery_posture": {
+        "amplify_app_id": null,
+        "amplify_app_identifiers_known": false,
+        "amplify_app_name": null,
+        "aws_amplify_connected": false,
+        "canonical_repo_path": null,
+        "default_branch": null,
+        "deploy_branch": null,
+        "github_connected": false,
+        "github_remote": null,
+        "repo_identifiers_known": false,
+        "website_operations": false
+      },
+      "engagement": {
+        "compensation_model": null,
+        "decision_owner": null,
+        "payment_posture": "unknown",
+        "relationship": null,
+        "strategic_priority": null,
+        "tech_lead_role": null
+      },
+      "name": "AIS Client — Pool Company",
+      "next_required_inputs": [],
+      "priority": 2,
+      "project_lanes": [],
+      "slug": "ais-pool-co",
+      "status": "active",
+      "technical_baseline": {}
+    },
+    {
+      "business": {
+        "description": "Family-connected company where Daniel serves as CTO. Immediate responsibility is website updates and deployment control.",
+        "industry": "Travel and event services",
+        "location": "San Diego, CA"
+      },
+      "clearance": "guardian",
+      "client_type": "external",
+      "delivery_posture": {
+        "amplify_app_id": null,
+        "amplify_app_identifiers_known": false,
+        "amplify_app_name": null,
+        "aws_amplify_connected": true,
+        "canonical_repo_path": "/var/home/dward/Numenor_Prime/Eregion/KhazadForge/wgtt",
+        "default_branch": "main",
+        "deploy_branch": null,
+        "github_connected": true,
+        "github_remote": "https://github.com/dward1502/wgtt.git",
+        "repo_identifiers_known": true,
+        "website_operations": true
+      },
+      "engagement": {
+        "compensation_model": "no_pay",
+        "decision_owner": "family_owner",
+        "payment_posture": "unpaid_obligation",
+        "relationship": "family_owned",
+        "strategic_priority": "high",
+        "tech_lead_role": "cto"
+      },
+      "name": "World Games Travel",
+      "next_required_inputs": [
+        "AWS Amplify app identifier or app name",
+        "Deployment branch and environment mapping",
+        "List of website content/pages to update first"
+      ],
+      "priority": 2,
+      "project_lanes": [
+        {
+          "kind": "website_delivery",
+          "slug": "wgtt-web",
+          "status": "pending_import"
+        },
+        {
+          "kind": "content_and_updates",
+          "slug": "wgtt-content",
+          "status": "pending_import"
+        }
+      ],
+      "slug": "wgtt",
+      "status": "active",
+      "technical_baseline": {
+        "commands": {
+          "build": "pnpm build",
+          "dev": "pnpm dev",
+          "test": "pnpm test",
+          "webhook_test": "pnpm test:webhooks"
+        },
+        "deployment_surface": "AWS Amplify",
+        "operational_notes": [
+          "No CI indexed in CONFIG_INDEX.md",
+          "Current pnpm test aliases to lint, not real integration coverage"
+        ],
+        "stack": [
+          "Next.js 16",
+          "React 19",
+          "Tailwind",
+          "Supabase",
+          "pnpm"
+        ]
+      }
+    },
+    {
+      "business": {
+        "description": null,
+        "industry": null,
+        "location": null
+      },
+      "clearance": "guardian",
+      "client_type": "prospect",
+      "delivery_posture": {
+        "amplify_app_id": null,
+        "amplify_app_identifiers_known": false,
+        "amplify_app_name": null,
+        "aws_amplify_connected": false,
+        "canonical_repo_path": null,
+        "default_branch": null,
+        "deploy_branch": null,
+        "github_connected": false,
+        "github_remote": null,
+        "repo_identifiers_known": false,
+        "website_operations": false
+      },
+      "engagement": {
+        "compensation_model": null,
+        "decision_owner": null,
+        "payment_posture": "unknown",
+        "relationship": null,
+        "strategic_priority": null,
+        "tech_lead_role": null
+      },
+      "name": "AIS Prospect — TBD",
+      "next_required_inputs": [],
+      "priority": 10,
+      "project_lanes": [],
+      "slug": "ais-prospect-001",
+      "status": "prospect",
+      "technical_baseline": {}
+    }
+  ],
+  "generated_at_utc": "2026-04-28T09:49:24Z",
+  "mission": {
+    "goal": "Separate client identity, delivery projects, and infrastructure ownership so Annunimas can handle external work without collapsing it into the internal project queue."
+  },
+  "organization_model": {
+    "layers": [
+      {
+        "layer": "client",
+        "purpose": "relationship, clearance, payment posture, decision ownership"
+      },
+      {
+        "layer": "project",
+        "purpose": "bounded delivery lane per site, app, or operating initiative"
+      },
+      {
+        "layer": "infrastructure",
+        "purpose": "GitHub, AWS Amplify, secrets, deployment environments, and branch policy"
+      }
+    ],
+    "rules": [
+      "Do not mix external client work into the generic sovereign project registry without a client anchor.",
+      "Each external website or app gets its own project lane under a client.",
+      "Infrastructure credentials stay separate from task intent and content updates.",
+      "Payment posture and relationship pressure must be visible so priority is not inferred from cash alone."
+    ]
+  },
+  "recommended_execution_order": [
+    "stabilize client portfolio and project lanes",
+    "capture GitHub and Amplify identifiers",
+    "create per-client website delivery tasks",
+    "execute content/deployment changes"
+  ],
+  "schema_version": "annunimas.client-delivery-portfolio.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "active_clients_total": 3,
+    "awaiting_inputs_total": 2,
+    "clients_total": 4,
+    "high_responsibility_clients_total": 2
+  }
+}

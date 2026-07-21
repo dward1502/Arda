@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_510e7f1360c0442096a119955503a6fa",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: G3 default Triad philosopher status projection wired",
+  "salience": 0.7625,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-29T05:44:16.590426025Z",
+  "last_seen_at": "2026-05-29T05:44:16.590426025Z"
+}

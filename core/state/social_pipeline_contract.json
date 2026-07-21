@@ -1,0 +1,37 @@
+{
+  "analytics_contract": {
+    "metrics_are_only_tracked_if_they_imply_action": true,
+    "real_time_spike_detection_required": true,
+    "weekly_brief_required": true
+  },
+  "authority": "signal_grid_extraction",
+  "brand_voice_isolation_contract": {
+    "brand_config_owns_voice_and_audience_rules": true,
+    "content_never_bleeds_between_brands": true
+  },
+  "crate_candidate": "annunimas-signal-grid",
+  "doctrine": {
+    "brand_voice_isolation_is_required": true,
+    "community_signal_routes_back_into_systems": true,
+    "human_override_required_for_crisis_or_negative_engagement": true,
+    "shared_pipeline_multi_brand_execution": true
+  },
+  "generated_at_utc": "2026-06-05T09:59:38Z",
+  "pipeline_primitives": [
+    "multi_brand_voice_isolation",
+    "shared_social_pipeline",
+    "community_and_content_routing",
+    "zero_burnout_workflow"
+  ],
+  "routing_rules": {
+    "negative_sentiment_or_crisis": "pause_and_alert_human",
+    "product_feedback": "route_to_product_or_operations",
+    "repeated_questions": "route_to_content_gap_brief",
+    "sales_signal": "route_to_business_intelligence_or_crm"
+  },
+  "schema_version": "annunimas.social-pipeline-contract.v1",
+  "source_group": "signal_grid",
+  "source_ids": [
+    "src_9c78926b"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_c3aa91fb5ecd438b987d802fbee2cc1b",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA world terminal action contracts",
+  "salience": 0.8045000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T07:26:42.843668454Z",
+  "last_seen_at": "2026-06-01T07:26:42.843668454Z"
+}

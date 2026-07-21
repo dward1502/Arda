@@ -1,0 +1,2069 @@
+{
+  "authority": "governance_gate_matrix",
+  "crates": [
+    {
+      "cargo_toml": "crates/annunimas-apollo/Cargo.toml",
+      "crate": "annunimas-apollo",
+      "kind": "workspace_crate",
+      "signals": {
+        "bacon_lite": {
+          "hit_count": 1,
+          "sample_hits": [
+            "crates/annunimas-apollo/src/executor.rs"
+          ],
+          "src_hit_count": 1,
+          "src_hits": [
+            "crates/annunimas-apollo/src/executor.rs"
+          ],
+          "state": "implemented"
+        },
+        "joulework": {
+          "hit_count": 2,
+          "sample_hits": [
+            "crates/annunimas-apollo/src/executor.rs",
+            "crates/annunimas-apollo/src/service.rs"
+          ],
+          "src_hit_count": 2,
+          "src_hits": [
+            "crates/annunimas-apollo/src/executor.rs",
+            "crates/annunimas-apollo/src/service.rs"
+          ],
+          "state": "implemented"
+        },
+        "love_equation": {
+          "hit_count": 3,
+          "sample_hits": [
+            "crates/annunimas-apollo/src/executor.rs",
+            "crates/annunimas-apollo/src/lib.rs",
+            "crates/annunimas-apollo/src/service.rs"
+          ],
+          "src_hit_count": 3,
+          "src_hits": [
+            "crates/annunimas-apollo/src/executor.rs",
+            "crates/annunimas-apollo/src/lib.rs",
+            "crates/annunimas-apollo/src/service.rs"
+          ],
+          "state": "implemented"
+        },
+        "soterion": {
+          "hit_count": 10,
+          "sample_hits": [
+            "crates/annunimas-apollo/README.md",
+            "crates/annunimas-apollo/src/executor.rs",
+            "crates/annunimas-apollo/src/lib.rs",
+            "crates/annunimas-apollo/src/phi.rs",
+            "crates/annunimas-apollo/src/rtk.rs",
+            "crates/annunimas-apollo/src/service.rs",
+            "crates/annunimas-apollo/src/transport/http.rs",
+            "crates/annunimas-apollo/src/transport/ipc.rs",
+            "crates/annunimas-apollo/src/transport/mod.rs",
+            "crates/annunimas-apollo/src/workflow.rs"
+          ],
+          "src_hit_count": 9,
+          "src_hits": [
+            "crates/annunimas-apollo/src/service.rs",
+            "crates/annunimas-apollo/src/lib.rs",
+            "crates/annunimas-apollo/src/phi.rs",
+            "crates/annunimas-apollo/src/executor.rs",
+            "crates/annunimas-apollo/src/transport/ipc.rs",
+            "crates/annunimas-apollo/src/rtk.rs",
+            "crates/annunimas-apollo/src/transport/mod.rs",
+            "crates/annunimas-apollo/src/workflow.rs",
+            "crates/annunimas-apollo/src/transport/http.rs"
+          ],
+          "state": "implemented"
+        },
+        "triad": {
+          "hit_count": 1,
+          "sample_hits": [
+            "crates/annunimas-apollo/src/executor.rs"
+          ],
+          "src_hit_count": 1,
+          "src_hits": [
+            "crates/annunimas-apollo/src/executor.rs"
+          ],
+          "state": "implemented"
+        }
+      }
+    },
+    {
+      "cargo_toml": "crates/annunimas-athena/Cargo.toml",
+      "crate": "annunimas-athena",
+      "kind": "workspace_crate",
+      "signals": {
+        "bacon_lite": {
+          "hit_count": 1,
+          "sample_hits": [
+            "crates/annunimas-athena/src/ingest.rs"
+          ],
+          "src_hit_count": 1,
+          "src_hits": [
+            "crates/annunimas-athena/src/ingest.rs"
+          ],
+          "state": "implemented"
+        },
+        "joulework": {
+          "hit_count": 3,
+          "sample_hits": [
+            "crates/annunimas-athena/src/ingest.rs",
+            "crates/annunimas-athena/src/ingest/policy.rs",
+            "crates/annunimas-athena/src/ingest/views.rs"
+          ],
+          "src_hit_count": 3,
+          "src_hits": [
+            "crates/annunimas-athena/src/ingest.rs",
+            "crates/annunimas-athena/src/ingest/views.rs",
+            "crates/annunimas-athena/src/ingest/policy.rs"
+          ],
+          "state": "implemented"
+        },
+        "love_equation": {
+          "hit_count": 3,
+          "sample_hits": [
+            "crates/annunimas-athena/src/ingest.rs",
+            "crates/annunimas-athena/src/ingest/source.rs",
+            "crates/annunimas-athena/src/ingest/views.rs"
+          ],
+          "src_hit_count": 3,
+          "src_hits": [
+            "crates/annunimas-athena/src/ingest/views.rs",
+            "crates/annunimas-athena/src/ingest/source.rs",
+            "crates/annunimas-athena/src/ingest.rs"
+          ],
+          "state": "implemented"
+        },
+        "soterion": {
+          "hit_count": 17,
+          "sample_hits": [
+            "crates/annunimas-athena/README.md",
+            "crates/annunimas-athena/src/ingest.rs",
+            "crates/annunimas-athena/src/ingest/deep.rs",
+            "crates/annunimas-athena/src/ingest/io.rs",
+            "crates/annunimas-athena/src/ingest/layout.rs",
+            "crates/annunimas-athena/src/ingest/observability.rs",
+            "crates/annunimas-athena/src/ingest/policy.rs",
+            "crates/annunimas-athena/src/ingest/query.rs",
+            "crates/annunimas-athena/src/ingest/remediation.rs",
+            "crates/annunimas-athena/src/ingest/routing.rs",
+            "crates/annunimas-athena/src/ingest/scholarly.rs",
+            "crates/annunimas-athena/src/ingest/source.rs"
+          ],
+          "src_hit_count": 16,
+          "src_hits": [
+            "crates/annunimas-athena/src/lib.rs",
+            "crates/annunimas-athena/src/ingest/views.rs",
+            "crates/annunimas-athena/src/ingest/observability.rs",
+            "crates/annunimas-athena/src/ingest/source.rs",
+            "crates/annunimas-athena/src/ingest/layout.rs",
+            "crates/annunimas-athena/src/ingest/scholarly.rs",
+            "crates/annunimas-athena/src/transport/ipc.rs",
+            "crates/annunimas-athena/src/ingest/io.rs",
+            "crates/annunimas-athena/src/ingest/routing.rs",
+            "crates/annunimas-athena/src/transport/http.rs",
+            "crates/annunimas-athena/src/ingest/query.rs",
+            "crates/annunimas-athena/src/ingest/deep.rs"
+          ],
+          "state": "implemented"
+        },
+        "triad": {
+          "hit_count": 6,
+          "sample_hits": [
+            "crates/annunimas-athena/README.md",
+            "crates/annunimas-athena/src/ingest.rs",
+            "crates/annunimas-athena/src/ingest/policy.rs",
+            "crates/annunimas-athena/src/ingest/remediation.rs",
+            "crates/annunimas-athena/src/ingest/views.rs",
+            "crates/annunimas-athena/src/lib.rs"
+          ],
+          "src_hit_count": 5,
+          "src_hits": [
+            "crates/annunimas-athena/src/lib.rs",
+            "crates/annunimas-athena/src/ingest/views.rs",
+            "crates/annunimas-athena/src/ingest/remediation.rs",
+            "crates/annunimas-athena/src/ingest/policy.rs",
+            "crates/annunimas-athena/src/ingest.rs"
+          ],
+          "state": "implemented"
+        }
+      }
+    },
+    {
+      "cargo_toml": "crates/annunimas-ceo/Cargo.toml",
+      "crate": "annunimas-ceo",
+      "kind": "shim",
+      "signals": {
+        "bacon_lite": {
+          "hit_count": 0,
+          "sample_hits": [],
+          "src_hit_count": 0,
+          "src_hits": [],
+          "state": "shim"
+        },
+        "joulework": {
+          "hit_count": 2,
+          "sample_hits": [
+            "crates/annunimas-ceo/src/core_link.rs",
+            "crates/annunimas-ceo/src/pipeline.rs"
+          ],
+          "src_hit_count": 2,
+          "src_hits": [
+            "crates/annunimas-ceo/src/pipeline.rs",
+            "crates/annunimas-ceo/src/core_link.rs"
+          ],
+          "state": "shim"
+        },
+        "love_equation": {
+          "hit_count": 0,
+          "sample_hits": [],
+          "src_hit_count": 0,
+          "src_hits": [],
+          "state": "shim"
+        },
+        "soterion": {
+          "hit_count": 5,
+          "sample_hits": [
+            "crates/annunimas-ceo/README.md",
+            "crates/annunimas-ceo/src/core_link.rs",
+            "crates/annunimas-ceo/src/lib.rs",
+            "crates/annunimas-ceo/src/pipeline.rs",
+            "crates/annunimas-ceo/src/router.rs"
+          ],
+          "src_hit_count": 4,
+          "src_hits": [
+            "crates/annunimas-ceo/src/lib.rs",
+            "crates/annunimas-ceo/src/router.rs",
+            "crates/annunimas-ceo/src/core_link.rs",
+            "crates/annunimas-ceo/src/pipeline.rs"
+          ],
+          "state": "shim"
+        },
+        "triad": {
+          "hit_count": 2,
+          "sample_hits": [
+            "crates/annunimas-ceo/src/core_link.rs",
+            "crates/annunimas-ceo/src/pipeline.rs"
+          ],
+          "src_hit_count": 2,
+          "src_hits": [
+            "crates/annunimas-ceo/src/pipeline.rs",
+            "crates/annunimas-ceo/src/core_link.rs"
+          ],
+          "state": "shim"
+        }
+      }
+    },
+    {
+      "cargo_toml": "crates/annunimas-charon/Cargo.toml",
+      "crate": "annunimas-charon",
+      "kind": "workspace_crate",
+      "signals": {
+        "bacon_lite": {
+          "hit_count": 1,
+          "sample_hits": [
+            "crates/annunimas-charon/src/service.rs"
+          ],
+          "src_hit_count": 1,
+          "src_hits": [
+            "crates/annunimas-charon/src/service.rs"
+          ],
+          "state": "implemented"
+        },
+        "joulework": {
+          "hit_count": 3,
+          "sample_hits": [
+            "crates/annunimas-charon/src/service.rs",
+            "crates/annunimas-charon/src/service/state_mutation.rs",
+            "crates/annunimas-charon/src/service/tests.rs"
+          ],
+          "src_hit_count": 3,
+          "src_hits": [
+            "crates/annunimas-charon/src/service.rs",
+            "crates/annunimas-charon/src/service/tests.rs",
+            "crates/annunimas-charon/src/service/state_mutation.rs"
+          ],
+          "state": "implemented"
+        },
+        "love_equation": {
+          "hit_count": 4,
+          "sample_hits": [
+            "crates/annunimas-charon/src/service.rs",
+            "crates/annunimas-charon/src/service/route_policy.rs",
+            "crates/annunimas-charon/src/service/tests.rs",
+            "crates/annunimas-charon/src/types.rs"
+          ],
+          "src_hit_count": 4,
+          "src_hits": [
+            "crates/annunimas-charon/src/service.rs",
+            "crates/annunimas-charon/src/service/tests.rs",
+            "crates/annunimas-charon/src/service/route_policy.rs",
+            "crates/annunimas-charon/src/types.rs"
+          ],
+          "state": "implemented"
+        },
+        "soterion": {
+          "hit_count": 10,
+          "sample_hits": [
+            "crates/annunimas-charon/README.md",
+            "crates/annunimas-charon/src/error.rs",
+            "crates/annunimas-charon/src/lib.rs",
+            "crates/annunimas-charon/src/service.rs",
+            "crates/annunimas-charon/src/service/echo_gate.rs",
+            "crates/annunimas-charon/src/service/state_mutation.rs",
+            "crates/annunimas-charon/src/transport/http.rs",
+            "crates/annunimas-charon/src/transport/ipc.rs",
+            "crates/annunimas-charon/src/transport/mod.rs",
+            "crates/annunimas-charon/src/types.rs"
+          ],
+          "src_hit_count": 9,
+          "src_hits": [
+            "crates/annunimas-charon/src/service.rs",
+            "crates/annunimas-charon/src/lib.rs",
+            "crates/annunimas-charon/src/error.rs",
+            "crates/annunimas-charon/src/types.rs",
+            "crates/annunimas-charon/src/service/state_mutation.rs",
+            "crates/annunimas-charon/src/transport/http.rs",
+            "crates/annunimas-charon/src/service/echo_gate.rs",
+            "crates/annunimas-charon/src/transport/mod.rs",
+            "crates/annunimas-charon/src/transport/ipc.rs"
+          ],
+          "state": "implemented"
+        },
+        "triad": {
+          "hit_count": 5,
+          "sample_hits": [
+            "crates/annunimas-charon/src/service.rs",
+            "crates/annunimas-charon/src/service/echo_gate.rs",
+            "crates/annunimas-charon/src/service/route_policy.rs",
+            "crates/annunimas-charon/src/service/tests.rs",
+            "crates/annunimas-charon/src/types.rs"
+          ],
+          "src_hit_count": 5,
+          "src_hits": [
+            "crates/annunimas-charon/src/service.rs",
+            "crates/annunimas-charon/src/types.rs",
+            "crates/annunimas-charon/src/service/route_policy.rs",
+            "crates/annunimas-charon/src/service/tests.rs",
+            "crates/annunimas-charon/src/service/echo_gate.rs"
+          ],
+          "state": "implemented"
+        }
+      }
+    },
+    {
+      "cargo_toml": "crates/annunimas-cli/Cargo.toml",
+      "crate": "annunimas-cli",
+      "kind": "workspace_crate",
+      "signals": {
+        "bacon_lite": {
+          "hit_count": 10,
+          "sample_hits": [
+            "crates/annunimas-cli/src/export_surface.rs",
+            "crates/annunimas-cli/src/export_surface/aipkg_exports.rs",
+            "crates/annunimas-cli/src/export_surface/embodiment_exports.rs",
+            "crates/annunimas-cli/src/export_surface/extension_exports.rs",
+            "crates/annunimas-cli/src/export_surface/hermes_exports.rs",
+            "crates/annunimas-cli/src/export_surface/product_exports.rs",
+            "crates/annunimas-cli/src/ipc_bridge.rs",
+            "crates/annunimas-cli/src/main.rs",
+            "crates/annunimas-cli/src/observability.rs",
+            "crates/annunimas-cli/src/policy_guard.rs"
+          ],
+          "src_hit_count": 10,
+          "src_hits": [
+            "crates/annunimas-cli/src/observability.rs",
+            "crates/annunimas-cli/src/main.rs",
+            "crates/annunimas-cli/src/export_surface.rs",
+            "crates/annunimas-cli/src/export_surface/embodiment_exports.rs",
+            "crates/annunimas-cli/src/export_surface/hermes_exports.rs",
+            "crates/annunimas-cli/src/export_surface/extension_exports.rs",
+            "crates/annunimas-cli/src/ipc_bridge.rs",
+            "crates/annunimas-cli/src/export_surface/aipkg_exports.rs",
+            "crates/annunimas-cli/src/export_surface/product_exports.rs",
+            "crates/annunimas-cli/src/policy_guard.rs"
+          ],
+          "state": "implemented"
+        },
+        "joulework": {
+          "hit_count": 19,
+          "sample_hits": [
+            "crates/annunimas-cli/src/cli_dispatch.rs",
+            "crates/annunimas-cli/src/commands/control.rs",
+            "crates/annunimas-cli/src/commands/plutus.rs",
+            "crates/annunimas-cli/src/commands/utility.rs",
+            "crates/annunimas-cli/src/export_surface.rs",
+            "crates/annunimas-cli/src/export_surface/aipkg_exports.rs",
+            "crates/annunimas-cli/src/export_surface/athena_exports.rs",
+            "crates/annunimas-cli/src/export_surface/embodiment_exports.rs",
+            "crates/annunimas-cli/src/export_surface/extension_exports.rs",
+            "crates/annunimas-cli/src/export_surface/fleet_exports.rs",
+            "crates/annunimas-cli/src/export_surface/hermes_exports.rs",
+            "crates/annunimas-cli/src/export_surface/product_exports.rs"
+          ],
+          "src_hit_count": 19,
+          "src_hits": [
+            "crates/annunimas-cli/src/support.rs",
+            "crates/annunimas-cli/src/observability.rs",
+            "crates/annunimas-cli/src/main.rs",
+            "crates/annunimas-cli/src/export_surface.rs",
+            "crates/annunimas-cli/src/cli_dispatch.rs",
+            "crates/annunimas-cli/src/policy_guard.rs",
+            "crates/annunimas-cli/src/export_surface/aipkg_exports.rs",
+            "crates/annunimas-cli/src/export_surface/embodiment_exports.rs",
+            "crates/annunimas-cli/src/export_surface/hermes_exports.rs",
+            "crates/annunimas-cli/src/export_surface/runtime_exports.rs",
+            "crates/annunimas-cli/src/export_surface/fleet_exports.rs",
+            "crates/annunimas-cli/src/export_surface/athena_exports.rs"
+          ],
+          "state": "implemented"
+        },
+        "love_equation": {
+          "hit_count": 13,
+          "sample_hits": [
+            "crates/annunimas-cli/src/commands/control.rs",
+            "crates/annunimas-cli/src/export_surface.rs",
+            "crates/annunimas-cli/src/export_surface/aipkg_exports.rs",
+            "crates/annunimas-cli/src/export_surface/athena_exports.rs",
+            "crates/annunimas-cli/src/export_surface/embodiment_exports.rs",
+            "crates/annunimas-cli/src/export_surface/extension_exports.rs",
+            "crates/annunimas-cli/src/export_surface/fleet_exports.rs",
+            "crates/annunimas-cli/src/export_surface/hermes_exports.rs",
+            "crates/annunimas-cli/src/export_surface/product_exports.rs",
+            "crates/annunimas-cli/src/ipc_bridge.rs",
+            "crates/annunimas-cli/src/main.rs",
+            "crates/annunimas-cli/src/observability.rs"
+          ],
+          "src_hit_count": 13,
+          "src_hits": [
+            "crates/annunimas-cli/src/ipc_bridge.rs",
+            "crates/annunimas-cli/src/observability.rs",
+            "crates/annunimas-cli/src/policy_guard.rs",
+            "crates/annunimas-cli/src/main.rs",
+            "crates/annunimas-cli/src/export_surface.rs",
+            "crates/annunimas-cli/src/commands/control.rs",
+            "crates/annunimas-cli/src/export_surface/embodiment_exports.rs",
+            "crates/annunimas-cli/src/export_surface/aipkg_exports.rs",
+            "crates/annunimas-cli/src/export_surface/athena_exports.rs",
+            "crates/annunimas-cli/src/export_surface/hermes_exports.rs",
+            "crates/annunimas-cli/src/export_surface/extension_exports.rs",
+            "crates/annunimas-cli/src/export_surface/product_exports.rs"
+          ],
+          "state": "implemented"
+        },
+        "soterion": {
+          "hit_count": 5,
+          "sample_hits": [
+            "crates/annunimas-cli/README.md",
+            "crates/annunimas-cli/src/commands/metrics.rs",
+            "crates/annunimas-cli/src/commands/utility.rs",
+            "crates/annunimas-cli/src/export_surface.rs",
+            "crates/annunimas-cli/src/main.rs"
+          ],
+          "src_hit_count": 4,
+          "src_hits": [
+            "crates/annunimas-cli/src/main.rs",
+            "crates/annunimas-cli/src/export_surface.rs",
+            "crates/annunimas-cli/src/commands/metrics.rs",
+            "crates/annunimas-cli/src/commands/utility.rs"
+          ],
+          "state": "implemented"
+        },
+        "triad": {
+          "hit_count": 13,
+          "sample_hits": [
+            "crates/annunimas-cli/src/commands/control.rs",
+            "crates/annunimas-cli/src/export_surface.rs",
+            "crates/annunimas-cli/src/export_surface/aipkg_exports.rs",
+            "crates/annunimas-cli/src/export_surface/athena_exports.rs",
+            "crates/annunimas-cli/src/export_surface/embodiment_exports.rs",
+            "crates/annunimas-cli/src/export_surface/extension_exports.rs",
+            "crates/annunimas-cli/src/export_surface/fleet_exports.rs",
+            "crates/annunimas-cli/src/export_surface/hermes_exports.rs",
+            "crates/annunimas-cli/src/export_surface/product_exports.rs",
+            "crates/annunimas-cli/src/ipc_bridge.rs",
+            "crates/annunimas-cli/src/main.rs",
+            "crates/annunimas-cli/src/observability.rs"
+          ],
+          "src_hit_count": 13,
+          "src_hits": [
+            "crates/annunimas-cli/src/observability.rs",
+            "crates/annunimas-cli/src/main.rs",
+            "crates/annunimas-cli/src/export_surface.rs",
+            "crates/annunimas-cli/src/export_surface/embodiment_exports.rs",
+            "crates/annunimas-cli/src/export_surface/extension_exports.rs",
+            "crates/annunimas-cli/src/export_surface/fleet_exports.rs",
+            "crates/annunimas-cli/src/export_surface/aipkg_exports.rs",
+            "crates/annunimas-cli/src/ipc_bridge.rs",
+            "crates/annunimas-cli/src/export_surface/hermes_exports.rs",
+            "crates/annunimas-cli/src/export_surface/athena_exports.rs",
+            "crates/annunimas-cli/src/policy_guard.rs",
+            "crates/annunimas-cli/src/export_surface/product_exports.rs"
+          ],
+          "state": "implemented"
+        }
+      }
+    },
+    {
+      "cargo_toml": "crates/annunimas-comm/Cargo.toml",
+      "crate": "annunimas-comm",
+      "kind": "workspace_crate",
+      "signals": {
+        "bacon_lite": {
+          "hit_count": 1,
+          "sample_hits": [
+            "crates/annunimas-comm/src/lib.rs"
+          ],
+          "src_hit_count": 1,
+          "src_hits": [
+            "crates/annunimas-comm/src/lib.rs"
+          ],
+          "state": "implemented"
+        },
+        "joulework": {
+          "hit_count": 1,
+          "sample_hits": [
+            "crates/annunimas-comm/src/lib.rs"
+          ],
+          "src_hit_count": 1,
+          "src_hits": [
+            "crates/annunimas-comm/src/lib.rs"
+          ],
+          "state": "implemented"
+        },
+        "love_equation": {
+          "hit_count": 1,
+          "sample_hits": [
+            "crates/annunimas-comm/src/lib.rs"
+          ],
+          "src_hit_count": 1,
+          "src_hits": [
+            "crates/annunimas-comm/src/lib.rs"
+          ],
+          "state": "implemented"
+        },
+        "soterion": {
+          "hit_count": 2,
+          "sample_hits": [
+            "crates/annunimas-comm/README.md",
+            "crates/annunimas-comm/src/lib.rs"
+          ],
+          "src_hit_count": 1,
+          "src_hits": [
+            "crates/annunimas-comm/src/lib.rs"
+          ],
+          "state": "implemented"
+        },
+        "triad": {
+          "hit_count": 1,
+          "sample_hits": [
+            "crates/annunimas-comm/src/lib.rs"
+          ],
+          "src_hit_count": 1,
+          "src_hits": [
+            "crates/annunimas-comm/src/lib.rs"
+          ],
+          "state": "implemented"
+        }
+      }
+    },
+    {
+      "cargo_toml": "crates/annunimas-core/Cargo.toml",
+      "crate": "annunimas-core",
+      "kind": "workspace_crate",
+      "signals": {
+        "bacon_lite": {
+          "hit_count": 1,
+          "sample_hits": [
+            "crates/annunimas-core/src/aipkg.rs"
+          ],
+          "src_hit_count": 1,
+          "src_hits": [
+            "crates/annunimas-core/src/aipkg.rs"
+          ],
+          "state": "implemented"
+        },
+        "joulework": {
+          "hit_count": 5,
+          "sample_hits": [
+            "crates/annunimas-core/src/aipkg.rs",
+            "crates/annunimas-core/src/background.rs",
+            "crates/annunimas-core/src/config.rs",
+            "crates/annunimas-core/src/pipeline.rs",
+            "crates/annunimas-core/src/soterion.rs"
+          ],
+          "src_hit_count": 5,
+          "src_hits": [
+            "crates/annunimas-core/src/soterion.rs",
+            "crates/annunimas-core/src/config.rs",
+            "crates/annunimas-core/src/background.rs",
+            "crates/annunimas-core/src/aipkg.rs",
+            "crates/annunimas-core/src/pipeline.rs"
+          ],
+          "state": "implemented"
+        },
+        "love_equation": {
+          "hit_count": 1,
+          "sample_hits": [
+            "crates/annunimas-core/src/aipkg.rs"
+          ],
+          "src_hit_count": 1,
+          "src_hits": [
+            "crates/annunimas-core/src/aipkg.rs"
+          ],
+          "state": "implemented"
+        },
+        "soterion": {
+          "hit_count": 17,
+          "sample_hits": [
+            "crates/annunimas-core/README.md",
+            "crates/annunimas-core/src/agent.rs",
+            "crates/annunimas-core/src/aipkg.rs",
+            "crates/annunimas-core/src/alerts.rs",
+            "crates/annunimas-core/src/background.rs",
+            "crates/annunimas-core/src/config.rs",
+            "crates/annunimas-core/src/daemon.rs",
+            "crates/annunimas-core/src/error.rs",
+            "crates/annunimas-core/src/lib.rs",
+            "crates/annunimas-core/src/llm.rs",
+            "crates/annunimas-core/src/message.rs",
+            "crates/annunimas-core/src/pipeline.rs"
+          ],
+          "src_hit_count": 16,
+          "src_hits": [
+            "crates/annunimas-core/src/soterion_watcher.rs",
+            "crates/annunimas-core/src/message.rs",
+            "crates/annunimas-core/src/soterion.rs",
+            "crates/annunimas-core/src/error.rs",
+            "crates/annunimas-core/src/llm.rs",
+            "crates/annunimas-core/src/task.rs",
+            "crates/annunimas-core/src/daemon.rs",
+            "crates/annunimas-core/src/lib.rs",
+            "crates/annunimas-core/src/router.rs",
+            "crates/annunimas-core/src/config.rs",
+            "crates/annunimas-core/src/background.rs",
+            "crates/annunimas-core/src/pipeline.rs"
+          ],
+          "state": "implemented"
+        },
+        "triad": {
+          "hit_count": 2,
+          "sample_hits": [
+            "crates/annunimas-core/src/aipkg.rs",
+            "crates/annunimas-core/src/soterion.rs"
+          ],
+          "src_hit_count": 2,
+          "src_hits": [
+            "crates/annunimas-core/src/soterion.rs",
+            "crates/annunimas-core/src/aipkg.rs"
+          ],
+          "state": "implemented"
+        }
+      }
+    },
+    {
+      "cargo_toml": "crates/annunimas-council/Cargo.toml",
+      "crate": "annunimas-council",
+      "kind": "workspace_crate",
+      "signals": {
+        "bacon_lite": {
+          "hit_count": 3,
+          "sample_hits": [
+            "crates/annunimas-council/README.md",
+            "crates/annunimas-council/src/contract.rs",
+            "crates/annunimas-council/src/service.rs"
+          ],
+          "src_hit_count": 2,
+          "src_hits": [
+            "crates/annunimas-council/src/service.rs",
+            "crates/annunimas-council/src/contract.rs"
+          ],
+          "state": "implemented"
+        },
+        "joulework": {
+          "hit_count": 4,
+          "sample_hits": [
+            "crates/annunimas-council/README.md",
+            "crates/annunimas-council/src/contract.rs",
+            "crates/annunimas-council/src/lib.rs",
+            "crates/annunimas-council/src/service.rs"
+          ],
+          "src_hit_count": 3,
+          "src_hits": [
+            "crates/annunimas-council/src/service.rs",
+            "crates/annunimas-council/src/lib.rs",
+            "crates/annunimas-council/src/contract.rs"
+          ],
+          "state": "implemented"
+        },
+        "love_equation": {
+          "hit_count": 3,
+          "sample_hits": [
+            "crates/annunimas-council/README.md",
+            "crates/annunimas-council/src/contract.rs",
+            "crates/annunimas-council/src/service.rs"
+          ],
+          "src_hit_count": 2,
+          "src_hits": [
+            "crates/annunimas-council/src/service.rs",
+            "crates/annunimas-council/src/contract.rs"
+          ],
+          "state": "implemented"
+        },
+        "soterion": {
+          "hit_count": 4,
+          "sample_hits": [
+            "crates/annunimas-council/src/contract.rs",
+            "crates/annunimas-council/src/council.rs",
+            "crates/annunimas-council/src/lib.rs",
+            "crates/annunimas-council/src/service.rs"
+          ],
+          "src_hit_count": 4,
+          "src_hits": [
+            "crates/annunimas-council/src/service.rs",
+            "crates/annunimas-council/src/council.rs",
+            "crates/annunimas-council/src/lib.rs",
+            "crates/annunimas-council/src/contract.rs"
+          ],
+          "state": "implemented"
+        },
+        "triad": {
+          "hit_count": 4,
+          "sample_hits": [
+            "crates/annunimas-council/README.md",
+            "crates/annunimas-council/src/contract.rs",
+            "crates/annunimas-council/src/lib.rs",
+            "crates/annunimas-council/src/service.rs"
+          ],
+          "src_hit_count": 3,
+          "src_hits": [
+            "crates/annunimas-council/src/service.rs",
+            "crates/annunimas-council/src/contract.rs",
+            "crates/annunimas-council/src/lib.rs"
+          ],
+          "state": "implemented"
+        }
+      }
+    },
+    {
+      "cargo_toml": "crates/annunimas-fleet/Cargo.toml",
+      "crate": "annunimas-fleet",
+      "kind": "workspace_crate",
+      "signals": {
+        "bacon_lite": {
+          "hit_count": 1,
+          "sample_hits": [
+            "crates/annunimas-fleet/src/lib.rs"
+          ],
+          "src_hit_count": 1,
+          "src_hits": [
+            "crates/annunimas-fleet/src/lib.rs"
+          ],
+          "state": "implemented"
+        },
+        "joulework": {
+          "hit_count": 2,
+          "sample_hits": [
+            "crates/annunimas-fleet/README.md",
+            "crates/annunimas-fleet/src/lib.rs"
+          ],
+          "src_hit_count": 1,
+          "src_hits": [
+            "crates/annunimas-fleet/src/lib.rs"
+          ],
+          "state": "implemented"
+        },
+        "love_equation": {
+          "hit_count": 1,
+          "sample_hits": [
+            "crates/annunimas-fleet/src/lib.rs"
+          ],
+          "src_hit_count": 1,
+          "src_hits": [
+            "crates/annunimas-fleet/src/lib.rs"
+          ],
+          "state": "implemented"
+        },
+        "soterion": {
+          "hit_count": 1,
+          "sample_hits": [
+            "crates/annunimas-fleet/README.md"
+          ],
+          "src_hit_count": 0,
+          "src_hits": [],
+          "state": "emitted_or_symbolic"
+        },
+        "triad": {
+          "hit_count": 2,
+          "sample_hits": [
+            "crates/annunimas-fleet/README.md",
+            "crates/annunimas-fleet/src/lib.rs"
+          ],
+          "src_hit_count": 1,
+          "src_hits": [
+            "crates/annunimas-fleet/src/lib.rs"
+          ],
+          "state": "implemented"
+        }
+      }
+    },
+    {
+      "cargo_toml": "crates/annunimas-forge-mind/Cargo.toml",
+      "crate": "annunimas-forge-mind",
+      "kind": "workspace_crate",
+      "signals": {
+        "bacon_lite": {
+          "hit_count": 2,
+          "sample_hits": [
+            "crates/annunimas-forge-mind/src/contract.rs",
+            "crates/annunimas-forge-mind/src/service.rs"
+          ],
+          "src_hit_count": 2,
+          "src_hits": [
+            "crates/annunimas-forge-mind/src/service.rs",
+            "crates/annunimas-forge-mind/src/contract.rs"
+          ],
+          "state": "implemented"
+        },
+        "joulework": {
+          "hit_count": 2,
+          "sample_hits": [
+            "crates/annunimas-forge-mind/src/contract.rs",
+            "crates/annunimas-forge-mind/src/service.rs"
+          ],
+          "src_hit_count": 2,
+          "src_hits": [
+            "crates/annunimas-forge-mind/src/service.rs",
+            "crates/annunimas-forge-mind/src/contract.rs"
+          ],
+          "state": "implemented"
+        },
+        "love_equation": {
+          "hit_count": 2,
+          "sample_hits": [
+            "crates/annunimas-forge-mind/src/contract.rs",
+            "crates/annunimas-forge-mind/src/service.rs"
+          ],
+          "src_hit_count": 2,
+          "src_hits": [
+            "crates/annunimas-forge-mind/src/service.rs",
+            "crates/annunimas-forge-mind/src/contract.rs"
+          ],
+          "state": "implemented"
+        },
+        "soterion": {
+          "hit_count": 4,
+          "sample_hits": [
+            "crates/annunimas-forge-mind/src/contract.rs",
+            "crates/annunimas-forge-mind/src/lib.rs",
+            "crates/annunimas-forge-mind/src/service.rs",
+            "crates/annunimas-forge-mind/src/workflow.rs"
+          ],
+          "src_hit_count": 4,
+          "src_hits": [
+            "crates/annunimas-forge-mind/src/workflow.rs",
+            "crates/annunimas-forge-mind/src/lib.rs",
+            "crates/annunimas-forge-mind/src/service.rs",
+            "crates/annunimas-forge-mind/src/contract.rs"
+          ],
+          "state": "implemented"
+        },
+        "triad": {
+          "hit_count": 2,
+          "sample_hits": [
+            "crates/annunimas-forge-mind/src/contract.rs",
+            "crates/annunimas-forge-mind/src/service.rs"
+          ],
+          "src_hit_count": 2,
+          "src_hits": [
+            "crates/annunimas-forge-mind/src/service.rs",
+            "crates/annunimas-forge-mind/src/contract.rs"
+          ],
+          "state": "implemented"
+        }
+      }
+    },
+    {
+      "cargo_toml": "crates/annunimas-governance/Cargo.toml",
+      "crate": "annunimas-governance",
+      "kind": "workspace_crate",
+      "signals": {
+        "bacon_lite": {
+          "hit_count": 2,
+          "sample_hits": [
+            "crates/annunimas-governance/src/bacon_lite.rs",
+            "crates/annunimas-governance/src/lib.rs"
+          ],
+          "src_hit_count": 2,
+          "src_hits": [
+            "crates/annunimas-governance/src/lib.rs",
+            "crates/annunimas-governance/src/bacon_lite.rs"
+          ],
+          "state": "implemented"
+        },
+        "joulework": {
+          "hit_count": 3,
+          "sample_hits": [
+            "crates/annunimas-governance/src/game_theory.rs",
+            "crates/annunimas-governance/src/joulework.rs",
+            "crates/annunimas-governance/src/lib.rs"
+          ],
+          "src_hit_count": 3,
+          "src_hits": [
+            "crates/annunimas-governance/src/lib.rs",
+            "crates/annunimas-governance/src/joulework.rs",
+            "crates/annunimas-governance/src/game_theory.rs"
+          ],
+          "state": "implemented"
+        },
+        "love_equation": {
+          "hit_count": 3,
+          "sample_hits": [
+            "crates/annunimas-governance/src/game_theory.rs",
+            "crates/annunimas-governance/src/lib.rs",
+            "crates/annunimas-governance/src/love_equation.rs"
+          ],
+          "src_hit_count": 3,
+          "src_hits": [
+            "crates/annunimas-governance/src/love_equation.rs",
+            "crates/annunimas-governance/src/lib.rs",
+            "crates/annunimas-governance/src/game_theory.rs"
+          ],
+          "state": "implemented"
+        },
+        "soterion": {
+          "hit_count": 9,
+          "sample_hits": [
+            "crates/annunimas-governance/README.md",
+            "crates/annunimas-governance/src/bacon_lite.rs",
+            "crates/annunimas-governance/src/game_theory.rs",
+            "crates/annunimas-governance/src/joulework.rs",
+            "crates/annunimas-governance/src/lib.rs",
+            "crates/annunimas-governance/src/love_equation.rs",
+            "crates/annunimas-governance/src/resonance.rs",
+            "crates/annunimas-governance/src/solar.rs",
+            "crates/annunimas-governance/src/triad.rs"
+          ],
+          "src_hit_count": 8,
+          "src_hits": [
+            "crates/annunimas-governance/src/triad.rs",
+            "crates/annunimas-governance/src/solar.rs",
+            "crates/annunimas-governance/src/love_equation.rs",
+            "crates/annunimas-governance/src/bacon_lite.rs",
+            "crates/annunimas-governance/src/lib.rs",
+            "crates/annunimas-governance/src/resonance.rs",
+            "crates/annunimas-governance/src/joulework.rs",
+            "crates/annunimas-governance/src/game_theory.rs"
+          ],
+          "state": "implemented"
+        },
+        "triad": {
+          "hit_count": 6,
+          "sample_hits": [
+            "crates/annunimas-governance/README.md",
+            "crates/annunimas-governance/src/bacon_lite.rs",
+            "crates/annunimas-governance/src/game_theory.rs",
+            "crates/annunimas-governance/src/lib.rs",
+            "crates/annunimas-governance/src/resonance.rs",
+            "crates/annunimas-governance/src/triad.rs"
+          ],
+          "src_hit_count": 5,
+          "src_hits": [
+            "crates/annunimas-governance/src/triad.rs",
+            "crates/annunimas-governance/src/bacon_lite.rs",
+            "crates/annunimas-governance/src/lib.rs",
+            "crates/annunimas-governance/src/resonance.rs",
+            "crates/annunimas-governance/src/game_theory.rs"
+          ],
+          "state": "implemented"
+        }
+      }
+    },
+    {
+      "cargo_toml": "crates/annunimas-hades/Cargo.toml",
+      "crate": "annunimas-hades",
+      "kind": "workspace_crate",
+      "signals": {
+        "bacon_lite": {
+          "hit_count": 1,
+          "sample_hits": [
+            "crates/annunimas-hades/src/service/api.rs"
+          ],
+          "src_hit_count": 1,
+          "src_hits": [
+            "crates/annunimas-hades/src/service/api.rs"
+          ],
+          "state": "implemented"
+        },
+        "joulework": {
+          "hit_count": 6,
+          "sample_hits": [
+            "crates/annunimas-hades/src/service.rs",
+            "crates/annunimas-hades/src/service/api.rs",
+            "crates/annunimas-hades/src/service/governance.rs",
+            "crates/annunimas-hades/src/service/runtime_state.rs",
+            "crates/annunimas-hades/src/service/tests.rs",
+            "crates/annunimas-hades/src/transport/http.rs"
+          ],
+          "src_hit_count": 6,
+          "src_hits": [
+            "crates/annunimas-hades/src/service.rs",
+            "crates/annunimas-hades/src/service/tests.rs",
+            "crates/annunimas-hades/src/transport/http.rs",
+            "crates/annunimas-hades/src/service/governance.rs",
+            "crates/annunimas-hades/src/service/runtime_state.rs",
+            "crates/annunimas-hades/src/service/api.rs"
+          ],
+          "state": "implemented"
+        },
+        "love_equation": {
+          "hit_count": 4,
+          "sample_hits": [
+            "crates/annunimas-hades/src/service.rs",
+            "crates/annunimas-hades/src/service/api.rs",
+            "crates/annunimas-hades/src/service/governance.rs",
+            "crates/annunimas-hades/src/service/sweep.rs"
+          ],
+          "src_hit_count": 4,
+          "src_hits": [
+            "crates/annunimas-hades/src/service.rs",
+            "crates/annunimas-hades/src/service/governance.rs",
+            "crates/annunimas-hades/src/service/api.rs",
+            "crates/annunimas-hades/src/service/sweep.rs"
+          ],
+          "state": "implemented"
+        },
+        "soterion": {
+          "hit_count": 15,
+          "sample_hits": [
+            "crates/annunimas-hades/README.md",
+            "crates/annunimas-hades/src/agent.rs",
+            "crates/annunimas-hades/src/error.rs",
+            "crates/annunimas-hades/src/lib.rs",
+            "crates/annunimas-hades/src/service.rs",
+            "crates/annunimas-hades/src/service/api.rs",
+            "crates/annunimas-hades/src/service/lifecycle_policy.rs",
+            "crates/annunimas-hades/src/service/runtime_state.rs",
+            "crates/annunimas-hades/src/service/sigils.rs",
+            "crates/annunimas-hades/src/service/sweep.rs",
+            "crates/annunimas-hades/src/service/tests.rs",
+            "crates/annunimas-hades/src/transport/http.rs"
+          ],
+          "src_hit_count": 14,
+          "src_hits": [
+            "crates/annunimas-hades/src/agent.rs",
+            "crates/annunimas-hades/src/service.rs",
+            "crates/annunimas-hades/src/lib.rs",
+            "crates/annunimas-hades/src/error.rs",
+            "crates/annunimas-hades/src/types.rs",
+            "crates/annunimas-hades/src/service/tests.rs",
+            "crates/annunimas-hades/src/service/lifecycle_policy.rs",
+            "crates/annunimas-hades/src/service/sweep.rs",
+            "crates/annunimas-hades/src/service/api.rs",
+            "crates/annunimas-hades/src/service/runtime_state.rs",
+            "crates/annunimas-hades/src/service/sigils.rs",
+            "crates/annunimas-hades/src/transport/ipc.rs"
+          ],
+          "state": "implemented"
+        },
+        "triad": {
+          "hit_count": 4,
+          "sample_hits": [
+            "crates/annunimas-hades/src/agent.rs",
+            "crates/annunimas-hades/src/service.rs",
+            "crates/annunimas-hades/src/service/api.rs",
+            "crates/annunimas-hades/src/service/governance.rs"
+          ],
+          "src_hit_count": 4,
+          "src_hits": [
+            "crates/annunimas-hades/src/service.rs",
+            "crates/annunimas-hades/src/agent.rs",
+            "crates/annunimas-hades/src/service/api.rs",
+            "crates/annunimas-hades/src/service/governance.rs"
+          ],
+          "state": "implemented"
+        }
+      }
+    },
+    {
+      "cargo_toml": "crates/annunimas-hermes/Cargo.toml",
+      "crate": "annunimas-hermes",
+      "kind": "workspace_crate",
+      "signals": {
+        "bacon_lite": {
+          "hit_count": 3,
+          "sample_hits": [
+            "crates/annunimas-hermes/src/service.rs",
+            "crates/annunimas-hermes/src/service/classification.rs",
+            "crates/annunimas-hermes/src/service/outbound.rs"
+          ],
+          "src_hit_count": 3,
+          "src_hits": [
+            "crates/annunimas-hermes/src/service.rs",
+            "crates/annunimas-hermes/src/service/classification.rs",
+            "crates/annunimas-hermes/src/service/outbound.rs"
+          ],
+          "state": "implemented"
+        },
+        "joulework": {
+          "hit_count": 10,
+          "sample_hits": [
+            "crates/annunimas-hermes/src/formatter.rs",
+            "crates/annunimas-hermes/src/intent.rs",
+            "crates/annunimas-hermes/src/serenity_bot.rs",
+            "crates/annunimas-hermes/src/service.rs",
+            "crates/annunimas-hermes/src/service/classification.rs",
+            "crates/annunimas-hermes/src/service/council.rs",
+            "crates/annunimas-hermes/src/service/interrupts.rs",
+            "crates/annunimas-hermes/src/service/outbound.rs",
+            "crates/annunimas-hermes/src/service/status.rs",
+            "crates/annunimas-hermes/src/types.rs"
+          ],
+          "src_hit_count": 10,
+          "src_hits": [
+            "crates/annunimas-hermes/src/serenity_bot.rs",
+            "crates/annunimas-hermes/src/intent.rs",
+            "crates/annunimas-hermes/src/formatter.rs",
+            "crates/annunimas-hermes/src/service.rs",
+            "crates/annunimas-hermes/src/service/classification.rs",
+            "crates/annunimas-hermes/src/service/outbound.rs",
+            "crates/annunimas-hermes/src/types.rs",
+            "crates/annunimas-hermes/src/service/interrupts.rs",
+            "crates/annunimas-hermes/src/service/status.rs",
+            "crates/annunimas-hermes/src/service/council.rs"
+          ],
+          "state": "implemented"
+        },
+        "love_equation": {
+          "hit_count": 5,
+          "sample_hits": [
+            "crates/annunimas-hermes/src/intent.rs",
+            "crates/annunimas-hermes/src/service.rs",
+            "crates/annunimas-hermes/src/service/classification.rs",
+            "crates/annunimas-hermes/src/service/status.rs",
+            "crates/annunimas-hermes/src/types.rs"
+          ],
+          "src_hit_count": 5,
+          "src_hits": [
+            "crates/annunimas-hermes/src/intent.rs",
+            "crates/annunimas-hermes/src/service/status.rs",
+            "crates/annunimas-hermes/src/service.rs",
+            "crates/annunimas-hermes/src/service/classification.rs",
+            "crates/annunimas-hermes/src/types.rs"
+          ],
+          "state": "implemented"
+        },
+        "soterion": {
+          "hit_count": 24,
+          "sample_hits": [
+            "crates/annunimas-hermes/README.md",
+            "crates/annunimas-hermes/src/agent.rs",
+            "crates/annunimas-hermes/src/context_enrichment.rs",
+            "crates/annunimas-hermes/src/edge.rs",
+            "crates/annunimas-hermes/src/formatter.rs",
+            "crates/annunimas-hermes/src/intent.rs",
+            "crates/annunimas-hermes/src/lib.rs",
+            "crates/annunimas-hermes/src/mcp.rs",
+            "crates/annunimas-hermes/src/message.rs",
+            "crates/annunimas-hermes/src/mnemosyne_integration.rs",
+            "crates/annunimas-hermes/src/poller.rs",
+            "crates/annunimas-hermes/src/protocol.rs"
+          ],
+          "src_hit_count": 23,
+          "src_hits": [
+            "crates/annunimas-hermes/src/serenity_bot.rs",
+            "crates/annunimas-hermes/src/registry.rs",
+            "crates/annunimas-hermes/src/mcp.rs",
+            "crates/annunimas-hermes/src/provider.rs",
+            "crates/annunimas-hermes/src/protocol.rs",
+            "crates/annunimas-hermes/src/poller.rs",
+            "crates/annunimas-hermes/src/slash.rs",
+            "crates/annunimas-hermes/src/message.rs",
+            "crates/annunimas-hermes/src/lib.rs",
+            "crates/annunimas-hermes/src/service.rs",
+            "crates/annunimas-hermes/src/context_enrichment.rs",
+            "crates/annunimas-hermes/src/intent.rs"
+          ],
+          "state": "implemented"
+        },
+        "triad": {
+          "hit_count": 7,
+          "sample_hits": [
+            "crates/annunimas-hermes/src/agent.rs",
+            "crates/annunimas-hermes/src/intent.rs",
+            "crates/annunimas-hermes/src/service.rs",
+            "crates/annunimas-hermes/src/service/classification.rs",
+            "crates/annunimas-hermes/src/service/interrupts.rs",
+            "crates/annunimas-hermes/src/service/status.rs",
+            "crates/annunimas-hermes/src/types.rs"
+          ],
+          "src_hit_count": 7,
+          "src_hits": [
+            "crates/annunimas-hermes/src/intent.rs",
+            "crates/annunimas-hermes/src/service/classification.rs",
+            "crates/annunimas-hermes/src/types.rs",
+            "crates/annunimas-hermes/src/agent.rs",
+            "crates/annunimas-hermes/src/service/interrupts.rs",
+            "crates/annunimas-hermes/src/service.rs",
+            "crates/annunimas-hermes/src/service/status.rs"
+          ],
+          "state": "implemented"
+        }
+      }
+    },
+    {
+      "cargo_toml": "crates/annunimas-mcp/Cargo.toml",
+      "crate": "annunimas-mcp",
+      "kind": "workspace_crate",
+      "signals": {
+        "bacon_lite": {
+          "hit_count": 1,
+          "sample_hits": [
+            "crates/annunimas-mcp/src/server.rs"
+          ],
+          "src_hit_count": 1,
+          "src_hits": [
+            "crates/annunimas-mcp/src/server.rs"
+          ],
+          "state": "implemented"
+        },
+        "joulework": {
+          "hit_count": 1,
+          "sample_hits": [
+            "crates/annunimas-mcp/src/server.rs"
+          ],
+          "src_hit_count": 1,
+          "src_hits": [
+            "crates/annunimas-mcp/src/server.rs"
+          ],
+          "state": "implemented"
+        },
+        "love_equation": {
+          "hit_count": 1,
+          "sample_hits": [
+            "crates/annunimas-mcp/src/server.rs"
+          ],
+          "src_hit_count": 1,
+          "src_hits": [
+            "crates/annunimas-mcp/src/server.rs"
+          ],
+          "state": "implemented"
+        },
+        "soterion": {
+          "hit_count": 6,
+          "sample_hits": [
+            "crates/annunimas-mcp/README.md",
+            "crates/annunimas-mcp/src/browser.rs",
+            "crates/annunimas-mcp/src/lib.rs",
+            "crates/annunimas-mcp/src/protocol.rs",
+            "crates/annunimas-mcp/src/server.rs",
+            "crates/annunimas-mcp/src/tools.rs"
+          ],
+          "src_hit_count": 5,
+          "src_hits": [
+            "crates/annunimas-mcp/src/tools.rs",
+            "crates/annunimas-mcp/src/lib.rs",
+            "crates/annunimas-mcp/src/server.rs",
+            "crates/annunimas-mcp/src/browser.rs",
+            "crates/annunimas-mcp/src/protocol.rs"
+          ],
+          "state": "implemented"
+        },
+        "triad": {
+          "hit_count": 3,
+          "sample_hits": [
+            "crates/annunimas-mcp/src/browser.rs",
+            "crates/annunimas-mcp/src/server.rs",
+            "crates/annunimas-mcp/src/tools.rs"
+          ],
+          "src_hit_count": 3,
+          "src_hits": [
+            "crates/annunimas-mcp/src/tools.rs",
+            "crates/annunimas-mcp/src/browser.rs",
+            "crates/annunimas-mcp/src/server.rs"
+          ],
+          "state": "implemented"
+        }
+      }
+    },
+    {
+      "cargo_toml": "crates/annunimas-mnemosyne/Cargo.toml",
+      "crate": "annunimas-mnemosyne",
+      "kind": "workspace_crate",
+      "signals": {
+        "bacon_lite": {
+          "hit_count": 2,
+          "sample_hits": [
+            "crates/annunimas-mnemosyne/src/service/store.rs",
+            "crates/annunimas-mnemosyne/src/significance.rs"
+          ],
+          "src_hit_count": 2,
+          "src_hits": [
+            "crates/annunimas-mnemosyne/src/significance.rs",
+            "crates/annunimas-mnemosyne/src/service/store.rs"
+          ],
+          "state": "implemented"
+        },
+        "joulework": {
+          "hit_count": 4,
+          "sample_hits": [
+            "crates/annunimas-mnemosyne/README.md",
+            "crates/annunimas-mnemosyne/src/service.rs",
+            "crates/annunimas-mnemosyne/src/service/store.rs",
+            "crates/annunimas-mnemosyne/src/significance.rs"
+          ],
+          "src_hit_count": 3,
+          "src_hits": [
+            "crates/annunimas-mnemosyne/src/significance.rs",
+            "crates/annunimas-mnemosyne/src/service.rs",
+            "crates/annunimas-mnemosyne/src/service/store.rs"
+          ],
+          "state": "implemented"
+        },
+        "love_equation": {
+          "hit_count": 2,
+          "sample_hits": [
+            "crates/annunimas-mnemosyne/src/service/store.rs",
+            "crates/annunimas-mnemosyne/src/significance.rs"
+          ],
+          "src_hit_count": 2,
+          "src_hits": [
+            "crates/annunimas-mnemosyne/src/significance.rs",
+            "crates/annunimas-mnemosyne/src/service/store.rs"
+          ],
+          "state": "implemented"
+        },
+        "soterion": {
+          "hit_count": 10,
+          "sample_hits": [
+            "crates/annunimas-mnemosyne/README.md",
+            "crates/annunimas-mnemosyne/src/error.rs",
+            "crates/annunimas-mnemosyne/src/lib.rs",
+            "crates/annunimas-mnemosyne/src/service.rs",
+            "crates/annunimas-mnemosyne/src/service/retrieval.rs",
+            "crates/annunimas-mnemosyne/src/service/store.rs",
+            "crates/annunimas-mnemosyne/src/significance.rs",
+            "crates/annunimas-mnemosyne/src/transport/http.rs",
+            "crates/annunimas-mnemosyne/src/transport/ipc.rs",
+            "crates/annunimas-mnemosyne/src/transport/mod.rs"
+          ],
+          "src_hit_count": 9,
+          "src_hits": [
+            "crates/annunimas-mnemosyne/src/lib.rs",
+            "crates/annunimas-mnemosyne/src/significance.rs",
+            "crates/annunimas-mnemosyne/src/error.rs",
+            "crates/annunimas-mnemosyne/src/service.rs",
+            "crates/annunimas-mnemosyne/src/transport/mod.rs",
+            "crates/annunimas-mnemosyne/src/transport/http.rs",
+            "crates/annunimas-mnemosyne/src/transport/ipc.rs",
+            "crates/annunimas-mnemosyne/src/service/store.rs",
+            "crates/annunimas-mnemosyne/src/service/retrieval.rs"
+          ],
+          "state": "implemented"
+        },
+        "triad": {
+          "hit_count": 3,
+          "sample_hits": [
+            "crates/annunimas-mnemosyne/README.md",
+            "crates/annunimas-mnemosyne/src/service/store.rs",
+            "crates/annunimas-mnemosyne/src/significance.rs"
+          ],
+          "src_hit_count": 2,
+          "src_hits": [
+            "crates/annunimas-mnemosyne/src/significance.rs",
+            "crates/annunimas-mnemosyne/src/service/store.rs"
+          ],
+          "state": "implemented"
+        }
+      }
+    },
+    {
+      "cargo_toml": "crates/annunimas-oracle/Cargo.toml",
+      "crate": "annunimas-oracle",
+      "kind": "workspace_crate",
+      "signals": {
+        "bacon_lite": {
+          "hit_count": 1,
+          "sample_hits": [
+            "crates/annunimas-oracle/src/reasoning.rs"
+          ],
+          "src_hit_count": 1,
+          "src_hits": [
+            "crates/annunimas-oracle/src/reasoning.rs"
+          ],
+          "state": "implemented"
+        },
+        "joulework": {
+          "hit_count": 1,
+          "sample_hits": [
+            "crates/annunimas-oracle/src/service.rs"
+          ],
+          "src_hit_count": 1,
+          "src_hits": [
+            "crates/annunimas-oracle/src/service.rs"
+          ],
+          "state": "implemented"
+        },
+        "love_equation": {
+          "hit_count": 3,
+          "sample_hits": [
+            "crates/annunimas-oracle/src/lib.rs",
+            "crates/annunimas-oracle/src/reasoning.rs",
+            "crates/annunimas-oracle/src/service.rs"
+          ],
+          "src_hit_count": 3,
+          "src_hits": [
+            "crates/annunimas-oracle/src/lib.rs",
+            "crates/annunimas-oracle/src/reasoning.rs",
+            "crates/annunimas-oracle/src/service.rs"
+          ],
+          "state": "implemented"
+        },
+        "soterion": {
+          "hit_count": 10,
+          "sample_hits": [
+            "crates/annunimas-oracle/README.md",
+            "crates/annunimas-oracle/src/context.rs",
+            "crates/annunimas-oracle/src/lib.rs",
+            "crates/annunimas-oracle/src/notify.rs",
+            "crates/annunimas-oracle/src/pageindex.rs",
+            "crates/annunimas-oracle/src/reasoning.rs",
+            "crates/annunimas-oracle/src/service.rs",
+            "crates/annunimas-oracle/src/transport/http.rs",
+            "crates/annunimas-oracle/src/transport/ipc.rs",
+            "crates/annunimas-oracle/src/transport/mod.rs"
+          ],
+          "src_hit_count": 9,
+          "src_hits": [
+            "crates/annunimas-oracle/src/pageindex.rs",
+            "crates/annunimas-oracle/src/transport/mod.rs",
+            "crates/annunimas-oracle/src/notify.rs",
+            "crates/annunimas-oracle/src/transport/ipc.rs",
+            "crates/annunimas-oracle/src/service.rs",
+            "crates/annunimas-oracle/src/lib.rs",
+            "crates/annunimas-oracle/src/transport/http.rs",
+            "crates/annunimas-oracle/src/context.rs",
+            "crates/annunimas-oracle/src/reasoning.rs"
+          ],
+          "state": "implemented"
+        },
+        "triad": {
+          "hit_count": 4,
+          "sample_hits": [
+            "crates/annunimas-oracle/README.md",
+            "crates/annunimas-oracle/src/lib.rs",
+            "crates/annunimas-oracle/src/reasoning.rs",
+            "crates/annunimas-oracle/src/service.rs"
+          ],
+          "src_hit_count": 3,
+          "src_hits": [
+            "crates/annunimas-oracle/src/service.rs",
+            "crates/annunimas-oracle/src/lib.rs",
+            "crates/annunimas-oracle/src/reasoning.rs"
+          ],
+          "state": "implemented"
+        }
+      }
+    },
+    {
+      "cargo_toml": "crates/annunimas-plutus/Cargo.toml",
+      "crate": "annunimas-plutus",
+      "kind": "workspace_crate",
+      "signals": {
+        "bacon_lite": {
+          "hit_count": 1,
+          "sample_hits": [
+            "crates/annunimas-plutus/src/service.rs"
+          ],
+          "src_hit_count": 1,
+          "src_hits": [
+            "crates/annunimas-plutus/src/service.rs"
+          ],
+          "state": "implemented"
+        },
+        "joulework": {
+          "hit_count": 6,
+          "sample_hits": [
+            "crates/annunimas-plutus/README.md",
+            "crates/annunimas-plutus/src/joule_work.rs",
+            "crates/annunimas-plutus/src/lib.rs",
+            "crates/annunimas-plutus/src/service.rs",
+            "crates/annunimas-plutus/src/transport/http.rs",
+            "crates/annunimas-plutus/src/transport/ipc.rs"
+          ],
+          "src_hit_count": 5,
+          "src_hits": [
+            "crates/annunimas-plutus/src/service.rs",
+            "crates/annunimas-plutus/src/joule_work.rs",
+            "crates/annunimas-plutus/src/lib.rs",
+            "crates/annunimas-plutus/src/transport/ipc.rs",
+            "crates/annunimas-plutus/src/transport/http.rs"
+          ],
+          "state": "implemented"
+        },
+        "love_equation": {
+          "hit_count": 4,
+          "sample_hits": [
+            "crates/annunimas-plutus/README.md",
+            "crates/annunimas-plutus/src/lib.rs",
+            "crates/annunimas-plutus/src/love_equation.rs",
+            "crates/annunimas-plutus/src/service.rs"
+          ],
+          "src_hit_count": 3,
+          "src_hits": [
+            "crates/annunimas-plutus/src/service.rs",
+            "crates/annunimas-plutus/src/love_equation.rs",
+            "crates/annunimas-plutus/src/lib.rs"
+          ],
+          "state": "implemented"
+        },
+        "soterion": {
+          "hit_count": 11,
+          "sample_hits": [
+            "crates/annunimas-plutus/README.md",
+            "crates/annunimas-plutus/src/economics.rs",
+            "crates/annunimas-plutus/src/error.rs",
+            "crates/annunimas-plutus/src/joule_work.rs",
+            "crates/annunimas-plutus/src/ledger.rs",
+            "crates/annunimas-plutus/src/lib.rs",
+            "crates/annunimas-plutus/src/love_equation.rs",
+            "crates/annunimas-plutus/src/service.rs",
+            "crates/annunimas-plutus/src/transport/http.rs",
+            "crates/annunimas-plutus/src/transport/ipc.rs",
+            "crates/annunimas-plutus/src/transport/mod.rs"
+          ],
+          "src_hit_count": 10,
+          "src_hits": [
+            "crates/annunimas-plutus/src/service.rs",
+            "crates/annunimas-plutus/src/lib.rs",
+            "crates/annunimas-plutus/src/error.rs",
+            "crates/annunimas-plutus/src/love_equation.rs",
+            "crates/annunimas-plutus/src/ledger.rs",
+            "crates/annunimas-plutus/src/economics.rs",
+            "crates/annunimas-plutus/src/joule_work.rs",
+            "crates/annunimas-plutus/src/transport/mod.rs",
+            "crates/annunimas-plutus/src/transport/ipc.rs",
+            "crates/annunimas-plutus/src/transport/http.rs"
+          ],
+          "state": "implemented"
+        },
+        "triad": {
+          "hit_count": 1,
+          "sample_hits": [
+            "crates/annunimas-plutus/src/service.rs"
+          ],
+          "src_hit_count": 1,
+          "src_hits": [
+            "crates/annunimas-plutus/src/service.rs"
+          ],
+          "state": "implemented"
+        }
+      }
+    },
+    {
+      "cargo_toml": "crates/annunimas-prometheus/Cargo.toml",
+      "crate": "annunimas-prometheus",
+      "kind": "workspace_crate",
+      "signals": {
+        "bacon_lite": {
+          "hit_count": 4,
+          "sample_hits": [
+            "crates/annunimas-prometheus/src/core_link.rs",
+            "crates/annunimas-prometheus/src/core_link/governance_runtime.rs",
+            "crates/annunimas-prometheus/src/pipeline/local_execution.rs",
+            "crates/annunimas-prometheus/src/pipeline/preflight.rs"
+          ],
+          "src_hit_count": 4,
+          "src_hits": [
+            "crates/annunimas-prometheus/src/core_link.rs",
+            "crates/annunimas-prometheus/src/core_link/governance_runtime.rs",
+            "crates/annunimas-prometheus/src/pipeline/local_execution.rs",
+            "crates/annunimas-prometheus/src/pipeline/preflight.rs"
+          ],
+          "state": "implemented"
+        },
+        "joulework": {
+          "hit_count": 6,
+          "sample_hits": [
+            "crates/annunimas-prometheus/src/core_link.rs",
+            "crates/annunimas-prometheus/src/core_link/arda.rs",
+            "crates/annunimas-prometheus/src/core_link/governance_runtime.rs",
+            "crates/annunimas-prometheus/src/core_link/operations_flow.rs",
+            "crates/annunimas-prometheus/src/core_link/topology.rs",
+            "crates/annunimas-prometheus/src/pipeline/preflight.rs"
+          ],
+          "src_hit_count": 6,
+          "src_hits": [
+            "crates/annunimas-prometheus/src/core_link.rs",
+            "crates/annunimas-prometheus/src/core_link/topology.rs",
+            "crates/annunimas-prometheus/src/core_link/governance_runtime.rs",
+            "crates/annunimas-prometheus/src/core_link/arda.rs",
+            "crates/annunimas-prometheus/src/core_link/operations_flow.rs",
+            "crates/annunimas-prometheus/src/pipeline/preflight.rs"
+          ],
+          "state": "implemented"
+        },
+        "love_equation": {
+          "hit_count": 2,
+          "sample_hits": [
+            "crates/annunimas-prometheus/src/core_link.rs",
+            "crates/annunimas-prometheus/src/core_link/governance_runtime.rs"
+          ],
+          "src_hit_count": 2,
+          "src_hits": [
+            "crates/annunimas-prometheus/src/core_link.rs",
+            "crates/annunimas-prometheus/src/core_link/governance_runtime.rs"
+          ],
+          "state": "implemented"
+        },
+        "soterion": {
+          "hit_count": 13,
+          "sample_hits": [
+            "crates/annunimas-prometheus/README.md",
+            "crates/annunimas-prometheus/src/core_link.rs",
+            "crates/annunimas-prometheus/src/council.rs",
+            "crates/annunimas-prometheus/src/heartbeat.rs",
+            "crates/annunimas-prometheus/src/lib.rs",
+            "crates/annunimas-prometheus/src/orders.rs",
+            "crates/annunimas-prometheus/src/pipeline.rs",
+            "crates/annunimas-prometheus/src/registry.rs",
+            "crates/annunimas-prometheus/src/router.rs",
+            "crates/annunimas-prometheus/src/service.rs",
+            "crates/annunimas-prometheus/src/transport/http.rs",
+            "crates/annunimas-prometheus/src/transport/ipc.rs"
+          ],
+          "src_hit_count": 12,
+          "src_hits": [
+            "crates/annunimas-prometheus/src/core_link.rs",
+            "crates/annunimas-prometheus/src/orders.rs",
+            "crates/annunimas-prometheus/src/lib.rs",
+            "crates/annunimas-prometheus/src/heartbeat.rs",
+            "crates/annunimas-prometheus/src/transport/ipc.rs",
+            "crates/annunimas-prometheus/src/router.rs",
+            "crates/annunimas-prometheus/src/registry.rs",
+            "crates/annunimas-prometheus/src/transport/http.rs",
+            "crates/annunimas-prometheus/src/pipeline.rs",
+            "crates/annunimas-prometheus/src/transport/mod.rs",
+            "crates/annunimas-prometheus/src/council.rs",
+            "crates/annunimas-prometheus/src/service.rs"
+          ],
+          "state": "implemented"
+        },
+        "triad": {
+          "hit_count": 9,
+          "sample_hits": [
+            "crates/annunimas-prometheus/src/core_link.rs",
+            "crates/annunimas-prometheus/src/core_link/governance_runtime.rs",
+            "crates/annunimas-prometheus/src/core_link/paperclip.rs",
+            "crates/annunimas-prometheus/src/heartbeat.rs",
+            "crates/annunimas-prometheus/src/pipeline/preflight.rs",
+            "crates/annunimas-prometheus/src/pipeline/support.rs",
+            "crates/annunimas-prometheus/src/service.rs",
+            "crates/annunimas-prometheus/src/service/execution_intents.rs",
+            "crates/annunimas-prometheus/src/transport/http.rs"
+          ],
+          "src_hit_count": 9,
+          "src_hits": [
+            "crates/annunimas-prometheus/src/core_link.rs",
+            "crates/annunimas-prometheus/src/heartbeat.rs",
+            "crates/annunimas-prometheus/src/transport/http.rs",
+            "crates/annunimas-prometheus/src/core_link/governance_runtime.rs",
+            "crates/annunimas-prometheus/src/service.rs",
+            "crates/annunimas-prometheus/src/service/execution_intents.rs",
+            "crates/annunimas-prometheus/src/core_link/paperclip.rs",
+            "crates/annunimas-prometheus/src/pipeline/support.rs",
+            "crates/annunimas-prometheus/src/pipeline/preflight.rs"
+          ],
+          "state": "implemented"
+        }
+      }
+    },
+    {
+      "cargo_toml": "crates/annunimas-service-registry/Cargo.toml",
+      "crate": "annunimas-service-registry",
+      "kind": "workspace_crate",
+      "signals": {
+        "bacon_lite": {
+          "hit_count": 2,
+          "sample_hits": [
+            "crates/annunimas-service-registry/src/contract.rs",
+            "crates/annunimas-service-registry/src/service.rs"
+          ],
+          "src_hit_count": 2,
+          "src_hits": [
+            "crates/annunimas-service-registry/src/service.rs",
+            "crates/annunimas-service-registry/src/contract.rs"
+          ],
+          "state": "implemented"
+        },
+        "joulework": {
+          "hit_count": 2,
+          "sample_hits": [
+            "crates/annunimas-service-registry/src/contract.rs",
+            "crates/annunimas-service-registry/src/service.rs"
+          ],
+          "src_hit_count": 2,
+          "src_hits": [
+            "crates/annunimas-service-registry/src/service.rs",
+            "crates/annunimas-service-registry/src/contract.rs"
+          ],
+          "state": "implemented"
+        },
+        "love_equation": {
+          "hit_count": 2,
+          "sample_hits": [
+            "crates/annunimas-service-registry/src/contract.rs",
+            "crates/annunimas-service-registry/src/service.rs"
+          ],
+          "src_hit_count": 2,
+          "src_hits": [
+            "crates/annunimas-service-registry/src/service.rs",
+            "crates/annunimas-service-registry/src/contract.rs"
+          ],
+          "state": "implemented"
+        },
+        "soterion": {
+          "hit_count": 4,
+          "sample_hits": [
+            "crates/annunimas-service-registry/src/contract.rs",
+            "crates/annunimas-service-registry/src/lib.rs",
+            "crates/annunimas-service-registry/src/registry.rs",
+            "crates/annunimas-service-registry/src/service.rs"
+          ],
+          "src_hit_count": 4,
+          "src_hits": [
+            "crates/annunimas-service-registry/src/service.rs",
+            "crates/annunimas-service-registry/src/lib.rs",
+            "crates/annunimas-service-registry/src/registry.rs",
+            "crates/annunimas-service-registry/src/contract.rs"
+          ],
+          "state": "implemented"
+        },
+        "triad": {
+          "hit_count": 2,
+          "sample_hits": [
+            "crates/annunimas-service-registry/src/contract.rs",
+            "crates/annunimas-service-registry/src/service.rs"
+          ],
+          "src_hit_count": 2,
+          "src_hits": [
+            "crates/annunimas-service-registry/src/service.rs",
+            "crates/annunimas-service-registry/src/contract.rs"
+          ],
+          "state": "implemented"
+        }
+      }
+    },
+    {
+      "cargo_toml": "crates/annunimas-signal-grid/Cargo.toml",
+      "crate": "annunimas-signal-grid",
+      "kind": "workspace_crate",
+      "signals": {
+        "bacon_lite": {
+          "hit_count": 2,
+          "sample_hits": [
+            "crates/annunimas-signal-grid/src/contract.rs",
+            "crates/annunimas-signal-grid/src/service.rs"
+          ],
+          "src_hit_count": 2,
+          "src_hits": [
+            "crates/annunimas-signal-grid/src/service.rs",
+            "crates/annunimas-signal-grid/src/contract.rs"
+          ],
+          "state": "implemented"
+        },
+        "joulework": {
+          "hit_count": 2,
+          "sample_hits": [
+            "crates/annunimas-signal-grid/src/contract.rs",
+            "crates/annunimas-signal-grid/src/service.rs"
+          ],
+          "src_hit_count": 2,
+          "src_hits": [
+            "crates/annunimas-signal-grid/src/service.rs",
+            "crates/annunimas-signal-grid/src/contract.rs"
+          ],
+          "state": "implemented"
+        },
+        "love_equation": {
+          "hit_count": 2,
+          "sample_hits": [
+            "crates/annunimas-signal-grid/src/contract.rs",
+            "crates/annunimas-signal-grid/src/service.rs"
+          ],
+          "src_hit_count": 2,
+          "src_hits": [
+            "crates/annunimas-signal-grid/src/service.rs",
+            "crates/annunimas-signal-grid/src/contract.rs"
+          ],
+          "state": "implemented"
+        },
+        "soterion": {
+          "hit_count": 4,
+          "sample_hits": [
+            "crates/annunimas-signal-grid/src/contract.rs",
+            "crates/annunimas-signal-grid/src/lib.rs",
+            "crates/annunimas-signal-grid/src/pipeline.rs",
+            "crates/annunimas-signal-grid/src/service.rs"
+          ],
+          "src_hit_count": 4,
+          "src_hits": [
+            "crates/annunimas-signal-grid/src/service.rs",
+            "crates/annunimas-signal-grid/src/lib.rs",
+            "crates/annunimas-signal-grid/src/pipeline.rs",
+            "crates/annunimas-signal-grid/src/contract.rs"
+          ],
+          "state": "implemented"
+        },
+        "triad": {
+          "hit_count": 2,
+          "sample_hits": [
+            "crates/annunimas-signal-grid/src/contract.rs",
+            "crates/annunimas-signal-grid/src/service.rs"
+          ],
+          "src_hit_count": 2,
+          "src_hits": [
+            "crates/annunimas-signal-grid/src/service.rs",
+            "crates/annunimas-signal-grid/src/contract.rs"
+          ],
+          "state": "implemented"
+        }
+      }
+    },
+    {
+      "cargo_toml": null,
+      "crate": "annunimas-supervisor",
+      "kind": "workspace_crate",
+      "signals": {
+        "bacon_lite": {
+          "hit_count": 0,
+          "sample_hits": [],
+          "src_hit_count": 0,
+          "src_hits": [],
+          "state": "absent"
+        },
+        "joulework": {
+          "hit_count": 0,
+          "sample_hits": [],
+          "src_hit_count": 0,
+          "src_hits": [],
+          "state": "absent"
+        },
+        "love_equation": {
+          "hit_count": 0,
+          "sample_hits": [],
+          "src_hit_count": 0,
+          "src_hits": [],
+          "state": "absent"
+        },
+        "soterion": {
+          "hit_count": 0,
+          "sample_hits": [],
+          "src_hit_count": 0,
+          "src_hits": [],
+          "state": "absent"
+        },
+        "triad": {
+          "hit_count": 0,
+          "sample_hits": [],
+          "src_hit_count": 0,
+          "src_hits": [],
+          "state": "absent"
+        }
+      }
+    },
+    {
+      "cargo_toml": "crates/annunimas-tool-harness/Cargo.toml",
+      "crate": "annunimas-tool-harness",
+      "kind": "workspace_crate",
+      "signals": {
+        "bacon_lite": {
+          "hit_count": 2,
+          "sample_hits": [
+            "crates/annunimas-tool-harness/src/contract.rs",
+            "crates/annunimas-tool-harness/src/service.rs"
+          ],
+          "src_hit_count": 2,
+          "src_hits": [
+            "crates/annunimas-tool-harness/src/service.rs",
+            "crates/annunimas-tool-harness/src/contract.rs"
+          ],
+          "state": "implemented"
+        },
+        "joulework": {
+          "hit_count": 2,
+          "sample_hits": [
+            "crates/annunimas-tool-harness/src/contract.rs",
+            "crates/annunimas-tool-harness/src/service.rs"
+          ],
+          "src_hit_count": 2,
+          "src_hits": [
+            "crates/annunimas-tool-harness/src/service.rs",
+            "crates/annunimas-tool-harness/src/contract.rs"
+          ],
+          "state": "implemented"
+        },
+        "love_equation": {
+          "hit_count": 2,
+          "sample_hits": [
+            "crates/annunimas-tool-harness/src/contract.rs",
+            "crates/annunimas-tool-harness/src/service.rs"
+          ],
+          "src_hit_count": 2,
+          "src_hits": [
+            "crates/annunimas-tool-harness/src/service.rs",
+            "crates/annunimas-tool-harness/src/contract.rs"
+          ],
+          "state": "implemented"
+        },
+        "soterion": {
+          "hit_count": 4,
+          "sample_hits": [
+            "crates/annunimas-tool-harness/src/contract.rs",
+            "crates/annunimas-tool-harness/src/lib.rs",
+            "crates/annunimas-tool-harness/src/service.rs",
+            "crates/annunimas-tool-harness/src/types.rs"
+          ],
+          "src_hit_count": 4,
+          "src_hits": [
+            "crates/annunimas-tool-harness/src/types.rs",
+            "crates/annunimas-tool-harness/src/lib.rs",
+            "crates/annunimas-tool-harness/src/service.rs",
+            "crates/annunimas-tool-harness/src/contract.rs"
+          ],
+          "state": "implemented"
+        },
+        "triad": {
+          "hit_count": 2,
+          "sample_hits": [
+            "crates/annunimas-tool-harness/src/contract.rs",
+            "crates/annunimas-tool-harness/src/service.rs"
+          ],
+          "src_hit_count": 2,
+          "src_hits": [
+            "crates/annunimas-tool-harness/src/service.rs",
+            "crates/annunimas-tool-harness/src/contract.rs"
+          ],
+          "state": "implemented"
+        }
+      }
+    },
+    {
+      "cargo_toml": "crates/annunimas-warden/Cargo.toml",
+      "crate": "annunimas-warden",
+      "kind": "workspace_crate",
+      "signals": {
+        "bacon_lite": {
+          "hit_count": 1,
+          "sample_hits": [
+            "crates/annunimas-warden/src/monitor.rs"
+          ],
+          "src_hit_count": 1,
+          "src_hits": [
+            "crates/annunimas-warden/src/monitor.rs"
+          ],
+          "state": "implemented"
+        },
+        "joulework": {
+          "hit_count": 1,
+          "sample_hits": [
+            "crates/annunimas-warden/src/monitor.rs"
+          ],
+          "src_hit_count": 1,
+          "src_hits": [
+            "crates/annunimas-warden/src/monitor.rs"
+          ],
+          "state": "implemented"
+        },
+        "love_equation": {
+          "hit_count": 1,
+          "sample_hits": [
+            "crates/annunimas-warden/src/monitor.rs"
+          ],
+          "src_hit_count": 1,
+          "src_hits": [
+            "crates/annunimas-warden/src/monitor.rs"
+          ],
+          "state": "implemented"
+        },
+        "soterion": {
+          "hit_count": 9,
+          "sample_hits": [
+            "crates/annunimas-warden/README.md",
+            "crates/annunimas-warden/src/alerts.rs",
+            "crates/annunimas-warden/src/crypto.rs",
+            "crates/annunimas-warden/src/foreign.rs",
+            "crates/annunimas-warden/src/informant/main.rs",
+            "crates/annunimas-warden/src/lib.rs",
+            "crates/annunimas-warden/src/main.rs",
+            "crates/annunimas-warden/src/monitor.rs",
+            "crates/annunimas-warden/src/podman.rs"
+          ],
+          "src_hit_count": 8,
+          "src_hits": [
+            "crates/annunimas-warden/src/foreign.rs",
+            "crates/annunimas-warden/src/alerts.rs",
+            "crates/annunimas-warden/src/main.rs",
+            "crates/annunimas-warden/src/podman.rs",
+            "crates/annunimas-warden/src/monitor.rs",
+            "crates/annunimas-warden/src/lib.rs",
+            "crates/annunimas-warden/src/crypto.rs",
+            "crates/annunimas-warden/src/informant/main.rs"
+          ],
+          "state": "implemented"
+        },
+        "triad": {
+          "hit_count": 1,
+          "sample_hits": [
+            "crates/annunimas-warden/src/foreign.rs"
+          ],
+          "src_hit_count": 1,
+          "src_hits": [
+            "crates/annunimas-warden/src/foreign.rs"
+          ],
+          "state": "implemented"
+        }
+      }
+    }
+  ],
+  "crates_total": 23,
+  "generated_at_utc": "2026-04-28T09:49:25Z",
+  "schema_version": "annunimas.governance.gate-matrix.v1",
+  "signals": [
+    "soterion",
+    "joulework",
+    "love_equation",
+    "bacon_lite",
+    "triad"
+  ],
+  "totals": {
+    "bacon_lite": {
+      "absent": 1,
+      "emitted_or_symbolic": 0,
+      "implemented": 21,
+      "shim": 1
+    },
+    "joulework": {
+      "absent": 1,
+      "emitted_or_symbolic": 0,
+      "implemented": 21,
+      "shim": 1
+    },
+    "love_equation": {
+      "absent": 1,
+      "emitted_or_symbolic": 0,
+      "implemented": 21,
+      "shim": 1
+    },
+    "soterion": {
+      "absent": 1,
+      "emitted_or_symbolic": 1,
+      "implemented": 20,
+      "shim": 1
+    },
+    "triad": {
+      "absent": 1,
+      "emitted_or_symbolic": 0,
+      "implemented": 21,
+      "shim": 1
+    }
+  }
+}

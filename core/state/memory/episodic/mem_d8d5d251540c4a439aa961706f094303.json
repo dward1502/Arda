@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_d8d5d251540c4a439aa961706f094303",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Queue typed-systemctl public repo skeleton plan. public_repo_skeleton_executor matched session_pivot public repo skeleton plan; docs/plans/typed-systemctl-public-repo-skeleton.md exists and defines standalone crate identity, parser/runtime client API, parse/list/kinds CLI, fixture-driven tests, CI gates, README outline, safety non-goals, and Annunimas rename map; PASS cargo test -p annunimas-systemd; PASS cargo doc -p annunimas-systemd --no-deps; append-only guard passed before closeout",
+  "salience": 0.6697222222222223,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-21T03:01:52.581005517Z",
+  "last_seen_at": "2026-06-21T03:01:52.581005517Z"
+}

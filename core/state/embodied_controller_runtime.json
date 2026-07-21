@@ -1,0 +1,316 @@
+{
+  "authority": "embodied_controller_export",
+  "bootstrap_state": "tailscale_visible_ssh_not_ready",
+  "controller_status": {
+    "authority": "remote_embodied_pi5_probe",
+    "contract_present": true,
+    "embodied_root": "/home/numenor/annunimas_embodied",
+    "generated_at_utc": "2026-03-11T10:44:52.537552Z",
+    "hostname": "raspberrypi",
+    "i2c_devices": [
+      "/dev/i2c-13",
+      "/dev/i2c-14"
+    ],
+    "kernel_modules": [
+      "spidev",
+      "rp1_pio",
+      "i2c_brcmstb",
+      "spi_bcm2835",
+      "rp1_fw",
+      "rp1_mailbox",
+      "rp1_adc",
+      "i2c_dev"
+    ],
+    "packages_present": [
+      "i2c-tools",
+      "librpicam-app1:arm64",
+      "python3-venv",
+      "rpicam-apps",
+      "rpicam-apps-core",
+      "rpicam-apps-encoder:arm64",
+      "rpicam-apps-lite",
+      "rpicam-apps-opencv-postprocess",
+      "rpicam-apps-preview:arm64"
+    ],
+    "platform": "Linux-6.12.62+rpt-rpi-2712-aarch64-with-glibc2.41",
+    "python": "3.13.5",
+    "schema_version": "annunimas.embodied-node-status.v1",
+    "service_dirs": {
+      "app": true,
+      "logs": true,
+      "state": true
+    },
+    "user": "numenor",
+    "venv_present": true
+  },
+  "controllers": [
+    {
+      "bootstrap_state": "tailscale_visible_ssh_not_ready",
+      "controller_status": {
+        "authority": "remote_embodied_pi5_probe",
+        "contract_present": true,
+        "embodied_root": "/home/numenor/annunimas_embodied",
+        "generated_at_utc": "2026-03-11T10:44:52.537552Z",
+        "hostname": "raspberrypi",
+        "i2c_devices": [
+          "/dev/i2c-13",
+          "/dev/i2c-14"
+        ],
+        "kernel_modules": [
+          "spidev",
+          "rp1_pio",
+          "i2c_brcmstb",
+          "spi_bcm2835",
+          "rp1_fw",
+          "rp1_mailbox",
+          "rp1_adc",
+          "i2c_dev"
+        ],
+        "packages_present": [
+          "i2c-tools",
+          "librpicam-app1:arm64",
+          "python3-venv",
+          "rpicam-apps",
+          "rpicam-apps-core",
+          "rpicam-apps-encoder:arm64",
+          "rpicam-apps-lite",
+          "rpicam-apps-opencv-postprocess",
+          "rpicam-apps-preview:arm64"
+        ],
+        "platform": "Linux-6.12.62+rpt-rpi-2712-aarch64-with-glibc2.41",
+        "python": "3.13.5",
+        "schema_version": "annunimas.embodied-node-status.v1",
+        "service_dirs": {
+          "app": true,
+          "logs": true,
+          "state": true
+        },
+        "user": "numenor",
+        "venv_present": true
+      },
+      "fleet_active_view": {
+        "capabilities": [
+          "embodied_controller_candidate",
+          "camera_runtime_present",
+          "tailscale_edge_node"
+        ],
+        "dns_name": "warden.tail91c3c1.ts.net.",
+        "hardware": {
+          "i2c_devices": [
+            "/dev/i2c-13",
+            "/dev/i2c-14"
+          ],
+          "kernel_modules": [
+            "spidev",
+            "rp1_pio",
+            "i2c_brcmstb",
+            "spi_bcm2835",
+            "rp1_fw",
+            "rp1_mailbox",
+            "rp1_adc",
+            "i2c_dev"
+          ],
+          "model": "Raspberry Pi 5 Model B Rev 1.1",
+          "packages_present": [
+            "i2c-tools",
+            "python3-venv",
+            "librpicam-app1:arm64",
+            "rpicam-apps",
+            "rpicam-apps-core",
+            "rpicam-apps-encoder:arm64",
+            "rpicam-apps-lite",
+            "rpicam-apps-opencv-postprocess",
+            "rpicam-apps-preview:arm64"
+          ]
+        },
+        "hostname": "warden",
+        "informant_source": "data/fleet/informants/node-pi5-warden_last.json",
+        "last_seen_age_days": null,
+        "last_seen_utc": "0001-01-01T00:00:00Z",
+        "node_declared_id": "node-pi5-warden",
+        "node_id": "nZMArV866311CNTRL",
+        "online": true,
+        "relay": "lax",
+        "runtime": {
+          "cargo": "missing",
+          "node": "missing",
+          "python": "Python 3.13.5"
+        },
+        "tailscale_ips": [
+          "100.110.85.37",
+          "fd7a:115c:a1e0::bc37:5525"
+        ],
+        "usage": {}
+      },
+      "readiness": {
+        "contract_synced": true,
+        "controller_dirs_ready": true,
+        "node_toolchain_ready": true,
+        "ssh_ready": false,
+        "venv_ready": true
+      },
+      "target_node": {
+        "enrollment_status": "active",
+        "hostname": "raspberrypi",
+        "node_class": "edge_guardhouse",
+        "node_id": "node-pi5-warden",
+        "role": "warden_guardhouse",
+        "ssh_user": "numenor",
+        "tailscale_ip": "100.110.85.37"
+      }
+    },
+    {
+      "bootstrap_state": "tailscale_visible_ssh_ready",
+      "controller_status": {
+        "authority": "remote_embodied_pi5_probe",
+        "contract_present": true,
+        "embodied_root": "/home/arnor/annunimas_embodied",
+        "generated_at_utc": "2026-03-12T01:04:25.179016Z",
+        "hostname": "raspberrypi",
+        "i2c_devices": [
+          "/dev/i2c-13",
+          "/dev/i2c-14"
+        ],
+        "kernel_modules": [
+          "spidev",
+          "i2c_brcmstb",
+          "spi_bcm2835",
+          "rp1_pio",
+          "rp1_adc",
+          "rp1_mailbox",
+          "rp1_fw",
+          "i2c_dev"
+        ],
+        "packages_present": [
+          "i2c-tools",
+          "librpicam-app1:arm64",
+          "python3-venv",
+          "rpicam-apps",
+          "rpicam-apps-core",
+          "rpicam-apps-encoder:arm64",
+          "rpicam-apps-lite",
+          "rpicam-apps-opencv-postprocess",
+          "rpicam-apps-preview:arm64"
+        ],
+        "platform": "Linux-6.12.62+rpt-rpi-2712-aarch64-with-glibc2.41",
+        "python": "3.13.5",
+        "schema_version": "annunimas.embodied-node-status.v1",
+        "service_dirs": {
+          "app": true,
+          "logs": true,
+          "state": true
+        },
+        "user": "arnor",
+        "venv_present": true
+      },
+      "fleet_active_view": {
+        "capabilities": [
+          "unknown_until_informant"
+        ],
+        "dns_name": "raspberrypi-aihat.tail91c3c1.ts.net.",
+        "hostname": "raspberrypi-aihat",
+        "last_seen_age_days": null,
+        "last_seen_utc": "0001-01-01T00:00:00Z",
+        "node_declared_id": "node-pi5-citadel-avatar",
+        "node_id": "noXnkGwNbw11CNTRL",
+        "online": true,
+        "relay": "lax",
+        "tailscale_ips": [
+          "100.79.194.31",
+          "fd7a:115c:a1e0::e837:c21f"
+        ],
+        "usage": {}
+      },
+      "readiness": {
+        "contract_synced": true,
+        "controller_dirs_ready": true,
+        "node_toolchain_ready": true,
+        "ssh_ready": true,
+        "venv_ready": true
+      },
+      "target_node": {
+        "enrollment_status": "active_staging",
+        "hostname": "raspberrypi-aihat",
+        "llm_runtime": "cloud_only_inference",
+        "node_class": "edge_avatar_product",
+        "node_id": "node-pi5-citadel-avatar",
+        "role": "citadel_avatar_controller",
+        "ssh_user": "arnor",
+        "tailscale_ip": "100.79.194.31"
+      }
+    }
+  ],
+  "fleet_active_view": {
+    "capabilities": [
+      "embodied_controller_candidate",
+      "camera_runtime_present",
+      "tailscale_edge_node"
+    ],
+    "dns_name": "warden.tail91c3c1.ts.net.",
+    "hardware": {
+      "i2c_devices": [
+        "/dev/i2c-13",
+        "/dev/i2c-14"
+      ],
+      "kernel_modules": [
+        "spidev",
+        "rp1_pio",
+        "i2c_brcmstb",
+        "spi_bcm2835",
+        "rp1_fw",
+        "rp1_mailbox",
+        "rp1_adc",
+        "i2c_dev"
+      ],
+      "model": "Raspberry Pi 5 Model B Rev 1.1",
+      "packages_present": [
+        "i2c-tools",
+        "python3-venv",
+        "librpicam-app1:arm64",
+        "rpicam-apps",
+        "rpicam-apps-core",
+        "rpicam-apps-encoder:arm64",
+        "rpicam-apps-lite",
+        "rpicam-apps-opencv-postprocess",
+        "rpicam-apps-preview:arm64"
+      ]
+    },
+    "hostname": "warden",
+    "informant_source": "data/fleet/informants/node-pi5-warden_last.json",
+    "last_seen_age_days": null,
+    "last_seen_utc": "0001-01-01T00:00:00Z",
+    "node_declared_id": "node-pi5-warden",
+    "node_id": "nZMArV866311CNTRL",
+    "online": true,
+    "relay": "lax",
+    "runtime": {
+      "cargo": "missing",
+      "node": "missing",
+      "python": "Python 3.13.5"
+    },
+    "tailscale_ips": [
+      "100.110.85.37",
+      "fd7a:115c:a1e0::bc37:5525"
+    ],
+    "usage": {}
+  },
+  "generated_at_utc": "2026-03-22T10:01:33Z",
+  "readiness": {
+    "contract_synced": true,
+    "controller_dirs_ready": true,
+    "node_toolchain_ready": true,
+    "ssh_ready": false,
+    "venv_ready": true
+  },
+  "schema_version": "annunimas.embodied-controller-runtime.v1",
+  "sigil": "REPAIR",
+  "target_node": {
+    "enrollment_status": "active",
+    "hostname": "raspberrypi",
+    "node_class": "edge_guardhouse",
+    "node_id": "node-pi5-warden",
+    "role": "warden_guardhouse",
+    "ssh_user": "numenor",
+    "tailscale_ip": "100.110.85.37"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "authority": "project_task_queue + downstream_absorption_contracts",
+  "completed": [],
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "schema_version": "annunimas.source-absorption-downstream-reconciliation.v1",
+  "sigil": "REPAIR",
+  "skipped": [],
+  "summary": {
+    "completed_total": 0,
+    "skipped_total": 0
+  }
+}

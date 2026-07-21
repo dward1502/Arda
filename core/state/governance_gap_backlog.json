@@ -1,0 +1,34 @@
+{
+  "authority": "governance_gate_matrix",
+  "gaps": [
+    {
+      "crate": "annunimas-fleet",
+      "missing": [],
+      "priority": "medium",
+      "recommended_move": "raise symbolic coverage into enforced runtime gates",
+      "weak": [
+        "soterion"
+      ]
+    },
+    {
+      "crate": "annunimas-supervisor",
+      "missing": [
+        "bacon_lite",
+        "joulework",
+        "love_equation",
+        "soterion",
+        "triad"
+      ],
+      "priority": "medium",
+      "recommended_move": "raise symbolic coverage into enforced runtime gates",
+      "weak": []
+    }
+  ],
+  "generated_at_utc": "2026-04-28T09:49:25Z",
+  "schema_version": "annunimas.governance-gap-backlog.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "crates_with_gaps_total": 2,
+    "high_priority_total": 0
+  }
+}

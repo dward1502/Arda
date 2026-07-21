@@ -1,0 +1,38 @@
+# sigil: ANKH
+
+[contract]
+internal_backbone = "tailscale"
+local_control = ["unix_socket", "loopback_http"]
+trusted_internal = ["internal_http", "a2a", "mcp"]
+federated_room_provider = "matrix"
+federated_client_surface = "element"
+adapter_strategy = "agnostic_bridges"
+discord_mode = "bounded_optional_bridge"
+blockchain_hot_path = false
+
+[selinux]
+expected_on_bluefin = true
+runtime_socket_root = "/run/user/$UID/annunimas"
+
+[matrix]
+enabled = false
+homeserver_url = ""
+access_token_env = "ANNUNIMAS_MATRIX_ACCESS_TOKEN"
+bot_user_id = ""
+default_space = ""
+
+[element]
+preferred_client = true
+desktop_enabled = false
+web_url = "https://app.element.io/"
+
+[adapters]
+discord_enabled = false
+generic_webhook_enabled = false
+
+[nanoclaw]
+control_mode = "tailscale_internal"
+
+[bitmesh]
+mode = "planned"
+transports = ["libp2p", "offline_relay", "anonymity_preserving_routing"]

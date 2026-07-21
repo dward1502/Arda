@@ -1,0 +1,9 @@
+{
+  "id": "boardroom_monitor_screen",
+  "domain": "materials",
+  "scene_binding": "boardroom_monitors",
+  "material_family": "holographic_display",
+  "source": "custom_shader_ready",
+  "license": "Internal",
+  "notes": "Base for holographic screen material — emissive + transmission + reactive."
+}

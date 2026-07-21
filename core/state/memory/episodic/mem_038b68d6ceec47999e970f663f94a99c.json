@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_038b68d6ceec47999e970f663f94a99c",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA capability contract full render",
+  "salience": 0.8845000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-27T20:30:41.727697028Z",
+  "last_seen_at": "2026-05-27T20:30:41.727697028Z"
+}

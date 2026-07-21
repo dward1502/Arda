@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_09bccc9d267f48e8b8dc2a2c4d367123",
+  "kind": "episodic",
+  "agent": "charon",
+  "content": "CHARON routed athena:research [planning:context_heavy] -> google:gemini-2.0-flash triad_passed=false love_eq=0.74",
+  "salience": 0.43349999999999994,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T03:12:09.082565469Z",
+  "last_seen_at": "2026-06-01T03:12:09.082565469Z"
+}

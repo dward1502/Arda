@@ -1,0 +1,33 @@
+# sigil: SCROLL
+model_list:
+  # ── Local Mesh Models (via mesh-llm) ────────────
+  - model_name: litellm-router
+    litellm_params:
+      model: openai/Qwen3.5-9B-Q4_K_M
+      api_base: http://100.103.125.88:9337/v1
+      api_key: mesh-llm-worker
+
+  # ── Anthropic Claude (direct, billed to ANTHROPIC_API_KEY) ────────────
+  # LiteLLM reads ANTHROPIC_API_KEY from the environment automatically.
+  - model_name: claude-sonnet-4-6
+    litellm_params:
+      model: anthropic/claude-sonnet-4-6
+
+  - model_name: claude-opus-4-6
+    litellm_params:
+      model: anthropic/claude-opus-4-6
+
+  - model_name: claude-haiku-4-5
+    litellm_params:
+      model: anthropic/claude-haiku-4-5-20251001
+
+general_settings:
+  master_key: annunimas-local
+  disable_spend_logs: true
+  disable_spend_updates: true
+  store_model_in_db: false
+  database_url: null
+
+litellm_settings:
+  set_verbose: false
+  drop_params: true

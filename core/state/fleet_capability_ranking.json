@@ -1,0 +1,188 @@
+{
+  "authority": "fleet_toml + topology_registry + measured_operator_hardware",
+  "decision": {
+    "conclusion": "The backbone server remains the strongest always-on system node because of high system RAM and multi-service headroom, while any enrolled operator-class node may still be preferable for interactive single-seat work when local inference is desired.",
+    "primary_backbone_node": null,
+    "primary_operator_node": null
+  },
+  "generated_at_utc": "2026-04-28T09:49:24Z",
+  "nodes": [
+    {
+      "best_for": [],
+      "constraints": [],
+      "cpu_cores": null,
+      "cpu_model": null,
+      "display_name": "Annunimas Core (3080 Workstation)",
+      "execution_authority": "specialized",
+      "gpu_model": null,
+      "gpu_vram_gib": null,
+      "measured_or_observed": "fleet_toml + topology_registry",
+      "network_tier": "tailnet",
+      "node_id": "node-core-hub",
+      "not_best_for": [],
+      "role": "main_hub",
+      "strengths": [],
+      "system_ram_gib": null
+    },
+    {
+      "best_for": [
+        "warden_monitoring",
+        "guardhouse_alerting"
+      ],
+      "constraints": [],
+      "cpu_cores": null,
+      "cpu_model": null,
+      "display_name": "Pi5 Guardhouse (Warden)",
+      "execution_authority": "specialized",
+      "gpu_model": null,
+      "gpu_vram_gib": null,
+      "measured_or_observed": "fleet_toml + topology_registry",
+      "network_tier": "tailnet",
+      "node_id": "node-pi5-warden",
+      "not_best_for": [
+        "heavy_model_inference"
+      ],
+      "role": "warden_guardhouse",
+      "strengths": [],
+      "system_ram_gib": null
+    },
+    {
+      "best_for": [],
+      "constraints": [],
+      "cpu_cores": null,
+      "cpu_model": null,
+      "display_name": "Annunimas Server",
+      "execution_authority": "specialized",
+      "gpu_model": null,
+      "gpu_vram_gib": null,
+      "measured_or_observed": "fleet_toml + topology_registry",
+      "network_tier": "tailnet",
+      "node_id": "node-backbone-server",
+      "not_best_for": [],
+      "role": "backbone_inference",
+      "strengths": [],
+      "system_ram_gib": null
+    },
+    {
+      "best_for": [
+        "edge_worker_execution",
+        "background_tasks",
+        "supplemental_reasoning"
+      ],
+      "constraints": [],
+      "cpu_cores": null,
+      "cpu_model": null,
+      "display_name": "Beelink SER9 Pro",
+      "execution_authority": "specialized",
+      "gpu_model": null,
+      "gpu_vram_gib": null,
+      "measured_or_observed": "fleet_toml + topology_registry",
+      "network_tier": "tailnet",
+      "node_id": "node-ser9-worker",
+      "not_best_for": [
+        "primary_deep_reasoning"
+      ],
+      "role": "ser9_sovereign_worker",
+      "strengths": [],
+      "system_ram_gib": null
+    },
+    {
+      "best_for": [],
+      "constraints": [],
+      "cpu_cores": null,
+      "cpu_model": null,
+      "display_name": "Beelink SER9 Pro — Carnice 9B Lane",
+      "execution_authority": "specialized",
+      "gpu_model": null,
+      "gpu_vram_gib": null,
+      "measured_or_observed": "fleet_toml + topology_registry",
+      "network_tier": "tailnet",
+      "node_id": "node-ser9-carnice",
+      "not_best_for": [],
+      "role": "ser9_standalone_lane",
+      "strengths": [],
+      "system_ram_gib": null
+    },
+    {
+      "best_for": [],
+      "constraints": [],
+      "cpu_cores": null,
+      "cpu_model": null,
+      "display_name": "RTX 3050 Laptop",
+      "execution_authority": "specialized",
+      "gpu_model": null,
+      "gpu_vram_gib": null,
+      "measured_or_observed": "fleet_toml + topology_registry",
+      "network_tier": "tailnet",
+      "node_id": "node-laptop",
+      "not_best_for": [],
+      "role": "portable_operator",
+      "strengths": [],
+      "system_ram_gib": null
+    },
+    {
+      "best_for": [
+        "avatar_product_control",
+        "bounded_embodied_workflows"
+      ],
+      "constraints": [],
+      "cpu_cores": null,
+      "cpu_model": null,
+      "display_name": "Pi5 CITADEL Avatar",
+      "execution_authority": "specialized",
+      "gpu_model": null,
+      "gpu_vram_gib": null,
+      "measured_or_observed": "fleet_toml + topology_registry",
+      "network_tier": "tailnet",
+      "node_id": "node-pi5-citadel-avatar",
+      "not_best_for": [
+        "general_backbone_compute"
+      ],
+      "role": "citadel_avatar_controller",
+      "strengths": [],
+      "system_ram_gib": null
+    }
+  ],
+  "rankings": {
+    "always_on_backbone": [
+      "node-backbone-server-01",
+      "node-ser9-worker",
+      null
+    ],
+    "interactive_local_operator": [
+      null,
+      "node-backbone-server-01",
+      "node-ser9-worker"
+    ],
+    "offsite_relocation_suitability": [
+      "node-backbone-server-01",
+      "node-ser9-worker"
+    ],
+    "parallel_service_headroom": [
+      "node-backbone-server-01",
+      "node-ser9-worker",
+      null
+    ],
+    "single_gpu_inference_comfort": [
+      null,
+      "node-ser9-worker",
+      "node-backbone-server-01"
+    ]
+  },
+  "recommended_upgrades": [
+    {
+      "action": "upgrade_operator_node_ram",
+      "minimum_target_gib": 32,
+      "preferred_target_gib": 64,
+      "reason": "A GPU-capable operator node below 32 GiB RAM becomes constrained under simultaneous HUD, browser, local inference, and development workloads.",
+      "target_node": null
+    }
+  ],
+  "schema_version": "annunimas.fleet-capability-ranking.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "nodes_total": 7,
+    "primary_backbone_node": null,
+    "primary_operator_node": null
+  }
+}

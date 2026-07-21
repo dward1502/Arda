@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_3f2743620bc142ada28e6b1dc8520f10",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Create task for 2026-05-30-fleet-model-upgrade-candidate-matrix.md",
+  "salience": 0.6825,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-05T07:25:42.357032591Z",
+  "last_seen_at": "2026-06-05T07:25:42.357032591Z"
+}

@@ -1,0 +1,92 @@
+{
+  "adapters": {
+    "discord_enabled": true,
+    "generic_webhook_enabled": true,
+    "strategy": "agnostic_bridges"
+  },
+  "authority": "config/federated_comms.toml + federated_comms_doctrine",
+  "bitmesh": {
+    "mode": "planned",
+    "transports": [
+      "libp2p",
+      "offline_relay",
+      "anonymity_preserving_routing"
+    ]
+  },
+  "boardrooms": {
+    "activation_requirements": {
+      "element_client_ready": true,
+      "federated_rooms_ready": false,
+      "matrix_bot_access_token_env": "ANNUNIMAS_MATRIX_ACCESS_TOKEN",
+      "matrix_homeserver_env": "ANNUNIMAS_MATRIX_HOMESERVER"
+    },
+    "bridge_contracts": {
+      "discord": {
+        "enabled": true,
+        "mode": "hermes_moderated",
+        "requires_policy_guard": true,
+        "source_room_id": "client-bridge"
+      },
+      "webhook": {
+        "enabled": true,
+        "mode": "receipt_fanout",
+        "requires_policy_guard": true,
+        "source_room_id": "ops-boardroom"
+      }
+    },
+    "operator_entrypoint": "#annunimas-ops:matrix.local",
+    "room_count": 5,
+    "root_space_alias": "#annunimas:matrix.local",
+    "routing_contract": {
+      "audit_room_id": "governance-audit",
+      "client_adapter_room_id": "client-bridge",
+      "human_decision_room_id": "ceo-boardroom",
+      "knowledge_room_id": "research-forge",
+      "primary_boardroom_room_id": "ops-boardroom"
+    },
+    "source": "core/state/matrix_boardrooms.json"
+  },
+  "config_path": "config/federated_comms.toml",
+  "discord_mode": "bounded_optional_bridge",
+  "element": {
+    "desktop_enabled": false,
+    "preferred_client": true,
+    "web_url": "https://app.element.io/"
+  },
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "internal_backbone": "tailscale",
+  "layer_activation": {
+    "economic_discovery_active": false,
+    "federated_rooms_ready": false,
+    "future_bitmesh_ready": false,
+    "local_sovereign_ready": true,
+    "trusted_internal_ready": true
+  },
+  "local_control": [
+    "unix_socket",
+    "loopback_http"
+  ],
+  "matrix": {
+    "access_token_env": "ANNUNIMAS_MATRIX_ACCESS_TOKEN",
+    "bot_user_id": "",
+    "default_space": "",
+    "enabled": false,
+    "homeserver_url": "",
+    "ready": false
+  },
+  "nanoclaw": {
+    "aligned": true,
+    "control_mode": "tailscale_internal"
+  },
+  "schema_version": "annunimas.federated-comms-runtime.v1",
+  "selinux": {
+    "expected_on_bluefin": true,
+    "runtime_socket_root": "/run/user/$UID/annunimas"
+  },
+  "sigil": "REPAIR",
+  "trusted_internal": [
+    "internal_http",
+    "a2a",
+    "mcp"
+  ]
+}

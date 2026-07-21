@@ -1,0 +1,72 @@
+# sigil: HEARTH
+[contract]
+schema_version = "arda.local_voice_model_lanes.v1"
+status = "staging_plan"
+last_reviewed = "2026-06-03"
+authority = "operator_approved_single_core_model_policy"
+notes = "Bounded plan for one core text model plus local speech-to-text ingress. This file is declarative only; it does not switch services or start downloads."
+
+[policy]
+core_text_models_running_target = 1
+accepted_advertised_core_model_ids = ["LFM2.5-8B-A1B-Q4_K_M", "Qwen3.5-9B-Q4_K_M", "Qwen_Qwen3.5-4B-Q6_K"]
+advertised_model_acceptance = "Operator approved promoting LiquidAI LFM2.5-8B-A1B-Q4_K_M to the single active core mesh lane on 2026-06-03. Qwen3.5-9B-Q4_K_M remains an accepted rollback artifact."
+core_text_service = "mesh-llm.service"
+core_text_endpoint = "http://127.0.0.1:9337/v1"
+manwe_router_endpoint = "http://127.0.0.1:5110"
+stt_is_separate_from_text_llm = true
+stt_may_run_cpu_first = true
+model_switch_requires_human_approval = true
+download_requires_human_approval = true
+service_restart_requires_human_approval = true
+benchmark_required_before_promotion = true
+rollback_receipt_required = true
+no_active_core_disruption = true
+
+[[lane]]
+id = "voice_stt_ingress"
+purpose = "Local speech-to-text for operator/council voice ingress. Produces text transcripts only; it must not mutate council/task state directly."
+runtime = "parakeet.cpp"
+upstream = "https://github.com/mudler/parakeet.cpp"
+model_source = "https://huggingface.co/mudler/parakeet-cpp-gguf"
+preferred_initial_model = "nvidia/parakeet-tdt_ctc-110m converted or mudler parakeet GGUF equivalent"
+required_capabilities = ["local_stt", "wav_transcription", "json_output", "timestamps_optional"]
+commands_observed = [
+  "parakeet-cli transcribe --model m.gguf --input audio.wav",
+  "parakeet-cli transcribe --model m.gguf --input audio.wav --json",
+  "parakeet-cli transcribe --model m.gguf --input audio.wav --timestamps"
+]
+gates = ["repo_or_binary_present", "model_artifact_present", "sample_wav_transcription", "transcript_schema_receipt", "privacy_local_only"]
+promotion_status = "staged_cpu_smoke_passed"
+staged_artifact = "/var/home/mythos/models/annunimas-staging/current/node-core-hub/parakeet/realtime_eou_120m-v1-q4_k.gguf"
+sample_transcript = "data/manwe/stt_samples/local_council_sample_16k.parakeet.json"
+council_projection = "data/council/voice_proposals.jsonl"
+
+[[lane]]
+id = "core_council_rw_candidate"
+purpose = "Read/write-capable council participant candidate running on the single core text model lane after benchmark approval."
+runtime = "llama.cpp_openai_compatible"
+current_live_model = "LFM2.5-8B-A1B-Q4_K_M"
+current_endpoint = "http://127.0.0.1:9337/v1"
+preferred_candidate = "LFM2.5-8B-A1B-Q4_K_M.gguf"
+candidate_source = "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B"
+candidate_gguf_source = "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B-GGUF"
+staged_artifact = "/var/home/mythos/models/liquidai/lfm2.5-8b-a1b/LFM2.5-8B-A1B-Q4_K_M.gguf"
+license_review_required = "lfm1.0"
+required_capabilities = ["chat", "tool_use_candidate", "structured_output", "council_deliberation", "bounded_write_intent"]
+write_safety = "Model may propose write intents to Manwe/council gates; canonical file/task writes still require existing approval and validation gates."
+gates = ["license_review", "single_model_pressure_ok", "direct_benchmark_pass", "manwe_route_smoke", "rollback_target_available"]
+promotion_status = "operator_approved_rollout"
+previous_evidence = "data/manwe/model_benchmark_m6_real_run_20260531.md"
+rollback_target = "/var/home/mythos/models/qwen3.5-9b/Qwen3.5-9B-Q4_K_M.gguf"
+
+[[lane]]
+id = "small_monitoring_candidate"
+purpose = "Optional tiny/low-memory monitoring assistant candidate, not the primary core council model."
+runtime = "llama.cpp_openai_compatible"
+preferred_candidate = "MiniCPM5-1B-Q4_K_M.gguf"
+candidate_source = "https://huggingface.co/openbmb/MiniCPM5-1B"
+staged_artifact = "/var/home/mythos/models/annunimas-staging/current/node-pi5-warden/MiniCPM5-1B-Q4_K_M.gguf"
+license = "apache-2.0"
+gates = ["latency_benchmark", "no_panic_monitoring_eval", "json_extract_eval", "rollback_target_available"]
+promotion_status = "benchmark_more_required"
+previous_evidence = "data/manwe/model_benchmark_m6_real_run_20260531.md"

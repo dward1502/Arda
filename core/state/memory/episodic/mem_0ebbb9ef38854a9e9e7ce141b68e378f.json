@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_0ebbb9ef38854a9e9e7ce141b68e378f",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Zero-active-blocker portability visibility closeout",
+  "salience": 0.6645,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-25T09:53:20.359589824Z",
+  "last_seen_at": "2026-05-25T09:53:20.359589824Z"
+}

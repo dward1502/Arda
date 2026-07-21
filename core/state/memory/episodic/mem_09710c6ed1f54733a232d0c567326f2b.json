@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_09710c6ed1f54733a232d0c567326f2b",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Queue federation blocked candidate closeout",
+  "salience": 0.7845,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-14T19:34:44.024594797Z",
+  "last_seen_at": "2026-06-14T19:34:44.024594797Z"
+}

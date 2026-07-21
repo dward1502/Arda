@@ -1,0 +1,54 @@
+{
+  "authority": "ceo_delivery_workflow_map",
+  "client_slug": "skylight-pros",
+  "generated_at_utc": "2026-03-12T09:13:00Z",
+  "perspectives": [
+    {
+      "goal": "Command throughput, bottlenecks, schedule pressure, and operating health.",
+      "persona": "ceo",
+      "primary_surfaces": [
+        "/admin",
+        "/admin/leads",
+        "/admin/schedule",
+        "/admin/inventory"
+      ],
+      "questions": [
+        "Is demand healthy and converting?",
+        "What will slip this week?",
+        "Where are operations blocked?"
+      ]
+    },
+    {
+      "goal": "Get to the right job with the right materials and complete the capture workflow with minimal friction.",
+      "persona": "worker",
+      "primary_surfaces": [
+        "/field/jobs",
+        "/field/jobs/[id]",
+        "/field/jobs/[id]/scan",
+        "/field/jobs/[id]/media"
+      ],
+      "questions": [
+        "What job is next?",
+        "Am I ready to roll?",
+        "What must be captured before I leave?"
+      ]
+    },
+    {
+      "goal": "Turn finished jobs into usable proof-of-work content and campaigns without losing operational context.",
+      "persona": "marketing",
+      "primary_surfaces": [
+        "/admin/media",
+        "/admin/social",
+        "/admin/social/review",
+        "/admin/social/approved"
+      ],
+      "questions": [
+        "What content is waiting?",
+        "What is publishable now?",
+        "Which jobs produced the strongest proof?"
+      ]
+    }
+  ],
+  "schema_version": "annunimas.client-workflow-perspectives.v1",
+  "sigil": "REPAIR"
+}

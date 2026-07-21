@@ -1,0 +1,321 @@
+{
+  "schema_version": "annunimas.human-inbox-scan-summary.v1",
+  "generated_at_utc": "2026-05-15T21:30:29Z",
+  "authority": "athena_read_only_human_scan",
+  "source_surfaces": {
+    "scan_jsonl": "data/athena/human_ingestion_results.jsonl",
+    "contradictions_jsonl": "data/athena/human_contradiction_candidates.jsonl",
+    "triage_manifest": "human/inbox/TRIAGE.md",
+    "contract": "docs/contracts/human-knowledge-ingestion-contract.md"
+  },
+  "safety": {
+    "human_source_files_moved": false,
+    "human_source_files_deleted": false,
+    "human_source_files_promoted": false,
+    "derived_records_only": true
+  },
+  "summary": {
+    "athena_scan_records_total": 965,
+    "inbox_supported_records_total": 72,
+    "inbox_files_total": 104,
+    "inbox_candidate_notes_total": 23,
+    "inbox_binary_documents_total": 5,
+    "inbox_media_assets_total": 26,
+    "contradiction_candidates_total": 0,
+    "frontmatter_missing_or_invalid_total": 70
+  },
+  "counts": {
+    "by_extension": {
+      ".csv": 1,
+      ".docx": 4,
+      ".jpg": 22,
+      ".json": 11,
+      ".md": 61,
+      ".pdf": 1,
+      ".png": 4
+    },
+    "by_top_level_bucket": {
+      "README.md": 1,
+      "TRIAGE.md": 1,
+      "ai-conversations": 5,
+      "arda_boardroom_spec_pack_v0_2": 43,
+      "extracted-candidates": 23,
+      "ideas": 12,
+      "mixed-longform": 3,
+      "notes": 1,
+      "project-drafts": 4,
+      "research": 6,
+      "technical-notes": 5
+    },
+    "supported_by_status": {
+      "inbox": 48,
+      "candidate": 24
+    },
+    "supported_by_authority": {
+      "human": 1,
+      "agent_generated": 17,
+      "raw": 54
+    },
+    "supported_by_source_type": {
+      "note": 36,
+      "summary": 18,
+      "source": 12,
+      "plan": 2,
+      "research": 2,
+      "transcript": 2
+    },
+    "supported_by_recommendation": {
+      "retain-working-review": 72
+    },
+    "supported_frontmatter_valid": {
+      "true": 2,
+      "false": 70
+    }
+  },
+  "frontmatter_repair_sample": [
+    "human/inbox/ai-conversations/claude-convo.md",
+    "human/inbox/ai-conversations/claude-notes-3.md",
+    "human/inbox/ai-conversations/claude-notes.md",
+    "human/inbox/ai-conversations/ideas-claude.md",
+    "human/inbox/ai-conversations/mix-of-ideas-claude.md",
+    "human/inbox/arda_boardroom_spec_pack_v0_2/ARDA_BOARDROOM_ASSET_INTAKE_INDEX.md",
+    "human/inbox/arda_boardroom_spec_pack_v0_2/ARDA_BOARDROOM_BUILD_WORKSHEET.md",
+    "human/inbox/arda_boardroom_spec_pack_v0_2/ARDA_BOARDROOM_GENERATION_PROMPTS.md",
+    "human/inbox/arda_boardroom_spec_pack_v0_2/ARDA_BOARDROOM_MASTER_ASSET_SPEC.md",
+    "human/inbox/arda_boardroom_spec_pack_v0_2/ARDA_BOARDROOM_TOOL_PIPELINE.md",
+    "human/inbox/arda_boardroom_spec_pack_v0_2/metadata_stubs/boardroom_environment.metadata.json",
+    "human/inbox/arda_boardroom_spec_pack_v0_2/metadata_stubs/boardroom_skyline_plate.metadata.json",
+    "human/inbox/arda_boardroom_spec_pack_v0_2/metadata_stubs/boardroom_window_frame.metadata.json",
+    "human/inbox/arda_boardroom_spec_pack_v0_2/metadata_stubs/center_console.metadata.json",
+    "human/inbox/arda_boardroom_spec_pack_v0_2/metadata_stubs/desk_left_surface.metadata.json",
+    "human/inbox/arda_boardroom_spec_pack_v0_2/metadata_stubs/desk_right_surface.metadata.json",
+    "human/inbox/arda_boardroom_spec_pack_v0_2/metadata_stubs/presence_rig.metadata.json",
+    "human/inbox/arda_boardroom_spec_pack_v0_2/metadata_stubs/upper_monitor_1.metadata.json",
+    "human/inbox/arda_boardroom_spec_pack_v0_2/metadata_stubs/upper_monitor_2.metadata.json",
+    "human/inbox/arda_boardroom_spec_pack_v0_2/metadata_stubs/upper_monitor_3.metadata.json",
+    "human/inbox/arda_boardroom_spec_pack_v0_2/metadata_stubs/upper_monitor_4.metadata.json",
+    "human/inbox/extracted-candidates/README.md",
+    "human/inbox/extracted-candidates/business/a2a-agent-marketplace-positioning.md",
+    "human/inbox/extracted-candidates/business/annunimas-agent-suite-positioning.md",
+    "human/inbox/extracted-candidates/business/sovereign-agent-marketplace.md"
+  ],
+  "binary_and_media_sources": [
+    {
+      "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/ChatGPT Image May 15, 2026, 03_58_57 AM (1).png",
+      "extension": ".png",
+      "size_bytes": 2425070,
+      "recommended_lane": "media-asset-inventory",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/ChatGPT Image May 15, 2026, 04_15_14 AM.png",
+      "extension": ".png",
+      "size_bytes": 2027432,
+      "recommended_lane": "media-asset-inventory",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/ChatGPT Image May 15, 2026, 04_15_21 AM.png",
+      "extension": ".png",
+      "size_bytes": 2098874,
+      "recommended_lane": "media-asset-inventory",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/ChatGPT Image May 15, 2026, 04_15_27 AM.png",
+      "extension": ".png",
+      "size_bytes": 2240409,
+      "recommended_lane": "media-asset-inventory",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/analogSwitches.jpg",
+      "extension": ".jpg",
+      "size_bytes": 414205,
+      "recommended_lane": "media-asset-inventory",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/analogbuttons.jpg",
+      "extension": ".jpg",
+      "size_bytes": 311607,
+      "recommended_lane": "media-asset-inventory",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/avatar emitter.jpg",
+      "extension": ".jpg",
+      "size_bytes": 227940,
+      "recommended_lane": "media-asset-inventory",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/avatar transparency closeup.jpg",
+      "extension": ".jpg",
+      "size_bytes": 384357,
+      "recommended_lane": "media-asset-inventory",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/avatar.jpg",
+      "extension": ".jpg",
+      "size_bytes": 295710,
+      "recommended_lane": "media-asset-inventory",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/backwallcontext.jpg",
+      "extension": ".jpg",
+      "size_bytes": 257048,
+      "recommended_lane": "media-asset-inventory",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/closeupMonitorJoints.jpg",
+      "extension": ".jpg",
+      "size_bytes": 228566,
+      "recommended_lane": "media-asset-inventory",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/closeupavataremitter.jpg",
+      "extension": ".jpg",
+      "size_bytes": 222056,
+      "recommended_lane": "media-asset-inventory",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/cyberpunkSkyline.jpg",
+      "extension": ".jpg",
+      "size_bytes": 276324,
+      "recommended_lane": "media-asset-inventory",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/deskCollage.jpg",
+      "extension": ".jpg",
+      "size_bytes": 231229,
+      "recommended_lane": "media-asset-inventory",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/deskmaterial.jpg",
+      "extension": ".jpg",
+      "size_bytes": 302070,
+      "recommended_lane": "media-asset-inventory",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/deskmaterialclose.jpg",
+      "extension": ".jpg",
+      "size_bytes": 268948,
+      "recommended_lane": "media-asset-inventory",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/dualArmmonitorL+R.jpg",
+      "extension": ".jpg",
+      "size_bytes": 150614,
+      "recommended_lane": "media-asset-inventory",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/floormat.jpg",
+      "extension": ".jpg",
+      "size_bytes": 314598,
+      "recommended_lane": "media-asset-inventory",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/floormatapplies.jpg",
+      "extension": ".jpg",
+      "size_bytes": 202170,
+      "recommended_lane": "media-asset-inventory",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/fullrender.jpg",
+      "extension": ".jpg",
+      "size_bytes": 351234,
+      "recommended_lane": "media-asset-inventory",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/fullrenderFar.jpg",
+      "extension": ".jpg",
+      "size_bytes": 314975,
+      "recommended_lane": "media-asset-inventory",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/monitors.jpg",
+      "extension": ".jpg",
+      "size_bytes": 199362,
+      "recommended_lane": "media-asset-inventory",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/orbDisk.jpg",
+      "extension": ".jpg",
+      "size_bytes": 296949,
+      "recommended_lane": "media-asset-inventory",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/orbDiskCloseup.jpg",
+      "extension": ".jpg",
+      "size_bytes": 268760,
+      "recommended_lane": "media-asset-inventory",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/wallMat.jpg",
+      "extension": ".jpg",
+      "size_bytes": 258876,
+      "recommended_lane": "media-asset-inventory",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/arda_boardroom_spec_pack_v0_2/windowFrame.jpg",
+      "extension": ".jpg",
+      "size_bytes": 224328,
+      "recommended_lane": "media-asset-inventory",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/ideas/business-opportunities/daniel-ward-freelance-kit.docx",
+      "extension": ".docx",
+      "size_bytes": 13381,
+      "recommended_lane": "binary-document-extraction",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/research/ECST_Executive_Summary_v2.docx",
+      "extension": ".docx",
+      "size_bytes": 9442,
+      "recommended_lane": "binary-document-extraction",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/research/ECST_Scientific_Paper_v2.docx",
+      "extension": ".docx",
+      "size_bytes": 15269,
+      "recommended_lane": "binary-document-extraction",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/research/MythOS_v3.6_Scientific_Paper.docx",
+      "extension": ".docx",
+      "size_bytes": 30823,
+      "recommended_lane": "binary-document-extraction",
+      "review_required": true
+    },
+    {
+      "source_path": "human/inbox/research/electric-current-soul-hypothesis.pdf",
+      "extension": ".pdf",
+      "size_bytes": 18200,
+      "recommended_lane": "binary-document-extraction",
+      "review_required": true
+    }
+  ]
+}

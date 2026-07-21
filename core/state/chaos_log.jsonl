@@ -1,0 +1,8 @@
+{"duration": 30, "injected_at": "2026-05-06T00:24:41.656862Z", "scenario": "joule_overrun", "severity": "medium", "start_time": "2026-05-05T17:24:41.656826", "target_goal": "goal_provider_mesh_health", "type": "chaos_injection"}
+{"duration": 30, "injected_at": "2026-05-06T01:07:50.653169Z", "scenario": "joule_overrun", "severity": "medium", "start_time": "2026-05-05T18:07:50.653133", "target_goal": "goal_provider_mesh_health", "type": "chaos_injection"}
+{"duration": 30, "injected_at": "2026-05-06T01:38:22.643767Z", "scenario": "joule_overrun", "severity": "medium", "start_time": "2026-05-05T18:38:22.643731", "target_goal": "goal_provider_mesh_health", "type": "chaos_injection"}
+{"duration": 30, "injected_at": "2026-05-06T01:44:53.236621Z", "scenario": "joule_overrun", "severity": "medium", "start_time": "2026-05-05T18:44:53.236583", "target_goal": "goal_provider_mesh_health", "type": "chaos_injection"}
+{"duration": 30, "injected_at": "2026-05-06T01:56:24.107450Z", "scenario": "joule_overrun", "severity": "medium", "start_time": "2026-05-05T18:56:24.107413", "target_goal": "goal_provider_mesh_health", "type": "chaos_injection"}
+{"duration": 30, "injected_at": "2026-05-06T02:57:57.976122Z", "scenario": "joule_overrun", "severity": "medium", "start_time": "2026-05-05T19:57:57.976084", "target_goal": "goal_provider_mesh_health", "type": "chaos_injection"}
+{"cycles": 100, "injected_at": "2026-05-06T03:14:27.718681Z", "max_depth": 10, "start_time": "2026-05-05T20:14:27.718644", "type": "planner_loop"}
+{"duration": 30, "injected_at": "2026-05-06T03:16:11.310637Z", "severity": "severe", "start_time": "2026-05-05T20:16:11.310581", "type": "market_collapse"}

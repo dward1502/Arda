@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_f249d29623234c4a9a7d954756767605",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: LSRH-P4 lane contracts for Learning Loop, Flywheel, and CEO/autopilot. Added queue-federation source contracts and docs for Learning Loop v1, Flywheel packet runtime, CEO/autopilot task truth, and CEO/autopilot preflight; verified cargo test -p annunimas-cli --test learning_loop_v1_e2e, cargo check -p annunimas-cli, export queue-federation, parser checks, git diff --check, and append-only guard. Drift remains as 9 stage-validation warnings from existing federation/Arandur records.",
+  "salience": 0.9335,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-12T12:10:59.844845992Z",
+  "last_seen_at": "2026-06-12T12:10:59.844845992Z"
+}

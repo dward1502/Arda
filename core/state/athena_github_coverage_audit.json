@@ -1,0 +1,4055 @@
+{
+  "authority": "read-only ATHENA GitHub coverage audit; no source promotion or runtime activation performed",
+  "coverage_matrix": [
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_4b358a6a.jsonl",
+        "confidence": 0.7683333333333333,
+        "human_ref": "docs/operator/library/athena/sources/src_4b358a6a.md",
+        "line": 560,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-03-11T08:22:25.049594098+00:00",
+        "url": "https://github.com/0xNyk/awesome-agent-cortex"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7683333333333333,
+            "hash_chain_valid": true,
+            "opposition_coverage": 2,
+            "triad_passed": true
+          },
+          "source_id": "src_4b358a6a",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.7,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 753,
+        "policy_readiness": "policy_ready",
+        "ts_utc": "2026-03-11T08:22:25.031056282+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/0xNyk/awesome-agent-cortex",
+      "source_ids": [
+        "src_4b358a6a"
+      ],
+      "surfaces": [
+        "data/athena/books/src_4b358a6a.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_4b358a6a.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "triad_not_confirmed",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:triad_threshold,confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_6f2a61ee.jsonl",
+        "confidence": 0.6416666666666666,
+        "human_ref": "docs/operator/library/athena/sources/src_6f2a61ee.md",
+        "line": 2020,
+        "status": "deep",
+        "triad_passed": false,
+        "ts_utc": "2026-05-11T08:45:21.003751028+00:00",
+        "url": "https://github.com/AdamStrojek/rust-agentai"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "triad_threshold",
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6416666666666666,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": false
+          },
+          "source_id": "src_6f2a61ee",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 866,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-11T08:45:20.997700359+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/AdamStrojek/rust-agentai",
+      "source_ids": [
+        "src_6f2a61ee"
+      ],
+      "surfaces": [
+        "data/athena/books/src_6f2a61ee.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_6f2a61ee.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "triad_not_confirmed",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:triad_threshold,confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_6f2a61ee.jsonl",
+        "confidence": 0.6416666666666666,
+        "human_ref": "docs/operator/library/athena/sources/src_6f2a61ee.md",
+        "line": 2020,
+        "status": "deep",
+        "triad_passed": false,
+        "ts_utc": "2026-05-11T08:45:21.003751028+00:00",
+        "url": "https://github.com/AdamStrojek/rust-agentai"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "triad_threshold",
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6416666666666666,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": false
+          },
+          "source_id": "src_6f2a61ee",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 866,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-11T08:45:20.997700359+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/AdamStrojek/rust-agentai`",
+      "source_ids": [
+        "src_6f2a61ee"
+      ],
+      "surfaces": [
+        "docs/operator/library/athena/sources/src_6f2a61ee.md"
+      ],
+      "title": "src_6f2a61ee"
+    },
+    {
+      "actionable_next": "promote bounded runtime/contract task from existing policy-ready evidence",
+      "coverage_class": "policy_mapped",
+      "dispositions": [
+        "promote_now",
+        "{'mode': 'activate_now', 'rationale': 'Evidence, runtime visibility, and env contracts are already aligned.', 'runtime_status': 'optional_signal_absent'}"
+      ],
+      "gaps": [
+        "missing_runtime_or_operator_surface"
+      ],
+      "integration_states": [
+        "evidence_ready",
+        "ready_for_activation"
+      ],
+      "latest_index": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_234088bc.jsonl",
+        "confidence": 0.7516666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_234088bc.md",
+        "line": 660,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-03-12T04:30:28.151166473+00:00",
+        "url": "https://github.com/AlexsJones/llmfit"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7516666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 2,
+            "triad_passed": true
+          },
+          "source_id": "src_234088bc",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.7,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 820,
+        "policy_readiness": "policy_ready",
+        "ts_utc": "2026-03-12T04:30:27.717813810+00:00"
+      },
+      "next_actions": [
+        "promote from evidence into a bounded runtime or product surface"
+      ],
+      "repo_url": "https://github.com/AlexsJones/llmfit",
+      "source_ids": [
+        "src_234088bc"
+      ],
+      "surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/package_enablement.json",
+        "core/state/source_absorption_pipeline.json",
+        "data/athena/books/src_234088bc.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_234088bc.md"
+      ],
+      "title": "AlexsJones/llmfit"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_234088bc.jsonl",
+        "confidence": 0.7516666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_234088bc.md",
+        "line": 660,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-03-12T04:30:28.151166473+00:00",
+        "url": "https://github.com/AlexsJones/llmfit"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7516666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 2,
+            "triad_passed": true
+          },
+          "source_id": "src_234088bc",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.7,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 820,
+        "policy_readiness": "policy_ready",
+        "ts_utc": "2026-03-12T04:30:27.717813810+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/AlexsJones/llmfit`",
+      "source_ids": [
+        "src_234088bc"
+      ],
+      "surfaces": [
+        "docs/operator/library/athena/sources/src_234088bc.md"
+      ],
+      "title": "src_234088bc"
+    },
+    {
+      "actionable_next": "promote bounded runtime/contract task from existing policy-ready evidence",
+      "coverage_class": "policy_mapped",
+      "dispositions": [
+        "promote_now",
+        "{'mode': 'implementation_lane', 'rationale': 'ATHENA digestion is strong enough; next work is runtime or product surface implementation.', 'runtime_status': 'running'}"
+      ],
+      "gaps": [
+        "missing_runtime_or_operator_surface"
+      ],
+      "integration_states": [
+        "evidence_ready",
+        "ready_for_activation"
+      ],
+      "latest_index": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_dab89283.jsonl",
+        "confidence": 0.7516666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_dab89283.md",
+        "line": 659,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-03-12T04:30:26.494223273+00:00",
+        "url": "https://github.com/BerriAI/litellm"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7516666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 2,
+            "triad_passed": true
+          },
+          "source_id": "src_dab89283",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.7,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 819,
+        "policy_readiness": "policy_ready",
+        "ts_utc": "2026-03-12T04:30:26.062589432+00:00"
+      },
+      "next_actions": [
+        "promote from evidence into a bounded runtime or product surface"
+      ],
+      "repo_url": "https://github.com/BerriAI/litellm",
+      "source_ids": [
+        "src_dab89283"
+      ],
+      "surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/package_enablement.json",
+        "core/state/source_absorption_pipeline.json",
+        "data/athena/books/src_dab89283.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_dab89283.md"
+      ],
+      "title": "BerriAI/litellm"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_dab89283.jsonl",
+        "confidence": 0.7516666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_dab89283.md",
+        "line": 659,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-03-12T04:30:26.494223273+00:00",
+        "url": "https://github.com/BerriAI/litellm"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7516666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 2,
+            "triad_passed": true
+          },
+          "source_id": "src_dab89283",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.7,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 819,
+        "policy_readiness": "policy_ready",
+        "ts_utc": "2026-03-12T04:30:26.062589432+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/BerriAI/litellm`",
+      "source_ids": [
+        "src_dab89283"
+      ],
+      "surfaces": [
+        "docs/operator/library/athena/sources/src_dab89283.md"
+      ],
+      "title": "src_dab89283"
+    },
+    {
+      "actionable_next": "promote bounded runtime/contract task from existing policy-ready evidence",
+      "coverage_class": "policy_mapped",
+      "dispositions": [
+        "promote_now",
+        "{'mode': 'research_backlog', 'rationale': 'ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract.'}"
+      ],
+      "gaps": [
+        "missing_runtime_or_operator_surface"
+      ],
+      "integration_states": [
+        "backlog_ready"
+      ],
+      "latest_index": {
+        "book_ref": "/tmp/.tmpO1xybw/books/src_df11630e.jsonl",
+        "confidence": 0.7683333333333333,
+        "human_ref": "docs/operator/library/athena/sources/src_df11630e.md",
+        "line": 20697,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-06-05T07:08:08.507645267+00:00",
+        "url": "https://github.com/D4Vinci/Scrapling"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7683333333333333,
+            "hash_chain_valid": true,
+            "opposition_coverage": 2,
+            "triad_passed": true
+          },
+          "source_id": "src_df11630e",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.7,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 817,
+        "policy_readiness": "policy_ready",
+        "ts_utc": "2026-03-12T04:30:24.004747370+00:00"
+      },
+      "next_actions": [
+        "Promote this backlog source into bounded subsystem work through the source absorption emitter."
+      ],
+      "repo_url": "https://github.com/D4Vinci/Scrapling",
+      "source_ids": [
+        "src_df11630e"
+      ],
+      "surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/source_absorption_pipeline.json",
+        "data/athena/books/src_df11630e.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_df11630e.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/tmp/.tmpO1xybw/books/src_df11630e.jsonl",
+        "confidence": 0.7683333333333333,
+        "human_ref": "docs/operator/library/athena/sources/src_df11630e.md",
+        "line": 20697,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-06-05T07:08:08.507645267+00:00",
+        "url": "https://github.com/D4Vinci/Scrapling"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7683333333333333,
+            "hash_chain_valid": true,
+            "opposition_coverage": 2,
+            "triad_passed": true
+          },
+          "source_id": "src_df11630e",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.7,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 817,
+        "policy_readiness": "policy_ready",
+        "ts_utc": "2026-03-12T04:30:24.004747370+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/D4Vinci/Scrapling`",
+      "source_ids": [
+        "src_df11630e"
+      ],
+      "surfaces": [
+        "docs/operator/library/athena/sources/src_df11630e.md"
+      ],
+      "title": "src_df11630e"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "policy_mapped",
+      "dispositions": [],
+      "gaps": [
+        "missing_runtime_or_operator_surface",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_75bbe2e4.jsonl",
+        "confidence": 0.6916666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_75bbe2e4.md",
+        "line": 657,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-03-11T11:02:55.398085575+00:00",
+        "url": "https://github.com/DataBassGit/AgentForge"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6916666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_75bbe2e4",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 809,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-03-11T11:02:55.377145785+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/DataBassGit/AgentForge",
+      "source_ids": [
+        "src_75bbe2e4"
+      ],
+      "surfaces": [
+        "core/state/github_repo_integration.json",
+        "data/athena/books/src_75bbe2e4.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_75bbe2e4.md"
+      ],
+      "title": "AgentForge"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_d5bdf0e7.jsonl",
+        "confidence": 0.7516666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_d5bdf0e7.md",
+        "line": 572,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-03-11T08:22:25.603489136+00:00",
+        "url": "https://github.com/GoogleCloudPlatform/generative-ai/tree/main/gemini/agents/always-on-memory-agent"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7516666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 2,
+            "triad_passed": true
+          },
+          "source_id": "src_d5bdf0e7",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.7,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 757,
+        "policy_readiness": "policy_ready",
+        "ts_utc": "2026-03-11T08:22:25.586803764+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/GoogleCloudPlatform/generative-ai",
+      "source_ids": [
+        "src_d5bdf0e7"
+      ],
+      "surfaces": [
+        "data/athena/books/src_d5bdf0e7.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_d5bdf0e7.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "policy_mapped",
+      "dispositions": [
+        "{'mode': 'research_backlog', 'rationale': 'ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract.'}"
+      ],
+      "gaps": [
+        "missing_runtime_or_operator_surface",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_ec2b8bd4.jsonl",
+        "confidence": 0.7316666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_ec2b8bd4.md",
+        "line": 4578,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-05-21T08:09:53.710738697+00:00",
+        "url": "https://github.com/NousResearch/hermes-agent"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7316666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_ec2b8bd4",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 830,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-03-12T08:04:05.720408487+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/NousResearch/hermes-agent",
+      "source_ids": [
+        "src_6b4907a1",
+        "src_ec2b8bd4"
+      ],
+      "surfaces": [
+        "core/state/github_repo_integration.json",
+        "data/athena/books/src_6b4907a1.jsonl",
+        "data/athena/books/src_ec2b8bd4.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_6b4907a1.md",
+        "docs/operator/library/athena/sources/src_ec2b8bd4.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_ec2b8bd4.jsonl",
+        "confidence": 0.7316666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_ec2b8bd4.md",
+        "line": 4578,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-05-21T08:09:53.710738697+00:00",
+        "url": "https://github.com/NousResearch/hermes-agent"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7316666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_ec2b8bd4",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 830,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-03-12T08:04:05.720408487+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/NousResearch/hermes-agent`",
+      "source_ids": [
+        "src_ec2b8bd4"
+      ],
+      "surfaces": [
+        "docs/operator/library/athena/sources/src_ec2b8bd4.md"
+      ],
+      "title": "src_ec2b8bd4"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_0acc3175.jsonl",
+        "confidence": 0.7516666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_0acc3175.md",
+        "line": 571,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-03-11T08:22:25.400838491+00:00",
+        "url": "https://github.com/RightNow-AI/autokernel"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7516666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 2,
+            "triad_passed": true
+          },
+          "source_id": "src_0acc3175",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.7,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 756,
+        "policy_readiness": "policy_ready",
+        "ts_utc": "2026-03-11T08:22:25.377435483+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/RightNow-AI/autokernel",
+      "source_ids": [
+        "src_0acc3175"
+      ],
+      "surfaces": [
+        "data/athena/books/src_0acc3175.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_0acc3175.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "promote bounded runtime/contract task from existing policy-ready evidence",
+      "coverage_class": "policy_mapped",
+      "dispositions": [],
+      "gaps": [
+        "missing_runtime_or_operator_surface",
+        "not_deep_ingested",
+        "triad_not_confirmed"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_cebb6abe.jsonl",
+        "confidence": null,
+        "human_ref": "docs/operator/library/athena/sources/src_cebb6abe.md",
+        "line": 612,
+        "status": "shallow",
+        "triad_passed": null,
+        "ts_utc": "2026-03-11T08:43:06.554229279+00:00",
+        "url": "https://github.com/RightNow-AI/openfang"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7516666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 2,
+            "triad_passed": true
+          },
+          "source_id": "src_cebb6abe",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.7,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 767,
+        "policy_readiness": "policy_ready",
+        "ts_utc": "2026-03-11T08:40:33.905001794+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/RightNow-AI/openfang",
+      "source_ids": [
+        "src_cebb6abe"
+      ],
+      "surfaces": [
+        "core/state/github_repo_integration.json",
+        "data/athena/books/src_cebb6abe.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_cebb6abe.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "policy_mapped",
+      "dispositions": [
+        "signal_only",
+        "{'mode': 'extension_candidate', 'rationale': 'The repo is digested and mapped, but should remain an optional extension until bounded runtime surfaces exist.', 'runtime_status': None}"
+      ],
+      "gaps": [
+        "missing_runtime_or_operator_surface",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [
+        "observed_only"
+      ],
+      "latest_index": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_b711210b.jsonl",
+        "confidence": 0.6916666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_b711210b.md",
+        "line": 509,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-03-11T02:49:36.931730605+00:00",
+        "url": "https://github.com/SaseQ/discord-mcp"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6916666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_b711210b",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 726,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-03-11T02:49:36.916440071+00:00"
+      },
+      "next_actions": [
+        "promote from evidence into a bounded runtime or product surface"
+      ],
+      "repo_url": "https://github.com/SaseQ/discord-mcp",
+      "source_ids": [
+        "src_b711210b"
+      ],
+      "surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/package_enablement.json",
+        "core/state/source_absorption_pipeline.json",
+        "data/athena/books/src_b711210b.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_b711210b.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "triad_not_confirmed",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:triad_threshold,confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_3c90af76.jsonl",
+        "confidence": 0.6416666666666666,
+        "human_ref": "docs/operator/library/athena/sources/src_3c90af76.md",
+        "line": 4744,
+        "status": "deep",
+        "triad_passed": false,
+        "ts_utc": "2026-05-21T11:40:12.015657475+00:00",
+        "url": "https://github.com/abhigyanpatwari/GitNexus"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "triad_threshold",
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6416666666666666,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": false
+          },
+          "source_id": "src_3c90af76",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 872,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-21T11:40:12.007623375+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/ShunsukeHayashi",
+      "source_ids": [
+        "src_3c90af76"
+      ],
+      "surfaces": [
+        "data/athena/books/src_3c90af76.jsonl"
+      ],
+      "title": "src_3c90af76"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "triad_not_confirmed",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:triad_threshold,confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_3c90af76.jsonl",
+        "confidence": 0.6416666666666666,
+        "human_ref": "docs/operator/library/athena/sources/src_3c90af76.md",
+        "line": 4744,
+        "status": "deep",
+        "triad_passed": false,
+        "ts_utc": "2026-05-21T11:40:12.015657475+00:00",
+        "url": "https://github.com/abhigyanpatwari/GitNexus"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "triad_threshold",
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6416666666666666,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": false
+          },
+          "source_id": "src_3c90af76",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 872,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-21T11:40:12.007623375+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/ShunsukeHayashi/gitnexus-stable-ops",
+      "source_ids": [
+        "src_3c90af76"
+      ],
+      "surfaces": [
+        "data/athena/books/src_3c90af76.jsonl"
+      ],
+      "title": "src_3c90af76"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "triad_not_confirmed",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:triad_threshold,confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_3c90af76.jsonl",
+        "confidence": 0.6416666666666666,
+        "human_ref": "docs/operator/library/athena/sources/src_3c90af76.md",
+        "line": 4744,
+        "status": "deep",
+        "triad_passed": false,
+        "ts_utc": "2026-05-21T11:40:12.015657475+00:00",
+        "url": "https://github.com/abhigyanpatwari/GitNexus"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "triad_threshold",
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6416666666666666,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": false
+          },
+          "source_id": "src_3c90af76",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 872,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-21T11:40:12.007623375+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/abhigyanpatwari/GitNexus",
+      "source_ids": [
+        "src_3c90af76"
+      ],
+      "surfaces": [
+        "data/athena/books/src_3c90af76.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_3c90af76.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "triad_not_confirmed",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:triad_threshold,confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_3c90af76.jsonl",
+        "confidence": 0.6416666666666666,
+        "human_ref": "docs/operator/library/athena/sources/src_3c90af76.md",
+        "line": 4744,
+        "status": "deep",
+        "triad_passed": false,
+        "ts_utc": "2026-05-21T11:40:12.015657475+00:00",
+        "url": "https://github.com/abhigyanpatwari/GitNexus"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "triad_threshold",
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6416666666666666,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": false
+          },
+          "source_id": "src_3c90af76",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 872,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-21T11:40:12.007623375+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/abhigyanpatwari/GitNexus`",
+      "source_ids": [
+        "src_3c90af76"
+      ],
+      "surfaces": [
+        "docs/operator/library/athena/sources/src_3c90af76.md"
+      ],
+      "title": "src_3c90af76"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "policy_mapped",
+      "dispositions": [
+        "signal_only",
+        "{'mode': 'extension_candidate', 'rationale': 'The repo is digested and mapped, but should remain an optional extension until bounded runtime surfaces exist.', 'runtime_status': None}"
+      ],
+      "gaps": [
+        "missing_runtime_or_operator_surface",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [
+        "observed_only"
+      ],
+      "latest_index": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_e0115360.jsonl",
+        "confidence": 0.6916666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_e0115360.md",
+        "line": 508,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-03-11T02:49:36.218904882+00:00",
+        "url": "https://github.com/agenticnotetaking/arscontexta"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6916666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_e0115360",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 724,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-03-11T02:49:36.199064910+00:00"
+      },
+      "next_actions": [
+        "promote from evidence into a bounded runtime or product surface"
+      ],
+      "repo_url": "https://github.com/agenticnotetaking/arscontexta",
+      "source_ids": [
+        "src_e0115360"
+      ],
+      "surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/package_enablement.json",
+        "core/state/source_absorption_pipeline.json",
+        "data/athena/books/src_e0115360.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_e0115360.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "promote bounded runtime/contract task from existing policy-ready evidence",
+      "coverage_class": "policy_mapped",
+      "dispositions": [
+        "promote_now",
+        "{'mode': 'research_backlog', 'rationale': 'ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract.'}"
+      ],
+      "gaps": [
+        "missing_runtime_or_operator_surface"
+      ],
+      "integration_states": [
+        "backlog_ready"
+      ],
+      "latest_index": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_dc355aed.jsonl",
+        "confidence": 0.7516666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_dc355aed.md",
+        "line": 577,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-03-11T08:22:26.409390236+00:00",
+        "url": "https://github.com/best-ai-agents/discord-servers-for-ai-agents"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7516666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 2,
+            "triad_passed": true
+          },
+          "source_id": "src_dc355aed",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.7,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 762,
+        "policy_readiness": "policy_ready",
+        "ts_utc": "2026-03-11T08:22:26.392546432+00:00"
+      },
+      "next_actions": [
+        "Promote this backlog source into bounded subsystem work through the source absorption emitter."
+      ],
+      "repo_url": "https://github.com/best-ai-agents/discord-servers-for-ai-agents",
+      "source_ids": [
+        "src_dc355aed"
+      ],
+      "surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/source_absorption_pipeline.json",
+        "data/athena/books/src_dc355aed.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_dc355aed.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "policy_mapped",
+      "dispositions": [
+        "{'mode': 'research_backlog', 'rationale': 'ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract.'}"
+      ],
+      "gaps": [
+        "missing_runtime_or_operator_surface",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_c2fef5eb.jsonl",
+        "confidence": 0.6916666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_c2fef5eb.md",
+        "line": 665,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-03-12T07:55:17.463312039+00:00",
+        "url": "https://github.com/builderz-labs/mission-control"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6916666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_c2fef5eb",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 826,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-03-12T07:55:17.442476958+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/builderz-labs/mission-control",
+      "source_ids": [
+        "src_c2fef5eb"
+      ],
+      "surfaces": [
+        "core/state/github_repo_integration.json",
+        "data/athena/books/src_c2fef5eb.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_c2fef5eb.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_c2fef5eb.jsonl",
+        "confidence": 0.6916666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_c2fef5eb.md",
+        "line": 665,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-03-12T07:55:17.463312039+00:00",
+        "url": "https://github.com/builderz-labs/mission-control"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6916666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_c2fef5eb",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 826,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-03-12T07:55:17.442476958+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/builderz-labs/mission-control`",
+      "source_ids": [
+        "src_c2fef5eb"
+      ],
+      "surfaces": [
+        "docs/operator/library/athena/sources/src_c2fef5eb.md"
+      ],
+      "title": "src_c2fef5eb"
+    },
+    {
+      "actionable_next": "finish ATHENA deep ingest + policy readiness before promotion",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_policy_readiness_row",
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "confidence_below_policy_ready_band"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "data/athena/books/src_16389f32.jsonl",
+        "confidence": 0.6916666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_16389f32.md",
+        "line": 13,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-03-09T05:21:00.384066395+00:00",
+        "url": "https://github.com/bytedance/deer-flow"
+      },
+      "latest_policy": null,
+      "next_actions": [],
+      "repo_url": "https://github.com/bytedance/deer-flow",
+      "source_ids": [
+        "src_16389f32"
+      ],
+      "surfaces": [
+        "data/athena/books/src_16389f32.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_16389f32.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "promote bounded runtime/contract task from existing policy-ready evidence",
+      "coverage_class": "policy_mapped",
+      "dispositions": [
+        "adapted",
+        "{'mode': 'active_signal', 'rationale': 'This repo is already feeding sovereign decision signals rather than waiting on first activation.', 'runtime_status': 'ready'}"
+      ],
+      "gaps": [
+        "missing_runtime_or_operator_surface"
+      ],
+      "integration_states": [
+        "ready_for_activation"
+      ],
+      "latest_index": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_275d929b.jsonl",
+        "confidence": 0.7516666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_275d929b.md",
+        "line": 535,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-03-11T02:50:10.697587022+00:00",
+        "url": "https://github.com/code-yeongyu/oh-my-opencode"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7516666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 2,
+            "triad_passed": true
+          },
+          "source_id": "src_275d929b",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.7,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 747,
+        "policy_readiness": "policy_ready",
+        "ts_utc": "2026-03-11T02:50:10.681579448+00:00"
+      },
+      "next_actions": [
+        "OpenCode is already bounded by sovereign route contracts; tune agent route mappings rather than treating it as an unintegrated package"
+      ],
+      "repo_url": "https://github.com/code-yeongyu/oh-my-opencode",
+      "source_ids": [
+        "src_275d929b"
+      ],
+      "surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/package_enablement.json",
+        "core/state/source_absorption_pipeline.json",
+        "data/athena/books/src_275d929b.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_275d929b.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_d7d76296.jsonl",
+        "confidence": 0.7083333333333334,
+        "human_ref": "docs/operator/library/athena/sources/src_d7d76296.md",
+        "line": 1283,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-05-06T04:09:18.368904590+00:00",
+        "url": "https://github.com/codejunkie99/ztk"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7083333333333334,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_d7d76296",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 858,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-06T04:09:18.365573797+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/codejunkie99/ztk",
+      "source_ids": [
+        "src_d7d76296"
+      ],
+      "surfaces": [
+        "data/athena/books/src_d7d76296.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_d7d76296.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_d7d76296.jsonl",
+        "confidence": 0.7083333333333334,
+        "human_ref": "docs/operator/library/athena/sources/src_d7d76296.md",
+        "line": 1283,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-05-06T04:09:18.368904590+00:00",
+        "url": "https://github.com/codejunkie99/ztk"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7083333333333334,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_d7d76296",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 858,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-06T04:09:18.365573797+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/codejunkie99/ztk`",
+      "source_ids": [
+        "src_d7d76296"
+      ],
+      "surfaces": [
+        "docs/operator/library/athena/sources/src_d7d76296.md"
+      ],
+      "title": "src_d7d76296"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_8bf41c23.jsonl",
+        "confidence": 0.675,
+        "human_ref": "docs/operator/library/athena/sources/src_8bf41c23.md",
+        "line": 4746,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-05-21T11:40:33.541421243+00:00",
+        "url": "https://github.com/coreyhaines31/marketingskills"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.675,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_8bf41c23",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 874,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-21T11:40:33.537403618+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/coreyhaines31/marketingskills",
+      "source_ids": [
+        "src_8bf41c23"
+      ],
+      "surfaces": [
+        "data/athena/books/src_8bf41c23.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_8bf41c23.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_8bf41c23.jsonl",
+        "confidence": 0.675,
+        "human_ref": "docs/operator/library/athena/sources/src_8bf41c23.md",
+        "line": 4746,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-05-21T11:40:33.541421243+00:00",
+        "url": "https://github.com/coreyhaines31/marketingskills"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.675,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_8bf41c23",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 874,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-21T11:40:33.537403618+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/coreyhaines31/marketingskills.git\\ncp",
+      "source_ids": [
+        "src_8bf41c23"
+      ],
+      "surfaces": [
+        "data/athena/books/src_8bf41c23.jsonl"
+      ],
+      "title": "src_8bf41c23"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_8bf41c23.jsonl",
+        "confidence": 0.675,
+        "human_ref": "docs/operator/library/athena/sources/src_8bf41c23.md",
+        "line": 4746,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-05-21T11:40:33.541421243+00:00",
+        "url": "https://github.com/coreyhaines31/marketingskills"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.675,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_8bf41c23",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 874,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-21T11:40:33.537403618+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/coreyhaines31/marketingskills`",
+      "source_ids": [
+        "src_8bf41c23"
+      ],
+      "surfaces": [
+        "docs/operator/library/athena/sources/src_8bf41c23.md"
+      ],
+      "title": "src_8bf41c23"
+    },
+    {
+      "actionable_next": "promote bounded runtime/contract task from existing policy-ready evidence",
+      "coverage_class": "policy_mapped",
+      "dispositions": [
+        "promote_now",
+        "{'mode': 'research_backlog', 'rationale': 'ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract.'}"
+      ],
+      "gaps": [
+        "missing_runtime_or_operator_surface"
+      ],
+      "integration_states": [
+        "backlog_ready"
+      ],
+      "latest_index": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_ca2f031e.jsonl",
+        "confidence": 0.7683333333333333,
+        "human_ref": "docs/operator/library/athena/sources/src_ca2f031e.md",
+        "line": 578,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-03-11T08:22:26.675393126+00:00",
+        "url": "https://github.com/e2b-dev/awesome-ai-agents"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7683333333333333,
+            "hash_chain_valid": true,
+            "opposition_coverage": 2,
+            "triad_passed": true
+          },
+          "source_id": "src_ca2f031e",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.7,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 763,
+        "policy_readiness": "policy_ready",
+        "ts_utc": "2026-03-11T08:22:26.658901796+00:00"
+      },
+      "next_actions": [
+        "Promote this backlog source into bounded subsystem work through the source absorption emitter."
+      ],
+      "repo_url": "https://github.com/e2b-dev/awesome-ai-agents",
+      "source_ids": [
+        "src_ca2f031e"
+      ],
+      "surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/source_absorption_pipeline.json",
+        "data/athena/books/src_ca2f031e.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_ca2f031e.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "policy_mapped",
+      "dispositions": [],
+      "gaps": [
+        "missing_runtime_or_operator_surface",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_4169b219.jsonl",
+        "confidence": 0.6916666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_4169b219.md",
+        "line": 658,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-03-11T11:02:55.438006111+00:00",
+        "url": "https://github.com/elizaOS/eliza"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6916666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_4169b219",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 810,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-03-11T11:02:55.421582537+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/elizaOS/eliza",
+      "source_ids": [
+        "src_4169b219"
+      ],
+      "surfaces": [
+        "core/state/github_repo_integration.json",
+        "data/athena/books/src_4169b219.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_4169b219.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "finish ATHENA deep ingest + policy readiness before promotion",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_policy_readiness_row",
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "not_deep_ingested",
+        "triad_not_confirmed"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/tmp/.tmp1Fbw9C/books/src_acb9cf74.jsonl",
+        "confidence": null,
+        "human_ref": "docs/operator/library/athena/sources/src_acb9cf74.md",
+        "line": 20692,
+        "status": "shallow",
+        "triad_passed": null,
+        "ts_utc": "2026-06-05T07:08:06.905100489+00:00",
+        "url": "https://github.com/example/project"
+      },
+      "latest_policy": null,
+      "next_actions": [],
+      "repo_url": "https://github.com/example/project",
+      "source_ids": [
+        "src_acb9cf74"
+      ],
+      "surfaces": [
+        "data/athena/books/src_acb9cf74.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_acb9cf74.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "finish ATHENA deep ingest + policy readiness before promotion",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_policy_readiness_row",
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "not_deep_ingested",
+        "triad_not_confirmed"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/tmp/.tmp7XQG0F/books/src_84eacbc2.jsonl",
+        "confidence": null,
+        "human_ref": "docs/operator/library/athena/sources/src_84eacbc2.md",
+        "line": 20720,
+        "status": "shallow",
+        "triad_passed": null,
+        "ts_utc": "2026-06-05T07:08:12.428825134+00:00",
+        "url": "https://github.com/example/rust-api"
+      },
+      "latest_policy": null,
+      "next_actions": [],
+      "repo_url": "https://github.com/example/rust-api",
+      "source_ids": [
+        "src_84eacbc2"
+      ],
+      "surfaces": [
+        "data/athena/books/src_84eacbc2.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_84eacbc2.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "triad_not_confirmed",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:triad_threshold,confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_f1be994a.jsonl",
+        "confidence": 0.6416666666666666,
+        "human_ref": "docs/operator/library/athena/sources/src_f1be994a.md",
+        "line": 4747,
+        "status": "deep",
+        "triad_passed": false,
+        "ts_utc": "2026-05-21T11:40:49.162371652+00:00",
+        "url": "https://github.com/floci-io/floci"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "triad_threshold",
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6416666666666666,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": false
+          },
+          "source_id": "src_f1be994a",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 875,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-21T11:40:49.156711054+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/floci-io/floci",
+      "source_ids": [
+        "src_f1be994a"
+      ],
+      "surfaces": [
+        "data/athena/books/src_f1be994a.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_f1be994a.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "triad_not_confirmed",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:triad_threshold,confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_f1be994a.jsonl",
+        "confidence": 0.6416666666666666,
+        "human_ref": "docs/operator/library/athena/sources/src_f1be994a.md",
+        "line": 4747,
+        "status": "deep",
+        "triad_passed": false,
+        "ts_utc": "2026-05-21T11:40:49.162371652+00:00",
+        "url": "https://github.com/floci-io/floci"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "triad_threshold",
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6416666666666666,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": false
+          },
+          "source_id": "src_f1be994a",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 875,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-21T11:40:49.156711054+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/floci-io/floci-cli",
+      "source_ids": [
+        "src_f1be994a"
+      ],
+      "surfaces": [
+        "data/athena/books/src_f1be994a.jsonl"
+      ],
+      "title": "src_f1be994a"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "triad_not_confirmed",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:triad_threshold,confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_f1be994a.jsonl",
+        "confidence": 0.6416666666666666,
+        "human_ref": "docs/operator/library/athena/sources/src_f1be994a.md",
+        "line": 4747,
+        "status": "deep",
+        "triad_passed": false,
+        "ts_utc": "2026-05-21T11:40:49.162371652+00:00",
+        "url": "https://github.com/floci-io/floci"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "triad_threshold",
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6416666666666666,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": false
+          },
+          "source_id": "src_f1be994a",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 875,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-21T11:40:49.156711054+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/floci-io/floci`",
+      "source_ids": [
+        "src_f1be994a"
+      ],
+      "surfaces": [
+        "docs/operator/library/athena/sources/src_f1be994a.md"
+      ],
+      "title": "src_f1be994a"
+    },
+    {
+      "actionable_next": "promote bounded runtime/contract task from existing policy-ready evidence",
+      "coverage_class": "policy_mapped",
+      "dispositions": [
+        "{'mode': 'research_backlog', 'rationale': 'ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract.'}"
+      ],
+      "gaps": [
+        "missing_policy_readiness_row",
+        "missing_runtime_or_operator_surface",
+        "not_deep_ingested",
+        "triad_not_confirmed"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_3047ffaa.jsonl",
+        "confidence": null,
+        "human_ref": "docs/operator/library/athena/sources/src_3047ffaa.md",
+        "line": 789,
+        "status": "shallow",
+        "triad_passed": null,
+        "ts_utc": "2026-03-14T13:32:16.912559599+00:00",
+        "url": "https://github.com/ggerganov/llama.cpp"
+      },
+      "latest_policy": null,
+      "next_actions": [],
+      "repo_url": "https://github.com/ggerganov/llama.cpp",
+      "source_ids": [
+        "src_3047ffaa"
+      ],
+      "surfaces": [
+        "core/state/github_repo_integration.json",
+        "data/athena/books/src_3047ffaa.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_3047ffaa.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_59dc12dd.jsonl",
+        "confidence": 0.7683333333333333,
+        "human_ref": "docs/operator/library/athena/sources/src_59dc12dd.md",
+        "line": 570,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-03-11T08:22:25.337881031+00:00",
+        "url": "https://github.com/google/A2UI?ref=opensourceprojects.dev"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7683333333333333,
+            "hash_chain_valid": true,
+            "opposition_coverage": 2,
+            "triad_passed": true
+          },
+          "source_id": "src_59dc12dd",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.7,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 755,
+        "policy_readiness": "policy_ready",
+        "ts_utc": "2026-03-11T08:22:25.312447368+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/google/A2UI",
+      "source_ids": [
+        "src_59dc12dd"
+      ],
+      "surfaces": [
+        "data/athena/books/src_59dc12dd.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_59dc12dd.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_f226959a.jsonl",
+        "confidence": 0.7916666666666666,
+        "human_ref": "docs/operator/library/athena/sources/src_f226959a.md",
+        "line": 576,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-03-11T08:22:26.147819322+00:00",
+        "url": "https://github.com/karpathy/autoresearch"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7916666666666666,
+            "hash_chain_valid": true,
+            "opposition_coverage": 2,
+            "triad_passed": true
+          },
+          "source_id": "src_f226959a",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.7,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 761,
+        "policy_readiness": "policy_ready",
+        "ts_utc": "2026-03-11T08:22:26.130925767+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/karpathy/autoresearch",
+      "source_ids": [
+        "src_f226959a"
+      ],
+      "surfaces": [
+        "data/athena/books/src_f226959a.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_f226959a.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "promote bounded runtime/contract task from existing policy-ready evidence",
+      "coverage_class": "policy_mapped",
+      "dispositions": [
+        "promote_now",
+        "{'mode': 'research_backlog', 'rationale': 'ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract.'}"
+      ],
+      "gaps": [
+        "missing_runtime_or_operator_surface"
+      ],
+      "integration_states": [
+        "backlog_ready"
+      ],
+      "latest_index": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_33fa61b2.jsonl",
+        "confidence": 0.7683333333333333,
+        "human_ref": "docs/operator/library/athena/sources/src_33fa61b2.md",
+        "line": 579,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-03-11T08:22:26.934265785+00:00",
+        "url": "https://github.com/kaushikb11/awesome-llm-agents"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7683333333333333,
+            "hash_chain_valid": true,
+            "opposition_coverage": 2,
+            "triad_passed": true
+          },
+          "source_id": "src_33fa61b2",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.7,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 764,
+        "policy_readiness": "policy_ready",
+        "ts_utc": "2026-03-11T08:22:26.918031399+00:00"
+      },
+      "next_actions": [
+        "Promote this backlog source into bounded subsystem work through the source absorption emitter."
+      ],
+      "repo_url": "https://github.com/kaushikb11/awesome-llm-agents",
+      "source_ids": [
+        "src_33fa61b2"
+      ],
+      "surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/source_absorption_pipeline.json",
+        "data/athena/books/src_33fa61b2.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_33fa61b2.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "triad_not_confirmed",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:triad_threshold,confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_6b4907a1.jsonl",
+        "confidence": 0.6416666666666666,
+        "human_ref": "docs/operator/library/athena/sources/src_6b4907a1.md",
+        "line": 2065,
+        "status": "deep",
+        "triad_passed": false,
+        "ts_utc": "2026-05-11T08:56:00.138909166+00:00",
+        "url": "https://github.com/ksimback/hermes-ecosystem"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "triad_threshold",
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6416666666666666,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": false
+          },
+          "source_id": "src_6b4907a1",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 871,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-11T08:56:00.134944028+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/ksimback",
+      "source_ids": [
+        "src_6b4907a1"
+      ],
+      "surfaces": [
+        "data/athena/books/src_6b4907a1.jsonl"
+      ],
+      "title": "src_6b4907a1"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "triad_not_confirmed",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:triad_threshold,confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_6b4907a1.jsonl",
+        "confidence": 0.6416666666666666,
+        "human_ref": "docs/operator/library/athena/sources/src_6b4907a1.md",
+        "line": 2065,
+        "status": "deep",
+        "triad_passed": false,
+        "ts_utc": "2026-05-11T08:56:00.138909166+00:00",
+        "url": "https://github.com/ksimback/hermes-ecosystem"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "triad_threshold",
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6416666666666666,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": false
+          },
+          "source_id": "src_6b4907a1",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 871,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-11T08:56:00.134944028+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/ksimback/hermes-ecosystem",
+      "source_ids": [
+        "src_6b4907a1"
+      ],
+      "surfaces": [
+        "data/athena/books/src_6b4907a1.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_6b4907a1.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "triad_not_confirmed",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:triad_threshold,confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_6b4907a1.jsonl",
+        "confidence": 0.6416666666666666,
+        "human_ref": "docs/operator/library/athena/sources/src_6b4907a1.md",
+        "line": 2065,
+        "status": "deep",
+        "triad_passed": false,
+        "ts_utc": "2026-05-11T08:56:00.138909166+00:00",
+        "url": "https://github.com/ksimback/hermes-ecosystem"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "triad_threshold",
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6416666666666666,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": false
+          },
+          "source_id": "src_6b4907a1",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 871,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-11T08:56:00.134944028+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/ksimback/hermes-ecosystem.git\\ncd",
+      "source_ids": [
+        "src_6b4907a1"
+      ],
+      "surfaces": [
+        "data/athena/books/src_6b4907a1.jsonl"
+      ],
+      "title": "src_6b4907a1"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "triad_not_confirmed",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:triad_threshold,confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_6b4907a1.jsonl",
+        "confidence": 0.6416666666666666,
+        "human_ref": "docs/operator/library/athena/sources/src_6b4907a1.md",
+        "line": 2065,
+        "status": "deep",
+        "triad_passed": false,
+        "ts_utc": "2026-05-11T08:56:00.138909166+00:00",
+        "url": "https://github.com/ksimback/hermes-ecosystem"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "triad_threshold",
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6416666666666666,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": false
+          },
+          "source_id": "src_6b4907a1",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 871,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-11T08:56:00.134944028+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/ksimback/hermes-ecosystem`",
+      "source_ids": [
+        "src_6b4907a1"
+      ],
+      "surfaces": [
+        "docs/operator/library/athena/sources/src_6b4907a1.md"
+      ],
+      "title": "src_6b4907a1"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "policy_mapped",
+      "dispositions": [
+        "signal_only",
+        "{'mode': 'extension_candidate', 'rationale': 'The repo is digested and mapped, but should remain an optional extension until bounded runtime surfaces exist.', 'runtime_status': None}"
+      ],
+      "gaps": [
+        "missing_runtime_or_operator_surface",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [
+        "observed_only"
+      ],
+      "latest_index": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_759119ab.jsonl",
+        "confidence": 0.6916666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_759119ab.md",
+        "line": 507,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-03-11T02:49:35.860504075+00:00",
+        "url": "https://github.com/lyogavin/airllm"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6916666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_759119ab",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 723,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-03-11T02:49:35.845116499+00:00"
+      },
+      "next_actions": [
+        "promote from evidence into a bounded runtime or product surface"
+      ],
+      "repo_url": "https://github.com/lyogavin/airllm",
+      "source_ids": [
+        "src_759119ab"
+      ],
+      "surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/package_enablement.json",
+        "core/state/source_absorption_pipeline.json",
+        "data/athena/books/src_759119ab.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_759119ab.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "promote bounded runtime/contract task from existing policy-ready evidence",
+      "coverage_class": "policy_mapped",
+      "dispositions": [
+        "adapted",
+        "{'mode': 'governed_on_demand', 'rationale': 'This repo is integrated as an on-demand governed capability, not a resident daemon.', 'runtime_status': 'contract_ready'}"
+      ],
+      "gaps": [
+        "missing_runtime_or_operator_surface"
+      ],
+      "integration_states": [
+        "ready_for_activation"
+      ],
+      "latest_index": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_ba31bde2.jsonl",
+        "confidence": 0.7516666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_ba31bde2.md",
+        "line": 536,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-03-11T02:50:18.198685258+00:00",
+        "url": "https://github.com/microsoft/playwright-mcp"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7516666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 2,
+            "triad_passed": true
+          },
+          "source_id": "src_ba31bde2",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.7,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 750,
+        "policy_readiness": "policy_ready",
+        "ts_utc": "2026-03-11T02:50:18.182572413+00:00"
+      },
+      "next_actions": [
+        "Start the supervised bridge only for governed browser sessions; keep it on-demand rather than daemonized"
+      ],
+      "repo_url": "https://github.com/microsoft/playwright-mcp",
+      "source_ids": [
+        "src_ba31bde2"
+      ],
+      "surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/package_enablement.json",
+        "core/state/source_absorption_pipeline.json",
+        "data/athena/books/src_ba31bde2.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_ba31bde2.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_8186de0e.jsonl",
+        "confidence": 0.675,
+        "human_ref": "docs/operator/library/athena/sources/src_8186de0e.md",
+        "line": 4745,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-05-21T11:40:24.318386570+00:00",
+        "url": "https://github.com/yichuan-w/LEANN"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.675,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_8186de0e",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 873,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-21T11:40:24.314495256+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/microsoft/vcpkg",
+      "source_ids": [
+        "src_8186de0e"
+      ],
+      "surfaces": [
+        "data/athena/books/src_8186de0e.jsonl"
+      ],
+      "title": "src_8186de0e"
+    },
+    {
+      "actionable_next": "promote bounded runtime/contract task from existing policy-ready evidence",
+      "coverage_class": "policy_mapped",
+      "dispositions": [
+        "signal_only",
+        "{'mode': 'extension_candidate', 'rationale': 'The repo is digested and mapped, but should remain an optional extension until bounded runtime surfaces exist.', 'runtime_status': None}"
+      ],
+      "gaps": [
+        "missing_policy_readiness_row",
+        "missing_runtime_or_operator_surface",
+        "not_deep_ingested",
+        "triad_not_confirmed"
+      ],
+      "integration_states": [
+        "observed_only"
+      ],
+      "latest_index": {
+        "book_ref": "data/athena/books/src_c1c7f9c9.jsonl",
+        "confidence": null,
+        "human_ref": "docs/operator/library/athena/sources/src_c1c7f9c9.md",
+        "line": 5,
+        "status": "shallow",
+        "triad_passed": null,
+        "ts_utc": "2026-03-07T22:41:05.886494570+00:00",
+        "url": "https://github.com/nearai/ironclaw"
+      },
+      "latest_policy": null,
+      "next_actions": [
+        "promote from evidence into a bounded runtime or product surface"
+      ],
+      "repo_url": "https://github.com/nearai/ironclaw",
+      "source_ids": [
+        "src_c1c7f9c9"
+      ],
+      "surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/package_enablement.json",
+        "core/state/source_absorption_pipeline.json",
+        "data/athena/books/src_c1c7f9c9.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_c1c7f9c9.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "policy_mapped",
+      "dispositions": [
+        "signal_only",
+        "{'mode': 'extension_candidate', 'rationale': 'The repo is digested and mapped, but should remain an optional extension until bounded runtime surfaces exist.', 'runtime_status': None}"
+      ],
+      "gaps": [
+        "missing_runtime_or_operator_surface",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [
+        "observed_only"
+      ],
+      "latest_index": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_8c6014a3.jsonl",
+        "confidence": 0.6916666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_8c6014a3.md",
+        "line": 510,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-03-11T02:49:39.049720696+00:00",
+        "url": "https://github.com/obra/superpowers"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6916666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_8c6014a3",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 732,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-03-11T02:49:39.034402491+00:00"
+      },
+      "next_actions": [
+        "promote from evidence into a bounded runtime or product surface"
+      ],
+      "repo_url": "https://github.com/obra/superpowers",
+      "source_ids": [
+        "src_8c6014a3"
+      ],
+      "surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/package_enablement.json",
+        "core/state/source_absorption_pipeline.json",
+        "data/athena/books/src_8c6014a3.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_8c6014a3.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_a5e43b15.jsonl",
+        "confidence": 0.7516666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_a5e43b15.md",
+        "line": 491,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-03-11T02:21:58.042475537+00:00",
+        "url": "https://github.com/paperclipai/paperclip"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7516666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 2,
+            "triad_passed": true
+          },
+          "source_id": "src_a5e43b15",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.7,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 716,
+        "policy_readiness": "policy_ready",
+        "ts_utc": "2026-03-11T02:21:58.026461337+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/paperclipai/paperclip",
+      "source_ids": [
+        "src_a5e43b15"
+      ],
+      "surfaces": [
+        "data/athena/books/src_a5e43b15.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_a5e43b15.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "promote bounded runtime/contract task from existing policy-ready evidence",
+      "coverage_class": "policy_mapped",
+      "dispositions": [
+        "promote_now",
+        "{'mode': 'activate_now', 'rationale': 'Evidence, runtime visibility, and env contracts are already aligned.', 'runtime_status': 'not_configured'}"
+      ],
+      "gaps": [
+        "missing_runtime_or_operator_surface"
+      ],
+      "integration_states": [
+        "evidence_ready",
+        "ready_for_activation"
+      ],
+      "latest_index": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_bfd43480.jsonl",
+        "confidence": 0.7516666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_bfd43480.md",
+        "line": 661,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-03-12T04:30:29.804407059+00:00",
+        "url": "https://github.com/qwibitai/nanoclaw"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7516666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 2,
+            "triad_passed": true
+          },
+          "source_id": "src_bfd43480",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.7,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 821,
+        "policy_readiness": "policy_ready",
+        "ts_utc": "2026-03-12T04:30:29.366496650+00:00"
+      },
+      "next_actions": [
+        "run `bash scripts/nanoclaw_runtime.sh start` after channel auth is present, or route NanoClaw to the configured Tailscale edge target"
+      ],
+      "repo_url": "https://github.com/qwibitai/nanoclaw",
+      "source_ids": [
+        "src_bfd43480"
+      ],
+      "surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/package_enablement.json",
+        "core/state/source_absorption_pipeline.json",
+        "data/athena/books/src_bfd43480.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_bfd43480.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_bfd43480.jsonl",
+        "confidence": 0.7516666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_bfd43480.md",
+        "line": 661,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-03-12T04:30:29.804407059+00:00",
+        "url": "https://github.com/qwibitai/nanoclaw"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7516666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 2,
+            "triad_passed": true
+          },
+          "source_id": "src_bfd43480",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.7,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 821,
+        "policy_readiness": "policy_ready",
+        "ts_utc": "2026-03-12T04:30:29.366496650+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/qwibitai/nanoclaw`",
+      "source_ids": [
+        "src_bfd43480"
+      ],
+      "surfaces": [
+        "docs/operator/library/athena/sources/src_bfd43480.md"
+      ],
+      "title": "src_bfd43480"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_8bf41c23.jsonl",
+        "confidence": 0.675,
+        "human_ref": "docs/operator/library/athena/sources/src_8bf41c23.md",
+        "line": 4746,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-05-21T11:40:33.541421243+00:00",
+        "url": "https://github.com/coreyhaines31/marketingskills"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.675,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_8bf41c23",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 874,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-21T11:40:33.537403618+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/rohitg00/skillkit",
+      "source_ids": [
+        "src_8bf41c23"
+      ],
+      "surfaces": [
+        "data/athena/books/src_8bf41c23.jsonl"
+      ],
+      "title": "src_8bf41c23"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "triad_not_confirmed",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:triad_threshold,confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_0ca6d21a.jsonl",
+        "confidence": 0.6416666666666666,
+        "human_ref": "docs/operator/library/athena/sources/src_0ca6d21a.md",
+        "line": 2023,
+        "status": "deep",
+        "triad_passed": false,
+        "ts_utc": "2026-05-11T08:47:11.919446339+00:00",
+        "url": "https://github.com/udapy/rust-agentic-skills"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "triad_threshold",
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6416666666666666,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": false
+          },
+          "source_id": "src_0ca6d21a",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 867,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-11T08:47:11.913272199+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/rust-lang/rust",
+      "source_ids": [
+        "src_0ca6d21a"
+      ],
+      "surfaces": [
+        "data/athena/books/src_0ca6d21a.jsonl",
+        "docs/operator/library/athena/sources/src_0ca6d21a.md"
+      ],
+      "title": "src_0ca6d21a"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_86fa4360.jsonl",
+        "confidence": 0.7516666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_86fa4360.md",
+        "line": 575,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-03-11T08:22:25.883359552+00:00",
+        "url": "https://github.com/searxng/searxng"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7516666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 2,
+            "triad_passed": true
+          },
+          "source_id": "src_86fa4360",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.7,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 760,
+        "policy_readiness": "policy_ready",
+        "ts_utc": "2026-03-11T08:22:25.857779147+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/searxng/searxng",
+      "source_ids": [
+        "src_86fa4360"
+      ],
+      "surfaces": [
+        "data/athena/books/src_86fa4360.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_86fa4360.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "triad_not_confirmed",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:triad_threshold,confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_3c90af76.jsonl",
+        "confidence": 0.6416666666666666,
+        "human_ref": "docs/operator/library/athena/sources/src_3c90af76.md",
+        "line": 4744,
+        "status": "deep",
+        "triad_passed": false,
+        "ts_utc": "2026-05-21T11:40:12.015657475+00:00",
+        "url": "https://github.com/abhigyanpatwari/GitNexus"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "triad_threshold",
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6416666666666666,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": false
+          },
+          "source_id": "src_3c90af76",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 872,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-21T11:40:12.007623375+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/tintinweb",
+      "source_ids": [
+        "src_3c90af76"
+      ],
+      "surfaces": [
+        "data/athena/books/src_3c90af76.jsonl"
+      ],
+      "title": "src_3c90af76"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "triad_not_confirmed",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:triad_threshold,confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_3c90af76.jsonl",
+        "confidence": 0.6416666666666666,
+        "human_ref": "docs/operator/library/athena/sources/src_3c90af76.md",
+        "line": 4744,
+        "status": "deep",
+        "triad_passed": false,
+        "ts_utc": "2026-05-21T11:40:12.015657475+00:00",
+        "url": "https://github.com/abhigyanpatwari/GitNexus"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "triad_threshold",
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6416666666666666,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": false
+          },
+          "source_id": "src_3c90af76",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 872,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-21T11:40:12.007623375+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/tintinweb/pi-gitnexus",
+      "source_ids": [
+        "src_3c90af76"
+      ],
+      "surfaces": [
+        "data/athena/books/src_3c90af76.jsonl"
+      ],
+      "title": "src_3c90af76"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "triad_not_confirmed",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:triad_threshold,confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_0ca6d21a.jsonl",
+        "confidence": 0.6416666666666666,
+        "human_ref": "docs/operator/library/athena/sources/src_0ca6d21a.md",
+        "line": 2023,
+        "status": "deep",
+        "triad_passed": false,
+        "ts_utc": "2026-05-11T08:47:11.919446339+00:00",
+        "url": "https://github.com/udapy/rust-agentic-skills"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "triad_threshold",
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6416666666666666,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": false
+          },
+          "source_id": "src_0ca6d21a",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 867,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-11T08:47:11.913272199+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/udapy/rust-agentic-skills",
+      "source_ids": [
+        "src_0ca6d21a"
+      ],
+      "surfaces": [
+        "data/athena/books/src_0ca6d21a.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_0ca6d21a.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "triad_not_confirmed",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:triad_threshold,confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_0ca6d21a.jsonl",
+        "confidence": 0.6416666666666666,
+        "human_ref": "docs/operator/library/athena/sources/src_0ca6d21a.md",
+        "line": 2023,
+        "status": "deep",
+        "triad_passed": false,
+        "ts_utc": "2026-05-11T08:47:11.919446339+00:00",
+        "url": "https://github.com/udapy/rust-agentic-skills"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "triad_threshold",
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6416666666666666,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": false
+          },
+          "source_id": "src_0ca6d21a",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 867,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-11T08:47:11.913272199+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/udapy/rust-agentic-skills`",
+      "source_ids": [
+        "src_0ca6d21a"
+      ],
+      "surfaces": [
+        "docs/operator/library/athena/sources/src_0ca6d21a.md"
+      ],
+      "title": "src_0ca6d21a"
+    },
+    {
+      "actionable_next": "promote bounded runtime/contract task from existing policy-ready evidence",
+      "coverage_class": "policy_mapped",
+      "dispositions": [
+        "promote_now",
+        "{'mode': 'activate_now', 'rationale': 'Evidence, runtime visibility, and env contracts are already aligned.', 'runtime_status': 'not_running'}"
+      ],
+      "gaps": [
+        "missing_runtime_or_operator_surface"
+      ],
+      "integration_states": [
+        "ready_for_activation"
+      ],
+      "latest_index": {
+        "book_ref": "/tmp/.tmp5zozUn/books/src_d46d1480.jsonl",
+        "confidence": 0.7683333333333333,
+        "human_ref": "docs/operator/library/athena/sources/src_d46d1480.md",
+        "line": 20701,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-06-05T07:08:10.186279911+00:00",
+        "url": "https://github.com/unclecode/crawl4ai"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7683333333333333,
+            "hash_chain_valid": true,
+            "opposition_coverage": 2,
+            "triad_passed": true
+          },
+          "source_id": "src_d46d1480",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.7,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 818,
+        "policy_readiness": "policy_ready",
+        "ts_utc": "2026-03-12T04:30:24.821839568+00:00"
+      },
+      "next_actions": [
+        "run `annunimas athena crawl <url>` to capture markdown into ATHENA via the local crawl4ai service"
+      ],
+      "repo_url": "https://github.com/unclecode/crawl4ai",
+      "source_ids": [
+        "src_d46d1480"
+      ],
+      "surfaces": [
+        "core/state/github_repo_integration.json",
+        "core/state/package_enablement.json",
+        "core/state/source_absorption_pipeline.json",
+        "data/athena/books/src_d46d1480.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_d46d1480.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/tmp/.tmp5zozUn/books/src_d46d1480.jsonl",
+        "confidence": 0.7683333333333333,
+        "human_ref": "docs/operator/library/athena/sources/src_d46d1480.md",
+        "line": 20701,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-06-05T07:08:10.186279911+00:00",
+        "url": "https://github.com/unclecode/crawl4ai"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7683333333333333,
+            "hash_chain_valid": true,
+            "opposition_coverage": 2,
+            "triad_passed": true
+          },
+          "source_id": "src_d46d1480",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.7,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 818,
+        "policy_readiness": "policy_ready",
+        "ts_utc": "2026-03-12T04:30:24.821839568+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/unclecode/crawl4ai`",
+      "source_ids": [
+        "src_d46d1480"
+      ],
+      "surfaces": [
+        "docs/operator/library/athena/sources/src_d46d1480.md"
+      ],
+      "title": "src_d46d1480"
+    },
+    {
+      "actionable_next": "finish ATHENA deep ingest + policy readiness before promotion",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_policy_readiness_row",
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "confidence_below_policy_ready_band"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "data/athena/books/src_1970f2aa.jsonl",
+        "confidence": 0.6916666666666667,
+        "human_ref": "docs/operator/library/athena/sources/src_1970f2aa.md",
+        "line": 2,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-03-07T22:32:36.262153003+00:00",
+        "url": "https://github.com/unslothai/unsloth"
+      },
+      "latest_policy": null,
+      "next_actions": [],
+      "repo_url": "https://github.com/unslothai/unsloth",
+      "source_ids": [
+        "src_1970f2aa"
+      ],
+      "surfaces": [
+        "data/athena/books/src_1970f2aa.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_1970f2aa.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "triad_not_confirmed",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:triad_threshold,confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_f1be994a.jsonl",
+        "confidence": 0.6416666666666666,
+        "human_ref": "docs/operator/library/athena/sources/src_f1be994a.md",
+        "line": 4747,
+        "status": "deep",
+        "triad_passed": false,
+        "ts_utc": "2026-05-21T11:40:49.162371652+00:00",
+        "url": "https://github.com/floci-io/floci"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "triad_threshold",
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6416666666666666,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": false
+          },
+          "source_id": "src_f1be994a",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 875,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-21T11:40:49.156711054+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/user-attachments/assets",
+      "source_ids": [
+        "src_3c90af76",
+        "src_f1be994a"
+      ],
+      "surfaces": [
+        "data/athena/books/src_3c90af76.jsonl",
+        "data/athena/books/src_f1be994a.jsonl",
+        "docs/operator/library/athena/sources/src_f1be994a.md"
+      ],
+      "title": "src_3c90af76"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_8bf41c23.jsonl",
+        "confidence": 0.675,
+        "human_ref": "docs/operator/library/athena/sources/src_8bf41c23.md",
+        "line": 4746,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-05-21T11:40:33.541421243+00:00",
+        "url": "https://github.com/coreyhaines31/marketingskills"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.675,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_8bf41c23",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 874,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-21T11:40:33.537403618+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/vercel-labs/skills",
+      "source_ids": [
+        "src_8bf41c23"
+      ],
+      "surfaces": [
+        "data/athena/books/src_8bf41c23.jsonl"
+      ],
+      "title": "src_8bf41c23"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "triad_not_confirmed",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:triad_threshold,confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_00823637.jsonl",
+        "confidence": 0.6416666666666666,
+        "human_ref": "docs/operator/library/athena/sources/src_00823637.md",
+        "line": 4748,
+        "status": "deep",
+        "triad_passed": false,
+        "ts_utc": "2026-05-21T11:40:58.975690274+00:00",
+        "url": "https://github.com/wwwazzz/senior-pm-prompt"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "triad_threshold",
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6416666666666666,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": false
+          },
+          "source_id": "src_00823637",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 876,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-21T11:40:58.966915164+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/wwwazzz/senior-pm-prompt",
+      "source_ids": [
+        "src_00823637"
+      ],
+      "surfaces": [
+        "data/athena/books/src_00823637.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_00823637.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "triad_not_confirmed",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:triad_threshold,confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_00823637.jsonl",
+        "confidence": 0.6416666666666666,
+        "human_ref": "docs/operator/library/athena/sources/src_00823637.md",
+        "line": 4748,
+        "status": "deep",
+        "triad_passed": false,
+        "ts_utc": "2026-05-21T11:40:58.975690274+00:00",
+        "url": "https://github.com/wwwazzz/senior-pm-prompt"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "triad_threshold",
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6416666666666666,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": false
+          },
+          "source_id": "src_00823637",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 876,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-21T11:40:58.966915164+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/wwwazzz/senior-pm-prompt`",
+      "source_ids": [
+        "src_00823637"
+      ],
+      "surfaces": [
+        "docs/operator/library/athena/sources/src_00823637.md"
+      ],
+      "title": "src_00823637"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_8186de0e.jsonl",
+        "confidence": 0.675,
+        "human_ref": "docs/operator/library/athena/sources/src_8186de0e.md",
+        "line": 4745,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-05-21T11:40:24.318386570+00:00",
+        "url": "https://github.com/yichuan-w/LEANN"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.675,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_8186de0e",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 873,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-21T11:40:24.314495256+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/yichuan-w/LEANN",
+      "source_ids": [
+        "src_8186de0e"
+      ],
+      "surfaces": [
+        "data/athena/books/src_8186de0e.jsonl",
+        "data/knowledge/athena/index/sources.jsonl",
+        "docs/operator/library/athena/sources/src_8186de0e.md"
+      ],
+      "title": "GithubRepo"
+    },
+    {
+      "actionable_next": "add github_repo_integration mapping and runtime/operator surface if this repo is still strategically relevant",
+      "coverage_class": "source_book_or_index_only",
+      "dispositions": [],
+      "gaps": [
+        "missing_github_repo_integration_mapping",
+        "missing_runtime_or_operator_surface",
+        "confidence_below_policy_ready_band",
+        "policy_gate_blockers:confidence_threshold,opposition_coverage"
+      ],
+      "integration_states": [],
+      "latest_index": {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_8186de0e.jsonl",
+        "confidence": 0.675,
+        "human_ref": "docs/operator/library/athena/sources/src_8186de0e.md",
+        "line": 4745,
+        "status": "deep",
+        "triad_passed": true,
+        "ts_utc": "2026-05-21T11:40:24.318386570+00:00",
+        "url": "https://github.com/yichuan-w/LEANN"
+      },
+      "latest_policy": {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.675,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_8186de0e",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "line": 873,
+        "policy_readiness": "reference_only",
+        "ts_utc": "2026-05-21T11:40:24.314495256+00:00"
+      },
+      "next_actions": [],
+      "repo_url": "https://github.com/yichuan-w/LEANN`",
+      "source_ids": [
+        "src_8186de0e"
+      ],
+      "surfaces": [
+        "docs/operator/library/athena/sources/src_8186de0e.md"
+      ],
+      "title": "src_8186de0e"
+    }
+  ],
+  "generated_at_utc": "2026-06-14T20:21:43.677257Z",
+  "inputs": [
+    "core/state/github_repo_integration.json",
+    "core/state/source_absorption_pipeline.json",
+    "core/state/package_enablement.json",
+    "core/state/package_runtime_activation.json",
+    "core/state/operator_actions.json",
+    "data/knowledge/athena/index/sources.jsonl",
+    "data/athena/policy_readiness.jsonl",
+    "docs/operator/library/athena/sources/",
+    "data/athena/books/"
+  ],
+  "recommendations": [
+    "Treat policy_mapped repos as candidates for bounded implementation contracts, not automatic queue promotion.",
+    "For pipeline_candidate_only/source_book_or_index_only repos, finish ATHENA deep ingest and policy readiness before creating execution work.",
+    "For repos with runtime/operator surfaces already present, refresh runtime state and create only narrow follow-up tasks tied to existing system surfaces.",
+    "Do not activate external GitHub-derived tooling without explicit operator approval and a WARDEN/runtime contract."
+  ],
+  "schema_version": "athena_github_coverage_audit.v1",
+  "summary": {
+    "coverage_class_counts": {
+      "policy_mapped": 21,
+      "source_book_or_index_only": 49
+    },
+    "gap_counts": {
+      "confidence_below_policy_ready_band": 43,
+      "missing_github_repo_integration_mapping": 49,
+      "missing_policy_readiness_row": 6,
+      "missing_runtime_or_operator_surface": 70,
+      "not_deep_ingested": 5,
+      "policy_gate_blockers:confidence_threshold,opposition_coverage": 20,
+      "policy_gate_blockers:triad_threshold,confidence_threshold,opposition_coverage": 21,
+      "triad_not_confirmed": 26
+    },
+    "github_repos_total": 70,
+    "top_actionable_repos": [
+      "https://github.com/unclecode/crawl4ai",
+      "https://github.com/qwibitai/nanoclaw",
+      "https://github.com/microsoft/playwright-mcp",
+      "https://github.com/code-yeongyu/oh-my-opencode",
+      "https://github.com/BerriAI/litellm",
+      "https://github.com/AlexsJones/llmfit",
+      "https://github.com/nearai/ironclaw",
+      "https://github.com/kaushikb11/awesome-llm-agents",
+      "https://github.com/ggerganov/llama.cpp",
+      "https://github.com/e2b-dev/awesome-ai-agents"
+    ]
+  }
+}

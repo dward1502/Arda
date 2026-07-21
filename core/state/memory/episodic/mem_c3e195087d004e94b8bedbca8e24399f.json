@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_c3e195087d004e94b8bedbca8e24399f",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Implement tool-gate JSON schemas and examples fixtures README and docs/policy-model. Same-id closeout for original queued row. Completed tool-gate JSON schemas, examples fixtures, README links, and docs/policy-model in /var/home/mythos/tool-gate. Evidence previously recorded in tsk_20260620_implement_tool_gate_json_schemas_and_examples_fi: schemas and examples exist, README/docs link surfaces present, cargo fmt --check, cargo clippy --all-targets -- -D warnings, cargo test, cargo doc --no-deps, and live readonly JSON smoke passed.",
+  "salience": 0.9305000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-20T16:10:28.825967802Z",
+  "last_seen_at": "2026-06-20T16:10:28.825967802Z"
+}

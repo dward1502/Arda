@@ -1,0 +1,62 @@
+{
+  "authority": "priority_human_contract_consumption",
+  "crates": [
+    {
+      "contract_path": "crates/annunimas-tool-harness/src/contract.rs",
+      "crate_name": "annunimas-tool-harness",
+      "path": "crates/annunimas-tool-harness",
+      "present": true,
+      "readme_path": "crates/annunimas-tool-harness/README.md",
+      "service_path": "crates/annunimas-tool-harness/src/service.rs",
+      "source_contract": "core/state/tool_harness_architecture_contract.json",
+      "tests_path": "crates/annunimas-tool-harness/tests/contract_smoke.rs"
+    },
+    {
+      "contract_path": "crates/annunimas-service-registry/src/contract.rs",
+      "crate_name": "annunimas-service-registry",
+      "path": "crates/annunimas-service-registry",
+      "present": true,
+      "readme_path": "crates/annunimas-service-registry/README.md",
+      "service_path": "crates/annunimas-service-registry/src/service.rs",
+      "source_contract": "core/state/tool_harness_architecture_contract.json",
+      "tests_path": "crates/annunimas-service-registry/tests/contract_smoke.rs"
+    },
+    {
+      "contract_path": "crates/annunimas-council/src/contract.rs",
+      "crate_name": "annunimas-council",
+      "path": "crates/annunimas-council",
+      "present": true,
+      "readme_path": "crates/annunimas-council/README.md",
+      "service_path": "crates/annunimas-council/src/service.rs",
+      "source_contract": "core/state/business_intelligence_suite_contract.json",
+      "tests_path": "crates/annunimas-council/tests/contract_smoke.rs"
+    },
+    {
+      "contract_path": "crates/annunimas-forge-mind/src/contract.rs",
+      "crate_name": "annunimas-forge-mind",
+      "path": "crates/annunimas-forge-mind",
+      "present": true,
+      "readme_path": "crates/annunimas-forge-mind/README.md",
+      "service_path": "crates/annunimas-forge-mind/src/service.rs",
+      "source_contract": "core/state/engineering_suite_contract.json",
+      "tests_path": "crates/annunimas-forge-mind/tests/contract_smoke.rs"
+    },
+    {
+      "contract_path": "crates/annunimas-signal-grid/src/contract.rs",
+      "crate_name": "annunimas-signal-grid",
+      "path": "crates/annunimas-signal-grid",
+      "present": true,
+      "readme_path": "crates/annunimas-signal-grid/README.md",
+      "service_path": "crates/annunimas-signal-grid/src/service.rs",
+      "source_contract": "core/state/social_pipeline_contract.json",
+      "tests_path": "crates/annunimas-signal-grid/tests/contract_smoke.rs"
+    }
+  ],
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "schema_version": "annunimas.priority-human-crate-spawn-registry.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "crates_total": 5,
+    "present_total": 5
+  }
+}

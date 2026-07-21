@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_e19a7bac4e73405b935fa8f65f93529f",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Queue: HADES plan review. Created and verified human/plans/HADES.md operator narrative from core/projects/Plans/HADES.md plus HADES lifecycle, WARDEN guardhouse, storage hygiene, and active ruleset evidence. Append-only guard passed before closeout.",
+  "salience": 0.8325000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-21T04:37:55.686986146Z",
+  "last_seen_at": "2026-06-21T04:37:55.686986146Z"
+}

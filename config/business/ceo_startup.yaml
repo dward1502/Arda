@@ -1,0 +1,81 @@
+# sigil: SCROLL
+version: 1
+generated_on: '2026-02-25'
+
+startup:
+  run_install_on_bootstrap: true
+  run_diagnostic: true
+  strict_preflight: true
+  preflight_blockers:
+    - python_module_missing
+    - service_unhealthy:mission_control
+    - warden_decision:isolate
+    - warden_decision:terminate
+  required_python_modules:
+    - discord
+
+llm_services:
+  - name: ollama
+    match: ollama serve
+    start_cmd: ollama serve
+
+network_checks:
+  - name: loopback
+    host: 127.0.0.1
+
+service_checks:
+  - name: mission_control
+    url: http://${ANNUNIMAS_CEO_HEALTH_HOST}:${ANNUNIMAS_CEO_HEALTH_PORT}/mc/v0/health
+    process_match: mission_control
+    critical: true
+    start_if_unhealthy: true
+    skip_if_no_profile: true
+    start_profiles:
+      - name: citadel_profile
+        check_path: Eregion/CITADEL_BASE/citadel/scripts/start_mission_control.py
+        command: >-
+          cd Eregion/CITADEL_BASE/citadel &&
+          nohup python3 scripts/start_mission_control.py > /var/home/dward/Numenor_Prime/Tools/logs/mission_control.log 2>&1 &
+      - name: athena_profile
+        check_path: ATHENA/mission_control/app.py
+        command: >-
+          cd ATHENA &&
+          nohup python3 -m uvicorn mission_control.app:app --host 127.0.0.1 --port 9100 > /var/home/dward/Numenor_Prime/Tools/logs/mission_control.log 2>&1 &
+
+usage_tracking:
+  enabled: true
+  limits_config: Tools/Configs/llm_usage_limits.yaml
+  report_json: Operations/Reports/system/llm_usage_status.json
+  report_md: Operations/Reports/system/llm_usage_status.md
+
+system_health:
+  enabled: true
+  create_task: true
+  notify_critical: true
+
+governance_gate:
+  enabled: true
+  actor: warden
+  system: ATHENA
+  action: startup_health_review
+  risk_tier: high
+  decision_text: >-
+    Maintain resilient autonomous operation with policy compliance, verified evidence,
+    strategic containment, and safe escalation to CEO and Arandur for major alerts.
+  context: startup protocol baseline health and governance scan
+  ledger_out: Operations/Ledger/governance/warden_decisions.jsonl
+  report_json: Operations/Reports/system/warden_status.json
+  report_md: Operations/Reports/system/warden_status.md
+
+warden_runtime:
+  enabled: true
+  run_once_on_startup: true
+  dry_run: false
+
+arda_hud:
+  enabled: true
+  auto_build: true
+  launch_script: Tools/launch_hud.sh
+  build_script: Tools/build_arda_hud.sh
+  process_match: arda_hud
+  binary_path: Eregion/KhazadForge/ARDA_HUD/src-tauri/target/release/arda_hud

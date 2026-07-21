@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_04fab629ab5b489b910597ee90a9442d",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: CHARON Adaptive Routing v1: capability truth ledger. Extended runtime capability truth from provider/model observations; exposed tool, structured-output, streaming, visible-reasoning, and context truth in Charon observability.",
+  "salience": 0.6855000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-07T06:22:23.425110834Z",
+  "last_seen_at": "2026-06-07T06:22:23.425110834Z"
+}

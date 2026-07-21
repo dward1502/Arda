@@ -1,0 +1,31 @@
+{
+  "authority": "forge_mind_extraction",
+  "crate_candidate": "annunimas-forge-mind",
+  "doctrine": {
+    "documentation_is_a_first_class_output": true,
+    "engineering_spans_software_hardware_and_fabrication": true,
+    "research_must_feed_build_and_verification": true
+  },
+  "domains": [
+    "software_systems",
+    "hardware_integration",
+    "physical_fabrication",
+    "systems_research",
+    "technical_documentation"
+  ],
+  "downstream_contracts": [
+    "fabrication_research_contract",
+    "technical_documentation_contract"
+  ],
+  "generated_at_utc": "2026-06-05T09:59:38Z",
+  "schema_version": "annunimas.engineering-suite-contract.v1",
+  "source_group": "forge_mind",
+  "source_ids": [
+    "src_373819e6"
+  ],
+  "workflow_primitives": [
+    "research_to_build_flow",
+    "documentation_authority_role",
+    "software_hardware_fabrication_split"
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "authority": "scripts/check_charon_routes.sh",
+  "base_url": "http://${ANNUNIMAS_CHARON_HTTP_HOST:-127.0.0.1}:${ANNUNIMAS_CHARON_HTTP_PORT:-5110}",
+  "endpoint_checks": [
+    {
+      "body_excerpt": "",
+      "body_json": null,
+      "error": "InvalidURL: nonnumeric port: '-5110}'",
+      "expected_statuses": [
+        200
+      ],
+      "latency_ms": 6,
+      "method": "GET",
+      "name": "models",
+      "ok": false,
+      "path": "/v1/models",
+      "status": null
+    },
+    {
+      "body_excerpt": "",
+      "body_json": null,
+      "error": "InvalidURL: nonnumeric port: '-5110}'",
+      "expected_statuses": [
+        200
+      ],
+      "latency_ms": 0,
+      "method": "GET",
+      "name": "metrics",
+      "ok": false,
+      "path": "/metrics",
+      "status": null
+    },
+    {
+      "body_excerpt": "",
+      "body_json": null,
+      "error": "InvalidURL: nonnumeric port: '-5110}'",
+      "expected_statuses": [
+        200
+      ],
+      "latency_ms": 0,
+      "method": "GET",
+      "name": "health",
+      "ok": false,
+      "path": "/health",
+      "status": null
+    },
+    {
+      "body_excerpt": "",
+      "body_json": null,
+      "error": "InvalidURL: nonnumeric port: '-5110}'",
+      "expected_statuses": [
+        200
+      ],
+      "latency_ms": 0,
+      "method": "POST",
+      "name": "reload_config",
+      "ok": false,
+      "path": "/reload_config",
+      "status": null
+    }
+  ],
+  "generated_at_utc": "2026-06-03T09:41:14.903866Z",
+  "ok": false,
+  "route_checks": [
+    {
+      "body_excerpt": "",
+      "error": "InvalidURL: nonnumeric port: '-5110}'",
+      "latency_ms": 0,
+      "model": "edge_worker_light/Qwen_Qwen3.5-4B-Q6_K",
+      "ok": false,
+      "provider_id": "edge_worker_light",
+      "response_excerpt": "",
+      "status": null,
+      "tier": "local"
+    },
+    {
+      "body_excerpt": "",
+      "error": "InvalidURL: nonnumeric port: '-5110}'",
+      "latency_ms": 0,
+      "model": "litellm_gateway/litellm-router",
+      "ok": false,
+      "provider_id": "litellm_gateway",
+      "response_excerpt": "",
+      "status": null,
+      "tier": "normalized"
+    },
+    {
+      "body_excerpt": "",
+      "error": "InvalidURL: nonnumeric port: '-5110}'",
+      "latency_ms": 0,
+      "model": "google/gemini-2.0-flash",
+      "ok": false,
+      "provider_id": "google",
+      "response_excerpt": "",
+      "status": null,
+      "tier": "free_cloud"
+    },
+    {
+      "body_excerpt": "",
+      "error": "InvalidURL: nonnumeric port: '-5110}'",
+      "latency_ms": 0,
+      "model": "edge_guardhouse/Qwen3.5-4B-Q4_K_M.gguf",
+      "ok": false,
+      "provider_id": "edge_guardhouse",
+      "response_excerpt": "",
+      "status": null,
+      "tier": "local_slow"
+    }
+  ],
+  "summary": {
+    "endpoints_ok": 0,
+    "endpoints_total": 4,
+    "failed_routes": [
+      "edge_worker_light",
+      "litellm_gateway",
+      "google",
+      "edge_guardhouse"
+    ],
+    "routes_ok": 0,
+    "routes_total": 4
+  }
+}

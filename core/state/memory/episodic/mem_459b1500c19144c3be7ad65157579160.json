@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_459b1500c19144c3be7ad65157579160",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Queue tool-gate skeleton repo: public README rename map AGENTS polished",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-19T07:22:20.300400732Z",
+  "last_seen_at": "2026-06-19T07:22:20.300400732Z"
+}

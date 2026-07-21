@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_2365d60b208f4224a8244331bc3bb124",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Hermes Discord council promotion command surface implemented. Added /task action:promote_council to promote discussion-only council notes to canonical task refs by appending annunimas.hermes.council_discussion_promotion.v1 to data/hermes/council_sessions.jsonl. Verification: cargo fmt --check -p annunimas-hermes; cargo test -p annunimas-hermes serenity_bot -- --nocapture; cargo test -p annunimas-hermes -- --test-threads=1.",
+  "salience": 0.7625,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-30T17:54:43.984289701Z",
+  "last_seen_at": "2026-05-30T17:54:43.984289701Z"
+}

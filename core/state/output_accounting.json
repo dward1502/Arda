@@ -1,0 +1,91 @@
+{
+  "authority": "output_accounting_projection",
+  "candidates": [
+    {
+      "compress_globs": [
+        "*.log"
+      ],
+      "compressed_files": 1,
+      "content_sha256": "7d3f530c3af53910ecc82cf0d6bffb8b74bd3936eebd62b5141898c500b8a2bf",
+      "estimated_joulework": 1.0,
+      "exclude_globs": [
+        "bin/**"
+      ],
+      "mirror_path": "data/accounting/output_mirror/data__prometheus__autopilot",
+      "mirrored_bytes": 7264855,
+      "mirrored_files": 7,
+      "observed_source_bytes": 7439991,
+      "path": "data/prometheus/autopilot",
+      "priority": "high",
+      "reason": "valuable audit/history surface but not required as sovereign runtime truth",
+      "recommended_action": "mirror_tree_compact",
+      "skipped_bytes": 0,
+      "skipped_files": 0,
+      "source_exists": true,
+      "status": "mirrored"
+    },
+    {
+      "compress_globs": [
+        "*.log"
+      ],
+      "compressed_files": 6,
+      "content_sha256": "62b3aa7b32b25f7f958c69ad5d1721671e47ffda54cde832a3b1c609f2e3f02d",
+      "estimated_joulework": 0.8,
+      "mirror_path": "data/accounting/output_mirror/data__prometheus__supervisor",
+      "mirrored_bytes": 13545365,
+      "mirrored_files": 17,
+      "observed_source_bytes": 13909809,
+      "path": "data/prometheus/supervisor",
+      "priority": "high",
+      "reason": "operator/support telemetry, not primary runtime authority",
+      "recommended_action": "mirror_tree_compact",
+      "skipped_bytes": 0,
+      "skipped_files": 0,
+      "source_exists": true,
+      "status": "mirrored"
+    },
+    {
+      "compressed_files": 0,
+      "content_sha256": "aef6cf68f52cd57ea35aa54f145ce0c938456ee3a095731efb295f3749847809",
+      "estimated_joulework": 2.0,
+      "mirror_path": "data/accounting/output_mirror/core__metrics__history",
+      "mirrored_bytes": 14402843,
+      "mirrored_files": 140,
+      "observed_source_bytes": 14402843,
+      "path": "core/metrics/history",
+      "priority": "medium",
+      "reason": "longitudinal accountability and replay, distinct from live runtime control",
+      "recommended_action": "mirror_tree",
+      "skipped_bytes": 0,
+      "skipped_files": 0,
+      "source_exists": true,
+      "status": "mirrored"
+    },
+    {
+      "estimated_joulework": 0.5,
+      "path": "target",
+      "priority": "low",
+      "reason": "rebuildable local artifacts that should stay outside long-term operational truth",
+      "recommended_action": "snapshot_manifest",
+      "source_exists": false,
+      "status": "missing"
+    }
+  ],
+  "generated_at_utc": "2026-04-28T09:49:24Z",
+  "mirror_root": "data/accounting/output_mirror",
+  "mode": "mirror_only_non_destructive",
+  "runtime_guards": {
+    "moves_runtime_authority": false,
+    "mutates_operational_paths": false,
+    "requires_manual_relocation": true
+  },
+  "schema_version": "annunimas.core.state.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "candidate_total": 4,
+    "estimated_joulework_total": 4.3,
+    "mirrored_bytes_total": 35213063,
+    "mirrored_files_total": 164,
+    "observed_source_bytes_total": 35752643
+  }
+}

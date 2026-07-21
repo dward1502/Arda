@@ -1,0 +1,57 @@
+{
+  "id": "world_boardroom_composite_iter01",
+  "domain": "world",
+  "scene_binding": "boardroom_main_desk",
+  "material_family": "world_terminal_housing",
+  "source": "procedural_blender_5_1_controlled_iteration",
+  "license": "Internal",
+  "status": "controlled_spike_iteration_not_art_locked",
+  "reference_paths": [
+    {
+      "path": "apps/arda-hud/desk.jpg",
+      "role": "primary composition reference"
+    },
+    {
+      "path": "apps/arda-hud/desk.jpg",
+      "role": "desk and operator cockpit reference"
+    },
+    {
+      "path": "apps/arda-hud/avatar.jpg",
+      "role": "presence/avatar hologram reference"
+    },
+    {
+      "path": "docs/arda/ARDA_BOARDROOM_ASSET_INGESTION_BRIEF.md",
+      "role": "asset sequence and fidelity gates"
+    },
+    {
+      "path": "apps/arda-hud/ARDA_PRD.md",
+      "role": "product and scene authority"
+    }
+  ],
+  "outputs": {
+    "repo_glb": "apps/arda-hud/src/assets/scene/world/boardroom_composite_iter01/boardroom_composite_iter01.glb",
+    "spike_workspace": "/var/home/mythos/arda_pixal3d_spike/outputs/boardroom_composite_iter01",
+    "render_previews": [
+      "/var/home/mythos/arda_pixal3d_spike/outputs/boardroom_composite_iter01/front_reference_composition.png",
+      "/var/home/mythos/arda_pixal3d_spike/outputs/boardroom_composite_iter01/left_three_quarter.png",
+      "/var/home/mythos/arda_pixal3d_spike/outputs/boardroom_composite_iter01/hologram_and_monitors_closeup.png"
+    ],
+    "generation_log": "/var/home/mythos/arda_pixal3d_spike/logs/boardroom_composite_iter01_blender.log"
+  },
+  "reference_targets": [
+    "C-wrap glossy obsidian command desk",
+    "six wide rectangular monitor surfaces plus upper articulated monitor family",
+    "raised central console with dense status controls",
+    "sloped touch tablets on left and right desk wings",
+    "panoramic rainy neon skyline window shell",
+    "central cyan/magenta holographic presence silhouette",
+    "surface-bound cyan/magenta emissive strips"
+  ],
+  "known_gaps_next_iteration": [
+    "Desk should be replaced with true curved bevelled topology rather than slab approximation",
+    "Hologram needs recognizable anime/female avatar body proportions and hair silhouette rather than simple scaffold",
+    "Monitor panels need real UI texture maps and more accurate backplate/arm mechanical detail",
+    "Window should use richer skyline billboards/rain planes and parallax layers",
+    "Scene needs runtime placement/load validation inside active Three.js/WebGL layer"
+  ]
+}

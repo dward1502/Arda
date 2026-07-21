@@ -1,0 +1,139 @@
+# sigil: REPAIR
+# ============================================================
+# Arda CLIENT REGISTRY
+# core/clients/_registry.toml
+#
+# 𓆣 Plutus — JouleWork Sovereign
+# ◈ Master record of all clients served by Arda
+# ============================================================
+# RULES:
+#   - Every client gets a slug (directory name)
+#   - Every client has a clearance level agents must match to read
+#   - Status: active | paused | prospect | archived
+#   - Plutus reads this for billing. Athena reads this for context.
+#   - Hermes reads this for communication routing.
+# ============================================================
+
+[registry]
+created     = "2026-02-28"
+maintained_by = "arandur"
+sigil       = "𓆣"
+
+# ============================================================
+[[client]]
+# ============================================================
+slug        = "skylight-pros"
+name        = "Skylight Pros"
+type        = "external"
+status      = "active"
+clearance   = "guardian"
+realm       = "operations"
+sigil       = "𓂀"
+priority    = 1
+
+[client.contact]
+primary     = "Ownership team"
+role        = "Owners / Daniel as CTO"
+location    = "San Diego, CA"
+notes       = "Friend-owned company. Payment is minimal, but delivery is high priority."
+
+[client.context]
+industry    = "Skylight installation and repair"
+founded     = "legacy business"
+experience  = "30+ years"
+territory   = "San Diego area"
+description = """
+Friend-owned skylight installation company with 30+ years of experience.
+Daniel serves as CTO and technical operator. Near-term work includes
+website updates, deployment hygiene, and operational modernization.
+"""
+
+[client.agents_assigned]
+primary     = ["arandur", "hermes", "apollo"]
+read_access = ["athena", "plutus"]
+restricted  = []
+
+[client.joulework]
+monthly_budget  = 200.0
+alert_threshold = 0.85      # Alert at 85% of budget
+current_spend   = 0.0
+billing_model   = "internal"
+
+[client.soterion]
+tags        = ["external", "priority-1", "website", "operations", "amplify"]
+resonance   = 0.98
+clearance   = "guardian"
+
+# ============================================================
+[[client]]
+# ============================================================
+slug        = "wgtt"
+name        = "World Games Travel"
+type        = "external"
+status      = "active"
+clearance   = "guardian"
+realm       = "operations"
+sigil       = "𓂀"
+priority    = 2
+
+[client.contact]
+primary     = "Family ownership"
+role        = "Uncle / Daniel as CTO"
+location    = "San Diego, CA"
+notes       = "Family-aligned engagement. No current pay, but active responsibility."
+
+[client.context]
+industry    = "Travel and event services"
+description = """
+World Games Travel is a family-connected operating priority where Daniel
+serves as CTO. Immediate work is website content updates, GitHub/AWS
+Amplify deployment control, and future operational systemization.
+"""
+
+[client.agents_assigned]
+primary     = ["arandur", "hermes", "apollo"]
+read_access = ["athena", "plutus", "oracle"]
+restricted  = ["warden"]
+
+[client.joulework]
+monthly_budget  = 120.0
+alert_threshold = 0.85
+current_spend   = 0.0
+billing_model   = "family-support"
+
+[client.soterion]
+tags        = ["external", "priority-2", "travel", "website", "amplify"]
+resonance   = 0.93
+clearance   = "guardian"
+
+# ============================================================
+# PROSPECT CLIENTS (not yet active)
+# ============================================================
+
+[[client]]
+slug        = "ais-prospect-001"
+name        = "AIS Prospect — TBD"
+type        = "prospect"
+status      = "prospect"
+clearance   = "guardian"
+realm       = "operations"
+sigil       = "𓂀"
+priority    = 10
+
+[client.context]
+revenue_range   = "$1M-$5M"
+description     = "Next AIS client. Slot reserved for pipeline."
+
+[client.agents_assigned]
+primary     = []
+read_access = ["arandur", "plutus"]
+restricted  = []
+
+[client.joulework]
+monthly_budget  = 0.0
+billing_model   = "tbd"
+
+[client.soterion]
+tags        = ["prospect", "pipeline"]
+resonance   = 0.5
+clearance   = "guardian"

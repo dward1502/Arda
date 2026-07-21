@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_2a837a7c972c4873a9d071a02650422a",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: CHARON B5 service split complete",
+  "salience": 0.7625,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-09T19:49:42.145255197Z",
+  "last_seen_at": "2026-05-09T19:49:42.145255197Z"
+}

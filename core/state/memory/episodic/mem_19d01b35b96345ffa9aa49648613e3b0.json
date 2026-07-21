@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_19d01b35b96345ffa9aa49648613e3b0",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Create task for moria-repository-mvp-contract.md",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-05T07:13:41.084307925Z",
+  "last_seen_at": "2026-06-05T07:13:41.084307925Z"
+}

@@ -1,0 +1,133 @@
+{
+  "approvals": [
+    {
+      "approval_id": "ha_provider_reroute_1774326650",
+      "approved_at_utc": "2026-03-24T04:30:50.552645460+00:00",
+      "approvers": [
+        "aurelius",
+        "bacon"
+      ],
+      "command_signature": null,
+      "decision_class": "provider_reroute",
+      "evidence": [
+        "seed-approval"
+      ],
+      "expires_at_utc": null,
+      "note": "Seed ARDA runtime surface",
+      "status": "approved"
+    },
+    {
+      "approval_id": "ha_external_message_1780358820",
+      "approved_at_utc": "2026-06-02T00:07:00.134696278+00:00",
+      "approvers": [
+        "operator"
+      ],
+      "command_signature": "cargo run -p annunimas-cli -- hermes send",
+      "decision_class": "external_message",
+      "evidence": [
+        "User approved all Discord actions in session on 2026-06-01",
+        "Hermes gateway activation check reports ready_for_live_gateway with no blockers"
+      ],
+      "expires_at_utc": "2026-06-02T02:00:00Z",
+      "note": "Authorize approved remote-confidence Discord closeout smoke and receipt adapter only; evidence only, not execution approval.",
+      "status": "approved"
+    },
+    {
+      "approval_id": "ha_provider_reroute_1780430941",
+      "approved_at_utc": "2026-06-02T20:09:01.559734841+00:00",
+      "approvers": [
+        "operator"
+      ],
+      "command_signature": "cargo run -p annunimas-cli -- charon reload-config",
+      "decision_class": "provider_reroute",
+      "evidence": [
+        "Operator approved CHARON provider reroute reload in Codex session on 2026-06-02 after provider intelligence refresh"
+      ],
+      "expires_at_utc": null,
+      "note": "Authorize CHARON provider config reload after refreshing provider intelligence on annunimas-core; no credential disclosure; MiniMax/Kimi remain disabled until non-empty keys are supplied.",
+      "status": "approved"
+    },
+    {
+      "approval_id": "ha_provider_reroute_1780430977",
+      "approved_at_utc": "2026-06-02T20:09:37.482260083+00:00",
+      "approvers": [
+        "arandur"
+      ],
+      "command_signature": "cargo run -p annunimas-cli -- charon route-governor",
+      "decision_class": "provider_reroute",
+      "evidence": [
+        "Operator approved CHARON provider reroute reload in Codex session on 2026-06-02 after provider intelligence refresh"
+      ],
+      "expires_at_utc": null,
+      "note": "Authorize bounded CHARON reload-config through internal route-governor policy signature after provider intelligence refresh on annunimas-core.",
+      "status": "approved"
+    },
+    {
+      "approval_id": "ha_workspace_cleanup_1781461372",
+      "approved_at_utc": "2026-06-14T18:22:52.580005061+00:00",
+      "approvers": [
+        "operator"
+      ],
+      "command_signature": "scripts/hades_organization_maintenance.sh; cargo run -p annunimas-cli -- hades queue-compaction-apply",
+      "decision_class": "workspace_cleanup",
+      "evidence": [
+        "Operator statement in active Hermes session on 2026-06-14: ok continue and finish this audit. you have approval for all tasks or gates that come up",
+        "Current cleanup approval packet inventory includes data/hades/autonomy_cleanup_approval_packets.json and data/hades/organization_approval_packet*.json",
+        "Queue compaction approval packets found under audit/hades-queue-compaction-runs/2026-06-05/*/approval_packet.json"
+      ],
+      "expires_at_utc": null,
+      "note": "Authorize all current HADES cleanup, organization, autonomy cleanup, lifecycle cleanup, and queue-compaction approval packets/gates for this audit session; execution still requires project verification and append-only receipts.",
+      "status": "approved"
+    },
+    {
+      "approval_id": "ha_bounded_research_1781463616",
+      "approved_at_utc": "2026-06-14T19:00:16.963575239+00:00",
+      "approvers": [
+        "operator"
+      ],
+      "command_signature": "scripts/autonomy_operating_loop_preflight.py --external-source-lanes",
+      "decision_class": "bounded_research",
+      "evidence": [
+        "Operator statement in active Hermes session on 2026-06-14: I approve of ATHENA blockages",
+        "ATHENA external source lanes remain gated/blocking until canonical source receipts/connectors exist; approval acknowledges gates as acceptable blockers, not permission to bypass source verification"
+      ],
+      "expires_at_utc": null,
+      "note": "Acknowledge and approve ATHENA external-source blockage/gate status for continuation; no external source task promotion is authorized without canonical receipts and policy-ready evidence.",
+      "status": "approved"
+    },
+    {
+      "approval_id": "ha_workspace_cleanup_1781463911",
+      "approved_at_utc": "2026-06-14T19:05:11.129510909+00:00",
+      "approvers": [
+        "operator"
+      ],
+      "command_signature": "scripts/hades_organization_maintenance.sh; cargo run -p annunimas-cli -- hades queue-compaction-apply; current HADES cleanup/archive/action gates",
+      "decision_class": "workspace_cleanup",
+      "evidence": [
+        "Operator direct statement in active Hermes session on 2026-06-14: Ok I directly approve all HADES actions right now",
+        "Applies to current HADES approval packets/gates only; execution remains receipt-backed and bounded by project verification"
+      ],
+      "expires_at_utc": null,
+      "note": "Direct operator approval for all current HADES cleanup, organization, lifecycle, autonomy cleanup, archive, and queue-compaction actions/gates in this session; preserve append-only receipts, rollback evidence, and verification for each mutation.",
+      "status": "approved"
+    },
+    {
+      "approval_id": "ha_strategy_change_1783055289",
+      "approved_at_utc": "2026-07-03T05:08:09.126053+00:00",
+      "approvers": [
+        "ceo"
+      ],
+      "command_signature": null,
+      "decision_class": "strategy_change",
+      "evidence": [
+        "Operator authorization in active Hermes session on 2026-07-03 for athena policy-promote"
+      ],
+      "expires_at_utc": null,
+      "note": "Operator authorized ATHENA policy promotion from reference_only to actionable for this session. Operator acts as CEO authorizer for this approval.",
+      "status": "approved"
+    }
+  ],
+  "schema_version": "annunimas.human-augmentation-approval.v1",
+  "sigil": "REPAIR",
+  "updated_at_utc": "2026-07-03T05:08:09.126053+00:00"
+}

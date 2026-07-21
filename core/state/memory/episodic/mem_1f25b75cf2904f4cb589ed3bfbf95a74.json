@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_1f25b75cf2904f4cb589ed3bfbf95a74",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Plan task: Annunimas Autonomy Readiness And Human Ingestion Plan. Created from active plan registry; see docs/plans/annunimas-autonomy-readiness-and-human-ingestion-plan.md for task contract and verification gates.",
+  "salience": 0.6675000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-23T06:47:15.563184448Z",
+  "last_seen_at": "2026-05-23T06:47:15.563184448Z"
+}

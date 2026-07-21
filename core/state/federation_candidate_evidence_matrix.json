@@ -1,0 +1,1014 @@
+{
+  "authority": "read-only evidence artifact; does not promote, append queue receipts, or alter source queues",
+  "blocked_decision": {
+    "src_23dcfccf": "has deep source-index evidence with triad_passed=true and confidence 0.6916666666666667, below threshold 0.8; no exact opposition coverage found for this source; remain blocked",
+    "src_ea7a1c0f": "source book exists and source index has shallow references, but no exact policy_readiness rows or opposition refs were found; closeout candidates remain blocked pending triad/confidence/opposition evidence"
+  },
+  "classification_source": {
+    "evidence_needed_count": 5,
+    "generated_at_utc": "2026-06-14T19:35:36Z",
+    "path": "core/state/queue_federation_blocked_candidate_closeout.json"
+  },
+  "generated_at_utc": "2026-06-14T20:16:13.902705Z",
+  "matrix": [
+    {
+      "actionable_next": [
+        "add stronger corroborating/deep evidence and rerun ATHENA deep analysis/policy gate",
+        "harvest at least two opposition viewpoints via ATHENA opposition evidence flow, then queue/deep-analyze them"
+      ],
+      "blocked_reason": "confidence_threshold",
+      "candidate_id": "tsk_policy_4ba11e3136e1",
+      "federation_closeout_evidence": {
+        "category": "evidence_needed",
+        "index": 1,
+        "path": "core/state/queue_federation_blocked_candidate_closeout.json",
+        "promotion_ready": false
+      },
+      "gate_satisfied": {
+        "confidence_threshold": false,
+        "deep_index_present": true,
+        "opposition_coverage": false,
+        "source_book_present": true,
+        "triad_threshold": true
+      },
+      "missing_gates": [
+        "confidence_threshold",
+        "opposition_coverage"
+      ],
+      "observed": {
+        "citation_integrity": true,
+        "confidence": 0.6916666666666667,
+        "hash_chain_valid": null,
+        "opposition_coverage": 0,
+        "triad_passed": true
+      },
+      "owner": "athena",
+      "policy_blockers": [],
+      "policy_evidence_note": "no exact source_id entries found in data/athena/policy_readiness.jsonl; using source index + digest opposition search as evidence surface",
+      "priority": "high",
+      "promotion_decision": "remain_blocked_no_promotion_receipt",
+      "promotion_eligible_now": false,
+      "source_id": "src_23dcfccf",
+      "source_queue_evidence": {
+        "line": 1,
+        "path": "crates/annunimas-athena/core/projects/tasks/queue.jsonl",
+        "status": "queued"
+      },
+      "source_surfaces": {
+        "digest_reference_count": 0,
+        "opposition_reference_count": 0,
+        "policy_readiness": {
+          "latest": null,
+          "line_count": 0
+        },
+        "source_book": {
+          "byte_count": 819,
+          "declared_status": true,
+          "exists": true,
+          "line_count": 33,
+          "path": "docs/operator/library/athena/sources/src_23dcfccf.md"
+        },
+        "source_index": {
+          "latest_any": {
+            "book_ref": "/tmp/.tmpZ1zjwR/books/src_23dcfccf.jsonl",
+            "confidence": 0.6916666666666667,
+            "event": "deep_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_23dcfccf.md",
+            "line": 17972,
+            "source_type": "NewsArticle",
+            "status": "deep",
+            "tags": [
+              "newsarticle"
+            ],
+            "triad_passed": true,
+            "ts_utc": "2026-05-30T18:05:29.314077369+00:00",
+            "url": "https://example.com/operational-policy"
+          },
+          "latest_deep": {
+            "book_ref": "/tmp/.tmpZ1zjwR/books/src_23dcfccf.jsonl",
+            "confidence": 0.6916666666666667,
+            "event": "deep_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_23dcfccf.md",
+            "line": 17972,
+            "source_type": "NewsArticle",
+            "status": "deep",
+            "tags": [
+              "newsarticle"
+            ],
+            "triad_passed": true,
+            "ts_utc": "2026-05-30T18:05:29.314077369+00:00",
+            "url": "https://example.com/operational-policy"
+          },
+          "latest_shallow": {
+            "book_ref": "/tmp/.tmpZ1zjwR/books/src_23dcfccf.jsonl",
+            "confidence": null,
+            "event": "shallow_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_23dcfccf.md",
+            "line": 17970,
+            "source_type": "NewsArticle",
+            "status": "shallow",
+            "tags": [
+              "newsarticle"
+            ],
+            "triad_passed": null,
+            "ts_utc": "2026-05-30T18:05:29.307859475+00:00",
+            "url": "https://example.com/operational-policy"
+          },
+          "line_count": 255
+        },
+        "source_index_recent_lines": [
+          {
+            "book_ref": "/tmp/.tmpdS4ahC/books/src_23dcfccf.jsonl",
+            "confidence": 0.6916666666666667,
+            "event": "deep_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_23dcfccf.md",
+            "line": 17956,
+            "source_type": "NewsArticle",
+            "status": "deep",
+            "tags": [
+              "newsarticle"
+            ],
+            "triad_passed": true,
+            "ts_utc": "2026-05-30T18:04:17.612594754+00:00",
+            "url": "https://example.com/operational-policy"
+          },
+          {
+            "book_ref": "/tmp/.tmpdS4ahC/books/src_23dcfccf.jsonl",
+            "confidence": 0.6916666666666667,
+            "event": "deep_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_23dcfccf.md",
+            "line": 17957,
+            "source_type": "NewsArticle",
+            "status": "deep",
+            "tags": [
+              "newsarticle"
+            ],
+            "triad_passed": true,
+            "ts_utc": "2026-05-30T18:04:17.615661485+00:00",
+            "url": "https://example.com/operational-policy"
+          },
+          {
+            "book_ref": "/tmp/.tmpZ1zjwR/books/src_23dcfccf.jsonl",
+            "confidence": null,
+            "event": "shallow_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_23dcfccf.md",
+            "line": 17970,
+            "source_type": "NewsArticle",
+            "status": "shallow",
+            "tags": [
+              "newsarticle"
+            ],
+            "triad_passed": null,
+            "ts_utc": "2026-05-30T18:05:29.307859475+00:00",
+            "url": "https://example.com/operational-policy"
+          },
+          {
+            "book_ref": "/tmp/.tmpZ1zjwR/books/src_23dcfccf.jsonl",
+            "confidence": 0.6916666666666667,
+            "event": "deep_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_23dcfccf.md",
+            "line": 17971,
+            "source_type": "NewsArticle",
+            "status": "deep",
+            "tags": [
+              "newsarticle"
+            ],
+            "triad_passed": true,
+            "ts_utc": "2026-05-30T18:05:29.311306561+00:00",
+            "url": "https://example.com/operational-policy"
+          },
+          {
+            "book_ref": "/tmp/.tmpZ1zjwR/books/src_23dcfccf.jsonl",
+            "confidence": 0.6916666666666667,
+            "event": "deep_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_23dcfccf.md",
+            "line": 17972,
+            "source_type": "NewsArticle",
+            "status": "deep",
+            "tags": [
+              "newsarticle"
+            ],
+            "triad_passed": true,
+            "ts_utc": "2026-05-30T18:05:29.314077369+00:00",
+            "url": "https://example.com/operational-policy"
+          }
+        ]
+      },
+      "thresholds": {
+        "citation_integrity_required": true,
+        "confidence_mean": 0.8,
+        "hash_chain_required": true,
+        "opposition_coverage_min": 2,
+        "triad_pass_rate": 0.75
+      },
+      "title": "Improve confidence evidence for src_23dcfccf"
+    },
+    {
+      "actionable_next": [
+        "add stronger corroborating/deep evidence and rerun ATHENA deep analysis/policy gate",
+        "harvest at least two opposition viewpoints via ATHENA opposition evidence flow, then queue/deep-analyze them"
+      ],
+      "blocked_reason": "opposition_coverage",
+      "candidate_id": "tsk_policy_fdd090b1bd2d",
+      "federation_closeout_evidence": {
+        "category": "evidence_needed",
+        "index": 2,
+        "path": "core/state/queue_federation_blocked_candidate_closeout.json",
+        "promotion_ready": false
+      },
+      "gate_satisfied": {
+        "confidence_threshold": false,
+        "deep_index_present": true,
+        "opposition_coverage": false,
+        "source_book_present": true,
+        "triad_threshold": true
+      },
+      "missing_gates": [
+        "confidence_threshold",
+        "opposition_coverage"
+      ],
+      "observed": {
+        "citation_integrity": true,
+        "confidence": 0.6916666666666667,
+        "hash_chain_valid": null,
+        "opposition_coverage": 0,
+        "triad_passed": true
+      },
+      "owner": "athena",
+      "policy_blockers": [],
+      "policy_evidence_note": "no exact source_id entries found in data/athena/policy_readiness.jsonl; using source index + digest opposition search as evidence surface",
+      "priority": "high",
+      "promotion_decision": "remain_blocked_no_promotion_receipt",
+      "promotion_eligible_now": false,
+      "source_id": "src_23dcfccf",
+      "source_queue_evidence": {
+        "line": 2,
+        "path": "crates/annunimas-athena/core/projects/tasks/queue.jsonl",
+        "status": "queued"
+      },
+      "source_surfaces": {
+        "digest_reference_count": 0,
+        "opposition_reference_count": 0,
+        "policy_readiness": {
+          "latest": null,
+          "line_count": 0
+        },
+        "source_book": {
+          "byte_count": 819,
+          "declared_status": true,
+          "exists": true,
+          "line_count": 33,
+          "path": "docs/operator/library/athena/sources/src_23dcfccf.md"
+        },
+        "source_index": {
+          "latest_any": {
+            "book_ref": "/tmp/.tmpZ1zjwR/books/src_23dcfccf.jsonl",
+            "confidence": 0.6916666666666667,
+            "event": "deep_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_23dcfccf.md",
+            "line": 17972,
+            "source_type": "NewsArticle",
+            "status": "deep",
+            "tags": [
+              "newsarticle"
+            ],
+            "triad_passed": true,
+            "ts_utc": "2026-05-30T18:05:29.314077369+00:00",
+            "url": "https://example.com/operational-policy"
+          },
+          "latest_deep": {
+            "book_ref": "/tmp/.tmpZ1zjwR/books/src_23dcfccf.jsonl",
+            "confidence": 0.6916666666666667,
+            "event": "deep_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_23dcfccf.md",
+            "line": 17972,
+            "source_type": "NewsArticle",
+            "status": "deep",
+            "tags": [
+              "newsarticle"
+            ],
+            "triad_passed": true,
+            "ts_utc": "2026-05-30T18:05:29.314077369+00:00",
+            "url": "https://example.com/operational-policy"
+          },
+          "latest_shallow": {
+            "book_ref": "/tmp/.tmpZ1zjwR/books/src_23dcfccf.jsonl",
+            "confidence": null,
+            "event": "shallow_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_23dcfccf.md",
+            "line": 17970,
+            "source_type": "NewsArticle",
+            "status": "shallow",
+            "tags": [
+              "newsarticle"
+            ],
+            "triad_passed": null,
+            "ts_utc": "2026-05-30T18:05:29.307859475+00:00",
+            "url": "https://example.com/operational-policy"
+          },
+          "line_count": 255
+        },
+        "source_index_recent_lines": [
+          {
+            "book_ref": "/tmp/.tmpdS4ahC/books/src_23dcfccf.jsonl",
+            "confidence": 0.6916666666666667,
+            "event": "deep_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_23dcfccf.md",
+            "line": 17956,
+            "source_type": "NewsArticle",
+            "status": "deep",
+            "tags": [
+              "newsarticle"
+            ],
+            "triad_passed": true,
+            "ts_utc": "2026-05-30T18:04:17.612594754+00:00",
+            "url": "https://example.com/operational-policy"
+          },
+          {
+            "book_ref": "/tmp/.tmpdS4ahC/books/src_23dcfccf.jsonl",
+            "confidence": 0.6916666666666667,
+            "event": "deep_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_23dcfccf.md",
+            "line": 17957,
+            "source_type": "NewsArticle",
+            "status": "deep",
+            "tags": [
+              "newsarticle"
+            ],
+            "triad_passed": true,
+            "ts_utc": "2026-05-30T18:04:17.615661485+00:00",
+            "url": "https://example.com/operational-policy"
+          },
+          {
+            "book_ref": "/tmp/.tmpZ1zjwR/books/src_23dcfccf.jsonl",
+            "confidence": null,
+            "event": "shallow_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_23dcfccf.md",
+            "line": 17970,
+            "source_type": "NewsArticle",
+            "status": "shallow",
+            "tags": [
+              "newsarticle"
+            ],
+            "triad_passed": null,
+            "ts_utc": "2026-05-30T18:05:29.307859475+00:00",
+            "url": "https://example.com/operational-policy"
+          },
+          {
+            "book_ref": "/tmp/.tmpZ1zjwR/books/src_23dcfccf.jsonl",
+            "confidence": 0.6916666666666667,
+            "event": "deep_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_23dcfccf.md",
+            "line": 17971,
+            "source_type": "NewsArticle",
+            "status": "deep",
+            "tags": [
+              "newsarticle"
+            ],
+            "triad_passed": true,
+            "ts_utc": "2026-05-30T18:05:29.311306561+00:00",
+            "url": "https://example.com/operational-policy"
+          },
+          {
+            "book_ref": "/tmp/.tmpZ1zjwR/books/src_23dcfccf.jsonl",
+            "confidence": 0.6916666666666667,
+            "event": "deep_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_23dcfccf.md",
+            "line": 17972,
+            "source_type": "NewsArticle",
+            "status": "deep",
+            "tags": [
+              "newsarticle"
+            ],
+            "triad_passed": true,
+            "ts_utc": "2026-05-30T18:05:29.314077369+00:00",
+            "url": "https://example.com/operational-policy"
+          }
+        ]
+      },
+      "thresholds": {
+        "citation_integrity_required": true,
+        "confidence_mean": 0.8,
+        "hash_chain_required": true,
+        "opposition_coverage_min": 2,
+        "triad_pass_rate": 0.75
+      },
+      "title": "Add opposing viewpoints for src_23dcfccf"
+    },
+    {
+      "actionable_next": [
+        "add stronger corroborating/deep evidence and rerun ATHENA deep analysis/policy gate",
+        "harvest at least two opposition viewpoints via ATHENA opposition evidence flow, then queue/deep-analyze them",
+        "repair source/deep-analysis triad evidence until latest source index reports triad_passed=true"
+      ],
+      "blocked_reason": "triad_threshold",
+      "candidate_id": "tsk_policy_c921f0b24e19",
+      "federation_closeout_evidence": {
+        "category": "evidence_needed",
+        "index": 8,
+        "path": "core/state/queue_federation_blocked_candidate_closeout.json",
+        "promotion_ready": false
+      },
+      "gate_satisfied": {
+        "confidence_threshold": false,
+        "deep_index_present": true,
+        "opposition_coverage": false,
+        "source_book_present": true,
+        "triad_threshold": false
+      },
+      "missing_gates": [
+        "triad_threshold",
+        "confidence_threshold",
+        "opposition_coverage"
+      ],
+      "observed": {
+        "citation_integrity": true,
+        "confidence": 0.6416666666666666,
+        "hash_chain_valid": null,
+        "opposition_coverage": 0,
+        "triad_passed": false
+      },
+      "owner": "prometheus",
+      "policy_blockers": [],
+      "policy_evidence_note": "no exact source_id entries found in data/athena/policy_readiness.jsonl; using source index + digest opposition search as evidence surface",
+      "priority": "high",
+      "promotion_decision": "remain_blocked_no_promotion_receipt",
+      "promotion_eligible_now": false,
+      "source_id": "src_ea7a1c0f",
+      "source_queue_evidence": {
+        "line": 8,
+        "path": "crates/annunimas-athena/core/projects/tasks/queue.jsonl",
+        "status": "queued"
+      },
+      "source_surfaces": {
+        "digest_reference_count": 0,
+        "opposition_reference_count": 0,
+        "policy_readiness": {
+          "latest": null,
+          "line_count": 0
+        },
+        "source_book": {
+          "byte_count": 848,
+          "declared_status": true,
+          "exists": true,
+          "line_count": 33,
+          "path": "docs/operator/library/athena/sources/src_ea7a1c0f.md"
+        },
+        "source_index": {
+          "latest_any": {
+            "book_ref": "/tmp/.tmp71qwht/books/src_ea7a1c0f.jsonl",
+            "confidence": 0.6416666666666666,
+            "event": "deep_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_ea7a1c0f.md",
+            "line": 20707,
+            "source_type": "RawNote",
+            "status": "deep",
+            "tags": [
+              "rawnote"
+            ],
+            "triad_passed": false,
+            "ts_utc": "2026-06-05T07:08:10.211674020+00:00",
+            "url": null
+          },
+          "latest_deep": {
+            "book_ref": "/tmp/.tmp71qwht/books/src_ea7a1c0f.jsonl",
+            "confidence": 0.6416666666666666,
+            "event": "deep_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_ea7a1c0f.md",
+            "line": 20707,
+            "source_type": "RawNote",
+            "status": "deep",
+            "tags": [
+              "rawnote"
+            ],
+            "triad_passed": false,
+            "ts_utc": "2026-06-05T07:08:10.211674020+00:00",
+            "url": null
+          },
+          "latest_shallow": {
+            "book_ref": "/tmp/.tmp71qwht/books/src_ea7a1c0f.jsonl",
+            "confidence": null,
+            "event": "shallow_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_ea7a1c0f.md",
+            "line": 20705,
+            "source_type": "RawNote",
+            "status": "shallow",
+            "tags": [
+              "rawnote"
+            ],
+            "triad_passed": null,
+            "ts_utc": "2026-06-05T07:08:10.203970577+00:00",
+            "url": null
+          },
+          "line_count": 164
+        },
+        "source_index_recent_lines": [
+          {
+            "book_ref": "/tmp/.tmpPH5D0r/books/src_ea7a1c0f.jsonl",
+            "confidence": 0.6416666666666666,
+            "event": "deep_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_ea7a1c0f.md",
+            "line": 20661,
+            "source_type": "RawNote",
+            "status": "deep",
+            "tags": [
+              "rawnote"
+            ],
+            "triad_passed": false,
+            "ts_utc": "2026-06-05T07:04:07.564287434+00:00",
+            "url": null
+          },
+          {
+            "book_ref": "/tmp/.tmpwA6HqX/books/src_ea7a1c0f.jsonl",
+            "confidence": null,
+            "event": "shallow_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_ea7a1c0f.md",
+            "line": 20691,
+            "source_type": "RawNote",
+            "status": "shallow",
+            "tags": [
+              "rawnote"
+            ],
+            "triad_passed": null,
+            "ts_utc": "2026-06-05T07:08:06.844097264+00:00",
+            "url": null
+          },
+          {
+            "book_ref": "/tmp/.tmp71qwht/books/src_ea7a1c0f.jsonl",
+            "confidence": null,
+            "event": "shallow_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_ea7a1c0f.md",
+            "line": 20705,
+            "source_type": "RawNote",
+            "status": "shallow",
+            "tags": [
+              "rawnote"
+            ],
+            "triad_passed": null,
+            "ts_utc": "2026-06-05T07:08:10.203970577+00:00",
+            "url": null
+          },
+          {
+            "book_ref": "/tmp/.tmp71qwht/books/src_ea7a1c0f.jsonl",
+            "confidence": 0.6416666666666666,
+            "event": "deep_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_ea7a1c0f.md",
+            "line": 20706,
+            "source_type": "RawNote",
+            "status": "deep",
+            "tags": [
+              "rawnote"
+            ],
+            "triad_passed": false,
+            "ts_utc": "2026-06-05T07:08:10.206737624+00:00",
+            "url": null
+          },
+          {
+            "book_ref": "/tmp/.tmp71qwht/books/src_ea7a1c0f.jsonl",
+            "confidence": 0.6416666666666666,
+            "event": "deep_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_ea7a1c0f.md",
+            "line": 20707,
+            "source_type": "RawNote",
+            "status": "deep",
+            "tags": [
+              "rawnote"
+            ],
+            "triad_passed": false,
+            "ts_utc": "2026-06-05T07:08:10.211674020+00:00",
+            "url": null
+          }
+        ]
+      },
+      "thresholds": {
+        "citation_integrity_required": true,
+        "confidence_mean": 0.8,
+        "hash_chain_required": true,
+        "opposition_coverage_min": 2,
+        "triad_pass_rate": 0.75
+      },
+      "title": "Raise triad readiness for src_ea7a1c0f"
+    },
+    {
+      "actionable_next": [
+        "add stronger corroborating/deep evidence and rerun ATHENA deep analysis/policy gate",
+        "harvest at least two opposition viewpoints via ATHENA opposition evidence flow, then queue/deep-analyze them",
+        "repair source/deep-analysis triad evidence until latest source index reports triad_passed=true"
+      ],
+      "blocked_reason": "confidence_threshold",
+      "candidate_id": "tsk_policy_50b27747c219",
+      "federation_closeout_evidence": {
+        "category": "evidence_needed",
+        "index": 9,
+        "path": "core/state/queue_federation_blocked_candidate_closeout.json",
+        "promotion_ready": false
+      },
+      "gate_satisfied": {
+        "confidence_threshold": false,
+        "deep_index_present": true,
+        "opposition_coverage": false,
+        "source_book_present": true,
+        "triad_threshold": false
+      },
+      "missing_gates": [
+        "triad_threshold",
+        "confidence_threshold",
+        "opposition_coverage"
+      ],
+      "observed": {
+        "citation_integrity": true,
+        "confidence": 0.6416666666666666,
+        "hash_chain_valid": null,
+        "opposition_coverage": 0,
+        "triad_passed": false
+      },
+      "owner": "athena",
+      "policy_blockers": [],
+      "policy_evidence_note": "no exact source_id entries found in data/athena/policy_readiness.jsonl; using source index + digest opposition search as evidence surface",
+      "priority": "high",
+      "promotion_decision": "remain_blocked_no_promotion_receipt",
+      "promotion_eligible_now": false,
+      "source_id": "src_ea7a1c0f",
+      "source_queue_evidence": {
+        "line": 9,
+        "path": "crates/annunimas-athena/core/projects/tasks/queue.jsonl",
+        "status": "queued"
+      },
+      "source_surfaces": {
+        "digest_reference_count": 0,
+        "opposition_reference_count": 0,
+        "policy_readiness": {
+          "latest": null,
+          "line_count": 0
+        },
+        "source_book": {
+          "byte_count": 848,
+          "declared_status": true,
+          "exists": true,
+          "line_count": 33,
+          "path": "docs/operator/library/athena/sources/src_ea7a1c0f.md"
+        },
+        "source_index": {
+          "latest_any": {
+            "book_ref": "/tmp/.tmp71qwht/books/src_ea7a1c0f.jsonl",
+            "confidence": 0.6416666666666666,
+            "event": "deep_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_ea7a1c0f.md",
+            "line": 20707,
+            "source_type": "RawNote",
+            "status": "deep",
+            "tags": [
+              "rawnote"
+            ],
+            "triad_passed": false,
+            "ts_utc": "2026-06-05T07:08:10.211674020+00:00",
+            "url": null
+          },
+          "latest_deep": {
+            "book_ref": "/tmp/.tmp71qwht/books/src_ea7a1c0f.jsonl",
+            "confidence": 0.6416666666666666,
+            "event": "deep_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_ea7a1c0f.md",
+            "line": 20707,
+            "source_type": "RawNote",
+            "status": "deep",
+            "tags": [
+              "rawnote"
+            ],
+            "triad_passed": false,
+            "ts_utc": "2026-06-05T07:08:10.211674020+00:00",
+            "url": null
+          },
+          "latest_shallow": {
+            "book_ref": "/tmp/.tmp71qwht/books/src_ea7a1c0f.jsonl",
+            "confidence": null,
+            "event": "shallow_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_ea7a1c0f.md",
+            "line": 20705,
+            "source_type": "RawNote",
+            "status": "shallow",
+            "tags": [
+              "rawnote"
+            ],
+            "triad_passed": null,
+            "ts_utc": "2026-06-05T07:08:10.203970577+00:00",
+            "url": null
+          },
+          "line_count": 164
+        },
+        "source_index_recent_lines": [
+          {
+            "book_ref": "/tmp/.tmpPH5D0r/books/src_ea7a1c0f.jsonl",
+            "confidence": 0.6416666666666666,
+            "event": "deep_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_ea7a1c0f.md",
+            "line": 20661,
+            "source_type": "RawNote",
+            "status": "deep",
+            "tags": [
+              "rawnote"
+            ],
+            "triad_passed": false,
+            "ts_utc": "2026-06-05T07:04:07.564287434+00:00",
+            "url": null
+          },
+          {
+            "book_ref": "/tmp/.tmpwA6HqX/books/src_ea7a1c0f.jsonl",
+            "confidence": null,
+            "event": "shallow_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_ea7a1c0f.md",
+            "line": 20691,
+            "source_type": "RawNote",
+            "status": "shallow",
+            "tags": [
+              "rawnote"
+            ],
+            "triad_passed": null,
+            "ts_utc": "2026-06-05T07:08:06.844097264+00:00",
+            "url": null
+          },
+          {
+            "book_ref": "/tmp/.tmp71qwht/books/src_ea7a1c0f.jsonl",
+            "confidence": null,
+            "event": "shallow_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_ea7a1c0f.md",
+            "line": 20705,
+            "source_type": "RawNote",
+            "status": "shallow",
+            "tags": [
+              "rawnote"
+            ],
+            "triad_passed": null,
+            "ts_utc": "2026-06-05T07:08:10.203970577+00:00",
+            "url": null
+          },
+          {
+            "book_ref": "/tmp/.tmp71qwht/books/src_ea7a1c0f.jsonl",
+            "confidence": 0.6416666666666666,
+            "event": "deep_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_ea7a1c0f.md",
+            "line": 20706,
+            "source_type": "RawNote",
+            "status": "deep",
+            "tags": [
+              "rawnote"
+            ],
+            "triad_passed": false,
+            "ts_utc": "2026-06-05T07:08:10.206737624+00:00",
+            "url": null
+          },
+          {
+            "book_ref": "/tmp/.tmp71qwht/books/src_ea7a1c0f.jsonl",
+            "confidence": 0.6416666666666666,
+            "event": "deep_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_ea7a1c0f.md",
+            "line": 20707,
+            "source_type": "RawNote",
+            "status": "deep",
+            "tags": [
+              "rawnote"
+            ],
+            "triad_passed": false,
+            "ts_utc": "2026-06-05T07:08:10.211674020+00:00",
+            "url": null
+          }
+        ]
+      },
+      "thresholds": {
+        "citation_integrity_required": true,
+        "confidence_mean": 0.8,
+        "hash_chain_required": true,
+        "opposition_coverage_min": 2,
+        "triad_pass_rate": 0.75
+      },
+      "title": "Improve confidence evidence for src_ea7a1c0f"
+    },
+    {
+      "actionable_next": [
+        "add stronger corroborating/deep evidence and rerun ATHENA deep analysis/policy gate",
+        "harvest at least two opposition viewpoints via ATHENA opposition evidence flow, then queue/deep-analyze them",
+        "repair source/deep-analysis triad evidence until latest source index reports triad_passed=true"
+      ],
+      "blocked_reason": "opposition_coverage",
+      "candidate_id": "tsk_policy_0c1511418dc3",
+      "federation_closeout_evidence": {
+        "category": "evidence_needed",
+        "index": 10,
+        "path": "core/state/queue_federation_blocked_candidate_closeout.json",
+        "promotion_ready": false
+      },
+      "gate_satisfied": {
+        "confidence_threshold": false,
+        "deep_index_present": true,
+        "opposition_coverage": false,
+        "source_book_present": true,
+        "triad_threshold": false
+      },
+      "missing_gates": [
+        "triad_threshold",
+        "confidence_threshold",
+        "opposition_coverage"
+      ],
+      "observed": {
+        "citation_integrity": true,
+        "confidence": 0.6416666666666666,
+        "hash_chain_valid": null,
+        "opposition_coverage": 0,
+        "triad_passed": false
+      },
+      "owner": "athena",
+      "policy_blockers": [],
+      "policy_evidence_note": "no exact source_id entries found in data/athena/policy_readiness.jsonl; using source index + digest opposition search as evidence surface",
+      "priority": "high",
+      "promotion_decision": "remain_blocked_no_promotion_receipt",
+      "promotion_eligible_now": false,
+      "source_id": "src_ea7a1c0f",
+      "source_queue_evidence": {
+        "line": 10,
+        "path": "crates/annunimas-athena/core/projects/tasks/queue.jsonl",
+        "status": "queued"
+      },
+      "source_surfaces": {
+        "digest_reference_count": 0,
+        "opposition_reference_count": 0,
+        "policy_readiness": {
+          "latest": null,
+          "line_count": 0
+        },
+        "source_book": {
+          "byte_count": 848,
+          "declared_status": true,
+          "exists": true,
+          "line_count": 33,
+          "path": "docs/operator/library/athena/sources/src_ea7a1c0f.md"
+        },
+        "source_index": {
+          "latest_any": {
+            "book_ref": "/tmp/.tmp71qwht/books/src_ea7a1c0f.jsonl",
+            "confidence": 0.6416666666666666,
+            "event": "deep_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_ea7a1c0f.md",
+            "line": 20707,
+            "source_type": "RawNote",
+            "status": "deep",
+            "tags": [
+              "rawnote"
+            ],
+            "triad_passed": false,
+            "ts_utc": "2026-06-05T07:08:10.211674020+00:00",
+            "url": null
+          },
+          "latest_deep": {
+            "book_ref": "/tmp/.tmp71qwht/books/src_ea7a1c0f.jsonl",
+            "confidence": 0.6416666666666666,
+            "event": "deep_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_ea7a1c0f.md",
+            "line": 20707,
+            "source_type": "RawNote",
+            "status": "deep",
+            "tags": [
+              "rawnote"
+            ],
+            "triad_passed": false,
+            "ts_utc": "2026-06-05T07:08:10.211674020+00:00",
+            "url": null
+          },
+          "latest_shallow": {
+            "book_ref": "/tmp/.tmp71qwht/books/src_ea7a1c0f.jsonl",
+            "confidence": null,
+            "event": "shallow_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_ea7a1c0f.md",
+            "line": 20705,
+            "source_type": "RawNote",
+            "status": "shallow",
+            "tags": [
+              "rawnote"
+            ],
+            "triad_passed": null,
+            "ts_utc": "2026-06-05T07:08:10.203970577+00:00",
+            "url": null
+          },
+          "line_count": 164
+        },
+        "source_index_recent_lines": [
+          {
+            "book_ref": "/tmp/.tmpPH5D0r/books/src_ea7a1c0f.jsonl",
+            "confidence": 0.6416666666666666,
+            "event": "deep_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_ea7a1c0f.md",
+            "line": 20661,
+            "source_type": "RawNote",
+            "status": "deep",
+            "tags": [
+              "rawnote"
+            ],
+            "triad_passed": false,
+            "ts_utc": "2026-06-05T07:04:07.564287434+00:00",
+            "url": null
+          },
+          {
+            "book_ref": "/tmp/.tmpwA6HqX/books/src_ea7a1c0f.jsonl",
+            "confidence": null,
+            "event": "shallow_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_ea7a1c0f.md",
+            "line": 20691,
+            "source_type": "RawNote",
+            "status": "shallow",
+            "tags": [
+              "rawnote"
+            ],
+            "triad_passed": null,
+            "ts_utc": "2026-06-05T07:08:06.844097264+00:00",
+            "url": null
+          },
+          {
+            "book_ref": "/tmp/.tmp71qwht/books/src_ea7a1c0f.jsonl",
+            "confidence": null,
+            "event": "shallow_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_ea7a1c0f.md",
+            "line": 20705,
+            "source_type": "RawNote",
+            "status": "shallow",
+            "tags": [
+              "rawnote"
+            ],
+            "triad_passed": null,
+            "ts_utc": "2026-06-05T07:08:10.203970577+00:00",
+            "url": null
+          },
+          {
+            "book_ref": "/tmp/.tmp71qwht/books/src_ea7a1c0f.jsonl",
+            "confidence": 0.6416666666666666,
+            "event": "deep_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_ea7a1c0f.md",
+            "line": 20706,
+            "source_type": "RawNote",
+            "status": "deep",
+            "tags": [
+              "rawnote"
+            ],
+            "triad_passed": false,
+            "ts_utc": "2026-06-05T07:08:10.206737624+00:00",
+            "url": null
+          },
+          {
+            "book_ref": "/tmp/.tmp71qwht/books/src_ea7a1c0f.jsonl",
+            "confidence": 0.6416666666666666,
+            "event": "deep_synced",
+            "human_ref": "docs/operator/library/athena/sources/src_ea7a1c0f.md",
+            "line": 20707,
+            "source_type": "RawNote",
+            "status": "deep",
+            "tags": [
+              "rawnote"
+            ],
+            "triad_passed": false,
+            "ts_utc": "2026-06-05T07:08:10.211674020+00:00",
+            "url": null
+          }
+        ]
+      },
+      "thresholds": {
+        "citation_integrity_required": true,
+        "confidence_mean": 0.8,
+        "hash_chain_required": true,
+        "opposition_coverage_min": 2,
+        "triad_pass_rate": 0.75
+      },
+      "title": "Add opposing viewpoints for src_ea7a1c0f"
+    }
+  ],
+  "recommended_next_actions": [
+    "Do not promote any of the five evidence-needed candidates yet.",
+    "For src_23dcfccf: add confidence evidence and harvest/deep-analyze two opposition viewpoints, then rerun the policy gate.",
+    "For src_ea7a1c0f: rerun/deepen source analysis to produce triad/confidence policy readiness evidence, harvest/deep-analyze opposition viewpoints, then refresh federation projection.",
+    "Keep Arandur and human-lane signals blocked until explicit operator approval is recorded."
+  ],
+  "schema_version": "federation_candidate_evidence_matrix.v1",
+  "source_projection": {
+    "generated_at_utc": "2026-06-14T20:14:27Z",
+    "path": "core/state/queue_federation.json",
+    "promotion_candidate_count": 16
+  },
+  "summary": {
+    "candidates_inspected": 5,
+    "digest_exact_source_references": {
+      "src_23dcfccf": 0,
+      "src_ea7a1c0f": 0
+    },
+    "opposition_exact_source_references": {
+      "src_23dcfccf": 0,
+      "src_ea7a1c0f": 0
+    },
+    "policy_readiness_exact_source_entries": {
+      "src_23dcfccf": 0,
+      "src_ea7a1c0f": 0
+    },
+    "promotion_ready_count": 0,
+    "safe_local_promotions_written": 0,
+    "source_ids": [
+      "src_23dcfccf",
+      "src_ea7a1c0f"
+    ]
+  }
+}

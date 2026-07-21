@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_f8861a2ef06049c7919c17e93109c067",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Queue agent-loop-contract demo fixtures receipt schema and policy review",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-19T07:34:09.084341059Z",
+  "last_seen_at": "2026-06-19T07:34:09.084341059Z"
+}

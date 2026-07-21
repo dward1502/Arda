@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_b1dfa7b9869440a393b781d438c817f3",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Queue service-graph public repo skeleton plan. public_repo_skeleton_executor matched session_pivot public repo skeleton plan; docs/plans/service-graph-public-repo-skeleton.md exists and defines repo identity, public API, CLI contract, schemas, CI gates, and Annunimas rename map; PASS cargo test -p annunimas-service-registry; PASS cargo doc -p annunimas-service-registry --no-deps; append-only guard passed before closeout",
+  "salience": 0.7000555555555555,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-21T02:58:52.550794333Z",
+  "last_seen_at": "2026-06-21T02:58:52.550794333Z"
+}

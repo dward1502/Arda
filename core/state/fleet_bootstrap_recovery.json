@@ -1,0 +1,171 @@
+{
+  "authority": "fleet_bootstrap_state",
+  "generated_at_utc": "2026-07-13T19:30:34Z",
+  "recover_retries": 1,
+  "recover_wait_seconds": 5,
+  "recovery_enabled": true,
+  "schema_version": "annunimas.fleet-bootstrap-recovery.v1",
+  "summary": {
+    "recovered_total": 0,
+    "restart_attempted_total": 6,
+    "restart_failed_total": 6
+  },
+  "targets": [
+    {
+      "charon_provider_id": "edge_backbone",
+      "recovery": {
+        "attempted": true,
+        "attempts": [
+          {
+            "attempt": 1,
+            "restart": {
+              "attempted": false,
+              "command": "systemctl --user --no-block restart llama-server-lfm25.service",
+              "error": "tailscale_peer_offline",
+              "ok": false,
+              "peer_online": false,
+              "scope": "ssh",
+              "ssh_target": "annunimas-server.tail91c3c1.ts.net"
+            }
+          }
+        ],
+        "recovered": false
+      },
+      "status": "offline",
+      "target_id": "node-backbone-server"
+    },
+    {
+      "charon_provider_id": "edge_core",
+      "recovery": null,
+      "status": "online",
+      "target_id": "node-core-hub"
+    },
+    {
+      "charon_provider_id": "edge_backbone_coder",
+      "recovery": {
+        "attempted": true,
+        "attempts": [
+          {
+            "attempt": 1,
+            "restart": {
+              "attempted": false,
+              "command": "systemctl --user --no-block restart llama-server-qwen2.5-coder.service",
+              "error": "tailscale_peer_offline",
+              "ok": false,
+              "peer_online": false,
+              "scope": "ssh",
+              "ssh_target": "annunimas-server.tail91c3c1.ts.net"
+            }
+          }
+        ],
+        "recovered": false
+      },
+      "status": "offline",
+      "target_id": "node-backbone-gemma4-coder"
+    },
+    {
+      "charon_provider_id": "edge_backbone_vision",
+      "recovery": {
+        "attempted": true,
+        "attempts": [
+          {
+            "attempt": 1,
+            "restart": {
+              "attempted": false,
+              "command": "systemctl --user --no-block restart llama-server-vision.service",
+              "error": "tailscale_peer_offline",
+              "ok": false,
+              "peer_online": false,
+              "scope": "ssh",
+              "ssh_target": "annunimas-server.tail91c3c1.ts.net"
+            }
+          }
+        ],
+        "recovered": false
+      },
+      "status": "offline",
+      "target_id": "node-backbone-vision"
+    },
+    {
+      "charon_provider_id": "edge_beelink_light",
+      "recovery": null,
+      "status": "online",
+      "target_id": "node-ser9-worker"
+    },
+    {
+      "charon_provider_id": "edge_carnice",
+      "recovery": {
+        "attempted": true,
+        "attempts": [
+          {
+            "attempt": 1,
+            "restart": {
+              "attempted": true,
+              "command": "systemctl --user --no-block restart llama-server.service",
+              "exit_code": 255,
+              "ok": false,
+              "scope": "ssh",
+              "stderr": "No ED25519 host key is known for beelink.tail91c3c1.ts.net. and you have requested strict checking.\r\nHost key verification failed.",
+              "stdout": ""
+            }
+          }
+        ],
+        "recovered": false
+      },
+      "status": "offline",
+      "target_id": "node-ser9-carnice"
+    },
+    {
+      "charon_provider_id": "edge_laptop",
+      "recovery": {
+        "attempted": true,
+        "attempts": [
+          {
+            "attempt": 1,
+            "restart": {
+              "attempted": false,
+              "command": "systemctl --user --no-block restart llama-server",
+              "error": "tailscale_peer_offline",
+              "ok": false,
+              "peer_online": false,
+              "scope": "ssh",
+              "ssh_target": "laptop.tail91c3c1.ts.net"
+            }
+          }
+        ],
+        "recovered": false
+      },
+      "status": "offline",
+      "target_id": "node-laptop"
+    },
+    {
+      "charon_provider_id": "edge_guardhouse",
+      "recovery": null,
+      "status": "online",
+      "target_id": "node-pi5-warden"
+    },
+    {
+      "charon_provider_id": null,
+      "recovery": {
+        "attempted": true,
+        "attempts": [
+          {
+            "attempt": 1,
+            "restart": {
+              "attempted": false,
+              "command": "systemctl --user --no-block restart citadel-companion.service && systemctl --user --no-block restart citadel-kiosk.service",
+              "error": "tailscale_peer_offline",
+              "ok": false,
+              "peer_online": false,
+              "scope": "ssh",
+              "ssh_target": "raspberrypi-1.tail91c3c1.ts.net"
+            }
+          }
+        ],
+        "recovered": false
+      },
+      "status": "offline",
+      "target_id": "node-pi5-citadel-avatar"
+    }
+  ]
+}

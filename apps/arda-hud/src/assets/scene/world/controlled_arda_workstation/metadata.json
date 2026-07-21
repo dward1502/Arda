@@ -1,0 +1,26 @@
+{
+  "domain": "world",
+  "id": "world_controlled_arda_workstation",
+  "license": "Internal",
+  "material_family": "world_terminal_housing",
+  "scene_binding": "controlled_arda_workstation",
+  "source": "arda_pixal3d_spike_controlled_blender_fallback_20260602T060337Z",
+  "files": {
+    "glb": "controlled_arda_workstation.glb",
+    "source_metadata": "/var/home/mythos/arda_pixal3d_spike/outputs/controlled_arda_workstation_metadata.json",
+    "render_evidence": "/var/home/mythos/arda_pixal3d_spike/outputs/controlled_arda_workstation_render.png",
+    "verification_log": "/var/home/mythos/arda_pixal3d_spike/logs/phase_b_controlled_glb_verify_20260602T060337Z.log"
+  },
+  "provenance": {
+    "workspace": "/var/home/mythos/arda_pixal3d_spike",
+    "source_glb": "/var/home/mythos/arda_pixal3d_spike/outputs/controlled_arda_workstation.glb",
+    "source_glb_sha256": "c3108b31f5c30733432d4a8a9b76e5099db050fd0b1d153ab636cf19b27d9aa7",
+    "source_glb_bytes": 97016,
+    "render_sha256": "61cd6fa29da130f4eff0d118f897c82a9dacd695755e18c27b99526bdf2c6b0a",
+    "render_bytes": 802281,
+    "metadata_sha256": "7e4685d0f275701e4a3bbfed8de9872b5924d74cd339266afe82d7d19b842e65",
+    "blender_script_sha256": "9b76782c8129d59709147b9c080b64841812410b55ef4610b873f87970ec2eea",
+    "verification_log": "/var/home/mythos/arda_pixal3d_spike/logs/phase_b_controlled_glb_verify_20260602T060337Z.log",
+    "phase_b_status": "/var/home/mythos/arda_pixal3d_spike/PHASE_B_STATUS.md"
+  }
+}

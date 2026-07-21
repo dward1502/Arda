@@ -1,0 +1,14 @@
+{
+  "schema": "annunimas.human_vision_digest_state.v1",
+  "updated_at_utc": "2026-05-17T03:07:39Z",
+  "latest_digest_dir": "audit/HUMAN_VISION_DIGEST_2026-05-16",
+  "phase": "Phase 3C complete; Phase 3D candidates identified",
+  "sources_count": 8,
+  "claims_count": 7,
+  "contradictions_count": 2,
+  "domains_count": 10,
+  "surface_taxonomy_count": 7,
+  "raw_inbox_modified": false,
+  "canonical_plan": "docs/plans/arda-agentic-operating-environment-synthesis.md",
+  "next_phase": "ARDA slop audit + Hermes dashboard process/webview spike"
+}

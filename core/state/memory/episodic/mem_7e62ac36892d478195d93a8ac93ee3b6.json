@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_7e62ac36892d478195d93a8ac93ee3b6",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Close ANNUNIMAS-WARDEN target-local test coverage audit",
+  "salience": 0.6645,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-25T10:47:54.627729043Z",
+  "last_seen_at": "2026-05-25T10:47:54.627729043Z"
+}

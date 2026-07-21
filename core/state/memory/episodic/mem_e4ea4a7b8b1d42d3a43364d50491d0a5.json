@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_e4ea4a7b8b1d42d3a43364d50491d0a5",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Create task for arda-conversation-scout-ledger-contract.md",
+  "salience": 0.8845000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-05T07:17:15.201744287Z",
+  "last_seen_at": "2026-06-05T07:17:15.201744287Z"
+}

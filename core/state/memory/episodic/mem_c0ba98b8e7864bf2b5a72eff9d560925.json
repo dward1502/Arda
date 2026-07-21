@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_c0ba98b8e7864bf2b5a72eff9d560925",
+  "kind": "episodic",
+  "agent": "charon",
+  "content": "CHARON reloaded provider config with 20 providers",
+  "salience": 0.2929999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-02T20:11:11.350681021Z",
+  "last_seen_at": "2026-06-02T20:11:11.350681021Z"
+}

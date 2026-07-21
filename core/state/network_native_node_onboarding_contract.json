@@ -1,0 +1,163 @@
+{
+  "authority": "network_native_node_onboarding_contract_export",
+  "doctrine": {
+    "arda_hud_not_required_for_onboarding": true,
+    "generic_hostnames_are_not_canonical_identity": true,
+    "human_operator_confirmation_required_for_stale_identity_cleanup": true,
+    "identity_binding_precedes_role_promotion": true,
+    "local_socket_authority_retained": true,
+    "tailscale_is_internal_mesh_not_external_identity": true
+  },
+  "generated_at_utc": "2026-04-22T21:57:53Z",
+  "governance": {
+    "bacon_lite_required": true,
+    "joulework_required": true,
+    "love_equation_required": true,
+    "triad_required": true
+  },
+  "mesh_posture": {
+    "ack_gap_present": true,
+    "local_probe_status": false,
+    "mesh_reachable": true,
+    "transport_mode": "informant_queue_over_tailscale"
+  },
+  "onboarding_contract": {
+    "phases": [
+      "bind_or_recover_identity",
+      "retire_or_rename_colliding_stale_nodes",
+      "assign_live_tailscale_ip_and_ssh_trust",
+      "bootstrap_target_runtime",
+      "promote_runtime_roles_after_informant_confirmation"
+    ],
+    "required_gates": [
+      "triad_required",
+      "bacon_lite_required",
+      "joulework_required",
+      "love_equation_required",
+      "operator_confirmation_for_identity_binding"
+    ],
+    "runtime_boundaries": [
+      "Unix sockets stay local to each node.",
+      "Tailscale provides sovereign internal mesh transport above the local runtime layer.",
+      "Role promotion requires matched fleet identity and evidence of live informant/runtime observation."
+    ]
+  },
+  "schema_version": "annunimas.network-native-node-onboarding-contract.v1",
+  "sigil": "REPAIR",
+  "source_alignment": {
+    "annunimas_adaptation": "keep Unix sockets local, Tailscale internal, and fold network-native node onboarding above the sovereign local layer",
+    "follow_on": "network_native_node_onboarding_contract",
+    "openfang_pattern": "network-native OFP onboarding and mutual auth",
+    "source_id": "src_cebb6abe",
+    "source_url": "https://github.com/RightNow-AI/openfang"
+  },
+  "summary": {
+    "identity_binding_pending_total": 0,
+    "operator_action_open_total": 1,
+    "tracked_targets_total": 3
+  },
+  "targets": [
+    {
+      "binding_strategy": "reserve_canonical_identity_before_enrollment",
+      "candidate_stale_node_ids": [],
+      "candidate_tailscale_names": [
+        "raspberrypi-aihat",
+        "raspberrypi-2"
+      ],
+      "enrollment_status": "active_staging",
+      "execution_sequence": [
+        {
+          "evidence": "core/state/fleet_identity_reconciliation.json",
+          "status": "pending",
+          "step": "Confirm canonical hostname and Tailscale identity before enrollment"
+        },
+        {
+          "evidence": "core/edge/targets.toml",
+          "status": "completed",
+          "step": "Assign the live Tailscale IP and establish SSH trust for the Pi5 AI HAT controller"
+        },
+        {
+          "evidence": "scripts/bootstrap_embodied_controller.sh",
+          "status": "ready",
+          "step": "Run embodied controller bootstrap once the canonical identity is bound"
+        }
+      ],
+      "expected_hostname": "raspberrypi-aihat",
+      "hostname": "raspberrypi",
+      "llm_runtime": "cloud_only_inference",
+      "node_class": "edge_avatar_product",
+      "onboarding_stage": "bootstrap_and_promotion",
+      "operator_actions": [
+        {
+          "action": null,
+          "kind": "identity_binding",
+          "note": "Bind `node-pi5-citadel-avatar` to expected hostname `raspberrypi-aihat` before enrollment. Candidate Tailscale names: raspberrypi-aihat, raspberrypi-2.",
+          "reason": "Bind `node-pi5-citadel-avatar` to expected hostname `raspberrypi-aihat` before enrollment. Candidate Tailscale names: raspberrypi-aihat, raspberrypi-2.",
+          "status": "operator_confirmation_required",
+          "title": "node-pi5-citadel-avatar requires canonical edge identity binding"
+        }
+      ],
+      "required_evidence": [
+        "core/state/fleet_identity_reconciliation.json",
+        "core/state/edge_enrollment_plan.json",
+        "core/state/warden_edge_contract.json",
+        "core/state/fleet_runtime.json"
+      ],
+      "role": "citadel_avatar_controller",
+      "target_id": "node-pi5-citadel-avatar"
+    },
+    {
+      "binding_strategy": null,
+      "candidate_stale_node_ids": [],
+      "candidate_tailscale_names": [],
+      "enrollment_status": "active_staging",
+      "execution_sequence": [
+        {
+          "evidence": "core/state/fleet_identity_reconciliation.json",
+          "status": "completed",
+          "step": "Recover networking or enroll the SER9 host under the expected hostname"
+        },
+        {
+          "evidence": "core/edge/targets.toml",
+          "status": "completed",
+          "step": "Populate Tailscale IP and promote runtime roles after first successful informant scan"
+        }
+      ],
+      "expected_hostname": null,
+      "hostname": "beelink",
+      "llm_runtime": "local_inference_worker",
+      "node_class": "edge_worker",
+      "onboarding_stage": "bootstrap_and_promotion",
+      "operator_actions": [],
+      "required_evidence": [
+        "core/state/fleet_identity_reconciliation.json",
+        "core/state/edge_enrollment_plan.json",
+        "core/state/warden_edge_contract.json",
+        "core/state/fleet_runtime.json"
+      ],
+      "role": "ser9_sovereign_worker",
+      "target_id": "node-ser9-worker"
+    },
+    {
+      "binding_strategy": null,
+      "candidate_stale_node_ids": [],
+      "candidate_tailscale_names": [],
+      "enrollment_status": "active_staging",
+      "execution_sequence": [],
+      "expected_hostname": null,
+      "hostname": "beelink",
+      "llm_runtime": "multi_gpu_sovereign_backbone",
+      "node_class": "backbone_compute",
+      "onboarding_stage": "bootstrap_and_promotion",
+      "operator_actions": [],
+      "required_evidence": [
+        "core/state/fleet_identity_reconciliation.json",
+        "core/state/edge_enrollment_plan.json",
+        "core/state/warden_edge_contract.json",
+        "core/state/fleet_runtime.json"
+      ],
+      "role": "backbone_inference",
+      "target_id": "node-backbone-server-01"
+    }
+  ]
+}

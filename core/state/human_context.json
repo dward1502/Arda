@@ -1,0 +1,472 @@
+{
+  "arda_hints": {
+    "alert_on_missing_arandur_thoughts": true,
+    "alert_on_missing_onboard": false,
+    "alert_on_sparse_company_view": false,
+    "boardroom_section": "operator_context",
+    "primary_panel": "human_and_growth"
+  },
+  "authority": "human_context_projection",
+  "business": {
+    "clients": [
+      {
+        "body_preview": "{\"authority\":\"client_delivery_control\",\"client_slug\":\"wgtt\",\"engagement\":{\"compensation_model\":\"no_pay\",\"decision_owner\":\"family_owner\",\"notes\":\"Family obligation lane. Delivery should still be structured like a real client engagement.\",\"re",
+        "exists": true,
+        "path": "data/business/clients/wgtt/control.json",
+        "top_level_keys": [
+          "authority",
+          "client_slug",
+          "engagement",
+          "infrastructure",
+          "next_required_inputs",
+          "project_lanes",
+          "schema_version",
+          "technical_baseline"
+        ]
+      },
+      {
+        "body_preview": "{\"authority\":\"client_delivery_control\",\"client_slug\":\"skylight-pros\",\"engagement\":{\"compensation_model\":\"minimal_pay\",\"decision_owner\":\"client_owners\",\"notes\":\"High responsibility despite minimal pay. Delivery credibility matters.\",\"relatio",
+        "exists": true,
+        "path": "data/business/clients/skylight-pros/control.json",
+        "top_level_keys": [
+          "authority",
+          "client_slug",
+          "engagement",
+          "infrastructure",
+          "next_required_inputs",
+          "project_lanes",
+          "schema_version",
+          "technical_baseline"
+        ]
+      },
+      {
+        "body_preview": "{\"authority\":\"business_client_index\",\"client_id\":\"pool-service\",\"domains\":[\"operations\",\"marketing\",\"accounting\"],\"name\":\"Pool Service\",\"notes\":{\"next_step\":\"expand with operational and commercial artifacts when the business layer matures\",",
+        "exists": true,
+        "path": "data/business/clients/pool-service/soterion.json",
+        "top_level_keys": [
+          "authority",
+          "client_id",
+          "domains",
+          "name",
+          "notes",
+          "schema_version",
+          "sigils",
+          "status"
+        ]
+      }
+    ],
+    "config": {
+      "business": {
+        "boardroom_enabled": true,
+        "default_currency": "USD",
+        "mode": "full",
+        "observation": {
+          "track_clients": true,
+          "track_marketing": true,
+          "track_partnerships": true,
+          "track_revenue": true
+        },
+        "operating_posture": "build",
+        "pipeline": {
+          "active_offers": 1,
+          "priority": "system-hardening",
+          "stage": "foundational"
+        },
+        "primary_surface": "arda_hud",
+        "strategy": {
+          "focus": "stabilize core systems, shape reusable product surfaces, and prepare ARDA_HUD as the main interaction layer.",
+          "go_to_market": "local-first system first, product surfaces second",
+          "thesis": "Annunimas is a sovereign AI operating system for business and personal command."
+        }
+      }
+    },
+    "counts": {
+      "client_records_total": 3
+    },
+    "state": {
+      "authority": "business_realm_index",
+      "generated_note": "Baseline business realm record for ARDA and future ATHENA enrichment.",
+      "metrics": {
+        "active_offers_total": 1,
+        "client_records_total": 1,
+        "partnerships_total": 0,
+        "revenue_tracked": false
+      },
+      "offers": [
+        {
+          "description": "Sovereign agent operating system with governance, auditability, and ARDA command surfaces.",
+          "id": "annunimas-core",
+          "status": "internal-first",
+          "title": "Annunimas Core"
+        }
+      ],
+      "operating_posture": {
+        "arda_ready": true,
+        "boardroom_ready": true,
+        "mode": "build",
+        "stage": "foundational"
+      },
+      "pipeline": {
+        "active_clients": 1,
+        "status": "forming",
+        "tracked_markets": [
+          "ai operating systems",
+          "agent orchestration",
+          "local-first executive software"
+        ]
+      },
+      "realm": "business",
+      "schema_version": "annunimas.business.v1",
+      "sigils": [
+        "∇",
+        "⚡",
+        "♥",
+        "◈",
+        "↝"
+      ],
+      "status": "active",
+      "strategy": {
+        "current_focus": [
+          "stabilize subsystem contracts",
+          "strengthen ARDA_HUD as the main command surface",
+          "shape reusable product surfaces"
+        ],
+        "thesis": "Build a sovereign AI operating system that can run business and personal command through a coherent executive interface."
+      }
+    }
+  },
+  "generated_at_utc": "2026-07-14T05:03:01.357608027+00:00",
+  "human_portal": {
+    "arandur": {
+      "index": {
+        "body_preview": "",
+        "path": "human/arandur/README.md",
+        "title": "README"
+      },
+      "thoughts": {
+        "body_preview": "",
+        "path": "human/arandur/thoughts.md",
+        "title": "thoughts"
+      }
+    },
+    "company_view": {
+      "body_preview": "--- soterion:   sigil: \"SCROLL\"",
+      "path": "docs/operator/company-view.md",
+      "title": "Company View"
+    },
+    "counts": {
+      "arandur_docs_total": 0,
+      "docs_total": 0,
+      "library_docs_total": 1,
+      "notes_total": 0,
+      "summaries_total": 0
+    },
+    "docs": [],
+    "index": {
+      "body_preview": "--- soterion:   sigil: \"SCROLL\"",
+      "path": "docs/operator/index.md",
+      "title": "Home"
+    },
+    "library": [
+      {
+        "body_preview": "- 2026-06-06T00:39:47.758236419+00:00 | crate=`charon` action=`route_selected` passed=`true` confidence=`0.530` task_type=`route` - 2026-06-06T00:39:54.023587832+00:00 | crate=`hades` action=`sweep` passed=`true` confidence=`0.630` task_type=`sweep` - 2026-06-06T00:50:33.427821663+00:00 | crate=`charon` action=`route_selected` passed=`true` confidence=`0.530` task_type=`route`",
+        "path": "docs/operator/library/governance/bacon_lite.md",
+        "title": "Bacon-Lite Validation Log"
+      },
+      {
+        "body_preview": "--- soterion:   sigil: \"SCROLL\"",
+        "path": "docs/operator/library/governance/INDEX.md",
+        "title": "Index: docs/operator/library/governance"
+      },
+      {
+        "body_preview": "- source_id: `src_ff910dc0` - status: `deep` - source_type: `RawNote`",
+        "path": "docs/operator/library/athena/sources/src_ff910dc0.md",
+        "title": "ATHENA Source Book"
+      },
+      {
+        "body_preview": "- source_id: `src_febf45b3` - status: `deep` - source_type: `RawNote`",
+        "path": "docs/operator/library/athena/sources/src_febf45b3.md",
+        "title": "ATHENA Source Book"
+      },
+      {
+        "body_preview": "- source_id: `src_fe81ebf4` - status: `deep` - source_type: `RawNote`",
+        "path": "docs/operator/library/athena/sources/src_fe81ebf4.md",
+        "title": "ATHENA Source Book"
+      },
+      {
+        "body_preview": "- source_id: `src_fe80a8c2` - status: `shallow` - source_type: `RawNote`",
+        "path": "docs/operator/library/athena/sources/src_fe80a8c2.md",
+        "title": "ATHENA Source Book"
+      },
+      {
+        "body_preview": "- source_id: `src_fe3c0acf` - status: `shallow` - source_type: `RawNote`",
+        "path": "docs/operator/library/athena/sources/src_fe3c0acf.md",
+        "title": "ATHENA Source Book"
+      },
+      {
+        "body_preview": "- source_id: `src_fd389c92` - status: `shallow` - source_type: `RawNote`",
+        "path": "docs/operator/library/athena/sources/src_fd389c92.md",
+        "title": "ATHENA Source Book"
+      },
+      {
+        "body_preview": "- source_id: `src_fd377a38` - status: `shallow` - source_type: `RawNote`",
+        "path": "docs/operator/library/athena/sources/src_fd377a38.md",
+        "title": "ATHENA Source Book"
+      },
+      {
+        "body_preview": "- source_id: `src_fcb7b8c0` - status: `deep` - source_type: `RawNote`",
+        "path": "docs/operator/library/athena/sources/src_fcb7b8c0.md",
+        "title": "ATHENA Source Book"
+      },
+      {
+        "body_preview": "- source_id: `src_fca45f49` - status: `shallow` - source_type: `RawNote`",
+        "path": "docs/operator/library/athena/sources/src_fca45f49.md",
+        "title": "ATHENA Source Book"
+      },
+      {
+        "body_preview": "- source_id: `src_fc2a3bde` - status: `deep` - source_type: `RawNote`",
+        "path": "docs/operator/library/athena/sources/src_fc2a3bde.md",
+        "title": "ATHENA Source Book"
+      },
+      {
+        "body_preview": "- source_id: `src_fbd2cc17` - status: `shallow` - source_type: `RawNote`",
+        "path": "docs/operator/library/athena/sources/src_fbd2cc17.md",
+        "title": "ATHENA Source Book"
+      },
+      {
+        "body_preview": "- source_id: `src_fbc79503` - status: `deep` - source_type: `GithubRepo`",
+        "path": "docs/operator/library/athena/sources/src_fbc79503.md",
+        "title": "ATHENA Source Book"
+      },
+      {
+        "body_preview": "- source_id: `src_fada4bb9` - status: `deep` - source_type: `RawNote`",
+        "path": "docs/operator/library/athena/sources/src_fada4bb9.md",
+        "title": "ATHENA Source Book"
+      },
+      {
+        "body_preview": "- source_id: `src_fad36166` - status: `shallow` - source_type: `RawNote`",
+        "path": "docs/operator/library/athena/sources/src_fad36166.md",
+        "title": "ATHENA Source Book"
+      },
+      {
+        "body_preview": "- source_id: `src_facc3692` - status: `deep` - source_type: `RawNote`",
+        "path": "docs/operator/library/athena/sources/src_facc3692.md",
+        "title": "ATHENA Source Book"
+      },
+      {
+        "body_preview": "- source_id: `src_fa8d9a5a` - status: `shallow` - source_type: `RawNote`",
+        "path": "docs/operator/library/athena/sources/src_fa8d9a5a.md",
+        "title": "ATHENA Source Book"
+      },
+      {
+        "body_preview": "- source_id: `src_fa7cd80c` - status: `shallow` - source_type: `NewsArticle`",
+        "path": "docs/operator/library/athena/sources/src_fa7cd80c.md",
+        "title": "ATHENA Source Book"
+      },
+      {
+        "body_preview": "- source_id: `src_fa1b29fb` - status: `deep` - source_type: `RawNote`",
+        "path": "docs/operator/library/athena/sources/src_fa1b29fb.md",
+        "title": "ATHENA Source Book"
+      },
+      {
+        "body_preview": "- source_id: `src_fa0b7ca5` - status: `deep` - source_type: `RawNote`",
+        "path": "docs/operator/library/athena/sources/src_fa0b7ca5.md",
+        "title": "ATHENA Source Book"
+      },
+      {
+        "body_preview": "- source_id: `src_f8714c54` - status: `deep` - source_type: `RawNote`",
+        "path": "docs/operator/library/athena/sources/src_f8714c54.md",
+        "title": "ATHENA Source Book"
+      },
+      {
+        "body_preview": "- source_id: `src_f7c0291a` - status: `deep` - source_type: `RawNote`",
+        "path": "docs/operator/library/athena/sources/src_f7c0291a.md",
+        "title": "ATHENA Source Book"
+      },
+      {
+        "body_preview": "- source_id: `src_f7bd7287` - status: `shallow` - source_type: `RawNote`",
+        "path": "docs/operator/library/athena/sources/src_f7bd7287.md",
+        "title": "ATHENA Source Book"
+      }
+    ],
+    "notes": [],
+    "onboard": {
+      "body_preview": "--- soterion:   sigil: \"SCROLL\"",
+      "path": "docs/operator/onboard.md",
+      "title": "Onboard"
+    },
+    "summaries": [],
+    "top_level_readables": [
+      {
+        "body_preview": "--- soterion:   sigil: \"SCROLL\"",
+        "path": "docs/operator/philosophy.md",
+        "title": "Human Thoughts"
+      },
+      {
+        "body_preview": "--- soterion:   sigil: \"SCROLL\"",
+        "path": "docs/operator/overrides.md",
+        "title": "Overrides"
+      },
+      {
+        "body_preview": "--- soterion:   sigil: \"SCROLL\"",
+        "path": "docs/operator/onboard.md",
+        "title": "Onboard"
+      },
+      {
+        "body_preview": "--- soterion:   sigil: \"SCROLL\"",
+        "path": "docs/operator/index.md",
+        "title": "Home"
+      },
+      {
+        "body_preview": "--- soterion:   sigil: \"SCROLL\"",
+        "path": "docs/operator/company-view.md",
+        "title": "Company View"
+      },
+      {
+        "body_preview": "Operator-curated notes, knowledge, decisions, and archive under `~/Annunimas`. Canonical search pattern: - `05-Projects/` for active project summaries",
+        "path": "human/README.md",
+        "title": "Human Notes"
+      },
+      {
+        "body_preview": "--- soterion:   sigil: \"SCROLL\"",
+        "path": "human/INDEX.md",
+        "title": "Index: human"
+      }
+    ]
+  },
+  "personal": {
+    "counts": {
+      "personal_docs_total": 1
+    },
+    "documents": [
+      {
+        "body_preview": "**Date:** 2026-02-27   **Status:** In Progress   **Goal:** Document current state for Annuminas reorganization",
+        "path": "data/personal/PROJECT_AUDIT.md",
+        "title": "NUMENOR_PRIME — PROJECT AUDIT"
+      }
+    ],
+    "identity": {
+      "creative_domains": {
+        "active": [
+          "Miniature painting",
+          "3D printing",
+          "Holographic display (RELIC / Pepper's Ghost)",
+          "Tabletop gaming (Age of Sigmar)"
+        ]
+      },
+      "genealogy": {
+        "lineage": "Mac an Baird",
+        "notes": "Bard lineage. Relevant to mythology research and identity work."
+      },
+      "identity": {
+        "ais": {
+          "company": "Augmented Integrated Systems",
+          "current_clients": [
+            "pool company (San Diego)"
+          ],
+          "infrastructure": [
+            "Pi cluster",
+            "Beelink machines",
+            "distributed compute network"
+          ],
+          "mission": "On-premises AI business operating systems for $1M-$5M companies",
+          "partners": [
+            "Wall Street finance professional",
+            "sales expert"
+          ]
+        },
+        "clearance": "sovereign",
+        "location": "Point Loma, San Diego, California",
+        "name": "Daniel",
+        "professional": {
+          "handle_x": "DarkSkiesMajic",
+          "primary_role": "CTO, Skylight Pros",
+          "secondary_role": "Founder, Augmented Integrated Systems (AIS)",
+          "skills": [
+            "full-stack development",
+            "biotech",
+            "systems architecture",
+            "AI infrastructure"
+          ],
+          "workspace": "engineer deck"
+        },
+        "role": "Founder / Principal / Human Override Authority",
+        "sigil": "𓋹",
+        "time": {
+          "note": "Daniel's time is the scarcest resource. Plutus accounts for it above all else.",
+          "priority_1": "Daughter — museum visits, baseball games, shared experiences",
+          "priority_2": "Deep work — engineering and building",
+          "priority_3": "Client relationships",
+          "priority_4": "Research and reading"
+        },
+        "values": {
+          "depth": "Deep work over shallow breadth. Mastery over mediocrity.",
+          "family": "Decisions must honor time with daughter.",
+          "history": "Pre-1940s texts and primary sources over modern summaries.",
+          "quality": "Build things that actually work. No vaporware.",
+          "sovereignty": "Full data sovereignty. No cloud dependency for core function.",
+          "truth": "Honest assessment over comfortable answers."
+        }
+      },
+      "research_domains": {
+        "active": [
+          "UAP disclosure (active participant, X community)",
+          "Consciousness research (ECST — Electric Current Soul Theory)",
+          "Sacred geometry and phi harmonic patterns",
+          "Pre-1940s historical texts (digitization projects)",
+          "Mythology (Greek, Sumerian, Egyptian)",
+          "Genealogy (Mac an Baird lineage)",
+          "Biophotonic cellular signaling",
+          "Semiconductor physics and consciousness"
+        ]
+      },
+      "soterion": {
+        "clearance": "sovereign",
+        "notes": "The human principal. All agents serve Daniel. Arandur reports to Daniel directly.",
+        "realm": "sovereign",
+        "resonance": 1.0,
+        "sigil": "𓋹",
+        "tags": [
+          "human",
+          "principal",
+          "daniel",
+          "override-authority"
+        ]
+      },
+      "technical_context": {
+        "ai_models": [
+          "Claude Sonnet 4",
+          "GPT (reasoning)",
+          "Gemini (creativity)",
+          "Qwen (speed/local)"
+        ],
+        "ai_tools": [
+          "Claude (primary)",
+          "Oh-My-OpenCode / Arandur",
+          "OpenRouter",
+          "local LLMs via LM Studio"
+        ],
+        "dev_tools": [
+          "Oh-My-OpenCode",
+          "Claude Code",
+          "Cursor",
+          "various MCP servers"
+        ],
+        "infrastructure": [
+          "Raspberry Pi 5 cluster",
+          "Beelink mini PCs",
+          "engineer deck workstation"
+        ],
+        "languages": [
+          "Rust",
+          "Python",
+          "JavaScript/TypeScript",
+          "various"
+        ],
+        "target_runtime": "Tauri (desktop), Axum (server), Tokio (async)"
+      }
+    },
+    "state": {}
+  },
+  "schema_version": "annunimas.core.state.v1"
+}

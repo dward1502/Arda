@@ -1,0 +1,368 @@
+{
+  "authority": "annunimas-cli export queue-hygiene",
+  "counts": {
+    "latest_by_status": {
+      "cancelled": 4,
+      "completed": 171
+    },
+    "raw_by_status": {
+      "cancelled": 4,
+      "completed": 190,
+      "in_progress": 2,
+      "pending": 10,
+      "queued": 130
+    }
+  },
+  "doctrine": {
+    "closeouts_append_same_id_terminal_records": true,
+    "operational_queue_counts_use_latest_state_by_id": true,
+    "raw_queue_is_append_only_evidence": true,
+    "stale_raw_queued_rows_are_not_active_backlog": true
+  },
+  "generated_at_utc": "2026-07-03T05:39:33Z",
+  "latest_open_compact": [],
+  "metrics": {
+    "history_rows_total": 161,
+    "inflation_ratio_raw_queued_to_latest_open": null,
+    "latest_open_total": 0,
+    "latest_task_ids_total": 175,
+    "raw_ledger_rows_total": 336,
+    "raw_queued_rows_total": 130,
+    "stale_raw_queued_rows_total": 130
+  },
+  "schema_version": "annunimas.queue-hygiene.v1",
+  "stale_raw_queued_compact": [
+    {
+      "id": "tsk_20260607_learning_loop_v1_mnemosyne_memory_bridge",
+      "origin": "annunimas_learning_loop_v1_plan",
+      "owner": "mnemosyne",
+      "priority": "high",
+      "queued_at_utc": "2026-06-07T04:39:52Z",
+      "scope": "mnemosyne_learning",
+      "status": "queued",
+      "title": "Learning Loop v1: MNEMOSYNE memory bridge"
+    },
+    {
+      "id": "tsk_20260607_learning_loop_v1_oracle_warden_gate",
+      "origin": "annunimas_learning_loop_v1_plan",
+      "owner": "oracle",
+      "priority": "high",
+      "queued_at_utc": "2026-06-07T04:39:52Z",
+      "scope": "governance_learning",
+      "status": "queued",
+      "title": "Learning Loop v1: ORACLE/WARDEN gate"
+    },
+    {
+      "id": "tsk_20260607_learning_loop_v1_prometheus_task_proposals",
+      "origin": "annunimas_learning_loop_v1_plan",
+      "owner": "prometheus",
+      "priority": "high",
+      "queued_at_utc": "2026-06-07T04:39:52Z",
+      "scope": "prometheus_learning",
+      "status": "queued",
+      "title": "Learning Loop v1: PROMETHEUS task proposals"
+    },
+    {
+      "id": "tsk_20260607_learning_loop_v1_arda_operator_surface",
+      "origin": "annunimas_learning_loop_v1_plan",
+      "owner": "arda",
+      "priority": "high",
+      "queued_at_utc": "2026-06-07T04:41:12Z",
+      "scope": "arda_learning",
+      "status": "queued",
+      "title": "Learning Loop v1: ARDA operator surface"
+    },
+    {
+      "id": "tsk_20260607_learning_loop_v1_chronos_runner",
+      "origin": "annunimas_learning_loop_v1_plan",
+      "owner": "chronos",
+      "priority": "high",
+      "queued_at_utc": "2026-06-07T04:41:12Z",
+      "scope": "chronos_learning",
+      "status": "queued",
+      "title": "Learning Loop v1: CHRONOS read-only runner"
+    },
+    {
+      "id": "tsk_20260607_learning_loop_v1_e2e_validation",
+      "origin": "annunimas_learning_loop_v1_plan",
+      "owner": "prometheus",
+      "priority": "high",
+      "queued_at_utc": "2026-06-07T04:41:12Z",
+      "scope": "learning_loop_e2e",
+      "status": "queued",
+      "title": "Learning Loop v1: end-to-end validation"
+    },
+    {
+      "id": "tsk_20260607_learning_loop_v1_hades_lifecycle_packet",
+      "origin": "annunimas_learning_loop_v1_plan",
+      "owner": "hades",
+      "priority": "high",
+      "queued_at_utc": "2026-06-07T04:41:12Z",
+      "scope": "hades_learning",
+      "status": "queued",
+      "title": "Learning Loop v1: HADES lifecycle packet"
+    },
+    {
+      "id": "tsk_20260607_learning_loop_v1_productionization_audit",
+      "origin": "learning_loop_v1_productionization_plan",
+      "owner": "prometheus",
+      "priority": "high",
+      "queued_at_utc": "2026-06-07T18:58:34Z",
+      "scope": "learning_loop_v1_audit",
+      "status": "queued",
+      "title": "Learning Loop v1 productionization current-state audit"
+    },
+    {
+      "id": "tsk_20260607_learning_loop_v1_queue_hygiene_closeout",
+      "origin": "learning_loop_v1_productionization_plan",
+      "owner": "hades",
+      "priority": "high",
+      "queued_at_utc": "2026-06-07T18:58:34Z",
+      "scope": "learning_loop_v1_queue",
+      "status": "queued",
+      "title": "Learning Loop v1 queue hygiene closeout"
+    },
+    {
+      "id": "tsk_20260607_learning_loop_v1_e2e_integration_harness",
+      "origin": "learning_loop_v1_productionization_plan",
+      "owner": "prometheus",
+      "priority": "high",
+      "queued_at_utc": "2026-06-07T18:58:34Z",
+      "scope": "learning_loop_v1_e2e",
+      "status": "queued",
+      "title": "Learning Loop v1 end-to-end integration harness"
+    },
+    {
+      "id": "tsk_20260607_learning_loop_v1_rust_contract_consolidation",
+      "origin": "learning_loop_v1_productionization_plan",
+      "owner": "athena",
+      "priority": "high",
+      "queued_at_utc": "2026-06-07T18:58:34Z",
+      "scope": "learning_loop_v1_rust",
+      "status": "queued",
+      "title": "Learning Loop v1 Rust contract consolidation"
+    },
+    {
+      "id": "tsk_20260607_learning_loop_v1_gate_error_recovery",
+      "origin": "learning_loop_v1_productionization_plan",
+      "owner": "warden",
+      "priority": "high",
+      "queued_at_utc": "2026-06-07T18:58:34Z",
+      "scope": "learning_loop_v1_governance",
+      "status": "queued",
+      "title": "Learning Loop v1 gate and recovery hardening"
+    },
+    {
+      "id": "tsk_20260607_learning_loop_v1_observability_export",
+      "origin": "learning_loop_v1_productionization_plan",
+      "owner": "chronos",
+      "priority": "high",
+      "queued_at_utc": "2026-06-07T18:58:34Z",
+      "scope": "learning_loop_v1_ops",
+      "status": "queued",
+      "title": "Learning Loop v1 observability export"
+    },
+    {
+      "id": "tsk_20260607_learning_loop_v1_interface_docs",
+      "origin": "learning_loop_v1_productionization_plan",
+      "owner": "prometheus",
+      "priority": "high",
+      "queued_at_utc": "2026-06-07T18:58:34Z",
+      "scope": "learning_loop_v1_docs",
+      "status": "queued",
+      "title": "Learning Loop v1 interface documentation packet"
+    },
+    {
+      "id": "tsk_20260607_learning_loop_v1_operations_runbook",
+      "origin": "learning_loop_v1_productionization_plan",
+      "owner": "hades",
+      "priority": "high",
+      "queued_at_utc": "2026-06-07T18:58:34Z",
+      "scope": "learning_loop_v1_ops",
+      "status": "queued",
+      "title": "Learning Loop v1 operations runbook"
+    },
+    {
+      "id": "tsk_20260607_learning_loop_v1_performance_baseline",
+      "origin": "learning_loop_v1_productionization_plan",
+      "owner": "warden",
+      "priority": "medium",
+      "queued_at_utc": "2026-06-07T18:58:34Z",
+      "scope": "learning_loop_v1_perf",
+      "status": "queued",
+      "title": "Learning Loop v1 performance baseline"
+    },
+    {
+      "id": "tsk_20260607_learning_loop_v2_scope_packet",
+      "origin": "learning_loop_v1_productionization_plan",
+      "owner": "prometheus",
+      "priority": "medium",
+      "queued_at_utc": "2026-06-07T18:58:34Z",
+      "scope": "learning_loop_v2_scope",
+      "status": "queued",
+      "title": "Learning Loop v2 scope packet"
+    },
+    {
+      "id": "tsk_20260607_charon_tool_default_auto_origin",
+      "origin": "charon_low_power_route_governor_plan",
+      "owner": "charon",
+      "priority": "high",
+      "queued_at_utc": "2026-06-07T19:12:00Z",
+      "scope": "route_defaults",
+      "status": "queued",
+      "title": "Charon tool traffic defaults to auto origin"
+    },
+    {
+      "id": "tsk_20260607_charon_low_power_device_pressure",
+      "origin": "charon_low_power_route_governor_plan",
+      "owner": "charon",
+      "priority": "high",
+      "queued_at_utc": "2026-06-07T19:12:00Z",
+      "scope": "device_pressure",
+      "status": "queued",
+      "title": "Charon low-power device pressure scoring"
+    },
+    {
+      "id": "tsk_20260607_charon_workload_lane_taxonomy",
+      "origin": "charon_low_power_route_governor_plan",
+      "owner": "charon",
+      "priority": "high",
+      "queued_at_utc": "2026-06-07T19:12:00Z",
+      "scope": "workload_lanes",
+      "status": "queued",
+      "title": "Charon workload lane taxonomy"
+    },
+    {
+      "id": "tsk_20260607_charon_cloud_spend_governor",
+      "origin": "charon_low_power_route_governor_plan",
+      "owner": "plutus",
+      "priority": "high",
+      "queued_at_utc": "2026-06-07T19:12:00Z",
+      "scope": "budget_governor",
+      "status": "queued",
+      "title": "Charon cloud spend governor"
+    },
+    {
+      "id": "tsk_20260607_charon_low_end_eval_suite",
+      "origin": "charon_low_power_route_governor_plan",
+      "owner": "charon",
+      "priority": "high",
+      "queued_at_utc": "2026-06-07T19:12:00Z",
+      "scope": "low_end_evals",
+      "status": "queued",
+      "title": "Charon low-end routing eval suite"
+    },
+    {
+      "id": "tsk_20260607_charon_route_reason_display",
+      "origin": "charon_low_power_route_governor_plan",
+      "owner": "charon",
+      "priority": "high",
+      "queued_at_utc": "2026-06-07T19:12:00Z",
+      "scope": "route_observability",
+      "status": "queued",
+      "title": "Charon route reason display for low-power routing"
+    },
+    {
+      "id": "tsk_plan_l3c_p1_ec8cf4e6d2",
+      "origin": "flywheel_plan_packet",
+      "owner": "prometheus,warden",
+      "priority": "high",
+      "queued_at_utc": "2026-06-08T09:09:49Z",
+      "scope": "l3_readiness",
+      "status": "queued",
+      "title": "Produce L3 capability and blocker inventory"
+    },
+    {
+      "id": "tsk_plan_l3c_p2_a8c2112c32",
+      "origin": "flywheel_plan_packet",
+      "owner": "governance,warden,prometheus",
+      "priority": "high",
+      "queued_at_utc": "2026-06-08T09:09:49Z",
+      "scope": "l3_readiness",
+      "status": "queued",
+      "title": "Define first bounded mutation class"
+    },
+    {
+      "id": "tsk_plan_l3c_p3_1e2e782c17",
+      "origin": "flywheel_plan_packet",
+      "owner": "prometheus,hades,apollo",
+      "priority": "high",
+      "queued_at_utc": "2026-06-08T09:09:49Z",
+      "scope": "l3_readiness",
+      "status": "queued",
+      "title": "Implement active queue executor with HADES projection repair"
+    },
+    {
+      "id": "tsk_plan_l3c_p4_ebcc514f4e",
+      "origin": "flywheel_plan_packet",
+      "owner": "governance,warden,oracle",
+      "priority": "high",
+      "queued_at_utc": "2026-06-08T09:09:49Z",
+      "scope": "l3_readiness",
+      "status": "queued",
+      "title": "Wire action-class enforcement into mutating dispatch"
+    },
+    {
+      "id": "tsk_plan_l3c_p5_2f6c873175",
+      "origin": "flywheel_plan_packet",
+      "owner": "charon,hermes,plutus",
+      "priority": "high",
+      "queued_at_utc": "2026-06-08T09:09:49Z",
+      "scope": "l3_readiness",
+      "status": "queued",
+      "title": "Harden Hermes/Charon L3 routing and compression behavior"
+    },
+    {
+      "id": "tsk_plan_l3c_p6_ded5b63c05",
+      "origin": "flywheel_plan_packet",
+      "owner": "apollo,prometheus,chronos",
+      "priority": "high",
+      "queued_at_utc": "2026-06-08T09:09:49Z",
+      "scope": "l3_readiness",
+      "status": "queued",
+      "title": "Build L3 end-to-end autonomous mutation harness"
+    },
+    {
+      "id": "tsk_plan_l3c_p7_eb7ad461ff",
+      "origin": "flywheel_plan_packet",
+      "owner": "arda,hermes,hades",
+      "priority": "normal",
+      "queued_at_utc": "2026-06-08T09:09:49Z",
+      "scope": "l3_readiness",
+      "status": "queued",
+      "title": "Project L3 readiness into ARDA and Hermes"
+    },
+    {
+      "id": "tsk_plan_l3c_p8_bebf2d0faf",
+      "origin": "flywheel_plan_packet",
+      "owner": "onboarding,hades,prometheus",
+      "priority": "normal",
+      "queued_at_utc": "2026-06-08T09:09:49Z",
+      "scope": "l3_readiness",
+      "status": "queued",
+      "title": "Align onboarding and First Light with L3 readiness"
+    },
+    {
+      "id": "tsk_plan_l3c_p1_ec8cf4e6d2",
+      "origin": "flywheel_plan_packet",
+      "owner": "prometheus,warden",
+      "priority": "high",
+      "queued_at_utc": "2026-06-08T09:13:25Z",
+      "scope": "l3_readiness",
+      "status": "queued",
+      "title": "Produce L3 capability and blocker inventory"
+    }
+  ],
+  "workflow": {
+    "agent_default_read": "core/state/queue_summary.json",
+    "hygiene_receipt": "core/state/queue_hygiene.json",
+    "mutation_target": "core/projects/tasks/queue.jsonl",
+    "rules": [
+      "Read queue_summary or queue_hygiene before raw queue.jsonl.",
+      "Treat raw queued rows with later terminal same-id rows as historical evidence, not backlog.",
+      "Use task-pivot or append a same-id terminal record for closeouts.",
+      "Run export queue-hygiene and export autonomy-task-truth after backlog mutations."
+    ],
+    "truth_receipt": "core/state/autonomy_task_truth.json"
+  }
+}

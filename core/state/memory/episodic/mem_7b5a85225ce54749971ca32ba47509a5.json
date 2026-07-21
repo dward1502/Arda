@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_7b5a85225ce54749971ca32ba47509a5",
+  "kind": "episodic",
+  "agent": "charon",
+  "content": "CHARON routed openai_shim:code [execution:tool_oriented] -> nvidia:deepseek-ai/deepseek-coder-6.7b-instruct triad_passed=true love_eq=0.83",
+  "salience": 0.3834999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-22T21:27:35.299448090Z",
+  "last_seen_at": "2026-06-22T21:27:35.299448090Z"
+}

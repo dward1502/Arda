@@ -1,0 +1,82 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/engine",
+    "crates/spine/runtime/manwe",
+    "crates/spine/governance/arda-core",
+    "crates/spine/governance/arda-governance",
+    "crates/spine/interface/arda-orome",
+    "crates/spine/observability/arda-aule",
+    "apps/arda-launcher/src-tauri",
+    "crates/spine/runtime/arda-economics",
+    "crates/spine/runtime/arda-mandos",
+    "crates/spine/memory/arda-vaire",
+    "crates/spine/executors/arda-varda",
+]
+exclude = []
+
+[package]
+name = "arda"
+version = "0.1.0"
+edition = "2021"
+license.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "arda"
+path = "src/main.rs"
+
+[dependencies]
+arda-engine = { workspace = true }
+tokio = { workspace = true }
+clap = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+anyhow = "1"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+authors = ["dward"]
+
+[workspace.dependencies]
+# --- Arda originals ---
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+thiserror = "1"
+anyhow = "1"
+chrono = { version = "0.4", features = ["serde"] }
+sysinfo = "0.30"
+tempfile = "3"
+# --- merged from Annunimas ---
+async-trait = "0.1"
+serde_yaml = "0.9"
+# Arda crates (formerly annunimas-*) referenced via `workspace = true`
+arda-core = { path = "crates/spine/governance/arda-core" }
+arda-governance = { path = "crates/spine/governance/arda-governance" }
+arda-orome = { path = "crates/spine/interface/arda-orome" }
+arda-vaire = { path = "crates/spine/memory/arda-vaire" }
+arda-aule = { path = "crates/spine/observability/arda-aule" }
+arda-economics = { path = "crates/spine/runtime/arda-economics" }
+arda-mandos = { path = "crates/spine/runtime/arda-mandos" }
+manwe = { path = "crates/spine/runtime/manwe" }
+arda-varda = { path = "crates/spine/executors/arda-varda" }
+arda-engine = { path = "crates/engine" }
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+clap = { version = "4", features = ["derive"] }
+futures = "0.3"
+rand = "0.8"
+yaml-rust = "0.4"
+base64 = "0.22"
+fs2 = "0.4"
+# --- manwe gateway ---
+axum = "0.7"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+serenity = { version = "0.12", default-features = false, features = ["builder", "client", "gateway", "http", "model", "utils", "rustls_backend"] }
+tonic = { version = "0.14", default-features = false, features = ["tls-webpki-roots", "transport"] }
+prost = "0.13"

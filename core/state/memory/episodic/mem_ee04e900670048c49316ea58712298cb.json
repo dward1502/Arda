@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_ee04e900670048c49316ea58712298cb",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: HADES Soterion message sample validation",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-24T19:03:52.726752613Z",
+  "last_seen_at": "2026-05-24T19:03:52.726752613Z"
+}

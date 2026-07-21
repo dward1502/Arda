@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "goal_council_presence",
+  "title": "Keep the council reachable",
+  "intent": "Verify each Council seat (Aurelius, Bacon, Sun Tzu) responds to a triad health probe. If any seat is unreachable for two consecutive ticks, escalate to the operator.",
+  "owner_agent": "oracle",
+  "status": "active",
+  "priority": "high",
+  "joule_budget_per_day": 60.0,
+  "created_at": "2026-05-04T02:48:59.870685053Z",
+  "updated_at": "2026-05-04T02:48:59.870685053Z"
+}

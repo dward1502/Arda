@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_d7b65398f3b646ee90931ef0059c3c6b",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Extract annunimas-human into a private tenant repo. Completed local extraction planning artifact at docs/plans/annunimas-human-private-tenant-extraction.md. Verified source inventory, dependency boundary, private tenant repository shape, migration sequence, and acceptance checks. Focused verification passed: cargo test -p annunimas-human --test target_local; queue append-only guard passed before closeout. No private human/** data copied and no workspace removal performed; private repo creation remains gated by S2 ownership decision.",
+  "salience": 0.9305000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-20T08:37:32.101727992Z",
+  "last_seen_at": "2026-06-20T08:37:32.101727992Z"
+}

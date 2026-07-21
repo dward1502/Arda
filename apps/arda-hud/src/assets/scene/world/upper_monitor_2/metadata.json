@@ -1,0 +1,72 @@
+{
+  "domain": "world",
+  "forge": {
+    "idempotency_key": "forge-18aeab39402dc504",
+    "last_materialization": {
+      "backend": "remote_blender_cli_fallback",
+      "blender_path": "/var/home/arda-server/forge-workspace/apps/arda-hud/src/assets/scene/world/upper_monitor_2/upper_monitor_2.glb",
+      "fallback_reason": "blender-mcp error: Code execution error: Error: Python: Traceback (most recent call last):\n  File \"/app/blender/5.1/scripts/addons_core/io_scene_gltf2/__init__.py\", line 1371, in execute\n    res = gltf2_blender_export.save(context, export_settings)\n  File \"/app/blender/5.1/scripts/addons_core/io_scene_gltf2/blender/exp/export.py\", line 23, in save\n    if bpy.context.active_object is not None:\n       ^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'Context' object has no attribute 'active_object'\nLocation: <string>:531\n",
+      "inspection": {
+        "arda_procedural_nodes": 25,
+        "duplicate_arda_procedural_nodes": {},
+        "emissive_material_count": 2,
+        "material_count": 4,
+        "mesh_count": 36,
+        "node_count": 36,
+        "overlay_alignment": {
+          "bezel_node_count": 0,
+          "inferred_depth_axis": null,
+          "max_overlay_plane_separation": null,
+          "notes": [],
+          "screen_node_present": false,
+          "screen_thin_axis": null,
+          "trace_node_count": 8
+        },
+        "primitive_count": 36
+      },
+      "materializer": "arda_monitor_materialization",
+      "output_sha256": "dda78d24feba65c3c57035a5db7b29f06ca922819624f7fda1222e1c53895d3b",
+      "recorded_unix_secs": 1780362339,
+      "remote_host": "arda-server",
+      "schema_version": 1,
+      "source_sha256": "34a9b8f770b6addb785f4e2a96bb60ac016e059e4c63747aeaffdfc4454c35ad"
+    },
+    "materialization_history": [
+      {
+        "backend": "remote_blender_cli_fallback",
+        "blender_path": "/var/home/arda-server/forge-workspace/apps/arda-hud/src/assets/scene/world/upper_monitor_2/upper_monitor_2.glb",
+        "fallback_reason": "blender-mcp error: Code execution error: Error: Python: Traceback (most recent call last):\n  File \"/app/blender/5.1/scripts/addons_core/io_scene_gltf2/__init__.py\", line 1371, in execute\n    res = gltf2_blender_export.save(context, export_settings)\n  File \"/app/blender/5.1/scripts/addons_core/io_scene_gltf2/blender/exp/export.py\", line 23, in save\n    if bpy.context.active_object is not None:\n       ^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'Context' object has no attribute 'active_object'\nLocation: <string>:531\n",
+        "inspection": {
+          "arda_procedural_nodes": 25,
+          "duplicate_arda_procedural_nodes": {},
+          "emissive_material_count": 2,
+          "material_count": 4,
+          "mesh_count": 36,
+          "node_count": 36,
+          "overlay_alignment": {
+            "bezel_node_count": 0,
+            "inferred_depth_axis": null,
+            "max_overlay_plane_separation": null,
+            "notes": [],
+            "screen_node_present": false,
+            "screen_thin_axis": null,
+            "trace_node_count": 8
+          },
+          "primitive_count": 36
+        },
+        "materializer": "arda_monitor_materialization",
+        "output_sha256": "dda78d24feba65c3c57035a5db7b29f06ca922819624f7fda1222e1c53895d3b",
+        "recorded_unix_secs": 1780362339,
+        "remote_host": "arda-server",
+        "schema_version": 1,
+        "source_sha256": "34a9b8f770b6addb785f4e2a96bb60ac016e059e4c63747aeaffdfc4454c35ad"
+      }
+    ],
+    "persistent": false
+  },
+  "id": "world_upper_monitor_2",
+  "license": "Internal",
+  "material_family": "world_terminal_housing",
+  "scene_binding": "upper_monitor_2",
+  "source": "forge_mind_builtin_prompt_3_monitor_treatment"
+}

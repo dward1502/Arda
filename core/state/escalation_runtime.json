@@ -1,0 +1,98 @@
+{
+  "arda_hints": {
+    "alert_on_duplicates": false,
+    "alert_on_pending": true,
+    "primary_panel": "escalation_queue"
+  },
+  "authority": "escalation_runtime_projection",
+  "generated_at_utc": "2026-07-14T05:03:01.770582943+00:00",
+  "paths": {
+    "escalations_path": "data/prometheus/escalations.jsonl"
+  },
+  "reason_buckets": [
+    {
+      "count": 8,
+      "reason": "confidence_below_threshold"
+    }
+  ],
+  "recent_pending": [
+    {
+      "confidence": 0.55,
+      "escalation_id": "esc_83578efb",
+      "note": null,
+      "reason": "confidence_below_threshold",
+      "status": "pending",
+      "task_id": "1e2dd97b-be18-4c31-af32-96dd4d61608b",
+      "ts": "2026-06-22T21:55:42.552652097+00:00"
+    },
+    {
+      "confidence": 0.55,
+      "escalation_id": "esc_c958e8bf",
+      "note": null,
+      "reason": "confidence_below_threshold",
+      "status": "pending",
+      "task_id": "329975f8-f389-4f94-829a-02927f70ed8b",
+      "ts": "2026-06-30T05:02:39.613864624+00:00"
+    },
+    {
+      "confidence": 0.55,
+      "escalation_id": "esc_bff65294",
+      "note": null,
+      "reason": "confidence_below_threshold",
+      "status": "pending",
+      "task_id": "4f865a73-6f69-4782-bdd1-805bba5ef1fb",
+      "ts": "2026-06-22T21:50:03.685908914+00:00"
+    },
+    {
+      "confidence": 0.55,
+      "escalation_id": "esc_1eeb28cb",
+      "note": null,
+      "reason": "confidence_below_threshold",
+      "status": "pending",
+      "task_id": "dfb30a95-2618-4897-9282-b7d44dfb0501",
+      "ts": "2026-06-22T21:45:28.763262464+00:00"
+    },
+    {
+      "confidence": 0.7,
+      "escalation_id": "esc_27e4243e",
+      "note": null,
+      "reason": "confidence_below_threshold",
+      "status": "pending",
+      "task_id": "dfb72dca-1e17-4741-8a39-5d06066e6a37",
+      "ts": "2026-06-22T21:52:32.827691520+00:00"
+    },
+    {
+      "confidence": 0.7,
+      "escalation_id": "esc_b24eb3e6",
+      "note": null,
+      "reason": "confidence_below_threshold",
+      "status": "pending",
+      "task_id": "2af6990f-07cd-4ffc-b63d-c642115343e2",
+      "ts": "2026-07-03T06:29:48.970899791+00:00"
+    },
+    {
+      "confidence": 0.55,
+      "escalation_id": "esc_8e812005",
+      "note": null,
+      "reason": "confidence_below_threshold",
+      "status": "pending",
+      "task_id": "4b3ce5a6-330d-459f-9310-908d99ecb153",
+      "ts": "2026-06-30T05:04:49.037476669+00:00"
+    },
+    {
+      "confidence": 0.55,
+      "escalation_id": "esc_6c2e6adc",
+      "note": null,
+      "reason": "confidence_below_threshold",
+      "status": "pending",
+      "task_id": "244e1806-09c5-4c08-8ca9-f91badf7fe3a",
+      "ts": "2026-06-22T21:47:12.250219349+00:00"
+    }
+  ],
+  "schema_version": "annunimas.core.state.v1",
+  "summary": {
+    "duplicate_pending_count": 0,
+    "pending_deduped": 8,
+    "pending_total": 8
+  }
+}

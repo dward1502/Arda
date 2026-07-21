@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_72a8e4fbb8d847f4bbfefce18e135f09",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: S2/G4: migrate signal-grid into a staged feature project repo",
+  "salience": 0.8325000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-19T08:05:22.072501395Z",
+  "last_seen_at": "2026-06-19T08:05:22.072501395Z"
+}

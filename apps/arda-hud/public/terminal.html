@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hermes Terminal — ARDA</title>
+    <style>
+      html, body, #terminal {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        background: #030b11;
+      }
+      .xterm {
+        padding: 8px;
+        height: calc(100% - 16px);
+      }
+      .xterm .xterm-viewport {
+        overflow: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="terminal"></div>
+    <script type="module" src="/src/terminal.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,189 @@
+{
+  "authority": "fleet_backbone_projection",
+  "backbone_node": {
+    "base_url": "http://100.102.250.115:8093/v1",
+    "charon_provider_id": "edge_backbone",
+    "display_name": "Annunimas Server (LFM2.5 Fast Lane)",
+    "enrollment_status": "active",
+    "expected_models": [
+      "lfm2.5-8b-a1b-q4km"
+    ],
+    "health_url": "http://100.102.250.115:8093/health",
+    "hostname": "annunimas-server",
+    "id": "node-backbone-server",
+    "llm_runtime": "llama_cpp_fast_general",
+    "models_url": "http://100.102.250.115:8093/v1/models",
+    "node_class": "backbone_compute",
+    "notes": "Updated 2026-06-16. Active fast/general lane is llama.cpp inside the eregion distrobox, serving LFM2.5-8B-A1B-Q4_K_M on :8093 with 32K context, Q4_0 KV cache, --jinja, and metrics. Qwen3-Coder remains installed on disk but its service is disabled to free VRAM for LFM and Gemma4.",
+    "restart_cmd": "systemctl --user --no-block restart llama-server-lfm25.service",
+    "restart_scope": "ssh",
+    "role": "backbone_fast_general",
+    "ssh_user": "annunimas-server",
+    "startup_priority": 5,
+    "tailscale_ip": "100.102.250.115",
+    "tailscale_name": "annunimas-server"
+  },
+  "deployment": {
+    "phase": "unknown",
+    "placement_plan": "unspecified"
+  },
+  "edge_target": {
+    "athena_enabled": true,
+    "charon_enabled": true,
+    "enrollment_status": "active_staging",
+    "hermes_enabled": false,
+    "hostname": "beelink",
+    "id": "node-backbone-server-01",
+    "llm_runtime": "multi_gpu_sovereign_backbone",
+    "node_class": "backbone_compute",
+    "notes": "Observed Threadripper 2950X staging server with dual RTX 2080 SUPER 8 GiB GPUs, verified live over Tailscale and SSH as `annunimasserver@100.118.123.88`, currently visible on the mesh as `beelink`.",
+    "oracle_enabled": true,
+    "plutus_enabled": true,
+    "role": "backbone_inference",
+    "ssh_user": "annunimasserver",
+    "tailscale_ip": "100.118.123.88",
+    "warden_enabled": false
+  },
+  "expected_capabilities": [],
+  "generated_at_utc": "2026-07-14T05:03:05.421134603+00:00",
+  "model_profiles": {
+    "backbone_accounting": {
+      "context_window": 16384,
+      "install_priority": "phase_2",
+      "model_id": "unsloth/Qwen3-8B-GGUF",
+      "quantization": "Q4_K_M",
+      "reason": "Accounting and JouleWork planning do not need the heaviest model. Keep this lane inexpensive and deterministic.",
+      "runtime_backend": "ramalama",
+      "runtime_model_name": "qwen3-8b-accounting",
+      "target_agents": [
+        "plutus"
+      ],
+      "target_nodes": [
+        "node-backbone-server-01"
+      ]
+    },
+    "backbone_coding": {
+      "context_window": 32768,
+      "install_priority": "phase_1",
+      "model_id": "unsloth/Devstral-Small-2507-GGUF",
+      "quantization": "Q4_K_M",
+      "reason": "Primary coding and tool-use profile for CLI, patching, and repo-facing agent workflows.",
+      "runtime_backend": "ramalama",
+      "runtime_model_name": "devstral-small-coding",
+      "target_agents": [
+        "apollo",
+        "athena",
+        "ceo"
+      ],
+      "target_nodes": [
+        "node-backbone-server-01",
+        "node-main-workstation"
+      ]
+    },
+    "backbone_long_context": {
+      "context_window": 131072,
+      "install_priority": "phase_3_evaluate",
+      "model_id": "unsloth/Qwen3-32B-128K-GGUF",
+      "quantization": "IQ4_XS",
+      "reason": "Selective long-context synthesis profile for deep digest jobs only after baseline throughput is proven acceptable.",
+      "runtime_backend": "ramalama",
+      "runtime_model_name": "qwen3-32b-128k",
+      "target_agents": [
+        "athena",
+        "oracle"
+      ],
+      "target_nodes": [
+        "node-backbone-server-01"
+      ]
+    },
+    "backbone_reasoning": {
+      "context_window": 65536,
+      "install_priority": "phase_1",
+      "model_id": "unsloth/Qwen3-30B-A3B-GGUF",
+      "quantization": "Q4_K_M",
+      "reason": "Best first backbone reasoning target for dual 8 GiB 2080-class GPUs because active MoE footprint is friendlier than dense 32B.",
+      "runtime_backend": "ramalama",
+      "runtime_model_name": "qwen3-30b-a3b-reasoning",
+      "target_agents": [
+        "oracle",
+        "athena"
+      ],
+      "target_nodes": [
+        "node-backbone-server-01"
+      ]
+    },
+    "backbone_router": {
+      "context_window": 32768,
+      "install_priority": "phase_1",
+      "model_id": "unsloth/Qwen3-8B-GGUF",
+      "quantization": "Q4_K_M",
+      "reason": "Fast local routing and fallback brokerage profile. Cheap enough to keep warm.",
+      "runtime_backend": "ramalama",
+      "runtime_model_name": "qwen3-8b-router",
+      "target_agents": [
+        "charon"
+      ],
+      "target_nodes": [
+        "node-backbone-server-01",
+        "node-main-workstation"
+      ]
+    },
+    "edge_comms": {
+      "context_window": 16384,
+      "install_priority": "phase_2",
+      "model_id": "unsloth/Qwen3-8B-GGUF",
+      "quantization": "Q4_K_M",
+      "reason": "Good edge fit for concise relay, intent triage, and lightweight routing on workstation and SER9 class nodes.",
+      "runtime_backend": "ramalama",
+      "runtime_model_name": "qwen3-8b-edge-comms",
+      "target_agents": [
+        "hermes",
+        "charon"
+      ],
+      "target_nodes": [
+        "node-ser9-worker",
+        "node-main-workstation"
+      ]
+    },
+    "edge_guardhouse": {
+      "context_window": 4096,
+      "install_priority": "installed",
+      "model_id": "Qwen3.5-4B-Q4_K_M.gguf",
+      "quantization": "Q4_K_M",
+      "reason": "Guardhouse lane is currently backed by the Pi5 llama.cpp service on port 1234, so the canonical profile should match the deployed Qwen3.5 4B GGUF runtime instead of the older Ollama placeholder.",
+      "runtime_backend": "llama.cpp",
+      "runtime_model_name": "Qwen3.5-4B-Q4_K_M.gguf",
+      "target_agents": [
+        "warden"
+      ],
+      "target_nodes": [
+        "node-pi5-warden"
+      ]
+    },
+    "edge_reasoning": {
+      "context_window": 32768,
+      "install_priority": "phase_2",
+      "model_id": "unsloth/Qwen3-8B-GGUF",
+      "quantization": "Q5_K_M",
+      "reason": "Balanced edge reasoning profile for shallow verdicts, summaries, and short-horizon synthesis.",
+      "runtime_backend": "ramalama",
+      "runtime_model_name": "qwen3-8b-edge-reasoning",
+      "target_agents": [
+        "oracle",
+        "athena"
+      ],
+      "target_nodes": [
+        "node-ser9-worker",
+        "node-main-workstation"
+      ]
+    }
+  },
+  "routing_posture": {
+    "athena_role": "deep_ingest_and_digest",
+    "charon_role": "primary_router",
+    "oracle_role": "primary_reasoning",
+    "plutus_role": "cost_and_joule_accounting"
+  },
+  "schema_version": "annunimas.core.state.v1",
+  "status": "active"
+}

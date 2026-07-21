@@ -1,0 +1,81 @@
+{
+  "authority": "framework_gate_intake_plan + imported_memory_intake_contract + task_agent_boundaries",
+  "generated_at_utc": "2026-03-13T04:11:00Z",
+  "queue_boundary": {
+    "project_task_queue": "core/projects/tasks/queue.jsonl for strategic and project work",
+    "runtime_queue": "core/projects/tasks/queue.jsonl for ephemeral operational jobs"
+  },
+  "schema_version": "annunimas.project-intake-lifecycle.v1",
+  "sigil": "REPAIR",
+  "stages": [
+    {
+      "purpose": "Raw outside material exists in Numenor Prime, Valinor, or another external estate.",
+      "stage": "external_corpus"
+    },
+    {
+      "purpose": "Material is promoted into readable Annunimas summaries and batch receipts.",
+      "stage": "curated_summary"
+    },
+    {
+      "purpose": "Project receives a current anchor, owner, status, readiness, and constraints.",
+      "stage": "dossier"
+    },
+    {
+      "purpose": "A real implementation or execution plan exists.",
+      "stage": "bounded_plan"
+    },
+    {
+      "purpose": "Review checks readiness, queue placement, and authority boundaries.",
+      "stage": "execution_eligibility_review"
+    },
+    {
+      "purpose": "Work enters strategic queue or runtime queue in the right layer.",
+      "stage": "execution"
+    }
+  ],
+  "status": "lifecycle_map_ready_for_review",
+  "transition_checks": [
+    {
+      "checks": [
+        "selective promotion only",
+        "no blind corpus copy"
+      ],
+      "from": "external_corpus",
+      "to": "curated_summary"
+    },
+    {
+      "checks": [
+        "current anchor present",
+        "owner present",
+        "execution constraints declared"
+      ],
+      "from": "curated_summary",
+      "to": "dossier"
+    },
+    {
+      "checks": [
+        "next actions are bounded",
+        "portfolio posture declared"
+      ],
+      "from": "dossier",
+      "to": "bounded_plan"
+    },
+    {
+      "checks": [
+        "readiness confirmed",
+        "authority boundary clear",
+        "review complete"
+      ],
+      "from": "bounded_plan",
+      "to": "execution_eligibility_review"
+    },
+    {
+      "checks": [
+        "correct queue layer chosen",
+        "fresh task record created"
+      ],
+      "from": "execution_eligibility_review",
+      "to": "execution"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "contract_version": "0.1.0",
+  "id": "plan_goal_provider_mesh_health_20260505",
+  "goal_id": "goal_provider_mesh_health",
+  "summary": "Probe each provider tier; retire any failing two consecutive checks.",
+  "steps": [
+    {
+      "intent": "probe_provider",
+      "params": {
+        "tier": "free"
+      }
+    },
+    {
+      "intent": "probe_provider",
+      "params": {
+        "tier": "paid"
+      }
+    },
+    {
+      "intent": "retire_failing",
+      "params": {
+        "consecutive_failures": 2
+      }
+    }
+  ],
+  "status": "draft",
+  "lessons_consulted": [],
+  "created_at": "2026-05-05T23:06:45.941679193Z",
+  "updated_at": "2026-05-05T23:06:45.941679193Z"
+}

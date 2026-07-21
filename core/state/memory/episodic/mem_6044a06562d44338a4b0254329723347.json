@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_6044a06562d44338a4b0254329723347",
+  "kind": "episodic",
+  "agent": "hades",
+  "content": "HADES discovered orphan file",
+  "salience": 0.22499999999999987,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-13T23:17:45.147770273Z",
+  "last_seen_at": "2026-05-13T23:17:45.147770273Z"
+}

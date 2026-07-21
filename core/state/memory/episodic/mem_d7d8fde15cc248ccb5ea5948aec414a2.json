@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_d7d8fde15cc248ccb5ea5948aec414a2",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ONBOARD-P2 helper and environment extraction. Extracted onboarding helpers and environment profile builder into helpers.rs/environment.rs with crate-root exports for workspace_root, now_utc, and build_environment_profile. Verified cargo test -p annunimas-onboarding; cargo test -p annunimas-cli onboarding -- --nocapture; git diff --check; scripts/check_task_queue_append_only.sh.",
+  "salience": 0.9125000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-13T03:32:22.777885072Z",
+  "last_seen_at": "2026-06-13T03:32:22.777885072Z"
+}

@@ -1,0 +1,207 @@
+{
+  "authority": "fleet.toml+selinux_runtime_contract",
+  "control_path_contract": {
+    "break_glass": "tailscale_ssh",
+    "routine_preferred": "tailscale_http",
+    "service_manager": "systemd_user"
+  },
+  "generated_at_utc": "2026-03-30T00:10:20.759341+00:00",
+  "nodes": [
+    {
+      "display_name": "Annunimas Core (3080 Workstation)",
+      "enrollment_status": "active",
+      "hardening_expectations": {
+        "health_endpoint_required": true,
+        "model_presence_required": true,
+        "service_manager_expected": true,
+        "swap_policy": "required",
+        "tailscale_http_preferred": true,
+        "tailscale_identity_required": true,
+        "tailscale_ssh_break_glass_only": true
+      },
+      "id": "node-core-hub",
+      "node_class": "core_compute",
+      "restart": {
+        "cmd": "systemctl --user restart llama-server",
+        "scope": "local"
+      },
+      "role": "main_hub",
+      "runtime": {
+        "expected_models": [
+          "qwen3.5-9b"
+        ],
+        "health_url": "http://100.78.138.113:1234/health",
+        "llm_runtime": "local_inference_worker",
+        "models_url": "http://100.78.138.113:1234/v1/models"
+      },
+      "tailscale": {
+        "ip": "100.78.138.113",
+        "name": "annunimas-core"
+      }
+    },
+    {
+      "display_name": "Pi5 Guardhouse (Warden)",
+      "enrollment_status": "active",
+      "hardening_expectations": {
+        "health_endpoint_required": true,
+        "model_presence_required": true,
+        "service_manager_expected": true,
+        "swap_policy": "required",
+        "tailscale_http_preferred": true,
+        "tailscale_identity_required": true,
+        "tailscale_ssh_break_glass_only": true
+      },
+      "id": "node-pi5-warden",
+      "node_class": "edge_guardhouse",
+      "restart": {
+        "cmd": "systemctl --user restart llama-server",
+        "scope": "ssh"
+      },
+      "role": "warden_guardhouse",
+      "runtime": {
+        "expected_models": [
+          "Qwen3.5-4B-Q4_K_M.gguf"
+        ],
+        "health_url": "http://100.110.85.37:1234/health",
+        "llm_runtime": "edge_llm_light",
+        "models_url": "http://100.110.85.37:1234/v1/models"
+      },
+      "tailscale": {
+        "ip": "100.110.85.37",
+        "name": "warden"
+      }
+    },
+    {
+      "display_name": "Annunimas Server",
+      "enrollment_status": "offline",
+      "hardening_expectations": {
+        "health_endpoint_required": true,
+        "model_presence_required": true,
+        "service_manager_expected": true,
+        "swap_policy": "required",
+        "tailscale_http_preferred": true,
+        "tailscale_identity_required": true,
+        "tailscale_ssh_break_glass_only": true
+      },
+      "id": "node-backbone-server",
+      "node_class": "backbone_compute",
+      "restart": {
+        "cmd": "systemctl --user restart llama-server",
+        "scope": "ssh"
+      },
+      "role": "backbone_inference",
+      "runtime": {
+        "expected_models": [
+          "qwen-3.5-35b-a3b-gguf"
+        ],
+        "health_url": "http://100.64.211.59:1234/health",
+        "llm_runtime": "multi_gpu_sovereign_backbone",
+        "models_url": "http://100.64.211.59:1234/v1/models"
+      },
+      "tailscale": {
+        "ip": "100.64.211.59",
+        "name": "annunimas-server"
+      }
+    },
+    {
+      "display_name": "Beelink SER9 Pro",
+      "enrollment_status": "active",
+      "hardening_expectations": {
+        "health_endpoint_required": true,
+        "model_presence_required": true,
+        "service_manager_expected": true,
+        "swap_policy": "required",
+        "tailscale_http_preferred": true,
+        "tailscale_identity_required": true,
+        "tailscale_ssh_break_glass_only": true
+      },
+      "id": "node-ser9-worker",
+      "node_class": "edge_worker",
+      "restart": {
+        "cmd": "systemctl --user restart llama-server",
+        "scope": "ssh"
+      },
+      "role": "ser9_sovereign_worker",
+      "runtime": {
+        "expected_models": [
+          "qwen3.5-9b"
+        ],
+        "health_url": "http://100.103.125.88:1234/health",
+        "llm_runtime": "local_inference_worker",
+        "models_url": "http://100.103.125.88:1234/v1/models"
+      },
+      "tailscale": {
+        "ip": "100.103.125.88",
+        "name": "beelink"
+      }
+    },
+    {
+      "display_name": "RTX 3050 Laptop",
+      "enrollment_status": "offline",
+      "hardening_expectations": {
+        "health_endpoint_required": true,
+        "model_presence_required": false,
+        "service_manager_expected": true,
+        "swap_policy": "recommended",
+        "tailscale_http_preferred": true,
+        "tailscale_identity_required": true,
+        "tailscale_ssh_break_glass_only": true
+      },
+      "id": "node-laptop",
+      "node_class": "portable_compute",
+      "restart": {
+        "cmd": "systemctl --user restart llama-server",
+        "scope": "ssh"
+      },
+      "role": "portable_operator",
+      "runtime": {
+        "expected_models": [],
+        "health_url": "http://100.97.15.88:1234/health",
+        "llm_runtime": "local_voice_stt_operator",
+        "models_url": "http://100.97.15.88:1234/v1/models"
+      },
+      "tailscale": {
+        "ip": "100.97.15.88",
+        "name": "laptop"
+      }
+    },
+    {
+      "display_name": "Pi5 CITADEL Avatar",
+      "enrollment_status": "active",
+      "hardening_expectations": {
+        "health_endpoint_required": true,
+        "model_presence_required": false,
+        "service_manager_expected": true,
+        "swap_policy": "not_required",
+        "tailscale_http_preferred": true,
+        "tailscale_identity_required": true,
+        "tailscale_ssh_break_glass_only": true
+      },
+      "id": "node-pi5-citadel-avatar",
+      "node_class": "edge_avatar_product",
+      "restart": {
+        "cmd": "systemctl --user restart llama-server",
+        "scope": "ssh"
+      },
+      "role": "citadel_avatar_controller",
+      "runtime": {
+        "expected_models": [],
+        "health_url": "http://100.123.187.77:1234/health",
+        "llm_runtime": "cloud_only_inference",
+        "models_url": "http://100.123.187.77:1234/v1/models"
+      },
+      "tailscale": {
+        "ip": "100.123.187.77",
+        "name": "raspberrypi"
+      }
+    }
+  ],
+  "schema_version": "annunimas.node-hardening-receipt.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "nodes_swap_exempt": 1,
+    "nodes_swap_recommended": 1,
+    "nodes_swap_required": 4,
+    "nodes_total": 6
+  }
+}

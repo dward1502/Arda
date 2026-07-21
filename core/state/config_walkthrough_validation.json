@@ -1,0 +1,18 @@
+{
+  "schema_version": "annunimas.config_walkthrough_validation.v1",
+  "authority": "config_walkthrough_validator",
+  "generated_at_utc": "2026-04-30T00:00:00Z",
+  "active_profile_id": "local_only",
+  "active_profile_title": "Local-Only Mode",
+  "status": "ready_for_dry_run",
+  "missing_targets": [],
+  "changed_targets": [],
+  "provider_budget_projection": "local_free",
+  "governance_strictness_projection": 5,
+  "safety": {
+    "apply_mode": "operator_approved_scoped_write",
+    "destructive_changes": false,
+    "external_spend_enabled": false
+  },
+  "next_action": "Use ARDA Settings > Guided Config Profiles > Preview Diff before applying a profile."
+}

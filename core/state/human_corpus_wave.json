@@ -1,0 +1,60 @@
+{
+  "authority": "bounded_local_note_ingest_wave",
+  "generated_at_utc": "2026-07-03T04:52:37Z",
+  "results": [
+    {
+      "canonical_path": "docs/plans/SUNDAY_POOL_DEMO_2026-03-22/05_ARCHITECTURE_TALK_TRACK.md",
+      "error": "No such file or directory (os error 2)",
+      "ok": false,
+      "path": "/var/home/mythos/Annunimas/docs/plans/SUNDAY_POOL_DEMO_2026-03-22/05_ARCHITECTURE_TALK_TRACK.md"
+    },
+    {
+      "canonical_path": "docs/plans/CEO_LOOP.md",
+      "error": "No such file or directory (os error 2)",
+      "ok": false,
+      "path": "/var/home/mythos/Annunimas/docs/plans/CEO_LOOP.md"
+    },
+    {
+      "canonical_path": "docs/plans/ORGANIC_GROWTH.md",
+      "error": "No such file or directory (os error 2)",
+      "ok": false,
+      "path": "/var/home/mythos/Annunimas/docs/plans/ORGANIC_GROWTH.md"
+    },
+    {
+      "canonical_path": "humadocs/plans/summaries/memory-audit-complete.md",
+      "error": "No such file or directory (os error 2)",
+      "ok": false,
+      "path": "/var/home/mythos/Annunimas/humadocs/plans/summaries/memory-audit-complete.md"
+    },
+    {
+      "canonical_path": "humadocs/plans/summaries/apps-arda-hud-notes.md",
+      "error": "No such file or directory (os error 2)",
+      "ok": false,
+      "path": "/var/home/mythos/Annunimas/humadocs/plans/summaries/apps-arda-hud-notes.md"
+    },
+    {
+      "canonical_path": "humadocs/plans/docs/ARDA_FRONTEND_REBUILD.md",
+      "error": "No such file or directory (os error 2)",
+      "ok": false,
+      "path": "/var/home/mythos/Annunimas/humadocs/plans/docs/ARDA_FRONTEND_REBUILD.md"
+    },
+    {
+      "canonical_path": "humadocs/plans/docs/SOTERION_SIGIL_METHOD.md",
+      "error": "No such file or directory (os error 2)",
+      "ok": false,
+      "path": "/var/home/mythos/Annunimas/humadocs/plans/docs/SOTERION_SIGIL_METHOD.md"
+    },
+    {
+      "canonical_path": "humadocs/plans/summaries/library-crates-notes.md",
+      "error": "No such file or directory (os error 2)",
+      "ok": false,
+      "path": "/var/home/mythos/Annunimas/humadocs/plans/summaries/library-crates-notes.md"
+    }
+  ],
+  "schema_version": "annunimas.human-corpus-wave.v1",
+  "summary": {
+    "attempted_total": 8,
+    "failed_total": 8,
+    "ok_total": 0
+  }
+}

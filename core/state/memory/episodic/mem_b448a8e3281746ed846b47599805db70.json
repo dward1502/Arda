@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_b448a8e3281746ed846b47599805db70",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Create task for 2026-05-30-cash-career-and-venture-operations-plan.md",
+  "salience": 0.6825,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-05T07:27:56.751867339Z",
+  "last_seen_at": "2026-06-05T07:27:56.751867339Z"
+}

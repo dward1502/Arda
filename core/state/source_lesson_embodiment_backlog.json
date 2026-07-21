@@ -1,0 +1,11 @@
+{
+  "authority": "source_lesson_embodiment_registry",
+  "backlog": [],
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "schema_version": "annunimas.source-lesson-embodiment-backlog.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "backlog_total": 0,
+    "critical_embodiment_frontiers_total": 0
+  }
+}

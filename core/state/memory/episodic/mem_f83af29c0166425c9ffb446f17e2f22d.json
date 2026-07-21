@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_f83af29c0166425c9ffb446f17e2f22d",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: CHARON B5 service split first pass",
+  "salience": 0.7625,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-09T19:41:19.613291331Z",
+  "last_seen_at": "2026-05-09T19:41:19.613291331Z"
+}

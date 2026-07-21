@@ -1,0 +1,18 @@
+# Soterion: 📜 systemd_service | owner: HADES | status: active | reviewed: 2026-05-30
+# Sigil: SCROLL (U+1F4DC); purpose: repository-visible governed configuration.
+
+[Unit]
+Description=Annunimas Mesh-LLM Service
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/Annunimas
+Environment=ANNUNIMAS_MESH_LLM_BIN=%h/.local/bin/mesh-llm
+Environment=ANNUNIMAS_MESH_LLM_GGUF=%h/models/liquidai/lfm2.5-8b-a1b/LFM2.5-8B-A1B-Q4_K_M.gguf
+ExecStart=/usr/bin/env sh -c 'exec "$ANNUNIMAS_MESH_LLM_BIN" serve --llama-flavor cuda --gguf "$ANNUNIMAS_MESH_LLM_GGUF" --ctx-size 131072 --max-vram 9.2 --port 9337 --listen-all --console 3131 --node-label annunimas-core --name annunimas-core --metrics'
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_526fb5b74fa54e43ab70809fc3018d3f",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: S3/G1: extract ARDA HUD as a private consumer of the core API",
+  "salience": 0.92,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-19T08:07:47.484221056Z",
+  "last_seen_at": "2026-06-19T08:07:47.484221056Z"
+}

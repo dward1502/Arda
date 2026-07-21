@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_f8abceb1ffc945ed9987c82e2e3c0009",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Hermes dashboard scene button visibility fixed. Added explicit in-Three boardroom Hermes Dashboard interaction pad on the desk, verified visually in browser that button is visible and opens Hermes Dashboard workstation; npm build/test/soterion and lothlorien tauri build passed.",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-17T02:35:53.232840811Z",
+  "last_seen_at": "2026-05-17T02:35:53.232840811Z"
+}

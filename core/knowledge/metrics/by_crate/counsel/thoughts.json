@@ -1,0 +1,27 @@
+{
+  "schema_version": "annunimas.counsel.thoughts.v1",
+  "generated_at_utc": "2026-04-22T00:00:00Z",
+  "source": "human/CEO/counsel/thoughts.md",
+  "summary": {
+    "entries_total": 1,
+    "latest_entry_utc": "2026-04-22T00:00:00Z",
+    "latest_entry_heading": "initialization",
+    "active_hypotheses": 1,
+    "tensions_tracked": 0,
+    "patterns_watched": 1
+  },
+  "soterion_marks_used": {
+    "𓎛": 1,
+    "∇": 1,
+    "◇": 1,
+    "∞": 1
+  },
+  "conventions": {
+    "entry_heading_format": "### YYYY-MM-DD — <short subject>",
+    "marks": {
+      "◇": "active hypothesis (not yet advice)",
+      "⚔": "tension or contradiction observed",
+      "∞": "pattern extending beyond a single decision"
+    }
+  }
+}

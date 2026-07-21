@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_9162e1ec56694d7e9f8248b2b2d01aa6",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Phase 4 CEO_LOOP governance binding verified",
+  "salience": 0.7875,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-14T04:38:43.559719680Z",
+  "last_seen_at": "2026-05-14T04:38:43.559719680Z"
+}

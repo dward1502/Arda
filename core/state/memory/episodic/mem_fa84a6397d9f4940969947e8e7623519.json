@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_fa84a6397d9f4940969947e8e7623519",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: S2/G2: migrate council into a staged feature project repo",
+  "salience": 0.8325000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-19T08:03:29.935960628Z",
+  "last_seen_at": "2026-06-19T08:03:29.935960628Z"
+}

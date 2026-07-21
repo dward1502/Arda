@@ -1,0 +1,33 @@
+{
+  "authority": "athena_source_src_d48f6cc9",
+  "embodied_mapping": {
+    "avatar_motion": "agent_events_and_governance_states",
+    "geometry_motion": "realm_activity_and_queue_pressure",
+    "led_behavior": "control_plane_and_monitoring_signals",
+    "peppers_ghost": "projection_shell_over_same_contract"
+  },
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "practical_notes": {
+    "gpu_feature_flags_may_be_needed": true,
+    "software_render_fallback_ok": true,
+    "webxr_future_safe": true,
+    "x11_dev_fallback_possible": true
+  },
+  "rendering_doctrine": {
+    "avoid_decorative_only_motion": true,
+    "bind_to_runtime_truth": true,
+    "event_driven": true,
+    "raw_webgl_only_for_bottlenecks": true
+  },
+  "schema_version": "annunimas.tauri-embodiment.v1",
+  "sigil": "REPAIR",
+  "source_id": "src_d48f6cc9",
+  "stack": {
+    "backend": "rust_tauri",
+    "frontend": "vite_react",
+    "preferred_renderer": "three_js",
+    "scene": "react_three_fiber",
+    "timeline": "theatre_js",
+    "webgpu_branch_recommended": true
+  }
+}

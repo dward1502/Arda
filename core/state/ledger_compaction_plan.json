@@ -1,0 +1,1768 @@
+{
+  "boundary": {
+    "apply_requires_owner_approval": true,
+    "destructive_actions_performed": false,
+    "ledger_mutations_performed": false
+  },
+  "contract": "annunimas.hades.ledger_compaction_plan.v1",
+  "generated_at_utc": "2026-06-12T09:00:37Z",
+  "mode": "dry_run_no_mutation",
+  "owners": [
+    {
+      "archive_candidate_bytes": 77928861,
+      "bytes": 86698058,
+      "ledgers": 7,
+      "owner": "HADES"
+    }
+  ],
+  "parameters": {
+    "limit": 8,
+    "min_bytes": 1000000,
+    "recent_lines": 2000,
+    "roots": [
+      "data/hades"
+    ],
+    "sample_limit": 200
+  },
+  "plans": [
+    {
+      "apply_required_guardrails": [
+        "stop or coordinate owning writer service",
+        "record pre-apply sha256 and line count",
+        "write archive under data/<owner>/archive/ledger_compaction/<timestamp>/",
+        "write compacted replacement atomically",
+        "record post-apply sha256 and line count",
+        "run owning service smoke check"
+      ],
+      "archive_candidate_lines": 228949,
+      "archive_estimated_bytes": 58241134,
+      "bytes": 58749904,
+      "lines": 230949,
+      "owner": "HADES",
+      "path": "data/hades/hades_log.jsonl",
+      "proposal": "archive_old_window_keep_recent_tail_and_snapshot",
+      "recent_window_lines": 2000,
+      "recommended_policy": "monthly_archive_with_latest_lifecycle_state_snapshot",
+      "retain_estimated_bytes": 508770,
+      "retain_recent_lines": 2000,
+      "sample": {
+        "invalid_sample_records": 0,
+        "sample_earliest_timestamp": "2026-06-04T00:48:41.280039145+00:00",
+        "sample_latest_timestamp": "2026-06-04T00:59:41.286491692+00:00",
+        "sampled_records": 200,
+        "samples": [
+          {
+            "details": {
+              "action": "none",
+              "sigil": "Scroll"
+            },
+            "event": "sigil_read",
+            "file": "docs/monitoring/README.md",
+            "sigil_code": null,
+            "sigil_retention": null,
+            "sigil_source": null,
+            "sigil_tags": [],
+            "ts": "2026-06-04T00:48:41.280039145+00:00"
+          },
+          {
+            "details": {
+              "action": "none",
+              "sigil": "Scroll"
+            },
+            "event": "sigil_read",
+            "file": "docs/monitoring/warden_security_enforcement.md",
+            "sigil_code": null,
+            "sigil_retention": null,
+            "sigil_source": null,
+            "sigil_tags": [],
+            "ts": "2026-06-04T00:48:41.280054735+00:00"
+          },
+          {
+            "details": {
+              "action": "none",
+              "sigil": "Scroll"
+            },
+            "event": "sigil_read",
+            "file": "docs/temporal/CHRONOS.md",
+            "sigil_code": null,
+            "sigil_retention": null,
+            "sigil_source": null,
+            "sigil_tags": [],
+            "ts": "2026-06-04T00:48:41.280089035+00:00"
+          }
+        ],
+        "stable_key_candidates": [
+          "event"
+        ],
+        "top_level_keys": [
+          "details",
+          "event",
+          "file",
+          "sigil_code",
+          "sigil_retention",
+          "sigil_source",
+          "sigil_tags",
+          "ts"
+        ]
+      }
+    },
+    {
+      "apply_required_guardrails": [
+        "stop or coordinate owning writer service",
+        "record pre-apply sha256 and line count",
+        "write archive under data/<owner>/archive/ledger_compaction/<timestamp>/",
+        "write compacted replacement atomically",
+        "record post-apply sha256 and line count",
+        "run owning service smoke check"
+      ],
+      "archive_candidate_lines": 4774,
+      "archive_estimated_bytes": 4320283,
+      "bytes": 6130206,
+      "lines": 6774,
+      "owner": "HADES",
+      "path": "data/hades/lifecycle_findings.jsonl",
+      "proposal": "archive_old_window_keep_recent_tail_and_snapshot",
+      "recent_window_lines": 2000,
+      "recommended_policy": "monthly_archive_with_latest_lifecycle_state_snapshot",
+      "retain_estimated_bytes": 1809923,
+      "retain_recent_lines": 2000,
+      "sample": {
+        "invalid_sample_records": 0,
+        "sample_earliest_timestamp": null,
+        "sample_latest_timestamp": null,
+        "sampled_records": 200,
+        "samples": [
+          {
+            "append_only": true,
+            "appended_at_utc": "2026-05-19T05:00:50.840217990+00:00",
+            "contract": "annunimas.hades.lifecycle_finding.v1",
+            "finding": {
+              "destructive_allowed": false,
+              "evidence": {
+                "evidence_path": "human/03-Knowledge/plans/phase-0-data-audit.md",
+                "extra": {},
+                "issue": null,
+                "matched_signals": [
+                  "obsolete"
+                ],
+                "reason": "human context explicitly marks obsolete/superseded archive candidacy",
+                "safety": {
+                  "archives_files": false,
+                  "deletes_files": false,
+                  "destructive_actions_require_quorum": true,
+                  "moves_files": false,
+                  "read_only_audit": true
+                }
+              },
+              "finding_id": "hla_fb30c86404f24cf18ff74cccd2ed255e",
+              "finding_type": "archive_candidate",
+              "lifecycle_class": "archive_candidate",
+              "path": "human/03-Knowledge/plans/phase-0-data-audit.md",
+              "recommendation": "archive-after-human-approval",
+              "review_required": true,
+              "severity": "low"
+            },
+            "no_file_moves_or_deletes_performed": true
+          },
+          {
+            "append_only": true,
+            "appended_at_utc": "2026-05-19T05:00:50.840649486+00:00",
+            "contract": "annunimas.hades.lifecycle_finding.v1",
+            "finding": {
+              "destructive_allowed": false,
+              "evidence": {
+                "evidence_path": "human/03-Knowledge/plans/file-layout.md",
+                "extra": {},
+                "issue": null,
+                "matched_signals": [
+                  "obsolete"
+                ],
+                "reason": "human context explicitly marks obsolete/superseded archive candidacy",
+                "safety": {
+                  "archives_files": false,
+                  "deletes_files": false,
+                  "destructive_actions_require_quorum": true,
+                  "moves_files": false,
+                  "read_only_audit": true
+                }
+              },
+              "finding_id": "hla_d895fb7efc864dfa9a92e6024278dba2",
+              "finding_type": "archive_candidate",
+              "lifecycle_class": "archive_candidate",
+              "path": "human/03-Knowledge/plans/file-layout.md",
+              "recommendation": "archive-after-human-approval",
+              "review_required": true,
+              "severity": "low"
+            },
+            "no_file_moves_or_deletes_performed": true
+          },
+          {
+            "append_only": true,
+            "appended_at_utc": "2026-05-19T05:00:50.840703527+00:00",
+            "contract": "annunimas.hades.lifecycle_finding.v1",
+            "finding": {
+              "destructive_allowed": false,
+              "evidence": {
+                "evidence_path": "human/05-Projects/plans/DETAILED_CLEANUP_ANALYSIS.md",
+                "extra": {},
+                "issue": null,
+                "matched_signals": [
+                  "obsolete"
+                ],
+                "reason": "human context explicitly marks obsolete/superseded archive candidacy",
+                "safety": {
+                  "archives_files": false,
+                  "deletes_files": false,
+                  "destructive_actions_require_quorum": true,
+                  "moves_files": false,
+                  "read_only_audit": true
+                }
+              },
+              "finding_id": "hla_040562734d764b1abcdd3ade1fa74b0a",
+              "finding_type": "archive_candidate",
+              "lifecycle_class": "archive_candidate",
+              "path": "human/05-Projects/plans/DETAILED_CLEANUP_ANALYSIS.md",
+              "recommendation": "archive-after-human-approval",
+              "review_required": true,
+              "severity": "low"
+            },
+            "no_file_moves_or_deletes_performed": true
+          }
+        ],
+        "stable_key_candidates": [],
+        "top_level_keys": [
+          "append_only",
+          "appended_at_utc",
+          "contract",
+          "finding",
+          "no_file_moves_or_deletes_performed"
+        ]
+      }
+    },
+    {
+      "apply_required_guardrails": [
+        "stop or coordinate owning writer service",
+        "record pre-apply sha256 and line count",
+        "write archive under data/<owner>/archive/ledger_compaction/<timestamp>/",
+        "write compacted replacement atomically",
+        "record post-apply sha256 and line count",
+        "run owning service smoke check"
+      ],
+      "archive_candidate_lines": 16766,
+      "archive_estimated_bytes": 4734226,
+      "bytes": 5298968,
+      "lines": 18766,
+      "owner": "HADES",
+      "path": "data/hades/athena_handoff_queue.jsonl",
+      "proposal": "archive_old_window_keep_recent_tail_and_snapshot",
+      "recent_window_lines": 2000,
+      "recommended_policy": "monthly_archive_with_latest_lifecycle_state_snapshot",
+      "retain_estimated_bytes": 564742,
+      "retain_recent_lines": 2000,
+      "sample": {
+        "invalid_sample_records": 0,
+        "sample_earliest_timestamp": "2026-04-30T10:15:12.723246937+00:00",
+        "sample_latest_timestamp": "2026-04-30T14:07:57.945284553+00:00",
+        "sampled_records": 200,
+        "samples": [
+          {
+            "event": "repair_detected",
+            "file": "core/personal/README.md",
+            "payload": {
+              "input": "core/personal/README.md",
+              "submitted_by": "hades",
+              "task_context": "hades_repair_detected"
+            },
+            "reason": "athena socket missing: /run/user/1000/annunimas/athena.sock",
+            "status": "queued_fallback",
+            "ts_utc": "2026-04-30T10:15:12.723246937+00:00"
+          },
+          {
+            "event": "repair_detected",
+            "file": "core/README.md",
+            "payload": {
+              "input": "core/README.md",
+              "submitted_by": "hades",
+              "task_context": "hades_repair_detected"
+            },
+            "reason": "athena socket missing: /run/user/1000/annunimas/athena.sock",
+            "status": "queued_fallback",
+            "ts_utc": "2026-04-30T10:15:12.727552412+00:00"
+          },
+          {
+            "event": "repair_detected",
+            "file": "core/core_audit.json",
+            "payload": {
+              "input": "core/core_audit.json",
+              "submitted_by": "hades",
+              "task_context": "hades_repair_detected"
+            },
+            "reason": "athena socket missing: /run/user/1000/annunimas/athena.sock",
+            "status": "queued_fallback",
+            "ts_utc": "2026-04-30T10:15:12.730774164+00:00"
+          }
+        ],
+        "stable_key_candidates": [
+          "event",
+          "status"
+        ],
+        "top_level_keys": [
+          "event",
+          "file",
+          "payload",
+          "reason",
+          "status",
+          "ts_utc"
+        ]
+      }
+    },
+    {
+      "apply_required_guardrails": [
+        "stop or coordinate owning writer service",
+        "record pre-apply sha256 and line count",
+        "write archive under data/<owner>/archive/ledger_compaction/<timestamp>/",
+        "write compacted replacement atomically",
+        "record post-apply sha256 and line count",
+        "run owning service smoke check"
+      ],
+      "archive_candidate_lines": 16746,
+      "archive_estimated_bytes": 4716736,
+      "bytes": 5280064,
+      "lines": 18746,
+      "owner": "HADES",
+      "path": "data/hades/warden_queue.jsonl",
+      "proposal": "archive_old_window_keep_recent_tail_and_snapshot",
+      "recent_window_lines": 2000,
+      "recommended_policy": "monthly_archive_with_latest_lifecycle_state_snapshot",
+      "retain_estimated_bytes": 563328,
+      "retain_recent_lines": 2000,
+      "sample": {
+        "invalid_sample_records": 0,
+        "sample_earliest_timestamp": "2026-04-30T10:15:12.724518783+00:00",
+        "sample_latest_timestamp": "2026-04-30T14:07:57.946372277+00:00",
+        "sampled_records": 200,
+        "samples": [
+          {
+            "crate_name": "hades",
+            "event": "repair_detected",
+            "event_type": "repair_detected",
+            "file": "core/personal/README.md",
+            "repair_class": null,
+            "severity": "warning",
+            "source": "repair_pipeline",
+            "status": "attention_required"
+          },
+          {
+            "crate_name": "hades",
+            "event": "repair_detected",
+            "event_type": "repair_detected",
+            "file": "core/README.md",
+            "repair_class": null,
+            "severity": "warning",
+            "source": "repair_pipeline",
+            "status": "attention_required"
+          },
+          {
+            "crate_name": "hades",
+            "event": "repair_detected",
+            "event_type": "repair_detected",
+            "file": "core/core_audit.json",
+            "repair_class": null,
+            "severity": "warning",
+            "source": "repair_pipeline",
+            "status": "attention_required"
+          }
+        ],
+        "stable_key_candidates": [
+          "event",
+          "status"
+        ],
+        "top_level_keys": [
+          "crate_name",
+          "event",
+          "event_type",
+          "file",
+          "repair_class",
+          "severity",
+          "source",
+          "status",
+          "synced",
+          "ts"
+        ]
+      }
+    },
+    {
+      "apply_required_guardrails": [
+        "stop or coordinate owning writer service",
+        "record pre-apply sha256 and line count",
+        "write archive under data/<owner>/archive/ledger_compaction/<timestamp>/",
+        "write compacted replacement atomically",
+        "record post-apply sha256 and line count",
+        "run owning service smoke check"
+      ],
+      "archive_candidate_lines": 9853,
+      "archive_estimated_bytes": 3894173,
+      "bytes": 4684628,
+      "lines": 11853,
+      "owner": "HADES",
+      "path": "data/hades/joulework.jsonl",
+      "proposal": "archive_old_window_keep_recent_tail_and_snapshot",
+      "recent_window_lines": 2000,
+      "recommended_policy": "monthly_archive_with_latest_lifecycle_state_snapshot",
+      "retain_estimated_bytes": 790455,
+      "retain_recent_lines": 2000,
+      "sample": {
+        "invalid_sample_records": 0,
+        "sample_earliest_timestamp": "2026-04-05T05:24:17.432468855+00:00",
+        "sample_latest_timestamp": "2026-04-08T07:00:23.571259623+00:00",
+        "sampled_records": 200,
+        "samples": [
+          {
+            "actions_taken": 0,
+            "component": "hades",
+            "estimated_joules": 3.8000000000000003,
+            "files_scanned": 76,
+            "held_for_review": 0,
+            "operation": "sweep",
+            "orphans_found": 18,
+            "ts_utc": "2026-04-05T05:24:17.432468855+00:00"
+          },
+          {
+            "actions_taken": 0,
+            "component": "hades",
+            "estimated_joules": 3.8000000000000003,
+            "files_scanned": 76,
+            "held_for_review": 0,
+            "operation": "sweep",
+            "orphans_found": 18,
+            "ts_utc": "2026-04-05T05:29:47.174996031+00:00"
+          },
+          {
+            "actions_taken": 0,
+            "component": "hades",
+            "estimated_joules": 3.8000000000000003,
+            "files_scanned": 76,
+            "held_for_review": 0,
+            "operation": "sweep",
+            "orphans_found": 18,
+            "ts_utc": "2026-04-05T05:29:53.766248305+00:00"
+          }
+        ],
+        "stable_key_candidates": [],
+        "top_level_keys": [
+          "actions_taken",
+          "baseline_joules",
+          "component",
+          "estimated_joules",
+          "files_scanned",
+          "held_for_review",
+          "inference_model",
+          "inference_origin",
+          "inference_provider",
+          "notes",
+          "operation",
+          "orphans_found",
+          "outside_historical_scope",
+          "ts_utc"
+        ]
+      }
+    },
+    {
+      "apply_required_guardrails": [
+        "stop or coordinate owning writer service",
+        "record pre-apply sha256 and line count",
+        "write archive under data/<owner>/archive/ledger_compaction/<timestamp>/",
+        "write compacted replacement atomically",
+        "record post-apply sha256 and line count",
+        "run owning service smoke check"
+      ],
+      "archive_candidate_lines": 0,
+      "archive_estimated_bytes": 0,
+      "bytes": 3564597,
+      "lines": 43,
+      "owner": "HADES",
+      "path": "data/hades/organization_findings.jsonl",
+      "proposal": "no_compaction_below_recent_window",
+      "recent_window_lines": 2000,
+      "recommended_policy": "monthly_archive_with_latest_lifecycle_state_snapshot",
+      "retain_estimated_bytes": 3564597,
+      "retain_recent_lines": 43,
+      "sample": {
+        "invalid_sample_records": 0,
+        "sample_earliest_timestamp": null,
+        "sample_latest_timestamp": null,
+        "sampled_records": 43,
+        "samples": [
+          {
+            "apply_default": false,
+            "candidate_preview": [
+              {
+                "apply_default": false,
+                "candidate_id": "hog_9988f52ee621b845",
+                "candidate_type": "missing_readme",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": ".opencode",
+                  "missing": "README.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": ".opencode",
+                "recommended_action": "Generate README.md summarizing directory purpose, owner, important files, and Soterion scope.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_54f87922e33be68b",
+                "candidate_type": "missing_index",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": ".opencode",
+                  "missing": "INDEX.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": ".opencode",
+                "recommended_action": "Generate INDEX.md with deterministic child file/directory listing and last-reviewed metadata.",
+                "severity": "low"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_e0ada6604dc3c67d",
+                "candidate_type": "missing_soterion_frontmatter",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "file": "README.md",
+                  "has_soterion_heading": false,
+                  "has_yaml_frontmatter": false
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "README.md",
+                "recommended_action": "Add Soterion YAML frontmatter with stable sigil, glyph, owner, status, and last_reviewed fields.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_b145c96066f2490a",
+                "candidate_type": "missing_readme",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps",
+                  "missing": "README.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps",
+                "recommended_action": "Generate README.md summarizing directory purpose, owner, important files, and Soterion scope.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_136dd3e07d7f1aa4",
+                "candidate_type": "missing_index",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps",
+                  "missing": "INDEX.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps",
+                "recommended_action": "Generate INDEX.md with deterministic child file/directory listing and last-reviewed metadata.",
+                "severity": "low"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_706c509bf739e301",
+                "candidate_type": "missing_index",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud",
+                  "missing": "INDEX.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud",
+                "recommended_action": "Generate INDEX.md with deterministic child file/directory listing and last-reviewed metadata.",
+                "severity": "low"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_d2e05552237fd330",
+                "candidate_type": "missing_readme",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/.vscode",
+                  "missing": "README.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/.vscode",
+                "recommended_action": "Generate README.md summarizing directory purpose, owner, important files, and Soterion scope.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_86ca602fd217e246",
+                "candidate_type": "missing_index",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/.vscode",
+                  "missing": "INDEX.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/.vscode",
+                "recommended_action": "Generate INDEX.md with deterministic child file/directory listing and last-reviewed metadata.",
+                "severity": "low"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_02434613d94a4b7d",
+                "candidate_type": "missing_soterion_frontmatter",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "file": "apps/arda-hud/HUD_EVENT_SCHEMA.md",
+                  "has_soterion_heading": false,
+                  "has_yaml_frontmatter": false
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/HUD_EVENT_SCHEMA.md",
+                "recommended_action": "Add Soterion YAML frontmatter with stable sigil, glyph, owner, status, and last_reviewed fields.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_9b10b0c04604c1bf",
+                "candidate_type": "missing_soterion_frontmatter",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "file": "apps/arda-hud/MYTHOS_SPEC.md",
+                  "has_soterion_heading": false,
+                  "has_yaml_frontmatter": false
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/MYTHOS_SPEC.md",
+                "recommended_action": "Add Soterion YAML frontmatter with stable sigil, glyph, owner, status, and last_reviewed fields.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_98c3bbef71ef2b99",
+                "candidate_type": "missing_soterion_frontmatter",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "file": "apps/arda-hud/RUNTIME.md",
+                  "has_soterion_heading": false,
+                  "has_yaml_frontmatter": false
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/RUNTIME.md",
+                "recommended_action": "Add Soterion YAML frontmatter with stable sigil, glyph, owner, status, and last_reviewed fields.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_c0b038a416d55dd3",
+                "candidate_type": "missing_soterion_frontmatter",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "file": "apps/arda-hud/SYSTEM_SPECS.md",
+                  "has_soterion_heading": false,
+                  "has_yaml_frontmatter": false
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/SYSTEM_SPECS.md",
+                "recommended_action": "Add Soterion YAML frontmatter with stable sigil, glyph, owner, status, and last_reviewed fields.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_42809fcde9128dcd",
+                "candidate_type": "missing_readme",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/public",
+                  "missing": "README.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/public",
+                "recommended_action": "Generate README.md summarizing directory purpose, owner, important files, and Soterion scope.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_ae77c155df8f4903",
+                "candidate_type": "missing_index",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/public",
+                  "missing": "INDEX.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/public",
+                "recommended_action": "Generate INDEX.md with deterministic child file/directory listing and last-reviewed metadata.",
+                "severity": "low"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_5280de7283c77b8c",
+                "candidate_type": "missing_readme",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/scripts",
+                  "missing": "README.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/scripts",
+                "recommended_action": "Generate README.md summarizing directory purpose, owner, important files, and Soterion scope.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_0acc0eead6411036",
+                "candidate_type": "missing_index",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/scripts",
+                  "missing": "INDEX.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/scripts",
+                "recommended_action": "Generate INDEX.md with deterministic child file/directory listing and last-reviewed metadata.",
+                "severity": "low"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_53d91628b901cc58",
+                "candidate_type": "missing_readme",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/src-tauri",
+                  "missing": "README.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/src-tauri",
+                "recommended_action": "Generate README.md summarizing directory purpose, owner, important files, and Soterion scope.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_02aefb7690e9d0ca",
+                "candidate_type": "missing_index",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/src-tauri",
+                  "missing": "INDEX.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/src-tauri",
+                "recommended_action": "Generate INDEX.md with deterministic child file/directory listing and last-reviewed metadata.",
+                "severity": "low"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_2228a1599035728a",
+                "candidate_type": "missing_readme",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/src",
+                  "missing": "README.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/src",
+                "recommended_action": "Generate README.md summarizing directory purpose, owner, important files, and Soterion scope.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_f08f5aa3ede640b8",
+                "candidate_type": "missing_index",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/src",
+                  "missing": "INDEX.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/src",
+                "recommended_action": "Generate INDEX.md with deterministic child file/directory listing and last-reviewed metadata.",
+                "severity": "low"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_e87d961f44a55a2d",
+                "candidate_type": "missing_soterion_frontmatter",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "file": "apps/arda-hud/ARDA_AUDIT.md",
+                  "has_soterion_heading": false,
+                  "has_yaml_frontmatter": false
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/ARDA_AUDIT.md",
+                "recommended_action": "Add Soterion YAML frontmatter with stable sigil, glyph, owner, status, and last_reviewed fields.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_25f08c0e4ed2bbe7",
+                "candidate_type": "missing_soterion_frontmatter",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "file": "apps/arda-hud/README.md",
+                  "has_soterion_heading": false,
+                  "has_yaml_frontmatter": false
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/README.md",
+                "recommended_action": "Add Soterion YAML frontmatter with stable sigil, glyph, owner, status, and last_reviewed fields.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_18c68aee4d3d7cd2",
+                "candidate_type": "missing_soterion_frontmatter",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "file": "apps/arda-hud/ARDA_PRD.md",
+                  "has_soterion_heading": false,
+                  "has_yaml_frontmatter": false
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/ARDA_PRD.md",
+                "recommended_action": "Add Soterion YAML frontmatter with stable sigil, glyph, owner, status, and last_reviewed fields.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_ac8c03622e8b1804",
+                "candidate_type": "missing_soterion_frontmatter",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "file": "apps/arda-hud/ARDA_IMPLEMENTATION_PLAN.md",
+                  "has_soterion_heading": false,
+                  "has_yaml_frontmatter": false
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/ARDA_IMPLEMENTATION_PLAN.md",
+                "recommended_action": "Add Soterion YAML frontmatter with stable sigil, glyph, owner, status, and last_reviewed fields.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_a98e963eeb9541ff",
+                "candidate_type": "missing_index",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/citadel-avatar",
+                  "missing": "INDEX.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/citadel-avatar",
+                "recommended_action": "Generate INDEX.md with deterministic child file/directory listing and last-reviewed metadata.",
+                "severity": "low"
+              }
+            ],
+            "candidate_preview_total": 25,
+            "coin": {
+              "code_point": "U+1FA99",
+              "glyph": "\ud83e\ude99",
+              "hex": "0x0001FA99",
+              "registry": "meta/soterion_sigils.yaml"
+            },
+            "contract": "annunimas.hades.organization_audit_report.v1",
+            "coverage": {
+              "directories_missing_index_total": 1178,
+              "directories_missing_readme_total": 1026,
+              "directories_total": 1179,
+              "directories_with_index_total": 1,
+              "directories_with_readme_total": 153,
+              "index_percent": 0.08,
+              "markdown_files_total": 1519,
+              "markdown_frontmatter_percent": 22.71,
+              "markdown_soterion_percent": 16.39,
+              "markdown_with_coin_heading_total": 9,
+              "markdown_with_soterion_heading_total": 249,
+              "markdown_with_yaml_frontmatter_total": 345,
+              "readme_percent": 12.98
+            },
+            "generated_at_utc": "2026-05-21T05:04:42.470557045+00:00",
+            "no_delete": true
+          },
+          {
+            "apply_default": false,
+            "candidate_preview": [
+              {
+                "apply_default": false,
+                "candidate_id": "hog_9988f52ee621b845",
+                "candidate_type": "missing_readme",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": ".opencode",
+                  "missing": "README.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": ".opencode",
+                "recommended_action": "Generate README.md summarizing directory purpose, owner, important files, and Soterion scope.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_54f87922e33be68b",
+                "candidate_type": "missing_index",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": ".opencode",
+                  "missing": "INDEX.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": ".opencode",
+                "recommended_action": "Generate INDEX.md with deterministic child file/directory listing and last-reviewed metadata.",
+                "severity": "low"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_e0ada6604dc3c67d",
+                "candidate_type": "missing_soterion_frontmatter",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "file": "README.md",
+                  "has_soterion_heading": false,
+                  "has_yaml_frontmatter": false
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "README.md",
+                "recommended_action": "Add Soterion YAML frontmatter with stable sigil, glyph, owner, status, and last_reviewed fields.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_b145c96066f2490a",
+                "candidate_type": "missing_readme",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps",
+                  "missing": "README.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps",
+                "recommended_action": "Generate README.md summarizing directory purpose, owner, important files, and Soterion scope.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_136dd3e07d7f1aa4",
+                "candidate_type": "missing_index",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps",
+                  "missing": "INDEX.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps",
+                "recommended_action": "Generate INDEX.md with deterministic child file/directory listing and last-reviewed metadata.",
+                "severity": "low"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_706c509bf739e301",
+                "candidate_type": "missing_index",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud",
+                  "missing": "INDEX.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud",
+                "recommended_action": "Generate INDEX.md with deterministic child file/directory listing and last-reviewed metadata.",
+                "severity": "low"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_d2e05552237fd330",
+                "candidate_type": "missing_readme",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/.vscode",
+                  "missing": "README.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/.vscode",
+                "recommended_action": "Generate README.md summarizing directory purpose, owner, important files, and Soterion scope.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_86ca602fd217e246",
+                "candidate_type": "missing_index",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/.vscode",
+                  "missing": "INDEX.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/.vscode",
+                "recommended_action": "Generate INDEX.md with deterministic child file/directory listing and last-reviewed metadata.",
+                "severity": "low"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_02434613d94a4b7d",
+                "candidate_type": "missing_soterion_frontmatter",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "file": "apps/arda-hud/HUD_EVENT_SCHEMA.md",
+                  "has_soterion_heading": false,
+                  "has_yaml_frontmatter": false
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/HUD_EVENT_SCHEMA.md",
+                "recommended_action": "Add Soterion YAML frontmatter with stable sigil, glyph, owner, status, and last_reviewed fields.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_9b10b0c04604c1bf",
+                "candidate_type": "missing_soterion_frontmatter",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "file": "apps/arda-hud/MYTHOS_SPEC.md",
+                  "has_soterion_heading": false,
+                  "has_yaml_frontmatter": false
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/MYTHOS_SPEC.md",
+                "recommended_action": "Add Soterion YAML frontmatter with stable sigil, glyph, owner, status, and last_reviewed fields.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_98c3bbef71ef2b99",
+                "candidate_type": "missing_soterion_frontmatter",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "file": "apps/arda-hud/RUNTIME.md",
+                  "has_soterion_heading": false,
+                  "has_yaml_frontmatter": false
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/RUNTIME.md",
+                "recommended_action": "Add Soterion YAML frontmatter with stable sigil, glyph, owner, status, and last_reviewed fields.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_c0b038a416d55dd3",
+                "candidate_type": "missing_soterion_frontmatter",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "file": "apps/arda-hud/SYSTEM_SPECS.md",
+                  "has_soterion_heading": false,
+                  "has_yaml_frontmatter": false
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/SYSTEM_SPECS.md",
+                "recommended_action": "Add Soterion YAML frontmatter with stable sigil, glyph, owner, status, and last_reviewed fields.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_42809fcde9128dcd",
+                "candidate_type": "missing_readme",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/public",
+                  "missing": "README.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/public",
+                "recommended_action": "Generate README.md summarizing directory purpose, owner, important files, and Soterion scope.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_ae77c155df8f4903",
+                "candidate_type": "missing_index",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/public",
+                  "missing": "INDEX.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/public",
+                "recommended_action": "Generate INDEX.md with deterministic child file/directory listing and last-reviewed metadata.",
+                "severity": "low"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_5280de7283c77b8c",
+                "candidate_type": "missing_readme",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/scripts",
+                  "missing": "README.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/scripts",
+                "recommended_action": "Generate README.md summarizing directory purpose, owner, important files, and Soterion scope.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_0acc0eead6411036",
+                "candidate_type": "missing_index",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/scripts",
+                  "missing": "INDEX.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/scripts",
+                "recommended_action": "Generate INDEX.md with deterministic child file/directory listing and last-reviewed metadata.",
+                "severity": "low"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_53d91628b901cc58",
+                "candidate_type": "missing_readme",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/src-tauri",
+                  "missing": "README.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/src-tauri",
+                "recommended_action": "Generate README.md summarizing directory purpose, owner, important files, and Soterion scope.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_02aefb7690e9d0ca",
+                "candidate_type": "missing_index",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/src-tauri",
+                  "missing": "INDEX.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/src-tauri",
+                "recommended_action": "Generate INDEX.md with deterministic child file/directory listing and last-reviewed metadata.",
+                "severity": "low"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_2228a1599035728a",
+                "candidate_type": "missing_readme",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/src",
+                  "missing": "README.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/src",
+                "recommended_action": "Generate README.md summarizing directory purpose, owner, important files, and Soterion scope.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_f08f5aa3ede640b8",
+                "candidate_type": "missing_index",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/src",
+                  "missing": "INDEX.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/src",
+                "recommended_action": "Generate INDEX.md with deterministic child file/directory listing and last-reviewed metadata.",
+                "severity": "low"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_e87d961f44a55a2d",
+                "candidate_type": "missing_soterion_frontmatter",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "file": "apps/arda-hud/ARDA_AUDIT.md",
+                  "has_soterion_heading": false,
+                  "has_yaml_frontmatter": false
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/ARDA_AUDIT.md",
+                "recommended_action": "Add Soterion YAML frontmatter with stable sigil, glyph, owner, status, and last_reviewed fields.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_25f08c0e4ed2bbe7",
+                "candidate_type": "missing_soterion_frontmatter",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "file": "apps/arda-hud/README.md",
+                  "has_soterion_heading": false,
+                  "has_yaml_frontmatter": false
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/README.md",
+                "recommended_action": "Add Soterion YAML frontmatter with stable sigil, glyph, owner, status, and last_reviewed fields.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_18c68aee4d3d7cd2",
+                "candidate_type": "missing_soterion_frontmatter",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "file": "apps/arda-hud/ARDA_PRD.md",
+                  "has_soterion_heading": false,
+                  "has_yaml_frontmatter": false
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/ARDA_PRD.md",
+                "recommended_action": "Add Soterion YAML frontmatter with stable sigil, glyph, owner, status, and last_reviewed fields.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_ac8c03622e8b1804",
+                "candidate_type": "missing_soterion_frontmatter",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "file": "apps/arda-hud/ARDA_IMPLEMENTATION_PLAN.md",
+                  "has_soterion_heading": false,
+                  "has_yaml_frontmatter": false
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/ARDA_IMPLEMENTATION_PLAN.md",
+                "recommended_action": "Add Soterion YAML frontmatter with stable sigil, glyph, owner, status, and last_reviewed fields.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_a98e963eeb9541ff",
+                "candidate_type": "missing_index",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/citadel-avatar",
+                  "missing": "INDEX.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/citadel-avatar",
+                "recommended_action": "Generate INDEX.md with deterministic child file/directory listing and last-reviewed metadata.",
+                "severity": "low"
+              }
+            ],
+            "candidate_preview_total": 25,
+            "coin": {
+              "code_point": "U+1FA99",
+              "glyph": "\ud83e\ude99",
+              "hex": "0x0001FA99",
+              "registry": "meta/soterion_sigils.yaml"
+            },
+            "contract": "annunimas.hades.organization_audit_report.v1",
+            "coverage": {
+              "directories_missing_index_total": 1178,
+              "directories_missing_readme_total": 1026,
+              "directories_total": 1179,
+              "directories_with_index_total": 1,
+              "directories_with_readme_total": 153,
+              "index_percent": 0.08,
+              "markdown_files_total": 1519,
+              "markdown_frontmatter_percent": 22.71,
+              "markdown_soterion_percent": 16.39,
+              "markdown_with_coin_heading_total": 9,
+              "markdown_with_soterion_heading_total": 249,
+              "markdown_with_yaml_frontmatter_total": 345,
+              "readme_percent": 12.98
+            },
+            "generated_at_utc": "2026-05-21T05:05:50.381546536+00:00",
+            "no_delete": true
+          },
+          {
+            "apply_default": false,
+            "candidate_preview": [
+              {
+                "apply_default": false,
+                "candidate_id": "hog_9988f52ee621b845",
+                "candidate_type": "missing_readme",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": ".opencode",
+                  "missing": "README.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": ".opencode",
+                "recommended_action": "Generate README.md summarizing directory purpose, owner, important files, and Soterion scope.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_54f87922e33be68b",
+                "candidate_type": "missing_index",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": ".opencode",
+                  "missing": "INDEX.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": ".opencode",
+                "recommended_action": "Generate INDEX.md with deterministic child file/directory listing and last-reviewed metadata.",
+                "severity": "low"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_e0ada6604dc3c67d",
+                "candidate_type": "missing_soterion_frontmatter",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "file": "README.md",
+                  "has_soterion_heading": false,
+                  "has_yaml_frontmatter": false
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "README.md",
+                "recommended_action": "Add Soterion YAML frontmatter with stable sigil, glyph, owner, status, and last_reviewed fields.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_b145c96066f2490a",
+                "candidate_type": "missing_readme",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps",
+                  "missing": "README.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps",
+                "recommended_action": "Generate README.md summarizing directory purpose, owner, important files, and Soterion scope.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_136dd3e07d7f1aa4",
+                "candidate_type": "missing_index",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps",
+                  "missing": "INDEX.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps",
+                "recommended_action": "Generate INDEX.md with deterministic child file/directory listing and last-reviewed metadata.",
+                "severity": "low"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_706c509bf739e301",
+                "candidate_type": "missing_index",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud",
+                  "missing": "INDEX.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud",
+                "recommended_action": "Generate INDEX.md with deterministic child file/directory listing and last-reviewed metadata.",
+                "severity": "low"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_d2e05552237fd330",
+                "candidate_type": "missing_readme",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/.vscode",
+                  "missing": "README.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/.vscode",
+                "recommended_action": "Generate README.md summarizing directory purpose, owner, important files, and Soterion scope.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_86ca602fd217e246",
+                "candidate_type": "missing_index",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/.vscode",
+                  "missing": "INDEX.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/.vscode",
+                "recommended_action": "Generate INDEX.md with deterministic child file/directory listing and last-reviewed metadata.",
+                "severity": "low"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_02434613d94a4b7d",
+                "candidate_type": "missing_soterion_frontmatter",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "file": "apps/arda-hud/HUD_EVENT_SCHEMA.md",
+                  "has_soterion_heading": false,
+                  "has_yaml_frontmatter": false
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/HUD_EVENT_SCHEMA.md",
+                "recommended_action": "Add Soterion YAML frontmatter with stable sigil, glyph, owner, status, and last_reviewed fields.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_9b10b0c04604c1bf",
+                "candidate_type": "missing_soterion_frontmatter",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "file": "apps/arda-hud/MYTHOS_SPEC.md",
+                  "has_soterion_heading": false,
+                  "has_yaml_frontmatter": false
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/MYTHOS_SPEC.md",
+                "recommended_action": "Add Soterion YAML frontmatter with stable sigil, glyph, owner, status, and last_reviewed fields.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_98c3bbef71ef2b99",
+                "candidate_type": "missing_soterion_frontmatter",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "file": "apps/arda-hud/RUNTIME.md",
+                  "has_soterion_heading": false,
+                  "has_yaml_frontmatter": false
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/RUNTIME.md",
+                "recommended_action": "Add Soterion YAML frontmatter with stable sigil, glyph, owner, status, and last_reviewed fields.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_c0b038a416d55dd3",
+                "candidate_type": "missing_soterion_frontmatter",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "file": "apps/arda-hud/SYSTEM_SPECS.md",
+                  "has_soterion_heading": false,
+                  "has_yaml_frontmatter": false
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/SYSTEM_SPECS.md",
+                "recommended_action": "Add Soterion YAML frontmatter with stable sigil, glyph, owner, status, and last_reviewed fields.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_42809fcde9128dcd",
+                "candidate_type": "missing_readme",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/public",
+                  "missing": "README.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/public",
+                "recommended_action": "Generate README.md summarizing directory purpose, owner, important files, and Soterion scope.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_ae77c155df8f4903",
+                "candidate_type": "missing_index",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/public",
+                  "missing": "INDEX.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/public",
+                "recommended_action": "Generate INDEX.md with deterministic child file/directory listing and last-reviewed metadata.",
+                "severity": "low"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_5280de7283c77b8c",
+                "candidate_type": "missing_readme",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/scripts",
+                  "missing": "README.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/scripts",
+                "recommended_action": "Generate README.md summarizing directory purpose, owner, important files, and Soterion scope.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_0acc0eead6411036",
+                "candidate_type": "missing_index",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/scripts",
+                  "missing": "INDEX.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/scripts",
+                "recommended_action": "Generate INDEX.md with deterministic child file/directory listing and last-reviewed metadata.",
+                "severity": "low"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_53d91628b901cc58",
+                "candidate_type": "missing_readme",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/src-tauri",
+                  "missing": "README.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/src-tauri",
+                "recommended_action": "Generate README.md summarizing directory purpose, owner, important files, and Soterion scope.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_02aefb7690e9d0ca",
+                "candidate_type": "missing_index",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/src-tauri",
+                  "missing": "INDEX.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/src-tauri",
+                "recommended_action": "Generate INDEX.md with deterministic child file/directory listing and last-reviewed metadata.",
+                "severity": "low"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_2228a1599035728a",
+                "candidate_type": "missing_readme",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/src",
+                  "missing": "README.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/src",
+                "recommended_action": "Generate README.md summarizing directory purpose, owner, important files, and Soterion scope.",
+                "severity": "medium"
+              },
+              {
+                "apply_default": false,
+                "candidate_id": "hog_f08f5aa3ede640b8",
+                "candidate_type": "missing_index",
+                "contract": "annunimas.hades.organization_candidate.v1",
+                "evidence": {
+                  "directory": "apps/arda-hud/src",
+                  "missing": "INDEX.md"
+                },
+                "glyph": "\ud83e\ude99",
+                "no_delete": true,
+                "path": "apps/arda-hud/src",
+                "recommended_action": "Generate INDEX.md with deterministic child file/directory listing and last-reviewed metadata.",
+                "severity": "low"
+              }
+            ],
+            "candidate_preview_total": 20,
+            "coin": {
+              "code_point": "U+1FA99",
+              "glyph": "\ud83e\ude99",
+              "hex": "0x0001FA99",
+              "registry": "meta/soterion_sigils.yaml"
+            },
+            "contract": "annunimas.hades.organization_audit_report.v1",
+            "coverage": {
+              "directories_missing_index_total": 1176,
+              "directories_missing_readme_total": 1024,
+              "directories_total": 1178,
+              "directories_with_index_total": 2,
+              "directories_with_readme_total": 154,
+              "index_percent": 0.17,
+              "markdown_files_total": 1521,
+              "markdown_frontmatter_percent": 22.95,
+              "markdown_soterion_percent": 16.7,
+              "markdown_with_coin_heading_total": 14,
+              "markdown_with_soterion_heading_total": 254,
+              "markdown_with_yaml_frontmatter_total": 349,
+              "readme_percent": 13.07
+            },
+            "generated_at_utc": "2026-05-21T05:40:43.132108813+00:00",
+            "no_delete": true
+          }
+        ],
+        "stable_key_candidates": [],
+        "top_level_keys": [
+          "apply_default",
+          "candidate_preview",
+          "candidate_preview_total",
+          "coin",
+          "contract",
+          "coverage",
+          "generated_at_utc",
+          "no_delete",
+          "report_path",
+          "root_path",
+          "safety_gates"
+        ]
+      }
+    },
+    {
+      "apply_required_guardrails": [
+        "stop or coordinate owning writer service",
+        "record pre-apply sha256 and line count",
+        "write archive under data/<owner>/archive/ledger_compaction/<timestamp>/",
+        "write compacted replacement atomically",
+        "record post-apply sha256 and line count",
+        "run owning service smoke check"
+      ],
+      "archive_candidate_lines": 4181,
+      "archive_estimated_bytes": 2022309,
+      "bytes": 2989691,
+      "lines": 6181,
+      "owner": "HADES",
+      "path": "data/hades/organization_plan_queue.jsonl",
+      "proposal": "archive_old_window_keep_recent_tail_and_snapshot",
+      "recent_window_lines": 2000,
+      "recommended_policy": "monthly_archive_with_latest_lifecycle_state_snapshot",
+      "retain_estimated_bytes": 967382,
+      "retain_recent_lines": 2000,
+      "sample": {
+        "invalid_sample_records": 0,
+        "sample_earliest_timestamp": null,
+        "sample_latest_timestamp": null,
+        "sampled_records": 200,
+        "samples": [
+          {
+            "apply_default": false,
+            "candidate_id": "hog_b2a5c803a9dcae04",
+            "candidate_type": "missing_readme",
+            "contract": "annunimas.hades.organization_candidate.v1",
+            "evidence": {
+              "directory": "docs/operations",
+              "missing": "README.md"
+            },
+            "glyph": "\ud83e\ude99",
+            "no_delete": true,
+            "path": "docs/operations"
+          },
+          {
+            "apply_default": false,
+            "candidate_id": "hog_fa895407397efa1a",
+            "candidate_type": "missing_index",
+            "contract": "annunimas.hades.organization_candidate.v1",
+            "evidence": {
+              "directory": "docs/operations",
+              "missing": "INDEX.md"
+            },
+            "glyph": "\ud83e\ude99",
+            "no_delete": true,
+            "path": "docs/operations"
+          },
+          {
+            "apply_default": false,
+            "candidate_id": "hog_6d00fb3f1632307f",
+            "candidate_type": "missing_soterion_frontmatter",
+            "contract": "annunimas.hades.organization_candidate.v1",
+            "evidence": {
+              "file": "docs/operations/CEO_AUTOPILOT.md",
+              "has_soterion_heading": false,
+              "has_yaml_frontmatter": false
+            },
+            "glyph": "\ud83e\ude99",
+            "no_delete": true,
+            "path": "docs/operations/CEO_AUTOPILOT.md"
+          }
+        ],
+        "stable_key_candidates": [],
+        "top_level_keys": [
+          "apply_default",
+          "candidate_id",
+          "candidate_type",
+          "contract",
+          "evidence",
+          "glyph",
+          "no_delete",
+          "path",
+          "recommended_action",
+          "severity"
+        ]
+      }
+    }
+  ],
+  "status": "review_required",
+  "summary": {
+    "archive_candidate_bytes": 77928861,
+    "archive_candidate_lines": 281269,
+    "eligible_ledgers": 7,
+    "ledgers_scanned": 12,
+    "planned_bytes": 86698058,
+    "planned_ledgers": 7
+  }
+}

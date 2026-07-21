@@ -1,0 +1,46 @@
+{
+  "schema_version": "annunimas.governance-current-state-contract.v1",
+  "generated_at_utc": "2026-06-05T09:32:52Z",
+  "authority": {
+    "human_contract": "docs/contracts/GOVERNANCE_CURRENT_STATE.md",
+    "runtime_projection": "core/state/governance_runtime.json",
+    "readiness_projection": "core/state/governance_autonomy_readiness.json"
+  },
+  "status": "implemented",
+  "truth_boundary": {
+    "default_public_wording": "current deterministic/local governance heuristic",
+    "autonomous_consensus_is_current_default": false,
+    "triad_blocking_is_default": false,
+    "default_triad_policy": "record_and_proceed_unless_policy_blocks",
+    "love_equation_score_semantic": "task_value_proxy",
+    "joulework_default_fallback_is_autonomy_truth": false
+  },
+  "maturity_labels": [
+    "heuristic_local",
+    "compatibility_default",
+    "semantic_proxy",
+    "policy_record_and_proceed",
+    "policy_blocking",
+    "independent_review_receipted",
+    "autonomous_consensus_receipted"
+  ],
+  "implementation_evidence": [
+    {
+      "surface": "crates/annunimas-governance/src/triad.rs",
+      "claim": "Triad scoring remains deterministic/local unless stronger receipts are emitted."
+    },
+    {
+      "surface": "crates/annunimas-core/src/governance_gates.rs",
+      "claim": "Dispatch blocking is policy-specific rather than the default governance posture."
+    },
+    {
+      "surface": "crates/annunimas-governance/src/love_equation.rs",
+      "claim": "Governance love_equation_score is labeled as a task-value proxy."
+    },
+    {
+      "surface": "crates/annunimas-plutus/src/joule_work.rs",
+      "claim": "JouleWork values carry source/confidence disclosure."
+    }
+  ],
+  "operator_rule": "Read docs/contracts/GOVERNANCE_CURRENT_STATE.md before using Love Equation, Resonance, Triad, JouleWork, or Game Theory language in public-facing materials."
+}

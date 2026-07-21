@@ -1,0 +1,404 @@
+{
+  "authority": "athena_policy_readiness + source_absorption_portfolio + runtime_contracts",
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "mission": {
+    "anti_drift_rule": "Strong-source implementation ideas must resolve into embodied_active, embodied_governed, contract_only, queued_for_embodiment, evidence_only, or rejected states.",
+    "goal": "Track whether strong ATHENA source lessons have been embodied into sovereign code, runtime, or contract surfaces."
+  },
+  "schema_version": "annunimas.source-lesson-embodiment-registry.v1",
+  "sigil": "REPAIR",
+  "sources": [
+    {
+      "absorption_pattern": "registry_linked_tool",
+      "artifacts": [
+        "core/state/llmfit_routing_contract.json",
+        "core/state/model_control_surface.json",
+        "core/state/runtime_budget_policy.json"
+      ],
+      "disposition": "adapted",
+      "domain": "development",
+      "embodiment_status": "contract_only",
+      "lessons": [
+        {
+          "lesson_id": "src_234088bc:lesson_1",
+          "method_summary": "Registry-linked sovereign tool lane for `llmfit`",
+          "risks": [
+            "Tool activation must remain bounded by explicit env, launcher, and governance surfaces."
+          ],
+          "statement": "Keep `llmfit` bounded as governed-on-demand capability for `model_selection` work.",
+          "status": "contract_only",
+          "status_reason": "Source has implementation implications captured, but embodiment remains contractual.",
+          "task_status": "completed"
+        }
+      ],
+      "policy_gate": {},
+      "source_id": "src_234088bc",
+      "source_kind": "registry_tool",
+      "status_reason": "Source has implementation implications captured, but embodiment remains contractual.",
+      "task_status": "completed",
+      "title": "https://github.com/AlexsJones/llmfit",
+      "url": "https://github.com/AlexsJones/llmfit"
+    },
+    {
+      "absorption_pattern": "registry_linked_tool",
+      "artifacts": [],
+      "disposition": "adapted",
+      "domain": "development",
+      "embodiment_status": "embodied_governed",
+      "lessons": [
+        {
+          "lesson_id": "src_275d929b:lesson_1",
+          "method_summary": "Registry-linked sovereign tool lane for `oh-my-opencode`",
+          "risks": [
+            "Tool activation must remain bounded by explicit env, launcher, and governance surfaces."
+          ],
+          "statement": "Use `oh-my-opencode` as a live decision/routing signal without turning it into the primary runtime.",
+          "status": "embodied_governed",
+          "status_reason": "Lesson is embodied behind bounded, non-default runtime or routing controls.",
+          "task_status": null
+        }
+      ],
+      "policy_gate": {},
+      "source_id": "src_275d929b",
+      "source_kind": "registry_tool",
+      "status_reason": "Lesson is embodied behind bounded, non-default runtime or routing controls.",
+      "task_status": null,
+      "title": "https://github.com/code-yeongyu/oh-my-opencode",
+      "url": "https://github.com/code-yeongyu/oh-my-opencode"
+    },
+    {
+      "absorption_pattern": "ecosystem_catalog",
+      "artifacts": [
+        "core/state/source_ecosystem_registry.json",
+        "core/state/source_ecosystem_operationalization.json",
+        "core/state/source_absorption_portfolio.json"
+      ],
+      "disposition": "promote_now",
+      "domain": "development",
+      "embodiment_status": "embodied_governed",
+      "lessons": [
+        {
+          "lesson_id": "src_33fa61b2:lesson_1",
+          "method_summary": "Curated ecosystem map for agent frameworks and tool candidates",
+          "risks": [
+            "List repos can inflate backlog volume unless they are deduplicated and scored before promotion."
+          ],
+          "statement": "Extract the highest-signal projects from the catalog into bounded sovereign candidate records.",
+          "status": "embodied_governed",
+          "status_reason": "Catalog lessons are now operationalized into recurring candidate extraction and portfolio ranking lanes.",
+          "task_status": "completed"
+        },
+        {
+          "lesson_id": "src_33fa61b2:lesson_2",
+          "method_summary": "Curated ecosystem map for agent frameworks and tool candidates",
+          "risks": [
+            "List repos can inflate backlog volume unless they are deduplicated and scored before promotion."
+          ],
+          "statement": "Separate framework references from directly productizable runtimes so promotion pressure stays disciplined.",
+          "status": "embodied_governed",
+          "status_reason": "Catalog lessons are now operationalized into recurring candidate extraction and portfolio ranking lanes.",
+          "task_status": "completed"
+        }
+      ],
+      "policy_gate": {},
+      "source_id": "src_33fa61b2",
+      "source_kind": "github",
+      "status_reason": "Catalog lessons are now operationalized into recurring candidate extraction and portfolio ranking lanes.",
+      "task_status": "completed",
+      "title": "https://github.com/kaushikb11/awesome-llm-agents",
+      "url": "https://github.com/kaushikb11/awesome-llm-agents"
+    },
+    {
+      "absorption_pattern": "registry_linked_tool",
+      "artifacts": [
+        "core/state/playwright_mcp_productization_contract.json",
+        "scripts/playwright_mcp_bridge.sh",
+        "core/state/package_runtime_activation.json"
+      ],
+      "disposition": "adapted",
+      "domain": "development",
+      "embodiment_status": "embodied_governed",
+      "lessons": [
+        {
+          "lesson_id": "src_ba31bde2:lesson_1",
+          "method_summary": "Registry-linked sovereign tool lane for `playwright-mcp`",
+          "risks": [
+            "Tool activation must remain bounded by explicit env, launcher, and governance surfaces."
+          ],
+          "statement": "Keep `playwright-mcp` bounded as governed-on-demand capability for `mcp_browser` work.",
+          "status": "embodied_governed",
+          "status_reason": "Lesson is embodied behind bounded, non-default runtime or routing controls.",
+          "task_status": null
+        }
+      ],
+      "policy_gate": {},
+      "source_id": "src_ba31bde2",
+      "source_kind": "registry_tool",
+      "status_reason": "Lesson is embodied behind bounded, non-default runtime or routing controls.",
+      "task_status": null,
+      "title": "https://github.com/microsoft/playwright-mcp",
+      "url": "https://github.com/microsoft/playwright-mcp"
+    },
+    {
+      "absorption_pattern": "registry_linked_tool",
+      "artifacts": [
+        "core/state/nanoclaw_productization_contract.json",
+        "scripts/nanoclaw_runtime.sh",
+        "core/state/package_runtime_activation.json"
+      ],
+      "disposition": "adapted",
+      "domain": "development",
+      "embodiment_status": "embodied_governed",
+      "lessons": [
+        {
+          "lesson_id": "src_bfd43480:lesson_1",
+          "method_summary": "Registry-linked sovereign tool lane for `nanoclaw`",
+          "risks": [
+            "Tool activation must remain bounded by explicit env, launcher, and governance surfaces."
+          ],
+          "statement": "Keep `nanoclaw` bounded as governed-on-demand capability for `edge_runtime` work.",
+          "status": "embodied_governed",
+          "status_reason": "NanoClaw is embodied as a bounded edge/runtime contract rather than passive evidence.",
+          "task_status": "completed"
+        }
+      ],
+      "policy_gate": {},
+      "source_id": "src_bfd43480",
+      "source_kind": "registry_tool",
+      "status_reason": "NanoClaw is embodied as a bounded edge/runtime contract rather than passive evidence.",
+      "task_status": "completed",
+      "title": "https://github.com/qwibitai/nanoclaw",
+      "url": "https://github.com/qwibitai/nanoclaw"
+    },
+    {
+      "absorption_pattern": "ecosystem_catalog",
+      "artifacts": [
+        "core/state/source_ecosystem_registry.json",
+        "core/state/source_ecosystem_operationalization.json",
+        "core/state/source_absorption_portfolio.json"
+      ],
+      "disposition": "promote_now",
+      "domain": "development",
+      "embodiment_status": "embodied_governed",
+      "lessons": [
+        {
+          "lesson_id": "src_ca2f031e:lesson_1",
+          "method_summary": "Curated ecosystem map for agent frameworks and tool candidates",
+          "risks": [
+            "List repos can inflate backlog volume unless they are deduplicated and scored before promotion."
+          ],
+          "statement": "Extract the highest-signal projects from the catalog into bounded sovereign candidate records.",
+          "status": "embodied_governed",
+          "status_reason": "Catalog lessons are now operationalized into recurring candidate extraction and portfolio ranking lanes.",
+          "task_status": "completed"
+        },
+        {
+          "lesson_id": "src_ca2f031e:lesson_2",
+          "method_summary": "Curated ecosystem map for agent frameworks and tool candidates",
+          "risks": [
+            "List repos can inflate backlog volume unless they are deduplicated and scored before promotion."
+          ],
+          "statement": "Separate framework references from directly productizable runtimes so promotion pressure stays disciplined.",
+          "status": "embodied_governed",
+          "status_reason": "Catalog lessons are now operationalized into recurring candidate extraction and portfolio ranking lanes.",
+          "task_status": "completed"
+        }
+      ],
+      "policy_gate": {},
+      "source_id": "src_ca2f031e",
+      "source_kind": "github",
+      "status_reason": "Catalog lessons are now operationalized into recurring candidate extraction and portfolio ranking lanes.",
+      "task_status": "completed",
+      "title": "https://github.com/e2b-dev/awesome-ai-agents",
+      "url": "https://github.com/e2b-dev/awesome-ai-agents"
+    },
+    {
+      "absorption_pattern": "registry_linked_tool",
+      "artifacts": [
+        "core/state/crawl4ai_runtime_contract.json",
+        "scripts/crawl4ai_service.sh",
+        "core/state/package_runtime_activation.json"
+      ],
+      "disposition": "adapted",
+      "domain": "development",
+      "embodiment_status": "embodied_active",
+      "lessons": [
+        {
+          "lesson_id": "src_d46d1480:lesson_1",
+          "method_summary": "Registry-linked sovereign tool lane for `crawl4ai`",
+          "risks": [
+            "Tool activation must remain bounded by explicit env, launcher, and governance surfaces."
+          ],
+          "statement": "Keep `crawl4ai` bounded as governed-on-demand capability for `athena_ingestion` work.",
+          "status": "embodied_active",
+          "status_reason": "crawl4ai is embodied as the active sovereign ingest runtime.",
+          "task_status": "completed"
+        }
+      ],
+      "policy_gate": {},
+      "source_id": "src_d46d1480",
+      "source_kind": "registry_tool",
+      "status_reason": "crawl4ai is embodied as the active sovereign ingest runtime.",
+      "task_status": "completed",
+      "title": "https://github.com/unclecode/crawl4ai",
+      "url": "https://github.com/unclecode/crawl4ai"
+    },
+    {
+      "absorption_pattern": "registry_linked_tool",
+      "artifacts": [
+        "core/state/litellm_routing_contract.json",
+        "scripts/litellm_proxy.sh",
+        "core/state/model_control_surface.json"
+      ],
+      "disposition": "adapted",
+      "domain": "development",
+      "embodiment_status": "contract_only",
+      "lessons": [
+        {
+          "lesson_id": "src_dab89283:lesson_1",
+          "method_summary": "Registry-linked sovereign tool lane for `litellm`",
+          "risks": [
+            "Tool activation must remain bounded by explicit env, launcher, and governance surfaces."
+          ],
+          "statement": "Keep `litellm` bounded as governed-on-demand capability for `charon_provider` work.",
+          "status": "contract_only",
+          "status_reason": "Source has implementation implications captured, but embodiment remains contractual.",
+          "task_status": "completed"
+        }
+      ],
+      "policy_gate": {},
+      "source_id": "src_dab89283",
+      "source_kind": "registry_tool",
+      "status_reason": "Source has implementation implications captured, but embodiment remains contractual.",
+      "task_status": "completed",
+      "title": "https://github.com/BerriAI/litellm",
+      "url": "https://github.com/BerriAI/litellm"
+    },
+    {
+      "absorption_pattern": "community_signal_map",
+      "artifacts": [
+        "core/state/community_signal_intake.json",
+        "core/state/communication_adapter_contract.json"
+      ],
+      "disposition": "promote_now",
+      "domain": "communications",
+      "embodiment_status": "embodied_governed",
+      "lessons": [
+        {
+          "lesson_id": "src_dc355aed:lesson_1",
+          "method_summary": "External community map for operator, builder, and market signals",
+          "risks": [
+            "Community lists drift quickly and can create noisy intake if not bounded by source quality controls."
+          ],
+          "statement": "Track community surfaces as signal sources rather than treating them as direct runtime dependencies.",
+          "status": "embodied_governed",
+          "status_reason": "Community signal map is now bound into explicit HERMES intake source policy.",
+          "task_status": "completed"
+        },
+        {
+          "lesson_id": "src_dc355aed:lesson_2",
+          "method_summary": "External community map for operator, builder, and market signals",
+          "risks": [
+            "Community lists drift quickly and can create noisy intake if not bounded by source quality controls."
+          ],
+          "statement": "Route useful community intelligence into HERMES and boardroom observation policies.",
+          "status": "embodied_governed",
+          "status_reason": "Community signal map is now bound into explicit HERMES intake source policy.",
+          "task_status": "completed"
+        }
+      ],
+      "policy_gate": {},
+      "source_id": "src_dc355aed",
+      "source_kind": "github",
+      "status_reason": "Community signal map is now bound into explicit HERMES intake source policy.",
+      "task_status": "completed",
+      "title": "https://github.com/best-ai-agents/discord-servers-for-ai-agents",
+      "url": "https://github.com/best-ai-agents/discord-servers-for-ai-agents"
+    },
+    {
+      "absorption_pattern": "bounded_ingest_runtime",
+      "artifacts": [
+        "core/state/scrapling_runtime_contract.json",
+        "annunimas-cli utility scrapling-fetch",
+        "crates/annunimas-athena/src/ingest.rs"
+      ],
+      "disposition": "promote_now",
+      "domain": "knowledge",
+      "embodiment_status": "embodied_governed",
+      "lessons": [
+        {
+          "lesson_id": "src_df11630e:lesson_1",
+          "method_summary": "Provider-directed sovereign crawl ingestion with a bounded alternative fetch stack",
+          "risks": [
+            "Scrapling cannot become the default until browser and fetcher dependencies are bounded in sovereign runtime surfaces.",
+            "Provider-order drift can create inconsistent captures if Scrapling and crawl4ai are not governed by one policy surface."
+          ],
+          "statement": "Promote Scrapling from shim-backed fetch path into a bounded runtime contract with explicit env and install requirements.",
+          "status": "embodied_governed",
+          "status_reason": "Scrapling now has a bounded native-runtime contract and remains governed behind crawl4ai-first provider policy.",
+          "task_status": "completed"
+        },
+        {
+          "lesson_id": "src_df11630e:lesson_2",
+          "method_summary": "Provider-directed sovereign crawl ingestion with a bounded alternative fetch stack",
+          "risks": [
+            "Scrapling cannot become the default until browser and fetcher dependencies are bounded in sovereign runtime surfaces.",
+            "Provider-order drift can create inconsistent captures if Scrapling and crawl4ai are not governed by one policy surface."
+          ],
+          "statement": "Define provider-order policy so ATHENA can prefer Scrapling without silently bypassing the live crawl4ai lane.",
+          "status": "embodied_governed",
+          "status_reason": "Scrapling now has a bounded native-runtime contract and remains governed behind crawl4ai-first provider policy.",
+          "task_status": "completed"
+        },
+        {
+          "lesson_id": "src_df11630e:lesson_3",
+          "method_summary": "Provider-directed sovereign crawl ingestion with a bounded alternative fetch stack",
+          "risks": [
+            "Scrapling cannot become the default until browser and fetcher dependencies are bounded in sovereign runtime surfaces.",
+            "Provider-order drift can create inconsistent captures if Scrapling and crawl4ai are not governed by one policy surface."
+          ],
+          "statement": "Capture stable receipts and markdown artifacts through the same ATHENA crawl surface used by other providers.",
+          "status": "embodied_governed",
+          "status_reason": "Scrapling now has a bounded native-runtime contract and remains governed behind crawl4ai-first provider policy.",
+          "task_status": "completed"
+        }
+      ],
+      "policy_gate": {},
+      "source_id": "src_df11630e",
+      "source_kind": "github",
+      "status_reason": "Scrapling now has a bounded native-runtime contract and remains governed behind crawl4ai-first provider policy.",
+      "task_status": "completed",
+      "title": "https://github.com/D4Vinci/Scrapling",
+      "url": "https://github.com/D4Vinci/Scrapling"
+    }
+  ],
+  "summary": {
+    "by_domain": {
+      "communications": 1,
+      "development": 8,
+      "knowledge": 1
+    },
+    "by_status": {
+      "contract_only": 2,
+      "embodied_active": 1,
+      "embodied_governed": 7
+    },
+    "lesson_total": 15,
+    "sources_total": 10,
+    "unembodied_sources_total": 2
+  },
+  "top_unembodied_sources": [
+    {
+      "embodiment_status": "contract_only",
+      "source_id": "src_234088bc",
+      "status_reason": "Source has implementation implications captured, but embodiment remains contractual.",
+      "title": "https://github.com/AlexsJones/llmfit"
+    },
+    {
+      "embodiment_status": "contract_only",
+      "source_id": "src_dab89283",
+      "status_reason": "Source has implementation implications captured, but embodiment remains contractual.",
+      "title": "https://github.com/BerriAI/litellm"
+    }
+  ]
+}

@@ -1,0 +1,127 @@
+{
+  "active_nodes": [
+    {
+      "dns_name": "annunimas-core.tail91c3c1.ts.net.",
+      "hostname": "annunimas-core",
+      "informant_source": null,
+      "matched_target_id": "node-core-hub",
+      "matched_target_role": "main_hub",
+      "online": true,
+      "tailscale_ips": [
+        "100.127.2.59",
+        "fd7a:115c:a1e0::501:294"
+      ],
+      "tailscale_node_id": "n44fqYbE8321CNTRL"
+    },
+    {
+      "dns_name": "raspberrypi-aihat.tail91c3c1.ts.net.",
+      "hostname": "raspberrypi-aihat",
+      "informant_source": null,
+      "matched_target_id": null,
+      "matched_target_role": null,
+      "online": true,
+      "tailscale_ips": [
+        "100.79.194.31",
+        "fd7a:115c:a1e0::e837:c21f"
+      ],
+      "tailscale_node_id": "noXnkGwNbw11CNTRL"
+    },
+    {
+      "dns_name": "bluefin.tail91c3c1.ts.net.",
+      "hostname": "bluefin",
+      "informant_source": "data/fleet/informants/local_last.json",
+      "matched_target_id": "node-ser9-worker",
+      "matched_target_role": "ser9_sovereign_worker",
+      "online": true,
+      "tailscale_ips": [
+        "100.103.125.88",
+        "fd7a:115c:a1e0::4337:7d58"
+      ],
+      "tailscale_node_id": "np3T7tVYP521CNTRL"
+    },
+    {
+      "dns_name": "warden.tail91c3c1.ts.net.",
+      "hostname": "warden",
+      "informant_source": "data/fleet/informants/node-pi5-warden_last.json",
+      "matched_target_id": "node-pi5-warden",
+      "matched_target_role": "warden_guardhouse",
+      "online": true,
+      "tailscale_ips": [
+        "100.110.85.37",
+        "fd7a:115c:a1e0::bc37:5525"
+      ],
+      "tailscale_node_id": "nZMArV866311CNTRL"
+    },
+    {
+      "dns_name": "beelink.tail91c3c1.ts.net.",
+      "hostname": "beelink",
+      "informant_source": null,
+      "matched_target_id": "node-backbone-server-01",
+      "matched_target_role": "backbone_inference",
+      "online": true,
+      "tailscale_ips": [
+        "100.118.123.88",
+        "fd7a:115c:a1e0::537:7b58"
+      ],
+      "tailscale_node_id": "nSLZ4aQNkd11CNTRL"
+    }
+  ],
+  "authority": "fleet_identity_export",
+  "canonical_binding_candidates": [
+    {
+      "binding_strategy": "reserve_canonical_identity_before_enrollment",
+      "candidate_stale_node_ids": [],
+      "candidate_tailscale_names": [
+        "raspberrypi-aihat",
+        "raspberrypi-2"
+      ],
+      "expected_hostname": "raspberrypi-aihat",
+      "requires_operator_confirmation": true,
+      "target_id": "node-pi5-citadel-avatar",
+      "topology_registry_hint": null
+    }
+  ],
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "guidance": {
+    "generic_hostname_is_not_identity": true,
+    "second_pi_needs_canonical_target": true,
+    "use_ip_first": true
+  },
+  "recommended_actions": [
+    {
+      "action": "bind_canonical_identity",
+      "reason": "The planned CITADEL avatar Pi5 target still has no canonical Tailscale identity or informant binding.",
+      "target_id": "node-pi5-citadel-avatar"
+    }
+  ],
+  "schema_version": "annunimas.fleet-identity-reconciliation.v1",
+  "sigil": "REPAIR",
+  "stale_hostname_clusters": [],
+  "stale_nodes": [],
+  "summary": {
+    "active_total": 5,
+    "stale_total": 0,
+    "unresolved_stale_total": 0
+  },
+  "unmatched_configured_targets": [
+    {
+      "enrollment_status": "active_staging",
+      "hostname": "raspberrypi",
+      "needs_identity_binding": true,
+      "node_class": "edge_avatar_product",
+      "role": "citadel_avatar_controller",
+      "tailscale_ip": "100.123.187.77",
+      "target_id": "node-pi5-citadel-avatar"
+    },
+    {
+      "enrollment_status": "active",
+      "hostname": "laptop",
+      "needs_identity_binding": false,
+      "node_class": "portable_compute",
+      "role": "portable_operator",
+      "tailscale_ip": "100.97.15.88",
+      "target_id": "node-laptop"
+    }
+  ],
+  "unresolved_stale_nodes": []
+}

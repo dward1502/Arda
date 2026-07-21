@@ -1,0 +1,30 @@
+# sigil: SCROLL
+
+[defaults]
+transport = "ssh"
+hermes_bin = "hermes"
+remote_cwd = "~"
+provider = "custom"
+base_url = "http://100.78.138.113:5110/v1"
+api_key = "no-key-required"
+model = "auto"
+timeout_seconds = 180
+
+[node.node-backbone-server]
+enabled = true
+host = "100.102.250.115"
+ssh_user = "annunimas-server"
+remote_cwd = "/var/home/annunimas-server/.hermes/hermes-agent"
+hermes_bin = "/var/home/annunimas-server/.hermes/hermes-agent/.venv/bin/hermes"
+purpose = "Backbone node running Hermes Agent over SSH, pinned to Manwe's canonical OpenAI-compatible endpoint. Uses the reachable Tailscale annunimas-server identity for laptop/operator Flywheel dispatch while alias-capable bridge code remains available for edge target reconciliation."
+
+[node.node-ser9-worker]
+enabled = true
+host = "100.103.125.88"
+ssh_user = "citadel"
+remote_cwd = "/home/citadel/hermes-agent"
+hermes_bin = "/home/citadel/hermes-agent/.venv/bin/python"
+bridge_mode = "python_cli"
+provider = "custom"
+api_key = "no-key-required"
+purpose = "SER9 sovereign worker running Hermes Agent over SSH, pinned to Manwe's canonical OpenAI-compatible endpoint via the direct Hermes cli.py path."

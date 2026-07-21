@@ -1,0 +1,153 @@
+{
+  "contract": "annunimas.human_inbox_phase2e_promotion_state.v1",
+  "generated_at_utc": "2026-05-15T21:51:26Z",
+  "authority": "athena_phase2e_bounded_promotion",
+  "status": "reviewed-candidate-promotions-complete",
+  "safety_boundary": {
+    "raw_inbox_files_mutated": false,
+    "raw_inbox_files_moved": false,
+    "raw_inbox_files_deleted": false,
+    "canonical_promotion_performed": true,
+    "canonical_truth_claims_performed": false,
+    "promoted_status": "reviewed_candidate"
+  },
+  "promotions": [
+    {
+      "src": "annunimas_ais_agent_suite.candidate.md",
+      "title": "Annunimas / AIS Agent Suite Strategic Brief",
+      "dest": "human/05-Projects/plans/product-candidates/annunimas-ais-agent-suite.md",
+      "type": "project_brief",
+      "category": "product-candidate",
+      "decision": "promote-to-project-candidate",
+      "authority": "reviewed_agent_synthesis",
+      "confidence": "medium",
+      "summary": "Small-business operating-system and sovereign-agent suite thread; separates product positioning, appliance/pod architecture, and implementation roadmap.",
+      "next": [
+        "Split AIS appliance/pod architecture into a build plan only if it becomes active work.",
+        "Keep market positioning separate from technical scope.",
+        "Cross-check against current Annunimas crate roster before turning this into implementation tasks."
+      ],
+      "key": "annunimas_ais_agent_suite",
+      "path": "human/05-Projects/plans/product-candidates/annunimas-ais-agent-suite.md",
+      "source": "audit/HUMAN_INBOX_PHASE2D_2026-05-15/normalized-candidate-briefs/annunimas_ais_agent_suite.candidate.md",
+      "hash": "sha256:48d13c4c1732c8d163938587afc828431b0479a4f93c78b8ae39cbd0185fcab9",
+      "source_hash": "sha256:63faf9e5bdf5f2c818a141e472de991d0f0f08dfeebbac3c3e4b7e93245064e1",
+      "brief": "audit/HUMAN_INBOX_PHASE2C_2026-05-15/candidate-consolidation-briefs/annunimas_ais_agent_suite.brief.md"
+    },
+    {
+      "src": "forge_a2a_marketplace.candidate.md",
+      "title": "FORGE / A2A Marketplace Strategic Brief",
+      "dest": "human/05-Projects/plans/product-candidates/forge-a2a-marketplace.md",
+      "type": "project_brief",
+      "category": "product-candidate",
+      "decision": "promote-to-project-candidate",
+      "authority": "reviewed_agent_synthesis",
+      "confidence": "medium",
+      "summary": "Agent-package, marketplace, trust, relay, and interoperability thread; should be decomposed into package format, registry/relay, reputation, and runtime integration.",
+      "next": [
+        "Treat .aipkg/package-format claims as design proposals until code contracts exist.",
+        "Review trust/reputation claims before marketplace implementation.",
+        "Map A2A/relay integration against current Forge/HADES/CITADEL responsibilities."
+      ],
+      "key": "forge_a2a_marketplace",
+      "path": "human/05-Projects/plans/product-candidates/forge-a2a-marketplace.md",
+      "source": "audit/HUMAN_INBOX_PHASE2D_2026-05-15/normalized-candidate-briefs/forge_a2a_marketplace.candidate.md",
+      "hash": "sha256:f60e3519a8eaaaaf715a289dbb2debaf9736c28b128dc90eb37013a7aea7ebe4",
+      "source_hash": "sha256:68f682c5caa16b4cfc49405e1abcb09b4a9112f974ee9a96e75c092e16d40658",
+      "brief": "audit/HUMAN_INBOX_PHASE2C_2026-05-15/candidate-consolidation-briefs/forge_a2a_marketplace.brief.md"
+    },
+    {
+      "src": "muse_phoenix_music.candidate.md",
+      "title": "MUSE / Phoenix Music Systems Strategic Brief",
+      "dest": "human/05-Projects/plans/product-candidates/muse-phoenix-music.md",
+      "type": "project_brief",
+      "category": "product-candidate",
+      "decision": "promote-to-project-candidate",
+      "authority": "reviewed_agent_synthesis",
+      "confidence": "medium",
+      "summary": "Live-music AI collaboration and digital music ownership/device thread; needs separation between creative tooling, player hardware, ownership model, and positioning.",
+      "next": [
+        "Decide whether MUSE and Phoenix are separate products or a shared music domain.",
+        "Keep hardware BOM/prototyping separate from software-agent roadmap.",
+        "Validate local music-library assumptions before active implementation."
+      ],
+      "key": "muse_phoenix_music",
+      "path": "human/05-Projects/plans/product-candidates/muse-phoenix-music.md",
+      "source": "audit/HUMAN_INBOX_PHASE2D_2026-05-15/normalized-candidate-briefs/muse_phoenix_music.candidate.md",
+      "hash": "sha256:32446583a4ebe0b7f329945a8ecb033f63935e372917e9a0df17427c1029b191",
+      "source_hash": "sha256:72548cc4d88ec8177711b3bc7161d323882b79ff757b23351a4f4d39695a9ba1",
+      "brief": "audit/HUMAN_INBOX_PHASE2C_2026-05-15/candidate-consolidation-briefs/muse_phoenix_music.brief.md"
+    },
+    {
+      "src": "arda_hud_ops_visualization.candidate.md",
+      "title": "ARDA HUD Agent Operations Visualization Brief",
+      "dest": "human/05-Projects/plans/product-candidates/arda-hud-ops-visualization.md",
+      "type": "project_brief",
+      "category": "product-candidate",
+      "decision": "promote-to-project-candidate",
+      "authority": "reviewed_agent_synthesis",
+      "confidence": "medium",
+      "summary": "Agent-operations visualization surface; should link UI/scene requirements to live event streams, service state contracts, and low-cardinality operational telemetry.",
+      "next": [
+        "Cross-check against apps/arda-hud implementation before creating tasks.",
+        "Bind visual metaphors to real event/state contracts, not invented fields.",
+        "Keep asset-generation specs separate from runtime telemetry contracts."
+      ],
+      "key": "arda_hud_ops_visualization",
+      "path": "human/05-Projects/plans/product-candidates/arda-hud-ops-visualization.md",
+      "source": "audit/HUMAN_INBOX_PHASE2D_2026-05-15/normalized-candidate-briefs/arda_hud_ops_visualization.candidate.md",
+      "hash": "sha256:9754b19213db3323c511c0d49e43b52e899efa6c5bff71cf017f4283985d25c7",
+      "source_hash": "sha256:0977e3b2ea8a1bbfd237216ed48bd5df0d44f0e752edf2221b8ee27702eca5c9",
+      "brief": "audit/HUMAN_INBOX_PHASE2C_2026-05-15/candidate-consolidation-briefs/arda_hud_ops_visualization.brief.md"
+    },
+    {
+      "src": "warden_hades_security.candidate.md",
+      "title": "WARDEN / HADES Security Architecture Knowledge Brief",
+      "dest": "human/03-Knowledge/Architecture/security/warden-hades-security.md",
+      "type": "knowledge_brief",
+      "category": "architecture-security",
+      "decision": "promote-to-knowledge-brief",
+      "authority": "reviewed_agent_synthesis",
+      "confidence": "medium",
+      "summary": "AI security, monitoring, lifecycle, and cleanup layer; canonicalized only as architectural concept knowledge, not as proof that every feature exists.",
+      "next": [
+        "Cross-check against crates/annunimas-warden and crates/annunimas-hades before implementation claims.",
+        "Separate runtime safety controls from market-positioning language.",
+        "Preserve adversarial/prompt-injection threads as security research inputs."
+      ],
+      "key": "warden_hades_security",
+      "path": "human/03-Knowledge/Architecture/security/warden-hades-security.md",
+      "source": "audit/HUMAN_INBOX_PHASE2D_2026-05-15/normalized-candidate-briefs/warden_hades_security.candidate.md",
+      "hash": "sha256:5f12805ef7e207c68ddc7c4a8c470fc5dc13e3bdfe46f0ea7d6d73376529a59a",
+      "source_hash": "sha256:7b147d94b375949812b7a1c4bc6eddf927fd771b45761134fba77f5d36da6f28",
+      "brief": "audit/HUMAN_INBOX_PHASE2C_2026-05-15/candidate-consolidation-briefs/warden_hades_security.brief.md"
+    },
+    {
+      "src": "digital_alexandria_mythos_research.candidate.md",
+      "title": "Digital Alexandria / MythOS Research Knowledge Brief",
+      "dest": "human/03-Knowledge/Research/digital-alexandria-mythos-research.md",
+      "type": "research_brief",
+      "category": "research-candidate",
+      "decision": "promote-to-research-brief-with-speculative-boundary",
+      "authority": "reviewed_agent_synthesis",
+      "confidence": "low",
+      "summary": "Knowledge-platform, MythOS validation, ECST, field-measurement, and speculative research material; promoted only as a bounded research map with explicit conjecture/evidence separation required.",
+      "next": [
+        "Do not treat ECST or consciousness claims as established fact.",
+        "Separate platform design, research hypothesis, measurement protocol, and creative/media strategy into different notes in the next refinement pass.",
+        "Require citations and contradiction review before using scientific claims in public-facing or canonical architecture documents."
+      ],
+      "key": "digital_alexandria_mythos_research",
+      "path": "human/03-Knowledge/Research/digital-alexandria-mythos-research.md",
+      "source": "audit/HUMAN_INBOX_PHASE2D_2026-05-15/normalized-candidate-briefs/digital_alexandria_mythos_research.candidate.md",
+      "hash": "sha256:245f30e004289e5b6ffeabc27edc0a3205212dd465f4c9e14e547c79c780674a",
+      "source_hash": "sha256:3b1e8c482bb79bb36e12eb5fc714726d597cc51c6956456b36bffeb42ff2028b",
+      "brief": "audit/HUMAN_INBOX_PHASE2C_2026-05-15/candidate-consolidation-briefs/digital_alexandria_mythos_research.brief.md"
+    }
+  ],
+  "indexes": [
+    "human/05-Projects/plans/product-candidates/README.md",
+    "human/03-Knowledge/Research/README.md",
+    "human/03-Knowledge/Architecture/security/README.md"
+  ]
+}

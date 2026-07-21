@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_aa18f454c3be46e7aead222a9cb0729b",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: HADES autonomy cleanup approval packets. Promoted HADES cleanup from candidate classification to non-mutating approval-packet generation for the two archive candidates only. Preflight now emits annunimas.hades.cleanup_approval_packets.v1 JSON/Markdown under data/hades with cleanup_authorized=false, mutation_allowed=false, operator_review_required packets, source sha256, and rollback plan. No files moved, archived, deleted, or rewritten by the packet generator.",
+  "salience": 0.7005,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-31T17:45:21.982740930Z",
+  "last_seen_at": "2026-05-31T17:45:21.982740930Z"
+}

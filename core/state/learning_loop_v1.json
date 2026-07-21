@@ -1,0 +1,44 @@
+{
+  "blockers": [],
+  "current_cycle": 1,
+  "deltas_processed": 1,
+  "gated_proposals": 1,
+  "last_update": "2026-06-12T09:20:00Z",
+  "proposals": [
+    {
+      "confidence": 0.91,
+      "description": "Refresh queue projections after append-only task closeout and preserve HADES lifecycle evidence before any mutation.",
+      "id": "proposal_queue_projection_refresh",
+      "priority": "high",
+      "proposed_at": "2026-06-12T09:20:00Z",
+      "risk_level": "low",
+      "source_delta_id": "delta_queue_projection_refresh",
+      "task_id": "tsk_learning_loop_v1_queue_projection_refresh",
+      "title": "Keep queue projections fresh"
+    },
+    {
+      "confidence": 0.74,
+      "description": "Route destructive cleanup candidates to HADES proposal-only lifecycle packets until operator approval is recorded.",
+      "id": "proposal_hades_lifecycle_gate",
+      "priority": "medium",
+      "proposed_at": "2026-06-12T09:20:00Z",
+      "risk_level": "high",
+      "source_delta_id": "delta_queue_projection_refresh",
+      "task_id": "tsk_learning_loop_v1_hades_lifecycle_gate",
+      "title": "Gate cleanup through HADES"
+    }
+  ],
+  "proposals_made": 2,
+  "recent_deltas": [
+    {
+      "confidence": 0.91,
+      "content": "Confirmed queue projections should be kept fresh after append-only task closeout, with destructive lifecycle actions routed through HADES proposal-only review.",
+      "id": "delta_queue_projection_refresh",
+      "source": "crates/annunimas-cli/tests/learning_loop_v1_e2e.rs",
+      "timestamp": "2026-06-12T09:20:00Z",
+      "uncertainty": 0.08
+    }
+  ],
+  "schema_version": "annunimas.learning_loop_v1.state.v1",
+  "status": "active"
+}

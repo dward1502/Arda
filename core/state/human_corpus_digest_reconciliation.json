@@ -1,0 +1,10 @@
+{
+  "authority": "human_corpus_extraction_registry + project_task_queue",
+  "completed": [],
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "schema_version": "annunimas.human-corpus-digest-reconciliation.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "completed_total": 0
+  }
+}

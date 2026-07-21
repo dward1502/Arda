@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_885dcdaf727f4ccd97e8c936dac147de",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Define Annunimas Flywheel work-packet contract. Define the Annunimas-native Flywheel packet contract for queue meta, plan references, dependencies, harness target, acceptance criteria, verification, and receipts. Plan: docs/plans/2026-05-27-annunimas-flywheel-automation-loop-plan.md Phase F1.",
+  "salience": 0.7625,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-27T19:09:03.665018862Z",
+  "last_seen_at": "2026-05-27T19:09:03.665018862Z"
+}

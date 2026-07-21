@@ -1,0 +1,390 @@
+{
+  "authority": "L3C-P1 live evidence inventory",
+  "blockers": [
+    {
+      "evidence": [
+        "core/state/autonomy_readiness.json"
+      ],
+      "id": "mutating_autonomy_gated",
+      "next_packet": "L3C-P2",
+      "reason": "autonomy_readiness checkpoint keeps mutation locked",
+      "severity": "high"
+    },
+    {
+      "evidence": [
+        "core/state/autonomy_runtime.json"
+      ],
+      "id": "runtime_degraded",
+      "next_packet": "resolve athena_lookup_stale outside/alongside L3 lane",
+      "reason": "runtime mode degraded: athena_lookup_stale",
+      "severity": "high"
+    },
+    {
+      "evidence": [
+        "core/state/autonomy_task_truth.json",
+        "data/prometheus/autonomy_operating_loop_preflight.json"
+      ],
+      "id": "preflight_mutation_hold",
+      "next_packet": "L3C-P2/L3C-P4",
+      "reason": "first_slice_is_non_mutating_cleanup_requires_operator_approval",
+      "severity": "high"
+    },
+    {
+      "evidence": [
+        "core/state/queue_hygiene.json",
+        "core/projects/tasks/queue.jsonl"
+      ],
+      "id": "queue_projection_drift",
+      "next_packet": "L3C-P3",
+      "reason": "9 stale raw queued rows remain in append-only ledger evidence",
+      "severity": "medium"
+    },
+    {
+      "affected_subsystems": [
+        "triad_gate",
+        "triad_dispatch_policy",
+        "philosopher_profiles",
+        "resonance_governance_chain",
+        "game_theory_selection",
+        "joulework_measurement",
+        "love_dynamics"
+      ],
+      "evidence": [
+        "core/state/governance_autonomy_readiness.json",
+        "/tmp/l3_oracle_readiness_verify.json"
+      ],
+      "id": "governance_subsystems_not_autonomy_ready",
+      "next_packet": "L3C-P2/L3C-P4",
+      "reason": "governance readiness default_autonomy_ready=false; several subsystems lack runtime receipts, enforcement, independent review, or scoped policy",
+      "severity": "high"
+    }
+  ],
+  "capabilities": [
+    {
+      "evidence": [
+        "audit/AUTONOMY_READINESS_2026-05-13/phase5-autonomy-benchmark-report.json",
+        "audit/AUTONOMY_READINESS_2026-05-13/00-INDEX.md",
+        "audit/AUTONOMY_READINESS_2026-05-13/00-INDEX.md",
+        "audit/AUTONOMY_READINESS_2026-05-13/00-INDEX.md"
+      ],
+      "id": "read_only_autonomy",
+      "status": "closed_verified"
+    },
+    {
+      "evidence": [
+        "audit/AUTONOMY_READINESS_2026-05-13/00-INDEX.md"
+      ],
+      "id": "supervised_timer",
+      "status": "enabled_active"
+    },
+    {
+      "evidence": [
+        "core/state/autonomy_task_truth.json",
+        "core/state/flywheel_packet_runtime.json"
+      ],
+      "id": "safe_local_packet_selection",
+      "status": "ready"
+    },
+    {
+      "evidence": [
+        "core/state/queue_summary.json",
+        "core/state/queue_active.json",
+        "core/state/queue_hygiene.json"
+      ],
+      "id": "queue_active_projection",
+      "status": "present"
+    },
+    {
+      "evidence": [
+        "core/projects/tasks/queue.jsonl",
+        "data/charon/route_receipts.jsonl"
+      ],
+      "id": "charon_low_power_routing_foundation",
+      "status": "recent_receipts_completed"
+    }
+  ],
+  "degraded_subsystems": [
+    "athena_lookup_stale"
+  ],
+  "evidence_paths": [
+    "core/state/autonomy_readiness.json",
+    "core/state/autonomy_task_truth.json",
+    "core/state/governance_autonomy_readiness.json",
+    "core/state/autonomy_runtime.json",
+    "core/state/queue_summary.json",
+    "core/state/flywheel_packet_runtime.json",
+    "core/state/queue_hygiene.json",
+    "/tmp/l3_autonomy_task_truth_verify.json",
+    "/tmp/l3_oracle_readiness_verify.json",
+    "scripts/check_task_queue_append_only.sh"
+  ],
+  "generated_at_utc": "2026-06-08T10:21:47.686467Z",
+  "governance_readiness": {
+    "default_autonomy_ready": false,
+    "subsystems": [
+      {
+        "autonomy_ready": false,
+        "claimed_level": "autonomy_ready_for_scope",
+        "current_level": "source_metadata_disclosed",
+        "missing_evidence": [
+          "runtime_receipts",
+          "policy_enforcement",
+          "independent_review_receipts",
+          "scoped_autonomy_policy"
+        ],
+        "receipts": [
+          "crates/annunimas-governance/src/triad.rs",
+          "docs/contracts/GOVERNANCE_CURRENT_STATE.md"
+        ],
+        "subsystem": "triad_gate"
+      },
+      {
+        "autonomy_ready": false,
+        "claimed_level": "policy_enforced",
+        "current_level": "policy_enforced",
+        "missing_evidence": [],
+        "receipts": [
+          "crates/annunimas-core/src/governance_gates.rs",
+          "crates/annunimas-core/src/loop_engine.rs"
+        ],
+        "subsystem": "triad_dispatch_policy"
+      },
+      {
+        "autonomy_ready": false,
+        "claimed_level": "autonomy_ready_for_scope",
+        "current_level": "source_metadata_disclosed",
+        "missing_evidence": [
+          "runtime_receipts",
+          "policy_enforcement",
+          "independent_review_receipts",
+          "scoped_autonomy_policy"
+        ],
+        "receipts": [
+          "config/governance/philosophers.toml",
+          "docs/contracts/governance-philosopher-profiles.md"
+        ],
+        "subsystem": "philosopher_profiles"
+      },
+      {
+        "autonomy_ready": false,
+        "claimed_level": "runtime_receipted",
+        "current_level": "source_metadata_disclosed",
+        "missing_evidence": [
+          "runtime_receipts"
+        ],
+        "receipts": [
+          "crates/annunimas-governance/src/resonance.rs",
+          "docs/contracts/GOVERNANCE_CURRENT_STATE.md"
+        ],
+        "subsystem": "resonance_governance_chain"
+      },
+      {
+        "autonomy_ready": false,
+        "claimed_level": "autonomy_ready_for_scope",
+        "current_level": "source_metadata_disclosed",
+        "missing_evidence": [
+          "runtime_receipts",
+          "policy_enforcement",
+          "independent_review_receipts",
+          "scoped_autonomy_policy"
+        ],
+        "receipts": [
+          "crates/annunimas-governance/src/game_theory.rs",
+          "docs/contracts/GOVERNANCE_CURRENT_STATE.md"
+        ],
+        "subsystem": "game_theory_selection"
+      },
+      {
+        "autonomy_ready": false,
+        "claimed_level": "runtime_receipted",
+        "current_level": "runtime_receipted",
+        "missing_evidence": [],
+        "receipts": [
+          "docs/contracts/joulework-measurement-contract.md",
+          "crates/annunimas-core/src/task.rs"
+        ],
+        "subsystem": "joulework_measurement"
+      },
+      {
+        "autonomy_ready": false,
+        "claimed_level": "runtime_receipted",
+        "current_level": "source_metadata_disclosed",
+        "missing_evidence": [
+          "runtime_receipts"
+        ],
+        "receipts": [
+          "crates/annunimas-governance/src/love_dynamics.rs",
+          "docs/contracts/GOVERNANCE_CURRENT_STATE.md"
+        ],
+        "subsystem": "love_dynamics"
+      }
+    ]
+  },
+  "next_packets": [
+    {
+      "packet_id": "L3C-P2",
+      "unblocks": "scoped bounded mutation class policy"
+    },
+    {
+      "packet_id": "L3C-P3",
+      "unblocks": "active queue executor and projection repair"
+    },
+    {
+      "packet_id": "L3C-P4",
+      "unblocks": "gate enforcement in mutating dispatch"
+    },
+    {
+      "packet_id": "L3C-P5",
+      "unblocks": "tool-heavy routing reliability"
+    }
+  ],
+  "overall": {
+    "l3_slice_ready": false,
+    "mutation_policy": "read_only_reconciliation",
+    "ready_for_mutation": false,
+    "recommendation": "safe_local_packet_selection_has_open_backlog",
+    "runtime_mode": "degraded",
+    "safe_local_ready": true
+  },
+  "queue_state": {
+    "counts_by_status": {
+      "completed": 12,
+      "queued": 22
+    },
+    "flywheel_summary": {
+      "blocked_total": 7,
+      "packet_total": 8,
+      "readiness_counts": {
+        "dependency_blocked": 7,
+        "ready": 1
+      },
+      "ready_total": 1
+    },
+    "l3_open_packets": [
+      {
+        "completed_at_utc": null,
+        "id": "tsk_plan_l3c_p1_ec8cf4e6d2",
+        "origin": "flywheel_plan_packet",
+        "owner": "prometheus,warden",
+        "priority": "high",
+        "queued_at_utc": "2026-06-08T09:13:25Z",
+        "result": null,
+        "scope": "l3_readiness",
+        "status": "queued",
+        "title": "Produce L3 capability and blocker inventory"
+      },
+      {
+        "completed_at_utc": null,
+        "id": "tsk_plan_l3c_p2_a8c2112c32",
+        "origin": "flywheel_plan_packet",
+        "owner": "governance,warden,prometheus",
+        "priority": "high",
+        "queued_at_utc": "2026-06-08T09:13:25Z",
+        "result": null,
+        "scope": "l3_readiness",
+        "status": "queued",
+        "title": "Define first bounded mutation class"
+      },
+      {
+        "completed_at_utc": null,
+        "id": "tsk_plan_l3c_p3_1e2e782c17",
+        "origin": "flywheel_plan_packet",
+        "owner": "prometheus,hades,apollo",
+        "priority": "high",
+        "queued_at_utc": "2026-06-08T09:13:25Z",
+        "result": null,
+        "scope": "l3_readiness",
+        "status": "queued",
+        "title": "Implement active queue executor with HADES projection repair"
+      },
+      {
+        "completed_at_utc": null,
+        "id": "tsk_plan_l3c_p4_ebcc514f4e",
+        "origin": "flywheel_plan_packet",
+        "owner": "governance,warden,oracle",
+        "priority": "high",
+        "queued_at_utc": "2026-06-08T09:13:25Z",
+        "result": null,
+        "scope": "l3_readiness",
+        "status": "queued",
+        "title": "Wire action-class enforcement into mutating dispatch"
+      },
+      {
+        "completed_at_utc": null,
+        "id": "tsk_plan_l3c_p5_2f6c873175",
+        "origin": "flywheel_plan_packet",
+        "owner": "charon,hermes,plutus",
+        "priority": "high",
+        "queued_at_utc": "2026-06-08T09:13:25Z",
+        "result": null,
+        "scope": "l3_readiness",
+        "status": "queued",
+        "title": "Harden Hermes/Charon L3 routing and compression behavior"
+      },
+      {
+        "completed_at_utc": null,
+        "id": "tsk_plan_l3c_p6_ded5b63c05",
+        "origin": "flywheel_plan_packet",
+        "owner": "apollo,prometheus,chronos",
+        "priority": "high",
+        "queued_at_utc": "2026-06-08T09:13:25Z",
+        "result": null,
+        "scope": "l3_readiness",
+        "status": "queued",
+        "title": "Build L3 end-to-end autonomous mutation harness"
+      },
+      {
+        "completed_at_utc": null,
+        "id": "tsk_plan_l3c_p7_eb7ad461ff",
+        "origin": "flywheel_plan_packet",
+        "owner": "arda,hermes,hades",
+        "priority": "normal",
+        "queued_at_utc": "2026-06-08T09:13:25Z",
+        "result": null,
+        "scope": "l3_readiness",
+        "status": "queued",
+        "title": "Project L3 readiness into ARDA and Hermes"
+      },
+      {
+        "completed_at_utc": null,
+        "id": "tsk_plan_l3c_p8_bebf2d0faf",
+        "origin": "flywheel_plan_packet",
+        "owner": "onboarding,hades,prometheus",
+        "priority": "normal",
+        "queued_at_utc": "2026-06-08T09:13:25Z",
+        "result": null,
+        "scope": "l3_readiness",
+        "status": "queued",
+        "title": "Align onboarding and First Light with L3 readiness"
+      }
+    ],
+    "next_ready_packet": {
+      "dependencies": [],
+      "harness": "annunimas-cli",
+      "human_approved": false,
+      "missing_fields": [],
+      "owner": "prometheus,warden",
+      "packet_id": "L3C-P1",
+      "plan": "docs/plans/2026-06-08-l3-readiness-closure-plan.md",
+      "readiness": "ready",
+      "receipt_surface": "core/state/l3_readiness_inventory.json",
+      "risk": "safe-local",
+      "scope": "l3_readiness",
+      "status": "queued",
+      "target_node": null,
+      "task_id": "tsk_plan_l3c_p1_ec8cf4e6d2",
+      "title": "Produce L3 capability and blocker inventory"
+    },
+    "open_total": 22,
+    "queue_hygiene_projection": {
+      "generated_at_utc": "2026-06-08T09:18:45Z",
+      "latest_open_total": 22,
+      "latest_task_ids_total": 34,
+      "raw_ledger_rows_total": 57,
+      "stale_raw_queued_rows_total": 9
+    }
+  },
+  "schema_version": "annunimas.l3_readiness_inventory.v1",
+  "source_plan": "docs/plans/2026-06-08-l3-readiness-closure-plan.md",
+  "task_id": "tsk_plan_l3c_p1_ec8cf4e6d2"
+}

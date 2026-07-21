@@ -1,0 +1,33 @@
+{
+  "schema_version": "annunimas.counsel.runtime.v1",
+  "generated_at_utc": "2026-04-22T00:00:00Z",
+  "crate": "counsel",
+  "agent_id": "counsel",
+  "kind": "sub_agent",
+  "reports_to": "arandur",
+  "realm": "command",
+  "clearance": "guardian",
+  "status": "active",
+  "surfaces": {
+    "thoughts": "human/CEO/counsel/thoughts.md",
+    "advisories": "human/CEO/counsel/advisories.md",
+    "readme": "human/CEO/counsel/README.md"
+  },
+  "paths": {
+    "roster_entry": "core/realm/agents.toml#counsel",
+    "orchestrator_config": "core/realm/annunimas.toml#orchestrator"
+  },
+  "duties": [
+    "pressure_test_high_stakes_decisions",
+    "flag_stale_assumptions",
+    "surface_second_order_effects",
+    "request_oracle_re_review_when_warranted",
+    "maintain_advisory_ledger"
+  ],
+  "advisory_triggers": {
+    "joule_cost_above": 10.0,
+    "confidence_below": 0.70,
+    "irreversible_flag": true,
+    "client_impact": true
+  }
+}

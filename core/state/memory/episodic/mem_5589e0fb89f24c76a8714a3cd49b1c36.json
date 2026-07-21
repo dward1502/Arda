@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_5589e0fb89f24c76a8714a3cd49b1c36",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Phase 5B ORACLE quorum evidence propagation",
+  "salience": 0.7005,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-14T05:07:48.767461957Z",
+  "last_seen_at": "2026-05-14T05:07:48.767461957Z"
+}

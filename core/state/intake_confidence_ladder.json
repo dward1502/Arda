@@ -1,0 +1,82 @@
+{
+  "authority": "external_absorption_brief + async_intake",
+  "generated_at_utc": "2026-04-28T09:49:24Z",
+  "known_recent_sources": {
+    "src_16c075a2": {
+      "label": "Terminal-Bench",
+      "reason": "Already policy-ready and the strongest recent scholarly source for execution harness, routing, memory, and context controls.",
+      "status": "policy_ready_anchor"
+    },
+    "src_53a02919": {
+      "label": null,
+      "reason": "Useful for model-selection and long-context efficiency framing, not direct system architecture.",
+      "status": "routing_signal"
+    },
+    "src_8422185f": {
+      "label": "APS Research Link",
+      "reason": "Current ingest hit a Cloudflare verification page rather than paper body, so it is not trustworthy implementation evidence yet.",
+      "status": "blocked_fetch_artifact"
+    },
+    "src_8b5ab500": {
+      "label": "Cloudflare Browser Rendering /crawl",
+      "reason": "Relevant to ATHENA async crawl posture, compliance, and job-based collection.",
+      "status": "crawl_policy_signal"
+    },
+    "src_c2fef5eb": {
+      "label": "Mission Control",
+      "reason": "Useful as operator-surface and workflow-packaging signal, but not a sovereign architecture template.",
+      "status": "product_legibility_signal"
+    },
+    "src_ec2b8bd4": {
+      "label": "Nous Hermes Agent",
+      "reason": "Strong overlap in memory, skills, delegation, and messaging, but not yet policy-ready implementation authority.",
+      "status": "comparison_signal"
+    }
+  },
+  "ladder": [
+    {
+      "level": "policy_ready_anchor",
+      "meaning": "validated source with direct implementation authority",
+      "route_to": "promote_and_execute"
+    },
+    {
+      "level": "comparison_signal",
+      "meaning": "strong directional source that should inform design but not directly control it",
+      "route_to": "compare_and_extract"
+    },
+    {
+      "level": "product_legibility_signal",
+      "meaning": "source is primarily useful for packaging, UX legibility, or operator clarity",
+      "route_to": "productize_operator_surface"
+    },
+    {
+      "level": "crawl_policy_signal",
+      "meaning": "source primarily affects crawl/runtime collection policy",
+      "route_to": "athena_ingestion_policy"
+    },
+    {
+      "level": "routing_signal",
+      "meaning": "source primarily affects routing/model selection logic",
+      "route_to": "charon_model_strategy"
+    },
+    {
+      "level": "blocked_fetch_artifact",
+      "meaning": "source body was not actually captured; do not treat it as evidence yet",
+      "route_to": "fetch_retry_or_hold"
+    },
+    {
+      "level": "unknown_new_source",
+      "meaning": "new intake without prior comparison posture; digest before promotion",
+      "route_to": "athena_digest_first"
+    }
+  ],
+  "mission": {
+    "goal": "Classify newly ingested external sources into a confidence/action ladder so ATHENA and operators know how aggressively to route follow-on work."
+  },
+  "schema_version": "annunimas.intake-confidence-ladder.v1",
+  "sigil": "REPAIR",
+  "summary": {
+    "known_recent_sources_total": 6,
+    "ladder_levels_total": 7
+  }
+}

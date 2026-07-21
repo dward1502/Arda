@@ -1,0 +1,32 @@
+{
+  "generated_at_utc": "2026-07-20T00:00:00Z",
+  "schema_version": "arda.fleet-bootstrap.v2",
+  "summary": {
+    "providers_total": 1,
+    "providers_healthy": 1,
+    "providers_degraded": 0,
+    "providers_offline": 0
+  },
+  "providers": [
+    {
+      "id": "edge_core",
+      "charon_provider_id": "edge_core",
+      "target_id": null,
+      "display_name": "Core Hub",
+      "base_url": "http://100.78.138.113:9337/v1",
+      "models_url": null,
+      "health_url": null,
+      "status": "online",
+      "models": [
+        "LFM2.5-8B-A1B-Q4_K_M"
+      ],
+      "has_live_endpoint": true,
+      "provider_hint": "openai_compat",
+      "healthy": true,
+      "intentional_offline": false,
+      "last_error": null,
+      "ts_utc": "2026-07-20T00:00:00Z"
+    }
+  ],
+  "receipts_path": "/var/home/mythos/Eregion/Arda/data/prometheus/runtime_admission_shed_receipts.jsonl"
+}

@@ -1,0 +1,274 @@
+{
+  "active_frontier": {
+    "campaign": "ATHENA/HADES integration continuation",
+    "comfortable": false,
+    "focus": "restart-safe continuity plus edge identity enrollment and bounded package/runtime posture"
+  },
+  "authority": "restart_resilience_capsule",
+  "current_campaign": "ATHENA/HADES integration continuation",
+  "generated_at_utc": "2026-06-30T19:42:41Z",
+  "last_stable_snapshot": {
+    "athena_runtime_generated_at_utc": "2026-06-30T19:42:18.294766102+00:00",
+    "hades_lifecycle_generated_at_utc": "2026-06-30T19:42:40.538560058+00:00",
+    "metrics_history_path": "core/metrics/history/20260422T182427Z",
+    "metrics_snapshot_id": "20260422T182427Z"
+  },
+  "latest_evidence_surfaces": [
+    {
+      "generated_at_utc": "2026-04-22T22:04:22Z",
+      "path": "core/metrics/manifest.json",
+      "snapshot_id": "20260422T182427Z"
+    },
+    {
+      "generated_at_utc": "2026-06-30T19:42:18.294766102+00:00",
+      "path": "core/state/athena_runtime.json"
+    },
+    {
+      "generated_at_utc": "2026-06-30T19:42:40.538560058+00:00",
+      "path": "core/state/hades_lifecycle.json"
+    },
+    {
+      "eligible_total": 29,
+      "generated_at_utc": "2026-06-30T19:41:54Z",
+      "path": "core/state/project_task_executor.json",
+      "rules_ran_total": 2
+    },
+    {
+      "continuity_pressure": "low",
+      "generated_at_utc": "2026-05-30T08:26:38Z",
+      "path": "core/state/memory_governor.json",
+      "recommended_actions_total": 0
+    },
+    {
+      "execution_ready_total": 11,
+      "generated_at_utc": "2026-05-28T19:48:36Z",
+      "path": "core/state/athena_digest_pipeline.json",
+      "pipeline_entries_total": 11
+    },
+    {
+      "generated_at_utc": "2026-04-28T09:49:24Z",
+      "path": "core/state/operator_legibility_contract.json",
+      "productization_lanes_total": 3
+    },
+    {
+      "generated_at_utc": "2026-04-28T09:49:24Z",
+      "path": "core/state/fleet_capability_ranking.json",
+      "primary_backbone_node": null,
+      "primary_operator_node": null
+    },
+    {
+      "generated_at_utc": "2026-04-28T09:49:25Z",
+      "integration_lanes_total": 4,
+      "path": "core/state/athena_integration_plan.json"
+    },
+    {
+      "candidates_total": 453,
+      "generated_at_utc": "2026-06-06T08:50:54Z",
+      "path": "core/state/source_absorption_pipeline.json",
+      "promote_now_total": 8
+    },
+    {
+      "generated_at_utc": "2026-05-30T17:15:05Z",
+      "path": "core/state/runtime_budget_policy.json",
+      "provider_budget_pressure_total": 0
+    },
+    {
+      "generated_at_utc": "2026-05-30T17:15:03Z",
+      "latest_shed_at_utc": "2026-05-30T01:09:22.881315338+00:00",
+      "path": "core/state/runtime_admission_receipts.json",
+      "shed_events_total": 584061
+    },
+    {
+      "generated_at_utc": "2026-05-30T17:15:05Z",
+      "path": "core/state/runtime_admission_recovery.json",
+      "recovery_actions_total": 0
+    },
+    {
+      "executed_total": 1,
+      "failed_total": 5,
+      "generated_at_utc": "2026-03-22T11:33:13.979206873+00:00",
+      "path": "core/state/runtime_admission_recovery_executor.json"
+    },
+    {
+      "current_origin": "edge",
+      "desired_origin": "edge",
+      "generated_at_utc": "2026-03-22T11:25:16.368060677+00:00",
+      "path": "core/state/runtime_recovery_route_governor.json",
+      "status": "unchanged"
+    },
+    {
+      "execution_eligible_total": 1,
+      "generated_at_utc": "2026-04-22T21:57:54Z",
+      "path": "core/state/project_intake_governance.json",
+      "tracked_dossiers_total": 5
+    },
+    {
+      "generated_at_utc": "2026-04-28T09:49:28Z",
+      "local_joule_pressure": false,
+      "path": "core/state/soterion_joulework_enforcement.json",
+      "soterion_trace_missing_total": 0
+    },
+    {
+      "generated_at_utc": "2026-06-30T19:42:18.677976785+00:00",
+      "human_needed_total": 7,
+      "path": "core/state/operator_actions.json"
+    },
+    {
+      "generated_at_utc": "2026-04-22T21:25:03Z",
+      "path": "core/state/edge_model_rollout.json",
+      "targets_complete_total": 0
+    },
+    {
+      "generated_at_utc": "2026-06-30T19:40:33Z",
+      "path": "core/state/edge_endpoint_verification.json",
+      "targets_with_live_endpoints_total": 3
+    },
+    {
+      "generated_at_utc": "2026-04-22T21:57:06Z",
+      "path": "core/state/fleet_power_guard.json",
+      "targets_hardened_total": 0
+    }
+  ],
+  "machine_truth": {
+    "active_boundary_summary": {
+      "in_progress_total": 0,
+      "joulework_budget_required_total": 14,
+      "local_joulework_usage_percent": 0.0,
+      "queued_total": 59,
+      "recent_completed_total": 8,
+      "sampled_tasks_total": 14,
+      "soterion_trace_missing_total": 0,
+      "soterion_trace_present_total": 14
+    },
+    "blocked_tasks_top": [],
+    "flywheel_packet_runtime": {
+      "generated_at_utc": "2026-06-30T19:37:38Z",
+      "next_ready_packet": null,
+      "path": "core/state/flywheel_packet_runtime.json",
+      "schema_version": "annunimas.flywheel.packet_runtime.v1"
+    },
+    "flywheel_packet_summary": {
+      "blocked_total": 0,
+      "packet_total": 7,
+      "readiness_counts": {
+        "completed": 7
+      },
+      "ready_total": 0
+    },
+    "operator_action_summary": {
+      "auth_required_total": 0,
+      "configuration_required_total": 0,
+      "external_blockers_total": 0,
+      "fleet_recovery_failed_total": 6,
+      "human_needed_total": 7,
+      "identity_binding_total": 1,
+      "identity_cleanup_total": 0
+    },
+    "project_intake_governance_summary": {
+      "build_now_total": 1,
+      "classification_labels_total": 4,
+      "dossier_standard_compliant_total": 5,
+      "execution_eligible_total": 1,
+      "intake_states_total": 5,
+      "lifecycle_stages_total": 6,
+      "portfolio_entries_total": 49,
+      "required_dossier_fields_total": 10,
+      "tracked_dossiers_total": 5
+    },
+    "queued_tasks_top": [
+      {
+        "id": "tsk_20260630_lsrh_p5_project_stage_labels_into_operator_surfa",
+        "owner": "arda",
+        "priority": "normal",
+        "queued_at_utc": "2026-06-30T06:11:14Z",
+        "title": "LSRH-P5: Project stage labels into operator surfaces"
+      },
+      {
+        "id": "tsk_20260630_lsrh_p4_apply_lane_contracts_lane_by_lane",
+        "owner": "hades",
+        "priority": "high",
+        "queued_at_utc": "2026-06-30T06:11:11Z",
+        "title": "LSRH-P4: Apply lane contracts lane-by-lane"
+      },
+      {
+        "id": "tsk_20260630_lsrh_p3_add_lightweight_stage_transition_validat",
+        "owner": "warden",
+        "priority": "high",
+        "queued_at_utc": "2026-06-30T06:11:09Z",
+        "title": "LSRH-P3: Add lightweight stage-transition validators"
+      },
+      {
+        "id": "tsk_20260630_lsrh_p2_normalize_record_classes_in_queue_federa",
+        "owner": "prometheus",
+        "priority": "high",
+        "queued_at_utc": "2026-06-30T06:11:06Z",
+        "title": "LSRH-P2: Normalize record classes in queue/federation projections"
+      },
+      {
+        "id": "tsk_20260630_lsrh_p1_inventory_every_lane_and_emit_a_central_",
+        "owner": "prometheus",
+        "priority": "high",
+        "queued_at_utc": "2026-06-30T06:11:04Z",
+        "title": "LSRH-P1: Inventory every lane and emit a central lane-stage contract"
+      },
+      {
+        "id": "tsk_20260630_l3c_p8_align_onboarding_and_first_light_with_l3_",
+        "owner": "onboarding",
+        "priority": "normal",
+        "queued_at_utc": "2026-06-30T06:09:53Z",
+        "title": "L3C-P8: Align onboarding and First Light with L3 readiness"
+      },
+      {
+        "id": "tsk_20260630_l3c_p7_project_l3_readiness_into_arda_and_hermes",
+        "owner": "arda",
+        "priority": "normal",
+        "queued_at_utc": "2026-06-30T06:09:50Z",
+        "title": "L3C-P7: Project L3 readiness into ARDA and Hermes"
+      },
+      {
+        "id": "tsk_20260630_l3c_p6_build_l3_end_to_end_autonomous_mutation_h",
+        "owner": "apollo",
+        "priority": "high",
+        "queued_at_utc": "2026-06-30T06:09:48Z",
+        "title": "L3C-P6: Build L3 end-to-end autonomous mutation harness"
+      }
+    ],
+    "rank2_capability_summary": {
+      "athena_posture": "activate_bounded_runtime",
+      "hermes_discord_delivery_posture": "online_no_recent_delivery_receipt",
+      "hermes_posture": "keep_bounded_optional_bridge_and_defer_mcp",
+      "tool_fit_tools_total": 5
+    }
+  },
+  "next_actions": [
+    {
+      "owner": "arda",
+      "task": "LSRH-P5: Project stage labels into operator surfaces",
+      "task_id": "tsk_20260630_lsrh_p5_project_stage_labels_into_operator_surfa"
+    },
+    {
+      "owner": "hades",
+      "task": "LSRH-P4: Apply lane contracts lane-by-lane",
+      "task_id": "tsk_20260630_lsrh_p4_apply_lane_contracts_lane_by_lane"
+    },
+    {
+      "owner": "warden",
+      "task": "LSRH-P3: Add lightweight stage-transition validators",
+      "task_id": "tsk_20260630_lsrh_p3_add_lightweight_stage_transition_validat"
+    }
+  ],
+  "restart_confidence": {
+    "basis": [
+      "root protocol and sovereign realm surfaces are stable",
+      "task ledger contains queued and completed frontier work",
+      "core/state contains refreshed framework and runtime exports",
+      "metrics manifest anchors latest stable snapshot",
+      "task/agent boundary capsules prevent cross-task context bleed",
+      "operator actions and edge identity reconciliation expose human-needed frontier work explicitly"
+    ],
+    "can_resume_without_human_restatement": true,
+    "score": 0.93
+  },
+  "schema_version": "annunimas.autonomy-resume.v1",
+  "unresolved_blockers": []
+}

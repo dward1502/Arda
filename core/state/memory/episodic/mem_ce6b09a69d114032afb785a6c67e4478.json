@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_ce6b09a69d114032afb785a6c67e4478",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: S3/G1: extract ARDA HUD as a private consumer of the core API. completed external ARDA HUD private-consumer closeout: verified /var/home/mythos/Eregion/arda-hud package/package-lock/tauri config/Tauri CLI/Three.js, confirmed apps/arda-hud absent, patched active Annunimas bridge references to ARDA_HUD_APP_DIR, passed portability unittest, RELIC validate, First Light build, shell syntax, git diff --check, and append-only guard",
+  "salience": 0.9666666666666667,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-22T00:02:31.949516673Z",
+  "last_seen_at": "2026-06-22T00:02:31.949516673Z"
+}

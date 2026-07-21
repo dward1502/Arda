@@ -1,0 +1,108 @@
+{
+  "authority": "athena_source_src_56a1f7ca",
+  "boardroom_contract": {
+    "bridge_contracts": {
+      "discord": {
+        "enabled": true,
+        "mode": "hermes_moderated",
+        "requires_policy_guard": true,
+        "source_room_id": "client-bridge"
+      },
+      "webhook": {
+        "enabled": true,
+        "mode": "receipt_fanout",
+        "requires_policy_guard": true,
+        "source_room_id": "ops-boardroom"
+      }
+    },
+    "room_ids": [
+      "ceo-boardroom",
+      "ops-boardroom",
+      "client-bridge",
+      "research-forge",
+      "governance-audit"
+    ],
+    "root_space": {
+      "alias": "#annunimas:matrix.local",
+      "name": "Annunimas Boardrooms",
+      "operator_entrypoint": "#annunimas-ops:matrix.local",
+      "purpose": "sovereign_operator_and_agent_coordination"
+    },
+    "routing_contract": {
+      "audit_room_id": "governance-audit",
+      "client_adapter_room_id": "client-bridge",
+      "human_decision_room_id": "ceo-boardroom",
+      "knowledge_room_id": "research-forge",
+      "primary_boardroom_room_id": "ops-boardroom"
+    },
+    "source": "core/state/matrix_boardrooms.json"
+  },
+  "doctrine": {
+    "adapters_must_remain_agnostic": true,
+    "blockchain_in_hot_path": false,
+    "discord_not_primary_surface": true,
+    "discord_optional_bridge": true,
+    "element_preferred_client_surface": true,
+    "matrix_preferred_federation_surface": true,
+    "selinux_expected_on_bluefin": true,
+    "tailscale_current_internal_backbone": true,
+    "whatsapp_in_core": false
+  },
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "governance_validators": {
+    "bacon_lite_required": true,
+    "joulework_required": true,
+    "love_equation_required": true,
+    "triad_required": true
+  },
+  "layers": [
+    {
+      "id": "local_sovereign",
+      "role": "core authority and same-host control plane",
+      "transport": [
+        "unix_socket",
+        "loopback_http"
+      ]
+    },
+    {
+      "id": "trusted_internal",
+      "role": "device-to-device sovereign operations",
+      "transport": [
+        "tailscale",
+        "internal_http",
+        "a2a",
+        "mcp"
+      ]
+    },
+    {
+      "id": "federated_rooms",
+      "role": "human and agent boardrooms, rooms, and bridges",
+      "transport": [
+        "matrix"
+      ]
+    },
+    {
+      "id": "economic_discovery",
+      "role": "optional discovery, settlement, and marketplace coordination",
+      "transport": [
+        "fetchai_style_discovery"
+      ]
+    },
+    {
+      "id": "future_bitmesh",
+      "role": "future anonymous or off-grid mesh layer",
+      "transport": [
+        "libp2p",
+        "offline_relay",
+        "anonymity_preserving_routing"
+      ]
+    }
+  ],
+  "nanoclaw_alignment": {
+    "required_mode": "local_or_tailscale_or_matrix",
+    "whatsapp_required": false
+  },
+  "schema_version": "annunimas.federated-comms.v1",
+  "sigil": "REPAIR",
+  "source_id": "src_56a1f7ca"
+}

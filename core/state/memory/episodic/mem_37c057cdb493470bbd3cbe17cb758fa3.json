@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_37c057cdb493470bbd3cbe17cb758fa3",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Plan task: Hermes Dashboard Arda Hud Plan. Created from active plan registry; see docs/plans/2026-05-16-hermes-dashboard-arda-hud-plan.md for task contract and verification gates.",
+  "salience": 0.8225000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-23T06:47:09.769129146Z",
+  "last_seen_at": "2026-05-23T06:47:09.769129146Z"
+}

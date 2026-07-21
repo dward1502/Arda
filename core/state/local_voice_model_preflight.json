@@ -1,0 +1,140 @@
+{
+  "config": "config/local_voice_model_lanes.toml",
+  "core_models": [],
+  "endpoints": {
+    "charon_health": {
+      "error": "URLError: <urlopen error [Errno 1] Operation not permitted>",
+      "ok": false
+    },
+    "charon_models": {
+      "error": "URLError: <urlopen error [Errno 1] Operation not permitted>",
+      "ok": false
+    },
+    "core_text_models": {
+      "error": "URLError: <urlopen error [Errno 1] Operation not permitted>",
+      "ok": false
+    }
+  },
+  "gates": {
+    "advertised_core_model_ids_accepted": false,
+    "core_endpoint_ok": false,
+    "core_model_count": 0,
+    "core_model_count_target_met": false,
+    "core_text_service_observed": false,
+    "core_text_topology_target_met": false,
+    "extra_core_llama_service_observed": false,
+    "lfm25_staged": true,
+    "minicpm_staged": true,
+    "parakeet_cli_present": true,
+    "parakeet_repo_present": true,
+    "parakeet_sample_transcript_present": true,
+    "parakeet_stt_model_staged": true,
+    "safe_to_install_stt_without_text_model_switch": false,
+    "safe_to_promote_lfm_now": false,
+    "stt_ingress_staged": true,
+    "voice_council_conversation_bridge_present": true,
+    "voice_council_projection_present": true
+  },
+  "generated_at_utc": "2026-06-05T22:31:40Z",
+  "parakeet": {
+    "binary": null,
+    "binary_paths": [
+      {
+        "bytes": 436504,
+        "exists": true,
+        "mtime_ns": 1780301770968846835,
+        "path": "/var/home/mythos/parakeet.cpp/build/examples/cli/parakeet-cli"
+      },
+      {
+        "exists": false,
+        "path": "vendor/parakeet.cpp/build/examples/cli/parakeet-cli"
+      }
+    ],
+    "model_hub": "https://huggingface.co/mudler/parakeet-cpp-gguf",
+    "receipts": {
+      "council_conversation_bridge": {
+        "bytes": 944,
+        "exists": true,
+        "mtime_ns": 1780371823753435093,
+        "path": "data/council/voice_proposal_council_bridge_receipts.jsonl"
+      },
+      "council_projection": {
+        "bytes": 3918,
+        "exists": true,
+        "mtime_ns": 1780302539527870283,
+        "path": "data/council/voice_proposals.jsonl"
+      },
+      "sample_transcript": {
+        "bytes": 1344,
+        "exists": true,
+        "mtime_ns": 1780302193696050109,
+        "path": "data/charon/stt_samples/local_council_sample_16k.parakeet.json"
+      }
+    },
+    "repo_paths": [
+      {
+        "bytes": 4096,
+        "exists": true,
+        "mtime_ns": 1780301747897596962,
+        "path": "/var/home/mythos/parakeet.cpp"
+      },
+      {
+        "exists": false,
+        "path": "vendor/parakeet.cpp"
+      }
+    ],
+    "upstream": "https://github.com/mudler/parakeet.cpp"
+  },
+  "policy_interpretation": {
+    "accepted_advertised_core_model_ids": [
+      "LFM2.5-8B-A1B-Q4_K_M",
+      "Qwen3.5-9B-Q4_K_M",
+      "Qwen_Qwen3.5-4B-Q6_K"
+    ],
+    "active_core_text_service": "mesh-llm.service",
+    "advertised_model_acceptance": "Operator approved promoting LiquidAI LFM2.5-8B-A1B-Q4_K_M to the single active core mesh lane on 2026-06-03. Qwen3.5-9B-Q4_K_M remains an accepted rollback artifact.",
+    "core_text_models_running_target": 1,
+    "next_safe_move": "reduce or explicitly accept the active core endpoint's two advertised model IDs before increasing council traffic; STT/parakeet can remain separate and proposal-only without switching text routing",
+    "stt_runtime_is_separate": true
+  },
+  "pressure": {
+    "gpu_csv": "NVIDIA-SMI has failed because it couldn't communicate with the NVIDIA driver. Make sure that the latest NVIDIA driver is installed and running.",
+    "memory": {
+      "available": "20Gi",
+      "buff/cache": "20Gi",
+      "free": "760Mi",
+      "shared": "506Mi",
+      "total": "31Gi",
+      "used": "10Gi"
+    }
+  },
+  "running_relevant_services": [],
+  "safety": {
+    "charon_reload_performed": false,
+    "downloads_performed": false,
+    "inference_performed": false,
+    "model_switches_performed": false,
+    "service_restarts_performed": false
+  },
+  "schema_version": "annunimas.local_voice_model_preflight.v1",
+  "staged_models": {
+    "lfm25_core_candidate": {
+      "bytes": 5155564768,
+      "exists": true,
+      "mtime_ns": 1780222525821777370,
+      "path": "/var/home/mythos/models/annunimas-staging/current/node-core-hub/LFM2.5-8B-A1B-Q4_K_M.gguf"
+    },
+    "minicpm_warden_candidate": {
+      "bytes": 688065920,
+      "exists": true,
+      "mtime_ns": 1780222071628776335,
+      "path": "/var/home/mythos/models/annunimas-staging/current/node-pi5-warden/MiniCPM5-1B-Q4_K_M.gguf"
+    },
+    "parakeet_stt_model": {
+      "bytes": 129133984,
+      "exists": true,
+      "mtime_ns": 1780301833564030637,
+      "path": "/var/home/mythos/models/annunimas-staging/current/node-core-hub/parakeet/realtime_eou_120m-v1-q4_k.gguf"
+    }
+  }
+}

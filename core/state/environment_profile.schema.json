@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://annunimas.local/schemas/environment_profile.schema.json",
+  "title": "Annunimas Environment Profile",
+  "description": "Machine-readable representation of an Annunimas operator environment profile for onboarding, audits, and ARDA/Hermes visibility.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract",
+    "profile",
+    "machine_role",
+    "paths",
+    "endpoints",
+    "systemd",
+    "safety"
+  ],
+  "properties": {
+    "contract": {
+      "const": "annunimas.environment_profile.v1"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "profile": {
+      "type": "string",
+      "minLength": 1,
+      "examples": ["local", "citadel", "fleet-node", "cloud"]
+    },
+    "operator": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "annunimas_user": {
+          "type": "string",
+          "description": "Logical operator/profile name. This is not used to construct paths."
+        },
+        "source": {
+          "$ref": "#/$defs/value_source"
+        }
+      }
+    },
+    "machine_role": {
+      "type": "string",
+      "enum": ["workstation", "server", "pi-citadel", "laptop", "cloud-node", "container", "unknown"]
+    },
+    "paths": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["annunimas_root", "home", "config_dir", "data_dir", "cache_dir", "runtime_dir"],
+      "properties": {
+        "annunimas_root": { "$ref": "#/$defs/path_value" },
+        "home": { "$ref": "#/$defs/path_value" },
+        "config_dir": { "$ref": "#/$defs/path_value" },
+        "data_dir": { "$ref": "#/$defs/path_value" },
+        "cache_dir": { "$ref": "#/$defs/path_value" },
+        "runtime_dir": { "$ref": "#/$defs/path_value" },
+        "build_cache_root": { "$ref": "#/$defs/path_value" },
+        "agent_homes": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/path_value" }
+        },
+        "sockets": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/path_value" }
+        }
+      }
+    },
+    "endpoints": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "manwe_base_url": { "$ref": "#/$defs/url_value" },
+        "hermes_base_url": { "$ref": "#/$defs/url_value" },
+        "arda_hud_url": { "$ref": "#/$defs/url_value" },
+        "local_model_base_url": { "$ref": "#/$defs/url_value" },
+        "local_model_default": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "value": { "type": "string" },
+            "source": { "$ref": "#/$defs/value_source" }
+          }
+        },
+        "litellm_proxy_url": { "$ref": "#/$defs/url_value" },
+        "crawl4ai_url": { "$ref": "#/$defs/url_value" },
+        "search_runtime_url": { "$ref": "#/$defs/url_value" }
+      }
+    },
+    "systemd": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["environment_file_pattern"],
+      "properties": {
+        "environment_file_pattern": {
+          "type": "string",
+          "const": "%h/.config/annunimas/annunimas.env"
+        },
+        "user_units_available": { "type": "boolean" },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["autonomy_posture", "mutation_requires_human_gate"],
+      "properties": {
+        "autonomy_posture": {
+          "type": "string",
+          "enum": ["read_only", "gated_mutation", "disabled", "operator_defined"]
+        },
+        "mutation_requires_human_gate": { "type": "boolean" },
+        "destructive_allowed_by_default": { "type": "boolean", "const": false }
+      }
+    },
+    "missing_gates": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "receipts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "contract"],
+        "properties": {
+          "path": { "type": "string" },
+          "contract": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "value_source": {
+      "type": "string",
+      "enum": ["environment", "env_file", "default", "service_registry", "operator_input", "detected", "unknown"]
+    },
+    "path_value": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "source"],
+      "properties": {
+        "value": { "type": "string", "minLength": 1 },
+        "source": { "$ref": "#/$defs/value_source" },
+        "exists": { "type": "boolean" },
+        "portable_expression": { "type": "string" }
+      }
+    },
+    "url_value": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "source"],
+      "properties": {
+        "value": {
+          "type": "string",
+          "pattern": "^https?://"
+        },
+        "source": { "$ref": "#/$defs/value_source" },
+        "health": {
+          "type": "string",
+          "enum": ["healthy", "degraded", "unreachable", "not_checked", "unknown"]
+        }
+      }
+    }
+  }
+}

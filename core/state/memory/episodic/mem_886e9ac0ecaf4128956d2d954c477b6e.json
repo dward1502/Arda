@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_886e9ac0ecaf4128956d2d954c477b6e",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ALOOP-P2: Public loop/receipt schema docs. Checked docs, spec, data, and project locations for public loop/receipt schema documentation; no checked-in schema docs or loop/receipt schema artifacts were found locally. Closing as completed-no-local-asset-found after direct evidence search.",
+  "salience": 0.9305000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-07-03T05:37:17.265129191Z",
+  "last_seen_at": "2026-07-03T05:37:17.265129191Z"
+}

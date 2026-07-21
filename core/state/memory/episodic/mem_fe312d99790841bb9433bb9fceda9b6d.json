@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_fe312d99790841bb9433bb9fceda9b6d",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Surface autonomy blockers in ARDA operator cockpit",
+  "salience": 0.8622777777777778,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-07T03:33:56.252753564Z",
+  "last_seen_at": "2026-06-07T03:33:56.252753564Z"
+}

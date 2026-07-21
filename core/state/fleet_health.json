@@ -1,0 +1,317 @@
+{
+  "authority": "fleet_health_projection",
+  "cleanup_summary": {
+    "offline_recent_total": 3,
+    "safe_action": "no_cleanup_action_required",
+    "safe_review_candidates": [],
+    "safe_review_candidates_total": 0,
+    "stale_candidates_total": 0,
+    "status": "recent_offline_observed"
+  },
+  "connection_cleanup": {
+    "offline_recent": [
+      {
+        "active": false,
+        "capabilities": [
+          "ingest",
+          "comms",
+          "workflow_execution",
+          "monitoring",
+          "maintenance",
+          "hardware_inventory"
+        ],
+        "dns_name": "raspberrypi-1.tail91c3c1.ts.net.",
+        "hardware": {
+          "block_devices": [
+            {
+              "model": null,
+              "mountpoint": null,
+              "name": "loop0",
+              "size": "2G",
+              "type": "loop"
+            },
+            {
+              "children": [
+                {
+                  "model": null,
+                  "mountpoint": "/boot/firmware",
+                  "name": "mmcblk0p1",
+                  "size": "512M",
+                  "type": "part"
+                },
+                {
+                  "model": null,
+                  "mountpoint": "/",
+                  "name": "mmcblk0p2",
+                  "size": "118.9G",
+                  "type": "part"
+                }
+              ],
+              "model": null,
+              "mountpoint": null,
+              "name": "mmcblk0",
+              "size": "119.4G",
+              "type": "disk"
+            },
+            {
+              "model": null,
+              "mountpoint": "[SWAP]",
+              "name": "zram0",
+              "size": "2G",
+              "type": "disk"
+            }
+          ],
+          "cpu": {
+            "architecture": "aarch64",
+            "cores_per_socket": null,
+            "cpu_max_mhz": "2400.0000",
+            "model_name": "Cortex-A76",
+            "sockets": "-",
+            "threads_per_core": "1"
+          },
+          "gpu_inventory": [],
+          "hostname": "raspberrypi",
+          "memory": {
+            "available": "7.0Gi",
+            "buff_cache": "1.5Gi",
+            "free": "5.8Gi",
+            "shared": "168Mi",
+            "total": "7.9Gi",
+            "used": "904Mi"
+          },
+          "mounts": [
+            {
+              "available": "105G",
+              "filesystem": "/dev/mmcblk0p2",
+              "mountpoint": "/",
+              "size": "117G",
+              "use_percent": "7%",
+              "used": "7.7G"
+            },
+            {
+              "available": "4.0G",
+              "filesystem": "tmpfs",
+              "mountpoint": "/tmp",
+              "size": "4.0G",
+              "use_percent": "1%",
+              "used": "1.8M"
+            }
+          ],
+          "nvidia_gpus": [],
+          "nvme_devices": []
+        },
+        "hostname": "raspberrypi-1",
+        "informant_source": "data/fleet/informants/raspberrypi-aihat_last.json",
+        "informant_ts_utc": "2026-06-01T02:25:29.335309Z",
+        "last_handshake_utc": "0001-01-01T00:00:00Z",
+        "last_seen_age_days": 0.42,
+        "last_seen_utc": "2026-07-13T18:44:42.1Z",
+        "node_declared_id": "nkYHnFrt4e11CNTRL",
+        "node_id": "nkYHnFrt4e11CNTRL",
+        "online": false,
+        "os_hostname": "raspberrypi",
+        "relay": "lax",
+        "runtime": {},
+        "tailscale_ips": [
+          "100.119.130.127",
+          "fd7a:115c:a1e0::be32:827f"
+        ],
+        "usage": {}
+      },
+      {
+        "active": true,
+        "capabilities": [
+          "ingest",
+          "comms",
+          "workflow_execution",
+          "monitoring",
+          "maintenance",
+          "hardware_inventory"
+        ],
+        "dns_name": "annunimas-server.tail91c3c1.ts.net.",
+        "hardware": {
+          "block_devices": [
+            {
+              "children": [
+                {
+                  "model": null,
+                  "mountpoint": null,
+                  "name": "sda1",
+                  "size": "1M",
+                  "type": "part"
+                },
+                {
+                  "model": null,
+                  "mountpoint": "/boot",
+                  "name": "sda2",
+                  "size": "1G",
+                  "type": "part"
+                },
+                {
+                  "children": [
+                    {
+                      "model": null,
+                      "mountpoint": "/sysroot",
+                      "name": "bluefin_bluefin--lts-root",
+                      "size": "70G",
+                      "type": "lvm"
+                    },
+                    {
+                      "model": null,
+                      "mountpoint": "/var",
+                      "name": "bluefin_bluefin--lts-var",
+                      "size": "3.6T",
+                      "type": "lvm"
+                    }
+                  ],
+                  "model": null,
+                  "mountpoint": null,
+                  "name": "sda3",
+                  "size": "3.6T",
+                  "type": "part"
+                }
+              ],
+              "model": "TOSHIBA MG04ACA400E",
+              "mountpoint": null,
+              "name": "sda",
+              "size": "3.6T",
+              "type": "disk"
+            },
+            {
+              "model": null,
+              "mountpoint": "[SWAP]",
+              "name": "zram0",
+              "size": "8G",
+              "type": "disk"
+            }
+          ],
+          "cpu": {
+            "architecture": "x86_64",
+            "cores_per_socket": "16",
+            "cpu_max_mhz": "3500.0000",
+            "model_name": "AMD Ryzen Threadripper 2950X 16-Core Processor",
+            "sockets": "1",
+            "threads_per_core": "2"
+          },
+          "gpu_inventory": [],
+          "hostname": "bluefin",
+          "memory": {
+            "available": "113Gi",
+            "buff_cache": "37Gi",
+            "free": "81Gi",
+            "shared": "4.8Gi",
+            "total": "125Gi",
+            "used": "12Gi"
+          },
+          "mounts": [
+            {
+              "available": "3.3T",
+              "filesystem": "/dev/mapper/bluefin_bluefin--lts-var",
+              "mountpoint": "/var",
+              "size": "3.6T",
+              "use_percent": "9%",
+              "used": "298G"
+            },
+            {
+              "available": "63G",
+              "filesystem": "tmpfs",
+              "mountpoint": "/tmp",
+              "size": "63G",
+              "use_percent": "1%",
+              "used": "48K"
+            }
+          ],
+          "nvidia_gpus": [
+            {
+              "driver_version": "595.71.05",
+              "memory_total_mib": "8192",
+              "name": "NVIDIA GeForce RTX 2080 SUPER",
+              "power_draw_w": "5.00",
+              "temperature_c": "34"
+            },
+            {
+              "driver_version": "595.71.05",
+              "memory_total_mib": "8192",
+              "name": "NVIDIA GeForce RTX 2080 SUPER",
+              "power_draw_w": "16.19",
+              "temperature_c": "38"
+            }
+          ],
+          "nvme_devices": []
+        },
+        "hostname": "annunimas-server",
+        "informant_source": "data/fleet/informants/annunimas-server_last.json",
+        "informant_ts_utc": "2026-06-01T02:28:59.821385Z",
+        "last_handshake_utc": "2026-07-13T03:12:21.776670014-07:00",
+        "last_seen_age_days": 0.78,
+        "last_seen_utc": "2026-07-13T10:14:33.1Z",
+        "node_declared_id": "nwR1131aMk11CNTRL",
+        "node_id": "nwR1131aMk11CNTRL",
+        "online": false,
+        "os_hostname": "bluefin",
+        "relay": "lax",
+        "runtime": {},
+        "tailscale_ips": [
+          "100.102.250.115",
+          "fd7a:115c:a1e0::8632:fa73"
+        ],
+        "usage": {}
+      },
+      {
+        "active": false,
+        "capabilities": [
+          "unknown_until_informant"
+        ],
+        "dns_name": "laptop.tail91c3c1.ts.net.",
+        "hostname": "laptop",
+        "last_handshake_utc": "0001-01-01T00:00:00Z",
+        "last_seen_age_days": 0.39,
+        "last_seen_utc": "2026-07-13T19:29:14.1Z",
+        "node_id": "n2rrkAo9iR11CNTRL",
+        "online": false,
+        "os_hostname": "laptop",
+        "relay": "lax",
+        "tailscale_ips": [
+          "100.97.15.88",
+          "fd7a:115c:a1e0::37:f58"
+        ],
+        "usage": {}
+      }
+    ],
+    "offline_recent_total": 3,
+    "recommended_actions": [
+      "Keep active peers in command view; hide stale peers from primary status panel.",
+      "Review stale candidates in Tailscale admin console and retire duplicates/offline nodes no longer in fleet.",
+      "Re-run scan after cleanup and verify peers_discovered reflects active fleet only."
+    ],
+    "stale_candidates": [],
+    "stale_offline_threshold_days": 14,
+    "stale_offline_total": 0
+  },
+  "counts": {
+    "configured_nodes_online": 4,
+    "configured_nodes_total": 9,
+    "observed_unconfigured_total": 0,
+    "stale_candidates_total": 0
+  },
+  "findings": [
+    "tailscale_mesh_ok",
+    "local_llm_inventory_unavailable"
+  ],
+  "generated_at_utc": "2026-07-14T05:03:05.420357061+00:00",
+  "local_probe": {
+    "ollama_error": "Error: Head \"http://127.0.0.1:11434/\": dial tcp 127.0.0.1:11434: socket: operation not permitted",
+    "ollama_ok": false,
+    "tailscale_error": "failed to connect to local tailscaled (which appears to be running as tailscaled, pid 317007). Got error: Failed to connect to local Tailscale daemon for /localapi/v0/status; not running? Error: dial unix /var/run/tailscale/tailscaled.sock: connect: operation not permitted",
+    "tailscale_ok": false
+  },
+  "network": {
+    "active_peers": 2,
+    "fleet_enabled": true,
+    "peers_discovered_total": 5,
+    "tailscale_error": null,
+    "tailscale_ok": true
+  },
+  "schema_version": "annunimas.core.state.v1",
+  "status": "ok"
+}

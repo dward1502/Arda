@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_f85e1704200f452f95687cf21586f34d",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Arandur dog-run: ARDA presence scene contract and native HUD mission map. Operator relaxed review gates for ATHENA Phase 2F dog-run; promoted from candidate_arda_visualization_and_presence.",
+  "salience": 0.8255,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-20T02:46:12.816752403Z",
+  "last_seen_at": "2026-05-20T02:46:12.816752403Z"
+}

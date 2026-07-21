@@ -1,0 +1,61 @@
+{
+  "apollo_workflow": {
+    "checkpoints": [
+      "stop if evidence remains reference_only",
+      "stop if runtime budget pressure exceeds policy",
+      "only emit downstream work once implementation brief exists"
+    ],
+    "stages": [
+      "define_goal",
+      "harvest_sources",
+      "deepen_and_validate",
+      "emit_brief",
+      "queue_downstream_contracts",
+      "review_runtime_governor_signals"
+    ],
+    "workflow_name": "research_absorption_loop"
+  },
+  "athena_primitives": [
+    {
+      "primitive": "research_goal",
+      "purpose": "declare the question and success boundary before autonomous work begins"
+    },
+    {
+      "primitive": "evidence_harvest",
+      "purpose": "collect sources and receipts into ATHENA books with traceable provenance"
+    },
+    {
+      "primitive": "triad_validation",
+      "purpose": "gate promotion through evidence, logic, and strategy rather than free-running recursion"
+    },
+    {
+      "primitive": "implementation_brief",
+      "purpose": "convert validated evidence into bounded deltas for downstream systems"
+    }
+  ],
+  "authority": "source_absorption_portfolio",
+  "campaign": {
+    "mission": "Translate autoresearch-style loops into bounded ATHENA evidence primitives and APOLLO execution stages.",
+    "name": "Research Workflow Absorption",
+    "owner": "apollo_athena",
+    "source_id": "src_f226959a"
+  },
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "governor_boundary": {
+    "athena_and_apollo_share_the_same_evidence_anchor": true,
+    "unbounded_recursive_research_forbidden": true,
+    "workflows_must_emit_stateful_checkpoints": true
+  },
+  "schema_version": "annunimas.research-workflow-contract.v1",
+  "sigil": "REPAIR",
+  "source": {
+    "implementation_brief": {},
+    "title": null,
+    "url": null
+  },
+  "summary": {
+    "apollo_stages_total": 6,
+    "athena_primitives_total": 4,
+    "checkpoints_total": 3
+  }
+}

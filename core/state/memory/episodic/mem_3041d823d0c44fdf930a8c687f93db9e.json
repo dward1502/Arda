@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_3041d823d0c44fdf930a8c687f93db9e",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Queue federation control projection unified. Unified queue federation autonomy-control projection so core/state/queue_federation.json now exposes the canonical control block and autonomy_task_truth reuses that block. Verification passed: focused annunimas-cli export_surface tests, queue-federation and autonomy-task-truth exporters, JSON/JSONL parser checks, git diff --check, and append-only guard. Current live selector selected_total=0 rejected_total=0 because live candidates remain blocked/not ready; no promotion/write performed.",
+  "salience": 0.9482777777777778,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-15T07:30:30.809637062Z",
+  "last_seen_at": "2026-06-15T07:30:30.809637062Z"
+}

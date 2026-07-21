@@ -1,0 +1,72 @@
+{
+  "activation_order": [
+    "stabilize matrix-boardroom adapter room as the sovereign bridge envelope",
+    "keep playwright-mcp as governed on-demand browser capability",
+    "keep Hermes-owned Discord bridge bounded and optional",
+    "promote discord-mcp only if the Hermes bridge proves insufficient for a bounded use case"
+  ],
+  "adapters": [
+    {
+      "activation_status": "planned",
+      "integration_lane": "mcp_communications",
+      "next_action": "promote from evidence into a bounded runtime or product surface",
+      "phase": "research_to_contract",
+      "policy_confidence": 0.6916666666666667,
+      "repo_url": "https://github.com/SaseQ/discord-mcp",
+      "runtime_status": null,
+      "system_surfaces": [
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json",
+        "core/state/operator_actions.json"
+      ],
+      "tool": "discord-mcp"
+    },
+    {
+      "activation_status": "governed_on_demand",
+      "integration_lane": "mcp_browser",
+      "next_action": "Start the supervised bridge only for governed browser sessions; keep it on-demand rather than daemonized",
+      "phase": "contract_ready",
+      "policy_confidence": 0.7516666666666667,
+      "repo_url": "https://github.com/microsoft/playwright-mcp",
+      "runtime_status": "contract_ready",
+      "system_surfaces": [
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json",
+        "core/state/operator_actions.json"
+      ],
+      "tool": "playwright-mcp"
+    }
+  ],
+  "authority": "hermes_adapter_materialization",
+  "doctrine": {
+    "adapters_optional": true,
+    "browser_sessions_governed_on_demand": true,
+    "discord_bridge_allowed_when_policy_guarded": true,
+    "discord_not_sovereign_base_layer": true,
+    "matrix_boardroom_is_primary_human_agent_room_surface": true,
+    "mcp_or_connector_adapters_must_be_policy_guarded": true
+  },
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "ownership": {
+    "owner": "hermes",
+    "routing_surface": "core/state/hermes_command.json",
+    "transport_surface": "core/state/federated_comms_runtime.json",
+    "soterion_communication_contract": "core/state/soterion_communication_contract.json"
+  },
+  "schema_version": "annunimas.communication-adapter-contract.v1",
+  "sigil": "REPAIR",
+  "transport_contract": {
+    "adapter_strategy": "agnostic_bridges",
+    "boardroom_source": "core/state/matrix_boardrooms.json",
+    "client_adapter_room_id": "client-bridge",
+    "discord_mode": "bounded_optional_bridge",
+    "internal_backbone": "tailscale",
+    "trusted_internal": [
+      "internal_http",
+      "a2a",
+      "mcp"
+    ],
+    "compact_semantic_header": "annunimas.soterion.message.v1",
+    "compact_header_contract": "docs/contracts/soterion-communication-contract.md"
+  }
+}

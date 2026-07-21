@@ -1,0 +1,113 @@
+{
+  "authority": "external_absorption_brief + async_intake + research_workflow + multi_domain_routing",
+  "continuity_capabilities": [
+    {
+      "capability": "session_recall",
+      "owner": "athena_mnemosyne",
+      "purpose": "retrieve prior project/session context during active work without relying on chat scrollback",
+      "target_surfaces": [
+        "core/state/async_user_intake_contract.json",
+        "core/state/research_workflow_contract.json"
+      ]
+    },
+    {
+      "capability": "skill_evolution",
+      "owner": "prometheus_apollo",
+      "purpose": "turn repeated successful patterns into bounded reusable workflow or tool skills",
+      "target_surfaces": [
+        "core/state/source_absorption_pipeline.json",
+        "core/state/project_task_executor.json"
+      ]
+    },
+    {
+      "capability": "cross_channel_identity_continuity",
+      "owner": "hermes",
+      "purpose": "keep one bounded operator identity across chat, gateway, and async intake lanes",
+      "target_surfaces": [
+        "core/state/communication_adapter_contract.json",
+        "core/state/async_user_intake_runtime.json"
+      ]
+    },
+    {
+      "capability": "bounded_long_horizon_execution",
+      "owner": "apollo_oracle",
+      "purpose": "keep long-running work aligned through reminders, checkpoints, and harness controls",
+      "target_surfaces": [
+        "core/state/soterion_joulework_enforcement.json",
+        "core/state/socratic_validator_contract.json"
+      ]
+    }
+  ],
+  "generated_at_utc": "2026-04-28T09:49:24Z",
+  "governor_boundaries": {
+    "continuity_must_respect_domain_and_privacy_boundaries": true,
+    "long_horizon_execution_requires_harness_and_verification_checkpoints": true,
+    "memory_must_be_retrieval_based_not_hidden_prompt_bloat": true,
+    "skill_updates_must_land_in_stateful_contracts_or_workflows": true
+  },
+  "handoff_path": [
+    "foreground conversation or gateway event",
+    "async intake handoff",
+    "ATHENA/Mnemosyne retrieval",
+    "APOLLO execution or workflow reuse",
+    "Socratic checkpoint for expensive pivots",
+    "stateful continuity update"
+  ],
+  "mission": {
+    "goal": "Expose persistent agent continuity as a bounded sovereign capability spanning memory, skills, and cross-session task context.",
+    "positioning": "Annunimas continuity belongs to sovereign state and governed workflows, not a foreign monolithic agent runtime."
+  },
+  "schema_version": "annunimas.agent-continuity-contract.v1",
+  "sigil": "REPAIR",
+  "source_drivers": [
+    {
+      "confidence": 0.7316666666666667,
+      "implementation_brief": {
+        "implementation_implications": [
+          "Promote the source from evidence into a bounded runtime, package, or workflow contract before activation.",
+          "Attach implementation work to sovereign state exports so UI and agents consume the same source of truth."
+        ],
+        "method_summary": "Repo-backed implementation candidate requiring sovereign contract mapping",
+        "risks": [
+          "Digesting a GitHub repo is not sufficient for runtime adoption without bounded activation surfaces."
+        ],
+        "source_url": "https://github.com/NousResearch/hermes-agent"
+      },
+      "label": "Nous Hermes Agent",
+      "policy_readiness": "reference_only",
+      "source_id": "src_ec2b8bd4",
+      "title": "https://github.com/NousResearch/hermes-agent"
+    },
+    {
+      "confidence": 0.7416666666666666,
+      "implementation_brief": {
+        "implementation_implications": [
+          "Add workload-specialized model routing between planning and execution lanes.",
+          "Persist project-specific memory across sessions with retrieval hooks during execution.",
+          "Use context compaction and explicit reminder mechanisms to limit context bloat.",
+          "Keep command execution behind a harness with explicit safety phases and verification checkpoints."
+        ],
+        "method_summary": "Terminal-native coding-agent architecture with context controls",
+        "risks": [
+          "Context bloat can degrade reasoning quality over long-horizon tasks.",
+          "Autonomy without explicit harness controls can create unsafe command execution.",
+          "Instruction fade-out across long sessions can erode policy adherence."
+        ],
+        "source_url": "https://arxiv.org/abs/2603.05344"
+      },
+      "label": "Terminal-Bench",
+      "policy_readiness": "policy_ready",
+      "source_id": "src_16c075a2",
+      "title": "Terminal-Bench: A Benchmark for Interactive Coding Agents"
+    }
+  ],
+  "summary": {
+    "async_handoff_ready": true,
+    "continuity_capabilities_total": 4,
+    "governance_signal_dimensions_total": 3,
+    "handoff_steps_total": 6,
+    "research_workflow_stages_total": 6,
+    "routing_domains_total": 8,
+    "source_drivers_total": 2
+  }
+}

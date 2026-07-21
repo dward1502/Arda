@@ -1,0 +1,8 @@
+{
+  "id": "world_settings_control",
+  "domain": "world",
+  "scene_binding": "settings_control",
+  "material_family": "world_terminal_housing",
+  "source": "procedural_script_tools_generate_arda_assets_py",
+  "license": "Internal"
+}

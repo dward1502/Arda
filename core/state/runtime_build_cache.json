@@ -1,0 +1,42 @@
+{
+  "authority": "runtime_build_cache_compactor",
+  "build_root": "/var/home/mythos/.cache/annunimas-build",
+  "generated_at_utc": "2026-05-09T20:54:12Z",
+  "observed_bytes": 9568654849,
+  "pressure_candidates": [
+    "/var/home/mythos/.cache/annunimas-build/target/debug/incremental",
+    "/var/home/mythos/.cache/annunimas-build/target/debug/.fingerprint",
+    "/var/home/mythos/.cache/annunimas-build/target/debug/build",
+    "/var/home/mythos/.cache/annunimas-build/target/debug/deps",
+    "/var/home/mythos/.cache/annunimas-build/target/debug/examples"
+  ],
+  "removed_bytes": 3948552094,
+  "removed_paths": [
+    "/var/home/mythos/.cache/annunimas-build/target/debug/incremental",
+    "/var/home/mythos/.cache/annunimas-build/target/debug/.fingerprint",
+    "/var/home/mythos/.cache/annunimas-build/target/debug/build",
+    "/var/home/mythos/.cache/annunimas-build/target/debug/deps",
+    "/var/home/mythos/.cache/annunimas-build/target/debug/examples"
+  ],
+  "retention": {
+    "max_age_hours": 24,
+    "max_bytes": 4294967296
+  },
+  "schema_version": "annunimas.runtime-build-cache.v1",
+  "soterion_sigils": [
+    "∇",
+    "⚡",
+    "◈",
+    "↝"
+  ],
+  "soterion_sigils_binary": {
+    "command": "111000",
+    "joulework": "101010",
+    "transition": "100111",
+    "truth": "110001"
+  },
+  "status": "pressure_remaining",
+  "target_bytes": 9417078349,
+  "target_dir": "/var/home/mythos/.cache/annunimas-build/target",
+  "tmp_dir": "/var/home/mythos/.cache/annunimas-build/tmp"
+}

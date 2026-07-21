@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_a3922a74c1d94be0bd8fb75691495244",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Queue agent-loop-contract validator MVP",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-19T07:33:05.897570234Z",
+  "last_seen_at": "2026-06-19T07:33:05.897570234Z"
+}

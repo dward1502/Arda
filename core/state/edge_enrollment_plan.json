@@ -1,0 +1,91 @@
+{
+  "authority": "edge_enrollment_plan_export",
+  "generated_at_utc": "2026-06-05T03:12:14Z",
+  "guidance": {
+    "bind_identity_before_bootstrap": true,
+    "do_not_promote_generic_hostnames": true,
+    "use_task_boundaries_for_parallel_edge_work": true
+  },
+  "plans": [
+    {
+      "bootstrap_state": "tailscale_visible_ssh_ready",
+      "enrollment_status": "active_staging",
+      "hostname": "raspberrypi",
+      "identity_binding": {
+        "binding_strategy": "reserve_canonical_identity_before_enrollment",
+        "candidate_stale_node_ids": [],
+        "candidate_tailscale_names": [
+          "raspberrypi-aihat",
+          "raspberrypi-2"
+        ],
+        "expected_hostname": "raspberrypi-aihat",
+        "requires_operator_confirmation": true,
+        "target_id": "node-pi5-citadel-avatar",
+        "topology_registry_hint": null
+      },
+      "next_steps": [
+        {
+          "evidence": "core/state/fleet_identity_reconciliation.json",
+          "status": "pending",
+          "step": "Confirm canonical hostname and Tailscale identity before enrollment"
+        },
+        {
+          "evidence": "core/edge/targets.toml",
+          "status": "completed",
+          "step": "Assign the live Tailscale IP and establish SSH trust for the Pi5 AI HAT controller"
+        },
+        {
+          "evidence": "scripts/runtime/bootstrap_embodied_controller.sh",
+          "status": "ready",
+          "step": "Run embodied controller bootstrap once the canonical identity is bound"
+        }
+      ],
+      "node_class": "edge_avatar_product",
+      "operator_action_open": true,
+      "role": "citadel_avatar_controller",
+      "tailscale_ip": "100.119.130.127",
+      "target_id": "node-pi5-citadel-avatar"
+    },
+    {
+      "bootstrap_state": null,
+      "enrollment_status": "active_staging",
+      "hostname": "beelink",
+      "identity_binding": null,
+      "next_steps": [
+        {
+          "evidence": "core/state/fleet_identity_reconciliation.json",
+          "status": "completed",
+          "step": "Recover networking or enroll the SER9 host under the expected hostname"
+        },
+        {
+          "evidence": "core/edge/targets.toml",
+          "status": "completed",
+          "step": "Populate Tailscale IP and promote runtime roles after first successful informant scan"
+        }
+      ],
+      "node_class": "edge_worker",
+      "operator_action_open": false,
+      "role": "ser9_sovereign_worker",
+      "tailscale_ip": "100.103.125.88",
+      "target_id": "node-ser9-worker"
+    },
+    {
+      "bootstrap_state": null,
+      "enrollment_status": "active_staging",
+      "hostname": "beelink",
+      "identity_binding": null,
+      "next_steps": [],
+      "node_class": "backbone_compute",
+      "operator_action_open": false,
+      "role": "backbone_inference",
+      "tailscale_ip": "100.118.123.88",
+      "target_id": "node-backbone-server-01"
+    }
+  ],
+  "schema_version": "annunimas.edge-enrollment-plan.v1",
+  "summary": {
+    "identity_binding_required_total": 1,
+    "operator_action_open_total": 1,
+    "planned_targets_total": 3
+  }
+}

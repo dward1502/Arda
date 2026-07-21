@@ -1,0 +1,16 @@
+{
+  "id": "boardroom_floor",
+  "domain": "materials",
+  "scene_binding": "shared",
+  "material_family": "boardroom_floor",
+  "source": "procedural_script_tools_generate_arda_assets_py",
+  "license": "Internal",
+  "channels": {
+    "albedo": "boardroom_floor_albedo.png",
+    "normal": "boardroom_floor_normal.png",
+    "roughness": "boardroom_floor_roughness.png",
+    "metalness": "boardroom_floor_metalness.png"
+  },
+  "status": "active",
+  "notes": "Procedural starter material synced over existing floor metadata. Oversized AO is excluded from the default runtime budget until a matching optimized procedural AO channel exists."
+}

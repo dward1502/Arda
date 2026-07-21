@@ -1,0 +1,25 @@
+{
+  "allowed_source_classes": [
+    "public_git_repository_with_license_metadata",
+    "public_article_or_documentation_with_stable_url",
+    "operator_provided_ingestion_note",
+    "annunimas_receipt_referencing_external_source"
+  ],
+  "authority": "annunimas-cli export moria-repository-contract",
+  "contract": "docs/contracts/moria-repository-mvp-contract.md",
+  "gates": {
+    "first_pass_writes_index_receipts_only": true,
+    "license_gate_required": true,
+    "prompt_injection_gate_required": true,
+    "provenance_gate_required": true
+  },
+  "generated_at_utc": "2026-06-05T03:02:38Z",
+  "mutation_policy": "no_source_rewrite_or_autonomous_clone",
+  "planned_outputs": [
+    "data/moria/index.jsonl",
+    "data/moria/review_packets.jsonl"
+  ],
+  "root": "/var/home/mythos/Moria",
+  "schema_version": "annunimas.moria-repository-contract.v1",
+  "status": "contract_defined_no_mutation"
+}

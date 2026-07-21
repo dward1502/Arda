@@ -1,0 +1,23 @@
+{
+  "sigil": "REPAIR",
+  "default": {
+    "allow": [
+      "note"
+    ]
+  },
+  "senders": {
+    "operator": {
+      "allow": [
+        "note",
+        "reroute"
+      ]
+    },
+    "illuvatar": {
+      "allow": [
+        "note",
+        "reroute",
+        "override"
+      ]
+    }
+  }
+}

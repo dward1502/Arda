@@ -1,0 +1,40 @@
+# sigil: SCROLL
+# canonical Arda runtime profile template for first-run / setup
+[profile]
+id = "local"
+machine_role = "workstation"
+
+[paths]
+annunimas_root = "${ANNUNIMAS_ROOT}"
+config_dir = "${ANNUNIMAS_CONFIG_DIR:-${XDG_CONFIG_HOME:-${HOME}/.config}/annunimas}"
+data_dir = "${ANNUNIMAS_DATA_DIR:-${XDG_DATA_HOME:-${HOME}/.local/share}/annunimas}"
+cache_dir = "${ANNUNIMAS_CACHE_DIR:-${XDG_CACHE_HOME:-${HOME}/.cache}/annunimas}"
+runtime_dir = "${ANNUNIMAS_RUNTIME_DIR:-/run/user/$(id -u)/annunimas}"
+build_cache_root = "${XDG_CACHE_HOME:-${HOME}/.cache}/arda-build"
+task_queue = "core/projects/tasks/queue.jsonl"
+project_task_queue = "core/projects/tasks/queue.jsonl"
+warden_queue = "data/warden/informant_queue.jsonl"
+
+[endpoints]
+manwe_base_url = "http://127.0.0.1:5110"
+hermes_base_url = "http://127.0.0.1:5102"
+arda_hud_url = "http://127.0.0.1:1420"
+local_model_base_url = "http://127.0.0.1:9337/v1"
+litellm_proxy_url = "http://127.0.0.1:4000/v1"
+
+[safety]
+autonomy_posture = "read_only"
+mutation_requires_human_gate = true
+destructive_allowed_by_default = false
+
+[providers.opencode]
+enabled = true
+api_key_env = "OPENCODE_API_KEY"
+
+[providers.openrouter]
+enabled = false
+api_key_env = "OPENROUTER_API_KEY"
+
+[providers.openai]
+enabled = false
+api_key_env = "OPENAI_API_KEY"

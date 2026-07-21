@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_17f9276c3c8148d88d31d7a56f2dc301",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Learning Loop v1 end-to-end integration harness. Added tempfile-backed Rust e2e harness covering ATHENA knowledge delta -> MNEMOSYNE recall -> PROMETHEUS proposal receipts -> ORACLE/WARDEN gate -> HADES proposal-only lifecycle packet -> CHRONOS receipt -> ARDA projection, including destructive-action boundary check. Verified with cargo test -p annunimas-cli --test learning_loop_v1_e2e and component learning-loop tests.",
+  "salience": 0.8358333333333334,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-07T20:23:21.191587252Z",
+  "last_seen_at": "2026-06-07T20:23:21.191587252Z"
+}

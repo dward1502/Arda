@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_faf6da18db34494796b44f1485d49ee6",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Arandur dog-run: ECST/MythOS research claim ledger. Operator relaxed review gates for ATHENA Phase 2F dog-run; promoted from candidate_ecst_mythos_research; speculative claims remain provenance-scoped.",
+  "salience": 0.6855000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-20T02:49:14.641832137Z",
+  "last_seen_at": "2026-05-20T02:49:14.641832137Z"
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_653a42e737514731af7fe21810e83b36",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Queue: tool-gate public repo skeleton plan exists with 3 proofs needed",
+  "salience": 0.9125000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-19T07:21:17.339902504Z",
+  "last_seen_at": "2026-06-19T07:21:17.339902504Z"
+}

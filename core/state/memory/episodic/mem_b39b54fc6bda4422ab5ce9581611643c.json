@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_b39b54fc6bda4422ab5ce9581611643c",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ATHENA external source lane ledger. Added canonical external source lane ledgering to the autonomy preflight. The preflight now emits annunimas.athena.external_source_lane.v1 records for web, x_bookmarks, reddit, notebook_lm, and public_archives under data/athena, with task_promotion_allowed=false for every lane until a concrete source receipt with evidence anchors exists. No external fetch, credentialed connector, or task promotion was performed.",
+  "salience": 0.7005,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-31T17:48:42.468706489Z",
+  "last_seen_at": "2026-05-31T17:48:42.468706489Z"
+}

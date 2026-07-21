@@ -1,0 +1,259 @@
+{
+  "authority": "fleet_steward_write_intent_projection",
+  "doctrine": {
+    "all_config_changes_must_reference_target_files": true,
+    "high_impact_changes_require_approval": true,
+    "intents_are_proposals_not_mutations": true,
+    "ui_and_agent_consumers_share_the_same_intent_surface": true
+  },
+  "generated_at_utc": "2026-04-22T21:57:54Z",
+  "intents": [
+    {
+      "approval_required": true,
+      "intent_id": "intent_restore_node-core-hub",
+      "kind": "fleet_recovery",
+      "mutation_scope": "config_and_projection",
+      "owner": "warden",
+      "priority": "high",
+      "reason": "Configured node `node-core-hub` is offline and should be recovered or demoted from active routing.",
+      "source_action_id": "restore_node-core-hub",
+      "status": "proposed",
+      "target_files": [
+        "config/fleet.toml",
+        "core/edge/targets.toml",
+        "core/state/fleet_runtime.json"
+      ],
+      "title": "Restore offline node node-core-hub"
+    },
+    {
+      "approval_required": true,
+      "intent_id": "intent_restore_node-pi5-citadel-avatar",
+      "kind": "fleet_recovery",
+      "mutation_scope": "config_and_projection",
+      "owner": "warden",
+      "priority": "high",
+      "reason": "Configured node `node-pi5-citadel-avatar` is offline and should be recovered or demoted from active routing.",
+      "source_action_id": "restore_node-pi5-citadel-avatar",
+      "status": "proposed",
+      "target_files": [
+        "config/fleet.toml",
+        "core/edge/targets.toml",
+        "core/state/fleet_runtime.json"
+      ],
+      "title": "Restore offline node node-pi5-citadel-avatar"
+    },
+    {
+      "approval_required": true,
+      "intent_id": "intent_restore_node-laptop",
+      "kind": "fleet_recovery",
+      "mutation_scope": "config_and_projection",
+      "owner": "warden",
+      "priority": "high",
+      "reason": "Configured node `node-laptop` is offline and should be recovered or demoted from active routing.",
+      "source_action_id": "restore_node-laptop",
+      "status": "proposed",
+      "target_files": [
+        "config/fleet.toml",
+        "core/edge/targets.toml",
+        "core/state/fleet_runtime.json"
+      ],
+      "title": "Restore offline node node-laptop"
+    },
+    {
+      "approval_required": false,
+      "intent_id": "intent_launch_missing_endpoint_node-laptop",
+      "kind": "endpoint_launch",
+      "mutation_scope": "config_and_projection",
+      "owner": "charon",
+      "priority": "medium",
+      "reason": "`node-laptop` has model/runtime state but no live local inference endpoint detected on the governed ports.",
+      "source_action_id": "launch_missing_endpoint_node-laptop",
+      "status": "proposed",
+      "target_files": [
+        "core/state/edge_endpoint_verification.json",
+        "core/edge/model_profiles.toml",
+        "config/charon.providers.toml"
+      ],
+      "title": "Launch local endpoint for node-laptop"
+    },
+    {
+      "approval_required": false,
+      "intent_id": "intent_launch_missing_endpoint_node-backbone-server",
+      "kind": "endpoint_launch",
+      "mutation_scope": "config_and_projection",
+      "owner": "charon",
+      "priority": "medium",
+      "reason": "`node-backbone-server` has model/runtime state but no live local inference endpoint detected on the governed ports.",
+      "source_action_id": "launch_missing_endpoint_node-backbone-server",
+      "status": "proposed",
+      "target_files": [
+        "core/state/edge_endpoint_verification.json",
+        "core/edge/model_profiles.toml",
+        "config/charon.providers.toml"
+      ],
+      "title": "Launch local endpoint for node-backbone-server"
+    },
+    {
+      "approval_required": false,
+      "intent_id": "intent_launch_missing_endpoint_node-pi5-citadel-avatar",
+      "kind": "endpoint_launch",
+      "mutation_scope": "config_and_projection",
+      "owner": "charon",
+      "priority": "medium",
+      "reason": "`node-pi5-citadel-avatar` has model/runtime state but no live local inference endpoint detected on the governed ports.",
+      "source_action_id": "launch_missing_endpoint_node-pi5-citadel-avatar",
+      "status": "proposed",
+      "target_files": [
+        "core/state/edge_endpoint_verification.json",
+        "core/edge/model_profiles.toml",
+        "config/charon.providers.toml"
+      ],
+      "title": "Launch local endpoint for node-pi5-citadel-avatar"
+    },
+    {
+      "approval_required": false,
+      "intent_id": "intent_runtime_recovery_athena_deep_analyze",
+      "kind": "runtime_admission_recovery",
+      "mutation_scope": "config_and_projection",
+      "owner": "athena",
+      "priority": "high",
+      "reason": "Shed receipts observed for `athena_deep_analyze`; recommended action is `retry_when_pressure_ok`. Automatic execution failed and needs review.",
+      "source_action_id": "runtime_recovery_athena_deep_analyze",
+      "status": "proposed",
+      "target_files": [
+        "core/state/runtime_admission_receipts.json",
+        "core/state/runtime_budget_policy.json",
+        "core/state/athena_digest_pipeline.json"
+      ],
+      "title": "Retry deferred ATHENA deep work when pressure clears"
+    },
+    {
+      "approval_required": false,
+      "intent_id": "intent_runtime_recovery_athena_deep_queue",
+      "kind": "runtime_admission_recovery",
+      "mutation_scope": "config_and_projection",
+      "owner": "athena",
+      "priority": "medium",
+      "reason": "Shed receipts observed for `athena_deep_queue`; recommended action is `retry_when_pressure_ok`.",
+      "source_action_id": "runtime_recovery_athena_deep_queue",
+      "status": "proposed",
+      "target_files": [
+        "core/state/runtime_admission_receipts.json",
+        "core/state/runtime_budget_policy.json",
+        "core/state/athena_digest_pipeline.json"
+      ],
+      "title": "Retry deferred ATHENA deep work when pressure clears"
+    },
+    {
+      "approval_required": false,
+      "intent_id": "intent_runtime_recovery_athena_http_request",
+      "kind": "runtime_admission_recovery",
+      "mutation_scope": "config_and_projection",
+      "owner": "charon",
+      "priority": "high",
+      "reason": "Shed receipts observed for `athena_http_request`; recommended action is `prefer_backbone_or_gateway`.",
+      "source_action_id": "runtime_recovery_athena_http_request",
+      "status": "proposed",
+      "target_files": [
+        "config/model_route_matrix.toml",
+        "core/state/manwe_router.json",
+        "core/state/runtime_budget_policy.json"
+      ],
+      "title": "Shift burst ATHENA demand off the local lane"
+    },
+    {
+      "approval_required": false,
+      "intent_id": "intent_runtime_recovery_athena_ingest",
+      "kind": "runtime_admission_recovery",
+      "mutation_scope": "config_and_projection",
+      "owner": "athena",
+      "priority": "medium",
+      "reason": "Shed receipts observed for `athena_ingest`; recommended action is `retry_when_pressure_ok`.",
+      "source_action_id": "runtime_recovery_athena_ingest",
+      "status": "proposed",
+      "target_files": [
+        "core/state/runtime_admission_receipts.json",
+        "core/state/runtime_budget_policy.json",
+        "core/state/athena_digest_pipeline.json"
+      ],
+      "title": "Retry deferred ATHENA deep work when pressure clears"
+    },
+    {
+      "approval_required": false,
+      "intent_id": "intent_runtime_recovery_athena_plutus_signal",
+      "kind": "runtime_admission_recovery",
+      "mutation_scope": "config_and_projection",
+      "owner": "athena",
+      "priority": "medium",
+      "reason": "Shed receipts observed for `athena_plutus_signal`; recommended action is `retry_when_pressure_ok`.",
+      "source_action_id": "runtime_recovery_athena_plutus_signal",
+      "status": "proposed",
+      "target_files": [
+        "core/state/runtime_admission_receipts.json",
+        "core/state/runtime_budget_policy.json",
+        "core/state/athena_digest_pipeline.json"
+      ],
+      "title": "Retry deferred ATHENA deep work when pressure clears"
+    },
+    {
+      "approval_required": false,
+      "intent_id": "intent_runtime_recovery_hermes_plutus_signal",
+      "kind": "runtime_admission_recovery",
+      "mutation_scope": "config_and_projection",
+      "owner": "hermes",
+      "priority": "high",
+      "reason": "Shed receipts observed for `hermes_plutus_signal`; recommended action is `retry_outbound_then_reroute`. Automatic execution failed and needs review.",
+      "source_action_id": "runtime_recovery_hermes_plutus_signal",
+      "status": "proposed",
+      "target_files": [
+        "core/state/runtime_admission_receipts.json",
+        "core/state/manwe_router.json",
+        "core/state/model_control_surface.json"
+      ],
+      "title": "Retry or reroute deferred Hermes outbound work"
+    },
+    {
+      "approval_required": false,
+      "intent_id": "intent_runtime_recovery_hermes_provider_send",
+      "kind": "runtime_admission_recovery",
+      "mutation_scope": "config_and_projection",
+      "owner": "hermes",
+      "priority": "high",
+      "reason": "Shed receipts observed for `hermes_provider_send`; recommended action is `retry_outbound_then_reroute`. Automatic execution failed and needs review.",
+      "source_action_id": "runtime_recovery_hermes_provider_send",
+      "status": "proposed",
+      "target_files": [
+        "core/state/runtime_admission_receipts.json",
+        "core/state/manwe_router.json",
+        "core/state/model_control_surface.json"
+      ],
+      "title": "Retry or reroute deferred Hermes outbound work"
+    },
+    {
+      "approval_required": false,
+      "intent_id": "intent_activation_frontier_crawl4ai",
+      "kind": "activation_review",
+      "mutation_scope": "config_and_projection",
+      "owner": "prometheus",
+      "priority": "medium",
+      "reason": "run `annunimas athena crawl <url>` to capture markdown into ATHENA via the local crawl4ai service",
+      "source_action_id": "activation_frontier_crawl4ai",
+      "status": "proposed",
+      "target_files": [
+        "core/state/package_enablement.json",
+        "core/state/package_runtime_activation.json"
+      ],
+      "title": "Review activation frontier for crawl4ai"
+    }
+  ],
+  "schema_version": "annunimas.fleet-steward-write-intents.v1",
+  "sigil": "REPAIR",
+  "source_surfaces": {
+    "fleet_steward_actions": "core/state/fleet_steward_actions.json"
+  },
+  "summary": {
+    "approval_required_total": 3,
+    "intents_total": 14,
+    "proposed_total": 14
+  }
+}

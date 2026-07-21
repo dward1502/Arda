@@ -1,0 +1,1948 @@
+{
+  "arda_hints": {
+    "alert_on_deep_queue_failed": false,
+    "alert_on_reference_only_pressure": true,
+    "boardroom_section": "research_and_policy",
+    "next_operator_action": "preview_policy_ready_promotion",
+    "policy_readiness_status": "review_pressure",
+    "primary_panel": "knowledge"
+  },
+  "authority": "athena_runtime_projection",
+  "generated_at_utc": "2026-07-14T05:03:01.352783698+00:00",
+  "knowledge": {
+    "counts": {
+      "deep_graph_recent": 16,
+      "deep_queue_recent": 16,
+      "digest_recent": 16,
+      "planning_task_receipts_recent": 1,
+      "policy_ready_recent": 123,
+      "reference_only_recent": 276,
+      "sources_recent": 16
+    },
+    "recent_deep_graph": [
+      {
+        "confidence": 0.6916666666666667,
+        "edges": [
+          {
+            "from": "source:src_759fe57d",
+            "relation": "tagged_as",
+            "to": "tag:newsarticle"
+          }
+        ],
+        "event": "deep_graph_update",
+        "graph_version": "v1",
+        "nodes": [
+          {
+            "id": "source:src_759fe57d",
+            "kind": "source",
+            "label": "https://annas-archive.pk/blog/llms-txt.html"
+          },
+          {
+            "id": "tag:newsarticle",
+            "kind": "tag",
+            "label": "newsarticle"
+          }
+        ],
+        "soterion": "◈",
+        "source_id": "src_759fe57d",
+        "triad_passed": true,
+        "ts_utc": "2026-06-01T04:41:29.303619311+00:00"
+      },
+      {
+        "confidence": 0.75,
+        "edges": [
+          {
+            "from": "source:src_d92c876d",
+            "relation": "tagged_as",
+            "to": "tag:governance"
+          },
+          {
+            "from": "source:src_d92c876d",
+            "relation": "tagged_as",
+            "to": "tag:rawnote"
+          },
+          {
+            "from": "source:src_d92c876d",
+            "relation": "tagged_as",
+            "to": "tag:research"
+          }
+        ],
+        "event": "deep_graph_update",
+        "graph_version": "v1",
+        "nodes": [
+          {
+            "id": "source:src_d92c876d",
+            "kind": "source",
+            "label": "OPPOSING_VIEWPOINT CHALLENGE for src_759fe57d: This perspective questions assump"
+          },
+          {
+            "id": "tag:governance",
+            "kind": "tag",
+            "label": "governance"
+          },
+          {
+            "id": "tag:rawnote",
+            "kind": "tag",
+            "label": "rawnote"
+          },
+          {
+            "id": "tag:research",
+            "kind": "tag",
+            "label": "research"
+          }
+        ],
+        "soterion": "◈",
+        "source_id": "src_d92c876d",
+        "triad_passed": true,
+        "ts_utc": "2026-06-01T04:41:35.929461145+00:00"
+      },
+      {
+        "confidence": 0.75,
+        "edges": [
+          {
+            "from": "source:src_10ea61bb",
+            "relation": "tagged_as",
+            "to": "tag:governance"
+          },
+          {
+            "from": "source:src_10ea61bb",
+            "relation": "tagged_as",
+            "to": "tag:rawnote"
+          },
+          {
+            "from": "source:src_10ea61bb",
+            "relation": "tagged_as",
+            "to": "tag:research"
+          }
+        ],
+        "event": "deep_graph_update",
+        "graph_version": "v1",
+        "nodes": [
+          {
+            "id": "source:src_10ea61bb",
+            "kind": "source",
+            "label": "OPPOSING_VIEWPOINT AFFIRM for src_759fe57d: This perspective supports the archit"
+          },
+          {
+            "id": "tag:governance",
+            "kind": "tag",
+            "label": "governance"
+          },
+          {
+            "id": "tag:rawnote",
+            "kind": "tag",
+            "label": "rawnote"
+          },
+          {
+            "id": "tag:research",
+            "kind": "tag",
+            "label": "research"
+          }
+        ],
+        "soterion": "◈",
+        "source_id": "src_10ea61bb",
+        "triad_passed": true,
+        "ts_utc": "2026-06-01T04:41:36.437935241+00:00"
+      },
+      {
+        "confidence": 0.7516666666666667,
+        "edges": [
+          {
+            "from": "source:src_759fe57d",
+            "relation": "tagged_as",
+            "to": "tag:newsarticle"
+          }
+        ],
+        "event": "deep_graph_update",
+        "graph_version": "v1",
+        "nodes": [
+          {
+            "id": "source:src_759fe57d",
+            "kind": "source",
+            "label": "https://annas-archive.pk/blog/llms-txt.html"
+          },
+          {
+            "id": "tag:newsarticle",
+            "kind": "tag",
+            "label": "newsarticle"
+          }
+        ],
+        "soterion": "◈",
+        "source_id": "src_759fe57d",
+        "triad_passed": true,
+        "ts_utc": "2026-06-01T04:41:37.786481450+00:00"
+      },
+      {
+        "confidence": 0.7483333333333333,
+        "edges": [
+          {
+            "from": "source:src_0f158b60",
+            "relation": "tagged_as",
+            "to": "tag:newsarticle"
+          },
+          {
+            "from": "source:src_0f158b60",
+            "relation": "tagged_as",
+            "to": "tag:research"
+          }
+        ],
+        "event": "deep_graph_update",
+        "graph_version": "v1",
+        "nodes": [
+          {
+            "id": "source:src_0f158b60",
+            "kind": "source",
+            "label": "https://www.reddit.com/r/hermesagent/comments/1sg57v5/greetings_from_the_nous_re"
+          },
+          {
+            "id": "tag:newsarticle",
+            "kind": "tag",
+            "label": "newsarticle"
+          },
+          {
+            "id": "tag:research",
+            "kind": "tag",
+            "label": "research"
+          }
+        ],
+        "soterion": "◈",
+        "source_id": "src_0f158b60",
+        "triad_passed": true,
+        "ts_utc": "2026-06-01T05:02:09.355313900+00:00"
+      },
+      {
+        "confidence": 0.75,
+        "edges": [
+          {
+            "from": "source:src_57214e3f",
+            "relation": "tagged_as",
+            "to": "tag:governance"
+          },
+          {
+            "from": "source:src_57214e3f",
+            "relation": "tagged_as",
+            "to": "tag:rawnote"
+          },
+          {
+            "from": "source:src_57214e3f",
+            "relation": "tagged_as",
+            "to": "tag:research"
+          }
+        ],
+        "event": "deep_graph_update",
+        "graph_version": "v1",
+        "nodes": [
+          {
+            "id": "source:src_57214e3f",
+            "kind": "source",
+            "label": "OPPOSING_VIEWPOINT CHALLENGE for src_0f158b60: This perspective questions assump"
+          },
+          {
+            "id": "tag:governance",
+            "kind": "tag",
+            "label": "governance"
+          },
+          {
+            "id": "tag:rawnote",
+            "kind": "tag",
+            "label": "rawnote"
+          },
+          {
+            "id": "tag:research",
+            "kind": "tag",
+            "label": "research"
+          }
+        ],
+        "soterion": "◈",
+        "source_id": "src_57214e3f",
+        "triad_passed": true,
+        "ts_utc": "2026-06-01T05:02:18.105733765+00:00"
+      },
+      {
+        "confidence": 0.75,
+        "edges": [
+          {
+            "from": "source:src_d853449f",
+            "relation": "tagged_as",
+            "to": "tag:governance"
+          },
+          {
+            "from": "source:src_d853449f",
+            "relation": "tagged_as",
+            "to": "tag:rawnote"
+          },
+          {
+            "from": "source:src_d853449f",
+            "relation": "tagged_as",
+            "to": "tag:research"
+          }
+        ],
+        "event": "deep_graph_update",
+        "graph_version": "v1",
+        "nodes": [
+          {
+            "id": "source:src_d853449f",
+            "kind": "source",
+            "label": "OPPOSING_VIEWPOINT AFFIRM for src_0f158b60: This perspective supports the archit"
+          },
+          {
+            "id": "tag:governance",
+            "kind": "tag",
+            "label": "governance"
+          },
+          {
+            "id": "tag:rawnote",
+            "kind": "tag",
+            "label": "rawnote"
+          },
+          {
+            "id": "tag:research",
+            "kind": "tag",
+            "label": "research"
+          }
+        ],
+        "soterion": "◈",
+        "source_id": "src_d853449f",
+        "triad_passed": true,
+        "ts_utc": "2026-06-01T05:02:18.658315558+00:00"
+      },
+      {
+        "confidence": 0.8083333333333333,
+        "edges": [
+          {
+            "from": "source:src_0f158b60",
+            "relation": "tagged_as",
+            "to": "tag:newsarticle"
+          },
+          {
+            "from": "source:src_0f158b60",
+            "relation": "tagged_as",
+            "to": "tag:research"
+          }
+        ],
+        "event": "deep_graph_update",
+        "graph_version": "v1",
+        "nodes": [
+          {
+            "id": "source:src_0f158b60",
+            "kind": "source",
+            "label": "https://www.reddit.com/r/hermesagent/comments/1sg57v5/greetings_from_the_nous_re"
+          },
+          {
+            "id": "tag:newsarticle",
+            "kind": "tag",
+            "label": "newsarticle"
+          },
+          {
+            "id": "tag:research",
+            "kind": "tag",
+            "label": "research"
+          }
+        ],
+        "soterion": "◈",
+        "source_id": "src_0f158b60",
+        "triad_passed": true,
+        "ts_utc": "2026-06-01T05:02:19.852450684+00:00"
+      },
+      {
+        "confidence": 0.675,
+        "edges": [
+          {
+            "from": "source:src_a667d4e6",
+            "relation": "tagged_as",
+            "to": "tag:rawnote"
+          }
+        ],
+        "event": "deep_graph_update",
+        "graph_version": "v1",
+        "nodes": [
+          {
+            "id": "source:src_a667d4e6",
+            "kind": "source",
+            "label": "data/athena/notebooklm_mcp_triage_2026-06-01.md"
+          },
+          {
+            "id": "tag:rawnote",
+            "kind": "tag",
+            "label": "rawnote"
+          }
+        ],
+        "soterion": "◈",
+        "source_id": "src_a667d4e6",
+        "triad_passed": true,
+        "ts_utc": "2026-06-01T07:02:24.963976931+00:00"
+      },
+      {
+        "confidence": 0.75,
+        "edges": [
+          {
+            "from": "source:src_8362a0a3",
+            "relation": "tagged_as",
+            "to": "tag:governance"
+          },
+          {
+            "from": "source:src_8362a0a3",
+            "relation": "tagged_as",
+            "to": "tag:rawnote"
+          },
+          {
+            "from": "source:src_8362a0a3",
+            "relation": "tagged_as",
+            "to": "tag:research"
+          }
+        ],
+        "event": "deep_graph_update",
+        "graph_version": "v1",
+        "nodes": [
+          {
+            "id": "source:src_8362a0a3",
+            "kind": "source",
+            "label": "OPPOSING_VIEWPOINT CHALLENGE for src_a667d4e6: This perspective questions assump"
+          },
+          {
+            "id": "tag:governance",
+            "kind": "tag",
+            "label": "governance"
+          },
+          {
+            "id": "tag:rawnote",
+            "kind": "tag",
+            "label": "rawnote"
+          },
+          {
+            "id": "tag:research",
+            "kind": "tag",
+            "label": "research"
+          }
+        ],
+        "soterion": "◈",
+        "source_id": "src_8362a0a3",
+        "triad_passed": true,
+        "ts_utc": "2026-06-01T07:02:32.049830714+00:00"
+      },
+      {
+        "confidence": 0.75,
+        "edges": [
+          {
+            "from": "source:src_c0434a1b",
+            "relation": "tagged_as",
+            "to": "tag:governance"
+          },
+          {
+            "from": "source:src_c0434a1b",
+            "relation": "tagged_as",
+            "to": "tag:rawnote"
+          },
+          {
+            "from": "source:src_c0434a1b",
+            "relation": "tagged_as",
+            "to": "tag:research"
+          }
+        ],
+        "event": "deep_graph_update",
+        "graph_version": "v1",
+        "nodes": [
+          {
+            "id": "source:src_c0434a1b",
+            "kind": "source",
+            "label": "OPPOSING_VIEWPOINT AFFIRM for src_a667d4e6: This perspective supports the archit"
+          },
+          {
+            "id": "tag:governance",
+            "kind": "tag",
+            "label": "governance"
+          },
+          {
+            "id": "tag:rawnote",
+            "kind": "tag",
+            "label": "rawnote"
+          },
+          {
+            "id": "tag:research",
+            "kind": "tag",
+            "label": "research"
+          }
+        ],
+        "soterion": "◈",
+        "source_id": "src_c0434a1b",
+        "triad_passed": true,
+        "ts_utc": "2026-06-01T07:02:32.574233536+00:00"
+      },
+      {
+        "confidence": 0.735,
+        "edges": [
+          {
+            "from": "source:src_a667d4e6",
+            "relation": "tagged_as",
+            "to": "tag:rawnote"
+          }
+        ],
+        "event": "deep_graph_update",
+        "graph_version": "v1",
+        "nodes": [
+          {
+            "id": "source:src_a667d4e6",
+            "kind": "source",
+            "label": "data/athena/notebooklm_mcp_triage_2026-06-01.md"
+          },
+          {
+            "id": "tag:rawnote",
+            "kind": "tag",
+            "label": "rawnote"
+          }
+        ],
+        "soterion": "◈",
+        "source_id": "src_a667d4e6",
+        "triad_passed": true,
+        "ts_utc": "2026-06-01T07:02:33.757602808+00:00"
+      },
+      {
+        "confidence": 0.7516666666666667,
+        "edges": [
+          {
+            "from": "source:src_759fe57d",
+            "relation": "tagged_as",
+            "to": "tag:newsarticle"
+          }
+        ],
+        "event": "deep_graph_update",
+        "graph_version": "v1",
+        "nodes": [
+          {
+            "id": "source:src_759fe57d",
+            "kind": "source",
+            "label": "https://annas-archive.pk/blog/llms-txt.html"
+          },
+          {
+            "id": "tag:newsarticle",
+            "kind": "tag",
+            "label": "newsarticle"
+          }
+        ],
+        "soterion": "◈",
+        "source_id": "src_759fe57d",
+        "triad_passed": true,
+        "ts_utc": "2026-06-01T07:34:07.199290612+00:00"
+      },
+      {
+        "confidence": 0.7083333333333334,
+        "edges": [
+          {
+            "from": "source:src_118a6965",
+            "relation": "tagged_as",
+            "to": "tag:social"
+          },
+          {
+            "from": "source:src_118a6965",
+            "relation": "tagged_as",
+            "to": "tag:x"
+          },
+          {
+            "from": "source:src_118a6965",
+            "relation": "tagged_as",
+            "to": "tag:xpost"
+          }
+        ],
+        "event": "deep_graph_update",
+        "graph_version": "v1",
+        "nodes": [
+          {
+            "id": "source:src_118a6965",
+            "kind": "source",
+            "label": "https://x.com/wandermist/status/2071930382581195105"
+          },
+          {
+            "id": "tag:social",
+            "kind": "tag",
+            "label": "social"
+          },
+          {
+            "id": "tag:x",
+            "kind": "tag",
+            "label": "x"
+          },
+          {
+            "id": "tag:xpost",
+            "kind": "tag",
+            "label": "xpost"
+          }
+        ],
+        "soterion": "◈",
+        "source_id": "src_118a6965",
+        "triad_passed": true,
+        "ts_utc": "2026-07-03T05:02:28.841420338+00:00"
+      },
+      {
+        "confidence": 0.6916666666666667,
+        "edges": [
+          {
+            "from": "source:src_b92cf8e7",
+            "relation": "tagged_as",
+            "to": "tag:githubrepo"
+          }
+        ],
+        "event": "deep_graph_update",
+        "graph_version": "v1",
+        "nodes": [
+          {
+            "id": "source:src_b92cf8e7",
+            "kind": "source",
+            "label": "https://github.com/automataIA/graphrag-rs"
+          },
+          {
+            "id": "tag:githubrepo",
+            "kind": "tag",
+            "label": "githubrepo"
+          }
+        ],
+        "soterion": "◈",
+        "source_id": "src_b92cf8e7",
+        "triad_passed": true,
+        "ts_utc": "2026-07-03T05:02:28.915382676+00:00"
+      },
+      {
+        "confidence": 0.6916666666666667,
+        "edges": [
+          {
+            "from": "source:src_f74d5b6b",
+            "relation": "tagged_as",
+            "to": "tag:githubrepo"
+          }
+        ],
+        "event": "deep_graph_update",
+        "graph_version": "v1",
+        "nodes": [
+          {
+            "id": "source:src_f74d5b6b",
+            "kind": "source",
+            "label": "https://github.com/DeusData/codebase-memory-mcp"
+          },
+          {
+            "id": "tag:githubrepo",
+            "kind": "tag",
+            "label": "githubrepo"
+          }
+        ],
+        "soterion": "◈",
+        "source_id": "src_f74d5b6b",
+        "triad_passed": true,
+        "ts_utc": "2026-07-03T05:02:28.989648629+00:00"
+      }
+    ],
+    "recent_deep_queue": [
+      {
+        "agent": "orchestrator",
+        "event": "deep_queued",
+        "reason": "NotebookLM MCP synthesis candidate: evaluate source-grounded themes before any task promotion",
+        "source_id": "src_a667d4e6",
+        "status": "pending_deep",
+        "ts": "2026-06-01T07:02:24.392353640+00:00"
+      },
+      {
+        "agent": "athena",
+        "event": "deep_complete",
+        "reason": "deterministic scaffold complete",
+        "source_id": "src_a667d4e6",
+        "status": "deep",
+        "ts": "2026-06-01T07:02:24.958144520+00:00"
+      },
+      {
+        "agent": "athena",
+        "event": "deep_queued",
+        "reason": "opposition_context_for:src_a667d4e6",
+        "source_id": "src_c0434a1b",
+        "status": "pending_deep",
+        "ts": "2026-06-01T07:02:31.301801240+00:00"
+      },
+      {
+        "agent": "athena",
+        "event": "deep_queued",
+        "reason": "opposition_context_for:src_a667d4e6",
+        "source_id": "src_8362a0a3",
+        "status": "pending_deep",
+        "ts": "2026-06-01T07:02:31.305292979+00:00"
+      },
+      {
+        "agent": "athena",
+        "event": "deep_complete",
+        "reason": "deterministic scaffold complete",
+        "source_id": "src_8362a0a3",
+        "status": "deep",
+        "ts": "2026-06-01T07:02:32.044310127+00:00"
+      },
+      {
+        "agent": "athena",
+        "event": "deep_complete",
+        "reason": "deterministic scaffold complete",
+        "source_id": "src_c0434a1b",
+        "status": "deep",
+        "ts": "2026-06-01T07:02:32.568588777+00:00"
+      },
+      {
+        "agent": "orchestrator",
+        "event": "deep_queued",
+        "reason": "reevaluate NotebookLM MCP synthesis candidate after opposition coverage harvest",
+        "source_id": "src_a667d4e6",
+        "status": "pending_deep",
+        "ts": "2026-06-01T07:02:32.777903030+00:00"
+      },
+      {
+        "agent": "athena",
+        "event": "deep_complete",
+        "reason": "deterministic scaffold complete",
+        "source_id": "src_a667d4e6",
+        "status": "deep",
+        "ts": "2026-06-01T07:02:33.271651953+00:00"
+      },
+      {
+        "agent": "orchestrator",
+        "event": "deep_queued",
+        "reason": "public_archives connector validation",
+        "source_id": "src_759fe57d",
+        "status": "pending_deep",
+        "ts": "2026-06-01T07:34:06.160144831+00:00"
+      },
+      {
+        "agent": "athena",
+        "event": "deep_complete",
+        "reason": "deterministic scaffold complete",
+        "source_id": "src_759fe57d",
+        "status": "deep",
+        "ts": "2026-06-01T07:34:06.684407399+00:00"
+      },
+      {
+        "agent": "orchestrator",
+        "event": "deep_queued",
+        "reason": "batch social/repo digest",
+        "source_id": "src_118a6965",
+        "status": "pending_deep",
+        "ts": "2026-07-03T05:02:28.783383926+00:00"
+      },
+      {
+        "agent": "athena",
+        "event": "deep_complete",
+        "reason": "deterministic scaffold complete",
+        "source_id": "src_118a6965",
+        "status": "deep",
+        "ts": "2026-07-03T05:02:28.836132645+00:00"
+      },
+      {
+        "agent": "orchestrator",
+        "event": "deep_queued",
+        "reason": "batch social/repo digest",
+        "source_id": "src_b92cf8e7",
+        "status": "pending_deep",
+        "ts": "2026-07-03T05:02:28.860907493+00:00"
+      },
+      {
+        "agent": "athena",
+        "event": "deep_complete",
+        "reason": "deterministic scaffold complete",
+        "source_id": "src_b92cf8e7",
+        "status": "deep",
+        "ts": "2026-07-03T05:02:28.910009943+00:00"
+      },
+      {
+        "agent": "orchestrator",
+        "event": "deep_queued",
+        "reason": "batch social/repo digest",
+        "source_id": "src_f74d5b6b",
+        "status": "pending_deep",
+        "ts": "2026-07-03T05:02:28.935842405+00:00"
+      },
+      {
+        "agent": "athena",
+        "event": "deep_complete",
+        "reason": "deterministic scaffold complete",
+        "source_id": "src_f74d5b6b",
+        "status": "deep",
+        "ts": "2026-07-03T05:02:28.984773423+00:00"
+      }
+    ],
+    "recent_digest": [
+      {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_b74f9414.jsonl",
+        "deduplicated": false,
+        "digest_status": "shallow",
+        "error": null,
+        "id": "src_b74f9414",
+        "processed_at_utc": "2026-06-20T10:01:57.850185978+00:00",
+        "raw_input": "docs/plans/platform-os-tenant-staged-feature-separation.md",
+        "received_at_utc": "2026-06-20T10:01:57.850185978+00:00",
+        "shallow": {
+          "components_available": [],
+          "deep_analysis_reason": "New source ingested; deep analysis should be scheduled.",
+          "deep_analysis_recommended": true,
+          "key_dependencies": [],
+          "language": null,
+          "license": null,
+          "relevance_tags": [
+            "docs",
+            "rawnote"
+          ],
+          "reuse_potential": null,
+          "scholarly_metadata": null,
+          "summary": "Initial shallow ingest completed for RawNote.",
+          "title": "docs/plans/platform-os-tenant-staged-feature-separation.md"
+        },
+        "sigil": "ANKH",
+        "source_type": "raw_note",
+        "submitted_by": "hades",
+        "task_context": "hades_orphan_found",
+        "url": null
+      },
+      {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_822ba743.jsonl",
+        "deduplicated": false,
+        "digest_status": "shallow",
+        "error": null,
+        "id": "src_822ba743",
+        "processed_at_utc": "2026-06-21T03:20:56.091256978+00:00",
+        "raw_input": "docs/plans/platform-os-core-manifest-audit.md",
+        "received_at_utc": "2026-06-21T03:20:56.091256978+00:00",
+        "shallow": {
+          "components_available": [],
+          "deep_analysis_reason": "New source ingested; deep analysis should be scheduled.",
+          "deep_analysis_recommended": true,
+          "key_dependencies": [],
+          "language": null,
+          "license": null,
+          "relevance_tags": [
+            "docs",
+            "rawnote"
+          ],
+          "reuse_potential": null,
+          "scholarly_metadata": null,
+          "summary": "Initial shallow ingest completed for RawNote.",
+          "title": "docs/plans/platform-os-core-manifest-audit.md"
+        },
+        "sigil": "ANKH",
+        "source_type": "raw_note",
+        "submitted_by": "hades",
+        "task_context": "hades_orphan_found",
+        "url": null
+      },
+      {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_61d27291.jsonl",
+        "deduplicated": false,
+        "digest_status": "shallow",
+        "error": null,
+        "id": "src_61d27291",
+        "processed_at_utc": "2026-06-21T03:51:55.902712841+00:00",
+        "raw_input": "docs/plans/platform-os-schema-freeze-audit.md",
+        "received_at_utc": "2026-06-21T03:51:55.902712841+00:00",
+        "shallow": {
+          "components_available": [],
+          "deep_analysis_reason": "New source ingested; deep analysis should be scheduled.",
+          "deep_analysis_recommended": true,
+          "key_dependencies": [],
+          "language": null,
+          "license": null,
+          "relevance_tags": [
+            "docs",
+            "rawnote"
+          ],
+          "reuse_potential": null,
+          "scholarly_metadata": null,
+          "summary": "Initial shallow ingest completed for RawNote.",
+          "title": "docs/plans/platform-os-schema-freeze-audit.md"
+        },
+        "sigil": "ANKH",
+        "source_type": "raw_note",
+        "submitted_by": "hades",
+        "task_context": "hades_orphan_found",
+        "url": null
+      },
+      {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_99f28bf7.jsonl",
+        "deduplicated": false,
+        "digest_status": "shallow",
+        "error": null,
+        "id": "src_99f28bf7",
+        "processed_at_utc": "2026-06-21T13:32:55.986006125+00:00",
+        "raw_input": "docs/plans/platform-os-council-staged-feature-extraction.md",
+        "received_at_utc": "2026-06-21T13:32:55.986006125+00:00",
+        "shallow": {
+          "components_available": [],
+          "deep_analysis_reason": "New source ingested; deep analysis should be scheduled.",
+          "deep_analysis_recommended": true,
+          "key_dependencies": [],
+          "language": null,
+          "license": null,
+          "relevance_tags": [
+            "docs",
+            "rawnote"
+          ],
+          "reuse_potential": null,
+          "scholarly_metadata": null,
+          "summary": "Initial shallow ingest completed for RawNote.",
+          "title": "docs/plans/platform-os-council-staged-feature-extraction.md"
+        },
+        "sigil": "ANKH",
+        "source_type": "raw_note",
+        "submitted_by": "hades",
+        "task_context": "hades_orphan_found",
+        "url": null
+      },
+      {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_a5c6c8ee.jsonl",
+        "deduplicated": false,
+        "digest_status": "shallow",
+        "error": null,
+        "id": "src_a5c6c8ee",
+        "processed_at_utc": "2026-06-21T13:52:56.353334322+00:00",
+        "raw_input": "docs/plans/platform-os-forge-mind-staged-feature-extraction.md",
+        "received_at_utc": "2026-06-21T13:52:56.353334322+00:00",
+        "shallow": {
+          "components_available": [],
+          "deep_analysis_reason": "New source ingested; deep analysis should be scheduled.",
+          "deep_analysis_recommended": true,
+          "key_dependencies": [],
+          "language": null,
+          "license": null,
+          "relevance_tags": [
+            "docs",
+            "rawnote"
+          ],
+          "reuse_potential": null,
+          "scholarly_metadata": null,
+          "summary": "Initial shallow ingest completed for RawNote.",
+          "title": "docs/plans/platform-os-forge-mind-staged-feature-extraction.md"
+        },
+        "sigil": "ANKH",
+        "source_type": "raw_note",
+        "submitted_by": "hades",
+        "task_context": "hades_orphan_found",
+        "url": null
+      },
+      {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_603a1b81.jsonl",
+        "deduplicated": false,
+        "digest_status": "shallow",
+        "error": null,
+        "id": "src_603a1b81",
+        "processed_at_utc": "2026-06-21T19:21:55.957889013+00:00",
+        "raw_input": "docs/plans/platform-os-signal-grid-staged-feature-extraction.md",
+        "received_at_utc": "2026-06-21T19:21:55.957889013+00:00",
+        "shallow": {
+          "components_available": [],
+          "deep_analysis_reason": "New source ingested; deep analysis should be scheduled.",
+          "deep_analysis_recommended": true,
+          "key_dependencies": [],
+          "language": null,
+          "license": null,
+          "relevance_tags": [
+            "docs",
+            "rawnote"
+          ],
+          "reuse_potential": null,
+          "scholarly_metadata": null,
+          "summary": "Initial shallow ingest completed for RawNote.",
+          "title": "docs/plans/platform-os-signal-grid-staged-feature-extraction.md"
+        },
+        "sigil": "ANKH",
+        "source_type": "raw_note",
+        "submitted_by": "hades",
+        "task_context": "hades_orphan_found",
+        "url": null
+      },
+      {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_256fd1e4.jsonl",
+        "deduplicated": false,
+        "digest_status": "shallow",
+        "error": null,
+        "id": "src_256fd1e4",
+        "processed_at_utc": "2026-06-21T20:13:56.615878401+00:00",
+        "raw_input": "docs/plans/platform-os-service-registry-staged-feature-extraction.md",
+        "received_at_utc": "2026-06-21T20:13:56.615878401+00:00",
+        "shallow": {
+          "components_available": [],
+          "deep_analysis_reason": "New source ingested; deep analysis should be scheduled.",
+          "deep_analysis_recommended": true,
+          "key_dependencies": [],
+          "language": null,
+          "license": null,
+          "relevance_tags": [
+            "docs",
+            "rawnote"
+          ],
+          "reuse_potential": null,
+          "scholarly_metadata": null,
+          "summary": "Initial shallow ingest completed for RawNote.",
+          "title": "docs/plans/platform-os-service-registry-staged-feature-extraction.md"
+        },
+        "sigil": "ANKH",
+        "source_type": "raw_note",
+        "submitted_by": "hades",
+        "task_context": "hades_orphan_found",
+        "url": null
+      },
+      {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_118a6965.jsonl",
+        "deduplicated": false,
+        "digest_status": "shallow",
+        "error": null,
+        "id": "src_118a6965",
+        "processed_at_utc": "2026-07-03T04:59:03.088933973+00:00",
+        "raw_input": "https://x.com/wandermist/status/2071930382581195105",
+        "received_at_utc": "2026-07-03T04:59:03.088933973+00:00",
+        "shallow": {
+          "components_available": [],
+          "deep_analysis_reason": "New source ingested; deep analysis should be scheduled.",
+          "deep_analysis_recommended": true,
+          "key_dependencies": [],
+          "language": null,
+          "license": null,
+          "relevance_tags": [
+            "social",
+            "x",
+            "xpost"
+          ],
+          "reuse_potential": null,
+          "scholarly_metadata": null,
+          "summary": "Initial shallow ingest completed for XPost.",
+          "title": "https://x.com/wandermist/status/2071930382581195105"
+        },
+        "sigil": "ANKH",
+        "source_type": "x_post",
+        "submitted_by": "cli",
+        "task_context": "manual social link ingest",
+        "url": "https://x.com/wandermist/status/2071930382581195105"
+      },
+      {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_b92cf8e7.jsonl",
+        "deduplicated": false,
+        "digest_status": "shallow",
+        "error": null,
+        "id": "src_b92cf8e7",
+        "processed_at_utc": "2026-07-03T04:59:16.685512160+00:00",
+        "raw_input": "https://github.com/automataIA/graphrag-rs",
+        "received_at_utc": "2026-07-03T04:59:16.685512160+00:00",
+        "shallow": {
+          "components_available": [],
+          "deep_analysis_reason": "New source ingested; deep analysis should be scheduled.",
+          "deep_analysis_recommended": true,
+          "key_dependencies": [],
+          "language": null,
+          "license": null,
+          "relevance_tags": [
+            "githubrepo"
+          ],
+          "reuse_potential": null,
+          "scholarly_metadata": null,
+          "summary": "Initial shallow ingest completed for GithubRepo.",
+          "title": "https://github.com/automataIA/graphrag-rs"
+        },
+        "sigil": "ANKH",
+        "source_type": "github_repo",
+        "submitted_by": "cli",
+        "task_context": "manual repo ingest",
+        "url": "https://github.com/automataIA/graphrag-rs"
+      },
+      {
+        "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_f74d5b6b.jsonl",
+        "deduplicated": false,
+        "digest_status": "shallow",
+        "error": null,
+        "id": "src_f74d5b6b",
+        "processed_at_utc": "2026-07-03T05:01:42.350549911+00:00",
+        "raw_input": "https://github.com/DeusData/codebase-memory-mcp",
+        "received_at_utc": "2026-07-03T05:01:42.350549911+00:00",
+        "shallow": {
+          "components_available": [],
+          "deep_analysis_reason": "New source ingested; deep analysis should be scheduled.",
+          "deep_analysis_recommended": true,
+          "key_dependencies": [],
+          "language": null,
+          "license": null,
+          "relevance_tags": [
+            "githubrepo"
+          ],
+          "reuse_potential": null,
+          "scholarly_metadata": null,
+          "summary": "Initial shallow ingest completed for GithubRepo.",
+          "title": "https://github.com/DeusData/codebase-memory-mcp"
+        },
+        "sigil": "ANKH",
+        "source_type": "github_repo",
+        "submitted_by": "cli",
+        "task_context": "manual repo ingest batch 2",
+        "url": "https://github.com/DeusData/codebase-memory-mcp"
+      },
+      {
+        "agent": "orchestrator",
+        "event": "deep_queued",
+        "reason": "batch social/repo digest",
+        "source_id": "src_118a6965",
+        "status": "pending_deep",
+        "ts": "2026-07-03T05:02:28.783383926+00:00"
+      },
+      {
+        "agent": "athena",
+        "event": "deep_complete",
+        "reason": "deterministic scaffold complete",
+        "source_id": "src_118a6965",
+        "status": "deep",
+        "ts": "2026-07-03T05:02:28.836132645+00:00"
+      },
+      {
+        "agent": "orchestrator",
+        "event": "deep_queued",
+        "reason": "batch social/repo digest",
+        "source_id": "src_b92cf8e7",
+        "status": "pending_deep",
+        "ts": "2026-07-03T05:02:28.860907493+00:00"
+      },
+      {
+        "agent": "athena",
+        "event": "deep_complete",
+        "reason": "deterministic scaffold complete",
+        "source_id": "src_b92cf8e7",
+        "status": "deep",
+        "ts": "2026-07-03T05:02:28.910009943+00:00"
+      },
+      {
+        "agent": "orchestrator",
+        "event": "deep_queued",
+        "reason": "batch social/repo digest",
+        "source_id": "src_f74d5b6b",
+        "status": "pending_deep",
+        "ts": "2026-07-03T05:02:28.935842405+00:00"
+      },
+      {
+        "agent": "athena",
+        "event": "deep_complete",
+        "reason": "deterministic scaffold complete",
+        "source_id": "src_f74d5b6b",
+        "status": "deep",
+        "ts": "2026-07-03T05:02:28.984773423+00:00"
+      }
+    ],
+    "recent_policy_readiness": [
+      {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6916666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_759fe57d",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "policy_readiness": "reference_only",
+        "source_id": "src_759fe57d",
+        "ts_utc": "2026-06-01T04:41:29.288064739+00:00"
+      },
+      {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.75,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_d92c876d",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "policy_readiness": "reference_only",
+        "source_id": "src_d92c876d",
+        "ts_utc": "2026-06-01T04:41:35.921633788+00:00"
+      },
+      {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.75,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_10ea61bb",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "policy_readiness": "reference_only",
+        "source_id": "src_10ea61bb",
+        "ts_utc": "2026-06-01T04:41:36.431284070+00:00"
+      },
+      {
+        "gate": {
+          "blockers": [],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7516666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 2,
+            "triad_passed": true
+          },
+          "source_id": "src_759fe57d",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.7,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "policy_readiness": "policy_ready",
+        "source_id": "src_759fe57d",
+        "ts_utc": "2026-06-01T04:41:37.305227195+00:00"
+      },
+      {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7483333333333333,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_0f158b60",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "policy_readiness": "reference_only",
+        "source_id": "src_0f158b60",
+        "ts_utc": "2026-06-01T05:02:09.345304363+00:00"
+      },
+      {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.75,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_57214e3f",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "policy_readiness": "reference_only",
+        "source_id": "src_57214e3f",
+        "ts_utc": "2026-06-01T05:02:18.098478456+00:00"
+      },
+      {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.75,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_d853449f",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "policy_readiness": "reference_only",
+        "source_id": "src_d853449f",
+        "ts_utc": "2026-06-01T05:02:18.651963031+00:00"
+      },
+      {
+        "gate": {
+          "blockers": [],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.8083333333333333,
+            "hash_chain_valid": true,
+            "opposition_coverage": 2,
+            "triad_passed": true
+          },
+          "source_id": "src_0f158b60",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.7,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "policy_readiness": "policy_ready",
+        "source_id": "src_0f158b60",
+        "ts_utc": "2026-06-01T05:02:19.358848739+00:00"
+      },
+      {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.675,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_a667d4e6",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "policy_readiness": "reference_only",
+        "source_id": "src_a667d4e6",
+        "ts_utc": "2026-06-01T07:02:24.957549451+00:00"
+      },
+      {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.75,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_8362a0a3",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "policy_readiness": "reference_only",
+        "source_id": "src_8362a0a3",
+        "ts_utc": "2026-06-01T07:02:32.043711839+00:00"
+      },
+      {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.75,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_c0434a1b",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "policy_readiness": "reference_only",
+        "source_id": "src_c0434a1b",
+        "ts_utc": "2026-06-01T07:02:32.567970638+00:00"
+      },
+      {
+        "gate": {
+          "blockers": [],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.735,
+            "hash_chain_valid": true,
+            "opposition_coverage": 2,
+            "triad_passed": true
+          },
+          "source_id": "src_a667d4e6",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.7,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "policy_readiness": "policy_ready",
+        "source_id": "src_a667d4e6",
+        "ts_utc": "2026-06-01T07:02:33.271053855+00:00"
+      },
+      {
+        "gate": {
+          "blockers": [],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7516666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 2,
+            "triad_passed": true
+          },
+          "source_id": "src_759fe57d",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.7,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "policy_readiness": "policy_ready",
+        "source_id": "src_759fe57d",
+        "ts_utc": "2026-06-01T07:34:06.683806821+00:00"
+      },
+      {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.7083333333333334,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_118a6965",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "policy_readiness": "reference_only",
+        "source_id": "src_118a6965",
+        "ts_utc": "2026-07-03T05:02:28.835583458+00:00"
+      },
+      {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6916666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_b92cf8e7",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "policy_readiness": "reference_only",
+        "source_id": "src_b92cf8e7",
+        "ts_utc": "2026-07-03T05:02:28.909272193+00:00"
+      },
+      {
+        "gate": {
+          "blockers": [
+            "confidence_threshold",
+            "opposition_coverage"
+          ],
+          "observed": {
+            "citation_integrity": true,
+            "confidence": 0.6916666666666667,
+            "hash_chain_valid": true,
+            "opposition_coverage": 0,
+            "triad_passed": true
+          },
+          "source_id": "src_f74d5b6b",
+          "thresholds": {
+            "citation_integrity_required": true,
+            "confidence_mean": 0.8,
+            "hash_chain_required": true,
+            "opposition_coverage_min": 2,
+            "triad_pass_rate": 0.75
+          }
+        },
+        "policy_readiness": "reference_only",
+        "source_id": "src_f74d5b6b",
+        "ts_utc": "2026-07-03T05:02:28.984251196+00:00"
+      }
+    ],
+    "recent_sources": [
+      {
+        "book_ref": "/tmp/.tmpIzDSIe/books/src_ea7a1c0f.jsonl",
+        "confidence": null,
+        "domain": "knowledge",
+        "event": "shallow_synced",
+        "human_ref": "human/library/athena/sources/src_ea7a1c0f.md",
+        "realm": "athena",
+        "sigil": "ANKH",
+        "soterion": "◈",
+        "source_id": "src_ea7a1c0f",
+        "source_type": "RawNote",
+        "status": "shallow",
+        "tags": [
+          "rawnote"
+        ],
+        "triad_passed": null,
+        "ts_utc": "2026-07-03T06:29:39.878501092+00:00",
+        "url": null
+      },
+      {
+        "book_ref": "/tmp/.tmpIzDSIe/books/src_ea7a1c0f.jsonl",
+        "confidence": 0.6416666666666666,
+        "domain": "knowledge",
+        "event": "deep_synced",
+        "human_ref": "human/library/athena/sources/src_ea7a1c0f.md",
+        "realm": "athena",
+        "sigil": "EYE",
+        "soterion": "◈",
+        "source_id": "src_ea7a1c0f",
+        "source_type": "RawNote",
+        "status": "deep",
+        "tags": [
+          "rawnote"
+        ],
+        "triad_passed": false,
+        "ts_utc": "2026-07-03T06:29:39.881173159+00:00",
+        "url": null
+      },
+      {
+        "book_ref": "/tmp/.tmpIzDSIe/books/src_ea7a1c0f.jsonl",
+        "confidence": 0.6416666666666666,
+        "domain": "knowledge",
+        "event": "deep_synced",
+        "human_ref": "human/library/athena/sources/src_ea7a1c0f.md",
+        "realm": "athena",
+        "sigil": "EYE",
+        "soterion": "◈",
+        "source_id": "src_ea7a1c0f",
+        "source_type": "RawNote",
+        "status": "deep",
+        "tags": [
+          "rawnote"
+        ],
+        "triad_passed": false,
+        "ts_utc": "2026-07-03T06:29:39.886050437+00:00",
+        "url": null
+      },
+      {
+        "book_ref": "/tmp/.tmpzlnz6P/books/src_3c43db4d.jsonl",
+        "confidence": null,
+        "domain": "knowledge",
+        "event": "shallow_synced",
+        "human_ref": "human/library/athena/sources/src_3c43db4d.md",
+        "realm": "athena",
+        "sigil": "ANKH",
+        "soterion": "◈",
+        "source_id": "src_3c43db4d",
+        "source_type": "RawNote",
+        "status": "shallow",
+        "tags": [
+          "governance",
+          "rawnote"
+        ],
+        "triad_passed": null,
+        "ts_utc": "2026-07-03T06:29:40.191416799+00:00",
+        "url": null
+      },
+      {
+        "book_ref": "/tmp/.tmpzlnz6P/books/src_3c43db4d.jsonl",
+        "confidence": null,
+        "domain": "knowledge",
+        "event": "shallow_synced",
+        "human_ref": "human/library/athena/sources/src_3c43db4d.md",
+        "realm": "athena",
+        "sigil": "ANKH",
+        "soterion": "◈",
+        "source_id": "src_3c43db4d",
+        "source_type": "RawNote",
+        "status": "shallow",
+        "tags": [
+          "governance",
+          "rawnote"
+        ],
+        "triad_passed": null,
+        "ts_utc": "2026-07-03T06:29:40.193618010+00:00",
+        "url": null
+      },
+      {
+        "book_ref": "/tmp/.tmpzlnz6P/books/src_3c43db4d.jsonl",
+        "confidence": 0.7166666666666666,
+        "domain": "knowledge",
+        "event": "deep_synced",
+        "human_ref": "human/library/athena/sources/src_3c43db4d.md",
+        "realm": "athena",
+        "sigil": "EYE",
+        "soterion": "◈",
+        "source_id": "src_3c43db4d",
+        "source_type": "RawNote",
+        "status": "deep",
+        "tags": [
+          "governance",
+          "rawnote"
+        ],
+        "triad_passed": false,
+        "ts_utc": "2026-07-03T06:29:40.197493333+00:00",
+        "url": null
+      },
+      {
+        "book_ref": "/tmp/.tmpzlnz6P/books/src_9335d6a0.jsonl",
+        "confidence": null,
+        "domain": "knowledge",
+        "event": "shallow_synced",
+        "human_ref": "human/library/athena/sources/src_9335d6a0.md",
+        "realm": "athena",
+        "sigil": "ANKH",
+        "soterion": "◈",
+        "source_id": "src_9335d6a0",
+        "source_type": "RawNote",
+        "status": "shallow",
+        "tags": [
+          "governance",
+          "rawnote",
+          "research"
+        ],
+        "triad_passed": null,
+        "ts_utc": "2026-07-03T06:29:40.198831602+00:00",
+        "url": null
+      },
+      {
+        "book_ref": "/tmp/.tmpzlnz6P/books/src_7afb5452.jsonl",
+        "confidence": null,
+        "domain": "knowledge",
+        "event": "shallow_synced",
+        "human_ref": "human/library/athena/sources/src_7afb5452.md",
+        "realm": "athena",
+        "sigil": "ANKH",
+        "soterion": "◈",
+        "source_id": "src_7afb5452",
+        "source_type": "RawNote",
+        "status": "shallow",
+        "tags": [
+          "governance",
+          "rawnote",
+          "research"
+        ],
+        "triad_passed": null,
+        "ts_utc": "2026-07-03T06:29:40.200976172+00:00",
+        "url": null
+      },
+      {
+        "book_ref": "/tmp/.tmpzlnz6P/books/src_7afb5452.jsonl",
+        "confidence": 0.75,
+        "domain": "knowledge",
+        "event": "deep_synced",
+        "human_ref": "human/library/athena/sources/src_7afb5452.md",
+        "realm": "athena",
+        "sigil": "EYE",
+        "soterion": "◈",
+        "source_id": "src_7afb5452",
+        "source_type": "RawNote",
+        "status": "deep",
+        "tags": [
+          "governance",
+          "rawnote",
+          "research"
+        ],
+        "triad_passed": true,
+        "ts_utc": "2026-07-03T06:29:40.207077877+00:00",
+        "url": null
+      },
+      {
+        "book_ref": "/tmp/.tmpzlnz6P/books/src_9335d6a0.jsonl",
+        "confidence": 0.75,
+        "domain": "knowledge",
+        "event": "deep_synced",
+        "human_ref": "human/library/athena/sources/src_9335d6a0.md",
+        "realm": "athena",
+        "sigil": "EYE",
+        "soterion": "◈",
+        "source_id": "src_9335d6a0",
+        "source_type": "RawNote",
+        "status": "deep",
+        "tags": [
+          "governance",
+          "rawnote",
+          "research"
+        ],
+        "triad_passed": true,
+        "ts_utc": "2026-07-03T06:29:40.209802804+00:00",
+        "url": null
+      },
+      {
+        "book_ref": "/tmp/.tmpXSA6u7/books/src_84eacbc2.jsonl",
+        "confidence": null,
+        "domain": "knowledge",
+        "event": "shallow_synced",
+        "human_ref": "human/library/athena/sources/src_84eacbc2.md",
+        "realm": "athena",
+        "sigil": "ANKH",
+        "soterion": "◈",
+        "source_id": "src_84eacbc2",
+        "source_type": "GithubRepo",
+        "status": "shallow",
+        "tags": [
+          "api",
+          "githubrepo",
+          "rust"
+        ],
+        "triad_passed": null,
+        "ts_utc": "2026-07-03T06:29:40.367897950+00:00",
+        "url": "https://github.com/example/rust-api"
+      },
+      {
+        "book_ref": "/tmp/.tmpzlnz6P/books/src_3c43db4d.jsonl",
+        "confidence": 0.7766666666666666,
+        "domain": "knowledge",
+        "event": "deep_synced",
+        "human_ref": "human/library/athena/sources/src_3c43db4d.md",
+        "realm": "athena",
+        "sigil": "EYE",
+        "soterion": "◈",
+        "source_id": "src_3c43db4d",
+        "source_type": "RawNote",
+        "status": "deep",
+        "tags": [
+          "governance",
+          "rawnote"
+        ],
+        "triad_passed": true,
+        "ts_utc": "2026-07-03T06:29:42.570978915+00:00",
+        "url": null
+      },
+      {
+        "book_ref": "/tmp/.tmpeZQ42O/books/src_533bb23a.jsonl",
+        "confidence": null,
+        "domain": "knowledge",
+        "event": "shallow_synced",
+        "human_ref": "human/library/athena/sources/src_533bb23a.md",
+        "realm": "athena",
+        "sigil": "ANKH",
+        "soterion": "◈",
+        "source_id": "src_533bb23a",
+        "source_type": "NewsArticle",
+        "status": "shallow",
+        "tags": [
+          "governance",
+          "newsarticle",
+          "rust"
+        ],
+        "triad_passed": null,
+        "ts_utc": "2026-07-03T06:29:42.573809185+00:00",
+        "url": "https://example.com/governance-rust"
+      },
+      {
+        "book_ref": "/tmp/.tmpeZQ42O/books/src_533bb23a.jsonl",
+        "confidence": 0.7666666666666666,
+        "domain": "knowledge",
+        "event": "deep_synced",
+        "human_ref": "human/library/athena/sources/src_533bb23a.md",
+        "realm": "athena",
+        "sigil": "EYE",
+        "soterion": "◈",
+        "source_id": "src_533bb23a",
+        "source_type": "NewsArticle",
+        "status": "deep",
+        "tags": [
+          "governance",
+          "newsarticle",
+          "rust"
+        ],
+        "triad_passed": true,
+        "ts_utc": "2026-07-03T06:29:42.577478975+00:00",
+        "url": "https://example.com/governance-rust"
+      },
+      {
+        "book_ref": "/tmp/.tmpx2zpsu/books/src_84eacbc2.jsonl",
+        "confidence": null,
+        "domain": "knowledge",
+        "event": "shallow_synced",
+        "human_ref": "human/library/athena/sources/src_84eacbc2.md",
+        "realm": "athena",
+        "sigil": "ANKH",
+        "soterion": "◈",
+        "source_id": "src_84eacbc2",
+        "source_type": "GithubRepo",
+        "status": "shallow",
+        "tags": [
+          "api",
+          "githubrepo",
+          "rust"
+        ],
+        "triad_passed": null,
+        "ts_utc": "2026-07-03T06:29:42.774185558+00:00",
+        "url": "https://github.com/example/rust-api"
+      },
+      {
+        "book_ref": "/tmp/.tmpIMncJ5/books/src_84eacbc2.jsonl",
+        "confidence": null,
+        "domain": "knowledge",
+        "event": "shallow_synced",
+        "human_ref": "human/library/athena/sources/src_84eacbc2.md",
+        "realm": "athena",
+        "sigil": "ANKH",
+        "soterion": "◈",
+        "source_id": "src_84eacbc2",
+        "source_type": "GithubRepo",
+        "status": "shallow",
+        "tags": [
+          "api",
+          "githubrepo",
+          "rust"
+        ],
+        "triad_passed": null,
+        "ts_utc": "2026-07-03T06:29:42.913809328+00:00",
+        "url": "https://github.com/example/rust-api"
+      }
+    ]
+  },
+  "policy_readiness_summary": {
+    "governance_gate": "human_review_required",
+    "governed_actions": [
+      "athena.ingest_knowledge",
+      "athena.promote_policy_ready"
+    ],
+    "next_operator_action": "preview_policy_ready_promotion",
+    "policy_ready_ratio": 0.3082706766917293,
+    "policy_ready_total": 123,
+    "promotion_preview_available": true,
+    "records_total": 399,
+    "reference_only_total": 276,
+    "reference_review_needed": true,
+    "review_pressure_total": 153,
+    "safe_action": "athena.refresh_digest",
+    "source": "data/athena/policy_readiness.jsonl",
+    "status": "review_pressure"
+  },
+  "schema_version": "annunimas.core.state.v1",
+  "status": {
+    "avg_deep_queue_latency_seconds": 120.24695370370378,
+    "books_count": 498,
+    "deduplicated_ingests_total": 625,
+    "deep_graph_events": 864,
+    "deep_graph_path": "/var/home/mythos/Annunimas/data/athena/deep_graph.jsonl",
+    "deep_queue_depth": 0,
+    "deep_queue_failed": 0,
+    "deep_queue_path": "/var/home/mythos/Annunimas/data/athena/deep_queue.jsonl",
+    "digest_events": 1783,
+    "digest_path": "/var/home/mythos/Annunimas/data/athena/digest.jsonl",
+    "duplicate_hit_rate": 0.6410256410256411,
+    "execution_authority": "workstation",
+    "execution_posture": "workstation_first_laptop_operator_fallback",
+    "ingest_success_total": 975,
+    "memory_lanes": [
+      "episodic",
+      "source_book",
+      "policy_ready",
+      "implementation_ready"
+    ],
+    "operator_ingress_role": "laptop_terminal_optional_fallback",
+    "planning_task_receipts_path": "/var/home/mythos/Annunimas/data/athena/planning_task_receipts.jsonl",
+    "policy_readiness_path": "/var/home/mythos/Annunimas/data/athena/policy_readiness.jsonl",
+    "policy_ready_count": 123,
+    "policy_ready_promotions_total": 107,
+    "policy_ready_regressions_total": 0,
+    "primary_policy_ready_count": 113,
+    "primary_reference_only_count": 38,
+    "reference_only_count": 276,
+    "source_provenance_coverage_ratio": 1.0,
+    "storage_root": "/var/home/mythos/Annunimas/data/athena",
+    "synthetic_policy_ready_count": 10,
+    "synthetic_reference_only_count": 238,
+    "task_emission_last_run_at_utc": null,
+    "task_emission_receipts_total": 0,
+    "task_emission_skipped_total": 0,
+    "task_emission_success_total": 0
+  },
+  "task_emission": {
+    "last_run_at_utc": null,
+    "receipts_total": 0,
+    "recent_receipts": [
+      {
+        "disposition": "evidence_only",
+        "evidence_report": "data/athena/human_business_intake_actionable_signals.md",
+        "next_human_gate": "Choose one first niche for outreach validation and select one proof artifact to create before any prospect contact.",
+        "policy_readiness": "reference_only",
+        "private_artifact_pointers": [
+          "/var/home/mythos/Eregion/ventures/030-offers/ai-business-audit.md",
+          "/var/home/mythos/Eregion/ventures/030-offers/website-lead-pipeline-sprint.md",
+          "/var/home/mythos/Eregion/ventures/030-offers/missed-lead-recovery-setup.md",
+          "/var/home/mythos/Eregion/ventures/060-job-search/job-tracker.md",
+          "/var/home/mythos/Eregion/ventures/080-outreach/outreach-boundary.md",
+          "/var/home/mythos/Eregion/ventures/070-public-profile/public-trust-surface-update-plan.md"
+        ],
+        "queue_mutation_performed": false,
+        "review_required": true,
+        "schema_version": "annunimas.athena.planning_task_receipt.v1",
+        "scope": "cash_career_ops",
+        "source": "athena_human_business_intake",
+        "source_paths": [
+          "docs/plans/2026-05-30-cash-career-and-venture-operations-plan.md",
+          "docs/operator/curated/projects/hermes-agent-economic-use-cases.md"
+        ],
+        "summary": "Read actual human/business notes and verified existing private Eregion offer/tracker/public-trust drafts. Extracted actionable business signals without filename-only triage, outreach, public profile mutation, prospect data capture, or private workspace leakage.",
+        "task_promotion_allowed": false,
+        "ts_utc": "2026-06-01T23:28:51Z"
+      }
+    ],
+    "skipped_total": 0,
+    "success_total": 0
+  }
+}

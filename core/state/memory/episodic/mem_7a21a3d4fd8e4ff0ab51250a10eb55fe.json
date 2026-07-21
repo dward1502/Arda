@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_7a21a3d4fd8e4ff0ab51250a10eb55fe",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Operator review packet for HADES/WARDEN lifecycle evidence",
+  "salience": 0.6825,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-19T14:08:22.738778398Z",
+  "last_seen_at": "2026-05-19T14:08:22.738778398Z"
+}

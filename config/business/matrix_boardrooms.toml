@@ -1,0 +1,90 @@
+# sigil: ANKH
+
+[defaults]
+provider = "matrix"
+client_surface = "element"
+spaces_enabled = true
+e2ee_by_default = true
+audit_bot_enabled = true
+retention_mode = "operator_defined"
+
+[root_space]
+name = "Annunimas Boardrooms"
+alias = "#annunimas:matrix.local"
+purpose = "sovereign_operator_and_agent_coordination"
+operator_entrypoint = "#annunimas-ops:matrix.local"
+
+[[rooms]]
+id = "ceo-boardroom"
+name = "CEO Boardroom"
+type = "decision_room"
+participants = ["arandur", "oracle", "warden", "athena"]
+e2ee_required = true
+logging_mode = "receipt_only"
+
+[[rooms]]
+id = "ops-boardroom"
+name = "Operations Boardroom"
+type = "operations_room"
+participants = ["apollo", "hermes", "hades", "manwe"]
+e2ee_required = true
+logging_mode = "summary_plus_receipts"
+
+[[rooms]]
+id = "client-bridge"
+name = "Client Bridge"
+type = "adapter_room"
+participants = ["hermes"]
+e2ee_required = true
+logging_mode = "policy_guarded"
+
+[[rooms]]
+id = "research-forge"
+name = "Research Forge"
+type = "knowledge_room"
+participants = ["athena", "mnemosyne", "apollo"]
+e2ee_required = true
+logging_mode = "summary_plus_receipts"
+
+[[rooms]]
+id = "governance-audit"
+name = "Governance Audit"
+type = "audit_room"
+participants = ["oracle", "warden", "hades"]
+e2ee_required = true
+logging_mode = "receipt_only"
+
+[adapters]
+discord = true
+webhook = true
+email = false
+
+[adapter_policy]
+strategy = "agnostic_bridges"
+doctrine_anchor = "matrix"
+human_visible_channel = "element"
+
+[routing_contract]
+primary_boardroom_room_id = "ops-boardroom"
+human_decision_room_id = "ceo-boardroom"
+knowledge_room_id = "research-forge"
+audit_room_id = "governance-audit"
+client_adapter_room_id = "client-bridge"
+
+[bridge_contracts.discord]
+enabled = true
+mode = "hermes_moderated"
+source_room_id = "client-bridge"
+requires_policy_guard = true
+
+[bridge_contracts.webhook]
+enabled = true
+mode = "receipt_fanout"
+source_room_id = "ops-boardroom"
+requires_policy_guard = true
+
+[activation_requirements]
+matrix_bot_access_token_env = "ANNUNIMAS_MATRIX_ACCESS_TOKEN"
+matrix_homeserver_env = "ANNUNIMAS_MATRIX_HOMESERVER"
+element_client_ready = true
+federated_rooms_ready = false

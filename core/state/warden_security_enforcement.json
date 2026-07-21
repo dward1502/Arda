@@ -1,0 +1,30 @@
+{
+  "actions_applied": [],
+  "actions_planned": [],
+  "apply": false,
+  "contract": "annunimas.warden.security_monitoring_enforcement.v1",
+  "dry_run": true,
+  "findings": [],
+  "generated_at_utc": "2026-05-19T22:03:46.887820916+00:00",
+  "inputs": {
+    "governance_runtime": "/var/home/mythos/Annunimas/core/state/governance_runtime.json",
+    "guardhouse": "/var/home/mythos/Annunimas/core/state/warden_guardhouse.json",
+    "permission_profiles": "/var/home/mythos/Annunimas/core/state/permission_profiles.json",
+    "policy_authority": "/var/home/mythos/Annunimas/core/state/warden_policy_authority.json"
+  },
+  "root": "/var/home/mythos/Annunimas",
+  "safety": {
+    "apply_required_for_halt": true,
+    "destructive_operations": false,
+    "dry_run_first": true
+  },
+  "state_root": "/var/home/mythos/Annunimas/core/state",
+  "status": "pass",
+  "summary": {
+    "actions_applied_total": 0,
+    "actions_planned_total": 0,
+    "critical_total": 0,
+    "findings_total": 0,
+    "warning_total": 0
+  }
+}

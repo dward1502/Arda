@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_4698473bf81746b9a9210738c77adcb6",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ATHENA public_archives source seed policy-ready",
+  "salience": 0.6825,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T07:34:49.466063670Z",
+  "last_seen_at": "2026-06-01T07:34:49.466063670Z"
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_eb7ac124e35644bf8c2956b5972ec95d",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA world district workflow resolver",
+  "salience": 0.8045000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T07:52:07.387546312Z",
+  "last_seen_at": "2026-06-01T07:52:07.387546312Z"
+}

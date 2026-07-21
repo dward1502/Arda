@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_f150e7166a9f4f10a67a98323b49ab6b",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: Queue: INDEX plan review. Created and verified human/plans/INDEX.md operator narrative for INDEX plan review. Evidence: core/projects/Plans/INDEX.md and README exist; docs/contracts/index-contract.md reviewed; human/plans/INDEX.md exists at 6971 bytes; append-only guard passed before closeout. Follow-up: plan_map exporter coverage appears stale/under-inclusive and core plan index may need regeneration for PLATFORM_OS.md.",
+  "salience": 0.8505000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-21T06:25:26.753288536Z",
+  "last_seen_at": "2026-06-21T06:25:26.753288536Z"
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_850f5d1a39af4b91a371691df13b94de",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA scene slot workstation templates",
+  "salience": 0.8045000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T06:59:49.951501089Z",
+  "last_seen_at": "2026-06-01T06:59:49.951501089Z"
+}

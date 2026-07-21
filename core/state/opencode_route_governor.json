@@ -1,0 +1,72 @@
+{
+  "agents": {
+    "explore": {
+      "applied_model_profile": "backbone_router",
+      "applied_provider": "openrouter",
+      "current_model_profile": "backbone_router",
+      "current_provider": "openrouter",
+      "governor_controlled": true,
+      "reason": "Already aligned with recommendation.",
+      "recommended_model_profile": "backbone_router",
+      "recommended_provider": "openrouter",
+      "status": "unchanged",
+      "task_type": "research"
+    },
+    "librarian": {
+      "applied_model_profile": "backbone_reasoning",
+      "applied_provider": "openrouter",
+      "current_model_profile": "backbone_reasoning",
+      "current_provider": "openrouter",
+      "governor_controlled": true,
+      "reason": "Already aligned with recommendation.",
+      "recommended_model_profile": "backbone_reasoning",
+      "recommended_provider": "openrouter",
+      "status": "unchanged",
+      "task_type": "research"
+    },
+    "oracle": {
+      "applied_model_profile": "backbone_reasoning",
+      "applied_provider": "openrouter",
+      "current_model_profile": "backbone_reasoning",
+      "current_provider": "openrouter",
+      "governor_controlled": true,
+      "reason": "Already aligned with recommendation.",
+      "recommended_model_profile": "backbone_reasoning",
+      "recommended_provider": "openrouter",
+      "status": "unchanged",
+      "task_type": "reasoning"
+    },
+    "plan": {
+      "applied_model_profile": "backbone_reasoning",
+      "applied_provider": "openrouter",
+      "current_model_profile": "backbone_reasoning",
+      "current_provider": "openrouter",
+      "governor_controlled": true,
+      "reason": "Already aligned with recommendation.",
+      "recommended_model_profile": "backbone_reasoning",
+      "recommended_provider": "openrouter",
+      "status": "unchanged",
+      "task_type": "reasoning"
+    }
+  },
+  "authority": "model_control_surface + opencode_route_contract",
+  "doctrine": {
+    "arda_is_observer_and_override_surface_not_primary_authority": true,
+    "bounded_auto_apply": true,
+    "manual_non_auto_overrides_are_respected": true,
+    "writes_flow_through_sovereign_route_contract": true
+  },
+  "generated_at_utc": "2026-04-28T09:49:24.571201102+00:00",
+  "schema_version": "annunimas.opencode-route-governor.v1",
+  "sigil": "REPAIR",
+  "source_surfaces": {
+    "model_control_surface": "core/state/model_control_surface.json",
+    "route_contract": "config/opencode_agent_routes.toml"
+  },
+  "summary": {
+    "agents_total": 4,
+    "applied_total": 0,
+    "changed": false,
+    "manual_override_total": 0
+  }
+}

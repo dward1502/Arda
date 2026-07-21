@@ -1,0 +1,344 @@
+{
+  "authority": "source_absorption_portfolio + github_repo_integration",
+  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "mission": {
+    "goal": "Turn list-style GitHub catalogs into curated ATHENA candidate sets and PROMETHEUS promotion portfolios.",
+    "name": "Ecosystem Catalog Absorption"
+  },
+  "schema_version": "annunimas.source-ecosystem-registry.v1",
+  "sigil": "REPAIR",
+  "sources": [
+    {
+      "athena_curated_candidate_set": {
+        "candidate_count": 8,
+        "selection_basis": [
+          "registry-linked tools already digested by ATHENA",
+          "active/governed/runtime-ready tools rank ahead of planned-only tools",
+          "confidence remains secondary to bounded product posture"
+        ],
+        "top_candidates": [
+          {
+            "activation_status": "governed_on_demand",
+            "integration_lane": "mcp_browser",
+            "policy_confidence": 0.7516666666666667,
+            "repo_url": "https://github.com/microsoft/playwright-mcp",
+            "source_id": "src_ba31bde2",
+            "tool": "playwright-mcp"
+          },
+          {
+            "activation_status": "active_signal",
+            "integration_lane": "agent_framework",
+            "policy_confidence": 0.7516666666666667,
+            "repo_url": "https://github.com/code-yeongyu/oh-my-opencode",
+            "source_id": "src_275d929b",
+            "tool": "oh-my-opencode"
+          },
+          {
+            "activation_status": "planned",
+            "integration_lane": "charon_provider",
+            "policy_confidence": 0.7516666666666667,
+            "repo_url": "https://github.com/BerriAI/litellm",
+            "source_id": "src_dab89283",
+            "tool": "litellm"
+          },
+          {
+            "activation_status": "planned",
+            "integration_lane": "research",
+            "policy_confidence": 0.6916666666666667,
+            "repo_url": "https://github.com/lyogavin/airllm",
+            "source_id": "src_759119ab",
+            "tool": "airllm"
+          },
+          {
+            "activation_status": "planned",
+            "integration_lane": "knowledge",
+            "policy_confidence": 0.6916666666666667,
+            "repo_url": "https://github.com/agenticnotetaking/arscontexta",
+            "source_id": "src_e0115360",
+            "tool": "arscontexta"
+          },
+          {
+            "activation_status": "planned",
+            "integration_lane": "mcp_communications",
+            "policy_confidence": 0.6916666666666667,
+            "repo_url": "https://github.com/SaseQ/discord-mcp",
+            "source_id": "src_b711210b",
+            "tool": "discord-mcp"
+          },
+          {
+            "activation_status": "planned",
+            "integration_lane": "agent_skills",
+            "policy_confidence": 0.6916666666666667,
+            "repo_url": "https://github.com/obra/superpowers",
+            "source_id": "src_8c6014a3",
+            "tool": "superpowers"
+          },
+          {
+            "activation_status": "planned",
+            "integration_lane": "research",
+            "policy_confidence": null,
+            "repo_url": "https://github.com/nearai/ironclaw",
+            "source_id": "src_c1c7f9c9",
+            "tool": "ironclaw"
+          }
+        ]
+      },
+      "domain": "development",
+      "focus_areas": [
+        "reasoning_agents",
+        "coding_agents",
+        "orchestration",
+        "tooling"
+      ],
+      "lane": "llm_agent_landscape",
+      "next_actions": [
+        "Use the curated candidate set to seed future ATHENA ingest promotion rather than expanding the backlog indiscriminately.",
+        "Keep PROMETHEUS portfolio ranking anchored to bounded product posture, not list popularity."
+      ],
+      "prometheus_portfolio_ranking": {
+        "portfolio_rule": "Prefer already-bounded sovereign candidates before promoting net-new external frameworks.",
+        "promote_now": [
+          {
+            "activation_status": "governed_on_demand",
+            "integration_lane": "mcp_browser",
+            "policy_confidence": 0.7516666666666667,
+            "repo_url": "https://github.com/microsoft/playwright-mcp",
+            "source_id": "src_ba31bde2",
+            "tool": "playwright-mcp"
+          },
+          {
+            "activation_status": "active_signal",
+            "integration_lane": "agent_framework",
+            "policy_confidence": 0.7516666666666667,
+            "repo_url": "https://github.com/code-yeongyu/oh-my-opencode",
+            "source_id": "src_275d929b",
+            "tool": "oh-my-opencode"
+          }
+        ],
+        "signal_only": [
+          {
+            "activation_status": "planned",
+            "integration_lane": "charon_provider",
+            "policy_confidence": 0.7516666666666667,
+            "repo_url": "https://github.com/BerriAI/litellm",
+            "source_id": "src_dab89283",
+            "tool": "litellm"
+          },
+          {
+            "activation_status": "planned",
+            "integration_lane": "research",
+            "policy_confidence": 0.6916666666666667,
+            "repo_url": "https://github.com/lyogavin/airllm",
+            "source_id": "src_759119ab",
+            "tool": "airllm"
+          },
+          {
+            "activation_status": "planned",
+            "integration_lane": "knowledge",
+            "policy_confidence": 0.6916666666666667,
+            "repo_url": "https://github.com/agenticnotetaking/arscontexta",
+            "source_id": "src_e0115360",
+            "tool": "arscontexta"
+          },
+          {
+            "activation_status": "planned",
+            "integration_lane": "mcp_communications",
+            "policy_confidence": 0.6916666666666667,
+            "repo_url": "https://github.com/SaseQ/discord-mcp",
+            "source_id": "src_b711210b",
+            "tool": "discord-mcp"
+          },
+          {
+            "activation_status": "planned",
+            "integration_lane": "agent_skills",
+            "policy_confidence": 0.6916666666666667,
+            "repo_url": "https://github.com/obra/superpowers",
+            "source_id": "src_8c6014a3",
+            "tool": "superpowers"
+          },
+          {
+            "activation_status": "planned",
+            "integration_lane": "research",
+            "policy_confidence": null,
+            "repo_url": "https://github.com/nearai/ironclaw",
+            "source_id": "src_c1c7f9c9",
+            "tool": "ironclaw"
+          }
+        ]
+      },
+      "source_id": "src_33fa61b2",
+      "title": "https://github.com/kaushikb11/awesome-llm-agents",
+      "url": "https://github.com/kaushikb11/awesome-llm-agents"
+    },
+    {
+      "athena_curated_candidate_set": {
+        "candidate_count": 8,
+        "selection_basis": [
+          "registry-linked tools already digested by ATHENA",
+          "active/governed/runtime-ready tools rank ahead of planned-only tools",
+          "confidence remains secondary to bounded product posture"
+        ],
+        "top_candidates": [
+          {
+            "activation_status": "governed_on_demand",
+            "integration_lane": "mcp_browser",
+            "policy_confidence": 0.7516666666666667,
+            "repo_url": "https://github.com/microsoft/playwright-mcp",
+            "source_id": "src_ba31bde2",
+            "tool": "playwright-mcp"
+          },
+          {
+            "activation_status": "active_signal",
+            "integration_lane": "agent_framework",
+            "policy_confidence": 0.7516666666666667,
+            "repo_url": "https://github.com/code-yeongyu/oh-my-opencode",
+            "source_id": "src_275d929b",
+            "tool": "oh-my-opencode"
+          },
+          {
+            "activation_status": "planned",
+            "integration_lane": "charon_provider",
+            "policy_confidence": 0.7516666666666667,
+            "repo_url": "https://github.com/BerriAI/litellm",
+            "source_id": "src_dab89283",
+            "tool": "litellm"
+          },
+          {
+            "activation_status": "planned",
+            "integration_lane": "research",
+            "policy_confidence": 0.6916666666666667,
+            "repo_url": "https://github.com/lyogavin/airllm",
+            "source_id": "src_759119ab",
+            "tool": "airllm"
+          },
+          {
+            "activation_status": "planned",
+            "integration_lane": "knowledge",
+            "policy_confidence": 0.6916666666666667,
+            "repo_url": "https://github.com/agenticnotetaking/arscontexta",
+            "source_id": "src_e0115360",
+            "tool": "arscontexta"
+          },
+          {
+            "activation_status": "planned",
+            "integration_lane": "mcp_communications",
+            "policy_confidence": 0.6916666666666667,
+            "repo_url": "https://github.com/SaseQ/discord-mcp",
+            "source_id": "src_b711210b",
+            "tool": "discord-mcp"
+          },
+          {
+            "activation_status": "planned",
+            "integration_lane": "agent_skills",
+            "policy_confidence": 0.6916666666666667,
+            "repo_url": "https://github.com/obra/superpowers",
+            "source_id": "src_8c6014a3",
+            "tool": "superpowers"
+          },
+          {
+            "activation_status": "planned",
+            "integration_lane": "research",
+            "policy_confidence": null,
+            "repo_url": "https://github.com/nearai/ironclaw",
+            "source_id": "src_c1c7f9c9",
+            "tool": "ironclaw"
+          }
+        ]
+      },
+      "domain": "development",
+      "focus_areas": [
+        "hosted_agents",
+        "frameworks",
+        "browser_use",
+        "sandboxes"
+      ],
+      "lane": "agent_ecosystem_landscape",
+      "next_actions": [
+        "Use the curated candidate set to seed future ATHENA ingest promotion rather than expanding the backlog indiscriminately.",
+        "Keep PROMETHEUS portfolio ranking anchored to bounded product posture, not list popularity."
+      ],
+      "prometheus_portfolio_ranking": {
+        "portfolio_rule": "Prefer already-bounded sovereign candidates before promoting net-new external frameworks.",
+        "promote_now": [
+          {
+            "activation_status": "governed_on_demand",
+            "integration_lane": "mcp_browser",
+            "policy_confidence": 0.7516666666666667,
+            "repo_url": "https://github.com/microsoft/playwright-mcp",
+            "source_id": "src_ba31bde2",
+            "tool": "playwright-mcp"
+          },
+          {
+            "activation_status": "active_signal",
+            "integration_lane": "agent_framework",
+            "policy_confidence": 0.7516666666666667,
+            "repo_url": "https://github.com/code-yeongyu/oh-my-opencode",
+            "source_id": "src_275d929b",
+            "tool": "oh-my-opencode"
+          }
+        ],
+        "signal_only": [
+          {
+            "activation_status": "planned",
+            "integration_lane": "charon_provider",
+            "policy_confidence": 0.7516666666666667,
+            "repo_url": "https://github.com/BerriAI/litellm",
+            "source_id": "src_dab89283",
+            "tool": "litellm"
+          },
+          {
+            "activation_status": "planned",
+            "integration_lane": "research",
+            "policy_confidence": 0.6916666666666667,
+            "repo_url": "https://github.com/lyogavin/airllm",
+            "source_id": "src_759119ab",
+            "tool": "airllm"
+          },
+          {
+            "activation_status": "planned",
+            "integration_lane": "knowledge",
+            "policy_confidence": 0.6916666666666667,
+            "repo_url": "https://github.com/agenticnotetaking/arscontexta",
+            "source_id": "src_e0115360",
+            "tool": "arscontexta"
+          },
+          {
+            "activation_status": "planned",
+            "integration_lane": "mcp_communications",
+            "policy_confidence": 0.6916666666666667,
+            "repo_url": "https://github.com/SaseQ/discord-mcp",
+            "source_id": "src_b711210b",
+            "tool": "discord-mcp"
+          },
+          {
+            "activation_status": "planned",
+            "integration_lane": "agent_skills",
+            "policy_confidence": 0.6916666666666667,
+            "repo_url": "https://github.com/obra/superpowers",
+            "source_id": "src_8c6014a3",
+            "tool": "superpowers"
+          },
+          {
+            "activation_status": "planned",
+            "integration_lane": "research",
+            "policy_confidence": null,
+            "repo_url": "https://github.com/nearai/ironclaw",
+            "source_id": "src_c1c7f9c9",
+            "tool": "ironclaw"
+          }
+        ]
+      },
+      "source_id": "src_ca2f031e",
+      "title": "https://github.com/e2b-dev/awesome-ai-agents",
+      "url": "https://github.com/e2b-dev/awesome-ai-agents"
+    }
+  ],
+  "summary": {
+    "catalog_sources_total": 2,
+    "lanes": {
+      "agent_ecosystem_landscape": 1,
+      "llm_agent_landscape": 1
+    },
+    "ranked_registry_candidates_total": 8
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_c6d88d7dc6a04e83bd982b6a0a9e8654",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: HADES docs/plans archive candidate gate",
+  "salience": 0.7444999999999999,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-24T12:48:03.793064427Z",
+  "last_seen_at": "2026-05-24T12:48:03.793064427Z"
+}

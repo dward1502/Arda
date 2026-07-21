@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_29e6d842b9764581baa79b8730793f8d",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA native validation after terminal preview",
+  "salience": 0.8045000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-06-01T08:05:38.035286800Z",
+  "last_seen_at": "2026-06-01T08:05:38.035286800Z"
+}

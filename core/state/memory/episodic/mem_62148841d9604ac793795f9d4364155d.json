@@ -1,0 +1,12 @@
+{
+  "contract_version": "0.1.0",
+  "id": "mem_62148841d9604ac793795f9d4364155d",
+  "kind": "episodic",
+  "agent": "prometheus",
+  "content": "Task ledger update: ARDA HUD remote confidence projection loader",
+  "salience": 0.8045000000000001,
+  "evidence_count": 1,
+  "state": "active",
+  "created_at": "2026-05-31T02:48:02.457338015Z",
+  "last_seen_at": "2026-05-31T02:48:02.457338015Z"
+}

@@ -1067,171 +1067,171 @@
     ],
     "obsidian_bridge": [
       {
-        "absolute_path": "human/summaries/crates/annunimas-agent-oracle.md",
+        "absolute_path": "docs/operator/summaries/crates/annunimas-agent-oracle.md",
         "path": "summaries/crates/annunimas-agent-oracle.md",
         "sigil": "SCROLL",
         "snippet": "# annunimas-oracle **Sigil**: 𓊝 (Gate) **Agent**: Oracle **Realm**: Governance **Status**: Active-Prototype ## Purpose Reasoning engine for governance decisions and query verdicts. Evaluates requests through structured gate logic (Aurelius/Bacon/Sun Tzu style), returns verdicts/resonance, and supports evidence-aware query processing. ## What's in this crate",
         "ts_utc": "2026-05-06T04:37:32.673855913+00:00"
       },
       {
-        "absolute_path": "human/summaries/crates/annunimas-agent-plutus.md",
+        "absolute_path": "docs/operator/summaries/crates/annunimas-agent-plutus.md",
         "path": "summaries/crates/annunimas-agent-plutus.md",
         "sigil": "SCROLL",
         "snippet": "# annunimas-plutus **Sigil**: 𓆣 (Energy / JouleWork) **Agent**: Plutus **Realm**: Finance **Status**: Prototype ## Purpose Economic and JouleWork accounting module. Tracks workload cost/value, calculates efficiency metrics, and provides finance-layer scoring for automation decisions. Implements Love Equation and CRUSTIES economy layer. ## What's in this crate",
         "ts_utc": "2026-05-06T04:37:32.707320870+00:00"
       },
       {
-        "absolute_path": "human/summaries/crates/annunimas-ceo.md",
+        "absolute_path": "docs/operator/summaries/crates/annunimas-ceo.md",
         "path": "summaries/crates/annunimas-ceo.md",
         "sigil": "SCROLL",
         "snippet": "# annunimas-ceo **Sigil**: ∇ (Command) **Agent**: CEO **Status**: Active ## Purpose Orchestration layer that runs tasks through routing and execution. Owns pipeline flow: receive task, enforce budget guardrails, route to an agent, persist lifecycle events. ## What's in this crate | File | Purpose |",
         "ts_utc": "2026-05-06T04:37:32.739145836+00:00"
       },
       {
-        "absolute_path": "human/summaries/crates/annunimas-cli.md",
+        "absolute_path": "docs/operator/summaries/crates/annunimas-cli.md",
         "path": "summaries/crates/annunimas-cli.md",
         "sigil": "SCROLL",
         "snippet": "# annunimas-cli **Sigil**: ∇ (Command) **Agent**: CEO Interface **Status**: Active ## Purpose Primary command-line entrypoint for running Annunimas locally. Boot config/provider/router and expose operational commands. ## What's in this crate | File | Purpose |",
         "ts_utc": "2026-05-06T04:37:32.772175147+00:00"
       },
       {
-        "absolute_path": "human/summaries/crates/annunimas-comm.md",
+        "absolute_path": "docs/operator/summaries/crates/annunimas-comm.md",
         "path": "summaries/crates/annunimas-comm.md",
         "sigil": "SCROLL",
         "snippet": "# annunimas-comm **Sigil**: ↝ (Change/Transition) **Status**: Active-Prototype ## Purpose Agent-to-Human (A2H) communication protocol implementation. Defines message types and handlers for autonomous system to human communication. ## What's in this crate | File | Purpose | |------|---------|",
         "ts_utc": "2026-05-06T04:37:32.804254197+00:00"
       },
       {
-        "absolute_path": "human/summaries/crates/annunimas-core.md",
+        "absolute_path": "docs/operator/summaries/crates/annunimas-core.md",
         "path": "summaries/crates/annunimas-core.md",
         "sigil": "SCROLL",
         "snippet": "# annunimas-core **Sigil**: ⚡ (Operations) **Status**: Active ## Purpose Shared primitives and contracts used by the whole workspace. Provides canonical data model and traits so every crate speaks the same protocol. ## What's in this crate | File | Purpose | |------|---------|",
         "ts_utc": "2026-05-06T04:37:32.836321156+00:00"
       },
       {
-        "absolute_path": "human/summaries/crates/annunimas-governance.md",
+        "absolute_path": "docs/operator/summaries/crates/annunimas-governance.md",
         "path": "summaries/crates/annunimas-governance.md",
         "sigil": "SCROLL",
         "snippet": "# annunimas-governance **Sigil**: ♥ (Governance) **Status**: Active ## Purpose Centralize deterministic gate validation, resonance scoring, and game-theory style performance scoring. Shared by orchestrators and monitors. ## What's in this crate | File | Purpose | |------|---------|",
         "ts_utc": "2026-05-06T04:37:32.868990613+00:00"
       },
       {
-        "absolute_path": "human/summaries/crates/annunimas-graphthulhu.md",
+        "absolute_path": "docs/operator/summaries/crates/annunimas-graphthulhu.md",
         "path": "summaries/crates/annunimas-graphthulhu.md",
         "sigil": "SCROLL",
         "snippet": "# annunimas-graphthulhu **Sigil**: ◈ (Knowledge) **Status**: Prototype ## Purpose Knowledge graph generator. Builds a causal graph from the Soterion index and ledger. Generates nodes (entities) and edges (relationships) for visualization. ## What's in this crate | File | Purpose | |------|---------|",
         "ts_utc": "2026-05-06T04:37:32.902179006+00:00"
       },
       {
-        "absolute_path": "human/summaries/crates/annunimas-mcp.md",
+        "absolute_path": "docs/operator/summaries/crates/annunimas-mcp.md",
         "path": "summaries/crates/annunimas-mcp.md",
         "sigil": "SCROLL",
         "snippet": "# annunimas-mcp **Sigil**: ↝ (Change/Transition) **Status**: Active-Prototype ## Purpose Model Context Protocol server/tool surface. Exposes internal capabilities as MCP-style tools and provides server-side protocol plumbing. ## What's in this crate | File | Purpose | |------|---------|",
         "ts_utc": "2026-05-06T04:37:32.934175094+00:00"
       },
       {
-        "absolute_path": "human/summaries/crates/annunimas-oracle-bridge.md",
+        "absolute_path": "docs/operator/summaries/crates/annunimas-oracle-bridge.md",
         "path": "summaries/crates/annunimas-oracle-bridge.md",
         "sigil": "SCROLL",
         "snippet": "# annunimas-oracle-bridge **Sigil**: ↝ (Change/Transition) **Agent**: Oracle-Hermes Bridge **Status**: Active-Prototype ## Purpose Bridge crate linking Oracle reasoning with messaging channels. Execute Oracle evaluations and emit formatted query/verdict notifications over Hermes-compatible channels. ## What's in this crate | File | Purpose |",
         "ts_utc": "2026-05-06T04:37:32.966461616+00:00"
       },
       {
-        "absolute_path": "human/summaries/crates/annunimas-token-router.md",
+        "absolute_path": "docs/operator/summaries/crates/annunimas-token-router.md",
         "path": "summaries/crates/annunimas-token-router.md",
         "sigil": "SCROLL",
         "snippet": "# annunimas-token-router **Sigil**: ⚡ (Operations) **Agent**: LLM Budget Router **Status**: Active-Prototype ## Purpose LLM provider budget and failover router. Track per-provider token budgets/costs and select available providers based on budget and health. ## What's in this crate | File | Purpose |",
         "ts_utc": "2026-05-06T04:37:32.998155981+00:00"
       },
       {
-        "absolute_path": "human/summaries/crates/annunimas-viz.md",
+        "absolute_path": "docs/operator/summaries/crates/annunimas-viz.md",
         "path": "summaries/crates/annunimas-viz.md",
         "sigil": "SCROLL",
         "snippet": "# annunimas-viz **Sigil**: ↝ (Change/Transition) **Agent**: ARDA Bridge **Status**: Active-Prototype ## Purpose Visualization model crate for ARDA/world-state style UIs. Provides serializable entity and world-state structures that frontends can consume for live system views. ## What's in this crate | File | Purpose |",
         "ts_utc": "2026-05-06T04:37:33.031713169+00:00"
       },
       {
-        "absolute_path": "human/summaries/crates/annunimas-warden.md",
+        "absolute_path": "docs/operator/summaries/crates/annunimas-warden.md",
         "path": "summaries/crates/annunimas-warden.md",
         "sigil": "SCROLL",
         "snippet": "# annunimas-warden **Sigil**: 𓃭 (Guardian) **Agent**: Warden **Realm**: Monitoring **Status**: Active-Prototype ## Purpose Runtime guardian for system and fleet health. Observes runtime/container state, handles foreign-agent trust transitions, and emits health/alert signals. ## What's in this crate",
         "ts_utc": "2026-05-06T04:37:33.065070245+00:00"
       },
       {
-        "absolute_path": "human/summaries/data.md",
+        "absolute_path": "docs/operator/summaries/data.md",
         "path": "summaries/data.md",
         "sigil": "SCROLL",
         "snippet": "# data/ **Purpose**: Runtime data storage for Annunimas system ## Structure ``` data/ ├── shared/ │   ├── fleet_state.json      # Fleet/agent state (empty) │   └── soterion_index.json  # Soterion index (empty)",
         "ts_utc": "2026-05-06T04:37:33.099702547+00:00"
       },
       {
-        "absolute_path": "human/summaries/docs-structure-notes.md",
+        "absolute_path": "docs/operator/summaries/docs-structure-notes.md",
         "path": "summaries/docs-structure-notes.md",
         "sigil": "SCROLL",
         "snippet": "# Annunimas Documentation Structure # Created: 2026-03-21 # Author: Hermes Agent (arandur) # Session: audit-session-001 ## Overview This document describes the complete documentation structure for the Annunimas project, organized by directory and purpose. ---",
         "ts_utc": "2026-05-06T04:37:33.135760428+00:00"
       },
       {
-        "absolute_path": "human/summaries/library-crates-notes.md",
+        "absolute_path": "docs/operator/summaries/library-crates-notes.md",
         "path": "summaries/library-crates-notes.md",
         "sigil": "SCROLL",
         "snippet": "# Library Crates Audit Notes # Created: 2026-03-21 # Author: Hermes Agent (arandur) # Session: audit-session-001 ## Overview Documented structure and purpose of core library crates in the Annunimas workspace. These crates implement the sovereign agents and support functions. ---",
         "ts_utc": "2026-05-06T04:37:33.169612320+00:00"
       },
       {
-        "absolute_path": "human/summaries/memory-audit-complete.md",
+        "absolute_path": "docs/operator/summaries/memory-audit-complete.md",
         "path": "summaries/memory-audit-complete.md",
         "sigil": "SCROLL",
         "snippet": "# ANNUNIMAS MEMORY AUDIT - COMPLETE SYSTEM ANALYSIS **Session:** 2026-03-21   **Auditor:** Hermes Agent   **Status:** COMPLETE   --- ## EXECUTIVE SUMMARY This document provides a comprehensive analysis of memory usage, context flow, and system efficiency across the Annunimas AI agent ecosystem. The audit reveals both strengths and critical optimization opportunities, particularly around context delivery overhead and memory management strategies. ---",
         "ts_utc": "2026-05-06T04:37:33.204956773+00:00"
       },
       {
-        "absolute_path": "human/summaries/root-core-notes.md",
+        "absolute_path": "docs/operator/summaries/root-core-notes.md",
         "path": "summaries/root-core-notes.md",
         "sigil": "SCROLL",
         "snippet": "# ANNUNIMAS ROOT & CORE - Audit Notes **Session:** 2026-03-21 **Author:** Hermes Agent **Status:** Initial Documentation --- ## ROOT STRUCTURE ### Files at Root Level: - `ANNUNIMAS_ROOT_PROTOCOL.md` - Root-level protocol document (100+ lines)",
         "ts_utc": "2026-05-06T04:37:33.239008088+00:00"
       },
       {
-        "absolute_path": "human/summaries/scripts-notes.md",
+        "absolute_path": "docs/operator/summaries/scripts-notes.md",
         "path": "summaries/scripts-notes.md",
         "sigil": "SCROLL",
         "snippet": "# Scripts Directory Audit Notes # Created: 2026-03-21 # Author: Hermes Agent (arandur) # Session: audit-session-001 ## Overview Documented the scripts directory structure and purposes. This directory contains operational scripts for system management. ---",
         "ts_utc": "2026-05-06T04:37:33.276562728+00:00"
       },
       {
-        "absolute_path": "human/summaries/scripts.md",
+        "absolute_path": "docs/operator/summaries/scripts.md",
         "path": "summaries/scripts.md",
         "sigil": "SCROLL",
         "snippet": "# scripts/ **Purpose**: Automation scripts for Annunimas system ## Scripts (6 total) | Script | Status | Purpose | |--------|--------|---------| | `boot.sh` | Stub | System boot (placeholder) | | `monitor_fleet.sh` | Stub | Fleet monitoring (placeholder) | | `role_switch.sh` | Stub | Role switching (placeholder) |",
         "ts_utc": "2026-05-06T04:37:33.312254124+00:00"
       },
       {
-        "absolute_path": "human/summaries/src-meta.md",
+        "absolute_path": "docs/operator/summaries/src-meta.md",
         "path": "summaries/src-meta.md",
         "sigil": "SCROLL",
         "snippet": "# src/ & meta/ ## src/ **Status**: Legacy/Stub - NOT IN USE This appears to be old/legacy code that's no longer used. The active code is in `crates/`. ``` src/ ├── agents/ │   ├── athena/      (empty)",
         "ts_utc": "2026-05-06T04:37:33.346549653+00:00"
       },
       {
-        "absolute_path": "human/summaries/task-notes.md",
+        "absolute_path": "docs/operator/summaries/task-notes.md",
         "path": "summaries/task-notes.md",
         "sigil": "SCROLL",
         "snippet": "# Task Notes - Annunimas Memory Integration ## Current Task Phase 1 Week 1: Modify Hermes to query Mnemosyne before subagent spawning ### Problem - main.rs is too large (5899 lines) to process linearly - Stopping and delegating is the correct approach ### Next Steps 1. Delegate finding subagent spawning logic in main.rs",
         "ts_utc": "2026-05-06T04:37:33.380263243+00:00"
       },
       {
-        "absolute_path": "human/summaries/tests.md",
+        "absolute_path": "docs/operator/summaries/tests.md",
         "path": "summaries/tests.md",
         "sigil": "SCROLL",
         "snippet": "# tests/ **Purpose**: Integration tests for Annunimas system ## Test Files (11 total) | File | Coverage | |------|----------| | `test_pipeline.rs` | Full pipeline flow | | `test_governance.rs` | Triad, Game Theory, Resonance | | `test_soterion.rs` | Soterion index & YAML parsing |",
         "ts_utc": "2026-05-06T04:37:33.415917069+00:00"
       },
       {
-        "absolute_path": "human/thoughts.md",
+        "absolute_path": "docs/operator/philosophy.md",
         "path": "thoughts.md",
         "sigil": "SCROLL",
-        "snippet": "# Human Thoughts Canonical readable philosophy path for boot and agent startup. The active working note remains: - [Notes/thoughts.md](./Notes/thoughts.md) This top-level file exists so sovereign doctrine that reads `human/thoughts.md` has a stable, human-readable entrypoint. ## Current Pointer Use [Notes/thoughts.md](./Notes/thoughts.md) for the live thought stream.",
+        "snippet": "# Human Thoughts Canonical readable philosophy path for boot and agent startup. The active working note remains: - [Notes/thoughts.md](./Notes/thoughts.md) This top-level file exists so sovereign doctrine that reads `docs/operator/philosophy.md` has a stable, human-readable entrypoint. ## Current Pointer Use [Notes/thoughts.md](./Notes/thoughts.md) for the live thought stream.",
         "ts_utc": "2026-05-06T04:37:33.449752651+00:00"
       }
     ]

@@ -562,7 +562,7 @@ mod tests {
         let dir = tempdir().expect("tempdir");
         let root = dir.path().join("root");
         let registry_path = root.join("core/state/knowledge_triage_registry.jsonl");
-        let memory_path = root.join("human/plans/MEMORY.md");
+        let memory_path = root.join("docs/plans/MEMORY.md");
         fs::create_dir_all(registry_path.parent().expect("registry parent")).expect("mkdir");
         fs::create_dir_all(memory_path.parent().expect("memory parent")).expect("mkdir");
         fs::write(&memory_path, "Imported memory conclusion").expect("memory file");
@@ -570,7 +570,7 @@ mod tests {
         let registry = [
             serde_json::json!({
                 "schema_version": "arda.knowledge_triage.v1",
-                "path": "human/plans/MEMORY.md",
+                "path": "docs/plans/MEMORY.md",
                 "title": "Memory Plan",
                 "classification": "memory_seed",
                 "canonical_home": "data/mnemosyne",
@@ -604,7 +604,7 @@ mod tests {
             }),
             serde_json::json!({
                 "schema_version": "arda.knowledge_triage.v1",
-                "path": "human/plans/MISSING.md",
+                "path": "docs/plans/MISSING.md",
                 "title": "Missing Memory",
                 "classification": "memory_seed",
                 "canonical_home": "data/mnemosyne",
@@ -640,7 +640,7 @@ mod tests {
             .expect("knowledge seeds");
 
         assert_eq!(seeds.len(), 1);
-        assert_eq!(seeds[0].path, "human/plans/MEMORY.md");
+        assert_eq!(seeds[0].path, "docs/plans/MEMORY.md");
         assert_eq!(seeds[0].classification, "memory_seed");
 
         // SAFETY: warden-owned by `arda-vaire` test scaffolding — single-threaded

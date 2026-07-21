@@ -335,7 +335,7 @@ pub(super) fn write_paperclip_alignment_projection(core_root: &Path) {
                 "human_plan_root": plan_map
                     .get("human_plan_root")
                     .cloned()
-                    .unwrap_or_else(|| json!("human/plans")),
+                    .unwrap_or_else(|| json!("docs/plans")),
                 "core_plan_root": plan_map
                     .get("core_plan_root")
                     .cloned()

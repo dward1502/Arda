@@ -16,7 +16,7 @@ soterion:
 
 Status: in_progress (updated 2026-06-22)
 Owner: hermes
-Human plan: `human/plans/HERMES.md`
+Human plan: `docs/plans/HERMES.md`
 Crate: `crates/arda-hermes`
 Core runtime: `core/state/hermes_command.json`
 Task ledger: `core/projects/tasks/queue.jsonl`
@@ -45,7 +45,7 @@ HERMES owns communication routing, boardroom state, provider messaging, and exte
 
 ## Readable Context
 
-Use `human/plans/HERMES.md` for the operator-facing plan narrative and graph node.
+Use `docs/plans/HERMES.md` for the operator-facing plan narrative and graph node.
 
 ## 2026-05-25 Live Discord Dispatch Decision
 

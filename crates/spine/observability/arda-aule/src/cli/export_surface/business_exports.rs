@@ -700,17 +700,17 @@ pub(crate) fn export_imported_corpus_plan_portfolio_impl() -> Result<Value> {
         "plan_groups": [
             {
                 "id": "system_lift",
-                "human_plan": "human/plans/SYSTEM_LIFT_FROM_IMPORTED_CORPUS.md",
+                "human_plan": "docs/plans/SYSTEM_LIFT_FROM_IMPORTED_CORPUS.md",
                 "goal": "Use imported memory to strengthen arda runtime, tooling, intake discipline, and platform patterns first.",
             },
             {
                 "id": "delivery_and_product",
-                "human_plan": "human/plans/DELIVERY_AND_PRODUCT_PORTFOLIO_FROM_IMPORTED_CORPUS.md",
+                "human_plan": "docs/plans/DELIVERY_AND_PRODUCT_PORTFOLIO_FROM_IMPORTED_CORPUS.md",
                 "goal": "Turn imported client/product memory into bounded execution plans after system lift review.",
             },
             {
                 "id": "opportunity_and_research",
-                "human_plan": "human/plans/OPPORTUNITY_AND_RESEARCH_PORTFOLIO_FROM_IMPORTED_CORPUS.md",
+                "human_plan": "docs/plans/OPPORTUNITY_AND_RESEARCH_PORTFOLIO_FROM_IMPORTED_CORPUS.md",
                 "goal": "Preserve imported opportunity and research memory as a structured reservoir until selected.",
             },
         ],

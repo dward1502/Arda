@@ -141,7 +141,7 @@ impl AthenaStore {
             "status": if deep.is_some() { "deep" } else { "shallow" },
             "sigil": if deep.is_some() { "EYE" } else { "ANKH" },
             "book_ref": self.book_ref_for(source_id),
-            "human_ref": format!("human/library/athena/sources/{source_id}.md"),
+            "human_ref": format!("docs/operator/library/athena/sources/{source_id}.md"),
             "source_type": ingest.map(|v| format!("{:?}", v.source_type)),
             "url": ingest.and_then(|v| v.url.clone()),
             "tags": shallow.map(|s| s.relevance_tags.clone()).unwrap_or_default(),

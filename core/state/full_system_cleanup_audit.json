@@ -1409,7 +1409,7 @@
           "data/athena/books/src_ccdc9f30.jsonl",
           "data/mnemosyne/obsidian_index.jsonl",
           "data/mnemosyne/episodic/2026-05/mem_86503913b0f94c2088de52fc66306df9.jsonl",
-          "human/library/athena/sources/src_ccdc9f30.md",
+          "docs/operator/library/athena/sources/src_ccdc9f30.md",
           "core/core_audit.json",
           "core/projects/tasks/INDEX.md"
         ]
@@ -1434,7 +1434,7 @@
           "data/mnemosyne/obsidian_index.jsonl",
           "data/mnemosyne/episodic/2026-05/mem_05fce4e9dbcf48f8a263db13aebfe188.jsonl",
           "data/mnemosyne/episodic/2026-05/mem_a081e8fa05424f32ab5758a7fe03b126.jsonl",
-          "human/library/athena/sources/src_317f101b.md",
+          "docs/operator/library/athena/sources/src_317f101b.md",
           "core/core_audit.json",
           "core/projects/tasks/INDEX.md"
         ]
@@ -1458,7 +1458,7 @@
           "data/athena/books/src_ce2a85c5.jsonl",
           "data/mnemosyne/obsidian_index.jsonl",
           "data/mnemosyne/episodic/2026-05/mem_ebdfb4f96ad943038b654b5ae89f20dc.jsonl",
-          "human/library/athena/sources/src_ce2a85c5.md",
+          "docs/operator/library/athena/sources/src_ce2a85c5.md",
           "audit/2026-05-20-agent-performance-gate2-runtime-inventory.md",
           "core/core_audit.json",
           "core/projects/tasks/INDEX.md"
@@ -1484,7 +1484,7 @@
           "data/mnemosyne/obsidian_index.jsonl",
           "data/mnemosyne/episodic/2026-05/mem_628eadd53e1b4b3a8df12a11c8d53f7d.jsonl",
           "data/mnemosyne/episodic/2026-05/mem_b133758c4de543828c5606a852ad5cbd.jsonl",
-          "human/library/athena/sources/src_7232e801.md",
+          "docs/operator/library/athena/sources/src_7232e801.md",
           "audit/2026-05-20-agent-performance-gate2-runtime-inventory.md",
           "core/core_audit.json",
           "core/projects/tasks/INDEX.md"
@@ -1510,7 +1510,7 @@
           "data/mnemosyne/obsidian_index.jsonl",
           "data/mnemosyne/episodic/2026-05/mem_dcd50e7de26e4a37b76c2ac3e79d29f5.jsonl",
           "data/mnemosyne/episodic/2026-05/mem_bb157aebbca14620af74396e40f7c690.jsonl",
-          "human/library/athena/sources/src_76bc168d.md",
+          "docs/operator/library/athena/sources/src_76bc168d.md",
           "audit/2026-05-20-agent-performance-gate2-runtime-inventory.md",
           "core/core_audit.json",
           "core/projects/tasks/INDEX.md"
@@ -1535,7 +1535,7 @@
           "data/athena/books/src_b0b69358.jsonl",
           "data/mnemosyne/obsidian_index.jsonl",
           "data/mnemosyne/episodic/2026-05/mem_5b98990f9f3e4596985dce3ed5d322ef.jsonl",
-          "human/library/athena/sources/src_b0b69358.md",
+          "docs/operator/library/athena/sources/src_b0b69358.md",
           "audit/2026-05-20-agent-performance-gate2-runtime-inventory.md",
           "core/core_audit.json",
           "core/projects/tasks/INDEX.md"
@@ -1561,7 +1561,7 @@
           "data/mnemosyne/obsidian_index.jsonl",
           "data/mnemosyne/episodic/2026-05/mem_59c93b2897b844b7a25f794f2566ed84.jsonl",
           "data/mnemosyne/episodic/2026-05/mem_46598e6ca5024fe2b4569a1f6dcd3d2f.jsonl",
-          "human/library/athena/sources/src_2e108196.md",
+          "docs/operator/library/athena/sources/src_2e108196.md",
           "audit/2026-05-20-agent-performance-gate2-runtime-inventory.md",
           "core/core_audit.json",
           "core/projects/tasks/INDEX.md"
@@ -1603,7 +1603,7 @@
           "data/athena/books/src_ed70da54.jsonl",
           "data/mnemosyne/obsidian_index.jsonl",
           "data/mnemosyne/episodic/2026-05/mem_334c7ccc9fe94788afe40ec70f982ba3.jsonl",
-          "human/library/athena/sources/src_ed70da54.md",
+          "docs/operator/library/athena/sources/src_ed70da54.md",
           "audit/2026-05-20-agent-performance-gate2-runtime-inventory.md",
           "core/core_audit.json",
           "core/projects/tasks/INDEX.md"
@@ -1629,7 +1629,7 @@
           "data/mnemosyne/obsidian_index.jsonl",
           "data/mnemosyne/episodic/2026-05/mem_2258b25cd2294a20812bbd71107663f4.jsonl",
           "data/mnemosyne/episodic/2026-05/mem_ab6419bee58e4bb48e2077d13fed8bbe.jsonl",
-          "human/library/athena/sources/src_67a39c80.md",
+          "docs/operator/library/athena/sources/src_67a39c80.md",
           "audit/2026-05-20-agent-performance-gate2-runtime-inventory.md",
           "core/core_audit.json",
           "core/projects/tasks/INDEX.md"
@@ -2962,7 +2962,7 @@
       "disposition": "delete_after_build_cache_policy",
       "ignored": true,
       "mtime_utc": "2026-05-24T21:53:01Z",
-      "path": "target/demo_local_control_plane/latest/human/library/governance/bacon_lite.md",
+      "path": "target/demo_local_control_plane/latest/docs/operator/library/governance/bacon_lite.md",
       "reason": "Cargo/build outputs are reproducible and should not be source truth.",
       "reference_check": {
         "hit_count": 10,
@@ -2976,7 +2976,7 @@
           "data/mnemosyne/obsidian_index.jsonl",
           "data/mnemosyne/episodic/2026-05/mem_55eb2605ab6044d6bf34faa5970d5291.jsonl",
           "data/mnemosyne/episodic/2026-05/mem_c447ca50545e4205b985c810391abe29.jsonl",
-          "human/library/governance/INDEX.md"
+          "docs/operator/library/governance/INDEX.md"
         ]
       },
       "risk": "low",
@@ -2990,7 +2990,7 @@
       "disposition": "delete_after_build_cache_policy",
       "ignored": true,
       "mtime_utc": "2026-05-24T22:27:51Z",
-      "path": "target/demo_local_control_plane/relative-red/human/library/governance/bacon_lite.md",
+      "path": "target/demo_local_control_plane/relative-red/docs/operator/library/governance/bacon_lite.md",
       "reason": "Cargo/build outputs are reproducible and should not be source truth.",
       "reference_check": {
         "hit_count": 10,
@@ -3004,7 +3004,7 @@
           "data/mnemosyne/obsidian_index.jsonl",
           "data/mnemosyne/episodic/2026-05/mem_55eb2605ab6044d6bf34faa5970d5291.jsonl",
           "data/mnemosyne/episodic/2026-05/mem_c447ca50545e4205b985c810391abe29.jsonl",
-          "human/library/governance/INDEX.md"
+          "docs/operator/library/governance/INDEX.md"
         ]
       },
       "risk": "low",
@@ -3018,7 +3018,7 @@
       "disposition": "delete_after_build_cache_policy",
       "ignored": true,
       "mtime_utc": "2026-05-31T23:00:39Z",
-      "path": "target/mesh_smoke/latest/human/library/governance/bacon_lite.md",
+      "path": "target/mesh_smoke/latest/docs/operator/library/governance/bacon_lite.md",
       "reason": "Cargo/build outputs are reproducible and should not be source truth.",
       "reference_check": {
         "hit_count": 10,
@@ -3032,7 +3032,7 @@
           "data/mnemosyne/obsidian_index.jsonl",
           "data/mnemosyne/episodic/2026-05/mem_55eb2605ab6044d6bf34faa5970d5291.jsonl",
           "data/mnemosyne/episodic/2026-05/mem_c447ca50545e4205b985c810391abe29.jsonl",
-          "human/library/governance/INDEX.md"
+          "docs/operator/library/governance/INDEX.md"
         ]
       },
       "risk": "low",

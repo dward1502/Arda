@@ -583,7 +583,7 @@ export default function App() {
     }, null)
   }, [laneFitness])
   const planShelf = useMemo(
-    () => (bundle ? getPlanShelf(bundle) : { humanPlanRoot: 'human/plans', corePlanRoot: 'core/projects/Plans', plans: [] }),
+    () => (bundle ? getPlanShelf(bundle) : { humanPlanRoot: 'docs/plans', corePlanRoot: 'core/projects/Plans', plans: [] }),
     [bundle],
   )
   const boardroomHudInstruments = useMemo(

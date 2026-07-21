@@ -52,7 +52,7 @@ philosophy_bias = "marcus_aurelius"          # Stoic first. Sun Tzu when needed.
 uncertainty     = "admits_and_routes"        # Escalates to Daniel rather than guess
 
 [agent.boot]
-reads_on_start  = ["human/thoughts.md", "human/index.md", "core/realm/arda.toml"]
+reads_on_start  = ["docs/operator/philosophy.md", "docs/operator/index.md", "core/realm/arda.toml"]
 emits_on_start  = "𓀀 ∇ Arandur online. Reading philosophy. Initializing command."
 heartbeat_ms    = 500
 triad_bypass    = true
@@ -932,7 +932,7 @@ decisions that look similar and how they played out.
 Counsel explicitly plays devil's advocate on commitments above a
 significance threshold. This is not contrarianism — it is the
 structured pressure test every high-stakes decision deserves.
-Counsel writes advisories into human/CEO/counsel/advisories.md
+Counsel writes advisories into docs/operator/ceo/counsel/advisories.md
 so that the human principal can see the alternatives the
 orchestrator weighed.
 
@@ -966,7 +966,7 @@ philosophy_bias = "bacon_with_sun_tzu"     # Evidence-driven, strategically fram
 uncertainty     = "names_it_explicitly"
 
 [agent.boot]
-reads_on_start  = ["core/realm/arda.toml", "core/realm/agents.toml", "human/CEO/beliefs.md"]
+reads_on_start  = ["core/realm/arda.toml", "core/realm/agents.toml", "docs/operator/ceo/beliefs.md"]
 emits_on_start  = "𓎛 ∇ Counsel online. Listening. Ready to ask the harder question."
 
 [agent.soterion]

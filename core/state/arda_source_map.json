@@ -18,14 +18,14 @@
         "data/*"
       ],
       "scattered_human_notes": [
-        "human/Notes",
-        "human/library",
-        "human/summaries"
+        "docs/operator/notes",
+        "docs/operator/library",
+        "docs/operator/summaries"
       ]
     },
     "recommended_targets": {
-      "human_reference": "human/library",
-      "human_working_notes": "human/Notes",
+      "human_reference": "docs/operator/library",
+      "human_working_notes": "docs/operator/notes",
       "integration_contracts": "docs/integrations",
       "machine_read_models": "core/state",
       "time_series_and_ledgers": "data"
@@ -463,12 +463,12 @@
       ],
       "status": "ready",
       "supplemental_sources": [
-        "human/index.md",
-        "human/onboard.md",
-        "human/company_view.md",
+        "docs/operator/index.md",
+        "docs/operator/onboard.md",
+        "docs/operator/company-view.md",
         "config/business.toml",
         "data/business/soterion-business.json",
-        "human/Notes",
+        "docs/operator/notes",
         "data/personal",
         "core/personal"
       ],
@@ -487,7 +487,7 @@
       ],
       "status": "ready",
       "supplemental_sources": [
-        "human/company_view.md",
+        "docs/operator/company-view.md",
         "config/business.toml",
         "data/business/soterion-business.json",
         "data/business/clients"
@@ -510,8 +510,8 @@
         "core/personal/personal-identity.toml",
         "data/personal/soterion-personal.json",
         "data/personal",
-        "human/onboard.md",
-        "human/Notes"
+        "docs/operator/onboard.md",
+        "docs/operator/notes"
       ],
       "title": "Personal Growth"
     }

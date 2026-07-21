@@ -21,7 +21,7 @@
       "pipeline_family": "human_corpus_digest",
       "pipeline_id": "human:unclassified",
       "plan_binding": {
-        "owner_plan_node": "human/plans/ATHENA.md",
+        "owner_plan_node": "docs/plans/ATHENA.md",
         "plan_id": "unclassified",
         "plan_surface": "core/state/human_corpus_digest_plan.json",
         "plan_type": "human_corpus_digest_group"
@@ -78,7 +78,7 @@
       "pipeline_family": "human_corpus_digest",
       "pipeline_id": "human:agent_framework_comparison",
       "plan_binding": {
-        "owner_plan_node": "human/plans/PROMETHEUS.md",
+        "owner_plan_node": "docs/plans/PROMETHEUS.md",
         "plan_id": "agent_framework_comparison",
         "plan_surface": "core/state/human_corpus_digest_plan.json",
         "plan_type": "human_corpus_digest_group"

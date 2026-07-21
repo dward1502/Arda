@@ -233,12 +233,12 @@ export function getPlanShelf(bundle: ArdaBundle): {
       title: getString(entry.title, 'Untitled Plan'),
       owner: getString(entry.owner, 'unknown'),
       openTaskCount: getNumber(entry.openTaskCount ?? entry.open_task_count, 0),
-      humanPlanPath: getString(entry.humanPlanPath ?? entry.human_plan_path, 'human/plans'),
+      humanPlanPath: getString(entry.humanPlanPath ?? entry.human_plan_path, 'docs/plans'),
       coreQuickRefPath: getString(entry.coreQuickRefPath ?? entry.core_quick_ref_path, 'core/projects/Plans'),
     }))
 
   return {
-    humanPlanRoot: getString(planMap?.humanPlanRoot ?? planMap?.human_plan_root, 'human/plans'),
+    humanPlanRoot: getString(planMap?.humanPlanRoot ?? planMap?.human_plan_root, 'docs/plans'),
     corePlanRoot: getString(planMap?.corePlanRoot ?? planMap?.core_plan_root, 'core/projects/Plans'),
     plans,
   }

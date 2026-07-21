@@ -1935,10 +1935,7 @@
         "source": "athena_human_business_intake",
         "source_paths": [
           "docs/plans/2026-05-30-cash-career-and-venture-operations-plan.md",
-          "human/curated/revenue/ai-audit-smb-offer.md",
-          "human/curated/revenue/ai-opportunity-research-for-smbs.md",
-          "human/curated/revenue/postiz-niche-smb-social-media-service.md",
-          "human/curated/projects/hermes-agent-economic-use-cases.md"
+          "docs/operator/curated/projects/hermes-agent-economic-use-cases.md"
         ],
         "summary": "Read actual human/business notes and verified existing private Eregion offer/tracker/public-trust drafts. Extracted actionable business signals without filename-only triage, outreach, public profile mutation, prospect data capture, or private workspace leakage.",
         "task_promotion_allowed": false,

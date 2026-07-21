@@ -1,6 +1,6 @@
 {
   "athena_curation": {
-    "human_surface": "human/library/athena/sources/src_dc355aed.md",
+    "human_surface": "docs/operator/library/athena/sources/src_dc355aed.md",
     "promotion_rule": "only promote a community-derived item when it points to a concrete runtime, framework, or policy artifact",
     "retention_rule": "keep community observations as bounded signal records with source URL and captured-at timestamps"
   },

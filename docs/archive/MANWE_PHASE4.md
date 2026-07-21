@@ -1,5 +1,10 @@
-MANWE ADAPTIVE ROUTING — PHASE 4 PLAN                              
-     =====================================                              
+MANWE ADAPTIVE ROUTING — PHASE 4 PLAN (COMPLETED)
+     =====================================
+
+     Status: implemented
+     Evidence:
+       - cargo check -p manwe
+       - cargo check -p manwe --features adaptive
                                                                         
      Reference: docs/CHATGPT_MANWE.md                                   
      Target crate: crates/spine/runtime/manwe (feature flag:            

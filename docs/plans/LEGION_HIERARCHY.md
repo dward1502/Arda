@@ -16,7 +16,7 @@ soterion:
 
 Status: active (reviewed 2026-04-30; selective-only doctrine, keep)
 Owner: prometheus
-Human plan: `human/plans/LEGION_HIERARCHY.md`
+Human plan: `docs/plans/LEGION_HIERARCHY.md`
 Core runtime: `core/state/legion_hierarchy.json`
 Task ledger: `core/projects/tasks/queue.jsonl`
 
@@ -38,4 +38,4 @@ Defines when a temporary Legate / Centurion / Legionary hierarchy is allowed.
 
 ## Readable Context
 
-Use `human/plans/LEGION_HIERARCHY.md` for the operator-facing plan narrative and graph node.
+Use `docs/plans/LEGION_HIERARCHY.md` for the operator-facing plan narrative and graph node.

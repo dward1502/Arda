@@ -359,12 +359,12 @@ pub(super) fn write_arda_source_map(core_root: &Path) {
                 rel_path(core_root.join("state/human_context.json"), &workspace_root)
             ],
             "supplemental_sources": [
-                rel_path(workspace_root.join("human/index.md"), &workspace_root),
-                rel_path(workspace_root.join("human/onboard.md"), &workspace_root),
-                rel_path(workspace_root.join("human/company_view.md"), &workspace_root),
+                rel_path(workspace_root.join("docs/operator/index.md"), &workspace_root),
+                rel_path(workspace_root.join("docs/operator/onboard.md"), &workspace_root),
+                rel_path(workspace_root.join("docs/operator/company-view.md"), &workspace_root),
                 rel_path(workspace_root.join("config/business.toml"), &workspace_root),
                 rel_path(workspace_root.join("data/business/soterion-business.json"), &workspace_root),
-                rel_path(workspace_root.join("human/Notes"), &workspace_root),
+                rel_path(workspace_root.join("docs/operator/notes"), &workspace_root),
                 rel_path(workspace_root.join("data/personal"), &workspace_root),
                 rel_path(workspace_root.join("core/personal"), &workspace_root)
             ],
@@ -379,7 +379,7 @@ pub(super) fn write_arda_source_map(core_root: &Path) {
                 rel_path(core_root.join("state/business_runtime.json"), &workspace_root)
             ],
             "supplemental_sources": [
-                rel_path(workspace_root.join("human/company_view.md"), &workspace_root),
+                rel_path(workspace_root.join("docs/operator/company-view.md"), &workspace_root),
                 rel_path(workspace_root.join("config/business.toml"), &workspace_root),
                 rel_path(workspace_root.join("data/business/soterion-business.json"), &workspace_root),
                 rel_path(workspace_root.join("data/business/clients"), &workspace_root)
@@ -398,8 +398,8 @@ pub(super) fn write_arda_source_map(core_root: &Path) {
                 rel_path(core_root.join("personal/personal-identity.toml"), &workspace_root),
                 rel_path(workspace_root.join("data/personal/soterion-personal.json"), &workspace_root),
                 rel_path(workspace_root.join("data/personal"), &workspace_root),
-                rel_path(workspace_root.join("human/onboard.md"), &workspace_root),
-                rel_path(workspace_root.join("human/Notes"), &workspace_root)
+                rel_path(workspace_root.join("docs/operator/onboard.md"), &workspace_root),
+                rel_path(workspace_root.join("docs/operator/notes"), &workspace_root)
             ],
             "arda_panels": ["personal_growth", "human_notes", "boardroom"]
         }),
@@ -419,9 +419,9 @@ pub(super) fn write_arda_source_map(core_root: &Path) {
             "pressure_points": {
                 "crate_embedded_state": crate_embedded_state,
                 "scattered_human_notes": [
-                    "human/Notes",
-                    "human/library",
-                    "human/summaries"
+                    "docs/operator/notes",
+                    "docs/operator/library",
+                    "docs/operator/summaries"
                 ],
                 "mixed_runtime_and_reference_outputs": [
                     "core/state",
@@ -432,8 +432,8 @@ pub(super) fn write_arda_source_map(core_root: &Path) {
             "recommended_targets": {
                 "machine_read_models": "core/state",
                 "time_series_and_ledgers": "data",
-                "human_reference": "human/library",
-                "human_working_notes": "human/Notes",
+                "human_reference": "docs/operator/library",
+                "human_working_notes": "docs/operator/notes",
                 "integration_contracts": "docs/integrations"
             },
             "notes": [
@@ -791,9 +791,9 @@ pub(super) fn write_repo_reorganization_projection(core_root: &Path) {
         "pressure_points": {
             "crate_embedded_state": crate_embedded_state,
             "human_layout": {
-                "working_notes": "human/Notes",
-                "reference_library": "human/library",
-                "summaries": "human/summaries"
+                "working_notes": "docs/operator/notes",
+                "reference_library": "docs/operator/library",
+                "summaries": "docs/operator/summaries"
             },
             "mixed_machine_outputs": [
                 "core/state",
@@ -805,8 +805,8 @@ pub(super) fn write_repo_reorganization_projection(core_root: &Path) {
             "system_projections": "core/state",
             "time_series_ledgers": "data",
             "integration_contracts": "docs/integrations",
-            "human_reference": "human/library",
-            "human_working_notes": "human/Notes"
+            "human_reference": "docs/operator/library",
+            "human_working_notes": "docs/operator/notes"
         },
         "artifacts": {
             "integration_docs": docs_integrations

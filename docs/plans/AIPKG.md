@@ -16,7 +16,7 @@ soterion:
 
 Status: active (reviewed 2026-04-30; v0 core freeze underway, keep)
 Owner: prometheus
-Human plan: `human/plans/AIPKG.md`
+Human plan: `docs/plans/AIPKG.md`
 Core runtime: `core/state/aipkg_contract.json`
 Spec root: `spec/aipkg/v0.1/`
 Task ledger: `core/projects/tasks/queue.jsonl`
@@ -42,4 +42,4 @@ Task ledger: `core/projects/tasks/queue.jsonl`
 
 ## Readable Context
 
-Use `human/plans/AIPKG.md` for the operator-facing plan narrative and graph node.
+Use `docs/plans/AIPKG.md` for the operator-facing plan narrative and graph node.

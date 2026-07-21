@@ -3,119 +3,111 @@ soterion:
   sigil: "SCROLL"
   glyph: "📜"
   code_point: "U+1F4DC"
-  role: "plan"
+  role: "documentation"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-06-19"
+  last_reviewed: "2026-06-21"
 ---
 
-# Arda Platform OS Plan
-Goal: shape Arda into an auditable local agent control plane that can later become a bootable appliance, without blocking current operator work.
-Scope: crate boundary, queue contract freeze, privatization of tenant crates/apps, staging of unimplemented features.
+> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-06-21
 
-## North star
-Bluefin Linux appliance: USB boots into an ARDA-first environment with local-first runtime, deterministic state, and composable app modules.
+# Platform OS Plan Review
 
-## Current reality
-- Core plating is stronger than app maturity.
-- Several crates are aspirational means to influence the OS, not required for first-runtime.
-- Apps currently share the OS workspace and build surface.
-- ARDA-HUMAN, council, forge-mind, signal-grid, and service-registry are each implemented or scaffolded enough to plan a migration path, not a greenfield.
+Status: in_progress; core freeze identified, not fully enforced
+Owner: prometheus
+Core quick reference: `core/projects/Plans/PLATFORM_OS.md`
+Primary queue surface: `core/state/queue_active.json`
+Queue summary surface: `core/state/queue_summary.json`
+Runtime settings projection: `core/state/runtime_settings.json`
+Task ledger: `core/projects/tasks/queue.jsonl`
 
-## Principles
-1. OS core is small and stable.
-2. Apps and tenants are separately deployable.
-3. Queue/runtime JSON surfaces are the OS ABI.
-4. Privatization and public extraction are separate from OS core.
-5. Local overnight execution should be possible without remote providers.
+## Purpose
 
-## Stage S1. Core freeze
-Decision gate: agree the 18-crate core set is stable.
-Actions:
-- Freeze core crate manifest.
-- Freeze queue, federation, and runtime-state JSON schemas.
-- Stop adding crates to workspace without explicit boundary review.
-- Update architecture docs to reflect frozen surface.
+The Platform OS plan shapes Annunimas into an auditable local agent control plane that can later become a bootable appliance. The current north star is a Bluefin-based Annunimas-first environment with local-first runtime, deterministic state, and composable app/private-consumer modules.
 
-## Stage S2. Tenant separation
-Decision gate: choose private repo ownership for withdrawn crates.
-Actions:
-- arda-human -> second-brain tenant.
-- arda-council -> staged feature project.
-- arda-forge-mind -> staged feature project.
-- arda-signal-grid -> staged feature project.
-- arda-service-registry -> staged feature project.
-- Keep backward-compatible remote references if integration is still desired.
+## Current Review Summary
 
-## Stage S3. App extraction
-Decision gate: apps compile against extracted core API, not workspace internals.
-Actions:
-- Extract ARDA HUD as a private tenant of the OS.
-- Extract CITADEL Avatar as a private tenant.
-- Extract RELIC/Kiosk surfaces as a private tenant.
-- Prove tenant build against published core surface.
+The core Platform OS plan is present and active at `core/projects/Plans/PLATFORM_OS.md`. It defines a staged migration path: freeze the OS core surface, separate tenant/staged crates, extract private consumer applications, and later prove a bootable Bluefin appliance with first-boot health checks.
 
-## Stage S4. Bootable proof
-Decision gate: bootable image boots and health checks pass.
-Actions:
-- Produce an image from Bluefin that boots arda core services.
-- Prove first-boot health check via CLI status.
-- Prove queue and runtime state are readable at first boot.
-- Use `docs/operations/operator-start-of-day-boot-tasks.md` as the bounded operator start-of-day boot checklist for build, user-systemd, CLI status, queue/runtime projection, packaging, and evidence capture.
+Current evidence shows the 18-crate core surface has been identified, but enforcement remains in progress. `docs/plans/platform-os-core-manifest-audit.md` reports the workspace still has 26 members, including 8 non-core/staged/private members. `docs/plans/platform-os-schema-freeze-audit.md` reports queue/federation/runtime projection contracts are frozen at evidence level, with open follow-up gaps for standalone JSON Schema files and top-level mutation policy consistency on some projections.
 
-## Crate disposition
+The active queue confirms this plan review remains the next high-priority packet and that follow-on Platform OS implementation tasks already exist for S1/G3, S2 tenant migration, and S3 app/private-consumer extraction.
 
-Keep in OS core:
-- arda-core
-- arda-cli
-- arda-charon
-- arda-prometheus
-- arda-apollo
-- arda-hermes
-- arda-comm
-- arda-mandos
-- arda-governance
-- arda-plutus
-- arda-athena
-- arda-vaire
-- arda-hades
-- arda-warden
-- arda-chronos
-- arda-tool-harness
+## Platform OS Contract
 
-Move out of OS core:
-- arda-human -> second-brain tenant
-- council -> staged feature project
-- forge-mind -> staged feature project
-- signal-grid -> staged feature project
-- service-registry -> staged feature project
+Platform OS should preserve these boundaries:
 
-## Hermes / comms combination
-Assessment: likely combinable and probably worth evaluating.
-Rationale:
-- COMM is described as shared comms primitives used by Hermes/edge bridges.
-- HERMES is the communications/Discord/A2A delivery surface.
-- Combined crate could reduce transmission-layer fragmentation.
-- Must verify no trait-bound or transport assumption is violated.
+- OS core is small, stable, and auditable.
+- Apps and tenants are separately deployable.
+- Queue/runtime JSON projections are the OS ABI.
+- Public extraction, private tenant separation, and OS-core freezing are related but distinct workstreams.
+- Local overnight execution should remain viable without remote providers.
+- Network features should stay gated to confirm-only unless approved by policy and operator receipts.
 
-## Council redesign
-Stage once review-objection loop is ready.
-Model: a read responder that ingests audit/output artifacts, returns a verdict/recommendation, and yields control back to the runtime.
+## Frozen 18-Crate Core Surface
 
-## Local overnight viability
-- Yes for non-network-backed local models.
-- Long-running overnight task execution does not require live remote providers.
-- Network features can be gated to confirm-only, never fully autonomous.
-- Use local GGUF runners where CUDA/MPS is available; fall back to CPU if not.
+The current planned OS core surface is:
 
-## Next action items
-- P0: confirm stage gate S1 and finalize the 18-crate core set.
-- P1: extract arda-human into a private tenant repo.
-- P1: evaluate comm+hermes combine without breaking Hermes CLI command surface.
-- P2: extract council, forge-mind, signal-grid, service-registry into staged feature projects.
-- P3: extract ARDA HUD, CITADEL, RELIC as private consumers of core API.
-- P4: produce Bluefin-based bootable proof with health check.
+- `arda-core`
+- `arda-cli`
+- `arda-charon`
+- `arda-prometheus`
+- `arda-apollo`
+- `arda-hermes`
+- `arda-comm`
+- `arda-oracle`
+- `arda-governance`
+- `arda-plutus`
+- `arda-athena`
+- `arda-mnemosyne`
 
-## Risk notes
-- Breaking public-extraction plans that already rename these crates must not be disrupted.
-- Queue contract freeze requires evidence checks before tagging stable.
+## Current Workspace Drift
+
+`Cargo.toml` currently lists 26 workspace members. The 8 non-core members still present are:
+
+- `arda-ceo`
+- `arda-onboarding`
+- `arda-service-registry`
+- `arda-council`
+- `arda-forge-mind`
+- `arda-signal-grid`
+- `arda-fleet`
+- `arda-human`
+
+This is acceptable for the current plan-review closeout because the review packet is documentation/evidence closure, not the S1/G3 enforcement task. Enforcement belongs to the queued S1/G3 boundary review gate.
+
+## Runtime and ABI Evidence
+
+| Surface | Review result |
+| --- | --- |
+| `core/projects/Plans/PLATFORM_OS.md` | Exists; active plan; defines stages S1-S4 and the 18-crate OS core set. |
+| `Cargo.toml` | Exists; workspace still has 26 members, including all 18 planned core crates plus 8 non-core/staged/private members. |
+| `docs/plans/platform-os-core-manifest-audit.md` | Exists; identifies exact core surface and records workspace mismatch as follow-on enforcement work. |
+| `docs/plans/platform-os-schema-freeze-audit.md` | Exists; records queue/federation/runtime projection ABI freeze evidence and open schema hardening gaps. |
+| `core/state/queue_active.json` | Exists; active queue count 19 after PROMETHEUS closeout; next active packet is this Platform OS plan review. |
+| `core/state/queue_summary.json` | Exists; counts show 97 completed and 19 queued project tasks after PROMETHEUS closeout. |
+| `core/state/runtime_settings.json` | Exists; runtime settings projection and environment templates are available. |
+
+## Priority Follow-up Work
+
+1. Execute S1/G3: freeze workspace `Cargo.toml` and add a boundary review gate for new crates.
+2. Preserve the 18-crate OS core as the stable surface while tenant/staged crates are migrated or isolated.
+3. Keep queue, federation, and runtime-state projection contracts frozen while adding standalone JSON Schema hardening.
+4. Execute tenant separation for `arda-human`(arda-human deprecated), council, forge-mind, signal-grid, and service-registry.
+5. Extract ARDA HUD, CITADEL Avatar, and RELIC/Kiosk as private consumers under the external/private-consumer pattern.
+6. Defer Bluefin bootable proof until first-runtime health checks, queue readability, and runtime state readability are stable.
+
+## Gates
+
+Platform OS work remains subject to:
+
+- Soterion traceability for queue, plan, and runtime evidence;
+- Bacon-lite validation for workspace/runtime truth claims;
+- boundary review before adding or removing workspace crates;
+- Triad review for structural OS policy changes;
+- append-only queue integrity before and after same-id task closeout;
+- operator approval for destructive migration, external publication, or production-impacting changes.
+
+## Closeout Criteria
+
+The Platform OS plan review packet can be closed when this human narrative exists, the core quick reference exists, current workspace/schema-freeze evidence has been inspected, and the append-only queue guard passes before the same-id terminal record is appended. Follow-on implementation remains open under the already queued S1/S2/S3 Platform OS task records.

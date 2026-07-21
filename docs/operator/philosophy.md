@@ -18,7 +18,7 @@ Canonical readable philosophy path for boot and agent startup.
 The active working note remains:
 - [Notes/thoughts.md](04-Leadership/CEO/thoughts.md)
 
-This top-level file exists so sovereign doctrine that reads `human/thoughts.md`
+This top-level file exists so sovereign doctrine that reads `docs/operator/philosophy.md`
 has a stable, human-readable entrypoint.
 
 ## Current Pointer

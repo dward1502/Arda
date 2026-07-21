@@ -49,7 +49,7 @@
   ],
   "company_view": {
     "body_preview": "--- soterion:   sigil: \"SCROLL\"",
-    "path": "human/company_view.md",
+    "path": "docs/operator/company-view.md",
     "title": "Company View"
   },
   "config": {

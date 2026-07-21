@@ -35,8 +35,8 @@ clearance   = "sovereign"
 triad_bypass = true
 
 # CEO reads human philosophy before every decision
-philosophy_path = "human/thoughts.md"
-index_path      = "human/index.md"
+philosophy_path = "docs/operator/philosophy.md"
+index_path      = "docs/operator/index.md"
 
 # CEO heartbeat — how often to emit world state
 heartbeat_ms = 500
@@ -51,7 +51,7 @@ sequence = [
     "verify_sovereignty",       # ∇ Check system has not been compromised
     "load_realm_identity",      # Load arda.toml, agents.toml, sigils.toml
     "read_human_philosophy",    # CEO reads thoughts.md and index.md
-    "scan_soterion_index",      # Index all .md and .jsonl in data/, docs/, human/
+    "scan_soterion_index",      # Index all .md and .jsonl in data/, docs/, docs/operator/
     "initialize_agent_roster",  # Spawn agents from agents.toml definitions
     "open_task_queue",          # Connect to core/queue/ directories
     "calculate_system_resonance", # Initial resonance baseline

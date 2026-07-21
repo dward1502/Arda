@@ -43,15 +43,18 @@ cannot yet route to the live nodes above.
 4. Preserve the existing local HTTP transport shape; fleet nodes are
    OpenAI-compatible or llama.cpp, both covered by `ProviderTransport::OpenAICompatible`.
 
+## Implementation status
+
+- Implemented `ProviderCatalog::from_fleet_config()` and `from_fleet_config_direct()` in `manwe`.
+- Implemented `ProviderDefinition::from_fleet_node(...)` mapping.
+- Implemented `ProviderCatalog::refresh()` for live re-evaluation without restart.
+- Updated `ProviderCatalog::default_bootstrap()` to load `config/fleet.toml` first, then fall back to `local_placeholder`.
+- Wired `default_bootstrap()` into manwe startup in `src/main.rs`: `AppState` now carries the fleet catalog, `/v1/models` prefers fleet providers when present, and `/v1/capabilities` reports `fleet_providers`.
+- `/health` is exposed on the adaptive service surface as an HTTP route; the stable gateway HTTP surface uses `/v1/capabilities` + `/healthz` for health/model visibility.
+
 ## Recommended next steps
 
-- Implement `ProviderCatalog::from_fleet_config()` in `manwe`.
-- Update `manwe` bootstrap to load `config/fleet.toml` before falling back to
-  `default_bootstrap()`.
-- Wire successful catalog load into `manwe`’s `/v1/models` and `/health`
-  endpoints so HUD/Charon see live fleet state.
-- Re-evaluate `node-ser9-carnice` once a replacement llama.cpp service exists;
-  do not add stale entries to the catalog.
+- Re-evaluate `node-ser9-carnice` once a replacement llama.cpp service exists; do not add stale entries to the catalog. (I dont think we need this running if we have bonzai 27B running on beelink instead only need 1 model to run services on the beelink correct?)
 
 ## Fleet -> provider mapping draft
 

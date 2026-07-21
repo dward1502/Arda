@@ -46,7 +46,7 @@ impl AthenaStore {
 pub(super) fn human_library_root() -> PathBuf {
     std::env::var("ARDA_ATHENA_HUMAN_LIBRARY_ROOT")
         .map(PathBuf::from)
-        .unwrap_or_else(|_| arda_root().join("human/library/athena"))
+        .unwrap_or_else(|_| arda_root().join("docs/operator/library/athena"))
 }
 
 pub(super) fn machine_library_root() -> PathBuf {

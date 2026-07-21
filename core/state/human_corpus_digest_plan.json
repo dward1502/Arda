@@ -13,7 +13,7 @@
       "owner": "prometheus",
       "sources": [
         {
-          "canonical_path": "human/plans/AGENT_FRAMEWORK_COMPARATIVE.md",
+          "canonical_path": "docs/plans/AGENT_FRAMEWORK_COMPARATIVE.md",
           "source_id": "src_63d7efe5",
           "wave_type": "text"
         }
@@ -26,7 +26,7 @@
       "owner": "core",
       "sources": [
         {
-          "canonical_path": "human/plans/NUMENOR_PRIME_BATCH_03_FRAMEWORK_AND_TOOLS.md",
+          "canonical_path": "docs/plans/NUMENOR_PRIME_BATCH_03_FRAMEWORK_AND_TOOLS.md",
           "source_id": "src_d6c35301",
           "wave_type": "text"
         }
@@ -39,17 +39,17 @@
       "owner": "athena",
       "sources": [
         {
-          "canonical_path": "human/plans/FRAMEWORK_GATE_AND_INTAKE_DISCIPLINE_IMPLEMENTATION.md",
+          "canonical_path": "docs/plans/FRAMEWORK_GATE_AND_INTAKE_DISCIPLINE_IMPLEMENTATION.md",
           "source_id": "src_64427488",
           "wave_type": "text"
         },
         {
-          "canonical_path": "human/plans/SUNDAY_POOL_DEMO_2026-03-22/05_ARCHITECTURE_TALK_TRACK.md",
+          "canonical_path": "docs/plans/SUNDAY_POOL_DEMO_2026-03-22/05_ARCHITECTURE_TALK_TRACK.md",
           "source_id": "src_72855a5d",
           "wave_type": "text"
         },
         {
-          "canonical_path": "human/plans/IMPORTED_MEMORY_INTAKE_CONTRACT.md",
+          "canonical_path": "docs/plans/IMPORTED_MEMORY_INTAKE_CONTRACT.md",
           "source_id": "src_a5082baf",
           "wave_type": "text"
         },
@@ -64,7 +64,7 @@
           "wave_type": "text"
         },
         {
-          "canonical_path": "human/summaries/memory-audit-complete.md",
+          "canonical_path": "docs/operator/summaries/memory-audit-complete.md",
           "source_id": "src_24260afa",
           "wave_type": "text"
         }

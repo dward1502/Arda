@@ -16,7 +16,7 @@ soterion:
 
 Status: active (reviewed 2026-04-30; keep, not coin-marked)
 Owner: athena
-Human plan: `human/plans/AGENT_FRAMEWORK_COMPARATIVE.md`
+Human plan: `docs/plans/AGENT_FRAMEWORK_COMPARATIVE.md`
 Core runtime: `core/state/agent_framework_alignment.json`
 Task ledger: `core/projects/tasks/queue.jsonl`
 
@@ -39,4 +39,4 @@ Track comparative architecture extraction from external agent frameworks without
 
 ## Readable Context
 
-Use `human/plans/AGENT_FRAMEWORK_COMPARATIVE.md` for the operator-facing narrative.
+Use `docs/plans/AGENT_FRAMEWORK_COMPARATIVE.md` for the operator-facing narrative.

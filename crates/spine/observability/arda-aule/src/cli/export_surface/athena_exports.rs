@@ -163,7 +163,7 @@ pub(crate) fn export_athena_integration_plan_impl() -> Result<Value> {
                 "goal": "Convert deep/policy-ready ATHENA evidence into reusable implementation briefs and deterministic planning tasks.",
                 "write_through": [
                     "data/athena/books/",
-                    "human/library/athena/sources/",
+                    "docs/operator/library/athena/sources/",
                     "core/projects/tasks/queue.jsonl",
                     "core/state/github_repo_integration.json",
                 ],
@@ -914,7 +914,7 @@ pub(crate) fn export_human_corpus_registry_impl() -> Result<Value> {
         ("human_notes", root.join("human/notes")),
         ("human_plans", root.join("human/plans")),
         ("system_docs", root.join("docs")),
-        ("human_summaries", root.join("human/summaries")),
+        ("human_summaries", root.join("docs/operator/summaries")),
     ];
     let numenor_root = numenor_prime_root();
     let external_sets = vec![
@@ -1592,7 +1592,7 @@ pub(crate) fn export_community_signal_intake_impl() -> Result<Value> {
         "athena_curation": {
             "retention_rule": "keep community observations as bounded signal records with source URL and captured-at timestamps",
             "promotion_rule": "only promote a community-derived item when it points to a concrete runtime, framework, or policy artifact",
-            "human_surface": "human/library/athena/sources/src_dc355aed.md",
+            "human_surface": "docs/operator/library/athena/sources/src_dc355aed.md",
         },
         "summary": {
             "signal_classes_total": 4,

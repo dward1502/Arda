@@ -151,7 +151,7 @@
     },
     "company_view": {
       "body_preview": "--- soterion:   sigil: \"SCROLL\"",
-      "path": "human/company_view.md",
+      "path": "docs/operator/company-view.md",
       "title": "Company View"
     },
     "counts": {
@@ -164,162 +164,162 @@
     "docs": [],
     "index": {
       "body_preview": "--- soterion:   sigil: \"SCROLL\"",
-      "path": "human/index.md",
+      "path": "docs/operator/index.md",
       "title": "Home"
     },
     "library": [
       {
         "body_preview": "- 2026-06-06T00:39:47.758236419+00:00 | crate=`charon` action=`route_selected` passed=`true` confidence=`0.530` task_type=`route` - 2026-06-06T00:39:54.023587832+00:00 | crate=`hades` action=`sweep` passed=`true` confidence=`0.630` task_type=`sweep` - 2026-06-06T00:50:33.427821663+00:00 | crate=`charon` action=`route_selected` passed=`true` confidence=`0.530` task_type=`route`",
-        "path": "human/library/governance/bacon_lite.md",
+        "path": "docs/operator/library/governance/bacon_lite.md",
         "title": "Bacon-Lite Validation Log"
       },
       {
         "body_preview": "--- soterion:   sigil: \"SCROLL\"",
-        "path": "human/library/governance/INDEX.md",
-        "title": "Index: human/library/governance"
+        "path": "docs/operator/library/governance/INDEX.md",
+        "title": "Index: docs/operator/library/governance"
       },
       {
         "body_preview": "- source_id: `src_ff910dc0` - status: `deep` - source_type: `RawNote`",
-        "path": "human/library/athena/sources/src_ff910dc0.md",
+        "path": "docs/operator/library/athena/sources/src_ff910dc0.md",
         "title": "ATHENA Source Book"
       },
       {
         "body_preview": "- source_id: `src_febf45b3` - status: `deep` - source_type: `RawNote`",
-        "path": "human/library/athena/sources/src_febf45b3.md",
+        "path": "docs/operator/library/athena/sources/src_febf45b3.md",
         "title": "ATHENA Source Book"
       },
       {
         "body_preview": "- source_id: `src_fe81ebf4` - status: `deep` - source_type: `RawNote`",
-        "path": "human/library/athena/sources/src_fe81ebf4.md",
+        "path": "docs/operator/library/athena/sources/src_fe81ebf4.md",
         "title": "ATHENA Source Book"
       },
       {
         "body_preview": "- source_id: `src_fe80a8c2` - status: `shallow` - source_type: `RawNote`",
-        "path": "human/library/athena/sources/src_fe80a8c2.md",
+        "path": "docs/operator/library/athena/sources/src_fe80a8c2.md",
         "title": "ATHENA Source Book"
       },
       {
         "body_preview": "- source_id: `src_fe3c0acf` - status: `shallow` - source_type: `RawNote`",
-        "path": "human/library/athena/sources/src_fe3c0acf.md",
+        "path": "docs/operator/library/athena/sources/src_fe3c0acf.md",
         "title": "ATHENA Source Book"
       },
       {
         "body_preview": "- source_id: `src_fd389c92` - status: `shallow` - source_type: `RawNote`",
-        "path": "human/library/athena/sources/src_fd389c92.md",
+        "path": "docs/operator/library/athena/sources/src_fd389c92.md",
         "title": "ATHENA Source Book"
       },
       {
         "body_preview": "- source_id: `src_fd377a38` - status: `shallow` - source_type: `RawNote`",
-        "path": "human/library/athena/sources/src_fd377a38.md",
+        "path": "docs/operator/library/athena/sources/src_fd377a38.md",
         "title": "ATHENA Source Book"
       },
       {
         "body_preview": "- source_id: `src_fcb7b8c0` - status: `deep` - source_type: `RawNote`",
-        "path": "human/library/athena/sources/src_fcb7b8c0.md",
+        "path": "docs/operator/library/athena/sources/src_fcb7b8c0.md",
         "title": "ATHENA Source Book"
       },
       {
         "body_preview": "- source_id: `src_fca45f49` - status: `shallow` - source_type: `RawNote`",
-        "path": "human/library/athena/sources/src_fca45f49.md",
+        "path": "docs/operator/library/athena/sources/src_fca45f49.md",
         "title": "ATHENA Source Book"
       },
       {
         "body_preview": "- source_id: `src_fc2a3bde` - status: `deep` - source_type: `RawNote`",
-        "path": "human/library/athena/sources/src_fc2a3bde.md",
+        "path": "docs/operator/library/athena/sources/src_fc2a3bde.md",
         "title": "ATHENA Source Book"
       },
       {
         "body_preview": "- source_id: `src_fbd2cc17` - status: `shallow` - source_type: `RawNote`",
-        "path": "human/library/athena/sources/src_fbd2cc17.md",
+        "path": "docs/operator/library/athena/sources/src_fbd2cc17.md",
         "title": "ATHENA Source Book"
       },
       {
         "body_preview": "- source_id: `src_fbc79503` - status: `deep` - source_type: `GithubRepo`",
-        "path": "human/library/athena/sources/src_fbc79503.md",
+        "path": "docs/operator/library/athena/sources/src_fbc79503.md",
         "title": "ATHENA Source Book"
       },
       {
         "body_preview": "- source_id: `src_fada4bb9` - status: `deep` - source_type: `RawNote`",
-        "path": "human/library/athena/sources/src_fada4bb9.md",
+        "path": "docs/operator/library/athena/sources/src_fada4bb9.md",
         "title": "ATHENA Source Book"
       },
       {
         "body_preview": "- source_id: `src_fad36166` - status: `shallow` - source_type: `RawNote`",
-        "path": "human/library/athena/sources/src_fad36166.md",
+        "path": "docs/operator/library/athena/sources/src_fad36166.md",
         "title": "ATHENA Source Book"
       },
       {
         "body_preview": "- source_id: `src_facc3692` - status: `deep` - source_type: `RawNote`",
-        "path": "human/library/athena/sources/src_facc3692.md",
+        "path": "docs/operator/library/athena/sources/src_facc3692.md",
         "title": "ATHENA Source Book"
       },
       {
         "body_preview": "- source_id: `src_fa8d9a5a` - status: `shallow` - source_type: `RawNote`",
-        "path": "human/library/athena/sources/src_fa8d9a5a.md",
+        "path": "docs/operator/library/athena/sources/src_fa8d9a5a.md",
         "title": "ATHENA Source Book"
       },
       {
         "body_preview": "- source_id: `src_fa7cd80c` - status: `shallow` - source_type: `NewsArticle`",
-        "path": "human/library/athena/sources/src_fa7cd80c.md",
+        "path": "docs/operator/library/athena/sources/src_fa7cd80c.md",
         "title": "ATHENA Source Book"
       },
       {
         "body_preview": "- source_id: `src_fa1b29fb` - status: `deep` - source_type: `RawNote`",
-        "path": "human/library/athena/sources/src_fa1b29fb.md",
+        "path": "docs/operator/library/athena/sources/src_fa1b29fb.md",
         "title": "ATHENA Source Book"
       },
       {
         "body_preview": "- source_id: `src_fa0b7ca5` - status: `deep` - source_type: `RawNote`",
-        "path": "human/library/athena/sources/src_fa0b7ca5.md",
+        "path": "docs/operator/library/athena/sources/src_fa0b7ca5.md",
         "title": "ATHENA Source Book"
       },
       {
         "body_preview": "- source_id: `src_f8714c54` - status: `deep` - source_type: `RawNote`",
-        "path": "human/library/athena/sources/src_f8714c54.md",
+        "path": "docs/operator/library/athena/sources/src_f8714c54.md",
         "title": "ATHENA Source Book"
       },
       {
         "body_preview": "- source_id: `src_f7c0291a` - status: `deep` - source_type: `RawNote`",
-        "path": "human/library/athena/sources/src_f7c0291a.md",
+        "path": "docs/operator/library/athena/sources/src_f7c0291a.md",
         "title": "ATHENA Source Book"
       },
       {
         "body_preview": "- source_id: `src_f7bd7287` - status: `shallow` - source_type: `RawNote`",
-        "path": "human/library/athena/sources/src_f7bd7287.md",
+        "path": "docs/operator/library/athena/sources/src_f7bd7287.md",
         "title": "ATHENA Source Book"
       }
     ],
     "notes": [],
     "onboard": {
       "body_preview": "--- soterion:   sigil: \"SCROLL\"",
-      "path": "human/onboard.md",
+      "path": "docs/operator/onboard.md",
       "title": "Onboard"
     },
     "summaries": [],
     "top_level_readables": [
       {
         "body_preview": "--- soterion:   sigil: \"SCROLL\"",
-        "path": "human/thoughts.md",
+        "path": "docs/operator/philosophy.md",
         "title": "Human Thoughts"
       },
       {
         "body_preview": "--- soterion:   sigil: \"SCROLL\"",
-        "path": "human/overrides.md",
+        "path": "docs/operator/overrides.md",
         "title": "Overrides"
       },
       {
         "body_preview": "--- soterion:   sigil: \"SCROLL\"",
-        "path": "human/onboard.md",
+        "path": "docs/operator/onboard.md",
         "title": "Onboard"
       },
       {
         "body_preview": "--- soterion:   sigil: \"SCROLL\"",
-        "path": "human/index.md",
+        "path": "docs/operator/index.md",
         "title": "Home"
       },
       {
         "body_preview": "--- soterion:   sigil: \"SCROLL\"",
-        "path": "human/company_view.md",
+        "path": "docs/operator/company-view.md",
         "title": "Company View"
       },
       {

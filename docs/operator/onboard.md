@@ -62,5 +62,5 @@ Use `/core/state` for machine-readable truth.
 Use `docs/` for engineering contracts.
 
 Canonical readable path note:
-- boot doctrine points at `human/thoughts.md`
-- active rough capture continues in `human/Notes/thoughts.md`
+- boot doctrine points at `docs/operator/philosophy.md`
+- active rough capture continues in `docs/operator/notes/thoughts.md`

@@ -16,7 +16,7 @@ soterion:
 
 Status: active (reviewed 2026-04-30; architecture extraction, keep)
 Owner: prometheus
-Human plan: `human/plans/FEDERATED_COMMS.md`
+Human plan: `docs/plans/FEDERATED_COMMS.md`
 Core runtime: `core/state/federated_comms.json`
 Task ledger: `core/projects/tasks/queue.jsonl`
 
@@ -43,4 +43,4 @@ Defines the layered communications doctrine above local sovereign control.
 
 ## Readable Context
 
-Use `human/plans/FEDERATED_COMMS.md` for the operator-facing plan narrative and graph node.
+Use `docs/plans/FEDERATED_COMMS.md` for the operator-facing plan narrative and graph node.

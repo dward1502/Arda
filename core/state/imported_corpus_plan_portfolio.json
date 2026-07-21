@@ -619,7 +619,7 @@
     },
     {
       "batch_id": "valinor_project_dossiers",
-      "current_anchor": "/var/home/dward/Numenor_Prime/Eregion/KhazadForge/skylightpros",
+      "current_anchor": "/var/home/dward/Numenor_Prime/Eregiodocs/plans/KhazadForge/skylightpros",
       "current_status": "active_delivery",
       "execution_mode": "plan_now_execute_after_review",
       "id": "valinor_project_dossiers:skylight-pros:client_delivery_project",
@@ -639,7 +639,7 @@
     },
     {
       "batch_id": "valinor_project_dossiers",
-      "current_anchor": "/var/home/dward/Numenor_Prime/Eregion/KhazadForge/wgtt",
+      "current_anchor": "/var/home/dward/Numenor_Prime/Eregiodocs/plans/KhazadForge/wgtt",
       "current_status": "delivery_pending_inputs",
       "execution_mode": "plan_now_execute_after_review",
       "id": "valinor_project_dossiers:wgtt:client_delivery_project",
@@ -659,7 +659,7 @@
     },
     {
       "batch_id": "valinor_project_dossiers",
-      "current_anchor": "/var/home/mythos/Numenor_Prime/Eregion/KhazadForge/realmgateWarriors",
+      "current_anchor": "/var/home/mythos/Numenor_Prime/Eregiodocs/plans/KhazadForge/realmgateWarriors",
       "current_status": "cataloged_not_active",
       "execution_mode": "plan_now_execute_after_review",
       "id": "valinor_project_dossiers:realmgate-warriors:internal_project",
@@ -679,7 +679,7 @@
     },
     {
       "batch_id": "valinor_project_dossiers",
-      "current_anchor": "/var/home/mythos/Numenor_Prime/Eregion/KhazadForge/crusties",
+      "current_anchor": "/var/home/mythos/Numenor_Prime/Eregiodocs/plans/KhazadForge/crusties",
       "current_status": "structured_memory_ready",
       "execution_mode": "plan_now_execute_after_review",
       "id": "valinor_project_dossiers:crusties:internal_product",
@@ -722,17 +722,17 @@
   "plan_groups": [
     {
       "goal": "Use imported memory to strengthen Annunimas runtime, tooling, intake discipline, and platform patterns first.",
-      "human_plan": "human/plans/SYSTEM_LIFT_FROM_IMPORTED_CORPUS.md",
+      "human_plan": "docs/plans/SYSTEM_LIFT_FROM_IMPORTED_CORPUS.md",
       "id": "system_lift"
     },
     {
       "goal": "Turn imported client/product memory into bounded execution plans after system lift review.",
-      "human_plan": "human/plans/DELIVERY_AND_PRODUCT_PORTFOLIO_FROM_IMPORTED_CORPUS.md",
+      "human_plan": "docs/plans/DELIVERY_AND_PRODUCT_PORTFOLIO_FROM_IMPORTED_CORPUS.md",
       "id": "delivery_and_product"
     },
     {
       "goal": "Preserve imported opportunity and research memory as a structured reservoir until selected.",
-      "human_plan": "human/plans/OPPORTUNITY_AND_RESEARCH_PORTFOLIO_FROM_IMPORTED_CORPUS.md",
+      "human_plan": "docs/plans/OPPORTUNITY_AND_RESEARCH_PORTFOLIO_FROM_IMPORTED_CORPUS.md",
       "id": "opportunity_and_research"
     }
   ],

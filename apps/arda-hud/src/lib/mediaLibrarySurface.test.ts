@@ -36,7 +36,7 @@ function dir(relativePath: string, children: InventoryTreeNode[]): InventoryTree
 
 describe('mediaLibrarySurface', () => {
   it('classifies supported document and media types', () => {
-    expect(classifyMediaLibraryEntry('human/plans/route.md')).toBe('markdown')
+    expect(classifyMediaLibraryEntry('docs/plans/route.md')).toBe('markdown')
     expect(classifyMediaLibraryEntry('docs/spec.pdf')).toBe('pdf')
     expect(classifyMediaLibraryEntry('data/media/reference.png')).toBe('image')
     expect(classifyMediaLibraryEntry('data/media/demo.mov')).toBe('video')
@@ -58,7 +58,7 @@ describe('mediaLibrarySurface', () => {
   it('flattens inventory trees into supported media entries', () => {
     const entries = buildMediaLibraryEntries([
       dir('human', [
-        file('human/plans/route.md'),
+        file('docs/plans/route.md'),
         file('human/archive/raw.bin'),
       ]),
       dir('data', [
@@ -71,7 +71,7 @@ describe('mediaLibrarySurface', () => {
     expect(entries.map((entry) => entry.relativePath)).toEqual([
       'data/events.jsonl',
       'data/media/reference.png',
-      'human/plans/route.md',
+      'docs/plans/route.md',
     ])
     expect(summary).toMatchObject({
       total: 3,

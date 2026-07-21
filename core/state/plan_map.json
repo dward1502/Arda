@@ -2,11 +2,11 @@
   "authority": "plan_index_export",
   "core_plan_root": "core/projects/Plans",
   "generated_at_utc": "2026-06-21T02:52:23Z",
-  "human_plan_root": "human/plans",
+  "human_plan_root": "docs/plans",
   "plans": [
     {
       "core_quick_ref_path": "core/projects/Plans/AIPKG.md",
-      "human_plan_path": "human/plans/AIPKG.md",
+      "human_plan_path": "docs/plans/AIPKG.md",
       "id": "aipkg",
       "open_task_count": 0,
       "owner": "aipkg",

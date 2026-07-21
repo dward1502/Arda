@@ -284,7 +284,7 @@
         "athena": {
           "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_b711210b.jsonl",
           "confidence": 0.6916666666666667,
-          "human_ref": "human/library/athena/sources/src_b711210b.md",
+          "human_ref": "docs/operator/library/athena/sources/src_b711210b.md",
           "status": "deep",
           "triad_passed": true,
           "updated_at_utc": "2026-03-11T02:49:36.931730605+00:00"
@@ -317,7 +317,7 @@
         "athena": {
           "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_dab89283.jsonl",
           "confidence": 0.7516666666666667,
-          "human_ref": "human/library/athena/sources/src_dab89283.md",
+          "human_ref": "docs/operator/library/athena/sources/src_dab89283.md",
           "status": "deep",
           "triad_passed": true,
           "updated_at_utc": "2026-03-12T04:30:26.494223273+00:00"

@@ -112,7 +112,7 @@
       "athena": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_759119ab.jsonl",
         "confidence": 0.6916666666666667,
-        "human_ref": "human/library/athena/sources/src_759119ab.md",
+        "human_ref": "docs/operator/library/athena/sources/src_759119ab.md",
         "status": "deep",
         "triad_passed": true,
         "updated_at_utc": "2026-03-11T02:49:35.860504075+00:00"
@@ -145,7 +145,7 @@
       "athena": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_e0115360.jsonl",
         "confidence": 0.6916666666666667,
-        "human_ref": "human/library/athena/sources/src_e0115360.md",
+        "human_ref": "docs/operator/library/athena/sources/src_e0115360.md",
         "status": "deep",
         "triad_passed": true,
         "updated_at_utc": "2026-03-11T02:49:36.218904882+00:00"
@@ -178,7 +178,7 @@
       "athena": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_d46d1480.jsonl",
         "confidence": 0.7683333333333333,
-        "human_ref": "human/library/athena/sources/src_d46d1480.md",
+        "human_ref": "docs/operator/library/athena/sources/src_d46d1480.md",
         "status": "deep",
         "triad_passed": true,
         "updated_at_utc": "2026-03-12T04:30:24.842216904+00:00"
@@ -217,7 +217,7 @@
       "athena": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_b711210b.jsonl",
         "confidence": 0.6916666666666667,
-        "human_ref": "human/library/athena/sources/src_b711210b.md",
+        "human_ref": "docs/operator/library/athena/sources/src_b711210b.md",
         "status": "deep",
         "triad_passed": true,
         "updated_at_utc": "2026-03-11T02:49:36.931730605+00:00"
@@ -250,7 +250,7 @@
       "athena": {
         "book_ref": "data/athena/books/src_c1c7f9c9.jsonl",
         "confidence": null,
-        "human_ref": "human/library/athena/sources/src_c1c7f9c9.md",
+        "human_ref": "docs/operator/library/athena/sources/src_c1c7f9c9.md",
         "status": "shallow",
         "triad_passed": null,
         "updated_at_utc": "2026-03-07T22:41:05.886494570+00:00"
@@ -283,7 +283,7 @@
       "athena": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_dab89283.jsonl",
         "confidence": 0.7516666666666667,
-        "human_ref": "human/library/athena/sources/src_dab89283.md",
+        "human_ref": "docs/operator/library/athena/sources/src_dab89283.md",
         "status": "deep",
         "triad_passed": true,
         "updated_at_utc": "2026-03-12T04:30:26.494223273+00:00"
@@ -325,7 +325,7 @@
       "athena": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_234088bc.jsonl",
         "confidence": 0.7516666666666667,
-        "human_ref": "human/library/athena/sources/src_234088bc.md",
+        "human_ref": "docs/operator/library/athena/sources/src_234088bc.md",
         "status": "deep",
         "triad_passed": true,
         "updated_at_utc": "2026-03-12T04:30:28.151166473+00:00"
@@ -363,7 +363,7 @@
       "athena": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_bfd43480.jsonl",
         "confidence": 0.7516666666666667,
-        "human_ref": "human/library/athena/sources/src_bfd43480.md",
+        "human_ref": "docs/operator/library/athena/sources/src_bfd43480.md",
         "status": "deep",
         "triad_passed": true,
         "updated_at_utc": "2026-03-12T04:30:29.804407059+00:00"
@@ -420,7 +420,7 @@
       "athena": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_275d929b.jsonl",
         "confidence": 0.7516666666666667,
-        "human_ref": "human/library/athena/sources/src_275d929b.md",
+        "human_ref": "docs/operator/library/athena/sources/src_275d929b.md",
         "status": "deep",
         "triad_passed": true,
         "updated_at_utc": "2026-03-11T02:50:10.697587022+00:00"
@@ -465,7 +465,7 @@
       "athena": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_ba31bde2.jsonl",
         "confidence": 0.7516666666666667,
-        "human_ref": "human/library/athena/sources/src_ba31bde2.md",
+        "human_ref": "docs/operator/library/athena/sources/src_ba31bde2.md",
         "status": "deep",
         "triad_passed": true,
         "updated_at_utc": "2026-03-11T02:50:18.198685258+00:00"
@@ -510,7 +510,7 @@
       "athena": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_8c6014a3.jsonl",
         "confidence": 0.6916666666666667,
-        "human_ref": "human/library/athena/sources/src_8c6014a3.md",
+        "human_ref": "docs/operator/library/athena/sources/src_8c6014a3.md",
         "status": "deep",
         "triad_passed": true,
         "updated_at_utc": "2026-03-11T02:49:39.049720696+00:00"
@@ -548,7 +548,7 @@
         "mode": "research_backlog",
         "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
       },
-      "human_ref": "human/library/athena/sources/src_3047ffaa.md",
+      "human_ref": "docs/operator/library/athena/sources/src_3047ffaa.md",
       "source_id": "src_3047ffaa",
       "status": "shallow",
       "system_surfaces": [
@@ -566,7 +566,7 @@
         "mode": "research_backlog",
         "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
       },
-      "human_ref": "human/library/athena/sources/src_ec2b8bd4.md",
+      "human_ref": "docs/operator/library/athena/sources/src_ec2b8bd4.md",
       "source_id": "src_ec2b8bd4",
       "status": "deep",
       "system_surfaces": [
@@ -584,7 +584,7 @@
         "mode": "research_backlog",
         "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
       },
-      "human_ref": "human/library/athena/sources/src_c2fef5eb.md",
+      "human_ref": "docs/operator/library/athena/sources/src_c2fef5eb.md",
       "source_id": "src_c2fef5eb",
       "status": "deep",
       "system_surfaces": [
@@ -602,7 +602,7 @@
         "mode": "research_backlog",
         "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
       },
-      "human_ref": "human/library/athena/sources/src_df11630e.md",
+      "human_ref": "docs/operator/library/athena/sources/src_df11630e.md",
       "source_id": "src_df11630e",
       "status": "deep",
       "system_surfaces": [
@@ -620,7 +620,7 @@
         "mode": "research_backlog",
         "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
       },
-      "human_ref": "human/library/athena/sources/src_c623c7c2.md",
+      "human_ref": "docs/operator/library/athena/sources/src_c623c7c2.md",
       "source_id": "src_c623c7c2",
       "status": "deep",
       "system_surfaces": [
@@ -638,7 +638,7 @@
         "mode": "research_backlog",
         "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
       },
-      "human_ref": "human/library/athena/sources/src_349063d2.md",
+      "human_ref": "docs/operator/library/athena/sources/src_349063d2.md",
       "source_id": "src_349063d2",
       "status": "deep",
       "system_surfaces": [
@@ -656,7 +656,7 @@
         "mode": "research_backlog",
         "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
       },
-      "human_ref": "human/library/athena/sources/src_b709b4a0.md",
+      "human_ref": "docs/operator/library/athena/sources/src_b709b4a0.md",
       "source_id": "src_b709b4a0",
       "status": "deep",
       "system_surfaces": [
@@ -674,7 +674,7 @@
         "mode": "research_backlog",
         "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
       },
-      "human_ref": "human/library/athena/sources/src_58052dc5.md",
+      "human_ref": "docs/operator/library/athena/sources/src_58052dc5.md",
       "source_id": "src_58052dc5",
       "status": "deep",
       "system_surfaces": [
@@ -692,7 +692,7 @@
         "mode": "research_backlog",
         "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
       },
-      "human_ref": "human/library/athena/sources/src_201e5d87.md",
+      "human_ref": "docs/operator/library/athena/sources/src_201e5d87.md",
       "source_id": "src_201e5d87",
       "status": "deep",
       "system_surfaces": [
@@ -710,7 +710,7 @@
         "mode": "research_backlog",
         "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
       },
-      "human_ref": "human/library/athena/sources/src_09cdae85.md",
+      "human_ref": "docs/operator/library/athena/sources/src_09cdae85.md",
       "source_id": "src_09cdae85",
       "status": "deep",
       "system_surfaces": [
@@ -728,7 +728,7 @@
         "mode": "research_backlog",
         "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
       },
-      "human_ref": "human/library/athena/sources/src_2b71e3d5.md",
+      "human_ref": "docs/operator/library/athena/sources/src_2b71e3d5.md",
       "source_id": "src_2b71e3d5",
       "status": "deep",
       "system_surfaces": [
@@ -746,7 +746,7 @@
         "mode": "research_backlog",
         "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
       },
-      "human_ref": "human/library/athena/sources/src_94ec52fc.md",
+      "human_ref": "docs/operator/library/athena/sources/src_94ec52fc.md",
       "source_id": "src_94ec52fc",
       "status": "deep",
       "system_surfaces": [
@@ -764,7 +764,7 @@
         "mode": "research_backlog",
         "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
       },
-      "human_ref": "human/library/athena/sources/src_9cad18f2.md",
+      "human_ref": "docs/operator/library/athena/sources/src_9cad18f2.md",
       "source_id": "src_9cad18f2",
       "status": "deep",
       "system_surfaces": [
@@ -782,7 +782,7 @@
         "mode": "research_backlog",
         "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
       },
-      "human_ref": "human/library/athena/sources/src_0c48d91a.md",
+      "human_ref": "docs/operator/library/athena/sources/src_0c48d91a.md",
       "source_id": "src_0c48d91a",
       "status": "deep",
       "system_surfaces": [
@@ -800,7 +800,7 @@
         "mode": "research_backlog",
         "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
       },
-      "human_ref": "human/library/athena/sources/src_86a91025.md",
+      "human_ref": "docs/operator/library/athena/sources/src_86a91025.md",
       "source_id": "src_86a91025",
       "status": "deep",
       "system_surfaces": [
@@ -818,7 +818,7 @@
         "mode": "research_backlog",
         "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
       },
-      "human_ref": "human/library/athena/sources/src_1d61766b.md",
+      "human_ref": "docs/operator/library/athena/sources/src_1d61766b.md",
       "source_id": "src_1d61766b",
       "status": "deep",
       "system_surfaces": [
@@ -836,7 +836,7 @@
         "mode": "research_backlog",
         "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
       },
-      "human_ref": "human/library/athena/sources/src_c410e7ab.md",
+      "human_ref": "docs/operator/library/athena/sources/src_c410e7ab.md",
       "source_id": "src_c410e7ab",
       "status": "deep",
       "system_surfaces": [
@@ -854,7 +854,7 @@
         "mode": "research_backlog",
         "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
       },
-      "human_ref": "human/library/athena/sources/src_cc43941d.md",
+      "human_ref": "docs/operator/library/athena/sources/src_cc43941d.md",
       "source_id": "src_cc43941d",
       "status": "deep",
       "system_surfaces": [
@@ -872,7 +872,7 @@
         "mode": "research_backlog",
         "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
       },
-      "human_ref": "human/library/athena/sources/src_73c61c5a.md",
+      "human_ref": "docs/operator/library/athena/sources/src_73c61c5a.md",
       "source_id": "src_73c61c5a",
       "status": "deep",
       "system_surfaces": [
@@ -890,7 +890,7 @@
         "mode": "research_backlog",
         "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
       },
-      "human_ref": "human/library/athena/sources/src_3310efd0.md",
+      "human_ref": "docs/operator/library/athena/sources/src_3310efd0.md",
       "source_id": "src_3310efd0",
       "status": "deep",
       "system_surfaces": [
@@ -908,7 +908,7 @@
         "mode": "research_backlog",
         "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
       },
-      "human_ref": "human/library/athena/sources/src_d180c5b9.md",
+      "human_ref": "docs/operator/library/athena/sources/src_d180c5b9.md",
       "source_id": "src_d180c5b9",
       "status": "deep",
       "system_surfaces": [
@@ -926,7 +926,7 @@
         "mode": "research_backlog",
         "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
       },
-      "human_ref": "human/library/athena/sources/src_b9676ba9.md",
+      "human_ref": "docs/operator/library/athena/sources/src_b9676ba9.md",
       "source_id": "src_b9676ba9",
       "status": "deep",
       "system_surfaces": [
@@ -944,7 +944,7 @@
         "mode": "research_backlog",
         "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
       },
-      "human_ref": "human/library/athena/sources/src_33fa61b2.md",
+      "human_ref": "docs/operator/library/athena/sources/src_33fa61b2.md",
       "source_id": "src_33fa61b2",
       "status": "deep",
       "system_surfaces": [
@@ -962,7 +962,7 @@
         "mode": "research_backlog",
         "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
       },
-      "human_ref": "human/library/athena/sources/src_ca2f031e.md",
+      "human_ref": "docs/operator/library/athena/sources/src_ca2f031e.md",
       "source_id": "src_ca2f031e",
       "status": "deep",
       "system_surfaces": [
@@ -980,7 +980,7 @@
         "mode": "research_backlog",
         "rationale": "ATHENA has already digested this GitHub source; it is now explicitly captured in the sovereign corpus backlog even if it is not yet promoted into a registry tool or framework contract."
       },
-      "human_ref": "human/library/athena/sources/src_dc355aed.md",
+      "human_ref": "docs/operator/library/athena/sources/src_dc355aed.md",
       "source_id": "src_dc355aed",
       "status": "deep",
       "system_surfaces": [

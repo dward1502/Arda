@@ -88,12 +88,12 @@
   },
   "notes_readme": {
     "body_preview": "",
-    "path": "human/Notes/README.md",
+    "path": "docs/operator/notes/README.md",
     "title": "README"
   },
   "onboard": {
     "body_preview": "--- soterion:   sigil: \"SCROLL\"",
-    "path": "human/onboard.md",
+    "path": "docs/operator/onboard.md",
     "title": "Onboard"
   },
   "research_domains": [

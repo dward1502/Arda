@@ -168,7 +168,7 @@
       "athena_policy_ready_count": 123,
       "core_plan_root": "core/projects/Plans",
       "history_snapshots": 17,
-      "human_plan_root": "human/plans",
+      "human_plan_root": "docs/plans",
       "mirrored_files": 0,
       "plan_nodes": 1,
       "task_queue_open": 0

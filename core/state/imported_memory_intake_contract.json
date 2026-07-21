@@ -14,8 +14,8 @@
   "states": [
     {
       "allowed_surfaces": [
-        "human/library/**",
-        "human/plans/**",
+        "humadocs/plans/library/**",
+        "docs/plans/**",
         "core/state/*_merge_registry.json"
       ],
       "forbidden_surfaces": [
@@ -27,7 +27,7 @@
     },
     {
       "allowed_surfaces": [
-        "human/plans/**",
+        "docs/plans/**",
         "core/state/*_promotion_batch_*.json"
       ],
       "forbidden_surfaces": [
@@ -39,7 +39,7 @@
     {
       "allowed_surfaces": [
         "core/state/*_project_dossiers.json",
-        "human/plans/*_PROJECT_DOSSIERS.md"
+        "docs/plans/*_PROJECT_DOSSIERS.md"
       ],
       "forbidden_surfaces": [
         "execution without readiness and owner"
@@ -49,7 +49,7 @@
     },
     {
       "allowed_surfaces": [
-        "human/plans/**",
+        "docs/plans/**",
         "core/state/*_plan*.json"
       ],
       "forbidden_surfaces": [

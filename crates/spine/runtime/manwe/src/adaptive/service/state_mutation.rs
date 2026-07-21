@@ -987,7 +987,8 @@ mod tests {
             .await
             .expect("apply hints");
 
-        let providers = service.providers.read().await;
+        let providers: Vec<crate::adaptive::service::types::ProviderState> =
+            service.providers.read().await.clone();
         let openrouter = providers
             .iter()
             .find(|provider| provider.id == "openrouter")

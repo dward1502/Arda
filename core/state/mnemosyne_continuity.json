@@ -559,87 +559,87 @@
     ],
     "obsidian_bridge": [
       {
-        "absolute_path": "human/summaries/crates/annunimas-warden.md",
+        "absolute_path": "docs/operator/summaries/crates/annunimas-warden.md",
         "path": "summaries/crates/annunimas-warden.md",
         "sigil": "SCROLL",
         "snippet": "# annunimas-warden **Sigil**: 𓃭 (Guardian) **Agent**: Warden **Realm**: Monitoring **Status**: Active-Prototype ## Purpose Runtime guardian for system and fleet health. Observes runtime/container state, handles foreign-agent trust transitions, and emits health/alert signals. ## What's in this crate",
         "ts_utc": "2026-05-06T04:37:33.065070245+00:00"
       },
       {
-        "absolute_path": "human/summaries/data.md",
+        "absolute_path": "docs/operator/summaries/data.md",
         "path": "summaries/data.md",
         "sigil": "SCROLL",
         "snippet": "# data/ **Purpose**: Runtime data storage for Annunimas system ## Structure ``` data/ ├── shared/ │   ├── fleet_state.json      # Fleet/agent state (empty) │   └── soterion_index.json  # Soterion index (empty)",
         "ts_utc": "2026-05-06T04:37:33.099702547+00:00"
       },
       {
-        "absolute_path": "human/summaries/docs-structure-notes.md",
+        "absolute_path": "docs/operator/summaries/docs-structure-notes.md",
         "path": "summaries/docs-structure-notes.md",
         "sigil": "SCROLL",
         "snippet": "# Annunimas Documentation Structure # Created: 2026-03-21 # Author: Hermes Agent (arandur) # Session: audit-session-001 ## Overview This document describes the complete documentation structure for the Annunimas project, organized by directory and purpose. ---",
         "ts_utc": "2026-05-06T04:37:33.135760428+00:00"
       },
       {
-        "absolute_path": "human/summaries/library-crates-notes.md",
+        "absolute_path": "docs/operator/summaries/library-crates-notes.md",
         "path": "summaries/library-crates-notes.md",
         "sigil": "SCROLL",
         "snippet": "# Library Crates Audit Notes # Created: 2026-03-21 # Author: Hermes Agent (arandur) # Session: audit-session-001 ## Overview Documented structure and purpose of core library crates in the Annunimas workspace. These crates implement the sovereign agents and support functions. ---",
         "ts_utc": "2026-05-06T04:37:33.169612320+00:00"
       },
       {
-        "absolute_path": "human/summaries/memory-audit-complete.md",
+        "absolute_path": "docs/operator/summaries/memory-audit-complete.md",
         "path": "summaries/memory-audit-complete.md",
         "sigil": "SCROLL",
         "snippet": "# ANNUNIMAS MEMORY AUDIT - COMPLETE SYSTEM ANALYSIS **Session:** 2026-03-21   **Auditor:** Hermes Agent   **Status:** COMPLETE   --- ## EXECUTIVE SUMMARY This document provides a comprehensive analysis of memory usage, context flow, and system efficiency across the Annunimas AI agent ecosystem. The audit reveals both strengths and critical optimization opportunities, particularly around context delivery overhead and memory management strategies. ---",
         "ts_utc": "2026-05-06T04:37:33.204956773+00:00"
       },
       {
-        "absolute_path": "human/summaries/root-core-notes.md",
+        "absolute_path": "docs/operator/summaries/root-core-notes.md",
         "path": "summaries/root-core-notes.md",
         "sigil": "SCROLL",
         "snippet": "# ANNUNIMAS ROOT & CORE - Audit Notes **Session:** 2026-03-21 **Author:** Hermes Agent **Status:** Initial Documentation --- ## ROOT STRUCTURE ### Files at Root Level: - `ANNUNIMAS_ROOT_PROTOCOL.md` - Root-level protocol document (100+ lines)",
         "ts_utc": "2026-05-06T04:37:33.239008088+00:00"
       },
       {
-        "absolute_path": "human/summaries/scripts-notes.md",
+        "absolute_path": "docs/operator/summaries/scripts-notes.md",
         "path": "summaries/scripts-notes.md",
         "sigil": "SCROLL",
         "snippet": "# Scripts Directory Audit Notes # Created: 2026-03-21 # Author: Hermes Agent (arandur) # Session: audit-session-001 ## Overview Documented the scripts directory structure and purposes. This directory contains operational scripts for system management. ---",
         "ts_utc": "2026-05-06T04:37:33.276562728+00:00"
       },
       {
-        "absolute_path": "human/summaries/scripts.md",
+        "absolute_path": "docs/operator/summaries/scripts.md",
         "path": "summaries/scripts.md",
         "sigil": "SCROLL",
         "snippet": "# scripts/ **Purpose**: Automation scripts for Annunimas system ## Scripts (6 total) | Script | Status | Purpose | |--------|--------|---------| | `boot.sh` | Stub | System boot (placeholder) | | `monitor_fleet.sh` | Stub | Fleet monitoring (placeholder) | | `role_switch.sh` | Stub | Role switching (placeholder) |",
         "ts_utc": "2026-05-06T04:37:33.312254124+00:00"
       },
       {
-        "absolute_path": "human/summaries/src-meta.md",
+        "absolute_path": "docs/operator/summaries/src-meta.md",
         "path": "summaries/src-meta.md",
         "sigil": "SCROLL",
         "snippet": "# src/ & meta/ ## src/ **Status**: Legacy/Stub - NOT IN USE This appears to be old/legacy code that's no longer used. The active code is in `crates/`. ``` src/ ├── agents/ │   ├── athena/      (empty)",
         "ts_utc": "2026-05-06T04:37:33.346549653+00:00"
       },
       {
-        "absolute_path": "human/summaries/task-notes.md",
+        "absolute_path": "docs/operator/summaries/task-notes.md",
         "path": "summaries/task-notes.md",
         "sigil": "SCROLL",
         "snippet": "# Task Notes - Annunimas Memory Integration ## Current Task Phase 1 Week 1: Modify Hermes to query Mnemosyne before subagent spawning ### Problem - main.rs is too large (5899 lines) to process linearly - Stopping and delegating is the correct approach ### Next Steps 1. Delegate finding subagent spawning logic in main.rs",
         "ts_utc": "2026-05-06T04:37:33.380263243+00:00"
       },
       {
-        "absolute_path": "human/summaries/tests.md",
+        "absolute_path": "docs/operator/summaries/tests.md",
         "path": "summaries/tests.md",
         "sigil": "SCROLL",
         "snippet": "# tests/ **Purpose**: Integration tests for Annunimas system ## Test Files (11 total) | File | Coverage | |------|----------| | `test_pipeline.rs` | Full pipeline flow | | `test_governance.rs` | Triad, Game Theory, Resonance | | `test_soterion.rs` | Soterion index & YAML parsing |",
         "ts_utc": "2026-05-06T04:37:33.415917069+00:00"
       },
       {
-        "absolute_path": "human/thoughts.md",
+        "absolute_path": "docs/operator/philosophy.md",
         "path": "thoughts.md",
         "sigil": "SCROLL",
-        "snippet": "# Human Thoughts Canonical readable philosophy path for boot and agent startup. The active working note remains: - [Notes/thoughts.md](./Notes/thoughts.md) This top-level file exists so sovereign doctrine that reads `human/thoughts.md` has a stable, human-readable entrypoint. ## Current Pointer Use [Notes/thoughts.md](./Notes/thoughts.md) for the live thought stream.",
+        "snippet": "# Human Thoughts Canonical readable philosophy path for boot and agent startup. The active working note remains: - [Notes/thoughts.md](./Notes/thoughts.md) This top-level file exists so sovereign doctrine that reads `docs/operator/philosophy.md` has a stable, human-readable entrypoint. ## Current Pointer Use [Notes/thoughts.md](./Notes/thoughts.md) for the live thought stream.",
         "ts_utc": "2026-05-06T04:37:33.449752651+00:00"
       }
     ]

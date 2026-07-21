@@ -188,7 +188,7 @@ const SURFACE_SERVICE_PRESETS: Array<{
     previewMode: 'media_thumbnail',
     embedUrl: null,
     widgets: [
-      { id: 'media.markdown', kind: 'markdown_doc', title: 'Markdown', data_binding: 'human/plans/*.md', grid_area: 'top' },
+      { id: 'media.markdown', kind: 'markdown_doc', title: 'Markdown', data_binding: 'docs/plans/*.md', grid_area: 'top' },
       { id: 'media.pdf', kind: 'pdf_doc', title: 'PDF Packet', data_binding: 'docs/**/*.pdf', grid_area: 'main' },
       { id: 'media.image', kind: 'image_asset', title: 'Reference Image', data_binding: 'data/media/**/*', grid_area: 'side' },
       { id: 'media.video', kind: 'video_asset', title: 'Video Clip', data_binding: 'data/media/**/*.mov', grid_area: 'side' },

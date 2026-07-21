@@ -24,8 +24,8 @@
   },
   "authority": "repo_reorganization_projection",
   "canonical_targets": {
-    "human_reference": "human/library",
-    "human_working_notes": "human/Notes",
+    "human_reference": "docs/operator/library",
+    "human_working_notes": "docs/operator/notes",
     "integration_contracts": "docs/integrations",
     "system_projections": "core/state",
     "time_series_ledgers": "data"
@@ -35,9 +35,9 @@
   "pressure_points": {
     "crate_embedded_state": [],
     "human_layout": {
-      "reference_library": "human/library",
-      "summaries": "human/summaries",
-      "working_notes": "human/Notes"
+      "reference_library": "docs/operator/library",
+      "summaries": "docs/operator/summaries",
+      "working_notes": "docs/operator/notes"
     },
     "mixed_machine_outputs": [
       "core/state",

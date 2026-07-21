@@ -7,9 +7,9 @@
     "data/athena": "ATHENA ingest, digest, crawl, and research runtime data.",
     "data/mnemosyne": "MNEMOSYNE operational memory, continuity markers, and recall indexes.",
     "docs": "Stable explanatory architecture, governance, integration, and operations documentation.",
-    "human/Notes": "Raw human scratch notes. Distill before promotion.",
-    "human/library": "External/predecessor corpus indexes. Archive/reference only unless promoted.",
-    "human/plans": "Readable operator plan shelf and curated promotion batches. Not execution truth."
+    "humadocs/plans/Notes": "Raw human scratch notes. Distill before promotion.",
+    "humadocs/plans/library": "External/predecessor corpus indexes. Archive/reference only unless promoted.",
+    "docs/plans": "Readable operator plan shelf and curated promotion batches. Not execution truth."
   },
   "canonical_map": "core/state/annunimas_knowledge_map.jsonl",
   "json_mirror_note": "This JSON file is a runtime mirror; the tracked canonical map is JSONL.",
@@ -65,7 +65,7 @@
       "rule": "Append task pivots and completions; do not bury execution truth in prose docs."
     },
     {
-      "home": "human/plans",
+      "home": "docs/plans",
       "knowledge_type": "human-readable plans",
       "rule": "Keep operator-facing strategy here; link machine state instead of duplicating it."
     },
@@ -100,7 +100,7 @@
       "rule": "ARDA owns UX contracts and state-display shell for real system posture."
     },
     {
-      "home": "human/Notes",
+      "home": "humadocs/plans/Notes",
       "knowledge_type": "raw human notes",
       "rule": "Treat as quarantine/intake, distill useful conclusions, then archive/delete."
     }

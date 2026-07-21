@@ -86,7 +86,7 @@
       "owner": "athena_prometheus",
       "write_through": [
         "data/athena/books/",
-        "human/library/athena/sources/",
+        "docs/operator/library/athena/sources/",
         "core/projects/tasks/queue.jsonl",
         "core/state/github_repo_integration.json"
       ]

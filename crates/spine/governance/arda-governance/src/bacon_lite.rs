@@ -148,7 +148,7 @@ fn machine_log_path() -> PathBuf {
 fn human_log_path() -> PathBuf {
     std::env::var("ARDA_BACON_LITE_HUMAN_PATH")
         .map(PathBuf::from)
-        .unwrap_or_else(|_| arda_root().join("human/library/governance/bacon_lite.md"))
+        .unwrap_or_else(|_| arda_root().join("docs/operator/library/governance/bacon_lite.md"))
 }
 
 #[cfg(test)]

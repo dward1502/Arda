@@ -146,7 +146,7 @@ const DERIVED_SECTION_BLUEPRINTS = [
     owner: 'human_context',
     arda_panels: ['human_realm', 'personal_growth', 'business'],
     primary_sources: ['core/state/human_context.json', 'core/state/business_runtime.json', 'core/state/personal_runtime.json'],
-    supplemental_sources: ['human/index.md', 'human/company_view.md', 'human/onboard.md'],
+    supplemental_sources: ['docs/operator/index.md', 'docs/operator/company-view.md', 'docs/operator/onboard.md'],
   },
 ] as const
 
@@ -439,15 +439,12 @@ function deriveOperatorRuntimeStatus(world: JsonRecord | null, activeRuleset: Js
 
 async function deriveHumanContext(rootPath: string): Promise<JsonRecord> {
   const [indexDoc, onboardDoc, companyView, arandurIndex, arandurThoughts, docsTree, notesTree, summariesTree, libraryTree] = await Promise.all([
-    summarizeReadable(rootPath, 'human/index.md'),
-    summarizeReadable(rootPath, 'human/onboard.md'),
-    summarizeReadable(rootPath, 'human/company_view.md'),
-    summarizeReadable(rootPath, 'human/arandur/README.md'),
-    summarizeReadable(rootPath, 'human/arandur/thoughts.md'),
+    summarizeReadable(rootPath, 'docs/operator/index.md'),
+    summarizeReadable(rootPath, 'docs/operator/onboard.md'),
+    summarizeReadable(rootPath, 'docs/operator/company-view.md'),
+    summarizeReadable(rootPath, 'docs/operator/philosophy.md'),
+    summarizeReadable(rootPath, 'docs/operator/philosophy.md'),
     readInventoryTree(rootPath, 'docs/arda', 4),
-    readInventoryTree(rootPath, 'human/Notes', 4),
-    readInventoryTree(rootPath, 'human/summaries', 4),
-    readInventoryTree(rootPath, 'human/library', 4),
   ])
 
   const docs = collectInventoryPaths(docsTree, '.md').slice(0, 16).map((path) => ({
@@ -494,7 +491,7 @@ async function deriveHumanContext(rootPath: string): Promise<JsonRecord> {
 
 async function deriveBusinessRuntime(rootPath: string): Promise<JsonRecord> {
   const [companyView, businessState, clientTree] = await Promise.all([
-    summarizeReadable(rootPath, 'human/company_view.md'),
+    summarizeReadable(rootPath, 'docs/operator/company-view.md'),
     readJson(rootPath, 'data/business/soterion-business.json'),
     readInventoryTree(rootPath, 'data/business/clients', 5),
   ])
@@ -518,7 +515,7 @@ async function deriveBusinessRuntime(rootPath: string): Promise<JsonRecord> {
 
 async function derivePersonalRuntime(rootPath: string): Promise<JsonRecord> {
   const [onboard, personalState, personalTree] = await Promise.all([
-    summarizeReadable(rootPath, 'human/onboard.md'),
+    summarizeReadable(rootPath, 'docs/operator/onboard.md'),
     readJson(rootPath, 'data/personal/soterion-personal.json'),
     readInventoryTree(rootPath, 'data/personal', 5),
   ])
@@ -615,7 +612,7 @@ function deriveOperatorActions(queueSummary: JsonRecord | null): JsonRecord {
 
 async function derivePlanMap(rootPath: string): Promise<JsonRecord> {
   const [humanPlanTree, corePlanTree] = await Promise.all([
-    readInventoryTree(rootPath, 'human/plans', 4),
+    readInventoryTree(rootPath, 'docs/plans', 4),
     readInventoryTree(rootPath, 'core/projects/Plans', 4),
   ])
   const humanPlans = collectInventoryPaths(humanPlanTree, '.md')
@@ -624,10 +621,10 @@ async function derivePlanMap(rootPath: string): Promise<JsonRecord> {
 
   return {
     authority: 'arda_derived_plan_map',
-    humanPlanRoot: 'human/plans',
+    humanPlanRoot: 'docs/plans',
     corePlanRoot: 'core/projects/Plans',
     plans: planIds.slice(0, 24).map((id) => {
-      const humanPlanPath = humanPlans.find((path) => filenameFromPath(path).startsWith(id)) ?? 'human/plans'
+      const humanPlanPath = humanPlans.find((path) => filenameFromPath(path).startsWith(id)) ?? 'docs/plans'
       const coreQuickRefPath = corePlans.find((path) => filenameFromPath(path).startsWith(id)) ?? 'core/projects/Plans'
       return {
         id,

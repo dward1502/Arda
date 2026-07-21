@@ -7,6 +7,7 @@
 
 mod config;
 mod grpc;
+mod provider;
 
 use std::net::SocketAddr;
 use std::path::PathBuf;
@@ -24,6 +25,7 @@ use serde_json::{json, Value};
 
 use config::ManweConfig;
 use manwe::routing_adapter::AdaptiveRoutingAdapter;
+use provider::ProviderCatalog;
 
 #[derive(Parser, Debug)]
 #[command(
@@ -50,6 +52,7 @@ struct AppState {
     client: reqwest::Client,
     adapter: Arc<AdaptiveRoutingAdapter>,
     adaptive: bool,
+    catalog: ProviderCatalog,
 }
 
 #[tokio::main]
@@ -76,11 +79,15 @@ async fn main() -> anyhow::Result<()> {
             .map(|v| v.eq_ignore_ascii_case("adaptive"))
             .unwrap_or(false);
 
+    let fleet_path = PathBuf::from("config/fleet.toml");
+    let catalog = ProviderCatalog::default_bootstrap();
+
     let state = AppState {
         config: Arc::new(cfg.clone()),
         client: reqwest::Client::new(),
         adapter: Arc::new(AdaptiveRoutingAdapter::new()),
         adaptive,
+        catalog,
     };
 
     let bind = cfg.bind.clone();
@@ -92,9 +99,10 @@ async fn main() -> anyhow::Result<()> {
     let listener = tokio::net::TcpListener::bind(addr).await?;
     let bound = listener.local_addr()?;
     tracing::info!(
-        "manwe: gateway listening on {} ({} providers, adaptive={})",
+        "manwe: gateway listening on {} ({} config providers, {} fleet providers, adaptive={})",
         bound,
         cfg.providers.len(),
+        state.catalog.len(),
         adaptive
     );
 
@@ -146,27 +154,47 @@ async fn run_http(state: AppState) -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn healthz() -> &'static str {
-    "ok"
+async fn healthz() -> Response {
+    Json(json!({
+        "status": "ok",
+        "fleet_providers": 0,
+    }))
+    .into_response()
 }
 
 async fn manifest_capabilities(State(state): State<AppState>) -> Response {
     let mode = if state.adaptive { "adaptive" } else { "static" };
+    let configured = state.config.providers.len();
+    let fleet_providers = state.catalog.len();
+    let healthy = if state.adaptive {
+        0
+    } else if fleet_providers == 0 {
+        configured
+    } else {
+        fleet_providers
+    };
     Json(json!({
         "mode": mode,
         "adaptive_routing": state.adaptive,
         "governance": false,
         "quota_mesh": false,
-        "configured_providers": state.config.providers.len(),
-        "healthy_providers": if state.adaptive { 0 } else { state.config.providers.len() },
+        "configured_providers": configured,
+        "healthy_providers": healthy,
+        "fleet_providers": fleet_providers,
     }))
     .into_response()
 }
 
 async fn list_models(State(state): State<AppState>) -> Response {
     let created = chrono::Utc::now().timestamp();
+    let source = if state.catalog.is_empty() {
+        state.config.providers.as_slice()
+    } else {
+        state.catalog.iter().map(|(_, p)| p).collect::<Vec<_>>()
+    };
+
     let mut data: Vec<Value> = Vec::new();
-    for (_name, p) in &state.config.providers {
+    for p in source {
         let models = if p.models.is_empty() {
             vec!["default".to_string()]
         } else {

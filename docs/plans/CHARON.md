@@ -16,7 +16,7 @@ soterion:
 
 Status: in_progress (updated 2026-06-22)
 Owner: charon
-Human plan: `human/plans/CHARON.md`
+Human plan: `docs/plans/CHARON.md`
 Crate: `crates/arda-charon`
 Core runtime: `core/state/manwe_router.json`
 Task ledger: `core/projects/tasks/queue.jsonl`
@@ -43,7 +43,7 @@ CHARON owns inference routing, provider health, execution-lane selection, and ro
 
 ## Readable Context
 
-Use `human/plans/CHARON.md` for the operator-facing plan narrative and graph node.
+Use `docs/plans/CHARON.md` for the operator-facing plan narrative and graph node.
 
 ## Open Tasks (0 total)
 

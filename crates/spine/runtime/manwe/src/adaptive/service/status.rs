@@ -655,7 +655,7 @@ mod tests {
                 avg_latency_ms: None,
                 cost_per_million_tokens_in: None,
                 cost_per_million_tokens_out: None,
-                capabilities: crate::types::ModelCapabilities::default(),
+                capabilities: crate::adaptive::types::ModelCapabilities::default(),
                 streaming_validated: None,
             }],
             error_count: 0,

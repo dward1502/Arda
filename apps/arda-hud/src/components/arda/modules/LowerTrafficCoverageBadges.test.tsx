@@ -28,7 +28,7 @@ const provenance: ArdaSourceProvenance[] = [
     observedAtUtc: null,
     state: 'derived',
     sourceKind: 'derived',
-    derivedFrom: ['human/'],
+    derivedFrom: ['docs/'],
   },
   {
     domainId: 'human',
@@ -59,7 +59,7 @@ describe('lower-traffic source coverage badges', () => {
           stateKeyCount={4}
           companyViewTitle="Company View"
           companyViewPreview="Readable business context"
-          clientPaths={['human/business/client.md']}
+          clientPaths={['business/client.md']}
           stateKeys={['business.runtime']}
           sourceCoverage={unmappedCoverage}
           sourceProvenance={provenance}
@@ -67,7 +67,7 @@ describe('lower-traffic source coverage badges', () => {
         <HumanRealmModule
           docs={[]}
           notes={[]}
-          planShelf={{ humanPlanRoot: 'human/plans', plans: [] }}
+          planShelf={{ humanPlanRoot: 'docs/plans', plans: [] }}
           counts={{ docs: 1, notes: 1, summaries: 0, arandur: 0 }}
           sourceCoverage={backedCoverage}
           sourceProvenance={provenance}

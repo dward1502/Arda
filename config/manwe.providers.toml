@@ -17,7 +17,7 @@
 id = "edge_beelink_light"
 name = "Beelink Light Ternary Bonsai 8B Worker"
 base_url = "http://100.103.125.88:9337/v1"
-enabled = false
+enabled = true
 access_tier = "local"
 quality_band = "medium"
 requests_per_minute = 120

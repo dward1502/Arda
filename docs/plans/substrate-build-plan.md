@@ -6,7 +6,7 @@
 
 ## Identity
 
-- Arda is the slimmed-down continuation of Annunimas
+- Arda is the continuation of Annunimas
 - `~/Annunimas` is the reference architecture
 - The goal is an organized network, not a single-machine setup
 - Nodes are not identical; they learn, specialize, and connect

@@ -13,7 +13,7 @@
       "latest_index": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_4b358a6a.jsonl",
         "confidence": 0.7683333333333333,
-        "human_ref": "human/library/athena/sources/src_4b358a6a.md",
+        "human_ref": "docs/operator/library/athena/sources/src_4b358a6a.md",
         "line": 560,
         "status": "deep",
         "triad_passed": true,
@@ -51,7 +51,7 @@
       "surfaces": [
         "data/athena/books/src_4b358a6a.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_4b358a6a.md"
+        "docs/operator/library/athena/sources/src_4b358a6a.md"
       ],
       "title": "GithubRepo"
     },
@@ -70,7 +70,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_6f2a61ee.jsonl",
         "confidence": 0.6416666666666666,
-        "human_ref": "human/library/athena/sources/src_6f2a61ee.md",
+        "human_ref": "docs/operator/library/athena/sources/src_6f2a61ee.md",
         "line": 2020,
         "status": "deep",
         "triad_passed": false,
@@ -112,7 +112,7 @@
       "surfaces": [
         "data/athena/books/src_6f2a61ee.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_6f2a61ee.md"
+        "docs/operator/library/athena/sources/src_6f2a61ee.md"
       ],
       "title": "GithubRepo"
     },
@@ -131,7 +131,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_6f2a61ee.jsonl",
         "confidence": 0.6416666666666666,
-        "human_ref": "human/library/athena/sources/src_6f2a61ee.md",
+        "human_ref": "docs/operator/library/athena/sources/src_6f2a61ee.md",
         "line": 2020,
         "status": "deep",
         "triad_passed": false,
@@ -171,7 +171,7 @@
         "src_6f2a61ee"
       ],
       "surfaces": [
-        "human/library/athena/sources/src_6f2a61ee.md"
+        "docs/operator/library/athena/sources/src_6f2a61ee.md"
       ],
       "title": "src_6f2a61ee"
     },
@@ -192,7 +192,7 @@
       "latest_index": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_234088bc.jsonl",
         "confidence": 0.7516666666666667,
-        "human_ref": "human/library/athena/sources/src_234088bc.md",
+        "human_ref": "docs/operator/library/athena/sources/src_234088bc.md",
         "line": 660,
         "status": "deep",
         "triad_passed": true,
@@ -235,7 +235,7 @@
         "core/state/source_absorption_pipeline.json",
         "data/athena/books/src_234088bc.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_234088bc.md"
+        "docs/operator/library/athena/sources/src_234088bc.md"
       ],
       "title": "AlexsJones/llmfit"
     },
@@ -251,7 +251,7 @@
       "latest_index": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_234088bc.jsonl",
         "confidence": 0.7516666666666667,
-        "human_ref": "human/library/athena/sources/src_234088bc.md",
+        "human_ref": "docs/operator/library/athena/sources/src_234088bc.md",
         "line": 660,
         "status": "deep",
         "triad_passed": true,
@@ -287,7 +287,7 @@
         "src_234088bc"
       ],
       "surfaces": [
-        "human/library/athena/sources/src_234088bc.md"
+        "docs/operator/library/athena/sources/src_234088bc.md"
       ],
       "title": "src_234088bc"
     },
@@ -308,7 +308,7 @@
       "latest_index": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_dab89283.jsonl",
         "confidence": 0.7516666666666667,
-        "human_ref": "human/library/athena/sources/src_dab89283.md",
+        "human_ref": "docs/operator/library/athena/sources/src_dab89283.md",
         "line": 659,
         "status": "deep",
         "triad_passed": true,
@@ -351,7 +351,7 @@
         "core/state/source_absorption_pipeline.json",
         "data/athena/books/src_dab89283.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_dab89283.md"
+        "docs/operator/library/athena/sources/src_dab89283.md"
       ],
       "title": "BerriAI/litellm"
     },
@@ -367,7 +367,7 @@
       "latest_index": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_dab89283.jsonl",
         "confidence": 0.7516666666666667,
-        "human_ref": "human/library/athena/sources/src_dab89283.md",
+        "human_ref": "docs/operator/library/athena/sources/src_dab89283.md",
         "line": 659,
         "status": "deep",
         "triad_passed": true,
@@ -403,7 +403,7 @@
         "src_dab89283"
       ],
       "surfaces": [
-        "human/library/athena/sources/src_dab89283.md"
+        "docs/operator/library/athena/sources/src_dab89283.md"
       ],
       "title": "src_dab89283"
     },
@@ -423,7 +423,7 @@
       "latest_index": {
         "book_ref": "/tmp/.tmpO1xybw/books/src_df11630e.jsonl",
         "confidence": 0.7683333333333333,
-        "human_ref": "human/library/athena/sources/src_df11630e.md",
+        "human_ref": "docs/operator/library/athena/sources/src_df11630e.md",
         "line": 20697,
         "status": "deep",
         "triad_passed": true,
@@ -465,7 +465,7 @@
         "core/state/source_absorption_pipeline.json",
         "data/athena/books/src_df11630e.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_df11630e.md"
+        "docs/operator/library/athena/sources/src_df11630e.md"
       ],
       "title": "GithubRepo"
     },
@@ -481,7 +481,7 @@
       "latest_index": {
         "book_ref": "/tmp/.tmpO1xybw/books/src_df11630e.jsonl",
         "confidence": 0.7683333333333333,
-        "human_ref": "human/library/athena/sources/src_df11630e.md",
+        "human_ref": "docs/operator/library/athena/sources/src_df11630e.md",
         "line": 20697,
         "status": "deep",
         "triad_passed": true,
@@ -517,7 +517,7 @@
         "src_df11630e"
       ],
       "surfaces": [
-        "human/library/athena/sources/src_df11630e.md"
+        "docs/operator/library/athena/sources/src_df11630e.md"
       ],
       "title": "src_df11630e"
     },
@@ -534,7 +534,7 @@
       "latest_index": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_75bbe2e4.jsonl",
         "confidence": 0.6916666666666667,
-        "human_ref": "human/library/athena/sources/src_75bbe2e4.md",
+        "human_ref": "docs/operator/library/athena/sources/src_75bbe2e4.md",
         "line": 657,
         "status": "deep",
         "triad_passed": true,
@@ -576,7 +576,7 @@
         "core/state/github_repo_integration.json",
         "data/athena/books/src_75bbe2e4.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_75bbe2e4.md"
+        "docs/operator/library/athena/sources/src_75bbe2e4.md"
       ],
       "title": "AgentForge"
     },
@@ -592,7 +592,7 @@
       "latest_index": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_d5bdf0e7.jsonl",
         "confidence": 0.7516666666666667,
-        "human_ref": "human/library/athena/sources/src_d5bdf0e7.md",
+        "human_ref": "docs/operator/library/athena/sources/src_d5bdf0e7.md",
         "line": 572,
         "status": "deep",
         "triad_passed": true,
@@ -630,7 +630,7 @@
       "surfaces": [
         "data/athena/books/src_d5bdf0e7.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_d5bdf0e7.md"
+        "docs/operator/library/athena/sources/src_d5bdf0e7.md"
       ],
       "title": "GithubRepo"
     },
@@ -649,7 +649,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_ec2b8bd4.jsonl",
         "confidence": 0.7316666666666667,
-        "human_ref": "human/library/athena/sources/src_ec2b8bd4.md",
+        "human_ref": "docs/operator/library/athena/sources/src_ec2b8bd4.md",
         "line": 4578,
         "status": "deep",
         "triad_passed": true,
@@ -693,8 +693,8 @@
         "data/athena/books/src_6b4907a1.jsonl",
         "data/athena/books/src_ec2b8bd4.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_6b4907a1.md",
-        "human/library/athena/sources/src_ec2b8bd4.md"
+        "docs/operator/library/athena/sources/src_6b4907a1.md",
+        "docs/operator/library/athena/sources/src_ec2b8bd4.md"
       ],
       "title": "GithubRepo"
     },
@@ -712,7 +712,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_ec2b8bd4.jsonl",
         "confidence": 0.7316666666666667,
-        "human_ref": "human/library/athena/sources/src_ec2b8bd4.md",
+        "human_ref": "docs/operator/library/athena/sources/src_ec2b8bd4.md",
         "line": 4578,
         "status": "deep",
         "triad_passed": true,
@@ -751,7 +751,7 @@
         "src_ec2b8bd4"
       ],
       "surfaces": [
-        "human/library/athena/sources/src_ec2b8bd4.md"
+        "docs/operator/library/athena/sources/src_ec2b8bd4.md"
       ],
       "title": "src_ec2b8bd4"
     },
@@ -767,7 +767,7 @@
       "latest_index": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_0acc3175.jsonl",
         "confidence": 0.7516666666666667,
-        "human_ref": "human/library/athena/sources/src_0acc3175.md",
+        "human_ref": "docs/operator/library/athena/sources/src_0acc3175.md",
         "line": 571,
         "status": "deep",
         "triad_passed": true,
@@ -805,7 +805,7 @@
       "surfaces": [
         "data/athena/books/src_0acc3175.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_0acc3175.md"
+        "docs/operator/library/athena/sources/src_0acc3175.md"
       ],
       "title": "GithubRepo"
     },
@@ -822,7 +822,7 @@
       "latest_index": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_cebb6abe.jsonl",
         "confidence": null,
-        "human_ref": "human/library/athena/sources/src_cebb6abe.md",
+        "human_ref": "docs/operator/library/athena/sources/src_cebb6abe.md",
         "line": 612,
         "status": "shallow",
         "triad_passed": null,
@@ -861,7 +861,7 @@
         "core/state/github_repo_integration.json",
         "data/athena/books/src_cebb6abe.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_cebb6abe.md"
+        "docs/operator/library/athena/sources/src_cebb6abe.md"
       ],
       "title": "GithubRepo"
     },
@@ -883,7 +883,7 @@
       "latest_index": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_b711210b.jsonl",
         "confidence": 0.6916666666666667,
-        "human_ref": "human/library/athena/sources/src_b711210b.md",
+        "human_ref": "docs/operator/library/athena/sources/src_b711210b.md",
         "line": 509,
         "status": "deep",
         "triad_passed": true,
@@ -929,7 +929,7 @@
         "core/state/source_absorption_pipeline.json",
         "data/athena/books/src_b711210b.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_b711210b.md"
+        "docs/operator/library/athena/sources/src_b711210b.md"
       ],
       "title": "GithubRepo"
     },
@@ -948,7 +948,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_3c90af76.jsonl",
         "confidence": 0.6416666666666666,
-        "human_ref": "human/library/athena/sources/src_3c90af76.md",
+        "human_ref": "docs/operator/library/athena/sources/src_3c90af76.md",
         "line": 4744,
         "status": "deep",
         "triad_passed": false,
@@ -1007,7 +1007,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_3c90af76.jsonl",
         "confidence": 0.6416666666666666,
-        "human_ref": "human/library/athena/sources/src_3c90af76.md",
+        "human_ref": "docs/operator/library/athena/sources/src_3c90af76.md",
         "line": 4744,
         "status": "deep",
         "triad_passed": false,
@@ -1066,7 +1066,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_3c90af76.jsonl",
         "confidence": 0.6416666666666666,
-        "human_ref": "human/library/athena/sources/src_3c90af76.md",
+        "human_ref": "docs/operator/library/athena/sources/src_3c90af76.md",
         "line": 4744,
         "status": "deep",
         "triad_passed": false,
@@ -1108,7 +1108,7 @@
       "surfaces": [
         "data/athena/books/src_3c90af76.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_3c90af76.md"
+        "docs/operator/library/athena/sources/src_3c90af76.md"
       ],
       "title": "GithubRepo"
     },
@@ -1127,7 +1127,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_3c90af76.jsonl",
         "confidence": 0.6416666666666666,
-        "human_ref": "human/library/athena/sources/src_3c90af76.md",
+        "human_ref": "docs/operator/library/athena/sources/src_3c90af76.md",
         "line": 4744,
         "status": "deep",
         "triad_passed": false,
@@ -1167,7 +1167,7 @@
         "src_3c90af76"
       ],
       "surfaces": [
-        "human/library/athena/sources/src_3c90af76.md"
+        "docs/operator/library/athena/sources/src_3c90af76.md"
       ],
       "title": "src_3c90af76"
     },
@@ -1189,7 +1189,7 @@
       "latest_index": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_e0115360.jsonl",
         "confidence": 0.6916666666666667,
-        "human_ref": "human/library/athena/sources/src_e0115360.md",
+        "human_ref": "docs/operator/library/athena/sources/src_e0115360.md",
         "line": 508,
         "status": "deep",
         "triad_passed": true,
@@ -1235,7 +1235,7 @@
         "core/state/source_absorption_pipeline.json",
         "data/athena/books/src_e0115360.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_e0115360.md"
+        "docs/operator/library/athena/sources/src_e0115360.md"
       ],
       "title": "GithubRepo"
     },
@@ -1255,7 +1255,7 @@
       "latest_index": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_dc355aed.jsonl",
         "confidence": 0.7516666666666667,
-        "human_ref": "human/library/athena/sources/src_dc355aed.md",
+        "human_ref": "docs/operator/library/athena/sources/src_dc355aed.md",
         "line": 577,
         "status": "deep",
         "triad_passed": true,
@@ -1297,7 +1297,7 @@
         "core/state/source_absorption_pipeline.json",
         "data/athena/books/src_dc355aed.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_dc355aed.md"
+        "docs/operator/library/athena/sources/src_dc355aed.md"
       ],
       "title": "GithubRepo"
     },
@@ -1316,7 +1316,7 @@
       "latest_index": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_c2fef5eb.jsonl",
         "confidence": 0.6916666666666667,
-        "human_ref": "human/library/athena/sources/src_c2fef5eb.md",
+        "human_ref": "docs/operator/library/athena/sources/src_c2fef5eb.md",
         "line": 665,
         "status": "deep",
         "triad_passed": true,
@@ -1358,7 +1358,7 @@
         "core/state/github_repo_integration.json",
         "data/athena/books/src_c2fef5eb.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_c2fef5eb.md"
+        "docs/operator/library/athena/sources/src_c2fef5eb.md"
       ],
       "title": "GithubRepo"
     },
@@ -1376,7 +1376,7 @@
       "latest_index": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_c2fef5eb.jsonl",
         "confidence": 0.6916666666666667,
-        "human_ref": "human/library/athena/sources/src_c2fef5eb.md",
+        "human_ref": "docs/operator/library/athena/sources/src_c2fef5eb.md",
         "line": 665,
         "status": "deep",
         "triad_passed": true,
@@ -1415,7 +1415,7 @@
         "src_c2fef5eb"
       ],
       "surfaces": [
-        "human/library/athena/sources/src_c2fef5eb.md"
+        "docs/operator/library/athena/sources/src_c2fef5eb.md"
       ],
       "title": "src_c2fef5eb"
     },
@@ -1433,7 +1433,7 @@
       "latest_index": {
         "book_ref": "data/athena/books/src_16389f32.jsonl",
         "confidence": 0.6916666666666667,
-        "human_ref": "human/library/athena/sources/src_16389f32.md",
+        "human_ref": "docs/operator/library/athena/sources/src_16389f32.md",
         "line": 13,
         "status": "deep",
         "triad_passed": true,
@@ -1449,7 +1449,7 @@
       "surfaces": [
         "data/athena/books/src_16389f32.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_16389f32.md"
+        "docs/operator/library/athena/sources/src_16389f32.md"
       ],
       "title": "GithubRepo"
     },
@@ -1469,7 +1469,7 @@
       "latest_index": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_275d929b.jsonl",
         "confidence": 0.7516666666666667,
-        "human_ref": "human/library/athena/sources/src_275d929b.md",
+        "human_ref": "docs/operator/library/athena/sources/src_275d929b.md",
         "line": 535,
         "status": "deep",
         "triad_passed": true,
@@ -1512,7 +1512,7 @@
         "core/state/source_absorption_pipeline.json",
         "data/athena/books/src_275d929b.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_275d929b.md"
+        "docs/operator/library/athena/sources/src_275d929b.md"
       ],
       "title": "GithubRepo"
     },
@@ -1530,7 +1530,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_d7d76296.jsonl",
         "confidence": 0.7083333333333334,
-        "human_ref": "human/library/athena/sources/src_d7d76296.md",
+        "human_ref": "docs/operator/library/athena/sources/src_d7d76296.md",
         "line": 1283,
         "status": "deep",
         "triad_passed": true,
@@ -1571,7 +1571,7 @@
       "surfaces": [
         "data/athena/books/src_d7d76296.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_d7d76296.md"
+        "docs/operator/library/athena/sources/src_d7d76296.md"
       ],
       "title": "GithubRepo"
     },
@@ -1589,7 +1589,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_d7d76296.jsonl",
         "confidence": 0.7083333333333334,
-        "human_ref": "human/library/athena/sources/src_d7d76296.md",
+        "human_ref": "docs/operator/library/athena/sources/src_d7d76296.md",
         "line": 1283,
         "status": "deep",
         "triad_passed": true,
@@ -1628,7 +1628,7 @@
         "src_d7d76296"
       ],
       "surfaces": [
-        "human/library/athena/sources/src_d7d76296.md"
+        "docs/operator/library/athena/sources/src_d7d76296.md"
       ],
       "title": "src_d7d76296"
     },
@@ -1646,7 +1646,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_8bf41c23.jsonl",
         "confidence": 0.675,
-        "human_ref": "human/library/athena/sources/src_8bf41c23.md",
+        "human_ref": "docs/operator/library/athena/sources/src_8bf41c23.md",
         "line": 4746,
         "status": "deep",
         "triad_passed": true,
@@ -1687,7 +1687,7 @@
       "surfaces": [
         "data/athena/books/src_8bf41c23.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_8bf41c23.md"
+        "docs/operator/library/athena/sources/src_8bf41c23.md"
       ],
       "title": "GithubRepo"
     },
@@ -1705,7 +1705,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_8bf41c23.jsonl",
         "confidence": 0.675,
-        "human_ref": "human/library/athena/sources/src_8bf41c23.md",
+        "human_ref": "docs/operator/library/athena/sources/src_8bf41c23.md",
         "line": 4746,
         "status": "deep",
         "triad_passed": true,
@@ -1762,7 +1762,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_8bf41c23.jsonl",
         "confidence": 0.675,
-        "human_ref": "human/library/athena/sources/src_8bf41c23.md",
+        "human_ref": "docs/operator/library/athena/sources/src_8bf41c23.md",
         "line": 4746,
         "status": "deep",
         "triad_passed": true,
@@ -1801,7 +1801,7 @@
         "src_8bf41c23"
       ],
       "surfaces": [
-        "human/library/athena/sources/src_8bf41c23.md"
+        "docs/operator/library/athena/sources/src_8bf41c23.md"
       ],
       "title": "src_8bf41c23"
     },
@@ -1821,7 +1821,7 @@
       "latest_index": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_ca2f031e.jsonl",
         "confidence": 0.7683333333333333,
-        "human_ref": "human/library/athena/sources/src_ca2f031e.md",
+        "human_ref": "docs/operator/library/athena/sources/src_ca2f031e.md",
         "line": 578,
         "status": "deep",
         "triad_passed": true,
@@ -1863,7 +1863,7 @@
         "core/state/source_absorption_pipeline.json",
         "data/athena/books/src_ca2f031e.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_ca2f031e.md"
+        "docs/operator/library/athena/sources/src_ca2f031e.md"
       ],
       "title": "GithubRepo"
     },
@@ -1880,7 +1880,7 @@
       "latest_index": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_4169b219.jsonl",
         "confidence": 0.6916666666666667,
-        "human_ref": "human/library/athena/sources/src_4169b219.md",
+        "human_ref": "docs/operator/library/athena/sources/src_4169b219.md",
         "line": 658,
         "status": "deep",
         "triad_passed": true,
@@ -1922,7 +1922,7 @@
         "core/state/github_repo_integration.json",
         "data/athena/books/src_4169b219.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_4169b219.md"
+        "docs/operator/library/athena/sources/src_4169b219.md"
       ],
       "title": "GithubRepo"
     },
@@ -1941,7 +1941,7 @@
       "latest_index": {
         "book_ref": "/tmp/.tmp1Fbw9C/books/src_acb9cf74.jsonl",
         "confidence": null,
-        "human_ref": "human/library/athena/sources/src_acb9cf74.md",
+        "human_ref": "docs/operator/library/athena/sources/src_acb9cf74.md",
         "line": 20692,
         "status": "shallow",
         "triad_passed": null,
@@ -1957,7 +1957,7 @@
       "surfaces": [
         "data/athena/books/src_acb9cf74.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_acb9cf74.md"
+        "docs/operator/library/athena/sources/src_acb9cf74.md"
       ],
       "title": "GithubRepo"
     },
@@ -1976,7 +1976,7 @@
       "latest_index": {
         "book_ref": "/tmp/.tmp7XQG0F/books/src_84eacbc2.jsonl",
         "confidence": null,
-        "human_ref": "human/library/athena/sources/src_84eacbc2.md",
+        "human_ref": "docs/operator/library/athena/sources/src_84eacbc2.md",
         "line": 20720,
         "status": "shallow",
         "triad_passed": null,
@@ -1992,7 +1992,7 @@
       "surfaces": [
         "data/athena/books/src_84eacbc2.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_84eacbc2.md"
+        "docs/operator/library/athena/sources/src_84eacbc2.md"
       ],
       "title": "GithubRepo"
     },
@@ -2011,7 +2011,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_f1be994a.jsonl",
         "confidence": 0.6416666666666666,
-        "human_ref": "human/library/athena/sources/src_f1be994a.md",
+        "human_ref": "docs/operator/library/athena/sources/src_f1be994a.md",
         "line": 4747,
         "status": "deep",
         "triad_passed": false,
@@ -2053,7 +2053,7 @@
       "surfaces": [
         "data/athena/books/src_f1be994a.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_f1be994a.md"
+        "docs/operator/library/athena/sources/src_f1be994a.md"
       ],
       "title": "GithubRepo"
     },
@@ -2072,7 +2072,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_f1be994a.jsonl",
         "confidence": 0.6416666666666666,
-        "human_ref": "human/library/athena/sources/src_f1be994a.md",
+        "human_ref": "docs/operator/library/athena/sources/src_f1be994a.md",
         "line": 4747,
         "status": "deep",
         "triad_passed": false,
@@ -2131,7 +2131,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_f1be994a.jsonl",
         "confidence": 0.6416666666666666,
-        "human_ref": "human/library/athena/sources/src_f1be994a.md",
+        "human_ref": "docs/operator/library/athena/sources/src_f1be994a.md",
         "line": 4747,
         "status": "deep",
         "triad_passed": false,
@@ -2171,7 +2171,7 @@
         "src_f1be994a"
       ],
       "surfaces": [
-        "human/library/athena/sources/src_f1be994a.md"
+        "docs/operator/library/athena/sources/src_f1be994a.md"
       ],
       "title": "src_f1be994a"
     },
@@ -2191,7 +2191,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_3047ffaa.jsonl",
         "confidence": null,
-        "human_ref": "human/library/athena/sources/src_3047ffaa.md",
+        "human_ref": "docs/operator/library/athena/sources/src_3047ffaa.md",
         "line": 789,
         "status": "shallow",
         "triad_passed": null,
@@ -2208,7 +2208,7 @@
         "core/state/github_repo_integration.json",
         "data/athena/books/src_3047ffaa.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_3047ffaa.md"
+        "docs/operator/library/athena/sources/src_3047ffaa.md"
       ],
       "title": "GithubRepo"
     },
@@ -2224,7 +2224,7 @@
       "latest_index": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_59dc12dd.jsonl",
         "confidence": 0.7683333333333333,
-        "human_ref": "human/library/athena/sources/src_59dc12dd.md",
+        "human_ref": "docs/operator/library/athena/sources/src_59dc12dd.md",
         "line": 570,
         "status": "deep",
         "triad_passed": true,
@@ -2262,7 +2262,7 @@
       "surfaces": [
         "data/athena/books/src_59dc12dd.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_59dc12dd.md"
+        "docs/operator/library/athena/sources/src_59dc12dd.md"
       ],
       "title": "GithubRepo"
     },
@@ -2278,7 +2278,7 @@
       "latest_index": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_f226959a.jsonl",
         "confidence": 0.7916666666666666,
-        "human_ref": "human/library/athena/sources/src_f226959a.md",
+        "human_ref": "docs/operator/library/athena/sources/src_f226959a.md",
         "line": 576,
         "status": "deep",
         "triad_passed": true,
@@ -2316,7 +2316,7 @@
       "surfaces": [
         "data/athena/books/src_f226959a.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_f226959a.md"
+        "docs/operator/library/athena/sources/src_f226959a.md"
       ],
       "title": "GithubRepo"
     },
@@ -2336,7 +2336,7 @@
       "latest_index": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_33fa61b2.jsonl",
         "confidence": 0.7683333333333333,
-        "human_ref": "human/library/athena/sources/src_33fa61b2.md",
+        "human_ref": "docs/operator/library/athena/sources/src_33fa61b2.md",
         "line": 579,
         "status": "deep",
         "triad_passed": true,
@@ -2378,7 +2378,7 @@
         "core/state/source_absorption_pipeline.json",
         "data/athena/books/src_33fa61b2.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_33fa61b2.md"
+        "docs/operator/library/athena/sources/src_33fa61b2.md"
       ],
       "title": "GithubRepo"
     },
@@ -2397,7 +2397,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_6b4907a1.jsonl",
         "confidence": 0.6416666666666666,
-        "human_ref": "human/library/athena/sources/src_6b4907a1.md",
+        "human_ref": "docs/operator/library/athena/sources/src_6b4907a1.md",
         "line": 2065,
         "status": "deep",
         "triad_passed": false,
@@ -2456,7 +2456,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_6b4907a1.jsonl",
         "confidence": 0.6416666666666666,
-        "human_ref": "human/library/athena/sources/src_6b4907a1.md",
+        "human_ref": "docs/operator/library/athena/sources/src_6b4907a1.md",
         "line": 2065,
         "status": "deep",
         "triad_passed": false,
@@ -2498,7 +2498,7 @@
       "surfaces": [
         "data/athena/books/src_6b4907a1.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_6b4907a1.md"
+        "docs/operator/library/athena/sources/src_6b4907a1.md"
       ],
       "title": "GithubRepo"
     },
@@ -2517,7 +2517,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_6b4907a1.jsonl",
         "confidence": 0.6416666666666666,
-        "human_ref": "human/library/athena/sources/src_6b4907a1.md",
+        "human_ref": "docs/operator/library/athena/sources/src_6b4907a1.md",
         "line": 2065,
         "status": "deep",
         "triad_passed": false,
@@ -2576,7 +2576,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_6b4907a1.jsonl",
         "confidence": 0.6416666666666666,
-        "human_ref": "human/library/athena/sources/src_6b4907a1.md",
+        "human_ref": "docs/operator/library/athena/sources/src_6b4907a1.md",
         "line": 2065,
         "status": "deep",
         "triad_passed": false,
@@ -2616,7 +2616,7 @@
         "src_6b4907a1"
       ],
       "surfaces": [
-        "human/library/athena/sources/src_6b4907a1.md"
+        "docs/operator/library/athena/sources/src_6b4907a1.md"
       ],
       "title": "src_6b4907a1"
     },
@@ -2638,7 +2638,7 @@
       "latest_index": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_759119ab.jsonl",
         "confidence": 0.6916666666666667,
-        "human_ref": "human/library/athena/sources/src_759119ab.md",
+        "human_ref": "docs/operator/library/athena/sources/src_759119ab.md",
         "line": 507,
         "status": "deep",
         "triad_passed": true,
@@ -2684,7 +2684,7 @@
         "core/state/source_absorption_pipeline.json",
         "data/athena/books/src_759119ab.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_759119ab.md"
+        "docs/operator/library/athena/sources/src_759119ab.md"
       ],
       "title": "GithubRepo"
     },
@@ -2704,7 +2704,7 @@
       "latest_index": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_ba31bde2.jsonl",
         "confidence": 0.7516666666666667,
-        "human_ref": "human/library/athena/sources/src_ba31bde2.md",
+        "human_ref": "docs/operator/library/athena/sources/src_ba31bde2.md",
         "line": 536,
         "status": "deep",
         "triad_passed": true,
@@ -2747,7 +2747,7 @@
         "core/state/source_absorption_pipeline.json",
         "data/athena/books/src_ba31bde2.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_ba31bde2.md"
+        "docs/operator/library/athena/sources/src_ba31bde2.md"
       ],
       "title": "GithubRepo"
     },
@@ -2765,7 +2765,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_8186de0e.jsonl",
         "confidence": 0.675,
-        "human_ref": "human/library/athena/sources/src_8186de0e.md",
+        "human_ref": "docs/operator/library/athena/sources/src_8186de0e.md",
         "line": 4745,
         "status": "deep",
         "triad_passed": true,
@@ -2827,7 +2827,7 @@
       "latest_index": {
         "book_ref": "data/athena/books/src_c1c7f9c9.jsonl",
         "confidence": null,
-        "human_ref": "human/library/athena/sources/src_c1c7f9c9.md",
+        "human_ref": "docs/operator/library/athena/sources/src_c1c7f9c9.md",
         "line": 5,
         "status": "shallow",
         "triad_passed": null,
@@ -2848,7 +2848,7 @@
         "core/state/source_absorption_pipeline.json",
         "data/athena/books/src_c1c7f9c9.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_c1c7f9c9.md"
+        "docs/operator/library/athena/sources/src_c1c7f9c9.md"
       ],
       "title": "GithubRepo"
     },
@@ -2870,7 +2870,7 @@
       "latest_index": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_8c6014a3.jsonl",
         "confidence": 0.6916666666666667,
-        "human_ref": "human/library/athena/sources/src_8c6014a3.md",
+        "human_ref": "docs/operator/library/athena/sources/src_8c6014a3.md",
         "line": 510,
         "status": "deep",
         "triad_passed": true,
@@ -2916,7 +2916,7 @@
         "core/state/source_absorption_pipeline.json",
         "data/athena/books/src_8c6014a3.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_8c6014a3.md"
+        "docs/operator/library/athena/sources/src_8c6014a3.md"
       ],
       "title": "GithubRepo"
     },
@@ -2932,7 +2932,7 @@
       "latest_index": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_a5e43b15.jsonl",
         "confidence": 0.7516666666666667,
-        "human_ref": "human/library/athena/sources/src_a5e43b15.md",
+        "human_ref": "docs/operator/library/athena/sources/src_a5e43b15.md",
         "line": 491,
         "status": "deep",
         "triad_passed": true,
@@ -2970,7 +2970,7 @@
       "surfaces": [
         "data/athena/books/src_a5e43b15.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_a5e43b15.md"
+        "docs/operator/library/athena/sources/src_a5e43b15.md"
       ],
       "title": "GithubRepo"
     },
@@ -2991,7 +2991,7 @@
       "latest_index": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_bfd43480.jsonl",
         "confidence": 0.7516666666666667,
-        "human_ref": "human/library/athena/sources/src_bfd43480.md",
+        "human_ref": "docs/operator/library/athena/sources/src_bfd43480.md",
         "line": 661,
         "status": "deep",
         "triad_passed": true,
@@ -3034,7 +3034,7 @@
         "core/state/source_absorption_pipeline.json",
         "data/athena/books/src_bfd43480.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_bfd43480.md"
+        "docs/operator/library/athena/sources/src_bfd43480.md"
       ],
       "title": "GithubRepo"
     },
@@ -3050,7 +3050,7 @@
       "latest_index": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_bfd43480.jsonl",
         "confidence": 0.7516666666666667,
-        "human_ref": "human/library/athena/sources/src_bfd43480.md",
+        "human_ref": "docs/operator/library/athena/sources/src_bfd43480.md",
         "line": 661,
         "status": "deep",
         "triad_passed": true,
@@ -3086,7 +3086,7 @@
         "src_bfd43480"
       ],
       "surfaces": [
-        "human/library/athena/sources/src_bfd43480.md"
+        "docs/operator/library/athena/sources/src_bfd43480.md"
       ],
       "title": "src_bfd43480"
     },
@@ -3104,7 +3104,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_8bf41c23.jsonl",
         "confidence": 0.675,
-        "human_ref": "human/library/athena/sources/src_8bf41c23.md",
+        "human_ref": "docs/operator/library/athena/sources/src_8bf41c23.md",
         "line": 4746,
         "status": "deep",
         "triad_passed": true,
@@ -3162,7 +3162,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_0ca6d21a.jsonl",
         "confidence": 0.6416666666666666,
-        "human_ref": "human/library/athena/sources/src_0ca6d21a.md",
+        "human_ref": "docs/operator/library/athena/sources/src_0ca6d21a.md",
         "line": 2023,
         "status": "deep",
         "triad_passed": false,
@@ -3203,7 +3203,7 @@
       ],
       "surfaces": [
         "data/athena/books/src_0ca6d21a.jsonl",
-        "human/library/athena/sources/src_0ca6d21a.md"
+        "docs/operator/library/athena/sources/src_0ca6d21a.md"
       ],
       "title": "src_0ca6d21a"
     },
@@ -3219,7 +3219,7 @@
       "latest_index": {
         "book_ref": "/var/home/dward/Annunimas/data/athena/books/src_86fa4360.jsonl",
         "confidence": 0.7516666666666667,
-        "human_ref": "human/library/athena/sources/src_86fa4360.md",
+        "human_ref": "docs/operator/library/athena/sources/src_86fa4360.md",
         "line": 575,
         "status": "deep",
         "triad_passed": true,
@@ -3257,7 +3257,7 @@
       "surfaces": [
         "data/athena/books/src_86fa4360.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_86fa4360.md"
+        "docs/operator/library/athena/sources/src_86fa4360.md"
       ],
       "title": "GithubRepo"
     },
@@ -3276,7 +3276,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_3c90af76.jsonl",
         "confidence": 0.6416666666666666,
-        "human_ref": "human/library/athena/sources/src_3c90af76.md",
+        "human_ref": "docs/operator/library/athena/sources/src_3c90af76.md",
         "line": 4744,
         "status": "deep",
         "triad_passed": false,
@@ -3335,7 +3335,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_3c90af76.jsonl",
         "confidence": 0.6416666666666666,
-        "human_ref": "human/library/athena/sources/src_3c90af76.md",
+        "human_ref": "docs/operator/library/athena/sources/src_3c90af76.md",
         "line": 4744,
         "status": "deep",
         "triad_passed": false,
@@ -3394,7 +3394,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_0ca6d21a.jsonl",
         "confidence": 0.6416666666666666,
-        "human_ref": "human/library/athena/sources/src_0ca6d21a.md",
+        "human_ref": "docs/operator/library/athena/sources/src_0ca6d21a.md",
         "line": 2023,
         "status": "deep",
         "triad_passed": false,
@@ -3436,7 +3436,7 @@
       "surfaces": [
         "data/athena/books/src_0ca6d21a.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_0ca6d21a.md"
+        "docs/operator/library/athena/sources/src_0ca6d21a.md"
       ],
       "title": "GithubRepo"
     },
@@ -3455,7 +3455,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_0ca6d21a.jsonl",
         "confidence": 0.6416666666666666,
-        "human_ref": "human/library/athena/sources/src_0ca6d21a.md",
+        "human_ref": "docs/operator/library/athena/sources/src_0ca6d21a.md",
         "line": 2023,
         "status": "deep",
         "triad_passed": false,
@@ -3495,7 +3495,7 @@
         "src_0ca6d21a"
       ],
       "surfaces": [
-        "human/library/athena/sources/src_0ca6d21a.md"
+        "docs/operator/library/athena/sources/src_0ca6d21a.md"
       ],
       "title": "src_0ca6d21a"
     },
@@ -3515,7 +3515,7 @@
       "latest_index": {
         "book_ref": "/tmp/.tmp5zozUn/books/src_d46d1480.jsonl",
         "confidence": 0.7683333333333333,
-        "human_ref": "human/library/athena/sources/src_d46d1480.md",
+        "human_ref": "docs/operator/library/athena/sources/src_d46d1480.md",
         "line": 20701,
         "status": "deep",
         "triad_passed": true,
@@ -3558,7 +3558,7 @@
         "core/state/source_absorption_pipeline.json",
         "data/athena/books/src_d46d1480.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_d46d1480.md"
+        "docs/operator/library/athena/sources/src_d46d1480.md"
       ],
       "title": "GithubRepo"
     },
@@ -3574,7 +3574,7 @@
       "latest_index": {
         "book_ref": "/tmp/.tmp5zozUn/books/src_d46d1480.jsonl",
         "confidence": 0.7683333333333333,
-        "human_ref": "human/library/athena/sources/src_d46d1480.md",
+        "human_ref": "docs/operator/library/athena/sources/src_d46d1480.md",
         "line": 20701,
         "status": "deep",
         "triad_passed": true,
@@ -3610,7 +3610,7 @@
         "src_d46d1480"
       ],
       "surfaces": [
-        "human/library/athena/sources/src_d46d1480.md"
+        "docs/operator/library/athena/sources/src_d46d1480.md"
       ],
       "title": "src_d46d1480"
     },
@@ -3628,7 +3628,7 @@
       "latest_index": {
         "book_ref": "data/athena/books/src_1970f2aa.jsonl",
         "confidence": 0.6916666666666667,
-        "human_ref": "human/library/athena/sources/src_1970f2aa.md",
+        "human_ref": "docs/operator/library/athena/sources/src_1970f2aa.md",
         "line": 2,
         "status": "deep",
         "triad_passed": true,
@@ -3644,7 +3644,7 @@
       "surfaces": [
         "data/athena/books/src_1970f2aa.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_1970f2aa.md"
+        "docs/operator/library/athena/sources/src_1970f2aa.md"
       ],
       "title": "GithubRepo"
     },
@@ -3663,7 +3663,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_f1be994a.jsonl",
         "confidence": 0.6416666666666666,
-        "human_ref": "human/library/athena/sources/src_f1be994a.md",
+        "human_ref": "docs/operator/library/athena/sources/src_f1be994a.md",
         "line": 4747,
         "status": "deep",
         "triad_passed": false,
@@ -3706,7 +3706,7 @@
       "surfaces": [
         "data/athena/books/src_3c90af76.jsonl",
         "data/athena/books/src_f1be994a.jsonl",
-        "human/library/athena/sources/src_f1be994a.md"
+        "docs/operator/library/athena/sources/src_f1be994a.md"
       ],
       "title": "src_3c90af76"
     },
@@ -3724,7 +3724,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_8bf41c23.jsonl",
         "confidence": 0.675,
-        "human_ref": "human/library/athena/sources/src_8bf41c23.md",
+        "human_ref": "docs/operator/library/athena/sources/src_8bf41c23.md",
         "line": 4746,
         "status": "deep",
         "triad_passed": true,
@@ -3782,7 +3782,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_00823637.jsonl",
         "confidence": 0.6416666666666666,
-        "human_ref": "human/library/athena/sources/src_00823637.md",
+        "human_ref": "docs/operator/library/athena/sources/src_00823637.md",
         "line": 4748,
         "status": "deep",
         "triad_passed": false,
@@ -3824,7 +3824,7 @@
       "surfaces": [
         "data/athena/books/src_00823637.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_00823637.md"
+        "docs/operator/library/athena/sources/src_00823637.md"
       ],
       "title": "GithubRepo"
     },
@@ -3843,7 +3843,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_00823637.jsonl",
         "confidence": 0.6416666666666666,
-        "human_ref": "human/library/athena/sources/src_00823637.md",
+        "human_ref": "docs/operator/library/athena/sources/src_00823637.md",
         "line": 4748,
         "status": "deep",
         "triad_passed": false,
@@ -3883,7 +3883,7 @@
         "src_00823637"
       ],
       "surfaces": [
-        "human/library/athena/sources/src_00823637.md"
+        "docs/operator/library/athena/sources/src_00823637.md"
       ],
       "title": "src_00823637"
     },
@@ -3901,7 +3901,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_8186de0e.jsonl",
         "confidence": 0.675,
-        "human_ref": "human/library/athena/sources/src_8186de0e.md",
+        "human_ref": "docs/operator/library/athena/sources/src_8186de0e.md",
         "line": 4745,
         "status": "deep",
         "triad_passed": true,
@@ -3942,7 +3942,7 @@
       "surfaces": [
         "data/athena/books/src_8186de0e.jsonl",
         "data/knowledge/athena/index/sources.jsonl",
-        "human/library/athena/sources/src_8186de0e.md"
+        "docs/operator/library/athena/sources/src_8186de0e.md"
       ],
       "title": "GithubRepo"
     },
@@ -3960,7 +3960,7 @@
       "latest_index": {
         "book_ref": "/var/home/mythos/Annunimas/data/athena/books/src_8186de0e.jsonl",
         "confidence": 0.675,
-        "human_ref": "human/library/athena/sources/src_8186de0e.md",
+        "human_ref": "docs/operator/library/athena/sources/src_8186de0e.md",
         "line": 4745,
         "status": "deep",
         "triad_passed": true,
@@ -3999,7 +3999,7 @@
         "src_8186de0e"
       ],
       "surfaces": [
-        "human/library/athena/sources/src_8186de0e.md"
+        "docs/operator/library/athena/sources/src_8186de0e.md"
       ],
       "title": "src_8186de0e"
     }
@@ -4013,7 +4013,7 @@
     "core/state/operator_actions.json",
     "data/knowledge/athena/index/sources.jsonl",
     "data/athena/policy_readiness.jsonl",
-    "human/library/athena/sources/",
+    "docs/operator/library/athena/sources/",
     "data/athena/books/"
   ],
   "recommendations": [

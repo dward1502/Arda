@@ -9,7 +9,7 @@ describe('HumanRealmModule', () => {
       <HumanRealmModule
         docs={[]}
         notes={[]}
-        planShelf={{ humanPlanRoot: 'human/plans', plans: [] }}
+        planShelf={{ humanPlanRoot: 'docs/plans', plans: [] }}
         counts={{ docs: 0, notes: 0, summaries: 0, arandur: 0 }}
         sourceCoverage={{ status: 'backed', label: 'source map backed', missingCount: 0 }}
       />,

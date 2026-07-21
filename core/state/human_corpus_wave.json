@@ -3,52 +3,52 @@
   "generated_at_utc": "2026-07-03T04:52:37Z",
   "results": [
     {
-      "canonical_path": "human/plans/SUNDAY_POOL_DEMO_2026-03-22/05_ARCHITECTURE_TALK_TRACK.md",
+      "canonical_path": "docs/plans/SUNDAY_POOL_DEMO_2026-03-22/05_ARCHITECTURE_TALK_TRACK.md",
       "error": "No such file or directory (os error 2)",
       "ok": false,
-      "path": "/var/home/mythos/Annunimas/human/plans/SUNDAY_POOL_DEMO_2026-03-22/05_ARCHITECTURE_TALK_TRACK.md"
+      "path": "/var/home/mythos/Annunimas/docs/plans/SUNDAY_POOL_DEMO_2026-03-22/05_ARCHITECTURE_TALK_TRACK.md"
     },
     {
-      "canonical_path": "human/plans/CEO_LOOP.md",
+      "canonical_path": "docs/plans/CEO_LOOP.md",
       "error": "No such file or directory (os error 2)",
       "ok": false,
-      "path": "/var/home/mythos/Annunimas/human/plans/CEO_LOOP.md"
+      "path": "/var/home/mythos/Annunimas/docs/plans/CEO_LOOP.md"
     },
     {
-      "canonical_path": "human/plans/ORGANIC_GROWTH.md",
+      "canonical_path": "docs/plans/ORGANIC_GROWTH.md",
       "error": "No such file or directory (os error 2)",
       "ok": false,
-      "path": "/var/home/mythos/Annunimas/human/plans/ORGANIC_GROWTH.md"
+      "path": "/var/home/mythos/Annunimas/docs/plans/ORGANIC_GROWTH.md"
     },
     {
-      "canonical_path": "human/summaries/memory-audit-complete.md",
+      "canonical_path": "humadocs/plans/summaries/memory-audit-complete.md",
       "error": "No such file or directory (os error 2)",
       "ok": false,
-      "path": "/var/home/mythos/Annunimas/human/summaries/memory-audit-complete.md"
+      "path": "/var/home/mythos/Annunimas/humadocs/plans/summaries/memory-audit-complete.md"
     },
     {
-      "canonical_path": "human/summaries/apps-arda-hud-notes.md",
+      "canonical_path": "humadocs/plans/summaries/apps-arda-hud-notes.md",
       "error": "No such file or directory (os error 2)",
       "ok": false,
-      "path": "/var/home/mythos/Annunimas/human/summaries/apps-arda-hud-notes.md"
+      "path": "/var/home/mythos/Annunimas/humadocs/plans/summaries/apps-arda-hud-notes.md"
     },
     {
-      "canonical_path": "human/docs/ARDA_FRONTEND_REBUILD.md",
+      "canonical_path": "humadocs/plans/docs/ARDA_FRONTEND_REBUILD.md",
       "error": "No such file or directory (os error 2)",
       "ok": false,
-      "path": "/var/home/mythos/Annunimas/human/docs/ARDA_FRONTEND_REBUILD.md"
+      "path": "/var/home/mythos/Annunimas/humadocs/plans/docs/ARDA_FRONTEND_REBUILD.md"
     },
     {
-      "canonical_path": "human/docs/SOTERION_SIGIL_METHOD.md",
+      "canonical_path": "humadocs/plans/docs/SOTERION_SIGIL_METHOD.md",
       "error": "No such file or directory (os error 2)",
       "ok": false,
-      "path": "/var/home/mythos/Annunimas/human/docs/SOTERION_SIGIL_METHOD.md"
+      "path": "/var/home/mythos/Annunimas/humadocs/plans/docs/SOTERION_SIGIL_METHOD.md"
     },
     {
-      "canonical_path": "human/summaries/library-crates-notes.md",
+      "canonical_path": "humadocs/plans/summaries/library-crates-notes.md",
       "error": "No such file or directory (os error 2)",
       "ok": false,
-      "path": "/var/home/mythos/Annunimas/human/summaries/library-crates-notes.md"
+      "path": "/var/home/mythos/Annunimas/humadocs/plans/summaries/library-crates-notes.md"
     }
   ],
   "schema_version": "annunimas.human-corpus-wave.v1",

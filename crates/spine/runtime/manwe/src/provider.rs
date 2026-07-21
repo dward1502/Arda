@@ -139,12 +139,17 @@ impl ProviderCatalog {
     }
 
     pub fn default_bootstrap() -> Self {
-        Self::new(vec![ProviderDefinition::openai_compatible(
-            "local_placeholder",
-            "Placeholder Provider",
-            "placeholder-model",
-            "http://127.0.0.1:7171/v1",
-        )])
+        let fleet_path = Path::new("config/fleet.toml");
+        let mut catalog = Self::from_fleet_config(fleet_path);
+        if catalog.is_empty() {
+            catalog.insert(ProviderDefinition::openai_compatible(
+                "local_placeholder",
+                "Placeholder Provider",
+                "placeholder-model",
+                "http://127.0.0.1:7171/v1",
+            ));
+        }
+        catalog
     }
 
     pub fn empty() -> Self {

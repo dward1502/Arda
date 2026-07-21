@@ -16,8 +16,8 @@ soterion:
 
 Status: complete (reviewed 2026-04-30; v0.1 baseline; coin-marked for cleanup/archive targeting)
 Owner: mnemosyne
-Human plan: `docs/plans/MNEMOSYNE.md`
-Crate: `crates/spine/memory/arda-vaire`
+Human plan: `human/plans/MNEMOSYNE.md`
+Crate: `crates/arda-vaire`
 Core runtime: `core/state/mnemosyne_continuity.json`
 Task ledger: `core/projects/tasks/queue.jsonl`
 
@@ -41,4 +41,4 @@ MNEMOSYNE owns significance-weighted memory, continuity, recall, consolidation, 
 
 ## Readable Context
 
-Use `docs/plans/MNEMOSYNE.md` for the operator-facing plan narrative and graph node.
+Use `human/plans/MNEMOSYNE.md` for the operator-facing plan narrative and graph node.

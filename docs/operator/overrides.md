@@ -26,6 +26,6 @@ Do not use it for:
 - machine-generated state
 
 Readable realm contract:
-- `human/overrides.md` for explicit human intervention
-- `human/thoughts.md` for canonical readable philosophy/thought path
+- `docs/operator/overrides.md` for explicit human intervention
+- `docs/operator/philosophy.md` for canonical readable philosophy/thought path
 - `core/state` for machine-readable enforcement and runtime truth

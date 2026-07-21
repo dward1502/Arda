@@ -4,7 +4,7 @@
       "action": "monitor_provider_budgets",
       "description": "Observe daily/minute request limits, used counters, cooldowns, and provider health.",
       "writes_through": [
-        "core/state/charon_router.json"
+        "core/state/manwe_router.json"
       ]
     },
     {
@@ -46,7 +46,7 @@
       "writes_through": [
         "core/state/edge_endpoint_verification.json",
         "config/charon.providers.toml",
-        "core/state/charon_router.json"
+        "core/state/manwe_router.json"
       ]
     }
   ],
@@ -1228,7 +1228,7 @@
         "providers_with_minute_limits": 14
       },
       "surfaces": [
-        "core/state/charon_router.json",
+        "core/state/manwe_router.json",
         "core/state/model_control_surface.json"
       ]
     },
@@ -1665,7 +1665,7 @@
       },
       "surfaces": [
         "core/state/runtime_budget_policy.json",
-        "core/state/charon_router.json",
+        "core/state/manwe_router.json",
         "data/plutus/runtime_status.json"
       ],
       "user_plan_budget": {
@@ -1699,7 +1699,7 @@
   },
   "generated_at_utc": "2026-04-28T09:49:24Z",
   "input_surfaces": {
-    "charon_router": "core/state/charon_router.json",
+    "charon_router": "core/state/manwe_router.json",
     "edge_endpoint_verification": "core/state/edge_endpoint_verification.json",
     "edge_model_rollout": "core/state/edge_model_rollout.json",
     "fleet_control": "core/metrics/by_crate/prometheus/fleet_control.json",
@@ -1737,7 +1737,7 @@
       "core/state/runtime_budget_policy.json",
       "core/state/edge_model_rollout.json",
       "core/state/edge_endpoint_verification.json",
-      "core/state/charon_router.json",
+      "core/state/manwe_router.json",
       "core/metrics/by_crate/prometheus/fleet_control.json",
       "core/state/package_enablement.json"
     ]

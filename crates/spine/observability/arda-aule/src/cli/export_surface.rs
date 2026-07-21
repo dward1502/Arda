@@ -2908,7 +2908,7 @@ fn export_hermes_compression_credential_gate() -> Result<Value> {
         "status": "gate_contract_defined_no_secret_material",
         "gate_rule": {
             "fresh_provider_health_receipt_allows_route": true,
-            "recent_charon_heartbeat_allows_route": true,
+            "recent_manwe_heartbeat_allows_route": true,
             "local_no_credential_route_allows_route": true,
             "otherwise_skip_provider": true
         },
@@ -2928,7 +2928,7 @@ fn export_hermes_compression_credential_gate() -> Result<Value> {
         "constraints": {
             "write_secret_material": false,
             "automatic_secret_refresh": false,
-            "bypass_charon_provider_health": false
+            "bypass_manwe_provider_health": false
         },
         "queue_context": {
             "open_tasks": open_tasks
@@ -3804,7 +3804,7 @@ fn export_operator_legibility_contract() -> Result<Value> {
         "summary": {
             "productization_lanes_total": 3,
             "provider_catalog_total": model_control
-                .get("charon_providers")
+                .get("manwe_providers")
                 .and_then(Value::as_array)
                 .map(Vec::len)
                 .unwrap_or(0),

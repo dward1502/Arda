@@ -128,7 +128,7 @@ default_policy = "ledger_before_task"
 
 [[lanes]]
 id = "routing"
-agent = "charon"
+agent = "manwe"
 role = "select model/provider routes for analysis, planning, and execution helpers"
 engine_interface = "provider_route_decision"
 default_policy = "no_route_switch_without_receipt_and_gate"
@@ -383,7 +383,7 @@ agents = [
   "oracle",
   "warden",
   "chronos",
-  "charon",
+  "manwe",
   "plutus",
   "apollo",
   "hermes",

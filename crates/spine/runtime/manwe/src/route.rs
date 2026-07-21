@@ -22,7 +22,7 @@ pub enum AuthorityShimError {
 
 pub type AuthorityShimResult<T> = Result<T, AuthorityShimError>;
 
-pub trait CharonCore: Send + Sync + fmt::Debug {
+pub trait ManweCore: Send + Sync + fmt::Debug {
     fn record_outcome(&self, _event: &dyn Any) -> AuthorityShimResult<()> {
         Err(AuthorityShimError::NotImplemented)
     }
@@ -32,19 +32,19 @@ pub trait CharonCore: Send + Sync + fmt::Debug {
     }
 }
 
-pub trait CharonGovernance: Send + Sync + fmt::Debug {
+pub trait ManweGovernance: Send + Sync + fmt::Debug {
     fn validate_send(&self, _context: &dyn Any) -> AuthorityShimResult<bool> {
         Err(AuthorityShimError::NotImplemented)
     }
 }
 
-pub trait CharonMnemosyne: Send + Sync + fmt::Debug {
+pub trait ManweMnemosyne: Send + Sync + fmt::Debug {
     fn ingest_outcome(&self, _event: &dyn Any) -> AuthorityShimResult<()> {
         Err(AuthorityShimError::NotImplemented)
     }
 }
 
-pub trait CharonPlutus: Send + Sync + fmt::Debug {
+pub trait ManwePlutus: Send + Sync + fmt::Debug {
     fn meter_request(&self, _context: &dyn Any) -> AuthorityShimResult<()> {
         Err(AuthorityShimError::NotImplemented)
     }

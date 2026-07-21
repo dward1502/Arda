@@ -195,7 +195,7 @@ pub(crate) fn export_athena_integration_plan_impl() -> Result<Value> {
             },
             {
                 "lane": "runtime_and_execution_handoff",
-                "owner": "athena_charon_apollo",
+                "owner": "athena_manwe_apollo",
                 "goal": "Bind ATHENA outputs to active runtime and execution surfaces so evidence immediately affects routing and workflows.",
                 "governor_inputs": runtime_governor.get("input_surfaces").cloned().unwrap_or_else(|| json!({})),
                 "write_through": [
@@ -1006,7 +1006,7 @@ pub(crate) fn export_intake_confidence_ladder_impl() -> Result<Value> {
             {"level": "comparison_signal", "route_to": "compare_and_extract", "meaning": "strong directional source that should inform design but not directly control it"},
             {"level": "product_legibility_signal", "route_to": "productize_operator_surface", "meaning": "source is primarily useful for packaging, UX legibility, or operator clarity"},
             {"level": "crawl_policy_signal", "route_to": "athena_ingestion_policy", "meaning": "source primarily affects crawl/runtime collection policy"},
-            {"level": "routing_signal", "route_to": "charon_model_strategy", "meaning": "source primarily affects routing/model selection logic"},
+            {"level": "routing_signal", "route_to": "manwe_model_strategy", "meaning": "source primarily affects routing/model selection logic"},
             {"level": "blocked_fetch_artifact", "route_to": "fetch_retry_or_hold", "meaning": "source body was not actually captured; do not treat it as evidence yet"},
             {"level": "unknown_new_source", "route_to": "athena_digest_first", "meaning": "new intake without prior comparison posture; digest before promotion"},
         ],
@@ -1159,7 +1159,7 @@ pub(crate) fn export_source_absorption_executor_impl() -> Result<Value> {
                 "domain": meta.get("domain").cloned().unwrap_or(Value::Null),
                 "subsystem": meta.get("subsystem").cloned().unwrap_or(Value::Null),
                 "queued_at_utc": task.get("queued_at_utc").cloned().unwrap_or(Value::Null),
-                "auto_runnable": matches!(task.get("owner").and_then(Value::as_str), Some("athena" | "prometheus" | "charon" | "hermes" | "apollo")),
+                "auto_runnable": matches!(task.get("owner").and_then(Value::as_str), Some("athena" | "prometheus" | "manwe" | "hermes" | "apollo")),
                 "source_title": source_row.get("title").cloned().unwrap_or(Value::Null),
                 "source_url": source_row.get("url").cloned().unwrap_or(Value::Null),
                 "rationale": source_row.get("rationale").cloned().unwrap_or(Value::Null),
@@ -2023,7 +2023,7 @@ pub(crate) fn export_multi_domain_routing_contract_impl() -> Result<Value> {
             "Route maintenance, monitoring, remediation, and fleet posture work through bounded execution.",
             "operator_signal_or_alert",
             "warden",
-            "charon_prometheus",
+            "manwe_prometheus",
             json!(["core/state/runtime_governor_contract.json", "core/state/operator_actions.json", "core/state/fleet_steward_actions.json"]),
             json!(["core/state/operator_actions.json", "core/state/fleet_power_guard.json", "core/state/edge_endpoint_verification.json"]),
             profile_or(&provider_profiles, "edge_heavy", "backbone_reasoning"),
@@ -2111,7 +2111,7 @@ pub(crate) fn export_multi_domain_routing_contract_impl() -> Result<Value> {
     let payload = json!({
         "schema_version": "arda.multi-domain-routing-contract.v1",
         "generated_at_utc": now_utc(),
-        "authority": "charon_prometheus_domain_routing_projection",
+        "authority": "manwe_prometheus_domain_routing_projection",
         "purpose": {
             "mission": "Map work beyond development into bounded domains with explicit intake, deliberation, routing, and execution ownership.",
             "current_bias": "development_first_bootstrap",
@@ -3067,10 +3067,10 @@ fn classify_domain(
         return ("knowledge", vec!["athena", "ingestion"]);
     }
     if lane.contains("model_selection") || lane.contains("provider") || lane.contains("routing") {
-        return ("operations", vec!["charon", "routing"]);
+        return ("operations", vec!["manwe", "routing"]);
     }
     if lane.contains("edge") || lane.contains("runtime") {
-        return ("operations", vec!["charon", "runtime"]);
+        return ("operations", vec!["manwe", "runtime"]);
     }
     if lane.contains("workflow") || lane.contains("execution") {
         return ("operations", vec!["apollo", "workflow"]);
@@ -3442,7 +3442,7 @@ fn downstream_task_templates(source_id: &str, title: &str, pattern: &str) -> Val
     let rows = match pattern {
         "bounded_ingest_runtime" => vec![
             json!({"emitter_owner":"athena","owner":"athena","slug":"native_runtime_receipts","title":format!("Absorption follow-through for {source_id}: validate native runtime receipts for {title}"),"priority":"high","notes":"Use the absorbed source to harden ATHENA receipts, artifact capture, and bounded native runtime verification."}),
-            json!({"emitter_owner":"prometheus","owner":"charon","slug":"promotion_gate_policy","title":format!("Absorption follow-through for {source_id}: codify promotion-gate routing policy for {title}"),"priority":"high","notes":"Translate the absorbed source into explicit route and promotion-gate policy instead of relying on informal preference."}),
+            json!({"emitter_owner":"prometheus","owner":"manwe","slug":"promotion_gate_policy","title":format!("Absorption follow-through for {source_id}: codify promotion-gate routing policy for {title}"),"priority":"high","notes":"Translate the absorbed source into explicit route and promotion-gate policy instead of relying on informal preference."}),
         ],
         "ecosystem_catalog" => vec![
             json!({"emitter_owner":"athena","owner":"athena","slug":"candidate_extraction","title":format!("Absorption follow-through for {source_id}: extract ranked candidates from {title}"),"priority":"high","notes":"Convert the absorbed catalog into deduplicated ATHENA candidate records with bounded relevance tags and evidence links."}),

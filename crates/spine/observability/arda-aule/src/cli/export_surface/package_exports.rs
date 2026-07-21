@@ -26,11 +26,11 @@ pub(crate) fn export_package_enablement_impl() -> Result<Value> {
         .and_then(Value::as_array)
         .cloned()
         .unwrap_or_default();
-    let charon = read_toml_or(
-        &root.join("config/charon.providers.toml"),
+    let manwe = read_toml_or(
+        &root.join("config/manwe.providers.toml"),
         toml::Value::Table(Default::default()),
     );
-    let provider_ids: HashSet<String> = charon
+    let provider_ids: HashSet<String> = manwe
         .get("provider")
         .and_then(toml::Value::as_array)
         .into_iter()
@@ -708,7 +708,7 @@ fn required_runtime_env(tool: &str) -> Vec<&'static str> {
 
 fn integration_lane(tool: &str, category: &str) -> &'static str {
     match tool {
-        "litellm" => "charon_provider",
+        "litellm" => "manwe_provider",
         "crawl4ai" => "athena_ingestion",
         "playwright-mcp" => "mcp_browser",
         "discord-mcp" => "mcp_communications",
@@ -773,13 +773,13 @@ fn activation_status(
 fn next_action(tool: &str, integration_state: &str, activation: &str) -> &'static str {
     match (tool, activation) {
         ("litellm", "active_in_system") => {
-            "LiteLLM is already live in CHARON; keep provider health, models, and gateway policy aligned"
+            "LiteLLM is already live in MANWE; keep provider health, models, and gateway policy aligned"
         }
         ("crawl4ai", "active_in_system") => {
             "ATHENA can already ingest through crawl4ai; use `arda athena crawl <url>` when capture is needed"
         }
         ("llmfit", "active_signal") => {
-            "llmfit recommendations are already visible to CHARON route policy; tune route heuristics rather than wiring a new runtime"
+            "llmfit recommendations are already visible to MANWE route policy; tune route heuristics rather than wiring a new runtime"
         }
         ("oh-my-opencode", "active_signal") => {
             "OpenCode is already bounded by sovereign route contracts; tune agent route mappings rather than treating it as an unintegrated package"
@@ -795,7 +795,7 @@ fn next_action(tool: &str, integration_state: &str, activation: &str) -> &'stati
         }
         _ => match (tool, integration_state) {
             ("litellm", "ready_for_activation") => {
-                "set CHARON litellm_gateway enabled=true and point the proxy URL at the live gateway"
+                "set MANWE litellm_gateway enabled=true and point the proxy URL at the live gateway"
             }
             ("crawl4ai", "ready_for_activation") => {
                 "run `arda athena crawl <url>` to capture markdown into ATHENA via the local crawl4ai service"
@@ -810,7 +810,7 @@ fn next_action(tool: &str, integration_state: &str, activation: &str) -> &'stati
                 "complete NanoClaw channel authentication or edge enrollment to promote the contract into live runtime use"
             }
             ("llmfit", "evidence_ready") => {
-                "feed model-fit recommendations into CHARON route policy"
+                "feed model-fit recommendations into MANWE route policy"
             }
             _ => "promote from evidence into a bounded runtime or product surface",
         },

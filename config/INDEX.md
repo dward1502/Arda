@@ -16,8 +16,8 @@ soterion:
 - `autonomy_operating_loop.toml`
 - `business.toml`
 - `ceo_startup.yaml`
-- `charon.provider_candidates.toml`
-- `charon.providers.toml`
+- `manwe.provider_candidates.toml`
+- `manwe.providers.toml`
 - `chronos_audit_tasks.json`
 - `default.toml`
 - `federated_comms.toml`
@@ -40,7 +40,7 @@ soterion:
 |- `monitoring-setup/MONITORING_STATUS_REPORT.md`
 |- `monitoring-setup/centralized-monitoring-config.md`
 |- `monitoring-setup/grafana-dashboards/annunimas-fleet-overview.json`
-|- `monitoring-setup/grafana-dashboards/charon-routing.json`
+|- `monitoring-setup/grafana-dashboards/manwe-routing.json`
 |- `monitoring-setup/grafana-dashboards/cluster-health.json`
 |- `monitoring-setup/prometheus-central.yml`
 |- `monitoring-setup/prometheus-rules/health-alerts.yml`

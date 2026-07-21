@@ -19,18 +19,18 @@ fn approval(scope: Vec<&str>, approved: bool) -> ApprovalReceipt {
 
 #[test]
 fn human_gate_requires_explicit_approval() {
-    assert!(!action_is_approved(None, "onboarding.set_charon_endpoint"));
+    assert!(!action_is_approved(None, "onboarding.set_manwe_endpoint"));
     assert!(!action_is_approved(
-        Some(&approval(vec!["onboarding.set_charon_endpoint"], false)),
-        "onboarding.set_charon_endpoint"
+        Some(&approval(vec!["onboarding.set_manwe_endpoint"], false)),
+        "onboarding.set_manwe_endpoint"
     ));
     assert!(action_is_approved(
-        Some(&approval(vec!["onboarding.set_charon_endpoint"], true)),
-        "onboarding.set_charon_endpoint"
+        Some(&approval(vec!["onboarding.set_manwe_endpoint"], true)),
+        "onboarding.set_manwe_endpoint"
     ));
     assert!(action_is_approved(
         Some(&approval(vec!["all"], true)),
-        "onboarding.set_charon_endpoint"
+        "onboarding.set_manwe_endpoint"
     ));
 }
 

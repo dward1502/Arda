@@ -1,8 +1,8 @@
 {"path": "config/autonomy_operating_loop.toml", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}
 {"path": "config/business.toml", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}
 {"path": "config/ceo_startup.yaml", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}
-{"path": "config/charon.provider_candidates.toml", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}
-{"path": "config/charon.providers.toml", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}
+{"path": "config/manwe.provider_candidates.toml", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}
+{"path": "config/manwe.providers.toml", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}
 {"path": "config/chronos_audit_tasks.json", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}
 {"path": "config/default.toml", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}
 {"path": "config/federated_comms.toml", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}
@@ -25,7 +25,7 @@
 {"path": "config/monitoring-setup/MONITORING_STATUS_REPORT.md", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}
 {"path": "config/monitoring-setup/centralized-monitoring-config.md", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}
 {"path": "config/monitoring-setup/grafana-dashboards/annunimas-fleet-overview.json", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}
-{"path": "config/monitoring-setup/grafana-dashboards/charon-routing.json", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}
+{"path": "config/monitoring-setup/grafana-dashboards/manwe-routing.json", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}
 {"path": "config/monitoring-setup/grafana-dashboards/cluster-health.json", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}
 {"path": "config/monitoring-setup/prometheus-central.yml", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}
 {"path": "config/monitoring-setup/prometheus-rules/health-alerts.yml", "type": "file", "sigil": "⚡", "domain": "operations", "purpose": ""}

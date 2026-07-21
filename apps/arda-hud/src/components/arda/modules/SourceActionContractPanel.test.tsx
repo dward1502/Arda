@@ -5,9 +5,9 @@ import type { ArdaSourceProvenance } from '../../../lib/ardaProvenance'
 import SourceActionContractPanel from './SourceActionContractPanel'
 
 const record: ArdaSourceProvenance = {
-  domainId: 'systems:charon',
-  label: 'Charon Router',
-  sourcePaths: ['core/state/charon_router.json'],
+  domainId: 'systems:manwe',
+  label: 'Manwe Router',
+  sourcePaths: ['core/state/manwe_router.json'],
   generatedAtUtc: '2026-06-01T07:00:00Z',
   observedAtUtc: '2026-06-01T07:01:00Z',
   state: 'fresh',
@@ -41,7 +41,7 @@ describe('SourceActionContractPanel', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /Copy Source Paths/ }))
 
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('core/state/charon_router.json')
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('core/state/manwe_router.json')
     expect(await screen.findByText('copy_source_paths copied')).toBeTruthy()
   })
 })

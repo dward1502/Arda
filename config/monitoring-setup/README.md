@@ -32,4 +32,4 @@ Prometheus on Beelink is reachable and currently exposes live series for:
 - `node` exporter metrics for Beelink and other fleet nodes
 - Prometheus self-monitoring on Beelink
 
-Known external issue: the `charon` scrape target exists in Beelink Prometheus, but `100.78.138.113:5110/metrics` is currently connection-refused. The dashboards now expose that failure through `up{job="charon"}` instead of pretending stale Charon provider metrics exist.
+Known external issue: the `manwe` scrape target exists in Beelink Prometheus, but `100.78.138.113:5110/metrics` is currently connection-refused. The dashboards now expose that failure through `up{job="manwe"}` instead of pretending stale Manwe provider metrics exist.

@@ -221,14 +221,14 @@ fn command_policy_descriptor(command: &Commands) -> CommandPolicyDescriptor {
             triad_approvers: vec![],
             triad_evidence: vec![],
         },
-        Commands::Charon {
+        Commands::Manwe {
             command:
-                CharonCommands::Route { .. }
-                | CharonCommands::Cooldown { .. }
-                | CharonCommands::ProviderResult { .. }
-                | CharonCommands::ReloadConfig,
+                ManweCommands::Route { .. }
+                | ManweCommands::Cooldown { .. }
+                | ManweCommands::ProviderResult { .. }
+                | ManweCommands::ReloadConfig,
         } => CommandPolicyDescriptor {
-            signature: "cargo run -p arda-cli -- charon route-governor".to_string(),
+            signature: "cargo run -p arda-cli -- manwe route-governor".to_string(),
             is_network: true,
             is_destructive: false,
             decision_class: "provider_reroute",
@@ -236,10 +236,10 @@ fn command_policy_descriptor(command: &Commands) -> CommandPolicyDescriptor {
             triad_approvers: vec![],
             triad_evidence: vec![],
         },
-        Commands::Charon {
-            command: CharonCommands::Proxy { .. },
+        Commands::Manwe {
+            command: ManweCommands::Proxy { .. },
         } => CommandPolicyDescriptor {
-            signature: "cargo run -p arda-cli -- charon network-op".to_string(),
+            signature: "cargo run -p arda-cli -- manwe network-op".to_string(),
             is_network: true,
             is_destructive: false,
             decision_class: "routine_maintenance",
@@ -1236,7 +1236,7 @@ fn default_system_control_state() -> serde_json::Value {
             "settings_backing_store": "core/state/system_control.json",
             "usage_limits_path": "config/llm_usage_limits.yaml",
             "provider_registry_path": "docs/registry.toml",
-            "charon_provider_config_path": "config/charon.providers.toml",
+            "manwe_provider_config_path": "config/manwe.providers.toml",
             "env_keys": [
                 "OPENROUTER_API_KEY",
                 "CEREBRAS_API_KEY",
@@ -1448,7 +1448,7 @@ mod tests {
     #[test]
     fn human_augmentation_denial_reason_requires_triad_approval_for_provider_reroute() {
         let descriptor = CommandPolicyDescriptor {
-            signature: "cargo run -p arda-cli -- charon route-governor".to_string(),
+            signature: "cargo run -p arda-cli -- manwe route-governor".to_string(),
             is_network: true,
             is_destructive: false,
             decision_class: "provider_reroute",
@@ -1566,7 +1566,7 @@ mod tests {
         assert!(governance_policy_denial_reason(&descriptor, &policy, &json!({})).is_none());
 
         let reroute = CommandPolicyDescriptor {
-            signature: "cargo run -p arda-cli -- charon route-governor".to_string(),
+            signature: "cargo run -p arda-cli -- manwe route-governor".to_string(),
             is_network: true,
             is_destructive: false,
             decision_class: "provider_reroute",
@@ -1593,7 +1593,7 @@ mod tests {
     #[test]
     fn governance_policy_mode_escalates_to_human_until_matching_approval_exists() {
         let descriptor = CommandPolicyDescriptor {
-            signature: "cargo run -p arda-cli -- charon route-governor".to_string(),
+            signature: "cargo run -p arda-cli -- manwe route-governor".to_string(),
             is_network: true,
             is_destructive: false,
             decision_class: "provider_reroute",
@@ -1615,7 +1615,7 @@ mod tests {
             "approvals": [{
                 "status": "approved",
                 "decision_class": "provider_reroute",
-                "command_signature": "cargo run -p arda-cli -- charon route-governor",
+                "command_signature": "cargo run -p arda-cli -- manwe route-governor",
                 "approvers": ["ceo"],
                 "evidence": ["operator-approval-123"],
                 "expires_at_utc": "2099-01-01T00:00:00Z"

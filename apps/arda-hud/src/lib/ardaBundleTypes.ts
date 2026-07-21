@@ -129,7 +129,7 @@ export interface ArdaBundle {
   sourceMap: JsonRecord | null
   planMap: JsonRecord | null
   providerTokenUsage: JsonRecord | null
-  charonRouter: JsonRecord | null
+  manweRouter: JsonRecord | null
   athenaRuntime: JsonRecord | null
   taskQueueEntries: JsonRecord[]
   athenaDigest: JsonRecord[]

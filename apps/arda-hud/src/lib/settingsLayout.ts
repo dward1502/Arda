@@ -118,7 +118,7 @@ export function formatPanelStatus(sectionId: string | null, section: ArdaSection
   if (section) return formatSectionStatus(section)
   if (!sectionId) return 'No focus'
   if (sectionId === 'systems_health') return 'Fleet command / local mesh'
-  if (sectionId === 'routing_health') return 'Charon router / lane command'
+  if (sectionId === 'routing_health') return 'Manwe router / lane command'
   if (sectionId === 'settings') return 'System settings / operator controls'
   return 'Focused workstation'
 }

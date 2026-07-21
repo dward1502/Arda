@@ -39,7 +39,7 @@ service_model:
     workstation:
       role: canonical_execution_authority
       owns:
-        - charon
+        - manwe
         - agent_supervisor
         - ceo_autopilot
         - bootstrap_reconcile
@@ -56,7 +56,7 @@ service_model:
         - hermes_voice_ingress
         - optional_local_stt
       does_not_own:
-        - canonical_charon
+        - canonical_manwe
         - primary_agent_supervisor
         - heavy_autonomy_loops
         - persistent_backbone_inference
@@ -73,8 +73,8 @@ network_control_plane:
   restricted_remote_protocols:
     - tailscale_ssh_for_break_glass_or_admin_only
   workstation_authority:
-    charon_control_base_url: "http://100.78.138.113:5110"
-    charon_openai_base_url: "http://100.78.138.113:5110/v1"
+    manwe_control_base_url: "http://100.78.138.113:5110"
+    manwe_openai_base_url: "http://100.78.138.113:5110/v1"
     inference_base_url: "http://100.78.138.113:1234"
   edge_worker_authority:
     beelink_inference_base_url: "http://100.103.125.88:9337/v1"
@@ -95,7 +95,7 @@ operator_rules:
       - local_fallback
     laptop_local_models_are_fallback_only: true
     arda_reads_remote_runtime_when_available: true
-    hermes_defaults_to_workstation_charon: true
+    hermes_defaults_to_workstation_manwe: true
 
 enforcement_backlog:
   - move_all_core_runtime_sockets_to_xdg_runtime_dir

@@ -108,7 +108,7 @@ pub fn build_guided_session(
             "connect_providers",
             "Connect providers",
             if missing_provider_env == 0 { "ready" } else { "needs_secrets" },
-            "Pick Charon providers and keep provider keys in the private env file only.",
+            "Pick Manwe providers and keep provider keys in the private env file only.",
             vec![
                 format!("configured_providers={}", providers.providers.len()),
                 format!("selected_providers={}", answers.selected_providers.join(",")),
@@ -195,15 +195,15 @@ pub fn build_guided_session(
     if profile
         .missing_gates
         .iter()
-        .any(|gate| gate == "CHARON_BASE_URL")
+        .any(|gate| gate == "MANWE_BASE_URL")
     {
         steps.push(guided_step(
-            "charon_endpoint",
-            "Charon endpoint gate",
+            "manwe_endpoint",
+            "Manwe endpoint gate",
             "warn",
-            "Charon is the model router; endpoint setup is required for live routing.",
-            vec!["missing CHARON_BASE_URL".to_string()],
-            "Stage CHARON_BASE_URL in the private config proposal before service checks.",
+            "Manwe is the model router; endpoint setup is required for live routing.",
+            vec!["missing MANWE_BASE_URL".to_string()],
+            "Stage MANWE_BASE_URL in the private config proposal before service checks.",
         ));
     }
 

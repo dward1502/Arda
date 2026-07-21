@@ -47,7 +47,7 @@ pub struct LocalModelDefaultValue {
 #[derive(Debug, Clone, Serialize)]
 pub struct EndpointSection {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub charon_base_url: Option<UrlValue>,
+    pub manwe_base_url: Option<UrlValue>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub hermes_base_url: Option<UrlValue>,
     #[serde(skip_serializing_if = "Option::is_none")]

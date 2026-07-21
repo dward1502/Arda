@@ -60,7 +60,7 @@ Current section map:
 
 ## Routing And Communications
 - Primary:
-  - `core/state/charon_router.json`
+  - `core/state/manwe_router.json`
   - `core/state/hermes_command.json`
 - Supplemental:
   - `data/hermes/boardroom.jsonl`

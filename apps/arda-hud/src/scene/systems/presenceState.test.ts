@@ -32,7 +32,7 @@ describe('boardroom presence state', () => {
       phase: 'not-a-phase',
       primaryAgent: 'unknown-agent',
       supportAgents: ['athena', 'not-an-agent', 'athena'],
-      focus: ['charon', 'athena', 'charon'],
+      focus: ['manwe', 'athena', 'manwe'],
       urgency: 'panic',
       banner: '  Route review  ',
       inquiry: '',
@@ -45,7 +45,7 @@ describe('boardroom presence state', () => {
       phase: 'idle',
       primaryAgent: 'arandur',
       supportAgents: ['athena'],
-      focus: ['charon', 'athena'],
+      focus: ['manwe', 'athena'],
       urgency: 'normal',
       banner: 'Route review',
       source: 'arda',
@@ -123,13 +123,13 @@ describe('boardroom presence state', () => {
   })
 
   it('keeps the primary agent focused while preserving selected mission and anchor cues', () => {
-    const ledger = '{"id":"presence-mission-cue","schema":"arda.arda.presence_event.v1","kind":"presence.agent_state","domain":"mission","timestamp_utc":"2026-05-18T11:58:00Z","entity":{"agent":"athena","mission_id":"mission-arandur-presence-scene"},"scene":{"presence":{"attention":"focused","mode":"coordinating","accent":"cyan","anchor_target":"boardroom.view_desk_control_panel","support_agents":["hermes","charon"],"focus_agents":["hermes"]}},"trace":{"correlation_id":"gate-4-2-presence"}}'
+    const ledger = '{"id":"presence-mission-cue","schema":"arda.arda.presence_event.v1","kind":"presence.agent_state","domain":"mission","timestamp_utc":"2026-05-18T11:58:00Z","entity":{"agent":"athena","mission_id":"mission-arandur-presence-scene"},"scene":{"presence":{"attention":"focused","mode":"coordinating","accent":"cyan","anchor_target":"boardroom.view_desk_control_panel","support_agents":["hermes","manwe"],"focus_agents":["hermes"]}},"trace":{"correlation_id":"gate-4-2-presence"}}'
 
     expect(deriveLatestPresenceStateFromEventLedger(ledger, FIXED_NOW)).toMatchObject({
       scenario: 'routing',
       phase: 'agent_arrival',
       primaryAgent: 'athena',
-      supportAgents: ['hermes', 'charon'],
+      supportAgents: ['hermes', 'manwe'],
       focus: ['athena', 'hermes'],
       eventId: 'presence-mission-cue',
       missionId: 'mission-arandur-presence-scene',
@@ -187,10 +187,10 @@ describe('boardroom presence state', () => {
   })
 
   it('marks old live ledger records as stale without discarding their state', () => {
-    const ledger = '{"id":"presence-stale","schema":"arda.arda.presence_event.v1","kind":"presence.agent_state","domain":"agent","timestamp_utc":"2026-05-18T11:00:00Z","entity":{"agent":"charon","mission_id":"mission-4"},"scene":{"presence":{"attention":"focused","mode":"coordinating","accent":"cyan","anchor_target":"boardroom.hologram_anchor"}},"trace":{"correlation_id":"stale"}}'
+    const ledger = '{"id":"presence-stale","schema":"arda.arda.presence_event.v1","kind":"presence.agent_state","domain":"agent","timestamp_utc":"2026-05-18T11:00:00Z","entity":{"agent":"manwe","mission_id":"mission-4"},"scene":{"presence":{"attention":"focused","mode":"coordinating","accent":"cyan","anchor_target":"boardroom.hologram_anchor"}},"trace":{"correlation_id":"stale"}}'
     const projection = derivePresenceLedgerProjection(ledger, FIXED_NOW)
 
-    expect(projection.state.primaryAgent).toBe('charon')
+    expect(projection.state.primaryAgent).toBe('manwe')
     expect(projection.status).toMatchObject({
       source: 'live_ledger',
       freshness: 'stale',
@@ -203,7 +203,7 @@ describe('boardroom presence state', () => {
   it('places focused support agents in a bounded visual orbit with stable labels and palette', () => {
     expect(presenceSupportMarkers({
       ...DEFAULT_AGENT_PRESENCE_STATE,
-      supportAgents: ['athena', 'hermes', 'charon', 'warden', 'oracle', 'plutus', 'apollo'],
+      supportAgents: ['athena', 'hermes', 'manwe', 'warden', 'oracle', 'plutus', 'apollo'],
       focus: ['hermes', 'warden'],
     })).toEqual([
       {
@@ -225,7 +225,7 @@ describe('boardroom presence state', () => {
         isFocus: true,
       },
       {
-        agent: 'charon',
+        agent: 'manwe',
         label: 'CHA',
         color: '#42f5d7',
         angleRadians: -Math.PI / 2 + (2 * Math.PI) / 3,

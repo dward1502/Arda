@@ -2947,7 +2947,7 @@ fn append_arandur_presence_event(
     validate_presence_token(
         "agent",
         agent,
-        &["arandur", "prometheus", "athena", "charon", "citadel"],
+        &["arandur", "prometheus", "athena", "manwe", "citadel"],
     )?;
     validate_presence_token(
         "mode",

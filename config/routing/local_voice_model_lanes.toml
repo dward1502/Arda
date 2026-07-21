@@ -12,7 +12,7 @@ accepted_advertised_core_model_ids = ["LFM2.5-8B-A1B-Q4_K_M", "Qwen3.5-9B-Q4_K_M
 advertised_model_acceptance = "Operator approved promoting LiquidAI LFM2.5-8B-A1B-Q4_K_M to the single active core mesh lane on 2026-06-03. Qwen3.5-9B-Q4_K_M remains an accepted rollback artifact."
 core_text_service = "mesh-llm.service"
 core_text_endpoint = "http://127.0.0.1:9337/v1"
-charon_router_endpoint = "http://127.0.0.1:5110"
+manwe_router_endpoint = "http://127.0.0.1:5110"
 stt_is_separate_from_text_llm = true
 stt_may_run_cpu_first = true
 model_switch_requires_human_approval = true
@@ -38,7 +38,7 @@ commands_observed = [
 gates = ["repo_or_binary_present", "model_artifact_present", "sample_wav_transcription", "transcript_schema_receipt", "privacy_local_only"]
 promotion_status = "staged_cpu_smoke_passed"
 staged_artifact = "/var/home/mythos/models/annunimas-staging/current/node-core-hub/parakeet/realtime_eou_120m-v1-q4_k.gguf"
-sample_transcript = "data/charon/stt_samples/local_council_sample_16k.parakeet.json"
+sample_transcript = "data/manwe/stt_samples/local_council_sample_16k.parakeet.json"
 council_projection = "data/council/voice_proposals.jsonl"
 
 [[lane]]
@@ -53,10 +53,10 @@ candidate_gguf_source = "https://huggingface.co/LiquidAI/LFM2.5-8B-A1B-GGUF"
 staged_artifact = "/var/home/mythos/models/liquidai/lfm2.5-8b-a1b/LFM2.5-8B-A1B-Q4_K_M.gguf"
 license_review_required = "lfm1.0"
 required_capabilities = ["chat", "tool_use_candidate", "structured_output", "council_deliberation", "bounded_write_intent"]
-write_safety = "Model may propose write intents to Charon/council gates; canonical file/task writes still require existing approval and validation gates."
-gates = ["license_review", "single_model_pressure_ok", "direct_benchmark_pass", "charon_route_smoke", "rollback_target_available"]
+write_safety = "Model may propose write intents to Manwe/council gates; canonical file/task writes still require existing approval and validation gates."
+gates = ["license_review", "single_model_pressure_ok", "direct_benchmark_pass", "manwe_route_smoke", "rollback_target_available"]
 promotion_status = "operator_approved_rollout"
-previous_evidence = "data/charon/model_benchmark_m6_real_run_20260531.md"
+previous_evidence = "data/manwe/model_benchmark_m6_real_run_20260531.md"
 rollback_target = "/var/home/mythos/models/qwen3.5-9b/Qwen3.5-9B-Q4_K_M.gguf"
 
 [[lane]]
@@ -69,4 +69,4 @@ staged_artifact = "/var/home/mythos/models/annunimas-staging/current/node-pi5-wa
 license = "apache-2.0"
 gates = ["latency_benchmark", "no_panic_monitoring_eval", "json_extract_eval", "rollback_target_available"]
 promotion_status = "benchmark_more_required"
-previous_evidence = "data/charon/model_benchmark_m6_real_run_20260531.md"
+previous_evidence = "data/manwe/model_benchmark_m6_real_run_20260531.md"

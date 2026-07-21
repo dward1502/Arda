@@ -92,7 +92,7 @@ function budgetPolicy(providerBudget: string): JsonRecord {
       cost_default: 'free_only',
       external_spend_allowed: false,
       paid_provider_cap_usd_day: 0,
-      provider_order: ['local', 'charon_local', 'fleet_local'],
+      provider_order: ['local', 'manwe_local', 'fleet_local'],
     }
   }
   if (providerBudget === 'paid_allowed') {
@@ -124,7 +124,7 @@ function governancePolicy(strictness: number): JsonRecord {
   }
 }
 
-function charonPolicy(providerBudget: string): JsonRecord {
+function manwePolicy(providerBudget: string): JsonRecord {
   const budget = budgetPolicy(providerBudget)
   return {
     provider_budget: providerBudget,
@@ -210,11 +210,11 @@ function buildProjectedJson(path: string, existing: JsonRecord, profile: ConfigW
       },
     })
   }
-  if (path.endsWith('charon_router.json')) {
+  if (path.endsWith('manwe_router.json')) {
     return mergeProjection(existing, {
       ...base,
-      authority: 'config_walkthrough_charon_projection',
-      guided_routing_policy: charonPolicy(providerBudget),
+      authority: 'config_walkthrough_manwe_projection',
+      guided_routing_policy: manwePolicy(providerBudget),
     })
   }
   return mergeProjection(existing, base)
@@ -259,7 +259,7 @@ export async function previewConfigProfile(
     'core/state/governance_runtime.json',
     'core/state/model_control_surface.json',
     'core/state/operator_runtime_status.json',
-    'core/state/charon_router.json',
+    'core/state/manwe_router.json',
   ]
   const projectedFiles: Record<string, string> = {}
   const changes: ConfigProjectionChange[] = []

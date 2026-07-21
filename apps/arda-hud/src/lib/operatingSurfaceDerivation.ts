@@ -213,9 +213,9 @@ export function getOperatingSurfaceReports(
       lane: 'Health',
       status: fleetHealth.unexpectedOffline === 0 ? 'partial' : 'gap',
       current: `${fleetHealth.liveTargets}/${fleetHealth.totalTargets} fleet targets live, ${fleetHealth.routableProviders} routable providers, ${fleetHealth.unexpectedOffline} unexpected offline.`,
-      gap: 'Provider mesh, Charon routing, Hermes, systemd, fleet, and drift are displayed as system panels rather than one health posture.',
+      gap: 'Provider mesh, Manwe routing, Hermes, systemd, fleet, and drift are displayed as system panels rather than one health posture.',
       next: 'Make Health summarize runtime/service/provider state first, with drilldowns for routing ownership and drift.',
-      evidence: ['SystemsModule.tsx', 'core/state/operator_runtime_status.json', 'core/state/charon_router.json'],
+      evidence: ['SystemsModule.tsx', 'core/state/operator_runtime_status.json', 'core/state/manwe_router.json'],
     },
     {
       lane: 'Business',

@@ -98,7 +98,7 @@ where
     }
 }
 
-pub(crate) async fn charon_call_or_local<F>(
+pub(crate) async fn manwe_call_or_local<F>(
     socket_path: &std::path::Path,
     cmd: &str,
     payload: serde_json::Value,
@@ -107,16 +107,16 @@ pub(crate) async fn charon_call_or_local<F>(
 where
     F: FnOnce() -> anyhow::Result<serde_json::Value>,
 {
-    match charon_ipc_send_command(socket_path.to_path_buf(), cmd, payload).await {
+    match manwe_ipc_send_command(socket_path.to_path_buf(), cmd, payload).await {
         Ok(value) => Ok(value),
         Err(err) => {
-            tracing::info!(error = %err, cmd, "CHARON IPC unavailable, using local fallback");
+            tracing::info!(error = %err, cmd, "MANWE IPC unavailable, using local fallback");
             local_fallback()
         }
     }
 }
 
-pub(crate) async fn charon_call_or_local_async<F, Fut>(
+pub(crate) async fn manwe_call_or_local_async<F, Fut>(
     socket_path: &std::path::Path,
     cmd: &str,
     payload: serde_json::Value,
@@ -126,10 +126,10 @@ where
     F: FnOnce() -> Fut,
     Fut: std::future::Future<Output = anyhow::Result<serde_json::Value>>,
 {
-    match charon_ipc_send_command(socket_path.to_path_buf(), cmd, payload).await {
+    match manwe_ipc_send_command(socket_path.to_path_buf(), cmd, payload).await {
         Ok(value) => Ok(value),
         Err(err) => {
-            tracing::info!(error = %err, cmd, "CHARON IPC unavailable, using local fallback");
+            tracing::info!(error = %err, cmd, "MANWE IPC unavailable, using local fallback");
             local_fallback().await
         }
     }

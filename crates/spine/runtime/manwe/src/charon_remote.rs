@@ -5,14 +5,14 @@ use anyhow::{anyhow, Context as _, Result};
 use reqwest::Client;
 use serde_json::Value;
 
-use crate::{CharonTransport, ProviderRecord, SpannedManweGateway};
+use crate::{ManweTransport, ProviderRecord, SpannedManweGateway};
 
-pub struct CharonRemote {
+pub struct ManweRemote {
     client: Client,
     endpoint: String,
 }
 
-impl CharonRemote {
+impl ManweRemote {
     pub const DEFAULT_ENDPOINT: &'static str = "http://localhost:7171/v1/chat/completions";
 
     pub fn new(client: Client, gateway_endpoint: impl Into<String>) -> Result<Self> {
@@ -30,7 +30,7 @@ impl CharonRemote {
     }
 }
 
-impl CharonTransport for CharonRemote {
+impl ManweTransport for ManweRemote {
     fn complete(
         &self,
         request: Value,

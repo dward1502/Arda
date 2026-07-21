@@ -23,9 +23,9 @@ soterion:
 - `knowledge/metrics/by_crate/ceo/beliefs.json`
 - `knowledge/metrics/by_crate/ceo/status.json`
 - `knowledge/metrics/by_crate/ceo/thoughts.json`
-- `knowledge/metrics/by_crate/charon/providers.json`
-- `knowledge/metrics/by_crate/charon/state.json`
-- `knowledge/metrics/by_crate/charon/status.json`
+- `knowledge/metrics/by_crate/manwe/providers.json`
+- `knowledge/metrics/by_crate/manwe/state.json`
+- `knowledge/metrics/by_crate/manwe/status.json`
 - `knowledge/metrics/by_crate/core/status.json`
 - `knowledge/metrics/by_crate/counsel/advisories.json`
 - `knowledge/metrics/by_crate/counsel/status.json`
@@ -95,7 +95,7 @@ soterion:
 - `state/ceo_council_runtime.json`
 - `state/ceo_council_sessions.json`
 - `state/chaos_log.jsonl`
-- `state/charon_router.json`
+- `state/manwe_router.json`
 - `state/client_delivery_portfolio.json`
 - `state/client_delivery_readiness.json`
 - `state/communication_adapter_contract.json`
@@ -150,7 +150,7 @@ soterion:
 - `state/governance_gap_backlog.json`
 - `state/governance_priority_runtime.json`
 - `state/governance_runtime.json`
-- `state/hades_charon_layout.json`
+- `state/hades_manwe_layout.json`
 - `state/hades_lifecycle.json`
 - `state/hades_lifecycle_review.json`
 - `state/hades_nightly_operations.json`

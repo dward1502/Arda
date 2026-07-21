@@ -71,10 +71,10 @@ pub(super) fn write_arda_source_map(core_root: &Path) {
         json!({
             "id": "routing_and_comms",
             "title": "Routing And Communications",
-            "owner": "charon_hermes",
+            "owner": "manwe_hermes",
             "status": "ready",
             "primary_sources": [
-                rel_path(core_root.join("state/charon_router.json"), &workspace_root),
+                rel_path(core_root.join("state/manwe_router.json"), &workspace_root),
                 rel_path(core_root.join("state/hermes_command.json"), &workspace_root)
             ],
             "supplemental_sources": [
@@ -167,14 +167,14 @@ pub(super) fn write_arda_source_map(core_root: &Path) {
         json!({
             "id": "paperclip_alignment",
             "title": "Paperclip Alignment",
-            "owner": "prometheus_charon_hades_athena",
+            "owner": "prometheus_manwe_hades_athena",
             "status": "ready",
             "primary_sources": [
                 rel_path(core_root.join("state/paperclip_alignment.json"), &workspace_root)
             ],
             "supplemental_sources": [
                 rel_path(core_root.join("state/governance_runtime.json"), &workspace_root),
-                rel_path(core_root.join("state/charon_router.json"), &workspace_root),
+                rel_path(core_root.join("state/manwe_router.json"), &workspace_root),
                 rel_path(core_root.join("state/control_plane_lockdown.json"), &workspace_root),
                 rel_path(core_root.join("state/athena_runtime.json"), &workspace_root),
                 rel_path(workspace_root.join("data/athena/policy_readiness.jsonl"), &workspace_root),

@@ -303,7 +303,7 @@
       },
       "surfaces": [
         "core/state/runtime_budget_policy.json",
-        "core/state/charon_router.json",
+        "core/state/manwe_router.json",
         "data/plutus/runtime_status.json"
       ],
       "user_plan_budget": {

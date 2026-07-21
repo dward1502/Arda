@@ -16,7 +16,7 @@ use std::sync::Arc;
 use super::{athena_error, ShallowAnalysis};
 
 const SYSTEM_PROMPT: &str = "You are ATHENA, the knowledge synthesis arm of the Arda autonomous agent system. \
-Arda is a Rust workspace of sovereign crates (charon=router, hermes=comm, athena=knowledge, hades=ops, prometheus=planner, plutus=economy, warden=governance, mnemosyne=memory). \
+Arda is a Rust workspace of sovereign crates (manwe=router, hermes=comm, athena=knowledge, hades=ops, prometheus=planner, plutus=economy, warden=governance, mnemosyne=memory). \
 Your job is to extract structured, actionable knowledge from source materials (GitHub repos, research papers, articles). \
 Output FORMAT IS NON-NEGOTIABLE: respond with ONE valid JSON object only. \
 Your VERY FIRST CHARACTER must be `{` and your VERY LAST CHARACTER must be `}`. \
@@ -142,7 +142,7 @@ pub(super) fn build_user_prompt(shallow: &ShallowAnalysis) -> String {
   \"patterns\": [string],                       // architectural / design patterns visible\n\
   \"novel_ideas\": [string],                    // ideas that are surprising or non-obvious\n\
   \"applicability_to_arda\": string,       // 1-3 sentences: how this could integrate into Arda (concrete, not generic)\n\
-  \"integration_hooks\": [string],              // specific Arda crates/files/abstractions to attach to (e.g. crates/annunimas-charon/src/router.rs)\n\
+  \"integration_hooks\": [string],              // specific Arda crates/files/abstractions to attach to (e.g. crates/annunimas-manwe/src/router.rs)\n\
   \"comparable_systems\": [string],             // other systems with similar approach\n\
   \"risks_or_concerns\": [string],              // adoption or correctness risks\n\
   \"confidence_self_report\": number,           // 0.0 to 1.0, your confidence the source material was rich enough for solid extraction\n\
@@ -260,7 +260,7 @@ mod tests {
 
     #[test]
     fn parses_strict_json_response() {
-        let body = r#"{"concepts":["a","b"],"patterns":[],"novel_ideas":["x"],"applicability_to_arda":"integrate as router plugin","integration_hooks":["crates/charon"],"comparable_systems":["foo"],"risks_or_concerns":["mem"],"confidence_self_report":0.8,"summary_one_paragraph":"summary"}"#;
+        let body = r#"{"concepts":["a","b"],"patterns":[],"novel_ideas":["x"],"applicability_to_arda":"integrate as router plugin","integration_hooks":["crates/manwe"],"comparable_systems":["foo"],"risks_or_concerns":["mem"],"confidence_self_report":0.8,"summary_one_paragraph":"summary"}"#;
         let k = parse_response(body);
         assert_eq!(k.concepts, vec!["a", "b"]);
         assert_eq!(k.applicability_to_arda, "integrate as router plugin");

@@ -65,7 +65,7 @@ Knowledge triage source-of-truth files:
 - [`business_runtime.json`](/var/home/mythos/Eregion/Arda/core/state/business_runtime.json) - 5,057 bytes
 - [`ceo_council_runtime.json`](/var/home/mythos/Eregion/Arda/core/state/ceo_council_runtime.json) - 1,322 bytes
 - [`ceo_council_sessions.json`](/var/home/mythos/Eregion/Arda/core/state/ceo_council_sessions.json) - 122 bytes
-- [`charon_router.json`](/var/home/mythos/Eregion/Arda/core/state/charon_router.json) - 119,139 bytes
+- [`manwe_router.json`](/var/home/mythos/Eregion/Arda/core/state/manwe_router.json) - 119,139 bytes
 - [`client_delivery_portfolio.json`](/var/home/mythos/Eregion/Arda/core/state/client_delivery_portfolio.json) - 8,344 bytes
 - [`client_delivery_readiness.json`](/var/home/mythos/Eregion/Arda/core/state/client_delivery_readiness.json) - 1,744 bytes
 - [`communication_adapter_contract.json`](/var/home/mythos/Eregion/Arda/core/state/communication_adapter_contract.json) - 2,562 bytes

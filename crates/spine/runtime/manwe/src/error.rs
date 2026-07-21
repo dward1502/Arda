@@ -4,7 +4,7 @@ use arda_core::error::ArdaError;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
-pub enum CharonError {
+pub enum ManweError {
     #[error("IPC transport error: {0}")]
     Ipc(String),
 
@@ -49,13 +49,13 @@ pub enum CharonError {
 }
 
 #[cfg(feature = "adaptive")]
-impl From<CharonError> for ArdaError {
-    fn from(err: CharonError) -> Self {
+impl From<ManweError> for ArdaError {
+    fn from(err: ManweError) -> Self {
         ArdaError::Agent {
-            agent: "charon".to_string(),
+            agent: "manwe".to_string(),
             message: err.to_string(),
         }
     }
 }
 
-pub type Result<T> = std::result::Result<T, CharonError>;
+pub type Result<T> = std::result::Result<T, ManweError>;

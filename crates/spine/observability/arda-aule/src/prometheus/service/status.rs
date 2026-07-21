@@ -84,7 +84,7 @@ impl PrometheusService {
             vec![
                 "athena".to_string(),
                 "hades".to_string(),
-                "charon".to_string(),
+                "manwe".to_string(),
                 "mnemosyne".to_string(),
             ]
         } else {

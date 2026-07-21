@@ -92,7 +92,7 @@ import { useArdaBundle } from './components/arda/hooks/useArdaBundle'
 import { useArdaRuntimePulse } from './components/arda/hooks/useArdaRuntimePulse'
 import { useArdaWindowControls } from './components/arda/hooks/useArdaWindowControls'
 import { useBoardroomSlotAssignments } from './components/arda/hooks/useBoardroomSlotAssignments'
-import { useCharonLiveSnapshot } from './components/arda/hooks/useCharonLiveSnapshot'
+import { useManweLiveSnapshot } from './components/arda/hooks/useManweLiveSnapshot'
 import { useWorldSurfaceAssignments } from './components/arda/hooks/useWorldSurfaceAssignments'
 import {
   BOARDROOM_MONITOR_SLOT_IDS,
@@ -171,7 +171,7 @@ function FleetFocusedWorkstationView({ fleetViewModel }: { fleetViewModel: Fleet
       <div className="fleet-focused-view fleet-focused-view--empty">
         <span className="fleet-focused-view__eyebrow">Fleet View Model</span>
         <h3>Fleet projection unavailable</h3>
-        <p>Waiting for operator runtime and Charon router projections.</p>
+        <p>Waiting for operator runtime and Manwe router projections.</p>
       </div>
     )
   }
@@ -249,10 +249,10 @@ export default function App() {
     onLoaded: onBundleLoaded,
   })
   const {
-    snapshot: charonLiveSnapshot,
-    error: charonLiveError,
-    isLoading: charonLiveLoading,
-  } = useCharonLiveSnapshot(5000)
+    snapshot: manweLiveSnapshot,
+    error: manweLiveError,
+    isLoading: manweLiveLoading,
+  } = useManweLiveSnapshot(5000)
   const {
     assignments: boardroomSceneSlotAssignments,
     setAssignments: setBoardroomSceneSlotAssignments,
@@ -501,7 +501,7 @@ export default function App() {
       chronos: { runnerStatus: 'missing', readyTaskCount: 0, scheduledTaskCount: 0, dueTasks: [] },
       hermes: { gatewayReceiptCount: 0, dispatchReceiptCount: 0, latestReceipts: [] },
       athena: { policyReady: 0, referenceOnly: 0, implementationReady: 0, latest: [] },
-      charon: {
+      manwe: {
         providerCount: 0,
         availableProviderCount: 0,
         blockedProviderCount: 0,
@@ -864,9 +864,9 @@ export default function App() {
           laneHeadroom={laneHeadroom}
           laneFitness={laneFitness}
           routableProviders={routableProviders}
-          charonLiveSnapshot={charonLiveSnapshot}
-          charonLiveError={charonLiveError}
-          charonLiveLoading={charonLiveLoading}
+          manweLiveSnapshot={manweLiveSnapshot}
+          manweLiveError={manweLiveError}
+          manweLiveLoading={manweLiveLoading}
           storagePressure={bundle?.storagePressure ?? null}
           automationStatus={bundle?.automationStatus ?? null}
           setupConsoleReadiness={bundle?.setupConsoleReadiness ?? null}
@@ -1684,10 +1684,10 @@ export default function App() {
       tag: operatorTag,
     },
     right: {
-      label: 'Charon Router',
+      label: 'Manwe Router',
       title: `${laneOwnership[0]?.route?.providerId ?? 'unassigned'} / ${laneOwnership[1]?.route?.providerId ?? 'unassigned'}`,
       value: `${laneOwnership[2]?.route?.providerId ?? 'unassigned'} background / ${laneFitness.length} learned lanes`,
-      status: getBoolean(asRecord(operatorRuntime?.summary)?.charon_http_ok, false) ? 'online' : 'check',
+      status: getBoolean(asRecord(operatorRuntime?.summary)?.manwe_http_ok, false) ? 'online' : 'check',
       metrics: [
         { label: 'Chat', value: laneOwnership[0]?.route?.providerId ?? 'n/a' },
         { label: 'Code', value: laneOwnership[1]?.route?.providerId ?? 'n/a' },
@@ -1713,7 +1713,7 @@ export default function App() {
   const consoleSwitches = [
     {
       label: 'Router',
-      value: getBoolean(asRecord(operatorRuntime?.summary)?.charon_http_ok, false) ? 'ONLINE' : 'CHECK',
+      value: getBoolean(asRecord(operatorRuntime?.summary)?.manwe_http_ok, false) ? 'ONLINE' : 'CHECK',
     },
     {
       label: 'Local Mesh',
@@ -1728,7 +1728,7 @@ export default function App() {
   ]
   const consoleDials = [
     { label: 'Inspect', value: 'FLEET', hotspotId: 'systems_table' },
-    { label: 'Route', value: 'CHARON', hotspotId: 'operations' },
+    { label: 'Route', value: 'MANWE', hotspotId: 'operations' },
     { label: 'Hermes', value: 'TOOLS', hotspotId: 'hermes_dashboard' },
     { label: 'Mesh', value: 'NETWORK', hotspotId: 'network' },
   ]
@@ -1755,9 +1755,9 @@ export default function App() {
       if (sectionId === 'routing_health') {
         return {
           label: `Slot ${String.fromCharCode(65 + index)}`,
-          title: 'Charon Routing',
+          title: 'Manwe Routing',
           detail: `${laneOwnership[0]?.route?.providerId ?? 'unassigned'} / ${laneOwnership[1]?.route?.providerId ?? 'unassigned'}`,
-          status: getBoolean(asRecord(operatorRuntime?.summary)?.charon_http_ok, false) ? 'live' : 'check',
+          status: getBoolean(asRecord(operatorRuntime?.summary)?.manwe_http_ok, false) ? 'live' : 'check',
           metrics: [
             { label: 'Chat', value: formatProviderLabel(laneOwnership[0]?.route?.providerId) },
             { label: 'Code', value: formatProviderLabel(laneOwnership[1]?.route?.providerId) },

@@ -1,5 +1,5 @@
-use crate::adaptive::service::CharonService;
-use crate::types::CharonRequestEnvelope;
+use crate::adaptive::service::ManweService;
+use crate::types::ManweRequestEnvelope;
 use crate::types::{ModelState, ProviderState};
 use arda_core::error::{ArdaError, Result};
 use arda_core::try_run_bounded_async;
@@ -18,8 +18,8 @@ use tokio_stream::wrappers::IntervalStream;
 use tokio_stream::{Stream, StreamExt};
 use tracing::warn;
 
-pub async fn run_http_server(service: CharonService, addr: &str) -> Result<()> {
-    tracing::info!(addr = %addr, "starting CHARON HTTP server");
+pub async fn run_http_server(service: ManweService, addr: &str) -> Result<()> {
+    tracing::info!(addr = %addr, "starting MANWE HTTP server");
     // D1: spawn in-process active health probe loop. Pre-warms the
     // connection pool and emits liveness metrics every 60s so cold
     // providers don't surface their breakage on a real user request.
@@ -56,14 +56,14 @@ pub async fn run_http_server(service: CharonService, addr: &str) -> Result<()> {
         tokio::net::TcpListener::bind(addr)
             .await
             .map_err(|e| ArdaError::Agent {
-                agent: "charon".to_string(),
+                agent: "manwe".to_string(),
                 message: format!("failed to bind HTTP listener on {addr}: {e}"),
             })?;
-    tracing::info!(addr = %addr, "CHARON HTTP server listening");
+    tracing::info!(addr = %addr, "MANWE HTTP server listening");
     axum::serve(listener, app)
         .await
         .map_err(|e| ArdaError::Agent {
-            agent: "charon".to_string(),
+            agent: "manwe".to_string(),
             message: format!("HTTP server failed: {e}"),
         })?;
     Ok(())
@@ -71,14 +71,14 @@ pub async fn run_http_server(service: CharonService, addr: &str) -> Result<()> {
 
 async fn http_admission_gate(req: Request, next: Next) -> Response {
     let Some(response) =
-        try_run_bounded_async("charon_http_request", http_request_limit(), || async move {
+        try_run_bounded_async("manwe_http_request", http_request_limit(), || async move {
             next.run(req).await
         })
         .await
     else {
         return (
             StatusCode::SERVICE_UNAVAILABLE,
-            Json(json!({"ok": false, "error": "CHARON HTTP concurrency gate saturated"})),
+            Json(json!({"ok": false, "error": "MANWE HTTP concurrency gate saturated"})),
         )
             .into_response();
     };
@@ -87,19 +87,19 @@ async fn http_admission_gate(req: Request, next: Next) -> Response {
 }
 
 fn http_request_limit() -> usize {
-    std::env::var("ARDA_CHARON_HTTP_MAX_CONCURRENCY")
+    std::env::var("ARDA_MANWE_HTTP_MAX_CONCURRENCY")
         .ok()
         .and_then(|raw| raw.parse::<usize>().ok())
         .filter(|value| *value > 0)
         .unwrap_or(24)
 }
 
-async fn status(State(service): State<CharonService>) -> impl IntoResponse {
+async fn status(State(service): State<ManweService>) -> impl IntoResponse {
     map_result_async(async move { Ok(json!({"ok": true, "status": service.status().await?})) })
         .await
 }
 
-async fn health(State(service): State<CharonService>) -> impl IntoResponse {
+async fn health(State(service): State<ManweService>) -> impl IntoResponse {
     match service.status().await {
         Ok(status) => {
             let blocked = status.providers_total.saturating_sub(
@@ -123,7 +123,7 @@ async fn health(State(service): State<CharonService>) -> impl IntoResponse {
                 http_status,
                 Json(json!({
                     "ok": http_status == StatusCode::OK,
-                    "service": "charon",
+                    "service": "manwe",
                     "providers_total": status.providers_total,
                     "providers_enabled": status.providers_enabled,
                     "providers_healthy": status.providers_healthy,
@@ -144,7 +144,7 @@ async fn health(State(service): State<CharonService>) -> impl IntoResponse {
             StatusCode::SERVICE_UNAVAILABLE,
             Json(json!({
                 "ok": false,
-                "service": "charon",
+                "service": "manwe",
                 "error": err.to_string(),
             })),
         )
@@ -152,7 +152,7 @@ async fn health(State(service): State<CharonService>) -> impl IntoResponse {
     }
 }
 
-async fn provider_capabilities(State(service): State<CharonService>) -> impl IntoResponse {
+async fn provider_capabilities(State(service): State<ManweService>) -> impl IntoResponse {
     map_result_async(async move {
         Ok(json!({
             "ok": true,
@@ -162,7 +162,7 @@ async fn provider_capabilities(State(service): State<CharonService>) -> impl Int
     .await
 }
 
-async fn provider_candidates(State(service): State<CharonService>) -> impl IntoResponse {
+async fn provider_candidates(State(service): State<ManweService>) -> impl IntoResponse {
     Json(json!({
         "ok": true,
         "promotion_guard": service.provider_promotion_guard_view()
@@ -173,142 +173,142 @@ async fn provider_candidates(State(service): State<CharonService>) -> impl IntoR
 // `/status` route exposes. Hand-rendered to avoid pulling in the `prometheus`
 // crate just for a liveness/coarse-state probe — the heavy metrics live on
 // Arda-orchestrator :9101.
-async fn metrics(State(service): State<CharonService>) -> impl IntoResponse {
+async fn metrics(State(service): State<ManweService>) -> impl IntoResponse {
     let body = match service.status().await {
         Ok(s) => {
             let mut buf = String::with_capacity(1024);
             // ---- providers ----
-            buf.push_str("# HELP charon_providers_total Configured provider count\n");
-            buf.push_str("# TYPE charon_providers_total gauge\n");
-            buf.push_str(&format!("charon_providers_total {}\n", s.providers_total));
-            buf.push_str("# HELP charon_providers_enabled Provider count currently enabled\n");
-            buf.push_str("# TYPE charon_providers_enabled gauge\n");
+            buf.push_str("# HELP manwe_providers_total Configured provider count\n");
+            buf.push_str("# TYPE manwe_providers_total gauge\n");
+            buf.push_str(&format!("manwe_providers_total {}\n", s.providers_total));
+            buf.push_str("# HELP manwe_providers_enabled Provider count currently enabled\n");
+            buf.push_str("# TYPE manwe_providers_enabled gauge\n");
             buf.push_str(&format!(
-                "charon_providers_enabled {}\n",
+                "manwe_providers_enabled {}\n",
                 s.providers_enabled
             ));
-            buf.push_str("# HELP charon_providers_healthy Provider count reporting healthy\n");
-            buf.push_str("# TYPE charon_providers_healthy gauge\n");
+            buf.push_str("# HELP manwe_providers_healthy Provider count reporting healthy\n");
+            buf.push_str("# TYPE manwe_providers_healthy gauge\n");
             buf.push_str(&format!(
-                "charon_providers_healthy {}\n",
+                "manwe_providers_healthy {}\n",
                 s.providers_healthy
             ));
-            buf.push_str("# HELP charon_providers_degraded Provider count reporting degraded\n");
-            buf.push_str("# TYPE charon_providers_degraded gauge\n");
+            buf.push_str("# HELP manwe_providers_degraded Provider count reporting degraded\n");
+            buf.push_str("# TYPE manwe_providers_degraded gauge\n");
             buf.push_str(&format!(
-                "charon_providers_degraded {}\n",
+                "manwe_providers_degraded {}\n",
                 s.providers_degraded
             ));
-            buf.push_str("# HELP charon_providers_exhausted Provider count exhausted by budget\n");
-            buf.push_str("# TYPE charon_providers_exhausted gauge\n");
+            buf.push_str("# HELP manwe_providers_exhausted Provider count exhausted by budget\n");
+            buf.push_str("# TYPE manwe_providers_exhausted gauge\n");
             buf.push_str(&format!(
-                "charon_providers_exhausted {}\n",
+                "manwe_providers_exhausted {}\n",
                 s.providers_exhausted
             ));
-            buf.push_str("# HELP charon_providers_in_cooldown Provider count in cooldown\n");
-            buf.push_str("# TYPE charon_providers_in_cooldown gauge\n");
+            buf.push_str("# HELP manwe_providers_in_cooldown Provider count in cooldown\n");
+            buf.push_str("# TYPE manwe_providers_in_cooldown gauge\n");
             buf.push_str(&format!(
-                "charon_providers_in_cooldown {}\n",
+                "manwe_providers_in_cooldown {}\n",
                 s.providers_in_cooldown
             ));
-            buf.push_str("# HELP charon_provider_state_count Provider count by mutually-exclusive operational state\n");
-            buf.push_str("# TYPE charon_provider_state_count gauge\n");
+            buf.push_str("# HELP manwe_provider_state_count Provider count by mutually-exclusive operational state\n");
+            buf.push_str("# TYPE manwe_provider_state_count gauge\n");
             for (state, count) in &s.provider_state_counts {
                 buf.push_str(&format!(
-                    "charon_provider_state_count{{state=\"{}\"}} {}\n",
+                    "manwe_provider_state_count{{state=\"{}\"}} {}\n",
                     prometheus_escape_label_value(state),
                     count
                 ));
             }
             // ---- routing ----
-            buf.push_str("# HELP charon_recent_route_successes Recent successful routes\n");
-            buf.push_str("# TYPE charon_recent_route_successes gauge\n");
+            buf.push_str("# HELP manwe_recent_route_successes Recent successful routes\n");
+            buf.push_str("# TYPE manwe_recent_route_successes gauge\n");
             buf.push_str(&format!(
-                "charon_recent_route_successes {}\n",
+                "manwe_recent_route_successes {}\n",
                 s.recent_route_successes
             ));
-            buf.push_str("# HELP charon_recent_route_failures Recent failed routes\n");
-            buf.push_str("# TYPE charon_recent_route_failures gauge\n");
+            buf.push_str("# HELP manwe_recent_route_failures Recent failed routes\n");
+            buf.push_str("# TYPE manwe_recent_route_failures gauge\n");
             buf.push_str(&format!(
-                "charon_recent_route_failures {}\n",
+                "manwe_recent_route_failures {}\n",
                 s.recent_route_failures
             ));
             buf.push_str(
-                "# HELP charon_recent_local_fallback_routes Recent local-fallback routes\n",
+                "# HELP manwe_recent_local_fallback_routes Recent local-fallback routes\n",
             );
-            buf.push_str("# TYPE charon_recent_local_fallback_routes gauge\n");
+            buf.push_str("# TYPE manwe_recent_local_fallback_routes gauge\n");
             buf.push_str(&format!(
-                "charon_recent_local_fallback_routes {}\n",
+                "manwe_recent_local_fallback_routes {}\n",
                 s.recent_local_fallback_routes
             ));
             // ---- state hygiene ----
             buf.push_str(
-                "# HELP charon_malformed_state_events Malformed state-log entries observed\n",
+                "# HELP manwe_malformed_state_events Malformed state-log entries observed\n",
             );
-            buf.push_str("# TYPE charon_malformed_state_events gauge\n");
+            buf.push_str("# TYPE manwe_malformed_state_events gauge\n");
             buf.push_str(&format!(
-                "charon_malformed_state_events {}\n",
+                "manwe_malformed_state_events {}\n",
                 s.malformed_state_events
             ));
-            buf.push_str("# HELP charon_malformed_governance_events Malformed governance-log entries observed\n");
-            buf.push_str("# TYPE charon_malformed_governance_events gauge\n");
+            buf.push_str("# HELP manwe_malformed_governance_events Malformed governance-log entries observed\n");
+            buf.push_str("# TYPE manwe_malformed_governance_events gauge\n");
             buf.push_str(&format!(
-                "charon_malformed_governance_events {}\n",
+                "manwe_malformed_governance_events {}\n",
                 s.malformed_governance_events
             ));
             // ---- budget pressure rollup ----
-            buf.push_str("# HELP charon_budget_pressure_warning Provider count with warning-level budget pressure\n");
-            buf.push_str("# TYPE charon_budget_pressure_warning gauge\n");
+            buf.push_str("# HELP manwe_budget_pressure_warning Provider count with warning-level budget pressure\n");
+            buf.push_str("# TYPE manwe_budget_pressure_warning gauge\n");
             buf.push_str(&format!(
-                "charon_budget_pressure_warning {}\n",
+                "manwe_budget_pressure_warning {}\n",
                 s.budget_pressure.warning_total
             ));
-            buf.push_str("# HELP charon_budget_pressure_critical Provider count with critical-level budget pressure\n");
-            buf.push_str("# TYPE charon_budget_pressure_critical gauge\n");
+            buf.push_str("# HELP manwe_budget_pressure_critical Provider count with critical-level budget pressure\n");
+            buf.push_str("# TYPE manwe_budget_pressure_critical gauge\n");
             buf.push_str(&format!(
-                "charon_budget_pressure_critical {}\n",
+                "manwe_budget_pressure_critical {}\n",
                 s.budget_pressure.critical_total
             ));
-            buf.push_str("# HELP charon_budget_pressure_cooldown Provider count in cooldown\n");
-            buf.push_str("# TYPE charon_budget_pressure_cooldown gauge\n");
+            buf.push_str("# HELP manwe_budget_pressure_cooldown Provider count in cooldown\n");
+            buf.push_str("# TYPE manwe_budget_pressure_cooldown gauge\n");
             buf.push_str(&format!(
-                "charon_budget_pressure_cooldown {}\n",
+                "manwe_budget_pressure_cooldown {}\n",
                 s.budget_pressure.cooldown_total
             ));
             buf.push_str(
-                "# HELP charon_budget_pressure_exhausted Provider count exhausted in this window\n",
+                "# HELP manwe_budget_pressure_exhausted Provider count exhausted in this window\n",
             );
-            buf.push_str("# TYPE charon_budget_pressure_exhausted gauge\n");
+            buf.push_str("# TYPE manwe_budget_pressure_exhausted gauge\n");
             buf.push_str(&format!(
-                "charon_budget_pressure_exhausted {}\n",
+                "manwe_budget_pressure_exhausted {}\n",
                 s.budget_pressure.exhausted_total
             ));
             // ---- runtime build cache ----
-            buf.push_str("# HELP charon_runtime_build_cache_observed_bytes Bytes observed in runtime build cache\n");
-            buf.push_str("# TYPE charon_runtime_build_cache_observed_bytes gauge\n");
+            buf.push_str("# HELP manwe_runtime_build_cache_observed_bytes Bytes observed in runtime build cache\n");
+            buf.push_str("# TYPE manwe_runtime_build_cache_observed_bytes gauge\n");
             buf.push_str(&format!(
-                "charon_runtime_build_cache_observed_bytes {}\n",
+                "manwe_runtime_build_cache_observed_bytes {}\n",
                 s.runtime_build_cache_observed_bytes
             ));
-            buf.push_str("# HELP charon_runtime_build_cache_removed_bytes Bytes removed by runtime build cache compactor\n");
-            buf.push_str("# TYPE charon_runtime_build_cache_removed_bytes counter\n");
+            buf.push_str("# HELP manwe_runtime_build_cache_removed_bytes Bytes removed by runtime build cache compactor\n");
+            buf.push_str("# TYPE manwe_runtime_build_cache_removed_bytes counter\n");
             buf.push_str(&format!(
-                "charon_runtime_build_cache_removed_bytes {}\n",
+                "manwe_runtime_build_cache_removed_bytes {}\n",
                 s.runtime_build_cache_removed_bytes
             ));
             // ---- liveness ----
-            buf.push_str("# HELP charon_up 1 if Charon /status responded successfully\n");
-            buf.push_str("# TYPE charon_up gauge\n");
-            buf.push_str("charon_up 1\n");
-            buf.push_str("# HELP charon_alerts_total Active alert count from /status\n");
-            buf.push_str("# TYPE charon_alerts_total gauge\n");
-            buf.push_str(&format!("charon_alerts_total {}\n", s.alerts.len()));
+            buf.push_str("# HELP manwe_up 1 if Manwe /status responded successfully\n");
+            buf.push_str("# TYPE manwe_up gauge\n");
+            buf.push_str("manwe_up 1\n");
+            buf.push_str("# HELP manwe_alerts_total Active alert count from /status\n");
+            buf.push_str("# TYPE manwe_alerts_total gauge\n");
+            buf.push_str(&format!("manwe_alerts_total {}\n", s.alerts.len()));
             // ---- in-process counters/histograms (route picks, failures,
             //      streaming chunk errors, proxy latency) ----
             buf.push_str(&service.metrics().render_prometheus());
             buf
         }
-        Err(_) => "charon_up 0\n".to_string(),
+        Err(_) => "manwe_up 0\n".to_string(),
     };
     (
         StatusCode::OK,
@@ -320,7 +320,7 @@ async fn metrics(State(service): State<CharonService>) -> impl IntoResponse {
     )
 }
 
-async fn state(State(service): State<CharonService>) -> impl IntoResponse {
+async fn state(State(service): State<ManweService>) -> impl IntoResponse {
     map_result_async(async move { Ok(json!({"ok": true, "state": service.state().await?})) }).await
 }
 
@@ -337,7 +337,7 @@ struct ProvidersQuery {
 }
 
 async fn providers(
-    State(service): State<CharonService>,
+    State(service): State<ManweService>,
     Query(query): Query<ProvidersQuery>,
 ) -> impl IntoResponse {
     map_result_async(async move {
@@ -395,7 +395,7 @@ struct ProbeRequest {
 }
 
 async fn probe(
-    State(service): State<CharonService>,
+    State(service): State<ManweService>,
     Json(req): Json<ProbeRequest>,
 ) -> impl IntoResponse {
     map_result_async(async move {
@@ -432,7 +432,7 @@ async fn probe(
                 .iter()
                 .find(|provider| provider.id == provider_id)
                 .ok_or_else(|| ArdaError::Agent {
-                    agent: "charon".to_string(),
+                    agent: "manwe".to_string(),
                     message: format!("unknown probe provider `{provider_id}`"),
                 })?;
             if let Some(throttle) =
@@ -473,7 +473,7 @@ async fn probe(
             if model == "auto" {
                 model = default_probe_model_for_provider(&providers_snapshot, provider_id)
                     .ok_or_else(|| ArdaError::Agent {
-                    agent: "charon".to_string(),
+                    agent: "manwe".to_string(),
                     message: format!(
                         "no healthy chat model available for probe provider `{provider_id}`"
                     ),
@@ -487,7 +487,7 @@ async fn probe(
             "messages": [
                 {
                     "role": "system",
-                    "content": "You are answering a Charon health probe. Keep the response terse."
+                    "content": "You are answering a Manwe health probe. Keep the response terse."
                 },
                 {
                     "role": "user",
@@ -496,9 +496,9 @@ async fn probe(
             ],
             "max_tokens": max_tokens,
             "stream": false,
-            "agent_id": "charon_probe",
+            "agent_id": "manwe_probe",
             "routing": {
-                "agent_id": "charon_probe"
+                "agent_id": "manwe_probe"
             },
             "prefer_probe_model": true,
             "execution_lane": lane,
@@ -610,7 +610,7 @@ async fn probe(
             let content = probe_response_text(&response);
             let marker_found = probe_marker_found(&content, marker);
             let route = response
-                .get("_charon_route")
+                .get("_manwe_route")
                 .cloned()
                 .unwrap_or_else(|| json!({}));
             let provider_id = route
@@ -980,9 +980,9 @@ fn cooldown_remaining_seconds(cooldown_until_utc: Option<&str>) -> Option<i64> {
 
 fn probe_failure_throttle_seconds(provider: &ProviderState) -> i64 {
     let env_key = if provider.access_tier.contains("paid") {
-        "ARDA_CHARON_PROBE_PAID_FAILURE_THROTTLE_SECONDS"
+        "ARDA_MANWE_PROBE_PAID_FAILURE_THROTTLE_SECONDS"
     } else {
-        "ARDA_CHARON_PROBE_FAILURE_THROTTLE_SECONDS"
+        "ARDA_MANWE_PROBE_FAILURE_THROTTLE_SECONDS"
     };
     std::env::var(env_key)
         .ok()
@@ -998,7 +998,7 @@ fn probe_failure_throttle_seconds(provider: &ProviderState) -> i64 {
 }
 
 fn probe_recent_event_limit() -> usize {
-    std::env::var("ARDA_CHARON_PROBE_RECENT_EVENT_LIMIT")
+    std::env::var("ARDA_MANWE_PROBE_RECENT_EVENT_LIMIT")
         .ok()
         .and_then(|value| value.parse::<usize>().ok())
         .filter(|value| *value > 0)
@@ -1094,7 +1094,7 @@ fn classify_probe_failure_text(error: &str) -> String {
     }
 }
 
-async fn route_history(State(service): State<CharonService>) -> impl IntoResponse {
+async fn route_history(State(service): State<ManweService>) -> impl IntoResponse {
     Json(json!({
         "ok": true,
         "routes": service.route_history(100).await
@@ -1102,8 +1102,8 @@ async fn route_history(State(service): State<CharonService>) -> impl IntoRespons
 }
 
 async fn route(
-    State(service): State<CharonService>,
-    Json(req): Json<CharonRequestEnvelope>,
+    State(service): State<ManweService>,
+    Json(req): Json<ManweRequestEnvelope>,
 ) -> impl IntoResponse {
     map_result_async(async move {
         Ok(json!({"ok": true, "decision": service.route_preview(req).await?}))
@@ -1112,8 +1112,8 @@ async fn route(
 }
 
 async fn proxy(
-    State(service): State<CharonService>,
-    Json(req): Json<CharonRequestEnvelope>,
+    State(service): State<ManweService>,
+    Json(req): Json<ManweRequestEnvelope>,
 ) -> impl IntoResponse {
     map_result_async(async move { service.proxy_openai(req).await }).await
 }
@@ -1138,7 +1138,7 @@ struct ModelStreamingValidationRequest {
 }
 
 async fn provider_result(
-    State(service): State<CharonService>,
+    State(service): State<ManweService>,
     Json(req): Json<ProviderResultRequest>,
 ) -> impl IntoResponse {
     map_result_async(async move {
@@ -1151,7 +1151,7 @@ async fn provider_result(
 }
 
 async fn model_streaming_validation(
-    State(service): State<CharonService>,
+    State(service): State<ManweService>,
     Json(req): Json<ModelStreamingValidationRequest>,
 ) -> impl IntoResponse {
     map_result_async(async move {
@@ -1168,24 +1168,24 @@ async fn model_streaming_validation(
     .await
 }
 
-async fn reload_config(State(service): State<CharonService>) -> impl IntoResponse {
+async fn reload_config(State(service): State<ManweService>) -> impl IntoResponse {
     map_result_async(async move { service.reload_provider_config().await }).await
 }
 
-async fn reconcile_catalogs(State(service): State<CharonService>) -> impl IntoResponse {
+async fn reconcile_catalogs(State(service): State<ManweService>) -> impl IntoResponse {
     map_result_async(async move { service.reconcile_provider_catalogs().await }).await
 }
 
-async fn observability(State(service): State<CharonService>) -> impl IntoResponse {
+async fn observability(State(service): State<ManweService>) -> impl IntoResponse {
     map_result_async(async move { service.route_observability_rollup().await }).await
 }
 
-async fn paths(State(service): State<CharonService>) -> impl IntoResponse {
+async fn paths(State(service): State<ManweService>) -> impl IntoResponse {
     Json(json!({"ok": true, "paths": service.paths()}))
 }
 
 async fn events(
-    State(service): State<CharonService>,
+    State(service): State<ManweService>,
 ) -> Sse<impl Stream<Item = std::result::Result<Event, Infallible>>> {
     let stream = IntervalStream::new(tokio::time::interval(std::time::Duration::from_secs(5))).map(
         move |_| {
@@ -1201,7 +1201,7 @@ async fn events(
     Sse::new(stream.then(|fut| fut)).keep_alive(KeepAlive::default())
 }
 
-async fn openai_models(State(service): State<CharonService>) -> impl IntoResponse {
+async fn openai_models(State(service): State<ManweService>) -> impl IntoResponse {
     let providers = service
         .providers()
         .await
@@ -1212,7 +1212,7 @@ async fn openai_models(State(service): State<CharonService>) -> impl IntoRespons
     data.push(json!({
         "id": "auto",
         "object": "model",
-        "owned_by": "charon",
+        "owned_by": "manwe",
         "created": 0
     }));
     for provider in providers {
@@ -1478,7 +1478,7 @@ fn hermes_bridge_metadata(provider: &ProviderState) -> Value {
             "provider": provider.hermes_provider,
             "base_url": provider.base_url,
             "readiness": if provider.enabled { "uses_hermes_auth_store" } else { "disabled" },
-            "latency_strategy": "Charon pooled HTTP client to Codex Responses API; no hermes CLI subprocess"
+            "latency_strategy": "Manwe pooled HTTP client to Codex Responses API; no hermes CLI subprocess"
         }),
         _ => json!({
             "type": provider.driver,
@@ -1620,7 +1620,7 @@ fn visible_provider_catalog_models(provider_id: &str, models: &[ModelState]) -> 
 }
 
 async fn openai_chat_completions(
-    State(service): State<CharonService>,
+    State(service): State<ManweService>,
     headers: HeaderMap,
     Json(body): Json<Value>,
 ) -> Response {
@@ -1648,12 +1648,12 @@ async fn openai_chat_completions(
                         .header(axum::http::header::CONTENT_TYPE, "text/event-stream")
                         .header(axum::http::header::CACHE_CONTROL, "no-cache")
                         .header(axum::http::header::CONNECTION, "keep-alive")
-                        .header("x-charon-route-id", outcome.route_id.as_str())
-                        .header("x-charon-provider-id", outcome.provider_id.as_str())
-                        .header("x-charon-model-id", outcome.model_id.as_str())
-                        .header("x-charon-route-class", outcome.route_class.as_str())
-                        .header("x-charon-execution-lane", outcome.execution_lane.as_str())
-                        .header("x-charon-stream-emulated", "true")
+                        .header("x-manwe-route-id", outcome.route_id.as_str())
+                        .header("x-manwe-provider-id", outcome.provider_id.as_str())
+                        .header("x-manwe-model-id", outcome.model_id.as_str())
+                        .header("x-manwe-route-class", outcome.route_class.as_str())
+                        .header("x-manwe-execution-lane", outcome.execution_lane.as_str())
+                        .header("x-manwe-stream-emulated", "true")
                         .body(Body::from(sse_body))
                         .unwrap_or_else(|_| {
                             openai_error(
@@ -1704,11 +1704,11 @@ async fn openai_chat_completions(
                     .header(axum::http::header::CONTENT_TYPE, content_type)
                     .header(axum::http::header::CACHE_CONTROL, "no-cache")
                     .header(axum::http::header::CONNECTION, "keep-alive")
-                    .header("x-charon-route-id", route_id.as_str())
-                    .header("x-charon-provider-id", provider_header.as_str())
-                    .header("x-charon-model-id", model_header.as_str())
-                    .header("x-charon-route-class", route_class_header.as_str())
-                    .header("x-charon-execution-lane", execution_lane_header.as_str())
+                    .header("x-manwe-route-id", route_id.as_str())
+                    .header("x-manwe-provider-id", provider_header.as_str())
+                    .header("x-manwe-model-id", model_header.as_str())
+                    .header("x-manwe-route-class", route_class_header.as_str())
+                    .header("x-manwe-execution-lane", execution_lane_header.as_str())
                     .body(Body::from_stream(byte_stream))
                     .unwrap_or_else(|_| {
                         openai_error(
@@ -1735,13 +1735,13 @@ async fn openai_chat_completions(
                 Json(response_payload),
             )
                 .into_response();
-            insert_charon_route_header(&mut response, "x-charon-route-id", &outcome.route_id);
-            insert_charon_route_header(&mut response, "x-charon-provider-id", &outcome.provider_id);
-            insert_charon_route_header(&mut response, "x-charon-model-id", &outcome.model_id);
-            insert_charon_route_header(&mut response, "x-charon-route-class", &outcome.route_class);
-            insert_charon_route_header(
+            insert_manwe_route_header(&mut response, "x-manwe-route-id", &outcome.route_id);
+            insert_manwe_route_header(&mut response, "x-manwe-provider-id", &outcome.provider_id);
+            insert_manwe_route_header(&mut response, "x-manwe-model-id", &outcome.model_id);
+            insert_manwe_route_header(&mut response, "x-manwe-route-class", &outcome.route_class);
+            insert_manwe_route_header(
                 &mut response,
-                "x-charon-execution-lane",
+                "x-manwe-execution-lane",
                 &outcome.execution_lane,
             );
             response
@@ -1750,8 +1750,8 @@ async fn openai_chat_completions(
     }
 }
 
-fn should_emulate_streaming_tool_response(req: &CharonRequestEnvelope) -> bool {
-    let enabled = std::env::var("ARDA_CHARON_EMULATE_TOOL_STREAMING")
+fn should_emulate_streaming_tool_response(req: &ManweRequestEnvelope) -> bool {
+    let enabled = std::env::var("ARDA_MANWE_EMULATE_TOOL_STREAMING")
         .ok()
         .map(|value| !matches!(value.trim(), "0" | "false" | "FALSE" | "off" | "OFF"))
         .unwrap_or(true);
@@ -1767,11 +1767,11 @@ fn openai_completion_to_sse(response: &Value) -> String {
     let id = response
         .get("id")
         .and_then(Value::as_str)
-        .unwrap_or("chatcmpl-charon-emulated");
+        .unwrap_or("chatcmpl-manwe-emulated");
     let model = response
         .get("model")
         .and_then(Value::as_str)
-        .unwrap_or("charon-emulated");
+        .unwrap_or("manwe-emulated");
     let message = response
         .get("choices")
         .and_then(Value::as_array)
@@ -1822,7 +1822,7 @@ fn openai_completion_to_sse(response: &Value) -> String {
     format!("data: {chunk}\n\ndata: {final_chunk}\n\ndata: [DONE]\n\n")
 }
 
-fn insert_charon_route_header(response: &mut Response, name: &'static str, value: &str) {
+fn insert_manwe_route_header(response: &mut Response, name: &'static str, value: &str) {
     if value.trim().is_empty() {
         return;
     }
@@ -1833,7 +1833,7 @@ fn insert_charon_route_header(response: &mut Response, name: &'static str, value
 
 fn streaming_upstream_chunk_to_downstream_chunk_with_feedback(
     result: std::result::Result<Bytes, reqwest::Error>,
-    service: &CharonService,
+    service: &ManweService,
     provider_id: &str,
     model_id: &str,
     marked: &std::sync::Arc<std::sync::atomic::AtomicBool>,
@@ -1924,7 +1924,7 @@ fn streaming_strip_reasoning_enabled(body: &Value) -> Option<bool> {
         })
 }
 
-fn streaming_strip_reasoning_default(req: &CharonRequestEnvelope) -> bool {
+fn streaming_strip_reasoning_default(req: &ManweRequestEnvelope) -> bool {
     req.task_type == "code"
         || req
             .options
@@ -2042,17 +2042,17 @@ where
 }
 
 async fn openai_body_to_envelope(
-    service: &CharonService,
+    service: &ManweService,
     body: &Value,
-) -> Result<CharonRequestEnvelope> {
+) -> Result<ManweRequestEnvelope> {
     openai_body_to_envelope_with_headers(service, body, None).await
 }
 
 async fn openai_body_to_envelope_with_headers(
-    service: &CharonService,
+    service: &ManweService,
     body: &Value,
     headers: Option<&HeaderMap>,
-) -> Result<CharonRequestEnvelope> {
+) -> Result<ManweRequestEnvelope> {
     let messages = body
         .get("messages")
         .and_then(Value::as_array)
@@ -2362,7 +2362,7 @@ async fn openai_body_to_envelope_with_headers(
         })
         .or_else(|| {
             headers.and_then(|headers| {
-                header_str(headers, "x-charon-agent-id")
+                header_str(headers, "x-manwe-agent-id")
                     .or_else(|| header_str(headers, "x-arda-agent-id"))
             })
         })
@@ -2370,13 +2370,13 @@ async fn openai_body_to_envelope_with_headers(
         .to_string();
     let task_type = headers
         .and_then(|headers| {
-            header_str(headers, "x-charon-task-type")
+            header_str(headers, "x-manwe-task-type")
                 .or_else(|| header_str(headers, "x-arda-task-type"))
         })
         .map(str::to_string)
         .unwrap_or_else(|| infer_task_type(body, &messages));
 
-    Ok(CharonRequestEnvelope {
+    Ok(ManweRequestEnvelope {
         agent_id,
         task_type,
         priority: "normal".to_string(),
@@ -2387,40 +2387,40 @@ async fn openai_body_to_envelope_with_headers(
 
 fn apply_openai_route_headers(headers: &HeaderMap, options: &mut Value) {
     for (header, option) in [
-        ("x-charon-workload-role", "workload_role"),
-        ("x-charon-context-priority", "context_priority"),
-        ("x-charon-quality-priority", "quality_priority"),
-        ("x-charon-cost-policy", "cost_policy"),
-        ("x-charon-privacy-requirement", "privacy_requirement"),
-        ("x-charon-inference-origin", "inference_origin"),
-        ("x-charon-origin-preference", "origin_preference"),
-        ("x-charon-execution-lane", "execution_lane"),
-        ("x-charon-force-provider-id", "force_provider_id"),
-        ("x-charon-force-model-id", "force_model_id"),
-        ("x-charon-source-surface", "source_surface"),
-        ("x-charon-harness", "harness"),
-        ("x-charon-governance-method", "governance_method"),
-        ("x-charon-philosopher-method", "philosopher_method"),
-        ("x-charon-governance-philosopher", "governance_philosopher"),
-        ("x-charon-philosopher-lens", "philosopher_lens"),
-        ("x-charon-governance-chain-id", "governance_chain_id"),
+        ("x-manwe-workload-role", "workload_role"),
+        ("x-manwe-context-priority", "context_priority"),
+        ("x-manwe-quality-priority", "quality_priority"),
+        ("x-manwe-cost-policy", "cost_policy"),
+        ("x-manwe-privacy-requirement", "privacy_requirement"),
+        ("x-manwe-inference-origin", "inference_origin"),
+        ("x-manwe-origin-preference", "origin_preference"),
+        ("x-manwe-execution-lane", "execution_lane"),
+        ("x-manwe-force-provider-id", "force_provider_id"),
+        ("x-manwe-force-model-id", "force_model_id"),
+        ("x-manwe-source-surface", "source_surface"),
+        ("x-manwe-harness", "harness"),
+        ("x-manwe-governance-method", "governance_method"),
+        ("x-manwe-philosopher-method", "philosopher_method"),
+        ("x-manwe-governance-philosopher", "governance_philosopher"),
+        ("x-manwe-philosopher-lens", "philosopher_lens"),
+        ("x-manwe-governance-chain-id", "governance_chain_id"),
     ] {
         if let Some(value) = header_str(headers, header) {
             options[option] = Value::String(value.to_string());
         }
     }
 
-    if let Some(value) = header_str(headers, "x-charon-route-class") {
+    if let Some(value) = header_str(headers, "x-manwe-route-class") {
         options["route_class"] = Value::String(value.to_string());
     }
-    if let Some(value) = header_str(headers, "x-charon-context-window-target")
+    if let Some(value) = header_str(headers, "x-manwe-context-window-target")
         .or_else(|| header_str(headers, "x-arda-context-window-target"))
     {
         if let Ok(target) = value.parse::<u64>() {
             options["context_window_target"] = Value::Number(target.into());
         }
     }
-    if let Some(value) = header_str(headers, "x-charon-tool-use-required") {
+    if let Some(value) = header_str(headers, "x-manwe-tool-use-required") {
         if let Ok(required) = value.parse::<bool>() {
             options["tool_use_required"] = Value::Bool(required);
         }
@@ -2611,11 +2611,11 @@ fn infer_task_type(body: &Value, messages: &[Value]) -> String {
 }
 
 async fn resolve_requested_model(
-    service: &CharonService,
+    service: &ManweService,
     requested_model: &str,
 ) -> Result<Option<(String, String)>> {
     let trimmed = requested_model.trim();
-    if trimmed.is_empty() || matches!(trimmed, "auto" | "default" | "charon/auto") {
+    if trimmed.is_empty() || matches!(trimmed, "auto" | "default" | "manwe/auto") {
         return Ok(None);
     }
 
@@ -2639,7 +2639,7 @@ async fn resolve_requested_model(
     }
     if advertised_matches.len() > 1 {
         return Err(ArdaError::Agent {
-            agent: "charon".to_string(),
+            agent: "manwe".to_string(),
             message: format!(
                 "requested model `{trimmed}` is ambiguous; use a more specific model id"
             ),
@@ -2651,7 +2651,7 @@ async fn resolve_requested_model(
             .iter()
             .find(|provider| provider.id == provider_id)
             .ok_or_else(|| ArdaError::Agent {
-                agent: "charon".to_string(),
+                agent: "manwe".to_string(),
                 message: format!("unknown provider `{provider_id}` in requested model `{trimmed}`"),
             })?;
         let model = provider
@@ -2659,14 +2659,14 @@ async fn resolve_requested_model(
             .iter()
             .find(|model| model.id == model_id)
             .ok_or_else(|| ArdaError::Agent {
-                agent: "charon".to_string(),
+                agent: "manwe".to_string(),
                 message: format!("unknown model `{model_id}` for provider `{provider_id}`"),
             })?;
         return Ok(Some((provider.id.clone(), model.id.clone())));
     }
 
     Err(ArdaError::Agent {
-        agent: "charon".to_string(),
+        agent: "manwe".to_string(),
         message: format!("requested model `{trimmed}` was not found"),
     })
 }
@@ -2677,14 +2677,14 @@ fn openai_error(status: StatusCode, message: &str) -> Response {
         Json(json!({
             "error": {
                 "message": message,
-                "type": "charon_error"
+                "type": "manwe_error"
             }
         })),
     )
         .into_response()
 }
 
-async fn build_event_payload(service: &CharonService) -> Result<Value> {
+async fn build_event_payload(service: &ManweService) -> Result<Value> {
     let status = service.status().await?;
     let providers = service.providers().await;
     let recent_events = service.recent_state_events(12);
@@ -2759,7 +2759,7 @@ async fn build_event_payload(service: &CharonService) -> Result<Value> {
 
     Ok(json!({
         "ok": true,
-        "stream_version": "charon.events.v2",
+        "stream_version": "manwe.events.v2",
         "generated_at_utc": chrono::Utc::now().to_rfc3339(),
         "status": status,
         "routing": {
@@ -2798,8 +2798,8 @@ mod tests {
         openai_completion_to_sse, should_emulate_streaming_tool_response, strip_reasoning_fields,
         visible_provider_catalog_models,
     };
-    use crate::types::{CharonRequestEnvelope, ModelState, ProviderState};
-    use crate::CharonService;
+    use crate::types::{ManweRequestEnvelope, ModelState, ProviderState};
+    use crate::ManweService;
     use axum::body::to_bytes;
     use axum::extract::State;
     use axum::http::{HeaderMap, StatusCode};
@@ -3154,7 +3154,7 @@ mod tests {
             probe_test_provider("opencode", "free_cloud"),
             probe_test_provider("openrouter", "mixed"),
         ];
-        let error = "Agent error: charon — provider opencode HTTP 401: invalid credentials";
+        let error = "Agent error: manwe — provider opencode HTTP 401: invalid credentials";
 
         let provider_id = super::probe_error_provider_id(error, &providers);
 
@@ -3211,10 +3211,10 @@ mod tests {
             ),
         )
         .expect("state write");
-        let service = CharonService::new(dir.path()).expect("service");
+        let service = ManweService::new(dir.path()).expect("service");
 
         let payload = build_event_payload(&service).await.expect("payload");
-        assert_eq!(payload["stream_version"], "charon.events.v2");
+        assert_eq!(payload["stream_version"], "manwe.events.v2");
         assert!(payload["provider_pool"]["providers"]
             .as_array()
             .is_some_and(|providers| !providers.is_empty()));
@@ -3239,7 +3239,7 @@ mod tests {
     #[tokio::test]
     async fn openai_tool_requests_default_to_execution_and_balanced_cost() {
         let dir = tempdir().expect("tempdir");
-        let service = CharonService::new(dir.path()).expect("service");
+        let service = ManweService::new(dir.path()).expect("service");
 
         let req = openai_body_to_envelope(
             &service,
@@ -3266,7 +3266,7 @@ mod tests {
     #[tokio::test]
     async fn openai_available_tools_do_not_force_execution_route() {
         let dir = tempdir().expect("tempdir");
-        let service = CharonService::new(dir.path()).expect("service");
+        let service = ManweService::new(dir.path()).expect("service");
 
         let req = openai_body_to_envelope(
             &service,
@@ -3298,8 +3298,8 @@ mod tests {
     #[test]
     fn streaming_tool_turn_uses_emulation_gate() {
         let _guard = ENV_LOCK.lock().expect("env lock");
-        std::env::remove_var("ARDA_CHARON_EMULATE_TOOL_STREAMING");
-        let req = CharonRequestEnvelope {
+        std::env::remove_var("ARDA_MANWE_EMULATE_TOOL_STREAMING");
+        let req = ManweRequestEnvelope {
             agent_id: "hermes".to_string(),
             task_type: "code".to_string(),
             priority: "normal".to_string(),
@@ -3316,9 +3316,9 @@ mod tests {
 
         assert!(should_emulate_streaming_tool_response(&req));
 
-        std::env::set_var("ARDA_CHARON_EMULATE_TOOL_STREAMING", "false");
+        std::env::set_var("ARDA_MANWE_EMULATE_TOOL_STREAMING", "false");
         assert!(!should_emulate_streaming_tool_response(&req));
-        std::env::remove_var("ARDA_CHARON_EMULATE_TOOL_STREAMING");
+        std::env::remove_var("ARDA_MANWE_EMULATE_TOOL_STREAMING");
     }
 
     #[test]
@@ -3354,7 +3354,7 @@ mod tests {
     #[tokio::test]
     async fn openai_tool_requests_preserve_explicit_local_origin() {
         let dir = tempdir().expect("tempdir");
-        let service = CharonService::new(dir.path()).expect("service");
+        let service = ManweService::new(dir.path()).expect("service");
 
         let req = openai_body_to_envelope(
             &service,
@@ -3380,7 +3380,7 @@ mod tests {
     #[tokio::test]
     async fn openai_tool_requests_keep_explicit_free_pool_strategy() {
         let dir = tempdir().expect("tempdir");
-        let service = CharonService::new(dir.path()).expect("service");
+        let service = ManweService::new(dir.path()).expect("service");
 
         let req = openai_body_to_envelope(
             &service,
@@ -3404,7 +3404,7 @@ mod tests {
     #[tokio::test]
     async fn openai_tool_requests_preserve_governance_method_metadata() {
         let dir = tempdir().expect("tempdir");
-        let service = CharonService::new(dir.path()).expect("service");
+        let service = ManweService::new(dir.path()).expect("service");
 
         let req = openai_body_to_envelope(
             &service,
@@ -3434,7 +3434,7 @@ mod tests {
     #[tokio::test]
     async fn openai_nested_routing_preserves_exclusion_metadata() {
         let dir = tempdir().expect("tempdir");
-        let service = CharonService::new(dir.path()).expect("service");
+        let service = ManweService::new(dir.path()).expect("service");
 
         let req = openai_body_to_envelope(
             &service,
@@ -3492,7 +3492,7 @@ mod tests {
     #[tokio::test]
     async fn openai_hermes_skill_metadata_defaults_to_execution_and_balanced_cost() {
         let dir = tempdir().expect("tempdir");
-        let service = CharonService::new(dir.path()).expect("service");
+        let service = ManweService::new(dir.path()).expect("service");
 
         let req = openai_body_to_envelope(
             &service,
@@ -3526,7 +3526,7 @@ mod tests {
     #[tokio::test]
     async fn openai_extra_body_routing_metadata_overrides_tool_defaults() {
         let dir = tempdir().expect("tempdir");
-        let service = CharonService::new(dir.path()).expect("service");
+        let service = ManweService::new(dir.path()).expect("service");
 
         let req = openai_body_to_envelope(
             &service,
@@ -3557,18 +3557,18 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn openai_charon_headers_set_route_metadata() {
+    async fn openai_manwe_headers_set_route_metadata() {
         let dir = tempdir().expect("tempdir");
-        let service = CharonService::new(dir.path()).expect("service");
+        let service = ManweService::new(dir.path()).expect("service");
         let mut headers = HeaderMap::new();
-        headers.insert("x-charon-agent-id", "hermes".parse().unwrap());
-        headers.insert("x-charon-task-type", "code".parse().unwrap());
-        headers.insert("x-charon-execution-lane", "execution".parse().unwrap());
-        headers.insert("x-charon-context-window-target", "64000".parse().unwrap());
-        headers.insert("x-charon-tool-use-required", "true".parse().unwrap());
-        headers.insert("x-charon-governance-method", "chain".parse().unwrap());
+        headers.insert("x-manwe-agent-id", "hermes".parse().unwrap());
+        headers.insert("x-manwe-task-type", "code".parse().unwrap());
+        headers.insert("x-manwe-execution-lane", "execution".parse().unwrap());
+        headers.insert("x-manwe-context-window-target", "64000".parse().unwrap());
+        headers.insert("x-manwe-tool-use-required", "true".parse().unwrap());
+        headers.insert("x-manwe-governance-method", "chain".parse().unwrap());
         headers.insert(
-            "x-charon-governance-chain-id",
+            "x-manwe-governance-chain-id",
             "default_triad".parse().unwrap(),
         );
 
@@ -3595,7 +3595,7 @@ mod tests {
     #[tokio::test]
     async fn openai_extra_body_preserves_forced_provider_and_model() {
         let dir = tempdir().expect("tempdir");
-        let service = CharonService::new(dir.path()).expect("service");
+        let service = ManweService::new(dir.path()).expect("service");
 
         let req = openai_body_to_envelope(
             &service,
@@ -3620,7 +3620,7 @@ mod tests {
     #[tokio::test]
     async fn openai_forced_route_skips_global_model_ambiguity() {
         let dir = tempdir().expect("tempdir");
-        let service = CharonService::new(dir.path()).expect("service");
+        let service = ManweService::new(dir.path()).expect("service");
 
         let req = openai_body_to_envelope(
             &service,
@@ -3642,25 +3642,25 @@ mod tests {
     fn http_request_limit_uses_env_when_valid_and_falls_back_otherwise() {
         let _guard = ENV_LOCK.lock().expect("env lock");
 
-        std::env::remove_var("ARDA_CHARON_HTTP_MAX_CONCURRENCY");
+        std::env::remove_var("ARDA_MANWE_HTTP_MAX_CONCURRENCY");
         assert_eq!(http_request_limit(), 24);
 
-        std::env::set_var("ARDA_CHARON_HTTP_MAX_CONCURRENCY", "64");
+        std::env::set_var("ARDA_MANWE_HTTP_MAX_CONCURRENCY", "64");
         assert_eq!(http_request_limit(), 64);
 
-        std::env::set_var("ARDA_CHARON_HTTP_MAX_CONCURRENCY", "0");
+        std::env::set_var("ARDA_MANWE_HTTP_MAX_CONCURRENCY", "0");
         assert_eq!(http_request_limit(), 24);
 
-        std::env::set_var("ARDA_CHARON_HTTP_MAX_CONCURRENCY", "invalid");
+        std::env::set_var("ARDA_MANWE_HTTP_MAX_CONCURRENCY", "invalid");
         assert_eq!(http_request_limit(), 24);
 
-        std::env::remove_var("ARDA_CHARON_HTTP_MAX_CONCURRENCY");
+        std::env::remove_var("ARDA_MANWE_HTTP_MAX_CONCURRENCY");
     }
 
     #[tokio::test]
     async fn openai_requested_model_reports_not_found_clearly() {
         let dir = tempdir().expect("tempdir");
-        let service = CharonService::new(dir.path()).expect("service");
+        let service = ManweService::new(dir.path()).expect("service");
 
         let err = openai_body_to_envelope(
             &service,
@@ -3680,7 +3680,7 @@ mod tests {
     #[tokio::test]
     async fn openai_requested_model_sets_forced_provider_and_model_for_exact_match() {
         let dir = tempdir().expect("tempdir");
-        let service = CharonService::new(dir.path()).expect("service");
+        let service = ManweService::new(dir.path()).expect("service");
 
         let req = openai_body_to_envelope(
             &service,
@@ -3699,7 +3699,7 @@ mod tests {
     #[tokio::test]
     async fn openai_body_to_envelope_preserves_stream_for_route_policy() {
         let dir = tempdir().expect("tempdir");
-        let service = CharonService::new(dir.path()).expect("service");
+        let service = ManweService::new(dir.path()).expect("service");
 
         let req = openai_body_to_envelope(
             &service,
@@ -3718,7 +3718,7 @@ mod tests {
     #[tokio::test]
     async fn openai_body_to_envelope_preserves_probe_model_preference() {
         let dir = tempdir().expect("tempdir");
-        let service = CharonService::new(dir.path()).expect("service");
+        let service = ManweService::new(dir.path()).expect("service");
 
         let req = openai_body_to_envelope(
             &service,
@@ -3738,7 +3738,7 @@ mod tests {
     #[tokio::test]
     async fn chat_completions_returns_bad_request_json_for_invalid_model() {
         let dir = tempdir().expect("tempdir");
-        let service = CharonService::new(dir.path()).expect("service");
+        let service = ManweService::new(dir.path()).expect("service");
 
         let response = openai_chat_completions(
             State(service),
@@ -3755,7 +3755,7 @@ mod tests {
             .await
             .expect("body bytes");
         let payload: Value = serde_json::from_slice(&body).expect("json body");
-        assert_eq!(payload["error"]["type"], "charon_error");
+        assert_eq!(payload["error"]["type"], "manwe_error");
         assert!(payload["error"]["message"]
             .as_str()
             .expect("error message")
@@ -3766,7 +3766,7 @@ mod tests {
     async fn chat_completions_forced_model_passthrough_returns_bad_gateway_on_upstream_failure() {
         let _guard = ENV_LOCK.lock().expect("env lock");
         let dir = tempdir().expect("tempdir");
-        let config_path = dir.path().join("charon.providers.toml");
+        let config_path = dir.path().join("manwe.providers.toml");
         fs::write(
             &config_path,
             r#"
@@ -3788,8 +3788,8 @@ quality_band = "high"
         )
         .expect("config write");
 
-        std::env::set_var("ARDA_CHARON_PROVIDER_CONFIG", &config_path);
-        let service = CharonService::new(dir.path()).expect("service");
+        std::env::set_var("ARDA_MANWE_PROVIDER_CONFIG", &config_path);
+        let service = ManweService::new(dir.path()).expect("service");
 
         let response = openai_chat_completions(
             State(service),
@@ -3801,14 +3801,14 @@ quality_band = "high"
         )
         .await;
 
-        std::env::remove_var("ARDA_CHARON_PROVIDER_CONFIG");
+        std::env::remove_var("ARDA_MANWE_PROVIDER_CONFIG");
 
         assert_eq!(response.status(), StatusCode::BAD_GATEWAY);
         let body = to_bytes(response.into_body(), usize::MAX)
             .await
             .expect("body bytes");
         let payload: Value = serde_json::from_slice(&body).expect("json body");
-        assert_eq!(payload["error"]["type"], "charon_error");
+        assert_eq!(payload["error"]["type"], "manwe_error");
         assert!(
             payload["error"]["message"]
                 .as_str()

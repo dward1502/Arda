@@ -199,7 +199,7 @@ export function createEmptyFleetViewModel(summary = ['Fleet projection unavailab
   return {
     ...emptyBase('fleet', 'Fleet', summary, [
       missingSource('operator_runtime_status', 'Operator Runtime Status', 'core/state/operator_runtime_status.json'),
-      missingSource('charon_router', 'Charon Router', 'core/state/charon_router.json'),
+      missingSource('charon_router', 'Charon Router', 'core/state/manwe_router.json'),
     ]),
     roleId: 'fleet',
     title: 'Fleet',

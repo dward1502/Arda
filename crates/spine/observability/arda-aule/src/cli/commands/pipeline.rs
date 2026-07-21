@@ -301,7 +301,7 @@ fn classify_flywheel_packet(task: &Value, latest: &BTreeMap<String, Value>, root
             missing_fields.push(field.to_string());
         }
     }
-    if harness == "hermes-agent-charon" {
+    if harness == "hermes-agent-manwe" {
         let target_missing = meta
             .get("target_node")
             .and_then(Value::as_str)
@@ -379,7 +379,7 @@ fn classify_flywheel_packet(task: &Value, latest: &BTreeMap<String, Value>, root
 fn flywheel_owner_allowed(owner: &str) -> bool {
     matches!(
         owner,
-        "prometheus" | "hades" | "apollo" | "hermes" | "charon"
+        "prometheus" | "hades" | "apollo" | "hermes" | "manwe"
     )
 }
 
@@ -445,7 +445,7 @@ fn flywheel_dispatch_receipt(
         "target_node": meta.get("target_node").cloned().unwrap_or(Value::Null),
         "harness": meta.get("harness").cloned().unwrap_or(Value::Null),
         "risk": meta.get("risk").cloned().unwrap_or(Value::Null),
-        "charon_route_intent": "hermes-agent bridge target uses configured Charon OpenAI-compatible base_url/model routing",
+        "manwe_route_intent": "hermes-agent bridge target uses configured Manwe OpenAI-compatible base_url/model routing",
         "prompt_sha1_12": prompt_digest,
         "dry_run": dry_run,
         "preflight": preflight,
@@ -886,7 +886,7 @@ fn run_async_user_intake_executor() -> anyhow::Result<Value> {
             "compare_and_extract"
                 | "productize_operator_surface"
                 | "athena_ingestion_policy"
-                | "charon_model_strategy"
+                | "manwe_model_strategy"
                 | "fetch_retry_or_hold"
         ) {
             Some(format!("route:{}", intake_route))
@@ -1871,7 +1871,7 @@ fn project_task_executor() -> anyhow::Result<Value> {
                 "source_absorption_pipeline" => (
                     "absorption_pipeline_autopilot",
                     "Absorption tasks promote into portfolio and downstream executor surfaces.",
-                    &["athena", "prometheus", "charon", "hermes", "apollo"],
+                    &["athena", "prometheus", "manwe", "hermes", "apollo"],
                     vec![
                         cli_command(&["export", "source-absorption-pipeline"])?,
                         cli_command(&["export", "source-absorption-portfolio"])?,
@@ -1885,7 +1885,7 @@ fn project_task_executor() -> anyhow::Result<Value> {
                 "source_absorption_executor" => (
                     "absorption_downstream_reconcile",
                     "Downstream absorption tasks close against sovereign contract surfaces.",
-                    &["athena", "prometheus", "charon", "hermes", "apollo"],
+                    &["athena", "prometheus", "manwe", "hermes", "apollo"],
                     vec![
                         cli_command(&["export", "scrapling-runtime-contract"])?,
                         cli_command(&["export", "source-ecosystem-registry"])?,
@@ -2153,7 +2153,7 @@ fn flywheel_dispatch(task_id: Option<&str>, write: bool) -> anyhow::Result<Value
         anyhow::bail!("no ready Flywheel packet matched the selection");
     };
     let meta = task.get("meta").cloned().unwrap_or_else(|| json!({}));
-    if meta.get("harness").and_then(Value::as_str) != Some("hermes-agent-charon") {
+    if meta.get("harness").and_then(Value::as_str) != Some("hermes-agent-manwe") {
         anyhow::bail!(
             "selected Flywheel packet is ready but not Hermes-dispatchable: harness={}",
             meta.get("harness")
@@ -2466,7 +2466,7 @@ members = [
             }),
         );
         let mut dispatch_meta = packet_meta("F3", "selector");
-        dispatch_meta["harness"] = json!("hermes-agent-charon");
+        dispatch_meta["harness"] = json!("hermes-agent-manwe");
         dispatch_meta["target_node"] = json!("node-backbone-server");
         dispatch_meta["acceptance"] = json!("bounded_hermes_dispatch_rule_and_receipts");
         dispatch_meta["receipt_surface"] = json!("data/hermes/flywheel_dispatch_receipts.jsonl");
@@ -2520,7 +2520,7 @@ members = [
         ensure_parent(&plan_path).expect("parent");
         fs::write(&plan_path, "# Example\n").expect("plan");
         let mut meta = packet_meta("F3", "");
-        meta["harness"] = json!("hermes-agent-charon");
+        meta["harness"] = json!("hermes-agent-manwe");
         let packet = task("packet", "queued", meta);
         let latest = BTreeMap::from([("packet".to_string(), packet.clone())]);
 
@@ -2537,7 +2537,7 @@ members = [
     #[test]
     fn flywheel_prompt_contains_packet_boundaries() {
         let mut meta = packet_meta("F3", "");
-        meta["harness"] = json!("hermes-agent-charon");
+        meta["harness"] = json!("hermes-agent-manwe");
         meta["target_node"] = json!("node-backbone-server");
         meta["expected_files"] = json!("crates/arda-cli/src/commands/pipeline.rs");
         let packet = task("packet", "queued", meta);
@@ -2553,7 +2553,7 @@ members = [
     #[test]
     fn flywheel_dispatch_receipt_preserves_dry_run_and_digest() {
         let mut meta = packet_meta("F3", "");
-        meta["harness"] = json!("hermes-agent-charon");
+        meta["harness"] = json!("hermes-agent-manwe");
         meta["target_node"] = json!("node-backbone-server");
         let packet = task("packet", "queued", meta);
         let preflight = json!({"exit_code": 0});

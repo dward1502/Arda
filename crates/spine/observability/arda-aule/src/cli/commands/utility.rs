@@ -662,7 +662,7 @@ fn bridge_model_arg(raw: &str) -> Option<String> {
     }
     // Harmonic-Hermes is a useful local sovereign model, but upstream Hermes Agent has
     // already proven unreliable for tool-calling continuations when pinned to it directly.
-    // Degrade stale bridge pins back to Charon-owned auto routing instead of preserving a
+    // Degrade stale bridge pins back to Manwe-owned auto routing instead of preserving a
     // non-agentic execution path that freezes after tool output.
     if normalized == "harmonic-hermes-9b-q6_k" || normalized == "mesh_local/harmonic-hermes-9b-q6_k"
     {
@@ -2789,15 +2789,15 @@ fn redact_candidate_value(value: &str) -> String {
     "set_redacted".to_string()
 }
 
-fn default_charon_control_url() -> String {
-    std::env::var("ARDA_CHARON_CONTROL_URL")
+fn default_manwe_control_url() -> String {
+    std::env::var("ARDA_MANWE_CONTROL_URL")
         .unwrap_or_else(|_| format!("http://{}:{}", "127.0.0.1", 5110))
 }
 
-fn charon_control_endpoint(path: &str) -> String {
+fn manwe_control_endpoint(path: &str) -> String {
     format!(
         "{}/{}",
-        default_charon_control_url().trim_end_matches('/'),
+        default_manwe_control_url().trim_end_matches('/'),
         path.trim_start_matches('/')
     )
 }
@@ -2805,9 +2805,9 @@ fn charon_control_endpoint(path: &str) -> String {
 fn operator_runtime_status() -> anyhow::Result<Value> {
     let root = workspace_root();
     let edge = read_json(&root.join("core/state/edge_endpoint_verification.json"));
-    let lane_fitness = read_json(&root.join("data/charon/lane_fitness.json"));
-    let charon_status = fetch_json(&charon_control_endpoint("status"), None);
-    let providers = fetch_json(&charon_control_endpoint("providers"), None);
+    let lane_fitness = read_json(&root.join("data/manwe/lane_fitness.json"));
+    let manwe_status = fetch_json(&manwe_control_endpoint("status"), None);
+    let providers = fetch_json(&manwe_control_endpoint("providers"), None);
     let live_targets = edge
         .get("targets")
         .and_then(Value::as_array)
@@ -2887,7 +2887,7 @@ fn operator_runtime_status() -> anyhow::Result<Value> {
             json!({"agent_id":"arda_hud_probe","task_type":"background","priority":"low","messages":[{"role":"user","content":"sweep logs"}],"options":{}}),
         ),
     ] {
-        let route = fetch_json(&charon_control_endpoint("route"), Some(&payload))
+        let route = fetch_json(&manwe_control_endpoint("route"), Some(&payload))
             .get("decision")
             .cloned()
             .unwrap_or_else(|| json!({"error":"route_unavailable"}));
@@ -2917,10 +2917,10 @@ fn operator_runtime_status() -> anyhow::Result<Value> {
     let payload = json!({
         "generated_at_utc": now_utc(),
         "authority": "operator_runtime_status",
-        "charon": charon_status.get("status").cloned().unwrap_or_else(|| json!({})),
+        "manwe": manwe_status.get("status").cloned().unwrap_or_else(|| json!({})),
         "fleet": edge.get("summary").cloned().unwrap_or_else(|| json!({})),
         "summary": {
-            "charon_http_ok": charon_status.get("ok").and_then(Value::as_bool).unwrap_or(false),
+            "manwe_http_ok": manwe_status.get("ok").and_then(Value::as_bool).unwrap_or(false),
             "fleet_live_llm_nodes_total": live_targets.len(),
             "fleet_routable_local_providers_total": routable_local.len(),
             "unexpected_offline_total": edge.get("summary").and_then(|v| v.get("targets_unexpected_offline_total")).cloned().unwrap_or(Value::from(0)),
@@ -3978,7 +3978,7 @@ mod tests {
             &[
                 json!({"id":"tsk_safe","title":"Safe local docs and tests packet","status":"queued","priority":"high","owner":"prometheus","meta":{"action_class":"safe_local_read_write"}}),
                 json!({"id":"tsk_discord","title":"Run live Discord validation","status":"queued","priority":"high","owner":"hermes","meta":{"action_class":"external_message"}}),
-                json!({"id":"tsk_restart","title":"Restart Charon service","status":"queued","priority":"critical","owner":"charon","meta":{"action_class":"service_runtime_mutation"}}),
+                json!({"id":"tsk_restart","title":"Restart Manwe service","status":"queued","priority":"critical","owner":"manwe","meta":{"action_class":"service_runtime_mutation"}}),
                 json!({"id":"tsk_done","title":"Completed packet","status":"completed","priority":"normal","owner":"hades","meta":{"action_class":"safe_local_read_write"}}),
                 json!({"id":"tsk_superseded","title":"Superseded pending packet","status":"pending","priority":"normal","owner":"hades","meta":{"action_class":"safe_local_read_write"}}),
                 json!({"id":"tsk_superseded","title":"Superseded pending packet","status":"completed","priority":"normal","owner":"hades","meta":{"action_class":"safe_local_read_write"}}),
@@ -4485,7 +4485,7 @@ mod tests {
     }
 
     #[test]
-    fn bridge_python_cli_avoids_auto_provider_when_pinned_to_charon_base_url() {
+    fn bridge_python_cli_avoids_auto_provider_when_pinned_to_manwe_base_url() {
         let node = json!({
             "hermes_bin": "/tmp/venv/bin/python",
             "bridge_mode": "python_cli",
@@ -4501,7 +4501,7 @@ mod tests {
     }
 
     #[test]
-    fn bridge_chat_mode_exports_custom_provider_for_charon_base_url() {
+    fn bridge_chat_mode_exports_custom_provider_for_manwe_base_url() {
         let node = json!({
             "hermes_bin": "hermes",
             "provider": "auto",

@@ -92,11 +92,11 @@ describe('getOperatorLabel', () => {
 });
 
 describe('getSafeRefreshCommand', () => {
-  test('returns the read-only operator runtime refresh command for operator and Charon projections', () => {
+  test('returns the read-only operator runtime refresh command for operator and Manwe projections', () => {
     expect(getSafeRefreshCommand('core/state/operator_runtime_status.json')).toBe(
       'cargo run -p arda-cli -- utility operator-runtime-status'
     );
-    expect(getSafeRefreshCommand('core/state/charon_router.json')).toBe(
+    expect(getSafeRefreshCommand('core/state/manwe_router.json')).toBe(
       'cargo run -p arda-cli -- utility operator-runtime-status'
     );
   });
@@ -118,7 +118,7 @@ describe('getSafeRefreshCommand', () => {
 
 describe('getRefreshAffordanceForSourcePath', () => {
   test('returns a display-only projection refresh contract for runtime projections', () => {
-    expect(getRefreshAffordanceForSourcePath('core/state/charon_router.json')).toMatchObject({
+    expect(getRefreshAffordanceForSourcePath('core/state/manwe_router.json')).toMatchObject({
       id: 'operator-runtime-status-refresh',
       safety: 'projection_refresh_only',
       executionMode: 'display_only',

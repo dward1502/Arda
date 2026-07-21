@@ -6,7 +6,7 @@
     "input_surface_present": true,
     "package_tool_projection_present": true,
     "writes_through": [
-      "core/state/charon_router.json",
+      "core/state/manwe_router.json",
       "core/state/model_control_surface.json",
       "core/state/runtime_governor_contract.json"
     ]
@@ -20,7 +20,7 @@
     "provider_id": "litellm_gateway"
   },
   "routing_contract": {
-    "charon_router": "core/state/charon_router.json",
+    "charon_router": "core/state/manwe_router.json",
     "model_control_surface": "core/state/model_control_surface.json",
     "preferred_for": [
       "planning",

@@ -212,8 +212,8 @@ pub(crate) fn build_operations_briefing_from_runtime_inputs(
         "recommended_next_bounded_action": recommended_next_bounded_action,
         "source_files": {
             "autopilot_state": "data/ceo/autopilot.state.json",
-            "charon_router": "core/state/charon_router.json",
-            "charon_route_history": "data/charon_route_smoke_history.jsonl",
+            "manwe_router": "core/state/manwe_router.json",
+            "manwe_route_history": "data/manwe_route_smoke_history.jsonl",
             "chronos_runtime": "core/state/chronos_runtime.json",
             "plutus_runtime": "core/state/plutus_runtime.json",
             "mnemosyne_continuity": "core/state/mnemosyne_continuity.json",
@@ -467,13 +467,13 @@ pub(crate) fn format_operations_briefing_text(briefing: &serde_json::Value) -> S
                 .unwrap_or(false)
         ),
         format!(
-            "Sources: autopilot_state={}, charon_route_history={}",
+            "Sources: autopilot_state={}, manwe_route_history={}",
             source_files
                 .get("autopilot_state")
                 .and_then(|value| value.as_str())
                 .unwrap_or("unknown"),
             source_files
-                .get("charon_route_history")
+                .get("manwe_route_history")
                 .and_then(|value| value.as_str())
                 .unwrap_or("unknown")
         ),
@@ -483,7 +483,7 @@ pub(crate) fn format_operations_briefing_text(briefing: &serde_json::Value) -> S
 }
 
 fn build_provider_routing_posture(root: &std::path::Path) -> serde_json::Value {
-    let router = read_json_or_default(&root.join("core/state/charon_router.json"), json!({}));
+    let router = read_json_or_default(&root.join("core/state/manwe_router.json"), json!({}));
     let pressure = router
         .get("provider_pressure")
         .unwrap_or(&serde_json::Value::Null);
@@ -596,8 +596,8 @@ fn build_provider_routing_posture(root: &std::path::Path) -> serde_json::Value {
 
     json!({
         "status": status,
-        "source_of_truth": "core/state/charon_router.json",
-        "source_preference": "prefer_charon_router_projection_over_static_config",
+        "source_of_truth": "core/state/manwe_router.json",
+        "source_preference": "prefer_manwe_router_projection_over_static_config",
         "generated_at_utc": router.get("generated_at_utc").and_then(|value| value.as_str()).unwrap_or("unknown"),
         "routing_defaults": router.get("routing_defaults").cloned().unwrap_or_else(|| json!({})),
         "active_provider": active_provider,
@@ -853,7 +853,7 @@ pub(crate) async fn build_ops_dashboard(core_root: &str) -> anyhow::Result<serde
     }
     let status_timeout = std::time::Duration::from_secs(1);
     let prometheus = PrometheusService::from_core(core_root)?;
-    let charon = CharonService::from_default_or_fallback()?;
+    let manwe = ManweService::from_default_or_fallback()?;
     let mnemosyne = MnemosyneService::from_default_or_fallback()?;
     let hades = HadesService::from_default_or_fallback()?;
     let hermes = HermesService::from_default_or_fallback()?;
@@ -873,16 +873,16 @@ pub(crate) async fn build_ops_dashboard(core_root: &str) -> anyhow::Result<serde
         std::path::Path::new("core/state/athena_runtime.json"),
         json!({"ok": false, "status_source": "athena_runtime_unavailable"}),
     );
-    let charon_status_value = match tokio::time::timeout(status_timeout, charon.status()).await {
+    let manwe_status_value = match tokio::time::timeout(status_timeout, manwe.status()).await {
         Ok(Ok(status)) => serde_json::to_value(&status)?,
         Ok(Err(err)) => {
-            json!({"ok": false, "error": err.to_string(), "status_source": "charon_status_unavailable"})
+            json!({"ok": false, "error": err.to_string(), "status_source": "manwe_status_unavailable"})
         }
         Err(_) => {
-            json!({"ok": false, "error": "timed out", "status_source": "charon_status_timeout"})
+            json!({"ok": false, "error": "timed out", "status_source": "manwe_status_timeout"})
         }
     };
-    let charon_providers = tokio::time::timeout(status_timeout, charon.providers())
+    let manwe_providers = tokio::time::timeout(status_timeout, manwe.providers())
         .await
         .unwrap_or_default();
     let mnemosyne_status_value = match mnemosyne.status() {
@@ -953,7 +953,7 @@ pub(crate) async fn build_ops_dashboard(core_root: &str) -> anyhow::Result<serde
     let governance_observation = build_governance_observation(
         &prometheus_status_value,
         &hermes_status_value,
-        &charon_status_value,
+        &manwe_status_value,
         &hades_status_value,
         &athena_status_value,
         &plutus_status_value,
@@ -964,7 +964,7 @@ pub(crate) async fn build_ops_dashboard(core_root: &str) -> anyhow::Result<serde
     );
     let queue_observability = queue_observability_snapshot();
 
-    let provider_budgets = charon_providers
+    let provider_budgets = manwe_providers
         .iter()
         .map(|p| {
             let day_remaining = p
@@ -989,8 +989,8 @@ pub(crate) async fn build_ops_dashboard(core_root: &str) -> anyhow::Result<serde
         "generated_at_utc": Utc::now().to_rfc3339(),
         "prometheus": prometheus_status_value,
         "athena": athena_status_value,
-        "charon": {
-            "status": charon_status_value,
+        "manwe": {
+            "status": manwe_status_value,
             "provider_failure_budgets": provider_budgets,
         },
         "mnemosyne": mnemosyne_status_value,
@@ -1001,8 +1001,8 @@ pub(crate) async fn build_ops_dashboard(core_root: &str) -> anyhow::Result<serde
         "oracle": oracle_status_value,
         "risk": {
             "hades_queue_depth": hades.queue(10_000)?.len(),
-            "charon_degraded": charon_providers.iter().filter(|p| p.consecutive_failures >= 2 || p.error_count >= 5).count(),
-            "charon_in_cooldown": charon_providers.iter().filter(|p| p.in_cooldown).count(),
+            "manwe_degraded": manwe_providers.iter().filter(|p| p.consecutive_failures >= 2 || p.error_count >= 5).count(),
+            "manwe_in_cooldown": manwe_providers.iter().filter(|p| p.in_cooldown).count(),
             "hermes_outbound_queue_depth": hermes_status_value.get("queue_depth").and_then(|v| v.as_u64()).unwrap_or(0),
             "disk_var_used_pct": var_disk_pct,
             "disk_tmp_used_pct": tmp_disk_pct,
@@ -1313,7 +1313,7 @@ fn count_athena_pending_latest(path: &str) -> usize {
 pub(crate) fn build_governance_observation(
     prometheus_status: &serde_json::Value,
     hermes_status: &serde_json::Value,
-    charon_status: &serde_json::Value,
+    manwe_status: &serde_json::Value,
     hades_status: &serde_json::Value,
     athena_status: &serde_json::Value,
     plutus_status: &serde_json::Value,
@@ -1393,21 +1393,21 @@ pub(crate) fn build_governance_observation(
         .and_then(|v| v.as_f64())
         .unwrap_or(0.0)
         .clamp(0.0, 100.0);
-    let provider_total = charon_status
+    let provider_total = manwe_status
         .get("providers_ready")
         .and_then(|v| v.as_u64())
         .or_else(|| {
-            charon_status
+            manwe_status
                 .get("providers_enabled")
                 .and_then(|v| v.as_u64())
         })
         .or_else(|| {
-            charon_status
+            manwe_status
                 .get("providers_total")
                 .and_then(|v| v.as_u64())
         })
         .unwrap_or(0) as f64;
-    let provider_healthy = charon_status
+    let provider_healthy = manwe_status
         .get("providers_healthy")
         .and_then(|v| v.as_u64())
         .unwrap_or(0) as f64;
@@ -1477,7 +1477,7 @@ pub(crate) fn build_governance_observation(
     let checks = [
         !prometheus_status.is_null(),
         !hermes_status.is_null(),
-        !charon_status.is_null(),
+        !manwe_status.is_null(),
         !hades_status.is_null(),
         !athena_status.is_null(),
         memory_ok,
@@ -1668,7 +1668,7 @@ pub(crate) fn build_governance_observation(
 
     let mut observation = json!({
         "generated_at_utc": Utc::now().to_rfc3339(),
-        "source": "prometheus+hermes+charon+hades+athena+mnemosyne+bacon_lite",
+        "source": "prometheus+hermes+manwe+hades+athena+mnemosyne+bacon_lite",
         "signals": {
             "triad_pass_rate": triad_pass_rate,
             "avg_joulework": joule_signal,
@@ -1999,7 +1999,7 @@ mod tests {
                     "overall_score": 0.9288,
                     "services": [
                         {"unit": "arda-ceo-autopilot-supervised.service", "active": "activating", "sub": "start", "note": "activating (start)", "score": 0.6},
-                        {"unit": "arda-charon.service", "active": "active", "sub": "running", "note": "running", "score": 1.0}
+                        {"unit": "arda-manwe.service", "active": "active", "sub": "running", "note": "running", "score": 1.0}
                     ]
                 },
                 "dashboard": {

@@ -107,7 +107,7 @@ impl Default for RouteGovernance {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct CharonRequestEnvelope {
+pub struct ManweRequestEnvelope {
     pub agent_id: String,
     pub task_type: String,
     #[serde(default = "default_priority")]
@@ -260,7 +260,7 @@ pub struct ProviderState {
     pub hermes_bin: Option<String>,
     /// For driver=hermes_agent_cli/hermes_proxy: the --provider argument
     /// passed to `hermes chat` or `hermes proxy start` (e.g. "anthropic",
-    /// "openai-codex", "nous"). When empty, falls back to the Charon provider id.
+    /// "openai-codex", "nous"). When empty, falls back to the Manwe provider id.
     #[serde(default)]
     pub hermes_provider: Option<String>,
     /// For driver=hermes_agent_cli: value passed to --toolsets. Default ""
@@ -294,9 +294,9 @@ pub struct RouteDecision {
     pub execution_lane: String,
     pub context_window_target: usize,
     pub governance: RouteGovernance,
-    /// Stable per-route correlation ID, minted in `CharonService::route` and
-    /// surfaced as the `x-charon-route-id` response header on proxy calls.
-    /// Lets operators trace a single user request from gateway → charon →
+    /// Stable per-route correlation ID, minted in `ManweService::route` and
+    /// surfaced as the `x-manwe-route-id` response header on proxy calls.
+    /// Lets operators trace a single user request from gateway → manwe →
     /// upstream provider through state.jsonl/governance_events.jsonl.
     #[serde(default)]
     pub route_id: String,

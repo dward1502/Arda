@@ -17,7 +17,7 @@
       "bound route classes against available local parameter budgets",
       "keep provider selection auditable instead of implicit"
     ],
-    "signal_source": "core/state/charon_router.json",
+    "signal_source": "core/state/manwe_router.json",
     "signals": {
       "backend": "optional_signal_absent",
       "local_max_params_b": null,
@@ -25,7 +25,7 @@
       "top_model_names": []
     },
     "writes_through": [
-      "core/state/charon_router.json",
+      "core/state/manwe_router.json",
       "core/state/model_control_surface.json"
     ]
   },

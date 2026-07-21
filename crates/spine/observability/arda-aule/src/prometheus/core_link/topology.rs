@@ -46,7 +46,7 @@ pub(super) fn write_runtime_topology_projection(core_root: &Path) {
         .unwrap_or_else(|| json!({}));
 
     let supervisor_order_raw = std::env::var("ANNUNIMAS_SUPERVISOR_AGENT_ORDER")
-        .unwrap_or_else(|_| "prometheus,charon,hermes,hades,athena,mnemosyne".to_string());
+        .unwrap_or_else(|_| "prometheus,manwe,hermes,hades,athena,mnemosyne".to_string());
     let local_supervisor_order = supervisor_order_raw
         .split(',')
         .map(|value: &str| value.trim().to_string())
@@ -77,7 +77,7 @@ pub(super) fn write_runtime_topology_projection(core_root: &Path) {
             "supervisor_order": local_supervisor_order,
             "max_starts_per_pass": std::env::var("ANNUNIMAS_SUPERVISOR_MAX_STARTS_PER_PASS").unwrap_or_else(|_| "1".to_string()),
             "start_stagger_ms": std::env::var("ANNUNIMAS_SUPERVISOR_START_STAGGER_MS").unwrap_or_else(|_| "750".to_string()),
-            "managed_agents": ["prometheus", "charon", "hermes", "hades", "athena", "mnemosyne"],
+            "managed_agents": ["prometheus", "manwe", "hermes", "hades", "athena", "mnemosyne"],
             "deferred_or_remote_agents": ["warden", "oracle", "plutus", "apollo"],
             "ceo_authority_surface": "core/state/world.json"
         },
@@ -113,8 +113,8 @@ pub(super) fn write_runtime_topology_projection(core_root: &Path) {
     );
 }
 
-pub(super) fn write_charon_router_projection(core_root: &Path) {
-    let snapshot_path = core_root.join("state").join("charon_router.json");
+pub(super) fn write_manwe_router_projection(core_root: &Path) {
+    let snapshot_path = core_root.join("state").join("manwe_router.json");
     if let Some(parent) = snapshot_path.parent() {
         if fs::create_dir_all(parent).is_err() {
             return;
@@ -125,7 +125,7 @@ pub(super) fn write_charon_router_projection(core_root: &Path) {
         .parent()
         .map(Path::to_path_buf)
         .unwrap_or_else(|| PathBuf::from("."));
-    let status = read_charon_http_json(&workspace_root, "/status")
+    let status = read_manwe_http_json(&workspace_root, "/status")
         .and_then(|value| value.get("status").cloned())
         .or_else(|| {
             read_json_file(
@@ -133,25 +133,25 @@ pub(super) fn write_charon_router_projection(core_root: &Path) {
                     .join("core")
                     .join("metrics")
                     .join("by_crate")
-                    .join("charon")
+                    .join("manwe")
                     .join("status.json"),
             )
         })
         .unwrap_or_else(|| json!({}));
-    let providers = read_charon_http_json(&workspace_root, "/providers")
-        .map(normalize_charon_providers_response)
+    let providers = read_manwe_http_json(&workspace_root, "/providers")
+        .map(normalize_manwe_providers_response)
         .or_else(|| {
             read_json_file(
                 workspace_root
                     .join("core")
                     .join("metrics")
                     .join("by_crate")
-                    .join("charon")
+                    .join("manwe")
                     .join("providers.json"),
             )
         })
         .unwrap_or_else(|| json!([]));
-    let state = read_charon_http_json(&workspace_root, "/state")
+    let state = read_manwe_http_json(&workspace_root, "/state")
         .and_then(|value| value.get("state").cloned())
         .or_else(|| {
             read_json_file(
@@ -159,7 +159,7 @@ pub(super) fn write_charon_router_projection(core_root: &Path) {
                     .join("core")
                     .join("metrics")
                     .join("by_crate")
-                    .join("charon")
+                    .join("manwe")
                     .join("state.json"),
             )
         })
@@ -181,7 +181,7 @@ pub(super) fn write_charon_router_projection(core_root: &Path) {
     let recent_events = read_recent_jsonl(
         &workspace_root
             .join("data")
-            .join("charon")
+            .join("manwe")
             .join("state.jsonl"),
         24,
     );
@@ -189,7 +189,7 @@ pub(super) fn write_charon_router_projection(core_root: &Path) {
     let provider_rows = providers.as_array().cloned().unwrap_or_default();
     let provider_rows = provider_rows
         .into_iter()
-        .map(enrich_charon_provider_pressure)
+        .map(enrich_manwe_provider_pressure)
         .collect::<Vec<_>>();
     let cooldowns = provider_rows
         .iter()
@@ -217,7 +217,7 @@ pub(super) fn write_charon_router_projection(core_root: &Path) {
         .find(|provider| provider.get("id").and_then(Value::as_str) == Some("local_fallback"))
         .cloned()
         .unwrap_or_else(|| json!({}));
-    let tool_context_floor = std::env::var("ANNUNIMAS_CHARON_TOOL_EXECUTION_MIN_CONTEXT")
+    let tool_context_floor = std::env::var("ANNUNIMAS_MANWE_TOOL_EXECUTION_MIN_CONTEXT")
         .ok()
         .and_then(|value| value.parse::<u64>().ok())
         .filter(|value| *value >= 16_000)
@@ -236,7 +236,7 @@ pub(super) fn write_charon_router_projection(core_root: &Path) {
     let snapshot = json!({
         "schema_version": CORE_STATE_SCHEMA_VERSION,
         "generated_at_utc": Utc::now().to_rfc3339(),
-        "authority": "charon_router_projection",
+        "authority": "manwe_router_projection",
         "status": status,
         "routing_defaults": {
             "privacy_tier": std::env::var("ANNUNIMAS_ROUTE_PRIVACY_DEFAULT").unwrap_or_else(|_| "public".to_string()),
@@ -279,16 +279,16 @@ pub(super) fn write_charon_router_projection(core_root: &Path) {
     );
 }
 
-fn read_charon_http_json(workspace_root: &Path, path: &str) -> Option<Value> {
+fn read_manwe_http_json(workspace_root: &Path, path: &str) -> Option<Value> {
     if cfg!(test) || !workspace_root.join("core").join("realm").exists() {
         return None;
     }
 
-    let addr = std::env::var("ANNUNIMAS_CHARON_HTTP_HOST")
+    let addr = std::env::var("ANNUNIMAS_MANWE_HTTP_HOST")
         .ok()
         .filter(|host| matches!(host.as_str(), "127.0.0.1" | "localhost"))
         .map(|host| {
-            let port = std::env::var("ANNUNIMAS_CHARON_HTTP_PORT")
+            let port = std::env::var("ANNUNIMAS_MANWE_HTTP_PORT")
                 .ok()
                 .and_then(|value| value.parse::<u16>().ok())
                 .unwrap_or(5110);
@@ -329,7 +329,7 @@ fn read_charon_http_json(workspace_root: &Path, path: &str) -> Option<Value> {
     serde_json::from_str(body).ok()
 }
 
-fn normalize_charon_providers_response(value: Value) -> Value {
+fn normalize_manwe_providers_response(value: Value) -> Value {
     value
         .get("providers")
         .and_then(Value::as_array)
@@ -338,7 +338,7 @@ fn normalize_charon_providers_response(value: Value) -> Value {
         .unwrap_or(value)
 }
 
-fn enrich_charon_provider_pressure(provider: Value) -> Value {
+fn enrich_manwe_provider_pressure(provider: Value) -> Value {
     let mut provider = provider;
     let enabled = provider
         .get("enabled")

@@ -59,7 +59,7 @@ pub fn run_council_gate(
     let query = derive_council_query(task);
     let brief = build_brief(&query);
 
-    let responders_expected = 4usize; // ATHENA, HADES, CHARON, MNEMOSYNE (scaffold)
+    let responders_expected = 4usize; // ATHENA, HADES, MANWE, MNEMOSYNE (scaffold)
     let responders_available = roster
         .map(|r| r.online_agents.min(responders_expected))
         .unwrap_or(1);

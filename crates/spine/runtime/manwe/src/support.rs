@@ -1,6 +1,6 @@
-//! `support` — public-bridge / charon / adaptive-routing facade.
+//! `support` — public-bridge / Manwe / adaptive-routing facade.
 //!
-//! Provides `CharonRemote`, adapters, and `GatewayDependencyInjection`
+//! Provides `ManweRemote`, adapters, and `GatewayDependencyInjection`
 //! so callers can start with a local transport and swap to manwe when
 //! upstream subsystems are ready.
 
@@ -9,13 +9,13 @@ use serde::{Deserialize, Serialize};
 use crate::transport::{AuthorityRecord, GatewayTransport};
 
 // ---------------------------------------------------------------------------
-// charon → gateway contract
+// manwe → gateway contract
 // ---------------------------------------------------------------------------
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct CharonRemote;
+pub struct ManweRemote;
 
-impl CharonRemote {
+impl ManweRemote {
     pub async fn bootstrap(
         authority: impl AsRef<str>,
     ) -> Result<AuthorityRecord, crate::GatewayError> {

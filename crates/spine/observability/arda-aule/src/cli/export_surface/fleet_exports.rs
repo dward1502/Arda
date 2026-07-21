@@ -144,7 +144,7 @@ pub(crate) fn export_fleet_bootstrap_state_impl() -> Result<Value> {
         "targets": bootstrap.get("targets").and_then(Value::as_array).into_iter().flatten().filter(|row| row.get("recovery").is_some()).map(|row| {
             json!({
                 "target_id": row.get("target_id").cloned().unwrap_or(Value::Null),
-                "charon_provider_id": row.get("charon_provider_id").cloned().unwrap_or(Value::Null),
+                "manwe_provider_id": row.get("manwe_provider_id").cloned().unwrap_or(Value::Null),
                 "status": row.get("status").cloned().unwrap_or(Value::Null),
                 "recovery": row.get("recovery").cloned().unwrap_or(Value::Null),
             })
@@ -465,7 +465,7 @@ fn node_status(node: &toml::value::Table, tailnet: Option<&Value>, root: &Path) 
             "target_id": node.get("id").and_then(toml::Value::as_str).unwrap_or_default(),
             "display_name": node.get("display_name").and_then(toml::Value::as_str).or_else(|| node.get("hostname").and_then(toml::Value::as_str)).unwrap_or_default(),
             "provider_hint": toml_to_json_local(node.get("llm_runtime")),
-            "charon_provider_id": toml_to_json_local(node.get("charon_provider_id")),
+            "manwe_provider_id": toml_to_json_local(node.get("manwe_provider_id")),
             "configured_base_url": toml_to_json_local(node.get("base_url")),
             "health_url": toml_to_json_local(node.get("health_url")),
             "models_url": toml_to_json_local(node.get("models_url")),
@@ -540,7 +540,7 @@ fn node_status(node: &toml::value::Table, tailnet: Option<&Value>, root: &Path) 
         "target_id": node.get("id").and_then(toml::Value::as_str).unwrap_or_default(),
         "display_name": node.get("display_name").and_then(toml::Value::as_str).or_else(|| node.get("hostname").and_then(toml::Value::as_str)).unwrap_or_default(),
         "provider_hint": toml_to_json_local(node.get("llm_runtime")),
-        "charon_provider_id": toml_to_json_local(node.get("charon_provider_id")),
+        "manwe_provider_id": toml_to_json_local(node.get("manwe_provider_id")),
         "configured_base_url": toml_to_json_local(node.get("base_url")),
         "health_url": toml_to_json_local(node.get("health_url")),
         "models_url": toml_to_json_local(node.get("models_url")),
@@ -585,7 +585,7 @@ fn append_recovery_events(path: &Path, node_rows: Vec<Value>) -> Result<()> {
         let payload = json!({
             "ts": now_utc(),
             "target_id": row.get("target_id").cloned().unwrap_or(Value::Null),
-            "charon_provider_id": row.get("charon_provider_id").cloned().unwrap_or(Value::Null),
+            "manwe_provider_id": row.get("manwe_provider_id").cloned().unwrap_or(Value::Null),
             "status": row.get("status").cloned().unwrap_or(Value::Null),
             "recovered": recovery.get("recovered").cloned().unwrap_or(Value::Bool(false)),
             "attempts": recovery.get("attempts").cloned().unwrap_or_else(|| json!([])),
@@ -860,10 +860,10 @@ pub(crate) fn export_fleet_steward_actions_impl() -> Result<Value> {
                 "action_id": format!("verify_local_endpoint_{target_id}"),
                 "kind": "endpoint_verification",
                 "priority": "medium",
-                "owner": "charon",
+                "owner": "manwe",
                 "title": format!("Verify local inference endpoint on {target_id}"),
                 "reason": format!("All contracted model artifacts are present on `{target_id}`; verify or promote its local serving endpoint into routing."),
-                "writes_through": ["core/state/model_control_surface.json", "core/state/charon_router.json", "config/model_route_matrix.toml"],
+                "writes_through": ["core/state/model_control_surface.json", "core/state/manwe_router.json", "config/model_route_matrix.toml"],
             }));
         }
     }
@@ -897,31 +897,31 @@ pub(crate) fn export_fleet_steward_actions_impl() -> Result<Value> {
                 "action_id": format!("reconcile_endpoint_contract_{target_id}"),
                 "kind": "endpoint_contract_reconciliation",
                 "priority": "medium",
-                "owner": "charon",
+                "owner": "manwe",
                 "title": format!("Reconcile endpoint contract for {target_id}"),
                 "reason": format!(
                     "`{target_id}` is serving at `{}`, but the configured provider URL is `{}`.",
                     target.get("observed_base_url").and_then(Value::as_str).unwrap_or("unknown"),
                     target.get("configured_base_url").and_then(Value::as_str).unwrap_or("unknown"),
                 ),
-                "writes_through": ["config/charon.providers.toml", "core/state/charon_router.json", "core/state/model_control_surface.json"],
+                "writes_through": ["config/manwe.providers.toml", "core/state/manwe_router.json", "core/state/model_control_surface.json"],
             }));
         } else if target.get("has_live_endpoint").and_then(Value::as_bool) != Some(true) {
             actions.push(json!({
                 "action_id": format!("launch_missing_endpoint_{target_id}"),
                 "kind": "endpoint_launch",
                 "priority": "medium",
-                "owner": "charon",
+                "owner": "manwe",
                 "title": format!("Launch local endpoint for {target_id}"),
                 "reason": format!("`{target_id}` has model/runtime state but no live local inference endpoint detected on the governed ports."),
-                "writes_through": ["core/state/edge_endpoint_verification.json", "core/edge/model_profiles.toml", "config/charon.providers.toml"],
+                "writes_through": ["core/state/edge_endpoint_verification.json", "core/edge/model_profiles.toml", "config/manwe.providers.toml"],
             }));
         } else if active_pull && models_total > models_completed {
             actions.push(json!({
                 "action_id": format!("continue_rollout_{target_id}"),
                 "kind": "rollout_followthrough",
                 "priority": "medium",
-                "owner": "charon",
+                "owner": "manwe",
                 "title": format!("Continue model rollout on {target_id}"),
                 "reason": format!("`{target_id}` has {models_completed}/{models_total} contracted artifacts present; keep rollout active until the assigned profile is complete."),
                 "writes_through": ["core/state/edge_model_rollout.json", "core/edge/model_profiles.toml"],
@@ -938,10 +938,10 @@ pub(crate) fn export_fleet_steward_actions_impl() -> Result<Value> {
             "action_id": "shift_heavy_reasoning_off_local_joule_pressure",
             "kind": "route_shift",
             "priority": "high",
-            "owner": "charon",
+            "owner": "manwe",
             "title": "Shift heavy reasoning away from local constrained lanes",
             "reason": "Local joulework is above the configured soft cap; prefer backbone and cloud fallback for heavy reasoning tasks.",
-            "writes_through": ["config/model_route_matrix.toml", "core/state/model_control_surface.json", "core/state/charon_router.json"],
+            "writes_through": ["config/model_route_matrix.toml", "core/state/model_control_surface.json", "core/state/manwe_router.json"],
         }));
     }
     if budget_summary
@@ -954,10 +954,10 @@ pub(crate) fn export_fleet_steward_actions_impl() -> Result<Value> {
             "action_id": "deprioritize_budget_stressed_providers",
             "kind": "provider_budget_guard",
             "priority": "high",
-            "owner": "charon",
+            "owner": "manwe",
             "title": "Deprioritize budget-stressed providers",
             "reason": "One or more providers exceeded soft or hard monthly limits and should be deprioritized in routing.",
-            "writes_through": ["config/charon.providers.toml", "core/state/charon_router.json", "core/state/runtime_budget_policy.json"],
+            "writes_through": ["config/manwe.providers.toml", "core/state/manwe_router.json", "core/state/runtime_budget_policy.json"],
         }));
     }
     for recovery in &runtime_recovery_actions {
@@ -1689,7 +1689,7 @@ pub(crate) fn export_fleet_capability_ranking_impl() -> Result<Value> {
             "strengths": classify_strengths(label, system_ram_gib, gpu_vram_gib, cpu_cores),
             "constraints": [],
             "best_for": match node_id {
-                "node-backbone-server-01" => json!(["charon_primary_routing","oracle_reasoning","athena_deep_digest","aipkg_proving_ground","offsite_always_on_runtime"]),
+                "node-backbone-server-01" => json!(["manwe_primary_routing","oracle_reasoning","athena_deep_digest","aipkg_proving_ground","offsite_always_on_runtime"]),
                 "node-ser9-worker" => json!(["edge_worker_execution","background_tasks","supplemental_reasoning"]),
                 "node-pi5-warden" => json!(["warden_monitoring","guardhouse_alerting"]),
                 "node-pi5-citadel-avatar" => json!(["avatar_product_control","bounded_embodied_workflows"]),

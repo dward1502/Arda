@@ -165,7 +165,7 @@ pub(crate) fn export_legion_hierarchy_impl() -> Result<Value> {
                 "role": "strategic coordinator for bounded campaign",
             },
             "centurion": {
-                "source": "hermes_charon_specialists",
+                "source": "hermes_manwe_specialists",
                 "role": "specialist relay and coordination node",
             },
             "legionary": {
@@ -408,8 +408,8 @@ pub(crate) fn export_soterion_joulework_enforcement_impl() -> Result<Value> {
         &root.join("core/metrics/by_crate/hades/status.json"),
         json!({}),
     );
-    let charon_status = read_json_or(
-        &root.join("core/metrics/by_crate/charon/status.json"),
+    let manwe_status = read_json_or(
+        &root.join("core/metrics/by_crate/manwe/status.json"),
         json!({}),
     );
     let tasks = latest_task_state(&read_jsonl_objects(
@@ -465,11 +465,11 @@ pub(crate) fn export_soterion_joulework_enforcement_impl() -> Result<Value> {
         .get("malformed_joulework_records")
         .and_then(Value::as_i64)
         .unwrap_or(0);
-    let providers_ready = charon_status
+    let providers_ready = manwe_status
         .get("providers_ready")
         .and_then(Value::as_i64)
         .unwrap_or(0);
-    let providers_degraded = charon_status
+    let providers_degraded = manwe_status
         .get("providers_degraded")
         .and_then(Value::as_i64)
         .unwrap_or(0);
@@ -477,12 +477,12 @@ pub(crate) fn export_soterion_joulework_enforcement_impl() -> Result<Value> {
     let payload = json!({
         "schema_version": "arda.soterion-joulework-enforcement.v1",
         "generated_at_utc": now_utc(),
-        "authority": "task_agent_boundaries + runtime_budget_policy + hades_status + charon_status",
+        "authority": "task_agent_boundaries + runtime_budget_policy + hades_status + manwe_status",
         "doctrine": {
             "meaningful_tasks_should_carry_soterion_trace": true,
             "high_cost_or_high_priority_work_requires_joulework_budget_awareness": true,
             "hades_joulework_integrity_must_remain_clean": true,
-            "charon_routing_must_observe_joule_pressure_before_expensive_work": true,
+            "manwe_routing_must_observe_joule_pressure_before_expensive_work": true,
         },
         "summary": {
             "sampled_tasks_total": sampled_rows.len(),
@@ -492,8 +492,8 @@ pub(crate) fn export_soterion_joulework_enforcement_impl() -> Result<Value> {
             "local_joulework_usage_percent": ((local_joule_percent * 100.0).round() / 100.0),
             "local_joule_pressure": local_joule_pressure,
             "hades_malformed_joulework_records": malformed_hades,
-            "charon_providers_ready": providers_ready,
-            "charon_providers_degraded": providers_degraded,
+            "manwe_providers_ready": providers_ready,
+            "manwe_providers_degraded": providers_degraded,
         },
         "task_trace_audit": {
             "source": "core/projects/tasks/queue.jsonl",
@@ -508,11 +508,11 @@ pub(crate) fn export_soterion_joulework_enforcement_impl() -> Result<Value> {
                 "orphans_active": hades_status.get("orphans_active").cloned().unwrap_or(Value::Null),
                 "malformed_joulework_records": malformed_hades,
             },
-            "charon_status": {
+            "manwe_status": {
                 "providers_ready": providers_ready,
                 "providers_degraded": providers_degraded,
-                "recent_route_failures": charon_status.get("recent_route_failures").cloned().unwrap_or(Value::Null),
-                "runtime_build_cache_status": charon_status.get("runtime_build_cache_status").cloned().unwrap_or(Value::Null),
+                "recent_route_failures": manwe_status.get("recent_route_failures").cloned().unwrap_or(Value::Null),
+                "runtime_build_cache_status": manwe_status.get("runtime_build_cache_status").cloned().unwrap_or(Value::Null),
             },
         },
         "verdicts": [

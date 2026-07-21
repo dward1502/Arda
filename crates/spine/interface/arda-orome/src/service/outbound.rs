@@ -6,10 +6,10 @@ pub(super) struct RoutedOutboundMessage {
     pub(super) requested_provider: String,
     pub(super) resolved_transport: String,
     pub(super) msg: OutboundMessage,
-    pub(super) charon_route: Option<serde_json::Value>,
+    pub(super) manwe_route: Option<serde_json::Value>,
 }
 
-fn charon_route_attribution(route: Option<&serde_json::Value>) -> Option<serde_json::Value> {
+fn manwe_route_attribution(route: Option<&serde_json::Value>) -> Option<serde_json::Value> {
     let route = route?;
     let field = |key: &str| route.get(key).and_then(|value| value.as_str());
     let provider_id = field("provider_id")?;
@@ -84,7 +84,7 @@ impl HermesService {
 
     pub async fn send(&self, msg: OutboundMessage) -> Result<serde_json::Value> {
         let routed = self.resolve_outbound_message(msg).await;
-        let charon_route_attribution = charon_route_attribution(routed.charon_route.as_ref());
+        let manwe_route_attribution = manwe_route_attribution(routed.manwe_route.as_ref());
         let outbound_body = self.decorate_outbound_body(&routed.msg);
         let mut bacon_task = Task::new(
             format!("send {} {}", routed.requested_provider, routed.msg.subject),
@@ -104,8 +104,8 @@ impl HermesService {
                 "stream": routed.msg.stream,
                 "priority": routed.msg.priority,
                 "created_at_utc": routed.msg.created_at_utc,
-                "charon_route": routed.charon_route,
-                "charon_route_attribution": charon_route_attribution.clone(),
+                "manwe_route": routed.manwe_route,
+                "manwe_route_attribution": manwe_route_attribution.clone(),
                 "status": "queued",
             }),
         )?;
@@ -122,8 +122,8 @@ impl HermesService {
                 "stream": routed.msg.stream,
                 "priority": routed.msg.priority,
                 "created_at_utc": routed.msg.created_at_utc,
-                "charon_route": routed.charon_route,
-                "charon_route_attribution": charon_route_attribution.clone(),
+                "manwe_route": routed.manwe_route,
+                "manwe_route_attribution": manwe_route_attribution.clone(),
             }),
         )?;
 
@@ -207,8 +207,8 @@ impl HermesService {
                 "attempts": receipt.attempts,
                 "streaming": receipt.streaming,
                 "chunks_sent": receipt.chunks_sent,
-                "charon_route": routed.charon_route,
-                "charon_route_attribution": charon_route_attribution.clone(),
+                "manwe_route": routed.manwe_route,
+                "manwe_route_attribution": manwe_route_attribution.clone(),
             }),
         ) {
             tracing::debug!(error = %err, "HERMES bacon-lite send record failed");
@@ -224,8 +224,8 @@ impl HermesService {
             "streaming": receipt.streaming,
             "chunks_sent": receipt.chunks_sent,
             "error": receipt.error,
-            "charon_route": routed.charon_route,
-            "charon_route_attribution": charon_route_attribution
+            "manwe_route": routed.manwe_route,
+            "manwe_route_attribution": manwe_route_attribution
         }))
     }
 
@@ -290,7 +290,7 @@ impl HermesService {
                         requested_provider: msg.provider.clone(),
                         resolved_transport: msg.provider.clone(),
                         msg,
-                        charon_route: None,
+                        manwe_route: None,
                     };
                     self.append_outbound_result(&routed, &receipt)?;
                 }
@@ -368,8 +368,8 @@ impl HermesService {
                 "streaming": receipt.streaming,
                 "chunks_sent": receipt.chunks_sent,
                 "error": receipt.error,
-                "charon_route": routed.charon_route,
-                "charon_route_attribution": charon_route_attribution(routed.charon_route.as_ref()),
+                "manwe_route": routed.manwe_route,
+                "manwe_route_attribution": manwe_route_attribution(routed.manwe_route.as_ref()),
                 "soterion": sigil.clone(),
                 "reported_at_utc": Utc::now().to_rfc3339(),
             }),
@@ -399,8 +399,8 @@ impl HermesService {
                 "error": receipt.error,
                 "policy_decision": "allowed",
                 "content_redacted": true,
-                "charon_route": routed.charon_route,
-                "charon_route_attribution": charon_route_attribution(routed.charon_route.as_ref()),
+                "manwe_route": routed.manwe_route,
+                "manwe_route_attribution": manwe_route_attribution(routed.manwe_route.as_ref()),
                 "soterion": sigil,
                 "reported_at_utc": Utc::now().to_rfc3339(),
             }),
@@ -413,13 +413,13 @@ impl HermesService {
     ) -> RoutedOutboundMessage {
         let requested_provider = msg.provider.clone();
         if !requested_provider.eq_ignore_ascii_case("auto")
-            && !requested_provider.eq_ignore_ascii_case("charon")
+            && !requested_provider.eq_ignore_ascii_case("manwe")
         {
             return RoutedOutboundMessage {
                 requested_provider: requested_provider.clone(),
                 resolved_transport: requested_provider,
                 msg,
-                charon_route: None,
+                manwe_route: None,
             };
         }
 
@@ -427,8 +427,8 @@ impl HermesService {
             .ok()
             .filter(|value| !value.trim().is_empty())
             .unwrap_or_else(|| "discord".to_string());
-        let route = self.charon_outbound_route(&msg).ok();
-        if let Some(attribution) = charon_route_attribution(route.as_ref()) {
+        let route = self.manwe_outbound_route(&msg).ok();
+        if let Some(attribution) = manwe_route_attribution(route.as_ref()) {
             tracing::info!(
                 provider_id = attribution
                     .get("provider_id")
@@ -459,7 +459,7 @@ impl HermesService {
             requested_provider,
             resolved_transport: fallback_transport,
             msg: resolved,
-            charon_route: route,
+            manwe_route: route,
         }
     }
 

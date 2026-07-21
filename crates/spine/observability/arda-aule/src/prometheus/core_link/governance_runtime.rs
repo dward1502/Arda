@@ -173,8 +173,8 @@ pub fn write_system_control_projection(core_root: &Path) {
     let usage_limits =
         read_yaml_as_json(workspace_root.join("config").join("llm_usage_limits.yaml"))
             .unwrap_or_else(|| json!({}));
-    let charon_config =
-        read_toml_as_json(workspace_root.join("config").join("charon.providers.toml"))
+    let manwe_config =
+        read_toml_as_json(workspace_root.join("config").join("manwe.providers.toml"))
             .unwrap_or_else(|| json!({}));
 
     let snapshot = json!({
@@ -189,7 +189,7 @@ pub fn write_system_control_projection(core_root: &Path) {
         "connected_sources": {
             "package_registry": package_registry,
             "llm_usage_limits": usage_limits,
-            "charon_provider_config": charon_config
+            "manwe_provider_config": manwe_config
         }
     });
 

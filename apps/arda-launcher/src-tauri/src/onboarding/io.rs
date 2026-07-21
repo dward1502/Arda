@@ -48,10 +48,10 @@ pub fn build_proposed_config(profile: &EnvironmentProfile, root: &Path) -> Resul
                 .unwrap_or_default(),
         ),
         (
-            "{{charon_base_url}}",
+            "{{manwe_base_url}}",
             profile
                 .endpoints
-                .charon_base_url
+                .manwe_base_url
                 .as_ref()
                 .map(|u| u.value.clone())
                 .unwrap_or_default(),

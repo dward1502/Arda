@@ -142,7 +142,7 @@ pub(super) fn package_required_runtime_env_keys(tool: &str) -> Vec<&'static str>
 
 pub(super) fn package_integration_lane(tool: &str, meta: &Value) -> &'static str {
     match tool {
-        "litellm" => "charon_provider",
+        "litellm" => "manwe_provider",
         "crawl4ai" => "athena_ingestion",
         "playwright-mcp" => "mcp_browser",
         "discord-mcp" => "mcp_communications",
@@ -215,13 +215,13 @@ pub(super) fn package_next_action(
 ) -> &'static str {
     match (tool, activation_status) {
         ("litellm", "active_in_system") => {
-            "LiteLLM is already live in CHARON; keep provider health, models, and gateway policy aligned"
+            "LiteLLM is already live in MANWE; keep provider health, models, and gateway policy aligned"
         }
         ("crawl4ai", "active_in_system") => {
             "ATHENA can already ingest through crawl4ai; use `annunimas athena crawl <url>` when capture is needed"
         }
         ("llmfit", "active_signal") => {
-            "llmfit recommendations are already visible to CHARON route policy; tune route heuristics rather than wiring a new runtime"
+            "llmfit recommendations are already visible to MANWE route policy; tune route heuristics rather than wiring a new runtime"
         }
         ("oh-my-opencode", "active_signal") => {
             "OpenCode is already bounded by sovereign route contracts; tune agent route mappings rather than treating it as an unintegrated package"
@@ -234,7 +234,7 @@ pub(super) fn package_next_action(
         }
         _ => match (tool, integration_state) {
             ("litellm", "ready_for_activation") => {
-                "set CHARON litellm_gateway enabled=true and point the proxy URL at the live gateway"
+                "set MANWE litellm_gateway enabled=true and point the proxy URL at the live gateway"
             }
             ("litellm", _) => "complete LiteLLM env contract and provider activation path",
             ("crawl4ai", "ready_for_activation") => {
@@ -256,7 +256,7 @@ pub(super) fn package_next_action(
                 "complete NanoClaw channel authentication or edge enrollment to promote the contract into live runtime use"
             }
             ("nanoclaw", "evidence_ready") => "formalize NanoClaw runtime contract, local preflight, and Tailscale edge enrollment",
-            ("llmfit", "evidence_ready") => "feed model-fit recommendations into CHARON route policy",
+            ("llmfit", "evidence_ready") => "feed model-fit recommendations into MANWE route policy",
             _ => "promote from evidence into a bounded runtime or product surface",
         },
     }

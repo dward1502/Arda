@@ -37,7 +37,7 @@
   "agent_continuity_contract_path": "core/state/agent_continuity_contract.json",
   "intake_confidence_ladder_path": "core/state/intake_confidence_ladder.json",
   "operator_legibility_contract_path": "core/state/operator_legibility_contract.json",
-  "charon_router_path": "core/state/charon_router.json",
+  "manwe_router_path": "core/state/manwe_router.json",
   "extension_surface_contract_path": "core/state/extension_surface_contract.json",
   "extension_activation_backlog_path": "core/state/extension_activation_backlog.json",
   "opencode_productization_contract_path": "core/state/opencode_productization_contract.json",

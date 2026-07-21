@@ -302,7 +302,7 @@
 {"path": "apps/arda-hud/src/components/arda/hooks/useArdaRuntimePulse.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src/components/arda/hooks/useArdaWindowControls.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src/components/arda/hooks/useBoardroomSlotAssignments.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
-{"path": "apps/arda-hud/src/components/arda/hooks/useCharonLiveSnapshot.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
+{"path": "apps/arda-hud/src/components/arda/hooks/useManweLiveSnapshot.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src/components/arda/hooks/useLearningLoopData.test.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src/components/arda/hooks/useLearningLoopData.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src/components/arda/hooks/useMonitorFocusWindow.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
@@ -357,8 +357,8 @@
 {"path": "apps/arda-hud/src/components/arda/modules/systems/AuditReadinessPanel.test.tsx", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src/components/arda/modules/systems/AuditReadinessPanel.tsx", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src/components/arda/modules/systems/AutomationStatusPanel.tsx", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
-{"path": "apps/arda-hud/src/components/arda/modules/systems/CharonCapabilityPanel.test.tsx", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
-{"path": "apps/arda-hud/src/components/arda/modules/systems/CharonCapabilityPanel.tsx", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
+{"path": "apps/arda-hud/src/components/arda/modules/systems/ManweCapabilityPanel.test.tsx", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
+{"path": "apps/arda-hud/src/components/arda/modules/systems/ManweCapabilityPanel.tsx", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src/components/arda/modules/systems/FleetHealthPanel.tsx", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src/components/arda/modules/systems/KnowledgeActionContractPanel.test.tsx", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src/components/arda/modules/systems/KnowledgeActionContractPanel.tsx", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
@@ -424,7 +424,7 @@
 {"path": "apps/arda-hud/src/lib/boardroomSlotSettings.test.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src/lib/boardroomSlotSettings.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src/lib/bundleDerivation.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
-{"path": "apps/arda-hud/src/lib/charonLive.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
+{"path": "apps/arda-hud/src/lib/manweLive.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src/lib/configWalkthrough.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src/lib/endpointConfig.test.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src/lib/endpointConfig.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
@@ -872,7 +872,7 @@
 {"path": "apps/arda-hud/src.stub/components/arda/hooks/useArdaRuntimePulse.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src.stub/components/arda/hooks/useArdaWindowControls.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src.stub/components/arda/hooks/useBoardroomSlotAssignments.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
-{"path": "apps/arda-hud/src.stub/components/arda/hooks/useCharonLiveSnapshot.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
+{"path": "apps/arda-hud/src.stub/components/arda/hooks/useManweLiveSnapshot.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src.stub/components/arda/hooks/useLearningLoopData.test.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src.stub/components/arda/hooks/useLearningLoopData.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src.stub/components/arda/hooks/useMonitorFocusWindow.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
@@ -927,8 +927,8 @@
 {"path": "apps/arda-hud/src.stub/components/arda/modules/systems/AuditReadinessPanel.test.tsx", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src.stub/components/arda/modules/systems/AuditReadinessPanel.tsx", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src.stub/components/arda/modules/systems/AutomationStatusPanel.tsx", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
-{"path": "apps/arda-hud/src.stub/components/arda/modules/systems/CharonCapabilityPanel.test.tsx", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
-{"path": "apps/arda-hud/src.stub/components/arda/modules/systems/CharonCapabilityPanel.tsx", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
+{"path": "apps/arda-hud/src.stub/components/arda/modules/systems/ManweCapabilityPanel.test.tsx", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
+{"path": "apps/arda-hud/src.stub/components/arda/modules/systems/ManweCapabilityPanel.tsx", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src.stub/components/arda/modules/systems/FleetHealthPanel.tsx", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src.stub/components/arda/modules/systems/KnowledgeActionContractPanel.test.tsx", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src.stub/components/arda/modules/systems/KnowledgeActionContractPanel.tsx", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
@@ -994,7 +994,7 @@
 {"path": "apps/arda-hud/src.stub/lib/boardroomSlotSettings.test.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src.stub/lib/boardroomSlotSettings.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src.stub/lib/bundleDerivation.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
-{"path": "apps/arda-hud/src.stub/lib/charonLive.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
+{"path": "apps/arda-hud/src.stub/lib/manweLive.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src.stub/lib/configWalkthrough.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src.stub/lib/endpointConfig.test.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
 {"path": "apps/arda-hud/src.stub/lib/endpointConfig.ts", "type": "file", "sigil": "\ud83d\uddc2", "domain": "apps", "purpose": "application"}
@@ -1246,8 +1246,8 @@
 {"path": "config/autonomy_operating_loop.toml", "type": "file", "sigil": "\ud83d\uddc2", "domain": "config", "purpose": "operator config"}
 {"path": "config/business.toml", "type": "file", "sigil": "\ud83d\uddc2", "domain": "config", "purpose": "operator config"}
 {"path": "config/ceo_startup.yaml", "type": "file", "sigil": "\ud83d\uddc2", "domain": "config", "purpose": "operator config"}
-{"path": "config/charon.provider_candidates.toml", "type": "file", "sigil": "\ud83d\uddc2", "domain": "config", "purpose": "operator config"}
-{"path": "config/charon.providers.toml", "type": "file", "sigil": "\ud83d\uddc2", "domain": "config", "purpose": "operator config"}
+{"path": "config/manwe.provider_candidates.toml", "type": "file", "sigil": "\ud83d\uddc2", "domain": "config", "purpose": "operator config"}
+{"path": "config/manwe.providers.toml", "type": "file", "sigil": "\ud83d\uddc2", "domain": "config", "purpose": "operator config"}
 {"path": "config/chronos_audit_tasks.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "config", "purpose": "operator config"}
 {"path": "config/default.toml", "type": "file", "sigil": "\ud83d\uddc2", "domain": "config", "purpose": "operator config"}
 {"path": "config/federated_comms.toml", "type": "file", "sigil": "\ud83d\uddc2", "domain": "config", "purpose": "operator config"}
@@ -1276,7 +1276,7 @@
 {"path": "config/monitoring-setup/grafana-dashboards/INDEX.md", "type": "file", "sigil": "\ud83d\uddc2", "domain": "config", "purpose": "operator config"}
 {"path": "config/monitoring-setup/grafana-dashboards/README.md", "type": "file", "sigil": "\ud83d\uddc2", "domain": "config", "purpose": "operator config"}
 {"path": "config/monitoring-setup/grafana-dashboards/annunimas-fleet-overview.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "config", "purpose": "operator config"}
-{"path": "config/monitoring-setup/grafana-dashboards/charon-routing.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "config", "purpose": "operator config"}
+{"path": "config/monitoring-setup/grafana-dashboards/manwe-routing.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "config", "purpose": "operator config"}
 {"path": "config/monitoring-setup/grafana-dashboards/cluster-health.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "config", "purpose": "operator config"}
 {"path": "config/monitoring-setup/prometheus-central.yml", "type": "file", "sigil": "\ud83d\uddc2", "domain": "config", "purpose": "operator config"}
 {"path": "config/monitoring-setup/prometheus-rules/INDEX.md", "type": "file", "sigil": "\ud83d\uddc2", "domain": "config", "purpose": "operator config"}
@@ -1325,11 +1325,11 @@
 {"path": "core/knowledge/metrics/by_crate/ceo/beliefs.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
 {"path": "core/knowledge/metrics/by_crate/ceo/status.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
 {"path": "core/knowledge/metrics/by_crate/ceo/thoughts.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
-{"path": "core/knowledge/metrics/by_crate/charon/INDEX.md", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
-{"path": "core/knowledge/metrics/by_crate/charon/README.md", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
-{"path": "core/knowledge/metrics/by_crate/charon/providers.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
-{"path": "core/knowledge/metrics/by_crate/charon/state.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
-{"path": "core/knowledge/metrics/by_crate/charon/status.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
+{"path": "core/knowledge/metrics/by_crate/manwe/INDEX.md", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
+{"path": "core/knowledge/metrics/by_crate/manwe/README.md", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
+{"path": "core/knowledge/metrics/by_crate/manwe/providers.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
+{"path": "core/knowledge/metrics/by_crate/manwe/state.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
+{"path": "core/knowledge/metrics/by_crate/manwe/status.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
 {"path": "core/knowledge/metrics/by_crate/core/INDEX.md", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
 {"path": "core/knowledge/metrics/by_crate/core/README.md", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
 {"path": "core/knowledge/metrics/by_crate/core/status.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
@@ -1428,7 +1428,7 @@
 {"path": "core/state/ceo_council_runtime.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
 {"path": "core/state/ceo_council_sessions.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
 {"path": "core/state/chaos_log.jsonl", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
-{"path": "core/state/charon_router.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
+{"path": "core/state/manwe_router.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
 {"path": "core/state/client_delivery_portfolio.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
 {"path": "core/state/client_delivery_readiness.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
 {"path": "core/state/communication_adapter_contract.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
@@ -1485,7 +1485,7 @@
 {"path": "core/state/governance_gap_backlog.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
 {"path": "core/state/governance_priority_runtime.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
 {"path": "core/state/governance_runtime.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
-{"path": "core/state/hades_charon_layout.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
+{"path": "core/state/hades_manwe_layout.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
 {"path": "core/state/hades_lifecycle.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
 {"path": "core/state/hades_lifecycle_review.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
 {"path": "core/state/hades_nightly_operations.json", "type": "file", "sigil": "\ud83d\uddc2", "domain": "core", "purpose": "core state/governance/runtime output"}
@@ -3103,7 +3103,7 @@
 {"path": "crates/spine/runtime/manwe/src/adaptive/transport/ipc.rs", "type": "file", "sigil": "\ud83d\uddc2", "domain": "crates", "purpose": "Rust workspace crate"}
 {"path": "crates/spine/runtime/manwe/src/adaptive/transport/mod.rs", "type": "file", "sigil": "\ud83d\uddc2", "domain": "crates", "purpose": "Rust workspace crate"}
 {"path": "crates/spine/runtime/manwe/src/adaptive/types.rs", "type": "file", "sigil": "\ud83d\uddc2", "domain": "crates", "purpose": "Rust workspace crate"}
-{"path": "crates/spine/runtime/manwe/src/charon_remote.rs", "type": "file", "sigil": "\ud83d\uddc2", "domain": "crates", "purpose": "Rust workspace crate"}
+{"path": "crates/spine/runtime/manwe/src/manwe_remote.rs", "type": "file", "sigil": "\ud83d\uddc2", "domain": "crates", "purpose": "Rust workspace crate"}
 {"path": "crates/spine/runtime/manwe/src/config.rs", "type": "file", "sigil": "\ud83d\uddc2", "domain": "crates", "purpose": "Rust workspace crate"}
 {"path": "crates/spine/runtime/manwe/src/error.rs", "type": "file", "sigil": "\ud83d\uddc2", "domain": "crates", "purpose": "Rust workspace crate"}
 {"path": "crates/spine/runtime/manwe/src/gateway.rs", "type": "file", "sigil": "\ud83d\uddc2", "domain": "crates", "purpose": "Rust workspace crate"}
@@ -3115,7 +3115,7 @@
 {"path": "crates/spine/runtime/manwe/src/routing_adapter.rs", "type": "file", "sigil": "\ud83d\uddc2", "domain": "crates", "purpose": "Rust workspace crate"}
 {"path": "crates/spine/runtime/manwe/src/support.rs", "type": "file", "sigil": "\ud83d\uddc2", "domain": "crates", "purpose": "Rust workspace crate"}
 {"path": "crates/spine/runtime/manwe/src/types.rs", "type": "file", "sigil": "\ud83d\uddc2", "domain": "crates", "purpose": "Rust workspace crate"}
-{"path": "data/charon_route_smoke_history.jsonl", "type": "file", "sigil": "\ud83d\uddc2", "domain": "data", "purpose": "runtime data"}
+{"path": "data/manwe_route_smoke_history.jsonl", "type": "file", "sigil": "\ud83d\uddc2", "domain": "data", "purpose": "runtime data"}
 {"path": "docs/CODEMAP.md", "type": "file", "sigil": "\ud83d\uddc2", "domain": "docs", "purpose": "documentation"}
 {"path": "docs/DIRECTORY_INDEX.md", "type": "file", "sigil": "\ud83d\uddc2", "domain": "docs", "purpose": "documentation"}
 {"path": "docs/FIELD_NOTES.md", "type": "file", "sigil": "\ud83d\uddc2", "domain": "docs", "purpose": "documentation"}
@@ -3134,8 +3134,8 @@
 {"path": "docs/archive/arda-varda-tests/ingest.rs.archived-2026-07-16", "type": "file", "sigil": "\ud83d\uddc2", "domain": "docs", "purpose": "documentation"}
 {"path": "docs/archive/arda-varda-tests/learning_contract_test.rs.archived-2026-07-16", "type": "file", "sigil": "\ud83d\uddc2", "domain": "docs", "purpose": "documentation"}
 {"path": "docs/archive/arda-varda-tests/local_harness.rs.archived-2026-07-16", "type": "file", "sigil": "\ud83d\uddc2", "domain": "docs", "purpose": "documentation"}
-{"path": "docs/archive/charon-manwe-migration-phases.md", "type": "file", "sigil": "\ud83d\uddc2", "domain": "docs", "purpose": "documentation"}
-{"path": "docs/archive/charon-manwe-migration.md", "type": "file", "sigil": "\ud83d\uddc2", "domain": "docs", "purpose": "documentation"}
+{"path": "docs/archive/manwe-manwe-migration-phases.md", "type": "file", "sigil": "\ud83d\uddc2", "domain": "docs", "purpose": "documentation"}
+{"path": "docs/archive/manwe-manwe-migration.md", "type": "file", "sigil": "\ud83d\uddc2", "domain": "docs", "purpose": "documentation"}
 {"path": "docs/archive/extracted-executor-crates/arda-human.archived-2026-07-17/Cargo.toml", "type": "file", "sigil": "\ud83d\uddc2", "domain": "docs", "purpose": "documentation"}
 {"path": "docs/archive/extracted-executor-crates/arda-human.archived-2026-07-17/src/lib.rs", "type": "file", "sigil": "\ud83d\uddc2", "domain": "docs", "purpose": "documentation"}
 {"path": "docs/archive/extracted-executor-crates/arda-human.archived-2026-07-17/tests/canary.rs", "type": "file", "sigil": "\ud83d\uddc2", "domain": "docs", "purpose": "documentation"}

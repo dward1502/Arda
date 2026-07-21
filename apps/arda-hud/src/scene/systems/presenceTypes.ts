@@ -22,7 +22,7 @@ export type SovereignAgentId =
   | 'arandur'
   | 'athena'
   | 'hermes'
-  | 'charon'
+  | 'manwe'
   | 'warden'
   | 'oracle'
   | 'plutus'

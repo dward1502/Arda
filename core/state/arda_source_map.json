@@ -108,7 +108,7 @@
       "id": "routing_and_comms",
       "owner": "charon_hermes",
       "primary_sources": [
-        "core/state/charon_router.json",
+        "core/state/manwe_router.json",
         "core/state/hermes_command.json"
       ],
       "status": "ready",
@@ -234,7 +234,7 @@
       "status": "ready",
       "supplemental_sources": [
         "core/state/governance_runtime.json",
-        "core/state/charon_router.json",
+        "core/state/manwe_router.json",
         "core/state/control_plane_lockdown.json",
         "core/state/athena_runtime.json",
         "data/athena/policy_readiness.jsonl",

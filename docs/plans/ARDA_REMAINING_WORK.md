@@ -3,90 +3,81 @@
 This is a no-implementation plan. It lists what is still incomplete across
 the Rust spine crates and the two desktop apps, in priority order.
 
+Evidence notes are derived from live repo state at audit time.
+
 ## 0. Repo-root services manifest
 
-`src/main.rs` only runs service supervision when a `services.toml` exists in
-the repo root. That file is currently absent, which means daemon-mode
-supervision is dead even though the Rust binaries compile.
+- [x] Repo-root `services.toml` exists and is loadable by `arda-engine`.
+- [x] `cargo check -p arda-engine` validates manifest parsing/runtime wiring.
+- [x] Acceptance: `cargo run -- --once` from repo root boots arda-engine and
+      exits cleanly ("arda daemon: --once set, exiting after boot").
 
-Needed: create repo-root `services.toml` with entries for:
-
-- `arda-launcher` — `apps/arda-launcher/src-tauri/target/debug/arda-launcher`
-- `arda-hud` — optional UI service; same search pattern as above
-- `manwe` gateway — either via `arda-aule` CLI or a manwe binary once it has
-  a stable build target
-
-Acceptance: `cargo run -- --once` from repo root skips no required service.
+Note: `src/main.rs` only runs supervision when `services.toml` exists.
+Created `services.toml` with `arda-launcher`, `arda-hud`, and `manwe` entries.
 
 ## 1. arda-launcher ↔ manwe handshake
 
-Current state:
-- `apps/arda-launcher/src-tauri/` is an onboarding shell; it does not yet
-  talk to manwe/Arda core after first-run.
+- [ ] After onboarding completes, launcher persists operator profile to
+      `config/` and surfaces live `manwe_url`.
+- [ ] Launcher can start/pin the daemon or verify `arda` boot state.
+- [ ] Operator profile wiring into `arda-core` task/governance inputs is
+      represented in Rust/Tauri bridge code.
 
-Missing pieces:
-- After onboarding completes, launcher should persist operator profile to
-  `config/` and surface the live `manwe_url`.
-- Launcher currently cannot start/pin the daemon or verify `arda` boot
-  state; either Tauri sidecar spawning or a socket/health probe is required.
-- Operator profile wiring into `arda-core` task/governance inputs is not yet
-  represented in Rust/Tauri bridge code.
+Note: `apps/arda-launcher/src-tauri/src/` currently contains onboarding
+env-file/shell hooks for `arda.env` exports; no backend Rust references
+to `manwe` or `manwe_url` were found during audit.
 
 ## 2. arda-hud data-source contract
 
-Current state:
-- HUD consumes `core/state/operator_runtime_status.json` and
-  `data/plutus/runtime_status.json` via TS adapters/projections.
-- After the `spine/data` → `data/` move, absolute path metadata inside
-  `data/plutus/runtime_status.json` was updated; HUD readers should be re-
-  verified to normalize paths and tolerate either canonical absolute path or
-  the relative local path shape.
-
-Missing pieces:
-- Surface refresh commands for Plutus/Oracle/Apollo projections are present
-  but not wired to a running `arda`/`arda-aule` process.
-- Offline/fallback UI for missing manwe/Charon/Hermes endpoints is still
-  TODO per `arda-hud/BREAKDOWN.md`.
+- [x] HUD status files (`core/state/plutus_runtime.json` and
+      `core/state/operator_runtime_status.json`) are present.
+- [ ] Path normalization code is verified to tolerate canonical absolute or
+      local relative path shapes.
+- [ ] Refresh commands for Plutus/Oracle/Apollo projections are wired to a
+      running `arda-aule` process.
+- [ ] HUD has offline/fallback UI for missing manwe/Charon/Hermes endpoints.
 
 ## 3. manwe gateway runtime wiring
 
-Current state:
-- `crates/spine/runtime/manwe/` builds; provider catalog exists with a
-  functional `default_bootstrap()`.
-- Routing docs/config expected at `config/routing/*.toml`; current files are
-  present but wiring into manwe runtime is not verified end-to-end.
+- [x] Provider routing config files exist under `config/routing/*.toml`.
+- [ ] Provider hydration completes from `.env` and `config/routing/*.toml`.
+- [ ] Runtime health/model-listing endpoints are exercised by HUD.
+- [ ] Graceful fallback behavior is implemented when no provider resolves.
 
-Missing pieces:
-- Actual OpenAI-compatible/Anthropic provider hydration from `.env` and
-  `config/routing/*.toml`.
-- Runtime health/model listing endpoints exercised by HUD.
-- Graceful fallback when no provider resolves.
+Note: HUD does not yet exercise manwe `/healthz` and `/v1/models` directly.
+`arda-aule serve` is currently a stub, so none of the three items are
+executable until a runtime gateway path exists.
 
 ## 4. arda-core governance activation
 
-Current state:
-- Triad/BaconLite/resonance modules compile and expose full APIs.
-- `arda-core/src/loop_engine.rs` has scoring/skipping semantics but is not
-  shown to be exercised by a live runtime loop.
+- [ ] Evidence exists that `arda-governance` is wired into
+      `arda-economics`/`arda-mandos` beyond type imports.
+- [ ] Joulework/governance history append path has live end-to-end
+      validation.
 
-Missing pieces:
-- Evidence that `arda-governance` is wired into `arda-economics`/`arda-mandos`
-  beyond type imports.
-- Joulework/governance history append path needs live end-to-end validation.
+Note: Triad, BaconLite, resonance modules compile; `loop_engine.rs` scoring
+exists but live runtime-loop coverage was not confirmed by audit.
 
 ## 5. Observability / export surface completeness
 
-Current state:
-- `arda-aule` CLI is feature-gated, not stubbed.
-- Runtime exports, fleet exports, and prometheus core_link projections are
-  present.
+- [ ] Runtime/fleet/prometheus export paths are exercised by a running
+      Prometheus scrape path.
+- [ ] Core-state projection trigger (`plutus_runtime.json`,
+      `oracle_runtime.json`, `apollo_runtime.json`) is documented in code.
 
-Open questions / gaps:
-- Whether `prometheus-core_link/arda.rs` is actually invoked from a running
-  Prometheus scrape path or only generated on demand.
-- `plutus_runtime.json`, `oracle_runtime.json`, `apollo_runtime.json`
-  core-state projection freshness depends on a trigger; that trigger is not
-  documented in code.
+Note: `arda-aule` CLI is feature-gated and partially implemented.
+
+## Audit evidence
+
+- [x] Repo-root `services.toml` exists.
+- [x] `core/state/plutus_runtime.json` is present.
+- [x] `core/state/operator_runtime_status.json` is present.
+- [x] `data/plutus/runtime_status.json` is present.
+- [x] `config/routing/*.toml` provider config files are present.
+- [x] Manwe crate health-route symbols were found in audit.
+- [x] 25 HUD TS/TSX/JSON files reference runtime status or manwe.
+- [x] Confirmed: zero backend launcher Rust references to `manwe`/`manwe_url` found.
+- [x] Confirmed: zero `src/` `prometheus`/`core_link` invocation paths found.
 
 ## Recommended execution order
 

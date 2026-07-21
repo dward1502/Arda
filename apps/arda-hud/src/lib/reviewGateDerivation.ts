@@ -514,13 +514,13 @@ export function getRuntimeDrift(bundle: ArdaBundle) {
         declaredContextWindow: Number.isFinite(getNumber(entry.declared_context_window, NaN))
           ? getNumber(entry.declared_context_window, NaN)
           : null,
-        charonContextWindow: Number.isFinite(getNumber(entry.charon_context_window, NaN))
-          ? getNumber(entry.charon_context_window, NaN)
+        manweContextWindow: Number.isFinite(getNumber(entry.manwe_context_window, NaN))
+          ? getNumber(entry.manwe_context_window, NaN)
           : null,
         actualProcessContextWindow: Number.isFinite(getNumber(entry.actual_process_context_window, NaN))
           ? getNumber(entry.actual_process_context_window, NaN)
           : null,
-        declaredVsCharon: getBoolean(drift?.declared_vs_charon, false),
+        declaredVsManwe: getBoolean(drift?.declared_vs_manwe, false),
         declaredVsLocalProcess: getBoolean(drift?.declared_vs_local_process, false),
         localRuntimeStatus: getString(entry.local_runtime_status, ''),
       }
@@ -528,7 +528,7 @@ export function getRuntimeDrift(bundle: ArdaBundle) {
 
   return {
     totalNodes: items.length,
-    driftedNodes: items.filter((item) => item.declaredVsCharon || item.declaredVsLocalProcess).length,
+    driftedNodes: items.filter((item) => item.declaredVsManwe || item.declaredVsLocalProcess).length,
     items,
   }
 }

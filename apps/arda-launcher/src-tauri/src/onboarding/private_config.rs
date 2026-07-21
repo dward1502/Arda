@@ -71,16 +71,16 @@ pub fn build_private_config_stage(profile: &EnvironmentProfile, root: &Path) -> 
             "Stores sockets and short-lived runtime files.",
         ),
         config_entry(
-            "CHARON_BASE_URL",
+            "MANWE_BASE_URL",
             profile
                 .endpoints
-                .charon_base_url
+                .manwe_base_url
                 .as_ref()
                 .map(|url| url.value.clone())
                 .unwrap_or_else(|| "http://127.0.0.1:3001".to_string()),
             true,
             false,
-            "Required before Charon service checks can be promoted from planning to live setup.",
+            "Required before Manwe service checks can be promoted from planning to live setup.",
         ),
         config_entry(
             "HERMES_BASE_URL",

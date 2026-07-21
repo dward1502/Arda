@@ -20,7 +20,7 @@ use arda_engine::supervisor::{Shutdown, Supervisor};
 #[derive(Parser, Debug)]
 #[command(name = "arda", version, about = "Arda system daemon")]
 struct Cli {
-    /// Log filter (e.g. `arda=debug,arda_charon=trace`).
+    /// Log filter (e.g. `arda=debug,arda_manwe=trace`).
     #[arg(short, long, default_value = "info")]
     log: String,
 

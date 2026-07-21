@@ -3,7 +3,7 @@
 //! Frozen contract: `manwe` is the static local root gateway. These types
 //! describe the gateway endpoint and the provider catalog records without
 //! pulling in any adaptive-routing / quota-mesh machinery. They exist so the
-//! charon→gateway bridge (`charon_remote`) can name a concrete gateway and its
+//! manwe→gateway bridge (`manwe_remote`) can name a concrete gateway and its
 //! providers while the real authority wiring is ported incrementally.
 
 use serde::{Deserialize, Serialize};

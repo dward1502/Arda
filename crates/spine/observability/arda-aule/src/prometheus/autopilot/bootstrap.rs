@@ -67,7 +67,7 @@ fn realm_from_id(id: &str) -> &'static str {
         "hermes" => "communications",
         "warden" => "monitoring",
         "mnemosyne" => "memory",
-        "charon" => "inference",
+        "manwe" => "inference",
         _ => "command",
     }
 }
@@ -80,7 +80,7 @@ pub fn seed_default_registry() -> AgentRegistry {
         ("athena", "knowledge"),
         ("prometheus", "command"),
         ("hermes", "communications"),
-        ("charon", "inference"),
+        ("manwe", "inference"),
         ("plutus", "finance"),
         ("council", "governance"),
         ("oracle", "governance"),

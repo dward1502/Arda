@@ -12,7 +12,7 @@ interface RoutingActionContractPanelProps {
 
 const SAFE_ROUTING_ACTION_IDS: SystemActionId[] = [
   'arda.chronos_run_provider_checks',
-  'arda.charon_refresh_provider_intelligence',
+  'arda.manwe_refresh_provider_intelligence',
 ]
 
 function descriptorById(descriptors: SystemActionDescriptor[], actionId: SystemActionId): SystemActionDescriptor | null {
@@ -35,7 +35,7 @@ export function buildRoutingActionContract() {
       governanceGate: 'route mutation requires a separate approval contract',
     },
     evidencePaths: [
-      'core/state/charon_router.json',
+      'core/state/manwe_router.json',
       'core/state/provider_intelligence.json',
       'core/state/chronos_runtime.json',
       'core/state/provider_token_usage.json',

@@ -753,7 +753,7 @@ pub(crate) fn export_litellm_routing_contract_impl() -> Result<Value> {
         &root.join("core/state/package_runtime_activation.json"),
         json!({}),
     );
-    let charon_router = read_json_or(&root.join("core/state/charon_router.json"), json!({}));
+    let manwe_router = read_json_or(&root.join("core/state/manwe_router.json"), json!({}));
     let runtime_governor = read_json_or(
         &root.join("core/state/runtime_governor_contract.json"),
         json!({}),
@@ -765,7 +765,7 @@ pub(crate) fn export_litellm_routing_contract_impl() -> Result<Value> {
         .and_then(|v| v.get("litellm"))
         .cloned()
         .unwrap_or_else(|| json!({}));
-    let provider = charon_router
+    let provider = manwe_router
         .get("provider_pressure")
         .and_then(|v| v.get("providers"))
         .and_then(Value::as_array)
@@ -788,7 +788,7 @@ pub(crate) fn export_litellm_routing_contract_impl() -> Result<Value> {
     let payload = json!({
         "schema_version": "arda.litellm-routing-contract.v1",
         "generated_at_utc": now_utc(),
-        "authority": "package_enablement + package_runtime_activation + charon_router + runtime_governor_contract",
+        "authority": "package_enablement + package_runtime_activation + manwe_router + runtime_governor_contract",
         "tool": {
             "name": "litellm",
             "repo": litellm.get("repo").cloned().unwrap_or(Value::Null),
@@ -809,7 +809,7 @@ pub(crate) fn export_litellm_routing_contract_impl() -> Result<Value> {
             "models": provider.get("models").cloned().unwrap_or(Value::Null),
         },
         "routing_contract": {
-            "role": "normalized gateway for CHARON and downstream consumers",
+            "role": "normalized gateway for MANWE and downstream consumers",
             "preferred_for": ["planning", "context_heavy", "provider_normalization"],
             "provider_priority": [
                 "litellm_gateway",
@@ -817,14 +817,14 @@ pub(crate) fn export_litellm_routing_contract_impl() -> Result<Value> {
                 "edge_backbone",
             ],
             "model_control_surface": "core/state/model_control_surface.json",
-            "charon_router": "core/state/charon_router.json",
+            "manwe_router": "core/state/manwe_router.json",
         },
         "governor_binding": {
             "input_surface_present": runtime_governor.get("input_surfaces").and_then(Value::as_object).map(|m| m.contains_key("package_enablement")).unwrap_or(false),
             "package_tool_projection_present": tool_row != json!({}),
             "governor_next_action": tool_row.get("next_action").cloned().unwrap_or(Value::Null),
             "writes_through": [
-                "core/state/charon_router.json",
+                "core/state/manwe_router.json",
                 "core/state/model_control_surface.json",
                 "core/state/runtime_governor_contract.json",
             ],
@@ -849,7 +849,7 @@ pub(crate) fn export_llmfit_routing_contract_impl() -> Result<Value> {
         &root.join("core/state/package_runtime_activation.json"),
         json!({}),
     );
-    let charon_router = read_json_or(&root.join("core/state/charon_router.json"), json!({}));
+    let manwe_router = read_json_or(&root.join("core/state/manwe_router.json"), json!({}));
     let runtime_governor = read_json_or(
         &root.join("core/state/runtime_governor_contract.json"),
         json!({}),
@@ -871,7 +871,7 @@ pub(crate) fn export_llmfit_routing_contract_impl() -> Result<Value> {
         .find(|row| row.get("tool").and_then(Value::as_str) == Some("llmfit"))
         .cloned()
         .unwrap_or_else(|| json!({}));
-    let package_runtime_signals = charon_router
+    let package_runtime_signals = manwe_router
         .get("state_snapshot")
         .and_then(|v| v.get("package_runtime_signals"))
         .cloned()
@@ -886,7 +886,7 @@ pub(crate) fn export_llmfit_routing_contract_impl() -> Result<Value> {
     let payload = json!({
         "schema_version": "arda.llmfit-routing-contract.v1",
         "generated_at_utc": now_utc(),
-        "authority": "package_enablement + package_runtime_activation + charon_router + runtime_governor_contract",
+        "authority": "package_enablement + package_runtime_activation + manwe_router + runtime_governor_contract",
         "tool": {
             "name": "llmfit",
             "repo": llmfit.get("repo").cloned().unwrap_or(Value::Null),
@@ -902,7 +902,7 @@ pub(crate) fn export_llmfit_routing_contract_impl() -> Result<Value> {
             "governor_consumes_llmfit_as_policy_input": true,
         },
         "routing_contract": {
-            "signal_source": "core/state/charon_router.json",
+            "signal_source": "core/state/manwe_router.json",
             "signals": llmfit_signals,
             "intended_effects": [
                 "tune route heuristics from local fit recommendations",
@@ -910,7 +910,7 @@ pub(crate) fn export_llmfit_routing_contract_impl() -> Result<Value> {
                 "keep provider selection auditable instead of implicit",
             ],
             "writes_through": [
-                "core/state/charon_router.json",
+                "core/state/manwe_router.json",
                 "core/state/model_control_surface.json",
             ],
         },

@@ -7,7 +7,7 @@ use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-fn default_charon_llm_base_url() -> String {
+fn default_manwe_llm_base_url() -> String {
     format!("http://{}:{}/v1", "127.0.0.1", 5110)
 }
 
@@ -17,15 +17,15 @@ fn default_crawl4ai_url() -> String {
 
 /// Build the LLM provider used by ATHENA for digestion-extraction calls.
 ///
-/// Default: route through the local Charon model-switch using
+/// Default: route through the local Manwe model-switch using
 /// `ARDA_ATHENA_LLM_BASE_URL` or the split loopback host/port fallback;
-/// Charon picks the model from its routing matrix when model is `"auto"`.
+/// Manwe picks the model from its routing matrix when model is `"auto"`.
 ///
 /// Overrides:
 /// - `ARDA_ATHENA_LLM_BASE_URL`: override base URL
 /// - `ARDA_ATHENA_LLM_MODEL`: override default model id
 /// - `ARDA_ATHENA_LLM_API_KEY_ENV`: name of env var to read for bearer auth
-/// - `ARDA_ATHENA_LLM_USE_CONFIG=1`: opt out of Charon and use the
+/// - `ARDA_ATHENA_LLM_USE_CONFIG=1`: opt out of Manwe and use the
 ///   configured default provider from `config/default.toml`
 fn build_athena_extraction_provider(
     config: &arda_core::config::Config,
@@ -37,14 +37,14 @@ fn build_athena_extraction_provider(
         return super::super::cli_bootstrap::build_provider(config);
     }
     let base_url = std::env::var("ARDA_ATHENA_LLM_BASE_URL")
-        .unwrap_or_else(|_| default_charon_llm_base_url());
+        .unwrap_or_else(|_| default_manwe_llm_base_url());
     let model = std::env::var("ARDA_ATHENA_LLM_MODEL").unwrap_or_else(|_| "auto".to_string());
     let api_key = std::env::var("ARDA_ATHENA_LLM_API_KEY_ENV")
         .ok()
         .and_then(|key| std::env::var(key).ok())
         .filter(|s| !s.trim().is_empty());
     Arc::new(OpenAiCompatibleProvider::new(
-        "charon", &base_url, api_key, &model,
+        "manwe", &base_url, api_key, &model,
     ))
 }
 

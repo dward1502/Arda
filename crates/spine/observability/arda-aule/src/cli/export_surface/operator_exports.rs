@@ -46,7 +46,7 @@ pub(crate) fn export_remote_operator_contract_impl() -> Result<Value> {
     );
 
     let providers = model_control
-        .get("charon_providers")
+        .get("manwe_providers")
         .and_then(Value::as_array)
         .into_iter()
         .flatten()
@@ -108,7 +108,7 @@ pub(crate) fn export_remote_operator_contract_impl() -> Result<Value> {
         },
         "execution_doctrine": {
             "default_dispatch": "remote_system_execution",
-            "governor_authority": "charon + opencode_route_governor",
+            "governor_authority": "manwe + opencode_route_governor",
             "hud_authority": "observer_and_override_only",
             "opencode_shell_role": "consumer_of_route_contracts_not_hidden_authority",
             "tailscale_is_required_for_offsite_backbone": true,
@@ -116,7 +116,7 @@ pub(crate) fn export_remote_operator_contract_impl() -> Result<Value> {
         "tool_surface": {
             "workstation_command_surface": {
                 "script": "scripts/remote/operator/remote_operator_workstation.sh",
-                "authority": "remote_operator_workstation + remote_operator_sync + remote_operator_probe + remote_operator_charon",
+                "authority": "remote_operator_workstation + remote_operator_sync + remote_operator_probe + remote_operator_manwe",
                 "transport": "tailscale_ssh_with_managed_operator_alias",
                 "receipt_log": "data/remote_operator/workstation_attempts.jsonl",
                 "last_result_path": "data/remote_operator/workstation_last_result.json",
@@ -132,9 +132,9 @@ pub(crate) fn export_remote_operator_contract_impl() -> Result<Value> {
                         "effect": "check_remote_operator_network_and_endpoint_health"
                     },
                     {
-                        "action": "charon-smoke",
+                        "action": "manwe-smoke",
                         "class": "governed_remote_execution",
-                        "effect": "verify_charon_routing_path_from_operator_node"
+                        "effect": "verify_manwe_routing_path_from_operator_node"
                     },
                     {
                         "action": "sync",
@@ -289,7 +289,7 @@ pub(crate) fn export_tool_garage_contract_impl() -> Result<Value> {
                 "family_id": "remote_operator_transport",
                 "kind": "universal",
                 "placement": "operator_terminal",
-                "surface": "scripts/remote/operator/remote_operator_sync.sh + scripts/remote/operator/remote_operator_probe.sh + scripts/remote/operator/remote_operator_charon.sh",
+                "surface": "scripts/remote/operator/remote_operator_sync.sh + scripts/remote/operator/remote_operator_probe.sh + scripts/remote/operator/remote_operator_manwe.sh",
                 "receipt_log": "data/remote_operator/",
                 "governance_lane": "remote_operator_transport",
                 "actions": [
@@ -302,7 +302,7 @@ pub(crate) fn export_tool_garage_contract_impl() -> Result<Value> {
                         "class": "inspection"
                     },
                     {
-                        "action": "charon-smoke",
+                        "action": "manwe-smoke",
                         "class": "governed_remote_execution"
                     }
                 ]
@@ -322,7 +322,7 @@ pub(crate) fn export_tool_garage_contract_impl() -> Result<Value> {
                 "planned_actions": ["voice_ingress", "boardroom_dispatch", "discord_ingress"]
             },
             {
-                "family_id": "charon_tools",
+                "family_id": "manwe_tools",
                 "kind": "subsystem_specific",
                 "placement": "workstation",
                 "planned_actions": ["route_probe", "provider_reload", "governor_apply"]
@@ -652,7 +652,7 @@ pub(crate) fn export_playwright_mcp_productization_contract_impl() -> Result<Val
         "productization_lanes": [
             {
                 "lane": "mcp_browser_session",
-                "owner": "hermes_charon",
+                "owner": "hermes_manwe",
                 "purpose": "Expose browser navigation/page interaction as a governed on-demand MCP session tool.",
                 "runtime_status": adapter_row.get("runtime_status").cloned().unwrap_or_else(|| runtime_surface.get("status").cloned().unwrap_or(Value::Null)),
                 "next_action": adapter_row.get("next_action").cloned().unwrap_or_else(|| package_row.get("next_action").cloned().unwrap_or(Value::Null)),
@@ -800,7 +800,7 @@ pub(crate) fn export_nanoclaw_productization_contract_impl() -> Result<Value> {
         "productization_lanes": [
             {
                 "lane": "edge_runtime",
-                "owner": "charon_warden",
+                "owner": "manwe_warden",
                 "purpose": "Promote NanoClaw as a bounded edge runtime tied to a visible Tailnet target rather than unmanaged local auth state.",
                 "runtime_status": runtime_surface.get("status").cloned().unwrap_or(Value::Null),
                 "next_action": package_row.get("next_action").cloned().unwrap_or(Value::Null),

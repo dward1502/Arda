@@ -13,7 +13,7 @@
     "model_control_surface": "core/state/model_control_surface.json",
     "operator_runtime_status": "core/state/operator_runtime_status.json",
     "permission_profiles": "core/state/permission_profiles.json",
-    "charon_router": "core/state/charon_router.json"
+    "charon_router": "core/state/manwe_router.json"
   },
   "dimensions": [
     {
@@ -74,7 +74,7 @@
         "core/state/governance_runtime.json",
         "core/state/model_control_surface.json",
         "core/state/operator_runtime_status.json",
-        "core/state/charon_router.json",
+        "core/state/manwe_router.json",
         "core/state/config_walkthrough_validation.json"
       ],
       "next_action": "Add write-backed ARDA apply flow with dry-run diff and operator approval."
@@ -98,7 +98,7 @@
         "core/state/governance_runtime.json",
         "core/state/model_control_surface.json",
         "core/state/operator_runtime_status.json",
-        "core/state/charon_router.json",
+        "core/state/manwe_router.json",
         "core/state/config_walkthrough_validation.json"
       ],
       "next_action": "Bind business profile to client delivery package templates and intake governance."
@@ -122,7 +122,7 @@
         "core/state/governance_runtime.json",
         "core/state/model_control_surface.json",
         "core/state/operator_runtime_status.json",
-        "core/state/charon_router.json",
+        "core/state/manwe_router.json",
         "core/state/config_walkthrough_validation.json"
       ],
       "next_action": "Connect profile activation to ATHENA batch ingest and MNEMOSYNE seed recall previews."

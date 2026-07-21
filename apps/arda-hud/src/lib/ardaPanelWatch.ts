@@ -13,7 +13,7 @@ export type ArdaPanel =
   | 'learningLoop'
   | 'autonomy'
   | 'athena'
-  | 'charon'
+  | 'manwe'
 
 export type ArdaPanelEventType =
   | 'path_changed'
@@ -72,7 +72,7 @@ export const PANEL_PATH_REGISTRY: Array<{ panel: ArdaPanel; settingKeys: Array<k
       'athena_policy_readiness_path',
     ],
   },
-  { panel: 'charon', settingKeys: ['charon_router_path', 'fleet_runtime_drift_path'] },
+  { panel: 'manwe', settingKeys: ['manwe_router_path', 'fleet_runtime_drift_path'] },
 ]
 
 class ArdaPanelWatcher {
@@ -139,7 +139,7 @@ class ArdaPanelWatcher {
       'learningLoop',
       'autonomy',
       'athena',
-      'charon',
+      'manwe',
     ]
 
     await Promise.all(panels.map((panel) => this.checkPanel(panel)))

@@ -156,7 +156,7 @@
       "status": "proposed",
       "target_files": [
         "config/model_route_matrix.toml",
-        "core/state/charon_router.json",
+        "core/state/manwe_router.json",
         "core/state/runtime_budget_policy.json"
       ],
       "title": "Shift burst ATHENA demand off the local lane"
@@ -207,7 +207,7 @@
       "status": "proposed",
       "target_files": [
         "core/state/runtime_admission_receipts.json",
-        "core/state/charon_router.json",
+        "core/state/manwe_router.json",
         "core/state/model_control_surface.json"
       ],
       "title": "Retry or reroute deferred Hermes outbound work"
@@ -224,7 +224,7 @@
       "status": "proposed",
       "target_files": [
         "core/state/runtime_admission_receipts.json",
-        "core/state/charon_router.json",
+        "core/state/manwe_router.json",
         "core/state/model_control_surface.json"
       ],
       "title": "Retry or reroute deferred Hermes outbound work"

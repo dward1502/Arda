@@ -476,7 +476,7 @@ pub(crate) async fn handle(command: HermesCommands) -> anyhow::Result<()> {
             evidence_path,
             oracle_query_id,
             oracle_verdict_path,
-            charon_route_evidence,
+            manwe_route_evidence,
             quorum_threshold,
             approval,
             render,
@@ -487,7 +487,7 @@ pub(crate) async fn handle(command: HermesCommands) -> anyhow::Result<()> {
                 evidence_path,
                 oracle_query_id,
                 oracle_verdict_path,
-                charon_route_evidence,
+                manwe_route_evidence,
                 quorum_threshold,
                 approval,
             )?;

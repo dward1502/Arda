@@ -69,7 +69,7 @@ arda-engine
 - `src/manwe.rs` re-exports the full `manwe` crate publicly:
   - `SpannedManweGateway`, `ProviderRecord`, `ProviderCatalog`
   - `Transport`, `ApiTransport`, `CharonTransport`
-  - `CharonCore`, `CharonGovernance`, `CharonMnemosyne`, `CharonPlutus`
+  - `ManweCore`, `ManweGovernance`, `ManweMnemosyne`, `CharonPlutus`
   - optional `CharonService` when `manwe` is built with `adaptive` feature
 
 ### Runtime

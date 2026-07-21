@@ -24,7 +24,7 @@ pub(crate) async fn execute(cli: Cli, config: &Config) -> anyhow::Result<()> {
         Commands::Aipkg { command } => aipkg::handle(command)?,
         Commands::Athena { command } => athena::handle(command, config).await?,
         Commands::Prometheus { command } => prometheus::handle(command).await?,
-        Commands::Charon { command } => charon::handle(command).await?,
+        Commands::Manwe { command } => manwe::handle(command).await?,
         Commands::Mnemosyne { command } => mnemosyne::handle(command).await?,
         Commands::Hades { command } => hades::handle(command).await?, // 🔥 FIXED
         Commands::Hermes { command } => hermes::handle(command).await?,

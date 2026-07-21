@@ -1,20 +1,20 @@
 #![cfg(feature = "full-cli")]
 use super::super::*;
 
-pub(crate) async fn handle(command: CharonCommands) -> anyhow::Result<()> {
-    let service = CharonService::from_default_or_fallback()?;
+pub(crate) async fn handle(command: ManweCommands) -> anyhow::Result<()> {
+    let service = ManweService::from_default_or_fallback()?;
     let default_socket_path =
-        socket_path_from_env("ARDA_CHARON_SOCKET", "data/charon/charon.sock");
+        socket_path_from_env("ARDA_MANWE_SOCKET", "data/manwe/manwe.sock");
     match command {
-        CharonCommands::Start {
+        ManweCommands::Start {
             socket_path,
             http_addr,
             http_enabled,
         } => {
             let socket_path = expand_home(&socket_path);
-            let daemon = CharonDaemon::new(
+            let daemon = ManweDaemon::new(
                 service.with_socket_path(&socket_path),
-                CharonDaemonConfig {
+                ManweDaemonConfig {
                     socket_path,
                     http_enabled,
                     http_addr,
@@ -22,8 +22,8 @@ pub(crate) async fn handle(command: CharonCommands) -> anyhow::Result<()> {
             );
             daemon.run().await?;
         }
-        CharonCommands::Status { json: _, compact } => {
-            let out = charon_call_or_local_async(
+        ManweCommands::Status { json: _, compact } => {
+            let out = manwe_call_or_local_async(
                 &default_socket_path,
                 "status",
                 serde_json::json!({}),
@@ -36,8 +36,8 @@ pub(crate) async fn handle(command: CharonCommands) -> anyhow::Result<()> {
                 println!("{}", serde_json::to_string_pretty(&out)?);
             }
         }
-        CharonCommands::State => {
-            let out = charon_call_or_local_async(
+        ManweCommands::State => {
+            let out = manwe_call_or_local_async(
                 &default_socket_path,
                 "state",
                 serde_json::json!({}),
@@ -46,8 +46,8 @@ pub(crate) async fn handle(command: CharonCommands) -> anyhow::Result<()> {
             .await?;
             println!("{}", serde_json::to_string_pretty(&out)?);
         }
-        CharonCommands::Providers => {
-            let out = charon_call_or_local_async(
+        ManweCommands::Providers => {
+            let out = manwe_call_or_local_async(
                 &default_socket_path,
                 "providers",
                 serde_json::json!({}),
@@ -56,8 +56,8 @@ pub(crate) async fn handle(command: CharonCommands) -> anyhow::Result<()> {
             .await?;
             println!("{}", serde_json::to_string_pretty(&out)?);
         }
-        CharonCommands::RouteAudit { limit } => {
-            let out = charon_call_or_local_async(
+        ManweCommands::RouteAudit { limit } => {
+            let out = manwe_call_or_local_async(
                 &default_socket_path,
                 "route_history",
                 serde_json::json!({"limit": limit}),
@@ -72,8 +72,8 @@ pub(crate) async fn handle(command: CharonCommands) -> anyhow::Result<()> {
             let out = route_audit_summary_from_value(out, "ipc");
             println!("{}", serde_json::to_string_pretty(&out)?);
         }
-        CharonCommands::Observability => {
-            let out = charon_call_or_local_async(
+        ManweCommands::Observability => {
+            let out = manwe_call_or_local_async(
                 &default_socket_path,
                 "observability",
                 serde_json::json!({}),
@@ -82,8 +82,8 @@ pub(crate) async fn handle(command: CharonCommands) -> anyhow::Result<()> {
             .await?;
             println!("{}", serde_json::to_string_pretty(&out)?);
         }
-        CharonCommands::OperatorSummary { compact } => {
-            let out = charon_call_or_local_async(
+        ManweCommands::OperatorSummary { compact } => {
+            let out = manwe_call_or_local_async(
                 &default_socket_path,
                 "operator_summary",
                 serde_json::json!({}),
@@ -96,17 +96,17 @@ pub(crate) async fn handle(command: CharonCommands) -> anyhow::Result<()> {
                 println!("{}", serde_json::to_string_pretty(&out)?);
             }
         }
-        CharonCommands::Eval { dry_run } => {
-            let out = charon_call_or_local_async(
+        ManweCommands::Eval { dry_run } => {
+            let out = manwe_call_or_local_async(
                 &default_socket_path,
                 "eval",
                 serde_json::json!({"dry_run": dry_run}),
-                || async { Ok(service.charon_eval(dry_run).await?) },
+                || async { Ok(service.manwe_eval(dry_run).await?) },
             )
             .await?;
             println!("{}", serde_json::to_string_pretty(&out)?);
         }
-        CharonCommands::Route {
+        ManweCommands::Route {
             agent_id,
             force_provider_id,
             exclude_provider_ids,
@@ -121,14 +121,14 @@ pub(crate) async fn handle(command: CharonCommands) -> anyhow::Result<()> {
             if !exclude_provider_ids.is_empty() {
                 options["exclude_provider_ids"] = serde_json::json!(exclude_provider_ids);
             }
-            let envelope = CharonRequestEnvelope {
+            let envelope = ManweRequestEnvelope {
                 agent_id,
                 task_type: task_type.clone(),
                 priority,
                 messages: vec![serde_json::json!({"role":"user","content":prompt})],
                 options,
             };
-            let out = charon_call_or_local_async(
+            let out = manwe_call_or_local_async(
                 &default_socket_path,
                 "route",
                 serde_json::to_value(&envelope)?,
@@ -137,7 +137,7 @@ pub(crate) async fn handle(command: CharonCommands) -> anyhow::Result<()> {
             .await?;
             println!("{}", serde_json::to_string_pretty(&out)?);
         }
-        CharonCommands::Proxy {
+        ManweCommands::Proxy {
             agent_id,
             force_provider_id,
             exclude_provider_ids,
@@ -155,14 +155,14 @@ pub(crate) async fn handle(command: CharonCommands) -> anyhow::Result<()> {
             if !exclude_provider_ids.is_empty() {
                 options["exclude_provider_ids"] = serde_json::json!(exclude_provider_ids);
             }
-            let envelope = CharonRequestEnvelope {
+            let envelope = ManweRequestEnvelope {
                 agent_id,
                 task_type,
                 priority,
                 messages: vec![serde_json::json!({"role":"user","content":prompt})],
                 options,
             };
-            let out = charon_call_or_local_async(
+            let out = manwe_call_or_local_async(
                 &default_socket_path,
                 "proxy",
                 serde_json::to_value(&envelope)?,
@@ -171,11 +171,11 @@ pub(crate) async fn handle(command: CharonCommands) -> anyhow::Result<()> {
             .await?;
             println!("{}", serde_json::to_string_pretty(&out)?);
         }
-        CharonCommands::Cooldown {
+        ManweCommands::Cooldown {
             provider_id,
             seconds,
         } => {
-            let out = charon_call_or_local_async(
+            let out = manwe_call_or_local_async(
                 &default_socket_path,
                 "cooldown",
                 serde_json::json!({
@@ -192,13 +192,13 @@ pub(crate) async fn handle(command: CharonCommands) -> anyhow::Result<()> {
             .await?;
             println!("{}", serde_json::to_string_pretty(&out)?);
         }
-        CharonCommands::ProviderResult {
+        ManweCommands::ProviderResult {
             provider_id,
             ok,
             latency_ms,
             error,
         } => {
-            let out = charon_call_or_local_async(
+            let out = manwe_call_or_local_async(
                 &default_socket_path,
                 "provider_result",
                 serde_json::json!({
@@ -217,8 +217,8 @@ pub(crate) async fn handle(command: CharonCommands) -> anyhow::Result<()> {
             .await?;
             println!("{}", serde_json::to_string_pretty(&out)?);
         }
-        CharonCommands::ReloadConfig => {
-            let out = charon_call_or_local_async(
+        ManweCommands::ReloadConfig => {
+            let out = manwe_call_or_local_async(
                 &default_socket_path,
                 "reload_config",
                 serde_json::json!({}),
@@ -227,7 +227,7 @@ pub(crate) async fn handle(command: CharonCommands) -> anyhow::Result<()> {
             .await?;
             println!("{}", serde_json::to_string_pretty(&out)?);
         }
-        CharonCommands::Probe {
+        ManweCommands::Probe {
             only,
             no_tools,
             timeout_secs,
@@ -262,7 +262,7 @@ pub(crate) async fn handle(command: CharonCommands) -> anyhow::Result<()> {
                     let provider_id = provider_id.to_string();
                     let model_id = model_id.to_string();
                     let error_for_update = error.clone();
-                    let _ = charon_call_or_local_async(
+                    let _ = manwe_call_or_local_async(
                         &default_socket_path,
                         "model_streaming_validation",
                         payload,
@@ -283,7 +283,7 @@ pub(crate) async fn handle(command: CharonCommands) -> anyhow::Result<()> {
             }
             println!("{}", serde_json::to_string_pretty(&report)?);
         }
-        CharonCommands::Discover {
+        ManweCommands::Discover {
             only,
             timeout_secs,
             grep,
@@ -292,9 +292,9 @@ pub(crate) async fn handle(command: CharonCommands) -> anyhow::Result<()> {
             let report = discover_providers(&providers, &only, timeout_secs, &grep).await;
             println!("{}", serde_json::to_string_pretty(&report)?);
         }
-        CharonCommands::Paths => {
+        ManweCommands::Paths => {
             let out =
-                charon_call_or_local(&default_socket_path, "paths", serde_json::json!({}), || {
+                manwe_call_or_local(&default_socket_path, "paths", serde_json::json!({}), || {
                     Ok(service.paths())
                 })
                 .await?;

@@ -434,7 +434,7 @@ pub(crate) fn export_source_lesson_embodiment_backlog_impl() -> Result<Value> {
 
 fn provider_map(surface: &Value) -> BTreeMap<String, Value> {
     surface
-        .get("charon_providers")
+        .get("manwe_providers")
         .and_then(Value::as_array)
         .into_iter()
         .flatten()
@@ -1083,7 +1083,7 @@ fn backlog_rows(registry: &Value) -> Vec<Value> {
             "src_df11630e",
             (
                 100,
-                "athena_charon",
+                "athena_manwe",
                 "Close Scrapling native-runtime promotion gate",
                 "Replace shim-backed posture with native package/runtime proof and promote only after the final gate passes.",
             ),

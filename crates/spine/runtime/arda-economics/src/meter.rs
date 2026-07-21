@@ -370,7 +370,7 @@ impl EnergyMeter for HardwareMeter {
 /// estimates from each agent.
 fn default_intent_profile(intent: &str) -> WorkProfile {
     let (provider, model, input, output) = match intent {
-        // Charon probes are short prompts, short replies.
+        // Manwe probes are short prompts, short replies.
         "probe_provider" | "retire_failing" => ("anthropic", "claude-haiku-4-5", 200u64, 100u64),
         // Plutus summaries: read structured data, write a tally.
         "collect_joule_samples"

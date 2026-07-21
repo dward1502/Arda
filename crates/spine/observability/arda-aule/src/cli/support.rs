@@ -10,7 +10,7 @@ pub(crate) async fn run_maintenance_cycle(
     let prometheus = PrometheusService::from_core("core")?;
     let athena = AthenaStore::from_default_or_workspace_fallback()?;
     let hades = HadesService::from_default_or_fallback()?;
-    let charon = CharonService::from_default_or_fallback()?;
+    let manwe = ManweService::from_default_or_fallback()?;
     let mnemosyne = MnemosyneService::from_default_or_fallback()?;
     let hermes = HermesService::from_default_or_fallback()?;
     let plutus = PlutusService::from_default_or_workspace_fallback()?;
@@ -24,16 +24,16 @@ pub(crate) async fn run_maintenance_cycle(
     let plutus_status = plutus.status().await?;
 
     let mut auto_cooldown = Vec::new();
-    for provider in charon.providers().await {
+    for provider in manwe.providers().await {
         if provider.enabled && provider.consecutive_failures >= 3 && !provider.in_cooldown {
-            charon
+            manwe
                 .mark_provider_cooldown(&provider.id, cooldown_seconds)
                 .await?;
             auto_cooldown.push(provider.id);
         }
     }
 
-    let charon_status = charon.status().await?;
+    let manwe_status = manwe.status().await?;
     let home = home_root();
     let var_disk_pct = disk_usage_percent(home.to_string_lossy().as_ref());
     let ruleset = load_active_ruleset();
@@ -41,7 +41,7 @@ pub(crate) async fn run_maintenance_cycle(
     let governance_observation = build_governance_observation(
         &serde_json::to_value(&prometheus_status)?,
         &serde_json::to_value(&hermes_status)?,
-        &serde_json::to_value(&charon_status)?,
+        &serde_json::to_value(&manwe_status)?,
         &serde_json::to_value(&hades_status)?,
         &serde_json::to_value(&athena_status)?,
         &plutus_status,
@@ -54,16 +54,16 @@ pub(crate) async fn run_maintenance_cycle(
     let queue_observability = queue_observability_snapshot();
     persist_queue_observability(&queue_observability);
     let mut issues = Vec::new();
-    if charon_status.providers_degraded > 0 {
+    if manwe_status.providers_degraded > 0 {
         issues.push(format!(
-            "charon_degraded_providers={}",
-            charon_status.providers_degraded
+            "manwe_degraded_providers={}",
+            manwe_status.providers_degraded
         ));
     }
-    if charon_status.providers_exhausted > 0 {
+    if manwe_status.providers_exhausted > 0 {
         issues.push(format!(
-            "charon_exhausted_providers={}",
-            charon_status.providers_exhausted
+            "manwe_exhausted_providers={}",
+            manwe_status.providers_exhausted
         ));
     }
     if hades_status.pending_actions >= 25 {
@@ -124,7 +124,7 @@ pub(crate) async fn run_maintenance_cycle(
         "cycle": "prometheus_maintenance",
         "hades_sweep": sweep,
         "hades_status": hades_status,
-        "charon_status": charon_status,
+        "manwe_status": manwe_status,
         "prometheus_status": prometheus_status,
         "athena_status": athena_status,
         "hermes_status": hermes_status,
@@ -133,7 +133,7 @@ pub(crate) async fn run_maintenance_cycle(
         "governance_observation": governance_observation,
         "queue_observability": queue_observability,
         "active_ruleset": ruleset,
-        "charon_auto_cooldown_applied": auto_cooldown,
+        "manwe_auto_cooldown_applied": auto_cooldown,
         "disk_var_used_pct": var_disk_pct,
         "prune": prune_result,
         "warden_informant": warden_report,
@@ -146,7 +146,7 @@ pub(crate) fn runtime_surface() -> serde_json::Value {
         "paths": {
             "ARDA_ATHENA_HOME": env_or("ARDA_ATHENA_HOME", "data/athena"),
             "ARDA_PROMETHEUS_HOME": env_or("ARDA_PROMETHEUS_HOME", "data/prometheus"),
-            "ARDA_CHARON_HOME": env_or("ARDA_CHARON_HOME", "data/charon"),
+            "ARDA_MANWE_HOME": env_or("ARDA_MANWE_HOME", "data/manwe"),
             "ARDA_HADES_HOME": env_or("ARDA_HADES_HOME", "data/hades"),
             "ARDA_HERMES_HOME": env_or("ARDA_HERMES_HOME", "data/hermes"),
             "ARDA_MNEMOSYNE_HOME": env_or("ARDA_MNEMOSYNE_HOME", "data/mnemosyne"),
@@ -164,7 +164,7 @@ pub(crate) fn runtime_surface() -> serde_json::Value {
         "sockets": {
             "ARDA_ATHENA_SOCKET": env_or("ARDA_ATHENA_SOCKET", &default_runtime_socket("athena.sock")),
             "ARDA_PROMETHEUS_SOCKET": env_or("ARDA_PROMETHEUS_SOCKET", &default_runtime_socket("prometheus.sock")),
-            "ARDA_CHARON_SOCKET": env_or("ARDA_CHARON_SOCKET", &default_runtime_socket("charon.sock")),
+            "ARDA_MANWE_SOCKET": env_or("ARDA_MANWE_SOCKET", &default_runtime_socket("manwe.sock")),
             "ARDA_HADES_SOCKET": env_or("ARDA_HADES_SOCKET", &default_runtime_socket("hades.sock")),
             "ARDA_HERMES_SOCKET": env_or("ARDA_HERMES_SOCKET", &default_runtime_socket("hermes.sock")),
             "ARDA_MNEMOSYNE_SOCKET": env_or("ARDA_MNEMOSYNE_SOCKET", &default_runtime_socket("mnemosyne.sock")),
@@ -531,7 +531,7 @@ fn subsystem_projection_inventory() -> Vec<(&'static str, &'static str)> {
             "warden_nightly_doctrine",
             "core/state/warden_nightly_doctrine.json",
         ),
-        ("charon_router", "core/state/charon_router.json"),
+        ("manwe_router", "core/state/manwe_router.json"),
         ("hades_lifecycle", "core/state/hades_lifecycle.json"),
         ("hermes_command", "core/state/hermes_command.json"),
         (
@@ -557,9 +557,9 @@ fn hardened_subsystem_inventory() -> Vec<(String, String, String)> {
             default_runtime_socket("prometheus.sock"),
         ),
         (
-            "charon".to_string(),
+            "manwe".to_string(),
             "router".to_string(),
-            default_runtime_socket("charon.sock"),
+            default_runtime_socket("manwe.sock"),
         ),
         (
             "hades".to_string(),

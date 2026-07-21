@@ -46,7 +46,7 @@ soterion:
 - `ceo_council_runtime.json`
 - `ceo_council_sessions.json`
 - `chaos_log.jsonl`
-- `charon_router.json`
+- `manwe_router.json`
 - `client_delivery_portfolio.json`
 - `client_delivery_readiness.json`
 - `communication_adapter_contract.json`

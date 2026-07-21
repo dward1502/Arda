@@ -59,8 +59,8 @@ describe('CITADEL companion display projection', () => {
       scenario: 'alert',
       phase: 'awaiting_user',
       primaryAgent: 'warden',
-      supportAgents: ['charon'],
-      focus: ['warden', 'charon'],
+      supportAgents: ['manwe'],
+      focus: ['warden', 'manwe'],
       urgency: 'high',
       banner: 'Route anomaly requires operator review before autonomous action proceeds',
       action: 'Hold routing change until approved',
@@ -72,7 +72,7 @@ describe('CITADEL companion display projection', () => {
     expect(payload.scenario).toBe('recovery')
     expect(payload.event).toBe('awaiting_user')
     expect(payload.primary_agent).toBe('warden')
-    expect(payload.support_agents).toEqual(['charon'])
+    expect(payload.support_agents).toEqual(['manwe'])
     expect(payload.urgency).toBe('high')
     expect(payload.banner).toHaveLength(42)
     expect(payload.banner?.endsWith('…')).toBe(true)

@@ -43,7 +43,7 @@ export interface OperatorCockpitSurface {
     implementationReady: number
     latest: Array<{ sourceId: string; readiness: string; confidence: string }>
   }
-  charon: {
+  manwe: {
     providerCount: number
     availableProviderCount: number
     blockedProviderCount: number
@@ -81,7 +81,7 @@ export default function OperatorCockpitPanel({ surface }: OperatorCockpitPanelPr
   const marker = primarySigilForSource('arda')
   const attentionClear = surface.warden.effectiveAttention === 0
   const gapCount = surface.ledgerGaps.length
-  const charonWarn = surface.charon.cooldownCount + surface.charon.budgetPressureCount
+  const manweWarn = surface.manwe.cooldownCount + surface.manwe.budgetPressureCount
   const storageWarn = surface.storageHygiene.cleanupCandidateCount > 0 || surface.storageHygiene.status === 'warn'
   const autonomyWarn = surface.autonomyGate.cleanupPacketCount + surface.autonomyGate.externalSourceBlockedCount
 
@@ -108,10 +108,10 @@ export default function OperatorCockpitPanel({ surface }: OperatorCockpitPanelPr
           <span className="systems-kpi__label">Ledger Gaps</span>
           <strong className="systems-kpi__value">{gapCount}</strong>
         </article>
-        <article className={`systems-kpi ${charonWarn > 0 ? 'systems-kpi--warn' : 'systems-kpi--good'}`}>
-          <span className="systems-kpi__label">Charon Pressure</span>
-          <strong className="systems-kpi__value">{charonWarn}</strong>
-          <span className="systems-kpi__note">floor {surface.charon.toolContextFloor}</span>
+        <article className={`systems-kpi ${manweWarn > 0 ? 'systems-kpi--warn' : 'systems-kpi--good'}`}>
+          <span className="systems-kpi__label">Manwe Pressure</span>
+          <strong className="systems-kpi__value">{manweWarn}</strong>
+          <span className="systems-kpi__note">floor {surface.manwe.toolContextFloor}</span>
         </article>
         <article className={`systems-kpi ${storageWarn ? 'systems-kpi--warn' : 'systems-kpi--good'}`}>
           <span className="systems-kpi__label">HADES Storage</span>
@@ -147,11 +147,11 @@ export default function OperatorCockpitPanel({ surface }: OperatorCockpitPanelPr
         <span className="systems-chip systems-chip--muted">hermes receipts {surface.hermes.gatewayReceiptCount}</span>
         <span className="systems-chip systems-chip--muted">athena policy {surface.athena.policyReady}</span>
         <span className="systems-chip systems-chip--muted">athena reference {surface.athena.referenceOnly}</span>
-        <span className={`systems-chip ${charonWarn > 0 ? 'systems-chip--warn' : 'systems-chip--good'}`}>
-          charon available {surface.charon.availableProviderCount}/{surface.charon.providerCount}
+        <span className={`systems-chip ${manweWarn > 0 ? 'systems-chip--warn' : 'systems-chip--good'}`}>
+          manwe available {surface.manwe.availableProviderCount}/{surface.manwe.providerCount}
         </span>
-        <span className={`systems-chip ${surface.charon.blockedProviderCount > 0 ? 'systems-chip--warn' : 'systems-chip--good'}`}>
-          charon blocked {surface.charon.blockedProviderCount}
+        <span className={`systems-chip ${surface.manwe.blockedProviderCount > 0 ? 'systems-chip--warn' : 'systems-chip--good'}`}>
+          manwe blocked {surface.manwe.blockedProviderCount}
         </span>
         <span className={`systems-chip ${storageWarn ? 'systems-chip--warn' : 'systems-chip--good'}`}>
           storage {surface.storageHygiene.status}
@@ -204,14 +204,14 @@ export default function OperatorCockpitPanel({ surface }: OperatorCockpitPanelPr
 
         <article className="document-list__item">
           <div className="document-list__title-row">
-            <strong>Charon routing pressure</strong>
-            <span className={`systems-chip ${charonWarn > 0 ? 'systems-chip--warn' : 'systems-chip--good'}`}>
-              {surface.charon.availableProviderCount}/{surface.charon.providerCount}
+            <strong>Manwe routing pressure</strong>
+            <span className={`systems-chip ${manweWarn > 0 ? 'systems-chip--warn' : 'systems-chip--good'}`}>
+              {surface.manwe.availableProviderCount}/{surface.manwe.providerCount}
             </span>
           </div>
-          {surface.charon.warnings.length > 0 ? surface.charon.warnings.map((warning) => (
+          {surface.manwe.warnings.length > 0 ? surface.manwe.warnings.map((warning) => (
             <p key={`${warning.providerId}-${warning.state}`}>{warning.providerId} | {warning.state} | {warning.level} | {warning.detail}</p>
-          )) : <p>No Charon cooldown or budget pressure warnings in the loaded router projection.</p>}
+          )) : <p>No Manwe cooldown or budget pressure warnings in the loaded router projection.</p>}
         </article>
 
         <article className="document-list__item">

@@ -114,7 +114,7 @@ export const SURFACE_ADAPTER_MANIFESTS: SurfaceAdapterManifest[] = [
     provider: 'Grafana',
     kind: 'local_service',
     sourceZoneId: 'service_beelink_grafana',
-    summary: 'Local fleet observability surface hosted on Beelink for dashboards, Charon routing, cluster health, and autonomy queue telemetry.',
+    summary: 'Local fleet observability surface hosted on Beelink for dashboards, Manwe routing, cluster health, and autonomy queue telemetry.',
     externalUrl: 'http://100.103.125.88:3000',
     embedUrl: 'http://100.103.125.88:3000',
     allowInlineEmbed: false,

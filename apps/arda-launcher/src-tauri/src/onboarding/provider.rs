@@ -10,7 +10,7 @@ use crate::onboarding::helpers::{
 use crate::onboarding::types::*;
 
 pub fn provider_checklist(root: &Path) -> ProviderChecklist {
-    let providers_path = root.join("config/charon.providers.toml");
+    let providers_path = root.join("config/manwe.providers.toml");
     let mut provider_entries = Vec::new();
     let mut providers = Vec::new();
     let mut suggested_signatures = Vec::new();
@@ -225,7 +225,7 @@ pub fn provider_checklist(root: &Path) -> ProviderChecklist {
 
     if providers.is_empty() {
         suggested_signatures.push(
-            "Check config/charon.providers.toml; if missing, run from a repo-root with that file present."
+            "Check config/manwe.providers.toml; if missing, run from a repo-root with that file present."
                 .to_string(),
         );
     }
@@ -240,7 +240,7 @@ pub fn provider_checklist(root: &Path) -> ProviderChecklist {
 }
 
 pub(crate) fn provider_env_keys(root: &Path) -> BTreeSet<String> {
-    let providers_path = root.join("config/charon.providers.toml");
+    let providers_path = root.join("config/manwe.providers.toml");
     let mut keys = BTreeSet::new();
     if let Ok(raw) = fs::read_to_string(&providers_path) {
         if let Ok(parsed) = raw.parse::<TomlValue>() {

@@ -4,14 +4,15 @@ Source of truth for fleet nodes: `config/fleet.toml`
 
 ## Confirmed live nodes
 
-| node id | role | endpoint | health/models | models served | status |
+|| node id | role | endpoint | health/models | models served | status |
 | --- | --- | --- | --- | --- | --- |
-| node-core-hub | main_hub | `annunimas-core:9337` | HTTP 200 | LFM2.5-8B-A1B-Q4_K_M | active |
-| node-pi5-warden | warden_guardhouse | `warden:1234` | HTTP 200 | Qwen3.5-4B-Q4_K_M.gguf | active |
-| node-ser9-worker | ser9_sovereign_worker | `beelink:9337` | HTTP 200 | Ternary-Bonsai-8B-Q2_0 | active |
-| node-backbone-server | backbone_fast_general | `annunimas-server:8093` | HTTP 200 | lfm2.5-8b-a1b-q4km | active |
-| node-backbone-gemma4-coder | backbone_coder | `annunimas-server:8094` | HTTP 200 | qwen2.5-coder-7b-q4km | active |
-| node-backbone-vision | backbone_vision | `annunimas-server:8081` | HTTP 200 | Qwen2.5-VL-7B-Instruct | active |
+|| node-core-hub | main_hub | `annunimas-core:9337` | HTTP 200 | LFM2.5-8B-A1B-Q4_K_M | active |
+|| node-pi5-warden | warden_guardhouse | `warden:1234` | HTTP 200 | Qwen3.5-4B-Q4_K_M.gguf | active |
+|| node-ser9-worker | ser9_sovereign_worker | `beelink:9337` | HTTP 200 | Ternary-Bonsai-8B-Q2_0 | active |
+|| node-backbone-server | backbone_fast_general | `annunimas-server:8093` | HTTP 200 | lfm2.5-8b-a1b-q4km | inactive |
+|| node-backbone-gemma4-coder | backbone_coder | `annunimas-server:8094` | HTTP 200 | qwen2.5-coder-7b-q4km | inactive |
+|| node-backbone-vision | backbone_vision | `annunimas-server:8081` | HTTP 200 | Qwen2.5-VL-7B-Instruct | inactive |
+|| node-backbone-bonsai27 | backbone_ternary_27b | `annunimas-server:8095` | HTTP 200 | ternary-bonsai-27b-q2_0 | active |
 
 ## Offline / inactive nodes
 
@@ -60,4 +61,5 @@ cannot yet route to the live nodes above.
 - node-backbone-server -> `edge_backbone`
 - node-backbone-gemma4-coder -> `edge_backbone_coder`
 - node-backbone-vision -> `edge_backbone_vision`
+- node-backbone-bonsai27 -> `edge_backbone_bonsai27`
 - local fallback -> `local_placeholder`

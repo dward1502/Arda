@@ -664,7 +664,7 @@ export function getOperatorCockpitSurface(bundle: ArdaBundle, reviewGateItems: R
   const readinessRecords = [...latestReadinessBySource.values()]
   const readinessCount = (readiness: string) =>
     readinessRecords.filter((entry) => getString(entry.policy_readiness, 'reference_only') === readiness).length
-  const providerPressure = asRecord(bundle.charonRouter?.provider_pressure)
+  const providerPressure = asRecord(bundle.manweRouter?.provider_pressure)
   const pressureProviders = [
     ...asArray(providerPressure?.providers),
     ...asArray(providerPressure?.cooldowns),
@@ -683,7 +683,7 @@ export function getOperatorCockpitSurface(bundle: ArdaBundle, reviewGateItems: R
       budget_pressure_level: level,
     })
   }
-  const charonWarnings = [...uniquePressureProviders.values()]
+  const manweWarnings = [...uniquePressureProviders.values()]
     .filter((provider) => {
       const state = getString(provider.operational_state, 'ready')
       const level = getString(provider.budget_pressure_level, 'ok')
@@ -698,7 +698,7 @@ export function getOperatorCockpitSurface(bundle: ArdaBundle, reviewGateItems: R
       level: getString(provider.budget_pressure_level, getBoolean(provider.in_cooldown, false) ? 'critical' : 'ok'),
       detail: getString(provider.last_error, getString(provider.cooldown_until_utc, 'provider pressure')),
     }))
-  const routeGuardrails = asRecord(bundle.charonRouter?.route_guardrails)
+  const routeGuardrails = asRecord(bundle.manweRouter?.route_guardrails)
   const providerRecords = asArray(providerPressure?.providers)
     .map((entry) => asRecord(entry))
     .filter((entry): entry is JsonRecord => entry !== null)
@@ -796,14 +796,14 @@ export function getOperatorCockpitSurface(bundle: ArdaBundle, reviewGateItems: R
         }
       }),
     },
-    charon: {
+    manwe: {
       providerCount: providerRecords.length,
       availableProviderCount,
       blockedProviderCount,
-      cooldownCount: charonWarnings.filter((warning) => warning.state === 'cooldown').length,
-      budgetPressureCount: charonWarnings.filter((warning) => warning.level !== 'ok').length,
+      cooldownCount: manweWarnings.filter((warning) => warning.state === 'cooldown').length,
+      budgetPressureCount: manweWarnings.filter((warning) => warning.level !== 'ok').length,
       toolContextFloor: getNumber(routeGuardrails?.tool_execution_min_context_window, 64000),
-      warnings: charonWarnings,
+      warnings: manweWarnings,
     },
     autonomyGate: {
       decision: getString(liveAutonomyReadiness?.decision, 'unknown'),

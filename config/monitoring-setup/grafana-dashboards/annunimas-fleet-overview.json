@@ -265,12 +265,12 @@
     {
       "id": 20,
       "type": "bargauge",
-      "title": "Charon Provider Failure Budget Remaining",
+      "title": "Manwe Provider Failure Budget Remaining",
       "gridPos": { "h": 10, "w": 12, "x": 0, "y": 13 },
       "datasource": { "type": "prometheus", "uid": "${datasource}" },
       "targets": [
         {
-          "expr": "annunimas_charon_failure_budget_remaining",
+          "expr": "annunimas_manwe_failure_budget_remaining",
           "legendFormat": "{{provider_id}}",
           "instant": true,
           "refId": "A"

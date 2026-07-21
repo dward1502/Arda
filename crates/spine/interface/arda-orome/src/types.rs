@@ -101,7 +101,7 @@ pub struct BoardroomQuorumDecision {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct BoardroomCharonRouteEvidence {
+pub struct BoardroomManweRouteEvidence {
     pub route_evidence: Option<String>,
     pub selected_provider: Option<String>,
     pub selected_model: Option<String>,
@@ -117,7 +117,7 @@ pub struct BoardroomQuorumPacket {
     pub evidence_paths: Vec<String>,
     pub oracle: BoardroomOracleLink,
     pub quorum: BoardroomQuorumDecision,
-    pub charon_route: BoardroomCharonRouteEvidence,
+    pub manwe_route: BoardroomManweRouteEvidence,
     pub discord_projection_permitted: bool,
     pub operator_approval_required: bool,
     pub operator_approved: bool,
@@ -283,7 +283,7 @@ pub struct CouncilCommandSeat {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-pub struct CharonRouteHint {
+pub struct ManweRouteHint {
     pub provider: Option<String>,
     pub model: Option<String>,
     pub route_evidence: Option<String>,

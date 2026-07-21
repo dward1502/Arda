@@ -336,7 +336,7 @@
   "schema_version": "annunimas.runtime-governor-budget.v1",
   "source_surfaces": {
     "budget_config": "config/runtime_governor_budget.toml",
-    "charon_router": "core/state/charon_router.json",
+    "charon_router": "core/state/manwe_router.json",
     "plutus_runtime": "data/plutus/runtime_status.json"
   },
   "source_validity": {

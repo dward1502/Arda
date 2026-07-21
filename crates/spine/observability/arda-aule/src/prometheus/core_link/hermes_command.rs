@@ -154,7 +154,7 @@ pub fn write_hermes_command_projection(core_root: &Path) {
                     tool.get("package_enablement")
                         .and_then(|value| value.get("integration_lane"))
                         .and_then(Value::as_str)
-                        .map(|lane| lane.contains("communications") || lane.contains("charon"))
+                        .map(|lane| lane.contains("communications") || lane.contains("manwe"))
                         .unwrap_or(false)
                 })
                 .cloned()

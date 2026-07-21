@@ -77,15 +77,15 @@ pub(crate) fn export_runtime_admission_receipts_impl() -> Result<Value> {
 pub(crate) fn export_runtime_budget_policy_impl() -> Result<Value> {
     let root = workspace_root();
     let config_path = root.join("config/runtime_governor_budget.toml");
-    let charon_router_path = root.join("core/state/charon_router.json");
-    let charon_providers_path = root.join("config/charon.providers.toml");
+    let manwe_router_path = root.join("core/state/manwe_router.json");
+    let manwe_providers_path = root.join("config/manwe.providers.toml");
     let plutus_status_path = root.join("data/plutus/runtime_status.json");
     let out_path = root.join("core/state/runtime_budget_policy.json");
 
     let cfg = read_toml_or(&config_path, toml::Value::Table(Default::default()));
-    let charon = read_json_or(&charon_router_path, json!({}));
-    let charon_provider_cfg = read_toml_or(
-        &charon_providers_path,
+    let manwe = read_json_or(&manwe_router_path, json!({}));
+    let manwe_provider_cfg = read_toml_or(
+        &manwe_providers_path,
         toml::Value::Table(Default::default()),
     );
     let plutus = read_json_or(&plutus_status_path, json!({}));
@@ -94,12 +94,12 @@ pub(crate) fn export_runtime_budget_policy_impl() -> Result<Value> {
     let provider_cfg = toml_table(&cfg, "providers");
     let routing_load_shed = toml_table(&cfg, "routing_load_shed");
     let contract = toml_table(&cfg, "contract");
-    let configured_provider_rows = charon_provider_cfg
+    let configured_provider_rows = manwe_provider_cfg
         .get("provider")
         .and_then(toml::Value::as_array)
         .cloned()
         .unwrap_or_default();
-    let provider_rows = charon
+    let provider_rows = manwe
         .get("provider_pressure")
         .and_then(|value| value.get("providers"))
         .and_then(Value::as_array)
@@ -311,7 +311,7 @@ pub(crate) fn export_runtime_budget_policy_impl() -> Result<Value> {
         },
         "source_surfaces": {
             "budget_config": "config/runtime_governor_budget.toml",
-            "charon_router": "core/state/charon_router.json",
+            "manwe_router": "core/state/manwe_router.json",
             "plutus_runtime": "data/plutus/runtime_status.json",
         },
         "source_validity": {
@@ -558,12 +558,12 @@ fn runtime_recovery_policy(label: &str) -> Value {
         if label.contains("http") {
             return json!({
                 "kind": "route_shift",
-                "owner": "charon",
+                "owner": "manwe",
                 "title": "Shift burst ATHENA demand off the local lane",
                 "recommended_action": "prefer_backbone_or_gateway",
                 "writes_through": [
                     "config/model_route_matrix.toml",
-                    "core/state/charon_router.json",
+                    "core/state/manwe_router.json",
                     "core/state/runtime_budget_policy.json",
                 ],
                 "retry_surface": "cargo run --quiet -- athena deep-process --limit 25 --retry-failed",
@@ -590,7 +590,7 @@ fn runtime_recovery_policy(label: &str) -> Value {
             "recommended_action": "retry_outbound_then_reroute",
             "writes_through": [
                 "core/state/runtime_admission_receipts.json",
-                "core/state/charon_router.json",
+                "core/state/manwe_router.json",
                 "core/state/model_control_surface.json",
             ],
             "retry_surface": "cargo run --quiet -- hermes retry-outbound --limit 100",
@@ -610,15 +610,15 @@ fn runtime_recovery_policy(label: &str) -> Value {
             "retry_surface": "cargo run --quiet -- hades sweep --type manual",
         });
     }
-    if label.starts_with("charon_") {
+    if label.starts_with("manwe_") {
         return json!({
             "kind": "route_shift",
-            "owner": "charon",
+            "owner": "manwe",
             "title": "Reduce local routing pressure and shift to backbone lanes",
             "recommended_action": "prefer_backbone_or_gateway",
             "writes_through": [
                 "config/model_route_matrix.toml",
-                "core/state/charon_router.json",
+                "core/state/manwe_router.json",
                 "core/state/model_control_surface.json",
             ],
             "retry_surface": Value::Null,
@@ -993,7 +993,7 @@ pub(crate) fn export_runtime_governor_contract_impl() -> Result<Value> {
         &root.join("core/state/model_control_surface.json"),
         json!({}),
     );
-    let charon_router = read_json_or(&root.join("core/state/charon_router.json"), json!({}));
+    let manwe_router = read_json_or(&root.join("core/state/manwe_router.json"), json!({}));
     let fleet_runtime = read_json_or(&root.join("core/state/fleet_runtime.json"), json!({}));
     let fleet_control = read_json_or(
         &root.join("core/metrics/by_crate/prometheus/fleet_control.json"),
@@ -1018,7 +1018,7 @@ pub(crate) fn export_runtime_governor_contract_impl() -> Result<Value> {
         json!({}),
     );
 
-    let pressure_rows: HashMap<String, Value> = charon_router
+    let pressure_rows: HashMap<String, Value> = manwe_router
         .get("provider_pressure")
         .and_then(|value| value.get("providers"))
         .and_then(Value::as_array)
@@ -1030,7 +1030,7 @@ pub(crate) fn export_runtime_governor_contract_impl() -> Result<Value> {
         })
         .collect();
     let providers = model_control
-        .get("charon_providers")
+        .get("manwe_providers")
         .and_then(Value::as_array)
         .into_iter()
         .flatten()
@@ -1111,7 +1111,7 @@ pub(crate) fn export_runtime_governor_contract_impl() -> Result<Value> {
         "input_surfaces": {
             "model_control_surface": "core/state/model_control_surface.json",
             "opencode_route_governor": "core/state/opencode_route_governor.json",
-            "charon_router": "core/state/charon_router.json",
+            "manwe_router": "core/state/manwe_router.json",
             "runtime_budget_policy": "core/state/runtime_budget_policy.json",
             "fleet_runtime": "core/state/fleet_runtime.json",
             "fleet_control": "core/metrics/by_crate/prometheus/fleet_control.json",
@@ -1124,8 +1124,8 @@ pub(crate) fn export_runtime_governor_contract_impl() -> Result<Value> {
         },
         "capability_lanes": {
             "provider_budget_tracking": {
-                "owner": "charon",
-                "surfaces": ["core/state/charon_router.json", "core/state/model_control_surface.json"],
+                "owner": "manwe",
+                "surfaces": ["core/state/manwe_router.json", "core/state/model_control_surface.json"],
                 "summary": provider_limits,
                 "providers": providers,
             },
@@ -1137,7 +1137,7 @@ pub(crate) fn export_runtime_governor_contract_impl() -> Result<Value> {
                 "nodes": fleet_nodes,
             },
             "runtime_role_posture": {
-                "owner": "hermes_charon",
+                "owner": "hermes_manwe",
                 "surfaces": ["core/state/fleet_runtime.json", "core/state/model_control_surface.json", "core/state/opencode_route_governor.json"],
                 "placement": model_control.get("placement").cloned().unwrap_or(Value::Null),
                 "runtime_defaults": model_control.get("defaults").cloned().unwrap_or(Value::Null),
@@ -1161,21 +1161,21 @@ pub(crate) fn export_runtime_governor_contract_impl() -> Result<Value> {
                 "human_needed_total": operator_actions.get("summary").and_then(|v| v.get("human_needed_total")).cloned().unwrap_or(Value::Null),
             },
             "user_and_provider_budget_pressure": {
-                "owner": "plutus_charon",
-                "surfaces": ["core/state/runtime_budget_policy.json", "core/state/charon_router.json", "data/plutus/runtime_status.json"],
+                "owner": "plutus_manwe",
+                "surfaces": ["core/state/runtime_budget_policy.json", "core/state/manwe_router.json", "data/plutus/runtime_status.json"],
                 "summary": runtime_budget_policy.get("summary").cloned().unwrap_or(Value::Null),
                 "user_plan_budget": runtime_budget_policy.get("user_plan_budget").cloned().unwrap_or(Value::Null),
                 "provider_budgets": runtime_budget_policy.get("provider_budgets").cloned().unwrap_or(Value::Null),
             },
             "edge_model_rollout_and_readiness": {
-                "owner": "charon",
+                "owner": "manwe",
                 "surfaces": ["core/state/edge_model_rollout.json", "core/state/fleet_runtime.json"],
                 "summary": edge_model_rollout.get("summary").cloned().unwrap_or(Value::Null),
                 "targets": rollout_targets,
             },
             "edge_endpoint_verification": {
-                "owner": "charon",
-                "surfaces": ["core/state/edge_endpoint_verification.json", "config/charon.providers.toml"],
+                "owner": "manwe",
+                "surfaces": ["core/state/edge_endpoint_verification.json", "config/manwe.providers.toml"],
                 "summary": edge_endpoint_verification.get("summary").cloned().unwrap_or(Value::Null),
                 "targets": edge_endpoint_verification.get("targets").cloned().unwrap_or(Value::Null),
             },
@@ -1183,7 +1183,7 @@ pub(crate) fn export_runtime_governor_contract_impl() -> Result<Value> {
         "action_contracts": [
             {
                 "action": "monitor_provider_budgets",
-                "writes_through": ["core/state/charon_router.json"],
+                "writes_through": ["core/state/manwe_router.json"],
                 "description": "Observe daily/minute request limits, used counters, cooldowns, and provider health."
             },
             {
@@ -1208,7 +1208,7 @@ pub(crate) fn export_runtime_governor_contract_impl() -> Result<Value> {
             },
             {
                 "action": "verify_edge_endpoints",
-                "writes_through": ["core/state/edge_endpoint_verification.json", "config/charon.providers.toml", "core/state/charon_router.json"],
+                "writes_through": ["core/state/edge_endpoint_verification.json", "config/manwe.providers.toml", "core/state/manwe_router.json"],
                 "description": "Probe live node-local inference endpoints and detect contract drift between configured provider URLs and observed serving ports."
             },
         ],
@@ -1217,7 +1217,7 @@ pub(crate) fn export_runtime_governor_contract_impl() -> Result<Value> {
             "editable_surfaces": [
                 "config/fleet.toml",
                 "core/edge/targets.toml",
-                "config/charon.providers.toml",
+                "config/manwe.providers.toml",
                 "config/model_route_matrix.toml",
             ],
             "read_only_state_surfaces": [
@@ -1225,7 +1225,7 @@ pub(crate) fn export_runtime_governor_contract_impl() -> Result<Value> {
                 "core/state/runtime_budget_policy.json",
                 "core/state/edge_model_rollout.json",
                 "core/state/edge_endpoint_verification.json",
-                "core/state/charon_router.json",
+                "core/state/manwe_router.json",
                 "core/metrics/by_crate/prometheus/fleet_control.json",
                 "core/state/package_enablement.json",
             ],

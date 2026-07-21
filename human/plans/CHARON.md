@@ -7,7 +7,7 @@ CHARON is the Arda inference routing and provider health subsystem. It owns mode
 The current CHARON contract is represented by these primary surfaces:
 
 - `core/projects/Plans/CHARON.md` — quick reference and plan pointer
-- `core/state/charon_router.json` — router projection and provider posture
+- `core/state/manwe_router.json` — router projection and provider posture
 - `config/charon.providers.toml` — dynamic provider/model configuration
 - `data/charon/state.jsonl` — runtime route/provider state ledger
 - `core/metrics/by_crate/charon/` — crate-level metrics output path
@@ -50,7 +50,7 @@ The file explicitly warns that `healthy = true/false` should not be set in provi
 ### Completed / Present
 - Core CHARON crate exists at `crates/arda-charon`.
 - Dynamic provider configuration exists at `config/charon.providers.toml`.
-- Router projection exists at `core/state/charon_router.json`.
+- Router projection exists at `core/state/manwe_router.json`.
 - Provider state/cooldown/degradation posture is exported for ARDA/operator visibility.
 - Provider model capabilities are represented in config for routing decisions.
 - Fleet bootstrap recovery evidence is embedded in the router projection.
@@ -77,7 +77,7 @@ The file explicitly warns that `healthy = true/false` should not be set in provi
    - Ensure weak local providers are not selected for tasks requiring high context, tool support, structured output, or privacy constraints they cannot satisfy.
 
 4. **Operator documentation**
-   - Keep this human plan synchronized with `core/projects/Plans/CHARON.md` and `core/state/charon_router.json`.
+   - Keep this human plan synchronized with `core/projects/Plans/CHARON.md` and `core/state/manwe_router.json`.
    - Treat runtime posture as evidence-based and timestamp-sensitive.
 
 ## Verification Commands
@@ -109,7 +109,7 @@ scripts/check_charon_health.sh
 
 ## References
 - Quick reference: `core/projects/Plans/CHARON.md`
-- Router projection: `core/state/charon_router.json`
+- Router projection: `core/state/manwe_router.json`
 - Provider config: `config/charon.providers.toml`
 - Charon crate: `crates/spine/runtime/manwe`
 - L3 routing plan reference: `docs/plans/2026-06-08-l3-readiness-closure-plan.md`

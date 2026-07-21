@@ -10,7 +10,7 @@
   "panels": [
     {
       "id": 1,
-      "title": "Charon scrape status",
+      "title": "Manwe scrape status",
       "type": "stat",
       "gridPos": {
         "h": 8,
@@ -24,7 +24,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "up{job=\"charon\",node=\"annunimas-core\"}",
+          "expr": "up{job=\"manwe\",node=\"annunimas-core\"}",
           "legendFormat": "{{instance}}",
           "refId": "A"
         }
@@ -37,7 +37,7 @@
     },
     {
       "id": 2,
-      "title": "Charon scrape samples",
+      "title": "Manwe scrape samples",
       "type": "timeseries",
       "gridPos": {
         "h": 8,
@@ -51,7 +51,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "scrape_samples_scraped{job=\"charon\",node=\"annunimas-core\"}",
+          "expr": "scrape_samples_scraped{job=\"manwe\",node=\"annunimas-core\"}",
           "legendFormat": "{{instance}}",
           "refId": "A"
         }
@@ -78,7 +78,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "annunimas_charon_failure_budget_remaining{job=\"annunimas-orchestrator\"}",
+          "expr": "annunimas_manwe_failure_budget_remaining{job=\"annunimas-orchestrator\"}",
           "legendFormat": "{{provider_id}}",
           "refId": "A"
         }
@@ -105,7 +105,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "count(annunimas_charon_failure_budget_remaining{job=\"annunimas-orchestrator\"} <= 0)",
+          "expr": "count(annunimas_manwe_failure_budget_remaining{job=\"annunimas-orchestrator\"} <= 0)",
           "legendFormat": "providers",
           "refId": "A"
         }
@@ -175,7 +175,7 @@
   "schemaVersion": 39,
   "tags": [
     "annunimas",
-    "charon",
+    "manwe",
     "beelink",
     "live"
   ],
@@ -199,7 +199,7 @@
     "to": "now"
   },
   "timezone": "browser",
-  "title": "Annunimas Charon Routing - Beelink Live",
-  "uid": "annunimas-charon-live",
+  "title": "Annunimas Manwe Routing - Beelink Live",
+  "uid": "annunimas-manwe-live",
   "version": 2
 }

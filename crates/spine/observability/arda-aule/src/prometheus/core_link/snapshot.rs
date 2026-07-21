@@ -18,7 +18,7 @@ pub(super) fn write_arda_snapshot(core_root: &Path) {
         "policy_authority": read_json_file(state_root.join("warden_policy_authority.json")).unwrap_or_else(|| json!({})),
         "edge_contract": read_json_file(state_root.join("warden_edge_contract.json")).unwrap_or_else(|| json!({})),
         "nightly_doctrine": read_json_file(state_root.join("warden_nightly_doctrine.json")).unwrap_or_else(|| json!({})),
-        "charon": read_json_file(state_root.join("charon_router.json")).unwrap_or_else(|| json!({})),
+        "manwe": read_json_file(state_root.join("manwe_router.json")).unwrap_or_else(|| json!({})),
         "hades": read_json_file(state_root.join("hades_lifecycle.json")).unwrap_or_else(|| json!({})),
         "hermes": read_json_file(state_root.join("hermes_command.json")).unwrap_or_else(|| json!({})),
         "mnemosyne": read_json_file(state_root.join("mnemosyne_continuity.json")).unwrap_or_else(|| json!({})),

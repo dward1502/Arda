@@ -346,7 +346,7 @@ fn infer_affected_agents(source_path: &str, content: &str) -> Vec<String> {
         "hades",
         "prometheus",
         "mnemosyne",
-        "charon",
+        "manwe",
         "hermes",
         "apollo",
         "oracle",
@@ -491,7 +491,7 @@ mod tests {
         let note = inbox.join("idea.md");
         fs::write(
             &note,
-            "# Charon idea\n\nRoute ATHENA through config/charon.providers.toml",
+            "# Charon idea\n\nRoute ATHENA through config/manwe.providers.toml",
         )
         .expect("write note");
         let out = dir.path().join("data/athena/human_ingestion_results.jsonl");
@@ -521,7 +521,7 @@ mod tests {
         assert!(value["affected_agents"]
             .as_array()
             .expect("agents")
-            .contains(&Value::String("charon".to_string())));
+            .contains(&Value::String("manwe".to_string())));
     }
 
     #[test]

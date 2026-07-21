@@ -7,9 +7,9 @@ interface RuntimeDriftItem {
   providerId: string
   declaredModel: string
   declaredContextWindow: number | null
-  charonContextWindow: number | null
+  manweContextWindow: number | null
   actualProcessContextWindow: number | null
-  declaredVsCharon: boolean
+  declaredVsManwe: boolean
   declaredVsLocalProcess: boolean
   localRuntimeStatus: string
 }
@@ -29,14 +29,14 @@ function formatProvider(providerId: string): string {
 }
 
 export default function RuntimeDriftPanel({ totalNodes, driftedNodes, items }: RuntimeDriftPanelProps) {
-  const driftItems = items.filter((item) => item.declaredVsCharon || item.declaredVsLocalProcess)
+  const driftItems = items.filter((item) => item.declaredVsManwe || item.declaredVsLocalProcess)
   const visibleItems = (driftItems.length > 0 ? driftItems : items).slice(0, 4)
-  const charonMarker = primarySigilForSource('charon')
+  const manweMarker = primarySigilForSource('manwe')
 
   return (
     <section className="systems-panel systems-panel--health">
       <header className="systems-panel__header">
-        <div className="systems-panel__eyebrow">{charonMarker} Runtime Drift</div>
+        <div className="systems-panel__eyebrow">{manweMarker} Runtime Drift</div>
         <h3 className="systems-panel__title">Declared Vs Live</h3>
       </header>
       <div className="systems-kpi-grid">
@@ -55,17 +55,17 @@ export default function RuntimeDriftPanel({ totalNodes, driftedNodes, items }: R
             <article className="document-list__item" key={item.nodeId}>
               <div className="document-list__title-row">
                 <strong>{item.displayName}</strong>
-                <span className={`systems-chip ${item.declaredVsCharon || item.declaredVsLocalProcess ? 'systems-chip--warn' : 'systems-chip--good'}`}>
-                  {item.declaredVsCharon || item.declaredVsLocalProcess ? 'drift' : 'aligned'}
+                <span className={`systems-chip ${item.declaredVsManwe || item.declaredVsLocalProcess ? 'systems-chip--warn' : 'systems-chip--good'}`}>
+                  {item.declaredVsManwe || item.declaredVsLocalProcess ? 'drift' : 'aligned'}
                 </span>
               </div>
               <p>{formatProvider(item.providerId)} · {item.declaredModel || 'model unset'}</p>
               <p>
-                declared {formatWindow(item.declaredContextWindow)} / charon {formatWindow(item.charonContextWindow)} / process {formatWindow(item.actualProcessContextWindow)}
+                declared {formatWindow(item.declaredContextWindow)} / manwe {formatWindow(item.manweContextWindow)} / process {formatWindow(item.actualProcessContextWindow)}
               </p>
-              {(item.declaredVsCharon || item.declaredVsLocalProcess) && (
+              {(item.declaredVsManwe || item.declaredVsLocalProcess) && (
                 <div className="systems-chip-cloud">
-                  {item.declaredVsCharon && <span className="systems-chip systems-chip--warn">charon mismatch</span>}
+                  {item.declaredVsManwe && <span className="systems-chip systems-chip--warn">manwe mismatch</span>}
                   {item.declaredVsLocalProcess && <span className="systems-chip systems-chip--warn">process mismatch</span>}
                 </div>
               )}

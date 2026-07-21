@@ -3,21 +3,21 @@ import type { ReactNode } from 'react'
 
 interface SystemStatusMessageProps {
   bundleError?: string | null
-  charonLiveError?: string | null
+  manweLiveError?: string | null
   bundleLoading?: boolean
 }
 
 function SystemStatusMessage({
   bundleError,
-  charonLiveError,
+  manweLiveError,
   bundleLoading,
 }: SystemStatusMessageProps): ReactNode {
   if (bundleLoading) {
     return <span className="system-status-message">Loading core-state bundle...</span>
   }
 
-  if (charonLiveError) {
-    return <span className="system-status-message system-status-message--warning">Charon live: {charonLiveError}</span>
+  if (manweLiveError) {
+    return <span className="system-status-message system-status-message--warning">Manwe live: {manweLiveError}</span>
   }
 
   if (bundleError) {
@@ -65,7 +65,7 @@ interface OperatingSurfaceRailProps {
     status?: string
   }
   bundleError?: string | null
-  charonLiveError?: string | null
+  manweLiveError?: string | null
   bundleLoading?: boolean
 }
 
@@ -80,7 +80,7 @@ export default function OperatingSurfaceRail({
   liveRuntimeRailStatus,
   liveRuntime,
   bundleError,
-  charonLiveError,
+  manweLiveError,
   bundleLoading,
 }: OperatingSurfaceRailProps) {
   return (
@@ -93,7 +93,7 @@ export default function OperatingSurfaceRail({
         </span>
         <SystemStatusMessage
           bundleError={bundleError}
-          charonLiveError={charonLiveError}
+          manweLiveError={manweLiveError}
           bundleLoading={bundleLoading}
         />
       </div>

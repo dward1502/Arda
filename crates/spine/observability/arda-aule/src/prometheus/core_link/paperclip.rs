@@ -18,7 +18,7 @@ pub(super) fn write_paperclip_alignment_projection(core_root: &Path) {
         .unwrap_or_else(|| json!({}));
     let lockdown = read_json_file(core_root.join("state").join("control_plane_lockdown.json"))
         .unwrap_or_else(|| json!({}));
-    let charon = read_json_file(core_root.join("state").join("charon_router.json"))
+    let manwe = read_json_file(core_root.join("state").join("manwe_router.json"))
         .unwrap_or_else(|| json!({}));
     let hermes = read_json_file(core_root.join("state").join("hermes_command.json"))
         .unwrap_or_else(|| json!({}));
@@ -135,18 +135,18 @@ pub(super) fn write_paperclip_alignment_projection(core_root: &Path) {
         .and_then(Value::as_array)
         .map(|items| items.len())
         .unwrap_or(0);
-    let provider_count = charon
+    let provider_count = manwe
         .get("arda_hints")
         .and_then(|value| value.get("provider_count"))
         .and_then(Value::as_u64)
         .unwrap_or(0);
-    let local_fallback_ready = charon
+    let local_fallback_ready = manwe
         .get("provider_pressure")
         .and_then(|value| value.get("local_fallback"))
         .and_then(|value| value.get("enabled"))
         .and_then(Value::as_bool)
         .unwrap_or(false);
-    let route_defaults = charon
+    let route_defaults = manwe
         .get("routing_defaults")
         .cloned()
         .unwrap_or_else(|| json!({}));
@@ -259,7 +259,7 @@ pub(super) fn write_paperclip_alignment_projection(core_root: &Path) {
                 "local_fallback_ready": local_fallback_ready,
                 "online_comms_providers": providers_online,
                 "route_defaults": route_defaults,
-                "recent_local_fallback_routes": charon
+                "recent_local_fallback_routes": manwe
                     .get("status")
                     .and_then(|value| value.get("recent_local_fallback_routes"))
                     .cloned()

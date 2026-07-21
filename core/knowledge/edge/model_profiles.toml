@@ -18,7 +18,7 @@ backbone = "node-backbone-server-01"
 engine = "ramalama"
 execution_model = "pod"
 endpoint_contract = "openai_compatible_http"
-reason = "Bluefin nodes should preserve the container/pod mentality. CHARON routes to local pod endpoints rather than assuming host-level model binaries."
+reason = "Bluefin nodes should preserve the container/pod mentality. MANWE routes to local pod endpoints rather than assuming host-level model binaries."
 
 [profiles.edge_guardhouse]
 model_id = "Qwen3.5-4B-Q4_K_M.gguf"
@@ -38,7 +38,7 @@ quantization = "Q4_K_M"
 context_window = 16384
 runtime_backend = "ramalama"
 target_nodes = ["node-ser9-worker", "node-main-workstation"]
-target_agents = ["hermes", "charon"]
+target_agents = ["hermes", "manwe"]
 install_priority = "phase_2"
 reason = "Good edge fit for concise relay, intent triage, and lightweight routing on workstation and SER9 class nodes."
 
@@ -60,7 +60,7 @@ quantization = "Q4_K_M"
 context_window = 32768
 runtime_backend = "ramalama"
 target_nodes = ["node-backbone-server-01", "node-main-workstation"]
-target_agents = ["charon"]
+target_agents = ["manwe"]
 install_priority = "phase_1"
 reason = "Fast local routing and fallback brokerage profile. Cheap enough to keep warm."
 

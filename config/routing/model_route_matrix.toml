@@ -1,5 +1,5 @@
 # DERIVED VIEW: this file is intake/reference only.
-# Source of truth: config/charon.providers.toml
+# Source of truth: config/manwe.providers.toml
 
 # sigil: SCROLL
 [contract]
@@ -37,7 +37,7 @@ allow_as_primary = true
 # route (27B ternary, Prism/CUDA on annunimas-server :8095). edge_core (LFM2.5-8B)
 # stays the fast/low-latency lane; edge_backbone_coder stays the tool/code lane.
 # NOTE: Bonsai-27B served ctx is capped at 8192; the router context floor was
-# lowered to 8192 (ANNUNIMAS_CHARON_MIN_CONTEXT_WINDOW) so it clears. Tool/execution
+# lowered to 8192 (ANNUNIMAS_MANWE_MIN_CONTEXT_WINDOW) so it clears. Tool/execution
 # lanes keep the >=32K/64K guard to protect Hermes tool-call stability.
 preferred = ["edge_backbone_bonsai27", "edge_backbone_coder", "edge_core", "edge_worker_light", "edge_guardhouse"]
 

@@ -171,10 +171,10 @@ fn repo_implementation_brief(shallow: &ShallowAnalysis) -> Option<serde_json::Va
         )
     } else if title.contains("berriai/litellm") {
         (
-            "Local gateway-based provider normalization for CHARON and downstream consumers",
+            "Local gateway-based provider normalization for MANWE and downstream consumers",
             vec![
                 "Keep the LiteLLM gateway live as the normalized routing layer for local and edge model access.",
-                "Bind provider-health and model-policy checks to the same package activation surface used by ATHENA and CHARON.",
+                "Bind provider-health and model-policy checks to the same package activation surface used by ATHENA and MANWE.",
                 "Prefer explicit gateway runtime wrappers over manual process launches so restart posture remains deterministic.",
             ],
             vec![
@@ -187,7 +187,7 @@ fn repo_implementation_brief(shallow: &ShallowAnalysis) -> Option<serde_json::Va
             "Decision-support model selection integrated as an active signal rather than a daemon runtime",
             vec![
                 "Use llmfit recommendations to tune route heuristics and model-profile policy instead of spawning a separate long-lived service.",
-                "Project fit recommendations into CHARON and governor state so routing changes remain auditable.",
+                "Project fit recommendations into MANWE and governor state so routing changes remain auditable.",
             ],
             vec![
                 "Treating llmfit as authoritative runtime policy would bypass sovereign routing controls.",

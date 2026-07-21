@@ -128,6 +128,7 @@ async fn run_http(state: AppState) -> anyhow::Result<()> {
         .route("/healthz", get(healthz))
         .route("/v1/models", get(list_models))
         .route("/v1/chat/completions", post(chat_completions))
+        .route("/v1/capabilities", get(manifest_capabilities))
         .with_state(state);
 
     let addr: SocketAddr = format!("{}:{}", cfg.bind, cfg.port)
@@ -147,6 +148,19 @@ async fn run_http(state: AppState) -> anyhow::Result<()> {
 
 async fn healthz() -> &'static str {
     "ok"
+}
+
+async fn manifest_capabilities(State(state): State<AppState>) -> Response {
+    let mode = if state.adaptive { "adaptive" } else { "static" };
+    Json(json!({
+        "mode": mode,
+        "adaptive_routing": state.adaptive,
+        "governance": false,
+        "quota_mesh": false,
+        "configured_providers": state.config.providers.len(),
+        "healthy_providers": if state.adaptive { 0 } else { state.config.providers.len() },
+    }))
+    .into_response()
 }
 
 async fn list_models(State(state): State<AppState>) -> Response {

@@ -82,7 +82,7 @@ impl CoreAutonomyProfile {
         warden::write_warden_edge_contract(&core_root);
         warden::write_warden_nightly_doctrine(&core_root);
         topology::write_runtime_topology_projection(&core_root);
-        topology::write_charon_router_projection(&core_root);
+        topology::write_manwe_router_projection(&core_root);
         operations_flow::write_hades_lifecycle_projection(&core_root);
         hermes_command::write_hermes_command_projection(&core_root);
         memory::write_mnemosyne_continuity_projection(&core_root);
@@ -245,7 +245,7 @@ struct EdgeTargetNode {
     athena_enabled: Option<bool>,
     hermes_enabled: Option<bool>,
     warden_enabled: Option<bool>,
-    charon_enabled: Option<bool>,
+    manwe_enabled: Option<bool>,
     oracle_enabled: Option<bool>,
     plutus_enabled: Option<bool>,
     node_class: Option<String>,
@@ -287,7 +287,7 @@ struct FleetNodeConfig {
     node_class: Option<String>,
     enrollment_status: Option<String>,
     llm_runtime: Option<String>,
-    charon_provider_id: Option<String>,
+    manwe_provider_id: Option<String>,
     base_url: Option<String>,
     health_url: Option<String>,
     models_url: Option<String>,
@@ -886,12 +886,12 @@ resonance = 0.95
         assert_eq!(doctrine["authority"], "warden_nightly_projection");
         assert_eq!(doctrine["declared_doctrine"]["run_at"], "03:00");
 
-        let charon: serde_json::Value = serde_json::from_str(
-            &fs::read_to_string(core_root.join("state/charon_router.json")).expect("charon read"),
+        let manwe: serde_json::Value = serde_json::from_str(
+            &fs::read_to_string(core_root.join("state/manwe_router.json")).expect("manwe read"),
         )
-        .expect("charon parse");
-        assert_eq!(charon["schema_version"], CORE_STATE_SCHEMA_VERSION);
-        assert_eq!(charon["authority"], "charon_router_projection");
+        .expect("manwe parse");
+        assert_eq!(manwe["schema_version"], CORE_STATE_SCHEMA_VERSION);
+        assert_eq!(manwe["authority"], "manwe_router_projection");
 
         let hades: serde_json::Value = serde_json::from_str(
             &fs::read_to_string(core_root.join("state/hades_lifecycle.json")).expect("hades read"),
@@ -1316,7 +1316,7 @@ resonance = 0.95
         .expect("policy write");
 
         let sock_a = dir.path().join("run").join("athena.sock");
-        let sock_b = dir.path().join("run").join("charon.sock");
+        let sock_b = dir.path().join("run").join("manwe.sock");
         fs::create_dir_all(sock_a.parent().expect("sock parent")).expect("run mkdir");
         fs::write(&sock_a, "").expect("sock a write");
         fs::write(&sock_b, "").expect("sock b write");
@@ -1459,7 +1459,7 @@ resonance = 0.95
   "athena": { "deep_queue_depth": 0 },
   "hermes": { "queue_depth": 2 },
   "hades": { "pending_actions": 1 },
-  "charon": { "status": { "providers_ready": 3 } },
+  "manwe": { "status": { "providers_ready": 3 } },
   "mnemosyne": { "status": { "ok": true } },
   "apollo": { "executor": { "summary": { "completed_total": 1 } } },
   "plutus": { "runtime_ready": true }
@@ -1570,13 +1570,13 @@ resonance = 0.95
         fs::create_dir_all(data_root.join("prometheus")).expect("prometheus mkdir");
         fs::create_dir_all(data_root.join("fleet").join("informants")).expect("fleet mkdir");
         fs::create_dir_all(data_root.join("hermes")).expect("hermes mkdir");
-        fs::create_dir_all(data_root.join("charon")).expect("charon data mkdir");
+        fs::create_dir_all(data_root.join("manwe")).expect("manwe data mkdir");
         fs::create_dir_all(data_root.join("hades")).expect("hades data mkdir");
         fs::create_dir_all(core_root.join("edge")).expect("edge mkdir");
         fs::create_dir_all(core_root.join("metrics").join("by_crate").join("hades"))
             .expect("hades metrics mkdir");
-        fs::create_dir_all(core_root.join("metrics").join("by_crate").join("charon"))
-            .expect("charon metrics mkdir");
+        fs::create_dir_all(core_root.join("metrics").join("by_crate").join("manwe"))
+            .expect("manwe metrics mkdir");
         fs::create_dir_all(core_root.join("metrics").join("by_crate").join("hermes"))
             .expect("hermes metrics mkdir");
         fs::create_dir_all(core_root.join("metrics").join("by_crate").join("mnemosyne"))
@@ -1650,28 +1650,28 @@ resonance = 0.95
         )
         .expect("hades queue write");
         fs::write(
-            core_root.join("metrics/by_crate/charon/status.json"),
-            "{ \"charon_version\": \"0.1.0\", \"providers_total\": 2, \"providers_healthy\": 1 }\n",
+            core_root.join("metrics/by_crate/manwe/status.json"),
+            "{ \"manwe_version\": \"0.1.0\", \"providers_total\": 2, \"providers_healthy\": 1 }\n",
         )
-        .expect("charon status write");
+        .expect("manwe status write");
         fs::write(
-            core_root.join("metrics/by_crate/charon/providers.json"),
+            core_root.join("metrics/by_crate/manwe/providers.json"),
             "[{\"id\":\"local_fallback\",\"in_cooldown\":false,\"error_count\":0,\"consecutive_failures\":0,\"requests_used_day\":1,\"requests_per_day\":null},{\"id\":\"groq\",\"in_cooldown\":true,\"error_count\":5,\"consecutive_failures\":3,\"requests_used_day\":100,\"requests_per_day\":100}]\n",
         )
-        .expect("charon providers write");
+        .expect("manwe providers write");
         fs::write(
-            core_root.join("metrics/by_crate/charon/state.json"),
+            core_root.join("metrics/by_crate/manwe/state.json"),
             "{ \"providers\": [{\"id\":\"local_fallback\"}] }\n",
         )
-        .expect("charon state write");
+        .expect("manwe state write");
         fs::write(
-            data_root.join("charon/state.jsonl"),
+            data_root.join("manwe/state.jsonl"),
             concat!(
                 "{\"ts\":\"2026-03-09T11:00:00Z\",\"event\":\"route_selected\",\"payload\":{\"provider_id\":\"local_fallback\"}}\n",
                 "{\"ts\":\"2026-03-09T11:01:00Z\",\"event\":\"provider_result\",\"payload\":{\"provider_id\":\"groq\",\"ok\":false}}\n"
             ),
         )
-        .expect("charon event write");
+        .expect("manwe event write");
         fs::write(
             core_root.join("metrics/by_crate/hermes/status.json"),
             "{ \"queue_depth\": 2, \"boardroom_active\": true, \"providers_online\": [\"discord\"], \"providers_offline\": [\"email\"], \"messages_today\": { \"outbound\": 1 } }\n",
@@ -1874,7 +1874,7 @@ notes = "Primary guardhouse"
     {
       "tool": "litellm",
       "package_enablement": {
-        "integration_lane": "charon_provider"
+        "integration_lane": "manwe_provider"
       }
     }
   ],
@@ -2070,24 +2070,24 @@ notes = "Primary guardhouse"
         );
         assert_eq!(doctrine["ownership_map"][4]["status"], "missing");
 
-        let charon: serde_json::Value = serde_json::from_str(
-            &fs::read_to_string(core_root.join("state/charon_router.json")).expect("charon read"),
+        let manwe: serde_json::Value = serde_json::from_str(
+            &fs::read_to_string(core_root.join("state/manwe_router.json")).expect("manwe read"),
         )
-        .expect("charon parse");
-        assert_eq!(charon["status"]["providers_total"], 2);
+        .expect("manwe parse");
+        assert_eq!(manwe["status"]["providers_total"], 2);
         assert_eq!(
-            charon["provider_pressure"]["cooldowns"]
+            manwe["provider_pressure"]["cooldowns"]
                 .as_array()
                 .map(|v| v.len()),
             Some(1)
         );
         assert_eq!(
-            charon["provider_pressure"]["degraded"]
+            manwe["provider_pressure"]["degraded"]
                 .as_array()
                 .map(|v| v.len()),
             Some(1)
         );
-        assert_eq!(charon["recent_events"].as_array().map(|v| v.len()), Some(2));
+        assert_eq!(manwe["recent_events"].as_array().map(|v| v.len()), Some(2));
 
         let hades: serde_json::Value = serde_json::from_str(
             &fs::read_to_string(core_root.join("state/hades_lifecycle.json")).expect("hades read"),

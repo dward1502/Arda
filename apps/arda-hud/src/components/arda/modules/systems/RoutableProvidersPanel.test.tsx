@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import RoutableProvidersPanel from './RoutableProvidersPanel'
 
 describe('RoutableProvidersPanel', () => {
-  it('renders direct Charon router provider and model health details', () => {
+  it('renders direct Manwe router provider and model health details', () => {
     render(
       <RoutableProvidersPanel
         providers={[

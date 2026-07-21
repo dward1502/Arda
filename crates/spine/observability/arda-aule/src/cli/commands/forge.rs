@@ -164,7 +164,7 @@ fn resolve_script(
     }
     if let Some(path) = prompt_path {
         anyhow::bail!(
-            "--prompt-file {} requires Charon-routed LLM translation, not yet wired in v0. \
+            "--prompt-file {} requires Manwe-routed LLM translation, not yet wired in v0. \
              Pass --script for raw Python or --template for a built-in.",
             path
         );

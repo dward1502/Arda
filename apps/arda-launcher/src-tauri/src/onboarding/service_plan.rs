@@ -63,7 +63,7 @@ pub fn build_service_plan(profile: &EnvironmentProfile, root: &Path) -> ServiceP
                 .to_string(),
         ),
         requires_human_gate: false,
-        description: "Generate provider readiness + env-key checklist for Charon onboarding."
+        description: "Generate provider readiness + env-key checklist for Manwe onboarding."
             .to_string(),
         risk: "read_only".to_string(),
     });
@@ -171,14 +171,14 @@ pub fn build_service_plan(profile: &EnvironmentProfile, root: &Path) -> ServiceP
     if profile
         .missing_gates
         .iter()
-        .any(|item| item.contains("CHARON_BASE_URL"))
+        .any(|item| item.contains("MANWE_BASE_URL"))
     {
         actions.push(ServiceAction {
-            action_id: "onboarding.set_charon_endpoint".to_string(),
+            action_id: "onboarding.set_manwe_endpoint".to_string(),
             action_type: "human_gate".to_string(),
-            title: "Set CHARON_BASE_URL before service start work".to_string(),
+            title: "Set MANWE_BASE_URL before service start work".to_string(),
             command_hint:
-                "export CHARON_BASE_URL=http://127.0.0.1:3001 and write to ~/.config/arda/arda.env"
+                "export MANWE_BASE_URL=http://127.0.0.1:3001 and write to ~/.config/arda/arda.env"
                     .to_string(),
             target_path: Some(format!(
                 "{}/.config/arda/arda.env",
@@ -186,7 +186,7 @@ pub fn build_service_plan(profile: &EnvironmentProfile, root: &Path) -> ServiceP
             )),
             requires_human_gate: true,
             description:
-                "CHARON endpoint is required for full active runtime setup and launch steps."
+                "MANWE endpoint is required for full active runtime setup and launch steps."
                     .to_string(),
             risk: "human_gated".to_string(),
         });

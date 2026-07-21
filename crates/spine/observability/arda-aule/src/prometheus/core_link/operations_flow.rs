@@ -52,7 +52,7 @@ pub fn write_operations_flow_projection(core_root: &Path) {
         .unwrap_or(0);
     let subsystem_health = json!({
         "athena": ops.get("athena").cloned().unwrap_or_else(|| json!({})),
-        "charon": ops.get("charon").cloned().unwrap_or_else(|| json!({})),
+        "manwe": ops.get("manwe").cloned().unwrap_or_else(|| json!({})),
         "hades": ops.get("hades").cloned().unwrap_or_else(|| json!({})),
         "hermes": ops.get("hermes").cloned().unwrap_or_else(|| json!({})),
         "mnemosyne": ops.get("mnemosyne").cloned().unwrap_or_else(|| json!({})),

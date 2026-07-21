@@ -149,9 +149,9 @@ pub fn build_prerequisite_report(profile: &EnvironmentProfile, root: &Path) -> P
         ),
         (
             "repo.providers",
-            "Charon providers config",
-            root.join("config/charon.providers.toml"),
-            "Restore provider matrix before Charon onboarding.",
+            "Manwe providers config",
+            root.join("config/manwe.providers.toml"),
+            "Restore provider matrix before Manwe onboarding.",
         ),
         (
             "repo.console",

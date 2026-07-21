@@ -13,7 +13,7 @@
   "crates": [
     "prometheus",
     "athena",
-    "charon",
+    "manwe",
     "mnemosyne",
     "hades",
     "hermes",

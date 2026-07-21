@@ -4865,7 +4865,7 @@
     "hermes_bin": null,
     "hermes_bridge": {
       "base_url": "https://chatgpt.com/backend-api/codex",
-      "latency_strategy": "Charon pooled HTTP client to Codex Responses API; no hermes CLI subprocess",
+      "latency_strategy": "Manwe pooled HTTP client to Codex Responses API; no hermes CLI subprocess",
       "persistent": true,
       "provider": "openai-codex",
       "readiness": "uses_hermes_auth_store",

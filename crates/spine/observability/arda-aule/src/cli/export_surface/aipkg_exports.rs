@@ -89,7 +89,7 @@ pub(crate) fn export_aipkg_edge_lab_contract_impl() -> Result<Value> {
         toml::Value::Table(Default::default()),
     );
     let providers = read_toml_or(
-        &root.join("config/charon.providers.toml"),
+        &root.join("config/manwe.providers.toml"),
         toml::Value::Table(Default::default()),
     );
     let aipkg = read_json_or(&root.join("core/state/aipkg_contract.json"), json!({}));
@@ -149,7 +149,7 @@ pub(crate) fn export_aipkg_edge_lab_contract_impl() -> Result<Value> {
         "purpose": {
             "primary_goal": "Use the backbone server as the first off-site `.aipkg` proving ground.",
             "transport_model": "tailscale_internal_mesh",
-            "why_this_node": "The backbone server already anchors CHARON edge reasoning over its Tailscale address.",
+            "why_this_node": "The backbone server already anchors Manwe edge reasoning over its Tailscale address.",
         },
         "edge_target": {
             "target_id": backbone.get("id").and_then(toml::Value::as_str),
@@ -157,7 +157,7 @@ pub(crate) fn export_aipkg_edge_lab_contract_impl() -> Result<Value> {
             "tailscale_ip": backbone.get("tailscale_ip").and_then(toml::Value::as_str),
             "deployment_phase": backbone.get("deployment_phase").and_then(toml::Value::as_str),
             "placement_plan": backbone.get("placement_plan").and_then(toml::Value::as_str),
-            "charon_role": backbone.get("charon_role").and_then(toml::Value::as_str),
+            "manwe_role": backbone.get("manwe_role").and_then(toml::Value::as_str),
             "oracle_role": backbone.get("oracle_role").and_then(toml::Value::as_str),
             "athena_role": backbone.get("athena_role").and_then(toml::Value::as_str),
             "remote_use_ready": tailscale_ready
@@ -169,7 +169,7 @@ pub(crate) fn export_aipkg_edge_lab_contract_impl() -> Result<Value> {
             "primary_transport": "tailscale",
             "tailscale_required": true,
             "internet_required_when_offsite": true,
-            "charon_reads_through_provider_contract": true,
+            "manwe_reads_through_provider_contract": true,
             "openrouter_fallback_provider_id": openrouter.get("id").and_then(toml::Value::as_str),
             "openrouter_fallback_models": openrouter_models,
         },
@@ -207,7 +207,7 @@ pub(crate) fn export_aipkg_edge_lab_contract_impl() -> Result<Value> {
                 "evidence": example.get("package_id").cloned().unwrap_or(Value::Null),
             },
         ],
-        "operator_message": "Backbone relocation is compatible with arda doctrine as long as the node stays on Tailscale and CHARON keeps the Tailscale provider contract authoritative.",
+        "operator_message": "Backbone relocation is compatible with arda doctrine as long as the node stays on Tailscale and Manwe keeps the Tailscale provider contract authoritative.",
     });
     write_pretty_json(&out_path, &payload)?;
     Ok(json!({ "out": rel(&out_path, &root) }))

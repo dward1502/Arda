@@ -34,7 +34,7 @@ export interface ArdaHudSettings {
   agent_continuity_contract_path: string
   intake_confidence_ladder_path: string
   operator_legibility_contract_path: string
-  charon_router_path: string
+  manwe_router_path: string
   storage_pressure_path: string
   queue_active_path: string
   queue_summary_path: string
@@ -58,7 +58,7 @@ export interface ArdaHudSettings {
   core_plan_root: string
   core_plan_index_path: string
   task_queue_path: string
-  charon_service_base_url: string
+  manwe_service_base_url: string
   hermes_dashboard_service_base_url: string
 }
 
@@ -95,7 +95,7 @@ export const DEFAULT_ARDA_HUD_SETTINGS: ArdaHudSettings = {
   agent_continuity_contract_path: 'core/state/agent_continuity_contract.json',
   intake_confidence_ladder_path: 'core/state/intake_confidence_ladder.json',
   operator_legibility_contract_path: 'core/state/operator_legibility_contract.json',
-  charon_router_path: 'core/state/charon_router.json',
+  manwe_router_path: 'core/state/manwe_router.json',
   storage_pressure_path: 'core/state/storage_pressure.json',
   queue_active_path: 'core/state/queue_active.json',
   queue_summary_path: 'core/state/queue_summary.json',
@@ -119,7 +119,7 @@ export const DEFAULT_ARDA_HUD_SETTINGS: ArdaHudSettings = {
   core_plan_root: 'core/projects/Plans',
   core_plan_index_path: 'core/state/plan_map.json',
   task_queue_path: 'core/projects/tasks/queue.jsonl',
-  charon_service_base_url: loopbackUrl({ port: 7200 }),
+  manwe_service_base_url: loopbackUrl({ port: 7200 }),
   hermes_dashboard_service_base_url: loopbackUrl({ port: 1421 }),
 }
 

@@ -51,12 +51,12 @@ pub(crate) fn handle(command: ControlCommands) -> anyhow::Result<()> {
         } => apply_opencode_route_governor(&model_control_path, &routes_path, &state_path)?,
         ControlCommands::ApplyRuntimeRecoveryRouteGovernor {
             recovery_path,
-            charon_router_path,
+            manwe_router_path,
             route_matrix_path,
             state_path,
         } => apply_runtime_recovery_route_governor(
             &recovery_path,
-            &charon_router_path,
+            &manwe_router_path,
             &route_matrix_path,
             &state_path,
         )?,
@@ -1171,8 +1171,8 @@ fn organize_hades_backups(hades_root: &str, out_path: &str) -> anyhow::Result<Va
             }
         })
         .collect::<Vec<_>>();
-    let charon_root = root.join("data/charon");
-    let active_charon_files = fs::read_dir(&charon_root)
+    let manwe_root = root.join("data/manwe");
+    let active_manwe_files = fs::read_dir(&manwe_root)
         .ok()
         .into_iter()
         .flatten()
@@ -1180,7 +1180,7 @@ fn organize_hades_backups(hades_root: &str, out_path: &str) -> anyhow::Result<Va
         .filter_map(|entry| {
             let path = entry.path();
             if path.is_file() {
-                Some(relative_label(&charon_root, &path))
+                Some(relative_label(&manwe_root, &path))
             } else {
                 None
             }
@@ -1212,7 +1212,7 @@ fn organize_hades_backups(hades_root: &str, out_path: &str) -> anyhow::Result<Va
         0
     };
     let payload = json!({
-        "schema_version": "arda.hades-charon-layout.v1",
+        "schema_version": "arda.hades-manwe-layout.v1",
         "generated_at_utc": now_utc_seconds(),
         "authority": "bounded_backup_organization",
         "hades": {
@@ -1220,8 +1220,8 @@ fn organize_hades_backups(hades_root: &str, out_path: &str) -> anyhow::Result<Va
             "backup_files_total": backup_files_total,
             "backup_archive_root": relative_label(&root, &archive_root),
         },
-        "charon": {
-            "active_root_files": active_charon_files,
+        "manwe": {
+            "active_root_files": active_manwe_files,
         },
         "moves_this_run": moved,
     });
@@ -1705,18 +1705,18 @@ fn apply_opencode_route_governor(
 
 fn apply_runtime_recovery_route_governor(
     recovery_path: &str,
-    charon_router_path: &str,
+    manwe_router_path: &str,
     route_matrix_path: &str,
     state_path: &str,
 ) -> anyhow::Result<Value> {
     let root = workspace_root();
     let recovery_path = root.join(recovery_path);
-    let charon_router_path = root.join(charon_router_path);
+    let manwe_router_path = root.join(manwe_router_path);
     let route_matrix_path = root.join(route_matrix_path);
     let state_path = root.join(state_path);
 
     let recovery = read_json(&recovery_path);
-    let charon_router = read_json(&charon_router_path);
+    let manwe_router = read_json(&manwe_router_path);
     let previous = read_json(&state_path);
     let route_matrix = fs::read_to_string(&route_matrix_path).unwrap_or_default();
 
@@ -1729,7 +1729,7 @@ fn apply_runtime_recovery_route_governor(
         .iter()
         .any(|action| action.get("kind").and_then(Value::as_str) == Some("route_shift"));
     let desired_origin = if route_shift_active {
-        choose_runtime_recovery_origin(&charon_router)
+        choose_runtime_recovery_origin(&manwe_router)
     } else {
         "auto".to_string()
     };
@@ -1785,7 +1785,7 @@ fn apply_runtime_recovery_route_governor(
         "authority": "runtime_admission_recovery + sovereign_route_matrix",
         "source_surfaces": {
             "runtime_admission_recovery": "core/state/runtime_admission_recovery.json",
-            "charon_router": "core/state/charon_router.json",
+            "manwe_router": "core/state/manwe_router.json",
             "route_matrix": "config/model_route_matrix.toml",
         },
         "summary": {
@@ -1807,8 +1807,8 @@ fn apply_runtime_recovery_route_governor(
     }))
 }
 
-fn choose_runtime_recovery_origin(charon_router: &Value) -> String {
-    let providers = charon_router
+fn choose_runtime_recovery_origin(manwe_router: &Value) -> String {
+    let providers = manwe_router
         .get("provider_pressure")
         .and_then(|value| value.get("providers"))
         .and_then(Value::as_array)
@@ -2603,7 +2603,7 @@ fn launch_preflight(
         .unwrap_or_else(|| {
             vec![
                 "prometheus".to_string(),
-                "charon".to_string(),
+                "manwe".to_string(),
                 "hermes".to_string(),
                 "hades".to_string(),
                 "athena".to_string(),
@@ -2613,7 +2613,7 @@ fn launch_preflight(
     let degraded_agents = {
         let parsed = normalized_agents(degraded_agents);
         if parsed.is_empty() {
-            vec!["prometheus".into(), "charon".into(), "hermes".into()]
+            vec!["prometheus".into(), "manwe".into(), "hermes".into()]
         } else {
             parsed
         }

@@ -44,7 +44,7 @@ struct MetricFamilies {
     pressure_guard_violations_total: IntGauge,
     pressure_guard_oversize_files_total: IntGauge,
     audit_health_status: IntGaugeVec,
-    charon_failure_budget: IntGaugeVec,
+    manwe_failure_budget: IntGaugeVec,
     refresh_success: IntGauge,
     refresh_last_unix: IntGauge,
     node_time_seconds: Gauge,
@@ -127,10 +127,10 @@ impl MetricFamilies {
                 ),
                 &["surface", "status"],
             )?,
-            charon_failure_budget: IntGaugeVec::new(
+            manwe_failure_budget: IntGaugeVec::new(
                 Opts::new(
-                    "arda_charon_failure_budget_remaining",
-                    "Remaining failure budget per Charon provider",
+                    "arda_manwe_failure_budget_remaining",
+                    "Remaining failure budget per Manwe provider",
                 ),
                 &["provider_id"],
             )?,
@@ -200,7 +200,7 @@ impl MetricFamilies {
         r.register(Box::new(self.pressure_guard_violations_total.clone()))?;
         r.register(Box::new(self.pressure_guard_oversize_files_total.clone()))?;
         r.register(Box::new(self.audit_health_status.clone()))?;
-        r.register(Box::new(self.charon_failure_budget.clone()))?;
+        r.register(Box::new(self.manwe_failure_budget.clone()))?;
         r.register(Box::new(self.refresh_success.clone()))?;
         r.register(Box::new(self.refresh_last_unix.clone()))?;
         if system_metrics {
@@ -361,11 +361,11 @@ fn refresh(state: &ExporterState) {
         }
     }
 
-    // --- core/metrics/by_crate/prometheus/ops_dashboard.json (charon section) ---
+    // --- core/metrics/by_crate/prometheus/ops_dashboard.json (manwe section) ---
     let ops = root.join("core/metrics/by_crate/prometheus/ops_dashboard.json");
     if let Some(v) = read_json(&ops) {
         if let Some(arr) = v
-            .pointer("/charon/provider_failure_budgets")
+            .pointer("/manwe/provider_failure_budgets")
             .and_then(|x| x.as_array())
         {
             for entry in arr {
@@ -379,7 +379,7 @@ fn refresh(state: &ExporterState) {
                     .or_else(|| entry.get("failures"))
                     .and_then(|x| x.as_i64())
                     .unwrap_or(0);
-                f.charon_failure_budget
+                f.manwe_failure_budget
                     .with_label_values(&[pid])
                     .set(budget);
             }

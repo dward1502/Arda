@@ -17,7 +17,7 @@ This root is the frozen local contract: one local OpenAI-compatible endpoint.
 
 ## Adaptive subtree
 
-- `src/adaptive/service/types.rs` — `CharonService` spine
+- `src/adaptive/service/types.rs` — `ManweService` spine
 - `src/adaptive/service/*` — capabilities, http clients, quotas, bandit, route selection/scoring/caching, state mutation/io, status, observability, bootstrap
 - `src/adaptive/transport/http.rs` and `ipc.rs` — Axum + IPC routes
 

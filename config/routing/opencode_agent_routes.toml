@@ -1,10 +1,10 @@
 # DERIVED VIEW: this file is intake/reference only.
-# Source of truth: config/charon.providers.toml
+# Source of truth: config/manwe.providers.toml
 
 # sigil: SCROLL
 [contract]
 schema_version = "arda.opencode.routes.v1"
-authority = "charon_sovereign_routing"
+authority = "manwe_sovereign_routing"
 
 [defaults]
 provider = "auto"

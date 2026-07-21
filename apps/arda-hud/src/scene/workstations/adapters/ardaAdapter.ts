@@ -259,7 +259,7 @@ export function createArdaFleetViewModel(bundle: ArdaBundle): FleetViewModel {
     ],
     sources: [
       sourceRef('operator_runtime_status', 'Operator Runtime Status', 'fresh', bundle.generatedAt, 'core/state/operator_runtime_status.json'),
-      sourceRef('charon_router', 'Charon Router', bundle.charonRouter ? 'fresh' : 'missing', bundle.generatedAt, 'core/state/charon_router.json'),
+      sourceRef('charon_router', 'Charon Router', bundle.charonRouter ? 'fresh' : 'missing', bundle.generatedAt, 'core/state/manwe_router.json'),
     ],
     actions: [
       {

@@ -9,7 +9,7 @@
   "schema_version": "annunimas.runtime-recovery-route-governor.v1",
   "sigil": "REPAIR",
   "source_surfaces": {
-    "charon_router": "core/state/charon_router.json",
+    "charon_router": "core/state/manwe_router.json",
     "route_matrix": "config/model_route_matrix.toml",
     "runtime_admission_recovery": "core/state/runtime_admission_recovery.json"
   },

@@ -70,7 +70,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "charon_base_url": { "$ref": "#/$defs/url_value" },
+        "manwe_base_url": { "$ref": "#/$defs/url_value" },
         "hermes_base_url": { "$ref": "#/$defs/url_value" },
         "arda_hud_url": { "$ref": "#/$defs/url_value" },
         "local_model_base_url": { "$ref": "#/$defs/url_value" },

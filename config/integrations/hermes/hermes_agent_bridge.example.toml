@@ -18,7 +18,7 @@ enabled = true
 target_id = "node-backbone-server-01"
 remote_cwd = "/var/home/annunimasserver/hermes-agent"
 hermes_bin = "/var/home/annunimasserver/hermes-agent/.venv/bin/hermes"
-purpose = "Backbone node running Hermes Agent over SSH, pinned to Charon's canonical OpenAI-compatible endpoint. Alias reconciles Flywheel target_node records to the current edge target node-backbone-server-01."
+purpose = "Backbone node running Hermes Agent over SSH, pinned to Manwe's canonical OpenAI-compatible endpoint. Alias reconciles Flywheel target_node records to the current edge target node-backbone-server-01."
 
 [node.node-ser9-worker]
 enabled = true
@@ -27,4 +27,4 @@ ssh_user = "citadel"
 remote_cwd = "~"
 hermes_bin = "hermes"
 provider = "custom"
-purpose = "SER9 sovereign worker running Hermes Agent over SSH, pinned to Charon's canonical OpenAI-compatible endpoint."
+purpose = "SER9 sovereign worker running Hermes Agent over SSH, pinned to Manwe's canonical OpenAI-compatible endpoint."

@@ -7,13 +7,13 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::fs::{File, OpenOptions};
 use std::io::{BufRead, BufReader, Read, Seek, SeekFrom, Write};
 
-const CHARON_STATE_PATH: &str = "data/charon/state.jsonl";
-const CHARON_GOVERNANCE_EVENTS_PATH: &str = "data/charon/governance_events.jsonl";
-const CHARON_TELEMETRY_SUMMARIES_PATH: &str = "data/charon/telemetry_summaries.jsonl";
+const MANWE_STATE_PATH: &str = "data/manwe/state.jsonl";
+const MANWE_GOVERNANCE_EVENTS_PATH: &str = "data/manwe/governance_events.jsonl";
+const MANWE_TELEMETRY_SUMMARIES_PATH: &str = "data/manwe/telemetry_summaries.jsonl";
 
-pub(crate) fn handle(command: PrometheusCharonCommands) -> anyhow::Result<()> {
+pub(crate) fn handle(command: PrometheusdManweCommands) -> anyhow::Result<()> {
     match command {
-        PrometheusCharonCommands::TelemetryReport {
+        PrometheusdManweCommands::TelemetryReport {
             root,
             since,
             write,
@@ -21,7 +21,7 @@ pub(crate) fn handle(command: PrometheusCharonCommands) -> anyhow::Result<()> {
             limit,
         } => {
             let root = resolve_root(root);
-            let value = build_charon_telemetry_report(
+            let value = build_manwe_telemetry_report(
                 &root,
                 Some(since.as_str()),
                 write,
@@ -40,7 +40,7 @@ fn resolve_root(root: Option<String>) -> PathBuf {
         .unwrap_or_else(|| std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")))
 }
 
-fn build_charon_telemetry_report(
+fn build_manwe_telemetry_report(
     root: &Path,
     since: Option<&str>,
     write: bool,
@@ -53,9 +53,9 @@ fn build_charon_telemetry_report(
         );
     }
 
-    let state_path = root.join(CHARON_STATE_PATH);
-    let governance_path = root.join(CHARON_GOVERNANCE_EVENTS_PATH);
-    let summary_path = root.join(CHARON_TELEMETRY_SUMMARIES_PATH);
+    let state_path = root.join(MANWE_STATE_PATH);
+    let governance_path = root.join(MANWE_GOVERNANCE_EVENTS_PATH);
+    let summary_path = root.join(MANWE_TELEMETRY_SUMMARIES_PATH);
     let cutoff = parse_since_cutoff(since)?;
 
     let mut summary = TelemetrySummary {
@@ -71,7 +71,7 @@ fn build_charon_telemetry_report(
 
     let idempotency_key = telemetry_idempotency_key(&summary);
     let record = json!({
-        "contract": "arda.charon.telemetry_summary.v1",
+        "contract": "arda.manwe.telemetry_summary.v1",
         "summary_id": idempotency_key,
         "authority": "agent_generated",
         "review_required": true,
@@ -343,7 +343,7 @@ fn build_recommendations(summary: &TelemetrySummary) -> Vec<String> {
     }
     if summary.state_events_used == 0 && summary.governance_events_used == 0 {
         out.push(
-            "No telemetry events matched this window; widen --since or verify Charon ledger paths."
+            "No telemetry events matched this window; widen --since or verify dManwe ledger paths."
                 .to_string(),
         );
     }
@@ -353,7 +353,7 @@ fn build_recommendations(summary: &TelemetrySummary) -> Vec<String> {
 
 fn telemetry_idempotency_key(summary: &TelemetrySummary) -> String {
     let canonical = json!({
-        "contract": "arda.charon.telemetry_summary.v1",
+        "contract": "arda.manwe.telemetry_summary.v1",
         "since": summary.since,
         "first_ts": summary.first_ts,
         "last_ts": summary.last_ts,
@@ -368,7 +368,7 @@ fn telemetry_idempotency_key(summary: &TelemetrySummary) -> String {
         "evidence_fingerprint_sha1": summary.evidence_fingerprint,
     });
     format!(
-        "charon_telemetry_{}",
+        "manwe_telemetry_{}",
         Sha1::digest(canonical.to_string().as_bytes())
             .iter()
             .map(|b| format!("{b:02x}"))
@@ -434,13 +434,13 @@ mod tests {
             .expect("time")
             .as_nanos();
         let root = std::env::temp_dir().join(format!("arda-cli-{name}-{unique}"));
-        fs::create_dir_all(root.join("data/charon")).expect("mkdirs");
+        fs::create_dir_all(root.join("data/manwe")).expect("mkdirs");
         root
     }
 
     fn write_sample_logs(root: &Path) {
         fs::write(
-            root.join(CHARON_STATE_PATH),
+            root.join(MANWE_STATE_PATH),
             concat!(
                 "{\"event\":\"route_selected\",\"payload\":{\"provider_id\":\"cerebras\",\"model_id\":\"qwen\",\"task_type\":\"code\"},\"ts\":\"2026-05-18T00:00:00Z\"}\n",
                 "{\"event\":\"route_failed\",\"payload\":{\"provider_id\":\"openrouter\",\"reason\":\"rate_limited\",\"task_type\":\"code\"},\"ts\":\"2026-05-18T00:01:00Z\"}\n",
@@ -449,7 +449,7 @@ mod tests {
         )
         .expect("state");
         fs::write(
-            root.join(CHARON_GOVERNANCE_EVENTS_PATH),
+            root.join(MANWE_GOVERNANCE_EVENTS_PATH),
             concat!(
                 "{\"event\":\"echo_gate\",\"payload\":{\"action\":\"Proceed\",\"task_type\":\"code\"},\"ts\":\"2026-05-18T00:02:00Z\"}\n",
                 "{\"event\":\"route_selected\",\"payload\":{\"provider_id\":\"mistral\",\"model_id\":\"devstral\",\"task_type\":\"code\"},\"ts\":\"2026-05-18T00:03:00Z\"}\n"
@@ -459,49 +459,49 @@ mod tests {
     }
 
     #[test]
-    fn charon_telemetry_report_dry_run_is_review_gated_without_writing() {
-        let root = temp_root("charon-telemetry-dry-run");
+    fn manwe_telemetry_report_dry_run_is_review_gated_without_writing() {
+        let root = temp_root("manwe-telemetry-dry-run");
         write_sample_logs(&root);
-        let report = build_charon_telemetry_report(&root, Some("all"), false, None, 100)
+        let report = build_manwe_telemetry_report(&root, Some("all"), false, None, 100)
             .expect("telemetry report");
-        assert_eq!(report["contract"], "arda.charon.telemetry_summary.v1");
+        assert_eq!(report["contract"], "arda.manwe.telemetry_summary.v1");
         assert_eq!(report["authority"], "agent_generated");
         assert_eq!(report["review_required"], true);
         assert_eq!(report["status"], "dry_run");
         assert_eq!(report["route_success_count"], 2);
         assert_eq!(report["route_failure_count"], 1);
         assert_eq!(report["source_health"]["malformed_state_events"], 1);
-        assert!(!root.join(CHARON_TELEMETRY_SUMMARIES_PATH).exists());
+        assert!(!root.join(MANWE_TELEMETRY_SUMMARIES_PATH).exists());
         let _ = fs::remove_dir_all(root);
     }
 
     #[test]
-    fn charon_telemetry_write_requires_justification() {
-        let root = temp_root("charon-telemetry-justification");
+    fn manwe_telemetry_write_requires_justification() {
+        let root = temp_root("manwe-telemetry-justification");
         write_sample_logs(&root);
-        let err = build_charon_telemetry_report(&root, Some("all"), true, Some("  "), 100)
+        let err = build_manwe_telemetry_report(&root, Some("all"), true, Some("  "), 100)
             .expect_err("missing justification should fail");
         assert!(err.to_string().contains("--write requires"));
         let _ = fs::remove_dir_all(root);
     }
 
     #[test]
-    fn charon_telemetry_write_is_append_only_and_idempotent() {
-        let root = temp_root("charon-telemetry-write");
+    fn manwe_telemetry_write_is_append_only_and_idempotent() {
+        let root = temp_root("manwe-telemetry-write");
         write_sample_logs(&root);
-        let first = build_charon_telemetry_report(
+        let first = build_manwe_telemetry_report(
             &root,
             Some("all"),
             true,
-            Some("operator reviewed Charon telemetry summary"),
+            Some("operator reviewed dManwe telemetry summary"),
             100,
         )
         .expect("first write");
-        let second = build_charon_telemetry_report(
+        let second = build_manwe_telemetry_report(
             &root,
             Some("all"),
             true,
-            Some("operator reviewed Charon telemetry summary"),
+            Some("operator reviewed dManwe telemetry summary"),
             100,
         )
         .expect("second write");
@@ -509,7 +509,7 @@ mod tests {
         assert_eq!(second["status"], "already_recorded_idempotent_noop");
         assert_eq!(first["summary_id"], second["summary_id"]);
         let ledger =
-            fs::read_to_string(root.join(CHARON_TELEMETRY_SUMMARIES_PATH)).expect("ledger");
+            fs::read_to_string(root.join(MANWE_TELEMETRY_SUMMARIES_PATH)).expect("ledger");
         assert_eq!(ledger.lines().count(), 1);
         let _ = fs::remove_dir_all(root);
     }

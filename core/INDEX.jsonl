@@ -8,9 +8,9 @@
 {"path": "core/knowledge/metrics/by_crate/ceo/beliefs.json", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "knowledge clients/edge metrics"}
 {"path": "core/knowledge/metrics/by_crate/ceo/status.json", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "knowledge clients/edge metrics"}
 {"path": "core/knowledge/metrics/by_crate/ceo/thoughts.json", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "knowledge clients/edge metrics"}
-{"path": "core/knowledge/metrics/by_crate/charon/providers.json", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "knowledge clients/edge metrics"}
-{"path": "core/knowledge/metrics/by_crate/charon/state.json", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "knowledge clients/edge metrics"}
-{"path": "core/knowledge/metrics/by_crate/charon/status.json", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "knowledge clients/edge metrics"}
+{"path": "core/knowledge/metrics/by_crate/manwe/providers.json", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "knowledge clients/edge metrics"}
+{"path": "core/knowledge/metrics/by_crate/manwe/state.json", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "knowledge clients/edge metrics"}
+{"path": "core/knowledge/metrics/by_crate/manwe/status.json", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "knowledge clients/edge metrics"}
 {"path": "core/knowledge/metrics/by_crate/core/status.json", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "knowledge clients/edge metrics"}
 {"path": "core/knowledge/metrics/by_crate/counsel/advisories.json", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "knowledge clients/edge metrics"}
 {"path": "core/knowledge/metrics/by_crate/counsel/status.json", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "knowledge clients/edge metrics"}
@@ -80,7 +80,7 @@
 {"path": "core/state/ceo_council_runtime.json", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "runtime state/projection"}
 {"path": "core/state/ceo_council_sessions.json", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "runtime state/projection"}
 {"path": "core/state/chaos_log.jsonl", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "runtime state/projection"}
-{"path": "core/state/charon_router.json", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "runtime state/projection"}
+{"path": "core/state/manwe_router.json", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "runtime state/projection"}
 {"path": "core/state/client_delivery_portfolio.json", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "runtime state/projection"}
 {"path": "core/state/client_delivery_readiness.json", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "runtime state/projection"}
 {"path": "core/state/communication_adapter_contract.json", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "runtime state/projection"}
@@ -135,7 +135,7 @@
 {"path": "core/state/governance_gap_backlog.json", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "runtime state/projection"}
 {"path": "core/state/governance_priority_runtime.json", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "runtime state/projection"}
 {"path": "core/state/governance_runtime.json", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "runtime state/projection"}
-{"path": "core/state/hades_charon_layout.json", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "runtime state/projection"}
+{"path": "core/state/hades_manwe_layout.json", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "runtime state/projection"}
 {"path": "core/state/hades_lifecycle.json", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "runtime state/projection"}
 {"path": "core/state/hades_lifecycle_review.json", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "runtime state/projection"}
 {"path": "core/state/hades_nightly_operations.json", "type": "file", "sigil": "⚡", "domain": "core", "purpose": "runtime state/projection"}

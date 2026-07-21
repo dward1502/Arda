@@ -1,7 +1,7 @@
 #![cfg(feature = "full-cli")]
 use super::super::*;
 use crate::commands::arandur::resolve_root;
-use crate::commands::charon_telemetry;
+use crate::commands::manwe_telemetry;
 
 pub(crate) async fn handle(command: PrometheusCommands) -> anyhow::Result<()> {
     let service = PrometheusService::from_core("core")?;
@@ -253,7 +253,7 @@ pub(crate) async fn handle(command: PrometheusCommands) -> anyhow::Result<()> {
         }
         PrometheusCommands::Autopilot { command } => autopilot_handle(command).await?,
         PrometheusCommands::Arandur { command } => arandur::handle(command)?,
-        PrometheusCommands::Charon { command } => charon_telemetry::handle(command)?,
+        PrometheusCommands::Charon { command } => manwe_telemetry::handle(command)?,
         PrometheusCommands::Ruleset { command } => match command {
             RulesetCommands::Status => {
                 let value = serde_json::to_value(load_active_ruleset())?;

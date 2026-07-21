@@ -15,7 +15,7 @@ export type SystemActionId =
   | 'approve_human_augmentation'
   | 'record_ceo_council_session'
   | 'arda.chronos_run_provider_checks'
-  | 'arda.charon_refresh_provider_intelligence'
+  | 'arda.manwe_refresh_provider_intelligence'
   | 'arda.queue_preview_cleanup'
   | 'arda.queue_capture_pivot'
   | 'arda.hades_run_nightly'
@@ -176,12 +176,12 @@ const SYSTEM_ACTION_DESCRIPTORS: SystemActionDescriptor[] = [
     dryRunSupported: false,
     resultPath: 'core/state/chronos_runtime.json',
     receiptPath: 'core/state/chronos_runtime.json',
-    relatedEvidence: ['core/state/charon_router.json', 'core/state/provider_intelligence.json'],
+    relatedEvidence: ['core/state/manwe_router.json', 'core/state/provider_intelligence.json'],
   },
   {
-    id: 'arda.charon_refresh_provider_intelligence',
+    id: 'arda.manwe_refresh_provider_intelligence',
     label: 'Refresh Provider Intelligence',
-    owner: 'CHARON',
+    owner: 'MANWE',
     executor: 'scripts/refresh_provider_intelligence.py',
     purpose: 'Refresh provider/model availability intelligence used by routing and readiness surfaces.',
     riskLevel: 'read_only',
@@ -193,7 +193,7 @@ const SYSTEM_ACTION_DESCRIPTORS: SystemActionDescriptor[] = [
     dryRunSupported: false,
     resultPath: 'core/state/provider_intelligence.json',
     receiptPath: 'core/state/provider_intelligence.json',
-    relatedEvidence: ['core/state/charon_router.json', 'core/state/provider_token_usage.json'],
+    relatedEvidence: ['core/state/manwe_router.json', 'core/state/provider_token_usage.json'],
   },
   {
     id: 'arda.queue_preview_cleanup',
@@ -504,7 +504,7 @@ function backendReceiptForDescriptor(
       source = chronosRuntime
       currentStatus = statusFromGate(source?.status) ?? (source ? 'succeeded' : undefined)
       break
-    case 'arda.charon_refresh_provider_intelligence':
+    case 'arda.manwe_refresh_provider_intelligence':
       source = providerIntelligence
       currentStatus = source ? 'succeeded' : undefined
       break
@@ -829,12 +829,12 @@ function localActionDefaults(action: SystemActionId): { command: string; receipt
         successMessage: 'CHRONOS provider checks refreshed',
         failureMessage: 'CHRONOS provider checks failed',
       }
-    case 'arda.charon_refresh_provider_intelligence':
+    case 'arda.manwe_refresh_provider_intelligence':
       return {
-        command: 'run_charon_provider_intelligence_refresh',
+        command: 'run_manwe_provider_intelligence_refresh',
         receiptPath: 'core/state/provider_intelligence.json',
-        successMessage: 'CHARON provider intelligence refreshed',
-        failureMessage: 'CHARON provider intelligence refresh failed',
+        successMessage: 'MANWE provider intelligence refreshed',
+        failureMessage: 'MANWE provider intelligence refresh failed',
       }
     case 'arda.queue_preview_cleanup':
       return {
@@ -904,7 +904,7 @@ const tauriLocalCliAdapter: SystemActionAdapter = {
     action === 'approve_human_augmentation' ||
     action === 'record_ceo_council_session' ||
     action === 'arda.chronos_run_provider_checks' ||
-    action === 'arda.charon_refresh_provider_intelligence' ||
+    action === 'arda.manwe_refresh_provider_intelligence' ||
     action === 'arda.queue_preview_cleanup' ||
     action === 'arda.hades_run_nightly' ||
     action === 'arda.audit_run_repeated_audit' ||

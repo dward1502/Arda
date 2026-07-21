@@ -149,14 +149,14 @@ impl HermesService {
         self.root.clone()
     }
 
-    pub(super) fn charon_outbound_route(&self, msg: &OutboundMessage) -> Result<serde_json::Value> {
-        let socket_path = std::env::var("ANNUNIMAS_CHARON_SOCKET")
+    pub(super) fn manwe_outbound_route(&self, msg: &OutboundMessage) -> Result<serde_json::Value> {
+        let socket_path = std::env::var("ANNUNIMAS_MANWE_SOCKET")
             .map(PathBuf::from)
-            .unwrap_or_else(|_| PathBuf::from("data/charon/charon.sock"));
+            .unwrap_or_else(|_| PathBuf::from("data/manwe/manwe.sock"));
         if !socket_path.exists() {
             return Err(ArdaError::Agent {
-                agent: "charon".to_string(),
-                message: format!("charon socket missing at {}", socket_path.display()),
+                agent: "manwe".to_string(),
+                message: format!("manwe socket missing at {}", socket_path.display()),
             });
         }
         let payload = serde_json::json!({
@@ -176,7 +176,7 @@ impl HermesService {
                 "privacy_requirement": "internal"
             }
         });
-        self.send_charon_ipc(&socket_path, "route", payload)
+        self.send_manwe_ipc(&socket_path, "route", payload)
     }
 
     pub(super) fn emit_memory_event(

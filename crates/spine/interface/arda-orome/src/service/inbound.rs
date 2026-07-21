@@ -52,10 +52,10 @@ impl HermesService {
         self.classify(msg)
     }
 
-    pub(super) fn charon_route_hint(&self, msg: &InboundMessage) -> Option<String> {
-        let socket_path = std::env::var("ANNUNIMAS_CHARON_SOCKET")
+    pub(super) fn manwe_route_hint(&self, msg: &InboundMessage) -> Option<String> {
+        let socket_path = std::env::var("ANNUNIMAS_MANWE_SOCKET")
             .map(PathBuf::from)
-            .unwrap_or_else(|_| PathBuf::from("data/charon/charon.sock"));
+            .unwrap_or_else(|_| PathBuf::from("data/manwe/manwe.sock"));
         if !socket_path.exists() {
             return None;
         }
@@ -76,7 +76,7 @@ impl HermesService {
                 "privacy_requirement": "internal"
             }
         });
-        self.send_charon_ipc(&socket_path, "route", payload)
+        self.send_manwe_ipc(&socket_path, "route", payload)
             .ok()
             .and_then(|value| {
                 let provider = value.get("provider_id").and_then(|v| v.as_str())?;
@@ -85,16 +85,16 @@ impl HermesService {
             })
     }
 
-    pub(super) fn send_charon_ipc(
+    pub(super) fn send_manwe_ipc(
         &self,
         socket_path: &Path,
         cmd: &str,
         payload: serde_json::Value,
     ) -> Result<serde_json::Value> {
         let mut stream = UnixStream::connect(socket_path).map_err(|e| ArdaError::Agent {
-            agent: "charon".to_string(),
+            agent: "manwe".to_string(),
             message: format!(
-                "failed to connect to CHARON socket {}: {e}",
+                "failed to connect to MANWE socket {}: {e}",
                 socket_path.display()
             ),
         })?;
@@ -104,24 +104,24 @@ impl HermesService {
         stream
             .write_all(&encoded)
             .map_err(|e| ArdaError::Agent {
-                agent: "charon".to_string(),
-                message: format!("failed to write CHARON IPC request: {e}"),
+                agent: "manwe".to_string(),
+                message: format!("failed to write MANWE IPC request: {e}"),
             })?;
         let mut line = String::new();
         let mut reader = BufReader::new(stream);
         reader
             .read_line(&mut line)
             .map_err(|e| ArdaError::Agent {
-                agent: "charon".to_string(),
-                message: format!("failed to read CHARON IPC response: {e}"),
+                agent: "manwe".to_string(),
+                message: format!("failed to read MANWE IPC response: {e}"),
             })?;
         let response = serde_json::from_str::<ResponseEnvelope>(line.trim()).map_err(|e| {
             ArdaError::Agent {
-                agent: "charon".to_string(),
-                message: format!("invalid CHARON IPC response: {e}"),
+                agent: "manwe".to_string(),
+                message: format!("invalid MANWE IPC response: {e}"),
             }
         })?;
-        response.into_result("charon")
+        response.into_result("manwe")
     }
 
     async fn ingest_polled_message(
@@ -275,7 +275,7 @@ impl HermesService {
                 "prometheus".to_string(),
                 "athena".to_string(),
                 "hades".to_string(),
-                "charon".to_string(),
+                "manwe".to_string(),
                 "mnemosyne".to_string(),
                 "warden".to_string(),
             ],

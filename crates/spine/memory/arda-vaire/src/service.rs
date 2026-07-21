@@ -779,7 +779,7 @@ mod tests {
             &serde_json::json!({
                 "ts": Utc::now().to_rfc3339(),
                 "event": {
-                    "crate_name": "charon"
+                    "crate_name": "manwe"
                 },
                 "reason": "test noise surface"
             }),
@@ -794,7 +794,7 @@ mod tests {
 
         let noise = svc.recent_noise_events(5);
         assert_eq!(noise.len(), 1);
-        assert_eq!(noise[0]["event"]["crate_name"], "charon");
+        assert_eq!(noise[0]["event"]["crate_name"], "manwe");
 
         let obsidian = svc.recent_obsidian_entries(5);
         assert_eq!(obsidian.len(), 1);

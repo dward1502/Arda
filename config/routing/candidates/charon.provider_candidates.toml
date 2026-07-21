@@ -1,12 +1,12 @@
 # DERIVED VIEW: this file is intake/reference only.
-# Source of truth: config/charon.providers.toml
+# Source of truth: config/manwe.providers.toml
 
-# Charon provider candidates are research/intake metadata only.
-# This file is intentionally not consumed by live routing until Charon grows an
-# explicit candidate promotion path. Keep `config/charon.providers.toml` as the
+# Manwe provider candidates are research/intake metadata only.
+# This file is intentionally not consumed by live routing until Manwe grows an
+# explicit candidate promotion path. Keep `config/manwe.providers.toml` as the
 # source of truth for enabled providers.
 
-schema_version = "arda.charon.provider-candidates.v1"
+schema_version = "arda.manwe.provider-candidates.v1"
 generated_at_utc = "2026-06-05T00:00:00Z"
 authority = "operator_research"
 
@@ -16,7 +16,7 @@ allowed_free_kinds = ["permanent", "trial", "credits", "community", "unknown"]
 promotion_requires_probe = true
 promotion_requires_rate_cap = true
 promotion_requires_payload_compatibility = true
-promotion_target = "config/charon.providers.toml"
+promotion_target = "config/manwe.providers.toml"
 
 [probe_budget]
 # Capability discovery should prefer passive receipts from real traffic. Active
@@ -29,7 +29,7 @@ max_active_probe_calls_per_provider_per_day = 5
 max_active_probe_calls_per_model_per_day = 1
 skip_active_probes_when_daily_remaining_ratio_below = 0.20
 skip_active_probes_when_provider_requests_per_day_lte = 1000
-passive_receipt_path = "data/charon/provider_capability_receipts.json"
+passive_receipt_path = "data/manwe/provider_capability_receipts.json"
 operator_surfaces = [
   "GET /providers/capabilities",
   "GET /provider_candidates",

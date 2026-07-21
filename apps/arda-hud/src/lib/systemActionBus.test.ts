@@ -65,7 +65,7 @@ describe('system action capability statuses', () => {
 
     expect(statuses.map((status) => status.id)).toEqual(expect.arrayContaining([
       'arda.chronos_run_provider_checks',
-      'arda.charon_refresh_provider_intelligence',
+      'arda.manwe_refresh_provider_intelligence',
       'arda.queue_preview_cleanup',
       'arda.athena_ingest_knowledge',
       'arda.setup_run_repair_flow',
@@ -253,34 +253,34 @@ describe('local CLI operator actions', () => {
     })
   })
 
-  it('invokes the CHARON provider intelligence descriptor through the Tauri local CLI adapter and refreshes receipt-backed status', async () => {
+  it('invokes the MANWE provider intelligence descriptor through the Tauri local CLI adapter and refreshes receipt-backed status', async () => {
     setSystemActionAdapterPreset('local_cli')
     mockedSafeTauriInvoke.mockResolvedValueOnce({
       ok: true,
-      message: 'CHARON provider intelligence refreshed (4 providers)',
+      message: 'MANWE provider intelligence refreshed (4 providers)',
       receiptPath: 'core/state/provider_intelligence.json',
       resultPath: 'core/state/provider_intelligence.json',
       generatedAt: '2026-05-28T06:20:00.000Z',
     })
 
-    const result = await executeSystemAction('arda.charon_refresh_provider_intelligence', actionContext)
+    const result = await executeSystemAction('arda.manwe_refresh_provider_intelligence', actionContext)
 
     expect(result).toMatchObject({
       ok: true,
       provider: 'tauri-local-cli',
-      message: 'CHARON provider intelligence refreshed (4 providers)',
+      message: 'MANWE provider intelligence refreshed (4 providers)',
       data: expect.objectContaining({
         receiptPath: 'core/state/provider_intelligence.json',
         resultPath: 'core/state/provider_intelligence.json',
       }),
     })
     expect(mockedSafeTauriInvoke).toHaveBeenCalledTimes(1)
-    expect(mockedSafeTauriInvoke).toHaveBeenCalledWith('run_charon_provider_intelligence_refresh', {
-      actionId: 'arda.charon_refresh_provider_intelligence',
+    expect(mockedSafeTauriInvoke).toHaveBeenCalledWith('run_manwe_provider_intelligence_refresh', {
+      actionId: 'arda.manwe_refresh_provider_intelligence',
       source: 'lounge',
     })
 
-    expect(getSystemActionCapabilityStatuses().find((status) => status.id === 'arda.charon_refresh_provider_intelligence')).toMatchObject({
+    expect(getSystemActionCapabilityStatuses().find((status) => status.id === 'arda.manwe_refresh_provider_intelligence')).toMatchObject({
       currentStatus: 'succeeded',
       lastRun: '2026-05-28T06:20:00.000Z',
       receiptPath: 'core/state/provider_intelligence.json',

@@ -81,11 +81,11 @@ compile cleanly.
 | `gateway.rs` | `SpannedManweGateway`, `ProviderRecord` |
 | `provider.rs` | `ProviderDefinition`, `ProviderCatalog` states/registry |
 | `transport.rs` | Transport traits + adaptive HTTP/IPC stub shells |
-| `route.rs` | Authority trait stubs (`CharonCore`, `CharonGovernance`, `CharonMnemosyne`, `CharonPlutus`) |
+| `route.rs` | Authority trait stubs (`ManweCore`, `ManweGovernance`, `ManweMnemosyne`, `CharonPlutus`) |
 | `routing.rs` | Adaptive routing feature gate + `RouteDecision` placeholder |
 | `routing_adapter.rs` | `AdaptiveRoutingAdapter` shim, currently returns not-wired error |
 | `charon_remote.rs` | Legacy charon bridge models |
-| `service.rs` | `CharonService` stub when `adaptive` is disabled |
+| `service.rs` | `ManweService` stub when `adaptive` is disabled |
 
 ## Adaptive module layout
 
@@ -96,7 +96,7 @@ compile cleanly.
 | `adaptive/error.rs` | Adaptive error types |
 | `adaptive/routing_adapter.rs` | Chat completion routing adapter wiring |
 | `adaptive/service/mod.rs` | Service module index |
-| `adaptive/service/types.rs` | `CharonService` spine, runtime state shape |
+| `adaptive/service/types.rs` | `ManweService` spine, runtime state shape |
 | `adaptive/service/runtime_state.rs` | Runtime state containers |
 | `adaptive/service/bootstrap*.rs` | Bootstrapping defaults/runtime/overlay |
 | `adaptive/service/provider_admin.rs` | Provider admin surfaces |

@@ -246,8 +246,8 @@ mod tests {
         let registry = load_default_soterion_registry().unwrap_or_default();
         let defaults = source_defaults_projection(&registry);
 
-        let charon_signature = defaults
-            .get("charon")
+        let manwe_signature = defaults
+            .get("manwe")
             .and_then(|value| value.get("glyphs"))
             .and_then(|value| value.get("signature"))
             .and_then(Value::as_str);
@@ -262,7 +262,7 @@ mod tests {
             .and_then(|value| value.get("signature"))
             .and_then(Value::as_str);
 
-        assert_eq!(charon_signature, Some("☿◆►"));
+        assert_eq!(manwe_signature, Some("☿◆►"));
         assert_eq!(hermes_signature, Some("🜁◆◀"));
         assert_eq!(hades_signature, Some("▽"));
     }

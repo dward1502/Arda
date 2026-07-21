@@ -18,7 +18,7 @@ export default function RoutingOwnershipPanel({ lanes }: RoutingOwnershipPanelPr
   return (
     <section className="systems-panel systems-panel--routing">
       <header className="systems-panel__header">
-        <div className="systems-panel__eyebrow">Charon Lanes</div>
+        <div className="systems-panel__eyebrow">Manwe Lanes</div>
         <h3 className="systems-panel__title">Routing Ownership</h3>
       </header>
       <div className="lane-route-list">

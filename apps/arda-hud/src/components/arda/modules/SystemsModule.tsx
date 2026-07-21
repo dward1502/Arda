@@ -6,7 +6,7 @@ import ModuleCard from '../ModuleCard'
 import AgentRosterPanel from './systems/AgentRosterPanel'
 import AuditReadinessPanel from './systems/AuditReadinessPanel'
 import AutomationStatusPanel from './systems/AutomationStatusPanel'
-import CharonCapabilityPanel from './systems/CharonCapabilityPanel'
+import ManweCapabilityPanel from './systems/ManweCapabilityPanel'
 import FleetHealthPanel from './systems/FleetHealthPanel'
 import LaneFitnessPanel from './systems/LaneFitnessPanel'
 import LaneHeadroomPanel from './systems/LaneHeadroomPanel'
@@ -20,7 +20,7 @@ import SetupConsoleReadinessPanel from './systems/SetupConsoleReadinessPanel'
 import SourceTrustPanel from './systems/SourceTrustPanel'
 import TaskListViewer from './systems/TaskListViewer'
 import SourceCoverageBadge, { type SourceCoverageBadgeState } from './SourceCoverageBadge'
-import type { CharonLiveSnapshot } from '../../../lib/charonLive'
+import type { ManweLiveSnapshot } from '../../../lib/manweLive'
 
 interface SystemAgent {
   name: string
@@ -64,9 +64,9 @@ interface SystemsModuleProps {
     failureCount: number
   }>
   routableProviders: RoutableProviderEntry[]
-  charonLiveSnapshot: CharonLiveSnapshot | null
-  charonLiveError: string | null
-  charonLiveLoading: boolean
+  manweLiveSnapshot: ManweLiveSnapshot | null
+  manweLiveError: string | null
+  manweLiveLoading: boolean
   storagePressure: Record<string, unknown> | null
   automationStatus: AutomationStatusSurface | null
   setupConsoleReadiness: Record<string, unknown> | null
@@ -84,9 +84,9 @@ interface SystemsModuleProps {
       providerId: string
       declaredModel: string
       declaredContextWindow: number | null
-      charonContextWindow: number | null
+      manweContextWindow: number | null
       actualProcessContextWindow: number | null
-      declaredVsCharon: boolean
+      declaredVsManwe: boolean
       declaredVsLocalProcess: boolean
       localRuntimeStatus: string
     }>
@@ -158,9 +158,9 @@ export default function SystemsModule({
   laneHeadroom,
   laneFitness,
   routableProviders,
-  charonLiveSnapshot,
-  charonLiveError,
-  charonLiveLoading,
+  manweLiveSnapshot,
+  manweLiveError,
+  manweLiveLoading,
   storagePressure,
   automationStatus,
   setupConsoleReadiness,
@@ -206,10 +206,10 @@ export default function SystemsModule({
         <RoutingOwnershipPanel lanes={laneOwnership} />
         <LaneHeadroomPanel providers={laneHeadroom} />
         <LaneFitnessPanel entries={laneFitness} />
-        <CharonCapabilityPanel
-          snapshot={charonLiveSnapshot}
-          error={charonLiveError}
-          loading={charonLiveLoading}
+        <ManweCapabilityPanel
+          snapshot={manweLiveSnapshot}
+          error={manweLiveError}
+          loading={manweLiveLoading}
           storagePressure={storagePressure}
         />
         <RoutableProvidersPanel providers={routableProviders} />

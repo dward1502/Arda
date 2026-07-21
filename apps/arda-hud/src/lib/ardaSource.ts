@@ -111,9 +111,9 @@ const DERIVED_SECTION_BLUEPRINTS = [
   {
     id: 'routing_and_comms',
     title: 'Routing And Comms',
-    owner: 'charon',
+    owner: 'manwe',
     arda_panels: ['operations_and_packages', 'systems'],
-    primary_sources: ['core/state/operator_runtime_status.json', 'core/state/charon_router.json'],
+    primary_sources: ['core/state/operator_runtime_status.json', 'core/state/manwe_router.json'],
     supplemental_sources: ['core/state/hermes_command.json'],
   },
   {
@@ -370,7 +370,7 @@ function deriveOperatorRuntimeStatus(world: JsonRecord | null, activeRuleset: Js
   const onlineAgents = agents.filter((agent) => toStringValue(agent.status, '').toUpperCase() === 'ONLINE')
   const offlineAgents = agents.filter((agent) => toStringValue(agent.status, '').toUpperCase() !== 'ONLINE')
   const providerIds = onlineAgents.map((agent) => toStringValue(agent.id, 'unknown')).filter(Boolean)
-  const defaultProvider = providerIds[0] ?? 'charon'
+  const defaultProvider = providerIds[0] ?? 'manwe'
   const laneRoutes = {
     interactive: {
       provider_id: defaultProvider,
@@ -1005,7 +1005,7 @@ export function createCoreStateSource(): ArdaDataSource {
         sourceMap,
         planMap,
         providerTokenUsage,
-        charonRouter,
+        manweRouter,
         athenaRuntime,
         athenaDigest,
         athenaDeepGraph,
@@ -1081,7 +1081,7 @@ export function createCoreStateSource(): ArdaDataSource {
         readJson(rootPath, settings.arda_source_map_path),
         readJson(rootPath, settings.core_plan_index_path),
         readJson(rootPath, 'core/state/provider_token_usage.json'),
-        readJson(rootPath, settings.charon_router_path),
+        readJson(rootPath, settings.manwe_router_path),
         readJson(rootPath, settings.athena_runtime_path),
         readJsonLines(rootPath, settings.athena_digest_path),
         readJsonLines(rootPath, settings.athena_deep_graph_path),
@@ -1216,7 +1216,7 @@ export function createCoreStateSource(): ArdaDataSource {
         sourceMap: finalSourceMap,
         planMap: finalPlanMap,
         providerTokenUsage,
-        charonRouter,
+        manweRouter,
         athenaRuntime,
         taskQueueEntries: queueEntries,
         athenaDigest,

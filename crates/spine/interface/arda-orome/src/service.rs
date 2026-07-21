@@ -3,8 +3,8 @@ use crate::intent::classify_message;
 use crate::mcp::McpMessage;
 use crate::provider::{DispatchReceipt, ProviderRuntime};
 use crate::types::{
-    BoardroomCharonRouteEvidence, BoardroomOracleLink, BoardroomPost, BoardroomQuorumDecision,
-    BoardroomQuorumPacket, BoardroomTriadScores, CharonRouteHint, CommsEvent, CommsEventRisk,
+    BoardroomManweRouteEvidence, BoardroomOracleLink, BoardroomPost, BoardroomQuorumDecision,
+    BoardroomQuorumPacket, BoardroomTriadScores, ManweRouteHint, CommsEvent, CommsEventRisk,
     CommsEventType, CommsEventVisibility, CouncilCommandSeat, CouncilDiscussionNote,
     CouncilDiscussionProjection, CouncilDiscussionPromotion, InboundMessage, IntentResult,
     InterruptionDisposition, InterruptionMessage, LocalCouncilSummaryFallbackMetadata,
@@ -585,11 +585,11 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn auto_provider_resolves_to_fallback_transport_with_charon_metadata() {
+    async fn auto_provider_resolves_to_fallback_transport_with_manwe_metadata() {
         let _guard = env_guard();
         let dir = tempdir().expect("tempdir");
-        let missing_socket = dir.path().join("missing-charon.sock");
-        std::env::set_var("ANNUNIMAS_CHARON_SOCKET", &missing_socket);
+        let missing_socket = dir.path().join("missing-manwe.sock");
+        std::env::set_var("ANNUNIMAS_MANWE_SOCKET", &missing_socket);
         std::env::set_var("ANNUNIMAS_HERMES_AUTO_TRANSPORT", "discord");
 
         let service = HermesService::new(dir.path()).expect("service");
@@ -598,16 +598,16 @@ mod tests {
                 "auto",
                 "boardroom",
                 "Route test",
-                "use charon when available",
+                "use manwe when available",
             ))
             .await;
 
         assert_eq!(routed.requested_provider, "auto");
         assert_eq!(routed.resolved_transport, "discord");
         assert_eq!(routed.msg.provider, "discord");
-        assert!(routed.charon_route.is_none());
+        assert!(routed.manwe_route.is_none());
 
-        std::env::remove_var("ANNUNIMAS_CHARON_SOCKET");
+        std::env::remove_var("ANNUNIMAS_MANWE_SOCKET");
         std::env::remove_var("ANNUNIMAS_HERMES_AUTO_TRANSPORT");
     }
 
@@ -663,11 +663,11 @@ mod tests {
             .canonical_refs
             .contains(&"council_session:council_gate6".to_string()));
         assert!(route.fallback_metadata.fallback_used);
-        assert_eq!(route.fallback_metadata.provider, "charon-prod-default");
+        assert_eq!(route.fallback_metadata.provider, "manwe-prod-default");
     }
 
     #[test]
-    fn local_council_summary_route_records_charon_hint_without_authority() {
+    fn local_council_summary_route_records_manwe_hint_without_authority() {
         let dir = tempdir().expect("tempdir");
         let service = HermesService::new(dir.path()).expect("service");
 
@@ -676,7 +676,7 @@ mod tests {
                 "council_gate6",
                 "Summarized discussion: model suggests documenting fallback routing.",
                 Some("task:discord-gate-6"),
-                Some(crate::types::CharonRouteHint {
+                Some(crate::types::ManweRouteHint {
                     provider: Some("edge_core".to_string()),
                     model: Some("Qwen3.5-9B-Q4_K_M".to_string()),
                     route_evidence: Some(
@@ -716,7 +716,7 @@ mod tests {
                 "council_gate6",
                 "Summarized discussion: no local route is available, so preserve safe fallback metadata.",
                 Some("discord-thread:1234"),
-                Some(crate::types::CharonRouteHint {
+                Some(crate::types::ManweRouteHint {
                     provider: None,
                     model: None,
                     route_evidence: None,
@@ -724,7 +724,7 @@ mod tests {
                     estimated_input_tokens: None,
                     estimated_output_tokens: None,
                     fallback_used: true,
-                    fallback_reason: Some("charon route unavailable".to_string()),
+                    fallback_reason: Some("manwe route unavailable".to_string()),
                 }),
             )
             .expect("summary route");
@@ -735,9 +735,9 @@ mod tests {
         assert!(route.fallback_metadata.fallback_used);
         assert_eq!(
             route.fallback_metadata.reason.as_deref(),
-            Some("charon route unavailable")
+            Some("manwe route unavailable")
         );
-        assert_eq!(route.provider_used.as_deref(), Some("charon-prod-default"));
+        assert_eq!(route.provider_used.as_deref(), Some("manwe-prod-default"));
         assert_eq!(route.model_used, None);
         assert!(!route.is_authoritative);
     }
@@ -1220,7 +1220,7 @@ mod tests {
 
         let high_risk_inference = service.record_council_discussion_note(
             "council_gate_5",
-            "charon-local",
+            "manwe-local",
             "Local model recommends an authority decision.",
             CommsEventRisk::Medium,
             "local_inference",
@@ -1230,7 +1230,7 @@ mod tests {
         let low_risk_inference = service
             .record_council_discussion_note(
                 "council_gate_5",
-                "charon-local",
+                "manwe-local",
                 "Local model summary only: open questions remain.",
                 CommsEventRisk::Low,
                 "local_inference",
@@ -1795,8 +1795,8 @@ mod tests {
             .record_operating_room_event(
                 OperatingRoomEventKind::Command,
                 "unsafe_restart_request",
-                "Restart Charon from Discord",
-                "restart annunimas-charon.service now",
+                "Restart Manwe from Discord",
+                "restart annunimas-manwe.service now",
                 vec!["core/projects/tasks/queue.jsonl".to_string()],
                 false,
             )
@@ -1896,7 +1896,7 @@ mod tests {
         assert!(packet.status_reason.contains("quorum_threshold_unmet:1/2"));
         assert!(packet
             .status_reason
-            .contains("charon_route_evidence_missing"));
+            .contains("manwe_route_evidence_missing"));
         assert!(!packet.discord_projection_permitted);
         assert!(packet.operator_approval_required);
         assert!(!packet.operator_approved);
@@ -1944,7 +1944,7 @@ mod tests {
         assert_eq!(packet.status, "passed");
         assert_eq!(
             packet.status_reason,
-            "oracle_quorum_and_charon_route_verified"
+            "oracle_quorum_and_manwe_route_verified"
         );
         assert!(packet.oracle.verdict_found);
         assert_eq!(
@@ -1960,11 +1960,11 @@ mod tests {
         assert_eq!(packet.quorum.approvals.len(), 2);
         assert_eq!(packet.quorum.result, "passed");
         assert_eq!(
-            packet.charon_route.selected_provider.as_deref(),
+            packet.manwe_route.selected_provider.as_deref(),
             Some("edge_hub_3080")
         );
         assert_eq!(
-            packet.charon_route.selected_model.as_deref(),
+            packet.manwe_route.selected_model.as_deref(),
             Some("nous-hermes")
         );
     }
@@ -1993,7 +1993,7 @@ mod tests {
         assert!(rendered.contains("quorum: review_required"));
         assert!(rendered.contains("reason: oracle_verdict_missing"));
         assert!(rendered.contains("oracle: oracle_gate_36"));
-        assert!(rendered.contains("charon: edge_hub_3080 / nous-hermes"));
+        assert!(rendered.contains("manwe: edge_hub_3080 / nous-hermes"));
         assert!(rendered.contains("operator approval: required"));
 
         let outbound =

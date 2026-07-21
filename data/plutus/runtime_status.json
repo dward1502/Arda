@@ -201,7 +201,7 @@
           },
           "value": 73.32241790259285
         },
-        "subject": "charon",
+        "subject": "manwe",
         "triad": {
           "aurelius": "Pass",
           "aurelius_score": 0.8999999999999999,
@@ -408,7 +408,7 @@
           },
           "value": 73.32241790259285
         },
-        "subject": "charon",
+        "subject": "manwe",
         "triad": {
           "aurelius": "Pass",
           "aurelius_score": 0.8999999999999999,
@@ -615,7 +615,7 @@
           },
           "value": 73.32241790259285
         },
-        "subject": "charon",
+        "subject": "manwe",
         "triad": {
           "aurelius": "Pass",
           "aurelius_score": 0.8999999999999999,
@@ -822,7 +822,7 @@
           },
           "value": 73.32241790259285
         },
-        "subject": "charon",
+        "subject": "manwe",
         "triad": {
           "aurelius": "Pass",
           "aurelius_score": 0.8999999999999999,
@@ -960,7 +960,7 @@
           },
           "value": 73.32241790259285
         },
-        "subject": "charon",
+        "subject": "manwe",
         "triad": {
           "aurelius": "Pass",
           "aurelius_score": 0.8999999999999999,
@@ -1167,7 +1167,7 @@
           },
           "value": 73.32241790259285
         },
-        "subject": "charon",
+        "subject": "manwe",
         "triad": {
           "aurelius": "Pass",
           "aurelius_score": 0.8999999999999999,
@@ -1374,7 +1374,7 @@
           },
           "value": 73.32241790259285
         },
-        "subject": "charon",
+        "subject": "manwe",
         "triad": {
           "aurelius": "Pass",
           "aurelius_score": 0.8999999999999999,
@@ -1581,7 +1581,7 @@
           },
           "value": 73.32241790259285
         },
-        "subject": "charon",
+        "subject": "manwe",
         "triad": {
           "aurelius": "Pass",
           "aurelius_score": 0.8999999999999999,
@@ -1744,7 +1744,7 @@
     "by_agent": {
       "apollo": 11.2,
       "athena": 19.693333333333335,
-      "charon": 42.0,
+      "manwe": 42.0,
       "mnemosyne": 68.89333333333332,
       "oracle": 1.87
     },

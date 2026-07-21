@@ -192,7 +192,7 @@ impl AthenaStore {
             ),
             (
                 "routing",
-                "charon",
+                "manwe",
                 "high",
                 format!("ATHENA evidence plan for {source_id}: workload-specialized routing"),
                 "Convert evidence on routing/model specialization into concrete route classes and provider policy updates.",
@@ -220,7 +220,7 @@ impl AthenaStore {
             ),
             (
                 "provider",
-                "charon",
+                "manwe",
                 "high",
                 format!("ATHENA evidence plan for {source_id}: provider-selection policy"),
                 "Convert provider-specific implementation evidence into deterministic provider ordering, fallback, and routing policy.",
@@ -234,7 +234,7 @@ impl AthenaStore {
             ),
             (
                 "governor",
-                "charon",
+                "manwe",
                 "medium",
                 format!("ATHENA evidence plan for {source_id}: governor and route controls"),
                 "Project implementation evidence into route-control and governor state instead of leaving adoption as an implicit operator convention.",

@@ -40,7 +40,7 @@ pub(crate) enum OnboardingCommands {
         #[arg(long)]
         out_dir: Option<PathBuf>,
     },
-    /// Render a provider/env checklist for Charon onboarding
+    /// Render a provider/env checklist for Manwe onboarding
     ProviderChecklist {
         /// Optional path for JSON output
         #[arg(long)]

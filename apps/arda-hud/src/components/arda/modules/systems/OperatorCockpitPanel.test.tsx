@@ -49,7 +49,7 @@ describe('OperatorCockpitPanel', () => {
               { sourceId: 'src_1', readiness: 'reference_only', confidence: '0.70' },
             ],
           },
-          charon: {
+          manwe: {
             providerCount: 12,
             availableProviderCount: 10,
             blockedProviderCount: 0,

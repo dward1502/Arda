@@ -4,10 +4,10 @@ pub(super) fn classify(service: &HermesService, msg: InboundMessage) -> Result<I
     let (classify_msg, choice_meta) = service.expand_choice_if_needed(&msg);
     let mut classification = classify_message(&classify_msg);
     if classification.tier == "tier3_fallback" {
-        if let Some(route_hint) = service.charon_route_hint(&classify_msg) {
+        if let Some(route_hint) = service.manwe_route_hint(&classify_msg) {
             classification.confidence = (classification.confidence + 0.08).min(0.9);
-            classification.tier = "tier3_charon".to_string();
-            classification.reason = format!("{}; charon_hint={route_hint}", classification.reason);
+            classification.tier = "tier3_manwe".to_string();
+            classification.reason = format!("{}; manwe_hint={route_hint}", classification.reason);
         }
     }
     let mut bacon_task = Task::new(

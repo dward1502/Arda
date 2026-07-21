@@ -44,7 +44,7 @@
     {
       "check_id": "endpoint.missing_gates",
       "evidence": [
-        "missing: CHARON_BASE_URL",
+        "missing: MANWE_BASE_URL",
         "missing: HERMES_BASE_URL"
       ],
       "recommendation": "Populate missing endpoints before enabling service start helpers.",

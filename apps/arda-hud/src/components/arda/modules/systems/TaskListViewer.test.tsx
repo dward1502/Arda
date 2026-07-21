@@ -28,7 +28,7 @@ const surface: OperatorCockpitSurface = {
   chronos: { runnerStatus: 'ready', readyTaskCount: 0, scheduledTaskCount: 0, dueTasks: [] },
   hermes: { gatewayReceiptCount: 0, dispatchReceiptCount: 0, latestReceipts: [] },
   athena: { policyReady: 0, referenceOnly: 0, implementationReady: 0, latest: [] },
-  charon: {
+  manwe: {
     providerCount: 0,
     availableProviderCount: 0,
     blockedProviderCount: 0,

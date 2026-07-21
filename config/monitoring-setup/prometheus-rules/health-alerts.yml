@@ -13,14 +13,14 @@ groups:
           summary: "Annunimas scrape target down: {{ $labels.job }} {{ $labels.node }}"
           description: "Prometheus on Beelink cannot scrape {{ $labels.instance }} for job {{ $labels.job }}."
 
-      - alert: CharonMetricsUnavailable
-        expr: up{job="charon", node="annunimas-core"} == 0
+      - alert: ManweMetricsUnavailable
+        expr: up{job="manwe", node="annunimas-core"} == 0
         for: 2m
         labels:
           severity: critical
         annotations:
-          summary: "Charon metrics endpoint is unavailable"
-          description: "Grafana can show the Charon scrape failure, but live Charon internals require annunimas-charon on 100.78.138.113:5110 to expose /metrics."
+          summary: "Manwe metrics endpoint is unavailable"
+          description: "Grafana can show the Manwe scrape failure, but live Manwe internals require annunimas-manwe on 100.78.138.113:5110 to expose /metrics."
 
   - name: annunimas-fleet-capacity
     rules:

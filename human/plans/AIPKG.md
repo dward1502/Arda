@@ -1,7 +1,7 @@
 # AIPKG Plan Review
 
 ## Overview
-AIPKG (Annunimas Intelligent Package) is a package management system designed for autonomous agents, with a focus on safety, governance, and receipt-based validation.
+AIPKG (Arda Intelligent Package) is a package management system designed for autonomous agents, with a focus on safety, governance, and receipt-based validation.
 
 ## Core Contract Surface
 The core contract surface is defined in `core/state/aipkg_contract.json` and includes:
@@ -76,5 +76,5 @@ The AIPKG system aligns with core Arda principles:
 ## References
 
 - Core contract: `core/state/aipkg_contract.json`
-- Arda governance: `docs/SAFETY_MODEL.md` 
-- Triad validation: `docs/operations/TRIAD_GATE_OPERATIONS.md` 
+- Arda governance: `docs/SAFETY_MODEL.md` This doesnt exist needs to be made
+- Triad validation: `docs/operations/TRIAD_GATE_OPERATIONS.md` Does not exist and needds to be made

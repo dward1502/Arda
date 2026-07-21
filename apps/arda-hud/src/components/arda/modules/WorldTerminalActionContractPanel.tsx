@@ -58,7 +58,7 @@ const WORLD_TERMINAL_ACTION_CONTRACTS: WorldTerminalActionContract[] = [
     title: 'Status Terminal',
     sourceZoneId: 'sovereign_world',
     operatorQuestion: 'Which runtime/provider status projections can refresh without changing system state?',
-    safeActionIds: ['arda.chronos_run_provider_checks', 'arda.charon_refresh_provider_intelligence'],
+    safeActionIds: ['arda.chronos_run_provider_checks', 'arda.manwe_refresh_provider_intelligence'],
     governedActionIds: [],
     evidencePaths: ['core/state/chronos_runtime.json', 'core/state/provider_intelligence.json'],
   },

@@ -430,7 +430,7 @@ pub(super) fn write_fleet_backbone_projection(core_root: &Path) {
         "backbone_node": configured_backbone,
         "edge_target": target_backbone,
         "routing_posture": {
-            "charon_role": configured_backbone.get("charon_role").cloned().unwrap_or_else(|| json!("primary_router")),
+            "manwes_role": configured_backbone.get("manwes_role").cloned().unwrap_or_else(|| json!("primary_router")),
             "oracle_role": configured_backbone.get("oracle_role").cloned().unwrap_or_else(|| json!("primary_reasoning")),
             "athena_role": configured_backbone.get("athena_role").cloned().unwrap_or_else(|| json!("deep_ingest_and_digest")),
             "plutus_role": configured_backbone.get("plutus_role").cloned().unwrap_or_else(|| json!("cost_and_joule_accounting"))
@@ -602,7 +602,7 @@ model = "qwen3"
         assert_eq!(projection["backbone_node"]["id"], "node-backbone");
         assert_eq!(projection["edge_target"]["id"], "node-backbone");
         assert_eq!(
-            projection["routing_posture"]["charon_role"],
+            projection["routing_posture"]["manwes_role"],
             "primary_router"
         );
         assert_eq!(projection["expected_capabilities"], json!([]));

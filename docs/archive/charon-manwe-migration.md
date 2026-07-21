@@ -36,7 +36,7 @@ The charon re-export will be reintroduced from the new
 - Port charon's routing logic from `old-annunimas/annunimas-charon/src/service.rs`.
 - The 4 `annunimas_*` deps (crates/governance/arda-core, crates/governance/governance, crates/memory/mnemosyne, crates/runtime/plutus) are stubbed/absent
   under `old-annunimas/`. Resolve via Option 2: define local trait shims
-  (`CharonCore`, `CharonGovernance`, etc.) that the routing code depends on, with
+  (`ManweCore`, `ManweGovernance`, etc.) that the routing code depends on, with
   in-crate default impls so it compiles without the real annunimas crates.
 - `cargo test -p manwe-routing` green.
 

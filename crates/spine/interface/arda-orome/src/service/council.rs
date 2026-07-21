@@ -369,7 +369,7 @@ impl HermesService {
         session_id: &str,
         summary: &str,
         source_ref: Option<&str>,
-        route_hint: Option<CharonRouteHint>,
+        route_hint: Option<ManweRouteHint>,
     ) -> Result<LocalCouncilSummaryRoute> {
         if contains_final_approval_claim(summary) {
             let _blocked = self.record_comms_event(
@@ -390,12 +390,12 @@ impl HermesService {
         }
 
         let channel_resolution = self.resolve_semantic_discord_channel("council")?;
-        let hint = route_hint.unwrap_or_else(default_charon_route_hint);
+        let hint = route_hint.unwrap_or_else(default_manwe_route_hint);
         let provider_used = hint
             .provider
             .clone()
             .filter(|provider| !provider.trim().is_empty())
-            .unwrap_or_else(|| "charon-prod-default".to_string());
+            .unwrap_or_else(|| "manwe-prod-default".to_string());
         let source_task = source_ref
             .map(str::trim)
             .filter(|candidate| candidate.starts_with("task:"))
@@ -420,7 +420,7 @@ impl HermesService {
         let fallback_reason = hint.fallback_reason.clone().or_else(|| {
             if fallback_used {
                 Some(
-                    "charon route hint unavailable; using default local council summary route"
+                    "manwe route hint unavailable; using default local council summary route"
                         .to_string(),
                 )
             } else {
@@ -501,7 +501,7 @@ impl HermesService {
             mentions: vec![
                 "athena".to_string(),
                 "hades".to_string(),
-                "charon".to_string(),
+                "manwe".to_string(),
             ],
             thread_id: Some(session_id.clone()),
             posted_at_utc: Utc::now().to_rfc3339(),
@@ -745,12 +745,12 @@ impl HermesService {
         evidence_paths: Vec<String>,
         oracle_query_id: Option<String>,
         oracle_verdict_path: Option<PathBuf>,
-        charon_route_evidence: Option<String>,
+        manwe_route_evidence: Option<String>,
         quorum_threshold: usize,
         approvals: Vec<String>,
     ) -> Result<BoardroomQuorumPacket> {
         let oracle = self.boardroom_oracle_link(oracle_query_id, oracle_verdict_path)?;
-        let charon_route = parse_charon_route_evidence(charon_route_evidence);
+        let manwe_route = parse_manwe_route_evidence(manwe_route_evidence);
         let mut review_reasons = Vec::new();
         if !oracle.verdict_found {
             review_reasons.push("oracle_verdict_missing".to_string());
@@ -767,13 +767,13 @@ impl HermesService {
                 quorum_threshold
             ));
         }
-        if charon_route.selected_provider.is_none() || charon_route.selected_model.is_none() {
-            review_reasons.push("charon_route_evidence_missing".to_string());
+        if manwe_route.selected_provider.is_none() || manwe_route.selected_model.is_none() {
+            review_reasons.push("manwe_route_evidence_missing".to_string());
         }
         let (quorum_result, status_reason) = if review_reasons.is_empty() {
             (
                 "passed".to_string(),
-                "oracle_quorum_and_charon_route_verified".to_string(),
+                "oracle_quorum_and_manwe_route_verified".to_string(),
             )
         } else {
             ("review_required".to_string(), review_reasons.join(";"))
@@ -791,7 +791,7 @@ impl HermesService {
                 approvals,
                 result: quorum_result.clone(),
             },
-            charon_route,
+            manwe_route,
             discord_projection_permitted: false,
             operator_approval_required: true,
             operator_approved: false,
@@ -804,12 +804,12 @@ impl HermesService {
 
     pub fn render_boardroom_quorum_review_packet(&self, packet: &BoardroomQuorumPacket) -> String {
         let provider = packet
-            .charon_route
+            .manwe_route
             .selected_provider
             .as_deref()
             .unwrap_or("unresolved");
         let model = packet
-            .charon_route
+            .manwe_route
             .selected_model
             .as_deref()
             .unwrap_or("unresolved");
@@ -822,7 +822,7 @@ impl HermesService {
             "not_required"
         };
         let mut rendered = format!(
-            "HERMES boardroom quorum review\ntrace: {}\nsession: {}\ntopic: {}\nstatus: {}\nreason: {}\nquorum: {} approvals={}/{}\noracle: {} verdict_found={} outcome={} locator={} resonance={}\ncharon: {} / {}\ndiscord projection: {}\noperator approval: {}",
+            "HERMES boardroom quorum review\ntrace: {}\nsession: {}\ntopic: {}\nstatus: {}\nreason: {}\nquorum: {} approvals={}/{}\noracle: {} verdict_found={} outcome={} locator={} resonance={}\nmanwe: {} / {}\ndiscord projection: {}\noperator approval: {}",
             packet.packet_id,
             packet.session_id,
             packet.topic,
@@ -1024,7 +1024,7 @@ fn truncate_projection_body(body: &str) -> String {
     output
 }
 
-fn default_charon_route_hint() -> CharonRouteHint {
+fn default_manwe_route_hint() -> ManweRouteHint {
     let provider = std::env::var("ANNUNIMAS_COUNCIL_DEFAULT_PROVIDER")
         .ok()
         .and_then(|value| {
@@ -1035,11 +1035,11 @@ fn default_charon_route_hint() -> CharonRouteHint {
                 Some(trimmed.to_string())
             }
         });
-    CharonRouteHint {
+    ManweRouteHint {
         provider: provider.clone(),
         model: None,
         route_evidence: Some(
-            "fallback default route; charon region/hint unavailable".to_string(),
+            "fallback default route; manwe region/hint unavailable".to_string(),
         ),
         latency_ms: None,
         estimated_input_tokens: None,
@@ -1076,13 +1076,13 @@ pub(super) fn redact_operating_room_body(body: &str) -> String {
         .join(" ")
 }
 
-fn parse_charon_route_evidence(route: Option<String>) -> BoardroomCharonRouteEvidence {
+fn parse_manwe_route_evidence(route: Option<String>) -> BoardroomManweRouteEvidence {
     let (selected_provider, selected_model) = route
         .as_deref()
         .and_then(|raw| raw.split_once(':'))
         .map(|(provider, model)| (Some(provider.to_string()), Some(model.to_string())))
         .unwrap_or((None, None));
-    BoardroomCharonRouteEvidence {
+    BoardroomManweRouteEvidence {
         route_evidence: route,
         selected_provider,
         selected_model,

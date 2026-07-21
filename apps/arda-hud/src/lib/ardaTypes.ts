@@ -122,7 +122,7 @@ export interface OperatorCockpitSurface {
   providerHealth: {
     providers: ProviderHealthItem[]
   }
-  charonLanes: {
+  manweLanes: {
     activeLanes: number
     laneIds: string[]
     notes: string[]

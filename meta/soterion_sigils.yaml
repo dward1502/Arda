@@ -29,7 +29,7 @@ agent_identity:
     code_point: "U+1F703"
     role: "library_earth"
     description: "knowledge ingestion and epistemic review"
-  CHARON:
+  MANWE:
     glyph: "☿"
     code_point: "U+263F"
     role: "ferry_mercury"
@@ -206,41 +206,41 @@ file_lifecycle_sigils:
 machine_sigils:
   SG_ROUTE_PRIMARY:
     id: 0x0101
-    source: charon
+    source: manwe
     tags: [routing, primary]
     severity: low
     retention: summarize
     render:
-      agent: CHARON
+      agent: MANWE
       state: ACTIVE
       flow: DELEGATE
   SG_ROUTE_FAILOVER:
     id: 0x0102
-    source: charon
+    source: manwe
     tags: [routing, fallback, edge]
     severity: medium
     retention: summarize
     render:
-      agent: CHARON
+      agent: MANWE
       state: DEGRADED
       flow: DELEGATE
   SG_ROUTE_EDGE_DOWN:
     id: 0x0103
-    source: charon
+    source: manwe
     tags: [routing, edge, outage]
     severity: high
     retention: quarantine
     render:
-      agent: CHARON
+      agent: MANWE
       state: ESCALATION
   SG_ROUTE_PROVIDER_COOLDOWN:
     id: 0x0104
-    source: charon
+    source: manwe
     tags: [routing, provider, cooldown]
     severity: medium
     retention: summarize
     render:
-      agent: CHARON
+      agent: MANWE
       state: DEGRADED
   SG_HERMES_DELIVERY_OK:
     id: 0x0201

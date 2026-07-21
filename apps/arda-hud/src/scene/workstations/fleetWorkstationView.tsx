@@ -90,7 +90,7 @@ export function FleetFocusedWorkstationView({ fleetViewModel }: { fleetViewModel
       <div className="fleet-focused-view fleet-focused-view--empty">
         <span className="fleet-focused-view__eyebrow">Fleet View Model</span>
         <h3>Fleet projection unavailable</h3>
-        <p>Waiting for operator runtime and Charon router projections.</p>
+        <p>Waiting for operator runtime and Manwe router projections.</p>
       </div>
     )
   }

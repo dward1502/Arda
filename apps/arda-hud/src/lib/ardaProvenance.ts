@@ -84,7 +84,7 @@ export function getRefreshAffordanceForSourcePath(sourcePath: string): ArdaRefre
 
   if (
     normalizedPath.endsWith('core/state/operator_runtime_status.json') ||
-    normalizedPath.endsWith('core/state/charon_router.json') ||
+    normalizedPath.endsWith('core/state/manwe_router.json') ||
     normalizedPath.includes('fleet')
   ) {
     return {
@@ -92,7 +92,7 @@ export function getRefreshAffordanceForSourcePath(sourcePath: string): ArdaRefre
       label: 'Refresh operator runtime projection',
       safety: 'projection_refresh_only',
       command: 'cargo run -p arda-cli -- utility operator-runtime-status',
-      systemActionId: normalizedPath.endsWith('core/state/charon_router.json') ? 'arda.charon_refresh_provider_intelligence' : undefined,
+      systemActionId: normalizedPath.endsWith('core/state/manwe_router.json') ? 'arda.manwe_refresh_provider_intelligence' : undefined,
       executionMode: 'display_only',
       operatorInstruction: 'Run from the repository root when operator/runtime or routing projections are stale.',
       notes: 'ARDA displays this command as guidance only; it does not execute projection refreshes from provenance UI.',
@@ -198,7 +198,7 @@ export function getOperatorLabel(domainId: string): string {
   const labels: Record<string, string> = {
     'source-map': 'Source Map',
     'world': 'World Runtime',
-    'charon-routing': 'Charon Routing',
+    'manwe-routing': 'Manwe Routing',
     'operator-runtime': 'Operator Runtime',
     'athena-runtime': 'ATHENA Runtime',
     'athena-digest': 'ATHENA Digest',

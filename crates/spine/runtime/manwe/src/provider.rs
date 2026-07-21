@@ -66,7 +66,7 @@ impl ProviderDefinition {
     }
 
     pub fn from_fleet_node(node_id: impl Into<String>, node: &FleetNode) -> Self {
-        let id = node.charon_provider_id.clone();
+        let id = node.manwe_provider_id.clone();
         Self {
             id: id.clone(),
             name: node.display_name.clone().unwrap_or_else(|| id.clone()),
@@ -95,7 +95,7 @@ impl ProviderDefinition {
 
 #[derive(Debug, Clone, Deserialize, Default)]
 struct FleetNode {
-    charon_provider_id: String,
+    manwe_provider_id: String,
     display_name: Option<String>,
     enrollment_status: Option<String>,
     base_url: Option<String>,
@@ -176,7 +176,6 @@ impl ProviderCatalog {
     pub fn local_placeholder(&self) -> Option<&ProviderDefinition> {
         self.get("local_placeholder")
     }
-    impl ProviderCatalog {
         pub fn from_fleet_config(path: impl AsRef<Path>) -> Self {
             let mut catalog = Self::empty();
             if let Ok(text) = fs::read_to_string(path) {
@@ -268,7 +267,7 @@ fn parse_fleet_nodes(text: &str) -> Vec<FleetNode> {
         };
         let value = right.trim().trim_matches('"');
         match left {
-            "charon_provider_id" if !value.is_empty() => node.charon_provider_id = value.into(),
+            "manwe_provider_id" if !value.is_empty() => node.manwe_provider_id = value.into(),
             "display_name" if !value.is_empty() => node.display_name = Some(value.into()),
             "enrollment_status" if !value.is_empty() => {
                 node.enrollment_status = Some(value.into());
@@ -294,7 +293,7 @@ fn parse_fleet_nodes(text: &str) -> Vec<FleetNode> {
         }
     }
     if let Some(node) = current.take() {
-        if !node.charon_provider_id.is_empty() {
+        if !node.manwe_provider_id.is_empty() {
             out.push(node);
         }
     }
@@ -331,7 +330,7 @@ mod tests {
     fn parses_active_fleet_nodes() {
         let sample = r#"
 [[nodes]]
-charon_provider_id = "edge_core"
+manwe_provider_id = "edge_core"
 display_name = "Core Hub"
 enrollment_status = "active"
 base_url = "http://core:9337/v1"
@@ -339,17 +338,17 @@ runtime_port = 9337
 expected_models = ["LFM"]
 
 [[nodes]]
-charon_provider_id = "edge_guardhouse"
+manwe_provider_id = "edge_guardhouse"
 enrollment_status = "inactive"
 base_url = "http://warden:1234/v1"
 
 [[nodes]]
-charon_provider_id = "edge_laptop"
+manwe_provider_id = "edge_laptop"
 llm_runtime = "local_voice_stt_operator"
 base_url = "http://laptop:1234/v1"
 "#;
         let nodes = parse_fleet_nodes(sample);
-        let ids: Vec<_> = nodes.iter().map(|n| n.charon_provider_id.as_str()).collect();
+        let ids: Vec<_> = nodes.iter().map(|n| n.manwe_provider_id.as_str()).collect();
         assert_eq!(ids, vec!["edge_core"]);
     }
 
@@ -357,7 +356,7 @@ base_url = "http://laptop:1234/v1"
     fn builds_catalog_from_fleet_text() {
         let sample = r#"
 [[nodes]]
-charon_provider_id = "edge_core"
+manwe_provider_id = "edge_core"
 enrollment_status = "active"
 base_url = "http://core:9337/v1"
 runtime_port = 9337

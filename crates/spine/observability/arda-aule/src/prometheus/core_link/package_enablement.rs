@@ -28,8 +28,8 @@ pub fn write_package_enablement_projection(core_root: &Path) {
             .join("package_runtime_activation.json"),
     )
     .unwrap_or_else(|| json!({}));
-    let charon_config =
-        read_toml_as_json(workspace_root.join("config").join("charon.providers.toml"))
+    let manwe_config =
+        read_toml_as_json(workspace_root.join("config").join("manwe.providers.toml"))
             .unwrap_or_else(|| json!({}));
     let shared_env = summarize_env_file(&workspace_root.join("config/.env.example"));
     let runtime_env = summarize_env_file(&workspace_root.join("config/runtime.env.example"));
@@ -52,7 +52,7 @@ pub fn write_package_enablement_projection(core_root: &Path) {
         .and_then(Value::as_array)
         .cloned()
         .unwrap_or_default();
-    let provider_ids = charon_config
+    let provider_ids = manwe_config
         .get("provider")
         .and_then(Value::as_array)
         .cloned()

@@ -4,9 +4,9 @@ import type { ArdaSourceProvenance } from '../../../lib/ardaProvenance'
 import { SourceRefreshAffordance } from './SourceRefreshAffordance'
 
 const baseRecord: ArdaSourceProvenance = {
-  domainId: 'routing:core/state/charon_router.json',
-  label: 'Charon Router',
-  sourcePaths: ['core/state/charon_router.json'],
+  domainId: 'routing:core/state/manwe_router.json)',
+  label: 'Manwe Router',
+  sourcePaths: ['core/state/manwe_router.json)'],
   generatedAtUtc: '2026-06-01T00:00:00.000Z',
   observedAtUtc: null,
   state: 'stale',

@@ -136,9 +136,10 @@ pub fn build_environment_profile(
         .map(|v| PathBuf::from(v))
         .or_else(|| Some(home.join(".cache/arda-build")));
 
-    let charon_base = env::var("CHARON_BASE_URL")
+    let manwe_base = env::var("MANWE_BASE_URL")
         .ok()
-        .or_else(|| env::var("ARDA_CHARON_BASE_URL").ok());
+        .or_else(|| env::var("ARDA_MANWE_BASE_URL").ok());
+
     let hermes_base = env::var("HERMES_BASE_URL")
         .ok()
         .or_else(|| env::var("ARDA_HERMES_BASE_URL").ok());
@@ -155,8 +156,8 @@ pub fn build_environment_profile(
     let crawl4ai = env::var("ARDA_CRAWL4AI_URL").ok();
     let search_runtime = env::var("ARDA_SEARCH_RUNTIME_URL").ok();
 
-    if charon_base.is_none() {
-        missing_gates.push("CHARON_BASE_URL".to_string());
+    if manwe_base.is_none() {
+        missing_gates.push("MANWE_BASE_URL".to_string());
     }
     if hermes_base.is_none() {
         missing_gates.push("HERMES_BASE_URL".to_string());
@@ -166,7 +167,7 @@ pub fn build_environment_profile(
     let root_agent_env = [
         ("athena", "ARDA_ATHENA_HOME"),
         ("prometheus", "ARDA_PROMETHEUS_HOME"),
-        ("charon", "ARDA_CHARON_HOME"),
+        ("manwe", "ARDA_MANWE_HOME"),
         ("hades", "ARDA_HADES_HOME"),
         ("hermes", "ARDA_HERMES_HOME"),
         ("mnemosyne", "ARDA_MNEMOSYNE_HOME"),
@@ -187,7 +188,7 @@ pub fn build_environment_profile(
     socket_keys.extend_from_slice(&[
         ("athena", "ARDA_ATHENA_SOCKET"),
         ("prometheus", "ARDA_PROMETHEUS_SOCKET"),
-        ("charon", "ARDA_CHARON_SOCKET"),
+        ("manwe", "ARDA_MANWE_SOCKET"),
         ("hades", "ARDA_HADES_SOCKET"),
         ("hermes", "ARDA_HERMES_SOCKET"),
         ("mnemosyne", "ARDA_MNEMOSYNE_SOCKET"),
@@ -211,7 +212,7 @@ pub fn build_environment_profile(
     }
 
     let mut endpoints = EndpointSection {
-        charon_base_url: None,
+        manwe_base_url: None,
         hermes_base_url: None,
         arda_hud_url: None,
         local_model_base_url: None,
@@ -220,8 +221,8 @@ pub fn build_environment_profile(
         crawl4ai_url: None,
         search_runtime_url: None,
     };
-    if let Some(url) = charon_base {
-        endpoints.charon_base_url = Some(UrlValue {
+    if let Some(url) = manwe_base {
+        endpoints.manwe_base_url = Some(UrlValue {
             value: url.clone(),
             source: ValueSource::Environment,
             health: Some(check_url_health(&url.clone())),

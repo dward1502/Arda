@@ -161,6 +161,11 @@ async fn run_http(state: AppState) -> anyhow::Result<()> {
     let provider_count = state.catalog.read().await.len();
     let _app: Router = Router::new()
         .route("/healthz", get(healthz))
+        .route("/health", get(healthz))
+        .route("/status", get(healthz))
+        .route("/providers", get(list_providers))
+        .route("/state", get(list_providers))
+        .route("/metrics", get(metrics))
         .route("/v1/models", get(list_models))
         .route("/v1/chat/completions", post(chat_completions))
         .route("/v1/capabilities", get(manifest_capabilities))
@@ -191,6 +196,8 @@ async fn healthz(State(state): State<AppState>) -> Response {
     };
     Json(json!({
         "status": status,
+        "service": "manwe",
+        "runtime": "arda-manwe",
         "bind": state.config.bind,
         "port": state.config.port,
         "mode": if state.adaptive { "adaptive" } else { "static" },
@@ -227,10 +234,29 @@ async fn manifest_capabilities(State(state): State<AppState>) -> Response {
 
 async fn list_models(State(state): State<AppState>) -> Response {
     let created = chrono::Utc::now().timestamp();
-    let mut data: Vec<Value> = Vec::new();
     let catalog = state.catalog.read().await;
+    Json(model_catalog(&catalog, &state.config, created)).into_response()
+}
+
+fn model_catalog(catalog: &ProviderCatalog, config: &ManweConfig, created: i64) -> Value {
+    let mut data: Vec<Value> = vec![
+        json!({
+            "id": "auto",
+            "object": "model",
+            "created": created,
+            "owned_by": "manwe",
+            "route_policy": "adaptive_local_catalog"
+        }),
+        json!({
+            "id": "local/auto",
+            "object": "model",
+            "created": created,
+            "owned_by": "manwe",
+            "route_policy": "local_only_fail_closed"
+        }),
+    ];
     if catalog.is_empty() {
-        for provider in state.config.providers.values() {
+        for provider in config.providers.values() {
             let models = if provider.models.is_empty() {
                 vec!["default".to_string()]
             } else {
@@ -260,7 +286,80 @@ async fn list_models(State(state): State<AppState>) -> Response {
             }));
         }
     }
-    Json(json!({ "object": "list", "data": data })).into_response()
+    json!({ "object": "list", "data": data })
+}
+
+async fn list_providers(State(state): State<AppState>) -> Response {
+    let catalog = state.catalog.read().await;
+    let providers = catalog
+        .iter()
+        .map(|(_, provider)| {
+            json!({
+                "id": provider.id,
+                "name": provider.name,
+                "model_id": provider.model_id,
+                "base_url": provider.base_url,
+                "access_tier": provider.access_tier,
+                "healthy": provider.healthy,
+                "in_cooldown": provider.in_cooldown,
+                "context_window": provider.context_window,
+                "capabilities": provider.capabilities,
+                "role": provider.role,
+                "model_observed": provider.model_observed,
+                "probe_latency_ms": provider.probe_latency_ms,
+                "last_probe_utc": provider.last_probe_utc,
+                "last_error": provider.last_error,
+            })
+        })
+        .collect::<Vec<_>>();
+    Json(json!({
+        "service": "manwe",
+        "runtime": "arda-manwe",
+        "providers": providers,
+    }))
+    .into_response()
+}
+
+async fn metrics(State(state): State<AppState>) -> Response {
+    let catalog = state.catalog.read().await;
+    let body = render_metrics(&catalog);
+    Response::builder()
+        .status(StatusCode::OK)
+        .header(
+            header::CONTENT_TYPE,
+            "text/plain; version=0.0.4; charset=utf-8",
+        )
+        .body(Body::from(body))
+        .unwrap_or_else(|_| StatusCode::INTERNAL_SERVER_ERROR.into_response())
+}
+
+fn render_metrics(catalog: &ProviderCatalog) -> String {
+    let mut output = String::from(
+        "# HELP manwe_runtime_info Arda Manwe runtime identity.\n\
+# TYPE manwe_runtime_info gauge\n\
+manwe_runtime_info{runtime=\"arda-manwe\"} 1\n\
+# HELP manwe_providers_total Configured fleet provider count.\n\
+# TYPE manwe_providers_total gauge\n",
+    );
+    output.push_str(&format!("manwe_providers_total {}\n", catalog.len()));
+    output.push_str(
+        "# HELP manwe_provider_healthy Whether a fleet provider passed its live probe.\n\
+# TYPE manwe_provider_healthy gauge\n",
+    );
+    let mut providers = catalog
+        .iter()
+        .map(|(_, provider)| provider)
+        .collect::<Vec<_>>();
+    providers.sort_by(|left, right| left.id.cmp(&right.id));
+    for provider in providers {
+        output.push_str(&format!(
+            "manwe_provider_healthy{{provider_id=\"{}\",model_id=\"{}\"}} {}\n",
+            provider.id,
+            provider.model_id,
+            u8::from(provider.healthy),
+        ));
+    }
+    output
 }
 
 async fn chat_completions(State(state): State<AppState>, Json(req): Json<Value>) -> Response {
@@ -273,16 +372,20 @@ async fn chat_completions(State(state): State<AppState>, Json(req): Json<Value>)
     };
     let task_type = infer_task_type(&req);
     let required_context = required_context_tokens(&req);
+    let local_only = requested_model == "local/auto"
+        || routing_value(&req, "origin_preference") == Some("local")
+        || routing_value(&req, "inference_origin") == Some("local");
     let provider = {
         state
             .catalog
             .read()
             .await
-            .resolve(
+            .resolve_with_policy(
                 &requested_model,
                 state.adaptive,
                 &task_type,
                 required_context,
+                local_only,
             )
             .cloned()
     };
@@ -303,12 +406,21 @@ async fn chat_completions(State(state): State<AppState>, Json(req): Json<Value>)
     if state.adaptive {
         let catalog = state.catalog.read().await;
         if !catalog.is_empty() {
+            let rejections =
+                catalog.rejection_diagnostics(&task_type, required_context, local_only);
             return (
                 StatusCode::SERVICE_UNAVAILABLE,
                 Json(json!({
                     "error": {
-                        "message": format!("manwe: no healthy fleet provider can satisfy model={requested_model} task={task_type}"),
-                        "type": "manwe_routing_error"
+                        "message": format!("manwe: no compatible provider can satisfy model={requested_model} task={task_type}"),
+                        "type": "manwe_routing_error",
+                        "code": "no_compatible_model",
+                        "runtime": "arda-manwe",
+                        "requested_model": requested_model,
+                        "task_type": task_type,
+                        "required_context": required_context,
+                        "local_only": local_only,
+                        "rejected_providers": rejections,
                     }
                 })),
             )
@@ -317,6 +429,18 @@ async fn chat_completions(State(state): State<AppState>, Json(req): Json<Value>)
     }
 
     fallback_static(state.config, state.client, req).await
+}
+
+fn routing_value<'a>(req: &'a Value, key: &str) -> Option<&'a str> {
+    req.get(key)
+        .or_else(|| req.get("routing").and_then(|value| value.get(key)))
+        .or_else(|| req.get("extra_body").and_then(|value| value.get(key)))
+        .or_else(|| {
+            req.get("extra_body")
+                .and_then(|value| value.get("routing"))
+                .and_then(|value| value.get(key))
+        })
+        .and_then(Value::as_str)
 }
 
 fn infer_task_type(req: &Value) -> String {
@@ -595,6 +719,39 @@ async fn fallback_static(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use config::ProviderConfig;
+    use std::collections::HashMap;
+
+    async fn serve_test_upstream(status: StatusCode, body: &'static str) -> String {
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
+            .await
+            .expect("bind test upstream");
+        let addr = listener.local_addr().expect("test upstream address");
+        let app = Router::new().route(
+            "/chat/completions",
+            post(move || async move { (status, body) }),
+        );
+        tokio::spawn(async move {
+            let _ = axum::serve(listener, app).await;
+        });
+        format!("http://{addr}")
+    }
+
+    fn static_config(base_url: String) -> ManweConfig {
+        ManweConfig {
+            bind: "127.0.0.1".to_string(),
+            port: 7171,
+            default_provider: Some("local".to_string()),
+            providers: HashMap::from([(
+                "local".to_string(),
+                ProviderConfig {
+                    base_url,
+                    api_key: None,
+                    models: vec!["test-model".to_string()],
+                },
+            )]),
+        }
+    }
 
     #[test]
     fn request_shape_infers_tools_and_context_budget() {
@@ -618,6 +775,32 @@ mod tests {
         assert_eq!(infer_task_type(&request), "research");
     }
 
+    #[test]
+    fn openai_catalog_identifies_manwe_and_local_only_route() {
+        let catalog = ProviderCatalog::empty();
+        let response = model_catalog(&catalog, &ManweConfig::embedded(), 0);
+        let models = response["data"].as_array().expect("model array");
+        assert!(models.iter().all(|model| model["owned_by"] == "manwe"));
+        assert!(models.iter().any(|model| {
+            model["id"] == "local/auto" && model["route_policy"] == "local_only_fail_closed"
+        }));
+    }
+
+    #[test]
+    fn nested_routing_metadata_preserves_local_only_intent() {
+        let request = json!({
+            "extra_body": {"routing": {"origin_preference": "local"}}
+        });
+        assert_eq!(routing_value(&request, "origin_preference"), Some("local"));
+    }
+
+    #[test]
+    fn metrics_identify_arda_manwe_runtime() {
+        let metrics = render_metrics(&ProviderCatalog::empty());
+        assert!(metrics.contains("manwe_runtime_info{runtime=\"arda-manwe\"} 1"));
+        assert!(metrics.contains("manwe_providers_total 0"));
+    }
+
     #[tokio::test]
     async fn fallback_static_503s_when_no_provider_matches() {
         let config = ManweConfig::embedded();
@@ -632,11 +815,29 @@ mod tests {
 
     #[tokio::test]
     async fn fallback_static_502s_on_upstream_non_json() {
-        todo!();
+        let base_url = serve_test_upstream(StatusCode::OK, "not-json").await;
+        let response = fallback_static(
+            Arc::new(static_config(base_url)),
+            reqwest::Client::new(),
+            json!({"model": "local/test-model", "messages": []}),
+        )
+        .await;
+        assert_eq!(response.status(), StatusCode::BAD_GATEWAY);
     }
 
     #[tokio::test]
     async fn fallback_static_502s_on_unreachable_upstream() {
-        todo!();
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
+            .await
+            .expect("reserve unused port");
+        let addr = listener.local_addr().expect("unused address");
+        drop(listener);
+        let response = fallback_static(
+            Arc::new(static_config(format!("http://{addr}"))),
+            reqwest::Client::new(),
+            json!({"model": "local/test-model", "messages": []}),
+        )
+        .await;
+        assert_eq!(response.status(), StatusCode::BAD_GATEWAY);
     }
 }

@@ -2,7 +2,6 @@ use super::super::route_scoring::*;
 use super::super::status::PackageRuntimeSignals;
 use super::*;
 use crate::adaptive::service::types::{ManweRequestEnvelope, ModelState, ProviderState};
-use crate::ManweConfig;
 use chrono::Utc;
 use std::collections::BTreeMap;
 use std::sync::Mutex;
@@ -2973,7 +2972,11 @@ fn adaptive_filter_pipeline_rejects_unhealthy_tool_provider_in_fallback_pool() {
         .iter()
         .enumerate()
         .filter(|(_, provider)| provider.healthy)
-        .filter(|(_, provider)| provider.models[0].capable_tasks.contains(&"code".to_string()))
+        .filter(|(_, provider)| {
+            provider.models[0]
+                .capable_tasks
+                .contains(&"code".to_string())
+        })
         .map(|(provider_index, provider)| RouteSelectionCandidate {
             provider_index,
             model: provider.models[0].clone(),

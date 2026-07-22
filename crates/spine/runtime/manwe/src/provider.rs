@@ -27,6 +27,10 @@ pub struct ProviderDefinition {
     pub resource_group: Option<String>,
     pub context_window: Option<usize>,
     #[serde(default)]
+    pub access_tier: String,
+    #[serde(default)]
+    pub in_cooldown: bool,
+    #[serde(default)]
     pub healthy: bool,
     pub model_observed: Option<bool>,
     pub probe_latency_ms: Option<u64>,
@@ -75,6 +79,8 @@ impl ProviderDefinition {
             role: None,
             resource_group: None,
             context_window: None,
+            access_tier: "local".to_string(),
+            in_cooldown: false,
             healthy: true,
             model_observed: None,
             probe_latency_ms: None,
@@ -102,14 +108,16 @@ impl ProviderDefinition {
             transport: ProviderTransport::OpenAICompatible,
             capabilities: ProviderCapabilities {
                 streaming: true,
-                tool_calls: true,
-                structured_output: false,
+                tool_calls: node.supports_tools.unwrap_or(false),
+                structured_output: node.supports_structured_output.unwrap_or(false),
             },
             health_url: node.health_url.clone(),
             models_url: node.models_url.clone(),
             role: node.role.clone(),
             resource_group: node.hostname.clone(),
             context_window: node.runtime_context_window,
+            access_tier: "local".to_string(),
+            in_cooldown: false,
             healthy: false,
             model_observed: None,
             probe_latency_ms: None,
@@ -136,7 +144,16 @@ struct FleetNode {
     expected_models: Vec<String>,
     runtime_model_alias: Option<String>,
     runtime_context_window: Option<usize>,
+    supports_tools: Option<bool>,
+    supports_structured_output: Option<bool>,
     llm_runtime: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
+pub struct ProviderRejectionDiagnostic {
+    pub provider_id: String,
+    pub model_id: String,
+    pub reasons: Vec<&'static str>,
 }
 
 fn normalize_runtime_url(base_url: &str, runtime_port: Option<u16>) -> String {
@@ -209,6 +226,7 @@ impl ProviderCatalog {
             .count()
     }
 
+    #[cfg(test)]
     pub fn resolve(
         &self,
         requested_model: &str,
@@ -216,28 +234,75 @@ impl ProviderCatalog {
         task_type: &str,
         required_context: usize,
     ) -> Option<&ProviderDefinition> {
+        self.resolve_with_policy(
+            requested_model,
+            adaptive,
+            task_type,
+            required_context,
+            false,
+        )
+    }
+
+    pub fn resolve_with_policy(
+        &self,
+        requested_model: &str,
+        adaptive: bool,
+        task_type: &str,
+        required_context: usize,
+        local_only: bool,
+    ) -> Option<&ProviderDefinition> {
         if let Some((provider_id, _)) = requested_model.split_once('/') {
-            if let Some(provider) = self.by_id.get(provider_id) {
-                return provider_eligible(provider, task_type, required_context)
-                    .then_some(provider);
+            if provider_id != "local" {
+                if let Some(provider) = self.by_id.get(provider_id) {
+                    return provider_eligible(provider, task_type, required_context, local_only)
+                        .then_some(provider);
+                }
+                return None;
             }
         }
 
         if let Some(provider) = self.by_id.values().find(|provider| {
             provider.model_id == requested_model
-                && provider_eligible(provider, task_type, required_context)
+                && provider_eligible(provider, task_type, required_context, local_only)
         }) {
             return Some(provider);
         }
 
-        if !adaptive && requested_model != "auto" && requested_model != "default" {
+        if !adaptive
+            && requested_model != "auto"
+            && requested_model != "default"
+            && requested_model != "local/auto"
+        {
             return None;
         }
 
         self.by_id
             .values()
-            .filter(|provider| provider_eligible(provider, task_type, required_context))
+            .filter(|provider| provider_eligible(provider, task_type, required_context, local_only))
             .max_by_key(|provider| provider_score(provider, task_type))
+    }
+
+    pub fn rejection_diagnostics(
+        &self,
+        task_type: &str,
+        required_context: usize,
+        local_only: bool,
+    ) -> Vec<ProviderRejectionDiagnostic> {
+        let mut diagnostics = self
+            .by_id
+            .values()
+            .filter_map(|provider| {
+                let reasons =
+                    provider_rejection_reasons(provider, task_type, required_context, local_only);
+                (!reasons.is_empty()).then(|| ProviderRejectionDiagnostic {
+                    provider_id: provider.id.clone(),
+                    model_id: provider.model_id.clone(),
+                    reasons,
+                })
+            })
+            .collect::<Vec<_>>();
+        diagnostics.sort_by(|left, right| left.provider_id.cmp(&right.provider_id));
+        diagnostics
     }
 
     pub async fn probe_all(&mut self, client: &reqwest::Client) {
@@ -336,17 +401,48 @@ fn provider_eligible(
     provider: &ProviderDefinition,
     task_type: &str,
     required_context: usize,
+    local_only: bool,
 ) -> bool {
-    if !provider.healthy || provider.context_window.unwrap_or_default() < required_context {
-        return false;
+    provider_rejection_reasons(provider, task_type, required_context, local_only).is_empty()
+}
+
+fn provider_rejection_reasons(
+    provider: &ProviderDefinition,
+    task_type: &str,
+    required_context: usize,
+    local_only: bool,
+) -> Vec<&'static str> {
+    let mut reasons = Vec::new();
+    if local_only && provider.access_tier != "local" {
+        reasons.push("local_only_policy");
+    }
+    if provider.in_cooldown {
+        reasons.push("provider_cooldown");
+    }
+    if !provider.healthy {
+        reasons.push("provider_unhealthy");
     }
     let task = task_type.to_ascii_lowercase();
+    let context_floor = if task.contains("code") {
+        required_context.max(64_000)
+    } else {
+        required_context
+    };
+    if provider.context_window.unwrap_or_default() < context_floor {
+        reasons.push("context_window_too_small");
+    }
+    if task.contains("code") && !provider.capabilities.tool_calls {
+        reasons.push("tool_calls_unsupported");
+    }
     let role = provider
         .role
         .as_deref()
         .unwrap_or_default()
         .to_ascii_lowercase();
-    !task.contains("vision") || role.contains("vision")
+    if task.contains("vision") && !role.contains("vision") {
+        reasons.push("vision_unsupported");
+    }
+    reasons
 }
 
 fn provider_score(provider: &ProviderDefinition, task_type: &str) -> i64 {
@@ -465,6 +561,7 @@ base_url = "http://coder:8001/v1"
 models_url = "http://coder:8001/v1/models"
 expected_models = ["coder-model"]
 runtime_context_window = 65536
+supports_tools = true
 "#;
         let mut catalog = ProviderCatalog::from_fleet_config_direct(sample);
         for provider in catalog.by_id.values_mut() {
@@ -493,5 +590,78 @@ runtime_context_window = 65536
         let catalog = ProviderCatalog::new(vec![text]);
 
         assert!(catalog.resolve("auto", true, "vision", 4_096).is_none());
+    }
+
+    #[test]
+    fn local_only_route_does_not_escape_to_cloud_during_local_failure() {
+        let mut cloud = ProviderDefinition::openai_compatible(
+            "cloud",
+            "Cloud",
+            "cloud-model",
+            "https://cloud.example/v1",
+        );
+        cloud.access_tier = "cloud".to_string();
+        let mut local = ProviderDefinition::openai_compatible(
+            "edge_core",
+            "Core",
+            "local-model",
+            "http://127.0.0.1:9337/v1",
+        );
+        local.access_tier = "local".to_string();
+        local.healthy = false;
+        let catalog = ProviderCatalog::new(vec![cloud, local]);
+
+        assert!(catalog
+            .resolve_with_policy("local/auto", true, "code", 64_000, true)
+            .is_none());
+    }
+
+    #[test]
+    fn cooled_cloud_does_not_block_eligible_local_tool_route() {
+        let mut cloud = ProviderDefinition::openai_compatible(
+            "cloud",
+            "Cloud",
+            "cloud-model",
+            "https://cloud.example/v1",
+        );
+        cloud.access_tier = "cloud".to_string();
+        cloud.in_cooldown = true;
+        let mut local = ProviderDefinition::openai_compatible(
+            "edge_core",
+            "Core",
+            "local-model",
+            "http://127.0.0.1:9337/v1",
+        );
+        local.access_tier = "local".to_string();
+        local.context_window = Some(131_072);
+        local.capabilities.tool_calls = true;
+        let catalog = ProviderCatalog::new(vec![cloud, local]);
+
+        let selected = catalog
+            .resolve_with_policy("local/auto", true, "code", 80_000, true)
+            .expect("eligible local provider");
+        assert_eq!(selected.id, "edge_core");
+    }
+
+    #[test]
+    fn rejection_diagnostics_are_stable_and_actionable() {
+        let mut local = ProviderDefinition::openai_compatible(
+            "edge_light",
+            "Light",
+            "small-model",
+            "http://127.0.0.1:9337/v1",
+        );
+        local.access_tier = "local".to_string();
+        local.context_window = Some(32_768);
+        local.capabilities.tool_calls = false;
+        let catalog = ProviderCatalog::new(vec![local]);
+
+        let diagnostics = catalog.rejection_diagnostics("code", 64_000, true);
+        assert_eq!(diagnostics.len(), 1);
+        assert_eq!(diagnostics[0].provider_id, "edge_light");
+        assert_eq!(
+            diagnostics[0].reasons,
+            vec!["context_window_too_small", "tool_calls_unsupported"]
+        );
     }
 }

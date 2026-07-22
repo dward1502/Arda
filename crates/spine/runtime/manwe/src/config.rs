@@ -89,6 +89,7 @@ impl ManweConfig {
             if let Some(p) = self.providers.get(prov) {
                 return Some((prov, p));
             }
+            return None;
         }
         if let Some(name) = &self.default_provider {
             if let Some(p) = self.providers.get(name) {

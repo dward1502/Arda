@@ -9,19 +9,22 @@ use arda_core::task::Task;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+use crate::evidence::{
+    assess_governance_evidence, GovernanceEvidenceAssessment, GovernanceEvidenceContext,
+    GovernanceEvidenceGrade,
+};
+use crate::versions::{
+    legacy_triad_policy_version, GOVERNANCE_CHAIN_POLICY_VERSION, TRIAD_POLICY_VERSION,
+};
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum GovernanceReviewMode {
+    #[default]
     HeuristicLocal,
     IndependentAgent,
     HumanReviewed,
     ConsensusReceipted,
-}
-
-impl Default for GovernanceReviewMode {
-    fn default() -> Self {
-        Self::HeuristicLocal
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -46,8 +49,80 @@ pub enum GateOutcome {
     Conditional,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum GovernanceGateName {
+    Aurelius,
+    Bacon,
+    SunTzu,
+    Named(String),
+}
+
+impl GovernanceGateName {
+    pub fn from_lens_id(lens_id: &str) -> Self {
+        match lens_id {
+            "aurelius" => Self::Aurelius,
+            "bacon" => Self::Bacon,
+            "sun_tzu" => Self::SunTzu,
+            other => Self::Named(other.to_string()),
+        }
+    }
+
+    pub fn as_lens_id(&self) -> &str {
+        match self {
+            Self::Aurelius => "aurelius",
+            Self::Bacon => "bacon",
+            Self::SunTzu => "sun_tzu",
+            Self::Named(name) => name,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum GovernanceVetoCode {
+    GateFailed,
+    InsufficientPassCount,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct GovernanceVetoReason {
+    pub code: GovernanceVetoCode,
+    #[serde(default)]
+    pub failed_gates: Vec<GovernanceGateName>,
+    pub required_passes: u32,
+    pub observed_passes: u32,
+}
+
+impl GovernanceVetoReason {
+    pub fn gate_failed(lens_id: &str, required_passes: u32, observed_passes: u32) -> Self {
+        Self {
+            code: GovernanceVetoCode::GateFailed,
+            failed_gates: vec![GovernanceGateName::from_lens_id(lens_id)],
+            required_passes,
+            observed_passes,
+        }
+    }
+
+    pub fn render_compatibility(&self) -> String {
+        if self.failed_gates.is_empty() {
+            "INSUFFICIENT_PASS_COUNT".to_string()
+        } else {
+            let mut gates = self
+                .failed_gates
+                .iter()
+                .map(|gate| format!("{}_FAIL", gate.as_lens_id().to_ascii_uppercase()))
+                .collect::<Vec<_>>();
+            gates.sort();
+            gates.join("|")
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TriadResult {
+    #[serde(default = "legacy_triad_policy_version")]
+    pub policy_version: String,
     pub chain_id: String,
     pub chain_version: String,
     pub profile_source: String,
@@ -61,6 +136,10 @@ pub struct TriadResult {
     pub sun_tzu_score: f64,
     pub passed: bool,
     pub veto_reason: Option<String>,
+    #[serde(default)]
+    pub veto: Option<GovernanceVetoReason>,
+    #[serde(default)]
+    pub evidence: GovernanceEvidenceAssessment,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -101,6 +180,8 @@ pub struct GovernanceLensVerdict {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct GovernanceChainResult {
+    #[serde(default = "legacy_triad_policy_version")]
+    pub policy_version: String,
     pub chain_id: String,
     pub chain_version: String,
     pub profile_source: String,
@@ -110,7 +191,11 @@ pub struct GovernanceChainResult {
     pub autonomous_blocking_enabled: bool,
     pub passed: bool,
     pub veto_reason: Option<String>,
+    #[serde(default)]
+    pub veto: Option<GovernanceVetoReason>,
     pub lenses: Vec<GovernanceLensVerdict>,
+    #[serde(default)]
+    pub evidence: GovernanceEvidenceAssessment,
 }
 
 impl GovernanceChainConfig {
@@ -120,7 +205,7 @@ impl GovernanceChainConfig {
         Self {
             schema_version: Self::SCHEMA_VERSION.to_string(),
             chain_id: "default_triad".to_string(),
-            chain_version: "heuristic_local_v1".to_string(),
+            chain_version: GOVERNANCE_CHAIN_POLICY_VERSION.to_string(),
             profile_source: "config/governance/philosophers.toml".to_string(),
             review_mode: GovernanceReviewMode::HeuristicLocal,
             profile_maturity: "draft_human_authored".to_string(),
@@ -158,6 +243,13 @@ impl GovernanceChainConfig {
         }
         require_chain_field(&self.chain_id, "chain_id")?;
         require_chain_field(&self.chain_version, "chain_version")?;
+        if self.chain_version != "heuristic_local_v1"
+            && self.chain_version != GOVERNANCE_CHAIN_POLICY_VERSION
+        {
+            return Err(GovernanceChainError::UnsupportedPolicyVersion {
+                actual: self.chain_version.clone(),
+            });
+        }
         require_chain_field(&self.profile_source, "profile_source")?;
         require_chain_field(&self.profile_maturity, "profile_maturity")?;
         if self.autonomous_blocking_enabled {
@@ -202,6 +294,8 @@ pub enum GovernanceChainError {
     Serialize(#[from] toml::ser::Error),
     #[error("unsupported governance chain schema_version: {actual}")]
     InvalidSchemaVersion { actual: String },
+    #[error("unsupported governance chain chain_version/policy version: {actual}")]
+    UnsupportedPolicyVersion { actual: String },
     #[error("governance chain {field} must not be empty")]
     EmptyField { field: &'static str },
     #[error("governance chain must include at least one lens")]
@@ -246,11 +340,12 @@ pub fn evaluate_governance_chain(
     task: &Task,
     config: &GovernanceChainConfig,
 ) -> GovernanceChainResult {
+    let evidence = assess_governance_evidence(task);
     let lenses = config
         .lenses
         .iter()
         .map(|lens| {
-            let score = score_governance_lens(task, &lens.id);
+            let score = score_governance_lens(task, &lens.id, &evidence);
             GovernanceLensVerdict {
                 lens_id: lens.id.clone(),
                 display_name: lens.display_name.clone(),
@@ -278,8 +373,24 @@ pub fn evaluate_governance_chain(
     } else {
         Some(chain_veto_reason(&lenses))
     };
+    let failed_gates = lenses
+        .iter()
+        .filter(|lens| lens.outcome == GateOutcome::Fail)
+        .map(|lens| GovernanceGateName::from_lens_id(&lens.lens_id))
+        .collect::<Vec<_>>();
+    let veto = (!passed).then_some(GovernanceVetoReason {
+        code: if failed_gates.is_empty() {
+            GovernanceVetoCode::InsufficientPassCount
+        } else {
+            GovernanceVetoCode::GateFailed
+        },
+        failed_gates,
+        required_passes: required,
+        observed_passes: passes,
+    });
 
     GovernanceChainResult {
+        policy_version: GOVERNANCE_CHAIN_POLICY_VERSION.to_string(),
         chain_id: config.chain_id.clone(),
         chain_version: config.chain_version.clone(),
         profile_source: config.profile_source.clone(),
@@ -289,7 +400,9 @@ pub fn evaluate_governance_chain(
         autonomous_blocking_enabled: false,
         passed,
         veto_reason,
+        veto,
         lenses,
+        evidence: evidence.assessment,
     }
 }
 
@@ -308,7 +421,8 @@ pub fn triad_validate(task: &Task, config: Option<&TriadConfig>) -> TriadResult 
     let bacon = lens_outcome(&chain.lenses, "bacon");
     let sun_tzu = lens_outcome(&chain.lenses, "sun_tzu");
 
-    TriadResult {
+    let result = TriadResult {
+        policy_version: TRIAD_POLICY_VERSION.to_string(),
         chain_id: chain.chain_id,
         chain_version: chain.chain_version,
         profile_source: chain.profile_source,
@@ -322,7 +436,11 @@ pub fn triad_validate(task: &Task, config: Option<&TriadConfig>) -> TriadResult 
         sun_tzu_score: lens_score(&chain.lenses, "sun_tzu"),
         passed: chain.passed,
         veto_reason: chain.veto_reason,
-    }
+        veto: chain.veto,
+        evidence: chain.evidence,
+    };
+    crate::global_governance_metrics().observe_triad(&result);
+    result
 }
 
 fn gate_from_score(score: f64, pass_threshold: f64) -> GateOutcome {
@@ -342,16 +460,16 @@ fn require_chain_field(value: &str, field: &'static str) -> Result<(), Governanc
     Ok(())
 }
 
-fn score_governance_lens(task: &Task, lens_id: &str) -> f64 {
+fn score_governance_lens(task: &Task, lens_id: &str, evidence: &GovernanceEvidenceContext) -> f64 {
     match lens_id {
-        "aurelius" => score_aurelius(task),
-        "bacon" => score_bacon(task),
-        "sun_tzu" => score_sun_tzu(task),
-        _ => score_named_lens(task, lens_id),
+        "aurelius" => score_aurelius(task, evidence),
+        "bacon" => score_bacon(task, evidence),
+        "sun_tzu" => score_sun_tzu(task, evidence),
+        _ => score_named_lens(task, lens_id, evidence),
     }
 }
 
-fn score_named_lens(task: &Task, lens_id: &str) -> f64 {
+fn score_named_lens(task: &Task, lens_id: &str, evidence: &GovernanceEvidenceContext) -> f64 {
     let desc = task.description.to_lowercase();
     let lens = lens_id.to_lowercase();
     let mut score: f64 = 0.40;
@@ -372,7 +490,7 @@ fn score_named_lens(task: &Task, lens_id: &str) -> f64 {
         score += 0.10;
     }
 
-    score.clamp(0.0, 1.0)
+    apply_evidence_grade(score, evidence, false)
 }
 
 fn lens_outcome(lenses: &[GovernanceLensVerdict], lens_id: &str) -> GateOutcome {
@@ -406,7 +524,27 @@ fn chain_veto_reason(lenses: &[GovernanceLensVerdict]) -> String {
     }
 }
 
-fn score_aurelius(task: &Task) -> f64 {
+fn score_aurelius(task: &Task, context: &GovernanceEvidenceContext) -> f64 {
+    if let Some(evidence) = context.evidence.as_ref() {
+        let mut score: f64 = 0.35;
+        if !evidence.action_intent.trim().is_empty() {
+            score += 0.25;
+        }
+        if !evidence.disconfirming_evidence.is_empty() {
+            score += 0.15;
+        }
+        if evidence.risk_boundary.is_some() {
+            score += 0.10;
+        }
+        if evidence.cooperation.unwrap_or(0.0) >= evidence.defection.unwrap_or(1.0) {
+            score += 0.10;
+        }
+        if has_contradiction(&evidence.action_intent) {
+            score -= 0.40;
+        }
+        return apply_evidence_grade(score, context, false);
+    }
+
     let desc = task.description.trim();
     if desc.is_empty() {
         return 0.0;
@@ -424,10 +562,29 @@ fn score_aurelius(task: &Task) -> f64 {
     if has_action_verb(desc) {
         score += 0.10;
     }
-    score.min(1.0)
+    apply_evidence_grade(score, context, false)
 }
 
-fn score_bacon(task: &Task) -> f64 {
+fn score_bacon(task: &Task, context: &GovernanceEvidenceContext) -> f64 {
+    if let Some(evidence) = context.evidence.as_ref() {
+        let valid_anchors = evidence
+            .evidence_anchors
+            .iter()
+            .filter(|anchor| !anchor.kind.trim().is_empty() && !anchor.uri.trim().is_empty())
+            .count();
+        let mut score: f64 = 0.30;
+        if valid_anchors > 0 {
+            score += 0.40;
+        }
+        if !evidence.disconfirming_evidence.is_empty() {
+            score += 0.15;
+        }
+        if task.clarifications_resolved > 0 {
+            score += 0.05;
+        }
+        return apply_evidence_grade(score, context, true);
+    }
+
     let desc = task.description.to_lowercase();
     let mut score: f64 = 0.30;
 
@@ -444,10 +601,28 @@ fn score_bacon(task: &Task) -> f64 {
         score += 0.10;
     }
 
-    score.min(1.0)
+    apply_evidence_grade(score, context, true)
 }
 
-fn score_sun_tzu(task: &Task) -> f64 {
+fn score_sun_tzu(task: &Task, context: &GovernanceEvidenceContext) -> f64 {
+    if let Some(evidence) = context.evidence.as_ref() {
+        let mut score: f64 = 0.35;
+        if evidence.risk_boundary.is_some() {
+            score += 0.20;
+        }
+        if evidence.fallback_path.is_some() {
+            score += 0.20;
+        }
+        if !evidence.action_intent.trim().is_empty() {
+            score += 0.10;
+        }
+        if evidence.justified_urgency.is_some() {
+            score += 0.05;
+        }
+        score -= evidence.defection.unwrap_or(0.0) * 0.20;
+        return apply_evidence_grade(score, context, false);
+    }
+
     let mut score: f64 = 0.55;
     let task_type = task.task_type.to_lowercase();
     let desc = task.description.to_lowercase();
@@ -475,7 +650,28 @@ fn score_sun_tzu(task: &Task) -> f64 {
         }
     }
 
-    score.clamp(0.0, 1.0)
+    apply_evidence_grade(score, context, false)
+}
+
+fn apply_evidence_grade(
+    score: f64,
+    context: &GovernanceEvidenceContext,
+    evidence_required: bool,
+) -> f64 {
+    let score = match context.assessment.grade {
+        GovernanceEvidenceGrade::StructuredValidated => score,
+        GovernanceEvidenceGrade::StructuredPartial => {
+            score - (context.assessment.missing_fields.len() as f64 * 0.06) - 0.10
+        }
+        GovernanceEvidenceGrade::HeuristicOnly | GovernanceEvidenceGrade::NoEvidence => {
+            score * 0.75
+        }
+    };
+    if evidence_required && !context.uses_validated_structured_evidence() {
+        score.clamp(0.0, 0.49)
+    } else {
+        score.clamp(0.0, 1.0)
+    }
 }
 
 fn has_contradiction(desc: &str) -> bool {

@@ -8,6 +8,7 @@ pub mod daemon;
 pub mod error;
 pub mod governance;
 pub mod governance_gates;
+pub mod layout;
 pub mod learning;
 pub mod ledger;
 pub mod llm;

@@ -23,7 +23,9 @@ use crate::contract::{
     TriadVerdict,
 };
 use crate::error::Result;
-use crate::governance_gates::{GovernanceGates, GovernancePolicyMode};
+use crate::governance_gates::{
+    AffordabilityPolicy, AllowAllAffordability, GovernanceGates, GovernancePolicyMode,
+};
 use crate::ledger::Ledger;
 use crate::state::{self, StateRoot};
 use crate::task::{Task, TaskStatus};
@@ -253,6 +255,31 @@ pub fn dispatch_full(
     bid_board: &dyn BidBoard,
     gates: &GovernanceGates,
 ) -> Result<DispatchPass> {
+    dispatch_full_with_affordability(
+        state,
+        queue_path,
+        cap_per_tick,
+        estimator,
+        triad,
+        bid_board,
+        gates,
+        &AllowAllAffordability,
+    )
+}
+
+/// Dispatch with an explicit runtime affordability provider. This is the
+/// governance integration point implemented by `EconomicsEngine`; compatibility
+/// entrypoints retain allow-all behavior until a provider is supplied.
+pub fn dispatch_full_with_affordability(
+    state: &StateRoot,
+    queue_path: &Path,
+    cap_per_tick: usize,
+    estimator: &dyn JouleEstimator,
+    triad: &dyn TriadConsultant,
+    bid_board: &dyn BidBoard,
+    gates: &GovernanceGates,
+    affordability: &dyn AffordabilityPolicy,
+) -> Result<DispatchPass> {
     let mut pass = DispatchPass::default();
 
     // Halt file short-circuits everything. Refuse to dispatch but
@@ -334,6 +361,33 @@ pub fn dispatch_full(
         // and (via task.joule_cost_estimated) the StaticBidBoard.
         let joule_estimate = estimator.estimate_for_task(&task);
         task.joule_cost_estimated = joule_estimate;
+
+        let affordability_decision = gates.evaluate_affordability(affordability, joule_estimate);
+        if !affordability_decision.allowed {
+            let mut budget_decision = Decision::new(
+                format!("budget_{now_ts}_{dispatch_seq:04}"),
+                DecisionClass::Budget,
+                task.id.to_string(),
+                affordability_decision.policy,
+                format!(
+                    "runtime affordability denied cost {joule_estimate:.2}: {}",
+                    affordability_decision.reason
+                ),
+                triad.consult(&task),
+            );
+            budget_decision.joule_estimate = joule_estimate;
+            budget_decision.extensions.insert(
+                "affordability".to_owned(),
+                serde_json::to_value(&affordability_decision)?,
+            );
+            ledger.append(&budget_decision)?;
+            dispatch_seq += 1;
+            pass.budget_blocked.push(format!(
+                "{id}:policy={}:cost={joule_estimate:.2}:reason={}",
+                affordability_decision.policy, affordability_decision.reason
+            ));
+            continue;
+        }
 
         // Per-goal joule budget enforcement (step 7). If today's
         // spend on this task's goal would exceed the daily budget,
@@ -457,6 +511,10 @@ pub fn dispatch_full(
                 "require_council": dispatch_policy.require_council,
                 "council_joule_cost": dispatch_policy.council_joule_cost,
             }),
+        );
+        dec.extensions.insert(
+            "affordability".to_owned(),
+            serde_json::to_value(&affordability_decision)?,
         );
         dec.extensions
             .insert("action_gate".to_string(), action_gate.to_json());
@@ -1100,6 +1158,61 @@ action_classes:
         // to 6 > 5 and gets budget-blocked.
         assert_eq!(pass.dispatched.len(), 1);
         assert_eq!(pass.budget_blocked.len(), 1);
+    }
+
+    #[test]
+    fn dispatch_uses_runtime_affordability_policy() {
+        struct FixedThree;
+        impl JouleEstimator for FixedThree {
+            fn estimate_for_task(&self, _task: &Task) -> f64 {
+                3.0
+            }
+        }
+        struct TwoJouleRuntimeBudget;
+        impl AffordabilityPolicy for TwoJouleRuntimeBudget {
+            fn policy_name(&self) -> &'static str {
+                "test_runtime_budget"
+            }
+
+            fn can_afford(&self, estimated_cost: f64) -> bool {
+                estimated_cost <= 2.0
+            }
+        }
+
+        let (_d, st, q) = tmp_state();
+        seed_one_plan_with_tasks(&st, &q, "probe_provider");
+        let pass = dispatch_full_with_affordability(
+            &st,
+            &q,
+            64,
+            &FixedThree,
+            &UnconsultedTriad,
+            &StaticBidBoard,
+            &GovernanceGates::permissive(),
+            &TwoJouleRuntimeBudget,
+        )
+        .unwrap();
+
+        assert!(pass.dispatched.is_empty());
+        assert_eq!(pass.budget_blocked.len(), 1);
+        assert!(pass.budget_blocked[0].contains("policy=test_runtime_budget"));
+        assert!(pass.budget_blocked[0].contains("reason=budget_exceeded"));
+
+        let today = Utc::now().format("%Y-%m-%d");
+        let ledger_path = st
+            .root()
+            .join("ledger")
+            .join(format!("ledger_{today}.jsonl"));
+        let decisions = std::fs::read_to_string(ledger_path).unwrap();
+        let budget_decision = decisions
+            .lines()
+            .map(|line| serde_json::from_str::<Decision>(line).unwrap())
+            .find(|decision| decision.decision_class == DecisionClass::Budget)
+            .expect("budget denial decision");
+        assert_eq!(
+            budget_decision.extensions["affordability"]["allowed"],
+            false
+        );
     }
 
     #[test]

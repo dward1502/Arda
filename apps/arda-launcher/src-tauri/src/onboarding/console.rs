@@ -9,7 +9,9 @@ use crate::onboarding::device_scan;
 use crate::onboarding::environment::build_environment_profile;
 use crate::onboarding::guided::build_guided_session;
 use crate::onboarding::helpers::now_utc;
-use crate::onboarding::io::{onboarding_run_dir, write_json, write_onboarding_receipt, write_profile, write_readiness};
+use crate::onboarding::io::{
+    onboarding_run_dir, write_json, write_onboarding_receipt, write_profile, write_readiness,
+};
 use crate::onboarding::prerequisites::build_prerequisite_report;
 use crate::onboarding::private_config::{
     build_operator_answers_template, build_private_config_stage, write_private_config_stage,

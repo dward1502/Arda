@@ -1,14 +1,14 @@
 {
-  "BaconLiteEvent": ["ts_utc", "crate_name", "action", "task_id", "task_type", "description", "passed", "confidence", "rationale", "triad_passed", "aurelius_score", "bacon_score", "sun_tzu_score", "context"],
-  "BaconLiteResult": ["passed", "confidence", "mode", "rationale", "triad"],
-  "GameTheorySelectionResult": ["selected_agent", "policy", "candidate_count", "filtered_out_count", "fallback_reason", "confidence", "selection_policy_version"],
-  "GovernanceChainResult": ["chain_id", "chain_version", "profile_source", "review_mode", "profile_maturity", "required_passes", "autonomous_blocking_enabled", "passed", "veto_reason", "lenses"],
+  "BaconLiteEvent": ["policy_version", "scorer_version", "review_mode", "source_maturity", "evidence_source", "ts_utc", "crate_name", "action", "task_id", "task_type", "description", "passed", "confidence", "rationale", "triad_passed", "typed_veto", "confidence_band", "philosopher_evidence", "aurelius_outcome", "bacon_outcome", "sun_tzu_outcome", "aurelius_score", "bacon_score", "sun_tzu_score", "context"],
+  "BaconLiteResult": ["policy_version", "passed", "confidence", "mode", "rationale", "triad"],
+  "GameTheorySelectionResult": ["selected_agent", "policy", "candidate_count", "filtered_out_count", "fallback_reason", "confidence", "confidence_band", "selection_policy_version"],
+  "GovernanceChainResult": ["policy_version", "chain_id", "chain_version", "profile_source", "review_mode", "profile_maturity", "required_passes", "autonomous_blocking_enabled", "passed", "veto_reason", "veto", "lenses", "evidence"],
   "GovernanceReadinessReport": ["schema_version", "contract", "default_autonomy_ready", "subsystems", "requirements"],
-  "JouleWorkProfile": ["estimated", "actual", "variance", "honesty_ratio", "measurement_source", "measurement_confidence", "observed_measurement", "autonomy_truth_allowed", "efficient"],
+  "JouleWorkProfile": ["policy_version", "estimated", "actual", "variance", "honesty_ratio", "measurement_source", "measurement_confidence", "observed_measurement", "autonomy_truth_allowed", "efficient"],
   "LoveDynamicsScore": ["empathy", "cooperation", "defection", "beta", "delta_time", "delta_empathy", "projected_empathy", "trend"],
-  "LoveEquationScore": ["score", "impact", "reach", "energy", "time", "semantic", "source"],
+  "LoveEquationScore": ["policy_version", "score", "impact", "reach", "energy", "time", "semantic", "source"],
   "PhilosopherProfileStatusProjection": ["schema_version", "authority", "chain_id", "chain_version", "profile_source", "review_mode", "profile_maturity", "autonomous_blocking_enabled", "generated_corpus_promotion_enabled", "profile_count", "profiles"],
-  "ResonanceScore": ["value", "ecst_components", "triad_philosopher"],
+  "ResonanceScore": ["policy_version", "value", "ecst_components", "triad_philosopher"],
   "TriadPhilosopherVerdict": ["action", "reason", "alignment_score"],
-  "TriadResult": ["chain_id", "chain_version", "profile_source", "review_mode", "profile_maturity", "aurelius", "bacon", "sun_tzu", "aurelius_score", "bacon_score", "sun_tzu_score", "passed", "veto_reason"]
+  "TriadResult": ["policy_version", "chain_id", "chain_version", "profile_source", "review_mode", "profile_maturity", "aurelius", "bacon", "sun_tzu", "aurelius_score", "bacon_score", "sun_tzu_score", "passed", "veto_reason", "veto", "evidence"]
 }

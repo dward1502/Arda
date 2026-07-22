@@ -4,8 +4,12 @@
 use arda_core::{JouleWorkMeasurementSource, Task};
 use serde::{Deserialize, Serialize};
 
+use crate::versions::{legacy_joulework_policy_version, JOULEWORK_POLICY_VERSION};
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct JouleWorkProfile {
+    #[serde(default = "legacy_joulework_policy_version")]
+    pub policy_version: String,
     pub estimated: f64,
     pub actual: f64,
     pub variance: f64,
@@ -31,7 +35,8 @@ pub fn profile_joulework(task: &Task) -> JouleWorkProfile {
         1.0
     };
 
-    JouleWorkProfile {
+    let profile = JouleWorkProfile {
+        policy_version: JOULEWORK_POLICY_VERSION.to_string(),
         estimated,
         actual,
         variance,
@@ -41,7 +46,9 @@ pub fn profile_joulework(task: &Task) -> JouleWorkProfile {
         observed_measurement: task.joulework_measurement_source.is_observed(),
         autonomy_truth_allowed: task.joulework_measurement_source.is_autonomy_truth(),
         efficient: variance <= 0.25,
-    }
+    };
+    crate::global_governance_metrics().observe_joule_honesty(&profile);
+    profile
 }
 
 #[cfg(test)]

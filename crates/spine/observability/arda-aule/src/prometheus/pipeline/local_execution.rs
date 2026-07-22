@@ -3,7 +3,7 @@ use crate::pipeline::Pipeline;
 use annunimas_core::error::Result;
 use annunimas_core::message::Message;
 use annunimas_core::task::Task;
-use annunimas_governance::record_bacon_lite;
+use annunimas_governance::enqueue_bacon_lite;
 
 impl Pipeline {
     pub(super) async fn route_and_execute_locally(
@@ -89,7 +89,7 @@ impl Pipeline {
                                 agent_name.clone(),
                             ],
                         );
-                        if let Err(err) = record_bacon_lite(
+                        if let Err(err) = enqueue_bacon_lite(
                             "prometheus",
                             "task_completed",
                             task,
@@ -134,7 +134,7 @@ impl Pipeline {
                                 agent_name.clone(),
                             ],
                         );
-                        if let Err(err) = record_bacon_lite(
+                        if let Err(err) = enqueue_bacon_lite(
                             "prometheus",
                             "task_failed",
                             task,

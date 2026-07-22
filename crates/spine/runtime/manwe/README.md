@@ -28,4 +28,18 @@ OpenAI-compatible providers are supported through the proxy/routing stack.
 
 ## Status
 
-This is a mid-repair snapshot. The default crate builds cleanly, but adaptive compilation currently fails with 278 errors. Future work should restore adaptive behind bounded feature layers.
+This is a mid-repair snapshot. The default crate builds cleanly, and adaptive
+compilation currently passes. Adaptive selection now filters/prioritizes local
+inference surface candidates for `execution`/`background` lanes via
+`ARDA_LOCAL_INFERENCE_SURFACE` (`mesh`, `llamacpp`, or default `hybrid`).
+
+## Verification status
+
+- `cargo check -p manwe`: PASS
+- `cargo test -p manwe`: PASS
+- `cargo check -p manwe --features adaptive`: PASS
+- `cargo test -p manwe --features adaptive`: PASS
+- `cargo fmt -p manwe -- --check`: PASS
+
+Verified temporary-port evidence on 2026-07-21/22 follows in
+`STATUS.md`.

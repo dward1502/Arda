@@ -5,6 +5,7 @@
 - `docs/CODEMAP.md`
 - `docs/FILE_TREE.jsonl`
 - `docs/INDEX.md`
+- `docs/MIRROMERE_RELIC_OUTPOST_VISION.md`
 - `docs/PROVENANCE_AND_ATTRIBUTION.md`
 - `docs/operations/INDEX.md`
 - `docs/contracts/ARDA_ECOSYSTEM_STANDARD_INDEX.md`

@@ -20,7 +20,7 @@ pub trait TruthScorer {
 }
 
 /// Default implementation of truth scoring
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct DefaultTruthScorer;
 
 impl DefaultTruthScorer {

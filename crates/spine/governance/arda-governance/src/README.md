@@ -24,6 +24,7 @@ See `INDEX.md` for deterministic child listing.
 - Love compatibility scoring remains in `love_equation.rs` for existing callers.
 - Love Dynamics lives in `love_dynamics.rs` and models `dE/dt = beta * (C - D) * E`.
 - JouleWork profiling lives in `joulework.rs` and feeds honesty/efficiency signals.
+- Versioned `Task.result` evidence extraction and grading live in `evidence.rs`.
 - Triad gate validation lives in `triad.rs`.
 - Triad Philosopher arbitration lives in `triad_philosopher.rs` and interprets empirical grounding, independence, sycophancy risk, Love Dynamics, JouleWork, and defection pressure.
-- Resonance composition lives in `resonance.rs`; it preserves existing score weights while attaching optional Love Dynamics and Triad Philosopher metadata.
+- Resonance composition lives in `resonance.rs`; missing phi inputs are zero-weight and disclosed instead of defaulting to neutral values.

@@ -17,7 +17,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use axum::{
-    body::Body,
+    body::{Body, Bytes},
     extract::State,
     http::{header, StatusCode},
     response::{IntoResponse, Response},
@@ -25,7 +25,6 @@ use axum::{
     Json, Router,
 };
 use clap::Parser;
-use futures::StreamExt;
 use serde_json::{json, Value};
 use std::time::Instant;
 
@@ -92,6 +91,10 @@ async fn main() -> anyhow::Result<()> {
         anyhow::bail!(
             "adaptive routing requested, but this manwe binary was built without --features adaptive"
         );
+    }
+
+    if let Err(err) = cfg.validate() {
+        anyhow::bail!("manwe config validation failed: {err}");
     }
 
     let client = reqwest::Client::builder()
@@ -182,15 +185,19 @@ async fn healthz(State(state): State<AppState>) -> Response {
     let catalog = state.catalog.read().await;
     let fleet_providers = catalog.len();
     let healthy_providers = catalog.healthy_count();
-    let status = if fleet_providers == 0 || healthy_providers > 0 {
-        "ok"
-    } else {
-        "degraded"
+    let (status, config_valid, config_error) = match state.config.validate() {
+        Ok(_) => ("ok", true, None),
+        Err(err) => ("degraded", false, Some(err.to_string())),
     };
     Json(json!({
         "status": status,
+        "bind": state.config.bind,
+        "port": state.config.port,
+        "mode": if state.adaptive { "adaptive" } else { "static" },
         "fleet_providers": fleet_providers,
         "healthy_providers": healthy_providers,
+        "config_valid": config_valid,
+        "config_error": config_error,
     }))
     .into_response()
 }
@@ -422,35 +429,37 @@ async fn proxy_fleet_provider(
                     "x-manwe-routing-mode",
                     if adaptive { "adaptive" } else { "static" },
                 );
-            if let Some(content_type) = content_type {
+            if let Some(ref content_type) = content_type {
                 builder = builder.header(header::CONTENT_TYPE, content_type);
             }
 
             if streaming {
+                let started_local = started.elapsed().as_millis() as u64;
+                let bytes = response.bytes().await.unwrap_or_else(|_| Bytes::new());
+                let body: Value = serde_json::from_slice(&bytes).unwrap_or_default();
                 let receipt = receipt_from_response(
-                    provider.id,
-                    provider.model_id,
-                    resource_group,
-                    task_type,
+                    provider.id.clone(),
+                    provider.model_id.clone(),
+                    resource_group.clone(),
+                    task_type.clone(),
                     if adaptive { "adaptive" } else { "static" }.to_string(),
                     true,
                     status.as_u16(),
-                    started.elapsed().as_millis() as u64,
-                    expected_exact,
-                    None,
+                    started_local,
+                    expected_exact.clone(),
+                    Some(&body),
                     None,
                 );
                 if let Err(error) = receipts.append(&receipt).await {
                     tracing::warn!("failed to append Manwe route receipt: {error}");
                 }
-                let stream_lease = lease.clone();
-                let guarded_stream = response.bytes_stream().map(move |item| {
-                    let _keep_resource_lease_alive = &stream_lease;
-                    item
-                });
                 drop(lease);
-                return builder
-                    .body(Body::from_stream(guarded_stream))
+                let mut response_builder = builder;
+                if let Some(content_type) = content_type {
+                    response_builder = response_builder.header(header::CONTENT_TYPE, content_type);
+                }
+                return response_builder
+                    .body(Body::from(bytes))
                     .unwrap_or_else(|_| {
                         (
                             StatusCode::BAD_GATEWAY,
@@ -607,5 +616,27 @@ mod tests {
             "tools": [{"type": "function"}]
         });
         assert_eq!(infer_task_type(&request), "research");
+    }
+
+    #[tokio::test]
+    async fn fallback_static_503s_when_no_provider_matches() {
+        let config = ManweConfig::embedded();
+        let client = reqwest::Client::builder()
+            .connect_timeout(std::time::Duration::from_secs(1))
+            .build()
+            .expect("client");
+        let req = json!({"model": "missing/model", "messages": [{"role":"user","content":"hi"}]});
+        let response = fallback_static(Arc::new(config), client, req).await;
+        assert_eq!(response.status(), StatusCode::SERVICE_UNAVAILABLE);
+    }
+
+    #[tokio::test]
+    async fn fallback_static_502s_on_upstream_non_json() {
+        todo!();
+    }
+
+    #[tokio::test]
+    async fn fallback_static_502s_on_unreachable_upstream() {
+        todo!();
     }
 }

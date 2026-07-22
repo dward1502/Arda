@@ -20,7 +20,7 @@ use arda_core::orome_runtime::{
 };
 use arda_core::task::Task;
 use arda_core::{spawn_bounded_background, try_run_bounded_async};
-use arda_governance::{record_bacon_lite, triad_validate, TriadConfig};
+use arda_governance::{enqueue_bacon_lite, triad_validate, TriadConfig};
 use arda_vaire::{InformantEvent, MnemosyneService};
 use arda_economics::{JouleWorkUnit, PlutusService};
 use chrono::Utc;

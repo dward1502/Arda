@@ -45,7 +45,7 @@ pub fn evaluate_love_dynamics(input: LoveDynamicsInput) -> LoveDynamicsScore {
     let projected_empathy = unit_interval(empathy + delta_empathy);
     let trend = classify_trend(delta_empathy);
 
-    LoveDynamicsScore {
+    let score = LoveDynamicsScore {
         empathy,
         cooperation,
         defection,
@@ -54,7 +54,9 @@ pub fn evaluate_love_dynamics(input: LoveDynamicsInput) -> LoveDynamicsScore {
         delta_empathy,
         projected_empathy,
         trend,
-    }
+    };
+    crate::global_governance_metrics().observe_love_dynamics(&score);
+    score
 }
 
 fn unit_interval(value: f64) -> f64 {

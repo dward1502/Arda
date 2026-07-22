@@ -5,7 +5,7 @@ use arda_core::task::Task;
 use arda_core::try_run_bounded;
 use arda_economics::JouleWorkUnit;
 use arda_governance::{
-    calculate_resonance_with_triad, record_bacon_lite, triad_validate, GateOutcome, TriadConfig,
+    calculate_resonance_with_triad, enqueue_bacon_lite, triad_validate, GateOutcome, TriadConfig,
     TriadPuritySource,
 };
 use chrono::Utc;
@@ -218,6 +218,9 @@ pub struct BatchIngestReceipt {
     pub deduplicated: bool,
     pub digest_status: String,
     pub book_ref: String,
+    /// Advisory-only environmental evidence captured with this executor receipt.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub environmental_coherence: Option<arda_governance::EnvironmentalCoherence>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -767,7 +770,7 @@ impl AthenaStore {
             }
             let mut bacon_task = Task::new(format!("ingest {}", record.raw_input), "ingest");
             bacon_task.clarifications_resolved = if record.url.is_some() { 1 } else { 0 };
-            if let Err(err) = record_bacon_lite(
+            if let Err(err) = enqueue_bacon_lite(
                 "athena",
                 "ingest",
                 &bacon_task,
@@ -803,6 +806,19 @@ impl AthenaStore {
         submitted_by: &str,
         task_context: &str,
     ) -> Result<BatchIngestReport> {
+        self.ingest_batch_with_environment(inputs, submitted_by, task_context, None)
+    }
+
+    /// Ingest a batch while carrying advisory environmental context into each
+    /// real executor receipt. The context is evidence only and cannot alter
+    /// acceptance, deduplication, or any governance gate.
+    pub fn ingest_batch_with_environment(
+        &self,
+        inputs: &[String],
+        submitted_by: &str,
+        task_context: &str,
+        environmental_coherence: Option<&arda_governance::EnvironmentalCoherence>,
+    ) -> Result<BatchIngestReport> {
         let mut receipts = Vec::new();
         let mut accepted_inputs = 0usize;
         let mut deduplicated_inputs = 0usize;
@@ -830,6 +846,7 @@ impl AthenaStore {
                 deduplicated: record.deduplicated,
                 digest_status: record.digest_status,
                 book_ref: record.book_ref,
+                environmental_coherence: environmental_coherence.cloned(),
             });
         }
 
@@ -963,7 +980,23 @@ impl AthenaStore {
                 task.joule_cost_actual = task.joule_cost_estimated * 1.08;
                 task.clarifications_requested = 1;
                 task.clarifications_resolved = 1;
-                task.complete(serde_json::json!({ "source_id": source_id }));
+                task.complete(serde_json::json!({
+                    "source_id": source_id,
+                    "governance_evidence": {
+                        "schema_version": "arda.governance.evidence.v1",
+                        "evidence_anchors": [{
+                            "kind": "athena_source",
+                            "uri": format!("athena:source:{source_id}"),
+                            "claim": shallow.data.summary.clone()
+                        }],
+                        "action_intent": format!("deep analyze {}", shallow.data.title),
+                        "cooperation": 0.8,
+                        "defection": 0.1,
+                        "disconfirming_evidence": ["shallow analysis may be incomplete"],
+                        "risk_boundary": "do not promote when policy-readiness checks fail",
+                        "fallback_path": "retain as reference-only evidence"
+                    }
+                }));
 
                 let triad = triad_validate(
                     &task,
@@ -1126,7 +1159,7 @@ impl AthenaStore {
                 {
                     tracing::warn!(error = %err, source_id = %source_id, "ATHENA deep graph append failed");
                 }
-                if let Err(err) = record_bacon_lite(
+                if let Err(err) = enqueue_bacon_lite(
                     "athena",
                     "deep_analyze",
                     &task,
@@ -1335,6 +1368,40 @@ mod tests {
         let book_path = dir.path().join(record.book_ref);
         let book = fs::read_to_string(book_path).expect("book");
         assert!(book.contains("\"stage\":\"shallow\""));
+    }
+
+    #[test]
+    fn batch_receipt_carries_advisory_environment_without_changing_acceptance() {
+        let dir = tempdir().expect("tempdir");
+        let store = AthenaStore::new(dir.path()).expect("store");
+        let coherence = arda_governance::environmental_coherence(vec![
+            arda_governance::GovernanceSignalEnvelope::unavailable(
+                arda_governance::GovernanceSignalSource::Solar,
+                "fixture upstream unavailable",
+                chrono::Utc::now(),
+            ),
+        ]);
+
+        let report = store
+            .ingest_batch_with_environment(
+                &["environment-aware executor evidence".to_string()],
+                "orchestrator",
+                "phase 6",
+                Some(&coherence),
+            )
+            .expect("batch ingest");
+
+        assert_eq!(report.accepted_inputs, 1);
+        let receipt = report.receipts.first().expect("receipt");
+        let environmental = receipt
+            .environmental_coherence
+            .as_ref()
+            .expect("environmental evidence");
+        assert!(environmental.advisory_only);
+        assert_eq!(
+            environmental.advisory,
+            arda_governance::EnvironmentalAdvisory::Neutral
+        );
     }
 
     #[test]

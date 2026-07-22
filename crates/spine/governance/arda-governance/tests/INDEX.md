@@ -24,10 +24,11 @@ soterion:
 - `path_independence.rs`
 - `philosopher_profiles.rs`
 - `public_api_compat.rs`
+- `structured_evidence.rs`
 
 ## Purpose
 
-Integration coverage for alignment, chain evaluation, philosopher profiles, repository-independent path resolution, and public serialization compatibility.
+Integration coverage for alignment, chain evaluation, structured/adversarial evidence, phi availability, philosopher profiles, repository-independent path resolution, and public serialization compatibility.
 
 ## Notes
 

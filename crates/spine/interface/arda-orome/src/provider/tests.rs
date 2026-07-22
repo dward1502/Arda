@@ -1,11 +1,11 @@
 // sigil: REPAIR
 //! Provider adapter/streaming tests.
 
+use crate::provider::runtime::{DispatchReceipt, ProviderConfig, ProviderType};
 use crate::provider::{
     ProviderAdapter, ProviderCapabilities, ProviderKind, ProviderRegistry, ProviderRuntime,
     StreamingSurface,
 };
-use crate::provider::runtime::{DispatchReceipt, ProviderConfig, ProviderType};
 
 #[test]
 fn runtime_from_defaults_contains_discord() {
@@ -91,7 +91,10 @@ fn runtime_select_adapter_round_trip() {
 
     let provider = runtime.select("edge-http-1").expect("selected provider");
     assert!(
-        provider.providers.iter().any(|entry| entry.id == "edge-http-1"),
+        provider
+            .providers
+            .iter()
+            .any(|entry| entry.id == "edge-http-1"),
         "selected provider should include edge-http-1 config"
     );
     assert!(
@@ -147,8 +150,12 @@ fn registry_returns_streaming_adapters() {
 #[test]
 fn streaming_surface_records_chunks() {
     let mut surface = StreamingSurface::new("edge-http-1", "msg-123");
-    surface.session.push_chunk(1, "hello", serde_json::json!({"token": "a"}));
-    surface.session.push_chunk(2, "world", serde_json::json!({"token": "b"}));
+    surface
+        .session
+        .push_chunk(1, "hello", serde_json::json!({"token": "a"}));
+    surface
+        .session
+        .push_chunk(2, "world", serde_json::json!({"token": "b"}));
 
     assert_eq!(surface.session().events.len(), 2);
 }

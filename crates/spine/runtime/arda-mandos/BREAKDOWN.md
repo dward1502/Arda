@@ -5,7 +5,7 @@ soterion:
   role: "runtime_oracle"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-17"
+  last_reviewed: "2026-07-22"
 ---
 
 # arda-mandos
@@ -39,8 +39,10 @@ It provides:
 
 ## Verification status
 
-- `cargo test -p arda-mandos`: 5 passed, 0 failed
-- `cargo check -p arda-mandos`: OK
+- `cargo test -p arda-mandos --all-features`: 15 passed, 0 failed
+- `cargo test -p arda-mandos --no-default-features`: 15 passed, 0 failed; warning-free
+- Crate-local strict Clippy passes with `--no-deps`; full dependency-closure strict Clippy remains separately blocked by pre-existing `arda-core` findings
+- Direct consumer checks pass: `cargo check -p arda-aule --features full-cli` and `cargo check -p arda-orome`
 - Doc tests: 0
 - Import alias fixed: `arda-plutus` renamed to `arda-economics`; `use arda_economics::PlutusService` updated in `src/service.rs`
 
@@ -70,6 +72,7 @@ It provides:
 | `transport/mod.rs` | Daemon config + runner |
 | `transport/ipc.rs` | Unix socket server |
 | `transport/http.rs` | Optional HTTP/SSE server |
+| `CHECKLIST.md` | Prioritized Oracle improvement plan, acceptance criteria, and evidence log |
 
 ## Consumer wiring
 
@@ -80,11 +83,31 @@ It provides:
 
 ## Ideas for improvement
 
-1. Flesh out `ReasoningContext` into a real tree/traversal model
-2. Add crate-level docs and module-level doc headers for `pageindex`, `notify`, `scoring`, `transport`
-3. Add doc tests on public APIs (`OracleService`, `OracleEngine`, `PageIndex`)
-4. Add explicit unit tests for `TruthScorer`/`DefaultTruthScorer` and `OracleNotifier`
-5. Add migration/schema-version guard for `runtime_status.json` so state upgrades don't lose history
-6. Expose truth-score gating as a policy hook in `arda-core` governance instead of local-only checks
-7. Consider splitting transport into a feature-gated crate if daemon surface grows
-8. Add operator-facing `oracle export` or HUD section so verdict state is visible without JSON inspection
+The implementation-ready plan is maintained in [`CHECKLIST.md`](CHECKLIST.md). The audit
+prioritizes these improvement tracks:
+
+1. **Decision correctness (P0):** add invariant tests, fix evidence scoring, replace
+   majority-pass behavior with a versioned policy, and define veto/conditional/escalation
+   semantics.
+2. **Typed query and evidence contracts (P0):** validate every transport consistently,
+   establish idempotency and wire compatibility, and replace free-form evidence with stable
+   provenance references.
+3. **PageIndex integrity (P0):** repair empty-tree navigation, deterministic multi-document
+   search, document refresh, TOC ancestry, stable node IDs, and relevance normalization.
+4. **Governance explainability (P1):** implement `ReasoningContext`, expose reproducible score
+   components and uncertainty, and choose one authoritative relationship between Mandos's
+   local triad and `arda-governance`.
+5. **Audit and recovery (P1):** make ledger state restart-safe, detect corruption/schema drift,
+   use atomic snapshots, and bound/index history reads.
+6. **Runtime safety (P1):** unify IPC/HTTP contracts, return structured errors, enforce limits,
+   supervise listener failure/shutdown, protect active Unix sockets, and make Plutus side
+   effects observable.
+7. **Consumers and operations (P2):** align `arda-aule`/`arda-orome`, add ledger export and
+   verification, expose advisory authority and conditions in UIs, and add bounded metrics.
+8. **Documentation and quality (P2):** replace stale Annunimas naming, add public API examples,
+   document schemas/environment controls, and gate all/no-default feature builds plus docs and
+   Clippy.
+
+Transport remains in this crate until the contract stabilizes and measured growth justifies a
+split; the checklist treats that as a later architecture decision rather than an immediate
+refactor.

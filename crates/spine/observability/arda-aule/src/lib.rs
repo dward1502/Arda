@@ -82,7 +82,52 @@
 
 pub mod contract;
 pub mod council;
+pub mod governance_metrics;
 pub mod service;
+
+pub use governance_metrics::render_governance_prometheus;
+
+#[cfg(test)]
+mod phase5_observability_tests {
+    use super::render_governance_prometheus;
+    use arda_governance::{
+        GovernanceCounterSnapshot, GovernanceHistogramBucket, GovernanceHistogramSnapshot,
+        GovernanceMetricsSnapshot,
+    };
+    use std::collections::BTreeMap;
+
+    #[test]
+    fn active_aule_surface_renders_governance_prometheus_snapshot() {
+        let snapshot = GovernanceMetricsSnapshot {
+            collection_mode: "library_owned_in_process_caller_exposed".to_string(),
+            owns_http_server: false,
+            bacon_lite_writer: None,
+            counters: vec![GovernanceCounterSnapshot {
+                name: "arda_governance_triad_validations_total".to_string(),
+                labels: BTreeMap::from([
+                    ("verdict".to_string(), "pass".to_string()),
+                    ("policy_version".to_string(), "current".to_string()),
+                    ("scorer_version".to_string(), "current".to_string()),
+                    ("review_mode".to_string(), "heuristic_local".to_string()),
+                ]),
+                value: 1,
+            }],
+            histograms: vec![GovernanceHistogramSnapshot {
+                name: "arda_governance_resonance".to_string(),
+                count: 1,
+                sum: 0.8,
+                buckets: vec![GovernanceHistogramBucket {
+                    upper_bound: 1.0,
+                    cumulative_count: 1,
+                }],
+            }],
+        };
+        let text = render_governance_prometheus(&snapshot);
+        assert!(text.contains("arda_governance_triad_validations_total"));
+        assert!(text.contains("policy_version=\"current\""));
+        assert!(text.contains("# TYPE arda_governance_resonance histogram"));
+    }
+}
 
 /// Returns the identity string of this crate.
 ///

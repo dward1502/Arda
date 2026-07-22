@@ -100,7 +100,9 @@ impl LoveEquation {
     }
 
     pub fn all_relationships(&self) -> Vec<&LoveScore> {
-        self.relationships.values().collect()
+        let mut relationships = self.relationships.values().collect::<Vec<_>>();
+        relationships.sort_by(|a, b| (&a.agent_a, &a.agent_b).cmp(&(&b.agent_a, &b.agent_b)));
+        relationships
     }
 
     pub fn top_relationships(&self, n: usize) -> Vec<&LoveScore> {
@@ -145,16 +147,18 @@ impl LoveEquation {
             return;
         };
         for row in rows {
-            let Some(agent_a) = row.get("agent_a").and_then(|v| v.as_str()) else {
+            let Ok(score) = serde_json::from_value::<LoveScore>(row.clone()) else {
                 continue;
             };
-            let Some(agent_b) = row.get("agent_b").and_then(|v| v.as_str()) else {
+            if !score.value.is_finite() {
                 continue;
+            }
+            let key = if score.agent_a < score.agent_b {
+                (score.agent_a.clone(), score.agent_b.clone())
+            } else {
+                (score.agent_b.clone(), score.agent_a.clone())
             };
-            let Some(value) = row.get("value").and_then(|v| v.as_f64()) else {
-                continue;
-            };
-            self.record_relationship(agent_a, agent_b, value);
+            self.relationships.insert(key, score);
         }
     }
 }
@@ -162,5 +166,40 @@ impl LoveEquation {
 impl Default for LoveEquation {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{LoveConfig, LoveEquation};
+
+    #[test]
+    fn custom_weights_and_bounds_are_applied() {
+        let equation = LoveEquation::with_config(LoveConfig {
+            resonance_weight: 0.5,
+            attention_weight: 0.25,
+            reciprocity_weight: 0.25,
+        });
+        assert_eq!(equation.calculate("a", "b", 1.0, 0.0, 0.0), 0.5);
+        assert_eq!(equation.calculate("a", "b", 2.0, 2.0, 2.0), 1.0);
+        assert_eq!(equation.calculate("a", "b", -1.0, -1.0, -1.0), 0.0);
+    }
+
+    #[test]
+    fn snapshot_restore_preserves_relationship_timestamp() {
+        let mut equation = LoveEquation::new();
+        equation.record_relationship("varda", "manwe", 0.8);
+        let snapshot = equation.snapshot(10);
+        let timestamp = snapshot["relationships"][0]["timestamp"].clone();
+
+        let mut restored = LoveEquation::new();
+        restored.restore_from_snapshot(&snapshot);
+        let restored_snapshot = restored.snapshot(10);
+
+        assert_eq!(
+            restored_snapshot["relationships"][0]["timestamp"],
+            timestamp
+        );
+        assert!(restored.get_relationship("manwe", "varda").is_some());
     }
 }

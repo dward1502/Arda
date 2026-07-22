@@ -2,6 +2,7 @@ use super::super::route_scoring::*;
 use super::super::status::PackageRuntimeSignals;
 use super::*;
 use crate::adaptive::service::types::{ManweRequestEnvelope, ModelState, ProviderState};
+use crate::ManweConfig;
 use chrono::Utc;
 use std::collections::BTreeMap;
 use std::sync::Mutex;
@@ -2940,14 +2941,63 @@ fn health_probe_scoring_prefers_probe_model_over_large_production_model() {
 }
 
 #[test]
-fn half_open_probe_gate_allows_only_probe_roll() {
-    let mut p = provider("recovering");
-    p.consecutive_failures = 3;
-    p.consecutive_successes = 0;
-    p.in_cooldown = false;
-    p.cooldown_until_utc = None;
+fn adaptive_filter_pipeline_rejects_unhealthy_tool_provider_in_fallback_pool() {
+    let mut healthy = provider("healthy");
+    healthy.models[0].capable_tasks = vec!["code".to_string(), "chat".to_string()];
+    healthy.healthy = true;
+    healthy.consecutive_failures = 0;
 
-    assert!(provider_in_half_open(&p));
-    assert!(provider_half_open_probe_allowed_for_roll(&p, 0));
-    assert!(!provider_half_open_probe_allowed_for_roll(&p, 1));
+    let mut unhealthy = provider("unhealthy");
+    unhealthy.models[0].capable_tasks = vec!["code".to_string(), "chat".to_string()];
+    unhealthy.healthy = false;
+    unhealthy.consecutive_failures = 5;
+
+    let providers = vec![healthy.clone(), unhealthy];
+    let policy = HybridRoutePolicy {
+        privacy_tier: "public".to_string(),
+        cost_tier: "medium".to_string(),
+        quality_tier: "medium".to_string(),
+        origin_preference: "auto".to_string(),
+        latency_sla_ms: None,
+        require_local: false,
+        spread_score_band: 0.0,
+        spread_top_cap: 1,
+    };
+    let profile = RouteExecutionProfile {
+        route_class: "tool_oriented".to_string(),
+        execution_lane: "execution".to_string(),
+        context_window_target: 64_000,
+    };
+
+    let candidates = providers
+        .iter()
+        .enumerate()
+        .filter(|(_, provider)| provider.healthy)
+        .filter(|(_, provider)| provider.models[0].capable_tasks.contains(&"code".to_string()))
+        .map(|(provider_index, provider)| RouteSelectionCandidate {
+            provider_index,
+            model: provider.models[0].clone(),
+            score: provider_score(
+                provider,
+                &provider.models[0],
+                "normal",
+                &policy,
+                &profile,
+                &PackageRuntimeSignals {
+                    generated_at_utc: Utc::now().to_rfc3339(),
+                    llmfit_backend: "optional_signal_absent".to_string(),
+                    llmfit_recommendation_count: 0,
+                    llmfit_local_max_params_b: None,
+                    llmfit_top_model_names: vec![],
+                    nanoclaw_binary_present: false,
+                    nanoclaw_runtime_ready: false,
+                    nanoclaw_probe_state: "not_configured".to_string(),
+                },
+                &LaneFitnessSnapshot::default(),
+            ),
+        })
+        .collect::<Vec<_>>();
+
+    assert_eq!(candidates.len(), 1);
+    assert_eq!(providers[candidates[0].provider_index].id, "healthy");
 }

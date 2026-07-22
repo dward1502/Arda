@@ -6,7 +6,7 @@ use crate::service::PrometheusService;
 use annunimas_core::error::Result;
 use annunimas_core::message::Message;
 use annunimas_core::task::{Task, TaskStatus};
-use annunimas_governance::record_bacon_lite;
+use annunimas_governance::enqueue_bacon_lite;
 
 impl Pipeline {
     pub(super) fn record_task_intake(&self, task: &Task) -> Result<()> {
@@ -44,7 +44,7 @@ impl Pipeline {
             "task_received",
             serde_json::to_value(task)?,
         ))?;
-        if let Err(err) = record_bacon_lite(
+        if let Err(err) = enqueue_bacon_lite(
             "prometheus",
             "task_received",
             task,
@@ -237,7 +237,7 @@ impl Pipeline {
                 Some(confidence),
                 vec!["escalation".to_string(), task.task_type.clone()],
             );
-            if let Err(err) = record_bacon_lite(
+            if let Err(err) = enqueue_bacon_lite(
                 "prometheus",
                 "decision_escalated",
                 task,

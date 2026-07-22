@@ -5,7 +5,7 @@ soterion:
   role: "inference_gateway"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-19"
+  last_reviewed: "2026-07-22"
 ---
 
 # manwe
@@ -36,33 +36,41 @@ compile cleanly.
 ## Verification status
 
 - `cargo check -p manwe`: PASS
-- `cargo test -p manwe`: 0 unit, 0 doc tests found in this build
-- `cargo check -p manwe --features adaptive`: FAILS
-  - `src/adaptive/service/route_policy.rs`: unresolved `arda_economics`,
-    `arda_governance`
-  - `src/adaptive/service/service_events.rs`: unresolved `arda_economics`,
-    `arda_vaire`
-  - `src/adaptive/service/state_mutation.rs`: unresolved `arda_economics`
-  - `src/adaptive/service/service_events.rs`: type inference failures on
-    `track_work` / `record_relationship`
-  - `src/adaptive/service/adaptive_routing.rs`: parser failure /
-    unparseable module state
-  - `src/adaptive/service/route_scoring.rs`: type inference failures
-  - `src/adaptive/service/route_candidate_cache.rs`,
-    `service_events.rs`, `bandit.rs`, `agent_quotas.rs`: `pub(super)`
-    visibility/method access failures across sibling modules
-- `BREAKDOWN.md` last_reviewed: 2026-07-19
+- `cargo test -p manwe`: PASS
+- `cargo check -p manwe --features adaptive`: PASS
+- `cargo test -p manwe --features adaptive`: PASS
+- `cargo fmt -p manwe -- --check`: PASS
 
-## Binary / runtime
+Behavioral evidence to date: see `BREAKDOWN.md` + `STATUS.md`
+`2026-07-21/22` validation.
 
-- `src/main.rs`: CLI via `clap`, accepts `--port`, `--bind`, `--config`
-- `AppState`: `Arc<ManweConfig>` + `reqwest::Client` +
-  `Arc<AdaptiveRoutingAdapter>`
-- `/v1/chat/completions`: requires `model`, resolves provider by prefix or
-  `default_provider`, strips/local prefix if needed, forwards upstream with
-  optional bearer
-- gRPC module/files exist in the crate, but server wiring is not active in
-  the default binary path
+## Adaptive routing notes
+
+The `adaptive` service core passes compile/test and is now documented with
+behavioral evidence tests. Verified runtime coverage includes:
+
+- adaptive hard filters cover health, modality, context, and resource-receipt
+  gates, then task-fit/score ordering
+- local inference surface preference is active for `execution` and `background`
+  lanes via `retain_preferred_local_surface_candidates`; supported values are:
+  `mesh`, `llamacpp`, `hybrid`; anything else is treated as `hybrid`
+- adaptive filter pipeline rejects unhealthy providers for code/tool routes
+- static fallback behavior verified for missing provider (`503`), upstream
+  non-JSON (`502`), and unreachable upstream (`502`)
+
+Operators should treat `STATUS.md` as the timestamped runtime-evidence source
+because behavior can evolve as adaptive policy stack matures.
+
+## Architecture / layout decision
+
+- Keep the merged lib + binary surface in `manwe` for now; no separate daemon
+  crate introduced. `arda-engine` and `arda-aule` depend on this crate's public
+  types, so a split needs a separator migration step before retiring this shell.
+- gRPC wiring is explicitly **inactive by default**: it compiles only behind
+  `--features grpc` and requires the binary flag `--grpc`. Without that pair,
+  `manwe` only serves HTTP on `127.0.0.1:7171`. When active, it binds
+  `MANWE_GRPC_PORT` or `0.0.0.0:50051` and exposes `HealthModelService` +
+  `RouteGovernanceService`.
 
 ## Consumer wiring
 
@@ -82,10 +90,11 @@ compile cleanly.
 | `provider.rs` | `ProviderDefinition`, `ProviderCatalog` states/registry |
 | `transport.rs` | Transport traits + adaptive HTTP/IPC stub shells |
 | `route.rs` | Authority trait stubs (`ManweCore`, `ManweGovernance`, `ManweMnemosyne`, `CharonPlutus`) |
-| `routing.rs` | Adaptive routing feature gate + `RouteDecision` placeholder |
+| `resource_limits.rs` | Resource-group concurrency/queue timeout limits |
 | `routing_adapter.rs` | `AdaptiveRoutingAdapter` shim, currently returns not-wired error |
 | `charon_remote.rs` | Legacy charon bridge models |
 | `service.rs` | `ManweService` stub when `adaptive` is disabled |
+| `grpc.rs` | Feature-gated tonic `HealthModelService` + `RouteGovernanceService` |
 
 ## Adaptive module layout
 
@@ -111,7 +120,7 @@ compile cleanly.
 | `adaptive/service/route_selection.rs` | Selection/policy logic |
 | `adaptive/service/route_sessions.rs` | Session/history tracking |
 | `adaptive/service/route_candidate_cache.rs` | Candidate cache/snapshot |
-| `adaptive/service/route_policy_tests.rs` | Policy unit tests (currently broken) |
+| `adaptive/service/route_policy_tests.rs` | Policy unit tests |
 | `adaptive/service/bandit.rs` | Multi-armed bandit state |
 | `adaptive/service/agent_quotas.rs` | Agent quota buckets/windows |
 | `adaptive/service/catalog_reconciliation.rs` | Config/state reconciliation |

@@ -5,9 +5,9 @@ use arda_governance::{
     interpret_alignment, load_philosopher_profiles_from_str, love_equation_score,
     profile_joulework, triad_validate, AlignmentSignals, BaconLiteEvent, BaconLiteResult,
     GameTheory, GameTheorySelectionResult, GovernanceChainConfig, GovernanceChainResult,
-    GovernanceReadinessReport, JouleWorkProfile, LoveDynamicsInput, LoveDynamicsScore,
-    LoveDynamicsTrend, LoveEquationScore, PhilosopherProfileStatusProjection, ResonanceScore,
-    TriadPhilosopherVerdict, TriadResult,
+    GovernanceEvidence, GovernanceEvidenceAssessment, GovernanceReadinessReport, JouleWorkProfile,
+    LoveDynamicsInput, LoveDynamicsScore, LoveDynamicsTrend, LoveEquationScore,
+    PhilosopherProfileStatusProjection, ResonanceScore, TriadPhilosopherVerdict, TriadResult,
 };
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -44,6 +44,8 @@ fn public_result_shapes_match_the_v1_compatibility_fixture() {
     assert_public_wire_type::<BaconLiteResult>();
     assert_public_wire_type::<GameTheorySelectionResult>();
     assert_public_wire_type::<GovernanceChainResult>();
+    assert_public_wire_type::<GovernanceEvidence>();
+    assert_public_wire_type::<GovernanceEvidenceAssessment>();
     assert_public_wire_type::<GovernanceReadinessReport>();
     assert_public_wire_type::<JouleWorkProfile>();
     assert_public_wire_type::<LoveDynamicsScore>();
@@ -66,6 +68,11 @@ fn public_result_shapes_match_the_v1_compatibility_fixture() {
     let bacon = bacon_lite_validate(&task);
     assert_contract(&contracts, "BaconLiteResult", &bacon);
     let event = BaconLiteEvent {
+        policy_version: bacon.policy_version.clone(),
+        scorer_version: bacon.triad.policy_version.clone(),
+        review_mode: bacon.triad.review_mode,
+        source_maturity: bacon.triad.profile_maturity.clone(),
+        evidence_source: Some(bacon.triad.evidence.scoring_source),
         ts_utc: "2026-01-01T00:00:00Z".to_string(),
         crate_name: "fixture".to_string(),
         action: "verify".to_string(),
@@ -76,6 +83,12 @@ fn public_result_shapes_match_the_v1_compatibility_fixture() {
         confidence: bacon.confidence,
         rationale: bacon.rationale.clone(),
         triad_passed: bacon.triad.passed,
+        typed_veto: bacon.triad.veto.clone(),
+        confidence_band: Default::default(),
+        philosopher_evidence: None,
+        aurelius_outcome: Some(bacon.triad.aurelius),
+        bacon_outcome: Some(bacon.triad.bacon),
+        sun_tzu_outcome: Some(bacon.triad.sun_tzu),
         aurelius_score: bacon.triad.aurelius_score,
         bacon_score: bacon.triad.bacon_score,
         sun_tzu_score: bacon.triad.sun_tzu_score,
@@ -144,5 +157,30 @@ fn stable_enum_encodings_remain_unchanged() {
     assert_eq!(
         json!(arda_governance::GovernanceReadinessLevel::RuntimeReceipted),
         json!("runtime_receipted")
+    );
+}
+
+#[test]
+fn pre_evidence_triad_records_deserialize_with_a_safe_default_assessment() {
+    let old_record = json!({
+        "chain_id": "default_triad",
+        "chain_version": "heuristic_local_v1",
+        "profile_source": "config/governance/philosophers.toml",
+        "review_mode": "heuristic_local",
+        "profile_maturity": "draft_human_authored",
+        "aurelius": "Pass",
+        "bacon": "Conditional",
+        "sun_tzu": "Pass",
+        "aurelius_score": 0.8,
+        "bacon_score": 0.4,
+        "sun_tzu_score": 0.8,
+        "passed": true,
+        "veto_reason": null
+    });
+
+    let decoded: TriadResult = serde_json::from_value(old_record).expect("legacy Triad result");
+    assert_eq!(
+        decoded.evidence.grade,
+        arda_governance::GovernanceEvidenceGrade::NoEvidence
     );
 }

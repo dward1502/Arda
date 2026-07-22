@@ -20,6 +20,7 @@ soterion:
 - `README.md`
 - `audio.rs`
 - `bacon_lite.rs`
+- `evidence.rs`
 - `game_theory.rs`
 - `joulework.rs`
 - `lib.rs`
@@ -36,7 +37,7 @@ soterion:
 
 ## Purpose
 
-Source modules for governance evaluation, scoring, readiness, signal integration, profile contracts, and explicit path resolution. The supported consumer surface is re-exported from `lib.rs`.
+Source modules for governance evaluation, structured evidence, scoring, readiness, signal integration, profile contracts, and explicit path resolution. The supported consumer surface is re-exported from `lib.rs`.
 
 ## Notes
 

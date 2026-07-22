@@ -6,10 +6,10 @@ soterion:
   role: "documentation"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-21"
+  last_reviewed: "2026-07-22"
 ---
 
-> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-07-21
+> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-07-22
 
 # arda-governance
 
@@ -21,17 +21,19 @@ and evidence records for Arda applications.
 This crate owns:
 
 - Triad and configurable governance-chain evaluation;
+- versioned structured evidence extraction and evidence-grade assessment;
 - philosopher profile parsing, validation, and status projection;
 - resonance, Love Equation/Love Dynamics, JouleWork, and philosopher alignment scoring;
 - governance readiness projections;
-- Bacon-Lite evidence record formatting and filesystem writes;
+- Bacon-Lite event construction, bounded asynchronous persistence, and ledger reads;
+- library-owned in-process governance metric collection and read-only operator projections;
 - game-theory-labelled local agent-selection heuristics;
 - audio, vision, and solar governance signal types.
 
-This crate does not own transports, provider dispatch, daemon/process lifecycle,
-application state stores, policy enforcement outside returned verdicts, or claims of
-autonomous consensus. Those responsibilities stay in the consuming application or
-service crate.
+This crate does not own provider dispatch, daemon/process lifecycle, a metrics HTTP
+server, policy enforcement outside returned verdicts, or claims of autonomous consensus.
+Metrics transport and Prometheus exposition remain caller-owned; `arda-aule` renders the
+scrape-compatible text surface.
 
 ## Public API map
 
@@ -39,6 +41,7 @@ service crate.
 | --- | --- | --- | --- |
 | `triad_validate` | `&arda_core::Task`, optional `TriadConfig` | `TriadResult` | deterministic; no I/O |
 | `evaluate_governance_chain` | task and validated `GovernanceChainConfig` | `GovernanceChainResult` | deterministic; no I/O |
+| `assess_governance_evidence` | `Task.result` and caller metadata | `GovernanceEvidenceContext` | malformed/unsupported evidence is disclosed and downgraded |
 | `load_governance_chain[_from_str]` | explicit path or TOML | `GovernanceChainConfig` | `GovernanceChainError` preserves read/parse/validation class |
 | `load_philosopher_profiles[_from_str]` | explicit path or TOML | `PhilosopherProfileSet` | `PhilosopherProfileError` preserves read/parse/validation class |
 | `calculate_resonance*` | task plus optional live governance/environment signals | `ResonanceScore` | deterministic; missing optional signals are represented in metadata |
@@ -46,20 +49,65 @@ service crate.
 | `profile_joulework` | `&Task` | `JouleWorkProfile` | reports measurement source; does not upgrade estimated data to observed truth |
 | `interpret_alignment` | `AlignmentSignals` | `TriadPhilosopherVerdict` | deterministic advisory result |
 | `default_governance_readiness_report` | none | `GovernanceReadinessReport` | conservative projection; defaults are not autonomy-ready |
-| `record_bacon_lite_to` | task, context, explicit `BaconLiteLogPaths` | `BaconLiteEvent` | returns `std::io::Error`; creates parent directories and appends records |
+| `enqueue_bacon_lite` | task and context | `BaconLiteEvent` | non-blocking; reports saturated/closed transport errors and increments accountability counters |
+| `record_bacon_lite_to` | task, context, explicit `BaconLiteLogPaths` | `BaconLiteEvent` | synchronous cold-path compatibility adapter for tests and migrations |
+| `global_governance_metrics().snapshot()` | instrumented scorer results | `GovernanceMetricsSnapshot` | in-process bounded-label snapshot; owns no server or background exporter |
+| `build_governance_status_report` | readiness, ledger summary, metrics, latest event | `GovernanceStatusReport` | read-only projection that preserves conservative autonomy truth |
 | `GameTheory::select_agent_with_policy` | task/action class | `GameTheorySelectionResult` | explicit fallback policy and reason when no candidate qualifies |
+| `collect_environmental_signals` | independent audio/vision futures and pooled `SolarClient` | `EnvironmentalCoherence` | bounded concurrent collection; unavailable sources become neutral advisory evidence |
 
 The crate-root re-exports in `src/lib.rs` are the supported consumer surface. Public
 modules remain available for specialised types, but consumers should prefer root
 re-exports where provided.
 
+## Environmental advisory semantics
+
+Audio, vision, and NOAA geomagnetic context use a typed `GovernanceSignalEnvelope` carrying
+source timestamp, collection timestamp, freshness, confidence, measurement quality, and
+healthy/degraded/unavailable state. `EnvironmentalCoherence` is always marked
+`advisory_only = true`: it cannot approve, reject, or block an action. A score at or below 50 is
+`caution`; a score of at least 75 is `supportive` only when at least two fresh, healthy
+sources are available; all other states are `neutral`. Defaults and unavailable values are
+excluded from the weighted score. Stale values are down-weighted and can never produce a
+supportive advisory.
+
+`SolarClient` pools HTTP connections, accepts configurable Kp/Dst endpoints and request
+timeouts, executes both NOAA requests through Arda's bounded async gate, and caches the last
+valid sample for a configurable TTL. A refresh failure may return the last sample as stale,
+degraded evidence; no sample returns unavailable evidence. The v1 collector does not fetch
+Bz or solar flux. Their compatibility numeric projections are zero and their adjacent
+`MeasurementQuality` fields are explicitly `unavailable`, so they must not be interpreted
+as measurements.
+
+`AthenaStore::ingest_batch_with_environment` carries this evidence into Varda executor
+receipts without changing acceptance or deduplication. Environmental assessments and each
+source health/freshness/quality state are also recorded in the in-process governance metric
+snapshot for caller-owned live exposition.
+
+## Structured evidence and scoring
+
+`arda.governance.evidence.v1` is the canonical structured evidence schema. Place it at
+`Task.result.governance_evidence` with evidence anchors, action intent, optional justified
+urgency, cooperation and defection values, disconfirming evidence, a risk boundary, and a
+fallback path. Legacy result keys such as `evidence`, `provenance.path`, `source_id`, and
+`recommendation` are mapped into a disclosed partial evidence record.
+
+Triad results serialize an evidence assessment with one of `no_evidence`,
+`heuristic_only`, `structured_partial`, or `structured_validated`. Structured validated
+fields drive the Aurelius/Bacon/Sun-Tzu scorers. Keyword heuristics remain a disclosed
+fallback and Bacon cannot receive a passing evidence score from keywords alone.
+
+Missing phi-harmonic inputs are listed in `phi_missing_inputs` and carry zero available
+weight. Available phi dimensions are normalized over their actual weight, and resonance
+redistributes the omitted phi allocation rather than injecting neutral 50-point values.
+
 ## Filesystem and configuration
 
 Library code does not infer the repository root from `CARGO_MANIFEST_DIR`.
 Construct `GovernancePaths::new(base_dir)` and pass the resulting path to loaders,
-or pass any explicit path directly. `record_bacon_lite_to` is the preferred writer
-API because destinations are injected. The compatibility wrapper
-`record_bacon_lite` resolves its base from `ARDA_ROOT`, then the process working
+or pass any explicit path directly. Production hot paths use `enqueue_bacon_lite` and
+the bounded writer; `record_bacon_lite[_to]` is retained only for tests, migrations, and
+explicitly cold paths. Default paths resolve from `ARDA_ROOT`, then the process working
 directory, with `ARDA_BACON_LITE_LOG_PATH` and `ARDA_BACON_LITE_HUMAN_PATH` as
 individual overrides.
 
@@ -70,6 +118,25 @@ let paths = GovernancePaths::new("/srv/arda");
 let config = load_governance_chain(paths.chain_config())?;
 # Ok::<(), arda_governance::GovernanceChainError>(())
 ```
+
+## Observability and operator ownership
+
+Collection is **library-owned and in-process**: Triad, Bacon-Lite, resonance, Love proxy,
+Love Dynamics, JouleWork, and environmental advisory entry points update one
+`GovernanceMetrics` collector.
+Transport is **caller-owned**: this crate only returns serializable counter/histogram
+snapshots and never binds a socket or starts a metrics server. `arda-aule` provides
+`governance-metrics` as Prometheus text or JSON and `governance-status` as human or JSON
+operator output.
+
+Metric labels are intentionally closed: verdict, the three known lenses, three outcomes,
+four review modes, three environmental sources, bounded health/freshness/measurement-quality
+states, and `legacy`/`current`/`other` policy/scorer version classes. Raw policy,
+model, provider, task, crate, and action strings are never labels. Score histograms use
+fixed normalized buckets. The operator report joins readiness gaps, recent Bacon-Lite
+evidence, typed vetoes, confidence band, philosopher evidence, source maturity, and metric
+snapshot; it retains `default_autonomy_ready = false` unless the readiness evidence itself
+proves a scoped state.
 
 ## Compatibility contract
 

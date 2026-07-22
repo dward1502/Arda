@@ -14,6 +14,37 @@ use serde::{Deserialize, Serialize};
 
 use crate::contract::DecisionClass;
 
+/// Runtime budget contract consumed by governance without depending on a
+/// concrete economics implementation.
+pub trait AffordabilityPolicy: Send + Sync {
+    fn policy_name(&self) -> &'static str;
+    fn can_afford(&self, estimated_cost: f64) -> bool;
+}
+
+/// Default used by compatibility dispatch entrypoints that have no economics
+/// provider wired yet.
+pub struct AllowAllAffordability;
+
+impl AffordabilityPolicy for AllowAllAffordability {
+    fn policy_name(&self) -> &'static str {
+        "allow_all_compatibility"
+    }
+
+    fn can_afford(&self, _estimated_cost: f64) -> bool {
+        true
+    }
+}
+
+#[derive(Debug, Clone, Serialize, PartialEq)]
+pub struct AffordabilityDecision {
+    pub contract: &'static str,
+    pub policy: &'static str,
+    pub policy_mode: GovernancePolicyMode,
+    pub estimated_cost: f64,
+    pub allowed: bool,
+    pub reason: &'static str,
+}
+
 #[derive(Debug, Clone, Copy, Deserialize, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum GovernancePolicyMode {
@@ -132,6 +163,30 @@ impl GovernanceGates {
             .copied()
             .unwrap_or(self.default)
     }
+
+    pub fn evaluate_affordability(
+        &self,
+        affordability: &dyn AffordabilityPolicy,
+        estimated_cost: f64,
+    ) -> AffordabilityDecision {
+        let policy_mode = self.policy_for(DecisionClass::Budget).policy_mode();
+        let finite_nonnegative = estimated_cost.is_finite() && estimated_cost >= 0.0;
+        let affordable = finite_nonnegative && affordability.can_afford(estimated_cost);
+        AffordabilityDecision {
+            contract: "arda.governance.affordability.v1",
+            policy: affordability.policy_name(),
+            policy_mode,
+            estimated_cost,
+            allowed: affordable,
+            reason: if !finite_nonnegative {
+                "invalid_estimated_cost"
+            } else if affordable {
+                "within_budget"
+            } else {
+                "budget_exceeded"
+            },
+        }
+    }
 }
 
 #[cfg(test)]
@@ -219,6 +274,32 @@ action_classes:
         assert_eq!(
             g.policy_for_action_class("unknown_action").policy_mode(),
             GovernancePolicyMode::RecordAndProceed
+        );
+    }
+
+    #[test]
+    fn affordability_hook_rejects_over_budget_and_invalid_costs() {
+        struct TenJouleBudget;
+        impl AffordabilityPolicy for TenJouleBudget {
+            fn policy_name(&self) -> &'static str {
+                "test_ten_joule_budget"
+            }
+
+            fn can_afford(&self, estimated_cost: f64) -> bool {
+                estimated_cost <= 10.0
+            }
+        }
+
+        let gates = GovernanceGates::permissive();
+        assert!(gates.evaluate_affordability(&TenJouleBudget, 10.0).allowed);
+        let exceeded = gates.evaluate_affordability(&TenJouleBudget, 10.1);
+        assert!(!exceeded.allowed);
+        assert_eq!(exceeded.reason, "budget_exceeded");
+        assert_eq!(
+            gates
+                .evaluate_affordability(&TenJouleBudget, f64::NAN)
+                .reason,
+            "invalid_estimated_cost"
         );
     }
 }

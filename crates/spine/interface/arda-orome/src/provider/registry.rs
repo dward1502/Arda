@@ -52,7 +52,8 @@ impl ProviderRegistry {
     }
 
     pub fn resolve_direct_capable(&self, provider_id: &str) -> Option<&ProviderAdapter> {
-        self.by_id(provider_id).filter(|adapter| adapter.capabilities.supports_direct)
+        self.by_id(provider_id)
+            .filter(|adapter| adapter.capabilities.supports_direct)
     }
 
     pub fn iter(&self) -> impl Iterator<Item = &ProviderAdapter> {

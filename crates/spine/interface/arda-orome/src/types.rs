@@ -501,3 +501,30 @@ impl InterruptionMessage {
         }
     }
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InterruptionEnvelope {
+    pub schema_version: String,
+    pub event_id: String,
+    pub message: InterruptionMessage,
+    pub ledger_writes: Vec<String>,
+    pub decision: InterruptionLedgerDecision,
+    pub created_at_utc: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum InterruptionLedgerDecision {
+    PolicySafe,
+    RequiresOperatorReview,
+    PolicyBlocked,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TaskApprovalEnvelope {
+    pub schema_version: String,
+    pub proposal_id: String,
+    pub approval_id: String,
+    pub ledger_writes: Vec<String>,
+    pub created_at_utc: String,
+}

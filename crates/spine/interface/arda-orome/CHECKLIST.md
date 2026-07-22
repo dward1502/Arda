@@ -25,6 +25,8 @@ Items with [ ] pending; [~] in progress; [x] done.
 - [x] replace `'static str` labels with typed enums
 - [x] make registry/router state sharable via core runtime trait
 - [x] persist `MessageQueue`/agent registry state
+- [x] remove broken `arda_plutus` test import / fix async-fn test compile path
+- [x] cleanup unused-import warnings across `arda-orome` and `arda-core`
 - [ ] normalize governance hooks centrally
 - [ ] typed approval/interruption envelopes backed by ledger writes
 - [x] replace static Lazy context cache with bounded async cache

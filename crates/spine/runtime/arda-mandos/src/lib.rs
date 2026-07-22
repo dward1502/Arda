@@ -14,8 +14,10 @@ pub use context::ReasoningContext;
 pub use notify::OracleNotifier;
 pub use pageindex::PageIndex;
 pub use reasoning::{
-    GateReasoning, GateResult, LoveEquationGuard, OracleEngine, OracleQuery, QueryType, TriadGates,
-    Verdict, VerdictGovernance, VerdictOutcome,
+    GateReasoning, GateResult, LoveEquationGuard, OracleEngine, OraclePolicy, OracleQuery,
+    PolicyVeto, PolicyVetoKind, QueryType, TriadGates, Verdict, VerdictCondition,
+    VerdictConditionKind, VerdictGovernance, VerdictOutcome, DEFAULT_ORACLE_POLICY_ID,
+    DEFAULT_ORACLE_POLICY_VERSION,
 };
 pub use scoring::{DefaultTruthScorer, TruthScorer, TruthScoringResult};
 pub use service::{OracleRuntimePaths, OracleService, ORACLE_RUNTIME_SCHEMA_VERSION};

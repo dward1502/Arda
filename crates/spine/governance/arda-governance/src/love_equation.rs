@@ -4,8 +4,12 @@
 use arda_core::Task;
 use serde::{Deserialize, Serialize};
 
+use crate::versions::{legacy_love_equation_policy_version, LOVE_EQUATION_POLICY_VERSION};
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LoveEquationScore {
+    #[serde(default = "legacy_love_equation_policy_version")]
+    pub policy_version: String,
     pub score: f64,
     pub impact: f64,
     pub reach: f64,
@@ -55,7 +59,8 @@ pub fn love_equation_score(task: &Task) -> LoveEquationScore {
         .max(1.0);
     let score = ((impact * reach) / (energy * time)).clamp(0.0, 1.0);
 
-    LoveEquationScore {
+    let score = LoveEquationScore {
+        policy_version: LOVE_EQUATION_POLICY_VERSION.to_string(),
         score,
         impact,
         reach,
@@ -63,7 +68,9 @@ pub fn love_equation_score(task: &Task) -> LoveEquationScore {
         time,
         semantic: default_love_equation_semantic(),
         source: default_love_equation_source(),
-    }
+    };
+    crate::global_governance_metrics().observe_love_proxy(&score);
+    score
 }
 
 #[cfg(test)]

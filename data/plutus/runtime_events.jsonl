@@ -1,0 +1,12 @@
+{"schema_version":"arda.plutus.event.v1","action":"track_work","subject":"oracle","payload":{"amount":0.935,"task_id":"oracle_ipc","unit":"Reasoning"},"recorded_at_utc":"2026-07-22T16:30:20.555695422+00:00"}
+{"schema_version":"arda.plutus.event.v1","action":"record_relationship","subject":"oracle:oracle","payload":{"longevity":0.43125,"reciprocity":0.5115,"trust":0.92},"recorded_at_utc":"2026-07-22T16:30:20.574555135+00:00"}
+{"schema_version":"arda.plutus.event.v1","action":"track_work","subject":"oracle","payload":{"amount":0.935,"task_id":"oracle_ipc","unit":"Reasoning"},"recorded_at_utc":"2026-07-22T16:30:41.495942439+00:00"}
+{"schema_version":"arda.plutus.event.v1","action":"record_relationship","subject":"oracle:oracle","payload":{"longevity":0.43125,"reciprocity":0.5115,"trust":0.92},"recorded_at_utc":"2026-07-22T16:30:41.514170362+00:00"}
+{"schema_version":"arda.plutus.event.v1","action":"track_work","subject":"oracle","payload":{"amount":0.91,"task_id":"oracle_ipc","unit":"Reasoning"},"recorded_at_utc":"2026-07-22T16:42:54.728088653+00:00"}
+{"schema_version":"arda.plutus.event.v1","action":"record_relationship","subject":"oracle:oracle","payload":{"longevity":0.43125,"reciprocity":0.5115,"trust":0.92},"recorded_at_utc":"2026-07-22T16:42:54.746699192+00:00"}
+{"schema_version":"arda.plutus.event.v1","action":"track_work","subject":"oracle","payload":{"amount":0.91,"task_id":"oracle_ipc","unit":"Reasoning"},"recorded_at_utc":"2026-07-22T16:42:56.579568761+00:00"}
+{"schema_version":"arda.plutus.event.v1","action":"record_relationship","subject":"oracle:oracle","payload":{"longevity":0.43125,"reciprocity":0.5115,"trust":0.92},"recorded_at_utc":"2026-07-22T16:42:56.599699941+00:00"}
+{"schema_version":"arda.plutus.event.v1","action":"track_work","subject":"oracle","payload":{"amount":0.91,"task_id":"oracle_ipc","unit":"Reasoning"},"recorded_at_utc":"2026-07-22T16:45:30.921244012+00:00"}
+{"schema_version":"arda.plutus.event.v1","action":"record_relationship","subject":"oracle:oracle","payload":{"longevity":0.43125,"reciprocity":0.5115,"trust":0.92},"recorded_at_utc":"2026-07-22T16:45:30.943045625+00:00"}
+{"schema_version":"arda.plutus.event.v1","action":"track_work","subject":"oracle","payload":{"amount":0.91,"task_id":"oracle_ipc","unit":"Reasoning"},"recorded_at_utc":"2026-07-22T16:45:32.335823672+00:00"}
+{"schema_version":"arda.plutus.event.v1","action":"record_relationship","subject":"oracle:oracle","payload":{"longevity":0.43125,"reciprocity":0.5115,"trust":0.92},"recorded_at_utc":"2026-07-22T16:45:32.357361741+00:00"}

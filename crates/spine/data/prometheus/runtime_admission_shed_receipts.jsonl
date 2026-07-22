@@ -1,0 +1,1 @@
+{"configured_limit":1,"effective_limit":1,"event":"shed","label":"test_gate_rejects_excess","mode":"background","pressure":{"disk_used_pct":null,"local_joule_pressure":false,"local_joule_usage_percent":null,"mem_available_pct":56.90933332583859,"pressure_status":null,"swap_ok":true},"ts_utc":"2026-07-22T06:50:54.231258545+00:00"}

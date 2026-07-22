@@ -10,9 +10,11 @@ use crate::triad_philosopher::{
     derive_alignment_signals, interpret_alignment, PhilosopherAction, TriadPhilosopherVerdict,
 };
 use crate::vision::VisionGovernance;
-use crate::{evaluate_love_dynamics, profile_joulework, LoveDynamicsInput};
+use crate::{evaluate_love_dynamics, profile_joulework, LoveDynamicsInput, UnitInterval};
 use arda_core::task::{Task, TaskStatus};
 use serde::{Deserialize, Serialize};
+
+use crate::versions::{legacy_resonance_policy_version, RESONANCE_POLICY_VERSION};
 
 /// Planned removal release for compatibility APIs that synthesize Triad purity.
 pub const COMPATIBILITY_RESONANCE_REMOVAL_VERSION: &str = "0.3.0";
@@ -38,7 +40,7 @@ pub enum PhiHarmonicSemantic {
     NotEmpiricalAutonomyProof,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PhiHarmonicComponents {
     pub composite_score: f64,
     pub source: PhiHarmonicSource,
@@ -46,6 +48,9 @@ pub struct PhiHarmonicComponents {
     pub time_score: f64,
     pub resource_score: f64,
     pub question_score: f64,
+    pub available_weight: f64,
+    #[serde(default)]
+    pub missing_inputs: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -74,6 +79,10 @@ pub struct ResonanceComponents {
     /// Clarifications requested:resolved ratio phi score (0-100).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub phi_question_score: Option<f64>,
+    #[serde(default)]
+    pub phi_available_weight: f64,
+    #[serde(default)]
+    pub phi_missing_inputs: Vec<String>,
     pub freq_harmony: f64,
     /// Audio environmental coherence (0-100), if available
     pub audio_coherence: Option<f64>,
@@ -95,6 +104,8 @@ pub struct ResonanceComponents {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ResonanceScore {
+    #[serde(default = "legacy_resonance_policy_version")]
+    pub policy_version: String,
     pub value: f64,
     pub ecst_components: Option<ResonanceComponents>,
     /// Deterministic reflective arbitration over evidence, independence,
@@ -125,42 +136,55 @@ fn phi_score(actual: f64, target: f64) -> f64 {
 /// This is a golden-ratio task-flow heuristic for dashboard/operator evidence,
 /// not empirical proof of autonomy quality or safety.
 pub fn phi_harmonic_components(task: &Task) -> PhiHarmonicComponents {
-    // 1. TIME RATIO - planning:execution
-    let time_score = {
+    let mut available_weight = 0.0;
+    let mut missing_inputs = Vec::new();
+
+    let time_available = task.planning_started_at.is_some()
+        && task.execution_started_at.is_some()
+        && task.execution_duration_secs() > 0.0;
+    let time_score = if time_available {
         let plan = task.planning_duration_secs();
         let exec = task.execution_duration_secs();
-        if exec > 0.0 {
-            phi_score(plan / exec, PHI_INV)
-        } else {
-            50.0 // incomplete task, neutral
-        }
+        available_weight += 0.30;
+        phi_score(plan / exec, PHI_INV)
+    } else {
+        missing_inputs.push("timing".to_string());
+        0.0
     };
 
-    // 2. RESOURCE RATIO - estimated:actual joule cost
-    let resource_score = {
-        let estimated = task.joule_cost_estimated;
-        let actual = task.joule_cost_actual;
-        if actual > 0.0 && estimated > 0.0 {
-            phi_score(estimated / actual, PHI)
-        } else {
-            50.0
-        }
+    let resource_available = task.joule_cost_actual.is_finite()
+        && task.joule_cost_estimated.is_finite()
+        && task.joule_cost_actual > 0.0
+        && task.joule_cost_estimated > 0.0;
+    let resource_score = if resource_available {
+        available_weight += 0.45;
+        phi_score(task.joule_cost_estimated / task.joule_cost_actual, PHI)
+    } else {
+        missing_inputs.push("joulework".to_string());
+        0.0
     };
 
-    // 3. QUESTION RATIO - clarifications requested:resolved
-    let question_score = {
+    let question_available = task.clarifications_requested > 0 || task.clarifications_resolved > 0;
+    let question_score = if question_available {
         let asked = task.clarifications_requested as f64;
         let answered = task.clarifications_resolved as f64;
+        available_weight += 0.25;
         if answered > 0.0 {
             phi_score(asked / answered, PHI_INV)
-        } else if asked == 0.0 {
-            75.0 // no questions needed, reasonably good
         } else {
-            25.0 // asked questions, none resolved
+            0.0
         }
+    } else {
+        missing_inputs.push("clarifications".to_string());
+        0.0
     };
 
-    let composite_score = time_score * 0.30 + resource_score * 0.45 + question_score * 0.25;
+    let weighted_score = time_score * 0.30 + resource_score * 0.45 + question_score * 0.25;
+    let composite_score = if available_weight > 0.0 {
+        weighted_score / available_weight
+    } else {
+        0.0
+    };
 
     PhiHarmonicComponents {
         composite_score,
@@ -169,6 +193,8 @@ pub fn phi_harmonic_components(task: &Task) -> PhiHarmonicComponents {
         time_score,
         resource_score,
         question_score,
+        available_weight,
+        missing_inputs,
     }
 }
 
@@ -290,18 +316,20 @@ fn calculate_resonance_with_triad_signal(
     vision: Option<&VisionGovernance>,
 ) -> ResonanceScore {
     // Time harmony: faster completion = higher score
-    let elapsed = (task.updated_at - task.created_at).num_seconds() as f64;
-    let time_harmony = (100.0 / (1.0 + elapsed / 60.0)).min(100.0);
+    let elapsed = (task.updated_at - task.created_at).num_seconds().max(0) as f64;
+    let time_harmony_unit = UnitInterval::new(1.0 / (1.0 + elapsed / 60.0));
+    let time_harmony = time_harmony_unit.as_percent();
     let freq_harmony = time_harmony; // Simplified
 
     // Status coherence
-    let status_coherence = match task.status {
-        TaskStatus::Complete => 100.0,
-        TaskStatus::Running => 60.0,
-        TaskStatus::Pending => 30.0,
-        TaskStatus::Failed { .. } => 10.0,
-        TaskStatus::Retry { .. } => 40.0,
-    };
+    let status_coherence_unit = UnitInterval::new(match task.status {
+        TaskStatus::Complete => 1.0,
+        TaskStatus::Running => 0.6,
+        TaskStatus::Pending => 0.3,
+        TaskStatus::Failed { .. } => 0.1,
+        TaskStatus::Retry { .. } => 0.4,
+    });
+    let status_coherence = status_coherence_unit.as_percent();
 
     // Phi harmonic
     let phi_components = phi_harmonic_components(task);
@@ -321,31 +349,58 @@ fn calculate_resonance_with_triad_signal(
     let extra_weight = audio_coherence.as_ref().map(|_| 0.05).unwrap_or(0.0)
         + vision_coherence.as_ref().map(|_| 0.05).unwrap_or(0.0);
     let base_scale = 1.0 - extra_weight;
-    let triad = triad_signal.value;
+    let triad_unit = UnitInterval::from_percent(triad_signal.value);
+    let joule_unit = UnitInterval::from_percent(joule);
+    let phi_unit = UnitInterval::from_percent(phi);
+    let audio_unit = audio_coherence.map(crate::normalize_legacy_unit_or_percent);
+    let vision_unit = vision_coherence.map(crate::normalize_legacy_unit_or_percent);
 
-    // Overall score remains backward-compatible when no live Triad/governance
-    // evidence is supplied; live evidence changes only the Triad component.
-    let value = (time_harmony * 0.25 * base_scale
-        + status_coherence * 0.30 * base_scale
-        + triad * 0.20 * base_scale
-        + joule * 0.15 * base_scale
-        + phi * 0.10 * base_scale
-        + audio_coherence.unwrap_or(0.0) * 0.05
-        + vision_coherence.unwrap_or(0.0) * 0.05)
-        .min(100.0);
+    let phi_available = phi_components.available_weight > 0.0;
+    let base_weight = 0.25 + 0.30 + 0.20 + 0.15 + if phi_available { 0.10 } else { 0.0 };
+    let base_weighted = time_harmony_unit.get() * 0.25
+        + status_coherence_unit.get() * 0.30
+        + triad_unit.get() * 0.20
+        + joule_unit.get() * 0.15
+        + if phi_available {
+            phi_unit.get() * 0.10
+        } else {
+            0.0
+        };
+    let normalized_base = base_weighted / base_weight;
+    let value = UnitInterval::new(
+        normalized_base * base_scale
+            + audio_unit.map(UnitInterval::get).unwrap_or(0.0) * 0.05
+            + vision_unit.map(UnitInterval::get).unwrap_or(0.0) * 0.05,
+    )
+    .as_percent();
+
+    let time_available = !phi_components
+        .missing_inputs
+        .iter()
+        .any(|input| input == "timing");
+    let resource_available = !phi_components
+        .missing_inputs
+        .iter()
+        .any(|input| input == "joulework");
+    let question_available = !phi_components
+        .missing_inputs
+        .iter()
+        .any(|input| input == "clarifications");
 
     let base_components = ResonanceComponents {
         time_harmony,
         status_coherence,
-        triad_purity: triad,
+        triad_purity: triad_unit.as_percent(),
         triad_purity_source: Some(triad_signal.source),
         joule_balance: joule,
         phi_harmonic: phi,
         phi_harmonic_source: Some(phi_components.source),
         phi_harmonic_semantic: Some(phi_components.semantic),
-        phi_time_score: Some(phi_components.time_score),
-        phi_resource_score: Some(phi_components.resource_score),
-        phi_question_score: Some(phi_components.question_score),
+        phi_time_score: time_available.then_some(phi_components.time_score),
+        phi_resource_score: resource_available.then_some(phi_components.resource_score),
+        phi_question_score: question_available.then_some(phi_components.question_score),
+        phi_available_weight: phi_components.available_weight,
+        phi_missing_inputs: phi_components.missing_inputs.clone(),
         freq_harmony,
         audio_coherence,
         vision_coherence,
@@ -354,10 +409,20 @@ fn calculate_resonance_with_triad_signal(
         philosopher_action: None,
         philosopher_alignment_score: None,
     };
+    let mut cooperative_inputs = vec![triad_signal.cooperation_value, joule_unit.get()];
+    if phi_available {
+        cooperative_inputs.push(phi_unit.get());
+    }
+    let cooperation = cooperative_inputs.iter().sum::<f64>() / cooperative_inputs.len() as f64;
+    let mut efficiency_inputs = vec![joule_unit.get()];
+    if phi_available {
+        efficiency_inputs.push(phi_unit.get());
+    }
+    let efficiency = efficiency_inputs.iter().sum::<f64>() / efficiency_inputs.len() as f64;
     let love = evaluate_love_dynamics(LoveDynamicsInput {
-        empathy: status_coherence / 100.0,
-        cooperation: (triad_signal.cooperation_value + joule / 100.0 + phi / 100.0) / 3.0,
-        defection: 1.0 - ((joule / 100.0 + phi / 100.0) / 2.0),
+        empathy: status_coherence_unit.get(),
+        cooperation,
+        defection: 1.0 - efficiency,
         beta: 0.50,
         delta_time: 1.0,
     });
@@ -372,11 +437,14 @@ fn calculate_resonance_with_triad_signal(
         ..base_components
     };
 
-    ResonanceScore {
+    let score = ResonanceScore {
+        policy_version: RESONANCE_POLICY_VERSION.to_string(),
         value,
         ecst_components: Some(components),
         triad_philosopher: Some(philosopher),
-    }
+    };
+    crate::global_governance_metrics().observe_resonance(&score);
+    score
 }
 
 /// Backward-compatible resonance calculation without audio/vision signals.
@@ -458,6 +526,8 @@ fn triad_purity(default: f64) -> f64 {
 #[allow(deprecated)]
 mod tests {
     use super::*;
+    use crate::versions::legacy_triad_policy_version;
+    use crate::GovernanceVetoReason;
     use arda_core::{Task, TaskStatus};
 
     #[test]
@@ -485,7 +555,7 @@ mod tests {
     }
 
     #[test]
-    fn phi_harmonic_discloses_neutral_incomplete_components() {
+    fn phi_harmonic_discloses_missing_incomplete_components() {
         let task = Task::new("classify local note", "governance");
 
         let components = phi_harmonic_components(&task);
@@ -498,21 +568,34 @@ mod tests {
             components.semantic,
             PhiHarmonicSemantic::NotEmpiricalAutonomyProof
         );
-        assert_eq!(components.time_score, 50.0);
-        assert_eq!(components.resource_score, 50.0);
-        assert_eq!(components.question_score, 75.0);
+        assert_eq!(components.time_score, 0.0);
+        assert_eq!(components.resource_score, 0.0);
+        assert_eq!(components.question_score, 0.0);
+        assert_eq!(components.available_weight, 0.0);
+        assert_eq!(
+            components.missing_inputs,
+            vec!["timing", "joulework", "clarifications"]
+        );
         assert_eq!(components.composite_score, phi_harmonic(&task));
     }
 
     #[test]
     fn phi_harmonic_discloses_no_question_and_unresolved_question_semantics() {
         let no_questions = Task::new("classify local note", "governance");
-        assert_eq!(phi_harmonic_components(&no_questions).question_score, 75.0);
+        let no_question_components = phi_harmonic_components(&no_questions);
+        assert_eq!(no_question_components.question_score, 0.0);
+        assert!(no_question_components
+            .missing_inputs
+            .contains(&"clarifications".to_string()));
 
         let mut unresolved = Task::new("classify ambiguous note", "governance");
         unresolved.clarifications_requested = 2;
         unresolved.clarifications_resolved = 0;
-        assert_eq!(phi_harmonic_components(&unresolved).question_score, 25.0);
+        let unresolved_components = phi_harmonic_components(&unresolved);
+        assert_eq!(unresolved_components.question_score, 0.0);
+        assert!(!unresolved_components
+            .missing_inputs
+            .contains(&"clarifications".to_string()));
     }
 
     #[test]
@@ -548,9 +631,14 @@ mod tests {
             components.phi_harmonic_semantic,
             Some(PhiHarmonicSemantic::NotEmpiricalAutonomyProof)
         );
-        assert_eq!(components.phi_time_score, Some(50.0));
-        assert_eq!(components.phi_resource_score, Some(50.0));
-        assert_eq!(components.phi_question_score, Some(75.0));
+        assert_eq!(components.phi_time_score, None);
+        assert_eq!(components.phi_resource_score, None);
+        assert_eq!(components.phi_question_score, None);
+        assert_eq!(components.phi_available_weight, 0.0);
+        assert_eq!(
+            components.phi_missing_inputs,
+            vec!["timing", "joulework", "clarifications"]
+        );
     }
 
     #[test]
@@ -610,6 +698,8 @@ mod tests {
             autonomous_blocking_enabled: false,
             passed: false,
             veto_reason: Some("AURELIUS_FAIL|BACON_FAIL".to_string()),
+            policy_version: legacy_triad_policy_version(),
+            veto: Some(GovernanceVetoReason::gate_failed("aurelius", 2, 1)),
             lenses: vec![
                 GovernanceLensVerdict {
                     lens_id: "aurelius".to_string(),
@@ -636,6 +726,7 @@ mod tests {
                     pass_threshold: 0.50,
                 },
             ],
+            evidence: Default::default(),
         };
 
         let live = calculate_resonance_with_governance_chain(&task, &live_chain, None, None);
@@ -697,6 +788,9 @@ mod tests {
             sun_tzu_score: 0.80,
             passed: false,
             veto_reason: Some("AURELIUS_FAIL".to_string()),
+            policy_version: legacy_triad_policy_version(),
+            veto: Some(GovernanceVetoReason::gate_failed("aurelius", 2, 1)),
+            evidence: Default::default(),
         };
 
         let live_score = calculate_resonance_with_triad(&task, &triad, None, None);
@@ -752,7 +846,10 @@ mod tests {
                     .count()
                     >= 2,
                 veto_reason: None,
+                policy_version: legacy_triad_policy_version(),
+                veto: None,
                 lenses,
+                evidence: Default::default(),
             }
         }
 

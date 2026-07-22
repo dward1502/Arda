@@ -97,4 +97,74 @@ impl ManweConfig {
         }
         self.providers.iter().next().map(|(k, v)| (k.as_str(), v))
     }
+
+    /// Validate static config so misconfiguration fails fast with actionable
+    /// reports instead of late runtime surprises.
+    ///
+    /// Covers tests, compile-time type checks, and runtime-only dangers:
+    /// - providers exist
+    /// - bind parses
+    /// - port is usable
+    /// - base_urls are semicolon-free and not credentials-only
+    /// - api_key paths are not noise
+    pub fn validate(&self) -> Result<(), ConfigError> {
+        if self.providers.is_empty() {
+            return Err(ConfigError::new("no providers configured"));
+        }
+
+        let bind_addr = format!("{}:{}", self.bind, self.port);
+        bind_addr
+            .parse::<std::net::SocketAddr>()
+            .map_err(|e| ConfigError::new(format!("invalid bind/port `{bind_addr}`: {e}")))?;
+
+        for (name, provider) in &self.providers {
+            if provider.base_url.contains(';') {
+                return Err(ConfigError::new(format!(
+                    "provider `{name}` base_url contains semicolons and looks like multiple values; remove extra entries"
+                )));
+            }
+            let looks_like_api_key = provider
+                .base_url
+                .trim_start_matches("http://")
+                .trim_start_matches("https://")
+                .trim_end_matches('/')
+                .chars()
+                .all(|ch| ch.is_ascii_alphanumeric() || ch == '-' || ch == '_');
+            if looks_like_api_key {
+                return Err(ConfigError::new(format!(
+                    "provider `{name}` base_url looks like a credential fragment instead of an endpoint"
+                )));
+            }
+
+            if let Some(api_key) = &provider.api_key {
+                if api_key.chars().all(|ch| ch.is_ascii_whitespace()) {
+                    return Err(ConfigError::new(format!(
+                        "provider `{name}` api_key is whitespace/noise"
+                    )));
+                }
+            }
+        }
+
+        Ok(())
+    }
+}
+
+/// Config validation error.
+#[derive(Debug, thiserror::Error)]
+#[error("manwe config error: {0}")]
+pub struct ConfigError(#[from] pub Box<dyn std::error::Error + Send + Sync + 'static>);
+
+impl ConfigError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self(Box::new(ManweConfigErrorInner {
+            message: message.into(),
+        })
+            as Box<dyn std::error::Error + Send + Sync + 'static>)
+    }
+}
+
+#[derive(Debug, thiserror::Error)]
+#[error("{message}")]
+struct ManweConfigErrorInner {
+    message: String,
 }

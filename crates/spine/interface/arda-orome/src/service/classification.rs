@@ -99,7 +99,7 @@ pub(super) fn classify(service: &HermesService, msg: InboundMessage) -> Result<I
         JouleWorkUnit::Attention,
         "inbound_classified",
     );
-    if let Err(err) = record_bacon_lite(
+    if let Err(err) = enqueue_bacon_lite(
         "hermes",
         "classify",
         &bacon_task,

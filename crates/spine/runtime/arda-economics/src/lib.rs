@@ -7,13 +7,18 @@ pub mod meter;
 pub mod service;
 pub mod transport;
 
-pub use economics::{CostModel, CostModelConfig, EconomicsEngine, LinearCostModel, ROIMetrics};
+pub use economics::{
+    BudgetAlert, CostModel, CostModelConfig, EconomicsEngine, LinearCostModel, ROIMetrics,
+};
 pub use error::{EconomicsError, Result};
 pub use joule_work::{JouleWork, JouleWorkSummary, JouleWorkTracker, JouleWorkUnit};
 pub use ledger::PlutusLedger;
 pub use love_equation::{LoveConfig, LoveEquation, LoveScore};
 pub use meter::{
-    EnergyMeter, EstimatorMeter, JouleSample, MeterRegistry, SampleSource, TariffTable, WorkProfile,
+    EnergyMeter, EstimatorMeter, JouleSample, MeterRegistry, SampleSource, TariffError,
+    TariffTable, WorkProfile,
 };
-pub use service::{PlutusRuntimePaths, PlutusService, PLUTUS_RUNTIME_SCHEMA_VERSION};
+pub use service::{
+    PlutusRuntimeEvent, PlutusRuntimePaths, PlutusService, PLUTUS_RUNTIME_SCHEMA_VERSION,
+};
 pub use transport::{expand_home, PlutusDaemon, PlutusDaemonConfig};

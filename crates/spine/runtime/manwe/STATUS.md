@@ -5,6 +5,8 @@ Status: live / actively supervised runtime component
 
 ## Verified compile/test/runtime snapshot — 2026-07-21/22
 
+last_reviewed: 2026-07-22
+
 The documented checks pass from the workspace root:
 
 | Command | Result |
@@ -14,6 +16,11 @@ The documented checks pass from the workspace root:
 | `cargo check -p manwe --features adaptive` | pass; no Manwe warnings |
 | `cargo test -p manwe --features adaptive` | pass: 157 adaptive library tests + 10 gateway tests |
 | `cargo fmt -p manwe -- --check` | pass |
+
+Behavioral evidence: see `BREAKDOWN.md` + `STATUS.md`
+`2026-07-21/22` validation, plus adaptive-vs-static behavioral tests in
+`src/adaptive/service/route_policy_tests.rs` and static failing-path tests in
+`src/main.rs`.
 
 The default/adaptive feature boundary is restored. `src/types.rs` is the one
 canonical Manwe domain type surface, and adaptive modules re-export those types
@@ -28,10 +35,18 @@ the exact expected `MANWE_OK` answer, and recorded 22.94 generation tokens/secon
 7.648 seconds total latency, and quality score 1.0 in
 `data/manwe/route_receipts.jsonl`.
 
-Resource-group serialization was also exercised live against two simultaneous
+- Resource-group serialization was also exercised live against two simultaneous
 requests to logical lanes on `annunimas-server`: capabilities reported
 `active=1`, `queued=1`, `limit=1`; both requests returned HTTP 200 sequentially.
 The temporary `:17171` process was stopped after verification.
+- Resource-group defaults are concurrency `1` and queue timeout `30s`. Env
+overrides are `ARDA_MANWE_RESOURCE_GROUP_CONCURRENCY` and
+`ARDA_MANWE_RESOURCE_GROUP_QUEUE_TIMEOUT_SECONDS`, both validated as positive
+integers; bad values keep the defaults.
+Local inference surface preference is enabled for adaptive `execution`/`background`
+lanes via `ARDA_LOCAL_INFERENCE_SURFACE` in
+`crates/spine/runtime/manwe/src/adaptive/service/route_selection.rs`; supported
+values are `mesh`, `llamacpp`, and `hybrid`.
 
 ## What it does
 
@@ -100,3 +115,7 @@ Relevant verified references:
 - if no providers are configured, inference will 503
 - upstream credential/bind mismatches are runtime-only; no compile-time validation
 - future auth/governance injection points are still stubs; treaty over gate may change response headers later
+- gRPC files/state/types exist and compile behind `--features grpc`; the default
+  binary path still does not serve gRPC unless both `--features grpc` and `--grpc`
+  are provided. When enabled, it binds `MANWE_GRPC_PORT` or `0.0.0.0:50051` by default and
+  exposes `HealthModelService` + `RouteGovernanceService`.

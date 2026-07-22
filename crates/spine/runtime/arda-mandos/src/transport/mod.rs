@@ -66,6 +66,7 @@ impl OracleDaemon {
     }
 }
 
+#[cfg(feature = "http")]
 fn join_error(err: tokio::task::JoinError) -> arda_core::error::ArdaError {
     arda_core::error::ArdaError::Agent {
         agent: "oracle".to_string(),

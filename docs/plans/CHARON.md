@@ -52,7 +52,10 @@ The live `manwe`/ex-CHARON contract is represented by these primary surfaces:
 2. Provider health and cooldown state exported for operator and ARDA visibility.
 3. Route-class policy including task capability, context window, streaming,
    structured-output, tool, latency, privacy, and execution-lane constraints.
-4. Static/local OpenAI-compatible HTTP gateway behavior with config reload
+4. Local inference surface preference for adaptive `execution`/`background`
+   lanes via `ARDA_LOCAL_INFERENCE_SURFACE=` `mesh|llamacpp|hybrid`; unknown
+   values fall back to `hybrid`.
+5. Static/local OpenAI-compatible HTTP gateway behavior with config reload
    through `manwe.toml` and optional fleet hydration.
 5. Serialized/observable runtime evidence where malformed records are surfaced
    rather than silently hidden.

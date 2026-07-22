@@ -2666,6 +2666,7 @@ dependencies = [
  "chrono",
  "clap",
  "fs2",
+ "futures",
  "prost-build 0.13.5",
  "rand 0.8.7",
  "regex",

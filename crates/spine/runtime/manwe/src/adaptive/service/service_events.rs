@@ -1,3 +1,4 @@
+#[cfg(feature = "telemetry")]
 use std::sync::OnceLock;
 
 use crate::adaptive::service::types::CharonService;

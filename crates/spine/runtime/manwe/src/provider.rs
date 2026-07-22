@@ -50,6 +50,7 @@ pub struct ProviderCapabilities {
 }
 
 impl ProviderDefinition {
+    #[cfg(test)]
     pub fn openai_compatible(
         id: impl Into<String>,
         name: impl Into<String>,
@@ -128,8 +129,7 @@ struct FleetNode {
     enrollment_status: Option<String>,
     base_url: Option<String>,
     runtime_port: Option<u16>,
-    runtime_backend: Option<String>,
-    runtime_host: Option<String>,
+
     models_url: Option<String>,
     health_url: Option<String>,
     #[serde(default)]
@@ -162,6 +162,7 @@ pub struct ProviderCatalog {
 }
 
 impl ProviderCatalog {
+    #[cfg(test)]
     pub fn new(injected: Vec<ProviderDefinition>) -> Self {
         let mut by_id = HashMap::new();
         for entry in injected {
@@ -184,6 +185,7 @@ impl ProviderCatalog {
         self.by_id.insert(provider.id.clone(), provider);
     }
 
+    #[cfg(test)]
     pub fn get(&self, id: &str) -> Option<&ProviderDefinition> {
         self.by_id.get(id)
     }
@@ -296,6 +298,7 @@ impl ProviderCatalog {
         }
     }
 
+    #[cfg(test)]
     pub fn local_placeholder(&self) -> Option<&ProviderDefinition> {
         self.get("local_placeholder")
     }
@@ -326,10 +329,6 @@ impl ProviderCatalog {
             catalog.insert(ProviderDefinition::from_fleet_node(key, &node));
         }
         catalog
-    }
-
-    pub fn refresh(&mut self, path: impl AsRef<Path>) {
-        *self = Self::from_fleet_config(path);
     }
 }
 

@@ -61,20 +61,30 @@ The live `manwe`/ex-CHARON contract is represented by these primary surfaces:
 
 ## Observed Runtime State
 
-The current `manwe` default static surface is active; adaptive-mode rebuild is
-deferred:
+The default and adaptive Manwe surfaces compile and test independently:
 
-- Default static gateway is live on `127.0.0.1:7171`.
-- `/healthz`, `/v1/models`, and `/v1/chat/completions` are exposed.
-- `/v1/chat/completions` resolves provider by prefix or `default_provider`
-  and forwards upstream with optional bearer auth.
-- Adaptive subtree exists under `src/adaptive/`, but `--features adaptive`
-  currently fails at baseline rebuild with unresolved
-  `arda_economics` / `arda_governance` / `arda_vaire` references and
-  `pub(super)` visibility/method access failures across sibling modules.
-- Some adaptive behaviors are in placeholder/stub form:
-  lane fitness snapshots, route selection, adaptive routing adapter error
-  path, and route policy tests.
+- Default static gateway targets `127.0.0.1:7171`.
+- `/healthz`, `/v1/models`, `/v1/capabilities`, and
+  `/v1/chat/completions` are exposed.
+- `src/types.rs` is the canonical domain type surface for both modes.
+- `--features adaptive` activates fleet health/model probing, deterministic
+  health/capability/context/task-fit selection, physical resource-group
+  serialization, streaming proxy transport, and route receipts.
+- gRPC is independently gated behind `--features grpc`; requesting an omitted
+  runtime feature fails explicitly instead of silently degrading.
+- Fleet state refreshes from `config/fleet.toml` every 60 seconds. A node must
+  answer its probe and expose its configured model before becoming routable.
+- Non-streaming routed requests record latency, token counts, generation
+  throughput, finish reason, answer/reasoning posture, and optional exact-match
+  quality in `data/manwe/route_receipts.jsonl`.
+
+Verified temporary-port evidence on 2026-07-21/22:
+
+- seven configured providers; four healthy/model-confirmed
+- adaptive reasoning route selected `edge_backbone_bonsai27`
+- HTTP 200, exact `MANWE_OK`, 22.94 generation tokens/second, quality 1.0
+- simultaneous same-host requests exposed `active=1`, `queued=1`, `limit=1`
+  and both completed sequentially with HTTP 200
 
 ## Implementation Status
 
@@ -88,40 +98,54 @@ deferred:
 - `/v1/models` and `/healthz` are exposed for operator/HUD consumption.
 - `/v1/chat/completions` resolves provider by prefix or `default_provider`
   and forwards upstream with optional bearer auth.
-- Fleet bootstrap path exists in integration/documentation paths, but active
-  repair status should be verified before relying on fleet hydration.
-- Adaptive subtree exists under `src/adaptive/` as deferred/feature-gated work.
+- Fleet-backed discovery and dispatch share one live catalog.
+- Adaptive hard filters enforce observed health, model presence, modality, and
+  requested context before task-fit scoring.
+- Resource groups are derived from physical fleet hostname and default to one
+  active request per host, with bounded queueing.
+- Route receipts provide real throughput and basic outcome-quality evidence.
+- Default, adaptive, and gRPC dependencies are separated by feature boundaries.
+- Adaptive subtree compiles and its test suite is active.
 - gRPC module files exist in the crate; server wiring is not active on the
   default path.
 
 ### Degraded / Blocked
 
-- `--features adaptive` fails at baseline rebuild with unresolved
-  `arda_economics`, `arda_governance`, `arda_vaire` references and
-  `pub(super)` visibility/method access failures across sibling modules.
-- Some adaptive behaviors are in placeholder/stub form:
-  lane fitness snapshots, route selection, adaptive routing adapter error
-  path, and route policy tests.
-- Fleet/service bootstrap loading is deferred in active repair status;
-  do not treat health probes or recovery scripts as fully trusted until
-  adaptive baseline is restored or the static path is explicitly validated.
+- Governance/quota/bandit modules compile and are tested, but the stable HTTP
+  dispatch authority currently uses deterministic hard filters and task-fit
+  scoring rather than the full adaptive service policy stack.
+- Streaming requests hold resource-group capacity through stream lifetime, but
+  their receipts stop at dispatch/header evidence; final streaming token and
+  quality accounting remains follow-up work.
+- Resource-group concurrency is currently a global default rather than a
+  per-host value declared in `config/fleet.toml`.
+- Quality scoring is intentionally basic: completion/finish posture plus an
+  optional exact-answer expectation. It is not yet a benchmark or judge model.
 
 ### Follow-up Work
 
-1. Restore adaptive baseline behind bounded feature layers.
-   - Revisit `src/adaptive/service/*` visibility/type failures together.
-   - Restore a known-good subset before broader rebuild.
-2. Provider mesh health repair.
-   - Re-probe local provider availability and embedded-Ollama fallback.
-   - Repair any fleet-node health gaps before routing through fleet config.
-3. Metrics/observability alignment.
+1. Unify deterministic HTTP authority with the deeper adaptive policy stack.
+   - Preserve health/context/modality/resource gates as non-overridable filters.
+   - Add quota, governance, and learning inputs incrementally behind tests.
+2. Extend resource policy.
+   - Add per-host concurrency limits to fleet configuration.
+   - Prefer alternate eligible resource groups before queueing when task fit is
+     equivalent.
+3. Extend receipt quality.
+   - Finalize token/quality receipts when streaming responses complete.
+   - Add bounded task-class benchmark receipts without placing judge work on
+     constrained edge nodes.
+4. Provider mesh health repair.
+   - Repair or intentionally retire the three currently unreachable backbone
+     services and the inactive Carnice lane.
+5. Metrics/observability alignment.
    - Align with workspace-wide metrics conventions before adding `/metrics`
      to `manwe`.
    - Keep label cardinality bounded:
      fleet/node/crate/route_class/provider_id/model.
    - Add request counters, failover counters, quota-burn counters, and
      route latency histograms only after the shared convention is selected.
-4. Operator documentation.
+6. Operator documentation.
    - Keep this human plan synchronized with `crates/spine/runtime/manwe`
      and `crates/spine/runtime/manwe/src/grpc_types.rs` for router/provider
      state evidence.

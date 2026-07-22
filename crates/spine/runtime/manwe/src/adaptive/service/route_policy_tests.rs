@@ -1,7 +1,6 @@
 use super::super::route_scoring::*;
 use super::super::status::PackageRuntimeSignals;
 use super::*;
-use crate::adaptive::service::route_sessions::RouteHistoryEntry;
 use crate::adaptive::service::types::{ManweRequestEnvelope, ModelState, ProviderState};
 use chrono::Utc;
 use std::collections::BTreeMap;

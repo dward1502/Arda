@@ -3,42 +3,43 @@
 Crate: `crates/spine/runtime/manwe`
 Status: live / actively supervised runtime component
 
-## Verified compile/test snapshot — 2026-07-21 16:27 PDT
+## Verified compile/test/runtime snapshot — 2026-07-21/22
 
-The three commands documented in `docs/plans/CHARON.md` were run from the
-workspace root. None currently pass:
+The documented checks pass from the workspace root:
 
-| Command | Result | Primary evidence |
-|---|---|---|
-| `cargo check -p manwe` | failed | 35 errors, 2 warnings: E0432 ×9 and E0282 ×26 |
-| `cargo test -p manwe` | failed during compilation | 305 errors, 2 warnings; 255 diagnostics originate in `route_policy_tests.rs` |
-| `cargo check -p manwe --features adaptive` | failed | same 35 errors and 2 warnings as the default check |
+| Command | Result |
+|---|---|
+| `cargo check -p manwe` | pass |
+| `cargo test -p manwe` | pass: 10 tests |
+| `cargo check -p manwe --features adaptive` | pass; no Manwe warnings |
+| `cargo test -p manwe --features adaptive` | pass: 157 adaptive library tests + 10 gateway tests |
+| `cargo fmt -p manwe -- --check` | pass |
 
-The first blocking defect is a partial `CharonRequestEnvelope` →
-`ManweRequestEnvelope` rename. `src/adaptive/types.rs` defines only
-`ManweRequestEnvelope`, while nine adaptive service imports/re-exports still request
-`CharonRequestEnvelope`. The 26 E0282 inference errors are downstream fallout from
-that missing request type, concentrated in `route_policy.rs`,
-`route_selection.rs`, `route_sessions.rs`, and `bandit.rs`.
+The default/adaptive feature boundary is restored. `src/types.rs` is the one
+canonical Manwe domain type surface, and adaptive modules re-export those types
+instead of defining incompatible duplicates. gRPC is independently gated behind
+the `grpc` feature.
 
-The default and adaptive checks are currently identical because `src/lib.rs`
-unconditionally declares `pub mod adaptive`; the `adaptive = []` feature does not
-isolate the adaptive subtree. The stable gateway therefore no longer has the clean
-default-build boundary described below.
+Live validation on temporary port `127.0.0.1:17171` found seven configured fleet
+providers and four healthy/model-confirmed providers. `/healthz`, `/v1/models`,
+`/v1/capabilities`, and `/v1/chat/completions` all returned successfully. An
+adaptive reasoning request selected `edge_backbone_bonsai27`, returned HTTP 200 and
+the exact expected `MANWE_OK` answer, and recorded 22.94 generation tokens/second,
+7.648 seconds total latency, and quality score 1.0 in
+`data/manwe/route_receipts.jsonl`.
 
-Test compilation exposes a second layer after the same root failure: stale CHARON
-symbols in `route_policy_tests.rs`, duplicate and incompatible root/adaptive
-`ModelState` types, and tests that still expect `CharonService::new` to return a
-`Result`. These should be repaired only after restoring one canonical adaptive type
-surface and the default feature boundary.
+Resource-group serialization was also exercised live against two simultaneous
+requests to logical lanes on `annunimas-server`: capabilities reported
+`active=1`, `queued=1`, `limit=1`; both requests returned HTTP 200 sequentially.
+The temporary `:17171` process was stopped after verification.
 
 ## What it does
 
 `manwe` is the local OpenAI-compatible inference gateway. It listens on `127.0.0.1:7171`
-and serves `/v1/chat/completions` + `/v1/models`. Requests are forwarded to upstream
-providers from a static TOML-backed provider catalog; the gateway is intentionally thin
-and does not perform adaptive routing, quota meshing, or request transformation beyond
-stripping the local `provider/model` prefix before forwarding.
+and serves `/v1/chat/completions` + `/v1/models`. Its default build preserves explicit
+model/provider routing. The `adaptive` feature adds fleet health/model probes,
+deterministic capability/context/task-fit selection, bounded resource-group
+concurrency, streaming proxying, and route quality/throughput receipts.
 
 Core current surface:
 - binary runtime: `src/main.rs`
@@ -83,11 +84,16 @@ Relevant verified references:
 
 ## Reception / known gaps
 
-- current integration: files define a `CharonRemote` and authority trait shims, but these surface runtime `NotImplemented` gaps now; error translation is best-effort
-- adaptive routing: explicitly deferred; there is no quota mesh or runtime rerouting in the stable root
-- provider catalog is static; governance/governed transport selection is not complete
-- placeholder counters exist in `ProviderCatalog` for migration staging, but real governance sources are not wired yet
-- error path conventions are inconsistent in small places (e.g. `local_placeholder` vs `local` usage, misnamed log line in one branch)
+- adaptive routing currently uses deterministic hard filtering plus task-fit scoring;
+  bandit learning is not allowed to override health, context, modality, or resource gates
+- governance and quota-mesh policy exist in the adaptive subtree but are not yet the
+  authority used by the stable HTTP dispatch path
+- non-streaming responses produce complete throughput/quality receipts; streaming
+  responses currently produce dispatch/header receipts without final token-quality data
+- physical resource groups default to concurrency 1 and queue for 30 seconds; these are
+  configurable with `ARDA_MANWE_RESOURCE_GROUP_CONCURRENCY` and
+  `ARDA_MANWE_RESOURCE_GROUP_QUEUE_TIMEOUT_SECONDS`
+- provider health is refreshed every 60 seconds; enrollment alone never implies health
 
 ## Risks to monitor
 

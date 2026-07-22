@@ -9,6 +9,8 @@ mod config;
 #[cfg(feature = "grpc")]
 mod grpc;
 mod provider;
+mod receipts;
+mod resource_limits;
 
 use std::net::SocketAddr;
 use std::path::PathBuf;
@@ -23,10 +25,14 @@ use axum::{
     Json, Router,
 };
 use clap::Parser;
+use futures::StreamExt;
 use serde_json::{json, Value};
+use std::time::Instant;
 
 use config::ManweConfig;
 use provider::{ProviderCatalog, ProviderDefinition};
+use receipts::{receipt_from_response, ReceiptWriter};
+use resource_limits::ResourceGroupLimiter;
 use tokio::sync::RwLock;
 
 #[derive(Parser, Debug)]
@@ -54,6 +60,8 @@ struct AppState {
     client: reqwest::Client,
     adaptive: bool,
     catalog: Arc<RwLock<ProviderCatalog>>,
+    resource_limits: ResourceGroupLimiter,
+    receipts: ReceiptWriter,
 }
 
 #[tokio::main]
@@ -98,6 +106,8 @@ async fn main() -> anyhow::Result<()> {
         client: client.clone(),
         adaptive,
         catalog: catalog.clone(),
+        resource_limits: ResourceGroupLimiter::default(),
+        receipts: ReceiptWriter::new("data/manwe/route_receipts.jsonl"),
     };
 
     tokio::spawn(refresh_fleet_catalog(catalog, client));
@@ -191,6 +201,8 @@ async fn manifest_capabilities(State(state): State<AppState>) -> Response {
     let catalog = state.catalog.read().await;
     let fleet_providers = catalog.len();
     let healthy = catalog.healthy_count();
+    drop(catalog);
+    let resource_groups = state.resource_limits.snapshots().await;
     Json(json!({
         "mode": mode,
         "adaptive_routing": state.adaptive,
@@ -200,6 +212,8 @@ async fn manifest_capabilities(State(state): State<AppState>) -> Response {
         "configured_providers": configured,
         "healthy_providers": healthy,
         "fleet_providers": fleet_providers,
+        "resource_groups": resource_groups,
+        "route_receipts": state.receipts.path(),
     }))
     .into_response()
 }
@@ -267,7 +281,16 @@ async fn chat_completions(State(state): State<AppState>, Json(req): Json<Value>)
     };
 
     if let Some(provider) = provider {
-        return proxy_fleet_provider(state.client, provider, req, state.adaptive).await;
+        return proxy_fleet_provider(
+            state.client,
+            provider,
+            req,
+            state.adaptive,
+            task_type,
+            state.resource_limits,
+            state.receipts,
+        )
+        .await;
     }
 
     if state.adaptive {
@@ -327,7 +350,51 @@ async fn proxy_fleet_provider(
     provider: ProviderDefinition,
     mut req: Value,
     adaptive: bool,
+    task_type: String,
+    resource_limits: ResourceGroupLimiter,
+    receipts: ReceiptWriter,
 ) -> Response {
+    let resource_group = provider
+        .resource_group
+        .clone()
+        .unwrap_or_else(|| provider.id.clone());
+    let started = Instant::now();
+    let lease = match resource_limits.acquire(&resource_group).await {
+        Ok(lease) => lease,
+        Err(error) => {
+            let receipt = receipt_from_response(
+                provider.id.clone(),
+                provider.model_id.clone(),
+                resource_group,
+                task_type,
+                if adaptive { "adaptive" } else { "static" }.to_string(),
+                false,
+                StatusCode::SERVICE_UNAVAILABLE.as_u16(),
+                started.elapsed().as_millis() as u64,
+                None,
+                None,
+                Some(error.clone()),
+            );
+            if let Err(write_error) = receipts.append(&receipt).await {
+                tracing::warn!("failed to append Manwe route receipt: {write_error}");
+            }
+            return (
+                StatusCode::SERVICE_UNAVAILABLE,
+                Json(json!({ "error": { "message": error, "type": "manwe_resource_busy" } })),
+            )
+                .into_response();
+        }
+    };
+
+    let expected_exact = req
+        .get("manwe_quality_expectation")
+        .and_then(|expectation| expectation.get("exact"))
+        .and_then(Value::as_str)
+        .map(str::to_string);
+    if let Some(object) = req.as_object_mut() {
+        object.remove("manwe_quality_expectation");
+    }
+    let streaming = req.get("stream").and_then(Value::as_bool).unwrap_or(false);
     req["model"] = Value::String(provider.model_id.clone());
     let upstream = format!(
         "{}/chat/completions",
@@ -348,8 +415,9 @@ async fn proxy_fleet_provider(
             let content_type = response.headers().get(header::CONTENT_TYPE).cloned();
             let mut builder = Response::builder()
                 .status(status)
-                .header("x-manwe-provider", provider.id)
-                .header("x-manwe-model", provider.model_id)
+                .header("x-manwe-provider", provider.id.clone())
+                .header("x-manwe-model", provider.model_id.clone())
+                .header("x-manwe-resource-group", resource_group.clone())
                 .header(
                     "x-manwe-routing-mode",
                     if adaptive { "adaptive" } else { "static" },
@@ -357,26 +425,114 @@ async fn proxy_fleet_provider(
             if let Some(content_type) = content_type {
                 builder = builder.header(header::CONTENT_TYPE, content_type);
             }
-            builder
-                .body(Body::from_stream(response.bytes_stream()))
-                .unwrap_or_else(|_| {
+
+            if streaming {
+                let receipt = receipt_from_response(
+                    provider.id,
+                    provider.model_id,
+                    resource_group,
+                    task_type,
+                    if adaptive { "adaptive" } else { "static" }.to_string(),
+                    true,
+                    status.as_u16(),
+                    started.elapsed().as_millis() as u64,
+                    expected_exact,
+                    None,
+                    None,
+                );
+                if let Err(error) = receipts.append(&receipt).await {
+                    tracing::warn!("failed to append Manwe route receipt: {error}");
+                }
+                let stream_lease = lease.clone();
+                let guarded_stream = response.bytes_stream().map(move |item| {
+                    let _keep_resource_lease_alive = &stream_lease;
+                    item
+                });
+                drop(lease);
+                return builder
+                    .body(Body::from_stream(guarded_stream))
+                    .unwrap_or_else(|_| {
+                        (
+                            StatusCode::BAD_GATEWAY,
+                            Json(json!({ "error": { "message": "manwe: failed to construct upstream response", "type": "manwe_error" } })),
+                        )
+                            .into_response()
+                    });
+            }
+
+            match response.bytes().await {
+                Ok(bytes) => {
+                    let body = serde_json::from_slice::<Value>(&bytes).ok();
+                    let receipt = receipt_from_response(
+                        provider.id,
+                        provider.model_id,
+                        resource_group,
+                        task_type,
+                        if adaptive { "adaptive" } else { "static" }.to_string(),
+                        false,
+                        status.as_u16(),
+                        started.elapsed().as_millis() as u64,
+                        expected_exact,
+                        body.as_ref(),
+                        None,
+                    );
+                    if let Err(error) = receipts.append(&receipt).await {
+                        tracing::warn!("failed to append Manwe route receipt: {error}");
+                    }
+                    drop(lease);
+                    builder
+                        .body(Body::from(bytes))
+                        .unwrap_or_else(|_| StatusCode::BAD_GATEWAY.into_response())
+                }
+                Err(error) => {
+                    let receipt = receipt_from_response(
+                        provider.id,
+                        provider.model_id,
+                        resource_group,
+                        task_type,
+                        if adaptive { "adaptive" } else { "static" }.to_string(),
+                        false,
+                        StatusCode::BAD_GATEWAY.as_u16(),
+                        started.elapsed().as_millis() as u64,
+                        expected_exact,
+                        None,
+                        Some(error.to_string()),
+                    );
+                    if let Err(write_error) = receipts.append(&receipt).await {
+                        tracing::warn!("failed to append Manwe route receipt: {write_error}");
+                    }
                     (
                         StatusCode::BAD_GATEWAY,
-                        Json(json!({ "error": { "message": "manwe: failed to construct upstream response", "type": "manwe_error" } })),
+                        Json(json!({ "error": { "message": "manwe: failed to read upstream response", "type": "manwe_error" } })),
                     )
                         .into_response()
-                })
-        }
-        Err(error) => (
-            StatusCode::BAD_GATEWAY,
-            Json(json!({
-                "error": {
-                    "message": format!("manwe: upstream {} unreachable: {error}", provider.id),
-                    "type": "manwe_error"
                 }
-            })),
-        )
-            .into_response(),
+            }
+        }
+        Err(error) => {
+            let message = format!("manwe: upstream {} unreachable: {error}", provider.id);
+            let receipt = receipt_from_response(
+                provider.id,
+                provider.model_id,
+                resource_group,
+                task_type,
+                if adaptive { "adaptive" } else { "static" }.to_string(),
+                streaming,
+                StatusCode::BAD_GATEWAY.as_u16(),
+                started.elapsed().as_millis() as u64,
+                expected_exact,
+                None,
+                Some(message.clone()),
+            );
+            if let Err(write_error) = receipts.append(&receipt).await {
+                tracing::warn!("failed to append Manwe route receipt: {write_error}");
+            }
+            (
+                StatusCode::BAD_GATEWAY,
+                Json(json!({ "error": { "message": message, "type": "manwe_error" } })),
+            )
+                .into_response()
+        }
     }
 }
 

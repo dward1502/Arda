@@ -6,12 +6,12 @@ Items with [ ] pending; [~] in progress; [x] done.
 
 ## Baseline (verified)
 - [x] Read live source/crate state
-- [x] `cargo check -p arda-orome` passes (exit 0)
-- [x] `cargo test -p arda-orome` passes (0 tests currently)
-- [x] grep actual `arda-orome` import consumers across workspace (6 files found)
+- [x] `cargo check -p arda-orome` passes
+- [x] `cargo test -p arda-orome` passes (7 tests, 0 failures)
+- [x] grep actual `arda-orome` import consumers across workspace (6 crates/consumers)
 - [x] Document cross-references resolved (`HERMES.md`, `CHARON.md`, `INDEX.md`)
 - [x] Crate manifest repaired: added `serenity`, `async-trait`
-- [x] Module registration fixed (`service/pkg` vs `service.rs` duplicate)
+- [x] Module registration fixed (`service.rs` duplicate removed, `service::` pkg retained)
 
 ## Hermes open tasks from docs/plans/HERMES.md
 - [ ] richer provider adapters and live streaming surfaces
@@ -33,5 +33,10 @@ Items with [ ] pending; [~] in progress; [x] done.
 ## Immediate first-step
 - [x] capture this checklist
 - [x] inspect `src/lib.rs` module registration vs surfaced items
-- [x] fix crate manifest and module registration compile errors
-- [ ] add first unit tests for router retry/expiry and intent classification
+- [x] add first unit tests for router retry/expiry
+- [x] `cargo test -p arda-orome` green with 7 tests
+
+## Live evidence
+- `crates/spine/interface/arda-orome/src/intent.rs:162` — 2 intent tests
+- `crates/spine/interface/arda-orome/src/message_retry_expiry.rs` — 5 new tests
+- `src/lib.rs` — `#[cfg(test)]` module entries for test-only coverage

@@ -13,7 +13,7 @@ soterion:
 
 # src
 
-Purpose: Source map for `crates/arda-governance/src`.
+Purpose: Source map for `crates/spine/governance/arda-governance/src`.
 
 ## Contents
 

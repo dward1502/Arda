@@ -14,6 +14,10 @@ use crate::types::{
 };
 use arda_core::daemon::{CommandEnvelope, ResponseEnvelope};
 use arda_core::error::{ArdaError, Result};
+use arda_core::orome_runtime::{
+    AgentRegistryState, OromeCoreRuntimeState, SharedRegistryStateStorage, SharedRouterStateStorage,
+    OromeRuntimeStateError,
+};
 use arda_core::task::Task;
 use arda_core::{spawn_bounded_background, try_run_bounded_async};
 use arda_governance::{record_bacon_lite, triad_validate, TriadConfig};
@@ -78,6 +82,8 @@ pub struct HermesService {
     providers: Arc<ProviderRuntime>,
     seen_inbound_ids: Arc<Mutex<HashSet<String>>>,
     reroute_timestamps: Arc<StdMutex<VecDeque<std::time::Instant>>>,
+    registry_state: SharedRegistryStateStorage,
+    router_state: SharedRouterStateStorage,
 }
 
 impl HermesService {
@@ -113,7 +119,6 @@ mod tests {
         InterruptionMessage, OperatingRoomEventKind, OutboundMessage, PromotionState,
     };
     use arda_core::try_run_bounded_async;
-    use arda_plutus::PlutusService;
     use async_trait::async_trait;
     use std::fs;
     use std::sync::Arc;

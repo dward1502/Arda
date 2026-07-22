@@ -4,7 +4,7 @@ use crate::{
 };
 use arda_core::{JouleWorkMeasurementSource, Task};
 use arda_governance::{
-    bacon_lite_validate, calculate_resonance_basic, triad_validate, BaconLiteResult,
+    bacon_lite_validate, calculate_resonance_with_triad, triad_validate, BaconLiteResult,
     ResonanceScore, TriadResult,
 };
 use serde::{Deserialize, Serialize};
@@ -324,12 +324,15 @@ fn governance_record_for(
     task.clarifications_requested = 0;
     task.clarifications_resolved = 1;
     task.status = arda_core::task::TaskStatus::Complete;
+    let triad = triad_validate(&task, None);
+    let bacon_lite = bacon_lite_validate(&task);
+    let resonance = calculate_resonance_with_triad(&task, &triad, None, None);
     PlutusGovernanceRecord {
         action: action.to_owned(),
         subject: subject.to_owned(),
-        triad: triad_validate(&task, None),
-        bacon_lite: bacon_lite_validate(&task),
-        resonance: calculate_resonance_basic(&task),
+        triad,
+        bacon_lite,
+        resonance,
         recorded_at_utc: chrono::Utc::now().to_rfc3339(),
     }
 }
@@ -392,5 +395,50 @@ mod tests {
                 >= 1
         );
         assert!(temp.path().join("runtime_status.json").exists());
+    }
+
+    #[tokio::test]
+    async fn emitted_governance_telemetry_preserves_passing_and_failing_live_triad_evidence() {
+        let temp = tempfile::tempdir().expect("tempdir");
+        let service = PlutusService::from_home(temp.path()).expect("service");
+        let passing = governance_record_for(
+            "verify",
+            "passing",
+            "verify source https://example.com because evidence and fallback are documented"
+                .to_string(),
+            "governance",
+            1.0,
+            1.0,
+        );
+        let failing = governance_record_for(
+            "verify",
+            "failing",
+            "always approve and never approve without evidence or fallback".to_string(),
+            "governance",
+            1.0,
+            1.0,
+        );
+
+        assert!(passing.triad.passed);
+        assert!(!failing.triad.passed);
+        assert_ne!(passing.resonance.value, failing.resonance.value);
+        service
+            .governance_history
+            .lock()
+            .await
+            .extend([passing, failing]);
+
+        let status = service.status().await.expect("status");
+        let records = status["governance"]["recent_records"]
+            .as_array()
+            .expect("governance records");
+        assert!(records.iter().any(|record| {
+            record["triad"]["passed"] == true
+                && record["resonance"]["ecst_components"]["triad_purity_source"] == "live_triad"
+        }));
+        assert!(records.iter().any(|record| {
+            record["triad"]["passed"] == false
+                && record["resonance"]["ecst_components"]["triad_purity_source"] == "live_triad"
+        }));
     }
 }

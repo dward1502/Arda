@@ -67,6 +67,8 @@ impl HermesService {
             providers: Arc::new(ProviderRuntime::from_defaults()),
             seen_inbound_ids: Arc::new(Mutex::new(HashSet::new())),
             reroute_timestamps: Arc::new(StdMutex::new(VecDeque::new())),
+            registry_state: SharedRegistryStateStorage::default(),
+            router_state: SharedRouterStateStorage::default(),
         })
     }
 
@@ -200,5 +202,13 @@ impl HermesService {
                 tracing::debug!(error = %err, "failed to emit HERMES mnemosyne event");
             }
         }
+    }
+
+    pub fn registry_state(&self) -> SharedRegistryStateStorage {
+        self.registry_state.clone()
+    }
+
+    pub fn router_state(&self) -> SharedRouterStateStorage {
+        self.router_state.clone()
     }
 }

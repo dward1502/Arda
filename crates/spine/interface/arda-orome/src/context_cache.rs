@@ -1,5 +1,5 @@
 // sigil: EDGE_NODE_INTEGRATION
-// Purpose: LRU cache for enriched context to reduce Mnemosyne queries
+// Purpose: LRU/TTL cache for enriched context; async wrapper provided below
 
 use std::collections::{HashMap, VecDeque};
 use std::hash::Hash;
@@ -45,10 +45,9 @@ impl<K: Eq + Hash + Clone, V> ContextCache<K, V> {
         }
     }
 
-    /// Get a reference to the value if present and not expired
+    /// Get a value if present and not expired
     pub fn get(&mut self, key: &K) -> Option<&V> {
         let now = Instant::now();
-        // First, check if the key exists and get an immutable reference
         let is_expired = {
             if let Some((_, timestamp)) = self.cache.get(key) {
                 now.duration_since(*timestamp) > self.ttl
@@ -58,7 +57,6 @@ impl<K: Eq + Hash + Clone, V> ContextCache<K, V> {
             }
         };
         if is_expired {
-            // Expired, remove from cache and LRU
             self.cache.remove(key);
             if let Some(pos) = self.lru.iter().position(|k| k == key) {
                 self.lru.remove(pos);
@@ -66,36 +64,29 @@ impl<K: Eq + Hash + Clone, V> ContextCache<K, V> {
             self.metrics.misses.fetch_add(1, Ordering::Relaxed);
             None
         } else {
-            // Update LRU: move to end (most recently used)
             if let Some(pos) = self.lru.iter().position(|k| k == key) {
                 self.lru.remove(pos);
             }
             self.lru.push_back(key.clone());
             self.metrics.hits.fetch_add(1, Ordering::Relaxed);
-            // Return the value
             Some(&self.cache[key].0)
         }
     }
 
     /// Insert a key-value pair into the cache
     pub fn put(&mut self, key: K, value: V) {
-        let now = Instant::now();
-        let entry = (value, now);
-
         if self.cache.contains_key(&key) {
-            // Update existing: remove from LRU and reinsert
             if let Some(pos) = self.lru.iter().position(|k| k == &key) {
                 self.lru.remove(pos);
             }
         } else if self.lru.len() >= self.max_entries {
-            // Evict least recently used
             if let Some(oldest) = self.lru.pop_front() {
                 self.cache.remove(&oldest);
                 self.metrics.evictions.fetch_add(1, Ordering::Relaxed);
             }
         }
 
-        self.cache.insert(key.clone(), entry);
+        self.cache.insert(key.clone(), (value, Instant::now()));
         self.lru.push_back(key);
         self.metrics.size.store(self.cache.len(), Ordering::Relaxed);
     }
@@ -120,17 +111,17 @@ impl<K: Eq + Hash + Clone, V> ContextCache<K, V> {
         self.metrics.size.store(0, Ordering::Relaxed);
     }
 
-    /// Get the number of entries
+    /// Number of entries
     pub fn len(&self) -> usize {
         self.cache.len()
     }
 
-    /// Check if cache is empty
+    /// True when empty
     pub fn is_empty(&self) -> bool {
         self.cache.is_empty()
     }
 
-    /// Get a snapshot of the metrics
+    /// Metrics snapshot
     pub fn metrics(&self) -> CacheMetrics {
         CacheMetrics {
             hits: self.metrics.hits.load(Ordering::Relaxed),
@@ -138,5 +129,44 @@ impl<K: Eq + Hash + Clone, V> ContextCache<K, V> {
             size: self.metrics.size.load(Ordering::Relaxed),
             evictions: self.metrics.evictions.load(Ordering::Relaxed),
         }
+    }
+}
+
+/// Async wrapper around an LRU/TTL cache, bounded by `max_entries`.
+pub struct AsyncContextCache<K: Eq + Hash + Clone, V> {
+    inner: std::sync::Mutex<ContextCache<K, V>>,
+}
+
+impl<K: Eq + Hash + Clone, V> AsyncContextCache<K, V> {
+    /// Create a new bounded async cache.
+    pub fn new(max_entries: usize, ttl: Duration) -> Self {
+        Self {
+            inner: std::sync::Mutex::new(ContextCache::new(max_entries, ttl)),
+        }
+    }
+
+    /// Get a value without removing it.
+    pub async fn get(&self, key: &K) -> Option<V>
+    where
+        V: Clone,
+    {
+        let mut guard = self.inner.lock().ok()?;
+        guard.get(key).cloned()
+    }
+
+    /// Insert a value, evicting oldest entry if over capacity.
+    pub async fn put(&self, key: K, value: V) {
+        if let Ok(mut guard) = self.inner.lock() {
+            guard.put(key, value);
+        }
+    }
+
+    /// Current metrics snapshot.
+    pub async fn metrics(&self) -> CacheMetrics {
+        let guard = match self.inner.lock() {
+            Ok(g) => g,
+            Err(_) => return CacheMetrics::default(),
+        };
+        guard.metrics()
     }
 }

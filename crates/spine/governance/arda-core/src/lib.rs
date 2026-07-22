@@ -17,6 +17,7 @@ pub mod loop_engine;
 pub mod message;
 pub mod pipeline;
 pub mod router;
+pub mod orome_runtime;
 pub mod service_registry;
 pub mod soterion;
 pub mod soterion_watcher;
@@ -38,6 +39,10 @@ pub use llm::{
     ChatMessage, ChatRequest, ChatResponse, LlmConfig, LlmProvider, OpenAiCompatibleProvider,
 };
 pub use message::Message;
+pub use orome_runtime::{
+    AgentRegistryState, OromeCoreRuntimeState, SharedRegistryStateStorage, SharedRouterStateStorage,
+    OromeRuntimeStateError,
+};
 pub use service_registry::{
     ArdaServiceRegistryStatus, ContinuityConfig, ContractConfig, GovernanceConfig, RegistryError,
     ServiceContract, ServiceHandle, ServiceKind, ServiceRecord, ServiceRegistry,

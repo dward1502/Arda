@@ -5,6 +5,7 @@
 - `docs/CODEMAP.md`
 - `docs/FILE_TREE.jsonl`
 - `docs/INDEX.md`
+- `docs/PROVENANCE_AND_ATTRIBUTION.md`
 - `docs/operations/INDEX.md`
 - `docs/contracts/ARDA_ECOSYSTEM_STANDARD_INDEX.md`
 - `docs/contracts/arda-ecosystem-standard-track-1-observability.md`

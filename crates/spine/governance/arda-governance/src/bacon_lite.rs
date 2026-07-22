@@ -1,4 +1,5 @@
 // sigil: REPAIR
+use crate::paths::GovernancePaths;
 use crate::triad::{triad_validate, GateOutcome, TriadConfig, TriadResult};
 use arda_core::task::Task;
 use chrono::Utc;
@@ -8,15 +9,21 @@ use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
-fn arda_root() -> PathBuf {
-    if let Ok(path) = std::env::var("ARDA_ROOT") {
-        return PathBuf::from(path);
+/// Explicit destinations for Bacon-Lite machine and operator evidence.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct BaconLiteLogPaths {
+    pub machine: PathBuf,
+    pub human: PathBuf,
+}
+
+impl BaconLiteLogPaths {
+    pub fn from_base_dir(base_dir: impl Into<PathBuf>) -> Self {
+        let paths = GovernancePaths::new(base_dir);
+        Self {
+            machine: paths.bacon_lite_machine_log(),
+            human: paths.bacon_lite_human_log(),
+        }
     }
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .and_then(Path::parent)
-        .map(Path::to_path_buf)
-        .unwrap_or_else(|| PathBuf::from("."))
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -82,6 +89,18 @@ pub fn record_bacon_lite(
     task: &Task,
     context: Value,
 ) -> std::io::Result<BaconLiteEvent> {
+    let paths = default_log_paths()?;
+    record_bacon_lite_to(crate_name, action, task, context, &paths)
+}
+
+/// Validate and write Bacon-Lite evidence to caller-selected destinations.
+pub fn record_bacon_lite_to(
+    crate_name: &str,
+    action: &str,
+    task: &Task,
+    context: Value,
+    paths: &BaconLiteLogPaths,
+) -> std::io::Result<BaconLiteEvent> {
     let result = bacon_lite_validate(task);
     let event = BaconLiteEvent {
         ts_utc: Utc::now().to_rfc3339(),
@@ -100,13 +119,12 @@ pub fn record_bacon_lite(
         context,
     };
 
-    append_machine_log(&event)?;
-    append_human_log(&event)?;
+    append_machine_log(&event, &paths.machine)?;
+    append_human_log(&event, &paths.human)?;
     Ok(event)
 }
 
-fn append_machine_log(event: &BaconLiteEvent) -> std::io::Result<()> {
-    let path = machine_log_path();
+fn append_machine_log(event: &BaconLiteEvent, path: &Path) -> std::io::Result<()> {
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent)?;
     }
@@ -115,8 +133,7 @@ fn append_machine_log(event: &BaconLiteEvent) -> std::io::Result<()> {
     Ok(())
 }
 
-fn append_human_log(event: &BaconLiteEvent) -> std::io::Result<()> {
-    let path = human_log_path();
+fn append_human_log(event: &BaconLiteEvent, path: &Path) -> std::io::Result<()> {
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent)?;
     }
@@ -139,16 +156,19 @@ fn append_human_log(event: &BaconLiteEvent) -> std::io::Result<()> {
     Ok(())
 }
 
-fn machine_log_path() -> PathBuf {
-    std::env::var("ARDA_BACON_LITE_LOG_PATH")
+fn default_log_paths() -> std::io::Result<BaconLiteLogPaths> {
+    let base = std::env::var_os("ARDA_ROOT")
         .map(PathBuf::from)
-        .unwrap_or_else(|_| arda_root().join("data/governance/bacon_lite.jsonl"))
-}
-
-fn human_log_path() -> PathBuf {
-    std::env::var("ARDA_BACON_LITE_HUMAN_PATH")
-        .map(PathBuf::from)
-        .unwrap_or_else(|_| arda_root().join("docs/operator/library/governance/bacon_lite.md"))
+        .map(Ok)
+        .unwrap_or_else(std::env::current_dir)?;
+    let mut paths = BaconLiteLogPaths::from_base_dir(base);
+    if let Some(path) = std::env::var_os("ARDA_BACON_LITE_LOG_PATH") {
+        paths.machine = PathBuf::from(path);
+    }
+    if let Some(path) = std::env::var_os("ARDA_BACON_LITE_HUMAN_PATH") {
+        paths.human = PathBuf::from(path);
+    }
+    Ok(paths)
 }
 
 #[cfg(test)]
@@ -179,18 +199,21 @@ mod tests {
     fn record_bacon_lite_writes_machine_and_human_logs() {
         let machine = temp_log_path("bacon-lite-machine", "jsonl");
         let human = temp_log_path("bacon-lite-human", "md");
-        std::env::set_var("ARDA_BACON_LITE_LOG_PATH", &machine);
-        std::env::set_var("ARDA_BACON_LITE_HUMAN_PATH", &human);
+        let paths = BaconLiteLogPaths {
+            machine: machine.clone(),
+            human: human.clone(),
+        };
 
         let task = Task::new(
             "ingest https://example.com because source evidence is official",
             "ingest",
         );
-        let event = record_bacon_lite(
+        let event = record_bacon_lite_to(
             "athena",
             "ingest",
             &task,
             serde_json::json!({"source":"example"}),
+            &paths,
         )
         .expect("recorded");
 
@@ -201,7 +224,5 @@ mod tests {
 
         let _ = std::fs::remove_file(machine);
         let _ = std::fs::remove_file(human);
-        std::env::remove_var("ARDA_BACON_LITE_LOG_PATH");
-        std::env::remove_var("ARDA_BACON_LITE_HUMAN_PATH");
     }
 }

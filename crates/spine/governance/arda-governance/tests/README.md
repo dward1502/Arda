@@ -6,16 +6,18 @@ soterion:
   role: "organization_index"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-06-06"
+  last_reviewed: "2026-07-21"
 ---
 
-> 🜏 Soterion: 📜 organization_index | owner: HADES | status: active | reviewed: 2026-06-06
+> 🜏 Soterion: 📜 organization_index | owner: HADES | status: active | reviewed: 2026-07-21
 
 # tests
 
-- Purpose: HADES-generated directory overview for `crates/spine/governance/arda-governance/tests`
-- Verified: `cargo test -p arda-governance --test '*'` passes, all tests compile and pass as of 2026-07-18
+- Purpose: integration and compatibility verification for `arda-governance`
+- Coverage: chain/profile contracts, alignment behavior, injected filesystem roots, public API wire shapes, and stable enum encodings
 
 ## Contents
 
 See `INDEX.md` for deterministic child listing.
+
+`fixtures/public_api_v1.json` is a versioned wire-shape contract. Update it only after an explicit compatibility review; removing or renaming a listed field is breaking.

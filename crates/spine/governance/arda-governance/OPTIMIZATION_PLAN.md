@@ -15,7 +15,7 @@ soterion:
 
 Drafted 2026-05-07 alongside the Charon plan. Same shape: P0 = do next, P1 = soon, P2 = nice to have. Each item names files to touch and a verification signal.
 
-Scope: `crates/arda-governance/` — 1,094 LOC across 8 modules (`triad.rs`, `bacon_lite.rs`, `resonance.rs`, `joulework.rs`, `love_equation.rs`, `game_theory.rs`, `solar.rs`, `lib.rs`). Pure deterministic decision logic — no LLM calls, no async, only one I/O writer (bacon-lite ledger).
+Scope: `crates/spine/governance/arda-governance/` (historical size/module counts in this plan are audit snapshots, not the current inventory). Pure deterministic decision logic — no LLM calls; Bacon-Lite is the principal evidence writer.
 
 ---
 

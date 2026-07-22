@@ -231,6 +231,17 @@ pub fn load_governance_chain_from_str(
     Ok(config)
 }
 
+/// Evaluate a task against an explicit governance-chain configuration.
+///
+/// ```
+/// use arda_core::Task;
+/// use arda_governance::{evaluate_governance_chain, GovernanceChainConfig};
+///
+/// let task = Task::new("verify the deployment with source evidence", "governance");
+/// let result = evaluate_governance_chain(&task, &GovernanceChainConfig::default_triad());
+/// assert_eq!(result.chain_id, "default_triad");
+/// assert!(!result.lenses.is_empty());
+/// ```
 pub fn evaluate_governance_chain(
     task: &Task,
     config: &GovernanceChainConfig,

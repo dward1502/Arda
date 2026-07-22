@@ -13,7 +13,7 @@ soterion:
 
 # Arda Governance Alignment Plan
 
-Scope: `crates/arda-governance/`
+Scope: `crates/spine/governance/arda-governance/`
 
 Status: Love Dynamics, Triad Philosopher arbitration, resonance metadata, and Prometheus autopilot triad-quorum surface wiring are implemented as of 2026-05-21.
 

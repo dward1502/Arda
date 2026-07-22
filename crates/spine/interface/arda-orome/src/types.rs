@@ -1,4 +1,5 @@
 // sigil: REPAIR
+use crate::Priority;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 
@@ -66,7 +67,7 @@ impl OutboundMessage {
 pub struct BoardroomPost {
     pub from_agent: String,
     pub message_type: String,
-    pub priority: String,
+    pub priority: Priority,
     pub subject: String,
     pub body: String,
     #[serde(default)]
@@ -410,7 +411,7 @@ impl BoardroomPost {
         Self {
             from_agent: from_agent.into(),
             message_type: message_type.into(),
-            priority: "normal".to_string(),
+            priority: Priority::Normal,
             subject: subject.into(),
             body: body.into(),
             mentions: Vec::new(),

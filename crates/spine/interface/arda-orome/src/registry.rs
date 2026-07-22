@@ -2,6 +2,7 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -52,11 +53,18 @@ pub struct AgentRegistry {
     agents: HashMap<String, AgentInfo>,
     by_realm: HashMap<String, Vec<String>>,
     by_capability: HashMap<String, Vec<String>>,
+    path: PathBuf,
 }
 
 impl AgentRegistry {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    pub fn with_path(path: impl Into<PathBuf>) -> Self {
+        let mut registry = Self::default();
+        registry.path = path.into();
+        registry
     }
 
     pub fn register(&mut self, agent: AgentInfo) {

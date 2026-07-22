@@ -271,6 +271,56 @@ fn route_decision_carries_live_governance_chain_metadata() {
     assert!(decision.governance.resonance_score > 0.0);
     assert!(decision.governance.lenses.len() >= 3);
     assert!(decision.governance.philosopher_action.is_some());
+
+    let failing_req = ManweRequestEnvelope {
+        agent_id: "hermes".to_string(),
+        task_type: "chat".to_string(),
+        priority: "normal".to_string(),
+        messages: vec![serde_json::json!({
+            "role": "user",
+            "content": "always route and never route without evidence or fallback"
+        })],
+        options: serde_json::json!({"governance_method": "chain"}),
+    };
+    let failing_task = arda_core::Task::new(
+        "always route and never route without evidence or fallback",
+        "dispatch",
+    );
+    let failing_chain = evaluate_route_governance_chain(
+        &failing_task,
+        &failing_req.options,
+        &arda_governance::GovernanceChainConfig::default_triad(),
+    );
+    let failing_profile = derive_route_execution_profile(&failing_req, "normal");
+    let failing_policy = resolve_hybrid_route_policy(&failing_req.task_type, &failing_req.options);
+    let failing_decision = build_route_decision_with_governance_chain(
+        &provider("edge_backbone"),
+        provider("edge_backbone").models[0].clone(),
+        88.0,
+        &failing_req,
+        "normal",
+        false,
+        &failing_policy,
+        &failing_profile,
+        &failing_task,
+        failing_chain,
+    );
+
+    assert!(!failing_decision.governance.triad_passed);
+    assert_eq!(
+        failing_decision.governance.triad_purity_source.as_deref(),
+        Some("live_governance_chain")
+    );
+    assert_ne!(
+        decision.governance.resonance_score,
+        failing_decision.governance.resonance_score
+    );
+    let emitted = serde_json::to_value(&failing_decision).expect("serialize route decision");
+    assert_eq!(emitted["governance"]["triad_passed"], false);
+    assert_eq!(
+        emitted["governance"]["triad_purity_source"],
+        "live_governance_chain"
+    );
 }
 
 #[test]

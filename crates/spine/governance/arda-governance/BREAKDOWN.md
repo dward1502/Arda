@@ -96,8 +96,8 @@ wired into `arda-engine` or `apps`.
 | `audio.rs` | Audio environmental governance signal |
 | `solar.rs` | NOAA Kp/Dst geomagnetic multiplier |
 | `philosopher_profiles.rs` | Profile schema validation + maturity gating |
-| `philosophers/socrates.rs` | Placeholder specialist philosopher |
-| `corpus_loader.rs` | Regex/weight corpus quick-check |
+| `philosophers/socrates.rs` | Retired in Phase 0: unregistered placeholder referenced a nonexistent legacy corpus API |
+| `corpus_loader.rs` | Retired in Phase 0: unregistered draft referenced a nonexistent legacy corpus API |
 
 ## Consumer wiring
 - No direct `arda-engine` / `apps` imports

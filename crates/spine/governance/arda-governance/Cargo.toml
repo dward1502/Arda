@@ -4,6 +4,9 @@ name = "arda-governance"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+default = []
+
 [dependencies]
 arda-core = { workspace = true }
 serde = { version = "1", features = ["derive"] }

@@ -5,7 +5,8 @@ use arda_core::task::Task;
 use arda_core::try_run_bounded;
 use arda_economics::JouleWorkUnit;
 use arda_governance::{
-    calculate_resonance_basic, record_bacon_lite, triad_validate, GateOutcome, TriadConfig,
+    calculate_resonance_with_triad, record_bacon_lite, triad_validate, GateOutcome, TriadConfig,
+    TriadPuritySource,
 };
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
@@ -271,6 +272,10 @@ pub struct DeepAnalysisData {
     #[serde(default)]
     pub inference_route: serde_json::Value,
     pub triad_analysis: TriadAnalysis,
+    #[serde(default)]
+    pub resonance_score: f64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub triad_purity_source: Option<TriadPuritySource>,
     pub joulework: JouleworkAnalysis,
     pub love_equation: LoveEquationAnalysis,
     pub deep_analysis_recommended: bool,
@@ -984,12 +989,12 @@ impl AthenaStore {
                 let consensus_threshold = if opposition_coverage >= 2 { 0.65 } else { 0.75 };
                 let triad_passed = pass_count >= 2 && triad_effective >= consensus_threshold;
 
-                let resonance = calculate_resonance_basic(&task);
-                let joule_balance_score = resonance
-                    .ecst_components
-                    .as_ref()
+                let resonance = calculate_resonance_with_triad(&task, &triad, None, None);
+                let resonance_components = resonance.ecst_components.as_ref();
+                let joule_balance_score = resonance_components
                     .map(|c| c.joule_balance)
                     .unwrap_or(50.0);
+                let triad_purity_source = resonance_components.and_then(|c| c.triad_purity_source);
                 let (love_score, love_rationale) =
                     love_equation_from_tags(&shallow.data.relevance_tags);
                 let inference_route = routing::resolve_inference_route_snapshot(
@@ -1016,6 +1021,8 @@ impl AthenaStore {
                         consensus_threshold,
                         pass_count,
                     },
+                    resonance_score: resonance.value,
+                    triad_purity_source,
                     joulework: JouleworkAnalysis {
                         estimated_cost: task.joule_cost_estimated,
                         actual_cost: task.joule_cost_actual,
@@ -1950,6 +1957,11 @@ mod tests {
         assert_eq!(deep.stage, "deep");
         assert_eq!(deep.sigil, "EYE");
         assert!(deep.version >= 2);
+        assert!(deep.data.resonance_score > 0.0);
+        assert_eq!(
+            deep.data.triad_purity_source,
+            Some(arda_governance::TriadPuritySource::LiveTriad)
+        );
         assert_eq!(
             deep.data
                 .inference_route
@@ -1961,6 +1973,7 @@ mod tests {
         let book_path = dir.path().join(format!("books/{}.jsonl", record.id));
         let book = fs::read_to_string(book_path).expect("book");
         assert!(book.contains("\"stage\":\"deep\""));
+        assert!(book.contains("\"triad_purity_source\":\"live_triad\""));
 
         let queue_log = fs::read_to_string(store.deep_queue_path()).expect("queue");
         assert!(queue_log.contains("deep_queued"));

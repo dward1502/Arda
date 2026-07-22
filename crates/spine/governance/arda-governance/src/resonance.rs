@@ -14,6 +14,9 @@ use crate::{evaluate_love_dynamics, profile_joulework, LoveDynamicsInput};
 use arda_core::task::{Task, TaskStatus};
 use serde::{Deserialize, Serialize};
 
+/// Planned removal release for compatibility APIs that synthesize Triad purity.
+pub const COMPATIBILITY_RESONANCE_REMOVAL_VERSION: &str = "0.3.0";
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum TriadPuritySource {
@@ -197,11 +200,15 @@ pub fn joule_balance(task: &Task) -> f64 {
     }
 }
 
-/// Calculate task resonance score (0-100).
+/// Calculate task resonance score (0-100) using the legacy synthetic Triad signal.
 ///
 /// When `audio` or `vision` governance signals are provided, they contribute
 /// to the overall score as additional coherence dimensions (5% weight each),
 /// and the base weights are normalized to sum to the remaining budget.
+#[deprecated(
+    since = "0.1.0",
+    note = "synthetic Triad purity is removed in 0.3.0; evaluate once and call calculate_resonance_with_triad or calculate_resonance_with_governance_chain"
+)]
 pub fn calculate_resonance(
     task: &Task,
     audio: Option<&AudioGovernance>,
@@ -234,6 +241,22 @@ pub fn calculate_resonance_with_triad(
 
 /// Calculate resonance using a live configurable governance-chain result while
 /// preserving all non-Triad component semantics.
+///
+/// ```
+/// use arda_core::Task;
+/// use arda_governance::{
+///     calculate_resonance_with_governance_chain, evaluate_governance_chain,
+///     GovernanceChainConfig, TriadPuritySource,
+/// };
+///
+/// let task = Task::new("verify source evidence and fallback", "governance");
+/// let chain = evaluate_governance_chain(&task, &GovernanceChainConfig::default_triad());
+/// let score = calculate_resonance_with_governance_chain(&task, &chain, None, None);
+/// assert_eq!(
+///     score.ecst_components.unwrap().triad_purity_source,
+///     Some(TriadPuritySource::LiveGovernanceChain)
+/// );
+/// ```
 pub fn calculate_resonance_with_governance_chain(
     task: &Task,
     chain: &GovernanceChainResult,
@@ -246,6 +269,18 @@ pub fn calculate_resonance_with_governance_chain(
         audio,
         vision,
     )
+}
+
+/// Calculate resonance while explicitly recording that no Triad evidence exists.
+///
+/// This is intended for degraded paths that cannot evaluate governance. Production
+/// callers should prefer a live Triad or governance-chain result.
+pub fn calculate_resonance_without_governance(
+    task: &Task,
+    audio: Option<&AudioGovernance>,
+    vision: Option<&VisionGovernance>,
+) -> ResonanceScore {
+    calculate_resonance_with_triad_signal(task, TriadPuritySignal::absent(), audio, vision)
 }
 
 fn calculate_resonance_with_triad_signal(
@@ -345,6 +380,12 @@ fn calculate_resonance_with_triad_signal(
 }
 
 /// Backward-compatible resonance calculation without audio/vision signals.
+#[deprecated(
+    since = "0.1.0",
+    note = "synthetic Triad purity is removed in 0.3.0; evaluate once and call calculate_resonance_with_triad or calculate_resonance_with_governance_chain"
+)]
+#[allow(deprecated)]
+// phase1-migration: compatibility API retained only through arda-governance 0.2.x.
 pub fn calculate_resonance_basic(task: &Task) -> ResonanceScore {
     calculate_resonance(task, None, None)
 }
@@ -356,6 +397,14 @@ struct TriadPuritySignal {
 }
 
 impl TriadPuritySignal {
+    fn absent() -> Self {
+        Self {
+            value: 0.0,
+            cooperation_value: 0.0,
+            source: TriadPuritySource::Absent,
+        }
+    }
+
     fn compatibility_default() -> Self {
         let value = triad_purity(0.7);
         Self {
@@ -406,6 +455,7 @@ fn triad_purity(default: f64) -> f64 {
 }
 
 #[cfg(test)]
+#[allow(deprecated)]
 mod tests {
     use super::*;
     use arda_core::{Task, TaskStatus};
@@ -664,6 +714,95 @@ mod tests {
         assert_eq!(compatibility.joule_balance, live.joule_balance);
         assert_eq!(compatibility.phi_harmonic, live.phi_harmonic);
         assert_ne!(compatibility.triad_purity, live.triad_purity);
+    }
+
+    #[test]
+    fn live_chain_fail_conditional_and_pass_combinations_are_distinct() {
+        use crate::triad::{GovernanceChainResult, GovernanceLensVerdict, GovernanceReviewMode};
+
+        fn chain(outcomes: [GateOutcome; 3]) -> GovernanceChainResult {
+            let ids = ["aurelius", "bacon", "sun_tzu"];
+            let lenses = ids
+                .into_iter()
+                .zip(outcomes)
+                .map(|(id, outcome)| GovernanceLensVerdict {
+                    lens_id: id.to_string(),
+                    display_name: id.to_string(),
+                    profile_id: Some(id.to_string()),
+                    outcome,
+                    score: match outcome {
+                        GateOutcome::Pass => 0.8,
+                        GateOutcome::Conditional => 0.4,
+                        GateOutcome::Fail => 0.2,
+                    },
+                    pass_threshold: 0.5,
+                })
+                .collect::<Vec<_>>();
+            GovernanceChainResult {
+                chain_id: "phase_1_fixture".to_string(),
+                chain_version: "live_v1".to_string(),
+                profile_source: "fixture".to_string(),
+                review_mode: GovernanceReviewMode::HeuristicLocal,
+                profile_maturity: "fixture".to_string(),
+                required_passes: 2,
+                autonomous_blocking_enabled: false,
+                passed: lenses
+                    .iter()
+                    .filter(|lens| lens.outcome == GateOutcome::Pass)
+                    .count()
+                    >= 2,
+                veto_reason: None,
+                lenses,
+            }
+        }
+
+        let mut task = Task::new("evaluate live chain evidence", "governance");
+        task.status = TaskStatus::Complete;
+        let failed = calculate_resonance_with_governance_chain(
+            &task,
+            &chain([GateOutcome::Fail, GateOutcome::Fail, GateOutcome::Fail]),
+            None,
+            None,
+        );
+        let conditional = calculate_resonance_with_governance_chain(
+            &task,
+            &chain([
+                GateOutcome::Pass,
+                GateOutcome::Conditional,
+                GateOutcome::Fail,
+            ]),
+            None,
+            None,
+        );
+        let passing = calculate_resonance_with_governance_chain(
+            &task,
+            &chain([GateOutcome::Pass, GateOutcome::Pass, GateOutcome::Pass]),
+            None,
+            None,
+        );
+
+        let failed_components = failed.ecst_components.expect("failed components");
+        let conditional_components = conditional.ecst_components.expect("conditional components");
+        let passing_components = passing.ecst_components.expect("passing components");
+        assert_eq!(failed_components.triad_purity, 0.0);
+        assert!((conditional_components.triad_purity - (100.0 / 3.0)).abs() < 1e-9);
+        assert_eq!(passing_components.triad_purity, 100.0);
+        assert!(failed.value < conditional.value);
+        assert!(conditional.value < passing.value);
+        assert_eq!(
+            passing_components.triad_purity_source,
+            Some(TriadPuritySource::LiveGovernanceChain)
+        );
+    }
+
+    #[test]
+    fn degraded_resonance_explicitly_serializes_absent_triad_source() {
+        let task = Task::new("degraded path", "governance");
+        let score = calculate_resonance_without_governance(&task, None, None);
+        let encoded = serde_json::to_value(score).expect("serialize resonance");
+
+        assert_eq!(encoded["ecst_components"]["triad_purity_source"], "absent");
+        assert_eq!(encoded["ecst_components"]["triad_purity"], 0.0);
     }
 
     #[test]

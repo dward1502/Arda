@@ -6,24 +6,28 @@ soterion:
   role: "directory_index"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-13"
+  last_reviewed: "2026-07-21"
 ---
 
 
-> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-13
+> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-21
 
-# Index: crates/governance/arda-governance/tests/INDEX.md
+# Index: crates/spine/governance/arda-governance/tests/INDEX.md
 
 ## Contents
 
 - `INDEX.md`
 - `README.md`
 - `alignment_stack.rs`
+- `fixtures/public_api_v1.json`
+- `governance_chain.rs`
+- `path_independence.rs`
 - `philosopher_profiles.rs`
+- `public_api_compat.rs`
 
 ## Purpose
 
-Crate index for `crates/governance/arda-governance/tests/INDEX.md`. See sibling `INDEX.md` for bucket metadata.
+Integration coverage for alignment, chain evaluation, philosopher profiles, repository-independent path resolution, and public serialization compatibility.
 
 ## Notes
 

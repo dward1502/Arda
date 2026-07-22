@@ -6,18 +6,21 @@ soterion:
   role: "directory_index"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-13"
+  last_reviewed: "2026-07-21"
 ---
 
 
-> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-13
+> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-21
 
-# Index: crates/governance/arda-governance/INDEX.md
+# Index: crates/spine/governance/arda-governance/INDEX.md
 
 ## Contents
 
 - `Cargo.toml`
+- `BREAKDOWN.md`
+- `FIRST_CLASS_CHECKLIST.md`
 - `GOVERNANCE_ALIGNMENT_PLAN.md`
+- `GOVERNANCE_PROVENANCE.md`
 - `INDEX.md`
 - `OPTIMIZATION_PLAN.md`
 - `README.md`
@@ -26,7 +29,7 @@ soterion:
 
 ## Purpose
 
-Crate index for `crates/governance/arda-governance/INDEX.md`. See sibling `INDEX.md` for bucket metadata.
+Crate index for `crates/spine/governance/arda-governance/INDEX.md`. `FIRST_CLASS_CHECKLIST.md` is the canonical execution tracker; the other plans provide design and audit evidence.
 
 ## Notes
 

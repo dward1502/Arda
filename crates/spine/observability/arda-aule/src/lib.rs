@@ -1,89 +1,69 @@
+#![recursion_limit = "1024"]
 // sigil: ANKH
-//! Core blueprint module for the Arda Council agent.
+//! Observability home for the Arda runtime.
 //!
-//! This module defines the contract, council seats, and governance baseline
-//! that all new sovereign agents should replicate. It provides the foundational
-//! structure for implementing governance-consistent agentic crates in the
-//! Arda system.
+//! This crate owns the observability surfaces for executors, governance
+//! metrics, and operator-facing telemetry. It provides the contract,
+//! readiness probe, and module export points for:
+//!
+//! - `prometheus/` — executive orchestrator pipeline and confidence scoring
+//! - `ceo/` — orchestration brain for delegation and learning
+//! - `cli/` — Arda CLI entrypoints for observability-aware operators
+//! - `export_surface/` — interoperability contracts for agents and HUD
+//!
+//! # Example
+//!
+//! ```rust
+//! use arda_aule::contract::contract;
+//! use arda_aule::service::{ArdaAuleStatus, ObservabilityBrief};
+//!
+//! // Retrieves the observability contract for the crate family.
+//! let observability_contract = contract();
+//! assert_eq!(observability_contract.crate_name, "arda-aule");
+//! assert_eq!(observability_contract.realm, "observability");
+//!
+//! // Computes readiness from the contract.
+//! let status = ArdaAuleStatus::from_contract(&observability_contract);
+//! assert!(status.governance_ready);
+//!
+//! // Builds an observability brief for reporting or export.
+//! let brief = ObservabilityBrief::from_status(&status);
+//! assert_eq!(brief.crate_name, "arda-aule");
+//! ```
 //!
 //! # Governance Baselines
 //!
-//! Every sovereign agent must implement these governance requirements:
+//! Observability surfaces continue to honor Arda governance baselines:
 //!
-//! - **Triad Validation:** Three-way verification of decisions
-//! - **Bacon Lite:** Lightweight compliance framework
-//! - **JouleWork:** Energy/work accounting
-//! - **Love Equation:** Alignment verification
-//! - **Soterion Trace:** Audit trail and traceability
-//!
-//! # Continuity Baselines
-//!
-//! State preservation requirements for agent reliability:
-//!
-//! - **Task Ledger:** Historical task tracking
-//! - **Memory Checkpoint:** State snapshots
-//! - **ARDA Visibility:** HUD integration
-//!
-//! # Example
-//! # Example
-//! ```rust
-//! use arda_aule::contract::contract;
-//! use arda_aule::contract::ArdaCouncilContract;
-//! use arda_aule::{council::{CouncilQuery, CouncilSeat, QueryMode}, service};
-//!
-//! // Get the canonical contract
-//! let c: ArdaCouncilContract = contract();
-//! assert_eq!(c.crate_name, "arda-aule");
-//! assert_eq!(c.realm, "command");
-//!
-//! // Check governance readiness
-//! let status = service::status();
-//! assert!(status.governance_ready);
-//!
-//! // Build a council brief for a query
-//! let query = CouncilQuery {
-//!     mode: QueryMode::FullCouncil,
-//!     seats: vec![],
-//!     prompt: "Should we ship this feature?".into(),
-//! };
-//! let brief = service::build_brief(&query);
-//! assert_eq!(brief.participating_seats.len(), 7);
-//! assert!(brief.escalation_required);
-//! ```
-//!
-//! # Blueprint Usage
-//!
-//! This crate is designed as a blueprint for new agentic crates. When creating
-//! a new sovereign agent, replicate this structure:
-//!
-//! 1. Define your crate's contract in `src/contract.rs`
-//! 2. Implement service status in `src/service.rs`
-//! 3. Add governance smoke tests in `tests/contract_smoke.rs`
-//! 4. Export required state to `core/state/<crate-name>.json`
+//! - **Triad Validation:** Three-way verification surfaced in telemetry
+//! - **Bacon Lite:** Lightweight compliance emission for exporters
+//! - **JouleWork:** Energy/work accounting in prometheus metrics
+//! - **Love Equation:** Alignment telemetry fields
+//! - **Soterion Trace:** Audit trail and traceability exports
 //!
 //! # Modules
 //!
-//! - [`contract`]: Defines the governance and continuity baselines
-//! - [`council`]: Council seat definitions and query modes
-//! - [`service`]: Service status and brief building utilities
-//!
-//! # Dependencies
-//!
-//! - `serde` + `serde_json`: Serialization
-//! - `chrono`: Date/time handling
+//! - [`contract`]: observability contract for Arda
+//! - [`service`]: readiness probe and brief builders
+//! - [`council`]: compatibility shim for existing council query types
+//! - [`prometheus`]: executive orchestrator surface
+//! - [`ceo`]: orchestration brain
+//! - [`cli`]: operator CLI surface
 //!
 //! # See Also
 //!
-//! - [`ArdaCouncilContract`]: The canonical governance contract
-//! - [`GovernanceBaseline`]: Required governance checks
-//! - [`ContinuityBaseline`]: State preservation requirements
-//! - [`CouncilSeat`]: Available council roles
-//! - [`QueryMode`]: Council deliberation modes
+//! - [`ArdaAuleContract`]: The canonical observability contract
+//! - [`ArdaAuleStatus`]: Readiness probe output
+//! - [`ObservabilityBrief`]: Compact observability summary
 
 pub mod contract;
 pub mod council;
 pub mod governance_metrics;
 pub mod service;
+
+pub mod prometheus;
+pub mod ceo;
+pub mod cli;
 
 pub use governance_metrics::render_governance_prometheus;
 

@@ -168,7 +168,7 @@ fn request_learning_key(req: &ManweRequestEnvelope) -> String {
 }
 
 fn bandit_score_weight() -> f64 {
-    std::env::var("ARDA_CHARON_BANDIT_SCORE_WEIGHT")
+    std::env::var("ARDA_MANWE_BANDIT_SCORE_WEIGHT")
         .ok()
         .and_then(|value| value.parse::<f64>().ok())
         .filter(|value| *value >= 0.0)
@@ -176,7 +176,7 @@ fn bandit_score_weight() -> f64 {
 }
 
 fn bandit_min_observations() -> u64 {
-    std::env::var("ARDA_CHARON_BANDIT_MIN_OBSERVATIONS")
+    std::env::var("ARDA_MANWE_BANDIT_MIN_OBSERVATIONS")
         .ok()
         .and_then(|value| value.parse::<u64>().ok())
         .unwrap_or(3)

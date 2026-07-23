@@ -5,8 +5,8 @@ use crate::orders::{EscalationEvent, OrderStore, RuntimeReconcileSummary};
 use crate::registry::AgentRosterSnapshot;
 use crate::service::{prometheus_home, PrometheusService};
 use crate::thought::ThoughtLedger;
-use annunimas_core::error::Result;
-use annunimas_mnemosyne::MnemosyneService;
+use arda_core::error::Result;
+use arda_vaire::MnemosyneService;
 use chrono::{DateTime, Utc};
 use std::fs::{self, OpenOptions};
 use std::path::{Path, PathBuf};
@@ -138,7 +138,7 @@ impl PrometheusService {
     }
 
     pub fn socket_path(&self) -> PathBuf {
-        if let Ok(socket) = std::env::var("ANNUNIMAS_PROMETHEUS_SOCKET") {
+        if let Ok(socket) = std::env::var("ARDA_PROMETHEUS_SOCKET") {
             return PathBuf::from(socket);
         }
         prometheus_home().join("prometheus.sock")

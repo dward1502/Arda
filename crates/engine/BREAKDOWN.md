@@ -61,16 +61,13 @@ arda-engine
 └── reqwest       workspace  // outbound proxy to manwe /v1/models
 ```
 
-## Connection to manwe (`crates/spine/runtime/manwe`)
+## Connection to manwe (`crates/manwe` / `arda-manwe`)
 
 ### Compile-time
 
 - `arda-engine/Cargo.toml` depends on `manwe = { workspace = true }`
-- `src/manwe.rs` re-exports the full `manwe` crate publicly:
-  - `SpannedManweGateway`, `ProviderRecord`, `ProviderCatalog`
-  - `Transport`, `ApiTransport`, `CharonTransport`
-  - `ManweCore`, `ManweGovernance`, `ManweMnemosyne`, `CharonPlutus`
-  - optional `CharonService` when `manwe` is built with `adaptive` feature
+- `src/manwe.rs` re-exports the full `manwe` crate publicly so callers import
+  from `arda_engine::manwe`.
 
 ### Runtime
 

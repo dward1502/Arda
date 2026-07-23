@@ -738,7 +738,7 @@ pub(super) fn decay_lane_fitness_snapshot(snapshot: &mut LaneFitnessSnapshot) ->
 }
 
 fn lane_fitness_half_life_hours() -> f64 {
-    std::env::var("ARDA_CHARON_LANE_FITNESS_HALF_LIFE_HOURS")
+    std::env::var("ARDA_MANWE_LANE_FITNESS_HALF_LIFE_HOURS")
         .ok()
         .and_then(|value| value.parse::<f64>().ok())
         .filter(|value| *value > 0.0)
@@ -746,7 +746,7 @@ fn lane_fitness_half_life_hours() -> f64 {
 }
 
 fn lane_fitness_prune_hours() -> f64 {
-    std::env::var("ARDA_CHARON_LANE_FITNESS_PRUNE_HOURS")
+    std::env::var("ARDA_MANWE_LANE_FITNESS_PRUNE_HOURS")
         .ok()
         .and_then(|value| value.parse::<f64>().ok())
         .filter(|value| *value > 0.0)
@@ -1030,7 +1030,7 @@ pub(super) fn provider_cooldown_bypass_allowed(p: &ProviderState) -> bool {
 }
 
 fn cooldown_bypass_max_seconds() -> u64 {
-    std::env::var("ARDA_CHARON_COOLDOWN_BYPASS_MAX_SECONDS")
+    std::env::var("ARDA_MANWE_COOLDOWN_BYPASS_MAX_SECONDS")
         .ok()
         .and_then(|value| value.parse::<u64>().ok())
         .filter(|value| *value > 0)
@@ -1055,7 +1055,7 @@ pub(super) fn provider_half_open_probe_allowed_for_roll(p: &ProviderState, roll:
 }
 
 fn half_open_probe_stride() -> u32 {
-    std::env::var("ARDA_CHARON_HALF_OPEN_PROBE_STRIDE")
+    std::env::var("ARDA_MANWE_HALF_OPEN_PROBE_STRIDE")
         .ok()
         .and_then(|value| value.parse::<u32>().ok())
         .filter(|value| *value > 0)
@@ -1113,7 +1113,7 @@ fn tool_choice_requires_tool_call(value: &serde_json::Value) -> bool {
 }
 
 pub(super) fn tool_execution_min_context_window() -> usize {
-    std::env::var("ARDA_CHARON_TOOL_EXECUTION_MIN_CONTEXT")
+    std::env::var("ARDA_MANWE_TOOL_EXECUTION_MIN_CONTEXT")
         .ok()
         .and_then(|value| value.parse::<usize>().ok())
         .filter(|value| *value >= 16_000)
@@ -1121,7 +1121,7 @@ pub(super) fn tool_execution_min_context_window() -> usize {
 }
 
 fn compression_min_context_window() -> usize {
-    std::env::var("ARDA_CHARON_COMPRESSION_MIN_CONTEXT")
+    std::env::var("ARDA_MANWE_COMPRESSION_MIN_CONTEXT")
         .ok()
         .and_then(|value| value.parse::<usize>().ok())
         .filter(|value| *value >= 16_000)
@@ -1129,7 +1129,7 @@ fn compression_min_context_window() -> usize {
 }
 
 fn local_tool_context_headroom_tokens() -> usize {
-    std::env::var("ARDA_CHARON_LOCAL_TOOL_CONTEXT_HEADROOM")
+    std::env::var("ARDA_MANWE_LOCAL_TOOL_CONTEXT_HEADROOM")
         .ok()
         .and_then(|value| value.parse::<usize>().ok())
         .filter(|value| *value >= 4_096)
@@ -1407,7 +1407,7 @@ fn request_allows_free_tool_pool(req: &ManweRequestEnvelope) -> bool {
 }
 
 fn configured_tool_incompatible_model(provider_id: &str, model_id: &str) -> bool {
-    std::env::var("ARDA_CHARON_TOOL_INCOMPATIBLE_MODELS")
+    std::env::var("ARDA_MANWE_TOOL_INCOMPATIBLE_MODELS")
         .unwrap_or_default()
         .split(',')
         .map(str::trim)

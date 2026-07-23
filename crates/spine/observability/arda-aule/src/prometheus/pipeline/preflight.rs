@@ -3,10 +3,10 @@ use crate::council::run_council_gate;
 use crate::orders::OrderStatus;
 use crate::pipeline::Pipeline;
 use crate::service::PrometheusService;
-use annunimas_core::error::Result;
-use annunimas_core::message::Message;
-use annunimas_core::task::{Task, TaskStatus};
-use annunimas_governance::enqueue_bacon_lite;
+use arda_core::error::Result;
+use arda_core::message::Message;
+use arda_core::task::{Task, TaskStatus};
+use arda_governance::enqueue_bacon_lite;
 
 impl Pipeline {
     pub(super) fn record_task_intake(&self, task: &Task) -> Result<()> {
@@ -259,9 +259,9 @@ impl Pipeline {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use annunimas_core::ledger::Ledger;
-    use annunimas_core::router::Router;
-    use annunimas_core::task::{Task, TaskStatus};
+    use arda_core::ledger::Ledger;
+    use arda_core::router::Router;
+    use arda_core::task::{Task, TaskStatus};
     use tempfile::tempdir;
 
     fn test_pipeline() -> Pipeline {

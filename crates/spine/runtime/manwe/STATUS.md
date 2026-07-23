@@ -1,121 +1,139 @@
-# manwe — Status
+# manwe — Current Status
 
 Crate: `crates/spine/runtime/manwe`
-Status: live / actively supervised runtime component
+Reviewed: 2026-07-23
+State: active; canonical process and full governed adaptive runtime aligned; telemetry broken
 
-## Verified compile/test/runtime snapshot — 2026-07-21/22
-
-last_reviewed: 2026-07-22
-
-The documented checks pass from the workspace root:
+## Verification performed in this review
 
 | Command | Result |
 |---|---|
-| `cargo check -p manwe` | pass |
-| `cargo test -p manwe` | pass: 10 tests |
-| `cargo check -p manwe --features adaptive` | pass; no Manwe warnings |
-| `cargo test -p manwe --features adaptive` | pass: 157 adaptive library tests + 10 gateway tests |
-| `cargo fmt -p manwe -- --check` | pass |
+| `cargo check -p manwe` | PASS |
+| `cargo test -p manwe` | PASS: 0 library + 19 binary tests (prior default-only baseline) |
+| `cargo check -p manwe --all-targets --features adaptive` | PASS |
+| `cargo test -p manwe --features adaptive` | PASS: 264 library + 21 binary tests |
+| `python crates/spine/runtime/manwe/tests/process_smoke.py` | PASS: static and full governed adaptive processes |
+| `cargo check -p manwe --features grpc` | PASS |
+| `cargo fmt -p manwe -- --check` | PASS |
+| `cargo check -p manwe --all-features` | FAIL: 14 telemetry-path compile errors |
+| `cargo test -p manwe --all-features` | FAIL during the same telemetry compilation |
 
-Behavioral evidence: see `BREAKDOWN.md` + `STATUS.md`
-`2026-07-21/22` validation, plus adaptive-vs-static behavioral tests in
-`src/adaptive/service/route_policy_tests.rs` and static failing-path tests in
-`src/main.rs`.
+The passing commands emitted only the workspace warning that the launcher
+package's non-root Cargo profile is ignored. The all-feature commands fail in
+`adaptive/service/service_events.rs`: `arda_aule::telemetry` is not exported,
+`observability::tracer` and `service::telemetry` do not exist, and two references
+misspell `arda_aule` as `ardea_aule`.
 
-The default/adaptive feature boundary is restored. `src/types.rs` is the one
-canonical Manwe domain type surface, and adaptive modules re-export those types
-instead of defining incompatible duplicates. gRPC is independently gated behind
-the `grpc` feature.
+The process smoke test starts controlled temporary static and adaptive Manwe
+processes plus a local mock OpenAI upstream. It verifies `/healthz`,
+`/v1/models`, `/v1/capabilities`, `/v1/chat/completions`, governed response
+headers, config provenance/catalog generations, missing/malformed/partial
+static startup, missing/malformed fleet startup, and adaptive
+state/governance receipts without calling external providers.
 
-Live validation on temporary port `127.0.0.1:17171` found seven configured fleet
-providers and four healthy/model-confirmed providers. `/healthz`, `/v1/models`,
-`/v1/capabilities`, and `/v1/chat/completions` all returned successfully. An
-adaptive reasoning request selected `edge_backbone_bonsai27`, returned HTTP 200 and
-the exact expected `MANWE_OK` answer, and recorded 22.94 generation tokens/second,
-7.648 seconds total latency, and quality score 1.0 in
-`data/manwe/route_receipts.jsonl`.
+## Current capabilities
 
-- Resource-group serialization was also exercised live against two simultaneous
-requests to logical lanes on `annunimas-server`: capabilities reported
-`active=1`, `queued=1`, `limit=1`; both requests returned HTTP 200 sequentially.
-The temporary `:17171` process was stopped after verification.
-- Resource-group defaults are concurrency `1` and queue timeout `30s`. Env
-overrides are `ARDA_MANWE_RESOURCE_GROUP_CONCURRENCY` and
-`ARDA_MANWE_RESOURCE_GROUP_QUEUE_TIMEOUT_SECONDS`, both validated as positive
-integers; bad values keep the defaults.
-Local inference surface preference is enabled for adaptive `execution`/`background`
-lanes via `ARDA_LOCAL_INFERENCE_SURFACE` in
-`crates/spine/runtime/manwe/src/adaptive/service/route_selection.rs`; supported
-values are `mesh`, `llamacpp`, and `hybrid`.
+- OpenAI-compatible `/v1/chat/completions` and `/v1/models` surface.
+- Health, provider/state, capabilities, and Prometheus metrics endpoints.
+- Fleet provider discovery from `config/fleet.toml`, startup probing, and
+  60-second refresh.
+- Static explicit model/provider routing, plus a separately selected full
+  governed adaptive runtime with policy chains, Echo Gate evaluation, quotas,
+  fallback selection, provider drivers, persistence, and observability.
+- Per-resource-group serialization with configurable positive concurrency and
+  queue-timeout values.
+- Static `manwe.toml` fallback with startup config validation.
+- Credential-free active config paths/sources and catalog generations on health
+  and capabilities surfaces.
+- Stream-request handling and non-streaming proxy responses with JSONL route
+  receipts. The current binary buffers a stream response before returning it;
+  it does not provide live SSE pass-through.
+- Rich adaptive policy/service library behind `adaptive`.
+- Optional tonic gRPC services behind `grpc` plus the `--grpc` runtime flag.
 
-## What it does
+## Runtime contract
 
-`manwe` is the local OpenAI-compatible inference gateway. It listens on `127.0.0.1:7171`
-and serves `/v1/chat/completions` + `/v1/models`. Its default build preserves explicit
-model/provider routing. The `adaptive` feature adds fleet health/model probes,
-deterministic capability/context/task-fit selection, bounded resource-group
-concurrency, streaming proxying, and route quality/throughput receipts.
+- Default HTTP bind: `127.0.0.1:7171`
+- gRPC bind when enabled: `MANWE_GRPC_PORT`, default `0.0.0.0:50051`
+- Routing mode: static by default; `--adaptive` or
+  `MANWE_ROUTING_MODE=adaptive` when compiled with `adaptive`
+- Resource-group controls:
+  `ARDA_MANWE_RESOURCE_GROUP_CONCURRENCY` (default `1`) and
+  `ARDA_MANWE_RESOURCE_GROUP_QUEUE_TIMEOUT_SECONDS` (default `30`)
+- Local-only model alias: `local/auto`
+- Static ownership: `--config` owns forwarding providers;
+  `ARDA_MANWE_FLEET_CONFIG` (legacy `ARDA_MANWE_FLEET_CONFIG`) owns fleet
+  discovery. Fleet failures produce an empty fleet catalog without replacing
+  forwarding providers.
+- Adaptive ownership: `ARDA_MANWE_PROVIDER_CONFIG` (legacy
+  `ARDA_MANWE_PROVIDER_CONFIG`) owns governed providers;
+  `ARDA_MANWE_STATE_DIR` (legacy `ARDA_MANWE_HOME`) owns mutable state. Their
+  defaults are `$ARDA_HOME/config/charon.providers.toml` and
+  `$ARDA_HOME/data/manwe` respectively.
 
-Core current surface:
-- binary runtime: `src/main.rs`
-- config/model routing: `src/config.rs`
-- gateway/endpoint catalog types: `src/gateway.rs`
-- provider catalog bootstrap: `src/provider.rs`
-- charon bridge models: `src/charon_remote.rs`
-- transport interfaces: `src/transport.rs`
-- routing/authority trait stubs: `src/route.rs`
-- crate public bridge shims: `src/support.rs`
+## Adaptive runtime boundary
 
-Binary listens on:
-- `127.0.0.1:7171`
-- endpoints:
-  - `GET /healthz`
-  - `GET /v1/models`
-  - `POST /v1/chat/completions`
+Static mode continues through `provider::ProviderCatalog`. When adaptive mode
+is requested, `src/main.rs` constructs `adaptive::service::ManweService`, loads
+the adaptive provider catalog, and starts `adaptive::transport::http` on the
+same configured bind. Adaptive gRPC combination is rejected explicitly until
+the governed gRPC transport is defined.
 
-Default model reference shape: `provider/model`.
+Fresh controlled-process evidence returned `runtime: full_governed`, selected
+the `smoke/smoke-model` route, returned `MANWE_FULL_SMOKE_OK`, emitted
+`x-manwe-route-id`, provider/model/class/lane headers, and wrote both
+`route_selected` state and governance receipts.
 
-## Why it exists
+## Historical runtime evidence retained
 
-It replaces the older hosted multi-process `annunimas-charon` runtime with a single
-local gateway root. Per the workspace refactor plan, `manwe` is the static local root
-contract: one local OpenAI-compatible endpoint all local callers should target, providing
-a stable boundary even as routing/auth subsystems are ported incrementally.
+A prior 2026-07-21/22 temporary-port run reported seven configured fleet
+providers, four healthy/model-confirmed providers, successful health/models/
+capabilities/chat calls, a successful `MANWE_OK` adaptive request, route receipt
+generation, and serialization of two requests sharing one physical resource
+group. That process was stopped after validation.
 
-## Who uses it
+This is useful regression evidence, but it was not rerun during this
+documentation review.
 
-- `arda-engine`: supervises the manwe process, uses the crate types for spawn-time wiring.
-- `arda-hud`: operator dashboard reads `/v1/models` from manwe.
-- `arda-launcher`: relies on engine + downstream-side routes that assume manwe at `:7171`.
-- workspace registry/contracts: service registry classifies `manwe` as the gateway.
+## Open risks and gaps
 
-Relevant verified references:
-- `crates/engine/Cargo.toml`: depends on `manwe`
-- `crates/engine/src/manwe.rs`: re-exports `manwe`
-- `crates/engine/src/harness.rs`: proxies `/v1/models` to manwe
-- `apps/arda-hud/README.md`: surfaces live manwe gateway state
-- `services.toml`: registers `name = "manwe"` as gateway service
-- `docs/REFACTOR_PLAN.md` §2: documents manwe as the frozen local root
+1. The binary and rich adaptive service have parallel routing/config/transport
+   paths. Capability claims must stay scoped until they are unified.
+2. Remaining `ARDA_MANWE_*` policy/tuning variables need canonical
+   `ARDA_MANWE_*` aliases; path ownership variables now have canonical-first
+   precedence.
+3. `ManweService::read_lane_fitness_snapshot` currently returns `None`, so the
+   adaptive scoring hook exists but does not consume persisted lane fitness.
+4. The binary buffers responses marked as streaming before returning them, so
+   latency and backpressure differ from true SSE pass-through.
+5. Current tests are strong at unit/policy level but do not provide a maintained
+   gRPC process-level integration harness.
+6. The direct `arda-hud` HTTP-consumer claim in older docs was not confirmed by
+   this source audit; HUD currently has broader Manwe state/action projections.
+7. The `telemetry` feature is not buildable, so all-feature CI cannot currently
+   pass even though default, adaptive-only, and gRPC-only paths do.
 
-## Reception / known gaps
+## Source-graph state
 
-- adaptive routing currently uses deterministic hard filtering plus task-fit scoring;
-  bandit learning is not allowed to override health, context, modality, or resource gates
-- governance and quota-mesh policy exist in the adaptive subtree but are not yet the
-  authority used by the stable HTTP dispatch path
-- non-streaming responses produce complete throughput/quality receipts; streaming
-  responses currently produce dispatch/header receipts without final token-quality data
-- physical resource groups default to concurrency 1 and queue for 30 seconds; these are
-  configurable with `ARDA_MANWE_RESOURCE_GROUP_CONCURRENCY` and
-  `ARDA_MANWE_RESOURCE_GROUP_QUEUE_TIMEOUT_SECONDS`
-- provider health is refreshed every 60 seconds; enrollment alone never implies health
+The source graph is reconciled. Seven unattached root migration shims, eleven
+incomplete parallel files directly under `src/adaptive/`, and the undeclared
+`adaptive/service/fleet_persistence.rs` were removed after workspace-wide
+consumer searches found no live users. `src/types.rs` remains the canonical
+public domain model. `adaptive/transport/http.rs` is the active governed HTTP
+runtime started by `--adaptive`; its daemon/IPC code remains a compiled
+compatibility surface and is not advertised as part of the canonical binary.
 
-## Risks to monitor
+## Next action
 
-- if no providers are configured, inference will 503
-- upstream credential/bind mismatches are runtime-only; no compile-time validation
-- future auth/governance injection points are still stubs; treaty over gate may change response headers later
-- gRPC files/state/types exist and compile behind `--features grpc`; the default
-  binary path still does not serve gRPC unless both `--features grpc` and `--grpc`
-  are provided. When enabled, it binds `MANWE_GRPC_PORT` or `0.0.0.0:50051` by default and
-  exposes `HealthModelService` + `RouteGovernanceService`.
+Close the lane-fitness, buffered-streaming, and gRPC process-test gaps in
+[`CHECKLIST.md`](CHECKLIST.md), then repair the telemetry feature contract. Do
+not change port 7171 independently of engine, launcher, and registry consumers.
+
+## Registry/process-owner evidence
+
+The canonical supervised process is now
+`cargo run -p manwe -- --config manwe.toml`; its registered health endpoint is
+`http://127.0.0.1:7171/healthz`. `arda-engine` parses the actual singular
+`[[service]]` command/cwd schema and rejects an empty registry instead of
+silently supervising nothing. On 2026-07-22, `cargo test -p arda-engine` passed
+4 tests and `cargo check --bin arda` passed.

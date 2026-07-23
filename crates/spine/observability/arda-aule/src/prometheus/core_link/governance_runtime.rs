@@ -178,10 +178,10 @@ pub fn write_system_control_projection(core_root: &Path) {
             .unwrap_or_else(|| json!({}));
 
     let snapshot = json!({
-        "schema_version": "annunimas.system.control.v1",
+        "schema_version": "arda.system.control.v1",
         "generated_at_utc": Utc::now().to_rfc3339(),
         "authority": "system_control_projection",
-        "active_ruleset": existing.get("active_ruleset").cloned().unwrap_or_else(|| json!("annunimas_totality")),
+        "active_ruleset": existing.get("active_ruleset").cloned().unwrap_or_else(|| json!("arda_totality")),
         "governance": existing.get("governance").cloned().unwrap_or_else(|| json!({})),
         "providers": existing.get("providers").cloned().unwrap_or_else(|| json!({})),
         "storage": existing.get("storage").cloned().unwrap_or_else(|| json!({})),
@@ -275,7 +275,7 @@ pub fn write_control_plane_lockdown_projection(core_root: &Path) {
     let runtime_generated = summarize_env_file(&runtime_generated_path);
     let required_sockets = read_env_assignment(
         &runtime_generated_path,
-        "ANNUNIMAS_AUTONOMY_REQUIRED_LIVE_SOCKETS",
+        "ARDA_AUTONOMY_REQUIRED_LIVE_SOCKETS",
     )
     .map(|value| {
         value

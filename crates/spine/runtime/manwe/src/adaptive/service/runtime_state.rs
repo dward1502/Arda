@@ -185,7 +185,7 @@ fn reap_stale_provider_reservations(p: &mut ProviderState, now: chrono::DateTime
 }
 
 fn stale_reservation_ttl_seconds() -> i64 {
-    std::env::var("ARDA_CHARON_RESERVATION_TTL_SECONDS")
+    std::env::var("ARDA_MANWE_RESERVATION_TTL_SECONDS")
         .ok()
         .and_then(|value| value.parse::<i64>().ok())
         .filter(|value| *value > 0)
@@ -243,7 +243,7 @@ pub(super) fn provider_unavailable_reason(
             "provider_id": p.id,
             "reason": "half_open_probe_throttled",
             "detail": "provider cooldown expired; routing only a probe fraction until a request succeeds",
-            "probe_stride": std::env::var("ARDA_CHARON_HALF_OPEN_PROBE_STRIDE")
+            "probe_stride": std::env::var("ARDA_MANWE_HALF_OPEN_PROBE_STRIDE")
                 .ok()
                 .and_then(|value| value.parse::<u32>().ok())
                 .filter(|value| *value > 0)
@@ -431,7 +431,7 @@ fn should_probe_local_provider(provider: &ProviderState, now: chrono::DateTime<U
 }
 
 fn local_health_probe_interval_seconds() -> i64 {
-    std::env::var("ARDA_CHARON_LOCAL_HEALTH_PROBE_INTERVAL_SECONDS")
+    std::env::var("ARDA_MANWE_LOCAL_HEALTH_PROBE_INTERVAL_SECONDS")
         .ok()
         .and_then(|value| value.parse::<i64>().ok())
         .filter(|value| *value > 0)
@@ -439,7 +439,7 @@ fn local_health_probe_interval_seconds() -> i64 {
 }
 
 fn local_health_probe_timeout_seconds() -> u64 {
-    std::env::var("ARDA_CHARON_LOCAL_HEALTH_PROBE_TIMEOUT_SECONDS")
+    std::env::var("ARDA_MANWE_LOCAL_HEALTH_PROBE_TIMEOUT_SECONDS")
         .ok()
         .and_then(|value| value.parse::<u64>().ok())
         .filter(|value| *value > 0)
@@ -554,7 +554,7 @@ async fn probe_local_model(base_url: &str, model_id: &str) -> (bool, Option<u64>
 }
 
 fn local_model_probe_timeout_seconds() -> u64 {
-    std::env::var("ARDA_CHARON_LOCAL_MODEL_PROBE_TIMEOUT_SECONDS")
+    std::env::var("ARDA_MANWE_LOCAL_MODEL_PROBE_TIMEOUT_SECONDS")
         .ok()
         .and_then(|value| value.parse::<u64>().ok())
         .filter(|value| *value > 0)
@@ -831,10 +831,10 @@ mod tests {
     #[test]
     fn stale_reservation_ttl_uses_positive_env_override() {
         let _guard = ENV_LOCK.lock().expect("env lock");
-        std::env::set_var("ARDA_CHARON_RESERVATION_TTL_SECONDS", "30");
+        std::env::set_var("ARDA_MANWE_RESERVATION_TTL_SECONDS", "30");
         assert_eq!(stale_reservation_ttl_seconds(), 30);
-        std::env::set_var("ARDA_CHARON_RESERVATION_TTL_SECONDS", "0");
+        std::env::set_var("ARDA_MANWE_RESERVATION_TTL_SECONDS", "0");
         assert_eq!(stale_reservation_ttl_seconds(), 900);
-        std::env::remove_var("ARDA_CHARON_RESERVATION_TTL_SECONDS");
+        std::env::remove_var("ARDA_MANWE_RESERVATION_TTL_SECONDS");
     }
 }

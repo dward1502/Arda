@@ -897,7 +897,7 @@ fn capability_receipt_key(provider_id: &str, model_id: &str) -> String {
 }
 
 fn positive_receipt_ttl_hours() -> i64 {
-    std::env::var("ARDA_CHARON_CAPABILITY_POSITIVE_TTL_HOURS")
+    std::env::var("ARDA_MANWE_CAPABILITY_POSITIVE_TTL_HOURS")
         .ok()
         .and_then(|value| value.parse::<i64>().ok())
         .filter(|value| *value > 0)
@@ -905,7 +905,7 @@ fn positive_receipt_ttl_hours() -> i64 {
 }
 
 fn negative_receipt_ttl_hours() -> i64 {
-    std::env::var("ARDA_CHARON_CAPABILITY_NEGATIVE_TTL_HOURS")
+    std::env::var("ARDA_MANWE_CAPABILITY_NEGATIVE_TTL_HOURS")
         .ok()
         .and_then(|value| value.parse::<i64>().ok())
         .filter(|value| *value > 0)

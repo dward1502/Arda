@@ -3,9 +3,9 @@
 - source_id: `src_8417aee8`
 - status: `deep`
 - source_type: `NewsArticle`
-- updated_at_utc: `2026-07-18T05:37:20.666747392+00:00`
+- updated_at_utc: `2026-07-22T22:39:39.703318682+00:00`
 - url: https://example.com/scrapling-like-source
-- athena_book: `/tmp/.tmp46fzwA/books/src_8417aee8.jsonl`
+- athena_book: `/tmp/.tmpv9GL0v/books/src_8417aee8.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary
@@ -24,7 +24,7 @@ Source already present in Athena books; returning existing reference.
 
 Initial shallow ingest completed for NewsArticle. Deep synthesis generated from deterministic governance scaffold.
 
-- confidence: `0.6917`
+- confidence: `0.7467`
 - triad_passed: `true`
 - love_alignment: `0.6000`
 - joule_estimated: `9.7450`

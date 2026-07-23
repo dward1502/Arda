@@ -95,7 +95,7 @@ pub(crate) fn append_jsonl<T: Serialize>(path: &Path, value: &T) -> Result<()> {
 }
 
 pub(crate) fn default_root() -> PathBuf {
-    if let Ok(custom) = std::env::var("ARDA_CHARON_HOME") {
+    if let Ok(custom) = std::env::var("ARDA_MANWE_HOME") {
         return PathBuf::from(custom);
     }
     super::paths::arda_root().join("data/charon")

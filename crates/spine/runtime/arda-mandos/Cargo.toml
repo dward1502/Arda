@@ -9,7 +9,6 @@ authors.workspace = true
 [features]
 default = ["http"]
 http = ["dep:axum", "dep:tower", "dep:tokio-stream"]
-pageindex = []
 
 [dependencies]
 arda-economics = { workspace = true }
@@ -21,7 +20,10 @@ tokio.workspace = true
 async-trait.workspace = true
 tracing.workspace = true
 anyhow.workspace = true
-uuid.workspace = true
+uuid = { workspace = true, features = ["v5"] }
+unicode-normalization = "0.1"
+unicode_categories = "0.1"
+sha2 = "0.10"
 chrono.workspace = true
 axum = { version = "0.7", optional = true }
 tower = { version = "0.5", optional = true, features = ["util"] }

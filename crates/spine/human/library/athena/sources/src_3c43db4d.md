@@ -3,9 +3,9 @@
 - source_id: `src_3c43db4d`
 - status: `deep`
 - source_type: `RawNote`
-- updated_at_utc: `2026-07-18T05:37:23.553114625+00:00`
+- updated_at_utc: `2026-07-22T22:39:40.998737844+00:00`
 - url: governance routing memory safety context tooling
-- athena_book: `/tmp/.tmpCr5Pn8/books/src_3c43db4d.jsonl`
+- athena_book: `/tmp/.tmp0vj42Z/books/src_3c43db4d.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary
@@ -24,7 +24,7 @@ Initial shallow ingest completed for RawNote.
 
 Initial shallow ingest completed for RawNote. Deep synthesis generated from deterministic governance scaffold.
 
-- confidence: `0.7767`
+- confidence: `0.8750`
 - triad_passed: `true`
 - love_alignment: `0.7500`
 - joule_estimated: `11.2250`

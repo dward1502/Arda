@@ -599,6 +599,12 @@ fn hardened_subsystem_inventory() -> Vec<(String, String, String)> {
     ]
 }
 
+pub(crate) fn arda_root() -> PathBuf {
+    std::env::var("ARDA_ROOT")
+        .map(PathBuf::from)
+        .unwrap_or_else(|_| env_or("ARDA_ROOT", "."))
+}
+
 fn env_or(key: &str, default: &str) -> String {
     std::env::var(key).unwrap_or_else(|_| default.to_string())
 }

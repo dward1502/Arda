@@ -1,53 +1,46 @@
+---
+soterion:
+  sigil: SCROLL
+  glyph: 📜
+  code_point: U+1F4DC
+  role: documentation
+  owner: HADES
+  status: active
+  last_reviewed: 2026-07-22
+---
+
+> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-07-22
+
 # arda-economics
 
-`arda-economics` is the Plutus runtime substrate for Arda's resource accounting.
-It tracks provider spend, JouleWork, account balances, relationship continuity,
-and governance evidence, then exposes the combined state over IPC and optional
-HTTP transports.
+Runtime economics substrate for Arda: provider spend accounting, JouleWork measurement provenance, LoveEquation relationship scoring, energy metering/tariffs, `PlutusLedger`, and a persistent appending-events `PlutusService` daemon over IPC and optional HTTP/SSE.
 
-## Main surfaces
+## Verified surface
 
-- `EconomicsEngine`: provider cost models, daily budget state, and threshold alerts.
-- `EnergyMeter`: asynchronous measured/estimated joule sampling with tariff fallback.
-- `JouleWorkTracker`: per-agent work measurements and summaries.
-- `PlutusLedger`: in-memory balances and transfer history.
-- `LoveEquation`: weighted relationship continuity scores.
-- `PlutusService`: validated mutations and atomic `runtime_status.json` persistence.
-- `PlutusDaemon`: Unix socket transport plus optional HTTP API.
+- `EconomicsEngine`, `LinearCostModel`, `ROIMetrics`
+- `JouleWorkTracker` with measurement-source provenance and per-agent summaries
+- `LoveEquation` with configurable weights, relationships, snapshot/restore
+- `EnergyMeter` + `EstimatorMeter` + `HardwareMeter` + `MeterRegistry` + `TariffTable`
+- `PlutusLedger` balances + append-only `runtime_events.jsonl`
+- `PlutusService` with atomic snapshot persistence, v1-to-v2 migration, and governed mutations
+- `PlutusDaemon` Unix socket + optional HTTP/SSE with configurable timeouts
 
-See [INDEX.md](INDEX.md) for module navigation and [BREAKDOWN.md](BREAKDOWN.md)
-for architecture, maturity, and remaining improvements.
+## Verified evidence
+
+Build/test proofpoint: cargo check -p arda-economics + cargo test -p arda-economics 26/26 passing.
 
 ## Runtime state
 
-By default, Plutus stores state under `data/plutus` at the discovered Arda
-workspace root. Override this with `ARDA_PLUTUS_HOME`. Workspace discovery uses
-`ARDA_ROOT`, then the legacy `ANNUNIMAS_ROOT`, then walks upward to the root
-`[workspace]` manifest.
+By default, runtime state lives under `data/plutus`. Override with `ARDA_PLUTUS_HOME`. Workspace discovery uses `ARDA_ROOT`, then `ANNUNIMAS_ROOT`, then upward workspace manifest walk.
 
-The persisted schema is versioned. Version 1 snapshots migrate to version 2 on
-load, preserving all governance records available in the old snapshot. Unknown
-future schema versions are rejected rather than silently rewritten.
+## Live status
 
-Successful mutations are also written to the append-only
-`runtime_events.jsonl` ledger using the shared
-`arda_core::ledger::AppendOnlyLedger` contract.
+See STATUS.md for current health signals, open risks, and ownership.
+
+## Work queue
+
+See CHECKLIST.md for authorship and implementation tracking.
 
 ## Operator export
 
-```text
-cargo run -p arda-aule --bin arda-cli -- plutus export
-cargo run -p arda-aule --bin arda-cli -- plutus export --json
-cargo run -p arda-aule --bin arda-cli -- plutus export --path /path/to/runtime_status.json
-```
-
-The human view summarizes budget pressure, providers, accounts, governance,
-JouleWork, relationships, and append-only event count without requiring direct
-JSON inspection.
-
-## Verification
-
-```text
-cargo test -p arda-economics
-cargo clippy -p arda-economics --all-targets -- -D warnings
-```
+ARDACLIOrCurrentEquivalent path: plutus export / plutus export --json / plutus export --path override.

@@ -1,6 +1,6 @@
 #![cfg(feature = "full-cli")]
 use crate::pipeline::Pipeline;
-use annunimas_core::message::Message;
+use arda_core::message::Message;
 
 impl Pipeline {
     pub async fn run_fleet_health_check(&self) {

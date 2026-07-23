@@ -244,12 +244,12 @@ fn dashboard_env_value(key: &str) -> Option<String> {
 }
 
 fn charon_socket_addr() -> Result<SocketAddr, String> {
-    let host = std::env::var("ARDA_CHARON_HOST")
+    let host = std::env::var("ARDA_MANWE_HOST")
         .ok()
         .map(|value| value.trim().to_string())
         .filter(|value| !value.is_empty())
         .unwrap_or_else(|| DEFAULT_CHARON_HOST.to_string());
-    let port = std::env::var("ARDA_CHARON_PORT")
+    let port = std::env::var("ARDA_MANWE_PORT")
         .ok()
         .and_then(|value| value.parse::<u16>().ok())
         .unwrap_or(DEFAULT_CHARON_PORT);

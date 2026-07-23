@@ -98,7 +98,7 @@ struct CachedRouteSelectionCandidate {
 }
 
 fn route_candidate_cache_ttl() -> StdDuration {
-    let millis = std::env::var("ARDA_CHARON_ROUTE_CANDIDATE_CACHE_MS")
+    let millis = std::env::var("ARDA_MANWE_ROUTE_CANDIDATE_CACHE_MS")
         .ok()
         .and_then(|value| value.parse::<u64>().ok())
         .filter(|value| *value > 0)

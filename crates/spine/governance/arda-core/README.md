@@ -6,31 +6,40 @@ soterion:
   role: "documentation"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-05-21"
-sigil: "⚡"
-domain: "operations"
-purpose: "Shared primitives - Task, Agent, Router, Ledger, Soterion"
-status: "active"
-references:
-  - "core/realm/arda.toml"
-  - "core/realm/agents.toml"
+  last_reviewed: "2026-07-22"
 ---
-
-> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-05-21
 
 # arda-core
 
-Shared primitives and contracts used by the whole workspace.
+Shared primitives and contracts for the Arda governance spine.
 
 ## Purpose
-Provide the canonical data model and traits (`Task`, `Agent`, `Router`, `Ledger`, config, errors) so every crate speaks the same protocol.
+Provide the canonical data model, traits, execution policy, and receipt
+semantics so every upper-layer crate speaks the same protocol instead of
+rolling its own governance surface.
 
-## What's in this crate
-- `agent.rs`: `Agent` trait and agent metadata contracts.
-- `task.rs`: task lifecycle/state and timing/joule fields.
-- `router.rs`: capability-based task routing.
-- `ledger.rs` + `message.rs`: append-only event log model.
-- `daemon.rs`: canonical daemon IPC command/response envelopes.
-- `llm.rs`: provider abstraction and OpenAI-compatible client.
-- `soterion.rs`: sigil metadata/index utilities.
-- `config.rs`, `tool.rs`, `error.rs`: runtime config, tool registry, shared errors.
+## What this crate provides
+- contracts: `Decision`, `DecisionClass`, `Plan`, `Goal`, `Reflection`,
+  `MemoryRecord`, `TriadOutcome`, `PhilosopherVerdict`
+- execution: loop dispatcher, reflector, joule market, council billing,
+  HALT file, pressure-aware bounded background/sync work
+- governance: `GovernanceGates`, policy modes, per-class/action overrides
+- learning: routing bias, best-agent selection, loop economy snapshots
+- messaging/audit: append-only JSONL `Ledger`, `Message`, Soterion metadata
+- operations: `SystemdClient`, service registry state, contract/service
+  record types
+- runtime: `LlmProvider`, OpenAI-compatible HTTP client, capability routing
+
+## Verified state
+- `cargo check -p arda-core` -> OK
+- `cargo test -p arda-core` -> 74/74 passing
+  - 74 unit tests
+  - 1 smoke test: `sovereign_baseline_contract_is_migrated`
+  - 0 doc-tests
+- README/BREAKDOWN/STATUS/PLAN aligned to current source
+
+## Documentation
+- `INDEX.md` — module map
+- `BREAKDOWN.md` — module inventory and responsibilities
+- `STATUS.md` — build/runtime evidence
+- `PLAN.md` — combined plan and checklist for current and future work

@@ -2,7 +2,7 @@
 use std::path::PathBuf;
 
 pub(super) fn default_provider_config_path() -> PathBuf {
-    if let Ok(path) = std::env::var("ARDA_CHARON_PROVIDER_CONFIG") {
+    if let Ok(path) = std::env::var("ARDA_MANWE_PROVIDER_CONFIG") {
         return PathBuf::from(path);
     }
     crate::adaptive::service::paths::arda_root().join("config/governance/charon.providers.toml")

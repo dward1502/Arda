@@ -22,6 +22,8 @@ pub struct Service {
     /// (e.g. the HUD binary only exists after its own build step).
     pub exe: PathBuf,
     pub args: Vec<String>,
+    /// Working directory for the child process.
+    pub cwd: Option<PathBuf>,
     /// If true, a missing exe is a hard error rather than a skip. Defaults to
     /// false for backwards compatibility with the optional-launcher behaviour.
     pub required: bool,
@@ -139,6 +141,7 @@ impl Supervisor {
                     name: svc.name,
                     exe: svc.exe.clone(),
                     args: svc.args.clone(),
+                    cwd: svc.cwd.clone(),
                     required: svc.required,
                 };
                 handles.push(tokio::spawn(async move {
@@ -220,6 +223,9 @@ async fn supervise_one(
         let mut cmd = Command::new(&svc.exe);
         for a in &svc.args {
             cmd.arg(a);
+        }
+        if let Some(cwd) = &svc.cwd {
+            cmd.current_dir(cwd);
         }
         cmd.stdin(Stdio::null())
             .stdout(Stdio::inherit())
@@ -322,6 +328,7 @@ mod tests {
             exe: PathBuf::from("/usr/bin/sleep"),
             // Plain numeric duration (no shell arithmetic — we exec sleep directly).
             args: vec!["5".into()],
+            cwd: None,
             required: false,
         };
         let exists = svc.exe.exists();

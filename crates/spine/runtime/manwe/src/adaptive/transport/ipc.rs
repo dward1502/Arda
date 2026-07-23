@@ -37,7 +37,7 @@ pub async fn run_ipc_server(service: CharonService, socket_path: PathBuf) -> Res
 }
 
 fn ipc_connection_limit() -> usize {
-    std::env::var("ARDA_CHARON_IPC_MAX_CONCURRENCY")
+    std::env::var("ARDA_MANWE_IPC_MAX_CONCURRENCY")
         .ok()
         .and_then(|raw| raw.parse::<usize>().ok())
         .filter(|value| *value > 0)
@@ -45,16 +45,15 @@ fn ipc_connection_limit() -> usize {
 }
 
 pub async fn send_command(socket_path: PathBuf, cmd: &str, payload: Value) -> Result<Value> {
-    let mut stream =
-        UnixStream::connect(&socket_path)
-            .await
-            .map_err(|e| ArdaError::Agent {
-                agent: "charon".to_string(),
-                message: format!(
-                    "failed to connect to CHARON socket {}: {e}",
-                    socket_path.display()
-                ),
-            })?;
+    let mut stream = UnixStream::connect(&socket_path)
+        .await
+        .map_err(|e| ArdaError::Agent {
+            agent: "charon".to_string(),
+            message: format!(
+                "failed to connect to CHARON socket {}: {e}",
+                socket_path.display()
+            ),
+        })?;
     let request = json!({
         "cmd": cmd,
         "payload": payload,

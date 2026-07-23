@@ -125,13 +125,13 @@ fn agent_quota_limits(provider: &ProviderState, req: &ManweRequestEnvelope) -> A
     if limits.minute.is_none() {
         limits.minute = provider_fraction_limit(
             provider.requests_per_minute,
-            "ARDA_CHARON_AGENT_MINUTE_QUOTA_FRACTION",
+            "ARDA_MANWE_AGENT_MINUTE_QUOTA_FRACTION",
         );
     }
     if limits.day.is_none() {
         limits.day = provider_fraction_limit(
             provider.requests_per_day,
-            "ARDA_CHARON_AGENT_DAY_QUOTA_FRACTION",
+            "ARDA_MANWE_AGENT_DAY_QUOTA_FRACTION",
         );
     }
     limits
@@ -141,10 +141,10 @@ fn agent_quota_limits_for_request(req: &ManweRequestEnvelope) -> AgentQuotaLimit
     AgentQuotaLimits {
         minute: option_u64(&req.options, "agent_requests_per_minute")
             .or_else(|| option_u64(&req.options, "per_agent_requests_per_minute"))
-            .or_else(|| env_u64("ARDA_CHARON_AGENT_REQUESTS_PER_MINUTE")),
+            .or_else(|| env_u64("ARDA_MANWE_AGENT_REQUESTS_PER_MINUTE")),
         day: option_u64(&req.options, "agent_requests_per_day")
             .or_else(|| option_u64(&req.options, "per_agent_requests_per_day"))
-            .or_else(|| env_u64("ARDA_CHARON_AGENT_REQUESTS_PER_DAY")),
+            .or_else(|| env_u64("ARDA_MANWE_AGENT_REQUESTS_PER_DAY")),
     }
 }
 

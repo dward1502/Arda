@@ -20,8 +20,7 @@ last_reviewed: "2026-07-21"
 ## Name / Identity
 
 `CHARON` is now implemented in `crates/spine/runtime/manwe`. This document is
-the canonical operator plan for that gateway surface. Historic narration is
-preserved at `docs/plans/original-human-plan-narration/CHARON.md`.
+the canonical operator plan for that gateway surface.
 
 ## Overview
 
@@ -39,10 +38,11 @@ The live `manwe`/ex-CHARON contract is represented by these primary surfaces:
 - `crates/spine/runtime/manwe` — canonical live gateway crate
 - `manwe.toml` — default local provider catalog; falls back to embedded local
   Ollama defaults if absent/malformed
-- `crates/spine/runtime/manwe/src/grpc_types.rs` — live gRPC router/state surface
+- `crates/spine/runtime/manwe/src/grpc.rs` — feature-gated gRPC server surface
+- `crates/spine/runtime/manwe/src/adaptive/transport/http.rs` — governed
+  adaptive HTTP surface
 - `data/mnemosyne/obsidian_index.jsonl`
 - `docs/plans/CHARON.md` — this operator-facing plan narrative
-- `docs/plans/original-human-plan-narration/CHARON.md` — historic narration
 
 ## Current Contract
 
@@ -114,9 +114,9 @@ Verified temporary-port evidence on 2026-07-21/22:
 
 ### Degraded / Blocked
 
-- Governance/quota/bandit modules compile and are tested, but the stable HTTP
-  dispatch authority currently uses deterministic hard filters and task-fit
-  scoring rather than the full adaptive service policy stack.
+- The full governed adaptive service is active only when `--adaptive` is
+  requested and the crate is built with `adaptive`; static mode intentionally
+  retains its separate lightweight provider catalog.
 - Streaming requests hold resource-group capacity through stream lifetime, but
   their receipts stop at dispatch/header evidence; final streaming token and
   quality accounting remains follow-up work.
@@ -127,9 +127,9 @@ Verified temporary-port evidence on 2026-07-21/22:
 
 ### Follow-up Work
 
-1. Unify deterministic HTTP authority with the deeper adaptive policy stack.
-   - Preserve health/context/modality/resource gates as non-overridable filters.
-   - Add quota, governance, and learning inputs incrementally behind tests.
+1. Close the remaining adaptive runtime gaps.
+   - Implement or retire the lane-fitness snapshot hook.
+   - Decide between true SSE pass-through and an explicitly buffered contract.
 2. Extend resource policy.
    - Add per-host concurrency limits to fleet configuration.
    - Prefer alternate eligible resource groups before queueing when task fit is
@@ -149,8 +149,8 @@ Verified temporary-port evidence on 2026-07-21/22:
    - Add request counters, failover counters, quota-burn counters, and
      route latency histograms only after the shared convention is selected.
 6. Operator documentation.
-   - Keep this human plan synchronized with `crates/spine/runtime/manwe`
-     and `crates/spine/runtime/manwe/src/grpc_types.rs` for router/provider
+   - Keep this human plan synchronized with `crates/spine/runtime/manwe`,
+     `src/grpc.rs`, and `src/adaptive/transport/http.rs` for router/provider
      state evidence.
    - Treat runtime posture as evidence-based and timestamp-sensitive.
 
@@ -197,6 +197,5 @@ curl -s http://127.0.0.1:7171/v1/chat/completions ...
 - Crate: `crates/spine/runtime/manwe`
 - Live crate docs: `crates/spine/runtime/manwe/README.md`,
   `crates/spine/runtime/manwe/BREAKDOWN.md`
-- Original narration archive: `docs/plans/original-human-plan-narration/CHARON.md`
 - Archive docs: `docs/archive/charon-manwe-migration.md`,
   `docs/archive/MANWE_FLEET_LOOKUP_PLAN.md`

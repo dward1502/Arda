@@ -1,15 +1,14 @@
 use anyhow::Result;
 use arda_mandos::{OracleQuery, OracleService};
-use chrono::Utc;
 
 fn query(id: &str) -> OracleQuery {
-    OracleQuery {
-        id: id.to_string(),
-        task: "Should target-local audit coverage rely on isolated runtime state?".to_string(),
-        context: vec!["target-local evidence".to_string()],
-        requester: "oracle-target-local".to_string(),
-        timestamp: Utc::now(),
-    }
+    let mut query = OracleQuery::new(
+        id,
+        "Should target-local audit coverage rely on isolated runtime state?",
+        "oracle-target-local",
+    );
+    query.context = vec!["target-local evidence".to_string()];
+    query
 }
 
 #[tokio::test]

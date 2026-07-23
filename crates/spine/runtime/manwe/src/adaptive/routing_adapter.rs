@@ -9,14 +9,16 @@ use serde_json::Value;
 
 use crate::adaptive::service::types::CharonService;
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct AdaptiveRoutingAdapter {
     service: std::sync::Arc<CharonService>,
 }
 
 impl AdaptiveRoutingAdapter {
     pub fn new() -> Self {
-        let service = std::sync::Arc::new(CharonService::new("."));
+        let service = std::sync::Arc::new(
+            CharonService::new(".").expect("initialize governed adaptive routing service"),
+        );
         Self { service }
     }
 

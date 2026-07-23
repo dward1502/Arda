@@ -1,3 +1,4 @@
+#![cfg(feature = "full-cli")]
 use arda_varda::transport::expand_home;
 use arda_varda::AthenaAgent;
 use arda_core::config::Config;
@@ -98,7 +99,7 @@ pub(crate) fn set_runtime_defaults() -> anyhow::Result<()> {
     let homes = [
         ("ARDA_ATHENA_HOME", cwd.join("data/athena")),
         ("ARDA_PROMETHEUS_HOME", cwd.join("data/prometheus")),
-        ("ARDA_CHARON_HOME", cwd.join("data/charon")),
+        ("ARDA_MANWE_HOME", cwd.join("data/charon")),
         ("ARDA_HADES_HOME", cwd.join("data/hades")),
         ("ARDA_HERMES_HOME", cwd.join("data/hermes")),
         ("ARDA_MNEMOSYNE_HOME", cwd.join("data/mnemosyne")),
@@ -115,7 +116,7 @@ pub(crate) fn set_runtime_defaults() -> anyhow::Result<()> {
     for (socket_key, file) in [
         ("ARDA_ATHENA_SOCKET", "athena.sock"),
         ("ARDA_PROMETHEUS_SOCKET", "prometheus.sock"),
-        ("ARDA_CHARON_SOCKET", "charon.sock"),
+        ("ARDA_MANWE_SOCKET", "charon.sock"),
         ("ARDA_HADES_SOCKET", "hades.sock"),
         ("ARDA_HERMES_SOCKET", "hermes.sock"),
         ("ARDA_MNEMOSYNE_SOCKET", "mnemosyne.sock"),

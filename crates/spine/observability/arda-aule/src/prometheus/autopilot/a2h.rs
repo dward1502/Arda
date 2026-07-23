@@ -1,6 +1,6 @@
 #![cfg(feature = "full-cli")]
 // sigil: REPAIR
-//! Agent-to-Human (A2H) message writer using `annunimas-comm` schemas.
+//! Agent-to-Human (A2H) message writer using `arda-orome` comms.
 //! Appends JSON-encoded `A2HMessage` records to `data/comm/a2h.jsonl`
 //! when the autopilot needs human approval (Oracle escalation, budget
 //! exhaustion, etc.).

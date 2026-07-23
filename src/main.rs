@@ -102,10 +102,17 @@ async fn main() -> anyhow::Result<()> {
     // Harness tap-in surface: the ONE port Hermes/Agent connects to. Honours
     // `--harness-addr` (e.g. to expose on a different interface) and falls back
     // to 127.0.0.1:7878.
+    let client = reqwest::Client::builder()
+        .timeout(arda_engine::harness::DEFAULT_MANWE_PROXY_TIMEOUT)
+        .build()
+        .unwrap_or_default();
     let harness_state = arda_engine::harness::HarnessState {
         child_pids: harness_pids,
         service_names: Arc::new(reg.services.iter().map(|s| s.name.clone()).collect()),
         manwe_url: "http://127.0.0.1:7171".to_string(),
+        client,
+        manwe_proxy_timeout: arda_engine::harness::DEFAULT_MANWE_PROXY_TIMEOUT,
+        manwe_proxy_bearer: std::env::var("ARDA_MANWE_PROXY_BEARER").ok(),
     };
     let harness_addr: Option<SocketAddr> = cli
         .harness_addr

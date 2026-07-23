@@ -372,20 +372,20 @@ fn probe_model_score(model_id: &str, latency_ms: Option<u64>) -> i64 {
 }
 
 fn catalog_reconciliation_enabled() -> bool {
-    std::env::var("ARDA_CHARON_CATALOG_RECONCILE_ENABLED")
+    std::env::var("ARDA_MANWE_CATALOG_RECONCILE_ENABLED")
         .map(|value| !matches!(value.to_ascii_lowercase().as_str(), "0" | "false" | "no"))
         .unwrap_or(true)
 }
 
 fn initial_delay_seconds() -> u64 {
-    std::env::var("ARDA_CHARON_CATALOG_RECONCILE_INITIAL_DELAY_SECONDS")
+    std::env::var("ARDA_MANWE_CATALOG_RECONCILE_INITIAL_DELAY_SECONDS")
         .ok()
         .and_then(|value| value.parse::<u64>().ok())
         .unwrap_or(300)
 }
 
 fn interval_seconds() -> u64 {
-    std::env::var("ARDA_CHARON_CATALOG_RECONCILE_INTERVAL_SECONDS")
+    std::env::var("ARDA_MANWE_CATALOG_RECONCILE_INTERVAL_SECONDS")
         .ok()
         .and_then(|value| value.parse::<u64>().ok())
         .unwrap_or(21_600)

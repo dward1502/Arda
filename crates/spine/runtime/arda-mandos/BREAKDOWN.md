@@ -22,7 +22,7 @@ Owner: hades | Sigil: 🜏 SCROLL | Status: active
 It provides:
 
 - `OracleEngine` with triad-gated verdict generation (`Aurelius`/`Bacon`/`Sun Tzu`)
-- `Verdict` model with outcome, gate scores, reasoning, resonance, and governance metadata
+- `Verdict` model with outcome, gate scores, typed evidence provenance, bounded reasoning graph, resonance, and governance metadata
 - `PageIndex` for document/page indexing and keyword search
 - `OracleNotifier` for formatted output channels
 - `TruthScorer` / `DefaultTruthScorer` / `score_gate()` for confidence/risk/readiness scoring
@@ -39,22 +39,27 @@ It provides:
 
 ## Verification status
 
-- `cargo test -p arda-mandos --all-features`: 15 passed, 0 failed
-- `cargo test -p arda-mandos --no-default-features`: 15 passed, 0 failed; warning-free
+- `cargo test -p arda-mandos --all-features`: 51 passed, 0 failed
+- `cargo test -p arda-mandos --no-default-features`: 50 passed, 0 failed; warning-free
 - Crate-local strict Clippy passes with `--no-deps`; full dependency-closure strict Clippy remains separately blocked by pre-existing `arda-core` findings
-- Direct consumer checks pass: `cargo check -p arda-aule --features full-cli` and `cargo check -p arda-orome`
+- Direct consumer check: `cargo check -p arda-orome` passes. The latest
+  `cargo check -p arda-aule --features full-cli` reaches `arda-aule` and remains blocked by
+  its pre-existing `serde_json::json!` recursion limit in `autopilot/runner.rs`.
 - Doc tests: 0
 - Import alias fixed: `arda-plutus` renamed to `arda-economics`; `use arda_economics::PlutusService` updated in `src/service.rs`
 
 ## Agentic-OS abstractions
 
 - **Oracle engine**: `OracleEngine` evaluates queries through triad gates with resonance, governance, and love-equation guard
-- **Verdict model**: `VerdictOutcome` (`Pass`/`Fail`/`Conditional`), `TriadGates`, `GateReasoning`, `VerdictGovernance`
+- **Verdict model**: `VerdictOutcome` (`Pass`/`Fail`/`Conditional`), `TriadGates`, bounded `ReasoningContext`, `VerdictGovernance`
+- **Evidence provenance**: typed supplied/retrieved/inferred/unavailable references with observation-bound SHA-256 digests, per-gate assessments, explicit uncertainty/corroboration signals, integrity rejection, and export redaction
 - **Query types**: `Market`, `Document`, `Financial`, `General`
+- **Typed query contract**: centralized validation and limits, snake-case wire names,
+  correlation/causation IDs, caller/evaluation timestamps, and in-process idempotency
 - **Truth scoring**: `TruthScorer` trait with confidence/evidence; `score_gate()` returns truth confidence, operational risk, autonomy readiness, and gating decision
 - **Page index**: `PageIndex`/`PageTree`/`TocEntry` for TOC-based document indexing with keyword search
 - **Notify**: `OracleNotifier` formats verdict/query output for channels
-- **Context**: `ReasoningContext` placeholder for tree-structured queries
+- **Context**: bounded deterministic claim/evidence/objection/assumption graph with stable IDs, typed edges, validation, summaries, and public-only rationales
 - **Runtime service**: `OracleService` manages `runtime_status.json` and `verdict_history.jsonl`; emits background `joule` work and relationship signals to `PlutusService`
 - **Daemon**: `OracleDaemonConfig` + `OracleDaemon` run IPC + optional HTTP; HTTP exposes `/status`, `/evaluate`, `/verdicts`, `/paths`, `/events`
 
@@ -63,10 +68,11 @@ It provides:
 | Module | Role |
 |--------|------|
 | `lib.rs` | Public exports for all subsystems |
+| `evidence.rs` | Typed evidence references, integrity/freshness metadata, assessments, and signals |
 | `reasoning.rs` | `OracleEngine`, `OracleQuery`, `Verdict`, triad gates, governance |
 | `pageindex.rs` | `PageIndex`, `PageTree`, `TocEntry`, `SearchResult` |
 | `notify.rs` | `OracleNotifier` formatting for output channels |
-| `context.rs` | `ReasoningContext` placeholder |
+| `context.rs` | Bounded `ReasoningContext` graph, limits, validation, deterministic traversal, and summaries |
 | `scoring.rs` | `TruthScorer`, `DefaultTruthScorer`, `score_gate()` |
 | `service.rs` | `OracleService`: runtime orchestration, verdict persistence, Plutus integration |
 | `transport/mod.rs` | Daemon config + runner |

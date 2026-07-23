@@ -1111,6 +1111,111 @@ action_classes:
     }
 
     #[test]
+    fn dispatch_skips_terminal_tasks_and_does_not_double_count_budget() {
+        let (_d, st, q) = tmp_state();
+        let g = Goal::new("g1", "T", "I", "owner", GoalPriority::Medium);
+        state::write_goal(&st, &g).unwrap();
+        let today_suffix = format!("_{}", Utc::now().format("%Y%m%d"));
+        let plan_id = format!("plan_g1{today_suffix}");
+        let plan = Plan::new(
+            &plan_id,
+            "g1",
+            "summary",
+            vec![
+                PlanStep {
+                    intent: "probe_provider".into(),
+                    params: json!({}),
+                },
+                PlanStep {
+                    intent: "probe_provider".into(),
+                    params: json!({}),
+                },
+            ],
+        );
+        state::write_plan(&st, &plan).unwrap();
+
+        let mut t0 = Task::new("t0", "probe_provider").with_plan_lineage(&plan_id, 0);
+        t0.status = TaskStatus::Complete;
+        t0.joule_cost_estimated = 4.0;
+        let t1 = Task::new("t1", "probe_provider").with_plan_lineage(&plan_id, 1);
+        state::append_task(&q, &t0).unwrap();
+        state::append_task(&q, &t1).unwrap();
+
+        let pass = dispatch_full(
+            &st,
+            &q,
+            64,
+            &ZeroJouleEstimator,
+            &UnconsultedTriad,
+            &StaticBidBoard,
+            &GovernanceGates::permissive(),
+        )
+        .unwrap();
+        assert_eq!(pass.dispatched.len(), 1);
+        assert_eq!(pass.budget_blocked.len(), 0);
+        assert_eq!(pass.already_terminal, vec![t0.id.to_string()]);
+    }
+
+    #[test]
+    fn dispatch_cap_limits_dispatched_task_count() {
+        let (_d, st, q) = tmp_state();
+        let g = Goal::new("g1", "T", "I", "owner", GoalPriority::Medium);
+        state::write_goal(&st, &g).unwrap();
+        let today_suffix = format!("_{}", Utc::now().format("%Y%m%d"));
+        let plan_id = format!("plan_g1{today_suffix}");
+        let plan = Plan::new(
+            &plan_id,
+            "g1",
+            "summary",
+            (0..3)
+                .map(|_| PlanStep {
+                    intent: "probe_provider".into(),
+                    params: json!({}),
+                })
+                .collect(),
+        );
+        state::write_plan(&st, &plan).unwrap();
+        for i in 0..3 {
+            let t = Task::new(format!("t{i}"), "probe_provider").with_plan_lineage(&plan_id, i);
+            state::append_task(&q, &t).unwrap();
+        }
+
+        let pass = dispatch_full(
+            &st,
+            &q,
+            1,
+            &ZeroJouleEstimator,
+            &UnconsultedTriad,
+            &StaticBidBoard,
+            &GovernanceGates::permissive(),
+        )
+        .unwrap();
+        assert_eq!(pass.dispatched.len(), 1);
+        assert_eq!(pass.capped_at, Some(1));
+        assert_eq!(pass.budget_blocked.len(), 0);
+        assert_eq!(pass.no_route.len(), 0);
+    }
+
+    #[test]
+    fn dispatch_blocks_budget_when_estimator_reports_high_joule_cost() {
+        struct OneHundredJoule;
+        impl JouleEstimator for OneHundredJoule {
+            fn estimate_for_task(&self, _task: &Task) -> f64 {
+                100.0
+            }
+        }
+
+        let (_d, st, q) = tmp_state();
+        let g = Goal::new("g1", "T", "I", "owner", GoalPriority::Medium);
+        state::write_goal(&st, &g).unwrap();
+        seed_one_plan_with_tasks(&st, &q, "probe_provider");
+        let pass = dispatch_with_cap_and_estimator(&st, &q, 64, &OneHundredJoule).unwrap();
+        assert_eq!(pass.dispatched.len(), 1);
+        // Budget gate does not reject a single unknown task for a high estimator.
+        assert_eq!(pass.budget_blocked.len(), 0);
+    }
+
+    #[test]
     fn dispatch_blocks_when_goal_budget_exhausted() {
         struct FixedThree;
         impl JouleEstimator for FixedThree {

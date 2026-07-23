@@ -28,7 +28,7 @@ pub(super) struct StickyRouteSession {
 }
 
 pub(super) fn route_history_limit() -> usize {
-    std::env::var("ARDA_CHARON_ROUTE_HISTORY_LIMIT")
+    std::env::var("ARDA_MANWE_ROUTE_HISTORY_LIMIT")
         .ok()
         .and_then(|value| value.parse::<usize>().ok())
         .filter(|value| *value > 0)

@@ -27,7 +27,7 @@ Files to restore/overwrite from captured base:
 - `Cargo.toml` ← annunimas base, rewritten for `arda-*` deps only
 
 Rename rules:
-- `annunimas_core` → `arda_core`
+- `arda_core` → `arda_core`
 - `annunimas_governance` → `arda_governance`
 - `annunimas_plutus` → remove or map to `arda-economics`/`arda-core`
   concepts

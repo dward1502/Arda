@@ -9,7 +9,7 @@ pub(super) fn write_warden_guardhouse(core_root: &Path) {
         }
     }
 
-    let queue_path = std::env::var("ANNUNIMAS_WARDEN_QUEUE_PATH")
+    let queue_path = std::env::var("ARDA_WARDEN_QUEUE_PATH")
         .map(PathBuf::from)
         .unwrap_or_else(|_| PathBuf::from("data/warden/informant_queue.jsonl"));
     let workspace_root = core_root
@@ -398,7 +398,7 @@ pub(super) fn write_warden_edge_contract(core_root: &Path) {
         .parent()
         .map(Path::to_path_buf)
         .unwrap_or_else(|| PathBuf::from("."));
-    let queue_path = std::env::var("ANNUNIMAS_WARDEN_QUEUE_PATH")
+    let queue_path = std::env::var("ARDA_WARDEN_QUEUE_PATH")
         .map(PathBuf::from)
         .unwrap_or_else(|_| PathBuf::from("data/warden/informant_queue.jsonl"));
     let queue_path = if queue_path.is_relative() {

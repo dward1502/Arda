@@ -3,9 +3,9 @@
 - source_id: `src_7afb5452`
 - status: `deep`
 - source_type: `RawNote`
-- updated_at_utc: `2026-07-18T05:37:23.538855289+00:00`
+- updated_at_utc: `2026-07-22T22:39:40.993092244+00:00`
 - url: OPPOSING_VIEWPOINT CHALLENGE for src_3c43db4d: This perspective questions assump
-- athena_book: `/tmp/.tmpCr5Pn8/books/src_7afb5452.jsonl`
+- athena_book: `/tmp/.tmp0vj42Z/books/src_7afb5452.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary
@@ -24,7 +24,7 @@ Initial shallow ingest completed for RawNote.
 
 Initial shallow ingest completed for RawNote. Deep synthesis generated from deterministic governance scaffold.
 
-- confidence: `0.7500`
+- confidence: `0.8217`
 - triad_passed: `true`
 - love_alignment: `0.7500`
 - joule_estimated: `12.7250`

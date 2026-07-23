@@ -9,7 +9,7 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 /// One upstream OpenAI-compatible endpoint.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -66,18 +66,23 @@ impl ManweConfig {
     /// Load from `path`; on any failure fall back to [`ManweConfig::embedded`].
     /// Fleet/node dynamic loading is deferred to the adaptive baseline.
     pub fn load(path: &Path) -> ManweConfig {
+        Self::load_with_source(path).0
+    }
+
+    /// Load static configuration and retain a credential-free description of
+    /// the source selected by the fallback contract.
+    pub fn load_with_source(path: &Path) -> (ManweConfig, StaticConfigSource) {
         match std::fs::exists(path) {
             Ok(true) => match std::fs::read_to_string(path) {
-                Ok(raw) => {
-                    let cfg: ManweConfig = toml::from_str(&raw).unwrap_or_default();
-                    if cfg.providers.is_empty() {
-                        return Self::embedded();
-                    }
-                    cfg
-                }
-                Err(_) => Self::embedded(),
+                Ok(raw) => match toml::from_str::<ManweConfig>(&raw) {
+                    Ok(cfg) if !cfg.providers.is_empty() => (cfg, StaticConfigSource::File),
+                    Ok(_) => (Self::embedded(), StaticConfigSource::EmbeddedEmpty),
+                    Err(_) => (Self::embedded(), StaticConfigSource::EmbeddedMalformed),
+                },
+                Err(_) => (Self::embedded(), StaticConfigSource::EmbeddedUnreadable),
             },
-            Ok(false) | Err(_) => Self::embedded(),
+            Ok(false) => (Self::embedded(), StaticConfigSource::EmbeddedMissing),
+            Err(_) => (Self::embedded(), StaticConfigSource::EmbeddedUnreadable),
         }
     }
 
@@ -150,6 +155,41 @@ impl ManweConfig {
     }
 }
 
+/// Credential-free static configuration provenance exposed by health and
+/// capabilities responses.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum StaticConfigSource {
+    File,
+    EmbeddedMissing,
+    EmbeddedUnreadable,
+    EmbeddedMalformed,
+    EmbeddedEmpty,
+}
+
+/// Resolve Manwe's adaptive state directory. Canonical Manwe variables own
+/// the path; legacy Charon variables remain lower-precedence aliases.
+pub fn adaptive_state_dir(arda_home: Option<&Path>) -> PathBuf {
+    if let Some(path) = std::env::var_os("ARDA_MANWE_STATE_DIR") {
+        return PathBuf::from(path);
+    }
+    if let Some(path) = std::env::var_os("ARDA_MANWE_HOME") {
+        return PathBuf::from(path);
+    }
+    arda_home
+        .map(|root| root.join("data/manwe"))
+        .unwrap_or_else(|| PathBuf::from("data/manwe"))
+}
+
+/// Resolve the static fleet catalog path. The canonical variable wins over
+/// its compatibility alias and the repository-relative default.
+pub fn static_fleet_config_path() -> PathBuf {
+    std::env::var_os("ARDA_MANWE_FLEET_CONFIG")
+        .or_else(|| std::env::var_os("ARDA_MANWE_FLEET_CONFIG"))
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from("config/fleet.toml"))
+}
+
 /// Config validation error.
 #[derive(Debug, thiserror::Error)]
 #[error("manwe config error: {0}")]
@@ -168,4 +208,38 @@ impl ConfigError {
 #[error("{message}")]
 struct ManweConfigErrorInner {
     message: String,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tempfile::tempdir;
+
+    #[test]
+    fn load_reports_file_and_embedded_fallback_sources() {
+        let dir = tempdir().expect("tempdir");
+        let missing = dir.path().join("missing.toml");
+        let (_, source) = ManweConfig::load_with_source(&missing);
+        assert_eq!(source, StaticConfigSource::EmbeddedMissing);
+
+        let malformed = dir.path().join("malformed.toml");
+        std::fs::write(&malformed, "[providers\n").expect("write malformed config");
+        let (_, source) = ManweConfig::load_with_source(&malformed);
+        assert_eq!(source, StaticConfigSource::EmbeddedMalformed);
+
+        let valid = dir.path().join("valid.toml");
+        std::fs::write(
+            &valid,
+            r#"
+default_provider = "local"
+[providers.local]
+base_url = "http://127.0.0.1:11434/v1"
+models = ["test"]
+"#,
+        )
+        .expect("write valid config");
+        let (config, source) = ManweConfig::load_with_source(&valid);
+        assert_eq!(source, StaticConfigSource::File);
+        assert!(config.providers.contains_key("local"));
+    }
 }

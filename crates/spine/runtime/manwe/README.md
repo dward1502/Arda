@@ -1,45 +1,147 @@
 # manwe
 
-`manwe` is the Arda inference gateway crate. It owns provider catalog state, adaptive routing, governance/status surfaces, and the transport/proxy layer for routed LLM requests.
+`manwe` is Arda's local OpenAI-compatible inference gateway. It owns the
+stable HTTP entry point on `127.0.0.1:7171`, discovers local fleet providers,
+selects an eligible upstream, forwards chat-completion requests, and records
+route receipts.
 
-## Current capabilities
+Status: active and under integration cleanup. The default and full governed
+`adaptive` runtimes have maintained process smoke coverage as of 2026-07-23;
+`telemetry` / `--all-features` still requires separate repair. See
+[`STATUS.md`](STATUS.md) for verification evidence and remaining risks.
 
-- Static service spine with async provider state, event writer, route history/sessions, bandit/agent-quota/cache/http-client submodules.
-- Static routing adapter + policy/scoring/selection with lane fitness, fallback, and provider eligibility checks.
-- Catalog reconciliation + runtime state mutation + state I/O for provider/model metadata.
-- Axum HTTP transport with `/status`, `/providers/candidates`, provider capability views, metrics, OpenAI-compatible proxy routes, and streaming support.
-- Optional integration with `arda-core`, `arda-governance`, `arda-economics`, and `arda-vaire`.
+## Runtime surface
 
-## Connected providers
+The binary in `src/main.rs` serves:
 
-Provider configuration is loaded from:
-- `manwe.toml`; falls back to embedded local Ollama defaults if absent/malformed.
-- active fleet nodes from `config/fleet.toml` if present.
+| Method | Path | Purpose |
+|---|---|---|
+| `GET` | `/healthz`, `/health`, `/status` | Runtime, config, and provider health |
+| `GET` | `/providers`, `/state` | Current fleet-provider view |
+| `GET` | `/metrics` | Prometheus text metrics |
+| `GET` | `/v1/models` | OpenAI-compatible model catalog |
+| `GET` | `/v1/capabilities` | Routing mode and resource-group state |
+| `POST` | `/v1/chat/completions` | OpenAI-compatible inference proxy |
 
-OpenAI-compatible providers are supported through the proxy/routing stack.
+Defaults:
 
-## Current limitations / improvement areas
+- HTTP bind: `127.0.0.1:7171`
+- Static config: `manwe.toml`, with an embedded local Ollama fallback
+- Fleet catalog: `config/fleet.toml`, probed at startup and every 60 seconds
+- Model references: explicit `provider/model`, a catalog model ID, `auto`, or
+  `local/auto`
+- Receipts: `data/manwe/route_receipts.jsonl`
 
-- Cache/session cloning: `RouteCandidateCache`, `AgentQuotaWindows`, `BanditStore` use internal mutexes; clone/snapshot behavior is basic.
-- Lane fitness snapshot is currently a stub returning `None`.
-- HTTP client cache is always lazily initialized from `Option`; no explicit prebuild/budget.
-- Some capabilities/methods are placeholder stubs pending deeper implementation.
-- Tests warn under `route_policy_tests` because test items live outside `#[cfg(test)]`.
+Configuration ownership and precedence:
 
-## Status
+- Static forwarding config is owned by `--config` (default `manwe.toml`). A
+  valid file wins; a missing, unreadable, malformed, or provider-empty file
+  selects the embedded Ollama fallback and reports the exact fallback reason.
+- Static fleet discovery is independent of forwarding config and is owned by
+  `ARDA_MANWE_FLEET_CONFIG`, then compatibility alias
+  `ARDA_MANWE_FLEET_CONFIG`, then `config/fleet.toml`. Missing or malformed
+  fleet input produces an empty fleet catalog; it does not replace static
+  forwarding providers.
+- Full governed adaptive mode does not consume either static catalog. Its
+  provider source is `ARDA_MANWE_PROVIDER_CONFIG`, then compatibility alias
+  `ARDA_MANWE_PROVIDER_CONFIG`, then `$ARDA_HOME/config/charon.providers.toml`.
+  Missing or invalid provider input selects governed defaults.
+- Adaptive runtime state is owned by `ARDA_MANWE_STATE_DIR`, then compatibility
+  alias `ARDA_MANWE_HOME`, then `$ARDA_HOME/data/manwe` (or
+  `./data/manwe`). Provider runtime state overlays configured provider identity;
+  it does not own endpoint or credential configuration.
 
-This is a mid-repair snapshot. The default crate builds cleanly, and adaptive
-compilation currently passes. Adaptive selection now filters/prioritizes local
-inference surface candidates for `execution`/`background` lanes via
-`ARDA_LOCAL_INFERENCE_SURFACE` (`mesh`, `llamacpp`, or default `hybrid`).
+`/healthz` and `/v1/capabilities` expose credential-free `config_source`,
+config paths, and `catalog_generation`. Generation starts at `1` after startup
+and increments after each successful catalog reload. No API key values are
+included in these diagnostics.
 
-## Verification status
+## Build and run
 
-- `cargo check -p manwe`: PASS
-- `cargo test -p manwe`: PASS
-- `cargo check -p manwe --features adaptive`: PASS
-- `cargo test -p manwe --features adaptive`: PASS
-- `cargo fmt -p manwe -- --check`: PASS
+From the workspace root:
 
-Verified temporary-port evidence on 2026-07-21/22 follows in
-`STATUS.md`.
+```text
+cargo run -p manwe -- --config manwe.toml
+cargo run -p manwe --features adaptive -- --adaptive
+cargo run -p manwe --features grpc -- --grpc
+```
+
+Useful flags are `--bind`, `--port`, `--config`, `--adaptive`, and `--grpc`.
+`MANWE_ROUTING_MODE=adaptive` is equivalent to `--adaptive`. Requesting an
+adaptive or gRPC mode without compiling its Cargo feature fails fast.
+
+The gRPC server is opt-in. It binds `MANWE_GRPC_PORT`, defaulting to
+`0.0.0.0:50051`, and runs alongside HTTP only when both `--features grpc` and
+`--grpc` are used.
+
+## Cargo features
+
+| Feature | Current effect |
+|---|---|
+| default | Builds the public types/config library and the fleet-backed HTTP gateway |
+| `adaptive` | Compiles the full governed `ManweService`; `--adaptive` starts its policy, quotas, persistence, provider drivers, and HTTP transport |
+| `grpc` | Compiles the tonic services and permits `--grpc` |
+| `telemetry` | Intended to enable adaptive service events through `arda-aule`; currently fails to compile |
+
+`--adaptive` and `MANWE_ROUTING_MODE=adaptive` select the full governed
+`ManweService`. `/v1/capabilities` identifies this runtime as
+`full_governed` with `policy_authority: manwe_service`, `governance: true`, and
+`quota_mesh: true`. Static mode retains the smaller fleet-policy gateway.
+
+Run both maintained process-level contracts with:
+
+```text
+python crates/spine/runtime/manwe/tests/process_smoke.py
+```
+
+## Public library surface
+
+`src/lib.rs` currently exports:
+
+- `config`, `error`, `routing_adapter`, and `types`
+- `adaptive` when the `adaptive` feature is enabled
+- `ManweConfig`, `ManweRequestEnvelope`, `ModelState`, `ProviderState`, and
+  `RouteDecision`
+
+The gateway binary has private modules for provider discovery, receipts,
+resource limits, and optional gRPC. Several other root source files are not
+attached to either crate root; they are catalogued in
+[`BREAKDOWN.md`](BREAKDOWN.md).
+
+## Workspace integration
+
+- `arda-engine` depends on and re-exports the `manwe` library, and its harness
+  proxies `/v1/models` to a configured Manwe URL.
+- `arda-launcher` discovers `MANWE_BASE_URL` / `ARDA_MANWE_BASE_URL` during
+  onboarding.
+- `services.toml` registers the required canonical gateway as
+  `cargo run -p manwe -- --config manwe.toml`, with
+  `http://127.0.0.1:7171/healthz` as its health contract.
+- `arda-engine` deserializes the manifest's singular `[[service]]` command,
+  arguments, working directory, tags, and health metadata. In `--no-ui` mode,
+  it drops launcher/HUD entries and continues to supervise Manwe.
+
+## Verification
+
+The 2026-07-22 documentation pass ran:
+
+```text
+cargo check -p manwe
+cargo test -p manwe
+cargo check -p manwe --features adaptive
+cargo test -p manwe --features adaptive
+cargo check -p manwe --features grpc
+cargo fmt -p manwe -- --check
+```
+
+Those six commands passed. The default test run executed 19 binary tests; the
+adaptive run executed 157 library tests plus the same 19 binary tests. Separate
+`--all-features` check/test runs failed in the telemetry path as recorded in
+`STATUS.md` and `CHECKLIST.md`.
+
+## Documentation
+
+- [`STATUS.md`](STATUS.md) — current evidence, health, boundaries, and risks
+- [`BREAKDOWN.md`](BREAKDOWN.md) — crate shape, active module graph, and consumers
+- [`CHECKLIST.md`](CHECKLIST.md) — prioritized implementation/documentation plan
+- [`PROVIDERS.md`](PROVIDERS.md) — provider configuration notes; refresh pending

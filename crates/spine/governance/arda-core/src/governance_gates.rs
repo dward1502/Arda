@@ -302,4 +302,81 @@ action_classes:
             "invalid_estimated_cost"
         );
     }
+
+    #[test]
+    fn empty_yaml_yields_permissive_defaults() {
+        let g = GovernanceGates::load_from_str("").unwrap();
+        for c in [
+            DecisionClass::Dispatch,
+            DecisionClass::Governance,
+            DecisionClass::Budget,
+            DecisionClass::Retire,
+            DecisionClass::Bid,
+        ] {
+            let p = g.policy_for(c);
+            assert!(!p.require_council);
+            assert_eq!(p.council_joule_cost, 0.0);
+            assert!(!p.block_on_triad_fail);
+        }
+    }
+
+    #[test]
+    fn exact_joule_boundary_is_within_budget() {
+        struct ExactTenJouleBudget;
+        impl AffordabilityPolicy for ExactTenJouleBudget {
+            fn policy_name(&self) -> &'static str {
+                "exact_ten_joule"
+            }
+
+            fn can_afford(&self, estimated_cost: f64) -> bool {
+                estimated_cost <= 10.0
+            }
+        }
+
+        let gates = GovernanceGates::permissive();
+        let bounded = gates.evaluate_affordability(&ExactTenJouleBudget, 10.0);
+        assert!(bounded.allowed);
+        assert_eq!(bounded.reason, "within_budget");
+    }
+
+    #[test]
+    fn block_on_fail_policy_mode_surfaces_for_budget_class() {
+        let raw = r#"
+default:
+  policy_mode: record_and_proceed
+classes:
+  budget:
+    policy_mode: block_on_fail
+"#;
+        let gates = GovernanceGates::load_from_str(raw).unwrap();
+        let budget_policy = gates.policy_for(DecisionClass::Budget);
+        assert!(budget_policy.blocks_on_triad_fail());
+        assert_eq!(
+            budget_policy.policy_mode(),
+            GovernancePolicyMode::BlockOnFail
+        );
+    }
+
+    #[test]
+    fn action_class_override_overrides_class_default() {
+        let raw = r#"
+default:
+  require_council: false
+  council_joule_cost: 0.0
+classes:
+  dispatch:
+    require_council: true
+    council_joule_cost: 1.0
+action_classes:
+  read_only_audit:
+    require_council: false
+"#;
+        let gates = GovernanceGates::load_from_str(raw).unwrap();
+        let class_default = gates.policy_for(DecisionClass::Dispatch);
+        let action_override = gates.policy_for_action_class("read_only_audit");
+        assert!(class_default.require_council);
+        assert_eq!(class_default.council_joule_cost, 1.0);
+        assert!(!action_override.require_council);
+        assert_eq!(action_override.council_joule_cost, 0.0);
+    }
 }

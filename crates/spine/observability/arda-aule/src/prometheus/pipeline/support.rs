@@ -1,8 +1,8 @@
 #![cfg(feature = "full-cli")]
 use crate::orders::OrderStatus;
 use crate::pipeline::Pipeline;
-use annunimas_core::task::Task;
-use annunimas_mnemosyne::InformantEvent;
+use arda_core::task::Task;
+use arda_vaire::InformantEvent;
 
 impl Pipeline {
     pub(super) fn estimate_joule_cost(&self, task_type: &str) -> u64 {
@@ -103,9 +103,9 @@ impl Pipeline {
 mod tests {
     use super::*;
     use crate::core_link::CoreAutonomyProfile;
-    use annunimas_core::ledger::Ledger;
-    use annunimas_core::router::Router;
-    use annunimas_core::task::Task;
+    use arda_core::ledger::Ledger;
+    use arda_core::router::Router;
+    use arda_core::task::Task;
     use proptest::prelude::*;
     use std::collections::HashMap;
     use std::path::PathBuf;

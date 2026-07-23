@@ -77,7 +77,7 @@ pub(super) fn resolve_inference_route_snapshot(
 
     let route_url = std::env::var("ARDA_INFERENCE_ROUTER_ROUTE_URL").ok();
     let socket_path = std::env::var("ARDA_INFERENCE_ROUTER_SOCKET")
-        .or_else(|_| std::env::var("ARDA_CHARON_SOCKET"))
+        .or_else(|_| std::env::var("ARDA_MANWE_SOCKET"))
         .map(PathBuf::from)
         .unwrap_or_else(|_| PathBuf::from("data/charon/charon.sock"));
 

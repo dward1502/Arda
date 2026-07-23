@@ -1,6 +1,6 @@
 #![cfg(feature = "full-cli")]
 use crate::service::{append_jsonl, PrometheusService};
-use annunimas_core::error::Result;
+use arda_core::error::Result;
 use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::Path;
@@ -216,19 +216,19 @@ impl PrometheusService {
     ) -> Result<serde_json::Value> {
         let latest = self.latest_execution_intents_by_id()?;
         let current = latest.get(intent_id).ok_or_else(|| {
-            annunimas_core::error::AnnunimasError::Task(format!("intent not found: {intent_id}"))
+            arda_core::error::ArdaError::Task(format!("intent not found: {intent_id}"))
         })?;
         let from_status = current
             .get("status")
             .and_then(|v| v.as_str())
             .unwrap_or("queued");
         if !is_valid_intent_status(new_status) {
-            return Err(annunimas_core::error::AnnunimasError::Task(format!(
+            return Err(arda_core::error::ArdaError::Task(format!(
                 "invalid intent status: {new_status}"
             )));
         }
         if !is_valid_intent_transition(from_status, new_status) {
-            return Err(annunimas_core::error::AnnunimasError::Task(format!(
+            return Err(arda_core::error::ArdaError::Task(format!(
                 "invalid transition {from_status} -> {new_status}"
             )));
         }

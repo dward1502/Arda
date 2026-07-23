@@ -599,14 +599,11 @@ async fn handle_query(cmd: &CommandInteraction) -> String {
         "Please provide a question".to_string()
     } else {
         let mut engine = OracleEngine::new();
-        let query = OracleQuery {
-            id: Uuid::new_v4().to_string(),
-            task: question.to_string(),
-            context: Vec::new(),
-            requester: "discord".to_string(),
-            timestamp: Utc::now(),
+        let query = OracleQuery::new(Uuid::new_v4().to_string(), question, "discord");
+        let verdict = match engine.evaluate(query) {
+            Ok(verdict) => verdict,
+            Err(error) => return format!("Oracle query rejected: {error}"),
         };
-        let verdict = engine.evaluate(query);
         let outcome = match verdict.outcome {
             VerdictOutcome::Pass => "PASS",
             VerdictOutcome::Fail => "FAIL",

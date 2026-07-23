@@ -3,9 +3,9 @@
 - source_id: `src_ea7a1c0f`
 - status: `deep`
 - source_type: `RawNote`
-- updated_at_utc: `2026-07-18T05:37:23.216306407+00:00`
+- updated_at_utc: `2026-07-22T22:39:40.669466447+00:00`
 - url: context memory routing safety tooling terminal agent harness
-- athena_book: `/tmp/.tmpah7odF/books/src_ea7a1c0f.jsonl`
+- athena_book: `/tmp/.tmpvHjRv7/books/src_ea7a1c0f.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary
@@ -24,8 +24,8 @@ Initial shallow ingest completed for RawNote.
 
 Initial shallow ingest completed for RawNote. Deep synthesis generated from deterministic governance scaffold.
 
-- confidence: `0.6417`
-- triad_passed: `false`
+- confidence: `0.7467`
+- triad_passed: `true`
 - love_alignment: `0.6000`
 - joule_estimated: `9.7250`
 - joule_actual: `10.5030`

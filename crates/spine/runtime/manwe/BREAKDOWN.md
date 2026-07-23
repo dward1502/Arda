@@ -1,163 +1,181 @@
 ---
 soterion:
-  sigil: "SCROLL"
-  glyph: "𓊝"
-  role: "inference_gateway"
+  sigil: "REPAIR"
+  role: "crate_breakdown"
   owner: "HADES"
   status: "active"
   last_reviewed: "2026-07-22"
 ---
 
-# manwe
+# manwe — Crate Breakdown
 
-Local OpenAI-compatible inference gateway and runtime hault for the Arda
-charon/adaptive inference surface. Provides a frozen static root at
-`127.0.0.1:7171` plus a feature-gated adaptive subtree.
+Path: `crates/spine/runtime/manwe`
 
-Owner: hades | Sigil: 🜏 SCROLL | Status: active
+## Purpose
 
-## Summary
+Manwe is Arda's local inference boundary. It gives callers one
+OpenAI-compatible gateway while provider enrollment, health, model identity,
+resource ownership, and routing policy evolve behind it.
 
-`manwe` replaces the legacy hosted multi-process `annunimas-charon` runtime
-with a single local gateway root. The default surface is intentionally thin:
-static TOML-backed provider catalog, upstream forwarding, and admin-style
-endpoints. Active adaptive logic lives under `src/adaptive/`, but is
-currently deferred for baseline rebuild because the service tree does not
-compile cleanly.
+The crate contains two intentionally selectable runtime modes:
 
-## Where it lives
+1. A production-shaped binary gateway in `src/main.rs`, backed by
+   `config/fleet.toml` and a lightweight deterministic provider catalog.
+2. A feature-gated full governed service under `src/adaptive/service/`, with
+   policy, governance, quotas, persistence, provider drivers, observability,
+   and the adaptive HTTP transport.
 
-- Crate root: `/var/home/mythos/Eregion/Arda/crates/spine/runtime/manwe`
-- Config: `manwe.toml` next to binary/config roots; embedded default goes to
-  local Ollama (`http://127.0.0.1:11434/v1`)
-- Runtime bind: `127.0.0.1:7171`
-- Endpoints: `GET /healthz`, `GET /v1/models`, `POST /v1/chat/completions`
+The Cargo `adaptive` feature compiles both; `--adaptive` selects and
+instantiates the full governed service while the default remains static.
 
-## Verification status
+## Package shape
 
-- `cargo check -p manwe`: PASS
-- `cargo test -p manwe`: PASS
-- `cargo check -p manwe --features adaptive`: PASS
-- `cargo test -p manwe --features adaptive`: PASS
-- `cargo fmt -p manwe -- --check`: PASS
+`Cargo.toml` defines both:
 
-Behavioral evidence to date: see `BREAKDOWN.md` + `STATUS.md`
-`2026-07-21/22` validation.
+- library: `manwe` from `src/lib.rs`
+- binary: `manwe` from `src/main.rs`
 
-## Adaptive routing notes
+Features:
 
-The `adaptive` service core passes compile/test and is now documented with
-behavioral evidence tests. Verified runtime coverage includes:
+| Feature | Dependencies / surface |
+|---|---|
+| default | HTTP gateway plus core public types/config |
+| `adaptive` | `arda-core`, `arda-governance`, `arda-economics`, `arda-vaire`; full adaptive library tree |
+| `grpc` | `arda-orome`; tonic HTTP-adjacent services |
+| `telemetry` | Intended `arda-aule/telemetry` service events; currently fails to compile |
 
-- adaptive hard filters cover health, modality, context, and resource-receipt
-  gates, then task-fit/score ordering
-- local inference surface preference is active for `execution` and `background`
-  lanes via `retain_preferred_local_surface_candidates`; supported values are:
-  `mesh`, `llamacpp`, `hybrid`; anything else is treated as `hybrid`
-- adaptive filter pipeline rejects unhealthy providers for code/tool routes
-- static fallback behavior verified for missing provider (`503`), upstream
-  non-JSON (`502`), and unreachable upstream (`502`)
+## Active binary graph
 
-Operators should treat `STATUS.md` as the timestamped runtime-evidence source
-because behavior can evolve as adaptive policy stack matures.
-
-## Architecture / layout decision
-
-- Keep the merged lib + binary surface in `manwe` for now; no separate daemon
-  crate introduced. `arda-engine` and `arda-aule` depend on this crate's public
-  types, so a split needs a separator migration step before retiring this shell.
-- gRPC wiring is explicitly **inactive by default**: it compiles only behind
-  `--features grpc` and requires the binary flag `--grpc`. Without that pair,
-  `manwe` only serves HTTP on `127.0.0.1:7171`. When active, it binds
-  `MANWE_GRPC_PORT` or `0.0.0.0:50051` and exposes `HealthModelService` +
-  `RouteGovernanceService`.
-
-## Consumer wiring
-
-- `arda-engine`: supervises manwe process, re-exports types, proxies `/v1/models`
-- `arda-hud`: operator dashboard consumes `/v1/models` and `/healthz`
-- `arda-launcher`: hardcodes downstream-side assumptions on manwe `:7171`
-- Service registry: registers `manwe` as gateway in `services.toml`
-
-## Stable module layout
+`src/main.rs` directly includes only:
 
 | Module | Role |
-|--------|------|
-| `lib.rs` | Public re-exports; feature gates `adaptive::*` + `service` |
-| `main.rs` | Binary entry, CLI, Axum router, chat completions handler |
-| `config.rs` | TOML config, provider resolution, embedded default |
-| `gateway.rs` | `SpannedManweGateway`, `ProviderRecord` |
-| `provider.rs` | `ProviderDefinition`, `ProviderCatalog` states/registry |
-| `transport.rs` | Transport traits + adaptive HTTP/IPC stub shells |
-| `route.rs` | Authority trait stubs (`ManweCore`, `ManweGovernance`, `ManweMnemosyne`, `CharonPlutus`) |
-| `resource_limits.rs` | Resource-group concurrency/queue timeout limits |
-| `routing_adapter.rs` | `AdaptiveRoutingAdapter` shim, currently returns not-wired error |
-| `charon_remote.rs` | Legacy charon bridge models |
-| `service.rs` | `ManweService` stub when `adaptive` is disabled |
-| `grpc.rs` | Feature-gated tonic `HealthModelService` + `RouteGovernanceService` |
+|---|---|
+| `config.rs` | `manwe.toml`, embedded Ollama fallback, provider resolution, startup validation |
+| `provider.rs` | Fleet TOML parsing, provider probes, eligibility, adaptive-lite selection diagnostics |
+| `receipts.rs` | JSONL route receipts and quality/throughput extraction |
+| `resource_limits.rs` | Per-resource-group concurrency and queue timeout |
+| `grpc.rs` | Optional tonic server, included only by `grpc` |
 
-## Adaptive module layout
+The binary starts with a `config/fleet.toml` catalog, probes providers, refreshes
+that catalog every 60 seconds, and falls back to `ManweConfig` forwarding when
+the fleet catalog cannot satisfy a request.
+
+## HTTP request path
+
+1. Parse `model`; infer `chat`, `code`, or `vision` task shape and a context
+   estimate.
+2. Resolve an eligible fleet provider. Adaptive-lite mode allows automatic
+   task/context/capability selection and emits rejection diagnostics.
+3. Acquire the provider's physical resource-group lease.
+4. Forward to `<base_url>/chat/completions`, injecting a configured API key.
+5. Return provider/model/resource/routing headers and append a route receipt.
+6. If no fleet provider matches, attempt the static `manwe.toml` provider path;
+   otherwise return a structured 502/503 response.
+
+## Active library graph
+
+`src/lib.rs` includes:
 
 | Module | Role |
-|--------|------|
-| `adaptive/mod.rs` | Module list |
-| `adaptive/types.rs` | Adaptive types/errors |
-| `adaptive/error.rs` | Adaptive error types |
-| `adaptive/routing_adapter.rs` | Chat completion routing adapter wiring |
-| `adaptive/service/mod.rs` | Service module index |
-| `adaptive/service/types.rs` | `ManweService` spine, runtime state shape |
-| `adaptive/service/runtime_state.rs` | Runtime state containers |
-| `adaptive/service/bootstrap*.rs` | Bootstrapping defaults/runtime/overlay |
-| `adaptive/service/provider_admin.rs` | Provider admin surfaces |
-| `adaptive/service/capabilities.rs` | Provider capabilities model |
-| `adaptive/service/http_clients.rs` | Reqwest client caching/binding |
-| `adaptive/service/health_probe.rs` | Upstream health checking |
-| `adaptive/service/echo_gate.rs` | Echo/conformance optional behavior |
-| `adaptive/service/state_io.rs` | State persistence/io |
-| `adaptive/service/state_mutation.rs` | State mutation APIs |
-| `adaptive/service/route_policy.rs` | Route policy definitions |
-| `adaptive/service/route_scoring.rs` | Scoring/lane fitness estimates |
-| `adaptive/service/route_selection.rs` | Selection/policy logic |
-| `adaptive/service/route_sessions.rs` | Session/history tracking |
-| `adaptive/service/route_candidate_cache.rs` | Candidate cache/snapshot |
-| `adaptive/service/route_policy_tests.rs` | Policy unit tests |
-| `adaptive/service/bandit.rs` | Multi-armed bandit state |
-| `adaptive/service/agent_quotas.rs` | Agent quota buckets/windows |
-| `adaptive/service/catalog_reconciliation.rs` | Config/state reconciliation |
-| `adaptive/service/status.rs` | Status shaping for HTTP/admin |
-| `adaptive/service/observability.rs` | Metrics/tracing scaffolding |
-| `adaptive/service/metrics.rs` | Prometheus-style metrics |
-| `adaptive/service/event_writer.rs` | Async event writer background task |
-| `adaptive/service/adaptive_routing.rs` | Routing core behavior |
-| `adaptive/service/codex_responses_driver.rs` | Codex response shaping |
-| `adaptive/service/hermes_cli_driver.rs` | Hermes CLI driver integration |
-| `adaptive/service/hermes_proxy_driver.rs` | Hermes proxy/spawn path |
-| `adaptive/service/paths.rs` | Path constants for state/config |
-| `adaptive/service/proxy.rs` | Upstream call/response conversion |
-| `adaptive/service/error.rs` | Service-level error taxonomy |
-| `adaptive/service/bootstrap_defaults.rs` | Default provider bootstrapping |
-| `adaptive/service/bootstrap_overlay.rs` | Runtime state overlays |
-| `adaptive/service/bootstrap_runtime.rs` | Runtime bootstrap sequence |
-| `adaptive/transport/mod.rs` | Transport module index |
-| `adaptive/transport/http.rs` | Axum routes for `/status`, `/providers/candidates`, proxy SSE |
-| `adaptive/transport/ipc.rs` | Unix-domain socket transport |
+|---|---|
+| `config.rs` | Public `ManweConfig` |
+| `error.rs` | Public error taxonomy and adaptive `ArdaError` conversion |
+| `routing_adapter.rs` | Stable adapter name; stub without `adaptive`, real re-export with it |
+| `types.rs` | Canonical request, provider, model, route, and governance types |
+| `adaptive/` | Rich service tree when `adaptive` is enabled |
 
-## Improvement ideas
+The adaptive library's active service tree groups into:
 
-1. Restore adaptive baseline as a separate quiet pass: bring back a
-   known-good `service_events.rs`, `route_policy.rs`, `route_selection.rs`,
-   `route_scoring.rs`, `adaptive_routing.rs`, and related visibility/type
-   fixes before re-enabling adaptive compilation
-2. Defer fleet/bootstrap config loading entirely to the adaptive baseline
-   restoration pass, or keep the current static-only config surface until
-   then rather than reintroducing it in `config.rs`
-3. Replace `local_placeholder` bootstrap with a real local provider or
-   configurable null/mesh provider for tests
-4. Replace `Arc<AdaptiveRoutingAdapter>` placeholder error with a real scoring
-   pipeline or gate it behind another feature until implemented
-5. Add compile-time validation for provider credentials/bind to avoid runtime
-   surprises; surface through `/healthz` for both static and adaptive modes
-6. Split daemon runtime from crate library so `manwe` can be a pure gateway
-   type crate with lightweight binary shell
-7. Add integration tests for static forward path covering missing-provider,
-   malformed model, upstream non-JSON, and upstream unreachable branches
+- bootstrap/state: `bootstrap*`, `runtime_state`, `state_io`, `state_mutation`
+- routing: `route_policy`, `route_scoring`, `route_selection`,
+  `adaptive_routing`, `route_sessions`, `route_candidate_cache`
+- provider execution: `proxy`, `health_probe`, `http_clients`,
+  `catalog_reconciliation`, `provider_admin`, `capabilities`
+- alternate drivers: `codex_responses_driver`, `hermes_cli_driver`,
+  `hermes_proxy_driver`
+- control/evidence: `agent_quotas`, `bandit`, `echo_gate`, `event_writer`,
+  `metrics`, `observability`, `service_events`, `status`
+
+`src/types.rs` is the canonical domain model; adaptive code re-exports it
+through `src/adaptive/types.rs`.
+
+## Source-graph reconciliation
+
+Workspace-wide symbol and module-declaration searches found no consumers for
+the seven formerly unattached root files. Each was removable migration residue:
+
+| Removed file | Classification evidence |
+|---|---|
+| `charon_remote.rs` | Superseded remote/gateway bridge; depended on undeclared `ManweTransport` and gateway records |
+| `gateway.rs` | Superseded gateway record model; no consumer outside its paired dead bridge |
+| `grpc_types.rs` | Superseded state adapter; the live gRPC server is `src/grpc.rs` |
+| `route.rs` | Placeholder authority traits whose default behavior was `NotImplemented` |
+| `routing.rs` | Old adaptive feature shim; superseded by root `routing_adapter.rs` and the governed service |
+| `routing_types.rs` | State types used only by removed `grpc_types.rs` |
+| `support.rs` | Old facade referencing an undeclared root transport module |
+
+The parallel files formerly directly under `src/adaptive/` (`adapters.rs`,
+`admin.rs`, `bandit.rs`, `drivers.rs`, `fallback.rs`, `policy.rs`, `provider.rs`,
+`quota.rs`, `selector.rs`, `session.rs`, and `state.rs`) were also removable
+residue. Several referenced missing `candidate` or `score` modules, and none was
+declared by `adaptive/mod.rs`; their implemented counterparts live under
+`adaptive/service/full/`. The direct `adaptive/error.rs`,
+`adaptive/routing_adapter.rs`, and `adaptive/types.rs` files remain active
+boundary modules. `adaptive/types.rs` continues to re-export the canonical
+public model from `src/types.rs`.
+
+`adaptive/transport/` is not a future or obsolete tree: it is attached by
+`adaptive/mod.rs`, and `src/main.rs` starts its governed HTTP server for
+`--adaptive`. Its HTTP routes are therefore active runtime endpoints. The
+daemon/IPC pieces compile as an intentionally retained compatibility surface,
+but are not advertised as endpoints of the canonical binary.
+
+`adaptive/service/fleet_persistence.rs` was removable residue. Its snapshot and
+admission-receipt API had no consumer, was not declared by the service, and
+duplicated persistence responsibilities now owned by the live bootstrap,
+runtime-state, and event paths. It was removed rather than exposing an unused
+second persistence contract.
+
+## Configuration and persisted state
+
+| Surface | Current location |
+|---|---|
+| Static fallback config | CLI `--config`, default `manwe.toml` |
+| Binary fleet catalog | `config/fleet.toml` |
+| Binary receipts | `data/manwe/route_receipts.jsonl` |
+| Adaptive provider config | `ARDA_MANWE_PROVIDER_CONFIG` or adaptive defaults |
+| Adaptive state root | `ARDA_MANWE_HOME` or service root |
+
+The static and fleet catalogs are separate inputs. Their precedence and
+operator-facing relationship need one canonical configuration contract.
+
+## Consumers and operational wiring
+
+- `crates/engine/Cargo.toml` depends on `manwe`.
+- `crates/engine/src/manwe.rs` re-exports the library.
+- `crates/engine/src/harness.rs` proxies its `/v1/models` route to Manwe.
+- `apps/arda-launcher` discovers the Manwe base URL and reports a missing
+  onboarding gate when none is configured.
+- `services.toml` reserves Manwe as a required gateway at port 7171 and starts
+  the canonical process with `cargo run -p manwe -- --config manwe.toml`.
+- `arda-engine::registry::Registry` consumes the manifest's singular
+  `[[service]]` command/cwd schema and its supervisor launches the resolved
+  command from the declared working directory.
+
+Port `7171` remains a coordinated contract. Change it only with engine,
+launcher, service-registry, and operator configuration updates.
+
+## Architecture decision
+
+Keep the library and binary in one crate for now. Existing consumers depend on
+the library types, and no separate deployment shell has a complete migration
+path. Before considering a split, first unify or explicitly separate the
+binary's lightweight router and the adaptive service runtime.
+
+## Current engineering priorities
+
+1. Close the known lane-fitness, streaming, and gRPC process-test gaps.
+2. Repair the telemetry feature contract so all-feature CI can pass.
+3. Refresh the remaining stale provider and source-index documentation.
+
+Execution details and completion criteria are in [`CHECKLIST.md`](CHECKLIST.md).

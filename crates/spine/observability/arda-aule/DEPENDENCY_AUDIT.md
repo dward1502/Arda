@@ -1,13 +1,13 @@
-# arda-aule Dependency Audit — Annunimas Import Surface
+# arda-aule Dependency Audit — Arda Import Surface
 
-> Imported from `~/Annunimas/crates/annunimas-prometheus`, `annunimas-ceo`, `annunimas-cli`.
-> Arda workspace is the source of truth. `~/Annunimas` is read-only reference.
+> Arda workspace is the source of truth for imports and crate identity.
+> `~/Annunimas` is read-only reference where needed.
 
 ---
 
 ## 1. Import Fallback Gate
 
-These crate paths are referenced via `use`/`pub use` in the imported sources.
+These crate paths are referenced via `use`/`pub use` in the current sources.
 Every entry must be matched to an Arda crate or explicitly deferred before `cargo check` can pass.
 
 | Old Annunimas crate | Arda equivalent or status | Notes |
@@ -35,7 +35,7 @@ Every entry must be matched to an Arda crate or explicitly deferred before `carg
 
 ## 2. Crates to resolve before compile
 
-These imports are required by the wired submodules and will block `cargo check -p arda-aule`:
+These imports are required by the wired submodules and can block `cargo check -p arda-aule`:
 
 - `prometheus/council.rs`: `annunimas_council::council::...`, `annunimas_council::service::...`
 - `prometheus/service/status.rs`: `annunimas_hermes::HermesService`
@@ -53,25 +53,25 @@ These imports are required by the wired submodules and will block `cargo check -
 
 ## 3. CLI dependencies — probable delay list
 
-`cli/main.rs` and `cli/cli_bootstrap.rs` currently reference almost every service in Annunimas.
+`cli/main.rs` and `cli/cli_bootstrap.rs` currently reference many services.
 
 A likely simplification for Arda ownership: retain only the Arda-active imports, wrap others behind feature flags or deferred CLI commands.
 Replacement candidates under Arda:
 
-|- `annunimas_apollo` → `arda-orome`
-|- `annunimas_athena` → `crates/spine/executors/arda-varda`
-|- `annunimas_charon` → `crates/spine/runtime/manwe`
-|- `annunimas_hades` → `crates/spine/runtime/arda-mandos`
-|- `annunimas_hermes` → `arda-orome`
-|- `annunimas_mnemosyne` → `crates/spine/memory/arda-vaire`
-|- `annunimas_oracle` → `arda-governance`
-|- `annunimas_plutus` → `crates/spine/runtime/arda-economics`
-|- `annunimas_prometheus` → now `arda-aule::prometheus...`
-|- `annunimas_core` → `crates/spine/governance/arda-core`
-|- `annunimas_governance` → `crates/spine/governance/arda-governance`
-|- `annunimas_forge_mind` → removed
-|- `annunimas_onboarding` → `apps/arda-hud`
-|- `annunimas_chronos` → removed
+- `annunimas_apollo` → `arda-orome`
+- `annunimas_athena` → `crates/spine/executors/arda-varda`
+- `annunimas_charon` → `crates/spine/runtime/manwe`
+- `annunimas_hades` → `crates/spine/runtime/arda-mandos`
+- `annunimas_hermes` → `arda-orome`
+- `annunimas_mnemosyne` → `crates/spine/memory/arda-vaire`
+- `annunimas_oracle` → `arda-governance`
+- `annunimas_plutus` → `crates/spine/runtime/arda-economics`
+- `annunimas_prometheus` → now `arda-aule::prometheus...`
+- `annunimas_core` → `crates/spine/governance/arda-core`
+- `annunimas_governance` → `crates/spine/governance/arda-governance`
+- `annunimas_forge_mind` → removed
+- `annunimas_onboarding` → `apps/arda-hud`
+- `annunimas_chronos` → removed
 
 Expect many `cli` commands to be gated behind `#[cfg(feature = "full-cli")]` until the above are available in Arda.
 

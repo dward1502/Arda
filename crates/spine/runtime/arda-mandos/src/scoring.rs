@@ -2,6 +2,9 @@
 //!
 //! Truth confidence scoring for the learning loop.
 
+use crate::evidence::{EvidenceRef, EvidenceStance};
+use chrono::Utc;
+
 /// Scoring result for truth confidence
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct TruthScoringResult {
@@ -10,7 +13,7 @@ pub struct TruthScoringResult {
     /// The reason for the score
     pub reason: String,
     /// Evidence supporting the confidence
-    pub evidence: Vec<String>,
+    pub evidence: Vec<EvidenceRef>,
 }
 
 /// Trait for truth confidence scoring
@@ -48,11 +51,23 @@ impl TruthScorer for DefaultTruthScorer {
             "Moderate confidence based on contextual indicators".to_string()
         };
 
-        let evidence = vec![
-            "Proposal text analysis".to_string(),
-            "Contextual indicators".to_string(),
-            "Truth-related keywords".to_string(),
-        ];
+        let observed_at = Utc::now();
+        let evidence = [
+            ("proposal-analysis", "Proposal text analysis"),
+            ("context-indicators", "Contextual indicators"),
+            ("truth-keywords", "Truth-related keywords"),
+        ]
+        .into_iter()
+        .map(|(source_id, claim)| {
+            EvidenceRef::inferred(
+                format!("oracle:truth-scorer:{source_id}"),
+                "proposal",
+                observed_at,
+                claim,
+                EvidenceStance::Neutral,
+            )
+        })
+        .collect();
 
         TruthScoringResult {
             confidence,
@@ -123,5 +138,25 @@ pub fn score_gate(proposal: &str) -> GateVerdict {
         autonomy_readiness,
         gated,
         gating_reason,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn truth_scorer_emits_typed_inferred_evidence() {
+        let result = DefaultTruthScorer::new().score_truth_confidence("truth with confidence");
+
+        assert!(!result.evidence.is_empty());
+        assert!(result
+            .evidence
+            .iter()
+            .all(|evidence| evidence.kind == crate::evidence::EvidenceKind::Inferred));
+        assert!(result
+            .evidence
+            .iter()
+            .all(|evidence| evidence.digest.starts_with("sha256:")));
     }
 }

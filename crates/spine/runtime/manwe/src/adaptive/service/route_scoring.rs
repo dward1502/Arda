@@ -747,7 +747,7 @@ pub(super) fn local_device_pressure_adjustment(
 
 pub(super) fn configured_local_device_pressure() -> Option<f64> {
     [
-        "ARDA_CHARON_LOCAL_DEVICE_PRESSURE",
+        "ARDA_MANWE_LOCAL_DEVICE_PRESSURE",
         "ARDA_LOCAL_DEVICE_PRESSURE",
     ]
     .into_iter()

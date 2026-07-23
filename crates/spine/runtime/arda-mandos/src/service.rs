@@ -51,7 +51,16 @@ impl OracleService {
     }
 
     pub async fn evaluate(&self, query: OracleQuery) -> anyhow::Result<Verdict> {
-        let verdict = self.engine.lock().await.evaluate(query);
+        let (verdict, is_new) = {
+            let mut engine = self.engine.lock().await;
+            let history_before = engine.get_history().len();
+            let verdict = engine.evaluate(query)?;
+            let is_new = engine.get_history().len() > history_before;
+            (verdict, is_new)
+        };
+        if !is_new {
+            return Ok(verdict);
+        }
         let triad_average = (verdict.gates.aurelius.score
             + verdict.gates.bacon.score
             + verdict.gates.sun_tzu.score)
@@ -92,7 +101,8 @@ impl OracleService {
             if line.trim().is_empty() {
                 continue;
             }
-            if let Ok(value) = serde_json::from_str::<serde_json::Value>(line) {
+            if let Ok(mut value) = serde_json::from_str::<serde_json::Value>(line) {
+                redact_excerpt_fields(&mut value);
                 values.push(value);
                 if values.len() >= limit.max(1) {
                     break;
@@ -125,7 +135,11 @@ impl OracleService {
             .create(true)
             .append(true)
             .open(&self.verdict_ledger_path)?;
-        writeln!(file, "{}", serde_json::to_string(verdict)?)?;
+        writeln!(
+            file,
+            "{}",
+            serde_json::to_string(&verdict.redacted_for_export())?
+        )?;
         Ok(())
     }
 
@@ -204,26 +218,50 @@ impl OracleService {
     }
 }
 
+fn redact_excerpt_fields(value: &mut serde_json::Value) {
+    match value {
+        serde_json::Value::Object(fields) => {
+            for (field, value) in fields {
+                if field == "excerpt" && !value.is_null() {
+                    *value = serde_json::Value::String("[REDACTED]".to_string());
+                } else {
+                    redact_excerpt_fields(value);
+                }
+            }
+        }
+        serde_json::Value::Array(items) => {
+            for item in items {
+                redact_excerpt_fields(item);
+            }
+        }
+        _ => {}
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use arda_economics::PlutusService;
-    use chrono::Utc;
+    use chrono::{TimeZone, Utc};
+
+    fn query(id: &str, task: &str) -> OracleQuery {
+        let mut query = OracleQuery::new(id, task, "prometheus");
+        query.context = vec!["test evidence".to_string()];
+        query
+    }
 
     #[tokio::test]
     async fn persists_runtime_status_and_verdict_ledger() {
+        let _env_guard = crate::PLUTUS_ENV_LOCK.lock().await;
         let temp = tempfile::tempdir().expect("tempdir");
         let plutus_home = temp.path().join("plutus");
         std::env::set_var("ARDA_PLUTUS_HOME", &plutus_home);
         let service = OracleService::from_home(temp.path()).expect("service");
         let verdict = service
-            .evaluate(OracleQuery {
-                id: "oracle-query-1".to_string(),
-                task: "Should we deploy this with evidence?".to_string(),
-                context: vec!["test evidence".to_string()],
-                requester: "prometheus".to_string(),
-                timestamp: Utc::now(),
-            })
+            .evaluate(query(
+                "oracle-query-1",
+                "Should we deploy this with evidence?",
+            ))
             .await
             .expect("evaluate");
 
@@ -246,5 +284,154 @@ mod tests {
         }
         assert!(total > 0.0);
         std::env::remove_var("ARDA_PLUTUS_HOME");
+    }
+
+    #[tokio::test]
+    async fn invalid_query_is_rejected_before_persistence() {
+        let temp = tempfile::tempdir().expect("tempdir");
+        let service = OracleService::from_home(temp.path()).expect("service");
+
+        let error = service
+            .evaluate(query("invalid-query", "   "))
+            .await
+            .expect_err("blank tasks must be rejected");
+
+        assert!(error.to_string().contains("task"));
+        assert!(!temp.path().join("verdict_history.jsonl").exists());
+    }
+
+    #[tokio::test]
+    async fn conflicting_duplicate_query_id_is_rejected_without_second_record() {
+        let _env_guard = crate::PLUTUS_ENV_LOCK.lock().await;
+        let temp = tempfile::tempdir().expect("tempdir");
+        let plutus_home = temp.path().join("plutus");
+        std::env::set_var("ARDA_PLUTUS_HOME", &plutus_home);
+        let service = OracleService::from_home(temp.path()).expect("service");
+
+        service
+            .evaluate(query("duplicate-query", "review deployment evidence"))
+            .await
+            .expect("first evaluation");
+        let error = service
+            .evaluate(query("duplicate-query", "perform a different review"))
+            .await
+            .expect_err("conflicting duplicate must fail");
+
+        assert!(error.to_string().contains("duplicate-query"));
+        let ledger = std::fs::read_to_string(temp.path().join("verdict_history.jsonl"))
+            .expect("verdict ledger");
+        assert_eq!(ledger.lines().count(), 1);
+        std::env::remove_var("ARDA_PLUTUS_HOME");
+    }
+
+    #[tokio::test]
+    async fn identical_retry_reuses_verdict_without_second_record() {
+        let _env_guard = crate::PLUTUS_ENV_LOCK.lock().await;
+        let temp = tempfile::tempdir().expect("tempdir");
+        let plutus_home = temp.path().join("plutus");
+        std::env::set_var("ARDA_PLUTUS_HOME", &plutus_home);
+        let service = OracleService::from_home(temp.path()).expect("service");
+        let oracle_query = query("retry-query", "review deployment evidence");
+        let mut retry_query = oracle_query.clone();
+        retry_query.timestamp += chrono::TimeDelta::seconds(1);
+
+        let first = service
+            .evaluate(oracle_query.clone())
+            .await
+            .expect("first evaluation");
+        let second = service
+            .evaluate(retry_query)
+            .await
+            .expect("idempotent retry");
+
+        assert_eq!(first.timestamp, second.timestamp);
+        let ledger = std::fs::read_to_string(temp.path().join("verdict_history.jsonl"))
+            .expect("verdict ledger");
+        assert_eq!(ledger.lines().count(), 1);
+        std::env::remove_var("ARDA_PLUTUS_HOME");
+    }
+
+    #[tokio::test]
+    async fn verdict_preserves_caller_timestamp() {
+        let _env_guard = crate::PLUTUS_ENV_LOCK.lock().await;
+        let temp = tempfile::tempdir().expect("tempdir");
+        let plutus_home = temp.path().join("plutus");
+        std::env::set_var("ARDA_PLUTUS_HOME", &plutus_home);
+        let service = OracleService::from_home(temp.path()).expect("service");
+        let caller_timestamp = Utc
+            .with_ymd_and_hms(2025, 1, 2, 3, 4, 5)
+            .single()
+            .expect("fixed timestamp");
+        let mut oracle_query = query("timestamp-query", "review deployment evidence");
+        oracle_query.timestamp = caller_timestamp;
+
+        let verdict = service.evaluate(oracle_query).await.expect("evaluation");
+
+        assert_eq!(verdict.timestamp, caller_timestamp);
+        assert_eq!(verdict.query_timestamp, caller_timestamp);
+        assert!(verdict.evaluated_at > caller_timestamp);
+        std::env::remove_var("ARDA_PLUTUS_HOME");
+    }
+
+    #[tokio::test]
+    async fn persisted_exports_redact_sensitive_excerpts_but_retain_provenance() {
+        let _env_guard = crate::PLUTUS_ENV_LOCK.lock().await;
+        let temp = tempfile::tempdir().expect("tempdir");
+        let plutus_home = temp.path().join("plutus");
+        std::env::set_var("ARDA_PLUTUS_HOME", &plutus_home);
+        let service = OracleService::from_home(temp.path()).expect("service");
+        let mut oracle_query = query("redaction-query", "review deployment evidence");
+        oracle_query.context.clear();
+        oracle_query.evidence = vec![crate::evidence::EvidenceRef::supplied(
+            "sensitive-report",
+            "vault://reports/secret",
+            oracle_query.timestamp,
+            "operator transplant details",
+        )
+        .with_sensitive_excerpt(false)];
+
+        service.evaluate(oracle_query).await.expect("evaluation");
+
+        let ledger = std::fs::read_to_string(temp.path().join("verdict_history.jsonl"))
+            .expect("verdict ledger");
+        assert!(!ledger.contains("operator transplant details"));
+        assert!(ledger.contains("[REDACTED]"));
+        assert!(ledger.contains("sensitive-report"));
+        assert!(ledger.contains("sha256:"));
+        std::env::remove_var("ARDA_PLUTUS_HOME");
+    }
+
+    #[test]
+    fn recent_verdict_exports_redact_legacy_excerpt_fields() {
+        let temp = tempfile::tempdir().expect("tempdir");
+        let service = OracleService::from_home(temp.path()).expect("service");
+        std::fs::write(
+            temp.path().join("verdict_history.jsonl"),
+            serde_json::json!({
+                "query_id": "legacy-sensitive",
+                "reasoning": [{
+                    "evidence": [{
+                        "source_id": "legacy-report",
+                        "digest": "sha256:retained",
+                        "excerpt": "legacy private excerpt"
+                    }]
+                }]
+            })
+            .to_string()
+                + "\n",
+        )
+        .expect("legacy ledger fixture");
+
+        let recent = service.recent_verdicts(10).expect("recent verdicts");
+
+        assert_eq!(
+            recent[0]["reasoning"][0]["evidence"][0]["excerpt"],
+            "[REDACTED]"
+        );
+        assert_eq!(
+            recent[0]["reasoning"][0]["evidence"][0]["digest"],
+            "sha256:retained"
+        );
+        assert!(!recent[0].to_string().contains("legacy private excerpt"));
     }
 }

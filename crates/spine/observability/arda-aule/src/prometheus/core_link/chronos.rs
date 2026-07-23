@@ -25,12 +25,12 @@ pub(super) fn write_chronos_status_projection(core_root: &Path) {
                 "configured_audit_classes": [],
                 "receipt_count": 0
             },
-            "next_integration_steps": ["Run annunimas-chronos or refresh core/state/chronos_runtime.json."]
+            "next_integration_steps": ["Run arda-chronos or refresh core/state/chronos_runtime.json."]
         })
     });
 
     let projection = json!({
-        "schema_version": "annunimas.chronos-status.v1",
+        "schema_version": "arda.chronos-status.v1",
         "generated_at_utc": Utc::now().to_rfc3339(),
         "authority": "prometheus_core_link chronos_status_projection",
         "source_runtime_schema": runtime.get("schema_version").cloned().unwrap_or_else(|| json!("unknown")),

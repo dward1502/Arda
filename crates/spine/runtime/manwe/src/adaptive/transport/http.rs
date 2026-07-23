@@ -1,4 +1,7 @@
 use crate::adaptive::service::ManweService;
+use crate::adaptive::service::{
+    classify_provider_operational_state, hermes_cli_readiness_summary, hermes_proxy_base_url,
+};
 use crate::types::ManweRequestEnvelope;
 use crate::types::{ModelState, ProviderState};
 use arda_core::error::{ArdaError, Result};
@@ -28,6 +31,8 @@ pub async fn run_http_server(service: ManweService, addr: &str) -> Result<()> {
     let app = Router::new()
         .route("/v1/models", get(openai_models))
         .route("/v1/chat/completions", post(openai_chat_completions))
+        .route("/v1/capabilities", get(capabilities))
+        .route("/healthz", get(health))
         .route("/health", get(health))
         .route("/status", get(status))
         .route("/state", get(state))
@@ -52,13 +57,12 @@ pub async fn run_http_server(service: ManweService, addr: &str) -> Result<()> {
         .layer(middleware::from_fn(http_admission_gate))
         .with_state(service);
 
-    let listener =
-        tokio::net::TcpListener::bind(addr)
-            .await
-            .map_err(|e| ArdaError::Agent {
-                agent: "manwe".to_string(),
-                message: format!("failed to bind HTTP listener on {addr}: {e}"),
-            })?;
+    let listener = tokio::net::TcpListener::bind(addr)
+        .await
+        .map_err(|e| ArdaError::Agent {
+            agent: "manwe".to_string(),
+            message: format!("failed to bind HTTP listener on {addr}: {e}"),
+        })?;
     tracing::info!(addr = %addr, "MANWE HTTP server listening");
     axum::serve(listener, app)
         .await
@@ -136,6 +140,10 @@ async fn health(State(service): State<ManweService>) -> impl IntoResponse {
                     "budget_pressure": status.budget_pressure,
                     "route_guardrails": status.route_guardrails,
                     "alerts": status.alerts,
+                    "config_source": status.config_source,
+                    "config_path": status.config_path,
+                    "bootstrap_state_path": status.bootstrap_state_path,
+                    "catalog_generation": status.catalog_generation,
                 })),
             )
                 .into_response()
@@ -147,6 +155,38 @@ async fn health(State(service): State<ManweService>) -> impl IntoResponse {
                 "service": "manwe",
                 "error": err.to_string(),
             })),
+        )
+            .into_response(),
+    }
+}
+
+async fn capabilities(State(service): State<ManweService>) -> impl IntoResponse {
+    match service.status().await {
+        Ok(status) => {
+            let paths = service.paths();
+            Json(json!({
+                "mode": "adaptive",
+                "runtime": "full_governed",
+                "adaptive_routing": true,
+                "governance": true,
+                "quota_mesh": true,
+                "policy_authority": "manwe_service",
+                "providers_total": status.providers_total,
+                "providers_enabled": status.providers_enabled,
+                "providers_healthy": status.providers_healthy,
+                "route_guardrails": status.route_guardrails,
+                "route_receipts": paths["state_path"],
+                "governance_receipts": paths["governance_events_path"],
+                "config_source": status.config_source,
+                "config_path": status.config_path,
+                "bootstrap_state_path": status.bootstrap_state_path,
+                "catalog_generation": status.catalog_generation,
+            }))
+            .into_response()
+        }
+        Err(err) => (
+            StatusCode::SERVICE_UNAVAILABLE,
+            Json(json!({"error": err.to_string()})),
         )
             .into_response(),
     }
@@ -1259,7 +1299,7 @@ fn providers_query_ids(query: &ProvidersQuery) -> Vec<String> {
 
 fn provider_row(
     provider: ProviderState,
-    capacity_probe: Option<crate::service::ProviderCapacityProbeRecord>,
+    capacity_probe: Option<crate::adaptive::service::ProviderCapacityProbeRecord>,
     recent_events: &[Value],
     include_models: bool,
 ) -> Value {
@@ -2798,8 +2838,8 @@ mod tests {
         openai_completion_to_sse, should_emulate_streaming_tool_response, strip_reasoning_fields,
         visible_provider_catalog_models,
     };
+    use crate::adaptive::service::ManweService;
     use crate::types::{ManweRequestEnvelope, ModelState, ProviderState};
-    use crate::ManweService;
     use axum::body::to_bytes;
     use axum::extract::State;
     use axum::http::{HeaderMap, StatusCode};

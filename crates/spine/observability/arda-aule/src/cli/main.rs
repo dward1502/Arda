@@ -20,6 +20,144 @@ struct Cli {
 
 #[derive(Subcommand, Debug)]
 enum Commands {
+    Run {
+        task_type: String,
+        description: String,
+    },
+    Tools,
+    Status {
+        #[arg(long)]
+        config: String,
+    },
+    Export {
+        #[command(subcommand)]
+        command: ExportCommands,
+    },
+    Control {
+        #[command(subcommand)]
+        command: ControlCommands,
+    },
+    Council {
+        #[command(subcommand)]
+        command: CouncilCommands,
+    },
+    Venture {
+        #[command(subcommand)]
+        command: VentureCommands,
+    },
+    Utility {
+        #[command(subcommand)]
+        command: UtilityCommands,
+    },
+    Pipeline {
+        #[command(subcommand)]
+        command: PipelineCommands,
+    },
+    Aipkg {
+        #[command(subcommand)]
+        command: AipkgCommands,
+    },
+    Athena {
+        #[command(subcommand)]
+        command: AthenaCommands,
+    },
+    Prometheus {
+        #[command(subcommand)]
+        command: PrometheusCommands,
+    },
+    Manwe {
+        #[command(subcommand)]
+        command: ManweCommands,
+    },
+    Mnemosyne {
+        #[command(subcommand)]
+        command: MnemosyneCommands,
+    },
+    Hades {
+        #[command(subcommand)]
+        command: HadesCommands,
+    },
+    Hermes {
+        #[command(subcommand)]
+        command: HermesCommands,
+    },
+    Chronos {
+        #[command(subcommand)]
+        command: ChronosCommands,
+    },
+    Apollo {
+        #[command(subcommand)]
+        command: ApolloCommands,
+    },
+    Plutus {
+        #[command(subcommand)]
+        command: PlutusCommands,
+    },
+    Oracle {
+        #[command(subcommand)]
+        command: OracleCommands,
+    },
+    Metrics {
+        #[command(subcommand)]
+        command: MetricsCommands,
+    },
+    State {
+        #[command(subcommand)]
+        command: StateCommands,
+    },
+    Onboarding {
+        #[command(subcommand)]
+        command: OnboardingCommands,
+    },
+    Halt {
+        #[command(subcommand)]
+        command: HaltCommands,
+    },
+    Warden {
+        #[command(subcommand)]
+        command: WardenCommands,
+    },
+    Loop {
+        #[command(subcommand)]
+        command: LoopCommands,
+    },
+    Forge {
+        #[command(subcommand)]
+        command: ForgeCommands,
+    },
+    Iterate {
+        target_image: String,
+        #[arg(long)]
+        domain: String,
+        #[arg(long)]
+        prompt: String,
+        #[arg(long)]
+        negative: Option<String>,
+        #[arg(long)]
+        assets_root: Option<PathBuf>,
+        #[arg(long)]
+        scene_binding: Option<String>,
+        #[arg(long)]
+        material_family: Option<String>,
+        #[arg(long)]
+        budget_iters: Option<u32>,
+        #[arg(long)]
+        accept_threshold: Option<f64>,
+        #[arg(long)]
+        comfyui_addr: Option<String>,
+        #[arg(long)]
+        timeout_secs: Option<u64>,
+        #[arg(long)]
+        vision_addr: Option<String>,
+        #[arg(long)]
+        vision_model: Option<String>,
+        #[arg(long)]
+        bpy_python: Option<PathBuf>,
+        #[arg(long)]
+        angles: Option<String>,
+        #[arg(long)]
+        render_size: Option<u32>,
+    },
     TelemetrySchema,
     Receipt {
         id: String,
@@ -43,50 +181,31 @@ enum Commands {
     LearningDelta {
         run_id: String,
     },
-    /// Inspect persisted Plutus economics state.
-    Plutus {
-        #[command(subcommand)]
-        command: PlutusCommands,
-    },
-    /// Summarize the durable Bacon-Lite governance ledger.
     BaconLiteSummary {
-        /// Override the machine JSONL ledger path.
         #[arg(long)]
         path: Option<PathBuf>,
-        /// Inclusive RFC 3339 lower bound.
         #[arg(long)]
         since: Option<String>,
-        /// Inclusive RFC 3339 upper bound.
         #[arg(long)]
         until: Option<String>,
-        /// Fail rather than count and skip malformed JSONL records.
         #[arg(long)]
         strict_malformed: bool,
-        /// Emit the complete machine-readable summary as JSON.
         #[arg(long)]
         json: bool,
     },
-    /// Expose the in-process governance metric snapshot for scraping.
     GovernanceMetrics {
-        /// Emit structured JSON instead of Prometheus text exposition.
         #[arg(long)]
         json: bool,
     },
-    /// Join readiness, recent ledger evidence, and metrics without claiming autonomy.
     GovernanceStatus {
-        /// Override the machine JSONL ledger path.
         #[arg(long)]
         path: Option<PathBuf>,
-        /// Inclusive RFC 3339 lower bound for recent ledger aggregation.
         #[arg(long)]
         since: Option<String>,
-        /// Inclusive RFC 3339 upper bound for recent ledger aggregation.
         #[arg(long)]
         until: Option<String>,
-        /// Fail rather than count and skip malformed JSONL records.
         #[arg(long)]
         strict_malformed: bool,
-        /// Emit the complete machine-readable report as JSON.
         #[arg(long)]
         json: bool,
     },

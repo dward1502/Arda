@@ -33,8 +33,8 @@ Out of scope for the first implementation cycle:
 
 - [x] Read all crate source modules, crate-local tests, README, and BREAKDOWN.
 - [x] Inspect direct consumers in `arda-aule` and `arda-orome`.
-- [x] `cargo test -p arda-mandos --all-features` passes: 15 tests, 0 failures.
-- [x] `cargo test -p arda-mandos --no-default-features` passes: 15 tests, 0 failures.
+- [x] `cargo test -p arda-mandos --all-features` passes: 22 tests, 0 failures.
+- [x] `cargo test -p arda-mandos --no-default-features` passes: 22 tests, 0 failures.
 - [x] Gate `join_error` with the HTTP feature; no-default-features is warning-free.
 - [x] Crate-local strict Clippy passes with `--no-deps`; the full dependency-closure command
   remains separately blocked by pre-existing `arda-core` warnings.
@@ -75,7 +75,7 @@ Checklist:
 - [x] Make the default policy explicit; do not bury thresholds in evaluator methods.
 - [x] Correct Bacon evidence scoring so additional supplied evidence is positive or neutral
   and the contribution is bounded.
-- [ ] Replace evidence-count scoring with evidence quality/provenance scoring once P0.5's
+- [x] Replace evidence-count scoring with evidence quality/provenance scoring once P0.5's
   `EvidenceRef` contract exists.
 - [x] Define mandatory vetoes for logical contradiction and explicitly classified dangerous
   operations; document which gates may veto.
@@ -98,15 +98,17 @@ Acceptance:
 
 ### P0.3 Define and validate the query contract
 
-- [ ] Add `query_type: QueryType` to `OracleQuery`, or remove the currently unused enum.
-- [ ] Reject empty/whitespace-only IDs, tasks, and requesters.
-- [ ] Bound task length, evidence item count, and individual evidence size at every transport.
-- [ ] Preserve caller timestamps when supplied and record a separate `evaluated_at` timestamp.
-- [ ] Define duplicate-query/idempotency behavior; never silently append conflicting verdicts
-  under the same query ID.
-- [ ] Add optional correlation/causation metadata for audit linkage without embedding it in
+- [x] Add `query_type: QueryType` to `OracleQuery`, or remove the currently unused enum.
+- [x] Reject empty/whitespace-only IDs, tasks, and requesters.
+- [x] Bound task length, evidence item count, and individual evidence size at every transport.
+- [x] Preserve caller timestamps when supplied and record a separate `evaluated_at` timestamp.
+- [x] Define in-process duplicate-query/idempotency behavior: exact retries reuse the first
+  verdict without new persistence/side effects, while conflicting reuse of an ID is rejected.
+- [ ] Extend duplicate detection across service restart by hydrating query identity from the
+  persisted ledger as part of P1.4 recovery work.
+- [x] Add optional correlation/causation metadata for audit linkage without embedding it in
   free-form task text.
-- [ ] Add `#[serde(rename_all = "snake_case")]` or an explicitly documented wire format for
+- [x] Add `#[serde(rename_all = "snake_case")]` or an explicitly documented wire format for
   public enums before the contract spreads further.
 
 Acceptance:
@@ -130,15 +132,15 @@ Current risks:
 
 Checklist:
 
-- [ ] Make `PageTree::navigate()` search its own index and nodes.
-- [ ] Replace-or-version an existing document intentionally; return an indexing report.
-- [ ] Search all eligible documents, or require explicit document IDs on the query.
-- [ ] Implement stack-based TOC ancestry and test sibling/nested heading paths.
-- [ ] Derive stable node IDs from document ID + canonical heading path + location.
-- [ ] Normalize punctuation and Unicode; remove empty terms and deduplicate node hits.
-- [ ] Define relevance normalization in `[0.0, 1.0]` and deterministic tie-breaking.
-- [ ] Remove unused `PageNode`/`content_preview`, or use a single canonical node model.
-- [ ] Either wire the `pageindex` Cargo feature to module/dependencies or remove the inert
+- [x] Make `PageTree::navigate()` search its own index and nodes.
+- [x] Replace-or-version an existing document intentionally; return an indexing report.
+- [x] Search all eligible documents, or require explicit document IDs on the query.
+- [x] Implement stack-based TOC ancestry and test sibling/nested heading paths.
+- [x] Derive stable node IDs from document ID + canonical heading path + location.
+- [x] Normalize punctuation and Unicode; remove empty terms and deduplicate node hits.
+- [x] Define relevance normalization in `[0.0, 1.0]` and deterministic tie-breaking.
+- [x] Remove unused `PageNode`/`content_preview`, or use a single canonical node model.
+- [x] Either wire the `pageindex` Cargo feature to module/dependencies or remove the inert
   feature.
 
 Acceptance:
@@ -149,15 +151,15 @@ Acceptance:
 
 ### P0.5 Make evidence provenance first-class
 
-- [ ] Replace `Vec<String>` evidence with a typed `EvidenceRef` model containing source ID,
+- [x] Replace `Vec<String>` evidence with a typed `EvidenceRef` model containing source ID,
   kind, locator, observed timestamp, digest, and optional excerpt/claim.
-- [ ] Distinguish supplied, retrieved, inferred, and unavailable evidence.
-- [ ] Record which evidence affected each gate and which evidence was rejected.
-- [ ] Add freshness, independence, and source-quality signals without pretending they prove
+- [x] Distinguish supplied, retrieved, inferred, and unavailable evidence.
+- [x] Record which evidence affected each gate and which evidence was rejected.
+- [x] Add freshness, independence, and source-quality signals without pretending they prove
   truth.
-- [ ] Make missing or conflicting evidence visible as uncertainty, not merely a lower opaque
+- [x] Make missing or conflicting evidence visible as uncertainty, not merely a lower opaque
   number.
-- [ ] Ensure exports redact sensitive excerpts while retaining hashes and provenance.
+- [x] Ensure exports redact sensitive excerpts while retaining hashes and provenance.
 
 Acceptance:
 
@@ -168,13 +170,13 @@ Acceptance:
 
 ### P1.1 Implement `ReasoningContext`
 
-- [ ] Replace the empty placeholder with a bounded tree/graph of claims, evidence, objections,
+- [x] Replace the empty placeholder with a bounded tree/graph of claims, evidence, objections,
   assumptions, and dependencies.
-- [ ] Assign stable IDs and parent/edge types.
-- [ ] Track depth, node count, and byte limits to prevent unbounded traversal.
-- [ ] Provide deterministic traversal and summary APIs.
-- [ ] Detect cycles and dangling evidence references.
-- [ ] Keep concise public rationales separate from private model traces.
+- [x] Assign stable IDs and parent/edge types.
+- [x] Track depth, node count, and byte limits to prevent unbounded traversal.
+- [x] Provide deterministic traversal and summary APIs.
+- [x] Detect cycles and dangling evidence references.
+- [x] Keep concise public rationales separate from private model traces.
 
 Acceptance:
 
@@ -399,3 +401,7 @@ Add one line per completed slice; do not replace historical entries.
 |------|----------------|----------|
 | 2026-07-22 | Baseline audit | `cargo test -p arda-mandos --all-features`: 7 passed; `--no-default-features`: 7 passed with one crate-local dead-code warning; strict Clippy blocked in `arda-core` |
 | 2026-07-22 | P0.1/P0.2 first policy slice | RED confirmed contradiction, dangerous-operation, evidence monotonicity, and missing-condition failures; GREEN: 15 tests pass under all/no-default features; crate-local strict Clippy, `arda-aule --features full-cli`, and `arda-orome` checks pass |
+| 2026-07-22 | P0.3 typed query contract | RED confirmed blank-query persistence, conflicting duplicate append, duplicate retry re-evaluation, and caller timestamp loss; GREEN: typed query kind/metadata, centralized bounds, structured errors, in-process idempotency, stable snake-case JSON fixture, and 22 passing tests; restart hydration remains assigned to P1.4 |
+| 2026-07-22 | P0.4 PageIndex integrity | RED confirmed missing refresh reports/all-document search API; GREEN: owned-tree navigation, replacing index reports, stack ancestry, UUIDv5 nodes stable across repagination, NFKC/combining-mark normalization, `[0,1]` relevance, deterministic ordering, all-document Bacon retrieval, and percent-encoded stable `pageindex://` verdict references; all/no-default suites: 30 passed each; crate-local strict Clippy and `arda-orome` check pass; workspace strict Clippy remains blocked by nine pre-existing `arda-core` findings |
+| 2026-07-22 | P0.5 typed evidence provenance | RED covered typed digest/redaction, missing, stale supplied/retrieved, conflicting, corroborating, tampered/unverifiable rejection, cross-transport identity, resonance exclusion, HTTP/IPC admission, persistence redaction, and legacy-ledger read redaction; GREEN: `EvidenceRef`/assessment/integrity/signal contracts, observation-bound SHA-256 anchors, advisory quality/independence/freshness, schema `arda.mandos.v2`, policy `1.1.0`, and centralized export redaction; all-features: 43 passed; no-default: 42 passed; crate-local strict Clippy and `arda-orome` check pass; `arda-aule --features full-cli` remains blocked by its pre-existing JSON macro recursion limit |
+| 2026-07-22 | P1.1 bounded reasoning context | RED confirmed the empty placeholder lacked graph APIs and `Verdict.reasoning` remained a parallel `Vec<GateReasoning>`; GREEN: stable SHA-256 node IDs, typed parent edges, claims/evidence/objections/assumptions/dependencies, configurable node/depth/serialized-byte limits, deterministic traversal/summary, cycle/dangling/tampered-ID validation, evidence redaction, public-only rationales, Oracle graph construction, and schema `arda.mandos.v3`; independent Codex review findings for unbacked evidence nodes, deserialized ID validation, and exact serialized-byte accounting were fixed; all-features: 51 passed including integration tests; no-default: 50 passed including integration tests; crate-local strict Clippy and focused `cargo check` pass; dependency-closure strict Clippy remains blocked by nine pre-existing `arda-core` findings |

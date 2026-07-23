@@ -725,7 +725,7 @@ mod tests {
 
     #[test]
     fn route_explanation_exposes_low_power_governor_signals() {
-        std::env::set_var("ARDA_CHARON_LOCAL_DEVICE_PRESSURE", "0.82");
+        std::env::set_var("ARDA_MANWE_LOCAL_DEVICE_PRESSURE", "0.82");
         let provider = test_provider("openrouter", "free_cloud");
         let providers = vec![provider.clone()];
         let candidate = RouteSelectionCandidate {
@@ -767,7 +767,7 @@ mod tests {
             vec![],
         );
 
-        std::env::remove_var("ARDA_CHARON_LOCAL_DEVICE_PRESSURE");
+        std::env::remove_var("ARDA_MANWE_LOCAL_DEVICE_PRESSURE");
         assert_eq!(explanation.execution_lane, "compression");
         assert_eq!(
             explanation

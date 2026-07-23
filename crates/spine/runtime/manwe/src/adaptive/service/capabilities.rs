@@ -273,7 +273,7 @@ fn build_provider_capability_summary(
 }
 
 fn read_provider_candidates() -> ProviderCandidatesFile {
-    let path = std::env::var("ARDA_CHARON_PROVIDER_CANDIDATES")
+    let path = std::env::var("ARDA_MANWE_PROVIDER_CANDIDATES")
         .map(std::path::PathBuf::from)
         .unwrap_or_else(|_| paths::arda_root().join("config/charon.provider_candidates.toml"));
     fs::read_to_string(path)

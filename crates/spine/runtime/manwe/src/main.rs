@@ -14,6 +14,7 @@ mod resource_limits;
 
 use std::net::SocketAddr;
 use std::path::PathBuf;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 
 use axum::{
@@ -28,7 +29,7 @@ use clap::Parser;
 use serde_json::{json, Value};
 use std::time::Instant;
 
-use config::ManweConfig;
+use config::{ManweConfig, StaticConfigSource};
 use provider::{ProviderCatalog, ProviderDefinition};
 use receipts::{receipt_from_response, ReceiptWriter};
 use resource_limits::ResourceGroupLimiter;
@@ -53,6 +54,21 @@ struct Cli {
     grpc: bool,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum RuntimeMode {
+    Static,
+    #[cfg(feature = "adaptive")]
+    FullGovernedAdaptive,
+}
+
+fn runtime_mode(adaptive: bool) -> RuntimeMode {
+    #[cfg(feature = "adaptive")]
+    if adaptive {
+        return RuntimeMode::FullGovernedAdaptive;
+    }
+    RuntimeMode::Static
+}
+
 #[derive(Clone)]
 struct AppState {
     config: Arc<ManweConfig>,
@@ -61,6 +77,10 @@ struct AppState {
     catalog: Arc<RwLock<ProviderCatalog>>,
     resource_limits: ResourceGroupLimiter,
     receipts: ReceiptWriter,
+    config_path: Arc<PathBuf>,
+    config_source: StaticConfigSource,
+    fleet_config_path: Arc<PathBuf>,
+    catalog_generation: Arc<AtomicU64>,
 }
 
 #[tokio::main]
@@ -72,7 +92,7 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     let cli = Cli::parse();
-    let mut cfg = ManweConfig::load(&cli.config);
+    let (mut cfg, config_source) = ManweConfig::load_with_source(&cli.config);
     if let Some(p) = cli.port {
         cfg.port = p;
     }
@@ -97,10 +117,34 @@ async fn main() -> anyhow::Result<()> {
         anyhow::bail!("manwe config validation failed: {err}");
     }
 
+    #[cfg(feature = "adaptive")]
+    if runtime_mode(adaptive) == RuntimeMode::FullGovernedAdaptive {
+        if cli.grpc {
+            anyhow::bail!(
+                "gRPC cannot currently be combined with the full governed adaptive runtime"
+            );
+        }
+        let arda_home = std::env::var_os("ARDA_HOME").map(PathBuf::from);
+        let root = config::adaptive_state_dir(arda_home.as_deref());
+        let service = manwe::adaptive::service::ManweService::new(root)?;
+        if let Err(err) = service.reload_provider_config().await {
+            tracing::warn!(
+                error = %err,
+                "adaptive provider config reload failed; using governed bootstrap catalog"
+            );
+        }
+        let addr = format!("{}:{}", cfg.bind, cfg.port);
+        manwe::adaptive::transport::http::run_http_server(service, &addr)
+            .await
+            .map_err(|err| anyhow::anyhow!(err.to_string()))?;
+        return Ok(());
+    }
+
     let client = reqwest::Client::builder()
         .connect_timeout(std::time::Duration::from_secs(2))
         .build()?;
-    let mut catalog = ProviderCatalog::default_bootstrap();
+    let fleet_config_path = config::static_fleet_config_path();
+    let mut catalog = ProviderCatalog::from_fleet_config(&fleet_config_path);
     catalog.probe_all(&client).await;
     let catalog = Arc::new(RwLock::new(catalog));
 
@@ -111,9 +155,18 @@ async fn main() -> anyhow::Result<()> {
         catalog: catalog.clone(),
         resource_limits: ResourceGroupLimiter::default(),
         receipts: ReceiptWriter::new("data/manwe/route_receipts.jsonl"),
+        config_path: Arc::new(cli.config.clone()),
+        config_source,
+        fleet_config_path: Arc::new(fleet_config_path.clone()),
+        catalog_generation: Arc::new(AtomicU64::new(1)),
     };
 
-    tokio::spawn(refresh_fleet_catalog(catalog, client));
+    tokio::spawn(refresh_fleet_catalog(
+        catalog,
+        client,
+        fleet_config_path,
+        state.catalog_generation.clone(),
+    ));
 
     if cli.grpc && !cfg!(feature = "grpc") {
         anyhow::bail!("gRPC requested, but this manwe binary was built without --features grpc");
@@ -144,14 +197,20 @@ async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn refresh_fleet_catalog(catalog: Arc<RwLock<ProviderCatalog>>, client: reqwest::Client) {
+async fn refresh_fleet_catalog(
+    catalog: Arc<RwLock<ProviderCatalog>>,
+    client: reqwest::Client,
+    fleet_config_path: PathBuf,
+    generation: Arc<AtomicU64>,
+) {
     let mut interval = tokio::time::interval(std::time::Duration::from_secs(60));
     interval.tick().await;
     loop {
         interval.tick().await;
-        let mut refreshed = ProviderCatalog::from_fleet_config("config/fleet.toml");
+        let mut refreshed = ProviderCatalog::from_fleet_config(&fleet_config_path);
         refreshed.probe_all(&client).await;
         *catalog.write().await = refreshed;
+        generation.fetch_add(1, Ordering::Relaxed);
     }
 }
 
@@ -205,6 +264,10 @@ async fn healthz(State(state): State<AppState>) -> Response {
         "healthy_providers": healthy_providers,
         "config_valid": config_valid,
         "config_error": config_error,
+        "config_source": state.config_source,
+        "config_path": state.config_path.display().to_string(),
+        "fleet_config_path": state.fleet_config_path.display().to_string(),
+        "catalog_generation": state.catalog_generation.load(Ordering::Relaxed),
     }))
     .into_response()
 }
@@ -228,6 +291,10 @@ async fn manifest_capabilities(State(state): State<AppState>) -> Response {
         "fleet_providers": fleet_providers,
         "resource_groups": resource_groups,
         "route_receipts": state.receipts.path(),
+        "config_source": state.config_source,
+        "config_path": state.config_path.display().to_string(),
+        "fleet_config_path": state.fleet_config_path.display().to_string(),
+        "catalog_generation": state.catalog_generation.load(Ordering::Relaxed),
     }))
     .into_response()
 }
@@ -721,6 +788,13 @@ mod tests {
     use super::*;
     use config::ProviderConfig;
     use std::collections::HashMap;
+
+    #[cfg(feature = "adaptive")]
+    #[test]
+    fn adaptive_flag_selects_full_governed_runtime() {
+        assert_eq!(runtime_mode(true), RuntimeMode::FullGovernedAdaptive);
+        assert_eq!(runtime_mode(false), RuntimeMode::Static);
+    }
 
     async fn serve_test_upstream(status: StatusCode, body: &'static str) -> String {
         let listener = tokio::net::TcpListener::bind("127.0.0.1:0")

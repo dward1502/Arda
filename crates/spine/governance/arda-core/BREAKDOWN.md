@@ -2,13 +2,14 @@
 soterion:
   sigil: "SCROLL"
   glyph: "📜"
+  code_point: "U+1F4DC"
   role: "governance_spine"
   owner: "arda"
   status: "active"
-  last_reviewed: "2026-07-17"
+  last_reviewed: "2026-07-22"
 ---
-
 # arda-core
+
 Shared primitives and contracts for the Arda governance spine.
 Owner: arda | Sigil: 📜 SCROLL | Status: active
 
@@ -53,7 +54,7 @@ without adding a second direct dependency.
 |--------|------|
 | `agent.rs` | `Agent` trait, `AgentManifest`, sigil metadata. |
 | `config.rs` | Runtime config for governance/spine choices. |
-| `contract.rs` | `Decision`, `DecisionClass`, `TriadOutcome`, `PhilosopherVerdict`, `Plan`, `Goal`, `Reflection`, `MemoryRecord`. |
+| `contract.rs` / `contract/` | `Decision`, `DecisionClass`, `TriadOutcome`, `PhilosopherVerdict`, `Plan`, `Goal`, `Reflection`, `MemoryRecord`. |
 | `daemon.rs` | IPC command/response envelopes. |
 | `error.rs` | Canonical shared error type/result alias. |
 | `governance.rs` / `governance_gates.rs` | Policy modes, per-class gates, YAML-loadable override map. |
@@ -70,7 +71,7 @@ without adding a second direct dependency.
 | `tool.rs` | `ToolRegistry`, `ToolEntry`, sigil/harness classification from `registry.toml`. |
 | `tool_contract/types.rs` | Tool harness metadata, risk, side effects, envelopes. |
 | `tool_contract/mod.rs` | Re-export hub for `service.rs` and `types.rs`. |
-| `service_registry/` | Moved `arda-service-registry` surface: registry, validator, contract, records, continuity. |
+| `service_registry/` | Folded `arda-service-registry` surface: registry, validator, contract, records, continuity, tests. |
 | `soterion.rs` | Registry/index utilities for sigil → metadata mapping. |
 | `soterion_watcher.rs` | Watcher around sigil registry changes. |
 | `background.rs` | Pressure-aware bounded work gate for sync/async/background work. |
@@ -85,8 +86,7 @@ without adding a second direct dependency.
   from needing two direct dependencies.
 
 ## Verification status
-- Compile-time: `cargo check -p arda-core` -> OK with 3 warning-level
-  diagnostics unrelated to boundary correctness.
+- Compile-time: `cargo check -p arda-core` -> OK
 - Compile-time: `cargo check -p arda-engine` -> OK, only 1 unrelated
   unused `mut` in `supervisor.rs`.
 - Runtime wiring: `engine` imports `arda-core::service_registry` and
@@ -104,8 +104,10 @@ without adding a second direct dependency.
 - `crates/spine/governance/arda-core/src/background.rs`
 - `crates/spine/governance/arda-core/src/service_registry/mod.rs`
 - `crates/spine/governance/arda-core/src/systemd.rs`
-- `crates/engine/src manwe.rs`, `engine/src/lib.rs`
+- `crates/engine/src/manwe.rs`, `engine/src/lib.rs`
 
 ## Warnings / follow-ups
 - `service_registry/registry.rs:37` ignores `upsert_contract(...)` result.
-- `tool_contract/service.rs:5,7` has 2 unused imports.
+- `tool_contract/service.rs:5` has 1 unused import.
+- Docs last refreshed against the `manwe` branch source of truth on
+  2026-07-22.

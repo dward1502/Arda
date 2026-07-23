@@ -114,4 +114,25 @@ mod tests {
         let dup = registry.upsert_contract(contract);
         assert!(matches!(dup, Err(RegistryError::Duplicate(_))));
     }
+
+    #[test]
+    fn from_snapshot_skips_duplicates() {
+        let contract = ServiceContract::new("alpha", ServiceKind::Gateway, "cmd", ".");
+        let registry = ServiceRegistry::from_snapshot(vec![
+            ServiceRecord::new(contract.clone()),
+            ServiceRecord::new(contract.clone()),
+            ServiceRecord::new(contract),
+        ]);
+        assert_eq!(registry.snapshot().len(), 1);
+    }
+
+    #[test]
+    fn snapshot_round_trip_preserves_record() {
+        let contract = ServiceContract::new("alpha", ServiceKind::Gateway, "cmd", ".");
+        let mut registry = ServiceRegistry::new();
+        registry.upsert_contract(contract.clone()).unwrap();
+        let restored = ServiceRegistry::from_snapshot(registry.snapshot());
+        let record = restored.get("alpha").unwrap();
+        assert_eq!(record.contract.name, "alpha");
+    }
 }

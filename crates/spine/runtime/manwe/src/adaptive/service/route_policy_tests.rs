@@ -1001,7 +1001,7 @@ fn groq_compound_models_are_not_admitted_for_tool_calls_without_positive_metadat
 fn configured_tool_incompatible_models_are_not_admitted_for_tool_calls() {
     let _guard = ENV_LOCK.lock().expect("env lock");
     std::env::set_var(
-        "ARDA_CHARON_TOOL_INCOMPATIBLE_MODELS",
+        "ARDA_MANWE_TOOL_INCOMPATIBLE_MODELS",
         "dynamic_catalog/fragile-tools",
     );
     let mut model = provider("dynamic_catalog").models.remove(0);
@@ -1026,7 +1026,7 @@ fn configured_tool_incompatible_models_are_not_admitted_for_tool_calls() {
         &model,
         Some(&req)
     ));
-    std::env::remove_var("ARDA_CHARON_TOOL_INCOMPATIBLE_MODELS");
+    std::env::remove_var("ARDA_MANWE_TOOL_INCOMPATIBLE_MODELS");
 }
 
 #[test]
@@ -2067,7 +2067,7 @@ fn slow_mesh_coder_loses_to_fast_cloud_for_execution_lane() {
 fn local_device_pressure_penalizes_local_execution_when_origin_is_auto() {
     let _guard = ENV_LOCK.lock().expect("env lock");
     std::env::remove_var("ARDA_LOCAL_DEVICE_PRESSURE");
-    std::env::remove_var("ARDA_CHARON_LOCAL_DEVICE_PRESSURE");
+    std::env::remove_var("ARDA_MANWE_LOCAL_DEVICE_PRESSURE");
 
     let mut local = provider("edge_backbone_coder");
     local.access_tier = "local".to_string();
@@ -2112,7 +2112,7 @@ fn local_device_pressure_penalizes_local_execution_when_origin_is_auto() {
         &lane_fitness,
     );
 
-    std::env::set_var("ARDA_CHARON_LOCAL_DEVICE_PRESSURE", "0.95");
+    std::env::set_var("ARDA_MANWE_LOCAL_DEVICE_PRESSURE", "0.95");
     let pressured = provider_score(
         &local,
         &model,
@@ -2122,7 +2122,7 @@ fn local_device_pressure_penalizes_local_execution_when_origin_is_auto() {
         &package_runtime,
         &lane_fitness,
     );
-    std::env::remove_var("ARDA_CHARON_LOCAL_DEVICE_PRESSURE");
+    std::env::remove_var("ARDA_MANWE_LOCAL_DEVICE_PRESSURE");
 
     assert!(
         pressured <= baseline - 80.0,

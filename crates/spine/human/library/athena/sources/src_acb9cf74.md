@@ -3,9 +3,9 @@
 - source_id: `src_acb9cf74`
 - status: `shallow`
 - source_type: `GithubRepo`
-- updated_at_utc: `2026-07-18T05:37:20.963973730+00:00`
+- updated_at_utc: `2026-07-22T22:39:39.992215489+00:00`
 - url: https://github.com/example/project
-- athena_book: `/tmp/.tmpRxYCxT/books/src_acb9cf74.jsonl`
+- athena_book: `/tmp/.tmpnn0FvO/books/src_acb9cf74.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

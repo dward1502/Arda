@@ -776,7 +776,7 @@ fn fallback_tier_rank(provider: &ProviderState) -> usize {
 }
 
 fn fallback_tier_order() -> Vec<String> {
-    std::env::var("ARDA_CHARON_FALLBACK_TIER_ORDER")
+    std::env::var("ARDA_MANWE_FALLBACK_TIER_ORDER")
         .unwrap_or_else(|_| "free_cloud,local,paid_cloud,mixed".to_string())
         .split(',')
         .map(str::trim)
@@ -786,7 +786,7 @@ fn fallback_tier_order() -> Vec<String> {
 }
 
 fn large_context_tool_execution_threshold() -> usize {
-    std::env::var("ARDA_CHARON_LARGE_TOOL_CONTEXT_THRESHOLD")
+    std::env::var("ARDA_MANWE_LARGE_TOOL_CONTEXT_THRESHOLD")
         .ok()
         .and_then(|value| value.parse::<usize>().ok())
         .filter(|value| *value >= 32_000)
@@ -1032,7 +1032,7 @@ fn contains_any(haystack: &str, needles: &[&str]) -> bool {
 }
 
 fn free_external_tool_pool_min_candidates() -> usize {
-    std::env::var("ARDA_CHARON_FREE_TOOL_POOL_MIN_CANDIDATES")
+    std::env::var("ARDA_MANWE_FREE_TOOL_POOL_MIN_CANDIDATES")
         .ok()
         .and_then(|value| value.parse::<usize>().ok())
         .filter(|value| *value > 0)
@@ -1054,7 +1054,7 @@ fn request_allows_free_tool_pool(req: &ManweRequestEnvelope) -> bool {
 }
 
 fn configured_free_pool_provider(provider_id: &str) -> bool {
-    let configured = std::env::var("ARDA_CHARON_FREE_POOL_PROVIDER_IDS")
+    let configured = std::env::var("ARDA_MANWE_FREE_POOL_PROVIDER_IDS")
         .unwrap_or_else(|_| default_free_pool_provider_ids().join(","));
     configured
         .split(',')
@@ -1156,17 +1156,17 @@ mod tests {
     #[test]
     fn free_pool_provider_ids_are_env_configurable() {
         let _guard = ENV_LOCK.lock().expect("env lock");
-        std::env::set_var("ARDA_CHARON_FREE_POOL_PROVIDER_IDS", "openrouter,google");
+        std::env::set_var("ARDA_MANWE_FREE_POOL_PROVIDER_IDS", "openrouter,google");
         assert!(configured_free_pool_provider("openrouter"));
         assert!(configured_free_pool_provider("google"));
         assert!(!configured_free_pool_provider("nvidia"));
-        std::env::remove_var("ARDA_CHARON_FREE_POOL_PROVIDER_IDS");
+        std::env::remove_var("ARDA_MANWE_FREE_POOL_PROVIDER_IDS");
     }
 
     #[test]
     fn default_free_pool_provider_ids_cover_volatile_cloud_pool() {
         let _guard = ENV_LOCK.lock().expect("env lock");
-        std::env::remove_var("ARDA_CHARON_FREE_POOL_PROVIDER_IDS");
+        std::env::remove_var("ARDA_MANWE_FREE_POOL_PROVIDER_IDS");
         for provider_id in ["openrouter", "groq", "cerebras", "google", "opencode"] {
             assert!(
                 configured_free_pool_provider(provider_id),
@@ -1179,7 +1179,7 @@ mod tests {
     #[test]
     fn mixed_tier_provider_can_enter_free_pool_by_configured_id() {
         let _guard = ENV_LOCK.lock().expect("env lock");
-        std::env::set_var("ARDA_CHARON_FREE_POOL_PROVIDER_IDS", "google");
+        std::env::set_var("ARDA_MANWE_FREE_POOL_PROVIDER_IDS", "google");
         let providers = vec![provider("google")];
         let candidate = RouteSelectionCandidate {
             provider_index: 0,
@@ -1188,13 +1188,13 @@ mod tests {
         };
 
         assert!(free_pool_candidate(&candidate, &providers));
-        std::env::remove_var("ARDA_CHARON_FREE_POOL_PROVIDER_IDS");
+        std::env::remove_var("ARDA_MANWE_FREE_POOL_PROVIDER_IDS");
     }
 
     #[test]
     fn free_tool_pool_does_not_collapse_to_tiny_free_set() {
         let _guard = ENV_LOCK.lock().expect("env lock");
-        std::env::remove_var("ARDA_CHARON_FREE_TOOL_POOL_MIN_CANDIDATES");
+        std::env::remove_var("ARDA_MANWE_FREE_TOOL_POOL_MIN_CANDIDATES");
         let mut free = provider("cerebras");
         free.access_tier = "free_cloud".to_string();
         let mut paid = provider("mistral");
@@ -1240,7 +1240,7 @@ mod tests {
     #[test]
     fn low_cost_policy_does_not_hide_fallbacks_behind_tiny_free_set() {
         let _guard = ENV_LOCK.lock().expect("env lock");
-        std::env::remove_var("ARDA_CHARON_FREE_TOOL_POOL_MIN_CANDIDATES");
+        std::env::remove_var("ARDA_MANWE_FREE_TOOL_POOL_MIN_CANDIDATES");
         let mut free = provider("cerebras");
         free.access_tier = "free_cloud".to_string();
         let mut paid = provider("mistral");
@@ -1274,7 +1274,7 @@ mod tests {
     #[test]
     fn explicit_fallback_tier_order_keeps_local_before_paid_cloud_for_planning() {
         let _guard = ENV_LOCK.lock().expect("env lock");
-        std::env::remove_var("ARDA_CHARON_FALLBACK_TIER_ORDER");
+        std::env::remove_var("ARDA_MANWE_FALLBACK_TIER_ORDER");
         let mut local = provider("local_fallback");
         local.access_tier = "mixed".to_string();
         let mut paid = provider("openai_sub");
@@ -1308,13 +1308,13 @@ mod tests {
 
         assert_eq!(candidates.len(), 1);
         assert_eq!(providers[candidates[0].provider_index].id, "local_fallback");
-        std::env::remove_var("ARDA_CHARON_FALLBACK_TIER_ORDER");
+        std::env::remove_var("ARDA_MANWE_FALLBACK_TIER_ORDER");
     }
 
     #[test]
     fn explicit_fallback_tier_order_does_not_collapse_execution_candidates() {
         let _guard = ENV_LOCK.lock().expect("env lock");
-        std::env::remove_var("ARDA_CHARON_FALLBACK_TIER_ORDER");
+        std::env::remove_var("ARDA_MANWE_FALLBACK_TIER_ORDER");
         let mut free = provider("cerebras");
         free.access_tier = "free_cloud".to_string();
         let mut paid = provider("openai_sub");
@@ -1347,7 +1347,7 @@ mod tests {
         );
 
         assert_eq!(candidates.len(), 2);
-        std::env::remove_var("ARDA_CHARON_FALLBACK_TIER_ORDER");
+        std::env::remove_var("ARDA_MANWE_FALLBACK_TIER_ORDER");
     }
 
     #[test]
@@ -1685,7 +1685,7 @@ mod tests {
     #[test]
     fn free_tool_pool_retains_free_set_when_viable() {
         let _guard = ENV_LOCK.lock().expect("env lock");
-        std::env::remove_var("ARDA_CHARON_FREE_TOOL_POOL_MIN_CANDIDATES");
+        std::env::remove_var("ARDA_MANWE_FREE_TOOL_POOL_MIN_CANDIDATES");
         let providers = ["cerebras", "opencode", "groq", "mistral"]
             .into_iter()
             .map(|id| {
@@ -1743,7 +1743,7 @@ mod tests {
     #[test]
     fn free_tool_pool_ignores_near_exhausted_free_providers() {
         let _guard = ENV_LOCK.lock().expect("env lock");
-        std::env::set_var("ARDA_CHARON_FREE_TOOL_POOL_MIN_CANDIDATES", "2");
+        std::env::set_var("ARDA_MANWE_FREE_TOOL_POOL_MIN_CANDIDATES", "2");
         let mut openrouter = provider("openrouter");
         openrouter.access_tier = "mixed".to_string();
         openrouter.requests_per_day = Some(50);
@@ -1799,13 +1799,13 @@ mod tests {
             .map(|candidate| providers[candidate.provider_index].id.as_str())
             .collect::<Vec<_>>();
         assert_eq!(retained, vec!["groq", "cerebras"]);
-        std::env::remove_var("ARDA_CHARON_FREE_TOOL_POOL_MIN_CANDIDATES");
+        std::env::remove_var("ARDA_MANWE_FREE_TOOL_POOL_MIN_CANDIDATES");
     }
 
     #[test]
     fn free_tool_pool_is_opt_in_for_execution_routes() {
         let _guard = ENV_LOCK.lock().expect("env lock");
-        std::env::remove_var("ARDA_CHARON_FREE_TOOL_POOL_MIN_CANDIDATES");
+        std::env::remove_var("ARDA_MANWE_FREE_TOOL_POOL_MIN_CANDIDATES");
         let providers = ["cerebras", "opencode", "groq", "mistral"]
             .into_iter()
             .map(|id| {

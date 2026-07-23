@@ -7,6 +7,7 @@
 
 use std::net::SocketAddr;
 use std::sync::Arc;
+use std::time::Duration;
 
 use axum::extract::State;
 use axum::http::StatusCode;
@@ -20,6 +21,9 @@ use tracing::{info, warn};
 /// Default harness bind address.
 pub const DEFAULT_HARNESS_ADDR: &str = "127.0.0.1:7878";
 
+/// Default timeout for proxy requests to `manwe`.
+pub const DEFAULT_MANWE_PROXY_TIMEOUT: Duration = Duration::from_secs(5);
+
 /// Shared harness state, injected into the axum router.
 #[derive(Clone)]
 pub struct HarnessState {
@@ -29,6 +33,14 @@ pub struct HarnessState {
     pub service_names: Arc<Vec<String>>,
     /// The `manwe` gateway base URL the harness proxies `/v1/models` to.
     pub manwe_url: String,
+    /// HTTP client used for outbound proxy requests.
+    pub client: reqwest::Client,
+    /// Per-request timeout applied when proxying `/v1/models`.
+    pub manwe_proxy_timeout: Duration,
+    /// Optional bearer token forwarded as `Authorization` on `/v1/models`
+    /// proxy requests. Useful when `manwe` requires auth but callers only
+    /// talk to the harness surface.
+    pub manwe_proxy_bearer: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -73,18 +85,40 @@ async fn status(State(st): State<HarnessState>) -> impl IntoResponse {
 /// Thin proxy to `manwe`'s `/v1/models` so callers only ever talk to the
 /// harness port (one tap-in surface), not the gateway's internal 7171.
 async fn models(State(st): State<HarnessState>) -> impl IntoResponse {
-    let url = format!("{}/v1/models", st.manwe_url.trim_end_matches('/'));
-    match reqwest::get(&url).await {
-        Ok(resp) => match resp.json::<serde_json::Value>().await {
-            Ok(v) => (StatusCode::OK, Json(v)).into_response(),
+    let target = format!("{}/v1/models", st.manwe_url.trim_end_matches('/'));
+    let mut request = st.client.get(&target).timeout(st.manwe_proxy_timeout);
+    if let Some(bearer) = st.manwe_proxy_bearer.as_ref() {
+        request = request.header(reqwest::header::AUTHORIZATION, format!("Bearer {bearer}"));
+    }
+    match request.send().await {
+        Ok(resp) => match resp.bytes().await {
+            Ok(bytes) => match serde_json::from_slice::<serde_json::Value>(&bytes) {
+                Ok(v) => (StatusCode::OK, Json(v)).into_response(),
+                Err(e) => {
+                    warn!("harness: failed to parse manwe /v1/models: {e}");
+                    (
+                        StatusCode::BAD_GATEWAY,
+                        "manwe returned unparseable body",
+                    )
+                        .into_response()
+                }
+            },
             Err(e) => {
-                warn!("harness: failed to parse manwe /v1/models: {e}");
-                (StatusCode::BAD_GATEWAY, "manwe returned unparseable body").into_response()
+                warn!("harness: failed to read manwe /v1/models body: {e}");
+                (
+                    StatusCode::BAD_GATEWAY,
+                    "manwe returned unreadable body",
+                )
+                    .into_response()
             }
         },
         Err(e) => {
-            warn!("harness: manwe /v1/models unreachable at {url}: {e}");
-            (StatusCode::BAD_GATEWAY, "manwe unreachable").into_response()
+            warn!("harness: manwe /v1/models unreachable at {target}: {e}");
+            (
+                StatusCode::BAD_GATEWAY,
+                format!("manwe unreachable: {target}"),
+            )
+                .into_response()
         }
     }
 }
@@ -102,15 +136,18 @@ async fn harness_info() -> impl IntoResponse {
     )
 }
 
-/// Start the harness HTTP surface, binding `addr` (falls back to
-/// `DEFAULT_HARNESS_ADDR` when `None`). Returns the bound `SocketAddr` and a
+/// Start the harness HTTP surface. Uses `addr` when provided, otherwise reads
+/// `ARDA_HARNESS_BIND_ADDR` from the environment, falling back to
+/// `DEFAULT_HARNESS_ADDR`. Returns the bound `SocketAddr` and a
 /// `JoinHandle` for the serving task. The `shutdown` notify stops it.
 pub async fn serve(
     addr: Option<SocketAddr>,
     state: HarnessState,
     shutdown: Arc<Notify>,
 ) -> anyhow::Result<(SocketAddr, tokio::task::JoinHandle<()>)> {
-    let addr = addr.unwrap_or_else(|| DEFAULT_HARNESS_ADDR.parse().unwrap());
+    let addr = addr
+        .or_else(|| std::env::var("ARDA_HARNESS_BIND_ADDR").ok()?.parse().ok())
+        .unwrap_or_else(|| DEFAULT_HARNESS_ADDR.parse().unwrap());
     let listener = tokio::net::TcpListener::bind(addr).await?;
     let bound = listener.local_addr()?;
     info!("harness: listening on {bound}");
@@ -124,3 +161,6 @@ pub async fn serve(
     });
     Ok((bound, handle))
 }
+
+
+

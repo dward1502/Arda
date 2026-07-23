@@ -2,6 +2,6 @@
 // sigil: REPAIR
 //! CEO Router
 //!
-//! Simple router wrapper for annunimas_core
+//! Simple router wrapper for arda-core
 
-pub use annunimas_core::router::Router;
+pub use arda_core::router::Router;

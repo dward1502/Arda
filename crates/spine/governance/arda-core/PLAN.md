@@ -67,6 +67,17 @@ GEN3: broader learning/observability/interop that waits until GEN2 is closed.
 - Status: baseline tests green; GEN1/ GEN2 coverage added in place,
   preserving crate boundary stability.
 
+## 4. GEN2 status
+Closed.
+- Baseline: `cargo test -p arda-core` 91/91 passing
+  - 90 unit tests
+  - 1 smoke test: `sovereign_baseline_contract_is_migrated`
+  - 0 doc-tests
+- Coverage confirmed present in `governance_gates`, `loop_engine`,
+  `loop_alerts`, `learning`, `background`, `state`, `message`,
+  `service_registry`, `soterion`, `soterion_watcher`.
+- Known warnings unchanged; no public API expansion from GEN2.
+
 ## 5. GEN3 — learning/observability/interop
 - Evaluate public learning/memory systems for concepts that can be
   adapted into Arda governance semantics without breaking append-only
@@ -74,8 +85,10 @@ GEN3: broader learning/observability/interop that waits until GEN2 is closed.
 - Add observability knobs for loop economy and decision latency.
 - Consider interoperability views for `arda-core` contracts consumed
   by external tooling.
-- Status: deferred. Record landscape context in task notes; do not merge
-  behavior changes until GEN2 is fully closed.
+- Status: deferred with landscape evidence captured in
+  `docs/interop/landscape.md`. Do not merge behavior changes until
+  GEN2 remains fully closed and a consumer crate introduces a concrete
+  interop scenario.
 
 ## 6. Execution order
 1. Reconcile docs to current code and write STATUS evidence.

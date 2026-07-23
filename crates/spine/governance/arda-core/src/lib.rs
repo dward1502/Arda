@@ -15,6 +15,7 @@ pub mod llm;
 pub mod loop_alerts;
 pub mod loop_economy;
 pub mod loop_engine;
+pub mod loop_observability;
 pub mod message;
 pub mod pipeline;
 pub mod router;
@@ -38,6 +39,10 @@ pub use error::{ArdaError, Result};
 pub use ledger::Ledger;
 pub use llm::{
     ChatMessage, ChatRequest, ChatResponse, LlmConfig, LlmProvider, OpenAiCompatibleProvider,
+};
+pub use loop_economy::{build_snapshot, write_snapshot, BidSpread, LoopEconomySnapshot};
+pub use loop_observability::{
+    DecisionLatencyKind, DecisionLatencyProbe, LoopObservabilityConfig, LatencyProbe,
 };
 pub use message::Message;
 pub use orome_runtime::{

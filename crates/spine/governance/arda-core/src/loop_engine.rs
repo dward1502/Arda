@@ -27,6 +27,7 @@ use crate::governance_gates::{
     AffordabilityPolicy, AllowAllAffordability, GovernanceGates, GovernancePolicyMode,
 };
 use crate::ledger::Ledger;
+use crate::loop_observability::{DecisionLatencyKind, LatencyProbe, LoopObservabilityConfig};
 use crate::state::{self, StateRoot};
 use crate::task::{Task, TaskStatus};
 
@@ -301,6 +302,13 @@ pub fn dispatch_full_with_affordability(
     }
 
     let ledger = ledger_for(state)?;
+
+    let loop_observability_config = LoopObservabilityConfig::from_env();
+    let mut tick_probe = LatencyProbe::new(loop_observability_config.max_latency_samples);
+    if loop_observability_config.latency_probe_enabled {
+        tick_probe.with_kind(DecisionLatencyKind::LoopTick);
+    }
+
     let now_ts = Utc::now().format("%Y%m%dT%H%M%S").to_string();
 
     // ----- Phase 2 step 7: per-goal joule budget bookkeeping. -----
@@ -585,6 +593,12 @@ pub fn dispatch_full_with_affordability(
             }
         }
         pass.dispatched.push(id);
+    }
+
+    if loop_observability_config.economy_snapshot_enabled {
+        let _ = tick_probe
+            .with_kind(DecisionLatencyKind::EconomySnapshot)
+            .sample();
     }
 
     Ok(pass)

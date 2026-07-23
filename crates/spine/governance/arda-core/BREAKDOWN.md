@@ -6,8 +6,9 @@ soterion:
   role: "governance_spine"
   owner: "arda"
   status: "active"
-  last_reviewed: "2026-07-22"
+  last_reviewed: "2026-07-23"
 ---
+
 # arda-core
 
 Shared primitives and contracts for the Arda governance spine.
@@ -53,27 +54,33 @@ without adding a second direct dependency.
 | Module | Role |
 |--------|------|
 | `agent.rs` | `Agent` trait, `AgentManifest`, sigil metadata. |
+| `aipkg.rs` | AIPKG preflight, manifest, governance, receipt policy. |
+| `alerts.rs` | Loop alert definitions for telemetry-driven notifications. |
 | `config.rs` | Runtime config for governance/spine choices. |
 | `contract.rs` / `contract/` | `Decision`, `DecisionClass`, `TriadOutcome`, `PhilosopherVerdict`, `Plan`, `Goal`, `Reflection`, `MemoryRecord`. |
 | `daemon.rs` | IPC command/response envelopes. |
 | `error.rs` | Canonical shared error type/result alias. |
-| `governance.rs` / `governance_gates.rs` | Policy modes, per-class gates, YAML-loadable override map. |
+| `governance.rs` / `governance_gates.rs` | Policy modes, corpus hints, per-class gates, YAML-loadable override map. |
 | `learning.rs` | Outcome stats, learning state/store, gate lifecycle packets. |
 | `ledger.rs` | Append-only Decision/message JSONL output with Soterion enrichment. |
+| `layout.rs` | Layout/public-surface helper types. |
 | `llm.rs` | Provider-agnostic LLM client + OpenAI-compatible HTTP backend. |
-| `loop_engine.rs` | Dispatcher, reflector, joule market, council billing, halting. |
+| `loop_alerts.rs` | Loop alert emitter tied to dispatcher outcomes. |
 | `loop_economy.rs` | Leaderboard-style economy snapshot from ledger. |
-| `loop_alerts.rs` | Alert primitives tied to loop telemetry. |
+| `loop_engine.rs` | Dispatcher, reflector, joule market, council billing, halting. |
+| `orome_runtime.rs` | Shared registry/router runtime state types. |
+| `message.rs` | Spine message type with Soterion envelope metadata. |
+| `pipeline.rs` | Pipeline helpers for orchestrated execution stages. |
 | `router.rs` | Capability-based agent router over `AgentManifest`/`Agent`. |
+| `service_registry/` | Folded registry surface: registry, validator, contract, records, continuity, test support. |
+| `soterion.rs` | Registry/index utilities for sigil → metadata mapping. |
+| `soterion_watcher.rs` | Watcher around sigil registry changes. |
 | `state.rs` | `StateRoot` + typed read/write helpers for goals/plans/outcomes/memory/queue. |
 | `systemd.rs` | systemd list-units query surface for supervised services. |
 | `task.rs` | `Task`, `TaskStatus`, joule/phased timing/resonance metrics. |
 | `tool.rs` | `ToolRegistry`, `ToolEntry`, sigil/harness classification from `registry.toml`. |
-| `tool_contract/types.rs` | Tool harness metadata, risk, side effects, envelopes. |
-| `tool_contract/mod.rs` | Re-export hub for `service.rs` and `types.rs`. |
-| `service_registry/` | Folded `arda-service-registry` surface: registry, validator, contract, records, continuity, tests. |
-| `soterion.rs` | Registry/index utilities for sigil → metadata mapping. |
-| `soterion_watcher.rs` | Watcher around sigil registry changes. |
+| `tool_contract/types.rs` | Tool harness metadata, risk, side effects, envelopes, `InvocationPlan`. |
+| `tool_contract/service.rs` | Governance-baseline helpers, idempotency enforcement, invocation plan wiring. |
 | `background.rs` | Pressure-aware bounded work gate for sync/async/background work. |
 
 ## How arda-engine is connected
@@ -104,10 +111,15 @@ without adding a second direct dependency.
 - `crates/spine/governance/arda-core/src/background.rs`
 - `crates/spine/governance/arda-core/src/service_registry/mod.rs`
 - `crates/spine/governance/arda-core/src/systemd.rs`
+- `crates/spine/governance/arda-core/src/message.rs`
+- `crates/spine/governance/arda-core/src/loop_alerts.rs`
+- `crates/spine/governance/arda-core/src/soterion_watcher.rs`
+- `crates/spine/governance/arda-core/src/tool_contract/service.rs`
 - `crates/engine/src/manwe.rs`, `engine/src/lib.rs`
 
 ## Warnings / follow-ups
 - `service_registry/registry.rs:37` ignores `upsert_contract(...)` result.
 - `tool_contract/service.rs:5` has 1 unused import.
+- GEN3 interop is deferred; see `docs/interop/landscape.md`.
 - Docs last refreshed against the `manwe` branch source of truth on
-  2026-07-22.
+  2026-07-23.

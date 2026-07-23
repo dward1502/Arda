@@ -43,7 +43,20 @@ Sigil: 📜 SCROLL
   duplicate skip and round-trip preservation
 
 ## Known warning/follow-ups
-- None.
+- `service_registry/registry.rs:37` ignores `upsert_contract(...)` result.
+- `tool_contract/service.rs:5` has 1 unused import.
+- GEN3 interop is deferred; see `docs/interop/landscape.md`.
+
+## GEN2 closeout
+- Baseline verified: `cargo test -p arda-core` -> 91/91 passing
+  - 90 unit tests
+  - 1 smoke test: `sovereign_baseline_contract_is_migrated`
+  - 0 doc-tests
+- Coverage paths verified present per PLAN section 4:
+  - governance, loop engine, learning, background gate, state/message,
+    service_registry, soterion (+watcher)
+- Crate boundary stable; no public API growth from GEN2.
+- Known warnings preserved; do not expand scope without consumer migration.
 
 ## Owner notes
 - `arda-engine` re-exports `arda_core::service_registry`.

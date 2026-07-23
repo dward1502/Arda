@@ -2,17 +2,14 @@
 
 Status: planning/landscape only. No behavior changes in `arda-core` until a consumer crate needs them.
 
-## Considerations
-- Learning/memory adaptation: `learning.rs` and `state.rs` already expose shared
-  primitives for routing bias, best-agent selection, and memory round trips.
-  Any external learning concepts should map onto these contracts rather than
-  replace them.
-- Observability: append-only auditability in `loop_engine.rs`, `ledger.rs`, and
-  `loop_alerts.rs` is the current interface. Any new knobs should preserve
-  JSONL append semantics and not bypass governance gates.
-- Interoperability views: `Message`, `Decision`, `ServiceRecord`, and
-  `SoterionRegistryEntry` are the most likely external-view candidates.
-  Review by downstream crates before introducing stable serialization guarantees.
+## Current intercept surface
+- Additive observability types were introduced in `src/loop_observability.rs`.
+- Consumers may import them through `arda_engine::loop_observability`.
+- These types do not change dispatch semantics or append-only ledger output.
+
+## Constraints
+- Interoperability depends on external tooling integration points.
+- Merging behavior changes requires a concrete consumer usage scenario.
 
 ## Deferral rule
 Do not merge behavior changes until GEN2 remains fully closed and a consumer

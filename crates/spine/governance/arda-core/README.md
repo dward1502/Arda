@@ -32,8 +32,8 @@ rolling its own governance surface.
 
 ## Verified state
 - `cargo check -p arda-core` -> OK
-- `cargo test -p arda-core` -> 74/74 passing
-  - 74 unit tests
+- `cargo test -p arda-core` -> 91/91 passing
+  - 90 unit tests
   - 1 smoke test: `sovereign_baseline_contract_is_migrated`
   - 0 doc-tests
 - README/BREAKDOWN/STATUS/PLAN aligned to current source

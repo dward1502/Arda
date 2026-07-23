@@ -48,7 +48,7 @@ Live listener/runtime snapshot:
 | Node exporter | ✅ listening on `*:9100` |
 | Local mesh-llm | ✅ listening on `0.0.0.0:3131` |
 | Beelink SER9 :9337 (Ternary-Bonsai-8B-Q2_0) | ✅ Prism-ML llama.cpp fork + Vulkan (AMD Radeon 890M), reachable on `http://100.103.125.88:9337/v1` |
-| Annunimas-Server :8095 (Ternary-Bonsai-27B-Q2_0) | ✅ Prism-ML llama.cpp fork + CUDA, tensor-split across 2× RTX 2080 Super, reachable on `http://100.102.250.115:8095/v1` — **promoted 2026-07-19 to the default high-quality local route** (`edge_backbone_bonsai27` primary local surface; `ANNUNIMAS_CHARON_MIN_CONTEXT_WINDOW=8192` lets its 8192-ctx cap clear the router's context floor). Tool/execution lanes keep the ≥32K guard to protect Hermes tool-call stability. |
+| Annunimas-Server :8095 (Ternary-Bonsai-27B-Q2_0) | ✅ Canonical `edge_backbone` route; Prism-ML llama.cpp fork + CUDA, tensor-split across 2× RTX 2080 Super, reachable on `http://100.102.250.115:8095/v1` with 32K context. Former :8081/:8093/:8094 lanes are disabled. Tool execution stays on tool-capable providers. |
 | Arda user systemd units | ⚠️ none loaded |
 
 Evidence basis: `ss -ltnp`, process ownership, repo workspace validation.

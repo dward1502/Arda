@@ -135,4 +135,15 @@ mod tests {
         let record = restored.get("alpha").unwrap();
         assert_eq!(record.contract.name, "alpha");
     }
+
+    #[test]
+    fn empty_service_name_is_rejected() {
+        let mut registry = ServiceRegistry::new();
+        let contract = ServiceContract::new("", ServiceKind::Gateway, "cmd", ".");
+        let err = registry.upsert_contract(contract).unwrap_err();
+        assert!(
+            matches!(err, RegistryError::Invalid(_, _)),
+            "expected Invalid error, got {err:?}"
+        );
+    }
 }

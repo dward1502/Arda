@@ -10,6 +10,14 @@ use std::time::Duration as StdDuration;
 
 impl CharonService {
     pub(super) fn read_lane_fitness_snapshot(&self) -> LaneFitnessSnapshot {
+        let _guard = self
+            .lane_fitness_lock
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        self.read_lane_fitness_snapshot_unlocked()
+    }
+
+    fn read_lane_fitness_snapshot_unlocked(&self) -> LaneFitnessSnapshot {
         let path = self.lane_fitness_path();
         let mut snapshot = fs::read_to_string(&path)
             .ok()
@@ -34,7 +42,11 @@ impl CharonService {
         ok: bool,
         latency_ms: Option<u64>,
     ) -> Result<()> {
-        let mut snapshot = self.read_lane_fitness_snapshot();
+        let _guard = self
+            .lane_fitness_lock
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        let mut snapshot = self.read_lane_fitness_snapshot_unlocked();
         let lane_entry = snapshot.lanes.entry(lane.to_string()).or_default();
         let provider_entry = lane_entry.entry(provider_id.to_string()).or_default();
         provider_entry.last_result_utc = Some(Utc::now().to_rfc3339());

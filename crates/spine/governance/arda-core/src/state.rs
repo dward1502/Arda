@@ -271,4 +271,14 @@ mod tests {
         std::fs::write(root.goals_dir().join(".half.json.tmp"), b"{}").unwrap();
         assert_eq!(list_goals(&root).unwrap().len(), 1);
     }
+
+    #[test]
+    fn read_goals_returns_not_found_error_for_missing_goal() {
+        let (_dir, root) = tmp_root();
+        let err = read_goal(&root, "missing").unwrap_err();
+        assert!(
+            matches!(err, ArdaError::Ledger(_)),
+            "expected Ledger error for missing file, got {err:?}"
+        );
+    }
 }

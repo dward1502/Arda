@@ -1,32 +1,18 @@
----
-soterion:
-  sigil: "SCROLL"
-  glyph: "📜"
-  code_point: "U+1F4DC"
-  role: "directory_index"
-  owner: "HADES"
-  status: "active"
-  last_reviewed: "2026-07-13"
----
+# arda-vaire index
 
-
-> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-13
-
-# Index: crates/memory/arda-vaire/INDEX.md
-
-## Contents
-
+Contents:
 - `Cargo.toml`
-- `INDEX.md`
+- `BREAKDOWN.md`
+- `CHECKLIST.md`
+- `CRATE_PLAN.md`
+- `OWNERSHIP.md`
 - `README.md`
-- `crates`
+- `STATUS.md`
 - `src`
 - `tests`
 
-## Purpose
+Purpose:
+Crate index for `crates/spine/memory/arda-vaire/INDEX.md`.
 
-Crate index for `crates/memory/arda-vaire/INDEX.md`. See sibling `INDEX.md` for bucket metadata.
-
-## Notes
-
-Normalized from on-disk contents; review cadence is quarterly unless owner changes.
+Notes:
+Normalized from current on-disk contents; review cadence is quarterly unless owner changes.

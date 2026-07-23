@@ -13,8 +13,11 @@ pub(crate) struct TelemetryConfig {
 
 impl TelemetryConfig {
     pub fn from_env() -> Self {
-        let otlp_endpoint = std::env::var("ARDA_OTLP_ENDPOINT").or_else(|_| std::env::var("OTEL_EXPORTER_OTLP_ENDPOINT")).ok();
-        let service_name = std::env::var("OTEL_SERVICE_NAME").unwrap_or_else(|_| SERVICE_NAME.to_string());
+        let otlp_endpoint = std::env::var("ARDA_OTLP_ENDPOINT")
+            .or_else(|_| std::env::var("OTEL_EXPORTER_OTLP_ENDPOINT"))
+            .ok();
+        let service_name =
+            std::env::var("OTEL_SERVICE_NAME").unwrap_or_else(|_| SERVICE_NAME.to_string());
 
         Self {
             otlp_endpoint,

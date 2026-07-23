@@ -177,7 +177,8 @@ Record and verify:
 Qualify each lane independently against the same native-tool acceptance gate:
 
 - `edge_beelink_light` for cheaper/light work.
-- `edge_backbone_coder` for coding tasks when healthy.
+- `edge_backbone` for high-quality local reasoning without tools.
+- `edge_core` for local tool/code execution.
 - `local/auto` for fail-closed local selection.
 
 Do not move Hermes away from the known-good pinned `edge_core` route until each

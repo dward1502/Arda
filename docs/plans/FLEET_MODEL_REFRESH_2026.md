@@ -6,10 +6,7 @@ Current live fleet serving these models:
 - node-core-hub: LFM2.5-8B-A1B-Q4_K_M
 - node-pi5-warden: Qwen3.5-4B-Q4_K_M.gguf
 - node-ser9-worker: Ternary-Bonsai-8B-Q2_0 (active, Prism-ML llama.cpp fork)
-- node-backbone-server: lfm2.5-8b-a1b-q4km
-- node-backbone-gemma4-coder: qwen2.5-coder-7b-q4km
-- node-backbone-vision: Qwen2.5-VL-7B-Instruct
-- node-backbone-bonsai27: ternary-bonsai-27b-q2_0 (active, Prism-ML llama.cpp fork, :8095)
+- node-backbone-server: ternary-bonsai-27b-q2_0 (canonical and only active annunimas-server model, Prism-ML llama.cpp fork, :8095)
 - node-ser9-carnice: Carnice-9b-Q6_K — inactive
 - node-laptop: voice/ASR only, not inference
 - node-pi5-citadel-avatar: avatar service, not LLM lane
@@ -24,12 +21,10 @@ HuggingFace evidence as of 2026-07-21:
 
 ## Node curation notes before mapping
 
-Current “why” looks broad/redundant:
-- Both backbone-server and core-hub serve LFM-style fast lanes; not clearly differentiated.
+Current curation state:
+- annunimas-server was consolidated on 2026-07-23 to one canonical `edge_backbone` route serving Bonsai 27B on :8095.
 - ser9-worker and pi5-warden both serve Qwen3.5-4B-class light models; overlap.
-- gemma4-coder lane is good if intent is code; otherwise redundant with fast general lane.
-- vision lane is valid and should be kept, but Qwen2.5-VL-7B is no longer top-visited in 2026 rankings.
-- Multiple co-located models on annunimas-server fragment VRAM and can cap context for the strongest candidate (Ternary Bonsai 27B on :8095 is stuck at 8192 ctx).
+- Former annunimas-server LFM, coder, and vision services are disabled and no longer represented as fleet nodes or Manwe providers.
 
 ## Proposed new model purpose plan
 
@@ -42,12 +37,11 @@ Rename/repurpose nodes around actual operator need, not just “has llama.cpp”
 
 Proposed node assignments:
 
-- node-backbone-server → Fast General
-- node-backbone-gemma4-coder → Code/Agentic
+- node-backbone-server → Unified high-quality general/reasoning backbone
 - node-core-hub → Fast General secondary / failover or specialized reasoning lane
 - node-ser9-worker → Edge/light
 - node-pi5-warden → Edge/light
-- node-backbone-vision → Vision/multimodal
+
 - node-ser9-carnice → second Code/Agentic lane when reactivated
 - node-laptop → local_placeholder / offline fallback only
 - node-pi5-citadel-avatar → avatar only

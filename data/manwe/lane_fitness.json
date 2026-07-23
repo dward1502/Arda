@@ -1,0 +1,43 @@
+{
+  "generated_at_utc": "2026-07-23T17:59:08.140107827+00:00",
+  "lanes": {
+    "interactive": {
+      "edge_backbone": {
+        "avg_latency_ms": 3930,
+        "success_count": 2,
+        "failure_count": 0,
+        "last_result_utc": "2026-07-23T17:59:08.140107107+00:00"
+      },
+      "edge_backbone_bonsai27": {
+        "avg_latency_ms": 743,
+        "success_count": 3,
+        "failure_count": 0,
+        "last_result_utc": "2026-07-23T17:39:06.854138480+00:00"
+      },
+      "edge_guardhouse": {
+        "avg_latency_ms": 11661,
+        "success_count": 1,
+        "failure_count": 0,
+        "last_result_utc": "2026-07-23T17:54:59.096020491+00:00"
+      },
+      "google": {
+        "avg_latency_ms": 544,
+        "success_count": 2,
+        "failure_count": 0,
+        "last_result_utc": "2026-07-23T17:49:07.407788820+00:00"
+      },
+      "local_fallback": {
+        "avg_latency_ms": 152,
+        "success_count": 2,
+        "failure_count": 0,
+        "last_result_utc": "2026-07-23T17:09:02.406690861+00:00"
+      },
+      "openai_sub": {
+        "avg_latency_ms": 1326,
+        "success_count": 2,
+        "failure_count": 0,
+        "last_result_utc": "2026-07-23T17:24:06.664553036+00:00"
+      }
+    }
+  }
+}

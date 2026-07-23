@@ -2,27 +2,37 @@
 
 Crate: `crates/spine/runtime/manwe`
 Reviewed: 2026-07-23
-State: active; canonical process and full governed adaptive runtime aligned; telemetry broken
+State: active; canonical process, governed adaptive runtime, and telemetry contract aligned
 
 ## Verification performed in this review
 
 | Command | Result |
 |---|---|
 | `cargo check -p manwe` | PASS |
-| `cargo test -p manwe` | PASS: 0 library + 19 binary tests (prior default-only baseline) |
+| `cargo test -p manwe` | PASS: 1 library + 22 binary tests |
 | `cargo check -p manwe --all-targets --features adaptive` | PASS |
-| `cargo test -p manwe --features adaptive` | PASS: 264 library + 21 binary tests |
+| `cargo test -p manwe --features adaptive` | PASS: 268 library + 23 binary tests |
 | `python crates/spine/runtime/manwe/tests/process_smoke.py` | PASS: static and full governed adaptive processes |
 | `cargo check -p manwe --features grpc` | PASS |
 | `cargo fmt -p manwe -- --check` | PASS |
-| `cargo check -p manwe --all-features` | FAIL: 14 telemetry-path compile errors |
-| `cargo test -p manwe --all-features` | FAIL during the same telemetry compilation |
+| `cargo check -p manwe --all-targets --all-features` | PASS |
+| `cargo test -p manwe --all-features` | PASS: 268 library + 24 binary tests |
+| `cargo test -p arda-aule --features telemetry --test telemetry_surface` | PASS: public telemetry contract |
+| `python crates/spine/runtime/manwe/tests/check_docs.py` | PASS: 8 Markdown files, 25 local links, 12 source-index entries |
 
 The passing commands emitted only the workspace warning that the launcher
-package's non-root Cargo profile is ignored. The all-feature commands fail in
-`adaptive/service/service_events.rs`: `arda_aule::telemetry` is not exported,
-`observability::tracer` and `service::telemetry` do not exist, and two references
-misspell `arda_aule` as `ardea_aule`.
+package's non-root Cargo profile is ignored plus pre-existing Manwe dead-code
+warnings. `arda_aule::telemetry` is now a feature-gated public module with a
+supported event emitter, tracing-layer builder, schema constant, and shutdown
+function. The active adaptive service emits state, governance, and memory
+events through that API. Manwe installs the OTLP layer when an endpoint is
+configured and flushes the provider at process exit. Trace/log destination
+routing and serialized attribute preservation have focused contract coverage.
+Event `delivery` attributes distinguish event-writer acceptance,
+Mnemosyne encoding, and telemetry-only memory delivery from durable persistence.
+Its old unattached `service_events.rs` duplicate was
+removed with the stale `observability::tracer`, `service::telemetry`, and
+misspelled `ardea_aule` references it contained.
 
 The process smoke test starts controlled temporary static and adaptive Manwe
 processes plus a local mock OpenAI upstream. It verifies `/healthz`,
@@ -46,8 +56,8 @@ state/governance receipts without calling external providers.
 - Credential-free active config paths/sources and catalog generations on health
   and capabilities surfaces.
 - Stream-request handling and non-streaming proxy responses with JSONL route
-  receipts. The current binary buffers a stream response before returning it;
-  it does not provide live SSE pass-through.
+  receipts. The binary's explicit stream contract is buffered SSE, advertised
+  by `x-manwe-streaming-mode: buffered`; it does not provide live pass-through.
 - Rich adaptive policy/service library behind `adaptive`.
 - Optional tonic gRPC services behind `grpc` plus the `--grpc` runtime flag.
 
@@ -62,14 +72,13 @@ state/governance receipts without calling external providers.
   `ARDA_MANWE_RESOURCE_GROUP_QUEUE_TIMEOUT_SECONDS` (default `30`)
 - Local-only model alias: `local/auto`
 - Static ownership: `--config` owns forwarding providers;
-  `ARDA_MANWE_FLEET_CONFIG` (legacy `ARDA_MANWE_FLEET_CONFIG`) owns fleet
+  `ARDA_MANWE_FLEET_CONFIG` owns fleet
   discovery. Fleet failures produce an empty fleet catalog without replacing
   forwarding providers.
-- Adaptive ownership: `ARDA_MANWE_PROVIDER_CONFIG` (legacy
-  `ARDA_MANWE_PROVIDER_CONFIG`) owns governed providers;
-  `ARDA_MANWE_STATE_DIR` (legacy `ARDA_MANWE_HOME`) owns mutable state. Their
-  defaults are `$ARDA_HOME/config/charon.providers.toml` and
-  `$ARDA_HOME/data/manwe` respectively.
+- Adaptive ownership: `ARDA_MANWE_PROVIDER_CONFIG` owns governed providers,
+  falling back to `$ARDA_ROOT/config/charon.providers.toml` and then governed
+  defaults. `ARDA_MANWE_STATE_DIR`, then `ARDA_MANWE_HOME`, owns mutable state;
+  the fallback is `$ARDA_HOME/data/manwe` and then `./data/manwe`.
 
 ## Adaptive runtime boundary
 
@@ -99,19 +108,10 @@ documentation review.
 
 1. The binary and rich adaptive service have parallel routing/config/transport
    paths. Capability claims must stay scoped until they are unified.
-2. Remaining `ARDA_MANWE_*` policy/tuning variables need canonical
-   `ARDA_MANWE_*` aliases; path ownership variables now have canonical-first
-   precedence.
-3. `ManweService::read_lane_fitness_snapshot` currently returns `None`, so the
-   adaptive scoring hook exists but does not consume persisted lane fitness.
-4. The binary buffers responses marked as streaming before returning them, so
-   latency and backpressure differ from true SSE pass-through.
-5. Current tests are strong at unit/policy level but do not provide a maintained
-   gRPC process-level integration harness.
-6. The direct `arda-hud` HTTP-consumer claim in older docs was not confirmed by
+2. Remaining legacy-named policy/tuning variables need canonical Manwe aliases;
+   path ownership variables now use the Manwe names documented above.
+3. The direct `arda-hud` HTTP-consumer claim in older docs was not confirmed by
    this source audit; HUD currently has broader Manwe state/action projections.
-7. The `telemetry` feature is not buildable, so all-feature CI cannot currently
-   pass even though default, adaptive-only, and gRPC-only paths do.
 
 ## Source-graph state
 
@@ -125,9 +125,9 @@ compatibility surface and is not advertised as part of the canonical binary.
 
 ## Next action
 
-Close the lane-fitness, buffered-streaming, and gRPC process-test gaps in
-[`CHECKLIST.md`](CHECKLIST.md), then repair the telemetry feature contract. Do
-not change port 7171 independently of engine, launcher, and registry consumers.
+Keep provider/config documentation covered by the lightweight documentation
+validator. Do not change port 7171 independently of engine, launcher, and
+registry consumers.
 
 ## Registry/process-owner evidence
 

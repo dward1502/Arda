@@ -104,6 +104,7 @@ dependencies = [
  "anyhow",
  "arda-engine",
  "clap",
+ "reqwest 0.12.28",
  "tokio",
  "tracing",
  "tracing-subscriber",
@@ -153,6 +154,18 @@ dependencies = [
  "tracing-opentelemetry",
  "tracing-subscriber",
  "uuid",
+]
+
+[[package]]
+name = "arda-contract-registry"
+version = "0.1.0"
+dependencies = [
+ "glob-match",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror 1.0.69",
+ "walkdir",
 ]
 
 [[package]]
@@ -1923,6 +1936,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0cc23270f6e1808e30a928bdc84dea0b9b4136a8bc82338574f23baf47bbd280"
 
 [[package]]
+name = "glob-match"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9985c9503b412198aa4197559e9a318524ebc4519c229bfa05a535828c950b9d"
+
+[[package]]
 name = "gobject-sys"
 version = "0.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3175,11 +3194,15 @@ version = "0.32.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9966929966d17620d7c316c643ba62631826e10021409357772d5eea84f62c35"
 dependencies = [
+ "http",
  "opentelemetry",
  "opentelemetry-proto",
  "opentelemetry_sdk",
+ "prost 0.14.4",
  "thiserror 2.0.18",
+ "tokio",
  "tonic",
+ "tonic-types",
 ]
 
 [[package]]
@@ -3190,6 +3213,9 @@ checksum = "56d658ba1faf63f7b9c492cfbe6e0ec365440a16132d3270c1065f7b33f1b638"
 dependencies = [
  "opentelemetry",
  "opentelemetry_sdk",
+ "prost 0.14.4",
+ "tonic",
+ "tonic-prost",
 ]
 
 [[package]]
@@ -5588,6 +5614,17 @@ dependencies = [
  "syn 2.0.118",
  "tempfile",
  "tonic-build",
+]
+
+[[package]]
+name = "tonic-types"
+version = "0.14.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "73ab1b02061f83d519bba3caa167f88f261ef05720ab8ebc954ade70de3348e8"
+dependencies = [
+ "prost 0.14.4",
+ "prost-types 0.14.4",
+ "tonic",
 ]
 
 [[package]]

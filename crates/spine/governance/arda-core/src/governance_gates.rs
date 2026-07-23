@@ -379,4 +379,13 @@ action_classes:
         assert!(!action_override.require_council);
         assert_eq!(action_override.council_joule_cost, 0.0);
     }
+
+    #[test]
+    fn non_json_payload_returns_parse_error() {
+        let err = GovernanceGates::load_from_str("- not: [valid").unwrap_err();
+        assert!(
+            matches!(err, GovernanceGatesError::Parse(_)),
+            "expected Parse error, got {err:?}"
+        );
+    }
 }

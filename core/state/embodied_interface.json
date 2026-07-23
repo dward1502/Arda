@@ -1,13 +1,13 @@
 {
   "authority": "core_realm_identity + embodied_interface_design",
-  "generated_at_utc": "2026-04-28T09:49:28Z",
+  "generated_at_utc": "2026-07-23T17:51:22Z",
   "hardware_targets": [
     {
       "bootstrap_state": "tailscale_visible_ssh_ready",
       "device": "raspberry_pi_5_guardhouse",
       "node": {
         "enrollment_status": "active",
-        "hostname": "raspberrypi",
+        "hostname": "warden",
         "llm_runtime": "edge_llm_light",
         "node_class": "edge_guardhouse",
         "node_id": "node-pi5-warden",
@@ -15,22 +15,37 @@
         "ssh_user": "numenor",
         "tailscale_ip": "100.110.85.37"
       },
-      "role": "home network guardhouse and CEO-callable utility node"
+      "capabilities": [
+        "local_monitoring_inference",
+        "bounded_internet_scout",
+        "repository_scout",
+        "advisory_council_evidence"
+      ],
+      "council_authority": "advisory_evidence_only",
+      "role": "home network guardhouse, lightweight scout, and advisory council evidence node"
     },
     {
       "bootstrap_state": "tailscale_visible_ssh_ready",
       "device": "raspberry_pi_5_ai_hat_plus",
       "node": {
-        "enrollment_status": "active_staging",
+        "enrollment_status": "active",
         "hostname": "raspberrypi",
         "llm_runtime": "cloud_only_inference",
-        "node_class": "edge_avatar_product",
+        "node_class": "edge_embodied_outpost",
         "node_id": "node-pi5-citadel-avatar",
         "role": "citadel_avatar_controller",
         "ssh_user": "citadel",
-        "tailscale_ip": "100.123.187.77"
+        "tailscale_ip": "100.119.130.127"
       },
-      "role": "dedicated citadel avatar controller"
+      "capabilities": [
+        "relic_avatar_projection",
+        "chatbot_presentation",
+        "arda_hud_companion_projection",
+        "bounded_scout_dispatch",
+        "advisory_council_presence"
+      ],
+      "council_authority": "presentation_and_advisory_only",
+      "role": "dedicated CITADEL avatar, HUD companion, scout dispatch, and council-presence outpost"
     },
     {
       "device": "peppers_ghost_avatar_enclosure",
@@ -128,6 +143,6 @@
     "geometry_family": "sacred_geometry_and_platonic_solids",
     "truth_binding": "only animate state changes grounded in sovereign runtime truth"
   },
-  "schema_version": "annunimas.embodied-interface.v1",
+  "schema_version": "arda.embodied-interface.v1",
   "sigil": "REPAIR"
 }

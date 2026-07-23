@@ -4,8 +4,8 @@ use super::status::PackageRuntimeSignals;
 use super::{append_jsonl, CharonService};
 use crate::adaptive::service::route_policy::{
     derive_route_execution_profile, model_supports_request, provider_eligible, provider_score,
-    resolve_hybrid_route_policy, HybridRoutePolicy, LaneFitnessSnapshot, RouteExecutionProfile,
-    RouteSelectionCandidate,
+    resolve_hybrid_route_policy, HybridRoutePolicy, LaneFitnessSnapshot, LaneFitnessState,
+    RouteExecutionProfile, RouteSelectionCandidate,
 };
 use crate::adaptive::types::{
     ManweRequestEnvelope, ModelState, ProviderState, RouteDecision, RouteGovernance,
@@ -18,6 +18,123 @@ use std::sync::Mutex;
 use tempfile::tempdir;
 
 static ENV_LOCK: Mutex<()> = Mutex::new(());
+
+#[test]
+fn read_lane_fitness_snapshot_loads_persisted_state() {
+    let _guard = isolate_env_lock(&ENV_LOCK);
+    let dir = tempdir().expect("tempdir");
+    isolate_provider_sources(dir.path());
+    let svc = CharonService::new(dir.path()).expect("service");
+    let observed_at = Utc::now().to_rfc3339();
+    let snapshot = LaneFitnessSnapshot {
+        generated_at_utc: observed_at.clone(),
+        lanes: std::collections::BTreeMap::from([(
+            "interactive".to_string(),
+            std::collections::BTreeMap::from([(
+                "smoke".to_string(),
+                LaneFitnessState {
+                    avg_latency_ms: Some(42),
+                    success_count: 3,
+                    failure_count: 1,
+                    last_result_utc: Some(observed_at),
+                },
+            )]),
+        )]),
+    };
+    fs::write(
+        dir.path().join("lane_fitness.json"),
+        serde_json::to_vec(&snapshot).expect("serialize lane fitness"),
+    )
+    .expect("write lane fitness");
+
+    let loaded = svc.read_lane_fitness_snapshot();
+
+    let state = &loaded.lanes["interactive"]["smoke"];
+    assert_eq!(state.avg_latency_ms, Some(42));
+    assert_eq!(state.success_count, 3);
+    assert_eq!(state.failure_count, 1);
+    clear_provider_sources();
+}
+
+#[test]
+fn read_lane_fitness_snapshot_recovers_from_malformed_state() {
+    let _guard = isolate_env_lock(&ENV_LOCK);
+    let dir = tempdir().expect("tempdir");
+    isolate_provider_sources(dir.path());
+    let svc = CharonService::new(dir.path()).expect("service");
+    fs::write(dir.path().join("lane_fitness.json"), b"not-json")
+        .expect("write malformed lane fitness");
+
+    let loaded = svc.read_lane_fitness_snapshot();
+
+    assert!(loaded.lanes.is_empty());
+    assert!(chrono::DateTime::parse_from_rfc3339(&loaded.generated_at_utc).is_ok());
+    clear_provider_sources();
+}
+
+#[test]
+fn read_lane_fitness_snapshot_prunes_and_persists_stale_state() {
+    let _guard = isolate_env_lock(&ENV_LOCK);
+    let dir = tempdir().expect("tempdir");
+    isolate_provider_sources(dir.path());
+    let svc = CharonService::new(dir.path()).expect("service");
+    let stale_at = (Utc::now() - chrono::Duration::hours(100)).to_rfc3339();
+    let snapshot = LaneFitnessSnapshot {
+        generated_at_utc: stale_at.clone(),
+        lanes: std::collections::BTreeMap::from([(
+            "interactive".to_string(),
+            std::collections::BTreeMap::from([(
+                "smoke".to_string(),
+                LaneFitnessState {
+                    avg_latency_ms: Some(42),
+                    success_count: 3,
+                    failure_count: 1,
+                    last_result_utc: Some(stale_at),
+                },
+            )]),
+        )]),
+    };
+    fs::write(
+        dir.path().join("lane_fitness.json"),
+        serde_json::to_vec(&snapshot).expect("serialize lane fitness"),
+    )
+    .expect("write lane fitness");
+
+    let loaded = svc.read_lane_fitness_snapshot();
+    let persisted: LaneFitnessSnapshot = serde_json::from_str(
+        &fs::read_to_string(dir.path().join("lane_fitness.json"))
+            .expect("read decayed lane fitness"),
+    )
+    .expect("parse decayed lane fitness");
+
+    assert!(loaded.lanes.is_empty());
+    assert!(persisted.lanes.is_empty());
+    clear_provider_sources();
+}
+
+#[test]
+fn concurrent_lane_fitness_updates_preserve_every_observation() {
+    let _guard = isolate_env_lock(&ENV_LOCK);
+    let dir = tempdir().expect("tempdir");
+    isolate_provider_sources(dir.path());
+    let svc = CharonService::new(dir.path()).expect("service");
+    let workers = (0..16)
+        .map(|_| {
+            let svc = svc.clone();
+            std::thread::spawn(move || {
+                svc.update_lane_fitness("interactive", "smoke", true, Some(42))
+                    .expect("update lane fitness");
+            })
+        })
+        .collect::<Vec<_>>();
+    for worker in workers {
+        worker.join().expect("join lane fitness update");
+    }
+
+    let loaded = svc.read_lane_fitness_snapshot();
+    assert_eq!(loaded.lanes["interactive"]["smoke"].success_count, 16);
+    clear_provider_sources();
+}
 
 fn isolate_env_lock(lock: &Mutex<()>) -> std::sync::MutexGuard<'_, ()> {
     lock.lock().unwrap_or_else(|e| e.into_inner())

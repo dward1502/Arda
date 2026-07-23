@@ -13,7 +13,7 @@ soterion:
 
 Crate: `crates/spine/governance/arda-core`
 Owner surface: governance spine primitives + contracts + loop + registry
-Current baseline: `cargo check -p arda-core` OK; `cargo test -p arda-core` 84 passing
+Current baseline: `cargo check -p arda-core` OK; `cargo test -p arda-core` 91/91 passing
 
 ## 1. Objective
 Make `arda-core` the stable, documented, receipt-backed foundation for
@@ -34,23 +34,38 @@ GEN3: broader learning/observability/interop that waits until GEN2 is closed.
 - Outcome: README/BREAKDOWN/STATUS describe reality, not wish list.
 
 ## 4. GEN2 — correctness and robustness
-- Governance gate coverage: missing-provider, non-JSON payload, empty
-  actions, unknown intent, state read/write fallback.
-- Loop engine coverage: bounded dispatch, market-collapse behavior,
-  budget exhaustion, triad veto/record-only split, alert emission.
-- Learning coverage: routing bias update, best-agent selection, ledger
-  round trip.
-- Background gate coverage: poison-recovery, scaled limit floor, async
-  and sync cap behavior.
-- Ledger/message boundaries: malformed input tolerance, envelope
-  metadata round trip.
-- Service registry: upsert result handling, duplicate rejection,
-  validator edge cases.
-- Soterion: signature rendering determinism, index persistence recovery,
-  watcher resilience.
-- Status: baseline tests green; deferred GEN2 follow-up to preserve
-  crate boundary stability unless a concrete correctness regression is
-  found. GEN3 interop is deferred until needed.
+- Governance gate coverage: unknown intent fallback via
+  `policy_for`/`policy_for_action_class` default policy and parse-error
+  handling covered in `governance_gates::tests::non_json_payload_returns_parse_error`.
+- Loop engine coverage: bounded dispatch (`dispatch_cap_zero_dispatches_nothing`,
+  `dispatch_cap_limits_dispatched_task_count`), market-collapse behavior
+  (`dispatch_records_market_collapse_when_no_bidders`, alert synthesis in
+  `loop_alerts`), budget exhaustion (`dispatch_blocks_when_goal_budget_exhausted`,
+  `dispatch_blocks_budget_when_estimator_reports_high_joule_cost`),
+  triad veto/record-only split (`dispatch_records_triad_veto_without_blocking`,
+  `dispatch_blocks_triad_veto_when_policy_requires_it`), alert emission
+  (`analyze_tick` coverage in `loop_alerts::tests`).
+- Learning coverage: routing bias update (`learning::tests::routing_bias_reflects_observed_success_rate`),
+  best-agent selection (`learning::tests::picks_best_agent_for_type`),
+  ledger round trip (`learning::tests::round_trip`).
+- Background gate coverage: poison-recovery (`gate_registry_recovers_from_poisoned_mutex`,
+  `pressure_cache_recovers_from_poisoned_mutex`), scaled limit floor
+  (`scaled_limit_never_drops_below_one`), async and sync cap behavior
+  (`bounded_async_gate_runs_work`, sync cap via `try_run_bounded`).
+- Ledger/message boundaries: malformed input tolerance in
+  `state::tests::list_skips_non_json_and_tmp`, envelope metadata defaults
+  and round trip in `message::tests::message_defaults_are_emitted_and_survive_round_trip`.
+- Service registry: upsert result handling, duplicate rejection
+  (`service_registry::registry::tests::duplicate_registration_rejected`),
+  snapshot/from_snapshot round-trip and invalid-name rejection
+  (`service_registry::registry::tests::empty_service_name_is_rejected`).
+- Soterion: signature rendering determinism/build_persist_index
+  round trip (`soterion::tests::scan_directory_load_and_persist_round_trip_index`,
+  `soterion::tests::persist_if_changed_only_writes_newer_index`,
+  `soterion::tests::render_signature_concatenates_without_intermediate_glyph_vec`),
+  index persistence recovery and watcher resilience covered in `soterion_watcher::tests`.
+- Status: baseline tests green; GEN1/ GEN2 coverage added in place,
+  preserving crate boundary stability.
 
 ## 5. GEN3 — learning/observability/interop
 - Evaluate public learning/memory systems for concepts that can be

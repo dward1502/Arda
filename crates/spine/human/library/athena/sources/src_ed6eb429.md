@@ -3,9 +3,9 @@
 - source_id: `src_ed6eb429`
 - status: `deep`
 - source_type: `NewsArticle`
-- updated_at_utc: `2026-07-22T22:39:39.708462784+00:00`
+- updated_at_utc: `2026-07-23T16:34:56.927855907+00:00`
 - url: https://example.com/governance-report
-- athena_book: `/tmp/.tmp2yjqCF/books/src_ed6eb429.jsonl`
+- athena_book: `/tmp/.tmp0ec0FF/books/src_ed6eb429.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

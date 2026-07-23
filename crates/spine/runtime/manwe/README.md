@@ -7,7 +7,7 @@ route receipts.
 
 Status: active and under integration cleanup. The default and full governed
 `adaptive` runtimes have maintained process smoke coverage as of 2026-07-23;
-`telemetry` / `--all-features` still requires separate repair. See
+the `telemetry` and all-feature contracts now pass their focused checks. See
 [`STATUS.md`](STATUS.md) for verification evidence and remaining risks.
 
 ## Runtime surface
@@ -38,14 +38,13 @@ Configuration ownership and precedence:
   valid file wins; a missing, unreadable, malformed, or provider-empty file
   selects the embedded Ollama fallback and reports the exact fallback reason.
 - Static fleet discovery is independent of forwarding config and is owned by
-  `ARDA_MANWE_FLEET_CONFIG`, then compatibility alias
   `ARDA_MANWE_FLEET_CONFIG`, then `config/fleet.toml`. Missing or malformed
   fleet input produces an empty fleet catalog; it does not replace static
   forwarding providers.
 - Full governed adaptive mode does not consume either static catalog. Its
-  provider source is `ARDA_MANWE_PROVIDER_CONFIG`, then compatibility alias
-  `ARDA_MANWE_PROVIDER_CONFIG`, then `$ARDA_HOME/config/charon.providers.toml`.
-  Missing or invalid provider input selects governed defaults.
+  provider source is `ARDA_MANWE_PROVIDER_CONFIG`, then
+  `$ARDA_ROOT/config/charon.providers.toml`. Missing or invalid provider input
+  selects governed defaults.
 - Adaptive runtime state is owned by `ARDA_MANWE_STATE_DIR`, then compatibility
   alias `ARDA_MANWE_HOME`, then `$ARDA_HOME/data/manwe` (or
   `./data/manwe`). Provider runtime state overlays configured provider identity;
@@ -81,18 +80,39 @@ The gRPC server is opt-in. It binds `MANWE_GRPC_PORT`, defaulting to
 | default | Builds the public types/config library and the fleet-backed HTTP gateway |
 | `adaptive` | Compiles the full governed `ManweService`; `--adaptive` starts its policy, quotas, persistence, provider drivers, and HTTP transport |
 | `grpc` | Compiles the tonic services and permits `--grpc` |
-| `telemetry` | Intended to enable adaptive service events through `arda-aule`; currently fails to compile |
+| `telemetry` | Emits adaptive state, governance, and memory events through the feature-gated `arda_aule::telemetry` API |
+
+With `telemetry`, Manwe installs the `arda_aule` OpenTelemetry layer at process
+startup. Set `ARDA_OTLP_ENDPOINT` or `OTEL_EXPORTER_OTLP_ENDPOINT` to enable
+OTLP trace export; the provider is flushed on process exit. Telemetry event
+attributes are serialized without loss into the selected trace/log destination.
 
 `--adaptive` and `MANWE_ROUTING_MODE=adaptive` select the full governed
 `ManweService`. `/v1/capabilities` identifies this runtime as
 `full_governed` with `policy_authority: manwe_service`, `governance: true`, and
 `quota_mesh: true`. Static mode retains the smaller fleet-policy gateway.
 
+### Streaming contract
+
+The fleet-backed binary accepts OpenAI requests with `stream=true` and preserves
+the upstream SSE content type and bytes, but it intentionally buffers the full
+upstream body before returning it. It attempts to persist the final route receipt
+before the caller consumes the response and marks the response with
+`x-manwe-streaming-mode: buffered`. This surface does not promise live SSE
+pass-through, incremental latency, or streaming backpressure. Clients that need
+those properties must not treat this binary path as a true streaming transport.
+As on non-streaming routes, receipt persistence is best-effort and a write
+failure is logged without replacing an otherwise valid upstream response.
+
 Run both maintained process-level contracts with:
 
 ```text
 python crates/spine/runtime/manwe/tests/process_smoke.py
 ```
+
+The `grpc` feature also has an in-process runtime smoke test that binds an
+ephemeral listener, connects generated tonic clients, and exercises both the
+health/model and route-governance services.
 
 ## Public library surface
 
@@ -123,7 +143,7 @@ attached to either crate root; they are catalogued in
 
 ## Verification
 
-The 2026-07-22 documentation pass ran:
+The current 2026-07-23 verification includes:
 
 ```text
 cargo check -p manwe
@@ -131,17 +151,20 @@ cargo test -p manwe
 cargo check -p manwe --features adaptive
 cargo test -p manwe --features adaptive
 cargo check -p manwe --features grpc
+cargo check -p manwe --all-targets --all-features
+cargo test -p manwe --all-features
+cargo test -p arda-aule --features telemetry --test telemetry_surface
 cargo fmt -p manwe -- --check
+python crates/spine/runtime/manwe/tests/check_docs.py
 ```
 
-Those six commands passed. The default test run executed 19 binary tests; the
-adaptive run executed 157 library tests plus the same 19 binary tests. Separate
-`--all-features` check/test runs failed in the telemetry path as recorded in
-`STATUS.md` and `CHECKLIST.md`.
+These commands pass. The focused telemetry test verifies public API shape,
+destination routing, and preservation of event attributes; `STATUS.md` records
+the exact current test counts and remaining non-telemetry gaps.
 
 ## Documentation
 
 - [`STATUS.md`](STATUS.md) — current evidence, health, boundaries, and risks
 - [`BREAKDOWN.md`](BREAKDOWN.md) — crate shape, active module graph, and consumers
 - [`CHECKLIST.md`](CHECKLIST.md) — prioritized implementation/documentation plan
-- [`PROVIDERS.md`](PROVIDERS.md) — provider configuration notes; refresh pending
+- [`PROVIDERS.md`](PROVIDERS.md) — static and governed provider/config contract

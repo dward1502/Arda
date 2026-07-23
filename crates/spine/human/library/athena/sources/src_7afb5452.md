@@ -3,9 +3,9 @@
 - source_id: `src_7afb5452`
 - status: `deep`
 - source_type: `RawNote`
-- updated_at_utc: `2026-07-22T22:39:40.993092244+00:00`
+- updated_at_utc: `2026-07-23T16:34:59.628409560+00:00`
 - url: OPPOSING_VIEWPOINT CHALLENGE for src_3c43db4d: This perspective questions assump
-- athena_book: `/tmp/.tmp0vj42Z/books/src_7afb5452.jsonl`
+- athena_book: `/tmp/.tmp0m7P2s/books/src_7afb5452.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

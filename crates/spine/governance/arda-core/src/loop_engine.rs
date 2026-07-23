@@ -917,6 +917,15 @@ mod tests {
     }
 
     #[test]
+    fn dispatch_cap_zero_dispatches_nothing() {
+        let (_d, st, q) = tmp_state();
+        seed_one_plan_with_tasks(&st, &q, "probe_provider");
+        let pass = dispatch_with_cap(&st, &q, 0).unwrap();
+        assert_eq!(pass.dispatched.len(), 0);
+        assert_eq!(pass.capped_at, Some(0));
+    }
+
+    #[test]
     fn dispatch_picks_highest_market_score_and_ledgers_bid() {
         struct TwoBidders;
         impl BidBoard for TwoBidders {

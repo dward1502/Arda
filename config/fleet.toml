@@ -17,7 +17,7 @@ fleet_scan_interval_minutes = 15
 
 [routing]
 local_runtime = "llamacpp" # mesh-llm | llamacpp | hybrid
-local_execution_provider_id = "edge_backbone_coder"
+local_execution_provider_id = "edge_core"
 local_fallback_provider_ids = ["edge_guardhouse", "local_fallback"]
 
 [[nodes]]
@@ -71,7 +71,7 @@ runtime_port = 1234
 startup_priority = 40
 restart_scope = "ssh"
 restart_cmd = "systemctl --user --no-block restart llama-server"
-notes = "Home-network edge guardhouse on a regular Raspberry Pi 5. Cut over to OpenSSH key-only on 2026-04-27 (numenor@100.110.85.37, no password auth). Serving llama.cpp with Qwen3.5-4B-Q4_K_M.gguf on http://100.110.85.37:1234, with model metadata exposed at /v1/models, at 65536 validated context via a persistent user systemd service. 131072 remains unvalidated on this device."
+notes = "Home-network edge guardhouse and lightweight scout/council evidence node. Verified 2026-07-23: `ssh warden` reaches numenor@100.110.85.37 with key auth, passwordless sudo, and linger; llama-server.service is active/enabled on :1234 with Qwen3.5-4B-Q4_K_M.gguf. Use for bounded internet/repository scout work, monitoring summaries, and advisory council evidence—not final autonomous approval. 65536 context is validated; 131072 remains unvalidated."
 
 [[nodes]]
 id = "node-ser9-worker"
@@ -155,103 +155,16 @@ notes = "Actual laptop node. As of 2026-03-23 this machine is configured for loc
 
 [[nodes]]
 id = "node-backbone-server"
-role = "backbone_fast_general"
-hostname = "annunimas-server"
-display_name = "Annunimas Server (LFM2.5 Fast Lane)"
-tailscale_ip = "100.102.250.115"
-tailscale_name = "annunimas-server"
-ssh_user = "annunimas-server"
-node_class = "backbone_compute"
-enrollment_status = "active"
-llm_runtime = "llama_cpp_fast_general"
-manwe_provider_id = "edge_backbone"
-base_url = "http://100.102.250.115:8093/v1"
-health_url = "http://100.102.250.115:8093/health"
-models_url = "http://100.102.250.115:8093/v1/models"
-expected_models = ["lfm2.5-8b-a1b-q4km"]
-runtime_backend = "llama.cpp"
-runtime_model_alias = "lfm2.5-8b-a1b-q4km"
-runtime_model_path = "/var/home/annunimas-server/models/lfm2.5-8b-a1b/LFM2.5-8B-A1B-Q4_K_M.gguf"
-runtime_host = "0.0.0.0"
-runtime_port = 8093
-runtime_context_window = 32768
-runtime_gpu_layers = 999
-startup_priority = 5
-restart_scope = "ssh"
-restart_cmd = "systemctl --user --no-block restart llama-server-lfm25.service"
-notes = "Updated 2026-06-16. Active fast/general lane is llama.cpp inside the eregion distrobox, serving LFM2.5-8B-A1B-Q4_K_M on :8093 with 32K context, Q4_0 KV cache, --jinja, and metrics. Qwen3-Coder remains installed on disk but its service is disabled to free VRAM for LFM and Gemma4."
-
-[[nodes]]
-id = "node-backbone-gemma4-coder"
-role = "backbone_coder"
-hostname = "annunimas-server"
-display_name = "Annunimas Server (Qwen2.5-Coder 7B Lane)"
-tailscale_ip = "100.102.250.115"
-tailscale_name = "annunimas-server"
-ssh_user = "annunimas-server"
-node_class = "backbone_compute"
-enrollment_status = "active"
-llm_runtime = "llama_cpp_coder"
-manwe_provider_id = "edge_backbone_coder"
-base_url = "http://100.102.250.115:8094/v1"
-health_url = "http://100.102.250.115:8094/health"
-models_url = "http://100.102.250.115:8094/v1/models"
-expected_models = ["qwen2.5-coder-7b-q4km"]
-runtime_backend = "llama.cpp"
-runtime_model_alias = "qwen2.5-coder-7b-q4km"
-runtime_model_path = "/var/home/annunimas-server/models/qwen2.5-coder-7b/Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf"
-runtime_host = "0.0.0.0"
-runtime_port = 8094
-runtime_context_window = 32768
-supports_tools = true
-supports_structured_output = true
-runtime_gpu_layers = 28
-startup_priority = 10
-restart_scope = "ssh"
-restart_cmd = "systemctl --user --no-block restart llama-server-qwen2.5-coder.service"
-notes = "Swapped 2026-07-19: replaced Gemma4 12B coder with Qwen2.5-Coder-7B-Instruct-Q4_K_M on :8094. 28 GPU layers on GPU0, 32K context, stock llama.cpp build-cuda2. Benchmarked ~70 tok/s on simple code prompt; fits within 2x RTX 2080 Super 8GB."
-
-[[nodes]]
-id = "node-backbone-vision"
-role = "backbone_vision"
-hostname = "annunimas-server"
-display_name = "Annunimas Server (Qwen2.5-VL Vision Lane)"
-tailscale_ip = "100.102.250.115"
-tailscale_name = "annunimas-server"
-ssh_user = "annunimas-server"
-node_class = "backbone_compute"
-enrollment_status = "active"
-llm_runtime = "llama_cpp_vision"
-manwe_provider_id = "edge_backbone_vision"
-base_url = "http://100.102.250.115:8081/v1"
-health_url = "http://100.102.250.115:8081/health"
-models_url = "http://100.102.250.115:8081/v1/models"
-expected_models = ["Qwen2.5-VL-7B-Instruct"]
-runtime_backend = "llama.cpp"
-runtime_model_alias = "Qwen2.5-VL-7B-Instruct"
-runtime_model_path = "/var/home/annunimas-server/models/qwen2.5-vl-7b/Qwen2.5-VL-7B-Instruct-Q5_K_M.gguf"
-runtime_mmproj_path = "/var/home/annunimas-server/models/qwen2.5-vl-7b/mmproj-F16.gguf"
-runtime_host = "0.0.0.0"
-runtime_port = 8081
-runtime_context_window = 4096
-runtime_gpu_layers = 0
-startup_priority = 15
-restart_scope = "ssh"
-restart_cmd = "systemctl --user --no-block restart llama-server-vision.service"
-notes = "Inactive as of 2026-07-21: service stopped/disabled because /var/home/annunimas-server/llama.cpp/build-cuda/bin/llama-server is missing. Weights remain on disk."
-
-[[nodes]]
-id = "node-backbone-bonsai27"
 role = "backbone_ternary_27b"
 hostname = "annunimas-server"
-display_name = "Annunimas Server (Ternary Bonsai 27B Lane)"
+display_name = "Annunimas Server (Ternary Bonsai 27B Backbone)"
 tailscale_ip = "100.102.250.115"
 tailscale_name = "annunimas-server"
 ssh_user = "annunimas-server"
 node_class = "backbone_compute"
 enrollment_status = "active"
 llm_runtime = "llama_cpp_prism_cuda"
-manwe_provider_id = "edge_backbone_bonsai27"
+manwe_provider_id = "edge_backbone"
 base_url = "http://100.102.250.115:8095/v1"
 health_url = "http://100.102.250.115:8095/v1/models"
 models_url = "http://100.102.250.115:8095/v1/models"
@@ -264,10 +177,10 @@ runtime_port = 8095
 runtime_context_window = 32768
 runtime_gpu_layers = 600
 runtime_device = "cuda:0,cuda:1"
-startup_priority = 12
+startup_priority = 5
 restart_scope = "ssh"
 restart_cmd = "systemctl --user --no-block restart llama-server-bonsai27.service"
-notes = "Added 2026-07-18. Active llama.cpp (Prism-ML fork, CUDA build) lane on annunimas-server :8095 serving Ternary-Bonsai-27B-Q2_0 (ternary Q2_0, 6.7G). As of 2026-07-21 this lane serves 32768 context on 2x RTX 2080 Super with --n-gpu-layers 600 --main-gpu 0 --split-mode row --tensor-split 0.20,0.80; the 999/all-layers path is blocked by Prism-fork allocator behavior on this host. Model emits a reasoning trace (thinking=1) before the final answer, so clients should budget max_tokens generously. Service: llama-server-bonsai27.service (user systemd, enabled)."
+notes = "Canonical and only active annunimas-server inference route. Verified 2026-07-23: :8095 is the sole listener among former :8081/:8093/:8094/:8095 lanes; llama-server-bonsai27.service is active and enabled, serving ternary-bonsai-27b-q2_0 at 32K context. Retired coder, vision, and LFM lane services remain disabled."
 
 [[nodes]]
 id = "node-pi5-citadel-avatar"
@@ -277,14 +190,14 @@ display_name = "Pi5 CITADEL Avatar"
 tailscale_ip = "100.119.130.127"
 tailscale_name = "raspberrypi-1"
 ssh_user = "citadel"
-node_class = "edge_avatar_product"
-enrollment_status = "active_staging"
+node_class = "edge_embodied_outpost"
+enrollment_status = "active"
 llm_runtime = "cloud_only_inference"
-base_url = "http://100.119.130.127:8080"
-health_url = "http://100.119.130.127:8080/public/state.json"
+base_url = "http://100.119.130.127:8091"
+health_url = "http://100.119.130.127:8091/"
 models_url = ""
 expected_models = []
 startup_priority = 100
 restart_scope = "ssh"
-restart_cmd = "systemctl --user --no-block restart citadel-companion.service && systemctl --user --no-block restart citadel-kiosk.service"
-notes = "Reflashed Pi5 CITADEL avatar node. Rediscovered 2026-05-18 in Tailscale as raspberrypi-1 / 100.119.130.127; OS hostname reports raspberrypi. OpenSSH, operator key auth, passwordless sudo, linger, citadel-companion.service, and citadel-kiosk.service are active. Known-good display baseline as of 2026-05-27: Waveshare 3.4-inch 800x800 round DSI LCD on Pi5 CAM/DISP 1 with AI HAT+ stack, display_auto_detect=0, dtoverlay=vc4-kms-dsi-waveshare-panel,3_4_inch, DSI-2 mode 800x800@63.034Hz, kanshi scale 1.5, transform normal, Chromium app fullscreen mode, and Pepper's Ghost visual confirmed. Avoid the v2 3_4_inch_c overlay on this reflashed OS because it detected DSI logically but left the physical panel dark."
+restart_cmd = "systemctl --user --no-block restart relic.service citadel-kiosk.service"
+notes = "CITADEL embodied outpost: avatar/chat presentation, ARDA HUD companion projection, bounded scout dispatch, and advisory council presence. Verified 2026-07-23: `ssh citadel`/`ssh raspberrypi` reaches citadel@100.119.130.127 with key auth, passwordless sudo, and linger. relic.service and citadel-kiosk.service are active/enabled; RELIC serves :8091 and Chromium displays it. No scout/council worker service is deployed yet, so those roles must route through governed Manwe contracts rather than being implied by the visualization. Known-good Waveshare 3.4-inch 800x800 DSI/Wayland baseline remains; avoid the v2 3_4_inch_c overlay."

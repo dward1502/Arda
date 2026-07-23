@@ -1,5 +1,7 @@
+#![cfg(feature = "full-cli")]
+#![edition = "2021"]
+use arda_aule::ceo::Pipeline;
 use arda_core::ledger::Ledger;
-use arda_core::pipeline::Pipeline;
 use arda_core::router::Router;
 use arda_core::task::{Task, TaskStatus};
 use async_trait::async_trait;

@@ -61,6 +61,9 @@ pub mod council;
 pub mod governance_metrics;
 pub mod service;
 
+#[cfg(feature = "telemetry")]
+pub mod telemetry;
+
 pub mod prometheus;
 pub mod ceo;
 pub mod cli;

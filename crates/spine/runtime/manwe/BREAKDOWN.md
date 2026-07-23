@@ -42,7 +42,7 @@ Features:
 | default | HTTP gateway plus core public types/config |
 | `adaptive` | `arda-core`, `arda-governance`, `arda-economics`, `arda-vaire`; full adaptive library tree |
 | `grpc` | `arda-orome`; tonic HTTP-adjacent services |
-| `telemetry` | Intended `arda-aule/telemetry` service events; currently fails to compile |
+| `telemetry` | `arda-aule/telemetry` state, governance, and memory events from the governed adaptive service; optional OTLP layer installed by the binary |
 
 ## Active binary graph
 
@@ -136,6 +136,15 @@ duplicated persistence responsibilities now owned by the live bootstrap,
 runtime-state, and event paths. It was removed rather than exposing an unused
 second persistence contract.
 
+The undeclared `adaptive/service/service_events.rs` was also a stale parallel
+copy of active `adaptive/service/full/service_events.rs`. Its intended telemetry
+emissions were migrated to the active file through the public
+`arda_aule::telemetry` API, then the duplicate and its invalid legacy paths were
+removed. State/governance events are forwarded to telemetry only after the event
+writer accepts them; the `delivery` attribute distinguishes that acknowledgement
+from durable persistence. The binary installs the OTLP layer when an
+endpoint is configured and retains a shutdown guard for final provider flush.
+
 ## Configuration and persisted state
 
 | Surface | Current location |
@@ -143,11 +152,11 @@ second persistence contract.
 | Static fallback config | CLI `--config`, default `manwe.toml` |
 | Binary fleet catalog | `config/fleet.toml` |
 | Binary receipts | `data/manwe/route_receipts.jsonl` |
-| Adaptive provider config | `ARDA_MANWE_PROVIDER_CONFIG` or adaptive defaults |
-| Adaptive state root | `ARDA_MANWE_HOME` or service root |
+| Adaptive provider config | `ARDA_MANWE_PROVIDER_CONFIG`, then `$ARDA_ROOT/config/charon.providers.toml`, then governed defaults |
+| Adaptive state root | `ARDA_MANWE_STATE_DIR`, `ARDA_MANWE_HOME`, `$ARDA_HOME/data/manwe`, then `./data/manwe` |
 
 The static and fleet catalogs are separate inputs. Their precedence and
-operator-facing relationship need one canonical configuration contract.
+operator-facing relationship are documented in [`PROVIDERS.md`](PROVIDERS.md).
 
 ## Consumers and operational wiring
 
@@ -172,10 +181,15 @@ the library types, and no separate deployment shell has a complete migration
 path. Before considering a split, first unify or explicitly separate the
 binary's lightweight router and the adaptive service runtime.
 
+The former `ARCHITECTURE.md` was intentionally removed in commit `287d327`:
+its module inventory was stale after source-graph reconciliation, while the
+maintained runtime boundaries, module graph, consumers, configuration, and
+split decision now live in this breakdown. A repository-wide Markdown search
+found no inbound links to repair.
+
 ## Current engineering priorities
 
-1. Close the known lane-fitness, streaming, and gRPC process-test gaps.
-2. Repair the telemetry feature contract so all-feature CI can pass.
-3. Refresh the remaining stale provider and source-index documentation.
+1. Keep static and governed capability claims scoped while their parallel
+   routing/config/transport paths remain intentionally selectable.
 
 Execution details and completion criteria are in [`CHECKLIST.md`](CHECKLIST.md).

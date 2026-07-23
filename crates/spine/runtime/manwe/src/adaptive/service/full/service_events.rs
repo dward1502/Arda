@@ -1,9 +1,12 @@
 use super::CharonService;
 use crate::adaptive::types::RouteLoveEquationGuard;
 use arda_core::error::{ArdaError, Result};
-use arda_vaire::InformantEvent;
 use arda_economics::{JouleWorkUnit, PlutusService};
+use arda_vaire::InformantEvent;
 use chrono::Utc;
+
+#[cfg(feature = "telemetry")]
+use arda_aule::telemetry::{self, TelemetryEvent};
 
 #[derive(Debug, Clone, Default)]
 pub(super) struct MnemosyneClient;
@@ -15,6 +18,16 @@ impl MnemosyneClient {
     }
 }
 
+#[cfg(feature = "telemetry")]
+fn emit_telemetry(name: String, event: &str, delivery: &str) {
+    telemetry::emit(
+        TelemetryEvent::new(name)
+            .attr("crate", "manwe")
+            .attr("event", event)
+            .attr("delivery", delivery),
+    );
+}
+
 impl CharonService {
     pub(super) fn append_state_event(&self, event: &str, payload: serde_json::Value) -> Result<()> {
         // Hot path: enqueue onto the async event writer; falls back to a sync
@@ -24,7 +37,16 @@ impl CharonService {
             "ts": Utc::now().to_rfc3339(),
             "event": event,
             "payload": payload
-        }))
+        }))?;
+
+        #[cfg(feature = "telemetry")]
+        emit_telemetry(
+            format!("charon.state.{event}"),
+            event,
+            "event_writer_accepted",
+        );
+
+        Ok(())
     }
 
     pub(super) fn append_governance_event(
@@ -36,7 +58,16 @@ impl CharonService {
             "ts": Utc::now().to_rfc3339(),
             "event": event,
             "payload": payload
-        }))
+        }))?;
+
+        #[cfg(feature = "telemetry")]
+        emit_telemetry(
+            format!("charon.governance.{event}"),
+            event,
+            "event_writer_accepted",
+        );
+
+        Ok(())
     }
 
     pub(super) fn emit_memory_event(
@@ -46,7 +77,7 @@ impl CharonService {
         confidence_hint: Option<f64>,
         tags: Vec<String>,
     ) {
-        if let Some(service) = &self.mnemosyne {
+        let delivery = if let Some(service) = &self.mnemosyne {
             let event = InformantEvent {
                 informant_id: "charon_mneme".to_string(),
                 crate_name: "charon".to_string(),
@@ -56,10 +87,22 @@ impl CharonService {
                 confidence_hint,
                 tags,
             };
-            if let Err(err) = service.encode(event) {
-                tracing::debug!(error = %err, "CHARON memory emission failed");
+            match service.encode(event) {
+                Ok(()) => "mnemosyne_encoded",
+                Err(err) => {
+                    tracing::debug!(error = %err, "CHARON memory emission failed");
+                    return;
+                }
             }
-        }
+        } else {
+            "telemetry_only"
+        };
+
+        #[cfg(feature = "telemetry")]
+        emit_telemetry(format!("charon.memory.{event_type}"), event_type, delivery);
+
+        #[cfg(not(feature = "telemetry"))]
+        let _ = delivery;
     }
 
     async fn record_work_signal_async(

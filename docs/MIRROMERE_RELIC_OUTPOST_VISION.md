@@ -34,6 +34,39 @@ The intended relationship is **supportive and reflective**, not supervisory. Mir
 
 The repository and external Relic prototype already contain parts of the embodied-outpost foundation.
 
+### Pi5 outpost role map and live boundary
+
+The Pi5 systems are not disposable display targets. They are named Arda outposts
+with complementary roles:
+
+- **Warden (`node-pi5-warden`)** is the always-on guardhouse, lightweight local
+  inference lane, bounded internet/repository scout, and advisory council
+  evidence node. Scout outputs enter the normal Athena/council evidence path;
+  Warden does not independently approve autonomous actions.
+- **CITADEL (`node-pi5-citadel-avatar`)** is the embodied avatar and chat
+  presentation outpost, the RELIC runtime-presence display, a future ARDA HUD
+  companion projection, a bounded scout dispatcher, and an advisory council
+  presence. Its council role presents state and contributes receipted evidence;
+  it does not gain execution authority merely because it renders a council.
+
+Live verification on 2026-07-23 established:
+
+- `ssh warden` reaches `numenor@100.110.85.37`; key auth, passwordless sudo,
+  linger, and `llama-server.service` are operational;
+- `ssh citadel` and `ssh raspberrypi` reach `citadel@100.119.130.127`; key auth,
+  passwordless sudo, and linger are operational;
+- CITADEL runs `relic.service` on port `8091` and
+  `citadel-kiosk.service` against `http://127.0.0.1:8091/`;
+- no CITADEL scout worker, chatbot bridge, council worker, or ARDA HUD companion
+  service is deployed yet. Those are implementation gaps, not abandoned ideas.
+
+The first ARDA HUD integration should be a Pi-safe companion projection fed by
+the same bounded state bundle as the desktop HUD, not an attempt to run the full
+Tauri operator cockpit on the round display. Interactive chat and scout requests
+should traverse Manwe and the existing governance/receipt contracts; internet
+tools remain allowlisted central capabilities rather than unrestricted Pi shell
+access.
+
 ### Arda embodiment contracts
 
 `core/state/embodied_interface.json` currently describes:

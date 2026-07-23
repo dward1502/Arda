@@ -623,9 +623,9 @@ fn provider_lane_bias(
             },
         },
         "execution" => match p.id.as_str() {
-            // edge_backbone_bonsai27 (Ternary-Bonsai-27B) is the default high-quality
-            // local route as of 2026-07-19; edge_backbone_coder owns the tool/code lane.
-            "edge_backbone_bonsai27" | "edge_backbone_coder" => score += 58.0,
+            // edge_backbone is canonical; retain the coder ID as a compatibility
+            // alias for historical route receipts and policy tests.
+            "edge_backbone" | "edge_backbone_coder" => score += 58.0,
             // edge_core (LFM2.5-8B) stays the fast/low-latency local lane.
             "edge_core" => score += 22.0,
             "edge_worker_light" => score += 2.0,
@@ -649,7 +649,7 @@ fn provider_lane_bias(
             _ => {}
         },
         _ => match p.id.as_str() {
-            "edge_backbone_bonsai27" | "edge_backbone_coder" => score += 28.0,
+            "edge_backbone" | "edge_backbone_coder" => score += 28.0,
             // edge_core (LFM2.5-8B) fast lane stays a credible general route.
             "edge_core" => score += 14.0,
             "edge_worker_light" => score += 18.0,
@@ -678,10 +678,7 @@ fn provider_lane_bias(
     }
 
     if is_high_priority(priority)
-        && matches!(
-            p.id.as_str(),
-            "edge_backbone" | "edge_backbone_coder" | "edge_backbone_bonsai27"
-        )
+        && matches!(p.id.as_str(), "edge_backbone" | "edge_backbone_coder")
     {
         score += 8.0;
     }
@@ -940,7 +937,7 @@ fn is_edge_provider(id: &str) -> bool {
 pub(super) fn is_primary_local_surface_provider(id: &str) -> bool {
     matches!(
         id,
-        "edge_backbone" | "edge_backbone_coder" | "edge_backbone_long" | "edge_backbone_bonsai27"
+        "edge_backbone" | "edge_backbone_coder" | "edge_backbone_long"
     )
 }
 

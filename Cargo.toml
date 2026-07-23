@@ -2,12 +2,26 @@
 resolver = "2"
 members = [
     "crates/engine",
+    "crates/spine/contract/arda-contract-registry",
     "crates/spine/runtime/manwe",
     "crates/spine/governance/arda-core",
     "crates/spine/governance/arda-governance",
     "crates/spine/interface/arda-orome",
     "crates/spine/observability/arda-aule",
     "apps/arda-launcher/src-tauri",
+    "crates/spine/runtime/arda-economics",
+    "crates/spine/runtime/arda-mandos",
+    "crates/spine/memory/arda-vaire",
+    "crates/spine/executors/arda-varda",
+]
+default-members = [
+    "crates/engine",
+    "crates/spine/contract/arda-contract-registry",
+    "crates/spine/runtime/manwe",
+    "crates/spine/governance/arda-core",
+    "crates/spine/governance/arda-governance",
+    "crates/spine/interface/arda-orome",
+    "crates/spine/observability/arda-aule",
     "crates/spine/runtime/arda-economics",
     "crates/spine/runtime/arda-mandos",
     "crates/spine/memory/arda-vaire",
@@ -33,6 +47,7 @@ clap = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 anyhow = "1"
+reqwest = { workspace = true }
 
 [workspace.package]
 version = "0.1.0"

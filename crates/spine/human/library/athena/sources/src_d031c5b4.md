@@ -3,9 +3,9 @@
 - source_id: `src_d031c5b4`
 - status: `shallow`
 - source_type: `ScholarlyLink`
-- updated_at_utc: `2026-07-22T22:39:40.121703146+00:00`
+- updated_at_utc: `2026-07-23T16:35:27.619166524+00:00`
 - url: https://arxiv.org/abs/2401.00001
-- athena_book: `/tmp/.tmpB0glQR/books/src_d031c5b4.jsonl`
+- athena_book: `/tmp/.tmpkVDQnx/books/src_d031c5b4.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

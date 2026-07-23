@@ -15,8 +15,8 @@ Sigil: 📜 SCROLL
 
 ## Build
 - `cargo check -p arda-core` -> OK
-- `cargo test -p arda-core` -> 84/84 passing
-  - 83 unit tests
+- `cargo test -p arda-core` -> 91/91 passing
+  - 90 unit tests
   - 1 smoke test: `sovereign_baseline_contract_is_migrated`
   - 0 doc-tests
 
@@ -43,7 +43,7 @@ Sigil: 📜 SCROLL
   duplicate skip and round-trip preservation
 
 ## Known warning/follow-ups
-- `tool_contract/service.rs:5` has an unused import (`InvocationPlan`).
+- None.
 
 ## Owner notes
 - `arda-engine` re-exports `arda_core::service_registry`.

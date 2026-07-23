@@ -191,6 +191,7 @@ pub struct CharonService {
     route_candidate_cache: Arc<route_candidate_cache::RouteCandidateCache>,
     agent_quota_windows: Arc<agent_quotas::AgentQuotaWindows>,
     bandit: Arc<bandit::BanditStore>,
+    lane_fitness_lock: Arc<std::sync::Mutex<()>>,
 }
 
 impl CharonService {
@@ -316,6 +317,7 @@ impl CharonService {
             route_candidate_cache: Arc::new(route_candidate_cache::RouteCandidateCache::new()),
             agent_quota_windows: Arc::new(agent_quotas::AgentQuotaWindows::new()),
             bandit: Arc::new(bandit::BanditStore::new(bandit_path)),
+            lane_fitness_lock: Arc::new(std::sync::Mutex::new(())),
         };
         Ok(service)
     }

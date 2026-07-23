@@ -83,19 +83,21 @@ engine, launcher, registry, and operator consumer is updated together.
 
 ## P1 — Close known implementation gaps
 
-- [ ] Implement or intentionally retire
-  `ManweService::read_lane_fitness_snapshot`; it currently always returns
-  `None`.
-- [ ] Decide whether the binary promises true streaming. It currently buffers
+- [x] Implement or intentionally retire
+  `ManweService::read_lane_fitness_snapshot`. The active service loads and
+  decays persisted `lane_fitness.json`; focused tests cover valid, malformed,
+  stale, and concurrent-update behavior.
+- [x] Decide whether the binary promises true streaming. It currently buffers
   the complete upstream body even when `stream=true`.
-  - Completion: either implement SSE pass-through with final receipt handling,
-    or describe the buffered behavior in the API contract and tests.
-- [ ] Add a gRPC runtime smoke test using an ephemeral bind and both exposed
+  - Decision: buffered SSE is the supported binary contract. README documents
+    the limitation, responses carry `x-manwe-streaming-mode: buffered`, and a
+    test verifies byte/content-type preservation plus best-effort final receipt
+    handling.
+- [x] Add a gRPC runtime smoke test using an ephemeral bind and both exposed
   services.
 - [x] Run `cargo check -p manwe --all-features` and
-  `cargo test -p manwe --all-features`; both currently stop on the telemetry
-  compile path.
-- [ ] Repair the `telemetry` feature contract:
+  `cargo test -p manwe --all-features`.
+- [x] Repair the `telemetry` feature contract:
   - export `arda_aule::telemetry` when its feature is enabled, or update Manwe
     to the actual supported telemetry API;
   - replace missing `observability::tracer` / `service::telemetry` paths;
@@ -103,29 +105,31 @@ engine, launcher, registry, and operator consumer is updated together.
 
 ## P2 — Documentation cleanup
 
-- [ ] Refresh `PROVIDERS.md`; it still mixes adaptive config paths with binary
-  behavior and contains stale runtime-validation language.
-- [ ] Regenerate `src/INDEX.md`; its current listing references missing
-  `service.rs`/`transport` entries and omits most live files.
-- [ ] Repair `src/README.md`; it still names the legacy
-  `crates/annunimas-charon/src` path and has stale review metadata.
-- [ ] Confirm the pre-existing `ARCHITECTURE.md` deletion is intentional now
-  that architecture decisions live in `BREAKDOWN.md`; repair any inbound links.
-- [ ] Add a lightweight link/path validation step for the Manwe documentation
-  set.
+- [x] Refresh `PROVIDERS.md`; static forwarding/fleet inputs and the full
+  governed provider/state contract are now documented separately from live
+  source behavior.
+- [x] Regenerate `src/INDEX.md` from the live direct-child layout.
+- [x] Repair `src/README.md` with the canonical Manwe source path and current
+  review metadata.
+- [x] Confirm the pre-existing `ARCHITECTURE.md` deletion is intentional now
+  that architecture decisions live in `BREAKDOWN.md`. Commit `287d327` removed
+  a stale module inventory, and a repository-wide Markdown search found no
+  inbound links to repair.
+- [x] Add `tests/check_docs.py` to validate every local Markdown link, the exact
+  `src/INDEX.md` direct-child set, and the canonical source path.
 
 ## Release gate
 
-- [ ] `cargo fmt -p manwe -- --check`
-- [ ] `cargo check -p manwe`
-- [ ] `cargo test -p manwe`
-- [ ] `cargo check -p manwe --features adaptive`
-- [ ] `cargo test -p manwe --features adaptive`
-- [ ] `cargo check -p manwe --features grpc`
-- [ ] `cargo check -p manwe --all-features`
-- [ ] `cargo test -p manwe --all-features`
-- [ ] Process smoke tests pass for the canonical static and adaptive paths.
-- [ ] `README.md`, `BREAKDOWN.md`, `STATUS.md`, `CHECKLIST.md`, and
+- [x] `cargo fmt -p manwe -- --check`
+- [x] `cargo check -p manwe`
+- [x] `cargo test -p manwe`
+- [x] `cargo check -p manwe --features adaptive`
+- [x] `cargo test -p manwe --features adaptive`
+- [x] `cargo check -p manwe --features grpc`
+- [x] `cargo check -p manwe --all-features`
+- [x] `cargo test -p manwe --all-features`
+- [x] Process smoke tests pass for the canonical static and adaptive paths.
+- [x] `README.md`, `BREAKDOWN.md`, `STATUS.md`, `CHECKLIST.md`, and
   `PROVIDERS.md` agree on process owner, routes, config sources, and feature
   boundaries.
 
@@ -147,3 +151,28 @@ engine, launcher, registry, and operator consumer is updated together.
   users. Pre-removal and post-removal `cargo check -p manwe --all-targets
   --features adaptive` and `cargo test -p manwe --features adaptive` passed;
   `src/types.rs` remains the canonical public model.
+- 2026-07-23: `arda-aule` now exports its supported telemetry event, tracing
+  layer, schema, and shutdown API behind `telemetry`; Manwe's active adaptive
+  service emits state and governance events after the event writer accepts them,
+  and labels telemetry-only memory delivery explicitly. Manwe installs the OTLP
+  layer when configured and flushes it on exit; focused tests cover destination
+  routing, attribute preservation, and OTLP layer lifecycle. The stale parallel
+  `service_events.rs` containing missing paths
+  and `ardea_aule` misspellings was removed. `cargo check -p manwe --all-targets
+  --all-features` and `cargo test -p manwe --all-features` passed (264 library +
+  21 binary), and all 4 focused `arda-aule` telemetry surface tests passed.
+- 2026-07-23: lane-fitness persistence has focused valid, malformed, stale-decay,
+  and concurrent-update coverage; the binary streaming contract is explicitly
+  buffered SSE with a best-effort final receipt and
+  `x-manwe-streaming-mode: buffered`; and the gRPC runtime smoke binds an
+  ephemeral listener and calls both generated service clients.
+  `cargo check -p manwe --all-targets --all-features`, `cargo test -p manwe
+  --all-features` (268 library + 24 binary), `cargo fmt -p manwe -- --check`,
+  and the static/adaptive process smoke suite passed.
+- 2026-07-23: refreshed the provider contract and source indexes, retained
+  architecture decisions in `BREAKDOWN.md`, and added `tests/check_docs.py`.
+  The validator passed across 8 Markdown files, 25 local links, and 12 source
+  index entries. `python -m py_compile` for the validator,
+  `cargo check -p manwe`, `cargo fmt -p manwe -- --check`, and
+  `git diff --check -- crates/spine/runtime/manwe` also passed; Cargo emitted
+  only the documented workspace-profile and pre-existing dead-code warnings.

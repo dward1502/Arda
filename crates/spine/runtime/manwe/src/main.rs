@@ -18,7 +18,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 
 use axum::{
-    body::{Body, Bytes},
+    body::Body,
     extract::State,
     http::{header, StatusCode},
     response::{IntoResponse, Response},
@@ -34,6 +34,12 @@ use provider::{ProviderCatalog, ProviderDefinition};
 use receipts::{receipt_from_response, ReceiptWriter};
 use resource_limits::ResourceGroupLimiter;
 use tokio::sync::RwLock;
+#[cfg(feature = "telemetry")]
+use tracing_subscriber::layer::SubscriberExt;
+#[cfg(feature = "telemetry")]
+use tracing_subscriber::util::SubscriberInitExt;
+#[cfg(feature = "telemetry")]
+use tracing_subscriber::Layer;
 
 #[derive(Parser, Debug)]
 #[command(
@@ -85,11 +91,20 @@ struct AppState {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    tracing_subscriber::fmt()
-        .with_env_filter(
-            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into()),
-        )
-        .init();
+    let env_filter =
+        tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into());
+
+    #[cfg(feature = "telemetry")]
+    let _telemetry_shutdown = {
+        tracing_subscriber::registry()
+            .with(arda_aule::telemetry::tracing_layer())
+            .with(tracing_subscriber::fmt::layer().with_filter(env_filter))
+            .init();
+        arda_aule::telemetry::shutdown_guard()
+    };
+
+    #[cfg(not(feature = "telemetry"))]
+    tracing_subscriber::fmt().with_env_filter(env_filter).init();
 
     let cli = Cli::parse();
     let (mut cfg, config_source) = ManweConfig::load_with_source(&cli.config);
@@ -626,7 +641,34 @@ async fn proxy_fleet_provider(
 
             if streaming {
                 let started_local = started.elapsed().as_millis() as u64;
-                let bytes = response.bytes().await.unwrap_or_else(|_| Bytes::new());
+                let bytes = match response.bytes().await {
+                    Ok(bytes) => bytes,
+                    Err(error) => {
+                        let message = format!("manwe: failed to read upstream stream: {error}");
+                        let receipt = receipt_from_response(
+                            provider.id,
+                            provider.model_id,
+                            resource_group,
+                            task_type,
+                            if adaptive { "adaptive" } else { "static" }.to_string(),
+                            true,
+                            StatusCode::BAD_GATEWAY.as_u16(),
+                            started_local,
+                            expected_exact,
+                            None,
+                            Some(message.clone()),
+                        );
+                        if let Err(write_error) = receipts.append(&receipt).await {
+                            tracing::warn!("failed to append Manwe route receipt: {write_error}");
+                        }
+                        drop(lease);
+                        return (
+                            StatusCode::BAD_GATEWAY,
+                            Json(json!({ "error": { "message": message, "type": "manwe_error" } })),
+                        )
+                            .into_response();
+                    }
+                };
                 let body: Value = serde_json::from_slice(&bytes).unwrap_or_default();
                 let receipt = receipt_from_response(
                     provider.id.clone(),
@@ -645,10 +687,7 @@ async fn proxy_fleet_provider(
                     tracing::warn!("failed to append Manwe route receipt: {error}");
                 }
                 drop(lease);
-                let mut response_builder = builder;
-                if let Some(content_type) = content_type {
-                    response_builder = response_builder.header(header::CONTENT_TYPE, content_type);
-                }
+                let response_builder = builder.header("x-manwe-streaming-mode", "buffered");
                 return response_builder
                     .body(Body::from(bytes))
                     .unwrap_or_else(|_| {
@@ -913,5 +952,119 @@ mod tests {
         )
         .await;
         assert_eq!(response.status(), StatusCode::BAD_GATEWAY);
+    }
+
+    #[tokio::test]
+    async fn fleet_stream_requests_return_buffered_sse_with_final_receipt() {
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
+            .await
+            .expect("bind streaming upstream");
+        let addr = listener.local_addr().expect("streaming upstream address");
+        let sse = "data: {\"choices\":[{\"delta\":{\"content\":\"hello\"}}]}\n\ndata: [DONE]\n\n";
+        let app = Router::new().route(
+            "/chat/completions",
+            post(move || async move {
+                Response::builder()
+                    .header(header::CONTENT_TYPE, "text/event-stream")
+                    .body(Body::from(sse))
+                    .expect("SSE response")
+            }),
+        );
+        tokio::spawn(async move {
+            let _ = axum::serve(listener, app).await;
+        });
+        let dir = tempfile::tempdir().expect("tempdir");
+        let receipt_path = dir.path().join("route_receipts.jsonl");
+        let response = proxy_fleet_provider(
+            reqwest::Client::new(),
+            ProviderDefinition::openai_compatible(
+                "streaming",
+                "Streaming Test",
+                "test-model",
+                format!("http://{addr}"),
+            ),
+            json!({"model": "test-model", "messages": [], "stream": true}),
+            false,
+            "chat".to_string(),
+            ResourceGroupLimiter::default(),
+            ReceiptWriter::new(&receipt_path),
+        )
+        .await;
+
+        assert_eq!(response.status(), StatusCode::OK);
+        assert_eq!(
+            response.headers()[header::CONTENT_TYPE],
+            "text/event-stream"
+        );
+        assert_eq!(
+            response
+                .headers()
+                .get_all(header::CONTENT_TYPE)
+                .iter()
+                .count(),
+            1
+        );
+        assert_eq!(response.headers()["x-manwe-streaming-mode"], "buffered");
+        let receipt = tokio::fs::read_to_string(&receipt_path)
+            .await
+            .expect("final receipt exists before response body is consumed");
+        let receipt: Value = serde_json::from_str(receipt.trim()).expect("receipt JSON");
+        assert_eq!(receipt["streaming"], true);
+        assert_eq!(receipt["status_code"], 200);
+        let body = axum::body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .expect("buffered SSE body");
+        assert_eq!(body.as_ref(), sse.as_bytes());
+    }
+
+    #[tokio::test]
+    async fn fleet_stream_body_read_failure_returns_502_and_error_receipt() {
+        use tokio::io::{AsyncReadExt, AsyncWriteExt};
+
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
+            .await
+            .expect("bind truncated streaming upstream");
+        let addr = listener
+            .local_addr()
+            .expect("truncated streaming upstream address");
+        tokio::spawn(async move {
+            let (mut socket, _) = listener.accept().await.expect("accept upstream request");
+            let mut request = [0_u8; 4096];
+            let _ = socket.read(&mut request).await;
+            socket
+                .write_all(
+                    b"HTTP/1.1 200 OK\r\ncontent-type: text/event-stream\r\ncontent-length: 100\r\nconnection: close\r\n\r\ndata: partial\n\n",
+                )
+                .await
+                .expect("write truncated upstream response");
+        });
+        let dir = tempfile::tempdir().expect("tempdir");
+        let receipt_path = dir.path().join("route_receipts.jsonl");
+        let response = proxy_fleet_provider(
+            reqwest::Client::new(),
+            ProviderDefinition::openai_compatible(
+                "streaming",
+                "Streaming Test",
+                "test-model",
+                format!("http://{addr}"),
+            ),
+            json!({"model": "test-model", "messages": [], "stream": true}),
+            false,
+            "chat".to_string(),
+            ResourceGroupLimiter::default(),
+            ReceiptWriter::new(&receipt_path),
+        )
+        .await;
+
+        assert_eq!(response.status(), StatusCode::BAD_GATEWAY);
+        let receipt = tokio::fs::read_to_string(&receipt_path)
+            .await
+            .expect("stream read error receipt");
+        let receipt: Value = serde_json::from_str(receipt.trim()).expect("receipt JSON");
+        assert_eq!(receipt["streaming"], true);
+        assert_eq!(receipt["status_code"], 502);
+        assert!(receipt["error"]
+            .as_str()
+            .is_some_and(|error| error.contains("failed to read upstream stream")));
     }
 }

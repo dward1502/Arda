@@ -1,43 +1,43 @@
 // sigil: TELEMETRY
-use crate::telemetry::{Destination, TelemetryEvent};
+use crate::telemetry::{TelemetryEvent, SCHEMA_VERSION};
 
-pub(crate) trait TelemetryEmitter {
-    fn emit(&self, event: &TelemetryEvent);
-}
+pub(crate) fn emit(event: TelemetryEvent) {
+    let attributes = serde_json::to_string(&event.attributes).unwrap_or_else(|_| "[]".to_string());
 
-#[derive(Debug, Default)]
-pub(crate) struct CompositeEmitter {
-    pub(crate) tracers: Vec<Box<dyn TelemetryEmitter + Send + Sync>>,
-}
-
-impl TelemetryEmitter for CompositeEmitter {
-    fn emit(&self, event: &TelemetryEvent) {
-        for emitter in &self.tracers {
-            emitter.emit(event);
+    match event.destination {
+        crate::telemetry::Destination::Traces => emit_trace(&event, &attributes),
+        crate::telemetry::Destination::Logs => emit_log(&event, &attributes),
+        crate::telemetry::Destination::Both => {
+            emit_trace(&event, &attributes);
+            emit_log(&event, &attributes);
         }
     }
 }
 
-pub(crate) fn emit(event: TelemetryEvent) {
-    CompositeEmitter::default().emit(&event);
-}
-
-pub(crate) fn emit_agent_command(crate_name: &str, command: &str, status: &str) {
-    emit(
-        TelemetryEvent::new("agent.command")
-            .destination(Destination::Both)
-            .attr("crate", crate_name)
-            .attr("command", command)
-            .attr("status", status),
+fn emit_trace(event: &TelemetryEvent, attributes: &str) {
+    let span = tracing::info_span!(
+        target: "arda.telemetry.traces",
+        "arda.telemetry.event",
+        otel.name = %event.name,
+        telemetry.name = %event.name,
+        telemetry.destination = event.destination.as_str(),
+        telemetry.schema_version = SCHEMA_VERSION,
+        telemetry.schema = %event.schema_headline(),
+        telemetry.attributes = %attributes,
     );
+    span.in_scope(|| {});
 }
 
-pub(crate) fn emit_governance_triad(crate_name: &str, triage: &str, gate_state: &str) {
-    emit(
-        TelemetryEvent::new("governance.triad")
-            .destination(Destination::Both)
-            .attr("crate", crate_name)
-            .attr("triage", triage)
-            .attr("gate_state", gate_state),
+fn emit_log(event: &TelemetryEvent, attributes: &str) {
+    tracing::event!(
+        target: "arda.telemetry.logs",
+        parent: None,
+        tracing::Level::INFO,
+        telemetry.name = %event.name,
+        telemetry.destination = event.destination.as_str(),
+        telemetry.schema_version = SCHEMA_VERSION,
+        telemetry.schema = %event.schema_headline(),
+        telemetry.attributes = %attributes,
+        "Arda telemetry event"
     );
 }

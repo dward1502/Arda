@@ -136,3 +136,74 @@ impl RouteGovernanceService for RouteServer {
         }))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use arda_orome::grpc::{HealthModelServiceClient, RouteGovernanceServiceClient};
+    use tokio_stream::wrappers::TcpListenerStream;
+
+    #[tokio::test]
+    async fn ephemeral_runtime_exposes_health_and_route_governance_services() {
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
+            .await
+            .expect("ephemeral gRPC bind");
+        let addr = listener.local_addr().expect("ephemeral gRPC address");
+        let state = GrpcState {
+            config: Arc::new(ManweConfig::embedded()),
+            client: reqwest::Client::new(),
+        };
+        let health = HealthServer {
+            state: state.clone(),
+        };
+        let route = RouteServer { state };
+        let (shutdown_tx, shutdown_rx) = tokio::sync::oneshot::channel();
+        let server = tokio::spawn(async move {
+            Server::builder()
+                .add_service(HealthModelServiceServer::new(health))
+                .add_service(RouteGovernanceServiceServer::new(route))
+                .serve_with_incoming_shutdown(TcpListenerStream::new(listener), async move {
+                    let _ = shutdown_rx.await;
+                })
+                .await
+        });
+        let endpoint = format!("http://{addr}");
+        let mut health_client = HealthModelServiceClient::connect(endpoint.clone())
+            .await
+            .expect("connect health client");
+        let health = tokio::time::timeout(
+            std::time::Duration::from_secs(5),
+            health_client.health(HealthRequest {}),
+        )
+        .await
+        .expect("health RPC timeout")
+        .expect("health RPC")
+        .into_inner();
+        assert_eq!(health.status, "ok");
+
+        let mut route_client = RouteGovernanceServiceClient::connect(endpoint)
+            .await
+            .expect("connect route-governance client");
+        let verdict = tokio::time::timeout(
+            std::time::Duration::from_secs(5),
+            route_client.governance_verdict(GovernanceVerdictRequest {
+                actor: "smoke-test".into(),
+                payload: b"runtime-smoke".to_vec(),
+                policy_id: "runtime-smoke-policy".into(),
+            }),
+        )
+        .await
+        .expect("governance verdict RPC timeout")
+        .expect("governance verdict RPC")
+        .into_inner();
+        assert_eq!(verdict.verdict, "allow");
+        assert!(verdict.reason.contains("smoke-test"));
+
+        shutdown_tx.send(()).expect("request gRPC shutdown");
+        tokio::time::timeout(std::time::Duration::from_secs(5), server)
+            .await
+            .expect("gRPC server shutdown timeout")
+            .expect("join gRPC server")
+            .expect("gRPC server shutdown");
+    }
+}

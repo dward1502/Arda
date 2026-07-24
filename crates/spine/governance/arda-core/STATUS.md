@@ -29,6 +29,10 @@ Sigil: 📜 SCROLL
 - affordability policy hooks are exposed through
   `dispatch_full_with_affordability(...)`; compatibility callers
   retain allow-all behavior.
+- GEN3 observability knobs:
+  - `ARDA_LOOP_ECONOMY_SNAPSHOTS` enables economy snapshot writes
+  - `ARDA_LOOP_LATENCY_PROBES` enables latency probe sampling
+  - `ARDA_LOOP_MAX_LATENCY_SAMPLES` bounds retained probe samples
 
 ## Evidence paths
 - `src/loop_engine.rs` dispatch path with gate/ledger/joule contracts
@@ -41,6 +45,8 @@ Sigil: 📜 SCROLL
 - `src/state.rs` episodic/semantic memory split and plan/goal round trip
 - `src/service_registry/registry.rs` snapshot/from_snapshot tests added for
   duplicate skip and round-trip preservation
+- `src/loop_observability.rs` GEN3 env-toggled observability config + latency probes
+- `src/learning_adapter.rs` GEN3 learning-to-domain adaptation + ledger receipt
 
 ## Known warning/follow-ups
 - `service_registry/registry.rs:37` ignores `upsert_contract(...)` result.
@@ -60,7 +66,13 @@ Sigil: 📜 SCROLL
 
 ## Owner notes
 - `arda-engine` re-exports `arda_core::service_registry`.
+- `arda-engine` re-exports `arda_core::loop_observability` and exposes
+  `EngineObservabilityStatus` as the higher-level aggregator for loop
+  observability + learning interop.
 - Crate boundary is intentionally stable; do not split or rename without
   consumer migration evidence.
 - STATUS evidence was refreshed against the current `manwe` branch source of
   truth after doc/code drift was found.
+- GEN3 interop moved from deferred to evidence-backed via `arda-aule`
+  loop/learning consumers and `arda-engine` aggregation surface; remaining
+  interop work is documented in `docs/interop/landscape.md`.

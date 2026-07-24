@@ -85,10 +85,13 @@ Closed.
 - Add observability knobs for loop economy and decision latency.
 - Consider interoperability views for `arda-core` contracts consumed
   by external tooling.
-- Status: deferred with landscape evidence captured in
-  `docs/interop/landscape.md`. Do not merge behavior changes until
-  GEN2 remains fully closed and a consumer crate introduces a concrete
-  interop scenario.
+- Status: evidence-backed.
+  - `loop_observability` provides env-toggled economy/latency knobs.
+  - `learning_adapter` provides learning-to-domain adaptation + ledger receipt.
+  - `arda-aule` consumes both via `LoopCommands::Observability` and
+    `LearningCommands::Ledger`.
+  - `arda-engine` exposes `EngineObservabilityStatus` as the aggregator.
+- Remaining interop scenarios are captured in `docs/interop/landscape.md`.
 
 ## 6. Execution order
 1. Reconcile docs to current code and write STATUS evidence.

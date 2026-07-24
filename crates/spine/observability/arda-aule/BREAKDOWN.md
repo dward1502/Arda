@@ -22,6 +22,10 @@ Owner: arda | Sigil: 🜃 ANKH | Status: active
 
 These surfaces are kept inside `arda-aule` by explicit project decision.
 
+## GEN3 interop consumers
+- `LoopCommands::Observability` reports loop observability config state
+- `LearningCommands::Ledger` emits `arda.learning.interop.v1` receipts from live learning store
+
 ## Where things are today
 - Arda workspace member: `crates/spine/observability/arda-aule`
 - Primary source surfaces: `src/prometheus/`, `src/ceo/`, `src/cli/`, `src/telemetry/`, `src/export_surface/`

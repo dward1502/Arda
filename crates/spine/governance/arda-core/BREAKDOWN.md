@@ -64,10 +64,12 @@ without adding a second direct dependency.
 | `learning.rs` | Outcome stats, learning state/store, gate lifecycle packets. |
 | `ledger.rs` | Append-only Decision/message JSONL output with Soterion enrichment. |
 | `layout.rs` | Layout/public-surface helper types. |
+| `learning_adapter.rs` | GEN3 learning-to-domain adaptation + ledger receipt for interop. |
 | `llm.rs` | Provider-agnostic LLM client + OpenAI-compatible HTTP backend. |
 | `loop_alerts.rs` | Loop alert emitter tied to dispatcher outcomes. |
 | `loop_economy.rs` | Leaderboard-style economy snapshot from ledger. |
 | `loop_engine.rs` | Dispatcher, reflector, joule market, council billing, halting. |
+| `loop_observability.rs` | GEN3 env-toggled loop observability config + bounded latency probes. |
 | `orome_runtime.rs` | Shared registry/router runtime state types. |
 | `message.rs` | Spine message type with Soterion envelope metadata. |
 | `pipeline.rs` | Pipeline helpers for orchestrated execution stages. |

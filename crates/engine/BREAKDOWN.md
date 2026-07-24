@@ -28,7 +28,7 @@ The daemon previously had service spawning and discovery hardcoded in `main.rs`.
 | Declarative service discovery | `registry.rs` | Loads `services.toml`, resolves executables relative to repo root, supports required/optional and `--no-ui` filtering |
 | Harness HTTP surface | `harness.rs` | Axum app on `127.0.0.1:7878`; routes `/health`, `/v1/status`, `/v1/models`, `/v1/harness` |
 | `/v1/models` proxy to manwe | `harness.rs` | Proxies to `manwe` gateway on `:7171` so callers use one tap-in port |
-| Spine re-exports | `lib.rs`, `manwe.rs` | Re-exports `manwe` and `arda-core::service_registry` |
+| Spine re-exports | `lib.rs`, `manwe.rs` | Re-exports `manwe`, `arda-core::service_registry`, `arda-core::loop_observability`, and `observability` |
 | Daemon boot entrypoint | `lib.rs::boot()` | Placeholder today; real wiring lands here |
 
 ## Crate layout
@@ -88,7 +88,10 @@ A daemon/tool using `arda_engine` can:
 ## Verification status
 
 - `cargo check -p arda-engine`: successful
-- `cargo test -p arda-engine`: 1 passed (`supervisor::tests::supervises_and_reaps_child_on_shutdown`)
+- `cargo test -p arda-engine`: 6 passed
 - Static links to `manwe` confirmed in source:
   - `crates/engine/src/manwe.rs`
   - `crates/engine/src/harness.rs`
+- GEN3 interop surface verified:
+  - `arda-core::loop_observability` re-exported
+  - `arda-core::learning_adapter` consumed through `arda_engine::observability::EngineObservabilityStatus`

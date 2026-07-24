@@ -20,6 +20,10 @@ completed work
 - fix build/test tooling
   - fix edition lint issue + remove temporary TODO/test scaffold workaround
   - verify with `cargo check/test` + feature-scoped `check/test`
+- add gen3 observability/interop surface
+  - add `src/observability.rs` with `EngineObservabilityStatus`
+  - re-export `arda-core::loop_observability` from `lib.rs`
+  - wire arda-aule loop/learning interop consumers
 
 verification evidence
 ---------------------
@@ -41,3 +45,5 @@ remaining risk / notes
   2024 edition bump and removing the temporary no-op test scaffold.
 - boot()/client contract docs were stale; no active remaining callers were
   found, and the docs were aligned to current surface.
+- arda-core interop is now evidence-backed through arda-aule consumers and
+  arda-engine aggregation; remaining scenarios are in docs/interop/landscape.md.

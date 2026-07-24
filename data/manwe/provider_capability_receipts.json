@@ -1,17 +1,17 @@
 {
   "schema_version": "annunimas.charon.provider-capability-receipts.v1",
-  "generated_at_utc": "2026-07-24T03:38:02.842347814+00:00",
+  "generated_at_utc": "2026-07-24T16:10:02.969271128+00:00",
   "receipts": {
     "edge_backbone::ternary-bonsai-27b-q2_0": {
       "provider_id": "edge_backbone",
       "model_id": "ternary-bonsai-27b-q2_0",
-      "updated_at_utc": "2026-07-24T03:38:02.842347814+00:00",
+      "updated_at_utc": "2026-07-24T04:50:02.842354527+00:00",
       "capabilities": {
         "basic_chat": {
           "state": "passed",
           "source": "passive_proxy_observation",
-          "observed_at_utc": "2026-07-24T03:38:02.842347814+00:00",
-          "expires_at_utc": "2026-07-31T03:38:02.842347814+00:00",
+          "observed_at_utc": "2026-07-24T04:50:02.842354527+00:00",
+          "expires_at_utc": "2026-07-31T04:50:02.842354527+00:00",
           "outcome_class": "success",
           "status_code": 200
         }
@@ -65,13 +65,13 @@
     "google::gemini-3.1-flash-lite": {
       "provider_id": "google",
       "model_id": "gemini-3.1-flash-lite",
-      "updated_at_utc": "2026-07-24T03:28:02.971982954+00:00",
+      "updated_at_utc": "2026-07-24T15:59:20.655573057+00:00",
       "capabilities": {
         "basic_chat": {
           "state": "passed",
           "source": "passive_proxy_observation",
-          "observed_at_utc": "2026-07-24T03:28:02.971982954+00:00",
-          "expires_at_utc": "2026-07-31T03:28:02.971982954+00:00",
+          "observed_at_utc": "2026-07-24T15:59:20.655573057+00:00",
+          "expires_at_utc": "2026-07-31T15:59:20.655573057+00:00",
           "outcome_class": "success",
           "status_code": 200
         }
@@ -80,13 +80,13 @@
     "google::gemini-3.5-flash-lite": {
       "provider_id": "google",
       "model_id": "gemini-3.5-flash-lite",
-      "updated_at_utc": "2026-07-24T03:17:03.051522494+00:00",
+      "updated_at_utc": "2026-07-24T16:10:02.969271128+00:00",
       "capabilities": {
         "basic_chat": {
           "state": "passed",
           "source": "passive_proxy_observation",
-          "observed_at_utc": "2026-07-24T03:17:03.051522494+00:00",
-          "expires_at_utc": "2026-07-31T03:17:03.051522494+00:00",
+          "observed_at_utc": "2026-07-24T16:10:02.969271128+00:00",
+          "expires_at_utc": "2026-07-31T16:10:02.969271128+00:00",
           "outcome_class": "success",
           "status_code": 200
         }

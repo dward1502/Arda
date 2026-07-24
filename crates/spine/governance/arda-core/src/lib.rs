@@ -16,6 +16,7 @@ pub mod loop_alerts;
 pub mod loop_economy;
 pub mod loop_engine;
 pub mod loop_observability;
+pub mod learning_adapter;
 pub mod message;
 pub mod pipeline;
 pub mod router;

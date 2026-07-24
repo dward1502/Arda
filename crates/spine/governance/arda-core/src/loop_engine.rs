@@ -305,9 +305,7 @@ pub fn dispatch_full_with_affordability(
 
     let loop_observability_config = LoopObservabilityConfig::from_env();
     let mut tick_probe = LatencyProbe::new(loop_observability_config.max_latency_samples);
-    if loop_observability_config.latency_probe_enabled {
-        tick_probe.with_kind(DecisionLatencyKind::LoopTick);
-    }
+    tick_probe.with_kind(DecisionLatencyKind::LoopTick);
 
     let now_ts = Utc::now().format("%Y%m%dT%H%M%S").to_string();
 

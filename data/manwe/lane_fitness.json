@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-07-24T03:17:03.053310450+00:00",
+  "generated_at_utc": "2026-07-24T03:38:02.844170210+00:00",
   "lanes": {
     "free": {
       "openrouter": {
@@ -11,10 +11,10 @@
     },
     "interactive": {
       "edge_backbone": {
-        "avg_latency_ms": 569,
-        "success_count": 12,
+        "avg_latency_ms": 555,
+        "success_count": 13,
         "failure_count": 0,
-        "last_result_utc": "2026-07-24T03:07:02.857733036+00:00"
+        "last_result_utc": "2026-07-24T03:38:02.844169560+00:00"
       },
       "edge_backbone_bonsai27": {
         "avg_latency_ms": 743,
@@ -29,10 +29,10 @@
         "last_result_utc": "2026-07-23T17:54:59.096020491+00:00"
       },
       "google": {
-        "avg_latency_ms": 590,
-        "success_count": 27,
+        "avg_latency_ms": 569,
+        "success_count": 28,
         "failure_count": 0,
-        "last_result_utc": "2026-07-24T03:17:03.053309680+00:00"
+        "last_result_utc": "2026-07-24T03:28:02.974092144+00:00"
       },
       "local_fallback": {
         "avg_latency_ms": 152,

@@ -9,6 +9,7 @@ pub mod forge;
 pub mod hades;
 pub mod hermes;
 pub mod loop_cmd;
+pub mod learning;
 pub mod metrics;
 pub mod mnemosyne;
 pub mod onboarding;

@@ -1,7 +1,7 @@
 {
   "arms": {
     "chat|tools=false|structured=false|stream=false\u001fedge_backbone\u001fternary-bonsai-27b-q2_0": {
-      "successes": 20,
+      "successes": 21,
       "failures": 0
     },
     "chat|tools=false|structured=false|stream=false\u001fedge_backbone_bonsai27\u001fternary-bonsai-27b-q2_0": {
@@ -17,7 +17,7 @@
       "failures": 0
     },
     "chat|tools=false|structured=false|stream=false\u001fgoogle\u001fgemini-3.1-flash-lite": {
-      "successes": 22,
+      "successes": 23,
       "failures": 0
     },
     "chat|tools=false|structured=false|stream=false\u001fgoogle\u001fgemini-3.5-flash-lite": {

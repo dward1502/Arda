@@ -104,6 +104,12 @@ pub(crate) enum LoopCommands {
         #[command(subcommand)]
         command: WardenCommands,
     },
+    /// Observability knobs for loop economy and latency probes
+    Observability {
+        /// State root override (defaults to <root>/core/state)
+        #[arg(long)]
+        state_root: Option<PathBuf>,
+    },
 }
 
 #[derive(Subcommand)]
@@ -178,16 +184,31 @@ pub(crate) enum WardenCommands {
 
 pub(crate) fn handle(cmd: LoopCommands) -> anyhow::Result<()> {
     match cmd {
-        LoopCommands::SeedGoals {
-            seed,
-            state_root,
-            force,
-        } => seed_goals(seed, state_root, force),
+        LoopCommands::SeedGoals { seed, state_root, force } => seed_goals(seed, state_root, force),
         LoopCommands::Tick { state_root } => tick(state_root),
         LoopCommands::Status { state_root } => status(state_root),
         LoopCommands::Halt { command } => handle_halt(command),
         LoopCommands::Warden { command } => handle_warden(command),
+        LoopCommands::Observability { state_root } => observability_status(state_root),
     }
+}
+
+pub(crate) fn observability_status(state_root_arg: Option<PathBuf>) -> anyhow::Result<()> {
+    let root = arda_root();
+    let state_root_path = state_root_arg.unwrap_or_else(|| root.join("core/state"));
+    let state = StateRoot::new(state_root_path);
+
+    let config = arda_core::loop_observability::LoopObservabilityConfig::from_env();
+
+    println!("observability: config={}", serde_json::to_string_pretty(&json!({
+        "config": {
+            "economy_snapshot_enabled": config.economy_snapshot_enabled,
+            "latency_probe_enabled": config.latency_probe_enabled,
+            "max_latency_samples": config.max_latency_samples,
+        }
+    }))?);
+
+    Ok(())
 }
 
 pub(crate) fn handle_halt(cmd: HaltCommands) -> anyhow::Result<()> {

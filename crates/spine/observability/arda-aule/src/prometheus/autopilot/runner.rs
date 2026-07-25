@@ -6,14 +6,16 @@ use super::a2h::{
     append_pending_authorization, authorize_for_escalation_with_id, process_h2a_responses,
     write_message, H2AProcessReport, HumanApprovedObjective,
 };
-use super::apollo_bridge::{dispatch_with_conditions as apollo_dispatch, ApolloClient, Dispatch};
 use super::bootstrap::{load_defaults, load_registry_from_world, LoadedDefaults};
+use super::core_executor_bridge::{
+    dispatch_with_conditions as executor_dispatch, CoreExecutorClient, Dispatch, ExecutionStatus,
+};
 use super::dashboard::{build_snapshot, DashboardSnapshot};
 use super::decomposer::{Objective, ObjectiveDecomposer, PlannedTask, Priority};
 use super::delegation::{delegate_plan, AgentRegistry, DelegationReport};
 use super::evidence_registry::EvidenceRegistry;
 use super::governance_policy::{GovernanceDecision, GovernanceGate, GovernancePolicy};
-use super::learning::{LearningState, LearningStore};
+use super::learning::LearningStore;
 use super::oracle_gate::{GateDecision, OracleGate};
 use super::outcomes::OutcomeObserver;
 use super::pipeline_bridge::submit_plan as submit_plan_to_pipeline;
@@ -29,7 +31,7 @@ use super::source_registry::SourceRegistry;
 use super::task_queue::{QueueRecord, TaskQueueAnalyzer, TaskQueueMetrics};
 use super::taxonomy::is_apollo_dispatchable;
 use super::validator::{PlanValidator, ValidationResult};
-use arda_core::orders::{OrderStatus, OrderStore};
+use crate::prometheus::orders::{OrderStatus, OrderStore};
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -418,7 +420,7 @@ pub struct CeoAutopilot {
     learning: arda_core::learning::LearningState,
     oracle: OracleGate,
     governance_policy: GovernancePolicy,
-    apollo: ApolloClient,
+    apollo: CoreExecutorClient,
     consecutive_failures: usize,
 }
 
@@ -1121,7 +1123,7 @@ impl CeoAutopilot {
             costs.insert(k, v);
         }
         let decomposer = ObjectiveDecomposer::default().with_base_costs(costs);
-        let apollo = ApolloClient::auto(cfg.apollo_socket_path.clone());
+        let apollo = CoreExecutorClient::auto(cfg.apollo_socket_path.clone());
         tracing::info!(
             transport = apollo.transport_label(),
             socket = %cfg.apollo_socket_path.display(),
@@ -1363,9 +1365,13 @@ impl CeoAutopilot {
                         let max_attempts = self.cfg.apollo_max_attempts.max(1);
                         for attempt in 1..=max_attempts {
                             let attempt_qid = qid.clone();
-                            let dr =
-                                apollo_dispatch(&self.apollo, &attempt_qid, pt, oracle_conditions)
-                                    .await;
+                            let dr = executor_dispatch(
+                                &self.apollo,
+                                &attempt_qid,
+                                pt,
+                                oracle_conditions,
+                            )
+                            .await;
                             let _ = append_apollo_dispatch_attempt_to_queue(
                                 &self.cfg.queue_path,
                                 &obj.id,
@@ -1636,7 +1642,7 @@ impl CeoAutopilot {
                 } else {
                     format!("{}__retry{}", step.queue_id, attempt)
                 };
-                let dispatch = apollo_dispatch(&self.apollo, &attempt_qid, &step.plan, &[]).await;
+                let dispatch = executor_dispatch(&self.apollo, &attempt_qid, &step.plan, &[]).await;
                 let appended = append_apollo_dispatch_attempt_to_queue(
                     &self.cfg.queue_path,
                     &step.objective_id,
@@ -2591,9 +2597,7 @@ fn dispatch_retryable(dispatch: &Dispatch) -> bool {
     matches!(
         dispatch,
         Dispatch::Submitted {
-            status: crate::prometheus::autopilot::apollo_bridge::ExecutionStatus::Failed
-                | ExecutionStatus::Cancelled
-                | ExecutionStatus::Timeout,
+            status: ExecutionStatus::Failed | ExecutionStatus::Cancelled | ExecutionStatus::Timeout,
             ..
         }
     )
@@ -3616,19 +3620,19 @@ status = "active_subordinate"
     fn dispatch_retryable_only_retries_terminal_apollo_failures() {
         assert!(dispatch_retryable(&Dispatch::Submitted {
             task_id: "failed".into(),
-            status: crate::prometheus::autopilot::apollo_bridge::ExecutionStatus::Failed,
+            status: ExecutionStatus::Failed,
             joules: 0.0,
             transport: "in_process",
         }));
         assert!(dispatch_retryable(&Dispatch::Submitted {
             task_id: "timeout".into(),
-            status: crate::prometheus::autopilot::apollo_bridge::ExecutionStatus::Timeout,
+            status: ExecutionStatus::Timeout,
             joules: 0.0,
             transport: "daemon",
         }));
         assert!(!dispatch_retryable(&Dispatch::Submitted {
             task_id: "ok".into(),
-            status: crate::prometheus::autopilot::apollo_bridge::ExecutionStatus::Completed,
+            status: ExecutionStatus::Completed,
             joules: 1.0,
             transport: "in_process",
         }));

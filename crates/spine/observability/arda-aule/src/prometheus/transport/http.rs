@@ -1,6 +1,6 @@
 #![cfg(feature = "full-cli")]
 // sigil: REPAIR
-use crate::service::PrometheusService;
+use crate::prometheus::service::PrometheusService;
 use arda_core::error::{ArdaError, Result};
 use arda_core::try_run_bounded_async;
 use axum::extract::{Query, Request, State};
@@ -345,7 +345,7 @@ fn build_event_payload(service: &PrometheusService) -> Result<Value> {
 #[cfg(test)]
 mod tests {
     use super::{build_event_payload, build_router, http_request_limit, json_result};
-    use crate::PrometheusService;
+    use crate::prometheus::PrometheusService;
     use arda_core::error::ArdaError;
     use axum::body::{to_bytes, Body};
     use axum::http::{Request, StatusCode};
@@ -497,6 +497,10 @@ mod tests {
         assert_eq!(
             reroute_json["result"]["intents"][0]["target_task_id"],
             "task_alpha"
+        );
+        assert_eq!(
+            reroute_json["result"]["intents"][0]["routing_authority"],
+            "manwe"
         );
 
         let intents_response = app

@@ -1,11 +1,11 @@
 #![cfg(feature = "full-cli")]
 // sigil: REPAIR
 //! CEO autopilot — autonomous loop covering Phase 1-3 of CEO_LOOP.md plus
-//! Apollo execution, Oracle governance, and A2H human-in-the-loop hooks.
+//! Arda Core execution, Oracle governance, and A2H human-in-the-loop hooks.
 
 pub mod a2h;
-pub mod apollo_bridge;
 pub mod bootstrap;
+pub mod core_executor_bridge;
 pub mod dashboard;
 pub mod decomposer;
 pub mod delegation;
@@ -32,11 +32,11 @@ pub use a2h::{
     process_h2a_responses, write_message, H2AProcessReport, HumanApprovedObjective,
     PendingAuthorization, PendingAuthorizationStatus,
 };
-pub use apollo_bridge::{
-    dispatch as apollo_dispatch, dispatch_with_conditions as apollo_dispatch_with_conditions,
-    Dispatch,
-};
 pub use bootstrap::{load_defaults, load_registry_from_world, LoadedDefaults};
+pub use core_executor_bridge::{
+    dispatch as executor_dispatch, dispatch_with_conditions as executor_dispatch_with_conditions,
+    Dispatch, ExecutionStatus,
+};
 pub use dashboard::{Alert, AlertSeverity, DashboardSnapshot};
 pub use decomposer::{Objective, ObjectiveDecomposer, PlannedTask, Priority};
 pub use delegation::{

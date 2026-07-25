@@ -6,11 +6,11 @@ mod runtime;
 mod status;
 mod support;
 
-use crate::core_link::CoreAutonomyProfile;
-use crate::heartbeat::HeartbeatState;
-use crate::orders::OrderStore;
-use crate::registry::AgentRosterSnapshot;
-use crate::thought::ThoughtLedger;
+use crate::ceo::CoreAutonomyProfile;
+use crate::prometheus::heartbeat::HeartbeatState;
+use crate::prometheus::orders::OrderStore;
+use crate::prometheus::registry::AgentRosterSnapshot;
+use crate::prometheus::thought::ThoughtLedger;
 use arda_core::error::Result;
 use arda_vaire::MnemosyneService;
 use serde::{Deserialize, Serialize};

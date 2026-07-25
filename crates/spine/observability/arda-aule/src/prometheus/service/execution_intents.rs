@@ -1,5 +1,5 @@
 #![cfg(feature = "full-cli")]
-use crate::service::{append_jsonl, PrometheusService};
+use crate::prometheus::service::{append_jsonl, PrometheusService};
 use arda_core::error::Result;
 use std::collections::{HashMap, HashSet};
 use std::fs;
@@ -118,6 +118,7 @@ impl PrometheusService {
                 "action": action,
                 "status": if triad_passed { "queued" } else { "pending_review" },
                 "source": "hermes_interrupt",
+                "routing_authority": "manwe",
                 "interruption_id": interruption_id,
                 "idempotency_key": idempotency_key,
                 "target_task_id": target_task_id,

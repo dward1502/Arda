@@ -4,7 +4,7 @@
 //!
 //! Simplified orchestration - routes tasks to agents
 
-use crate::core_link::CoreAutonomyProfile;
+use super::core_link::CoreAutonomyProfile;
 use arda_core::error::Result;
 use arda_core::ledger::Ledger;
 use arda_core::message::Message;
@@ -127,7 +127,7 @@ impl Pipeline {
                 }
             }
             Err(e) => {
-                task.fail(&format!("No route: {}", e));
+                task.fail(format!("No route: {}", e));
             }
         }
 

@@ -1,5 +1,5 @@
 #![cfg(feature = "full-cli")]
-use crate::service::{
+use crate::prometheus::service::{
     append_jsonl, prometheus_home, queue_contains_task, sha256_file_if_exists, PrometheusService,
 };
 use arda_core::error::Result;

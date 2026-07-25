@@ -9,7 +9,7 @@ soterion:
 ---
 
 # arda-aule
-Observability home crate for Arda: contracts, governance metrics, telemetry, and the supported operator CLI.
+Consolidated observability and operator-control crate for Arda.
 Owner: arda | Sigil: 🜃 ANKH | Status: active
 
 ## Summary
@@ -17,34 +17,34 @@ Owner: arda | Sigil: 🜃 ANKH | Status: active
 - `contract`, `service`, and `council` — stable observability contracts and compatibility types
 - `governance_metrics` — typed governance snapshot rendering
 - `telemetry` — feature-gated tracing and structured event wiring
-- `arda-cli` — implemented telemetry-schema, receipt, governance metrics/status, and Plutus export commands
+- `ceo` — core autonomy profile, pipeline, and router primitives under `full-cli`
+- `prometheus` — projections, council gate, heartbeat, orders, planning, registry, service,
+  thought ledger, autopilot, execution intents, IPC, and optional HTTP transport under `full-cli`
+- `arda-cli` — one supported binary containing governance, Plutus, Prometheus, and CEO-autopilot
+  commands
 
-The imported `src/ceo/`, `src/prometheus/`, and internal `src/cli/` module trees are retained
-as migration evidence but are not attached to the library graph. Their retired dependencies
-and stale path contracts are not part of the supported `full-cli` release surface.
-
-## Retained migration evidence
-- Historical loop/learning command modules remain in the unattached internal CLI tree.
-- They are not exported by the supported operator binary and do not constitute live interop contracts.
+Provider and fleet routing are owned by Manwe. Aule records durable routing intents and does not
+duplicate Manwe's provider-selection implementation.
 
 ## Where things are today
 - Arda workspace member: `crates/spine/observability/arda-aule`
-- Active library surfaces: `src/contract.rs`, `src/service.rs`, `src/council.rs`,
-  `src/governance_metrics.rs`, and `src/telemetry/`
+- Active library surfaces: the default modules plus `src/ceo/` and every module declared by
+  `src/prometheus/mod.rs` under `full-cli`
 - Active operator binary: `src/cli/main.rs`
-- Cross-crate dependencies are wired through Arda equivalents:
-  - `arda-core`, `arda-governance`, `arda-orome`, `arda-vaire`,
-    `arda-mandos`, `arda-varda`, `arda-economics`
-- `~/Annunimas/crates/` remains read-only reference; imported source has been rewritten toward Arda crate paths.
+- `full-cli` enables the consolidated CEO/Prometheus graph and `arda-cli`
+- `http` adds the optional Prometheus HTTP transport; IPC is available with `full-cli`
 
 ## Verification status
 - `cargo check -p arda-aule --features full-cli --all-targets`: passing as of 2026-07-25
-- `cargo test -p arda-aule --features full-cli`: 14 tests plus 2 doctests passing
+- `cargo test -p arda-aule`: passing
+- `cargo test -p arda-aule --features full-cli --lib --tests`: passing
+- `cargo test -p arda-aule --all-features --lib --tests`: passing serially
 - `cargo clippy -p arda-aule --all-targets --all-features -- -D warnings`: passing
 - Process-level tests execute `governance-metrics` and `governance-status` and validate JSON contracts.
 
 ## Decisions
 - Keep observability contracts, governance metrics, telemetry, and the operator binary in `arda-aule`.
+- Keep `src/council.rs` as the canonical supported compatibility surface.
 - Do not expose command variants whose runtime implementation is absent.
-- Keep unattached imported monolith source as migration evidence until a separately approved
-  extraction or retirement task; it is not a compatibility promise.
+- Keep provider routing in Manwe and task execution in the active core loop/executor; Aule owns
+  governance, observability, autopilot coordination, and durable queue/intent production.

@@ -69,6 +69,8 @@ impl QueueOperation {
     }
 }
 
+// Keep every authorization input explicit at this security-sensitive queue boundary.
+#[allow(clippy::too_many_arguments)]
 pub fn append_approved_packet_plan(
     queue_path: impl AsRef<Path>,
     packet: &ObjectivePacket,

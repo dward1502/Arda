@@ -1,23 +1,28 @@
-# arda-aule Step 6/7 Closeout — Supported Surface Wiring
+# arda-aule Consolidation Handoff
 
-Status: superseded and complete as of 2026-07-25.
+Status: consolidation complete.
 
 ## Resolution
 
-- Kept one `full-cli` feature and one `arda-cli` binary.
-- Limited the public command enum to variants with live implementations.
-- Detached stale imported CEO, Prometheus-daemon, and internal CLI trees from the library graph.
-- Kept those source trees as migration evidence rather than claiming unsupported compatibility.
-- Replaced stale CEO/full-council integration expectations with live governance rendering and
-  process-level operator contract tests.
+- Kept one `arda-cli` binary and attached CEO plus coherent Prometheus library surfaces through
+  `full-cli`.
+- Restored Prometheus service, IPC, optional HTTP daemon, orders, thoughts, escalation, planning,
+  roster, drift, council evidence, and projection capabilities.
+- Attached CEO autopilot through the canonical task queue without fabricating execution completion.
+- Assigned provider/fleet routing to Manwe through explicit execution-intent ownership.
+- Migrated Aule-owned Prometheus and autopilot commands into the supported `arda-cli` binary.
+- Removed duplicate roots and detached source after its replacement or canonical owner was verified.
 
 ## Verification
 
 - `cargo check -p arda-aule --features full-cli --all-targets`: passing
-- `cargo test -p arda-aule --features full-cli`: 14 tests and 2 doctests passing
+- `cargo test -p arda-aule --features full-cli --lib --tests`: passing
+- `cargo test -p arda-aule --all-features --lib --tests`: passing serially
 - `cargo clippy -p arda-aule --all-targets --all-features -- -D warnings`: passing
-- `cargo fmt --all -- --check`: passing
+- `cargo fmt -p arda-aule -- --check`: passing
+- Process smoke checks for `prometheus autopilot status`, `prometheus autopilot once --read-only`,
+  and `prometheus execution-intents`: passing
+- Workspace-wide `cargo fmt --all -- --check` is currently blocked by unrelated launcher
+  Tauri formatting drift outside this closeout scope.
 
-The historical failure inventory is no longer an active handoff. Reactivating any detached
-module requires a separately approved migration with live dependencies, implementations,
-contract documentation, and focused tests.
+No migration handoff remains inside `arda-aule`.

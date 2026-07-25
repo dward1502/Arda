@@ -57,7 +57,9 @@ impl CoreAutonomyProfile {
         Self::try_load(core_root).ok()
     }
 
-    pub fn try_load(core_root: impl AsRef<Path>) -> Result<Self, crate::error::PrometheusError> {
+    pub fn try_load(
+        core_root: impl AsRef<Path>,
+    ) -> Result<Self, crate::prometheus::error::PrometheusError> {
         let core_root = core_root.as_ref().to_path_buf();
         let boot_path = core_root.join("realm").join("boot.toml");
         let boot = try_read_boot(&boot_path)?;
@@ -315,18 +317,18 @@ struct BootNightlyFile {
     nightly: Option<BootNightlyConfig>,
 }
 
-fn try_read_boot(path: &Path) -> Result<BootConfig, crate::error::PrometheusError> {
+fn try_read_boot(path: &Path) -> Result<BootConfig, crate::prometheus::error::PrometheusError> {
     let content = std::fs::read_to_string(path).map_err(|e| {
         if e.kind() == std::io::ErrorKind::NotFound {
-            crate::error::PrometheusError::BootConfigMissing {
+            crate::prometheus::error::PrometheusError::BootConfigMissing {
                 path: path.to_path_buf(),
             }
         } else {
-            crate::error::PrometheusError::Io(e)
+            crate::prometheus::error::PrometheusError::Io(e)
         }
     })?;
     toml::from_str::<BootConfig>(&content).map_err(|source| {
-        crate::error::PrometheusError::BootConfigInvalid {
+        crate::prometheus::error::PrometheusError::BootConfigInvalid {
             path: path.to_path_buf(),
             source,
         }

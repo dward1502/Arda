@@ -1,6 +1,6 @@
 #![cfg(feature = "full-cli")]
 // sigil: REPAIR
-use crate::service::PrometheusService;
+use crate::prometheus::service::PrometheusService;
 use arda_core::daemon::{CommandEnvelope, ResponseEnvelope};
 use arda_core::error::{ArdaError, Result};
 use arda_core::spawn_bounded_background;

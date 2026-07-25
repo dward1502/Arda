@@ -4,7 +4,7 @@
 pub mod http;
 pub mod ipc;
 
-use crate::service::PrometheusService;
+use crate::prometheus::service::PrometheusService;
 use arda_core::error::Result;
 use std::path::{Path, PathBuf};
 
@@ -84,6 +84,7 @@ impl PrometheusDaemon {
     }
 }
 
+#[cfg(feature = "http")]
 fn join_error(err: tokio::task::JoinError) -> arda_core::error::ArdaError {
     arda_core::error::ArdaError::Agent {
         agent: "prometheus".to_string(),

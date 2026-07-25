@@ -1,9 +1,8 @@
 #![cfg(feature = "full-cli")]
 // sigil: REPAIR
-use crate::registry::AgentRosterSnapshot;
+use crate::council::{CouncilBrief, CouncilQuery, CouncilSeat, QueryMode};
+use crate::prometheus::registry::AgentRosterSnapshot;
 use arda_core::task::Task;
-use arda_council::council::{CouncilQuery, CouncilSeat, QueryMode};
-use arda_council::service::build_brief;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -57,7 +56,7 @@ pub fn run_council_gate(
     }
 
     let query = derive_council_query(task);
-    let brief = build_brief(&query);
+    let brief = CouncilBrief::from_query(&query);
 
     let responders_expected = 4usize; // ATHENA, HADES, MANWE, MNEMOSYNE (scaffold)
     let responders_available = roster
@@ -178,7 +177,7 @@ fn council_seat_name(seat: CouncilSeat) -> &'static str {
 #[cfg(test)]
 mod tests {
     use super::{run_council_gate, CouncilGateConfig};
-    use crate::registry::{AgentRosterSnapshot, AgentStatus};
+    use crate::prometheus::registry::{AgentRosterSnapshot, AgentStatus};
     use arda_core::task::Task;
 
     #[test]

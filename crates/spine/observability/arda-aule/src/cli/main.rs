@@ -24,6 +24,10 @@ enum Commands {
         #[command(subcommand)]
         command: PlutusCommands,
     },
+    Prometheus {
+        #[command(subcommand)]
+        command: PrometheusCommands,
+    },
     TelemetrySchema,
     Receipt {
         id: String,
@@ -87,6 +91,168 @@ enum PlutusCommands {
         /// Emit the complete machine-readable export envelope.
         #[arg(long)]
         json: bool,
+    },
+}
+
+#[derive(Subcommand, Debug)]
+enum PrometheusCommands {
+    Serve {
+        #[arg(long)]
+        core_root: Option<PathBuf>,
+        #[arg(long)]
+        socket: Option<PathBuf>,
+        #[arg(long, default_value = "127.0.0.1:5113")]
+        http_addr: String,
+        #[arg(long)]
+        no_http: bool,
+    },
+    Status {
+        #[arg(long)]
+        core_root: Option<PathBuf>,
+    },
+    Thoughts {
+        #[arg(long)]
+        root: Option<PathBuf>,
+        #[arg(long, default_value_t = 20)]
+        limit: usize,
+    },
+    Escalations {
+        #[arg(long)]
+        root: Option<PathBuf>,
+        #[arg(long)]
+        include_resolved: bool,
+        #[arg(long, default_value_t = 20)]
+        limit: usize,
+    },
+    ResolveEscalation {
+        escalation_id: String,
+        #[arg(long)]
+        note: String,
+        #[arg(long)]
+        root: Option<PathBuf>,
+    },
+    Roster {
+        path: PathBuf,
+        #[arg(long, default_value_t = 300)]
+        heartbeat_timeout_secs: u64,
+        #[arg(long)]
+        supervisor: bool,
+    },
+    Plan {
+        #[arg(long)]
+        state_root: Option<PathBuf>,
+        #[arg(long)]
+        queue_path: Option<PathBuf>,
+    },
+    Drift {
+        #[arg(long)]
+        core_root: Option<PathBuf>,
+        #[arg(long)]
+        reconcile: bool,
+    },
+    CouncilFanout {
+        topic: String,
+        #[arg(long, value_delimiter = ',')]
+        participants: Vec<String>,
+        #[arg(long)]
+        context: Option<String>,
+        #[arg(long)]
+        core_root: Option<PathBuf>,
+    },
+    ReconcileRuntime {
+        before: String,
+        #[arg(long)]
+        apply: bool,
+        #[arg(long, default_value = "resolved by Prometheus runtime reconciliation")]
+        note: String,
+        #[arg(long)]
+        core_root: Option<PathBuf>,
+    },
+    ExecutionIntents {
+        #[arg(long, default_value_t = 50)]
+        limit: usize,
+        #[arg(long)]
+        include_terminal: bool,
+        #[arg(long)]
+        core_root: Option<PathBuf>,
+    },
+    ExecutionIntentRecovery {
+        #[arg(long)]
+        core_root: Option<PathBuf>,
+    },
+    TransitionIntent {
+        intent_id: String,
+        status: String,
+        #[arg(long)]
+        note: Option<String>,
+        #[arg(long)]
+        core_root: Option<PathBuf>,
+    },
+    CompactIntents {
+        #[arg(long, default_value_t = 14)]
+        retention_days: i64,
+        #[arg(long, default_value_t = 5000)]
+        max_keep: usize,
+        #[arg(long)]
+        core_root: Option<PathBuf>,
+    },
+    Autopilot {
+        #[command(subcommand)]
+        command: AutopilotCommands,
+    },
+}
+
+#[derive(Subcommand, Debug)]
+enum AutopilotCommands {
+    Once {
+        #[arg(long)]
+        root: Option<PathBuf>,
+        #[arg(long)]
+        read_only: bool,
+    },
+    Run {
+        #[arg(long)]
+        root: Option<PathBuf>,
+        #[arg(long, default_value_t = 30)]
+        interval: u64,
+        #[arg(long)]
+        read_only: bool,
+    },
+    Status {
+        #[arg(long)]
+        root: Option<PathBuf>,
+    },
+    KnowledgeTriage {
+        #[arg(long)]
+        root: Option<PathBuf>,
+        #[arg(long)]
+        dry_run: bool,
+        #[arg(long)]
+        write: bool,
+        #[arg(long = "source-root")]
+        source_roots: Vec<PathBuf>,
+    },
+    PromoteKnowledgeTasks {
+        #[arg(long)]
+        root: Option<PathBuf>,
+        #[arg(long, default_value = "safe-local")]
+        lane: String,
+        #[arg(long)]
+        dry_run: bool,
+        #[arg(long)]
+        write: bool,
+        #[arg(long = "approval-evidence")]
+        approval_evidence: Option<String>,
+        #[arg(long = "source-root")]
+        source_roots: Vec<PathBuf>,
+    },
+    ExecuteKnowledgeTasks {
+        #[arg(long)]
+        root: Option<PathBuf>,
+        #[arg(long)]
+        dry_run: bool,
+        #[arg(long)]
+        write: bool,
     },
 }
 
@@ -165,6 +331,7 @@ fn main() -> Result<()> {
                 print_plutus_export(&export);
             }
         }
+        Commands::Prometheus { command } => handle_prometheus(command)?,
         Commands::BaconLiteSummary {
             path,
             since,
@@ -278,6 +445,334 @@ fn main() -> Result<()> {
             } else {
                 print!("{}", render_governance_status_human(&report));
             }
+        }
+    }
+    Ok(())
+}
+
+fn handle_prometheus(command: PrometheusCommands) -> Result<()> {
+    use arda_aule::prometheus::{
+        AgentRosterSnapshot, OrderStore, PrometheusService, ThoughtLedger,
+    };
+
+    let arda_root = || {
+        std::env::var_os("ARDA_ROOT")
+            .map(PathBuf::from)
+            .unwrap_or_else(|| std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")))
+    };
+    let orders_root =
+        |root: Option<PathBuf>| root.unwrap_or_else(|| arda_root().join("data/prometheus"));
+    let thoughts_root =
+        |root: Option<PathBuf>| root.unwrap_or_else(|| arda_root().join("data/minds/machine"));
+    match command {
+        PrometheusCommands::Serve {
+            core_root,
+            socket,
+            http_addr,
+            no_http,
+        } => {
+            let core_root = core_root.unwrap_or_else(|| PathBuf::from("core"));
+            let service = arda_aule::prometheus::PrometheusService::from_core(&core_root)
+                .map_err(|err| anyhow::anyhow!(err.to_string()))?;
+            let mut config = arda_aule::prometheus::transport::PrometheusDaemonConfig::default();
+            if let Some(socket) = socket {
+                config.socket_path = socket;
+            }
+            config.http_addr = http_addr;
+            config.http_enabled = !no_http;
+            let daemon = arda_aule::prometheus::transport::PrometheusDaemon::new(service, config);
+            let runtime = tokio::runtime::Builder::new_multi_thread()
+                .enable_all()
+                .build()?;
+            runtime
+                .block_on(daemon.run())
+                .map_err(|err| anyhow::anyhow!(err.to_string()))?;
+        }
+        PrometheusCommands::Status { core_root } => {
+            let service = PrometheusService::from_core(
+                core_root.unwrap_or_else(|| arda_root().join("core")),
+            )?;
+            println!("{}", serde_json::to_string_pretty(&service.status()?)?);
+        }
+        PrometheusCommands::Thoughts { root, limit } => {
+            let thoughts = ThoughtLedger::new(thoughts_root(root))?;
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&thoughts.recent(limit)?)?
+            );
+        }
+        PrometheusCommands::Escalations {
+            root,
+            include_resolved,
+            limit,
+        } => {
+            let store = OrderStore::new(orders_root(root))?;
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&store.list_escalations(include_resolved, limit)?)?
+            );
+        }
+        PrometheusCommands::ResolveEscalation {
+            escalation_id,
+            note,
+            root,
+        } => {
+            let store = OrderStore::new(orders_root(root))?;
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&store.resolve_escalation(&escalation_id, &note)?)?
+            );
+        }
+        PrometheusCommands::Roster {
+            path,
+            heartbeat_timeout_secs,
+            supervisor,
+        } => {
+            let roster = if supervisor {
+                AgentRosterSnapshot::from_supervisor_state_file(&path)
+            } else {
+                AgentRosterSnapshot::from_world_file(&path, heartbeat_timeout_secs)
+            }
+            .ok_or_else(|| anyhow::anyhow!("unable to read roster from {}", path.display()))?;
+            println!("{}", serde_json::to_string_pretty(&roster)?);
+        }
+        PrometheusCommands::Plan {
+            state_root,
+            queue_path,
+        } => {
+            let state = arda_core::state::StateRoot::new(
+                state_root.unwrap_or_else(|| arda_root().join("core/state")),
+            );
+            let pass = arda_aule::prometheus::run_planner(&state, queue_path.as_deref())?;
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&json!({
+                    "contract": "arda.aule.prometheus.plan.v1",
+                    "goals_considered": pass.goals_considered,
+                    "plans_written": pass.plans_written,
+                    "plans_skipped_existing": pass.plans_skipped_existing,
+                    "goals_without_recipe": pass.goals_without_recipe,
+                    "goals_inactive": pass.goals_inactive,
+                    "tasks_emitted": pass.tasks_emitted,
+                }))?
+            );
+        }
+        PrometheusCommands::Drift {
+            core_root,
+            reconcile,
+        } => {
+            let service = PrometheusService::from_core(
+                core_root.unwrap_or_else(|| arda_root().join("core")),
+            )?;
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&service.drift_detect_reconcile(reconcile)?)?
+            );
+        }
+        PrometheusCommands::CouncilFanout {
+            topic,
+            participants,
+            context,
+            core_root,
+        } => {
+            let service = PrometheusService::from_core(
+                core_root.unwrap_or_else(|| arda_root().join("core")),
+            )?;
+            let context = context
+                .map(|raw| serde_json::from_str(&raw))
+                .transpose()
+                .map_err(|error| anyhow::anyhow!("invalid --context JSON: {error}"))?;
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&service.council_fanout(
+                    &topic,
+                    participants,
+                    context,
+                )?)?
+            );
+        }
+        PrometheusCommands::ReconcileRuntime {
+            before,
+            apply,
+            note,
+            core_root,
+        } => {
+            let cutoff = chrono::DateTime::parse_from_rfc3339(&before)?.with_timezone(&chrono::Utc);
+            let service = PrometheusService::from_core(
+                core_root.unwrap_or_else(|| arda_root().join("core")),
+            )?;
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&service.reconcile_runtime(cutoff, apply, &note)?)?
+            );
+        }
+        PrometheusCommands::ExecutionIntents {
+            limit,
+            include_terminal,
+            core_root,
+        } => {
+            let service = PrometheusService::from_core(
+                core_root.unwrap_or_else(|| arda_root().join("core")),
+            )?;
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&service.execution_intents(limit, include_terminal)?)?
+            );
+        }
+        PrometheusCommands::ExecutionIntentRecovery { core_root } => {
+            let service = PrometheusService::from_core(
+                core_root.unwrap_or_else(|| arda_root().join("core")),
+            )?;
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&service.execution_intents_recovery()?)?
+            );
+        }
+        PrometheusCommands::TransitionIntent {
+            intent_id,
+            status,
+            note,
+            core_root,
+        } => {
+            let service = PrometheusService::from_core(
+                core_root.unwrap_or_else(|| arda_root().join("core")),
+            )?;
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&service.transition_execution_intent(
+                    &intent_id,
+                    &status,
+                    note.as_deref(),
+                )?)?
+            );
+        }
+        PrometheusCommands::CompactIntents {
+            retention_days,
+            max_keep,
+            core_root,
+        } => {
+            let service = PrometheusService::from_core(
+                core_root.unwrap_or_else(|| arda_root().join("core")),
+            )?;
+            println!(
+                "{}",
+                serde_json::to_string_pretty(
+                    &service.compact_execution_intents(retention_days, max_keep)?
+                )?
+            );
+        }
+        PrometheusCommands::Autopilot { command } => handle_autopilot(command, arda_root())?,
+    }
+    Ok(())
+}
+
+fn handle_autopilot(command: AutopilotCommands, default_root: PathBuf) -> Result<()> {
+    use arda_aule::prometheus::autopilot::{
+        ceo_loop, execute_knowledge_task_queue, promote_knowledge_tasks, run_knowledge_triage,
+        AutopilotConfig, CeoAutopilot, KnowledgeTriageConfig,
+    };
+    use std::sync::atomic::AtomicBool;
+    use std::sync::Arc;
+    use std::time::Duration;
+
+    let resolve_root = |root: Option<PathBuf>| root.unwrap_or_else(|| default_root.clone());
+    match command {
+        AutopilotCommands::Once { root, read_only } => {
+            let mut config = AutopilotConfig::from_root(resolve_root(root));
+            config.read_only = read_only;
+            let mut autopilot = CeoAutopilot::from_world(config);
+            let runtime = tokio::runtime::Builder::new_multi_thread()
+                .enable_all()
+                .build()?;
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&runtime.block_on(autopilot.run_cycle()))?
+            );
+        }
+        AutopilotCommands::Run {
+            root,
+            interval,
+            read_only,
+        } => {
+            let mut config = AutopilotConfig::from_root(resolve_root(root));
+            config.interval = Duration::from_secs(interval);
+            config.read_only = read_only;
+            let autopilot = CeoAutopilot::from_world(config);
+            let stop = Arc::new(AtomicBool::new(false));
+            let signal = stop.clone();
+            let runtime = tokio::runtime::Builder::new_multi_thread()
+                .enable_all()
+                .build()?;
+            runtime.block_on(async move {
+                tokio::spawn(async move {
+                    let _ = tokio::signal::ctrl_c().await;
+                    signal.store(true, std::sync::atomic::Ordering::SeqCst);
+                });
+                ceo_loop(autopilot, stop).await;
+            });
+        }
+        AutopilotCommands::Status { root } => {
+            let path = resolve_root(root).join("data/ceo/autopilot.state.json");
+            let value = std::fs::read_to_string(&path)
+                .ok()
+                .and_then(|raw| serde_json::from_str::<Value>(&raw).ok())
+                .unwrap_or_else(|| {
+                    json!({"error": "autopilot state not found", "path": path.display().to_string()})
+                });
+            println!("{}", serde_json::to_string_pretty(&value)?);
+        }
+        AutopilotCommands::KnowledgeTriage {
+            root,
+            dry_run,
+            write,
+            source_roots,
+        } => {
+            let mut config =
+                KnowledgeTriageConfig::for_root(resolve_root(root)).with_dry_run(dry_run || !write);
+            if !source_roots.is_empty() {
+                config = config.with_source_roots(source_roots);
+            }
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&run_knowledge_triage(&config)?)?
+            );
+        }
+        AutopilotCommands::PromoteKnowledgeTasks {
+            root,
+            lane,
+            dry_run,
+            write,
+            approval_evidence,
+            source_roots,
+        } => {
+            anyhow::ensure!(
+                lane == "safe-local",
+                "unsupported promotion lane '{lane}'; only safe-local is write-eligible"
+            );
+            let mut config =
+                KnowledgeTriageConfig::for_root(resolve_root(root)).with_dry_run(dry_run || !write);
+            if let Some(evidence) = approval_evidence {
+                config = config.with_approval_evidence(evidence);
+            }
+            if !source_roots.is_empty() {
+                config = config.with_source_roots(source_roots);
+            }
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&promote_knowledge_tasks(&config)?)?
+            );
+        }
+        AutopilotCommands::ExecuteKnowledgeTasks {
+            root,
+            dry_run,
+            write,
+        } => {
+            let config =
+                KnowledgeTriageConfig::for_root(resolve_root(root)).with_dry_run(dry_run || !write);
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&execute_knowledge_task_queue(&config)?)?
+            );
         }
     }
     Ok(())
@@ -649,6 +1144,56 @@ mod tests {
             cli.command,
             Commands::Plutus {
                 command: PlutusCommands::Export { json: true, .. }
+            }
+        ));
+    }
+
+    #[test]
+    fn parses_prometheus_status_command() {
+        let cli = Cli::try_parse_from(["arda-cli", "prometheus", "status"])
+            .expect("parse prometheus status");
+        assert!(matches!(
+            cli.command,
+            Commands::Prometheus {
+                command: PrometheusCommands::Status { .. }
+            }
+        ));
+    }
+
+    #[test]
+    fn parses_prometheus_autopilot_once_command() {
+        let cli =
+            Cli::try_parse_from(["arda-cli", "prometheus", "autopilot", "once", "--read-only"])
+                .expect("parse autopilot once");
+        assert!(matches!(
+            cli.command,
+            Commands::Prometheus {
+                command: PrometheusCommands::Autopilot {
+                    command: AutopilotCommands::Once {
+                        read_only: true,
+                        ..
+                    }
+                }
+            }
+        ));
+    }
+
+    #[test]
+    fn parses_prometheus_execution_intents_command() {
+        let cli = Cli::try_parse_from([
+            "arda-cli",
+            "prometheus",
+            "execution-intents",
+            "--include-terminal",
+        ])
+        .expect("parse execution intents");
+        assert!(matches!(
+            cli.command,
+            Commands::Prometheus {
+                command: PrometheusCommands::ExecutionIntents {
+                    include_terminal: true,
+                    ..
+                }
             }
         ));
     }

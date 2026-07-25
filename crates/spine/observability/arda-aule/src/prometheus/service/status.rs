@@ -1,10 +1,9 @@
 #![cfg(feature = "full-cli")]
-use crate::heartbeat::HeartbeatMode;
-use crate::service::{
+use crate::prometheus::heartbeat::HeartbeatMode;
+use crate::prometheus::service::{
     append_jsonl, read_recent_jsonl, ContextEngineeringPolicy, PrometheusService, PrometheusStatus,
 };
 use arda_core::error::Result;
-use arda_orome::HermesService;
 use serde_json::Value;
 use std::{fs, path::Path};
 
@@ -90,13 +89,10 @@ impl PrometheusService {
         } else {
             participants
         };
-        let hermes = HermesService::from_default_or_fallback()?;
-        let opened = hermes.council_open(topic, participants.clone())?;
-        let session_id = opened
-            .get("session_id")
-            .and_then(|v| v.as_str())
-            .unwrap_or("unknown")
-            .to_string();
+        let session_id = format!(
+            "council_{}",
+            &uuid::Uuid::new_v4().simple().to_string()[..12]
+        );
 
         let mut reports = Vec::new();
         for participant in &participants {
@@ -109,20 +105,25 @@ impl PrometheusService {
                     .map(|v| v.to_string())
                     .unwrap_or_else(|| "{}".to_string())
             );
-            let report = hermes.council_report(&session_id, participant, &body)?;
-            reports.push(report);
+            reports.push(serde_json::json!({
+                "participant": participant,
+                "body": body,
+                "delivery": "local_evidence_only"
+            }));
         }
         let outcome = format!(
             "Council fanout complete with {} participants.",
             participants.len()
         );
-        let closed = hermes.council_close(&session_id, &outcome)?;
         let out = serde_json::json!({
             "session_id": session_id,
             "topic": topic,
             "participants": participants,
             "reports": reports,
-            "closed": closed
+            "closed": {
+                "outcome": outcome,
+                "delivery": "local_evidence_only"
+            }
         });
         append_jsonl(
             &self.council_events_path,

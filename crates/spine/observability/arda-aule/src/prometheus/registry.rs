@@ -32,14 +32,16 @@ impl AgentRosterSnapshot {
             .agents
             .into_iter()
             .map(|a| {
-                let heartbeat_fresh =
-                    a.last_heartbeat
-                        .as_deref()
-                        .and_then(parse_utc)
-                        .is_some_and(|ts| {
+                let heartbeat_fresh = a
+                    .last_heartbeat
+                    .as_deref()
+                    .map(|heartbeat| {
+                        parse_utc(heartbeat).is_some_and(|ts| {
                             now.signed_duration_since(ts).num_seconds()
                                 <= heartbeat_timeout_secs as i64
-                        });
+                        })
+                    })
+                    .unwrap_or(true);
 
                 let normalized_status =
                     if a.status.eq_ignore_ascii_case("online") && heartbeat_fresh {
@@ -57,8 +59,12 @@ impl AgentRosterSnapshot {
                 }
 
                 AgentStatus {
+                    name: if a.name.is_empty() {
+                        display_agent_name(&a.id)
+                    } else {
+                        a.name
+                    },
                     id: a.id,
-                    name: a.name,
                     status: normalized_status,
                     last_heartbeat: a.last_heartbeat,
                 }
@@ -127,6 +133,7 @@ struct WorldState {
 #[derive(Debug, Deserialize)]
 struct WorldAgent {
     id: String,
+    #[serde(default)]
     name: String,
     status: String,
     last_heartbeat: Option<String>,

@@ -57,6 +57,12 @@ pub mod council;
 pub mod governance_metrics;
 pub mod service;
 
+#[cfg(feature = "full-cli")]
+pub mod ceo;
+
+#[cfg(feature = "full-cli")]
+pub mod prometheus;
+
 #[cfg(feature = "telemetry")]
 pub mod telemetry;
 

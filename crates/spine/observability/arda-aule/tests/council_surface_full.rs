@@ -1,5 +1,5 @@
 #![cfg(feature = "full-cli")]
-use arda_aule::council::{CouncilSeat, QueryMode};
+use arda_aule::council::{CouncilBrief, CouncilQuery, CouncilSeat, QueryMode};
 use arda_aule::render_governance_prometheus;
 use arda_governance::{GovernanceCounterSnapshot, GovernanceMetricsSnapshot};
 use std::collections::BTreeMap;
@@ -8,6 +8,21 @@ use std::collections::BTreeMap;
 fn council_root_module_resolves_under_full_cli() {
     assert_eq!(CouncilSeat::Strategist as u8, CouncilSeat::Strategist as u8);
     assert_eq!(QueryMode::SingleSeat as u8, QueryMode::SingleSeat as u8);
+}
+
+#[test]
+fn full_council_brief_remains_available_under_full_cli() {
+    let query = CouncilQuery {
+        mode: QueryMode::FullCouncil,
+        seats: vec![CouncilSeat::Operator],
+        prompt: "Review a material governance decision".to_string(),
+    };
+
+    let brief = CouncilBrief::from_query(&query);
+
+    assert_eq!(brief.participating_seats.len(), 7);
+    assert!(brief.participating_seats.contains(&CouncilSeat::Attorney));
+    assert!(brief.escalation_required);
 }
 
 #[test]

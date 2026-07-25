@@ -117,7 +117,7 @@ pub fn delegate_plan(
 
 #[cfg(test)]
 mod tests {
-    use super::decomposer::{PlannedTask, Priority};
+    use super::super::decomposer::{PlannedTask, Priority};
     use super::*;
 
     fn task(k: &str, t: &str, agent: Option<&str>) -> PlannedTask {

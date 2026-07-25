@@ -3,7 +3,7 @@
 //! Persist PlannedTasks back into `core/projects/tasks/queue.jsonl` as
 //! pending records other agents/services will pick up.
 
-use super::apollo_bridge::Dispatch;
+use super::core_executor_bridge::{Dispatch, ExecutionStatus};
 use super::decomposer::PlannedTask;
 use super::delegation::DelegationReport;
 use chrono::Utc;
@@ -132,7 +132,8 @@ pub fn append_apollo_dispatch_attempt_to_queue(
         ExecutionStatus::Failed => ("failed", "failed"),
         ExecutionStatus::Cancelled => ("failed", "cancelled"),
         ExecutionStatus::Timeout => ("failed", "timeout"),
-        ExecutionStatus::Pending | ExecutionStatus::Running => ("in_progress", "running"),
+        ExecutionStatus::Pending => ("pending", "submitted"),
+        ExecutionStatus::Running => ("in_progress", "running"),
     };
 
     let path = queue_path.as_ref();
@@ -144,6 +145,22 @@ pub fn append_apollo_dispatch_attempt_to_queue(
         .append(true)
         .open(path)?;
     let now = Utc::now();
+    let started_at_utc = if matches!(status, ExecutionStatus::Pending) {
+        None
+    } else {
+        Some(now.to_rfc3339())
+    };
+    let completed_at_utc = if matches!(
+        status,
+        ExecutionStatus::Completed
+            | ExecutionStatus::Failed
+            | ExecutionStatus::Cancelled
+            | ExecutionStatus::Timeout
+    ) {
+        Some(now.to_rfc3339())
+    } else {
+        None
+    };
     let owner = plan.assigned_agent.clone().unwrap_or_else(|| "ceo".into());
     let record = json!({
         "id": task_id,
@@ -157,8 +174,8 @@ pub fn append_apollo_dispatch_attempt_to_queue(
         "joule_cost_estimate": plan.joule_cost,
         "joule_work": joules,
         "queued_at_utc": now.to_rfc3339(),
-        "started_at_utc": now.to_rfc3339(),
-        "completed_at_utc": now.to_rfc3339(),
+        "started_at_utc": started_at_utc,
+        "completed_at_utc": completed_at_utc,
         "meta": {
             "origin": "ceo_autopilot",
             "objective_id": objective_id,
@@ -233,6 +250,23 @@ mod tests {
         assert!(contents.contains("\"id\":\"tsk_apollo\""));
         assert!(contents.contains("\"status\":\"completed\""));
         assert!(contents.contains("\"apollo_transport\":\"in_process\""));
+    }
+
+    #[test]
+    fn canonical_queue_handoff_remains_pending_without_completion_timestamp() {
+        let dir = tempfile::tempdir().unwrap();
+        let q = dir.path().join("queue.jsonl");
+        let dispatch = Dispatch::Submitted {
+            task_id: "tsk_core".into(),
+            status: ExecutionStatus::Pending,
+            joules: 0.0,
+            transport: "arda_core_queue",
+        };
+        assert!(append_apollo_dispatch_to_queue(&q, "obj1", &task("core"), &dispatch).unwrap());
+        let row: serde_json::Value =
+            serde_json::from_str(std::fs::read_to_string(&q).unwrap().trim()).unwrap();
+        assert_eq!(row["status"], "pending");
+        assert!(row["completed_at_utc"].is_null());
     }
 
     #[test]

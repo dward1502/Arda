@@ -3,8 +3,7 @@ use super::super::*;
 
 pub(crate) async fn handle(command: PlutusCommands) -> anyhow::Result<()> {
     let service = PlutusService::from_default_or_workspace_fallback()?;
-    let default_socket_path =
-        socket_path_from_env("ARDA_PLUTUS_SOCKET", "data/plutus/plutus.sock");
+    let default_socket_path = socket_path_from_env("ARDA_PLUTUS_SOCKET", "data/plutus/plutus.sock");
     match command {
         PlutusCommands::Start {
             socket_path,

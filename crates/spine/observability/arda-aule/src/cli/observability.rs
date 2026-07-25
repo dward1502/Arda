@@ -817,11 +817,7 @@ fn recommended_operations_action(
 }
 
 pub(crate) async fn build_ops_dashboard(core_root: &str) -> anyhow::Result<serde_json::Value> {
-    if std::env::var("ARDA_OPS_DASHBOARD_LIVE")
-        .ok()
-        .as_deref()
-        != Some("1")
-    {
+    if std::env::var("ARDA_OPS_DASHBOARD_LIVE").ok().as_deref() != Some("1") {
         let queue_observability = queue_observability_snapshot();
         let ruleset = load_active_ruleset();
         let system_control = load_system_control_state();
@@ -1401,11 +1397,7 @@ pub(crate) fn build_governance_observation(
                 .get("providers_enabled")
                 .and_then(|v| v.as_u64())
         })
-        .or_else(|| {
-            manwe_status
-                .get("providers_total")
-                .and_then(|v| v.as_u64())
-        })
+        .or_else(|| manwe_status.get("providers_total").and_then(|v| v.as_u64()))
         .unwrap_or(0) as f64;
     let provider_healthy = manwe_status
         .get("providers_healthy")
@@ -2073,8 +2065,9 @@ mod tests {
         assert!(readout.contains("Alerts: 1"));
         assert!(readout.contains("Warning [queue]: oldest pending task is over 24h old"));
         assert!(readout.contains("Services: 25 healthy, 1 degraded, 0 failed"));
-        assert!(readout
-            .contains("- arda-ceo-autopilot-supervised.service: activating/start score=0.6"));
+        assert!(
+            readout.contains("- arda-ceo-autopilot-supervised.service: activating/start score=0.6")
+        );
         assert!(readout.contains("Provider/routing: healthy (active_provider=local)"));
         assert!(readout.contains(
             "Next bounded action: triage queued/aging tasks before expanding automation"

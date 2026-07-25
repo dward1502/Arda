@@ -1,6 +1,6 @@
 {
   "schema_version": "annunimas.charon.provider-capability-receipts.v1",
-  "generated_at_utc": "2026-07-24T16:10:02.969271128+00:00",
+  "generated_at_utc": "2026-07-25T20:09:34.315540808+00:00",
   "receipts": {
     "edge_backbone::ternary-bonsai-27b-q2_0": {
       "provider_id": "edge_backbone",
@@ -35,13 +35,13 @@
     "edge_beelink_light::Ternary-Bonsai-8B-Q2_0": {
       "provider_id": "edge_beelink_light",
       "model_id": "Ternary-Bonsai-8B-Q2_0",
-      "updated_at_utc": "2026-07-23T22:41:02.817713424+00:00",
+      "updated_at_utc": "2026-07-25T19:59:33.678594220+00:00",
       "capabilities": {
         "basic_chat": {
           "state": "passed",
           "source": "passive_proxy_observation",
-          "observed_at_utc": "2026-07-23T22:41:02.817713424+00:00",
-          "expires_at_utc": "2026-07-30T22:41:02.817713424+00:00",
+          "observed_at_utc": "2026-07-25T19:59:33.678594220+00:00",
+          "expires_at_utc": "2026-08-01T19:59:33.678594220+00:00",
           "outcome_class": "success",
           "status_code": 200
         }
@@ -65,13 +65,13 @@
     "google::gemini-3.1-flash-lite": {
       "provider_id": "google",
       "model_id": "gemini-3.1-flash-lite",
-      "updated_at_utc": "2026-07-24T15:59:20.655573057+00:00",
+      "updated_at_utc": "2026-07-25T20:09:34.315540808+00:00",
       "capabilities": {
         "basic_chat": {
           "state": "passed",
           "source": "passive_proxy_observation",
-          "observed_at_utc": "2026-07-24T15:59:20.655573057+00:00",
-          "expires_at_utc": "2026-07-31T15:59:20.655573057+00:00",
+          "observed_at_utc": "2026-07-25T20:09:34.315540808+00:00",
+          "expires_at_utc": "2026-08-01T20:09:34.315540808+00:00",
           "outcome_class": "success",
           "status_code": 200
         }
@@ -80,13 +80,13 @@
     "google::gemini-3.5-flash-lite": {
       "provider_id": "google",
       "model_id": "gemini-3.5-flash-lite",
-      "updated_at_utc": "2026-07-24T16:10:02.969271128+00:00",
+      "updated_at_utc": "2026-07-25T19:48:34.065670069+00:00",
       "capabilities": {
         "basic_chat": {
           "state": "passed",
           "source": "passive_proxy_observation",
-          "observed_at_utc": "2026-07-24T16:10:02.969271128+00:00",
-          "expires_at_utc": "2026-07-31T16:10:02.969271128+00:00",
+          "observed_at_utc": "2026-07-25T19:48:34.065670069+00:00",
+          "expires_at_utc": "2026-08-01T19:48:34.065670069+00:00",
           "outcome_class": "success",
           "status_code": 200
         }

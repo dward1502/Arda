@@ -508,8 +508,7 @@ mod tests {
         assert_eq!(first["status"], "recorded");
         assert_eq!(second["status"], "already_recorded_idempotent_noop");
         assert_eq!(first["summary_id"], second["summary_id"]);
-        let ledger =
-            fs::read_to_string(root.join(MANWE_TELEMETRY_SUMMARIES_PATH)).expect("ledger");
+        let ledger = fs::read_to_string(root.join(MANWE_TELEMETRY_SUMMARIES_PATH)).expect("ledger");
         assert_eq!(ledger.lines().count(), 1);
         let _ = fs::remove_dir_all(root);
     }

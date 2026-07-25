@@ -21,12 +21,9 @@ pub enum PrometheusError {
 impl From<PrometheusError> for arda_core::error::ArdaError {
     fn from(e: PrometheusError) -> Self {
         match e {
-            PrometheusError::BootConfigMissing { path } => {
-                arda_core::error::ArdaError::Config(format!(
-                    "boot config not found: {}",
-                    path.display()
-                ))
-            }
+            PrometheusError::BootConfigMissing { path } => arda_core::error::ArdaError::Config(
+                format!("boot config not found: {}", path.display()),
+            ),
             PrometheusError::BootConfigInvalid { path, source } => {
                 arda_core::error::ArdaError::Config(format!(
                     "boot config invalid at {}: {source}",

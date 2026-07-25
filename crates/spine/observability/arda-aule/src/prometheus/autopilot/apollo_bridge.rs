@@ -8,7 +8,9 @@
 use super::decomposer::{PlannedTask, Priority};
 use super::taxonomy::is_apollo_dispatchable;
 use crate::compat::arda_apollo::transport::ipc::send_command;
-use crate::compat::arda_apollo::{ApolloExecutor, ExecutionPriority, ExecutionRequest, ExecutionStatus};
+use crate::compat::arda_apollo::{
+    ApolloExecutor, ExecutionPriority, ExecutionRequest, ExecutionStatus,
+};
 use serde::Serialize;
 use serde_json::{json, Value};
 use std::path::PathBuf;

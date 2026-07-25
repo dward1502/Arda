@@ -1,5 +1,9 @@
 // sigil: REPAIR
 //! JouleWork profiling shared across governance surfaces.
+//!
+//! This local diagnostic is inspired by, but does not implement, the upstream
+//! JouleWork equation or wage/token model. See `../GOVERNANCE_PROVENANCE.md`
+//! for the exact source, adaptation boundary, and terms review.
 
 use arda_core::{JouleWorkMeasurementSource, Task};
 use serde::{Deserialize, Serialize};

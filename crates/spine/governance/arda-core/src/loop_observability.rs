@@ -10,8 +10,8 @@ use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use std::{env, time::Instant};
 
-pub use crate::loop_economy::{build_snapshot, write_snapshot, BidSpread, LoopEconomySnapshot};
 pub use crate::loop_economy::snapshot_path;
+pub use crate::loop_economy::{build_snapshot, write_snapshot, BidSpread, LoopEconomySnapshot};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DecisionLatencyProbe {
@@ -113,8 +113,10 @@ impl LatencyProbe {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::contract::{
+        Decision, DecisionClass, PhilosopherVerdict, TriadOutcome, TriadVerdict,
+    };
     use crate::state::StateRoot;
-    use crate::contract::{Decision, DecisionClass, PhilosopherVerdict, TriadOutcome, TriadVerdict};
 
     #[test]
     fn observability_config_defaults_are_conservative() {
@@ -184,7 +186,8 @@ mod tests {
     #[test]
     fn latency_probe_records_bounded_samples() {
         let mut probe = LatencyProbe::new(2);
-        probe.with_kind(DecisionLatencyKind::LoopTick)
+        probe
+            .with_kind(DecisionLatencyKind::LoopTick)
             .sample()
             .unwrap();
         probe.sample();

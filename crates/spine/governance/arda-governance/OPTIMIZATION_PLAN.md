@@ -5,13 +5,18 @@ soterion:
   code_point: "U+1F4DC"
   role: "documentation"
   owner: "HADES"
-  status: "active"
-  last_reviewed: "2026-05-21"
+  status: "superseded_for_execution"
+  last_reviewed: "2026-07-25"
 ---
 
-> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-05-21
+> 🜏 Soterion: 📜 documentation | owner: HADES | status: superseded_for_execution | reviewed: 2026-07-25
 
 # Governance Optimization & Feature Plan
+
+Execution status: **superseded by [`FIRST_CLASS_CHECKLIST.md`](FIRST_CLASS_CHECKLIST.md)**.
+This historical audit remains design evidence. Items A1–E3 are mapped to canonical phases
+in the checklist's deduplication and source-coverage table; the stale status snapshot below
+must not be used as current implementation status.
 
 Drafted 2026-05-07 alongside the Charon plan. Same shape: P0 = do next, P1 = soon, P2 = nice to have. Each item names files to touch and a verification signal.
 
@@ -142,4 +147,4 @@ The P0 trio (A1, A2, C1) is roughly one focused session.
 
 | Item | Status |
 | ---- | ------ |
-| Everything | open |
+| Everything | superseded for execution; mapped in `FIRST_CLASS_CHECKLIST.md` |

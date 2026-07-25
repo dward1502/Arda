@@ -2591,7 +2591,9 @@ fn dispatch_retryable(dispatch: &Dispatch) -> bool {
     matches!(
         dispatch,
         Dispatch::Submitted {
-            status: crate::prometheus::autopilot::apollo_bridge::ExecutionStatus::Failed | ExecutionStatus::Cancelled | ExecutionStatus::Timeout,
+            status: crate::prometheus::autopilot::apollo_bridge::ExecutionStatus::Failed
+                | ExecutionStatus::Cancelled
+                | ExecutionStatus::Timeout,
             ..
         }
     )

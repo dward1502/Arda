@@ -5,10 +5,11 @@ stable HTTP entry point on `127.0.0.1:7171`, discovers local fleet providers,
 selects an eligible upstream, forwards chat-completion requests, and records
 route receipts.
 
-Status: active and under integration cleanup. The default and full governed
-`adaptive` runtimes have maintained process smoke coverage as of 2026-07-23;
-the `telemetry` and all-feature contracts now pass their focused checks. See
-[`STATUS.md`](STATUS.md) for verification evidence and remaining risks.
+Status: active with its foundation baseline complete as of 2026-07-25. The
+default and full governed `adaptive` runtimes have maintained process smoke
+coverage; the `telemetry` and all-feature contracts pass their focused checks.
+See [`STATUS.md`](STATUS.md) for verification evidence and bounded continuing
+risks.
 
 ## Runtime surface
 
@@ -92,6 +93,13 @@ attributes are serialized without loss into the selected trace/log destination.
 `full_governed` with `policy_authority: manwe_service`, `governance: true`, and
 `quota_mesh: true`. Static mode retains the smaller fleet-policy gateway.
 
+Adaptive previews and route selections load `config/governance/realm_policies.toml`,
+resolve `governance_realm` and `governance_action_class` request metadata (defaulting to
+`routing`/`provider_selection`), and attach the typed realm-policy verdict, scorer receipts,
+and runtime-blocking decision to `RouteGovernance`. Policy load failure falls back to the
+validated non-blocking default. `ARDA_GOVERNANCE_BLOCKING_ENABLED` is only an operator request;
+the governance authority still requires scoped autonomy-ready evidence before it can block.
+
 ### Streaming contract
 
 The fleet-backed binary accepts OpenAI requests with `stream=true` and preserves
@@ -124,9 +132,10 @@ health/model and route-governance services.
   `RouteDecision`
 
 The gateway binary has private modules for provider discovery, receipts,
-resource limits, and optional gRPC. Several other root source files are not
-attached to either crate root; they are catalogued in
-[`BREAKDOWN.md`](BREAKDOWN.md).
+resource limits, and optional gRPC. The source graph has been reconciled: the
+governed service implementations are attached explicitly from
+`src/adaptive/service/full/`, and obsolete parallel source copies are retired.
+[`BREAKDOWN.md`](BREAKDOWN.md) records the evidence and retained boundaries.
 
 ## Workspace integration
 
@@ -143,7 +152,7 @@ attached to either crate root; they are catalogued in
 
 ## Verification
 
-The current 2026-07-23 verification includes:
+The current 2026-07-25 verification includes:
 
 ```text
 cargo check -p manwe

@@ -379,9 +379,7 @@ fn refresh(state: &ExporterState) {
                     .or_else(|| entry.get("failures"))
                     .and_then(|x| x.as_i64())
                     .unwrap_or(0);
-                f.manwe_failure_budget
-                    .with_label_values(&[pid])
-                    .set(budget);
+                f.manwe_failure_budget.with_label_values(&[pid]).set(budget);
             }
         }
     }

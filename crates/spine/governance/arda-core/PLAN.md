@@ -6,14 +6,14 @@ soterion:
   role: "governance_spine"
   owner: "ARDA-CORE / HADES"
   status: "active"
-  last_reviewed: "2026-07-22"
+  last_reviewed: "2026-07-25"
 ---
 
 # arda-core plan
 
 Crate: `crates/spine/governance/arda-core`
 Owner surface: governance spine primitives + contracts + loop + registry
-Current baseline: `cargo check -p arda-core` OK; `cargo test -p arda-core` 91/91 passing
+Current baseline: `cargo check -p arda-core` OK; `cargo test -p arda-core` 99/99 passing
 
 ## 1. Objective
 Make `arda-core` the stable, documented, receipt-backed foundation for
@@ -23,7 +23,7 @@ upstream should reach around it for canonical types or execution policy.
 ## 2. Generation boundary
 GEN1: existing live surface, evidence collection, and doc alignment.
 GEN2: correctness/robustness work that does not grow public API.
-GEN3: broader learning/observability/interop that waits until GEN2 is closed.
+GEN3: additive learning/observability/interop opened after GEN2 closed.
 
 ## 3. GEN1 — existing surface, evidence, docs
 - Enumerate public surface in `src/lib.rs` and reconcile against
@@ -32,6 +32,8 @@ GEN3: broader learning/observability/interop that waits until GEN2 is closed.
 - Capture known warnings/follow-ups from `BREAKDOWN.md` and confirm each
   with current code.
 - Outcome: README/BREAKDOWN/STATUS describe reality, not wish list.
+- Status: closed. The active docs and public module inventory were reconciled
+  against `src/lib.rs` and the 2026-07-25 verification run.
 
 ## 4. GEN2 — correctness and robustness
 - Governance gate coverage: unknown intent fallback via
@@ -67,16 +69,16 @@ GEN3: broader learning/observability/interop that waits until GEN2 is closed.
 - Status: baseline tests green; GEN1/ GEN2 coverage added in place,
   preserving crate boundary stability.
 
-## 4. GEN2 status
+## 4.1. GEN2 status
 Closed.
-- Baseline: `cargo test -p arda-core` 91/91 passing
-  - 90 unit tests
+- Baseline: `cargo test -p arda-core` 99/99 passing
+  - 98 unit tests
   - 1 smoke test: `sovereign_baseline_contract_is_migrated`
   - 0 doc-tests
 - Coverage confirmed present in `governance_gates`, `loop_engine`,
   `loop_alerts`, `learning`, `background`, `state`, `message`,
   `service_registry`, `soterion`, `soterion_watcher`.
-- Known warnings unchanged; no public API expansion from GEN2.
+- No `arda-core` compiler warnings; no public API expansion from GEN2.
 
 ## 5. GEN3 — learning/observability/interop
 - Evaluate public learning/memory systems for concepts that can be
@@ -93,9 +95,22 @@ Closed.
   - `arda-engine` exposes `EngineObservabilityStatus` as the aggregator.
 - Remaining interop scenarios are captured in `docs/interop/landscape.md`.
 
-## 6. Execution order
-1. Reconcile docs to current code and write STATUS evidence.
-2. Add missing tests for uncovered GEN2 behavior paths.
-3. Fix small correctness issues from tests, smallest first.
-4. Record GEN3 landscape and defer interop until needed.
-5. Keep crate boundary stable across all steps.
+## 6. Foundation completion
+Complete as the stable crate-by-crate foundation baseline on 2026-07-25.
+
+- GEN1 documentation/evidence alignment is closed.
+- GEN2 correctness and robustness coverage is closed.
+- The implemented GEN3 surfaces are additive, tested, and have concrete
+  `arda-aule` and `arda-engine` consumers.
+- `cargo check -p arda-core` and all 99 tests pass.
+- Future feature growth belongs in a new evidence-backed plan rather than
+  keeping this foundation plan perpetually open.
+- The unwired, malformed legacy `src/alerts.rs` was retired after repository
+  and history searches found no consumer; `loop_alerts.rs` remains canonical.
+
+## 7. Execution record
+1. [x] Reconcile docs to current code and write STATUS evidence.
+2. [x] Add missing tests for uncovered GEN2 behavior paths.
+3. [x] Fix small correctness issues from tests, smallest first.
+4. [x] Record and implement evidence-backed GEN3 interop surfaces.
+5. [x] Keep the crate boundary stable across all steps.

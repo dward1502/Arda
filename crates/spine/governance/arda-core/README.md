@@ -6,7 +6,7 @@ soterion:
   role: "documentation"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-22"
+  last_reviewed: "2026-07-25"
 ---
 
 # arda-core
@@ -32,11 +32,13 @@ rolling its own governance surface.
 
 ## Verified state
 - `cargo check -p arda-core` -> OK
-- `cargo test -p arda-core` -> 91/91 passing
-  - 90 unit tests
+- `cargo test -p arda-core` -> 99/99 passing
+  - 98 unit tests
   - 1 smoke test: `sovereign_baseline_contract_is_migrated`
   - 0 doc-tests
 - README/BREAKDOWN/STATUS/PLAN aligned to current source
+- Foundation stabilization plan complete as of 2026-07-25; the crate remains
+  active for evidence-backed maintenance and additive evolution.
 
 ## Documentation
 - `INDEX.md` — module map

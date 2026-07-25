@@ -1,7 +1,7 @@
 # manwe — Action Checklist
 
 Owner: HADES
-Reviewed: 2026-07-22
+Reviewed: 2026-07-25
 Scope: `crates/spine/runtime/manwe`
 
 This checklist is ordered by runtime risk. Keep port `7171` frozen until every
@@ -80,6 +80,12 @@ engine, launcher, registry, and operator consumer is updated together.
   checks prove there is no required path.
 - [x] Keep `src/types.rs` as the canonical public domain model unless a planned
   migration updates every consumer together.
+- [x] Remove the 33 undeclared files directly under
+  `src/adaptive/service/` after confirming `full_service.rs` attaches only the
+  implementations under `service/full/`; repair active path records to the
+  canonical locations.
+- [x] Remove tracked Python bytecode from `tests/__pycache__/` and locally ignore
+  regenerated cache files.
 
 ## P1 — Close known implementation gaps
 
@@ -176,3 +182,10 @@ engine, launcher, registry, and operator consumer is updated together.
   `cargo check -p manwe`, `cargo fmt -p manwe -- --check`, and
   `git diff --check -- crates/spine/runtime/manwe` also passed; Cargo emitted
   only the documented workspace-profile and pre-existing dead-code warnings.
+- 2026-07-25: completed the foundation audit. Removed 33 undeclared parallel
+  `adaptive/service/*.rs` implementations after tracing the explicit
+  `service/full/` module graph and checking workspace consumers; corrected the
+  two active contract-registry paths and one production-plan evidence path.
+  Removed two tracked Python bytecode files and added a local cache ignore.
+  Default, adaptive, and all-feature checks/tests retained their prior counts;
+  static/adaptive process smoke, rustfmt, and documentation validation passed.

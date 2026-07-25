@@ -22,9 +22,11 @@ This crate owns:
 
 - Triad and configurable governance-chain evaluation;
 - versioned structured evidence extraction and evidence-grade assessment;
-- philosopher profile parsing, validation, and status projection;
-- resonance, Love Equation/Love Dynamics, JouleWork, and philosopher alignment scoring;
+- philosopher profile parsing, validation, lifecycle receipts, and status projection;
+- resonance, the explicit Love task-value compatibility proxy, canonical Love Dynamics,
+  JouleWork, Nonconformist Bee, Empirical Distrust, and philosopher arbitration;
 - governance readiness projections;
+- async-first governance scoring and versioned per-realm/per-action policy;
 - Bacon-Lite event construction, bounded asynchronous persistence, and ledger reads;
 - library-owned in-process governance metric collection and read-only operator projections;
 - game-theory-labelled local agent-selection heuristics;
@@ -44,10 +46,16 @@ scrape-compatible text surface.
 | `assess_governance_evidence` | `Task.result` and caller metadata | `GovernanceEvidenceContext` | malformed/unsupported evidence is disclosed and downgraded |
 | `load_governance_chain[_from_str]` | explicit path or TOML | `GovernanceChainConfig` | `GovernanceChainError` preserves read/parse/validation class |
 | `load_philosopher_profiles[_from_str]` | explicit path or TOML | `PhilosopherProfileSet` | `PhilosopherProfileError` preserves read/parse/validation class |
+| `load_realm_policy[_from_str]` | explicit path or TOML | validated `RealmPolicyConfig` | rejects unknown lenses, invalid weights/thresholds, wildcard scopes, and any blocking global default |
+| `evaluate_realm_governance` | task, resolved realm/action policy, async scorer, timeout | `RealmGovernanceVerdict` plus scorer receipts | timeout, unavailable/error scorer, and stale cache produce zero-score degraded non-passing receipts |
+| `RuntimeBlockingAuthority::evaluate` | realm policy, named scope, readiness report, operator control | `RuntimeBlockingDecision` | remains non-blocking unless scoped readiness, rollback, independent review receipts, and operator controls all pass |
 | `calculate_resonance*` | task plus optional live governance/environment signals | `ResonanceScore` | deterministic; missing optional signals are represented in metadata |
-| `evaluate_love_dynamics` | `LoveDynamicsInput` | `LoveDynamicsScore` | non-finite/unit inputs are normalized conservatively |
+| `evaluate_love_dynamics` | `LoveDynamicsInput` | `LoveDynamicsScore` | canonical cooperation/defection dynamics; non-finite/unit inputs are normalized conservatively |
+| `love_dynamics_compatibility_proxy` | `&Task` | `LoveEquationScore` | legacy task-value proxy; explicitly not canonical Love Dynamics |
+| `assess_nonconformist_bee` | `&Task` | `NonconformistBeeAssessment` | advisory independence/sycophancy assessment |
+| `assess_empirical_distrust` | `&Task` | `EmpiricalDistrustAssessment` | advisory evidence-grade/falsifiability assessment |
 | `profile_joulework` | `&Task` | `JouleWorkProfile` | reports measurement source; does not upgrade estimated data to observed truth |
-| `interpret_alignment` | `AlignmentSignals` | `TriadPhilosopherVerdict` | deterministic advisory result |
+| `interpret_alignment` | `AlignmentSignals` | `TriadPhilosopherVerdict` | deterministic advisory result with an immutable-by-value lifecycle receipt |
 | `default_governance_readiness_report` | none | `GovernanceReadinessReport` | conservative projection; defaults are not autonomy-ready |
 | `enqueue_bacon_lite` | task and context | `BaconLiteEvent` | non-blocking; reports saturated/closed transport errors and increments accountability counters |
 | `record_bacon_lite_to` | task, context, explicit `BaconLiteLogPaths` | `BaconLiteEvent` | synchronous cold-path compatibility adapter for tests and migrations |
@@ -97,6 +105,26 @@ Triad results serialize an evidence assessment with one of `no_evidence`,
 fields drive the Aurelius/Bacon/Sun-Tzu scorers. Keyword heuristics remain a disclosed
 fallback and Bacon cannot receive a passing evidence score from keywords alone.
 
+`GovernanceScorer` is the async-first extension boundary. `LocalGovernanceScorer` preserves
+deterministic structured-evidence scoring. `score_governance_with_timeout` converts timeout,
+backend errors, unavailable scorers, and invalid scores into explicit zero-score degraded
+receipts rather than implicit approval. Every receipt names its task hash, scorer, provider,
+model, provenance, cache state, and reproducibility limits.
+
+`RealmPolicyConfig` resolves exact `(realm, action_class)` scopes over a safe non-blocking
+global default. Rules configure required lenses, weights, thresholds, strictness, minimum
+weighted score, and review requirements. `RealmPolicyStore` validates and atomically swaps
+configuration while returning an applied/rejected versioned audit receipt. Legacy
+`autonomous_blocking_enabled` fields in chain/profile files are non-authoritative;
+`RuntimeBlockingAuthority` is the only execution-facing decision point.
+
+Manwe's adaptive route preview and selection paths are the production consumer of this
+contract. They resolve request realm/action metadata, score through the local async scorer,
+serialize the returned scorer receipts and blocking decision in `RouteGovernance`, and copy
+the same evidence into selected-route records. The current integration supplies the
+conservative default readiness report, so operator configuration alone cannot make a scope
+blocking; a future autonomy-ready readiness source must still satisfy the authority gates.
+
 Missing phi-harmonic inputs are listed in `phi_missing_inputs` and carry zero available
 weight. Available phi dimensions are normalized over their actual weight, and resonance
 redistributes the omitted phi allocation rather than injecting neutral 50-point values.
@@ -110,6 +138,8 @@ the bounded writer; `record_bacon_lite[_to]` is retained only for tests, migrati
 explicitly cold paths. Default paths resolve from `ARDA_ROOT`, then the process working
 directory, with `ARDA_BACON_LITE_LOG_PATH` and `ARDA_BACON_LITE_HUMAN_PATH` as
 individual overrides.
+The repository realm policy is `config/governance/realm_policies.toml` and resolves through
+`GovernancePaths::realm_policy()`.
 
 ```rust
 use arda_governance::{load_governance_chain, GovernancePaths};
@@ -153,15 +183,27 @@ proves a scoped state.
 - `tests/fixtures/public_api_v1.json` and `tests/public_api_compat.rs` guard the
   externally consumed result shapes and wire encodings.
 
+`love_equation_score` is a deprecated name retained for source compatibility; new callers
+must use `love_dynamics_compatibility_proxy`, whose result identifies itself as
+`task_value_proxy` and `not_canonical_love_dynamics`. Canonical cooperation/defection behavior
+exists only behind `evaluate_love_dynamics`.
+
+Triad Philosopher output is intentionally `separate_decision_metadata` in resonance. It is
+serialized and operator-visible but does not silently reweight the numerical score. Every
+derived verdict carries profile source, source revision, maturity, authority, review mode,
+review authority, generated-artifact identity when applicable, and promotion criteria.
+
 The synthetic `calculate_resonance` and `calculate_resonance_basic` paths are deprecated
 and scheduled for removal in `arda-governance` 0.3.0. New production code must evaluate
 the Triad or configured chain once and pass that result to resonance. A degraded caller
 that genuinely has no governance result must call `calculate_resonance_without_governance`,
 which serializes `triad_purity_source = "absent"` instead of inventing a score.
 
-The crate currently has no optional capabilities. `default = []` is intentional.
-Future feature flags must be additive, must not alter default wire formats, and must
-be covered both with default features and `--all-features` before release.
+The optional `llm-scorer` feature exposes only the provider-neutral LLM scorer/backend
+contract; no provider is selected by default. Runtime configuration must also set
+`enabled = true`. LLM receipts use a task-hash/lens/provider/model cache key and reject stale
+entries into an explicit degraded state. `default = []` remains intentional, so enabling all
+features does not alter the deterministic default path or existing wire formats.
 
 ## Verification
 

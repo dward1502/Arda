@@ -67,13 +67,12 @@ struct DriftDetectRequest {
 pub async fn run_http_server(service: PrometheusService, addr: &str) -> Result<()> {
     let app = build_router(service);
 
-    let listener =
-        tokio::net::TcpListener::bind(addr)
-            .await
-            .map_err(|e| ArdaError::Agent {
-                agent: "prometheus".to_string(),
-                message: format!("failed to bind HTTP listener on {addr}: {e}"),
-            })?;
+    let listener = tokio::net::TcpListener::bind(addr)
+        .await
+        .map_err(|e| ArdaError::Agent {
+            agent: "prometheus".to_string(),
+            message: format!("failed to bind HTTP listener on {addr}: {e}"),
+        })?;
 
     axum::serve(listener, app)
         .await

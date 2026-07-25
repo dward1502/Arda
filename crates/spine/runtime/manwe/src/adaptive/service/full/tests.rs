@@ -12,6 +12,7 @@ use crate::adaptive::types::{
     RouteLoveEquationGuard,
 };
 use arda_economics::PlutusService;
+use arda_governance::RealmPolicyReloadStatus;
 use chrono::Utc;
 use std::fs;
 use std::sync::Mutex;
@@ -197,14 +198,37 @@ async fn route_selects_provider_and_writes_state() {
         task_type: "chat".to_string(),
         priority: "normal".to_string(),
         messages: vec![serde_json::json!({"role":"user","content":"test"})],
-        options: serde_json::json!({}),
+        options: serde_json::json!({
+            "governance_realm": "operations",
+            "governance_action_class": "deployment"
+        }),
     };
     let out = svc.route(req).await.expect("route");
     assert!(!out.provider_id.is_empty());
+    assert_eq!(out.governance.realm_policy_version, "realm-policy-v1");
+    assert_eq!(out.governance.realm, "operations");
+    assert_eq!(out.governance.action_class, "deployment");
+    assert_eq!(
+        out.governance.realm_scope_id.as_deref(),
+        Some("operations-strategy")
+    );
+    assert_eq!(out.governance.scorer_receipts.len(), 3);
+    assert!(out
+        .governance
+        .scorer_receipts
+        .iter()
+        .all(|receipt| receipt.schema_version == "arda.governance.scorer_receipt.v1"));
+    assert!(!out.governance.runtime_blocking.blocking_enabled);
     let governance_events = svc.recent_governance_events(8);
     assert!(governance_events
         .iter()
-        .any(|event| { event.get("event").and_then(|v| v.as_str()) == Some("route_selected") }));
+        .any(|event| {
+            event.get("event").and_then(|v| v.as_str()) == Some("route_selected")
+                && event
+                    .pointer("/payload/governance/realm_policy_version")
+                    .and_then(|v| v.as_str())
+                    == Some("realm-policy-v1")
+        }));
     let status = svc.status().await.expect("status");
     assert!(status.providers_total >= 1);
     assert_eq!(status.config_source, "governed_defaults");
@@ -228,6 +252,59 @@ async fn route_selects_provider_and_writes_state() {
     clear_provider_sources();
     drop(_guard);
     assert!(total > 0.0);
+}
+
+#[tokio::test]
+async fn route_preserves_non_passing_realm_receipts_without_enabling_blocking() {
+    let _guard = isolate_env_lock(&ENV_LOCK);
+    let dir = tempdir().expect("tempdir");
+    isolate_provider_sources(dir.path());
+    let svc = CharonService::new(dir.path()).expect("service");
+    let reload = svc.reload_realm_policy_from_str(
+        "test-non-passing-policy",
+        r#"
+schema_version = "arda.governance.realm_policy.v1"
+policy_version = "manwe-non-passing-v1"
+
+[global_default]
+required_lenses = ["aurelius", "bacon", "sun_tzu"]
+minimum_weighted_score = 1.0
+strict = true
+review_requirements = ["operator_review"]
+autonomous_blocking_enabled = false
+
+[global_default.weights]
+aurelius = 1.0
+bacon = 1.0
+sun_tzu = 1.0
+
+[global_default.thresholds]
+aurelius = 1.0
+bacon = 1.0
+sun_tzu = 1.0
+"#,
+    );
+    assert_eq!(reload.status, RealmPolicyReloadStatus::Applied);
+
+    let out = svc
+        .route(ManweRequestEnvelope {
+            agent_id: "athena".to_string(),
+            task_type: "chat".to_string(),
+            priority: "normal".to_string(),
+            messages: vec![serde_json::json!({"role":"user","content":"test"})],
+            options: serde_json::json!({}),
+        })
+        .await
+        .expect("non-blocking route");
+
+    assert_eq!(
+        out.governance.realm_policy_version,
+        "manwe-non-passing-v1"
+    );
+    assert!(!out.governance.realm_passed);
+    assert_eq!(out.governance.scorer_receipts.len(), 3);
+    assert!(!out.governance.runtime_blocking.blocking_enabled);
+    clear_provider_sources();
 }
 
 #[tokio::test]

@@ -719,6 +719,7 @@ mod tests {
                 action: arda_governance::PhilosopherAction::Hold,
                 reason: "evidence grounding is insufficient for confident action".into(),
                 alignment_score: 0.42,
+                lifecycle: Default::default(),
             }),
         };
 

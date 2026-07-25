@@ -6,10 +6,8 @@
 //! metrics, and operator-facing telemetry. It provides the contract,
 //! readiness probe, and module export points for:
 //!
-//! - `prometheus/` — executive orchestrator pipeline and confidence scoring
-//! - `ceo/` — orchestration brain for delegation and learning
-//! - `cli/` — Arda CLI entrypoints for observability-aware operators
-//! - `export_surface/` — interoperability contracts for agents and HUD
+//! - [`governance_metrics`] — scrape-compatible governance metrics rendering
+//! - `arda-cli` — the separately compiled operator binary in `src/cli/main.rs`
 //!
 //! # Example
 //!
@@ -46,9 +44,7 @@
 //! - [`contract`]: observability contract for Arda
 //! - [`service`]: readiness probe and brief builders
 //! - [`council`]: compatibility shim for existing council query types
-//! - [`prometheus`]: executive orchestrator surface
-//! - [`ceo`]: orchestration brain
-//! - [`cli`]: operator CLI surface
+//! - [`governance_metrics`]: governance snapshot rendering
 //!
 //! # See Also
 //!
@@ -64,11 +60,20 @@ pub mod service;
 #[cfg(feature = "telemetry")]
 pub mod telemetry;
 
-pub mod prometheus;
-pub mod ceo;
-pub mod cli;
-
 pub use governance_metrics::render_governance_prometheus;
+
+/// Returns the identity string of this crate.
+///
+/// # Example
+///
+/// ```
+/// use arda_aule::crate_identity;
+///
+/// assert_eq!(crate_identity(), "arda-aule");
+/// ```
+pub fn crate_identity() -> &'static str {
+    "arda-aule"
+}
 
 #[cfg(test)]
 mod phase5_observability_tests {
@@ -110,17 +115,4 @@ mod phase5_observability_tests {
         assert!(text.contains("policy_version=\"current\""));
         assert!(text.contains("# TYPE arda_governance_resonance histogram"));
     }
-}
-
-/// Returns the identity string of this crate.
-///
-/// # Example
-///
-/// ```
-/// use arda_aule::crate_identity;
-///
-/// assert_eq!(crate_identity(), "arda-aule");
-/// ```
-pub fn crate_identity() -> &'static str {
-    "arda-aule"
 }

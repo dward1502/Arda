@@ -8,8 +8,8 @@ pub mod manwe;
 pub mod harness;
 pub mod registry;
 pub mod supervisor;
-pub use arda_core::service_registry;
 pub use arda_core::loop_observability;
+pub use arda_core::service_registry;
 
 use tracing::info;
 

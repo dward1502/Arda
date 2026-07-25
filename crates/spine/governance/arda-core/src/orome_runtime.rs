@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::path::{PathBuf};
+use std::path::PathBuf;
 use std::sync::{Arc, RwLock};
 
 use chrono::Utc;
@@ -65,12 +65,19 @@ impl AgentRegistry {
             .ok()
             .and_then(|raw| serde_json::from_str(&raw).ok())
             .unwrap_or_default();
-        Self { state: Arc::new(RwLock::new(state)), path }
+        Self {
+            state: Arc::new(RwLock::new(state)),
+            path,
+        }
     }
 
     pub fn upsert(&self, record: AgentRecord) -> Result<(), OromeRuntimeStateError> {
         let mut state = self.state.write().unwrap();
-        if let Some(existing) = state.entries.iter_mut().find(|entry| entry.agent_id == record.agent_id) {
+        if let Some(existing) = state
+            .entries
+            .iter_mut()
+            .find(|entry| entry.agent_id == record.agent_id)
+        {
             *existing = record;
         } else {
             state.entries.push(record);
@@ -79,13 +86,23 @@ impl AgentRegistry {
         self.persist(&state)
     }
 
-    pub fn update_status(&self, agent_id: &str, status: AgentStatus) -> Result<(), OromeRuntimeStateError> {
+    pub fn update_status(
+        &self,
+        agent_id: &str,
+        status: AgentStatus,
+    ) -> Result<(), OromeRuntimeStateError> {
         let mut state = self.state.write().unwrap();
-        if let Some(entry) = state.entries.iter_mut().find(|entry| entry.agent_id == agent_id) {
+        if let Some(entry) = state
+            .entries
+            .iter_mut()
+            .find(|entry| entry.agent_id == agent_id)
+        {
             entry.status = status;
             entry.last_heartbeat = Utc::now().to_rfc3339();
         } else {
-            state.entries.push(AgentRecord::new(agent_id, agent_id, status));
+            state
+                .entries
+                .push(AgentRecord::new(agent_id, agent_id, status));
         }
         state.updated_at = Utc::now().to_rfc3339();
         self.persist(&state)
@@ -100,7 +117,8 @@ impl AgentRegistry {
     }
 
     fn persist(&self, state: &AgentRegistryState) -> Result<(), OromeRuntimeStateError> {
-        let json = serde_json::to_string_pretty(state).map_err(|err| OromeRuntimeStateError::Serialize(err.to_string()))?;
+        let json = serde_json::to_string_pretty(state)
+            .map_err(|err| OromeRuntimeStateError::Serialize(err.to_string()))?;
         if let Some(parent) = self.path.parent() {
             std::fs::create_dir_all(parent)?;
         }
@@ -138,16 +156,11 @@ pub struct RouterState {
     state_root: PathBuf,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub enum SharedAgentRegistry {
     Registry(std::sync::Arc<AgentRegistry>),
+    #[default]
     Placeholder,
-}
-
-impl Default for SharedAgentRegistry {
-    fn default() -> Self {
-        Self::Placeholder
-    }
 }
 
 #[derive(Debug, Clone, Default)]
@@ -163,7 +176,10 @@ impl RouterState {
             .ok()
             .and_then(|raw| serde_json::from_str(&raw).ok())
             .unwrap_or_default();
-        Self { state: Arc::new(RwLock::new(state)), state_root }
+        Self {
+            state: Arc::new(RwLock::new(state)),
+            state_root,
+        }
     }
 
     pub fn update_route_state(
@@ -191,7 +207,8 @@ impl RouterState {
 
     fn persist(&self, state: &OromeCoreRuntimeState) -> Result<(), OromeRuntimeStateError> {
         let target = self.state_root.join("runtime").join("om.json");
-        let json = serde_json::to_string_pretty(state).map_err(|err| OromeRuntimeStateError::Serialize(err.to_string()))?;
+        let json = serde_json::to_string_pretty(state)
+            .map_err(|err| OromeRuntimeStateError::Serialize(err.to_string()))?;
         if let Some(parent) = target.parent() {
             std::fs::create_dir_all(parent)?;
         }

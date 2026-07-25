@@ -3,9 +3,9 @@
 - source_id: `src_3c43db4d`
 - status: `deep`
 - source_type: `RawNote`
-- updated_at_utc: `2026-07-23T16:34:59.637074294+00:00`
+- updated_at_utc: `2026-07-25T19:15:19.209257108+00:00`
 - url: governance routing memory safety context tooling
-- athena_book: `/tmp/.tmp0m7P2s/books/src_3c43db4d.jsonl`
+- athena_book: `/tmp/.tmpx6rk1T/books/src_3c43db4d.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

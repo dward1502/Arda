@@ -2512,10 +2512,7 @@ fn sync_operator_profile(
         ),
     ];
     if let Some(latency) = routing.get("latency_sla_ms").and_then(Value::as_i64) {
-        runtime.push((
-            "ARDA_ROUTE_LATENCY_SLA_MS".to_string(),
-            latency.to_string(),
-        ));
+        runtime.push(("ARDA_ROUTE_LATENCY_SLA_MS".to_string(), latency.to_string()));
     }
     let mut runtime_lines = vec![format!("# Generated from {}", profile_label)];
     for (key, value) in &runtime {

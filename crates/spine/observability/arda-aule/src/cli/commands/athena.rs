@@ -27,17 +27,15 @@ fn default_crawl4ai_url() -> String {
 /// - `ARDA_ATHENA_LLM_API_KEY_ENV`: name of env var to read for bearer auth
 /// - `ARDA_ATHENA_LLM_USE_CONFIG=1`: opt out of Manwe and use the
 ///   configured default provider from `config/default.toml`
-fn build_athena_extraction_provider(
-    config: &arda_core::config::Config,
-) -> Arc<dyn LlmProvider> {
+fn build_athena_extraction_provider(config: &arda_core::config::Config) -> Arc<dyn LlmProvider> {
     if std::env::var("ARDA_ATHENA_LLM_USE_CONFIG")
         .map(|v| v.trim() == "1" || v.trim().eq_ignore_ascii_case("true"))
         .unwrap_or(false)
     {
         return super::super::cli_bootstrap::build_provider(config);
     }
-    let base_url = std::env::var("ARDA_ATHENA_LLM_BASE_URL")
-        .unwrap_or_else(|_| default_manwe_llm_base_url());
+    let base_url =
+        std::env::var("ARDA_ATHENA_LLM_BASE_URL").unwrap_or_else(|_| default_manwe_llm_base_url());
     let model = std::env::var("ARDA_ATHENA_LLM_MODEL").unwrap_or_else(|_| "auto".to_string());
     let api_key = std::env::var("ARDA_ATHENA_LLM_API_KEY_ENV")
         .ok()
@@ -72,8 +70,7 @@ pub(crate) async fn handle(
 ) -> anyhow::Result<()> {
     let llm = build_athena_extraction_provider(config);
     let store = AthenaStore::from_default_or_workspace_fallback()?.with_llm(llm.clone());
-    let default_socket_path =
-        socket_path_from_env("ARDA_ATHENA_SOCKET", "data/athena/athena.sock");
+    let default_socket_path = socket_path_from_env("ARDA_ATHENA_SOCKET", "data/athena/athena.sock");
     match command {
         AthenaCommands::Start {
             socket_path,
@@ -300,9 +297,7 @@ pub(crate) async fn handle(
             let crawl_profile = std::env::var("ARDA_ATHENA_CRAWL_PROFILE")
                 .unwrap_or_else(|_| "production".to_string());
             let provider_order = resolve_crawl_provider_order(
-                std::env::var("ARDA_ATHENA_CRAWL_PROVIDER")
-                    .ok()
-                    .as_deref(),
+                std::env::var("ARDA_ATHENA_CRAWL_PROVIDER").ok().as_deref(),
                 Some(&crawl_profile),
             );
             let crawl_service =

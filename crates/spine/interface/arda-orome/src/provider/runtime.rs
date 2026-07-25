@@ -4,21 +4,16 @@
 use serde::{Deserialize, Serialize};
 
 /// Canonical provider family used by service surfaces.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum ProviderType {
+    #[default]
     Discord,
     Slack,
     Http,
     Email,
     Matrix,
     Custom,
-}
-
-impl Default for ProviderType {
-    fn default() -> Self {
-        Self::Discord
-    }
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -66,7 +61,7 @@ impl ProviderRuntime {
         self.providers
             .iter()
             .any(|p| p.id == provider_id || p.id == "default")
-            .then(|| self)
+            .then_some(self)
     }
 }
 

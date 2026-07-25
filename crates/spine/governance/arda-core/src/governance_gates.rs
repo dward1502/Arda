@@ -45,20 +45,15 @@ pub struct AffordabilityDecision {
     pub reason: &'static str,
 }
 
-#[derive(Debug, Clone, Copy, Deserialize, Serialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Default, Deserialize, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum GovernancePolicyMode {
     ObserveOnly,
+    #[default]
     RecordAndProceed,
     BlockOnFail,
     EscalateToHuman,
     RequireIndependentReceipts,
-}
-
-impl Default for GovernancePolicyMode {
-    fn default() -> Self {
-        Self::RecordAndProceed
-    }
 }
 
 #[derive(Debug, Clone, Copy, Deserialize)]

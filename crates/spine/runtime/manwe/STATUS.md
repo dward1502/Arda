@@ -1,10 +1,10 @@
 # manwe — Current Status
 
 Crate: `crates/spine/runtime/manwe`
-Reviewed: 2026-07-23
-State: active; canonical process, governed adaptive runtime, and telemetry contract aligned
+Reviewed: 2026-07-25
+State: active; foundation baseline complete and maintained
 
-## Verification performed in this review
+## Verification performed in the 2026-07-25 foundation review
 
 | Command | Result |
 |---|---|
@@ -34,6 +34,11 @@ Its old unattached `service_events.rs` duplicate was
 removed with the stale `observability::tracer`, `service::telemetry`, and
 misspelled `ardea_aule` references it contained.
 
+Phase 9 follow-up verification on 2026-07-25 passed
+`cargo test -p manwe --features adaptive` with 269 library and 23 binary tests.
+The added production-route cases cover a named realm-policy success receipt and a
+non-passing policy reload that remains non-blocking while preserving all scorer receipts.
+
 The process smoke test starts controlled temporary static and adaptive Manwe
 processes plus a local mock OpenAI upstream. It verifies `/healthz`,
 `/v1/models`, `/v1/capabilities`, `/v1/chat/completions`, governed response
@@ -59,6 +64,8 @@ state/governance receipts without calling external providers.
   receipts. The binary's explicit stream contract is buffered SSE, advertised
   by `x-manwe-streaming-mode: buffered`; it does not provide live pass-through.
 - Rich adaptive policy/service library behind `adaptive`.
+- Realm/action policy evaluation on every adaptive preview and selected route, with typed
+  scorer, reload, and runtime-blocking receipts.
 - Optional tonic gRPC services behind `grpc` plus the `--grpc` runtime flag.
 
 ## Runtime contract
@@ -79,6 +86,9 @@ state/governance receipts without calling external providers.
   falling back to `$ARDA_ROOT/config/charon.providers.toml` and then governed
   defaults. `ARDA_MANWE_STATE_DIR`, then `ARDA_MANWE_HOME`, owns mutable state;
   the fallback is `$ARDA_HOME/data/manwe` and then `./data/manwe`.
+- Realm-policy ownership: `$ARDA_ROOT/config/governance/realm_policies.toml`; the optional
+  `ARDA_GOVERNANCE_BLOCKING_ENABLED` operator request remains subordinate to scoped
+  readiness, independent-review, rollback, and operator-disable authority gates.
 
 ## Adaptive runtime boundary
 
@@ -115,19 +125,39 @@ documentation review.
 
 ## Source-graph state
 
-The source graph is reconciled. Seven unattached root migration shims, eleven
-incomplete parallel files directly under `src/adaptive/`, and the undeclared
-`adaptive/service/fleet_persistence.rs` were removed after workspace-wide
-consumer searches found no live users. `src/types.rs` remains the canonical
-public domain model. `adaptive/transport/http.rs` is the active governed HTTP
-runtime started by `--adaptive`; its daemon/IPC code remains a compiled
-compatibility surface and is not advertised as part of the canonical binary.
+The source graph is reconciled. In addition to the previously retired seven
+root migration shims, eleven incomplete files directly under `src/adaptive/`,
+and undeclared `adaptive/service/fleet_persistence.rs`, this review removed 33
+undeclared parallel files directly under `adaptive/service/`. The service module
+is defined by `service/mod.rs` including `full_service.rs`; every corresponding
+implementation is attached explicitly from `adaptive/service/full/`. The
+parallel files were therefore unreachable from both crate roots and had no live
+workspace consumers. Active external path records now point at the `full/`
+implementations.
 
-## Next action
+`src/types.rs` remains the canonical public domain model.
+`adaptive/transport/http.rs` is the active governed HTTP runtime started by
+`--adaptive`; its daemon/IPC code remains a compiled compatibility surface and
+is not advertised as part of the canonical binary. Two tracked Python bytecode
+artifacts under `tests/__pycache__/` were also retired, and the test directory
+now ignores regenerated Python caches.
+
+## Foundation designation
+
+The crate's foundation baseline is complete: package ownership, default and
+governed runtime boundaries, feature contracts, process smoke coverage,
+configuration precedence, source ownership, indexes, and operator documentation
+are aligned with the compiled implementation. This designation does not freeze
+Manwe or claim that the intentionally parallel static and governed routing
+architectures have been unified; those remain bounded evolution work rather
+than incomplete baseline repair.
+
+## Maintenance posture
 
 Keep provider/config documentation covered by the lightweight documentation
 validator. Do not change port 7171 independently of engine, launcher, and
-registry consumers.
+registry consumers. Future implementation work should preserve the verified
+default, adaptive, gRPC, telemetry, and process-smoke gates recorded above.
 
 ## Registry/process-owner evidence
 

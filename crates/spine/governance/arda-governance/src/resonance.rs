@@ -102,6 +102,15 @@ pub struct ResonanceComponents {
     pub philosopher_alignment_score: Option<f64>,
 }
 
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum PhilosopherInfluencePolicy {
+    /// Philosopher output is visible arbitration metadata and is not a hidden
+    /// coefficient in the numerical resonance score.
+    #[default]
+    SeparateDecisionMetadata,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ResonanceScore {
     #[serde(default = "legacy_resonance_policy_version")]
@@ -112,6 +121,8 @@ pub struct ResonanceScore {
     /// Love Dynamics, and JouleWork.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub triad_philosopher: Option<TriadPhilosopherVerdict>,
+    #[serde(default)]
+    pub philosopher_influence: PhilosopherInfluencePolicy,
 }
 
 /// Golden ratio constants
@@ -442,6 +453,7 @@ fn calculate_resonance_with_triad_signal(
         value,
         ecst_components: Some(components),
         triad_philosopher: Some(philosopher),
+        philosopher_influence: PhilosopherInfluencePolicy::SeparateDecisionMetadata,
     };
     crate::global_governance_metrics().observe_resonance(&score);
     score

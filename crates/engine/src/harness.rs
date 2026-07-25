@@ -9,11 +9,11 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 use std::time::Duration;
 
+use axum::Json;
 use axum::extract::State;
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use axum::routing::get;
-use axum::Json;
 use serde::Serialize;
 use tokio::sync::Notify;
 use tracing::{info, warn};
@@ -96,20 +96,12 @@ async fn models(State(st): State<HarnessState>) -> impl IntoResponse {
                 Ok(v) => (StatusCode::OK, Json(v)).into_response(),
                 Err(e) => {
                     warn!("harness: failed to parse manwe /v1/models: {e}");
-                    (
-                        StatusCode::BAD_GATEWAY,
-                        "manwe returned unparseable body",
-                    )
-                        .into_response()
+                    (StatusCode::BAD_GATEWAY, "manwe returned unparseable body").into_response()
                 }
             },
             Err(e) => {
                 warn!("harness: failed to read manwe /v1/models body: {e}");
-                (
-                    StatusCode::BAD_GATEWAY,
-                    "manwe returned unreadable body",
-                )
-                    .into_response()
+                (StatusCode::BAD_GATEWAY, "manwe returned unreadable body").into_response()
             }
         },
         Err(e) => {
@@ -161,6 +153,3 @@ pub async fn serve(
     });
     Ok((bound, handle))
 }
-
-
-

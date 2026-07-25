@@ -24,7 +24,12 @@ pub struct OutboundMessage {
 
 impl OutboundMessage {
     pub fn new(provider: String, channel: String, subject: String, body: String) -> Self {
-        Self { provider, channel, subject, body }
+        Self {
+            provider,
+            channel,
+            subject,
+            body,
+        }
     }
 }
 
@@ -139,8 +144,8 @@ pub(crate) async fn maybe_send_illuvatar_decision_prompt(
     content: &str,
     is_illuvatar: bool,
 ) -> anyhow::Result<()> {
-    let expected_sender = std::env::var("ARDA_ILLUVATAR_DISCORD_USER")
-        .unwrap_or_else(|_| "illuvatar".to_string());
+    let expected_sender =
+        std::env::var("ARDA_ILLUVATAR_DISCORD_USER").unwrap_or_else(|_| "illuvatar".to_string());
     if !is_illuvatar
         || !provider.eq_ignore_ascii_case("discord")
         || !sender.eq_ignore_ascii_case(&expected_sender)

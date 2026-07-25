@@ -2438,8 +2438,7 @@ fn build_hermes_agent_gateway_activation_check(
     let plan_path = root.join("docs/plans/2026-05-30-hermes-discord-gateway-unification-plan.md");
     let runbook_path = root.join("docs/operations/hermes-agent-discord-gateway-runbook.md");
     let template_path = root.join("config/hermes_agent_gateway_arda.example.yaml");
-    let semantic_channel_path =
-        root.join("crates/arda-hermes/src/service/semantic_channel.rs");
+    let semantic_channel_path = root.join("crates/arda-hermes/src/service/semantic_channel.rs");
     let serenity_bot_path = root.join("crates/arda-hermes/src/serenity_bot.rs");
     let arda_env_path = root.join("config/.env");
     let hermes_env_path = if root == workspace_root() {
@@ -2754,10 +2753,7 @@ fn first_present_env(
                 "value": redact_candidate_value(value),
             }));
         }
-        if let Some(value) = arda_env
-            .get(*key)
-            .filter(|value| !value.trim().is_empty())
-        {
+        if let Some(value) = arda_env.get(*key).filter(|value| !value.trim().is_empty()) {
             return Some(json!({
                 "key": key,
                 "source": "config/.env",
@@ -2959,9 +2955,8 @@ fn create_crate_spawn_blueprint(
     };
     let core_path = pathdiff::diff_paths(root.join("crates/arda-core"), &crate_root)
         .unwrap_or_else(|| PathBuf::from("../../arda-core"));
-    let governance_path =
-        pathdiff::diff_paths(root.join("crates/arda-governance"), &crate_root)
-            .unwrap_or_else(|| PathBuf::from("../../arda-governance"));
+    let governance_path = pathdiff::diff_paths(root.join("crates/arda-governance"), &crate_root)
+        .unwrap_or_else(|| PathBuf::from("../../arda-governance"));
     let type_name = crate_name
         .replace('-', "_")
         .split('_')
@@ -3679,10 +3674,7 @@ mod tests {
         assert_eq!(receipt["platform"], "discord");
         assert_eq!(receipt["semantic_channel"], "work-stream");
         assert_eq!(receipt["background_task_id"], "bg_123");
-        assert_eq!(
-            receipt["policy_boundary"]["arda_records_authority"],
-            true
-        );
+        assert_eq!(receipt["policy_boundary"]["arda_records_authority"], true);
         assert_eq!(
             receipt["policy_boundary"]["gateway_result_is_not_approval"],
             true
@@ -4159,26 +4151,17 @@ mod tests {
             "arda.council.agent_conversation.v1"
         );
         assert_eq!(conversation["policy_boundary"]["queue_mutated"], false);
-        assert_eq!(
-            request["schema_version"],
-            "arda.athena.scout_request.v1"
-        );
+        assert_eq!(request["schema_version"], "arda.athena.scout_request.v1");
         assert_eq!(
             request["policy_boundary"]["request_is_not_task_queue_write"],
             true
         );
-        assert_eq!(
-            finding["schema_version"],
-            "arda.athena.scout_finding.v1"
-        );
+        assert_eq!(finding["schema_version"], "arda.athena.scout_finding.v1");
         assert_eq!(
             finding["policy_boundary"]["finding_is_not_task_queue_write"],
             true
         );
-        assert_eq!(
-            runtime["schema_version"],
-            "arda.athena.scout_runtime.v1"
-        );
+        assert_eq!(runtime["schema_version"], "arda.athena.scout_runtime.v1");
         assert_eq!(runtime["summary"]["request_count"], 1);
         assert_eq!(runtime["summary"]["open_request_count"], 1);
         assert_eq!(runtime["summary"]["finding_count"], 1);

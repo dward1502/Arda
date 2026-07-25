@@ -1,6 +1,7 @@
 #![cfg(feature = "full-cli")]
 use std::path::PathBuf;
 
+use anyhow::Result;
 use arda_hud::{
     apply_service_plan, build_approval_template, build_environment_profile, build_guided_session,
     build_operator_answers_template, build_prerequisite_report, build_private_config_stage,
@@ -8,7 +9,6 @@ use arda_hud::{
     launch_console, parse_approval_receipt, parse_operator_answers, provider_checklist, write_json,
     write_private_config_stage, write_profile, write_readiness,
 };
-use anyhow::Result;
 use clap::Subcommand;
 use serde_json::json;
 

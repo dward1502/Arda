@@ -1,6 +1,7 @@
 # GEN3 landscape (learning/observability/interop)
 
-Status: planning/landscape only. No behavior changes in `arda-core` until a consumer crate needs them.
+Status: evidence-backed additive surfaces are live. Further behavior changes
+remain gated on concrete consumer needs.
 
 ## Considerations
 - Learning/memory adaptation: `learning.rs` and `state.rs` already expose shared
@@ -14,9 +15,9 @@ Status: planning/landscape only. No behavior changes in `arda-core` until a cons
   `SoterionRegistryEntry` are the most likely external-view candidates.
   Review by downstream crates before introducing stable serialization guarantees.
 
-## Deferral rule
-Do not merge behavior changes until GEN2 remains fully closed and a consumer
-crate introduces a concrete interop scenario.
+## Evolution rule
+GEN2 is closed. Preserve append-only auditability and current dispatch
+semantics; merge additional behavior only for a documented consumer scenario.
 
 ## Concrete consumer scenarios
 - `arda-aule` loop observability consumer:
@@ -30,4 +31,9 @@ crate introduces a concrete interop scenario.
 
 ## Open questions
 - Should `arda-aule` consume live `LearningStore` data instead of default state?
-- Should `arda-engine` expose a higher-level aggregator for these surfaces?
+- Which external tooling, if any, needs a stable serialization commitment
+  beyond the current `arda.learning.interop.v1` receipt?
+
+## Resolved
+- `arda-engine` now exposes `EngineObservabilityStatus` as the higher-level
+  aggregator for loop observability and learning interop state.

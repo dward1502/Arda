@@ -5,21 +5,16 @@ use uuid::Uuid;
 
 pub type TaskId = Uuid;
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq, Hash)]
 #[serde(rename_all = "snake_case")]
 pub enum JouleWorkMeasurementSource {
     OperatorEstimate,
+    #[default]
     DefaultFallback,
     RuntimeTimer,
     ProcessResourceSample,
     ProviderUsageReport,
     ExternalPowerMeter,
-}
-
-impl Default for JouleWorkMeasurementSource {
-    fn default() -> Self {
-        Self::DefaultFallback
-    }
 }
 
 impl JouleWorkMeasurementSource {

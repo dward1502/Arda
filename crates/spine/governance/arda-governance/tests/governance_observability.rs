@@ -1,7 +1,7 @@
 use arda_core::{Task, TaskStatus};
 use arda_governance::{
     build_bacon_lite_event, build_governance_status_report, calculate_resonance_with_triad,
-    default_governance_readiness_report, evaluate_love_dynamics, love_equation_score,
+    default_governance_readiness_report, evaluate_love_dynamics, love_dynamics_compatibility_proxy,
     profile_joulework, render_governance_status_human, triad_validate, BaconLiteLedgerSummary,
     GovernanceMetrics, LoveDynamicsInput,
 };
@@ -49,7 +49,7 @@ fn deterministic_fixture_produces_expected_metric_deltas_and_bounded_labels() {
     let bacon = build_bacon_lite_event("fixture", "deploy", &task, serde_json::json!({}))
         .expect("bacon event");
     let resonance = calculate_resonance_with_triad(&task, &triad, None, None);
-    let love_proxy = love_equation_score(&task);
+    let love_proxy = love_dynamics_compatibility_proxy(&task);
     let love_dynamics = evaluate_love_dynamics(LoveDynamicsInput {
         empathy: 0.7,
         cooperation: 0.9,

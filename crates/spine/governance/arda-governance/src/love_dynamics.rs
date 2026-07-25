@@ -4,6 +4,8 @@
 //! Implements Brian Roemmele's differential framing:
 //! `dE/dt = beta * (C - D) * E`, where empathy/cooperative alignment grows
 //! when cooperative tendencies exceed defection pressure.
+//! See `../GOVERNANCE_PROVENANCE.md` for the dated source, bounded Arda
+//! adaptation, and copyright/permission boundary.
 
 use serde::{Deserialize, Serialize};
 

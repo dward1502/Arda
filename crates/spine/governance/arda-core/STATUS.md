@@ -6,7 +6,7 @@ soterion:
   role: "governance_spine_status"
   owner: "ARDA-CORE / HADES"
   status: "active"
-  last_reviewed: "2026-07-22"
+  last_reviewed: "2026-07-25"
 ---
 # arda-core status
 
@@ -15,10 +15,11 @@ Sigil: 📜 SCROLL
 
 ## Build
 - `cargo check -p arda-core` -> OK
-- `cargo test -p arda-core` -> 91/91 passing
-  - 90 unit tests
+- `cargo test -p arda-core` -> 99/99 passing
+  - 98 unit tests
   - 1 smoke test: `sovereign_baseline_contract_is_migrated`
   - 0 doc-tests
+- `cargo clippy -p arda-core --all-targets --all-features -- -D warnings` -> OK
 
 ## Runtime / env knobs
 - `ARDA_PRESSURE_ADMISSION_*` env knobs may tune pressure-aware
@@ -48,21 +49,38 @@ Sigil: 📜 SCROLL
 - `src/loop_observability.rs` GEN3 env-toggled observability config + latency probes
 - `src/learning_adapter.rs` GEN3 learning-to-domain adaptation + ledger receipt
 
-## Known warning/follow-ups
-- `service_registry/registry.rs:37` ignores `upsert_contract(...)` result.
-- `tool_contract/service.rs:5` has 1 unused import.
-- GEN3 interop is deferred; see `docs/interop/landscape.md`.
+## Known follow-ups
+- `cargo check -p arda-core` and strict all-target/all-feature Clippy emit no crate warnings.
+  The only command output is
+  the workspace-level non-root profile warning from `arda-launcher`.
+- `ServiceRegistry::from_snapshot` intentionally skips records rejected by
+  `upsert_contract`; duplicate-skip behavior is covered by a unit test.
+- Remaining GEN3 questions are tracked in `docs/interop/landscape.md`.
+
+## Retired source
+- `src/alerts.rs` was removed on 2026-07-25. It was malformed, had never been
+  exported from `src/lib.rs`, and had no repository consumer.
+- `src/loop_alerts.rs` is the canonical compiled alert surface and is consumed
+  by `arda-aule` for append-only Warden alert emission.
 
 ## GEN2 closeout
-- Baseline verified: `cargo test -p arda-core` -> 91/91 passing
-  - 90 unit tests
+- Baseline verified: `cargo test -p arda-core` -> 99/99 passing
+  - 98 unit tests
   - 1 smoke test: `sovereign_baseline_contract_is_migrated`
   - 0 doc-tests
 - Coverage paths verified present per PLAN section 4:
   - governance, loop engine, learning, background gate, state/message,
     service_registry, soterion (+watcher)
 - Crate boundary stable; no public API growth from GEN2.
-- Known warnings preserved; do not expand scope without consumer migration.
+- No `arda-core` compiler warnings; do not expand scope without consumer evidence.
+
+## Foundation designation
+- Foundation baseline: complete as of 2026-07-25.
+- GEN1 documentation alignment and GEN2 robustness work are closed.
+- Implemented GEN3 observability/learning interop is additive and covered by
+  the 99-test baseline.
+- The crate remains active and maintained; “complete” means this stabilization
+  plan is closed, not that future evidence-backed features are prohibited.
 
 ## Owner notes
 - `arda-engine` re-exports `arda_core::service_registry`.
@@ -72,7 +90,7 @@ Sigil: 📜 SCROLL
 - Crate boundary is intentionally stable; do not split or rename without
   consumer migration evidence.
 - STATUS evidence was refreshed against the current `manwe` branch source of
-  truth after doc/code drift was found.
+  truth on 2026-07-25 after the test baseline had drifted from 91 to 99.
 - GEN3 interop moved from deferred to evidence-backed via `arda-aule`
   loop/learning consumers and `arda-engine` aggregation surface; remaining
   interop work is documented in `docs/interop/landscape.md`.

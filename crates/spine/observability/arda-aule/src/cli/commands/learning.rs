@@ -54,18 +54,20 @@ fn learning_ledger(
     let store = LearningStore::new(&store_path);
     let learning = store.load();
 
-    let receipt =
-        build_learning_ledger_receipt(&learning, &domain, &consumer, min_observations);
+    let receipt = build_learning_ledger_receipt(&learning, &domain, &consumer, min_observations);
 
-    println!("{}", serde_json::to_string_pretty(&json!({
-        "contract": "arda.learning.interop.v1",
-        "receipt": receipt,
-        "meta": {
-            "learning_path": store_path.display().to_string(),
-            "retained_count": receipt.retained.len(),
-            "ignored_count": receipt.ignored_count,
-        }
-    }))?);
+    println!(
+        "{}",
+        serde_json::to_string_pretty(&json!({
+            "contract": "arda.learning.interop.v1",
+            "receipt": receipt,
+            "meta": {
+                "learning_path": store_path.display().to_string(),
+                "retained_count": receipt.retained.len(),
+                "ignored_count": receipt.ignored_count,
+            }
+        }))?
+    );
 
     Ok(())
 }

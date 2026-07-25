@@ -10,12 +10,73 @@ use std::{collections::HashSet, fs, path::Path};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
+use crate::GovernanceReviewMode;
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum PhilosopherProfileMaturity {
     DraftHumanAuthored,
     IndependentReviewReceipted,
     AutonomousConsensusReceipted,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum PhilosopherProfileSourceKind {
+    HumanAuthored,
+    GeneratedArtifact,
+}
+
+fn default_source_kind() -> PhilosopherProfileSourceKind {
+    PhilosopherProfileSourceKind::HumanAuthored
+}
+
+fn default_source_revision() -> String {
+    "legacy_human_authored_bootstrap".to_string()
+}
+
+fn default_review_authority() -> String {
+    "human_governance_maintainers".to_string()
+}
+
+fn default_promotion_criteria() -> Vec<String> {
+    vec!["independent human review receipt required before promotion".to_string()]
+}
+
+/// Immutable-by-value provenance snapshot for a philosopher-derived action.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct PhilosopherLifecycleReceipt {
+    pub schema_version: String,
+    pub profile_id: String,
+    pub profile_source: String,
+    pub source_kind: PhilosopherProfileSourceKind,
+    pub source_revision: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub generated_artifact: Option<String>,
+    pub maturity: PhilosopherProfileMaturity,
+    pub authority: String,
+    pub review_authority: String,
+    pub review_mode: GovernanceReviewMode,
+    #[serde(default)]
+    pub promotion_criteria: Vec<String>,
+}
+
+impl Default for PhilosopherLifecycleReceipt {
+    fn default() -> Self {
+        Self {
+            schema_version: "arda.governance.philosopher_lifecycle.v1".to_string(),
+            profile_id: "triad_philosopher".to_string(),
+            profile_source: "built_in:triad_philosopher".to_string(),
+            source_kind: PhilosopherProfileSourceKind::HumanAuthored,
+            source_revision: "arda-governance-phase7-v1".to_string(),
+            generated_artifact: None,
+            maturity: PhilosopherProfileMaturity::DraftHumanAuthored,
+            authority: "human_authored_heuristic".to_string(),
+            review_authority: "human_governance_maintainers".to_string(),
+            review_mode: GovernanceReviewMode::HeuristicLocal,
+            promotion_criteria: default_promotion_criteria(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -40,6 +101,38 @@ pub struct PhilosopherProfile {
     pub required_evidence: Vec<String>,
     #[serde(default)]
     pub forbidden_claims: Vec<String>,
+    #[serde(default = "default_source_kind")]
+    pub source_kind: PhilosopherProfileSourceKind,
+    #[serde(default = "default_source_revision")]
+    pub source_revision: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub generated_artifact: Option<String>,
+    #[serde(default = "default_review_authority")]
+    pub review_authority: String,
+    #[serde(default = "default_promotion_criteria")]
+    pub promotion_criteria: Vec<String>,
+}
+
+impl PhilosopherProfile {
+    pub fn lifecycle_receipt(
+        &self,
+        profile_source: impl Into<String>,
+        review_mode: GovernanceReviewMode,
+    ) -> PhilosopherLifecycleReceipt {
+        PhilosopherLifecycleReceipt {
+            schema_version: "arda.governance.philosopher_lifecycle.v1".to_string(),
+            profile_id: self.id.clone(),
+            profile_source: profile_source.into(),
+            source_kind: self.source_kind,
+            source_revision: self.source_revision.clone(),
+            generated_artifact: self.generated_artifact.clone(),
+            maturity: self.maturity.clone(),
+            authority: self.authority.clone(),
+            review_authority: self.review_authority.clone(),
+            review_mode,
+            promotion_criteria: self.promotion_criteria.clone(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -114,7 +207,9 @@ impl PhilosopherProfileSet {
             profile_source: profile_source.into(),
             review_mode: "heuristic_local".to_string(),
             profile_maturity: maturity_review_mode(&self.default_maturity).to_string(),
-            autonomous_blocking_enabled: self.autonomous_blocking_enabled,
+            // Legacy profile flags never directly enable runtime blocking. Phase 8
+            // routes that decision through RuntimeBlockingAuthority exclusively.
+            autonomous_blocking_enabled: false,
             generated_corpus_promotion_enabled: self.generated_corpus_promotion_enabled,
             profile_count: profiles.len(),
             profiles,
@@ -126,12 +221,6 @@ impl PhilosopherProfileSet {
             return Err(PhilosopherProfileError::InvalidSchemaVersion {
                 actual: self.schema_version.clone(),
             });
-        }
-
-        if self.autonomous_blocking_enabled {
-            return Err(PhilosopherProfileError::UnsafeAutonomyFlag(
-                "autonomous_blocking_enabled must remain false in G2".to_string(),
-            ));
         }
 
         if self.generated_corpus_promotion_enabled {
@@ -193,6 +282,8 @@ pub enum PhilosopherProfileError {
     EmptyField { id: String, field: &'static str },
     #[error("philosopher profile {id} must include at least one {field}")]
     EmptyList { id: String, field: &'static str },
+    #[error("generated philosopher profile {id} must identify generated_artifact")]
+    MissingGeneratedArtifact { id: String },
 }
 
 pub fn load_philosopher_profiles(
@@ -230,6 +321,21 @@ fn validate_profile(profile: &PhilosopherProfile) -> Result<(), PhilosopherProfi
     require_non_empty(&profile.id, &profile.lens, "lens")?;
     require_non_empty(&profile.id, &profile.authority, "authority")?;
     require_non_empty(&profile.id, &profile.veto_scope, "veto_scope")?;
+    require_non_empty(&profile.id, &profile.source_revision, "source_revision")?;
+    require_non_empty(&profile.id, &profile.review_authority, "review_authority")?;
+
+    if profile.source_kind == PhilosopherProfileSourceKind::GeneratedArtifact
+        && profile
+            .generated_artifact
+            .as_deref()
+            .map(str::trim)
+            .unwrap_or_default()
+            .is_empty()
+    {
+        return Err(PhilosopherProfileError::MissingGeneratedArtifact {
+            id: profile.id.clone(),
+        });
+    }
 
     if profile.maturity != PhilosopherProfileMaturity::DraftHumanAuthored {
         return Err(PhilosopherProfileError::NonDraftMaturity {
@@ -253,6 +359,11 @@ fn validate_profile(profile: &PhilosopherProfile) -> Result<(), PhilosopherProfi
     }
 
     require_non_empty_list(&profile.id, &profile.canonical_sources, "canonical_sources")?;
+    require_non_empty_list(
+        &profile.id,
+        &profile.promotion_criteria,
+        "promotion_criteria",
+    )?;
     require_non_empty_list(
         &profile.id,
         &profile.decision_questions,

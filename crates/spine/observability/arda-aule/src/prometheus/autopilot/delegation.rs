@@ -2,8 +2,8 @@
 // sigil: REPAIR
 //! Delegation manager + agent capability registry.
 
-use super::learning::LearningState;
 use super::decomposer::PlannedTask;
+use super::learning::LearningState;
 use serde::Serialize;
 use std::collections::HashMap;
 
@@ -117,8 +117,8 @@ pub fn delegate_plan(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::decomposer::{PlannedTask, Priority};
+    use super::*;
 
     fn task(k: &str, t: &str, agent: Option<&str>) -> PlannedTask {
         PlannedTask {

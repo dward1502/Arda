@@ -45,9 +45,7 @@ fn build_dispatch_estimator() -> arda_economics::EstimatorMeter {
 /// Load `<root>/config/governance_gates.yaml`. Falls back to the
 /// permissive (no-op) gate if missing or malformed.
 fn build_governance_gates() -> arda_core::governance_gates::GovernanceGates {
-    let path = arda_root()
-        .join("config")
-        .join("governance_gates.yaml");
+    let path = arda_root().join("config").join("governance_gates.yaml");
     if path.exists() {
         match arda_core::governance_gates::GovernanceGates::load_from_path(&path) {
             Ok(g) => {
@@ -184,7 +182,11 @@ pub(crate) enum WardenCommands {
 
 pub(crate) fn handle(cmd: LoopCommands) -> anyhow::Result<()> {
     match cmd {
-        LoopCommands::SeedGoals { seed, state_root, force } => seed_goals(seed, state_root, force),
+        LoopCommands::SeedGoals {
+            seed,
+            state_root,
+            force,
+        } => seed_goals(seed, state_root, force),
         LoopCommands::Tick { state_root } => tick(state_root),
         LoopCommands::Status { state_root } => status(state_root),
         LoopCommands::Halt { command } => handle_halt(command),
@@ -200,13 +202,16 @@ pub(crate) fn observability_status(state_root_arg: Option<PathBuf>) -> anyhow::R
 
     let config = arda_core::loop_observability::LoopObservabilityConfig::from_env();
 
-    println!("observability: config={}", serde_json::to_string_pretty(&json!({
-        "config": {
-            "economy_snapshot_enabled": config.economy_snapshot_enabled,
-            "latency_probe_enabled": config.latency_probe_enabled,
-            "max_latency_samples": config.max_latency_samples,
-        }
-    }))?);
+    println!(
+        "observability: config={}",
+        serde_json::to_string_pretty(&json!({
+            "config": {
+                "economy_snapshot_enabled": config.economy_snapshot_enabled,
+                "latency_probe_enabled": config.latency_probe_enabled,
+                "max_latency_samples": config.max_latency_samples,
+            }
+        }))?
+    );
 
     Ok(())
 }
@@ -808,9 +813,7 @@ fn status(state_root_arg: Option<PathBuf>) -> anyhow::Result<()> {
     println!("queue:      {}", queue_path.display());
 
     // Halt
-    let halt = state
-        .root()
-        .join(arda_core::loop_engine::HALT_FILE_NAME);
+    let halt = state.root().join(arda_core::loop_engine::HALT_FILE_NAME);
     if halt.exists() {
         println!("HALT:       PRESENT — dispatcher will refuse new work");
         if let Ok(body) = std::fs::read_to_string(&halt) {

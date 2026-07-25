@@ -74,7 +74,7 @@ person, paper, URL, or license.
 
 | Subsystem or source | Current classification | Local evidence | Attribution state |
 |---|---|---|---|
-| `arda-governance` | Mixed: original, adapted, conventional, AI-assisted | [`GOVERNANCE_PROVENANCE.md`](../crates/spine/governance/arda-governance/GOVERNANCE_PROVENANCE.md) | Partial; JouleWork and Love Equation upstream citations required |
+| `arda-governance` | Mixed: original, inspired, adapted, conventional, dependency, AI-assisted | [`GOVERNANCE_PROVENANCE.md`](../crates/spine/governance/arda-governance/GOVERNANCE_PROVENANCE.md) | Exact JouleWork/Love Dynamics sources and boundaries recorded; Read Multiplex legal review remains required before public distribution |
 | OpenFang-derived patterns | `adapted` | [`plans/OPENFANG.md`](plans/OPENFANG.md), `core/state/openfang_alignment.json` | Source URL recorded; exact version and license review still required |
 | Nous Hermes Agent | `inspired` / reference-only according to current absorption brief | `core/state/external_absorption_brief.json` | Source URL recorded; enumerate any implemented adaptations separately |
 | Mission Control | `inspired` / reference-only according to current absorption brief | `core/state/external_absorption_brief.json` | Source URL recorded; enumerate any implemented adaptations separately |

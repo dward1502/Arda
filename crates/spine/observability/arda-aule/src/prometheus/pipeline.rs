@@ -16,13 +16,13 @@ use crate::heartbeat::{select_heartbeat_mode, HeartbeatState};
 use crate::orders::OrderStore;
 use crate::registry::AgentRosterSnapshot;
 use crate::thought::ThoughtLedger;
+use annunimas_fleet::{
+    EdgeDispatcher, EdgeHealthMonitor, FleetCapacityManager, ProviderTokenTracker,
+};
 use arda_core::error::Result;
 use arda_core::ledger::Ledger;
 use arda_core::router::Router;
 use arda_core::task::Task;
-use annunimas_fleet::{
-    EdgeDispatcher, EdgeHealthMonitor, FleetCapacityManager, ProviderTokenTracker,
-};
 use arda_vaire::MnemosyneService;
 
 pub struct Pipeline {

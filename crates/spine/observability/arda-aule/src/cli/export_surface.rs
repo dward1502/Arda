@@ -3946,10 +3946,7 @@ fn export_governance_gap_backlog() -> Result<Value> {
                 return None;
             }
             let crate_name = crate_row.get("crate").and_then(Value::as_str).unwrap_or("");
-            let priority = if matches!(
-                crate_name,
-                "arda-apollo" | "arda-oracle" | "arda-plutus"
-            ) {
+            let priority = if matches!(crate_name, "arda-apollo" | "arda-oracle" | "arda-plutus") {
                 "high"
             } else {
                 "medium"

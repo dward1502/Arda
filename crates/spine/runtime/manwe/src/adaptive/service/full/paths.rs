@@ -5,8 +5,8 @@ pub(super) fn arda_root() -> PathBuf {
         return PathBuf::from(path);
     }
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .and_then(Path::parent)
+        .ancestors()
+        .nth(4)
         .map(Path::to_path_buf)
         .unwrap_or_else(|| PathBuf::from("."))
 }

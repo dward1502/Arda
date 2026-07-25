@@ -68,8 +68,8 @@
         "crates/spine/interface/arda-orome/src/mcp/tools.rs",
         "crates/spine/interface/arda-orome/src/service/council.rs",
         "crates/spine/interface/arda-orome/src/types.rs",
-        "crates/spine/runtime/manwe/src/adaptive/service/runtime_state.rs",
-        "crates/spine/runtime/manwe/src/adaptive/service/capabilities.rs",
+        "crates/spine/runtime/manwe/src/adaptive/service/full/runtime_state.rs",
+        "crates/spine/runtime/manwe/src/adaptive/service/full/capabilities.rs",
         "crates/spine/runtime/manwe/src/adaptive/transport/http.rs"
       ],
       "evidence_class_current": "runtime_receipted",

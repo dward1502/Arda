@@ -15,6 +15,7 @@ pub struct GovernancePaths {
 impl GovernancePaths {
     pub const CHAIN_CONFIG: &'static str = "config/governance/chains.toml";
     pub const PHILOSOPHER_PROFILES: &'static str = "config/governance/philosophers.toml";
+    pub const REALM_POLICY: &'static str = "config/governance/realm_policies.toml";
     pub const BACON_LITE_MACHINE_LOG: &'static str = "data/governance/bacon_lite.jsonl";
     pub const BACON_LITE_HUMAN_LOG: &'static str = "docs/operator/library/governance/bacon_lite.md";
 
@@ -51,6 +52,10 @@ impl GovernancePaths {
         self.resolve(Self::PHILOSOPHER_PROFILES)
     }
 
+    pub fn realm_policy(&self) -> PathBuf {
+        self.resolve(Self::REALM_POLICY)
+    }
+
     pub fn bacon_lite_machine_log(&self) -> PathBuf {
         self.resolve(Self::BACON_LITE_MACHINE_LOG)
     }
@@ -75,6 +80,10 @@ mod tests {
         assert_eq!(
             paths.philosopher_profiles(),
             PathBuf::from("/tmp/arda-instance/config/governance/philosophers.toml")
+        );
+        assert_eq!(
+            paths.realm_policy(),
+            PathBuf::from("/tmp/arda-instance/config/governance/realm_policies.toml")
         );
         assert_eq!(
             paths.bacon_lite_machine_log(),

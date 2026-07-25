@@ -208,10 +208,7 @@ mod tests {
         );
 
         assert_eq!(packet.contract, OBJECTIVE_PACKET_CONTRACT);
-        assert_eq!(
-            packet.source_contract,
-            "arda.arandur.recommendations.v1"
-        );
+        assert_eq!(packet.source_contract, "arda.arandur.recommendations.v1");
         assert_eq!(packet.source_type, ArandurSourceType::ArandurRecommendation);
         assert_eq!(packet.source_record_id, "reco-1");
         assert_eq!(packet.candidate_id, "cand-1");

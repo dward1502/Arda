@@ -6,15 +6,17 @@ soterion:
   role: "organization_index"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-21"
+  last_reviewed: "2026-07-25"
 ---
 
-> 🜏 Soterion: 📜 organization_index | owner: HADES | status: active | reviewed: 2026-07-21
+> 🜏 Soterion: 📜 organization_index | owner: HADES | status: active | reviewed: 2026-07-25
 
 # tests
 
 - Purpose: integration and compatibility verification for `arda-governance`
-- Coverage: chain/profile contracts, alignment behavior, injected filesystem roots, public API wire shapes, and stable enum encodings
+- Coverage: chain/profile contracts, alignment behavior, realm/scorer policy, observability
+  and operator projections, injected filesystem roots, public API wire shapes, and stable
+  policy/enum encodings
 
 ## Contents
 

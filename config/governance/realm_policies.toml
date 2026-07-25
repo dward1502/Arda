@@ -1,0 +1,74 @@
+# Phase 8 realm policy. The global rule is always advisory/non-blocking.
+schema_version = "arda.governance.realm_policy.v1"
+policy_version = "realm-policy-v1"
+
+[global_default]
+required_lenses = ["aurelius", "bacon", "sun_tzu"]
+minimum_weighted_score = 0.60
+strict = false
+review_requirements = ["operator_review"]
+autonomous_blocking_enabled = false
+
+[global_default.weights]
+aurelius = 1.0
+bacon = 1.0
+sun_tzu = 1.0
+
+[global_default.thresholds]
+aurelius = 0.60
+bacon = 0.50
+sun_tzu = 0.50
+
+# Research emphasizes receipted empirical evidence.
+[[scopes]]
+scope_id = "research-evidence"
+realm = "research"
+action_class = "evidence_assessment"
+required_lenses = ["aurelius", "bacon", "sun_tzu"]
+minimum_weighted_score = 0.68
+strict = true
+review_requirements = ["operator_review", "independent_review"]
+autonomous_blocking_enabled = false
+readiness_subsystem = "realm:research:action:evidence_assessment"
+
+[scopes.weights]
+aurelius = 0.8
+bacon = 1.8
+sun_tzu = 0.4
+
+[scopes.thresholds]
+aurelius = 0.60
+bacon = 0.72
+sun_tzu = 0.45
+
+[scopes.blocking_controls]
+rollback_enabled = false
+operator_disable_enabled = true
+independent_review_receipt_ids = []
+
+# Deployment planning emphasizes strategic risk and fallback quality.
+[[scopes]]
+scope_id = "operations-strategy"
+realm = "operations"
+action_class = "deployment"
+required_lenses = ["aurelius", "bacon", "sun_tzu"]
+minimum_weighted_score = 0.70
+strict = true
+review_requirements = ["operator_review", "independent_review"]
+autonomous_blocking_enabled = false
+readiness_subsystem = "realm:operations:action:deployment"
+
+[scopes.weights]
+aurelius = 0.7
+bacon = 0.5
+sun_tzu = 1.8
+
+[scopes.thresholds]
+aurelius = 0.60
+bacon = 0.50
+sun_tzu = 0.75
+
+[scopes.blocking_controls]
+rollback_enabled = true
+operator_disable_enabled = true
+independent_review_receipt_ids = []

@@ -472,10 +472,7 @@ pub(crate) fn load_queued_tasks(limit: usize) -> anyhow::Result<Vec<QueuedTask>>
 }
 
 pub(crate) fn task_queue_path() -> String {
-    env_or(
-        "ARDAD_TASK_QUEUE_PATH",
-        "core/projects/tasks/queue.jsonl",
-    )
+    env_or("ARDAD_TASK_QUEUE_PATH", "core/projects/tasks/queue.jsonl")
 }
 
 pub(crate) fn warden_queue_path() -> String {

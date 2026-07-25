@@ -1,5 +1,8 @@
 // sigil: REPAIR
-//! Love Equation scoring shared across governance surfaces.
+//! Legacy task-value proxy retained as an explicit compatibility surface.
+//!
+//! This module does not implement canonical cooperation/defection Love
+//! Dynamics; use [`crate::evaluate_love_dynamics`] for that model.
 
 use arda_core::Task;
 use serde::{Deserialize, Serialize};
@@ -29,7 +32,9 @@ fn default_love_equation_source() -> String {
     "impact_reach_energy_time_proxy_not_canonical_love_dynamics".to_string()
 }
 
-pub fn love_equation_score(task: &Task) -> LoveEquationScore {
+/// Compatibility task-value proxy retained for callers that predate canonical
+/// [`crate::LoveDynamicsInput`] and [`crate::evaluate_love_dynamics`].
+pub fn love_dynamics_compatibility_proxy(task: &Task) -> LoveEquationScore {
     let impact = match task.status {
         arda_core::TaskStatus::Complete => 0.95,
         arda_core::TaskStatus::Running => 0.7,
@@ -73,6 +78,15 @@ pub fn love_equation_score(task: &Task) -> LoveEquationScore {
     score
 }
 
+/// Deprecated compatibility name for [`love_dynamics_compatibility_proxy`].
+#[deprecated(
+    since = "0.1.0",
+    note = "use love_dynamics_compatibility_proxy; this proxy is not canonical Love Dynamics"
+)]
+pub fn love_equation_score(task: &Task) -> LoveEquationScore {
+    love_dynamics_compatibility_proxy(task)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -88,7 +102,7 @@ mod tests {
         task.joule_cost_estimated = 1.0;
         task.joule_cost_actual = 1.0;
 
-        let score = love_equation_score(&task);
+        let score = love_dynamics_compatibility_proxy(&task);
         assert!(score.score > 0.1);
         assert!(score.impact > 0.9);
         assert_eq!(score.semantic, "task_value_proxy");
@@ -115,7 +129,7 @@ mod tests {
         task.status = TaskStatus::Complete;
         task.joule_cost_actual = 1.0;
 
-        let score = love_equation_score(&task);
+        let score = love_dynamics_compatibility_proxy(&task);
         let expected_proxy =
             (score.impact * score.reach / (score.energy * score.time)).clamp(0.0, 1.0);
 

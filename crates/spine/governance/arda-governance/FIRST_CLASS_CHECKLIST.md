@@ -239,10 +239,9 @@ Verification passed: `cargo fmt -p arda-governance -- --check`;
 `cargo check -p arda-orome -p arda-vaire -p arda-varda -p arda-mandos -p arda-economics`.
 The policy-version suite covers current receipts, typed consumer matching, confidence
 bands, legacy downgrade defaults, normalized scoring, and future-version rejection; the
-public compatibility fixture locks the serialized result fields. An all-feature Manwe
-consumer check remains blocked by pre-existing adaptive telemetry/Mnemosyne compile errors
-in `manwe/src/adaptive/service/service_events.rs`, outside Phase 3 changes. Workspace-wide
-format checking likewise remains blocked by unrelated pre-existing formatting drift.
+public compatibility fixture locks the serialized result fields. The Manwe and workspace
+formatting blockers recorded during Phase 3 were subsequently resolved and are covered by
+the passing Phase 9 evidence below.
 
 ## Phase 4 — Make Bacon-Lite a durable, non-blocking ledger service
 
@@ -402,84 +401,140 @@ and unavailable outcomes without contacting NOAA.
 This phase consolidates all remaining recommendations from
 `GOVERNANCE_ALIGNMENT_PLAN.md` and the Love-proxy naming issue from `BREAKDOWN.md`.
 
-- [ ] Rename or expose `love_equation.rs` explicitly as a compatibility proxy and
+- [x] Rename or expose `love_equation.rs` explicitly as a compatibility proxy and
   deprecate `love_equation_score` in favor of a documented Love-Dynamics compatibility
   wrapper.
-- [ ] Decide, with golden tests, whether philosopher verdicts reweight resonance or remain
+- [x] Decide, with golden tests, whether philosopher verdicts reweight resonance or remain
   separate decision metadata; do not change weights implicitly.
-- [ ] Add Nonconformist Bee as a first-class, independently testable module rather than
+- [x] Add Nonconformist Bee as a first-class, independently testable module rather than
   an embedded signal field.
-- [ ] Add Empirical Distrust as a first-class, independently testable module rather than
+- [x] Add Empirical Distrust as a first-class, independently testable module rather than
   an embedded signal field.
-- [ ] Complete philosopher corpus/profile lifecycle boundaries: human-authored source,
+- [x] Complete philosopher corpus/profile lifecycle boundaries: human-authored source,
   generated artifact, review authority, promotion criteria, and immutable receipt.
-- [ ] Integrate or retire the Socrates/corpus-loader prototype identified in Phase 0.
-- [ ] Add cross-module arbitration tests for sycophancy, costly truthful work,
+- [x] Integrate or retire the Socrates/corpus-loader prototype identified in Phase 0.
+- [x] Add cross-module arbitration tests for sycophancy, costly truthful work,
   cooperation/defection shifts, and conflicting philosopher recommendations.
 
 Verification:
 
-- [ ] Public and operator surfaces cannot confuse the Love proxy with canonical Love
+- [x] Public and operator surfaces cannot confuse the Love proxy with canonical Love
   Dynamics.
-- [ ] Every philosopher-derived action discloses profile source, maturity, authority,
+- [x] Every philosopher-derived action discloses profile source, maturity, authority,
   and review mode.
+
+Phase 7 evidence: `tests/phase7_philosopher_expansion.rs`, the additive public API fixture,
+and the governance operator projection cover the compatibility label, golden score boundary,
+independent modules, lifecycle receipt, and conflicting arbitration cases. The retired
+Socrates/corpus-loader paths remain absent and are recorded in `src/INDEX.md`.
 
 ## Phase 8 — Add realm policy and async scorer extensibility
 
 This phase combines Optimization E1/E2/B1b with the runtime-policy-toggle request from
 `BREAKDOWN.md`.
 
-- [ ] Define an async-first governance scorer trait with a deterministic local
+- [x] Define an async-first governance scorer trait with a deterministic local
   implementation and explicit timeout/error/degraded verdict semantics.
-- [ ] Keep optional LLM-backed scoring behind a feature/config gate with task-hash cache,
+- [x] Keep optional LLM-backed scoring behind a feature/config gate with task-hash cache,
   provenance, model/provider identity, and reproducibility limits in every receipt.
-- [ ] Add per-realm/per-action-class chain policy configuration for required lenses,
+- [x] Add per-realm/per-action-class chain policy configuration for required lenses,
   weights, thresholds, strictness, and review requirements.
-- [ ] Validate weights and thresholds, reject unknown lenses, and preserve safe defaults.
-- [ ] Replace scattered hard rejection of `autonomous_blocking_enabled` with one runtime
+- [x] Validate weights and thresholds, reject unknown lenses, and preserve safe defaults.
+- [x] Replace scattered hard rejection of `autonomous_blocking_enabled` with one runtime
   policy authority only after scoped policy, independent-review receipts, rollback, and
   operator controls exist.
-- [ ] Keep the global default non-blocking; enable blocking only for explicitly named
+- [x] Keep the global default non-blocking; enable blocking only for explicitly named
   scopes whose readiness report reaches `AutonomyReadyForScope`.
-- [ ] Add configuration reload/versioning and audit receipts for policy changes.
+- [x] Add configuration reload/versioning and audit receipts for policy changes.
 
 Verification:
 
-- [ ] Realm fixtures demonstrate different Bacon/Sun-Tzu emphasis without code changes.
-- [ ] Timeout, unavailable scorer, stale cache, and invalid policy all fail to documented
+- [x] Realm fixtures demonstrate different Bacon/Sun-Tzu emphasis without code changes.
+- [x] Timeout, unavailable scorer, stale cache, and invalid policy all fail to documented
   safe/degraded states.
-- [ ] No configuration can enable global autonomous blocking accidentally.
+- [x] No configuration can enable global autonomous blocking accidentally.
+
+Phase 8 evidence: `src/scorer.rs` provides the object-safe async scorer contract,
+deterministic local scorer, timeout/error receipts, and feature/config-gated LLM scorer with
+task-hash cache semantics. `src/realm_policy.rs` owns validated exact-scope policy,
+weighted async evaluation, atomic reload receipts, and the sole runtime blocking authority.
+`config/governance/realm_policies.toml` keeps both repository scopes non-blocking.
+`tests/phase8_realm_policy.rs` covers differing Bacon/Sun-Tzu fixture emphasis, invalid
+policy, timeout, unavailable backend, stale cache, atomic reload, and scoped readiness/
+review/rollback/operator gates. Strict Clippy, all-feature tests, rustdoc, and the `arda-aule`
+consumer check pass as recorded in `STATUS.md`.
 
 ## Phase 9 — First-class release gate
 
-- [ ] All production consumers use the documented result and receipt contracts.
-- [ ] No dead source modules, stale path contracts, or undocumented compatibility
+- [x] All production consumers use the documented result and receipt contracts.
+- [x] No dead source modules, stale path contracts, or undocumented compatibility
   defaults remain.
-- [ ] README, rustdoc, indexes, operator docs, and this checklist agree with live code.
-- [ ] `GOVERNANCE_PROVENANCE.md` identifies the exact upstream sources, versions,
+- [x] README, rustdoc, indexes, operator docs, and this checklist agree with live code.
+- [x] `GOVERNANCE_PROVENANCE.md` identifies the exact upstream sources, versions,
   adaptation boundaries, and license/notice requirements for every non-original concept.
-- [ ] `cargo fmt --all -- --check` passes.
-- [ ] `cargo clippy -p arda-governance --all-targets --all-features -- -D warnings`
+- [x] `cargo fmt --all -- --check` passes.
+- [x] `cargo clippy -p arda-governance --all-targets --all-features -- -D warnings`
   passes, or workspace-owned pre-existing exceptions are recorded with evidence.
-- [ ] `cargo test -p arda-governance --all-features` passes.
-- [ ] Focused consumer tests pass for Manwe adaptive routing, `arda-aule` governance
+- [x] `cargo test -p arda-governance --all-features` passes.
+- [x] Focused consumer tests pass for Manwe adaptive routing, `arda-aule` governance
   policy/operator commands, `arda-orome`, `arda-varda`, `arda-mandos`, `arda-economics`,
   and `arda-vaire` integrations.
-- [ ] Ledger load/recovery and metrics integration tests pass under burst and failure
+- [x] Ledger load/recovery and metrics integration tests pass under burst and failure
   fixtures.
-- [ ] Serialized compatibility fixtures and policy-version golden tests pass.
-- [ ] A current readiness report remains conservative and lists all missing evidence for
+- [x] Serialized compatibility fixtures and policy-version golden tests pass.
+- [x] A current readiness report remains conservative and lists all missing evidence for
   any scope not yet autonomy-ready.
-- [ ] Archive or mark the three source plans as superseded for execution only after every
+- [x] Archive or mark the three source plans as superseded for execution only after every
   open idea is represented here and active documentation links to this checklist.
+
+Phase 9 evidence (2026-07-25):
+
+- Manwe adaptive routing now owns a validated `RealmPolicyStore`, evaluates every preview
+  and selected route through `evaluate_realm_governance` with `LocalGovernanceScorer`, and
+  projects the exact scorer receipts and `RuntimeBlockingDecision` into `RouteGovernance`
+  and route-selected evidence. Runtime policy reloads return the documented atomic audit
+  receipt. Passing and non-passing integration tests prove that receipts reach the production
+  decision/event surfaces while the conservative readiness report keeps blocking disabled.
+- Migrated Manwe's remaining adaptive hot-path Bacon-Lite calls from the synchronous
+  compatibility adapter to `enqueue_bacon_lite`; repository search finds no production
+  `record_bacon_lite`, `calculate_resonance_basic`, or `love_equation_score` caller.
+- `cargo test -p arda-governance --all-features`: 117 tests passed (67 unit, 47 integration,
+  3 doctests). The Bacon-Lite suite includes burst batching, saturation/latency,
+  concurrent producers, restart recovery, rotation/retention, malformed records, and disk
+  failure counters. Observability, public API compatibility, and policy-version suites pass.
+- `cargo clippy -p arda-governance --all-targets --all-features -- -D warnings`,
+  `cargo fmt -p arda-governance -- --check`, and
+  `cargo doc -p arda-governance --no-deps --all-features` pass.
+- `cargo test -p manwe --features adaptive`: 292 tests passed, including adaptive routing
+  policy/receipt behavior. Default-feature tests for `arda-aule`, `arda-orome`,
+  `arda-varda`, `arda-mandos`, `arda-economics`, and `arda-vaire` pass in one focused run.
+- `cargo check -p arda-aule --features full-cli --all-targets`,
+  `cargo test -p arda-aule --features full-cli`, and strict all-target/all-feature Clippy
+  pass. The supported `arda-cli` surface now compiles only implemented operator contracts;
+  integration tests execute `governance-metrics` and `governance-status` and validate their
+  machine-readable outputs. Uncompiled imported monolith modules are no longer attached to
+  the Aule library surface.
+- `cargo fmt --all -- --check` passes after applying rustfmt across the workspace.
+- The project creator completed human release review on 2026-07-25 and approved the narrow
+  public algorithmic adaptations recorded in `GOVERNANCE_PROVENANCE.md`.
+- `GOVERNANCE_PROVENANCE.md` records Brian Roemmele's dated JouleWork and Love Equation
+  publications, the SSRN corroboration, NOAA terms, exact Arda adaptation boundaries, and
+  the project creator's 2026-07-25 human release approval.
+- `BREAKDOWN.md`, `GOVERNANCE_ALIGNMENT_PLAN.md`, and `OPTIMIZATION_PLAN.md` are retained as
+  design/audit evidence but marked superseded for execution by this checklist.
 
 ## Deferred decisions that must not be silently assumed
 
-- [ ] Solar integration versus removal.
-- [ ] Philosopher verdict as resonance weight versus separate decision metadata.
-- [ ] Caller-driven versus library-owned metric collection.
-- [ ] Exact compatibility-removal version for default Triad purity and Love proxy APIs.
-- [ ] Whether optional LLM scorers are warranted after structured deterministic evidence
-  scoring is measured.
-- [ ] Which initial realm/action scopes, if any, may pursue autonomous blocking after
-  independent review and rollback evidence exist.
+- [x] Solar integration versus removal: retained as quality-tagged advisory evidence only.
+- [x] Philosopher verdict as resonance weight versus separate decision metadata: separate
+  metadata; it does not silently change the numeric resonance score.
+- [x] Caller-driven versus library-owned metric collection: bounded-label library-owned
+  in-process snapshots; callers own serving/export.
+- [x] Exact compatibility-removal version for default Triad purity and Love proxy APIs:
+  remove before `0.3.0`; current `0.1.0` deprecations remain explicit.
+- [x] Optional LLM scorer decision: retained behind `llm-scorer`, with receipted timeout,
+  cache, source, and reproducibility boundaries; deterministic local scoring remains the
+  default.
+- [x] Which initial realm/action scopes, if any, may pursue autonomous blocking after
+  independent review and rollback evidence exist: none are autonomy-ready; named scopes
+  remain non-blocking until independent receipts and rollback/operator evidence exist.

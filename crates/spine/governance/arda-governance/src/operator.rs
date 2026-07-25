@@ -2,7 +2,7 @@
 
 use crate::{
     BaconLiteEvent, BaconLiteLedgerSummary, GovernanceMetricsSnapshot, GovernanceReadinessReport,
-    GovernanceVetoReason, PhilosopherAction, TriadPhilosopherVerdict,
+    GovernanceVetoReason, PhilosopherAction, PhilosopherLifecycleReceipt, TriadPhilosopherVerdict,
 };
 use serde::{Deserialize, Serialize};
 
@@ -44,6 +44,7 @@ pub struct CompactPhilosopherEvidence {
     pub action: PhilosopherAction,
     pub alignment_score: f64,
     pub reason: String,
+    pub lifecycle: PhilosopherLifecycleReceipt,
 }
 
 impl From<TriadPhilosopherVerdict> for CompactPhilosopherEvidence {
@@ -52,6 +53,7 @@ impl From<TriadPhilosopherVerdict> for CompactPhilosopherEvidence {
             action: verdict.action,
             alignment_score: verdict.alignment_score,
             reason: verdict.reason,
+            lifecycle: verdict.lifecycle,
         }
     }
 }
@@ -167,8 +169,15 @@ pub fn render_governance_status_human(report: &GovernanceStatusReport) -> String
         }
         if let Some(philosopher) = &decision.philosopher_evidence {
             output.push_str(&format!(
-                "Philosopher: {:?} score={:.3} reason={}\n",
-                philosopher.action, philosopher.alignment_score, philosopher.reason
+                "Philosopher: {:?} score={:.3} reason={} | source={} | revision={} | maturity={:?} | review={:?} | authority={}\n",
+                philosopher.action,
+                philosopher.alignment_score,
+                philosopher.reason,
+                philosopher.lifecycle.profile_source,
+                philosopher.lifecycle.source_revision,
+                philosopher.lifecycle.maturity,
+                philosopher.lifecycle.review_mode,
+                philosopher.lifecycle.review_authority,
             ));
         }
     } else {

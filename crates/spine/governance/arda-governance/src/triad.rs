@@ -252,11 +252,6 @@ impl GovernanceChainConfig {
         }
         require_chain_field(&self.profile_source, "profile_source")?;
         require_chain_field(&self.profile_maturity, "profile_maturity")?;
-        if self.autonomous_blocking_enabled {
-            return Err(GovernanceChainError::UnsafeAutonomyFlag(
-                "autonomous_blocking_enabled must remain false until Phase G7".to_string(),
-            ));
-        }
         if self.lenses.is_empty() {
             return Err(GovernanceChainError::EmptyLenses);
         }
@@ -466,6 +461,16 @@ fn score_governance_lens(task: &Task, lens_id: &str, evidence: &GovernanceEviden
         "bacon" => score_bacon(task, evidence),
         "sun_tzu" => score_sun_tzu(task, evidence),
         _ => score_named_lens(task, lens_id, evidence),
+    }
+}
+
+pub(crate) fn score_governance_lens_for_scorer(task: &Task, lens_id: &str) -> Option<f64> {
+    match lens_id {
+        "aurelius" | "bacon" | "sun_tzu" => {
+            let evidence = assess_governance_evidence(task);
+            Some(score_governance_lens(task, lens_id, &evidence))
+        }
+        _ => None,
     }
 }
 
@@ -860,7 +865,7 @@ pass_threshold = 0.50
     }
 
     #[test]
-    fn configurable_chain_rejects_autonomous_blocking_before_g7() {
+    fn legacy_chain_flag_cannot_enable_runtime_blocking() {
         let raw = GovernanceChainConfig::default_triad()
             .to_toml_string()
             .expect("default chain should serialize")
@@ -868,11 +873,12 @@ pass_threshold = 0.50
                 "autonomous_blocking_enabled = false",
                 "autonomous_blocking_enabled = true",
             );
-        let err = load_governance_chain_from_str(&raw)
-            .expect_err("G3 chains must not enable autonomous blocking");
-        assert!(err
-            .to_string()
-            .contains("autonomous_blocking_enabled must remain false"));
+        let chain = load_governance_chain_from_str(&raw)
+            .expect("legacy flag remains parseable during Phase 8 migration");
+        assert!(chain.autonomous_blocking_enabled);
+
+        let result = evaluate_governance_chain(&Task::new("deploy safely", "deployment"), &chain);
+        assert!(!result.autonomous_blocking_enabled);
     }
 
     #[test]

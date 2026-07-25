@@ -131,7 +131,7 @@ Focused production-cutover files:
 - `crates/spine/runtime/manwe/src/config.rs`
 - `crates/spine/runtime/manwe/src/main.rs`
 - `crates/spine/runtime/manwe/src/provider.rs`
-- `crates/spine/runtime/manwe/src/adaptive/service/route_policy_tests.rs`
+- `crates/spine/runtime/manwe/src/adaptive/service/full/route_policy_tests.rs`
 - `scripts/smoke_manwe_production.py`
 - `docs/plans/HERMES_AGENT_FLEET.md`
 

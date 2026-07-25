@@ -5,7 +5,7 @@ soterion:
   role: "governance_engine"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-17"
+  last_reviewed: "2026-07-25"
 ---
 
 # arda-governance
@@ -13,14 +13,19 @@ Governance engine for Arda agents: triad gates, resonance, love dynamics,
 JouleWork profiling, readiness levels, and philosopher arbitration.
 Owner: hades | Sigil: 🜏 REPAIR | Status: active
 
+Execution status: **superseded by [`FIRST_CLASS_CHECKLIST.md`](FIRST_CLASS_CHECKLIST.md)**.
+This breakdown remains active architecture/audit evidence. Its improvement items are mapped
+to canonical phases in the checklist's deduplication and source-coverage table; do not track
+new execution status here.
+
 ## Summary
-`arda-governance` is the heaviest governance crate in the Arda spine.
+`arda-governance` is the central governance crate in the Arda spine.
 It implements the actual scoring surfaces behind autonomous decision
 quality: triad validation, resonance/joule/love metrics, game-theory
 agent selection, readiness projections, Bacon-Lite evidence logging,
 audio/vision/solar environmental governance signals, and a deterministic
-philosopher arbitration layer. It depends on `arda-core` and is not yet
-wired into `arda-engine` or `apps`.
+philosopher arbitration layer. It depends on `arda-core`; production consumers are
+enumerated and verified conservatively in `FIRST_CLASS_CHECKLIST.md` and `STATUS.md`.
 
 ## Where it lives
 - Crate root: `/var/home/mythos/Eregion/Arda/crates/spine/governance/arda-governance`
@@ -32,12 +37,10 @@ wired into `arda-engine` or `apps`.
 - Normalized all in-repo `"config/governance/philosophers.toml"` status metadata strings in Rust sources, tests, and `crates/spine/config/governance/chains.toml` to the canonical repo-root path. Removed stale `../config/...` relative path from spine-local chain config.
 
 ## Verification status
-- `cargo check -p arda-governance`: OK
-- `cargo test -p arda-governance`: 44/45 passing
-- Failing: `repository_default_chain_config_matches_g3_contract`
-  - Cause: previous `../../../config/governance/chains.toml` include missed repo root; resolved with `../../../../config/...`.
-  - Fix: align `chains.toml` `profile_source` with the test include path.
-- No consumer imports detected in `crates/engine` or `apps`.
+
+Historical failures in this audit snapshot are closed. Current release-gate evidence and
+workspace-owned blockers are recorded in `STATUS.md`; `FIRST_CLASS_CHECKLIST.md` is the
+only completion tracker.
 
 ## Agentic-OS abstractions
 - **Triad Gate**: deterministic 3-lens validation
@@ -49,12 +52,14 @@ wired into `arda-engine` or `apps`.
 - **Governance chain config contract**
   - schema version `arda.governance.chains.v1`
   - validates required passes, required fields, lens thresholds
-  - blocks `autonomous_blocking_enabled` until later phase
+  - legacy autonomy flags are non-authoritative; scoped blocking is decided only by
+    `RuntimeBlockingAuthority`
 - **Resonance scoring**
   - ECST + phi harmonic + governance chain linkage
   - 0-100 resonance score, triad purity tracking
 - **Love Equation / Dynamics**
-  - static proxy: `impact * reach / (energy * time)`
+  - explicit compatibility proxy: `impact * reach / (energy * time)` via
+    `love_dynamics_compatibility_proxy`; old `love_equation_score` name is deprecated
   - dynamic: `dE/dt = beta * (C - D) * E`
   - trends: Growing, Stable, Decaying
 - **JouleWork profiling**
@@ -74,10 +79,11 @@ wired into `arda-engine` or `apps`.
   - Audio, Vision, Solar geomagnetic environmental signals
 - **Philosopher arbitration**
   - alignment signals with Proceed / Revise / Hold / Reject
+  - Nonconformist Bee and Empirical Distrust are independent advisory modules
+  - resonance keeps verdicts as separate decision metadata, not hidden score weights
 - **Philosopher profile lifecycle**
-  - TOML-loaded schema, maturity gating, draft-only bootstrap in G2
-- **Corpus loader**
-  - regex patterns + weighted veto classes from philosopher dirs
+  - TOML-loaded source/revision, generated-artifact boundary, review authority,
+    promotion criteria, maturity gating, and immutable-by-value receipts
 
 ## Crate layout
 | Module | Role |
@@ -88,6 +94,8 @@ wired into `arda-engine` or `apps`.
 | `resonance.rs` | Resonance + ECST/phiharmonic/governance-chain scoring |
 | `love_dynamics.rs` | Differential love dynamics |
 | `love_equation.rs` | Static love equation proxy |
+| `nonconformist_bee.rs` | Independent judgment and anti-sycophancy assessment |
+| `empirical_distrust.rs` | Evidence grounding and falsifiability assessment |
 | `joulework.rs` | JouleWork profile surface |
 | `game_theory.rs` | Capability-weighted agent selection |
 | `bacon_lite.rs` | Evidence gate + machine/human logging |
@@ -110,14 +118,14 @@ wired into `arda-engine` or `apps`.
    repo default `config/governance/philosophers.toml`.
 2. Replace path-string coupling with base-dir injection so tests don't
    depend on repo layout.
-3. Make `autonomous_blocking_enabled` a runtime policy toggle instead
-   of repeated compile-time-ish validation.
+3. **Implemented in Phase 8:** `autonomous_blocking_enabled` is resolved by one runtime
+   policy authority with named-scope readiness, rollback, review-receipt, and operator gates.
 4. Convert Bacon-Lite log transport to a shared ledger trait in `arda-core`.
 5. Add `GameTheoryConfidenceBand` enum: High/Medium/Low/NoData.
 6. Add evidence-grade penalty in triads instead of silently lenient
    heuristic-local scoring when no LLM evidence is attached.
-7. Rename `love_equation.rs` to `love_equation_proxy.rs` to make intent
-   explicit and reduce confusion with `love_dynamics.rs`.
+7. Completed in Phase 7 without a breaking module rename: the canonical entry point is
+   `love_dynamics_compatibility_proxy`, and the old function is deprecated.
 8. Parallelize NOAA/vision/audio fetches in HUD refresh with
    `try_run_bounded_async` from `arda-core/background.rs`.
 9. Add a `GovernanceSignal` enum for composite environmental coherence.

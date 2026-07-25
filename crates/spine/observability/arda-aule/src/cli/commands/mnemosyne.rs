@@ -3,10 +3,8 @@ use super::super::*;
 
 pub(crate) async fn handle(command: MnemosyneCommands) -> anyhow::Result<()> {
     let service = MnemosyneService::from_default_or_fallback()?;
-    let default_socket_path = socket_path_from_env(
-        "ARDA_MNEMOSYNE_SOCKET",
-        "data/mnemosyne/mnemosyne.sock",
-    );
+    let default_socket_path =
+        socket_path_from_env("ARDA_MNEMOSYNE_SOCKET", "data/mnemosyne/mnemosyne.sock");
     match command {
         MnemosyneCommands::Start {
             socket_path,

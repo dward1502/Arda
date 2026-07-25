@@ -3,8 +3,8 @@ use std::path::PathBuf;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use arda_governance::{
-    load_governance_chain, load_philosopher_profiles, GovernanceChainConfig, GovernancePaths,
-    PhilosopherProfileSet,
+    load_governance_chain, load_philosopher_profiles, load_realm_policy, GovernanceChainConfig,
+    GovernancePaths, PhilosopherProfileSet, RealmPolicyConfig,
 };
 
 fn temp_base() -> PathBuf {
@@ -31,10 +31,17 @@ fn loaders_work_from_an_injected_base_outside_the_repository() {
         include_str!("../../../../../config/governance/philosophers.toml"),
     )
     .expect("write profile fixture");
+    fs::write(
+        paths.realm_policy(),
+        include_str!("../../../../../config/governance/realm_policies.toml"),
+    )
+    .expect("write realm policy fixture");
 
     let chain = load_governance_chain(paths.chain_config()).expect("load chain from injected root");
     let profiles = load_philosopher_profiles(paths.philosopher_profiles())
         .expect("load profiles from injected root");
+    let realm_policy =
+        load_realm_policy(paths.realm_policy()).expect("load realm policy from injected root");
 
     assert_eq!(chain.schema_version, GovernanceChainConfig::SCHEMA_VERSION);
     assert_eq!(
@@ -42,6 +49,11 @@ fn loaders_work_from_an_injected_base_outside_the_repository() {
         PhilosopherProfileSet::SCHEMA_VERSION
     );
     assert_eq!(profiles.profiles.len(), 3);
+    assert_eq!(
+        realm_policy.schema_version,
+        RealmPolicyConfig::SCHEMA_VERSION
+    );
+    assert!(!realm_policy.global_default.autonomous_blocking_enabled);
 
     fs::remove_dir_all(base).expect("remove temporary fixture root");
 }

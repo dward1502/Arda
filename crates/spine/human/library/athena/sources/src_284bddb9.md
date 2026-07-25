@@ -3,9 +3,9 @@
 - source_id: `src_284bddb9`
 - status: `shallow`
 - source_type: `RawNote`
-- updated_at_utc: `2026-07-23T16:34:59.258146784+00:00`
+- updated_at_utc: `2026-07-25T19:15:17.623374664+00:00`
 - url: OPPOSING_VIEWPOINT CHALLENGE for src_d46d1480: This perspective questions assump
-- athena_book: `/tmp/.tmpHpFp0r/books/src_284bddb9.jsonl`
+- athena_book: `/tmp/.tmpCSSbdN/books/src_284bddb9.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

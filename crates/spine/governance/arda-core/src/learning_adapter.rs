@@ -114,8 +114,7 @@ mod tests {
         learning.observe("b", "ops", true, 1.0, 1.0);
         learning.observe("c", "ops", false, 1.0, 1.0);
 
-        let adapted =
-            adapt_learning_to_domain(&learning, "governance", "test-consumer", 2);
+        let adapted = adapt_learning_to_domain(&learning, "governance", "test-consumer", 2);
         assert_eq!(adapted.retained.len(), 1);
         assert_eq!(adapted.retained[0].agent, "a");
         assert_eq!(adapted.retained[0].success_rate, 1.0);
@@ -135,8 +134,7 @@ mod tests {
             },
         );
 
-        let adapted =
-            adapt_learning_to_domain(&learning, "governance", "test-consumer", 1);
+        let adapted = adapt_learning_to_domain(&learning, "governance", "test-consumer", 1);
         assert!(adapted.retained.is_empty());
         assert_eq!(adapted.ignored.len(), 1);
     }
@@ -148,7 +146,10 @@ mod tests {
         learning.observe("a", "ops", true, 1.0, 1.0);
 
         let receipt = build_learning_ledger_receipt(&learning, "governance", "test-consumer", 2);
-        assert_eq!(receipt.schema_version, LearningLedgerReceipt::SCHEMA_VERSION);
+        assert_eq!(
+            receipt.schema_version,
+            LearningLedgerReceipt::SCHEMA_VERSION
+        );
         assert_eq!(receipt.retained.len(), 1);
         let json = serde_json::to_string(&receipt).unwrap();
         let back: LearningLedgerReceipt = serde_json::from_str(&json).unwrap();

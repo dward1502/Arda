@@ -3,9 +3,9 @@
 - source_id: `src_84eacbc2`
 - status: `shallow`
 - source_type: `GithubRepo`
-- updated_at_utc: `2026-07-23T16:34:59.831400199+00:00`
+- updated_at_utc: `2026-07-25T19:15:19.364233553+00:00`
 - url: https://github.com/example/rust-api
-- athena_book: `/tmp/.tmp3ITpZY/books/src_84eacbc2.jsonl`
+- athena_book: `/tmp/.tmpdRiUMZ/books/src_84eacbc2.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

@@ -5296,10 +5296,7 @@ mod tests {
 
         let benchmark = benchmark_arandur_safety(&root, &root.join("packet"))?;
 
-        assert_eq!(
-            benchmark["contract"],
-            "arda.arandur.safety_benchmark.v1"
-        );
+        assert_eq!(benchmark["contract"], "arda.arandur.safety_benchmark.v1");
         assert_eq!(benchmark["benchmark_status"], "passed_read_only_safety");
         assert_eq!(
             benchmark["mutation_checks"]["canonical_queue_unchanged"],
@@ -5707,10 +5704,7 @@ mod tests {
         let promotion =
             promote_arandur_level(&root, 2, false, Some("operator approved next-step dry-run"))?;
 
-        assert_eq!(
-            promotion["contract"],
-            "arda.arandur.level_promotion.v1"
-        );
+        assert_eq!(promotion["contract"], "arda.arandur.level_promotion.v1");
         assert_eq!(promotion["target_level"], 2);
         assert_eq!(promotion["write"], false);
         assert_eq!(promotion["status"], "dry_run_ready_for_explicit_write");

@@ -6,7 +6,7 @@ soterion:
   role: "governance_spine"
   owner: "arda"
   status: "active"
-  last_reviewed: "2026-07-23"
+  last_reviewed: "2026-07-25"
 ---
 
 # arda-core
@@ -55,12 +55,11 @@ without adding a second direct dependency.
 |--------|------|
 | `agent.rs` | `Agent` trait, `AgentManifest`, sigil metadata. |
 | `aipkg.rs` | AIPKG preflight, manifest, governance, receipt policy. |
-| `alerts.rs` | Loop alert definitions for telemetry-driven notifications. |
 | `config.rs` | Runtime config for governance/spine choices. |
-| `contract.rs` / `contract/` | `Decision`, `DecisionClass`, `TriadOutcome`, `PhilosopherVerdict`, `Plan`, `Goal`, `Reflection`, `MemoryRecord`. |
+| `contract/` | `Decision`, `DecisionClass`, `TriadOutcome`, `PhilosopherVerdict`, `Plan`, `Goal`, `Reflection`, `MemoryRecord`. |
 | `daemon.rs` | IPC command/response envelopes. |
 | `error.rs` | Canonical shared error type/result alias. |
-| `governance.rs` / `governance_gates.rs` | Policy modes, corpus hints, per-class gates, YAML-loadable override map. |
+| `governance/` / `governance_gates.rs` | Policy modes, corpus hints, per-class gates, YAML-loadable override map. |
 | `learning.rs` | Outcome stats, learning state/store, gate lifecycle packets. |
 | `ledger.rs` | Append-only Decision/message JSONL output with Soterion enrichment. |
 | `layout.rs` | Layout/public-surface helper types. |
@@ -96,10 +95,11 @@ without adding a second direct dependency.
 
 ## Verification status
 - Compile-time: `cargo check -p arda-core` -> OK
-- Compile-time: `cargo check -p arda-engine` -> OK, only 1 unrelated
-  unused `mut` in `supervisor.rs`.
-- Runtime wiring: `engine` imports `arda-core::service_registry` and
-  `manwe` successfully; no linkage failure observed.
+- Tests: `cargo test -p arda-core` -> 99/99 passing (98 unit, 1 smoke,
+  0 doc-tests).
+- Compile-time consumer check: `cargo check -p arda-engine` -> OK.
+- Runtime wiring: `engine` imports `arda-core::service_registry`, observability,
+  and `manwe` successfully; no linkage failure observed.
 - Evidence: `engine/src/manwe.rs`, `engine/src/lib.rs`, and both
   `engine/INDEX.md` and `arda-core/INDEX.md`.
 
@@ -120,8 +120,17 @@ without adding a second direct dependency.
 - `crates/engine/src/manwe.rs`, `engine/src/lib.rs`
 
 ## Warnings / follow-ups
-- `service_registry/registry.rs:37` ignores `upsert_contract(...)` result.
-- `tool_contract/service.rs:5` has 1 unused import.
-- GEN3 interop is deferred; see `docs/interop/landscape.md`.
+- No `arda-core` compiler warnings in the 2026-07-25 check.
+- Legacy `src/alerts.rs` was retired on 2026-07-25 after repository and history
+  searches confirmed it had no export or consumer; `loop_alerts.rs` is canonical.
+- `ServiceRegistry::from_snapshot` intentionally skips rejected records;
+  duplicate-skip behavior is tested.
+- Remaining GEN3 questions are maintained in `docs/interop/landscape.md`.
 - Docs last refreshed against the `manwe` branch source of truth on
-  2026-07-23.
+  2026-07-25.
+
+## Foundation conclusion
+The crate’s stabilization plan is complete: GEN1 documentation alignment and
+GEN2 robustness are closed, implemented GEN3 surfaces are additive and tested,
+and the current compiled surface passes all 99 tests. `arda-core` is therefore
+the recorded stable foundation for subsequent crate-by-crate repair work.

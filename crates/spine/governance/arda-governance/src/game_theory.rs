@@ -11,7 +11,8 @@ use std::collections::HashMap;
 
 use crate::versions::{legacy_game_theory_policy_version, GAME_THEORY_POLICY_VERSION};
 use crate::{
-    love_equation_score, normalize_legacy_unit_or_percent, profile_joulework, triad_validate,
+    love_dynamics_compatibility_proxy, normalize_legacy_unit_or_percent, profile_joulework,
+    triad_validate,
 };
 
 pub const GAME_THEORY_SELECTION_POLICY_VERSION: &str = GAME_THEORY_POLICY_VERSION;
@@ -287,7 +288,7 @@ impl GameTheory {
         }
 
         let triad = triad_validate(task, None);
-        let love = love_equation_score(task);
+        let love = love_dynamics_compatibility_proxy(task);
         let joule = profile_joulework(task);
 
         let success_rate = entry.successful as f64 / entry.total_tasks as f64;
@@ -355,7 +356,7 @@ pub fn game_theory_score(task: &Task) -> f64 {
         TaskStatus::Retry { attempt, .. } => 0.3 / attempt.max(1) as f64,
     };
     let triad = triad_validate(task, None);
-    let love = love_equation_score(task);
+    let love = love_dynamics_compatibility_proxy(task);
     let joule = profile_joulework(task);
     let governance_bonus = if triad.passed { 0.12 } else { -0.18 }
         + (love.score * 0.10)

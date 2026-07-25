@@ -4,8 +4,7 @@ use sha1::{Digest, Sha1};
 
 pub(crate) async fn handle(command: HadesCommands) -> anyhow::Result<()> {
     let service = HadesService::from_default_or_fallback()?;
-    let default_socket_path =
-        socket_path_from_env("ARDA_HADES_SOCKET", "data/hades/hades.sock");
+    let default_socket_path = socket_path_from_env("ARDA_HADES_SOCKET", "data/hades/hades.sock");
     match command {
         HadesCommands::Start {
             socket_path,

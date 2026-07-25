@@ -1,15 +1,15 @@
 #![cfg(feature = "full-cli")]
 // sigil: REPAIR
 //! Arda CEO Pipeline
-//! 
+//!
 //! Simplified orchestration - routes tasks to agents
 
 use crate::core_link::CoreAutonomyProfile;
 use arda_core::error::Result;
 use arda_core::ledger::Ledger;
 use arda_core::message::Message;
-use arda_core::task::{Task, TaskStatus};
 use arda_core::router::Router;
+use arda_core::task::{Task, TaskStatus};
 
 pub struct Pipeline {
     router: Router,
@@ -106,7 +106,8 @@ impl Pipeline {
                 let agent_name = agent.name().to_string();
                 task.assign(&agent_name);
                 let task_id = task.id;
-                self.ledger.append(&Message::task_assignment(task_id, &agent_name))?;
+                self.ledger
+                    .append(&Message::task_assignment(task_id, &agent_name))?;
 
                 match agent.execute(&mut task).await {
                     Ok(()) => {
@@ -120,7 +121,8 @@ impl Pipeline {
                     Err(e) => {
                         let reason = e.to_string();
                         task.fail(&reason);
-                        self.ledger.append(&Message::task_failed(task_id, &agent_name, &reason))?;
+                        self.ledger
+                            .append(&Message::task_failed(task_id, &agent_name, &reason))?;
                     }
                 }
             }

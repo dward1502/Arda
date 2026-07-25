@@ -8,7 +8,7 @@
   "LoveDynamicsScore": ["empathy", "cooperation", "defection", "beta", "delta_time", "delta_empathy", "projected_empathy", "trend"],
   "LoveEquationScore": ["policy_version", "score", "impact", "reach", "energy", "time", "semantic", "source"],
   "PhilosopherProfileStatusProjection": ["schema_version", "authority", "chain_id", "chain_version", "profile_source", "review_mode", "profile_maturity", "autonomous_blocking_enabled", "generated_corpus_promotion_enabled", "profile_count", "profiles"],
-  "ResonanceScore": ["policy_version", "value", "ecst_components", "triad_philosopher"],
-  "TriadPhilosopherVerdict": ["action", "reason", "alignment_score"],
+  "ResonanceScore": ["policy_version", "value", "ecst_components", "triad_philosopher", "philosopher_influence"],
+  "TriadPhilosopherVerdict": ["action", "reason", "alignment_score", "lifecycle"],
   "TriadResult": ["policy_version", "chain_id", "chain_version", "profile_source", "review_mode", "profile_maturity", "aurelius", "bacon", "sun_tzu", "aurelius_score", "bacon_score", "sun_tzu_score", "passed", "veto_reason", "veto", "evidence"]
 }

@@ -333,6 +333,7 @@ pub(super) fn build_route_decision_with_governance_chain(
         joule_measurement_source: joule_measurement_source_label(joule.measurement_source),
         joule_measurement_confidence: joule.measurement_confidence,
         joule_autonomy_truth_allowed: joule.autonomy_truth_allowed,
+        ..RouteGovernance::default()
     };
     decision
 }

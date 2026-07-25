@@ -10,17 +10,17 @@ pub mod governance;
 pub mod governance_gates;
 pub mod layout;
 pub mod learning;
+pub mod learning_adapter;
 pub mod ledger;
 pub mod llm;
 pub mod loop_alerts;
 pub mod loop_economy;
 pub mod loop_engine;
 pub mod loop_observability;
-pub mod learning_adapter;
 pub mod message;
+pub mod orome_runtime;
 pub mod pipeline;
 pub mod router;
-pub mod orome_runtime;
 pub mod service_registry;
 pub mod soterion;
 pub mod soterion_watcher;
@@ -43,12 +43,12 @@ pub use llm::{
 };
 pub use loop_economy::{build_snapshot, write_snapshot, BidSpread, LoopEconomySnapshot};
 pub use loop_observability::{
-    DecisionLatencyKind, DecisionLatencyProbe, LoopObservabilityConfig, LatencyProbe,
+    DecisionLatencyKind, DecisionLatencyProbe, LatencyProbe, LoopObservabilityConfig,
 };
 pub use message::Message;
 pub use orome_runtime::{
-    AgentRegistryState, OromeCoreRuntimeState, SharedRegistryStateStorage, SharedRouterStateStorage,
-    OromeRuntimeStateError,
+    AgentRegistryState, OromeCoreRuntimeState, OromeRuntimeStateError, SharedRegistryStateStorage,
+    SharedRouterStateStorage,
 };
 pub use service_registry::{
     ArdaServiceRegistryStatus, ContinuityConfig, ContractConfig, GovernanceConfig, RegistryError,

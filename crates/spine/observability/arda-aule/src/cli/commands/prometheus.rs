@@ -380,9 +380,8 @@ async fn autopilot_handle(command: AutopilotCommands) -> anyhow::Result<()> {
             write,
         } => {
             let resolved_root = resolve_root(root);
-            let cfg =
-                crate::prometheus::autopilot::KnowledgeTriageConfig::for_root(&resolved_root)
-                    .with_dry_run(dry_run || !write);
+            let cfg = crate::prometheus::autopilot::KnowledgeTriageConfig::for_root(&resolved_root)
+                .with_dry_run(dry_run || !write);
             let report = crate::prometheus::autopilot::execute_knowledge_task_queue(&cfg)?;
             println!("{}", serde_json::to_string_pretty(&report)?);
         }

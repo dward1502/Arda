@@ -4,14 +4,16 @@ The foundational Spine governance crate for Arda. It owns the shared spine
 surface: contract versioning, routing, message types, learning primitives,
 registry types, and the unified Arda error type.
 
-- `Cargo.toml`
-- `src`
-  - `lib.rs` — unified exports for the Arda spine
-  - `agent.rs`, `config.rs`, `contract/`, `daemon.rs`, `error.rs`,
-    `governance.rs`, `governance_gates.rs`, `ledger.rs`, `llm.rs`, `message.rs`,
-    `router.rs`, `soterion.rs`, `state.rs`, `task.rs`, `tool.rs` — focused spine modules
-  - `service_registry/` — folded standalone registry crate with registry, validator,
-    contract, records, continuity, and tests
+- `Cargo.toml` — crate manifest
+- `INDEX.md` — this deterministic direct-child map
+- `INDEX.jsonl` — generated Soterion index records
+- `README.md` — purpose and verified baseline
+- `BREAKDOWN.md` — source inventory, boundaries, and evidence
+- `PLAN.md` — completed foundation plan and future-growth boundary
+- `STATUS.md` — current verification and known follow-ups
+- `docs/` — interop landscape, implemented GEN3 consumers, and open questions
+- `src/` — compiled crate surface; see `src/lib.rs` and `src/INDEX.md`
+- `tests/` — sovereign tool-contract smoke coverage
 
 ## Purpose (one line)
 Shared spine surface for the Arda governance bus.
@@ -21,6 +23,6 @@ Shared spine surface for the Arda governance bus.
 `service_registry` module. No separate workspace crate is needed.
 
 ## Evidence
-- `BACKGROUND`: `STATUS.md` captures build/test counts and env knobs
+- `STATUS.md` captures build/test counts and env knobs
 - `BREAKDOWN.md`: module inventory and responsibilities
-- `PLAN.md`: combined plan and checklist for current and future work
+- `PLAN.md`: completed foundation plan and execution record

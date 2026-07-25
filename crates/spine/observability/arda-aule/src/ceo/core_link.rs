@@ -26,7 +26,10 @@ impl CoreAutonomyProfile {
         Some(Self {
             heartbeat_ms: boot.ceo.heartbeat_ms.unwrap_or(500),
             triad_bypass: boot.ceo.triad_bypass.unwrap_or(false),
-            base_costs: boot.joulework.and_then(|j| j.base_costs).unwrap_or_default(),
+            base_costs: boot
+                .joulework
+                .and_then(|j| j.base_costs)
+                .unwrap_or_default(),
             world_status: world.as_ref().map(|w| w.system.status.clone()),
             world_resonance: world.map(|w| w.metrics.system_resonance),
             source_root: core_root,

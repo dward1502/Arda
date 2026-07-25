@@ -16,14 +16,14 @@ mod events;
 mod tracer;
 
 pub(crate) mod semantic {
-    pub const SERVICE_NAME: &'static str = "arda-runtime";
+    pub const SERVICE_NAME: &str = "arda-runtime";
 }
 
 /// Semantic schema carried by events emitted through this module.
 pub const SCHEMA_VERSION: &str = "arda.telemetry.v1";
 
 /// Build identifier appended to structured event payloads.
-pub(crate) const ARDA_TELEMETRY_BUILD: &'static str = "arda.telemetry.substrate.v1";
+pub(crate) const ARDA_TELEMETRY_BUILD: &str = "arda.telemetry.substrate.v1";
 
 /// Crate-local event namespace. Consumers should use this value for
 /// `crate` structured fields so dashboards can filter across crates.

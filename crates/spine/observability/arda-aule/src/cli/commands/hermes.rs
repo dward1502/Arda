@@ -34,8 +34,7 @@ fn hydrate_discord_env() {
 
 pub(crate) async fn handle(command: HermesCommands) -> anyhow::Result<()> {
     let service = HermesService::from_default_or_fallback()?;
-    let default_socket_path =
-        socket_path_from_env("ARDA_HERMES_SOCKET", "data/hermes/hermes.sock");
+    let default_socket_path = socket_path_from_env("ARDA_HERMES_SOCKET", "data/hermes/hermes.sock");
     match command {
         HermesCommands::Start {
             socket_path,

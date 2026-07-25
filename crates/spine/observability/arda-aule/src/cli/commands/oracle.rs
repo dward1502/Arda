@@ -3,8 +3,7 @@ use super::super::*;
 
 pub(crate) async fn handle(command: OracleCommands) -> anyhow::Result<()> {
     let service = OracleService::from_default_or_workspace_fallback()?;
-    let default_socket_path =
-        socket_path_from_env("ARDA_ORACLE_SOCKET", "data/oracle/oracle.sock");
+    let default_socket_path = socket_path_from_env("ARDA_ORACLE_SOCKET", "data/oracle/oracle.sock");
     match command {
         OracleCommands::Start {
             socket_path,
@@ -71,8 +70,7 @@ pub(crate) async fn handle(command: OracleCommands) -> anyhow::Result<()> {
             println!("{}", serde_json::to_string_pretty(&out)?);
         }
         OracleCommands::Readiness => {
-            let out =
-                serde_json::to_value(arda_governance::default_governance_readiness_report())?;
+            let out = serde_json::to_value(arda_governance::default_governance_readiness_report())?;
             println!("{}", serde_json::to_string_pretty(&out)?);
         }
         OracleCommands::PhilosopherProfiles {
@@ -81,8 +79,7 @@ pub(crate) async fn handle(command: OracleCommands) -> anyhow::Result<()> {
         } => {
             let profile_source = profiles_path.clone();
             let resolved_profiles_path = resolve_profile_path(&profiles_path);
-            let profiles =
-                arda_governance::load_philosopher_profiles(&resolved_profiles_path)?;
+            let profiles = arda_governance::load_philosopher_profiles(&resolved_profiles_path)?;
             let projection = profiles.status_projection(profile_source);
             match format {
                 PhilosopherProfilesFormat::Json => {

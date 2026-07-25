@@ -2589,10 +2589,7 @@ members = [
             true,
         );
 
-        assert_eq!(
-            receipt["schema_version"],
-            "arda.flywheel.review_receipt.v1"
-        );
+        assert_eq!(receipt["schema_version"], "arda.flywheel.review_receipt.v1");
         assert_eq!(receipt["task_id"], "packet");
         assert_eq!(
             receipt["changed_files"][0],

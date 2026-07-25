@@ -6,16 +6,22 @@ soterion:
   role: "governance_plan"
   owner: "ORACLE"
   status: "implemented"
-  last_reviewed: "2026-06-06"
+  last_reviewed: "2026-07-25"
 ---
 
-> 🜏 Soterion: 📜 governance_plan | owner: ORACLE | status: implemented | reviewed: 2026-06-06
+> 🜏 Soterion: 📜 governance_plan | owner: ORACLE | status: implemented | reviewed: 2026-07-25
 
 # Arda Governance Alignment Plan
 
 Scope: `crates/spine/governance/arda-governance/`
 
-Status: Love Dynamics, Triad Philosopher arbitration, resonance metadata, and Prometheus autopilot triad-quorum surface wiring are implemented as of 2026-05-21.
+Execution status: **superseded by [`FIRST_CLASS_CHECKLIST.md`](FIRST_CLASS_CHECKLIST.md)**.
+This file remains design/rationale evidence. Every alignment slice is represented in the
+checklist's source-coverage map; do not add competing execution status here.
+
+Status: Phase 7 complete as of 2026-07-25: Love Dynamics, explicit compatibility proxy,
+independent Nonconformist Bee and Empirical Distrust assessments, receipted Triad Philosopher
+arbitration, separate resonance metadata, and operator disclosure are implemented.
 
 ## Intent
 
@@ -30,12 +36,17 @@ Move Arda governance from a single usefulness-efficiency proxy toward a layered 
 
 ## Current state observed
 
-- `love_equation.rs` still preserves the existing `impact * reach / (energy * time)` public compatibility score.
+- `love_equation.rs` preserves `impact * reach / (energy * time)` only through the explicit
+  `love_dynamics_compatibility_proxy`; `love_equation_score` is deprecated.
 - `love_dynamics.rs` implements Brian Roemmele's dynamic alignment form `dE/dt = beta * (C - D) * E` with growing/stable/decaying trend classification.
 - `joulework.rs` tracks estimate/actual variance, honesty ratio, and an efficiency boolean.
 - `triad.rs` has Aurelius/Bacon/Sun Tzu gates and a contract-level `PhilosopherVerdict` mapper.
-- `triad_philosopher.rs` now provides a separate deterministic arbitration layer over empirical grounding, independence, sycophancy risk, Love Dynamics trend, JouleWork honesty/efficiency, and defection pressure.
-- `resonance.rs` keeps its existing score weighting intact while attaching Love Dynamics metadata and an optional Triad Philosopher verdict for callers that want richer governance evidence.
+- `nonconformist_bee.rs` and `empirical_distrust.rs` independently assess anti-sycophancy and
+  evidence grounding, and feed `triad_philosopher.rs` arbitration.
+- `triad_philosopher.rs` carries a lifecycle receipt disclosing source, revision, maturity,
+  authority, review mode/authority, generated-artifact identity, and promotion criteria.
+- `resonance.rs` declares `separate_decision_metadata`; golden coverage proves philosopher
+  verdicts do not alter its existing numeric weights.
 - `arda-prometheus/src/autopilot/oracle_gate.rs` now derives a deterministic Triad Philosopher verdict from ORACLE triad quorum evidence.
 - `arda-prometheus/src/autopilot/governance_policy.rs` treats a non-proceed Triad Philosopher verdict as a triad-quorum hold, surfaces the verdict in governance reasons, and records compact evidence strings for runtime reports.
 - `OPTIMIZATION_PLAN.md` already flags the old Love Equation scaling problem as B3.
@@ -120,10 +131,11 @@ Behavior:
   - `source scripts/runtime_build_env.sh && cargo test -p arda-prometheus quorum_evidence_surfaces_triad_philosopher_verdict`
 - Source index updated: `src/INDEX.md` lists `love_dynamics.rs` and `triad_philosopher.rs`; `src/README.md` summarizes the active source surfaces.
 
-## Next recommended slices
+## Phase 7 closeout
 
-1. Replace or deprecate `love_equation_score` as a proxy in favor of a compatibility wrapper around Love Dynamics.
-2. Add structured evidence/cooperation/defection extraction from richer `Task` metadata or result payload schemas instead of relying on current heuristic key/text signals.
-3. Extend CLI/operator report surfaces to display the compact philosopher evidence strings where governance decisions are rendered.
-4. Add Nonconformist Bee and Empirical Distrust as first-class modules instead of embedded signal fields.
-5. Decide whether resonance values should eventually be reweighted by philosopher verdicts; this slice deliberately preserved existing numeric scoring.
+- The Socrates/corpus-loader drafts remain deliberately retired: no source files or registered
+  module paths exist, and source indexes record why they were removed.
+- `tests/phase7_philosopher_expansion.rs` covers the compatibility boundary, fixed resonance
+  weighting, independent assessments, lifecycle receipts, and conflicting arbitration cases.
+- Future changes may replace heuristic signal extraction with richer structured task metadata,
+  but must preserve the disclosed evidence grade and receipt boundaries.

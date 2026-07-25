@@ -271,6 +271,10 @@ pub fn dispatch_full(
 /// Dispatch with an explicit runtime affordability provider. This is the
 /// governance integration point implemented by `EconomicsEngine`; compatibility
 /// entrypoints retain allow-all behavior until a provider is supplied.
+// This compatibility boundary keeps each governance collaborator explicit. A
+// parameter object would obscure the public integration contract and break
+// existing consumers without reducing the underlying dependencies.
+#[allow(clippy::too_many_arguments)]
 pub fn dispatch_full_with_affordability(
     state: &StateRoot,
     queue_path: &Path,

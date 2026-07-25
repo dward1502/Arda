@@ -2,7 +2,7 @@ use arda_core::Task;
 use arda_governance::{
     bacon_lite_validate, calculate_resonance_without_governance,
     default_governance_readiness_report, evaluate_governance_chain, evaluate_love_dynamics,
-    interpret_alignment, load_philosopher_profiles_from_str, love_equation_score,
+    interpret_alignment, load_philosopher_profiles_from_str, love_dynamics_compatibility_proxy,
     profile_joulework, triad_validate, AlignmentSignals, BaconLiteEvent, BaconLiteResult,
     GameTheory, GameTheorySelectionResult, GovernanceChainConfig, GovernanceChainResult,
     GovernanceEvidence, GovernanceEvidenceAssessment, GovernanceReadinessReport, JouleWorkProfile,
@@ -104,7 +104,11 @@ fn public_result_shapes_match_the_v1_compatibility_fixture() {
         &calculate_resonance_without_governance(&task, None, None),
     );
     assert_contract(&contracts, "JouleWorkProfile", &profile_joulework(&task));
-    assert_contract(&contracts, "LoveEquationScore", &love_equation_score(&task));
+    assert_contract(
+        &contracts,
+        "LoveEquationScore",
+        &love_dynamics_compatibility_proxy(&task),
+    );
 
     let love = evaluate_love_dynamics(LoveDynamicsInput {
         empathy: 0.5,

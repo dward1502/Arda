@@ -310,10 +310,7 @@ mod tests {
 
     #[test]
     fn unit_prefix_pattern_matches_arda_units() {
-        assert!(unit_matches_pattern(
-            "arda-manwe.service",
-            "arda-*"
-        ));
+        assert!(unit_matches_pattern("arda-manwe.service", "arda-*"));
         assert!(!unit_matches_pattern("llama-server.service", "arda-*"));
         assert!(unit_matches_pattern(
             "arda-manwe.service",

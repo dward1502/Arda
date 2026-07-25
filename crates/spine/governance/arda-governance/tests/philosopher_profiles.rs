@@ -171,18 +171,20 @@ fn rejects_missing_doctrine_fields_or_invalid_confidence_floor() {
 }
 
 #[test]
-fn rejects_profile_sets_that_attempt_to_enable_autonomous_blocking() {
-    let unsafe_config = BOOTSTRAP_PROFILES.replace(
+fn legacy_profile_flag_cannot_enable_runtime_blocking() {
+    let legacy_config = BOOTSTRAP_PROFILES.replace(
         "autonomous_blocking_enabled = false",
         "autonomous_blocking_enabled = true",
     );
 
-    let err = load_philosopher_profiles_from_str(&unsafe_config)
-        .expect_err("G2 profile config must not enable autonomous blocking");
-
-    assert!(err
-        .to_string()
-        .contains("autonomous_blocking_enabled must remain false"));
+    let profiles = load_philosopher_profiles_from_str(&legacy_config)
+        .expect("legacy profile flag remains parseable during Phase 8 migration");
+    assert!(profiles.autonomous_blocking_enabled);
+    assert!(
+        !profiles
+            .status_projection("legacy-profile-fixture")
+            .autonomous_blocking_enabled
+    );
 }
 
 #[test]

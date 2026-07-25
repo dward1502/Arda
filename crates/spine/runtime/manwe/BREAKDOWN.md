@@ -4,7 +4,7 @@ soterion:
   role: "crate_breakdown"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-22"
+  last_reviewed: "2026-07-25"
 ---
 
 # manwe — Crate Breakdown
@@ -84,7 +84,8 @@ the fleet catalog cannot satisfy a request.
 | `types.rs` | Canonical request, provider, model, route, and governance types |
 | `adaptive/` | Rich service tree when `adaptive` is enabled |
 
-The adaptive library's active service tree groups into:
+The adaptive library's active service implementation lives under
+`src/adaptive/service/full/` and groups into:
 
 - bootstrap/state: `bootstrap*`, `runtime_state`, `state_io`, `state_mutation`
 - routing: `route_policy`, `route_scoring`, `route_selection`,
@@ -145,6 +146,21 @@ writer accepts them; the `delivery` attribute distinguishes that acknowledgement
 from durable persistence. The binary installs the OTLP layer when an
 endpoint is configured and retains a shutdown guard for final provider flush.
 
+The 2026-07-25 foundation audit found a second, larger residue layer: 33 Rust
+files directly under `adaptive/service/` duplicated names implemented under
+`adaptive/service/full/`. `service/mod.rs` contains only
+`include!("full_service.rs")`; that included module attaches the implementations
+with explicit `#[path = "full/…"]` declarations and attaches the shared
+`service/types.rs` normally. Consequently, the 33 parallel files were not part
+of either crate root. Workspace source/path searches found no live consumers;
+the only active path records were corrected to their `full/` locations before
+the duplicates were removed. Archived file-tree records remain historical
+evidence. The retained direct children are `mod.rs`, `full_service.rs`, and the
+active shared `types.rs`.
+
+Tracked `tests/__pycache__/*.pyc` files were generated artifacts rather than
+test inputs. They were removed and `tests/.gitignore` now prevents their return.
+
 ## Configuration and persisted state
 
 | Surface | Current location |
@@ -187,9 +203,14 @@ maintained runtime boundaries, module graph, consumers, configuration, and
 split decision now live in this breakdown. A repository-wide Markdown search
 found no inbound links to repair.
 
-## Current engineering priorities
+## Foundation state and continuing priorities
+
+The repair checklist is complete and Manwe is a verified crate foundation.
+Continued work is evolutionary rather than baseline recovery:
 
 1. Keep static and governed capability claims scoped while their parallel
    routing/config/transport paths remain intentionally selectable.
+2. Preserve the coordinated port `7171` contract and all feature/process gates
+   when changing provider, routing, or supervision behavior.
 
 Execution details and completion criteria are in [`CHECKLIST.md`](CHECKLIST.md).

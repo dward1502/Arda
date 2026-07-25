@@ -133,11 +133,11 @@ Target files:
   - rg -rn "arda_aule::council|council::" crates/ | grep -v "arda-aule/src/council.rs|arda-aule/tests/"
   - Confirm `tests/contract_smoke.rs` passes `cargo check --test contract_smoke -p arda-aule` end-to-end
 
-6) Reduce or gate dead/aspirational CLI commands
+6) Reduce or gate dead/aspirational CLI commands — COMPLETE 2026-07-25
 - Actions:
-  - Introduce `cli-default` for minimal/default shell and `cli-full` for the active command surface.
-  - Gate `src/cli/mod.rs` and `src/cli/commands/mod.rs` behind `full-cli` so aspirational modules do not load by default.
-  - Removed duplicate `src/cli/commands/charon.rs`; `manwe` telemetry path is served by `charon_telemetry.rs`.
+  - `arda-cli` now exposes only command variants with live implementations.
+  - Uncompiled imported CEO/prometheus/internal-CLI trees are detached from `src/lib.rs`.
+  - `full-cli` compiles the supported operator binary and its typed governance contracts.
 - Target files:
   - Cargo.toml
   - src/cli/mod.rs
@@ -147,10 +147,10 @@ Target files:
   - `cargo check -p arda-aule --features cli-default`
   - `cargo check -p arda-aule --features full-cli`
 
-7) Add observability verification coverage
+7) Add observability verification coverage — COMPLETE 2026-07-25
 - Actions:
   - Add default-feature smoke test proving `arda_aule::council::` resolves without cross-crate assumptions.
-  - Add `full-cli` smoke test exercising council gate runtime/live path, gated separately.
+  - Add `full-cli` governance metrics rendering and process-level operator contract tests.
 - Target files:
   - tests/council_surface.rs
   - tests/council_surface_full.rs
@@ -159,9 +159,9 @@ Target files:
   - cargo test --features full-cli --test council_surface_full -p arda-aule
 - Current evidence:
   - Default-feature council_surface: PASSES
-  - Full-cli council_surface_full: BLOCKED by pre-existing aspirational CLI stubs in policy_guard/commands; not step 7 coverage debt
+  - Full-cli council and governance CLI integration tests: PASS
 
-8) Re-baseline arc
+8) Re-baseline arc — COMPLETE 2026-07-25
 - Commands to run after each major step:
   - cargo check -p arda-aule
   - cargo test  -p arda-aule

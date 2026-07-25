@@ -8,8 +8,9 @@ fn workspace_root() -> std::path::PathBuf {
 }
 
 fn registry() -> ContractRegistry {
-    let manifest = std::fs::read_to_string(workspace_root().join("core/state/contract_registry.json"))
-        .expect("contract registry must exist after Phase A");
+    let manifest =
+        std::fs::read_to_string(workspace_root().join("core/state/contract_registry.json"))
+            .expect("contract registry must exist after Phase A");
     serde_json::from_str(&manifest).expect("contract registry must be valid JSON after Phase A")
 }
 
@@ -81,11 +82,7 @@ fn every_track_schema_version_is_present_in_a_source_or_surface_module() {
                     let Ok(contents) = std::fs::read_to_string(entry.path()) else {
                         continue;
                     };
-                    if track
-                        .schema_versions
-                        .iter()
-                        .any(|sv| contents.contains(sv))
-                    {
+                    if track.schema_versions.iter().any(|sv| contents.contains(sv)) {
                         found = true;
                         break;
                     }

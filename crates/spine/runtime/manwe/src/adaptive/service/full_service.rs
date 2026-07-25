@@ -2,7 +2,12 @@
 use crate::adaptive::types::{ManweRequestEnvelope, ProviderState, RouteDecision};
 use arda_core::error::{ArdaError, Result};
 use arda_core::task::{JouleWorkMeasurementSource, Task};
-use arda_governance::{load_governance_chain, record_bacon_lite, GovernanceChainConfig};
+use arda_governance::{
+    default_governance_readiness_report, enqueue_bacon_lite, evaluate_realm_governance,
+    load_governance_chain, load_realm_policy, GovernanceChainConfig, LocalGovernanceScorer,
+    RealmGovernanceVerdict, RealmPolicyConfig, RealmPolicyReloadReceipt, RealmPolicyStore,
+    RuntimeBlockingAuthority, RuntimeBlockingDecision,
+};
 use arda_economics::JouleWorkUnit;
 use chrono::Utc;
 use serde::Serialize;
@@ -143,6 +148,59 @@ fn load_route_governance_chain() -> GovernanceChainConfig {
     })
 }
 
+fn load_route_realm_policy_store() -> Arc<RealmPolicyStore> {
+    let path = paths::arda_root().join("config/governance/realm_policies.toml");
+    let policy = load_realm_policy(&path).unwrap_or_else(|err| {
+        tracing::warn!(
+            error = %err,
+            path = %path.display(),
+            "CHARON realm policy config load failed; using safe non-blocking default"
+        );
+        RealmPolicyConfig::safe_default()
+    });
+    Arc::new(RealmPolicyStore::new(policy).expect("safe realm policy must validate"))
+}
+
+fn route_realm_coordinates(req: &ManweRequestEnvelope) -> (String, String) {
+    let realm = req
+        .options
+        .get("governance_realm")
+        .and_then(JsonValue::as_str)
+        .filter(|value| !value.trim().is_empty())
+        .unwrap_or("routing");
+    let action_class = req
+        .options
+        .get("governance_action_class")
+        .and_then(JsonValue::as_str)
+        .filter(|value| !value.trim().is_empty())
+        .unwrap_or("provider_selection");
+    (realm.to_string(), action_class.to_string())
+}
+
+fn operator_realm_blocking_enabled() -> bool {
+    std::env::var("ARDA_GOVERNANCE_BLOCKING_ENABLED")
+        .map(|value| matches!(value.trim().to_ascii_lowercase().as_str(), "1" | "true" | "yes"))
+        .unwrap_or(false)
+}
+
+fn attach_realm_governance(
+    decision: &mut RouteDecision,
+    verdict: RealmGovernanceVerdict,
+    blocking: RuntimeBlockingDecision,
+) {
+    decision.governance.realm_policy_version = verdict.policy_version;
+    decision.governance.realm = verdict.realm;
+    decision.governance.action_class = verdict.action_class;
+    decision.governance.realm_scope_id = verdict.scope_id;
+    decision.governance.realm_weighted_score = verdict.weighted_score;
+    decision.governance.realm_minimum_weighted_score = verdict.minimum_weighted_score;
+    decision.governance.realm_degraded = verdict.degraded;
+    decision.governance.realm_passed = verdict.passed;
+    decision.governance.realm_review_requirements = verdict.review_requirements;
+    decision.governance.scorer_receipts = verdict.scorer_receipts;
+    decision.governance.runtime_blocking = blocking;
+}
+
 fn route_governance_task(req: &ManweRequestEnvelope) -> Task {
     let request_text = req
         .messages
@@ -192,6 +250,7 @@ pub struct CharonService {
     agent_quota_windows: Arc<agent_quotas::AgentQuotaWindows>,
     bandit: Arc<bandit::BanditStore>,
     lane_fitness_lock: Arc<std::sync::Mutex<()>>,
+    realm_policy_store: Arc<RealmPolicyStore>,
 }
 
 impl CharonService {
@@ -318,6 +377,7 @@ impl CharonService {
             agent_quota_windows: Arc::new(agent_quotas::AgentQuotaWindows::new()),
             bandit: Arc::new(bandit::BanditStore::new(bandit_path)),
             lane_fitness_lock: Arc::new(std::sync::Mutex::new(())),
+            realm_policy_store: load_route_realm_policy_store(),
         };
         Ok(service)
     }
@@ -377,11 +437,57 @@ impl CharonService {
         read_recent_jsonl(&self.governance_events_path, limit)
     }
 
+    async fn evaluate_route_realm_policy(
+        &self,
+        task: &Task,
+        req: &ManweRequestEnvelope,
+    ) -> Result<(RealmGovernanceVerdict, RuntimeBlockingDecision)> {
+        let policy = self.realm_policy_store.snapshot();
+        let (realm, action_class) = route_realm_coordinates(req);
+        let verdict = evaluate_realm_governance(
+            task,
+            &policy,
+            &realm,
+            &action_class,
+            &LocalGovernanceScorer,
+            StdDuration::from_millis(100),
+        )
+        .await
+        .map_err(|error| ArdaError::Config(format!("realm governance evaluation failed: {error}")))?;
+        let blocking = RuntimeBlockingAuthority::evaluate(
+            &policy,
+            &realm,
+            &action_class,
+            &default_governance_readiness_report(),
+            operator_realm_blocking_enabled(),
+        );
+        if blocking.blocking_enabled && !verdict.passed {
+            return Err(ArdaError::Agent {
+                agent: "charon".to_string(),
+                message: format!(
+                    "realm governance denied {}:{} under policy {}",
+                    realm, action_class, verdict.policy_version
+                ),
+            });
+        }
+        Ok((verdict, blocking))
+    }
+
+    pub fn reload_realm_policy_from_str(
+        &self,
+        source: impl Into<String>,
+        raw: &str,
+    ) -> RealmPolicyReloadReceipt {
+        self.realm_policy_store.reload_from_str(source, raw)
+    }
+
     pub async fn route_preview(&self, req: ManweRequestEnvelope) -> Result<RouteDecision> {
         let governance_task = route_governance_task(&req);
         let governance_chain = load_route_governance_chain();
         let chain_result =
             evaluate_route_governance_chain(&governance_task, &req.options, &governance_chain);
+        let (realm_verdict, runtime_blocking) =
+            self.evaluate_route_realm_policy(&governance_task, &req).await?;
         let mut providers = self.providers.write().await;
         let now = Utc::now();
         refresh_provider_windows(&mut providers, now);
@@ -425,7 +531,7 @@ impl CharonService {
             &package_runtime,
         )?;
 
-        Ok(build_route_decision_with_governance_chain(
+        let mut decision = build_route_decision_with_governance_chain(
             &providers[candidate.provider_index],
             candidate.model,
             candidate.score,
@@ -436,7 +542,9 @@ impl CharonService {
             &route_profile,
             &governance_task,
             chain_result,
-        ))
+        );
+        attach_realm_governance(&mut decision, realm_verdict, runtime_blocking);
+        Ok(decision)
     }
 
     pub async fn route(&self, req: ManweRequestEnvelope) -> Result<RouteDecision> {
@@ -463,6 +571,8 @@ impl CharonService {
         let governance_chain = load_route_governance_chain();
         let chain_result =
             evaluate_route_governance_chain(&bacon_task, &req.options, &governance_chain);
+        let (realm_verdict, runtime_blocking) =
+            self.evaluate_route_realm_policy(&bacon_task, &req).await?;
         let mut providers = self.providers.write().await;
         let now = Utc::now();
         refresh_provider_windows(&mut providers, now);
@@ -553,7 +663,7 @@ impl CharonService {
                         "failure".to_string(),
                     ],
                 );
-                if let Err(record_err) = record_bacon_lite(
+                if let Err(record_err) = enqueue_bacon_lite(
                     "charon",
                     "route_failed",
                     &bacon_task,
@@ -564,7 +674,7 @@ impl CharonService {
                         "policy": policy,
                     }),
                 ) {
-                    tracing::debug!(error = %record_err, "CHARON bacon-lite route_failed record failed");
+                    tracing::debug!(error = %record_err, "CHARON bacon-lite route_failed enqueue failed");
                 }
                 return Err(err);
             }
@@ -634,6 +744,11 @@ impl CharonService {
                 chain_result.clone(),
             );
             decision.route_id = route_id.clone();
+            attach_realm_governance(
+                &mut decision,
+                realm_verdict,
+                runtime_blocking,
+            );
             let resolved = provider.clone();
             (decision, resolved)
         };
@@ -642,7 +757,7 @@ impl CharonService {
         drop(providers);
 
         {
-            if let Err(err) = record_bacon_lite(
+            if let Err(err) = enqueue_bacon_lite(
                 "charon",
                 "route_selected",
                 &bacon_task,
@@ -672,11 +787,23 @@ impl CharonService {
                         "veto_reason": chain_result.veto_reason,
                         "autonomous_blocking_enabled": chain_result.autonomous_blocking_enabled,
                     },
+                    "realm_governance": {
+                        "policy_version": decision.governance.realm_policy_version,
+                        "realm": decision.governance.realm,
+                        "action_class": decision.governance.action_class,
+                        "scope_id": decision.governance.realm_scope_id,
+                        "weighted_score": decision.governance.realm_weighted_score,
+                        "minimum_weighted_score": decision.governance.realm_minimum_weighted_score,
+                        "degraded": decision.governance.realm_degraded,
+                        "passed": decision.governance.realm_passed,
+                        "scorer_receipts": decision.governance.scorer_receipts,
+                        "runtime_blocking": decision.governance.runtime_blocking,
+                    },
                     "provider_id": decision.provider_id,
                     "model_id": decision.model_id,
                 }),
             ) {
-                tracing::debug!(error = %err, "CHARON bacon-lite route_selected record failed");
+                tracing::debug!(error = %err, "CHARON bacon-lite route_selected enqueue failed");
             }
             self.append_state_event(
                 "route_selected",

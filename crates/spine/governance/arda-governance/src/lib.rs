@@ -11,6 +11,7 @@
 
 pub mod audio;
 pub mod bacon_lite;
+pub mod empirical_distrust;
 pub mod environmental;
 pub mod evidence;
 pub mod game_theory;
@@ -18,12 +19,15 @@ pub mod joulework;
 pub mod love_dynamics;
 pub mod love_equation;
 pub mod metrics;
+pub mod nonconformist_bee;
 pub mod normalization;
 pub mod operator;
 pub mod paths;
 pub mod philosopher_profiles;
 pub mod readiness;
+pub mod realm_policy;
 pub mod resonance;
+pub mod scorer;
 pub mod solar;
 pub mod triad;
 pub mod triad_philosopher;
@@ -37,6 +41,9 @@ pub use bacon_lite::{
     BaconLiteAggregate, BaconLiteBackpressurePolicy, BaconLiteEnqueueError, BaconLiteEvent,
     BaconLiteLedgerSummary, BaconLiteLogPaths, BaconLiteReadWindow, BaconLiteResult,
     BaconLiteWriter, BaconLiteWriterConfig, BaconLiteWriterCounters, MalformedLineBehavior,
+};
+pub use empirical_distrust::{
+    assess_empirical_distrust, EmpiricalDistrustAssessment, EmpiricalDistrustVerdict,
 };
 pub use environmental::{
     audio_signal, collect_environmental_signals, environmental_coherence, vision_signal,
@@ -57,10 +64,16 @@ pub use joulework::{profile_joulework, JouleWorkProfile};
 pub use love_dynamics::{
     evaluate_love_dynamics, LoveDynamicsInput, LoveDynamicsScore, LoveDynamicsTrend,
 };
-pub use love_equation::{love_equation_score, LoveEquationScore};
+#[allow(deprecated)]
+pub use love_equation::{
+    love_dynamics_compatibility_proxy, love_equation_score, LoveEquationScore,
+};
 pub use metrics::{
     global_governance_metrics, GovernanceCounterSnapshot, GovernanceHistogramBucket,
     GovernanceHistogramSnapshot, GovernanceMetrics, GovernanceMetricsSnapshot,
+};
+pub use nonconformist_bee::{
+    assess_nonconformist_bee, NonconformistBeeAssessment, NonconformistBeeVerdict,
 };
 pub use normalization::{normalize_legacy_unit_or_percent, UnitInterval};
 pub use operator::{
@@ -70,9 +83,9 @@ pub use operator::{
 };
 pub use paths::GovernancePaths;
 pub use philosopher_profiles::{
-    load_philosopher_profiles, load_philosopher_profiles_from_str, PhilosopherProfile,
-    PhilosopherProfileError, PhilosopherProfileMaturity, PhilosopherProfileSet,
-    PhilosopherProfileStatus, PhilosopherProfileStatusProjection,
+    load_philosopher_profiles, load_philosopher_profiles_from_str, PhilosopherLifecycleReceipt,
+    PhilosopherProfile, PhilosopherProfileError, PhilosopherProfileMaturity, PhilosopherProfileSet,
+    PhilosopherProfileSourceKind, PhilosopherProfileStatus, PhilosopherProfileStatusProjection,
 };
 pub use readiness::{
     apply_independent_review_receipts, default_governance_readiness_report,
@@ -82,11 +95,28 @@ pub use readiness::{
     GovernanceReadinessEvidence, GovernanceReadinessLevel, GovernanceReadinessReport,
     GovernanceReadinessRequirement, GovernanceSubsystemReadiness,
 };
+pub use realm_policy::{
+    evaluate_realm_governance, load_realm_policy, load_realm_policy_from_str,
+    RealmBlockingControls, RealmGovernanceVerdict, RealmPolicyConfig, RealmPolicyError,
+    RealmPolicyReloadReceipt, RealmPolicyReloadStatus, RealmPolicyRule, RealmPolicyScope,
+    RealmPolicyStore, ResolvedRealmPolicy, RuntimeBlockingAuthority, RuntimeBlockingDecision,
+};
 #[allow(deprecated)]
 pub use resonance::{
     calculate_resonance, calculate_resonance_basic, calculate_resonance_with_governance_chain,
-    calculate_resonance_with_triad, calculate_resonance_without_governance, ResonanceComponents,
-    ResonanceScore, TriadPuritySource, COMPATIBILITY_RESONANCE_REMOVAL_VERSION,
+    calculate_resonance_with_triad, calculate_resonance_without_governance,
+    PhilosopherInfluencePolicy, ResonanceComponents, ResonanceScore, TriadPuritySource,
+    COMPATIBILITY_RESONANCE_REMOVAL_VERSION,
+};
+pub use scorer::{
+    score_governance_with_timeout, GovernanceScoreCacheStatus, GovernanceScoreFuture,
+    GovernanceScoreReceipt, GovernanceScoreRequest, GovernanceScorer, GovernanceScorerError,
+    GovernanceScorerErrorKind, GovernanceScorerState, LocalGovernanceScorer,
+};
+#[cfg(feature = "llm-scorer")]
+pub use scorer::{
+    LlmGovernanceScorer, LlmGovernanceScorerConfig, LlmScoreBackend, LlmScoreBackendFuture,
+    LlmScoreResponse,
 };
 pub use solar::{
     fetch_solar_geomag, solar_multiplier, SolarClient, SolarEndpointConfig, SolarGeomagData,

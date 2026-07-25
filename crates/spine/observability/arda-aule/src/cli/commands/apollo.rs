@@ -3,8 +3,7 @@ use super::super::*;
 
 pub(crate) async fn handle(command: ApolloCommands) -> anyhow::Result<()> {
     let service = ApolloService::from_default_or_workspace_fallback()?;
-    let default_socket_path =
-        socket_path_from_env("ARDA_APOLLO_SOCKET", "data/apollo/apollo.sock");
+    let default_socket_path = socket_path_from_env("ARDA_APOLLO_SOCKET", "data/apollo/apollo.sock");
     match command {
         ApolloCommands::Start {
             socket_path,

@@ -89,9 +89,8 @@ pub(crate) async fn execute(cli: Cli, config: &Config) -> anyhow::Result<()> {
                 asset_id: asset_id.clone(),
                 domain,
                 initial_prompt: prompt,
-                negative_prompt: negative.unwrap_or_else(|| {
-                    arda_forge_mind::forge::DEFAULT_NEGATIVE_PROMPT.to_string()
-                }),
+                negative_prompt: negative
+                    .unwrap_or_else(|| arda_forge_mind::forge::DEFAULT_NEGATIVE_PROMPT.to_string()),
                 assets_root,
                 scene_binding: scene_binding.unwrap_or_else(|| asset_id.clone()),
                 material_family,

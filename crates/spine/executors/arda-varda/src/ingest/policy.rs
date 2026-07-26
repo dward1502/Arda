@@ -6,6 +6,7 @@
 
 use arda_core::error::Result;
 use arda_economics::JouleWorkUnit;
+use arda_governance::{BaconLiteEvent, GateOutcome};
 use chrono::Utc;
 use serde_json::Value;
 use std::fs;
@@ -16,6 +17,17 @@ use super::remediation::{
     remediation_notes, remediation_owner, remediation_task_id, remediation_title,
 };
 use super::{athena_error, AthenaStore, BookEntry, DeepAnalysisData, DeepBookEntry};
+
+pub(super) fn ingest_quarantine_reason(event: &BaconLiteEvent) -> Option<String> {
+    (!event.passed && !event.triad_passed && event.bacon_outcome == Some(GateOutcome::Fail)).then(
+        || {
+            format!(
+                "bacon_lite_failure:{}:{}",
+                event.policy_version, event.rationale
+            )
+        },
+    )
+}
 
 fn projects_task_queue_path() -> PathBuf {
     std::env::var("ARDA_PROJECT_TASK_QUEUE_PATH")
@@ -100,6 +112,11 @@ impl AthenaStore {
                 "topic": topic
             }),
         );
+        if let Err(err) =
+            super::deep_cache::DeepAnalysisCache::new(&self.root).invalidate_doc(source_id)
+        {
+            tracing::warn!(error = %err, source_id = %source_id, "ATHENA deep cache invalidation failed after opposition harvest");
+        }
 
         Ok(serde_json::json!({
             "source_id": source_id,

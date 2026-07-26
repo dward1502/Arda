@@ -13,12 +13,16 @@ use serde::{Deserialize, Serialize};
 use std::fs::{self, OpenOptions};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
+use uuid::Uuid;
 
+mod activity;
 mod crawl;
 mod curriculum_generator;
 mod deep;
+mod deep_cache;
 mod extraction;
 mod github;
+mod http_client;
 mod importers;
 mod index;
 pub mod interceptor;
@@ -44,12 +48,13 @@ use interceptor::{
 };
 use layout::{human_library_root, machine_library_root};
 use observability::deep_queue_status_counts;
-use policy::{evaluate_policy_readiness, opposition_coverage_count};
+use policy::{evaluate_policy_readiness, ingest_quarantine_reason, opposition_coverage_count};
 use source::{
-    build_shallow_analysis, canonicalize_ingest_input, classify_source, estimate_joule_cost,
-    extract_url, love_equation_from_tags, normalize_graph_token, source_id_from_input,
+    build_shallow_analysis, canonicalize_ingest_input, estimate_joule_cost, extract_url,
+    love_equation_from_tags, normalize_graph_token, source_id_from_input, ClassificationCache,
 };
 
+pub use activity::{AthenaActiveCrawl, AthenaActivityError, AthenaCompletedPipeline};
 pub use crawl::{
     crawl4ai_fetch_markdown, resolve_crawl_provider_order, scrapling_fetch_markdown,
     CrawlCaptureReceipt, CrawlMarkdownResult,
@@ -63,6 +68,10 @@ fn athena_error(message: impl Into<String>) -> ArdaError {
         agent: "athena".to_string(),
         message: message.into(),
     }
+}
+
+fn new_pipeline_id() -> String {
+    format!("athpl_{}", Uuid::new_v4().simple())
 }
 
 fn source_kind_label(kind: &SourceType) -> &'static str {
@@ -169,6 +178,10 @@ pub struct ScholarlyMetadata {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IngestRecord {
     pub id: String,
+    #[serde(default)]
+    pub pipeline_id: String,
+    #[serde(default)]
+    pub last_full_refresh_utc: String,
     pub received_at_utc: String,
     pub processed_at_utc: String,
     pub source_type: SourceType,
@@ -181,6 +194,10 @@ pub struct IngestRecord {
     pub book_ref: String,
     pub shallow: ShallowAnalysis,
     pub deduplicated: bool,
+    #[serde(default)]
+    pub quarantine: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub quarantine_reason: Option<String>,
     pub error: Option<String>,
 }
 
@@ -194,6 +211,8 @@ pub struct KnowledgeTriageSoterion {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct KnowledgeTriageEntry {
     pub schema_version: String,
+    #[serde(default)]
+    pub pipeline_id: String,
     pub path: String,
     pub title: String,
     pub classification: String,
@@ -212,6 +231,8 @@ pub struct KnowledgeTriageEntry {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BatchIngestReceipt {
     pub source_id: String,
+    #[serde(default)]
+    pub pipeline_id: String,
     pub input: String,
     pub canonical_input: String,
     pub url: Option<String>,
@@ -234,6 +255,8 @@ pub struct BatchIngestReport {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BookEntry {
+    #[serde(default)]
+    pub pipeline_id: String,
     pub version: u32,
     pub stage: String,
     pub written_at_utc: String,
@@ -297,6 +320,8 @@ pub struct DeepAnalysisData {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DeepBookEntry {
+    #[serde(default)]
+    pub pipeline_id: String,
     pub version: u32,
     pub stage: String,
     pub written_at_utc: String,
@@ -307,11 +332,28 @@ pub struct DeepBookEntry {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DeepQueueRecord {
     pub ts: String,
+    #[serde(default)]
+    pub pipeline_id: String,
     pub event: String,
     pub source_id: String,
     pub agent: String,
     pub status: String,
     pub reason: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct CitationSpan {
+    pub field: String,
+    pub start: usize,
+    pub end: usize,
+    pub text: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct QueryCitation {
+    pub source_id: String,
+    pub doc_id: String,
+    pub span: CitationSpan,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -320,6 +362,8 @@ pub struct QueryMatch {
     pub book_ref: String,
     pub score: f64,
     pub digest_status: String,
+    #[serde(default)]
+    pub shallow_only: bool,
     pub title: String,
     pub summary: String,
     pub relevance_tags: Vec<String>,
@@ -329,6 +373,8 @@ pub struct QueryMatch {
     pub extraction_status: String,
     #[serde(default, skip_serializing_if = "is_zero_f64")]
     pub confidence_self_report: f64,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub citations: Vec<QueryCitation>,
 }
 
 fn is_zero_f64(value: &f64) -> bool {
@@ -352,14 +398,19 @@ pub struct AthenaStore {
     uncertainty_selections_path: PathBuf,
     crawl_artifacts_dir: PathBuf,
     deep_queue_path: PathBuf,
+    scholarly_reenrichment_path: PathBuf,
     deep_graph_path: PathBuf,
     policy_readiness_path: PathBuf,
     planning_task_receipts_path: PathBuf,
     human_sources_dir: PathBuf,
     machine_index_path: PathBuf,
+    digest_index_path: PathBuf,
     interceptors: IngestPipeline,
     llm: Option<Arc<dyn LlmProvider>>,
     digest_index: Arc<std::sync::RwLock<Option<index::DigestIndex>>>,
+    classification_cache: Arc<ClassificationCache>,
+    activity_tracker: Arc<activity::ActivityTracker>,
+    jsonl_appender: Arc<io::JsonlAppender>,
     metrics: Arc<AthenaMetrics>,
 }
 
@@ -370,6 +421,10 @@ impl std::fmt::Debug for AthenaStore {
             .field("books_dir", &self.books_dir)
             .field("digest_path", &self.digest_path)
             .field("deep_queue_path", &self.deep_queue_path)
+            .field(
+                "scholarly_reenrichment_path",
+                &self.scholarly_reenrichment_path,
+            )
             .field("llm_attached", &self.llm.is_some())
             .finish()
     }
@@ -424,11 +479,19 @@ pub struct AthenaKnowledgeVaultStatus {
     pub synthesis_queue: Vec<AthenaVaultSynthesisQueueItem>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct AthenaSourceFreshness {
+    pub source_id: String,
+    pub last_full_refresh_utc: String,
+    pub age_seconds: u64,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AthenaStatus {
     pub storage_root: String,
     pub digest_path: String,
     pub deep_queue_path: String,
+    pub scholarly_reenrichment_path: String,
     pub deep_graph_path: String,
     pub policy_readiness_path: String,
     pub planning_task_receipts_path: String,
@@ -436,6 +499,8 @@ pub struct AthenaStatus {
     pub digest_events: usize,
     pub deep_queue_depth: usize,
     pub deep_queue_failed: usize,
+    pub scholarly_reenrichment_pending: usize,
+    pub scholarly_reenrichment_failed: usize,
     pub deep_graph_events: usize,
     pub ingest_success_total: usize,
     pub deduplicated_ingests_total: usize,
@@ -454,6 +519,13 @@ pub struct AthenaStatus {
     pub execution_posture: String,
     pub operator_ingress_role: String,
     pub source_provenance_coverage_ratio: f64,
+    pub source_freshness_total: usize,
+    pub oldest_source_age_seconds: Option<u64>,
+    pub source_freshness: Vec<AthenaSourceFreshness>,
+    pub active_crawls_total: usize,
+    pub active_crawls: Vec<AthenaActiveCrawl>,
+    pub recent_completed_pipelines: Vec<AthenaCompletedPipeline>,
+    pub last_activity_error: Option<AthenaActivityError>,
     pub memory_lanes: Vec<String>,
     pub task_emission_receipts_total: usize,
     pub task_emission_success_total: usize,
@@ -471,6 +543,7 @@ impl AthenaStore {
         let uncertainty_selections_path = root.join("uncertainty_selections.jsonl");
         let crawl_artifacts_dir = root.join("crawls");
         let deep_queue_path = root.join("deep_queue.jsonl");
+        let scholarly_reenrichment_path = root.join("scholarly_reenrichment.jsonl");
         let deep_graph_path = root.join("deep_graph.jsonl");
         let policy_readiness_path = root.join("policy_readiness.jsonl");
         let planning_task_receipts_path = root.join("planning_task_receipts.jsonl");
@@ -486,6 +559,7 @@ impl AthenaStore {
             });
         let human_sources_dir = human_library_root().join("sources");
         let machine_index_path = machine_library_root().join("index").join("sources.jsonl");
+        let digest_index_path = root.join("digest-index-v1.json");
 
         fs::create_dir_all(&books_dir)?;
         fs::create_dir_all(&crawl_artifacts_dir)?;
@@ -509,6 +583,10 @@ impl AthenaStore {
             .create(true)
             .append(true)
             .open(&deep_queue_path)?;
+        OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(&scholarly_reenrichment_path)?;
         OpenOptions::new()
             .create(true)
             .append(true)
@@ -545,6 +623,7 @@ impl AthenaStore {
         interceptors.register(WardenQueueInterceptor::new(&warden_queue_path));
         interceptors.register(MnemosyneInterceptor::from_default());
 
+        let persisted_digest_index = index::load_index(&digest_index_path, &books_dir)?;
         Ok(Self {
             root,
             books_dir,
@@ -553,14 +632,19 @@ impl AthenaStore {
             uncertainty_selections_path,
             crawl_artifacts_dir,
             deep_queue_path,
+            scholarly_reenrichment_path,
             deep_graph_path,
             policy_readiness_path,
             planning_task_receipts_path,
             human_sources_dir,
             machine_index_path,
+            digest_index_path,
             interceptors,
             llm: None,
-            digest_index: Arc::new(std::sync::RwLock::new(None)),
+            digest_index: Arc::new(std::sync::RwLock::new(persisted_digest_index)),
+            classification_cache: Arc::new(ClassificationCache::default()),
+            activity_tracker: Arc::new(activity::ActivityTracker::default()),
+            jsonl_appender: Arc::new(io::JsonlAppender::new()),
             metrics: Arc::new(AthenaMetrics::new()),
         })
     }
@@ -585,6 +669,7 @@ impl AthenaStore {
                 .to_string()
         })?;
         let count = new_index.entries.len();
+        index::persist_index(&self.digest_index_path, &new_index)?;
         let mut guard = self
             .digest_index
             .write()
@@ -593,10 +678,19 @@ impl AthenaStore {
         Ok(count)
     }
 
-    pub(in crate::ingest) fn invalidate_digest_index(&self) {
-        if let Ok(mut guard) = self.digest_index.write() {
-            *guard = None;
-        }
+    pub(in crate::ingest) fn refresh_digest_index_entry(&self, source_id: &str) -> Result<()> {
+        let refreshed = index::refresh_index_entry(
+            &self.digest_index_path,
+            &self.books_dir,
+            source_id,
+            self.book_ref_for(source_id),
+        )?;
+        let mut guard = self
+            .digest_index
+            .write()
+            .map_err(|err| athena_error(format!("digest index lock poisoned: {err}")))?;
+        *guard = Some(refreshed);
+        Ok(())
     }
 
     pub(in crate::ingest) fn with_digest_index<F, R>(&self, f: F) -> Result<R>
@@ -615,6 +709,17 @@ impl AthenaStore {
                 }
             }
         }
+        if let Some(loaded) = index::load_index(&self.digest_index_path, &self.books_dir)? {
+            let mut guard = self
+                .digest_index
+                .write()
+                .map_err(|e| athena_error(format!("digest index lock poisoned: {e}")))?;
+            *guard = Some(loaded);
+            let Some(view) = guard.as_ref() else {
+                return Err(athena_error("digest index load did not populate cache"));
+            };
+            return Ok(f(view));
+        }
         // Rebuild under write lock — release after.
         let books_dir = self.books_dir.clone();
         let books_dir_for_ref = self.books_dir.clone();
@@ -624,6 +729,7 @@ impl AthenaStore {
                 .display()
                 .to_string()
         })?;
+        index::persist_index(&self.digest_index_path, &rebuilt)?;
         let mut guard = self
             .digest_index
             .write()
@@ -661,6 +767,7 @@ impl AthenaStore {
     }
 
     fn event_ctx(&self, operation: &str, source_id: &str) -> IngestCtx {
+        let pipeline_id = self.pipeline_id_for_source(source_id);
         IngestCtx::new(
             operation,
             source_id,
@@ -669,6 +776,16 @@ impl AthenaStore {
             "athena",
             "digest lifecycle side-effect",
         )
+        .with_pipeline_id(pipeline_id)
+    }
+
+    fn pipeline_id_for_source(&self, source_id: &str) -> String {
+        self.latest_ingest_record(source_id)
+            .ok()
+            .flatten()
+            .map(|record| record.pipeline_id)
+            .filter(|pipeline_id| !pipeline_id.is_empty())
+            .unwrap_or_else(new_pipeline_id)
     }
 
     pub fn ingest(
@@ -677,6 +794,21 @@ impl AthenaStore {
         submitted_by: &str,
         task_context: &str,
     ) -> Result<IngestRecord> {
+        self.ingest_with_pipeline_id(raw_input, submitted_by, task_context, &new_pipeline_id())
+    }
+
+    pub fn ingest_with_pipeline_id(
+        &self,
+        raw_input: &str,
+        submitted_by: &str,
+        task_context: &str,
+        pipeline_id: &str,
+    ) -> Result<IngestRecord> {
+        let pipeline_id = if pipeline_id.trim().is_empty() {
+            new_pipeline_id()
+        } else {
+            pipeline_id.trim().to_string()
+        };
         let Some(result) = try_run_bounded("athena_ingest", athena_ingest_limit(), || {
             let normalized = raw_input.trim();
             if normalized.is_empty() {
@@ -688,9 +820,20 @@ impl AthenaStore {
             let book_path = self.books_dir.join(format!("{source_id}.jsonl"));
             let book_ref = self.book_ref_for(&source_id);
             let now = Utc::now().to_rfc3339();
-            let source_type = classify_source(&canonical_input);
+            let source_type = self.classification_cache.classify(&canonical_input);
             let url = extract_url(&canonical_input);
             let deduplicated = book_path.exists();
+            let scholarly_metadata =
+                if !deduplicated && matches!(&source_type, SourceType::ScholarlyLink) {
+                    match url.as_deref() {
+                        Some(url) => {
+                            self.scholarly_metadata_for_source(&pipeline_id, &source_id, url)?
+                        }
+                        None => None,
+                    }
+                } else {
+                    None
+                };
             let mut ingest_ctx = IngestCtx::new(
                 "athena_ingest",
                 &source_id,
@@ -698,7 +841,8 @@ impl AthenaStore {
                 &canonical_input,
                 submitted_by,
                 task_context,
-            );
+            )
+            .with_pipeline_id(&pipeline_id);
             ingest_ctx.source_type = Some(source_type.clone());
             ingest_ctx.url = url.clone();
             ingest_ctx.metadata = serde_json::json!({
@@ -712,8 +856,31 @@ impl AthenaStore {
                 &source_type,
                 deduplicated,
                 url.as_deref(),
+                scholarly_metadata,
             );
-            let digest_status = if deduplicated {
+            let mut bacon_task = Task::new(format!("ingest {normalized}"), "ingest");
+            bacon_task.clarifications_resolved = if url.is_some() { 1 } else { 0 };
+            let quarantine_reason = match enqueue_bacon_lite(
+                "athena",
+                "ingest",
+                &bacon_task,
+                serde_json::json!({
+                    "pipeline_id": pipeline_id,
+                    "source_id": source_id,
+                    "deduplicated": deduplicated,
+                    "source_type": format!("{:?}", source_type),
+                }),
+            ) {
+                Ok(event) => ingest_quarantine_reason(&event),
+                Err(err) => {
+                    tracing::debug!(error = %err, "ATHENA bacon-lite record failed");
+                    None
+                }
+            };
+            let quarantine = quarantine_reason.is_some();
+            let digest_status = if quarantine {
+                "quarantine"
+            } else if deduplicated {
                 "shallow_existing"
             } else {
                 "shallow"
@@ -722,6 +889,8 @@ impl AthenaStore {
 
             let record = IngestRecord {
                 id: source_id.clone(),
+                pipeline_id: pipeline_id.clone(),
+                last_full_refresh_utc: now.clone(),
                 received_at_utc: now.clone(),
                 processed_at_utc: now.clone(),
                 source_type,
@@ -734,6 +903,8 @@ impl AthenaStore {
                 book_ref: book_ref.clone(),
                 shallow: shallow.clone(),
                 deduplicated,
+                quarantine,
+                quarantine_reason,
                 error: None,
             };
 
@@ -745,8 +916,9 @@ impl AthenaStore {
                 metrics::classify_ingest_outcome(deduplicated, None),
             );
 
-            if !deduplicated {
+            if !deduplicated && !record.quarantine {
                 let book_entry = BookEntry {
+                    pipeline_id: pipeline_id.clone(),
                     version: 1,
                     stage: "shallow".to_string(),
                     written_at_utc: now,
@@ -754,33 +926,21 @@ impl AthenaStore {
                     data: shallow,
                 };
                 self.append_jsonl(&book_path, &book_entry)?;
-                self.invalidate_digest_index();
+                self.refresh_digest_index_entry(&record.id)?;
             }
-            let existing_deep = self.latest_deep_book_entry(&record.id).ok().flatten();
-            if let Err(err) = self.sync_knowledge_views(
-                &record.id,
-                Some(&record),
-                Some(&record.shallow),
-                existing_deep.as_ref(),
-            ) {
-                tracing::warn!(error = %err, source_id = %record.id, "ATHENA knowledge view sync failed");
-            }
-            if let Err(err) = self.emit_ingest_triage_entry(&record) {
-                tracing::warn!(error = %err, source_id = %record.id, "ATHENA triage registry emission failed");
-            }
-            let mut bacon_task = Task::new(format!("ingest {}", record.raw_input), "ingest");
-            bacon_task.clarifications_resolved = if record.url.is_some() { 1 } else { 0 };
-            if let Err(err) = enqueue_bacon_lite(
-                "athena",
-                "ingest",
-                &bacon_task,
-                serde_json::json!({
-                    "source_id": record.id,
-                    "deduplicated": record.deduplicated,
-                    "source_type": format!("{:?}", record.source_type),
-                }),
-            ) {
-                tracing::debug!(error = %err, "ATHENA bacon-lite record failed");
+            if !record.quarantine {
+                let existing_deep = self.latest_deep_book_entry(&record.id).ok().flatten();
+                if let Err(err) = self.sync_knowledge_views(
+                    &record.id,
+                    Some(&record),
+                    Some(&record.shallow),
+                    existing_deep.as_ref(),
+                ) {
+                    tracing::warn!(error = %err, source_id = %record.id, "ATHENA knowledge view sync failed");
+                }
+                if let Err(err) = self.emit_ingest_triage_entry(&record) {
+                    tracing::warn!(error = %err, source_id = %record.id, "ATHENA triage registry emission failed");
+                }
             }
             self.interceptors.after(
                 &ingest_ctx,
@@ -840,6 +1000,7 @@ impl AthenaStore {
 
             receipts.push(BatchIngestReceipt {
                 source_id: record.id,
+                pipeline_id: record.pipeline_id,
                 input: trimmed.to_string(),
                 canonical_input,
                 url: record.url,
@@ -872,6 +1033,7 @@ impl AthenaStore {
 
         let record = DeepQueueRecord {
             ts: Utc::now().to_rfc3339(),
+            pipeline_id: self.pipeline_id_for_source(normalized),
             event: "deep_queued".to_string(),
             source_id: normalized.to_string(),
             agent: agent.to_string(),
@@ -893,6 +1055,7 @@ impl AthenaStore {
         if pending_deep == 101 {
             let warning = serde_json::json!({
                 "ts": Utc::now().to_rfc3339(),
+                "pipeline_id": record.pipeline_id,
                 "event": "deep_queue_backlog_warning",
                 "source_id": normalized,
                 "agent": "athena",
@@ -946,6 +1109,7 @@ impl AthenaStore {
             athena_deep_queue_limit(),
             || {
                 let source_id = source_id.trim();
+                let pipeline_id = self.pipeline_id_for_source(source_id);
                 let book_path = self.books_dir.join(format!("{source_id}.jsonl"));
                 if !book_path.exists() {
                     return Err(athena_error(format!(
@@ -969,19 +1133,33 @@ impl AthenaStore {
                     })?;
                 let shallow = self.recover_shallow_analysis(source_id, shallow)?;
 
-                let mut task = Task::new(
-                    format!(
-                        "deep analyze {} {}",
-                        shallow.data.title, shallow.data.deep_analysis_reason
-                    ),
-                    "deep_analyze",
+                let deep_query = format!(
+                    "deep analyze {} {}",
+                    shallow.data.title, shallow.data.deep_analysis_reason
                 );
+                let relevant_doc_ids = vec![source_id.to_string()];
+                let model_id = self
+                    .llm
+                    .as_ref()
+                    .map(|llm| llm.default_model().to_string())
+                    .unwrap_or_else(|| "athena-deterministic-scaffold-v1".to_string());
+                let deep_cache = deep_cache::DeepAnalysisCache::new(&self.root);
+                match deep_cache.load(&deep_query, &relevant_doc_ids, &model_id) {
+                    Ok(Some(cached)) => return Ok(cached),
+                    Ok(None) => {}
+                    Err(err) => {
+                        tracing::warn!(error = %err, source_id = %source_id, "ATHENA deep cache read failed; recomputing");
+                    }
+                }
+
+                let mut task = Task::new(deep_query.clone(), "deep_analyze");
                 task.joule_cost_estimated = estimate_joule_cost(&shallow.data);
                 task.joule_cost_actual = task.joule_cost_estimated * 1.08;
                 task.clarifications_requested = 1;
                 task.clarifications_resolved = 1;
                 task.complete(serde_json::json!({
                     "source_id": source_id,
+                    "pipeline_id": pipeline_id,
                     "governance_evidence": {
                         "schema_version": "arda.governance.evidence.v1",
                         "evidence_anchors": [{
@@ -1077,6 +1255,7 @@ impl AthenaStore {
                     evaluate_policy_readiness(&shallow, &deep_data, source_id, opposition_coverage);
 
                 let deep_entry = DeepBookEntry {
+                    pipeline_id: pipeline_id.clone(),
                     version: line_count + 1,
                     stage: "deep".to_string(),
                     written_at_utc: Utc::now().to_rfc3339(),
@@ -1088,11 +1267,12 @@ impl AthenaStore {
                     },
                 };
                 self.append_jsonl(&book_path, &deep_entry)?;
-                self.invalidate_digest_index();
+                self.refresh_digest_index_entry(source_id)?;
                 let _ = self.append_jsonl(
                     &self.policy_readiness_path,
                     &serde_json::json!({
                         "ts_utc": Utc::now().to_rfc3339(),
+                        "pipeline_id": pipeline_id,
                         "source_id": source_id,
                         "policy_readiness": deep_entry.data.policy_readiness,
                         "gate": deep_entry.data.policy_gate
@@ -1108,6 +1288,7 @@ impl AthenaStore {
                 };
                 let event = DeepQueueRecord {
                     ts: Utc::now().to_rfc3339(),
+                    pipeline_id: pipeline_id.clone(),
                     event: "deep_complete".to_string(),
                     source_id: source_id.to_string(),
                     agent: "athena".to_string(),
@@ -1164,12 +1345,19 @@ impl AthenaStore {
                     "deep_analyze",
                     &task,
                     serde_json::json!({
+                        "pipeline_id": pipeline_id,
                         "source_id": source_id,
                         "triad_passed": deep_entry.data.triad_analysis.passed,
                         "confidence": deep_entry.data.confidence,
                     }),
                 ) {
                     tracing::debug!(error = %err, "ATHENA deep bacon-lite record failed");
+                }
+
+                if let Err(err) =
+                    deep_cache.store(&deep_query, &relevant_doc_ids, &model_id, &deep_entry)
+                {
+                    tracing::warn!(error = %err, source_id = %source_id, "ATHENA deep cache write failed");
                 }
 
                 Ok(deep_entry)
@@ -1245,6 +1433,7 @@ impl AthenaStore {
                         failed += 1;
                         let event = DeepQueueRecord {
                             ts: Utc::now().to_rfc3339(),
+                            pipeline_id: self.pipeline_id_for_source(&source_id),
                             event: "deep_failed".to_string(),
                             source_id: source_id.clone(),
                             agent: "athena".to_string(),
@@ -1311,16 +1500,11 @@ fn athena_deep_queue_limit() -> usize {
 }
 
 fn athena_crawl_limit() -> usize {
-    #[cfg(test)]
-    let default = 32;
-    #[cfg(not(test))]
-    let default = 1;
-
     std::env::var("ARDA_ATHENA_CRAWL_MAX_CONCURRENCY")
         .ok()
         .and_then(|raw| raw.parse::<usize>().ok())
         .filter(|value| *value > 0)
-        .unwrap_or(default)
+        .unwrap_or(8)
 }
 
 #[cfg(test)]
@@ -1330,7 +1514,9 @@ fn athena_crawl_limit() -> usize {
 // async boundaries.
 #[allow(clippy::await_holding_lock)]
 mod tests {
-    use super::scholarly::{offline_scholarly_metadata, parse_arxiv_api_response};
+    use super::scholarly::{
+        fetch_scholarly_metadata, offline_scholarly_metadata, parse_arxiv_api_response,
+    };
     use super::{
         crawl4ai_fetch_markdown, resolve_crawl_provider_order, scrapling_fetch_markdown,
         source_id_from_input, AthenaStore, CrawlMarkdownResult,
@@ -1349,6 +1535,191 @@ mod tests {
         crate::test_support::env_guard()
     }
 
+    fn replace_env(key: &str, value: &str) -> Option<std::ffi::OsString> {
+        let previous = std::env::var_os(key);
+        unsafe {
+            std::env::set_var(key, value);
+        }
+        previous
+    }
+
+    fn restore_env(key: &str, previous: Option<std::ffi::OsString>) {
+        unsafe {
+            match previous {
+                Some(value) => std::env::set_var(key, value),
+                None => std::env::remove_var(key),
+            }
+        }
+    }
+
+    fn scholarly_xml(title: &str) -> String {
+        format!(
+            "<feed><entry><title>{title}</title><summary>Recovered metadata for a queued scholarly source.</summary><author><name>Ada Example</name></author><category term=\"cs.AI\" /></entry></feed>"
+        )
+    }
+
+    fn serve_http_responses(
+        listener: TcpListener,
+        responses: Vec<(u16, String)>,
+    ) -> std::thread::JoinHandle<()> {
+        std::thread::spawn(move || {
+            for (status, body) in responses {
+                let (mut stream, _) = listener.accept().expect("accept scholarly request");
+                let mut request = [0u8; 4096];
+                let _ = stream.read(&mut request);
+                let reason = if status == 200 {
+                    "OK"
+                } else {
+                    "Service Unavailable"
+                };
+                write!(
+                    stream,
+                    "HTTP/1.1 {status} {reason}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
+                    body.len()
+                )
+                .expect("write scholarly response");
+            }
+        })
+    }
+
+    #[test]
+    fn scholarly_fetch_retries_within_configured_budget() {
+        let _guard = env_guard();
+        let listener = match TcpListener::bind("127.0.0.1:0") {
+            Ok(listener) => listener,
+            Err(err) if err.kind() == std::io::ErrorKind::PermissionDenied => return,
+            Err(err) => panic!("bind: {err}"),
+        };
+        let addr = listener.local_addr().expect("listener address");
+        let server = serve_http_responses(
+            listener,
+            vec![
+                (503, String::new()),
+                (200, scholarly_xml("Retry Budget Recovered")),
+            ],
+        );
+        let api_previous = replace_env(
+            "ARDA_ATHENA_SCHOLARLY_API_URL",
+            &format!("http://{addr}/api/query"),
+        );
+        let budget_previous = replace_env("ARDA_ATHENA_SCHOLARLY_RETRY_BUDGET", "2");
+        let delay_previous = replace_env("ARDA_ATHENA_SCHOLARLY_RETRY_DELAY_MS", "0");
+
+        let outcome = fetch_scholarly_metadata("https://arxiv.org/abs/9999.00001");
+
+        restore_env("ARDA_ATHENA_SCHOLARLY_API_URL", api_previous);
+        restore_env("ARDA_ATHENA_SCHOLARLY_RETRY_BUDGET", budget_previous);
+        restore_env("ARDA_ATHENA_SCHOLARLY_RETRY_DELAY_MS", delay_previous);
+        server.join().expect("scholarly server");
+        assert!(outcome.upstream_succeeded);
+        assert_eq!(outcome.attempts, 2);
+        assert_eq!(
+            outcome.metadata.expect("metadata").paper_title,
+            "Retry Budget Recovered"
+        );
+    }
+
+    #[test]
+    fn scholarly_failure_queues_and_later_persists_reenrichment() {
+        let _guard = env_guard();
+        let unavailable = match TcpListener::bind("127.0.0.1:0") {
+            Ok(listener) => listener,
+            Err(err) if err.kind() == std::io::ErrorKind::PermissionDenied => return,
+            Err(err) => panic!("bind: {err}"),
+        };
+        let unavailable_addr = unavailable.local_addr().expect("unavailable address");
+        drop(unavailable);
+        let api_previous = replace_env(
+            "ARDA_ATHENA_SCHOLARLY_API_URL",
+            &format!("http://{unavailable_addr}/api/query"),
+        );
+        let budget_previous = replace_env("ARDA_ATHENA_SCHOLARLY_RETRY_BUDGET", "1");
+        let delay_previous = replace_env("ARDA_ATHENA_SCHOLARLY_RETRY_DELAY_MS", "0");
+        let dir = tempdir().expect("tempdir");
+        let store = AthenaStore::new(dir.path()).expect("store");
+        let record = store
+            .ingest(
+                "https://arxiv.org/abs/9999.00002",
+                "test",
+                "scholarly queue test",
+            )
+            .expect("ingest with unavailable metadata upstream");
+        assert!(record.shallow.scholarly_metadata.is_none());
+        assert_eq!(
+            store
+                .status()
+                .expect("status")
+                .scholarly_reenrichment_pending,
+            1
+        );
+
+        let listener = TcpListener::bind("127.0.0.1:0").expect("recovery listener");
+        let addr = listener.local_addr().expect("recovery address");
+        let server = serve_http_responses(
+            listener,
+            vec![(200, scholarly_xml("Queued Metadata Recovered"))],
+        );
+        unsafe {
+            std::env::set_var(
+                "ARDA_ATHENA_SCHOLARLY_API_URL",
+                format!("http://{addr}/api/query"),
+            );
+        }
+        let result = store
+            .process_scholarly_reenrichment_queue(10)
+            .expect("process scholarly queue");
+
+        restore_env("ARDA_ATHENA_SCHOLARLY_API_URL", api_previous);
+        restore_env("ARDA_ATHENA_SCHOLARLY_RETRY_BUDGET", budget_previous);
+        restore_env("ARDA_ATHENA_SCHOLARLY_RETRY_DELAY_MS", delay_previous);
+        server.join().expect("recovery server");
+        assert_eq!(result["completed"], 1);
+        assert_eq!(result["failed"], 0);
+        let status = store.status().expect("completed status");
+        assert_eq!(status.scholarly_reenrichment_pending, 0);
+        assert_eq!(status.scholarly_reenrichment_failed, 0);
+        let book = fs::read_to_string(dir.path().join(record.book_ref)).expect("book");
+        assert!(book.contains("Queued Metadata Recovered"));
+        assert!(book.lines().all(|line| {
+            serde_json::from_str::<serde_json::Value>(line)
+                .ok()
+                .and_then(|value| value["pipeline_id"].as_str().map(str::to_string))
+                .as_deref()
+                == Some(record.pipeline_id.as_str())
+        }));
+        let queue = fs::read_to_string(store.scholarly_reenrichment_path()).expect("queue");
+        assert!(queue.contains("\"status\":\"pending\""));
+        assert!(queue.contains("\"status\":\"completed\""));
+        assert!(queue.lines().all(|line| {
+            serde_json::from_str::<serde_json::Value>(line)
+                .ok()
+                .and_then(|value| value["pipeline_id"].as_str().map(str::to_string))
+                .as_deref()
+                == Some(record.pipeline_id.as_str())
+        }));
+    }
+
+    #[test]
+    fn crawl_concurrency_defaults_to_eight_and_honors_override() {
+        let _guard = env_guard();
+        let key = "ARDA_ATHENA_CRAWL_MAX_CONCURRENCY";
+        let previous = std::env::var_os(key);
+        unsafe {
+            std::env::remove_var(key);
+        }
+        assert_eq!(super::athena_crawl_limit(), 8);
+        unsafe {
+            std::env::set_var(key, "3");
+        }
+        assert_eq!(super::athena_crawl_limit(), 3);
+        unsafe {
+            match previous {
+                Some(value) => std::env::set_var(key, value),
+                None => std::env::remove_var(key),
+            }
+        }
+    }
+
     #[test]
     fn ingest_writes_digest_and_book() {
         let dir = tempdir().expect("tempdir");
@@ -1364,10 +1735,29 @@ mod tests {
 
         let digest = fs::read_to_string(store.digest_path()).expect("digest");
         assert!(digest.contains(&record.id));
+        assert!(digest.contains(&record.pipeline_id));
 
         let book_path = dir.path().join(record.book_ref);
         let book = fs::read_to_string(book_path).expect("book");
         assert!(book.contains("\"stage\":\"shallow\""));
+        assert!(book.contains(&record.pipeline_id));
+    }
+
+    #[test]
+    fn ingest_quarantines_bacon_lite_failures_before_book_landing() {
+        let dir = tempdir().expect("tempdir");
+        let store = AthenaStore::new(dir.path()).expect("store");
+
+        let record = store
+            .ingest("always never urgent", "test", "govern-on-ingest quarantine")
+            .expect("quarantined ingest receipt");
+        let record_json = serde_json::to_value(&record).expect("record json");
+
+        assert_eq!(record_json["quarantine"], true);
+        assert_eq!(record.digest_status, "quarantine");
+        assert!(!dir.path().join(&record.book_ref).exists());
+        let digest = fs::read_to_string(store.digest_path()).expect("digest");
+        assert!(digest.contains("\"quarantine\":true"));
     }
 
     #[test]
@@ -1393,6 +1783,7 @@ mod tests {
 
         assert_eq!(report.accepted_inputs, 1);
         let receipt = report.receipts.first().expect("receipt");
+        assert!(receipt.pipeline_id.starts_with("athpl_"));
         let environmental = receipt
             .environmental_coherence
             .as_ref()
@@ -1579,6 +1970,150 @@ mod tests {
         let response = store.query("rust", 5).expect("query");
         assert!(response.total_matches >= 1);
         assert_eq!(response.suggestion, None);
+        assert!(response.matches[0].shallow_only);
+    }
+
+    #[test]
+    fn persistent_index_survives_restart_and_updates_incrementally() {
+        let dir = tempdir().expect("tempdir");
+        let first_store = AthenaStore::new(dir.path()).expect("first store");
+        first_store
+            .ingest("alpha rust persistent index", "test", "alpha")
+            .expect("first ingest");
+        let index_path = dir.path().join("digest-index-v1.json");
+        let first_index: serde_json::Value =
+            serde_json::from_str(&fs::read_to_string(&index_path).expect("persisted first index"))
+                .expect("first index json");
+        assert_eq!(first_index["schema_version"], 1);
+        assert_eq!(first_index["entries"].as_array().map(Vec::len), Some(1));
+        drop(first_store);
+
+        let second_store = AthenaStore::new(dir.path()).expect("restarted store");
+        assert_eq!(
+            second_store
+                .query("alpha", 5)
+                .expect("alpha query")
+                .total_matches,
+            1
+        );
+        second_store
+            .ingest("beta governance persistent index", "test", "beta")
+            .expect("second ingest");
+        let second_index: serde_json::Value =
+            serde_json::from_str(&fs::read_to_string(&index_path).expect("persisted second index"))
+                .expect("second index json");
+        assert_eq!(second_index["entries"].as_array().map(Vec::len), Some(2));
+        drop(second_store);
+
+        let third_store = AthenaStore::new(dir.path()).expect("second restart");
+        assert_eq!(
+            third_store
+                .query("alpha", 5)
+                .expect("alpha restart query")
+                .total_matches,
+            1
+        );
+        assert_eq!(
+            third_store
+                .query("beta", 5)
+                .expect("beta restart query")
+                .total_matches,
+            1
+        );
+    }
+
+    #[test]
+    fn persistent_index_is_shared_across_live_store_instances() {
+        let dir = tempdir().expect("tempdir");
+        let first_store = AthenaStore::new(dir.path()).expect("first store");
+        let second_store = AthenaStore::new(dir.path()).expect("second store");
+        let alpha = first_store
+            .ingest("alpha rust shared index", "test", "alpha")
+            .expect("first ingest");
+        second_store
+            .ingest("beta governance shared index", "test", "beta")
+            .expect("second ingest");
+
+        assert_eq!(
+            first_store
+                .query("beta", 5)
+                .expect("shared beta query")
+                .total_matches,
+            1
+        );
+        assert_eq!(
+            second_store
+                .query("alpha", 5)
+                .expect("shared alpha query")
+                .total_matches,
+            1
+        );
+
+        let alpha_book = dir.path().join("books").join(format!("{}.jsonl", alpha.id));
+        writeln!(
+            fs::OpenOptions::new()
+                .append(true)
+                .open(&alpha_book)
+                .expect("open alpha book"),
+            "{}",
+            serde_json::json!({
+                "stage": "deep",
+                "data": {
+                    "full_summary": "quantumwidget production detail",
+                    "triad_analysis": {"passed": true},
+                    "policy_readiness": "policy_ready",
+                    "extracted_knowledge": {
+                        "concepts": ["quantumwidget"],
+                        "confidence_self_report": 0.9
+                    }
+                }
+            })
+        )
+        .expect("append alpha deep entry");
+        second_store
+            .refresh_digest_index_entry(&alpha.id)
+            .expect("refresh shared alpha entry");
+        assert_eq!(
+            first_store
+                .query("quantumwidget", 5)
+                .expect("shared existing-book update query")
+                .total_matches,
+            1
+        );
+    }
+
+    #[test]
+    fn query_match_includes_structured_citation_for_matched_span() {
+        let dir = tempdir().expect("tempdir");
+        let store = AthenaStore::new(dir.path()).expect("store");
+        let record = store
+            .ingest(
+                "https://github.com/example/rust-citation-api",
+                "orchestrator",
+                "citation contract",
+            )
+            .expect("ingest");
+
+        let response = store.query("rust", 5).expect("query");
+        let matched = response
+            .matches
+            .iter()
+            .find(|entry| entry.source_id == record.id)
+            .expect("match for ingested source");
+        let value = serde_json::to_value(matched).expect("serialize query match");
+        let citation = value["citations"]
+            .as_array()
+            .and_then(|citations| citations.first())
+            .expect("structured citation");
+
+        assert_eq!(citation["source_id"], record.id);
+        assert_eq!(citation["doc_id"], record.book_ref);
+        assert!(citation["span"]["field"].is_string());
+        assert!(citation["span"]["start"].as_u64().is_some());
+        assert!(citation["span"]["end"].as_u64().is_some());
+        assert!(citation["span"]["text"]
+            .as_str()
+            .is_some_and(|text| text.to_ascii_lowercase().contains("rust")));
     }
 
     #[test]
@@ -1784,7 +2319,7 @@ mod tests {
                 "observability",
             )
             .expect("first ingest");
-        let _duplicate = store
+        let duplicate = store
             .ingest(
                 "governance routing memory safety context tooling",
                 "orchestrator",
@@ -1816,6 +2351,80 @@ mod tests {
         assert!(status.policy_ready_promotions_total >= 1);
         assert_eq!(status.policy_ready_regressions_total, 0);
         assert_eq!(status.policy_readiness_malformed_records, 1);
+        assert_eq!(status.active_crawls_total, 0);
+        assert!(!status.recent_completed_pipelines.is_empty());
+        assert!(status
+            .recent_completed_pipelines
+            .iter()
+            .any(|pipeline| pipeline.pipeline_id == duplicate.pipeline_id));
+        assert!(status.source_freshness_total >= 1);
+        assert!(status.oldest_source_age_seconds.is_some());
+        let first_freshness = status
+            .source_freshness
+            .iter()
+            .find(|source| source.source_id == first.id)
+            .expect("first source freshness");
+        assert_eq!(
+            first_freshness.last_full_refresh_utc,
+            duplicate.last_full_refresh_utc
+        );
+        assert!(first_freshness.age_seconds <= 5);
+        let metrics = store.metrics().render_prometheus();
+        assert!(metrics.contains(&format!(
+            "athena_source_age_seconds{{source_id=\"{}\"}}",
+            first.id
+        )));
+    }
+
+    #[test]
+    fn status_uses_processed_timestamp_for_pre_freshness_records() {
+        let _guard = env_guard();
+        let dir = tempdir().expect("tempdir");
+        let store = AthenaStore::new(dir.path()).expect("store");
+        let record = store
+            .ingest("legacy source freshness", "test", "compatibility")
+            .expect("ingest");
+        let mut legacy = serde_json::to_value(&record).expect("record json");
+        legacy
+            .as_object_mut()
+            .expect("record object")
+            .remove("last_full_refresh_utc");
+        fs::write(
+            store.digest_path(),
+            format!("{}\n", serde_json::to_string(&legacy).expect("legacy json")),
+        )
+        .expect("write legacy digest");
+
+        let status = store.status().expect("status");
+        let freshness = status
+            .source_freshness
+            .iter()
+            .find(|source| source.source_id == record.id)
+            .expect("legacy source freshness");
+        assert_eq!(freshness.last_full_refresh_utc, record.processed_at_utc);
+        assert!(freshness.age_seconds <= 5);
+    }
+
+    #[test]
+    fn status_reports_latest_durable_error_and_ignores_malformed_activity() {
+        let dir = tempdir().expect("tempdir");
+        let store = AthenaStore::new(dir.path()).expect("store");
+        let failed_at = chrono::Utc::now().to_rfc3339();
+        fs::write(
+            &store.deep_queue_path,
+            format!(
+                "not-json\n{{\"ts\":\"{failed_at}\",\"pipeline_id\":\"athpl_failed\",\"event\":\"deep_failed\",\"source_id\":\"src_failed\",\"agent\":\"athena\",\"status\":\"failed\",\"reason\":\"model route unavailable\"}}\n"
+            ),
+        )
+        .expect("write failed activity");
+
+        let status = store.status().expect("status");
+        let error = status.last_activity_error.expect("last activity error");
+        assert_eq!(error.pipeline_id.as_deref(), Some("athpl_failed"));
+        assert_eq!(error.source_id.as_deref(), Some("src_failed"));
+        assert_eq!(error.stage, "deep");
+        assert_eq!(error.occurred_at_utc, failed_at);
+        assert_eq!(error.message, "model route unavailable");
     }
 
     #[test]
@@ -2021,6 +2630,8 @@ mod tests {
             .expect("queue");
         let deep = store.deep_analyze(&record.id).expect("deep");
 
+        assert!(record.pipeline_id.starts_with("athpl_"));
+        assert_eq!(deep.pipeline_id, record.pipeline_id);
         assert_eq!(deep.stage, "deep");
         assert_eq!(deep.sigil, "EYE");
         assert!(deep.version >= 2);
@@ -2041,9 +2652,37 @@ mod tests {
         let book = fs::read_to_string(book_path).expect("book");
         assert!(book.contains("\"stage\":\"deep\""));
         assert!(book.contains("\"triad_purity_source\":\"live_triad\""));
+        for entry in book.lines().filter(|line| !line.trim().is_empty()) {
+            let value: serde_json::Value = serde_json::from_str(entry).expect("book json");
+            assert_eq!(
+                value["pipeline_id"].as_str(),
+                Some(record.pipeline_id.as_str())
+            );
+        }
 
         let queue_log = fs::read_to_string(store.deep_queue_path()).expect("queue");
         assert!(queue_log.contains("deep_queued"));
+        for entry in queue_log.lines().filter(|line| !line.trim().is_empty()) {
+            let value: serde_json::Value = serde_json::from_str(entry).expect("queue json");
+            if value["source_id"].as_str() == Some(record.id.as_str()) {
+                assert_eq!(
+                    value["pipeline_id"].as_str(),
+                    Some(record.pipeline_id.as_str())
+                );
+            }
+        }
+        let policy_log = fs::read_to_string(&store.policy_readiness_path).expect("policy ledger");
+        let policy_event: serde_json::Value = serde_json::from_str(
+            policy_log
+                .lines()
+                .find(|line| line.contains(&record.id))
+                .expect("policy event"),
+        )
+        .expect("policy json");
+        assert_eq!(
+            policy_event["pipeline_id"].as_str(),
+            Some(record.pipeline_id.as_str())
+        );
         assert_ne!(deep.data.policy_readiness, "policy_ready");
         std::thread::sleep(Duration::from_millis(150));
         let plutus_status = tokio::runtime::Builder::new_current_thread()
@@ -2390,6 +3029,8 @@ mod tests {
     fn append_jsonl_serializes_concurrent_writers() {
         use std::sync::{Arc, Barrier};
 
+        let _guard = env_guard();
+        let previous_sync_interval = replace_env("ARDA_ATHENA_JSONL_SYNC_INTERVAL_MS", "60000");
         let dir = tempdir().expect("tempdir");
         let store = AthenaStore::new(dir.path()).expect("store");
         let path = dir.path().join("concurrent.jsonl");
@@ -2422,6 +3063,13 @@ mod tests {
             handle.join().expect("join");
         }
 
+        let (append_count, open_count, sync_count) = store.jsonl_appender.stats();
+        assert_eq!(append_count, 400);
+        assert_eq!(open_count, 1);
+        assert_eq!(sync_count, 1);
+        drop(store);
+        restore_env("ARDA_ATHENA_JSONL_SYNC_INTERVAL_MS", previous_sync_interval);
+
         let content = fs::read_to_string(&path).expect("read concurrent jsonl");
         let lines = content
             .lines()
@@ -2440,6 +3088,7 @@ mod tests {
         let dir = tempdir().expect("tempdir");
         let store = AthenaStore::new(dir.path()).expect("store");
         let crawl = CrawlMarkdownResult {
+            pipeline_id: "athpl_test_crawl".to_string(),
             url: "https://example.com".to_string(),
             filter: "fit".to_string(),
             query: Some("governance".to_string()),
@@ -2462,6 +3111,11 @@ mod tests {
             receipt.source_id,
             source_id_from_input("https://example.com")
         );
+        assert_eq!(receipt.pipeline_id, crawl.pipeline_id);
+        let ingested = store
+            .ingest_with_pipeline_id(&crawl.markdown, "cli", "crawl test", &crawl.pipeline_id)
+            .expect("ingest crawl artifact");
+        assert_eq!(ingested.pipeline_id, crawl.pipeline_id);
         assert!(Path::new(&receipt.artifact_path).exists());
         let artifact = fs::read_to_string(&receipt.artifact_path).expect("artifact");
         assert!(artifact.contains("Crawled markdown"));
@@ -2515,6 +3169,91 @@ mod tests {
         assert_eq!(out.query.as_deref(), Some("governance"));
         assert!(out.markdown.contains("# Example"));
         assert!(out.success);
+    }
+
+    #[tokio::test]
+    async fn tracked_crawl_is_visible_in_live_status_until_completion() {
+        let _guard = env_guard();
+        let dir = tempdir().expect("tempdir");
+        let store = AthenaStore::new(dir.path()).expect("store");
+        let listener = match TcpListener::bind("127.0.0.1:0") {
+            Ok(listener) => listener,
+            Err(err) if err.kind() == std::io::ErrorKind::PermissionDenied => return,
+            Err(err) => panic!("bind: {err}"),
+        };
+        let addr = listener.local_addr().expect("addr");
+        let (accepted_tx, accepted_rx) = oneshot::channel();
+        let (release_tx, release_rx) = std::sync::mpsc::channel();
+        let server = std::thread::spawn(move || {
+            let (mut stream, _) = listener.accept().expect("accept");
+            let mut request = [0u8; 4096];
+            let _ = stream.read(&mut request).expect("read request");
+            let _ = accepted_tx.send(());
+            release_rx.recv().expect("release response");
+            let body =
+                r##"{"url":"https://example.com/live","markdown":"# Live\n","success":true}"##;
+            let response = format!(
+                "HTTP/1.1 200 OK\r\ncontent-type: application/json\r\ncontent-length: {}\r\nconnection: close\r\n\r\n{}",
+                body.len(),
+                body
+            );
+            stream
+                .write_all(response.as_bytes())
+                .expect("write response");
+        });
+
+        let crawling_store = store.clone();
+        let crawl = tokio::spawn(async move {
+            crawling_store
+                .crawl4ai_fetch_markdown(
+                    &format!("http://{}", addr),
+                    "https://example.com/live",
+                    "fit",
+                    None,
+                )
+                .await
+        });
+        accepted_rx.await.expect("crawl accepted");
+
+        let active = store.status().expect("active status");
+        assert_eq!(active.active_crawls_total, 1);
+        assert_eq!(active.active_crawls[0].provider, "crawl4ai");
+        assert_eq!(active.active_crawls[0].url, "https://example.com/live");
+
+        release_tx.send(()).expect("release server");
+        let result = crawl.await.expect("crawl task").expect("crawl result");
+        server.join().expect("join server");
+        assert!(result.pipeline_id.starts_with("athpl_"));
+        assert_eq!(
+            store
+                .status()
+                .expect("completed status")
+                .active_crawls_total,
+            0
+        );
+    }
+
+    #[test]
+    fn tracked_crawl_failure_clears_activity_and_records_redacted_error() {
+        let _guard = env_guard();
+        let dir = tempdir().expect("tempdir");
+        let store = AthenaStore::new(dir.path()).expect("store");
+        let err = store
+            .scrapling_fetch_markdown(
+                "https://user:secret@example.com/path?token=secret",
+                "unsupported",
+                None,
+            )
+            .expect_err("unsupported filter");
+        assert!(err.to_string().contains("unsupported scrapling filter"));
+
+        let status = store.status().expect("status");
+        assert_eq!(status.active_crawls_total, 0);
+        let error = status.last_activity_error.expect("crawl error");
+        assert_eq!(error.stage, "crawl");
+        assert!(error.message.contains("https://example.com/path"));
+        assert!(!error.message.contains("secret"));
+        assert!(!error.message.contains("token"));
     }
 
     #[test]
@@ -2611,5 +3350,46 @@ mod tests {
         let _ = tx.send(());
         holder.await.expect("holder");
         std::env::remove_var("ARDA_ATHENA_DEEP_QUEUE_MAX_CONCURRENCY");
+    }
+
+    #[test]
+    fn deep_analyze_reuses_content_addressed_result_without_duplicate_writes() {
+        let _guard = env_guard();
+        let dir = tempdir().expect("tempdir");
+        let store = AthenaStore::new(dir.path()).expect("store");
+        let record = store
+            .ingest(
+                "https://example.com/content-addressed-deep-cache",
+                "test",
+                "deep cache",
+            )
+            .expect("ingest");
+
+        let first = store.deep_analyze(&record.id).expect("first deep analysis");
+        let book_path = dir
+            .path()
+            .join("books")
+            .join(format!("{}.jsonl", record.id));
+        let lines_after_first = fs::read_to_string(&book_path)
+            .expect("book after first deep analysis")
+            .lines()
+            .count();
+
+        let second = store
+            .deep_analyze(&record.id)
+            .expect("cached deep analysis");
+        let lines_after_second = fs::read_to_string(&book_path)
+            .expect("book after cached deep analysis")
+            .lines()
+            .count();
+
+        assert_eq!(second.written_at_utc, first.written_at_utc);
+        assert_eq!(lines_after_second, lines_after_first);
+        assert_eq!(
+            fs::read_dir(dir.path().join("cache/deep_analysis"))
+                .expect("deep cache directory")
+                .count(),
+            1
+        );
     }
 }

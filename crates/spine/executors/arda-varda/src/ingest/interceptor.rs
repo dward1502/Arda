@@ -1,7 +1,16 @@
-// Ingest pipeline interceptors.
-//
-// Side-effects that are not part of ATHENA's core book/digest write path live
-// here so new source capture flows can attach behavior without changing ingest.
+//! Ingest pipeline lifecycle hooks.
+//!
+//! Interceptors run synchronously in registration order. `before` receives a
+//! mutable [`IngestCtx`] before the core operation; it may enrich context but
+//! cannot veto the operation because the hook has no result channel. `after`
+//! receives that context plus a typed [`DigestEvent`] after the corresponding
+//! durable ATHENA write has succeeded.
+//!
+//! Hooks are best-effort side effects rather than transaction participants:
+//! implementations log their own failures and must not roll back books,
+//! digest, queue, or policy-readiness state. The default order is Hades,
+//! Warden, then Mnemosyne. Register new hooks only when that ordering and the
+//! at-least-once event contract are safe for the target consumer.
 
 use arda_vaire::{InformantEvent, MnemosyneService};
 use chrono::Utc;
@@ -17,6 +26,7 @@ use super::{layout, SourceType};
 
 #[derive(Debug, Clone)]
 pub struct IngestCtx {
+    pub pipeline_id: String,
     pub operation: String,
     pub source_id: String,
     pub raw_input: String,
@@ -38,6 +48,7 @@ impl IngestCtx {
         task_context: impl Into<String>,
     ) -> Self {
         Self {
+            pipeline_id: super::new_pipeline_id(),
             operation: operation.into(),
             source_id: source_id.into(),
             raw_input: raw_input.into(),
@@ -48,6 +59,11 @@ impl IngestCtx {
             url: None,
             metadata: json!({}),
         }
+    }
+
+    pub fn with_pipeline_id(mut self, pipeline_id: impl Into<String>) -> Self {
+        self.pipeline_id = pipeline_id.into();
+        self
     }
 }
 
@@ -146,8 +162,11 @@ impl DigestEvent {
 }
 
 pub trait IngestInterceptor: Send + Sync {
+    /// Stable diagnostic name reported by [`IngestPipeline::names`].
     fn name(&self) -> &str;
+    /// Enrich pre-operation context. This hook cannot reject or defer work.
     fn before(&self, _ctx: &mut IngestCtx) {}
+    /// Observe a completed lifecycle event without changing core persistence.
     fn after(&self, _ctx: &IngestCtx, _event: &DigestEvent) {}
 }
 
@@ -220,13 +239,14 @@ impl IngestInterceptor for HadesQueueInterceptor {
         "hades_queue"
     }
 
-    fn after(&self, _ctx: &IngestCtx, event: &DigestEvent) {
+    fn after(&self, ctx: &IngestCtx, event: &DigestEvent) {
         if matches!(event, DigestEvent::ShallowSynced { .. }) {
             return;
         }
         let event_name = event.event_name();
         let source_id = event.source_id();
         let record = json!({
+            "pipeline_id": ctx.pipeline_id,
             "task_id": format!("ath_{source_id}"),
             "queued_at_utc": Utc::now().to_rfc3339(),
             "action": "investigate_orphan",
@@ -259,12 +279,13 @@ impl IngestInterceptor for WardenQueueInterceptor {
         "warden_queue"
     }
 
-    fn after(&self, _ctx: &IngestCtx, event: &DigestEvent) {
+    fn after(&self, ctx: &IngestCtx, event: &DigestEvent) {
         if matches!(event, DigestEvent::ShallowSynced { .. }) {
             return;
         }
         let event_name = event.event_name();
         let record = json!({
+            "pipeline_id": ctx.pipeline_id,
             "ts": Utc::now().to_rfc3339(),
             "event": event_name,
             "event_type": event_name,
@@ -361,6 +382,7 @@ impl IngestInterceptor for MnemosyneInterceptor {
         }
 
         let semantic = json!({
+            "pipeline_id": ctx.pipeline_id,
             "type": "semantic",
             "schema_version": "arda.athena-policy-ready-memory.v1",
             "memory_id": format!("athena_policy_ready_{source_id}"),

@@ -9,12 +9,14 @@ use arda_core::error::Result;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use std::collections::BTreeMap;
 use std::fs;
 use std::path::Path;
 
 use super::{
     AthenaAutonomyRecommendation, AthenaKnowledgeVaultSourceLaneObservation,
-    AthenaKnowledgeVaultStatus, AthenaStatus, AthenaStore, AthenaVaultSynthesisQueueItem,
+    AthenaKnowledgeVaultStatus, AthenaSourceFreshness, AthenaStatus, AthenaStore,
+    AthenaVaultSynthesisQueueItem, IngestRecord,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -51,6 +53,10 @@ impl AthenaStore {
         let digest_events = line_count(&self.digest_path)?;
         let (deep_queue_depth, deep_queue_failed) =
             deep_queue_status_counts(&self.deep_queue_path)?;
+        let (scholarly_reenrichment_pending, scholarly_reenrichment_failed) =
+            super::scholarly::scholarly_reenrichment_status_counts(
+                &self.scholarly_reenrichment_path,
+            )?;
         // Update the deep queue depth gauge
         self.metrics.set_deep_queue_depth(deep_queue_depth as u64);
         let deep_graph_events = line_count(&self.deep_graph_path)?;
@@ -64,13 +70,36 @@ impl AthenaStore {
         let (policy_ready_promotions_total, policy_ready_regressions_total) =
             policy_readiness_delta_summary(&self.policy_readiness_path)?;
         let source_provenance_coverage_ratio = self.source_provenance_coverage_ratio()?;
+        let source_freshness = source_freshness_summary(&self.digest_path, Utc::now())?;
+        self.metrics.set_source_age_seconds(
+            source_freshness
+                .iter()
+                .map(|source| (source.source_id.clone(), source.age_seconds)),
+        );
+        let oldest_source_age_seconds = source_freshness
+            .iter()
+            .map(|source| source.age_seconds)
+            .max();
         let task_receipts = planning_task_receipt_summary(&self.planning_task_receipts_path)?;
         let knowledge_vault = self.knowledge_vault_status()?;
+        let now = Utc::now();
+        let (active_crawls, process_error) = self.activity_tracker.snapshot(now);
+        let recent_completed_pipelines = super::activity::recent_completed_pipelines(
+            &self.digest_path,
+            &self.crawl_receipts_path,
+            8,
+        )?;
+        let durable_error = super::activity::latest_durable_error(
+            &self.deep_queue_path,
+            &self.scholarly_reenrichment_path,
+        )?;
+        let last_activity_error = super::activity::latest_error(process_error, durable_error);
 
         Ok(AthenaStatus {
             storage_root: self.root.display().to_string(),
             digest_path: self.digest_path.display().to_string(),
             deep_queue_path: self.deep_queue_path.display().to_string(),
+            scholarly_reenrichment_path: self.scholarly_reenrichment_path.display().to_string(),
             deep_graph_path: self.deep_graph_path.display().to_string(),
             policy_readiness_path: self.policy_readiness_path.display().to_string(),
             planning_task_receipts_path: self.planning_task_receipts_path.display().to_string(),
@@ -78,6 +107,8 @@ impl AthenaStore {
             digest_events,
             deep_queue_depth,
             deep_queue_failed,
+            scholarly_reenrichment_pending,
+            scholarly_reenrichment_failed,
             deep_graph_events,
             ingest_success_total: ingest_metrics.ingest_success_total,
             deduplicated_ingests_total: ingest_metrics.deduplicated_ingests_total,
@@ -96,6 +127,13 @@ impl AthenaStore {
             execution_posture: "workstation_first_laptop_operator_fallback".to_string(),
             operator_ingress_role: "laptop_terminal_optional_fallback".to_string(),
             source_provenance_coverage_ratio,
+            source_freshness_total: source_freshness.len(),
+            oldest_source_age_seconds,
+            source_freshness,
+            active_crawls_total: active_crawls.len(),
+            active_crawls,
+            recent_completed_pipelines,
+            last_activity_error,
             memory_lanes: vec![
                 "episodic".to_string(),
                 "source_book".to_string(),
@@ -193,6 +231,40 @@ pub(super) fn read_recent_jsonl(path: &Path, limit: usize) -> Result<Vec<Value>>
     } else {
         Ok(items)
     }
+}
+
+pub(super) fn source_freshness_summary(
+    path: &Path,
+    now: chrono::DateTime<Utc>,
+) -> Result<Vec<AthenaSourceFreshness>> {
+    let content = fs::read_to_string(path)?;
+    let mut latest = BTreeMap::<String, AthenaSourceFreshness>::new();
+    for line in content.lines() {
+        if line.trim().is_empty() {
+            continue;
+        }
+        let Ok(record) = serde_json::from_str::<IngestRecord>(line) else {
+            continue;
+        };
+        let last_full_refresh_utc = if record.last_full_refresh_utc.is_empty() {
+            record.processed_at_utc
+        } else {
+            record.last_full_refresh_utc
+        };
+        let Some(age_seconds) = super::source::source_age_seconds(&last_full_refresh_utc, now)
+        else {
+            continue;
+        };
+        latest.insert(
+            record.id.clone(),
+            AthenaSourceFreshness {
+                source_id: record.id,
+                last_full_refresh_utc,
+                age_seconds,
+            },
+        );
+    }
+    Ok(latest.into_values().collect())
 }
 
 pub(super) fn deep_queue_status_counts(path: &Path) -> Result<(usize, usize)> {

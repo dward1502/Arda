@@ -254,6 +254,14 @@ fn execute_command(store: &AthenaStore, cmd: CommandEnvelope) -> Result<Value> {
                 .unwrap_or(false);
             Ok(store.process_deep_queue(limit, retry_failed)?)
         }
+        "scholarly_reenrich" => {
+            let limit = cmd
+                .payload
+                .get("limit")
+                .and_then(|v| v.as_u64())
+                .unwrap_or(25) as usize;
+            Ok(store.process_scholarly_reenrichment_queue(limit)?)
+        }
         "digest" => {
             let source_id = payload_str_optional(&cmd.payload, "source_id");
             let limit = cmd
@@ -406,6 +414,17 @@ mod tests {
             .await
             .expect("status");
         assert_eq!(status.get("books_count").and_then(|v| v.as_u64()), Some(1));
+        assert_eq!(
+            status.get("active_crawls_total").and_then(|v| v.as_u64()),
+            Some(0)
+        );
+        assert_eq!(
+            status
+                .get("recent_completed_pipelines")
+                .and_then(|v| v.as_array())
+                .map(Vec::len),
+            Some(1)
+        );
 
         let metrics = send_command(socket_path, "metrics", json!({}))
             .await

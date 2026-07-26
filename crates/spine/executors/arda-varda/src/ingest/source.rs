@@ -4,9 +4,50 @@
 // shallow-analysis construction, graph-token normalization, and the small
 // deterministic scoring helpers used during ingest and deep analysis.
 
+use chrono::{DateTime, Utc};
 use sha2::{Digest, Sha256};
+use std::collections::HashMap;
+use std::sync::RwLock;
 
-use super::{github, scholarly, GithubMetadata, ScholarlyMetadata, ShallowAnalysis, SourceType};
+use super::{github, GithubMetadata, ScholarlyMetadata, ShallowAnalysis, SourceType};
+
+/// Process-local cache from a full content hash to its deterministic source
+/// classification. The value retains the source kind so repeated crawls or
+/// batch duplicates avoid repeating classification while preserving the
+/// existing source taxonomy.
+#[derive(Debug, Default)]
+pub(super) struct ClassificationCache {
+    entries: RwLock<HashMap<String, SourceType>>,
+}
+
+impl ClassificationCache {
+    pub(super) fn classify(&self, input: &str) -> SourceType {
+        let key = classification_cache_key(input);
+        if let Ok(entries) = self.entries.read() {
+            if let Some(kind) = entries.get(&key) {
+                return kind.clone();
+            }
+        }
+
+        let kind = classify_source(input);
+        if let Ok(mut entries) = self.entries.write() {
+            entries.insert(key, kind.clone());
+        }
+        kind
+    }
+
+    #[cfg(test)]
+    fn len(&self) -> usize {
+        self.entries
+            .read()
+            .map(|entries| entries.len())
+            .unwrap_or(0)
+    }
+}
+
+fn classification_cache_key(input: &str) -> String {
+    format!("sha256:{:x}", Sha256::digest(input.as_bytes()))
+}
 
 pub(super) fn source_id_from_input(input: &str) -> String {
     let mut hasher = Sha256::new();
@@ -14,6 +55,13 @@ pub(super) fn source_id_from_input(input: &str) -> String {
     let hash = hasher.finalize();
     let hex = hash.iter().map(|b| format!("{b:02x}")).collect::<String>();
     format!("src_{}", &hex[..8])
+}
+
+pub(super) fn source_age_seconds(last_full_refresh_utc: &str, now: DateTime<Utc>) -> Option<u64> {
+    let refreshed = DateTime::parse_from_rfc3339(last_full_refresh_utc)
+        .ok()?
+        .with_timezone(&Utc);
+    Some(now.signed_duration_since(refreshed).num_seconds().max(0) as u64)
 }
 
 pub(super) fn canonicalize_ingest_input(input: &str) -> String {
@@ -149,12 +197,8 @@ pub(super) fn build_shallow_analysis(
     source_type: &SourceType,
     deduplicated: bool,
     url: Option<&str>,
+    scholarly_metadata: Option<ScholarlyMetadata>,
 ) -> ShallowAnalysis {
-    let scholarly_metadata = if !deduplicated && matches!(source_type, SourceType::ScholarlyLink) {
-        url.and_then(scholarly::fetch_scholarly_metadata)
-    } else {
-        None
-    };
     let github_metadata = if !deduplicated
         && matches!(source_type, SourceType::GithubRepo | SourceType::GithubFile)
     {
@@ -247,6 +291,17 @@ pub(super) fn build_shallow_analysis(
         scholarly_metadata,
         github_metadata,
     }
+}
+
+pub(super) fn apply_scholarly_metadata(
+    shallow: &mut ShallowAnalysis,
+    url: &str,
+    metadata: ScholarlyMetadata,
+) {
+    shallow.title = metadata.paper_title.clone();
+    shallow.summary = metadata.abstract_text.clone();
+    shallow.relevance_tags = infer_tags(url, &SourceType::ScholarlyLink, Some(&metadata));
+    shallow.scholarly_metadata = Some(metadata);
 }
 
 fn github_summary(meta: &GithubMetadata) -> String {
@@ -405,6 +460,15 @@ pub(super) fn love_equation_from_tags(tags: &[String]) -> (f64, String) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn classification_cache_reuses_content_hash_verdict() {
+        let cache = ClassificationCache::default();
+        let input = "https://arxiv.org/abs/2603.05344";
+        assert!(matches!(cache.classify(input), SourceType::ScholarlyLink));
+        assert!(matches!(cache.classify(input), SourceType::ScholarlyLink));
+        assert_eq!(cache.len(), 1);
+    }
 
     #[test]
     fn classify_source_detects_x_posts() {

@@ -8,15 +8,125 @@ use chrono::Utc;
 use fs2::FileExt;
 use serde::Serialize;
 use sha2::{Digest, Sha256};
-use std::fs::{self, OpenOptions};
-use std::io::Write;
+use std::collections::HashMap;
+use std::fs::{self, File, OpenOptions};
+use std::io::{BufWriter, Write};
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::{Arc, Mutex};
+use std::time::{Duration, Instant};
 
 use super::source::{canonicalize_ingest_input, source_id_from_input};
 use super::{
-    AthenaStore, CrawlCaptureReceipt, CrawlMarkdownResult, DeepBookEntry, IngestRecord,
-    KnowledgeTriageEntry, KnowledgeTriageSoterion, SourceType,
+    athena_error, AthenaStore, CrawlCaptureReceipt, CrawlMarkdownResult, DeepBookEntry,
+    IngestRecord, KnowledgeTriageEntry, KnowledgeTriageSoterion, SourceType,
 };
+
+const JSONL_BUFFER_BYTES: usize = 64 * 1024;
+const DEFAULT_JSONL_SYNC_INTERVAL_MS: u64 = 250;
+
+pub(super) struct JsonlAppender {
+    writers: Mutex<HashMap<PathBuf, Arc<Mutex<JsonlWriter>>>>,
+    sync_interval: Duration,
+    append_count: AtomicU64,
+    open_count: AtomicU64,
+    sync_count: AtomicU64,
+}
+
+struct JsonlWriter {
+    writer: BufWriter<File>,
+    last_sync: Option<Instant>,
+}
+
+impl JsonlAppender {
+    pub(super) fn new() -> Self {
+        let sync_interval = std::env::var("ARDA_ATHENA_JSONL_SYNC_INTERVAL_MS")
+            .ok()
+            .and_then(|raw| raw.parse::<u64>().ok())
+            .map(Duration::from_millis)
+            .unwrap_or_else(|| Duration::from_millis(DEFAULT_JSONL_SYNC_INTERVAL_MS));
+        Self {
+            writers: Mutex::new(HashMap::new()),
+            sync_interval,
+            append_count: AtomicU64::new(0),
+            open_count: AtomicU64::new(0),
+            sync_count: AtomicU64::new(0),
+        }
+    }
+
+    fn append<T: Serialize>(&self, path: &Path, value: &T) -> Result<()> {
+        if let Some(parent) = path.parent() {
+            fs::create_dir_all(parent)?;
+        }
+        let line = serde_json::to_vec(value)?;
+        let writer = {
+            let mut writers = self.writers.lock().map_err(|error| {
+                athena_error(format!("JSONL writer map lock poisoned: {error}"))
+            })?;
+            match writers.entry(path.to_path_buf()) {
+                std::collections::hash_map::Entry::Occupied(entry) => Arc::clone(entry.get()),
+                std::collections::hash_map::Entry::Vacant(entry) => {
+                    let file = OpenOptions::new().create(true).append(true).open(path)?;
+                    self.open_count.fetch_add(1, Ordering::Relaxed);
+                    Arc::clone(entry.insert(Arc::new(Mutex::new(JsonlWriter {
+                        writer: BufWriter::with_capacity(JSONL_BUFFER_BYTES, file),
+                        last_sync: None,
+                    }))))
+                }
+            }
+        };
+        let mut entry = writer
+            .lock()
+            .map_err(|error| athena_error(format!("JSONL path writer lock poisoned: {error}")))?;
+
+        entry.writer.get_ref().lock_exclusive()?;
+        let write_result = (|| -> Result<()> {
+            entry.writer.write_all(&line)?;
+            entry.writer.write_all(b"\n")?;
+            // Flush to the kernel before releasing the cross-process lock so
+            // readers immediately observe complete, ordered JSONL records.
+            entry.writer.flush()?;
+            let sync_due = entry.last_sync.is_none()
+                || entry
+                    .last_sync
+                    .is_some_and(|last_sync| last_sync.elapsed() >= self.sync_interval);
+            if sync_due {
+                entry.writer.get_ref().sync_data()?;
+                entry.last_sync = Some(Instant::now());
+                self.sync_count.fetch_add(1, Ordering::Relaxed);
+            }
+            Ok(())
+        })();
+        let unlock_result = entry.writer.get_ref().unlock().map_err(ArdaError::Ledger);
+        write_result?;
+        unlock_result?;
+        self.append_count.fetch_add(1, Ordering::Relaxed);
+        Ok(())
+    }
+
+    #[cfg(test)]
+    pub(super) fn stats(&self) -> (u64, u64, u64) {
+        (
+            self.append_count.load(Ordering::Relaxed),
+            self.open_count.load(Ordering::Relaxed),
+            self.sync_count.load(Ordering::Relaxed),
+        )
+    }
+}
+
+impl Drop for JsonlAppender {
+    fn drop(&mut self) {
+        let Ok(writers) = self.writers.get_mut() else {
+            return;
+        };
+        for writer in writers.values() {
+            if let Ok(mut entry) = writer.lock() {
+                let _ = entry.writer.flush();
+                let _ = entry.writer.get_ref().sync_data();
+            }
+        }
+    }
+}
 
 impl AthenaStore {
     pub fn record_crawl_capture(
@@ -33,6 +143,7 @@ impl AthenaStore {
         fs::write(&artifact_path, crawl.markdown.as_bytes())?;
 
         let receipt = CrawlCaptureReceipt {
+            pipeline_id: crawl.pipeline_id.clone(),
             source_id: source_id.clone(),
             url: canonical_url,
             captured_at_utc: Utc::now().to_rfc3339(),
@@ -84,21 +195,7 @@ impl AthenaStore {
     }
 
     pub(super) fn append_jsonl<T: Serialize>(&self, path: &Path, value: &T) -> Result<()> {
-        if let Some(parent) = path.parent() {
-            fs::create_dir_all(parent)?;
-        }
-        let mut file = OpenOptions::new().create(true).append(true).open(path)?;
-        file.lock_exclusive()?;
-        let line = serde_json::to_string(value)?;
-        let write_result = (|| -> Result<()> {
-            writeln!(file, "{line}")?;
-            file.sync_data()?;
-            Ok(())
-        })();
-        let unlock_result = file.unlock().map_err(ArdaError::Ledger);
-        write_result?;
-        unlock_result?;
-        Ok(())
+        self.jsonl_appender.append(path, value)
     }
 
     pub(super) fn latest_ingest_record(&self, source_id: &str) -> Result<Option<IngestRecord>> {
@@ -226,6 +323,7 @@ impl AthenaStore {
             .unwrap_or(0);
         let entry = KnowledgeTriageEntry {
             schema_version: "arda.knowledge_triage.v1".to_string(),
+            pipeline_id: record.pipeline_id.clone(),
             path,
             title: record.shallow.title.clone(),
             classification: classification.to_string(),

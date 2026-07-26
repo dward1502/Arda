@@ -33,7 +33,7 @@ learning emissions for the sovereign corpus.
 
 Crate root: `crates/spine/executors/arda-varda`
 Data/core roots: `data/athena/*`, `core/state/*`, env-overridable
-Tests: 81 integration/unit tests as of last review; 0 doc tests
+Tests: 109 integration/unit tests as of last review; 0 doc tests
 
 Storage surfaces:
 - ingest books JSONL per-source, digest/global records
@@ -78,8 +78,9 @@ Deep analysis
 
 Knowledge store
 - `AthenaStore` owns paths above
-- lazy in-memory `DigestIndex` with 300s TTL, warm/invalidate wired
-- query scoring on rich Phase-2 fields weighted additive
+- schema-v1 `DigestIndex` persisted atomically to `digest-index-v1.json`, shared
+  across live stores/restarts, and refreshed incrementally per appended source
+- field-normalized BM25 query scoring over normalized shallow/deep tokens
 
 Governance
 - triad, bacon-lite, resonance, love equation, joule
@@ -117,36 +118,70 @@ Evidence: `cargo tree -p arda-varda | grep reqwest` -> one line.
 
 ## Tier B — hot-path
 
-### A2 async/buffered Books JSONL writes — OPEN
-Replace per-record `OpenOptions::append().open() + writeln! + sync` in ledger writers with shared async/buffered append logic. Modules: `ingest/io.rs`, `ingest/policy.rs`, `ingest/deep.rs`.
-Touch: possibly introduce shared append helper, then adopt here.
-Verify: bulk-ingest wall time drops; fsync count drops.
+### A2 async/buffered Books JSONL writes — DONE
+`AthenaStore` clones share a per-path JSONL appender with reusable 64 KiB
+`BufWriter<File>` handles. Writes remain append-only, are serialized per path,
+retain the cross-process file lock, and flush complete records before unlock so
+read-after-write behavior is unchanged. `sync_data` occurs on the first write
+and then at a configurable interval (`ARDA_ATHENA_JSONL_SYNC_INTERVAL_MS`,
+default 250 ms), with a final flush/sync on appender drop. Independent paths do
+not share an I/O mutex. The production helper is used by Books, digest, deep,
+policy, scholarly, crawl, and view ledgers.
+Touch: `ingest/io.rs`, `ingest.rs`.
+Verify: an eight-thread/400-record test produces valid persistent JSONL while
+opening one handle and issuing one timed sync instead of 400 opens/syncs.
 
-### B4 importer/crawler shared reqwest Client — OPEN
-Audit HTTP call sites for per-call `Client::new()`. Thread shared client with read_timeout/connect defaults aligned to workspace.
-Touch: `ingest/importers.rs`, `ingest/crawl.rs`.
-Verify: connection/tls reuse visible in logs; fewer fd churn.
+### B4 importer/crawler shared reqwest Client — DONE
+Process-wide async and blocking `reqwest` clients are initialized through
+`OnceLock` and reused by Crawl4AI, Scrapling, GitHub, scholarly metadata, and
+router HTTP calls. Clients set a 5-second connect timeout, 20-second read
+timeout, bounded total request timeout, and 90-second idle pool timeout; GitHub
+retains its API-specific user agent and headers.
+Touch: `ingest/http_client.rs`, `ingest/crawl.rs`, `ingest/github.rs`,
+`ingest/scholarly.rs`, `ingest/routing.rs`.
+Verify: pointer-identity coverage proves repeated callers receive the same
+async/blocking pools; production crawler and scholarly/GitHub tests use them.
 
-### B1 crawl concurrency cap — OPEN
-Add bounded crawl fanout via semaphore.
-Touch: `ingest/crawl.rs`.
-Default: 8. Verify: rate to a single host stays under cap and queue does not stall.
+### B1 crawl concurrency cap — DONE
+The Crawl4AI async path and Scrapling sync path share the named
+`athena_crawl` bounded admission gate. `ARDA_ATHENA_CRAWL_MAX_CONCURRENCY`
+configures the global cap; the default is 8. Saturation is returned explicitly
+instead of starting unbounded crawl work.
+Touch: `ingest/crawl.rs`, `ingest.rs`.
 
-### B2 in-memory digest index — DONE
-`Arc<RwLock<Option<DigestIndex>>>`, warm/invalidate on ingest/deep write paths.
+### B2 shared persistent digest index — DONE
+`Arc<RwLock<Option<DigestIndex>>>` fronts an atomic, lock-coordinated schema-v1
+index on disk. Ingest, deep-analysis, and scholarly writes refresh only the
+touched source while retaining unrelated entries; startup and stale live stores
+load the shared artifact before considering a full rebuild.
 
 ## Tier C — resilience/quality
 
-### D1 source classification cache — OPEN
-Cache classify verdicts by content hash + source kind to avoid re-classify on re-crawl.
+### D1 source classification cache — DONE
+`ClassificationCache` stores deterministic source-kind verdicts by full
+SHA-256 content hash and is shared by cloned `AthenaStore` handles. Repeated
+inputs and re-crawls reuse the in-process verdict without changing source IDs
+or persisted contracts.
 Touch: `ingest/source.rs`.
 
-### D2 scholarly fallback/retry — OPEN
-Retry budget + offline re-enrichment queue when upstream metadata service fails.
-Touch: `ingest/scholarly.rs`.
+### D2 scholarly fallback/retry — DONE
+Scholarly metadata fetches now use a configurable bounded retry budget
+(`ARDA_ATHENA_SCHOLARLY_RETRY_BUDGET`, default 3) and delay
+(`ARDA_ATHENA_SCHOLARLY_RETRY_DELAY_MS`, default 200 ms). Exhausted upstream
+fetches append durable `pending` records to `scholarly_reenrichment.jsonl`
+without discarding an available offline fixture. The queue processor retries
+pending/failed records, appends terminal status events, persists recovered
+metadata as a new shallow book version, refreshes knowledge views, and is
+available through IPC `scholarly_reenrich` and HTTP `POST
+/scholarly_reenrich`. Queue pending/failed counts and the queue path are
+included in status output.
+Touch: `ingest/scholarly.rs`, `ingest/source.rs`, `ingest/deep.rs`,
+`ingest/observability.rs`, `transport/ipc.rs`, `transport/http.rs`.
 
-### D3 interceptor contract docs — OPEN
-Add module docstring explaining veto conditions and event contract.
+### D3 interceptor contract docs — DONE
+The module documentation now defines registration order, the non-vetoing
+`before` contract, post-persistence `after` events, best-effort failure
+isolation, and at-least-once consumer expectations.
 Touch: `ingest/interceptor.rs`.
 
 ### D4 malformed policy-readiness schema validation — DONE
@@ -157,53 +192,117 @@ Malformed record counter rendered and surfaced in IPC/HTTP.
 ### C1 Prometheus metrics — DONE
 `AthenaMetrics` with ingest/query/deep/policy counters, HTTP `/metrics`, IPC `metrics` command.
 
-### C2 pipeline correlation IDs — OPEN
-Mint `pipeline_id` at ingest entry and thread through crawl->importer->scholarly->policy->deep emit.
-Touch: `ingest.rs`, `ingest/observability.rs`, plus downstream ledger writers.
+### C2 pipeline correlation IDs — DONE
+Standalone ingest and crawl entry points mint `athpl_<uuid>` identifiers. Crawl
+captures retain the crawl identifier, and `ingest_with_pipeline_id` lets an
+importer or crawl handoff preserve it rather than minting a disconnected ID.
+The identifier is carried by batch/import receipts, ingest records, shallow and
+deep book versions, scholarly re-enrichment events, deep queue events,
+policy-readiness records, knowledge views/graph events, triage entries, and
+Hades/Warden/Mnemosyne interceptor emissions. Persisted record fields use serde
+defaults so ledgers written before C2 remain readable. Production-path tests
+assert correlation across crawl-to-ingest handoff, ingest-to-scholarly recovery,
+and ingest-to-deep-queue/book-to-policy continuations.
+Touch: `ingest.rs`, `ingest/crawl.rs`, `ingest/deep.rs`,
+`ingest/interceptor.rs`, `ingest/io.rs`, `ingest/scholarly.rs`,
+`ingest/views.rs`.
 
-### C3 live status/activity surface — PARTIALLY DONE
-`/status` exists and refreshes derived gauges. Richer live activity remains open.
+### C3 live status/activity surface — DONE
+`AthenaStore` now tracks Crawl4AI and Scrapling operations that are actually
+active in the current process. Status reports their correlated pipeline ID,
+provider, redacted URL, start timestamp, and elapsed seconds; a drop guard
+removes cancelled/early-return work. Durable digest and crawl-receipt ledgers
+provide the newest eight unique completed pipelines, while failed deep and
+scholarly events plus process-local crawl failures provide the newest valid
+`last_activity_error`. Malformed/legacy lines and invalid timestamps are
+ignored. Existing deep and scholarly pending counts remain the durable queue
+depth surface. HTTP `/status`, IPC `status`, and SSE `/events` serialize the
+same status snapshot. Production-path tests cover an actively blocked crawl,
+completion, failure/redaction, cancellation cleanup, bounded/deduplicated
+history, malformed ledgers, HTTP, IPC, and SSE payloads.
+Touch: `ingest/activity.rs`, `ingest.rs`, `ingest/crawl.rs`,
+`ingest/observability.rs`, `transport/http.rs`, `transport/ipc.rs`.
 
-### E1 source freshness gauges — OPEN
-Track `last_full_refresh_utc` per source; expose `athena_source_age_seconds{source_id}` and refresh fields in `/status`.
-Touch: `ingest/source.rs`, status aggregation, metrics renderer.
+### E1 source freshness gauges — DONE
+Each new ingest record persists `last_full_refresh_utc`. Status aggregation
+selects the latest refresh per source and publishes `source_freshness_total`,
+`oldest_source_age_seconds`, and sorted per-source `source_freshness` entries
+containing the timestamp and computed age. `/metrics` exports
+`athena_source_age_seconds{source_id}` and replaces the complete gauge set on
+each status refresh so removed sources do not leave stale series. Pre-E1 digest
+records remain visible by falling back to their `processed_at_utc` timestamp;
+invalid timestamps and malformed JSONL lines are ignored. HTTP contract,
+production status, metric replacement, and legacy-record tests cover the path.
+Touch: `ingest.rs`, `ingest/source.rs`, `ingest/observability.rs`,
+`ingest/metrics.rs`, `transport/http.rs`.
 
 ## Tier E — features
 
-### E3 govern-on-ingest quarantine gate — OPEN
-Use `record_bacon_lite` result at ingest to gate landing; heavy failure -> `quarantine: true`.
+### E3 govern-on-ingest quarantine gate — DONE
+Ingest now evaluates and records Bacon-Lite before landing. A heavy governance
+failure is the explicit conjunction of a failed Bacon-Lite result, a failed
+underlying triad, and a failed Bacon evidence gate. Those records remain in the
+append-only digest with `digest_status: "quarantine"`, `quarantine: true`, and a
+versioned reason, but do not enter Books, derived knowledge views, or the triage
+registry. Advisory Bacon failures whose triad still passes preserve the existing
+ingest path; recorder failures are logged and do not masquerade as governance
+verdicts. Production-path coverage proves both quarantine isolation and the
+ordinary ingest regression boundary.
 Touch: `ingest.rs`, `ingest/policy.rs`.
 
-### E4 deep-analysis cache — OPEN
-Content-addressed cache keyed on query + relevant_doc_ids + model_id.
-Touch: `ingest/deep.rs`, cache module.
+### E4 deep-analysis cache — DONE
+Deep analysis now uses a persistent content-addressed cache under
+`cache/deep_analysis/`, keyed by a length-delimited SHA-256 digest of the
+normalized deep query, canonical relevant document-ID set, and active/default
+model ID. Cache hits return the original result without duplicating Book,
+queue, digest, governance, or view writes. Opposition-evidence harvests
+invalidate entries referencing the changed source so policy-readiness
+transitions are recomputed rather than hidden by stale cache state.
+Touch: `ingest.rs`, `ingest/deep_cache.rs`, `ingest/policy.rs`.
 
-### E5 streaming query results — OPEN
-SSE endpoint that emits scored hits as scored instead of buffered.
+### E5 streaming query results — DONE
+`POST /query/stream` scores index entries on a blocking worker and emits each
+positive hit immediately as an `athena.query.v1` SSE `match` event, including
+rank, score, and citations, followed by a terminal `complete` event. The
+existing sorted/buffered `POST /query` contract remains unchanged.
 Touch: `transport/http.rs`, `ingest/query.rs`.
 
-### E2 query result citations — OPEN
-Structured `citations: [{source_id, doc_id, span}]` on query match.
-Touch: `ingest/query.rs`.
+### E2 query result citations — DONE
+Every query match now carries structured
+`citations: [{source_id, doc_id, span: {field, start, end, text}}]` entries
+derived from the actual title, summary, tag, or extracted-knowledge fields
+that contributed to its score. Existing persisted/serialized matches remain
+compatible through a defaulted empty citation list.
+Touch: `ingest.rs`, `ingest/index.rs`, `ingest/query.rs`.
 
 ---
 
 # 6. Design assessment fidelity gaps
 
-### P0 retrieval fidelity
-Replace naive `.contains()` substring scorer with BM25 or small HNSW/hybrid lexical+semantic field-normalized scorer. This is the highest-value change and is independent of other migrations.
+### P0 retrieval fidelity — DONE
+The substring scorer was replaced by corpus-aware, field-weighted BM25 with
+document-frequency IDF, term-frequency saturation, length normalization, exact
+token boundaries, and scoring across shallow and extracted deep fields.
 
-### P1 make confidence honest
-Until related governance gates are real, avoid deep tie-break outranking solid lexical match. Option A: gate tie-break on real gates; option B: mark confidence `provisional` in URI/CLI. Prefer option A first.
+### P1 make confidence honest — DONE
+Self-reported deep confidence contributes only when the persisted deep record
+has both `triad_passed` and `policy_readiness == "policy_ready"`. Ungoverned
+confidence cannot break an otherwise equal lexical tie.
 
-### P2 persist/share index
-Persist `DigestIndex` to disk and rebuild incrementally on append instead of full lazy rebuild on mtime.
+### P2 persist/share index — DONE
+`DigestIndex` schema v1 is atomically persisted under a cross-process lock,
+loaded across restarts, shared by concurrently live stores, and merged per
+source after ingest, deep-analysis, and scholarly append paths.
 
-### P3 normalize ingest text
-Stem/lemmatize tokens at ingest time so `running`/`ran` and `auth`/`authentication` collapse. Cheap; complements BM25.
+### P3 normalize ingest text — DONE
+The finalized index stores normalized tokens. Lightweight stemming collapses
+`running`/`ran`/`runs` to `run`, and domain aliasing collapses
+`authentication` to `auth`; query terms use the same normalization.
 
-### P4 surface deep-status in query
-Return a flag when matches are shallow-only so callers know answer rests on metadata, not extracted knowledge.
+### P4 surface deep-status in query — DONE
+Each default-compatible `QueryMatch` returns `shallow_only`, derived from the
+presence of extracted deep knowledge. Buffered Rust/HTTP responses and SSE
+`match` events expose the same signal.
 
 ---
 
@@ -221,28 +320,41 @@ Return a flag when matches are shallow-only so callers know answer rests on meta
 
 # 8. Combined checklist
 
-- [ ] A2 async/buffered Books JSONL writes
-- [ ] B4 shared reqwest Client in importers/crawlers
-- [ ] B1 crawl concurrency cap
-- [ ] D1 source classification cache
-- [ ] D2 scholarly fallback/retry + re-enrichment queue
-- [ ] D3 interceptor contract docs
-- [ ] C2 pipeline correlation IDs end-to-end
-- [ ] E1 source freshness gauges + /status fields
-- [ ] E3 govern-on-ingest quarantine gate
-- [ ] E4 deep-analysis content-addressed cache
-- [ ] E5 SSE streaming query results
-- [ ] E2 query result citations
-- [ ] P0 replace substring scorer with BM25/hybrid lexical+semantic scorer
-- [ ] P1 gate deep tie-break on real governance readiness OR mark provisional
-- [ ] P2 persist + share DigestIndex across restarts
-- [ ] P3 stem/lemmatize tokens at ingest time
-- [ ] P4 return shallow-only flag when matches lack extracted knowledge
+- [x] A2 async/buffered Books JSONL writes
+- [x] B4 shared reqwest Client in importers/crawlers
+- [x] B1 crawl concurrency cap
+- [x] D1 source classification cache
+- [x] D2 scholarly fallback/retry + re-enrichment queue
+- [x] D3 interceptor contract docs
+- [x] C2 pipeline correlation IDs end-to-end
+- [x] E1 source freshness gauges + /status fields
+- [x] C3 live status/activity surface
+- [x] E3 govern-on-ingest quarantine gate
+- [x] E4 deep-analysis content-addressed cache
+- [x] E5 SSE streaming query results
+- [x] E2 query result citations
+- [x] P0 replace substring scorer with field-normalized BM25 scorer
+- [x] P1 gate deep tie-break on real governance readiness
+- [x] P2 persist + share DigestIndex across restarts
+- [x] P3 stem/normalize indexed and query tokens
+- [x] P4 return shallow-only flag when matches lack extracted knowledge
 - [ ] Unify duplicated layout roots into single WorkspaceLayout owner
 - [ ] Document sync-blocking regions or make `AthenaStore` async
 - [ ] Add schema-version migration for evolving JSONL stores
 - [ ] Group `AthenaStore` path fields into typed structs
 - [ ] Add HTTP SSE stream for deep-analysis queue events
+
+Live reconciliation (2026-07-25): the crate already has an in-memory digest
+index with TTL/mtime invalidation, extracted-knowledge-aware scoring,
+confidence-bearing deep results, Prometheus metrics, bounded ingest/deep/HTTP
+admission, malformed policy-readiness accounting, shallow/deep status labels,
+and typed interceptor events. End-to-end correlation IDs, source freshness,
+truthful live/durable activity status, the E3 heavy-failure quarantine gate,
+content-addressed deep caching, query citations, scored-hit SSE query streaming,
+field-normalized BM25 retrieval, governance-gated confidence, normalized tokens,
+shared persistent incremental indexing, and shallow-only result signaling are
+now complete. Semantic/vector retrieval remains a possible future complement,
+not a prerequisite for this checklist.
 
 ---
 
@@ -275,10 +387,11 @@ Public systems
 Comparison notes for `arda-varda`
 - Where public tooling is stronger today: embed/store/search polish, benchmark provenance, agent-memory lifecycle semantics, and consolidation automation.
 - Where `arda-varda` is stronger or differentiated: governance-first ingest, append-only provenance and receipts, explicit uncertainty sampling and confidence reporting, built-in IPC+HTTP/SSE transport, and intrinsic hook surfaces for triad/bacon-lite/resonance/love/joule scoring.
-- Highest-value gap to close first: retrieval fidelity. `arda-varda` has the governance and durability layer; it needs BM25/hybrid lexical+semantic retrieval, persisted/shared index state, and normalized tokenization to match public systems while retaining its distinct trust model.
+- Remaining retrieval opportunity: benchmark the completed BM25 path and add a
+  semantic/vector complement only where measured recall warrants its cost.
 
 Suggested future-iteration themes after this plan closes
-- persistence + benchmark provenance for `DigestIndex`
-- token normalization and BM25/hybrid retrieval
+- benchmark provenance and schema migration strategy for `DigestIndex`
+- optional hybrid semantic retrieval measured against the BM25 baseline
 - explicit memory consolidation semantics without losing append-only auditability
 - interoperability bridges where `arda-varda` memory artifacts can be read by or synchronized to systems such as MemX/Zep/Graphiti

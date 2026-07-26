@@ -1,10 +1,12 @@
-use super::athena_crawl_limit;
+use super::{athena_crawl_limit, new_pipeline_id, AthenaStore};
 use arda_core::error::{ArdaError, Result};
 use arda_core::{try_run_bounded, try_run_bounded_async};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CrawlMarkdownResult {
+    #[serde(default)]
+    pub pipeline_id: String,
     pub url: String,
     pub filter: String,
     pub query: Option<String>,
@@ -15,6 +17,8 @@ pub struct CrawlMarkdownResult {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CrawlCaptureReceipt {
+    #[serde(default)]
+    pub pipeline_id: String,
     pub source_id: String,
     pub url: String,
     pub captured_at_utc: String,
@@ -26,6 +30,55 @@ pub struct CrawlCaptureReceipt {
     pub artifact_path: String,
     pub crawl_service_url: String,
     pub success: bool,
+}
+
+impl AthenaStore {
+    pub async fn crawl4ai_fetch_markdown(
+        &self,
+        service_url: &str,
+        url: &str,
+        filter: &str,
+        query: Option<&str>,
+    ) -> Result<CrawlMarkdownResult> {
+        let pipeline_id = new_pipeline_id();
+        let activity = self
+            .activity_tracker
+            .begin_crawl(&pipeline_id, url, "crawl4ai");
+        match crawl4ai_fetch_markdown(service_url, url, filter, query).await {
+            Ok(mut result) => {
+                result.pipeline_id = pipeline_id.clone();
+                activity.complete();
+                Ok(result)
+            }
+            Err(error) => {
+                activity.fail(url, &error.to_string());
+                Err(error)
+            }
+        }
+    }
+
+    pub fn scrapling_fetch_markdown(
+        &self,
+        url: &str,
+        filter: &str,
+        query: Option<&str>,
+    ) -> Result<CrawlMarkdownResult> {
+        let pipeline_id = new_pipeline_id();
+        let activity = self
+            .activity_tracker
+            .begin_crawl(&pipeline_id, url, "scrapling");
+        match scrapling_fetch_markdown(url, filter, query) {
+            Ok(mut result) => {
+                result.pipeline_id = pipeline_id.clone();
+                activity.complete();
+                Ok(result)
+            }
+            Err(error) => {
+                activity.fail(url, &error.to_string());
+                Err(error)
+            }
+        }
+    }
 }
 
 pub async fn crawl4ai_fetch_markdown(
@@ -45,7 +98,7 @@ pub async fn crawl4ai_fetch_markdown(
             }
         };
 
-        let client = reqwest::Client::new();
+        let client = super::http_client::async_client()?;
         let endpoint = format!("{}/md", service_url.trim_end_matches('/'));
         let response = client
             .post(&endpoint)
@@ -79,6 +132,7 @@ pub async fn crawl4ai_fetch_markdown(
             })?;
 
         Ok(CrawlMarkdownResult {
+            pipeline_id: super::new_pipeline_id(),
             url: value
                 .get("url")
                 .and_then(|v| v.as_str())
@@ -132,6 +186,7 @@ pub fn scrapling_fetch_markdown(
         let markdown = strip_html_to_markdownish(&html);
 
         Ok(CrawlMarkdownResult {
+            pipeline_id: super::new_pipeline_id(),
             url: url.to_owned(),
             filter,
             query: query.map(str::to_owned),
@@ -163,13 +218,7 @@ fn fetch_scrapling_html(url: &str) -> Result<String> {
     if let Some(raw) = url.strip_prefix("raw:") {
         return Ok(raw.to_owned());
     }
-    let client = reqwest::blocking::Client::builder()
-        .timeout(std::time::Duration::from_secs(20))
-        .build()
-        .map_err(|e| ArdaError::Agent {
-            agent: "athena".to_owned(),
-            message: format!("failed to build scrapling HTTP client: {e}"),
-        })?;
+    let client = super::http_client::blocking_client()?;
     let response = client
         .get(url)
         .header("User-Agent", "Arda-Scrapling-Rust/0.1")

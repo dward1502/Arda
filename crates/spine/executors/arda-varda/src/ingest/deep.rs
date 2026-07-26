@@ -6,9 +6,8 @@
 
 use arda_core::error::Result;
 
-use super::scholarly;
-use super::source::{extract_url, infer_tags};
-use super::{AthenaStore, BookEntry, ShallowAnalysis, SourceType};
+use super::source::extract_url;
+use super::{AthenaStore, BookEntry, ShallowAnalysis};
 
 impl AthenaStore {
     pub(super) fn recover_shallow_analysis(
@@ -19,23 +18,25 @@ impl AthenaStore {
         if shallow.data.scholarly_metadata.is_some() {
             return Ok(shallow);
         }
-        let url = self
-            .latest_ingest_record(source_id)?
+        let ingest = self.latest_ingest_record(source_id)?;
+        let pipeline_id = ingest
+            .as_ref()
+            .map(|record| record.pipeline_id.clone())
+            .filter(|value| !value.is_empty())
+            .unwrap_or_else(|| self.pipeline_id_for_source(source_id));
+        let url = ingest
             .and_then(|record| record.url)
             .or_else(|| extract_url(&shallow.data.title));
         let Some(url) = url else {
             return Ok(shallow);
         };
-        let Some(metadata) = scholarly::fetch_scholarly_metadata(&url) else {
+        let Some(metadata) = self.scholarly_metadata_for_source(&pipeline_id, source_id, &url)?
+        else {
             return Ok(shallow);
         };
 
         let mut recovered = shallow;
-        recovered.data.title = metadata.paper_title.clone();
-        recovered.data.summary = metadata.abstract_text.clone();
-        recovered.data.relevance_tags =
-            infer_tags(&url, &SourceType::ScholarlyLink, Some(&metadata));
-        recovered.data.scholarly_metadata = Some(metadata);
+        super::source::apply_scholarly_metadata(&mut recovered.data, &url, metadata);
         Ok(recovered)
     }
 }

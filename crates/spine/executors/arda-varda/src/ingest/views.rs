@@ -48,11 +48,16 @@ impl AthenaStore {
             .map(|s| s.relevance_tags.join(", "))
             .unwrap_or_default();
         let status = if deep.is_some() { "deep" } else { "shallow" };
+        let pipeline_id = deep
+            .map(|entry| entry.pipeline_id.as_str())
+            .or_else(|| ingest.map(|record| record.pipeline_id.as_str()))
+            .unwrap_or_default();
         let now = Utc::now().to_rfc3339();
         let path = self.human_sources_dir.join(format!("{source_id}.md"));
         let mut out = String::new();
         out.push_str("# ATHENA Source Book\n\n");
         out.push_str(&format!("- source_id: `{source_id}`\n"));
+        out.push_str(&format!("- pipeline_id: `{pipeline_id}`\n"));
         out.push_str(&format!("- status: `{status}`\n"));
         out.push_str(&format!("- source_type: `{source_type}`\n"));
         out.push_str(&format!("- updated_at_utc: `{now}`\n"));
@@ -134,8 +139,13 @@ impl AthenaStore {
         shallow: Option<&ShallowAnalysis>,
         deep: Option<&DeepBookEntry>,
     ) -> Result<()> {
+        let pipeline_id = deep
+            .map(|entry| entry.pipeline_id.as_str())
+            .or_else(|| ingest.map(|record| record.pipeline_id.as_str()))
+            .unwrap_or_default();
         let event = serde_json::json!({
             "ts_utc": Utc::now().to_rfc3339(),
+            "pipeline_id": pipeline_id,
             "source_id": source_id,
             "event": if deep.is_some() { "deep_synced" } else { "shallow_synced" },
             "status": if deep.is_some() { "deep" } else { "shallow" },
@@ -212,6 +222,7 @@ impl AthenaStore {
 
         let event = serde_json::json!({
             "ts_utc": Utc::now().to_rfc3339(),
+            "pipeline_id": deep.pipeline_id,
             "event": "deep_graph_update",
             "source_id": source_id,
             "graph_version": "v1",

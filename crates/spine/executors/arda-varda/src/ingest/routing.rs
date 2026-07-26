@@ -174,7 +174,7 @@ async fn route_via_http(
     route_url: String,
     route_payload: serde_json::Value,
 ) -> Result<serde_json::Value> {
-    let client = reqwest::Client::new();
+    let client = super::http_client::async_client()?;
     let response = client
         .post(&route_url)
         .json(&route_payload)

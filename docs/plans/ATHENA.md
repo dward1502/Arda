@@ -120,6 +120,6 @@ connector/operator path.
 ## References
 
 - Crate: `crates/spine/executors/arda-varda`
-- Original narration archive: `docs/plans/original-human-plan-narration/ATHENA.md`
+`docs/plans/ATHENA.md`. This document
 - Original archive docs: `docs/archive/ARDA_VARDA_ATHENA_REINTEGRATION_PLAN.md`
 - Archived tests snapshot: `docs/archive/arda-varda-tests/`

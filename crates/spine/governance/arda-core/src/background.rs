@@ -406,13 +406,7 @@ fn emit_shed_receipt(
 fn workspace_root() -> PathBuf {
     std::env::var("ARDA_WORKSPACE_ROOT")
         .map(PathBuf::from)
-        .unwrap_or_else(|_| {
-            PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-                .parent()
-                .and_then(|path| path.parent())
-                .map(|path| path.to_path_buf())
-                .unwrap_or_else(|| PathBuf::from("."))
-        })
+        .unwrap_or_else(|_| crate::layout::arda_root_from(env!("CARGO_MANIFEST_DIR")))
 }
 
 #[cfg(test)]

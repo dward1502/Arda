@@ -45,6 +45,3 @@
 - `plans/OPENFANG.md`
 - `plans/PLATFORM_OS.md`
 - `plans/PROMETHEUS.md`
-- `plans/VAIRE_IMPLEMENTATION_PLAN.md`
-- `plans/hud-incremental-build.md`
-- `plans/substrate-build-plan.md`

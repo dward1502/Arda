@@ -1,401 +1,389 @@
 {
   "classes": [
     {
-      "bytes": 1026104718,
+      "bytes": 18877993,
       "category": "runtime_ledger",
-      "files": 62008,
+      "files": 330,
       "recommended_action": "compact_by_policy"
     },
     {
-      "bytes": 89575401,
-      "category": "runtime_archive",
-      "files": 37,
-      "recommended_action": "review_retention_window"
-    },
-    {
-      "bytes": 16841726,
+      "bytes": 11347798,
       "category": "core_state_projection",
-      "files": 967,
+      "files": 1029,
       "recommended_action": "suppress_noop_or_promote_receipt"
     },
     {
-      "bytes": 14632101,
+      "bytes": 6202634,
       "category": "runtime_data",
-      "files": 506,
+      "files": 11,
       "recommended_action": "classify_owner_policy"
     },
     {
-      "bytes": 4872569,
-      "category": "audit_evidence",
-      "files": 201,
-      "recommended_action": "retain_index_and_current_receipts"
-    },
-    {
-      "bytes": 2312344,
+      "bytes": 174436,
       "category": "date_partitioned_audit_receipt",
-      "files": 326,
+      "files": 62,
       "recommended_action": "retain_latest_then_archive_by_family"
     },
     {
-      "bytes": 68645,
+      "bytes": 49070,
       "category": "core_state_misc",
-      "files": 25,
+      "files": 13,
       "recommended_action": "review_owner_policy"
     }
   ],
   "cleanup_candidates": [],
-  "contract": "annunimas.hades.storage_hygiene_audit.v1",
-  "generated_at_utc": "2026-06-12T09:01:21Z",
+  "contract": "arda.hades.storage_hygiene_audit.v1",
+  "generated_at_utc": "2026-07-26T05:57:37Z",
   "largest_files": [
     {
-      "bytes": 288866273,
+      "bytes": 10279537,
       "category": "runtime_ledger",
-      "mtime_utc": "2026-06-12T08:51:35Z",
+      "mtime_utc": "2026-07-26T05:56:34Z",
       "path": "data/governance/bacon_lite.jsonl",
       "recommended_action": "compact_by_policy"
     },
     {
-      "bytes": 70859463,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-06-12T09:01:35Z",
-      "path": "data/prometheus/policy_guard.jsonl",
-      "recommended_action": "compact_by_policy"
-    },
-    {
-      "bytes": 66039063,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-06-12T09:01:07Z",
-      "path": "data/prometheus/supervisor/heartbeats.jsonl",
-      "recommended_action": "compact_by_policy"
-    },
-    {
-      "bytes": 57458462,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-06-12T09:01:35Z",
-      "path": "data/warden/permission_profile_audit.jsonl",
-      "recommended_action": "compact_by_policy"
-    },
-    {
-      "bytes": 50646149,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-06-06T01:29:51Z",
-      "path": "data/prometheus/archive/ledger_compaction/20260606T0127Z-prometheus-remaining/data__prometheus__supervisor__heartbeats.jsonl.retained-tail.jsonl",
-      "recommended_action": "compact_by_policy"
-    },
-    {
-      "bytes": 41172206,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-06-12T09:01:12Z",
-      "path": "data/charon/state.jsonl",
-      "recommended_action": "compact_by_policy"
-    },
-    {
-      "bytes": 38788283,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-06-06T01:39:17Z",
-      "path": "data/governance/archive/ledger_compaction/20260606T0139Z-governance-bacon-lite/data__governance__bacon_lite.jsonl.retained-tail.jsonl",
-      "recommended_action": "compact_by_policy"
-    },
-    {
-      "bytes": 30532320,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-06-12T08:51:27Z",
-      "path": "data/charon/governance_events.jsonl",
-      "recommended_action": "compact_by_policy"
-    },
-    {
-      "bytes": 28796838,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-06-10T00:35:14Z",
-      "path": "data/mnemosyne/noise.jsonl",
-      "recommended_action": "compact_by_policy"
-    },
-    {
-      "bytes": 28125483,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-06-06T01:53:25Z",
-      "path": "data/mnemosyne/archive/ledger_compaction/20260606T0153Z-mnemosyne-noise/data__mnemosyne__noise.jsonl.retained-tail.jsonl",
-      "recommended_action": "compact_by_policy"
-    },
-    {
-      "bytes": 25238422,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-06-06T01:48:40Z",
-      "path": "data/charon/archive/ledger_compaction/20260606T0148Z-charon-state/data__charon__governance_events.jsonl.retained-tail.jsonl",
-      "recommended_action": "compact_by_policy"
-    },
-    {
-      "bytes": 23898089,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-06-06T01:29:50Z",
-      "path": "data/prometheus/archive/ledger_compaction/20260606T0127Z-prometheus-remaining/data__prometheus__policy_guard.jsonl.retained-tail.jsonl",
-      "recommended_action": "compact_by_policy"
-    },
-    {
-      "bytes": 19350115,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-06-06T01:43:50Z",
-      "path": "data/warden/archive/ledger_compaction/20260606T0143Z-warden-permission-profile/data__warden__permission_profile_audit.jsonl.retained-tail.jsonl",
-      "recommended_action": "compact_by_policy"
-    },
-    {
-      "bytes": 19171686,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-06-07T22:25:09Z",
-      "path": "data/athena/digest.jsonl",
-      "recommended_action": "compact_by_policy"
-    },
-    {
-      "bytes": 18641589,
-      "category": "runtime_archive",
-      "mtime_utc": "2026-04-23T17:19:35Z",
-      "path": "data/hermes/archive/backup_prune/20260423T171930Z/messages.jsonl.tar.gz",
-      "recommended_action": "review_retention_window"
-    },
-    {
-      "bytes": 17935669,
-      "category": "runtime_archive",
-      "mtime_utc": "2026-04-23T17:19:38Z",
-      "path": "data/hermes/archive/backup_prune/20260423T171930Z/outbound_queue.jsonl.tar.gz",
-      "recommended_action": "review_retention_window"
-    },
-    {
-      "bytes": 16270188,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-06-12T08:56:31Z",
-      "path": "data/prometheus/fleet_bootstrap_recovery.jsonl",
-      "recommended_action": "compact_by_policy"
-    },
-    {
-      "bytes": 15798312,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-06-06T01:48:40Z",
-      "path": "data/charon/archive/ledger_compaction/20260606T0148Z-charon-state/data__charon__state.jsonl.retained-tail.jsonl",
-      "recommended_action": "compact_by_policy"
-    },
-    {
-      "bytes": 15681467,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-06-06T01:22:01Z",
-      "path": "data/prometheus/runtime_admission_shed_receipts.jsonl",
-      "recommended_action": "compact_by_policy"
-    },
-    {
-      "bytes": 15681467,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-06-06T01:22:01Z",
-      "path": "data/prometheus/archive/ledger_compaction/20260606T0121Z-prometheus-one-ledger/data__prometheus__runtime_admission_shed_receipts.jsonl.retained-tail.jsonl",
-      "recommended_action": "compact_by_policy"
-    },
-    {
-      "bytes": 13371461,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-06-06T01:34:37Z",
-      "path": "data/hades/archive/ledger_compaction/20260606T0134Z-hades-log/data__hades__hades_log.jsonl.retained-tail.jsonl",
-      "recommended_action": "compact_by_policy"
-    },
-    {
-      "bytes": 13085449,
-      "category": "runtime_archive",
-      "mtime_utc": "2026-06-06T01:39:17Z",
-      "path": "data/governance/archive/ledger_compaction/20260606T0139Z-governance-bacon-lite/data__governance__bacon_lite.jsonl.archive.jsonl.gz",
-      "recommended_action": "review_retention_window"
-    },
-    {
-      "bytes": 12748873,
-      "category": "runtime_archive",
-      "mtime_utc": "2026-06-06T01:34:37Z",
-      "path": "data/hades/archive/ledger_compaction/20260606T0134Z-hades-log/data__hades__hades_log.jsonl.archive.jsonl.gz",
-      "recommended_action": "review_retention_window"
-    },
-    {
-      "bytes": 9824677,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-05-05T05:21:48Z",
-      "path": "data/prometheus/gate_metrics_history.jsonl",
-      "recommended_action": "compact_by_policy"
-    },
-    {
-      "bytes": 8932993,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-06-07T22:25:09Z",
-      "path": "data/knowledge/athena/index/sources.jsonl",
-      "recommended_action": "compact_by_policy"
-    },
-    {
-      "bytes": 7633339,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-05-04T00:48:36Z",
-      "path": "data/prometheus/autopilot/metrics.jsonl",
-      "recommended_action": "compact_by_policy"
-    },
-    {
-      "bytes": 6774182,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-04-28T09:49:24Z",
-      "path": "data/accounting/output_mirror/data__prometheus__autopilot/metrics.jsonl",
-      "recommended_action": "compact_by_policy"
-    },
-    {
-      "bytes": 6244377,
+      "bytes": 6259019,
       "category": "core_state_projection",
-      "mtime_utc": "2026-06-07T22:25:09Z",
+      "mtime_utc": "2026-07-21T17:26:25Z",
       "path": "core/state/knowledge_triage_registry.jsonl",
       "recommended_action": "suppress_noop_or_promote_receipt"
     },
     {
-      "bytes": 6235575,
+      "bytes": 6070921,
+      "category": "runtime_data",
+      "mtime_utc": "2026-07-26T05:56:34Z",
+      "path": "data/plutus/runtime_status.json",
+      "recommended_action": "classify_owner_policy"
+    },
+    {
+      "bytes": 4309189,
       "category": "runtime_ledger",
-      "mtime_utc": "2026-06-12T08:51:40Z",
+      "mtime_utc": "2026-07-26T05:56:34Z",
+      "path": "data/manwe/state.jsonl",
+      "recommended_action": "compact_by_policy"
+    },
+    {
+      "bytes": 1346203,
+      "category": "runtime_ledger",
+      "mtime_utc": "2026-07-26T05:56:34Z",
+      "path": "data/manwe/governance_events.jsonl",
+      "recommended_action": "compact_by_policy"
+    },
+    {
+      "bytes": 831364,
+      "category": "runtime_ledger",
+      "mtime_utc": "2026-07-26T04:15:08Z",
+      "path": "data/knowledge/athena/index/sources.jsonl",
+      "recommended_action": "compact_by_policy"
+    },
+    {
+      "bytes": 715358,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/charon_router.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
+    },
+    {
+      "bytes": 514936,
+      "category": "runtime_ledger",
+      "mtime_utc": "2026-07-26T04:15:08Z",
       "path": "data/warden/informant_queue.jsonl",
       "recommended_action": "compact_by_policy"
     },
     {
-      "bytes": 5689120,
-      "category": "runtime_archive",
-      "mtime_utc": "2026-06-06T01:48:40Z",
-      "path": "data/charon/archive/ledger_compaction/20260606T0148Z-charon-state/data__charon__state.jsonl.archive.jsonl.gz",
-      "recommended_action": "review_retention_window"
+      "bytes": 394358,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/full_system_cleanup_audit.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
     },
     {
-      "bytes": 5487945,
+      "bytes": 367749,
       "category": "runtime_ledger",
-      "mtime_utc": "2026-06-12T08:51:40Z",
-      "path": "data/warden/repair_pressure_triage_history.jsonl",
+      "mtime_utc": "2026-07-26T05:56:34Z",
+      "path": "data/plutus/runtime_events.jsonl",
       "recommended_action": "compact_by_policy"
     },
     {
-      "bytes": 5243015,
+      "bytes": 340325,
+      "category": "runtime_ledger",
+      "mtime_utc": "2026-07-26T04:15:08Z",
+      "path": "data/hades/action_queue.jsonl",
+      "recommended_action": "compact_by_policy"
+    },
+    {
+      "bytes": 235009,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/tool_fit_model_intelligence.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
+    },
+    {
+      "bytes": 187467,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/ledger/ledger_2026-03-13.jsonl",
+      "recommended_action": "suppress_noop_or_promote_receipt"
+    },
+    {
+      "bytes": 179747,
+      "category": "runtime_ledger",
+      "mtime_utc": "2026-07-23T17:04:28Z",
+      "path": "data/manwe/route_receipts.jsonl",
+      "recommended_action": "compact_by_policy"
+    },
+    {
+      "bytes": 176948,
+      "category": "runtime_ledger",
+      "mtime_utc": "2026-07-26T05:56:34Z",
+      "path": "data/manwe/tool_fit_ledger.jsonl",
+      "recommended_action": "compact_by_policy"
+    },
+    {
+      "bytes": 174008,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/model_freshness_audit.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
+    },
+    {
+      "bytes": 146854,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/hades_charon_layout.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
+    },
+    {
+      "bytes": 145428,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/athena_github_coverage_audit.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
+    },
+    {
+      "bytes": 145030,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/hades_lifecycle_review.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
+    },
+    {
+      "bytes": 119590,
       "category": "runtime_data",
-      "mtime_utc": "2026-05-11T04:25:40Z",
-      "path": "data/ceo/heartbeats.jsonl.20260511T042610Z",
+      "mtime_utc": "2026-07-26T05:56:34Z",
+      "path": "data/manwe/provider_runtime_state.json",
       "recommended_action": "classify_owner_policy"
     },
     {
-      "bytes": 5162735,
+      "bytes": 100641,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/human_inbox_phase2d_review_matrix.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
+    },
+    {
+      "bytes": 100219,
       "category": "runtime_ledger",
-      "mtime_utc": "2026-06-12T08:51:39Z",
-      "path": "data/prometheus/autonomy_budget_history.jsonl",
+      "mtime_utc": "2026-07-26T04:15:08Z",
+      "path": "data/mnemosyne/noise.jsonl",
       "recommended_action": "compact_by_policy"
     },
     {
-      "bytes": 4909105,
-      "category": "runtime_archive",
-      "mtime_utc": "2026-06-12T09:01:05Z",
-      "path": "data/hades/archive/ledger_compaction/20260612T0900Z-hades-ledgers/data__hades__hades_log.jsonl.archive.jsonl.gz",
-      "recommended_action": "review_retention_window"
+      "bytes": 98641,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/warden_edge_contract.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
     },
     {
-      "bytes": 4839929,
+      "bytes": 95524,
       "category": "runtime_ledger",
-      "mtime_utc": "2026-06-07T01:38:43Z",
-      "path": "data/ceo/heartbeats.jsonl",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "data/charon_route_smoke_history.jsonl",
       "recommended_action": "compact_by_policy"
     },
     {
-      "bytes": 4500140,
+      "bytes": 93676,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/plutus_runtime.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
+    },
+    {
+      "bytes": 81636,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/fleet_runtime.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
+    },
+    {
+      "bytes": 74606,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/ledger_compaction_plan.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
+    },
+    {
+      "bytes": 73459,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/model_control_surface.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
+    },
+    {
+      "bytes": 69203,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/model_candidate_shortlist.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
+    },
+    {
+      "bytes": 63940,
       "category": "runtime_ledger",
-      "mtime_utc": "2026-04-28T09:49:24Z",
-      "path": "data/accounting/output_mirror/data__prometheus__supervisor/heartbeats.jsonl",
+      "mtime_utc": "2026-07-26T04:15:08Z",
+      "path": "data/prometheus/runtime_admission_shed_receipts.jsonl",
       "recommended_action": "compact_by_policy"
     },
     {
-      "bytes": 4220989,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-06-12T08:51:38Z",
-      "path": "data/prometheus/pressure_guard_metrics.jsonl",
-      "recommended_action": "compact_by_policy"
+      "bytes": 61649,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-26T03:55:20Z",
+      "path": "core/state/athena_runtime.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
     },
     {
-      "bytes": 3992214,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-06-12T08:51:28Z",
-      "path": "data/charon/tool_fit_ledger.jsonl",
-      "recommended_action": "compact_by_policy"
+      "bytes": 56878,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/runtime_governor_contract.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
     },
     {
-      "bytes": 3817792,
-      "category": "runtime_archive",
-      "mtime_utc": "2026-06-06T01:22:01Z",
-      "path": "data/prometheus/archive/ledger_compaction/20260606T0121Z-prometheus-one-ledger/data__prometheus__runtime_admission_shed_receipts.jsonl.archive.jsonl.gz",
-      "recommended_action": "review_retention_window"
+      "bytes": 54941,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/system_control.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
     },
     {
-      "bytes": 3725567,
-      "category": "runtime_archive",
-      "mtime_utc": "2026-06-06T01:29:50Z",
-      "path": "data/prometheus/archive/ledger_compaction/20260606T0127Z-prometheus-remaining/data__prometheus__policy_guard.jsonl.archive.jsonl.gz",
-      "recommended_action": "review_retention_window"
+      "bytes": 52426,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/human_inbox_ingestion_plan.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
     },
     {
-      "bytes": 3641330,
-      "category": "runtime_archive",
-      "mtime_utc": "2026-06-06T01:43:50Z",
-      "path": "data/warden/archive/ledger_compaction/20260606T0143Z-warden-permission-profile/data__warden__permission_profile_audit.jsonl.archive.jsonl.gz",
-      "recommended_action": "review_retention_window"
+      "bytes": 51386,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/fleet_nodes.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
     },
     {
-      "bytes": 3564597,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-06-06T09:48:15Z",
-      "path": "data/hades/organization_findings.jsonl",
-      "recommended_action": "compact_by_policy"
+      "bytes": 47550,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/memory_activity.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
     },
     {
-      "bytes": 3510080,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-06-12T08:51:40Z",
-      "path": "data/prometheus/health_workflow_history.jsonl",
-      "recommended_action": "compact_by_policy"
+      "bytes": 45793,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/hermes_command.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
     },
     {
-      "bytes": 3116048,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-04-28T09:49:24Z",
-      "path": "data/accounting/output_mirror/core__metrics__history/20260422T074634Z/hades/joulework.jsonl",
-      "recommended_action": "compact_by_policy"
+      "bytes": 43525,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/github_repo_integration.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
     },
     {
-      "bytes": 3114340,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-04-28T09:49:24Z",
-      "path": "data/accounting/output_mirror/core__metrics__history/20260422T111916Z/hades/joulework.jsonl",
-      "recommended_action": "compact_by_policy"
+      "bytes": 41026,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/queue_federation_blocked_candidate_closeout.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
     },
     {
-      "bytes": 3113726,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-04-28T09:49:24Z",
-      "path": "data/accounting/output_mirror/core__metrics__history/20260422T145152Z/hades/joulework.jsonl",
-      "recommended_action": "compact_by_policy"
+      "bytes": 40427,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/hades_lifecycle.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
     },
     {
-      "bytes": 3111977,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-04-28T09:49:24Z",
-      "path": "data/accounting/output_mirror/core__metrics__history/20260422T182427Z/hades/joulework.jsonl",
-      "recommended_action": "compact_by_policy"
+      "bytes": 39624,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/operator_runtime_status.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
     },
     {
-      "bytes": 2771183,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-05-04T00:48:35Z",
-      "path": "data/knowledge/obsidian/commands.jsonl",
-      "recommended_action": "compact_by_policy"
+      "bytes": 39247,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/imported_corpus_plan_portfolio.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
     },
     {
-      "bytes": 2726604,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-06-12T08:56:27Z",
-      "path": "data/chronos/audit_receipts.jsonl",
-      "recommended_action": "compact_by_policy"
+      "bytes": 37278,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/provider_intelligence.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
     },
     {
-      "bytes": 2587412,
-      "category": "runtime_ledger",
-      "mtime_utc": "2026-05-25T15:26:14Z",
-      "path": "data/benchmarks/automation-runs/plan-task-automation-20260523T065110Z-knowledge-triage-dry-run.log",
-      "recommended_action": "compact_by_policy"
+      "bytes": 36927,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/federation_candidate_evidence_matrix.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
+    },
+    {
+      "bytes": 31313,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/storage_pressure.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
+    },
+    {
+      "bytes": 29718,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/ledger/ledger_2026-03-07.jsonl",
+      "recommended_action": "suppress_noop_or_promote_receipt"
+    },
+    {
+      "bytes": 27337,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/model_stage_manifest_plan.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
+    },
+    {
+      "bytes": 26519,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/mnemosyne_continuity.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
+    },
+    {
+      "bytes": 25339,
+      "category": "core_state_misc",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/README.md",
+      "recommended_action": "review_owner_policy"
+    },
+    {
+      "bytes": 24187,
+      "category": "core_state_projection",
+      "mtime_utc": "2026-07-21T17:26:25Z",
+      "path": "core/state/warden_nightly_doctrine.json",
+      "recommended_action": "suppress_noop_or_promote_receipt"
     }
   ],
   "misplaced_model_artifacts": [],
@@ -408,7 +396,7 @@
       "post-change verification receipt"
     ],
     "destructive_actions_performed": false,
-    "model_artifact_boundary": "model weights and staging artifacts belong under ~/models, not Annunimas data/"
+    "model_artifact_boundary": "model weights and staging artifacts belong under ~/models, not Arda data/"
   },
   "roots_scanned": [
     "audit",
@@ -422,23 +410,23 @@
   "summary": {
     "cleanup_candidate_count": 0,
     "misplaced_model_artifact_count": 0,
-    "total_bytes": 1154407504,
-    "total_files": 64070
+    "total_bytes": 36651931,
+    "total_files": 1445
   },
   "top_roots": [
     {
-      "bytes": 1130312220,
-      "files": 62551,
+      "bytes": 25080627,
+      "files": 341,
       "path": "data"
     },
     {
-      "bytes": 16910371,
-      "files": 992,
+      "bytes": 11396868,
+      "files": 1042,
       "path": "core/state"
     },
     {
-      "bytes": 7184913,
-      "files": 527,
+      "bytes": 174436,
+      "files": 62,
       "path": "audit"
     }
   ]

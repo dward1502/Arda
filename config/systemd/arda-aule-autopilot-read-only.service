@@ -1,0 +1,10 @@
+[Unit]
+Description=Arda Aule CEO Autopilot Read-Only Cycle
+Documentation=file:///var/home/mythos/Eregion/Arda/crates/spine/observability/arda-aule/README.md
+After=network-online.target arda-manwe.service
+Wants=network-online.target arda-manwe.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/Eregion/Arda
+ExecStart=%h/.cache/arda-build/target/release/arda-cli prometheus autopilot once --root %h/Eregion/Arda --read-only --state-output %h/Eregion/Arda/data/ceo/autopilot.state.json

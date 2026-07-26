@@ -3,7 +3,7 @@
 Crate: `crates/spine/runtime/arda-mandos`
 Current state: active
 Branch: `manwe`
-Test evidence: 52 passing tests under all-features/no-default-features; crate-local strict Clippy passes
+Test evidence: 51 passing tests under `--all-features`; 50 passing tests under `--no-default-features`; crate-local strict Clippy passes with `--no-deps`
 Documentation set: `README.md`, `BREAKDOWN.md`, `CHECKLIST.md`, `CRATE_PLAN.md`, `OWNERSHIP.md`, `STATUS.md`.
 
 Current signature: Oracle engine evaluates once per normalized query, writes auditable verdicts before exposure, and exposes typed evidence provenance and reasoning context.

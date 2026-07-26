@@ -16,7 +16,7 @@ Merged from:
 - `crates/spine/executors/arda-varda/BREAKDOWN.md`
 - `crates/spine/executors/arda-varda/STATUS.md`
 - `docs/plans/ATHENA.md`
-- `docs/plans/original-human-plan-narration/ATHENA.md`
+- Archive narration: `docs/plans/ATHENA.md`
 
 Verification commands
 - `cargo check -p arda-varda`

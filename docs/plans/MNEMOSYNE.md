@@ -20,9 +20,7 @@ status: operational
 
 ## Name / Identity
 
-`MNEMOSYNE` is now implemented in `crates/spine/memory/arda-vaire`. This
-document is the canonical operator plan for that memory surface. Historic
-narration is preserved at `docs/plans/original-human-plan-narration/MNEMOSYNE.md`.
+`MNEMOSYNE` is now implemented in `crates/spine/memory/arda-vaire`. This document is the canonical operator plan for that memory surface.
 
 ## Overview
 
@@ -107,7 +105,7 @@ comms surfaces.
 - Crate: `crates/spine/memory/arda-vaire`
 - Crate docs: `crates/spine/memory/arda-vaire/README.md`,
   `crates/spine/memory/arda-vaire/BREAKDOWN.md`
-- Original narration archive: `docs/plans/original-human-plan-narration/MNEMOSYNE.md`
+- Original narrative: `docs/plans/MNEMOSYNE.md`
 - Archive docs: `docs/archive/MNEMOSYNE.md`,
   `docs/archive/VAIRE_MNEMOSYNE_RECONCEPTUALIZATION.md`,
   `docs/archive/MANWE_FLEET_LOOKUP_PLAN.md`

@@ -2,7 +2,7 @@
 
 ## Name / Identity
 
-`EMBODIED_INTERFACE` is the Arda physical presence and embodied display planning surface. Historic narration is preserved at `docs/plans/original-human-plan-narration/EMBODIED_INTERFACE.md`. This document merges the detailed operator narrative with current Arda surface names; old operational detail is retained, not lost.
+`EMBODIED_INTERFACE` is the Arda physical presence and embodied display planning surface. Historic narration is no longer maintained in a separate archive.
 
 ## Overview
 
@@ -111,7 +111,7 @@ Run remote deploy or service mutation only when the active task carries explicit
 ## References
 
 Quick reference: `docs/plans/EMBODIED_INTERFACE.md`
-- Original narration archive: `docs/plans/original-human-plan-narration/EMBODIED_INTERFACE.md`
+- Original narrative: `docs/plans/EMBODIED_INTERFACE.md`
 - CITADEL Companion roadmap: `docs/plans/2026-05-27-citadel-companion-embodied-roadmap.md`
 - Embodied runtime state: `core/state/embodied_interface.json`
 - Tauri embodiment guidance: `core/state/tauri_embodiment.json`

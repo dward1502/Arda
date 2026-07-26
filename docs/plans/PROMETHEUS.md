@@ -19,7 +19,7 @@ reviewed: "2026-06-21"
 
 `PROMETHEUS` is the current Arda observability and orchestration telemetry surface.
 Historic narration is preserved at
-`docs/plans/original-human-plan-narration/PROMETHEUS.md`. This document merges
+`docs/plans/PROMETHEUS.md`. This document merges
 the prior operator narrative with the current Arda surface names so old detail is
 retained without stale crate assumptions.
 
@@ -96,5 +96,5 @@ PROMETHEUS work remains subject to:
 ## References
 
 - `docs/plans/PROMETHEUS.md`
-- Original narration archive: `docs/plans/original-human-plan-narration/PROMETHEUS.md`
+- Original narrative: `docs/plans/PROMETHEUS.md`
 - Runtime projections: `core/state/arda_snapshot.json`, `core/state/control_plane_lockdown.json`, `core/state/runtime_settings.json`

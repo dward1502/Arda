@@ -1,0 +1,79 @@
+{
+  "bad": [
+    "No target-local test-like file was detected in the primary surface.",
+    "No obvious audit/status/telemetry/logging token hits were found in scoped files."
+  ],
+  "candidate_tasks": [
+    {
+      "acceptance": "Target-local test coverage exists for the primary duty surface and passes in focused cargo test runs.",
+      "owner": "arda-barrow-wight",
+      "priority": "medium",
+      "risk_class": "source_change_review_required",
+      "title": "Add target-local tests for ARDA-BARROW-WIGHT"
+    }
+  ],
+  "contract": "arda.audit.target_report.v1",
+  "duties": [
+    "Policy and receipt validation."
+  ],
+  "evidence": [
+    {
+      "exists": false,
+      "line": null,
+      "note": "primary target root",
+      "path": "crates/arda-barrow-wight"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "workspace membership checked from repository manifest: False",
+      "path": "Cargo.toml"
+    }
+  ],
+  "generated_at": "2026-07-26T05:57:36.080386+00:00",
+  "good": [
+    "Latest portability receipt has no active blockers for this target/support surface."
+  ],
+  "needs_removed": [
+    "No automatic removal recommendation; removal candidates require a follow-up evidence pass."
+  ],
+  "overview": "Read-only Phase 4/5 Good / Bad / Ugly audit for ARDA-BARROW-WIGHT.",
+  "potential_changes": [
+    "No immediate source change proposed by this read-only audit."
+  ],
+  "report_json_path": "crates/ARDA-BARROW-WIGHT.json",
+  "report_markdown_path": "crates/ARDA-BARROW-WIGHT.md",
+  "run_id": "system-audit-20260726T055735Z",
+  "score": 61,
+  "score_breakdown": {
+    "implementation_completeness": 0,
+    "mission_fit": 14,
+    "observability_auditability": 6,
+    "portability_config_hygiene": 15,
+    "reliability_safety": 20,
+    "ux_operator_experience": 6
+  },
+  "snapshot": {
+    "crash_counts": {},
+    "keyword_hits": {
+      "policy": 0,
+      "receipt": 0,
+      "validation": 0
+    },
+    "observability_hits": 0,
+    "primary_exists": false,
+    "primary_file_count": 0,
+    "rollup_target": null,
+    "rust_file_count": 0,
+    "sample_files": [],
+    "support_status": [],
+    "test_file_count": 0,
+    "workspace_member": false
+  },
+  "target": "ARDA-BARROW-WIGHT",
+  "target_type": "workspace_crate",
+  "ugly": [
+    "Primary implementation surface `crates/arda-barrow-wight` is missing.",
+    "Crate directory exists but is not listed in the live Cargo workspace manifest."
+  ]
+}

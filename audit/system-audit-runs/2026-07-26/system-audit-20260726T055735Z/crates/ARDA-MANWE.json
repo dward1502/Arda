@@ -1,0 +1,125 @@
+{
+  "bad": [
+    "Scoped files contain 2 crash-path tokens (`unwrap`, `expect`, `panic`, `todo`, or `unimplemented`) requiring manual review."
+  ],
+  "candidate_tasks": [
+    {
+      "acceptance": "Production `unwrap()` usages are removed or proven unreachable; tests cover changed paths.",
+      "owner": "arda-manwe",
+      "priority": "medium",
+      "risk_class": "source_change_review_required",
+      "title": "Classify and remediate ARDA-MANWE crash-path tokens"
+    }
+  ],
+  "contract": "arda.audit.target_report.v1",
+  "duties": [
+    "Delegation and provider runtime."
+  ],
+  "evidence": [
+    {
+      "exists": true,
+      "line": null,
+      "note": "primary target root",
+      "path": "crates/spine/runtime/manwe"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "workspace membership checked from repository manifest: True",
+      "path": "Cargo.toml"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "crates/spine/runtime/manwe/BREAKDOWN.md"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "crates/spine/runtime/manwe/CHECKLIST.md"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "crates/spine/runtime/manwe/Cargo.toml"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "crates/spine/runtime/manwe/PROVIDERS.md"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "crates/spine/runtime/manwe/README.md"
+    }
+  ],
+  "generated_at": "2026-07-26T05:57:36.303396+00:00",
+  "good": [
+    "Primary implementation surface exists at `crates/spine/runtime/manwe` with 54 tracked Rust files.",
+    "Crate is listed in the live Cargo workspace manifest.",
+    "Findings can be rolled up into primary target `MANWE` while keeping crate-level evidence traceable.",
+    "Found 4 test-like files under the primary target surface.",
+    "Observed 1065 audit/status/telemetry/logging token hits in scoped files.",
+    "Latest portability receipt has no active blockers for this target/support surface."
+  ],
+  "needs_removed": [
+    "No automatic removal recommendation; removal candidates require a follow-up evidence pass."
+  ],
+  "overview": "Read-only Phase 4/5 Good / Bad / Ugly audit for ARDA-MANWE.",
+  "potential_changes": [
+    "Classify crash-path tokens as production, test, or impossible-state assertions and remove production `unwrap()` usages."
+  ],
+  "report_json_path": "crates/ARDA-MANWE.json",
+  "report_markdown_path": "crates/ARDA-MANWE.md",
+  "run_id": "system-audit-20260726T055735Z",
+  "score": 95,
+  "score_breakdown": {
+    "implementation_completeness": 20,
+    "mission_fit": 20,
+    "observability_auditability": 15,
+    "portability_config_hygiene": 15,
+    "reliability_safety": 18,
+    "ux_operator_experience": 7
+  },
+  "snapshot": {
+    "crash_counts": {
+      ".expect(": 2,
+      ".unwrap()": 0,
+      "panic!(": 0,
+      "todo!(": 0,
+      "unimplemented!(": 0
+    },
+    "keyword_hits": {
+      "delegation": 0,
+      "provider": 4482,
+      "route": 1739
+    },
+    "observability_hits": 1065,
+    "primary_exists": true,
+    "primary_file_count": 65,
+    "rollup_target": "MANWE",
+    "rust_file_count": 54,
+    "sample_files": [
+      "crates/spine/runtime/manwe/BREAKDOWN.md",
+      "crates/spine/runtime/manwe/CHECKLIST.md",
+      "crates/spine/runtime/manwe/Cargo.toml",
+      "crates/spine/runtime/manwe/PROVIDERS.md",
+      "crates/spine/runtime/manwe/README.md",
+      "crates/spine/runtime/manwe/STATUS.md",
+      "crates/spine/runtime/manwe/docs/operator/library/governance/bacon_lite.md",
+      "crates/spine/runtime/manwe/src/INDEX.md"
+    ],
+    "support_status": [],
+    "test_file_count": 4,
+    "workspace_member": true
+  },
+  "target": "ARDA-MANWE",
+  "target_type": "workspace_crate",
+  "ugly": []
+}

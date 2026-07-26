@@ -18,8 +18,7 @@ reviewed: "2026-06-22"
 # 🪙
 # HERMES Plan Narrative
 
-`HERMES` is now implemented in `crates/spine/interface/arda-orome`. Historic
-narration is preserved at `docs/plans/original-human-plan-narration/HERMES.md`.
+`HERMES` is now implemented in `crates/spine/interface/arda-orome`.
 This document preserves the detailed HERMES operator narrative while updating
 Arda crate and surface names. The prior Hermes crate surface now maps to
 `arda-orome`; the plan below retains both current runtime claims and older
@@ -56,7 +55,7 @@ HERMES owns communication routing, boardroom state, provider messaging, and exte
 
 ## Readable Context
 
-Use `docs/plans/HERMES.md` for the operator-facing plan narrative and graph node. Historic narration is preserved at `docs/plans/original-human-plan-narration/HERMES.md`.
+- Use `docs/plans/HERMES.md` for the operator-facing plan narrative and graph node.
 
 ## 2026-05-25 Live Discord Dispatch Decision
 
@@ -135,6 +134,6 @@ The older narration also notes an earlier degraded-system posture; that remains 
 ## References
 
 - Crate: `crates/spine/interface/arda-orome`
-- Original narration archive: `docs/plans/original-human-plan-narration/HERMES.md`
+- Original narrative: `docs/plans/HERMES.md`
 - Core runtime: `core/state/hermes_command.json`
 - Operator contract: `docs/contracts/soterion-communication-contract.md`

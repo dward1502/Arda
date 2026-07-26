@@ -20,7 +20,7 @@ reviewed: "2026-07-21"
 
 `OPENFANG` is the current Arda comparative-architecture extraction surface.
 Historic narration is preserved at
-`docs/plans/original-human-plan-narration/OPENFANG.md`. This document merges
+`docs/plans/OPENFANG.md`. This document merges
 the prior operator narrative with the current Arda surface names so old detail is
 retained without stale crate assumptions. The active queue packet remains
 `tsk_20260619_queue_openfang_plan_review` / `Queue: OPENFANG plan review`.
@@ -137,7 +137,7 @@ cargo run -p arda-cli -- export queue-hygiene
 ## References
 
 - Crate/surface: `docs/plans/OPENFANG.md`
-- Original narration archive: `docs/plans/original-human-plan-narration/OPENFANG.md`
+- Original narrative: `docs/plans/OPENFANG.md`
 - `docs/plans/OPENFANG.md` — operator-facing narrative and quick reference
 - OpenFang alignment contract: `core/state/openfang_alignment.json`
 - Crate-spawn blueprint: `core/state/crate_spawn_blueprint_contract.json`

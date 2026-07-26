@@ -19,7 +19,7 @@ reviewed: "2026-06-21"
 
 `PLATFORM_OS` is the current Arda local agent control-plane planning surface.
 Historic narration is preserved at
-`docs/plans/original-human-plan-narration/PLATFORM_OS.md`. This document merges
+`docs/plans/PLATFORM_OS.md`. This document merges
 the prior operator narrative with the current Arda surface names so old detail is
 retained without stale crate assumptions.
 
@@ -121,7 +121,6 @@ Platform OS work remains subject to:
 ## References
 
 - Crate/surface: `docs/plans/PLATFORM_OS.md`
-- Original narration archive: `docs/plans/original-human-plan-narration/PLATFORM_OS.md`
 - Operator plan: `docs/plans/PLATFORM_OS.md`
 - Runtime projections: `core/state/queue_active.json`, `core/state/queue_summary.json`, `core/state/runtime_settings.json`
 - Audits: `docs/plans/platform-os-core-manifest-audit.md`, `docs/plans/platform-os-schema-freeze-audit.md`

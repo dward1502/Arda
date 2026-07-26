@@ -5,138 +5,84 @@ soterion:
   role: "interface_layer"
   owner: "ARDA"
   status: "active"
-  last_reviewed: "2026-07-17"
+  last_reviewed: "2026-07-25"
 ---
 
-# arda-orome
-Interface layer for Arda agents: inbound/outbound comms, routing,
-intent classification, MCP server, boardroom/council service events,
-context enrichment, edge device registry, slash/CLI relay, and service
-runtime integration.
-Owner: arda | Sigil: ⟁ REPAIR | Status: active
+# arda-orome breakdown
 
-## Summary
-`arda-orome` is the widest interface crate in the spine. It owns:
-- A2H message types and queueing
-- A2A message/envelope/protocol
-- agent registry + message router with retry/dead-letter/expiry
-- intent classification with 3-tier routing
-- MCP server/tools/protocol/governance gate
-- rich service layer for boardroom, council, approvals, interruptions,
-  approvals, subagent completions, comms events
-- context enrichment from Mnemosyne with cached ranked memories
-- edge device registry and status formatting
-- slash command handling for Discord interactions
-- Hermes agent + relay
-- governance-backed broadcasting via `arda-governance`/`arda-vaire`/
-  `arda-economics`
+Interface layer for Arda agents: typed comms, routing, provider dispatch, governance recording, intent classification, MCP, service events, context enrichment, edge policy, and runtime integration.
 
-No direct imports were found in `arda-engine` or `apps`; this crate is
-an interface contract and implementation target rather than a compiled-
-in part of the runtime main today.
+## Current role
 
-## Where it lives
-- Crate root: `/var/home/mythos/Eregion/Arda/crates/spine/interface/arda-orome`
-- Tests: none active; `cargo test -p arda-orome` shows 0/0
-- Key config path: same workspace, no standalone config directory
+`arda-orome` owns the spine's human/agent interface contracts and the bounded provider dispatch boundary. It does not own provider selection strategy or inference policy; those remain Manwe responsibilities.
 
-## Verification status
-- `cargo check -p arda-orome`: OK
-- `cargo test -p arda-orome`: 0 unit tests, 0 doc tests
-- Warnings from `arda-core` leak through but no crate-local errors
-- No repo consumers found in `crates/engine` or `apps`
+## Implemented surfaces
 
-## Agentic-OS relevant abstractions
-- **Message surfaces**
-  - A2H: `Authorize`, `Notify`, `Response`, `Approval`, `Clarify`, `Status`
-  - A2A: request/response/notification/handshake/heartbeat with TTL
-  - `Envelope` + hop tracking + expiry + optional signature
-  - `MessageQueue` async bounded send with 30s timeout
-- **Routing**
-  - `AgentRegistry`: by-id, realm, capability, availability, stale pruning
-  - `MessageRouter`: per-agent queuing, dead-letter, max queue size,
-    retry on failed delivery, expiry draining, broadcast result
-- **Intent classification**
-  - Tier-1 rule-bound with perfect confidence for `!`, `status`/`queue`,
-    `schedule ...`, `@...`
-  - Tier-2 heuristic richness for questions/help/review/meeting/thanks
-  - Tier-3 fallback with conservative default confidence
-- **MCP server**
-  - JSON-RPC initialize, tools list/call, resources list/read, prompts
-  - governance validation: approval token, network allow, destructive
-    allow, triad metadata presence
-  - runtime governance emits triad/bacon-lite/love/joule signal on each
-    tool call and background-plutus work tracking
-- **Service layer**
-  - boardroom post/quorum/oracle/charon-route evidence
-  - council discussion notes, promotions, approvals
-  - task approval proposal/packet/projection
-  - subagent completion packet/projection
-  - operating-room events with visibility/risk/safety state
-  - comms event model with promotion state and redaction awareness
-- **Context enrichment**
-  - Mnemosyne-backed enriched prompt context
-  - weighted scoring: significance 0.40, recency 0.25, tier 0.15,
-    tag match 0.10, query relevance 0.10
-  - static cache with TTL; lazy global cache
-- **Edge device registry**
-  - role model: Scout/Marketer/Analyst/Worker/Standby
-  - GPU/memory status, health checks, formatted emoji status lines
-- **Slash/CLI**
-  - Discord interaction model + slash command handler
+- A2H and A2A messages, envelopes, TTL, queueing, and delivery status
+- Agent registry and message router with retry, expiry, queueing, and dead-letter behavior
+- Three-tier intent classification
+- MCP protocol, tools, and governance validation
+- Boardroom, council, approval, interruption, completion, comms, and status events
+- Mnemosyne-backed context enrichment with bounded async cache
+- Provider registry, adapters, streaming sessions, and typed runtime configuration
+- Bounded provider timeout/retry orchestration and metrics
+- Typed direct/fanout routing with parallel shared-transport fanout
+- Fleet communication scope policy with explicit external approval
+- Ledger-backed typed task approval and interruption envelopes
+- Discord/slash/CLI relay and optional HTTP/SSE surfaces
+- Engine-level no-network smoke dispatch via `arda_engine::orome`
 
-## Crate layout
-| Module | Role |
-|--------|------|
-| `lib.rs` | Compact public surface: comm + message re-exports |
-| `comm.rs` | A2H protocol, channels, priorities, governance metadata |
-| `message.rs` | A2A message, envelope, thread, delivery status |
-| `types.rs` | Heavy schema surface: boardroom, council, operating-room,
-               comms events, approvals, completions, routing hints |
-| `agent.rs` | `HermesAgent` implementation of `arda-core::Agent` |
-| `service.rs` | HermesService: the runtime glue for posting/routing |
-| `service/*` | Domain events and state: boardroom, council, decision,
-               inbound/outbound, interrupts, queue, runtime, support,
-               task_approval, subagent_completion, semantic_channel,
-               status, classification, comms_event |
-| `intent.rs` | 3-tier inbound intent classifier |
-| `router.rs` | `MessageRouter`: queued delivery with retry/dead-letter |
-| `registry.rs` | `AgentRegistry`: discovery by id/realm/capability |
-| `edge.rs` | Edge device registry and formatted status |
-| `mcp/` | MCP server, channel, protocol, tools, browser/external |
-| `slash.rs` | Discord interaction/slash command types |
-| `protocol.rs` | A2A handshake/heartbeat/forward validation |
-| `relay.rs` | CLI relay inbox writer with command detection |
-| `context_enrichment.rs` | Mnemosyne-backed enriched context + cache |
-| `context_cache.rs` | Generic context cache primitive |
-| `mnemosyne_integration.rs` | Mnemosyne service integration |
-| `formatter.rs` | Output formatting conveniences |
-| `discord_health.rs` / `discord_safe_message.rs` | Discord-specific guard rails |
+## Canonical provider path
 
-## Consumer wiring
-- No observed imports in `arda-engine` or `apps`
-- Indirect couplings through:
-  - `arda-core::task::Task`, `Agent`, daemon envelopes
-  - `arda-governance` triad/bacon-lite in MCP runtime governance
-  - `arda-economics` PlutusService work tracking
-  - `arda-vaire` MnemosyneService memory recall
+| Surface | Location | Responsibility |
+|---|---|---|
+| Provider types/runtime | `src/provider/runtime.rs` | Provider inventory and observable receipt model |
+| Adapter contracts | `src/provider/adapter.rs` | Provider capabilities and adapter errors |
+| Streaming | `src/provider/streaming.rs` | Typed chunks, endings, and sessions |
+| Orchestration | `src/provider/orchestration.rs` | Timeout, retry, expiry, fanout, fleet policy, and metrics |
+| Registry | `src/provider/registry.rs` | Adapter registration and capability lookup |
+| Engine package | `crates/engine/src/orome.rs` | Compiled deterministic smoke integration |
 
-## Ideas for improvement
-1. Add tests: no unit/integration coverage currently; start with
-   router retry/expiry, intent classification, and MCP governance
-2. Unify duplicate message abstractions: `comm::InboundMessage`,
-   `types::InboundMessage`, `message::A2AMessage`, and the service
-   inbound/outbound types should collapse to one canonical set
-3. Replace `'static str` labels everywhere with typed enums to avoid
-   mismatched route/intent strings
-4. Make registry/router state sharable via embedded runtime trait from
-   `arda-core` rather than local Arc/RwLock implementations
-5. Persist `MessageQueue`/agent registry state so router survives restarts
-6. Split service layer into standalone protocol packages:
-   boardroom, council, approvals, operating-room
-7. Normalize governance hooks: instead of inline triad/bacon calls in MCP,
-   reuse ` GovernanceGates` from `arda-core` centrally
-8. Add typed approval/interruption envelopes backed by ledger writes
-9. Replace the static Lazy context cache with bounded async cache under
-   `once_cell` → `tokio::sync::RwLock`, or use core background gates
-10. Wire one interface package into engine/CLI as a live smoke path
+## Dispatch invariants
+
+- Every dispatch target must be known to `ProviderRuntime`.
+- Fanout is rejected above `DispatchPolicy::max_fanout`.
+- Each provider attempt is bounded by `timeout_ms`.
+- Retry count is bounded by `max_attempts`; only retryable adapter errors retry.
+- Expired requests never reach a transport.
+- External fleet scope is rejected by default and can require explicit approval when enabled.
+- Attempts, retries, successes, failures, timeouts, fanout targets, and streaming chunk counts are observable.
+
+## Governance invariants
+
+- `GovernanceHooks` reads action-class behavior from `arda_core::GovernanceGates`.
+- Observe/record modes map to `PolicySafe`.
+- Escalation/independent-receipt modes map to `RequiresOperatorReview`.
+- Block mode maps to `PolicyBlocked`.
+- Task approval and interruption envelopes include schema version, decision, UTC timestamp, and ledger write path.
+- Records are appended through `arda_core::Ledger`; callers do not write ad hoc governance files.
+
+## HUD and plan surfaces
+
+ARDA HUD already consumes both plan authorities:
+
+- `apps/arda-hud/src/lib/ardaSource.ts::derivePlanMap` inventories `docs/plans` and `core/projects/Plans`.
+- `apps/arda-hud/src/lib/reviewGateDerivation.ts::getPlanShelf` projects human/core roots and linked plan paths.
+- The engine smoke report identifies `provider_metrics`, `human_plan`, and `governance_receipts` as its operator-facing surfaces.
+
+## Test inventory
+
+- 14 crate unit tests
+- 5 provider orchestration integration tests
+- 2 governance/ledger integration tests
+- 1 engine integration test for the compiled Orome smoke path
+
+## Verified commands
+
+- `cargo test -p arda-orome` — 21 passed, 0 failed
+- `cargo test -p arda-engine --test orome_smoke` — 1 passed, 0 failed
+- `cargo fmt -p arda-orome -p arda-engine -- --check`
+
+## Residual boundaries
+
+Production provider clients remain transport implementations and deployment configuration. They must implement `ProviderTransport` and retain the runtime's timeout, retry, scope, governance, and receipt contracts. Manwe remains the owner of provider selection and inference routing policy.

@@ -9,9 +9,9 @@
       "owner": "WARDEN",
       "status": "active",
       "source_modules": [
-        "crates/spine/observability/arda-aule/src/cli/export_surface/runtime_exports.rs",
-        "crates/spine/observability/arda-aule/src/cli/commands/charon_telemetry.rs",
-        "crates/spine/observability/arda-aule/src/cli/support.rs"
+        "crates/spine/observability/arda-aule/src/telemetry/events.rs",
+        "crates/spine/observability/arda-aule/src/cli/main.rs",
+        "crates/spine/observability/arda-aule/src/prometheus/core_link.rs"
       ],
       "evidence_class_current": "runtime_receipted",
       "evidence_class_target": "service_init",

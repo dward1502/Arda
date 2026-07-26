@@ -393,6 +393,20 @@ Acceptance:
 9. P1.1/P1.2 richer reasoning context and explainability.
 10. P2 consumer/operator/documentation work; split transport only if measured growth warrants it.
 
+## Current completion status
+
+This checklist contains the full planned body of work. As of 2026-07-25 the crate is
+**active, not complete**:
+
+- Completed: P0 core-correctness blockers and P1.1 recent-verdicts behavior that were
+  blocking consumers.
+- Remaining: P0 follow-ups through P2, including restart-safe persistence, transport
+  hardening, operator workflows, and documentation.
+
+Do not treat unchecked items here as already implemented.
+See `STATUS.md` and `PLAN_CLOSEOUT.md` for exact verification evidence and deferred
+work items.
+
 ## Implementation evidence log
 
 Add one line per completed slice; do not replace historical entries.

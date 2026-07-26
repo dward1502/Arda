@@ -103,6 +103,12 @@ impl OracleService {
         Ok(snapshot)
     }
 
+    /// Return the most recent persisted verdicts, oldest first.
+    ///
+    /// Note:
+    /// - The `limit` is the desired entry count; reads at least `limit.max(1)` entries
+    ///   before truncating so callers never see a partial window.
+    /// - `rename` atomicity depends on both temp and final paths living on the same filesystem.
     pub fn recent_verdicts(&self, limit: usize) -> anyhow::Result<Vec<serde_json::Value>> {
         let content = match fs::read_to_string(&self.verdict_ledger_path) {
             Ok(v) => v,
@@ -472,7 +478,7 @@ mod tests {
                 }]
             })
             .to_string()
-                + "\n",
+            + "\n",
         )
         .expect("legacy ledger fixture");
 
@@ -487,5 +493,56 @@ mod tests {
             "sha256:retained"
         );
         assert!(!recent[0].to_string().contains("legacy private excerpt"));
+    }
+
+    #[tokio::test]
+    async fn recent_verdicts_honors_limit_and_returns_oldest_first() {
+        let _env_guard = crate::PLUTUS_ENV_LOCK.lock().await;
+        let temp = tempfile::tempdir().expect("tempdir");
+        let plutus_home = temp.path().join("plutus");
+        std::env::set_var("ARDA_PLUTUS_HOME", &plutus_home);
+        let _ = OracleService::from_home(temp.path()).await.expect("service");
+        let service = OracleService::from_home(temp.path()).await.expect("service");
+
+        let mut engine = service.engine.lock().await;
+        let ledger_path = service.verdict_ledger_path.clone();
+        let total = 12usize;
+        let limit = 5usize;
+        for index in 0..total {
+            let verdict = engine
+                .evaluate(query(
+                    &format!("cap-query-{index}"),
+                    &format!("review deployment evidence {index}"),
+                ))
+                .expect("evaluate");
+            let line = serde_json::to_string(&verdict.redacted_for_export()).expect("serialize");
+            std::fs::OpenOptions::new()
+                .create(true)
+                .append(true)
+                .open(&ledger_path)
+                .expect("ledger file")
+                .write_all(line.as_bytes())
+                .expect("write line");
+            std::fs::OpenOptions::new()
+                .create(true)
+                .append(true)
+                .open(&ledger_path)
+                .expect("ledger file")
+                .write_all(b"\n")
+                .expect("write newline");
+        }
+        drop(engine);
+
+        let recent = service.recent_verdicts(limit).expect("recent verdicts");
+        assert_eq!(recent.len(), limit);
+        assert_eq!(
+            recent[0]["query_id"].as_str().unwrap(),
+            "cap-query-7"
+        );
+        assert_eq!(
+            recent[recent.len() - 1]["query_id"].as_str().unwrap(),
+            "cap-query-11"
+        );
+        std::env::remove_var("ARDA_PLUTUS_HOME");
     }
 }

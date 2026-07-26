@@ -1,7 +1,7 @@
 // sigil: REPAIR
 //
 // Store layout and bootstrap helpers: default Athena home resolution,
-// human/machine library roots, and the permission-aware fallback path
+// operator/machine library roots, and the permission-aware fallback path
 // used when the primary store root cannot be opened.
 
 use arda_core::error::{ArdaError, Result};
@@ -40,7 +40,7 @@ impl WorkspaceLayout {
         let workspace_root = arda_root();
         let human_library_root = std::env::var("ARDA_ATHENA_HUMAN_LIBRARY_ROOT")
             .map(PathBuf::from)
-            .unwrap_or_else(|_| workspace_root.join("human/library/athena"));
+            .unwrap_or_else(|_| workspace_root.join("docs/operator/library/athena"));
         let machine_library_root = std::env::var("ARDA_ATHENA_MACHINE_LIBRARY_ROOT")
             .map(PathBuf::from)
             .unwrap_or_else(|_| workspace_root.join("data/knowledge/athena"));
@@ -82,14 +82,7 @@ impl std::ops::Deref for WorkspaceLayout {
 }
 
 pub(crate) fn arda_root() -> PathBuf {
-    if let Ok(path) = std::env::var("ARDA_ROOT") {
-        return PathBuf::from(path);
-    }
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .and_then(Path::parent)
-        .map(Path::to_path_buf)
-        .unwrap_or_else(|| PathBuf::from("."))
+    arda_core::layout::arda_root_from(env!("CARGO_MANIFEST_DIR"))
 }
 
 impl AthenaStore {
@@ -124,13 +117,14 @@ fn is_permission_error(err: &ArdaError) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use super::WorkspaceLayout;
+    use super::{arda_root, WorkspaceLayout};
 
     #[test]
     fn workspace_layout_owns_store_and_library_paths() {
         let root = tempfile::tempdir().expect("tempdir");
         let layout = WorkspaceLayout::for_store_root(root.path());
 
+        assert!(arda_root().join("Cargo.toml").is_file());
         assert_eq!(layout.store.root, root.path());
         assert_eq!(layout.store.books_dir, root.path().join("books"));
         assert_eq!(
@@ -139,7 +133,7 @@ mod tests {
         );
         assert!(layout
             .human_sources_dir
-            .ends_with("human/library/athena/sources"));
+            .ends_with("docs/operator/library/athena/sources"));
         assert!(layout
             .machine_index_path
             .ends_with("data/knowledge/athena/index/sources.jsonl"));

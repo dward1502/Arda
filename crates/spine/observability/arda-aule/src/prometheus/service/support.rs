@@ -9,11 +9,7 @@ pub(crate) fn arda_aule_root() -> PathBuf {
     if let Ok(path) = std::env::var("ARDA_AULE_ROOT") {
         return PathBuf::from(path);
     }
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .and_then(Path::parent)
-        .map(Path::to_path_buf)
-        .unwrap_or_else(|| PathBuf::from("."))
+    arda_core::layout::arda_root_from(env!("CARGO_MANIFEST_DIR"))
 }
 
 pub(crate) fn prometheus_home() -> PathBuf {

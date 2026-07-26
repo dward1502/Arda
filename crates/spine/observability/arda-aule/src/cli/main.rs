@@ -209,6 +209,9 @@ enum AutopilotCommands {
         root: Option<PathBuf>,
         #[arg(long)]
         read_only: bool,
+        /// Atomically publish the rendered cycle report for status consumers.
+        #[arg(long, value_name = "PATH")]
+        state_output: Option<PathBuf>,
     },
     Run {
         #[arg(long)]
@@ -677,17 +680,22 @@ fn handle_autopilot(command: AutopilotCommands, default_root: PathBuf) -> Result
 
     let resolve_root = |root: Option<PathBuf>| root.unwrap_or_else(|| default_root.clone());
     match command {
-        AutopilotCommands::Once { root, read_only } => {
+        AutopilotCommands::Once {
+            root,
+            read_only,
+            state_output,
+        } => {
             let mut config = AutopilotConfig::from_root(resolve_root(root));
             config.read_only = read_only;
             let mut autopilot = CeoAutopilot::from_world(config);
             let runtime = tokio::runtime::Builder::new_multi_thread()
                 .enable_all()
                 .build()?;
-            println!(
-                "{}",
-                serde_json::to_string_pretty(&runtime.block_on(autopilot.run_cycle()))?
-            );
+            let rendered = serde_json::to_string_pretty(&runtime.block_on(autopilot.run_cycle()))?;
+            if let Some(path) = state_output {
+                write_atomic_snapshot(&path, rendered.as_bytes())?;
+            }
+            println!("{rendered}");
         }
         AutopilotCommands::Run {
             root,
@@ -774,6 +782,22 @@ fn handle_autopilot(command: AutopilotCommands, default_root: PathBuf) -> Result
                 serde_json::to_string_pretty(&execute_knowledge_task_queue(&config)?)?
             );
         }
+    }
+    Ok(())
+}
+
+fn write_atomic_snapshot(path: &Path, bytes: &[u8]) -> Result<()> {
+    if let Some(parent) = path
+        .parent()
+        .filter(|parent| !parent.as_os_str().is_empty())
+    {
+        std::fs::create_dir_all(parent)?;
+    }
+    let temporary = path.with_extension(format!("tmp-{}", std::process::id()));
+    std::fs::write(&temporary, bytes)?;
+    if let Err(error) = std::fs::rename(&temporary, path) {
+        let _ = std::fs::remove_file(&temporary);
+        return Err(error.into());
     }
     Ok(())
 }
@@ -1162,20 +1186,47 @@ mod tests {
 
     #[test]
     fn parses_prometheus_autopilot_once_command() {
-        let cli =
-            Cli::try_parse_from(["arda-cli", "prometheus", "autopilot", "once", "--read-only"])
-                .expect("parse autopilot once");
-        assert!(matches!(
-            cli.command,
-            Commands::Prometheus {
-                command: PrometheusCommands::Autopilot {
-                    command: AutopilotCommands::Once {
-                        read_only: true,
-                        ..
-                    }
-                }
-            }
-        ));
+        let cli = Cli::try_parse_from([
+            "arda-cli",
+            "prometheus",
+            "autopilot",
+            "once",
+            "--read-only",
+            "--state-output",
+            "/tmp/aule-state.json",
+        ])
+        .expect("parse autopilot once");
+        let Commands::Prometheus {
+            command:
+                PrometheusCommands::Autopilot {
+                    command:
+                        AutopilotCommands::Once {
+                            read_only,
+                            state_output,
+                            ..
+                        },
+                },
+        } = cli.command
+        else {
+            panic!("expected prometheus autopilot once command");
+        };
+        assert!(read_only);
+        assert_eq!(state_output, Some(PathBuf::from("/tmp/aule-state.json")));
+    }
+
+    #[test]
+    fn atomic_snapshot_creates_parent_and_replaces_destination() {
+        let temp = tempfile::tempdir().expect("tempdir");
+        let path = temp.path().join("nested/autopilot.state.json");
+        write_atomic_snapshot(&path, br#"{"cycle":1}"#).expect("first snapshot");
+        write_atomic_snapshot(&path, br#"{"cycle":2}"#).expect("replacement snapshot");
+        assert_eq!(
+            std::fs::read(&path).expect("read snapshot"),
+            br#"{"cycle":2}"#
+        );
+        assert!(!path
+            .with_extension(format!("tmp-{}", std::process::id()))
+            .exists());
     }
 
     #[test]

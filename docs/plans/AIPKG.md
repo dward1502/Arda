@@ -17,8 +17,9 @@ reviewed: "2026-07-21"
 
 # AIPKG Plan Narrative
 
-`AIPKG` is the current Arda package/preflight/receipt contract surface. Historic
-narration is preserved at `docs/plans/original-human-plan-narration/AIPKG.md`.
+`AIPKG` is the current Arda package/preflight/receipt contract surface. Historic narrative is preserved at `docs/plans/AIPKG.md`.
+
+This document merges
 This document merges the prior operator narrative with the current Arda surface
 names so old detail is retained without stale crate assumptions.
 

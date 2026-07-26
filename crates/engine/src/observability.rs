@@ -7,6 +7,8 @@
 use arda_core::learning_adapter::build_learning_ledger_receipt;
 use arda_core::loop_observability::{LatencyProbe, LoopObservabilityConfig};
 use arda_core::learning::LearningStore;
+use serde::Deserialize;
+use serde::Serialize;
 
 /// Aggregated observability status for the Arda engine.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -34,7 +36,7 @@ impl EngineObservabilityStatus {
         min_observations: u64,
     ) -> Self {
         let loop_observability = LoopObservabilityConfig::from_env();
-        let store = LearningStore::new(learning_path);
+        let store = LearningStore::new(learning_path.as_ref());
         let learning = store.load();
         let receipt = build_learning_ledger_receipt(&learning, domain.as_ref(), consumer.as_ref(), min_observations);
 

@@ -19,7 +19,9 @@ reviewed: "2026-07-21"
 
 `FEDERATED_COMMS` is the current Arda layered communications doctrine surface.
 Historic narration is preserved at
-`docs/plans/original-human-plan-narration/FEDERATED_COMMS.md`. This document
+`docs/plans/FEDERATED_COMMS.md`.
+
+The current plan retains
 retains the prior operator narrative; only references/metadata are updated for
 the post-Annunimas Arda layout.
 
@@ -52,5 +54,5 @@ Defines the layered communications doctrine above local sovereign control.
 ## References
 
 - Crate/surface: `docs/plans/FEDERATED_COMMS.md`
-- Original narration archive: `docs/plans/original-human-plan-narration/FEDERATED_COMMS.md`
+- Original narrative: `docs/plans/FEDERATED_COMMS.md`
 - Core runtime: `core/state/federated_comms.json`

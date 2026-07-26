@@ -1,0 +1,12 @@
+[Unit]
+Description=Arda Queue Hygiene Monitoring Service
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/Eregion/Arda
+ExecStart=%h/Eregion/Arda/scripts/monitor_queue_hygiene.sh
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

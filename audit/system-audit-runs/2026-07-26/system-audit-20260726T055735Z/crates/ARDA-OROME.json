@@ -1,0 +1,124 @@
+{
+  "bad": [
+    "Scoped files contain 2 crash-path tokens (`unwrap`, `expect`, `panic`, `todo`, or `unimplemented`) requiring manual review."
+  ],
+  "candidate_tasks": [
+    {
+      "acceptance": "Production `unwrap()` usages are removed or proven unreachable; tests cover changed paths.",
+      "owner": "arda-orome",
+      "priority": "medium",
+      "risk_class": "source_change_review_required",
+      "title": "Classify and remediate ARDA-OROME crash-path tokens"
+    }
+  ],
+  "contract": "arda.audit.target_report.v1",
+  "duties": [
+    "Interface and Hermes integration."
+  ],
+  "evidence": [
+    {
+      "exists": true,
+      "line": null,
+      "note": "primary target root",
+      "path": "crates/spine/interface/arda-orome"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "workspace membership checked from repository manifest: True",
+      "path": "Cargo.toml"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "crates/spine/interface/arda-orome/BREAKDOWN.md"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "crates/spine/interface/arda-orome/CHECKLIST.md"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "crates/spine/interface/arda-orome/CRATE_PLAN.md"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "crates/spine/interface/arda-orome/Cargo.toml"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "crates/spine/interface/arda-orome/INDEX.md"
+    }
+  ],
+  "generated_at": "2026-07-26T05:57:36.214628+00:00",
+  "good": [
+    "Primary implementation surface exists at `crates/spine/interface/arda-orome` with 55 tracked Rust files.",
+    "Crate is listed in the live Cargo workspace manifest.",
+    "Found 1 test-like files under the primary target surface.",
+    "Observed 872 audit/status/telemetry/logging token hits in scoped files.",
+    "Latest portability receipt has no active blockers for this target/support surface."
+  ],
+  "needs_removed": [
+    "No automatic removal recommendation; removal candidates require a follow-up evidence pass."
+  ],
+  "overview": "Read-only Phase 4/5 Good / Bad / Ugly audit for ARDA-OROME.",
+  "potential_changes": [
+    "Classify crash-path tokens as production, test, or impossible-state assertions and remove production `unwrap()` usages."
+  ],
+  "report_json_path": "crates/ARDA-OROME.json",
+  "report_markdown_path": "crates/ARDA-OROME.md",
+  "run_id": "system-audit-20260726T055735Z",
+  "score": 95,
+  "score_breakdown": {
+    "implementation_completeness": 20,
+    "mission_fit": 20,
+    "observability_auditability": 15,
+    "portability_config_hygiene": 15,
+    "reliability_safety": 18,
+    "ux_operator_experience": 7
+  },
+  "snapshot": {
+    "crash_counts": {
+      ".expect(": 0,
+      ".unwrap()": 0,
+      "panic!(": 2,
+      "todo!(": 0,
+      "unimplemented!(": 0
+    },
+    "keyword_hits": {
+      "hermes": 384,
+      "interface": 15,
+      "service": 432
+    },
+    "observability_hits": 872,
+    "primary_exists": true,
+    "primary_file_count": 65,
+    "rollup_target": null,
+    "rust_file_count": 55,
+    "sample_files": [
+      "crates/spine/interface/arda-orome/BREAKDOWN.md",
+      "crates/spine/interface/arda-orome/CHECKLIST.md",
+      "crates/spine/interface/arda-orome/CRATE_PLAN.md",
+      "crates/spine/interface/arda-orome/Cargo.toml",
+      "crates/spine/interface/arda-orome/INDEX.md",
+      "crates/spine/interface/arda-orome/OWNERSHIP.md",
+      "crates/spine/interface/arda-orome/README.md",
+      "crates/spine/interface/arda-orome/STATUS.md"
+    ],
+    "support_status": [],
+    "test_file_count": 1,
+    "workspace_member": true
+  },
+  "target": "ARDA-OROME",
+  "target_type": "workspace_crate",
+  "ugly": []
+}

@@ -5,6 +5,7 @@
 //! Merged surface: resident messaging + A2A/A2H protocol types.
 
 pub mod comm;
+pub mod governance;
 pub mod grpc;
 #[cfg(test)]
 pub mod intent;
@@ -22,6 +23,7 @@ pub use comm::{
     CommGovernanceMetadata, HumanResponse, MessageQueue, NotifyPayload, Priority, ResponseAction,
     StatusPayload,
 };
+pub use governance::GovernanceHooks;
 pub use message::{A2AMessage, A2AMessageType, Envelope};
 pub use types::{
     BoardroomManweRouteEvidence, BoardroomOracleLink, BoardroomPost, BoardroomQuorumDecision,

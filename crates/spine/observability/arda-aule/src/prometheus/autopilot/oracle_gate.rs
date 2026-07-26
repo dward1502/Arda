@@ -172,7 +172,7 @@ fn love_trend_from_verdict(verdict: &Verdict) -> LoveDynamicsTrend {
     match verdict.outcome {
         VerdictOutcome::Pass => LoveDynamicsTrend::Growing,
         VerdictOutcome::Conditional => LoveDynamicsTrend::Stable,
-        VerdictOutcome::Fail => LoveDynamicsTrend::Decaying,
+        VerdictOutcome::Fail | VerdictOutcome::Escalate => LoveDynamicsTrend::Decaying,
     }
 }
 
@@ -189,6 +189,7 @@ fn outcome_label(outcome: &VerdictOutcome) -> &'static str {
         VerdictOutcome::Pass => "pass",
         VerdictOutcome::Conditional => "conditional",
         VerdictOutcome::Fail => "fail",
+        VerdictOutcome::Escalate => "escalate",
     }
 }
 
@@ -207,7 +208,7 @@ fn decision_from_verdict(v: Verdict) -> GateDecision {
             resonance: v.resonance_score,
             concerns,
         },
-        VerdictOutcome::Fail => GateDecision::Rejected {
+        VerdictOutcome::Fail | VerdictOutcome::Escalate => GateDecision::Rejected {
             resonance: v.resonance_score,
             concerns,
         },

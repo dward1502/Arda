@@ -1,0 +1,116 @@
+{
+  "bad": [],
+  "candidate_tasks": [],
+  "contract": "arda.audit.target_report.v1",
+  "duties": [
+    "Observability, governance, HADES, and Prometheus surfaces."
+  ],
+  "evidence": [
+    {
+      "exists": true,
+      "line": null,
+      "note": "primary target root",
+      "path": "crates/spine/observability/arda-aule"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "workspace membership checked from repository manifest: True",
+      "path": "Cargo.toml"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "crates/spine/observability/arda-aule/BASELINE.md"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "crates/spine/observability/arda-aule/BREAKDOWN.md"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "crates/spine/observability/arda-aule/Cargo.toml"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "crates/spine/observability/arda-aule/DEPENDENCY_AUDIT.md"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "crates/spine/observability/arda-aule/IMPROVEMENT_PLAN.md"
+    }
+  ],
+  "generated_at": "2026-07-26T05:57:36.394366+00:00",
+  "good": [
+    "Primary implementation surface exists at `crates/spine/observability/arda-aule` with 82 tracked Rust files.",
+    "Crate is listed in the live Cargo workspace manifest.",
+    "Findings can be rolled up into primary target `PROMETHEUS` while keeping crate-level evidence traceable.",
+    "Found 7 test-like files under the primary target surface.",
+    "Observed 1695 audit/status/telemetry/logging token hits in scoped files.",
+    "Latest portability receipt has no active blockers for this target/support surface."
+  ],
+  "needs_removed": [
+    "No automatic removal recommendation; removal candidates require a follow-up evidence pass."
+  ],
+  "overview": "Read-only Phase 4/5 Good / Bad / Ugly audit for ARDA-AULE.",
+  "potential_changes": [
+    "No immediate source change proposed by this read-only audit."
+  ],
+  "report_json_path": "crates/ARDA-AULE.json",
+  "report_markdown_path": "crates/ARDA-AULE.md",
+  "run_id": "system-audit-20260726T055735Z",
+  "score": 97,
+  "score_breakdown": {
+    "implementation_completeness": 20,
+    "mission_fit": 20,
+    "observability_auditability": 15,
+    "portability_config_hygiene": 15,
+    "reliability_safety": 20,
+    "ux_operator_experience": 7
+  },
+  "snapshot": {
+    "crash_counts": {
+      ".expect(": 0,
+      ".unwrap()": 0,
+      "panic!(": 0,
+      "todo!(": 0,
+      "unimplemented!(": 0
+    },
+    "keyword_hits": {
+      "audit": 87,
+      "hades": 166,
+      "metric": 173,
+      "prometheus": 462
+    },
+    "observability_hits": 1695,
+    "primary_exists": true,
+    "primary_file_count": 88,
+    "rollup_target": "PROMETHEUS",
+    "rust_file_count": 82,
+    "sample_files": [
+      "crates/spine/observability/arda-aule/BASELINE.md",
+      "crates/spine/observability/arda-aule/BREAKDOWN.md",
+      "crates/spine/observability/arda-aule/Cargo.toml",
+      "crates/spine/observability/arda-aule/DEPENDENCY_AUDIT.md",
+      "crates/spine/observability/arda-aule/IMPROVEMENT_PLAN.md",
+      "crates/spine/observability/arda-aule/STEP6_HANDOFF.md",
+      "crates/spine/observability/arda-aule/src/ceo/core_link.rs",
+      "crates/spine/observability/arda-aule/src/ceo/mod.rs"
+    ],
+    "support_status": [],
+    "test_file_count": 7,
+    "workspace_member": true
+  },
+  "target": "ARDA-AULE",
+  "target_type": "workspace_crate",
+  "ugly": []
+}

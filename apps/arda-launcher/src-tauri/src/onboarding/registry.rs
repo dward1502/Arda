@@ -3,6 +3,13 @@ use arda_contract_registry::registry::ContractRegistry;
 use serde::Serialize;
 use std::path::{Path, PathBuf};
 
+fn workspace_root() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../..")
+        .canonicalize()
+        .expect("workspace root should be resoluble")
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct TrackCheck {
     pub track_id: String,
@@ -116,15 +123,13 @@ pub mod tests {
 
     #[test]
     fn registry_loads_from_workspace() {
-        let root = Path::new(".");
-        let registry = load_registry(root).expect("registry loads");
+        let registry = load_registry(&workspace_root()).expect("registry loads");
         assert_eq!(registry.schema_version, "arda.contract-registry.v1");
     }
 
     #[test]
     fn check_registry_returns_gate_status() {
-        let root = Path::new(".");
-        let result = check_registry(root).expect("registry check");
+        let result = check_registry(&workspace_root()).expect("registry check");
         assert!(["pass", "warn", "fail"].contains(&result.gate_status.as_str()));
         assert_eq!(result.track_count, 4);
     }

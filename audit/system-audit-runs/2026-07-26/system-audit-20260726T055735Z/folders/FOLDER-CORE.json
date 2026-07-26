@@ -1,0 +1,115 @@
+{
+  "bad": [],
+  "candidate_tasks": [],
+  "contract": "arda.audit.target_report.v1",
+  "duties": [
+    "Realm authority, runtime state, and project queues."
+  ],
+  "evidence": [
+    {
+      "exists": true,
+      "line": null,
+      "note": "primary target root",
+      "path": "core"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "workspace membership checked from repository manifest: False",
+      "path": "Cargo.toml"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "core/INDEX.md"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "core/README.md"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "core/knowledge/clients/INDEX.md"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "core/knowledge/clients/README.md"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "core/knowledge/clients/_registry.toml"
+    }
+  ],
+  "generated_at": "2026-07-26T05:57:37.099929+00:00",
+  "good": [
+    "Folder surface `core` exists with 1124 tracked text files sampled for this audit.",
+    "Found 3 test-like files under the primary target surface.",
+    "Observed 2678 audit/status/telemetry/logging token hits in scoped files.",
+    "Latest portability receipt has no active blockers for this target/support surface."
+  ],
+  "needs_removed": [
+    "No automatic removal recommendation; removal candidates require a follow-up evidence pass."
+  ],
+  "overview": "Read-only Phase 4/5 Good / Bad / Ugly audit for FOLDER-CORE.",
+  "potential_changes": [
+    "Keep current useful operational surface, parameterize portability blockers, and remove only stale/generated/archive drift after a separate evidence pass."
+  ],
+  "report_json_path": "folders/FOLDER-CORE.json",
+  "report_markdown_path": "folders/FOLDER-CORE.md",
+  "run_id": "system-audit-20260726T055735Z",
+  "score": 89,
+  "score_breakdown": {
+    "implementation_completeness": 12,
+    "mission_fit": 20,
+    "observability_auditability": 15,
+    "portability_config_hygiene": 15,
+    "reliability_safety": 20,
+    "ux_operator_experience": 7
+  },
+  "snapshot": {
+    "crash_counts": {
+      ".expect(": 0,
+      ".unwrap()": 0,
+      "panic!(": 0,
+      "todo!(": 0,
+      "unimplemented!(": 0
+    },
+    "keyword_hits": {
+      "governance": 406,
+      "queue": 2593,
+      "realm": 167,
+      "state": 2563,
+      "task": 1546
+    },
+    "observability_hits": 2678,
+    "primary_exists": true,
+    "primary_file_count": 1124,
+    "rollup_target": null,
+    "rust_file_count": 0,
+    "sample_files": [
+      "core/INDEX.md",
+      "core/README.md",
+      "core/knowledge/clients/INDEX.md",
+      "core/knowledge/clients/README.md",
+      "core/knowledge/clients/_registry.toml",
+      "core/knowledge/edge/INDEX.md",
+      "core/knowledge/edge/README.md",
+      "core/knowledge/edge/model_profiles.toml"
+    ],
+    "support_status": [],
+    "test_file_count": 3,
+    "workspace_member": false
+  },
+  "target": "FOLDER-CORE",
+  "target_type": "folder",
+  "ugly": []
+}

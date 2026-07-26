@@ -1,0 +1,115 @@
+{
+  "bad": [],
+  "candidate_tasks": [],
+  "contract": "arda.audit.target_report.v1",
+  "duties": [
+    "Operator-managed TOML/YAML/JSON configuration and generated runtime env examples."
+  ],
+  "evidence": [
+    {
+      "exists": true,
+      "line": null,
+      "note": "primary target root",
+      "path": "config"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "workspace membership checked from repository manifest: False",
+      "path": "Cargo.toml"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "config/INDEX.md"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "config/README.md"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "config/business/business.toml"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "config/business/ceo_startup.yaml"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "config/business/federated_comms.toml"
+    }
+  ],
+  "generated_at": "2026-07-26T05:57:36.979053+00:00",
+  "good": [
+    "Folder surface `config` exists with 50 tracked text files sampled for this audit.",
+    "Observed 301 audit/status/telemetry/logging token hits in scoped files.",
+    "Latest portability receipt has no active blockers for this target/support surface."
+  ],
+  "needs_removed": [
+    "No automatic removal recommendation; removal candidates require a follow-up evidence pass."
+  ],
+  "overview": "Read-only Phase 4/5 Good / Bad / Ugly audit for FOLDER-CONFIG.",
+  "potential_changes": [
+    "Review whether this folder needs explicit validation or only upstream crate/script tests; do not add tests mechanically.",
+    "Keep current useful operational surface, parameterize portability blockers, and remove only stale/generated/archive drift after a separate evidence pass."
+  ],
+  "report_json_path": "folders/FOLDER-CONFIG.json",
+  "report_markdown_path": "folders/FOLDER-CONFIG.md",
+  "run_id": "system-audit-20260726T055735Z",
+  "score": 88,
+  "score_breakdown": {
+    "implementation_completeness": 11,
+    "mission_fit": 20,
+    "observability_auditability": 15,
+    "portability_config_hygiene": 15,
+    "reliability_safety": 20,
+    "ux_operator_experience": 7
+  },
+  "snapshot": {
+    "crash_counts": {
+      ".expect(": 0,
+      ".unwrap()": 0,
+      "panic!(": 0,
+      "todo!(": 0,
+      "unimplemented!(": 0
+    },
+    "keyword_hits": {
+      "endpoint": 23,
+      "env": 41,
+      "provider": 266,
+      "toml": 38,
+      "yaml": 11
+    },
+    "observability_hits": 301,
+    "primary_exists": true,
+    "primary_file_count": 50,
+    "rollup_target": null,
+    "rust_file_count": 1,
+    "sample_files": [
+      "config/INDEX.md",
+      "config/README.md",
+      "config/business/business.toml",
+      "config/business/ceo_startup.yaml",
+      "config/business/federated_comms.toml",
+      "config/business/goals_seed.json",
+      "config/business/matrix_boardrooms.toml",
+      "config/business/operator_profile.json"
+    ],
+    "support_status": [],
+    "test_file_count": 0,
+    "workspace_member": false
+  },
+  "target": "FOLDER-CONFIG",
+  "target_type": "folder",
+  "ugly": []
+}

@@ -526,5 +526,6 @@ pub struct TaskApprovalEnvelope {
     pub proposal_id: String,
     pub approval_id: String,
     pub ledger_writes: Vec<String>,
+    pub decision: InterruptionLedgerDecision,
     pub created_at_utc: String,
 }

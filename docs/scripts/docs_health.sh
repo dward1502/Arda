@@ -5,7 +5,7 @@ DOCS_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 FAIL=0
 
 while IFS= read -r pattern; do
-  count=$(rg -n "$pattern" "$DOCS_DIR/plans" -S --glob '*.md' | grep -v 'original-human-plan-narration' | wc -l || true)
+  count=$(rg -n "$pattern" "$DOCS_DIR/plans" -S --glob '*.md' | wc -l || true)
   if [ "$count" -ne 0 ]; then
     echo "FAIL stale_refs pattern='$pattern' count=$count"
     FAIL=1

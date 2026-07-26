@@ -4,8 +4,7 @@
 
 `HADES` is the Arda lifecycle maintenance, cleanup, orphan-handling, and
 disposal-boundary subsystem. This document is the canonical operator plan for
-that surface. Historic narration is preserved at
-`docs/plans/original-human-plan-narration/HADES.md`.
+that surface. Historic narration is preserved in `docs/plans/HADES.md`.
 
 ## Overview
 
@@ -20,7 +19,7 @@ updated to the live workspace layout.
 The reviewed HADES contract is represented by these primary surfaces:
 
 - `docs/plans/HADES.md` — this operator-facing plan narrative
-- `docs/plans/original-human-plan-narration/HADES.md` — historic narration
+- Original narrative: `docs/plans/HADES.md`
 - `core/state/hades_lifecycle.json` — lifecycle projection and current HADES queue
 - `data/hades/hades_log.jsonl` — HADES runtime/sweep ledger
 - `data/hades/warden_queue.jsonl` — WARDEN handoff queue

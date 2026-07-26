@@ -42,7 +42,6 @@ The live `manwe`/ex-CHARON contract is represented by these primary surfaces:
 - `crates/spine/runtime/manwe/src/adaptive/transport/http.rs` — governed
   adaptive HTTP surface
 - `data/mnemosyne/obsidian_index.jsonl`
-- `docs/plans/CHARON.md` — this operator-facing plan narrative
 
 ## Current Contract
 

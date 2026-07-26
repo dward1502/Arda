@@ -1,14 +1,24 @@
 # arda-orome status
 
 Crate: `crates/spine/interface/arda-orome`
-Current state: active
+Current state: active; checklist complete
 Branch: `manwe`
-Test evidence: `cargo test`
-Documentation set: `README.md`, `BREAKDOWN.md`, `CHECKLIST.md`, `CRATE_PLAN.md`, `OWNERSHIP.md`.
+Last verified: 2026-07-25
+Documentation set: `README.md`, `BREAKDOWN.md`, `CHECKLIST.md`, `CRATE_PLAN.md`, `OWNERSHIP.md`, `INDEX.md`.
 
-Behavioral change: provider dispatch runtime and routing hooks are active; governance hooks pending evidence.
-Interface change: interfaces live as of 2026-07-22 but not yet structured through Hawthorne-compatible interfaces; current state reflects `MERGE-2025-06-15-ARDA-core-fix` lineage.
+## Runtime state
 
-Operational expectation: verify with `cargo test` and provider receipt metrics before production use.
+- Provider runtime supports bounded timeout/retry, request expiry, streaming receipts, typed direct/fanout routing, metrics, and explicit fleet-scope policy.
+- Central `GovernanceHooks` records typed approval/interruption decisions through `arda_core::Ledger`.
+- `arda-engine::orome::manual_smoke_dispatch` compiles and executes a deterministic no-network dispatch path.
+- ARDA HUD derives and consumes both human-plan and core-plan roots.
 
-See `CRATE_PLAN.md` and `OWNERSHIP.md` for implementation priorities and boundary constraints.
+## Verification
+
+- `cargo test -p arda-orome`: 21 passed, 0 failed.
+- `cargo test -p arda-engine --test orome_smoke`: 1 passed, 0 failed.
+- Scoped Rust formatting check passes for `arda-orome` and `arda-engine`.
+
+## Operational boundary
+
+Real provider credentials/endpoints remain deployment concerns. External fleet dispatch is disabled by default and remains approval-gated when explicitly enabled. Manwe owns provider selection and inference routing policy.

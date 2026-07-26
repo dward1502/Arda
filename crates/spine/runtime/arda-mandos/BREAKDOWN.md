@@ -41,10 +41,10 @@ It provides:
 
 - `cargo test -p arda-mandos --all-features`: 51 passed, 0 failed
 - `cargo test -p arda-mandos --no-default-features`: 50 passed, 0 failed; warning-free
-- Crate-local strict Clippy passes with `--no-deps`; full dependency-closure strict Clippy remains separately blocked by pre-existing `arda-core` findings
-- Direct consumer check: `cargo check -p arda-orome` passes. The latest
-  `cargo check -p arda-aule --features full-cli` reaches `arda-aule` and remains blocked by
-  its pre-existing `serde_json::json!` recursion limit in `autopilot/runner.rs`.
+- `cargo clippy -p arda-mandos --no-deps -- -D warnings`: clean exit
+- Direct consumer checks pass:
+  - `cargo check -p arda-orome --tests`
+  - `cargo check -p arda-aule --features full-cli`
 - Doc tests: 0
 - Import alias fixed: `arda-plutus` renamed to `arda-economics`; `use arda_economics::PlutusService` updated in `src/service.rs`
 

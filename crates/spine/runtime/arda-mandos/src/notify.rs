@@ -10,6 +10,15 @@ impl OracleNotifier {
         }
     }
 
+    fn prefix_glyph() -> &'static str {
+        // Prefer the visual sigil when the environment supports UTF-8.
+        std::env::var("ARDA_MANDOS_NOTIFIER_ASCII")
+            .ok()
+            .filter(|value| value.eq_ignore_ascii_case("1") || value.eq_ignore_ascii_case("true"))
+            .map(|_| "O")
+            .unwrap_or("𓊝")
+    }
+
     pub fn format_verdict(&self, outcome: &str, resonance: f64, score: f64) -> String {
         let sigil = match outcome {
             "Pass" => "◈",
@@ -17,17 +26,19 @@ impl OracleNotifier {
             "Escalate" => "△",
             _ => "◈",
         };
+        let prefix = Self::prefix_glyph();
 
         format!(
-            "𓊝 Oracle | {} {} | Resonance: {:.2} | Score: {:.2}",
-            sigil, outcome, resonance, score
+            "{prefix} Oracle | {sigil} {outcome} | Resonance: {:.2} | Score: {:.2}",
+            resonance, score
         )
     }
 
     pub fn format_query(&self, task: &str) -> String {
         let truncated = truncate_str(task, 100);
+        let prefix = Self::prefix_glyph();
 
-        format!("𓊝 Oracle: Query — {truncated}")
+        format!("{prefix} Oracle: Query — {truncated}")
     }
 
     pub fn channel_id(&self) -> &str {

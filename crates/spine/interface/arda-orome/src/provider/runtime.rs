@@ -2,6 +2,9 @@
 //! Provider runtime types, kept in their own module to avoid graph cycles.
 
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
+
+use super::orchestration::{DispatchMetrics, DispatchPolicy, EdgeCommunicationPolicy};
 
 /// Canonical provider family used by service surfaces.
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq)]
@@ -25,7 +28,7 @@ pub struct ProviderConfig {
     pub capabilities: Vec<String>,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq)]
 pub struct DispatchReceipt {
     pub dispatched: bool,
     pub attempts: usize,
@@ -33,16 +36,25 @@ pub struct DispatchReceipt {
     pub chunks_sent: usize,
     pub provider_id: String,
     pub error: Option<String>,
+    pub timed_out: bool,
 }
 
 #[derive(Debug, Clone)]
 pub struct ProviderRuntime {
     pub providers: Vec<ProviderConfig>,
+    pub(crate) dispatch_policy: DispatchPolicy,
+    pub(crate) edge_policy: EdgeCommunicationPolicy,
+    pub(crate) dispatch_metrics: Arc<DispatchMetrics>,
 }
 
 impl ProviderRuntime {
     pub fn new(providers: Vec<ProviderConfig>) -> Self {
-        Self { providers }
+        Self {
+            providers,
+            dispatch_policy: DispatchPolicy::default(),
+            edge_policy: EdgeCommunicationPolicy::default(),
+            dispatch_metrics: Arc::new(DispatchMetrics::default()),
+        }
     }
 
     pub fn from_defaults() -> Self {
@@ -54,6 +66,9 @@ impl ProviderRuntime {
                 endpoint: "".into(),
                 capabilities: vec![],
             }],
+            dispatch_policy: DispatchPolicy::default(),
+            edge_policy: EdgeCommunicationPolicy::default(),
+            dispatch_metrics: Arc::new(DispatchMetrics::default()),
         }
     }
 

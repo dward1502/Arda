@@ -726,14 +726,7 @@ pub(super) fn default_warden_queue_path() -> PathBuf {
 }
 
 fn annunimas_root() -> PathBuf {
-    if let Ok(path) = std::env::var("ANNUNIMAS_ROOT") {
-        return PathBuf::from(path);
-    }
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .and_then(std::path::Path::parent)
-        .map(std::path::Path::to_path_buf)
-        .unwrap_or_else(|| PathBuf::from("."))
+    arda_core::layout::arda_root_from(env!("CARGO_MANIFEST_DIR"))
 }
 
 pub(super) fn default_prometheus_orders_path() -> PathBuf {

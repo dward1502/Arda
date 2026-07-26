@@ -128,7 +128,10 @@ pub(super) fn write_arda_source_map(core_root: &Path) {
                 rel_path(core_root.join("state/escalation_runtime.json"), &workspace_root)
             ],
             "supplemental_sources": [
-                rel_path(workspace_root.join("core/projects/tasks/queue.jsonl"), &workspace_root),
+                rel_path(
+                    crate::prometheus::queue_authority::canonical_project_task_queue(&workspace_root),
+                    &workspace_root,
+                ),
                 rel_path(workspace_root.join("core/queue/queue.jsonl"), &workspace_root),
                 rel_path(workspace_root.join("core/projects/Plans"), &workspace_root),
                 rel_path(workspace_root.join("data/prometheus/orders.jsonl"), &workspace_root),
@@ -178,7 +181,10 @@ pub(super) fn write_arda_source_map(core_root: &Path) {
                 rel_path(core_root.join("state/control_plane_lockdown.json"), &workspace_root),
                 rel_path(core_root.join("state/athena_runtime.json"), &workspace_root),
                 rel_path(workspace_root.join("data/athena/policy_readiness.jsonl"), &workspace_root),
-                rel_path(workspace_root.join("core/projects/tasks/queue.jsonl"), &workspace_root)
+                rel_path(
+                    crate::prometheus::queue_authority::canonical_project_task_queue(&workspace_root),
+                    &workspace_root,
+                )
             ],
             "arda_panels": ["paperclip_alignment", "governance_runtime", "operations_flow"]
         }),

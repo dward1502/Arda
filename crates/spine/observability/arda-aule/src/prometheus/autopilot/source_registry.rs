@@ -5,6 +5,8 @@
 use serde::Serialize;
 use std::path::{Path, PathBuf};
 
+use crate::prometheus::queue_authority::canonical_project_task_queue;
+
 pub const SOURCE_REGISTRY_CONTRACT: &str = "arda.arandur.source_registry.v1";
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -36,6 +38,12 @@ pub struct SourceRegistry {
 impl SourceRegistry {
     pub fn arandur_default(root: impl AsRef<Path>) -> Self {
         let root = root.as_ref();
+        let queue_path = canonical_project_task_queue(root);
+        Self::arandur_with_queue(root, queue_path)
+    }
+
+    pub fn arandur_with_queue(root: impl AsRef<Path>, queue_path: impl AsRef<Path>) -> Self {
+        let root = root.as_ref();
         Self {
             contract: SOURCE_REGISTRY_CONTRACT.into(),
             sources: vec![
@@ -66,7 +74,7 @@ impl SourceRegistry {
                 SourceDescriptor {
                     contract: "arda.canonical_task_queue.v1".into(),
                     source_type: ArandurSourceType::CanonicalQueue,
-                    path: root.join("core/projects/tasks/queue.jsonl"),
+                    path: queue_path.as_ref().to_path_buf(),
                     record_id_field: "source_record_id|id".into(),
                     read_only_discovery: true,
                     canonical_queue_mutation_allowed: false,

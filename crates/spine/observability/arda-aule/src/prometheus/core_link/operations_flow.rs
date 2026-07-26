@@ -239,8 +239,9 @@ pub fn write_queue_summary_projection(core_root: &Path) {
         .parent()
         .map(Path::to_path_buf)
         .unwrap_or_else(|| PathBuf::from("."));
-    let project_tasks =
-        latest_jsonl_entries_by_id(&workspace_root.join("core/projects/tasks/queue.jsonl"));
+    let queue_path =
+        crate::prometheus::queue_authority::canonical_project_task_queue(&workspace_root);
+    let project_tasks = latest_jsonl_entries_by_id(&queue_path);
     let recent_project_tasks = compact_task_rows(
         &project_tasks
             .iter()
@@ -279,7 +280,7 @@ pub fn write_queue_summary_projection(core_root: &Path) {
         "agent_reading_policy": {
             "default_surface": "core/state/queue_active.json",
             "summary_surface": "core/state/queue_summary.json",
-            "raw_ledger": "core/projects/tasks/queue.jsonl",
+            "raw_ledger": rel_path(queue_path, &workspace_root),
             "raw_ledger_role": "compacted_active_ledger_and_append_target",
             "guidance": "Agents should read queue_active.json for active task selection, then queue_summary.json for counts. Do not bulk-read queue.jsonl; open it only for exact id evidence, append validation, or targeted append."
         },
@@ -314,6 +315,80 @@ pub fn write_queue_summary_projection(core_root: &Path) {
         snapshot_path,
         serde_json::to_string_pretty(&snapshot).unwrap_or_else(|_| "{}".to_string()) + "\n",
     );
+}
+
+pub fn write_queue_active_projection(core_root: &Path) {
+    let snapshot_path = core_root.join("state").join("queue_active.json");
+    let workspace_root = core_root
+        .parent()
+        .map(Path::to_path_buf)
+        .unwrap_or_else(|| PathBuf::from("."));
+    let queue_path =
+        crate::prometheus::queue_authority::canonical_project_task_queue(&workspace_root);
+    let raw_tasks = read_all_jsonl(&queue_path);
+    let project_tasks = latest_jsonl_entries_by_id(&queue_path);
+    let mut active_tasks = project_tasks
+        .iter()
+        .filter(|task| is_open_task_status(task.get("status").and_then(Value::as_str)))
+        .map(compact_task_row)
+        .collect::<Vec<_>>();
+    active_tasks.sort_by(|left, right| {
+        let left_priority = priority_rank(
+            left.get("priority")
+                .and_then(Value::as_str)
+                .unwrap_or_default(),
+        );
+        let right_priority = priority_rank(
+            right
+                .get("priority")
+                .and_then(Value::as_str)
+                .unwrap_or_default(),
+        );
+        right_priority.cmp(&left_priority).then_with(|| {
+            left.get("queued_at_utc")
+                .and_then(Value::as_str)
+                .unwrap_or_default()
+                .cmp(
+                    right
+                        .get("queued_at_utc")
+                        .and_then(Value::as_str)
+                        .unwrap_or_default(),
+                )
+        })
+    });
+
+    let snapshot = json!({
+        "schema_version": "annunimas.queue_active.v1",
+        "generated_at_utc": Utc::now().to_rfc3339(),
+        "authority": "queue_active_projection",
+        "source": rel_path(queue_path, &workspace_root),
+        "mutation_policy": "read_only_latest_by_id_projection_no_queue_compaction",
+        "raw_ledger_rows_total": raw_tasks.len(),
+        "latest_task_ids_total": project_tasks.len(),
+        "active_task_count": active_tasks.len(),
+        "agent_reading_policy": {
+            "default_surface": "core/state/queue_active.json",
+            "fallback_surface": "core/state/queue_summary.json",
+            "hygiene_surface": "core/state/queue_hygiene.json",
+            "raw_queue_policy": "Do not read the raw queue for task discovery. Use this compact active projection first; open the raw queue only for exact id evidence or appending a task record."
+        },
+        "tasks": active_tasks
+    });
+
+    let _ = fs::write(
+        snapshot_path,
+        serde_json::to_string_pretty(&snapshot).unwrap_or_else(|_| "{}".to_string()) + "\n",
+    );
+}
+
+fn priority_rank(priority: &str) -> u8 {
+    match priority {
+        "critical" => 4,
+        "high" => 3,
+        "medium" => 2,
+        "low" => 1,
+        _ => 0,
+    }
 }
 
 fn is_open_task_status(status: Option<&str>) -> bool {

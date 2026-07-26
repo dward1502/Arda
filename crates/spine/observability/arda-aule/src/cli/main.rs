@@ -685,7 +685,9 @@ fn handle_autopilot(command: AutopilotCommands, default_root: PathBuf) -> Result
             read_only,
             state_output,
         } => {
-            let mut config = AutopilotConfig::from_root(resolve_root(root));
+            let root = resolve_root(root);
+            arda_aule::prometheus::core_link::refresh_queue_projections(&root.join("core"));
+            let mut config = AutopilotConfig::from_root(root);
             config.read_only = read_only;
             let mut autopilot = CeoAutopilot::from_world(config);
             let runtime = tokio::runtime::Builder::new_multi_thread()
@@ -702,7 +704,9 @@ fn handle_autopilot(command: AutopilotCommands, default_root: PathBuf) -> Result
             interval,
             read_only,
         } => {
-            let mut config = AutopilotConfig::from_root(resolve_root(root));
+            let root = resolve_root(root);
+            arda_aule::prometheus::core_link::refresh_queue_projections(&root.join("core"));
+            let mut config = AutopilotConfig::from_root(root);
             config.interval = Duration::from_secs(interval);
             config.read_only = read_only;
             let autopilot = CeoAutopilot::from_world(config);
@@ -720,7 +724,9 @@ fn handle_autopilot(command: AutopilotCommands, default_root: PathBuf) -> Result
             });
         }
         AutopilotCommands::Status { root } => {
-            let path = resolve_root(root).join("data/ceo/autopilot.state.json");
+            let root = resolve_root(root);
+            arda_aule::prometheus::core_link::refresh_queue_projections(&root.join("core"));
+            let path = root.join("data/ceo/autopilot.state.json");
             let value = std::fs::read_to_string(&path)
                 .ok()
                 .and_then(|raw| serde_json::from_str::<Value>(&raw).ok())

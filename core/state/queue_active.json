@@ -4,10 +4,10 @@
     "default_surface": "core/state/queue_active.json",
     "fallback_surface": "core/state/queue_summary.json",
     "hygiene_surface": "core/state/queue_hygiene.json",
-    "raw_queue_policy": "Do not read core/projects/tasks/queue.jsonl for task discovery. Use this compact active projection first; open the raw queue only for exact id evidence or appending a task record."
+    "raw_queue_policy": "Do not read the raw queue for task discovery. Use this compact active projection first; open the raw queue only for exact id evidence or appending a task record."
   },
   "authority": "queue_active_projection",
-  "generated_at_utc": "2026-07-03T05:39:33Z",
+  "generated_at_utc": "2026-07-26T08:26:24.991573111+00:00",
   "latest_task_ids_total": 175,
   "mutation_policy": "read_only_latest_by_id_projection_no_queue_compaction",
   "raw_ledger_rows_total": 336,

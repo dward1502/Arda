@@ -465,7 +465,10 @@ pub(super) fn write_output_topology_projection(core_root: &Path) {
             },
             {
                 "id": "execution_ledgers",
-                "path": rel_path(workspace_root.join("core/projects/tasks/queue.jsonl"), &workspace_root),
+                "path": rel_path(
+                    crate::prometheus::queue_authority::canonical_project_task_queue(&workspace_root),
+                    &workspace_root,
+                ),
                 "classification": "operational_authority",
                 "purpose": "authoritative project/task ledger"
             },

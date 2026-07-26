@@ -52,6 +52,11 @@ pub struct CoreAutonomyProfile {
     pub source_root: PathBuf,
 }
 
+pub fn refresh_queue_projections(core_root: &Path) {
+    operations_flow::write_queue_summary_projection(core_root);
+    operations_flow::write_queue_active_projection(core_root);
+}
+
 impl CoreAutonomyProfile {
     pub fn load(core_root: impl AsRef<Path>) -> Option<Self> {
         Self::try_load(core_root).ok()
@@ -99,7 +104,7 @@ impl CoreAutonomyProfile {
         human_context::write_business_runtime_projection(&core_root);
         human_context::write_personal_runtime_projection(&core_root);
         human_context::write_human_context_projection(&core_root);
-        operations_flow::write_queue_summary_projection(&core_root);
+        refresh_queue_projections(&core_root);
         arda::write_repo_reorganization_projection(&core_root);
         topology::write_output_topology_projection(&core_root);
         governance_runtime::write_system_control_projection(&core_root);
@@ -730,7 +735,7 @@ fn storage_root_entry(
 
 #[cfg(test)]
 mod tests {
-    use super::operations_flow::write_queue_summary_projection;
+    use super::operations_flow::{write_queue_active_projection, write_queue_summary_projection};
     use super::{CoreAutonomyProfile, CORE_STATE_SCHEMA_VERSION};
     use serde_json::{json, Value};
     use std::fs;
@@ -1541,6 +1546,7 @@ resonance = 0.95
         .expect("queue write");
 
         write_queue_summary_projection(&core_root);
+        write_queue_active_projection(&core_root);
 
         let queue: serde_json::Value = serde_json::from_str(
             &fs::read_to_string(core_root.join("state/queue_summary.json")).expect("queue read"),
@@ -1557,6 +1563,16 @@ resonance = 0.95
             "core/state/queue_active.json"
         );
         assert_eq!(queue["arda_hints"]["alert_on_queued_tasks"], true);
+
+        let active: serde_json::Value = serde_json::from_str(
+            &fs::read_to_string(core_root.join("state/queue_active.json"))
+                .expect("active queue read"),
+        )
+        .expect("active queue parse");
+        assert_eq!(active["raw_ledger_rows_total"], 3);
+        assert_eq!(active["latest_task_ids_total"], 2);
+        assert_eq!(active["active_task_count"], 1);
+        assert_eq!(active["tasks"][0]["id"], "tsk_b");
     }
 
     #[test]

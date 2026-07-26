@@ -2,29 +2,54 @@
 set -euo pipefail
 
 ROOT="${ARDA_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
-QUEUE_REL="data/hades/action_queue.jsonl"
-QUEUE_PATH="$ROOT/$QUEUE_REL"
+QUEUE_CONFIG="${ARDA_PROJECT_TASK_QUEUE_PATH:-${ANNUNIMAS_PROJECT_TASK_QUEUE_PATH:-core/projects/tasks/queue.jsonl}}"
+if [[ "$QUEUE_CONFIG" = /* ]]; then
+  QUEUE_PATH="$QUEUE_CONFIG"
+  if [[ "$QUEUE_PATH" == "$ROOT/"* ]]; then
+    QUEUE_REL="${QUEUE_PATH#"$ROOT/"}"
+  else
+    echo "queue append-only guard: external queue has no repository HEAD baseline: $QUEUE_PATH" >&2
+    exit 0
+  fi
+else
+  QUEUE_REL="$QUEUE_CONFIG"
+  QUEUE_PATH="$ROOT/$QUEUE_REL"
+fi
 
 if ! git -C "$ROOT" rev-parse --verify HEAD >/dev/null 2>&1; then
   echo "queue append-only guard: no HEAD commit available; skipping baseline check" >&2
   exit 0
 fi
 
-base="$(git -C "$ROOT" show "HEAD:$QUEUE_REL" 2>/dev/null || true)"
-current="$(cat "$QUEUE_PATH" 2>/dev/null || true)"
+base_ref="HEAD"
+base="$(git -C "$ROOT" show "$base_ref:$QUEUE_REL" 2>/dev/null || true)"
+if [[ -f "$QUEUE_PATH" ]]; then
+  current="$(<"$QUEUE_PATH")"
+else
+  current=""
+fi
 
 if [[ -z "$base" ]]; then
-  echo "queue append-only guard: no HEAD baseline for $QUEUE_REL; skipping" >&2
+  while IFS= read -r candidate; do
+    if base="$(git -C "$ROOT" show "$candidate:$QUEUE_REL" 2>/dev/null)"; then
+      base_ref="$candidate"
+      break
+    fi
+  done < <(git -C "$ROOT" rev-list --all -- "$QUEUE_REL")
+fi
+
+if [[ -z "$base" ]]; then
+  echo "queue append-only guard: no historical baseline for $QUEUE_REL; skipping" >&2
   exit 0
 fi
 
 if [[ "$current" == "$base" ]]; then
-  echo "queue append-only guard: ok unchanged"
+  echo "queue append-only guard: ok unchanged $QUEUE_REL"
   exit 0
 fi
 
 if [[ "$current" == "$base"$'\n'* ]]; then
-  echo "queue append-only guard: ok append-only"
+  echo "queue append-only guard: ok append-only $QUEUE_REL"
   exit 0
 fi
 
@@ -43,6 +68,7 @@ current_lines="$(printf '%s\n' "$current" | sed '/^[[:space:]]*$/d' | wc -l)"
 cat >&2 <<EOF
 queue append-only guard: blocked non-append edit to $QUEUE_REL
 
+baseline_ref:            $base_ref
 baseline_nonempty_lines: $base_lines
 current_nonempty_lines:  $current_lines
 

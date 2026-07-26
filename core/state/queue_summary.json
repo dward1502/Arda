@@ -13,26 +13,10 @@
     "primary_panel": "task_board"
   },
   "authority": "queue_summary_projection",
-  "generated_at_utc": "2026-07-14T05:03:01.358627541+00:00",
+  "generated_at_utc": "2026-07-26T08:26:24.989148087+00:00",
   "plans": {
-    "count": 15,
-    "paths": [
-      "core/projects/Plans/AGENT_FRAMEWORK_COMPARATIVE.md",
-      "core/projects/Plans/AIPKG.md",
-      "core/projects/Plans/ATHENA.md",
-      "core/projects/Plans/CHARON.md",
-      "core/projects/Plans/EMBODIED_INTERFACE.md",
-      "core/projects/Plans/FEDERATED_COMMS.md",
-      "core/projects/Plans/HADES.md",
-      "core/projects/Plans/HERMES.md",
-      "core/projects/Plans/INDEX.md",
-      "core/projects/Plans/LEGION_HIERARCHY.md",
-      "core/projects/Plans/MNEMOSYNE.md",
-      "core/projects/Plans/OPENFANG.md",
-      "core/projects/Plans/README.md",
-      "core/projects/Plans/PLATFORM_OS.md",
-      "core/projects/Plans/PROMETHEUS.md"
-    ]
+    "count": 0,
+    "paths": []
   },
   "project_tasks": {
     "counts_by_owner": {
@@ -469,5 +453,5 @@
     "counts_by_status": {},
     "recent_compact": []
   },
-  "schema_version": "annunimas.core.state.v1"
+  "schema_version": "arda.core.state.v1"
 }

@@ -1,4 +1,5 @@
 #![cfg(feature = "full-cli")]
+use crate::prometheus::queue_authority::canonical_project_task_queue;
 use crate::prometheus::service::{
     append_jsonl, prometheus_home, queue_contains_task, sha256_file_if_exists, PrometheusService,
 };
@@ -25,7 +26,10 @@ impl PrometheusService {
         let baseline_path = prometheus_home().join("drift_baseline.json");
         let report_last_path = prometheus_home().join("drift_report_last.json");
         let report_history_path = prometheus_home().join("drift_reports.jsonl");
-        let queue_path = PathBuf::from("core/projects/tasks/queue.jsonl");
+        let workspace_root = std::env::var_os("ARDA_ROOT")
+            .map(PathBuf::from)
+            .unwrap_or_else(|| std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")));
+        let queue_path = canonical_project_task_queue(&workspace_root);
         if let Some(parent) = baseline_path.parent() {
             let _ = fs::create_dir_all(parent);
         }

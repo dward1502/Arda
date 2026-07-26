@@ -32,6 +32,7 @@ use super::task_queue::{QueueRecord, TaskQueueAnalyzer, TaskQueueMetrics};
 use super::taxonomy::is_apollo_dispatchable;
 use super::validator::{PlanValidator, ValidationResult};
 use crate::prometheus::orders::{OrderStatus, OrderStore};
+use crate::prometheus::queue_authority::canonical_project_task_queue;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -83,7 +84,7 @@ impl AutopilotConfig {
             base_costs: _,
         } = load_defaults(&core_root);
         Self {
-            queue_path: root.join("core/projects/tasks/queue.jsonl"),
+            queue_path: canonical_project_task_queue(&root),
             objectives_path: root.join("core/projects/objectives/inbox.jsonl"),
             world_path: root.join("core/state/world.json"),
             state_path: root.join("data/ceo/autopilot.state.json"),
@@ -1753,7 +1754,7 @@ fn select_cycle_objectives(
     approved_objectives: Vec<HumanApprovedObjective>,
     inbox_objectives: Vec<Objective>,
 ) -> (Vec<CycleObjective>, ObjectiveSelectionReport) {
-    let source_registry = SourceRegistry::arandur_default(&cfg.root);
+    let source_registry = SourceRegistry::arandur_with_queue(&cfg.root, &cfg.queue_path);
     let h2a_source_path = source_registry
         .by_contract("arda.h2a.approvals.v1")
         .map(|source| source.path.to_string_lossy().to_string())

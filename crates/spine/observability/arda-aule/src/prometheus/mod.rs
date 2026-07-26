@@ -6,6 +6,7 @@ pub mod error;
 pub mod heartbeat;
 pub mod orders;
 pub mod planner;
+pub mod queue_authority;
 pub mod registry;
 pub mod router;
 pub mod service;

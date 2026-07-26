@@ -21,4 +21,4 @@ pub use meter::{
 pub use service::{
     PlutusRuntimeEvent, PlutusRuntimePaths, PlutusService, PLUTUS_RUNTIME_SCHEMA_VERSION,
 };
-pub use transport::{expand_home, PlutusDaemon, PlutusDaemonConfig};
+pub use transport::{expand_home, finance_stream::*, PlutusDaemon, PlutusDaemonConfig};

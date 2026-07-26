@@ -34,10 +34,10 @@ impl DefaultTruthScorer {
 
 impl TruthScorer for DefaultTruthScorer {
     fn score_truth_confidence(&self, proposal: &str) -> TruthScoringResult {
-        // Simple scoring logic - in a real implementation, this would be more sophisticated
-        let confidence = if proposal.contains("truth") || proposal.contains("confidence") {
+        let proposal_lower = proposal.to_lowercase();
+        let confidence = if proposal_lower.contains("truth") || proposal_lower.contains("confidence") {
             0.9
-        } else if proposal.contains("uncertain") || proposal.contains("unknown") {
+        } else if proposal_lower.contains("uncertain") || proposal_lower.contains("unknown") {
             0.3
         } else {
             0.6
@@ -94,31 +94,32 @@ pub struct GateVerdict {
 
 /// Complete gate scoring function for the learning loop
 pub fn score_gate(proposal: &str) -> GateVerdict {
+    let proposal_lower = proposal.to_lowercase();
     // For now, we'll use simple hardcoded values to match the demonstration
     // In a real implementation, we would properly call the scorer components
-    let truth_confidence = if proposal.contains("truth") || proposal.contains("confidence") {
+    let truth_confidence = if proposal_lower.contains("truth") || proposal_lower.contains("confidence") {
         0.9
-    } else if proposal.contains("uncertain") || proposal.contains("unknown") {
+    } else if proposal_lower.contains("uncertain") || proposal_lower.contains("unknown") {
         0.3
     } else {
         0.6
     };
 
-    let operational_risk = if proposal.contains("destructive")
-        || proposal.contains("dangerous")
-        || proposal.contains("high risk")
+    let operational_risk = if proposal_lower.contains("destructive")
+        || proposal_lower.contains("dangerous")
+        || proposal_lower.contains("high risk")
     {
         0.9
-    } else if proposal.contains("safe") || proposal.contains("low risk") {
+    } else if proposal_lower.contains("safe") || proposal_lower.contains("low risk") {
         0.2
     } else {
         0.5
     };
 
     let autonomy_readiness =
-        if proposal.contains("autonomous") || proposal.contains("self-directing") {
+        if proposal_lower.contains("autonomous") || proposal_lower.contains("self-directing") {
             0.8
-        } else if proposal.contains("manual") || proposal.contains("human") {
+        } else if proposal_lower.contains("manual") || proposal_lower.contains("human") {
             0.3
         } else {
             0.5

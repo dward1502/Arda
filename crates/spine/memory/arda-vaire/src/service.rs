@@ -4,7 +4,13 @@ use arda_economics::{JouleWorkUnit, PlutusService};
 use chrono::{DateTime, Duration, Utc};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
+use std::sync::{Arc, Mutex};
+use std::time::Duration as StdDuration;
 
+// Ownership boundary: this module defines the public memory contracts and
+// coordinates scoring, persistence, retrieval, and consolidation. `store`
+// owns the on-disk JSONL layout; `retrieval` owns ranking; `promotion` owns
+// derived semantic/procedural records and their promotion receipts.
 mod promotion;
 mod retrieval;
 mod status;
@@ -29,6 +35,11 @@ pub struct RecallRecentEntry {
     pub event_type: String,
     pub memory_scope: String,
     pub significance: f64,
+    /// Source confidence supplied at encode time (or the deterministic
+    /// Bacon-lite fallback for legacy records).
+    pub confidence: f64,
+    /// Bacon-lite confidence, discounted when the governance triad did not pass.
+    pub trust: f64,
     pub sigil: String,
     pub content: String,
     pub ts_utc: String,
@@ -86,6 +97,19 @@ pub struct MnemosyneStats {
     pub malformed_obsidian_records: usize,
     pub malformed_archive_records: usize,
     pub malformed_episodic_records: usize,
+    pub observability: MemoryObservabilitySnapshot,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct MemoryObservabilitySnapshot {
+    pub recall_requests_total: u64,
+    pub recall_results_total: u64,
+    pub last_recall_fidelity: Option<f64>,
+    pub last_recall_latency_ms: Option<u64>,
+    pub queue_observations_total: u64,
+    pub last_queue_latency_ms: Option<u64>,
+    pub last_consolidation_depth: usize,
+    pub promotion_receipts_total: u64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -105,6 +129,8 @@ pub struct ConsolidationReport {
     pub semantic_patterns_written: usize,
     pub procedural_patterns_written: usize,
     pub archived_records_written: usize,
+    pub promotion_receipts_written: usize,
+    pub consolidation_depth: usize,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -125,6 +151,8 @@ struct EpisodicRecord {
     event_type: String,
     memory_scope: String,
     significance: f64,
+    confidence: f64,
+    trust: f64,
     content: String,
     ts_utc: String,
     tags: Vec<String>,
@@ -146,9 +174,46 @@ pub struct MnemosyneService {
     /// step 3 dual-write path: opt-in so existing tests and offline
     /// runs are unchanged.
     pub(crate) contract_memory_root: Option<PathBuf>,
+    observability: Arc<Mutex<MemoryObservabilitySnapshot>>,
 }
 
 impl MnemosyneService {
+    pub fn observability_snapshot(&self) -> MemoryObservabilitySnapshot {
+        self.observability
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
+            .clone()
+    }
+
+    fn observe_recall(&self, result_count: usize, fidelity: Option<f64>, elapsed: StdDuration) {
+        let mut metrics = self
+            .observability
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        metrics.recall_requests_total += 1;
+        metrics.recall_results_total += result_count as u64;
+        metrics.last_recall_fidelity = fidelity;
+        metrics.last_recall_latency_ms = Some(elapsed.as_millis().min(u128::from(u64::MAX)) as u64);
+    }
+
+    pub(crate) fn observe_queue_latency(&self, elapsed: StdDuration) {
+        let mut metrics = self
+            .observability
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        metrics.queue_observations_total += 1;
+        metrics.last_queue_latency_ms = Some(elapsed.as_millis().min(u128::from(u64::MAX)) as u64);
+    }
+
+    fn observe_consolidation(&self, depth: usize, receipts: usize) {
+        let mut metrics = self
+            .observability
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        metrics.last_consolidation_depth = depth;
+        metrics.promotion_receipts_total += receipts as u64;
+    }
+
     fn apply_adaptive_significance(&self, event: &InformantEvent) -> SignificanceResult {
         let mut out = evaluate_significance(
             &event.content,
@@ -385,6 +450,12 @@ mod tests {
         assert!(stats.last_consolidation_utc.is_some());
         assert!(!stats.checkpoint_policy.priority_tags.is_empty());
         assert!(stats.checkpoint_policy.checkpoint_interval_events >= 4);
+        assert!(report.promotion_receipts_written >= 1);
+        assert!(report.consolidation_depth >= 2);
+        assert_eq!(
+            stats.observability.promotion_receipts_total,
+            report.promotion_receipts_written as u64
+        );
     }
 
     #[test]
@@ -555,6 +626,13 @@ mod tests {
         assert!(!relevant.is_empty());
         assert_eq!(relevant[0].source_crate, "prometheus");
         assert_eq!(relevant[0].memory_scope, "boardroom_council");
+        assert!((0.0..=1.0).contains(&relevant[0].confidence));
+        assert!((0.0..=1.0).contains(&relevant[0].trust));
+        let metrics = svc.observability_snapshot();
+        assert_eq!(metrics.recall_requests_total, 1);
+        assert!(metrics
+            .last_recall_fidelity
+            .is_some_and(|value| value > 0.0));
     }
 
     #[test]
@@ -837,6 +915,8 @@ mod tests {
         assert_eq!(report.semantic_patterns_written, 0);
         assert_eq!(report.procedural_patterns_written, 0);
         assert_eq!(report.archived_records_written, 1);
+        assert_eq!(report.promotion_receipts_written, 0);
+        assert_eq!(report.consolidation_depth, 0);
     }
 
     #[test]
@@ -906,5 +986,95 @@ mod tests {
         assert_eq!(report.files_scanned, 0);
         assert_eq!(report.notes_indexed, 0);
         assert_eq!(report.memories_encoded, 0);
+    }
+
+    #[test]
+    fn consolidation_promotions_are_receipt_backed() {
+        let dir = tempdir().expect("tempdir");
+        let svc = MnemosyneService::new(dir.path()).expect("svc");
+        for index in 0..3 {
+            svc.encode(make_event(
+                "prometheus",
+                "task_completed",
+                &format!("ARDA governance checkpoint completed {index}"),
+                vec!["governance", "checkpoint"],
+            ))
+            .expect("encode");
+        }
+
+        let report = svc.consolidate(24).expect("consolidate");
+        assert_eq!(
+            report.promotion_receipts_written,
+            report.semantic_patterns_written + report.procedural_patterns_written
+        );
+        assert!(report.promotion_receipts_written >= 2);
+
+        let receipts =
+            fs::read_to_string(dir.path().join("archive").join("promotion_receipts.jsonl"))
+                .expect("promotion receipts");
+        let parsed = receipts
+            .lines()
+            .map(|line| serde_json::from_str::<serde_json::Value>(line).expect("receipt json"))
+            .collect::<Vec<_>>();
+        assert_eq!(parsed.len(), report.promotion_receipts_written);
+        assert!(parsed.iter().all(|receipt| {
+            receipt["receipt_id"]
+                .as_str()
+                .is_some_and(|id| id.starts_with("promotion_"))
+                && receipt["source_memory_ids"]
+                    .as_array()
+                    .is_some_and(|ids| ids.len() >= 2)
+        }));
+    }
+
+    #[test]
+    fn adaptive_significance_handles_duplicates_overload_and_novel_checkpoints() {
+        let dir = tempdir().expect("tempdir");
+        let svc = MnemosyneService::new(dir.path()).expect("svc");
+        let duplicate = make_event(
+            "athena",
+            "research_note",
+            "Repeated implementation observation with enough detail for durable comparison",
+            vec!["implementation"],
+        );
+        let fresh_score = svc.apply_adaptive_significance(&duplicate).significance;
+        for _ in 0..4 {
+            svc.encode(duplicate.clone()).expect("duplicate encode");
+        }
+        let duplicate_score = svc.apply_adaptive_significance(&duplicate).significance;
+        assert!(duplicate_score < fresh_score);
+
+        let ordinary = make_event(
+            "athena",
+            "research_note",
+            "Ordinary corpus observation with sufficient detail for significance evaluation",
+            vec!["corpus"],
+        );
+        let clean_dir = tempdir().expect("clean tempdir");
+        let clean = MnemosyneService::new(clean_dir.path()).expect("clean svc");
+        let baseline_score = clean.apply_adaptive_significance(&ordinary).significance;
+        for index in 0..20 {
+            svc.encode(make_event(
+                "athena",
+                "research_note",
+                &format!(
+                    "Distinct overload corpus observation number {index} with detailed context"
+                ),
+                vec!["load"],
+            ))
+            .expect("overload encode");
+        }
+        let overloaded_score = svc.apply_adaptive_significance(&ordinary).significance;
+        assert!(overloaded_score < baseline_score);
+
+        let novel_checkpoint = make_event(
+            "athena",
+            "decision_completed",
+            "Novel governance decision completed because receipt evidence was verified",
+            vec!["decision", "novel-receipt"],
+        );
+        let checkpoint = svc.apply_adaptive_significance(&novel_checkpoint);
+        assert_ne!(checkpoint.class, "noise");
+        assert!(checkpoint.significance > overloaded_score);
     }
 }

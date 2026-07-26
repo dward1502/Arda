@@ -1,8 +1,8 @@
 // sigil: REPAIR
 //
 // In-process Prometheus counter/gauge/histogram store for ATHENA.
-// Mirrors `crates/annunimas-charon/src/service/metrics.rs` — hand-rolled,
-// no extra dep, single Mutex; emission paths are not in the hottest loop.
+// Mirrors Manwe's hand-rolled service metrics — no extra dependency and a
+// single Mutex; emission paths are not in the hottest loop.
 //
 // Phase 4 scope (subset of OPTIMIZATION_PLAN.md C1):
 //   athena_ingest_documents_total{source_kind,outcome}

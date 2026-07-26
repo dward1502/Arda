@@ -72,7 +72,7 @@ fn ipc_idle_timeout() -> Duration {
 
 fn ipc_io_timeout() -> Duration {
     // Default 120s: ATHENA deep_analyze runs LLM-driven knowledge extraction
-    // through Charon's model router, which can take 30-90s on large models.
+    // through Manwe's model router, which can take 30-90s on large models.
     // Override via ARDA_ATHENA_IPC_IO_TIMEOUT_SECS for fast-path tools
     // that need tighter timeouts.
     let secs = std::env::var("ARDA_ATHENA_IPC_IO_TIMEOUT_SECS")

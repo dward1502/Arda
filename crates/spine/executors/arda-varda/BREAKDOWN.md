@@ -27,11 +27,11 @@ LLM provider for research/code/decision/general tasks.
 ## Where it lives
 - Crate root: `/var/home/mythos/Eregion/Arda/crates/spine/executors/arda-varda`
 - Configs/data: `data/athena/*`, `core/state/*`, env-overridable paths
-- Tests: 109 passing integration/unit tests + 0 doc tests
+- Tests: 115 passing integration/unit tests + 0 doc tests
 
 ## Verification status
 - `cargo check -p arda-varda --all-features`: OK
-- `cargo test -p arda-varda`: 109 passed, 0 failed
+- `cargo test -p arda-varda`: 115 passed, 0 failed
 - Coverage highlights: ingest pipeline, crawlers, GitHub/scholarly
   extraction, query, deep-analysis queue, policy promotion, IPC/HTTP
   transport, interceptor pipeline, human ingestion scanner
@@ -58,6 +58,10 @@ LLM provider for research/code/decision/general tasks.
     a bounded queue processor that persists recovered shallow metadata
   - `policy_readiness.jsonl`, `planning_task_receipts.jsonl`
   - `crawl_receipts.jsonl`, `uncertainty_selections.jsonl`
+  - one `WorkspaceLayout` owner with typed `AthenaStorePaths`; no duplicated
+    human/machine/store root derivation remains in the store
+  - schema-v2 deep-queue and policy-readiness records; unversioned records are
+    migrated at read time and unsupported future versions are ignored safely
   - atomic schema-v1 `digest-index-v1.json`, shared across processes/restarts
     and incrementally merged for each changed source
   - one shared per-path buffered JSONL appender across cloned stores; handles
@@ -90,10 +94,14 @@ LLM provider for research/code/decision/general tasks.
     pipeline and latest-error summaries shared by HTTP, IPC, and SSE status
 - **Transport**:
   - `AthenaDaemon` runs IPC Unix-socket server + optional HTTP/SSE
+  - `/deep/events` streams schema-versioned deep-queue records with durable
+    JSONL line IDs and `after`-cursor resume support
   - bounded by `try_run_bounded` from `arda-core/background.rs`
-  - configurable timeouts via env
+  - configurable timeouts via env; long-lived SSE routes bypass request timeout
+  - `AthenaStore` remains synchronous with documented filesystem/network/lock
+    blocking regions; polling SSE reads isolate store access via `spawn_blocking`
 - **Inference routing**:
-  - sync bridge to Charon/router via IPC or HTTP
+  - sync bridge to Manwe via IPC or HTTP
   - env-configurable socket/URL with fallback
   - shared async/blocking reqwest pools also serve crawl, GitHub, and scholarly
     importer traffic with explicit timeout and idle-pool bounds
@@ -106,7 +114,7 @@ LLM provider for research/code/decision/general tasks.
 |--------|------|
 | `lib.rs` | `AthenaAgent` implementing `arda-core::Agent` |
 | `ingest.rs` | Store, types, pipeline orchestration |
-| `ingest/*` | activity, crawl, deep, extraction, github, http_client, importers, index, interceptor, io, layout, metrics, observability, policy, query, remediation, routing, scholarly, source, uncertainty_sampler, views |
+| `ingest/*` | activity, crawl, deep, extraction, github, http_client, importers, index, interceptor, io, layout, metrics, observability, policy, query, remediation, routing, schema, scholarly, source, uncertainty_sampler, views |
 | `human.rs` | Human-root scanner + frontmatter contract |
 | `learning.rs` | `KnowledgeDelta` TTL emissions |
 | `transport/` | IPC + optional HTTP/SSE daemon transport |

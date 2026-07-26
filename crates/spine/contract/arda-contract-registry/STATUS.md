@@ -10,6 +10,10 @@ local verification
   - registry_smoke::every_track_schema_version_is_present_in_a_source_or_surface_module
 - cargo check -p arda-contract-registry --all-features: passed
 - cargo test -p arda-contract-registry --all-features: 3 passed, 0 failed
+- arda-launcher frontend rd-ready: registry/service-plan gate wired to App.tsx
+  - arda-launcher/src/App.tsx: loads registry_status, drives RDY/OPEN phase state
+  - apps/arda-launcher/src/lib/tauri-core-compat.ts: Tauri proxy stubs for frontend
+  - crates/spine/contract/arda-contract-registry/STATUS.md: crate-tested and wired
 
 health summary
 --------------

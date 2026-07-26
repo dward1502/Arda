@@ -12,6 +12,7 @@ use axum::{Json, Router};
 use chrono::{DateTime, Utc};
 use serde::Deserialize;
 use serde_json::{json, Value};
+use std::collections::VecDeque;
 use std::convert::Infallible;
 use std::time::Duration;
 use tokio::time::timeout;
@@ -27,6 +28,12 @@ struct DigestParams {
 
 #[derive(Debug, Deserialize)]
 struct PolicyReadinessParams {
+    limit: Option<usize>,
+}
+
+#[derive(Debug, Deserialize)]
+struct DeepEventParams {
+    after: Option<usize>,
     limit: Option<usize>,
 }
 
@@ -116,6 +123,7 @@ pub fn build_router(store: AthenaStore) -> Router {
         .route("/query/stream", post(query_stream))
         .route("/deep_analyze", post(deep_analyze))
         .route("/deep_process", post(deep_process))
+        .route("/deep/events", get(deep_events))
         .route("/scholarly_reenrich", post(scholarly_reenrich))
         .route("/digest", get(digest))
         .route("/policy_readiness", get(policy_readiness))
@@ -149,7 +157,10 @@ async fn http_admission_gate(req: Request, next: Next) -> Response {
 async fn http_timeout_gate(req: Request, next: Next) -> Response {
     // SSE /events stream is a long-lived response; skip the per-request timeout
     // for it so clients can hold the connection open.
-    if matches!(req.uri().path(), "/events" | "/query/stream") {
+    if matches!(
+        req.uri().path(),
+        "/events" | "/query/stream" | "/deep/events"
+    ) {
         return next.run(req).await;
     }
     let deadline = Duration::from_secs(http_request_timeout_seconds());
@@ -392,6 +403,75 @@ async fn events(
                 .unwrap_or_else(|err| json!({"ok": false, "error": err.to_string()}));
             let data = serde_json::to_string(&payload).unwrap_or_else(|_| "{}".to_string());
             Ok(Event::default().event("status").data(data))
+        },
+    );
+
+    Sse::new(stream).keep_alive(KeepAlive::default())
+}
+
+async fn deep_events(
+    State(store): State<AthenaStore>,
+    Query(params): Query<DeepEventParams>,
+) -> Sse<impl Stream<Item = std::result::Result<Event, Infallible>>> {
+    let state = (
+        store,
+        params.after.unwrap_or(0),
+        params.limit.unwrap_or(100).clamp(1, 1_000),
+        VecDeque::<(usize, Value)>::new(),
+        true,
+    );
+    let stream = futures::stream::unfold(
+        state,
+        |(store, mut cursor, limit, mut pending, first_poll)| async move {
+            let mut first_poll = first_poll;
+            loop {
+                if let Some((id, value)) = pending.pop_front() {
+                    let event_name = value
+                        .get("event")
+                        .and_then(Value::as_str)
+                        .unwrap_or("deep_queue");
+                    let data = serde_json::to_string(&value).unwrap_or_else(|_| "{}".to_string());
+                    let event = Event::default()
+                        .id(id.to_string())
+                        .event(event_name)
+                        .data(data);
+                    return Some((Ok(event), (store, cursor, limit, pending, false)));
+                }
+
+                if !first_poll {
+                    tokio::time::sleep(Duration::from_millis(500)).await;
+                }
+                first_poll = false;
+                let reader = store.clone();
+                match tokio::task::spawn_blocking(move || {
+                    reader.deep_queue_events_after(cursor, limit)
+                })
+                .await
+                {
+                    Ok(Ok((scanned_cursor, events))) => {
+                        cursor = scanned_cursor;
+                        pending.extend(events);
+                    }
+                    Ok(Err(err)) => {
+                        let data = serde_json::to_string(&json!({
+                            "stream_version": "athena.deep-queue.v1",
+                            "error": err.to_string()
+                        }))
+                        .unwrap_or_else(|_| "{}".to_string());
+                        let event = Event::default().event("error").data(data);
+                        return Some((Ok(event), (store, cursor, limit, pending, false)));
+                    }
+                    Err(err) => {
+                        let data = serde_json::to_string(&json!({
+                            "stream_version": "athena.deep-queue.v1",
+                            "error": format!("deep queue reader task failed: {err}")
+                        }))
+                        .unwrap_or_else(|_| "{}".to_string());
+                        let event = Event::default().event("error").data(data);
+                        return Some((Ok(event), (store, cursor, limit, pending, false)));
+                    }
+                }
+            }
         },
     );
 
@@ -882,18 +962,18 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn http_timeout_gate_passes_through_events_path() {
+    async fn http_timeout_gate_passes_through_deep_events_path() {
         use axum::middleware;
         use axum::routing::get;
         use axum::Router;
 
         let _guard = env_guard();
         // Timeout would fire before the "slow" handler returns, but the
-        // middleware must short-circuit the /events path.
+        // middleware must short-circuit the /deep/events path.
         std::env::set_var("ARDA_ATHENA_HTTP_REQUEST_TIMEOUT_SECS", "1");
         let app: Router = Router::new()
             .route(
-                "/events",
+                "/deep/events",
                 get(|| async {
                     tokio::time::sleep(std::time::Duration::from_millis(1_500)).await;
                     "keep-alive"
@@ -904,7 +984,7 @@ mod tests {
         let response = app
             .oneshot(
                 Request::builder()
-                    .uri("/events")
+                    .uri("/deep/events")
                     .body(Body::empty())
                     .expect("events request"),
             )
@@ -912,6 +992,50 @@ mod tests {
             .expect("events");
         assert_eq!(response.status(), StatusCode::OK);
         std::env::remove_var("ARDA_ATHENA_HTTP_REQUEST_TIMEOUT_SECS");
+    }
+
+    #[tokio::test]
+    async fn deep_queue_event_stream_emits_versioned_queue_records() {
+        use tokio_stream::StreamExt as _;
+
+        let _guard = env_guard();
+        let dir = tempdir().expect("tempdir");
+        let store = AthenaStore::new(dir.path()).expect("store");
+        store
+            .queue_deep_analysis("src_sse", "http-test", "stream contract")
+            .expect("queue deep analysis");
+        let app = build_router(store);
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .uri("/deep/events?after=0")
+                    .body(Body::empty())
+                    .expect("deep events request"),
+            )
+            .await
+            .expect("deep events response");
+        assert_eq!(response.status(), StatusCode::OK);
+        assert!(response
+            .headers()
+            .get("content-type")
+            .and_then(|value| value.to_str().ok())
+            .is_some_and(|value| value.starts_with("text/event-stream")));
+
+        let mut body = response.into_body().into_data_stream();
+        let chunk = tokio::time::timeout(std::time::Duration::from_secs(2), body.next())
+            .await
+            .expect("first SSE frame before timeout")
+            .expect("first SSE frame")
+            .expect("valid SSE frame");
+        let text = String::from_utf8(chunk.to_vec()).expect("SSE utf8");
+        assert!(text.contains("id: 1\n"), "SSE body: {text}");
+        assert!(text.contains("event: deep_queued\n"), "SSE body: {text}");
+        assert!(text.contains("\"schema_version\":2"), "SSE body: {text}");
+        assert!(
+            text.contains("\"source_id\":\"src_sse\""),
+            "SSE body: {text}"
+        );
     }
 
     #[test]

@@ -14,7 +14,7 @@ fn query(id: &str) -> OracleQuery {
 #[tokio::test]
 async fn status_uses_target_local_home_without_workspace_state() -> Result<()> {
     let home = tempfile::tempdir()?;
-    let service = OracleService::from_home(home.path())?;
+    let service = OracleService::from_home(home.path()).await?;
 
     let paths = service.runtime_paths();
     assert_eq!(paths.home, home.path().to_string_lossy());
@@ -37,7 +37,7 @@ async fn verdict_persists_and_reloads_from_target_local_home() -> Result<()> {
     let plutus_home = home.path().join("plutus");
     std::env::set_var("ARDA_PLUTUS_HOME", &plutus_home);
 
-    let service = OracleService::from_home(home.path())?;
+    let service = OracleService::from_home(home.path()).await?;
     let verdict = service.evaluate(query("oracle-target-local-1")).await?;
     assert_eq!(verdict.query_id, "oracle-target-local-1");
 
@@ -45,7 +45,7 @@ async fn verdict_persists_and_reloads_from_target_local_home() -> Result<()> {
     assert!(ledger_path.exists());
     assert!(std::fs::read_to_string(&ledger_path)?.contains("oracle-target-local-1"));
 
-    let restarted = OracleService::from_home(home.path())?;
+    let restarted = OracleService::from_home(home.path()).await?;
     let recent = restarted.recent_verdicts(10)?;
     assert_eq!(recent.len(), 1);
     assert_eq!(recent[0]["query_id"], "oracle-target-local-1");

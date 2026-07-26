@@ -1,0 +1,9 @@
+{
+  "duplicate_idempotency_records": 0,
+  "execution_intents_path": "/var/home/mythos/Eregion/Arda/crates/spine/data/prometheus/execution_intents.jsonl",
+  "pending_recovered": 0,
+  "replay_safe": true,
+  "source": "prometheus_startup_recovery",
+  "total_latest_intents": 0,
+  "ts_utc": "2026-07-25T22:08:26.973768041+00:00"
+}

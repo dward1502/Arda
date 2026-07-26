@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-07-25T20:09:34.352505890+00:00",
+  "generated_at_utc": "2026-07-26T03:11:34.188688217+00:00",
   "lanes": {
     "free": {
       "google": {
@@ -11,16 +11,16 @@
     },
     "interactive": {
       "edge_beelink_light": {
-        "avg_latency_ms": 105,
-        "success_count": 19,
+        "avg_latency_ms": 98,
+        "success_count": 16,
         "failure_count": 0,
-        "last_result_utc": "2026-07-25T19:59:33.680421726+00:00"
+        "last_result_utc": "2026-07-26T03:01:33.674368575+00:00"
       },
       "google": {
-        "avg_latency_ms": 477,
-        "success_count": 13,
-        "failure_count": 0,
-        "last_result_utc": "2026-07-25T20:09:34.352505270+00:00"
+        "avg_latency_ms": 916,
+        "success_count": 11,
+        "failure_count": 1,
+        "last_result_utc": "2026-07-26T03:11:34.188687667+00:00"
       }
     },
     "local": {

@@ -9,7 +9,7 @@
       "failures": 0
     },
     "chat|tools=false|structured=false|stream=false\u001fedge_beelink_light\u001fTernary-Bonsai-8B-Q2_0": {
-      "successes": 71,
+      "successes": 86,
       "failures": 0
     },
     "chat|tools=false|structured=false|stream=false\u001fedge_guardhouse\u001fQwen3.5-4B-Q4_K_M.gguf": {
@@ -17,11 +17,11 @@
       "failures": 0
     },
     "chat|tools=false|structured=false|stream=false\u001fgoogle\u001fgemini-3.1-flash-lite": {
-      "successes": 108,
-      "failures": 0
+      "successes": 118,
+      "failures": 1
     },
     "chat|tools=false|structured=false|stream=false\u001fgoogle\u001fgemini-3.5-flash-lite": {
-      "successes": 97,
+      "successes": 113,
       "failures": 0
     },
     "chat|tools=false|structured=false|stream=false\u001flocal_fallback\u001fQwen3-8B-Q4_K_M": {

@@ -1,11 +1,12 @@
 # ATHENA Source Book
 
 - source_id: `src_d031c5b4`
+- pipeline_id: `athpl_875d9cd63d414f068ef7d52f587cb78c`
 - status: `shallow`
 - source_type: `ScholarlyLink`
-- updated_at_utc: `2026-07-25T19:15:15.798905758+00:00`
+- updated_at_utc: `2026-07-26T03:19:15.427278847+00:00`
 - url: https://arxiv.org/abs/2401.00001
-- athena_book: `/tmp/.tmphZQrza/books/src_d031c5b4.jsonl`
+- athena_book: `/tmp/.tmpXKYXDN/books/src_d031c5b4.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

@@ -147,14 +147,18 @@ async fn events(
         });
     Sse::new(stream).keep_alive(KeepAlive::default())
 }
-async fn map_result_async<F>(future: F) -> Json<Value>
+async fn map_result_async<F>(future: F) -> impl IntoResponse
 where
     F: std::future::Future<Output = anyhow::Result<Value>>,
 {
     match future.await {
-        Ok(v) => Json(v),
-        Err(err) => Json(json!({"ok": false, "error": err.to_string()})),
+        Ok(v) => (StatusCode::OK, Json(v)).into_response(),
+        Err(err) => (StatusCode::INTERNAL_SERVER_ERROR, Json(json!(failure_body(err)))).into_response(),
     }
+}
+
+fn failure_body(err: anyhow::Error) -> serde_json::Value {
+    json!({"ok": false, "error": err.to_string()})
 }
 
 #[cfg(test)]
@@ -170,7 +174,7 @@ mod tests {
         let temp = tempfile::tempdir().expect("tempdir");
         let plutus_home = temp.path().join("plutus");
         std::env::set_var("ARDA_PLUTUS_HOME", &plutus_home);
-        let service = OracleService::from_home(temp.path()).expect("service");
+        let service = OracleService::from_home(temp.path()).await.expect("service");
         let evidence = EvidenceRef::supplied(
             "http-report",
             "http-fixture://report",

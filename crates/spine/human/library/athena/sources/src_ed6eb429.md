@@ -1,11 +1,12 @@
 # ATHENA Source Book
 
 - source_id: `src_ed6eb429`
+- pipeline_id: `athpl_a7f167f6cdad4d04a038e34e60d79c0a`
 - status: `deep`
 - source_type: `NewsArticle`
-- updated_at_utc: `2026-07-25T19:15:15.384724882+00:00`
+- updated_at_utc: `2026-07-26T03:19:14.618305153+00:00`
 - url: https://example.com/governance-report
-- athena_book: `/tmp/.tmp1xbPU5/books/src_ed6eb429.jsonl`
+- athena_book: `/tmp/.tmp1sHi24/books/src_ed6eb429.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

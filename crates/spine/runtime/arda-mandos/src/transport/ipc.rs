@@ -220,7 +220,7 @@ mod tests {
         let dir = tempdir().expect("tempdir");
         let plutus_home = dir.path().join("plutus");
         std::env::set_var("ARDA_PLUTUS_HOME", &plutus_home);
-        let service = OracleService::from_home(dir.path()).expect("service");
+        let service = OracleService::from_home(dir.path()).await.expect("service");
         let socket_path = dir.path().join("oracle.sock");
         let server = tokio::spawn(run_ipc_server(service, socket_path.clone()));
         sleep(Duration::from_millis(50)).await;

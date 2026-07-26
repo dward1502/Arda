@@ -17,26 +17,26 @@ Drafted 2026-05-07. P0 / P1 / P2 priorities, file pointers, verification signals
 
 Scope: `crates/arda-varda/` — knowledge-ingest, query, deep-analysis, and synthesis agent. `lib.rs` (agent entrypoint, model routing, LLM execution), `ingest.rs` + `ingest/` (13 submodules: crawl, importers, interceptor, io, scholarly, source, policy, routing, query, views, deep, remediation, observability, layout), `transport/` (IPC + optional HTTP/SSE).
 
-Athena's hot path is the ingest pipeline (network + disk-heavy) and the deep-analysis queue (LLM-bound, runs through the configured `LlmProvider` which currently routes to Charon via the core router). Storage is append-only Books JSONL per-source plus a digest index.
+Athena's hot path is the ingest pipeline (network + disk-heavy) and the deep-analysis queue (LLM-bound, runs through the configured `LlmProvider` which currently routes to Manwe). Storage is append-only Books JSONL per-source plus a digest index.
 
 ---
 
 ## A. Correctness / wiring gaps
 
 ### A1. `reqwest = "0.11"` (Cargo.toml). **P0**
-Charon and the rest of the workspace are on reqwest 0.12. Athena pulls 0.11 in alongside it, doubling the dependency tree (two TLS stacks, two HTTP clients in the binary). Also: 0.11 lacks `read_timeout` per-Client which means any streaming path here can't apply the same fix that resolved the Charon SSE incident.
+Manwe and the rest of the workspace are on reqwest 0.12. Athena pulls 0.11 in alongside it, doubling the dependency tree (two TLS stacks, two HTTP clients in the binary). Also: 0.11 lacks `read_timeout` per-Client, so streaming paths cannot apply the same fix used for Manwe's SSE handling.
 
 - Touch: `crates/arda-varda/Cargo.toml`, any reqwest call sites that use 0.11-only APIs.
 - Signal: `cargo tree | grep reqwest` shows a single version; binary size drops.
 
 ### A2. Synchronous ingest writes. **P0**
-`ingest/io.rs` and the various Books-JSONL writers do per-record `OpenOptions::new().append(true).open()` + `writeln!` + `sync_data()`-equivalent. During a bulk crawl this is per-page disk-bound. Same pattern Charon's B3 fixed — adopt the same async writer module (or factor it out of charon into a shared `arda-core::jsonl_writer`).
+`ingest/io.rs` and the various Books-JSONL writers do per-record `OpenOptions::new().append(true).open()` + `writeln!` + `sync_data()`-equivalent. During a bulk crawl this is per-page disk-bound. Adopt the same buffered-writer pattern used by Manwe, or factor it into a shared `arda-core::jsonl_writer`.
 
 - Touch: `ingest/io.rs`, possibly new shared module in `arda-core`.
 - Signal: bulk-ingest of a 1k-page corpus completes in noticeably less wall time, iostat shows fewer fsyncs.
 
 ### A3. AthenaStore initialization is fail-fast on permission errors. **P1**
-`AthenaStore::from_default_or_workspace_fallback` is called inside `AthenaAgent::new`. If the primary path is unreachable (e.g., readonly mount), the agent fails to boot. Mirror Charon's `from_default_or_fallback` pattern: try the default, fall back to a workspace-local data dir on permission errors.
+`AthenaStore::from_default_or_workspace_fallback` is called inside `AthenaAgent::new`. If the primary path is unreachable (e.g., readonly mount), the agent fails to boot. Mirror Manwe's fallback pattern: try the default, then use a workspace-local data directory on permission errors.
 
 - Touch: `ingest/layout.rs` (path resolution), `AthenaStore::from_default_or_workspace_fallback`.
 - Signal: Athena boots even when `data/athena/` is unwritable.
@@ -63,7 +63,7 @@ Charon and the rest of the workspace are on reqwest 0.12. Athena pulls 0.11 in a
 - Touch: `ingest/deep.rs`.
 
 ### B4. Importers don't share an HTTP client. **P2**
-`ingest/importers.rs` — same lesson as Charon B4. One `reqwest::Client` cached per-importer, not per-call.
+`ingest/importers.rs` — same lesson as Manwe's HTTP paths: cache one `reqwest::Client` per importer, not per call.
 
 ---
 
@@ -92,7 +92,7 @@ A single ingest can fan out to crawl → importer → scholarly enrichment → p
 - Touch: `ingest.rs` entrypoint + every step.
 
 ### C3. No surface for "what is athena doing right now". **P2**
-Charon has `/status` and `/state` endpoints. Athena should too — current crawl progress, queue depth, last-N completed pipelines, last error.
+Manwe has `/status` and `/state` endpoints. Athena should too — current crawl progress, queue depth, last-N completed pipelines, last error.
 
 ---
 
@@ -110,7 +110,7 @@ Charon has `/status` and `/state` endpoints. Athena should too — current crawl
 `ingest/interceptor.rs` — what does an interceptor do, when does it veto, what's the contract? Module needs a docstring at minimum.
 
 ### D4. Policy readiness writer has no schema validation. **P2**
-`ingest/policy.rs` consumes a `policy_readiness.jsonl`. Each line is parsed leniently — bad records are skipped silently. Add `count_malformed_records` (mirroring Charon's pattern) and surface as a metric.
+`ingest/policy.rs` consumes a `policy_readiness.jsonl`. Each line is parsed leniently — bad records are skipped silently. Add `count_malformed_records` (mirroring Manwe's pattern) and surface it as a metric.
 
 ---
 
@@ -143,7 +143,7 @@ Live verified: `athena query "agent context protocol"` ranks `udapy/rust-agentic
 
 - New module `crates/arda-varda/src/ingest/extraction.rs` with strict-JSON system prompt, `ExtractedKnowledge` schema (concepts, patterns, novel_ideas, applicability_to_arda, integration_hooks, comparable_systems, risks_or_concerns, confidence_self_report, summary_one_paragraph), and brace-balanced JSON extractor that tolerates code-fenced or preambled responses.
 - `AthenaStore` now holds an optional `Arc<dyn LlmProvider>`; daemon attaches it at startup via `with_llm`. CLI local fallback also attaches the LLM so both paths produce real digests.
-- Default LLM endpoint is **Charon's `/v1` model router** (`http://127.0.0.1:5110/v1`, model `auto`). Overrides: `ARDA_VARDA_LLM_BASE_URL`, `ARDA_VARDA_LLM_MODEL`, `ARDA_VARDA_LLM_API_KEY_ENV`, or `ARDA_VARDA_LLM_USE_CONFIG=1` to fall back to `config/default.toml`.
+- Default LLM routing targets **Manwe's OpenAI-compatible `/v1` gateway** (model `auto`). Deployment URL and model overrides use `ARDA_VARDA_LLM_BASE_URL`, `ARDA_VARDA_LLM_MODEL`, `ARDA_VARDA_LLM_API_KEY_ENV`, or `ARDA_VARDA_LLM_USE_CONFIG=1` to fall back to `config/default.toml`.
 - Bumped default IPC io-timeout from 15s → 120s in `transport/ipc.rs` so the daemon path can complete LLM extraction (override via `ARDA_VARDA_IPC_IO_TIMEOUT_SECS`).
 - Deep entry `extraction_status` field signals downstream consumers: `llm_extraction_complete`, `llm_extraction_parse_failed`, `llm_extraction_failed`, `no_llm_attached`, `no_extractable_material`. Deep-queue event `reason` mirrors this.
 - 6 new unit tests + live verification with both `AdamStrojek/rust-agentai` and `udapy/rust-agentic-skills` producing structured `concepts`/`patterns`/`integration_hooks` keyed to specific Arda crates.

@@ -200,7 +200,48 @@ impl AthenaStore {
     }
 
     pub fn recent_deep_queue_events(&self, limit: usize) -> Result<Vec<Value>> {
-        read_recent_jsonl(&self.deep_queue_path, limit)
+        Ok(read_recent_jsonl(&self.deep_queue_path, limit)?
+            .into_iter()
+            .filter_map(|value| {
+                super::schema::migrate_jsonl_value(
+                    super::schema::JsonlStoreSchema::DeepQueue,
+                    value,
+                )
+                .ok()
+            })
+            .collect())
+    }
+
+    /// Read migrated deep-queue records strictly after a one-based JSONL line
+    /// cursor. The first tuple value advances across every scanned line while
+    /// event IDs remain stable even when malformed/future records are skipped.
+    pub fn deep_queue_events_after(
+        &self,
+        after: usize,
+        limit: usize,
+    ) -> Result<(usize, Vec<(usize, Value)>)> {
+        let content = fs::read_to_string(&self.deep_queue_path)?;
+        let mut scanned_cursor = after;
+        let mut events = Vec::new();
+        for (index, line) in content
+            .lines()
+            .enumerate()
+            .skip(after)
+            .take(limit.clamp(1, 1_000))
+        {
+            scanned_cursor = index + 1;
+            let Some(value) = serde_json::from_str::<Value>(line).ok().and_then(|value| {
+                super::schema::migrate_jsonl_value(
+                    super::schema::JsonlStoreSchema::DeepQueue,
+                    value,
+                )
+                .ok()
+            }) else {
+                continue;
+            };
+            events.push((scanned_cursor, value));
+        }
+        Ok((scanned_cursor, events))
     }
 
     pub fn recent_deep_graph_events(&self, limit: usize) -> Result<Vec<Value>> {
@@ -274,9 +315,9 @@ pub(super) fn deep_queue_status_counts(path: &Path) -> Result<(usize, usize)> {
         if line.trim().is_empty() {
             continue;
         }
-        let value: Value = match serde_json::from_str(line) {
-            Ok(v) => v,
-            Err(_) => continue,
+        let value = match migrated_record(line, super::schema::JsonlStoreSchema::DeepQueue) {
+            Some(v) => v,
+            None => continue,
         };
         let Some(source_id) = value.get("source_id").and_then(|v| v.as_str()) else {
             continue;
@@ -309,9 +350,9 @@ pub(super) fn policy_readiness_summary(
         if line.trim().is_empty() {
             continue;
         }
-        let value: Value = match serde_json::from_str(line) {
-            Ok(v) => v,
-            Err(_) => {
+        let value = match migrated_record(line, super::schema::JsonlStoreSchema::PolicyReadiness) {
+            Some(v) => v,
+            None => {
                 malformed_records += 1;
                 continue;
             }
@@ -383,9 +424,9 @@ pub(super) fn knowledge_vault_source_lane_observations(
         if line.trim().is_empty() {
             continue;
         }
-        let value: Value = match serde_json::from_str(line) {
-            Ok(v) => v,
-            Err(_) => continue,
+        let value = match migrated_record(line, super::schema::JsonlStoreSchema::PolicyReadiness) {
+            Some(v) => v,
+            None => continue,
         };
         let Some(source_id) = value.get("source_id").and_then(Value::as_str) else {
             continue;
@@ -571,9 +612,9 @@ pub(super) fn average_deep_queue_latency_seconds(path: &Path) -> Result<f64> {
         if line.trim().is_empty() {
             continue;
         }
-        let value: Value = match serde_json::from_str(line) {
-            Ok(v) => v,
-            Err(_) => continue,
+        let value = match migrated_record(line, super::schema::JsonlStoreSchema::DeepQueue) {
+            Some(v) => v,
+            None => continue,
         };
         let Some(source_id) = value.get("source_id").and_then(|v| v.as_str()) else {
             continue;
@@ -619,9 +660,9 @@ pub(super) fn policy_readiness_delta_summary(path: &Path) -> Result<(usize, usiz
         if line.trim().is_empty() {
             continue;
         }
-        let value: Value = match serde_json::from_str(line) {
-            Ok(v) => v,
-            Err(_) => continue,
+        let value = match migrated_record(line, super::schema::JsonlStoreSchema::PolicyReadiness) {
+            Some(v) => v,
+            None => continue,
         };
         let Some(source_id) = value.get("source_id").and_then(|v| v.as_str()) else {
             continue;
@@ -640,6 +681,11 @@ pub(super) fn policy_readiness_delta_summary(path: &Path) -> Result<(usize, usiz
         }
     }
     Ok((promotions, regressions))
+}
+
+fn migrated_record(line: &str, schema: super::schema::JsonlStoreSchema) -> Option<Value> {
+    let value = serde_json::from_str::<Value>(line).ok()?;
+    super::schema::migrate_jsonl_value(schema, value).ok()
 }
 
 pub(super) fn planning_task_receipt_summary(path: &Path) -> Result<PlanningTaskReceiptSummary> {

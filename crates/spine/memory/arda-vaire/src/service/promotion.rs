@@ -30,6 +30,8 @@ impl MnemosyneService {
         }
 
         let mut semantic_written = 0usize;
+        let mut promotion_receipts_written = 0usize;
+        let mut consolidation_depth = 0usize;
         for (tag, cluster) in grouped_by_tag {
             if cluster.len() < 2 {
                 continue;
@@ -44,7 +46,12 @@ impl MnemosyneService {
             let domain_dir = self.semantic_root.join(domain);
             fs::create_dir_all(&domain_dir)?;
             let pattern_id = format!("pat_{}", uuid::Uuid::new_v4().simple());
+            let receipt_id = format!("promotion_{}", uuid::Uuid::new_v4().simple());
             let pattern_path = domain_dir.join(format!("{pattern_id}.jsonl"));
+            let source_memory_ids = cluster
+                .iter()
+                .map(|entry| entry.memory_id.clone())
+                .collect::<Vec<_>>();
 
             let summary = cluster
                 .iter()
@@ -63,9 +70,25 @@ impl MnemosyneService {
                 "event_types": unique_values(cluster.iter().map(|e| e.event_type.as_str())),
                 "source_crates": unique_values(cluster.iter().map(|e| e.source_crate.as_str())),
                 "summary": summary,
+                "promotion_receipt_id": receipt_id,
+                "source_memory_ids": source_memory_ids,
+                "average_confidence": cluster.iter().map(|entry| entry.confidence).sum::<f64>() / cluster.len() as f64,
+                "average_trust": cluster.iter().map(|entry| entry.trust).sum::<f64>() / cluster.len() as f64,
             });
             append_jsonl(&pattern_path, &record)?;
+            append_jsonl(
+                &self.archive_root.join("promotion_receipts.jsonl"),
+                &serde_json::json!({
+                    "receipt_id": receipt_id,
+                    "promoted_record_id": pattern_id,
+                    "promoted_kind": "semantic",
+                    "source_memory_ids": source_memory_ids,
+                    "created_at_utc": Utc::now().to_rfc3339(),
+                }),
+            )?;
             semantic_written += 1;
+            promotion_receipts_written += 1;
+            consolidation_depth = consolidation_depth.max(cluster.len());
         }
 
         let mut procedural_map: HashMap<String, Vec<RecallRecentEntry>> = HashMap::new();
@@ -86,7 +109,12 @@ impl MnemosyneService {
                 continue;
             }
             let skill_id = format!("skill_{}", uuid::Uuid::new_v4().simple());
+            let receipt_id = format!("promotion_{}", uuid::Uuid::new_v4().simple());
             let path = self.procedural_root.join(format!("{skill_id}.jsonl"));
+            let source_memory_ids = entries
+                .iter()
+                .map(|entry| entry.memory_id.clone())
+                .collect::<Vec<_>>();
             let sample = entries
                 .iter()
                 .take(3)
@@ -100,9 +128,25 @@ impl MnemosyneService {
                 "created_at_utc": Utc::now().to_rfc3339(),
                 "repetition_count": entries.len(),
                 "summary": sample,
+                "promotion_receipt_id": receipt_id,
+                "source_memory_ids": source_memory_ids,
+                "average_confidence": entries.iter().map(|entry| entry.confidence).sum::<f64>() / entries.len() as f64,
+                "average_trust": entries.iter().map(|entry| entry.trust).sum::<f64>() / entries.len() as f64,
             });
             append_jsonl(&path, &value)?;
+            append_jsonl(
+                &self.archive_root.join("promotion_receipts.jsonl"),
+                &serde_json::json!({
+                    "receipt_id": receipt_id,
+                    "promoted_record_id": skill_id,
+                    "promoted_kind": "procedural",
+                    "source_memory_ids": source_memory_ids,
+                    "created_at_utc": Utc::now().to_rfc3339(),
+                }),
+            )?;
             procedural_written += 1;
+            promotion_receipts_written += 1;
+            consolidation_depth = consolidation_depth.max(entries.len());
         }
 
         let archived = serde_json::json!({
@@ -119,6 +163,7 @@ impl MnemosyneService {
         let now = Utc::now().to_rfc3339();
         std::fs::write(&self.last_consolidation_path, &now)?;
 
+        self.observe_consolidation(consolidation_depth, promotion_receipts_written);
         Ok(ConsolidationReport {
             consolidated_at_utc: now,
             window_hours: hours.max(1),
@@ -126,6 +171,8 @@ impl MnemosyneService {
             semantic_patterns_written: semantic_written,
             procedural_patterns_written: procedural_written,
             archived_records_written: 1,
+            promotion_receipts_written,
+            consolidation_depth,
         })
     }
 

@@ -295,7 +295,7 @@ pub fn parse_header_from_path(path: impl AsRef<Path>) -> Result<Option<SoterionM
 pub fn default_soterion_registry_path() -> String {
     std::env::var("ARDA_SOTERION_REGISTRY_PATH").unwrap_or_else(|_| {
         Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("../..")
+            .join("../../../..")
             .join("meta/soterion_sigils.yaml")
             .display()
             .to_string()

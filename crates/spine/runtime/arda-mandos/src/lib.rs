@@ -27,8 +27,8 @@ pub use pageindex::{
     IndexingDisposition, IndexingReport, PageIndex, PageNodeMeta, PageTree, SearchResult, TocEntry,
 };
 pub use reasoning::{
-    GateResult, LoveEquationGuard, OracleEngine, OraclePolicy, OracleQuery, OracleQueryError,
-    PolicyVeto, PolicyVetoKind, QueryType, TriadGates, Verdict, VerdictCondition,
+    GateKind, GateResult, LoveEquationGuard, OracleEngine, OraclePolicy, OracleQuery,
+    OracleQueryError, PolicyVeto, PolicyVetoKind, QueryType, TriadGates, Verdict, VerdictCondition,
     VerdictConditionKind, VerdictGovernance, VerdictOutcome, DEFAULT_ORACLE_POLICY_ID,
     DEFAULT_ORACLE_POLICY_VERSION, MAX_QUERY_CONTEXT_ITEMS, MAX_QUERY_CONTEXT_ITEM_BYTES,
     MAX_QUERY_ID_BYTES, MAX_QUERY_REQUESTER_BYTES, MAX_QUERY_TASK_BYTES,

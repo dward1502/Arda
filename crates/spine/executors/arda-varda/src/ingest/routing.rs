@@ -79,7 +79,7 @@ pub(super) fn resolve_inference_route_snapshot(
     let socket_path = std::env::var("ARDA_INFERENCE_ROUTER_SOCKET")
         .or_else(|_| std::env::var("ARDA_MANWE_SOCKET"))
         .map(PathBuf::from)
-        .unwrap_or_else(|_| PathBuf::from("data/charon/charon.sock"));
+        .unwrap_or_else(|_| PathBuf::from("data/manwe/manwe.sock"));
 
     if socket_path.exists() {
         if let Ok(result) =
@@ -202,6 +202,11 @@ async fn route_via_http(
     }
 }
 
+/// Bounded bridge used only by the synchronous `AthenaStore` API.
+///
+/// This function may create a runtime or helper thread and therefore belongs
+/// to Athena's documented blocking region. Async callers must isolate the
+/// enclosing store operation with `tokio::task::spawn_blocking`.
 pub(super) fn run_async_for_sync<F, T>(fut: F) -> Result<T>
 where
     F: Future<Output = Result<T>> + Send + 'static,

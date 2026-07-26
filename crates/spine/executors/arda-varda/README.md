@@ -39,11 +39,15 @@ Operationally, the crate now includes:
   shallow-only signaling, and governance-gated confidence
 - an atomic schema-v1 digest index shared across restarts/live stores and
   incrementally refreshed per changed source
+- one typed `WorkspaceLayout` owner for store, human/machine library, and
+  external queue paths
+- schema-v2 deep-queue and policy-readiness records with read-time migration
+  for unversioned legacy JSONL
 - deterministic governance/accounting scaffolding
 - Unix socket IPC and HTTP/SSE transport surfaces
 - CLI-facing daemon/service integration
 
-Current scoped verification: `cargo test -p arda-varda` passes 109 tests.
+Current scoped verification: `cargo test -p arda-varda` passes 115 tests.
 
 ## Runtime bounds and hook contract
 
@@ -63,6 +67,13 @@ Current scoped verification: `cargo test -p arda-varda` passes 109 tests.
   query, relevant document IDs, and model ID; evidence changes invalidate
   affected entries. `POST /query/stream` emits scored, citation-bearing SSE
   matches and a terminal completion event without changing `POST /query`.
+- `GET /deep/events?after=<line-id>` follows append-only deep-queue records as
+  schema-v2 SSE events. Event IDs are durable JSONL line cursors, so reconnecting
+  clients can resume without replaying earlier queue events.
+- `AthenaStore` is intentionally synchronous: construction, ledger/query IO,
+  ingest/crawl, index mutation, and deep/policy processing are documented
+  blocking regions. Long-lived async transports isolate these calls with
+  `tokio::task::spawn_blocking`; in-memory metric access remains direct.
 - Query and index tokens share lightweight stemming/domain normalization.
   Ranking uses corpus-aware, field-weighted BM25; deep confidence contributes
   only after triad and policy-ready gates pass, and every match reports whether
@@ -93,5 +104,7 @@ Non-ingest task types still route through the configured LLM provider.
 ## What's in this crate
 - `lib.rs`: Athena agent implementation, ingest/query/deep routing, model route selection, and LLM execution flow.
 - `ingest.rs`: top-level ingest orchestration plus test coverage for local storage, query, deep-analysis, and policy/event behavior.
-- `ingest/`: extracted helper surfaces including scholarly metadata, deep recovery, policy, observability, query, source classification, routing, and views.
+- `ingest/`: extracted helper surfaces including typed layout ownership, JSONL
+  schema migration, scholarly metadata, deep recovery, policy, observability,
+  query, source classification, routing, and views.
 - `transport/`: daemon transports (`ipc.rs` and feature-gated `http.rs`) and daemon config/startup wiring.

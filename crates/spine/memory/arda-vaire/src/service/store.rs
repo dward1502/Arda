@@ -64,6 +64,7 @@ impl MnemosyneService {
             obsidian_index_path,
             last_consolidation_path,
             contract_memory_root: None,
+            observability: Default::default(),
         })
     }
 
@@ -121,6 +122,8 @@ impl MnemosyneService {
             "love_eq": significance.love_eq,
             "triad": significance.triad,
             "bacon_lite_confidence": significance.bacon_lite_confidence,
+            "confidence": event.confidence_hint.unwrap_or(significance.bacon_lite_confidence).clamp(0.0, 1.0),
+            "trust": if significance.triad { significance.bacon_lite_confidence } else { significance.bacon_lite_confidence * 0.5 },
             "content": event.content,
             "tags": event.tags,
             "ts_utc": event.ts_utc
@@ -162,6 +165,15 @@ impl MnemosyneService {
             event_type: event.event_type,
             memory_scope,
             significance: significance.significance,
+            confidence: event
+                .confidence_hint
+                .unwrap_or(significance.bacon_lite_confidence)
+                .clamp(0.0, 1.0),
+            trust: if significance.triad {
+                significance.bacon_lite_confidence
+            } else {
+                significance.bacon_lite_confidence * 0.5
+            },
             sigil: significance.sigil,
             content: event.content,
             ts_utc: event.ts_utc,
@@ -238,6 +250,31 @@ impl MnemosyneService {
                             .get("significance")
                             .and_then(|v| v.as_f64())
                             .unwrap_or(0.0),
+                        confidence: value
+                            .get("confidence")
+                            .and_then(|v| v.as_f64())
+                            .or_else(|| value.get("bacon_lite_confidence").and_then(|v| v.as_f64()))
+                            .unwrap_or(0.0)
+                            .clamp(0.0, 1.0),
+                        trust: value
+                            .get("trust")
+                            .and_then(|v| v.as_f64())
+                            .unwrap_or_else(|| {
+                                let confidence = value
+                                    .get("bacon_lite_confidence")
+                                    .and_then(|v| v.as_f64())
+                                    .unwrap_or(0.0);
+                                if value
+                                    .get("triad")
+                                    .and_then(|v| v.as_bool())
+                                    .unwrap_or(false)
+                                {
+                                    confidence
+                                } else {
+                                    confidence * 0.5
+                                }
+                            })
+                            .clamp(0.0, 1.0),
                         content: value
                             .get("content")
                             .and_then(|v| v.as_str())

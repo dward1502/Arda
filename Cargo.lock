@@ -258,6 +258,7 @@ name = "arda-launcher"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "arda-contract-registry",
  "arda-core",
  "chrono",
  "serde",

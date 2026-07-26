@@ -7,7 +7,7 @@
 
 ## validation evidence
 - `cargo fmt --check -p arda-varda` passes
-- `cargo test -p arda-varda` — 109 passed, 0 failed; 0 doc tests
+- `cargo test -p arda-varda` — 115 passed, 0 failed; 0 doc tests
 - `cargo check -p arda-varda --all-features` passes
 - removed stale Python packaging claims; `maturin` is not installed in this environment and `/mnt/cryptothor/Arda` is not present, so the earlier site-packages installation path is not evidence of a working Python packaging flow for this workspace snapshot
 
@@ -60,3 +60,12 @@ add a default-compatible `shallow_only` signal over Rust, buffered HTTP, and SSE
 surfaces. The finalized schema-v1 digest index is atomically persisted,
 cross-process locked, loaded across restarts/live stores, and incrementally
 merged for ingest, deep-analysis, and scholarly source updates.
+The final structural/transport checklist is complete. `AthenaStore` now retains
+a single `WorkspaceLayout` whose typed store-path member owns all local JSONL,
+Books, cache, and index paths; the same layout owns human/machine libraries and
+external queue roots. The synchronous store boundary and bounded async bridge
+document their blocking regions. Deep-queue and policy-readiness ledgers write
+schema version 2 and migrate unversioned legacy records at read time while
+rejecting unknown future versions. `GET /deep/events?after=<line-id>` provides a
+long-lived, timeout-exempt SSE feed with durable line-cursor IDs and isolated
+blocking reads.

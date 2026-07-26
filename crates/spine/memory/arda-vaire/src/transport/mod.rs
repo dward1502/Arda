@@ -7,6 +7,11 @@ use crate::service::MnemosyneService;
 use arda_core::error::Result;
 use std::path::PathBuf;
 
+// Ownership boundary: this module owns daemon orchestration and local default
+// configuration. `ipc` owns Unix-socket framing/client forwarding; `http`
+// owns HTTP/SSE routing when enabled. Neither transport owns memory scoring,
+// persistence, or promotion policy.
+
 #[derive(Debug, Clone)]
 pub struct MnemosyneDaemonConfig {
     pub socket_path: PathBuf,
@@ -70,6 +75,7 @@ impl MnemosyneDaemon {
     }
 }
 
+#[cfg(feature = "http")]
 fn join_error(err: tokio::task::JoinError) -> arda_core::error::ArdaError {
     arda_core::error::ArdaError::Agent {
         agent: "mnemosyne".to_owned(),
@@ -84,4 +90,19 @@ pub fn expand_home(path: &str) -> PathBuf {
         }
     }
     PathBuf::from(path)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::MnemosyneDaemonConfig;
+
+    #[test]
+    fn daemon_default_is_local_and_explicit() {
+        let config = MnemosyneDaemonConfig::default();
+        assert!(config.http_enabled);
+        assert_eq!(config.http_addr, "127.0.0.1:5115");
+        assert!(config
+            .socket_path
+            .ends_with("data/mnemosyne/mnemosyne.sock"));
+    }
 }

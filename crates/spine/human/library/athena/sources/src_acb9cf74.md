@@ -1,11 +1,12 @@
 # ATHENA Source Book
 
 - source_id: `src_acb9cf74`
+- pipeline_id: `athpl_fd47694a64e24dd1a15147820f44969b`
 - status: `shallow`
 - source_type: `GithubRepo`
-- updated_at_utc: `2026-07-25T19:15:15.669284813+00:00`
+- updated_at_utc: `2026-07-26T03:19:14.925248873+00:00`
 - url: https://github.com/example/project
-- athena_book: `/tmp/.tmpTuGQHy/books/src_acb9cf74.jsonl`
+- athena_book: `/tmp/.tmp1Hy0Mc/books/src_acb9cf74.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

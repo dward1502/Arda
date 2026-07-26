@@ -5,6 +5,9 @@ use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
 
+pub const ORACLE_SCHEMA_VERSION: &str = "arda.mandos.v1";
+pub const MAX_RECENT_VERDICTS: usize = 10;
+
 pub const DEFAULT_MAX_REASONING_DEPTH: usize = 8;
 pub const DEFAULT_MAX_REASONING_NODES: usize = 256;
 pub const DEFAULT_MAX_REASONING_BYTES: usize = 512 * 1024;

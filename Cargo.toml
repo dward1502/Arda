@@ -70,6 +70,7 @@ async-trait = "0.1"
 serde_yaml = "0.9"
 # Arda crates (formerly annunimas-*) referenced via `workspace = true`
 arda-core = { path = "crates/spine/governance/arda-core" }
+arda-contract-registry = { path = "crates/spine/contract/arda-contract-registry" }
 arda-governance = { path = "crates/spine/governance/arda-governance" }
 arda-orome = { path = "crates/spine/interface/arda-orome" }
 arda-vaire = { path = "crates/spine/memory/arda-vaire" }

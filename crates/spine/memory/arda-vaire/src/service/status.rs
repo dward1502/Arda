@@ -66,6 +66,7 @@ impl MnemosyneService {
                 &self.archive_root.join("consolidation.jsonl"),
             ),
             malformed_episodic_records: count_malformed_episodic_records(&self.episodic_root),
+            observability: self.observability_snapshot(),
         })
     }
 

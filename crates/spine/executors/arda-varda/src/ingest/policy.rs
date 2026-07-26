@@ -16,6 +16,7 @@ use super::observability::planning_task_receipt_summary;
 use super::remediation::{
     remediation_notes, remediation_owner, remediation_task_id, remediation_title,
 };
+use super::schema::{migrate_jsonl_value, JsonlStoreSchema};
 use super::{athena_error, AthenaStore, BookEntry, DeepAnalysisData, DeepBookEntry};
 
 pub(super) fn ingest_quarantine_reason(event: &BaconLiteEvent) -> Option<String> {
@@ -44,7 +45,9 @@ impl AthenaStore {
                 continue;
             }
             if let Ok(value) = serde_json::from_str::<Value>(line) {
-                items.push(value);
+                if let Ok(value) = migrate_jsonl_value(JsonlStoreSchema::PolicyReadiness, value) {
+                    items.push(value);
+                }
             }
         }
         items.reverse();
@@ -597,9 +600,12 @@ fn latest_policy_entries(path: &Path) -> Result<std::collections::HashMap<String
         if line.trim().is_empty() {
             continue;
         }
-        let value: Value = match serde_json::from_str(line) {
-            Ok(v) => v,
-            Err(_) => continue,
+        let value = match serde_json::from_str::<Value>(line)
+            .ok()
+            .and_then(|value| migrate_jsonl_value(JsonlStoreSchema::PolicyReadiness, value).ok())
+        {
+            Some(v) => v,
+            None => continue,
         };
         let Some(source_id) = value.get("source_id").and_then(|v| v.as_str()) else {
             continue;

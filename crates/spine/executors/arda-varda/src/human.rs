@@ -491,7 +491,7 @@ mod tests {
         let note = inbox.join("idea.md");
         fs::write(
             &note,
-            "# Charon idea\n\nRoute ATHENA through config/manwe.providers.toml",
+            "# Manwe idea\n\nRoute ATHENA through config/manwe.providers.toml",
         )
         .expect("write note");
         let out = dir.path().join("data/athena/human_ingestion_results.jsonl");

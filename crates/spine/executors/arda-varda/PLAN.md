@@ -6,7 +6,7 @@ soterion:
   role: "knowledge_governance_plan"
   owner: "ARDA-VARDA / HADES"
   status: "active"
-  last_reviewed: "2026-07-22"
+  last_reviewed: "2026-07-25"
 ---
 # arda-varda Plan + Checklist
 
@@ -33,7 +33,7 @@ learning emissions for the sovereign corpus.
 
 Crate root: `crates/spine/executors/arda-varda`
 Data/core roots: `data/athena/*`, `core/state/*`, env-overridable
-Tests: 109 integration/unit tests as of last review; 0 doc tests
+Tests: 115 integration/unit tests as of last review; 0 doc tests
 
 Storage surfaces:
 - ingest books JSONL per-source, digest/global records
@@ -42,10 +42,11 @@ Storage surfaces:
 
 Transport:
 - IPC Unix-socket + optional HTTP/SSE daemon, bounded by `try_run_bounded`
+- query-match SSE at `/query/stream`; resumable deep-queue SSE at `/deep/events`
 - metrics: HTTP `/metrics` + IPC `metrics` command
 
 Runtime notes:
-- LLM-backed deep analysis routes to Charon `/v1` by default; env configurable
+- LLM-backed deep analysis routes to Manwe's `/v1` gateway; env configurable
 - IPC io-timeout raised to 120s for LLM extraction; override via `ARDA_VARDA_IPC_IO_TIMEOUT_SECS`
 
 ---
@@ -77,7 +78,13 @@ Deep analysis
 - uncertainty sampling; `extraction_status` tracks llm_complete/parse_failed/no_llm/no_material
 
 Knowledge store
-- `AthenaStore` owns paths above
+- `AthenaStore` retains one typed `WorkspaceLayout`; its `AthenaStorePaths`
+  member owns all store-local paths while the layout owns human/machine and
+  external queue roots
+- the synchronous store boundary documents filesystem, locking, network, and
+  async-bridge blocking regions for async callers
+- deep-queue and policy-readiness JSONL records use schema version 2; legacy
+  unversioned records migrate at read time and future versions are rejected
 - schema-v1 `DigestIndex` persisted atomically to `digest-index-v1.json`, shared
   across live stores/restarts, and refreshed incrementally per appended source
 - field-normalized BM25 query scoring over normalized shallow/deep tokens
@@ -338,11 +345,11 @@ presence of extracted deep knowledge. Buffered Rust/HTTP responses and SSE
 - [x] P2 persist + share DigestIndex across restarts
 - [x] P3 stem/normalize indexed and query tokens
 - [x] P4 return shallow-only flag when matches lack extracted knowledge
-- [ ] Unify duplicated layout roots into single WorkspaceLayout owner
-- [ ] Document sync-blocking regions or make `AthenaStore` async
-- [ ] Add schema-version migration for evolving JSONL stores
-- [ ] Group `AthenaStore` path fields into typed structs
-- [ ] Add HTTP SSE stream for deep-analysis queue events
+- [x] Unify duplicated layout roots into single WorkspaceLayout owner
+- [x] Document sync-blocking regions or make `AthenaStore` async
+- [x] Add schema-version migration for evolving JSONL stores
+- [x] Group `AthenaStore` path fields into typed structs
+- [x] Add HTTP SSE stream for deep-analysis queue events
 
 Live reconciliation (2026-07-25): the crate already has an in-memory digest
 index with TTL/mtime invalidation, extracted-knowledge-aware scoring,
@@ -352,9 +359,10 @@ and typed interceptor events. End-to-end correlation IDs, source freshness,
 truthful live/durable activity status, the E3 heavy-failure quarantine gate,
 content-addressed deep caching, query citations, scored-hit SSE query streaming,
 field-normalized BM25 retrieval, governance-gated confidence, normalized tokens,
-shared persistent incremental indexing, and shallow-only result signaling are
-now complete. Semantic/vector retrieval remains a possible future complement,
-not a prerequisite for this checklist.
+shared persistent incremental indexing, shallow-only result signaling, typed
+layout ownership, blocking-region documentation, JSONL schema migration, and
+cursor-resumable deep-queue SSE are now complete. Semantic/vector retrieval
+remains a possible future complement, not a prerequisite for this checklist.
 
 ---
 

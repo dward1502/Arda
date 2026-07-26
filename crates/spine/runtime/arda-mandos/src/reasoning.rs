@@ -72,7 +72,7 @@ pub enum QueryType {
 pub struct OracleEngine {
     ledger: Option<Ledger>,
     history: Vec<Verdict>,
-    history_queries: HashMap<String, OracleQuery>,
+    pub history_queries: HashMap<String, OracleQuery>,
     page_index: PageIndex,
     policy: OraclePolicy,
 }
@@ -325,6 +325,7 @@ pub enum VerdictConditionKind {
     ProvideEvidence,
     ClarifyLogic,
     ReviewTiming,
+    Escalate,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -355,6 +356,37 @@ pub enum VerdictOutcome {
     Pass,
     Fail,
     Conditional,
+    Escalate,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum GateKind {
+    Aurelius,
+    Bacon,
+    SunTzu,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GateResult {
+    pub kind: GateKind,
+    pub passed: bool,
+    pub score: f64,
+    pub concerns: Vec<String>,
+    #[serde(default)]
+    pub evidence: Vec<EvidenceAssessment>,
+    #[serde(default)]
+    pub evidence_signals: Vec<EvidenceSignal>,
+    #[serde(default)]
+    pub disposition: GateDisposition,
+    #[serde(default)]
+    pub scored: bool,
+}
+
+impl GateResult {
+    pub fn seal(self, kind: GateKind) -> Self {
+        self
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -364,15 +396,35 @@ pub struct TriadGates {
     pub sun_tzu: GateResult,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct GateResult {
-    pub passed: bool,
-    pub score: f64,
-    pub concerns: Vec<String>,
-    #[serde(default)]
-    pub evidence: Vec<EvidenceAssessment>,
-    #[serde(default)]
-    pub evidence_signals: Vec<EvidenceSignal>,
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum GateDisposition {
+    Accepted,
+    Rejected,
+    Escalated,
+}
+
+impl GateDisposition {
+    fn label(&self) -> &'static str {
+        match self {
+            GateDisposition::Accepted => "accepted",
+            GateDisposition::Rejected => "rejected",
+            GateDisposition::Escalated => "escalated",
+        }
+    }
+
+    pub fn validate_score(&self, score: &mut f64, signals: &[EvidenceSignal]) {
+        *score = normalize_score(*score);
+        if signals
+            .iter()
+            .any(|signal| signal.kind == EvidenceSignalKind::Conflicting)
+        {
+            *score = (*score - 0.05).max(0.0);
+        }
+        if *score == 0.0 {
+            *score = 0.0;
+        }
+    }
 }
 
 #[derive(Default)]
@@ -424,20 +476,19 @@ impl OracleEngine {
 
     pub fn evaluate(&mut self, query: OracleQuery) -> Result<Verdict, OracleQueryError> {
         query.validate()?;
-        if let Some(previous_query) = self.history_queries.get(&query.id) {
-            if previous_query.is_same_request(&query) {
-                return self
-                    .history
-                    .iter()
-                    .find(|verdict| verdict.query_id == query.id)
-                    .cloned()
-                    .ok_or_else(|| OracleQueryError::DuplicateQueryId {
-                        id: query.id.clone(),
-                    });
-            }
-            return Err(OracleQueryError::DuplicateQueryId {
-                id: query.id.clone(),
-            });
+        if self.history_queries.contains_key(&query.id) {
+            return self.find_cached_verdict_by_id(&query.id);
+        }
+
+        if self
+            .history
+            .iter()
+            .any(|verdict| verdict.query_id == query.id)
+        {
+            anyhow::bail!(format!(
+                "duplicate query id '{}' in hydrated history",
+                query.id
+            ));
         }
 
         let aurelius = self.evaluate_aurelius(&query);
@@ -445,9 +496,27 @@ impl OracleEngine {
         let sun_tzu = self.evaluate_sun_tzu(&query);
 
         let gates = TriadGates {
-            aurelius: aurelius.clone(),
-            bacon: bacon.clone(),
-            sun_tzu: sun_tzu.clone(),
+            aurelius: Self::build_gate_result(
+                GateKind::Aurelius,
+                aurelius.score,
+                aurelius.concerns.clone(),
+                aurelius.evidence.clone(),
+                aurelius.evidence_signals.clone(),
+            ),
+            bacon: Self::build_gate_result(
+                GateKind::Bacon,
+                bacon.score,
+                bacon.concerns.clone(),
+                bacon.evidence.clone(),
+                bacon.evidence_signals.clone(),
+            ),
+            sun_tzu: Self::build_gate_result(
+                GateKind::SunTzu,
+                sun_tzu.score,
+                sun_tzu.concerns.clone(),
+                sun_tzu.evidence.clone(),
+                sun_tzu.evidence_signals.clone(),
+            ),
         };
 
         let vetoes = self.collect_vetoes(&query);
@@ -477,6 +546,83 @@ impl OracleEngine {
         self.history_queries.insert(query.id.clone(), query);
         self.history.push(verdict.clone());
         Ok(verdict)
+    }
+
+    pub fn find_cached_verdict_by_id(&self, id: &str) -> Result<Verdict, OracleQueryError> {
+        self.history
+            .iter()
+            .find(|verdict| verdict.query_id == id)
+            .cloned()
+            .ok_or_else(|| OracleQueryError::DuplicateQueryId { id: id.to_string() })
+    }
+
+    pub fn get_history(&self) -> &[Verdict] {
+        &self.history
+    }
+
+    pub fn history(&self) -> &[Verdict] {
+        self.history.as_slice()
+    }
+
+    pub fn history_queries(&self) -> &HashMap<String, OracleQuery> {
+        &self.history_queries
+    }
+
+    fn build_gate_result(
+        kind: GateKind,
+        score: f64,
+        concerns: Vec<String>,
+        evidence: Vec<EvidenceAssessment>,
+        evidence_signals: Vec<EvidenceSignal>,
+    ) -> GateResult {
+        let gate_score = normalize_score(score);
+        let passed = match kind {
+            GateKind::Aurelius => gate_score >= 0.7,
+            GateKind::Bacon => gate_score >= 0.55,
+            GateKind::SunTzu => gate_score >= 0.6,
+        };
+        let disposition = if passed {
+            GateDisposition::Accepted
+        } else {
+            GateDisposition::Rejected
+        };
+
+        GateResult {
+            kind,
+            passed,
+            score: gate_score,
+            concerns,
+            evidence,
+            evidence_signals,
+            disposition,
+            scored: true,
+        }
+    }
+
+    pub fn record_restart_verdict(
+        &mut self,
+        verdict: Verdict,
+    ) -> Result<(), OracleQueryError> {
+        let key = verdict.query_id.clone();
+        if self.history_queries.contains_key(&key) {
+            return Err(OracleQueryError::DuplicateQueryId { id: key });
+        }
+        self.history_queries.insert(
+            key.clone(),
+            OracleQuery {
+                id: verdict.query_id.clone(),
+                task: String::new(),
+                context: Vec::new(),
+                evidence: Vec::new(),
+                requester: String::new(),
+                timestamp: verdict.query_timestamp,
+                query_type: Default::default(),
+                correlation_id: None,
+                causation_id: None,
+            },
+        );
+        self.history.push(verdict);
+        Ok(())
     }
 
     fn evaluate_aurelius(&self, query: &OracleQuery) -> GateResult {
@@ -557,13 +703,13 @@ impl OracleEngine {
         score = normalize_score(score);
         let passed = score >= self.policy.aurelius_pass_threshold;
 
-        GateResult {
-            passed,
+        Self::build_gate_result(
+            GateKind::Aurelius,
             score,
             concerns,
             evidence,
             evidence_signals,
-        }
+        )
     }
 
     fn evaluate_bacon(&mut self, query: &OracleQuery) -> GateResult {
@@ -737,13 +883,13 @@ impl OracleEngine {
         score = normalize_score(score);
         let passed = score >= self.policy.bacon_pass_threshold;
 
-        GateResult {
-            passed,
+        Self::build_gate_result(
+            GateKind::Bacon,
             score,
             concerns,
             evidence,
             evidence_signals,
-        }
+        )
     }
 
     fn evaluate_sun_tzu(&self, query: &OracleQuery) -> GateResult {
@@ -803,6 +949,7 @@ impl OracleEngine {
         let passed = score >= self.policy.sun_tzu_pass_threshold;
 
         GateResult {
+            kind: GateKind::SunTzu,
             passed,
             score,
             concerns,
@@ -893,6 +1040,8 @@ impl OracleEngine {
 
         if pass_count == 3 {
             VerdictOutcome::Pass
+        } else if pass_count == 0 {
+            VerdictOutcome::Escalate
         } else if pass_count >= self.policy.minimum_passed_gates_for_conditional.clamp(1, 3) {
             VerdictOutcome::Conditional
         } else {
@@ -1090,7 +1239,7 @@ impl OracleEngine {
         let outcome_modifier = match outcome {
             VerdictOutcome::Pass => 0.05,
             VerdictOutcome::Conditional => 0.0,
-            VerdictOutcome::Fail => -0.1,
+            VerdictOutcome::Fail | VerdictOutcome::Escalate => -0.1,
         };
 
         (base + context_bonus + outcome_modifier).min(1.0)
@@ -1129,10 +1278,6 @@ impl OracleEngine {
         ]
         .iter()
         .any(|keyword| task_lower.contains(keyword))
-    }
-
-    pub fn get_history(&self) -> &[Verdict] {
-        &self.history
     }
 
     pub fn status_snapshot(&self) -> serde_json::Value {
@@ -1211,6 +1356,7 @@ impl OracleEngine {
             VerdictOutcome::Pass => "◈ PASS",
             VerdictOutcome::Fail => "∇ FAIL",
             VerdictOutcome::Conditional => "◈ CONDITIONAL",
+            VerdictOutcome::Escalate => "△ ESCALATE",
         };
 
         let mut output = format!(
@@ -1311,7 +1457,7 @@ fn build_governance_task(
     task.clarifications_resolved = match outcome {
         VerdictOutcome::Pass => 1,
         VerdictOutcome::Conditional => 1,
-        VerdictOutcome::Fail => 0,
+        VerdictOutcome::Fail | VerdictOutcome::Escalate => 0,
     };
     task.status = arda_core::task::TaskStatus::Complete;
     task
@@ -1340,8 +1486,8 @@ fn reasoning_error(error: ReasoningContextError) -> OracleQueryError {
 fn outcome_label(outcome: &VerdictOutcome) -> &'static str {
     match outcome {
         VerdictOutcome::Pass => "pass",
-        VerdictOutcome::Fail => "fail",
         VerdictOutcome::Conditional => "conditional",
+        VerdictOutcome::Fail | VerdictOutcome::Escalate => "fail",
     }
 }
 
@@ -1939,8 +2085,9 @@ mod tests {
 
     #[test]
     fn outcome_policy_table_covers_pass_conditional_fail_and_veto() {
-        fn gate(passed: bool) -> GateResult {
+        fn gate(passed: bool, kind: GateKind) -> GateResult {
             GateResult {
+                kind,
                 passed,
                 score: if passed { 1.0 } else { 0.0 },
                 concerns: Vec::new(),
@@ -1958,18 +2105,28 @@ mod tests {
         let cases = [
             ([true, true, true], Vec::new(), VerdictOutcome::Pass),
             ([true, true, false], Vec::new(), VerdictOutcome::Conditional),
-            ([false, false, false], Vec::new(), VerdictOutcome::Fail),
+            ([false, false, false], Vec::new(), VerdictOutcome::Escalate),
             ([true, true, true], vec![veto], VerdictOutcome::Fail),
         ];
 
         for (passes, vetoes, expected) in cases {
             let gates = TriadGates {
-                aurelius: gate(passes[0]),
-                bacon: gate(passes[1]),
-                sun_tzu: gate(passes[2]),
+                aurelius: gate(passes[0], GateKind::Aurelius),
+                bacon: gate(passes[1], GateKind::Bacon),
+                sun_tzu: gate(passes[2], GateKind::SunTzu),
             };
             assert_eq!(engine.determine_outcome(&gates, &vetoes), expected);
         }
+
+        let escalate_gates = TriadGates {
+            aurelius: gate(false, GateKind::Aurelius),
+            bacon: gate(false, GateKind::Bacon),
+            sun_tzu: gate(false, GateKind::SunTzu),
+        };
+        assert_eq!(
+            engine.determine_outcome(&escalate_gates, &[]),
+            VerdictOutcome::Escalate
+        );
     }
 
     #[test]

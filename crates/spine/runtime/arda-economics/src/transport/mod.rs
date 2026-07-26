@@ -1,6 +1,7 @@
 // sigil: REPAIR
 #[cfg(feature = "http")]
 pub mod http;
+pub mod finance_stream;
 pub mod ipc;
 
 use crate::service::PlutusService;

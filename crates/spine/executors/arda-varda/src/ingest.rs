@@ -11,7 +11,7 @@ use arda_governance::{
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use std::fs::{self, OpenOptions};
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::sync::Arc;
 use uuid::Uuid;
 
@@ -34,6 +34,7 @@ mod policy;
 mod query;
 mod remediation;
 mod routing;
+mod schema;
 mod scholarly;
 mod source;
 mod uncertainty_sampler;
@@ -46,9 +47,10 @@ use deep::{deep_summary_for_source, implementation_brief_for_source, scholarly_t
 use interceptor::{
     DigestEvent, HadesQueueInterceptor, IngestCtx, MnemosyneInterceptor, WardenQueueInterceptor,
 };
-use layout::{human_library_root, machine_library_root};
+use layout::WorkspaceLayout;
 use observability::deep_queue_status_counts;
 use policy::{evaluate_policy_readiness, ingest_quarantine_reason, opposition_coverage_count};
+use schema::{migrate_jsonl_value, JsonlStoreSchema, CURRENT_JSONL_SCHEMA_VERSION};
 use source::{
     build_shallow_analysis, canonicalize_ingest_input, estimate_joule_cost, extract_url,
     love_equation_from_tags, normalize_graph_token, source_id_from_input, ClassificationCache,
@@ -331,6 +333,8 @@ pub struct DeepBookEntry {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DeepQueueRecord {
+    #[serde(default = "current_jsonl_schema_version")]
+    pub schema_version: u64,
     pub ts: String,
     #[serde(default)]
     pub pipeline_id: String,
@@ -339,6 +343,10 @@ pub struct DeepQueueRecord {
     pub agent: String,
     pub status: String,
     pub reason: String,
+}
+
+fn current_jsonl_schema_version() -> u64 {
+    CURRENT_JSONL_SCHEMA_VERSION
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -389,22 +397,18 @@ pub struct QueryResponse {
     pub suggestion: Option<String>,
 }
 
+/// Synchronous boundary over Athena's local append-only store.
+///
+/// Methods that construct a store, read/query ledgers, ingest, crawl, mutate
+/// indexes, or process deep/policy queues may perform filesystem access,
+/// cross-process locking, blocking HTTP, or the bounded async-to-sync bridge.
+/// Async transports must call those regions from `tokio::task::spawn_blocking`
+/// when they are used in long-lived/polling paths. Cheap in-memory accessors
+/// such as [`AthenaStore::metrics`] are safe to call directly. Store clones
+/// share locks, appenders, indexes, activity state, and metrics.
 #[derive(Clone)]
 pub struct AthenaStore {
-    root: PathBuf,
-    books_dir: PathBuf,
-    digest_path: PathBuf,
-    crawl_receipts_path: PathBuf,
-    uncertainty_selections_path: PathBuf,
-    crawl_artifacts_dir: PathBuf,
-    deep_queue_path: PathBuf,
-    scholarly_reenrichment_path: PathBuf,
-    deep_graph_path: PathBuf,
-    policy_readiness_path: PathBuf,
-    planning_task_receipts_path: PathBuf,
-    human_sources_dir: PathBuf,
-    machine_index_path: PathBuf,
-    digest_index_path: PathBuf,
+    layout: WorkspaceLayout,
     interceptors: IngestPipeline,
     llm: Option<Arc<dyn LlmProvider>>,
     digest_index: Arc<std::sync::RwLock<Option<index::DigestIndex>>>,
@@ -412,6 +416,14 @@ pub struct AthenaStore {
     activity_tracker: Arc<activity::ActivityTracker>,
     jsonl_appender: Arc<io::JsonlAppender>,
     metrics: Arc<AthenaMetrics>,
+}
+
+impl std::ops::Deref for AthenaStore {
+    type Target = WorkspaceLayout;
+
+    fn deref(&self) -> &Self::Target {
+        &self.layout
+    }
 }
 
 impl std::fmt::Debug for AthenaStore {
@@ -536,30 +548,22 @@ pub struct AthenaStatus {
 
 impl AthenaStore {
     pub fn new(root: impl AsRef<Path>) -> Result<Self> {
-        let root = root.as_ref().to_path_buf();
-        let books_dir = root.join("books");
-        let digest_path = root.join("digest.jsonl");
-        let crawl_receipts_path = root.join("crawl_receipts.jsonl");
-        let uncertainty_selections_path = root.join("uncertainty_selections.jsonl");
-        let crawl_artifacts_dir = root.join("crawls");
-        let deep_queue_path = root.join("deep_queue.jsonl");
-        let scholarly_reenrichment_path = root.join("scholarly_reenrichment.jsonl");
-        let deep_graph_path = root.join("deep_graph.jsonl");
-        let policy_readiness_path = root.join("policy_readiness.jsonl");
-        let planning_task_receipts_path = root.join("planning_task_receipts.jsonl");
-        let hades_queue_path = std::env::var("ARDA_HADES_ACTION_QUEUE_PATH")
-            .map(PathBuf::from)
-            .unwrap_or_else(|_| {
-                crate::ingest::layout::arda_root().join("data/hades/action_queue.jsonl")
-            });
-        let warden_queue_path = std::env::var("ARDA_WARDEN_QUEUE_PATH")
-            .map(PathBuf::from)
-            .unwrap_or_else(|_| {
-                crate::ingest::layout::arda_root().join("data/warden/informant_queue.jsonl")
-            });
-        let human_sources_dir = human_library_root().join("sources");
-        let machine_index_path = machine_library_root().join("index").join("sources.jsonl");
-        let digest_index_path = root.join("digest-index-v1.json");
+        let layout = WorkspaceLayout::for_store_root(root);
+        let books_dir = layout.books_dir.clone();
+        let digest_path = layout.digest_path.clone();
+        let crawl_receipts_path = layout.crawl_receipts_path.clone();
+        let uncertainty_selections_path = layout.uncertainty_selections_path.clone();
+        let crawl_artifacts_dir = layout.crawl_artifacts_dir.clone();
+        let deep_queue_path = layout.deep_queue_path.clone();
+        let scholarly_reenrichment_path = layout.scholarly_reenrichment_path.clone();
+        let deep_graph_path = layout.deep_graph_path.clone();
+        let policy_readiness_path = layout.policy_readiness_path.clone();
+        let planning_task_receipts_path = layout.planning_task_receipts_path.clone();
+        let human_sources_dir = layout.human_sources_dir.clone();
+        let machine_index_path = layout.machine_index_path.clone();
+        let digest_index_path = layout.digest_index_path.clone();
+        let hades_queue_path = layout.hades_queue_path.clone();
+        let warden_queue_path = layout.warden_queue_path.clone();
 
         fs::create_dir_all(&books_dir)?;
         fs::create_dir_all(&crawl_artifacts_dir)?;
@@ -625,20 +629,7 @@ impl AthenaStore {
 
         let persisted_digest_index = index::load_index(&digest_index_path, &books_dir)?;
         Ok(Self {
-            root,
-            books_dir,
-            digest_path,
-            crawl_receipts_path,
-            uncertainty_selections_path,
-            crawl_artifacts_dir,
-            deep_queue_path,
-            scholarly_reenrichment_path,
-            deep_graph_path,
-            policy_readiness_path,
-            planning_task_receipts_path,
-            human_sources_dir,
-            machine_index_path,
-            digest_index_path,
+            layout,
             interceptors,
             llm: None,
             digest_index: Arc::new(std::sync::RwLock::new(persisted_digest_index)),
@@ -1032,6 +1023,7 @@ impl AthenaStore {
         }
 
         let record = DeepQueueRecord {
+            schema_version: CURRENT_JSONL_SCHEMA_VERSION,
             ts: Utc::now().to_rfc3339(),
             pipeline_id: self.pipeline_id_for_source(normalized),
             event: "deep_queued".to_string(),
@@ -1271,6 +1263,7 @@ impl AthenaStore {
                 let _ = self.append_jsonl(
                     &self.policy_readiness_path,
                     &serde_json::json!({
+                        "schema_version": CURRENT_JSONL_SCHEMA_VERSION,
                         "ts_utc": Utc::now().to_rfc3339(),
                         "pipeline_id": pipeline_id,
                         "source_id": source_id,
@@ -1287,6 +1280,7 @@ impl AthenaStore {
                     _ => "deterministic scaffold complete".to_string(),
                 };
                 let event = DeepQueueRecord {
+                    schema_version: CURRENT_JSONL_SCHEMA_VERSION,
                     ts: Utc::now().to_rfc3339(),
                     pipeline_id: pipeline_id.clone(),
                     event: "deep_complete".to_string(),
@@ -1393,9 +1387,12 @@ impl AthenaStore {
                 if line.trim().is_empty() {
                     continue;
                 }
-                let value: serde_json::Value = match serde_json::from_str(line) {
-                    Ok(v) => v,
-                    Err(_) => continue,
+                let value: serde_json::Value = match serde_json::from_str(line)
+                    .ok()
+                    .and_then(|value| migrate_jsonl_value(JsonlStoreSchema::DeepQueue, value).ok())
+                {
+                    Some(v) => v,
+                    None => continue,
                 };
                 let Some(source_id) = value.get("source_id").and_then(|v| v.as_str()) else {
                     continue;
@@ -1432,6 +1429,7 @@ impl AthenaStore {
                     Err(err) => {
                         failed += 1;
                         let event = DeepQueueRecord {
+                            schema_version: CURRENT_JSONL_SCHEMA_VERSION,
                             ts: Utc::now().to_rfc3339(),
                             pipeline_id: self.pipeline_id_for_source(&source_id),
                             event: "deep_failed".to_string(),
@@ -1550,6 +1548,43 @@ mod tests {
                 None => std::env::remove_var(key),
             }
         }
+    }
+
+    #[test]
+    fn store_readers_migrate_legacy_jsonl_records_and_preserve_cursors() {
+        let _guard = env_guard();
+        let dir = tempdir().expect("tempdir");
+        let store = AthenaStore::new(dir.path()).expect("store");
+        fs::write(
+            store.deep_queue_path(),
+            concat!(
+                "{\"ts_utc\":\"2026-07-25T12:00:00Z\",\"event\":\"deep_queued\",\"source_id\":\"legacy\",\"agent\":\"athena\",\"state\":\"pending_deep\",\"reason\":\"legacy\"}\n",
+                "not-json\n",
+                "{\"schema_version\":2,\"ts\":\"2026-07-25T12:01:00Z\",\"event\":\"deep_complete\",\"source_id\":\"current\",\"agent\":\"athena\",\"status\":\"deep_complete\",\"reason\":\"done\"}\n"
+            ),
+        )
+        .expect("write deep queue fixture");
+        fs::write(
+            &store.policy_readiness_path,
+            "{\"ts_utc\":\"2026-07-25T12:00:00Z\",\"source_id\":\"legacy\",\"readiness\":\"policy_ready\",\"policy_gate\":{\"passed\":true}}\n",
+        )
+        .expect("write policy fixture");
+
+        let recent = store.recent_deep_queue_events(10).expect("recent queue");
+        assert_eq!(recent[0]["schema_version"], 2);
+        assert_eq!(recent[0]["status"], "pending_deep");
+        let (scanned_cursor, after_one) = store
+            .deep_queue_events_after(1, 10)
+            .expect("events after cursor");
+        assert_eq!(scanned_cursor, 3);
+        assert_eq!(after_one.len(), 1);
+        assert_eq!(after_one[0].0, 3);
+        assert_eq!(after_one[0].1["source_id"], "current");
+
+        let policy = store.policy_readiness(10).expect("policy readiness");
+        assert_eq!(policy[0]["schema_version"], 2);
+        assert_eq!(policy[0]["policy_readiness"], "policy_ready");
+        assert_eq!(policy[0]["gate"]["passed"], true);
     }
 
     fn scholarly_xml(title: &str) -> String {

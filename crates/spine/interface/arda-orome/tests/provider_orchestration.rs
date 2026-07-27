@@ -1,7 +1,7 @@
 use arda_orome::provider::{
     DispatchPolicy, EdgeCommunicationPolicy, FleetScope, ManualTransport, ProviderAdapterError,
-    ProviderConfig, ProviderRuntime, ProviderTransport, ProviderType, RoutingIntent, StreamEvent,
-    TransportRequest,
+    ProviderConfig, ProviderRuntime, ProviderTransport, ProviderType, RoutingIntent,
+    TransportOutcome, TransportRequest,
 };
 use async_trait::async_trait;
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -28,12 +28,15 @@ impl ProviderTransport for FlakyTransport {
         &self,
         _provider: &ProviderConfig,
         request: &TransportRequest,
-    ) -> Result<Vec<StreamEvent>, ProviderAdapterError> {
+    ) -> Result<TransportOutcome, ProviderAdapterError> {
         let attempt = self.attempts.fetch_add(1, Ordering::SeqCst) + 1;
         if attempt == 1 {
             Err(ProviderAdapterError::new("temporary", "retry me", true))
         } else {
-            Ok(ManualTransport::events_for(request))
+            Ok(TransportOutcome {
+                events: ManualTransport::events_for(request),
+                provider_message_id: None,
+            })
         }
     }
 }
@@ -46,9 +49,9 @@ impl ProviderTransport for SlowTransport {
         &self,
         _provider: &ProviderConfig,
         _request: &TransportRequest,
-    ) -> Result<Vec<StreamEvent>, ProviderAdapterError> {
+    ) -> Result<TransportOutcome, ProviderAdapterError> {
         tokio::time::sleep(Duration::from_millis(50)).await;
-        Ok(Vec::new())
+        Ok(TransportOutcome::default())
     }
 }
 
@@ -175,6 +178,7 @@ async fn edge_policy_requires_approval_for_external_dispatch() {
                 FleetScope::TrustedFleet,
                 FleetScope::External,
             ],
+            trusted_fleet_provider_ids: Vec::new(),
             require_external_approval: true,
         });
 

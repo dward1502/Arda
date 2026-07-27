@@ -6,7 +6,7 @@
 schema_version = "arda.model.registry.v1"
 authority = "manwe_model_lifecycle"
 status = "draft"
-last_reviewed = "2026-05-30"
+last_reviewed = "2026-07-27"
 source_audit_json = "core/state/model_freshness_audit.json"
 source_audit_markdown = "data/manwe/model_freshness_audit.md"
 
@@ -23,7 +23,7 @@ purpose = "Boardroom strategy, critique, and multi-agent deliberation."
 selection = "auto_via_manwe"
 preferred_provider_classes = ["edge", "subscription", "cloud"]
 required_capabilities = ["reasoning", "long_context", "instruction_following"]
-current_provider_ids = ["edge_backbone", "openai_sub", "openrouter"]
+current_provider_ids = ["edge_backbone_long", "openai_sub", "openrouter"]
 replacement_policy = "Prefer high-quality reasoning models with benchmark receipts; keep council seats logical, not fixed to model personas."
 rollback_target = "openai_sub/gpt-5.5"
 
@@ -33,7 +33,7 @@ purpose = "ATHENA/Scout research, source summarization, and broad catalog discov
 selection = "auto_via_manwe"
 preferred_provider_classes = ["edge", "free_cloud", "mixed_cloud"]
 required_capabilities = ["research", "summary", "long_context", "low_cost"]
-current_provider_ids = ["edge_backbone", "edge_core", "openrouter", "nvidia"]
+current_provider_ids = ["edge_backbone_long", "edge_core", "openrouter", "nvidia"]
 replacement_policy = "Prefer long-context low-cost models; cloud candidates remain routing candidates unless privacy policy permits source text egress."
 rollback_target = "edge_core/Qwen_Qwen3.5-4B-Q6_K"
 
@@ -43,7 +43,7 @@ purpose = "Code patch planning, tool-oriented reasoning, and repository work."
 selection = "auto_via_manwe"
 preferred_provider_classes = ["edge", "subscription", "cloud"]
 required_capabilities = ["code", "reasoning", "tool_use", "repo_context"]
-current_provider_ids = ["openai_sub", "nvidia", "openrouter"]
+current_provider_ids = ["edge_backbone_coder", "openai_sub", "nvidia", "openrouter"]
 replacement_policy = "Benchmark candidates on Annunimas code tasks before promotion."
 rollback_target = "edge_core/LFM2.5-8B-A1B-Q4_K_M"
 
@@ -114,15 +114,22 @@ lanes = ["monitoring_warden"]
 freshness_notes = ["older_qwen_generation_present", "quantized_local_artifact_should_have_freshness_review"]
 
 [[live_model]]
-provider_id = "edge_backbone"
-model_id = "ternary-bonsai-27b-q2_0"
+provider_id = "edge_backbone_long"
+model_id = "bonsai-27b-q1_0"
 status = "active"
 source_config = "config/fleet.toml"
-serving_endpoint = "http://100.102.250.115:8095/v1"
-# Canonical and only annunimas-server inference route. tools=false, so local
-# tool/code execution remains on edge_core or the subscription/cloud fallbacks.
+serving_endpoint = "http://100.102.250.115:8097/v1"
 lanes = ["council", "scout_research"]
-freshness_notes = ["canonicalized_2026_07_23", "annunimas_server_8095_serves_ternary_27b_q2_0_via_prism_fork_cuda", "former_coder_vision_lfm_lanes_retired", "tensor_split_0.20_0.80_across_2x_rtx2080s", "context_window_32768"]
+freshness_notes = ["promoted_2026_07_27_after_isolated_and_concurrent_benchmarks", "gpu0_rtx2080_super", "fully_gpu_resident", "context_window_100000", "thinking_disabled", "code_proposals_require_nanbeige_or_test_verification"]
+
+[[live_model]]
+provider_id = "edge_backbone_coder"
+model_id = "nanbeige4.2-3b-q4_k_m"
+status = "active"
+source_config = "config/fleet.toml"
+serving_endpoint = "http://100.102.250.115:8098/v1"
+lanes = ["code_forge_mind"]
+freshness_notes = ["promoted_2026_07_27_after_isolated_and_concurrent_benchmarks", "gpu1_rtx2080_super", "fully_gpu_resident", "context_window_32768", "thinking_disabled", "primary_code_tool_lane"]
 
 [[removed_route]]
 provider_id = "openrouter"

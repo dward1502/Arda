@@ -1,29 +1,43 @@
-use arda_outpost_protocol::{OutpostObservation, ObservationClassification, ObservationScope};
+use arda_outpost_protocol::{ObservationClassification, ObservationScope, OutpostObservation};
 use std::path::Path;
 use walkdir::WalkDir;
 
-use crate::{
-    CrateObservation, Result, ScoutError, SurveyReport,
-    observation::CrateStatus,
-};
 use crate::observation::CratePackage;
+use crate::{observation::CrateStatus, CrateObservation, Result, ScoutError, SurveyReport};
 
 pub fn survey_repo(root: impl AsRef<Path>) -> Result<SurveyReport> {
-    if !root.as_ref().exists() {
-        return Err(ScoutError::InvalidPath(
-            root.as_ref().display().to_string(),
-        ));
+    let root = root.as_ref();
+    if !root.exists() {
+        return Err(ScoutError::InvalidPath(root.display().to_string()));
     }
 
     let mut observations = Vec::new();
-    for entry in WalkDir::new(root).max_depth(2).into_iter().filter_map(|item| item.ok()) {
-        let path = entry.path();
-        if path.join("Cargo.toml").exists() {
-            observations.push(inspect_path(path)?);
+    for subtree in ["crates", "apps", "outposts"] {
+        let scan_root = root.join(subtree);
+        if !scan_root.exists() {
+            continue;
+        }
+        for entry in WalkDir::new(scan_root)
+            .max_depth(6)
+            .into_iter()
+            .filter_entry(|entry| !is_ignored_directory(entry.path()))
+            .filter_map(|item| item.ok())
+        {
+            let path = entry.path();
+            if entry.file_type().is_dir() && path.join("Cargo.toml").exists() {
+                observations.push(inspect_path(path)?);
+            }
         }
     }
 
     Ok(SurveyReport::new("node-pi5-warden", observations))
+}
+
+fn is_ignored_directory(path: &Path) -> bool {
+    path.file_name()
+        .and_then(|name| name.to_str())
+        .map(|name| matches!(name, ".git" | "node_modules" | "target"))
+        .unwrap_or(false)
 }
 
 fn parse_cargo_manifest(path: &Path) -> Result<Option<CratePackage>> {
@@ -117,11 +131,19 @@ fn detect_entrypoints(path: &Path) -> Vec<String> {
 
 fn detect_tests(path: &Path) -> Vec<String> {
     let mut tests = Vec::new();
-    for entry in WalkDir::new(path).max_depth(2).into_iter().filter_map(|item| item.ok()) {
+    for entry in WalkDir::new(path)
+        .max_depth(2)
+        .into_iter()
+        .filter_map(|item| item.ok())
+    {
         let candidate = entry.path();
         if candidate.starts_with(path.join("tests"))
             || entry.file_name().to_string_lossy().contains("test")
-            || entry.path().extension().map(|ext| ext == "py").unwrap_or(false)
+            || entry
+                .path()
+                .extension()
+                .map(|ext| ext == "py")
+                .unwrap_or(false)
         {
             tests.push(candidate.display().to_string());
         }

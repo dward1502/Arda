@@ -3,34 +3,29 @@
 Crate: `crates/spine/interface/arda-orome`
 Owner: HADES / interface layer
 Status: active
-Reviewed: 2026-07-26
+Reviewed: 2026-07-27
 
 ## This crate owns
 
-- A2H/A2A message and envelope contracts exposed from the crate root.
-- Provider adapter, registry, dispatch, fleet-scope, streaming, metrics, and receipt contracts.
+- A2H/A2A message and envelope contracts.
+- Provider adapter, registry, bounded dispatch, fleet-scope, streaming, metrics, receipt contracts, and the opt-in HTTP JSON transport.
 - Health-model and route-governance protobuf definitions and generated Rust surfaces.
-- Typed interface/event payload schemas.
-- Ledger-backed task-approval and interruption record creation.
+- Typed interface/operator payloads and ledger-backed governance record creation.
+- The opt-in `service-runtime` resident-service, MCP, context, Discord-safety, and projection contracts.
 
 ## This crate does not own
 
-- Provider or model selection, route fitness, or inference policy; Manwe owns those decisions.
-- Transport-exclusive process binding or daemon supervision.
-- Provider credentials, endpoints, or deployment secrets.
-- Governance policy definitions; it consumes `arda_core::GovernanceGates`.
-- Ledger implementation; it consumes `arda_core::Ledger`.
-- Behavior in currently unwired source files until a reviewed wire/migrate decision is completed.
+- Provider/model selection, route fitness, or inference policy; Manwe owns them.
+- Daemon supervision, provider credentials, deployment secrets, or exclusive process binding.
+- Provider credentials, endpoint discovery, or live status merely because a provider is configured; a receipt proves one delivery, not continuing health.
+- Governance or ledger implementations consumed from central crates.
+- ARDA HUD consumer implementation; that belongs to `apps/arda-hud`.
 
 ## Change authority
 
-- gRPC schema changes require coordinated Manwe compatibility checks.
-- Provider public-contract changes require `arda-engine` checks.
-- A2H contract changes require `arda-aule --features full-cli` checks.
-- Governance record changes require central governance/ledger review.
-- Unwired source retirement or exposure requires the evidence and gates in `PLAN.md`.
-
-## Canonical consumer path
-
-Consumers should import crate-root re-exports or the public `provider`/`grpc` modules. They must not
-depend on files that are absent from the `lib.rs` module graph.
+- gRPC schema changes require Manwe checks.
+- provider-contract changes require `arda-engine` checks.
+- A2H changes require `arda-aule --features full-cli` checks.
+- `service-runtime` changes require all-feature tests, strict Clippy, and explicit no-network/live-transport truthfulness.
+- trusted-fleet policy changes require denied-before-network and receipt-backed live-socket tests.
+- Do not restore retired Serenity/presentation modules without a concrete owner, consumer, and tested transport contract.

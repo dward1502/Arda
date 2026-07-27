@@ -1,0 +1,48 @@
+{
+  "schema_version": "arda.warden.scout-runtime.v1",
+  "generated_at_utc": "2026-07-27T23:03:00Z",
+  "node_id": "node-pi5-warden",
+  "deployment": {
+    "host": "warden",
+    "architecture": "aarch64",
+    "api_url": "http://100.110.85.37:8092",
+    "search_provider": "searxng-local",
+    "search_provider_url": "http://127.0.0.1:18080",
+    "memory_root": "/home/numenor/.local/share/arda/warden"
+  },
+  "services": {
+    "arda-warden-searxng.service": "active_enabled",
+    "arda-warden-scout.service": "active_enabled",
+    "arda-warden-research.timer": "active_enabled",
+    "arda-warden-survey.timer": "active_enabled"
+  },
+  "verified_surfaces": {
+    "health": "/health",
+    "internet_search": "/search",
+    "repository_survey": "/survey",
+    "scoped_recall": "/recall"
+  },
+  "research": {
+    "schedule": "daily_with_30m_randomized_delay",
+    "topic_config": "config/outposts/warden/research-topics.json",
+    "max_topics_per_run": 16,
+    "max_results_per_topic": 10,
+    "observations_are_advisory": true
+  },
+  "policy_boundary": {
+    "final_approval": false,
+    "automatic_task_promotion": false,
+    "automatic_policy_mutation": false,
+    "external_mutation": false,
+    "tailscale_only_api": true,
+    "local_search_provider": true,
+    "scoped_edge_memory": true
+  },
+  "verification": {
+    "health_status": "ok",
+    "live_search_results_returned": true,
+    "search_observation_persisted": true,
+    "search_observation_recalled": true,
+    "repository_survey_persisted": true
+  }
+}

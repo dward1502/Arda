@@ -1,0 +1,29 @@
+{
+  "schema_version": "arda.warden.research-topics.v1",
+  "topics": [
+    {
+      "id": "agent-runtime-governance",
+      "query": "Rust autonomous AI agent runtime governance observability new research",
+      "enabled": true,
+      "limit": 5
+    },
+    {
+      "id": "local-agent-memory",
+      "query": "local-first agent memory provenance retrieval agentic systems",
+      "enabled": true,
+      "limit": 5
+    },
+    {
+      "id": "edge-ai-pi5",
+      "query": "Raspberry Pi 5 edge AI agent inference deployment reliability",
+      "enabled": true,
+      "limit": 5
+    },
+    {
+      "id": "agent-learning-evaluation",
+      "query": "continuous agent learning source provenance evaluation methods",
+      "enabled": true,
+      "limit": 5
+    }
+  ]
+}

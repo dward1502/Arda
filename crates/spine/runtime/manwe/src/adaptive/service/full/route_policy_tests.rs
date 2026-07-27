@@ -2913,3 +2913,17 @@ fn half_open_probe_gate_allows_only_probe_roll() {
     assert!(provider_half_open_probe_allowed_for_roll(&p, 0));
     assert!(!provider_half_open_probe_allowed_for_roll(&p, 1));
 }
+
+#[test]
+fn local_provider_enters_half_open_at_its_freeze_threshold() {
+    let mut p = provider("edge_backbone");
+    p.access_tier = "local".to_string();
+    p.consecutive_failures = 1;
+    p.models[0].consecutive_failures = 2;
+    p.in_cooldown = false;
+    p.cooldown_until_utc = None;
+
+    assert!(provider_in_half_open(&p));
+    assert!(provider_half_open_probe_allowed_for_roll(&p, 0));
+    assert!(!provider_half_open_probe_allowed_for_roll(&p, 1));
+}

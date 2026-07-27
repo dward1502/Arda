@@ -144,7 +144,9 @@ impl HermesService {
                 streaming: send_msg.stream,
                 chunks_sent: 0,
                 provider_id: send_msg.provider.clone(),
+                provider_message_id: None,
                 error: Some("provider send concurrency gate saturated".to_string()),
+                timed_out: false,
             }
         };
         self.append_outbound_result(&routed, &receipt)?;
@@ -367,6 +369,8 @@ impl HermesService {
                 "attempts": receipt.attempts,
                 "streaming": receipt.streaming,
                 "chunks_sent": receipt.chunks_sent,
+                "provider_message_id": receipt.provider_message_id,
+                "delivery_proven": receipt.delivery_proven(),
                 "error": receipt.error,
                 "manwe_route": routed.manwe_route,
                 "manwe_route_attribution": manwe_route_attribution(routed.manwe_route.as_ref()),
@@ -396,6 +400,8 @@ impl HermesService {
                 "attempts": receipt.attempts,
                 "streaming": receipt.streaming,
                 "chunks_sent": receipt.chunks_sent,
+                "provider_message_id": receipt.provider_message_id,
+                "delivery_proven": receipt.delivery_proven(),
                 "error": receipt.error,
                 "policy_decision": "allowed",
                 "content_redacted": true,

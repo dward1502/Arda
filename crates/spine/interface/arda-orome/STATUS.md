@@ -2,71 +2,48 @@
 
 Crate: `crates/spine/interface/arda-orome`
 Version: `0.1.0`
-State: **compiled surface stable; source-tree stabilization required**
-Reviewed: 2026-07-26
-Required crate-local work: **open; tracked in `PLAN.md`**
+State: **transport-complete, source-classified, and verified**
+Reviewed: 2026-07-27
+Required crate-local stabilization work: **complete**
 
-## Compiled production surface
+## Current state
 
-- Six public module families: `comm`, `governance`, `grpc`, `message`, `provider`, and `types`.
-- Provider dispatch has bounded timeout/retry, expiry rejection, direct/fanout routing,
-  fleet-scope policy, metrics, and typed receipts.
-- `GovernanceHooks` maps central action policy into typed `arda_core::Ledger` records.
-- Two protobuf contracts generate tonic client/server/message surfaces.
-- `arda-engine`, Manwe, and `arda-aule` are the three direct workspace consumers.
+- The default six-family interface surface remains stable.
+- The former 35-file unwired inventory is resolved: 29 source files were retained behind `service-runtime`, one compatibility module was added, and six unsupported files were retired.
+- No Rust file is unwired: the all-feature tree has 47 production-compiled files and three unit-test-only files.
+- The no-op default `http` feature and its unused optional dependencies were removed.
+- Service/MCP/context/Discord-contract dependencies are optional and activated only by `service-runtime`.
+- `intent` and `registry` support both unit tests and `service-runtime`; `message_retry_expiry`, `router`, and provider tests remain test-only.
+- `HttpJsonTransport` provides opt-in live HTTP dispatch with bounded responses and provider-message receipt proof.
+- Fleet policy defaults to local-only; trusted-fleet targets require an explicit provider allowlist and external scope requires approval.
 
-## Stability findings
+## Runtime boundary
 
-1. **P0 source ownership:** 35 Rust files under `src/` are not reachable from `lib.rs` in either
-   production or unit-test builds. They include the service, MCP, Discord, context, edge, relay,
-   and slash-command trees. They are not covered by the successful Cargo gates.
-2. **Resolved module root:** `src/service.rs` is the sole canonical service root. The duplicate
-   `src/service/mod.rs` was retired on 2026-07-26; the retained service tree remains unwired pending
-   ownership and dependency-closure review.
-3. **P1 feature drift:** the default `http` feature enables `axum`, `tower`, and `tokio-stream`, but
-   no compiled source is gated by or uses that feature. Default and no-default builds therefore
-   expose the same tested Rust behavior.
-4. **P1 manifest reconciliation:** several dependencies are referenced only by unwired sources.
-   Dependency pruning must follow, not precede, the wire/retire decision.
-5. **Intentional test-only boundary:** `intent`, `registry`, `router`, and
-   `message_retry_expiry` are unit-test-only modules and unavailable to external consumers.
-
-These findings prevent declaring the entire on-disk source tree stable. They do not invalidate the
-compiled public surface or current consumers.
+`service-runtime` compiles and tests the preserved resident-service closure and the live HTTP JSON transport. The resident-service compatibility adapter remains deterministic/no-network and does not report configured providers online without health evidence. Slack, Email, Matrix, and Discord clients remain outside this crate. Manwe retains provider/model routing authority.
 
 ## Verification evidence
 
-Passed from the workspace root on 2026-07-26:
+Passed from the workspace root on 2026-07-27:
 
-- `cargo check -p arda-orome --all-features`.
+- `cargo fmt -p arda-orome -- --check`.
 - `cargo check -p arda-orome --no-default-features`.
-- `cargo test -p arda-orome --all-features`: 21 passed
-  (14 unit, 7 integration, 0 doctests).
-- `cargo test -p arda-orome --no-default-features`: 21 passed
-  (14 unit, 7 integration, 0 doctests).
-- `cargo clippy -p arda-orome --all-targets --all-features -- -D warnings`.
+- `cargo test -p arda-orome --no-default-features`: 21 passed (14 unit, 7 integration).
+- `cargo test -p arda-orome --all-features -- --test-threads=1`: 92 passed (82 unit, 10 integration).
+- `cargo clippy -p arda-orome --all-targets --all-features --quiet -- -D warnings`.
 - `cargo doc -p arda-orome --no-deps --all-features`.
-- `cargo fmt -p arda-orome -p arda-engine -- --check`.
 - `cargo test -p arda-engine --test orome_smoke`: 1 passed.
 - `cargo check -p manwe --features grpc`.
 - `cargo check -p arda-aule --features full-cli`.
 
-The Manwe consumer check emitted seven Manwe-local unused/dead-code warnings. The strict
-`arda-orome` Clippy gate was clean. Cargo also emitted the existing workspace informational warning
-about the ignored non-root launcher profile.
+Cargo emitted only the existing workspace warning about the ignored non-root launcher profile.
 
-The first implementation slice was reverified after retiring the two unattached files with all
-default/all-feature/no-default producer gates, strict Clippy, rustdoc, the engine smoke test, and
-the Aule `full-cli` consumer check. Manwe was not rerun after this source-retirement slice because
-another agent is actively modifying Manwe; neither retired file was compiled or imported by Manwe.
+## HERMES disposition
 
-## Worktree preservation
+All crate-owned HERMES tasks are complete:
 
-`src/registry.rs` already had a user modification before this audit. This documentation pass did
-not alter or restore it.
+1. concrete transport and receipt projection: implemented by `HttpJsonTransport`, `TransportOutcome`, and `DispatchReceipt::delivery_proven()`;
+2. fleet policy and edge evidence: documented as fail-closed and verified by three live-socket/denied-before-network integration tests;
+3. bounded fanout and routing: retained and verified;
+4. HUD expansion: remains correctly outside this crate under `apps/arda-hud` ownership.
 
-## Stable release criteria
-
-The whole crate tree can be declared stable after the active items in `PLAN.md` resolve the
-unreachable source tree, feature contract, and resulting manifest surface,
-followed by the same producer and consumer gates above.
+The completed transient plan was removed from `docs/plans/` in accordance with active-plan-only policy.

@@ -6,72 +6,63 @@ soterion:
   role: "interface_contract"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-07-27"
 ---
-
-> 🜏 Soterion: ⟁ interface_contract | owner: HADES | status: active | reviewed: 2026-07-26
 
 # arda-orome
 
-Typed communication, provider-dispatch, governance-recording, and gRPC contracts for the Arda
-spine.
+Typed communication, provider-dispatch, governance-recording, gRPC, and opt-in resident-service contracts for the Arda spine.
 
-## Current scope
+## Default surface
 
-The compiled production library exposes:
+The default build exposes:
 
-- A2H and A2A message/envelope types;
-- ledger-backed task-approval and interruption governance records;
-- provider adapter, registry, streaming, timeout/retry, fanout, fleet-scope, metrics, and receipt
-  contracts;
-- generated health-model and route-governance gRPC clients, servers, and messages;
-- typed boardroom, council, approval, completion, interruption, and operator event payloads.
+- `comm`: A2H messages, channels, priorities, attachments, responses, and bounded queues;
+- `governance`: ledger-backed approval and interruption decisions;
+- `grpc`: generated health-model and route-governance tonic surfaces;
+- `message`: A2A messages, threads, TTL, signatures, and envelopes;
+- `provider`: adapter registry, bounded dispatch, fanout, fleet policy, streaming, metrics, receipts, and an opt-in receipt-backed HTTP JSON transport;
+- `types`: boardroom, council, approval, completion, interruption, and operator payloads.
 
-Manwe owns provider selection and inference-routing policy. `arda-orome` owns the bounded
-transport-facing contracts and outcome receipts, not daemon lifecycle or model choice.
+Manwe owns provider/model selection and inference-routing policy. `arda-orome` owns transport-facing contracts and outcome receipts.
 
-## Public modules
+## `service-runtime` feature
 
-| Module | Contract |
-|---|---|
-| `comm` | A2H messages, channels, priorities, attachments, responses, and bounded queue |
-| `governance` | `GovernanceHooks` and ledger-backed policy decisions |
-| `grpc` | Generated health-model and route-governance tonic surfaces |
-| `message` | A2A messages, threads, TTL, signatures, and hop envelopes |
-| `provider` | Provider adapters, registry, dispatch orchestration, streaming, and receipts |
-| `types` | Shared interface and operator payload schemas |
+`service-runtime` deliberately compiles the preserved resident-service migration surface:
 
-`intent`, `registry`, `router`, and `message_retry_expiry` are currently compiled only for unit
-tests. They are not public production modules.
+- `agent`, `service`, and the service child modules;
+- MCP browser/channel/protocol/server/tool support;
+- context cache/enrichment and Mnemosyne integration;
+- Discord health and safe-message contracts;
+- the resident protocol and registry support required by that closure.
 
-## Provider integration
+The feature is opt-in. Its historical resident-service compatibility dispatch remains deterministic/no-network `ManualTransport`; configured providers are reported offline unless a test channel proves health. The provider API additionally exposes `HttpJsonTransport` for explicitly configured, policy-gated live dispatch. Serenity, formatter, relay, slash-command, legacy edge, and unused generated-contract shims were retired rather than advertised as working integrations.
 
-Implement `provider::ProviderTransport`, register a `ProviderConfig`, and dispatch through
-`ProviderRuntime`. Do not bypass runtime timeout, retry, expiry, fanout, fleet-scope, metrics, or
-receipt behavior. `ManualTransport` is deterministic and no-network; it is not a production
-provider client.
+## Integration
 
-## Consumers
+Implement `provider::ProviderTransport`, register a `ProviderConfig`, and dispatch through `ProviderRuntime`. Do not bypass timeout, retry, expiry, fanout, fleet-scope, metrics, or receipt behavior.
 
-- `arda-engine` re-exports provider contracts and runs the deterministic smoke dispatch.
-- Manwe's `grpc` feature implements and serves the generated gRPC contracts.
-- `arda-aule`'s `full-cli` feature consumes the A2H message surface.
+`HttpJsonTransport` is available with `service-runtime`. It posts a bounded JSON envelope containing `message_id`, `payload`, `streaming`, and `fleet_scope` to an HTTP provider endpoint. A successful response must contain a non-empty `message_id`; optional `chunks` become stream events. Redirects are disabled, response bodies are bounded, and HTTP success without a provider message ID is treated as failure rather than delivery proof.
 
-## Stability boundary
+Fleet policy is fail-closed:
 
-The compiled/default and no-default-feature surfaces pass their gates. The repository tree is not
-yet fully source-clean: 35 Rust files are not reachable from `lib.rs`, and the `http` feature
-enables dependencies without enabling an HTTP module. These are recorded as active stabilization
-work in `PLAN.md`; unwired files must not be presented as supported crate behavior.
+- `Local` is the only default scope;
+- `TrustedFleet` requires both the scope and every target provider ID to be explicitly allowlisted;
+- `External` requires the scope plus operator approval;
+- operators must review the endpoint associated with every allowlisted provider ID because configuration remains deployment authority.
 
-## Verification
+`DispatchReceipt::delivery_proven()` is true only when dispatch succeeded and the concrete transport returned a provider message ID. `ManualTransport` never satisfies that condition.
 
-Current dated commands, test counts, consumer checks, and known boundaries are in `STATUS.md`.
+Direct consumers:
+
+- `arda-engine`: provider contracts and deterministic smoke dispatch;
+- Manwe `grpc`: generated gRPC contracts;
+- `arda-aule` `full-cli`: A2H contracts.
 
 ## Documentation
 
-- `STATUS.md` — current stability and verification evidence.
-- `BREAKDOWN.md` — compiled/test-only/unwired implementation map.
-- `PLAN.md` — active stabilization decisions and future proposals.
-- `OWNERSHIP.md` — authority and non-ownership boundaries.
-- `INDEX.md` — deterministic crate navigation.
+- `STATUS.md` — current evidence and remaining boundaries.
+- `BREAKDOWN.md` — exact module classification and invariants.
+- `PLAN.md` — completed stabilization decisions and future proposals.
+- `OWNERSHIP.md` — authority boundaries.
+- `INDEX.md` — deterministic navigation.

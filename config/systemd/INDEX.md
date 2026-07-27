@@ -23,3 +23,7 @@ soterion:
 - `arda-queue-hygiene-monitor.service`
 - `arda-queue-hygiene-monitor.timer`
 - `annunimas-mesh-llm.service`
+- `llama-server-bonsai-q1.service`
+- `llama-server-bonsai-q1-start.sh`
+- `llama-server-nanbeige.service`
+- `llama-server-nanbeige-start.sh`

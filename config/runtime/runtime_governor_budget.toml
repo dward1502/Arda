@@ -36,9 +36,13 @@ monthly_requests_hard_cap = 60000
 monthly_requests_soft_cap = 60000
 monthly_requests_hard_cap = 120000
 
-[providers.edge_backbone]
+[providers.edge_backbone_coder]
 monthly_requests_soft_cap = 100000
 monthly_requests_hard_cap = 250000
+
+[providers.edge_backbone_long]
+monthly_requests_soft_cap = 50000
+monthly_requests_hard_cap = 100000
 
 [providers.edge_guardhouse]
 monthly_requests_soft_cap = 25000

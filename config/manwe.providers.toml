@@ -77,25 +77,52 @@ probe_profile = "benchmark_validated_local"
   notes = "Benchmark winner 2026-07-26 (receipt score 100.0; every deployment gate passed). Median generation 92.22 tok/s, 8K prefill 3151.68 tok/s, 8K TTFT 2.57s, 2.26s load; practical RTX 3080 VRAM margin 3.25 GiB with Q4/Q4 KV cache."
 
 [[provider]]
-id = "edge_backbone"
-name = "Annunimas Server Ternary Bonsai 27B Backbone"
-# Canonical annunimas-server route. The host intentionally serves one model:
-# Ternary-Bonsai-27B-Q2_0 on :8095 via the Prism-ML llama.cpp CUDA fork.
-base_url = "http://100.102.250.115:8095/v1"
+id = "edge_backbone_long"
+name = "Annunimas Server Bonsai 27B Q1 Review Lane"
+# Long-context review/research lane on GPU 0 of the 2x RTX 2080 Super server.
+base_url = "http://100.102.250.115:8097/v1"
 enabled = true
 access_tier = "local"
 quality_band = "high"
 requests_per_minute = 20
-max_completion_tokens = 1024
+max_completion_tokens = 2048
+supports_tools = false
+supports_structured_output = true
+probe_model = "bonsai-27b-q1_0"
+probe_profile = "benchmark_validated_local"
 
   [[provider.model]]
-  id = "ternary-bonsai-27b-q2_0"
+  id = "bonsai-27b-q1_0"
   capable_tasks = ["research", "reasoning", "chat", "summary", "background"]
+  context_window = 100000
+  is_default = true
+  capabilities = { tools = false, structured_output = true, streaming = true, visible_reasoning = false }
+  aliases = ["bonsai-27b", "bonsai-review", "b27q1", "Bonsai-27B-Q1_0"]
+  notes = "Long-context review/research lane, served fully GPU-resident by llama-server-bonsai-q1.service at :8097 with 100K context and thinking disabled. Use Nanbeige or executable tests to verify code proposals from this lane."
+
+[[provider]]
+id = "edge_backbone_coder"
+name = "Annunimas Server Nanbeige4.2 3B Coding Lane"
+# Primary code/tool lane on GPU 1 of the 2x RTX 2080 Super server.
+base_url = "http://100.102.250.115:8098/v1"
+enabled = true
+access_tier = "local"
+quality_band = "medium"
+requests_per_minute = 60
+max_completion_tokens = 2048
+supports_tools = true
+supports_structured_output = true
+probe_model = "nanbeige4.2-3b-q4_k_m"
+probe_profile = "benchmark_validated_local"
+
+  [[provider.model]]
+  id = "nanbeige4.2-3b-q4_k_m"
+  capable_tasks = ["code", "chat", "summary", "background"]
   context_window = 32768
   is_default = true
-  capabilities = { tools = false, structured_output = false, streaming = true, visible_reasoning = false }
-  aliases = ["ternary-bonsai-27b", "bonsai-27b", "b27", "Ternary-Bonsai-27B-Q2_0"]
-  notes = "Canonical annunimas-server model. 27B ternary Q2_0 (~6.7G), served via llama-server-bonsai27.service at :8095. As of 2026-07-21 this lane serves 32768 context on 2x RTX 2080 Super with --n-gpu-layers 600 --main-gpu 0 --split-mode row --tensor-split 0.20,0.80."
+  capabilities = { tools = true, structured_output = true, streaming = true, visible_reasoning = false }
+  aliases = ["nanbeige", "nanbeige-coder", "local-coder", "Nanbeige4.2-3B-Q4_K_M"]
+  notes = "Primary coding/tool lane, served fully GPU-resident by llama-server-nanbeige.service at :8098 with 32K context and thinking disabled. Route code, edit, test, and routine agent work here."
 
 [[provider]]
 id = "edge_laptop"

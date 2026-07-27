@@ -4,13 +4,11 @@
 
 use anyhow::Result;
 
-use crate::context_cache::{AsyncContextCache, InternalCacheMetrics};
+use crate::context_cache::AsyncContextCache;
 
 /// Async-shared cache for enriched context to avoid repeated Mnemosyne queries
 static CONTEXT_CACHE: once_cell::sync::Lazy<AsyncContextCache<String, String>> =
-    once_cell::sync::Lazy::new(|| {
-        AsyncContextCache::new(100, std::time::Duration::from_secs(300))
-    });
+    once_cell::sync::Lazy::new(|| AsyncContextCache::new(100, std::time::Duration::from_secs(300)));
 
 /// Enrich context with memories from Mnemosyne, using cache to avoid repeated queries
 pub async fn spawn_enriched_subagent(_task: &str, context: &str) -> Result<String> {
@@ -76,24 +74,28 @@ pub async fn spawn_enriched_subagent(_task: &str, context: &str) -> Result<Strin
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::context_cache::CacheMetrics;
 
     #[tokio::test]
     async fn bounded_async_cache_get_put_and_metrics() {
-        let cache = AsyncContextCache::new(2, std::time::Duration::from_secs(60));
-        assert!(cache.get(&"missing").await.is_none());
+        let cache: AsyncContextCache<String, String> =
+            AsyncContextCache::new(2, std::time::Duration::from_secs(60));
+        let missing = "missing".to_string();
+        let a = "a".to_string();
+        let b = "b".to_string();
+        let c = "c".to_string();
+        assert!(cache.get(&missing).await.is_none());
 
-        cache.put("a".to_string(), "1".to_string()).await;
-        cache.put("b".to_string(), "2".to_string()).await;
+        cache.put(a.clone(), "1".to_string()).await;
+        cache.put(b.clone(), "2".to_string()).await;
 
-        assert_eq!(cache.get(&"a").await, Some("1".to_string()));
-        assert_eq!(cache.get(&"b").await, Some("2".to_string()));
+        assert_eq!(cache.get(&a).await, Some("1".to_string()));
+        assert_eq!(cache.get(&b).await, Some("2".to_string()));
 
-        cache.put("c".to_string(), "3".to_string()).await;
+        cache.put(c.clone(), "3".to_string()).await;
 
-        assert_eq!(cache.get(&"a").await, Some("1".to_string()));
-        assert!(cache.get(&"b").await.is_none());
-        assert_eq!(cache.get(&"c").await, Some("3".to_string()));
+        assert!(cache.get(&a).await.is_none());
+        assert_eq!(cache.get(&b).await, Some("2".to_string()));
+        assert_eq!(cache.get(&c).await, Some("3".to_string()));
 
         let metrics = cache.metrics().await;
         assert_eq!(metrics.size, 2);

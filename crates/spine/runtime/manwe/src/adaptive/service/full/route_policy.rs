@@ -1047,7 +1047,12 @@ fn cooldown_bypass_max_seconds() -> u64 {
 }
 
 pub(super) fn provider_in_half_open(p: &ProviderState) -> bool {
-    !p.in_cooldown && p.cooldown_until_utc.is_none() && p.consecutive_failures >= 3
+    let consecutive = p
+        .consecutive_failures
+        .max(model_consecutive_failures(&p.models));
+    !p.in_cooldown
+        && p.cooldown_until_utc.is_none()
+        && consecutive >= provider_freeze_threshold(p)
 }
 
 pub(super) fn provider_half_open_probe_allowed(p: &ProviderState) -> bool {

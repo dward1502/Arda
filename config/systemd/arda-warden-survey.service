@@ -1,0 +1,12 @@
+[Unit]
+Description=Run Warden repository survey
+After=arda-warden-scout.service
+Requires=arda-warden-scout.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/curl --fail --silent --show-error --max-time 120 --header Content-Type:application/json --data '{"root":"%h/Arda"}' http://100.110.85.37:8092/survey
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only

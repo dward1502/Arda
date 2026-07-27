@@ -4,25 +4,23 @@ use crate::mcp::McpMessage;
 use crate::provider::{DispatchReceipt, ProviderRuntime};
 use crate::types::{
     BoardroomManweRouteEvidence, BoardroomOracleLink, BoardroomPost, BoardroomQuorumDecision,
-    BoardroomQuorumPacket, BoardroomTriadScores, ManweRouteHint, CommsEvent, CommsEventRisk,
-    CommsEventType, CommsEventVisibility, CouncilCommandSeat, CouncilDiscussionNote,
-    CouncilDiscussionProjection, CouncilDiscussionPromotion, InboundMessage, IntentResult,
-    InterruptionDisposition, InterruptionMessage, LocalCouncilSummaryFallbackMetadata,
-    LocalCouncilSummaryRoute, OperatingRoomEvent, OperatingRoomEventKind, OutboundMessage,
-    PromotionState, SubagentCompletionPacket, SubagentCompletionProjection, TaskApprovalPacket,
+    BoardroomQuorumPacket, BoardroomTriadScores, CommsEvent, CommsEventRisk, CommsEventType,
+    CommsEventVisibility, CouncilCommandSeat, CouncilDiscussionNote, CouncilDiscussionProjection,
+    CouncilDiscussionPromotion, InboundMessage, IntentResult, InterruptionDisposition,
+    InterruptionMessage, LocalCouncilSummaryFallbackMetadata, LocalCouncilSummaryRoute,
+    ManweRouteHint, OperatingRoomEvent, OperatingRoomEventKind, OutboundMessage, PromotionState,
+    SubagentCompletionPacket, SubagentCompletionProjection, TaskApprovalPacket,
     TaskApprovalProjection, TaskApprovalProposal,
 };
+use crate::Priority;
 use arda_core::daemon::{CommandEnvelope, ResponseEnvelope};
 use arda_core::error::{ArdaError, Result};
-use arda_core::orome_runtime::{
-    AgentRegistryState, OromeCoreRuntimeState, SharedRegistryStateStorage, SharedRouterStateStorage,
-    OromeRuntimeStateError,
-};
+use arda_core::orome_runtime::{SharedRegistryStateStorage, SharedRouterStateStorage};
 use arda_core::task::Task;
 use arda_core::{spawn_bounded_background, try_run_bounded_async};
+use arda_economics::{JouleWorkUnit, PlutusService};
 use arda_governance::{enqueue_bacon_lite, triad_validate, TriadConfig};
 use arda_vaire::{InformantEvent, MnemosyneService};
-use arda_economics::{JouleWorkUnit, PlutusService};
 use chrono::Utc;
 use fs2::FileExt;
 use serde::{Deserialize, Serialize};
@@ -42,6 +40,7 @@ mod decision;
 mod inbound;
 mod interrupts;
 mod outbound;
+mod provider_compat;
 mod queue_state;
 mod runtime;
 mod semantic_channel;
@@ -119,6 +118,7 @@ mod tests {
         InterruptionMessage, OperatingRoomEventKind, OutboundMessage, PromotionState,
     };
     use arda_core::try_run_bounded_async;
+    use arda_economics::PlutusService;
     use async_trait::async_trait;
     use std::fs;
     use std::sync::Arc;
@@ -208,7 +208,7 @@ mod tests {
         let _guard = env_guard();
         let dir = tempdir().expect("tempdir");
         let plutus_home = dir.path().join("plutus");
-        std::env::set_var("ANNUNIMAS_PLUTUS_HOME", &plutus_home);
+        std::env::set_var("ARDA_PLUTUS_HOME", &plutus_home);
         let service = HermesService::new(dir.path()).expect("service");
 
         let _ = service
@@ -269,7 +269,7 @@ mod tests {
                 .unwrap_or_default()
                 > 0.0
         );
-        std::env::remove_var("ANNUNIMAS_PLUTUS_HOME");
+        std::env::remove_var("ARDA_PLUTUS_HOME");
     }
 
     #[test]
@@ -441,9 +441,9 @@ mod tests {
             vec![ProviderConfig {
                 id: "discord".to_string(),
                 kind: ProviderType::Discord,
-                enabled: true,
-                persistent: true,
-                fallback_to_direct_api: false,
+                name: "Discord test channel".to_string(),
+                endpoint: String::new(),
+                capabilities: vec!["send".to_string(), "stream".to_string()],
             }],
             vec![("discord".to_string(), fake.clone())],
         ));
@@ -1274,7 +1274,7 @@ mod tests {
         assert!(decision.approved);
         assert!(decision
             .canonical_refs
-            .contains(&format!("council_session:council_approval_1")));
+            .contains(&"council_session:council_approval_1".to_string()));
         assert!(decision
             .canonical_refs
             .iter()
@@ -1405,7 +1405,7 @@ mod tests {
         std::env::set_var("ANNUNIMAS_WARDEN_QUEUE_PATH", &warden_queue);
         std::env::set_var("ANNUNIMAS_APOLLO_INTERRUPT_QUEUE_PATH", &apollo_hook);
         std::env::set_var("ANNUNIMAS_PROMETHEUS_ORDERS_PATH", &orders_path);
-        std::env::set_var("ANNUNIMAS_PLUTUS_HOME", &plutus_home);
+        std::env::set_var("ARDA_PLUTUS_HOME", &plutus_home);
 
         let mut msg = InterruptionMessage::new("voice", "operator", "switch to queue cleanup");
         msg.channel = Some("discord".to_string());
@@ -1463,7 +1463,7 @@ mod tests {
                 .unwrap_or_default()
                 >= 1
         );
-        std::env::remove_var("ANNUNIMAS_PLUTUS_HOME");
+        std::env::remove_var("ARDA_PLUTUS_HOME");
     }
 
     #[test]
@@ -1577,10 +1577,7 @@ mod tests {
             )
             .expect("event");
 
-        assert_eq!(
-            event.schema_version,
-            "arda.hermes.operating_room_event.v1"
-        );
+        assert_eq!(event.schema_version, "arda.hermes.operating_room_event.v1");
         assert_eq!(event.kind, OperatingRoomEventKind::Status);
         assert_eq!(event.topic, "hermes_discord_operating_room");
         assert!(!event.discord_projection_permitted);
@@ -1891,10 +1888,7 @@ mod tests {
             )
             .expect("packet");
 
-        assert_eq!(
-            packet.schema_version,
-            "arda.hermes.boardroom_quorum.v1"
-        );
+        assert_eq!(packet.schema_version, "arda.hermes.boardroom_quorum.v1");
         assert_eq!(packet.session_id, "council_gate_36");
         assert_eq!(packet.status, "review_required");
         assert!(packet.status_reason.contains("oracle_verdict_missing"));
@@ -2138,10 +2132,7 @@ mod tests {
 
         let plan = service.discord_channel_plan();
 
-        assert_eq!(
-            plan.schema_version,
-            "arda.hermes.discord_channel_plan.v1"
-        );
+        assert_eq!(plan.schema_version, "arda.hermes.discord_channel_plan.v1");
         assert_eq!(plan.mode, "read_only_discovery");
         assert_eq!(plan.guild_id.as_deref(), Some("[REDACTED]"));
         assert_eq!(plan.category_id.as_deref(), Some("[REDACTED]"));

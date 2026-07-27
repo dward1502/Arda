@@ -51,6 +51,8 @@ fn dispatch_receipt_defaults_are_safe() {
     assert!(!receipt.streaming);
     assert_eq!(receipt.chunks_sent, 0);
     assert!(receipt.provider_id.is_empty());
+    assert!(receipt.provider_message_id.is_none());
+    assert!(!receipt.delivery_proven());
     assert!(receipt.error.is_none());
 }
 

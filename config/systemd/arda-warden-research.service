@@ -1,0 +1,12 @@
+[Unit]
+Description=Run bounded Warden internet research topics
+After=arda-warden-scout.service
+Requires=arda-warden-scout.service
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/lib/arda/warden/bin/arda-outpost-scout run-topics --config %h/.config/arda/warden/research-topics.json --endpoint http://100.110.85.37:8092
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only

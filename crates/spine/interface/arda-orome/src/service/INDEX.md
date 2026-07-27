@@ -6,14 +6,12 @@ soterion:
   role: "directory_index"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-07-27"
 ---
-
-> 🜏 Soterion: ⟁ directory_index | owner: HADES | status: active | reviewed: 2026-07-26
 
 # Index: arda-orome/src/service
 
-Current state: unwired; none of these Rust children are reachable from `src/lib.rs`.
+Current state: compiled by the opt-in `service-runtime` feature through the sole root `../service.rs`.
 
 ## Contents
 
@@ -26,6 +24,7 @@ Current state: unwired; none of these Rust children are reachable from `src/lib.
 - `inbound.rs`
 - `interrupts.rs`
 - `outbound.rs`
+- `provider_compat.rs`
 - `queue_state.rs`
 - `runtime.rs`
 - `semantic_channel.rs`
@@ -33,6 +32,3 @@ Current state: unwired; none of these Rust children are reachable from `src/lib.
 - `subagent_completion.rs`
 - `support.rs`
 - `task_approval.rs`
-
-The sibling `../service.rs` is the sole canonical service root, but remains unwired from `lib.rs`.
-Further classification is tracked in `../../PLAN.md`.

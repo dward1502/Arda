@@ -2,27 +2,23 @@
 
 ## Maintained documentation
 
-- `INDEX.md` — this deterministic navigation file.
-- `README.md` — public scope, integration guidance, consumers, and documentation map.
-- `STATUS.md` — dated build evidence and current stability findings.
-- `BREAKDOWN.md` — production/test-only/unwired module inventory and invariants.
-- `PLAN.md` — active source-tree stabilization work and future proposals.
-- `OWNERSHIP.md` — owned and non-owned authority boundaries.
+- `INDEX.md` — deterministic navigation.
+- `README.md` — public/default and opt-in contracts.
+- `STATUS.md` — dated verification evidence and boundaries.
+- `BREAKDOWN.md` — production/test-only/retired classification.
+- `PLAN.md` — completed stabilization decisions.
+- `OWNERSHIP.md` — authority boundaries.
 
 ## Direct crate children
 
-- `Cargo.toml` — package, feature, dependency, and build-dependency declarations.
+- `Cargo.toml` — package, `service-runtime` feature, dependencies, and build dependencies.
 - `build.rs` — protobuf generation into `src/grpc/`.
 - `proto/` — health-model and route-governance protobuf contracts.
-- `src/` — compiled, test-only, generated, and currently unwired Rust sources.
-- `tests/` — provider orchestration and governance ledger integration tests.
+- `src/` — default, opt-in, test-only, and generated Rust sources; no unwired Rust files remain.
+- `tests/` — provider orchestration, live HTTP/fleet policy, and governance-ledger integration tests.
 
-## Cross-crate verification surfaces
+## Cross-crate verification
 
 - `crates/engine/src/orome.rs` and `crates/engine/tests/orome_smoke.rs`.
-- `crates/spine/runtime/manwe/src/grpc.rs` behind Manwe's `grpc` feature.
-- `crates/spine/observability/arda-aule/src/prometheus/autopilot/a2h.rs` behind Aule's
-  `full-cli` feature.
-
-Purpose: deterministic crate navigation. See `BREAKDOWN.md` before treating any file under `src/`
-as compiled behavior.
+- `crates/spine/runtime/manwe/src/grpc.rs` behind Manwe `grpc`.
+- `crates/spine/observability/arda-aule/src/prometheus/autopilot/a2h.rs` behind Aule `full-cli`.

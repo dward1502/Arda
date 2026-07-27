@@ -107,12 +107,15 @@ async fn main() -> anyhow::Result<()> {
         .build()
         .unwrap_or_default();
     let harness_state = arda_engine::harness::HarnessState {
+        harness_addr: arda_engine::harness::DEFAULT_HARNESS_ADDR.to_string(),
         child_pids: harness_pids,
         service_names: Arc::new(reg.services.iter().map(|s| s.name.clone()).collect()),
         manwe_url: "http://127.0.0.1:7171".to_string(),
         client,
         manwe_proxy_timeout: arda_engine::harness::DEFAULT_MANWE_PROXY_TIMEOUT,
         manwe_proxy_bearer: std::env::var("ARDA_MANWE_PROXY_BEARER").ok(),
+        warden_scout_url: discover_warden_scout_url(&root),
+        warden_scout_timeout: arda_engine::harness::DEFAULT_WARDEN_SCOUT_TIMEOUT,
     };
     let harness_addr: Option<SocketAddr> = cli
         .harness_addr
@@ -158,4 +161,23 @@ fn repo_root() -> PathBuf {
             }
         }
     }
+}
+
+fn discover_warden_scout_url(root: &std::path::Path) -> Option<String> {
+    if let Ok(url) = std::env::var("ARDA_WARDEN_SCOUT_URL") {
+        if !url.trim().is_empty() {
+            return Some(url);
+        }
+    }
+
+    let fleet = std::fs::read_to_string(root.join("config/fleet.toml")).ok()?;
+    let value: toml::Value = toml::from_str(&fleet).ok()?;
+    value
+        .get("nodes")?
+        .as_array()?
+        .iter()
+        .find(|node| node.get("id").and_then(toml::Value::as_str) == Some("node-pi5-warden"))?
+        .get("scout_url")?
+        .as_str()
+        .map(str::to_owned)
 }

@@ -1,0 +1,25 @@
+[Unit]
+Description=llama.cpp CUDA - Nanbeige4.2 3B Q4 coding and tool lane
+Documentation=https://github.com/ggerganov/llama.cpp
+After=network-online.target
+Wants=network-online.target
+Conflicts=llama-server-bonsai27.service
+
+[Service]
+Type=simple
+Environment=HOME=/var/home/annunimas-server
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/sbin:/bin
+Environment=LD_LIBRARY_PATH=/var/home/annunimas-server/miniforge3/lib:/usr/local/cuda/lib64:/usr/lib64
+Environment=CUDA_VISIBLE_DEVICES=1
+ExecStart=/var/home/annunimas-server/.local/bin/llama-server-nanbeige-start.sh
+Restart=on-failure
+RestartSec=15
+TimeoutStartSec=300
+TimeoutStopSec=30
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=llama-server-nanbeige
+
+[Install]
+WantedBy=default.target

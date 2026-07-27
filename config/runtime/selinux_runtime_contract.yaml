@@ -89,7 +89,8 @@ forbidden_patterns:
 operator_rules:
   remote_founder_cockpit:
     laptop_default_provider_order:
-      - edge_backbone
+      - edge_backbone_coder
+      - edge_backbone_long
       - edge_core
       - edge_worker_light
       - local_fallback

@@ -3,22 +3,16 @@ soterion:
   sigil: "REPAIR"
   glyph: "⟁"
   code_point: "U+27C1"
-  role: "unwired_service_source_map"
+  role: "service_source_map"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-07-27"
 ---
-
-> 🜏 Soterion: ⟁ unwired_service_source_map | owner: HADES | status: active | reviewed: 2026-07-26
 
 # arda-orome service source
 
-This directory is not attached to `arda-orome`'s current `lib.rs` module graph. Its Rust files are
-therefore not compiled or covered by the crate's passing Cargo gates.
+This directory is compiled when `arda-orome` enables `service-runtime`. The sibling `../service.rs` is the sole service root and declares every Rust child in this directory.
 
-The sibling `../service.rs` is the sole canonical service root and declares this directory's Rust
-children. That root is itself still absent from `lib.rs`, so this tree remains unwired. Do not
-describe this directory as a live runtime surface or expose it wholesale.
+The feature preserves the resident-service migration surface and its tests without claiming that compatibility dispatch is live. `provider_compat.rs` bridges historical service calls to current provider orchestration: compatibility dispatch is deterministic/no-network, inbound polling is empty, and configured providers remain offline until health evidence exists. The separate `provider::HttpJsonTransport` is the concrete receipt-backed path for callers that explicitly configure and policy-gate live HTTP delivery.
 
-See `../../PLAN.md` for the required wire/migrate/retire decision and `INDEX.md` for the exact child
-inventory.
+Do not create `service/mod.rs`, bypass provider policy, or treat Discord identifiers as canonical task identity. See `../../README.md`, `../../BREAKDOWN.md`, and `INDEX.md`.

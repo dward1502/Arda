@@ -1,5 +1,6 @@
 use arda_outpost_protocol::{
-    AuthorityClass, ObservationClassification, ObservationScope, OutpostObservation, SCHEMA_VERSION,
+    AgentFeedback, AuthorityClass, ObservationClassification, ObservationScope, OutpostObservation,
+    SCHEMA_VERSION,
 };
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -81,18 +82,18 @@ impl SurveyReport {
     }
 }
 
-impl From<CrateObservation> for OutpostObservation {
+impl From<CrateObservation> for AgentFeedback {
     fn from(value: CrateObservation) -> Self {
         let status = value.status.clone();
-        OutpostObservation::new(
-            "node-pi5-warden",
-            ObservationScope::Crates,
+        Self::new(
+            "arda-outpost-scout",
+            "crates".to_string(),
             classification_for_status(status),
             AuthorityClass::Advisory,
+            0.8,
+            SCHEMA_VERSION.to_string(),
             serde_json::to_value(value).expect("serialize crate observation"),
         )
-        .with_confidence(0.8)
-        .with_provenance("arda-outpost-scout://survey")
     }
 }
 
@@ -102,6 +103,17 @@ pub fn classification_for_status(status: CrateStatus) -> ObservationClassificati
         CrateStatus::Shell | CrateStatus::Unknown => ObservationClassification::SelfReport,
         CrateStatus::Stubbed | CrateStatus::Deprecated => ObservationClassification::Unavailable,
     }
+}
+
+pub fn build_observation(source: impl Into<String>, payload: impl Serialize) -> OutpostObservation {
+    OutpostObservation::new(
+        source,
+        ObservationScope::Custom("outpost_scout".to_string()),
+        ObservationClassification::SelfReport,
+        AuthorityClass::Advisory,
+        serde_json::to_value(payload).expect("serialize observation payload"),
+    )
+    .local_only()
 }
 
 #[cfg(test)]

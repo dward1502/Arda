@@ -42,13 +42,17 @@ pub enum FleetScope {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct EdgeCommunicationPolicy {
     pub allowed_scopes: Vec<FleetScope>,
+    /// Provider IDs explicitly trusted for fleet-scoped network dispatch.
+    #[serde(default)]
+    pub trusted_fleet_provider_ids: Vec<String>,
     pub require_external_approval: bool,
 }
 
 impl Default for EdgeCommunicationPolicy {
     fn default() -> Self {
         Self {
-            allowed_scopes: vec![FleetScope::Local, FleetScope::TrustedFleet],
+            allowed_scopes: vec![FleetScope::Local],
+            trusted_fleet_provider_ids: Vec::new(),
             require_external_approval: true,
         }
     }
@@ -140,7 +144,15 @@ pub trait ProviderTransport: Send + Sync {
         &self,
         provider: &ProviderConfig,
         request: &TransportRequest,
-    ) -> Result<Vec<StreamEvent>, ProviderAdapterError>;
+    ) -> Result<TransportOutcome, ProviderAdapterError>;
+}
+
+/// Transport evidence returned to the bounded dispatcher.
+#[derive(Debug, Clone, Default)]
+pub struct TransportOutcome {
+    pub events: Vec<StreamEvent>,
+    /// Provider-assigned ID proving that a live transport accepted the message.
+    pub provider_message_id: Option<String>,
 }
 
 /// Deterministic no-network transport used by engine/CLI smoke probes.
@@ -176,8 +188,11 @@ impl ProviderTransport for ManualTransport {
         &self,
         _provider: &ProviderConfig,
         request: &TransportRequest,
-    ) -> Result<Vec<StreamEvent>, ProviderAdapterError> {
-        Ok(Self::events_for(request))
+    ) -> Result<TransportOutcome, ProviderAdapterError> {
+        Ok(TransportOutcome {
+            events: Self::events_for(request),
+            provider_message_id: None,
+        })
     }
 }
 
@@ -310,6 +325,15 @@ impl ProviderRuntime {
             .contains(&request.fleet_scope)
         {
             Some("fleet_scope_not_allowed".to_string())
+        } else if request.fleet_scope == FleetScope::TrustedFleet
+            && targets.iter().any(|provider_id| {
+                !self
+                    .edge_policy
+                    .trusted_fleet_provider_ids
+                    .contains(provider_id)
+            })
+        {
+            Some("trusted_fleet_target_not_allowed".to_string())
         } else if request.fleet_scope == FleetScope::External
             && self.edge_policy.require_external_approval
             && !request.approved
@@ -353,9 +377,11 @@ impl ProviderRuntime {
             )
             .await;
             match result {
-                Ok(Ok(events)) => {
+                Ok(Ok(outcome)) => {
                     receipt.dispatched = true;
-                    receipt.chunks_sent = events
+                    receipt.provider_message_id = outcome.provider_message_id;
+                    receipt.chunks_sent = outcome
+                        .events
                         .iter()
                         .filter(|event| matches!(event, StreamEvent::Chunk(_)))
                         .count();

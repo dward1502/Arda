@@ -260,6 +260,7 @@ impl HermesService {
         Ok(promotion)
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn record_council_approval_decision(
         &self,
         session_id: &str,
@@ -495,7 +496,7 @@ impl HermesService {
         self.boardroom_post(BoardroomPost {
             from_agent: "prometheus".to_string(),
             message_type: "council_open".to_string(),
-            priority: "high".to_string(),
+            priority: Priority::High,
             subject: format!("Council Session Opened: {topic}"),
             body: "Convening council gate discussion.".to_string(),
             mentions: vec![
@@ -532,7 +533,7 @@ impl HermesService {
         self.boardroom_post(BoardroomPost {
             from_agent: from_agent.to_string(),
             message_type: "council_report".to_string(),
-            priority: "normal".to_string(),
+            priority: Priority::Normal,
             subject: format!("Council report from {}", from_agent),
             body: body.to_string(),
             mentions: vec!["prometheus".to_string()],
@@ -559,7 +560,7 @@ impl HermesService {
         self.boardroom_post(BoardroomPost {
             from_agent: "prometheus".to_string(),
             message_type: "council_close".to_string(),
-            priority: "normal".to_string(),
+            priority: Priority::Normal,
             subject: "Council session closed".to_string(),
             body: outcome.to_string(),
             mentions: Vec::new(),

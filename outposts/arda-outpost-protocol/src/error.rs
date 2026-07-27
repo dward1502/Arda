@@ -12,6 +12,8 @@ pub enum OutpostProtocolError {
     Serialization(#[from] serde_json::Error),
     #[error("chrono error: {0}")]
     Chrono(#[from] chrono::ParseError),
+    #[error("conversion error: {0}")]
+    Conversion(String),
 }
 
 pub type Result<T> = std::result::Result<T, OutpostProtocolError>;

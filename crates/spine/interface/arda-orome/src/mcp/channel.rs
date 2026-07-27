@@ -1,7 +1,5 @@
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
-use tokio::sync::Mutex;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct McpChannelError {
@@ -19,13 +17,22 @@ impl std::error::Error for McpChannelError {}
 
 impl McpChannelError {
     pub fn connection_failed(reason: impl Into<String>) -> Self {
-        Self { code: "CONNECTION_FAILED".into(), message: reason.into() }
+        Self {
+            code: "CONNECTION_FAILED".into(),
+            message: reason.into(),
+        }
     }
     pub fn send_failed(reason: impl Into<String>) -> Self {
-        Self { code: "SEND_FAILED".into(), message: reason.into() }
+        Self {
+            code: "SEND_FAILED".into(),
+            message: reason.into(),
+        }
     }
     pub fn receive_failed(reason: impl Into<String>) -> Self {
-        Self { code: "RECEIVE_FAILED".into(), message: reason.into() }
+        Self {
+            code: "RECEIVE_FAILED".into(),
+            message: reason.into(),
+        }
     }
 }
 
@@ -64,11 +71,7 @@ impl std::fmt::Display for McpChannelType {
 #[async_trait]
 pub trait McpChannel: Send + Sync {
     async fn send(&self, message: &str, recipient: &str) -> Result<(), McpChannelError>;
-    async fn send_stream(
-        &self,
-        message: &str,
-        recipient: &str,
-    ) -> Result<usize, McpChannelError> {
+    async fn send_stream(&self, message: &str, recipient: &str) -> Result<usize, McpChannelError> {
         self.send(message, recipient).await?;
         Ok(1)
     }

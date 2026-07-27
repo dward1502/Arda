@@ -33,12 +33,11 @@ cost = "balanced"
 [providers.edge]
 enabled = true
 allow_as_primary = true
-# edge_backbone is the canonical annunimas-server route: 27B ternary,
-# Prism/CUDA on :8095. edge_core stays the local tool-capable execution lane.
-# NOTE: Bonsai-27B served ctx is capped at 8192; the router context floor was
-# lowered to 8192 (ANNUNIMAS_MANWE_MIN_CONTEXT_WINDOW) so it clears. Tool/execution
-# lanes keep the >=32K/64K guard to protect Hermes tool-call stability.
-preferred = ["edge_backbone", "edge_core", "edge_beelink_light", "edge_guardhouse"]
+# annunimas-server exposes two GPU-isolated routes: Nanbeige4.2 3B Q4 on
+# edge_backbone_coder/:8098 for code and tool execution, and Bonsai 27B Q1 on
+# edge_backbone_long/:8097 for orchestrator, review, research, and long context.
+# Both models remain fully GPU-resident on one RTX 2080 Super each.
+preferred = ["edge_backbone_coder", "edge_backbone_long", "edge_core", "edge_beelink_light", "edge_guardhouse"]
 
 [providers.cloud]
 enabled = true

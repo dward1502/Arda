@@ -102,14 +102,15 @@ pub fn summarize_advisories(report: &AdvisoryReport) -> String {
     parts.push(format!("max_level={}", format!("{:?}", report.max_level)));
     parts.push(format!("advisories={}", report.advisories.len()));
     for advisory in &report.advisories {
-        parts.push(format!("- {:?}: {:?}: {}", advisory.source, advisory.level, advisory.message));
+        parts.push(format!(
+            "- {:?}: {:?}: {}",
+            advisory.source, advisory.level, advisory.message
+        ));
     }
     parts.join("\n")
 }
 
-pub fn advisories_for_observation(
-    observation: &CrateObservation,
-) -> Vec<Advisory> {
+pub fn advisories_for_observation(observation: &CrateObservation) -> Vec<Advisory> {
     let mut advisories = Vec::new();
 
     if observation.status == CrateStatus::Shell {
@@ -128,7 +129,10 @@ pub fn advisories_for_observation(
         ));
     }
 
-    if matches!(observation.status, CrateStatus::Unknown | CrateStatus::Deprecated) {
+    if matches!(
+        observation.status,
+        CrateStatus::Unknown | CrateStatus::Deprecated
+    ) {
         advisories.push(Advisory::new(
             AdvisorySource::UnknownStatus,
             AdvisoryLevel::Caution,
@@ -187,7 +191,10 @@ mod tests {
         let report = SurveyReport::new("node-pi5-warden", vec![]);
         let advisories = analyze_survey(&report);
         assert_eq!(advisories.advisories.len(), 1);
-        assert!(matches!(advisories.advisories[0].source, AdvisorySource::NoObservations));
+        assert!(matches!(
+            advisories.advisories[0].source,
+            AdvisorySource::NoObservations
+        ));
     }
 
     #[test]
@@ -204,10 +211,7 @@ mod tests {
             observed_at: Utc::now(),
         };
 
-        let report = SurveyReport::new(
-            "node-pi5-warden",
-            vec![observation],
-        );
+        let report = SurveyReport::new("node-pi5-warden", vec![observation]);
         let advisory_report = analyze_survey(&report);
         let summary = summarize_advisories(&advisory_report);
         assert!(summary.contains("shell-app"));

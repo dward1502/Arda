@@ -1,9 +1,18 @@
 pub mod error;
+pub mod memory;
 pub mod observation;
+pub mod research;
+pub mod runtime;
 pub mod suggestion;
 pub mod survey;
 
-pub use arda_outpost_protocol::{AuthorityClass, ObservationClassification, ObservationScope, OutpostObservation};
-pub use error::{ScoutError, Result};
+pub use arda_outpost_protocol::*;
+pub use error::{Result, ScoutError};
+pub use memory::{
+    CredentialProposal, MemoryFallback, ObservationMemoryBridge, RecalledScoutObservation,
+    ScoutRecallQuery, ScoutRecallReport, ScoutRecallStatus, UnlockCode,
+};
 pub use observation::{CrateObservation, CrateStatus, SurveyReport};
+pub use research::{ResearchError, ResearchReport, ResearchRequest, ResearchResult, SearxngClient};
+pub use runtime::{build_runtime_router, ScoutRuntimeState};
 pub use survey::survey_repo;

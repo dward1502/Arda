@@ -2,34 +2,34 @@
 pub mod http;
 pub mod ipc;
 
-use crate::adaptive::service::CharonService;
+use crate::adaptive::service::ManweService;
 use arda_core::error::Result;
 use std::path::PathBuf;
 
 #[derive(Debug, Clone)]
-pub struct CharonDaemonConfig {
+pub struct ManweDaemonConfig {
     pub socket_path: PathBuf,
     pub http_enabled: bool,
     pub http_addr: String,
 }
 
-impl Default for CharonDaemonConfig {
+impl Default for ManweDaemonConfig {
     fn default() -> Self {
         Self {
-            socket_path: expand_home("data/manwe/manwe.sock"),
+            socket_path: crate::config::arda_root().join("data/manwe/manwe.sock"),
             http_enabled: true,
             http_addr: format!("{}:{}", "127.0.0.1", 5110),
         }
     }
 }
 
-pub struct CharonDaemon {
-    service: CharonService,
-    config: CharonDaemonConfig,
+pub struct ManweDaemon {
+    service: ManweService,
+    config: ManweDaemonConfig,
 }
 
-impl CharonDaemon {
-    pub fn new(service: CharonService, config: CharonDaemonConfig) -> Self {
+impl ManweDaemon {
+    pub fn new(service: ManweService, config: ManweDaemonConfig) -> Self {
         Self { service, config }
     }
 
@@ -40,7 +40,7 @@ impl CharonDaemon {
         let tick_task = tokio::spawn(async move {
             loop {
                 if let Err(err) = service_for_tick.tick_maintenance().await {
-                    tracing::debug!(error = %err, "CHARON maintenance tick failed");
+                    tracing::debug!(error = %err, "MANWE maintenance tick failed");
                 }
                 tokio::time::sleep(std::time::Duration::from_secs(60)).await;
             }
@@ -79,9 +79,14 @@ impl CharonDaemon {
     }
 }
 
+#[deprecated(note = "use ManweDaemonConfig")]
+pub type CharonDaemonConfig = ManweDaemonConfig;
+#[deprecated(note = "use ManweDaemon")]
+pub type CharonDaemon = ManweDaemon;
+
 fn join_error(err: tokio::task::JoinError) -> arda_core::error::ArdaError {
     arda_core::error::ArdaError::Agent {
-        agent: "charon".to_string(),
+        agent: "manwe".to_string(),
         message: format!("daemon task failed: {err}"),
     }
 }

@@ -79,7 +79,7 @@ pub(super) fn resolve_inference_route_snapshot(
     let socket_path = std::env::var("ARDA_INFERENCE_ROUTER_SOCKET")
         .or_else(|_| std::env::var("ARDA_MANWE_SOCKET"))
         .map(PathBuf::from)
-        .unwrap_or_else(|_| PathBuf::from("data/manwe/manwe.sock"));
+        .unwrap_or_else(|_| super::layout::arda_root().join("data/manwe/manwe.sock"));
 
     if socket_path.exists() {
         if let Ok(result) =

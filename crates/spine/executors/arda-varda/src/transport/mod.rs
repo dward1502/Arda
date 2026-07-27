@@ -17,7 +17,7 @@ pub struct AthenaDaemonConfig {
 impl Default for AthenaDaemonConfig {
     fn default() -> Self {
         Self {
-            socket_path: expand_home("data/athena/athena.sock"),
+            socket_path: crate::ingest::layout::arda_root().join("data/athena/athena.sock"),
             http_enabled: true,
             http_addr: format!("{}:{}", "127.0.0.1", 5111),
         }

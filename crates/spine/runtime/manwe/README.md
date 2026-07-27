@@ -28,10 +28,10 @@ Defaults:
 
 - HTTP bind: `127.0.0.1:7171`
 - Static config: `manwe.toml`, with an embedded local Ollama fallback
-- Fleet catalog: `config/fleet.toml`, probed at startup and every 60 seconds
+- Fleet catalog: `$ARDA_ROOT/config/fleet.toml`, probed at startup and every 60 seconds
 - Model references: explicit `provider/model`, a catalog model ID, `auto`, or
   `local/auto`
-- Receipts: `data/manwe/route_receipts.jsonl`
+- Receipts: `$ARDA_ROOT/data/manwe/route_receipts.jsonl`
 
 Configuration ownership and precedence:
 
@@ -39,17 +39,21 @@ Configuration ownership and precedence:
   valid file wins; a missing, unreadable, malformed, or provider-empty file
   selects the embedded Ollama fallback and reports the exact fallback reason.
 - Static fleet discovery is independent of forwarding config and is owned by
-  `ARDA_MANWE_FLEET_CONFIG`, then `config/fleet.toml`. Missing or malformed
-  fleet input produces an empty fleet catalog; it does not replace static
-  forwarding providers.
+  `ARDA_MANWE_FLEET_CONFIG`, legacy alias
+  `ANNUNIMAS_CHARON_FLEET_CONFIG`, then `$ARDA_ROOT/config/fleet.toml`. Missing
+  or malformed fleet input produces an empty fleet catalog; it does not replace
+  static forwarding providers.
 - Full governed adaptive mode does not consume either static catalog. Its
-  provider source is `ARDA_MANWE_PROVIDER_CONFIG`, then
-  `$ARDA_ROOT/config/charon.providers.toml`. Missing or invalid provider input
+  provider source is `ARDA_MANWE_PROVIDER_CONFIG`, legacy environment alias
+  `ANNUNIMAS_CHARON_PROVIDER_CONFIG`, then
+  `$ARDA_ROOT/config/manwe.providers.toml`. Missing or invalid provider input
   selects governed defaults.
-- Adaptive runtime state is owned by `ARDA_MANWE_STATE_DIR`, then compatibility
-  alias `ARDA_MANWE_HOME`, then `$ARDA_HOME/data/manwe` (or
-  `./data/manwe`). Provider runtime state overlays configured provider identity;
-  it does not own endpoint or credential configuration.
+- Adaptive runtime state is owned by `ARDA_MANWE_STATE_DIR`, then
+  `ARDA_MANWE_HOME`, then `$ARDA_ROOT/data/manwe`, then the compatibility
+  `$ARDA_HOME/data/manwe` root. If no environment root is supplied, Manwe uses
+  its build-derived Arda workspace root; it never derives mutable state from the
+  process working directory. Provider runtime state overlays configured provider
+  identity; it does not own endpoint or credential configuration.
 
 `/healthz` and `/v1/capabilities` expose credential-free `config_source`,
 config paths, and `catalog_generation`. Generation starts at `1` after startup

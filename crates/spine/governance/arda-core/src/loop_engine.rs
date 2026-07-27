@@ -67,6 +67,8 @@ pub struct DispatchPass {
     pub triad_vetoes: Vec<String>,   // live triad: Fail outcomes recorded as veto evidence
     pub triad_blocked: Vec<String>,  // live triad: Fail outcomes blocked by policy
     pub action_gate_blocked: Vec<String>, // action-class gates blocked dispatch before execution
+    pub aipkg_preflight_blocked: Vec<String>, // task ids blocked by failing AIPKG preflight
+    pub aipkg_preflight_passed: usize, // task ids that passed AIPKG preflight
     pub capped_at: Option<usize>,    // dispatch loop bailed out at this count (rate cap)
     pub halted: bool,                // halt file present; dispatcher refused to act
 }
@@ -363,6 +365,22 @@ pub fn dispatch_full_with_affordability(
         if pass.dispatched.len() >= cap_per_tick {
             pass.capped_at = Some(cap_per_tick);
             break;
+        }
+
+        // AIPKG preflight gate: if a task carries a manifest, validate
+        // it before allocating joule/bids/triad resources. Invalid or
+        // failing manifests are recorded and skipped.
+        if let Some(manifest) = task.aipkg_manifest.as_ref() {
+            match manifest.validate() {
+                Ok(_) => pass.aipkg_preflight_passed += 1,
+                Err(err) => {
+                    pass.aipkg_preflight_blocked.push(format!(
+                        "{id}:{}",
+                        err
+                    ));
+                    continue;
+                }
+            }
         }
 
         let intent = task.task_type.clone();
@@ -834,6 +852,7 @@ pub struct TickSummary {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::aipkg::{AipkgGovernance, AipkgManifest, AipkgPreflight, AipkgReceiptPolicy};
     use crate::contract::{Goal, GoalPriority, Plan, PlanStep};
 
     fn tmp_state() -> (tempfile::TempDir, StateRoot, PathBuf) {
@@ -1490,6 +1509,124 @@ classes:
         let tasks = state::read_contract_tasks(&q).unwrap();
         let last = tasks.last().expect("at least one task");
         assert!((last.joule_cost_estimated - 3.5).abs() < 1e-9);
+    }
+
+    #[test]
+    fn dispatch_accepts_tasks_with_valid_aipkg_manifest() {
+        struct AnyBidder;
+        impl BidBoard for AnyBidder {
+            fn bids_for(&self, _task: &Task) -> Vec<AgentBid> {
+                vec![AgentBid {
+                    agent_id: "warden",
+                    joule_cost: 1.0,
+                    confidence: 1.0,
+                }]
+            }
+        }
+
+        let manifest = AipkgManifest {
+            manifest_version: "0.1".into(),
+            package_id: "org.arda.valid".into(),
+            version: "0.1.0".into(),
+            package_digest:
+                "sha256:1111111111111111111111111111111111111111111111111111111111111111".into(),
+            runtime_profile: "local-sovereign".into(),
+            preflight: AipkgPreflight {
+                zero_work_required: true,
+                compatibility_required: true,
+                quote_required: true,
+            },
+            governance: AipkgGovernance {
+                triad_required: true,
+                bacon_lite_required: true,
+                joulework_budget_required: true,
+                love_eq_guard_required: true,
+                soterion_trace_required: true,
+            },
+            receipts: AipkgReceiptPolicy {
+                preflight_required: true,
+                execution_required: true,
+                validation_required: true,
+                settlement_optional: true,
+                signatures_required: true,
+            },
+        };
+
+        let (_d, st, q) = tmp_state();
+        seed_one_plan_with_tasks(&st, &q, "probe_provider");
+        let mut tasks = state::read_contract_tasks(&q).unwrap();
+        let mut task = tasks.pop().expect("seeded task");
+        task.aipkg_manifest = Some(manifest);
+        state::append_task(&q, &task).unwrap();
+
+        let pass = dispatch_full(
+            &st,
+            &q,
+            64,
+            &ZeroJouleEstimator,
+            &UnconsultedTriad,
+            &AnyBidder,
+            &GovernanceGates::permissive(),
+        )
+        .unwrap();
+
+        assert_eq!(pass.aipkg_preflight_passed, 1);
+        assert_eq!(pass.aipkg_preflight_blocked.len(), 0);
+        assert_eq!(pass.dispatched.len(), 1);
+    }
+
+    #[test]
+    fn dispatch_blocks_tasks_with_invalid_aipkg_manifest() {
+        let manifest = AipkgManifest {
+            manifest_version: "not-0.1".into(),
+            package_id: "no-namespace".into(),
+            version: "0.1.0".into(),
+            package_digest: "sha256:".into(),
+            runtime_profile: "unknown".into(),
+            preflight: AipkgPreflight {
+                zero_work_required: false,
+                compatibility_required: true,
+                quote_required: true,
+            },
+            governance: AipkgGovernance {
+                triad_required: true,
+                bacon_lite_required: true,
+                joulework_budget_required: true,
+                love_eq_guard_required: true,
+                soterion_trace_required: true,
+            },
+            receipts: AipkgReceiptPolicy {
+                preflight_required: true,
+                execution_required: true,
+                validation_required: true,
+                settlement_optional: false,
+                signatures_required: true,
+            },
+        };
+
+        let (_d, st, q) = tmp_state();
+        seed_one_plan_with_tasks(&st, &q, "probe_provider");
+        let mut tasks = state::read_contract_tasks(&q).unwrap();
+        let mut task = tasks.pop().expect("seeded task");
+        task.aipkg_manifest = Some(manifest);
+        state::append_task(&q, &task).unwrap();
+
+        let pass = dispatch_full(
+            &st,
+            &q,
+            64,
+            &ZeroJouleEstimator,
+            &UnconsultedTriad,
+            &StaticBidBoard,
+            &GovernanceGates::permissive(),
+        )
+        .unwrap();
+
+        assert_eq!(pass.aipkg_preflight_passed, 0);
+        assert_eq!(pass.dispatched.len(), 0);
+        assert_eq!(pass.aipkg_preflight_blocked.len(), 1);
+        let blocked = &pass.aipkg_preflight_blocked[0];
+        assert!(blocked.contains("manifest_version must be 0.1"));
     }
 
     #[test]

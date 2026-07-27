@@ -302,7 +302,7 @@ impl CharonService {
             .timeout(StdDuration::from_secs(local_health_probe_timeout_seconds()))
             .build()
             .map_err(|err| arda_core::error::ArdaError::Agent {
-                agent: "charon".to_string(),
+                agent: "manwe".to_string(),
                 message: format!("failed to build local health probe client: {err}"),
             })?;
 

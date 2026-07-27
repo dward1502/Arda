@@ -107,19 +107,19 @@ pub fn build_environment_profile(
 
     let config_dir = env::var("ARDA_CONFIG_DIR")
         .ok()
-        .map(|v| PathBuf::from(v))
+        .map(PathBuf::from)
         .unwrap_or_else(|| home.join(".config").join("arda"));
     let data_dir = env::var("ARDA_DATA_DIR")
         .ok()
-        .map(|v| PathBuf::from(v))
+        .map(PathBuf::from)
         .unwrap_or_else(|| home.join(".local/share/arda"));
     let cache_dir = env::var("ARDA_CACHE_DIR")
         .ok()
-        .map(|v| PathBuf::from(v))
+        .map(PathBuf::from)
         .unwrap_or_else(|| home.join(".cache/arda"));
     let runtime_dir = env::var("ARDA_RUNTIME_DIR")
         .ok()
-        .map(|v| PathBuf::from(v))
+        .map(PathBuf::from)
         .unwrap_or_else(|| {
             env::var("XDG_RUNTIME_DIR")
                 .map(PathBuf::from)
@@ -133,7 +133,7 @@ pub fn build_environment_profile(
         });
     let build_cache_root = env::var("ARDA_BUILD_CACHE_ROOT")
         .ok()
-        .map(|v| PathBuf::from(v))
+        .map(PathBuf::from)
         .or_else(|| Some(home.join(".cache/arda-build")));
 
     let manwe_base = env::var("MANWE_BASE_URL")

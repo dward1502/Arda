@@ -4,9 +4,9 @@
 //! primitives so downstream consumers only need to depend on
 //! `arda-engine` instead of reaching into `arda-core` directly.
 
+use arda_core::learning::LearningStore;
 use arda_core::learning_adapter::build_learning_ledger_receipt;
 use arda_core::loop_observability::{LatencyProbe, LoopObservabilityConfig};
-use arda_core::learning::LearningStore;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -38,7 +38,12 @@ impl EngineObservabilityStatus {
         let loop_observability = LoopObservabilityConfig::from_env();
         let store = LearningStore::new(learning_path.as_ref());
         let learning = store.load();
-        let receipt = build_learning_ledger_receipt(&learning, domain.as_ref(), consumer.as_ref(), min_observations);
+        let receipt = build_learning_ledger_receipt(
+            &learning,
+            domain.as_ref(),
+            consumer.as_ref(),
+            min_observations,
+        );
 
         Self {
             loop_observability,
@@ -64,7 +69,8 @@ impl Default for EngineObservabilityStatus {
                     "",
                     "",
                     0,
-                ).schema_version,
+                )
+                .schema_version,
                 domain: String::new(),
                 consumer: String::new(),
                 retained_count: 0,
@@ -95,9 +101,12 @@ mod tests {
     fn from_env_and_store_reads_default_learning_path() {
         let dir = tempfile::tempdir().unwrap();
         let store_path = dir.path().join("learn.json");
-        LearningStore::new(&store_path).save(&arda_core::learning::LearningState::default()).unwrap();
+        LearningStore::new(&store_path)
+            .save(&arda_core::learning::LearningState::default())
+            .unwrap();
 
-        let status = EngineObservabilityStatus::from_env_and_store(&store_path, "governance", "test", 1);
+        let status =
+            EngineObservabilityStatus::from_env_and_store(&store_path, "governance", "test", 1);
         assert!(status.learning.learning_path.ends_with("learn.json"));
         assert_eq!(status.learning.retained_count, 0);
     }

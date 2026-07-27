@@ -8,8 +8,8 @@ pub use arda_orome::provider::{
     ProviderType, RoutingIntent, TransportRequest,
 };
 pub mod harness;
-pub mod orome;
 pub mod observability;
+pub mod orome;
 pub mod registry;
 pub mod supervisor;
 pub use arda_core::loop_observability;

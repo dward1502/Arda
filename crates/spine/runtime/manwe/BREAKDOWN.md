@@ -168,7 +168,7 @@ test inputs. They were removed and `tests/.gitignore` now prevents their return.
 | Static fallback config | CLI `--config`, default `manwe.toml` |
 | Binary fleet catalog | `config/fleet.toml` |
 | Binary receipts | `data/manwe/route_receipts.jsonl` |
-| Adaptive provider config | `ARDA_MANWE_PROVIDER_CONFIG`, then `$ARDA_ROOT/config/charon.providers.toml`, then governed defaults |
+| Adaptive provider config | `ARDA_MANWE_PROVIDER_CONFIG`, legacy `ANNUNIMAS_CHARON_PROVIDER_CONFIG`, then `$ARDA_ROOT/config/manwe.providers.toml`, then governed defaults |
 | Adaptive state root | `ARDA_MANWE_STATE_DIR`, `ARDA_MANWE_HOME`, `$ARDA_HOME/data/manwe`, then `./data/manwe` |
 
 The static and fleet catalogs are separate inputs. Their precedence and

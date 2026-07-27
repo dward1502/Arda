@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-07-26T08:23:43.133196155+00:00",
+  "generated_at_utc": "2026-07-27T17:34:15.748234446+00:00",
   "providers": [
     {
       "id": "edge_beelink_light",
@@ -9,7 +9,7 @@
       "api_key_env": null,
       "access_tier": "local",
       "quality_band": "medium",
-      "intelligence_refreshed_at_utc": "2026-07-26T04:20:35.501594431+00:00",
+      "intelligence_refreshed_at_utc": "2026-07-27T15:13:31.582589579+00:00",
       "probe_model": "Ternary-Bonsai-8B-Q2_0",
       "probe_profile": "configured_probe_model",
       "enabled": true,
@@ -20,10 +20,10 @@
       "cooldown_backoff_seconds": 0,
       "requests_per_minute": 120,
       "requests_used_minute": 0,
-      "minute_window_started_utc": "2026-07-26T08:23:12.023693469+00:00",
+      "minute_window_started_utc": "2026-07-27T17:33:42.024622838+00:00",
       "requests_per_day": null,
-      "requests_used_day": 19,
-      "day_window_started_utc": "2026-07-25T22:54:33.514930638+00:00",
+      "requests_used_day": 47,
+      "day_window_started_utc": "2026-07-26T23:02:33.501174988+00:00",
       "models": [
         {
           "id": "Ternary-Bonsai-8B-Q2_0",
@@ -42,31 +42,31 @@
             "background",
             "monitoring"
           ],
-          "context_window": 131072,
+          "context_window": 32768,
           "is_default": true,
           "healthy": true,
           "in_cooldown": false,
           "cooldown_until_utc": null,
           "consecutive_failures": 0,
-          "consecutive_successes": 94,
+          "consecutive_successes": 1,
           "last_error": null,
-          "avg_latency_ms": 83,
+          "avg_latency_ms": 17604,
           "cost_per_million_tokens_in": null,
           "cost_per_million_tokens_out": null,
           "capabilities": {
             "tools": true,
             "streaming": true,
-            "structured_output": true,
+            "structured_output": false,
             "visible_reasoning": null
           },
           "streaming_validated": null
         }
       ],
-      "error_count": 0,
+      "error_count": 2,
       "consecutive_failures": 0,
-      "consecutive_successes": 188,
+      "consecutive_successes": 2,
       "last_error": null,
-      "avg_latency_ms": 83,
+      "avg_latency_ms": 17604,
       "active_connections": 0,
       "last_reservation_utc": null,
       "supports_tools": true,
@@ -77,14 +77,14 @@
       "hermes_toolsets": null
     },
     {
-      "id": "edge_core",
-      "name": "Annunimas Core (3080 Workstation)",
-      "base_url": "http://100.78.138.113:9337/v1",
+      "id": "edge_carnice",
+      "name": "Beelink Carnice 9B Worker",
+      "base_url": "http://100.103.125.88:1234/v1",
       "api_key_env": null,
       "access_tier": "local",
       "quality_band": "medium",
-      "intelligence_refreshed_at_utc": "2026-07-26T04:20:35.502068628+00:00",
-      "probe_model": "LFM2.5-8B-A1B-Q4_K_M",
+      "intelligence_refreshed_at_utc": "2026-07-27T15:13:31.583167357+00:00",
+      "probe_model": "Carnice-9b-Q6_K",
       "probe_profile": "configured_probe_model",
       "enabled": false,
       "has_api_key": true,
@@ -92,7 +92,7 @@
       "in_cooldown": false,
       "cooldown_until_utc": null,
       "cooldown_backoff_seconds": 120,
-      "requests_per_minute": 60,
+      "requests_per_minute": 20,
       "requests_used_minute": 0,
       "minute_window_started_utc": null,
       "requests_per_day": null,
@@ -100,12 +100,10 @@
       "day_window_started_utc": null,
       "models": [
         {
-          "id": "LFM2.5-8B-A1B-Q4_K_M",
+          "id": "Carnice-9b-Q6_K",
           "aliases": [
-            "lfm2.5-8b-a1b",
-            "lfm-2.5-8b-a1b",
-            "liquidai-core",
-            "lfm-core"
+            "carnice-9b",
+            "Carnice-9b-Q6_K"
           ],
           "capable_tasks": [
             "research",
@@ -114,40 +112,7 @@
             "summary",
             "background"
           ],
-          "context_window": 131072,
-          "is_default": false,
-          "healthy": true,
-          "in_cooldown": false,
-          "cooldown_until_utc": null,
-          "consecutive_failures": 0,
-          "consecutive_successes": 0,
-          "last_error": null,
-          "avg_latency_ms": null,
-          "cost_per_million_tokens_in": null,
-          "cost_per_million_tokens_out": null,
-          "capabilities": {
-            "tools": true,
-            "streaming": true,
-            "structured_output": false,
-            "visible_reasoning": true
-          },
-          "streaming_validated": null
-        },
-        {
-          "id": "Qwen3.5-9B-Q4_K_M",
-          "aliases": [
-            "qwen3.5-9b",
-            "qwen35-9b"
-          ],
-          "capable_tasks": [
-            "code",
-            "research",
-            "reasoning",
-            "chat",
-            "summary",
-            "background"
-          ],
-          "context_window": 32768,
+          "context_window": 65536,
           "is_default": true,
           "healthy": true,
           "in_cooldown": false,
@@ -159,44 +124,10 @@
           "cost_per_million_tokens_in": null,
           "cost_per_million_tokens_out": null,
           "capabilities": {
-            "tools": true,
+            "tools": false,
             "streaming": true,
-            "structured_output": true,
-            "visible_reasoning": null
-          },
-          "streaming_validated": null
-        },
-        {
-          "id": "Qwen_Qwen3.5-4B-Q6_K",
-          "aliases": [
-            "qwen3.5-4b",
-            "qwen35-4b",
-            "Qwen3.5-4B"
-          ],
-          "capable_tasks": [
-            "code",
-            "research",
-            "reasoning",
-            "chat",
-            "summary",
-            "background"
-          ],
-          "context_window": 32768,
-          "is_default": false,
-          "healthy": true,
-          "in_cooldown": false,
-          "cooldown_until_utc": null,
-          "consecutive_failures": 0,
-          "consecutive_successes": 0,
-          "last_error": null,
-          "avg_latency_ms": null,
-          "cost_per_million_tokens_in": null,
-          "cost_per_million_tokens_out": null,
-          "capabilities": {
-            "tools": true,
-            "streaming": true,
-            "structured_output": true,
-            "visible_reasoning": null
+            "structured_output": false,
+            "visible_reasoning": true
           },
           "streaming_validated": null
         }
@@ -216,13 +147,81 @@
       "hermes_toolsets": null
     },
     {
+      "id": "edge_core",
+      "name": "Annunimas Core (3080 Workstation)",
+      "base_url": "http://100.78.138.113:9337/v1",
+      "api_key_env": null,
+      "access_tier": "local",
+      "quality_band": "high",
+      "intelligence_refreshed_at_utc": "2026-07-27T15:13:31.583744275+00:00",
+      "probe_model": "Qwen3.5-9B-Q4_K_M",
+      "probe_profile": "configured_probe_model",
+      "enabled": true,
+      "has_api_key": true,
+      "healthy": true,
+      "in_cooldown": false,
+      "cooldown_until_utc": null,
+      "cooldown_backoff_seconds": 0,
+      "requests_per_minute": 60,
+      "requests_used_minute": 1,
+      "minute_window_started_utc": "2026-07-27T17:34:15.525517749+00:00",
+      "requests_per_day": null,
+      "requests_used_day": 54,
+      "day_window_started_utc": "2026-07-27T09:05:32.083377925+00:00",
+      "models": [
+        {
+          "id": "Qwen3.5-9B-Q4_K_M",
+          "aliases": [],
+          "capable_tasks": [
+            "code",
+            "research",
+            "reasoning",
+            "chat",
+            "summary",
+            "background"
+          ],
+          "context_window": 73728,
+          "is_default": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 54,
+          "last_error": null,
+          "avg_latency_ms": 161,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": true,
+            "streaming": true,
+            "structured_output": true,
+            "visible_reasoning": null
+          },
+          "streaming_validated": true
+        }
+      ],
+      "error_count": 0,
+      "consecutive_failures": 0,
+      "consecutive_successes": 108,
+      "last_error": null,
+      "avg_latency_ms": 161,
+      "active_connections": 0,
+      "last_reservation_utc": null,
+      "supports_tools": true,
+      "supports_structured_output": true,
+      "driver": "openai_compat",
+      "hermes_bin": null,
+      "hermes_provider": null,
+      "hermes_toolsets": null
+    },
+    {
       "id": "edge_backbone",
       "name": "Annunimas Server Ternary Bonsai 27B Backbone",
       "base_url": "http://100.102.250.115:8095/v1",
       "api_key_env": null,
       "access_tier": "local",
       "quality_band": "high",
-      "intelligence_refreshed_at_utc": "2026-07-26T04:20:35.502422923+00:00",
+      "intelligence_refreshed_at_utc": "2026-07-27T15:13:31.584188182+00:00",
       "probe_model": "ternary-bonsai-27b-q2_0",
       "probe_profile": "configured_probe_model",
       "enabled": true,
@@ -233,10 +232,10 @@
       "cooldown_backoff_seconds": 300,
       "requests_per_minute": 20,
       "requests_used_minute": 0,
-      "minute_window_started_utc": "2026-07-26T08:23:12.023693469+00:00",
+      "minute_window_started_utc": "2026-07-27T17:33:42.024622838+00:00",
       "requests_per_day": null,
-      "requests_used_day": 0,
-      "day_window_started_utc": "2026-07-25T17:40:22.026265739+00:00",
+      "requests_used_day": 1,
+      "day_window_started_utc": "2026-07-27T05:23:28.893575113+00:00",
       "models": [
         {
           "id": "ternary-bonsai-27b-q2_0",
@@ -258,10 +257,10 @@
           "healthy": true,
           "in_cooldown": false,
           "cooldown_until_utc": null,
-          "consecutive_failures": 1,
+          "consecutive_failures": 2,
           "consecutive_successes": 0,
           "last_error": null,
-          "avg_latency_ms": 3419,
+          "avg_latency_ms": 5735,
           "cost_per_million_tokens_in": null,
           "cost_per_million_tokens_out": null,
           "capabilities": {
@@ -273,11 +272,11 @@
           "streaming_validated": null
         }
       ],
-      "error_count": 1,
+      "error_count": 2,
       "consecutive_failures": 1,
       "consecutive_successes": 0,
       "last_error": "proxy request failed to edge_backbone: error sending request for url (http://100.102.250.115:8095/v1/chat/completions)",
-      "avg_latency_ms": 3419,
+      "avg_latency_ms": 5735,
       "active_connections": 0,
       "last_reservation_utc": null,
       "supports_tools": true,
@@ -294,7 +293,7 @@
       "api_key_env": null,
       "access_tier": "local",
       "quality_band": "medium",
-      "intelligence_refreshed_at_utc": "2026-07-26T04:20:35.502762708+00:00",
+      "intelligence_refreshed_at_utc": "2026-07-27T15:13:31.584597238+00:00",
       "probe_model": "qwen3.5-4b",
       "probe_profile": "configured_probe_model",
       "enabled": false,
@@ -360,7 +359,7 @@
       "api_key_env": null,
       "access_tier": "local",
       "quality_band": "low",
-      "intelligence_refreshed_at_utc": "2026-07-26T04:20:35.503084102+00:00",
+      "intelligence_refreshed_at_utc": "2026-07-27T15:13:31.585029124+00:00",
       "probe_model": "Qwen3.5-4B-Q4_K_M.gguf",
       "probe_profile": "configured_probe_model",
       "enabled": true,
@@ -371,10 +370,10 @@
       "cooldown_backoff_seconds": 0,
       "requests_per_minute": 60,
       "requests_used_minute": 0,
-      "minute_window_started_utc": "2026-07-26T08:23:12.023693469+00:00",
+      "minute_window_started_utc": "2026-07-27T17:33:42.024622838+00:00",
       "requests_per_day": null,
-      "requests_used_day": 0,
-      "day_window_started_utc": "2026-07-25T17:54:52.024894230+00:00",
+      "requests_used_day": 22,
+      "day_window_started_utc": "2026-07-26T17:42:17.927731848+00:00",
       "models": [
         {
           "id": "Qwen3.5-4B-Q4_K_M.gguf",
@@ -395,15 +394,15 @@
           "in_cooldown": false,
           "cooldown_until_utc": null,
           "consecutive_failures": 0,
-          "consecutive_successes": 1,
+          "consecutive_successes": 23,
           "last_error": null,
-          "avg_latency_ms": 11661,
+          "avg_latency_ms": 3779,
           "cost_per_million_tokens_in": null,
           "cost_per_million_tokens_out": null,
           "capabilities": {
             "tools": null,
             "streaming": null,
-            "structured_output": null,
+            "structured_output": false,
             "visible_reasoning": null
           },
           "streaming_validated": null
@@ -411,9 +410,9 @@
       ],
       "error_count": 0,
       "consecutive_failures": 0,
-      "consecutive_successes": 2,
+      "consecutive_successes": 46,
       "last_error": null,
-      "avg_latency_ms": 11661,
+      "avg_latency_ms": 3779,
       "active_connections": 0,
       "last_reservation_utc": null,
       "supports_tools": true,
@@ -430,7 +429,7 @@
       "api_key_env": null,
       "access_tier": "local",
       "quality_band": "low",
-      "intelligence_refreshed_at_utc": "2026-07-26T04:20:35.503443717+00:00",
+      "intelligence_refreshed_at_utc": "2026-07-27T15:13:31.585454620+00:00",
       "probe_model": "LFM2.5-8B-A1B-Q4_K_M",
       "probe_profile": "configured_probe_model",
       "enabled": false,
@@ -441,10 +440,10 @@
       "cooldown_backoff_seconds": 0,
       "requests_per_minute": 0,
       "requests_used_minute": 0,
-      "minute_window_started_utc": "2026-07-26T08:23:12.023693469+00:00",
+      "minute_window_started_utc": "2026-07-27T17:33:42.024622838+00:00",
       "requests_per_day": null,
       "requests_used_day": 0,
-      "day_window_started_utc": "2026-07-25T17:05:52.026457059+00:00",
+      "day_window_started_utc": "2026-07-27T17:06:02.035473454+00:00",
       "models": [
         {
           "id": "LFM2.5-8B-A1B-Q4_K_M",
@@ -495,21 +494,21 @@
       "api_key_env": "OPENROUTER_API_KEY",
       "access_tier": "mixed",
       "quality_band": "high",
-      "intelligence_refreshed_at_utc": "2026-07-26T04:20:35.503776622+00:00",
+      "intelligence_refreshed_at_utc": "2026-07-27T15:13:31.585868216+00:00",
       "probe_model": "nvidia/nemotron-nano-9b-v2:free",
       "probe_profile": "configured_probe_model",
       "enabled": true,
-      "has_api_key": true,
+      "has_api_key": false,
       "healthy": true,
       "in_cooldown": false,
       "cooldown_until_utc": null,
       "cooldown_backoff_seconds": 0,
-      "requests_per_minute": 30,
+      "requests_per_minute": 20,
       "requests_used_minute": 0,
-      "minute_window_started_utc": "2026-07-26T08:23:12.023693469+00:00",
+      "minute_window_started_utc": "2026-07-27T17:33:42.024622838+00:00",
       "requests_per_day": 2000,
       "requests_used_day": 0,
-      "day_window_started_utc": "2026-07-25T22:41:06.908786263+00:00",
+      "day_window_started_utc": "2026-07-27T16:23:42.026404950+00:00",
       "models": [
         {
           "id": "openrouter/auto",
@@ -522,8 +521,8 @@
             "summary",
             "background"
           ],
-          "context_window": 1048756,
-          "is_default": true,
+          "context_window": 1048576,
+          "is_default": false,
           "healthy": true,
           "in_cooldown": false,
           "cooldown_until_utc": null,
@@ -531,121 +530,6 @@
           "consecutive_successes": 1,
           "last_error": null,
           "avg_latency_ms": 1414,
-          "cost_per_million_tokens_in": null,
-          "cost_per_million_tokens_out": null,
-          "capabilities": {
-            "tools": null,
-            "streaming": null,
-            "structured_output": null,
-            "visible_reasoning": null
-          },
-          "streaming_validated": null
-        },
-        {
-          "id": "openrouter/owl-alpha",
-          "aliases": [],
-          "capable_tasks": [
-            "background",
-            "chat",
-            "code",
-            "research",
-            "summary"
-          ],
-          "context_window": 1048756,
-          "is_default": false,
-          "healthy": false,
-          "in_cooldown": true,
-          "cooldown_until_utc": null,
-          "consecutive_failures": 0,
-          "consecutive_successes": 0,
-          "last_error": "catalog reconciliation: missing from live /models",
-          "avg_latency_ms": null,
-          "cost_per_million_tokens_in": null,
-          "cost_per_million_tokens_out": null,
-          "capabilities": {
-            "tools": null,
-            "streaming": null,
-            "structured_output": null,
-            "visible_reasoning": null
-          },
-          "streaming_validated": null
-        },
-        {
-          "id": "deepseek/deepseek-v4-flash:free",
-          "aliases": [],
-          "capable_tasks": [
-            "background",
-            "chat",
-            "code",
-            "reasoning",
-            "research",
-            "summary"
-          ],
-          "context_window": 1048576,
-          "is_default": false,
-          "healthy": false,
-          "in_cooldown": true,
-          "cooldown_until_utc": null,
-          "consecutive_failures": 0,
-          "consecutive_successes": 0,
-          "last_error": "catalog reconciliation: missing from live /models",
-          "avg_latency_ms": null,
-          "cost_per_million_tokens_in": null,
-          "cost_per_million_tokens_out": null,
-          "capabilities": {
-            "tools": null,
-            "streaming": null,
-            "structured_output": null,
-            "visible_reasoning": null
-          },
-          "streaming_validated": null
-        },
-        {
-          "id": "google/lyria-3-clip-preview",
-          "aliases": [],
-          "capable_tasks": [
-            "background",
-            "chat",
-            "research",
-            "summary"
-          ],
-          "context_window": 1048576,
-          "is_default": false,
-          "healthy": true,
-          "in_cooldown": false,
-          "cooldown_until_utc": null,
-          "consecutive_failures": 0,
-          "consecutive_successes": 0,
-          "last_error": null,
-          "avg_latency_ms": null,
-          "cost_per_million_tokens_in": null,
-          "cost_per_million_tokens_out": null,
-          "capabilities": {
-            "tools": null,
-            "streaming": null,
-            "structured_output": null,
-            "visible_reasoning": null
-          },
-          "streaming_validated": null
-        },
-        {
-          "id": "google/lyria-3-pro-preview",
-          "aliases": [],
-          "capable_tasks": [
-            "background",
-            "chat",
-            "research",
-            "summary"
-          ],
-          "context_window": 1048576,
-          "is_default": false,
-          "healthy": true,
-          "in_cooldown": false,
-          "cooldown_until_utc": null,
-          "consecutive_failures": 0,
-          "consecutive_successes": 0,
-          "last_error": null,
-          "avg_latency_ms": null,
           "cost_per_million_tokens_in": null,
           "cost_per_million_tokens_out": null,
           "capabilities": {
@@ -698,14 +582,14 @@
             "summary"
           ],
           "context_window": 1000000,
-          "is_default": false,
+          "is_default": true,
           "healthy": true,
           "in_cooldown": false,
           "cooldown_until_utc": null,
           "consecutive_failures": 0,
-          "consecutive_successes": 0,
+          "consecutive_successes": 1,
           "last_error": null,
-          "avg_latency_ms": null,
+          "avg_latency_ms": 231,
           "cost_per_million_tokens_in": null,
           "cost_per_million_tokens_out": null,
           "capabilities": {
@@ -717,7 +601,7 @@
           "streaming_validated": null
         },
         {
-          "id": "arcee-ai/trinity-large-thinking:free",
+          "id": "nvidia/nemotron-3-ultra-550b-a55b:free",
           "aliases": [],
           "capable_tasks": [
             "background",
@@ -727,14 +611,14 @@
             "research",
             "summary"
           ],
-          "context_window": 262144,
+          "context_window": 1000000,
           "is_default": false,
-          "healthy": false,
-          "in_cooldown": true,
+          "healthy": true,
+          "in_cooldown": false,
           "cooldown_until_utc": null,
           "consecutive_failures": 0,
           "consecutive_successes": 0,
-          "last_error": "catalog reconciliation: missing from live /models",
+          "last_error": null,
           "avg_latency_ms": null,
           "cost_per_million_tokens_in": null,
           "cost_per_million_tokens_out": null,
@@ -807,6 +691,66 @@
           "streaming_validated": null
         },
         {
+          "id": "poolside/laguna-m.1:free",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "code",
+            "reasoning",
+            "research",
+            "summary"
+          ],
+          "context_window": 262144,
+          "is_default": false,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": null,
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
+          "id": "poolside/laguna-xs-2.1:free",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "code",
+            "reasoning",
+            "research",
+            "summary"
+          ],
+          "context_window": 262144,
+          "is_default": false,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": null,
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
           "id": "qwen/qwen3-next-80b-a3b-instruct:free",
           "aliases": [],
           "capable_tasks": [
@@ -831,6 +775,66 @@
             "tools": false,
             "streaming": true,
             "structured_output": true,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
+          "id": "tencent/hy3:free",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "code",
+            "reasoning",
+            "research",
+            "summary"
+          ],
+          "context_window": 262144,
+          "is_default": false,
+          "healthy": false,
+          "in_cooldown": true,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": "catalog reconciliation: missing from live /models",
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
+          "id": "cohere/north-mini-code:free",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "code",
+            "reasoning",
+            "research",
+            "summary"
+          ],
+          "context_window": 256000,
+          "is_default": false,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": null,
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
             "visible_reasoning": null
           },
           "streaming_validated": null
@@ -896,7 +900,7 @@
           "streaming_validated": null
         },
         {
-          "id": "minimax/minimax-m2.5:free",
+          "id": "openrouter/free",
           "aliases": [],
           "capable_tasks": [
             "background",
@@ -905,36 +909,6 @@
             "reasoning",
             "research",
             "summary"
-          ],
-          "context_window": 204800,
-          "is_default": false,
-          "healthy": false,
-          "in_cooldown": true,
-          "cooldown_until_utc": null,
-          "consecutive_failures": 0,
-          "consecutive_successes": 0,
-          "last_error": "catalog reconciliation: missing from live /models",
-          "avg_latency_ms": null,
-          "cost_per_million_tokens_in": null,
-          "cost_per_million_tokens_out": null,
-          "capabilities": {
-            "tools": null,
-            "streaming": null,
-            "structured_output": null,
-            "visible_reasoning": null
-          },
-          "streaming_validated": null
-        },
-        {
-          "id": "openrouter/free",
-          "aliases": [],
-          "capable_tasks": [
-            "code",
-            "research",
-            "reasoning",
-            "chat",
-            "summary",
-            "background"
           ],
           "context_window": 200000,
           "is_default": false,
@@ -956,7 +930,92 @@
           "streaming_validated": null
         },
         {
-          "id": "baidu/cobuddy:free",
+          "id": "meta-llama/llama-3.2-3b-instruct:free",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "research",
+            "summary"
+          ],
+          "context_window": 131072,
+          "is_default": false,
+          "healthy": false,
+          "in_cooldown": true,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": "catalog reconciliation: missing from live /models",
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
+          "id": "meta-llama/llama-3.3-70b-instruct:free",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "code",
+            "research",
+            "summary"
+          ],
+          "context_window": 131072,
+          "is_default": false,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 1,
+          "consecutive_successes": 0,
+          "last_error": null,
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
+          "id": "nousresearch/hermes-3-llama-3.1-405b:free",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "research",
+            "summary"
+          ],
+          "context_window": 131072,
+          "is_default": false,
+          "healthy": false,
+          "in_cooldown": true,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": "catalog reconciliation: missing from live /models",
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
+          "id": "openai/gpt-oss-120b:free",
           "aliases": [],
           "capable_tasks": [
             "background",
@@ -984,13 +1043,215 @@
             "visible_reasoning": null
           },
           "streaming_validated": null
+        },
+        {
+          "id": "openai/gpt-oss-20b:free",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "code",
+            "reasoning",
+            "research",
+            "summary"
+          ],
+          "context_window": 131072,
+          "is_default": false,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": null,
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
+          "id": "nvidia/nemotron-3.5-content-safety:free",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "reasoning",
+            "research",
+            "summary"
+          ],
+          "context_window": 128000,
+          "is_default": false,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": null,
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
+          "id": "nvidia/nemotron-nano-12b-v2-vl:free",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "code",
+            "reasoning",
+            "research",
+            "summary"
+          ],
+          "context_window": 128000,
+          "is_default": false,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": null,
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
+          "id": "nvidia/nemotron-nano-9b-v2:free",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "code",
+            "reasoning",
+            "research",
+            "summary"
+          ],
+          "context_window": 128000,
+          "is_default": false,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": null,
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
+          "id": "cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "summary"
+          ],
+          "context_window": 32768,
+          "is_default": false,
+          "healthy": false,
+          "in_cooldown": true,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": "catalog reconciliation: missing from live /models",
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
+          "id": "liquid/lfm-2.5-1.2b-instruct:free",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "summary"
+          ],
+          "context_window": 32768,
+          "is_default": false,
+          "healthy": false,
+          "in_cooldown": true,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": "catalog reconciliation: missing from live /models",
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
+          "id": "liquid/lfm-2.5-1.2b-thinking:free",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "code",
+            "reasoning",
+            "summary"
+          ],
+          "context_window": 32768,
+          "is_default": false,
+          "healthy": false,
+          "in_cooldown": true,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": "catalog reconciliation: missing from live /models",
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
         }
       ],
       "error_count": 0,
       "consecutive_failures": 0,
-      "consecutive_successes": 2,
+      "consecutive_successes": 4,
       "last_error": null,
-      "avg_latency_ms": 1414,
+      "avg_latency_ms": 1177,
       "active_connections": 0,
       "last_reservation_utc": null,
       "supports_tools": true,
@@ -1007,11 +1268,11 @@
       "api_key_env": "OPENAI_API_KEY",
       "access_tier": "paid_cloud",
       "quality_band": "high",
-      "intelligence_refreshed_at_utc": "2026-07-26T04:20:35.606299657+00:00",
-      "probe_model": null,
-      "probe_profile": null,
+      "intelligence_refreshed_at_utc": "2026-07-27T15:13:31.586219101+00:00",
+      "probe_model": "default",
+      "probe_profile": "configured_probe_model",
       "enabled": false,
-      "has_api_key": true,
+      "has_api_key": false,
       "healthy": true,
       "in_cooldown": false,
       "cooldown_until_utc": null,
@@ -1070,11 +1331,11 @@
       "api_key_env": "LITELLM_API_KEY",
       "access_tier": "normalized",
       "quality_band": "high",
-      "intelligence_refreshed_at_utc": "2026-07-26T04:20:36.326519173+00:00",
+      "intelligence_refreshed_at_utc": "2026-07-27T15:13:31.586561146+00:00",
       "probe_model": "claude-haiku-4-5",
       "probe_profile": "configured_probe_model",
       "enabled": false,
-      "has_api_key": true,
+      "has_api_key": false,
       "healthy": true,
       "in_cooldown": false,
       "cooldown_until_utc": null,
@@ -1098,7 +1359,7 @@
             "background"
           ],
           "context_window": 128000,
-          "is_default": true,
+          "is_default": false,
           "healthy": true,
           "in_cooldown": false,
           "cooldown_until_utc": null,
@@ -1128,7 +1389,7 @@
             "background"
           ],
           "context_window": 200000,
-          "is_default": false,
+          "is_default": true,
           "healthy": true,
           "in_cooldown": false,
           "cooldown_until_utc": null,
@@ -1224,21 +1485,21 @@
       "api_key_env": "GEMINI_API_KEY",
       "access_tier": "free_cloud",
       "quality_band": "high",
-      "intelligence_refreshed_at_utc": "2026-07-26T04:20:36.326898779+00:00",
-      "probe_model": "gemini-2.0-flash",
+      "intelligence_refreshed_at_utc": "2026-07-27T15:13:31.586892481+00:00",
+      "probe_model": "gemini-3.6-flash",
       "probe_profile": "configured_probe_model",
       "enabled": true,
-      "has_api_key": true,
+      "has_api_key": false,
       "healthy": true,
       "in_cooldown": false,
       "cooldown_until_utc": null,
       "cooldown_backoff_seconds": 0,
       "requests_per_minute": 15,
-      "requests_used_minute": 1,
-      "minute_window_started_utc": "2026-07-26T08:23:42.327368255+00:00",
+      "requests_used_minute": 0,
+      "minute_window_started_utc": "2026-07-27T17:33:42.024622838+00:00",
       "requests_per_day": 1500,
-      "requests_used_day": 56,
-      "day_window_started_utc": "2026-07-25T17:46:33.511561365+00:00",
+      "requests_used_day": 1,
+      "day_window_started_utc": "2026-07-26T17:51:33.505469533+00:00",
       "models": [
         {
           "id": "gemini-3.1-flash-lite",
@@ -1254,9 +1515,9 @@
           "in_cooldown": false,
           "cooldown_until_utc": null,
           "consecutive_failures": 0,
-          "consecutive_successes": 19,
+          "consecutive_successes": 39,
           "last_error": null,
-          "avg_latency_ms": 466,
+          "avg_latency_ms": 576,
           "cost_per_million_tokens_in": null,
           "cost_per_million_tokens_out": null,
           "capabilities": {
@@ -1311,9 +1572,9 @@
           "in_cooldown": false,
           "cooldown_until_utc": null,
           "consecutive_failures": 0,
-          "consecutive_successes": 124,
+          "consecutive_successes": 139,
           "last_error": null,
-          "avg_latency_ms": 1167,
+          "avg_latency_ms": 450,
           "cost_per_million_tokens_in": null,
           "cost_per_million_tokens_out": null,
           "capabilities": {
@@ -1356,9 +1617,9 @@
       ],
       "error_count": 1,
       "consecutive_failures": 0,
-      "consecutive_successes": 76,
+      "consecutive_successes": 146,
       "last_error": null,
-      "avg_latency_ms": 465,
+      "avg_latency_ms": 525,
       "active_connections": 0,
       "last_reservation_utc": null,
       "supports_tools": true,
@@ -1375,11 +1636,11 @@
       "api_key_env": "MISTRAL_API_KEY",
       "access_tier": "mixed",
       "quality_band": "high",
-      "intelligence_refreshed_at_utc": "2026-07-26T04:20:36.437016552+00:00",
+      "intelligence_refreshed_at_utc": "2026-07-27T15:13:31.587230216+00:00",
       "probe_model": "mistral-small-2603",
       "probe_profile": "configured_probe_model",
       "enabled": false,
-      "has_api_key": true,
+      "has_api_key": false,
       "healthy": true,
       "in_cooldown": false,
       "cooldown_until_utc": null,
@@ -1392,6 +1653,62 @@
       "day_window_started_utc": null,
       "models": [
         {
+          "id": "mistral-small-latest",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "research",
+            "summary"
+          ],
+          "context_window": 262144,
+          "is_default": false,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": null,
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
+          "id": "mistral-small-2603",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "research",
+            "summary"
+          ],
+          "context_window": 262144,
+          "is_default": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": null,
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
           "id": "mistral-medium-latest",
           "aliases": [],
           "capable_tasks": [
@@ -1401,7 +1718,7 @@
             "research",
             "summary"
           ],
-          "context_window": 131072,
+          "context_window": 262144,
           "is_default": false,
           "healthy": true,
           "in_cooldown": false,
@@ -1485,62 +1802,6 @@
             "background",
             "chat",
             "reasoning",
-            "research",
-            "summary"
-          ],
-          "context_window": 131072,
-          "is_default": false,
-          "healthy": true,
-          "in_cooldown": false,
-          "cooldown_until_utc": null,
-          "consecutive_failures": 0,
-          "consecutive_successes": 0,
-          "last_error": null,
-          "avg_latency_ms": null,
-          "cost_per_million_tokens_in": null,
-          "cost_per_million_tokens_out": null,
-          "capabilities": {
-            "tools": null,
-            "streaming": null,
-            "structured_output": null,
-            "visible_reasoning": null
-          },
-          "streaming_validated": null
-        },
-        {
-          "id": "mistral-small-latest",
-          "aliases": [],
-          "capable_tasks": [
-            "background",
-            "chat",
-            "research",
-            "summary"
-          ],
-          "context_window": 262144,
-          "is_default": true,
-          "healthy": true,
-          "in_cooldown": false,
-          "cooldown_until_utc": null,
-          "consecutive_failures": 0,
-          "consecutive_successes": 0,
-          "last_error": null,
-          "avg_latency_ms": null,
-          "cost_per_million_tokens_in": null,
-          "cost_per_million_tokens_out": null,
-          "capabilities": {
-            "tools": null,
-            "streaming": null,
-            "structured_output": null,
-            "visible_reasoning": null
-          },
-          "streaming_validated": null
-        },
-        {
-          "id": "mistral-small-2603",
-          "aliases": [],
-          "capable_tasks": [
-            "background",
-            "chat",
             "research",
             "summary"
           ],
@@ -1691,6 +1952,62 @@
             "chat",
             "code",
             "reasoning",
+            "research",
+            "summary"
+          ],
+          "context_window": 262144,
+          "is_default": false,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": null,
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
+          "id": "labs-leanstral-1-5",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "research",
+            "summary"
+          ],
+          "context_window": 262144,
+          "is_default": false,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": null,
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
+          "id": "labs-leanstral-1-5-1",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
             "research",
             "summary"
           ],
@@ -2026,64 +2343,6 @@
             "visible_reasoning": null
           },
           "streaming_validated": null
-        },
-        {
-          "id": "mistral-medium-3.5",
-          "aliases": [],
-          "capable_tasks": [
-            "background",
-            "chat",
-            "reasoning",
-            "research",
-            "summary"
-          ],
-          "context_window": 262144,
-          "is_default": false,
-          "healthy": true,
-          "in_cooldown": false,
-          "cooldown_until_utc": null,
-          "consecutive_failures": 0,
-          "consecutive_successes": 0,
-          "last_error": null,
-          "avg_latency_ms": null,
-          "cost_per_million_tokens_in": null,
-          "cost_per_million_tokens_out": null,
-          "capabilities": {
-            "tools": null,
-            "streaming": null,
-            "structured_output": null,
-            "visible_reasoning": null
-          },
-          "streaming_validated": null
-        },
-        {
-          "id": "mistral-medium-c21211-r0-75",
-          "aliases": [],
-          "capable_tasks": [
-            "background",
-            "chat",
-            "reasoning",
-            "research",
-            "summary"
-          ],
-          "context_window": 262144,
-          "is_default": false,
-          "healthy": false,
-          "in_cooldown": true,
-          "cooldown_until_utc": null,
-          "consecutive_failures": 0,
-          "consecutive_successes": 0,
-          "last_error": "catalog reconciliation: missing from live /models",
-          "avg_latency_ms": null,
-          "cost_per_million_tokens_in": null,
-          "cost_per_million_tokens_out": null,
-          "capabilities": {
-            "tools": null,
-            "streaming": null,
-            "structured_output": null,
-            "visible_reasoning": null
-          },
-          "streaming_validated": null
         }
       ],
       "error_count": 0,
@@ -2107,11 +2366,11 @@
       "api_key_env": "ZAI_API_KEY",
       "access_tier": "paid_cloud",
       "quality_band": "high",
-      "intelligence_refreshed_at_utc": "2026-07-26T04:20:36.749320171+00:00",
+      "intelligence_refreshed_at_utc": "2026-07-27T15:13:31.587574461+00:00",
       "probe_model": "glm-5",
       "probe_profile": "configured_probe_model",
       "enabled": false,
-      "has_api_key": true,
+      "has_api_key": false,
       "healthy": true,
       "in_cooldown": false,
       "cooldown_until_utc": null,
@@ -2135,7 +2394,7 @@
             "summary"
           ],
           "context_window": 200000,
-          "is_default": true,
+          "is_default": false,
           "healthy": true,
           "in_cooldown": false,
           "cooldown_until_utc": null,
@@ -2165,7 +2424,7 @@
             "summary"
           ],
           "context_window": 200000,
-          "is_default": false,
+          "is_default": true,
           "healthy": true,
           "in_cooldown": false,
           "cooldown_until_utc": null,
@@ -2332,6 +2591,36 @@
             "visible_reasoning": null
           },
           "streaming_validated": null
+        },
+        {
+          "id": "glm-5.2",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "code",
+            "reasoning",
+            "research",
+            "summary"
+          ],
+          "context_window": 200000,
+          "is_default": false,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": null,
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
         }
       ],
       "error_count": 0,
@@ -2355,11 +2644,11 @@
       "api_key_env": "NVIDIA_API_KEY",
       "access_tier": "mixed",
       "quality_band": "high",
-      "intelligence_refreshed_at_utc": "2026-07-26T04:20:37.165583907+00:00",
+      "intelligence_refreshed_at_utc": "2026-07-27T15:13:31.587925776+00:00",
       "probe_model": "deepseek-ai/deepseek-v4-flash",
       "probe_profile": "configured_probe_model",
       "enabled": false,
-      "has_api_key": true,
+      "has_api_key": false,
       "healthy": true,
       "in_cooldown": false,
       "cooldown_until_utc": null,
@@ -2372,23 +2661,80 @@
       "day_window_started_utc": null,
       "models": [
         {
-          "id": "qwen/qwen3-coder-480b-a35b-instruct",
+          "id": "openai/gpt-oss-120b",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "reasoning",
+            "summary"
+          ],
+          "context_window": 131072,
+          "is_default": true,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": null,
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
+          "id": "openai/gpt-oss-20b",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "reasoning",
+            "summary"
+          ],
+          "context_window": 131072,
+          "is_default": false,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": null,
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
+          "id": "meta/llama-3.3-70b-instruct",
           "aliases": [],
           "capable_tasks": [
             "background",
             "chat",
             "code",
             "reasoning",
+            "research",
             "summary"
           ],
-          "context_window": 128000,
+          "context_window": 131072,
           "is_default": false,
-          "healthy": false,
-          "in_cooldown": true,
+          "healthy": true,
+          "in_cooldown": false,
           "cooldown_until_utc": null,
           "consecutive_failures": 0,
           "consecutive_successes": 0,
-          "last_error": "catalog reconciliation: missing from live /models",
+          "last_error": null,
           "avg_latency_ms": null,
           "cost_per_million_tokens_in": null,
           "cost_per_million_tokens_out": null,
@@ -2408,7 +2754,7 @@
             "chat",
             "summary"
           ],
-          "context_window": 128000,
+          "context_window": 131072,
           "is_default": false,
           "healthy": true,
           "in_cooldown": false,
@@ -2484,36 +2830,6 @@
           "streaming_validated": null
         },
         {
-          "id": "meta/llama-3.3-70b-instruct",
-          "aliases": [],
-          "capable_tasks": [
-            "background",
-            "chat",
-            "code",
-            "reasoning",
-            "research",
-            "summary"
-          ],
-          "context_window": 128000,
-          "is_default": false,
-          "healthy": true,
-          "in_cooldown": false,
-          "cooldown_until_utc": null,
-          "consecutive_failures": 0,
-          "consecutive_successes": 0,
-          "last_error": null,
-          "avg_latency_ms": null,
-          "cost_per_million_tokens_in": null,
-          "cost_per_million_tokens_out": null,
-          "capabilities": {
-            "tools": null,
-            "streaming": null,
-            "structured_output": null,
-            "visible_reasoning": null
-          },
-          "streaming_validated": null
-        },
-        {
           "id": "bigcode/starcoder2-15b",
           "aliases": [],
           "capable_tasks": [
@@ -2553,62 +2869,6 @@
             "summary"
           ],
           "context_window": 128000,
-          "is_default": false,
-          "healthy": true,
-          "in_cooldown": false,
-          "cooldown_until_utc": null,
-          "consecutive_failures": 0,
-          "consecutive_successes": 0,
-          "last_error": null,
-          "avg_latency_ms": null,
-          "cost_per_million_tokens_in": null,
-          "cost_per_million_tokens_out": null,
-          "capabilities": {
-            "tools": null,
-            "streaming": null,
-            "structured_output": null,
-            "visible_reasoning": null
-          },
-          "streaming_validated": null
-        },
-        {
-          "id": "openai/gpt-oss-120b",
-          "aliases": [],
-          "capable_tasks": [
-            "background",
-            "chat",
-            "reasoning",
-            "summary"
-          ],
-          "context_window": 131072,
-          "is_default": true,
-          "healthy": true,
-          "in_cooldown": false,
-          "cooldown_until_utc": null,
-          "consecutive_failures": 0,
-          "consecutive_successes": 0,
-          "last_error": null,
-          "avg_latency_ms": null,
-          "cost_per_million_tokens_in": null,
-          "cost_per_million_tokens_out": null,
-          "capabilities": {
-            "tools": null,
-            "streaming": null,
-            "structured_output": null,
-            "visible_reasoning": null
-          },
-          "streaming_validated": null
-        },
-        {
-          "id": "openai/gpt-oss-20b",
-          "aliases": [],
-          "capable_tasks": [
-            "background",
-            "chat",
-            "reasoning",
-            "summary"
-          ],
-          "context_window": 131072,
           "is_default": false,
           "healthy": true,
           "in_cooldown": false,
@@ -2710,6 +2970,33 @@
           "streaming_validated": null
         },
         {
+          "id": "minimaxai/minimax-m3",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "summary"
+          ],
+          "context_window": 128000,
+          "is_default": false,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": null,
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
           "id": "moonshotai/kimi-k2.6",
           "aliases": [],
           "capable_tasks": [
@@ -2738,23 +3025,22 @@
           "streaming_validated": null
         },
         {
-          "id": "z-ai/glm-5.1",
+          "id": "z-ai/glm-5.2",
           "aliases": [],
           "capable_tasks": [
             "background",
             "chat",
             "reasoning",
-            "research",
             "summary"
           ],
           "context_window": 128000,
           "is_default": false,
-          "healthy": false,
-          "in_cooldown": true,
+          "healthy": true,
+          "in_cooldown": false,
           "cooldown_until_utc": null,
           "consecutive_failures": 0,
           "consecutive_successes": 0,
-          "last_error": "catalog reconciliation: missing from live /models",
+          "last_error": null,
           "avg_latency_ms": null,
           "cost_per_million_tokens_in": null,
           "cost_per_million_tokens_out": null,
@@ -3060,12 +3346,12 @@
       "api_key_env": "MINIMAX_API_KEY",
       "access_tier": "paid_cloud",
       "quality_band": "high",
-      "intelligence_refreshed_at_utc": "2026-07-26T04:20:38.283597293+00:00",
-      "probe_model": "MiniMax-M2.5",
+      "intelligence_refreshed_at_utc": "2026-07-27T15:13:31.588269271+00:00",
+      "probe_model": "MiniMax-M2.7",
       "probe_profile": "configured_probe_model",
       "enabled": false,
       "has_api_key": false,
-      "healthy": true,
+      "healthy": false,
       "in_cooldown": false,
       "cooldown_until_utc": null,
       "cooldown_backoff_seconds": 120,
@@ -3080,75 +3366,15 @@
           "id": "MiniMax-M2.7",
           "aliases": [],
           "capable_tasks": [
-            "code",
-            "research",
-            "reasoning",
+            "background",
             "chat",
-            "summary",
-            "background"
+            "code",
+            "reasoning",
+            "research",
+            "summary"
           ],
           "context_window": 128000,
           "is_default": true,
-          "healthy": true,
-          "in_cooldown": false,
-          "cooldown_until_utc": null,
-          "consecutive_failures": 0,
-          "consecutive_successes": 0,
-          "last_error": null,
-          "avg_latency_ms": null,
-          "cost_per_million_tokens_in": null,
-          "cost_per_million_tokens_out": null,
-          "capabilities": {
-            "tools": null,
-            "streaming": null,
-            "structured_output": null,
-            "visible_reasoning": null
-          },
-          "streaming_validated": null
-        },
-        {
-          "id": "MiniMax-M2.7-highspeed",
-          "aliases": [],
-          "capable_tasks": [
-            "code",
-            "research",
-            "reasoning",
-            "chat",
-            "summary",
-            "background"
-          ],
-          "context_window": 128000,
-          "is_default": false,
-          "healthy": true,
-          "in_cooldown": false,
-          "cooldown_until_utc": null,
-          "consecutive_failures": 0,
-          "consecutive_successes": 0,
-          "last_error": null,
-          "avg_latency_ms": null,
-          "cost_per_million_tokens_in": null,
-          "cost_per_million_tokens_out": null,
-          "capabilities": {
-            "tools": null,
-            "streaming": null,
-            "structured_output": null,
-            "visible_reasoning": null
-          },
-          "streaming_validated": null
-        },
-        {
-          "id": "MiniMax-M2.5",
-          "aliases": [],
-          "capable_tasks": [
-            "code",
-            "research",
-            "reasoning",
-            "chat",
-            "summary",
-            "background"
-          ],
-          "context_window": 128000,
-          "is_default": false,
           "healthy": true,
           "in_cooldown": false,
           "cooldown_until_utc": null,
@@ -3188,12 +3414,12 @@
       "api_key_env": "MOONSHOT_API_KEY",
       "access_tier": "paid_cloud",
       "quality_band": "high",
-      "intelligence_refreshed_at_utc": "2026-07-26T04:20:38.284046540+00:00",
-      "probe_model": "moonshot-v1-128k",
+      "intelligence_refreshed_at_utc": "2026-07-27T15:13:31.588609945+00:00",
+      "probe_model": "kimi-k2.6",
       "probe_profile": "configured_probe_model",
       "enabled": false,
       "has_api_key": false,
-      "healthy": true,
+      "healthy": false,
       "in_cooldown": false,
       "cooldown_until_utc": null,
       "cooldown_backoff_seconds": 120,
@@ -3208,73 +3434,15 @@
           "id": "kimi-k2.6",
           "aliases": [],
           "capable_tasks": [
-            "code",
-            "research",
-            "reasoning",
+            "background",
             "chat",
-            "summary",
-            "background"
+            "code",
+            "reasoning",
+            "research",
+            "summary"
           ],
           "context_window": 256000,
           "is_default": true,
-          "healthy": true,
-          "in_cooldown": false,
-          "cooldown_until_utc": null,
-          "consecutive_failures": 0,
-          "consecutive_successes": 0,
-          "last_error": null,
-          "avg_latency_ms": null,
-          "cost_per_million_tokens_in": null,
-          "cost_per_million_tokens_out": null,
-          "capabilities": {
-            "tools": null,
-            "streaming": null,
-            "structured_output": null,
-            "visible_reasoning": null
-          },
-          "streaming_validated": null
-        },
-        {
-          "id": "kimi-k2.5",
-          "aliases": [],
-          "capable_tasks": [
-            "code",
-            "research",
-            "reasoning",
-            "chat",
-            "summary",
-            "background"
-          ],
-          "context_window": 256000,
-          "is_default": false,
-          "healthy": true,
-          "in_cooldown": false,
-          "cooldown_until_utc": null,
-          "consecutive_failures": 0,
-          "consecutive_successes": 0,
-          "last_error": null,
-          "avg_latency_ms": null,
-          "cost_per_million_tokens_in": null,
-          "cost_per_million_tokens_out": null,
-          "capabilities": {
-            "tools": null,
-            "streaming": null,
-            "structured_output": null,
-            "visible_reasoning": null
-          },
-          "streaming_validated": null
-        },
-        {
-          "id": "moonshot-v1-128k",
-          "aliases": [],
-          "capable_tasks": [
-            "research",
-            "chat",
-            "summary",
-            "background"
-          ],
-          "context_window": 128000,
-          "is_default": false,
           "healthy": true,
           "in_cooldown": false,
           "cooldown_until_utc": null,
@@ -3314,7 +3482,7 @@
       "api_key_env": null,
       "access_tier": "paid_cloud",
       "quality_band": "high",
-      "intelligence_refreshed_at_utc": "2026-07-26T04:20:38.284436985+00:00",
+      "intelligence_refreshed_at_utc": "2026-07-27T15:13:31.588950130+00:00",
       "probe_model": "claude-haiku-4-5",
       "probe_profile": "configured_probe_model",
       "enabled": false,
@@ -3439,7 +3607,7 @@
       "api_key_env": null,
       "access_tier": "paid_cloud",
       "quality_band": "high",
-      "intelligence_refreshed_at_utc": "2026-07-26T04:20:38.284845521+00:00",
+      "intelligence_refreshed_at_utc": "2026-07-27T15:13:31.589272395+00:00",
       "probe_model": "gpt-5.5",
       "probe_profile": "configured_probe_model",
       "enabled": true,
@@ -3450,10 +3618,10 @@
       "cooldown_backoff_seconds": 0,
       "requests_per_minute": 60,
       "requests_used_minute": 0,
-      "minute_window_started_utc": "2026-07-26T08:23:12.023693469+00:00",
+      "minute_window_started_utc": "2026-07-27T17:33:42.024622838+00:00",
       "requests_per_day": 10000,
-      "requests_used_day": 0,
-      "day_window_started_utc": "2026-07-25T17:23:52.024840410+00:00",
+      "requests_used_day": 3,
+      "day_window_started_utc": "2026-07-27T05:23:59.897596734+00:00",
       "models": [
         {
           "id": "gpt-5.5",
@@ -3472,13 +3640,13 @@
           "in_cooldown": false,
           "cooldown_until_utc": null,
           "consecutive_failures": 0,
-          "consecutive_successes": 2,
+          "consecutive_successes": 5,
           "last_error": null,
-          "avg_latency_ms": 1326,
+          "avg_latency_ms": 2373,
           "cost_per_million_tokens_in": null,
           "cost_per_million_tokens_out": null,
           "capabilities": {
-            "tools": null,
+            "tools": true,
             "streaming": null,
             "structured_output": null,
             "visible_reasoning": null
@@ -3488,9 +3656,9 @@
       ],
       "error_count": 0,
       "consecutive_failures": 0,
-      "consecutive_successes": 4,
+      "consecutive_successes": 10,
       "last_error": null,
-      "avg_latency_ms": 1326,
+      "avg_latency_ms": 2373,
       "active_connections": 0,
       "last_reservation_utc": null,
       "supports_tools": true,
@@ -3507,7 +3675,7 @@
       "api_key_env": null,
       "access_tier": "paid_cloud",
       "quality_band": "high",
-      "intelligence_refreshed_at_utc": "2026-07-26T04:20:38.285339458+00:00",
+      "intelligence_refreshed_at_utc": "2026-07-27T15:13:31.589589720+00:00",
       "probe_model": "auto",
       "probe_profile": "configured_probe_model",
       "enabled": false,
@@ -3575,11 +3743,11 @@
       "api_key_env": "CEREBRAS_API_KEY",
       "access_tier": "free_cloud",
       "quality_band": "high",
-      "intelligence_refreshed_at_utc": "2026-07-26T04:20:38.285731504+00:00",
+      "intelligence_refreshed_at_utc": "2026-07-27T15:13:31.589907404+00:00",
       "probe_model": "zai-glm-4.7",
       "probe_profile": "configured_probe_model",
       "enabled": false,
-      "has_api_key": true,
+      "has_api_key": false,
       "healthy": true,
       "in_cooldown": false,
       "cooldown_until_utc": null,
@@ -3592,47 +3760,18 @@
       "day_window_started_utc": null,
       "models": [
         {
-          "id": "qwen-3-235b-a22b-instruct-2507",
-          "aliases": [],
-          "capable_tasks": [
-            "code",
-            "research",
-            "reasoning",
-            "chat",
-            "summary",
-            "background"
-          ],
-          "context_window": 131072,
-          "is_default": false,
-          "healthy": false,
-          "in_cooldown": true,
-          "cooldown_until_utc": null,
-          "consecutive_failures": 0,
-          "consecutive_successes": 0,
-          "last_error": "catalog reconciliation: missing from live /models",
-          "avg_latency_ms": null,
-          "cost_per_million_tokens_in": null,
-          "cost_per_million_tokens_out": null,
-          "capabilities": {
-            "tools": null,
-            "streaming": null,
-            "structured_output": null,
-            "visible_reasoning": null
-          },
-          "streaming_validated": null
-        },
-        {
           "id": "gpt-oss-120b",
           "aliases": [],
           "capable_tasks": [
-            "code",
-            "research",
-            "reasoning",
+            "background",
             "chat",
+            "code",
+            "reasoning",
+            "research",
             "summary"
           ],
           "context_window": 131072,
-          "is_default": false,
+          "is_default": true,
           "healthy": true,
           "in_cooldown": false,
           "cooldown_until_utc": null,
@@ -3651,44 +3790,18 @@
           "streaming_validated": null
         },
         {
-          "id": "llama3.1-8b",
-          "aliases": [],
-          "capable_tasks": [
-            "chat",
-            "summary",
-            "background"
-          ],
-          "context_window": 128000,
-          "is_default": false,
-          "healthy": false,
-          "in_cooldown": true,
-          "cooldown_until_utc": null,
-          "consecutive_failures": 0,
-          "consecutive_successes": 0,
-          "last_error": "catalog reconciliation: missing from live /models",
-          "avg_latency_ms": null,
-          "cost_per_million_tokens_in": null,
-          "cost_per_million_tokens_out": null,
-          "capabilities": {
-            "tools": null,
-            "streaming": null,
-            "structured_output": null,
-            "visible_reasoning": null
-          },
-          "streaming_validated": null
-        },
-        {
           "id": "zai-glm-4.7",
           "aliases": [],
           "capable_tasks": [
-            "code",
-            "research",
-            "reasoning",
+            "background",
             "chat",
+            "code",
+            "reasoning",
+            "research",
             "summary"
           ],
           "context_window": 131072,
-          "is_default": true,
+          "is_default": false,
           "healthy": true,
           "in_cooldown": false,
           "cooldown_until_utc": null,
@@ -3703,6 +3816,33 @@
             "streaming": true,
             "structured_output": true,
             "visible_reasoning": true
+          },
+          "streaming_validated": null
+        },
+        {
+          "id": "gemma-4-31b",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "summary"
+          ],
+          "context_window": 131072,
+          "is_default": false,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": null,
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
           },
           "streaming_validated": null
         }
@@ -3728,11 +3868,11 @@
       "api_key_env": "GROQ_API_KEY",
       "access_tier": "free_cloud",
       "quality_band": "high",
-      "intelligence_refreshed_at_utc": "2026-07-26T04:20:38.409902869+00:00",
+      "intelligence_refreshed_at_utc": "2026-07-27T15:13:31.590216029+00:00",
       "probe_model": "llama-3.3-70b-versatile",
       "probe_profile": "configured_probe_model",
       "enabled": false,
-      "has_api_key": true,
+      "has_api_key": false,
       "healthy": true,
       "in_cooldown": false,
       "cooldown_until_utc": null,
@@ -3748,12 +3888,12 @@
           "id": "llama-3.3-70b-versatile",
           "aliases": [],
           "capable_tasks": [
-            "code",
-            "research",
-            "reasoning",
+            "background",
             "chat",
-            "summary",
-            "background"
+            "code",
+            "reasoning",
+            "research",
+            "summary"
           ],
           "context_window": 131072,
           "is_default": true,
@@ -3775,40 +3915,14 @@
           "streaming_validated": null
         },
         {
-          "id": "llama-3.1-8b-instant",
-          "aliases": [],
-          "capable_tasks": [
-            "chat",
-            "summary",
-            "background"
-          ],
-          "context_window": 131072,
-          "is_default": false,
-          "healthy": true,
-          "in_cooldown": false,
-          "cooldown_until_utc": null,
-          "consecutive_failures": 0,
-          "consecutive_successes": 0,
-          "last_error": null,
-          "avg_latency_ms": null,
-          "cost_per_million_tokens_in": null,
-          "cost_per_million_tokens_out": null,
-          "capabilities": {
-            "tools": null,
-            "streaming": null,
-            "structured_output": null,
-            "visible_reasoning": null
-          },
-          "streaming_validated": null
-        },
-        {
           "id": "qwen/qwen3-32b",
           "aliases": [],
           "capable_tasks": [
-            "code",
-            "research",
-            "reasoning",
+            "background",
             "chat",
+            "code",
+            "reasoning",
+            "research",
             "summary"
           ],
           "context_window": 131072,
@@ -3834,10 +3948,11 @@
           "id": "openai/gpt-oss-120b",
           "aliases": [],
           "capable_tasks": [
-            "code",
-            "research",
-            "reasoning",
+            "background",
             "chat",
+            "code",
+            "reasoning",
+            "research",
             "summary"
           ],
           "context_window": 131072,
@@ -3860,12 +3975,73 @@
           "streaming_validated": null
         },
         {
+          "id": "groq/compound",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "code",
+            "reasoning",
+            "research",
+            "summary"
+          ],
+          "context_window": 131072,
+          "is_default": false,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": null,
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": false,
+            "streaming": true,
+            "structured_output": true,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
           "id": "openai/gpt-oss-20b",
           "aliases": [],
           "capable_tasks": [
+            "background",
             "chat",
-            "summary",
-            "background"
+            "code",
+            "reasoning",
+            "research",
+            "summary"
+          ],
+          "context_window": 131072,
+          "is_default": false,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": null,
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
+          "id": "llama-3.1-8b-instant",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "research",
+            "summary"
           ],
           "context_window": 131072,
           "is_default": false,
@@ -3890,9 +4066,10 @@
           "id": "meta-llama/llama-4-scout-17b-16e-instruct",
           "aliases": [],
           "capable_tasks": [
+            "background",
             "chat",
-            "summary",
-            "background"
+            "research",
+            "summary"
           ],
           "context_window": 131072,
           "is_default": false,
@@ -3914,13 +4091,14 @@
           "streaming_validated": null
         },
         {
-          "id": "groq/compound",
+          "id": "groq/compound-mini",
           "aliases": [],
           "capable_tasks": [
-            "code",
-            "research",
-            "reasoning",
+            "background",
             "chat",
+            "code",
+            "reasoning",
+            "research",
             "summary"
           ],
           "context_window": 131072,
@@ -3935,9 +4113,260 @@
           "cost_per_million_tokens_in": null,
           "cost_per_million_tokens_out": null,
           "capabilities": {
-            "tools": false,
-            "streaming": true,
-            "structured_output": true,
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
+          "id": "openai/gpt-oss-safeguard-20b",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "code",
+            "reasoning",
+            "research",
+            "summary"
+          ],
+          "context_window": 131072,
+          "is_default": false,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 1,
+          "consecutive_successes": 0,
+          "last_error": null,
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
+          "id": "qwen/qwen3.6-27b",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "code",
+            "reasoning",
+            "research",
+            "summary"
+          ],
+          "context_window": 131072,
+          "is_default": false,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": null,
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
+          "id": "allam-2-7b",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "summary"
+          ],
+          "context_window": 4096,
+          "is_default": false,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": null,
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
+          "id": "canopylabs/orpheus-arabic-saudi",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "summary"
+          ],
+          "context_window": 4000,
+          "is_default": false,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": null,
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
+          "id": "canopylabs/orpheus-v1-english",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "summary"
+          ],
+          "context_window": 4000,
+          "is_default": false,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": null,
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
+          "id": "meta-llama/llama-prompt-guard-2-22m",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "summary"
+          ],
+          "context_window": 512,
+          "is_default": false,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": null,
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
+          "id": "meta-llama/llama-prompt-guard-2-86m",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "summary"
+          ],
+          "context_window": 512,
+          "is_default": false,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 0,
+          "consecutive_successes": 0,
+          "last_error": null,
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
+          "id": "whisper-large-v3",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "research",
+            "summary"
+          ],
+          "context_window": 448,
+          "is_default": false,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 1,
+          "consecutive_successes": 0,
+          "last_error": null,
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
+            "visible_reasoning": null
+          },
+          "streaming_validated": null
+        },
+        {
+          "id": "whisper-large-v3-turbo",
+          "aliases": [],
+          "capable_tasks": [
+            "background",
+            "chat",
+            "research",
+            "summary"
+          ],
+          "context_window": 448,
+          "is_default": false,
+          "healthy": true,
+          "in_cooldown": false,
+          "cooldown_until_utc": null,
+          "consecutive_failures": 1,
+          "consecutive_successes": 0,
+          "last_error": null,
+          "avg_latency_ms": null,
+          "cost_per_million_tokens_in": null,
+          "cost_per_million_tokens_out": null,
+          "capabilities": {
+            "tools": null,
+            "streaming": null,
+            "structured_output": null,
             "visible_reasoning": null
           },
           "streaming_validated": null

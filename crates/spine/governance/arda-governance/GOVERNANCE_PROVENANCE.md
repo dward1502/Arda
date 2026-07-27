@@ -158,6 +158,6 @@ Provenance changes: <entries added or none>
   not claim upstream endorsement.
 - [x] No upstream artifact requiring copied notice text is distributed by this crate;
   creator/title/URL and NOAA notice obligations are preserved here.
-- [x] `FIRST_CLASS_CHECKLIST.md` includes provenance review in its release gate.
+- [x] `STATUS.md` records the current release gate and links this provenance record.
 - [x] This document is `active` because the creator classifications and upstream records
   are present, and human release review was approved by the project creator on 2026-07-25.

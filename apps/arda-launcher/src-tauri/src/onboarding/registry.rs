@@ -3,6 +3,7 @@ use arda_contract_registry::registry::ContractRegistry;
 use serde::Serialize;
 use std::path::{Path, PathBuf};
 
+#[cfg(test)]
 fn workspace_root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../../..")

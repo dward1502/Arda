@@ -64,6 +64,23 @@ class HadesNightlyOperationsTests(unittest.TestCase):
             self.assertTrue((root / "data/hades/nightly_operations_history.jsonl").exists())
             self.assertTrue((out / "organization/storage_hygiene_last.json").exists())
             self.assertIn("audit/system-audit-runs/2026-05-27/system-audit-test/summary.json", summary["artifacts"]["system_audit_summary"])
+            portability_command = summary["commands"]["portability_audit"]["command"]
+            self.assertEqual(portability_command[:2], ["python3", "scripts/audit/portability_audit.py"])
+            portability_summary = summary["artifacts"]["portability_summary"]
+            setup_command = summary["commands"]["setup_console_readiness"]["command"]
+            self.assertEqual(
+                setup_command[setup_command.index("--portability-receipt") + 1],
+                portability_summary,
+            )
+            repeated_command = summary["commands"]["repeated_audit"]["command"]
+            self.assertEqual(
+                repeated_command[repeated_command.index("--portability-summary") + 1],
+                portability_summary,
+            )
+            self.assertEqual(
+                repeated_command[repeated_command.index("--setup-receipt") + 1],
+                summary["artifacts"]["setup_console_receipt"],
+            )
 
 
 if __name__ == "__main__":

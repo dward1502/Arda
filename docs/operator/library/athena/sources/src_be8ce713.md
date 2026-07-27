@@ -1,12 +1,12 @@
 # ATHENA Source Book
 
 - source_id: `src_be8ce713`
-- pipeline_id: `athpl_be5c319d34af4a83b19fb859fe87dc89`
+- pipeline_id: `athpl_ffaa200780ae4228ba4376214f7becc0`
 - status: `shallow`
 - source_type: `GithubRepo`
-- updated_at_utc: `2026-07-26T06:22:56.452697261+00:00`
+- updated_at_utc: `2026-07-27T05:56:59.913807705+00:00`
 - url: https://github.com/example/rust-streaming-api
-- athena_book: `/tmp/.tmpnAuJZw/books/src_be8ce713.jsonl`
+- athena_book: `/tmp/.tmpJAEune/books/src_be8ce713.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

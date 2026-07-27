@@ -10,10 +10,10 @@ pub(super) fn default_provider_config_path() -> PathBuf {
     if let Ok(path) = std::env::var("ARDA_MANWE_PROVIDER_CONFIG") {
         return PathBuf::from(path);
     }
-    if let Ok(path) = std::env::var("ARDA_MANWE_PROVIDER_CONFIG") {
+    if let Ok(path) = std::env::var("ANNUNIMAS_CHARON_PROVIDER_CONFIG") {
         return PathBuf::from(path);
     }
-    super::paths::arda_root().join("config/charon.providers.toml")
+    super::paths::arda_root().join("config/manwe.providers.toml")
 }
 
 pub(super) fn default_bootstrap_state_path() -> PathBuf {
@@ -21,4 +21,18 @@ pub(super) fn default_bootstrap_state_path() -> PathBuf {
         return PathBuf::from(path);
     }
     super::paths::arda_root().join("core/state/fleet_bootstrap.json")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn default_provider_config_path_uses_canonical_manwe_filename() {
+        std::env::remove_var("ARDA_MANWE_PROVIDER_CONFIG");
+        assert_eq!(
+            default_provider_config_path().file_name().and_then(|value| value.to_str()),
+            Some("manwe.providers.toml")
+        );
+    }
 }

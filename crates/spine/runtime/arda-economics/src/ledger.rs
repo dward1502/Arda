@@ -91,14 +91,12 @@ impl PlutusLedger {
         self.credit_events = snapshot
             .get("credit_events")
             .and_then(|v| v.as_u64())
-            .unwrap_or(self.credit_events) as u64;
+            .unwrap_or(self.credit_events);
         self.last_credit_account = snapshot
             .get("last_credit_account")
             .and_then(|v| v.as_str())
             .map(str::to_owned);
-        self.last_credit_amount = snapshot
-            .get("last_credit_amount")
-            .and_then(|v| v.as_f64());
+        self.last_credit_amount = snapshot.get("last_credit_amount").and_then(|v| v.as_f64());
     }
 }
 

@@ -16,11 +16,6 @@ struct ResourceGroupSlot {
     semaphore: Arc<Semaphore>,
 }
 
-#[derive(Debug, Clone, Default)]
-pub struct ResourceGroupLimiter {
-    slots: Arc<Mutex<BTreeMap<String, Arc<ResourceGroupSlot>>>>,
-}
-
 #[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 pub struct ResourceGroupSnapshot {
     pub resource_group: String,
@@ -46,22 +41,48 @@ impl Drop for ResourceLeaseInner {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct ResourceGroupLimiter {
+    default_limit: usize,
+    slots: Arc<Mutex<BTreeMap<String, Arc<ResourceGroupSlot>>>>,
+}
+
+impl Default for ResourceGroupLimiter {
+    fn default() -> Self {
+        Self::new(configured_group_limit())
+    }
+}
+
 impl ResourceGroupLimiter {
-    pub async fn acquire(&self, resource_group: &str) -> Result<ResourceLease, String> {
-        let slot = {
-            let mut slots = self.slots.lock().await;
-            slots
-                .entry(resource_group.to_string())
-                .or_insert_with(|| {
-                    Arc::new(ResourceGroupSlot {
-                        limit: configured_group_limit(),
-                        active: Arc::new(AtomicUsize::new(0)),
-                        queued: Arc::new(AtomicUsize::new(0)),
-                        semaphore: Arc::new(Semaphore::new(configured_group_limit())),
-                    })
+    pub fn new(default_limit: usize) -> Self {
+        Self {
+            default_limit: default_limit.max(1),
+            slots: Arc::new(Mutex::new(BTreeMap::new())),
+        }
+    }
+
+    pub async fn acquire(
+        &self,
+        resource_group: &str,
+        group_limit: Option<usize>,
+    ) -> Result<ResourceLease, String> {
+        let mut slots = self.slots.lock().await;
+        let slot = slots
+            .entry(resource_group.to_string())
+            .or_insert_with(|| {
+                let limit = group_limit.unwrap_or(self.default_limit).max(1);
+                Arc::new(ResourceGroupSlot {
+                    limit,
+                    active: Arc::new(AtomicUsize::new(0)),
+                    queued: Arc::new(AtomicUsize::new(0)),
+                    semaphore: Arc::new(Semaphore::new(limit)),
                 })
-                .clone()
-        };
+            })
+            .clone();
+        // Do not hold the catalog mutex while a request waits for capacity.
+        // Snapshots and requests for unrelated groups must remain observable
+        // and independently schedulable while this group is saturated.
+        drop(slots);
 
         let timeout = Duration::from_secs(configured_queue_timeout_seconds());
         slot.queued.fetch_add(1, Ordering::SeqCst);
@@ -100,6 +121,14 @@ impl ResourceGroupLimiter {
             })
             .collect()
     }
+
+    pub async fn is_saturated(&self, resource_group: &str) -> bool {
+        self.slots
+            .lock()
+            .await
+            .get(resource_group)
+            .is_some_and(|slot| slot.semaphore.available_permits() == 0)
+    }
 }
 
 impl ResourceLease {
@@ -130,28 +159,57 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn serializes_requests_in_the_same_resource_group() {
+    async fn group_defaults_are_bounded() {
         let limiter = ResourceGroupLimiter::default();
-        let first = limiter.acquire("shared-gpu").await.expect("first lease");
+        assert_eq!(limiter.snapshots().await.len(), 0);
+        let first = limiter.acquire("default", None).await.expect("first lease");
+        assert!(first.strong_count() >= 1);
+    }
+
+    #[tokio::test]
+    async fn configured_group_limit_allows_bounded_parallel_leases() {
+        let limiter = ResourceGroupLimiter::new(1);
+        let first = limiter
+            .acquire("shared-gpu", Some(2))
+            .await
+            .expect("first lease");
+        let second = limiter
+            .acquire("shared-gpu", Some(2))
+            .await
+            .expect("second lease");
         let limiter_for_waiter = limiter.clone();
-        let waiter = tokio::spawn(async move { limiter_for_waiter.acquire("shared-gpu").await });
+        let waiter =
+            tokio::spawn(async move { limiter_for_waiter.acquire("shared-gpu", Some(2)).await });
 
         tokio::task::yield_now().await;
         let snapshots = limiter.snapshots().await;
-        assert_eq!(snapshots[0].active, 1);
+        assert_eq!(snapshots[0].active, 2);
+        assert_eq!(snapshots[0].limit, 2);
+        assert_eq!(snapshots[0].queued, 1);
         assert!(!waiter.is_finished());
 
         drop(first);
-        let second = waiter.await.expect("waiter task").expect("second lease");
+        let third = waiter.await.expect("waiter task").expect("third lease");
+        assert_eq!(third.strong_count(), 1);
+        drop(second);
+    }
+
+    #[tokio::test]
+    async fn different_resource_groups_run_independently() {
+        let limiter = ResourceGroupLimiter::new(1);
+        let first = limiter.acquire("gpu-a", None).await.expect("gpu-a lease");
+        let second = limiter.acquire("gpu-b", None).await.expect("gpu-b lease");
+        assert_eq!(first.strong_count(), 1);
         assert_eq!(second.strong_count(), 1);
     }
 
     #[tokio::test]
-    async fn allows_different_resource_groups_to_run_independently() {
-        let limiter = ResourceGroupLimiter::default();
-        let first = limiter.acquire("gpu-a").await.expect("gpu-a lease");
-        let second = limiter.acquire("gpu-b").await.expect("gpu-b lease");
-        assert_eq!(first.strong_count(), 1);
-        assert_eq!(second.strong_count(), 1);
+    async fn saturation_is_visible_without_blocking_on_the_group() {
+        let limiter = ResourceGroupLimiter::new(1);
+        let lease = limiter.acquire("gpu-a", None).await.expect("gpu-a lease");
+        assert!(limiter.is_saturated("gpu-a").await);
+        assert!(!limiter.is_saturated("gpu-b").await);
+        drop(lease);
+        assert!(!limiter.is_saturated("gpu-a").await);
     }
 }

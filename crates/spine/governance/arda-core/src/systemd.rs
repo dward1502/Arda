@@ -63,25 +63,65 @@ pub struct SystemctlClient;
 
 impl SystemdClient for SystemctlClient {
     fn list_units_raw(&self, pattern: &str) -> Result<String, SystemdError> {
-        let out = Command::new("systemctl")
-            .args([
-                "--user",
-                "list-units",
-                "--all",
-                "--no-legend",
-                "--no-pager",
-                "--plain",
-                pattern,
-            ])
-            .output()?;
-        if !out.status.success() {
-            return Err(SystemdError::Exit {
-                code: out.status.code().unwrap_or(-1),
-                stderr: String::from_utf8_lossy(&out.stderr).into_owned(),
-            });
-        }
-        Ok(String::from_utf8_lossy(&out.stdout).into_owned())
+        let user = std::env::var("USER").ok();
+        list_units_with_runner(pattern, user.as_deref(), |args| {
+            let out = Command::new("systemctl").args(args).output()?;
+            Ok((
+                out.status.code().unwrap_or(-1),
+                String::from_utf8_lossy(&out.stdout).into_owned(),
+                String::from_utf8_lossy(&out.stderr).into_owned(),
+            ))
+        })
     }
+}
+
+fn list_units_args(pattern: &str, machine: Option<&str>) -> Vec<String> {
+    let mut args = vec!["--user".to_string()];
+    if let Some(machine) = machine {
+        args.push(format!("--machine={machine}"));
+    }
+    args.extend([
+        "list-units".to_string(),
+        "--all".to_string(),
+        "--no-legend".to_string(),
+        "--no-pager".to_string(),
+        "--plain".to_string(),
+        pattern.to_string(),
+    ]);
+    args
+}
+
+fn list_units_with_runner<F>(
+    pattern: &str,
+    user: Option<&str>,
+    mut runner: F,
+) -> Result<String, SystemdError>
+where
+    F: FnMut(&[String]) -> Result<(i32, String, String), std::io::Error>,
+{
+    let (code, stdout, stderr) = runner(&list_units_args(pattern, None))?;
+    if code == 0 {
+        return Ok(stdout);
+    }
+
+    if let Some(user) = user.filter(|user| !user.is_empty()) {
+        let machine = format!("{user}@.host");
+        let (fallback_code, fallback_stdout, fallback_stderr) =
+            runner(&list_units_args(pattern, Some(&machine)))?;
+        if fallback_code == 0 {
+            return Ok(fallback_stdout);
+        }
+        return Err(SystemdError::Exit {
+            code: fallback_code,
+            stderr: format!(
+                "local user bus failed: {}; host-machine fallback failed: {}",
+                stderr.trim(),
+                fallback_stderr.trim()
+            ),
+        });
+    }
+
+    Err(SystemdError::Exit { code, stderr })
 }
 
 pub fn parse_list_units(raw: &str) -> Vec<Unit> {
@@ -136,5 +176,27 @@ mod tests {
     #[test]
     fn classifies_unknown_unit_as_other() {
         assert_eq!(UnitKind::classify("foo.mount"), UnitKind::Other);
+    }
+
+    #[test]
+    fn retries_through_host_machine_when_local_user_bus_fails() {
+        let mut calls = Vec::new();
+        let raw = list_units_with_runner("arda-*", Some("mythos"), |args| {
+            calls.push(args.to_vec());
+            if calls.len() == 1 {
+                Ok((1, String::new(), "local bus unavailable".to_string()))
+            } else {
+                Ok((
+                    0,
+                    "arda-manwe.service loaded active running Manwe\n".to_string(),
+                    String::new(),
+                ))
+            }
+        })
+        .expect("host-machine fallback");
+
+        assert!(raw.contains("arda-manwe.service"));
+        assert!(!calls[0].iter().any(|arg| arg.starts_with("--machine=")));
+        assert!(calls[1].iter().any(|arg| arg == "--machine=mythos@.host"));
     }
 }

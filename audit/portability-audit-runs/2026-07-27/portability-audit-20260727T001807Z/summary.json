@@ -1,0 +1,117 @@
+{
+  "contract": "arda.portability_config_hygiene_audit.v1",
+  "generated_at": "2026-07-27T00:18:12.656938+00:00",
+  "output_dir": "/var/home/mythos/Eregion/Arda/audit/portability-audit-runs/2026-07-27/portability-audit-20260727T001807Z",
+  "outputs": {
+    "active_blockers_jsonl": "/var/home/mythos/Eregion/Arda/audit/portability-audit-runs/2026-07-27/portability-audit-20260727T001807Z/active-blockers.jsonl",
+    "findings_jsonl": "/var/home/mythos/Eregion/Arda/audit/portability-audit-runs/2026-07-27/portability-audit-20260727T001807Z/findings.jsonl",
+    "ignored_jsonl": "/var/home/mythos/Eregion/Arda/audit/portability-audit-runs/2026-07-27/portability-audit-20260727T001807Z/ignored.jsonl",
+    "summary_json": "/var/home/mythos/Eregion/Arda/audit/portability-audit-runs/2026-07-27/portability-audit-20260727T001807Z/summary.json",
+    "summary_md": "/var/home/mythos/Eregion/Arda/audit/portability-audit-runs/2026-07-27/portability-audit-20260727T001807Z/summary.md"
+  },
+  "root": "/var/home/mythos/Eregion/Arda",
+  "scan_source": "git_ls_files",
+  "summary": {
+    "active_blocker_findings": 145,
+    "classification_counts": {
+      "active_config_must_parameterize": 23,
+      "active_script_must_parameterize": 1,
+      "active_source_must_fix": 121,
+      "archive_historical_ok": 23,
+      "documentation_example_review": 100,
+      "generated_runtime_state_ignore_or_regenerate": 6091,
+      "test_fixture_ok": 7
+    },
+    "files_scanned": 2678,
+    "files_skipped": 239,
+    "findings_total": 6366,
+    "pattern_counts": {
+      "hardcoded_home_mythos": 3014,
+      "hardcoded_var_home_mythos": 3014,
+      "loopback_endpoint": 147,
+      "tailscale_hostname": 191
+    },
+    "top_active_blockers": [
+      {
+        "findings": 50,
+        "path": "crates/spine/runtime/manwe/data/governance/bacon_lite.jsonl"
+      },
+      {
+        "findings": 18,
+        "path": "apps/arda-hud/src/lib/systemActionBus.test.ts"
+      },
+      {
+        "findings": 11,
+        "path": "config/routing/local_voice_model_lanes.toml"
+      },
+      {
+        "findings": 6,
+        "path": "apps/arda-hud/src-tauri/src/lib.rs"
+      },
+      {
+        "findings": 5,
+        "path": "config/templates/arda.local.profile.toml"
+      },
+      {
+        "findings": 4,
+        "path": "apps/arda-hud/src/lib/weathertop.ts"
+      },
+      {
+        "findings": 4,
+        "path": "apps/arda-launcher/src-tauri/src/onboarding/private_config.rs"
+      },
+      {
+        "findings": 3,
+        "path": "apps/arda-hud/src/components/arda/modules/HermesDashboardModule.test.tsx"
+      },
+      {
+        "findings": 3,
+        "path": "apps/arda-hud/src/lib/endpointConfig.test.ts"
+      },
+      {
+        "findings": 3,
+        "path": "crates/spine/runtime/manwe/src/adaptive/service/full/hermes_proxy_driver.rs"
+      },
+      {
+        "findings": 3,
+        "path": "crates/spine/runtime/manwe/src/config.rs"
+      },
+      {
+        "findings": 3,
+        "path": "crates/spine/runtime/manwe/src/provider.rs"
+      },
+      {
+        "findings": 3,
+        "path": "services.toml"
+      },
+      {
+        "findings": 3,
+        "path": "src/main.rs"
+      },
+      {
+        "findings": 2,
+        "path": "apps/arda-hud/src/App.tsx"
+      },
+      {
+        "findings": 2,
+        "path": "apps/arda-hud/src/components/arda/modules/SettingsModule.tsx"
+      },
+      {
+        "findings": 2,
+        "path": "apps/arda-hud/src/lib/ardaHudSettings.ts"
+      },
+      {
+        "findings": 2,
+        "path": "apps/arda-hud/src/lib/boardroomSlotSettings.test.ts"
+      },
+      {
+        "findings": 2,
+        "path": "apps/arda-launcher/src-tauri/src/onboarding/readiness.rs"
+      },
+      {
+        "findings": 2,
+        "path": "apps/arda-launcher/src-tauri/src/onboarding/service_plan.rs"
+      }
+    ]
+  }
+}

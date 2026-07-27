@@ -13,6 +13,8 @@ members = [
     "crates/spine/runtime/arda-mandos",
     "crates/spine/memory/arda-vaire",
     "crates/spine/executors/arda-varda",
+    "outposts/arda-outpost-protocol",
+    "outposts/arda-outpost-scout",
 ]
 default-members = [
     "crates/engine",
@@ -26,6 +28,8 @@ default-members = [
     "crates/spine/runtime/arda-mandos",
     "crates/spine/memory/arda-vaire",
     "crates/spine/executors/arda-varda",
+    "outposts/arda-outpost-protocol",
+    "outposts/arda-outpost-scout",
 ]
 exclude = []
 

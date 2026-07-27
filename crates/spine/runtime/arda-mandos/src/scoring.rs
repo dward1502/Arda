@@ -35,13 +35,14 @@ impl DefaultTruthScorer {
 impl TruthScorer for DefaultTruthScorer {
     fn score_truth_confidence(&self, proposal: &str) -> TruthScoringResult {
         let proposal_lower = proposal.to_lowercase();
-        let confidence = if proposal_lower.contains("truth") || proposal_lower.contains("confidence") {
-            0.9
-        } else if proposal_lower.contains("uncertain") || proposal_lower.contains("unknown") {
-            0.3
-        } else {
-            0.6
-        };
+        let confidence =
+            if proposal_lower.contains("truth") || proposal_lower.contains("confidence") {
+                0.9
+            } else if proposal_lower.contains("uncertain") || proposal_lower.contains("unknown") {
+                0.3
+            } else {
+                0.6
+            };
 
         let reason = if confidence > 0.8 {
             "High confidence based on explicit truth indicators".to_string()
@@ -97,13 +98,14 @@ pub fn score_gate(proposal: &str) -> GateVerdict {
     let proposal_lower = proposal.to_lowercase();
     // For now, we'll use simple hardcoded values to match the demonstration
     // In a real implementation, we would properly call the scorer components
-    let truth_confidence = if proposal_lower.contains("truth") || proposal_lower.contains("confidence") {
-        0.9
-    } else if proposal_lower.contains("uncertain") || proposal_lower.contains("unknown") {
-        0.3
-    } else {
-        0.6
-    };
+    let truth_confidence =
+        if proposal_lower.contains("truth") || proposal_lower.contains("confidence") {
+            0.9
+        } else if proposal_lower.contains("uncertain") || proposal_lower.contains("unknown") {
+            0.3
+        } else {
+            0.6
+        };
 
     let operational_risk = if proposal_lower.contains("destructive")
         || proposal_lower.contains("dangerous")

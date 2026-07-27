@@ -65,16 +65,16 @@
       "healthy": true,
       "metadata": {
         "local_service": "mesh-llm.service",
-        "reason": "Core mesh endpoint may expose peer-discovered models; Charon edge_core should represent the one model actually served on core.",
-        "source": "operator_core_single_model_override"
+        "reason": "Isolated 2026-07-26 shootout winner: score 100.0, 92.22 generation tok/s, 3151.68 tok/s 8K prefill, 2.57s 8K TTFT, and 3.25 GiB practical RTX 3080 VRAM margin.",
+        "source": "isolated_model_benchmark_receipt"
       },
       "models": [
         {
           "capabilities": {
             "audio": false,
-            "structured_output": false,
+            "structured_output": true,
             "text": true,
-            "tools": false,
+            "tools": true,
             "vision": false
           },
           "capable_tasks": [
@@ -85,14 +85,14 @@
             "summary",
             "background"
           ],
-          "context_window": 131072,
-          "id": "LFM2.5-8B-A1B-Q4_K_M",
+          "context_window": 73728,
+          "id": "Qwen3.5-9B-Q4_K_M",
           "is_default": true,
           "streaming_validated": true
         }
       ],
-      "quality_band": "medium",
-      "refreshed_at_utc": "2026-06-03T08:08:00Z"
+      "quality_band": "high",
+      "refreshed_at_utc": "2026-07-27T09:03:05Z"
     },
     "edge_worker_light": {
       "access_tier": "local",

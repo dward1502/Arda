@@ -143,6 +143,11 @@ impl CharonService {
         );
         let cached = self.route_candidate_cache.get(&key)?;
         let excluded_model_ids = excluded_model_ids(&req.options);
+        let allow_forced_provider_fallback = req
+            .options
+            .get("allow_forced_provider_fallback")
+            .and_then(serde_json::Value::as_bool)
+            .unwrap_or(false);
 
         let mut candidates = Vec::with_capacity(cached.candidates.len());
         for cached_candidate in cached.candidates {
@@ -159,9 +164,10 @@ impl CharonService {
             if !self.provider_agent_quota_available(provider, req) {
                 continue;
             }
-            if forced_provider_id
-                .map(|forced| provider.id != forced)
-                .unwrap_or(false)
+            let provider_is_forced = forced_provider_id == Some(provider.id.as_str());
+            if forced_provider_id.is_some()
+                && !provider_is_forced
+                && !allow_forced_provider_fallback
             {
                 continue;
             }
@@ -171,17 +177,17 @@ impl CharonService {
             {
                 continue;
             }
-            if forced_provider_id.is_none()
-                && (!provider_supports_request(provider, req)
-                    || !provider_supports_request_capabilities(provider, req))
+            if !provider_supports_request(provider, req)
+                || !provider_supports_request_capabilities(provider, req)
             {
                 continue;
             }
+            let model_constraint = provider_is_forced.then_some(forced_model_id).flatten();
             let Some(model) = provider.models.iter().find(|model| {
                 model.id == cached_candidate.model_id
                     && model.healthy
                     && !model.in_cooldown
-                    && forced_model_id
+                    && model_constraint
                         .map(|forced| model.id == forced)
                         .unwrap_or(true)
                     && !excluded_model_ids
@@ -244,20 +250,21 @@ impl CharonService {
         package_runtime: &PackageRuntimeSignals,
     ) -> Vec<RouteSelectionCandidate> {
         let lane_fitness = self.read_lane_fitness_snapshot();
+        let allow_forced_provider_fallback = req
+            .options
+            .get("allow_forced_provider_fallback")
+            .and_then(serde_json::Value::as_bool)
+            .unwrap_or(false);
         let mut candidates = Vec::new();
         for (idx, p) in providers
             .iter()
             .enumerate()
             .filter(|(_, p)| provider_eligible(p, priority, strict))
             .filter(|(_, p)| self.provider_agent_quota_available(p, req))
+            .filter(|(_, p)| provider_supports_request(p, req))
             .filter(|(_, p)| {
                 forced_provider_id
-                    .map(|forced| p.id == forced)
-                    .unwrap_or_else(|| provider_supports_request(p, req))
-            })
-            .filter(|(_, p)| {
-                forced_provider_id
-                    .map(|forced| p.id == forced)
+                    .map(|forced| allow_forced_provider_fallback || p.id == forced)
                     .unwrap_or(true)
             })
             .filter(|(_, p)| {
@@ -265,15 +272,21 @@ impl CharonService {
                     .iter()
                     .any(|excluded| excluded == &p.id)
             })
-            .filter(|(_, p)| {
-                forced_provider_id
-                    .map(|forced| p.id == forced)
-                    .unwrap_or_else(|| provider_supports_request_capabilities(p, req))
-            })
+            .filter(|(_, p)| provider_supports_request_capabilities(p, req))
         {
-            for model in
-                candidate_models_for_provider_request(p, &req.task_type, forced_model_id, Some(req))
-            {
+            let provider_is_forced = forced_provider_id == Some(p.id.as_str());
+            let model_constraint = provider_is_forced.then_some(forced_model_id).flatten();
+            for model in candidate_models_for_provider_request(
+                p,
+                &req.task_type,
+                model_constraint,
+                Some(req),
+            ) {
+                let preferred_provider_bonus = if provider_is_forced && allow_forced_provider_fallback {
+                    10_000.0
+                } else {
+                    0.0
+                };
                 let score = provider_score(
                     p,
                     &model,
@@ -282,7 +295,8 @@ impl CharonService {
                     route_profile,
                     package_runtime,
                     &lane_fitness,
-                ) + self.bandit_score_bonus(req, &p.id, &model.id);
+                ) + self.bandit_score_bonus(req, &p.id, &model.id)
+                    + preferred_provider_bonus;
                 candidates.push(RouteSelectionCandidate {
                     provider_index: idx,
                     model,

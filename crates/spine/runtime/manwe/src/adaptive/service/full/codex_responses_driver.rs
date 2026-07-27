@@ -396,7 +396,7 @@ fn responses_tools(body: &JsonValue) -> Option<JsonValue> {
             Some(JsonValue::Object(mapped))
         })
         .collect::<Vec<_>>();
-    (!mapped.is_empty()).then(|| JsonValue::Array(mapped))
+    (!mapped.is_empty()).then_some(JsonValue::Array(mapped))
 }
 
 fn responses_tool_choice(body: &JsonValue) -> Option<JsonValue> {
@@ -505,7 +505,7 @@ fn resolve_codex_access_token() -> Result<String> {
     }
     let path = auth_store_path();
     let raw = std::fs::read_to_string(&path).map_err(|err| ArdaError::Agent {
-        agent: "charon".to_string(),
+        agent: "manwe".to_string(),
         message: format!("codex_responses could not read {}: {err}", path.display()),
     })?;
     let parsed: JsonValue = serde_json::from_str(&raw)?;
@@ -531,7 +531,7 @@ fn resolve_codex_access_token() -> Result<String> {
         return Ok(token.to_string());
     }
     Err(ArdaError::Agent {
-        agent: "charon".to_string(),
+        agent: "manwe".to_string(),
         message: "codex_responses found no OpenAI Codex access token in Hermes auth store"
             .to_string(),
     })

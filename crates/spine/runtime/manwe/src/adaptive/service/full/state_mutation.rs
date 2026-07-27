@@ -282,7 +282,7 @@ impl CharonService {
                     ],
                     "low",
                     "summarize",
-                    "charon",
+                    "manwe",
                 )
             } else {
                 machine_sigil_or_default(
@@ -294,7 +294,7 @@ impl CharonService {
                     ],
                     "medium",
                     "summarize",
-                    "charon",
+                    "manwe",
                 )
             }
         } else if provider.in_cooldown {
@@ -307,7 +307,7 @@ impl CharonService {
                 ],
                 "medium",
                 "summarize",
-                "charon",
+                "manwe",
             )
         } else {
             machine_sigil_or_default(
@@ -319,7 +319,7 @@ impl CharonService {
                 ],
                 "high",
                 "keep",
-                "charon",
+                "manwe",
             )
         };
 
@@ -338,7 +338,7 @@ impl CharonService {
             }),
         )?;
         self.emit_work_signal_background(
-            "charon",
+            "manwe",
             if ok { 0.25 } else { 0.18 },
             JouleWorkUnit::Network,
             Some(format!("provider_result:{provider_id}")),
@@ -346,11 +346,11 @@ impl CharonService {
         self.emit_memory_event(
             "provider_result",
             &format!(
-                "CHARON provider {} result ok={} failures={} cooldown={}",
+                "MANWE provider {} result ok={} failures={} cooldown={}",
                 provider_id, ok, provider.consecutive_failures, provider.in_cooldown
             ),
             Some(if ok { 0.8 } else { 0.45 }),
-            vec!["charon".to_string(), "provider".to_string()],
+            vec!["manwe".to_string(), "provider".to_string()],
         );
         drop(providers);
         self.persist_provider_runtime_state().await?;
@@ -431,6 +431,7 @@ impl CharonService {
         }
         let mut file = OpenOptions::new()
             .create(true)
+            .truncate(false)
             .read(true)
             .write(true)
             .open(&path)?;
@@ -579,7 +580,7 @@ impl CharonService {
             ],
             "medium",
             "keep",
-            "charon",
+            "manwe",
         );
         self.append_state_event(
             "provider_client_error",
@@ -594,7 +595,7 @@ impl CharonService {
             }),
         )?;
         self.emit_work_signal_background(
-            "charon",
+            "manwe",
             0.18,
             JouleWorkUnit::Network,
             Some(format!("provider_client_error:{provider_id}")),
@@ -602,13 +603,13 @@ impl CharonService {
         self.emit_memory_event(
             "provider_client_error",
             &format!(
-                "CHARON provider {} rejected payload (no cooldown advance) — {}",
+                "MANWE provider {} rejected payload (no cooldown advance) — {}",
                 provider_id,
                 error.as_deref().unwrap_or("unknown")
             ),
             Some(0.45),
             vec![
-                "charon".to_string(),
+                "manwe".to_string(),
                 "provider".to_string(),
                 "client_error".to_string(),
             ],
@@ -764,9 +765,9 @@ impl CharonService {
         )?;
         self.emit_memory_event(
             "providers_reloaded",
-            &format!("CHARON reloaded provider config with {} providers", total),
+            &format!("MANWE reloaded provider config with {} providers", total),
             Some(0.75),
-            vec!["charon".to_string(), "config".to_string()],
+            vec!["manwe".to_string(), "config".to_string()],
         );
         Ok(serde_json::json!({
             "ok": true,

@@ -409,7 +409,7 @@ fn next_response_tool_call_id(next_ordinal: &mut u32) -> String {
     id
 }
 
-pub(crate) fn attach_charon_route_metadata(
+pub(crate) fn attach_manwe_route_metadata(
     response: &mut JsonValue,
     decision: &RouteDecision,
     provider_id: &str,
@@ -419,7 +419,7 @@ pub(crate) fn attach_charon_route_metadata(
         return;
     };
     obj.insert(
-        "_charon_route".to_string(),
+        "_manwe_route".to_string(),
         serde_json::json!({
             "provider_id": provider_id,
             "model_id": decision.model_id,
@@ -821,7 +821,7 @@ fn slim_prompt_text(text: &str, max_chars: usize) -> String {
     let tail_chars = 700.min(max_chars / 4);
     let head = safe_prefix(text, head_chars);
     let tail = safe_suffix(text, tail_chars);
-    format!("{head}\n\n[CHARON local proxy trimmed oversized prompt for local inference]\n\n{tail}")
+    format!("{head}\n\n[MANWE local proxy trimmed oversized prompt for local inference]\n\n{tail}")
 }
 
 fn safe_prefix(text: &str, max_chars: usize) -> &str {

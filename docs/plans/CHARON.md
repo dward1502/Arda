@@ -6,14 +6,14 @@ soterion:
   role: "inference_gateway"
   owner: "MANWE"
   status: "active"
-  last_reviewed: "2026-07-21"
+  last_reviewed: "2026-07-26"
 crate: manwe
 gateway: manwe
 status: active
-last_reviewed: "2026-07-21"
+last_reviewed: "2026-07-26"
 ---
 
-> Manwe: 📜 inference gateway | owner: manwe | status: active | reviewed: 2026-07-21
+> Manwe: 📜 inference gateway | owner: manwe | status: active | reviewed: 2026-07-26
 
 # Manwe Plan Narrative
 
@@ -77,8 +77,18 @@ The default and adaptive Manwe surfaces compile and test independently:
 - Fleet state refreshes from `config/fleet.toml` every 60 seconds. A node must
   answer its probe and expose its configured model before becoming routable.
 - Non-streaming routed requests record latency, token counts, generation
-  throughput, finish reason, answer/reasoning posture, and optional exact-match
-  quality in `data/manwe/route_receipts.jsonl`.
+  throughput, finish reason, answer/reasoning posture, optional exact-match
+  quality, and bounded deterministic task-class benchmark results in
+  `data/manwe/route_receipts.jsonl`. Benchmark identifiers are capped and use
+  deterministic exact-match evaluation; no judge model runs on edge nodes.
+- Both runtime surfaces expose Prometheus text metrics using the canonical
+  `manwe_*` namespace, Prometheus base units, and bounded
+  `provider_id`/`model`/`route_class` labels.
+- The former annunimas-server coder, vision, and LFM services are intentionally
+  retired; `edge_backbone` on `:8095` is the sole configured backbone route.
+  On 2026-07-26 the backbone host stopped answering Tailscale/HTTP probes, so
+  Manwe must keep it unroutable until its normal health probe succeeds. The
+  Beelink Carnice lane was repaired and is active on `:1234`.
 
 Verified temporary-port evidence on 2026-07-21/22:
 
@@ -116,37 +126,38 @@ Verified temporary-port evidence on 2026-07-21/22:
 - The full governed adaptive service is active only when `--adaptive` is
   requested and the crate is built with `adaptive`; static mode intentionally
   retains its separate lightweight provider catalog.
-- Streaming requests hold resource-group capacity through stream lifetime, but
-  their receipts stop at dispatch/header evidence; final streaming token and
-  quality accounting remains follow-up work.
-- Resource-group concurrency is currently a global default rather than a
-  per-host value declared in `config/fleet.toml`.
-- Quality scoring is intentionally basic: completion/finish posture plus an
-  optional exact-answer expectation. It is not yet a benchmark or judge model.
+- The static runtime's explicit streaming contract is buffered SSE. Requests
+  hold resource-group capacity until the upstream body completes, then emit a
+  final best-effort token/quality receipt before releasing the lease.
+- Resource-group concurrency now supports per-host values declared in
+  `config/fleet.toml`; saturated adaptive selections prefer an equivalent
+  eligible provider in another resource group before bounded queueing.
+- Benchmark quality is intentionally deterministic and bounded. It does not
+  attempt subjective judge-model evaluation.
 
 ### Follow-up Work
 
-1. Close the remaining adaptive runtime gaps.
-   - Implement or retire the lane-fitness snapshot hook.
-   - Decide between true SSE pass-through and an explicitly buffered contract.
-2. Extend resource policy.
-   - Add per-host concurrency limits to fleet configuration.
-   - Prefer alternate eligible resource groups before queueing when task fit is
-     equivalent.
-3. Extend receipt quality.
-   - Finalize token/quality receipts when streaming responses complete.
-   - Add bounded task-class benchmark receipts without placing judge work on
-     constrained edge nodes.
-4. Provider mesh health repair.
-   - Repair or intentionally retire the three currently unreachable backbone
-     services and the inactive Carnice lane.
-5. Metrics/observability alignment.
-   - Align with workspace-wide metrics conventions before adding `/metrics`
-     to `manwe`.
-   - Keep label cardinality bounded:
-     fleet/node/crate/route_class/provider_id/model.
-   - Add request counters, failover counters, quota-burn counters, and
-     route latency histograms only after the shared convention is selected.
+1. Adaptive runtime gap decisions completed 2026-07-23.
+   - Lane-fitness snapshots are implemented with persistence coverage.
+   - The static runtime advertises an explicitly buffered SSE contract.
+2. Resource-policy extension completed 2026-07-26.
+   - Fleet configuration carries per-host concurrency limits.
+   - Equivalent eligible resource groups are preferred before queueing.
+3. Receipt quality extension completed 2026-07-26.
+   - Streaming completion finalizes a best-effort token/quality receipt.
+   - Bounded task-class exact-match benchmark receipts are implemented without
+     judge work on constrained edge nodes.
+4. Provider mesh repair completed 2026-07-26.
+   - The three obsolete backbone services remain intentionally retired in
+     favor of the canonical `edge_backbone` `:8095` route. That host was
+     unreachable during the final 2026-07-26 probe and remains health-gated.
+   - Carnice now runs directly under `llama-server.service`; live model and
+     completion probes passed and `edge_carnice` is enabled in provider config.
+5. Metrics/observability alignment completed 2026-07-26.
+   - Both `/metrics` surfaces use `manwe_*`, Prometheus base units, and bounded
+     `provider_id`/`model`/`route_class` labels.
+   - Deprecated generated `charon_*` aliases and free-form task labels were
+     removed before further counter/histogram expansion.
 6. Operator documentation.
    - Keep this human plan synchronized with `crates/spine/runtime/manwe`,
      `src/grpc.rs`, and `src/adaptive/transport/http.rs` for router/provider
@@ -184,11 +195,9 @@ curl -s http://127.0.0.1:7171/v1/chat/completions ...
 
 ## Open Questions
 
-1. Which shared metrics crate and label convention should become the Arda-wide
-   observability standard for inference surfaces?
-2. Which provider classes should be allowed for tool-heavy or context-heavy
+1. Which provider classes should be allowed for tool-heavy or context-heavy
    work when high-context local lanes are offline?
-3. Should fleet recovery failures from Tailscale/SSH posture be represented as
+2. Should fleet recovery failures from Tailscale/SSH posture be represented as
    a separate operator action class from ordinary provider degradation?
 
 ## References

@@ -16,8 +16,10 @@ soterion:
 - `README.md`
 - `arda-aule-autopilot-read-only.service`
 - `arda-aule-autopilot-read-only.timer`
+- `arda-manwe.service`
 - `arda-manwe-inference-probe.service`
 - `arda-manwe-inference-probe.timer`
+- `arda-metrics-exporter.service`
 - `arda-queue-hygiene-monitor.service`
 - `arda-queue-hygiene-monitor.timer`
 - `annunimas-mesh-llm.service`

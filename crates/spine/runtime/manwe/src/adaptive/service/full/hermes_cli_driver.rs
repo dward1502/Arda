@@ -152,7 +152,7 @@ pub(super) async fn invoke_hermes_cli(
 
     let started = Instant::now();
     let child = cmd.spawn().map_err(|err| ArdaError::Agent {
-        agent: "charon".to_string(),
+        agent: "manwe".to_string(),
         message: format!("hermes_agent_cli driver failed to spawn '{}': {err}", bin),
     })?;
 

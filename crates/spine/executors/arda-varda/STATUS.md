@@ -1,19 +1,25 @@
 # arda-varda status
 
-- status: active; `PLAN.md` execution resumed
+- status: active; planned baseline complete
 - latest check: `cargo test -p arda-varda`
 - feature check: `cargo check -p arda-varda --all-features`
-- evidence: 2026-07-25
+- evidence: 2026-07-27
 
 ## validation evidence
 - `cargo fmt --check -p arda-varda` passes
-- `cargo test -p arda-varda` — 115 passed, 0 failed; 0 doc tests
+- `cargo test -p arda-varda` — 116 passed, 0 failed; 0 doc tests
 - `cargo check -p arda-varda --all-features` passes
+- crate-local `docs/` removed; historical assessment and validation log retained under `docs/archive/arda-varda/`
+- explicit Bacon-Lite paths prevent tests/custom stores from recreating that crate-local tree
+- default queue, learning, socket, and governance paths are workspace-rooted; legacy crate-local `core/` and `data/` outputs were migrated and removed
 - removed stale Python packaging claims; `maturin` is not installed in this environment and `/mnt/cryptothor/Arda` is not present, so the earlier site-packages installation path is not evidence of a working Python packaging flow for this workspace snapshot
 
 ## summary
 This crate builds and tests cleanly. The combined plan checklist was reconciled
-against live code rather than inferred from older status prose. B1 crawl
+against live code rather than inferred from older status prose. B3 deep-queue
+processing now uses a configurable bounded worker pool (default 2), reports its
+effective worker count, preserves deterministic response ordering, and has a
+focused overlap test. B1 crawl
 admission is complete with a configurable global gate and default capacity of
 8. D1 source classification now reuses process-local verdicts by full content
 hash. D2 scholarly enrichment now has bounded configurable retries, a durable
@@ -69,3 +75,8 @@ schema version 2 and migrate unversioned legacy records at read time while
 rejecting unknown future versions. `GET /deep/events?after=<line-id>` provides a
 long-lived, timeout-exempt SSE feed with durable line-cursor IDs and isolated
 blocking reads.
+
+## remaining plan work
+None. `PLAN.md` and `OPTIMIZATION_PLAN.md` are fully checked/reconciled. The
+items in `BREAKDOWN.md` under “Ideas for improvement” are optional future work,
+not incomplete commitments from either plan.

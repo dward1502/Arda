@@ -1,12 +1,12 @@
 # ATHENA Source Book
 
 - source_id: `src_cc563bfe`
-- pipeline_id: `athpl_21933dcced184905b82ed65638e0b9c5`
+- pipeline_id: `athpl_6c9cb25d17e24e4785e4d41ae27bce2c`
 - status: `shallow`
 - source_type: `GithubRepo`
-- updated_at_utc: `2026-07-26T06:22:54.498263189+00:00`
+- updated_at_utc: `2026-07-27T05:56:54.279027711+00:00`
 - url: https://github.com/example/rust-citation-api
-- athena_book: `/tmp/.tmpgQ8RsF/books/src_cc563bfe.jsonl`
+- athena_book: `/tmp/.tmpXIuJZf/books/src_cc563bfe.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

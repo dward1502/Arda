@@ -5,8 +5,8 @@ use super::echo_gate::{evaluate_pre_route_governance_with_options, GateAction};
 use super::route_policy::{
     access_tier_class, apply_soft_lane_caps, is_background_priority, is_high_priority,
     is_local_provider, is_primary_local_surface_provider, parse_model_params_billions,
-    provider_eligible, provider_eligible_ignoring_cooldown, provider_score,
-    provider_supports_request, provider_supports_request_capabilities,
+    model_request_incompatibilities, provider_eligible, provider_eligible_ignoring_cooldown,
+    provider_score, provider_supports_request, provider_supports_request_capabilities,
     request_allows_hermes_cli_fast_lane, select_model_for_provider_request, HybridRoutePolicy,
     RouteExecutionProfile, RouteSelectionCandidate,
 };
@@ -292,7 +292,7 @@ impl CharonService {
             trigger_reason = %governance.trigger_reason,
             agent_id = %req.agent_id,
             task_type = %req.task_type,
-            "CHARON Echo Gate evaluated request"
+            "MANWE Echo Gate evaluated request"
         );
         self.append_state_event(
             "echo_gate",
@@ -355,7 +355,7 @@ impl CharonService {
                     }),
                 )?;
                 return Err(ArdaError::Agent {
-                    agent: "charon".to_string(),
+                    agent: "manwe".to_string(),
                     message: format!(
                         "Echo Gate ABORT [{}] (rho={:.2}, gamma={:.2}, delta={:.2})",
                         governance.trigger_reason,
@@ -418,7 +418,7 @@ impl CharonService {
                     }),
                 )?;
                 return Err(ArdaError::Agent {
-                    agent: "charon".to_string(),
+                    agent: "manwe".to_string(),
                     message:
                         "route blocked by policy: privacy tier requires local provider but none available"
                             .to_string(),
@@ -552,7 +552,7 @@ impl CharonService {
                     .into_iter()
                     .next()
                     .ok_or_else(|| ArdaError::Agent {
-                        agent: "charon".to_string(),
+                        agent: "manwe".to_string(),
                         message: "route selection produced an empty candidate pool".to_string(),
                     });
             }
@@ -579,53 +579,55 @@ impl CharonService {
             let mut fallback: Vec<RouteSelectionCandidate> = providers
                 .iter()
                 .enumerate()
-                .filter(|(_, p)| provider_eligible_ignoring_cooldown(p, priority))
-                .filter(|(_, p)| self.provider_agent_quota_available(p, req))
-                .filter(|(_, p)| provider_supports_request(p, req))
-                .filter(|(_, p)| {
-                    forced_provider_id.is_some()
-                        || request_allows_hermes_cli_fast_lane(req)
+                .filter(|(_, provider)| {
+                    provider_eligible_ignoring_cooldown(provider, priority)
+                })
+                .filter(|(_, provider)| self.provider_agent_quota_available(provider, req))
+                .filter(|(_, provider)| provider_supports_request(provider, req))
+                .filter(|(_, provider)| {
+                    request_allows_hermes_cli_fast_lane(req)
                         || !matches!(
                             route_profile.execution_lane.as_str(),
                             "interactive" | "execution" | "planning"
                         )
-                        || p.driver != "hermes_agent_cli"
+                        || provider.driver != "hermes_agent_cli"
                 })
-                .filter(|(_, p)| {
+                .filter(|(_, provider)| {
                     !excluded_provider_ids
                         .iter()
-                        .any(|excluded| excluded == &p.id)
+                        .any(|excluded| excluded == &provider.id)
                 })
-                .filter_map(|(idx, p)| {
+                .filter_map(|(provider_index, provider)| {
                     let model = select_model_for_provider_request(
-                        p,
+                        provider,
                         &req.task_type,
                         forced_model_id,
                         Some(req),
                     )?;
                     let score = provider_score(
-                        p,
+                        provider,
                         &model,
                         priority,
                         policy,
                         route_profile,
                         package_runtime,
                         &lane_fitness,
-                    ) + self.bandit_score_bonus(req, &p.id, &model.id);
+                    ) + self.bandit_score_bonus(req, &provider.id, &model.id);
                     Some(RouteSelectionCandidate {
-                        provider_index: idx,
+                        provider_index,
                         model,
                         score,
                     })
                 })
                 .collect();
 
-            fallback.sort_by(|a, b| {
-                let fa = providers[a.provider_index].consecutive_failures;
-                let fb = providers[b.provider_index].consecutive_failures;
-                fa.cmp(&fb).then_with(|| {
-                    b.score
-                        .partial_cmp(&a.score)
+            fallback.sort_by(|left, right| {
+                let left_failures = providers[left.provider_index].consecutive_failures;
+                let right_failures = providers[right.provider_index].consecutive_failures;
+                left_failures.cmp(&right_failures).then_with(|| {
+                    right
+                        .score
+                        .partial_cmp(&left.score)
                         .unwrap_or(std::cmp::Ordering::Equal)
                 })
             });
@@ -661,7 +663,7 @@ impl CharonService {
         }
 
         Err(ArdaError::Agent {
-            agent: "charon".to_string(),
+            agent: "manwe".to_string(),
             message: route_rejection_error_message(
                 providers,
                 req,
@@ -804,6 +806,10 @@ fn external_tool_candidate(
         && provider.driver != "hermes_agent_cli"
 }
 
+#[expect(
+    clippy::too_many_arguments,
+    reason = "rejection receipts preserve explicit request, policy, and runtime evidence inputs"
+)]
 pub(super) fn route_rejection_records(
     providers: &[ProviderState],
     req: &ManweRequestEnvelope,
@@ -816,23 +822,59 @@ pub(super) fn route_rejection_records(
 ) -> Vec<RejectedRouteCandidate> {
     providers
         .iter()
-        .map(|provider| RejectedRouteCandidate {
-            provider_id: provider.id.clone(),
-            tier: if is_local_provider(&provider.id) {
-                "local".to_string()
+        .map(|provider| {
+            let forced_provider_id = req
+                .options
+                .get("force_provider_id")
+                .and_then(JsonValue::as_str);
+            let allow_forced_provider_fallback = req
+                .options
+                .get("allow_forced_provider_fallback")
+                .and_then(JsonValue::as_bool)
+                .unwrap_or(false);
+            let effective_forced_model_id = if allow_forced_provider_fallback
+                && forced_provider_id.is_some_and(|forced| forced != provider.id)
+            {
+                None
             } else {
-                access_tier_class(provider)
-            },
-            reason: provider_rejection_reason(
+                forced_model_id
+            };
+            let reason = provider_rejection_reason(
                 provider,
                 req,
                 priority,
                 strict,
-                forced_model_id,
+                effective_forced_model_id,
                 excluded_provider_ids,
                 service,
-            ),
-            pacing_state: pacing_state_for_provider(provider, priority, route_profile),
+            );
+            let details = if reason == "no_compatible_model" {
+                serde_json::json!({
+                    "requested_task_type": req.task_type,
+                    "model_rejections": provider.models.iter().map(|model| serde_json::json!({
+                        "model_id": model.id,
+                        "missing_capabilities": model_request_incompatibilities(
+                            &provider.id,
+                            model,
+                            req,
+                            effective_forced_model_id,
+                        ),
+                    })).collect::<Vec<_>>(),
+                })
+            } else {
+                JsonValue::Null
+            };
+            RejectedRouteCandidate {
+                provider_id: provider.id.clone(),
+                tier: if is_local_provider(&provider.id) {
+                    "local".to_string()
+                } else {
+                    access_tier_class(provider)
+                },
+                reason,
+                pacing_state: pacing_state_for_provider(provider, priority, route_profile),
+                details,
+            }
         })
         .collect()
 }
@@ -864,6 +906,7 @@ fn route_rejection_error_message(
             "tier": record.tier,
             "reason": record.reason,
             "pacing_state": record.pacing_state,
+            "details": record.details,
         })
     })
     .collect::<Vec<_>>();
@@ -1068,6 +1111,9 @@ fn default_free_pool_provider_ids() -> Vec<&'static str> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::adaptive::service::{
+        derive_route_execution_profile, resolve_hybrid_route_policy,
+    };
     use crate::adaptive::types::{ModelCapabilities, ModelState, ProviderState};
     use std::sync::Mutex;
     use tempfile::tempdir;
@@ -1148,6 +1194,19 @@ mod tests {
                 "tool_use_required": true,
                 "workload_role": "execution"
             }),
+        }
+    }
+
+    fn package_runtime_signals() -> PackageRuntimeSignals {
+        PackageRuntimeSignals {
+            generated_at_utc: String::new(),
+            llmfit_backend: "optional_signal_absent".to_string(),
+            llmfit_recommendation_count: 0,
+            llmfit_local_max_params_b: None,
+            llmfit_top_model_names: Vec::new(),
+            nanoclaw_binary_present: false,
+            nanoclaw_runtime_ready: false,
+            nanoclaw_probe_state: "not_configured".to_string(),
         }
     }
 
@@ -1681,6 +1740,141 @@ mod tests {
         assert!(message.contains("rejected_providers="));
         assert!(message.contains("provider_declared_capability_mismatch"));
         assert!(message.contains("daily_quota_exhausted"));
+    }
+
+    #[test]
+    fn forced_provider_fallback_keeps_compatible_beelink_candidate() {
+        let dir = tempdir().expect("tempdir");
+        let service = CharonService::new(dir.path()).expect("service");
+        let mut edge_core = provider_with_model("edge_core", "LFM2.5-8B-A1B-Q4_K_M");
+        edge_core.enabled = false;
+        let mut beelink = provider_with_model(
+            "edge_beelink_light",
+            "Ternary-Bonsai-8B-Q2_0",
+        );
+        beelink.access_tier = "local".to_string();
+        beelink.models[0].context_window = 131_072;
+        beelink.models[0].capabilities.tools = Some(true);
+        let providers = vec![edge_core, beelink];
+        let mut req = execution_req();
+        req.options["force_provider_id"] = serde_json::json!("edge_core");
+        req.options["force_model_id"] = serde_json::json!("LFM2.5-8B-A1B-Q4_K_M");
+        req.options["allow_forced_provider_fallback"] = serde_json::json!(true);
+        req.options["origin_preference"] = serde_json::json!("local");
+        let policy = resolve_hybrid_route_policy(&req.task_type, &req.options);
+        let profile = derive_route_execution_profile(&req, "normal");
+
+        let candidates = service.build_scored_route_candidates(
+            &providers,
+            &req,
+            "normal",
+            false,
+            Some("edge_core"),
+            Some("LFM2.5-8B-A1B-Q4_K_M"),
+            &[],
+            &policy,
+            &profile,
+            &package_runtime_signals(),
+        );
+
+        assert_eq!(candidates.len(), 1);
+        assert_eq!(providers[candidates[0].provider_index].id, "edge_beelink_light");
+        assert_eq!(candidates[0].model.id, "Ternary-Bonsai-8B-Q2_0");
+
+        service.cache_route_candidates(
+            &providers,
+            &req,
+            "normal",
+            false,
+            Some("edge_core"),
+            Some("LFM2.5-8B-A1B-Q4_K_M"),
+            &profile,
+            &candidates,
+        );
+        let cached = service
+            .cached_route_candidates(
+                &providers,
+                &req,
+                "normal",
+                false,
+                Some("edge_core"),
+                Some("LFM2.5-8B-A1B-Q4_K_M"),
+                &[],
+                &profile,
+            )
+            .expect("fallback candidate should survive a cache hit");
+        assert_eq!(cached.len(), 1);
+        assert_eq!(providers[cached[0].provider_index].id, "edge_beelink_light");
+    }
+
+    #[test]
+    fn no_compatible_model_diagnostic_names_each_missing_requirement() {
+        let dir = tempdir().expect("tempdir");
+        let service = CharonService::new(dir.path()).expect("service");
+        let mut provider = provider_with_model("edge_beelink_light", "small-chat-model");
+        provider.supports_tools = true;
+        provider.supports_structured_output = true;
+        provider.models[0].capable_tasks = vec!["chat".to_string()];
+        provider.models[0].is_default = false;
+        provider.models[0].context_window = 32_768;
+        provider.models[0].capabilities.tools = Some(false);
+        provider.models[0].capabilities.structured_output = Some(false);
+        let mut req = execution_req();
+        req.options["response_format"] = serde_json::json!({"type": "json_object"});
+        req.options["context_window_target"] = serde_json::json!(64_000);
+
+        let message = route_rejection_error_message(
+            &[provider],
+            &req,
+            "normal",
+            false,
+            None,
+            &[],
+            &service,
+        );
+
+        assert!(message.contains("model_role:missing_task_type:code"), "{message}");
+        assert!(message.contains("context_window:required=72192,available=32768"), "{message}");
+        assert!(message.contains("tools:required_but_unsupported"), "{message}");
+        assert!(message.contains("structured_output:required_but_unsupported"), "{message}");
+    }
+
+    #[test]
+    fn transient_cooldown_uses_bounded_fallback_candidate() {
+        let dir = tempdir().expect("tempdir");
+        let service = CharonService::new(dir.path()).expect("service");
+        let mut provider = provider_with_model("transient", "chat-model");
+        provider.in_cooldown = true;
+        provider.cooldown_backoff_seconds = 30;
+        provider.last_error = Some("temporary upstream 502".to_string());
+        let providers = vec![provider];
+        let req = ManweRequestEnvelope {
+            agent_id: "agent".to_string(),
+            task_type: "chat".to_string(),
+            priority: "normal".to_string(),
+            messages: vec![serde_json::json!({"role": "user", "content": "hello"})],
+            options: serde_json::json!({}),
+        };
+        let policy = resolve_hybrid_route_policy(&req.task_type, &req.options);
+        let profile = derive_route_execution_profile(&req, "normal");
+
+        let selected = service
+            .select_route_candidate(
+                &providers,
+                &req,
+                "normal",
+                false,
+                None,
+                None,
+                &[],
+                &policy,
+                &profile,
+                &package_runtime_signals(),
+            )
+            .expect("short transient cooldown should retain a fallback route");
+
+        assert_eq!(selected.provider_index, 0);
+        assert_eq!(selected.model.id, "chat-model");
     }
 
     #[test]

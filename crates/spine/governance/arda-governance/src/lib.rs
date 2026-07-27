@@ -36,11 +36,12 @@ pub mod vision;
 
 pub use audio::{capture_audio_governance, AudioEnvironment, AudioGovernance};
 pub use bacon_lite::{
-    bacon_lite_validate, build_bacon_lite_event, enqueue_bacon_lite, global_bacon_lite_counters,
-    read_bacon_lite_summary, read_latest_bacon_lite_event, record_bacon_lite, record_bacon_lite_to,
-    BaconLiteAggregate, BaconLiteBackpressurePolicy, BaconLiteEnqueueError, BaconLiteEvent,
-    BaconLiteLedgerSummary, BaconLiteLogPaths, BaconLiteReadWindow, BaconLiteResult,
-    BaconLiteWriter, BaconLiteWriterConfig, BaconLiteWriterCounters, MalformedLineBehavior,
+    bacon_lite_validate, build_bacon_lite_event, enqueue_bacon_lite, enqueue_bacon_lite_with,
+    global_bacon_lite_counters, read_bacon_lite_summary, read_latest_bacon_lite_event,
+    record_bacon_lite, record_bacon_lite_to, BaconLiteAggregate, BaconLiteBackpressurePolicy,
+    BaconLiteEnqueueError, BaconLiteEvent, BaconLiteLedgerSummary, BaconLiteLogPaths,
+    BaconLiteReadWindow, BaconLiteResult, BaconLiteWriter, BaconLiteWriterConfig,
+    BaconLiteWriterCounters, MalformedLineBehavior,
 };
 pub use empirical_distrust::{
     assess_empirical_distrust, EmpiricalDistrustAssessment, EmpiricalDistrustVerdict,

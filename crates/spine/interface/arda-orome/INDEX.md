@@ -1,25 +1,28 @@
 # arda-orome index
 
-## Crate artifacts
+## Maintained documentation
 
-- `Cargo.toml` — crate manifest
-- `README.md` — public overview and integration guidance
-- `BREAKDOWN.md` — module boundaries, invariants, and verified architecture
-- `CHECKLIST.md` — completed HERMES implementation checklist
-- `CRATE_PLAN.md` — implementation contracts and residual boundaries
-- `STATUS.md` — current runtime and verification status
-- `OWNERSHIP.md` — ownership constraints
-- `src/` — crate implementation
-- `tests/provider_orchestration.rs` — retry, timeout, expiry, fanout, fleet-policy tests
-- `tests/governance_ledger.rs` — typed governance and ledger tests
+- `INDEX.md` — this deterministic navigation file.
+- `README.md` — public scope, integration guidance, consumers, and documentation map.
+- `STATUS.md` — dated build evidence and current stability findings.
+- `BREAKDOWN.md` — production/test-only/unwired module inventory and invariants.
+- `PLAN.md` — active source-tree stabilization work and future proposals.
+- `OWNERSHIP.md` — owned and non-owned authority boundaries.
 
-## Cross-crate integration
+## Direct crate children
 
-- `crates/engine/src/orome.rs` — deterministic engine smoke package
-- `crates/engine/tests/orome_smoke.rs` — compiled integration proof
-- `apps/arda-hud/src/lib/ardaSource.ts` — human/core plan inventory
-- `apps/arda-hud/src/lib/reviewGateDerivation.ts` — plan shelf projection
+- `Cargo.toml` — package, feature, dependency, and build-dependency declarations.
+- `build.rs` — protobuf generation into `src/grpc/`.
+- `proto/` — health-model and route-governance protobuf contracts.
+- `src/` — compiled, test-only, generated, and currently unwired Rust sources.
+- `tests/` — provider orchestration and governance ledger integration tests.
 
-Purpose: canonical artifact and evidence index for `arda-orome`.
+## Cross-crate verification surfaces
 
-Review cadence is quarterly unless ownership, routing policy, or provider contracts change.
+- `crates/engine/src/orome.rs` and `crates/engine/tests/orome_smoke.rs`.
+- `crates/spine/runtime/manwe/src/grpc.rs` behind Manwe's `grpc` feature.
+- `crates/spine/observability/arda-aule/src/prometheus/autopilot/a2h.rs` behind Aule's
+  `full-cli` feature.
+
+Purpose: deterministic crate navigation. See `BREAKDOWN.md` before treating any file under `src/`
+as compiled behavior.

@@ -75,6 +75,7 @@ person, paper, URL, or license.
 | Subsystem or source | Current classification | Local evidence | Attribution state |
 |---|---|---|---|
 | `arda-governance` | Mixed: original, inspired, adapted, conventional, dependency, AI-assisted | [`GOVERNANCE_PROVENANCE.md`](../crates/spine/governance/arda-governance/GOVERNANCE_PROVENANCE.md) | Exact JouleWork/Love Dynamics sources and boundaries recorded; Read Multiplex legal review remains required before public distribution |
+| Arda Prometheus projection exporter | `adapted` | [`metrics_exporter.rs`](../crates/spine/observability/arda-aule/src/cli/metrics_exporter.rs), adapted from `Annunimas/crates/annunimas-cli/src/commands/metrics.rs` at `c0b91edcdf777338b1eb42945b2adb4a3eaf6d7d` | Preserves the upstream MIT notice and metric compatibility names; Arda adds an explicit runtime root and `arda-cli` integration |
 | OpenFang-derived patterns | `adapted` | [`plans/OPENFANG.md`](plans/OPENFANG.md), `core/state/openfang_alignment.json` | Source URL recorded; exact version and license review still required |
 | Nous Hermes Agent | `inspired` / reference-only according to current absorption brief | `core/state/external_absorption_brief.json` | Source URL recorded; enumerate any implemented adaptations separately |
 | Mission Control | `inspired` / reference-only according to current absorption brief | `core/state/external_absorption_brief.json` | Source URL recorded; enumerate any implemented adaptations separately |

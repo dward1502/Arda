@@ -5,11 +5,12 @@ use arda_core::task::Task;
 use arda_core::try_run_bounded;
 use arda_economics::JouleWorkUnit;
 use arda_governance::{
-    calculate_resonance_with_triad, enqueue_bacon_lite, triad_validate, GateOutcome, TriadConfig,
-    TriadPuritySource,
+    calculate_resonance_with_triad, record_bacon_lite_to, triad_validate, BaconLiteEvent,
+    BaconLiteLogPaths, GateOutcome, TriadConfig, TriadPuritySource,
 };
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::fs::{self, OpenOptions};
 use std::path::Path;
 use std::sync::Arc;
@@ -27,7 +28,7 @@ mod importers;
 mod index;
 pub mod interceptor;
 mod io;
-mod layout;
+pub(crate) mod layout;
 mod metrics;
 mod observability;
 mod policy;
@@ -107,6 +108,48 @@ fn shallow_has_extractable_material(shallow: &ShallowAnalysis) -> bool {
         return !meta.abstract_text.trim().is_empty();
     }
     false
+}
+
+fn run_deep_worker_pool<T, F>(
+    items: Vec<String>,
+    worker_count: usize,
+    process: F,
+) -> Vec<(String, T)>
+where
+    T: Send,
+    F: Fn(&str) -> T + Sync,
+{
+    if items.is_empty() {
+        return Vec::new();
+    }
+
+    let worker_count = worker_count.max(1).min(items.len());
+    let mut lanes = vec![Vec::new(); worker_count];
+    for (index, item) in items.into_iter().enumerate() {
+        lanes[index % worker_count].push(item);
+    }
+
+    std::thread::scope(|scope| {
+        let handles = lanes
+            .into_iter()
+            .map(|lane| {
+                let process = &process;
+                scope.spawn(move || {
+                    lane.into_iter()
+                        .map(|item| {
+                            let result = process(&item);
+                            (item, result)
+                        })
+                        .collect::<Vec<_>>()
+                })
+            })
+            .collect::<Vec<_>>();
+
+        handles
+            .into_iter()
+            .flat_map(|handle| handle.join().expect("ATHENA deep worker panicked"))
+            .collect()
+    })
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -409,6 +452,7 @@ pub struct QueryResponse {
 #[derive(Clone)]
 pub struct AthenaStore {
     layout: WorkspaceLayout,
+    bacon_lite_paths: BaconLiteLogPaths,
     interceptors: IngestPipeline,
     llm: Option<Arc<dyn LlmProvider>>,
     digest_index: Arc<std::sync::RwLock<Option<index::DigestIndex>>>,
@@ -549,6 +593,14 @@ pub struct AthenaStatus {
 impl AthenaStore {
     pub fn new(root: impl AsRef<Path>) -> Result<Self> {
         let layout = WorkspaceLayout::for_store_root(root);
+        let workspace_root = layout::arda_root();
+        let governance_base =
+            if layout.root.is_relative() || layout.root.starts_with(&workspace_root) {
+                workspace_root
+            } else {
+                layout.root.clone()
+            };
+        let bacon_lite_paths = BaconLiteLogPaths::from_base_dir(governance_base);
         let books_dir = layout.books_dir.clone();
         let digest_path = layout.digest_path.clone();
         let crawl_receipts_path = layout.crawl_receipts_path.clone();
@@ -630,6 +682,7 @@ impl AthenaStore {
         let persisted_digest_index = index::load_index(&digest_index_path, &books_dir)?;
         Ok(Self {
             layout,
+            bacon_lite_paths,
             interceptors,
             llm: None,
             digest_index: Arc::new(std::sync::RwLock::new(persisted_digest_index)),
@@ -645,6 +698,15 @@ impl AthenaStore {
     /// since the inner store is behind an `Arc`.
     pub fn metrics(&self) -> Arc<AthenaMetrics> {
         self.metrics.clone()
+    }
+
+    fn record_governance_event(
+        &self,
+        action: &str,
+        task: &Task,
+        context: Value,
+    ) -> std::io::Result<BaconLiteEvent> {
+        record_bacon_lite_to("athena", action, task, context, &self.bacon_lite_paths)
     }
 
     /// Build (or rebuild) the in-memory digest index. Reads every book file
@@ -851,8 +913,7 @@ impl AthenaStore {
             );
             let mut bacon_task = Task::new(format!("ingest {normalized}"), "ingest");
             bacon_task.clarifications_resolved = if url.is_some() { 1 } else { 0 };
-            let quarantine_reason = match enqueue_bacon_lite(
-                "athena",
+            let quarantine_reason = match self.record_governance_event(
                 "ingest",
                 &bacon_task,
                 serde_json::json!({
@@ -1334,8 +1395,7 @@ impl AthenaStore {
                 {
                     tracing::warn!(error = %err, source_id = %source_id, "ATHENA deep graph append failed");
                 }
-                if let Err(err) = enqueue_bacon_lite(
-                    "athena",
+                if let Err(err) = self.record_governance_event(
                     "deep_analyze",
                     &task,
                     serde_json::json!({
@@ -1404,20 +1464,28 @@ impl AthenaStore {
                 latest.insert(source_id.to_string(), status.to_string());
             }
 
-            let mut processed = 0usize;
+            let mut pending = latest
+                .into_iter()
+                .filter_map(|(source_id, status)| {
+                    let can_run = status == "pending_deep" || (retry_failed && status == "failed");
+                    can_run.then_some(source_id)
+                })
+                .collect::<Vec<_>>();
+            pending.sort();
+            pending.truncate(limit.max(1));
+
+            let worker_count = athena_deep_worker_count().min(pending.len()).max(1);
+            let mut outcomes = run_deep_worker_pool(pending, worker_count, |source_id| {
+                self.deep_analyze(source_id)
+            });
+            outcomes.sort_by(|left, right| left.0.cmp(&right.0));
+
+            let processed = outcomes.len();
             let mut success = 0usize;
             let mut failed = 0usize;
             let mut details = Vec::new();
-            for (source_id, status) in latest {
-                let can_run = status == "pending_deep" || (retry_failed && status == "failed");
-                if !can_run {
-                    continue;
-                }
-                if processed >= limit.max(1) {
-                    break;
-                }
-                processed += 1;
-                match self.deep_analyze(&source_id) {
+            for (source_id, outcome) in outcomes {
+                match outcome {
                     Ok(entry) => {
                         success += 1;
                         details.push(serde_json::json!({
@@ -1461,6 +1529,7 @@ impl AthenaStore {
                 "success": success,
                 "failed": failed,
                 "retry_failed": retry_failed,
+                "worker_count": worker_count,
                 "details": details,
             }))
         }) else {
@@ -1488,13 +1557,21 @@ fn athena_deep_queue_limit() -> usize {
     #[cfg(test)]
     let default = 64;
     #[cfg(not(test))]
-    let default = 1;
+    let default = 2;
 
     std::env::var("ARDA_ATHENA_DEEP_QUEUE_MAX_CONCURRENCY")
         .ok()
         .and_then(|raw| raw.parse::<usize>().ok())
         .filter(|value| *value > 0)
         .unwrap_or(default)
+}
+
+fn athena_deep_worker_count() -> usize {
+    std::env::var("ARDA_ATHENA_DEEP_WORKERS")
+        .ok()
+        .and_then(|raw| raw.parse::<usize>().ok())
+        .filter(|value| *value > 0)
+        .unwrap_or(2)
 }
 
 fn athena_crawl_limit() -> usize {
@@ -1531,6 +1608,28 @@ mod tests {
 
     fn env_guard() -> std::sync::MutexGuard<'static, ()> {
         crate::test_support::env_guard()
+    }
+
+    #[test]
+    fn deep_worker_pool_overlaps_bounded_work() {
+        use std::sync::atomic::{AtomicUsize, Ordering};
+
+        let in_flight = AtomicUsize::new(0);
+        let max_in_flight = AtomicUsize::new(0);
+        let outcomes = super::run_deep_worker_pool(
+            vec!["one".into(), "two".into(), "three".into(), "four".into()],
+            2,
+            |source_id| {
+                let active = in_flight.fetch_add(1, Ordering::SeqCst) + 1;
+                max_in_flight.fetch_max(active, Ordering::SeqCst);
+                std::thread::sleep(Duration::from_millis(25));
+                in_flight.fetch_sub(1, Ordering::SeqCst);
+                source_id.to_string()
+            },
+        );
+
+        assert_eq!(outcomes.len(), 4);
+        assert_eq!(max_in_flight.load(Ordering::SeqCst), 2);
     }
 
     fn replace_env(key: &str, value: &str) -> Option<std::ffi::OsString> {

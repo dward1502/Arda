@@ -1,18 +1,19 @@
 ---
 soterion:
-  sigil: "SCROLL"
-  glyph: "📜"
-  code_point: "U+1F4DC"
+  sigil: "REPAIR"
+  glyph: "⟁"
+  code_point: "U+27C1"
   role: "directory_index"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-13"
+  last_reviewed: "2026-07-26"
 ---
 
+> 🜏 Soterion: ⟁ directory_index | owner: HADES | status: active | reviewed: 2026-07-26
 
-> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-13
+# Index: arda-orome/src/service
 
-# Index: crates/interface/annunimas-hermes/src/service/INDEX.md
+Current state: unwired; none of these Rust children are reachable from `src/lib.rs`.
 
 ## Contents
 
@@ -33,10 +34,5 @@ soterion:
 - `support.rs`
 - `task_approval.rs`
 
-## Purpose
-
-Crate index for `crates/interface/annunimas-hermes/src/service/INDEX.md`. See sibling `INDEX.md` for bucket metadata.
-
-## Notes
-
-Normalized from on-disk contents; review cadence is quarterly unless owner changes.
+The sibling `../service.rs` is the sole canonical service root, but remains unwired from `lib.rs`.
+Further classification is tracked in `../../PLAN.md`.

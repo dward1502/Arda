@@ -1,51 +1,77 @@
 ---
 soterion:
-  sigil: SCROLL
-  glyph: 📜
-  code_point: U+1F4DC
-  role: documentation
-  owner: ARDA
-  status: active
-  last_reviewed: 2026-07-25
+  sigil: "REPAIR"
+  glyph: "⟁"
+  code_point: "U+27C1"
+  role: "interface_contract"
+  owner: "HADES"
+  status: "active"
+  last_reviewed: "2026-07-26"
 ---
 
-> 🜏 Soterion: 📜 documentation | owner: ARDA | status: active | reviewed: 2026-07-25
+> 🜏 Soterion: ⟁ interface_contract | owner: HADES | status: active | reviewed: 2026-07-26
 
 # arda-orome
 
-Interface layer for Arda agents: comms, routing, intent classification, MCP, service events, governance records, context enrichment, edge policy, and provider/runtime integration.
+Typed communication, provider-dispatch, governance-recording, and gRPC contracts for the Arda
+spine.
 
-## Verified surface
+## Current scope
 
-- A2H/A2A messages and envelopes
-- Agent registry and message router with retry/expiry/dead-letter handling
-- Three-tier intent classifier
-- MCP server/tools/protocol/governance gate
-- Boardroom, council, approval, interruption, completion, comms, and status events
-- Mnemosyne-backed context enrichment with bounded async cache
-- Provider registry, adapters, runtime, and streaming sessions
-- Bounded timeout/retry dispatch, typed fanout, metrics, and expiry rejection
-- Explicit local/trusted/external fleet scope policy
-- Ledger-backed task approval and interruption envelopes
-- Discord health/safe-message helpers and slash/CLI relay
-- Optional HTTP/SSE via the `http` feature
-- Engine smoke integration at `arda_engine::orome::manual_smoke_dispatch`
+The compiled production library exposes:
+
+- A2H and A2A message/envelope types;
+- ledger-backed task-approval and interruption governance records;
+- provider adapter, registry, streaming, timeout/retry, fanout, fleet-scope, metrics, and receipt
+  contracts;
+- generated health-model and route-governance gRPC clients, servers, and messages;
+- typed boardroom, council, approval, completion, interruption, and operator event payloads.
+
+Manwe owns provider selection and inference-routing policy. `arda-orome` owns the bounded
+transport-facing contracts and outcome receipts, not daemon lifecycle or model choice.
+
+## Public modules
+
+| Module | Contract |
+|---|---|
+| `comm` | A2H messages, channels, priorities, attachments, responses, and bounded queue |
+| `governance` | `GovernanceHooks` and ledger-backed policy decisions |
+| `grpc` | Generated health-model and route-governance tonic surfaces |
+| `message` | A2A messages, threads, TTL, signatures, and hop envelopes |
+| `provider` | Provider adapters, registry, dispatch orchestration, streaming, and receipts |
+| `types` | Shared interface and operator payload schemas |
+
+`intent`, `registry`, `router`, and `message_retry_expiry` are currently compiled only for unit
+tests. They are not public production modules.
 
 ## Provider integration
 
-Implement `provider::ProviderTransport` for a real provider client, register its `ProviderConfig`, and dispatch through `ProviderRuntime`. Do not bypass runtime timeout, retry, fanout, scope, metrics, or receipt behavior. Provider selection and inference routing remain owned by Manwe.
+Implement `provider::ProviderTransport`, register a `ProviderConfig`, and dispatch through
+`ProviderRuntime`. Do not bypass runtime timeout, retry, expiry, fanout, fleet-scope, metrics, or
+receipt behavior. `ManualTransport` is deterministic and no-network; it is not a production
+provider client.
 
-## Verified evidence
+## Consumers
 
-- `cargo test -p arda-orome`: 21 passed, 0 failed.
-- `cargo test -p arda-engine --test orome_smoke`: 1 passed, 0 failed.
-- `cargo fmt -p arda-orome -p arda-engine -- --check`: passes.
+- `arda-engine` re-exports provider contracts and runs the deterministic smoke dispatch.
+- Manwe's `grpc` feature implements and serves the generated gRPC contracts.
+- `arda-aule`'s `full-cli` feature consumes the A2H message surface.
+
+## Stability boundary
+
+The compiled/default and no-default-feature surfaces pass their gates. The repository tree is not
+yet fully source-clean: 35 Rust files are not reachable from `lib.rs`, and the `http` feature
+enables dependencies without enabling an HTTP module. These are recorded as active stabilization
+work in `PLAN.md`; unwired files must not be presented as supported crate behavior.
+
+## Verification
+
+Current dated commands, test counts, consumer checks, and known boundaries are in `STATUS.md`.
 
 ## Documentation
 
-- `CHECKLIST.md`: completed implementation checklist and evidence
-- `CRATE_PLAN.md`: canonical contracts and residual boundaries
-- `BREAKDOWN.md`: detailed module/invariant breakdown
-- `STATUS.md`: current operational status
-- `OWNERSHIP.md`: ownership and boundary constraints
-- `INDEX.md`: crate artifact index
+- `STATUS.md` — current stability and verification evidence.
+- `BREAKDOWN.md` — compiled/test-only/unwired implementation map.
+- `PLAN.md` — active stabilization decisions and future proposals.
+- `OWNERSHIP.md` — authority and non-ownership boundaries.
+- `INDEX.md` — deterministic crate navigation.

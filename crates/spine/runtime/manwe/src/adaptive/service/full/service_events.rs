@@ -79,8 +79,8 @@ impl CharonService {
     ) {
         let delivery = if let Some(service) = &self.mnemosyne {
             let event = InformantEvent {
-                informant_id: "charon_mneme".to_string(),
-                crate_name: "charon".to_string(),
+                informant_id: "manwe_mneme".to_string(),
+                crate_name: "manwe".to_string(),
                 event_type: event_type.to_string(),
                 ts_utc: Utc::now().to_rfc3339(),
                 content: content.to_string(),
@@ -90,7 +90,7 @@ impl CharonService {
             match service.encode(event) {
                 Ok(()) => "mnemosyne_encoded",
                 Err(err) => {
-                    tracing::debug!(error = %err, "CHARON memory emission failed");
+                    tracing::debug!(error = %err, "MANWE memory emission failed");
                     return;
                 }
             }
@@ -114,7 +114,7 @@ impl CharonService {
     ) -> Result<()> {
         let plutus = PlutusService::from_default_or_workspace_fallback().map_err(|err| {
             ArdaError::Agent {
-                agent: "charon".to_string(),
+                agent: "manwe".to_string(),
                 message: format!("plutus work signal init failed: {err}"),
             }
         })?;
@@ -122,7 +122,7 @@ impl CharonService {
             .track_work(agent_id, amount, unit, task_id)
             .await
             .map_err(|err| ArdaError::Agent {
-                agent: "charon".to_string(),
+                agent: "manwe".to_string(),
                 message: format!("plutus work signal failed: {err}"),
             })?;
         Ok(())
@@ -138,7 +138,7 @@ impl CharonService {
     ) -> Result<()> {
         let plutus = PlutusService::from_default_or_workspace_fallback().map_err(|err| {
             ArdaError::Agent {
-                agent: "charon".to_string(),
+                agent: "manwe".to_string(),
                 message: format!("plutus relationship signal init failed: {err}"),
             }
         })?;
@@ -146,7 +146,7 @@ impl CharonService {
             .record_relationship(from, to, resonance, attention, reciprocity)
             .await
             .map_err(|err| ArdaError::Agent {
-                agent: "charon".to_string(),
+                agent: "manwe".to_string(),
                 message: format!("plutus relationship signal failed: {err}"),
             })?;
         Ok(())
@@ -166,7 +166,7 @@ impl CharonService {
                 .record_work_signal_async(&agent_id, amount, unit, task_id)
                 .await
             {
-                tracing::debug!(error = %err, "CHARON plutus work signal failed");
+                tracing::debug!(error = %err, "MANWE plutus work signal failed");
             }
         });
     }
@@ -188,7 +188,7 @@ impl CharonService {
                 .record_relationship_signal_async(&from, &to, resonance, attention, reciprocity)
                 .await
             {
-                tracing::debug!(error = %err, "CHARON plutus relationship signal failed");
+                tracing::debug!(error = %err, "MANWE plutus relationship signal failed");
             }
         });
     }

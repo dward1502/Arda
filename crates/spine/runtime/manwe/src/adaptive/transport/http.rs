@@ -21,6 +21,10 @@ use tokio_stream::wrappers::IntervalStream;
 use tokio_stream::{Stream, StreamExt};
 use tracing::warn;
 
+// Security note: MANWE binds to localhost and IPC is a Unix-domain socket.
+// These transport boundaries are the primary trust domain; auth here is
+// defense-in-depth for mutation-exposed handlers only.
+
 pub async fn run_http_server(service: ManweService, addr: &str) -> Result<()> {
     tracing::info!(addr = %addr, "starting MANWE HTTP server");
     // D1: spawn in-process active health probe loop. Pre-warms the
@@ -907,9 +911,7 @@ fn probe_throttle_decision(
             }
         }
     }
-    let Some(recent_failure) = recent_probe_failure(&provider.id, model, recent_events) else {
-        return None;
-    };
+    let recent_failure = recent_probe_failure(&provider.id, model, recent_events)?;
     if !probe_failure_class_triggers_throttle(&recent_failure.class) {
         return None;
     }
@@ -1076,7 +1078,7 @@ fn probe_attempt_outcome_class(status: u16, marker_found: bool) -> &'static str 
 }
 
 fn probe_attempt_should_mark_health_failure(status: u16, marker_found: bool) -> bool {
-    !(status < 300 && !marker_found)
+    status >= 300 || marker_found
 }
 
 fn probe_result_payload(
@@ -1179,8 +1181,15 @@ struct ModelStreamingValidationRequest {
 
 async fn provider_result(
     State(service): State<ManweService>,
+    headers: HeaderMap,
     Json(req): Json<ProviderResultRequest>,
 ) -> impl IntoResponse {
+    if !authorize_mutation(&headers) {
+        return openai_error(
+            StatusCode::UNAUTHORIZED,
+            "missing or invalid Authorization header for mutation",
+        );
+    }
     map_result_async(async move {
         service
             .mark_provider_result(&req.provider_id, req.ok, req.latency_ms, req.error)
@@ -1192,8 +1201,15 @@ async fn provider_result(
 
 async fn model_streaming_validation(
     State(service): State<ManweService>,
+    headers: HeaderMap,
     Json(req): Json<ModelStreamingValidationRequest>,
 ) -> impl IntoResponse {
+    if !authorize_mutation(&headers) {
+        return openai_error(
+            StatusCode::UNAUTHORIZED,
+            "missing or invalid Authorization header for mutation",
+        );
+    }
     map_result_async(async move {
         service
             .mark_model_streaming_validation(
@@ -1208,7 +1224,16 @@ async fn model_streaming_validation(
     .await
 }
 
-async fn reload_config(State(service): State<ManweService>) -> impl IntoResponse {
+async fn reload_config(
+    State(service): State<ManweService>,
+    headers: HeaderMap,
+) -> impl IntoResponse {
+    if !authorize_mutation(&headers) {
+        return openai_error(
+            StatusCode::UNAUTHORIZED,
+            "missing or invalid Authorization header for mutation",
+        );
+    }
     map_result_async(async move { service.reload_provider_config().await }).await
 }
 
@@ -2162,6 +2187,7 @@ async fn openai_body_to_envelope_with_headers(
         "execution_lane",
         "force_provider_id",
         "force_model_id",
+        "allow_forced_provider_fallback",
         "exclude_provider_ids",
         "excluded_provider_ids",
         "exclude_model_ids",
@@ -2200,6 +2226,7 @@ async fn openai_body_to_envelope_with_headers(
             "execution_lane",
             "force_provider_id",
             "force_model_id",
+            "allow_forced_provider_fallback",
             "exclude_provider_ids",
             "excluded_provider_ids",
             "exclude_model_ids",
@@ -2240,6 +2267,7 @@ async fn openai_body_to_envelope_with_headers(
             "execution_lane",
             "force_provider_id",
             "force_model_id",
+            "allow_forced_provider_fallback",
             "dry_run",
             "tool_use_required",
             "source_surface",
@@ -2280,6 +2308,7 @@ async fn openai_body_to_envelope_with_headers(
                 "execution_lane",
                 "force_provider_id",
                 "force_model_id",
+                "allow_forced_provider_fallback",
                 "exclude_provider_ids",
                 "excluded_provider_ids",
                 "exclude_model_ids",
@@ -2722,6 +2751,25 @@ fn openai_error(status: StatusCode, message: &str) -> Response {
         })),
     )
         .into_response()
+}
+
+fn authorized_bearer(headers: &HeaderMap) -> bool {
+    const ENV: &str = "ARDA_MANWE_API_KEY";
+    std::env::var(ENV)
+        .ok()
+        .filter(|v| !v.trim().is_empty())
+        .map_or(false, |expected| {
+            headers
+                .get(axum::http::header::AUTHORIZATION)
+                .and_then(|v| v.to_str().ok())
+                .map_or(false, |header| {
+                    header == format!("Bearer {expected}").as_str()
+                })
+        })
+}
+
+fn authorize_mutation(headers: &HeaderMap) -> bool {
+    !authorized_bearer(headers)
 }
 
 async fn build_event_payload(service: &ManweService) -> Result<Value> {
@@ -3645,7 +3693,8 @@ mod tests {
                 "extra_body": {
                     "routing": {
                         "force_provider_id": "nvidia",
-                        "force_model_id": "meta/llama-3.1-8b-instruct"
+                        "force_model_id": "meta/llama-3.1-8b-instruct",
+                        "allow_forced_provider_fallback": true
                     }
                 }
             }),
@@ -3655,6 +3704,7 @@ mod tests {
 
         assert_eq!(req.options["force_provider_id"], "nvidia");
         assert_eq!(req.options["force_model_id"], "meta/llama-3.1-8b-instruct");
+        assert_eq!(req.options["allow_forced_provider_fallback"], true);
     }
 
     #[tokio::test]

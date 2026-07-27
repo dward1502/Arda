@@ -73,6 +73,11 @@ pub struct Task {
     pub plan_id: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub plan_step_index: Option<usize>,
+
+    // AIPKG contract: optional package manifest attached to a Task.
+    // When present, dispatch runs preflight validation before execution.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub aipkg_manifest: Option<crate::aipkg::AipkgManifest>,
 }
 
 impl Task {
@@ -98,6 +103,7 @@ impl Task {
             clarifications_resolved: 0,
             plan_id: None,
             plan_step_index: None,
+            aipkg_manifest: None,
         }
     }
 
@@ -212,6 +218,7 @@ mod tests {
             clarifications_resolved: 0,
             plan_id: None,
             plan_step_index: None,
+            aipkg_manifest: None,
         };
 
         let encoded = serde_json::to_string(&task).expect("encode task");

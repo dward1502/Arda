@@ -46,7 +46,7 @@ impl CharonService {
             builder = builder.http1_only();
         }
         let client = builder.build().map_err(|err| ArdaError::Agent {
-            agent: "charon".to_string(),
+            agent: "manwe".to_string(),
             message: format!("failed to build HTTP client: {err}"),
         })?;
         let client = Arc::new(client);

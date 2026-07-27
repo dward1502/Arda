@@ -19,6 +19,21 @@ CRATE = Path(__file__).resolve().parents[1]
 REPO = CRATE.parents[3]
 BINARY = REPO / "target" / "debug" / "manwe"
 TOKEN = "MANWE_FULL_SMOKE_OK"
+CRATE_LOCAL_OUTPUT_ROOTS = (
+    CRATE / "core",
+    CRATE / "data",
+    CRATE / "docs" / "operator" / "library",
+)
+
+
+def output_snapshot() -> dict[str, bytes]:
+    return {
+        str(path.relative_to(CRATE)): path.read_bytes()
+        for root in CRATE_LOCAL_OUTPUT_ROOTS
+        if root.exists()
+        for path in root.rglob("*")
+        if path.is_file()
+    }
 
 
 def free_port() -> int:
@@ -128,10 +143,12 @@ def run_static(root: Path, upstream_port: int) -> None:
     malformed_fleet = root / "fleet.toml"
     malformed_fleet.write_text("[[nodes]\n")
     env = os.environ.copy()
+    env["ARDA_ROOT"] = str(root)
     env["ARDA_MANWE_FLEET_CONFIG"] = str(malformed_fleet)
+    env["ANNUNIMAS_CHARON_FLEET_CONFIG"] = str(root / "ignored-legacy-fleet.toml")
     process = subprocess.Popen(
         [str(BINARY), "--config", str(config), "--bind", "127.0.0.1", "--port", str(port)],
-        cwd=REPO,
+        cwd=CRATE,
         env=env,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
@@ -144,6 +161,9 @@ def run_static(root: Path, upstream_port: int) -> None:
         assert capabilities["config_source"] == "file", capabilities
         assert capabilities["config_path"] == str(config), capabilities
         assert capabilities["fleet_config_path"] == str(malformed_fleet), capabilities
+        assert capabilities["route_receipts"] == str(
+            root / "data" / "manwe" / "route_receipts.jsonl"
+        ), capabilities
         assert capabilities["catalog_generation"] == 1, capabilities
         assert capabilities["fleet_providers"] == 0, capabilities
         status, body, _ = request(
@@ -173,10 +193,16 @@ def run_static_fallback_matrix(root: Path) -> None:
             fleet.write_text("[[nodes]\n" if name == "malformed" else "")
         port = free_port()
         env = os.environ.copy()
-        env["ARDA_MANWE_FLEET_CONFIG"] = str(fleet)
+        env["ARDA_ROOT"] = str(case_root)
+        if name == "missing":
+            env.pop("ARDA_MANWE_FLEET_CONFIG", None)
+            env["ANNUNIMAS_CHARON_FLEET_CONFIG"] = str(fleet)
+        else:
+            env["ARDA_MANWE_FLEET_CONFIG"] = str(fleet)
+            env["ANNUNIMAS_CHARON_FLEET_CONFIG"] = str(case_root / "ignored-legacy.toml")
         process = subprocess.Popen(
             [str(BINARY), "--config", str(config), "--bind", "127.0.0.1", "--port", str(port)],
-            cwd=REPO,
+            cwd=CRATE,
             env=env,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
@@ -186,6 +212,7 @@ def run_static_fallback_matrix(root: Path) -> None:
             wait_ready(port)
             _, capabilities, _ = request(port, "/v1/capabilities")
             assert capabilities["config_source"] == expected_source, capabilities
+            assert capabilities["fleet_config_path"] == str(fleet), capabilities
             assert capabilities["fleet_providers"] == 0, capabilities
             assert capabilities["catalog_generation"] == 1, capabilities
         finally:
@@ -196,7 +223,7 @@ def run_adaptive(root: Path, upstream_port: int) -> None:
     port = free_port()
     config_dir = root / "config"
     config_dir.mkdir(parents=True)
-    (config_dir / "charon.providers.toml").write_text(
+    (config_dir / "manwe.providers.toml").write_text(
         "\n".join(
             [
                 "[[provider]]",
@@ -218,10 +245,14 @@ def run_adaptive(root: Path, upstream_port: int) -> None:
         )
     )
     env = os.environ.copy()
+    env.pop("ARDA_MANWE_STATE_DIR", None)
+    env.pop("ARDA_MANWE_HOME", None)
+    env.pop("ARDA_MANWE_PROVIDER_CONFIG", None)
+    env.pop("ANNUNIMAS_CHARON_PROVIDER_CONFIG", None)
     env.update({"ARDA_HOME": str(root), "ARDA_ROOT": str(root)})
     process = subprocess.Popen(
         [str(BINARY), "--adaptive", "--bind", "127.0.0.1", "--port", str(port)],
-        cwd=REPO,
+        cwd=CRATE,
         env=env,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
@@ -234,7 +265,7 @@ def run_adaptive(root: Path, upstream_port: int) -> None:
         assert capabilities["runtime"] == "full_governed", capabilities
         assert capabilities["governance"] is True and capabilities["quota_mesh"] is True
         assert capabilities["config_source"] == "provider_file", capabilities
-        assert capabilities["config_path"] == str(config_dir / "charon.providers.toml"), capabilities
+        assert capabilities["config_path"] == str(config_dir / "manwe.providers.toml"), capabilities
         assert capabilities["catalog_generation"] == 2, capabilities
         status, body, headers = request(
             port,
@@ -255,6 +286,7 @@ def run_adaptive(root: Path, upstream_port: int) -> None:
 
 def main() -> None:
     subprocess.run(["cargo", "build", "-p", "manwe", "--features", "adaptive"], cwd=REPO, check=True)
+    before_outputs = output_snapshot()
     upstream_port = free_port()
     server = ThreadingHTTPServer(("127.0.0.1", upstream_port), ControlledUpstream)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
@@ -269,6 +301,7 @@ def main() -> None:
         server.shutdown()
         server.server_close()
         thread.join(timeout=5)
+    assert output_snapshot() == before_outputs, "Manwe recreated or modified crate-local output"
     print("PASS: Manwe static and full governed adaptive process smoke tests")
 
 

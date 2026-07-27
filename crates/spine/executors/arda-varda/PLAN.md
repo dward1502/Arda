@@ -12,7 +12,7 @@ soterion:
 
 Merged from:
 - `crates/spine/executors/arda-varda/OPTIMIZATION_PLAN.md`
-- `crates/spine/executors/arda-varda/DESIGN_ASSESSMENT.md`
+- `docs/archive/arda-varda/design-assessment-2026-06-09.md` (historical)
 - `crates/spine/executors/arda-varda/BREAKDOWN.md`
 - `crates/spine/executors/arda-varda/STATUS.md`
 - `docs/plans/ATHENA.md`
@@ -33,7 +33,7 @@ learning emissions for the sovereign corpus.
 
 Crate root: `crates/spine/executors/arda-varda`
 Data/core roots: `data/athena/*`, `core/state/*`, env-overridable
-Tests: 115 integration/unit tests as of last review; 0 doc tests
+Tests: 116 integration/unit tests as of last review; 0 doc tests
 
 Storage surfaces:
 - ingest books JSONL per-source, digest/global records
@@ -161,6 +161,18 @@ Touch: `ingest/crawl.rs`, `ingest.rs`.
 index on disk. Ingest, deep-analysis, and scholarly writes refresh only the
 touched source while retaining unrelated entries; startup and stale live stores
 load the shared artifact before considering a full rebuild.
+
+### B3 bounded deep-analysis worker pool — DONE
+`process_deep_queue` selects a deterministic, source-id-sorted batch and runs it
+through a scoped worker pool. `ARDA_ATHENA_DEEP_WORKERS` configures the worker
+count (default 2), while `ARDA_ATHENA_DEEP_QUEUE_MAX_CONCURRENCY` bounds both
+queue admissions and concurrent deep-analysis calls (default 2). The response
+reports the effective worker count and returns deterministic detail ordering.
+Shared `AthenaStore` clones retain the same appender, index, activity, and
+metrics locks. A focused overlap test proves two workers execute concurrently;
+existing queue success, failure, retry, malformed-record, and saturation tests
+continue to pass.
+Touch: `ingest.rs`.
 
 ## Tier C — resilience/quality
 
@@ -316,7 +328,7 @@ presence of extracted deep knowledge. Buffered Rust/HTTP responses and SSE
 # 7. Suggested execution order
 
 1. Workspace hygiene + boot: A1(reqwest), A3(fallback)
-2. Hot-path: A2(async writes), B4(shared client), B1(crawl cap)
+2. Hot-path: A2(async writes), B4(shared client), B1(crawl cap), B3(deep workers)
 3. Resilience: D1(source cache), D2(scholarly fallback), D3(docs)
 4. Observability: C2(pipeline IDs), E1(freshness gauges), C3(live status)
 5. Retrieval fidelity: P0 replacement scorer
@@ -330,6 +342,7 @@ presence of extracted deep knowledge. Buffered Rust/HTTP responses and SSE
 - [x] A2 async/buffered Books JSONL writes
 - [x] B4 shared reqwest Client in importers/crawlers
 - [x] B1 crawl concurrency cap
+- [x] B3 bounded deep-analysis worker pool
 - [x] D1 source classification cache
 - [x] D2 scholarly fallback/retry + re-enrichment queue
 - [x] D3 interceptor contract docs
@@ -351,7 +364,7 @@ presence of extracted deep knowledge. Buffered Rust/HTTP responses and SSE
 - [x] Group `AthenaStore` path fields into typed structs
 - [x] Add HTTP SSE stream for deep-analysis queue events
 
-Live reconciliation (2026-07-25): the crate already has an in-memory digest
+Live reconciliation (2026-07-27): the crate has an in-memory digest
 index with TTL/mtime invalidation, extracted-knowledge-aware scoring,
 confidence-bearing deep results, Prometheus metrics, bounded ingest/deep/HTTP
 admission, malformed policy-readiness accounting, shallow/deep status labels,
@@ -360,8 +373,9 @@ truthful live/durable activity status, the E3 heavy-failure quarantine gate,
 content-addressed deep caching, query citations, scored-hit SSE query streaming,
 field-normalized BM25 retrieval, governance-gated confidence, normalized tokens,
 shared persistent incremental indexing, shallow-only result signaling, typed
-layout ownership, blocking-region documentation, JSONL schema migration, and
-cursor-resumable deep-queue SSE are now complete. Semantic/vector retrieval
+layout ownership, blocking-region documentation, JSONL schema migration,
+cursor-resumable deep-queue SSE, and bounded deep worker-pool execution are now
+complete. Semantic/vector retrieval
 remains a possible future complement, not a prerequisite for this checklist.
 
 ---
@@ -372,7 +386,7 @@ remains a possible future complement, not a prerequisite for this checklist.
 - Plan narrative: `docs/plans/ATHENA.md`
 - Archive narration: `docs/plans/original-human-plan-narration/ATHENA.md`
 - Prior optimization Plan: `crates/spine/executors/arda-varda/OPTIMIZATION_PLAN.md`
-- Design assessment: `crates/spine/executors/arda-varda/DESIGN_ASSESSMENT.md`
+- Historical design assessment: `docs/archive/arda-varda/design-assessment-2026-06-09.md`
 - Breakdown: `crates/spine/executors/arda-varda/BREAKDOWN.md`
 - Status: `crates/spine/executors/arda-varda/STATUS.md`
 

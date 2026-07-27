@@ -6,7 +6,7 @@ soterion:
   role: "knowledge_governance"
   owner: "ARDA-VARDA"
   status: "active"
-  last_reviewed: "2026-07-21"
+  last_reviewed: "2026-07-27"
 crate: arda-varda
 agent: athena
 realm: knowledge
@@ -14,7 +14,7 @@ sigil: "𓁿"
 status: operational
 ---
 
-> Arda-VARDA: ◈ knowledge governance | owner: arda-varda | status: operational | reviewed: 2026-07-21
+> Arda-VARDA: ◈ knowledge governance | owner: arda-varda | status: operational | reviewed: 2026-07-27
 
 # arda-varda Plan Narrative
 
@@ -115,11 +115,13 @@ connector/operator path.
 
 - Is the NotebookLM MCP candidate approved for read-only inspection, or should agent synthesis remain non-canonical truth?
 - When will `task_promotion_allowed` flip true for external source lanes?
-- When will duplicate layout roots unify into a single layout owner?
+
 
 ## References
 
 - Crate: `crates/spine/executors/arda-varda`
-`docs/plans/ATHENA.md`. This document
+- Canonical completed checklist: `crates/spine/executors/arda-varda/PLAN.md`
+- Implementation map: `crates/spine/executors/arda-varda/BREAKDOWN.md`
+- Historical crate evidence: `docs/archive/arda-varda/`
 - Original archive docs: `docs/archive/ARDA_VARDA_ATHENA_REINTEGRATION_PLAN.md`
 - Archived tests snapshot: `docs/archive/arda-varda-tests/`

@@ -1,7 +1,7 @@
 # manwe — Current Status
 
 Crate: `crates/spine/runtime/manwe`
-Reviewed: 2026-07-25
+Reviewed: 2026-07-26
 State: active; foundation baseline complete and maintained
 
 ## Verification performed in the 2026-07-25 foundation review
@@ -20,9 +20,10 @@ State: active; foundation baseline complete and maintained
 | `cargo test -p arda-aule --features telemetry --test telemetry_surface` | PASS: public telemetry contract |
 | `python crates/spine/runtime/manwe/tests/check_docs.py` | PASS: 8 Markdown files, 25 local links, 12 source-index entries |
 
-The passing commands emitted only the workspace warning that the launcher
-package's non-root Cargo profile is ignored plus pre-existing Manwe dead-code
-warnings. `arda_aule::telemetry` is now a feature-gated public module with a
+The 2026-07-26 recovery gates emit only the workspace warning that the
+launcher's non-root Cargo profile is ignored. Both default and all-feature
+Clippy runs pass with `-D warnings`; the former Manwe dead-code and unused-item
+warnings are resolved. `arda_aule::telemetry` is now a feature-gated public module with a
 supported event emitter, tracing-layer builder, schema constant, and shutdown
 function. The active adaptive service emits state, governance, and memory
 events through that API. Manwe installs the OTLP layer when an endpoint is
@@ -44,7 +45,18 @@ processes plus a local mock OpenAI upstream. It verifies `/healthz`,
 `/v1/models`, `/v1/capabilities`, `/v1/chat/completions`, governed response
 headers, config provenance/catalog generations, missing/malformed/partial
 static startup, missing/malformed fleet startup, and adaptive
-state/governance receipts without calling external providers.
+state/governance receipts without calling external providers. The 2026-07-26
+path-ownership extension runs both processes from the Manwe crate directory,
+checks canonical-first fleet aliases and rooted receipt diagnostics, and proves
+that crate-local `core/`, `data/`, and operator-library outputs are unchanged.
+
+Focused current verification passes default, adaptive, and all-feature Clippy
+with `-D warnings`; default tests (1 library + 25 binary); adaptive tests (274
+library + 26 binary); all-feature tests (274 library + 27 binary); rustfmt;
+documentation validation; and the full process smoke. The transient
+all-feature blocker was an accidental broad `arda-orome::service` exposure that
+contradicted Orome's active stabilization plan; restoring the documented module
+boundary removed the blocker without changing Manwe.
 
 ## Current capabilities
 
@@ -56,13 +68,25 @@ state/governance receipts without calling external providers.
   governed adaptive runtime with policy chains, Echo Gate evaluation, quotas,
   fallback selection, provider drivers, persistence, and observability.
 - Per-resource-group serialization with configurable positive concurrency and
-  queue-timeout values.
+  queue-timeout values. Fleet providers can declare
+  `resource_group_concurrency`; saturated adaptive selections prefer an
+  equivalent eligible provider in another resource group before queueing.
 - Static `manwe.toml` fallback with startup config validation.
 - Credential-free active config paths/sources and catalog generations on health
   and capabilities surfaces.
 - Stream-request handling and non-streaming proxy responses with JSONL route
   receipts. The binary's explicit stream contract is buffered SSE, advertised
   by `x-manwe-streaming-mode: buffered`; it does not provide live pass-through.
+- Deterministic task-class benchmark receipts for exact-match expectations;
+  benchmark IDs are bounded and no judge model is invoked on edge nodes.
+- Canonical `manwe_*` Prometheus metrics with base-unit latency and bounded
+  `provider_id`/`model`/`route_class` labels; generated `charon_*` aliases are
+  retired.
+- `edge_carnice` is active on Beelink `:1234`; its host systemd service runs
+  llama.cpp directly and no longer depends on the removed distrobox. The three
+  obsolete backbone lanes remain intentionally retired in favor of `:8095`;
+  the backbone host itself was Tailscale/HTTP-unreachable on 2026-07-26 and is
+  therefore excluded by normal provider health gating until it returns.
 - Rich adaptive policy/service library behind `adaptive`.
 - Realm/action policy evaluation on every adaptive preview and selected route, with typed
   scorer, reload, and runtime-blocking receipts.
@@ -76,16 +100,21 @@ state/governance receipts without calling external providers.
   `MANWE_ROUTING_MODE=adaptive` when compiled with `adaptive`
 - Resource-group controls:
   `ARDA_MANWE_RESOURCE_GROUP_CONCURRENCY` (default `1`) and
-  `ARDA_MANWE_RESOURCE_GROUP_QUEUE_TIMEOUT_SECONDS` (default `30`)
+  `ARDA_MANWE_RESOURCE_GROUP_QUEUE_TIMEOUT_SECONDS` (default `30`), with
+  per-provider `resource_group_concurrency` values in `config/fleet.toml`
 - Local-only model alias: `local/auto`
 - Static ownership: `--config` owns forwarding providers;
-  `ARDA_MANWE_FLEET_CONFIG` owns fleet
+  `ARDA_MANWE_FLEET_CONFIG`, legacy alias
+  `ANNUNIMAS_CHARON_FLEET_CONFIG`, then `$ARDA_ROOT/config/fleet.toml` owns fleet
   discovery. Fleet failures produce an empty fleet catalog without replacing
   forwarding providers.
 - Adaptive ownership: `ARDA_MANWE_PROVIDER_CONFIG` owns governed providers,
-  falling back to `$ARDA_ROOT/config/charon.providers.toml` and then governed
-  defaults. `ARDA_MANWE_STATE_DIR`, then `ARDA_MANWE_HOME`, owns mutable state;
-  the fallback is `$ARDA_HOME/data/manwe` and then `./data/manwe`.
+  with `ANNUNIMAS_CHARON_PROVIDER_CONFIG` retained as the lower-precedence
+  legacy environment alias, then `$ARDA_ROOT/config/manwe.providers.toml`, and
+  finally governed defaults. `ARDA_MANWE_STATE_DIR`, then `ARDA_MANWE_HOME`,
+  then `$ARDA_ROOT/data/manwe`, and then the compatibility `$ARDA_HOME/data/manwe`
+  root owns mutable state. Without an environment root, Manwe uses its
+  build-derived Arda workspace root rather than the process working directory.
 - Realm-policy ownership: `$ARDA_ROOT/config/governance/realm_policies.toml`; the optional
   `ARDA_GOVERNANCE_BLOCKING_ENABLED` operator request remains subordinate to scoped
   readiness, independent-review, rollback, and operator-disable authority gates.
@@ -101,7 +130,11 @@ the governed gRPC transport is defined.
 Fresh controlled-process evidence returned `runtime: full_governed`, selected
 the `smoke/smoke-model` route, returned `MANWE_FULL_SMOKE_OK`, emitted
 `x-manwe-route-id`, provider/model/class/lane headers, and wrote both
-`route_selected` state and governance receipts.
+`route_selected` state and governance receipts. Manwe owns an explicitly
+rooted Bacon-Lite writer: machine evidence is written to
+`$ARDA_ROOT/data/governance/bacon_lite.jsonl` and the operator projection to
+`$ARDA_ROOT/docs/operator/library/governance/bacon_lite.md`; crate-local
+`data/` and `docs/operator/library/` output trees are retired.
 
 ## Historical runtime evidence retained
 
@@ -118,8 +151,9 @@ documentation review.
 
 1. The binary and rich adaptive service have parallel routing/config/transport
    paths. Capability claims must stay scoped until they are unified.
-2. Remaining legacy-named policy/tuning variables need canonical Manwe aliases;
-   path ownership variables now use the Manwe names documented above.
+2. `ARDA_ROUTE_*` policy/tuning variables are intentionally retained as a
+   shared contract consumed by Manwe, Varda, and Aule rather than renamed as
+   Manwe-private variables.
 3. The direct `arda-hud` HTTP-consumer claim in older docs was not confirmed by
    this source audit; HUD currently has broader Manwe state/action projections.
 

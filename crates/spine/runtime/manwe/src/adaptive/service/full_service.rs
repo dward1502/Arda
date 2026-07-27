@@ -3,10 +3,10 @@ use crate::adaptive::types::{ManweRequestEnvelope, ProviderState, RouteDecision}
 use arda_core::error::{ArdaError, Result};
 use arda_core::task::{JouleWorkMeasurementSource, Task};
 use arda_governance::{
-    default_governance_readiness_report, enqueue_bacon_lite, evaluate_realm_governance,
-    load_governance_chain, load_realm_policy, GovernanceChainConfig, LocalGovernanceScorer,
-    RealmGovernanceVerdict, RealmPolicyConfig, RealmPolicyReloadReceipt, RealmPolicyStore,
-    RuntimeBlockingAuthority, RuntimeBlockingDecision,
+    default_governance_readiness_report, enqueue_bacon_lite_with, evaluate_realm_governance,
+    load_governance_chain, load_realm_policy, BaconLiteLogPaths, BaconLiteWriter,
+    GovernanceChainConfig, LocalGovernanceScorer, RealmGovernanceVerdict, RealmPolicyConfig,
+    RealmPolicyReloadReceipt, RealmPolicyStore, RuntimeBlockingAuthority, RuntimeBlockingDecision,
 };
 use arda_economics::JouleWorkUnit;
 use chrono::Utc;
@@ -100,7 +100,7 @@ use route_policy::{
 #[cfg(test)]
 pub(crate) use routing::normalize_openai_request_payload;
 pub(crate) use routing::{
-    attach_charon_route_metadata, is_billing_or_credit_error, is_client_payload_error,
+    attach_manwe_route_metadata, is_billing_or_credit_error, is_client_payload_error,
     is_context_overflow_error, is_reasoning_replay_required_error, is_request_scoped_retry_error,
     local_payload_requires_structured_tool_history, model_error_should_mark_unavailable,
     normalize_openai_request_payload_with_policy, provider_error_immediate_cooldown_seconds,
@@ -130,7 +130,9 @@ pub(crate) use state_io::{
     runtime_build_cache_command_program, runtime_build_cache_state_path, touch,
 };
 pub(crate) use status::classify_provider_operational_state;
-pub use status::CharonStatus;
+pub use status::ManweStatus;
+#[deprecated(note = "use ManweStatus")]
+pub type CharonStatus = ManweStatus;
 use status::{build_budget_alerts, build_budget_pressure_summary, PackageRuntimeSignals};
 
 pub(crate) use hermes_cli_driver::hermes_cli_readiness_summary;
@@ -142,7 +144,7 @@ fn load_route_governance_chain() -> GovernanceChainConfig {
         tracing::debug!(
             error = %err,
             path = %path.display(),
-            "CHARON governance chain config load failed; using default triad"
+            "MANWE governance chain config load failed; using default triad"
         );
         GovernanceChainConfig::default_triad()
     })
@@ -154,7 +156,7 @@ fn load_route_realm_policy_store() -> Arc<RealmPolicyStore> {
         tracing::warn!(
             error = %err,
             path = %path.display(),
-            "CHARON realm policy config load failed; using safe non-blocking default"
+            "MANWE realm policy config load failed; using safe non-blocking default"
         );
         RealmPolicyConfig::safe_default()
     });
@@ -217,7 +219,7 @@ fn route_governance_task(req: &ManweRequestEnvelope) -> Task {
         )
     };
     let mut task = Task::new(description, "dispatch");
-    task.assigned_agent = Some("charon".to_string());
+    task.assigned_agent = Some("manwe".to_string());
     task.clarifications_resolved = if !req.priority.is_empty() { 1 } else { 0 };
     task.joule_cost_estimated = 1.0;
     task.joule_cost_actual = 1.0;
@@ -241,9 +243,10 @@ pub struct CharonService {
     providers: Arc<RwLock<Vec<ProviderState>>>,
     capacity_probe_cache: Arc<RwLock<BTreeMap<String, ProviderCapacityProbeRecord>>>,
     mnemosyne: Option<service_events::MnemosyneClient>,
-    metrics: Arc<metrics::CharonMetrics>,
+    metrics: Arc<metrics::ManweMetrics>,
     http_clients: Arc<RwLock<std::collections::HashMap<HttpClientKey, Arc<reqwest::Client>>>>,
     event_writer: event_writer::EventWriter,
+    bacon_lite_writer: BaconLiteWriter,
     route_history: Arc<RwLock<VecDeque<RouteHistoryEntry>>>,
     sticky_sessions: Arc<RwLock<BTreeMap<String, StickyRouteSession>>>,
     route_candidate_cache: Arc<route_candidate_cache::RouteCandidateCache>,
@@ -259,7 +262,7 @@ impl CharonService {
         self
     }
 
-    pub(crate) fn metrics(&self) -> &metrics::CharonMetrics {
+    pub(crate) fn metrics(&self) -> &metrics::ManweMetrics {
         &self.metrics
     }
 
@@ -307,7 +310,7 @@ impl CharonService {
                 if !is_permission_error(&err) {
                     return Err(err);
                 }
-                Self::new(paths::arda_root().join("data").join("charon"))
+                Self::new(paths::arda_root().join("data").join("manwe"))
             }
         }
     }
@@ -319,7 +322,7 @@ impl CharonService {
         let governance_events_path = root.join("governance_events.jsonl");
         let tool_fit_ledger_path = root.join("tool_fit_ledger.jsonl");
         let provider_capability_receipts_path = root.join("provider_capability_receipts.json");
-        let socket_path = root.join("charon.sock");
+        let socket_path = root.join("manwe.sock");
         let config_path = default_provider_config_path();
         let bootstrap_state_path = default_bootstrap_state_path();
         touch(&state_path)?;
@@ -332,7 +335,7 @@ impl CharonService {
                 if config_exists { "provider_file" } else { "governed_defaults" }.to_string(),
             ),
             Err(err) => {
-                tracing::warn!(error = %err, path = %config_path.display(), "CHARON provider config load failed, using defaults");
+                tracing::warn!(error = %err, path = %config_path.display(), "MANWE provider config load failed, using defaults");
                 (default_providers(), "governed_defaults_after_config_error".to_string())
             }
         };
@@ -341,7 +344,7 @@ impl CharonService {
         {
             Ok(v) => v,
             Err(err) => {
-                tracing::warn!(error = %err, path = %provider_runtime_state_path.display(), "CHARON provider runtime state load failed; continuing from config state");
+                tracing::warn!(error = %err, path = %provider_runtime_state_path.display(), "MANWE provider runtime state load failed; continuing from config state");
                 match load_providers_from_config(&config_path, &bootstrap_state_path) {
                     Ok(v) => v,
                     Err(_) => default_providers(),
@@ -349,10 +352,13 @@ impl CharonService {
             }
         };
         if let Err(err) = persist_runtime_state_snapshot(&provider_runtime_state_path, &providers) {
-            tracing::warn!(error = %err, path = %provider_runtime_state_path.display(), "CHARON provider runtime state persist failed after config merge");
+            tracing::warn!(error = %err, path = %provider_runtime_state_path.display(), "MANWE provider runtime state persist failed after config merge");
         }
         let event_writer =
             event_writer::EventWriter::new(state_path.clone(), governance_events_path.clone());
+        let bacon_lite_writer = BaconLiteWriter::start_from_env(BaconLiteLogPaths::from_base_dir(
+            paths::bacon_lite_base(&root),
+        ))?;
         let bandit_path = root.join("bandit.json");
         let service = Self {
             root,
@@ -368,9 +374,10 @@ impl CharonService {
             providers: Arc::new(RwLock::new(providers)),
             capacity_probe_cache: Arc::new(RwLock::new(BTreeMap::new())),
             mnemosyne: None,
-            metrics: Arc::new(metrics::CharonMetrics::new()),
+            metrics: Arc::new(metrics::ManweMetrics::new()),
             http_clients: Arc::new(RwLock::new(std::collections::HashMap::new())),
             event_writer,
+            bacon_lite_writer,
             route_history: Arc::new(RwLock::new(VecDeque::with_capacity(route_history_limit()))),
             sticky_sessions: Arc::new(RwLock::new(BTreeMap::new())),
             route_candidate_cache: Arc::new(route_candidate_cache::RouteCandidateCache::new()),
@@ -402,7 +409,7 @@ impl CharonService {
         let budget_pressure = build_budget_pressure_summary(&providers);
         let alerts = build_budget_alerts(&budget_pressure);
         Ok(serde_json::json!({
-            "charon_version": "0.1.0",
+            "manwe_version": "0.1.0",
             "timestamp_utc": Utc::now().to_rfc3339(),
             "providers": providers.clone(),
             "budget_pressure": budget_pressure,
@@ -463,7 +470,7 @@ impl CharonService {
         );
         if blocking.blocking_enabled && !verdict.passed {
             return Err(ArdaError::Agent {
-                agent: "charon".to_string(),
+                agent: "manwe".to_string(),
                 message: format!(
                     "realm governance denied {}:{} under policy {}",
                     realm, action_class, verdict.policy_version
@@ -564,8 +571,8 @@ impl CharonService {
     ) -> Result<(RouteDecision, ProviderState)> {
         // C2: per-route correlation ID. 16 hex chars from rand — uuid would be
         // overkill and adds a dep. Surfaces in `route_selected` events and as
-        // the `x-charon-route-id` HTTP response header on proxy paths so an
-        // operator can trace one user request gateway → charon → upstream.
+        // the `x-manwe-route-id` HTTP response header on proxy paths so an
+        // operator can trace one user request gateway → Manwe → upstream.
         let route_id = format!("{:016x}", rand::random::<u64>());
         let bacon_task = route_governance_task(&req);
         let governance_chain = load_route_governance_chain();
@@ -645,7 +652,7 @@ impl CharonService {
                     }),
                 )?;
                 self.emit_work_signal_background(
-                    "charon",
+                    "manwe",
                     0.2,
                     JouleWorkUnit::Reasoning,
                     Some(format!("route_failed:{}:{}", req.agent_id, req.task_type)),
@@ -653,18 +660,19 @@ impl CharonService {
                 self.emit_memory_event(
                     "route_failed",
                     &format!(
-                        "CHARON failed route for {}:{} priority={}",
+                        "MANWE failed route for {}:{} priority={}",
                         req.agent_id, req.task_type, priority
                     ),
                     Some(0.35),
                     vec![
-                        "charon".to_string(),
+                        "manwe".to_string(),
                         "route".to_string(),
                         "failure".to_string(),
                     ],
                 );
-                if let Err(record_err) = enqueue_bacon_lite(
-                    "charon",
+                if let Err(record_err) = enqueue_bacon_lite_with(
+                    &self.bacon_lite_writer,
+                    "manwe",
                     "route_failed",
                     &bacon_task,
                     serde_json::json!({
@@ -674,7 +682,7 @@ impl CharonService {
                         "policy": policy,
                     }),
                 ) {
-                    tracing::debug!(error = %record_err, "CHARON bacon-lite route_failed enqueue failed");
+                    tracing::debug!(error = %record_err, "MANWE bacon-lite route_failed enqueue failed");
                 }
                 return Err(err);
             }
@@ -757,8 +765,9 @@ impl CharonService {
         drop(providers);
 
         {
-            if let Err(err) = enqueue_bacon_lite(
-                "charon",
+            if let Err(err) = enqueue_bacon_lite_with(
+                &self.bacon_lite_writer,
+                "manwe",
                 "route_selected",
                 &bacon_task,
                 serde_json::json!({
@@ -803,7 +812,7 @@ impl CharonService {
                     "model_id": decision.model_id,
                 }),
             ) {
-                tracing::debug!(error = %err, "CHARON bacon-lite route_selected enqueue failed");
+                tracing::debug!(error = %err, "MANWE bacon-lite route_selected enqueue failed");
             }
             self.append_state_event(
                 "route_selected",
@@ -833,7 +842,7 @@ impl CharonService {
                 }),
             )?;
             self.emit_work_signal_background(
-                "charon",
+                "manwe",
                 (candidate.score / 100.0).clamp(0.2, 1.0),
                 JouleWorkUnit::Reasoning,
                 Some(format!("route:{}:{}", req.agent_id, req.task_type)),
@@ -846,7 +855,7 @@ impl CharonService {
             self.emit_memory_event(
                 "route_selected",
                 &format!(
-                    "CHARON routed {}:{} [{}:{}] -> {}:{} triad_passed={} love_eq={:.2}",
+                    "MANWE routed {}:{} [{}:{}] -> {}:{} triad_passed={} love_eq={:.2}",
                     req.agent_id,
                     req.task_type,
                     decision.execution_lane,
@@ -858,7 +867,7 @@ impl CharonService {
                 ),
                 Some((candidate.score / 100.0).clamp(0.0, 1.0)),
                 vec![
-                    "charon".to_string(),
+                    "manwe".to_string(),
                     "route".to_string(),
                     decision.execution_lane.clone(),
                     if decision.governance.triad_passed {
@@ -871,8 +880,7 @@ impl CharonService {
             self.metrics.observe_route_pick(
                 &decision.provider_id,
                 &decision.model_id,
-                &req.task_type,
-                &decision.execution_lane,
+                &decision.route_class,
                 pick_score,
             );
             self.record_route_history(RouteHistoryEntry {

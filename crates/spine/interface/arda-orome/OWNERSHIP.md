@@ -3,19 +3,34 @@
 Crate: `crates/spine/interface/arda-orome`
 Owner: HADES / interface layer
 Status: active
-Boundary: provider runtime abstraction, dispatch receipt, context cache, and ambient routing surfaces.
+Reviewed: 2026-07-26
 
-This crate owns:
-- typed provider runtime contracts and dispatch receipt semantics
-- provider-level timeout/retry/fallback behavior
-- shared bounded async context cache
-- ambient interface adapters that do not perform persistence or process lifecycle
+## This crate owns
 
-This crate does not own:
-- transport-exclusive binding or daemon lifecycle
-- policy enforcement beyond returning typed dispatch outcomes
-- direct external service persistence
+- A2H/A2A message and envelope contracts exposed from the crate root.
+- Provider adapter, registry, dispatch, fleet-scope, streaming, metrics, and receipt contracts.
+- Health-model and route-governance protobuf definitions and generated Rust surfaces.
+- Typed interface/event payload schemas.
+- Ledger-backed task-approval and interruption record creation.
 
-Preferred consumer path:
-- `arda-manwe` / `arda-varda` through explicit `ProviderRuntime` / `DispatchReceipt` interfaces
-- `arda-orome` root re-exports as canonical public path
+## This crate does not own
+
+- Provider or model selection, route fitness, or inference policy; Manwe owns those decisions.
+- Transport-exclusive process binding or daemon supervision.
+- Provider credentials, endpoints, or deployment secrets.
+- Governance policy definitions; it consumes `arda_core::GovernanceGates`.
+- Ledger implementation; it consumes `arda_core::Ledger`.
+- Behavior in currently unwired source files until a reviewed wire/migrate decision is completed.
+
+## Change authority
+
+- gRPC schema changes require coordinated Manwe compatibility checks.
+- Provider public-contract changes require `arda-engine` checks.
+- A2H contract changes require `arda-aule --features full-cli` checks.
+- Governance record changes require central governance/ledger review.
+- Unwired source retirement or exposure requires the evidence and gates in `PLAN.md`.
+
+## Canonical consumer path
+
+Consumers should import crate-root re-exports or the public `provider`/`grpc` modules. They must not
+depend on files that are absent from the `lib.rs` module graph.

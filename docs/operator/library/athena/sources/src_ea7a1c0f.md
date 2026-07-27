@@ -1,12 +1,12 @@
 # ATHENA Source Book
 
 - source_id: `src_ea7a1c0f`
-- pipeline_id: `athpl_b576b6266318478285a3caaaa0d655b1`
+- pipeline_id: `athpl_c26b9b8a19b5446c85b393975c4c079e`
 - status: `deep`
 - source_type: `RawNote`
-- updated_at_utc: `2026-07-26T06:22:50.786962335+00:00`
+- updated_at_utc: `2026-07-27T05:56:54.634785508+00:00`
 - url: context memory routing safety tooling terminal agent harness
-- athena_book: `/tmp/.tmp2cE4Be/books/src_ea7a1c0f.jsonl`
+- athena_book: `/tmp/.tmpX4Ri4L/books/src_ea7a1c0f.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

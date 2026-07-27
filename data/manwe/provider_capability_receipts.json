@@ -1,6 +1,6 @@
 {
   "schema_version": "annunimas.charon.provider-capability-receipts.v1",
-  "generated_at_utc": "2026-07-26T08:23:43.131809465+00:00",
+  "generated_at_utc": "2026-07-27T17:34:15.745195266+00:00",
   "receipts": {
     "edge_backbone::ternary-bonsai-27b-q2_0": {
       "provider_id": "edge_backbone",
@@ -35,14 +35,45 @@
     "edge_beelink_light::Ternary-Bonsai-8B-Q2_0": {
       "provider_id": "edge_beelink_light",
       "model_id": "Ternary-Bonsai-8B-Q2_0",
-      "updated_at_utc": "2026-07-26T06:50:33.746886423+00:00",
+      "updated_at_utc": "2026-07-27T09:05:53.265433803+00:00",
       "capabilities": {
         "basic_chat": {
           "state": "passed",
           "source": "passive_proxy_observation",
-          "observed_at_utc": "2026-07-26T06:50:33.746886423+00:00",
-          "expires_at_utc": "2026-08-02T06:50:33.746886423+00:00",
+          "observed_at_utc": "2026-07-27T09:05:53.265433803+00:00",
+          "expires_at_utc": "2026-08-03T09:05:53.265433803+00:00",
           "outcome_class": "success",
+          "status_code": 200
+        },
+        "tools": {
+          "state": "passed",
+          "source": "passive_proxy_observation",
+          "observed_at_utc": "2026-07-27T05:23:25.397985226+00:00",
+          "expires_at_utc": "2026-08-03T05:23:25.397985226+00:00",
+          "outcome_class": "valid_tool_call",
+          "status_code": 200
+        }
+      }
+    },
+    "edge_core::Qwen3.5-9B-Q4_K_M": {
+      "provider_id": "edge_core",
+      "model_id": "Qwen3.5-9B-Q4_K_M",
+      "updated_at_utc": "2026-07-27T17:34:15.745195266+00:00",
+      "capabilities": {
+        "basic_chat": {
+          "state": "passed",
+          "source": "passive_proxy_observation",
+          "observed_at_utc": "2026-07-27T17:34:15.745195266+00:00",
+          "expires_at_utc": "2026-08-03T17:34:15.745195266+00:00",
+          "outcome_class": "success",
+          "status_code": 200
+        },
+        "tools": {
+          "state": "passed",
+          "source": "passive_proxy_observation",
+          "observed_at_utc": "2026-07-27T09:08:44.359233049+00:00",
+          "expires_at_utc": "2026-08-03T09:08:44.359233049+00:00",
+          "outcome_class": "valid_tool_call",
           "status_code": 200
         }
       }
@@ -50,14 +81,22 @@
     "edge_guardhouse::Qwen3.5-4B-Q4_K_M.gguf": {
       "provider_id": "edge_guardhouse",
       "model_id": "Qwen3.5-4B-Q4_K_M.gguf",
-      "updated_at_utc": "2026-07-23T17:54:59.093959471+00:00",
+      "updated_at_utc": "2026-07-27T08:55:30.357546907+00:00",
       "capabilities": {
         "basic_chat": {
           "state": "passed",
           "source": "passive_proxy_observation",
-          "observed_at_utc": "2026-07-23T17:54:59.093959471+00:00",
-          "expires_at_utc": "2026-07-30T17:54:59.093959471+00:00",
+          "observed_at_utc": "2026-07-27T08:55:30.357546907+00:00",
+          "expires_at_utc": "2026-08-03T08:55:30.357546907+00:00",
           "outcome_class": "success",
+          "status_code": 200
+        },
+        "structured_output": {
+          "state": "failed",
+          "source": "passive_proxy_observation",
+          "observed_at_utc": "2026-07-26T17:42:24.445208511+00:00",
+          "expires_at_utc": "2026-07-27T17:42:24.445208511+00:00",
+          "outcome_class": "malformed_structured_output",
           "status_code": 200
         }
       }
@@ -65,13 +104,13 @@
     "google::gemini-3.1-flash-lite": {
       "provider_id": "google",
       "model_id": "gemini-3.1-flash-lite",
-      "updated_at_utc": "2026-07-26T08:02:34.220940229+00:00",
+      "updated_at_utc": "2026-07-26T17:51:34.225322292+00:00",
       "capabilities": {
         "basic_chat": {
           "state": "passed",
           "source": "passive_proxy_observation",
-          "observed_at_utc": "2026-07-26T08:02:34.220940229+00:00",
-          "expires_at_utc": "2026-08-02T08:02:34.220940229+00:00",
+          "observed_at_utc": "2026-07-26T17:51:34.225322292+00:00",
+          "expires_at_utc": "2026-08-02T17:51:34.225322292+00:00",
           "outcome_class": "success",
           "status_code": 200
         }
@@ -80,13 +119,13 @@
     "google::gemini-3.5-flash-lite": {
       "provider_id": "google",
       "model_id": "gemini-3.5-flash-lite",
-      "updated_at_utc": "2026-07-26T08:23:43.131809465+00:00",
+      "updated_at_utc": "2026-07-26T17:41:10.537894077+00:00",
       "capabilities": {
         "basic_chat": {
           "state": "passed",
           "source": "passive_proxy_observation",
-          "observed_at_utc": "2026-07-26T08:23:43.131809465+00:00",
-          "expires_at_utc": "2026-08-02T08:23:43.131809465+00:00",
+          "observed_at_utc": "2026-07-26T17:41:10.537894077+00:00",
+          "expires_at_utc": "2026-08-02T17:41:10.537894077+00:00",
           "outcome_class": "success",
           "status_code": 200
         }
@@ -110,13 +149,36 @@
     "openai_sub::gpt-5.5": {
       "provider_id": "openai_sub",
       "model_id": "gpt-5.5",
-      "updated_at_utc": "2026-07-23T17:24:06.662687179+00:00",
+      "updated_at_utc": "2026-07-27T05:28:36.575926295+00:00",
       "capabilities": {
         "basic_chat": {
           "state": "passed",
           "source": "passive_proxy_observation",
-          "observed_at_utc": "2026-07-23T17:24:06.662687179+00:00",
-          "expires_at_utc": "2026-07-30T17:24:06.662687179+00:00",
+          "observed_at_utc": "2026-07-27T05:28:36.575926295+00:00",
+          "expires_at_utc": "2026-08-03T05:28:36.575926295+00:00",
+          "outcome_class": "success",
+          "status_code": 200
+        },
+        "tools": {
+          "state": "passed",
+          "source": "passive_proxy_observation",
+          "observed_at_utc": "2026-07-27T05:28:36.575926295+00:00",
+          "expires_at_utc": "2026-08-03T05:28:36.575926295+00:00",
+          "outcome_class": "success",
+          "status_code": 200
+        }
+      }
+    },
+    "openrouter::nvidia/nemotron-3-super-120b-a12b:free": {
+      "provider_id": "openrouter",
+      "model_id": "nvidia/nemotron-3-super-120b-a12b:free",
+      "updated_at_utc": "2026-07-26T16:24:14.548723173+00:00",
+      "capabilities": {
+        "basic_chat": {
+          "state": "passed",
+          "source": "passive_proxy_observation",
+          "observed_at_utc": "2026-07-26T16:24:14.548723173+00:00",
+          "expires_at_utc": "2026-08-02T16:24:14.548723173+00:00",
           "outcome_class": "success",
           "status_code": 200
         }

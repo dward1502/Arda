@@ -153,7 +153,11 @@ where
 {
     match future.await {
         Ok(v) => (StatusCode::OK, Json(v)).into_response(),
-        Err(err) => (StatusCode::INTERNAL_SERVER_ERROR, Json(json!(failure_body(err)))).into_response(),
+        Err(err) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(json!(failure_body(err))),
+        )
+            .into_response(),
     }
 }
 
@@ -174,7 +178,9 @@ mod tests {
         let temp = tempfile::tempdir().expect("tempdir");
         let plutus_home = temp.path().join("plutus");
         std::env::set_var("ARDA_PLUTUS_HOME", &plutus_home);
-        let service = OracleService::from_home(temp.path()).await.expect("service");
+        let service = OracleService::from_home(temp.path())
+            .await
+            .expect("service");
         let evidence = EvidenceRef::supplied(
             "http-report",
             "http-fixture://report",

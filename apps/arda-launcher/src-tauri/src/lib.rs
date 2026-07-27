@@ -9,7 +9,7 @@ pub mod onboarding;
 
 use arda_contract_registry::registry::ContractRegistry;
 use serde::Serialize;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 fn resolve_root(root: Option<String>) -> PathBuf {
     let seed = match root {
@@ -20,7 +20,12 @@ fn resolve_root(root: Option<String>) -> PathBuf {
             .unwrap_or_else(|| std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."))),
     };
 
-    if seed.join("core").join("state").join("contract_registry.json").exists() {
+    if seed
+        .join("core")
+        .join("state")
+        .join("contract_registry.json")
+        .exists()
+    {
         return seed;
     }
 
@@ -131,7 +136,11 @@ fn registry_status(root: Option<String>) -> RegistryStatusPayload {
     payload.schema_version = registry.schema_version;
     payload.authority = registry.authority;
     payload.track_count = tracks.len();
-    payload.gate_status = if tracks.iter().all(|t| t.status == "active") && tracks.iter().all(|t| !t.source_modules.is_empty() || !t.receipt_stores.is_empty()) {
+    payload.gate_status = if tracks.iter().all(|t| t.status == "active")
+        && tracks
+            .iter()
+            .all(|t| !t.source_modules.is_empty() || !t.receipt_stores.is_empty())
+    {
         "pass".into()
     } else {
         "warn".into()
@@ -149,8 +158,7 @@ fn readiness_status(root: Option<String>) -> Option<crate::onboarding::Readiness
         Err(_) => return None,
     };
     Some(crate::onboarding::build_readiness_projection(
-        &profile,
-        &root_path,
+        &profile, &root_path,
     ))
 }
 

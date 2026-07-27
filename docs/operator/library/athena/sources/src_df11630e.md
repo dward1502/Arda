@@ -1,27 +1,21 @@
 # ATHENA Source Book
 
 - source_id: `src_df11630e`
-- pipeline_id: `athpl_8cb99dc9ad66406d9366fadf82a16182`
+- pipeline_id: `athpl_c082b6d880ca4f348db515f6ec333f3e`
 - status: `deep`
 - source_type: `GithubRepo`
-- updated_at_utc: `2026-07-26T06:22:49.285533133+00:00`
+- updated_at_utc: `2026-07-27T05:56:54.459242763+00:00`
 - url: https://github.com/D4Vinci/Scrapling
-- athena_book: `/tmp/.tmpd2fENy/books/src_df11630e.jsonl`
+- athena_book: `/tmp/.tmpA35ca4/books/src_df11630e.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary
 
-**Title**: D4Vinci/Scrapling — 🕷️ An adaptive Web Scraping framework that handles everything from a single request to a full-scale 
+**Title**: https://github.com/D4Vinci/Scrapling
 
-🕷️ An adaptive Web Scraping framework that handles everything from a single request to a full-scale crawl! Primary language: Python. License: BSD-3-Clause. Stars: 71278; last pushed 2026-07-25T16:07:12Z. Top deps: authors, classifiers, cssselect>, description, keywords, license, lxml>, maintainers (+8 more). README excerpt: <!-- mcp-name: io.github.D4Vinci/Scrapling -->
+Initial shallow ingest completed for GithubRepo.
 
-<h1 align="center">
-    <a href="https://scrapling.readthedocs.io">
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/D4Vinci/Scrapling/main/docs/assets/cover_dark.svg?sanitize=true">
-          <img alt="Scrapling Poster" src="https://raw.githubusercontent.com/D4Vinci/Scrapling/main/doc
-
-**Tags**: ai, ai-scraping, automation, crawler, crawling, crawling-python, data, data-extraction, githubrepo, manifest_pyproject, mcp, mcp-server, playwright, python, scraping, selectors, stealth, web-scraper, web-scraping, web-scraping-python, webscraping, xpath
+**Tags**: githubrepo
 
 **Deep Recommended**: true
 
@@ -29,19 +23,13 @@
 
 ## Deep Analysis
 
-🕷️ An adaptive Web Scraping framework that handles everything from a single request to a full-scale crawl! Primary language: Python. License: BSD-3-Clause. Stars: 71278; last pushed 2026-07-25T16:07:12Z. Top deps: authors, classifiers, cssselect>, description, keywords, license, lxml>, maintainers (+8 more). README excerpt: <!-- mcp-name: io.github.D4Vinci/Scrapling -->
-
-<h1 align="center">
-    <a href="https://scrapling.readthedocs.io">
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/D4Vinci/Scrapling/main/docs/assets/cover_dark.svg?sanitize=true">
-          <img alt="Scrapling Poster" src="https://raw.githubusercontent.com/D4Vinci/Scrapling/main/doc Deep synthesis generated from deterministic governance scaffold.
+Initial shallow ingest completed for GithubRepo. Deep synthesis generated from deterministic governance scaffold.
 
 - confidence: `0.8000`
 - triad_passed: `true`
 - love_alignment: `0.6000`
-- joule_estimated: `44.6550`
-- joule_actual: `48.2274`
+- joule_estimated: `9.7400`
+- joule_actual: `10.5192`
 
 ## Implementation Brief
 

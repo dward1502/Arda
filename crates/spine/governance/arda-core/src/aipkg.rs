@@ -153,6 +153,12 @@ pub struct AipkgValidationReceipt {
 mod tests {
     use super::*;
 
+    use serde_json;
+
+    use crate::aipkg::AipkgExecutionReceipt;
+    use crate::aipkg::AipkgManifest;
+    use crate::aipkg::AipkgPreflightReceipt;
+
     fn valid_manifest() -> AipkgManifest {
         AipkgManifest {
             manifest_version: "0.1".into(),
@@ -195,5 +201,52 @@ mod tests {
         manifest.governance.joulework_budget_required = false;
         let err = manifest.validate().unwrap_err().to_string();
         assert!(err.contains("governance"));
+    }
+
+    #[test]
+    fn aipkg_preflight_check_succeeds_for_valid_manifest() {
+        let manifest = valid_manifest();
+        let receipt = manifest.preflight_check().unwrap();
+        assert!(receipt.approved);
+        assert_eq!(receipt.package_id, manifest.package_id);
+        assert_eq!(receipt.digest, manifest.package_digest);
+        assert_eq!(receipt.runtime_profile, manifest.runtime_profile);
+    }
+
+    #[test]
+    fn aipkg_preflight_round_trips_through_json() {
+        let manifest = valid_manifest();
+        let receipt = manifest.preflight_check().unwrap();
+        let json = serde_json::to_string(&receipt).expect("aipkg preflight receipt serializes");
+        let round_trip: AipkgPreflightReceipt =
+            serde_json::from_str(&json).expect("aipkg preflight receipt deserializes");
+        assert_eq!(receipt.package_id, round_trip.package_id);
+        assert_eq!(receipt.digest, round_trip.digest);
+    }
+
+    #[test]
+    fn aipkg_execution_receipt_can_be_serialized_as_json() {
+        let receipt = AipkgExecutionReceipt {
+            package_id: "org.arda.demo".into(),
+            version: "0.1.0".into(),
+            started_at_utc: "2026-07-21T00:00:00Z".into(),
+            completed_at_utc: "2026-07-21T00:00:05Z".into(),
+            joule_cost_actual: 120,
+            exit_code: 0,
+            output_digest: "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".into(),
+            signature: "sig:dummy".into(),
+        };
+        assert!(serde_json::to_string(&receipt)
+            .expect("execution receipt serializable")
+            .contains("org.arda.demo"));
+    }
+
+    #[test]
+    fn aipkg_receipt_policy_match_requires_all_required_booleans() {
+        let manifest = valid_manifest();
+        assert!(manifest.receipts.preflight_required);
+        assert!(manifest.receipts.execution_required);
+        assert!(manifest.receipts.validation_required);
+        assert!(manifest.receipts.signatures_required);
     }
 }

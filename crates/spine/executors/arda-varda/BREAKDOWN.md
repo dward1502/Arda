@@ -27,11 +27,11 @@ LLM provider for research/code/decision/general tasks.
 ## Where it lives
 - Crate root: `/var/home/mythos/Eregion/Arda/crates/spine/executors/arda-varda`
 - Configs/data: `data/athena/*`, `core/state/*`, env-overridable paths
-- Tests: 115 passing integration/unit tests + 0 doc tests
+- Tests: 116 passing integration/unit tests + 0 doc tests
 
 ## Verification status
 - `cargo check -p arda-varda --all-features`: OK
-- `cargo test -p arda-varda`: 115 passed, 0 failed
+- `cargo test -p arda-varda`: 116 passed, 0 failed
 - Coverage highlights: ingest pipeline, crawlers, GitHub/scholarly
   extraction, query, deep-analysis queue, policy promotion, IPC/HTTP
   transport, interceptor pipeline, human ingestion scanner
@@ -87,6 +87,8 @@ LLM provider for research/code/decision/general tasks.
     `after` hooks
 - **Governance/telemetry hooks**:
   - triad validation, bacon-lite logging, resonance/love/joule scoring
+  - canonical-store Bacon-Lite evidence resolves under the Arda root; isolated
+    store roots retain governance evidence locally
   - `AthenaMetrics` snapshots, deep-queue status counts
   - persisted full-refresh timestamps, `/status` source freshness summaries,
     and `athena_source_age_seconds{source_id}` Prometheus gauges
@@ -120,10 +122,16 @@ LLM provider for research/code/decision/general tasks.
 | `transport/` | IPC + optional HTTP/SSE daemon transport |
 | `README.md` | Sigil/metadata/capabilities overview |
 
+Current documentation remains beside the crate for implementation proximity.
+Superseded assessments and generated validation evidence are retained under
+`docs/archive/arda-varda/`; the crate owns no nested `docs/` hierarchy.
+
 ## Consumer wiring
 - Acts as executor target for Athena workflows
-- Depends on `arda-core`, `arda-governance`, `arda-vaire`,
-  `arda-economics`, `arda-mandos`
+- Direct runtime dependencies are `arda-core`, `arda-governance`, `arda-vaire`,
+  and `arda-economics` (plus the workspace libraries listed in `Cargo.toml`).
+- Mandos/boardroom consumers integrate through durable queue and receipt
+  contracts rather than a direct Cargo dependency.
 - Indirectly wired into boardroom/council/Hades via interceptor
   pipeline and planning-task receipts
 
@@ -132,20 +140,12 @@ LLM provider for research/code/decision/general tasks.
    current cache is process-local and keyed by a full content hash.
 2. Add configurable stale-source thresholds and alerts atop the source-age
    gauges; freshness metadata and pipeline correlation are complete.
-3. Normalize duplicated layout roots: `ingest/layout.rs` +
-   `human/library_root` + `machine/library_root` should share one
-   `WorkspaceLayout`
-4. Make `AthenaStore` async or clearly document sync-blocking regions;
-   current sync/async mix shows up in `run_async_for_sync` bridge
-5. Promote the shared JSONL appender into an append-only ledger trait if
+3. Consider an async-native `AthenaStore` only if profiling shows the documented
+   synchronous boundary plus `spawn_blocking` transport isolation is inadequate.
+4. Promote the shared JSONL appender into an append-only ledger trait if
    non-Athena crates need the same buffering and durability contract.
-6. Unify `ingest/` and `ingest/ingest/` directories—repo has both
-7. Add HTTP SSE stream for deep-analysis queue events instead of only
-   polling JSONL
-8. Expose `KnowledgeVault` synthesis queue through `engine`/CLI so it’s
+5. Expose `KnowledgeVault` synthesis queue through `engine`/CLI so it’s
    telemetry-visible
-9. Add schema-version migration for `deep_queue.jsonl` /
-   `policy_readiness.jsonl` so upgrades don’t break old records
-10. Reduce `AthenaStore` field count by grouping paths into typed structs
-11. Wire governance/learning signals into `engine` metrics or dashboard
-12. Split `policy_readiness` into its own crate if it grows further
+6. Wire governance/learning signals into `engine` metrics or dashboard.
+7. Split `policy_readiness` into its own crate only if it gains independent
+   consumers and lifecycle authority.

@@ -148,11 +148,11 @@ fn isolate_provider_sources(dir: &std::path::Path) {
     );
     std::env::set_var(
         "ARDA_MANWE_PROVIDER_CONFIG",
-        dir.join("charon.providers.toml"),
+        dir.join("manwe.providers.toml"),
     );
     std::env::set_var(
-        "ARDA_MANWE_PROVIDER_CONFIG",
-        dir.join("charon.providers.toml"),
+        "ANNUNIMAS_CHARON_PROVIDER_CONFIG",
+        dir.join("legacy-charon.providers.toml"),
     );
     std::env::set_var(
         "ARDA_FLEET_BOOTSTRAP_STATE",
@@ -163,11 +163,11 @@ fn isolate_provider_sources(dir: &std::path::Path) {
 fn isolate_test_provider_config(dir: &std::path::Path) {
     std::env::set_var(
         "ARDA_MANWE_PROVIDER_CONFIG",
-        dir.join("missing-charon.providers.toml"),
+        dir.join("missing-manwe.providers.toml"),
     );
     std::env::set_var(
-        "ARDA_MANWE_PROVIDER_CONFIG",
-        dir.join("missing-charon.providers.toml"),
+        "ANNUNIMAS_CHARON_PROVIDER_CONFIG",
+        dir.join("missing-legacy-charon.providers.toml"),
     );
     std::env::set_var("MISTRAL_API_KEY", "test");
     std::env::set_var("ZAI_API_KEY", "test");
@@ -181,7 +181,7 @@ fn isolate_test_provider_config(dir: &std::path::Path) {
 fn clear_provider_sources() {
     std::env::remove_var("ARDA_PROVIDER_INTELLIGENCE_PATH");
     std::env::remove_var("ARDA_MANWE_PROVIDER_CONFIG");
-    std::env::remove_var("ARDA_MANWE_PROVIDER_CONFIG");
+    std::env::remove_var("ANNUNIMAS_CHARON_PROVIDER_CONFIG");
     std::env::remove_var("ARDA_FLEET_BOOTSTRAP_STATE");
 }
 
@@ -233,7 +233,7 @@ async fn route_selects_provider_and_writes_state() {
     assert!(status.providers_total >= 1);
     assert_eq!(status.config_source, "governed_defaults");
     assert_eq!(status.catalog_generation, 1);
-    assert!(status.config_path.ends_with("charon.providers.toml"));
+    assert!(status.config_path.ends_with("manwe.providers.toml"));
     assert!(status
         .governance_events_path
         .ends_with("governance_events.jsonl"));
@@ -1433,7 +1433,7 @@ fn local_transport_failure_triggers_cooldown() {
 }
 
 #[test]
-fn local_orchestrator_timeout_is_shorter_than_cloud_default() {
+fn local_timeout_budgets_cover_tool_iteration_latency() {
     // local_fallback + non-backbone edge_* providers take the generic local
     // timeout path (30s orchestrator). edge_backbone (sovereign 35B model)
     // intentionally has longer timeouts (120s orchestrator) because of the
@@ -1445,6 +1445,17 @@ fn local_orchestrator_timeout_is_shorter_than_cloud_default() {
     assert_eq!(
         super::proxy_timeout_for_provider("edge_worker_light", "execution"),
         std::time::Duration::from_secs(20)
+    );
+    // The live Ternary tool lane can spend nearly 20 seconds producing the
+    // first tool call. Its follow-up must not hit the generic 20-second local
+    // deadline and put the otherwise healthy provider into cooldown.
+    assert_eq!(
+        super::proxy_timeout_for_provider("edge_beelink_light", "execution"),
+        std::time::Duration::from_secs(90)
+    );
+    assert_eq!(
+        super::proxy_timeout_for_provider("edge_beelink_light", "orchestrator"),
+        std::time::Duration::from_secs(120)
     );
     assert_eq!(
         super::proxy_timeout_for_provider("openrouter", "orchestrator"),
@@ -2639,7 +2650,7 @@ fn stale_fleet_bootstrap_does_not_override_provider_health() {
 }
 
 #[test]
-fn attach_charon_route_metadata_stamps_response_payload() {
+fn attach_manwe_route_metadata_stamps_response_payload() {
     let mut response = serde_json::json!({"id":"chatcmpl-test","choices":[]});
     let decision = RouteDecision {
         provider_id: "edge_backbone".to_string(),
@@ -2664,10 +2675,10 @@ fn attach_charon_route_metadata_stamps_response_payload() {
         route_id: "route-test".to_string(),
     };
 
-    super::attach_charon_route_metadata(&mut response, &decision, "edge_backbone", 42);
+    super::attach_manwe_route_metadata(&mut response, &decision, "edge_backbone", 42);
 
     let route = response
-        .get("_charon_route")
+        .get("_manwe_route")
         .and_then(|value| value.as_object())
         .expect("route");
     assert_eq!(

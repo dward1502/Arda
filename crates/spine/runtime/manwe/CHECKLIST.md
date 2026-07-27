@@ -7,6 +7,17 @@ Scope: `crates/spine/runtime/manwe`
 This checklist is ordered by runtime risk. Keep port `7171` frozen until every
 engine, launcher, registry, and operator consumer is updated together.
 
+## Evolution follow-up — 2026-07-26
+
+- [x] Add bounded deterministic task-class benchmark receipts without running
+  judge-model work on constrained edge nodes.
+- [x] Keep the three obsolete backbone services intentionally retired, repair
+  the Beelink Carnice systemd lane, verify live inference, and enroll
+  `edge_carnice` in governed provider configuration.
+- [x] Align static and governed metrics on the `manwe_*` namespace, Prometheus
+  base units, and bounded `provider_id`/`model`/`route_class` labels; remove
+  generated `charon_*` aliases and free-form task labels.
+
 ## Review baseline
 
 - [x] Trace the active library and binary module graphs from `lib.rs` and
@@ -56,7 +67,7 @@ engine, launcher, registry, and operator consumer is updated together.
   the adaptive provider/state files.
 - [x] Make the health/capabilities surfaces report which config source and
   catalog generation are active.
-- [X] Reconcile remaining `ARDA_MANWE_*` compatibility variables with canonical
+- [x] Reconcile remaining Annunimas/Charon compatibility variables with canonical
   `ARDA_MANWE_*` names; document aliases before deprecating any variable.
   - Provider, fleet-catalog, and state-directory path variables now use
     canonical-first precedence; policy/tuning variables still require inventory.
@@ -64,6 +75,19 @@ engine, launcher, registry, and operator consumer is updated together.
   and fleet configs at process level.
 - [x] Keep provider credentials out of health, provider, receipt, and log
   payloads while adding source diagnostics.
+
+## P0 — Canonical path ownership follow-up
+
+- [x] Resolve static fleet defaults, static route receipts, adaptive state, and
+  daemon socket paths through `ARDA_ROOT` or the build-derived workspace root.
+- [x] Replace the remaining adaptive `data/charon` default with `data/manwe`.
+- [x] Restore canonical-first fleet precedence with
+  `ANNUNIMAS_CHARON_FLEET_CONFIG` retained as the lower-priority compatibility
+  alias.
+- [x] Retain `ARDA_ROUTE_*` as the intentional shared route-policy namespace;
+  workspace consumers include Manwe, Varda, and Aule.
+- [x] Run static and adaptive process smoke tests from the Manwe crate directory
+  and reject any crate-local `core/`, `data/`, or operator-library mutation.
 
 ## P1 — Reconcile the source graph
 
@@ -189,3 +213,19 @@ engine, launcher, registry, and operator consumer is updated together.
   Removed two tracked Python bytecode files and added a local cache ignore.
   Default, adaptive, and all-feature checks/tests retained their prior counts;
   static/adaptive process smoke, rustfmt, and documentation validation passed.
+- 2026-07-26: recovered the failed resource-policy implementation. Restored
+  bounded transient-cooldown fallback, wired per-host fleet concurrency through
+  provider selection and resource acquisition, released the limiter catalog
+  mutex before queue waits, and preferred equivalent alternate resource groups
+  when the selected group is saturated. Default and all-feature Clippy pass
+  with `-D warnings`; all-feature tests pass with 273 library and 27 binary
+  tests.
+- 2026-07-26: canonical path ownership now roots fleet defaults, static route
+  receipts, adaptive state, the daemon socket, and Bacon-Lite outputs outside
+  the crate working directory. Default and adaptive Clippy pass with
+  `-D warnings`; default tests pass with 1 library + 25 binary tests; adaptive
+  tests pass with 274 library + 26 binary tests; and the crate-CWD static/full
+  adaptive process smoke passes without mutating crate-local output trees.
+  All-feature Clippy now passes with `-D warnings`, and all-feature tests pass
+  with 274 library + 27 binary tests after restoring Orome's documented module
+  boundary.

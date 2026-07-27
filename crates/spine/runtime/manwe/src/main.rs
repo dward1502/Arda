@@ -3,7 +3,7 @@
 //!
 //! Default: listens on `127.0.0.1:7171` and serves `/v1/chat/completions`
 //! + `/v1/models` against a static provider catalog. When `MANWE_ROUTING_MODE=adaptive`
-//! or `--adaptive` is set, requests may flow through the routing adapter.
+//!   or `--adaptive` is set, requests may flow through the routing adapter.
 
 mod config;
 #[cfg(feature = "grpc")]
@@ -31,7 +31,7 @@ use std::time::Instant;
 
 use config::{ManweConfig, StaticConfigSource};
 use provider::{ProviderCatalog, ProviderDefinition};
-use receipts::{receipt_from_response, ReceiptWriter};
+use receipts::{receipt_from_response, QualityExpectation, ReceiptWriter};
 use resource_limits::ResourceGroupLimiter;
 use tokio::sync::RwLock;
 #[cfg(feature = "telemetry")]
@@ -60,15 +60,15 @@ struct Cli {
     grpc: bool,
 }
 
+#[cfg(feature = "adaptive")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum RuntimeMode {
     Static,
-    #[cfg(feature = "adaptive")]
     FullGovernedAdaptive,
 }
 
+#[cfg(feature = "adaptive")]
 fn runtime_mode(adaptive: bool) -> RuntimeMode {
-    #[cfg(feature = "adaptive")]
     if adaptive {
         return RuntimeMode::FullGovernedAdaptive;
     }
@@ -169,7 +169,7 @@ async fn main() -> anyhow::Result<()> {
         adaptive,
         catalog: catalog.clone(),
         resource_limits: ResourceGroupLimiter::default(),
-        receipts: ReceiptWriter::new("data/manwe/route_receipts.jsonl"),
+        receipts: ReceiptWriter::new(config::arda_root().join("data/manwe/route_receipts.jsonl")),
         config_path: Arc::new(cli.config.clone()),
         config_source,
         fleet_config_path: Arc::new(fleet_config_path.clone()),
@@ -435,7 +435,7 @@ manwe_runtime_info{runtime=\"arda-manwe\"} 1\n\
     providers.sort_by(|left, right| left.id.cmp(&right.id));
     for provider in providers {
         output.push_str(&format!(
-            "manwe_provider_healthy{{provider_id=\"{}\",model_id=\"{}\"}} {}\n",
+            "manwe_provider_healthy{{provider_id=\"{}\",model=\"{}\"}} {}\n",
             provider.id,
             provider.model_id,
             u8::from(provider.healthy),
@@ -457,7 +457,7 @@ async fn chat_completions(State(state): State<AppState>, Json(req): Json<Value>)
     let local_only = requested_model == "local/auto"
         || routing_value(&req, "origin_preference") == Some("local")
         || routing_value(&req, "inference_origin") == Some("local");
-    let provider = {
+    let mut provider = {
         state
             .catalog
             .read()
@@ -471,6 +471,32 @@ async fn chat_completions(State(state): State<AppState>, Json(req): Json<Value>)
             )
             .cloned()
     };
+
+    if state.adaptive {
+        if let Some(selected) = provider.as_ref() {
+            let resource_group = selected
+                .resource_group
+                .as_deref()
+                .unwrap_or(selected.id.as_str());
+            if state.resource_limits.is_saturated(resource_group).await {
+                if let Some(alternate) = state
+                    .catalog
+                    .read()
+                    .await
+                    .resolve_alternate_resource_group(
+                        selected,
+                        &requested_model,
+                        &task_type,
+                        required_context,
+                        local_only,
+                    )
+                    .cloned()
+                {
+                    provider = Some(alternate);
+                }
+            }
+        }
+    }
 
     if let Some(provider) = provider {
         return proxy_fleet_provider(
@@ -572,7 +598,10 @@ async fn proxy_fleet_provider(
         .clone()
         .unwrap_or_else(|| provider.id.clone());
     let started = Instant::now();
-    let lease = match resource_limits.acquire(&resource_group).await {
+    let lease = match resource_limits
+        .acquire(&resource_group, provider.resource_group_concurrency)
+        .await
+    {
         Ok(lease) => lease,
         Err(error) => {
             let receipt = receipt_from_response(
@@ -601,9 +630,15 @@ async fn proxy_fleet_provider(
 
     let expected_exact = req
         .get("manwe_quality_expectation")
-        .and_then(|expectation| expectation.get("exact"))
-        .and_then(Value::as_str)
-        .map(str::to_string);
+        .and_then(|expectation| {
+            Some(QualityExpectation {
+                exact: expectation.get("exact")?.as_str()?.to_string(),
+                benchmark_id: expectation
+                    .get("benchmark_id")
+                    .and_then(Value::as_str)
+                    .map(str::to_string),
+            })
+        });
     if let Some(object) = req.as_object_mut() {
         object.remove("manwe_quality_expectation");
     }

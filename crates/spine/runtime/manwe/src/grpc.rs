@@ -54,7 +54,7 @@ impl HealthModelService for HealthServer {
     ) -> Result<tonic::Response<ListModelsResponse>, tonic::Status> {
         let created = chrono::Utc::now().timestamp();
         let mut data = Vec::new();
-        for (_name, p) in &self.state.config.providers {
+        for p in self.state.config.providers.values() {
             let models = if p.models.is_empty() {
                 vec!["default".into()]
             } else {

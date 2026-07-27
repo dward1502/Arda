@@ -28,3 +28,9 @@ impl AdaptiveRoutingAdapter {
         Err(anyhow!("adaptive routing adapter not wired yet"))
     }
 }
+
+impl Default for AdaptiveRoutingAdapter {
+    fn default() -> Self {
+        Self::new()
+    }
+}

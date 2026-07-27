@@ -93,7 +93,7 @@ pub fn emit_delta_to_file(
 fn default_workspace_root() -> PathBuf {
     std::env::var_os("ARDA_ROOT")
         .map(PathBuf::from)
-        .unwrap_or_else(|| PathBuf::from("."))
+        .unwrap_or_else(crate::ingest::layout::arda_root)
 }
 
 fn unix_now() -> u64 {

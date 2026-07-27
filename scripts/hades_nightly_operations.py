@@ -101,7 +101,9 @@ def command_succeeded(result: dict[str, Any]) -> bool:
     return result.get("exit_code") == 0 and result.get("timed_out") is False
 
 
-def run_setup_console_readiness(root: Path, setup_out: Path) -> dict[str, Any]:
+def run_setup_console_readiness(
+    root: Path, setup_out: Path, portability_summary: Path
+) -> dict[str, Any]:
     result = run_command(
         [
             "python3",
@@ -110,6 +112,8 @@ def run_setup_console_readiness(root: Path, setup_out: Path) -> dict[str, Any]:
             repo_relative(setup_out, root),
             "--state-path",
             "core/state/setup_console_readiness.json",
+            "--portability-receipt",
+            repo_relative(portability_summary, root),
         ],
         root,
     )
@@ -124,9 +128,11 @@ def run_nightly(root: Path, run_id: str, out_dir: Path, now: datetime | None = N
     out_dir.mkdir(parents=True, exist_ok=True)
 
     system_run_id = run_id.replace("hades-nightly-", "system-audit-", 1)
+    portability_run_id = run_id.replace("hades-nightly-", "portability-audit-", 1)
     setup_run_id = run_id.replace("hades-nightly-", "setup-console-", 1)
     repeated_run_id = run_id.replace("hades-nightly-", "repeated-audit-", 1)
 
+    portability_out = date_run_dir(root, "portability-audit-runs", portability_run_id, now)
     setup_out = date_run_dir(root, "setup-console-runs", setup_run_id, now)
     repeated_out = date_run_dir(root, "repeated-audit-runs", repeated_run_id, now)
     org_out = out_dir / "organization"
@@ -143,7 +149,21 @@ def run_nightly(root: Path, run_id: str, out_dir: Path, now: datetime | None = N
         ],
         root,
     )
-    commands["setup_console_readiness"] = run_setup_console_readiness(root, setup_out)
+    commands["portability_audit"] = run_command(
+        [
+            "python3",
+            "scripts/audit/portability_audit.py",
+            "--out",
+            repo_relative(portability_out, root),
+        ],
+        root,
+    )
+    portability_summary = portability_out / "summary.json"
+    setup_receipt = setup_out / "setup_console_readiness_receipt.json"
+    system_summary = date_run_dir(root, "system-audit-runs", system_run_id, now) / "summary.json"
+    commands["setup_console_readiness"] = run_setup_console_readiness(
+        root, setup_out, portability_summary
+    )
     commands["repeated_audit"] = run_command(
         [
             "python3",
@@ -152,6 +172,12 @@ def run_nightly(root: Path, run_id: str, out_dir: Path, now: datetime | None = N
             repo_relative(repeated_out, root),
             "--run-id",
             repeated_run_id,
+            "--portability-summary",
+            repo_relative(portability_summary, root),
+            "--setup-receipt",
+            repo_relative(setup_receipt, root),
+            "--system-summary",
+            repo_relative(system_summary, root),
         ],
         root,
     )
@@ -196,11 +222,9 @@ def run_nightly(root: Path, run_id: str, out_dir: Path, now: datetime | None = N
             target.write_bytes(source.read_bytes())
 
     artifacts = {
-        "system_audit_summary": repo_relative(
-            date_run_dir(root, "system-audit-runs", system_run_id, now) / "summary.json",
-            root,
-        ),
-        "setup_console_receipt": repo_relative(setup_out / "setup_console_readiness_receipt.json", root),
+        "system_audit_summary": repo_relative(system_summary, root),
+        "portability_summary": repo_relative(portability_summary, root),
+        "setup_console_receipt": repo_relative(setup_receipt, root),
         "repeated_audit_summary": repo_relative(repeated_out / "summary.json", root),
         "markdown_link_check": repo_relative(org_out / "markdown_link_check_last.md", root),
         "organization_storage_hygiene": repo_relative(org_out / "storage_hygiene_last.json", root),

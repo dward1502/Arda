@@ -1,5 +1,5 @@
 // sigil: REPAIR
-use crate::adaptive::service::CharonService;
+use crate::adaptive::service::ManweService;
 use crate::types::ManweRequestEnvelope;
 use arda_core::daemon::{CommandEnvelope, ResponseEnvelope};
 use arda_core::error::{ArdaError, Result};
@@ -9,7 +9,7 @@ use std::path::PathBuf;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::{UnixListener, UnixStream};
 
-pub async fn run_ipc_server(service: CharonService, socket_path: PathBuf) -> Result<()> {
+pub async fn run_ipc_server(service: ManweService, socket_path: PathBuf) -> Result<()> {
     if let Some(parent) = socket_path.parent() {
         std::fs::create_dir_all(parent)?;
     }
@@ -17,17 +17,17 @@ pub async fn run_ipc_server(service: CharonService, socket_path: PathBuf) -> Res
         let _ = std::fs::remove_file(&socket_path);
     }
     let listener = UnixListener::bind(&socket_path).map_err(|e| ArdaError::Agent {
-        agent: "charon".to_string(),
+        agent: "manwe".to_string(),
         message: format!("failed to bind unix socket {}: {e}", socket_path.display()),
     })?;
     loop {
         let (stream, _) = listener.accept().await.map_err(|e| ArdaError::Agent {
-            agent: "charon".to_string(),
+            agent: "manwe".to_string(),
             message: format!("IPC accept error: {e}"),
         })?;
         let service = service.clone();
         let _ = spawn_bounded_background(
-            "charon_ipc_connection",
+            "manwe_ipc_connection",
             ipc_connection_limit(),
             move || async move {
                 let _ = handle_connection(stream, service).await;
@@ -48,9 +48,9 @@ pub async fn send_command(socket_path: PathBuf, cmd: &str, payload: Value) -> Re
     let mut stream = UnixStream::connect(&socket_path)
         .await
         .map_err(|e| ArdaError::Agent {
-            agent: "charon".to_string(),
+            agent: "manwe".to_string(),
             message: format!(
-                "failed to connect to CHARON socket {}: {e}",
+                "failed to connect to MANWE socket {}: {e}",
                 socket_path.display()
             ),
         })?;
@@ -64,7 +64,7 @@ pub async fn send_command(socket_path: PathBuf, cmd: &str, payload: Value) -> Re
         .write_all(&encoded)
         .await
         .map_err(|e| ArdaError::Agent {
-            agent: "charon".to_string(),
+            agent: "manwe".to_string(),
             message: format!("failed to write IPC request: {e}"),
         })?;
     let mut reader = BufReader::new(stream);
@@ -73,22 +73,22 @@ pub async fn send_command(socket_path: PathBuf, cmd: &str, payload: Value) -> Re
         .read_line(&mut line)
         .await
         .map_err(|e| ArdaError::Agent {
-            agent: "charon".to_string(),
+            agent: "manwe".to_string(),
             message: format!("failed to read IPC response: {e}"),
         })?;
     let response: ResponseEnvelope =
         serde_json::from_str(line.trim()).map_err(|e| ArdaError::Agent {
-            agent: "charon".to_string(),
+            agent: "manwe".to_string(),
             message: format!("invalid IPC response: {e}"),
         })?;
-    response.into_result("charon")
+    response.into_result("manwe")
 }
 
-async fn handle_connection(stream: UnixStream, service: CharonService) -> Result<()> {
+async fn handle_connection(stream: UnixStream, service: ManweService) -> Result<()> {
     let (reader, mut writer) = stream.into_split();
     let mut lines = BufReader::new(reader).lines();
     while let Some(line) = lines.next_line().await.map_err(|e| ArdaError::Agent {
-        agent: "charon".to_string(),
+        agent: "manwe".to_string(),
         message: format!("IPC read error: {e}"),
     })? {
         let response = match serde_json::from_str::<CommandEnvelope>(&line) {
@@ -114,14 +114,14 @@ async fn handle_connection(stream: UnixStream, service: CharonService) -> Result
             .write_all(&encoded)
             .await
             .map_err(|e| ArdaError::Agent {
-                agent: "charon".to_string(),
+                agent: "manwe".to_string(),
                 message: format!("IPC write error: {e}"),
             })?;
     }
     Ok(())
 }
 
-async fn execute_command(service: &CharonService, cmd: CommandEnvelope) -> Result<Value> {
+async fn execute_command(service: &ManweService, cmd: CommandEnvelope) -> Result<Value> {
     match cmd.cmd.as_str() {
         "status" => Ok(serde_json::to_value(service.status().await?)?),
         "state" => Ok(service.state().await?),
@@ -134,7 +134,7 @@ async fn execute_command(service: &CharonService, cmd: CommandEnvelope) -> Resul
                 .get("dry_run")
                 .and_then(Value::as_bool)
                 .unwrap_or(true);
-            service.charon_eval(dry_run).await
+            service.manwe_eval(dry_run).await
         }
         "route_history" => {
             let limit = cmd
@@ -151,7 +151,7 @@ async fn execute_command(service: &CharonService, cmd: CommandEnvelope) -> Resul
         "route" | "request" => {
             let req: ManweRequestEnvelope =
                 serde_json::from_value(cmd.payload).map_err(|e| ArdaError::Agent {
-                    agent: "charon".to_string(),
+                    agent: "manwe".to_string(),
                     message: format!("invalid route payload: {e}"),
                 })?;
             Ok(serde_json::to_value(service.route(req).await?)?)
@@ -159,7 +159,7 @@ async fn execute_command(service: &CharonService, cmd: CommandEnvelope) -> Resul
         "proxy" => {
             let req: ManweRequestEnvelope =
                 serde_json::from_value(cmd.payload).map_err(|e| ArdaError::Agent {
-                    agent: "charon".to_string(),
+                    agent: "manwe".to_string(),
                     message: format!("invalid proxy payload: {e}"),
                 })?;
             Ok(service.proxy_openai(req).await?)
@@ -170,7 +170,7 @@ async fn execute_command(service: &CharonService, cmd: CommandEnvelope) -> Resul
                 .get("provider_id")
                 .and_then(|v| v.as_str())
                 .ok_or_else(|| ArdaError::Agent {
-                    agent: "charon".to_string(),
+                    agent: "manwe".to_string(),
                     message: "missing provider_id".to_string(),
                 })?;
             let seconds = cmd
@@ -187,7 +187,7 @@ async fn execute_command(service: &CharonService, cmd: CommandEnvelope) -> Resul
                 .get("provider_id")
                 .and_then(|v| v.as_str())
                 .ok_or_else(|| ArdaError::Agent {
-                    agent: "charon".to_string(),
+                    agent: "manwe".to_string(),
                     message: "missing provider_id".to_string(),
                 })?;
             let ok = cmd
@@ -212,7 +212,7 @@ async fn execute_command(service: &CharonService, cmd: CommandEnvelope) -> Resul
                 .get("provider_id")
                 .and_then(|v| v.as_str())
                 .ok_or_else(|| ArdaError::Agent {
-                    agent: "charon".to_string(),
+                    agent: "manwe".to_string(),
                     message: "missing provider_id".to_string(),
                 })?;
             let model_id = cmd
@@ -220,7 +220,7 @@ async fn execute_command(service: &CharonService, cmd: CommandEnvelope) -> Resul
                 .get("model_id")
                 .and_then(|v| v.as_str())
                 .ok_or_else(|| ArdaError::Agent {
-                    agent: "charon".to_string(),
+                    agent: "manwe".to_string(),
                     message: "missing model_id".to_string(),
                 })?;
             let streaming_validated = cmd
@@ -241,7 +241,7 @@ async fn execute_command(service: &CharonService, cmd: CommandEnvelope) -> Resul
         "paths" => Ok(service.paths()),
         "reload_config" | "reload" => Ok(service.reload_provider_config().await?),
         other => Err(ArdaError::Agent {
-            agent: "charon".to_string(),
+            agent: "manwe".to_string(),
             message: format!("unknown IPC command: {other}"),
         }),
     }

@@ -6,20 +6,23 @@ soterion:
   role: "directory_index"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-13"
+  last_reviewed: "2026-07-27"
 ---
 
 
-> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-13
+> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-27
 
 # Index: crates/executors/arda-varda/INDEX.md
 
 ## Contents
 
 - `Cargo.toml`
+- `BREAKDOWN.md`
 - `INDEX.md`
 - `OPTIMIZATION_PLAN.md`
+- `PLAN.md`
 - `README.md`
+- `STATUS.md`
 - `core`
 - `human`
 - `src`
@@ -27,7 +30,13 @@ soterion:
 
 ## Purpose
 
-Crate index for `crates/executors/arda-varda/INDEX.md`. See sibling `INDEX.md` for bucket metadata.
+Crate index for `crates/spine/executors/arda-varda`. `README.md` is the operator
+overview, `BREAKDOWN.md` is the implementation map, `PLAN.md` is the canonical
+completed checklist, and `OPTIMIZATION_PLAN.md` preserves the optimization
+history and verification matrix.
+
+Historical crate assessments and generated validation evidence are archived in
+`docs/archive/arda-varda/`; the crate does not own a nested `docs/` tree.
 
 ## Notes
 

@@ -1,12 +1,12 @@
 # ATHENA Source Book
 
 - source_id: `src_7afb5452`
-- pipeline_id: `athpl_3a3f5e791b73409fa93b455c32faedbf`
+- pipeline_id: `athpl_2df653936da54d26bd9eebbfff29df49`
 - status: `deep`
 - source_type: `RawNote`
-- updated_at_utc: `2026-07-26T06:22:54.821381228+00:00`
+- updated_at_utc: `2026-07-27T05:56:58.560879159+00:00`
 - url: OPPOSING_VIEWPOINT CHALLENGE for src_3c43db4d: This perspective questions assump
-- athena_book: `/tmp/.tmpcuWOCK/books/src_7afb5452.jsonl`
+- athena_book: `/tmp/.tmpXOWy8Q/books/src_7afb5452.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

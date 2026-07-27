@@ -6,10 +6,10 @@ soterion:
   role: "documentation"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-22"
+  last_reviewed: "2026-07-26"
 ---
 
-> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-07-22
+> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-07-26
 
 # arda-governance
 
@@ -204,6 +204,16 @@ contract; no provider is selected by default. Runtime configuration must also se
 `enabled = true`. LLM receipts use a task-hash/lens/provider/model cache key and reject stale
 entries into an explicit degraded state. `default = []` remains intentional, so enabling all
 features does not alter the deterministic default path or existing wire formats.
+
+## Documentation map
+
+- `STATUS.md` — current stability, verification evidence, and known boundaries.
+- `BREAKDOWN.md` — implementation and module map for maintainers and agents.
+- `PLAN.md` — future-work discussion queue; it contains no current commitments.
+- `OWNERSHIP.md` — authority and integration boundaries.
+- `GOVERNANCE_PROVENANCE.md` — algorithm/source provenance and release review.
+- `INDEX.md` — deterministic crate-document index.
+- `src/README.md` and `tests/README.md` — local source and test navigation.
 
 ## Verification
 

@@ -5,15 +5,20 @@ soterion:
   code_point: "U+1F4DC"
   role: "documentation"
   owner: "HADES"
-  status: "active"
-  last_reviewed: "2026-05-21"
+  status: "complete"
+  last_reviewed: "2026-07-27"
 ---
 
-> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-05-21
+> 🜏 Soterion: 📜 documentation | owner: HADES | status: complete | reviewed: 2026-07-27
 
 # Athena Optimization & Feature Plan
 
 Drafted 2026-05-07. P0 / P1 / P2 priorities, file pointers, verification signals.
+
+Closure note (2026-07-27): every scoped A1-E5 item is implemented and verified.
+The gap descriptions below are retained as historical rationale; the authoritative
+current-state implementation map is `PLAN.md`, and operational evidence is in
+`STATUS.md`. There is no remaining execution slice in this plan.
 
 Scope: `crates/arda-varda/` — knowledge-ingest, query, deep-analysis, and synthesis agent. `lib.rs` (agent entrypoint, model routing, LLM execution), `ingest.rs` + `ingest/` (13 submodules: crawl, importers, interceptor, io, scholarly, source, policy, routing, query, views, deep, remediation, observability, layout), `transport/` (IPC + optional HTTP/SSE).
 
@@ -175,7 +180,7 @@ Athena's HTTP transport doesn't currently stream large query results — they bu
 
 ---
 
-## Suggested execution order
+## Historical execution order
 
 1. **Workspace hygiene + boot:** A1 (reqwest unify), A3 (boot fallback).
 2. **Hot-path:** A2 (async ingest writes), B2 (query memo), C1 (metrics).
@@ -185,33 +190,33 @@ Athena's HTTP transport doesn't currently stream large query results — they bu
 
 A1+A3+C1 is one focused session; that's the P0 stabilization tier.
 
-### Status snapshot
+### Final status snapshot
 
-Verified 2026-05-21 against source and targeted Cargo tests.
+Reconciled 2026-07-27 against live source and the canonical `PLAN.md`.
 
 | Item | Status | Verified evidence |
 |------|--------|-------------------|
 | A1   | done   | `cargo tree -p arda-varda` shows only `reqwest v0.12.28`; workspace duplicate 0.11 users in core/governance were bumped. |
-| A2   | open   | JSONL append/write path still needs a dedicated async or shared buffered writer review. |
+| A2   | done   | Shared per-path buffered JSONL appender has cross-process locking, timed durability sync, and concurrent-writer coverage. |
 | A3   | done   | `AthenaStore::from_default_or_workspace_fallback` in `ingest/layout.rs` falls back to workspace `data/athena` on permission errors. |
-| B1   | open   | Crawl concurrency cap still needs focused verification/implementation in `ingest/crawl.rs`. |
+| B1   | done   | Crawl4AI and Scrapling share the configurable `athena_crawl` admission gate. |
 | B2   | done   | `AthenaStore` owns `digest_index: Arc<RwLock<Option<DigestIndex>>>`; warm/invalidate paths are wired. |
-| B3   | open   | Deep-analysis worker-pool behavior still needs focused verification. |
-| B4   | open   | Importer HTTP-client reuse still needs focused verification/implementation. |
+| B3   | done   | Deep queue uses a configurable two-worker default pool; overlap, queue, failure, and saturation tests pass. |
+| B4   | done   | Process-wide async/blocking clients are reused across crawler, importer, scholarly, GitHub, and router paths. |
 | C1   | done   | `AthenaMetrics` renders Prometheus text; HTTP `/metrics` and IPC `metrics` command export it; targeted HTTP/IPC tests pass. |
-| C2   | open   | Pipeline/correlation id threading is not yet implemented end-to-end. |
-| C3   | partial | `/status` exists and now refreshes status-derived gauges, but a richer live activity surface remains open. |
-| D1   | open   | Source classification cache still needs implementation. |
-| D2   | open   | Scholarly retry/offline re-enrichment queue still needs implementation. |
-| D3   | open   | Interceptor contract documentation still needs implementation. |
+| C2   | done   | `athpl_<uuid>` IDs persist through crawl/import, ingest, books, queues, views, policy, triage, and interceptors. |
+| C3   | done   | HTTP, IPC, and SSE share active, completed, queue-depth, and latest-error status. |
+| D1   | done   | Cloned stores share a full-content-hash source-classification cache. |
+| D2   | done   | Bounded retry plus durable scholarly re-enrichment queue is available over IPC/HTTP. |
+| D3   | done   | Interceptor ordering, non-veto behavior, durability boundary, and failure isolation are documented. |
 | D4   | done   | Malformed policy-readiness JSONL lines are counted, exposed in status, and exported as `athena_policy_readiness_malformed_records`. |
 | E0   | done   | GitHub shallow extractor previously completed. |
 | E0b  | done   | Deep-analysis LLM extraction previously completed. |
-| E1   | open   | Source freshness gauges/status fields still need implementation. |
-| E2   | open   | Query result citations still need implementation. |
-| E3   | open   | Govern-on-ingest quarantine gate still needs implementation. |
-| E4   | open   | Deep-analysis cache still needs implementation. |
-| E5   | open   | Streaming query results still need implementation. |
+| E1   | done   | Source refresh timestamps/ages are exposed through status and Prometheus metrics. |
+| E2   | done   | Query matches carry typed source/document citations and matched spans. |
+| E3   | done   | Heavy Bacon-Lite + triad failures quarantine before book/view landing. |
+| E4   | done   | Deep-analysis cache is persistent, content-addressed, and evidence-invalidated. |
+| E5   | done   | `/query/stream` emits versioned scored-match SSE and a completion event. |
 
 ### Verification notes — 2026-05-21
 
@@ -243,12 +248,7 @@ Implementation evidence:
 - `ingest/observability.rs` counts malformed policy-readiness records and updates the gauge during status aggregation.
 - `ingest.rs` includes `policy_readiness_malformed_records` in `AthenaStatus`.
 
-### Next execution slice
+### Closure
 
-Recommended next slice: **A2 + B4**.
-
-1. A2: audit all Books/ledger JSONL append paths in `ingest/io.rs`, `ingest/policy.rs`, `ingest/deep.rs`, and adjacent modules; replace per-record open/write/sync hot paths with a shared buffered/async append helper where safe.
-2. B4: audit importer and crawler HTTP call sites for per-call `reqwest::Client` construction; thread a shared client through the importer/crawler path with timeout/read-timeout defaults matching the rest of the workspace.
-3. Verification target: add unit coverage for append helper behavior and shared-client configuration, then run `cargo fmt -p arda-varda`, `cargo check -p arda-varda`, and focused Athena tests.
-
-Keep C2/E1 as the following observability slice after the hot-path I/O and client reuse work lands.
+No scoped optimization task remains open. New work belongs in a new dated plan
+and should be justified by runtime evidence rather than reopening this baseline.

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="${ARDA_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
-QUEUE_CONFIG="${ARDA_PROJECT_TASK_QUEUE_PATH:-${ANNUNIMAS_PROJECT_TASK_QUEUE_PATH:-core/projects/tasks/queue.jsonl}}"
+QUEUE_CONFIG="${ARDA_PROJECT_TASK_QUEUE_PATH:-core/projects/tasks/queue.jsonl}"
 if [[ "$QUEUE_CONFIG" = /* ]]; then
   QUEUE_PATH="$QUEUE_CONFIG"
   if [[ "$QUEUE_PATH" == "$ROOT/"* ]]; then

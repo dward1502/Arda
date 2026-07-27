@@ -1,12 +1,12 @@
 # ATHENA Source Book
 
 - source_id: `src_533bb23a`
-- pipeline_id: `athpl_3150f5db140e49b7a5092ae9c5a147e4`
+- pipeline_id: `athpl_a5a6e55bc143415c8871c9659f03b66e`
 - status: `deep`
 - source_type: `NewsArticle`
-- updated_at_utc: `2026-07-26T06:22:54.859666037+00:00`
+- updated_at_utc: `2026-07-27T05:56:58.604619311+00:00`
 - url: https://example.com/governance-rust
-- athena_book: `/tmp/.tmphViVzj/books/src_533bb23a.jsonl`
+- athena_book: `/tmp/.tmpqPSpTI/books/src_533bb23a.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

@@ -15,7 +15,7 @@ pub(super) fn spawn(service: CharonService) {
         loop {
             interval.tick().await;
             if let Err(err) = service.reconcile_provider_catalogs().await {
-                tracing::warn!(error = %err, "CHARON provider catalog reconciliation failed");
+                tracing::warn!(error = %err, "MANWE provider catalog reconciliation failed");
             }
         }
     });

@@ -47,8 +47,8 @@ pub struct CharonAlert {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct CharonStatus {
-    pub charon_version: String,
+pub struct ManweStatus {
+    pub manwe_version: String,
     pub providers_total: usize,
     pub providers_enabled: usize,
     pub providers_ready: usize,
@@ -124,7 +124,7 @@ pub(super) struct RuntimeBuildCacheSignals {
 }
 
 impl CharonService {
-    pub async fn status(&self) -> Result<CharonStatus> {
+    pub async fn status(&self) -> Result<ManweStatus> {
         let mut providers = self.providers.write().await;
         refresh_provider_windows(&mut providers, Utc::now());
         let recent_events = read_recent_jsonl(&self.state_path, 48);
@@ -176,8 +176,8 @@ impl CharonService {
         let capability_summary = self.provider_capability_summary(&providers);
         let route_guardrails = build_route_guardrail_summary(&providers);
         let alerts = build_budget_alerts(&budget_pressure);
-        Ok(CharonStatus {
-            charon_version: "0.1.0".to_string(),
+        Ok(ManweStatus {
+            manwe_version: "0.1.0".to_string(),
             providers_total,
             providers_enabled,
             providers_ready,
@@ -236,7 +236,7 @@ impl CharonService {
         }
         RuntimeBuildCacheSignals {
             generated_at_utc: Utc::now().to_rfc3339(),
-            authority: "charon_housekeeping_fallback".to_string(),
+            authority: "manwe_housekeeping_fallback".to_string(),
             build_root: std::env::var("ARDA_BUILD_CACHE_ROOT")
                 .or_else(|_| std::env::var("ARDA_RUNTIME_BUILD_ROOT"))
                 .unwrap_or_else(|_| "/tmp/annunimas-build".to_string()),

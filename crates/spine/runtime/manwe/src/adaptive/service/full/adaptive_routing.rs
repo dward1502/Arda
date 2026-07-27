@@ -87,6 +87,8 @@ pub struct RejectedRouteCandidate {
     pub(crate) tier: String,
     pub(crate) reason: String,
     pub(crate) pacing_state: String,
+    #[serde(default, skip_serializing_if = "serde_json::Value::is_null")]
+    pub(crate) details: serde_json::Value,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -338,6 +340,10 @@ pub(crate) fn capability_truth_rows(providers: &[ProviderState]) -> Vec<Capabili
         .collect()
 }
 
+#[expect(
+    clippy::too_many_arguments,
+    reason = "route evidence construction keeps each policy input explicit at the audit boundary"
+)]
 pub(crate) fn build_route_explanation(
     route_id: &str,
     providers: &[ProviderState],
@@ -490,7 +496,7 @@ impl CharonService {
             .collect()
     }
 
-    pub async fn charon_eval(&self, dry_run: bool) -> Result<JsonValue> {
+    pub async fn manwe_eval(&self, dry_run: bool) -> Result<JsonValue> {
         let evals = [
             (
                 "hermes_tool_call",
@@ -633,15 +639,20 @@ impl CharonService {
             .collect::<Vec<_>>();
         if !dry_run {
             for receipt in &receipts {
-                append_jsonl(&self.charon_eval_receipts_path(), receipt)?;
+                append_jsonl(&self.manwe_eval_receipts_path(), receipt)?;
             }
         }
         Ok(serde_json::json!({
             "ok": true,
             "dry_run": dry_run,
-            "receipt_path": self.charon_eval_receipts_path(),
+            "receipt_path": self.manwe_eval_receipts_path(),
             "evals": receipts,
         }))
+    }
+
+    #[deprecated(note = "use manwe_eval")]
+    pub async fn charon_eval(&self, dry_run: bool) -> Result<JsonValue> {
+        self.manwe_eval(dry_run).await
     }
 }
 

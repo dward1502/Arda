@@ -25,21 +25,42 @@ requests_per_minute = 120
   [[provider.model]]
   id = "Ternary-Bonsai-8B-Q2_0"
   capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background", "monitoring"]
-  context_window = 131072
+  context_window = 32768
   is_default = true
-  capabilities = { tools = true, structured_output = true, streaming = true }
+  capabilities = { tools = true, structured_output = false, streaming = true }
   aliases = ["ternary-bonsai-8b", "bonsai-8b", "b8", "Ternary-Bonsai-8B-Q2_0"]
-  notes = "Updated 2026-07-18. Beelink SER9 Pro :9337 now serves Ternary-Bonsai-8B-Q2_0 (ternary Q2_0 GGUF) via the Prism-ML llama.cpp fork built with GGML_VULKAN against the AMD Radeon 890M (Vulkan0). The stock ggerganov/llama.cpp rejects this ternary quant (tensor-layout mismatch), so only the Prism fork parses it. Replaces the prior Qwen_Qwen3.5-4B-Q6_K mainline lane."
+  notes = "Benchmark winner 2026-07-26 (receipt score 100.0; all correctness, tool, context, memory, and performance gates passed). Median generation 26.59 tok/s, 8K prefill 252.64 tok/s, 8K TTFT 30.73s; uncached 32K TTFT 250.14s. Serve via Prism-ML llama.cpp/Vulkan on :9337. Suitable for efficient bounded edge work; do not force for latency-sensitive long-context Hermes code-agent continuations."
+
+[[provider]]
+id = "edge_carnice"
+name = "Beelink Carnice 9B Worker"
+base_url = "http://100.103.125.88:1234/v1"
+enabled = false
+access_tier = "local"
+quality_band = "medium"
+requests_per_minute = 20
+max_completion_tokens = 2048
+
+  [[provider.model]]
+  id = "Carnice-9b-Q6_K"
+  capable_tasks = ["research", "reasoning", "chat", "summary", "background"]
+  context_window = 65536
+  is_default = true
+  capabilities = { tools = false, structured_output = false, streaming = true, visible_reasoning = true }
+  aliases = ["carnice-9b", "Carnice-9b-Q6_K"]
+  notes = "Disabled after the isolated 2026-07-26 shootout selected Ternary Bonsai for Beelink's single active model lane. Carnice Q4 scored 84.242 and passed correctness/tools, but failed generation and long-context performance gates (10.40 tok/s; 8K TTFT 66.06s)."
 
 [[provider]]
 id = "edge_core"
 name = "Annunimas Core (3080 Workstation)"
 base_url = "http://100.78.138.113:9337/v1"
-enabled = false
+enabled = true
 access_tier = "local"
-quality_band = "medium"
+quality_band = "high"
 requests_per_minute = 60
 max_completion_tokens = 2048
+probe_model = "Qwen3.5-9B-Q4_K_M"
+probe_profile = "benchmark_validated_local"
 # CRASH-GUARD: this provider runs on the operator's main PC alongside heavy
 # GPU workloads such as browsers and VS Code. The 3080 workstation is VRAM-
 # constrained; avoid tool/concurrency spikes here without first confirming
@@ -47,28 +68,13 @@ max_completion_tokens = 2048
 # while browsers/other GPU apps are active.
 
   [[provider.model]]
-  id = "LFM2.5-8B-A1B-Q4_K_M"
-  capable_tasks = ["research", "reasoning", "chat", "summary", "background"]
-  context_window = 131072
-  is_default = false
-  capabilities = { tools = true, structured_output = false, streaming = true, visible_reasoning = true }
-  aliases = ["lfm2.5-8b-a1b", "lfm-2.5-8b-a1b", "liquidai-core", "lfm-core"]
-
-  [[provider.model]]
   id = "Qwen3.5-9B-Q4_K_M"
   capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
-  context_window = 32768
+  context_window = 73728
   is_default = true
   capabilities = { tools = true, structured_output = true, streaming = true }
   aliases = ["qwen3.5-9b", "qwen35-9b"]
-
-  [[provider.model]]
-  id = "Qwen_Qwen3.5-4B-Q6_K"
-  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
-  context_window = 32768
-  is_default = false
-  capabilities = { tools = true, structured_output = true, streaming = true }
-  aliases = ["qwen3.5-4b", "qwen35-4b", "Qwen3.5-4B"]
+  notes = "Benchmark winner 2026-07-26 (receipt score 100.0; every deployment gate passed). Median generation 92.22 tok/s, 8K prefill 3151.68 tok/s, 8K TTFT 2.57s, 2.26s load; practical RTX 3080 VRAM margin 3.25 GiB with Q4/Q4 KV cache."
 
 [[provider]]
 id = "edge_backbone"

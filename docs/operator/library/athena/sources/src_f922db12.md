@@ -4,9 +4,9 @@
 - pipeline_id: `athpl_test_crawl`
 - status: `shallow`
 - source_type: `RawNote`
-- updated_at_utc: `2026-07-26T06:22:54.633604788+00:00`
+- updated_at_utc: `2026-07-27T05:56:54.283106649+00:00`
 - url: # Example
-- athena_book: `/tmp/.tmpBCehU8/books/src_f922db12.jsonl`
+- athena_book: `/tmp/.tmpFXrScK/books/src_f922db12.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

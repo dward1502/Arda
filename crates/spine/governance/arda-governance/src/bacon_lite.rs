@@ -300,6 +300,12 @@ pub struct BaconLiteWriter {
 }
 
 impl BaconLiteWriter {
+    /// Start a writer with queue and batching settings sourced from the
+    /// standard Bacon-Lite environment variables.
+    pub fn start_from_env(paths: BaconLiteLogPaths) -> std::io::Result<Self> {
+        Self::start(paths, config_from_env())
+    }
+
     pub fn start(paths: BaconLiteLogPaths, config: BaconLiteWriterConfig) -> std::io::Result<Self> {
         if config.queue_capacity == 0 || config.batch_size == 0 {
             return Err(std::io::Error::new(
@@ -430,9 +436,20 @@ pub fn enqueue_bacon_lite(
     task: &Task,
     context: Value,
 ) -> Result<BaconLiteEvent, BaconLiteEnqueueError> {
+    let writer = global_writer().map_err(BaconLiteEnqueueError::Startup)?;
+    enqueue_bacon_lite_with(writer, crate_name, action, task, context)
+}
+
+/// Enqueue an event through an application-owned writer with explicit paths.
+pub fn enqueue_bacon_lite_with(
+    writer: &BaconLiteWriter,
+    crate_name: &str,
+    action: &str,
+    task: &Task,
+    context: Value,
+) -> Result<BaconLiteEvent, BaconLiteEnqueueError> {
     let event = build_bacon_lite_event(crate_name, action, task, context)
         .map_err(BaconLiteEnqueueError::Invalid)?;
-    let writer = global_writer().map_err(BaconLiteEnqueueError::Startup)?;
     writer
         .try_enqueue(event.clone())
         .map_err(BaconLiteEnqueueError::Transport)?;

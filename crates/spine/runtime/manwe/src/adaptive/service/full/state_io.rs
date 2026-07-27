@@ -23,7 +23,7 @@ impl CharonService {
         self.provider_capability_receipts_path.clone()
     }
 
-    pub(super) fn charon_eval_receipts_path(&self) -> PathBuf {
+    pub(super) fn manwe_eval_receipts_path(&self) -> PathBuf {
         self.root.join("model_eval_receipts.jsonl")
     }
 }
@@ -120,10 +120,8 @@ pub(crate) fn append_jsonl<T: Serialize>(path: &Path, value: &T) -> Result<()> {
 }
 
 pub(crate) fn default_root() -> PathBuf {
-    if let Ok(custom) = std::env::var("ARDA_MANWE_HOME") {
-        return PathBuf::from(custom);
-    }
-    super::paths::arda_root().join("data/charon")
+    let arda_home = std::env::var_os("ARDA_HOME");
+    crate::config::adaptive_state_dir(arda_home.as_deref().map(Path::new))
 }
 
 pub(crate) fn is_permission_error(err: &ArdaError) -> bool {

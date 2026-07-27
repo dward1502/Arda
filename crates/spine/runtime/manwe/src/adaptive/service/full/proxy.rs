@@ -1,5 +1,5 @@
 use super::{
-    attach_charon_route_metadata, evaluate_pre_route_governance_with_options,
+    attach_manwe_route_metadata, evaluate_pre_route_governance_with_options,
     excluded_provider_ids, is_billing_or_credit_error, is_client_payload_error,
     is_context_overflow_error, is_local_provider, is_reasoning_replay_required_error,
     is_request_scoped_retry_error, local_payload_requires_structured_tool_history,
@@ -123,7 +123,7 @@ pub struct StreamingProxyOutcome {
 }
 
 /// Result of a non-streaming OpenAI-compatible proxy call. The response body
-/// still carries `_charon_route`; these fields let HTTP clients and Hermes
+/// still carries `_manwe_route`; these fields let HTTP clients and Hermes
 /// surface route attribution without parsing JSON.
 pub struct PassthroughProxyOutcome {
     pub status: u16,
@@ -367,7 +367,7 @@ impl CharonService {
                         self.record_proxy_fallback_chain(&req, &attempts, "route_selection_failed");
                     }
                     return Err(ArdaError::Agent {
-                        agent: "charon".to_string(),
+                        agent: "manwe".to_string(),
                         message: if attempts.is_empty() {
                             err.to_string()
                         } else {
@@ -403,7 +403,7 @@ impl CharonService {
                     .base_url
                     .clone()
                     .ok_or_else(|| ArdaError::Agent {
-                        agent: "charon".to_string(),
+                        agent: "manwe".to_string(),
                         message: format!(
                             "provider {} missing base_url for streaming proxy",
                             provider.id
@@ -643,7 +643,7 @@ impl CharonService {
 
         self.record_proxy_fallback_chain(&req, &attempts, "streaming_proxy_exhausted");
         Err(ArdaError::Agent {
-            agent: "charon".to_string(),
+            agent: "manwe".to_string(),
             message: format_proxy_attempt_summary(&attempts),
         })
     }
@@ -698,7 +698,7 @@ impl CharonService {
                 }),
             )?;
             return Err(ArdaError::Agent {
-                agent: "charon".to_string(),
+                agent: "manwe".to_string(),
                 message: format!(
                     "Echo Gate ABORT [{}] blocked proxy routing before provider fallback (rho={:.2}, gamma={:.2}, delta={:.2})",
                     governance.trigger_reason,
@@ -745,7 +745,7 @@ impl CharonService {
                         self.record_proxy_fallback_chain(&req, &attempts, "route_selection_failed");
                     }
                     return Err(ArdaError::Agent {
-                        agent: "charon".to_string(),
+                        agent: "manwe".to_string(),
                         message: if attempts.is_empty() {
                             err.to_string()
                         } else {
@@ -789,7 +789,7 @@ impl CharonService {
                         .base_url
                         .clone()
                         .ok_or_else(|| ArdaError::Agent {
-                            agent: "charon".to_string(),
+                            agent: "manwe".to_string(),
                             message: format!(
                                 "provider {} missing base_url for proxy forwarding",
                                 provider.id
@@ -942,7 +942,7 @@ impl CharonService {
                 let mut parsed = outcome.response;
                 if (200..300).contains(&outcome.status) {
                     normalize_openai_response(&mut parsed);
-                    attach_charon_route_metadata(&mut parsed, &decision, &provider.id, latency_ms);
+                    attach_manwe_route_metadata(&mut parsed, &decision, &provider.id, latency_ms);
                     let semantic_outcome = classify_semantic_outcome(&parsed, &attempt_body);
                     let _ = self.record_tool_fit_observation(
                         &decision,
@@ -1114,7 +1114,7 @@ impl CharonService {
                 let mut parsed = outcome.response;
                 if outcome.status == 200 {
                     normalize_openai_response(&mut parsed);
-                    attach_charon_route_metadata(
+                    attach_manwe_route_metadata(
                         &mut parsed,
                         &decision,
                         &provider.id,
@@ -1314,11 +1314,11 @@ impl CharonService {
             if status.is_success() {
                 self.metrics().observe_proxy_latency(
                     &provider.id,
-                    &decision.execution_lane,
+                    &decision.route_class,
                     latency_ms,
                 );
                 normalize_openai_response(&mut parsed);
-                attach_charon_route_metadata(&mut parsed, &decision, &provider.id, latency_ms);
+                attach_manwe_route_metadata(&mut parsed, &decision, &provider.id, latency_ms);
                 let semantic_outcome = classify_semantic_outcome(&parsed, &attempt_body);
                 let _ = self.record_tool_fit_observation(
                     &decision,
@@ -1353,11 +1353,11 @@ impl CharonService {
                 self.emit_memory_event(
                     "proxy_success",
                     &format!(
-                        "CHARON proxy forwarded via {} in {}ms",
+                        "MANWE proxy forwarded via {} in {}ms",
                         provider.id, latency_ms
                     ),
                     Some(0.85),
-                    vec!["charon".to_string(), "proxy".to_string()],
+                    vec!["manwe".to_string(), "proxy".to_string()],
                 );
                 return Ok((decision, provider.id, url, latency_ms, status_u16, parsed));
             }
@@ -1474,10 +1474,10 @@ impl CharonService {
             }
             self.emit_memory_event(
                 "proxy_failure",
-                &format!("CHARON proxy failure via {}: {}", provider.id, err_msg),
+                &format!("MANWE proxy failure via {}: {}", provider.id, err_msg),
                 Some(0.4),
                 vec![
-                    "charon".to_string(),
+                    "manwe".to_string(),
                     "proxy".to_string(),
                     "failure".to_string(),
                 ],
@@ -1515,14 +1515,14 @@ impl CharonService {
                 continue;
             }
             return Err(ArdaError::Agent {
-                agent: "charon".to_string(),
+                agent: "manwe".to_string(),
                 message: format!("{err_msg}: {parsed}"),
             });
         }
 
         self.record_proxy_fallback_chain(&req, &attempts, "proxy_exhausted");
         Err(ArdaError::Agent {
-            agent: "charon".to_string(),
+            agent: "manwe".to_string(),
             message: format_proxy_attempt_summary(&attempts),
         })
     }
@@ -1554,6 +1554,17 @@ fn outcome_class_for_http_error(status: u16, parsed: Option<&JsonValue>) -> Stri
 }
 
 pub(crate) fn proxy_timeout_for_provider(provider_id: &str, execution_lane: &str) -> StdDuration {
+    // Hermes tool iterations against the Beelink Ternary lane can spend close
+    // to the generic local deadline producing the first tool call. Preserve
+    // enough budget for the follow-up instead of cooling down a healthy lane.
+    if provider_id == "edge_beelink_light" {
+        return match execution_lane {
+            "orchestrator" => StdDuration::from_secs(120),
+            "execution" => StdDuration::from_secs(90),
+            "background" => StdDuration::from_secs(60),
+            _ => StdDuration::from_secs(90),
+        };
+    }
     if provider_id == "edge_backbone_coder" {
         let default_secs = match execution_lane {
             "orchestrator" => 420,

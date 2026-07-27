@@ -1,6 +1,9 @@
 #![warn(rust_2018_idioms)]
 #![recursion_limit = "256"]
 
+#[cfg(feature = "http")]
+mod metrics_exporter;
+
 use anyhow::Result;
 use arda_governance::{
     build_governance_status_report, default_governance_readiness_report, global_governance_metrics,
@@ -27,6 +30,11 @@ enum Commands {
     Prometheus {
         #[command(subcommand)]
         command: PrometheusCommands,
+    },
+    #[cfg(feature = "http")]
+    Metrics {
+        #[command(subcommand)]
+        command: MetricsCommands,
     },
     TelemetrySchema,
     Receipt {
@@ -202,6 +210,33 @@ enum PrometheusCommands {
     },
 }
 
+#[cfg(feature = "http")]
+#[derive(Subcommand, Debug)]
+enum MetricsCommands {
+    /// Run the Arda projection exporter as an HTTP server.
+    Serve {
+        /// Explicit Arda repository or migrated state root.
+        #[arg(long, default_value = ".")]
+        root: PathBuf,
+        #[arg(long, default_value = "0.0.0.0")]
+        bind: String,
+        #[arg(long, default_value_t = 9101)]
+        port: u16,
+        #[arg(long, default_value_t = 15)]
+        refresh_secs: u64,
+        #[arg(long, default_value_t = false)]
+        system_metrics: bool,
+    },
+    /// Print one Prometheus exposition snapshot and exit.
+    Snapshot {
+        /// Explicit Arda repository or migrated state root.
+        #[arg(long, default_value = ".")]
+        root: PathBuf,
+        #[arg(long, default_value_t = false)]
+        system_metrics: bool,
+    },
+}
+
 #[derive(Subcommand, Debug)]
 enum AutopilotCommands {
     Once {
@@ -335,6 +370,13 @@ fn main() -> Result<()> {
             }
         }
         Commands::Prometheus { command } => handle_prometheus(command)?,
+        #[cfg(feature = "http")]
+        Commands::Metrics { command } => {
+            let runtime = tokio::runtime::Builder::new_multi_thread()
+                .enable_all()
+                .build()?;
+            runtime.block_on(metrics_exporter::handle(command))?;
+        }
         Commands::BaconLiteSummary {
             path,
             since,

@@ -23,7 +23,10 @@ impl OracleRuntimePaths {
         let home = home.as_ref().to_path_buf();
         Self {
             home: home.to_string_lossy().to_string(),
-            status_path: home.join("runtime_status.json").to_string_lossy().to_string(),
+            status_path: home
+                .join("runtime_status.json")
+                .to_string_lossy()
+                .to_string(),
             verdict_ledger_path: home
                 .join("verdict_history.jsonl")
                 .to_string_lossy()
@@ -194,10 +197,7 @@ impl OracleService {
             sequence = sequence.saturating_add(1);
             match serde_json::from_str::<Verdict>(trimmed) {
                 Ok(verdict) => {
-                    self.engine
-                        .lock()
-                        .await
-                        .record_restart_verdict(verdict)?;
+                    self.engine.lock().await.record_restart_verdict(verdict)?;
                 }
                 Err(_) => {
                     return Err(anyhow::anyhow!(
@@ -316,7 +316,9 @@ mod tests {
         let temp = tempfile::tempdir().expect("tempdir");
         let plutus_home = temp.path().join("plutus");
         std::env::set_var("ARDA_PLUTUS_HOME", &plutus_home);
-        let service = OracleService::from_home(temp.path()).await.expect("service");
+        let service = OracleService::from_home(temp.path())
+            .await
+            .expect("service");
         let verdict = service
             .evaluate(query(
                 "oracle-query-1",
@@ -349,7 +351,9 @@ mod tests {
     #[tokio::test]
     async fn invalid_query_is_rejected_before_persistence() {
         let temp = tempfile::tempdir().expect("tempdir");
-        let service = OracleService::from_home(temp.path()).await.expect("service");
+        let service = OracleService::from_home(temp.path())
+            .await
+            .expect("service");
 
         let error = service
             .evaluate(query("invalid-query", "   "))
@@ -366,7 +370,9 @@ mod tests {
         let temp = tempfile::tempdir().expect("tempdir");
         let plutus_home = temp.path().join("plutus");
         std::env::set_var("ARDA_PLUTUS_HOME", &plutus_home);
-        let service = OracleService::from_home(temp.path()).await.expect("service");
+        let service = OracleService::from_home(temp.path())
+            .await
+            .expect("service");
 
         service
             .evaluate(query("duplicate-query", "review deployment evidence"))
@@ -390,7 +396,9 @@ mod tests {
         let temp = tempfile::tempdir().expect("tempdir");
         let plutus_home = temp.path().join("plutus");
         std::env::set_var("ARDA_PLUTUS_HOME", &plutus_home);
-        let service = OracleService::from_home(temp.path()).await.expect("service");
+        let service = OracleService::from_home(temp.path())
+            .await
+            .expect("service");
         let oracle_query = query("retry-query", "review deployment evidence");
         let mut retry_query = oracle_query.clone();
         retry_query.timestamp += chrono::TimeDelta::seconds(1);
@@ -417,7 +425,9 @@ mod tests {
         let temp = tempfile::tempdir().expect("tempdir");
         let plutus_home = temp.path().join("plutus");
         std::env::set_var("ARDA_PLUTUS_HOME", &plutus_home);
-        let service = OracleService::from_home(temp.path()).await.expect("service");
+        let service = OracleService::from_home(temp.path())
+            .await
+            .expect("service");
         let caller_timestamp = Utc
             .with_ymd_and_hms(2025, 1, 2, 3, 4, 5)
             .single()
@@ -439,7 +449,9 @@ mod tests {
         let temp = tempfile::tempdir().expect("tempdir");
         let plutus_home = temp.path().join("plutus");
         std::env::set_var("ARDA_PLUTUS_HOME", &plutus_home);
-        let service = OracleService::from_home(temp.path()).await.expect("service");
+        let service = OracleService::from_home(temp.path())
+            .await
+            .expect("service");
         let mut oracle_query = query("redaction-query", "review deployment evidence");
         oracle_query.context.clear();
         oracle_query.evidence = vec![crate::evidence::EvidenceRef::supplied(
@@ -464,7 +476,9 @@ mod tests {
     #[tokio::test]
     async fn recent_verdict_exports_redact_legacy_excerpt_fields() {
         let temp = tempfile::tempdir().expect("tempdir");
-        let service = OracleService::from_home(temp.path()).await.expect("service");
+        let service = OracleService::from_home(temp.path())
+            .await
+            .expect("service");
         std::fs::write(
             temp.path().join("verdict_history.jsonl"),
             serde_json::json!({
@@ -478,7 +492,7 @@ mod tests {
                 }]
             })
             .to_string()
-            + "\n",
+                + "\n",
         )
         .expect("legacy ledger fixture");
 
@@ -501,8 +515,12 @@ mod tests {
         let temp = tempfile::tempdir().expect("tempdir");
         let plutus_home = temp.path().join("plutus");
         std::env::set_var("ARDA_PLUTUS_HOME", &plutus_home);
-        let _ = OracleService::from_home(temp.path()).await.expect("service");
-        let service = OracleService::from_home(temp.path()).await.expect("service");
+        let _ = OracleService::from_home(temp.path())
+            .await
+            .expect("service");
+        let service = OracleService::from_home(temp.path())
+            .await
+            .expect("service");
 
         let mut engine = service.engine.lock().await;
         let ledger_path = service.verdict_ledger_path.clone();
@@ -535,10 +553,7 @@ mod tests {
 
         let recent = service.recent_verdicts(limit).expect("recent verdicts");
         assert_eq!(recent.len(), limit);
-        assert_eq!(
-            recent[0]["query_id"].as_str().unwrap(),
-            "cap-query-7"
-        );
+        assert_eq!(recent[0]["query_id"].as_str().unwrap(), "cap-query-7");
         assert_eq!(
             recent[recent.len() - 1]["query_id"].as_str().unwrap(),
             "cap-query-11"

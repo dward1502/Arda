@@ -11,6 +11,20 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
+/// Resolve the canonical Arda workspace root without depending on the process
+/// working directory. Operators can override the compiled workspace location
+/// with `ARDA_ROOT`.
+pub fn arda_root() -> PathBuf {
+    if let Some(path) = std::env::var_os("ARDA_ROOT") {
+        return PathBuf::from(path);
+    }
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .ancestors()
+        .nth(4)
+        .map(Path::to_path_buf)
+        .unwrap_or_else(|| PathBuf::from(env!("CARGO_MANIFEST_DIR")))
+}
+
 /// One upstream OpenAI-compatible endpoint.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProviderConfig {
@@ -34,6 +48,13 @@ pub struct ManweConfig {
     pub default_provider: Option<String>,
     #[serde(default)]
     pub providers: HashMap<String, ProviderConfig>,
+    /// Optional bearer token for local daemon admin/auth boundaries.
+    ///
+    /// If unset, auth checks remain disabled and behavior is unchanged for
+    /// localhost deployments. When set, sensitive routes/commands require
+    /// `Authorization: Bearer <value>`.
+    #[serde(default)]
+    pub api_key: Option<String>,
 }
 
 fn default_bind() -> String {
@@ -60,13 +81,8 @@ impl ManweConfig {
             port: default_port(),
             default_provider: Some("ollama".to_string()),
             providers,
+            api_key: None,
         }
-    }
-
-    /// Load from `path`; on any failure fall back to [`ManweConfig::embedded`].
-    /// Fleet/node dynamic loading is deferred to the adaptive baseline.
-    pub fn load(path: &Path) -> ManweConfig {
-        Self::load_with_source(path).0
     }
 
     /// Load static configuration and retain a credential-free description of
@@ -167,8 +183,10 @@ pub enum StaticConfigSource {
     EmbeddedEmpty,
 }
 
-/// Resolve Manwe's adaptive state directory. Canonical Manwe variables own
-/// the path; legacy Charon variables remain lower-precedence aliases.
+/// Resolve Manwe's adaptive state directory. Explicit Manwe variables own the
+/// path, followed by `ARDA_ROOT`, the `ARDA_HOME` compatibility root supplied
+/// by the caller, and finally the compiled workspace root.
+#[cfg(feature = "adaptive")]
 pub fn adaptive_state_dir(arda_home: Option<&Path>) -> PathBuf {
     if let Some(path) = std::env::var_os("ARDA_MANWE_STATE_DIR") {
         return PathBuf::from(path);
@@ -176,18 +194,21 @@ pub fn adaptive_state_dir(arda_home: Option<&Path>) -> PathBuf {
     if let Some(path) = std::env::var_os("ARDA_MANWE_HOME") {
         return PathBuf::from(path);
     }
+    if std::env::var_os("ARDA_ROOT").is_some() {
+        return arda_root().join("data/manwe");
+    }
     arda_home
         .map(|root| root.join("data/manwe"))
-        .unwrap_or_else(|| PathBuf::from("data/manwe"))
+        .unwrap_or_else(|| arda_root().join("data/manwe"))
 }
 
 /// Resolve the static fleet catalog path. The canonical variable wins over
-/// its compatibility alias and the repository-relative default.
+/// the retired Annunimas/Charon compatibility alias and workspace default.
 pub fn static_fleet_config_path() -> PathBuf {
     std::env::var_os("ARDA_MANWE_FLEET_CONFIG")
-        .or_else(|| std::env::var_os("ARDA_MANWE_FLEET_CONFIG"))
+        .or_else(|| std::env::var_os("ANNUNIMAS_CHARON_FLEET_CONFIG"))
         .map(PathBuf::from)
-        .unwrap_or_else(|| PathBuf::from("config/fleet.toml"))
+        .unwrap_or_else(|| arda_root().join("config/fleet.toml"))
 }
 
 /// Config validation error.

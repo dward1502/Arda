@@ -1,12 +1,12 @@
 # ATHENA Source Book
 
 - source_id: `src_3c43db4d`
-- pipeline_id: `athpl_4d0e9d5a09e84438ab4cd52143bbf94a`
+- pipeline_id: `athpl_274bc81ce43849e19ab4f8c7d6e9232c`
 - status: `deep`
 - source_type: `RawNote`
-- updated_at_utc: `2026-07-26T06:22:54.839028441+00:00`
+- updated_at_utc: `2026-07-27T05:56:58.576170050+00:00`
 - url: governance routing memory safety context tooling
-- athena_book: `/tmp/.tmpcuWOCK/books/src_3c43db4d.jsonl`
+- athena_book: `/tmp/.tmpXOWy8Q/books/src_3c43db4d.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

@@ -5,7 +5,7 @@ soterion:
   role: "governance_engine"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-25"
+  last_reviewed: "2026-07-26"
 ---
 
 # arda-governance
@@ -13,10 +13,8 @@ Governance engine for Arda agents: triad gates, resonance, love dynamics,
 JouleWork profiling, readiness levels, and philosopher arbitration.
 Owner: hades | Sigil: 🜏 REPAIR | Status: active
 
-Execution status: **superseded by [`FIRST_CLASS_CHECKLIST.md`](FIRST_CLASS_CHECKLIST.md)**.
-This breakdown remains active architecture/audit evidence. Its improvement items are mapped
-to canonical phases in the checklist's deduplication and source-coverage table; do not track
-new execution status here.
+This is the canonical implementation map. Current health and verification evidence live in
+`STATUS.md`; possible future changes live in `PLAN.md`.
 
 ## Summary
 `arda-governance` is the central governance crate in the Arda spine.
@@ -24,23 +22,20 @@ It implements the actual scoring surfaces behind autonomous decision
 quality: triad validation, resonance/joule/love metrics, game-theory
 agent selection, readiness projections, Bacon-Lite evidence logging,
 audio/vision/solar environmental governance signals, and a deterministic
-philosopher arbitration layer. It depends on `arda-core`; production consumers are
-enumerated and verified conservatively in `FIRST_CLASS_CHECKLIST.md` and `STATUS.md`.
+philosopher arbitration layer. It depends on `arda-core`; its direct workspace consumers are
+listed below and its supported consumer surface is re-exported from `src/lib.rs`.
 
 ## Where it lives
 - Crate root: `/var/home/mythos/Eregion/Arda/crates/spine/governance/arda-governance`
 - Configs: `../../../../config/governance/chains.toml`, `../../../../config/governance/philosophers.toml`
-- Tests: `tests/alignment_stack.rs`, `tests/philosopher_profiles.rs`
-
-## Fix list (applied 2026-07-18)
-- `triad.rs:676`: `include_str!("../../../config/governance/chains.toml")` → `../../../../config/governance/chains.toml`
-- Normalized all in-repo `"config/governance/philosophers.toml"` status metadata strings in Rust sources, tests, and `crates/spine/config/governance/chains.toml` to the canonical repo-root path. Removed stale `../config/...` relative path from spine-local chain config.
+- Tests: 67 unit tests, 47 integration tests across nine targets, and three doctests.
 
 ## Verification status
 
-Historical failures in this audit snapshot are closed. Current release-gate evidence and
-workspace-owned blockers are recorded in `STATUS.md`; `FIRST_CLASS_CHECKLIST.md` is the
-only completion tracker.
+The crate is stable for its current advisory/governance scope. The all-feature test, strict
+Clippy, formatting, and rustdoc gates pass; exact commands and counts are in `STATUS.md`.
+No incomplete crate-local implementation item remains. Conservative non-blocking defaults
+are intentional safety behavior rather than unfinished work.
 
 ## Agentic-OS abstractions
 - **Triad Gate**: deterministic 3-lens validation
@@ -89,44 +84,49 @@ only completion tracker.
 | Module | Role |
 |--------|------|
 | `lib.rs` | Public exports for all subsystems |
+| `audio.rs` | Audio environmental advisory signal |
+| `bacon_lite.rs` | Bounded evidence persistence, recovery, and ledger reads |
+| `environmental.rs` | Typed multi-source advisory coherence |
+| `evidence.rs` | Versioned structured evidence extraction and grading |
+| `empirical_distrust.rs` | Independent evidence-grounding assessment |
+| `game_theory.rs` | Capability-weighted agent selection and explicit fallback |
+| `joulework.rs` | JouleWork profile and measurement provenance |
+| `love_dynamics.rs` | Canonical cooperation/defection dynamics |
+| `love_equation.rs` | Deprecated-name-compatible task-value proxy |
+| `metrics.rs` | Bounded-label in-process metrics |
+| `nonconformist_bee.rs` | Anti-sycophancy and independence assessment |
+| `normalization.rs` | Bounded score normalization |
+| `operator.rs` | Read-only operator status projection |
+| `paths.rs` | Explicit runtime path resolution |
+| `philosopher_profiles.rs` | Profile schema, lifecycle, and maturity gates |
+| `readiness.rs` | Evidence-backed seven-level readiness projection |
+| `realm_policy.rs` | Realm/action policy, atomic reload, and blocking authority |
+| `resonance.rs` | Resonance and phi/governance composition |
+| `scorer.rs` | Async scorer contracts, receipts, and optional LLM adapter |
+| `solar.rs` | NOAA Kp/Dst client, cache, and degraded semantics |
 | `triad.rs` | Triad gate, governance chains, TOML load/validate |
 | `triad_philosopher.rs` | Alignment arbitration |
-| `resonance.rs` | Resonance + ECST/phiharmonic/governance-chain scoring |
-| `love_dynamics.rs` | Differential love dynamics |
-| `love_equation.rs` | Static love equation proxy |
-| `nonconformist_bee.rs` | Independent judgment and anti-sycophancy assessment |
-| `empirical_distrust.rs` | Evidence grounding and falsifiability assessment |
-| `joulework.rs` | JouleWork profile surface |
-| `game_theory.rs` | Capability-weighted agent selection |
-| `bacon_lite.rs` | Evidence gate + machine/human logging |
-| `readiness.rs` | Seven-level readiness projection |
 | `vision.rs` | Visual convergence governance signal |
-| `audio.rs` | Audio environmental governance signal |
-| `solar.rs` | NOAA Kp/Dst geomagnetic multiplier |
-| `philosopher_profiles.rs` | Profile schema validation + maturity gating |
-| `philosophers/socrates.rs` | Retired in Phase 0: unregistered placeholder referenced a nonexistent legacy corpus API |
-| `corpus_loader.rs` | Retired in Phase 0: unregistered draft referenced a nonexistent legacy corpus API |
+| `versions.rs` | Stable policy and semantics identifiers |
 
-## Consumer wiring
-- No direct `arda-engine` / `apps` imports
-- Indirectly reachable via `arda-core` loop engine / triad consultant
-- Logical next wiring point: expose triad/resonance/love/joule scorings
-  through engine or CLI for telemetry
+## Direct workspace consumers
 
-## Ideas for improvement
-1. Fix repo path contract: align `chains.toml` `profile_source` with
-   repo default `config/governance/philosophers.toml`.
-2. Replace path-string coupling with base-dir injection so tests don't
-   depend on repo layout.
-3. **Implemented in Phase 8:** `autonomous_blocking_enabled` is resolved by one runtime
-   policy authority with named-scope readiness, rollback, review-receipt, and operator gates.
-4. Convert Bacon-Lite log transport to a shared ledger trait in `arda-core`.
-5. Add `GameTheoryConfidenceBand` enum: High/Medium/Low/NoData.
-6. Add evidence-grade penalty in triads instead of silently lenient
-   heuristic-local scoring when no LLM evidence is attached.
-7. Completed in Phase 7 without a breaking module rename: the canonical entry point is
-   `love_dynamics_compatibility_proxy`, and the old function is deprecated.
-8. Parallelize NOAA/vision/audio fetches in HUD refresh with
-   `try_run_bounded_async` from `arda-core/background.rs`.
-9. Add a `GovernanceSignal` enum for composite environmental coherence.
-10. Wire one governance signal into engine/HADES for live telemetry.
+- `manwe` — adaptive route preview/selection governance and blocking receipts.
+- `arda-aule` — operator status and metrics presentation.
+- `arda-varda` — governed ingestion/task receipts and environmental evidence.
+- `arda-mandos` — policy/outcome authority integration.
+- `arda-orome` — dispatch governance hooks.
+- `arda-economics` — governance-aware runtime economics.
+- `arda-vaire` — governance/memory integration scenarios.
+
+The workspace root also declares the dependency centrally. Consumers should prefer crate-root
+re-exports and treat `tests/fixtures/public_api_v1.json` as the wire-compatibility baseline.
+
+## Change boundaries
+
+- Do not make advisory environmental inputs authoritative without a new reviewed contract.
+- Do not enable blocking from legacy config flags; `RuntimeBlockingAuthority` is the sole gate.
+- Do not remove/rename public fields, wire names, or crate-root exports without compatibility
+  review and fixture updates.
+- Do not treat default/estimated JouleWork or missing environmental data as observed evidence.
+- Keep future proposals and decisions in `PLAN.md`, not in this implementation map.

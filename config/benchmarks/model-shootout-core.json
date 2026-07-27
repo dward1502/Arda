@@ -1,0 +1,49 @@
+{
+  "host_label": "core-rtx3080",
+  "benchmark_script": "/var/home/mythos/Eregion/Arda/scripts/benchmark_local_model.py",
+  "receipt_dir": "/var/home/mythos/Eregion/Arda/core/state/model-benchmarks/core",
+  "port": 18400,
+  "context_size": 65536,
+  "performance_contexts": [1024, 8192, 32000],
+  "long_context": 65000,
+  "repetitions": 3,
+  "request_timeout": 900,
+  "load_timeout": 300,
+  "gpu_layers": 999,
+  "server_args": ["--parallel", "1"],
+  "systemctl": ["systemctl", "--user", "--machine=mythos@.host"],
+  "service_units": ["mesh-llm.service"],
+  "environment": {
+    "LD_LIBRARY_PATH": "/var/home/mythos/.local/lib/cuda12"
+  },
+  "gates": {
+    "generation_tps": 30,
+    "prompt_8k_tps": 250,
+    "tool_validity": 0.95,
+    "task_correctness": 0.85,
+    "memory_margin_gib": 1.0
+  },
+  "candidates": [
+    {
+      "name": "Qwen3.5-9B-Q4_K_M",
+      "model_id": "Qwen3.5-9B-Q4_K_M",
+      "model_path": "/var/home/mythos/models/qwen3.5-9b/Qwen3.5-9B-Q4_K_M.gguf",
+      "binary": "/var/home/mythos/.local/bin/llama-server-cuda",
+      "server_args": ["--cache-type-k", "q4_0", "--cache-type-v", "q4_0", "--batch-size", "1024", "--ubatch-size", "256", "--reasoning-format", "deepseek"]
+    },
+    {
+      "name": "Carnice-9B-Q6_K",
+      "model_id": "Carnice-9b-Q6_K",
+      "model_path": "/var/home/mythos/models/Carnice-9b-Q6_K.gguf",
+      "binary": "/var/home/mythos/.local/bin/llama-server-cuda",
+      "server_args": ["--cache-type-k", "q4_0", "--cache-type-v", "q4_0", "--batch-size", "1024", "--ubatch-size", "256", "--reasoning-format", "deepseek"]
+    },
+    {
+      "name": "LFM2.5-8B-A1B-Q4_K_M",
+      "model_id": "LFM2.5-8B-A1B-Q4_K_M",
+      "model_path": "/var/home/mythos/models/liquidai/lfm2.5-8b-a1b/LFM2.5-8B-A1B-Q4_K_M.gguf",
+      "binary": "/var/home/mythos/.local/bin/llama-server-cuda",
+      "server_args": ["--cache-type-k", "q8_0", "--cache-type-v", "q4_0", "--reasoning-format", "deepseek", "--reasoning-budget", "0"]
+    }
+  ]
+}

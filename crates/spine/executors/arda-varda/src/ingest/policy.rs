@@ -33,7 +33,7 @@ pub(super) fn ingest_quarantine_reason(event: &BaconLiteEvent) -> Option<String>
 fn projects_task_queue_path() -> PathBuf {
     std::env::var("ARDA_PROJECT_TASK_QUEUE_PATH")
         .map(PathBuf::from)
-        .unwrap_or_else(|_| PathBuf::from("core/projects/tasks/queue.jsonl"))
+        .unwrap_or_else(|_| super::layout::arda_root().join("core/projects/tasks/queue.jsonl"))
 }
 
 impl AthenaStore {

@@ -24,7 +24,61 @@ pub struct RouteReceipt {
     pub expected_exact: Option<String>,
     pub exact_match: Option<bool>,
     pub quality_score: Option<f64>,
+    pub benchmark: Option<TaskClassBenchmarkReceipt>,
     pub error: Option<String>,
+}
+
+#[derive(Debug, Clone)]
+pub struct QualityExpectation {
+    pub exact: String,
+    pub benchmark_id: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct TaskClassBenchmarkReceipt {
+    pub schema_version: &'static str,
+    pub benchmark_id: String,
+    pub task_class: String,
+    pub evaluator: &'static str,
+    pub passed: bool,
+    pub score: f64,
+}
+
+pub fn task_class_benchmark_receipt(
+    task_type: &str,
+    benchmark_id: &str,
+    expected_exact: &str,
+    body: Option<&serde_json::Value>,
+) -> Option<TaskClassBenchmarkReceipt> {
+    let valid_id = !benchmark_id.is_empty()
+        && benchmark_id.len() <= 64
+        && benchmark_id
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'.' | b'_' | b'-'));
+    if !valid_id || expected_exact.len() > 4096 {
+        return None;
+    }
+
+    let task_class = match task_type {
+        "chat" | "code" | "vision" | "reasoning" | "summary" | "tool_use" | "structured_output" => {
+            task_type
+        }
+        _ => "other",
+    };
+    let actual = body
+        .and_then(|value| value.pointer("/choices/0/message/content"))
+        .and_then(serde_json::Value::as_str)
+        .map(str::trim);
+    let passed = actual.is_some_and(|value| value == expected_exact.trim());
+
+    Some(TaskClassBenchmarkReceipt {
+        schema_version: "arda.manwe.task_benchmark.v1",
+        benchmark_id: benchmark_id.to_string(),
+        task_class: task_class.to_string(),
+        evaluator: "exact_match",
+        passed,
+        score: if passed { 1.0 } else { 0.0 },
+    })
 }
 
 #[derive(Debug, Clone)]
@@ -62,6 +116,10 @@ impl ReceiptWriter {
     }
 }
 
+#[expect(
+    clippy::too_many_arguments,
+    reason = "route receipts keep each externally observed response field explicit"
+)]
 pub fn receipt_from_response(
     provider_id: String,
     model_id: String,
@@ -71,10 +129,13 @@ pub fn receipt_from_response(
     streaming: bool,
     status_code: u16,
     latency_ms: u64,
-    expected_exact: Option<String>,
+    quality_expectation: Option<QualityExpectation>,
     body: Option<&serde_json::Value>,
     error: Option<String>,
 ) -> RouteReceipt {
+    let expected_exact = quality_expectation
+        .as_ref()
+        .map(|expectation| expectation.exact.clone());
     let prompt_tokens = body
         .and_then(|value| value.pointer("/usage/prompt_tokens"))
         .and_then(serde_json::Value::as_u64);
@@ -101,7 +162,7 @@ pub fn receipt_from_response(
         .and_then(serde_json::Value::as_str);
     let has_answer_content = body.map(|_| answer.is_some_and(|value| !value.trim().is_empty()));
     let reasoning_only = body.map(|_| {
-        !answer.is_some_and(|value| !value.trim().is_empty())
+        answer.is_none_or(|value| value.trim().is_empty())
             && reasoning.is_some_and(|value| !value.trim().is_empty())
     });
     let exact_match = expected_exact.as_deref().map(|expected| {
@@ -122,6 +183,17 @@ pub fn receipt_from_response(
             0.0
         }
     });
+    let benchmark = quality_expectation
+        .as_ref()
+        .and_then(|expectation| {
+            expectation
+                .benchmark_id
+                .as_deref()
+                .map(|benchmark_id| (expectation, benchmark_id))
+        })
+        .and_then(|(expectation, benchmark_id)| {
+            task_class_benchmark_receipt(&task_type, benchmark_id, &expectation.exact, body)
+        });
 
     RouteReceipt {
         ts_utc: chrono::Utc::now().to_rfc3339(),
@@ -142,6 +214,7 @@ pub fn receipt_from_response(
         expected_exact,
         exact_match,
         quality_score,
+        benchmark,
         error,
     }
 }
@@ -169,7 +242,10 @@ mod tests {
             false,
             200,
             3000,
-            Some("MANWE_OK".into()),
+            Some(QualityExpectation {
+                exact: "MANWE_OK".into(),
+                benchmark_id: None,
+            }),
             Some(&body),
             None,
         );
@@ -177,5 +253,37 @@ mod tests {
         assert_eq!(receipt.reasoning_only, Some(true));
         assert_eq!(receipt.exact_match, Some(false));
         assert_eq!(receipt.quality_score, Some(0.0));
+    }
+
+    #[test]
+    fn emits_deterministic_task_class_benchmark_receipt() {
+        let body = serde_json::json!({
+            "choices": [{"message": {"content": "fn answer() {}"}}]
+        });
+
+        let receipt =
+            task_class_benchmark_receipt("code", "rust-smoke-01", "fn answer() {}", Some(&body))
+                .expect("bounded benchmark receipt");
+
+        assert_eq!(receipt.schema_version, "arda.manwe.task_benchmark.v1");
+        assert_eq!(receipt.benchmark_id, "rust-smoke-01");
+        assert_eq!(receipt.task_class, "code");
+        assert_eq!(receipt.evaluator, "exact_match");
+        assert!(receipt.passed);
+        assert_eq!(receipt.score, 1.0);
+    }
+
+    #[test]
+    fn rejects_unbounded_benchmark_identifiers() {
+        let body = serde_json::json!({
+            "choices": [{"message": {"content": "ok"}}]
+        });
+
+        assert!(
+            task_class_benchmark_receipt("chat", &"x".repeat(65), "ok", Some(&body),).is_none()
+        );
+        assert!(
+            task_class_benchmark_receipt("chat", "contains spaces", "ok", Some(&body)).is_none()
+        );
     }
 }

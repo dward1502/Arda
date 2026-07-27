@@ -6,11 +6,11 @@ soterion:
   role: "directory_index"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-25"
+  last_reviewed: "2026-07-26"
 ---
 
 
-> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-25
+> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-26
 
 # Index: crates/spine/governance/arda-governance/INDEX.md
 
@@ -18,13 +18,10 @@ soterion:
 
 - `Cargo.toml`
 - `BREAKDOWN.md`
-- `CRATE_PLAN.md`
-- `FIRST_CLASS_CHECKLIST.md`
-- `GOVERNANCE_ALIGNMENT_PLAN.md`
 - `GOVERNANCE_PROVENANCE.md`
 - `INDEX.md`
-- `OPTIMIZATION_PLAN.md`
 - `OWNERSHIP.md`
+- `PLAN.md`
 - `README.md`
 - `STATUS.md`
 - `src`
@@ -32,10 +29,11 @@ soterion:
 
 ## Purpose
 
-Crate index for `crates/spine/governance/arda-governance/INDEX.md`.
-`FIRST_CLASS_CHECKLIST.md` is the canonical execution tracker; the three source plans are
-superseded for execution and retained as design/audit evidence.
+Canonical navigation for the crate. `README.md` explains use, `STATUS.md` records current
+health, `BREAKDOWN.md` maps implementation, and `PLAN.md` holds future discussion.
 
 ## Notes
 
-Normalized from on-disk contents; review cadence is quarterly unless owner changes.
+Completed phase/checklist and superseded optimization/alignment plans were removed after
+their final state was reconciled into the canonical documents. Git history remains the audit
+record. Review this index whenever root documentation changes.

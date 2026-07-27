@@ -72,6 +72,18 @@ fn cooldown_bypass_allows_short_transient_cooldown() {
 }
 
 #[test]
+fn one_local_transport_failure_is_not_double_counted_as_a_provider_freeze() {
+    let mut p = provider("edge_beelink_light");
+    p.access_tier = "local".to_string();
+    // One failed proxy attempt is recorded on both the provider and its
+    // selected model. Those counters describe the same event.
+    p.consecutive_failures = 1;
+    p.models[0].consecutive_failures = 1;
+
+    assert!(provider_eligible(&p, "normal", false));
+}
+
+#[test]
 fn cooldown_bypass_blocks_opencode_billing_cooldown() {
     let mut p = provider("opencode");
     p.in_cooldown = true;

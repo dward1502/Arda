@@ -25,6 +25,7 @@ pub struct ProviderDefinition {
     pub models_url: Option<String>,
     pub role: Option<String>,
     pub resource_group: Option<String>,
+    pub resource_group_concurrency: Option<usize>,
     pub context_window: Option<usize>,
     #[serde(default)]
     pub access_tier: String,
@@ -78,6 +79,7 @@ impl ProviderDefinition {
             models_url: None,
             role: None,
             resource_group: None,
+            resource_group_concurrency: None,
             context_window: None,
             access_tier: "local".to_string(),
             in_cooldown: false,
@@ -115,6 +117,7 @@ impl ProviderDefinition {
             models_url: node.models_url.clone(),
             role: node.role.clone(),
             resource_group: node.hostname.clone(),
+            resource_group_concurrency: node.resource_group_concurrency.filter(|limit| *limit > 0),
             context_window: node.runtime_context_window,
             access_tier: "local".to_string(),
             in_cooldown: false,
@@ -134,6 +137,7 @@ struct FleetNode {
     display_name: Option<String>,
     role: Option<String>,
     hostname: Option<String>,
+    resource_group_concurrency: Option<usize>,
     enrollment_status: Option<String>,
     base_url: Option<String>,
     runtime_port: Option<u16>,
@@ -186,10 +190,6 @@ impl ProviderCatalog {
             by_id.insert(entry.id.clone(), entry);
         }
         Self { by_id }
-    }
-
-    pub fn default_bootstrap() -> Self {
-        Self::from_fleet_config(Path::new("config/fleet.toml"))
     }
 
     pub fn empty() -> Self {
@@ -278,6 +278,39 @@ impl ProviderCatalog {
 
         self.by_id
             .values()
+            .filter(|provider| provider_eligible(provider, task_type, required_context, local_only))
+            .max_by_key(|provider| provider_score(provider, task_type))
+    }
+
+    /// Select the best equivalent provider outside the selected provider's
+    /// resource group. This is used only after the selected group is observed
+    /// at capacity; callers retain the original selection when no equivalent
+    /// alternate exists so normal bounded queueing remains the fallback.
+    pub fn resolve_alternate_resource_group(
+        &self,
+        selected: &ProviderDefinition,
+        requested_model: &str,
+        task_type: &str,
+        required_context: usize,
+        local_only: bool,
+    ) -> Option<&ProviderDefinition> {
+        let selected_group = selected
+            .resource_group
+            .as_deref()
+            .unwrap_or(selected.id.as_str());
+        let generic_request = matches!(requested_model, "auto" | "default" | "local/auto");
+
+        self.by_id
+            .values()
+            .filter(|provider| provider.id != selected.id)
+            .filter(|provider| {
+                provider
+                    .resource_group
+                    .as_deref()
+                    .unwrap_or(provider.id.as_str())
+                    != selected_group
+            })
+            .filter(|provider| generic_request || provider.model_id == selected.model_id)
             .filter(|provider| provider_eligible(provider, task_type, required_context, local_only))
             .max_by_key(|provider| provider_score(provider, task_type))
     }
@@ -522,6 +555,7 @@ manwe_provider_id = "edge_core"
 enrollment_status = "active"
 base_url = "http://core:9337/v1"
 runtime_port = 9337
+resource_group_concurrency = 2
 expected_models = ["LFM"]
 "#;
         let catalog = ProviderCatalog::from_fleet_config_direct(sample);
@@ -530,6 +564,7 @@ expected_models = ["LFM"]
         assert_eq!(provider.model_id, "LFM");
         assert_eq!(provider.base_url, "http://core:9337/v1");
         assert_eq!(provider.health_url, None);
+        assert_eq!(provider.resource_group_concurrency, Some(2));
     }
 
     #[test]
@@ -575,6 +610,43 @@ supports_tools = true
         assert_eq!(selected.id, "coder");
         assert_eq!(selected.resource_group.as_deref(), Some("shared-host"));
         assert!(catalog.resolve("general", false, "chat", 64_000).is_none());
+    }
+
+    #[test]
+    fn adaptive_resolution_can_move_to_an_equivalent_alternate_resource_group() {
+        let mut primary = ProviderDefinition::openai_compatible(
+            "primary",
+            "Primary",
+            "shared-model",
+            "http://primary:8000/v1",
+        );
+        primary.resource_group = Some("gpu-a".to_string());
+        primary.context_window = Some(32_768);
+        primary.probe_latency_ms = Some(10);
+        let mut same_group = ProviderDefinition::openai_compatible(
+            "same-group",
+            "Same group",
+            "shared-model",
+            "http://same-group:8001/v1",
+        );
+        same_group.resource_group = Some("gpu-a".to_string());
+        same_group.context_window = Some(32_768);
+        same_group.probe_latency_ms = Some(1);
+        let mut alternate = ProviderDefinition::openai_compatible(
+            "alternate",
+            "Alternate",
+            "shared-model",
+            "http://alternate:8002/v1",
+        );
+        alternate.resource_group = Some("gpu-b".to_string());
+        alternate.context_window = Some(32_768);
+        alternate.probe_latency_ms = Some(20);
+        let catalog = ProviderCatalog::new(vec![primary.clone(), same_group, alternate]);
+
+        let selected = catalog
+            .resolve_alternate_resource_group(&primary, "auto", "chat", 4_096, false)
+            .expect("alternate resource group");
+        assert_eq!(selected.id, "alternate");
     }
 
     #[test]

@@ -10,8 +10,9 @@ The default binary combines two catalogs:
 1. `--config <path>` (default `manwe.toml`) owns fallback forwarding
    providers. A valid non-empty file is used. A missing, unreadable, malformed,
    or provider-empty file selects the embedded local Ollama configuration.
-2. `ARDA_MANWE_FLEET_CONFIG`, then
-   [`config/fleet.toml`](../../../../config/fleet.toml), owns fleet discovery.
+2. `ARDA_MANWE_FLEET_CONFIG`, legacy alias
+   `ANNUNIMAS_CHARON_FLEET_CONFIG`, then
+   [`$ARDA_ROOT/config/fleet.toml`](../../../../config/fleet.toml), owns fleet discovery.
    Missing or malformed fleet input produces an empty fleet catalog; it does
    not replace the forwarding providers from `--config`.
 
@@ -22,7 +23,7 @@ static forwarding catalog. Explicit `provider/model`, catalog model IDs,
 
 The static runtime exposes `/providers`, `/state`, `/v1/models`,
 `/v1/capabilities`, and `/v1/chat/completions`. It writes best-effort route
-receipts to `data/manwe/route_receipts.jsonl`.
+receipts to `$ARDA_ROOT/data/manwe/route_receipts.jsonl`.
 
 Static startup validates the selected forwarding configuration's provider
 presence, bind address, endpoint shape, and non-noise API keys. Provider reachability
@@ -39,9 +40,10 @@ provider catalog.
 Provider configuration resolves as follows:
 
 1. `ARDA_MANWE_PROVIDER_CONFIG`.
-2. `$ARDA_ROOT/config/charon.providers.toml`. If `ARDA_ROOT` is unset, the
+2. Legacy environment alias `ANNUNIMAS_CHARON_PROVIDER_CONFIG`.
+3. `$ARDA_ROOT/config/manwe.providers.toml`. If `ARDA_ROOT` is unset, the
    build-derived Manwe source ancestor is used.
-3. Governed built-in providers when the file is missing; governed defaults
+4. Governed built-in providers when the file is missing; governed defaults
    after a malformed or provider-empty file is rejected.
 
 The optional fleet bootstrap overlay resolves from
@@ -56,8 +58,9 @@ driver selection, and nested `[[provider.model]]` records. A configured
 The legacy `healthy` field is ignored because live probes own health.
 
 Adaptive mutable state resolves from `ARDA_MANWE_STATE_DIR`, then
-`ARDA_MANWE_HOME`, then `$ARDA_HOME/data/manwe`, and finally
-`./data/manwe`. The service root contains:
+`ARDA_MANWE_HOME`, then `$ARDA_ROOT/data/manwe`, then the compatibility
+`$ARDA_HOME/data/manwe` root, and finally the build-derived Arda workspace root.
+The service root contains:
 
 - `state.jsonl` and `governance_events.jsonl`
 - `tool_fit_ledger.jsonl`
@@ -80,3 +83,5 @@ path, event, and metric endpoints. There is no `/providers/candidates` route.
   provenance and catalog generation.
 - Buffered SSE is the static binary's documented stream contract; it is not
   live incremental pass-through. See [`README.md`](README.md).
+- `ARDA_ROUTE_*` remains the canonical shared route-policy namespace because
+  Manwe, Varda, and Aule consume it; it is not a legacy Manwe naming surface.

@@ -15,7 +15,7 @@ pub(super) async fn ensure_hermes_proxy(provider: &ProviderState) -> Result<Stri
     let provider_key = provider.id.clone();
     {
         let mut children = proxy_children().lock().map_err(|_| ArdaError::Agent {
-            agent: "charon".to_string(),
+            agent: "manwe".to_string(),
             message: "hermes_proxy child registry lock poisoned".to_string(),
         })?;
         let should_spawn = children
@@ -42,7 +42,7 @@ pub(super) async fn ensure_hermes_proxy(provider: &ProviderState) -> Result<Stri
     }
 
     Err(ArdaError::Agent {
-        agent: "charon".to_string(),
+        agent: "manwe".to_string(),
         message: format!(
             "hermes_proxy driver started proxy for {} but {} did not become ready",
             provider.id, base_url
@@ -94,7 +94,7 @@ fn spawn_hermes_proxy(provider: &ProviderState, base_url: &str) -> Result<Child>
         .stderr(Stdio::null())
         .spawn()
         .map_err(|err| ArdaError::Agent {
-            agent: "charon".to_string(),
+            agent: "manwe".to_string(),
             message: format!(
                 "failed to spawn hermes_proxy driver '{}' for provider {}: {err}",
                 bin, provider.id

@@ -1,0 +1,55 @@
+{
+  "host_label": "beelink-ser9",
+  "benchmark_script": "/home/citadel/arda-model-benchmark/benchmark_local_model.py",
+  "receipt_dir": "/home/citadel/arda-model-benchmark/receipts/beelink",
+  "port": 18400,
+  "context_size": 32768,
+  "performance_contexts": [1024, 8192, 16000, 32000],
+  "long_context": 32000,
+  "repetitions": 3,
+  "long_context_repetitions": 1,
+  "long_context_max_seconds": 300,
+  "request_timeout": 300,
+  "load_timeout": 300,
+  "gpu_layers": 999,
+  "server_args": ["--parallel", "1"],
+  "systemctl": ["systemctl", "--user"],
+  "service_units": ["llama-server-light.service", "llama-server.service"],
+  "gates": {
+    "generation_tps": 20,
+    "prompt_8k_tps": 100,
+    "tool_validity": 0.90,
+    "task_correctness": 0.85,
+    "memory_margin_gib": 0.0
+  },
+  "candidates": [
+    {
+      "name": "Qwen3.5-4B-Q6_K",
+      "model_id": "Qwen_Qwen3.5-4B-Q6_K",
+      "model_path": "/home/citadel/models/Qwen_Qwen3.5-4B-Q6_K.gguf",
+      "binary": "/home/citadel/llama.cpp/build/bin/llama-server",
+      "server_args": ["--cache-type-k", "q8_0", "--cache-type-v", "q4_0", "--reasoning-format", "deepseek"]
+    },
+    {
+      "name": "LFM2.5-8B-A1B-Q4_K_M",
+      "model_id": "LFM2.5-8B-A1B-Q4_K_M",
+      "model_path": "/home/citadel/models/LFM2.5-8B-A1B-Q4_K_M.gguf",
+      "binary": "/home/citadel/llama.cpp/build/bin/llama-server",
+      "server_args": ["--cache-type-k", "q8_0", "--cache-type-v", "q4_0", "--reasoning-format", "deepseek", "--reasoning-budget", "0"]
+    },
+    {
+      "name": "Carnice-9B-Q4_K_M",
+      "model_id": "Carnice-9b-Q4_K_M",
+      "model_path": "/home/citadel/models/Carnice-9b-Q4_K_M.gguf",
+      "binary": "/home/citadel/llama.cpp/build/bin/llama-server",
+      "server_args": ["--cache-type-k", "q8_0", "--cache-type-v", "q4_0", "--reasoning-format", "deepseek"]
+    },
+    {
+      "name": "Ternary-Bonsai-8B-Q2_0",
+      "model_id": "Ternary-Bonsai-8B-Q2_0",
+      "model_path": "/home/citadel/models/Ternary-Bonsai-8B-Q2_0.gguf",
+      "binary": "/home/citadel/llama.cpp-prism/build-prism/bin/llama-server",
+      "server_args": ["-dev", "Vulkan0"]
+    }
+  ]
+}

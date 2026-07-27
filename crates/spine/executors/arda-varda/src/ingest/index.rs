@@ -138,6 +138,7 @@ fn persist_payload(index_path: &Path, persisted: &PersistedDigestIndex) -> Resul
     fs::create_dir_all(parent)?;
     let lock = OpenOptions::new()
         .create(true)
+        .truncate(false)
         .read(true)
         .write(true)
         .open(index_path.with_extension("lock"))?;
@@ -288,6 +289,7 @@ pub(super) fn refresh_index_entry(
 ) -> Result<DigestIndex> {
     let lock = OpenOptions::new()
         .create(true)
+        .truncate(false)
         .read(true)
         .write(true)
         .open(index_path.with_extension("lock"))?;

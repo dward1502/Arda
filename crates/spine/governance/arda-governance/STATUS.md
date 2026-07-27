@@ -1,81 +1,57 @@
 # arda-governance status
 
 Crate: `crates/spine/governance/arda-governance`
-Current state: active
-Branch: `manwe`
-Test evidence: 2026-07-25 Phase 9 verification listed below.
-Documentation set: `README.md`, `BREAKDOWN.md`, `FIRST_CLASS_CHECKLIST.md`,
-`GOVERNANCE_PROVENANCE.md`, `CRATE_PLAN.md`, `OWNERSHIP.md`, `STATUS.md`, and indexes.
-Governance and memory integration scenario: `arda-governance`/`arda-vaire` test exists and asserts expected.
+Version: `0.1.0`
+State: **stable for current scope**
+Reviewed: 2026-07-26
+Required crate-local work: **none**
 
-Current signature: Triad/chain evaluation and typed evidence assessment active; async-first
-local/optional-LLM scoring receipts; validated realm/action policy with atomic reload audit;
-one readiness/review/rollback/operator-gated runtime blocking authority; explicit Love-
-Dynamics compatibility proxy, independent Nonconformist Bee and Empirical Distrust modules,
-separate philosopher resonance metadata, and lifecycle-receipted operator evidence.
-The backwards-compatible contract remains enforced via `tests/fixtures/public_api_v1.json`.
-Environmental degraded/unavailable semantics and producer-rate/backpressure, burst,
-recovery, malformed-ledger, rotation, and disk-failure paths have executable fixtures.
-Deprecated `calculate_resonance*` paths will be removed before 0.3.0; migration required in consumers.
+## Current implementation
 
-Operational expectation: use `enqueue_bacon_lite` on production paths, consume typed
-results/receipts, and verify with all-feature governance tests plus consumer-specific tests.
+- Deterministic Triad/chain evaluation and versioned structured evidence assessment.
+- Async-first local and optional provider-neutral LLM scorer receipts.
+- Validated realm/action policy with atomic reload audit.
+- One readiness/review/rollback/operator-gated runtime blocking authority.
+- Resonance, Love task-value compatibility, canonical Love Dynamics, JouleWork,
+  Nonconformist Bee, Empirical Distrust, philosopher arbitration, and game-theory selection.
+- Bounded Bacon-Lite persistence, recovery, ledger summaries, metrics, and operator reports.
+- Typed audio/vision/solar environmental evidence with advisory-only semantics.
+- Public wire compatibility guarded by `tests/fixtures/public_api_v1.json`.
 
-## Phase 7 verification
+## Stability assessment
 
-- `cargo fmt -p arda-governance -- --check`: passed.
-- `cargo test -p arda-governance --test phase7_philosopher_expansion`: 6 passed.
-- `cargo test -p arda-governance --all-features`: 110 passed including doctests.
-- `cargo clippy -p arda-core --all-targets --all-features -- -D warnings`: passed.
-- `cargo clippy -p arda-governance --all-targets --all-features -- -D warnings`: passed,
-  including dependency linting through `arda-core`.
-- `cargo check -p arda-aule`: passed, including the operator consumer of receipted verdicts.
-- Focused `arda-aule --features full-cli` test execution is blocked before test discovery by
-  the consumer's pre-existing feature-build failures (unresolved legacy imports/dependencies);
-  the default-feature consumer check remains clean.
-- Workspace-wide formatting is blocked by unrelated pre-existing diffs outside this crate.
+- No unfinished crate-local checklist or known failing gate remains.
+- Default governance readiness is deliberately **not autonomy-ready**. Blocking remains off
+  without independent review receipts, scoped evidence, rollback proof, and operator control.
+  This is the intended safety contract, not an incomplete implementation.
+- `calculate_resonance` and `calculate_resonance_basic` remain deprecated compatibility paths;
+  their eventual 0.3.0 removal is future migration work, not a current stability blocker.
+- Production persistence should use `enqueue_bacon_lite`; synchronous recording is for tests,
+  migrations, and explicitly cold paths.
 
-## Phase 8 verification
+## Verification evidence
 
-- `cargo fmt -p arda-governance -- --check`: passed.
-- `cargo test -p arda-governance --all-features`: passed, including 7 Phase 8 tests and
-  rustdoc tests.
-- `cargo clippy -p arda-core --all-targets --all-features -- -D warnings`: passed.
-- `cargo clippy -p arda-governance --all-targets --all-features -- -D warnings`: passed.
-- `cargo check -p arda-aule`: passed against the additive crate-root consumer surface.
-- `cargo doc -p arda-governance --no-deps --all-features`: passed.
-- Repository realm policy validates via the injected-root path-independence integration test;
-  its global and named-scope blocking flags are all false.
-
-## Phase 9 verification and readiness
-
-Passed on 2026-07-25:
+Passed from the workspace root on 2026-07-26:
 
 - `cargo fmt -p arda-governance -- --check`.
+- `cargo test -p arda-governance --all-features`: 117 passed
+  (67 unit, 47 integration, 3 doctests).
 - `cargo clippy -p arda-governance --all-targets --all-features -- -D warnings`.
-- `cargo test -p arda-governance --all-features`: 117 passed (67 unit, 47 integration,
-  3 doctests).
 - `cargo doc -p arda-governance --no-deps --all-features`.
-- `cargo test -p manwe --features adaptive`: 292 passed.
-- One default-feature focused run for `arda-aule`, `arda-orome`, `arda-varda`,
-  `arda-mandos`, `arda-economics`, and `arda-vaire` passed.
 
-Release evidence:
+Cargo emitted only the workspace's existing informational warning that a non-root package
+profile in `apps/arda-launcher/src-tauri/Cargo.toml` is ignored. It did not affect this crate.
 
-- Manwe adaptive routing now exercises `RealmPolicyStore`, `evaluate_realm_governance`,
-  `LocalGovernanceScorer`, and `RuntimeBlockingAuthority` on production preview/selection
-  paths. Typed scorer and blocking receipts are serialized in route decisions and selected-
-  route evidence; passing and non-passing tests keep the conservative non-blocking boundary.
-- `cargo fmt --all -- --check` passes.
-- `cargo check -p arda-aule --features full-cli --all-targets`, full-feature tests, and
-  strict all-target/all-feature Clippy pass. Process-level tests validate the supported
-  `governance-metrics` and `governance-status` operator contracts.
-- `GOVERNANCE_PROVENANCE.md` records exact external sources and adaptation boundaries. The
-  project creator completed human release review and approved the public algorithmic adapters
-  on 2026-07-25; no upstream prose, media, or code is incorporated.
+## Direct consumers
 
-The current default readiness report remains deliberately **not autonomy-ready**. Missing
-independent review receipts, scoped runtime evidence, rollback proof, and explicit operator
-control continue to prevent any realm/action scope from enabling autonomous blocking.
+`manwe`, `arda-aule`, `arda-varda`, `arda-mandos`, `arda-orome`, `arda-economics`, and
+`arda-vaire` declare direct dependencies. Consumer-specific historical release evidence is
+preserved in git history; this file reports only the current crate-local verification run.
 
-See `CRATE_PLAN.md` and `OWNERSHIP.md` for implementation priorities.
+## Documentation contract
+
+- Start with `README.md` for the public boundary and API map.
+- Use `BREAKDOWN.md` for implementation structure and integration ownership.
+- Use `PLAN.md` for future discussion and proposal decisions.
+- Use `GOVERNANCE_PROVENANCE.md` for source/adaptation provenance.
+- Use `OWNERSHIP.md` for authority boundaries.

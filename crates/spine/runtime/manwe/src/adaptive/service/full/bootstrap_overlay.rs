@@ -186,12 +186,12 @@ pub(super) fn load_providers_from_config(
     }
     let raw = fs::read_to_string(path)?;
     let cfg: ProviderConfigFile = toml::from_str(&raw).map_err(|e| ArdaError::Agent {
-        agent: "charon".to_string(),
+        agent: "manwe".to_string(),
         message: format!("failed to parse provider config {}: {e}", path.display()),
     })?;
     if cfg.provider.is_empty() {
         return Err(ArdaError::Agent {
-            agent: "charon".to_string(),
+            agent: "manwe".to_string(),
             message: format!(
                 "provider config {} has no [[provider]] blocks",
                 path.display()
@@ -265,7 +265,7 @@ pub(super) fn load_providers_from_config(
         if provider.healthy.is_some() {
             tracing::warn!(
                 provider_id = %provider.id,
-                "the `healthy` field in charon.providers.toml is deprecated and ignored; the runtime probe owns provider health. Remove the field from the [[provider]] block."
+                "the `healthy` field in manwe.providers.toml is deprecated and ignored; the runtime probe owns provider health. Remove the field from the [[provider]] block."
             );
         }
         configured.push(ProviderState {
@@ -314,7 +314,7 @@ pub(super) fn load_providers_from_config(
     }
     if configured.is_empty() {
         return Err(ArdaError::Agent {
-            agent: "charon".to_string(),
+            agent: "manwe".to_string(),
             message: format!(
                 "provider config {} produced no valid providers",
                 path.display()
@@ -463,7 +463,7 @@ fn apply_provider_intelligence_overlay(
     let raw = fs::read_to_string(intelligence_path)?;
     let parsed: ProviderIntelligenceFile =
         serde_json::from_str(&raw).map_err(|e| ArdaError::Agent {
-            agent: "charon".to_string(),
+            agent: "manwe".to_string(),
             message: format!(
                 "failed to parse provider intelligence {}: {e}",
                 intelligence_path.display()
@@ -690,7 +690,7 @@ fn apply_tool_fit_model_intelligence_overlay(
     let raw = fs::read_to_string(intelligence_path)?;
     let parsed: ToolFitModelIntelligenceFile =
         serde_json::from_str(&raw).map_err(|e| ArdaError::Agent {
-            agent: "charon".to_string(),
+            agent: "manwe".to_string(),
             message: format!(
                 "failed to parse tool-fit model intelligence {}: {e}",
                 intelligence_path.display()
@@ -846,7 +846,7 @@ fn load_fleet_bootstrap_state(path: &Path) -> Result<Option<FleetBootstrapFile>>
     }
     let raw = fs::read_to_string(path)?;
     let parsed = serde_json::from_str(&raw).map_err(|e| ArdaError::Agent {
-        agent: "charon".to_string(),
+        agent: "manwe".to_string(),
         message: format!(
             "failed to parse fleet bootstrap state {}: {e}",
             path.display()

@@ -47,7 +47,12 @@ Operationally, the crate now includes:
 - Unix socket IPC and HTTP/SSE transport surfaces
 - CLI-facing daemon/service integration
 
-Current scoped verification: `cargo test -p arda-varda` passes 115 tests.
+Current scoped verification: `cargo test -p arda-varda` passes 116 tests.
+
+Documentation ownership: current crate behavior lives in this README,
+`BREAKDOWN.md`, `PLAN.md`, and `STATUS.md`. Historical assessments and generated
+validation evidence live under `docs/archive/arda-varda/`; there is intentionally
+no crate-local `docs/` tree.
 
 ## Runtime bounds and hook contract
 
@@ -65,7 +70,10 @@ Current scoped verification: `cargo test -p arda-varda` passes 115 tests.
   version and refreshes knowledge views.
 - Deep-analysis results are cached under `cache/deep_analysis/` by normalized
   query, relevant document IDs, and model ID; evidence changes invalidate
-  affected entries. `POST /query/stream` emits scored, citation-bearing SSE
+  affected entries. Deep-queue batches use a bounded worker pool configured by
+  `ARDA_ATHENA_DEEP_WORKERS` (default 2); deep queue/deep-analysis admission is
+  bounded by `ARDA_ATHENA_DEEP_QUEUE_MAX_CONCURRENCY` (default 2).
+  `POST /query/stream` emits scored, citation-bearing SSE
   matches and a terminal completion event without changing `POST /query`.
 - `GET /deep/events?after=<line-id>` follows append-only deep-queue records as
   schema-v2 SSE events. Event IDs are durable JSONL line cursors, so reconnecting
@@ -98,6 +106,14 @@ Current scoped verification: `cargo test -p arda-varda` passes 115 tests.
 - Default interceptors run in order: Hades, Warden, Mnemosyne.
 - Interceptors cannot veto core ingest work. Their `after` hooks run after the
   corresponding durable ATHENA write and are best-effort side effects.
+- Bacon-Lite evidence from the canonical store lands in Arda's root
+  `data/governance/` and `docs/operator/library/governance/` paths. A store rooted
+  outside the workspace uses that store root for both outputs, which keeps tests
+  and isolated deployments from recreating crate-local documentation trees.
+- Default planning tasks, learning deltas, and the Athena IPC socket resolve from
+  `ARDA_ROOT` (or the detected workspace root), never from the process working
+  directory. Running Varda from its crate directory therefore cannot recreate
+  crate-local `core/` or `data/` trees.
 
 Non-ingest task types still route through the configured LLM provider.
 

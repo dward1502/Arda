@@ -946,8 +946,12 @@ pub(super) fn provider_eligible(p: &ProviderState, priority: &str, strict: bool)
     if strict && near_day_quota(p, 0.85) {
         return false;
     }
-    let threshold = provider_freeze_threshold(&p);
-    let consecutive = p.consecutive_failures.saturating_add(model_consecutive_failures(&p.models));
+    let threshold = provider_freeze_threshold(p);
+    // A failed attempt is recorded at both provider and selected-model scope.
+    // Use the larger streak rather than counting the same event twice.
+    let consecutive = p
+        .consecutive_failures
+        .max(model_consecutive_failures(&p.models));
     // A provider admitted by the sampled half-open gate must receive one
     // recovery probe even after reaching the normal freeze threshold.
     if consecutive >= threshold && !provider_in_half_open(p) {
@@ -983,8 +987,10 @@ pub(super) fn provider_eligible_ignoring_cooldown(p: &ProviderState, priority: &
     {
         return false;
     }
-    let threshold = provider_freeze_threshold(&p).saturating_add(2);
-    let consecutive = p.consecutive_failures.saturating_add(model_consecutive_failures(&p.models));
+    let threshold = provider_freeze_threshold(p).saturating_add(2);
+    let consecutive = p
+        .consecutive_failures
+        .max(model_consecutive_failures(&p.models));
     if consecutive >= threshold {
         return false;
     }
@@ -1358,6 +1364,97 @@ pub(super) fn model_supports_request(
     }
 
     true
+}
+
+pub(super) fn model_request_incompatibilities(
+    provider_id: &str,
+    model: &ModelState,
+    req: &ManweRequestEnvelope,
+    forced_model_id: Option<&str>,
+) -> Vec<String> {
+    let mut reasons = Vec::new();
+    if forced_model_id.is_some_and(|forced| model.id != forced && !model.alias_matches(forced)) {
+        reasons.push("model_role:forced_model_mismatch".to_string());
+    }
+    if !model.healthy {
+        reasons.push("model_role:model_unhealthy".to_string());
+    }
+    if model.in_cooldown {
+        reasons.push("model_role:model_in_cooldown".to_string());
+    }
+    if !model.is_default
+        && !model
+            .capable_tasks
+            .iter()
+            .any(|task| task == &req.task_type)
+    {
+        reasons.push(format!("model_role:missing_task_type:{}", req.task_type));
+    }
+
+    let priority = req.priority.to_ascii_lowercase();
+    let route_profile = derive_route_execution_profile(req, &priority);
+    let mut context_window_target =
+        if is_local_provider(provider_id) && request_requires_agentic_tool_use(req) {
+            route_profile
+                .context_window_target
+                .min(local_slimmed_tool_context_target(req))
+        } else {
+            route_profile.context_window_target
+        };
+    if request_needs_tool_capable_route(req) && !request_allows_low_context_tool_fallback(req) {
+        context_window_target = context_window_target.max(tool_execution_min_context_window());
+    }
+    if route_profile.execution_lane == "execution" && !request_allows_low_context_tool_fallback(req)
+    {
+        context_window_target = context_window_target.max(tool_execution_min_context_window());
+    }
+    if route_profile.execution_lane == "compression" {
+        context_window_target = context_window_target.max(compression_min_context_window());
+    }
+    if is_local_provider(provider_id)
+        && request_requires_agentic_tool_use(req)
+        && !request_allows_low_context_tool_fallback(req)
+    {
+        context_window_target =
+            context_window_target.saturating_add(local_tool_context_headroom_tokens());
+    }
+    if model.context_window < context_window_target {
+        reasons.push(format!(
+            "context_window:required={context_window_target},available={}",
+            model.context_window
+        ));
+    }
+    if known_generation_incompatible_model(&model.id) {
+        reasons.push("model_role:generation_incompatible".to_string());
+    }
+    if request_requires_streaming(req)
+        && (model.capabilities.streaming == Some(false)
+            || (model.capabilities.streaming != Some(true)
+                && model.streaming_validated == Some(false)))
+    {
+        reasons.push("streaming:required_but_unsupported".to_string());
+    }
+    if request_uses_structured_output(req) && model.capabilities.structured_output == Some(false) {
+        reasons.push("structured_output:required_but_unsupported".to_string());
+    }
+    let needs_tool_capable_model = request_requires_agentic_tool_use(req)
+        || route_profile.route_class == "tool_oriented"
+        || route_profile.execution_lane == "execution";
+    if needs_tool_capable_model && model.capabilities.tools == Some(false) {
+        reasons.push("tools:required_but_unsupported".to_string());
+    } else if needs_tool_capable_model
+        && model.capabilities.tools != Some(true)
+        && known_tool_incompatible_model(provider_id, &model.id)
+    {
+        reasons.push("tools:known_incompatible_model".to_string());
+    }
+    if model_has_visible_reasoning_surface(model) && !request_allows_visible_reasoning(req) {
+        reasons.push("reasoning_surface:visible_reasoning_not_allowed".to_string());
+    }
+    if reasons.is_empty() {
+        reasons.push("model_role:no_matching_task_or_default_model".to_string());
+    }
+    reasons
 }
 
 fn known_generation_incompatible_model(model_id: &str) -> bool {

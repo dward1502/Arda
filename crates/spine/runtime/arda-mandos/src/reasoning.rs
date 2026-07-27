@@ -596,10 +596,7 @@ impl OracleEngine {
         }
     }
 
-    pub fn record_restart_verdict(
-        &mut self,
-        verdict: Verdict,
-    ) -> Result<(), OracleQueryError> {
+    pub fn record_restart_verdict(&mut self, verdict: Verdict) -> Result<(), OracleQueryError> {
         let key = verdict.query_id.clone();
         if self.history_queries.contains_key(&key) {
             return Err(OracleQueryError::DuplicateQueryId { id: key });
@@ -880,13 +877,7 @@ impl OracleEngine {
         score = normalize_score(score);
         let _passed = score >= self.policy.bacon_pass_threshold;
 
-        Self::build_gate_result(
-            GateKind::Bacon,
-            score,
-            concerns,
-            evidence,
-            evidence_signals,
-        )
+        Self::build_gate_result(GateKind::Bacon, score, concerns, evidence, evidence_signals)
     }
 
     fn evaluate_sun_tzu(&self, query: &OracleQuery) -> GateResult {
@@ -945,13 +936,7 @@ impl OracleEngine {
         score = normalize_score(score);
         let _passed = score >= self.policy.sun_tzu_pass_threshold;
 
-        Self::build_gate_result(
-            GateKind::SunTzu,
-            score,
-            concerns,
-            evidence,
-            Vec::new(),
-        )
+        Self::build_gate_result(GateKind::SunTzu, score, concerns, evidence, Vec::new())
     }
 
     fn cross_source_signals(evidence: &[EvidenceAssessment]) -> Vec<EvidenceSignal> {
@@ -2032,50 +2017,48 @@ mod tests {
             let mut engine = OracleEngine::new().with_policy(policy);
             let verdict = evaluate(&mut engine, oracle_query.clone());
             let passed = match gate {
-                GateUnderTest::Aurelius => {
-                    verdict.gates.aurelius.score >= aurelius_threshold
-                }
+                GateUnderTest::Aurelius => verdict.gates.aurelius.score >= aurelius_threshold,
                 GateUnderTest::Bacon => verdict.gates.bacon.score >= bacon_threshold,
-                GateUnderTest::SunTzu => {
-                    verdict.gates.sun_tzu.score >= sun_tzu_threshold
-                }
+                GateUnderTest::SunTzu => verdict.gates.sun_tzu.score >= sun_tzu_threshold,
             };
             assert!(passed, "score must meet threshold {score}");
 
             if (0.0..1.0).contains(&score) {
-            let mut policy = OraclePolicy::default();
-            let above = (score + 0.001).clamp(0.0, 1.0);
-            match gate {
-                GateUnderTest::Aurelius => policy.aurelius_pass_threshold = above,
-                GateUnderTest::Bacon => policy.bacon_pass_threshold = above,
-                GateUnderTest::SunTzu => policy.sun_tzu_pass_threshold = above,
-            }
-            let aurelius_threshold = policy.aurelius_pass_threshold;
-            let bacon_threshold = policy.bacon_pass_threshold;
-            let sun_tzu_threshold = policy.sun_tzu_pass_threshold;
-            let mut engine = OracleEngine::new().with_policy(policy);
-            let verdict = evaluate(&mut engine, oracle_query.clone());
-            let passed = match gate {
-                GateUnderTest::Aurelius => {
-                    verdict.gates.aurelius.score >= aurelius_threshold
+                let mut policy = OraclePolicy::default();
+                let above = (score + 0.001).clamp(0.0, 1.0);
+                match gate {
+                    GateUnderTest::Aurelius => policy.aurelius_pass_threshold = above,
+                    GateUnderTest::Bacon => policy.bacon_pass_threshold = above,
+                    GateUnderTest::SunTzu => policy.sun_tzu_pass_threshold = above,
                 }
-                GateUnderTest::Bacon => verdict.gates.bacon.score >= bacon_threshold,
-                GateUnderTest::SunTzu => {
-                    verdict.gates.sun_tzu.score >= sun_tzu_threshold
-                }
-            };
-            assert!(
-                !passed,
-                "threshold above score must still fail for score {score}"
-            );
+                let aurelius_threshold = policy.aurelius_pass_threshold;
+                let bacon_threshold = policy.bacon_pass_threshold;
+                let sun_tzu_threshold = policy.sun_tzu_pass_threshold;
+                let mut engine = OracleEngine::new().with_policy(policy);
+                let verdict = evaluate(&mut engine, oracle_query.clone());
+                let passed = match gate {
+                    GateUnderTest::Aurelius => verdict.gates.aurelius.score >= aurelius_threshold,
+                    GateUnderTest::Bacon => verdict.gates.bacon.score >= bacon_threshold,
+                    GateUnderTest::SunTzu => verdict.gates.sun_tzu.score >= sun_tzu_threshold,
+                };
+                assert!(
+                    !passed,
+                    "threshold above score must still fail for score {score}"
+                );
             }
-            }
-            }
+        }
+    }
 
     #[test]
     fn outcome_policy_table_covers_pass_conditional_fail_and_veto() {
         fn gate(passed: bool, kind: GateKind) -> GateResult {
-            OracleEngine::build_gate_result(kind, if passed { 1.0 } else { 0.0 }, Vec::new(), Vec::new(), Vec::new())
+            OracleEngine::build_gate_result(
+                kind,
+                if passed { 1.0 } else { 0.0 },
+                Vec::new(),
+                Vec::new(),
+                Vec::new(),
+            )
         }
 
         let engine = OracleEngine::new();

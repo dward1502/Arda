@@ -1,12 +1,32 @@
 use std::path::{Path, PathBuf};
 
 pub(super) fn arda_root() -> PathBuf {
-    if let Ok(path) = std::env::var("ARDA_ROOT") {
-        return PathBuf::from(path);
+    crate::config::arda_root()
+}
+
+pub(super) fn bacon_lite_base(service_root: &Path) -> PathBuf {
+    #[cfg(test)]
+    {
+        // Unit routes must keep generated governance evidence inside their
+        // injected temporary service root.
+        service_root.to_path_buf()
     }
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .ancestors()
-        .nth(4)
-        .map(Path::to_path_buf)
-        .unwrap_or_else(|| PathBuf::from("."))
+    #[cfg(not(test))]
+    {
+        let _ = service_root;
+        arda_root()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn bacon_lite_test_output_uses_the_injected_service_root() {
+        assert_eq!(
+            bacon_lite_base(Path::new("/tmp/manwe-test")),
+            PathBuf::from("/tmp/manwe-test")
+        );
+    }
 }

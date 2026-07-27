@@ -1,18 +1,32 @@
 {
-  "generated_at_utc": "2026-07-26T08:23:43.133835554+00:00",
+  "generated_at_utc": "2026-07-27T17:34:15.748564118+00:00",
   "lanes": {
+    "execution": {
+      "edge_core": {
+        "avg_latency_ms": 1188,
+        "success_count": 1,
+        "failure_count": 0,
+        "last_result_utc": "2026-07-27T09:08:44.361191517+00:00"
+      }
+    },
     "interactive": {
       "edge_beelink_light": {
-        "avg_latency_ms": 83,
-        "success_count": 5,
+        "avg_latency_ms": 401,
+        "success_count": 1,
         "failure_count": 0,
-        "last_result_utc": "2026-07-26T06:50:33.748907703+00:00"
+        "last_result_utc": "2026-07-27T09:05:53.267213168+00:00"
       },
-      "google": {
-        "avg_latency_ms": 465,
-        "success_count": 24,
-        "failure_count": 1,
-        "last_result_utc": "2026-07-26T08:23:43.133834264+00:00"
+      "edge_core": {
+        "avg_latency_ms": 161,
+        "success_count": 53,
+        "failure_count": 0,
+        "last_result_utc": "2026-07-27T17:34:15.748563478+00:00"
+      },
+      "edge_guardhouse": {
+        "avg_latency_ms": 3741,
+        "success_count": 1,
+        "failure_count": 0,
+        "last_result_utc": "2026-07-27T08:55:30.359503145+00:00"
       }
     }
   }

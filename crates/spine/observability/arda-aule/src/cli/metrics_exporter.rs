@@ -318,7 +318,7 @@ fn refresh(state: &ExporterState) {
             .unwrap_or(0);
         f.pressure_guard_violations_total.set(violation_total);
         let oversize_total = v
-            .pointer("/observed/oversize_files_gte_100mb")
+            .pointer("/observed/storage_pressure/oversize_files_gte_100mb")
             .and_then(|x| x.as_i64())
             .unwrap_or(0);
         f.pressure_guard_oversize_files_total.set(oversize_total);

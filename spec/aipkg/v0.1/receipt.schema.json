@@ -1,0 +1,92 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AIPKG receipt chain",
+  "type": "object",
+  "required": ["preflight", "execution", "validation"],
+  "properties": {
+    "preflight": {"$ref": "#/definitions/preflightReceipt"},
+    "execution": {"$ref": "#/definitions/executionReceipt"},
+    "validation": {"$ref": "#/definitions/validationReceipt"}
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "preflightReceipt": {
+      "type": "object",
+      "required": [
+        "package_id",
+        "version",
+        "digest",
+        "runtime_profile",
+        "approved",
+        "expires_at_utc",
+        "signature"
+      ],
+      "properties": {
+        "package_id": {"type": "string", "pattern": "^[a-z0-9]+(\\.[a-z0-9-]+)+$"},
+        "version": {"type": "string", "minLength": 1},
+        "digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+        "runtime_profile": {
+          "type": "string",
+          "enum": ["wasm-wasi", "oci-sandboxed", "local-sovereign"]
+        },
+        "approved": {"type": "boolean"},
+        "joule_budget": {"type": ["integer", "null"], "minimum": 0},
+        "expires_at_utc": {"type": "string", "format": "date-time"},
+        "signature": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "executionReceipt": {
+      "type": "object",
+      "required": [
+        "package_id",
+        "version",
+        "started_at_utc",
+        "completed_at_utc",
+        "joule_cost_actual",
+        "exit_code",
+        "output_digest",
+        "signature"
+      ],
+      "properties": {
+        "package_id": {"type": "string", "pattern": "^[a-z0-9]+(\\.[a-z0-9-]+)+$"},
+        "version": {"type": "string", "minLength": 1},
+        "started_at_utc": {"type": "string", "format": "date-time"},
+        "completed_at_utc": {"type": "string", "format": "date-time"},
+        "joule_cost_actual": {"type": "integer", "minimum": 0},
+        "exit_code": {"type": "integer"},
+        "output_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+        "signature": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "validationReceipt": {
+      "type": "object",
+      "required": [
+        "package_id",
+        "version",
+        "validated_at_utc",
+        "triad_passed",
+        "bacon_lite_passed",
+        "joule_within_budget",
+        "love_acceptable",
+        "overall_passed",
+        "validator_id",
+        "signature"
+      ],
+      "properties": {
+        "package_id": {"type": "string", "pattern": "^[a-z0-9]+(\\.[a-z0-9-]+)+$"},
+        "version": {"type": "string", "minLength": 1},
+        "validated_at_utc": {"type": "string", "format": "date-time"},
+        "triad_passed": {"type": "boolean"},
+        "bacon_lite_passed": {"type": "boolean"},
+        "joule_within_budget": {"type": "boolean"},
+        "love_acceptable": {"type": "boolean"},
+        "overall_passed": {"type": "boolean"},
+        "validator_id": {"type": "string", "minLength": 1},
+        "signature": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    }
+  }
+}

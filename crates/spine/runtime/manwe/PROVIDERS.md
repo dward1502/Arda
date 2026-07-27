@@ -57,6 +57,12 @@ driver selection, and nested `[[provider.model]]` records. A configured
 `api_key_env` is checked by name; credentials are not stored in status output.
 The legacy `healthy` field is ignored because live probes own health.
 
+Provider-result, model-streaming-validation, and provider-config reload routes
+are mutation surfaces. If `ARDA_MANWE_API_KEY` is unset or empty, they retain
+the local compatibility behavior. If it is set, callers must provide the exact
+`Authorization: Bearer <value>` header. The key is never emitted in status or
+capability responses.
+
 Adaptive mutable state resolves from `ARDA_MANWE_STATE_DIR`, then
 `ARDA_MANWE_HOME`, then `$ARDA_ROOT/data/manwe`, then the compatibility
 `$ARDA_HOME/data/manwe` root, and finally the build-derived Arda workspace root.

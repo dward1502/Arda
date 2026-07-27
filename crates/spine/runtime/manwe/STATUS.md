@@ -1,62 +1,41 @@
 # manwe — Current Status
 
 Crate: `crates/spine/runtime/manwe`
-Reviewed: 2026-07-26
+Reviewed: 2026-07-27
 State: active; foundation baseline complete and maintained
 
-## Verification performed in the 2026-07-25 foundation review
+## Verification performed in the 2026-07-27 foundation closure
 
 | Command | Result |
 |---|---|
-| `cargo check -p manwe` | PASS |
-| `cargo test -p manwe` | PASS: 1 library + 22 binary tests |
-| `cargo check -p manwe --all-targets --features adaptive` | PASS |
-| `cargo test -p manwe --features adaptive` | PASS: 268 library + 23 binary tests |
-| `python crates/spine/runtime/manwe/tests/process_smoke.py` | PASS: static and full governed adaptive processes |
-| `cargo check -p manwe --features grpc` | PASS |
-| `cargo fmt -p manwe -- --check` | PASS |
 | `cargo check -p manwe --all-targets --all-features` | PASS |
-| `cargo test -p manwe --all-features` | PASS: 268 library + 24 binary tests |
-| `cargo test -p arda-aule --features telemetry --test telemetry_surface` | PASS: public telemetry contract |
-| `python crates/spine/runtime/manwe/tests/check_docs.py` | PASS: 8 Markdown files, 25 local links, 12 source-index entries |
+| `cargo clippy -p manwe --all-targets --all-features -- -D warnings` | PASS |
+| `cargo test -p manwe --all-features` | PASS: 278 library + 29 binary tests |
+| `cargo fmt -p manwe -- --check` | PASS |
+| `python crates/spine/runtime/manwe/tests/process_smoke.py` | PASS: static and full governed adaptive processes |
+| `python crates/spine/runtime/manwe/tests/check_docs.py` | PASS: 6 Markdown files, 27 local links, 12 source-index entries |
+| `cargo test -p arda-engine` | PASS: 8 library + 1 integration test |
 
-The 2026-07-26 recovery gates emit only the workspace warning that the
-launcher's non-root Cargo profile is ignored. Both default and all-feature
-Clippy runs pass with `-D warnings`; the former Manwe dead-code and unused-item
-warnings are resolved. `arda_aule::telemetry` is now a feature-gated public module with a
-supported event emitter, tracing-layer builder, schema constant, and shutdown
-function. The active adaptive service emits state, governance, and memory
-events through that API. Manwe installs the OTLP layer when an endpoint is
-configured and flushes the provider at process exit. Trace/log destination
-routing and serialized attribute preservation have focused contract coverage.
-Event `delivery` attributes distinguish event-writer acceptance,
-Mnemosyne encoding, and telemetry-only memory delivery from durable persistence.
-Its old unattached `service_events.rs` duplicate was
-removed with the stale `observability::tracer`, `service::telemetry`, and
-misspelled `ardea_aule` references it contained.
+The closure audit repaired three regressions from the latest Manwe commit: the
+new mutation handlers now return one concrete response type, the unused
+top-level static-config API-key field was removed instead of advertising an
+unwired config contract, and mutation authorization now allows compatibility
+mode only when `ARDA_MANWE_API_KEY` is unset while requiring an exact bearer
+token when configured. A focused regression test covers disabled, missing,
+incorrect, and matching authorization states.
 
-Phase 9 follow-up verification on 2026-07-25 passed
-`cargo test -p manwe --features adaptive` with 269 library and 23 binary tests.
-The added production-route cases cover a named realm-policy success receipt and a
-non-passing policy reload that remains non-blocking while preserving all scorer receipts.
+The process smoke starts temporary static and adaptive Manwe processes plus a
+local mock OpenAI upstream. It verifies health/models/capabilities/chat,
+governed headers, config provenance and generation, malformed/missing config
+fallbacks, canonical path ownership, and state/governance receipts without
+calling external providers.
 
-The process smoke test starts controlled temporary static and adaptive Manwe
-processes plus a local mock OpenAI upstream. It verifies `/healthz`,
-`/v1/models`, `/v1/capabilities`, `/v1/chat/completions`, governed response
-headers, config provenance/catalog generations, missing/malformed/partial
-static startup, missing/malformed fleet startup, and adaptive
-state/governance receipts without calling external providers. The 2026-07-26
-path-ownership extension runs both processes from the Manwe crate directory,
-checks canonical-first fleet aliases and rooted receipt diagnostics, and proves
-that crate-local `core/`, `data/`, and operator-library outputs are unchanged.
-
-Focused current verification passes default, adaptive, and all-feature Clippy
-with `-D warnings`; default tests (1 library + 25 binary); adaptive tests (274
-library + 26 binary); all-feature tests (274 library + 27 binary); rustfmt;
-documentation validation; and the full process smoke. The transient
-all-feature blocker was an accidental broad `arda-orome::service` exposure that
-contradicted Orome's active stabilization plan; restoring the documented module
-boundary removed the blocker without changing Manwe.
+Direct observation on 2026-07-27 found the operator-managed governed runtime
+listening on `0.0.0.0:5110`, reporting `runtime: full_governed`, 21 catalog
+providers, and 5 ready/healthy providers. This deployment port does not replace
+the registered default `127.0.0.1:7171` contract. The live catalog and canonical
+provider TOML both report `edge_carnice` disabled; older claims that it is an
+active route are historical service-repair evidence, not current enrollment.
 
 ## Current capabilities
 
@@ -82,11 +61,10 @@ boundary removed the blocker without changing Manwe.
 - Canonical `manwe_*` Prometheus metrics with base-unit latency and bounded
   `provider_id`/`model`/`route_class` labels; generated `charon_*` aliases are
   retired.
-- `edge_carnice` is active on Beelink `:1234`; its host systemd service runs
-  llama.cpp directly and no longer depends on the removed distrobox. The three
-  obsolete backbone lanes remain intentionally retired in favor of `:8095`;
-  the backbone host itself was Tailscale/HTTP-unreachable on 2026-07-26 and is
-  therefore excluded by normal provider health gating until it returns.
+- `edge_carnice` remains configured at Beelink `:1234` but is currently disabled
+  in `config/manwe.providers.toml`. Enrollment is runtime configuration, not a
+  crate-foundation completion condition. Provider health and operational-state
+  responses remain the authority for current route eligibility.
 - Rich adaptive policy/service library behind `adaptive`.
 - Realm/action policy evaluation on every adaptive preview and selected route, with typed
   scorer, reload, and runtime-blocking receipts.
@@ -199,5 +177,5 @@ The canonical supervised process is now
 `cargo run -p manwe -- --config manwe.toml`; its registered health endpoint is
 `http://127.0.0.1:7171/healthz`. `arda-engine` parses the actual singular
 `[[service]]` command/cwd schema and rejects an empty registry instead of
-silently supervising nothing. On 2026-07-22, `cargo test -p arda-engine` passed
-4 tests and `cargo check --bin arda` passed.
+silently supervising nothing. On 2026-07-27, `cargo test -p arda-engine` passed
+8 library tests and 1 integration test.

@@ -4,7 +4,7 @@ soterion:
   role: "crate_breakdown"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-25"
+  last_reviewed: "2026-07-27"
 ---
 
 # manwe — Crate Breakdown
@@ -64,8 +64,8 @@ the fleet catalog cannot satisfy a request.
 
 1. Parse `model`; infer `chat`, `code`, or `vision` task shape and a context
    estimate.
-2. Resolve an eligible fleet provider. Adaptive-lite mode allows automatic
-   task/context/capability selection and emits rejection diagnostics.
+2. Resolve an eligible fleet provider. The static fleet catalog supports
+   automatic task/context/capability selection and emits rejection diagnostics.
 3. Acquire the provider's physical resource-group lease.
 4. Forward to `<base_url>/chat/completions`, injecting a configured API key.
 5. Return provider/model/resource/routing headers and append a route receipt.
@@ -169,7 +169,7 @@ test inputs. They were removed and `tests/.gitignore` now prevents their return.
 | Binary fleet catalog | `config/fleet.toml` |
 | Binary receipts | `data/manwe/route_receipts.jsonl` |
 | Adaptive provider config | `ARDA_MANWE_PROVIDER_CONFIG`, legacy `ANNUNIMAS_CHARON_PROVIDER_CONFIG`, then `$ARDA_ROOT/config/manwe.providers.toml`, then governed defaults |
-| Adaptive state root | `ARDA_MANWE_STATE_DIR`, `ARDA_MANWE_HOME`, `$ARDA_HOME/data/manwe`, then `./data/manwe` |
+| Adaptive state root | `ARDA_MANWE_STATE_DIR`, `ARDA_MANWE_HOME`, `$ARDA_ROOT/data/manwe`, compatibility `$ARDA_HOME/data/manwe`, then the build-derived workspace root |
 
 The static and fleet catalogs are separate inputs. Their precedence and
 operator-facing relationship are documented in [`PROVIDERS.md`](PROVIDERS.md).
@@ -213,4 +213,6 @@ Continued work is evolutionary rather than baseline recovery:
 2. Preserve the coordinated port `7171` contract and all feature/process gates
    when changing provider, routing, or supervision behavior.
 
-Execution details and completion criteria are in [`CHECKLIST.md`](CHECKLIST.md).
+Closure evidence is maintained in [`STATUS.md`](STATUS.md). The completed
+[foundation checklist](../../../../docs/archive/MANWE_FOUNDATION_CHECKLIST.md)
+is retained in the documentation archive.

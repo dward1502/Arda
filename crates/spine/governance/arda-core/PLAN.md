@@ -6,14 +6,14 @@ soterion:
   role: "governance_spine"
   owner: "ARDA-CORE / HADES"
   status: "active"
-  last_reviewed: "2026-07-25"
+  last_reviewed: "2026-07-27"
 ---
 
 # arda-core plan
 
 Crate: `crates/spine/governance/arda-core`
 Owner surface: governance spine primitives + contracts + loop + registry
-Current baseline: `cargo check -p arda-core` OK; `cargo test -p arda-core` 99/99 passing
+Current baseline: `cargo test -p arda-core --all-features` 111/111 passing; strict Clippy OK
 
 ## 1. Objective
 Make `arda-core` the stable, documented, receipt-backed foundation for
@@ -80,6 +80,22 @@ Closed.
   `service_registry`, `soterion`, `soterion_watcher`.
 - No `arda-core` compiler warnings; no public API expansion from GEN2.
 
+## 4.2. AIPKG v0.1 contract closeout
+Closed on 2026-07-27.
+
+- Manifest validation now matches the JSON schema for namespaced package IDs,
+  non-empty versions, runtime profiles, and exact lowercase SHA-256 digests.
+- Signed preflight construction has a bounded 15-minute validity window.
+- `AipkgReceiptChain::validate` fails closed on identity/digest/profile drift,
+  expiry, invalid timestamps, failed execution, failed or incomplete explicit
+  governance evidence, missing validator identity, and required signatures.
+- `spec/aipkg/v0.1/receipt.schema.json` is the machine-readable lifecycle schema.
+- `scripts/aipkg/validate_spec.py` validates the manifest example against its
+  schema and checks the compiled Rust contract surface; regression tests cover
+  both valid and schema-incompatible bundles.
+- Operator/profile executors remain responsible for observed evidence and
+  cryptographic signing; the contract layer does not fabricate either.
+
 ## 5. GEN3 — learning/observability/interop
 - Evaluate public learning/memory systems for concepts that can be
   adapted into Arda governance semantics without breaking append-only
@@ -102,7 +118,8 @@ Complete as the stable crate-by-crate foundation baseline on 2026-07-25.
 - GEN2 correctness and robustness coverage is closed.
 - The implemented GEN3 surfaces are additive, tested, and have concrete
   `arda-aule` and `arda-engine` consumers.
-- `cargo check -p arda-core` and all 99 tests pass.
+- `cargo test -p arda-core --all-features` and all 111 tests pass; strict
+  all-target/all-feature Clippy is clean.
 - Future feature growth belongs in a new evidence-backed plan rather than
   keeping this foundation plan perpetually open.
 - The unwired, malformed legacy `src/alerts.rs` was retired after repository

@@ -15,6 +15,9 @@ soterion:
 This document defines the receipt payloads emitted during AIPKG lifecycle
 operations.
 
+The machine-readable authority is `receipt.schema.json`. The compiled Rust
+authority is `arda_core::aipkg::AipkgReceiptChain::validate`.
+
 ## Preflight receipt: `AipkgPreflightReceipt`
 
 | Field | Type | Notes |
@@ -26,7 +29,7 @@ operations.
 | `approved` | boolean | `true` only if `validate()` succeeded |
 | `joule_budget` | integer or null | optional budget hint |
 | `expires_at_utc` | string | RFC3339 timestamp |
-| `signature` | string | operator or automation signature placeholder |
+| `signature` | non-empty string | operator or profile-supplied signature |
 
 ## Execution receipt: `AipkgExecutionReceipt`
 
@@ -58,5 +61,8 @@ operations.
 
 ## Operators
 
-This schema does not create runtime effects. Actual attestation and logging
-depends on surrounding execution policy.
+This schema does not create runtime effects or fabricate governance evidence.
+Actual attestation and logging depend on surrounding execution policy. A valid
+chain requires matching package identity, version, digest, and runtime profile;
+an unexpired approved preflight; successful execution; all required governance
+outcomes; validator identity; and every manifest-required signature.

@@ -17,7 +17,10 @@ measurement.
 4. Run `AipkgManifest::validate()`.
 5. Attach the manifest to a `Task` via `Task::aipkg_manifest` when the task
    represents an `.aipkg` workload.
-6. Record `preflight_check` receipt before execution.
+6. Record a signed `preflight_check_with_signature` receipt before execution.
+7. Construct execution and validation receipts from observed executor output
+   and explicit governance evidence.
+8. Run `AipkgReceiptChain::validate()` before accepting the package result.
 
 ## Dispatch preflight gate
 
@@ -52,11 +55,18 @@ Every package must enable:
 - preflight
 - execution
 - validation
-- signed attestation
-- settlement is optional
+- non-empty signatures on every required receipt
+- matching package identity, version, digest, and runtime profile
+- successful execution and all required governance gates
+
+The contract layer does not invent signatures or gate outcomes. The executor
+or operator profile supplies them; receipt-chain validation rejects missing,
+mismatched, expired, failed, or incomplete evidence. Settlement remains an
+optional extension outside the open core law.
 
 ## See also
 
 - `spec/aipkg/v0.1/AIPKG-CONTAINER-v0.1.md`
+- `spec/aipkg/v0.1/receipt.schema.json`
 - `crates/spine/governance/arda-core/src/loop_engine.rs`
-- `docs/plans/AIPKG.md`
+- `core/state/aipkg_contract.json`

@@ -48,13 +48,6 @@ pub struct ManweConfig {
     pub default_provider: Option<String>,
     #[serde(default)]
     pub providers: HashMap<String, ProviderConfig>,
-    /// Optional bearer token for local daemon admin/auth boundaries.
-    ///
-    /// If unset, auth checks remain disabled and behavior is unchanged for
-    /// localhost deployments. When set, sensitive routes/commands require
-    /// `Authorization: Bearer <value>`.
-    #[serde(default)]
-    pub api_key: Option<String>,
 }
 
 fn default_bind() -> String {
@@ -81,7 +74,6 @@ impl ManweConfig {
             port: default_port(),
             default_provider: Some("ollama".to_string()),
             providers,
-            api_key: None,
         }
     }
 

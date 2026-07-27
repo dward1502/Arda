@@ -6,7 +6,7 @@ soterion:
   role: "governance_spine_status"
   owner: "ARDA-CORE / HADES"
   status: "active"
-  last_reviewed: "2026-07-25"
+  last_reviewed: "2026-07-27"
 ---
 # arda-core status
 
@@ -15,8 +15,8 @@ Sigil: 📜 SCROLL
 
 ## Build
 - `cargo check -p arda-core` -> OK
-- `cargo test -p arda-core` -> 99/99 passing
-  - 98 unit tests
+- `cargo test -p arda-core --all-features` -> 111/111 passing
+  - 110 unit tests
   - 1 smoke test: `sovereign_baseline_contract_is_migrated`
   - 0 doc-tests
 - `cargo clippy -p arda-core --all-targets --all-features -- -D warnings` -> OK
@@ -48,6 +48,20 @@ Sigil: 📜 SCROLL
   duplicate skip and round-trip preservation
 - `src/loop_observability.rs` GEN3 env-toggled observability config + latency probes
 - `src/learning_adapter.rs` GEN3 learning-to-domain adaptation + ledger receipt
+- `src/aipkg.rs` schema-aligned manifest/preflight enforcement and fail-closed
+  signed receipt-chain validation over explicit governance evidence
+
+## AIPKG v0.1 status
+- Foundation contract complete as of 2026-07-27.
+- Runtime dispatch blocks malformed attached manifests before allocation.
+- Receipt chains reject expired/unsigned/mismatched/failed evidence rather than
+  inferring outcomes from manifest declarations.
+- Machine-readable authorities:
+  `core/state/aipkg_contract.json`,
+  `core/state/aipkg_marketplace_separation_contract.json`, and
+  `spec/aipkg/v0.1/receipt.schema.json`.
+- Signing keys and executor-specific evidence collection remain profile-owned
+  operational concerns, not hidden defaults in `arda-core`.
 
 ## Known follow-ups
 - `cargo check -p arda-core` and strict all-target/all-feature Clippy emit no crate warnings.
@@ -77,8 +91,8 @@ Sigil: 📜 SCROLL
 ## Foundation designation
 - Foundation baseline: complete as of 2026-07-25.
 - GEN1 documentation alignment and GEN2 robustness work are closed.
-- Implemented GEN3 observability/learning interop is additive and covered by
-  the 99-test baseline.
+- Implemented GEN3 observability/learning interop and AIPKG receipt-chain law
+  are additive and covered by the current 111-test baseline.
 - The crate remains active and maintained; “complete” means this stabilization
   plan is closed, not that future evidence-backed features are prohibited.
 

@@ -19,7 +19,7 @@ fn metrics_snapshot_reads_explicit_arda_root_and_emits_prometheus_text() {
     .expect("queue projection");
     fs::write(
         root.join("core/state/runtime_admission_pressure.json"),
-        r#"{"status":"ok","violations":[],"observed":{"storage_pressure":{"oversize_files_gte_100mb":0}}}"#,
+        r#"{"status":"ok","violations":[],"observed":{"storage_pressure":{"oversize_files_gte_100mb":7}}}"#,
     )
     .expect("canonical pressure projection");
 
@@ -38,6 +38,7 @@ fn metrics_snapshot_reads_explicit_arda_root_and_emits_prometheus_text() {
     assert!(stdout.contains("annunimas_metrics_exporter_refresh_success 1"));
     assert!(stdout.contains("annunimas_queue_depth{queue=\"core_queue\"} 3"));
     assert!(stdout.contains("annunimas_pressure_guard_status{status=\"ok\"} 1"));
+    assert!(stdout.contains("annunimas_pressure_guard_oversize_files_total 7"));
     assert!(stdout
         .contains("annunimas_audit_health_status{status=\"ok\",surface=\"pressure_guard\"} 1"));
 }

@@ -6,7 +6,7 @@ soterion:
   role: "governance_spine"
   owner: "arda"
   status: "active"
-  last_reviewed: "2026-07-25"
+  last_reviewed: "2026-07-27"
 ---
 
 # arda-core
@@ -54,7 +54,7 @@ without adding a second direct dependency.
 | Module | Role |
 |--------|------|
 | `agent.rs` | `Agent` trait, `AgentManifest`, sigil metadata. |
-| `aipkg.rs` | AIPKG preflight, manifest, governance, receipt policy. |
+| `aipkg.rs` | AIPKG manifest/preflight law, explicit governance evidence, and fail-closed signed receipt-chain validation. |
 | `config.rs` | Runtime config for governance/spine choices. |
 | `contract/` | `Decision`, `DecisionClass`, `TriadOutcome`, `PhilosopherVerdict`, `Plan`, `Goal`, `Reflection`, `MemoryRecord`. |
 | `daemon.rs` | IPC command/response envelopes. |
@@ -95,7 +95,7 @@ without adding a second direct dependency.
 
 ## Verification status
 - Compile-time: `cargo check -p arda-core` -> OK
-- Tests: `cargo test -p arda-core` -> 99/99 passing (98 unit, 1 smoke,
+- Tests: `cargo test -p arda-core --all-features` -> 111/111 passing (110 unit, 1 smoke,
   0 doc-tests).
 - Compile-time consumer check: `cargo check -p arda-engine` -> OK.
 - Runtime wiring: `engine` imports `arda-core::service_registry`, observability,
@@ -120,17 +120,17 @@ without adding a second direct dependency.
 - `crates/engine/src/manwe.rs`, `engine/src/lib.rs`
 
 ## Warnings / follow-ups
-- No `arda-core` compiler warnings in the 2026-07-25 check.
+- No `arda-core` compiler warnings in the 2026-07-27 strict Clippy check.
 - Legacy `src/alerts.rs` was retired on 2026-07-25 after repository and history
   searches confirmed it had no export or consumer; `loop_alerts.rs` is canonical.
 - `ServiceRegistry::from_snapshot` intentionally skips rejected records;
   duplicate-skip behavior is tested.
 - Remaining GEN3 questions are maintained in `docs/interop/landscape.md`.
 - Docs last refreshed against the `manwe` branch source of truth on
-  2026-07-25.
+  2026-07-27.
 
 ## Foundation conclusion
 The crate’s stabilization plan is complete: GEN1 documentation alignment and
 GEN2 robustness are closed, implemented GEN3 surfaces are additive and tested,
-and the current compiled surface passes all 99 tests. `arda-core` is therefore
+and the current compiled surface passes all 111 tests. `arda-core` is therefore
 the recorded stable foundation for subsequent crate-by-crate repair work.

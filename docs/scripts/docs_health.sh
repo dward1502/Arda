@@ -22,30 +22,18 @@ human/plans/
 EOF
 )
 
-required_plans=(
-  "docs/plans/AIPKG.md"
-  "docs/plans/ATHENA.md"
-  "docs/plans/CHARON.md"
-  "docs/plans/EMBODIED_INTERFACE.md"
-  "docs/plans/FEDERATED_COMMS.md"
-  "docs/plans/HADES.md"
-  "docs/plans/HERMES.md"
-  "docs/plans/MNEMOSYNE.md"
-  "docs/plans/OPENFANG.md"
-  "docs/plans/PLATFORM_OS.md"
-  "docs/plans/PROMETHEUS.md"
-  "docs/plans/hud-incremental-build.md"
-  "docs/plans/substrate-build-plan.md"
-  "docs/plans/VAIRE_IMPLEMENTATION_PLAN.md"
-)
-
-for plan in "${required_plans[@]}"; do
-  if [ -f "/var/home/mythos/Eregion/Arda/$plan" ]; then
-    echo "OK plan_exists path='$plan'"
-  else
-    echo "FAIL plan_missing path='$plan'"
-    FAIL=1
-  fi
-done
+if [ ! -d "$DOCS_DIR/plans" ]; then
+  echo "FAIL active_plan_inventory path='$DOCS_DIR/plans' reason='missing_directory'"
+  FAIL=1
+else
+  mapfile -t active_plans < <(rg --files "$DOCS_DIR/plans" -g '*.md' | sort)
+  echo "OK active_plan_inventory count=${#active_plans[@]}"
+  for plan in "${active_plans[@]}"; do
+    if [ ! -s "$plan" ]; then
+      echo "FAIL active_plan path='$plan' reason='empty_file'"
+      FAIL=1
+    fi
+  done
+fi
 
 exit $FAIL

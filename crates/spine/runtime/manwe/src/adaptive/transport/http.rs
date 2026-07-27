@@ -1197,6 +1197,7 @@ async fn provider_result(
         Ok(json!({"ok": true}))
     })
     .await
+    .into_response()
 }
 
 async fn model_streaming_validation(
@@ -1222,6 +1223,7 @@ async fn model_streaming_validation(
         Ok(json!({"ok": true}))
     })
     .await
+    .into_response()
 }
 
 async fn reload_config(
@@ -1234,7 +1236,9 @@ async fn reload_config(
             "missing or invalid Authorization header for mutation",
         );
     }
-    map_result_async(async move { service.reload_provider_config().await }).await
+    map_result_async(async move { service.reload_provider_config().await })
+        .await
+        .into_response()
 }
 
 async fn reconcile_catalogs(State(service): State<ManweService>) -> impl IntoResponse {
@@ -2753,23 +2757,18 @@ fn openai_error(status: StatusCode, message: &str) -> Response {
         .into_response()
 }
 
-fn authorized_bearer(headers: &HeaderMap) -> bool {
-    const ENV: &str = "ARDA_MANWE_API_KEY";
-    std::env::var(ENV)
-        .ok()
-        .filter(|v| !v.trim().is_empty())
-        .map_or(false, |expected| {
-            headers
-                .get(axum::http::header::AUTHORIZATION)
-                .and_then(|v| v.to_str().ok())
-                .map_or(false, |header| {
-                    header == format!("Bearer {expected}").as_str()
-                })
-        })
-}
-
 fn authorize_mutation(headers: &HeaderMap) -> bool {
-    !authorized_bearer(headers)
+    const ENV: &str = "ARDA_MANWE_API_KEY";
+    let Some(expected) = std::env::var(ENV)
+        .ok()
+        .filter(|value| !value.trim().is_empty())
+    else {
+        return true;
+    };
+    headers
+        .get(axum::http::header::AUTHORIZATION)
+        .and_then(|value| value.to_str().ok())
+        .is_some_and(|header| header == format!("Bearer {expected}"))
 }
 
 async fn build_event_payload(service: &ManweService) -> Result<Value> {
@@ -2898,6 +2897,32 @@ mod tests {
     use tempfile::tempdir;
 
     static ENV_LOCK: Mutex<()> = Mutex::new(());
+
+    #[test]
+    fn mutation_auth_is_optional_but_requires_exact_bearer_when_configured() {
+        let _guard = ENV_LOCK.lock().expect("env lock");
+        let mut headers = HeaderMap::new();
+
+        std::env::remove_var("ARDA_MANWE_API_KEY");
+        assert!(super::authorize_mutation(&headers));
+
+        std::env::set_var("ARDA_MANWE_API_KEY", "test-secret");
+        assert!(!super::authorize_mutation(&headers));
+
+        headers.insert(
+            axum::http::header::AUTHORIZATION,
+            "Bearer wrong-secret".parse().expect("header value"),
+        );
+        assert!(!super::authorize_mutation(&headers));
+
+        headers.insert(
+            axum::http::header::AUTHORIZATION,
+            "Bearer test-secret".parse().expect("header value"),
+        );
+        assert!(super::authorize_mutation(&headers));
+
+        std::env::remove_var("ARDA_MANWE_API_KEY");
+    }
 
     #[test]
     fn nvidia_catalog_visibility_preserves_configured_models() {

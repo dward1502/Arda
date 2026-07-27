@@ -11,6 +11,8 @@ Rust surface for AIPKG is `arda-core::aipkg`.
 - `AipkgPreflightReceipt`
 - `AipkgExecutionReceipt`
 - `AipkgValidationReceipt`
+- `AipkgGovernanceEvidence`
+- `AipkgReceiptChain`
 
 ## Validation
 
@@ -22,11 +24,17 @@ manifest.validate()?;
 ## Preflight
 
 ```rust
-let receipt = manifest.preflight_check()?;
+let receipt = manifest.preflight_check_with_signature(operator_signature)?;
 ```
 
 ## Receipt rule
 
-All receipts are schema-shape data, not runtime side effects. The validator
-only proves the manifest is well-formed; operator approvals and signatures are
-still required for production use.
+Manifest validation proves package metadata and policy shape. Receipt-chain
+validation additionally enforces matching package identity/digest/profile,
+preflight expiry, successful execution, all four explicit governance outcomes,
+validator identity, and required signatures. Construct validation receipts via
+`AipkgValidationReceipt::from_evidence`; do not infer unobserved gate outcomes.
+
+The contract layer does not execute packages or produce cryptographic keys.
+Executor profiles supply observed output, signatures, and governance evidence,
+then call `AipkgReceiptChain::validate()` before accepting a result.

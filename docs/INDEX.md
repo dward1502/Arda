@@ -16,6 +16,14 @@
 
 ## Archive
 
+- `archive/AIPKG.md`
+- `archive/CHARON.md`
+- `archive/MANWE_FOUNDATION_CHECKLIST.md`
+- `archive/PROMETHEUS.md`
+- `archive/arda-aule/BASELINE.md`
+- `archive/arda-aule/IMPROVEMENT_PLAN.md`
+- `archive/arda-aule/DEPENDENCY_AUDIT.md`
+- `archive/arda-aule/STEP6_HANDOFF.md`
 - `archive/spine-tooling-00-index.md`
 - `archive/spine-tooling-01-disposition-matrix.md`
 - `archive/spine-tooling-02-focus-deep-dives.md`
@@ -32,16 +40,6 @@
 
 ## Plans
 
-- `plans/INDEX.md`
-- `plans/README.md`
-
-- `plans/ATHENA.md`
-- `plans/CHARON.md`
-- `plans/EMBODIED_INTERFACE.md`
-- `plans/FEDERATED_COMMS.md`
-- `plans/HADES.md`
-- `plans/HERMES.md`
-
-- `plans/OPENFANG.md`
-- `plans/PLATFORM_OS.md`
-- `plans/PROMETHEUS.md`
+`docs/plans/` contains only current active plans. Its contents are intentionally
+discovered dynamically rather than hard-coded here; completed plans are removed
+or retained under `docs/archive/` according to their evidence needs.

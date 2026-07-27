@@ -5,7 +5,7 @@ stable HTTP entry point on `127.0.0.1:7171`, discovers local fleet providers,
 selects an eligible upstream, forwards chat-completion requests, and records
 route receipts.
 
-Status: active with its foundation baseline complete as of 2026-07-25. The
+Status: active with its foundation baseline complete as of 2026-07-27. The
 default and full governed `adaptive` runtimes have maintained process smoke
 coverage; the `telemetry` and all-feature contracts pass their focused checks.
 See [`STATUS.md`](STATUS.md) for verification evidence and bounded continuing
@@ -48,6 +48,10 @@ Configuration ownership and precedence:
   `ANNUNIMAS_CHARON_PROVIDER_CONFIG`, then
   `$ARDA_ROOT/config/manwe.providers.toml`. Missing or invalid provider input
   selects governed defaults.
+- Adaptive mutation routes are open for local compatibility when
+  `ARDA_MANWE_API_KEY` is unset. When it is set to a non-empty value,
+  provider-result, model-streaming-validation, and config-reload mutations
+  require an exact `Authorization: Bearer <value>` header.
 - Adaptive runtime state is owned by `ARDA_MANWE_STATE_DIR`, then
   `ARDA_MANWE_HOME`, then `$ARDA_ROOT/data/manwe`, then the compatibility
   `$ARDA_HOME/data/manwe` root. If no environment root is supplied, Manwe uses
@@ -156,28 +160,25 @@ governed service implementations are attached explicitly from
 
 ## Verification
 
-The current 2026-07-25 verification includes:
+The current 2026-07-27 foundation closure includes:
 
 ```text
-cargo check -p manwe
-cargo test -p manwe
-cargo check -p manwe --features adaptive
-cargo test -p manwe --features adaptive
-cargo check -p manwe --features grpc
 cargo check -p manwe --all-targets --all-features
+cargo clippy -p manwe --all-targets --all-features -- -D warnings
 cargo test -p manwe --all-features
-cargo test -p arda-aule --features telemetry --test telemetry_surface
 cargo fmt -p manwe -- --check
+python crates/spine/runtime/manwe/tests/process_smoke.py
 python crates/spine/runtime/manwe/tests/check_docs.py
+cargo test -p arda-engine
 ```
 
-These commands pass. The focused telemetry test verifies public API shape,
-destination routing, and preservation of event attributes; `STATUS.md` records
-the exact current test counts and remaining non-telemetry gaps.
+These commands pass. The all-feature suite contains 278 library and 29 binary
+tests; `STATUS.md` records downstream and live-runtime evidence.
 
 ## Documentation
 
 - [`STATUS.md`](STATUS.md) — current evidence, health, boundaries, and risks
 - [`BREAKDOWN.md`](BREAKDOWN.md) — crate shape, active module graph, and consumers
-- [`CHECKLIST.md`](CHECKLIST.md) — prioritized implementation/documentation plan
 - [`PROVIDERS.md`](PROVIDERS.md) — static and governed provider/config contract
+- [Archived CHARON foundation plan](../../../../docs/archive/CHARON.md)
+- [Archived foundation checklist](../../../../docs/archive/MANWE_FOUNDATION_CHECKLIST.md)

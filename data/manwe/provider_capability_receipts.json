@@ -1,6 +1,6 @@
 {
   "schema_version": "annunimas.charon.provider-capability-receipts.v1",
-  "generated_at_utc": "2026-07-27T17:34:15.745195266+00:00",
+  "generated_at_utc": "2026-07-27T18:18:15.655360603+00:00",
   "receipts": {
     "edge_backbone::ternary-bonsai-27b-q2_0": {
       "provider_id": "edge_backbone",
@@ -58,13 +58,13 @@
     "edge_core::Qwen3.5-9B-Q4_K_M": {
       "provider_id": "edge_core",
       "model_id": "Qwen3.5-9B-Q4_K_M",
-      "updated_at_utc": "2026-07-27T17:34:15.745195266+00:00",
+      "updated_at_utc": "2026-07-27T18:18:15.655360603+00:00",
       "capabilities": {
         "basic_chat": {
           "state": "passed",
           "source": "passive_proxy_observation",
-          "observed_at_utc": "2026-07-27T17:34:15.745195266+00:00",
-          "expires_at_utc": "2026-08-03T17:34:15.745195266+00:00",
+          "observed_at_utc": "2026-07-27T18:18:15.655360603+00:00",
+          "expires_at_utc": "2026-08-03T18:18:15.655360603+00:00",
           "outcome_class": "success",
           "status_code": 200
         },

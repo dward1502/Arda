@@ -5,7 +5,7 @@ soterion:
   role: "observability_home"
   owner: "ARDA"
   status: "active"
-  last_reviewed: "2026-07-25"
+  last_reviewed: "2026-07-27"
 ---
 
 # arda-aule
@@ -22,6 +22,8 @@ Owner: arda | Sigil: 🜃 ANKH | Status: active
   thought ledger, autopilot, execution intents, IPC, and optional HTTP transport under `full-cli`
 - `arda-cli` — one supported binary containing governance, Plutus, Prometheus, and CEO-autopilot
   commands
+- `arda-cli metrics` — the `http`-gated projection exporter and one-shot snapshot surface for
+  queue, autonomy, pressure, audit-health, provider-budget, and optional node metrics
 
 Provider and fleet routing are owned by Manwe. Aule records durable routing intents and does not
 duplicate Manwe's provider-selection implementation.
@@ -35,12 +37,13 @@ duplicate Manwe's provider-selection implementation.
 - `http` adds the optional Prometheus HTTP transport; IPC is available with `full-cli`
 
 ## Verification status
-- `cargo check -p arda-aule --features full-cli --all-targets`: passing as of 2026-07-25
-- `cargo test -p arda-aule`: passing
-- `cargo test -p arda-aule --features full-cli --lib --tests`: passing
-- `cargo test -p arda-aule --all-features --lib --tests`: passing serially
+- `cargo check -p arda-aule --all-targets --all-features`: passing as of 2026-07-27
+- `cargo test -p arda-aule --all-features --lib --tests`: 185 tests passed
+- `cargo test -p arda-aule --all-features --doc`: 2 doctests passed
 - `cargo clippy -p arda-aule --all-targets --all-features -- -D warnings`: passing
-- Process-level tests execute `governance-metrics` and `governance-status` and validate JSON contracts.
+- `cargo fmt -p arda-aule -- --check`: passing
+- Process-level tests execute governance and metrics-exporter commands and validate JSON and
+  Prometheus exposition contracts.
 
 ## Decisions
 - Keep observability contracts, governance metrics, telemetry, and the operator binary in `arda-aule`.
@@ -48,3 +51,14 @@ duplicate Manwe's provider-selection implementation.
 - Do not expose command variants whose runtime implementation is absent.
 - Keep provider routing in Manwe and task execution in the active core loop/executor; Aule owns
   governance, observability, autopilot coordination, and durable queue/intent production.
+- Preserve the currently consumed `annunimas_*` metric names as an external monitoring ABI until
+  dashboards, alert rules, runtime consumers, and scrape jobs migrate together; do not add new
+  legacy-named series.
+
+## Archived foundation records
+
+- [`PROMETHEUS.md`](../../../../docs/archive/PROMETHEUS.md)
+- [`BASELINE.md`](../../../../docs/archive/arda-aule/BASELINE.md)
+- [`IMPROVEMENT_PLAN.md`](../../../../docs/archive/arda-aule/IMPROVEMENT_PLAN.md)
+- [`DEPENDENCY_AUDIT.md`](../../../../docs/archive/arda-aule/DEPENDENCY_AUDIT.md)
+- [`STEP6_HANDOFF.md`](../../../../docs/archive/arda-aule/STEP6_HANDOFF.md)

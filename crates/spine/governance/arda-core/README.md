@@ -6,7 +6,7 @@ soterion:
   role: "documentation"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-25"
+  last_reviewed: "2026-07-27"
 ---
 
 # arda-core
@@ -24,6 +24,8 @@ rolling its own governance surface.
 - execution: loop dispatcher, reflector, joule market, council billing,
   HALT file, pressure-aware bounded background/sync work
 - governance: `GovernanceGates`, policy modes, per-class/action overrides
+- AIPKG: schema-aligned manifest/preflight law and fail-closed signed receipt
+  chains over explicit governance evidence
 - learning: routing bias, best-agent selection, loop economy snapshots
 - messaging/audit: append-only JSONL `Ledger`, `Message`, Soterion metadata
 - operations: `SystemdClient`, service registry state, contract/service
@@ -32,8 +34,8 @@ rolling its own governance surface.
 
 ## Verified state
 - `cargo check -p arda-core` -> OK
-- `cargo test -p arda-core` -> 99/99 passing
-  - 98 unit tests
+- `cargo test -p arda-core --all-features` -> 111/111 passing
+  - 110 unit tests
   - 1 smoke test: `sovereign_baseline_contract_is_migrated`
   - 0 doc-tests
 - README/BREAKDOWN/STATUS/PLAN aligned to current source

@@ -1,0 +1,19 @@
+{
+  "schema_version": "arda.aipkg.marketplace_separation.v1",
+  "authority": "aipkg_marketplace_separation_export",
+  "status": "completed",
+  "reviewed_at_utc": "2026-07-27T00:00:00Z",
+  "core_contract": "core/state/aipkg_contract.json",
+  "core_law": {
+    "open_standard": true,
+    "manifest_and_receipt_contracts": true,
+    "runtime_profiles": true,
+    "governance_requirements": true
+  },
+  "marketplace_boundary": {
+    "economics_in_core_truth": false,
+    "payment_rail_required": false,
+    "registry_required_for_local_packages": false,
+    "discovery_and_reputation_are_extensions": true
+  }
+}

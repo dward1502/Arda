@@ -1,12 +1,12 @@
 # ATHENA Source Book
 
 - source_id: `src_8417aee8`
-- pipeline_id: `athpl_69b82fee2ffa43b9ae65919a4a417a49`
+- pipeline_id: `athpl_a679bb28c9894d3982b001887b5cd393`
 - status: `deep`
 - source_type: `NewsArticle`
-- updated_at_utc: `2026-07-27T05:56:53.990449943+00:00`
+- updated_at_utc: `2026-07-28T00:32:17.568946969+00:00`
 - url: https://example.com/scrapling-like-source
-- athena_book: `/tmp/.tmpQxueja/books/src_8417aee8.jsonl`
+- athena_book: `/tmp/.tmpb7LpUz/books/src_8417aee8.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

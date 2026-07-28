@@ -919,7 +919,7 @@ resonance = 0.95
                 .expect("mnemosyne read"),
         )
         .expect("mnemosyne parse");
-        assert_eq!(mnemosyne["schema_version"], CORE_STATE_SCHEMA_VERSION);
+        assert_eq!(mnemosyne["schema_version"], "arda.mnemosyne.continuity.v1");
         assert_eq!(mnemosyne["authority"], "mnemosyne_continuity_projection");
 
         let memory_identity: serde_json::Value = serde_json::from_str(

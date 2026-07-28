@@ -6,51 +6,112 @@ soterion:
   role: documentation
   owner: HADES
   status: active
-  last_reviewed: 2026-07-25
+  last_reviewed: 2026-07-27
 ---
 
-> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-07-25
+> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-07-27
 
 # arda-vaire
 
-Continuous memory and identity persistence service for Mnemosyne.
+`arda-vaire` is Arda's first-class Mnemosyne memory library. It records
+significance-weighted episodic events, provides scoped recall and identity
+state, consolidates eligible events into semantic or procedural records, and
+supports an optional Obsidian index.
 
-## Verified surface
+## Public boundary
 
-- Encode: `encode(InformantEvent)` -> Optional `RecallRecentEntry`
-- Recall: `recall_recent(hours, crate_filter)`, `recall_relevant(query, hours, crate_filter, scope, limit)`
-- Maintenance: `consolidate(hours)`, `stats()`, `status()`
-- Identity: `identity_state()`
-- Human bridge: `sync_obsidian(vault_path, max_files)`
-- Transport: IPC + optional HTTP/SSE daemon
-- Governance path: significance-gated store membership and contract dual-write via `with_contract_memory_root`
-- Recall reports: explicit source `confidence` and governance-derived `trust`
-- Promotion: semantic/procedural records carry source memory IDs and append a receipt to `archive/promotion_receipts.jsonl`
-- Observability: recall request/result totals, last recall fidelity/latency, IPC queue latency, consolidation depth, and promotion receipt totals through `observability_snapshot()` and `stats()`
+The crate root re-exports `InformantEvent`, `MnemosyneService`, and the durable
+schema identifiers. Additional typed results are available through
+`arda_vaire::service`; equivalent-dataset retrieval evaluation is available
+through `arda_vaire::retrieval_eval`.
 
-## Ownership and store boundaries
+Primary service operations:
 
-- `service.rs` owns public contracts and orchestration; `significance.rs` owns deterministic governance scoring.
-- `service/store.rs` owns append-only episodic and optional contract-memory writes.
-- `service/retrieval.rs` owns scoped lexical ranking and recall-fidelity observation.
-- `service/promotion.rs` owns semantic/procedural derivation and promotion receipts.
-- `transport/ipc.rs` owns Unix-socket framing and client forwarding; `transport/http.rs` owns HTTP/SSE routing. Transports do not own scoring or persistence policy.
+- write: `encode`
+- recall: `recall_recent`, `recall_recent_scoped`, `recall_relevant`, and
+  `recall_knowledge_seeds`
+- state: `identity_state`, `stats`, `status`, `paths`, and
+  `observability_snapshot`
+- maintenance: `consolidate` and `sync_obsidian`; Obsidian synchronization
+  requires an explicit vault path in library, IPC, and HTTP calls
+- optional contract-store copy: `with_contract_memory_root`
+- durable runtime export: `with_metrics_root` and `export_runtime_snapshots`
 
-## Verified evidence
+`transport::ipc` is always compiled. The default `http` feature adds the Axum
+HTTP/SSE transport. Consumers can use the library without running either
+transport server.
 
-Verified 2026-07-25:
+## Persistence contract
+
+- Default root: `<arda-root>/data/mnemosyne`
+- Root override: `ARDA_MNEMOSYNE_HOME`
+- Episodic records: month-partitioned JSONL with chain metadata and schema
+  `arda.mnemosyne.episodic.v1`
+- Low-significance records: `noise.jsonl`
+- Derived stores: `semantic/` and `procedural/`
+- Promotion evidence: `archive/promotion_receipts.jsonl`
+- Optional contract dual-write: `ARDA_CONTRACT_MEMORY_ROOT`; the value `auto`
+  selects `<arda-root>/core/state/memory`
+
+`core/state/mnemosyne_continuity.json` is an operator projection, not a file
+written by this crate's persistence implementation. Its explicit projection
+schema is `arda.mnemosyne.continuity.v1`. Unversioned episodic records migrate
+in memory on read; unsupported future schemas are disclosed in statistics and
+skipped rather than interpreted as current evidence.
+
+## Retrieval and observability
+
+`tests/fixtures/retrieval_equivalence_v1.json` is the shared corpus/query
+contract for lexical, BM25, vector, or hybrid adapters. The public
+`RetrievalAdapter` trait and `evaluate_adapter` function produce Hit@1,
+Recall@K, and mean reciprocal rank without coupling the crate to a vendor.
+
+Configured services atomically persist schema-versioned `observability.json`,
+`stats.json`, and `status.json` under
+`core/metrics/by_crate/mnemosyne`. `arda-aule` consumes observability through
+fixed metric families. Its only label values are the bounded sets
+`signal={recall_requests,recall_results,queue_observations,promotion_receipts}`
+and `operation={recall,queue}`; user, query, source, and tag values never become
+Prometheus labels.
+
+## Consumers
+
+Unconditional dependencies:
+
+- `arda-varda` writes completed ingestion events.
+- `arda-outpost-scout` writes and recalls scoped observations.
+
+Feature-gated dependencies:
+
+- `arda-orome` uses Mnemosyne under its `service-runtime` feature.
+- `arda-aule` reads memory status and exports durable Mnemosyne metrics under
+  `full-cli`.
+- `manwe` writes events under `adaptive`.
+
+## Verification
+
+Verified 2026-07-27 after first-class hardening:
 
 - `cargo check -p arda-vaire` — pass
-- `cargo test -p arda-vaire` — 29 unit + 5 integration tests pass
-- `cargo test -p arda-vaire --no-default-features` — 27 unit + 5 integration tests pass
-- `cargo bench -p arda-vaire --bench recall_fidelity` — 600 controlled fixture queries, Hit@1 `1.000`, 63.46 µs/query on this host
+- `cargo test -p arda-vaire --all-features` — 30 unit and 13 integration tests
+  pass
+- `cargo test -p arda-vaire --no-default-features` — 27 unit and 13 integration
+  tests pass
+- equivalent-dataset lexical baseline — 6 queries, Hit@1/Recall@3/MRR `1.000`
+- append/consolidation recovery test — 128 append attempts across 8
+  consolidation cycles, malformed episodic/noise/archive lines, and a service
+  restart
+- explicit operator-scale soak — 512 append attempts across 8 consolidation
+  cycles; pass after bounding fallback work-signal execution to one shared Tokio
+  runtime
+- `RUSTDOCFLAGS='-D warnings' cargo doc -p arda-vaire --no-deps` — pass after
+  correcting invalid rustdoc path markup
+- `cargo test -p arda-aule --all-features --test metrics_exporter_cli`
+  — durable Mnemosyne metric ingestion passes
+- all five direct/feature-gated consumer compile gates — pass, including the
+  scout bridge's canonical `<arda-root>/data/mnemosyne` resolution
 
-The benchmark is a reproducible local fidelity scaffold, not a cross-system result. Public-system comparison requires equivalent datasets, hardware, and scoring definitions.
+## Documentation
 
-## Live status
-
-See STATUS.md for current health signals, open risks, and ownership.
-
-## Work queue
-
-See CHECKLIST.md for authorship, ownership, and implementation tracking.
+- `BREAKDOWN.md` — implementation map, ownership boundaries, completed review,
+  and plan supersession record

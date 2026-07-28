@@ -13,7 +13,7 @@
       "failures": 0
     },
     "chat|tools=false|structured=false|stream=false\u001fedge_backbone_long\u001fbonsai-27b-q1_0": {
-      "successes": 8,
+      "successes": 57,
       "failures": 0
     },
     "chat|tools=false|structured=false|stream=false\u001fedge_beelink_light\u001fTernary-Bonsai-8B-Q2_0": {
@@ -21,7 +21,7 @@
       "failures": 0
     },
     "chat|tools=false|structured=false|stream=false\u001fedge_core\u001fQwen3.5-9B-Q4_K_M": {
-      "successes": 79,
+      "successes": 138,
       "failures": 0
     },
     "chat|tools=false|structured=false|stream=false\u001fedge_guardhouse\u001fQwen3.5-4B-Q4_K_M.gguf": {
@@ -65,7 +65,7 @@
       "failures": 0
     },
     "code|tools=false|structured=false|stream=false\u001fedge_backbone_coder\u001fnanbeige4.2-3b-q4_k_m": {
-      "successes": 4,
+      "successes": 11,
       "failures": 0
     },
     "code|tools=false|structured=false|stream=false\u001fedge_beelink_light\u001fTernary-Bonsai-8B-Q2_0": {
@@ -81,7 +81,7 @@
       "failures": 2
     },
     "code|tools=true|structured=false|stream=false\u001fedge_backbone_coder\u001fnanbeige4.2-3b-q4_k_m": {
-      "successes": 2,
+      "successes": 19,
       "failures": 0
     },
     "code|tools=true|structured=false|stream=false\u001fedge_beelink_light\u001fTernary-Bonsai-8B-Q2_0": {
@@ -93,7 +93,7 @@
       "failures": 0
     },
     "code|tools=true|structured=false|stream=false\u001fopenai_sub\u001fgpt-5.5": {
-      "successes": 174,
+      "successes": 340,
       "failures": 0
     }
   }

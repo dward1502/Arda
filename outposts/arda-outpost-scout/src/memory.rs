@@ -163,7 +163,8 @@ impl ObservationMemoryBridge {
     pub fn new(scope: impl Into<String>) -> Self {
         Self {
             scope: scope.into(),
-            primary_root: nonempty_env_path("ARDA_ROOT"),
+            primary_root: nonempty_env_path("ARDA_ROOT")
+                .map(|root| root.join("data").join("mnemosyne")),
             fallback_root: nonempty_env_path("SCOUT_MEMORY_FALLBACK_ROOT"),
             credentials: default_credentials(),
         }

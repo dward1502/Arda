@@ -53,10 +53,10 @@ fn agent_for_intent(intent: &str) -> Option<&'static str> {
 #[derive(Debug, Default)]
 pub struct DispatchPass {
     pub tasks_seen: usize,
-    pub dispatched: Vec<String>,          // task ids
-    pub no_route: Vec<String>,            // (task id) intents we don't know how to route
-    pub already_terminal: Vec<String>,    // already-Complete/Failed contract tasks; nothing to do
-    pub triad_unconsulted: Vec<String>,   // recorded as audit-flagged unconsulted decisions
+    pub dispatched: Vec<String>,              // task ids
+    pub no_route: Vec<String>,                // (task id) intents we don't know how to route
+    pub already_terminal: Vec<String>, // already-Complete/Failed contract tasks; nothing to do
+    pub triad_unconsulted: Vec<String>, // recorded as audit-flagged unconsulted decisions
     pub budget_blocked: Vec<String>, // task ids skipped because goal joule budget for today is exhausted
     pub bids_recorded: usize,        // total bids ledgered across all dispatched tasks
     pub market_collapses: Vec<String>, // task ids no agent was willing to bid on
@@ -374,10 +374,7 @@ pub fn dispatch_full_with_affordability(
             match manifest.validate() {
                 Ok(_) => pass.aipkg_preflight_passed += 1,
                 Err(err) => {
-                    pass.aipkg_preflight_blocked.push(format!(
-                        "{id}:{}",
-                        err
-                    ));
+                    pass.aipkg_preflight_blocked.push(format!("{id}:{}", err));
                     continue;
                 }
             }

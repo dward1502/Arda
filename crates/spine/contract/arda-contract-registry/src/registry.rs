@@ -1,4 +1,23 @@
 use serde::Deserialize;
+use std::path::{Path, PathBuf};
+
+pub const DEFAULT_REGISTRY_PATH: &str = "core/state/contract_registry.json";
+
+#[derive(Debug, thiserror::Error)]
+pub enum RegistryLoadError {
+    #[error("failed to read contract registry at {path}: {source}")]
+    Read {
+        path: PathBuf,
+        #[source]
+        source: std::io::Error,
+    },
+    #[error("failed to parse contract registry at {path}: {source}")]
+    Parse {
+        path: PathBuf,
+        #[source]
+        source: serde_json::Error,
+    },
+}
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct TrackDefinition {
@@ -25,7 +44,66 @@ pub struct ContractRegistry {
 }
 
 impl ContractRegistry {
+    pub fn load(path: impl AsRef<Path>) -> Result<Self, RegistryLoadError> {
+        let path = path.as_ref();
+        let raw = std::fs::read_to_string(path).map_err(|source| RegistryLoadError::Read {
+            path: path.to_path_buf(),
+            source,
+        })?;
+        serde_json::from_str(&raw).map_err(|source| RegistryLoadError::Parse {
+            path: path.to_path_buf(),
+            source,
+        })
+    }
+
+    pub fn load_from_root(root: impl AsRef<Path>) -> Result<Self, RegistryLoadError> {
+        Self::load(root.as_ref().join(DEFAULT_REGISTRY_PATH))
+    }
+
     pub fn track_ids(&self) -> Vec<&str> {
         self.tracks.iter().map(|t| t.track_id.as_str()).collect()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{ContractRegistry, RegistryLoadError};
+
+    const FIXTURE: &str = r#"{
+        "schema_version": "arda.contract-registry.v1",
+        "generated_at_utc": "2026-07-28T00:00:00Z",
+        "authority": "fixture",
+        "tracks": []
+    }"#;
+
+    #[test]
+    fn loads_an_explicit_fixture_without_workspace_state() {
+        let temp = tempfile::tempdir().expect("tempdir");
+        let path = temp.path().join("registry.json");
+        std::fs::write(&path, FIXTURE).expect("write fixture");
+
+        let registry = ContractRegistry::load(&path).expect("load fixture");
+        assert_eq!(registry.schema_version, "arda.contract-registry.v1");
+        assert_eq!(registry.authority, "fixture");
+    }
+
+    #[test]
+    fn missing_registry_reports_the_explicit_path() {
+        let temp = tempfile::tempdir().expect("tempdir");
+        let path = temp.path().join("missing.json");
+
+        let error = ContractRegistry::load(&path).expect_err("missing fixture");
+        assert!(matches!(error, RegistryLoadError::Read { .. }));
+        assert!(error.to_string().contains(path.to_string_lossy().as_ref()));
+    }
+
+    #[test]
+    fn malformed_registry_is_distinct_from_a_missing_file() {
+        let temp = tempfile::tempdir().expect("tempdir");
+        let path = temp.path().join("registry.json");
+        std::fs::write(&path, "{").expect("write malformed fixture");
+
+        let error = ContractRegistry::load(&path).expect_err("malformed fixture");
+        assert!(matches!(error, RegistryLoadError::Parse { .. }));
     }
 }

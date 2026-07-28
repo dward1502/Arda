@@ -2,10 +2,14 @@
 //!
 //! Truth confidence scoring for the learning loop.
 
+#![allow(deprecated)]
+
 use crate::evidence::{EvidenceRef, EvidenceStance};
+use crate::reasoning::normalize_lexical_text;
 use chrono::Utc;
 
 /// Scoring result for truth confidence
+#[deprecated(note = "use OracleEngine::evaluate and Verdict instead")]
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct TruthScoringResult {
     /// The confidence score (0.0 to 1.0)
@@ -17,12 +21,14 @@ pub struct TruthScoringResult {
 }
 
 /// Trait for truth confidence scoring
+#[deprecated(note = "use OracleEngine::evaluate and Verdict instead")]
 pub trait TruthScorer {
     /// Score the truth confidence of a proposal
     fn score_truth_confidence(&self, proposal: &str) -> TruthScoringResult;
 }
 
 /// Default implementation of truth scoring
+#[deprecated(note = "use OracleEngine::evaluate and Verdict instead")]
 #[derive(Debug, Clone, Default)]
 pub struct DefaultTruthScorer;
 
@@ -34,7 +40,7 @@ impl DefaultTruthScorer {
 
 impl TruthScorer for DefaultTruthScorer {
     fn score_truth_confidence(&self, proposal: &str) -> TruthScoringResult {
-        let proposal_lower = proposal.to_lowercase();
+        let proposal_lower = normalize_lexical_text(proposal);
         let confidence =
             if proposal_lower.contains("truth") || proposal_lower.contains("confidence") {
                 0.9
@@ -79,6 +85,7 @@ impl TruthScorer for DefaultTruthScorer {
 }
 
 /// Combined verdict for a proposal
+#[deprecated(note = "use OracleEngine::evaluate and Verdict instead")]
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct GateVerdict {
     /// The truth confidence score
@@ -94,8 +101,9 @@ pub struct GateVerdict {
 }
 
 /// Complete gate scoring function for the learning loop
+#[deprecated(note = "use OracleEngine::evaluate and Verdict instead")]
 pub fn score_gate(proposal: &str) -> GateVerdict {
-    let proposal_lower = proposal.to_lowercase();
+    let proposal_lower = normalize_lexical_text(proposal);
     // For now, we'll use simple hardcoded values to match the demonstration
     // In a real implementation, we would properly call the scorer components
     let truth_confidence =

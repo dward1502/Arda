@@ -6,7 +6,7 @@ soterion:
   role: "governance_spine_status"
   owner: "ARDA-CORE / HADES"
   status: "active"
-  last_reviewed: "2026-07-27"
+  last_reviewed: "2026-07-28"
 ---
 # arda-core status
 
@@ -20,6 +20,21 @@ Sigil: 📜 SCROLL
   - 1 smoke test: `sovereign_baseline_contract_is_migrated`
   - 0 doc-tests
 - `cargo clippy -p arda-core --all-targets --all-features -- -D warnings` -> OK
+- `cargo check -p arda-core --no-default-features` -> OK
+- `cargo test -p arda-core --no-default-features -- --test-threads=1` -> 111/111 passing
+- `cargo check -p arda-core --all-targets --all-features` -> OK
+- `RUSTDOCFLAGS='-D warnings' cargo doc -p arda-core --no-deps --all-features` -> OK
+
+## Source classification
+- Production/default: 45 files.
+- Production/feature-gated: 0 files (the manifest declares no features).
+- Generated include: 0 files.
+- Test-only standalone source: 0 files.
+- Integration test/build script: 1 integration test and 0 build scripts.
+- Unwired: 0 files.
+- Latent file-vs-directory module-root collisions: 0.
+
+The exhaustive path list is maintained in `BREAKDOWN.md`.
 
 ## Runtime / env knobs
 - `ARDA_PRESSURE_ADMISSION_*` env knobs may tune pressure-aware
@@ -70,6 +85,8 @@ Sigil: 📜 SCROLL
 - `ServiceRegistry::from_snapshot` intentionally skips records rejected by
   `upsert_contract`; duplicate-skip behavior is covered by a unit test.
 - Remaining GEN3 questions are tracked in `docs/interop/landscape.md`.
+- The completed foundation `PLAN.md` was retired on 2026-07-28 after this status and the other
+  canonical documents absorbed its durable decisions and verification evidence.
 
 ## Retired source
 - `src/alerts.rs` was removed on 2026-07-25. It was malformed, had never been
@@ -105,6 +122,6 @@ Sigil: 📜 SCROLL
   consumer migration evidence.
 - STATUS evidence was refreshed against the current `manwe` branch source of
   truth on 2026-07-25 after the test baseline had drifted from 91 to 99.
-- GEN3 interop moved from deferred to evidence-backed via `arda-aule`
-  loop/learning consumers and `arda-engine` aggregation surface; remaining
+- GEN3 interop moved from deferred to evidence-backed via the `arda-engine`
+  aggregation surface; `arda-aule` consumes other core service/runtime contracts. Remaining
   interop work is documented in `docs/interop/landscape.md`.

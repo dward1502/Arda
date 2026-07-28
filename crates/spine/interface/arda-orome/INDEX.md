@@ -6,7 +6,6 @@
 - `README.md` — public/default and opt-in contracts.
 - `STATUS.md` — dated verification evidence and boundaries.
 - `BREAKDOWN.md` — production/test-only/retired classification.
-- `PLAN.md` — completed stabilization decisions.
 - `OWNERSHIP.md` — authority boundaries.
 
 ## Direct crate children

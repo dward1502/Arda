@@ -6,6 +6,7 @@ use arda_governance::{bacon_lite_validate, triad_validate, BaconLiteResult, Tria
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::fmt;
 
@@ -73,6 +74,7 @@ pub struct OracleEngine {
     ledger: Option<Ledger>,
     history: Vec<Verdict>,
     pub history_queries: HashMap<String, OracleQuery>,
+    history_request_digests: HashMap<String, String>,
     page_index: PageIndex,
     policy: OraclePolicy,
 }
@@ -178,6 +180,29 @@ impl OracleQuery {
             && self.query_type == other.query_type
             && self.correlation_id == other.correlation_id
             && self.causation_id == other.causation_id
+    }
+
+    pub(crate) fn request_identity_digest(&self) -> String {
+        let mut value =
+            serde_json::to_value(self).expect("OracleQuery serialization is infallible");
+        if let Some(fields) = value.as_object_mut() {
+            fields.remove("timestamp");
+            if let Some(evidence) = fields
+                .get_mut("evidence")
+                .and_then(|value| value.as_array_mut())
+            {
+                for item in evidence {
+                    if let Some(item_fields) = item.as_object_mut() {
+                        item_fields.remove("excerpt");
+                        item_fields.remove("sensitive_excerpt");
+                        item_fields.remove("integrity");
+                    }
+                }
+            }
+        }
+        let encoded =
+            serde_json::to_vec(&value).expect("request identity serialization is infallible");
+        format!("sha256:{:x}", Sha256::digest(encoded))
     }
 }
 
@@ -359,6 +384,17 @@ pub enum VerdictOutcome {
     Escalate,
 }
 
+impl VerdictOutcome {
+    pub const fn as_str(&self) -> &'static str {
+        match self {
+            Self::Pass => "pass",
+            Self::Fail => "fail",
+            Self::Conditional => "conditional",
+            Self::Escalate => "escalate",
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum GateKind {
@@ -448,6 +484,7 @@ impl OracleEngine {
             ledger: None,
             history: Vec::new(),
             history_queries: HashMap::new(),
+            history_request_digests: HashMap::new(),
             page_index: PageIndex::new(),
             policy: OraclePolicy::default(),
         }
@@ -469,6 +506,15 @@ impl OracleEngine {
 
     pub fn evaluate(&mut self, query: OracleQuery) -> Result<Verdict, OracleQueryError> {
         query.validate()?;
+        let request_digest = query.request_identity_digest();
+        if let Some(existing_digest) = self.history_request_digests.get(&query.id) {
+            if existing_digest == &request_digest {
+                return self.find_cached_verdict_by_id(&query.id);
+            }
+            return Err(OracleQueryError::DuplicateQueryId {
+                id: query.id.clone(),
+            });
+        }
         if let Some(existing_query) = self.history_queries.get(&query.id) {
             if existing_query.is_same_request(&query) {
                 return self.find_cached_verdict_by_id(&query.id);
@@ -488,26 +534,27 @@ impl OracleEngine {
             });
         }
 
-        let aurelius = self.evaluate_aurelius(&query);
-        let bacon = self.evaluate_bacon(&query);
-        let sun_tzu = self.evaluate_sun_tzu(&query);
+        let normalized_task = normalize_lexical_text(&query.task);
+        let aurelius = self.evaluate_aurelius(&query, &normalized_task);
+        let bacon = self.evaluate_bacon(&query, &normalized_task);
+        let sun_tzu = self.evaluate_sun_tzu(&query, &normalized_task);
 
-        let gates = TriadGates {
-            aurelius: Self::build_gate_result(
+        let mut gates = TriadGates {
+            aurelius: self.build_gate_result(
                 GateKind::Aurelius,
                 aurelius.score,
                 aurelius.concerns.clone(),
                 aurelius.evidence.clone(),
                 aurelius.evidence_signals.clone(),
             ),
-            bacon: Self::build_gate_result(
+            bacon: self.build_gate_result(
                 GateKind::Bacon,
                 bacon.score,
                 bacon.concerns.clone(),
                 bacon.evidence.clone(),
                 bacon.evidence_signals.clone(),
             ),
-            sun_tzu: Self::build_gate_result(
+            sun_tzu: self.build_gate_result(
                 GateKind::SunTzu,
                 sun_tzu.score,
                 sun_tzu.concerns.clone(),
@@ -516,8 +563,15 @@ impl OracleEngine {
             ),
         };
 
-        let vetoes = self.collect_vetoes(&query);
+        let vetoes = self.collect_vetoes(&normalized_task);
         let outcome = self.determine_outcome(&gates, &vetoes);
+        if outcome == VerdictOutcome::Escalate {
+            for gate in [&mut gates.aurelius, &mut gates.bacon, &mut gates.sun_tzu] {
+                if !gate.passed {
+                    gate.disposition = GateDisposition::Escalated;
+                }
+            }
+        }
         let conditions = self.build_conditions(&gates, &outcome);
         let reasoning = self.build_reasoning(&outcome, &gates)?;
         let resonance_score = self.calculate_resonance(&outcome, &gates);
@@ -540,6 +594,8 @@ impl OracleEngine {
             governance,
         };
 
+        self.history_request_digests
+            .insert(query.id.clone(), request_digest);
         self.history_queries.insert(query.id.clone(), query);
         self.history.push(verdict.clone());
         Ok(verdict)
@@ -557,6 +613,18 @@ impl OracleEngine {
         &self.history
     }
 
+    pub(crate) fn rollback_verdict(&mut self, query_id: &str) {
+        if self
+            .history
+            .last()
+            .is_some_and(|verdict| verdict.query_id == query_id)
+        {
+            self.history.pop();
+            self.history_queries.remove(query_id);
+            self.history_request_digests.remove(query_id);
+        }
+    }
+
     pub fn history(&self) -> &[Verdict] {
         self.history.as_slice()
     }
@@ -566,6 +634,7 @@ impl OracleEngine {
     }
 
     fn build_gate_result(
+        &self,
         kind: GateKind,
         score: f64,
         concerns: Vec<String>,
@@ -574,9 +643,11 @@ impl OracleEngine {
     ) -> GateResult {
         let gate_score = normalize_score(score);
         let passed = match kind {
-            GateKind::Aurelius => gate_score >= 0.7,
-            GateKind::Bacon => gate_score >= 0.55,
-            GateKind::SunTzu => gate_score >= 0.6,
+            GateKind::Aurelius => {
+                gate_score >= normalize_score(self.policy.aurelius_pass_threshold)
+            }
+            GateKind::Bacon => gate_score >= normalize_score(self.policy.bacon_pass_threshold),
+            GateKind::SunTzu => gate_score >= normalize_score(self.policy.sun_tzu_pass_threshold),
         };
         let disposition = if passed {
             GateDisposition::Accepted
@@ -596,7 +667,11 @@ impl OracleEngine {
         }
     }
 
-    pub fn record_restart_verdict(&mut self, verdict: Verdict) -> Result<(), OracleQueryError> {
+    pub fn record_restart_verdict(
+        &mut self,
+        verdict: Verdict,
+        request_digest: Option<String>,
+    ) -> Result<(), OracleQueryError> {
         let key = verdict.query_id.clone();
         if self.history_queries.contains_key(&key) {
             return Err(OracleQueryError::DuplicateQueryId { id: key });
@@ -615,21 +690,22 @@ impl OracleEngine {
                 causation_id: None,
             },
         );
+        if let Some(request_digest) = request_digest {
+            self.history_request_digests.insert(key, request_digest);
+        }
         self.history.push(verdict);
         Ok(())
     }
 
-    fn evaluate_aurelius(&self, query: &OracleQuery) -> GateResult {
+    fn evaluate_aurelius(&self, query: &OracleQuery, normalized_task: &str) -> GateResult {
         let mut concerns = Vec::new();
         let mut evidence = Vec::new();
         let mut evidence_signals = Vec::new();
         let mut score = 1.0;
 
-        let task_lower = query.task.to_lowercase();
-
-        if (task_lower.contains("should")
-            || task_lower.contains("must")
-            || task_lower.contains("need"))
+        if (normalized_task.contains("should")
+            || normalized_task.contains("must")
+            || normalized_task.contains("need"))
             && query.context.is_empty()
             && query.evidence.is_empty()
         {
@@ -656,7 +732,7 @@ impl OracleEngine {
             });
         }
 
-        if self.has_contradictions(&query.task) {
+        if Self::has_contradictions(normalized_task) {
             concerns.push("Logical contradiction detected in task or context".to_string());
             score = 0.0;
             let inferred = EvidenceRef::inferred(
@@ -694,10 +770,7 @@ impl OracleEngine {
             });
         }
 
-        score = normalize_score(score);
-        let _passed = score >= self.policy.aurelius_pass_threshold;
-
-        Self::build_gate_result(
+        self.build_gate_result(
             GateKind::Aurelius,
             score,
             concerns,
@@ -706,7 +779,7 @@ impl OracleEngine {
         )
     }
 
-    fn evaluate_bacon(&mut self, query: &OracleQuery) -> GateResult {
+    fn evaluate_bacon(&mut self, query: &OracleQuery, normalized_task: &str) -> GateResult {
         let mut concerns = Vec::new();
         let mut evidence_signals = Vec::new();
         let mut score: f64 = 0.55;
@@ -860,10 +933,9 @@ impl OracleEngine {
         }
         evidence_signals.extend(Self::cross_source_signals(&evidence));
 
-        let task_lower = query.task.to_lowercase();
         let has_financial = query.task.contains('$')
-            || task_lower.contains("budget")
-            || task_lower.contains("cost");
+            || normalized_task.contains("budget")
+            || normalized_task.contains("cost");
 
         let accepted_evidence_count = evidence
             .iter()
@@ -874,33 +946,29 @@ impl OracleEngine {
             score -= 0.2;
         }
 
-        score = normalize_score(score);
-        let _passed = score >= self.policy.bacon_pass_threshold;
-
-        Self::build_gate_result(GateKind::Bacon, score, concerns, evidence, evidence_signals)
+        self.build_gate_result(GateKind::Bacon, score, concerns, evidence, evidence_signals)
     }
 
-    fn evaluate_sun_tzu(&self, query: &OracleQuery) -> GateResult {
+    fn evaluate_sun_tzu(&self, query: &OracleQuery, normalized_task: &str) -> GateResult {
         let mut concerns = Vec::new();
         let mut evidence = Vec::new();
         let mut score = 1.0;
 
-        let task_lower = query.task.to_lowercase();
-
         let urgent_keywords = ["urgent", "asap", "immediately", "emergency", "critical"];
-        let has_urgency = urgent_keywords.iter().any(|k| task_lower.contains(k));
+        let has_urgency = urgent_keywords.iter().any(|k| normalized_task.contains(k));
+        let has_dangerous_operation = Self::has_dangerous_operation(normalized_task);
 
         if has_urgency {
             concerns.push("Task marked urgent — verify timing is truly critical".to_string());
             score -= 0.15;
         }
 
-        if self.has_dangerous_operation(&query.task) {
+        if has_dangerous_operation {
             concerns.push("Dangerous operation requires explicit human review".to_string());
             score = 0.0;
         }
 
-        let strategic_claim = if self.has_dangerous_operation(&query.task) {
+        let strategic_claim = if has_dangerous_operation {
             "Configured dangerous-operation pattern detected"
         } else if has_urgency {
             "Urgency language requires timing review"
@@ -912,7 +980,7 @@ impl OracleEngine {
             "query.task",
             query.timestamp,
             strategic_claim,
-            if self.has_dangerous_operation(&query.task) {
+            if has_dangerous_operation {
                 EvidenceStance::Contradicting
             } else {
                 EvidenceStance::Neutral
@@ -922,8 +990,8 @@ impl OracleEngine {
             integrity: inferred.integrity(),
             evidence: inferred,
             disposition: EvidenceDisposition::Accepted,
-            affected_score: has_urgency || self.has_dangerous_operation(&query.task),
-            score_effect: if self.has_dangerous_operation(&query.task) {
+            affected_score: has_urgency || has_dangerous_operation,
+            score_effect: if has_dangerous_operation {
                 -1.0
             } else if has_urgency {
                 -0.15
@@ -933,10 +1001,7 @@ impl OracleEngine {
             rationale: "Deterministic strategy analysis recorded as inferred evidence".to_string(),
         });
 
-        score = normalize_score(score);
-        let _passed = score >= self.policy.sun_tzu_pass_threshold;
-
-        Self::build_gate_result(GateKind::SunTzu, score, concerns, evidence, Vec::new())
+        self.build_gate_result(GateKind::SunTzu, score, concerns, evidence, Vec::new())
     }
 
     fn cross_source_signals(evidence: &[EvidenceAssessment]) -> Vec<EvidenceSignal> {
@@ -1030,16 +1095,17 @@ impl OracleEngine {
         }
     }
 
-    fn collect_vetoes(&self, query: &OracleQuery) -> Vec<PolicyVeto> {
+    fn collect_vetoes(&self, normalized_task: &str) -> Vec<PolicyVeto> {
         let mut vetoes = Vec::new();
-        if self.policy.contradiction_veto_enabled && self.has_contradictions(&query.task) {
+        if self.policy.contradiction_veto_enabled && Self::has_contradictions(normalized_task) {
             vetoes.push(PolicyVeto {
                 kind: PolicyVetoKind::Contradiction,
                 gate: "Aurelius".to_string(),
                 reason: "Logical contradiction must be resolved before proceeding".to_string(),
             });
         }
-        if self.policy.dangerous_operation_veto_enabled && self.has_dangerous_operation(&query.task)
+        if self.policy.dangerous_operation_veto_enabled
+            && Self::has_dangerous_operation(normalized_task)
         {
             vetoes.push(PolicyVeto {
                 kind: PolicyVetoKind::DangerousOperation,
@@ -1055,6 +1121,15 @@ impl OracleEngine {
         gates: &TriadGates,
         outcome: &VerdictOutcome,
     ) -> Vec<VerdictCondition> {
+        if *outcome == VerdictOutcome::Escalate {
+            return vec![VerdictCondition {
+                kind: VerdictConditionKind::Escalate,
+                gate: "Triad".to_string(),
+                description: "No policy gate passed; automated resolution is unavailable"
+                    .to_string(),
+                required_action: "Escalate to explicit human review before proceeding".to_string(),
+            }];
+        }
         if *outcome != VerdictOutcome::Conditional {
             return Vec::new();
         }
@@ -1226,9 +1301,7 @@ impl OracleEngine {
         (base + context_bonus + outcome_modifier).min(1.0)
     }
 
-    fn has_contradictions(&self, task: &str) -> bool {
-        let task_lower = task.to_lowercase();
-
+    fn has_contradictions(normalized_task: &str) -> bool {
         let contradictions = [
             ("always", "never"),
             ("must", "must not"),
@@ -1237,7 +1310,7 @@ impl OracleEngine {
         ];
 
         for (a, b) in contradictions {
-            if task_lower.contains(a) && task_lower.contains(b) {
+            if normalized_task.contains(a) && normalized_task.contains(b) {
                 return true;
             }
         }
@@ -1245,8 +1318,7 @@ impl OracleEngine {
         false
     }
 
-    fn has_dangerous_operation(&self, task: &str) -> bool {
-        let task_lower = task.to_lowercase();
+    fn has_dangerous_operation(normalized_task: &str) -> bool {
         [
             "destructive",
             "dangerous",
@@ -1258,7 +1330,7 @@ impl OracleEngine {
             "bypass safety",
         ]
         .iter()
-        .any(|keyword| task_lower.contains(keyword))
+        .any(|keyword| normalized_task.contains(keyword))
     }
 
     pub fn status_snapshot(&self) -> serde_json::Value {
@@ -1276,6 +1348,11 @@ impl OracleEngine {
             .history
             .iter()
             .filter(|verdict| verdict.outcome == VerdictOutcome::Fail)
+            .count();
+        let escalate_count = self
+            .history
+            .iter()
+            .filter(|verdict| verdict.outcome == VerdictOutcome::Escalate)
             .count();
         let bacon_lite_passed_total = self
             .history
@@ -1305,6 +1382,23 @@ impl OracleEngine {
                 .sum::<f64>()
                 / self.history.len() as f64
         };
+        let disposition_counts = |select: fn(&Verdict) -> &GateResult| {
+            let mut accepted = 0usize;
+            let mut rejected = 0usize;
+            let mut escalated = 0usize;
+            for verdict in &self.history {
+                match select(verdict).disposition {
+                    GateDisposition::Accepted => accepted += 1,
+                    GateDisposition::Rejected => rejected += 1,
+                    GateDisposition::Escalated => escalated += 1,
+                }
+            }
+            json!({
+                "accepted": accepted,
+                "rejected": rejected,
+                "escalated": escalated,
+            })
+        };
 
         json!({
             "schema_version": ORACLE_SCHEMA_VERSION,
@@ -1316,6 +1410,12 @@ impl OracleEngine {
                 "pass": pass_count,
                 "conditional": conditional_count,
                 "fail": fail_count,
+                "escalate": escalate_count,
+            },
+            "gate_dispositions": {
+                "aurelius": disposition_counts(|verdict| &verdict.gates.aurelius),
+                "bacon": disposition_counts(|verdict| &verdict.gates.bacon),
+                "sun_tzu": disposition_counts(|verdict| &verdict.gates.sun_tzu),
             },
             "governance": {
                 "bacon_lite_passed_total": bacon_lite_passed_total,
@@ -1458,6 +1558,10 @@ fn normalize_score(score: f64) -> f64 {
     }
 }
 
+pub(crate) fn normalize_lexical_text(text: &str) -> String {
+    text.to_lowercase()
+}
+
 fn reasoning_error(error: ReasoningContextError) -> OracleQueryError {
     OracleQueryError::ReasoningContext {
         message: error.to_string(),
@@ -1468,7 +1572,8 @@ fn outcome_label(outcome: &VerdictOutcome) -> &'static str {
     match outcome {
         VerdictOutcome::Pass => "pass",
         VerdictOutcome::Conditional => "conditional",
-        VerdictOutcome::Fail | VerdictOutcome::Escalate => "fail",
+        VerdictOutcome::Fail => "fail",
+        VerdictOutcome::Escalate => "escalate",
     }
 }
 
@@ -2016,12 +2121,24 @@ mod tests {
             let sun_tzu_threshold = policy.sun_tzu_pass_threshold;
             let mut engine = OracleEngine::new().with_policy(policy);
             let verdict = evaluate(&mut engine, oracle_query.clone());
-            let passed = match gate {
-                GateUnderTest::Aurelius => verdict.gates.aurelius.score >= aurelius_threshold,
-                GateUnderTest::Bacon => verdict.gates.bacon.score >= bacon_threshold,
-                GateUnderTest::SunTzu => verdict.gates.sun_tzu.score >= sun_tzu_threshold,
+            let (passed, gate_score, threshold) = match gate {
+                GateUnderTest::Aurelius => (
+                    verdict.gates.aurelius.passed,
+                    verdict.gates.aurelius.score,
+                    aurelius_threshold,
+                ),
+                GateUnderTest::Bacon => (
+                    verdict.gates.bacon.passed,
+                    verdict.gates.bacon.score,
+                    bacon_threshold,
+                ),
+                GateUnderTest::SunTzu => (
+                    verdict.gates.sun_tzu.passed,
+                    verdict.gates.sun_tzu.score,
+                    sun_tzu_threshold,
+                ),
             };
-            assert!(passed, "score must meet threshold {score}");
+            assert!(passed, "score {gate_score} must meet threshold {threshold}");
 
             if (0.0..1.0).contains(&score) {
                 let mut policy = OraclePolicy::default();
@@ -2031,15 +2148,12 @@ mod tests {
                     GateUnderTest::Bacon => policy.bacon_pass_threshold = above,
                     GateUnderTest::SunTzu => policy.sun_tzu_pass_threshold = above,
                 }
-                let aurelius_threshold = policy.aurelius_pass_threshold;
-                let bacon_threshold = policy.bacon_pass_threshold;
-                let sun_tzu_threshold = policy.sun_tzu_pass_threshold;
                 let mut engine = OracleEngine::new().with_policy(policy);
                 let verdict = evaluate(&mut engine, oracle_query.clone());
                 let passed = match gate {
-                    GateUnderTest::Aurelius => verdict.gates.aurelius.score >= aurelius_threshold,
-                    GateUnderTest::Bacon => verdict.gates.bacon.score >= bacon_threshold,
-                    GateUnderTest::SunTzu => verdict.gates.sun_tzu.score >= sun_tzu_threshold,
+                    GateUnderTest::Aurelius => verdict.gates.aurelius.passed,
+                    GateUnderTest::Bacon => verdict.gates.bacon.passed,
+                    GateUnderTest::SunTzu => verdict.gates.sun_tzu.passed,
                 };
                 assert!(
                     !passed,
@@ -2051,8 +2165,8 @@ mod tests {
 
     #[test]
     fn outcome_policy_table_covers_pass_conditional_fail_and_veto() {
-        fn gate(passed: bool, kind: GateKind) -> GateResult {
-            OracleEngine::build_gate_result(
+        fn gate(engine: &OracleEngine, passed: bool, kind: GateKind) -> GateResult {
+            engine.build_gate_result(
                 kind,
                 if passed { 1.0 } else { 0.0 },
                 Vec::new(),
@@ -2076,22 +2190,110 @@ mod tests {
 
         for (passes, vetoes, expected) in cases {
             let gates = TriadGates {
-                aurelius: gate(passes[0], GateKind::Aurelius),
-                bacon: gate(passes[1], GateKind::Bacon),
-                sun_tzu: gate(passes[2], GateKind::SunTzu),
+                aurelius: gate(&engine, passes[0], GateKind::Aurelius),
+                bacon: gate(&engine, passes[1], GateKind::Bacon),
+                sun_tzu: gate(&engine, passes[2], GateKind::SunTzu),
             };
             assert_eq!(engine.determine_outcome(&gates, &vetoes), expected);
         }
 
         let escalate_gates = TriadGates {
-            aurelius: gate(false, GateKind::Aurelius),
-            bacon: gate(false, GateKind::Bacon),
-            sun_tzu: gate(false, GateKind::SunTzu),
+            aurelius: gate(&engine, false, GateKind::Aurelius),
+            bacon: gate(&engine, false, GateKind::Bacon),
+            sun_tzu: gate(&engine, false, GateKind::SunTzu),
         };
         assert_eq!(
             engine.determine_outcome(&escalate_gates, &[]),
             VerdictOutcome::Escalate
         );
+    }
+
+    #[test]
+    fn escalation_is_typed_serialized_and_operator_actionable() {
+        let policy = OraclePolicy {
+            aurelius_pass_threshold: 0.8,
+            bacon_pass_threshold: 0.6,
+            sun_tzu_pass_threshold: 0.9,
+            ..OraclePolicy::default()
+        };
+        let mut engine = OracleEngine::new().with_policy(policy);
+        let verdict = evaluate(
+            &mut engine,
+            query("URGENT budget should proceed", Vec::new()),
+        );
+
+        assert_eq!(verdict.outcome, VerdictOutcome::Escalate);
+        assert!(verdict.vetoes.is_empty());
+        assert!(verdict.conditions.iter().any(|condition| {
+            condition.kind == VerdictConditionKind::Escalate
+                && condition.required_action.contains("human review")
+        }));
+        for gate in [
+            &verdict.gates.aurelius,
+            &verdict.gates.bacon,
+            &verdict.gates.sun_tzu,
+        ] {
+            assert_eq!(gate.disposition, GateDisposition::Escalated);
+        }
+        let exported = serde_json::to_value(&verdict).expect("serialize escalation verdict");
+        assert_eq!(exported["outcome"], "escalate");
+        assert_eq!(exported["conditions"][0]["kind"], "escalate");
+        assert_eq!(engine.status_snapshot()["verdict_counts"]["escalate"], 1);
+    }
+
+    #[test]
+    fn status_projects_bounded_per_gate_disposition_counters() {
+        let mut engine = OracleEngine::new();
+        let verdict = engine
+            .evaluate(query(
+                "gate-disposition-metrics",
+                vec!["review evidence", "confirm rollback"],
+            ))
+            .expect("verdict");
+
+        let status = engine.status_snapshot();
+        for (name, gate) in [
+            ("aurelius", &verdict.gates.aurelius),
+            ("bacon", &verdict.gates.bacon),
+            ("sun_tzu", &verdict.gates.sun_tzu),
+        ] {
+            let counters = &status["gate_dispositions"][name];
+            let accepted = counters["accepted"].as_u64().expect("accepted count");
+            let rejected = counters["rejected"].as_u64().expect("rejected count");
+            let escalated = counters["escalated"].as_u64().expect("escalated count");
+            assert_eq!(accepted + rejected + escalated, 1);
+            match gate.disposition {
+                GateDisposition::Accepted => assert_eq!(accepted, 1),
+                GateDisposition::Rejected => assert_eq!(rejected, 1),
+                GateDisposition::Escalated => assert_eq!(escalated, 1),
+            }
+        }
+        assert!(!status["gate_dispositions"]
+            .to_string()
+            .contains("gate-disposition-metrics"));
+    }
+
+    #[test]
+    fn policy_lexical_matching_is_case_insensitive() {
+        let mut engine = OracleEngine::new();
+        let contradiction = evaluate(
+            &mut engine,
+            query("We MUST increase and DECREASE access", vec!["reviewed"]),
+        );
+        assert!(contradiction
+            .vetoes
+            .iter()
+            .any(|veto| veto.kind == PolicyVetoKind::Contradiction));
+
+        let mut engine = OracleEngine::new();
+        let dangerous = evaluate(
+            &mut engine,
+            query("DISABLE SAFEGUARDS after review", vec!["reviewed"]),
+        );
+        assert!(dangerous
+            .vetoes
+            .iter()
+            .any(|veto| veto.kind == PolicyVetoKind::DangerousOperation));
     }
 
     #[test]

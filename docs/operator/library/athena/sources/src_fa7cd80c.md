@@ -1,12 +1,12 @@
 # ATHENA Source Book
 
 - source_id: `src_fa7cd80c`
-- pipeline_id: `athpl_92dad49209ae4e0a9a51872d3a4cbbbc`
+- pipeline_id: `athpl_559b00052f174c3484a281571b348c71`
 - status: `shallow`
 - source_type: `NewsArticle`
-- updated_at_utc: `2026-07-27T05:56:54.171293115+00:00`
+- updated_at_utc: `2026-07-28T00:32:17.741000591+00:00`
 - url: https://example.com/burst-deep
-- athena_book: `/tmp/.tmpEdBeEq/books/src_fa7cd80c.jsonl`
+- athena_book: `/tmp/.tmpgvyzcB/books/src_fa7cd80c.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

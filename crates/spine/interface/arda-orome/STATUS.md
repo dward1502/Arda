@@ -16,6 +16,7 @@ Required crate-local stabilization work: **complete**
 - `intent` and `registry` support both unit tests and `service-runtime`; `message_retry_expiry`, `router`, and provider tests remain test-only.
 - `HttpJsonTransport` provides opt-in live HTTP dispatch with bounded responses and provider-message receipt proof.
 - Fleet policy defaults to local-only; trusted-fleet targets require an explicit provider allowlist and external scope requires approval.
+- `HermesService` scopes Bacon-Lite, Mnemosyne, and Plutus evidence to its configured project root while retaining explicit home overrides.
 
 ## Runtime boundary
 
@@ -28,7 +29,7 @@ Passed from the workspace root on 2026-07-27:
 - `cargo fmt -p arda-orome -- --check`.
 - `cargo check -p arda-orome --no-default-features`.
 - `cargo test -p arda-orome --no-default-features`: 21 passed (14 unit, 7 integration).
-- `cargo test -p arda-orome --all-features -- --test-threads=1`: 92 passed (82 unit, 10 integration).
+- `cargo test -p arda-orome --all-features -- --test-threads=1`: 96 passed (86 unit, 10 integration).
 - `cargo clippy -p arda-orome --all-targets --all-features --quiet -- -D warnings`.
 - `cargo doc -p arda-orome --no-deps --all-features`.
 - `cargo test -p arda-engine --test orome_smoke`: 1 passed.
@@ -46,4 +47,7 @@ All crate-owned HERMES tasks are complete:
 3. bounded fanout and routing: retained and verified;
 4. HUD expansion: remains correctly outside this crate under `apps/arda-hud` ownership.
 
-The completed transient plan was removed from `docs/plans/` in accordance with active-plan-only policy.
+The completed transient plan was removed from `docs/plans/` in accordance with
+active-plan-only policy. The completed crate-local stabilization plan was also
+retired after its durable decisions were absorbed into `README.md`,
+`BREAKDOWN.md`, `STATUS.md`, and `OWNERSHIP.md`.

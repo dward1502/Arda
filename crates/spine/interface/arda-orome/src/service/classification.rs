@@ -85,7 +85,7 @@ pub(super) fn classify(service: &HermesService, msg: InboundMessage) -> Result<I
             format!("source_{}", msg.source.to_ascii_lowercase()),
         ],
     );
-    emit_relationship_signal_background(
+    service.emit_relationship_signal_background(
         "hermes".to_string(),
         normalize_relationship_target(msg.channel.as_deref().unwrap_or(&msg.sender), &msg.source),
         classification.confidence.clamp(0.35, 0.94),
@@ -93,13 +93,14 @@ pub(super) fn classify(service: &HermesService, msg: InboundMessage) -> Result<I
         if triad.passed { 0.72 } else { 0.48 },
         "inbound_classified",
     );
-    emit_work_signal_background(
+    service.emit_work_signal_background(
         "hermes".to_string(),
         classification.joulework.clamp(0.15, 1.0),
         JouleWorkUnit::Attention,
         "inbound_classified",
     );
-    if let Err(err) = enqueue_bacon_lite(
+    if let Err(err) = enqueue_bacon_lite_with(
+        &service.bacon_lite_writer,
         "hermes",
         "classify",
         &bacon_task,
@@ -267,7 +268,16 @@ impl HermesService {
         longevity: f64,
         context: &'static str,
     ) {
-        record_relationship_signal_async(from, to, trust, reciprocity, longevity, context).await;
+        record_relationship_signal_async(
+            &self.plutus_home,
+            from,
+            to,
+            trust,
+            reciprocity,
+            longevity,
+            context,
+        )
+        .await;
     }
 
     pub(super) async fn record_work_signal_async(
@@ -277,7 +287,7 @@ impl HermesService {
         unit: JouleWorkUnit,
         context: &'static str,
     ) {
-        record_work_signal_async(agent, amount, unit, context).await;
+        record_work_signal_async(&self.plutus_home, agent, amount, unit, context).await;
     }
 
     pub(super) fn emit_relationship_signal_background(
@@ -289,7 +299,15 @@ impl HermesService {
         longevity: f64,
         context: &'static str,
     ) {
-        emit_relationship_signal_background(from, to, trust, reciprocity, longevity, context);
+        emit_relationship_signal_background(
+            self.plutus_home.clone(),
+            from,
+            to,
+            trust,
+            reciprocity,
+            longevity,
+            context,
+        );
     }
 
     pub(super) fn emit_work_signal_background(
@@ -299,7 +317,7 @@ impl HermesService {
         unit: JouleWorkUnit,
         context: &'static str,
     ) {
-        emit_work_signal_background(agent, amount, unit, context);
+        emit_work_signal_background(self.plutus_home.clone(), agent, amount, unit, context);
     }
 
     pub(super) fn expand_choice_if_needed(
@@ -352,6 +370,7 @@ fn governance_triad_for_message(
 }
 
 async fn record_relationship_signal_async(
+    plutus_home: &Path,
     from: &str,
     to: &str,
     trust: f64,
@@ -359,7 +378,7 @@ async fn record_relationship_signal_async(
     longevity: f64,
     context: &'static str,
 ) {
-    match PlutusService::from_default_or_workspace_fallback() {
+    match PlutusService::from_home(plutus_home) {
         Ok(service) => {
             if let Err(err) = service
                 .record_relationship(from, to, trust, reciprocity, longevity)
@@ -375,12 +394,13 @@ async fn record_relationship_signal_async(
 }
 
 async fn record_work_signal_async(
+    plutus_home: &Path,
     agent: &str,
     amount: f64,
     unit: JouleWorkUnit,
     context: &'static str,
 ) {
-    match PlutusService::from_default_or_workspace_fallback() {
+    match PlutusService::from_home(plutus_home) {
         Ok(service) => {
             if let Err(err) = service.track_work(agent, amount, unit, None).await {
                 tracing::debug!(error = %err, context, "HERMES work signal failed");
@@ -393,6 +413,7 @@ async fn record_work_signal_async(
 }
 
 fn emit_relationship_signal_background(
+    plutus_home: PathBuf,
     from: String,
     to: String,
     trust: f64,
@@ -404,13 +425,22 @@ fn emit_relationship_signal_background(
         "hermes_plutus_signal",
         background_signal_limit(),
         move || async move {
-            record_relationship_signal_async(&from, &to, trust, reciprocity, longevity, context)
-                .await;
+            record_relationship_signal_async(
+                &plutus_home,
+                &from,
+                &to,
+                trust,
+                reciprocity,
+                longevity,
+                context,
+            )
+            .await;
         },
     );
 }
 
 fn emit_work_signal_background(
+    plutus_home: PathBuf,
     agent: String,
     amount: f64,
     unit: JouleWorkUnit,
@@ -420,7 +450,7 @@ fn emit_work_signal_background(
         "hermes_plutus_signal",
         background_signal_limit(),
         move || async move {
-            record_work_signal_async(&agent, amount, unit, context).await;
+            record_work_signal_async(&plutus_home, &agent, amount, unit, context).await;
         },
     );
 }
@@ -452,5 +482,53 @@ mod tests {
             result.route_to,
             crate::types::IntentRoute::Prometheus
         ));
+    }
+
+    #[tokio::test]
+    async fn classify_scopes_evidence_to_service_root() {
+        let dir = tempdir().expect("tempdir");
+        let service = HermesService::new(dir.path()).expect("service");
+        let msg = InboundMessage::new("test", "operator", "show system status");
+
+        service.classify(msg).expect("classify");
+        service
+            .record_work_signal_async(
+                "hermes",
+                0.25,
+                JouleWorkUnit::Attention,
+                "test_evidence_scope",
+            )
+            .await;
+
+        let evidence = dir.path().join("data/governance/bacon_lite.jsonl");
+        let written = (0..50).any(|_| {
+            if evidence.exists() {
+                true
+            } else {
+                std::thread::sleep(std::time::Duration::from_millis(10));
+                false
+            }
+        });
+        assert!(
+            written,
+            "classification evidence must stay under the configured service root"
+        );
+        assert!(
+            dir.path().join("data/mnemosyne/episodic").exists(),
+            "memory evidence must stay under the configured service root"
+        );
+        let plutus_evidence = dir.path().join("data/plutus/runtime_events.jsonl");
+        let plutus_written = (0..50).any(|_| {
+            if plutus_evidence.exists() {
+                true
+            } else {
+                std::thread::sleep(std::time::Duration::from_millis(10));
+                false
+            }
+        });
+        assert!(
+            plutus_written,
+            "resource evidence must stay under the configured service root"
+        );
     }
 }

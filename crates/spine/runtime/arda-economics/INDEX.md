@@ -11,10 +11,13 @@
 | `transport/ipc.rs` | Unix-domain socket command server/client |
 | `transport/http.rs` | Optional Axum HTTP routes and event stream |
 | `transport/mod.rs` | Daemon configuration and concurrent transport supervision |
+| `transport/finance_stream.rs` | Finance metrics, budget pressure, snapshot freshness, and transport latency |
 | `error.rs` | Crate-specific error types |
 | `lib.rs` | Public exports |
 
 Related documentation:
 
 - [README.md](README.md): operator and integration overview
-- [BREAKDOWN.md](BREAKDOWN.md): current-state architecture and improvement backlog
+- [BREAKDOWN.md](BREAKDOWN.md): current-state architecture and source classification
+- [STATUS.md](STATUS.md): exact closeout evidence
+- [OWNERSHIP.md](OWNERSHIP.md): producer/consumer authority

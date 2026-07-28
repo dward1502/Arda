@@ -1,12 +1,12 @@
 # ATHENA Source Book
 
 - source_id: `src_84eacbc2`
-- pipeline_id: `athpl_7be9ca2422074e7e85bac3a67d7f5f0e`
+- pipeline_id: `athpl_f3e2f9a5c68a48c398184caa7eadebde`
 - status: `shallow`
 - source_type: `GithubRepo`
-- updated_at_utc: `2026-07-27T05:56:59.783146398+00:00`
+- updated_at_utc: `2026-07-28T00:32:27.131873435+00:00`
 - url: https://github.com/example/rust-api
-- athena_book: `/tmp/.tmpZuGlEw/books/src_84eacbc2.jsonl`
+- athena_book: `/tmp/.tmpmf4Rd1/books/src_84eacbc2.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

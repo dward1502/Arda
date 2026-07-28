@@ -5,7 +5,7 @@ soterion:
   role: "runtime_oracle"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-22"
+  last_reviewed: "2026-07-28"
 ---
 
 # arda-mandos
@@ -39,14 +39,13 @@ It provides:
 
 ## Verification status
 
-- `cargo test -p arda-mandos --all-features`: 51 passed, 0 failed
-- `cargo test -p arda-mandos --no-default-features`: 50 passed, 0 failed; warning-free
-- `cargo clippy -p arda-mandos --no-deps -- -D warnings`: clean exit
-- Direct consumer checks pass:
-  - `cargo check -p arda-orome --tests`
-  - `cargo check -p arda-aule --features full-cli`
-- Doc tests: 0
-- Import alias fixed: `arda-plutus` renamed to `arda-economics`; `use arda_economics::PlutusService` updated in `src/service.rs`
+- `cargo test -p arda-mandos --all-features`: 75 unit and 2 integration tests passed
+- `cargo test -p arda-mandos --no-default-features`: 68 unit and 2 integration tests passed
+- Strict Clippy passed for all features and no default features with `--all-targets --no-deps -- -D warnings`
+- Rustdoc passed with `RUSTDOCFLAGS='-D warnings'`, all features, and no dependencies
+- Direct consumer all-feature tests and checks passed:
+  - `arda-aule`: 164 library, 8 CLI, 14 focused integration, and 2 doc tests
+  - `arda-orome`: 86 library and 10 integration tests
 
 ## Agentic-OS abstractions
 
@@ -60,8 +59,8 @@ It provides:
 - **Page index**: `PageIndex`/`PageTree`/`TocEntry` for TOC-based document indexing with keyword search
 - **Notify**: `OracleNotifier` formats verdict/query output for channels
 - **Context**: bounded deterministic claim/evidence/objection/assumption graph with stable IDs, typed edges, validation, summaries, and public-only rationales
-- **Runtime service**: `OracleService` manages `runtime_status.json` and `verdict_history.jsonl`; emits background `joule` work and relationship signals to `PlutusService`
-- **Daemon**: `OracleDaemonConfig` + `OracleDaemon` run IPC + optional HTTP; HTTP exposes `/status`, `/evaluate`, `/verdicts`, `/paths`, `/events`
+- **Runtime service**: `OracleService` manages atomic `runtime_status.json`, versioned digest-linked `verdict_history.jsonl`, restart hydration, degraded-prefix recovery, ledger verification, verified atomic export, and bounded telemetry delivery to `PlutusService`
+- **Daemon**: `OracleDaemonConfig` + `OracleDaemon` supervise IPC and optional HTTP listeners; both transports share typed dispatch, redaction, validation, and structured errors. HTTP additionally exposes `/ledger/verify` and `/ledger/export`
 
 ## Crate layout
 
@@ -76,9 +75,10 @@ It provides:
 | `scoring.rs` | `TruthScorer`, `DefaultTruthScorer`, `score_gate()` |
 | `service.rs` | `OracleService`: runtime orchestration, verdict persistence, Plutus integration |
 | `transport/mod.rs` | Daemon config + runner |
+| `transport/dispatch.rs` | Shared typed requests, dispatch, redaction, and structured errors |
 | `transport/ipc.rs` | Unix socket server |
 | `transport/http.rs` | Optional HTTP/SSE server |
-| `CHECKLIST.md` | Prioritized Oracle improvement plan, acceptance criteria, and evidence log |
+| `tests/target_local.rs` | Target-local persistence and restart integration proof |
 
 ## Consumer wiring
 
@@ -87,33 +87,13 @@ It provides:
 - Consumes `arda-core` for error types, daemon spawn helpers, task status
 - Depends on: `arda-economics`, `arda-core`, `arda-governance`
 
-## Ideas for improvement
+## Closed Packet 4 capability set
 
-The implementation-ready plan is maintained in [`CHECKLIST.md`](CHECKLIST.md). The audit
-prioritizes these improvement tracks:
+- Typed escalation, versioned policy, inclusive threshold boundaries, veto semantics, and bounded public reasoning are covered by executable invariants.
+- Query, evidence, PageIndex, Unicode notification, persistence, and transport behavior use stable typed contracts.
+- Verdict records are restart-safe and tamper-evident across JSON boundaries; recovery retains only the verified prefix and reports degraded reasons.
+- IPC and HTTP enforce bounded inputs and expose shared structured errors; listener supervision owns cancellation and socket cleanup.
+- Gate disposition counters and telemetry delivery counters remain low-cardinality and exclude query identifiers.
+- Verified export refuses corrupt, degraded, legacy, or authoritative-destination output, preserves destination atomicity, verifies and writes one exact byte snapshot, and confines transport-requested destinations beneath the service export root.
 
-1. **Decision correctness (P0):** add invariant tests, fix evidence scoring, replace
-   majority-pass behavior with a versioned policy, and define veto/conditional/escalation
-   semantics.
-2. **Typed query and evidence contracts (P0):** validate every transport consistently,
-   establish idempotency and wire compatibility, and replace free-form evidence with stable
-   provenance references.
-3. **PageIndex integrity (P0):** repair empty-tree navigation, deterministic multi-document
-   search, document refresh, TOC ancestry, stable node IDs, and relevance normalization.
-4. **Governance explainability (P1):** implement `ReasoningContext`, expose reproducible score
-   components and uncertainty, and choose one authoritative relationship between Mandos's
-   local triad and `arda-governance`.
-5. **Audit and recovery (P1):** make ledger state restart-safe, detect corruption/schema drift,
-   use atomic snapshots, and bound/index history reads.
-6. **Runtime safety (P1):** unify IPC/HTTP contracts, return structured errors, enforce limits,
-   supervise listener failure/shutdown, protect active Unix sockets, and make Plutus side
-   effects observable.
-7. **Consumers and operations (P2):** align `arda-aule`/`arda-orome`, add ledger export and
-   verification, expose advisory authority and conditions in UIs, and add bounded metrics.
-8. **Documentation and quality (P2):** replace stale Annunimas naming, add public API examples,
-   document schemas/environment controls, and gate all/no-default feature builds plus docs and
-   Clippy.
-
-Transport remains in this crate until the contract stabilizes and measured growth justifies a
-split; the checklist treats that as a later architecture decision rather than an immediate
-refactor.
+Packet 4's temporary `CHECKLIST.md`, `CRATE_PLAN.md`, and `PLAN_CLOSEOUT.md` trackers were retired after strict producer and direct-consumer gates passed. Future work belongs in a new active plan backed by a newly observed behavior gap.

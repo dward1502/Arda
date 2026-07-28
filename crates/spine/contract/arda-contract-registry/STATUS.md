@@ -1,33 +1,38 @@
-arda-contract-registry crate status
-===================================
+# arda-contract-registry status
 
-local verification
-------------------
-- cargo check -p arda-contract-registry: passed
-- cargo test -p arda-contract-registry: 3 passed, 0 failed
-  - registry_smoke::registry_schema_version_is_pinned
-  - registry_smoke::every_track_has_source_modules
-  - registry_smoke::every_track_schema_version_is_present_in_a_source_or_surface_module
-- cargo check -p arda-contract-registry --all-features: passed
-- cargo test -p arda-contract-registry --all-features: 3 passed, 0 failed
-- arda-launcher frontend rd-ready: registry/service-plan gate wired to App.tsx
-  - arda-launcher/src/App.tsx: loads registry_status, drives RDY/OPEN phase state
-  - apps/arda-launcher/src/lib/tauri-core-compat.ts: Tauri proxy stubs for frontend
-  - crates/spine/contract/arda-contract-registry/STATUS.md: crate-tested and wired
+Crate: `crates/spine/contract/arda-contract-registry`
+State: stable first-class read-only schema/loader
+Last verified: 2026-07-28
+Direct consumer: `arda-launcher`
 
-health summary
---------------
-active: arda-contract-registry v0.1.0
-last reviewed: 2026-07-23
+## Current contract
 
-signals
--------
-- schema-pinned contract manifest model: registry.rs
-- live filesystem verification against declared source modules/surfaces: tests/registry_smoke.rs
+- All 3 Rust files are wired: 2 default production modules and 1 integration
+  test target.
+- Parser/error tests use explicit temporary fixtures and do not depend on live
+  workspace state.
+- The integration smoke remains intentionally live and read-only: it verifies
+  canonical schema, paths, and schema identifiers against the workspace.
+- Launcher duplicate file reading/JSON parsing was replaced by the crate loader.
+- Unused `glob-match` was removed.
 
-open risks / notes
------------------
-- smoke tests depend on `core/state/contract_registry.json`; registry will not verify until Phase A artifact exists.
-- tests also assert `source_modules` paths exist on disk; if those paths move, registry_smoke must be updated.
-- this crate is not wired into a runtime path beyond governance/docs; it is a contract/schema source of truth.
+## Verification evidence
+
+- `cargo fmt -p arda-contract-registry -p arda-launcher -- --check`: passed.
+- `cargo check -p arda-contract-registry --no-default-features`: passed.
+- `cargo test -p arda-contract-registry --no-default-features -- --test-threads=1`:
+  3 unit + 3 integration passed; 0 failed.
+- `cargo check -p arda-contract-registry --all-targets --all-features`: passed.
+- `cargo test -p arda-contract-registry --all-features -- --test-threads=1`:
+  3 unit + 3 integration passed; 0 failed.
+- `cargo clippy -p arda-contract-registry --all-targets --all-features -- -D warnings`:
+  passed.
+- `RUSTDOCFLAGS='-D warnings' cargo doc -p arda-contract-registry --no-deps --all-features`:
+  passed.
+- `cargo check -p arda-launcher --all-targets --all-features`: passed.
+- `cargo test -p arda-launcher --lib -- --test-threads=1`: 8 passed; 0 failed.
+- Canonical artifact SHA-256 before and after strict registry gates:
+  `5ff66fddba546f9c0144839929bc2167beef61f73961c37474ca73a67b866d71`.
+
+No active crate-local plan remains.
 

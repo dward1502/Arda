@@ -1,87 +1,125 @@
 ---
 soterion:
-  sigil: "SCROLL"
-  glyph: "📜"
-  code_point: "U+1F4DC"
-  role: "memory_service"
-  owner: "HADES"
-  status: "active"
-  last_reviewed: "2026-07-25"
+  sigil: SCROLL
+  glyph: 📜
+  code_point: U+1F4DC
+  role: memory_service
+  owner: HADES
+  status: active
+  last_reviewed: 2026-07-27
 ---
 
-# arda-vaire
+# arda-vaire breakdown
 
-Memory service for Arda agents: significance-weighted episodic records,
-identity state, recall/recent/relevant, knowledge-seed recall, consolidation,
-Obsidian sync, and daemon transport.
-Owner: hades | Sigil: 📜 SCROLL | Status: active
-Verified: `cargo check -p arda-vaire` OK; default tests 29 unit + 5 integration; no-default tests 27 unit + 5 integration
+## Scope
 
-## Summary
-`arda-vaire` is the continuous memory/identity persistence layer for the
-Mnemosyne agent. It stores significance-weighted memory events with hash-
-chained episodic integrity, provides scoped recall, synthesizes identity
-state, and exposes an optional HTTP/SSE + Unix-socket daemon interface.
+`arda-vaire` owns local event scoring, persistence, recall, identity-state
+synthesis, consolidation, promotion receipts, Obsidian indexing, and optional
+IPC/HTTP delivery for the Mnemosyne memory surface.
 
-- Crate root: `/var/home/mythos/Eregion/Arda/crates/spine/memory/arda-vaire`
-- Data roots: `data/mnemosyne/*`, env-overridable via `ARDA_MNEMOSYNE_HOME`
-- Contract dual-write opt-in: `ARDA_CONTRACT_MEMORY_ROOT`
-- Public exports: `InformantEvent`, `MnemosyneService`
+It does not own global governance policy, consumer-specific task authority,
+the Prometheus backend, or the separate
+`core/state/mnemosyne_continuity.json` operator projection.
 
-## Future iterations context: public memory and learning systems
+## Compiled source map
 
-## Public Systems Overview
-- Mem0 — scalable long-term personalization, Python-native
-- Zep/Graphiti — temporal knowledge graph with validity timestamps
-- Letta/MemGPT — explicit memory block management with tiered storage
-- LangMem — LangGraph-native long-term memory store
-- MemX — Rust, libSQL-backed, local-first; retrieval <90 ms, 100k+ records
-- LlamaIndex Memory — document-heavy RAG memory, retrieval-centric
-- MemU — structured memory evolution and consolidation
+- `src/lib.rs` — module declarations and crate-root re-exports
+- `src/error.rs` — typed memory and IPC errors
+- `src/schema.rs` — durable episodic and continuity schema identifiers
+- `src/retrieval_eval.rs` — equivalent-dataset contracts, adapter boundary,
+  baseline ranker, and retrieval quality evaluation
+- `src/significance.rs` — deterministic significance classification
+- `src/service.rs` — public data contracts, orchestration, observability state,
+  knowledge-seed bridging, and crate-local tests
+- `src/service/store.rs` — data-root resolution, episodic/noise persistence,
+  contract dual-write, record decoding, and scope derivation
+- `src/service/retrieval.rs` — recent/scoped/relevant recall, lexical ranking,
+  knowledge-seed recall, and identity synthesis
+- `src/service/promotion.rs` — consolidation, semantic/procedural promotion,
+  receipts, and Obsidian synchronization
+- `src/service/status.rs` — statistics, status, recent ledgers, and path reports
+- `src/transport/mod.rs` — daemon configuration and transport orchestration
+- `src/transport/ipc.rs` — Unix-socket JSON command server/client
+- `src/transport/http.rs` — default-feature HTTP/SSE routes
 
-## Where arda-vaire Differs
+Every Rust source file under `src/` is reachable from `src/lib.rs`; there is no
+unwired source subtree or module-root collision.
 
-- arda-vaire is an executor within a governance stack, not a generic RAG framework
-- It provides provenance, receipts, policy-readiness promotion, uncertainty sampling, and governance scoring
-- Transport is built-in (IPC + optional HTTP/SSE) with unified ownership boundaries
-- A controlled local scaffold now measures Hit@1 and latency; no equivalent-dataset public comparison has been run
+## Data and behavior boundaries
 
-## Where Public Tooling Differs
+- `encode` evaluates significance and writes either episodic or noise data.
+- Episodic records include source, scope, confidence, trust, and chain metadata.
+- `recall_relevant` uses bounded lexical ranking with protected-scope weighting;
+  it is not a BM25, vector, or hybrid index.
+- `consolidate` promotes eligible repeated procedural patterns and emits
+  promotion receipts that retain source memory IDs.
+- `sync_obsidian` requires an explicit vault path and indexes Markdown content
+  into a separate JSONL surface; it does not make human notes canonical machine
+  truth.
+- Observability reports recall counts/fidelity/latency, IPC queue latency,
+  consolidation depth, and receipt totals. Configured services atomically
+  persist those snapshots for `arda-aule` consumption.
+- HTTP is feature-gated; IPC is compiled independently of HTTP. Neither
+  transport is required for direct library consumers.
 
-- Governance-first ingestion (receipts + promotion) is unique to arda-vaire
-- JSONL append-only with malformed-line tolerance is production-ready in arda-vaire
-- Single IPC/HTTP/SSE transport simplifies cross-component orchestration
-- Explicit love/joule/resonance scoring and triad validation form a distinct trust model
+## Live integrations
 
-## arda-vaire's Unique Strengths
+- `arda-varda`: unconditional encode consumer
+- `arda-outpost-scout`: unconditional scoped encode/recall consumer
+- `arda-orome`: `service-runtime`-feature identity and relevant-recall consumer
+- `arda-aule`: `full-cli`-feature status consumer
+- `manwe`: `adaptive`-feature encode consumer
 
-- Sovereign local AI memory with governance guarantees
-- Deterministic receipting and bounded runtime execution
-- Provenance-preserving, idempotent storage
+## Completed review work
 
-## Public Systems Benchmarks
+The former implementation checklist is complete and was retired into Git
+history after this reconciliation. Verified capabilities include:
 
-The local fixture scaffold reports Hit@1 `1.000` over 600 queries at 63.46 µs/query on the verification host. This result is a regression baseline only and must not be compared directly with published public-system results until dataset, hardware, and metric definitions are equivalent.
+- default and no-default feature test coverage
+- HTTP contract/status/encode/recall and SSE payload coverage
+- IPC round-trip, unreachable-socket, malformed-response, and local-default
+  behavior
+- knowledge-delta coverage for boardroom, human-context, edge-runtime, and
+  system-continuity scopes
+- confidence/trust disclosure in recall results
+- receipt-backed promotion and duplicate/overload/novelty regressions
+- recall, IPC, consolidation, and promotion observability
+- controlled Hit@1/latency regression benchmark
+- equivalent-dataset adapter contract with Hit@1, Recall@K, and MRR evidence
+- atomic durable observability/status/statistics export and bounded-label
+  `arda-aule` Prometheus ingestion
+- append/consolidation soak coverage with malformed-record and restart recovery
+- bounded fallback work-signal execution through one shared Tokio runtime,
+  verified by the 512-event operator-scale soak
+- explicit episodic/continuity schema versions, legacy read migration, and
+  unsupported-future-schema disclosure
+- canonical `<arda-root>/data/mnemosyne` config/socket defaults with direct
+  library use independent of transport daemons
 
-## Recommendations for arda-vaire
+## Verification evidence
 
-1. Harden governance-first promotion so no recalled task enters without receipts
-2. Fix retrieval fidelity by integrating BM25/hybrid search
-3. Improve observability to measure runtime effectiveness
-4. Make store boundaries and ownership explicit
-5. Make confidence/trust explicit for downstream agents
+Verified 2026-07-27:
 
-## Public Memory & Learning Systems Reference
+- `cargo check -p arda-vaire` — pass
+- `cargo test -p arda-vaire --all-features` — 30 unit + 13 integration tests
+  pass
+- `cargo test -p arda-vaire --no-default-features` — 27 unit + 13 integration
+  tests pass
+- benchmark target completes 600 queries at Hit@1 `1.000`
+- equivalent-dataset gate — 6 queries at Hit@1/Recall@3/MRR `1.000`
+- recovery test — 128 append attempts, 8 consolidation cycles, 3 malformed
+  durable surfaces, and restart recovery
+- explicit operator-scale soak — 512 append attempts and 8 consolidation cycles
+- `cargo test -p arda-aule --all-features --test metrics_exporter_cli` — pass
+- strict rustdoc initially found invalid `<root>/<id>` markup in `service.rs`;
+  the comment was corrected and the strict documentation gate now passes
 
-- **Mem0** — production memory layer, episodic + semantic with vector (+ graph) retrieval
-- **Zep/Graphiti** — temporal knowledge graph with validity timestamps
-- **Letta/MemGPT** — explicit memory block management with tiered storage
-- **LangMem** — LangGraph-native long-term memory store
-- **MemX** — Rust, libSQL-backed, local-first retrieval performance
-- **MemU** — structured memory evolution and consolidation
-- **LlamaIndex Memory** — document-heavy RAG memory, retrieval focus
+## Documentation supersession
 
-## Action Items
-
-- Conduct an equivalent-dataset comparative retrieval benchmark before selecting BM25/vector/hybrid changes.
-- Export the current process-local observability snapshot to the canonical durable metrics backend when an operational consumer is selected.
+| Retired path | Current authority | Reason |
+| --- | --- | --- |
+| `CHECKLIST.md` | `BREAKDOWN.md` completed review work | All implementation items were verified |
+| `CRATE_PLAN.md` | `BREAKDOWN.md` completed review work | Completed implementation packet duplicated maintained evidence |
+| `STATUS.md` | `README.md` verification + this file | Status and risk prose duplicated maintained docs |
+| `OWNERSHIP.md` | Scope and data/behavior boundaries above | Ownership claims were stale and incomplete |
+| `docs/plans/MNEMOSYNE.md` | `README.md` + this file | All hardening and comparative gates were completed; active-plan copy retired |

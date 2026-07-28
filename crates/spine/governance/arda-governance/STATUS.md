@@ -3,7 +3,7 @@
 Crate: `crates/spine/governance/arda-governance`
 Version: `0.1.0`
 State: **stable for current scope**
-Reviewed: 2026-07-26
+Reviewed: 2026-07-28
 Required crate-local work: **none**
 
 ## Current implementation
@@ -31,22 +31,41 @@ Required crate-local work: **none**
 
 ## Verification evidence
 
-Passed from the workspace root on 2026-07-26:
+Passed from the workspace root on 2026-07-28:
 
 - `cargo fmt -p arda-governance -- --check`.
-- `cargo test -p arda-governance --all-features`: 117 passed
+- `cargo check -p arda-governance --no-default-features`.
+- `cargo test -p arda-governance --no-default-features -- --test-threads=1`: 117 passed
   (67 unit, 47 integration, 3 doctests).
+- `cargo check -p arda-governance --all-targets --all-features`.
+- `cargo test -p arda-governance --all-features -- --test-threads=1`: 118 passed
+  (67 unit, 48 integration, 3 doctests); the additional integration case exercises
+  `llm-scorer`.
 - `cargo clippy -p arda-governance --all-targets --all-features -- -D warnings`.
-- `cargo doc -p arda-governance --no-deps --all-features`.
+- `RUSTDOCFLAGS='-D warnings' cargo doc -p arda-governance --no-deps --all-features`.
 
 Cargo emitted only the workspace's existing informational warning that a non-root package
 profile in `apps/arda-launcher/src-tauri/Cargo.toml` is ignored. It did not affect this crate.
 
 ## Direct consumers
 
-`manwe`, `arda-aule`, `arda-varda`, `arda-mandos`, `arda-orome`, `arda-economics`, and
-`arda-vaire` declare direct dependencies. Consumer-specific historical release evidence is
+`manwe`, `arda-aule`, `arda-engine`, `arda-varda`, `arda-mandos`, `arda-orome`,
+`arda-economics`, and `arda-vaire` declare direct dependencies. All eight compile through the
+all-feature workspace consumer gate. Consumer-specific historical release evidence is
 preserved in git history; this file reports only the current crate-local verification run.
+
+## Rust source classification
+
+- Production/default: 25 files. `src/scorer.rs` is default production and contains the
+  `llm-scorer`-gated sections; there is no standalone feature-only Rust file.
+- Production/feature-gated: 0 standalone files.
+- Generated include: 0 files.
+- Test-only standalone source: 0 files.
+- Integration test/build script: 9 integration-test files and 0 build scripts.
+- Unwired: 0 files.
+- Latent file-vs-directory module-root collisions: 0.
+
+The exhaustive path inventory is in `BREAKDOWN.md`.
 
 ## Documentation contract
 

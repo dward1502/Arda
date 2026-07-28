@@ -97,25 +97,10 @@ fn registry_status(root: Option<String>) -> RegistryStatusPayload {
         error: None,
     };
 
-    let path = root.join("core/state/contract_registry.json");
-    let registry = match std::fs::read_to_string(&path) {
-        Ok(raw) => match serde_json::from_str::<ContractRegistry>(&raw) {
-            Ok(registry) => registry,
-            Err(err) => {
-                payload.error = Some(format!(
-                    "invalid registry JSON: {} at {}",
-                    err,
-                    path.display()
-                ));
-                return payload;
-            }
-        },
+    let registry = match ContractRegistry::load_from_root(&root) {
+        Ok(registry) => registry,
         Err(err) => {
-            payload.error = Some(format!(
-                "missing registry manifest: {} at {}",
-                err,
-                path.display()
-            ));
+            payload.error = Some(err.to_string());
             return payload;
         }
     };

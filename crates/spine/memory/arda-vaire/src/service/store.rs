@@ -1,4 +1,5 @@
 use super::{EpisodicRecord, InformantEvent, MnemosyneService, RecallRecentEntry};
+use crate::schema::{EPISODIC_SCHEMA_VERSION, LEGACY_EPISODIC_SCHEMA_VERSION};
 use arda_core::error::{ArdaError, Result};
 use chrono::Utc;
 use fs2::FileExt;
@@ -20,11 +21,18 @@ impl MnemosyneService {
                 Self::new(arda_root().join("data").join("mnemosyne"))?
             }
         };
-        Ok(apply_contract_dual_write_from_env(svc))
+        Ok(apply_contract_dual_write_from_env(svc).with_metrics_root(
+            arda_root()
+                .join("core")
+                .join("metrics")
+                .join("by_crate")
+                .join("mnemosyne"),
+        ))
     }
 
     pub fn new(root: impl AsRef<Path>) -> Result<Self> {
         let root = root.as_ref().to_path_buf();
+        let metrics_root = inferred_metrics_root(&root);
         let episodic_root = root.join("episodic");
         let semantic_root = root.join("semantic");
         let procedural_root = root.join("procedural");
@@ -64,6 +72,7 @@ impl MnemosyneService {
             obsidian_index_path,
             last_consolidation_path,
             contract_memory_root: None,
+            metrics_root,
             observability: Default::default(),
         })
     }
@@ -74,6 +83,12 @@ impl MnemosyneService {
     /// Existing on-disk Mnemosyne files are untouched.
     pub fn with_contract_memory_root(mut self, contract_memory_root: PathBuf) -> Self {
         self.contract_memory_root = Some(contract_memory_root);
+        self
+    }
+
+    /// Configure the durable metrics directory consumed by `arda-aule`.
+    pub fn with_metrics_root(mut self, metrics_root: PathBuf) -> Self {
+        self.metrics_root = Some(metrics_root);
         self
     }
 
@@ -105,6 +120,7 @@ impl MnemosyneService {
         std::fs::write(&self.chain_head_path, &body_hash)?;
 
         let header = serde_json::json!({
+            "schema_version": EPISODIC_SCHEMA_VERSION,
             "sigil": significance.sigil,
             "memory_id": memory_id,
             "created_at_utc": Utc::now().to_rfc3339(),
@@ -113,6 +129,7 @@ impl MnemosyneService {
             "hash": format!("sha256:{body_hash}")
         });
         let body = serde_json::json!({
+            "schema_version": EPISODIC_SCHEMA_VERSION,
             "type":"episodic",
             "source_crate": event.crate_name,
             "event_type": event.event_type,
@@ -160,6 +177,8 @@ impl MnemosyneService {
         );
 
         Ok(Some(RecallRecentEntry {
+            schema_version: EPISODIC_SCHEMA_VERSION.to_owned(),
+            migrated_from_schema: None,
             memory_id,
             source_crate: event.crate_name,
             event_type: event.event_type,
@@ -195,6 +214,7 @@ impl MnemosyneService {
                 }
                 let content = fs::read_to_string(file.path())?;
                 let mut sigil = "MNEME_ACTIVE".to_owned();
+                let mut record_schema = LEGACY_EPISODIC_SCHEMA_VERSION.to_owned();
                 let mut body: Option<serde_json::Value> = None;
                 let mut malformed = false;
 
@@ -207,6 +227,11 @@ impl MnemosyneService {
                         }
                     };
                     if i == 0 {
+                        record_schema = value
+                            .get("schema_version")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or(LEGACY_EPISODIC_SCHEMA_VERSION)
+                            .to_owned();
                         sigil = value
                             .get("sigil")
                             .and_then(|v| v.as_str())
@@ -222,8 +247,17 @@ impl MnemosyneService {
                     continue;
                 }
 
+                if record_schema != EPISODIC_SCHEMA_VERSION
+                    && record_schema != LEGACY_EPISODIC_SCHEMA_VERSION
+                {
+                    continue;
+                }
+
                 if let Some(value) = body {
                     out.push(EpisodicRecord {
+                        schema_version: EPISODIC_SCHEMA_VERSION.to_owned(),
+                        migrated_from_schema: (record_schema == LEGACY_EPISODIC_SCHEMA_VERSION)
+                            .then(|| LEGACY_EPISODIC_SCHEMA_VERSION.to_owned()),
                         sigil,
                         memory_id: file
                             .path()
@@ -302,6 +336,50 @@ impl MnemosyneService {
     }
 }
 
+pub(super) fn episodic_schema_counts(root: &Path) -> (usize, usize) {
+    let mut legacy = 0usize;
+    let mut unsupported = 0usize;
+    for path in walk_dir(root).unwrap_or_default() {
+        if path.extension().and_then(|value| value.to_str()) != Some("jsonl") {
+            continue;
+        }
+        let Ok(content) = fs::read_to_string(path) else {
+            continue;
+        };
+        let Some(Ok(header)) = content
+            .lines()
+            .find(|line| !line.trim().is_empty())
+            .map(serde_json::from_str::<serde_json::Value>)
+        else {
+            continue;
+        };
+        match header
+            .get("schema_version")
+            .and_then(|value| value.as_str())
+        {
+            None | Some(LEGACY_EPISODIC_SCHEMA_VERSION) => legacy += 1,
+            Some(EPISODIC_SCHEMA_VERSION) => {}
+            Some(_) => unsupported += 1,
+        }
+    }
+    (legacy, unsupported)
+}
+
+fn inferred_metrics_root(memory_root: &Path) -> Option<PathBuf> {
+    let data_root = memory_root.parent()?;
+    if memory_root.file_name()? != "mnemosyne" || data_root.file_name()? != "data" {
+        return None;
+    }
+    Some(
+        data_root
+            .parent()?
+            .join("core")
+            .join("metrics")
+            .join("by_crate")
+            .join("mnemosyne"),
+    )
+}
+
 pub(super) fn append_jsonl<T: Serialize>(path: &Path, value: &T) -> Result<()> {
     let mut file = OpenOptions::new().create(true).append(true).open(path)?;
     file.lock_exclusive()?;
@@ -314,6 +392,22 @@ pub(super) fn append_jsonl<T: Serialize>(path: &Path, value: &T) -> Result<()> {
     let unlock_result = file.unlock().map_err(ArdaError::Ledger);
     write_result?;
     unlock_result?;
+    Ok(())
+}
+
+pub(super) fn write_atomic_json<T: Serialize>(path: &Path, value: &T) -> Result<()> {
+    let parent = path.parent().ok_or_else(|| ArdaError::Agent {
+        agent: "mnemosyne".to_owned(),
+        message: format!("metrics path has no parent: {}", path.display()),
+    })?;
+    fs::create_dir_all(parent)?;
+    let file_name = path
+        .file_name()
+        .and_then(|value| value.to_str())
+        .unwrap_or("snapshot.json");
+    let temporary = parent.join(format!(".{file_name}.tmp"));
+    fs::write(&temporary, serde_json::to_vec_pretty(value)?)?;
+    fs::rename(temporary, path)?;
     Ok(())
 }
 

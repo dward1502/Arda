@@ -1,44 +1,42 @@
-arda-engine crate status
-=======================
+# arda-engine status
 
-local verification
-------------------
+Crate: `crates/engine`
+State: stable first-class foundation
+Last verified: 2026-07-28
+Branch: `manwe`
 
-- cargo check -p arda-engine: passed
-- cargo test -p arda-engine: 6 passed, 0 failed
-  - registry::tests::empty_registry_is_rejected_instead_of_silently_supervising_nothing
-  - registry::tests::workspace_registry_declares_canonical_manwe_process
-  - registry::tests::no_ui_keeps_manwe_and_drops_ui_services
-  - registry::tests::missing_command_for_optional_service_drops_service_with_no_error
-  - registry::tests::missing_command_for_required_service_is_reported_as_error
-  - supervisor::tests::supervises_and_reaps_child_on_shutdown
-- cargo check -p arda-engine --all-features: passed
-- cargo test -p arda-engine --all-features: 6 passed, 0 failed
+## Current contract
 
-health summary
---------------
+- All 8 Rust files are wired: 7 default production modules and 1 integration
+  test target.
+- The crate has no declared features; no-default and all-feature gates therefore
+  exercise the same supported graph.
+- The root `arda` package is the only direct Cargo consumer.
+- The former no-op `boot()` boundary is removed.
+- `arda --once` now loads and resolves `services.toml`, reports required-service
+  errors, honors `--no-ui`, and exits before supervision or harness startup.
+- Harness Manwe calls use the state-owned client, explicit five-second default
+  timeout, and optional bearer forwarding.
 
-active: arda-engine v0.1.0
-last reviewed: 2026-07-17
+## Verification evidence
 
-signals
--------
+- `cargo fmt -p arda-engine -p arda -- --check`: passed.
+- `cargo check -p arda-engine --no-default-features`: passed.
+- `cargo test -p arda-engine --no-default-features -- --test-threads=1`:
+  10 unit + 1 integration passed; 0 failed.
+- `cargo check -p arda-engine --all-targets --all-features`: passed.
+- `cargo test -p arda-engine --all-features -- --test-threads=1`:
+  10 unit + 1 integration passed; 0 failed.
+- `cargo clippy -p arda-engine --all-targets --all-features -- -D warnings`:
+  passed.
+- `RUSTDOCFLAGS='-D warnings' cargo doc -p arda-engine --no-deps --all-features`:
+  passed.
+- `cargo check -p arda --all-targets --all-features`: passed.
+- Missing-registry smoke from `/tmp`: exit 1 with a `services.toml` read error.
+- Workspace-root smoke `target/debug/arda --once --no-ui`: exit 0 after
+  resolving the canonical Manwe service and before spawning it.
 
-- process supervision + restart/backoff: supervisor.rs
-- declarative service discovery: registry.rs
-- harness HTTP tap-in: harness.rs @127.0.0.1:7878
-- `/v1/models` proxy to manwe: harness.rs with explicit reqwest timeout + optional bearer forward
-- spine re-exports: lib.rs / manwe.rs
+## Remaining posture
 
-open risks
-----------
-
-- boot() is currently a placeholder
-- harness `/v1/models` proxy is an unauthenticated `reqwest::Client::get()`; no timeout, no URI validation, no fallback if manwe is down
-- 2s PID mirror poll loop is coarse for tight monitoring windows
-- dev-dependency on tonic/prost is unused by this crate surface and may distract from actual test surface
-
-plan
-----
-
-see PLAN.md
+No active crate-local implementation plan remains. Future additions must retain
+the engine/root ownership boundary and add focused tests plus consumer evidence.

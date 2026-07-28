@@ -755,7 +755,11 @@ impl HermesService {
         let mut review_reasons = Vec::new();
         if !oracle.verdict_found {
             review_reasons.push("oracle_verdict_missing".to_string());
-        } else if oracle.outcome.as_deref() != Some("Pass") {
+        } else if !oracle
+            .outcome
+            .as_deref()
+            .is_some_and(|outcome| outcome.eq_ignore_ascii_case("pass"))
+        {
             review_reasons.push(format!(
                 "oracle_outcome_not_pass:{}",
                 oracle.outcome.as_deref().unwrap_or("missing")

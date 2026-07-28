@@ -5,6 +5,7 @@ use arda_core::error::{ArdaError, Result};
 use arda_core::spawn_bounded_background;
 use serde_json::{json, Value};
 use std::path::PathBuf;
+use std::time::Instant;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::{UnixListener, UnixStream};
 
@@ -53,6 +54,7 @@ async fn handle_connection(stream: UnixStream, service: PlutusService) -> Result
         agent: "plutus".to_owned(),
         message: format!("IPC read error: {e}"),
     })? {
+        let started_at = Instant::now();
         let response = match serde_json::from_str::<CommandEnvelope>(&line) {
             Ok(cmd) => match execute_command(&service, cmd).await {
                 Ok(value) => json!({"ok": true, "result": value}),
@@ -60,6 +62,7 @@ async fn handle_connection(stream: UnixStream, service: PlutusService) -> Result
             },
             Err(err) => json!({"ok": false, "error": format!("invalid command: {err}")}),
         };
+        service.record_transport_latency(started_at.elapsed());
         let mut encoded = serde_json::to_vec(&response)?;
         encoded.push(b'\n');
         writer
@@ -248,6 +251,9 @@ mod tests {
             .await
             .expect("status");
         assert_eq!(status["authority"], "plutus_service");
+        assert!(status["transport_latency"]["requests_total"]
+            .as_u64()
+            .is_some_and(|count| count >= 1));
         server.abort();
     }
 }

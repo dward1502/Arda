@@ -12,17 +12,17 @@ soterion:
 
 > 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-13
 
-# Index: crates/governance/arda-core/tests/INDEX.md
+# Index: crates/spine/governance/arda-core/tests
 
 ## Contents
 
 - `INDEX.md`
 - `README.md`
-- `core_contracts.rs`
+- `tool_harness_smoke.rs`
 
 ## Purpose
 
-Crate index for `crates/governance/arda-core/tests/INDEX.md`. See sibling `INDEX.md` for bucket metadata.
+Exact direct-child map for the crate's integration-test directory.
 
 ## Notes
 

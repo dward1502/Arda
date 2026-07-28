@@ -1,12 +1,12 @@
 # ATHENA Source Book
 
 - source_id: `src_df11630e`
-- pipeline_id: `athpl_c082b6d880ca4f348db515f6ec333f3e`
+- pipeline_id: `athpl_4b7156673b8944ed929dc19cc119e8b9`
 - status: `deep`
 - source_type: `GithubRepo`
-- updated_at_utc: `2026-07-27T05:56:54.459242763+00:00`
+- updated_at_utc: `2026-07-28T00:32:17.997085336+00:00`
 - url: https://github.com/D4Vinci/Scrapling
-- athena_book: `/tmp/.tmpA35ca4/books/src_df11630e.jsonl`
+- athena_book: `/tmp/.tmpVfQ9mi/books/src_df11630e.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

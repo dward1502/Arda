@@ -22,7 +22,8 @@ pub struct MnemosyneDaemonConfig {
 impl Default for MnemosyneDaemonConfig {
     fn default() -> Self {
         Self {
-            socket_path: expand_home("data/mnemosyne/mnemosyne.sock"),
+            socket_path: arda_core::layout::arda_root_from(env!("CARGO_MANIFEST_DIR"))
+                .join("data/mnemosyne/mnemosyne.sock"),
             http_enabled: true,
             http_addr: format!("{}:{}", "127.0.0.1", 5115),
         }

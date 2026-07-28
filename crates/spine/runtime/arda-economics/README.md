@@ -5,11 +5,11 @@ soterion:
   code_point: U+1F4DC
   role: documentation
   owner: HADES
-  status: active
-  last_reviewed: 2026-07-22
+  status: stable
+  last_reviewed: 2026-07-28
 ---
 
-> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-07-22
+> 🜏 Soterion: 📜 documentation | owner: HADES | status: stable | reviewed: 2026-07-28
 
 # arda-economics
 
@@ -21,13 +21,18 @@ Runtime economics substrate for Arda: provider spend accounting, JouleWork measu
 - `JouleWorkTracker` with measurement-source provenance and per-agent summaries
 - `LoveEquation` with configurable weights, relationships, snapshot/restore
 - `EnergyMeter` + `EstimatorMeter` + `HardwareMeter` + `MeterRegistry` + `TariffTable`
+- typed backend failure, ordered estimator fallback, finite-sample validation,
+  and tariff freshness hooks
 - `PlutusLedger` balances + append-only `runtime_events.jsonl`
 - `PlutusService` with atomic snapshot persistence, v1-to-v2 migration, and governed mutations
 - `PlutusDaemon` Unix socket + optional HTTP/SSE with configurable timeouts
+- finance export with budget pressure, snapshot freshness, and IPC/HTTP latency
+  aggregates
 
 ## Verified evidence
 
-Build/test proofpoint: cargo check -p arda-economics + cargo test -p arda-economics 26/26 passing.
+Closeout proofpoint: all-feature suite 34 passed, 1 operator-scale test ignored by
+default; the 10,000-event operator-scale provenance test passed separately.
 
 ## Runtime state
 
@@ -37,9 +42,9 @@ By default, runtime state lives under `data/plutus`. Override with `ARDA_PLUTUS_
 
 See STATUS.md for current health signals, open risks, and ownership.
 
-## Work queue
+## Ownership
 
-See CHECKLIST.md for authorship and implementation tracking.
+See [OWNERSHIP.md](OWNERSHIP.md). No active crate-local plan remains.
 
 ## Operator export
 

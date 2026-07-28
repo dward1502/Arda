@@ -2,7 +2,7 @@
 
 Crate: `crates/spine/governance/arda-governance`
 State: discussion queue; no current implementation commitments
-Last reviewed: 2026-07-26
+Last reviewed: 2026-07-28
 
 ## Purpose
 
@@ -67,7 +67,7 @@ Add proposals using this structure:
 For every accepted change:
 
 - preserve conservative default readiness and advisory environmental semantics;
-- review all seven direct workspace consumers when public contracts change;
+- review all eight direct workspace consumers when public contracts change;
 - update `README.md`, `BREAKDOWN.md`, `STATUS.md`, and compatibility fixtures as applicable;
 - run formatting, all-feature tests, strict Clippy, and rustdoc generation;
 - record provenance changes in `GOVERNANCE_PROVENANCE.md`.

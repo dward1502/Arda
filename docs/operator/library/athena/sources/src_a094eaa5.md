@@ -1,12 +1,12 @@
 # ATHENA Source Book
 
 - source_id: `src_a094eaa5`
-- pipeline_id: `athpl_bf0ffc8a90ac4e47a38376459f2ff86b`
+- pipeline_id: `athpl_e3c77572c0454fc5b695790a6890a5c2`
 - status: `shallow`
 - source_type: `RawNote`
-- updated_at_utc: `2026-07-27T05:56:54.174445010+00:00`
+- updated_at_utc: `2026-07-28T00:32:17.768185660+00:00`
 - url: alpha rust persistent index
-- athena_book: `/tmp/.tmpiiRzao/books/src_a094eaa5.jsonl`
+- athena_book: `/tmp/.tmpjbLG8L/books/src_a094eaa5.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

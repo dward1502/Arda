@@ -6,10 +6,10 @@ soterion:
   role: "documentation"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-07-28"
 ---
 
-> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-07-26
+> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-07-28
 
 # arda-governance
 
@@ -221,6 +221,10 @@ From the workspace root:
 
 ```text
 cargo fmt -p arda-governance -- --check
+cargo check -p arda-governance --no-default-features
+cargo test -p arda-governance --no-default-features -- --test-threads=1
+cargo check -p arda-governance --all-targets --all-features
 cargo test -p arda-governance --all-features
-cargo doc -p arda-governance --no-deps --all-features
+cargo clippy -p arda-governance --all-targets --all-features -- -D warnings
+RUSTDOCFLAGS='-D warnings' cargo doc -p arda-governance --no-deps --all-features
 ```

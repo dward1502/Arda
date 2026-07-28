@@ -267,7 +267,11 @@ pub async fn serve(
 #[cfg(test)]
 mod tests {
     use super::{DEFAULT_HARNESS_ADDR, DEFAULT_MANWE_PROXY_TIMEOUT, HarnessState, serve};
-    use axum::{Json, Router, routing::post};
+    use axum::{
+        Json, Router,
+        http::HeaderMap,
+        routing::{get, post},
+    };
     use serde_json::{Value, json};
     use std::sync::Arc;
     use tokio::sync::{Notify, RwLock};
@@ -334,6 +338,67 @@ mod tests {
             .await
             .expect("proxy body");
         assert_eq!(response["query"], "governance");
+
+        shutdown.notify_waiters();
+        harness_handle.await.expect("harness join");
+        upstream_handle.abort();
+    }
+
+    #[tokio::test]
+    async fn models_proxy_forwards_the_configured_bearer() {
+        let upstream = tokio::net::TcpListener::bind("127.0.0.1:0")
+            .await
+            .expect("upstream bind");
+        let upstream_addr = upstream.local_addr().expect("upstream address");
+        let upstream_handle = tokio::spawn(async move {
+            axum::serve(
+                upstream,
+                Router::new().route(
+                    "/v1/models",
+                    get(|headers: HeaderMap| async move {
+                        assert_eq!(
+                            headers
+                                .get(reqwest::header::AUTHORIZATION)
+                                .and_then(|value| value.to_str().ok()),
+                            Some("Bearer harness-secret")
+                        );
+                        Json(json!({"data": []}))
+                    }),
+                ),
+            )
+            .await
+            .expect("upstream server");
+        });
+
+        let shutdown = Arc::new(Notify::new());
+        let state = HarnessState {
+            harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
+            child_pids: Arc::new(RwLock::new(Vec::new())),
+            service_names: Arc::new(Vec::new()),
+            manwe_url: format!("http://{upstream_addr}"),
+            client: reqwest::Client::new(),
+            manwe_proxy_timeout: DEFAULT_MANWE_PROXY_TIMEOUT,
+            manwe_proxy_bearer: Some("harness-secret".into()),
+            warden_scout_url: None,
+            warden_scout_timeout: std::time::Duration::from_secs(2),
+        };
+        let (bound, harness_handle) = serve(
+            Some("127.0.0.1:0".parse().expect("harness address")),
+            state,
+            shutdown.clone(),
+        )
+        .await
+        .expect("start harness");
+
+        let response: Value = reqwest::get(format!("http://{bound}/v1/models"))
+            .await
+            .expect("models request")
+            .error_for_status()
+            .expect("models status")
+            .json()
+            .await
+            .expect("models body");
+        assert_eq!(response, json!({"data": []}));
 
         shutdown.notify_waiters();
         harness_handle.await.expect("harness join");

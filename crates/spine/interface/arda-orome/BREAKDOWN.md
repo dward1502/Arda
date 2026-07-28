@@ -57,6 +57,7 @@ The following unsupported files were deleted after module-graph, consumer, and h
 - trusted-fleet dispatch requires an allowed scope and an explicit target-provider allowlist;
 - external dispatch is denied unless policy and approval permit it;
 - attempts, retries, outcomes, timeouts, targets, and stream chunks are observable;
+- service-owned governance, memory, and resource evidence is rooted in the configured service project, with explicit environment overrides retained;
 - `ManualTransport` never proves live delivery;
 - HTTP success without a non-empty provider message ID is not delivery proof.
 

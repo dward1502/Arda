@@ -38,7 +38,7 @@ use std::time::Duration;
 
 use anyhow::{Context, Result};
 use axum::{extract::State, http::StatusCode, response::IntoResponse, routing::get, Json, Router};
-use prometheus::{Encoder, Gauge, IntGauge, IntGaugeVec, Opts, Registry, TextEncoder};
+use prometheus::{Encoder, Gauge, GaugeVec, IntGauge, IntGaugeVec, Opts, Registry, TextEncoder};
 use serde_json::Value;
 use sysinfo::System;
 use tokio::time::interval;
@@ -70,6 +70,10 @@ struct MetricFamilies {
     pressure_guard_oversize_files_total: IntGauge,
     audit_health_status: IntGaugeVec,
     charon_failure_budget: IntGaugeVec,
+    mnemosyne_events: IntGaugeVec,
+    mnemosyne_latency_ms: GaugeVec,
+    mnemosyne_recall_fidelity: Gauge,
+    mnemosyne_consolidation_depth: IntGauge,
     refresh_success: IntGauge,
     refresh_last_unix: IntGauge,
     node_time_seconds: Gauge,
@@ -159,6 +163,28 @@ impl MetricFamilies {
                 ),
                 &["provider_id"],
             )?,
+            mnemosyne_events: IntGaugeVec::new(
+                Opts::new(
+                    "arda_mnemosyne_events_total",
+                    "Mnemosyne durable event counters by bounded signal",
+                ),
+                &["signal"],
+            )?,
+            mnemosyne_latency_ms: GaugeVec::new(
+                Opts::new(
+                    "arda_mnemosyne_latency_milliseconds",
+                    "Most recently observed Mnemosyne latency by bounded operation",
+                ),
+                &["operation"],
+            )?,
+            mnemosyne_recall_fidelity: Gauge::new(
+                "arda_mnemosyne_recall_fidelity",
+                "Most recent query-token recall fidelity (0..1)",
+            )?,
+            mnemosyne_consolidation_depth: IntGauge::new(
+                "arda_mnemosyne_consolidation_depth",
+                "Records scanned by the most recent consolidation",
+            )?,
             refresh_success: IntGauge::new(
                 "annunimas_metrics_exporter_refresh_success",
                 "1 if last refresh cycle completed without error",
@@ -226,6 +252,10 @@ impl MetricFamilies {
         r.register(Box::new(self.pressure_guard_oversize_files_total.clone()))?;
         r.register(Box::new(self.audit_health_status.clone()))?;
         r.register(Box::new(self.charon_failure_budget.clone()))?;
+        r.register(Box::new(self.mnemosyne_events.clone()))?;
+        r.register(Box::new(self.mnemosyne_latency_ms.clone()))?;
+        r.register(Box::new(self.mnemosyne_recall_fidelity.clone()))?;
+        r.register(Box::new(self.mnemosyne_consolidation_depth.clone()))?;
         r.register(Box::new(self.refresh_success.clone()))?;
         r.register(Box::new(self.refresh_last_unix.clone()))?;
         if system_metrics {
@@ -408,6 +438,54 @@ fn refresh(state: &ExporterState) {
                     .with_label_values(&[pid])
                     .set(budget);
             }
+        }
+    }
+
+    // --- core/metrics/by_crate/mnemosyne/observability.json ---
+    let memory_observability = root.join("core/metrics/by_crate/mnemosyne/observability.json");
+    if let Some(v) = read_json(&memory_observability) {
+        if v.get("schema_version").and_then(Value::as_str)
+            == Some("arda.mnemosyne.observability.v1")
+        {
+            if let Some(metrics) = v.get("metrics").and_then(Value::as_object) {
+                for (label, field) in [
+                    ("recall_requests", "recall_requests_total"),
+                    ("recall_results", "recall_results_total"),
+                    ("queue_observations", "queue_observations_total"),
+                    ("promotion_receipts", "promotion_receipts_total"),
+                ] {
+                    let value = metrics.get(field).and_then(Value::as_u64).unwrap_or(0);
+                    f.mnemosyne_events
+                        .with_label_values(&[label])
+                        .set(value.min(i64::MAX as u64) as i64);
+                }
+                for (label, field) in [
+                    ("recall", "last_recall_latency_ms"),
+                    ("queue", "last_queue_latency_ms"),
+                ] {
+                    f.mnemosyne_latency_ms
+                        .with_label_values(&[label])
+                        .set(metrics.get(field).and_then(Value::as_f64).unwrap_or(0.0));
+                }
+                f.mnemosyne_recall_fidelity.set(
+                    metrics
+                        .get("last_recall_fidelity")
+                        .and_then(Value::as_f64)
+                        .unwrap_or(0.0),
+                );
+                f.mnemosyne_consolidation_depth.set(
+                    metrics
+                        .get("last_consolidation_depth")
+                        .and_then(Value::as_u64)
+                        .unwrap_or(0)
+                        .min(i64::MAX as u64) as i64,
+                );
+            }
+        } else {
+            warn!(
+                path = %memory_observability.display(),
+                "unsupported Mnemosyne observability schema"
+            );
         }
     }
 

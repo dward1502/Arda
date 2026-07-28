@@ -5,7 +5,7 @@ soterion:
   role: "runtime_economics"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-17"
+  last_reviewed: "2026-07-28"
 ---
 
 # arda-economics
@@ -29,10 +29,9 @@ persistent Plutus service with governance history.
 
 ## Verification status
 - `cargo check -p arda-economics`: OK
-- `cargo test -p arda-economics`: 14 passed, 0 failed
+- `cargo test -p arda-economics --all-features`: 34 passed, 1 ignored, 0 failed
 - Doc tests: 0
-- No consumers found in `arda-engine` or `apps`; used by `arda-governance`,
-  `arda-orome`, `arda-varda`, `arda-vaire` through `PlutusService`
+- Direct Cargo consumers: `arda-mandos`, `arda-vaire`, and `arda-varda`
 
 ## Agentic-OS abstractions
 - **Economics engine**: `EconomicsEngine` with daily budget, provider-
@@ -71,15 +70,27 @@ persistent Plutus service with governance history.
 | `transport/mod.rs` | Daemon config + runner |
 | `transport/ipc.rs` | Unix socket server |
 | `transport/http.rs` | Optional HTTP/SSE server |
+| `transport/finance_stream.rs` | Finance, budget-pressure, freshness, and transport-latency export |
 | `error.rs` | Canonical error type |
 
 ## Consumer wiring
-- Used by `arda-governance` MCP runtime governance for background work
-  tracking
-- Used by `arda-orome` context_enrichment and service layer
-- Used by `arda-varda` interceptor pipeline and planning-task receipts
-- Used by `arda-vaire` tests and service emit paths
+- Used directly by `arda-mandos`, `arda-vaire`, and `arda-varda`
+- `arda-aule`, `arda-governance`, Manwe, and launcher are not direct Cargo consumers
 - Depends on: `arda-core`, `arda-governance`
+
+## Supported source classification
+
+| Classification | Count | Paths |
+|---|---:|---|
+| Production/unconditional | 11 | `src/lib.rs`, seven other top-level modules, `transport/mod.rs`, `transport/ipc.rs`, `transport/finance_stream.rs` |
+| Production/feature-gated | 1 | `transport/http.rs` (`http`, enabled by default) |
+| Generated include | 0 | None |
+| Standalone test-only source | 0 | Tests are inline |
+| Integration test/build script | 0 / 0 | None |
+| Unwired | 0 | None |
+
+The all-feature suite has 34 passing tests plus one ignored operator-scale test.
+The ignored 10,000-event provenance/multiplier test passed when executed directly.
 
 ## Ideas for improvement
 Completed in the first improvement pass:
@@ -114,4 +125,5 @@ Completed in the second improvement pass:
     `--json` output, explicit `--path` override, missing-state handling, and
     append-only event counts.
 
-All improvement items are now resolved.
+All improvement items are resolved. Completed trackers were retired after strict
+crate, operator-scale, and direct-consumer gates.

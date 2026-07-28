@@ -50,12 +50,6 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     info!("arda daemon starting");
-    arda_engine::boot()?;
-
-    if cli.once {
-        info!("arda daemon: --once set, exiting after boot");
-        return Ok(());
-    }
 
     // Resolve supervised services from data (services.toml). To add/remove an
     // app (launcher, HUD, `manwe` gateway), edit the toml — not this file.
@@ -88,6 +82,15 @@ async fn main() -> anyhow::Result<()> {
                 svc.exe.display()
             );
         }
+    }
+
+    if cli.once {
+        info!(
+            resolved_services = services.len(),
+            no_ui = cli.no_ui,
+            "arda daemon: registry smoke passed; --once set, exiting before supervision"
+        );
+        return Ok(());
     }
 
     let shutdown = Shutdown::new();

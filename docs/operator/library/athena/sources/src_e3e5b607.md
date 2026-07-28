@@ -1,12 +1,12 @@
 # ATHENA Source Book
 
 - source_id: `src_e3e5b607`
-- pipeline_id: `athpl_8d37a1640e6a4a77ae597a3b03e18c1f`
+- pipeline_id: `athpl_e35bebda455f40938c57ff249558b853`
 - status: `deep`
 - source_type: `NewsArticle`
-- updated_at_utc: `2026-07-27T05:56:54.159120069+00:00`
+- updated_at_utc: `2026-07-28T00:32:17.738405344+00:00`
 - url: https://example.com/content-addressed-deep-cache
-- athena_book: `/tmp/.tmprweVrT/books/src_e3e5b607.jsonl`
+- athena_book: `/tmp/.tmpgM3srL/books/src_e3e5b607.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary

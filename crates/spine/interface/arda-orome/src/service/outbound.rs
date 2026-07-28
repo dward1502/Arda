@@ -197,7 +197,8 @@ impl HermesService {
             "outbound_queued",
         )
         .await;
-        if let Err(err) = enqueue_bacon_lite(
+        if let Err(err) = enqueue_bacon_lite_with(
+            &self.bacon_lite_writer,
             "hermes",
             "send",
             &bacon_task,

@@ -48,9 +48,9 @@
 //!
 //! # See Also
 //!
-//! - [`ArdaAuleContract`]: The canonical observability contract
-//! - [`ArdaAuleStatus`]: Readiness probe output
-//! - [`ObservabilityBrief`]: Compact observability summary
+//! - [`contract::ArdaAuleContract`]: The canonical observability contract
+//! - [`service::ArdaAuleStatus`]: Readiness probe output
+//! - [`service::ObservabilityBrief`]: Compact observability summary
 
 pub mod contract;
 pub mod council;

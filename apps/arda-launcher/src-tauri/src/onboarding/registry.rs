@@ -1,4 +1,4 @@
-use anyhow::{Context, Result};
+use anyhow::Result;
 use arda_contract_registry::registry::ContractRegistry;
 use serde::Serialize;
 use std::path::{Path, PathBuf};
@@ -30,10 +30,7 @@ pub struct RegistryCheckResult {
 }
 
 pub fn load_registry(root: &Path) -> Result<ContractRegistry> {
-    let manifest_path = root.join("core/state/contract_registry.json");
-    let raw = std::fs::read_to_string(&manifest_path)
-        .with_context(|| format!("read {manifest_path:?}"))?;
-    Ok(serde_json::from_str(&raw)?)
+    Ok(ContractRegistry::load_from_root(root)?)
 }
 
 pub fn check_registry(root: &Path) -> Result<RegistryCheckResult> {

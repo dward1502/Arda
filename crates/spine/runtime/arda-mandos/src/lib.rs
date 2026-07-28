@@ -22,7 +22,8 @@ pub use evidence::{
     EvidenceIntegrity, EvidenceKind, EvidenceRef, EvidenceSignal, EvidenceSignalKind,
     EvidenceStance, EVIDENCE_FRESHNESS_WINDOW_DAYS,
 };
-pub use notify::OracleNotifier;
+#[allow(deprecated)]
+pub use notify::{OracleNotifier, OracleVerdictFormatter};
 pub use pageindex::{
     IndexingDisposition, IndexingReport, PageIndex, PageNodeMeta, PageTree, SearchResult, TocEntry,
 };
@@ -33,9 +34,9 @@ pub use reasoning::{
     DEFAULT_ORACLE_POLICY_VERSION, MAX_QUERY_CONTEXT_ITEMS, MAX_QUERY_CONTEXT_ITEM_BYTES,
     MAX_QUERY_ID_BYTES, MAX_QUERY_REQUESTER_BYTES, MAX_QUERY_TASK_BYTES,
 };
+#[allow(deprecated)]
 pub use scoring::{DefaultTruthScorer, TruthScorer, TruthScoringResult};
-pub use service::{OracleRuntimePaths, OracleService, ORACLE_RUNTIME_SCHEMA_VERSION};
+pub use service::{
+    LedgerVerificationReport, OracleRuntimePaths, OracleService, ORACLE_RUNTIME_SCHEMA_VERSION,
+};
 pub use transport::{expand_home, OracleDaemon, OracleDaemonConfig};
-
-#[cfg(test)]
-pub(crate) static PLUTUS_ENV_LOCK: tokio::sync::Mutex<()> = tokio::sync::Mutex::const_new(());

@@ -7,6 +7,7 @@ fn metrics_snapshot_reads_explicit_arda_root_and_emits_prometheus_text() {
     let root = temp.path();
     fs::create_dir_all(root.join("core/state")).expect("state dir");
     fs::create_dir_all(root.join("core/metrics/by_crate/prometheus")).expect("metrics dir");
+    fs::create_dir_all(root.join("core/metrics/by_crate/mnemosyne")).expect("memory metrics dir");
     fs::write(
         root.join("core/state/autonomy_runtime.json"),
         r#"{"mode":"normal","violations":[]}"#,
@@ -22,6 +23,11 @@ fn metrics_snapshot_reads_explicit_arda_root_and_emits_prometheus_text() {
         r#"{"status":"ok","violations":[],"observed":{"storage_pressure":{"oversize_files_gte_100mb":7}}}"#,
     )
     .expect("canonical pressure projection");
+    fs::write(
+        root.join("core/metrics/by_crate/mnemosyne/observability.json"),
+        r#"{"schema_version":"arda.mnemosyne.observability.v1","metrics":{"recall_requests_total":9,"recall_results_total":21,"last_recall_fidelity":0.875,"last_recall_latency_ms":14,"queue_observations_total":7,"last_queue_latency_ms":3,"last_consolidation_depth":18,"promotion_receipts_total":6}}"#,
+    )
+    .expect("mnemosyne observability");
 
     let output = Command::new(env!("CARGO_BIN_EXE_arda-cli"))
         .args(["metrics", "snapshot", "--root"])
@@ -41,4 +47,10 @@ fn metrics_snapshot_reads_explicit_arda_root_and_emits_prometheus_text() {
     assert!(stdout.contains("annunimas_pressure_guard_oversize_files_total 7"));
     assert!(stdout
         .contains("annunimas_audit_health_status{status=\"ok\",surface=\"pressure_guard\"} 1"));
+    assert!(stdout.contains("arda_mnemosyne_events_total{signal=\"recall_requests\"} 9"));
+    assert!(stdout.contains("arda_mnemosyne_events_total{signal=\"promotion_receipts\"} 6"));
+    assert!(stdout.contains("arda_mnemosyne_latency_milliseconds{operation=\"recall\"} 14"));
+    assert!(stdout.contains("arda_mnemosyne_latency_milliseconds{operation=\"queue\"} 3"));
+    assert!(stdout.contains("arda_mnemosyne_recall_fidelity 0.875"));
+    assert!(stdout.contains("arda_mnemosyne_consolidation_depth 18"));
 }

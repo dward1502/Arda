@@ -20,17 +20,12 @@ GEN2 is closed. Preserve append-only auditability and current dispatch
 semantics; merge additional behavior only for a documented consumer scenario.
 
 ## Concrete consumer scenarios
-- `arda-aule` loop observability consumer:
-  - `LoopCommands::Observability` reads `arda-core::loop_observability::LoopObservabilityConfig::from_env()`
-  - Reports whether economy snapshots / latency probes are enabled
-  - Does not change dispatch semantics
-- `arda-aule` learning receipt consumer:
-  - `LearningCommands::Ledger` builds `arda-core::learning_adapter::LearningLedgerReceipt`
-  - Emits JSON under contract `arda.learning.interop.v1`
-  - Consumer can pipe this into external tooling without depending on `arda-core` internals
+- `arda-engine` imports `LoopObservabilityConfig`, `LearningStore`, and
+  `build_learning_ledger_receipt(...)` in its compiled `EngineObservabilityStatus` projection.
+- `arda-aule` consumes service-registry, loop-alert, state, task, and Soterion contracts in its
+  `full-cli` feature graph; it no longer owns the aggregate loop/learning projection.
 
 ## Open questions
-- Should `arda-aule` consume live `LearningStore` data instead of default state?
 - Which external tooling, if any, needs a stable serialization commitment
   beyond the current `arda.learning.interop.v1` receipt?
 

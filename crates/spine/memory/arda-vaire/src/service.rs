@@ -4,7 +4,7 @@ use arda_economics::{JouleWorkUnit, PlutusService};
 use chrono::{DateTime, Duration, Utc};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, OnceLock};
 use std::time::Duration as StdDuration;
 
 // Ownership boundary: this module defines the public memory contracts and
@@ -30,6 +30,9 @@ pub struct InformantEvent {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RecallRecentEntry {
+    pub schema_version: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub migrated_from_schema: Option<String>,
     pub memory_id: String,
     pub source_crate: String,
     pub event_type: String,
@@ -86,6 +89,7 @@ pub struct MemoryCounts {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MnemosyneStats {
+    pub schema_version: String,
     pub generated_at_utc: String,
     pub memory_counts: MemoryCounts,
     pub last_consolidation_utc: Option<String>,
@@ -97,6 +101,8 @@ pub struct MnemosyneStats {
     pub malformed_obsidian_records: usize,
     pub malformed_archive_records: usize,
     pub malformed_episodic_records: usize,
+    pub legacy_episodic_records: usize,
+    pub unsupported_episodic_records: usize,
     pub observability: MemoryObservabilitySnapshot,
 }
 
@@ -145,6 +151,8 @@ pub struct ObsidianSyncReport {
 
 #[derive(Debug, Clone)]
 struct EpisodicRecord {
+    schema_version: String,
+    migrated_from_schema: Option<String>,
     sigil: String,
     memory_id: String,
     source_crate: String,
@@ -170,10 +178,10 @@ pub struct MnemosyneService {
     obsidian_index_path: PathBuf,
     last_consolidation_path: PathBuf,
     /// When set, every successful encode() also writes a v0.1
-    /// `MemoryRecord` to <root>/episodic/<id>.json. Phase 0 Audit
-    /// step 3 dual-write path: opt-in so existing tests and offline
-    /// runs are unchanged.
+    /// `MemoryRecord` to `root/episodic/id.json`. The dual-write path is
+    /// opt-in so existing tests and offline runs are unchanged.
     pub(crate) contract_memory_root: Option<PathBuf>,
+    metrics_root: Option<PathBuf>,
     observability: Arc<Mutex<MemoryObservabilitySnapshot>>,
 }
 
@@ -186,32 +194,82 @@ impl MnemosyneService {
     }
 
     fn observe_recall(&self, result_count: usize, fidelity: Option<f64>, elapsed: StdDuration) {
-        let mut metrics = self
-            .observability
-            .lock()
-            .unwrap_or_else(|poisoned| poisoned.into_inner());
-        metrics.recall_requests_total += 1;
-        metrics.recall_results_total += result_count as u64;
-        metrics.last_recall_fidelity = fidelity;
-        metrics.last_recall_latency_ms = Some(elapsed.as_millis().min(u128::from(u64::MAX)) as u64);
+        let snapshot = {
+            let mut metrics = self
+                .observability
+                .lock()
+                .unwrap_or_else(|poisoned| poisoned.into_inner());
+            metrics.recall_requests_total += 1;
+            metrics.recall_results_total += result_count as u64;
+            metrics.last_recall_fidelity = fidelity;
+            metrics.last_recall_latency_ms =
+                Some(elapsed.as_millis().min(u128::from(u64::MAX)) as u64);
+            metrics.clone()
+        };
+        self.persist_observability_best_effort(&snapshot);
     }
 
     pub(crate) fn observe_queue_latency(&self, elapsed: StdDuration) {
-        let mut metrics = self
-            .observability
-            .lock()
-            .unwrap_or_else(|poisoned| poisoned.into_inner());
-        metrics.queue_observations_total += 1;
-        metrics.last_queue_latency_ms = Some(elapsed.as_millis().min(u128::from(u64::MAX)) as u64);
+        let snapshot = {
+            let mut metrics = self
+                .observability
+                .lock()
+                .unwrap_or_else(|poisoned| poisoned.into_inner());
+            metrics.queue_observations_total += 1;
+            metrics.last_queue_latency_ms =
+                Some(elapsed.as_millis().min(u128::from(u64::MAX)) as u64);
+            metrics.clone()
+        };
+        self.persist_observability_best_effort(&snapshot);
     }
 
     fn observe_consolidation(&self, depth: usize, receipts: usize) {
-        let mut metrics = self
-            .observability
-            .lock()
-            .unwrap_or_else(|poisoned| poisoned.into_inner());
-        metrics.last_consolidation_depth = depth;
-        metrics.promotion_receipts_total += receipts as u64;
+        let snapshot = {
+            let mut metrics = self
+                .observability
+                .lock()
+                .unwrap_or_else(|poisoned| poisoned.into_inner());
+            metrics.last_consolidation_depth = depth;
+            metrics.promotion_receipts_total += receipts as u64;
+            metrics.clone()
+        };
+        self.persist_observability_best_effort(&snapshot);
+    }
+
+    fn persist_observability_best_effort(&self, snapshot: &MemoryObservabilitySnapshot) {
+        if let Err(error) = self.persist_observability(snapshot) {
+            tracing::warn!(%error, "failed to persist Mnemosyne observability snapshot");
+        }
+    }
+
+    fn persist_observability(&self, snapshot: &MemoryObservabilitySnapshot) -> Result<()> {
+        let Some(metrics_root) = &self.metrics_root else {
+            return Ok(());
+        };
+        store::write_atomic_json(
+            &metrics_root.join("observability.json"),
+            &serde_json::json!({
+                "schema_version": "arda.mnemosyne.observability.v1",
+                "generated_at_utc": Utc::now().to_rfc3339(),
+                "metrics": snapshot,
+            }),
+        )
+    }
+
+    /// Export continuity and observability projections for `arda-aule`.
+    pub fn export_runtime_snapshots(&self) -> Result<()> {
+        let Some(metrics_root) = &self.metrics_root else {
+            return Ok(());
+        };
+        let stats = self.stats()?;
+        let status = serde_json::json!({
+            "schema_version": crate::schema::CONTINUITY_SCHEMA_VERSION,
+            "ok": true,
+            "status": &stats,
+        });
+        store::write_atomic_json(&metrics_root.join("stats.json"), &stats)?;
+        store::write_atomic_json(&metrics_root.join("status.json"), &status)?;
+        self.persist_observability(&stats.observability)
     }
 
     fn apply_adaptive_significance(&self, event: &InformantEvent) -> SignificanceResult {
@@ -343,21 +401,32 @@ impl MnemosyneService {
                 }
             });
         } else {
-            std::thread::spawn(move || match tokio::runtime::Runtime::new() {
+            static WORK_SIGNAL_RUNTIME: OnceLock<
+                std::result::Result<tokio::runtime::Runtime, String>,
+            > = OnceLock::new();
+            match WORK_SIGNAL_RUNTIME.get_or_init(|| {
+                tokio::runtime::Builder::new_multi_thread()
+                    .worker_threads(1)
+                    .thread_name("vaire-work-signal")
+                    .enable_all()
+                    .build()
+                    .map_err(|err| err.to_string())
+            }) {
                 Ok(runtime) => {
-                    if let Err(err) = runtime.block_on(
-                        service.record_work_signal_async(&agent_id, amount, unit, task_id),
-                    ) {
-                        tracing::debug!(error = %err, "MNEMOSYNE plutus work signal failed");
-                    }
+                    runtime.spawn(async move {
+                        if let Err(err) = service
+                            .record_work_signal_async(&agent_id, amount, unit, task_id)
+                            .await
+                        {
+                            tracing::debug!(error = %err, "MNEMOSYNE plutus work signal failed");
+                        }
+                    });
                 }
-                Err(err) => {
-                    tracing::warn!(
-                        error = %err,
-                        "MNEMOSYNE failed to create fallback runtime for work signal"
-                    );
-                }
-            });
+                Err(err) => tracing::warn!(
+                    error = %err,
+                    "MNEMOSYNE failed to create fallback runtime for work signal"
+                ),
+            }
         }
     }
 }

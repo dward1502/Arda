@@ -146,7 +146,7 @@ fn quorum_evidence_from_verdict(
     TriadQuorumEvidence {
         source: "oracle_gate".into(),
         query_id: verdict.query_id.clone(),
-        outcome: outcome_label(&verdict.outcome).into(),
+        outcome: verdict.outcome.as_str().into(),
         resonance: verdict.resonance_score,
         passed_gates,
         total_gates,
@@ -181,15 +181,6 @@ fn gate_score(name: &str, result: &GateResult) -> TriadGateScore {
         gate: name.into(),
         passed: result.passed,
         score: result.score,
-    }
-}
-
-fn outcome_label(outcome: &VerdictOutcome) -> &'static str {
-    match outcome {
-        VerdictOutcome::Pass => "pass",
-        VerdictOutcome::Conditional => "conditional",
-        VerdictOutcome::Fail => "fail",
-        VerdictOutcome::Escalate => "escalate",
     }
 }
 

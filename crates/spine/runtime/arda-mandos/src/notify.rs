@@ -1,9 +1,12 @@
 // sigil: REPAIR
-pub struct OracleNotifier {
+use crate::VerdictOutcome;
+
+/// Pure presentation helper. This type performs no delivery side effects.
+pub struct OracleVerdictFormatter {
     channel_id: String,
 }
 
-impl OracleNotifier {
+impl OracleVerdictFormatter {
     pub fn new(channel_id: impl Into<String>) -> Self {
         Self {
             channel_id: channel_id.into(),
@@ -19,13 +22,14 @@ impl OracleNotifier {
             .unwrap_or("𓊝")
     }
 
-    pub fn format_verdict(&self, outcome: &str, resonance: f64, score: f64) -> String {
+    pub fn format_verdict(&self, outcome: VerdictOutcome, resonance: f64, score: f64) -> String {
         let sigil = match outcome {
-            "Pass" => "◈",
-            "Fail" => "∇",
-            "Escalate" => "△",
-            _ => "◈",
+            VerdictOutcome::Pass => "◈",
+            VerdictOutcome::Conditional => "◇",
+            VerdictOutcome::Fail => "∇",
+            VerdictOutcome::Escalate => "△",
         };
+        let outcome = outcome.as_str();
         let prefix = Self::prefix_glyph();
 
         format!(
@@ -46,6 +50,9 @@ impl OracleNotifier {
     }
 }
 
+#[deprecated(note = "use OracleVerdictFormatter; this helper does not deliver notifications")]
+pub type OracleNotifier = OracleVerdictFormatter;
+
 fn truncate_str(input: &str, max_bytes: usize) -> String {
     if input.chars().count() <= max_bytes {
         return input.to_string();
@@ -57,4 +64,18 @@ fn truncate_str(input: &str, max_bytes: usize) -> String {
     }
 
     format!("{}...", &input[..end])
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn formatter_uses_typed_canonical_outcomes() {
+        let formatter = OracleVerdictFormatter::new("operators");
+        let rendered = formatter.format_verdict(VerdictOutcome::Escalate, 0.25, 0.1);
+
+        assert!(rendered.contains("△ escalate"));
+        assert_eq!(formatter.channel_id(), "operators");
+    }
 }

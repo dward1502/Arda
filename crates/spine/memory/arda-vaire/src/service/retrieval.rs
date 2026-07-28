@@ -123,6 +123,8 @@ impl MnemosyneService {
                 }
             }
             out.push(RecallRecentEntry {
+                schema_version: record.schema_version,
+                migrated_from_schema: record.migrated_from_schema,
                 memory_id: record.memory_id,
                 source_crate: record.source_crate,
                 event_type: record.event_type,

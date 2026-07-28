@@ -1,62 +1,40 @@
-arda-engine
-===========
+# arda-engine
 
-Single dependency surface for the `arda` daemon to reach system services.
+`arda-engine` is the process-supervision and local harness library used by the
+root `arda` daemon. It owns declarative service resolution, child supervision,
+the operator tap-in HTTP surface, and narrow spine re-exports. The root daemon
+owns startup sequencing and supplies runtime configuration.
 
-what it does
-------------
+## Public surface
 
-- process supervision with restart and exponential backoff
-- declarative service discovery from `services.toml`
-- harness HTTP control surface on `127.0.0.1:7878`
-- `/v1/models` proxy to `manwe` with explicit reqwest timeout + optional bearer forwarding
-- bind address override via `ARDA_HARNESS_BIND_ADDR`
-- public spine re-exports for `manwe` and `arda-core::service_registry`
+- `registry::Registry`: load and resolve `services.toml`, including required,
+  optional, and `--no-ui` service behavior.
+- `supervisor::{Supervisor, Service, Shutdown}`: spawn, monitor, restart, and
+  stop resolved child processes.
+- `harness::{serve, HarnessState}`: local health/status, Manwe model proxy, and
+  bounded Warden scout proxy routes.
+- `observability::EngineObservabilityStatus`: aggregate loop/learning status.
+- `orome` and `manwe`: supported provider/gateway integration surfaces.
+- `arda_core::{loop_observability, service_registry}` re-exports.
 
-public surface
---------------
+There is intentionally no `boot()` function. The former function only logged
+that dependencies linked and performed no initialization. The root daemon now
+validates and resolves the real service registry before `--once` exits.
 
-- `arda_engine::Registry` / `Registry::load(path)` / `Registry::resolve(root, no_ui)`
-- `arda_engine::Supervisor` / `Shutdown`
-- `arda_engine::harness::serve(addr, state, shutdown)`
-- `arda_engine::harness::DEFAULT_MANWE_PROXY_TIMEOUT`
-- `arda_engine::manwe::{...}`
-- `arda_engine::service_registry`
-- `arda_engine::boot()`
+## Runtime configuration
 
-build / test
------------
+- Harness default: `127.0.0.1:7878`.
+- Harness override: `--harness-addr` or `ARDA_HARNESS_BIND_ADDR`.
+- Manwe default supplied by the daemon: `http://127.0.0.1:7171`.
+- Optional Manwe bearer: `ARDA_MANWE_PROXY_BEARER`.
+- Warden scout: `ARDA_WARDEN_SCOUT_URL`, then `config/fleet.toml` discovery.
+- Manwe proxy timeout: five seconds by default and explicitly owned by
+  `HarnessState`.
 
-- cargo check -p arda-engine
-- cargo test -p arda-engine
+## Verification
 
-verification evidence
----------------------
-
-- cargo check -p arda-engine: passed
-- cargo test -p arda-engine: 6 passed, 0 failed
-  - registry::tests::empty_registry_is_rejected_instead_of_silently_supervising_nothing
-  - registry::tests::workspace_registry_declares_canonical_manwe_process
-  - registry::tests::no_ui_keeps_manwe_and_drops_ui_services
-  - registry::tests::missing_command_for_required_service_is_reported_as_error
-  - registry::tests::missing_command_for_optional_service_drops_service_with_no_error
-  - supervisor::tests::supervises_and_reaps_child_on_shutdown
-
-runtime notes
--------------
-
-- harness emits `/v1/models` with optional `Authorization` bearer forwarding
-- proxy timeout is 5s unless `HarnessState::manwe_proxy_timeout` is set
-- bind address default is `127.0.0.1:7878`; env override is `ARDA_HARNESS_BIND_ADDR`
-
-connections
------------
-
-- runtime: proxies `/v1/models` to `manwe` at `127.0.0.1:7171`
-- compile time: depends on `arda-core`, `manwe`, `tokio`, `axum`, `reqwest`, `serde`, `toml`
-
-docs
-----
-
-See STATUS.md for build/test evidence and open risks.
-See PLAN.md for current improvement backlog.
+The 2026-07-28 first-class closeout passed formatting, no-default and
+all-feature check/test, strict all-target Clippy, strict rustdoc, and root
+`arda` consumer compilation. The suite contains 10 unit tests and 1 integration
+test. See [STATUS.md](STATUS.md) for exact commands and [BREAKDOWN.md](BREAKDOWN.md)
+for the complete source graph.

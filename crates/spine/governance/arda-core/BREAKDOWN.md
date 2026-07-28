@@ -6,7 +6,7 @@ soterion:
   role: "governance_spine"
   owner: "arda"
   status: "active"
-  last_reviewed: "2026-07-27"
+  last_reviewed: "2026-07-28"
 ---
 
 # arda-core
@@ -134,3 +134,27 @@ The crate’s stabilization plan is complete: GEN1 documentation alignment and
 GEN2 robustness are closed, implemented GEN3 surfaces are additive and tested,
 and the current compiled surface passes all 111 tests. `arda-core` is therefore
 the recorded stable foundation for subsequent crate-by-crate repair work.
+
+## Exact Rust source classification (2026-07-28)
+
+Production/default (45):
+
+- `src/agent.rs`, `src/aipkg.rs`, `src/background.rs`, `src/config.rs`
+- `src/contract/{decision,goal,ledger_entry,memory,mod,plan,reflection}.rs`
+- `src/daemon.rs`, `src/error.rs`
+- `src/governance/{corpus,mod}.rs`, `src/governance_gates.rs`
+- `src/layout.rs`, `src/learning.rs`, `src/learning_adapter.rs`, `src/ledger.rs`, `src/lib.rs`
+- `src/llm.rs`, `src/loop_alerts.rs`, `src/loop_economy.rs`, `src/loop_engine.rs`
+- `src/loop_observability.rs`, `src/message.rs`, `src/orome_runtime.rs`, `src/pipeline.rs`
+- `src/router.rs`
+- `src/service_registry/{contract,crate_identity,mod,registry,service,test_support}.rs`
+- `src/soterion.rs`, `src/soterion_watcher.rs`, `src/state.rs`, `src/systemd.rs`
+- `src/task.rs`, `src/tool.rs`
+- `src/tool_contract/{mod,service,types}.rs`
+
+Integration test/build script: `tests/tool_harness_smoke.rs` / none.
+
+Production/feature-gated: 0. Generated include: 0. Test-only standalone source: 0. Unwired: 0.
+`service_registry/test_support.rs` is deliberately production/default despite its name because
+it is a publicly compiled service-registry fixture API. The module graph has no latent
+file-vs-directory root collision.

@@ -1,23 +1,23 @@
 # ATHENA Source Book
 
 - source_id: `src_acb9cf74`
-- pipeline_id: `athpl_e6f6a7bc67ad46918cb82cdc0d8dd299`
+- pipeline_id: `athpl_d803369c1a404e0db2a34e9161fbb3e4`
 - status: `shallow`
 - source_type: `GithubRepo`
-- updated_at_utc: `2026-07-27T05:56:54.278992560+00:00`
+- updated_at_utc: `2026-07-28T00:32:17.976152416+00:00`
 - url: https://github.com/example/project
-- athena_book: `/tmp/.tmpNn5wmc/books/src_acb9cf74.jsonl`
+- athena_book: `/tmp/.tmpkKZaPq/books/src_acb9cf74.jsonl`
 - machine_index: `data/knowledge/athena/index/sources.jsonl`
 
 ## Summary
 
 **Title**: https://github.com/example/project
 
-Initial shallow ingest completed for GithubRepo.
+Source already present in Athena books; returning existing reference.
 
 **Tags**: githubrepo
 
-**Deep Recommended**: true
+**Deep Recommended**: false
 
-**Deep Reason**: New source ingested; deep analysis should be scheduled.
+**Deep Reason**: Deduplicated source; deep analysis already pending or completed.
 

@@ -15,7 +15,7 @@ pub use joule_work::{JouleWork, JouleWorkSummary, JouleWorkTracker, JouleWorkUni
 pub use ledger::PlutusLedger;
 pub use love_equation::{LoveConfig, LoveEquation, LoveScore};
 pub use meter::{
-    EnergyMeter, EstimatorMeter, JouleSample, MeterRegistry, SampleSource, TariffError,
+    EnergyMeter, EstimatorMeter, JouleSample, MeterError, MeterRegistry, SampleSource, TariffError,
     TariffTable, WorkProfile,
 };
 pub use service::{

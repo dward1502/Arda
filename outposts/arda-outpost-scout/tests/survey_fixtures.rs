@@ -1,8 +1,8 @@
-use arda_outpost_scout::{
-    SurveyReport,
-    suggestion::{analyze_survey, AdvisoryLevel},
-};
 use arda_outpost_scout::observation::CrateStatus;
+use arda_outpost_scout::{
+    suggestion::{analyze_survey, AdvisoryLevel},
+    SurveyReport,
+};
 
 fn fake_crate_observation() -> arda_outpost_scout::CrateObservation {
     arda_outpost_scout::CrateObservation {

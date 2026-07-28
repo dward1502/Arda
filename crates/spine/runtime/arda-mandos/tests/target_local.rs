@@ -34,10 +34,9 @@ async fn status_uses_target_local_home_without_workspace_state() -> Result<()> {
 #[tokio::test]
 async fn verdict_persists_and_reloads_from_target_local_home() -> Result<()> {
     let home = tempfile::tempdir()?;
-    let plutus_home = home.path().join("plutus");
-    std::env::set_var("ARDA_PLUTUS_HOME", &plutus_home);
-
-    let service = OracleService::from_home(home.path()).await?;
+    let service = OracleService::from_home(home.path())
+        .await?
+        .with_plutus_home(home.path().join("plutus"));
     let verdict = service.evaluate(query("oracle-target-local-1")).await?;
     assert_eq!(verdict.query_id, "oracle-target-local-1");
 
@@ -57,6 +56,5 @@ async fn verdict_persists_and_reloads_from_target_local_home() -> Result<()> {
         "oracle-target-local-1"
     );
 
-    std::env::remove_var("ARDA_PLUTUS_HOME");
     Ok(())
 }

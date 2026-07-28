@@ -1,18 +1,18 @@
 # arda-vaire index
 
-Contents:
+## Maintained documentation
+
+- `README.md` — public boundary, persistence contract, consumers, and current
+  verification
+- `BREAKDOWN.md` — compiled implementation map, ownership, risks, and
+  supersession record
+
+## Direct children
+
 - `Cargo.toml`
-- `BREAKDOWN.md`
-- `CHECKLIST.md`
-- `CRATE_PLAN.md`
-- `OWNERSHIP.md`
 - `README.md`
-- `STATUS.md`
-- `src`
-- `tests`
-
-Purpose:
-Crate index for `crates/spine/memory/arda-vaire/INDEX.md`.
-
-Notes:
-Normalized from current on-disk contents; review cadence is quarterly unless owner changes.
+- `BREAKDOWN.md`
+- `INDEX.md`
+- `benches/`
+- `src/`
+- `tests/`

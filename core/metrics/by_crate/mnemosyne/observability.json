@@ -1,0 +1,14 @@
+{
+  "generated_at_utc": "2026-07-28T18:58:44.868993685+00:00",
+  "metrics": {
+    "last_consolidation_depth": 0,
+    "last_queue_latency_ms": null,
+    "last_recall_fidelity": null,
+    "last_recall_latency_ms": 22,
+    "promotion_receipts_total": 0,
+    "queue_observations_total": 0,
+    "recall_requests_total": 1,
+    "recall_results_total": 105
+  },
+  "schema_version": "arda.mnemosyne.observability.v1"
+}

@@ -9,8 +9,8 @@ registry types, and the unified Arda error type.
 - `INDEX.jsonl` — generated Soterion index records
 - `README.md` — purpose and verified baseline
 - `BREAKDOWN.md` — source inventory, boundaries, and evidence
-- `PLAN.md` — completed foundation plan and future-growth boundary
 - `STATUS.md` — current verification and known follow-ups
+- `OWNERSHIP.md` — authority and integration boundaries
 - `docs/` — interop landscape, implemented GEN3 consumers, and open questions
 - `src/` — compiled crate surface; see `src/lib.rs` and `src/INDEX.md`
 - `tests/` — sovereign tool-contract smoke coverage
@@ -25,4 +25,8 @@ Shared spine surface for the Arda governance bus.
 ## Evidence
 - `STATUS.md` captures build/test counts and env knobs
 - `BREAKDOWN.md`: module inventory and responsibilities
-- `PLAN.md`: completed foundation plan and execution record
+- `OWNERSHIP.md`: owned and non-owned authority boundaries
+
+The list above exactly covers the crate's ten direct children. The completed foundation
+`PLAN.md` was retired on 2026-07-28 after its durable decisions and evidence were absorbed into
+the maintained documents.

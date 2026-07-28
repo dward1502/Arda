@@ -6,7 +6,7 @@ soterion:
   role: "documentation"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-27"
+  last_reviewed: "2026-07-28"
 ---
 
 # arda-core
@@ -38,12 +38,18 @@ rolling its own governance surface.
   - 110 unit tests
   - 1 smoke test: `sovereign_baseline_contract_is_migrated`
   - 0 doc-tests
-- README/BREAKDOWN/STATUS/PLAN aligned to current source
+- README/BREAKDOWN/STATUS/INDEX/OWNERSHIP aligned to current source
 - Foundation stabilization plan complete as of 2026-07-25; the crate remains
   active for evidence-backed maintenance and additive evolution.
+
+## Primary direct Cargo consumers
+- `arda-engine`, `arda-governance`, `arda-aule` (`full-cli`), `arda-mandos`
+- `arda-economics`, `arda-orome`, `arda-vaire`, `arda-varda`
+- `manwe` (`full`) and `apps/arda-launcher/src-tauri`
 
 ## Documentation
 - `INDEX.md` — module map
 - `BREAKDOWN.md` — module inventory and responsibilities
 - `STATUS.md` — build/runtime evidence
-- `PLAN.md` — combined plan and checklist for current and future work
+- `OWNERSHIP.md` — authority and integration boundaries
+- `docs/interop/landscape.md` — current interop evidence and open questions

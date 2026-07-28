@@ -189,7 +189,10 @@ fn execute_command(service: &MnemosyneService, cmd: CommandEnvelope) -> Result<V
                 .payload
                 .get("vault_path")
                 .and_then(|v| v.as_str())
-                .unwrap_or("human/.obsidian");
+                .ok_or_else(|| ArdaError::Agent {
+                    agent: "mnemosyne".to_owned(),
+                    message: "vault_path is required for obsidian_sync".to_owned(),
+                })?;
             let max_files = cmd
                 .payload
                 .get("max_files")
@@ -260,6 +263,15 @@ mod tests {
             recall[0]["memory_scope"].as_str(),
             Some("system_continuity")
         );
+
+        let missing_vault = send_command(
+            socket_path.clone(),
+            "obsidian_sync",
+            json!({"max_files": 1}),
+        )
+        .await
+        .expect_err("missing vault path must be rejected");
+        assert!(missing_vault.to_string().contains("vault_path is required"));
 
         let stats = send_command(socket_path, "stats", json!({}))
             .await

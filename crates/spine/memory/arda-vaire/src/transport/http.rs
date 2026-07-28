@@ -31,7 +31,7 @@ struct ConsolidateRequest {
 
 #[derive(Debug, Deserialize)]
 struct ObsidianSyncRequest {
-    vault_path: Option<String>,
+    vault_path: String,
     max_files: Option<usize>,
 }
 
@@ -154,7 +154,7 @@ async fn obsidian_sync(
         Ok(json!({
             "ok": true,
             "report": service.sync_obsidian(
-                req.vault_path.as_deref().unwrap_or("human/.obsidian"),
+                &req.vault_path,
                 req.max_files.unwrap_or(200),
             )?
         }))
@@ -285,6 +285,25 @@ mod tests {
         let memories = value["memories"].as_array().expect("memories");
         assert_eq!(memories.len(), 1);
         assert_eq!(memories[0]["source_crate"].as_str(), Some("prometheus"));
+    }
+
+    #[tokio::test]
+    async fn obsidian_sync_requires_an_explicit_vault_path() {
+        let dir = tempdir().expect("tempdir");
+        let app = build_router(MnemosyneService::new(dir.path()).expect("service"));
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/obsidian_sync")
+                    .header("content-type", "application/json")
+                    .body(Body::from("{}"))
+                    .expect("sync request"),
+            )
+            .await
+            .expect("sync response");
+
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
     }
 
     #[test]

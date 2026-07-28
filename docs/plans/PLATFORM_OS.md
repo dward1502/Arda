@@ -69,7 +69,7 @@ The current planned OS core surface is:
 - `arda-governance`
 - `arda-plutus`
 - `arda-athena`
-- `arda-mnemosyne`
+- `arda-vaire`
 
 ## Current Workspace Drift
 

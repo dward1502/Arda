@@ -1,50 +1,28 @@
-arda-contract-registry
-======================
+# arda-contract-registry
 
-Canonical contract registry data model for Arda governance artifacts.
+Typed, read-only loading boundary for Arda's canonical contract registry
+artifact.
 
-what it does
-------------
+## Public surface
 
-- schema-pinned contract manifest model for tracks/source modules/evidence classes
-- public API for `ContractRegistry` and `TrackDefinition`
-- live verification tests proving declared schema versions exist in source/surface modules
+- `registry::ContractRegistry` and `registry::TrackDefinition`.
+- `ContractRegistry::load(path)` for an explicit artifact.
+- `ContractRegistry::load_from_root(root)` for the canonical
+  `core/state/contract_registry.json` location.
+- `RegistryLoadError::{Read, Parse}` for typed operator diagnostics.
+- `DEFAULT_REGISTRY_PATH` and `ContractRegistry::track_ids()`.
 
-public surface
---------------
+The crate does not mutate or generate the canonical artifact. See
+[OWNERSHIP.md](OWNERSHIP.md) for the producer/consumer boundary.
 
-- `arda_contract_registry::registry::ContractRegistry`
-- `arda_contract_registry::registry::TrackDefinition`
-- `ContractRegistry::track_ids()`
+## Consumers
 
-build / test
------------
+`arda-launcher` is the only direct Cargo consumer. It uses this crate's loader
+and owns onboarding readiness projection. Governance/core crates are not direct
+consumers in the current workspace.
 
-- cargo check -p arda-contract-registry
-- cargo test -p arda-contract-registry
+## Verification
 
-verification evidence
----------------------
-
-- cargo check -p arda-contract-registry: passed
-- cargo test -p arda-contract-registry: 3 passed, 0 failed
-  - registry_smoke::registry_schema_version_is_pinned
-  - registry_smoke::every_track_has_source_modules
-  - registry_smoke::every_track_schema_version_is_present_in_a_source_or_surface_module
-
-runtime notes
--------------
-
-- registry schema is curated in repo state and verified by smoke tests.
-
-connections
------------
-
-- compile time: `serde`, `serde_json`, `thiserror`
-- test time: `tempfile`, `walkdir`
-
-docs
-----
-
-See STATUS.md for build/test evidence and open risks.
-See PLAN.md for current improvement backlog.
+Run `cargo test -p arda-contract-registry -- --test-threads=1`. The closeout
+suite contains 3 isolated unit tests and 3 read-only live-workspace integration
+tests. Strict evidence is recorded in [STATUS.md](STATUS.md).

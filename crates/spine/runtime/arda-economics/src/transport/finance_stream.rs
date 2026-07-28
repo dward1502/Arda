@@ -1,3 +1,4 @@
+use crate::BudgetAlert;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::fs;
@@ -13,6 +14,12 @@ pub struct FinanceMetrics {
     pub ledger_last_account: Option<String>,
     pub ledger_last_amount: Option<f64>,
     pub streamed_events: u64,
+    pub budget_alert: Option<BudgetAlert>,
+    pub snapshot_age_seconds: Option<u64>,
+    pub snapshot_stale: bool,
+    pub transport_requests_total: u64,
+    pub transport_elapsed_micros_average: f64,
+    pub transport_elapsed_micros_max: u64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -33,6 +40,8 @@ pub fn finance_metrics(home: PathBuf) -> Result<FinanceMetrics> {
     let runtime_path = home.join("runtime_status.json");
     let mut metrics = FinanceMetrics {
         budget_usage_percent: 100.0,
+        budget_alert: Some(BudgetAlert::Critical),
+        snapshot_stale: true,
         ..FinanceMetrics::default()
     };
     if !runtime_path.exists() {
@@ -55,6 +64,12 @@ pub fn finance_metrics(home: PathBuf) -> Result<FinanceMetrics> {
         .and_then(|value| value.get("budget_usage_percent"))
         .and_then(|value| value.as_f64())
         .unwrap_or_default();
+    metrics.budget_alert = snapshot
+        .get("economics")
+        .and_then(|value| value.get("budget_alert"))
+        .and_then(|value| serde_json::from_value(value.clone()).ok());
+    metrics.snapshot_age_seconds = snapshot_age_seconds(&home);
+    metrics.snapshot_stale = metrics.snapshot_age_seconds.is_none_or(|age| age > 300);
     metrics.ledger_last_account = snapshot
         .get("ledger")
         .and_then(|value| value.get("last_credit_account"))
@@ -64,8 +79,33 @@ pub fn finance_metrics(home: PathBuf) -> Result<FinanceMetrics> {
         .get("ledger")
         .and_then(|value| value.get("last_credit_amount"))
         .and_then(|value| value.as_f64());
+    metrics.transport_requests_total = snapshot
+        .get("transport_latency")
+        .and_then(|value| value.get("requests_total"))
+        .and_then(|value| value.as_u64())
+        .unwrap_or_default();
+    metrics.transport_elapsed_micros_average = snapshot
+        .get("transport_latency")
+        .and_then(|value| value.get("elapsed_micros_average"))
+        .and_then(|value| value.as_f64())
+        .unwrap_or_default();
+    metrics.transport_elapsed_micros_max = snapshot
+        .get("transport_latency")
+        .and_then(|value| value.get("elapsed_micros_max"))
+        .and_then(|value| value.as_u64())
+        .unwrap_or_default();
     metrics.streamed_events = event_stream_total(home);
     Ok(metrics)
+}
+
+fn snapshot_age_seconds(home: &std::path::Path) -> Option<u64> {
+    fs::metadata(home.join("runtime_status.json"))
+        .ok()?
+        .modified()
+        .ok()?
+        .elapsed()
+        .ok()
+        .map(|age| age.as_secs())
 }
 
 fn event_stream_total(home: PathBuf) -> u64 {
@@ -93,11 +133,17 @@ mod tests {
                 "economics": {
                     "spend_total": 12.5,
                     "budget_usage_percent": 0.45,
+                    "budget_alert": "warning",
                 },
                 "ledger": {
                     "credit_total": 8.25,
                     "last_credit_account": "acme",
                     "last_credit_amount": 2.0,
+                },
+                "transport_latency": {
+                    "requests_total": 4,
+                    "elapsed_micros_average": 12.5,
+                    "elapsed_micros_max": 20,
                 },
             }))
             .expect("snapshot"),
@@ -108,6 +154,10 @@ mod tests {
         assert!((metrics.spend_total - 12.5).abs() < f64::EPSILON);
         assert!((metrics.credit_total - 8.25).abs() < f64::EPSILON);
         assert!((metrics.budget_usage_percent - 0.45).abs() < f64::EPSILON);
+        assert_eq!(metrics.budget_alert, Some(BudgetAlert::Warning));
+        assert!(!metrics.snapshot_stale);
+        assert_eq!(metrics.transport_requests_total, 4);
+        assert_eq!(metrics.transport_elapsed_micros_max, 20);
         assert_eq!(metrics.ledger_last_account.as_deref(), Some("acme"));
         assert!((metrics.ledger_last_amount.unwrap_or(0.0) - 2.0).abs() < f64::EPSILON);
     }
@@ -149,6 +199,8 @@ mod tests {
         let dir = tempfile::tempdir().expect("tempdir");
         let metrics = finance_metrics(dir.path().to_path_buf()).expect("metrics");
         assert!((metrics.budget_usage_percent - 100.0).abs() < f64::EPSILON);
+        assert_eq!(metrics.budget_alert, Some(BudgetAlert::Critical));
+        assert!(metrics.snapshot_stale);
         assert_eq!(metrics.streamed_events, 0);
     }
 }

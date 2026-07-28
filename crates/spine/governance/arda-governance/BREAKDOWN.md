@@ -5,7 +5,7 @@ soterion:
   role: "governance_engine"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-26"
+  last_reviewed: "2026-07-28"
 ---
 
 # arda-governance
@@ -28,7 +28,8 @@ listed below and its supported consumer surface is re-exported from `src/lib.rs`
 ## Where it lives
 - Crate root: `/var/home/mythos/Eregion/Arda/crates/spine/governance/arda-governance`
 - Configs: `../../../../config/governance/chains.toml`, `../../../../config/governance/philosophers.toml`
-- Tests: 67 unit tests, 47 integration tests across nine targets, and three doctests.
+- Tests: 67 unit tests, 48 all-feature integration tests across nine targets, and three
+  doctests (118 total); no-default runs 47 integration cases (117 total).
 
 ## Verification status
 
@@ -118,6 +119,7 @@ are intentional safety behavior rather than unfinished work.
 - `arda-orome` — dispatch governance hooks.
 - `arda-economics` — governance-aware runtime economics.
 - `arda-vaire` — governance/memory integration scenarios.
+- `arda-engine` — aggregate observability and governance-counter projection.
 
 The workspace root also declares the dependency centrally. Consumers should prefer crate-root
 re-exports and treat `tests/fixtures/public_api_v1.json` as the wire-compatibility baseline.
@@ -130,3 +132,29 @@ re-exports and treat `tests/fixtures/public_api_v1.json` as the wire-compatibili
   review and fixture updates.
 - Do not treat default/estimated JouleWork or missing environmental data as observed evidence.
 - Keep future proposals and decisions in `PLAN.md`, not in this implementation map.
+
+## Exact Rust source classification (2026-07-28)
+
+Production/default (25):
+
+- `src/audio.rs`, `src/bacon_lite.rs`, `src/empirical_distrust.rs`, `src/environmental.rs`
+- `src/evidence.rs`, `src/game_theory.rs`, `src/joulework.rs`, `src/lib.rs`
+- `src/love_dynamics.rs`, `src/love_equation.rs`, `src/metrics.rs`
+- `src/nonconformist_bee.rs`, `src/normalization.rs`, `src/operator.rs`, `src/paths.rs`
+- `src/philosopher_profiles.rs`, `src/readiness.rs`, `src/realm_policy.rs`, `src/resonance.rs`
+- `src/scorer.rs`, `src/solar.rs`, `src/triad.rs`, `src/triad_philosopher.rs`
+- `src/versions.rs`, `src/vision.rs`
+
+`src/scorer.rs` is compiled by default; only its LLM adapter sections are guarded by
+`llm-scorer`. Therefore no whole production file belongs in the feature-gated category.
+
+Integration test/build script (9/0):
+
+- `tests/alignment_stack.rs`, `tests/governance_observability.rs`
+- `tests/path_independence.rs`, `tests/phase7_philosopher_expansion.rs`
+- `tests/phase8_realm_policy.rs`, `tests/philosopher_profiles.rs`
+- `tests/policy_versioning.rs`, `tests/public_api_compat.rs`
+- `tests/structured_evidence.rs`
+
+Production/feature-gated: 0 standalone files. Generated include: 0. Test-only standalone
+source: 0. Unwired: 0. The module graph has no latent file-vs-directory root collision.

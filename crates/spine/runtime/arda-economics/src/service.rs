@@ -14,8 +14,10 @@ use std::fs;
 use std::fs::OpenOptions;
 use std::io::Write;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use std::sync::OnceLock;
+use std::time::Duration;
 use tokio::sync::Mutex;
 
 pub const PLUTUS_RUNTIME_SCHEMA_VERSION: &str = "arda.plutus.runtime.v2";
@@ -36,6 +38,14 @@ pub struct PlutusService {
     ledger: Arc<Mutex<PlutusLedger>>,
     love: Arc<Mutex<LoveEquation>>,
     governance_history: Arc<Mutex<Vec<PlutusGovernanceRecord>>>,
+    transport_latency: Arc<TransportLatency>,
+}
+
+#[derive(Debug, Default)]
+struct TransportLatency {
+    requests_total: AtomicU64,
+    elapsed_micros_total: AtomicU64,
+    elapsed_micros_max: AtomicU64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -82,6 +92,7 @@ impl PlutusService {
             ledger: Arc::new(Mutex::new(PlutusLedger::new())),
             love: Arc::new(Mutex::new(LoveEquation::new())),
             governance_history: Arc::new(Mutex::new(Vec::new())),
+            transport_latency: Arc::new(TransportLatency::default()),
         })
     }
 
@@ -99,6 +110,40 @@ impl PlutusService {
             home: self.home.to_string_lossy().into_owned(),
             status_path: self.status_path.to_string_lossy().into_owned(),
         }
+    }
+
+    pub(crate) fn record_transport_latency(&self, elapsed: Duration) {
+        let micros = u64::try_from(elapsed.as_micros()).unwrap_or(u64::MAX);
+        self.transport_latency
+            .requests_total
+            .fetch_add(1, Ordering::Relaxed);
+        self.transport_latency
+            .elapsed_micros_total
+            .fetch_add(micros, Ordering::Relaxed);
+        self.transport_latency
+            .elapsed_micros_max
+            .fetch_max(micros, Ordering::Relaxed);
+    }
+
+    fn transport_latency_snapshot(&self) -> serde_json::Value {
+        let requests = self
+            .transport_latency
+            .requests_total
+            .load(Ordering::Relaxed);
+        let total = self
+            .transport_latency
+            .elapsed_micros_total
+            .load(Ordering::Relaxed);
+        let max = self
+            .transport_latency
+            .elapsed_micros_max
+            .load(Ordering::Relaxed);
+        json!({
+            "requests_total": requests,
+            "elapsed_micros_total": total,
+            "elapsed_micros_max": max,
+            "elapsed_micros_average": if requests == 0 { 0.0 } else { total as f64 / requests as f64 },
+        })
     }
 
     pub async fn register_model(&self, config: CostModelConfig) -> anyhow::Result<()> {
@@ -318,6 +363,7 @@ impl PlutusService {
             "ledger": ledger,
             "love_equation": love,
             "governance": governance,
+            "transport_latency": self.transport_latency_snapshot(),
         }))
     }
 

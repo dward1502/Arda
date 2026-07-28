@@ -5,10 +5,10 @@ soterion:
   role: "contract_registry"
   owner: "arda"
   status: "active"
-  last_reviewed: "2026-07-23"
+  last_reviewed: "2026-07-28"
 ---
 
-> 📄 arda-contract-registry: 📄 contract_registry | owner: arda | status: active | reviewed: 2026-07-23
+> 📄 arda-contract-registry: 📄 contract_registry | owner: arda | status: active | reviewed: 2026-07-28
 
 # Breakdown: crates/spine/contract/arda-contract-registry
 
@@ -37,12 +37,13 @@ crates/spine/contract/arda-contract-registry
 ├── Cargo.toml
 ├── README.md
 ├── STATUS.md
-├── PLAN.md
-├── CHECKLIST.md
 ├── INDEX.md
-└── src
+├── OWNERSHIP.md
+├── src
     ├── lib.rs
     └── registry.rs
+└── tests
+    └── registry_smoke.rs
 ```
 
 ## Crate dependencies
@@ -51,8 +52,7 @@ crates/spine/contract/arda-contract-registry
 arda-contract-registry
 ├── serde         workspace  // derive + deserialization
 ├── serde_json    workspace  // JSON parsing for registry manifests
-├── thiserror     workspace  // error types if needed later
-├── glob-match    workspace  // pattern matching reserved for future validation
+├── thiserror     workspace  // typed read/parse errors
 ├── tempfile      dev        // test fixtures
 └── walkdir       dev        // recursive receipt surface scanning in smoke tests
 ```
@@ -61,18 +61,37 @@ arda-contract-registry
 
 A consumer using `arda_contract_registry` can:
 
-1. Deserialize a `ContractRegistry` from JSON via `serde_json::from_str`
+1. Load a `ContractRegistry` through `ContractRegistry::load(path)` or
+   `ContractRegistry::load_from_root(root)`
 2. Inspect `registry.tracks` for `TrackDefinition` metadata
 3. Call `registry.track_ids()` to enumerate declared tracks
-4. Run `tests/registry_smoke.rs` against `core/state/contract_registry.json` to verify live state matches declarative contract
+4. Handle missing and malformed artifacts through typed `RegistryLoadError` variants
+5. Run `tests/registry_smoke.rs` against `core/state/contract_registry.json` to verify live state matches the declarative contract
+
+## Supported source classification
+
+| Classification | Count | Paths |
+|---|---:|---|
+| Production/default | 2 | `src/lib.rs`, `src/registry.rs` |
+| Production/feature-gated | 0 | No features are declared |
+| Generated include | 0 | None |
+| Standalone test-only source | 0 | Unit tests are inline |
+| Integration test | 1 | `tests/registry_smoke.rs` |
+| Build script | 0 | None |
+| Unwired | 0 | None |
+
+The only direct Cargo consumer is `arda-launcher`. Governance/core crates have
+no manifest or source dependency on this crate.
 
 ## Verification status
 
 - `cargo check -p arda-contract-registry`: successful
-- `cargo test -p arda-contract-registry`: 3 passed (`registry_smoke.rs`)
+- `cargo test -p arda-contract-registry`: 6 passed (3 unit + 3 integration)
   - `registry_schema_version_is_pinned`
   - `every_track_has_source_modules`
   - `every_track_schema_version_is_present_in_a_source_or_surface_module`
 - `cargo check --all-features`: successful
-- `cargo test --all-features`: 3 passed, 0 failed
+- `cargo test --all-features`: 6 passed, 0 failed
+- strict all-target Clippy and strict rustdoc: passed
+- `arda-launcher` all-target consumer check and 8-test library suite: passed
 

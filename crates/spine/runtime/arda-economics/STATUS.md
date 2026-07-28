@@ -1,17 +1,36 @@
 # arda-economics status
 
 Crate: `crates/spine/runtime/arda-economics`
-Current state: active
-Branch: `manwe`
-Test evidence: `cargo check`, `cargo test`
-Known rustc warning: `profiles for the non root package will be ignored, specify profiles at the workspace root:` from `apps/arda-launcher/src-tauri/Cargo.toml` — not from `arda-economics`.
-Documentation set: `README.md`, `BREAKDOWN.md`, `CHECKLIST.md`, `CRATE_PLAN.md`, `OWNERSHIP.md`, `STATUS.md`.
+State: stable first-class runtime economics substrate
+Last verified: 2026-07-28
 
-Current signature: IPC/HTTP transport surfaces active; runtime economics engine owns mutation, valuation, and energy-meter estimates.
-Completed: additive `transport/finance_stream.rs` finance metrics export for `PlutusRuntimeEvent` streams; `PlutusLedger` enriched with credit totals and last-credit provenance.
-Deferred: failed hardware/estimator fallback integration coverage and long-running JouleWork measurement-source invariant regression; see `CRATE_PLAN.md` for triggers.
-Open evidence: caller-side verification from `arda-aule` for governance metric stream export remains unfinished.
+## Closeout result
 
-Operational expectation: verify with `cargo test` and JouleWork pluto-stream audit before production use.
+- All 12 Rust files are wired: 11 unconditional production files and 1
+  `http`-feature production file; no generated, standalone test, integration,
+  build-script, or unwired files exist.
+- Meter errors are typed. `MeterRegistry::estimate` skips failed/non-finite
+  hardware samples and deterministically falls back to the estimator.
+- Tariff tables expose load timestamp and deterministic staleness checks.
+- Runtime snapshots and finance export expose budget pressure, snapshot age,
+  and IPC/HTTP request latency aggregates.
+- A 10,000-event operator-scale test proves unit multipliers, observed/default
+  provenance totals, and confidence aggregation.
+- Direct Cargo consumers are `arda-mandos`, `arda-vaire`, and `arda-varda`.
+  `arda-aule`, `arda-governance`, and Manwe are not direct consumers.
 
-See `CRATE_PLAN.md` and `OWNERSHIP.md` for implementation priorities.
+## Verification evidence
+
+- No-default check: passed.
+- No-default suite: 33 passed, 1 ignored; 0 failed.
+- All-target/all-feature check: passed.
+- All-feature suite: 34 passed, 1 ignored; 0 failed.
+- Operator-scale ignored test executed separately: 1 passed; 10,000 events,
+  total 10,600, observed 5,300, default fallback 5,300.
+- Strict all-target Clippy and strict rustdoc: passed.
+- Direct consumer all-target/all-feature checks for `arda-mandos`, `arda-vaire`,
+  and `arda-varda`: passed.
+- Full all-feature suite changed no files inside the crate.
+
+No active crate-local plan remains. The launcher profile warning is a workspace
+manifest warning external to this crate.

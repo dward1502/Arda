@@ -1,6 +1,6 @@
 {
   "schema_version": "annunimas.charon.provider-capability-receipts.v1",
-  "generated_at_utc": "2026-07-27T23:54:15.642867961+00:00",
+  "generated_at_utc": "2026-07-28T19:24:47.170541373+00:00",
   "receipts": {
     "edge_backbone::ternary-bonsai-27b-q2_0": {
       "provider_id": "edge_backbone",
@@ -43,21 +43,21 @@
     "edge_backbone_coder::nanbeige4.2-3b-q4_k_m": {
       "provider_id": "edge_backbone_coder",
       "model_id": "nanbeige4.2-3b-q4_k_m",
-      "updated_at_utc": "2026-07-27T22:48:24.142785991+00:00",
+      "updated_at_utc": "2026-07-28T18:52:02.816876443+00:00",
       "capabilities": {
         "basic_chat": {
           "state": "passed",
           "source": "passive_proxy_observation",
-          "observed_at_utc": "2026-07-27T22:48:24.142785991+00:00",
-          "expires_at_utc": "2026-08-03T22:48:24.142785991+00:00",
+          "observed_at_utc": "2026-07-28T18:52:02.816876443+00:00",
+          "expires_at_utc": "2026-08-04T18:52:02.816876443+00:00",
           "outcome_class": "valid_tool_call",
           "status_code": 200
         },
         "tools": {
           "state": "passed",
           "source": "passive_proxy_observation",
-          "observed_at_utc": "2026-07-27T22:48:24.142785991+00:00",
-          "expires_at_utc": "2026-08-03T22:48:24.142785991+00:00",
+          "observed_at_utc": "2026-07-28T18:52:02.816876443+00:00",
+          "expires_at_utc": "2026-08-04T18:52:02.816876443+00:00",
           "outcome_class": "valid_tool_call",
           "status_code": 200
         }
@@ -66,13 +66,13 @@
     "edge_backbone_long::bonsai-27b-q1_0": {
       "provider_id": "edge_backbone_long",
       "model_id": "bonsai-27b-q1_0",
-      "updated_at_utc": "2026-07-27T23:43:15.672554997+00:00",
+      "updated_at_utc": "2026-07-28T19:24:47.170541373+00:00",
       "capabilities": {
         "basic_chat": {
           "state": "passed",
           "source": "passive_proxy_observation",
-          "observed_at_utc": "2026-07-27T23:43:15.672554997+00:00",
-          "expires_at_utc": "2026-08-03T23:43:15.672554997+00:00",
+          "observed_at_utc": "2026-07-28T19:24:47.170541373+00:00",
+          "expires_at_utc": "2026-08-04T19:24:47.170541373+00:00",
           "outcome_class": "success",
           "status_code": 200
         }
@@ -104,13 +104,13 @@
     "edge_core::Qwen3.5-9B-Q4_K_M": {
       "provider_id": "edge_core",
       "model_id": "Qwen3.5-9B-Q4_K_M",
-      "updated_at_utc": "2026-07-27T23:54:15.642867961+00:00",
+      "updated_at_utc": "2026-07-28T19:13:47.235831197+00:00",
       "capabilities": {
         "basic_chat": {
           "state": "passed",
           "source": "passive_proxy_observation",
-          "observed_at_utc": "2026-07-27T23:54:15.642867961+00:00",
-          "expires_at_utc": "2026-08-03T23:54:15.642867961+00:00",
+          "observed_at_utc": "2026-07-28T19:13:47.235831197+00:00",
+          "expires_at_utc": "2026-08-04T19:13:47.235831197+00:00",
           "outcome_class": "success",
           "status_code": 200
         },
@@ -195,21 +195,21 @@
     "openai_sub::gpt-5.5": {
       "provider_id": "openai_sub",
       "model_id": "gpt-5.5",
-      "updated_at_utc": "2026-07-27T22:54:11.949856183+00:00",
+      "updated_at_utc": "2026-07-28T18:55:11.981081611+00:00",
       "capabilities": {
         "basic_chat": {
           "state": "passed",
           "source": "passive_proxy_observation",
-          "observed_at_utc": "2026-07-27T22:54:11.949856183+00:00",
-          "expires_at_utc": "2026-08-03T22:54:11.949856183+00:00",
+          "observed_at_utc": "2026-07-28T18:55:11.981081611+00:00",
+          "expires_at_utc": "2026-08-04T18:55:11.981081611+00:00",
           "outcome_class": "success",
           "status_code": 200
         },
         "tools": {
           "state": "passed",
           "source": "passive_proxy_observation",
-          "observed_at_utc": "2026-07-27T22:54:11.949856183+00:00",
-          "expires_at_utc": "2026-08-03T22:54:11.949856183+00:00",
+          "observed_at_utc": "2026-07-28T18:55:11.981081611+00:00",
+          "expires_at_utc": "2026-08-04T18:55:11.981081611+00:00",
           "outcome_class": "success",
           "status_code": 200
         }

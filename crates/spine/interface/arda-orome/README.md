@@ -36,7 +36,7 @@ Manwe owns provider/model selection and inference-routing policy. `arda-orome` o
 - Discord health and safe-message contracts;
 - the resident protocol and registry support required by that closure.
 
-The feature is opt-in. Its historical resident-service compatibility dispatch remains deterministic/no-network `ManualTransport`; configured providers are reported offline unless a test channel proves health. The provider API additionally exposes `HttpJsonTransport` for explicitly configured, policy-gated live dispatch. Serenity, formatter, relay, slash-command, legacy edge, and unused generated-contract shims were retired rather than advertised as working integrations.
+The feature is opt-in. Its historical resident-service compatibility dispatch remains deterministic/no-network `ManualTransport`; configured providers are reported offline unless a test channel proves health. Governance, memory, and resource evidence emitted by `HermesService` is rooted in the configured service project (or explicit `ARDA_MNEMOSYNE_HOME` / `ARDA_PLUTUS_HOME` overrides), rather than process-global current-directory defaults. The provider API additionally exposes `HttpJsonTransport` for explicitly configured, policy-gated live dispatch. Serenity, formatter, relay, slash-command, legacy edge, and unused generated-contract shims were retired rather than advertised as working integrations.
 
 ## Integration
 
@@ -63,6 +63,10 @@ Direct consumers:
 
 - `STATUS.md` — current evidence and remaining boundaries.
 - `BREAKDOWN.md` — exact module classification and invariants.
-- `PLAN.md` — completed stabilization decisions and future proposals.
 - `OWNERSHIP.md` — authority boundaries.
 - `INDEX.md` — deterministic navigation.
+
+The completed stabilization plan was retired after its durable source-tree,
+feature, transport, and fleet-policy decisions were absorbed into the maintained
+documents above. Future capability work requires a new plan with a concrete
+owner and consumer.

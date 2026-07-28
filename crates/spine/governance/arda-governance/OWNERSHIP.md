@@ -4,7 +4,7 @@ Crate: `crates/spine/governance/arda-governance`
 Owner: HADES / governance layer
 Status: active
 Boundary: deterministic governance primitives, evidence assessment, scoring projections, and advisory environmental signals.
-Last reviewed: 2026-07-26
+Last reviewed: 2026-07-28
 
 This crate owns:
 - Triad/chain evaluation and versioned structured evidence assessment
@@ -25,6 +25,7 @@ Preferred consumer path:
 - `arda-varda`/`arda-mandos` through governance chain / Triad interfaces
 - `arda-orome` through governance hooks
 - `arda-aule` through exported status/metrics surfaces
+- `arda-engine` through aggregate observability and counter projections
 - `manwe` through receipted realm governance and runtime blocking decisions
 
 Change authority:

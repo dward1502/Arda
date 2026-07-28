@@ -1,3 +1,4 @@
+pub mod benchmark;
 pub mod human;
 pub mod ingest;
 pub mod learning;

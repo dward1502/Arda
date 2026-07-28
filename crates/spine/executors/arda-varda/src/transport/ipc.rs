@@ -369,6 +369,8 @@ mod tests {
 
     #[tokio::test]
     async fn ipc_round_trip_ingest_query_status() {
+        let _guard = env_guard();
+        std::env::set_var("ATHENA_STALE_SOURCE_THRESHOLD_SECONDS", "0");
         let dir = tempdir().expect("tempdir");
         let store = AthenaStore::new(dir.path()).expect("store");
         let socket_path = dir.path().join("athena.sock");
@@ -415,6 +417,23 @@ mod tests {
             .expect("status");
         assert_eq!(status.get("books_count").and_then(|v| v.as_u64()), Some(1));
         assert_eq!(
+            status
+                .get("stale_source_threshold_seconds")
+                .and_then(|v| v.as_u64()),
+            Some(0)
+        );
+        assert_eq!(
+            status.get("stale_sources_total").and_then(|v| v.as_u64()),
+            Some(1)
+        );
+        assert_eq!(
+            status
+                .get("stale_source_advisory")
+                .and_then(|v| v.get("severity"))
+                .and_then(|v| v.as_str()),
+            Some("advisory")
+        );
+        assert_eq!(
             status.get("active_crawls_total").and_then(|v| v.as_u64()),
             Some(0)
         );
@@ -439,6 +458,7 @@ mod tests {
             .unwrap_or("")
             .contains("athena_ingest_documents_total"));
 
+        std::env::remove_var("ATHENA_STALE_SOURCE_THRESHOLD_SECONDS");
         server.abort();
     }
 

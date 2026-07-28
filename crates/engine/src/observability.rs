@@ -7,14 +7,25 @@
 use arda_core::learning::LearningStore;
 use arda_core::learning_adapter::build_learning_ledger_receipt;
 use arda_core::loop_observability::{LatencyProbe, LoopObservabilityConfig};
+use arda_governance::metrics::global_governance_metrics;
 use serde::Deserialize;
 use serde::Serialize;
+use std::collections::BTreeMap;
 
 /// Aggregated observability status for the Arda engine.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EngineObservabilityStatus {
     pub loop_observability: LoopObservabilityConfig,
     pub learning: LearningReceiptStatus,
+    /// Read-only projection; `arda-governance` remains the sole counter owner.
+    pub governance_counters: Vec<EngineGovernanceCounter>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EngineGovernanceCounter {
+    pub name: String,
+    pub labels: BTreeMap<String, String>,
+    pub value: u64,
 }
 
 /// Learning receipt status from the current learning store.
@@ -44,6 +55,16 @@ impl EngineObservabilityStatus {
             consumer.as_ref(),
             min_observations,
         );
+        let governance_counters = global_governance_metrics()
+            .snapshot()
+            .counters
+            .into_iter()
+            .map(|counter| EngineGovernanceCounter {
+                name: counter.name,
+                labels: counter.labels,
+                value: counter.value,
+            })
+            .collect();
 
         Self {
             loop_observability,
@@ -55,6 +76,7 @@ impl EngineObservabilityStatus {
                 ignored_count: receipt.ignored_count,
                 learning_path: learning_path.as_ref().display().to_string(),
             },
+            governance_counters,
         }
     }
 }
@@ -77,6 +99,16 @@ impl Default for EngineObservabilityStatus {
                 ignored_count: 0,
                 learning_path: String::new(),
             },
+            governance_counters: global_governance_metrics()
+                .snapshot()
+                .counters
+                .into_iter()
+                .map(|counter| EngineGovernanceCounter {
+                    name: counter.name,
+                    labels: counter.labels,
+                    value: counter.value,
+                })
+                .collect(),
         }
     }
 }
@@ -95,6 +127,10 @@ mod tests {
         let status = EngineObservabilityStatus::default();
         assert!(!status.loop_observability.economy_snapshot_enabled);
         assert!(!status.loop_observability.latency_probe_enabled);
+        assert_eq!(
+            serde_json::to_value(&status).unwrap()["governance_counters"],
+            serde_json::json!([])
+        );
     }
 
     #[test]

@@ -6,6 +6,7 @@ edition = "2024"
 
 [dependencies]
 arda-core = { workspace = true }
+arda-governance = { workspace = true }
 arda-orome = { workspace = true }
 manwe = { workspace = true }
 tokio = { workspace = true }

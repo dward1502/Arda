@@ -59,6 +59,11 @@ enum Commands {
     LearningDelta {
         run_id: String,
     },
+    /// Print the canonical ATHENA queue and counter projection as JSON.
+    AthenaStatus {
+        #[arg(long)]
+        root: Option<PathBuf>,
+    },
     BaconLiteSummary {
         #[arg(long)]
         path: Option<PathBuf>,
@@ -358,6 +363,16 @@ fn main() -> Result<()> {
             let value = union_find_receipt(&registry, &["run_id", "receipt_id", "label"], &run_id)
                 .unwrap_or_else(|| not_found(&run_id));
             println!("{}", serde_json::to_string_pretty(&value)?);
+        }
+        Commands::AthenaStatus { root } => {
+            let root = root
+                .or_else(|| std::env::var_os("ARDA_ATHENA_ROOT").map(PathBuf::from))
+                .unwrap_or_else(|| PathBuf::from("data/athena"));
+            let store = arda_varda::ingest::AthenaStore::new(root)?;
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&store.operator_status()?)?
+            );
         }
         Commands::Plutus {
             command: PlutusCommands::Export { path, json },
@@ -1229,6 +1244,22 @@ mod tests {
             Commands::Prometheus {
                 command: PrometheusCommands::Status { .. }
             }
+        ));
+    }
+
+    #[test]
+    fn parses_athena_status_command() {
+        let cli = Cli::try_parse_from([
+            "arda-cli",
+            "athena-status",
+            "--root",
+            "/tmp/athena-status-test",
+        ])
+        .expect("parse athena status");
+        assert!(matches!(
+            cli.command,
+            Commands::AthenaStatus { root }
+                if root == Some(PathBuf::from("/tmp/athena-status-test"))
         ));
     }
 

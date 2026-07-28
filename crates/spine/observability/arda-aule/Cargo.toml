@@ -80,3 +80,8 @@ proptest = "1"
 name = "arda-cli"
 path = "src/cli/main.rs"
 required-features = ["full-cli"]
+
+[[test]]
+name = "metrics_exporter_cli"
+path = "tests/metrics_exporter_cli.rs"
+required-features = ["http"]

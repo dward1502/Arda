@@ -27,11 +27,11 @@ LLM provider for research/code/decision/general tasks.
 ## Where it lives
 - Crate root: `/var/home/mythos/Eregion/Arda/crates/spine/executors/arda-varda`
 - Configs/data: `data/athena/*`, `core/state/*`, env-overridable paths
-- Tests: 116 passing integration/unit tests + 0 doc tests
+- Tests: 120 passing integration/unit tests + 0 doc tests
 
 ## Verification status
 - `cargo check -p arda-varda --all-features`: OK
-- `cargo test -p arda-varda`: 116 passed, 0 failed
+- `cargo test -p arda-varda`: 120 passed, 0 failed
 - Coverage highlights: ingest pipeline, crawlers, GitHub/scholarly
   extraction, query, deep-analysis queue, policy promotion, IPC/HTTP
   transport, interceptor pipeline, human ingestion scanner
@@ -92,6 +92,9 @@ LLM provider for research/code/decision/general tasks.
   - `AthenaMetrics` snapshots, deep-queue status counts
   - persisted full-refresh timestamps, `/status` source freshness summaries,
     and `athena_source_age_seconds{source_id}` Prometheus gauges
+  - configurable advisory stale-source threshold shared by HTTP and IPC status
+  - canonical operator projection for synthesis queue state plus governance and
+    learning counters; CLI transport does not duplicate ledger ownership
   - process-local active crawl guards plus durable newest-eight completed
     pipeline and latest-error summaries shared by HTTP, IPC, and SSE status
 - **Transport**:
@@ -122,7 +125,7 @@ LLM provider for research/code/decision/general tasks.
 | `transport/` | IPC + optional HTTP/SSE daemon transport |
 | `README.md` | Sigil/metadata/capabilities overview |
 
-Current documentation remains beside the crate for implementation proximity.
+Current implementation documentation remains beside the crate for proximity.
 Superseded assessments and generated validation evidence are retained under
 `docs/archive/arda-varda/`; the crate owns no nested `docs/` hierarchy.
 
@@ -135,17 +138,26 @@ Superseded assessments and generated validation evidence are retained under
 - Indirectly wired into boardroom/council/Hades via interceptor
   pipeline and planning-task receipts
 
-## Ideas for improvement
-1. Persist/share the source-classification cache across process restarts; the
-   current cache is process-local and keyed by a full content hash.
-2. Add configurable stale-source thresholds and alerts atop the source-age
-   gauges; freshness metadata and pipeline correlation are complete.
-3. Consider an async-native `AthenaStore` only if profiling shows the documented
-   synchronous boundary plus `spawn_blocking` transport isolation is inadequate.
-4. Promote the shared JSONL appender into an append-only ledger trait if
-   non-Athena crates need the same buffering and durability contract.
-5. Expose `KnowledgeVault` synthesis queue through `engine`/CLI so it’s
-   telemetry-visible
-6. Wire governance/learning signals into `engine` metrics or dashboard.
-7. Split `policy_readiness` into its own crate only if it gains independent
-   consumers and lifecycle authority.
+## P0-P2 closeout
+
+- Retrieval baseline: checked-in fixture plus `arda-varda-benchmark`; measured
+  Recall@1 `1.0`, citation correctness `1.0`, shallow-only rate `1.0`.
+  Benchmark and unit-test stores are hermetic, preventing verification runs from
+  appending fixture records to live ATHENA and governance ledgers.
+- Classification profile: 10,000 measured iterations; uncached classification
+  was below the explicit 100,000 ns persistence threshold, so versioned disk
+  persistence was intentionally deferred.
+- Queue/status: `AthenaStore::operator_status` and `arda-cli athena-status`
+  expose pending, completed, malformed, and empty states from canonical ledgers.
+- Engine observability projects governance counters while `arda-governance`
+  remains their sole owner; learning receipt counters remain engine-owned.
+- Freshness: HTTP and IPC return the same advisory-only stale-source contract,
+  controlled by `ATHENA_STALE_SOURCE_THRESHOLD_SECONDS`.
+- External intake: `arda.athena.external_source_receipt.v1` validates the sole
+  Reddit pilot; missing evidence and all other lanes fail closed.
+- NotebookLM: retained only as a non-authoritative read/query connector with
+  explicit auth/mutation trust boundaries and no task-promotion authority.
+- Semantic retrieval: deferred until the reproducible corpus exhibits a BM25
+  miss; adding embeddings while Recall@1 is `1.0` would be speculative.
+- Shared ledger trait: deferred because only the Aule readiness projection is a
+  concrete consumer; introduce an abstraction only with a second live consumer.

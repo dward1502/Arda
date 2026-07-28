@@ -222,6 +222,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "arda-core",
+ "arda-governance",
  "arda-orome",
  "axum 0.7.9",
  "manwe",

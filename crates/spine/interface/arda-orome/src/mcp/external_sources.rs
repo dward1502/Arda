@@ -56,6 +56,97 @@ pub struct AuthBoundary {
     pub explicit_user_approval_required_for: Vec<String>,
 }
 
+/// Canonical evidence receipt for the single enabled external-source pilot.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct ExternalSourceReceipt {
+    pub schema_version: String,
+    pub receipt_id: String,
+    pub idempotency_key: String,
+    pub source_id: String,
+    pub authority: String,
+    pub privacy_classification: String,
+    pub canonical_url: String,
+    pub captured_at_utc: String,
+    pub outcome: String,
+    pub failure_reason: Option<String>,
+    pub evidence: BTreeMap<String, String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct ExternalSourceReceiptValidation {
+    pub schema_version: String,
+    pub source_id: String,
+    pub valid: bool,
+    pub task_promotion_allowed: bool,
+    pub reasons: Vec<String>,
+}
+
+/// Validate the canonical Reddit pilot receipt. Other external lanes remain
+/// disabled until they receive an explicit, separately reviewed validator.
+pub fn validate_external_source_receipt(
+    receipt: &ExternalSourceReceipt,
+) -> ExternalSourceReceiptValidation {
+    let connector = reddit_connector_contract();
+    let mut reasons = Vec::new();
+    if receipt.schema_version != "arda.athena.external_source_receipt.v1" {
+        reasons.push("unsupported_schema_version".to_string());
+    }
+    if receipt.source_id != connector.source_id {
+        reasons.push("source_lane_disabled".to_string());
+    }
+    if receipt.receipt_id.trim().is_empty() {
+        reasons.push("missing_receipt_id".to_string());
+    }
+    if receipt.idempotency_key.trim().is_empty() {
+        reasons.push("missing_idempotency_key".to_string());
+    }
+    if receipt.authority != "athena_external_source_pilot" {
+        reasons.push("invalid_authority".to_string());
+    }
+    if receipt.privacy_classification != "public" {
+        reasons.push("unsupported_privacy_classification".to_string());
+    }
+    if !(receipt.canonical_url.starts_with("https://")
+        || receipt.canonical_url.starts_with("http://"))
+    {
+        reasons.push("invalid_canonical_url".to_string());
+    }
+    if !receipt.captured_at_utc.contains('T') {
+        reasons.push("invalid_captured_at_utc".to_string());
+    }
+    if !matches!(receipt.outcome.as_str(), "success" | "failure") {
+        reasons.push("invalid_outcome".to_string());
+    }
+    if receipt.outcome == "failure"
+        && receipt
+            .failure_reason
+            .as_deref()
+            .is_none_or(|reason| reason.trim().is_empty())
+    {
+        reasons.push("missing_failure_reason".to_string());
+    }
+    for required in &connector.athena_lane.evidence_required {
+        if required == "captured_at_utc" {
+            continue;
+        }
+        if receipt
+            .evidence
+            .get(required)
+            .is_none_or(|value| value.trim().is_empty())
+        {
+            reasons.push(format!("missing_evidence:{required}"));
+        }
+    }
+    let valid = reasons.is_empty();
+    ExternalSourceReceiptValidation {
+        schema_version: "arda.athena.external_source_receipt_validation.v1".to_string(),
+        source_id: receipt.source_id.clone(),
+        valid,
+        task_promotion_allowed: valid && receipt.outcome == "success",
+        reasons,
+    }
+}
+
 pub fn external_source_mcp_connectors() -> Vec<ExternalSourceMcpConnector> {
     vec![notebooklm_connector_contract(), reddit_connector_contract()]
 }
@@ -254,4 +345,72 @@ pub fn connector_catalog_response(source_id: Option<&str>) -> serde_json::Value 
         "network_performed_by_catalog_tool": false,
         "connectors": connectors,
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn complete_reddit_receipt() -> ExternalSourceReceipt {
+        ExternalSourceReceipt {
+            schema_version: "arda.athena.external_source_receipt.v1".to_string(),
+            receipt_id: "receipt-1".to_string(),
+            idempotency_key: "reddit:example:2026-07-27".to_string(),
+            source_id: "reddit".to_string(),
+            authority: "athena_external_source_pilot".to_string(),
+            privacy_classification: "public".to_string(),
+            canonical_url: "https://reddit.com/r/rust/comments/example".to_string(),
+            captured_at_utc: "2026-07-27T00:00:00Z".to_string(),
+            outcome: "success".to_string(),
+            failure_reason: None,
+            evidence: BTreeMap::from([
+                (
+                    "subreddit_or_post_url".to_string(),
+                    "https://reddit.com/r/rust/comments/example".to_string(),
+                ),
+                ("query_or_sort".to_string(), "top/week".to_string()),
+                ("post_or_comment_ids".to_string(), "example".to_string()),
+            ]),
+        }
+    }
+
+    #[test]
+    fn canonical_reddit_receipt_enables_only_the_validated_pilot() {
+        let receipt = complete_reddit_receipt();
+        let validation = validate_external_source_receipt(&receipt);
+        assert!(validation.valid);
+        assert!(validation.task_promotion_allowed);
+
+        let mut notebooklm = receipt;
+        notebooklm.source_id = "notebook_lm".to_string();
+        let blocked = validate_external_source_receipt(&notebooklm);
+        assert!(!blocked.valid);
+        assert!(!blocked.task_promotion_allowed);
+        assert!(blocked
+            .reasons
+            .contains(&"source_lane_disabled".to_string()));
+    }
+
+    #[test]
+    fn incomplete_reddit_receipt_cannot_promote_tasks() {
+        let mut receipt = complete_reddit_receipt();
+        receipt.evidence.clear();
+        let validation = validate_external_source_receipt(&receipt);
+        assert!(!validation.valid);
+        assert!(!validation.task_promotion_allowed);
+        assert!(validation
+            .reasons
+            .iter()
+            .any(|reason| reason.starts_with("missing_evidence:")));
+    }
+
+    #[test]
+    fn well_formed_failure_receipt_is_auditable_but_cannot_promote() {
+        let mut receipt = complete_reddit_receipt();
+        receipt.outcome = "failure".to_string();
+        receipt.failure_reason = Some("upstream_timeout".to_string());
+        let validation = validate_external_source_receipt(&receipt);
+        assert!(validation.valid);
+        assert!(!validation.task_promotion_allowed);
+    }
 }

@@ -47,12 +47,13 @@ Operationally, the crate now includes:
 - Unix socket IPC and HTTP/SSE transport surfaces
 - CLI-facing daemon/service integration
 
-Current scoped verification: `cargo test -p arda-varda` passes 116 tests.
+Current scoped verification: `cargo test -p arda-varda` passes 120 tests.
 
-Documentation ownership: current crate behavior lives in this README,
-`BREAKDOWN.md`, `PLAN.md`, and `STATUS.md`. Historical assessments and generated
-validation evidence live under `docs/archive/arda-varda/`; there is intentionally
-no crate-local `docs/` tree.
+Documentation ownership: current crate behavior and the completed P0-P2
+decisions live in this README and `BREAKDOWN.md`. Completed plans and status
+snapshots are retired after live reconciliation.
+Historical assessments and generated validation evidence live under
+`docs/archive/arda-varda/`; there is intentionally no crate-local `docs/` tree.
 
 ## Runtime bounds and hook contract
 
@@ -89,6 +90,15 @@ no crate-local `docs/` tree.
 - `digest-index-v1.json` is atomically written under a cross-process lock,
   loaded at startup, shared by live store instances, and updated per source on
   ingest, deep-analysis, and scholarly append paths.
+- `cargo run -p arda-varda --bin arda-varda-benchmark` runs the checked-in
+  provenance-bearing fixture and emits machine-readable Recall@1, citation
+  correctness, shallow-only rate, latency, and classification-cache profile.
+  The benchmark uses an isolated store layout and does not write into the live
+  operator library, machine index, governance ledger, or side-effect queues.
+- `arda-cli athena-status --root <path>` projects the canonical synthesis queue
+  and governance/learning counters without owning a second ledger or queue.
+- HTTP and IPC status expose advisory-only stale-source alerts. Configure the
+  threshold with `ATHENA_STALE_SOURCE_THRESHOLD_SECONDS` (default seven days).
 - Every standalone ingest and crawl mints an `athpl_<uuid>` pipeline ID. The ID
   is returned in crawl/import receipts and persisted through scholarly,
   shallow/deep book, policy-readiness, queue, knowledge-view, triage, and
@@ -116,6 +126,23 @@ no crate-local `docs/` tree.
   crate-local `core/` or `data/` trees.
 
 Non-ingest task types still route through the configured LLM provider.
+
+## Governed external-source decisions
+
+- Reddit is the sole external-source receipt pilot. A versioned canonical
+  receipt must validate before task promotion; incomplete receipts fail closed.
+- NotebookLM remains a non-authoritative, read/query-only synthesis lane. It is
+  blocked from task promotion and from auth, mutation, cleanup, and audio tools
+  without explicit user approval.
+- Persistent classification caching is deferred: the checked-in benchmark
+  profile found uncached classification far below the 100 µs decision threshold,
+  so disk persistence would add complexity and I/O without measured benefit.
+- Hybrid semantic retrieval is deferred until the benchmark corpus contains a
+  reproducible BM25 miss. The current baseline is Recall@1 1.0 with citation
+  correctness 1.0, so no embedding/vector dependency was added.
+- A shared ledger trait is deferred because the live repository has only one
+  concrete external-source ledger consumer. The current JSONL owner remains
+  authoritative until a second non-speculative consumer exists.
 
 ## What's in this crate
 - `lib.rs`: Athena agent implementation, ingest/query/deep routing, model route selection, and LLM execution flow.

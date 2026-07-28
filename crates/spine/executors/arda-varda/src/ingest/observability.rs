@@ -14,9 +14,11 @@ use std::fs;
 use std::path::Path;
 
 use super::{
-    AthenaAutonomyRecommendation, AthenaKnowledgeVaultSourceLaneObservation,
-    AthenaKnowledgeVaultStatus, AthenaSourceFreshness, AthenaStatus, AthenaStore,
-    AthenaVaultSynthesisQueueItem, IngestRecord,
+    AthenaAutonomyRecommendation, AthenaGovernanceCounterSummary,
+    AthenaKnowledgeVaultSourceLaneObservation, AthenaKnowledgeVaultStatus,
+    AthenaLearningCounterSummary, AthenaOperatorStatus, AthenaSourceFreshness,
+    AthenaStaleSourceAdvisory, AthenaStatus, AthenaStore, AthenaSynthesisQueueSummary,
+    AthenaVaultSynthesisQueueItem, ClassificationCache, ClassificationCacheProfile, IngestRecord,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -44,6 +46,75 @@ pub(super) struct IngestObservabilitySummary {
 }
 
 impl AthenaStore {
+    /// Measure the existing in-memory cache before considering persistence.
+    pub fn profile_classification_cache(iterations: usize) -> ClassificationCacheProfile {
+        let iterations = iterations.max(1);
+        let unique = ClassificationCache::default();
+        let unique_started = std::time::Instant::now();
+        for index in 0..iterations {
+            let _ = unique.classify(&format!("https://docs.rs/profile-{index}"));
+        }
+        let unique_elapsed = unique_started.elapsed().as_nanos() as u64;
+
+        let cached = ClassificationCache::default();
+        let input = "https://docs.rs/tokio/latest/tokio/";
+        let _ = cached.classify(input);
+        let cached_started = std::time::Instant::now();
+        for _ in 0..iterations {
+            let _ = cached.classify(input);
+        }
+        let cached_elapsed = cached_started.elapsed().as_nanos() as u64;
+        let unique_mean_nanoseconds = unique_elapsed / iterations as u64;
+        let cached_mean_nanoseconds = cached_elapsed / iterations as u64;
+        let decision_threshold_nanoseconds = 100_000;
+
+        ClassificationCacheProfile {
+            schema_version: "arda.varda.classification_cache_profile.v1".to_string(),
+            iterations,
+            unique_mean_nanoseconds,
+            cached_mean_nanoseconds,
+            persistent_cache_recommended: unique_mean_nanoseconds >= decision_threshold_nanoseconds,
+            decision_threshold_nanoseconds,
+        }
+    }
+
+    /// Project canonical ATHENA status for engine and CLI readers.
+    pub fn operator_status(&self) -> Result<AthenaOperatorStatus> {
+        let status = self.status()?;
+        let completed_total = status
+            .knowledge_vault
+            .source_lane_observations
+            .iter()
+            .map(|lane| lane.policy_ready_sources_total)
+            .sum();
+        let pending_total = status.knowledge_vault.synthesis_queue.len();
+        let malformed_total = status.policy_readiness_malformed_records;
+        Ok(AthenaOperatorStatus {
+            schema_version: "arda.varda.operator_status.v1".to_string(),
+            storage_root: status.storage_root,
+            synthesis_queue: AthenaSynthesisQueueSummary {
+                authority: status.knowledge_vault.authority,
+                pending_total,
+                completed_total,
+                malformed_total,
+                empty: pending_total == 0 && completed_total == 0 && malformed_total == 0,
+                pending: status.knowledge_vault.synthesis_queue,
+            },
+            governance: AthenaGovernanceCounterSummary {
+                owner: "arda-varda".to_string(),
+                policy_ready_promotions_total: status.policy_ready_promotions_total,
+                policy_ready_regressions_total: status.policy_ready_regressions_total,
+                malformed_records_total: status.policy_readiness_malformed_records,
+            },
+            learning: AthenaLearningCounterSummary {
+                owner: "arda-varda".to_string(),
+                task_emission_receipts_total: status.task_emission_receipts_total,
+                task_emission_success_total: status.task_emission_success_total,
+                task_emission_skipped_total: status.task_emission_skipped_total,
+            },
+        })
+    }
+
     pub fn status(&self) -> Result<AthenaStatus> {
         let books_count = fs::read_dir(&self.books_dir)?
             .filter_map(|e| e.ok())
@@ -80,6 +151,25 @@ impl AthenaStore {
             .iter()
             .map(|source| source.age_seconds)
             .max();
+        let stale_source_threshold_seconds = std::env::var("ATHENA_STALE_SOURCE_THRESHOLD_SECONDS")
+            .ok()
+            .and_then(|value| value.parse::<u64>().ok())
+            .unwrap_or(7 * 24 * 60 * 60);
+        let stale_source_ids = source_freshness
+            .iter()
+            .filter(|source| source.age_seconds >= stale_source_threshold_seconds)
+            .map(|source| source.source_id.clone())
+            .collect::<Vec<_>>();
+        let stale_source_advisory = (!stale_source_ids.is_empty()).then(|| {
+            AthenaStaleSourceAdvisory {
+                severity: "advisory".to_string(),
+                message: format!(
+                    "{} source(s) exceed the configured freshness threshold; no mutation was performed",
+                    stale_source_ids.len()
+                ),
+                source_ids: stale_source_ids.clone(),
+            }
+        });
         let task_receipts = planning_task_receipt_summary(&self.planning_task_receipts_path)?;
         let knowledge_vault = self.knowledge_vault_status()?;
         let now = Utc::now();
@@ -129,6 +219,9 @@ impl AthenaStore {
             source_provenance_coverage_ratio,
             source_freshness_total: source_freshness.len(),
             oldest_source_age_seconds,
+            stale_source_threshold_seconds,
+            stale_sources_total: stale_source_ids.len(),
+            stale_source_advisory,
             source_freshness,
             active_crawls_total: active_crawls.len(),
             active_crawls,
@@ -495,7 +588,9 @@ fn knowledge_vault_autonomy_recommendations(
 ) -> Vec<AthenaAutonomyRecommendation> {
     observations
         .iter()
-        .filter(|observation| observation.ingested_sources_total > 0)
+        .filter(|observation| {
+            observation.ingested_sources_total > observation.policy_ready_sources_total
+        })
         .map(|observation| AthenaAutonomyRecommendation {
             recommendation_id: format!(
                 "athena.vault.{}.safe_local_ingest_review",
@@ -509,7 +604,9 @@ fn knowledge_vault_autonomy_recommendations(
             ),
             safe_local: true,
             human_gate_required: false,
-            evidence_count: observation.ingested_sources_total,
+            evidence_count: observation
+                .ingested_sources_total
+                .saturating_sub(observation.policy_ready_sources_total),
         })
         .collect()
 }

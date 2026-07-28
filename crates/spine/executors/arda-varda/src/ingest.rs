@@ -535,11 +535,67 @@ pub struct AthenaKnowledgeVaultStatus {
     pub synthesis_queue: Vec<AthenaVaultSynthesisQueueItem>,
 }
 
+/// Read-only projection consumed by engine/CLI status surfaces.
+///
+/// The underlying JSONL ledgers and [`AthenaStore`] remain authoritative; this
+/// value does not create or mutate a second queue.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AthenaOperatorStatus {
+    pub schema_version: String,
+    pub storage_root: String,
+    pub synthesis_queue: AthenaSynthesisQueueSummary,
+    pub governance: AthenaGovernanceCounterSummary,
+    pub learning: AthenaLearningCounterSummary,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AthenaSynthesisQueueSummary {
+    pub authority: String,
+    pub pending_total: usize,
+    pub completed_total: usize,
+    pub malformed_total: usize,
+    pub empty: bool,
+    pub pending: Vec<AthenaVaultSynthesisQueueItem>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AthenaGovernanceCounterSummary {
+    pub owner: String,
+    pub policy_ready_promotions_total: usize,
+    pub policy_ready_regressions_total: usize,
+    pub malformed_records_total: usize,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AthenaLearningCounterSummary {
+    pub owner: String,
+    pub task_emission_receipts_total: usize,
+    pub task_emission_success_total: usize,
+    pub task_emission_skipped_total: usize,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ClassificationCacheProfile {
+    pub schema_version: String,
+    pub iterations: usize,
+    pub unique_mean_nanoseconds: u64,
+    pub cached_mean_nanoseconds: u64,
+    pub persistent_cache_recommended: bool,
+    pub decision_threshold_nanoseconds: u64,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct AthenaSourceFreshness {
     pub source_id: String,
     pub last_full_refresh_utc: String,
     pub age_seconds: u64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct AthenaStaleSourceAdvisory {
+    pub severity: String,
+    pub message: String,
+    pub source_ids: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -577,6 +633,9 @@ pub struct AthenaStatus {
     pub source_provenance_coverage_ratio: f64,
     pub source_freshness_total: usize,
     pub oldest_source_age_seconds: Option<u64>,
+    pub stale_source_threshold_seconds: u64,
+    pub stale_sources_total: usize,
+    pub stale_source_advisory: Option<AthenaStaleSourceAdvisory>,
     pub source_freshness: Vec<AthenaSourceFreshness>,
     pub active_crawls_total: usize,
     pub active_crawls: Vec<AthenaActiveCrawl>,
@@ -592,7 +651,27 @@ pub struct AthenaStatus {
 
 impl AthenaStore {
     pub fn new(root: impl AsRef<Path>) -> Result<Self> {
-        let layout = WorkspaceLayout::for_store_root(root);
+        if cfg!(test) {
+            let mut layout = WorkspaceLayout::isolated(root);
+            if let Some(path) = std::env::var_os("ARDA_HADES_ACTION_QUEUE_PATH") {
+                layout.hades_queue_path = path.into();
+            }
+            if let Some(path) = std::env::var_os("ARDA_WARDEN_QUEUE_PATH") {
+                layout.warden_queue_path = path.into();
+            }
+            Self::from_layout(layout, false)
+        } else {
+            Self::from_layout(WorkspaceLayout::for_store_root(root), true)
+        }
+    }
+
+    /// Construct a hermetic store whose ingest side effects remain under
+    /// `root`. Intended for benchmarks and diagnostic probes.
+    pub fn new_isolated(root: impl AsRef<Path>) -> Result<Self> {
+        Self::from_layout(WorkspaceLayout::isolated(root), false)
+    }
+
+    fn from_layout(layout: WorkspaceLayout, attach_mnemosyne: bool) -> Result<Self> {
         let workspace_root = layout::arda_root();
         let governance_base =
             if layout.root.is_relative() || layout.root.starts_with(&workspace_root) {
@@ -677,7 +756,9 @@ impl AthenaStore {
         let interceptors = IngestPipeline::new();
         interceptors.register(HadesQueueInterceptor::new(&hades_queue_path));
         interceptors.register(WardenQueueInterceptor::new(&warden_queue_path));
-        interceptors.register(MnemosyneInterceptor::from_default());
+        if attach_mnemosyne {
+            interceptors.register(MnemosyneInterceptor::from_default());
+        }
 
         let persisted_digest_index = index::load_index(&digest_index_path, &books_dir)?;
         Ok(Self {
@@ -2438,6 +2519,51 @@ mod tests {
         assert!(first.safe_local);
         assert!(!first.human_gate_required);
         assert_eq!(first.risk, "low");
+        let operator = store.operator_status().expect("operator status");
+        assert_eq!(operator.synthesis_queue.pending_total, 2);
+        assert!(!operator.synthesis_queue.empty);
+        assert_eq!(operator.governance.owner, "arda-varda");
+        assert_eq!(operator.learning.owner, "arda-varda");
+    }
+
+    #[test]
+    fn operator_status_covers_empty_completed_and_malformed_queue_states() {
+        let dir = tempdir().expect("tempdir");
+        let store = AthenaStore::new(dir.path()).expect("store");
+        let empty = store.operator_status().expect("empty status");
+        assert!(empty.synthesis_queue.empty);
+
+        let ingested = store
+            .ingest(
+                "https://docs.rs/tokio/latest/tokio/",
+                "athena",
+                "operator completed state",
+            )
+            .expect("documentation ingest");
+        writeln!(
+            std::fs::OpenOptions::new()
+                .append(true)
+                .open(&store.policy_readiness_path)
+                .expect("policy readiness"),
+            "{}",
+            serde_json::json!({
+                "source_id": ingested.id,
+                "policy_readiness": "policy_ready"
+            })
+        )
+        .expect("write completed policy record");
+        std::fs::OpenOptions::new()
+            .append(true)
+            .open(&store.policy_readiness_path)
+            .expect("policy readiness")
+            .write_all(b"not-json\n")
+            .expect("write malformed record");
+
+        let status = store.operator_status().expect("operator status");
+        assert_eq!(status.synthesis_queue.pending_total, 0);
+        assert_eq!(status.synthesis_queue.completed_total, 1);
+        assert_eq!(status.synthesis_queue.malformed_total, 1);
+        assert!(!status.synthesis_queue.empty);
     }
 
     #[test]

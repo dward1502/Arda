@@ -605,6 +605,7 @@ mod tests {
     #[tokio::test]
     async fn http_contract_status_ingest_query() {
         let _guard = env_guard();
+        std::env::set_var("ATHENA_STALE_SOURCE_THRESHOLD_SECONDS", "0");
         let dir = tempdir().expect("tempdir");
         let store = AthenaStore::new(dir.path()).expect("store");
         let app = build_router(store);
@@ -653,6 +654,12 @@ mod tests {
         let value: Value = serde_json::from_slice(&body).expect("refreshed status json");
         assert_eq!(value["status"]["source_freshness_total"], 1);
         assert!(value["status"]["oldest_source_age_seconds"].is_number());
+        assert_eq!(value["status"]["stale_source_threshold_seconds"], 0);
+        assert_eq!(value["status"]["stale_sources_total"], 1);
+        assert_eq!(
+            value["status"]["stale_source_advisory"]["severity"],
+            "advisory"
+        );
         assert_eq!(value["status"]["active_crawls_total"], 0);
         assert_eq!(
             value["status"]["recent_completed_pipelines"]
@@ -682,6 +689,7 @@ mod tests {
             .await
             .expect("query body");
         let value: Value = serde_json::from_slice(&body).expect("query json");
+        std::env::remove_var("ATHENA_STALE_SOURCE_THRESHOLD_SECONDS");
         let total_matches = value
             .get("query")
             .and_then(|q| q.get("total_matches"))

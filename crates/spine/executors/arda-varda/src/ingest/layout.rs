@@ -71,6 +71,32 @@ impl WorkspaceLayout {
             warden_queue_path,
         }
     }
+
+    /// Construct a hermetic layout for benchmarks and other read/write probes.
+    /// No path in this layout resolves into the live Arda workspace.
+    pub fn isolated(root: impl AsRef<Path>) -> Self {
+        let root = root.as_ref().to_path_buf();
+        Self {
+            store: AthenaStorePaths {
+                books_dir: root.join("books"),
+                digest_path: root.join("digest.jsonl"),
+                crawl_receipts_path: root.join("crawl_receipts.jsonl"),
+                uncertainty_selections_path: root.join("uncertainty_selections.jsonl"),
+                crawl_artifacts_dir: root.join("crawls"),
+                deep_queue_path: root.join("deep_queue.jsonl"),
+                scholarly_reenrichment_path: root.join("scholarly_reenrichment.jsonl"),
+                deep_graph_path: root.join("deep_graph.jsonl"),
+                policy_readiness_path: root.join("policy_readiness.jsonl"),
+                planning_task_receipts_path: root.join("planning_task_receipts.jsonl"),
+                digest_index_path: root.join("digest-index-v1.json"),
+                root: root.clone(),
+            },
+            human_sources_dir: root.join("operator-library/sources"),
+            machine_index_path: root.join("machine-library/index/sources.jsonl"),
+            hades_queue_path: root.join("side-effects/hades.jsonl"),
+            warden_queue_path: root.join("side-effects/warden.jsonl"),
+        }
+    }
 }
 
 impl std::ops::Deref for WorkspaceLayout {
@@ -137,5 +163,21 @@ mod tests {
         assert!(layout
             .machine_index_path
             .ends_with("data/knowledge/athena/index/sources.jsonl"));
+    }
+
+    #[test]
+    fn isolated_layout_keeps_every_write_beneath_the_store_root() {
+        let root = tempfile::tempdir().expect("tempdir");
+        let layout = WorkspaceLayout::isolated(root.path());
+
+        for path in [
+            &layout.store.root,
+            &layout.human_sources_dir,
+            &layout.machine_index_path,
+            &layout.hades_queue_path,
+            &layout.warden_queue_path,
+        ] {
+            assert!(path.starts_with(root.path()), "{} escaped", path.display());
+        }
     }
 }

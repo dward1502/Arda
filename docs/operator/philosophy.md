@@ -15,12 +15,15 @@ soterion:
 
 Canonical readable philosophy path for boot and agent startup.
 
-The active working note remains:
-- [Notes/thoughts.md](04-Leadership/CEO/thoughts.md)
+Current operator context is maintained in:
+
+- [Onboarding](onboard.md)
+- [Company view](company-view.md)
 
 This top-level file exists so sovereign doctrine that reads `docs/operator/philosophy.md`
 has a stable, human-readable entrypoint.
 
 ## Current Pointer
 
-Use [Notes/thoughts.md](04-Leadership/CEO/thoughts.md) for the live thought stream.
+Use this document as the stable philosophy entry point and the linked operator
+documents for current system and company context.

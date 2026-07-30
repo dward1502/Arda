@@ -1,5 +1,10 @@
 # arda-economics module index
 
+Package entry points:
+
+- [`Cargo.toml`](Cargo.toml) — package metadata, features, and dependencies
+- [`src/`](src/) — authoritative Rust implementation modules indexed below
+
 | Module | Responsibility |
 |---|---|
 | `economics.rs` | Provider cost models, spend accumulation, ROI, and budget alerts |

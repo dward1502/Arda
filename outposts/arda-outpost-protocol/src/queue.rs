@@ -145,7 +145,7 @@ impl OutpostQueue {
         let inner = guard
             .iter_mut()
             .find(|item| item.topic == topic)
-            .ok_or_else(|| ObserveError)?;
+            .ok_or(ObserveError)?;
 
         let queued = inner.buffer.pop_front();
         if let Some(queued) = &queued {

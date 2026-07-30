@@ -54,7 +54,7 @@ async fn main() -> anyhow::Result<()> {
     // Resolve supervised services from data (services.toml). To add/remove an
     // app (launcher, HUD, `manwe` gateway), edit the toml — not this file.
     let root = repo_root();
-    let reg = Registry::load(std::path::Path::new(SERVICES_TOML))
+    let reg = Registry::load(&root.join(SERVICES_TOML))
         .map_err(|e| anyhow::anyhow!("{e}\n(running from {root:?}; expected {SERVICES_TOML})"))?;
     let (services, errors) = reg.resolve(&root, cli.no_ui);
 

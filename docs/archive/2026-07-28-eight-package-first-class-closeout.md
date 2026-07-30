@@ -269,6 +269,11 @@ Closeout evidence:
 
 **Objective:** Close the shared outpost wire contract before changing scout behavior.
 
+**Status:** Complete on 2026-07-29. Canonical snake_case wire values, legacy
+v1 decoding, malformed-value rejection, explicit non-execution authority, the
+complete source/type map, canonical crate documents, and the scout consumer
+migration are verified.
+
 **Primary files:**
 
 - `outposts/arda-outpost-protocol/src/**`
@@ -279,16 +284,36 @@ Closeout evidence:
 
 Tasks:
 
-1. Classify every protocol type and schema constant.
-2. Pin round-trip and malformed-fixture behavior for manifests, dispatches, findings, evidence, chat, health, and authority fields actually present in live source.
-3. Require advisory/presentation/execution-prohibited boundaries without expanding authority.
-4. Verify scout against the finalized contract.
+1. [x] Classified every live protocol type and schema constant. No manifest,
+   dispatch, finding, evidence, chat, or health-report envelope exists; health
+   is only an observation scope.
+2. [x] Pinned canonical/legacy round trips, unknown-value rejection, schema
+   mismatch rejection, feedback conversion, queue capacity, and retry behavior.
+3. [x] Required advisory/presentation/execution-prohibited boundaries without
+   expanding authority; all classes explicitly deny execution.
+4. [x] Migrated and verified `arda-outpost-scout` against canonical custom-scope
+   output while preserving legacy stored-observation input.
+
+Closeout evidence:
+
+- Protocol: 11 integration tests passed in both no-default and all-feature
+  modes; fmt, check, strict Clippy, and warning-denied Rustdoc passed.
+- Direct consumer: all-target/all-feature check passed and all 20 scout tests
+  passed.
+- Canonical documents: `README.md`, `STATUS.md`, `BREAKDOWN.md`, `INDEX.md`,
+  and `OWNERSHIP.md`.
 
 ---
 
 ## Packet 6 — `arda-outpost-scout`
 
 **Objective:** Prove bounded, receipted, source-bearing scouting without queue/approval authority and reconcile it with the active Pi5 outpost plan.
+
+**Status:** Complete locally on 2026-07-29. Fixed-policy and expiry validation,
+source-bearing HTTP(S) URL enforcement, advisory observations, append-only Vairë receipts,
+root/HUD consumer proofs, canonical crate documents, and Pi5 plan reconciliation
+are verified. Current-source AArch64 rebuild/redeploy remains explicitly open in
+the Pi5 plan because the active Warden binary predates this repair.
 
 **Primary files:**
 
@@ -301,16 +326,40 @@ Tasks:
 
 Tasks:
 
-1. Preserve current user work in `src/memory.rs` and `tests/survey_fixtures.rs`.
-2. Verify allowlist, provenance, expiry, advisory authority, bounded model/tool access, and append-only receipt behavior.
-3. Prove the root harness consumer and one projection consumer.
-4. Update the existing Pi5 plan’s own checklist to live paths (`outposts/**`, not stale `crates/outposts/**`) and actual completion status.
+1. [x] Preserved the clean pre-task state of `src/memory.rs` and
+   `tests/survey_fixtures.rs` without modifying either file.
+2. [x] Required the sole allowlisted source-policy ID, bounded query/TTL/result
+   limits, operator-fixed SearXNG tool access, HTTP(S) source provenance,
+   advisory authority, and append-only receipted Vairë storage. The crate has no
+   model/tool-execution, queue-write, approval, or promotion surface.
+3. [x] Proved the root `arda-engine` HTTP forwarding consumer and ARDA HUD's
+   read-only scout evidence/review projection consumer.
+4. [x] Reconciled the Pi5 plan to live `outposts/**`/`apps/**` paths, executable
+   checklist state, current Warden/CITADEL service evidence, and truthful open
+   Athena/council/CITADEL/deployment work.
+
+Closeout evidence:
+
+- Scout: 25 tests passed in both no-default and all-feature modes; all-target
+  checks, rustfmt, strict Clippy, and warning-denied Rustdoc passed.
+- Root consumer: focused harness forwarding test and strict `arda-engine` Clippy
+  passed.
+- Projection consumer: all 259 ARDA HUD tests across 70 files and production
+  build passed.
+- Live Warden: advisory health passed; one research request returned two HTTP(S)
+  sources and recall returned one Vairë memory receipt.
 
 ---
 
 ## Packet 7 — `arda-launcher`
 
 **Objective:** Replace placeholder Tauri wiring with the real onboarding command surface, exercise existing tests, and establish truthful frontend/backend first-class documentation.
+
+**Status:** Complete locally on 2026-07-29. The existing backend command and
+test wiring was verified, the frontend now has tested typed contracts and a
+read-only onboarding panel, native/frontend versions are aligned at `0.2.0`,
+and canonical app documents record the coordinated Manwe endpoint boundary and
+the external AppImage toolchain limitation.
 
 **Primary files:**
 
@@ -323,17 +372,45 @@ Tasks:
 
 Tasks:
 
-1. Verify whether onboarding tests are compiled; correct module wiring if they are not.
-2. Remove the sample `greet` command only when real typed onboarding commands replace it.
-3. Add frontend command-contract tests before wiring onboarding panels.
-4. Replace hardcoded `:7171` assumptions only through the coordinated environment/fleet discovery contract; preserve compatibility until all consumers are verified.
-5. Run Rust strict gates plus `pnpm` lint/test/build and `pnpm run tauri build` when packaging prerequisites are available.
+1. [x] Verified `onboarding/tests.rs` is compiled through
+   `#[cfg(test)] mod tests`; all eight tests are discovered and pass, so no
+   corrective module edit was necessary.
+2. [x] Verified the sample `greet` command was already absent and preserved the
+   real typed `registry_status`, `readiness_status`, and `service_plan_status`
+   command surface.
+3. [x] Added RED-first frontend command-contract tests before wiring the
+   readiness/service-plan onboarding panel. Exact commands, root arguments, and
+   typed serialized responses are pinned.
+4. [x] Verified launcher production code has no `:7171` literal. Preserved
+   `MANWE_BASE_URL`/`ARDA_MANWE_BASE_URL` discovery and the workspace's existing
+   cross-consumer `:7171` compatibility default pending a coordinated migration.
+5. [x] Passed Rust strict gates and `pnpm` test/lint/build. The exact
+   `pnpm run tauri build` produced the v0.2 binary, DEB, and RPM, then reached
+   the known old-`linuxdeploy` `.relr.dyn` incompatibility; direct
+   `appimagetool` fallback assembly and extraction verification passed.
+
+Closeout evidence:
+
+- Backend: 8 onboarding tests passed; rustfmt and strict all-target/all-feature
+  Clippy passed.
+- Frontend: 2 Vitest contract tests passed; Oxlint reported 0 warnings/errors;
+  TypeScript/Vite production build passed.
+- Packaging: v0.2 release binary, DEB, RPM, populated AppDir, and manually
+  assembled/extracted AppImage verified. Normal Tauri AppImage wrapping remains
+  externally blocked by its cached `strip` rejecting section type `0x13`.
+- Canonical documents: `README.md`, `STATUS.md`, `BREAKDOWN.md`, `INDEX.md`, and
+  `OWNERSHIP.md`.
 
 ---
 
 ## Packet 8 — root `arda` package
 
 **Objective:** Close the daemon package last as the verified composition root for registry resolution, supervision, harness, outpost discovery, and shutdown.
+
+**Status:** Complete locally on 2026-07-30. Repository-root-relative registry
+loading, fail-before-spawn startup, Warden environment/fleet projection,
+`--once`/`--no-ui`, live harness startup, SIGINT shutdown, child reaping, direct
+dependency verification, and composition-boundary documentation are proven.
 
 **Primary files:**
 
@@ -346,21 +423,56 @@ Tasks:
 
 Tasks:
 
-1. Add focused tests around repository-root discovery, Warden URL precedence, registry validation, and `--once` semantics where extraction is needed for testability.
-2. Prove required-service failures, `--no-ui`, signal shutdown, harness startup, and no child spawn during `--once`.
-3. Compile all direct workspace dependencies and run the maintained daemon smoke.
-4. Run workspace-wide check/test/Clippy only after package-local gates are green; classify any unrelated blocker precisely.
-5. Reconcile root documentation with the actual composition boundary.
+1. [x] Added five CLI-level integration tests covering ancestor repository-root
+   discovery, Warden environment-over-fleet precedence, malformed registry
+   rejection, required-service failures, and `--once` semantics.
+2. [x] Proved `--no-ui` filters required UI services without dropping headless
+   services, `--once` starts no child, the harness becomes reachable, SIGINT
+   fans out shutdown, and the supervised child is reaped.
+3. [x] Passed package-local gates, all-target/all-feature check/test/strict
+   Clippy for the sole direct workspace dependency (`arda-engine`), and the
+   maintained `./target/debug/arda --once --no-ui` real-registry smoke.
+4. [x] After local gates were green, workspace all-target/all-feature check and
+   strict Clippy passed. Workspace tests exposed one unrelated `arda-varda`
+   shared-state failure after 119 sibling tests; the exact test passes alone.
+5. [x] Reconciled root `README.md` and created `docs/root-daemon.md` as the
+   focused package status/breakdown/ownership document. `services.toml` and
+   `config/fleet.toml` required no changes.
+
+Closeout evidence:
+
+- Root package: 5 integration tests, fmt, all-target/all-feature check, strict
+  Clippy, and warning-denied Rustdoc passed.
+- Direct dependency: 11 `arda-engine` tests and strict gates passed.
+- Maintained smoke: one headless `manwe` service resolved and `--once` exited
+  before harness, supervisor, or child startup.
+- Workspace: check, the full all-feature test suite, and strict Clippy passed.
+- Closeout test isolation repairs made the Manwe model fixture deterministic,
+  invalidated stale Varda indexes across live store instances, and isolated the
+  Oromë background-signal assertion from host pressure admission.
+- Production repair: registry loading now uses the discovered repository root
+  rather than the process working directory.
 
 ---
 
 ## Final workspace closeout
 
-1. Re-run `cargo metadata --no-deps --format-version=1` and account for every package.
-2. Run `cargo check --workspace --all-targets --all-features`.
-3. Run `cargo test --workspace --all-features` if runtime-state isolation is proven.
-4. Run strict Clippy package-by-package, then workspace-wide.
-5. Validate Markdown links and exact index coverage for all closed packages.
-6. Verify active plans contain only genuine future work and completed crate-local trackers are absent.
-7. Compare final status with the initial dirty path snapshot and report task-owned changes separately from preserved work.
-8. Do not commit or push unless explicitly requested.
+**Status:** Complete (2026-07-29).
+
+1. `cargo metadata --no-deps --format-version=1` accounted for all 15 workspace
+   packages and 15 default members.
+2. `cargo check --workspace --all-targets --all-features` passed.
+3. `cargo test --workspace --all-features` passed after deterministic runtime
+   state and fixture isolation was proven.
+4. Strict Clippy passed for all 15 packages individually and workspace-wide.
+5. Repository Markdown link validation passed with zero broken local links;
+   all seven crate/app package indexes cover their 56 maintained direct entries.
+   The root composition package is covered by `docs/root-daemon.md` as permitted
+   by Packet 8.
+6. Closed package directories contain no completed crate-local trackers. The
+   remaining documents under `docs/plans/` and `arda-governance/PLAN.md` describe
+   genuine future or deferred work.
+7. Task-owned paths were separated from preserved runtime/user state before
+   staging. Generated runtime ledgers, queues, metrics, and projections remain
+   uncommitted.
+8. The verified task-owned closeout scope is ready to commit and push.

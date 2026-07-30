@@ -10,14 +10,16 @@
 
 ---
 
-## Verified baseline — 2026-07-23
+## Verified baseline — 2026-07-29
 
-- `ssh warden` → `numenor@100.110.85.37`: operational with key auth, passwordless sudo, and linger.
-- Warden `llama-server.service`: active/enabled on `0.0.0.0:1234`; model `Qwen3.5-4B-Q4_K_M.gguf`.
-- `ssh citadel` and `ssh raspberrypi` → `citadel@100.119.130.127`: operational with key auth, passwordless sudo, and linger.
-- CITADEL `relic.service`: active/enabled on `0.0.0.0:8091`.
-- CITADEL `citadel-kiosk.service`: active/enabled and opens `http://127.0.0.1:8091/`.
-- CITADEL has no deployed scout worker, chatbot bridge, council worker, or ARDA HUD companion service.
+- `ssh warden` → `numenor@100.110.85.37`: operational with non-interactive key auth.
+- Warden `llama-server.service`: active.
+- Warden `arda-warden-scout.service`: active/enabled and bound to `100.110.85.37:8092`.
+- Scout `/health`: `status=ok`, `source=node-pi5-warden`, `authority=advisory`.
+- One live scout request returned two HTTP(S) sources and was recalled with one Vairë memory receipt and advisory authority.
+- `ssh citadel` and `ssh raspberrypi` → `citadel@100.119.130.127`: operational with non-interactive key auth.
+- CITADEL `relic.service` and `citadel-kiosk.service`: active.
+- CITADEL `arda-citadel-bridge.service`: inactive.
 - Canonical role contract: `core/state/embodied_interface.json`.
 - Canonical node connectivity: `config/fleet.toml`.
 
@@ -33,65 +35,75 @@
 
 **Objective:** Define node identity, request, response, health, and receipt payloads used by both Pi services.
 
-**Files:**
-- Create: `crates/outposts/arda-outpost-protocol/Cargo.toml`
-- Create: `crates/outposts/arda-outpost-protocol/src/lib.rs`
-- Create: `crates/outposts/arda-outpost-protocol/tests/fixtures.rs`
-- Modify: `Cargo.toml`
+**Status:** Partial. Observation/authority contracts are first-class; manifest, dispatch, health, chatbot, and presence envelopes remain absent.
+
+**Live files:**
+- Existing: `outposts/arda-outpost-protocol/Cargo.toml`
+- Existing: `outposts/arda-outpost-protocol/src/{lib,observation,authority}.rs`
+- Existing: `outposts/arda-outpost-protocol/tests/observation_authority.rs`
+- Planned/absent: manifest, dispatch, health, chatbot, and presence modules
 - Reference: `core/state/embodied_interface.json`
 
 **Steps:**
-1. Write fixture tests for `OutpostManifest`, `ScoutDispatch`, `ScoutFinding`, `CouncilEvidence`, `ChatTurn`, and `OutpostHealth` JSON round trips.
-2. Assert authority fields distinguish `advisory`, `presentation`, and `execution_prohibited`.
-3. Implement only the shared serde types and schema constants needed by the fixtures.
-4. Run `cargo test -p arda-outpost-protocol` and expect all fixtures to pass.
+1. [ ] Define and test the absent shared envelopes only when a live producer/consumer requires them.
+2. [x] Assert canonical observation classification and authority wire values.
+3. [x] Prove every observation authority class prohibits execution.
+4. [x] Pass focused protocol tests and strict crate gates.
 
 ### Task 2: Build the governed Warden scout worker
 
 **Objective:** Let Warden accept bounded scout requests, use its local model or Manwe, and return source-bearing findings.
 
-**Files:**
-- Create: `crates/outposts/arda-warden-scout/Cargo.toml`
-- Create: `crates/outposts/arda-warden-scout/src/main.rs`
-- Create: `crates/outposts/arda-warden-scout/tests/dispatch_contract.rs`
-- Create: `deploy/pi5/arda-warden-scout.service`
-- Modify: `Cargo.toml`
+**Status:** Partial/operational. The local crate contract and live service are proven. The deployed binary predates the 2026-07-29 policy/expiry repair, so current-source AArch64 rebuild/redeploy remains open.
+
+**Live files:**
+- Existing: `outposts/arda-outpost-scout/Cargo.toml`
+- Existing: `outposts/arda-outpost-scout/src/{main,research,runtime,memory}.rs`
+- Existing: `outposts/arda-outpost-scout/tests/{research_fixtures,runtime_api,memory_fixtures}.rs`
+- Existing: `config/systemd/arda-warden-scout.service`
+- Existing: `config/outposts/warden/research-topics.json`
+- Deliberately absent: model client and general tool-execution module
 
 **Steps:**
-1. Write tests proving requests without an allowlisted source policy are rejected.
-2. Write tests proving findings require URLs/provenance and cannot encode approval.
-3. Implement an HTTP service bound to the Tailscale interface or loopback-forwarded surface.
-4. Route model work to `http://100.110.85.37:1234/v1` for local summaries and Manwe for tool-backed internet research.
-5. Persist append-only local receipts and return their IDs to Arda.
-6. Build for `aarch64-unknown-linux-gnu` or build natively on Warden.
-7. Deploy with `rsync`, install the user unit, and verify active/enabled plus a real source-cited scout result.
+1. [x] Reject missing/unallowlisted source policy and expired or overlong-validity requests before network access.
+2. [x] Require valid HTTP(S) result URLs/provenance and emit advisory observations with no approval field.
+3. [x] Run an HTTP service on the Warden Tailscale interface.
+4. [ ] Route model work through Warden inference; the current bounded scout intentionally has no model client.
+5. [x] Persist append-only Vairë observations and return canonical memory receipt IDs.
+6. [ ] Build the 2026-07-29 source for AArch64 Linux; the local Rust toolchain does not have that target installed.
+7. [ ] Redeploy the current source. The live active/enabled service and real source-cited receipt are proven, but the binary predates this Packet's repair.
 
 ### Task 3: Wire scout evidence into Athena and council
 
 **Objective:** Make Pi findings visible to autonomous flows without bypassing governance.
 
-**Files:**
-- Modify: the existing producer that owns `data/athena/scout_requests.jsonl`
-- Modify: the existing producer that owns `data/athena/scout_findings.jsonl`
-- Modify: the existing council conversation producer for `data/council/agent_conversations.jsonl`
-- Test: adjacent producer/integration tests discovered before implementation
+**Status:** Partial. Root HTTP consumption, Vairë receipts, and the ARDA HUD evidence projection are proven; no live producer owns the Athena scout ledgers/runtime projection.
+
+**Live files:**
+- Scout producer: `outposts/arda-outpost-scout/src/{runtime,research,memory}.rs`
+- Root HTTP consumer: `crates/engine/src/harness.rs`
+- Planned projection stores: `data/athena/scout_requests.jsonl`, `data/athena/scout_findings.jsonl`, `core/state/scout_runtime.json`
+- Existing read-only projection consumer: `apps/arda-hud/src/lib/{ardaSource,reviewGateDerivation}.ts`
+- Athena/council projection producer owner: unresolved; no source writer was found live
 
 **Steps:**
-1. Add a failing integration fixture for a Warden request/finding lifecycle.
-2. Require node ID, source policy, expiry, provenance, and advisory authority.
-3. Project accepted findings into `core/state/scout_runtime.json`.
-4. Permit council consumption as evidence; prohibit direct task-queue writes.
-5. Run focused producer tests and verify a real Warden receipt reaches the projection.
+1. [ ] Add durable Athena scout request/finding producers.
+2. [x] Require source policy and expiry at the scout boundary; runtime state supplies node identity and emits provenance/advisory authority.
+3. [ ] Produce accepted findings into `core/state/scout_runtime.json`.
+4. [x] Project existing scout rows in ARDA HUD as evidence/review state without approval receipts or automatic promotion.
+5. [ ] Carry real Warden receipt linkage into the Athena projection; current receipts terminate in Vairë.
 
 ### Task 4: Build the CITADEL chatbot bridge
 
 **Objective:** Give the avatar a governed conversational backend without storing cloud API keys on the Pi.
 
-**Files:**
-- Create: `crates/outposts/arda-citadel-bridge/Cargo.toml`
-- Create: `crates/outposts/arda-citadel-bridge/src/main.rs`
-- Create: `crates/outposts/arda-citadel-bridge/tests/chat_contract.rs`
-- Create: `deploy/pi5/arda-citadel-bridge.service`
+**Status:** Not started in this repository. The proposed bridge crate is absent and the live `arda-citadel-bridge.service` is inactive.
+
+**Planned live-root files:**
+- Create: `outposts/arda-citadel-bridge/Cargo.toml`
+- Create: `outposts/arda-citadel-bridge/src/main.rs`
+- Create: `outposts/arda-citadel-bridge/tests/chat_contract.rs`
+- Create: `config/systemd/arda-citadel-bridge.service`
 - Modify: `/var/home/mythos/Eregion/relic-kiosk` state adapter after inspecting its live schema
 
 **Steps:**
@@ -104,11 +116,13 @@
 
 **Objective:** Show fleet, scout, council, and health summaries on CITADEL without running the full desktop Tauri cockpit.
 
-**Files:**
-- Modify: `/var/home/mythos/Eregion/Arda-HUD/scripts/export-companion-state.mjs`
-- Modify: `/var/home/mythos/Eregion/Arda-HUD/src/lib/ardaPresenceSchema.ts`
-- Create: `/var/home/mythos/Eregion/Arda-HUD/src/lib/piOutpostCompanion.ts`
-- Create: `/var/home/mythos/Eregion/Arda-HUD/src/lib/piOutpostCompanion.test.ts`
+**Status:** Partial operational baseline only. RELIC and the kiosk are active on CITADEL; the dedicated companion export and bridge are absent.
+
+**Live/planned files:**
+- Create: `apps/arda-hud/scripts/export-companion-state.mjs`
+- Create or modify: `apps/arda-hud/src/lib/ardaPresenceSchema.ts`
+- Create: `apps/arda-hud/src/lib/piOutpostCompanion.ts`
+- Create: `apps/arda-hud/src/lib/piOutpostCompanion.test.ts`
 - Modify: `/var/home/mythos/Eregion/relic-kiosk` companion scene after inspection
 
 **Steps:**
@@ -116,12 +130,14 @@
 2. Export only bounded display-safe state; exclude prompts, credentials, and private reasoning.
 3. Add a round-display layout with predictable low-density transitions.
 4. Preserve RELIC idle/stale behavior when the companion bundle is unavailable.
-5. Run focused Vitest tests and `pnpm run build` in `Arda-HUD`.
+5. Run focused Vitest tests and `pnpm run build` in `apps/arda-hud`.
 6. Deploy static assets to CITADEL and verify with `curl :8091` plus kiosk/display evidence.
 
 ### Task 6: Add advisory Pi seats to council flows
 
 **Objective:** Represent Warden and CITADEL as explicit advisory participants with no approval authority.
+
+**Status:** Not started. Packet 6 proves scout findings are advisory and do not write queue/approval state, but it does not register council seats.
 
 **Files:**
 - Modify: `config/governance/autonomy_operating_loop.toml`
@@ -138,6 +154,8 @@
 ### Task 7: Operationalize SSH and service recovery
 
 **Objective:** Make both outposts recoverable with stable commands and no passwords in scripts.
+
+**Status:** Partial. Canonical aliases and user services work; the proposed checked-in status/restart helpers remain absent.
 
 **Files:**
 - Modify: `config/fleet.toml`
@@ -163,10 +181,12 @@ ssh citadel 'systemctl --user status relic.service citadel-kiosk.service --no-pa
 
 ## Final acceptance
 
-- Both aliases connect non-interactively.
-- Warden completes a bounded source-cited scout request and produces an Athena-compatible receipt.
-- CITADEL completes a Manwe-backed chat turn and renders a corresponding safe scene.
-- ARDA HUD exports a Pi-safe state bundle consumed by CITADEL.
-- A council flow records Warden/CITADEL advisory evidence without granting either approval authority.
-- Reboot-path checks prove user units enabled, linger active, and services healthy.
-- No credentials or plaintext SSH passwords exist in deployment/runtime scripts.
+- [x] Both aliases connect non-interactively.
+- [x] Warden completes a bounded source-cited scout request and produces a durable Vairë receipt.
+- [ ] An Athena producer carries that receipt into scout request/finding ledgers and `scout_runtime.json`.
+- [ ] CITADEL completes a Manwe-backed chat turn and renders a corresponding safe scene.
+- [ ] ARDA HUD exports a Pi-safe state bundle consumed by CITADEL.
+- [ ] A council flow records Warden/CITADEL advisory evidence without granting either approval authority.
+- [x] Focused inspection proves the relevant live user units are active/enabled as documented.
+- [ ] Current-source AArch64 build, deploy, and reboot-path smoke automation is reproducible from this repository.
+- [x] No credential-bearing deployment/runtime code was introduced by Packet 6.

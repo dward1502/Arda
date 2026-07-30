@@ -89,6 +89,9 @@ async fn search(
     State(state): State<ScoutRuntimeState>,
     Json(request): Json<ResearchRequest>,
 ) -> Result<Json<SearchResponse>, (StatusCode, Json<Value>)> {
+    request
+        .validate_at(chrono::Utc::now())
+        .map_err(bad_request)?;
     let report = state
         .search
         .search(&request)
@@ -140,6 +143,13 @@ async fn recall(
 fn internal_error(error: impl std::fmt::Display) -> (StatusCode, Json<Value>) {
     (
         StatusCode::INTERNAL_SERVER_ERROR,
+        Json(json!({"error": error.to_string()})),
+    )
+}
+
+fn bad_request(error: impl std::fmt::Display) -> (StatusCode, Json<Value>) {
+    (
+        StatusCode::BAD_REQUEST,
         Json(json!({"error": error.to_string()})),
     )
 }

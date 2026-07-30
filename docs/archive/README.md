@@ -11,10 +11,12 @@ soterion:
 
 > 🜏 Soterion: 📜 organization_index | owner: HADES | status: active | reviewed: 2026-05-21
 
-# Plans
+# Documentation archive
 
-Purpose: HADES-generated directory overview for `core/projects/Plans`.
+Purpose: retain completed historical plans without presenting them as active
+work under `docs/plans/`.
 
-## Contents
+## Completed closeouts
 
-See `INDEX.md` for deterministic child listing.
+- [`2026-07-28-eight-package-first-class-closeout.md`](2026-07-28-eight-package-first-class-closeout.md)
+  — evidence-backed closeout record for the remaining eight Cargo packages.

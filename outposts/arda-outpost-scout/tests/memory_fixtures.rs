@@ -163,3 +163,55 @@ fn configured_fallback_root_is_used_when_the_primary_root_fails() {
     assert_eq!(outcome.failure_reason, "encoded");
     std::env::remove_var("ARDA_PLUTUS_HOME");
 }
+
+#[test]
+fn observation_receipts_are_append_only_and_do_not_create_queue_authority() {
+    let _env = ENV_LOCK
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    let dir = tempdir().expect("tempdir");
+    std::env::set_var("ARDA_PLUTUS_HOME", dir.path().join("plutus"));
+    let bridge = ObservationMemoryBridge::at_root("outpost_scout", dir.path());
+
+    let first = OutpostObservation::new(
+        "node-pi5-warden",
+        ObservationScope::Custom("internet_research".into()),
+        ObservationClassification::RawMeasurement,
+        AuthorityClass::Advisory,
+        serde_json::json!({"query": "first", "results": [{"url": "https://example.com/first"}]}),
+    );
+    let second = OutpostObservation::new(
+        "node-pi5-warden",
+        ObservationScope::Custom("internet_research".into()),
+        ObservationClassification::RawMeasurement,
+        AuthorityClass::Advisory,
+        serde_json::json!({"query": "second", "results": [{"url": "https://example.com/second"}]}),
+    );
+
+    let first_receipt = bridge
+        .encode_observation_to_memory(&first)
+        .expect("first append")
+        .memory_id
+        .expect("first receipt");
+    let second_receipt = bridge
+        .encode_observation_to_memory(&second)
+        .expect("second append")
+        .memory_id
+        .expect("second receipt");
+    let records = bridge
+        .recall_recent_observations(24)
+        .expect("receipt recall");
+
+    assert_ne!(first_receipt, second_receipt);
+    assert_eq!(records.len(), 2);
+    assert!(records
+        .iter()
+        .any(|record| record.memory_id == first_receipt));
+    assert!(records
+        .iter()
+        .any(|record| record.memory_id == second_receipt));
+    assert!(!dir.path().join("core/projects/tasks/queue.jsonl").exists());
+    assert!(!dir.path().join("data/approvals").exists());
+
+    std::env::remove_var("ARDA_PLUTUS_HOME");
+}

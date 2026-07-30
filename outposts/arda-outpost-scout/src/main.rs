@@ -1,7 +1,9 @@
 use std::net::SocketAddr;
 use std::path::PathBuf;
 
-use arda_outpost_scout::{build_runtime_router, ResearchRequest, ScoutRuntimeState};
+use arda_outpost_scout::{
+    build_runtime_router, ResearchRequest, ScoutRuntimeState, ALLOWLISTED_PUBLIC_WEB_POLICY,
+};
 use clap::{Parser, Subcommand};
 use serde::{Deserialize, Serialize};
 
@@ -104,6 +106,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     .json(&ResearchRequest {
                         query: topic.query,
                         limit: topic.limit,
+                        source_policy: ALLOWLISTED_PUBLIC_WEB_POLICY.to_string(),
+                        expires_at: Some(chrono::Utc::now() + chrono::Duration::minutes(15)),
                     })
                     .send()
                     .await?;

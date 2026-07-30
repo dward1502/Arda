@@ -288,7 +288,7 @@ mod tests {
                 Router::new().route(
                     "/search",
                     post(|Json(body): Json<Value>| async move {
-                        Json(json!({"ok": true, "query": body["query"]}))
+                        Json(json!({"ok": true, "request": body}))
                     }),
                 ),
             )
@@ -328,7 +328,12 @@ mod tests {
 
         let response: Value = reqwest::Client::new()
             .post(format!("http://{bound}/v1/scout/search"))
-            .json(&json!({"query": "governance"}))
+            .json(&json!({
+                "query": "governance",
+                "limit": 3,
+                "source_policy": "allowlisted_public_web",
+                "expires_at": "2026-07-30T00:00:00Z"
+            }))
             .send()
             .await
             .expect("proxy request")
@@ -337,7 +342,13 @@ mod tests {
             .json()
             .await
             .expect("proxy body");
-        assert_eq!(response["query"], "governance");
+        assert_eq!(response["request"]["query"], "governance");
+        assert_eq!(response["request"]["limit"], 3);
+        assert_eq!(
+            response["request"]["source_policy"],
+            "allowlisted_public_web"
+        );
+        assert_eq!(response["request"]["expires_at"], "2026-07-30T00:00:00Z");
 
         shutdown.notify_waiters();
         harness_handle.await.expect("harness join");

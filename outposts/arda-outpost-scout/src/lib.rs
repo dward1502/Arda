@@ -13,6 +13,9 @@ pub use memory::{
     ScoutRecallQuery, ScoutRecallReport, ScoutRecallStatus, UnlockCode,
 };
 pub use observation::{CrateObservation, CrateStatus, SurveyReport};
-pub use research::{ResearchError, ResearchReport, ResearchRequest, ResearchResult, SearxngClient};
+pub use research::{
+    ResearchError, ResearchReport, ResearchRequest, ResearchResult, SearxngClient,
+    ALLOWLISTED_PUBLIC_WEB_POLICY,
+};
 pub use runtime::{build_runtime_router, ScoutRuntimeState};
 pub use survey::survey_repo;

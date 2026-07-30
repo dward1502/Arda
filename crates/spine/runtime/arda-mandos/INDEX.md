@@ -9,6 +9,7 @@
 
 ## Source navigation
 
+- [`Cargo.toml`](Cargo.toml) — package metadata, features, and dependencies.
 - [`src/lib.rs`](src/lib.rs) — canonical public re-exports.
 - [`src/reasoning.rs`](src/reasoning.rs) — query contract, policy, gates, outcomes, engine history, and metrics projection.
 - [`src/evidence.rs`](src/evidence.rs) — typed evidence provenance and integrity metadata.

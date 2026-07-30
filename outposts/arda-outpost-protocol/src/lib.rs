@@ -7,7 +7,9 @@ pub mod queue;
 
 pub use authority::AuthorityClass;
 pub use error::OutpostProtocolError;
-pub use observation::{AgentFeedback, OutpostObservation, ObservationClassification, ObservationScope};
-pub use queue::{OutpostQueue, OutpostQueueError, generate_queue, consume_queue};
+pub use observation::{
+    AgentFeedback, ObservationClassification, ObservationScope, OutpostObservation,
+};
+pub use queue::{consume_queue, generate_queue, OutpostQueue, OutpostQueueError};
 
 pub const SCHEMA_VERSION: &str = "arda.outpost.observation.v1";

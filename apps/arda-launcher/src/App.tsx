@@ -4,8 +4,13 @@ import ParticleSmoke from './components/ParticleSmoke'
 import OnboardingText from './scenes/state/OnboardingText'
 import WorldTree from './scenes/components/WorldTree'
 import ArdaLogo from './components/ArdaLogo'
+import OnboardingPanel from './components/OnboardingPanel'
 import Background from './scenes/Background'
-import { invokeRegistryStatus, invokeServicePlanStatus } from './lib/tauri-core-compat'
+import {
+  invokeOnboardingSnapshot,
+  invokeRegistryStatus,
+  type OnboardingSnapshot,
+} from './lib/tauri-core-compat'
 
 export type RegistryGate = 'loading' | 'pass' | 'warn' | 'fail'
 export type OpenGate = 'locked' | 'open'
@@ -28,6 +33,9 @@ const INITIAL_STATE: GateState = {
 
 export default function App() {
   const [state, setState] = useState<GateState>(INITIAL_STATE)
+  const [onboarding, setOnboarding] = useState<OnboardingSnapshot | null>(null)
+  const [onboardingError, setOnboardingError] = useState<string | null>(null)
+  const [onboardingLoading, setOnboardingLoading] = useState(false)
   const showLogo = state.phase >= 8.5
 
   useEffect(() => {
@@ -56,7 +64,7 @@ export default function App() {
       if (cancelled) return
 
       try {
-        const result = await invokeRegistryStatus<{ loaded: boolean; gate_status: RegistryGate; track_count: number; error?: string }>({})
+        const result = await invokeRegistryStatus({})
 
         if (cancelled) return
 
@@ -116,20 +124,34 @@ export default function App() {
   const onBegin = async () => {
     if (state.isReady === false) return
 
-    setState(prev => ({ ...prev, open: prev.open === 'open' ? 'locked' : 'open' }))
-
-    try {
-      await invokeServicePlanStatus<void>({})
-    } catch (e) {
-      console.error('Begin failed', e)
+    if (state.open === 'open') {
       setState(prev => ({ ...prev, open: 'locked' }))
       return
+    }
+
+    setOnboardingLoading(true)
+    setOnboardingError(null)
+    setOnboarding(null)
+
+    try {
+      const snapshot = await invokeOnboardingSnapshot({})
+      setOnboarding(snapshot)
+    } catch (e) {
+      console.error('Onboarding load failed', e)
+      setOnboardingError(`Onboarding commands failed: ${e}`)
+    } finally {
+      setOnboardingLoading(false)
     }
 
     setState(prev => ({ ...prev, phase: 11, open: 'open' }))
   }
 
-  const replay = () => setState(INITIAL_STATE)
+  const replay = () => {
+    setState(INITIAL_STATE)
+    setOnboarding(null)
+    setOnboardingError(null)
+    setOnboardingLoading(false)
+  }
 
   return (
     <div className="w-screen h-screen bg-black overflow-hidden relative">
@@ -149,6 +171,13 @@ export default function App() {
         isReady={state.isReady}
       />
       <ArdaLogo show={showLogo} />
+      {state.open === 'open' && (
+        <OnboardingPanel
+          snapshot={onboarding}
+          error={onboardingError}
+          onClose={() => setState(prev => ({ ...prev, open: 'locked' }))}
+        />
+      )}
       <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-3 z-50">
         <button
           onClick={replay}
@@ -158,14 +187,14 @@ export default function App() {
         </button>
         <button
           onClick={onBegin}
-          disabled={!state.isReady}
+          disabled={!state.isReady || onboardingLoading}
           className={`px-6 py-1.5 text-xs font-mono border rounded transition ${
             state.isReady
               ? 'border-[#f4e9d8]/60 text-[#f4e9d8] hover:bg-[#f4e9d8]/10'
               : 'border-white/20 text-white/40 cursor-not-allowed'
           }`}
         >
-          {state.open === 'open' ? 'OPEN' : 'BEGIN'}
+          {onboardingLoading ? 'LOADING' : state.open === 'open' ? 'CLOSE' : 'BEGIN'}
         </button>
         <div className="px-3 py-1.5 text-xs font-mono text-white/50 border border-white/20 rounded">
           PHASE {state.phase.toFixed(1)}

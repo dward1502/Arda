@@ -40,7 +40,12 @@ async fn search_route_persists_and_recall_returns_the_observation() {
             Request::post("/search")
                 .header("content-type", "application/json")
                 .body(Body::from(
-                    json!({"query":"new agent governance", "limit":3}).to_string(),
+                    json!({
+                        "query":"new agent governance",
+                        "limit":3,
+                        "source_policy":"allowlisted_public_web",
+                        "expires_at": (chrono::Utc::now() + chrono::Duration::minutes(5)).to_rfc3339()
+                    }).to_string(),
                 ))
                 .unwrap(),
         )
@@ -81,7 +86,7 @@ async fn search_route_persists_and_recall_returns_the_observation() {
     assert_eq!(recall_json["status"], "available");
     assert_eq!(recall_json["records"].as_array().unwrap().len(), 1);
     assert_eq!(
-        recall_json["records"][0]["observation"]["scope"]["Custom"],
+        recall_json["records"][0]["observation"]["scope"]["custom"],
         "internet_research"
     );
 }
@@ -105,4 +110,55 @@ async fn health_route_identifies_the_warden_runtime() {
     assert_eq!(json["status"], "ok");
     assert_eq!(json["source"], "node-pi5-warden");
     assert_eq!(json["authority"], "advisory");
+}
+
+#[tokio::test]
+async fn search_route_rejects_requests_without_the_allowlisted_source_policy() {
+    let root = tempfile::tempdir().expect("runtime root");
+    let state = ScoutRuntimeState::new(root.path(), "http://127.0.0.1:9", "node-pi5-warden")
+        .expect("runtime state");
+    let response = build_runtime_router(state)
+        .oneshot(
+            Request::post("/search")
+                .header("content-type", "application/json")
+                .body(Body::from(
+                    json!({
+                        "query": "governed source research",
+                        "limit": 3,
+                        "expires_at": "2099-01-01T00:00:00Z"
+                    })
+                    .to_string(),
+                ))
+                .unwrap(),
+        )
+        .await
+        .expect("search response");
+
+    assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+}
+
+#[tokio::test]
+async fn search_route_rejects_expired_requests_before_network_access() {
+    let root = tempfile::tempdir().expect("runtime root");
+    let state = ScoutRuntimeState::new(root.path(), "http://127.0.0.1:9", "node-pi5-warden")
+        .expect("runtime state");
+    let response = build_runtime_router(state)
+        .oneshot(
+            Request::post("/search")
+                .header("content-type", "application/json")
+                .body(Body::from(
+                    json!({
+                        "query": "expired governed research",
+                        "limit": 3,
+                        "source_policy": "allowlisted_public_web",
+                        "expires_at": "2000-01-01T00:00:00Z"
+                    })
+                    .to_string(),
+                ))
+                .unwrap(),
+        )
+        .await
+        .expect("search response");
+
+    assert_eq!(response.status(), StatusCode::BAD_REQUEST);
 }

@@ -6,10 +6,21 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
 pub enum AuthorityClass {
+    #[serde(alias = "Advisory")]
     Advisory,
+    #[serde(alias = "Presentation")]
     Presentation,
+    #[serde(alias = "ExecutionProhibited")]
     ExecutionProhibited,
+}
+
+impl AuthorityClass {
+    /// Observation authority can inform or render state, never execute work.
+    pub const fn permits_execution(self) -> bool {
+        false
+    }
 }
 
 impl std::fmt::Display for AuthorityClass {

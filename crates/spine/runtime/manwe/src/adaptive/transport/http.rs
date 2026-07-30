@@ -3794,7 +3794,31 @@ mod tests {
 
     #[tokio::test]
     async fn openai_requested_model_sets_forced_provider_and_model_for_exact_match() {
+        let _guard = ENV_LOCK.lock().expect("env lock");
         let dir = tempdir().expect("tempdir");
+        let config_path = dir.path().join("manwe.providers.toml");
+        fs::write(
+            &config_path,
+            r#"
+[[provider]]
+id = "google"
+name = "Google Test"
+base_url = "http://127.0.0.1:9/v1"
+enabled = true
+healthy = true
+access_tier = "free"
+quality_band = "high"
+
+  [[provider.model]]
+  id = "gemini-2.0-flash"
+  capable_tasks = ["chat"]
+  context_window = 32768
+  is_default = true
+"#,
+        )
+        .expect("config write");
+
+        std::env::set_var("ARDA_MANWE_PROVIDER_CONFIG", &config_path);
         let service = ManweService::new(dir.path()).expect("service");
 
         let req = openai_body_to_envelope(
@@ -3806,6 +3830,8 @@ mod tests {
         )
         .await
         .expect("envelope");
+
+        std::env::remove_var("ARDA_MANWE_PROVIDER_CONFIG");
 
         assert_eq!(req.options["force_provider_id"], "google");
         assert_eq!(req.options["force_model_id"], "gemini-2.0-flash");

@@ -796,7 +796,7 @@ impl AthenaStore {
     pub fn warm_digest_index(&self) -> Result<usize> {
         let books_dir = self.books_dir.clone();
         let books_dir_for_ref = self.books_dir.clone();
-        let new_index = index::rebuild_index(&books_dir, |id| {
+        let mut new_index = index::rebuild_index(&books_dir, |id| {
             books_dir_for_ref
                 .join(format!("{id}.jsonl"))
                 .display()
@@ -804,6 +804,7 @@ impl AthenaStore {
         })?;
         let count = new_index.entries.len();
         index::persist_index(&self.digest_index_path, &new_index)?;
+        new_index.persisted_index_mtime = index::persisted_index_mtime(&self.digest_index_path);
         let mut guard = self
             .digest_index
             .write()
@@ -832,13 +833,14 @@ impl AthenaStore {
         F: FnOnce(&index::DigestIndex) -> R,
     {
         let current_mtime = index::books_dir_mtime(&self.books_dir);
+        let current_index_mtime = index::persisted_index_mtime(&self.digest_index_path);
         {
             let guard = self
                 .digest_index
                 .read()
                 .map_err(|e| athena_error(format!("digest index lock poisoned: {e}")))?;
             if let Some(idx) = guard.as_ref() {
-                if idx.is_fresh(current_mtime) {
+                if idx.is_fresh(current_mtime, current_index_mtime) {
                     return Ok(f(idx));
                 }
             }
@@ -857,13 +859,14 @@ impl AthenaStore {
         // Rebuild under write lock — release after.
         let books_dir = self.books_dir.clone();
         let books_dir_for_ref = self.books_dir.clone();
-        let rebuilt = index::rebuild_index(&books_dir, |id| {
+        let mut rebuilt = index::rebuild_index(&books_dir, |id| {
             books_dir_for_ref
                 .join(format!("{id}.jsonl"))
                 .display()
                 .to_string()
         })?;
         index::persist_index(&self.digest_index_path, &rebuilt)?;
+        rebuilt.persisted_index_mtime = index::persisted_index_mtime(&self.digest_index_path);
         let mut guard = self
             .digest_index
             .write()

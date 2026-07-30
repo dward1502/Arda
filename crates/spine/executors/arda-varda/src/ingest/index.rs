@@ -50,6 +50,7 @@ pub(super) struct DigestIndex {
     pub entries: Vec<IndexEntry>,
     pub built_at: Instant,
     pub source_dir_mtime: Option<SystemTime>,
+    pub persisted_index_mtime: Option<SystemTime>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -60,12 +61,20 @@ struct PersistedDigestIndex {
 }
 
 impl DigestIndex {
-    pub(super) fn is_fresh(&self, current_mtime: Option<SystemTime>) -> bool {
+    pub(super) fn is_fresh(
+        &self,
+        current_mtime: Option<SystemTime>,
+        current_index_mtime: Option<SystemTime>,
+    ) -> bool {
         if self.built_at.elapsed() > Duration::from_secs(INDEX_TTL_SECS) {
             return false;
         }
-        self.source_dir_mtime == current_mtime
+        self.source_dir_mtime == current_mtime && self.persisted_index_mtime == current_index_mtime
     }
+}
+
+pub(super) fn persisted_index_mtime(index_path: &Path) -> Option<SystemTime> {
+    fs::metadata(index_path).ok()?.modified().ok()
 }
 
 pub(super) fn books_dir_mtime(books_dir: &Path) -> Option<SystemTime> {
@@ -101,6 +110,7 @@ pub(super) fn load_index(index_path: &Path, books_dir: &Path) -> Result<Option<D
         entries: persisted.entries,
         built_at: Instant::now(),
         source_dir_mtime: mtime,
+        persisted_index_mtime: persisted_index_mtime(index_path),
     }))
 }
 
@@ -177,6 +187,7 @@ pub(super) fn rebuild_index(
                 entries,
                 built_at: Instant::now(),
                 source_dir_mtime: mtime,
+                persisted_index_mtime: None,
             });
         }
         Err(err) => return Err(athena_error(format!("read books_dir: {err}"))),
@@ -202,6 +213,7 @@ pub(super) fn rebuild_index(
         entries,
         built_at: Instant::now(),
         source_dir_mtime: mtime,
+        persisted_index_mtime: None,
     })
 }
 
@@ -304,10 +316,11 @@ pub(super) fn refresh_index_entry(
             entries.push(entry);
         }
         entries.sort_by(|left, right| left.source_id.cmp(&right.source_id));
-        let index = DigestIndex {
+        let mut index = DigestIndex {
             entries,
             built_at: Instant::now(),
             source_dir_mtime: books_dir_mtime(books_dir),
+            persisted_index_mtime: None,
         };
         persist_payload_unlocked(
             index_path,
@@ -317,6 +330,7 @@ pub(super) fn refresh_index_entry(
                 entries: index.entries.clone(),
             },
         )?;
+        index.persisted_index_mtime = persisted_index_mtime(index_path);
         Ok(index)
     })();
     let _ = lock.unlock();

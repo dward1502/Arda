@@ -89,7 +89,7 @@ pub fn analyze_survey(report: &SurveyReport) -> AdvisoryReport {
         report
             .observations
             .iter()
-            .flat_map(|observation| advisories_for_observation(observation))
+            .flat_map(advisories_for_observation)
             .collect()
     };
 
@@ -99,7 +99,7 @@ pub fn analyze_survey(report: &SurveyReport) -> AdvisoryReport {
 pub fn summarize_advisories(report: &AdvisoryReport) -> String {
     let mut parts = Vec::new();
     parts.push(format!("source={}", report.source));
-    parts.push(format!("max_level={}", format!("{:?}", report.max_level)));
+    parts.push(format!("max_level={:?}", report.max_level));
     parts.push(format!("advisories={}", report.advisories.len()));
     for advisory in &report.advisories {
         parts.push(format!(

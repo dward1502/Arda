@@ -67,20 +67,26 @@ impl TryFrom<AgentFeedback> for OutpostObservation {
                 SCHEMA_VERSION, value.schema_version
             )));
         }
-        Ok(value.into_outpost_observation(
-            "arda-outpost-scout://survey".to_string(),
-        ))
+        Ok(value.into_outpost_observation("arda-outpost-scout://survey".to_string()))
     }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "snake_case")]
 pub enum ObservationScope {
+    #[serde(alias = "Crates")]
     Crates,
+    #[serde(alias = "Apps")]
     Apps,
+    #[serde(alias = "Memory")]
     Memory,
+    #[serde(alias = "Health")]
     Health,
+    #[serde(alias = "Environmental")]
     Environmental,
+    #[serde(alias = "RuntimeTelemetry")]
     RuntimeTelemetry,
+    #[serde(alias = "Custom")]
     Custom(String),
 }
 
@@ -99,12 +105,19 @@ impl std::fmt::Display for ObservationScope {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "snake_case")]
 pub enum ObservationClassification {
+    #[serde(alias = "RawMeasurement")]
     RawMeasurement,
+    #[serde(alias = "DerivedEstimate")]
     DerivedEstimate,
+    #[serde(alias = "SelfReport")]
     SelfReport,
+    #[serde(alias = "Default")]
     Default,
+    #[serde(alias = "Unavailable")]
     Unavailable,
+    #[serde(alias = "ExperimentalDerived")]
     ExperimentalDerived,
 }
 

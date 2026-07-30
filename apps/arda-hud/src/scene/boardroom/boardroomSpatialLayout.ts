@@ -23,6 +23,60 @@ export type BoardroomPreviewMode = 'monitor_surface' | 'desk_surface' | 'button'
 export type BoardroomVec3 = [number, number, number]
 export type BoardroomZonePositionOverrides = Record<string, BoardroomVec3>
 
+export type BoardroomConsoleShellRole = 'outer_left' | 'inner_left' | 'center' | 'inner_right' | 'outer_right'
+
+export interface BoardroomConsoleShellSegment {
+  id: string
+  role: BoardroomConsoleShellRole
+  position: BoardroomVec3
+  rotation: BoardroomVec3
+  size: BoardroomVec3
+  accent: string
+}
+
+export const BOARDROOM_CONSOLE_SHELL_SEGMENTS: BoardroomConsoleShellSegment[] = [
+  {
+    id: 'boardroom.console.outer_left',
+    role: 'outer_left',
+    position: [-3.3, -0.18, 1.32],
+    rotation: [0, 0.64, 0],
+    size: [1.9, 0.38, 1.64],
+    accent: '#ffd37a',
+  },
+  {
+    id: 'boardroom.console.inner_left',
+    role: 'inner_left',
+    position: [-1.65, -0.18, 0.56],
+    rotation: [0, 0.28, 0],
+    size: [1.92, 0.4, 1.9],
+    accent: '#5defff',
+  },
+  {
+    id: 'boardroom.console.center',
+    role: 'center',
+    position: [0, -0.18, 0.3],
+    rotation: [0, 0, 0],
+    size: [1.72, 0.42, 2.08],
+    accent: '#d8e7ff',
+  },
+  {
+    id: 'boardroom.console.inner_right',
+    role: 'inner_right',
+    position: [1.65, -0.18, 0.56],
+    rotation: [0, -0.28, 0],
+    size: [1.92, 0.4, 1.9],
+    accent: '#8cffc7',
+  },
+  {
+    id: 'boardroom.console.outer_right',
+    role: 'outer_right',
+    position: [3.3, -0.18, 1.32],
+    rotation: [0, -0.64, 0],
+    size: [1.9, 0.38, 1.64],
+    accent: '#ffa6d9',
+  },
+]
+
 export interface BoardroomSpatialZone {
   id: string
   label: string
@@ -50,7 +104,7 @@ export const BOARDROOM_SPATIAL_ZONES: BoardroomSpatialZone[] = [
     assignmentSlotId: 'monitor_left_1',
     assignmentIndex: 0,
     position: [-3.35, 2.48, -2.7],
-    rotation: [0, 0.34, 0],
+    rotation: [-0.12, 0.42, 0],
     size: [1.62, 0.96, 0.16],
     color: '#5defff',
     previewMode: 'monitor_surface',
@@ -64,7 +118,7 @@ export const BOARDROOM_SPATIAL_ZONES: BoardroomSpatialZone[] = [
     assignmentSlotId: 'monitor_left_2',
     assignmentIndex: 1,
     position: [-1.16, 2.68, -3.06],
-    rotation: [0, 0.12, 0],
+    rotation: [-0.14, 0.16, 0],
     size: [1.62, 0.96, 0.16],
     color: '#5defff',
     previewMode: 'monitor_surface',
@@ -78,7 +132,7 @@ export const BOARDROOM_SPATIAL_ZONES: BoardroomSpatialZone[] = [
     assignmentSlotId: 'monitor_left_3',
     assignmentIndex: 2,
     position: [1.16, 2.68, -3.06],
-    rotation: [0, -0.12, 0],
+    rotation: [-0.14, -0.16, 0],
     size: [1.62, 0.96, 0.16],
     color: '#5defff',
     previewMode: 'monitor_surface',
@@ -92,7 +146,7 @@ export const BOARDROOM_SPATIAL_ZONES: BoardroomSpatialZone[] = [
     assignmentSlotId: 'monitor_left_4',
     assignmentIndex: 3,
     position: [3.35, 2.48, -2.7],
-    rotation: [0, -0.34, 0],
+    rotation: [-0.12, -0.42, 0],
     size: [1.62, 0.96, 0.16],
     color: '#5defff',
     previewMode: 'monitor_surface',
@@ -157,7 +211,7 @@ export const BOARDROOM_SPATIAL_ZONES: BoardroomSpatialZone[] = [
     id: 'boardroom.control.center',
     label: 'Control Core',
     kind: 'control_panel',
-    interaction: 'open_settings',
+    interaction: 'open_workstation',
     binding: 'settings_control',
     position: [0, 0.58, 1.14],
     rotation: [-0.22, 0, 0],
@@ -173,9 +227,9 @@ export const BOARDROOM_SPATIAL_ZONES: BoardroomSpatialZone[] = [
     kind: 'physical_button',
     interaction: 'open_hermes',
     binding: 'human_control',
-    position: [2.92, 0.86, 1.2],
-    rotation: [-0.22, -0.52, 0.02],
-    size: [1.0, 0.22, 0.38],
+    position: [0.95, 0.5, 2.32],
+    rotation: [-0.22, 0, 0],
+    size: [0.82, 0.2, 0.34],
     color: '#a855f7',
     primary: true,
     previewMode: 'button',
@@ -187,8 +241,8 @@ export const BOARDROOM_SPATIAL_ZONES: BoardroomSpatialZone[] = [
     kind: 'physical_button',
     interaction: 'open_hermes',
     binding: 'human_control',
-    position: [1.9, 0.86, 1.22],
-    rotation: [-0.22, -0.52, 0.02],
+    position: [0, 0.5, 2.32],
+    rotation: [-0.22, 0, 0],
     size: [0.84, 0.2, 0.34],
     color: '#22d3ee',
     primary: false,
@@ -201,9 +255,9 @@ export const BOARDROOM_SPATIAL_ZONES: BoardroomSpatialZone[] = [
     kind: 'physical_button',
     interaction: 'open_settings',
     binding: 'settings_control',
-    position: [-0.9, 0.74, 1.86],
-    rotation: [-0.18, 0, 0],
-    size: [0.96, 0.2, 0.34],
+    position: [-0.95, 0.5, 2.32],
+    rotation: [-0.22, 0, 0],
+    size: [0.82, 0.2, 0.34],
     color: '#d8e7ff',
     previewMode: 'button',
   },

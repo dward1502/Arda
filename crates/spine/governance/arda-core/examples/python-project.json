@@ -1,0 +1,20 @@
+{
+  "schema_version": "arda.project-contract.v1",
+  "identity": {"project_id": "550e8400-e29b-41d4-a716-446655440002", "name": "arda-python-example", "kind": "python"},
+  "workspace": {"root": "."},
+  "runtime": {"adapter": "python"},
+  "commands": [
+    {"id": "test", "program": "python3", "args": ["-m", "pytest"], "working_dir": "."}
+  ],
+  "checks": [{"id": "test", "command": "test"}],
+  "artifacts": [{"id": "wheel", "path": "dist/project.whl"}],
+  "permissions": {
+    "authority": "approval_required",
+    "network": {"allow": false},
+    "filesystem": {"write": true},
+    "secrets": {"env_names": ["PYPI_TOKEN"]}
+  },
+  "rollback": {"strategy": "git_revert"},
+  "memory": {"scope": "project"},
+  "provenance": {"declared_by": "arda", "declared_at": "2026-07-30T00:00:00Z", "stage": 4}
+}

@@ -16,6 +16,7 @@ import type { AgentPresenceState, PresenceLedgerStatus } from '../systems/presen
 import { useSceneMaterial } from '../systems/sceneMaterials'
 import BoardroomMissionCue from './BoardroomMissionCue'
 import {
+  BOARDROOM_CONSOLE_SHELL_SEGMENTS,
   BOARDROOM_CONTROL_ZONES,
   BOARDROOM_MONITOR_ZONES,
   getBoardroomSpatialZone,
@@ -26,7 +27,14 @@ import {
   type BoardroomZonePositionOverrides,
 } from './boardroomSpatialLayout'
 import { deriveBoardroomMonitorModelBinding } from './boardroomMonitorModels'
-import type { BoardroomHudInstrumentMap, HudInstrumentModel, HudTone } from './boardroomHudInstruments'
+import {
+  previewPresetForSource,
+  previewTitleForSource,
+  resolveBoardroomHudInstrument,
+  type BoardroomHudInstrumentMap,
+  type HudInstrumentModel,
+  type HudTone,
+} from './boardroomHudInstruments'
 import { deriveBoardroomScreenVisualRefinement } from './boardroomVisualRefinement'
 import PresenceAvatar from './PresenceAvatar'
 import { parseJsonOrNull } from '../../lib/jsonParse'
@@ -172,6 +180,45 @@ function CyberpunkCityWindow({ url }: { url: string }) {
         <planeGeometry args={[8.9, 0.18]} />
         <meshBasicMaterial color="#ff3eb5" transparent opacity={0.22} blending={THREE.AdditiveBlending} />
       </mesh>
+    </group>
+  )
+}
+
+function BoardroomConsoleShell({ material }: { material: THREE.Material }) {
+  return (
+    <group name="boardroom-command-console-shell">
+      {BOARDROOM_CONSOLE_SHELL_SEGMENTS.map((segment) => (
+        <group key={segment.id} name={segment.id} position={segment.position} rotation={segment.rotation}>
+          <mesh material={material} receiveShadow castShadow>
+            <boxGeometry args={segment.size} />
+          </mesh>
+          <mesh position={[0, segment.size[1] / 2 + 0.025, segment.size[2] / 2 - 0.075]}>
+            <boxGeometry args={[segment.size[0] - 0.14, 0.045, 0.08]} />
+            <meshStandardMaterial
+              color="#0a1721"
+              emissive={segment.accent}
+              emissiveIntensity={0.72}
+              metalness={0.74}
+              roughness={0.28}
+            />
+          </mesh>
+          {[-1, 1].map((side) => (
+            <mesh
+              key={side}
+              position={[side * (segment.size[0] / 2 - 0.035), 0, segment.size[2] * 0.12]}
+            >
+              <boxGeometry args={[0.055, segment.size[1] * 0.72, segment.size[2] * 0.58]} />
+              <meshStandardMaterial
+                color="#172633"
+                emissive={segment.accent}
+                emissiveIntensity={0.16}
+                metalness={0.82}
+                roughness={0.34}
+              />
+            </mesh>
+          ))}
+        </group>
+      ))}
     </group>
   )
 }
@@ -424,8 +471,12 @@ function getSlotDetail(assignment: WorkstationManifestDefinition | null): string
   return assignment ? 'Open Workstation' : 'Placeholder'
 }
 
-function getSlotWorkstationZoneId(slot: BoardroomSpatialZone, assignment: WorkstationManifestDefinition | null): string {
-  return assignment?.sourceZoneId ?? `scene_slot:${slot.assignmentSlotId ?? slot.id}`
+function getSlotWorkstationZoneId(
+  slot: BoardroomSpatialZone,
+  assignment: WorkstationManifestDefinition | null,
+  persistedSourceZoneId?: string,
+): string {
+  return assignment?.sourceZoneId ?? persistedSourceZoneId ?? `scene_slot:${slot.assignmentSlotId ?? slot.id}`
 }
 
 function isFleetWorkstationAssignment(assignment: WorkstationManifestDefinition | null): boolean {
@@ -478,8 +529,8 @@ function getDeskActivationId(
 }
 
 
-function toneForAssignment(assignment: WorkstationManifestDefinition | null): HudTone {
-  const source = assignment?.sourceZoneId ?? ''
+function toneForAssignment(assignment: WorkstationManifestDefinition | null, persistedSourceZoneId?: string): HudTone {
+  const source = assignment?.sourceZoneId ?? persistedSourceZoneId ?? ''
   if (source.startsWith('service_')) return 'violet'
   if (source.includes('governance')) return 'gold'
   if (source.includes('human') || source.includes('memory')) return 'mint'
@@ -490,12 +541,13 @@ function toneForAssignment(assignment: WorkstationManifestDefinition | null): Hu
 function instrumentModelForAssignment(
   zone: BoardroomSpatialZone,
   assignment: WorkstationManifestDefinition | null,
+  persistedSourceZoneId?: string,
 ): HudInstrumentModel {
-  const serviceManifest = getSurfaceAdapterManifest(assignment?.sourceZoneId)
-  const tone = toneForAssignment(assignment)
-  const isHermes = assignment?.sourceZoneId === 'hermes_runtime'
-  const seed = (assignment?.sourceZoneId ?? zone.id).split('').reduce((sum, char) => sum + char.charCodeAt(0), 0)
-  const states: Array<'good' | 'warn' | 'alert' | 'dim'> = ['good', 'good', 'warn', 'dim', 'good', seed % 5 === 0 ? 'alert' : 'good']
+  const sourceZoneId = assignment?.sourceZoneId ?? persistedSourceZoneId
+  const serviceManifest = getSurfaceAdapterManifest(sourceZoneId)
+  const tone = toneForAssignment(assignment, persistedSourceZoneId)
+  const isHermes = sourceZoneId === 'hermes_runtime'
+  const seed = (sourceZoneId ?? zone.id).split('').reduce((sum, char) => sum + char.charCodeAt(0), 0)
   const nodes = Array.from({ length: 9 }, (_, index) => {
     const angle = (Math.PI * 2 * index) / 9 + (seed % 7) * 0.08
     const radius = index % 3 === 0 ? 31 : index % 2 === 0 ? 42 : 52
@@ -503,42 +555,142 @@ function instrumentModelForAssignment(
       id: `${zone.id}-${index}`,
       x: 50 + Math.cos(angle) * radius,
       y: 50 + Math.sin(angle) * radius * 0.68,
-      state: states[(index + seed) % states.length],
+      state: 'dim' as const,
     }
   })
 
   return {
-    title: serviceManifest?.provider ?? assignment?.title.replace(/\s+Workstation$/, '') ?? zone.label,
-    eyebrow: isHermes ? 'TERMINAL SURFACE' : serviceManifest ? 'EXTERNAL SURFACE' : zone.previewMode === 'desk_surface' ? 'DESK INSTRUMENT' : 'TACTICAL SURFACE',
+    title: serviceManifest?.provider ?? assignment?.title.replace(/\s+Workstation$/, '') ?? previewTitleForSource(sourceZoneId) ?? zone.label,
+    eyebrow: isHermes ? 'TERMINAL SURFACE' : serviceManifest ? 'EXTERNAL SURFACE' : 'STANDBY SCHEMATIC',
     tone: isHermes ? 'violet' : tone,
-    status: isHermes ? 'external' : serviceManifest ? 'external' : assignment ? 'nominal' : 'offline',
+    status: isHermes || serviceManifest ? 'external' : 'offline',
     glyph: isHermes ? 'HMS' : serviceManifest ? 'EXT' : assignment?.moduleIds[0]?.slice(0, 3).toUpperCase() ?? 'NUL',
+    preset: previewPresetForSource(sourceZoneId),
     nodes,
     links: [[0, 2], [2, 5], [5, 7], [1, 4], [4, 8], [3, 6]],
     rings: [22, 35, 49],
   }
 }
 
+function HudInstrumentVisualization({ model, glowId }: { model: HudInstrumentModel; glowId: string }) {
+  const renderNodes = (withLinks: boolean) => (
+    <>
+      {withLinks ? model.links.map(([from, to]) => (
+        <line
+          className="hud-instrument__link"
+          key={`${from}-${to}`}
+          x1={model.nodes[from].x}
+          y1={model.nodes[from].y}
+          x2={model.nodes[to].x}
+          y2={model.nodes[to].y}
+        />
+      )) : null}
+      {model.nodes.map((node, index) => (
+        <g className={`hud-instrument__node hud-instrument__node--${node.state}`} key={node.id}>
+          <circle cx={node.x} cy={node.y} r={index % 3 === 0 ? 2.7 : 2.1} />
+          {index % 4 === 0 ? <circle cx={node.x} cy={node.y} r="5.2" /> : null}
+        </g>
+      ))}
+    </>
+  )
+
+  return (
+    <svg className={`hud-instrument__scope hud-instrument__scope--${model.preset}`} viewBox="0 0 100 100" role="img" aria-hidden="true">
+      <defs>
+        <radialGradient id={glowId} cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="currentColor" stopOpacity="0.34" />
+          <stop offset="68%" stopColor="currentColor" stopOpacity="0.08" />
+          <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <path className="hud-instrument__grid" d="M 8 25 H 92 M 8 50 H 92 M 8 75 H 92 M 25 8 V 92 M 50 8 V 92 M 75 8 V 92" />
+      <circle className="hud-instrument__glow" cx="50" cy="50" r="48" fill={`url(#${glowId})`} />
+
+      {model.preset === 'topology' ? (
+        <>
+          {model.rings.map((ring, index) => (
+            <circle className={`hud-instrument__ring hud-instrument__ring--${index}`} key={ring} cx="50" cy="50" r={ring} />
+          ))}
+          <path className="hud-instrument__axis" d="M 8 50 H 92 M 50 12 V 88" />
+          {renderNodes(true)}
+          <path className="hud-instrument__sweep" d="M 50 50 L 82 24 A 41 41 0 0 1 88 42" />
+        </>
+      ) : null}
+
+      {model.preset === 'routes' ? (
+        <>
+          {[24, 50, 76].map((y, index) => (
+            <g className="hud-instrument__route" key={y}>
+              <path d={`M 8 ${y} C 30 ${y - 18}, 66 ${y + 18}, 92 ${y}`} />
+              <circle className={`hud-instrument__packet hud-instrument__packet--${index}`} cx={28 + index * 20} cy={y + (index - 1) * 5} r="2.5" />
+            </g>
+          ))}
+          {renderNodes(false)}
+        </>
+      ) : null}
+
+      {model.preset === 'lanes' ? (
+        <>
+          {model.nodes.slice(0, 5).map((node, index) => (
+            <g className="hud-instrument__lane" key={node.id}>
+              <rect x="10" y={14 + index * 16} width="80" height="7" rx="3.5" />
+              <rect className="hud-instrument__lane-fill" x="10" y={14 + index * 16} width={Math.max(16, Math.min(80, node.x * 0.8))} height="7" rx="3.5" />
+              <circle cx={Math.max(18, Math.min(86, node.x * 0.8 + 8))} cy={17.5 + index * 16} r="2" />
+            </g>
+          ))}
+        </>
+      ) : null}
+
+      {model.preset === 'constellation' ? (
+        <>
+          <path className="hud-instrument__constellation-orbit" d="M 12 58 C 26 16, 74 16, 88 58 C 73 87, 27 87, 12 58 Z" />
+          {renderNodes(true)}
+        </>
+      ) : null}
+
+      {model.preset === 'pulse' ? (
+        <>
+          <path className="hud-instrument__pulse-guide" d="M 8 50 H 92" />
+          <polyline
+            className="hud-instrument__pulse-wave"
+            points={model.nodes.map((node, index) => `${8 + index * (84 / Math.max(1, model.nodes.length - 1))},${20 + node.y * 0.58}`).join(' ')}
+          />
+          <path className="hud-instrument__scan" d="M 12 16 V 84" />
+        </>
+      ) : null}
+
+      {model.preset === 'standby' ? (
+        <>
+          <path className="hud-instrument__standby-frame" d="M 14 18 H 86 V 82 H 14 Z M 22 26 L 78 74 M 78 26 L 22 74" />
+          <circle className="hud-instrument__standby-glyph" cx="50" cy="50" r="8" />
+        </>
+      ) : null}
+    </svg>
+  )
+}
+
 function HudInstrumentSurface({
   zone,
   assignment,
+  persistedSourceZoneId,
   instrument,
   onActivate,
 }: {
   zone: BoardroomSpatialZone
   assignment: WorkstationManifestDefinition | null
+  persistedSourceZoneId?: string
   instrument?: HudInstrumentModel
   onActivate: () => void
 }) {
-  const model = instrument ?? instrumentModelForAssignment(zone, assignment)
-  const className = `hud-instrument hud-instrument--${zone.previewMode} hud-instrument--${model.tone}`
+  const model = instrument ?? instrumentModelForAssignment(zone, assignment, persistedSourceZoneId)
+  const className = `hud-instrument hud-instrument--${zone.previewMode} hud-instrument--${model.tone} hud-instrument--${model.status}`
   const glowId = `${zone.id.replace(/[^a-z0-9_-]/gi, '-')}-glow`
 
   return (
     <Html
       center
       transform
-      distanceFactor={zone.previewMode === 'monitor_surface' ? 4.1 : 5.6}
+      distanceFactor={zone.previewMode === 'monitor_surface' ? 4.1 : 4.3}
       position={[0, 0, zone.previewMode === 'monitor_surface' ? 0.12 : 0.28]}
     >
       <button type="button" className={className} onClick={onActivate} aria-label={`Open ${model.title}`}>
@@ -549,39 +701,11 @@ function HudInstrumentSurface({
           </span>
           <i>{model.glyph}</i>
         </span>
-        <svg className="hud-instrument__scope" viewBox="0 0 100 100" role="img" aria-hidden="true">
-          <defs>
-            <radialGradient id={glowId} cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="currentColor" stopOpacity="0.34" />
-              <stop offset="68%" stopColor="currentColor" stopOpacity="0.08" />
-              <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
-            </radialGradient>
-          </defs>
-          <circle className="hud-instrument__glow" cx="50" cy="50" r="48" fill={`url(#${glowId})`} />
-          {model.rings.map((ring, index) => (
-            <circle className={`hud-instrument__ring hud-instrument__ring--${index}`} key={ring} cx="50" cy="50" r={ring} />
-          ))}
-          <path className="hud-instrument__axis" d="M 8 50 H 92 M 50 12 V 88" />
-          {model.links.map(([from, to]) => (
-            <line
-              className="hud-instrument__link"
-              key={`${from}-${to}`}
-              x1={model.nodes[from].x}
-              y1={model.nodes[from].y}
-              x2={model.nodes[to].x}
-              y2={model.nodes[to].y}
-            />
-          ))}
-          {model.nodes.map((node, index) => (
-            <g className={`hud-instrument__node hud-instrument__node--${node.state}`} key={node.id}>
-              <circle cx={node.x} cy={node.y} r={index % 3 === 0 ? 2.7 : 2.1} />
-              {index % 4 === 0 ? <circle cx={node.x} cy={node.y} r="5.2" /> : null}
-            </g>
-          ))}
-          <path className="hud-instrument__sweep" d="M 50 50 L 82 24 A 41 41 0 0 1 88 42" />
-        </svg>
+        <HudInstrumentVisualization model={model} glowId={glowId} />
         <span className="hud-instrument__footer">
-          <span className={`hud-instrument__status hud-instrument__status--${model.status}`}>{model.status}</span>
+          <span className={`hud-instrument__status hud-instrument__status--${model.status}`}>
+            {model.status === 'nominal' ? 'live' : model.status === 'offline' ? 'no data' : model.status}
+          </span>
           <span className="hud-instrument__pips">
             <i />
             <i />
@@ -619,7 +743,7 @@ function FleetPreviewSurface({
     <Html
       center
       transform
-      distanceFactor={zone.previewMode === 'monitor_surface' ? 4.2 : 5.4}
+      distanceFactor={zone.previewMode === 'monitor_surface' ? 4.2 : 4.3}
       position={[0, 0, zone.previewMode === 'monitor_surface' ? 0.14 : 0.3]}
     >
       <button
@@ -649,19 +773,13 @@ function FleetPreviewSurface({
 
 function CommandCoreSurface({
   onOpenWorkstation,
-  onOpenHermesDashboard,
-  onOpenHermesCli,
-  onOpenSettings,
   onEnterWorld,
 }: {
   onOpenWorkstation: (zoneId: string) => void
-  onOpenHermesDashboard: () => void
-  onOpenHermesCli: () => void
-  onOpenSettings: () => void
   onEnterWorld: () => void
 }) {
   return (
-    <Html center transform distanceFactor={5.2} position={[0, 0, 0.32]}>
+    <Html center transform distanceFactor={4.3} position={[0, 0, 0.32]}>
       <div className="command-core-terminal" aria-label="Boardroom command core">
         <button type="button" className="command-core-terminal__screen" onClick={() => onOpenWorkstation('sovereign_world')}>
           <span className="command-core-terminal__eyebrow">Command Core</span>
@@ -678,10 +796,7 @@ function CommandCoreSurface({
           <button type="button" className="command-core-terminal__button command-core-terminal__button--go" onClick={() => onOpenWorkstation('planning_and_queue')}>GO</button>
           <button type="button" className="command-core-terminal__button command-core-terminal__button--stop" onClick={() => onOpenWorkstation('governance_guardhouse')}>STOP</button>
           <button type="button" className="command-core-terminal__button" onClick={() => onOpenWorkstation('routing_and_comms')}>ROUTE</button>
-          <button type="button" className="command-core-terminal__button" onClick={onOpenHermesDashboard}>HERMES</button>
-          <button type="button" className="command-core-terminal__button command-core-terminal__button--cli" onClick={onOpenHermesCli}>CLI</button>
-          <button type="button" className="command-core-terminal__button" onClick={() => onOpenWorkstation('settings')}>WORLD</button>
-          <button type="button" className="command-core-terminal__button" onClick={onOpenSettings}>SET</button>
+          <button type="button" className="command-core-terminal__button" onClick={onEnterWorld}>WORLD</button>
         </div>
       </div>
     </Html>
@@ -708,18 +823,34 @@ function HermesTerminalSurface({ onOpenHermesDashboard }: { onOpenHermesDashboar
   )
 }
 
+function PhysicalControlButtonSurface({
+  label,
+  onClick,
+  color = '#22d3ee',
+}: {
+  label: string
+  onClick: () => void
+  color?: string
+}) {
+  return (
+    <>
+      <mesh position={[0, 0, 0]} onClick={(event) => { event.stopPropagation(); onClick() }}>
+        <boxGeometry args={[0.82, 0.18, 0.32]} />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.38} roughness={0.28} metalness={0.45} />
+      </mesh>
+      <Html center distanceFactor={6.6} position={[0, 0.22, 0.08]}>
+        <button type="button" className="scene-anchor-label scene-anchor-label--physical" onClick={(event) => { event.stopPropagation(); onClick() }}>
+          {label}
+        </button>
+      </Html>
+    </>
+  )
+}
+
 function HermesCliButtonSurface({ onClick, position, rotation }: { onClick: () => void; position: BoardroomVec3; rotation: BoardroomVec3 }) {
   return (
     <group position={position} rotation={rotation}>
-      <mesh position={[0, 0, 0]} onClick={(event) => { event.stopPropagation(); onClick() }}>
-        <boxGeometry args={[0.84, 0.2, 0.34]} />
-        <meshStandardMaterial color="#22d3ee" emissive="#0e7490" emissiveIntensity={0.45} roughness={0.28} metalness={0.35} />
-      </mesh>
-      <Html center distanceFactor={7} position={[0, 0.18, 0]}>
-        <button type="button" className="scene-anchor-label" onClick={(event) => { event.stopPropagation(); onClick() }}>
-          CLI
-        </button>
-      </Html>
+      <PhysicalControlButtonSurface label="CLI" onClick={onClick} />
     </group>
   )
 }
@@ -811,7 +942,8 @@ function BoardroomScene({
   )
   const hermesButtonZone = withPositionOverride(getBoardroomSpatialZone('boardroom.button.hermes')!, zonePositionOverrides)
   const hermesCliButtonZone = withPositionOverride(getBoardroomSpatialZone('boardroom.button.hermes_cli')!, zonePositionOverrides)
-  const settingsButtonZone = withPositionOverride(getBoardroomSpatialZone('boardroom.control.center')!, zonePositionOverrides)
+  const commandCoreZone = withPositionOverride(getBoardroomSpatialZone('boardroom.control.center')!, zonePositionOverrides)
+  const settingsButtonZone = withPositionOverride(getBoardroomSpatialZone('boardroom.button.settings')!, zonePositionOverrides)
   const avatarEmitterZone = withPositionOverride(getBoardroomSpatialZone('boardroom.avatar.emitter')!, zonePositionOverrides)
   const worldWindowZone = withPositionOverride(getBoardroomSpatialZone('boardroom.world.window')!, zonePositionOverrides)
 
@@ -877,9 +1009,7 @@ function BoardroomScene({
         <planeGeometry args={[24, 24]} />
       </mesh>
 
-      <mesh position={[0, -0.18, 0.42]} material={deskMaterial} receiveShadow castShadow>
-        <boxGeometry args={[6.8, 0.32, 2.2]} />
-      </mesh>
+      <BoardroomConsoleShell material={deskMaterial} />
 
       <SceneAssetModel
         binding="controlled_arda_workstation"
@@ -907,8 +1037,9 @@ function BoardroomScene({
 
       {monitorZones.map((slot) => {
         const assignment = getSlotAssignment(sceneWorkstations, slotAssignments, slot)
-        const workstationZoneId = getSlotWorkstationZoneId(slot, assignment)
-        const surfaceLayout = slot.assignmentSlotId ? surfaceLayouts[slot.assignmentSlotId] : undefined
+        const persistedSourceZoneId = slot.assignmentSlotId ? slotAssignments[slot.assignmentSlotId] : undefined
+        const workstationZoneId = getSlotWorkstationZoneId(slot, assignment, persistedSourceZoneId)
+        const instrument = resolveBoardroomHudInstrument(instruments, slot.id, slot.assignmentSlotId)
         return (
         <InteractionPad
           key={slot.id}
@@ -932,7 +1063,13 @@ function BoardroomScene({
               onActivate={() => onOpenWorkstation(workstationZoneId)}
             />
           ) : (
-            <ScreenSurface zone={slot} />
+            <HudInstrumentSurface
+              zone={slot}
+              assignment={assignment}
+              persistedSourceZoneId={persistedSourceZoneId}
+              instrument={instrument}
+              onActivate={() => onOpenWorkstation(workstationZoneId)}
+            />
           )}
         </InteractionPad>
         )
@@ -940,9 +1077,9 @@ function BoardroomScene({
 
       {controlZones.map((slot) => {
         const assignment = getSlotAssignment(sceneWorkstations, slotAssignments, slot)
-        const workstationZoneId = getSlotWorkstationZoneId(slot, assignment)
-        const surfaceLayout = slot.assignmentSlotId ? surfaceLayouts[slot.assignmentSlotId] : undefined
-        const isHermesSlot = assignment?.sourceZoneId === 'hermes_runtime'
+        const persistedSourceZoneId = slot.assignmentSlotId ? slotAssignments[slot.assignmentSlotId] : undefined
+        const workstationZoneId = getSlotWorkstationZoneId(slot, assignment, persistedSourceZoneId)
+        const instrument = resolveBoardroomHudInstrument(instruments, slot.id, slot.assignmentSlotId)
         return (
         <InteractionPad
           key={slot.id}
@@ -967,11 +1104,25 @@ function BoardroomScene({
               onActivate={() => onOpenWorkstation(workstationZoneId)}
             />
           ) : (
-            <ScreenSurface zone={slot} />
+            <HudInstrumentSurface
+              zone={slot}
+              assignment={assignment}
+              persistedSourceZoneId={persistedSourceZoneId}
+              instrument={instrument}
+              onActivate={() => onOpenWorkstation(workstationZoneId)}
+            />
           )}
         </InteractionPad>
         )
       })}
+
+      <group position={commandCoreZone.position} rotation={commandCoreZone.rotation}>
+        <ScreenSurface zone={commandCoreZone} />
+        <CommandCoreSurface
+          onOpenWorkstation={onOpenWorkstation}
+          onEnterWorld={() => onActivate(worldWindowZone.binding ?? worldWindowZone.id)}
+        />
+      </group>
 
       <InteractionPad
         slotId={settingsButtonZone.id}
@@ -987,7 +1138,7 @@ function BoardroomScene({
         onMovePosition={(position) => moveZone(settingsButtonZone.id, position)}
         onActivate={onOpenSettings}
       >
-        <ScreenSurface zone={settingsButtonZone} />
+        <PhysicalControlButtonSurface label="SET" color="#b98cff" onClick={onOpenSettings} />
       </InteractionPad>
 
       <InteractionPad
@@ -999,20 +1150,12 @@ function BoardroomScene({
         size={hermesButtonZone.size}
         color={hermesButtonZone.color}
         primary={hermesButtonZone.primary}
+        showLabel={debug}
         draggable={debug}
         onMovePosition={(position) => moveZone(hermesButtonZone.id, position)}
         onActivate={onOpenHermesDashboard}
       >
-        <SceneAssetModel
-          binding="human_control"
-          scale={0.46}
-          onClick={onOpenHermesDashboard}
-          fallback={(
-            <mesh onClick={onOpenHermesDashboard} material={terminalMaterial}>
-              <boxGeometry args={[1.28, 0.18, 0.42]} />
-            </mesh>
-          )}
-        />
+        <PhysicalControlButtonSurface label="HERMES" color="#b98cff" onClick={onOpenHermesDashboard} />
       </InteractionPad>
 
       <HermesCliButtonSurface
@@ -1063,7 +1206,7 @@ function BoardroomScene({
 
 export default function BoardroomViewport(props: BoardroomViewportProps) {
   return (
-    <div className="scene-runtime-canvas">
+    <div className={`scene-runtime-canvas${props.active ? '' : ' scene-runtime-canvas--inactive'}`}>
       <Canvas camera={{ position: [0, 3.15, 8.2], fov: 43 }} dpr={[1, 2]} frameloop={props.active ? 'always' : 'never'}>
         <color attach="background" args={['#05080d']} />
         <Suspense fallback={null}>

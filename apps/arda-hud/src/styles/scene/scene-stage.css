@@ -431,6 +431,18 @@
   padding: 0.3rem 0.56rem;
 }
 
+.scene-anchor-label--physical {
+  min-width: 3.6rem;
+  border-radius: 0.24rem;
+  padding: 0.28rem 0.45rem;
+  background: rgba(3, 10, 18, 0.94);
+  font-size: 0.58rem;
+  font-weight: 900;
+  box-shadow:
+    inset 0 -0.2rem 0.35rem rgba(0, 0, 0, 0.42),
+    0 0 0.8rem rgba(84, 206, 255, 0.25);
+}
+
 .scene-anchor-label--primary {
   border-color: rgba(93, 242, 255, 0.55);
   background: rgba(6, 24, 36, 0.92);

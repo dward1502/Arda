@@ -106,7 +106,7 @@ export const DEFAULT_BOARDROOM_SCENE_SLOT_ASSIGNMENTS: BoardroomSceneSlotAssignm
   view_desk_l: 'governance_guardhouse',
   view_desk_control_panel: 'sovereign_world',
   view_desk_r: 'human_realm',
-  view_desk_aux: 'hermes_runtime',
+  view_desk_aux: 'now_command',
 }
 
 export const BOARDROOM_WORKSTATION_ROLE_PROFILES: BoardroomRoleAssignmentProfile[] = [
@@ -217,10 +217,10 @@ const DEFAULT_ASSIGNMENT_METADATA: Record<BoardroomSceneSlotId, Omit<BoardroomSl
     presentation_modes: ['in_scene', 'native_window'],
   },
   view_desk_aux: {
-    component_id: 'hermes-dashboard-workstation',
-    source_zone_id: 'hermes_runtime',
-    title: 'Hermes Dashboard',
-    module_ids: ['hermes_dashboard', 'operations_and_packages'],
+    component_id: 'daily-command-workstation',
+    source_zone_id: 'now_command',
+    title: 'Daily Command',
+    module_ids: ['operating_surface', 'executive_overview'],
     presentation_modes: ['in_scene', 'native_window'],
   },
 }

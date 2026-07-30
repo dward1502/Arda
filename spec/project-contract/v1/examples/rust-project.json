@@ -1,0 +1,13 @@
+{
+  "schema_version": "arda.project-contract.v1",
+  "identity": {"project_id": "550e8400-e29b-41d4-a716-446655440000", "name": "arda-rust-example", "kind": "rust"},
+  "workspace": {"root": "."},
+  "runtime": {"adapter": "cargo"},
+  "commands": [{"id": "test", "program": "cargo", "args": ["test", "-p", "arda-core"], "working_dir": "."}],
+  "checks": [{"id": "test", "command": "test"}],
+  "artifacts": [{"id": "library", "path": "target/debug/libarda_core.rlib"}],
+  "permissions": {"authority": "approval_required", "network": {"allow": false}, "filesystem": {"write": true}, "secrets": {"env_names": []}},
+  "rollback": {"strategy": "git_revert"},
+  "memory": {"scope": "project"},
+  "provenance": {"declared_by": "arda", "declared_at": "2026-07-30T00:00:00Z", "stage": 4}
+}

@@ -1,7 +1,8 @@
 import { Terminal } from "xterm";
-import { FitAddon } from "xterm-addon-fit";
+import { FitAddon } from "@xterm/addon-fit";
 import "xterm/css/xterm.css";
-import { invoke } from "@tauri-apps/api";
+import { invoke } from "@tauri-apps/api/core";
+import { initializeTerminalSession, waitForTerminalLayout } from "./terminalStartup";
 
 const terminalElement = document.getElementById("terminal");
 if (!terminalElement) {
@@ -57,11 +58,13 @@ async function initShell() {
   }
 }
 
-void initShell();
-
 term.onData(writeToPty);
 addEventListener("resize", fitTerminal);
-fitTerminal();
+
+const resizeObserver = new ResizeObserver(() => {
+  void fitTerminal();
+});
+resizeObserver.observe(terminalElement);
 
 async function readFromPty() {
   try {
@@ -76,4 +79,14 @@ async function readFromPty() {
   window.requestAnimationFrame(readFromPty);
 }
 
-window.requestAnimationFrame(readFromPty);
+void initializeTerminalSession({
+  announce: () => {
+    term.write("\x1b[38;5;67mStarting Hermes shell…\x1b[0m\r\n");
+  },
+  settleLayout: waitForTerminalLayout,
+  fit: fitTerminal,
+  createShell: initShell,
+  refresh: () => term.refresh(0, term.rows - 1),
+  focus: () => term.focus(),
+  startReading: () => window.requestAnimationFrame(readFromPty),
+});

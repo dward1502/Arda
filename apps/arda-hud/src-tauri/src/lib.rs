@@ -1,6 +1,9 @@
 // sigil: REPAIR
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
+mod commands;
+
 use base64::{engine::general_purpose, Engine as _};
+use commands::workbench::validate_project_contract;
 use portable_pty::CommandBuilder;
 use serde::{Deserialize, Serialize};
 use std::fs;
@@ -194,6 +197,8 @@ const DEFAULT_HERMES_RUNTIME_PORT: u16 = 9119;
 const DEFAULT_CHARON_HOST: &str = "127.0.0.1";
 const DEFAULT_CHARON_PORT: u16 = 5110;
 const HERMES_RUNTIME_WINDOW_LABEL: &str = "arda-workstation-hermes_runtime_workstation";
+const HERMES_TERMINAL_WINDOW_LABEL: &str = "arda-hermes-terminal";
+const HERMES_TERMINAL_WINDOW_PATH: &str = "terminal.html";
 const HERMES_RUNTIME_HOST_ENV: &str = "ARDA_HERMES_RUNTIME_HOST";
 const HERMES_RUNTIME_PORT_ENV: &str = "ARDA_HERMES_RUNTIME_PORT";
 
@@ -1447,6 +1452,11 @@ mod tests {
     use std::fs;
     use std::time::{SystemTime, UNIX_EPOCH};
 
+    #[test]
+    fn hermes_terminal_uses_the_bundled_terminal_entry() {
+        assert_eq!(hermes_terminal_window_path(), "terminal.html");
+    }
+
     fn temp_path(name: &str) -> PathBuf {
         let unique = SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -2469,6 +2479,45 @@ fn open_hermes_runtime_window(
     })
 }
 
+fn hermes_terminal_window_path() -> &'static str {
+    HERMES_TERMINAL_WINDOW_PATH
+}
+
+#[tauri::command]
+fn open_hermes_terminal_window(app: AppHandle) -> Result<String, String> {
+    if let Some(window) = app.get_webview_window(HERMES_TERMINAL_WINDOW_LABEL) {
+        let _ = window.unminimize();
+        let _ = window.show();
+        window.set_focus().map_err(|error| error.to_string())?;
+        return Ok(HERMES_TERMINAL_WINDOW_LABEL.to_string());
+    }
+
+    let mut builder = WebviewWindowBuilder::new(
+        &app,
+        HERMES_TERMINAL_WINDOW_LABEL,
+        WebviewUrl::App(hermes_terminal_window_path().into()),
+    )
+    .title("Hermes CLI — ARDA")
+    .inner_size(1040.0, 680.0)
+    .min_inner_size(720.0, 420.0)
+    .resizable(true)
+    .focused(true)
+    .decorations(true);
+
+    if let Some(main) = app.get_webview_window("main") {
+        if let Ok(position) = main.outer_position() {
+            builder = builder.position(position.x as f64 + 120.0, position.y as f64 + 88.0);
+        } else {
+            builder = builder.center();
+        }
+    } else {
+        builder = builder.center();
+    }
+
+    builder.build().map_err(|error| error.to_string())?;
+    Ok(HERMES_TERMINAL_WINDOW_LABEL.to_string())
+}
+
 #[tauri::command]
 fn open_workstation_window(
     app: AppHandle,
@@ -2661,6 +2710,7 @@ pub fn run() {
         .manage(HermesRuntimeState::default())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
+            validate_project_contract,
             read_file,
             get_arda_root,
             get_numenor_path,
@@ -2693,6 +2743,7 @@ pub fn run() {
             ensure_hermes_runtime_surface,
             read_hermes_runtime_status,
             open_hermes_runtime_window,
+            open_hermes_terminal_window,
             open_workstation_window,
             close_window,
             minimize_window,

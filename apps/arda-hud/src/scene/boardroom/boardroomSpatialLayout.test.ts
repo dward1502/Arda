@@ -1,5 +1,6 @@
 // sigil: REPAIR
 import { describe, expect, it } from 'vitest'
+import * as boardroomSpatialLayout from './boardroomSpatialLayout'
 import {
   BOARDROOM_CONTROL_ZONES,
   BOARDROOM_MONITOR_ZONES,
@@ -41,9 +42,34 @@ describe('boardroom spatial layout contract', () => {
 
   it('exposes the primitive anchors the boardroom art pass can snap onto', () => {
     expect(getBoardroomSpatialZone('boardroom.monitor.left')?.binding).toBe('upper_monitor_1')
-    expect(getBoardroomSpatialZone('boardroom.control.center')?.interaction).toBe('open_settings')
+    expect(getBoardroomSpatialZone('boardroom.control.center')?.interaction).toBe('open_workstation')
+    expect(getBoardroomSpatialZone('boardroom.button.settings')?.interaction).toBe('open_settings')
     expect(getBoardroomSpatialZone('boardroom.avatar.emitter')?.binding).toBe('hologram_anchor')
     expect(getBoardroomSpatialZone('boardroom.world.window')?.interaction).toBe('transition_world')
+  })
+
+  it('angles every upper monitor inward and down toward the operator', () => {
+    const [left, centerLeft, centerRight, right] = BOARDROOM_MONITOR_ZONES
+    expect(left.rotation[1]).toBeGreaterThan(centerLeft.rotation[1])
+    expect(centerLeft.rotation[1]).toBeGreaterThan(0)
+    expect(centerRight.rotation[1]).toBeLessThan(0)
+    expect(right.rotation[1]).toBeLessThan(centerRight.rotation[1])
+    expect(BOARDROOM_MONITOR_ZONES.every((zone) => zone.rotation[0] < 0)).toBe(true)
+  })
+
+  it('keeps settings and Hermes controls as distinct non-overlapping buttons', () => {
+    const buttons = [
+      getBoardroomSpatialZone('boardroom.button.settings')!,
+      getBoardroomSpatialZone('boardroom.button.hermes_cli')!,
+      getBoardroomSpatialZone('boardroom.button.hermes')!,
+    ]
+
+    expect(buttons.every((button) => button.kind === 'physical_button')).toBe(true)
+    for (let index = 1; index < buttons.length; index += 1) {
+      const previousRightEdge = buttons[index - 1].position[0] + buttons[index - 1].size[0] / 2
+      const currentLeftEdge = buttons[index].position[0] - buttons[index].size[0] / 2
+      expect(currentLeftEdge).toBeGreaterThan(previousRightEdge)
+    }
   })
 
   it('wraps the lower desk surfaces around the operator chair', () => {
@@ -51,6 +77,42 @@ describe('boardroom spatial layout contract', () => {
     expect(getBoardroomSpatialZone('boardroom.lower.left_inner')?.rotation[1]).toBeGreaterThan(0.1)
     expect(getBoardroomSpatialZone('boardroom.lower.right_inner')?.rotation[1]).toBeLessThan(-0.1)
     expect(getBoardroomSpatialZone('boardroom.lower.right_wrap')?.rotation[1]).toBeLessThan(-0.4)
+  })
+
+  it('defines a mirrored five-segment command-console shell that wraps around the operator', () => {
+    const segments = (boardroomSpatialLayout as typeof boardroomSpatialLayout & {
+      BOARDROOM_CONSOLE_SHELL_SEGMENTS?: Array<{
+        id: string
+        role: string
+        position: [number, number, number]
+        rotation: [number, number, number]
+        size: [number, number, number]
+      }>
+    }).BOARDROOM_CONSOLE_SHELL_SEGMENTS ?? []
+
+    expect(segments.map((segment) => segment.role)).toEqual([
+      'outer_left',
+      'inner_left',
+      'center',
+      'inner_right',
+      'outer_right',
+    ])
+    expect(segments.map((segment) => segment.id)).toEqual([
+      'boardroom.console.outer_left',
+      'boardroom.console.inner_left',
+      'boardroom.console.center',
+      'boardroom.console.inner_right',
+      'boardroom.console.outer_right',
+    ])
+
+    const [outerLeft, innerLeft, center, innerRight, outerRight] = segments
+    expect(outerLeft.position[0]).toBe(-outerRight.position[0])
+    expect(innerLeft.position[0]).toBe(-innerRight.position[0])
+    expect(outerLeft.rotation[1]).toBe(-outerRight.rotation[1])
+    expect(innerLeft.rotation[1]).toBe(-innerRight.rotation[1])
+    expect(Math.abs(outerLeft.rotation[1])).toBeGreaterThan(Math.abs(innerLeft.rotation[1]))
+    expect(center.position[0]).toBe(0)
+    expect(segments.every((segment) => segment.size.every((axis) => axis > 0))).toBe(true)
   })
 
   it('normalizes edit-mode position overrides to known zones and finite coordinates', () => {

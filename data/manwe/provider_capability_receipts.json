@@ -1,6 +1,6 @@
 {
   "schema_version": "annunimas.charon.provider-capability-receipts.v1",
-  "generated_at_utc": "2026-07-28T19:24:47.170541373+00:00",
+  "generated_at_utc": "2026-07-30T22:06:36.926219582+00:00",
   "receipts": {
     "edge_backbone::ternary-bonsai-27b-q2_0": {
       "provider_id": "edge_backbone",
@@ -66,13 +66,13 @@
     "edge_backbone_long::bonsai-27b-q1_0": {
       "provider_id": "edge_backbone_long",
       "model_id": "bonsai-27b-q1_0",
-      "updated_at_utc": "2026-07-28T19:24:47.170541373+00:00",
+      "updated_at_utc": "2026-07-30T22:06:36.926219582+00:00",
       "capabilities": {
         "basic_chat": {
           "state": "passed",
           "source": "passive_proxy_observation",
-          "observed_at_utc": "2026-07-28T19:24:47.170541373+00:00",
-          "expires_at_utc": "2026-08-04T19:24:47.170541373+00:00",
+          "observed_at_utc": "2026-07-30T22:06:36.926219582+00:00",
+          "expires_at_utc": "2026-08-06T22:06:36.926219582+00:00",
           "outcome_class": "success",
           "status_code": 200
         }
@@ -81,13 +81,13 @@
     "edge_beelink_light::Ternary-Bonsai-8B-Q2_0": {
       "provider_id": "edge_beelink_light",
       "model_id": "Ternary-Bonsai-8B-Q2_0",
-      "updated_at_utc": "2026-07-27T09:05:53.265433803+00:00",
+      "updated_at_utc": "2026-07-30T19:59:08.327823685+00:00",
       "capabilities": {
         "basic_chat": {
           "state": "passed",
           "source": "passive_proxy_observation",
-          "observed_at_utc": "2026-07-27T09:05:53.265433803+00:00",
-          "expires_at_utc": "2026-08-03T09:05:53.265433803+00:00",
+          "observed_at_utc": "2026-07-30T19:59:08.327823685+00:00",
+          "expires_at_utc": "2026-08-06T19:59:08.327823685+00:00",
           "outcome_class": "success",
           "status_code": 200
         },
@@ -104,13 +104,13 @@
     "edge_core::Qwen3.5-9B-Q4_K_M": {
       "provider_id": "edge_core",
       "model_id": "Qwen3.5-9B-Q4_K_M",
-      "updated_at_utc": "2026-07-28T19:13:47.235831197+00:00",
+      "updated_at_utc": "2026-07-30T19:59:26.772978333+00:00",
       "capabilities": {
         "basic_chat": {
           "state": "passed",
           "source": "passive_proxy_observation",
-          "observed_at_utc": "2026-07-28T19:13:47.235831197+00:00",
-          "expires_at_utc": "2026-08-04T19:13:47.235831197+00:00",
+          "observed_at_utc": "2026-07-30T19:59:26.772978333+00:00",
+          "expires_at_utc": "2026-08-06T19:59:26.772978333+00:00",
           "outcome_class": "success",
           "status_code": 200
         },
@@ -127,13 +127,13 @@
     "edge_guardhouse::Qwen3.5-4B-Q4_K_M.gguf": {
       "provider_id": "edge_guardhouse",
       "model_id": "Qwen3.5-4B-Q4_K_M.gguf",
-      "updated_at_utc": "2026-07-27T08:55:30.357546907+00:00",
+      "updated_at_utc": "2026-07-30T19:48:26.209670658+00:00",
       "capabilities": {
         "basic_chat": {
           "state": "passed",
           "source": "passive_proxy_observation",
-          "observed_at_utc": "2026-07-27T08:55:30.357546907+00:00",
-          "expires_at_utc": "2026-08-03T08:55:30.357546907+00:00",
+          "observed_at_utc": "2026-07-30T19:48:26.209670658+00:00",
+          "expires_at_utc": "2026-08-06T19:48:26.209670658+00:00",
           "outcome_class": "success",
           "status_code": 200
         },
@@ -195,21 +195,21 @@
     "openai_sub::gpt-5.5": {
       "provider_id": "openai_sub",
       "model_id": "gpt-5.5",
-      "updated_at_utc": "2026-07-28T18:55:11.981081611+00:00",
+      "updated_at_utc": "2026-07-30T18:13:27.004302898+00:00",
       "capabilities": {
         "basic_chat": {
           "state": "passed",
           "source": "passive_proxy_observation",
-          "observed_at_utc": "2026-07-28T18:55:11.981081611+00:00",
-          "expires_at_utc": "2026-08-04T18:55:11.981081611+00:00",
+          "observed_at_utc": "2026-07-30T18:13:27.004302898+00:00",
+          "expires_at_utc": "2026-08-06T18:13:27.004302898+00:00",
           "outcome_class": "success",
           "status_code": 200
         },
         "tools": {
           "state": "passed",
           "source": "passive_proxy_observation",
-          "observed_at_utc": "2026-07-28T18:55:11.981081611+00:00",
-          "expires_at_utc": "2026-08-04T18:55:11.981081611+00:00",
+          "observed_at_utc": "2026-07-30T18:13:27.004302898+00:00",
+          "expires_at_utc": "2026-08-06T18:13:27.004302898+00:00",
           "outcome_class": "success",
           "status_code": 200
         }

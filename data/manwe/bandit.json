@@ -13,19 +13,19 @@
       "failures": 0
     },
     "chat|tools=false|structured=false|stream=false\u001fedge_backbone_long\u001fbonsai-27b-q1_0": {
-      "successes": 57,
-      "failures": 0
+      "successes": 92,
+      "failures": 1
     },
     "chat|tools=false|structured=false|stream=false\u001fedge_beelink_light\u001fTernary-Bonsai-8B-Q2_0": {
-      "successes": 188,
+      "successes": 189,
       "failures": 0
     },
     "chat|tools=false|structured=false|stream=false\u001fedge_core\u001fQwen3.5-9B-Q4_K_M": {
-      "successes": 138,
-      "failures": 0
+      "successes": 280,
+      "failures": 2
     },
     "chat|tools=false|structured=false|stream=false\u001fedge_guardhouse\u001fQwen3.5-4B-Q4_K_M.gguf": {
-      "successes": 22,
+      "successes": 125,
       "failures": 0
     },
     "chat|tools=false|structured=false|stream=false\u001fgoogle\u001fgemini-3.1-flash-lite": {
@@ -73,7 +73,7 @@
       "failures": 0
     },
     "code|tools=false|structured=false|stream=false\u001fopenai_sub\u001fgpt-5.5": {
-      "successes": 11,
+      "successes": 17,
       "failures": 0
     },
     "code|tools=true|structured=false|stream=false\u001fedge_backbone\u001fternary-bonsai-27b-q2_0": {
@@ -82,7 +82,7 @@
     },
     "code|tools=true|structured=false|stream=false\u001fedge_backbone_coder\u001fnanbeige4.2-3b-q4_k_m": {
       "successes": 19,
-      "failures": 0
+      "failures": 4
     },
     "code|tools=true|structured=false|stream=false\u001fedge_beelink_light\u001fTernary-Bonsai-8B-Q2_0": {
       "successes": 6,
@@ -93,7 +93,7 @@
       "failures": 0
     },
     "code|tools=true|structured=false|stream=false\u001fopenai_sub\u001fgpt-5.5": {
-      "successes": 340,
+      "successes": 494,
       "failures": 0
     }
   }

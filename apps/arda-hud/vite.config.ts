@@ -2,6 +2,7 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import { fileURLToPath } from "node:url";
 
 const host = process.env.TAURI_DEV_HOST;
 
@@ -16,6 +17,10 @@ export default defineConfig(async () => ({
   build: {
     chunkSizeWarningLimit: 1200,
     rollupOptions: {
+      input: {
+        main: fileURLToPath(new URL("./index.html", import.meta.url)),
+        terminal: fileURLToPath(new URL("./terminal.html", import.meta.url)),
+      },
       output: {
         manualChunks(id: string) {
           if (!id.includes("node_modules")) {

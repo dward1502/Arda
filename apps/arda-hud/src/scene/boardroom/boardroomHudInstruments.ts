@@ -4,6 +4,8 @@ export type HudInstrumentStatus = 'nominal' | 'watch' | 'external' | 'offline'
 
 export type HudInstrumentNodeState = 'good' | 'warn' | 'alert' | 'dim'
 
+export type HudInstrumentPreset = 'topology' | 'routes' | 'lanes' | 'constellation' | 'pulse' | 'standby'
+
 export interface HudInstrumentNode {
   id: string
   x: number
@@ -17,12 +19,42 @@ export interface HudInstrumentModel {
   tone: HudTone
   status: HudInstrumentStatus
   glyph: string
+  preset: HudInstrumentPreset
   nodes: HudInstrumentNode[]
   links: Array<[number, number]>
   rings: number[]
 }
 
 export type BoardroomHudInstrumentMap = Record<string, HudInstrumentModel>
+
+export function previewPresetForSource(sourceZoneId?: string): HudInstrumentPreset {
+  const source = sourceZoneId?.toLowerCase() ?? ''
+  if (source.includes('routing') || source.includes('comms')) return 'routes'
+  if (source.includes('planning') || source.includes('queue') || source.includes('operation')) return 'lanes'
+  if (source.includes('memory') || source.includes('knowledge') || source.includes('reasoning')) return 'constellation'
+  if (source.includes('sovereign') || source.includes('world') || source.includes('human') || source.includes('now_command')) return 'pulse'
+  if (source.includes('system') || source.includes('fleet') || source.includes('health')) return 'topology'
+  return 'standby'
+}
+
+export function previewTitleForSource(sourceZoneId?: string): string | undefined {
+  if (!sourceZoneId) return undefined
+  const service = sourceZoneId.startsWith('service_')
+  const words = sourceZoneId
+    .replace(/^service_/, '')
+    .split('_')
+    .filter((word) => word.length > 0 && word !== 'and')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+  return words.join(service ? ' ' : ' + ')
+}
+
+export function resolveBoardroomHudInstrument(
+  instruments: BoardroomHudInstrumentMap,
+  sceneZoneId: string,
+  assignmentSlotId?: string,
+): HudInstrumentModel | undefined {
+  return instruments[sceneZoneId] ?? (assignmentSlotId ? instruments[assignmentSlotId] : undefined)
+}
 
 export interface FleetHudRuntimeDrift {
   driftedNodes: number
@@ -138,6 +170,7 @@ function commandInstrument({
   eyebrow,
   tone,
   glyph,
+  preset,
   pressure,
   seed,
   hotCount = 0,
@@ -147,6 +180,7 @@ function commandInstrument({
   eyebrow: string
   tone: HudTone
   glyph: string
+  preset: HudInstrumentPreset
   pressure: number
   seed: number
   hotCount?: number
@@ -160,6 +194,7 @@ function commandInstrument({
     tone: status === 'offline' ? 'rose' : tone,
     status,
     glyph,
+    preset,
     nodes: radialNodes({ idPrefix: title.toLowerCase().replace(/[^a-z0-9]+/g, '-'), count: nodeCount, seed, hotCount, warnCount }),
     links: buildLinks(nodeCount),
     rings: status === 'watch' ? [21, 36, 51] : [18, 32, 47],
@@ -200,6 +235,7 @@ export function deriveFleetHudInstrument(input: FleetHudInput): HudInstrumentMod
     tone,
     status,
     glyph: `${liveTargets}/${totalTargets || nodeCount}`,
+    preset: 'topology',
     nodes,
     links: buildLinks(nodeCount),
     rings: status === 'nominal' ? [18, 32, 47] : [21, 36, 51],
@@ -217,6 +253,7 @@ export function deriveQueueHudInstrument(input: QueueHudInput): HudInstrumentMod
     eyebrow: 'TASK FLOW',
     tone: 'gold',
     glyph: `${completed}`,
+    preset: 'lanes',
     pressure: Math.max(0.2, pressure),
     seed: completed + priorityBuckets * 3 + ownerBuckets * 5,
     warnCount: priorityBuckets > 3 ? 2 : 1,
@@ -234,6 +271,7 @@ export function deriveKnowledgeHudInstrument(input: KnowledgeHudInput): HudInstr
     eyebrow: 'PLANS + MEMORY',
     tone: 'mint',
     glyph: `${documents}/${plans}`,
+    preset: 'constellation',
     pressure: Math.max(0.24, pressure),
     seed: documents * 2 + plans * 7,
     warnCount: plans > documents ? 1 : 0,
@@ -251,6 +289,7 @@ export function deriveRoutingHudInstrument(input: RoutingHudInput): HudInstrumen
     eyebrow: 'PROVIDER MESH',
     tone: constrainedHeadroom < 0.25 ? 'gold' : 'cyan',
     glyph: `${routableProviders}`,
+    preset: 'routes',
     pressure,
     seed: routableProviders * 11 + activeConnections,
     hotCount: constrainedHeadroom < 0.15 ? 1 : 0,

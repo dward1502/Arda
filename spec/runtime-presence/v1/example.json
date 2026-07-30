@@ -1,0 +1,72 @@
+{
+  "projection_id": "presence-2026-07-30T19:00:00Z",
+  "schema_version": "arda.runtime-presence.v1",
+  "generated_at": "2026-07-30T19:00:00Z",
+  "valid_until": "2026-07-30T19:00:30Z",
+  "nodes": [
+    {
+      "id": "realm-arda",
+      "kind": "realm",
+      "label": "Arda",
+      "lifecycle": "active",
+      "health": "healthy",
+      "confidence": 0.98,
+      "freshness_seconds": 1,
+      "resource_pressure": null,
+      "run_id": "run-7a",
+      "task_id": null,
+      "source_receipt_refs": ["receipt://engine/run-7a"]
+    },
+    {
+      "id": "agent-athena",
+      "kind": "agent",
+      "label": "Athena",
+      "lifecycle": "waiting_approval",
+      "health": "healthy",
+      "confidence": 0.91,
+      "freshness_seconds": 2,
+      "resource_pressure": {
+        "cpu": 0.32,
+        "memory": 0.27,
+        "provider": 0.41
+      },
+      "run_id": "run-7a",
+      "task_id": "task-42",
+      "source_receipt_refs": ["receipt://athena/task-42/status"]
+    },
+    {
+      "id": "service-manwe",
+      "kind": "service",
+      "label": "Manwe Router",
+      "lifecycle": "active",
+      "health": "degraded",
+      "confidence": 0.84,
+      "freshness_seconds": 4,
+      "resource_pressure": {
+        "cpu": 0.18,
+        "memory": 0.23,
+        "provider": 0.74
+      },
+      "run_id": "run-7a",
+      "task_id": "task-42",
+      "source_receipt_refs": ["receipt://manwe/route/task-42"]
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-athena-manwe",
+      "from_node_id": "agent-athena",
+      "to_node_id": "service-manwe",
+      "edge_type": "wait",
+      "confidence": 0.89,
+      "run_id": "run-7a",
+      "task_id": "task-42",
+      "source_receipt_refs": ["receipt://governance/approval/task-42"]
+    }
+  ],
+  "source_receipt_refs": [
+    "receipt://engine/run-7a",
+    "receipt://aule/snapshot/presence-2026-07-30T19:00:00Z"
+  ],
+  "redaction_class": "private_metadata_removed"
+}

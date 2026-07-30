@@ -2,7 +2,7 @@
   "schema_version": "annunimas.arda_boardroom_slots.v1",
   "authority": "core/state/arda_boardroom_slots.json",
   "operator_profile_id": null,
-  "updated_at_utc": "2026-05-22T10:25:00Z",
+  "updated_at_utc": "2026-07-30T19:45:01Z",
   "assignments": [
     {
       "slot_id": "monitor_left_1",
@@ -109,18 +109,18 @@
     },
     {
       "slot_id": "view_desk_aux",
-      "component_id": "hermes-dashboard-workstation",
-      "source_zone_id": "hermes_dashboard",
-      "title": "Hermes Dashboard",
+      "component_id": "daily-command-workstation",
+      "source_zone_id": "now_command",
+      "title": "Daily Command",
       "module_ids": [
-        "hermes_dashboard",
-        "operations_and_packages"
+        "operating_surface",
+        "executive_overview"
       ],
       "presentation_modes": [
         "in_scene",
         "native_window"
       ],
-      "updated_at_utc": "2026-05-22T09:00:36Z"
+      "updated_at_utc": "2026-07-30T19:45:01Z"
     }
   ]
 }

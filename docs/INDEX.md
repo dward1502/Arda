@@ -2,6 +2,8 @@
 
 ## Key active docs
 
+- `docs/ARDA_1_0_PRODUCT_READINESS.md`
+- `docs/ARDA_PRODUCT_PLAN_SUITE.md`
 - `docs/CODEMAP.md`
 - `docs/FILE_TREE.jsonl`
 - `docs/INDEX.md`

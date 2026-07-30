@@ -98,6 +98,13 @@
   filter: drop-shadow(0 0 0.4rem color-mix(in srgb, var(--hud-color) 42%, transparent));
 }
 
+.hud-instrument__grid {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.35;
+  opacity: 0.12;
+}
+
 .hud-instrument__ring,
 .hud-instrument__axis,
 .hud-instrument__link,
@@ -115,11 +122,15 @@
 .hud-instrument__ring--1 {
   stroke-dasharray: 5 4;
   opacity: 0.38;
+  transform-origin: center;
+  animation: hud-instrument-spin 12s linear infinite;
 }
 
 .hud-instrument__ring--2 {
   stroke-dasharray: 1.2 5;
   opacity: 0.5;
+  transform-origin: center;
+  animation: hud-instrument-spin 8s linear infinite reverse;
 }
 
 .hud-instrument__axis {
@@ -135,6 +146,8 @@
 .hud-instrument__sweep {
   stroke-width: 2.2;
   opacity: 0.7;
+  transform-origin: center;
+  animation: hud-instrument-spin 4.8s linear infinite;
 }
 
 .hud-instrument__node circle {
@@ -147,6 +160,121 @@
   stroke: currentColor;
   stroke-width: 0.7;
   opacity: 0.42;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: hud-instrument-pulse 2.4s ease-in-out infinite;
+}
+
+.hud-instrument__route path,
+.hud-instrument__constellation-orbit,
+.hud-instrument__pulse-guide,
+.hud-instrument__pulse-wave,
+.hud-instrument__scan,
+.hud-instrument__standby-frame,
+.hud-instrument__standby-glyph {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.hud-instrument__route path {
+  stroke-width: 1.15;
+  opacity: 0.62;
+}
+
+.hud-instrument__packet {
+  fill: currentColor;
+  filter: drop-shadow(0 0 0.22rem currentColor);
+  animation: hud-instrument-packet 2.8s ease-in-out infinite alternate;
+}
+
+.hud-instrument__packet--1 { animation-delay: -0.9s; }
+.hud-instrument__packet--2 { animation-delay: -1.8s; }
+
+.hud-instrument__lane rect:first-child {
+  fill: color-mix(in srgb, currentColor 8%, transparent);
+  stroke: currentColor;
+  stroke-width: 0.45;
+  opacity: 0.5;
+}
+
+.hud-instrument__lane-fill {
+  fill: currentColor;
+  opacity: 0.34;
+}
+
+.hud-instrument__lane circle {
+  fill: currentColor;
+  filter: drop-shadow(0 0 0.2rem currentColor);
+}
+
+.hud-instrument__constellation-orbit {
+  stroke-width: 0.8;
+  stroke-dasharray: 3 5;
+  opacity: 0.46;
+  transform-origin: center;
+  animation: hud-instrument-spin 18s linear infinite reverse;
+}
+
+.hud-instrument__pulse-guide {
+  stroke-width: 0.5;
+  stroke-dasharray: 2 4;
+  opacity: 0.28;
+}
+
+.hud-instrument__pulse-wave {
+  stroke-width: 1.8;
+  filter: drop-shadow(0 0 0.22rem currentColor);
+}
+
+.hud-instrument__scan {
+  stroke-width: 1.2;
+  opacity: 0.62;
+  animation: hud-instrument-scan 3.8s ease-in-out infinite alternate;
+}
+
+.hud-instrument__standby-frame {
+  stroke-width: 0.8;
+  stroke-dasharray: 4 5;
+  opacity: 0.34;
+}
+
+.hud-instrument__standby-glyph {
+  stroke-width: 1.2;
+  opacity: 0.52;
+}
+
+@keyframes hud-instrument-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes hud-instrument-pulse {
+  50% { opacity: 0.16; transform: scale(1.45); }
+}
+
+@keyframes hud-instrument-packet {
+  to { transform: translateX(1.6rem); }
+}
+
+@keyframes hud-instrument-scan {
+  to { transform: translateX(4.7rem); }
+}
+
+.hud-instrument--offline .hud-instrument__scope *,
+.scene-runtime-canvas--inactive .hud-instrument__scope * {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-instrument__ring,
+  .hud-instrument__sweep,
+  .hud-instrument__node circle + circle,
+  .hud-instrument__packet,
+  .hud-instrument__constellation-orbit,
+  .hud-instrument__scan {
+    animation: none;
+  }
 }
 
 .hud-instrument__node--warn {

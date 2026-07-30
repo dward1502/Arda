@@ -31,6 +31,7 @@ hostname = "0.4"
 num_cpus = "1.16"
 base64 = "0.22"
 portable-pty = "0.8"
+arda-core = { path = "../../../crates/spine/governance/arda-core" }
 
 [lints.rust]
 unsafe_code = "allow"

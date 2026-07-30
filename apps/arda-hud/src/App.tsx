@@ -25,6 +25,7 @@ import {
   OperationsActionContractPanel,
   PanelWorkspace,
   PlanningActionContractPanel,
+  WorkbenchModule,
   RuntimeModeBadge,
   SceneWorkstation,
   SceneTransitionOverlay,
@@ -1423,6 +1424,7 @@ export default function App() {
             message={refreshActionMessage}
             onRunAction={(actionId) => void submitRefreshAction(actionId)}
           />
+          <WorkbenchModule />
           <div className="split-stack" style={{ marginTop: 16 }}>
             <div>
               <div className="module-subtitle"><BookOpenText size={14} /> Human Plan Shelf</div>

@@ -11,6 +11,7 @@ pub mod harness;
 pub mod observability;
 pub mod orome;
 pub mod registry;
+pub mod runs;
 pub mod supervisor;
 pub use arda_core::loop_observability;
 pub use arda_core::service_registry;

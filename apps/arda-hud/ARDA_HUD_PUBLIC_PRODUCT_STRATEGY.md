@@ -57,7 +57,7 @@ Keep the Annunimas/ARDA mythology as brand depth, but translate the internals:
 
 | Internal Name | Public Description |
 |---------------|--------------------|
-| Charon | AI model router |
+| Manwe | AI model router |
 | Hermes | Communication bridge |
 | Chronos | Calendar and reminder engine |
 | HADES | Maintenance and cleanup automation |
@@ -199,7 +199,7 @@ Build the "Daily Command Center" inside ARDA HUD.
 Minimum useful version:
 
 - Reads `core/state/queue_summary.json`.
-- Reads Charon/provider status from `core/state/charon_router.json`.
+- Reads Manwe/provider status from `core/state/charon_router.json`.
 - Shows today's priorities.
 - Shows stale/missing/fresh source status.
 - Has an inbox/calendar placeholder adapter contract.

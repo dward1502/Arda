@@ -365,6 +365,15 @@ async fn clean_python_repository_completes_through_reference_adapter_outside_car
         }
     });
     store.write_result(&golden_result).unwrap();
+    if let Some(directory) = std::env::var_os("ARDA_GOLDEN_EVIDENCE_DIR") {
+        let directory = PathBuf::from(directory);
+        fs::create_dir_all(&directory).unwrap();
+        fs::write(
+            directory.join("python-golden-result.json"),
+            serde_json::to_vec_pretty(&golden_result).unwrap(),
+        )
+        .unwrap();
+    }
     store
         .append(RunEventDraft {
             node_id: node_id("close"),

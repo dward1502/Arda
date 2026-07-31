@@ -363,6 +363,15 @@ async fn clean_rust_repository_completes_approved_vertical_slice_with_one_run_id
         }
     });
     store.write_result(&result).unwrap();
+    if let Some(directory) = std::env::var_os("ARDA_GOLDEN_EVIDENCE_DIR") {
+        let directory = PathBuf::from(directory);
+        fs::create_dir_all(&directory).unwrap();
+        fs::write(
+            directory.join("rust-golden-result.json"),
+            serde_json::to_vec_pretty(&result).unwrap(),
+        )
+        .unwrap();
+    }
     store
         .append(RunEventDraft {
             node_id: node_id("close"),

@@ -1,0 +1,284 @@
+{
+  "approval": {
+    "receipt": "receipt:golden-rust-approval"
+  },
+  "cost_usd": 0.001,
+  "diff": "diff --git a/src/lib.rs b/src/lib.rs\nindex b15ebf4..0b3d9cc 100644\n--- a/src/lib.rs\n+++ b/src/lib.rs\n@@ -1,5 +1,5 @@\n pub fn greeting() -> &'static str {\n-    \"hello\"\n+    \"hello, Arda\"\n }\n \n #[cfg(test)]\n@@ -8,6 +8,6 @@ mod tests {\n \n     #[test]\n     fn returns_the_declared_greeting() {\n-        assert_eq!(greeting(), \"hello\");\n+        assert_eq!(greeting(), \"hello, Arda\");\n     }\n }\n",
+  "evidence": [
+    {
+      "digest": "sha256:f35d679c0649b1b98a36b5e913d40e4b6e14b25a717eedd432df4a99d74fa473",
+      "path": "src/lib.rs"
+    }
+  ],
+  "graph": {
+    "edges": [
+      {
+        "from": "inspect",
+        "id": "inspect-to-plan",
+        "parent_receipt": "receipt:inspect",
+        "to": "plan"
+      },
+      {
+        "from": "plan",
+        "id": "plan-to-approval",
+        "parent_receipt": "receipt:plan",
+        "to": "approval"
+      },
+      {
+        "from": "approval",
+        "id": "approval-to-execute",
+        "parent_receipt": "receipt:approval",
+        "to": "execute"
+      },
+      {
+        "from": "execute",
+        "id": "execute-to-verify",
+        "parent_receipt": "receipt:execute",
+        "to": "verify"
+      },
+      {
+        "from": "verify",
+        "id": "verify-to-review",
+        "parent_receipt": "receipt:verify",
+        "to": "review"
+      },
+      {
+        "from": "review",
+        "id": "review-to-close",
+        "parent_receipt": "receipt:review",
+        "to": "close"
+      }
+    ],
+    "nodes": [
+      {
+        "authority": "read_only",
+        "budget": {
+          "max_cost_usd": 0.0,
+          "max_joules": 1000.0
+        },
+        "checkpoint": {
+          "checkpoint_digest": null,
+          "recovery_token": null,
+          "sequence": 0
+        },
+        "id": "inspect",
+        "idempotency_key": "golden-rust-run:inspect",
+        "input_digest": "sha256:inspect-input",
+        "kind": "inspect",
+        "output_digest": null,
+        "parent_receipts": [],
+        "retry": {
+          "max_attempts": 2
+        },
+        "state": "succeeded",
+        "timeout_ms": 20000
+      },
+      {
+        "authority": "read_only",
+        "budget": {
+          "max_cost_usd": 0.0,
+          "max_joules": 1000.0
+        },
+        "checkpoint": {
+          "checkpoint_digest": null,
+          "recovery_token": null,
+          "sequence": 0
+        },
+        "id": "plan",
+        "idempotency_key": "golden-rust-run:plan",
+        "input_digest": "sha256:plan-input",
+        "kind": "plan",
+        "output_digest": null,
+        "parent_receipts": [
+          "receipt:inspect"
+        ],
+        "retry": {
+          "max_attempts": 2
+        },
+        "state": "succeeded",
+        "timeout_ms": 20000
+      },
+      {
+        "authority": "human_approval",
+        "budget": {
+          "max_cost_usd": 0.0,
+          "max_joules": 1000.0
+        },
+        "checkpoint": {
+          "checkpoint_digest": null,
+          "recovery_token": null,
+          "sequence": 0
+        },
+        "id": "approval",
+        "idempotency_key": "golden-rust-run:approval",
+        "input_digest": "sha256:approval-input",
+        "kind": "approval",
+        "output_digest": null,
+        "parent_receipts": [
+          "receipt:plan"
+        ],
+        "retry": {
+          "max_attempts": 2
+        },
+        "state": "succeeded",
+        "timeout_ms": 20000
+      },
+      {
+        "authority": "execute_with_approval",
+        "budget": {
+          "max_cost_usd": 1.0,
+          "max_joules": 1000.0
+        },
+        "checkpoint": {
+          "checkpoint_digest": null,
+          "recovery_token": null,
+          "sequence": 0
+        },
+        "id": "execute",
+        "idempotency_key": "golden-rust-run:execute",
+        "input_digest": "sha256:execute-input",
+        "kind": "execute",
+        "output_digest": null,
+        "parent_receipts": [
+          "receipt:approval"
+        ],
+        "retry": {
+          "max_attempts": 2
+        },
+        "state": "succeeded",
+        "timeout_ms": 20000
+      },
+      {
+        "authority": "verify",
+        "budget": {
+          "max_cost_usd": 0.0,
+          "max_joules": 1000.0
+        },
+        "checkpoint": {
+          "checkpoint_digest": null,
+          "recovery_token": null,
+          "sequence": 0
+        },
+        "id": "verify",
+        "idempotency_key": "golden-rust-run:verify",
+        "input_digest": "sha256:verify-input",
+        "kind": "verify",
+        "output_digest": null,
+        "parent_receipts": [
+          "receipt:execute"
+        ],
+        "retry": {
+          "max_attempts": 2
+        },
+        "state": "succeeded",
+        "timeout_ms": 20000
+      },
+      {
+        "authority": "verify",
+        "budget": {
+          "max_cost_usd": 0.0,
+          "max_joules": 1000.0
+        },
+        "checkpoint": {
+          "checkpoint_digest": null,
+          "recovery_token": null,
+          "sequence": 0
+        },
+        "id": "review",
+        "idempotency_key": "golden-rust-run:review",
+        "input_digest": "sha256:review-input",
+        "kind": "review",
+        "output_digest": null,
+        "parent_receipts": [
+          "receipt:verify"
+        ],
+        "retry": {
+          "max_attempts": 2
+        },
+        "state": "succeeded",
+        "timeout_ms": 20000
+      },
+      {
+        "authority": "read_only",
+        "budget": {
+          "max_cost_usd": 0.0,
+          "max_joules": 1000.0
+        },
+        "checkpoint": {
+          "checkpoint_digest": null,
+          "recovery_token": null,
+          "sequence": 0
+        },
+        "id": "close",
+        "idempotency_key": "golden-rust-run:close",
+        "input_digest": "sha256:close-input",
+        "kind": "close",
+        "output_digest": null,
+        "parent_receipts": [
+          "receipt:review"
+        ],
+        "retry": {
+          "max_attempts": 2
+        },
+        "state": "succeeded",
+        "timeout_ms": 20000
+      }
+    ],
+    "objective_id": "objective-golden-rust",
+    "provenance": {
+      "created_by": "stage-4-rust-golden-test",
+      "parent_receipts": [],
+      "project_contract_digest": "sha256:48a69258d52a48a1acbca189ad8ff3b737bb517f2413e7aebdb2d74eea5d96ae"
+    },
+    "run_id": "golden-rust-run",
+    "schema_version": "arda.run-graph.v1"
+  },
+  "memory": {
+    "scope": "project",
+    "summary": "Rust greeting mutation verified and closed."
+  },
+  "metrics": {
+    "failures": [
+      "Hermes exited unsuccessfully with code Some(75): injected transient adapter failure"
+    ],
+    "install_to_result_ms": 413,
+    "interventions": 1,
+    "observable_mutation_count": 1,
+    "recovery_behavior": "automatic retry after a recorded transient adapter failure"
+  },
+  "model_route": {
+    "adapter": "hermes-workbench",
+    "model": "fixture-model",
+    "provider": "fixture-provider"
+  },
+  "project": {
+    "clean_before_attach": true,
+    "contract_digest": "sha256:48a69258d52a48a1acbca189ad8ff3b737bb517f2413e7aebdb2d74eea5d96ae",
+    "kind": "rust"
+  },
+  "run_id": "golden-rust-run",
+  "schema_version": "arda.workbench-golden-result.v1",
+  "tests": [
+    {
+      "check_id": "test",
+      "command": "cargo test --quiet",
+      "exit_code": 0,
+      "output_digest": "sha256:cd242554bf63c2c2cba4ccabd5534b9361f148b3b1827daced2e6f638e98a1c1",
+      "status": "passed"
+    }
+  ],
+  "tools": [
+    {
+      "action": "{\"operation\":\"bounded_replace\",\"path\":\"src/lib.rs\"}",
+      "exit_code": null,
+      "output_digest": "sha256:13e73ee4c3e90724192322a78dab58e2d0eb4d132141d708b9f2a81c0e8d0ed0",
+      "tool": "file"
+    },
+    {
+      "action": "cargo test --quiet",
+      "exit_code": 0,
+      "output_digest": "sha256:cd242554bf63c2c2cba4ccabd5534b9361f148b3b1827daced2e6f638e98a1c1",
+      "tool": "terminal"
+    }
+  ]
+}

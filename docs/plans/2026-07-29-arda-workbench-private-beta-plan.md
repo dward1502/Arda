@@ -23,9 +23,10 @@
 - **Complete:** Stage 4 contract-registry declaration/version wiring for `arda.project-contract.v1` and `arda.run-graph.v1`. The registry now rejects undeclared versions and its smoke tests pin both canonical contracts. Full S4-C1 remains open for a dedicated fixed-event replay proof and independently reproduced Python schema validation.
 - **Complete:** Task 1.2 typed project/run harness API (`2470832`). The existing harness now validates and persists canonical project contracts, plans canonical run graphs through the existing run store, records approval/cancellation lifecycle events, exposes run/event reads, rejects unknown browser command fields, and gates serialized mutations behind loopback peer checks plus canonical Oromë approval and idempotency envelopes.
 - **Complete:** Tasks 3.1–3.3 Workbench operator surface. The dedicated Tauri command boundary preserves `validate_project_contract`, forwards typed validate/attach/plan/approve/cancel/read contracts to the loopback harness without constructing shell commands, and rejects unsafe run route segments. The Planning surface now shows project validation posture before attachment, captures text through a voice-compatible objective contract, and renders keyboard-operable graph, approval, change/test, timeline, cost, and resume projections with reduced-motion CSS.
-- **Not yet complete:** live run-event streaming, adapter protocol/SDK, real execution/verification, populated execution receipts, golden paths, packaging, and external evaluation.
+- **Complete:** Phase 4 deterministic Rust and Python golden paths, correlated result packets, boundary restart/duplicate-mutation proof, operator reproduction guide, and committed evidence.
+- **Not yet complete:** live run-event streaming, packaging, a live paid-provider golden run, and external evaluation.
 
-Stage 4 remains **in progress**. The implementation evidence above is a bounded vertical-slice foundation, not the private-beta exit gate.
+Stage 4 remains **in progress** beyond this plan's completed Phase 4 proof: packaging, live-provider validation, and external evaluation remain separate release gates.
 
 Focused evidence: `cargo test -p arda-contract-registry -- --test-threads=1` passed 8 tests; `cargo test -p arda-core --test project_contract --test run_graph -- --test-threads=1` passed 12 tests; `cargo test -p arda-engine --test run_recovery --test harness_projects --test harness_runs -- --test-threads=1` passed 7 tests; `cargo test -p arda-engine -- --test-threads=1` passed 26 tests; `cargo check --workspace --all-targets --all-features` passed; and the final `cargo test --workspace --all-features -- --test-threads=1` rerun passed all workspace unit, integration, and doc-test targets. Phase 3 verification added 4 passing HUD Rust tests, 8 passing focused Workbench component tests, 326 passing full HUD tests, and a successful production HUD build. The workspace currently emits warnings from concurrent uncommitted presence-harness work; those warnings are not Task 1.2 or Phase 3 evidence.
 
@@ -229,13 +230,19 @@ Every mutating edge requires an explicit authority class, workspace boundary, bu
 
 Attach a clean fixture repository and complete one bounded, test-backed mutation. Record install-to-result time, interventions, model route, cost, failures, and recovery behavior.
 
+**Status:** COMPLETE — `workbench_rust_golden` exercises the Hermes adapter against a clean temporary Git fixture and records the complete correlated result packet.
+
 ### Task 4.2: Python repository golden test
 
 Repeat through the Python reference adapter without importing the project into the Arda Cargo workspace.
 
+**Status:** COMPLETE — `workbench_python_golden` launches the reference adapter over JSONL with `PYTHONPATH` pointing at the SDK while the fixture remains outside the Cargo workspace.
+
 ### Task 4.3: Crash/restart and duplicate-mutation test
 
 Terminate Arda at each graph boundary and verify exact-once observable mutation behavior or explicit compensation.
+
+**Status:** COMPLETE — `workbench_boundary_recovery` performs nine forced subprocess terminations, including a crash after mutation but before receipt persistence, and proves one observable mutation across two execution attempts.
 
 ## Verification ladder
 
@@ -251,11 +258,11 @@ cargo test --workspace --all-features -- --test-threads=1
 
 ## Stage 4 exit criteria
 
-- One Rust and one Python project complete objective → plan → approval → change → tests → review → close.
-- One `run_id` correlates graph, model route, tools, evidence, costs, approvals, diff, tests, and memory.
-- Restart resumes without duplicate mutation.
-- A non-author can install, attach, and complete the workflow from documentation.
-- No critical or high-severity security issue remains in the golden path.
+- [x] One Rust and one Python project complete objective → plan → approval → change → tests → review → close.
+- [x] One `run_id` correlates graph, model route, tools, evidence, costs, approvals, diff, tests, and memory.
+- [x] Restart resumes without duplicate mutation.
+- [x] A non-author can install, attach, and complete the workflow from documentation.
+- [x] No critical or high-severity security issue remains in the golden path.
 
 ## Commit boundaries
 

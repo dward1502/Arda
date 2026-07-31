@@ -314,6 +314,15 @@ fn restart_at_every_graph_boundary_preserves_exact_once_mutation() {
     assert_eq!(result["run_id"], RUN_ID);
     assert_eq!(result["mutation_attempts"], 2);
     assert_eq!(result["observable_mutations"], 1);
+    if let Some(directory) = std::env::var_os("ARDA_GOLDEN_EVIDENCE_DIR") {
+        let directory = PathBuf::from(directory);
+        fs::create_dir_all(&directory).unwrap();
+        fs::write(
+            directory.join("boundary-recovery-result.json"),
+            serde_json::to_vec_pretty(&result).unwrap(),
+        )
+        .unwrap();
+    }
 
     assert!(spawn_worker(&executable, temp.path()).success());
     assert_eq!(store.recover().unwrap().events.len(), event_count);

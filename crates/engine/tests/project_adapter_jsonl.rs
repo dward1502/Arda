@@ -201,3 +201,30 @@ async fn adapter_cancellation_terminates_and_reaps_process() {
         "cancelled adapter pid {pid} survived"
     );
 }
+
+#[tokio::test]
+async fn adapter_rejects_unevaluated_protocol_fields() {
+    let root = TempDir::new().expect("project root");
+    let mut adapter_config = config(&root, Duration::from_secs(1));
+    adapter_config.args = vec![
+        "-u".into(),
+        "-c".into(),
+        r#"import json,sys
+message=json.loads(sys.stdin.readline())
+print(json.dumps({"schema_version":"arda.project-adapter.v1","id":"bad:initialized","type":"initialized","request_id":message["id"],"adapter":"bad","adapter_version":"1","capabilities":["echo"],"recovery_supported":False,"unexpected":True}),flush=True)"#.into(),
+    ];
+    let adapter = JsonlAdapter::new(adapter_config).expect("valid process config");
+
+    let error = adapter
+        .execute(
+            request("invalid-frame", "echo", json!({})),
+            AdapterCancellation::new(),
+        )
+        .await
+        .expect_err("unevaluated fields must fail closed");
+
+    assert!(
+        matches!(error, AdapterError::Protocol(ref message) if message.contains("unknown fields")),
+        "expected an unknown-fields protocol error, got {error:?}"
+    );
+}

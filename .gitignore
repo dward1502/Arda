@@ -31,6 +31,10 @@ dist-ssr
 .temp
 .tmp
 
+# Python
+__pycache__/
+*.py[cod]
+
 # Logs
 logs
 *.log

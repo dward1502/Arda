@@ -248,6 +248,7 @@ impl JsonlAdapter {
         loop {
             let frame = read_frame(reader, self.config.max_line_bytes, cancellation).await?;
             expect_common(&frame)?;
+            ensure_response_fields(&frame)?;
             let kind = frame
                 .get("type")
                 .and_then(Value::as_str)
@@ -421,6 +422,7 @@ fn expect_common(frame: &Value) -> Result<(), AdapterError> {
 
 fn expect_response(frame: &Value, kind: &str, request_id: &str) -> Result<(), AdapterError> {
     expect_common(frame)?;
+    ensure_response_fields(frame)?;
     if frame.get("type").and_then(Value::as_str) == Some("error") {
         return Err(AdapterError::Protocol(format!(
             "adapter error {}: {}",
@@ -433,6 +435,90 @@ fn expect_response(frame: &Value, kind: &str, request_id: &str) -> Result<(), Ad
     {
         return Err(AdapterError::Protocol(format!(
             "expected correlated {kind} response"
+        )));
+    }
+    Ok(())
+}
+
+fn ensure_response_fields(frame: &Value) -> Result<(), AdapterError> {
+    let kind = frame
+        .get("type")
+        .and_then(Value::as_str)
+        .ok_or_else(|| AdapterError::Protocol("adapter response has no type".into()))?;
+    let allowed: &[&str] = match kind {
+        "initialized" => &[
+            "schema_version",
+            "id",
+            "type",
+            "request_id",
+            "adapter",
+            "adapter_version",
+            "capabilities",
+            "recovery_supported",
+        ],
+        "health_status" => &[
+            "schema_version",
+            "id",
+            "type",
+            "request_id",
+            "status",
+            "detail",
+        ],
+        "progress" => &[
+            "schema_version",
+            "id",
+            "type",
+            "request_id",
+            "sequence",
+            "message",
+            "percent",
+            "detail",
+        ],
+        "result" => &[
+            "schema_version",
+            "id",
+            "type",
+            "request_id",
+            "status",
+            "output",
+            "provenance",
+            "recovery_token",
+        ],
+        "denied_capability" => &[
+            "schema_version",
+            "id",
+            "type",
+            "request_id",
+            "capability",
+            "reason",
+        ],
+        "cancelled" => &["schema_version", "id", "type", "request_id"],
+        "error" => &[
+            "schema_version",
+            "id",
+            "type",
+            "request_id",
+            "code",
+            "message",
+            "retryable",
+        ],
+        other => {
+            return Err(AdapterError::Protocol(format!(
+                "unexpected adapter message type {other:?}"
+            )));
+        }
+    };
+    let object = frame
+        .as_object()
+        .ok_or_else(|| AdapterError::Protocol("adapter response must be an object".into()))?;
+    let unknown: Vec<&str> = object
+        .keys()
+        .map(String::as_str)
+        .filter(|field| !allowed.contains(field))
+        .collect();
+    if !unknown.is_empty() {
+        return Err(AdapterError::Protocol(format!(
+            "adapter response contains unknown fields: {unknown:?}"
         )));
     }
     Ok(())

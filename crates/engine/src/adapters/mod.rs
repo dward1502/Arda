@@ -1,7 +1,13 @@
 //! Bounded project-adapter process boundary.
 
+mod hermes;
 mod jsonl;
 
+pub use hermes::{
+    HermesAdapter, HermesAdapterConfig, HermesAdapterError, HermesArtifactEvidence,
+    HermesExecutionReceipt, HermesNodeTask, HermesReceiptStatus, HermesTestEvidence,
+    HermesToolEvidence, HermesToolsets, NormalizedHermesUsage,
+};
 pub use jsonl::JsonlAdapter;
 
 use serde::{Deserialize, Serialize};

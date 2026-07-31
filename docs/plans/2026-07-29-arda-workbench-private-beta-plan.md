@@ -169,6 +169,8 @@ Every mutating edge requires an explicit authority class, workspace boundary, bu
 - Python adapter passes an offline conformance suite.
 - Engine enforces process, timeout, cwd, environment allowlist, and cancellation boundaries.
 
+**Status — 2026-07-31:** Complete for the Task 2.1 protocol boundary. The versioned JSONL-over-stdio contract covers initialization, capability advertisement and denial, health, bounded request/progress/result flow, cooperative cancellation, provenance, and opaque recovery tokens. The Python reference server passes six offline conformance tests, including independent Draft 2020-12 validation when `jsonschema` is available. Five process-level Rust tests prove absolute executable and canonical cwd checks, a cleared allowlisted environment, configured timeout, cancellation, child reaping, and fail-closed rejection of unevaluated response fields. This does not add the Task 2.2 Hermes adapter or make adapter-local state canonical.
+
 ### Task 2.2: Add the first Hermes execution adapter
 
 **Files**
@@ -179,6 +181,8 @@ Every mutating edge requires an explicit authority class, workspace boundary, bu
 **Acceptance**
 - The adapter turns graph nodes into bounded Hermes jobs and translates actual tool/test evidence back into Arda receipts.
 - Vendor-specific session data never becomes the canonical run state.
+
+**Status — 2026-07-31:** Complete. Ready run-graph nodes now become non-interactive Hermes `tool` sessions bounded by node/config timeout, turn count, authority-specific toolsets, canonical project cwd, cleared allowlisted environment, output caps, and whole-process-group termination. Execute/compensate authorities fail closed without an approval receipt. Hermes final output may claim only tool-call identifiers; the adapter resolves those identifiers against Hermes' redacted session export and independently derives tool action, exit status, output digest, declared-check result, usage, and cost. Missing/forged evidence, undeclared result fields, out-of-project artifacts, digest mismatches, and over-budget cost fail closed. The normalized Arda receipt contains no Hermes session identifier, transcript path, or recovery token, and canonical `RunEventDraft` state receives only the receipt digest. Seven process-level contract tests cover the bounded mapping, observed-evidence translation, approval gating, timeout plus descendant reaping, documented quiet-output variants, config bounds, forged evidence, and vendor-state rejection.
 
 ## Phase 3 — Build the Workbench operator surface
 

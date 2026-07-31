@@ -1,0 +1,30 @@
+schema_version = "arda.hermes-adapter.v1"
+adapter_version = "1"
+executable = "hermes"
+max_timeout_ms = 900000
+cancellation_grace_ms = 1000
+max_turns = 32
+max_prompt_bytes = 131072
+max_output_bytes = 1048576
+# Hermes needs a home/profile to resolve provider configuration, authentication,
+# and its transient session export. Production service units should point HOME
+# and HERMES_HOME at a dedicated least-privilege Workbench profile; the adapter
+# deliberately does not copy that profile's session identifiers into receipts.
+inherit_environment = [
+  "HOME",
+  "HERMES_HOME",
+  "PATH",
+  "LANG",
+  "LC_ALL",
+  "SSL_CERT_FILE",
+  "SSL_CERT_DIR",
+]
+
+# These are Hermes toolset names, not shell commands. Execution remains gated by
+# the canonical run-node authority and approval receipt before process spawn.
+[toolsets]
+read_only = ["file"]
+human_approval = []
+execute_with_approval = ["file", "terminal"]
+verify = ["file", "terminal"]
+compensate_with_approval = ["file", "terminal"]

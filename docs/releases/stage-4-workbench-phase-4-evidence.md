@@ -65,4 +65,6 @@ The focused security review found:
 - evidence exports are redacted normalized receipts, diffs, digests, and metrics;
 - recovery replays an idempotent bounded mutation and proves one observable effect.
 
+The reviewer recorded one accepted low-severity hardening note: `ARDA_GOLDEN_EVIDENCE_DIR` and the reproduction script's output argument are caller-controlled and are not required to resolve beneath the repository. They can therefore create the three fixed evidence filenames in any caller-writable directory. This remains intentional for test/CI artifact export, does not affect production execution, and does not expose caller-selected filenames or payloads. A future stricter CI profile may constrain this path to the repository or an explicit temporary artifact root.
+
 Remaining limitations are medium or lower release-gate items: live-provider prompt-injection evaluation, packaging, signed artifact provenance, and external non-author evaluation are not covered by this deterministic Phase 4 packet.

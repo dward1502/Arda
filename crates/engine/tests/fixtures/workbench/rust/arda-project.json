@@ -1,0 +1,28 @@
+{
+  "schema_version": "arda.project-contract.v1",
+  "identity": {
+    "project_id": "6204a9d1-d2da-4b52-8f31-cca2a5cfa810",
+    "name": "arda-rust-golden-fixture",
+    "kind": "rust"
+  },
+  "workspace": {"root": "."},
+  "runtime": {"adapter": "cargo"},
+  "commands": [
+    {"id": "test", "program": "cargo", "args": ["test", "--quiet"], "working_dir": "."}
+  ],
+  "checks": [{"id": "test", "command": "test"}],
+  "artifacts": [{"id": "library", "path": "target/debug/libarda_rust_golden_fixture.rlib"}],
+  "permissions": {
+    "authority": "approval_required",
+    "network": {"allow": false},
+    "filesystem": {"write": true},
+    "secrets": {"env_names": []}
+  },
+  "rollback": {"strategy": "git_revert"},
+  "memory": {"scope": "project"},
+  "provenance": {
+    "declared_by": "arda-stage-4-golden-test",
+    "declared_at": "2026-07-31T00:00:00Z",
+    "stage": 4
+  }
+}

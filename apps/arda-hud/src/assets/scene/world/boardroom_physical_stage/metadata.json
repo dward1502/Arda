@@ -1,0 +1,33 @@
+{
+  "id": "world_boardroom_physical_stage",
+  "domain": "world",
+  "scene_binding": "boardroom_physical_stage",
+  "material_family": "boardroom_desk",
+  "source": "Authored with Blender 5.2 from /var/home/mythos/Downloads/desk.jpg composition reference; no humans, chair, or keyboards",
+  "license": "Internal",
+  "files": {
+    "model": "boardroom_physical_stage.glb",
+    "source_blend": "boardroom_physical_stage.blend",
+    "reference_render": "boardroom_physical_stage_reference.png"
+  },
+  "forge": {
+    "schema_version": 1,
+    "backend": "local_flatpak_blender_5_2_python_api",
+    "source_script": "tools/blender/build_boardroom_physical_stage.py",
+    "output_sha256": "14f7e2edebd4efb428613296da7ef9b3b0601bde4a7024765168f789d5412e7b",
+    "reference_render_sha256": "8bbc426a4350c1f8bba2ea628d552d2997e4df7f93c362c6e0b07a5cae00571f",
+    "quality_gate": "three Blender render/vision iterations before runtime integration",
+    "required_features": [
+      "continuous_curved_command_desk",
+      "five_slim_integrated_monitor_housings",
+      "shared_dark_rear_monitor_shroud",
+      "hierarchical_five_zone_lower_console",
+      "outer_tactical_wings",
+      "primary_center_command_surface",
+      "recessed_material_seams_and_data_traces",
+      "localized_capacitive_controls",
+      "recessed_physical_control_well"
+    ]
+  },
+  "notes": "Physical-shell asset only. Five interactive monitor surfaces, five hierarchical lower-console surfaces, the animated ARDA presence emitter, and four kinetic buttons remain runtime Three.js elements aligned over authored apertures."
+}

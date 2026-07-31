@@ -2409,11 +2409,13 @@ export default function App() {
           onClose={closeWindow}
         />
       ) : null}
-      <div className="keyboard-hints">
-        <span className="kbd">Tab</span> Navigate
-        <span className="kbd">Esc</span> Back
-        <span className="kbd">Alt+1/2/3</span> Views
-      </div>
+      {viewMode !== 'boardroom' ? (
+        <div className="keyboard-hints">
+          <span className="kbd">Tab</span> Navigate
+          <span className="kbd">Esc</span> Back
+          <span className="kbd">Alt+1/2/3</span> Views
+        </div>
+      ) : null}
       <div className="arda-background" />
       {error ? <div className="arda-error">{error}</div> : null}
       {isLoading && !bundle ? <div className="arda-loading">Loading core-state bundle...</div> : null}

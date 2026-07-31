@@ -1,0 +1,12 @@
+{
+  "id": "window_boardroom_reference_atmosphere",
+  "domain": "window",
+  "scene_binding": "shared",
+  "material_family": "boardroom_reference_atmosphere",
+  "source": "operator_reference_derivative_upper_atmosphere_crop",
+  "license": "Internal",
+  "files": {
+    "plate": "boardroom_reference_atmosphere.jpg"
+  },
+  "notes": "Upper atmosphere crop of the operator-supplied desk.jpg. Excludes the seated operator, chair, keyboards, and reference monitor row so all foreground interaction remains live Three.js geometry."
+}

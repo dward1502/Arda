@@ -15,7 +15,8 @@
     "package:stable": "bash ../../scripts/package_arda_hud.sh",
     "launch:stable": "bash ../../scripts/launch_arda_hud.sh",
     "soterion:unicode": "bash scripts/soterion_unicode_guard.sh",
-    "export:companion-state": "node scripts/export-companion-state.mjs"
+    "export:companion-state": "node scripts/export-companion-state.mjs",
+    "verify:boardroom-assets": "node scripts/check-boardroom-asset-budget.mjs"
   },
   "packageManager": "pnpm@10.8.1",
   "engines": {

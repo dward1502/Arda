@@ -2,8 +2,11 @@
 .hud-instrument {
   --hud-color: #5defff;
   display: grid;
-  width: 10.4rem;
-  aspect-ratio: 1.72;
+  overflow: hidden;
+  isolation: isolate;
+  pointer-events: auto;
+  width: 12rem;
+  aspect-ratio: 2.04;
   grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 0.24rem;
   border: 1px solid color-mix(in srgb, var(--hud-color) 42%, transparent);
@@ -20,9 +23,56 @@
     0 0 1.25rem color-mix(in srgb, var(--hud-color) 18%, transparent);
 }
 
+.boardroom-scene__monitor-native-target {
+  display: block;
+  width: 12rem;
+  aspect-ratio: 2.04;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.boardroom-scene__monitor-native-target--desk_surface {
+  width: 8.6rem;
+  aspect-ratio: 2.12;
+}
+
 .hud-instrument--desk_surface {
-  width: 7.8rem;
-  aspect-ratio: 1.35;
+  width: 8.6rem;
+  aspect-ratio: 2.12;
+  gap: 0.12rem;
+  padding: 0.24rem;
+}
+
+.hud-instrument--desk_surface.hud-instrument--desk-outer {
+  width: 10rem;
+  aspect-ratio: 2.24;
+  background:
+    linear-gradient(180deg, rgba(2, 12, 18, 0.92), rgba(1, 5, 9, 0.97)),
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--hud-color) 5%, transparent) 0 1px, transparent 1px 9px);
+}
+
+.hud-instrument--desk_surface.hud-instrument--desk-inner {
+  width: 7.6rem;
+  aspect-ratio: 2;
+  opacity: 0.92;
+}
+
+.hud-instrument--desk_surface .hud-instrument__header b,
+.hud-instrument--desk_surface .hud-instrument__footer {
+  font-size: 0.32rem;
+}
+
+.hud-instrument--desk_surface .hud-instrument__header strong {
+  max-width: 3.8rem;
+  font-size: 0.46rem;
+}
+
+.hud-instrument--desk_surface .hud-instrument__header i {
+  min-width: 1.1rem;
+  height: 0.8rem;
+  font-size: 0.32rem;
 }
 
 .hud-instrument--cyan {
@@ -92,6 +142,8 @@
 }
 
 .hud-instrument__scope {
+  display: block;
+  overflow: hidden;
   width: 100%;
   min-height: 0;
   color: var(--hud-color);

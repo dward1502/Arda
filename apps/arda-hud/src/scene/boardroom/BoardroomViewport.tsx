@@ -1,5 +1,5 @@
 // sigil: REPAIR
-import { Canvas, type ThreeEvent } from '@react-three/fiber'
+import { Canvas, useFrame, type ThreeEvent } from '@react-three/fiber'
 import { Environment, Html, OrbitControls, useGLTF, useTexture } from '@react-three/drei'
 import { Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import * as THREE from 'three'
@@ -7,7 +7,7 @@ import type { Group } from 'three'
 import type { BoardroomSurfaceLayout } from '../../lib/boardroomSlotSettings'
 import type { ArdaSourceProvenance } from '../../lib/ardaProvenance'
 import type { SceneAnchorDefinition, SceneZoneDefinition, WorkstationManifestDefinition } from '../systems/runtimeTypes'
-import type { FleetViewModel } from '../workstations/viewModels'
+import type { FleetViewModel, WorkstationStatus } from '../workstations/viewModels'
 import { getSurfaceAdapterManifest } from '../../lib/surfaceAdapterManifests'
 import SceneRuntimeCard from '../systems/SceneRuntimeCard'
 import { getSceneAssetByBinding, getWindowAssetUrl } from '../systems/sceneAssets'
@@ -16,7 +16,6 @@ import type { AgentPresenceState, PresenceLedgerStatus } from '../systems/presen
 import { useSceneMaterial } from '../systems/sceneMaterials'
 import BoardroomMissionCue from './BoardroomMissionCue'
 import {
-  BOARDROOM_CONSOLE_SHELL_SEGMENTS,
   BOARDROOM_CONTROL_ZONES,
   BOARDROOM_MONITOR_ZONES,
   getBoardroomSpatialZone,
@@ -26,7 +25,6 @@ import {
   type BoardroomVec3,
   type BoardroomZonePositionOverrides,
 } from './boardroomSpatialLayout'
-import { deriveBoardroomMonitorModelBinding } from './boardroomMonitorModels'
 import {
   previewPresetForSource,
   previewTitleForSource,
@@ -35,12 +33,26 @@ import {
   type HudInstrumentModel,
   type HudTone,
 } from './boardroomHudInstruments'
-import { deriveBoardroomScreenVisualRefinement } from './boardroomVisualRefinement'
-import { deriveBoardroomConsoleSegmentGeometry } from './boardroomConsoleSegments'
+
 import PresenceAvatar from './PresenceAvatar'
 import { parseJsonOrNull } from '../../lib/jsonParse'
 import { deriveBoardroomPresenceStatusView } from './boardroomPresenceStatus'
 import { resolveSceneSlotWorkstationZoneId } from '../workstations/sceneSlotWorkstationTemplates'
+import {
+  BOARDROOM_CAMERA_COMPOSITION,
+  deriveAvatarEmitterGeometry,
+} from './boardroomComposition'
+import {
+  deriveBoardroomPhysicalControlState,
+  getBoardroomPhysicalControlAction,
+  resolveBoardroomPhysicalControlInteraction,
+  type BoardroomPhysicalControlAction,
+  type BoardroomPhysicalControlState,
+} from './boardroomPhysicalControls'
+import {
+  resolveBoardroomRenderProfile,
+  type BoardroomRenderProfile,
+} from './boardroomPerformance'
 
 interface BoardroomViewportProps {
   active: boolean
@@ -95,67 +107,6 @@ function LoadedSceneAsset({
   return <primitive object={scene} {...props} />
 }
 
-function FittedSceneAssetModel({
-  binding,
-  fitSize,
-  fallback,
-  surfaceOffset = [0, 0, 0],
-  ...props
-}: {
-  binding: string
-  fitSize: BoardroomVec3
-  fallback: ReactNode
-  surfaceOffset?: BoardroomVec3
-  onClick?: () => void
-}) {
-  const asset = getSceneAssetByBinding(binding)
-  if (!asset?.glbUrl) return <>{fallback}</>
-  return <LoadedFittedSceneAsset url={asset.glbUrl} fitSize={fitSize} surfaceOffset={surfaceOffset} {...props} />
-}
-
-function LoadedFittedSceneAsset({
-  url,
-  fitSize,
-  surfaceOffset,
-  ...props
-}: {
-  url: string
-  fitSize: BoardroomVec3
-  surfaceOffset: BoardroomVec3
-  onClick?: () => void
-}) {
-  const gltf = useGLTF(url)
-  const { scene, scale, position } = useMemo(() => {
-    const clonedScene = gltf.scene.clone(true) as Group
-    const box = new THREE.Box3().setFromObject(clonedScene)
-    const size = new THREE.Vector3()
-    const center = new THREE.Vector3()
-    box.getSize(size)
-    box.getCenter(center)
-
-    const safeScale = Math.min(
-      fitSize[0] / Math.max(size.x, 0.001),
-      fitSize[1] / Math.max(size.y, 0.001),
-      fitSize[2] / Math.max(size.z, 0.001),
-    )
-
-    return {
-      scene: clonedScene,
-      scale: safeScale,
-      position: [
-        surfaceOffset[0] - center.x * safeScale,
-        surfaceOffset[1] - center.y * safeScale,
-        surfaceOffset[2] - center.z * safeScale,
-      ] as BoardroomVec3,
-    }
-  }, [fitSize, gltf.scene, surfaceOffset])
-
-  return (
-    <group {...props}>
-      <primitive object={scene} scale={scale} position={position} />
-    </group>
-  )
-}
 
 function CyberpunkCityWindow({ url }: { url: string }) {
   const texture = useTexture(url)
@@ -164,84 +115,85 @@ function CyberpunkCityWindow({ url }: { url: string }) {
   }, [texture])
 
   return (
-    <group position={[0, 2.92, -4.92]}>
+    <group position={[0, 3.15, -4.92]} name="boardroom-reference-atmosphere">
       <mesh position={[0, 0, 0]}>
-        <planeGeometry args={[8.9, 2.9]} />
+        <planeGeometry args={[13.4, 5.025]} />
         <meshBasicMaterial map={texture} toneMapped={false} transparent opacity={1} />
       </mesh>
       <mesh position={[0, 0, 0.025]}>
-        <planeGeometry args={[8.9, 2.9]} />
-        <meshBasicMaterial color="#2ff6ff" transparent opacity={0.08} blending={THREE.AdditiveBlending} />
-      </mesh>
-      {[-3.9, -2.8, -1.7, -0.85, 0.35, 1.45, 2.65, 3.55].map((x, index) => (
-        <mesh key={x} position={[x, -0.18 + (index % 3) * 0.16, 0.05]}>
-          <boxGeometry args={[0.08 + (index % 2) * 0.04, 1.2 + (index % 4) * 0.28, 0.02]} />
-          <meshBasicMaterial color={index % 2 === 0 ? '#ff3eb5' : '#32e8ff'} transparent opacity={0.35} blending={THREE.AdditiveBlending} />
-        </mesh>
-      ))}
-      <mesh position={[0, -1.42, 0.06]}>
-        <planeGeometry args={[8.9, 0.18]} />
-        <meshBasicMaterial color="#ff3eb5" transparent opacity={0.22} blending={THREE.AdditiveBlending} />
+        <planeGeometry args={[13.4, 5.025]} />
+        <meshBasicMaterial color="#7adfff" transparent opacity={0.025} blending={THREE.AdditiveBlending} />
       </mesh>
     </group>
   )
 }
 
-function BoardroomConsoleShell({ material }: { material: THREE.Material }) {
+function BoardroomConsoleShell() {
+  const deskShape = useMemo(() => {
+    const shape = new THREE.Shape()
+    const points: Array<[number, number]> = [
+      [-5.65, 2.75], [-5.48, 0.78], [-4.2, -0.08], [-2.35, -0.38], [0, -0.48],
+      [2.35, -0.38], [4.2, -0.08], [5.48, 0.78], [5.65, 2.75], [4.42, 2.5],
+      [3.08, 2.12], [1.68, 1.84], [0, 1.73], [-1.68, 1.84], [-3.08, 2.12], [-4.42, 2.5],
+    ]
+    shape.moveTo(points[0][0], points[0][1])
+    for (const [x, y] of points.slice(1)) shape.lineTo(x, y)
+    shape.closePath()
+    return shape
+  }, [])
+  const frontRail = useMemo(
+    () => new THREE.CatmullRomCurve3([
+      new THREE.Vector3(-4.42, 0.24, 2.5),
+      new THREE.Vector3(-3.08, 0.24, 2.12),
+      new THREE.Vector3(-1.68, 0.24, 1.84),
+      new THREE.Vector3(0, 0.24, 1.73),
+      new THREE.Vector3(1.68, 0.24, 1.84),
+      new THREE.Vector3(3.08, 0.24, 2.12),
+      new THREE.Vector3(4.42, 0.24, 2.5),
+    ]),
+    [],
+  )
+  const rearRail = useMemo(
+    () => new THREE.CatmullRomCurve3([
+      new THREE.Vector3(-5.48, 0.22, 0.78),
+      new THREE.Vector3(-4.2, 0.22, -0.08),
+      new THREE.Vector3(-2.35, 0.22, -0.38),
+      new THREE.Vector3(0, 0.22, -0.48),
+      new THREE.Vector3(2.35, 0.22, -0.38),
+      new THREE.Vector3(4.2, 0.22, -0.08),
+      new THREE.Vector3(5.48, 0.22, 0.78),
+    ]),
+    [],
+  )
+
   return (
     <group name="boardroom-command-console-shell">
-      {BOARDROOM_CONSOLE_SHELL_SEGMENTS.map((segment) => {
-        const geometry = deriveBoardroomConsoleSegmentGeometry(segment)
-        return (
-        <group key={segment.id} name={segment.id} position={segment.position} rotation={segment.rotation}>
-          <mesh material={material} receiveShadow castShadow name={`${segment.id}.base`}>
-            <boxGeometry args={geometry.housing.size} />
-          </mesh>
-
-          <mesh position={[0, segment.size[1] / 2 + 0.025, segment.size[2] / 2 - 0.075]}>
-            <boxGeometry args={[segment.size[0] - 0.14, 0.045, 0.08]} />
-            <meshStandardMaterial
-              color="#0a1721"
-              emissive={segment.accent}
-              emissiveIntensity={0.72}
-              metalness={0.74}
-              roughness={0.28}
-            />
-          </mesh>
-          {[-1, 1].map((side) => (
-            <mesh
-              key={side}
-              position={[side * (segment.size[0] / 2 - 0.035), 0, segment.size[2] * 0.12]}
-            >
-              <boxGeometry args={[0.055, segment.size[1] * 0.72, segment.size[2] * 0.58]} />
-              <meshStandardMaterial
-                color="#172633"
-                emissive={segment.accent}
-                emissiveIntensity={0.16}
-                metalness={0.82}
-                roughness={0.34}
-              />
-            </mesh>
-          ))}
-          {geometry.vents.map((vent) => (
-            <mesh key={vent.side} position={vent.position} name={`${segment.id}.vent.${vent.side}`}>
-              <boxGeometry args={vent.size} />
-              <meshStandardMaterial color="#02070b" metalness={0.5} roughness={0.8} />
-            </mesh>
-          ))}
-          {geometry.fasteners.map((fastener) => (
-            <mesh
-              key={`${fastener.side}.${fastener.index}`}
-              position={fastener.position}
-              name={`${segment.id}.fastener.${fastener.side}.${fastener.index}`}
-            >
-              <boxGeometry args={fastener.size} />
-              <meshStandardMaterial color="#8da2b2" metalness={0.94} roughness={0.18} />
-            </mesh>
-          ))}
-        </group>
-        )
-      })}
+      <mesh position={[0, 0.18, 0]} rotation={[Math.PI / 2, 0, 0]} receiveShadow castShadow>
+        <extrudeGeometry args={[deskShape, {
+          depth: 0.36,
+          bevelEnabled: true,
+          bevelSegments: 3,
+          bevelSize: 0.065,
+          bevelThickness: 0.055,
+          curveSegments: 32,
+        }]} />
+        <meshStandardMaterial
+          color="#04080d"
+          emissive="#071621"
+          emissiveIntensity={0.18}
+          metalness={0.88}
+          roughness={0.2}
+          envMapIntensity={1.35}
+        />
+      </mesh>
+      <mesh>
+        <tubeGeometry args={[frontRail, 64, 0.035, 8, false]} />
+        <meshStandardMaterial color="#8bf8ff" emissive="#3eeeff" emissiveIntensity={2.4} metalness={0.5} roughness={0.2} />
+      </mesh>
+      <mesh>
+        <tubeGeometry args={[rearRail, 64, 0.025, 8, false]} />
+        <meshStandardMaterial color="#ff62bf" emissive="#ff2f9e" emissiveIntensity={1.8} metalness={0.45} roughness={0.24} />
+      </mesh>
     </group>
   )
 }
@@ -252,7 +204,7 @@ function setPointerCursor(active: boolean) {
 
 type Vec3 = BoardroomVec3
 
-const BOARDROOM_ZONE_POSITION_OVERRIDES_STORAGE_KEY = 'arda.boardroom.zone_positions.v1'
+const BOARDROOM_ZONE_POSITION_OVERRIDES_STORAGE_KEY = 'arda.boardroom.zone_positions.v3'
 
 function localStorageOrNull(): Storage | null {
   return typeof window === 'undefined' ? null : window.localStorage
@@ -417,67 +369,6 @@ function InteractionPad({
   )
 }
 
-function ScreenSurface({
-  zone,
-}: {
-  zone: BoardroomSpatialZone
-}) {
-  const refinement = useMemo(() => deriveBoardroomScreenVisualRefinement(zone), [zone])
-  const glassColor = new THREE.Color('#06131c')
-  const trimColor = new THREE.Color(zone.color)
-
-  return (
-    <group>
-      <mesh
-        onPointerOver={() => setPointerCursor(true)}
-        onPointerOut={() => setPointerCursor(false)}
-      >
-        <boxGeometry args={refinement.paneArgs} />
-        <meshPhysicalMaterial
-          color={glassColor}
-          emissive={trimColor}
-          emissiveIntensity={0.28}
-          transparent
-          opacity={refinement.paneOpacity}
-          roughness={refinement.paneRoughness}
-          metalness={refinement.paneMetalness}
-          clearcoat={refinement.paneClearcoat}
-          clearcoatRoughness={0.18}
-        />
-      </mesh>
-      {refinement.trimBars.map((bar) => (
-        <mesh key={bar.id} position={bar.position}>
-          <boxGeometry args={bar.args} />
-          <meshStandardMaterial
-            color="#101923"
-            emissive={zone.color}
-            emissiveIntensity={refinement.trimEmissiveIntensity}
-            roughness={refinement.trimRoughness}
-            metalness={refinement.trimMetalness}
-          />
-        </mesh>
-      ))}
-    </group>
-  )
-}
-
-function BoardroomMonitorModelSurface({
-  zone,
-}: {
-  zone: BoardroomSpatialZone
-}) {
-  const modelBinding = useMemo(() => deriveBoardroomMonitorModelBinding(zone), [zone])
-  if (!modelBinding) return <ScreenSurface zone={zone} />
-
-  return (
-    <FittedSceneAssetModel
-      binding={modelBinding.binding}
-      fitSize={modelBinding.fitSize}
-      surfaceOffset={modelBinding.surfaceOffset}
-      fallback={<ScreenSurface zone={zone} />}
-    />
-  )
-}
 
 function getSlotAssignment(
   workstations: WorkstationManifestDefinition[],
@@ -517,6 +408,7 @@ function formatFleetValue(value: number | string | null | undefined, fallback = 
 }
 
 const BOARDROOM_WORKSTATION_ZONE_IDS = new Set(['sovereign_world', 'settings'])
+const isNativeTauriRuntime = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window
 
 function getSceneWorkstations(workstations: WorkstationManifestDefinition[]): WorkstationManifestDefinition[] {
   return workstations.filter((workstation) => !BOARDROOM_WORKSTATION_ZONE_IDS.has(workstation.sourceZoneId))
@@ -706,49 +598,66 @@ function HudInstrumentSurface({
   onActivate: () => void
 }) {
   const model = instrument ?? instrumentModelForAssignment(zone, assignment, persistedSourceZoneId)
-  const className = `hud-instrument hud-instrument--${zone.previewMode} hud-instrument--${model.tone} hud-instrument--${model.status}`
+  const deskRole = zone.id.includes('wrap') ? 'outer' : zone.id.includes('inner') ? 'inner' : 'standard'
+  const className = `hud-instrument hud-instrument--${zone.previewMode} hud-instrument--desk-${deskRole} hud-instrument--${model.tone} hud-instrument--${model.status}`
   const glowId = `${zone.id.replace(/[^a-z0-9_-]/gi, '-')}-glow`
   const sourceTime = model.source?.observedAtUtc?.slice(11, 16) ?? '--:--'
   const sourceTitle = model.source
     ? `${(model.source.sourceIds ?? [model.source.sourceId]).join(', ')} · ${model.source.sourcePaths.join(', ')} · observed ${model.source.observedAtUtc ?? 'unknown'}`
     : undefined
+  const distanceFactor = zone.previewMode === 'monitor_surface' ? 4.1 : 4.3
+  const surfacePosition: Vec3 = zone.previewMode === 'monitor_surface'
+    ? [0, 0, 0.12]
+    : [0, zone.size[1] / 2 + 0.045, 0]
 
   return (
-    <Html
-      center
-      transform
-      distanceFactor={zone.previewMode === 'monitor_surface' ? 4.1 : 4.3}
-      position={zone.previewMode === 'monitor_surface' ? [0, 0, 0.12] : [0, zone.size[1] / 2 + 0.045, 0]}
-      rotation={zone.previewMode === 'monitor_surface' ? [0, 0, 0] : [-Math.PI / 2, 0, 0]}
-    >
-      <button type="button" className={className} onClick={onActivate} aria-label={`Open ${model.title}`}>
-        <span className="hud-instrument__header">
-          <span>
-            <b>{model.eyebrow}</b>
-            <strong>{model.title}</strong>
-          </span>
-          <i>{model.glyph}</i>
-        </span>
-        <HudInstrumentVisualization model={model} glowId={glowId} />
-        <span className="hud-instrument__footer">
-          <span className={`hud-instrument__status hud-instrument__status--${model.status}`}>
-            {model.status === 'nominal' ? 'live' : model.status === 'offline' ? 'no data' : model.status}
-          </span>
-          {model.source ? (
-            <span className={`hud-instrument__source hud-instrument__source--${model.source.freshness}`} title={sourceTitle}>
-              {model.source.freshness} {sourceTime}Z
+    <>
+      <Html
+        center
+        transform
+        distanceFactor={distanceFactor}
+        position={surfacePosition}
+        rotation={zone.previewMode === 'monitor_surface' ? [0, 0, 0] : [-Math.PI / 2, 0, 0]}
+      >
+        <button type="button" className={className} onClick={onActivate} aria-label={`Open ${model.title}`}>
+          <span className="hud-instrument__header">
+            <span>
+              <b>{model.eyebrow}</b>
+              <strong>{model.title}</strong>
             </span>
-          ) : null}
-          <span className="hud-instrument__pips">
-            <i />
-            <i />
-            <i />
-            <i />
-            <i />
+            <i>{model.glyph}</i>
           </span>
-        </span>
-      </button>
-    </Html>
+          <HudInstrumentVisualization model={model} glowId={glowId} />
+          <span className="hud-instrument__footer">
+            <span className={`hud-instrument__status hud-instrument__status--${model.status}`}>
+              {model.status === 'nominal' ? 'live' : model.status === 'offline' ? 'no data' : model.status}
+            </span>
+            {model.source ? (
+              <span className={`hud-instrument__source hud-instrument__source--${model.source.freshness}`} title={sourceTitle}>
+                {model.source.freshness} {sourceTime}Z
+              </span>
+            ) : null}
+            <span className="hud-instrument__pips">
+              <i />
+              <i />
+              <i />
+              <i />
+              <i />
+            </span>
+          </span>
+        </button>
+      </Html>
+      {isNativeTauriRuntime ? (
+        <Html center distanceFactor={distanceFactor} position={surfacePosition} pointerEvents="auto">
+          <button
+            type="button"
+            className={`boardroom-scene__monitor-native-target boardroom-scene__monitor-native-target--${zone.previewMode}`}
+            aria-label={`Open ${model.title}`}
+            onClick={onActivate}
+          />
+        </Html>
+      ) : null}
+    </>
   )
 }
 
@@ -771,69 +680,107 @@ function FleetPreviewSurface({
   const totalMetric = fleetViewModel.metrics.find((metric) => metric.id === 'total_targets')
   const offlineMetric = fleetViewModel.metrics.find((metric) => metric.id === 'unexpected_offline')
   const modelCount = fleetViewModel.providers.reduce((count, item) => count + item.models.length, 0)
+  const distanceFactor = zone.previewMode === 'monitor_surface' ? 4.2 : 4.3
+  const surfacePosition: Vec3 = zone.previewMode === 'monitor_surface'
+    ? [0, 0, 0.14]
+    : [0, zone.size[1] / 2 + 0.05, 0]
 
   return (
-    <Html
-      center
-      transform
-      distanceFactor={zone.previewMode === 'monitor_surface' ? 4.2 : 4.3}
-      position={zone.previewMode === 'monitor_surface' ? [0, 0, 0.14] : [0, zone.size[1] / 2 + 0.05, 0]}
-      rotation={zone.previewMode === 'monitor_surface' ? [0, 0, 0] : [-Math.PI / 2, 0, 0]}
-    >
-      <button
-        type="button"
-        className={`fleet-preview-surface fleet-preview-surface--${fleetViewModel.status}`}
-        onClick={onActivate}
-        aria-label={`Open ${assignment?.title ?? fleetViewModel.title} fleet workstation`}
+    <>
+      <Html
+        center
+        transform
+        distanceFactor={distanceFactor}
+        position={surfacePosition}
+        rotation={zone.previewMode === 'monitor_surface' ? [0, 0, 0] : [-Math.PI / 2, 0, 0]}
       >
-        <span className="fleet-preview-surface__header">
-          <b>FLEET</b>
-          <i>{fleetViewModel.status}</i>
-        </span>
-        <strong>{assignment?.title.replace(/\s+Workstation$/, '') ?? fleetViewModel.title}</strong>
-        <span className="fleet-preview-surface__metrics">
-          <span><b>{formatFleetValue(liveMetric?.value)}</b><small>live</small></span>
-          <span><b>{formatFleetValue(totalMetric?.value)}</b><small>total</small></span>
-          <span><b>{formatFleetValue(offlineMetric?.value, '0')}</b><small>offline</small></span>
-        </span>
-        <span className="fleet-preview-surface__route">
-          <span>{primaryRoute ? `${primaryRoute.providerId} / ${primaryRoute.modelId}` : 'routing unassigned'}</span>
-          <small>{provider ? `${provider.providerName} · ${modelCount} models` : 'no provider projection'}</small>
-        </span>
-      </button>
-    </Html>
+        <button
+          type="button"
+          className={`fleet-preview-surface fleet-preview-surface--${zone.previewMode} fleet-preview-surface--${fleetViewModel.status}`}
+          onClick={onActivate}
+          aria-label={`Open ${assignment?.title ?? fleetViewModel.title} fleet workstation`}
+        >
+          <span className="fleet-preview-surface__header">
+            <b>FLEET</b>
+            <i>{fleetViewModel.status}</i>
+          </span>
+          <strong>{assignment?.title.replace(/\s+Workstation$/, '') ?? fleetViewModel.title}</strong>
+          <span className="fleet-preview-surface__metrics">
+            <span><b>{formatFleetValue(liveMetric?.value)}</b><small>live</small></span>
+            <span><b>{formatFleetValue(totalMetric?.value)}</b><small>total</small></span>
+            <span><b>{formatFleetValue(offlineMetric?.value, '0')}</b><small>offline</small></span>
+          </span>
+          <span className="fleet-preview-surface__route">
+            <span>{primaryRoute ? `${primaryRoute.providerId} / ${primaryRoute.modelId}` : 'routing unassigned'}</span>
+            <small>{provider ? `${provider.providerName} · ${modelCount} models` : 'no provider projection'}</small>
+          </span>
+        </button>
+      </Html>
+      {isNativeTauriRuntime ? (
+        <Html center distanceFactor={distanceFactor} position={surfacePosition} pointerEvents="auto">
+          <button
+            type="button"
+            className={`boardroom-scene__monitor-native-target boardroom-scene__monitor-native-target--${zone.previewMode}`}
+            aria-label={`Open ${assignment?.title ?? fleetViewModel.title} fleet workstation`}
+            onClick={onActivate}
+          />
+        </Html>
+      ) : null}
+    </>
   )
 }
 
 function CommandCoreSurface({
-  onOpenWorkstation,
-  onEnterWorld,
+  onControl,
 }: {
-  onOpenWorkstation: (zoneId: string) => void
-  onEnterWorld: () => void
+  onControl: (action: BoardroomPhysicalControlAction) => void
 }) {
+  const buttonProps = (actionId: string) => {
+    const action = getBoardroomPhysicalControlAction(actionId)
+    const state = deriveBoardroomPhysicalControlState(actionId, null)
+    return {
+      'aria-label': action.label,
+      'data-authority': action.authority,
+      disabled: state.disabled,
+      onClick: () => onControl(action),
+      title: `${action.authority} · verify ${action.verificationPath}`,
+    }
+  }
+
   return (
-    <Html center transform distanceFactor={4.3} position={[0, 0.18, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-      <div className="command-core-terminal" aria-label="Boardroom command core">
-        <button type="button" className="command-core-terminal__screen" onClick={() => onOpenWorkstation('sovereign_world')}>
-          <span className="command-core-terminal__eyebrow">Command Core</span>
-          <strong>ARDA CONTROL</strong>
-          <span className="command-core-terminal__scope">
-            <i />
-            <i />
-            <i />
-            <i />
-          </span>
-          <small>mode / health / routes</small>
-        </button>
-        <div className="command-core-terminal__buttons">
-          <button type="button" className="command-core-terminal__button command-core-terminal__button--go" onClick={() => onOpenWorkstation('planning_and_queue')}>GO</button>
-          <button type="button" className="command-core-terminal__button command-core-terminal__button--stop" onClick={() => onOpenWorkstation('governance_guardhouse')}>STOP</button>
-          <button type="button" className="command-core-terminal__button" onClick={() => onOpenWorkstation('routing_and_comms')}>ROUTE</button>
-          <button type="button" className="command-core-terminal__button" onClick={onEnterWorld}>WORLD</button>
+    <>
+      <Html center transform distanceFactor={4.3} position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <div className="command-core-terminal" aria-label="Boardroom command core">
+          <button type="button" className="command-core-terminal__screen" {...buttonProps('open_command_core')}>
+            <span className="command-core-terminal__eyebrow">Command Core</span>
+            <strong>ARDA CONTROL</strong>
+            <span className="command-core-terminal__scope">
+              <i />
+              <i />
+              <i />
+              <i />
+            </span>
+            <small>mode / health / routes</small>
+          </button>
+          <div className="command-core-terminal__buttons">
+            <button type="button" className="command-core-terminal__button command-core-terminal__button--go" {...buttonProps('open_approval_queue')}>GO</button>
+            <button type="button" className="command-core-terminal__button command-core-terminal__button--stop" {...buttonProps('open_emergency_stop')}>STOP</button>
+            <button type="button" className="command-core-terminal__button" {...buttonProps('open_route_selector')}>ROUTE</button>
+            <button type="button" className="command-core-terminal__button" {...buttonProps('enter_world')}>WORLD</button>
+          </div>
         </div>
-      </div>
-    </Html>
+      </Html>
+      {isNativeTauriRuntime ? (
+        <Html center distanceFactor={4.3} position={[0, 0.05, 0]} pointerEvents="auto">
+          <button
+            type="button"
+            className="command-core-terminal__native-screen-target"
+            aria-label="Open ARDA Control"
+            {...buttonProps('open_command_core')}
+          />
+        </Html>
+      ) : null}
+    </>
   )
 }
 
@@ -857,54 +804,131 @@ function HermesTerminalSurface({ onOpenHermesDashboard }: { onOpenHermesDashboar
   )
 }
 
+
 function PhysicalControlButtonSurface({
   label,
+  size,
   onClick,
   color = '#22d3ee',
+  controlState,
+  title,
+  onBlocked,
 }: {
   label: string
+  size: BoardroomVec3
   onClick: () => void
   color?: string
+  controlState?: BoardroomPhysicalControlState
+  title?: string
+  onBlocked?: () => void
 }) {
-  return (
-    <>
-      <mesh position={[0, 0, 0]} onClick={(event) => { event.stopPropagation(); onClick() }}>
-        <boxGeometry args={[0.82, 0.18, 0.32]} />
-        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.38} roughness={0.28} metalness={0.45} />
-      </mesh>
-      <Html center distanceFactor={6.6} position={[0, 0.22, 0.08]}>
-        <button type="button" className="scene-anchor-label scene-anchor-label--physical" onClick={(event) => { event.stopPropagation(); onClick() }}>
-          {label}
-        </button>
-      </Html>
-    </>
-  )
-}
+  const [hovered, setHovered] = useState(false)
+  const [pressed, setPressed] = useState(false)
+  const disabled = controlState?.disabled ?? false
+  const surfaceColor = disabled ? '#26333c' : color
+  const activate = () => {
+    if (disabled) onBlocked?.()
+    else onClick()
+  }
 
-function HermesCliButtonSurface({ onClick, position, rotation }: { onClick: () => void; position: BoardroomVec3; rotation: BoardroomVec3 }) {
   return (
-    <group position={position} rotation={rotation}>
-      <PhysicalControlButtonSurface label="CLI" onClick={onClick} />
+    <group position={[0, pressed ? -0.04 : 0, 0]} name={`kinetic-control.${label.toLowerCase().split(' ').join('_')}`}>
+      <mesh
+        userData={{ controlLabel: label, title: controlState?.error ?? title, disabled }}
+        onClick={(event) => { event.stopPropagation(); activate() }}
+        onPointerDown={(event) => { event.stopPropagation(); if (!disabled) setPressed(true) }}
+        onPointerUp={(event) => { event.stopPropagation(); setPressed(false) }}
+        onPointerOver={(event) => { event.stopPropagation(); setHovered(true); setPointerCursor(!disabled) }}
+        onPointerOut={(event) => { event.stopPropagation(); setHovered(false); setPressed(false); setPointerCursor(false) }}
+      >
+        <boxGeometry args={size} />
+        <meshStandardMaterial
+          color={surfaceColor}
+          emissive={disabled ? '#4b1f2c' : color}
+          emissiveIntensity={pressed ? 1.15 : hovered ? 0.78 : controlState?.state === 'attention' ? 0.62 : 0.34}
+          roughness={0.2}
+          metalness={0.64}
+        />
+      </mesh>
+      <mesh position={[0, size[1] / 2 + 0.012, 0]}>
+        <boxGeometry args={[size[0] * 0.5, 0.018, size[2] * 0.5]} />
+        <meshBasicMaterial color={surfaceColor} transparent opacity={disabled ? 0.18 : hovered ? 0.95 : 0.62} />
+      </mesh>
     </group>
   )
 }
 
-function AvatarEmitterBase({ zone }: { zone: BoardroomSpatialZone }) {
+function HermesCliButtonSurface({
+  action,
+  controlState,
+  onClick,
+  zone,
+}: {
+  action: BoardroomPhysicalControlAction
+  controlState: BoardroomPhysicalControlState
+  onClick: () => void
+  zone: BoardroomSpatialZone
+}) {
   return (
-    <group position={zone.position}>
+    <group position={zone.position} rotation={zone.rotation}>
+      <PhysicalControlButtonSurface
+        label={action.label}
+        size={zone.size}
+        color={zone.color}
+        controlState={controlState}
+        title={`${action.authority} · verify ${action.verificationPath}`}
+        onClick={onClick}
+      />
+    </group>
+  )
+}
+
+function AvatarEmitterBase({
+  zone,
+  presenceState,
+  motionEnabled,
+}: {
+  zone: BoardroomSpatialZone
+  presenceState: AgentPresenceState
+  motionEnabled: boolean
+}) {
+  const geometry = deriveAvatarEmitterGeometry(zone.size)
+  const pulseRef = useRef<THREE.Group>(null)
+  const isActive = presenceState.phase !== 'idle'
+  const isAlert = presenceState.scenario === 'alert' || presenceState.urgency === 'high'
+  const emitterColor = isAlert ? '#ff4f9d' : isActive ? '#5defff' : zone.color
+
+  useFrame(({ clock }) => {
+    if (!pulseRef.current || !motionEnabled) return
+    const elapsed = clock.getElapsedTime()
+    const pulse = (Math.sin(elapsed * (isActive ? 2.4 : 1.15)) + 1) * 0.5
+    pulseRef.current.scale.setScalar(0.985 + pulse * (isActive ? 0.045 : 0.018))
+    pulseRef.current.rotation.y = elapsed * (isActive ? 0.22 : 0.08)
+  })
+
+  return (
+    <group position={zone.position} name="arda-presence-emitter">
       <mesh position={[0, -0.08, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[0.58, 0.045, 16, 96]} />
-        <meshStandardMaterial color={zone.color} emissive={zone.color} emissiveIntensity={1.15} roughness={0.18} metalness={0.42} />
+        <torusGeometry args={[geometry.ringRadius, geometry.ringTubeRadius, 16, 96]} />
+        <meshStandardMaterial color={emitterColor} emissive={emitterColor} emissiveIntensity={isActive ? 2.1 : 0.82} roughness={0.18} metalness={0.42} />
       </mesh>
       <mesh position={[0, -0.1, 0]}>
-        <cylinderGeometry args={[0.48, 0.56, 0.12, 72]} />
+        <cylinderGeometry args={[geometry.baseTopRadius, geometry.baseBottomRadius, 0.12, 72]} />
         <meshStandardMaterial color="#071018" emissive="#12344a" emissiveIntensity={0.75} roughness={0.34} metalness={0.6} />
       </mesh>
-      <mesh position={[0, 0.02, 0]}>
-        <cylinderGeometry args={[0.24, 0.34, 0.04, 72]} />
-        <meshStandardMaterial color="#7df2ff" emissive="#5defff" emissiveIntensity={1.8} transparent opacity={0.58} />
-      </mesh>
-      <pointLight position={[0, 0.42, 0]} intensity={0.95} distance={2.8} color={zone.color} />
+      <group ref={pulseRef}>
+        <mesh position={[0, 0.02, 0]}>
+          <cylinderGeometry args={[geometry.coreTopRadius, geometry.coreBottomRadius, 0.04, 72]} />
+          <meshStandardMaterial color="#7df2ff" emissive={emitterColor} emissiveIntensity={isActive ? 2.8 : 1.25} transparent opacity={isActive ? 0.72 : 0.46} />
+        </mesh>
+        {[0, 1, 2].map((index) => (
+          <mesh key={index} position={[0, 0.13 + index * 0.075, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[geometry.coreTopRadius * (0.78 + index * 0.24), geometry.ringTubeRadius * 0.22, 8, 48]} />
+            <meshBasicMaterial color={emitterColor} transparent opacity={isActive ? 0.52 - index * 0.1 : 0.16 - index * 0.03} />
+          </mesh>
+        ))}
+      </group>
+      <pointLight position={[0, 0.42, 0]} intensity={isActive ? 1.25 : 0.58} distance={geometry.lightDistance} color={emitterColor} />
     </group>
   )
 }
@@ -944,10 +968,15 @@ function BoardroomScene({
   onOpenHermesDashboard,
   onOpenHermesCli,
   onOpenSettings,
-}: Omit<BoardroomViewportProps, 'active'>) {
+  renderProfile,
+}: Omit<BoardroomViewportProps, 'active'> & { renderProfile: BoardroomRenderProfile }) {
   const sceneWorkstations = getSceneWorkstations(workstations)
   const [zonePositionOverrides, setZonePositionOverrides] = useState<BoardroomZonePositionOverrides>(() => readZonePositionOverrides())
   const [layoutExportStatus, setLayoutExportStatus] = useState('No exported layout yet')
+  const [controlFeedback, setControlFeedback] = useState<{
+    message: string
+    state: BoardroomPhysicalControlState
+  } | null>(null)
   const monitorZones = useMemo(
     () => BOARDROOM_MONITOR_ZONES.map((zone) => withPositionOverride(zone, zonePositionOverrides)),
     [zonePositionOverrides],
@@ -960,6 +989,15 @@ function BoardroomScene({
   const hermesCliButtonZone = withPositionOverride(getBoardroomSpatialZone('boardroom.button.hermes_cli')!, zonePositionOverrides)
   const commandCoreZone = withPositionOverride(getBoardroomSpatialZone('boardroom.control.center')!, zonePositionOverrides)
   const settingsButtonZone = withPositionOverride(getBoardroomSpatialZone('boardroom.button.settings')!, zonePositionOverrides)
+  const serviceHealthAction = getBoardroomPhysicalControlAction('service_health_status')
+  const settingsAction = getBoardroomPhysicalControlAction('open_settings')
+  const hermesCliAction = getBoardroomPhysicalControlAction('open_hermes_cli')
+  const hermesDashboardAction = getBoardroomPhysicalControlAction('open_hermes_dashboard')
+  const serviceHealthButtonZone = withPositionOverride(getBoardroomSpatialZone(serviceHealthAction.zoneId)!, zonePositionOverrides)
+  const serviceHealthState = deriveBoardroomPhysicalControlState(serviceHealthAction.id, fleetViewModel?.status)
+  const settingsState = deriveBoardroomPhysicalControlState(settingsAction.id, null)
+  const hermesCliState = deriveBoardroomPhysicalControlState(hermesCliAction.id, null)
+  const hermesDashboardState = deriveBoardroomPhysicalControlState(hermesDashboardAction.id, null)
   const avatarEmitterZone = withPositionOverride(getBoardroomSpatialZone('boardroom.avatar.emitter')!, zonePositionOverrides)
   const worldWindowZone = withPositionOverride(getBoardroomSpatialZone('boardroom.world.window')!, zonePositionOverrides)
 
@@ -1003,17 +1041,43 @@ function BoardroomScene({
     'boardroom_environment.hdr',
   )
   const skylinePlateUrl = getWindowAssetUrl(
-    'window_boardroom_skyline_plate',
+    'window_boardroom_reference_atmosphere',
     'plate',
-    'boardroom_skyline_plate.jpg',
+    'boardroom_reference_atmosphere.jpg',
   )
+
+  const activateControl = (
+    action: BoardroomPhysicalControlAction,
+    callback: () => void,
+    sourceStatus: WorkstationStatus | null | undefined = null,
+  ) => {
+    const state = deriveBoardroomPhysicalControlState(action.id, sourceStatus)
+    const interaction = resolveBoardroomPhysicalControlInteraction(action, state)
+    setControlFeedback({ message: interaction.message, state })
+    if (interaction.kind === 'dispatch') callback()
+  }
+
+  const activateServiceHealth = () => activateControl(
+    serviceHealthAction,
+    () => onOpenWorkstation(serviceHealthAction.targetZoneId),
+    fleetViewModel?.status,
+  )
+
+  const activateCommandControl = (action: BoardroomPhysicalControlAction) => activateControl(
+    action,
+    () => action.id === 'enter_world'
+      ? onActivate(worldWindowZone.binding ?? worldWindowZone.id)
+      : onOpenWorkstation(action.targetZoneId),
+  )
+  const activateSettings = () => activateControl(settingsAction, onOpenSettings)
+  const activateHermesCli = () => activateControl(hermesCliAction, onOpenHermesCli)
+  const activateHermesDashboard = () => activateControl(hermesDashboardAction, onOpenHermesDashboard)
 
   return (
     <>
-      {boardroomEnvironmentUrl ? <Environment files={boardroomEnvironmentUrl} /> : null}
+      {renderProfile.environmentEnabled && boardroomEnvironmentUrl ? <Environment files={boardroomEnvironmentUrl} /> : null}
       <ambientLight intensity={0.32} />
-      <directionalLight position={[6, 10, 4]} intensity={1.25} color="#f8fbff" castShadow />
-      <pointLight position={[0, 2.4, 0.6]} intensity={1.2} distance={8} color="#8bdcff" />
+      <directionalLight position={[6, 10, 4]} intensity={1.25} color="#f8fbff" castShadow={renderProfile.shadows} />
       <fog attach="fog" args={['#071018', 8, 24]} />
 
       <mesh
@@ -1025,27 +1089,29 @@ function BoardroomScene({
         <planeGeometry args={[24, 24]} />
       </mesh>
 
-      <BoardroomConsoleShell material={deskMaterial} />
+      <SceneAssetModel binding="boardroom_physical_stage" fallback={<BoardroomConsoleShell />} />
 
-      <SceneAssetModel
-        binding="controlled_arda_workstation"
-        position={[0, 0.02, 0.42]}
-        scale={0.58}
-        onClick={() => onActivate(getDeskActivationId('center', sceneWorkstations))}
-        fallback={(
-          <mesh position={[0, 0.26, 0.42]} material={deskMaterial} onClick={() => onActivate(getDeskActivationId('center', sceneWorkstations))}>
-            <boxGeometry args={[2.5, 0.28, 1.1]} />
-          </mesh>
-        )}
-      />
+      {debug ? (
+        <SceneAssetModel
+          binding="controlled_arda_workstation"
+          position={[0, 0.02, 0.42]}
+          scale={0.58}
+          onClick={() => onActivate(getDeskActivationId('center', sceneWorkstations))}
+          fallback={(
+            <mesh position={[0, 0.26, 0.42]} material={deskMaterial} onClick={() => onActivate(getDeskActivationId('center', sceneWorkstations))}>
+              <boxGeometry args={[2.5, 0.28, 1.1]} />
+            </mesh>
+          )}
+        />
+      ) : null}
 
 
-      <mesh position={[0, 3.2, -5]} material={wallMaterial}>
-        <planeGeometry args={[10, 5]} />
+      <mesh position={[0, 3.0, -5]} material={wallMaterial}>
+        <planeGeometry args={[14, 6]} />
       </mesh>
 
-      <mesh position={[0, 2.85, -5.08]}>
-        <planeGeometry args={[7.25, 2.35]} />
+      <mesh position={[0, 2.8, -5.08]}>
+        <planeGeometry args={[12.8, 4.35]} />
         <meshStandardMaterial color="#02060c" roughness={0.9} metalness={0.1} />
       </mesh>
 
@@ -1072,7 +1138,6 @@ function BoardroomScene({
           onMovePosition={(position) => moveZone(slot.id, position)}
           onActivate={() => onOpenWorkstation(workstationZoneId)}
         >
-          <BoardroomMonitorModelSurface zone={slot} />
           {fleetViewModel && isFleetWorkstationAssignment(assignment) ? (
             <FleetPreviewSurface
               zone={slot}
@@ -1115,7 +1180,6 @@ function BoardroomScene({
           onMovePosition={(position) => moveZone(slot.id, position)}
           onActivate={() => onOpenWorkstation(workstationZoneId)}
         >
-          <BoardroomMonitorModelSurface zone={slot} />
           {fleetViewModel && isFleetWorkstationAssignment(assignment) ? (
             <FleetPreviewSurface
               zone={slot}
@@ -1137,12 +1201,48 @@ function BoardroomScene({
       })}
 
       <group position={commandCoreZone.position} rotation={commandCoreZone.rotation}>
-        <BoardroomMonitorModelSurface zone={commandCoreZone} />
-        <CommandCoreSurface
-          onOpenWorkstation={onOpenWorkstation}
-          onEnterWorld={() => onActivate(worldWindowZone.binding ?? worldWindowZone.id)}
-        />
+        <CommandCoreSurface onControl={activateCommandControl} />
       </group>
+
+
+      <InteractionPad
+        slotId={serviceHealthButtonZone.id}
+        label={serviceHealthButtonZone.label}
+        detail={serviceHealthButtonZone.detail}
+        position={serviceHealthButtonZone.position}
+        rotation={serviceHealthButtonZone.rotation}
+        size={serviceHealthButtonZone.size}
+        color={serviceHealthButtonZone.color}
+        showLabel={debug}
+        draggable={debug}
+        onMovePosition={(position) => moveZone(serviceHealthButtonZone.id, position)}
+        onActivate={activateServiceHealth}
+      >
+        <PhysicalControlButtonSurface
+          label={serviceHealthAction.shortLabel}
+          size={serviceHealthButtonZone.size}
+          color={serviceHealthButtonZone.color}
+          controlState={serviceHealthState}
+          title={`${serviceHealthAction.authority} · verify ${serviceHealthAction.verificationPath}`}
+          onClick={activateServiceHealth}
+          onBlocked={activateServiceHealth}
+        />
+      </InteractionPad>
+
+      {controlFeedback ? (
+        <Html position={[0, 0.56, 1.92]} center distanceFactor={6.2}>
+          <button
+            type="button"
+            className={`boardroom-control-feedback boardroom-control-feedback--${controlFeedback.state.state}`}
+            role="status"
+            aria-live="polite"
+            onClick={() => setControlFeedback(null)}
+          >
+            <strong>{controlFeedback.state.statusLabel}</strong>
+            <span>{controlFeedback.message}</span>
+          </button>
+        </Html>
+      ) : null}
 
       <InteractionPad
         slotId={settingsButtonZone.id}
@@ -1156,9 +1256,16 @@ function BoardroomScene({
         showLabel={debug}
         draggable={debug}
         onMovePosition={(position) => moveZone(settingsButtonZone.id, position)}
-        onActivate={onOpenSettings}
+        onActivate={activateSettings}
       >
-        <PhysicalControlButtonSurface label="SET" color="#b98cff" onClick={onOpenSettings} />
+        <PhysicalControlButtonSurface
+          label={settingsAction.label}
+          size={settingsButtonZone.size}
+          color="#b98cff"
+          controlState={settingsState}
+          title={`${settingsAction.authority} · verify ${settingsAction.verificationPath}`}
+          onClick={activateSettings}
+        />
       </InteractionPad>
 
       <InteractionPad
@@ -1173,21 +1280,37 @@ function BoardroomScene({
         showLabel={debug}
         draggable={debug}
         onMovePosition={(position) => moveZone(hermesButtonZone.id, position)}
-        onActivate={onOpenHermesDashboard}
+        onActivate={activateHermesDashboard}
       >
-        <PhysicalControlButtonSurface label="HERMES" color="#b98cff" onClick={onOpenHermesDashboard} />
+        <PhysicalControlButtonSurface
+          label={hermesDashboardAction.label}
+          size={hermesButtonZone.size}
+          color="#b98cff"
+          controlState={hermesDashboardState}
+          title={`${hermesDashboardAction.authority} · verify ${hermesDashboardAction.verificationPath}`}
+          onClick={activateHermesDashboard}
+        />
       </InteractionPad>
 
       <HermesCliButtonSurface
-        onClick={onOpenHermesCli}
-        position={hermesCliButtonZone.position}
-        rotation={hermesCliButtonZone.rotation}
+        action={hermesCliAction}
+        controlState={hermesCliState}
+        onClick={activateHermesCli}
+        zone={hermesCliButtonZone}
       />
 
-      <AvatarEmitterBase zone={avatarEmitterZone} />
-      <PresenceAvatar position={avatarEmitterZone.position} scale={0.82} presenceState={presenceState} />
-      <BoardroomMissionCue presenceState={presenceState} />
-      <PresenceLedgerStatusBadge state={presenceState} status={presenceStatus} />
+      <AvatarEmitterBase
+        zone={avatarEmitterZone}
+        presenceState={presenceState}
+        motionEnabled={renderProfile.motionEnabled}
+      />
+      {debug ? (
+        <>
+          <PresenceAvatar position={avatarEmitterZone.position} scale={0.82} presenceState={presenceState} />
+          <BoardroomMissionCue presenceState={presenceState} />
+          <PresenceLedgerStatusBadge state={presenceState} status={presenceStatus} />
+        </>
+      ) : null}
 
       {debug ? (
         <Html position={[-5.8, 3.8, 0]} transform>
@@ -1214,23 +1337,49 @@ function BoardroomScene({
       <OrbitControls
         enablePan={false}
         enableZoom={false}
-        minPolarAngle={Math.PI / 2.55}
-        maxPolarAngle={Math.PI / 2.55}
-        minAzimuthAngle={-0.72}
-        maxAzimuthAngle={0.72}
-        target={[0, 0.92, -1.45]}
+        minPolarAngle={1.38}
+        maxPolarAngle={1.48}
+        minAzimuthAngle={-0.2}
+        maxAzimuthAngle={0.2}
+        target={BOARDROOM_CAMERA_COMPOSITION.target}
       />
     </>
   )
 }
 
 export default function BoardroomViewport(props: BoardroomViewportProps) {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+
+  useEffect(() => {
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const update = () => setPrefersReducedMotion(query.matches)
+    update()
+    query.addEventListener('change', update)
+    return () => query.removeEventListener('change', update)
+  }, [])
+
+  const deviceMemoryGb = (navigator as Navigator & { deviceMemory?: number }).deviceMemory
+  const renderProfile = resolveBoardroomRenderProfile({
+    active: props.active,
+    prefersReducedMotion,
+    hardwareConcurrency: navigator.hardwareConcurrency,
+    deviceMemoryGb,
+  })
+
   return (
-    <div className={`scene-runtime-canvas${props.active ? '' : ' scene-runtime-canvas--inactive'}`}>
-      <Canvas camera={{ position: [0, 3.15, 8.2], fov: 43 }} dpr={[1, 2]} frameloop={props.active ? 'always' : 'never'}>
+    <div
+      className={`scene-runtime-canvas${props.active ? '' : ' scene-runtime-canvas--inactive'}`}
+      data-boardroom-render-profile={renderProfile.id}
+    >
+      <Canvas
+        camera={{ position: BOARDROOM_CAMERA_COMPOSITION.position, fov: BOARDROOM_CAMERA_COMPOSITION.fov }}
+        dpr={renderProfile.dpr}
+        frameloop={renderProfile.frameloop}
+        shadows={renderProfile.shadows}
+      >
         <color attach="background" args={['#05080d']} />
         <Suspense fallback={null}>
-          <BoardroomScene {...props} />
+          <BoardroomScene {...props} renderProfile={renderProfile} />
         </Suspense>
       </Canvas>
       {props.sceneOverlay ? (

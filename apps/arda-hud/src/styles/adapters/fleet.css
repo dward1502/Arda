@@ -1,8 +1,8 @@
 
 .fleet-preview-surface {
-  width: 13.2rem;
+  width: 12rem;
   border: 1px solid rgba(105, 233, 255, 0.42);
-  border-radius: 1rem;
+  border-radius: 0.3rem;
   background:
     radial-gradient(
       circle at 50% 0%,
@@ -14,9 +14,29 @@
     0 0 2rem rgba(71, 218, 255, 0.26),
     inset 0 0 1.2rem rgba(86, 221, 255, 0.08);
   color: #e9fbff;
-  padding: 0.72rem;
+  padding: 0.42rem;
   text-align: left;
   cursor: pointer;
+}
+
+.fleet-preview-surface--desk_surface {
+  width: 8.6rem;
+  aspect-ratio: 2.12;
+  padding: 0.24rem;
+}
+
+.fleet-preview-surface--desk_surface .fleet-preview-surface__metrics {
+  gap: 0.18rem;
+  margin: 0.24rem 0;
+}
+
+.fleet-preview-surface--desk_surface .fleet-preview-surface__metrics span {
+  border-radius: 0.2rem;
+  padding: 0.16rem;
+}
+
+.fleet-preview-surface--desk_surface .fleet-preview-surface__route {
+  display: none;
 }
 
 .fleet-preview-surface--attention {

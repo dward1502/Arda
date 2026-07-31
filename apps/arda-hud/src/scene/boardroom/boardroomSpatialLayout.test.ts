@@ -26,7 +26,8 @@ describe('boardroom spatial layout contract', () => {
   })
 
   it('defines configurable monitor and desk slots separately from ARDA data', () => {
-    expect(BOARDROOM_MONITOR_ZONES.map((zone) => zone.assignmentSlotId)).toEqual([
+    expect(BOARDROOM_MONITOR_ZONES).toHaveLength(5)
+    expect(BOARDROOM_MONITOR_ZONES.filter((zone) => zone.assignmentSlotId).map((zone) => zone.assignmentSlotId)).toEqual([
       'monitor_left_1',
       'monitor_left_2',
       'monitor_left_3',
@@ -48,17 +49,23 @@ describe('boardroom spatial layout contract', () => {
     expect(getBoardroomSpatialZone('boardroom.world.window')?.interaction).toBe('transition_world')
   })
 
-  it('angles every upper monitor inward and down toward the operator', () => {
-    const [left, centerLeft, centerRight, right] = BOARDROOM_MONITOR_ZONES
-    expect(left.rotation[1]).toBeGreaterThan(centerLeft.rotation[1])
-    expect(centerLeft.rotation[1]).toBeGreaterThan(0)
-    expect(centerRight.rotation[1]).toBeLessThan(0)
-    expect(right.rotation[1]).toBeLessThan(centerRight.rotation[1])
-    expect(BOARDROOM_MONITOR_ZONES.every((zone) => zone.rotation[0] < 0)).toBe(true)
+  it('aligns the live surfaces to the five-monitor arc authored in the physical-stage GLB', () => {
+    expect(BOARDROOM_MONITOR_ZONES.map((zone) => zone.position[0])).toEqual([
+      -3.8, -1.9, 0, 1.9, 3.8,
+    ])
+    expect(BOARDROOM_MONITOR_ZONES.map((zone) => zone.rotation[1])).toEqual([
+      0.415, 0.218, 0, -0.218, -0.415,
+    ])
+    expect(BOARDROOM_MONITOR_ZONES.every((zone) => zone.rotation[0] === 0)).toBe(true)
+    for (let index = 1; index < BOARDROOM_MONITOR_ZONES.length; index += 1) {
+      expect(BOARDROOM_MONITOR_ZONES[index].position[0] - BOARDROOM_MONITOR_ZONES[index - 1].position[0]).toBeLessThan(2)
+    }
   })
 
-  it('keeps settings and Hermes controls as distinct non-overlapping buttons', () => {
+  it('embeds the physical controls as a compact non-overlapping desk panel', () => {
+    const panel = boardroomSpatialLayout.BOARDROOM_KINETIC_CONTROL_PANEL
     const buttons = [
+      getBoardroomSpatialZone('boardroom.button.service_health')!,
       getBoardroomSpatialZone('boardroom.button.settings')!,
       getBoardroomSpatialZone('boardroom.button.hermes_cli')!,
       getBoardroomSpatialZone('boardroom.button.hermes')!,
@@ -70,13 +77,32 @@ describe('boardroom spatial layout contract', () => {
       const currentLeftEdge = buttons[index].position[0] - buttons[index].size[0] / 2
       expect(currentLeftEdge).toBeGreaterThan(previousRightEdge)
     }
+    expect(panel.size[0]).toBeLessThan(1.8)
+    expect(buttons.every((button) => button.size[0] <= 0.3 && button.size[2] <= 0.3)).toBe(true)
+    expect(buttons.every((button) => Math.abs(button.position[0] - panel.position[0]) < panel.size[0] / 2)).toBe(true)
+    expect(buttons.every((button) => Math.abs(button.position[2] - panel.position[2]) < panel.size[2] / 2)).toBe(true)
   })
 
-  it('wraps the lower desk surfaces around the operator chair', () => {
-    expect(getBoardroomSpatialZone('boardroom.lower.left_wrap')?.rotation[1]).toBeGreaterThan(0.4)
+  it('wraps the lower desk surfaces around the operator position', () => {
+    expect(getBoardroomSpatialZone('boardroom.lower.left_wrap')?.rotation[1]).toBeGreaterThan(0.25)
     expect(getBoardroomSpatialZone('boardroom.lower.left_inner')?.rotation[1]).toBeGreaterThan(0.1)
     expect(getBoardroomSpatialZone('boardroom.lower.right_inner')?.rotation[1]).toBeLessThan(-0.1)
-    expect(getBoardroomSpatialZone('boardroom.lower.right_wrap')?.rotation[1]).toBeLessThan(-0.4)
+    expect(getBoardroomSpatialZone('boardroom.lower.right_wrap')?.rotation[1]).toBeLessThan(-0.25)
+  })
+
+  it('gives the five lower surfaces a deliberate tactical-to-command hierarchy', () => {
+    const leftOuter = getBoardroomSpatialZone('boardroom.lower.left_wrap')!
+    const leftInner = getBoardroomSpatialZone('boardroom.lower.left_inner')!
+    const center = getBoardroomSpatialZone('boardroom.control.center')!
+    const rightInner = getBoardroomSpatialZone('boardroom.lower.right_inner')!
+    const rightOuter = getBoardroomSpatialZone('boardroom.lower.right_wrap')!
+
+    expect(leftOuter.size).toEqual(rightOuter.size)
+    expect(leftInner.size).toEqual(rightInner.size)
+    expect(leftOuter.size[0]).toBeGreaterThan(leftInner.size[0])
+    expect(center.size[0]).toBeGreaterThan(leftInner.size[0])
+    expect(center.primary).toBe(true)
+    expect(Math.abs(leftOuter.rotation[1])).toBeGreaterThan(Math.abs(leftInner.rotation[1]))
   })
 
   it('tilts every lower display surface toward the operator while preserving mirrored wrap', () => {

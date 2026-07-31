@@ -18,5 +18,7 @@ work under `docs/plans/`.
 
 ## Completed closeouts
 
+- [`2026-07-30-arda-hud-boardroom-visual-system-plan.md`](2026-07-30-arda-hud-boardroom-visual-system-plan.md)
+  — completed six-phase boardroom visual system, typed physical controls, performance profiles, and visual-regression evidence.
 - [`2026-07-28-eight-package-first-class-closeout.md`](2026-07-28-eight-package-first-class-closeout.md)
   — evidence-backed closeout record for the remaining eight Cargo packages.

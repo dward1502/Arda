@@ -1,8 +1,8 @@
 
 .command-core-terminal {
   display: grid;
-  width: 11.6rem;
-  aspect-ratio: 1.9;
+  width: 9rem;
+  aspect-ratio: 2.12;
   grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
   gap: 0.44rem;
   border: 1px solid rgba(216, 231, 255, 0.3);
@@ -19,6 +19,17 @@
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.04),
     0 0 1.4rem rgba(120, 231, 255, 0.18);
+}
+
+.command-core-terminal__native-screen-target {
+  display: block;
+  width: 4.35rem;
+  aspect-ratio: 1.12;
+  transform: translate(-2.15rem, -0.3rem);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
 }
 
 .command-core-terminal__screen,
@@ -157,6 +168,43 @@
 .command-core-terminal__screen:hover,
 .hermes-desk-terminal:hover {
   filter: brightness(1.16);
+}
+
+.boardroom-control-feedback {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.42rem;
+  align-items: center;
+  width: 13rem;
+  border: 1px solid rgba(93, 239, 255, 0.42);
+  border-radius: 0.45rem;
+  background: rgba(3, 10, 17, 0.96);
+  padding: 0.42rem 0.56rem;
+  color: #dffbff;
+  font-family: var(--body-font);
+  text-align: left;
+  box-shadow: 0 0 1.2rem rgba(93, 239, 255, 0.2);
+  cursor: pointer;
+}
+
+.boardroom-control-feedback strong {
+  color: #8ef5ff;
+  font-size: 0.5rem;
+  letter-spacing: 0.12em;
+}
+
+.boardroom-control-feedback span {
+  font-size: 0.56rem;
+  line-height: 1.25;
+}
+
+.boardroom-control-feedback--error {
+  border-color: rgba(255, 95, 141, 0.58);
+  box-shadow: 0 0 1.2rem rgba(255, 95, 141, 0.22);
+}
+
+.boardroom-control-feedback--error strong {
+  color: #ffb6cb;
 }
 
 

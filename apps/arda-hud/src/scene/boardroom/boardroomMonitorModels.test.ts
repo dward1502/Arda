@@ -5,31 +5,20 @@ import { deriveBoardroomMonitorModelBinding } from './boardroomMonitorModels'
 
 describe('boardroom monitor model bindings', () => {
   it('maps every upper monitor surface to its accepted GLB scene binding', () => {
-    expect(BOARDROOM_MONITOR_ZONES.map((zone) => deriveBoardroomMonitorModelBinding(zone))).toEqual([
-      {
-        zoneId: 'boardroom.monitor.left',
-        binding: 'upper_monitor_1',
-        fitSize: [1.62, 0.96, 0.16],
+    expect(BOARDROOM_MONITOR_ZONES.map((zone) => deriveBoardroomMonitorModelBinding(zone))).toEqual(
+      BOARDROOM_MONITOR_ZONES.map((zone) => ({
+        zoneId: zone.id,
+        binding: zone.binding,
+        fitSize: zone.size,
         surfaceOffset: [0, 0, 0],
-      },
-      {
-        zoneId: 'boardroom.monitor.center_left',
-        binding: 'upper_monitor_2',
-        fitSize: [1.62, 0.96, 0.16],
-        surfaceOffset: [0, 0, 0],
-      },
-      {
-        zoneId: 'boardroom.monitor.center_right',
-        binding: 'upper_monitor_3',
-        fitSize: [1.62, 0.96, 0.16],
-        surfaceOffset: [0, 0, 0],
-      },
-      {
-        zoneId: 'boardroom.monitor.right',
-        binding: 'upper_monitor_4',
-        fitSize: [1.62, 0.96, 0.16],
-        surfaceOffset: [0, 0, 0],
-      },
+      })),
+    )
+    expect(BOARDROOM_MONITOR_ZONES.map((zone) => zone.binding)).toEqual([
+      'upper_monitor_1',
+      'upper_monitor_2',
+      'upper_monitor_3',
+      'upper_monitor_3',
+      'upper_monitor_4',
     ])
   })
 

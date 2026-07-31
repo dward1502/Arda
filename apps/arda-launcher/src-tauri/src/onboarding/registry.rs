@@ -129,6 +129,10 @@ pub mod tests {
     fn check_registry_returns_gate_status() {
         let result = check_registry(&workspace_root()).expect("registry check");
         assert!(["pass", "warn", "fail"].contains(&result.gate_status.as_str()));
-        assert_eq!(result.track_count, 4);
+        assert_eq!(result.track_count, result.track_checks.len());
+        assert!(result
+            .track_checks
+            .iter()
+            .any(|track| track.track_id == "arda-ecosystem-standard-track-5-workbench"));
     }
 }

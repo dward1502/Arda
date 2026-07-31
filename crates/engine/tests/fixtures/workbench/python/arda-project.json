@@ -1,0 +1,28 @@
+{
+  "schema_version": "arda.project-contract.v1",
+  "identity": {
+    "project_id": "2f9af210-835e-46d2-9c6d-762115a3298f",
+    "name": "arda-python-golden-fixture",
+    "kind": "python"
+  },
+  "workspace": {"root": "."},
+  "runtime": {"adapter": "python-reference"},
+  "commands": [
+    {"id": "test", "program": "python3", "args": ["-m", "unittest", "discover", "-s", "tests", "-v"], "working_dir": "."}
+  ],
+  "checks": [{"id": "test", "command": "test"}],
+  "artifacts": [{"id": "module", "path": "src/greeting.py"}],
+  "permissions": {
+    "authority": "approval_required",
+    "network": {"allow": false},
+    "filesystem": {"write": true},
+    "secrets": {"env_names": []}
+  },
+  "rollback": {"strategy": "git_revert"},
+  "memory": {"scope": "project"},
+  "provenance": {
+    "declared_by": "arda-stage-4-golden-test",
+    "declared_at": "2026-07-31T00:00:00Z",
+    "stage": 4
+  }
+}

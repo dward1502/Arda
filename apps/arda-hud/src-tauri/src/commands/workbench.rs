@@ -1,110 +1,491 @@
-use arda_core::project_contract::{AuthorityMode, ProjectContract, ProjectContractVersion};
-use serde::Serialize;
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde_json::Value;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+const DEFAULT_HARNESS_URL: &str = "http://127.0.0.1:7878";
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
-pub struct WorkbenchPermissionSummary {
-    pub authority: String,
-    pub network_allowed: bool,
-    pub filesystem_write: bool,
-    pub secret_env_names: Vec<String>,
+pub struct ProjectValidation {
+    pub valid: bool,
+    pub project_id: Option<String>,
+    pub root: Option<String>,
+    pub effective_permissions: Vec<String>,
+    pub provider_posture: Option<String>,
+    pub project_checks: Vec<String>,
+    pub errors: Vec<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ProjectContractValidation {
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TaskApproval {
     pub schema_version: String,
-    pub project_id: String,
-    pub name: String,
-    pub kind: String,
-    pub workspace_root: String,
-    pub runtime_adapter: String,
-    pub command_ids: Vec<String>,
-    pub check_ids: Vec<String>,
-    pub permissions: WorkbenchPermissionSummary,
+    pub proposal_id: String,
+    pub approval_id: String,
+    pub ledger_writes: Vec<String>,
+    pub decision: String,
+    pub created_at_utc: String,
 }
 
-pub fn validate_project_contract_path(path: &Path) -> Result<ProjectContractValidation, String> {
-    let raw = fs::read_to_string(path).map_err(|error| {
-        format!(
-            "failed to read project contract {}: {error}",
-            path.display()
-        )
-    })?;
-    let contract = ProjectContract::from_json_str(&raw)
-        .map_err(|error| format!("project contract validation failed: {error}"))?;
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MutationEnvelope {
+    pub approval: TaskApproval,
+    pub idempotency_key: String,
+}
 
-    let schema_version = match contract.schema_version {
-        ProjectContractVersion::V1 => "arda.project-contract.v1",
-    };
-    let authority = match contract.permissions.authority {
-        AuthorityMode::DenyByDefault => "deny_by_default",
-        AuthorityMode::ReadOnly => "read_only",
-        AuthorityMode::ApprovalRequired => "approval_required",
-    };
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AttachedProject {
+    pub contract: Value,
+    pub approval_id: String,
+    pub proposal_id: String,
+    pub idempotency_key: String,
+}
 
-    Ok(ProjectContractValidation {
-        schema_version: schema_version.to_owned(),
-        project_id: contract.identity.project_id.to_string(),
-        name: contract.identity.name,
-        kind: contract.identity.kind,
-        workspace_root: contract.workspace.root.as_str().to_owned(),
-        runtime_adapter: contract.runtime.adapter,
-        command_ids: contract
-            .commands
-            .into_iter()
-            .map(|command| command.id)
-            .collect(),
-        check_ids: contract.checks.into_iter().map(|check| check.id).collect(),
-        permissions: WorkbenchPermissionSummary {
-            authority: authority.to_owned(),
-            network_allowed: contract.permissions.network.allow,
-            filesystem_write: contract.permissions.filesystem.write,
-            secret_env_names: contract.permissions.secrets.env_names,
-        },
-    })
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Budget {
+    pub max_joules: f64,
+    pub max_cost_usd: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RetryPolicy {
+    pub max_attempts: u32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CheckpointMetadata {
+    pub sequence: u64,
+    pub recovery_token: Option<String>,
+    pub checkpoint_digest: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RunNode {
+    pub id: String,
+    pub kind: String,
+    pub state: String,
+    pub authority: String,
+    pub budget: Budget,
+    pub retry: RetryPolicy,
+    pub timeout_ms: u64,
+    pub idempotency_key: String,
+    pub input_digest: Option<String>,
+    pub output_digest: Option<String>,
+    pub parent_receipts: Vec<String>,
+    pub checkpoint: CheckpointMetadata,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RunEdge {
+    pub id: String,
+    pub from: String,
+    pub to: String,
+    pub parent_receipt: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RunProvenance {
+    pub project_contract_digest: String,
+    pub created_by: String,
+    pub parent_receipts: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RunGraph {
+    pub schema_version: String,
+    pub run_id: String,
+    pub objective_id: String,
+    pub nodes: Vec<RunNode>,
+    pub edges: Vec<RunEdge>,
+    pub provenance: RunProvenance,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RunRecord {
+    pub graph: RunGraph,
+    pub events: Vec<Value>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PlanRunRequest {
+    pub project_id: String,
+    pub graph: RunGraph,
+    pub envelope: MutationEnvelope,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ApproveRunRequest {
+    pub run_id: String,
+    pub node_id: String,
+    pub envelope: MutationEnvelope,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CancelRunRequest {
+    pub run_id: String,
+    pub reason: String,
+    pub envelope: MutationEnvelope,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RunEventsResponse {
+    pub events: Vec<Value>,
+}
+
+#[derive(Debug, Deserialize)]
+struct HarnessValidation {
+    valid: bool,
+    project_id: String,
+}
+
+#[derive(Serialize)]
+struct ContractRequest<'a> {
+    contract: &'a Value,
+}
+
+#[derive(Serialize)]
+struct AttachRequest<'a> {
+    contract: &'a Value,
+    envelope: &'a MutationEnvelope,
+}
+
+#[derive(Serialize)]
+struct ApproveRequest<'a> {
+    node_id: &'a str,
+    envelope: &'a MutationEnvelope,
+}
+
+#[derive(Serialize)]
+struct CancelRequest<'a> {
+    reason: &'a str,
+    envelope: &'a MutationEnvelope,
+}
+
+fn harness_url() -> String {
+    std::env::var("ARDA_HARNESS_URL")
+        .unwrap_or_else(|_| DEFAULT_HARNESS_URL.to_string())
+        .trim_end_matches('/')
+        .to_string()
+}
+
+fn endpoint(path: &str) -> String {
+    format!("{}{path}", harness_url())
+}
+
+fn checked_id<'a>(value: &'a str, label: &str) -> Result<&'a str, String> {
+    if value.is_empty()
+        || !value
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_' | b'.'))
+    {
+        return Err(format!("{label} contains unsupported characters"));
+    }
+    Ok(value)
+}
+
+fn read_contract(path: &str) -> Result<(PathBuf, Value), String> {
+    let path = PathBuf::from(path);
+    let raw = fs::read_to_string(&path)
+        .map_err(|error| format!("Unable to read project contract: {error}"))?;
+    let contract = serde_json::from_str(&raw)
+        .map_err(|error| format!("Project contract is not valid JSON: {error}"))?;
+    Ok((path, contract))
+}
+
+fn strings_at(value: &Value, pointer: &str) -> Vec<String> {
+    value
+        .pointer(pointer)
+        .and_then(Value::as_array)
+        .map(|values| {
+            values
+                .iter()
+                .filter_map(Value::as_str)
+                .map(str::to_string)
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
+fn contract_projection(path: &Path, contract: &Value) -> ProjectValidation {
+    let mut errors = Vec::new();
+    let schema = contract
+        .get("schema_version")
+        .and_then(Value::as_str)
+        .unwrap_or_default();
+    if schema != "arda.project-contract.v1" {
+        errors.push("schema_version must be arda.project-contract.v1".to_string());
+    }
+
+    let project_id = contract
+        .pointer("/identity/project_id")
+        .and_then(Value::as_str)
+        .filter(|value| !value.trim().is_empty())
+        .map(str::to_string);
+    if project_id.is_none() {
+        errors.push("identity.project_id is required".to_string());
+    }
+
+    let root = contract
+        .pointer("/workspace/root")
+        .and_then(Value::as_str)
+        .filter(|value| !value.trim().is_empty())
+        .map(str::to_string);
+    if root.is_none() {
+        errors.push("workspace.root is required".to_string());
+    }
+
+    let effective_permissions = contract
+        .get("permissions")
+        .and_then(Value::as_object)
+        .map(|permissions| {
+            permissions
+                .iter()
+                .map(|(name, value)| {
+                    format!(
+                        "{name}:{}",
+                        match value {
+                            Value::String(value) => value.clone(),
+                            Value::Bool(value) => value.to_string(),
+                            Value::Object(value) => value
+                                .get("allow")
+                                .or_else(|| value.get("write"))
+                                .map(Value::to_string)
+                                .unwrap_or_else(|| "configured".to_string()),
+                            _ => "configured".to_string(),
+                        }
+                    )
+                })
+                .collect()
+        })
+        .unwrap_or_default();
+    let provider_posture = contract
+        .pointer("/provider_posture/mode")
+        .or_else(|| contract.get("provider_posture"))
+        .or_else(|| contract.pointer("/runtime/adapter"))
+        .and_then(Value::as_str)
+        .map(str::to_string);
+    let project_checks = contract
+        .get("checks")
+        .and_then(Value::as_array)
+        .map(|checks| {
+            checks
+                .iter()
+                .filter_map(|check| check.get("id").and_then(Value::as_str).map(str::to_string))
+                .collect()
+        })
+        .unwrap_or_else(|| strings_at(contract, "/project_checks"));
+
+    if path.extension().and_then(|value| value.to_str()) != Some("json") {
+        errors.push("project contract must be a JSON file".to_string());
+    }
+
+    ProjectValidation {
+        valid: errors.is_empty(),
+        project_id,
+        root,
+        effective_permissions,
+        provider_posture,
+        project_checks,
+        errors,
+    }
+}
+
+async fn decode<T: DeserializeOwned>(response: reqwest::Response) -> Result<T, String> {
+    let status = response.status();
+    if status.is_success() {
+        return response
+            .json::<T>()
+            .await
+            .map_err(|error| format!("Harness returned an invalid response: {error}"));
+    }
+    let detail = response.text().await.unwrap_or_default();
+    Err(format!("Harness request failed ({status}): {detail}"))
+}
+
+async fn post_json<B: Serialize + ?Sized, T: DeserializeOwned>(
+    path: &str,
+    body: &B,
+) -> Result<T, String> {
+    let response = reqwest::Client::new()
+        .post(endpoint(path))
+        .json(body)
+        .send()
+        .await
+        .map_err(|error| format!("Unable to reach the ARDA harness: {error}"))?;
+    decode(response).await
+}
+
+async fn get_json<T: DeserializeOwned>(path: &str) -> Result<T, String> {
+    let response = reqwest::Client::new()
+        .get(endpoint(path))
+        .send()
+        .await
+        .map_err(|error| format!("Unable to reach the ARDA harness: {error}"))?;
+    decode(response).await
 }
 
 #[tauri::command]
-pub fn validate_project_contract(path: String) -> Result<ProjectContractValidation, String> {
-    validate_project_contract_path(Path::new(&path))
+pub async fn validate_project_contract(path: String) -> Result<ProjectValidation, String> {
+    let (path_buf, contract) = read_contract(&path)?;
+    let mut projection = contract_projection(&path_buf, &contract);
+    if !projection.valid {
+        return Ok(projection);
+    }
+
+    let response: HarnessValidation = post_json(
+        "/v1/projects/validate",
+        &ContractRequest {
+            contract: &contract,
+        },
+    )
+    .await?;
+    projection.valid = response.valid;
+    projection.project_id = Some(response.project_id);
+    Ok(projection)
+}
+
+#[tauri::command]
+pub async fn attach_project_contract(
+    path: String,
+    envelope: MutationEnvelope,
+) -> Result<AttachedProject, String> {
+    let (_, contract) = read_contract(&path)?;
+    post_json(
+        "/v1/projects/attach",
+        &AttachRequest {
+            contract: &contract,
+            envelope: &envelope,
+        },
+    )
+    .await
+}
+
+#[tauri::command]
+pub async fn plan_workbench_run(request: PlanRunRequest) -> Result<RunRecord, String> {
+    post_json("/v1/runs/plan", &request).await
+}
+
+#[tauri::command]
+pub async fn approve_workbench_run(request: ApproveRunRequest) -> Result<RunRecord, String> {
+    let run_id = checked_id(&request.run_id, "run_id")?;
+    post_json(
+        &format!("/v1/runs/{run_id}/approve"),
+        &ApproveRequest {
+            node_id: &request.node_id,
+            envelope: &request.envelope,
+        },
+    )
+    .await
+}
+
+#[tauri::command]
+pub async fn cancel_workbench_run(request: CancelRunRequest) -> Result<RunRecord, String> {
+    let run_id = checked_id(&request.run_id, "run_id")?;
+    post_json(
+        &format!("/v1/runs/{run_id}/cancel"),
+        &CancelRequest {
+            reason: &request.reason,
+            envelope: &request.envelope,
+        },
+    )
+    .await
+}
+
+#[tauri::command]
+pub async fn get_workbench_run(run_id: String) -> Result<RunRecord, String> {
+    let run_id = checked_id(&run_id, "run_id")?;
+    get_json(&format!("/v1/runs/{run_id}")).await
+}
+
+#[tauri::command]
+pub async fn get_workbench_run_events(run_id: String) -> Result<RunEventsResponse, String> {
+    let run_id = checked_id(&run_id, "run_id")?;
+    get_json(&format!("/v1/runs/{run_id}/events")).await
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::PathBuf;
+    use serde_json::json;
+    use std::time::{SystemTime, UNIX_EPOCH};
 
-    fn rust_contract_fixture() -> PathBuf {
-        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("../../../spec/project-contract/v1/examples/rust-project.json")
+    fn write_fixture(value: &Value) -> PathBuf {
+        let unique = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("clock")
+            .as_nanos();
+        let path = std::env::temp_dir().join(format!("arda-workbench-{unique}.json"));
+        fs::write(&path, serde_json::to_vec(value).expect("fixture JSON")).expect("fixture write");
+        path
     }
 
     #[test]
-    fn validates_contract_and_projects_effective_attachment_summary() {
-        let summary = validate_project_contract_path(&rust_contract_fixture())
-            .expect("valid project contract should produce an attachment summary");
+    fn projects_validation_contract_before_harness_submission() {
+        let path = write_fixture(&json!({
+            "schema_version": "arda.project-contract.v1",
+            "identity": {"project_id": "project-1"},
+            "workspace": {"root": "/tmp/project"},
+            "permissions": {"authority": "approval_required", "network": {"allow": false}},
+            "runtime": {"adapter": "cargo"},
+            "checks": [{"id": "test", "command": "test"}]
+        }));
+        let (_, contract) = read_contract(path.to_str().expect("path string")).expect("contract");
+        let result = contract_projection(&path, &contract);
+        fs::remove_file(path).expect("fixture cleanup");
 
-        assert_eq!(summary.schema_version, "arda.project-contract.v1");
-        assert_eq!(summary.name, "arda-rust-example");
-        assert_eq!(summary.kind, "rust");
-        assert_eq!(summary.workspace_root, ".");
-        assert_eq!(summary.runtime_adapter, "cargo");
-        assert_eq!(summary.command_ids, vec!["test"]);
-        assert_eq!(summary.check_ids, vec!["test"]);
-        assert_eq!(summary.permissions.authority, "approval_required");
-        assert!(!summary.permissions.network_allowed);
-        assert!(summary.permissions.filesystem_write);
-        assert!(summary.permissions.secret_env_names.is_empty());
+        assert!(result.valid);
+        assert_eq!(result.project_id.as_deref(), Some("project-1"));
+        assert!(result
+            .effective_permissions
+            .contains(&"authority:approval_required".to_string()));
+        assert!(result
+            .effective_permissions
+            .contains(&"network:false".to_string()));
+        assert_eq!(result.provider_posture.as_deref(), Some("cargo"));
+        assert_eq!(result.project_checks, ["test"]);
     }
 
     #[test]
-    fn rejects_missing_contract_path() {
-        let error = validate_project_contract_path(Path::new("/definitely/missing/project.json"))
-            .expect_err("missing contract must fail closed");
+    fn rejects_missing_identity_before_any_mutation() {
+        let path = Path::new("contract.json");
+        let result =
+            contract_projection(path, &json!({"schema_version": "arda.project-contract.v1"}));
+        assert!(!result.valid);
+        assert!(result
+            .errors
+            .iter()
+            .any(|error| error.contains("project_id")));
+        assert!(result.errors.iter().any(|error| error.contains("root")));
+    }
 
-        assert!(error.contains("read project contract"));
+    #[test]
+    fn run_route_segments_cannot_be_frontend_supplied_paths() {
+        assert_eq!(checked_id("run-1", "run_id"), Ok("run-1"));
+        assert!(checked_id("../shell", "run_id").is_err());
+        assert!(checked_id("run/approve", "run_id").is_err());
+    }
+
+    #[test]
+    fn attach_payload_has_only_typed_contract_and_envelope_fields() {
+        let contract = json!({"schema_version": "arda.project-contract.v1"});
+        let envelope = MutationEnvelope {
+            approval: TaskApproval {
+                schema_version: "arda.orome.task_approval.v1".into(),
+                proposal_id: "proposal-1".into(),
+                approval_id: "approval-1".into(),
+                ledger_writes: vec![],
+                decision: "policy_safe".into(),
+                created_at_utc: "2026-07-31T00:00:00Z".into(),
+            },
+            idempotency_key: "attach-1".into(),
+        };
+        let payload = serde_json::to_value(AttachRequest {
+            contract: &contract,
+            envelope: &envelope,
+        })
+        .expect("serialize payload");
+        assert_eq!(payload.as_object().map(|value| value.len()), Some(2));
+        assert!(payload.get("shell").is_none());
+        assert!(payload.get("command").is_none());
     }
 }

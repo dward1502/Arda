@@ -1,8 +1,8 @@
 {
-  "schema_version": "annunimas.arda_boardroom_slots.v1",
+  "schema_version": "arda.arda_boardroom_slots.v1",
   "authority": "core/state/arda_boardroom_slots.json",
   "operator_profile_id": null,
-  "updated_at_utc": "2026-07-30T19:45:01Z",
+  "updated_at_utc": "2026-07-31T00:05:55.313Z",
   "assignments": [
     {
       "slot_id": "monitor_left_1",
@@ -16,7 +16,41 @@
         "in_scene",
         "native_window"
       ],
-      "updated_at_utc": "2026-05-22T10:25:00Z"
+      "surface_layout": {
+        "enabled": true,
+        "adapter_type": "external_url",
+        "preview": {
+          "mode": "service_status",
+          "refresh_ms": 5000,
+          "widgets": [
+            {
+              "id": "monitor_left_1.status",
+              "kind": "status_grid",
+              "title": "Service status",
+              "data_binding": "service_warp_dev",
+              "grid_area": "main"
+            }
+          ]
+        },
+        "focus": {
+          "mode": "native_window",
+          "target": "service_warp_dev",
+          "refresh_ms": 5000
+        },
+        "embed": {
+          "url": null,
+          "allow_inline": false
+        }
+      },
+      "visualization": {
+        "preset_id": "standby",
+        "config": {
+          "density": "medium",
+          "timespan_minutes": 15,
+          "alert_threshold": null
+        }
+      },
+      "updated_at_utc": "1970-01-01T00:00:00.000Z"
     },
     {
       "slot_id": "monitor_left_2",
@@ -31,10 +65,59 @@
         "in_scene",
         "native_window"
       ],
-      "updated_at_utc": "2026-05-22T09:00:36Z"
+      "surface_layout": {
+        "enabled": true,
+        "adapter_type": "component_grid",
+        "preview": {
+          "mode": "component_grid",
+          "refresh_ms": 3000,
+          "widgets": [
+            {
+              "id": "monitor_left_2.metrics",
+              "kind": "metric_strip",
+              "title": "Metrics",
+              "data_binding": "routing_and_comms.summary",
+              "grid_area": "top"
+            },
+            {
+              "id": "monitor_left_2.stream",
+              "kind": "particle_stream",
+              "title": "Flow",
+              "data_binding": "routing_and_comms.health",
+              "grid_area": "main"
+            },
+            {
+              "id": "monitor_left_2.status",
+              "kind": "status_grid",
+              "title": "Status",
+              "data_binding": "routing_and_comms.status",
+              "grid_area": "side"
+            }
+          ]
+        },
+        "focus": {
+          "mode": "native_window",
+          "target": "routing_and_comms",
+          "refresh_ms": 1000
+        },
+        "embed": {
+          "url": null,
+          "allow_inline": false
+        }
+      },
+      "visualization": {
+        "preset_id": "routes",
+        "config": {
+          "density": "medium",
+          "timespan_minutes": 15,
+          "alert_threshold": null
+        }
+      },
+      "updated_at_utc": "2026-07-31T00:05:55.313Z"
     },
     {
       "slot_id": "monitor_left_3",
+      "role_id": "knowledge",
       "component_id": "knowledge-workstation",
       "source_zone_id": "memory_and_continuity",
       "title": "Knowledge + Memory",
@@ -46,10 +129,59 @@
         "in_scene",
         "native_window"
       ],
-      "updated_at_utc": "2026-05-22T09:00:36Z"
+      "surface_layout": {
+        "enabled": true,
+        "adapter_type": "component_grid",
+        "preview": {
+          "mode": "component_grid",
+          "refresh_ms": 3000,
+          "widgets": [
+            {
+              "id": "monitor_left_3.metrics",
+              "kind": "metric_strip",
+              "title": "Metrics",
+              "data_binding": "memory_and_continuity.summary",
+              "grid_area": "top"
+            },
+            {
+              "id": "monitor_left_3.stream",
+              "kind": "particle_stream",
+              "title": "Flow",
+              "data_binding": "memory_and_continuity.health",
+              "grid_area": "main"
+            },
+            {
+              "id": "monitor_left_3.status",
+              "kind": "status_grid",
+              "title": "Status",
+              "data_binding": "memory_and_continuity.status",
+              "grid_area": "side"
+            }
+          ]
+        },
+        "focus": {
+          "mode": "native_window",
+          "target": "memory_and_continuity",
+          "refresh_ms": 1000
+        },
+        "embed": {
+          "url": null,
+          "allow_inline": false
+        }
+      },
+      "visualization": {
+        "preset_id": "constellation",
+        "config": {
+          "density": "medium",
+          "timespan_minutes": 15,
+          "alert_threshold": null
+        }
+      },
+      "updated_at_utc": "1970-01-01T00:00:00.000Z"
     },
     {
       "slot_id": "monitor_left_4",
+      "role_id": "work",
       "component_id": "queue-plans-workstation",
       "source_zone_id": "planning_and_queue",
       "title": "Queue + Plans",
@@ -61,7 +193,55 @@
         "in_scene",
         "native_window"
       ],
-      "updated_at_utc": "2026-05-22T09:00:36Z"
+      "surface_layout": {
+        "enabled": true,
+        "adapter_type": "component_grid",
+        "preview": {
+          "mode": "component_grid",
+          "refresh_ms": 3000,
+          "widgets": [
+            {
+              "id": "monitor_left_4.metrics",
+              "kind": "metric_strip",
+              "title": "Metrics",
+              "data_binding": "planning_and_queue.summary",
+              "grid_area": "top"
+            },
+            {
+              "id": "monitor_left_4.stream",
+              "kind": "particle_stream",
+              "title": "Flow",
+              "data_binding": "planning_and_queue.health",
+              "grid_area": "main"
+            },
+            {
+              "id": "monitor_left_4.status",
+              "kind": "status_grid",
+              "title": "Status",
+              "data_binding": "planning_and_queue.status",
+              "grid_area": "side"
+            }
+          ]
+        },
+        "focus": {
+          "mode": "native_window",
+          "target": "planning_and_queue",
+          "refresh_ms": 1000
+        },
+        "embed": {
+          "url": null,
+          "allow_inline": false
+        }
+      },
+      "visualization": {
+        "preset_id": "lanes",
+        "config": {
+          "density": "medium",
+          "timespan_minutes": 15,
+          "alert_threshold": null
+        }
+      },
+      "updated_at_utc": "1970-01-01T00:00:00.000Z"
     },
     {
       "slot_id": "view_desk_l",
@@ -76,10 +256,59 @@
         "in_scene",
         "native_window"
       ],
-      "updated_at_utc": "2026-05-22T09:00:36Z"
+      "surface_layout": {
+        "enabled": true,
+        "adapter_type": "component_grid",
+        "preview": {
+          "mode": "component_grid",
+          "refresh_ms": 3000,
+          "widgets": [
+            {
+              "id": "view_desk_l.metrics",
+              "kind": "metric_strip",
+              "title": "Metrics",
+              "data_binding": "governance_guardhouse.summary",
+              "grid_area": "top"
+            },
+            {
+              "id": "view_desk_l.stream",
+              "kind": "particle_stream",
+              "title": "Flow",
+              "data_binding": "governance_guardhouse.health",
+              "grid_area": "main"
+            },
+            {
+              "id": "view_desk_l.status",
+              "kind": "status_grid",
+              "title": "Status",
+              "data_binding": "governance_guardhouse.status",
+              "grid_area": "side"
+            }
+          ]
+        },
+        "focus": {
+          "mode": "native_window",
+          "target": "governance_guardhouse",
+          "refresh_ms": 1000
+        },
+        "embed": {
+          "url": null,
+          "allow_inline": false
+        }
+      },
+      "visualization": {
+        "preset_id": "lanes",
+        "config": {
+          "density": "medium",
+          "timespan_minutes": 15,
+          "alert_threshold": null
+        }
+      },
+      "updated_at_utc": "1970-01-01T00:00:00.000Z"
     },
     {
       "slot_id": "view_desk_control_panel",
+      "role_id": "fleet",
       "component_id": "command-podium-workstation",
       "source_zone_id": "sovereign_world",
       "title": "Command Podium",
@@ -90,7 +319,55 @@
       "presentation_modes": [
         "in_scene"
       ],
-      "updated_at_utc": "2026-05-22T09:00:36Z"
+      "surface_layout": {
+        "enabled": true,
+        "adapter_type": "component_grid",
+        "preview": {
+          "mode": "component_grid",
+          "refresh_ms": 3000,
+          "widgets": [
+            {
+              "id": "view_desk_control_panel.metrics",
+              "kind": "metric_strip",
+              "title": "Metrics",
+              "data_binding": "sovereign_world.summary",
+              "grid_area": "top"
+            },
+            {
+              "id": "view_desk_control_panel.stream",
+              "kind": "particle_stream",
+              "title": "Flow",
+              "data_binding": "sovereign_world.health",
+              "grid_area": "main"
+            },
+            {
+              "id": "view_desk_control_panel.status",
+              "kind": "status_grid",
+              "title": "Status",
+              "data_binding": "sovereign_world.status",
+              "grid_area": "side"
+            }
+          ]
+        },
+        "focus": {
+          "mode": "in_scene_workstation",
+          "target": "sovereign_world",
+          "refresh_ms": 1000
+        },
+        "embed": {
+          "url": null,
+          "allow_inline": false
+        }
+      },
+      "visualization": {
+        "preset_id": "topology",
+        "config": {
+          "density": "medium",
+          "timespan_minutes": 15,
+          "alert_threshold": null
+        }
+      },
+      "updated_at_utc": "1970-01-01T00:00:00.000Z"
     },
     {
       "slot_id": "view_desk_r",
@@ -105,7 +382,55 @@
         "in_scene",
         "native_window"
       ],
-      "updated_at_utc": "2026-05-22T09:00:36Z"
+      "surface_layout": {
+        "enabled": true,
+        "adapter_type": "component_grid",
+        "preview": {
+          "mode": "component_grid",
+          "refresh_ms": 3000,
+          "widgets": [
+            {
+              "id": "view_desk_r.metrics",
+              "kind": "metric_strip",
+              "title": "Metrics",
+              "data_binding": "human_realm.summary",
+              "grid_area": "top"
+            },
+            {
+              "id": "view_desk_r.stream",
+              "kind": "particle_stream",
+              "title": "Flow",
+              "data_binding": "human_realm.health",
+              "grid_area": "main"
+            },
+            {
+              "id": "view_desk_r.status",
+              "kind": "status_grid",
+              "title": "Status",
+              "data_binding": "human_realm.status",
+              "grid_area": "side"
+            }
+          ]
+        },
+        "focus": {
+          "mode": "native_window",
+          "target": "human_realm",
+          "refresh_ms": 1000
+        },
+        "embed": {
+          "url": null,
+          "allow_inline": false
+        }
+      },
+      "visualization": {
+        "preset_id": "pulse",
+        "config": {
+          "density": "medium",
+          "timespan_minutes": 15,
+          "alert_threshold": null
+        }
+      },
+      "updated_at_utc": "1970-01-01T00:00:00.000Z"
     },
     {
       "slot_id": "view_desk_aux",
@@ -120,7 +445,55 @@
         "in_scene",
         "native_window"
       ],
-      "updated_at_utc": "2026-07-30T19:45:01Z"
+      "surface_layout": {
+        "enabled": true,
+        "adapter_type": "component_grid",
+        "preview": {
+          "mode": "component_grid",
+          "refresh_ms": 3000,
+          "widgets": [
+            {
+              "id": "view_desk_aux.metrics",
+              "kind": "metric_strip",
+              "title": "Metrics",
+              "data_binding": "now_command.summary",
+              "grid_area": "top"
+            },
+            {
+              "id": "view_desk_aux.stream",
+              "kind": "particle_stream",
+              "title": "Flow",
+              "data_binding": "now_command.health",
+              "grid_area": "main"
+            },
+            {
+              "id": "view_desk_aux.status",
+              "kind": "status_grid",
+              "title": "Status",
+              "data_binding": "now_command.status",
+              "grid_area": "side"
+            }
+          ]
+        },
+        "focus": {
+          "mode": "native_window",
+          "target": "now_command",
+          "refresh_ms": 1000
+        },
+        "embed": {
+          "url": null,
+          "allow_inline": false
+        }
+      },
+      "visualization": {
+        "preset_id": "pulse",
+        "config": {
+          "density": "medium",
+          "timespan_minutes": 15,
+          "alert_threshold": null
+        }
+      },
+      "updated_at_utc": "1970-01-01T00:00:00.000Z"
     }
   ]
 }

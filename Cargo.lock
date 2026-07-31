@@ -123,6 +123,7 @@ dependencies = [
  "arda-governance",
  "arda-mandos",
  "arda-orome",
+ "arda-outpost-protocol",
  "arda-vaire",
  "arda-varda",
  "async-trait",

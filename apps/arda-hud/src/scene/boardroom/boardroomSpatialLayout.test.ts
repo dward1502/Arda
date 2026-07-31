@@ -79,6 +79,16 @@ describe('boardroom spatial layout contract', () => {
     expect(getBoardroomSpatialZone('boardroom.lower.right_wrap')?.rotation[1]).toBeLessThan(-0.4)
   })
 
+  it('tilts every lower display surface toward the operator while preserving mirrored wrap', () => {
+    const [leftWrap, leftInner, rightInner, rightWrap] = BOARDROOM_CONTROL_ZONES.filter(
+      (zone) => zone.kind === 'desk_surface',
+    )
+
+    expect([leftWrap, leftInner, rightInner, rightWrap].every((zone) => zone.rotation[0] > 0)).toBe(true)
+    expect(leftWrap.rotation[1]).toBeCloseTo(-rightWrap.rotation[1], 3)
+    expect(leftInner.rotation[1]).toBeCloseTo(-rightInner.rotation[1], 3)
+  })
+
   it('defines a mirrored five-segment command-console shell that wraps around the operator', () => {
     const segments = (boardroomSpatialLayout as typeof boardroomSpatialLayout & {
       BOARDROOM_CONSOLE_SHELL_SEGMENTS?: Array<{

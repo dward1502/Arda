@@ -18,6 +18,12 @@ import {
   previewConfigProfile,
   type ConfigProjectionPreview,
 } from '../../../lib/configWalkthrough'
+import {
+  compatibleBoardroomVisualizationPresets,
+  type BoardroomVisualizationDensity,
+  type BoardroomVisualizationPresetId,
+  type BoardroomVisualizationSelection,
+} from '../../../scene/boardroom/boardroomVisualizationPresets'
 
 interface ConfigProfile {
   id: string
@@ -51,6 +57,11 @@ interface SettingsModuleProps {
   onConfigApplied?: () => void
   onUpdateBoardroomAssignment?: (slotId: string, sourceZoneId: string) => void
   onUpdateSurfaceLayout?: (slotId: string, updater: BoardroomSurfaceLayout | ((current: BoardroomSurfaceLayout) => BoardroomSurfaceLayout)) => void
+  onUpdateVisualization?: (slotId: string, selection: BoardroomVisualizationSelection) => { ok: boolean; message: string }
+  onExportProfile?: () => string
+  onImportProfile?: (serialized: string) => { ok: boolean; message: string }
+  onResetProfile?: () => void
+  boardroomPersistence?: { mode: string; saveStatus: string; message: string }
   onUpdateWorldSurfaceLayout?: (surfaceId: string, updater: BoardroomSurfaceLayout | ((current: BoardroomSurfaceLayout) => BoardroomSurfaceLayout)) => void
   onToggleEditMode: () => void
 }
@@ -256,6 +267,11 @@ export default function SettingsModule({
   onConfigApplied,
   onUpdateBoardroomAssignment,
   onUpdateSurfaceLayout,
+  onUpdateVisualization,
+  onExportProfile,
+  onImportProfile,
+  onResetProfile,
+  boardroomPersistence,
   onUpdateWorldSurfaceLayout,
   onToggleEditMode,
 }: SettingsModuleProps) {
@@ -271,6 +287,8 @@ export default function SettingsModule({
   const [selectedProfileId, setSelectedProfileId] = useState(activeProfileId)
   const [projectionPreview, setProjectionPreview] = useState<ConfigProjectionPreview | null>(null)
   const [configActionStatus, setConfigActionStatus] = useState<string>('')
+  const [boardroomProfileJson, setBoardroomProfileJson] = useState('')
+  const [boardroomProfileStatus, setBoardroomProfileStatus] = useState('')
   const selectedProfile = profiles.find((profile) => profile.id === selectedProfileId) ?? profiles[0] ?? null
   const canonicalFiles = asRecord(configWalkthrough?.canonical_files) ?? {}
 
@@ -420,11 +438,70 @@ export default function SettingsModule({
         </div>
         <div>
           <div className="module-subtitle">Boardroom Surface Slots</div>
+          <div className="boardroom-profile-controls">
+            <label>
+              Boardroom profile JSON
+              <textarea
+                aria-label="Boardroom profile JSON"
+                value={boardroomProfileJson}
+                rows={5}
+                placeholder="Export a profile here, or paste a profile to import."
+                onChange={(event) => setBoardroomProfileJson(event.target.value)}
+              />
+            </label>
+            <div className="config-profile-actions">
+              <button
+                type="button"
+                className="refresh-button"
+                disabled={!onExportProfile}
+                onClick={() => {
+                  const serialized = onExportProfile?.() ?? ''
+                  setBoardroomProfileJson(serialized)
+                  setBoardroomProfileStatus(serialized ? 'Profile exported for recovery.' : 'Profile export unavailable.')
+                }}
+              >Export profile</button>
+              <button
+                type="button"
+                className="refresh-button"
+                disabled={!onImportProfile || boardroomProfileJson.trim().length === 0}
+                onClick={() => {
+                  const result = onImportProfile?.(boardroomProfileJson)
+                  setBoardroomProfileStatus(result?.message ?? 'Profile import unavailable.')
+                }}
+              >Import profile</button>
+              <button
+                type="button"
+                className="refresh-button"
+                disabled={!onResetProfile}
+                onClick={() => {
+                  onResetProfile?.()
+                  setBoardroomProfileStatus('Boardroom profile reset to defaults.')
+                }}
+              >Reset profile</button>
+            </div>
+            {boardroomProfileStatus ? <p className="config-action-status">{boardroomProfileStatus}</p> : null}
+            {boardroomPersistence ? (
+              <p
+                className="config-action-status"
+                role="status"
+                aria-label={`Boardroom persistence ${boardroomPersistence.mode} ${boardroomPersistence.saveStatus}: ${boardroomPersistence.message}`}
+              >
+                {boardroomPersistence.mode} · {boardroomPersistence.saveStatus} · {boardroomPersistence.message}
+              </p>
+            ) : null}
+          </div>
           <div className="document-list compact">
             {monitorAssignments.map((assignment) => {
               const layout = assignment.surfaceLayout
+              const visualization = assignment.visualization
+              const compatiblePresets = compatibleBoardroomVisualizationPresets(assignment.sourceZoneId ?? '')
+              const visualizationLabel = compatiblePresets.find((preset) => preset.id === visualization?.preset_id)?.label ?? visualization?.preset_id
               const updateLayout = (updater: BoardroomSurfaceLayout | ((current: BoardroomSurfaceLayout) => BoardroomSurfaceLayout)) => {
                 onUpdateSurfaceLayout?.(assignment.slot, updater)
+              }
+              const updateVisualization = (selection: BoardroomVisualizationSelection) => {
+                const result = onUpdateVisualization?.(assignment.slot, selection)
+                if (result) setBoardroomProfileStatus(result.message)
               }
 
               return (
@@ -443,6 +520,79 @@ export default function SettingsModule({
                       <option key={profile.role_id} value={profile.source_zone_id}>{profile.label}</option>
                     ))}
                   </select>
+                  {visualization ? (
+                    <div className="boardroom-visualization-editor">
+                      <div className={`boardroom-visualization-preview boardroom-visualization-preview--${visualization.preset_id}`}>
+                        <strong>{visualizationLabel}</strong>
+                        <span>{visualizationLabel} · {visualization.config.density} · {visualization.config.timespan_minutes}m</span>
+                      </div>
+                      <label>
+                        Visualization
+                        <select
+                          aria-label={`Visualization for ${assignment.slot}`}
+                          value={visualization.preset_id}
+                          disabled={!onUpdateVisualization}
+                          onChange={(event) => updateVisualization({
+                            ...visualization,
+                            preset_id: event.target.value as BoardroomVisualizationPresetId,
+                          })}
+                        >
+                          {compatiblePresets.map((preset) => (
+                            <option key={preset.id} value={preset.id}>{preset.label}</option>
+                          ))}
+                        </select>
+                      </label>
+                      <label>
+                        Density
+                        <select
+                          aria-label={`Density for ${assignment.slot}`}
+                          value={visualization.config.density}
+                          disabled={!onUpdateVisualization}
+                          onChange={(event) => updateVisualization({
+                            ...visualization,
+                            config: { ...visualization.config, density: event.target.value as BoardroomVisualizationDensity },
+                          })}
+                        >
+                          <option value="low">Low</option>
+                          <option value="medium">Medium</option>
+                          <option value="high">High</option>
+                        </select>
+                      </label>
+                      <label>
+                        Timespan minutes
+                        <input
+                          type="number"
+                          min={1}
+                          max={1440}
+                          value={visualization.config.timespan_minutes}
+                          disabled={!onUpdateVisualization}
+                          onChange={(event) => updateVisualization({
+                            ...visualization,
+                            config: { ...visualization.config, timespan_minutes: Math.max(1, Number(event.target.value) || 1) },
+                          })}
+                        />
+                      </label>
+                      <label>
+                        Alert threshold
+                        <input
+                          type="number"
+                          min={0}
+                          max={1}
+                          step={0.05}
+                          placeholder="none"
+                          value={visualization.config.alert_threshold ?? ''}
+                          disabled={!onUpdateVisualization}
+                          onChange={(event) => updateVisualization({
+                            ...visualization,
+                            config: {
+                              ...visualization.config,
+                              alert_threshold: event.target.value === '' ? null : Number(event.target.value),
+                            },
+                          })}
+                        />
+                      </label>
+                    </div>
+                  ) : null}
                       <span>{assignment.role ? `role:${assignment.role}` : 'surface'} / {assignment.adapterType ?? 'adapter'} / {assignment.previewMode ?? 'preview'} / {assignment.focusMode ?? 'focus'}</span>
                   <span>{assignment.widgetCount ?? 0} widgets / {assignment.refreshMs ?? 0}ms preview</span>
                   {assignment.embedUrl ? <span>Embed: {assignment.embedUrl}</span> : null}

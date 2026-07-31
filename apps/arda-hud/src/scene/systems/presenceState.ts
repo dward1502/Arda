@@ -278,6 +278,7 @@ function derivePresenceStateFromEventLedgerRecord(record: ArdaPresenceEventLedge
 }
 
 const PRESENCE_LEDGER_FRESH_AFTER_MS = 15 * 60 * 1000
+export const PRESENCE_LEDGER_SOURCE_PATH = 'data/prometheus/arda_presence_events.jsonl'
 
 function presenceLedgerFreshness(latestTimestamp: string | undefined, fallbackTimestamp: string): PresenceLedgerFreshness {
   if (!latestTimestamp) return 'unknown'
@@ -347,6 +348,7 @@ export function derivePresenceLedgerProjection(
   const latestTimestamp = result.validEventCount > 0 ? result.state.timestamp : undefined
   const statusWithoutSummary: Omit<PresenceLedgerStatus, 'summary'> = {
     source: result.validEventCount > 0 ? 'live_ledger' : 'fallback_default',
+    sourcePath: PRESENCE_LEDGER_SOURCE_PATH,
     freshness: result.validEventCount > 0 ? presenceLedgerFreshness(latestTimestamp, fallbackTimestamp) : 'unknown',
     validEventCount: result.validEventCount,
     ignoredLineCount: result.ignoredLineCount,

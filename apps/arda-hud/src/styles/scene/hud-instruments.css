@@ -311,6 +311,26 @@
   color: #ff8aae;
 }
 
+.hud-instrument__source {
+  overflow: hidden;
+  color: rgba(220, 247, 255, 0.72);
+  font: 800 0.34rem/1 var(--body-font);
+  letter-spacing: 0.06em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.hud-instrument__source--stale,
+.hud-instrument__source--blocked {
+  color: #ffd37a;
+}
+
+.hud-instrument__source--missing,
+.hud-instrument__source--unknown {
+  color: #ff8aae;
+}
+
 .hud-instrument__pips {
   display: inline-flex;
   gap: 0.18rem;

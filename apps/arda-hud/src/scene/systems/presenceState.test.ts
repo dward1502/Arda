@@ -157,6 +157,7 @@ describe('boardroom presence state', () => {
       },
       status: {
         source: 'live_ledger',
+        sourcePath: 'data/prometheus/arda_presence_events.jsonl',
         freshness: 'fresh',
         validEventCount: 1,
         ignoredLineCount: 0,
@@ -178,6 +179,7 @@ describe('boardroom presence state', () => {
     expect(projection.state).toEqual(DEFAULT_AGENT_PRESENCE_STATE)
     expect(projection.status).toEqual({
       source: 'fallback_default',
+      sourcePath: 'data/prometheus/arda_presence_events.jsonl',
       freshness: 'unknown',
       validEventCount: 0,
       ignoredLineCount: 1,

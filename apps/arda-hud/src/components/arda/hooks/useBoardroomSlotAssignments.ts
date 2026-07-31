@@ -1,22 +1,29 @@
 // sigil: REPAIR
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
+  ARDA_BOARDROOM_SLOT_STORAGE_KEY,
   BOARDROOM_SCENE_SLOT_IDS,
   DEFAULT_BOARDROOM_SCENE_SLOT_ASSIGNMENTS,
+  assignmentsFromDocument,
   createDefaultBoardroomSlotSettings,
   documentFromAssignments,
   documentWithSurfaceLayout,
+  documentWithVisualizationSelection,
+  exportBoardroomProfile,
+  importBoardroomProfile,
   type BoardroomSceneSlotAssignments,
   type BoardroomSceneSlotId,
   type BoardroomSlotAssignmentMode,
   type BoardroomSlotSettingsDocument,
   loadBoardroomSlotSettings,
-  readLocalBoardroomSlotAssignments,
+  readLocalBoardroomSlotSettingsDocument,
+  resetBoardroomProfile,
   saveBoardroomSlotSettingsDocument,
   surfaceLayoutsFromDocument,
   type BoardroomSurfaceLayout,
 } from '../../../lib/boardroomSlotSettings'
 import { parseJsonOrNull } from '../../../lib/jsonParse'
+import type { BoardroomVisualizationSelection } from '../../../scene/boardroom/boardroomVisualizationPresets'
 
 interface UseBoardroomSlotAssignmentsResult {
   assignments: BoardroomSceneSlotAssignments
@@ -27,6 +34,10 @@ interface UseBoardroomSlotAssignmentsResult {
   document: BoardroomSlotSettingsDocument
   surfaceLayouts: Record<string, BoardroomSurfaceLayout>
   updateSurfaceLayout: (slotId: BoardroomSceneSlotId, updater: BoardroomSurfaceLayout | ((current: BoardroomSurfaceLayout) => BoardroomSurfaceLayout)) => void
+  updateVisualization: (slotId: BoardroomSceneSlotId, selection: BoardroomVisualizationSelection) => { ok: boolean; message: string }
+  exportProfile: () => string
+  importProfile: (serialized: string) => { ok: boolean; message: string }
+  resetProfile: () => void
 }
 
 function localStorageOrNull(): Storage | null {
@@ -34,22 +45,26 @@ function localStorageOrNull(): Storage | null {
 }
 
 export function useBoardroomSlotAssignments(rootPath: string | null | undefined): UseBoardroomSlotAssignmentsResult {
-  const initialAssignments = useMemo(() => readLocalBoardroomSlotAssignments(localStorageOrNull()), [])
+  const initialDocument = useMemo(
+    () => readLocalBoardroomSlotSettingsDocument(localStorageOrNull()) ?? createDefaultBoardroomSlotSettings(),
+    [],
+  )
+  const initialAssignments = useMemo(() => assignmentsFromDocument(initialDocument), [initialDocument])
   const [assignments, setAssignmentsState] = useState<BoardroomSceneSlotAssignments>(initialAssignments)
   const [mode, setMode] = useState<BoardroomSlotAssignmentMode>('local')
   const [message, setMessage] = useState('Using browser-local boardroom slot assignments')
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
-  const [document, setDocument] = useState<BoardroomSlotSettingsDocument>(() => createDefaultBoardroomSlotSettings())
+  const [document, setDocument] = useState<BoardroomSlotSettingsDocument>(initialDocument)
   const dirtyRef = useRef(false)
 
   useEffect(() => {
     const storage = localStorageOrNull()
     try {
-      storage?.setItem('arda.boardroom.scene_slots.v1', JSON.stringify(assignments))
+      storage?.setItem(ARDA_BOARDROOM_SLOT_STORAGE_KEY, exportBoardroomProfile(document))
     } catch {
       // Browser local persistence is a fallback; failure should not block scene operation.
     }
-  }, [assignments])
+  }, [document])
 
   useEffect(() => {
     if (!rootPath) return
@@ -104,8 +119,13 @@ export function useBoardroomSlotAssignments(rootPath: string | null | undefined)
     }
   }, [document, mode, rootPath])
 
-  const setAssignments = (updater: BoardroomSceneSlotAssignments | ((current: BoardroomSceneSlotAssignments) => BoardroomSceneSlotAssignments)) => {
+  const markDirty = () => {
     dirtyRef.current = true
+    if (rootPath && mode === 'fallback') setMode('workspace')
+  }
+
+  const setAssignments = (updater: BoardroomSceneSlotAssignments | ((current: BoardroomSceneSlotAssignments) => BoardroomSceneSlotAssignments)) => {
+    markDirty()
     setAssignmentsState((current) => {
       const next = typeof updater === 'function' ? updater(current) : updater
       const normalized = BOARDROOM_SCENE_SLOT_IDS.reduce<BoardroomSceneSlotAssignments>((normalizedAssignments, slotId) => {
@@ -121,12 +141,43 @@ export function useBoardroomSlotAssignments(rootPath: string | null | undefined)
     slotId: BoardroomSceneSlotId,
     updater: BoardroomSurfaceLayout | ((current: BoardroomSurfaceLayout) => BoardroomSurfaceLayout),
   ) => {
-    dirtyRef.current = true
+    markDirty()
     setDocument((currentDocument) => {
       const currentLayout = surfaceLayoutsFromDocument(currentDocument)[slotId]
       const nextLayout = typeof updater === 'function' ? updater(currentLayout) : updater
       return documentWithSurfaceLayout(currentDocument, slotId, nextLayout)
     })
+  }
+
+  const updateVisualization = (slotId: BoardroomSceneSlotId, selection: BoardroomVisualizationSelection) => {
+    const result = documentWithVisualizationSelection(document, slotId, selection)
+    if (result.ok) {
+      markDirty()
+      setDocument(result.document)
+      setMessage(result.message)
+    }
+    return { ok: result.ok, message: result.message }
+  }
+
+  const importProfile = (serialized: string) => {
+    const result = importBoardroomProfile(serialized)
+    if (!result.ok || !result.document) {
+      setMessage(result.message)
+      return { ok: false, message: result.message }
+    }
+    markDirty()
+    setDocument(result.document)
+    setAssignmentsState(assignmentsFromDocument(result.document))
+    setMessage(result.message)
+    return { ok: true, message: result.message }
+  }
+
+  const resetProfile = () => {
+    const next = resetBoardroomProfile()
+    markDirty()
+    setDocument(next)
+    setAssignmentsState(assignmentsFromDocument(next))
+    setMessage('Reset boardroom profile to defaults')
   }
 
   return {
@@ -138,5 +189,9 @@ export function useBoardroomSlotAssignments(rootPath: string | null | undefined)
     document,
     surfaceLayouts: surfaceLayoutsFromDocument(document),
     updateSurfaceLayout,
+    updateVisualization,
+    exportProfile: () => exportBoardroomProfile(document),
+    importProfile,
+    resetProfile,
   }
 }

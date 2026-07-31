@@ -51,10 +51,12 @@
 //! - [`contract::ArdaAuleContract`]: The canonical observability contract
 //! - [`service::ArdaAuleStatus`]: Readiness probe output
 //! - [`service::ObservabilityBrief`]: Compact observability summary
+//! - [`presence_projection::build_presence_projection`]: Runtime presence projection for outposts
 
 pub mod contract;
 pub mod council;
 pub mod governance_metrics;
+pub mod presence_projection;
 pub mod service;
 
 #[cfg(feature = "full-cli")]
@@ -67,6 +69,7 @@ pub mod prometheus;
 pub mod telemetry;
 
 pub use governance_metrics::render_governance_prometheus;
+pub use presence_projection::build_presence_projection;
 
 /// Returns the identity string of this crate.
 ///

@@ -54,6 +54,7 @@ import type {
 } from './components/arda/types'
 import { getArandurQueueWriteRequests, getHumanAugmentationRuntime, getPlanShelf, getReviewGateItems, getRuntimeDrift, getOperatorRuntimeSurface } from './lib/reviewGateDerivation'
 import { deriveBoardroomHudInstruments } from './scene/boardroom/boardroomHudInstruments'
+import { adaptBoardroomHudSource } from './scene/boardroom/boardroomHudSourceAdapters'
 import BoardroomViewport from './scene/boardroom/BoardroomViewport'
 import WorldRuntimeViewport from './scene/world/WorldViewport'
 import { calculateWorldDistrictUrgencies } from './scene/world/worldDistrictUrgency'
@@ -257,8 +258,13 @@ export default function App() {
   const {
     assignments: boardroomSceneSlotAssignments,
     setAssignments: setBoardroomSceneSlotAssignments,
+    document: boardroomSlotDocument,
     surfaceLayouts: boardroomSurfaceLayouts,
     updateSurfaceLayout: updateBoardroomSurfaceLayout,
+    updateVisualization: updateBoardroomVisualization,
+    exportProfile: exportBoardroomProfile,
+    importProfile: importBoardroomProfile,
+    resetProfile: resetBoardroomProfile,
     mode: boardroomSlotAssignmentMode,
     message: boardroomSlotAssignmentMessage,
     saveStatus: boardroomSlotSaveStatus,
@@ -588,7 +594,12 @@ export default function App() {
     [bundle],
   )
   const boardroomHudInstruments = useMemo(
-    () => deriveBoardroomHudInstruments({
+    () => {
+      const sourceProvenance = bundle?.sourceProvenance ?? []
+      const pendingReviewItems = reviewGateItems.filter((item) =>
+        item.status !== 'approved' && item.status !== 'rejected').length
+      const commandLanes = Object.keys(asRecord(bundle?.operationsFlow) ?? {}).length
+      const instruments = deriveBoardroomHudInstruments({
       fleetHealth: {
         liveTargets: fleetHealth.liveTargets,
         totalTargets: fleetHealth.totalTargets,
@@ -596,23 +607,47 @@ export default function App() {
         unexpectedOffline: fleetHealth.unexpectedOffline,
         intentionalOffline: fleetHealth.intentionalOffline,
         runtimeDrift,
+        source: adaptBoardroomHudSource(sourceProvenance, 'fleet'),
       },
       queue: {
         completed: queueSummary.completed,
         priorityBuckets: queueSummary.priorities.length,
         ownerBuckets: queueSummary.owners.length,
+        source: adaptBoardroomHudSource(sourceProvenance, 'queue'),
       },
       knowledge: {
         documents: docs.length,
         plans: planShelf.plans.length,
+        source: adaptBoardroomHudSource(sourceProvenance, 'knowledge'),
       },
       routing: {
         routableProviders: routableProviders.length,
         activeConnections: hottestProvider?.activeConnections ?? 0,
         constrainedHeadroom: typeof mostConstrainedLane?.headroom === 'number' ? mostConstrainedLane.headroom : null,
+        source: adaptBoardroomHudSource(sourceProvenance, 'routing'),
       },
-    }),
-    [docs.length, fleetHealth, hottestProvider, mostConstrainedLane, planShelf.plans.length, queueSummary, routableProviders.length, runtimeDrift],
+      governance: {
+        reviewItems: reviewGateItems.length,
+        pendingItems: pendingReviewItems,
+        source: adaptBoardroomHudSource(sourceProvenance, 'governance'),
+      },
+      human: {
+        documents: docs.length,
+        notes: notes.length,
+        source: adaptBoardroomHudSource(sourceProvenance, 'human'),
+      },
+      dailyCommand: {
+        lanes: commandLanes,
+        attentionLanes: pendingReviewItems,
+        source: adaptBoardroomHudSource(sourceProvenance, 'daily-command'),
+      },
+      })
+      return Object.fromEntries(Object.entries(instruments).map(([slotId, instrument]) => {
+        const configured = boardroomSlotDocument.assignments.find((assignment) => assignment.slot_id === slotId)?.visualization
+        return [slotId, configured ? { ...instrument, preset: configured.preset_id } : instrument]
+      }))
+    },
+    [boardroomSlotDocument, bundle?.operationsFlow, bundle?.sourceProvenance, docs.length, fleetHealth, hottestProvider, mostConstrainedLane, notes.length, planShelf.plans.length, queueSummary, reviewGateItems, routableProviders.length, runtimeDrift],
   )
   const worldDistricts = useMemo(
     () =>
@@ -1554,6 +1589,7 @@ export default function App() {
           const roleProfile = BOARDROOM_WORKSTATION_ROLE_PROFILES.find((profile) => profile.source_zone_id === sourceZoneId) ?? null
             const adapter = getSurfaceAdapterManifest(sourceZoneId)
             const surfaceLayout = boardroomSurfaceLayouts[slotId]
+            const visualization = boardroomSlotDocument.assignments.find((assignment) => assignment.slot_id === slotId)?.visualization
             const isMonitor = BOARDROOM_MONITOR_SLOT_IDS.includes(slotId as typeof BOARDROOM_MONITOR_SLOT_IDS[number])
             return {
               slot: slotId,
@@ -1568,6 +1604,7 @@ export default function App() {
               widgetCount: surfaceLayout?.preview.widgets.length,
               embedUrl: surfaceLayout?.embed.url,
               surfaceLayout,
+              visualization,
             }
           })}
           roleAssignmentProfiles={BOARDROOM_WORKSTATION_ROLE_PROFILES}
@@ -1609,6 +1646,15 @@ export default function App() {
             }))
           }}
           onUpdateSurfaceLayout={(slotId, updater) => updateBoardroomSurfaceLayout(slotId as typeof BOARDROOM_SCENE_SLOT_IDS[number], updater)}
+          onUpdateVisualization={(slotId, selection) => updateBoardroomVisualization(slotId as typeof BOARDROOM_SCENE_SLOT_IDS[number], selection)}
+          onExportProfile={exportBoardroomProfile}
+          onImportProfile={importBoardroomProfile}
+          onResetProfile={resetBoardroomProfile}
+          boardroomPersistence={{
+            mode: boardroomSlotAssignmentMode,
+            saveStatus: boardroomSlotSaveStatus,
+            message: boardroomSlotAssignmentMessage,
+          }}
           onUpdateWorldSurfaceLayout={(surfaceId, updater) => updateWorldSurfaceLayout(surfaceId as WorldSceneSurfaceId, updater)}
           onToggleEditMode={() => setEditMode((current) => !current)}
         />

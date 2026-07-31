@@ -146,6 +146,8 @@ Boardroom Settings supports:
 
 ## Phase 3 — Ecosystem data adapters
 
+**Status: Complete — 2026-07-30.** Compact previews, detailed-workstation navigation, presence provenance, bounded source windows, and honest degraded-state contracts are implemented and verified below.
+
 ### Initial source map
 
 | Surface | ARDA source | Suggested visual presets | Detailed destination |
@@ -176,6 +178,8 @@ Boardroom Settings supports:
 ---
 
 ## Phase 4 — User-selectable visualization slots
+
+**Status: Complete — 2026-07-31.** Typed presets, source compatibility, persisted per-slot configuration, recoverable profile controls, and native restart persistence are implemented and verified below.
 
 ### Tasks
 
@@ -276,6 +280,35 @@ Native visual/interaction gate:
   - mirrored segment positions and progressively stronger wing angles create a wraparound operator silhouette while preserving all stable screen and control anchors;
   - each segment has an illuminated operator-side rail and paired metallic seam ribs, with source-family accents aligned to the embedded lower inserts;
   - the shell layout contract is independently testable and remains suitable for later procedural or authored-asset replacement.
+- **Implemented — corrected Phase 2 model/insert alignment slice:**
+  - removed the segment-wide raised rectangles that did not share transforms with the actual monitor slots;
+  - upper monitors, all four lower displays, and the command core now render their authored GLB housings inside the same position/rotation group as their HTML display content;
+  - lower HTML projections rotate into the local X/Z screen plane, and lower slot pitch now tilts the complete model-plus-display assembly toward the operator instead of skewing the display away from its housing;
+  - generic translucent box hit meshes are suppressed on modeled surfaces while parent/model pointer activation remains intact;
+  - the five-section shell retains its wrap, illuminated rails, vents, fasteners, and stable slot anchors without competing with the authored insert housings.
+- **Implemented — first Phase 3 source-adapter slice (fleet health):**
+  - fleet preview values continue to derive from the bounded fleet/operator runtime projection rather than parsing raw state in the renderer;
+  - the fleet preview model now carries the selected provenance domain, source path list, observed/generated timestamp, and freshness state;
+  - freshness and observation time are persistently projected in the fleet instrument footer, with exact source paths and timestamp exposed in its source label tooltip;
+  - missing provenance fails visibly as `missing --:--Z` and retains `core/state/operator_runtime_status.json` as the expected source contract instead of implying fresh telemetry.
+- **Implemented — Phase 3 compact-preview source adapters:**
+  - added one bounded adapter contract for fleet, queue/planning, knowledge, routing, governance, human realm, and Daily Command source families; adapters match generated provenance by source path rather than assuming fixed provenance domain IDs;
+  - each adapter combines at most eight unique source paths, selects the newest valid observed/generated timestamp, and projects the worst matched freshness state without parsing source ledgers in the render loop;
+  - corrected semantic slot routing to match persisted assignments: Routing, Knowledge, and Operations occupy upper slots 2–4, while Governance, Fleet/Systems, Human Realm, and Daily Command occupy the four lower workstation slots;
+  - all seven source-backed compact previews now carry source paths, observed time, and freshness; absent source families retain canonical expected paths and visibly render `NO DATA`/offline rather than a nominal state;
+  - malformed or absent source state remains isolated to the affected instrument and does not break boardroom rendering.
+- **Implemented — Phase 3 source/detail parity and presence closeout:**
+  - compact source contracts now retain the bounded canonical provenance-domain ID list as well as source paths, with the primary ID selected from the same newest provenance record that supplies the displayed timestamp;
+  - the presence projection now carries the canonical `data/prometheus/arda_presence_events.jsonl` source path and projects path, observation time, freshness, valid-row count, malformed-row count, and fallback reason without parsing the ledger in the render loop;
+  - fresh/live, stale, blocked, malformed/unknown, and missing/fallback states have explicit test contracts; unsafe states resolve to watch/offline treatment instead of nominal telemetry;
+  - source-backed monitor activation reaches the corresponding Routing, Knowledge, Operations, Governance, Fleet, Human Realm, and Daily Command detailed workstations;
+  - fixed the no-manifest click path so persisted Human Realm and Daily Command slot identities fall back to functional slot workstation templates instead of silently doing nothing; the auxiliary fallback now uses Daily Command modules rather than the retired Hermes duplicate.
+- **Implemented — Phase 4 visualization-slot closeout:**
+  - added typed `standby`, `topology`, `routes`, `lanes`, `constellation`, and `pulse` presets with explicit compatible source families and fail-closed selection resolution;
+  - persisted each slot's preset plus bounded density, timespan, and alert-threshold configuration while retaining backward compatibility with assignments that omit visualization data;
+  - added source and preset selectors, compatible configuration controls, live preview, and recoverable profile export/import/reset actions to Settings;
+  - projected persistence mode, save state, and diagnostics in an accessible Settings status surface;
+  - corrected the native `write_scoped_file` argument contract (`numenorPath`) and covered it with a regression test, so browser-local fallback can promote to durable workspace persistence after a successful edit.
 - **Automated evidence:**
   - `pnpm test -- --run` — 71 files, 266 tests passed;
   - `pnpm exec vitest run src/scene/boardroom/boardroomSpatialLayout.test.ts src/lib/boardroomSlotSettings.test.ts` — 17 tests passed after final control-rail adjustment;
@@ -283,12 +316,31 @@ Native visual/interaction gate:
   - `pnpm exec vitest run src/scene/boardroom/boardroomHudInstruments.test.ts src/scene/boardroom/boardroomSpatialLayout.test.ts src/lib/boardroomSlotSettings.test.ts` — 3 files, 24 tests passed after the source-family preview slice;
   - Phase 2 RED: focused spatial-layout test failed with no console-shell segments (`expected []`), proving the new shell contract was absent;
   - Phase 2 GREEN: `pnpm exec vitest run src/scene/boardroom` — 6 files, 27 tests passed;
+  - Phase 2 alignment + Phase 3 fleet-source GREEN: `pnpm exec vitest run src/scene/boardroom` — 7 files, 34 tests passed;
+  - `pnpm test -- --run` — 73 files, 278 tests passed after the alignment and fleet-source slices (existing React `act(...)` warnings remained non-failing);
+  - Phase 3 compact-source GREEN: `pnpm exec vitest run src/scene/boardroom` — 8 files, 39 tests passed;
+  - `pnpm test -- --run` — 74 files, 283 tests passed after compact adapters (existing React `act(...)` warnings remained non-failing);
   - `pnpm run build` — passed after the source-family preview slice, transformed 2,562 modules, and emitted `dist/terminal.html` plus the main HUD bundle;
   - `pnpm run build` — passed after the Phase 2 shell slice, transformed 2,562 modules, and emitted both application entries;
+  - `pnpm run build` — passed after the Phase 2 alignment and Phase 3 fleet-source slices, transformed 2,563 modules, and emitted `dist/index.html` and `dist/terminal.html`;
+  - `pnpm run build` — passed after the compact adapter slice, transformed 2,564 modules, and emitted both application entries;
+  - Phase 3 closeout focused gate — 5 files, 37 tests passed across source adapters, compact instruments, presence projection/status, and slot workstation fallback contracts;
+  - `pnpm test` — 75 files, 294 tests passed after the complete Phase 3 closeout (existing React `act(...)` warnings remained non-failing);
+  - `pnpm build` — passed after the complete Phase 3 closeout, transformed 2,565 modules, and emitted `dist/index.html` and `dist/terminal.html`;
+  - `cargo test --lib` — 14 tests passed; `cargo check` passed for the native HUD after loading the repository runtime build environment;
   - `git diff --check` — passed;
   - no `lint` package script exists; the successful build supplied the TypeScript compile gate.
+  - Phase 4 focused gate — `pnpm exec vitest run src/lib/weathertop.test.ts src/scene/boardroom/boardroomVisualizationPresets.test.ts src/lib/boardroomSlotSettings.test.ts src/components/arda/modules/SettingsModule.test.tsx src/scene/boardroom/boardroomHudInstruments.test.ts` — 5 files, 31 tests passed;
+  - Phase 4 full gate — `pnpm test -- --run` — 78 files, 303 tests passed (existing non-failing React `act(...)` warnings remained);
+  - Phase 4 build gate — `pnpm run build` — passed, transformed 2,566 modules, and emitted both application entries;
+  - Phase 4 native gate — `cargo test --lib` passed 14 tests and `cargo check` passed after loading the repository runtime build environment;
+  - Phase 4 final `git diff --check` — passed.
 - **Visual evidence:** with native `pnpm run tauri dev` sustained, Vite-mirror inspection confirmed four angled populated upper monitors with distinct Warp/standby, Routing/routes, Memory + Continuity/constellation, and Planning + Queue/lanes compositions. Five lower inserts and the readable non-overlapping `SET | CLI | HERMES` rail remained intact. Browser click dispatch reached the monitor buttons, but browser-only workstation-open parity remains unasserted because the non-Tauri page correctly reports the unavailable core-state/`invoke` bridge; this is not counted as native click-through evidence.
 - **Phase 2 visual evidence:** with the native development process running, Vite-mirror inspection confirmed a visibly wrapped five-section desk silhouette with distinct center, inner, and outer wings plus continuous illuminated front rails. All four upper monitors, five lower surfaces, command core, and `SET | CLI | HERMES` remained visible without shell-induced overlap. The expected browser-only unavailable-`invoke` warnings remained unrelated to scene geometry.
+- **Phase 2 corrected alignment visual evidence:** direct localhost vision inspection first reproduced the reported defect: segment-wide rectangular housings and independently skewed display cards. After correction, all four lower displays and the center command core visibly share the authored housing transforms, face the operator, and remain readable; the upper monitor cards also remain seated within their model frames. `SET | CLI | HERMES` stays unobscured. This remains browser geometry evidence only; unavailable Tauri `invoke` warnings are not counted as native source/action evidence.
+- **Phase 3 degraded-state visual evidence:** localhost inspection with the core-state/Tauri bridge unavailable confirmed Routing, Knowledge, Operations, Governance, Fleet, Human Realm, and Daily Command simultaneously render pink offline/`NO DATA` treatment instead of nominal telemetry. All upper and lower projections remain seated inside their authored model frames with no new clipping, overlap, floating panel, or render fault.
+- **Phase 3 native interaction evidence:** the sustained native Tauri process remained healthy beyond one hour. AT-SPI inspection found all eight boardroom activation targets, no render-fault surface, and confirmed click-through to Routing and Communication, Knowledge and Reasoning, Operations and Packages, Governance Controls, Systems Health, Desk Right Human Realm Template, and Desk Aux Daily Command Template. The missing live presence ledger rendered the explicit fallback contract; fresh, stale, blocked, malformed, and missing source transitions are covered by deterministic adapter/status tests without mutating canonical runtime state.
+- **Phase 4 native persistence evidence:** AT-SPI changed `monitor_left_2` from Routes to Topology without code changes. `core/state/arda_boardroom_slots.json` then contained `visualization.preset_id: topology` with medium density, a 15-minute timespan, and a null alert threshold. After a complete native Tauri restart, Settings reported `workspace · idle · loaded core/state/arda_boardroom_slots.json` and the selector remained on Topology. The temporary probe was then restored through the same native control to the source-compatible Routes preset, and the workspace document recorded the restoration at `2026-07-31T00:05:55.313Z`.
 - **Operator-confirmed Phase 0 acceptance:** native `CLI` and `HERMES` controls independently opened their intended windows successfully.
 - **Remaining Phase 0 acceptance:** execute a harmless command in the native CLI window, verify displayed output, resize it, close/reopen it, and independently activate Settings.
-- **Next guided tranche:** continue Phase 2 with raised insert housings, recessed screen wells, structural vents/fasteners, and collision-safe swappable frames; then Phase 3 source adapters for Daily Command, governance, routing, knowledge/memory, queue/plans, and fleet health.
+- **Next guided tranche:** begin Phase 5 with expanded physical controls. Keep minimum-window and later visual-regression captures open as cross-phase native verification gates.

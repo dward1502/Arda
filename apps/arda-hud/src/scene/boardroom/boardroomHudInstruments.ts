@@ -1,3 +1,5 @@
+import type { ArdaFreshnessState } from '../../lib/ardaProvenance'
+
 export type HudTone = 'cyan' | 'violet' | 'gold' | 'mint' | 'rose'
 
 export type HudInstrumentStatus = 'nominal' | 'watch' | 'external' | 'offline'
@@ -23,6 +25,15 @@ export interface HudInstrumentModel {
   nodes: HudInstrumentNode[]
   links: Array<[number, number]>
   rings: number[]
+  source?: HudInstrumentSource
+}
+
+export interface HudInstrumentSource {
+  sourceId: string
+  sourceIds?: string[]
+  sourcePaths: string[]
+  observedAtUtc: string | null
+  freshness: ArdaFreshnessState
 }
 
 export type BoardroomHudInstrumentMap = Record<string, HudInstrumentModel>
@@ -68,23 +79,45 @@ export interface FleetHudInput {
   unexpectedOffline: number
   intentionalOffline: number
   runtimeDrift?: FleetHudRuntimeDrift | null
+  source?: HudInstrumentSource
 }
 
 export interface QueueHudInput {
   completed: number
   priorityBuckets: number
   ownerBuckets: number
+  source?: HudInstrumentSource
 }
 
 export interface KnowledgeHudInput {
   documents: number
   plans: number
+  source?: HudInstrumentSource
 }
 
 export interface RoutingHudInput {
   routableProviders: number
   activeConnections: number
   constrainedHeadroom: number | null
+  source?: HudInstrumentSource
+}
+
+export interface GovernanceHudInput {
+  reviewItems: number
+  pendingItems: number
+  source?: HudInstrumentSource
+}
+
+export interface HumanHudInput {
+  documents: number
+  notes: number
+  source?: HudInstrumentSource
+}
+
+export interface DailyCommandHudInput {
+  lanes: number
+  attentionLanes: number
+  source?: HudInstrumentSource
 }
 
 export interface BoardroomHudInstrumentInput {
@@ -92,6 +125,9 @@ export interface BoardroomHudInstrumentInput {
   queue: QueueHudInput
   knowledge: KnowledgeHudInput
   routing: RoutingHudInput
+  governance: GovernanceHudInput
+  human: HumanHudInput
+  dailyCommand: DailyCommandHudInput
 }
 
 const FLEET_NODE_POSITIONS = [
@@ -165,6 +201,16 @@ function instrumentStatusFromPressure(pressure: number): HudInstrumentStatus {
   return 'nominal'
 }
 
+function instrumentStatusFromSource(
+  status: HudInstrumentStatus,
+  source?: HudInstrumentSource,
+): HudInstrumentStatus {
+  if (!source) return status
+  if (source.freshness === 'missing' || source.freshness === 'blocked' || source.freshness === 'unknown') return 'offline'
+  if (source.freshness === 'stale') return 'watch'
+  return status
+}
+
 function commandInstrument({
   title,
   eyebrow,
@@ -175,6 +221,7 @@ function commandInstrument({
   seed,
   hotCount = 0,
   warnCount = 0,
+  source,
 }: {
   title: string
   eyebrow: string
@@ -185,9 +232,10 @@ function commandInstrument({
   seed: number
   hotCount?: number
   warnCount?: number
+  source?: HudInstrumentSource
 }): HudInstrumentModel {
   const nodeCount = clamp(Math.round(6 + pressure * 6), 6, FLEET_NODE_POSITIONS.length)
-  const status = instrumentStatusFromPressure(pressure)
+  const status = instrumentStatusFromSource(instrumentStatusFromPressure(pressure), source)
   return {
     title,
     eyebrow,
@@ -198,6 +246,7 @@ function commandInstrument({
     nodes: radialNodes({ idPrefix: title.toLowerCase().replace(/[^a-z0-9]+/g, '-'), count: nodeCount, seed, hotCount, warnCount }),
     links: buildLinks(nodeCount),
     rings: status === 'watch' ? [21, 36, 51] : [18, 32, 47],
+    source,
   }
 }
 
@@ -211,12 +260,13 @@ export function deriveFleetHudInstrument(input: FleetHudInput): HudInstrumentMod
   const nodeCount = clamp(Math.max(totalTargets, routableProviders, 6), 6, FLEET_NODE_POSITIONS.length)
   const offlineStart = clamp(liveTargets, 0, nodeCount)
   const intentionalStart = clamp(offlineStart + unexpectedOffline, 0, nodeCount)
-  const status: HudInstrumentStatus =
+  const runtimeStatus: HudInstrumentStatus =
     totalTargets > 0 && liveTargets === 0
       ? 'offline'
       : unexpectedOffline > 0 || driftedNodes > 0
         ? 'watch'
         : 'nominal'
+  const status = instrumentStatusFromSource(runtimeStatus, input.source)
   const tone: HudTone = status === 'offline' ? 'rose' : status === 'watch' ? 'gold' : 'cyan'
 
   const nodes = FLEET_NODE_POSITIONS.slice(0, nodeCount).map(([x, y], index) => {
@@ -239,6 +289,7 @@ export function deriveFleetHudInstrument(input: FleetHudInput): HudInstrumentMod
     nodes,
     links: buildLinks(nodeCount),
     rings: status === 'nominal' ? [18, 32, 47] : [21, 36, 51],
+    source: input.source,
   }
 }
 
@@ -257,6 +308,7 @@ export function deriveQueueHudInstrument(input: QueueHudInput): HudInstrumentMod
     pressure: Math.max(0.2, pressure),
     seed: completed + priorityBuckets * 3 + ownerBuckets * 5,
     warnCount: priorityBuckets > 3 ? 2 : 1,
+    source: input.source,
   })
 }
 
@@ -275,6 +327,7 @@ export function deriveKnowledgeHudInstrument(input: KnowledgeHudInput): HudInstr
     pressure: Math.max(0.24, pressure),
     seed: documents * 2 + plans * 7,
     warnCount: plans > documents ? 1 : 0,
+    source: input.source,
   })
 }
 
@@ -294,14 +347,65 @@ export function deriveRoutingHudInstrument(input: RoutingHudInput): HudInstrumen
     seed: routableProviders * 11 + activeConnections,
     hotCount: constrainedHeadroom < 0.15 ? 1 : 0,
     warnCount: constrainedHeadroom < 0.35 ? 2 : 0,
+    source: input.source,
+  })
+}
+
+export function deriveGovernanceHudInstrument(input: GovernanceHudInput): HudInstrumentModel {
+  const reviewItems = Math.max(0, input.reviewItems)
+  const pendingItems = Math.max(0, input.pendingItems)
+  return commandInstrument({
+    title: 'Governance',
+    eyebrow: 'REVIEW GATES',
+    tone: 'gold',
+    glyph: `${pendingItems}/${reviewItems}`,
+    preset: 'lanes',
+    pressure: Math.max(0.2, clamp(reviewItems / 12, 0, 1)),
+    seed: reviewItems * 5 + pendingItems * 11,
+    warnCount: pendingItems > 0 ? Math.min(3, pendingItems) : 0,
+    source: input.source,
+  })
+}
+
+export function deriveHumanHudInstrument(input: HumanHudInput): HudInstrumentModel {
+  const documents = Math.max(0, input.documents)
+  const notes = Math.max(0, input.notes)
+  return commandInstrument({
+    title: 'Human Realm',
+    eyebrow: 'BUSINESS + PERSONAL',
+    tone: 'mint',
+    glyph: `${documents}/${notes}`,
+    preset: 'pulse',
+    pressure: Math.max(0.2, clamp((documents + notes) / 48, 0, 1)),
+    seed: documents * 3 + notes * 7,
+    source: input.source,
+  })
+}
+
+export function deriveDailyCommandHudInstrument(input: DailyCommandHudInput): HudInstrumentModel {
+  const lanes = Math.max(0, input.lanes)
+  const attentionLanes = Math.max(0, input.attentionLanes)
+  return commandInstrument({
+    title: 'Daily Command',
+    eyebrow: 'OPERATING SURFACE',
+    tone: 'violet',
+    glyph: `${attentionLanes}/${lanes}`,
+    preset: 'pulse',
+    pressure: Math.max(0.2, clamp(lanes / 8, 0, 1)),
+    seed: lanes * 7 + attentionLanes * 13,
+    warnCount: attentionLanes > 0 ? Math.min(2, attentionLanes) : 0,
+    source: input.source,
   })
 }
 
 export function deriveBoardroomHudInstruments(input: BoardroomHudInstrumentInput): BoardroomHudInstrumentMap {
   return {
-    'boardroom.lower.left_wrap': deriveFleetHudInstrument(input.fleetHealth),
-    view_desk_l: deriveQueueHudInstrument(input.queue),
-    view_desk_r: deriveKnowledgeHudInstrument(input.knowledge),
     monitor_left_2: deriveRoutingHudInstrument(input.routing),
+    monitor_left_3: deriveKnowledgeHudInstrument(input.knowledge),
+    monitor_left_4: deriveQueueHudInstrument(input.queue),
+    view_desk_l: deriveGovernanceHudInstrument(input.governance),
+    view_desk_control_panel: deriveFleetHudInstrument(input.fleetHealth),
+    view_desk_r: deriveHumanHudInstrument(input.human),
+    view_desk_aux: deriveDailyCommandHudInstrument(input.dailyCommand),
   }
 }

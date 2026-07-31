@@ -36,8 +36,11 @@ import {
   type HudTone,
 } from './boardroomHudInstruments'
 import { deriveBoardroomScreenVisualRefinement } from './boardroomVisualRefinement'
+import { deriveBoardroomConsoleSegmentGeometry } from './boardroomConsoleSegments'
 import PresenceAvatar from './PresenceAvatar'
 import { parseJsonOrNull } from '../../lib/jsonParse'
+import { deriveBoardroomPresenceStatusView } from './boardroomPresenceStatus'
+import { resolveSceneSlotWorkstationZoneId } from '../workstations/sceneSlotWorkstationTemplates'
 
 interface BoardroomViewportProps {
   active: boolean
@@ -187,11 +190,14 @@ function CyberpunkCityWindow({ url }: { url: string }) {
 function BoardroomConsoleShell({ material }: { material: THREE.Material }) {
   return (
     <group name="boardroom-command-console-shell">
-      {BOARDROOM_CONSOLE_SHELL_SEGMENTS.map((segment) => (
+      {BOARDROOM_CONSOLE_SHELL_SEGMENTS.map((segment) => {
+        const geometry = deriveBoardroomConsoleSegmentGeometry(segment)
+        return (
         <group key={segment.id} name={segment.id} position={segment.position} rotation={segment.rotation}>
-          <mesh material={material} receiveShadow castShadow>
-            <boxGeometry args={segment.size} />
+          <mesh material={material} receiveShadow castShadow name={`${segment.id}.base`}>
+            <boxGeometry args={geometry.housing.size} />
           </mesh>
+
           <mesh position={[0, segment.size[1] / 2 + 0.025, segment.size[2] / 2 - 0.075]}>
             <boxGeometry args={[segment.size[0] - 0.14, 0.045, 0.08]} />
             <meshStandardMaterial
@@ -217,8 +223,25 @@ function BoardroomConsoleShell({ material }: { material: THREE.Material }) {
               />
             </mesh>
           ))}
+          {geometry.vents.map((vent) => (
+            <mesh key={vent.side} position={vent.position} name={`${segment.id}.vent.${vent.side}`}>
+              <boxGeometry args={vent.size} />
+              <meshStandardMaterial color="#02070b" metalness={0.5} roughness={0.8} />
+            </mesh>
+          ))}
+          {geometry.fasteners.map((fastener) => (
+            <mesh
+              key={`${fastener.side}.${fastener.index}`}
+              position={fastener.position}
+              name={`${segment.id}.fastener.${fastener.side}.${fastener.index}`}
+            >
+              <boxGeometry args={fastener.size} />
+              <meshStandardMaterial color="#8da2b2" metalness={0.94} roughness={0.18} />
+            </mesh>
+          ))}
         </group>
-      ))}
+        )
+      })}
     </group>
   )
 }
@@ -276,6 +299,7 @@ function InteractionPad({
   color = '#5defff',
   primary = false,
   showLabel = true,
+  showHitbox = true,
   draggable = false,
   onMovePosition,
   onActivate,
@@ -290,6 +314,7 @@ function InteractionPad({
   color?: string
   primary?: boolean
   showLabel?: boolean
+  showHitbox?: boolean
   draggable?: boolean
   onMovePosition?: (position: Vec3) => void
   onActivate: () => void
@@ -359,21 +384,23 @@ function InteractionPad({
       onPointerCancel={handlePointerUp}
     >
       {children}
-      <mesh
-        onPointerOver={() => setPointerCursor(true)}
-        onPointerOut={() => setPointerCursor(false)}
-      >
-        <boxGeometry args={size} />
-        <meshStandardMaterial
-          color={color}
-          emissive={color}
-          emissiveIntensity={primary ? 0.42 : 0.2}
-          transparent
-          opacity={primary ? 0.22 : 0.12}
-          roughness={0.35}
-          metalness={0.35}
-        />
-      </mesh>
+      {showHitbox ? (
+        <mesh
+          onPointerOver={() => setPointerCursor(true)}
+          onPointerOut={() => setPointerCursor(false)}
+        >
+          <boxGeometry args={size} />
+          <meshStandardMaterial
+            color={color}
+            emissive={color}
+            emissiveIntensity={primary ? 0.42 : 0.2}
+            transparent
+            opacity={primary ? 0.22 : 0.12}
+            roughness={0.35}
+            metalness={0.35}
+          />
+        </mesh>
+      ) : null}
       {showLabel ? (
         <Html center distanceFactor={primary ? 7 : 8.5}>
           <button
@@ -436,10 +463,8 @@ function ScreenSurface({
 
 function BoardroomMonitorModelSurface({
   zone,
-  onActivate,
 }: {
   zone: BoardroomSpatialZone
-  onActivate: () => void
 }) {
   const modelBinding = useMemo(() => deriveBoardroomMonitorModelBinding(zone), [zone])
   if (!modelBinding) return <ScreenSurface zone={zone} />
@@ -449,7 +474,6 @@ function BoardroomMonitorModelSurface({
       binding={modelBinding.binding}
       fitSize={modelBinding.fitSize}
       surfaceOffset={modelBinding.surfaceOffset}
-      onClick={onActivate}
       fallback={<ScreenSurface zone={zone} />}
     />
   )
@@ -474,9 +498,8 @@ function getSlotDetail(assignment: WorkstationManifestDefinition | null): string
 function getSlotWorkstationZoneId(
   slot: BoardroomSpatialZone,
   assignment: WorkstationManifestDefinition | null,
-  persistedSourceZoneId?: string,
 ): string {
-  return assignment?.sourceZoneId ?? persistedSourceZoneId ?? `scene_slot:${slot.assignmentSlotId ?? slot.id}`
+  return resolveSceneSlotWorkstationZoneId(slot.assignmentSlotId, slot.id, assignment?.sourceZoneId)
 }
 
 function isFleetWorkstationAssignment(assignment: WorkstationManifestDefinition | null): boolean {
@@ -685,13 +708,18 @@ function HudInstrumentSurface({
   const model = instrument ?? instrumentModelForAssignment(zone, assignment, persistedSourceZoneId)
   const className = `hud-instrument hud-instrument--${zone.previewMode} hud-instrument--${model.tone} hud-instrument--${model.status}`
   const glowId = `${zone.id.replace(/[^a-z0-9_-]/gi, '-')}-glow`
+  const sourceTime = model.source?.observedAtUtc?.slice(11, 16) ?? '--:--'
+  const sourceTitle = model.source
+    ? `${(model.source.sourceIds ?? [model.source.sourceId]).join(', ')} · ${model.source.sourcePaths.join(', ')} · observed ${model.source.observedAtUtc ?? 'unknown'}`
+    : undefined
 
   return (
     <Html
       center
       transform
       distanceFactor={zone.previewMode === 'monitor_surface' ? 4.1 : 4.3}
-      position={[0, 0, zone.previewMode === 'monitor_surface' ? 0.12 : 0.28]}
+      position={zone.previewMode === 'monitor_surface' ? [0, 0, 0.12] : [0, zone.size[1] / 2 + 0.045, 0]}
+      rotation={zone.previewMode === 'monitor_surface' ? [0, 0, 0] : [-Math.PI / 2, 0, 0]}
     >
       <button type="button" className={className} onClick={onActivate} aria-label={`Open ${model.title}`}>
         <span className="hud-instrument__header">
@@ -706,6 +734,11 @@ function HudInstrumentSurface({
           <span className={`hud-instrument__status hud-instrument__status--${model.status}`}>
             {model.status === 'nominal' ? 'live' : model.status === 'offline' ? 'no data' : model.status}
           </span>
+          {model.source ? (
+            <span className={`hud-instrument__source hud-instrument__source--${model.source.freshness}`} title={sourceTitle}>
+              {model.source.freshness} {sourceTime}Z
+            </span>
+          ) : null}
           <span className="hud-instrument__pips">
             <i />
             <i />
@@ -744,7 +777,8 @@ function FleetPreviewSurface({
       center
       transform
       distanceFactor={zone.previewMode === 'monitor_surface' ? 4.2 : 4.3}
-      position={[0, 0, zone.previewMode === 'monitor_surface' ? 0.14 : 0.3]}
+      position={zone.previewMode === 'monitor_surface' ? [0, 0, 0.14] : [0, zone.size[1] / 2 + 0.05, 0]}
+      rotation={zone.previewMode === 'monitor_surface' ? [0, 0, 0] : [-Math.PI / 2, 0, 0]}
     >
       <button
         type="button"
@@ -779,7 +813,7 @@ function CommandCoreSurface({
   onEnterWorld: () => void
 }) {
   return (
-    <Html center transform distanceFactor={4.3} position={[0, 0, 0.32]}>
+    <Html center transform distanceFactor={4.3} position={[0, 0.18, 0]} rotation={[-Math.PI / 2, 0, 0]}>
       <div className="command-core-terminal" aria-label="Boardroom command core">
         <button type="button" className="command-core-terminal__screen" onClick={() => onOpenWorkstation('sovereign_world')}>
           <span className="command-core-terminal__eyebrow">Command Core</span>
@@ -875,25 +909,6 @@ function AvatarEmitterBase({ zone }: { zone: BoardroomSpatialZone }) {
   )
 }
 
-function getPresenceStatusLabel(status: PresenceLedgerStatus | undefined): string {
-  if (!status) return 'Presence fallback'
-  if (status.source === 'fallback_default') return 'Presence fallback'
-  return status.freshness === 'fresh' ? 'Presence live' : 'Presence stale'
-}
-
-function getPresenceStatusDetail(status: PresenceLedgerStatus | undefined, state: AgentPresenceState): string {
-  if (!status) return 'Default ARDA state'
-  if (status.source === 'fallback_default') return status.summary
-  const agent = state.primaryAgent.toUpperCase()
-  const age = typeof status.ageSeconds === 'number' ? `${status.ageSeconds}s` : 'age unknown'
-  return `${agent} · ${age} · ${status.validEventCount} ledger row${status.validEventCount === 1 ? '' : 's'}`
-}
-
-function getPresenceStatusClassName(status: PresenceLedgerStatus | undefined): string {
-  if (!status || status.source === 'fallback_default') return 'presence-ledger-status presence-ledger-status--fallback'
-  return `presence-ledger-status presence-ledger-status--${status.freshness}`
-}
-
 function PresenceLedgerStatusBadge({
   status,
   state,
@@ -901,11 +916,12 @@ function PresenceLedgerStatusBadge({
   status?: PresenceLedgerStatus
   state: AgentPresenceState
 }) {
+  const view = deriveBoardroomPresenceStatusView(status, state)
   return (
     <Html position={[0, 2.25, -0.08]} center distanceFactor={7.5}>
-      <div className={getPresenceStatusClassName(status)} title={status?.summary ?? 'Default ARDA state'}>
-        <span className="presence-ledger-status__label">{getPresenceStatusLabel(status)}</span>
-        <span className="presence-ledger-status__detail">{getPresenceStatusDetail(status, state)}</span>
+      <div className={view.className} title={view.title}>
+        <span className="presence-ledger-status__label">{view.label}</span>
+        <span className="presence-ledger-status__detail">{view.detail}</span>
       </div>
     </Html>
   )
@@ -1038,7 +1054,7 @@ function BoardroomScene({
       {monitorZones.map((slot) => {
         const assignment = getSlotAssignment(sceneWorkstations, slotAssignments, slot)
         const persistedSourceZoneId = slot.assignmentSlotId ? slotAssignments[slot.assignmentSlotId] : undefined
-        const workstationZoneId = getSlotWorkstationZoneId(slot, assignment, persistedSourceZoneId)
+        const workstationZoneId = getSlotWorkstationZoneId(slot, assignment)
         const instrument = resolveBoardroomHudInstrument(instruments, slot.id, slot.assignmentSlotId)
         return (
         <InteractionPad
@@ -1051,10 +1067,12 @@ function BoardroomScene({
           size={slot.size}
           color={slot.color}
           showLabel={false}
+          showHitbox={false}
           draggable={debug}
           onMovePosition={(position) => moveZone(slot.id, position)}
           onActivate={() => onOpenWorkstation(workstationZoneId)}
         >
+          <BoardroomMonitorModelSurface zone={slot} />
           {fleetViewModel && isFleetWorkstationAssignment(assignment) ? (
             <FleetPreviewSurface
               zone={slot}
@@ -1078,7 +1096,7 @@ function BoardroomScene({
       {controlZones.map((slot) => {
         const assignment = getSlotAssignment(sceneWorkstations, slotAssignments, slot)
         const persistedSourceZoneId = slot.assignmentSlotId ? slotAssignments[slot.assignmentSlotId] : undefined
-        const workstationZoneId = getSlotWorkstationZoneId(slot, assignment, persistedSourceZoneId)
+        const workstationZoneId = getSlotWorkstationZoneId(slot, assignment)
         const instrument = resolveBoardroomHudInstrument(instruments, slot.id, slot.assignmentSlotId)
         return (
         <InteractionPad
@@ -1092,10 +1110,12 @@ function BoardroomScene({
           color={slot.color}
           primary={slot.primary}
           showLabel={debug}
+          showHitbox={false}
           draggable={debug}
           onMovePosition={(position) => moveZone(slot.id, position)}
           onActivate={() => onOpenWorkstation(workstationZoneId)}
         >
+          <BoardroomMonitorModelSurface zone={slot} />
           {fleetViewModel && isFleetWorkstationAssignment(assignment) ? (
             <FleetPreviewSurface
               zone={slot}
@@ -1117,7 +1137,7 @@ function BoardroomScene({
       })}
 
       <group position={commandCoreZone.position} rotation={commandCoreZone.rotation}>
-        <ScreenSurface zone={commandCoreZone} />
+        <BoardroomMonitorModelSurface zone={commandCoreZone} />
         <CommandCoreSurface
           onOpenWorkstation={onOpenWorkstation}
           onEnterWorld={() => onActivate(worldWindowZone.binding ?? worldWindowZone.id)}

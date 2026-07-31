@@ -71,6 +71,78 @@
   margin-top: 0.75rem;
 }
 
+.boardroom-profile-controls {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.65rem 0 0.85rem;
+  padding: 0.75rem;
+  border: 1px solid rgba(93, 239, 255, 0.18);
+  border-radius: 0.55rem;
+  background: rgba(4, 13, 23, 0.58);
+}
+
+.boardroom-profile-controls label,
+.boardroom-visualization-editor label {
+  display: grid;
+  gap: 0.28rem;
+  color: rgba(225, 241, 255, 0.76);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.boardroom-profile-controls textarea,
+.boardroom-visualization-editor select,
+.boardroom-visualization-editor input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(93, 239, 255, 0.24);
+  border-radius: 0.38rem;
+  background: rgba(5, 14, 24, 0.76);
+  color: #e8fbff;
+  font: 700 0.8rem/1.2 var(--body-font);
+  padding: 0.46rem 0.54rem;
+}
+
+.boardroom-profile-controls textarea {
+  resize: vertical;
+  font-family: var(--mono-font);
+  text-transform: none;
+}
+
+.boardroom-visualization-editor {
+  display: grid;
+  grid-template-columns: minmax(9rem, 1.4fr) repeat(3, minmax(7rem, 1fr));
+  gap: 0.55rem;
+  margin-top: 0.75rem;
+}
+
+.boardroom-visualization-preview {
+  display: grid;
+  align-content: center;
+  gap: 0.2rem;
+  min-height: 3.75rem;
+  padding: 0.65rem;
+  border: 1px solid rgba(93, 239, 255, 0.28);
+  border-radius: 0.45rem;
+  background: radial-gradient(circle at 30% 40%, rgba(93, 239, 255, 0.2), transparent 58%), rgba(4, 15, 27, 0.85);
+}
+
+.boardroom-visualization-preview strong {
+  color: #e8fbff;
+}
+
+.boardroom-visualization-preview span {
+  color: rgba(225, 241, 255, 0.68);
+  font: 700 0.68rem/1.2 var(--mono-font);
+}
+
+@media (max-width: 68rem) {
+  .boardroom-visualization-editor {
+    grid-template-columns: repeat(2, minmax(8rem, 1fr));
+  }
+}
+
 .boardroom-surface-editor__controls label {
   display: grid;
   gap: 0.28rem;

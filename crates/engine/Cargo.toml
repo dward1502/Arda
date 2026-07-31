@@ -2,7 +2,7 @@
 [package]
 name = "arda-engine"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 
 [dependencies]
 arda-core = { workspace = true }
@@ -18,11 +18,14 @@ axum = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
 reqwest = { workspace = true }
+arda-aule = { workspace = true }
+arda-outpost-protocol = { workspace = true }
+async-stream = "0.3"
 
 [dev-dependencies]
 tokio = { workspace = true }
 tracing-subscriber = { workspace = true }
 reqwest = { workspace = true }
-axum = { workspace = true }
+axum = "=0.7.9"
 serde_json = { workspace = true }
 tempfile = { workspace = true }

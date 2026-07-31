@@ -1,4 +1,4 @@
-use super::RunEvent;
+use super::{RunEvent, RunEventKind, RunStoreError};
 use arda_core::run_graph::RunGraph;
 use std::collections::HashMap;
 
@@ -20,5 +20,19 @@ impl RecoveredRun {
             checkpoint,
             applied_idempotency_keys,
         }
+    }
+
+    pub fn replay(&self, base: &RunGraph) -> Result<RunGraph, RunStoreError> {
+        base.validate().map_err(RunStoreError::Graph)?;
+        let mut projection = base.clone();
+        for event in &self.events {
+            if let RunEventKind::NodeTransition { state } = &event.kind {
+                projection
+                    .transition_node(&event.node_id, *state)
+                    .map_err(RunStoreError::Graph)?;
+            }
+        }
+        projection.validate().map_err(RunStoreError::Graph)?;
+        Ok(projection)
     }
 }

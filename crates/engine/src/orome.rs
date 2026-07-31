@@ -36,11 +36,9 @@ pub async fn manual_smoke_dispatch() -> anyhow::Result<OromeSmokeReport> {
         )
         .await;
     let receipt = result.receipts.into_iter().next().ok_or_else(|| {
-        anyhow::anyhow!(
-            result
-                .error
-                .unwrap_or_else(|| "missing receipt".to_string())
-        )
+        anyhow::anyhow!(result
+            .error
+            .unwrap_or_else(|| "missing receipt".to_string()))
     })?;
     Ok(OromeSmokeReport {
         schema_version: "arda.engine.orome_smoke.v1",

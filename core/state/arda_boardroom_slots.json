@@ -2,7 +2,7 @@
   "schema_version": "arda.arda_boardroom_slots.v1",
   "authority": "core/state/arda_boardroom_slots.json",
   "operator_profile_id": null,
-  "updated_at_utc": "2026-07-31T00:05:55.313Z",
+  "updated_at_utc": "2026-07-31T00:13:37.927Z",
   "assignments": [
     {
       "slot_id": "monitor_left_1",
@@ -106,14 +106,14 @@
         }
       },
       "visualization": {
-        "preset_id": "routes",
+        "preset_id": "topology",
         "config": {
           "density": "medium",
           "timespan_minutes": 15,
           "alert_threshold": null
         }
       },
-      "updated_at_utc": "2026-07-31T00:05:55.313Z"
+      "updated_at_utc": "2026-07-31T00:13:37.927Z"
     },
     {
       "slot_id": "monitor_left_3",

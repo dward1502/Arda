@@ -122,6 +122,8 @@ Every mutating edge requires an explicit authority class, workspace boundary, bu
 - Corrupt or truncated journal tails fail visibly and do not silently advance state.
 - Cancellation terminates children and records a terminal receipt.
 
+**S4-C1 closeout — 2026-07-31:** Fixed project-contract and run-graph fixtures now live under `spec/` with Draft 2020-12 JSON Schemas. Canonical Rust parsing and an independent Python `jsonschema` suite accept the same valid fixtures and reject fixed incompatible-version and invalid fixtures. A fixed nine-event JSONL journal replays from the canonical graph to an exact expected projection twice with byte-identical serialization. Malformed, truncated, sequence-gap, and invalid state-transition journals fail visibly; replay is copy-on-write, so a failed replay cannot advance the supplied checkpoint projection. This closes the Stage 4 contract gate before Task 2.1; it does not claim the later Rust/Python adapter golden paths.
+
 ### Task 1.2: Add project and run APIs to the existing harness
 
 **Files**
@@ -237,6 +239,7 @@ Terminate Arda at each graph boundary and verify exact-once observable mutation 
 ```bash
 cargo test -p arda-core --test project_contract --test run_graph -- --test-threads=1
 cargo test -p arda-engine --test run_recovery --test harness_projects --test harness_runs -- --test-threads=1
+uv run --with jsonschema python -m unittest tests/test_workbench_contract_fixtures.py -v
 python3 -m pytest sdk/python/tests/test_conformance.py -q
 cd apps/arda-hud && pnpm test && pnpm lint && pnpm build
 cargo check --workspace --all-targets --all-features

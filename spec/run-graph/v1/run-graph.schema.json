@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arda.local/spec/run-graph/v1/run-graph.schema.json",
+  "title": "arda.run-graph.v1",
+  "type": "object",
+  "required": ["schema_version", "run_id", "objective_id", "nodes", "edges", "provenance"],
+  "properties": {
+    "schema_version": {"const": "arda.run-graph.v1"},
+    "run_id": {"$ref": "#/$defs/identifier"},
+    "objective_id": {"$ref": "#/$defs/identifier"},
+    "nodes": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/node"}
+    },
+    "edges": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/edge"}
+    },
+    "provenance": {"$ref": "#/$defs/provenance"}
+  },
+  "$defs": {
+    "identifier": {"type": "string", "minLength": 1, "pattern": ".*\\S.*"},
+    "digestOrNull": {"type": ["string", "null"]},
+    "node": {
+      "type": "object",
+      "required": ["id", "kind", "state", "authority", "budget", "retry", "timeout_ms", "idempotency_key", "input_digest", "output_digest", "parent_receipts", "checkpoint"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "kind": {"enum": ["inspect", "retrieve", "research", "plan", "approval", "execute", "verify", "review", "compensate", "close"]},
+        "state": {"enum": ["pending", "ready", "blocked", "running", "succeeded", "failed", "cancelled", "superseded"]},
+        "authority": {"enum": ["read_only", "human_approval", "execute_with_approval", "verify", "compensate_with_approval"]},
+        "budget": {
+          "type": "object",
+          "required": ["max_joules", "max_cost_usd"],
+          "properties": {
+            "max_joules": {"type": "number", "minimum": 0},
+            "max_cost_usd": {"type": "number", "minimum": 0}
+          },
+          "additionalProperties": false
+        },
+        "retry": {
+          "type": "object",
+          "required": ["max_attempts"],
+          "properties": {"max_attempts": {"type": "integer", "minimum": 1}},
+          "additionalProperties": false
+        },
+        "timeout_ms": {"type": "integer", "minimum": 1},
+        "idempotency_key": {"$ref": "#/$defs/identifier"},
+        "input_digest": {"$ref": "#/$defs/digestOrNull"},
+        "output_digest": {"$ref": "#/$defs/digestOrNull"},
+        "parent_receipts": {"type": "array", "items": {"type": "string"}},
+        "checkpoint": {
+          "type": "object",
+          "required": ["sequence", "recovery_token", "checkpoint_digest"],
+          "properties": {
+            "sequence": {"type": "integer", "minimum": 0},
+            "recovery_token": {"type": ["string", "null"]},
+            "checkpoint_digest": {"type": ["string", "null"]}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "edge": {
+      "type": "object",
+      "required": ["id", "from", "to", "parent_receipt"],
+      "properties": {
+        "id": {"$ref": "#/$defs/identifier"},
+        "from": {"$ref": "#/$defs/identifier"},
+        "to": {"$ref": "#/$defs/identifier"},
+        "parent_receipt": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["project_contract_digest", "created_by", "parent_receipts"],
+      "properties": {
+        "project_contract_digest": {"type": "string", "minLength": 1},
+        "created_by": {"type": "string", "minLength": 1},
+        "parent_receipts": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

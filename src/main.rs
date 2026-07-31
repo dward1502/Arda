@@ -119,6 +119,7 @@ async fn main() -> anyhow::Result<()> {
         manwe_proxy_bearer: std::env::var("ARDA_MANWE_PROXY_BEARER").ok(),
         warden_scout_url: discover_warden_scout_url(&root),
         warden_scout_timeout: arda_engine::harness::DEFAULT_WARDEN_SCOUT_TIMEOUT,
+        presence_inputs: arda_engine::harness::presence::HarnessPresenceState::default(),
         workbench_root: root.clone(),
     };
     let harness_addr: Option<SocketAddr> = cli

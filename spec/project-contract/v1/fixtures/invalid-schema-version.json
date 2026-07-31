@@ -1,0 +1,20 @@
+{
+  "schema_version": "arda.project-contract.v2",
+  "identity": {
+    "project_id": "550e8400-e29b-41d4-a716-446655440010",
+    "name": "future-contract",
+    "kind": "rust"
+  },
+  "workspace": {"root": "."},
+  "runtime": {"adapter": "cargo"},
+  "commands": [],
+  "checks": [],
+  "artifacts": [],
+  "permissions": {},
+  "rollback": {"strategy": "git_revert"},
+  "memory": {"scope": "project"},
+  "provenance": {
+    "declared_by": "s4-c1-test",
+    "declared_at": "2026-07-31T00:00:00Z"
+  }
+}

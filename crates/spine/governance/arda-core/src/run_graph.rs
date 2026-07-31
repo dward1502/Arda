@@ -178,6 +178,13 @@ pub struct RunGraph {
 impl RunGraph {
     pub const SCHEMA_VERSION: &'static str = "arda.run-graph.v1";
 
+    pub fn from_json_str(raw: &str) -> Result<Self, RunGraphError> {
+        let graph: Self = serde_json::from_str(raw)
+            .map_err(|error| RunGraphError::InvalidJson(error.to_string()))?;
+        graph.validate()?;
+        Ok(graph)
+    }
+
     pub fn validate(&self) -> Result<(), RunGraphError> {
         if self.schema_version != Self::SCHEMA_VERSION {
             return Err(RunGraphError::UnsupportedSchemaVersion(
@@ -297,6 +304,8 @@ impl RunGraph {
 
 #[derive(Debug, thiserror::Error, PartialEq)]
 pub enum RunGraphError {
+    #[error("invalid run graph JSON: {0}")]
+    InvalidJson(String),
     #[error("{0} cannot be empty")]
     EmptyIdentifier(&'static str),
     #[error("unsupported run graph schema version: {0}")]

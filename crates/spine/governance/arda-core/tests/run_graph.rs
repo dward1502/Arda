@@ -2,6 +2,13 @@ use arda_core::run_graph::{
     AuthorityClass, Budget, CheckpointMetadata, EdgeId, NodeId, NodeKind, NodeState, ObjectiveId,
     Provenance, RetryPolicy, RunEdge, RunGraph, RunGraphError, RunId, RunNode,
 };
+use std::path::PathBuf;
+
+fn spec_fixture(name: &str) -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../../../spec/run-graph/v1/fixtures")
+        .join(name)
+}
 
 fn node(id: &str, kind: NodeKind, authority: AuthorityClass, idempotency_key: &str) -> RunNode {
     RunNode {
@@ -130,4 +137,25 @@ fn enforces_node_state_transition_table() {
     assert!(NodeState::Running.can_transition_to(NodeState::Succeeded));
     assert!(!NodeState::Succeeded.can_transition_to(NodeState::Running));
     assert!(!NodeState::Pending.can_transition_to(NodeState::Succeeded));
+}
+
+#[test]
+fn canonical_rust_type_accepts_the_fixed_run_graph_fixture() {
+    let raw = std::fs::read_to_string(spec_fixture("valid-run-graph.json")).unwrap();
+    let graph = RunGraph::from_json_str(&raw).expect("fixed fixture must validate");
+
+    assert_eq!(graph.schema_version, RunGraph::SCHEMA_VERSION);
+    assert_eq!(graph.run_id.as_str(), "s4-c1-replay");
+    assert_eq!(graph.nodes.len(), 3);
+}
+
+#[test]
+fn canonical_rust_type_rejects_fixed_invalid_run_graph_fixtures() {
+    for fixture in ["invalid-schema-version.json", "invalid-run-graph.json"] {
+        let raw = std::fs::read_to_string(spec_fixture(fixture)).unwrap();
+        assert!(
+            RunGraph::from_json_str(&raw).is_err(),
+            "{fixture} must fail closed"
+        );
+    }
 }

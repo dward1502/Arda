@@ -1,6 +1,6 @@
 use arda_engine::harness::{
-    serve, HarnessState, DEFAULT_HARNESS_ADDR, DEFAULT_MANWE_PROXY_TIMEOUT,
-    DEFAULT_WARDEN_SCOUT_TIMEOUT,
+    presence::HarnessPresenceState, serve, HarnessState, DEFAULT_HARNESS_ADDR,
+    DEFAULT_MANWE_PROXY_TIMEOUT, DEFAULT_WARDEN_SCOUT_TIMEOUT,
 };
 use serde_json::{json, Value};
 use std::sync::Arc;
@@ -25,6 +25,7 @@ async fn start_harness(
         manwe_proxy_bearer: None,
         warden_scout_url: None,
         warden_scout_timeout: DEFAULT_WARDEN_SCOUT_TIMEOUT,
+        presence_inputs: HarnessPresenceState::default(),
         workbench_root: root.path().to_path_buf(),
     };
     let (bound, handle) = serve(

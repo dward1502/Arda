@@ -1,0 +1,230 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arda.local/spec/project-adapter/v1/messages.schema.json",
+  "title": "Arda project adapter protocol v1 messages",
+  "oneOf": [
+    { "$ref": "#/$defs/initialize" },
+    { "$ref": "#/$defs/initialized" },
+    { "$ref": "#/$defs/health" },
+    { "$ref": "#/$defs/health_status" },
+    { "$ref": "#/$defs/request" },
+    { "$ref": "#/$defs/progress" },
+    { "$ref": "#/$defs/result" },
+    { "$ref": "#/$defs/cancel" },
+    { "$ref": "#/$defs/cancelled" },
+    { "$ref": "#/$defs/denied_capability" },
+    { "$ref": "#/$defs/error" }
+  ],
+  "$defs": {
+    "id": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "capability": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[._:-][a-z0-9]+)*$",
+      "maxLength": 128
+    },
+    "capabilities": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/capability" },
+      "uniqueItems": true,
+      "maxItems": 128
+    },
+    "common": {
+      "type": "object",
+      "properties": {
+        "schema_version": { "const": "arda.project-adapter.v1" },
+        "id": { "$ref": "#/$defs/id" },
+        "type": { "type": "string" }
+      },
+      "required": ["schema_version", "id", "type"]
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "adapter": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "adapter_version": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "cwd": { "type": "string", "minLength": 1 },
+        "started_at": { "type": "string", "format": "date-time" },
+        "finished_at": { "type": "string", "format": "date-time" },
+        "request_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+      },
+      "required": ["adapter", "adapter_version", "cwd", "started_at", "finished_at", "request_digest"],
+      "additionalProperties": false
+    },
+    "initialize": {
+      "allOf": [
+        { "$ref": "#/$defs/common" },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "initialize" },
+            "protocol_version": { "const": "1" },
+            "project_root": { "type": "string", "minLength": 1 },
+            "allowed_capabilities": { "$ref": "#/$defs/capabilities" }
+          },
+          "required": ["protocol_version", "project_root", "allowed_capabilities"]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "initialized": {
+      "allOf": [
+        { "$ref": "#/$defs/common" },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "initialized" },
+            "request_id": { "$ref": "#/$defs/id" },
+            "adapter": { "type": "string", "minLength": 1, "maxLength": 128 },
+            "adapter_version": { "type": "string", "minLength": 1, "maxLength": 64 },
+            "capabilities": { "$ref": "#/$defs/capabilities" },
+            "recovery_supported": { "type": "boolean" }
+          },
+          "required": ["request_id", "adapter", "adapter_version", "capabilities", "recovery_supported"]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "health": {
+      "allOf": [
+        { "$ref": "#/$defs/common" },
+        {
+          "type": "object",
+          "properties": { "type": { "const": "health" } }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "health_status": {
+      "allOf": [
+        { "$ref": "#/$defs/common" },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "health_status" },
+            "request_id": { "$ref": "#/$defs/id" },
+            "status": { "enum": ["ready", "degraded", "unavailable"] },
+            "detail": { "type": "string", "maxLength": 2048 }
+          },
+          "required": ["request_id", "status"]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "request": {
+      "allOf": [
+        { "$ref": "#/$defs/common" },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "request" },
+            "operation": { "$ref": "#/$defs/capability" },
+            "arguments": { "type": "object" },
+            "timeout_ms": { "type": "integer", "minimum": 1, "maximum": 86400000 },
+            "required_capabilities": { "$ref": "#/$defs/capabilities" },
+            "idempotency_key": { "$ref": "#/$defs/id" },
+            "recovery_token": { "type": "string", "minLength": 1, "maxLength": 8192 }
+          },
+          "required": ["operation", "arguments", "timeout_ms", "required_capabilities", "idempotency_key"]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "progress": {
+      "allOf": [
+        { "$ref": "#/$defs/common" },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "progress" },
+            "request_id": { "$ref": "#/$defs/id" },
+            "sequence": { "type": "integer", "minimum": 1 },
+            "message": { "type": "string", "minLength": 1, "maxLength": 2048 },
+            "percent": { "type": "number", "minimum": 0, "maximum": 100 },
+            "detail": { "type": "object" }
+          },
+          "required": ["request_id", "sequence", "message"]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "result": {
+      "allOf": [
+        { "$ref": "#/$defs/common" },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "result" },
+            "request_id": { "$ref": "#/$defs/id" },
+            "status": { "enum": ["succeeded", "failed", "cancelled"] },
+            "output": {},
+            "provenance": { "$ref": "#/$defs/provenance" },
+            "recovery_token": { "type": "string", "minLength": 1, "maxLength": 8192 }
+          },
+          "required": ["request_id", "status", "output", "provenance"]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "cancel": {
+      "allOf": [
+        { "$ref": "#/$defs/common" },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "cancel" },
+            "request_id": { "$ref": "#/$defs/id" }
+          },
+          "required": ["request_id"]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "cancelled": {
+      "allOf": [
+        { "$ref": "#/$defs/common" },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "cancelled" },
+            "request_id": { "$ref": "#/$defs/id" }
+          },
+          "required": ["request_id"]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "denied_capability": {
+      "allOf": [
+        { "$ref": "#/$defs/common" },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "denied_capability" },
+            "request_id": { "$ref": "#/$defs/id" },
+            "capability": { "$ref": "#/$defs/capability" },
+            "reason": { "type": "string", "minLength": 1, "maxLength": 2048 }
+          },
+          "required": ["request_id", "capability", "reason"]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "error": {
+      "allOf": [
+        { "$ref": "#/$defs/common" },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "error" },
+            "request_id": { "$ref": "#/$defs/id" },
+            "code": { "$ref": "#/$defs/capability" },
+            "message": { "type": "string", "minLength": 1, "maxLength": 4096 },
+            "retryable": { "type": "boolean" }
+          },
+          "required": ["request_id", "code", "message", "retryable"]
+        }
+      ],
+      "unevaluatedProperties": false
+    }
+  }
+}

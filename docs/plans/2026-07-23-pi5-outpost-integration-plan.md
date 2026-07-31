@@ -73,21 +73,21 @@
 6. [ ] Build the 2026-07-29 source for AArch64 Linux; the local Rust toolchain does not have that target installed.
 7. [ ] Redeploy the current source. The live active/enabled service and real source-cited receipt are proven, but the binary predates this Packet's repair.
 
-### Task 3: Wire scout evidence into Athena and council
+### Task 3: Wire scout evidence into Varda and council
 
 **Objective:** Make Pi findings visible to autonomous flows without bypassing governance.
 
-**Status:** Partial. Root HTTP consumption, Vairë receipts, and the ARDA HUD evidence projection are proven; no live producer owns the Athena scout ledgers/runtime projection.
+**Status:** Partial. Root HTTP consumption, Vairë receipts, and the ARDA HUD evidence projection are proven; no live producer owns the Varda scout ledgers/runtime projection.
 
 **Live files:**
 - Scout producer: `outposts/arda-outpost-scout/src/{runtime,research,memory}.rs`
 - Root HTTP consumer: `crates/engine/src/harness.rs`
 - Planned projection stores: `data/athena/scout_requests.jsonl`, `data/athena/scout_findings.jsonl`, `core/state/scout_runtime.json`
 - Existing read-only projection consumer: `apps/arda-hud/src/lib/{ardaSource,reviewGateDerivation}.ts`
-- Athena/council projection producer owner: unresolved; no source writer was found live
+- Varda/council projection producer owner: unresolved; no source writer was found live
 
 **Steps:**
-1. [ ] Add durable Athena scout request/finding producers.
+1. [ ] Add durable Varda scout request/finding producers.
 2. [x] Require source policy and expiry at the scout boundary; runtime state supplies node identity and emits provenance/advisory authority.
 3. [ ] Produce accepted findings into `core/state/scout_runtime.json`.
 4. [x] Project existing scout rows in ARDA HUD as evidence/review state without approval receipts or automatic promotion.
@@ -183,7 +183,7 @@ ssh citadel 'systemctl --user status relic.service citadel-kiosk.service --no-pa
 
 - [x] Both aliases connect non-interactively.
 - [x] Warden completes a bounded source-cited scout request and produces a durable Vairë receipt.
-- [ ] An Athena producer carries that receipt into scout request/finding ledgers and `scout_runtime.json`.
+- [ ] An Varda producer carries that receipt into scout request/finding ledgers and `scout_runtime.json`.
 - [ ] CITADEL completes a Manwe-backed chat turn and renders a corresponding safe scene.
 - [ ] ARDA HUD exports a Pi-safe state bundle consumed by CITADEL.
 - [ ] A council flow records Warden/CITADEL advisory evidence without granting either approval authority.

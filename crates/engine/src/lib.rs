@@ -7,6 +7,7 @@ pub use arda_orome::provider::{
     DispatchMetricsSnapshot, DispatchReceipt, ManualTransport, ProviderConfig, ProviderRuntime,
     ProviderType, RoutingIntent, TransportRequest,
 };
+pub mod adapters;
 pub mod harness;
 pub mod observability;
 pub mod orome;

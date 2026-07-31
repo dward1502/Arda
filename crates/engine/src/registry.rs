@@ -234,11 +234,9 @@ mod tests {
         let error = registry
             .validate(Path::new("services.toml"))
             .expect_err("empty registry must fail validation");
-        assert!(
-            error
-                .to_string()
-                .contains("contains no [[service]] entries")
-        );
+        assert!(error
+            .to_string()
+            .contains("contains no [[service]] entries"));
     }
 
     #[test]

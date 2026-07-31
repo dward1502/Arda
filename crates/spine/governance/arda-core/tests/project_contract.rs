@@ -1,6 +1,13 @@
 use arda_core::project_contract::{
     AuthorityMode, ProjectContract, ProjectContractError, ProjectContractVersion,
 };
+use std::path::PathBuf;
+
+fn spec_fixture(name: &str) -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../../../spec/project-contract/v1/fixtures")
+        .join(name)
+}
 
 fn parse_fixture(path: &str) -> ProjectContract {
     let raw = std::fs::read_to_string(path).expect("read fixture");
@@ -151,4 +158,27 @@ fn additive_migration_policy_rejects_unknown_required_fields_but_allows_extensio
     assert!(
         matches!(err, ProjectContractError::UnsupportedRequiredField { field } if field == "unknown_new_field")
     );
+}
+
+#[test]
+fn canonical_rust_type_accepts_the_fixed_cross_language_fixture() {
+    let raw = std::fs::read_to_string(spec_fixture("valid-project-contract.json")).unwrap();
+    let contract = ProjectContract::from_json_str(&raw).expect("fixed fixture must validate");
+
+    assert_eq!(contract.schema_version, ProjectContractVersion::V1);
+    assert_eq!(contract.identity.name, "s4-c1-fixture");
+    assert_eq!(contract.runtime.adapter, "cargo");
+}
+
+#[test]
+fn canonical_rust_type_rejects_fixed_invalid_project_fixtures() {
+    let incompatible =
+        std::fs::read_to_string(spec_fixture("invalid-schema-version.json")).unwrap();
+    assert!(matches!(
+        ProjectContract::from_json_str(&incompatible),
+        Err(ProjectContractError::UnsupportedMajorVersion { major: 2 })
+    ));
+
+    let invalid = std::fs::read_to_string(spec_fixture("invalid-project-contract.json")).unwrap();
+    assert!(ProjectContract::from_json_str(&invalid).is_err());
 }

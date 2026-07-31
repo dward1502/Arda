@@ -89,6 +89,7 @@ arda-mandos = { path = "crates/spine/runtime/arda-mandos" }
 manwe = { path = "crates/spine/runtime/manwe" }
 arda-varda = { path = "crates/spine/executors/arda-varda" }
 arda-engine = { path = "crates/engine" }
+arda-outpost-protocol = { path = "outposts/arda-outpost-protocol" }
 tokio = { version = "1", features = ["full"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }

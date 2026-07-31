@@ -1,0 +1,12 @@
+{
+  "schema_version": "arda.run-graph.v2",
+  "run_id": "future-run",
+  "objective_id": "future-objective",
+  "nodes": [],
+  "edges": [],
+  "provenance": {
+    "project_contract_digest": "sha256:future",
+    "created_by": "s4-c1-test",
+    "parent_receipts": []
+  }
+}

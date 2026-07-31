@@ -7,12 +7,11 @@
 use chrono::{DateTime, Duration as ChronoDuration, Utc};
 use serde::Serialize;
 
+#[allow(unused_imports)]
 use arda_outpost_protocol::presence::{
     DegradedReason, HealthState, LifecycleState, PresenceEdge, PresenceEdgeType, PresenceNode,
     PresenceNodeKind, RedactionClass, ResourcePressure, RuntimePresenceProjection, SceneState,
 };
-
-
 /// The schema version for the runtime presence projection.
 pub const RUNTIME_PRESENCE_SCHEMA_VERSION: &str = "arda.runtime-presence.v1";
 
@@ -132,8 +131,16 @@ fn node_from_service(service: &ServicePresence) -> PresenceNode {
         kind: PresenceNodeKind::Service,
         label: service.label.clone(),
         lifecycle: service.lifecycle,
-        health: if stale { HealthState::Degraded } else { service.health },
-        confidence: if stale { 0.0 } else { clamp(service.confidence) },
+        health: if stale {
+            HealthState::Degraded
+        } else {
+            service.health
+        },
+        confidence: if stale {
+            0.0
+        } else {
+            clamp(service.confidence)
+        },
         freshness_seconds: service.freshness_seconds,
         resource_pressure: Some(clamp_pressure(&service.resource_pressure)),
         run_id: service.run_id.clone(),
@@ -149,7 +156,11 @@ fn node_from_agent(agent: &AgentPresence) -> PresenceNode {
         kind: PresenceNodeKind::Agent,
         label: agent.label.clone(),
         lifecycle: agent.lifecycle,
-        health: if stale { HealthState::Degraded } else { agent.health },
+        health: if stale {
+            HealthState::Degraded
+        } else {
+            agent.health
+        },
         confidence: if stale { 0.0 } else { clamp(agent.confidence) },
         freshness_seconds: agent.freshness_seconds,
         resource_pressure: Some(clamp_pressure(&agent.resource_pressure)),
@@ -252,10 +263,7 @@ mod tests {
     }
 }
 
-fn empty_projection(
-    now: DateTime<Utc>,
-    valid_until: DateTime<Utc>,
-) -> RuntimePresenceProjection {
+fn empty_projection(now: DateTime<Utc>, valid_until: DateTime<Utc>) -> RuntimePresenceProjection {
     RuntimePresenceProjection {
         projection_id: "arda-runtime-presence-empty".to_string(),
         schema_version: RUNTIME_PRESENCE_SCHEMA_VERSION.to_string(),
@@ -306,6 +314,7 @@ fn clamp_pressure(pressure: &ResourcePressure) -> ResourcePressure {
     }
 }
 
+#[allow(dead_code)]
 fn inputs_fixture() -> ProjectionInputs {
     ProjectionInputs {
         services: vec![ServicePresence {
@@ -338,10 +347,7 @@ fn inputs_fixture() -> ProjectionInputs {
             },
             run_id: Some("run-123".to_string()),
             task_id: Some("task-456".to_string()),
-            source_receipt_refs: vec![
-                "receipt-abc".to_string(),
-                "receipt-def".to_string(),
-            ],
+            source_receipt_refs: vec!["receipt-abc".to_string(), "receipt-def".to_string()],
         }],
         edges: vec![EdgePresence {
             id: "edge-002".to_string(),

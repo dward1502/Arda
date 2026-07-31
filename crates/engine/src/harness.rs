@@ -10,15 +10,17 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
 
-use axum::Json;
+use crate::harness::presence::HarnessPresenceState;
 use axum::extract::State;
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use axum::routing::{get, post};
+use axum::Json;
 use serde::Serialize;
 use tokio::sync::Notify;
 use tracing::{info, warn};
 
+pub mod presence;
 mod projects;
 mod runs;
 
@@ -54,6 +56,8 @@ pub struct HarnessState {
     pub warden_scout_url: Option<String>,
     /// Per-request timeout for Warden search and recall operations.
     pub warden_scout_timeout: Duration,
+    /// Presence projection inputs published through the harness.
+    pub presence_inputs: presence::HarnessPresenceState,
     /// Repository root containing canonical project and run state.
     pub workbench_root: PathBuf,
 }
@@ -86,6 +90,9 @@ fn router(state: HarnessState) -> axum::Router {
         .route("/v1/runs/:id/cancel", post(runs::cancel_run))
         .route("/v1/runs/:id", get(runs::get_run))
         .route("/v1/runs/:id/events", get(runs::get_run_events))
+        .merge(presence::PresenceRouter::router(
+            HarnessPresenceState::default(),
+        ))
         .with_state(state)
 }
 
@@ -273,9 +280,9 @@ pub async fn serve(
             listener,
             app.into_make_service_with_connect_info::<SocketAddr>(),
         )
-            .with_graceful_shutdown(async move { shutdown.notified().await })
-            .await
-            .ok();
+        .with_graceful_shutdown(async move { shutdown.notified().await })
+        .await
+        .ok();
         info!("harness: stopped");
     });
     Ok((bound, handle))
@@ -283,14 +290,18 @@ pub async fn serve(
 
 #[cfg(test)]
 mod tests {
-    use super::{DEFAULT_HARNESS_ADDR, DEFAULT_MANWE_PROXY_TIMEOUT, HarnessState, serve};
+    use super::{serve, HarnessState, DEFAULT_HARNESS_ADDR, DEFAULT_MANWE_PROXY_TIMEOUT};
+    use crate::harness::presence::HarnessPresenceState;
+    use arda_aule::presence_projection::ProjectionInputs;
     use axum::{
-        Json, Router,
         http::HeaderMap,
         routing::{get, post},
+        Json, Router,
     };
-    use serde_json::{Value, json};
+    use reqwest::Client;
+    use serde_json::{json, Value};
     use std::sync::Arc;
+    use std::time::Duration;
     use tokio::sync::{Notify, RwLock};
 
     #[tokio::test]
@@ -324,6 +335,7 @@ mod tests {
             manwe_proxy_bearer: None,
             warden_scout_url: Some(format!("http://{upstream_addr}")),
             warden_scout_timeout: std::time::Duration::from_secs(2),
+            presence_inputs: HarnessPresenceState::default(),
             workbench_root: std::env::temp_dir(),
         };
         let (bound, harness_handle) = serve(
@@ -410,6 +422,7 @@ mod tests {
             manwe_proxy_bearer: Some("harness-secret".into()),
             warden_scout_url: None,
             warden_scout_timeout: std::time::Duration::from_secs(2),
+            presence_inputs: HarnessPresenceState::default(),
             workbench_root: std::env::temp_dir(),
         };
         let (bound, harness_handle) = serve(
@@ -433,5 +446,63 @@ mod tests {
         shutdown.notify_waiters();
         harness_handle.await.expect("harness join");
         upstream_handle.abort();
+    }
+
+    #[tokio::test]
+    async fn presence_routes_are_published_through_the_harness() {
+        let state = HarnessState {
+            harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
+            child_pids: Arc::new(RwLock::new(Vec::new())),
+            service_names: Arc::new(Vec::new()),
+            manwe_url: "http://127.0.0.1:1".into(),
+            client: reqwest::Client::new(),
+            manwe_proxy_timeout: DEFAULT_MANWE_PROXY_TIMEOUT,
+            manwe_proxy_bearer: None,
+            warden_scout_url: None,
+            warden_scout_timeout: std::time::Duration::from_secs(2),
+            presence_inputs: HarnessPresenceState::default(),
+            workbench_root: std::env::temp_dir(),
+        };
+        let shutdown = Arc::new(Notify::new());
+        let (bound, harness_handle) = serve(
+            Some("127.0.0.1:0".parse().expect("harness address")),
+            state,
+            shutdown.clone(),
+        )
+        .await
+        .expect("start harness");
+
+        let client = Client::builder()
+            .timeout(Duration::from_secs(2))
+            .build()
+            .expect("build client");
+        let snapshot: Value = client
+            .get(format!("http://{bound}/v1/presence/snapshot"))
+            .send()
+            .await
+            .expect("snapshot request")
+            .error_for_status()
+            .expect("snapshot status")
+            .json()
+            .await
+            .expect("snapshot body");
+        assert_eq!(snapshot["schema_version"], "arda.harness.presence.v1");
+
+        let response = client
+            .get(format!("http://{bound}/v1/presence/events"))
+            .send()
+            .await
+            .expect("events request");
+        assert_eq!(response.status(), 200);
+        assert_eq!(
+            response
+                .headers()
+                .get("content-type")
+                .map(|v| v.to_str().unwrap_or("")),
+            Some("text/event-stream")
+        );
+
+        shutdown.notify_waiters();
+        harness_handle.await.expect("harness join");
     }
 }

@@ -15,23 +15,25 @@
 
 ---
 
-## Execution status — 2026-07-30
+## Execution status — 2026-07-31
 
 - **Complete:** Task 0.1 core model, strict path/secret/version checks, Rust and Python fixtures, and JSON Schema.
 - **Complete:** Task 0.2 canonical run graph, authority/provenance round-trip, DAG validation, approval-parent validation, duplicate idempotency rejection, and state-transition tests.
 - **Complete (foundation):** Task 1.1 append-only per-run journal, atomic checkpoint/result writes, strict corruption detection, contiguous sequence validation, and restart idempotency recovery.
+- **Complete:** Stage 4 contract-registry declaration/version wiring for `arda.project-contract.v1` and `arda.run-graph.v1`. The registry now rejects undeclared versions and its smoke tests pin both canonical contracts. Full S4-C1 remains open for a dedicated fixed-event replay proof and independently reproduced Python schema validation.
+- **Complete:** Task 1.2 typed project/run harness API (`2470832`). The existing harness now validates and persists canonical project contracts, plans canonical run graphs through the existing run store, records approval/cancellation lifecycle events, exposes run/event reads, rejects unknown browser command fields, and gates serialized mutations behind loopback peer checks plus canonical Oromë approval and idempotency envelopes.
 - **Started, not complete:** HUD objective composer and approval-first graph draft are integrated into the Planning surface. A read-only `validate_project_contract` Tauri command now validates through the canonical `arda-core` parser and projects identity, adapter, requested permissions, commands, and checks before attachment. The surface explicitly remains validation/draft-only and does not claim project attachment or execution.
-- **Started, not complete:** Task 3.1 now has a dedicated `src-tauri/src/commands/workbench.rs` boundary with focused Rust tests. Typed harness attach/run endpoints remain unwired.
-- **Not yet complete:** contract registry wiring, harness project/run APIs and stream, adapter protocol/SDK, real execution/verification, native HUD attachment and receipts, golden paths, packaging, and external evaluation.
+- **Started, not complete:** Task 3.1 now has a dedicated `src-tauri/src/commands/workbench.rs` boundary with focused Rust tests. Its typed native attachment/run invocation remains unwired to the now-available harness endpoints.
+- **Not yet complete:** live run-event streaming, adapter protocol/SDK, real execution/verification, native HUD attachment and receipts, golden paths, packaging, and external evaluation.
 
 Stage 4 remains **in progress**. The implementation evidence above is a bounded vertical-slice foundation, not the private-beta exit gate.
 
-Focused evidence: `cargo test --manifest-path apps/arda-hud/src-tauri/Cargo.toml` passed 13 tests; `pnpm --dir apps/arda-hud exec vitest run src/components/arda/modules/WorkbenchModule.test.tsx` passed 3 tests; `pnpm --dir apps/arda-hud run build` passed.
+Focused evidence: `cargo test -p arda-contract-registry -- --test-threads=1` passed 8 tests; `cargo test -p arda-core --test project_contract --test run_graph -- --test-threads=1` passed 12 tests; `cargo test -p arda-engine --test run_recovery --test harness_projects --test harness_runs -- --test-threads=1` passed 7 tests; `cargo test -p arda-engine -- --test-threads=1` passed 26 tests; `cargo check --workspace --all-targets --all-features` passed; and the final `cargo test --workspace --all-features -- --test-threads=1` rerun passed all workspace unit, integration, and doc-test targets. The workspace currently emits warnings from concurrent uncommitted presence-harness work; those warnings are not Task 1.2 evidence.
 
 ## Verified starting point
 
 - `src/main.rs` is the single daemon entry point and supervises services from `services.toml`.
-- `crates/engine/src/harness.rs` exposes health/status/models and Warden proxy routes but no project or run graph API.
+- Before Task 1.2, `crates/engine/src/harness.rs` exposed health/status/models and Warden proxy routes but no project or run graph API; the typed routes now extend that same harness rather than creating another daemon.
 - `arda-core` already owns tasks, goals, plans, tools, messages, ledgers, governance gates, and loop primitives.
 - The HUD already contains task, approval, source, operations, learning, business, and Hermes surfaces; its README understates the implemented UI.
 - The Tauri backend is currently concentrated in `apps/arda-hud/src-tauri/src/lib.rs`; new Workbench commands must be placed in focused modules rather than enlarging that file.
@@ -142,6 +144,8 @@ Every mutating edge requires an explicit authority class, workspace boundary, bu
 **Acceptance**
 - Mutating routes are loopback-only by default and require an approval/idempotency envelope.
 - No endpoint proxies arbitrary shell strings directly from a browser payload.
+
+**Status — 2026-07-31:** Complete for the endpoint and acceptance scope above. Focused integration tests cover typed validation/attachment/listing, plan/approve/cancel/read/event persistence, mutation idempotency, rejected missing or policy-blocked approval envelopes, path-safe run IDs, and rejection of unknown browser shell fields without execution. Live SSE/WebSocket run-event delivery remains a later Workstream 2/HUD integration item rather than an undocumented behavior of `GET /v1/runs/{id}/events`.
 
 ## Phase 2 — Implement the adapter boundary
 

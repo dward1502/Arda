@@ -224,9 +224,22 @@ Create `docs/releases/stage-4-private-beta-evidence.md` only when gates are run.
 - `cargo test -p arda-core --test personal_ops -- --test-threads=1`: 6 passed; the parallel Personal Operations capture/reminder contract is preserved without activating its service or UI.
 - Mirromere/RELIC/CITADEL provenance is recorded in `docs/research/2026-07-30-mirromere-relic-provenance-audit.md`; no external source was migrated and no external-product spike was authorized.
 
+### Bounded Workbench tranche evidence — 2026-07-31
+
+- Contract-registry commit `dae505c` declares `arda.project-contract.v1` and `arda.run-graph.v1`; undeclared versions fail closed and registry smoke tests pin both declarations.
+- Workbench API commit `2470832` adds the typed project/run harness routes without absorbing the concurrent presence-harness work; launcher follow-up `0a59210` removes the stale four-track assumption exposed by the registry addition.
+- `cargo test -p arda-contract-registry -- --test-threads=1`: 8 passed.
+- `cargo test -p arda-core --test project_contract --test run_graph -- --test-threads=1`: 12 passed.
+- `cargo test -p arda-engine --test run_recovery --test harness_projects --test harness_runs -- --test-threads=1`: 7 passed.
+- `cargo test -p arda-engine -- --test-threads=1`: 26 passed across unit, presence, project/run harness, Oromë smoke, and recovery targets.
+- `cargo check --workspace --all-targets --all-features`: passed. Concurrent uncommitted presence-harness work emits unused/dead-code warnings and remains outside the Workbench API commit boundary.
+- `cargo test --workspace --all-features -- --test-threads=1`: passed after repairing the launcher registry-count regression; all workspace unit, integration, and doc-test targets completed successfully (with the same unrelated presence-harness warnings).
+- Task 1.2's eight typed project/run endpoints are now present on the existing harness. Mutations are loopback-only, require canonical Oromë `TaskApprovalEnvelope` plus idempotency, serialize concurrent state writes, and reject arbitrary browser shell fields.
+- The first workspace-wide test attempt exposed a stale launcher assertion that hard-coded four registry tracks after the Workbench track became the fifth. The repaired assertion derives the count from the returned checks and explicitly verifies the Workbench track; its focused test and the final full-workspace rerun passed.
+
 The HUD now exposes a read-only `validate_project_contract` Tauri command backed by the canonical `arda-core` parser. Before attachment it shows project identity, runtime adapter, requested authority, network/filesystem posture, and declared command/check identifiers, while explicitly stating that validation did not attach the project or start a command. This is the first native Workbench boundary, not a complete attachment flow.
 
-These focused gates establish contract, recovery-store, native validation, and honest HUD-draft foundations. They do **not** satisfy the full Stage 4 exit definition: no native attach/run API, real edit/test/review flow, Rust/Python golden run, clean-install reproduction, or invited evaluator evidence exists yet.
+These focused gates establish contract, recovery-store, typed harness API, native validation, and honest HUD-draft foundations. They do **not** satisfy the full Stage 4 exit definition: no native HUD attach/run invocation, real edit/test/review flow, Rust/Python golden run, clean-install reproduction, or invited evaluator evidence exists yet. S4-C1 is only partially closed: registry version enforcement is proven, while a dedicated fixed-event replay proof and independently reproduced Python schema validation remain open.
 
 - [x] Canonical project and run-graph contracts are versioned and tested.
 - [ ] Rust and Python golden paths pass.

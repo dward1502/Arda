@@ -6,6 +6,7 @@
 //! distinct from `manwe`'s `7171` so the two never collide.
 
 use std::net::SocketAddr;
+use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -17,6 +18,9 @@ use axum::routing::{get, post};
 use serde::Serialize;
 use tokio::sync::Notify;
 use tracing::{info, warn};
+
+mod projects;
+mod runs;
 
 /// Default harness bind address.
 pub const DEFAULT_HARNESS_ADDR: &str = "127.0.0.1:7878";
@@ -50,6 +54,8 @@ pub struct HarnessState {
     pub warden_scout_url: Option<String>,
     /// Per-request timeout for Warden search and recall operations.
     pub warden_scout_timeout: Duration,
+    /// Repository root containing canonical project and run state.
+    pub workbench_root: PathBuf,
 }
 
 #[derive(Serialize)]
@@ -72,6 +78,14 @@ fn router(state: HarnessState) -> axum::Router {
         .route("/v1/scout/search", post(scout_search))
         .route("/v1/scout/recall", post(scout_recall))
         .route("/v1/harness", get(harness_info))
+        .route("/v1/projects/validate", post(projects::validate_project))
+        .route("/v1/projects/attach", post(projects::attach_project))
+        .route("/v1/projects", get(projects::list_projects))
+        .route("/v1/runs/plan", post(runs::plan_run))
+        .route("/v1/runs/:id/approve", post(runs::approve_run))
+        .route("/v1/runs/:id/cancel", post(runs::cancel_run))
+        .route("/v1/runs/:id", get(runs::get_run))
+        .route("/v1/runs/:id/events", get(runs::get_run_events))
         .with_state(state)
 }
 
@@ -255,7 +269,10 @@ pub async fn serve(
     info!("harness: listening on {bound}");
     let app = router(state);
     let handle = tokio::spawn(async move {
-        axum::serve(listener, app)
+        axum::serve(
+            listener,
+            app.into_make_service_with_connect_info::<SocketAddr>(),
+        )
             .with_graceful_shutdown(async move { shutdown.notified().await })
             .await
             .ok();
@@ -307,6 +324,7 @@ mod tests {
             manwe_proxy_bearer: None,
             warden_scout_url: Some(format!("http://{upstream_addr}")),
             warden_scout_timeout: std::time::Duration::from_secs(2),
+            workbench_root: std::env::temp_dir(),
         };
         let (bound, harness_handle) = serve(
             Some("127.0.0.1:0".parse().expect("harness address")),
@@ -392,6 +410,7 @@ mod tests {
             manwe_proxy_bearer: Some("harness-secret".into()),
             warden_scout_url: None,
             warden_scout_timeout: std::time::Duration::from_secs(2),
+            workbench_root: std::env::temp_dir(),
         };
         let (bound, harness_handle) = serve(
             Some("127.0.0.1:0".parse().expect("harness address")),

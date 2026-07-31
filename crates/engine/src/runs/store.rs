@@ -9,8 +9,16 @@ use std::time::{SystemTime, UNIX_EPOCH};
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum RunEventKind {
-    NodeTransition { state: NodeState },
-    Cancelled { reason: String },
+    Planned {
+        project_id: String,
+        approval_id: String,
+    },
+    NodeTransition {
+        state: NodeState,
+    },
+    Cancelled {
+        reason: String,
+    },
     ResultProjected,
 }
 

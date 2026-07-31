@@ -1,6 +1,6 @@
 {
   "schema_version": "arda.contract-registry.v1",
-  "generated_at_utc": "2026-07-19T00:00:00Z",
+  "generated_at_utc": "2026-07-31T06:13:53Z",
   "authority": "contract_registry",
   "tracks": [
     {
@@ -116,6 +116,29 @@
         "arda eval run <task_id>",
         "arda eval receipt <run_id>",
         "arda learning delta <run_id>"
+      ]
+    },
+    {
+      "track_id": "arda-ecosystem-standard-track-5-workbench",
+      "title": "Workbench Project and Run Contract",
+      "owner": "ARDA",
+      "status": "active",
+      "source_modules": [
+        "crates/spine/governance/arda-core/src/project_contract.rs",
+        "crates/spine/governance/arda-core/src/run_graph.rs"
+      ],
+      "evidence_class_current": "contract_tested",
+      "evidence_class_target": "runtime_receipted",
+      "schema_versions": [
+        "arda.project-contract.v1",
+        "arda.run-graph.v1"
+      ],
+      "receipt_stores": [
+        "data/runs/"
+      ],
+      "cli_verbs": [
+        "arda workbench project validate",
+        "arda workbench run inspect <run_id>"
       ]
     }
   ]

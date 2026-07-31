@@ -30,6 +30,16 @@ fn registry_schema_version_is_pinned() {
 }
 
 #[test]
+fn workbench_contracts_are_declared_by_the_canonical_registry() {
+    let registry = registry();
+
+    assert!(registry
+        .require_schema_version("arda.project-contract.v1")
+        .is_ok());
+    assert!(registry.require_schema_version("arda.run-graph.v1").is_ok());
+}
+
+#[test]
 fn every_track_has_source_modules() {
     let registry = registry();
     for track in &registry.tracks {

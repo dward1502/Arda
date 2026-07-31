@@ -19,6 +19,12 @@ pub enum RegistryLoadError {
     },
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
+pub enum ContractVersionError {
+    #[error("contract schema version is not declared by the registry: {0}")]
+    Undeclared(String),
+}
+
 #[derive(Debug, Clone, Deserialize)]
 pub struct TrackDefinition {
     pub track_id: String,
@@ -63,6 +69,15 @@ impl ContractRegistry {
     pub fn track_ids(&self) -> Vec<&str> {
         self.tracks.iter().map(|t| t.track_id.as_str()).collect()
     }
+
+    pub fn require_schema_version(&self, version: &str) -> Result<(), ContractVersionError> {
+        self.tracks
+            .iter()
+            .flat_map(|track| track.schema_versions.iter())
+            .any(|declared| declared == version)
+            .then_some(())
+            .ok_or_else(|| ContractVersionError::Undeclared(version.to_owned()))
+    }
 }
 
 #[cfg(test)]
@@ -105,5 +120,36 @@ mod tests {
 
         let error = ContractRegistry::load(&path).expect_err("malformed fixture");
         assert!(matches!(error, RegistryLoadError::Parse { .. }));
+    }
+
+    #[test]
+    fn declared_schema_versions_are_accepted_and_undeclared_versions_fail_closed() {
+        let registry: ContractRegistry = serde_json::from_str(
+            r#"{
+                "schema_version": "arda.contract-registry.v1",
+                "generated_at_utc": "2026-07-30T00:00:00Z",
+                "authority": "fixture",
+                "tracks": [{
+                    "track_id": "workbench",
+                    "title": "Workbench",
+                    "owner": "ARDA",
+                    "status": "active",
+                    "source_modules": ["project_contract.rs"],
+                    "schema_versions": ["arda.project-contract.v1", "arda.run-graph.v1"],
+                    "receipt_stores": [],
+                    "cli_verbs": []
+                }]
+            }"#,
+        )
+        .expect("fixture registry");
+
+        assert!(registry
+            .require_schema_version("arda.project-contract.v1")
+            .is_ok());
+        assert!(registry.require_schema_version("arda.run-graph.v1").is_ok());
+        let error = registry
+            .require_schema_version("arda.project-contract.v2")
+            .expect_err("undeclared contract version must fail closed");
+        assert!(error.to_string().contains("arda.project-contract.v2"));
     }
 }

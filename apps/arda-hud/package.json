@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "lint": "oxlint",
     "test": "vitest run",
     "preview": "vite preview",
     "tauri": "bash -lc 'source ../../scripts/runtime_build_env.sh && arda_runtime_build_env ../.. && export PKG_CONFIG_PATH=/usr/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig __NV_DISABLE_EXPLICIT_SYNC=1 WEBKIT_DISABLE_DMABUF_RENDERER=1 WEBKIT_DISABLE_COMPOSITING_MODE=1 GDK_BACKEND=x11 && tauri \"$@\"' --",
@@ -58,6 +59,7 @@
     "@vitejs/plugin-react": "^4.6.0",
     "autoprefixer": "^10.4.24",
     "jsdom": "^28.1.0",
+    "oxlint": "^1.71.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.2.0",
     "typescript": "~5.8.3",

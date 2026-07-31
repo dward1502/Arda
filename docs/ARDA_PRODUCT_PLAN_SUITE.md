@@ -16,7 +16,7 @@ The other first-party applications reuse the same kernel contracts and progress 
 
 | Stage | Outcome | Plan |
 |---|---|---|
-| 4 — Private Beta | in progress: contract/recovery/HUD-draft foundation; repeatable objective-to-verified-change exit still open | [Stage 4 Private Beta](plans/2026-07-29-stage-4-private-beta-plan.md) |
+| 4 — Private Beta | in progress: deterministic Workbench vertical slice proven; packaging, live-provider validation, research linkage, and invited evaluation remain | [Stage 4 Private Beta](plans/2026-07-29-stage-4-private-beta-plan.md) |
 | 5 — Release Candidate | independently installable, secure, recoverable, supportable candidate | [Stage 5 Release Candidate](plans/2026-07-29-stage-5-release-candidate-plan.md) |
 | 6 — Legitimate 1.0 | signed supported Workbench release with independent user evidence | [Stage 6 Legitimate 1.0](plans/2026-07-29-stage-6-legitimate-1.0-plan.md) |
 
@@ -24,7 +24,7 @@ The other first-party applications reuse the same kernel contracts and progress 
 
 | Application | Purpose | Target maturity | Plan |
 |---|---|---|---|
-| Arda Workbench | sovereign governed development environment | Stage 4 primary; Stage 6 supported | [Workbench Private Beta](plans/2026-07-29-arda-workbench-private-beta-plan.md) |
+| Arda Workbench | sovereign governed development environment | Stage 4 implementation tranche complete; Stage 6 supported | [Completed Workbench Private Beta implementation plan](archive/2026-07-29-arda-workbench-private-beta-plan.md) |
 | Personal Operations | capture, reminders, schedule, recovery, contacts | Stage 5 private alpha; optional beta | [Personal Operations](plans/2026-07-29-personal-operations-plan.md) |
 | Mirromere | consent-governed ambient voice/avatar projection | Stage 5/6 preview | [Mirromere](plans/2026-07-29-mirromere-plan.md) |
 | Warden Research | bounded cited research and watchlists | Stage 4 support; Stage 5 beta | [Warden Research](plans/2026-07-29-warden-research-application-plan.md) |

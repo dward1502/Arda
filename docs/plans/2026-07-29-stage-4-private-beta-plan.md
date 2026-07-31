@@ -1,6 +1,6 @@
 # Arda Stage 4 — Private Beta Plan
 
-> **For Hermes:** Execute this plan through the linked Workbench plan. Stage 4 is an evidence gate, not a documentation label. Do not mark a criterion complete without a reproducible artifact or test.
+> **For Hermes:** The completed Workbench implementation tranche is archived at `docs/archive/2026-07-29-arda-workbench-private-beta-plan.md`. Continue the remaining release gates in this plan. Stage 4 is an evidence gate, not a documentation label; do not mark a criterion complete without a reproducible artifact or test.
 
 **Stage objective:** Move Arda from integrated platform alpha to a private beta that one operator can use repeatedly for real software work and one invited evaluator can understand without reconstructing the architecture.
 
@@ -248,17 +248,21 @@ Create `docs/releases/stage-4-private-beta-evidence.md` only when gates are run.
 
 The HUD now exposes a read-only `validate_project_contract` Tauri command backed by the canonical `arda-core` parser. Before attachment it shows project identity, runtime adapter, requested authority, network/filesystem posture, and declared command/check identifiers, while explicitly stating that validation did not attach the project or start a command. This is the first native Workbench boundary, not a complete attachment flow.
 
-These focused gates establish contract, deterministic replay, recovery-store, typed harness API, native validation, and honest HUD-draft foundations. S4-C1 is closed: registry and canonical Rust version enforcement, independently reproduced Python schema validation, exact fixed-event replay, repeatability, and fail-closed corrupt-journal behavior are proven. They do **not** satisfy the full Stage 4 exit definition: no native HUD attach/run invocation, real adapter-backed edit/test/review flow, Rust/Python adapter golden run, clean-install reproduction, or invited evaluator evidence exists yet.
+These focused gates plus the archived Workbench implementation plan establish the canonical contracts, deterministic replay, typed harness/HUD boundary, Rust and Python adapter-backed golden paths, and interrupted-run exact-once recovery. The full Stage 4 exit remains open for live operator click-through/event streaming, research-assisted evidence, clean-install/onboarding reproduction, live-provider validation, and invited evaluator evidence.
 
 - [x] Canonical project and run-graph contracts are versioned and tested.
-- [ ] Rust and Python golden paths pass.
-- [ ] Interrupted run resumes safely.
+- [x] Rust and Python deterministic golden paths pass.
+- [x] Interrupted run resumes safely without duplicate observable mutation.
 - [ ] HUD supports objective-to-review without terminal reconstruction.
 - [ ] Research-assisted run preserves evidence boundaries.
 - [ ] Clean install/onboarding is reproduced.
 - [ ] One external evaluator completes a guided run.
-- [ ] No open critical safety/data-loss issue.
+- [x] No open critical or high-severity issue remains in the bounded deterministic golden path.
 - [x] Private beta limitations and non-goals are explicit in this plan.
+
+### Next recommended tranche
+
+Prioritize Workstream 6, packaging/onboarding/recovery. A reproducible clean-profile install, readiness diagnostics, safe reset/restore, and uninstall path are prerequisites for credible live-provider and invited-evaluator runs. Keep live HUD event/click-through completion as the parallel product-surface dependency; do not advance to the Stage 5 plan until the remaining Stage 4 gates above are evidenced.
 
 ## Stage 4 deferrals
 

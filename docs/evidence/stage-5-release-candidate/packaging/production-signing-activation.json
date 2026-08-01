@@ -1,0 +1,109 @@
+{
+  "contract": "arda.stage5.production-signing-activation.v1",
+  "generated_at_utc": "2026-08-01T19:09:10Z",
+  "status": "pass",
+  "release": {
+    "tag": "v0.3.0-rc.0",
+    "url": "https://github.com/dward1502/Arda/releases/tag/v0.3.0-rc.0",
+    "source_commit": "28cde28b9fd97fdc91de36418da872b1628ae41b",
+    "manifest_release_id": "sha256:b01574fb71d11ed156453fac75eba84139e9a74905866f3b490aa3821c6bb7f6",
+    "published_at_utc": "2026-08-01T19:06:48Z",
+    "prerelease": true
+  },
+  "remote_governance": {
+    "environment": {
+      "name": "production-release",
+      "id": 19135329482,
+      "required_reviewer": "dward1502",
+      "prevent_self_review": false,
+      "admin_bypass": true
+    },
+    "main_branch_protection": {
+      "pull_request_required": true,
+      "required_approving_review_count": 1,
+      "require_code_owner_review": true,
+      "dismiss_stale_reviews": true,
+      "require_conversation_resolution": true,
+      "allow_force_pushes": false,
+      "allow_deletions": false,
+      "enforce_admins": false
+    },
+    "code_owner": {
+      "path": "/.github/workflows/release-sign.yml",
+      "owner": "@dward1502"
+    }
+  },
+  "workflow": {
+    "name": "Sign release assets",
+    "run_id": 30714060617,
+    "run_url": "https://github.com/dward1502/Arda/actions/runs/30714060617",
+    "event": "release",
+    "head_branch": "v0.3.0-rc.0",
+    "head_sha": "28cde28b9fd97fdc91de36418da872b1628ae41b",
+    "conclusion": "success",
+    "environment_approval": {
+      "reviewer": "dward1502",
+      "state": "approved",
+      "comment": "Approved for the authorized Stage 5 v0.3.0-rc.0 keyless signing run."
+    },
+    "certificate_identity": "https://github.com/dward1502/Arda/.github/workflows/release-sign.yml@refs/tags/v0.3.0-rc.0",
+    "oidc_issuer": "https://token.actions.githubusercontent.com"
+  },
+  "build": {
+    "source_date_epoch": 1785610704,
+    "clean_detached_source": true,
+    "appimage_runtime_commit": "75849dc",
+    "appimage_runtime_sha256": "1cc49bcf1e2ccd593c379adb17c9f85a36d619088296504de95b1d06215aebbf",
+    "appimage_reproduced_twice": true,
+    "sbom_component_count": 642,
+    "sbom_missing_license_count": 0
+  },
+  "payloads": [
+    {
+      "name": "arda-launcher_0.3.0-rc.0_amd64.AppImage",
+      "sha256": "20dd1d804c06895c6f7aa63196e91daec864239f3a7b2b757479e1006dd0a03a"
+    },
+    {
+      "name": "arda-launcher_0.3.0-rc.0_amd64.deb",
+      "sha256": "0a495c4e43a50ba5d2edd39e431cd1a27779b078a1642633e22d7c747492d75a"
+    },
+    {
+      "name": "arda-launcher-0.3.0-rc.0-1.x86_64.rpm",
+      "sha256": "d17fe79e6f9d259eb5ebefd68f6316f12db9c099d48b8fdb273eb2ee2cfe8121"
+    },
+    {
+      "name": "release-sbom.json",
+      "sha256": "e217f010898632628e40ce1f9586fbef21211ffaf17e9b09c32b11a09ed21f06"
+    },
+    {
+      "name": "release-bundle-manifest.json",
+      "sha256": "a7f09a51b38b66010393bc567e6454fa3218c165124968211f2081776f314f9c"
+    },
+    {
+      "name": "SHA256SUMS",
+      "sha256": "6ac12fa590c07a5c4cb9579ee62705733f960780faa5926d2bb8fdec3aab5b41"
+    }
+  ],
+  "verification": {
+    "remote_payload_count": 6,
+    "remote_sigstore_bundle_count": 6,
+    "remote_payloads_match_local_final_build": true,
+    "checksum_ledger": "pass",
+    "workflow_identity_verification_count": 6,
+    "independent_identity_verification_count": 6,
+    "independent_cosign_version": "3.1.2",
+    "rpm_header_digest": "pass",
+    "rpm_payload_digest": "pass",
+    "deb_archive_members": [
+      "debian-binary",
+      "control.tar.gz",
+      "data.tar.gz"
+    ],
+    "appimage_runtime_probe": "pass"
+  },
+  "residual_governance": [
+    "dward1502 is the repository's only collaborator, so required review cannot be enforced against the sole admin without deadlocking maintenance.",
+    "Main-branch admin enforcement and production-release self-review prevention remain disabled; the owner can bypass both gates.",
+    "Add a second trusted maintainer before enabling enforce_admins or prevent_self_review."
+  ]
+}

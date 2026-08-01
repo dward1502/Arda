@@ -315,11 +315,10 @@ RELIC/CITADEL expansion remain outside the Workbench release-critical path.
 
 ## Packaging and reproducibility tranche — S5-P0/P1
 
-**Packaging/reproducibility and publisher-identity design complete
+**Packaging/reproducibility and production publisher identity complete
 2026-08-01.** The release tooling, runbook, license text, machine evidence, and
-tag-bound keyless Sigstore workflow are present. Publication remains blocked on
-remote repository hardening and a successful signing run over the final
-normalized artifacts.
+tag-bound keyless Sigstore workflow are present. Remote repository hardening is
+active, and the first final-artifact signing run passed for `v0.3.0-rc.0`.
 
 - [x] Built the `0.3.0-rc.0` AppImage, DEB, and RPM from the live launcher.
 - [x] Generated a deterministic multi-artifact manifest and `SHA256SUMS` with
@@ -343,21 +342,25 @@ normalized artifacts.
 - [x] Selected production publisher trust as tag-bound keyless Sigstore using
   GitHub OIDC; added a SHA-pinned workflow, exact asset allowlist, tag/manifest
   checks, identity-bound bundle verification, policy, and decision receipt.
-- [ ] Activate production trust remotely: land the workflow through review,
-  require maintainer approval on `production-release`, protect `main`, and pass
-  the first final-artifact signing run. The current ephemeral RC key proves
-  candidate integrity only and its private half was deleted after signing.
+- [x] Activated production trust remotely: PR #2 landed the workflow, the
+  `production-release` environment required and recorded maintainer approval,
+  `main` now requires PR/CODEOWNER review, and signing run `30714060617` passed
+  all six tag-bound OIDC bundle verifications for `v0.3.0-rc.0`. The repository
+  has one collaborator, so admin bypass and environment self-review remain
+  enabled until a second trusted maintainer is added.
 
 Authoritative machine evidence is
 `docs/evidence/stage-5-release-candidate/packaging/packaging-summary.json` and
 `docs/evidence/stage-5-release-candidate/packaging/linux-package-reproducibility.json`,
 and
 `docs/evidence/stage-5-release-candidate/packaging/publisher-identity-decision.json`,
-with the release manifest, checksums, SBOM, public key, and Sigstore bundles in
-the same directory. The repaired package bytes supersede the pre-normalization
-DEB/RPM candidate signatures; the global signed-release exit item remains open
-until remote trust controls are active and the final normalized artifacts are
-signed by the tag-bound workflow.
+and
+`docs/evidence/stage-5-release-candidate/packaging/production-signing-activation.json`.
+The final release manifest, checksums, SBOM, normalized packages, and six
+identity-bound Sigstore bundles are published at
+`https://github.com/dward1502/Arda/releases/tag/v0.3.0-rc.0`. The repaired
+package bytes supersede the pre-normalization DEB/RPM candidate signatures;
+the global signed-release exit item is closed.
 
 ## Reliability, performance, and accessibility tranche — S5-R1/U1
 

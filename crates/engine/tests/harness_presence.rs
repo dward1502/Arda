@@ -9,12 +9,12 @@
 
 use std::{sync::Arc, time::Duration};
 
-use axum::{Router, routing::get};
+use axum::{routing::get, Router};
 use reqwest::Client;
 use tokio::sync::Notify;
 
-use arda_engine::harness::{HarnessState, serve};
-use arda_engine::harness::presence::{PresenceRouter, HarnessPresenceState};
+use arda_engine::harness::presence::{HarnessPresenceState, PresenceRouter};
+use arda_engine::harness::{serve, HarnessState};
 
 #[tokio::test]
 async fn presence_snapshot_returns_versioned_projection() {
@@ -38,7 +38,10 @@ async fn presence_snapshot_returns_versioned_projection() {
     let snapshot: serde_json::Value = serde_json::from_str(&body).expect("snapshot json");
 
     assert_eq!(snapshot["schema_version"], "arda.harness.presence.v1");
-    assert_eq!(snapshot["snapshot"]["schema_version"], "arda.runtime-presence.v1");
+    assert_eq!(
+        snapshot["snapshot"]["schema_version"],
+        "arda.runtime-presence.v1"
+    );
     assert!(snapshot["snapshot_sequence"].as_u64().unwrap() >= 1);
     assert!(snapshot["generated_at"].as_str().unwrap().len() > 0);
 

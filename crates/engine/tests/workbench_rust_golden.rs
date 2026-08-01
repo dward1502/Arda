@@ -274,6 +274,7 @@ async fn clean_rust_repository_completes_approved_vertical_slice_with_one_run_id
         instructions:
             "Perform only the two bounded string replacements, then run cargo test --quiet.".into(),
         checks: vec!["test".into()],
+        check_commands: BTreeMap::from([("test".into(), "cargo test --quiet".into())]),
         project_contract_digest: contract_digest.clone(),
     };
 
@@ -398,4 +399,230 @@ async fn clean_rust_repository_completes_approved_vertical_slice_with_one_run_id
             .count(),
         7
     );
+}
+
+/// Opt-in Stage 4 acceptance against the operator's configured live Hermes
+/// provider. This incurs a real provider call and remains ignored normally.
+#[tokio::test]
+#[ignore = "requires an authenticated live Hermes provider"]
+async fn live_provider_mutates_one_temporary_fixture_and_recovers_from_checkpoint() {
+    let started = Instant::now();
+    let temp = TempDir::new().unwrap();
+    let project = temp.path().join("live-provider-project");
+    fs::create_dir(&project).unwrap();
+    copy_fixture(&project);
+    initialize_clean_repository(&project);
+
+    let contract_bytes = fs::read(project.join("arda-project.json")).unwrap();
+    let contract_digest = digest(&contract_bytes);
+    let state_root = temp.path().join("arda-state");
+    let store = RunStore::open(&state_root, RunId::new(RUN_ID).unwrap()).unwrap();
+    let mut graph = graph(&contract_digest);
+    store
+        .append(RunEventDraft {
+            node_id: node_id("inspect"),
+            idempotency_key: format!("{RUN_ID}:live-provider-planned"),
+            kind: RunEventKind::Planned {
+                project_id: "8d45b1f8-c190-4bc3-85b7-d28ced9e62cd".into(),
+                approval_id: "stage4-live-provider-approval".into(),
+            },
+            receipt_digest: Some("receipt:stage4-live-provider-approval".into()),
+        })
+        .unwrap();
+    store.write_checkpoint(&graph).unwrap();
+    complete_node(&store, &mut graph, "inspect", "receipt:live-inspect");
+    complete_node(&store, &mut graph, "plan", "receipt:live-plan");
+    complete_node(
+        &store,
+        &mut graph,
+        "approval",
+        "receipt:stage4-live-provider-approval",
+    );
+    apply_transition_once(
+        &store,
+        &mut graph,
+        &node_id("execute"),
+        NodeState::Ready,
+        format!("{RUN_ID}:live-execute:ready"),
+        Some("receipt:stage4-live-provider-approval".into()),
+    )
+    .unwrap();
+
+    let hermes = Command::new("which")
+        .arg("hermes")
+        .output()
+        .expect("locate Hermes executable");
+    assert!(hermes.status.success(), "Hermes must be on PATH");
+    let hermes = String::from_utf8(hermes.stdout).unwrap().trim().to_string();
+    let config_path = temp.path().join("hermes-live.toml");
+    fs::write(
+        &config_path,
+        format!(
+            r#"schema_version = "arda.hermes-adapter.v1"
+adapter_version = "stage4-live-1"
+executable = "{hermes}"
+max_timeout_ms = 300000
+cancellation_grace_ms = 1000
+max_turns = 12
+max_prompt_bytes = 32768
+max_output_bytes = 131072
+inherit_environment = ["HOME", "PATH", "XDG_CONFIG_HOME", "XDG_CACHE_HOME", "XDG_DATA_HOME", "XDG_STATE_HOME"]
+
+[toolsets]
+read_only = ["file"]
+human_approval = []
+execute_with_approval = ["file", "terminal"]
+verify = ["file", "terminal"]
+compensate_with_approval = ["file", "terminal"]
+"#
+        ),
+    )
+    .unwrap();
+    let environment = [
+        "HOME",
+        "PATH",
+        "XDG_CONFIG_HOME",
+        "XDG_CACHE_HOME",
+        "XDG_DATA_HOME",
+        "XDG_STATE_HOME",
+    ]
+    .into_iter()
+    .filter_map(|key| std::env::var(key).ok().map(|value| (key.into(), value)))
+    .collect::<BTreeMap<String, String>>();
+    let adapter = HermesAdapter::load(&config_path, &project, &project, &environment).unwrap();
+    let mut execute_node = graph
+        .nodes
+        .iter()
+        .find(|node| node.id.as_str() == "execute")
+        .unwrap()
+        .clone();
+    execute_node.timeout_ms = 300_000;
+    execute_node.budget.max_cost_usd = 5.0;
+    let task = HermesNodeTask {
+        run_id: graph.run_id.clone(),
+        node: execute_node,
+        objective: "In this temporary fixture only, change the Rust greeting from `hello` to `hello, Arda`, update its existing test, and verify it.".into(),
+        instructions: "Make only the bounded replacements in src/lib.rs. Run cargo test --quiet exactly once after editing. Do not commit or touch arda-project.json. Return artifacts as an empty array because the harness independently hashes and diffs the temporary fixture.".into(),
+        checks: vec!["cargo-test".into()],
+        check_commands: BTreeMap::from([(
+            "cargo-test".into(),
+            "cargo test --quiet".into(),
+        )]),
+        project_contract_digest: contract_digest.clone(),
+    };
+    let receipt = adapter
+        .execute(&task, AdapterCancellation::new())
+        .await
+        .expect("live Hermes provider completes the approved node");
+    assert_eq!(receipt.run_id, RUN_ID);
+    assert!(receipt.usage.provider.is_some());
+    assert!(receipt.usage.model.is_some());
+    assert!(receipt.usage.api_calls > 0);
+
+    apply_transition_once(
+        &store,
+        &mut graph,
+        &node_id("execute"),
+        NodeState::Running,
+        format!("{RUN_ID}:live-execute:running"),
+        Some("receipt:stage4-live-provider-approval".into()),
+    )
+    .unwrap();
+    apply_transition_once(
+        &store,
+        &mut graph,
+        &node_id("execute"),
+        NodeState::Succeeded,
+        format!("{RUN_ID}:live-execute:succeeded"),
+        Some(receipt.receipt_digest.clone()),
+    )
+    .unwrap();
+
+    // Model daemon restart/resume by discarding all in-memory graph state.
+    drop(store);
+    let resumed_store = RunStore::open(&state_root, RunId::new(RUN_ID).unwrap()).unwrap();
+    let recovered = resumed_store.recover().unwrap();
+    let recovered_event_count = recovered.events.len();
+    let mut graph = recovered.checkpoint.expect("checkpoint survives restart");
+    assert_eq!(
+        graph
+            .nodes
+            .iter()
+            .find(|node| node.id.as_str() == "execute")
+            .unwrap()
+            .state,
+        NodeState::Succeeded
+    );
+    complete_node(&resumed_store, &mut graph, "verify", "receipt:live-verify");
+    complete_node(&resumed_store, &mut graph, "review", "receipt:live-review");
+    complete_node(&resumed_store, &mut graph, "close", "receipt:live-close");
+    let independent_test = Command::new("cargo")
+        .args(["test", "--quiet"])
+        .current_dir(&project)
+        .output()
+        .unwrap();
+    assert!(
+        independent_test.status.success(),
+        "{}",
+        String::from_utf8_lossy(&independent_test.stderr)
+    );
+    let changed_paths = git(&project, &["diff", "--name-only"]);
+    assert_eq!(changed_paths.trim(), "src/lib.rs");
+    let updated_source = fs::read_to_string(project.join("src/lib.rs")).unwrap();
+    assert!(updated_source.contains("\"hello, Arda\""));
+    let diff = git(&project, &["diff", "--", "src/lib.rs"]);
+    assert!(diff.contains("hello, Arda"));
+    let receipt_digest = receipt.receipt_digest.clone();
+    let result = json!({
+        "schema_version": "arda.workbench-live-provider-golden.v1",
+        "run_id": RUN_ID,
+        "approval": {
+            "approval_id": "stage4-live-provider-approval",
+            "receipt": "receipt:stage4-live-provider-approval"
+        },
+        "provider_receipt": receipt,
+        "diff": diff,
+        "independent_verification": {
+            "command": "cargo test --quiet",
+            "exit_code": independent_test.status.code(),
+            "stdout_sha256": digest(&independent_test.stdout),
+            "stderr_sha256": digest(&independent_test.stderr)
+        },
+        "recovery": {
+            "boundary": "after_execute_receipt_before_verify",
+            "recovered_event_count": recovered_event_count,
+            "resumed_from_checkpoint": true,
+            "execute_state_after_restart": "succeeded"
+        },
+        "bounded_mutation": {
+            "temporary_fixture": true,
+            "changed_paths": ["src/lib.rs"],
+            "commit_created": false
+        },
+        "elapsed_ms": started.elapsed().as_millis()
+    });
+    resumed_store.write_result(&result).unwrap();
+    resumed_store
+        .append(RunEventDraft {
+            node_id: node_id("close"),
+            idempotency_key: format!("{RUN_ID}:live-result-projected"),
+            kind: RunEventKind::ResultProjected,
+            receipt_digest: Some(receipt_digest),
+        })
+        .unwrap();
+
+    let evidence_dir = std::env::var_os("ARDA_GOLDEN_EVIDENCE_DIR")
+        .map(PathBuf::from)
+        .expect("ARDA_GOLDEN_EVIDENCE_DIR is required for live acceptance");
+    fs::create_dir_all(&evidence_dir).unwrap();
+    fs::write(
+        evidence_dir.join("live-provider-golden-result.json"),
+        serde_json::to_vec_pretty(&result).unwrap(),
+    )
+    .unwrap();
+    fs::write(
+        evidence_dir.join("live-provider-golden-events.jsonl"),
+        fs::read(resumed_store.events_path()).unwrap(),
+    )
+    .unwrap();
 }

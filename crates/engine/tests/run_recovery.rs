@@ -47,6 +47,25 @@ fn restart_after_mutation_receipt_does_not_repeat_idempotency_key() {
 }
 
 #[test]
+fn disk_pressure_write_failure_does_not_publish_partial_result() {
+    let temp = tempfile::tempdir().unwrap();
+    let run_id = RunId::new("disk-pressure").unwrap();
+    let store = RunStore::open(temp.path(), run_id).unwrap();
+    let blocked_temporary = store
+        .result_path()
+        .with_extension(format!("tmp.{}", std::process::id()));
+    std::fs::create_dir(&blocked_temporary).unwrap();
+
+    let error = store
+        .write_result(&serde_json::json!({"terminal_state": "succeeded"}))
+        .expect_err("unavailable temporary allocation must fail closed");
+
+    assert!(matches!(error, RunStoreError::Io { .. }));
+    assert_eq!(store.read_result().unwrap(), None);
+    assert!(!store.result_path().exists());
+}
+
+#[test]
 fn corrupt_or_truncated_journal_tail_fails_visibly() {
     let temp = tempfile::tempdir().unwrap();
     let base = fixed_graph("run-graph/v1/fixtures/valid-run-graph.json");

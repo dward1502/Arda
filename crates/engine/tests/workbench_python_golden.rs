@@ -237,6 +237,8 @@ async fn clean_python_repository_completes_through_reference_adapter_outside_car
     let adapter = JsonlAdapter::new(AdapterProcessConfig {
         executable: python_executable(),
         args: vec![project.join("adapter.py").display().to_string()],
+        expected_adapter: "arda-python-golden".into(),
+        expected_adapter_version: "1.0.0".into(),
         project_root: project.clone(),
         cwd: project.clone(),
         environment,

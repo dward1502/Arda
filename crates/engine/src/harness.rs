@@ -22,6 +22,7 @@ use tracing::{info, warn};
 
 pub mod presence;
 mod projects;
+mod research;
 mod runs;
 
 /// Default harness bind address.
@@ -81,15 +82,25 @@ fn router(state: HarnessState) -> axum::Router {
         .route("/v1/scout/health", get(scout_health))
         .route("/v1/scout/search", post(scout_search))
         .route("/v1/scout/recall", post(scout_recall))
+        .route("/v1/research/brief", post(research::create_brief))
         .route("/v1/harness", get(harness_info))
         .route("/v1/projects/validate", post(projects::validate_project))
         .route("/v1/projects/attach", post(projects::attach_project))
         .route("/v1/projects", get(projects::list_projects))
         .route("/v1/runs/plan", post(runs::plan_run))
         .route("/v1/runs/:id/approve", post(runs::approve_run))
+        .route(
+            "/v1/runs/:id/nodes/:node_id/complete",
+            post(runs::complete_run_node),
+        )
+        .route(
+            "/v1/runs/:id/nodes/:node_id/execute-provider",
+            post(runs::execute_provider_node),
+        )
         .route("/v1/runs/:id/cancel", post(runs::cancel_run))
         .route("/v1/runs/:id", get(runs::get_run))
         .route("/v1/runs/:id/events", get(runs::get_run_events))
+        .route("/v1/runs/:id/events/stream", get(runs::stream_run_events))
         .merge(presence::PresenceRouter::router(
             HarnessPresenceState::default(),
         ))
@@ -252,6 +263,7 @@ async fn harness_info(State(st): State<HarnessState>) -> impl IntoResponse {
                 "/v1/scout/health",
                 "/v1/scout/search",
                 "/v1/scout/recall",
+                "/v1/research/brief",
                 "/v1/harness"
             ],
         })),
@@ -270,6 +282,11 @@ pub async fn serve(
     let addr = addr
         .or_else(|| std::env::var("ARDA_HARNESS_BIND_ADDR").ok()?.parse().ok())
         .unwrap_or_else(|| DEFAULT_HARNESS_ADDR.parse().unwrap());
+    if !addr.ip().is_loopback() {
+        anyhow::bail!(
+            "harness bind address {addr} is not loopback; remote exposure requires inbound authentication"
+        );
+    }
     let listener = tokio::net::TcpListener::bind(addr).await?;
     let bound = listener.local_addr()?;
     state.harness_addr = bound.to_string();
@@ -292,7 +309,7 @@ pub async fn serve(
 mod tests {
     use super::{serve, HarnessState, DEFAULT_HARNESS_ADDR, DEFAULT_MANWE_PROXY_TIMEOUT};
     use crate::harness::presence::HarnessPresenceState;
-    use arda_aule::presence_projection::ProjectionInputs;
+
     use axum::{
         http::HeaderMap,
         routing::{get, post},
@@ -303,6 +320,33 @@ mod tests {
     use std::sync::Arc;
     use std::time::Duration;
     use tokio::sync::{Notify, RwLock};
+
+    #[tokio::test]
+    async fn harness_rejects_non_loopback_bind_without_inbound_authentication() {
+        let state = HarnessState {
+            harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
+            child_pids: Arc::new(RwLock::new(Vec::new())),
+            service_names: Arc::new(Vec::new()),
+            manwe_url: "http://127.0.0.1:1".into(),
+            client: reqwest::Client::new(),
+            manwe_proxy_timeout: DEFAULT_MANWE_PROXY_TIMEOUT,
+            manwe_proxy_bearer: None,
+            warden_scout_url: None,
+            warden_scout_timeout: std::time::Duration::from_secs(2),
+            presence_inputs: HarnessPresenceState::default(),
+            workbench_root: std::env::temp_dir(),
+        };
+
+        let error = serve(
+            Some("0.0.0.0:0".parse().expect("non-loopback address")),
+            state,
+            Arc::new(Notify::new()),
+        )
+        .await
+        .expect_err("unauthenticated harness must remain loopback-only");
+
+        assert!(error.to_string().contains("loopback"));
+    }
 
     #[tokio::test]
     async fn harness_proxies_search_to_the_configured_warden_scout() {
@@ -446,6 +490,44 @@ mod tests {
         shutdown.notify_waiters();
         harness_handle.await.expect("harness join");
         upstream_handle.abort();
+    }
+
+    #[tokio::test]
+    async fn models_proxy_reports_network_loss_without_false_completion() {
+        let shutdown = Arc::new(Notify::new());
+        let state = HarnessState {
+            harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
+            child_pids: Arc::new(RwLock::new(Vec::new())),
+            service_names: Arc::new(Vec::new()),
+            manwe_url: "http://127.0.0.1:1".into(),
+            client: reqwest::Client::new(),
+            manwe_proxy_timeout: Duration::from_millis(100),
+            manwe_proxy_bearer: None,
+            warden_scout_url: None,
+            warden_scout_timeout: Duration::from_millis(100),
+            presence_inputs: HarnessPresenceState::default(),
+            workbench_root: std::env::temp_dir(),
+        };
+        let (bound, harness_handle) = serve(
+            Some("127.0.0.1:0".parse().expect("harness address")),
+            state,
+            shutdown.clone(),
+        )
+        .await
+        .expect("start harness");
+
+        let response = reqwest::get(format!("http://{bound}/v1/models"))
+            .await
+            .expect("harness response");
+        assert_eq!(response.status(), reqwest::StatusCode::BAD_GATEWAY);
+        assert!(response
+            .text()
+            .await
+            .expect("error body")
+            .contains("manwe unreachable"));
+
+        shutdown.notify_waiters();
+        harness_handle.await.expect("harness join");
     }
 
     #[tokio::test]

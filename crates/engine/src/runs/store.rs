@@ -19,6 +19,11 @@ pub enum RunEventKind {
     Cancelled {
         reason: String,
     },
+    EvidenceLinked {
+        evidence_id: String,
+        evidence_path: String,
+        authority: String,
+    },
     ResultProjected,
 }
 
@@ -79,6 +84,12 @@ impl RunStore {
 
     pub fn result_path(&self) -> PathBuf {
         self.directory.join("result.json")
+    }
+
+    pub fn execution_receipt_path(&self, node_id: &NodeId) -> PathBuf {
+        self.directory
+            .join("execution-receipts")
+            .join(format!("{}.json", node_id.as_str()))
     }
 
     pub fn append(&self, draft: RunEventDraft) -> Result<AppendOutcome, RunStoreError> {
@@ -201,6 +212,47 @@ impl RunStore {
     pub fn write_result(&self, result: &serde_json::Value) -> Result<(), RunStoreError> {
         let bytes = serde_json::to_vec_pretty(result).map_err(RunStoreError::Serialize)?;
         atomic_write(&self.result_path(), &bytes)
+    }
+
+    pub fn read_result(&self) -> Result<Option<serde_json::Value>, RunStoreError> {
+        let path = self.result_path();
+        match fs::read_to_string(&path) {
+            Ok(raw) => serde_json::from_str(&raw)
+                .map(Some)
+                .map_err(RunStoreError::Serialize),
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(None),
+            Err(source) => Err(RunStoreError::Io { path, source }),
+        }
+    }
+
+    pub fn write_execution_receipt(
+        &self,
+        node_id: &NodeId,
+        receipt: &serde_json::Value,
+    ) -> Result<(), RunStoreError> {
+        let path = self.execution_receipt_path(node_id);
+        if let Some(parent) = path.parent() {
+            fs::create_dir_all(parent).map_err(|source| RunStoreError::Io {
+                path: parent.to_path_buf(),
+                source,
+            })?;
+        }
+        let bytes = serde_json::to_vec_pretty(receipt).map_err(RunStoreError::Serialize)?;
+        atomic_write(&path, &bytes)
+    }
+
+    pub fn read_execution_receipt(
+        &self,
+        node_id: &NodeId,
+    ) -> Result<Option<serde_json::Value>, RunStoreError> {
+        let path = self.execution_receipt_path(node_id);
+        match fs::read_to_string(&path) {
+            Ok(raw) => serde_json::from_str(&raw)
+                .map(Some)
+                .map_err(RunStoreError::Serialize),
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(None),
+            Err(source) => Err(RunStoreError::Io { path, source }),
+        }
     }
 }
 

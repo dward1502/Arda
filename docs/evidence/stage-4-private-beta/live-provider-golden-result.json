@@ -1,0 +1,86 @@
+{
+  "approval": {
+    "approval_id": "stage4-live-provider-approval",
+    "receipt": "receipt:stage4-live-provider-approval"
+  },
+  "bounded_mutation": {
+    "changed_paths": [
+      "src/lib.rs"
+    ],
+    "commit_created": false,
+    "temporary_fixture": true
+  },
+  "diff": "diff --git a/src/lib.rs b/src/lib.rs\nindex b15ebf4..0b3d9cc 100644\n--- a/src/lib.rs\n+++ b/src/lib.rs\n@@ -1,5 +1,5 @@\n pub fn greeting() -> &'static str {\n-    \"hello\"\n+    \"hello, Arda\"\n }\n \n #[cfg(test)]\n@@ -8,6 +8,6 @@ mod tests {\n \n     #[test]\n     fn returns_the_declared_greeting() {\n-        assert_eq!(greeting(), \"hello\");\n+        assert_eq!(greeting(), \"hello, Arda\");\n     }\n }\n",
+  "elapsed_ms": 37585,
+  "independent_verification": {
+    "command": "cargo test --quiet",
+    "exit_code": 0,
+    "stderr_sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_sha256": "sha256:b5632030bc9ded9e8b1e556400bc4f975032d56dd30300982736fe3ed86cba80"
+  },
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "adapter_version": "stage4-live-1",
+    "artifacts": [],
+    "idempotency_key": "golden-rust-run:execute",
+    "node_id": "execute",
+    "parent_receipts": [
+      "receipt:approval"
+    ],
+    "project_contract_digest": "sha256:48a69258d52a48a1acbca189ad8ff3b737bb517f2413e7aebdb2d74eea5d96ae",
+    "receipt_digest": "sha256:46b1427c60ed700638e63dbbe586aac22c3d522dcf607b68a78b21c9b009f419",
+    "recorded_at_unix_ms": 1785522884174,
+    "run_id": "golden-rust-run",
+    "schema_version": "arda.execution-receipt.v1",
+    "status": "succeeded",
+    "summary": "Updated the Rust greeting from `hello` to `hello, Arda` in src/lib.rs, updated its existing test, and verified with `cargo test --quiet`.",
+    "test_evidence": [
+      {
+        "check_id": "cargo-test",
+        "command": "cargo test --quiet",
+        "exit_code": 0,
+        "output_digest": "sha256:c2a47a552508021ca51ee42b4e382053b59bc8120d1d8bfb8d7339af84254131",
+        "status": "passed"
+      }
+    ],
+    "tool_evidence": [
+      {
+        "action": "{\"mode\":\"replace\",\"new_string\":\"pub fn greeting() -> &'static str {\\n    \\\"hello, Arda\\\"\\n}\",\"old_string\":\"pub fn greeting() -> &'static str {\\n    \\\"hello\\\"\\n}\",\"path\":\"/var/home/mythos/.cache/arda-build/tmp/.tmpUArbQJ/live-provider-project/src/lib.rs\"}",
+        "exit_code": null,
+        "output_digest": "sha256:e566b6b21461791a899609ce451b9c9e2f14ce78d8e8358afb299e87b4c7f45f",
+        "tool": "patch"
+      },
+      {
+        "action": "{\"mode\":\"replace\",\"new_string\":\"    #[test]\\n    fn returns_the_declared_greeting() {\\n        assert_eq!(greeting(), \\\"hello, Arda\\\");\\n    }\",\"old_string\":\"    #[test]\\n    fn returns_the_declared_greeting() {\\n        assert_eq!(greeting(), \\\"hello\\\");\\n    }\",\"path\":\"/var/home/mythos/.cache/arda-build/tmp/.tmpUArbQJ/live-provider-project/src/lib.rs\"}",
+        "exit_code": null,
+        "output_digest": "sha256:fb0e34accb0789c606a613e9bbaeb3d997082e5db1ec50b0ab3eaf58d89187e7",
+        "tool": "patch"
+      },
+      {
+        "action": "cargo test --quiet",
+        "exit_code": 0,
+        "output_digest": "sha256:c2a47a552508021ca51ee42b4e382053b59bc8120d1d8bfb8d7339af84254131",
+        "tool": "terminal"
+      }
+    ],
+    "usage": {
+      "api_calls": 5,
+      "completed": true,
+      "estimated_cost_usd": 0.0,
+      "failed": false,
+      "input_tokens": 14177,
+      "model": "stepfun/step-3.7-flash:free",
+      "output_tokens": 2897,
+      "provider": "nous",
+      "total_tokens": 17074
+    }
+  },
+  "recovery": {
+    "boundary": "after_execute_receipt_before_verify",
+    "execute_state_after_restart": "succeeded",
+    "recovered_event_count": 13,
+    "resumed_from_checkpoint": true
+  },
+  "run_id": "golden-rust-run",
+  "schema_version": "arda.workbench-live-provider-golden.v1"
+}

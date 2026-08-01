@@ -501,3 +501,30 @@
 @media (prefers-reduced-motion: reduce) {
   .workbench *, .workbench *::before, .workbench *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
 }
+
+@media (prefers-contrast: more) {
+  .workbench-panel,
+  .workbench-panel input,
+  .workbench-panel textarea,
+  .workbench-panel button,
+  .workbench-contract dl div,
+  .workbench-receipt div,
+  .workbench-list li,
+  .workbench-events li { border-color: currentColor; }
+  .workbench-panel header span,
+  .workbench-panel small,
+  .workbench-list span,
+  .workbench-panel label,
+  .workbench-contract dt,
+  .workbench-receipt dt { color: var(--text); }
+}
+
+@media (forced-colors: active) {
+  .workbench-panel,
+  .workbench-panel input,
+  .workbench-panel textarea,
+  .workbench-panel button { forced-color-adjust: auto; }
+  .workbench-node--blocked,
+  .workbench-node--failed,
+  .workbench-node--succeeded { border-color: ButtonText !important; }
+}

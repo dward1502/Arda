@@ -30,7 +30,8 @@ const readiness: ReadinessProjection = {
   mode: 'read_only',
   mutation_policy: 'receipts_only_no_source_config_or_service_rewrites',
   summary: { pass: 2, warn: 1 },
-  pass: ['AGENTS.md'],
+  checks: [],
+  pass: ['registry loaded'],
   warn: ['endpoint.missing_gates'],
 }
 

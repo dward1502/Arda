@@ -23,6 +23,8 @@ pub const ADAPTER_SCHEMA_VERSION: &str = "arda.project-adapter.v1";
 pub struct AdapterProcessConfig {
     pub executable: PathBuf,
     pub args: Vec<String>,
+    pub expected_adapter: String,
+    pub expected_adapter_version: String,
     pub project_root: PathBuf,
     pub cwd: PathBuf,
     pub environment: BTreeMap<String, String>,

@@ -46,7 +46,7 @@ without acquiring service mutation or approval authority.
 - `pnpm test`: 2 command-contract tests passed
 - `pnpm run lint`: 0 warnings and 0 errors
 - `pnpm run build`: passed
-- Frontend package, Cargo package, and Tauri bundle versions: aligned at `0.2.0`
+- Frontend package, Cargo package, and Tauri bundle versions: aligned at `0.3.0-rc.0`
 - `pnpm run tauri build`: v0.2 release binary, DEB, and RPM produced; AppImage
   stage reaches a populated AppDir but Tauri's cached `linuxdeploy` fails on
   CentOS 10 `.relr.dyn` sections
@@ -57,7 +57,8 @@ without acquiring service mutation or approval authority.
 
 - Desktop entry: `src-tauri/src/main.rs` calls `arda_launcher_lib::run()`
 - `src-tauri/src/lib.rs`: registers the typed `registry_status`,
-  `readiness_status`, and `service_plan_status` commands; no `greet` command
+  `readiness_status`, `service_plan_status`, and intrinsic `release_identity`
+  commands; no `greet` command
 - `src-tauri/src/onboarding/mod.rs`: includes `tests.rs` through
   `#[cfg(test)] mod tests`, so the onboarding suite is compiled normally
 - Commands expose read-only registry/readiness/service-plan projections; the

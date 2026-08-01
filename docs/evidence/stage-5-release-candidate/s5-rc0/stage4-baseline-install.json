@@ -1,0 +1,10 @@
+{
+  "command": "/tmp/arda-stage5-rc0/home/.local/bin/arda-launcher",
+  "contract": "arda.private_beta_ops.v1",
+  "desktop_file": "/tmp/arda-stage5-rc0/home/.local/share/applications/arda-launcher.desktop",
+  "launcher": "/tmp/arda-stage5-rc0/home/.local/lib/arda/arda-launcher",
+  "operation": "install-launcher",
+  "release_id": null,
+  "sha256": "36712b66f5bda057e58cf2e2b56abb0ca31ee7700f1ce9895324a7413cc38d49",
+  "status": "ok"
+}

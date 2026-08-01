@@ -1,0 +1,24 @@
+{
+  "boundary": "No tools were exposed and no repository mutation was requested. This proves a live provider response only, not a complete Workbench golden run.",
+  "content_sha256": "647ee34c280bea94c09e066a8785b29fec5a369d81896743056307a5b0bd678e",
+  "contract_match": true,
+  "finish_reason": "stop",
+  "generated_at_utc": "2026-07-31T17:58:48.593584Z",
+  "http_status": 200,
+  "requested_model": "openai_sub/gpt-5.5",
+  "response_id_present": true,
+  "response_model": null,
+  "schema_version": "arda.stage4.live_provider_probe.v1",
+  "usage": {
+    "input_tokens": 50,
+    "input_tokens_details": {
+      "cache_write_tokens": 0,
+      "cached_tokens": 0
+    },
+    "output_tokens": 36,
+    "output_tokens_details": {
+      "reasoning_tokens": 12
+    },
+    "total_tokens": 86
+  }
+}

@@ -54,6 +54,18 @@ fn envelope(key: &str) -> Value {
     })
 }
 
+fn receipt_digest(node_id: &str) -> String {
+    let marker = match node_id {
+        "execute" => 'e',
+        "verify" => 'f',
+        "review" => 'a',
+        "close" => 'c',
+        "different-close" => 'd',
+        _ => panic!("unexpected receipt fixture {node_id}"),
+    };
+    format!("sha256:{}", marker.to_string().repeat(64))
+}
+
 fn contract() -> Value {
     serde_json::from_str(include_str!(
         "../../../spec/project-contract/v1/examples/rust-project.json"
@@ -81,6 +93,50 @@ fn graph(run_id: &str, node_id: &str, kind: &str) -> Value {
             "checkpoint": {"sequence": 0, "recovery_token": null, "checkpoint_digest": null}
         }],
         "edges": [],
+        "provenance": {
+            "project_contract_digest": "sha256:project-fixture",
+            "created_by": "integration-test",
+            "parent_receipts": []
+        }
+    })
+}
+
+fn completion_graph(run_id: &str) -> Value {
+    let node = |id: &str, kind: &str, authority: &str, receipts: Vec<&str>| {
+        json!({
+            "id": id,
+            "kind": kind,
+            "state": "pending",
+            "authority": authority,
+            "budget": {"max_joules": 1.0, "max_cost_usd": 0.0},
+            "retry": {"max_attempts": 1},
+            "timeout_ms": 1000,
+            "idempotency_key": format!("node-{run_id}-{id}"),
+            "input_digest": null,
+            "output_digest": null,
+            "parent_receipts": receipts,
+            "checkpoint": {"sequence": 0, "recovery_token": null, "checkpoint_digest": null}
+        })
+    };
+    json!({
+        "schema_version": "arda.run-graph.v1",
+        "run_id": run_id,
+        "objective_id": format!("objective-{run_id}"),
+        "nodes": [
+            node("plan", "plan", "read_only", vec![]),
+            node("approval", "approval", "human_approval", vec!["receipt:plan"]),
+            node("execute", "execute", "execute_with_approval", vec!["receipt:approval"]),
+            node("verify", "verify", "verify", vec!["receipt:execute"]),
+            node("review", "review", "verify", vec!["receipt:verify"]),
+            node("close", "close", "read_only", vec!["receipt:review"])
+        ],
+        "edges": [
+            {"id": "plan-approval", "from": "plan", "to": "approval", "parent_receipt": "receipt:plan"},
+            {"id": "approval-execute", "from": "approval", "to": "execute", "parent_receipt": "receipt:approval"},
+            {"id": "execute-verify", "from": "execute", "to": "verify", "parent_receipt": "receipt:execute"},
+            {"id": "verify-review", "from": "verify", "to": "review", "parent_receipt": "receipt:verify"},
+            {"id": "review-close", "from": "review", "to": "close", "parent_receipt": "receipt:review"}
+        ],
         "provenance": {
             "project_contract_digest": "sha256:project-fixture",
             "created_by": "integration-test",
@@ -182,13 +238,63 @@ async fn run_routes_plan_approve_read_and_expose_canonical_events() {
 }
 
 #[tokio::test]
+async fn run_event_stream_is_sse_and_emits_canonical_events() {
+    let root = TempDir::new().expect("temp root");
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    let client = reqwest::Client::new();
+    attach(&client, bound).await;
+    plan(&client, bound, "run-stream", "plan-node", "plan")
+        .await
+        .error_for_status()
+        .expect("plan status");
+
+    let mut response = client
+        .get(format!("http://{bound}/v1/runs/run-stream/events/stream"))
+        .send()
+        .await
+        .expect("stream request")
+        .error_for_status()
+        .expect("stream status");
+    assert_eq!(
+        response
+            .headers()
+            .get(reqwest::header::CONTENT_TYPE)
+            .and_then(|value| value.to_str().ok()),
+        Some("text/event-stream")
+    );
+    let frame = tokio::time::timeout(std::time::Duration::from_secs(2), async {
+        let mut body = Vec::new();
+        while !body.windows(2).any(|window| window == b"\n\n") {
+            body.extend_from_slice(
+                &response
+                    .chunk()
+                    .await
+                    .expect("stream chunk")
+                    .expect("open stream"),
+            );
+        }
+        body
+    })
+    .await
+    .expect("stream event timeout");
+    let text = String::from_utf8(frame).expect("utf-8 SSE frame");
+    assert!(text.contains("event: run_event"));
+    assert!(text.contains("\"schema_version\":\"arda.run-event.v1\""));
+    assert!(text.contains("\"run_id\":\"run-stream\""));
+
+    drop(response);
+    shutdown.notify_waiters();
+    handle.await.expect("harness join");
+}
+
+#[tokio::test]
 async fn cancel_is_idempotent_and_mutations_require_typed_envelopes() {
     let root = TempDir::new().expect("temp root");
     let (bound, shutdown, handle) = start_harness(&root).await;
     let client = reqwest::Client::new();
     attach(&client, bound).await;
     assert_eq!(
-        plan(&client, bound, "run-cancel", "plan-node", "plan")
+        plan(&client, bound, "run-cancel", "approval-node", "approval")
             .await
             .status(),
         201
@@ -226,6 +332,208 @@ async fn cancel_is_idempotent_and_mutations_require_typed_envelopes() {
         .await
         .expect("cancel retry");
     assert_eq!(retry.status(), 200);
+
+    shutdown.notify_waiters();
+    handle.await.expect("harness join");
+}
+
+#[tokio::test]
+async fn operator_receipts_complete_execute_verify_review_and_close_in_order() {
+    let root = TempDir::new().expect("temp root");
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    let client = reqwest::Client::new();
+    attach(&client, bound).await;
+
+    client
+        .post(format!("http://{bound}/v1/runs/plan"))
+        .json(&json!({
+            "project_id": PROJECT_ID,
+            "graph": completion_graph("run-complete"),
+            "envelope": envelope("plan-run-complete")
+        }))
+        .send()
+        .await
+        .expect("plan request")
+        .error_for_status()
+        .expect("plan status");
+    let planned: Value = client
+        .get(format!("http://{bound}/v1/runs/run-complete"))
+        .send()
+        .await
+        .expect("get planned run")
+        .error_for_status()
+        .expect("get planned run status")
+        .json()
+        .await
+        .expect("get planned run body");
+    let plan_node = planned["graph"]["nodes"]
+        .as_array()
+        .and_then(|nodes| nodes.iter().find(|node| node["id"] == "plan"))
+        .expect("plan node");
+    assert_eq!(plan_node["state"], "succeeded");
+    assert_eq!(plan_node["output_digest"], "receipt:plan");
+    assert!(plan_node["checkpoint"]["sequence"].as_u64().unwrap_or(0) > 0);
+    assert!(plan_node["checkpoint"]["recovery_token"].is_string());
+    assert!(plan_node["checkpoint"]["checkpoint_digest"].is_string());
+    client
+        .post(format!("http://{bound}/v1/runs/run-complete/approve"))
+        .json(&json!({
+            "node_id": "approval",
+            "envelope": envelope("approve-run-complete")
+        }))
+        .send()
+        .await
+        .expect("approve request")
+        .error_for_status()
+        .expect("approve status");
+
+    let malformed_digest = client
+        .post(format!(
+            "http://{bound}/v1/runs/run-complete/nodes/execute/complete"
+        ))
+        .json(&json!({
+            "envelope": envelope("reject-malformed-digest"),
+            "receipt_digest": "sha256:not-a-digest"
+        }))
+        .send()
+        .await
+        .expect("malformed digest request");
+    assert_eq!(malformed_digest.status(), 400);
+
+    let traversal_evidence = client
+        .post(format!(
+            "http://{bound}/v1/runs/run-complete/nodes/execute/complete"
+        ))
+        .json(&json!({
+            "envelope": envelope("reject-traversal-evidence"),
+            "receipt_digest": receipt_digest("execute"),
+            "evidence": {
+                "changes": [{
+                    "path": "../outside",
+                    "status": "modified",
+                    "additions": 1,
+                    "deletions": 0
+                }]
+            }
+        }))
+        .send()
+        .await
+        .expect("traversal evidence request");
+    assert_eq!(traversal_evidence.status(), 400);
+
+    for node_id in ["execute", "verify", "review", "close"] {
+        let digest = receipt_digest(node_id);
+        let response: Value = client
+            .post(format!(
+                "http://{bound}/v1/runs/run-complete/nodes/{node_id}/complete"
+            ))
+            .json(&json!({
+                "envelope": envelope(&format!("complete-{node_id}")),
+                "receipt_digest": digest,
+                "evidence": match node_id {
+                    "execute" => json!({
+                        "changes": [{
+                            "path": "src/lib.rs",
+                            "status": "modified",
+                            "additions": 2,
+                            "deletions": 2,
+                            "diff": "-hello\n+hello, Arda"
+                        }],
+                        "provider_receipt": {
+                            "provider": "nous",
+                            "model": "fixture-model",
+                            "adapter": "hermes-workbench",
+                            "receipt_digest": receipt_digest("execute"),
+                            "summary": "Bounded fixture mutation completed."
+                        }
+                    }),
+                    "verify" => json!({
+                        "tests": [{
+                            "name": "cargo test --quiet",
+                            "status": "passed",
+                            "duration_ms": 12,
+                            "details": "exit 0"
+                        }]
+                    }),
+                    _ => Value::Null,
+                }
+            }))
+            .send()
+            .await
+            .expect("complete request")
+            .error_for_status()
+            .expect("complete status")
+            .json()
+            .await
+            .expect("complete body");
+        let node = response["graph"]["nodes"]
+            .as_array()
+            .and_then(|nodes| nodes.iter().find(|node| node["id"] == node_id))
+            .expect("completed node");
+        assert_eq!(node["state"], "succeeded");
+        assert_eq!(node["output_digest"], receipt_digest(node_id));
+        assert!(node["checkpoint"]["sequence"].as_u64().unwrap_or(0) > 0);
+        assert!(node["checkpoint"]["recovery_token"].is_string());
+        assert!(node["checkpoint"]["checkpoint_digest"].is_string());
+    }
+
+    let recovered: Value = client
+        .get(format!("http://{bound}/v1/runs/run-complete"))
+        .send()
+        .await
+        .expect("get completed run")
+        .error_for_status()
+        .expect("get completed run status")
+        .json()
+        .await
+        .expect("get completed run body");
+    assert!(recovered["graph"]["nodes"]
+        .as_array()
+        .is_some_and(|nodes| nodes.iter().all(|node| node["state"] == "succeeded")));
+    let recovered_nodes = recovered["graph"]["nodes"].as_array().expect("nodes");
+    for edge in recovered["graph"]["edges"].as_array().expect("edges") {
+        let parent = recovered_nodes
+            .iter()
+            .find(|node| node["id"] == edge["from"])
+            .expect("edge parent");
+        let child = recovered_nodes
+            .iter()
+            .find(|node| node["id"] == edge["to"])
+            .expect("edge child");
+        assert_eq!(edge["parent_receipt"], parent["output_digest"]);
+        assert!(child["parent_receipts"]
+            .as_array()
+            .is_some_and(|receipts| receipts.contains(&edge["parent_receipt"])));
+    }
+    assert_eq!(recovered["review"]["changes"][0]["path"], "src/lib.rs");
+    assert_eq!(recovered["review"]["tests"][0]["status"], "passed");
+    assert_eq!(recovered["review"]["provider_receipt"]["provider"], "nous");
+
+    let retry = client
+        .post(format!(
+            "http://{bound}/v1/runs/run-complete/nodes/close/complete"
+        ))
+        .json(&json!({
+            "envelope": envelope("complete-close"),
+            "receipt_digest": receipt_digest("close")
+        }))
+        .send()
+        .await
+        .expect("complete retry");
+    assert_eq!(retry.status(), 200);
+
+    let conflicting_retry = client
+        .post(format!(
+            "http://{bound}/v1/runs/run-complete/nodes/close/complete"
+        ))
+        .json(&json!({
+            "envelope": envelope("complete-close"),
+            "receipt_digest": receipt_digest("different-close")
+        }))
+        .send()
+        .await
+        .expect("conflicting complete retry");
+    assert_eq!(conflicting_retry.status(), 409);
 
     shutdown.notify_waiters();
     handle.await.expect("harness join");

@@ -27,6 +27,14 @@ export interface ReadinessProjection {
   mode: string
   mutation_policy: string
   summary: Record<string, number>
+  checks: Array<{
+    check_id: string
+    evidence: string[]
+    recommendation: string
+    severity: string
+    status: RegistryGate
+    title: string
+  }>
   pass: string[]
   warn: string[]
 }

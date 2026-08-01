@@ -1,7 +1,7 @@
 # arda-launcher status
 
 App: `apps/arda-launcher`
-Current state: Packet 7 complete locally on 2026-07-29
+Current state: S5-RC0 candidate lifecycle verified locally on 2026-07-31
 Branch: `manwe`
 Documentation: `README.md`, `INDEX.md`, `BREAKDOWN.md`, `STATUS.md`, `OWNERSHIP.md`
 
@@ -16,6 +16,8 @@ service mutation or approval authority.
 - `readiness_status`: builds the current readiness projection.
 - `service_plan_status`: builds proposed service actions while preserving each
   action's `requires_human_gate` field.
+- `release_identity`: reports the native binary's compiled package version and
+  declared Linux support profile.
 - No sample `greet` command is registered.
 - Apply, private-config write, receipt creation, and console launch functions are
   not exposed to the frontend.
@@ -47,7 +49,10 @@ coordinated environment/fleet migration.
 - Oxlint: 0 warnings and 0 errors.
 - TypeScript/Vite production build: passed.
 - Tauri release binary: produced.
-- Frontend, Cargo, and Tauri bundle versions: aligned at `0.2.0`.
+- Frontend, Cargo, and Tauri bundle versions: aligned at `0.3.0-rc.0`.
+- S5-RC0 compatibility, deterministic manifest/checksum, isolated upgrade,
+  exact-once Workbench recovery, diagnostics, and rollback proof: passed under
+  `docs/evidence/stage-5-release-candidate/s5-rc0/`.
 - DEB: `target/release/bundle/deb/arda-launcher_0.2.0_amd64.deb`.
 - RPM: `target/release/bundle/rpm/arda-launcher-0.2.0-1.x86_64.rpm`.
 - Manual AppImage: `target/release/bundle/appimage/arda-launcher_0.2.0_amd64-manual.AppImage`.

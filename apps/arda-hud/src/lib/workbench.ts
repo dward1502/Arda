@@ -61,6 +61,18 @@ export interface RunGraph {
 export interface RunRecord {
   graph: RunGraph
   events: WorkbenchEvent[]
+  review: RunReviewEvidence
+}
+
+export interface ExecuteProviderNodeResponse {
+  run: RunRecord
+  receipt: Record<string, unknown>
+}
+
+export interface RunReviewEvidence {
+  changes: ChangeRecord[]
+  tests: TestRecord[]
+  provider_receipt: ProviderReceiptRecord | null
 }
 
 export interface WorkbenchObjective {
@@ -76,6 +88,10 @@ export interface WorkbenchEvent {
   run_id?: string
   node_id?: string | null
   occurred_at_unix_ms?: number
+  recorded_at_unix_ms?: number
+  receipt_digest?: string | null
+  idempotency_key?: string
+  kind?: { type?: string; state?: RunNodeState; reason?: string; project_id?: string; approval_id?: string }
   event?: { type?: string; state?: RunNodeState; reason?: string; project_id?: string; approval_id?: string }
   type?: string
   state?: RunNodeState
@@ -94,7 +110,16 @@ export interface TestRecord {
   name: string
   status: 'passed' | 'failed' | 'running' | 'not_run'
   durationMs?: number
+  duration_ms?: number
   details?: string
+}
+
+export interface ProviderReceiptRecord {
+  provider: string
+  model: string
+  adapter: string
+  receipt_digest: string
+  summary: string
 }
 
 export function createObjective(text: string, inputMode: WorkbenchObjective['inputMode'] = 'text'): WorkbenchObjective {
@@ -141,13 +166,15 @@ export function buildRunGraph(objective: WorkbenchObjective, projectId: string):
       node('approval', 'approval', 'human_approval', 0, ['receipt:plan']),
       node('execute', 'execute', 'execute_with_approval', 2, ['receipt:approval']),
       node('verify', 'verify', 'verify', 0, ['receipt:execute']),
-      node('close', 'close', 'read_only', 0, ['receipt:verify']),
+      node('review', 'review', 'verify', 0, ['receipt:verify']),
+      node('close', 'close', 'read_only', 0, ['receipt:review']),
     ],
     edges: [
       { id: 'plan-to-approval', from: 'plan', to: 'approval', parent_receipt: 'receipt:plan' },
       { id: 'approval-to-execute', from: 'approval', to: 'execute', parent_receipt: 'receipt:approval' },
       { id: 'execute-to-verify', from: 'execute', to: 'verify', parent_receipt: 'receipt:execute' },
-      { id: 'verify-to-close', from: 'verify', to: 'close', parent_receipt: 'receipt:verify' },
+      { id: 'verify-to-review', from: 'verify', to: 'review', parent_receipt: 'receipt:verify' },
+      { id: 'review-to-close', from: 'review', to: 'close', parent_receipt: 'receipt:review' },
     ],
     provenance: {
       project_contract_digest: `project:${projectId}`,
@@ -169,6 +196,12 @@ export const planWorkbenchRun = (projectId: string, graph: RunGraph, envelope: M
 export const approveWorkbenchRun = (runId: string, nodeId: string, envelope: MutationEnvelope) =>
   safeTauriInvoke<RunRecord>('approve_workbench_run', { request: { run_id: runId, node_id: nodeId, envelope } })
 
+export const completeWorkbenchRunNode = (runId: string, nodeId: string, receiptDigest: string, envelope: MutationEnvelope, evidence?: RunReviewEvidence) =>
+  safeTauriInvoke<RunRecord>('complete_workbench_run_node', { request: { run_id: runId, node_id: nodeId, receipt_digest: receiptDigest, envelope, evidence } })
+
+export const executeWorkbenchProviderNode = (runId: string, nodeId: string, objective: string, envelope: MutationEnvelope) =>
+  safeTauriInvoke<ExecuteProviderNodeResponse>('execute_workbench_provider_node', { request: { run_id: runId, node_id: nodeId, objective, envelope } })
+
 export const cancelWorkbenchRun = (runId: string, reason: string, envelope: MutationEnvelope) =>
   safeTauriInvoke<RunRecord>('cancel_workbench_run', { request: { run_id: runId, reason, envelope } })
 
@@ -177,3 +210,6 @@ export const getWorkbenchRun = (runId: string) =>
 
 export const getWorkbenchRunEvents = (runId: string) =>
   safeTauriInvoke<{ events: WorkbenchEvent[] }>('get_workbench_run_events', { runId })
+
+export const startWorkbenchRunEventStream = (runId: string) =>
+  safeTauriInvoke<void>('start_workbench_run_event_stream', { runId })

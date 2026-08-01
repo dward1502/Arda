@@ -1,0 +1,90 @@
+{
+  "contract": "arda.stage4.workstream6.host_evidence.v1",
+  "generated_at_utc": "2026-07-31T17:37:01Z",
+  "commit": "557e4eea4d927d93e43fb3cd301aa5333edca587",
+  "environment": {
+    "host": "Linux 6.17.12-200.fc42.x86_64 x86_64 GNU/Linux",
+    "profile": "isolated temporary HOME on live Linux host",
+    "independent_vm_or_os_user": false,
+    "source_worktree_was_dirty_before_run": true,
+    "source_worktree_status_unchanged_by_e2e": true
+  },
+  "artifact": {
+    "build_command": "ARDA_LAUNCHER_SKIP_BUNDLE=1 cargo build --manifest-path apps/arda-launcher/src-tauri/Cargo.toml --release",
+    "sha256": "31e5d3909f3d79ba2e0ca94f94be4917dfa01959cc385b9c0bc0bd9f900a79d0",
+    "installed_sha256_matches": true,
+    "missing_dynamic_libraries": []
+  },
+  "install": {
+    "status": "ok",
+    "managed_paths_created": true,
+    "wayland_observation": {
+      "result": "exited",
+      "exit_code": 1,
+      "stderr": "Gdk-Message: Error 71 (Protocol error) dispatching to Wayland display."
+    },
+    "x11_fallback_observation": {
+      "result": "sustained_for_4_seconds_then_test_timeout",
+      "exit_code": 124,
+      "warning": "Failed to create GBM buffer of size 800x600: Invalid argument"
+    },
+    "native_click_through_claimed": false
+  },
+  "readiness": {
+    "gate_status": "pass",
+    "summary": {
+      "fail": 0,
+      "pass": 10,
+      "warn": 0
+    },
+    "failed_check_ids": []
+  },
+  "backup": {
+    "status": "ok",
+    "file_count": 2,
+    "excluded_secret_count": 1,
+    "members": [
+      "config/settings.toml",
+      "data/runs.jsonl",
+      "manifest.json"
+    ],
+    "default_archive_secret_absent": true
+  },
+  "reset": {
+    "status": "ok",
+    "moved_kinds": [
+      "cache",
+      "config",
+      "data",
+      "runtime"
+    ],
+    "state_roots_absent_after_reset": true,
+    "source_repository_touched": false
+  },
+  "restore": {
+    "status": "ok",
+    "file_count": 2,
+    "settings_restored": true,
+    "run_restored": true,
+    "secret_file_restored": false
+  },
+  "diagnostics": {
+    "status": "ok",
+    "members": [
+      "config-redacted/settings.toml",
+      "diagnostics.json"
+    ],
+    "sensitive_fixture_values_and_absolute_paths_absent": true
+  },
+  "uninstall": {
+    "status": "ok",
+    "managed_install_removed": true,
+    "restored_state_preserved": true,
+    "source_repository_touched": false
+  },
+  "limitations": [
+    "The clean-profile run used a temporary HOME on the live host, not an independent VM or OS user.",
+    "The native Wayland launch failed; an X11 fallback remained alive for the bounded four-second smoke interval but emitted a GBM warning.",
+    "No objective-to-review click-through, live event stream, live-provider request, research-assisted run, or external evaluator observation is claimed by this evidence."
+  ]
+}

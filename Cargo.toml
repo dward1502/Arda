@@ -15,6 +15,7 @@ members = [
     "crates/spine/executors/arda-varda",
     "outposts/arda-outpost-protocol",
     "outposts/arda-outpost-scout",
+    "sdk/rust",
 ]
 default-members = [
     "crates/engine",

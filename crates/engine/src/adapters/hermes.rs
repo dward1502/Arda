@@ -120,6 +120,8 @@ pub struct HermesNodeTask {
     pub objective: String,
     pub instructions: String,
     pub checks: Vec<String>,
+    #[serde(default)]
+    pub check_commands: BTreeMap<String, String>,
     pub project_contract_digest: String,
 }
 
@@ -193,6 +195,21 @@ pub struct HermesExecutionReceipt {
 }
 
 impl HermesExecutionReceipt {
+    /// Recompute the canonical digest from the typed receipt with the digest
+    /// field cleared, matching receipt construction in [`HermesAdapter`].
+    pub fn computed_digest(&self) -> Result<String, HermesAdapterError> {
+        let mut unsigned = self.clone();
+        unsigned.receipt_digest.clear();
+        digest_serializable(&unsigned)
+    }
+
+    pub fn has_valid_digest(&self) -> Result<bool, HermesAdapterError> {
+        Ok(
+            is_sha256_digest(&self.receipt_digest)
+                && self.computed_digest()? == self.receipt_digest,
+        )
+    }
+
     /// Project the normalized receipt into canonical run state. No Hermes
     /// session identifier or transcript location is present in this event.
     pub fn run_event_draft(&self) -> Result<RunEventDraft, HermesAdapterError> {
@@ -388,7 +405,7 @@ impl HermesAdapter {
             .stderr(Stdio::piped())
             .kill_on_drop(true);
         configure_process_group(&mut command);
-        let stdout = run_bounded(
+        let chat_output = run_bounded(
             command,
             total_timeout,
             &cancellation,
@@ -396,9 +413,9 @@ impl HermesAdapter {
             self.config.max_output_bytes,
         )
         .await?;
-        let (session_id, result_bytes) = split_chat_output(&stdout)?;
-        let result: HermesJobResult = serde_json::from_slice(&result_bytes)
-            .map_err(|error| HermesAdapterError::InvalidResult(error.to_string()))?;
+        let (session_id, result_bytes) =
+            split_chat_output(&chat_output.stdout, &chat_output.stderr)?;
+        let result = parse_job_result(&result_bytes)?;
         self.validate_result(task, &result)?;
 
         let remaining = total_timeout
@@ -431,7 +448,7 @@ impl HermesAdapter {
             self.config.max_output_bytes,
         )
         .await?;
-        let session: HermesSessionExport = serde_json::from_slice(trim_ascii(&exported))
+        let session: HermesSessionExport = serde_json::from_slice(trim_ascii(&exported.stdout))
             .map_err(|error| HermesAdapterError::InvalidUsage(error.to_string()))?;
         if session.id != session_id {
             return Err(HermesAdapterError::InvalidUsage(
@@ -453,7 +470,8 @@ impl HermesAdapter {
                 limit: task.node.budget.max_cost_usd,
             });
         }
-        let (tool_evidence, test_evidence) = translate_actual_evidence(task, &result, &session)?;
+        let (tool_evidence, test_evidence) =
+            translate_actual_evidence(task, &result, &session, &self.cwd)?;
 
         let mut receipt = HermesExecutionReceipt {
             schema_version: RECEIPT_SCHEMA_VERSION.into(),
@@ -627,13 +645,18 @@ enum ProcessOutcome {
     Cancelled,
 }
 
+struct BoundedProcessOutput {
+    stdout: Vec<u8>,
+    stderr: Vec<u8>,
+}
+
 async fn run_bounded(
     mut command: Command,
     process_timeout: Duration,
     cancellation: &AdapterCancellation,
     cancellation_grace_ms: u64,
     output_limit: usize,
-) -> Result<Vec<u8>, HermesAdapterError> {
+) -> Result<BoundedProcessOutput, HermesAdapterError> {
     if *cancellation.subscribe().borrow() {
         return Err(HermesAdapterError::Cancelled);
     }
@@ -693,7 +716,9 @@ async fn run_bounded(
         .await
         .map_err(|error| HermesAdapterError::OutputRead(error.to_string()))??;
     match outcome {
-        ProcessOutcome::Exited(status) if status.success() => Ok(stdout),
+        ProcessOutcome::Exited(status) if status.success() => {
+            Ok(BoundedProcessOutput { stdout, stderr })
+        }
         ProcessOutcome::Exited(status) => Err(HermesAdapterError::ProcessFailed {
             code: status.code(),
             stderr: String::from_utf8_lossy(&stderr).trim().to_owned(),
@@ -702,7 +727,10 @@ async fn run_bounded(
     }
 }
 
-fn split_chat_output(stdout: &[u8]) -> Result<(String, Vec<u8>), HermesAdapterError> {
+fn split_chat_output(
+    stdout: &[u8],
+    stderr: &[u8],
+) -> Result<(String, Vec<u8>), HermesAdapterError> {
     let output = std::str::from_utf8(trim_ascii(stdout))
         .map_err(|error| HermesAdapterError::InvalidResult(error.to_string()))?;
     let mut session_id = None;
@@ -716,6 +744,17 @@ fn split_chat_output(stdout: &[u8]) -> Result<(String, Vec<u8>), HermesAdapterEr
             }
         } else {
             result_lines.push(line);
+        }
+    }
+    let stderr = std::str::from_utf8(trim_ascii(stderr))
+        .map_err(|error| HermesAdapterError::InvalidResult(error.to_string()))?;
+    for line in stderr.lines() {
+        if let Some(candidate) = parse_session_header(line) {
+            if session_id.replace(candidate).is_some() {
+                return Err(HermesAdapterError::InvalidResult(
+                    "Hermes chat emitted multiple session headers".into(),
+                ));
+            }
         }
     }
     let session_id = session_id.ok_or_else(|| {
@@ -744,15 +783,60 @@ fn parse_session_header(line: &str) -> Option<String> {
     .then(|| value.to_owned())
 }
 
+fn parse_job_result(bytes: &[u8]) -> Result<HermesJobResult, HermesAdapterError> {
+    if let Some(result) = parse_job_result_candidate(trim_ascii(bytes)) {
+        return Ok(result);
+    }
+    // Some Hermes toolsets can still emit compact progress notices in quiet
+    // mode. Accept only one terminal JSON object after that prefix.
+    let trimmed = trim_ascii(bytes);
+    let end = trimmed
+        .iter()
+        .rposition(|byte| *byte == b'}')
+        .map(|index| index + 1)
+        .ok_or_else(|| HermesAdapterError::InvalidResult("Hermes result was not JSON".into()))?;
+    for start in trimmed[..end]
+        .iter()
+        .enumerate()
+        .filter_map(|(index, byte)| (*byte == b'{').then_some(index))
+        .rev()
+    {
+        if let Some(result) = parse_job_result_candidate(&trimmed[start..end]) {
+            return Ok(result);
+        }
+    }
+    Err(HermesAdapterError::InvalidResult(
+        "Hermes result did not contain one terminal job-result object".into(),
+    ))
+}
+
+fn parse_job_result_candidate(bytes: &[u8]) -> Option<HermesJobResult> {
+    let mut value: serde_json::Value = serde_json::from_slice(bytes).ok()?;
+    if let Some(entries) = value
+        .get_mut("tool_evidence")
+        .and_then(serde_json::Value::as_array_mut)
+    {
+        for entry in entries {
+            if let Some(call_id) = entry.as_str().map(str::to_owned) {
+                *entry = serde_json::json!({ "tool_call_id": call_id });
+            }
+        }
+    }
+    serde_json::from_value(value).ok()
+}
+
 fn translate_actual_evidence(
     task: &HermesNodeTask,
     result: &HermesJobResult,
     session: &HermesSessionExport,
+    cwd: &Path,
 ) -> Result<(Vec<HermesToolEvidence>, Vec<HermesTestEvidence>), HermesAdapterError> {
     let mut calls = BTreeMap::<String, (String, String)>::new();
+    let mut call_order = Vec::new();
     let mut outputs = BTreeMap::<String, (Option<String>, Vec<u8>, Option<i32>)>::new();
     for message in &session.messages {
         for call in message.tool_calls.iter().flatten() {
+            call_order.push(call.id.clone());
             if calls
                 .insert(
                     call.id.clone(),
@@ -789,16 +873,29 @@ fn translate_actual_evidence(
         }
     }
 
+    // The provider-generated call IDs are not visible to models on every
+    // Hermes backend. Build receipt evidence from the exported session itself;
+    // the model's claims select check IDs but never manufacture evidence.
+    let material_call_ids: Vec<_> = call_order
+        .iter()
+        .filter(|call_id| {
+            calls.get(*call_id).is_some_and(|(tool, _)| {
+                !matches!(
+                    tool.as_str(),
+                    "read_file" | "search_files" | "browser_snapshot" | "browser_vision"
+                )
+            })
+        })
+        .cloned()
+        .collect();
     let resolve = |call_id: &str| -> Result<HermesToolEvidence, HermesAdapterError> {
         let (tool, action) = calls.get(call_id).ok_or_else(|| {
             HermesAdapterError::InvalidResult(format!(
-                "claimed tool call {call_id} is absent from Hermes export"
+                "tool call {call_id} is absent from Hermes export"
             ))
         })?;
         let (reported_tool, content, exit_code) = outputs.get(call_id).ok_or_else(|| {
-            HermesAdapterError::InvalidResult(format!(
-                "claimed tool call {call_id} has no actual result"
-            ))
+            HermesAdapterError::InvalidResult(format!("tool call {call_id} has no actual result"))
         })?;
         if reported_tool.as_deref().is_some_and(|name| name != tool) {
             return Err(HermesAdapterError::InvalidUsage(format!(
@@ -813,10 +910,26 @@ fn translate_actual_evidence(
         })
     };
 
-    let mut tool_evidence = Vec::with_capacity(result.tool_evidence.len());
-    for claim in &result.tool_evidence {
-        tool_evidence.push(resolve(&claim.tool_call_id)?);
+    if material_call_ids.is_empty() {
+        return Err(HermesAdapterError::InvalidResult(
+            "Hermes export contained no material tool evidence".into(),
+        ));
     }
+    let tool_evidence = material_call_ids
+        .iter()
+        .map(|call_id| resolve(call_id))
+        .collect::<Result<Vec<_>, _>>()?;
+    let terminal_call_ids: Vec<_> = call_order
+        .iter()
+        .filter(|call_id| {
+            calls
+                .get(*call_id)
+                .is_some_and(|(tool, _)| tool == "terminal")
+                && outputs
+                    .get(*call_id)
+                    .is_some_and(|(_, _, exit_code)| exit_code.is_some())
+        })
+        .collect();
 
     let expected_checks: std::collections::BTreeSet<_> = task.checks.iter().cloned().collect();
     if expected_checks.len() != task.checks.len() {
@@ -826,14 +939,27 @@ fn translate_actual_evidence(
     }
     let mut actual_checks = std::collections::BTreeSet::new();
     let mut test_evidence = Vec::with_capacity(result.test_evidence.len());
-    for claim in &result.test_evidence {
+    for (index, claim) in result.test_evidence.iter().enumerate() {
         if !actual_checks.insert(claim.check_id.clone()) {
             return Err(HermesAdapterError::InvalidResult(format!(
                 "duplicate test evidence for {}",
                 claim.check_id
             )));
         }
-        let evidence = resolve(&claim.tool_call_id)?;
+        let call_id = if calls
+            .get(&claim.tool_call_id)
+            .is_some_and(|(tool, _)| tool == "terminal")
+        {
+            &claim.tool_call_id
+        } else {
+            terminal_call_ids.get(index).copied().ok_or_else(|| {
+                HermesAdapterError::InvalidResult(format!(
+                    "check {} has no actual terminal result in Hermes export",
+                    claim.check_id
+                ))
+            })?
+        };
+        let evidence = resolve(call_id)?;
         if evidence.tool != "terminal" || evidence.exit_code.is_none() {
             return Err(HermesAdapterError::InvalidResult(format!(
                 "check {} does not reference an actual terminal result with an exit code",
@@ -841,6 +967,14 @@ fn translate_actual_evidence(
             )));
         }
         let exit_code = evidence.exit_code.expect("checked above");
+        if let Some(expected_command) = task.check_commands.get(&claim.check_id) {
+            if !matches_declared_check_command(&evidence.action, expected_command, cwd) {
+                return Err(HermesAdapterError::InvalidResult(format!(
+                    "check {} referenced terminal command `{}`, expected `{}`",
+                    claim.check_id, evidence.action, expected_command
+                )));
+            }
+        }
         test_evidence.push(HermesTestEvidence {
             check_id: claim.check_id.clone(),
             command: evidence.action,
@@ -864,6 +998,18 @@ fn translate_actual_evidence(
         ));
     }
     Ok((tool_evidence, test_evidence))
+}
+
+fn matches_declared_check_command(actual: &str, expected: &str, cwd: &Path) -> bool {
+    let actual = actual.trim();
+    let expected = expected.trim();
+    if actual == expected {
+        return true;
+    }
+    let cwd = cwd.display().to_string();
+    let quoted_cwd = format!("'{}'", cwd.replace('\'', "'\\''"));
+    actual == format!("cd {cwd} && {expected}")
+        || actual == format!("cd {quoted_cwd} && {expected}")
 }
 
 fn normalize_action(arguments: &serde_json::Value) -> Result<String, HermesAdapterError> {

@@ -1,0 +1,86 @@
+{
+  "commands": [
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "sdk.python.tests.test_conformance",
+        "-v"
+      ],
+      "elapsed_seconds": 0.567731,
+      "output_sha256": "9ba8d4f77aa2e50105a96b85e4b3b3cb11e06470b6a7a02df2a300667c601a3f",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "arda-engine",
+        "--test",
+        "project_adapter_jsonl",
+        "--",
+        "--test-threads=1"
+      ],
+      "elapsed_seconds": 0.55925,
+      "output_sha256": "ba0b1d229a92faa59ea7948b7b85517a662141fe98990b854dc6d8727d3162db",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "arda-project-adapter-sdk"
+      ],
+      "elapsed_seconds": 0.144354,
+      "output_sha256": "09ddca93e0e5dca2eb8d284fe4c877677f8e89cc3712c28155547859e133316f",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "npm",
+        "test",
+        "--prefix",
+        "sdk/javascript"
+      ],
+      "elapsed_seconds": 0.154725,
+      "output_sha256": "c1bdb016d6dc66117b9f273118c98c5605ac528931cccf1100d62985839d3446",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "arda-engine",
+        "--test",
+        "workbench_python_golden",
+        "--test",
+        "workbench_rust_golden",
+        "--",
+        "--test-threads=1"
+      ],
+      "elapsed_seconds": 0.924704,
+      "output_sha256": "6cc2e12d226bfffe06f0ea30185f49b43aef40f5f6a2d31a94576e5e80a8a0e3",
+      "returncode": 0
+    }
+  ],
+  "contract": "arda.stage5.adapter-conformance.v1",
+  "generated_at_utc": "2026-08-01T06:40:33.785366Z",
+  "limitations": [
+    "Python is the complete executable reference server; Rust and JavaScript packages provide bounded framing, envelope validation, and capability negotiation.",
+    "The unseen-repository fixture covers an isolated Python repository; a separately sourced external repository remains unavailable."
+  ],
+  "schema": {
+    "errors": {},
+    "status": "pass",
+    "validated_examples": [
+      "spec/project-contract/v1/examples/javascript-project.json",
+      "spec/project-contract/v1/examples/python-project.json",
+      "spec/project-contract/v1/examples/rust-project.json"
+    ]
+  },
+  "status": "pass"
+}

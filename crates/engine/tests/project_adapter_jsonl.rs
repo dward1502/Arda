@@ -29,6 +29,8 @@ fn config(root: &TempDir, timeout: Duration) -> AdapterProcessConfig {
             "-m".into(),
             "arda_project_adapter.server".into(),
         ],
+        expected_adapter: "arda-python-reference".into(),
+        expected_adapter_version: "1.0.0".into(),
         project_root: root.path().to_path_buf(),
         cwd: root.path().to_path_buf(),
         environment,
@@ -73,6 +75,33 @@ fn read_pid(path: &Path) -> u32 {
         .trim()
         .parse()
         .expect("numeric adapter pid")
+}
+
+#[tokio::test]
+async fn adapter_rejects_impersonated_or_downgraded_handshake_identity() {
+    let root = TempDir::new().expect("project root");
+    let mut adapter_config = config(&root, Duration::from_secs(1));
+    adapter_config.args = vec![
+        "-u".into(),
+        "-c".into(),
+        r#"import json,sys
+message=json.loads(sys.stdin.readline())
+print(json.dumps({"schema_version":"arda.project-adapter.v1","id":"bad:initialized","type":"initialized","request_id":message["id"],"adapter":"impersonator","adapter_version":"0.1.0","capabilities":["echo"],"recovery_supported":False}),flush=True)"#.into(),
+    ];
+    let adapter = JsonlAdapter::new(adapter_config).expect("valid process config");
+
+    let error = adapter
+        .execute(
+            request("identity-mismatch", "echo", json!({})),
+            AdapterCancellation::new(),
+        )
+        .await
+        .expect_err("unexpected adapter identity must fail closed");
+
+    assert!(
+        matches!(error, AdapterError::Protocol(ref message) if message.contains("adapter identity mismatch")),
+        "expected an adapter identity protocol error, got {error:?}"
+    );
 }
 
 #[tokio::test]
@@ -226,5 +255,31 @@ print(json.dumps({"schema_version":"arda.project-adapter.v1","id":"bad:initializ
     assert!(
         matches!(error, AdapterError::Protocol(ref message) if message.contains("unknown fields")),
         "expected an unknown-fields protocol error, got {error:?}"
+    );
+}
+
+#[tokio::test]
+async fn adapter_rejects_oversized_noisy_output_without_unbounded_buffering() {
+    let root = TempDir::new().expect("project root");
+    let mut adapter_config = config(&root, Duration::from_secs(1));
+    adapter_config.max_line_bytes = 256;
+    adapter_config.args = vec![
+        "-u".into(),
+        "-c".into(),
+        "import sys; sys.stdout.write('x' * 257 + '\\n'); sys.stdout.flush()".into(),
+    ];
+    let adapter = JsonlAdapter::new(adapter_config).expect("valid process config");
+
+    let error = adapter
+        .execute(
+            request("oversized-frame", "echo", json!({})),
+            AdapterCancellation::new(),
+        )
+        .await
+        .expect_err("oversized adapter output must fail closed");
+
+    assert!(
+        matches!(error, AdapterError::Protocol(ref message) if message.contains("exceeds line limit")),
+        "expected a bounded line-limit error, got {error:?}"
     );
 }

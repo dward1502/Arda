@@ -1,11 +1,12 @@
 # Arda Stage 4 — Private Beta Plan
 
-> **For Hermes:** The completed Workbench implementation tranche is archived at `docs/archive/2026-07-29-arda-workbench-private-beta-plan.md`. Continue the remaining release gates in this plan. Stage 4 is an evidence gate, not a documentation label; do not mark a criterion complete without a reproducible artifact or test.
+> **For Hermes:** Stage 4 is complete and operator-accepted as of 2026-07-31. The completed Workbench implementation tranche is archived at `docs/archive/2026-07-29-arda-workbench-private-beta-plan.md`. External evaluator evidence is an optional future confidence signal, not an exit gate.
 
-**Stage objective:** Move Arda from integrated platform alpha to a private beta that one operator can use repeatedly for real software work and one invited evaluator can understand without reconstructing the architecture.
+**Lifecycle status:** COMPLETE and operator-accepted on 2026-07-31.
+**Stage objective:** Move Arda from integrated platform alpha to a private beta that one operator can use repeatedly for real software work. Independent evaluator usability evidence remains desirable but non-gating while a separate evaluator and clean machine are unavailable.
 
-**Primary product:** Arda Workbench  
-**Required application dependencies:** Warden Research for bounded evidence; HUD/Launcher for operation  
+**Primary product:** Arda Workbench
+**Required application dependencies:** Warden Research for bounded evidence; HUD/Launcher for operation
 **Non-gating incubators:** Personal Operations, Mirromere, RELIC/CITADEL, Company Operations
 
 ---
@@ -91,8 +92,8 @@ It must work on:
 - failure and resume explanations;
 - acceptance/rejection/revision closure.
 
-**Gate S4-U1**
-An invited evaluator can:
+**Optional validation S4-U1 — non-gating**
+If an invited evaluator becomes available, assess whether they can:
 - identify current state in under 30 seconds;
 - find the next required human decision;
 - explain what Arda changed and how it verified the result;
@@ -246,23 +247,55 @@ Create `docs/releases/stage-4-private-beta-evidence.md` only when gates are run.
 - `cargo test -p arda-engine --all-features -- --test-threads=1`: 34 passed across engine unit, presence, project/run harness, Oromë smoke, adapter-boundary, and recovery targets. Existing concurrent presence-harness warnings remain outside Task 2.1.
 - `cargo check -p arda-engine --all-targets --all-features`: passed with the same unrelated presence-harness warnings.
 
-The HUD now exposes a read-only `validate_project_contract` Tauri command backed by the canonical `arda-core` parser. Before attachment it shows project identity, runtime adapter, requested authority, network/filesystem posture, and declared command/check identifiers, while explicitly stating that validation did not attach the project or start a command. This is the first native Workbench boundary, not a complete attachment flow.
+### Native Gate 3 closeout — 2026-07-31
 
-These focused gates plus the archived Workbench implementation plan establish the canonical contracts, deterministic replay, typed harness/HUD boundary, Rust and Python adapter-backed golden paths, and interrupted-run exact-once recovery. The full Stage 4 exit remains open for live operator click-through/event streaming, research-assisted evidence, clean-install/onboarding reproduction, live-provider validation, and invited evaluator evidence.
+- Native Tauri/WebKitGTK run `run-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4` completed one correlated objective-to-close lifecycle for project `550e8400-e29b-41d4-a716-446655440010` through the HUD. The operator boundary captured the objective, planned the graph, displayed the `$0.00 / 25 J` human approval, recorded approval, and completed execute → verify → review → close.
+- The final durable graph has all six nodes (`plan`, `approval`, `execute`, `verify`, `review`, `close`) in `succeeded`; the journal contains sequences 1–23 and ends with `result_projected` for `close`. The close checkpoint is sequence 22 with recovery token `run-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4:close:22`.
+- Non-empty review evidence was entered through the native typed boundary and projected durably: `crates/engine/src/harness/runs.rs modified +360 -9`; engine harness `4 passed`; focused HUD Workbench `6 passed`; and the `openai-codex / gpt-5.6-sol` receipt through `hermes-agent` with digest `sha256:0d68e8409e456d8d059a271789e2defba2bf19c946659485ae6a08642b4e45bb`.
+- The native process was terminated and relaunched (`1476345` → `1487332`). The fresh AT-SPI application reported `Resumed run run-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4 from the durable harness`, rendered all six succeeded nodes, and restored the same changed-file, test, provider/model/adapter, receipt, timeline, and recovery-token evidence.
+- Focused closeout gates passed immediately before the native lifecycle: `cargo test -q -p arda-engine --test harness_runs` (4 passed) and focused Workbench Vitest targets (2 files / 6 tests passed).
+- The authoritative native record is `docs/evidence/stage-4-private-beta/native-tauri-workbench-acceptance.json`; durable source artifacts are under `data/runs/run-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4/`.
+
+### Workstream 6 clean-profile closeout — 2026-07-31
+
+- The release launcher was installed into an empty dedicated `HOME` inside a fresh Fedora 44 rootless container userspace. The Arda checkout was mounted read-only, so install, launch, recovery, diagnostics, and uninstall could not mutate source.
+- The first dependency-free startup failed on `libgdk-3.so.0`. That exposed a readiness defect: executable presence was treated as sufficient even when native libraries were unresolved. `arda_beta_ops.py` now performs a high-severity `ldd` gate and reports exact missing libraries plus the documented GTK3/WebKitGTK recovery path.
+- After installing the documented runtime packages and explicit build/runtime prerequisites, readiness passed all 11 checks with 0 warnings and 0 failures. The native X11 launcher survived the bounded five-second smoke interval; isolated-container AT-SPI/EGL warnings were recorded without being promoted into click-through evidence.
+- Backup excluded the secret canary and preserved two durable files with manifest hashes. Safe reset quarantined config, data, cache, runtime, and the newly discovered `arda.launcher` WebKit state. Restore returned settings and run data without restoring the excluded secret.
+- Diagnostics omitted both canaries and the real selected-home/source paths. Uninstall removed the binary, desktop entry, and command symlink while preserving restored state.
+- The run exposed and fixed a second recovery defect: resolving an existing managed symlink aliased the command path to its target, leaving a broken launcher symlink after uninstall. Fresh-layout regression coverage now proves complete managed uninstall.
+- `python3 -m unittest tests.test_arda_beta_ops -v`: 11 passed. The complete machine-readable record is `docs/evidence/stage-4-private-beta/workstream-6-clean-profile-container-run.json`.
+- Evidence boundary: this is clean, independently provisioned Linux userspace/profile evidence with native display forwarding, not a full VM, separately logged-in human account, or external-evaluator observation.
+
+### Workbench live-provider and research closeout — 2026-07-31
+
+- Workbench-originated run `run-stage4-workbench-live-provider-accepted` invoked the configured Hermes adapter through `POST /v1/runs/{run_id}/nodes/execute/execute-provider`, not through an external projection script. The live `nous` route selected `stepfun/step-3.7-flash:free`, made 7 API calls, recorded 13,366 input and 1,819 output tokens at an estimated `$0.00`, and returned canonical receipt `sha256:f47667146e3bfb1bb9c436b9376aa680ed49adfb6463dba584f77ccae4010209`.
+- The accepted provider receipt records the bounded `patch` that changed only the isolated fixture's `src/lib.rs` from return value 0 to 42. Its artifact digest is `sha256:f9169cc7313db0a63ff22f955048f877e75877462413fd871a88adc7227dc050`; the declared `cargo-test` evidence references the exact `cargo test --quiet` command, exit 0, with output digest `sha256:c2a47a552508021ca51ee42b4e382053b59bc8120d1d8bfb8d7339af84254131`.
+- The first live probe exposed an evidence-integrity defect: any successful terminal call could satisfy a declared check ID. The adapter now carries the project check-command map and rejects unrelated terminal evidence. It permits only the exact declared command or that command behind an exact `cd <adapter cwd> &&` wrapper. Focused adapter coverage passes 9 tests, including rejection and safe-wrapper cases.
+- Provider failure/restart recovery was exercised separately on recovery run `run-stage4-workbench-live-provider-verified`. After process restart the graph recovered, execution completed, and a second restart restored the succeeded execute node and byte-identical persisted provider receipt. Both recovery responses have SHA-256 `194d25780b5b733f17adcabb93e113f924f82196d5a4643ca07c1e3ce669f5e1`; the receipt timestamp remained `1785532959299`, proving the provider was not invoked twice after success. The accepted mutation run and the recovery run are deliberately identified separately in the machine record.
+- Independent closeout review prompted an additional integrity hardening pass: typed receipts can now recompute and verify their canonical digest, persisted provider receipts fail closed on a mismatch, and operator review evidence rejects malformed SHA-256 values, traversal/absolute paths, oversized payloads, excessive item counts, and provider/completion digest mismatches before mutating run state. Focused engine coverage passes 13 tests across the adapter and harness run suites.
+- The HUD now invokes this typed provider boundary, displays provider/model/token/cost and test evidence, persists the objective by run ID, and restores it with a resumed run. Focused HUD tests passed 7 tests across 2 files; `npm run build` passed; native Workbench command tests passed 7 tests.
+- The complete machine-readable provider record is `docs/evidence/stage-4-private-beta/workbench-live-provider-run.json`. The prior `live-provider-golden-result.json` remains deterministic adapter evidence; it is not substituted for this Workbench-originated run.
+- Research-assisted run `stage4-research-20260731T181502Z` asked one explicit Tokio cancellation-safety question. Warden discovery fed canonical Varda fetch/evaluation for two cited sources, disclosed one failed source fetch, preserved both citations at `reference_only`, and linked `research-5642156a5306e462` to the run as `advisory_research_evidence` without changing graph authority.
+- The research brief explicitly records `execution_authorized: false`; its event is `evidence_linked`, not an approval or execution transition. Focused research tests passed 3 tests, including bounded excerpts, stable IDs, and private/local target rejection. The live record is `docs/evidence/stage-4-private-beta/research-chain-live-stage4-research-20260731T181502Z.json`.
+
+The HUD retains read-only contract validation before attachment and now carries the typed flow through attach, objective, plan, approval, provider execution, evidence review, close, and durable resume. Validation still shows project identity, runtime adapter, requested authority, network/filesystem posture, and declared command/check identifiers without mutating state.
+
+These focused gates plus the archived Workbench implementation plan establish the canonical contracts, deterministic replay, typed harness/HUD boundary, Rust and Python adapter-backed golden paths, interrupted-run exact-once recovery, native objective-to-review/restart acceptance, clean-profile packaging/onboarding/recovery, a Workbench-originated live-provider execution, and advisory research-assisted evidence. The operator accepts this evidence as the Stage 4 exit. Independent evaluator evidence remains an optional confidence improvement and does not block Stage 5.
 
 - [x] Canonical project and run-graph contracts are versioned and tested.
 - [x] Rust and Python deterministic golden paths pass.
 - [x] Interrupted run resumes safely without duplicate observable mutation.
-- [ ] HUD supports objective-to-review without terminal reconstruction.
-- [ ] Research-assisted run preserves evidence boundaries.
-- [ ] Clean install/onboarding is reproduced.
-- [ ] One external evaluator completes a guided run.
+- [x] HUD supports objective-to-review without terminal reconstruction.
+- [x] Research-assisted run preserves evidence boundaries.
+- [x] Clean install/onboarding is reproduced in an isolated Fedora userspace/profile with the source mounted read-only.
+- [x] External evaluator evidence is explicitly optional and non-gating under the operator-approved local-only profile.
 - [x] No open critical or high-severity issue remains in the bounded deterministic golden path.
 - [x] Private beta limitations and non-goals are explicit in this plan.
 
-### Next recommended tranche
+### Optional future validation
 
-Prioritize Workstream 6, packaging/onboarding/recovery. A reproducible clean-profile install, readiness diagnostics, safe reset/restore, and uninstall path are prerequisites for credible live-provider and invited-evaluator runs. Keep live HUD event/click-through completion as the parallel product-surface dependency; do not advance to the Stage 5 plan until the remaining Stage 4 gates above are evidenced.
+If another evaluator and clean machine become available, run `docs/operator/private-beta-evaluator-guide.md` and capture their independent time-to-orientation, next-decision identification, change/test explanation, stale/failed/waiting/complete distinction, and disposition using `docs/operator/templates/stage-4-invited-evaluator-record.json`. This is supplementary evidence and does not reopen Stage 4 or block Stage 5.
 
 ## Stage 4 deferrals
 

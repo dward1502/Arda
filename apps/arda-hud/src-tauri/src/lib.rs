@@ -4,8 +4,10 @@ mod commands;
 
 use base64::{engine::general_purpose, Engine as _};
 use commands::workbench::{
-    approve_workbench_run, attach_project_contract, cancel_workbench_run, get_workbench_run,
-    get_workbench_run_events, plan_workbench_run, validate_project_contract,
+    approve_workbench_run, attach_project_contract, cancel_workbench_run,
+    complete_workbench_run_node, execute_workbench_provider_node, get_workbench_run,
+    get_workbench_run_events, plan_workbench_run, start_workbench_run_event_stream,
+    validate_project_contract, WorkbenchEventStreamState,
 };
 use portable_pty::CommandBuilder;
 use serde::{Deserialize, Serialize};
@@ -2711,15 +2713,19 @@ pub fn run() {
         })
         .manage(HudPulseStreamState::default())
         .manage(HermesRuntimeState::default())
+        .manage(WorkbenchEventStreamState::default())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             validate_project_contract,
             attach_project_contract,
             plan_workbench_run,
             approve_workbench_run,
+            complete_workbench_run_node,
+            execute_workbench_provider_node,
             cancel_workbench_run,
             get_workbench_run,
             get_workbench_run_events,
+            start_workbench_run_event_stream,
             read_file,
             get_arda_root,
             get_numenor_path,

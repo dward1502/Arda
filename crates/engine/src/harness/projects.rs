@@ -7,6 +7,7 @@ use axum::{
     Json,
 };
 use serde::{Deserialize, Deserializer, Serialize};
+use sha2::{Digest, Sha256};
 use std::{fs, io::Write, net::SocketAddr, path::Path};
 use tokio::sync::Mutex;
 
@@ -246,6 +247,13 @@ pub(super) fn find_attached_project(
         .into_iter()
         .find(|project| project.contract.identity.project_id.to_string() == project_id)
         .ok_or_else(|| ApiError::not_found(format!("project `{project_id}` is not attached")))
+}
+
+pub(super) fn contract_digest(contract: &ProjectContract) -> Result<String, ApiError> {
+    let bytes = serde_json::to_vec(contract).map_err(|error| {
+        ApiError::internal(format!("failed to serialize project contract: {error}"))
+    })?;
+    Ok(format!("sha256:{:x}", Sha256::digest(bytes)))
 }
 
 fn registry_path(root: &Path) -> std::path::PathBuf {

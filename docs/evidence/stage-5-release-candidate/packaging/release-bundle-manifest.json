@@ -1,0 +1,57 @@
+{
+  "artifacts": [
+    {
+      "kind": "rpm",
+      "name": "arda-launcher-0.3.0-rc.0-1.x86_64.rpm",
+      "sha256": "8fc3ba3d20c5116c9ba7e15aceb028906add017fbafdc1a45f97989a69f3a99f",
+      "size_bytes": 5287090
+    },
+    {
+      "kind": "appimage",
+      "name": "arda-launcher_0.3.0-rc.0_amd64.AppImage",
+      "sha256": "2ec476af02bcca5db9930edc3d733fc9b6bbc5a4ccbaf253a3fec36e83ec3db2",
+      "size_bytes": 97798648
+    },
+    {
+      "kind": "deb",
+      "name": "arda-launcher_0.3.0-rc.0_amd64.deb",
+      "sha256": "ba1e126b340a4ec1c1013c12f8111423cbd5deeacd2c2a0f87db7235bbcd02ed",
+      "size_bytes": 5286770
+    },
+    {
+      "kind": "json",
+      "name": "release-sbom.json",
+      "sha256": "2135ac438c03904cab857c282e6687d9a9df9f7132ae4f09ff08dadff09aefc0",
+      "size_bytes": 124297
+    }
+  ],
+  "build_inputs": {
+    "lockfiles": {
+      "Cargo.lock": "33a86b6decfe80cf3f34282b6316890ba0a75cebc2089d865a8082bfa70f9ea3",
+      "apps/arda-launcher/pnpm-lock.yaml": "b0bc196f206fd6e1b151bdf893fe3370ca3b8a6e2552410fbe06fdadf481c4ef"
+    },
+    "source_commit": "557e4eea4d927d93e43fb3cd301aa5333edca587",
+    "source_date_epoch": 1785518374,
+    "source_tree_sha256": "d304b2931a303621a8b50de730b0f7ac84571385a4ec7857b25f8302b01ea3cb",
+    "toolchain": {
+      "appimagetool": "appimagetool, continuous build (git version 8c8c91f), build 296 built on 2025-12-04 17:55:56 UTC",
+      "appimagetool_sha256": "ed4ce84f0d9caff66f50bcca6ff6f35aae54ce8135408b3fa33abfc3cb384eb0",
+      "cargo": "cargo 1.94.0 (85eff7c80 2026-01-15)",
+      "node": "v22.22.1",
+      "pnpm": "10.8.1",
+      "rustc": "rustc 1.94.0 (4a4ef493e 2026-03-02)"
+    },
+    "tracked_worktree_clean": false,
+    "tracked_worktree_status_sha256": "c0454602b0cea684420c26bd15c796216da6de32f3e093f0ebb46a4133ad3cbb"
+  },
+  "contract": "arda.release-bundle.v1",
+  "release_id": "sha256:c80fda9abb2e980e4c69f18cd1984dc8772889f7fa49c527782637c864bbc096",
+  "rollback_compatibility": {
+    "config_schema": "arda.hermes-adapter.v1",
+    "from": "stage-4-private-beta",
+    "migration_required": false,
+    "project_schema": "arda.project-contract.v1"
+  },
+  "supported_profile": "bluefin-lts-10-x86_64",
+  "version": "0.3.0-rc.0"
+}

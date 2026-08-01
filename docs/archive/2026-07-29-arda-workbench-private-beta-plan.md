@@ -13,7 +13,7 @@
 **Depends on:** current root daemon, engine harness, governance, Manwe, Oromë, Vairë, Aulë, HUD  
 **Does not depend on:** Mirromere hardware, fleet expansion, autonomous self-modification, or all first-party applications
 
-**Lifecycle status:** COMPLETE and operator-accepted on 2026-07-31. Archived after Phase 4 satisfied this implementation plan's exit criteria; remaining Stage 4 release gates continue in `docs/plans/2026-07-29-stage-4-private-beta-plan.md`.
+**Lifecycle status:** COMPLETE and operator-accepted on 2026-07-31. Archived after Phase 4 satisfied this implementation plan's exit criteria. The completed Stage 4 release record is archived at `docs/archive/2026-07-29-stage-4-private-beta-plan.md`.
 
 ---
 

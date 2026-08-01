@@ -11,6 +11,7 @@ import {
   invokeRegistryStatus,
   type OnboardingSnapshot,
 } from './lib/tauri-core-compat'
+import { evaluateReadinessGate } from './lib/readiness-gate'
 
 export type RegistryGate = 'loading' | 'pass' | 'warn' | 'fail'
 export type OpenGate = 'locked' | 'open'
@@ -58,61 +59,34 @@ export default function App() {
 
   useEffect(() => {
     let cancelled = false
-    loadRegistryGate()
+    loadReadinessGate()
 
-    async function loadRegistryGate() {
+    async function loadReadinessGate() {
       if (cancelled) return
+      setOnboardingLoading(true)
 
       try {
-        const result = await invokeRegistryStatus({})
+        const [result, snapshot] = await Promise.all([
+          invokeRegistryStatus({}),
+          invokeOnboardingSnapshot({}),
+        ])
 
         if (cancelled) return
+        setOnboarding(snapshot)
 
-        setState(prev => {
-          if (result.loaded) {
-            if (result.gate_status === 'pass') {
-              return {
-                ...prev,
-                registry: 'pass',
-                statusLabel: `Registry verified: ${result.track_count} tracks active`,
-                isReady: true,
-                open: prev.open,
-              }
-            }
-
-            if (result.gate_status === 'warn') {
-              return {
-                ...prev,
-                registry: 'warn',
-                statusLabel: `Registry review: ${result.track_count} tracks loaded`,
-                isReady: false,
-              }
-            }
-
-            return {
-              ...prev,
-              registry: 'fail',
-              statusLabel: 'Registry issues found',
-              isReady: false,
-            }
-          }
-
-          return {
-            ...prev,
-            registry: 'fail',
-            statusLabel: result.error || 'Registry unavailable',
-            isReady: false,
-          }
-        })
+        setState(prev => ({ ...prev, ...evaluateReadinessGate(result, snapshot) }))
       } catch (e) {
         if (!cancelled) {
+          setOnboardingError(`Readiness diagnostics failed: ${e}`)
           setState(prev => ({
             ...prev,
             registry: 'fail',
-            statusLabel: `Registry check failed: ${e}`,
+            statusLabel: `Readiness diagnostics failed: ${e}`,
             isReady: false,
           }))
         }
+      } finally {
+        if (!cancelled) setOnboardingLoading(false)
       }
     }
 
@@ -122,8 +96,6 @@ export default function App() {
   }, [])
 
   const onBegin = async () => {
-    if (state.isReady === false) return
-
     if (state.open === 'open') {
       setState(prev => ({ ...prev, open: 'locked' }))
       return
@@ -131,11 +103,15 @@ export default function App() {
 
     setOnboardingLoading(true)
     setOnboardingError(null)
-    setOnboarding(null)
 
     try {
       const snapshot = await invokeOnboardingSnapshot({})
       setOnboarding(snapshot)
+      if (snapshot.readiness?.gate_status !== 'pass') {
+        setOnboardingError(
+          `Readiness changed to ${snapshot.readiness?.gate_status ?? 'unavailable'}; review the diagnostics below.`,
+        )
+      }
     } catch (e) {
       console.error('Onboarding load failed', e)
       setOnboardingError(`Onboarding commands failed: ${e}`)
@@ -187,14 +163,20 @@ export default function App() {
         </button>
         <button
           onClick={onBegin}
-          disabled={!state.isReady || onboardingLoading}
+          disabled={onboardingLoading}
           className={`px-6 py-1.5 text-xs font-mono border rounded transition ${
             state.isReady
               ? 'border-[#f4e9d8]/60 text-[#f4e9d8] hover:bg-[#f4e9d8]/10'
-              : 'border-white/20 text-white/40 cursor-not-allowed'
+              : 'border-amber-300/40 text-amber-100 hover:bg-amber-300/10'
           }`}
         >
-          {onboardingLoading ? 'LOADING' : state.open === 'open' ? 'CLOSE' : 'BEGIN'}
+          {onboardingLoading
+            ? 'LOADING'
+            : state.open === 'open'
+              ? 'CLOSE'
+              : state.isReady
+                ? 'BEGIN'
+                : 'REVIEW'}
         </button>
         <div className="px-3 py-1.5 text-xs font-mono text-white/50 border border-white/20 rounded">
           PHASE {state.phase.toFixed(1)}

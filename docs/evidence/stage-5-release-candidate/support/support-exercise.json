@@ -1,0 +1,42 @@
+{
+  "contract": "arda.stage5.support-exercise.v1",
+  "diagnosis_input": "redacted archive contents only",
+  "privacy": {
+    "crash_reporting_default": "disabled",
+    "external_transmission": "none",
+    "operator_review_required_before_sharing": true
+  },
+  "scenarios": [
+    {
+      "bundle": "missing-launcher.tar.gz",
+      "bundle_bytes": 1525,
+      "bundle_sha256": "fbd836a7ffcc1e8466c82e37c30f39c23d33b168fc4fed9ed43b9ff4a0ebf11b",
+      "diagnosis": "missing-launcher",
+      "readiness_gate": "fail",
+      "redaction_leaks": [],
+      "scenario": "missing-launcher",
+      "status": "pass"
+    },
+    {
+      "bundle": "native-dependency-failure.tar.gz",
+      "bundle_bytes": 1513,
+      "bundle_sha256": "fc1edb7f94425e567deb7257b1807470ab10eea6a2c1acf99d215dde0f9c6f65",
+      "diagnosis": "native-dependency-failure",
+      "readiness_gate": "fail",
+      "redaction_leaks": [],
+      "scenario": "native-dependency-failure",
+      "status": "pass"
+    },
+    {
+      "bundle": "missing-provider-endpoint.tar.gz",
+      "bundle_bytes": 1530,
+      "bundle_sha256": "ac00e3441d634391b2e82708abcac31d3303760d79e99ace6968cfd949dbbcca",
+      "diagnosis": "missing-provider-endpoint",
+      "readiness_gate": "fail",
+      "redaction_leaks": [],
+      "scenario": "missing-provider-endpoint",
+      "status": "pass"
+    }
+  ],
+  "status": "pass"
+}

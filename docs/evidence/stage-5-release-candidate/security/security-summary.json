@@ -1,0 +1,44 @@
+{
+  "cargo": {
+    "vulnerabilities": 0,
+    "warning_counts": {
+      "unmaintained": 18,
+      "unsound": 1
+    }
+  },
+  "evidence": [
+    "cargo-audit.json",
+    "pnpm-audit.json",
+    "../../../security/stage-5-threat-model.md",
+    "../../../../SECURITY.md"
+  ],
+  "fixed": [
+    "GHSA-r28c-9q8g-f849",
+    "RUSTSEC-2024-0437",
+    "RUSTSEC-2026-0221",
+    "adapter-identity-version-downgrade",
+    "backup-unmanifested-file-injection",
+    "launcher-null-content-security-policy",
+    "malicious-instruction-argument-injection",
+    "non-loopback-unauthenticated-bind"
+  ],
+  "owned_blockers": [
+    "SEC-AUTH-001",
+    "SEC-ADAPTER-001",
+    "SEC-SIGN-001",
+    "PKG-STALE-001",
+    "SEC-GLIB-001"
+  ],
+  "pnpm": {
+    "advisories": 0,
+    "vulnerabilities": {
+      "critical": 0,
+      "high": 0,
+      "info": 0,
+      "low": 0,
+      "moderate": 0
+    }
+  },
+  "schema_version": "arda.stage5.security-summary.v1",
+  "status": "pass_with_owned_blockers"
+}

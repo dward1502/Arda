@@ -1,0 +1,89 @@
+{
+  "contract": "arda.stage5.reliability-soak.v1",
+  "elapsed_seconds": 2.2100331820256542,
+  "failures": [],
+  "finished_at_utc": "2026-08-01T05:57:58.068537Z",
+  "limits": {
+    "retained_failures": 20,
+    "subprocess_output": "sha256-only"
+  },
+  "protected_state": {
+    "after": {
+      "bytes": 11718051,
+      "files": 1050
+    },
+    "before": {
+      "bytes": 11718051,
+      "files": 1050
+    },
+    "growth": {
+      "bytes": 0,
+      "files": 0
+    }
+  },
+  "requested_duration_seconds": 2.0,
+  "scenarios": {
+    "adapter-crash-hang": {
+      "failed": 0,
+      "latency_ms": {
+        "max": 303.006,
+        "min": 298.909,
+        "p50": 298.909,
+        "p95": 298.909
+      },
+      "passed": 2,
+      "runs": 2
+    },
+    "checkpoint-restart": {
+      "failed": 0,
+      "latency_ms": {
+        "max": 286.884,
+        "min": 286.884,
+        "p50": 286.884,
+        "p95": 286.884
+      },
+      "passed": 1,
+      "runs": 1
+    },
+    "corrupted-tail": {
+      "failed": 0,
+      "latency_ms": {
+        "max": 192.258,
+        "min": 192.258,
+        "p50": 192.258,
+        "p95": 192.258
+      },
+      "passed": 1,
+      "runs": 1
+    },
+    "model-timeout": {
+      "failed": 0,
+      "latency_ms": {
+        "max": 352.397,
+        "min": 351.759,
+        "p50": 351.759,
+        "p95": 351.759
+      },
+      "passed": 2,
+      "runs": 2
+    },
+    "repeated-cancellation": {
+      "failed": 0,
+      "latency_ms": {
+        "max": 207.82,
+        "min": 204.401,
+        "p50": 204.401,
+        "p95": 204.401
+      },
+      "passed": 2,
+      "runs": 2
+    }
+  },
+  "started_at_utc": "2026-08-01T05:57:55.858490Z",
+  "status": "pass",
+  "summary": {
+    "failed": 0,
+    "passed": 8,
+    "runs": 8
+  }
+}

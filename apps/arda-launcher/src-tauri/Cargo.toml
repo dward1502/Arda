@@ -1,9 +1,10 @@
 [package]
 name = "arda-launcher"
-version = "0.2.0"
+version = "0.3.0-rc.0"
 description = "A Tauri App"
 authors = ["you"]
 edition = "2021"
+license.workspace = true
 
 [lib]
 name = "arda_launcher_lib"

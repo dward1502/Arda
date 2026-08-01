@@ -1,4 +1,5 @@
-import { FormEvent, useState } from 'react'
+import { FormEvent, useEffect, useState } from 'react'
+import { listen, type UnlistenFn } from '@tauri-apps/api/event'
 import ModuleCard from '../ModuleCard'
 import ApprovalPanel from '../../workbench/ApprovalPanel'
 import ChangeReview from '../../workbench/ChangeReview'
@@ -8,19 +9,27 @@ import {
   approveWorkbenchRun,
   attachProjectContract,
   buildRunGraph,
+  completeWorkbenchRunNode,
   createObjective,
+  executeWorkbenchProviderNode,
+  getWorkbenchRun,
   planWorkbenchRun,
+  startWorkbenchRunEventStream,
   validateProjectContract,
   type AttachedProject,
   type MutationEnvelope,
   type ProjectValidation,
   type RunGraph,
   type RunRecord,
+  type RunReviewEvidence,
   type WorkbenchEvent,
   type WorkbenchObjective,
 } from '../../../lib/workbench'
 
 function messageOf(error: unknown): string { return error instanceof Error ? error.message : String(error) }
+
+const LAST_RUN_STORAGE_KEY = 'arda.workbench.last-run-id'
+const objectiveStorageKey = (runId: string) => `arda.workbench.objective.${runId}`
 
 export default function WorkbenchModule() {
   const [path, setPath] = useState('')
@@ -31,11 +40,98 @@ export default function WorkbenchModule() {
   const [graph, setGraph] = useState<RunGraph | null>(null)
   const [run, setRun] = useState<RunRecord | null>(null)
   const [events, setEvents] = useState<WorkbenchEvent[]>([])
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
   const [proposalId, setProposalId] = useState('')
   const [approvalId, setApprovalId] = useState('')
+  const [receiptDigest, setReceiptDigest] = useState('')
+  const [evidenceJson, setEvidenceJson] = useState('')
+  const [resumeRunId, setResumeRunId] = useState('')
   const [busy, setBusy] = useState(false)
+  const [streamStatus, setStreamStatus] = useState<'idle' | 'connecting' | 'live' | 'error'>('idle')
   const [message, setMessage] = useState('Validate a typed project contract before attachment.')
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const runId = window.localStorage.getItem(LAST_RUN_STORAGE_KEY)
+    if (!runId) return
+    let cancelled = false
+    setBusy(true)
+    void getWorkbenchRun(runId).then((record) => {
+      if (cancelled) return
+      setRun(record)
+      setGraph(record.graph)
+      setEvents(record.events)
+      const storedObjective = window.localStorage.getItem(objectiveStorageKey(record.graph.run_id))
+      if (storedObjective) {
+        setObjectiveText(storedObjective)
+        setObjective({ schemaVersion: 'arda.workbench.objective.v1', objectiveId: record.graph.objective_id, text: storedObjective, inputMode: 'text' })
+      }
+      setSelectedNodeId(record.graph.nodes.find((node) => node.state !== 'succeeded')?.id ?? record.graph.nodes.at(-1)?.id ?? null)
+      setMessage(`Resumed run ${record.graph.run_id} from the durable harness.`)
+    }).catch((caught) => {
+      if (cancelled) return
+      window.localStorage.removeItem(LAST_RUN_STORAGE_KEY)
+      setError(`Run resume failed: ${messageOf(caught)}`)
+    }).finally(() => {
+      if (!cancelled) setBusy(false)
+    })
+    return () => { cancelled = true }
+  }, [])
+
+  useEffect(() => {
+    const runId = run?.graph.run_id
+    if (runId) window.localStorage.setItem(LAST_RUN_STORAGE_KEY, runId)
+  }, [run?.graph.run_id])
+
+  useEffect(() => {
+    const runId = run?.graph.run_id
+    if (runId && objective?.text) window.localStorage.setItem(objectiveStorageKey(runId), objective.text)
+  }, [run?.graph.run_id, objective?.text])
+
+  useEffect(() => {
+    const runId = run?.graph.run_id
+    if (!runId) return
+    let cancelled = false
+    let unlisteners: UnlistenFn[] = []
+    setStreamStatus('connecting')
+    void Promise.all([
+      listen<WorkbenchEvent>('arda://workbench-run-event', ({ payload }) => {
+        if (cancelled || payload.run_id !== runId) return
+        setStreamStatus('live')
+        setEvents((current) => {
+          if (payload.sequence !== undefined && current.some((event) => event.sequence === payload.sequence)) return current
+          return [...current, payload].sort((left, right) => (left.sequence ?? 0) - (right.sequence ?? 0))
+        })
+        void getWorkbenchRun(runId).then((record) => {
+          if (!cancelled) {
+            setRun(record)
+            setGraph(record.graph)
+          }
+        })
+      }),
+      listen<{ runId: string; error: string }>('arda://workbench-stream-error', ({ payload }) => {
+        if (cancelled || payload.runId !== runId) return
+        setStreamStatus('error')
+        setError(`Run event stream failed: ${payload.error}`)
+      }),
+    ]).then(async (registered) => {
+      if (cancelled) {
+        registered.forEach((unlisten) => unlisten())
+        return
+      }
+      unlisteners = registered
+      await startWorkbenchRunEventStream(runId)
+    }).catch((caught) => {
+      if (!cancelled) {
+        setStreamStatus('error')
+        setError(`Run event stream unavailable: ${messageOf(caught)}`)
+      }
+    })
+    return () => {
+      cancelled = true
+      unlisteners.forEach((unlisten) => unlisten())
+    }
+  }, [run?.graph.run_id])
 
   const envelope = (action: string): MutationEnvelope => {
     if (!proposalId.trim() || !approvalId.trim()) throw new Error('Proposal ID and approval ID are required for mutations')
@@ -46,6 +142,19 @@ export default function WorkbenchModule() {
     setBusy(true); setError(null)
     try { await operation() } catch (caught) { setError(messageOf(caught)) } finally { setBusy(false) }
   }
+  const resume = () => void act(async () => {
+    const runId = resumeRunId.trim()
+    if (!runId) throw new Error('Run ID is required for resume')
+    const record = await getWorkbenchRun(runId)
+    setRun(record); setGraph(record.graph); setEvents(record.events)
+    const storedObjective = window.localStorage.getItem(objectiveStorageKey(record.graph.run_id))
+    if (storedObjective) {
+      setObjectiveText(storedObjective)
+      setObjective({ schemaVersion: 'arda.workbench.objective.v1', objectiveId: record.graph.objective_id, text: storedObjective, inputMode: 'text' })
+    }
+    setSelectedNodeId(record.graph.nodes.find((node) => node.state !== 'succeeded')?.id ?? record.graph.nodes.at(-1)?.id ?? null)
+    setMessage(`Resumed run ${record.graph.run_id} from the durable harness.`)
+  })
   const validate = () => void act(async () => {
     if (!path.startsWith('/')) throw new Error('Project contract path must be an absolute path')
     const result = await validateProjectContract(path)
@@ -63,7 +172,7 @@ export default function WorkbenchModule() {
       const next = createObjective(objectiveText, 'text')
       setObjective(next)
       const nextGraph = buildRunGraph(next, validation?.projectId ?? 'unattached')
-      setGraph(nextGraph); setMessage('Objective captured through the text contract. Voice will feed the same contract later.')
+      setGraph(nextGraph); setSelectedNodeId(nextGraph.nodes[0]?.id ?? null); setMessage('Objective captured through the text contract. Voice will feed the same contract later.')
     } catch (caught) { setError(messageOf(caught)) }
   }
   const plan = () => void act(async () => {
@@ -79,8 +188,30 @@ export default function WorkbenchModule() {
     setEvents(result.events)
     setMessage(`Approval ${nodeId} recorded by the typed harness endpoint.`)
   })
+  const complete = () => void act(async () => {
+    if (!run || !selectedNode) throw new Error('Select a run node before recording a receipt')
+    if (!['execute', 'verify', 'review', 'close'].includes(selectedNode.kind)) throw new Error('The selected node does not accept an operator receipt')
+    if (!receiptDigest.trim()) throw new Error('Receipt digest is required')
+    let evidence: RunReviewEvidence | undefined
+    if (evidenceJson.trim()) {
+      const parsed: unknown = JSON.parse(evidenceJson)
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('Review evidence must be a JSON object')
+      evidence = parsed as RunReviewEvidence
+    }
+    const result = await completeWorkbenchRunNode(run.graph.run_id, selectedNode.id, receiptDigest.trim(), envelope(`complete-${selectedNode.id}`), evidence)
+    setRun(result); setGraph(result.graph); setEvents(result.events)
+    setMessage(`${selectedNode.kind} node ${selectedNode.id} completed with a typed receipt.`)
+  })
+  const executeProvider = () => void act(async () => {
+    if (!run || !selectedNode || selectedNode.kind !== 'execute') throw new Error('Select the execute node before invoking the provider')
+    if (!objective?.text) throw new Error('The captured objective is required for provider execution')
+    const result = await executeWorkbenchProviderNode(run.graph.run_id, selectedNode.id, objective.text, envelope(`provider-${selectedNode.id}`))
+    setRun(result.run); setGraph(result.run.graph); setEvents(result.run.events)
+    setMessage(`Live provider receipt ${String(result.receipt.receipt_digest ?? 'recorded')} correlated to run ${run.graph.run_id}.`)
+  })
 
   const approvals = graph?.nodes.filter((node) => node.kind === 'approval') ?? []
+  const selectedNode = graph?.nodes.find((node) => node.id === selectedNodeId) ?? null
   return (
     <ModuleCard title="Workbench" eyebrow="Governed operator surface" accent="gold">
       <div className="workbench" aria-label="ARDA Workbench">
@@ -94,6 +225,9 @@ export default function WorkbenchModule() {
             {validation.errors.length ? <ul>{validation.errors.map((item) => <li key={item}>{item}</li>)}</ul> : null}
           </div> : null}
           <div className="workbench-approval-fields"><label>Proposal ID<input value={proposalId} onChange={(event) => setProposalId(event.target.value)} /></label><label>Approval ID<input value={approvalId} onChange={(event) => setApprovalId(event.target.value)} /></label></div>
+          <label>Receipt digest<input value={receiptDigest} onChange={(event) => setReceiptDigest(event.target.value)} placeholder="sha256:..." /></label>
+          <label>Review evidence JSON<textarea value={evidenceJson} onChange={(event) => setEvidenceJson(event.target.value)} rows={4} placeholder='{"changes":[],"tests":[],"provider_receipt":null}' /></label>
+          <div className="workbench-approval-fields"><label>Resume run ID<input value={resumeRunId} onChange={(event) => setResumeRunId(event.target.value)} /></label><button type="button" disabled={busy || !resumeRunId.trim()} onClick={resume}>Resume durable run</button></div>
         </section>
         <form className="workbench-panel" onSubmit={capture}>
           <header><h3>Objective</h3><span>{objective?.inputMode ?? 'text first'}</span></header>
@@ -101,8 +235,8 @@ export default function WorkbenchModule() {
           <div className="workbench-actions"><button type="submit">Capture objective</button><button type="button" disabled={busy || !attached || !graph} onClick={plan}>Plan governed run</button></div>
           <small>Voice input will produce the same arda.workbench.objective.v1 contract; it does not bypass this boundary.</small>
         </form>
-        {error ? <p role="alert" className="workbench-error">{error}</p> : null}<p role="status" aria-live="polite">{message}</p>
-        <div className="workbench-first-screen"><RunGraphView graph={graph} /><ApprovalPanel approvals={approvals} busy={busy} onApprove={approve} /><ChangeReview changes={[]} tests={[]} /><RunTimeline events={events} graph={graph} /></div>
+        {error ? <p role="alert" className="workbench-error">{error}</p> : null}<p role="status" aria-live="polite">{message} Run events: {streamStatus}.</p>
+        <div className="workbench-first-screen"><RunGraphView graph={graph} selectedNodeId={selectedNodeId} onSelectNode={(node) => setSelectedNodeId(node.id)} /><ApprovalPanel approvals={approvals} busy={busy} onApprove={approve} /><ChangeReview changes={run?.review?.changes ?? []} tests={run?.review?.tests ?? []} providerReceipt={run?.review?.provider_receipt} selectedNode={selectedNode} events={events} onComplete={complete} onExecuteProvider={executeProvider} busy={busy} /><RunTimeline events={events} graph={graph} /></div>
       </div>
     </ModuleCard>
   )

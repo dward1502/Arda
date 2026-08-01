@@ -157,6 +157,35 @@ fn service_plan_status(root: Option<String>) -> Option<crate::onboarding::types:
     Some(crate::onboarding::build_service_plan(&profile, &root_path))
 }
 
+#[derive(Debug, Serialize)]
+struct ReleaseIdentity {
+    contract: &'static str,
+    version: &'static str,
+    supported_profile: &'static str,
+}
+
+#[tauri::command]
+fn release_identity() -> ReleaseIdentity {
+    ReleaseIdentity {
+        contract: "arda.launcher-release-identity.v1",
+        version: env!("CARGO_PKG_VERSION"),
+        supported_profile: "bluefin-lts-10-x86_64",
+    }
+}
+
+#[cfg(test)]
+mod release_identity_tests {
+    use super::*;
+
+    #[test]
+    fn release_identity_reports_compiled_package_version() {
+        let identity = release_identity();
+        assert_eq!(identity.contract, "arda.launcher-release-identity.v1");
+        assert_eq!(identity.version, env!("CARGO_PKG_VERSION"));
+        assert_eq!(identity.supported_profile, "bluefin-lts-10-x86_64");
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -164,7 +193,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             registry_status,
             readiness_status,
-            service_plan_status
+            service_plan_status,
+            release_identity
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

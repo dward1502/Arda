@@ -9,6 +9,7 @@ interface OnboardingPanelProps {
 export default function OnboardingPanel({ snapshot, error, onClose }: OnboardingPanelProps) {
   const readiness = snapshot?.readiness
   const servicePlan = snapshot?.servicePlan
+  const actionableChecks = readiness?.checks.filter(check => check.status !== 'pass') ?? []
 
   return (
     <section
@@ -54,6 +55,8 @@ export default function OnboardingPanel({ snapshot, error, onClose }: Onboarding
                 <dd>{readiness.summary.pass ?? 0}</dd>
                 <dt className="text-white/50">Warnings</dt>
                 <dd>{readiness.summary.warn ?? 0}</dd>
+                <dt className="text-white/50">Failures</dt>
+                <dd>{readiness.summary.fail ?? 0}</dd>
                 <dt className="text-white/50">Mutation</dt>
                 <dd className="break-words">{readiness.mutation_policy}</dd>
               </dl>
@@ -89,6 +92,36 @@ export default function OnboardingPanel({ snapshot, error, onClose }: Onboarding
               <p className="mt-3 text-xs text-amber-200">Service plan unavailable.</p>
             )}
           </article>
+
+          {actionableChecks.length > 0 && (
+            <article className="rounded border border-white/15 bg-white/[0.03] p-4 md:col-span-2">
+              <h3 className="text-sm uppercase tracking-wider">Actionable diagnostics</h3>
+              <ul className="mt-3 space-y-3">
+                {actionableChecks.map(check => (
+                  <li
+                    key={check.check_id}
+                    className={`rounded border p-3 text-xs ${
+                      check.status === 'fail'
+                        ? 'border-red-400/40 bg-red-950/20'
+                        : 'border-amber-300/30 bg-amber-950/15'
+                    }`}
+                  >
+                    <div className="flex flex-wrap justify-between gap-2">
+                      <span>{check.title}</span>
+                      <span className="uppercase text-white/60">
+                        {check.status} · {check.severity}
+                      </span>
+                    </div>
+                    <p className="mt-1 font-mono text-[10px] text-white/45">{check.check_id}</p>
+                    {check.evidence.length > 0 && (
+                      <p className="mt-2 text-white/60">Evidence: {check.evidence.join('; ')}</p>
+                    )}
+                    <p className="mt-1 text-white/85">Recovery: {check.recommendation}</p>
+                  </li>
+                ))}
+              </ul>
+            </article>
+          )}
         </div>
       )}
     </section>

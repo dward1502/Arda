@@ -1,0 +1,10 @@
+{
+  "artifact_sha256": "e2409c587267caa49ae0506b836a6ae79e9a190c39ed01a30e56a739d08b72da",
+  "checksums": "/tmp/arda-stage5-rc0/repro-a/SHA256SUMS",
+  "contract": "arda.release-manifest.v1",
+  "manifest": "/tmp/arda-stage5-rc0/repro-a/release-manifest.json",
+  "manifest_sha256": "af93b901c768669dbb0fe63334a47c465f9fcd1d107abef7730537abe59ecf96",
+  "operation": "release-manifest",
+  "release_id": "sha256:a1721c7ed7b2ee37132ab80e0d0579b4bfae587ec23a508d3b564b20ef453ac8",
+  "status": "ok"
+}

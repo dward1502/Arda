@@ -1,9 +1,19 @@
+use futures_util::StreamExt;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_json::Value;
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::sync::Mutex;
+use tauri::Emitter;
 
 const DEFAULT_HARNESS_URL: &str = "http://127.0.0.1:7878";
+pub const WORKBENCH_RUN_EVENT: &str = "arda://workbench-run-event";
+pub const WORKBENCH_STREAM_ERROR: &str = "arda://workbench-stream-error";
+
+#[derive(Default)]
+pub struct WorkbenchEventStreamState {
+    task: Mutex<Option<tauri::async_runtime::JoinHandle<()>>>,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
@@ -104,6 +114,40 @@ pub struct RunGraph {
 pub struct RunRecord {
     pub graph: RunGraph,
     pub events: Vec<Value>,
+    pub review: RunReviewEvidence,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct RunReviewEvidence {
+    pub changes: Vec<ChangeEvidence>,
+    pub tests: Vec<TestEvidence>,
+    pub provider_receipt: Option<ProviderReceiptEvidence>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ChangeEvidence {
+    pub path: String,
+    pub status: String,
+    pub additions: u64,
+    pub deletions: u64,
+    pub diff: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TestEvidence {
+    pub name: String,
+    pub status: String,
+    pub duration_ms: Option<u64>,
+    pub details: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ProviderReceiptEvidence {
+    pub provider: String,
+    pub model: String,
+    pub adapter: String,
+    pub receipt_digest: String,
+    pub summary: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -118,6 +162,29 @@ pub struct ApproveRunRequest {
     pub run_id: String,
     pub node_id: String,
     pub envelope: MutationEnvelope,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CompleteRunNodeRequest {
+    pub run_id: String,
+    pub node_id: String,
+    pub receipt_digest: String,
+    pub envelope: MutationEnvelope,
+    pub evidence: Option<RunReviewEvidence>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ExecuteProviderNodeRequest {
+    pub run_id: String,
+    pub node_id: String,
+    pub objective: String,
+    pub envelope: MutationEnvelope,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ExecuteProviderNodeResponse {
+    pub run: RunRecord,
+    pub receipt: Value,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -152,6 +219,20 @@ struct AttachRequest<'a> {
 #[derive(Serialize)]
 struct ApproveRequest<'a> {
     node_id: &'a str,
+    envelope: &'a MutationEnvelope,
+}
+
+#[derive(Serialize)]
+struct CompleteRequest<'a> {
+    receipt_digest: &'a str,
+    envelope: &'a MutationEnvelope,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    evidence: Option<&'a RunReviewEvidence>,
+}
+
+#[derive(Serialize)]
+struct ExecuteProviderRequest<'a> {
+    objective: &'a str,
     envelope: &'a MutationEnvelope,
 }
 
@@ -379,6 +460,46 @@ pub async fn approve_workbench_run(request: ApproveRunRequest) -> Result<RunReco
 }
 
 #[tauri::command]
+pub async fn complete_workbench_run_node(
+    request: CompleteRunNodeRequest,
+) -> Result<RunRecord, String> {
+    let run_id = checked_id(&request.run_id, "run_id")?;
+    let node_id = checked_id(&request.node_id, "node_id")?;
+    if request.receipt_digest.trim().is_empty() {
+        return Err("receipt_digest is required".to_string());
+    }
+    let body = CompleteRequest {
+        receipt_digest: &request.receipt_digest,
+        envelope: &request.envelope,
+        evidence: request.evidence.as_ref(),
+    };
+    post_json(
+        &format!("/v1/runs/{run_id}/nodes/{node_id}/complete"),
+        &body,
+    )
+    .await
+}
+
+#[tauri::command]
+pub async fn execute_workbench_provider_node(
+    request: ExecuteProviderNodeRequest,
+) -> Result<ExecuteProviderNodeResponse, String> {
+    let run_id = checked_id(&request.run_id, "run_id")?;
+    let node_id = checked_id(&request.node_id, "node_id")?;
+    if request.objective.trim().is_empty() {
+        return Err("provider objective is required".to_string());
+    }
+    post_json(
+        &format!("/v1/runs/{run_id}/nodes/{node_id}/execute-provider"),
+        &ExecuteProviderRequest {
+            objective: request.objective.trim(),
+            envelope: &request.envelope,
+        },
+    )
+    .await
+}
+
+#[tauri::command]
 pub async fn cancel_workbench_run(request: CancelRunRequest) -> Result<RunRecord, String> {
     let run_id = checked_id(&request.run_id, "run_id")?;
     post_json(
@@ -401,6 +522,74 @@ pub async fn get_workbench_run(run_id: String) -> Result<RunRecord, String> {
 pub async fn get_workbench_run_events(run_id: String) -> Result<RunEventsResponse, String> {
     let run_id = checked_id(&run_id, "run_id")?;
     get_json(&format!("/v1/runs/{run_id}/events")).await
+}
+
+fn take_sse_events(buffer: &mut Vec<u8>) -> Vec<Value> {
+    let mut events = Vec::new();
+    while let Some(end) = buffer.windows(2).position(|window| window == b"\n\n") {
+        let frame: Vec<u8> = buffer.drain(..end + 2).collect();
+        let Ok(frame) = std::str::from_utf8(&frame) else {
+            continue;
+        };
+        let data = frame
+            .lines()
+            .filter_map(|line| line.strip_prefix("data:"))
+            .map(str::trim_start)
+            .collect::<Vec<_>>()
+            .join("\n");
+        if let Ok(event) = serde_json::from_str(&data) {
+            events.push(event);
+        }
+    }
+    events
+}
+
+#[tauri::command]
+pub async fn start_workbench_run_event_stream(
+    app: tauri::AppHandle,
+    state: tauri::State<'_, WorkbenchEventStreamState>,
+    run_id: String,
+) -> Result<(), String> {
+    let run_id = checked_id(&run_id, "run_id")?.to_string();
+    let response = reqwest::Client::new()
+        .get(endpoint(&format!("/v1/runs/{run_id}/events/stream")))
+        .send()
+        .await
+        .map_err(|error| format!("Unable to reach the ARDA run event stream: {error}"))?
+        .error_for_status()
+        .map_err(|error| format!("ARDA run event stream rejected the request: {error}"))?;
+    let mut stream = response.bytes_stream();
+    let task = tauri::async_runtime::spawn(async move {
+        let mut buffer = Vec::new();
+        while let Some(chunk) = stream.next().await {
+            match chunk {
+                Ok(chunk) => {
+                    buffer.extend_from_slice(&chunk);
+                    for event in take_sse_events(&mut buffer) {
+                        if app.emit(WORKBENCH_RUN_EVENT, event).is_err() {
+                            return;
+                        }
+                    }
+                }
+                Err(error) => {
+                    let _ = app.emit(
+                        WORKBENCH_STREAM_ERROR,
+                        serde_json::json!({"runId": run_id, "error": error.to_string()}),
+                    );
+                    return;
+                }
+            }
+        }
+    });
+
+    let mut current = state
+        .task
+        .lock()
+        .map_err(|_| "workbench event stream lock was poisoned".to_string())?;
+    if let Some(previous) = current.replace(task) {
+        previous.abort();
+    }
+    Ok(())
 }
 
 #[cfg(test)]
@@ -487,5 +676,63 @@ mod tests {
         assert_eq!(payload.as_object().map(|value| value.len()), Some(2));
         assert!(payload.get("shell").is_none());
         assert!(payload.get("command").is_none());
+    }
+
+    #[test]
+    fn completion_payload_contains_only_receipt_and_typed_envelope() {
+        let envelope = MutationEnvelope {
+            approval: TaskApproval {
+                schema_version: "arda.orome.task_approval.v1".into(),
+                proposal_id: "proposal-1".into(),
+                approval_id: "approval-1".into(),
+                ledger_writes: vec![],
+                decision: "policy_safe".into(),
+                created_at_utc: "2026-07-31T00:00:00Z".into(),
+            },
+            idempotency_key: "complete-1".into(),
+        };
+        let payload = serde_json::to_value(CompleteRequest {
+            receipt_digest: "sha256:receipt",
+            envelope: &envelope,
+            evidence: None,
+        })
+        .expect("serialize completion payload");
+        assert_eq!(payload.as_object().map(|value| value.len()), Some(2));
+        assert_eq!(payload["receipt_digest"], "sha256:receipt");
+        assert!(payload.get("shell").is_none());
+        assert!(payload.get("command").is_none());
+    }
+
+    #[test]
+    fn provider_execution_payload_contains_only_objective_and_typed_envelope() {
+        let envelope = MutationEnvelope {
+            approval: TaskApproval {
+                schema_version: "arda.orome.task_approval.v1".into(),
+                proposal_id: "proposal-1".into(),
+                approval_id: "approval-1".into(),
+                ledger_writes: vec![],
+                decision: "policy_safe".into(),
+                created_at_utc: "2026-07-31T00:00:00Z".into(),
+            },
+            idempotency_key: "execute-provider-1".into(),
+        };
+        let payload = serde_json::to_value(ExecuteProviderRequest {
+            objective: "Apply the approved bounded change.",
+            envelope: &envelope,
+        })
+        .expect("serialize provider execution payload");
+        assert_eq!(payload.as_object().map(|value| value.len()), Some(2));
+        assert_eq!(payload["objective"], "Apply the approved bounded change.");
+        assert!(payload.get("shell").is_none());
+        assert!(payload.get("adapter_config").is_none());
+    }
+
+    #[test]
+    fn sse_parser_handles_chunk_boundaries_and_ignores_non_data_frames() {
+        let mut buffer = b"event: run_event\ndata: {\"sequence\":1}\n\nevent: run_".to_vec();
+        assert_eq!(take_sse_events(&mut buffer), [json!({"sequence": 1})]);
+        buffer.extend_from_slice(b"event\ndata: {\"sequence\":2}\n\n: keep-alive\n\n");
+        assert_eq!(take_sse_events(&mut buffer), [json!({"sequence": 2})]);
+        assert!(buffer.is_empty());
     }
 }

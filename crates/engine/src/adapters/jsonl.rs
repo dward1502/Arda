@@ -71,6 +71,13 @@ impl JsonlAdapter {
                 "timeout must be greater than zero".into(),
             ));
         }
+        if config.expected_adapter.trim().is_empty()
+            || config.expected_adapter_version.trim().is_empty()
+        {
+            return Err(AdapterError::InvalidConfig(
+                "expected adapter identity and version must be non-empty".into(),
+            ));
+        }
         if config.max_line_bytes < 256 {
             return Err(AdapterError::InvalidConfig(
                 "max_line_bytes must be at least 256".into(),
@@ -190,6 +197,16 @@ impl JsonlAdapter {
         .await?;
         let initialized = read_frame(reader, self.config.max_line_bytes, cancellation).await?;
         expect_response(&initialized, "initialized", &initialize_id)?;
+        let adapter = required_string(&initialized, "adapter")?;
+        let adapter_version = required_string(&initialized, "adapter_version")?;
+        if adapter != self.config.expected_adapter
+            || adapter_version != self.config.expected_adapter_version
+        {
+            return Err(AdapterError::Protocol(format!(
+                "adapter identity mismatch: expected {}@{}, received {adapter}@{adapter_version}",
+                self.config.expected_adapter, self.config.expected_adapter_version
+            )));
+        }
         let advertised = string_set(&initialized, "capabilities")?;
         if !advertised.is_subset(&self.config.capabilities) {
             return Err(AdapterError::Protocol(
@@ -321,6 +338,17 @@ impl JsonlAdapter {
             return Err(AdapterError::Protocol(
                 "provenance cwd does not match configured cwd".into(),
             ));
+        }
+        if provenance.adapter != self.config.expected_adapter
+            || provenance.adapter_version != self.config.expected_adapter_version
+        {
+            return Err(AdapterError::Protocol(format!(
+                "result provenance identity mismatch: expected {}@{}, received {}@{}",
+                self.config.expected_adapter,
+                self.config.expected_adapter_version,
+                provenance.adapter,
+                provenance.adapter_version
+            )));
         }
         let digest = provenance.request_digest.strip_prefix("sha256:");
         if !matches!(digest, Some(value) if value.len() == 64 && value.bytes().all(|byte| byte.is_ascii_hexdigit() && !byte.is_ascii_uppercase()))

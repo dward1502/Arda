@@ -1,0 +1,126 @@
+{
+  "contract": "arda.stage4.workstream6.clean_profile_container_evidence.v1",
+  "generated_at_utc": "2026-07-31T20:45:48Z",
+  "source": {
+    "branch": "manwe",
+    "commit": "557e4eea4d927d93e43fb3cd301aa5333edca587",
+    "worktree_was_dirty_before_run": true,
+    "container_mount": {
+      "target": "/arda",
+      "read_only": true,
+      "mount_options_included": "ro"
+    }
+  },
+  "environment": {
+    "host": "Linux 6.17.12-200.fc42.x86_64 x86_64 GNU/Linux",
+    "clean_userspace": "Fedora Linux 44 Toolbx container image",
+    "isolation": "fresh rootless Podman container with a dedicated empty HOME and no inherited XDG state",
+    "network_during_dependency_install": "host network",
+    "network_during_initial_degraded_probe": "disabled",
+    "boundary": "Clean Linux userspace/profile evidence with native X11 display forwarding; not an independent VM and not an external evaluator account."
+  },
+  "artifact": {
+    "path_in_container": "/release/arda-launcher",
+    "sha256": "31e5d3909f3d79ba2e0ca94f94be4917dfa01959cc385b9c0bc0bd9f900a79d0",
+    "installed_sha256_matched": true,
+    "dynamically_linked": true
+  },
+  "degraded_readiness": {
+    "initial_gate_status": "fail",
+    "initial_summary": {
+      "fail": 2,
+      "pass": 6,
+      "warn": 2
+    },
+    "observed_launcher_failure": "libgdk-3.so.0: cannot open shared object file",
+    "defect_found": "Readiness previously checked only the executable bit and did not detect unresolved native shared libraries.",
+    "repair": "Added a high-severity launcher.dynamic_libraries ldd check and documented Fedora and Debian-family GTK3/WebKitGTK runtime packages.",
+    "post_repair_missing_library_evidence": "missing shared libraries: libcairo.so.2, libdbus-1.so.3, libgdk-3.so.0, libgdk_pixbuf-2.0.so.0, libgtk-3.so.0, libjavascriptcoregtk-4.1.so.0, libsoup-3.0.so.0, libwebkit2gtk-4.1.so.0",
+    "recovery_instruction": "Install the documented GTK3 and WebKitGTK 4.1 runtime packages, then rerun readiness."
+  },
+  "ready_install": {
+    "install_status": "ok",
+    "gate_status": "pass",
+    "summary": {
+      "fail": 0,
+      "pass": 11,
+      "warn": 0
+    },
+    "native_shared_libraries": "all resolved",
+    "native_x11_smoke": {
+      "result": "survived five-second bounded interval and was terminated by timeout",
+      "exit_code": 124,
+      "nonfatal_warnings": [
+        "AT-SPI bus unavailable inside isolated container",
+        "EGL DRI2 screen unavailable inside isolated container"
+      ],
+      "click_through_claimed": false
+    }
+  },
+  "backup": {
+    "status": "ok",
+    "archive_sha256": "0800e41e71e585724fff03d2ea7a4c62ef7489cb5a5071967121d009858660a2",
+    "file_count": 2,
+    "excluded_secret_count": 1,
+    "members": [
+      "config/settings.toml",
+      "data/runs.jsonl",
+      "manifest.json"
+    ],
+    "secret_canary_absent": true
+  },
+  "reset": {
+    "status": "ok",
+    "backup_sha256": "0f55b66906d5e33bd074f6df2214dd55f17fec4b56b8f2fcc1e83b2b51cfc6ad",
+    "quarantined_kinds": [
+      "cache",
+      "config",
+      "data",
+      "launcher_data",
+      "runtime"
+    ],
+    "source_repository_touched": false,
+    "defect_found": "Native startup creates WebKit state under the previously undocumented XDG data root arda.launcher.",
+    "repair": "Added launcher_data to the validated readiness projection and safe-reset quarantine boundary; documented its override and retention policy."
+  },
+  "restore": {
+    "status": "ok",
+    "file_count": 2,
+    "settings_restored": true,
+    "run_restored": true,
+    "excluded_secret_restored": false
+  },
+  "diagnostics": {
+    "status": "ok",
+    "archive_sha256": "e0b72c83f686817ba512ebb4db456d7c0840a7a9ea22d890974fcf7cf11bbe02",
+    "members": [
+      "config-redacted/settings.toml",
+      "diagnostics.json"
+    ],
+    "secret_canaries_absent": true,
+    "selected_home_path_absent": true,
+    "source_path_absent": true
+  },
+  "uninstall": {
+    "status": "ok",
+    "launcher_binary_removed": true,
+    "launcher_symlink_removed": true,
+    "desktop_entry_removed": true,
+    "restored_state_preserved": true,
+    "source_repository_touched": false,
+    "defect_found": "Resolving an existing managed launcher symlink during layout construction aliased install_bin to its target and left a broken command symlink.",
+    "repair": "Managed launcher and desktop paths now remain lexical; a fresh-layout regression test proves uninstall removes the symlink."
+  },
+  "verification": {
+    "unit_tests": "python3 -m unittest tests.test_arda_beta_ops -v: 11 passed",
+    "container_sequence_exit_code": 0,
+    "source_mount_read_only": true,
+    "undocumented_manual_state_edits_required": false
+  },
+  "limitations": [
+    "This is a clean rootless container profile with an independent Fedora userspace, not a full VM or a separately logged-in human OS account.",
+    "The Manwe endpoint was configured for readiness classification but no provider request was made by this Workstream 6 run.",
+    "The native process smoke proves startup only; native objective-to-review click-through is covered by the separate Gate 3 evidence.",
+    "The invited external-evaluator gate remains open."
+  ]
+}

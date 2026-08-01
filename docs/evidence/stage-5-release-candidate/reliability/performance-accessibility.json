@@ -1,6 +1,6 @@
 {
   "contract": "arda.stage5.performance-accessibility.v1",
-  "generated_at_utc": "2026-08-01T06:14:34Z",
+  "generated_at_utc": "2026-08-01T18:21:23Z",
   "status": "partial",
   "automated_accessibility": {
     "status": "pass",
@@ -40,16 +40,43 @@
     "diagnostic_bundle_budget_bytes": 1048576
   },
   "native_measurements": {
-    "status": "blocked",
-    "cold_start": null,
-    "idle_resource_use": null,
-    "operator_setup_recovery_walkthrough": null,
-    "blocker": "Native launcher invocation from the automation shell failed before startup: Gdk Error 71 (Protocol error) dispatching to Wayland display.",
-    "required_closure": "Run startup, sustained idle measurement, and guided setup/recovery click-through in a healthy graphical login."
+    "status": "pass",
+    "runtime_backend": "x11",
+    "cold_start": {
+      "observed_seconds": 0.706,
+      "budget_seconds_max": 2.0,
+      "status": "pass"
+    },
+    "idle_resource_use": {
+      "measurement_seconds": 300.246,
+      "aggregate_rss_start_mib": 391.33,
+      "aggregate_rss_end_mib": 422.0,
+      "aggregate_rss_peak_mib": 440.78,
+      "aggregate_rss_peak_budget_mib": 512.0,
+      "post_warmup_growth_mib": 4.2,
+      "post_warmup_growth_budget_mib": 64.0,
+      "webkit_cpu_one_core_percent": 2.58,
+      "webkit_cpu_one_core_percent_budget": 10.0,
+      "status": "pass"
+    },
+    "operator_setup_recovery_walkthrough": {
+      "status": "pass",
+      "dialog_role_and_name_exposed": true,
+      "setup_and_recovery_text_exposed": true,
+      "initial_focus_close": true,
+      "tab_contained": true,
+      "shift_tab_contained": true,
+      "escape_closes": true,
+      "focus_restored_to_trigger": true
+    },
+    "non_blocking_warning": "WebKitGTK reported one failed 800x600 GBM allocation, then remained operational on the hardware-backed X11 path.",
+    "rejected_runtime_configuration": "Disabling the DMABUF renderer caused 124.36 MiB/min RSS growth and 46.8% WebKit CPU; it is retained only as failed stress evidence and is not the accepted launch path."
   },
   "evidence": {
     "short_soak": "docs/evidence/stage-5-release-candidate/reliability/soak-smoke-final.json",
     "accessibility_test": "apps/arda-hud/src/components/arda/modules/WorkbenchModule.accessibility.test.tsx",
+    "native_walkthrough": "docs/evidence/stage-5-release-candidate/reliability/native-launcher-walkthrough.json",
+    "native_idle_metrics": "docs/evidence/stage-5-release-candidate/reliability/native-launcher-metrics.json",
     "support_exercise": "docs/evidence/stage-5-release-candidate/support/support-exercise.json",
     "long_soak": "docs/evidence/stage-5-release-candidate/reliability/soak-24h.json (in progress)"
   }

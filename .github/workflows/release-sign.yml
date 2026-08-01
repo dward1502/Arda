@@ -1,0 +1,104 @@
+name: Sign release assets
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  sign:
+    name: Keyless sign published release assets
+    runs-on: ubuntu-24.04
+    environment: production-release
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: Check out the release tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          persist-credentials: false
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6
+
+      - name: Download the exact release asset allowlist
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+          version="${TAG#v}"
+          test "$version" != "$TAG"
+          mkdir -p release-assets
+          assets=(
+            "arda-launcher_${version}_amd64.AppImage"
+            "arda-launcher_${version}_amd64.deb"
+            "arda-launcher-${version}-1.x86_64.rpm"
+            "release-sbom.json"
+            "release-bundle-manifest.json"
+            "SHA256SUMS"
+          )
+          for asset in "${assets[@]}"; do
+            gh release download "$TAG" --dir release-assets --pattern "$asset"
+          done
+          test "$(find release-assets -maxdepth 1 -type f | wc -l)" -eq 6
+
+      - name: Verify release identity and checksums
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+          python3 - "$TAG" <<'PY'
+          import json
+          import subprocess
+          import sys
+          from pathlib import Path
+
+          tag = sys.argv[1]
+          version = tag.removeprefix("v")
+          manifest = json.loads(Path("release-assets/release-bundle-manifest.json").read_text())
+          commit = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+          if manifest["version"] != version:
+              raise SystemExit("release tag/version mismatch")
+          if manifest["build_inputs"]["source_commit"] != commit:
+              raise SystemExit("release tag/source commit mismatch")
+          PY
+          python3 scripts/arda_release_ops.py verify-checksums \
+            --checksums release-assets/SHA256SUMS \
+            --artifact-dir release-assets
+
+      - name: Sign and verify the release assets
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+          identity="https://github.com/dward1502/Arda/.github/workflows/release-sign.yml@refs/tags/${TAG}"
+          issuer="https://token.actions.githubusercontent.com"
+          assets=(
+            release-assets/arda-launcher_*.AppImage
+            release-assets/arda-launcher_*.deb
+            release-assets/arda-launcher-*.rpm
+            release-assets/release-sbom.json
+            release-assets/release-bundle-manifest.json
+            release-assets/SHA256SUMS
+          )
+          for asset in "${assets[@]}"; do
+            bundle="${asset}.sigstore.json"
+            cosign sign-blob "$asset" --bundle "$bundle" --yes
+            cosign verify-blob "$asset" \
+              --bundle "$bundle" \
+              --certificate-identity "$identity" \
+              --certificate-oidc-issuer "$issuer"
+          done
+
+      - name: Upload detached Sigstore bundles
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+          gh release upload "$TAG" release-assets/*.sigstore.json

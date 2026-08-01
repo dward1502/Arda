@@ -26,9 +26,8 @@
     }
   ],
   "blockers": [
-    "DEB and RPM output is not byte-reproducible from identical fixed-epoch inputs.",
-    "Repository declares MIT metadata but has no top-level LICENSE text.",
-    "Candidate signatures use an ephemeral RC key; production signing custody is not configured."
+    "The production-release GitHub environment and main-branch protection are not configured remotely.",
+    "Final normalized artifacts require a successful tag-bound keyless signing workflow run."
   ],
   "canonical_artifact": "arda-launcher_0.3.0-rc.0_amd64.AppImage",
   "checksums": {
@@ -46,13 +45,15 @@
     "deb": {
       "build_a_sha256": "9b9adb71f88efb5335eef6657ddc4ceb86aadab6a4c8775291c6e7b9d05d3490",
       "build_b_sha256": "99bdab4cfcda35586a622f747a1b1bc15edcf11b03b2382321d61ac08c58deb5",
-      "status": "blocked-nondeterministic"
+      "normalized_sha256": "e2c91f01d20cc9487e93bf593022f9ec170082420a3d76669e7188be12d668b8",
+      "status": "pass-byte-identical-after-normalization"
     },
     "manifest": "pass-byte-identical",
     "rpm": {
       "build_a_sha256": "1da6112fc34b3cd607ccd96f42ca92b99173623a3962e50090c9a5c22574e777",
       "build_b_sha256": "005eec26591c4fdffe6652530aac510754e4b312051c5e96cee6cb7df35f8720",
-      "status": "blocked-nondeterministic"
+      "normalized_sha256": "c7a287e045d94e4987f4fd3f5340f5316783c7c64b3934d791075fd60f8b7b19",
+      "status": "pass-byte-identical-after-normalization"
     },
     "source_date_epoch": 1785518374
   },
@@ -63,7 +64,11 @@
     "status": "pass"
   },
   "signing": {
+    "normalized_linux_packages_signed": false,
     "private_key_retained": false,
+    "production_certificate_identity": "https://github.com/dward1502/Arda/.github/workflows/release-sign.yml@refs/tags/<tag>",
+    "production_oidc_issuer": "https://token.actions.githubusercontent.com",
+    "production_scheme": "sigstore-keyless-github-oidc",
     "production_trust_ready": false,
     "public_key_sha256": "17cb3cd65bd5a99e40ea036de84a9862be059c702f94751b2252b736587568a9",
     "scheme": "cosign-blob-bundle",

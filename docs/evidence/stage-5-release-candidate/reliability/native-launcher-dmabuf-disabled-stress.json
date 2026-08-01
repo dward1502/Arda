@@ -1,0 +1,272 @@
+{
+  "contract": "arda.stage5.native-metrics.v1",
+  "started_at_utc": "2026-08-01T08:54:08.551559+00:00",
+  "launcher_pid": 2762360,
+  "cold_start_seconds": 0.8749593399988953,
+  "samples": [
+    {
+      "elapsed_seconds": 0.906,
+      "aggregate_rss_kib": 355268,
+      "processes": [
+        {
+          "pid": 2762360,
+          "name": "arda-launcher",
+          "rss_kib": 129072,
+          "cpu_ticks": 17
+        },
+        {
+          "pid": 2762393,
+          "name": "WebKitNetworkPr",
+          "rss_kib": 46156,
+          "cpu_ticks": 5
+        },
+        {
+          "pid": 2762399,
+          "name": "WebKitWebProces",
+          "rss_kib": 180040,
+          "cpu_ticks": 24
+        }
+      ]
+    },
+    {
+      "elapsed_seconds": 30.94,
+      "aggregate_rss_kib": 466132,
+      "processes": [
+        {
+          "pid": 2762360,
+          "name": "arda-launcher",
+          "rss_kib": 129624,
+          "cpu_ticks": 137
+        },
+        {
+          "pid": 2762393,
+          "name": "WebKitNetworkPr",
+          "rss_kib": 46232,
+          "cpu_ticks": 10
+        },
+        {
+          "pid": 2762399,
+          "name": "WebKitWebProces",
+          "rss_kib": 290276,
+          "cpu_ticks": 1124
+        }
+      ]
+    },
+    {
+      "elapsed_seconds": 60.969,
+      "aggregate_rss_kib": 543424,
+      "processes": [
+        {
+          "pid": 2762360,
+          "name": "arda-launcher",
+          "rss_kib": 129828,
+          "cpu_ticks": 261
+        },
+        {
+          "pid": 2762393,
+          "name": "WebKitNetworkPr",
+          "rss_kib": 46232,
+          "cpu_ticks": 16
+        },
+        {
+          "pid": 2762399,
+          "name": "WebKitWebProces",
+          "rss_kib": 367364,
+          "cpu_ticks": 2682
+        }
+      ]
+    },
+    {
+      "elapsed_seconds": 90.999,
+      "aggregate_rss_kib": 583672,
+      "processes": [
+        {
+          "pid": 2762360,
+          "name": "arda-launcher",
+          "rss_kib": 129828,
+          "cpu_ticks": 383
+        },
+        {
+          "pid": 2762393,
+          "name": "WebKitNetworkPr",
+          "rss_kib": 46232,
+          "cpu_ticks": 21
+        },
+        {
+          "pid": 2762399,
+          "name": "WebKitWebProces",
+          "rss_kib": 407612,
+          "cpu_ticks": 4206
+        }
+      ]
+    },
+    {
+      "elapsed_seconds": 121.026,
+      "aggregate_rss_kib": 648416,
+      "processes": [
+        {
+          "pid": 2762360,
+          "name": "arda-launcher",
+          "rss_kib": 129824,
+          "cpu_ticks": 516
+        },
+        {
+          "pid": 2762393,
+          "name": "WebKitNetworkPr",
+          "rss_kib": 46280,
+          "cpu_ticks": 26
+        },
+        {
+          "pid": 2762399,
+          "name": "WebKitWebProces",
+          "rss_kib": 472312,
+          "cpu_ticks": 5738
+        }
+      ]
+    },
+    {
+      "elapsed_seconds": 151.055,
+      "aggregate_rss_kib": 707980,
+      "processes": [
+        {
+          "pid": 2762360,
+          "name": "arda-launcher",
+          "rss_kib": 129892,
+          "cpu_ticks": 631
+        },
+        {
+          "pid": 2762393,
+          "name": "WebKitNetworkPr",
+          "rss_kib": 46296,
+          "cpu_ticks": 32
+        },
+        {
+          "pid": 2762399,
+          "name": "WebKitWebProces",
+          "rss_kib": 531792,
+          "cpu_ticks": 7150
+        }
+      ]
+    },
+    {
+      "elapsed_seconds": 181.085,
+      "aggregate_rss_kib": 772124,
+      "processes": [
+        {
+          "pid": 2762360,
+          "name": "arda-launcher",
+          "rss_kib": 130240,
+          "cpu_ticks": 787
+        },
+        {
+          "pid": 2762393,
+          "name": "WebKitNetworkPr",
+          "rss_kib": 46280,
+          "cpu_ticks": 37
+        },
+        {
+          "pid": 2762399,
+          "name": "WebKitWebProces",
+          "rss_kib": 595604,
+          "cpu_ticks": 8635
+        }
+      ]
+    },
+    {
+      "elapsed_seconds": 211.11,
+      "aggregate_rss_kib": 823836,
+      "processes": [
+        {
+          "pid": 2762360,
+          "name": "arda-launcher",
+          "rss_kib": 130304,
+          "cpu_ticks": 919
+        },
+        {
+          "pid": 2762393,
+          "name": "WebKitNetworkPr",
+          "rss_kib": 46280,
+          "cpu_ticks": 43
+        },
+        {
+          "pid": 2762399,
+          "name": "WebKitWebProces",
+          "rss_kib": 647252,
+          "cpu_ticks": 9938
+        }
+      ]
+    },
+    {
+      "elapsed_seconds": 241.134,
+      "aggregate_rss_kib": 881508,
+      "processes": [
+        {
+          "pid": 2762360,
+          "name": "arda-launcher",
+          "rss_kib": 130304,
+          "cpu_ticks": 1049
+        },
+        {
+          "pid": 2762393,
+          "name": "WebKitNetworkPr",
+          "rss_kib": 46296,
+          "cpu_ticks": 49
+        },
+        {
+          "pid": 2762399,
+          "name": "WebKitWebProces",
+          "rss_kib": 704908,
+          "cpu_ticks": 11256
+        }
+      ]
+    },
+    {
+      "elapsed_seconds": 271.173,
+      "aggregate_rss_kib": 941164,
+      "processes": [
+        {
+          "pid": 2762360,
+          "name": "arda-launcher",
+          "rss_kib": 130304,
+          "cpu_ticks": 1190
+        },
+        {
+          "pid": 2762393,
+          "name": "WebKitNetworkPr",
+          "rss_kib": 46280,
+          "cpu_ticks": 54
+        },
+        {
+          "pid": 2762399,
+          "name": "WebKitWebProces",
+          "rss_kib": 764580,
+          "cpu_ticks": 12624
+        }
+      ]
+    },
+    {
+      "elapsed_seconds": 301.197,
+      "aggregate_rss_kib": 992584,
+      "processes": [
+        {
+          "pid": 2762360,
+          "name": "arda-launcher",
+          "rss_kib": 130308,
+          "cpu_ticks": 1343
+        },
+        {
+          "pid": 2762393,
+          "name": "WebKitNetworkPr",
+          "rss_kib": 46296,
+          "cpu_ticks": 61
+        },
+        {
+          "pid": 2762399,
+          "name": "WebKitWebProces",
+          "rss_kib": 815980,
+          "cpu_ticks": 14077
+        }
+      ]
+    }
+  ]
+}

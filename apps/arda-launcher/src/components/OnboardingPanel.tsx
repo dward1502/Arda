@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import type { OnboardingSnapshot } from '../lib/tauri-core-compat'
 
 interface OnboardingPanelProps {
@@ -7,12 +8,52 @@ interface OnboardingPanelProps {
 }
 
 export default function OnboardingPanel({ snapshot, error, onClose }: OnboardingPanelProps) {
+  const panelRef = useRef<HTMLElement>(null)
   const readiness = snapshot?.readiness
   const servicePlan = snapshot?.servicePlan
   const actionableChecks = readiness?.checks.filter(check => check.status !== 'pass') ?? []
 
+  useEffect(() => {
+    const panel = panelRef.current
+    if (!panel) return
+
+    const focusableSelector = 'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])'
+    const focusable = () => Array.from(panel.querySelectorAll<HTMLElement>(focusableSelector))
+    focusable()[0]?.focus()
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        onClose()
+        return
+      }
+      if (event.key !== 'Tab') return
+
+      const controls = focusable()
+      if (controls.length === 0) return
+
+      event.preventDefault()
+      const activeIndex = controls.indexOf(document.activeElement as HTMLElement)
+      const nextIndex = event.shiftKey
+        ? activeIndex <= 0
+          ? controls.length - 1
+          : activeIndex - 1
+        : activeIndex < 0 || activeIndex === controls.length - 1
+          ? 0
+          : activeIndex + 1
+      controls[nextIndex].focus()
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [onClose])
+
   return (
     <section
+      ref={panelRef}
+      id="operator-onboarding-status"
+      role="dialog"
+      aria-modal="true"
       aria-label="Operator onboarding status"
       aria-live="polite"
       className="absolute inset-x-4 top-4 z-50 mx-auto max-h-[70vh] max-w-3xl overflow-y-auto rounded border border-[#f4e9d8]/30 bg-black/90 p-5 font-mono text-[#f4e9d8] shadow-2xl backdrop-blur"

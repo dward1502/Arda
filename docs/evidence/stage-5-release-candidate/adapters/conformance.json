@@ -2,14 +2,14 @@
   "commands": [
     {
       "command": [
-        "/usr/bin/python3",
+        "/var/home/mythos/.cache/uv/builds-v0/.tmp9oMCKl/bin/python",
         "-m",
         "unittest",
         "sdk.python.tests.test_conformance",
         "-v"
       ],
-      "elapsed_seconds": 0.567731,
-      "output_sha256": "9ba8d4f77aa2e50105a96b85e4b3b3cb11e06470b6a7a02df2a300667c601a3f",
+      "elapsed_seconds": 0.770468,
+      "output_sha256": "040b7c8b2d3fc06ba606aba79df11d473fe829c2bcd11b2c5e7ad86bc1f1aec6",
       "returncode": 0
     },
     {
@@ -23,8 +23,8 @@
         "--",
         "--test-threads=1"
       ],
-      "elapsed_seconds": 0.55925,
-      "output_sha256": "ba0b1d229a92faa59ea7948b7b85517a662141fe98990b854dc6d8727d3162db",
+      "elapsed_seconds": 33.760699,
+      "output_sha256": "be890bc7d21b15eb4d5b466fe62be519dffb16a2790f44ed17244d5c7636c7a2",
       "returncode": 0
     },
     {
@@ -34,8 +34,8 @@
         "-p",
         "arda-project-adapter-sdk"
       ],
-      "elapsed_seconds": 0.144354,
-      "output_sha256": "09ddca93e0e5dca2eb8d284fe4c877677f8e89cc3712c28155547859e133316f",
+      "elapsed_seconds": 0.142294,
+      "output_sha256": "6f7c96973e8aa267008b0176291b7435d0c4c515bd846c27fcce3ebb330518a1",
       "returncode": 0
     },
     {
@@ -45,8 +45,8 @@
         "--prefix",
         "sdk/javascript"
       ],
-      "elapsed_seconds": 0.154725,
-      "output_sha256": "c1bdb016d6dc66117b9f273118c98c5605ac528931cccf1100d62985839d3446",
+      "elapsed_seconds": 0.157983,
+      "output_sha256": "5ce9db12156f1c2cd20ba3a63ebf024ba6ae4f4dad831d5d5cc85fde617cffa9",
       "returncode": 0
     },
     {
@@ -62,13 +62,13 @@
         "--",
         "--test-threads=1"
       ],
-      "elapsed_seconds": 0.924704,
-      "output_sha256": "6cc2e12d226bfffe06f0ea30185f49b43aef40f5f6a2d31a94576e5e80a8a0e3",
+      "elapsed_seconds": 1.670603,
+      "output_sha256": "1d0a11a62dfcce79e5d223dc5e41ffbd76efa7b17c08555a84be0b7a6f99cf64",
       "returncode": 0
     }
   ],
   "contract": "arda.stage5.adapter-conformance.v1",
-  "generated_at_utc": "2026-08-01T06:40:33.785366Z",
+  "generated_at_utc": "2026-08-01T18:24:34.825033Z",
   "limitations": [
     "Python is the complete executable reference server; Rust and JavaScript packages provide bounded framing, envelope validation, and capability negotiation.",
     "The unseen-repository fixture covers an isolated Python repository; a separately sourced external repository remains unavailable."

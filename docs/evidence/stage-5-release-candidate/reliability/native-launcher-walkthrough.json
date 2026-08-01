@@ -1,0 +1,67 @@
+{
+  "contract": "arda.stage5.native-walkthrough.v1",
+  "generated_at_utc": "2026-08-01T18:21:23Z",
+  "status": "pass",
+  "runtime": {
+    "binary": "/tmp/arda-stage5-u1-target/release/arda-launcher",
+    "release_identity": "0.3.0-rc.0",
+    "backend": "x11",
+    "environment": {
+      "GDK_BACKEND": "x11",
+      "__NV_DISABLE_EXPLICIT_SYNC": "1",
+      "ARDA_ROOT": "/var/home/mythos/Eregion/Arda"
+    },
+    "dmabuf_renderer_disabled": false,
+    "software_rendering_forced": false,
+    "startup_warning": "Failed to create GBM buffer of size 800x600: Invalid argument",
+    "startup_warning_effect": "non-fatal; the native window and AT-SPI tree remained operational"
+  },
+  "budgets": {
+    "cold_start_seconds_max": 2.0,
+    "aggregate_rss_peak_mib_max": 512.0,
+    "post_warmup_growth_mib_max": 64.0,
+    "webkit_cpu_one_core_percent_max": 10.0
+  },
+  "observed": {
+    "cold_start_seconds": 0.706,
+    "measurement_seconds": 300.246,
+    "aggregate_rss_start_mib": 391.33,
+    "aggregate_rss_end_mib": 422.0,
+    "aggregate_rss_peak_mib": 440.78,
+    "post_warmup_growth_mib": 4.2,
+    "webkit_cpu_one_core_percent": 2.58
+  },
+  "accessibility": {
+    "transport": "AT-SPI over the graphical session accessibility bus",
+    "input": "X11 XTest with EWMH activation",
+    "dialog_role_and_name_exposed": true,
+    "setup_and_recovery_text_exposed": true,
+    "initial_focus_close": true,
+    "tab_contained": true,
+    "shift_tab_contained": true,
+    "escape_closes": true,
+    "focus_restored_to_trigger": true,
+    "trigger_name": "REVIEW"
+  },
+  "recovery_walkthrough": {
+    "status": "pass",
+    "native_state": "review",
+    "guidance_exposed": [
+      "Install or update the ARDA launcher package",
+      "Review launcher logs and run diagnostics",
+      "Repair canonical configs and retry"
+    ],
+    "destructive_action_invoked": false,
+    "reason": "The guided recovery surface was verified without mutating live operator state."
+  },
+  "verification": {
+    "frontend_tests": "7 passed",
+    "frontend_lint": "0 warnings, 0 errors",
+    "frontend_build": "pass",
+    "tauri_release_build": "pass"
+  },
+  "evidence": {
+    "idle_metrics": "docs/evidence/stage-5-release-candidate/reliability/native-launcher-metrics.json",
+    "rejected_dmabuf_disabled_stress": "docs/evidence/stage-5-release-candidate/reliability/native-launcher-dmabuf-disabled-stress.json"
+  }
+}

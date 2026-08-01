@@ -21,7 +21,7 @@ The maintainer should acknowledge a report within three business days, provide a
 - Loopback is not an authorization boundary against other processes running as the same user. Do not run untrusted local programs in the release profile.
 - Repository text, research excerpts, model output, and adapter output are untrusted data. They cannot grant execution authority or replace approval receipts.
 - Secrets must be supplied through operator-controlled environment or credential storage and must not enter logs, backup archives, diagnostics, receipts, or release artifacts.
-- Published artifacts require a manifest, SHA-256 checksum, detached signature bundle, and verified public key. Production signing requires an operator-owned hardware-backed or KMS key.
+- Published artifacts require a manifest, SHA-256 checksum, and detached signature bundle. Production releases use keyless Sigstore signing from `.github/workflows/release-sign.yml`, bound to the release-tag workflow identity and GitHub's OIDC issuer. The `production-release` environment must require maintainer approval; the workflow must verify the tag, manifest source commit, and checksums before signing.
 
 ## Incident response
 

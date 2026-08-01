@@ -1,9 +1,8 @@
 # Arda Workbench release-candidate packaging and signing
 
 This runbook covers the declared Stage 5 Linux profile and the `0.3.0-rc.0`
-Workbench launcher. The canonical release artifact is the x86_64 AppImage. DEB
-and RPM packages are supplemental until their timestamp-bearing output is made
-byte-reproducible.
+Workbench launcher. The Linux release set includes the x86_64 AppImage, DEB,
+and RPM packages.
 
 ## Build inputs
 
@@ -27,6 +26,22 @@ Build the frontend and native launcher, then create DEB/RPM bundles with Tauri.
 Tauri's AppImage `linuxdeploy` phase currently fails after producing a complete
 AppDir. Package that AppDir with the pinned `appimagetool` and a fixed
 `SOURCE_DATE_EPOCH`.
+
+Tauri 2.9.4 writes wall-clock metadata into DEB tar members and into the RPM
+`BUILDTIME`/`FILEMTIMES` tags. Normalize both package formats before hashing,
+manifest generation, or signing. In-place normalization is supported:
+
+```text
+python3 scripts/arda_reproducible_packages.py normalize-deb \
+  --input <DEB> --output <DEB> --epoch "$SOURCE_DATE_EPOCH"
+
+python3 scripts/arda_reproducible_packages.py normalize-rpm \
+  --input <RPM> --output <RPM> --epoch "$SOURCE_DATE_EPOCH"
+```
+
+The RPM normalization updates only timestamp tags and the dependent header
+SHA-256 field; payload bytes are preserved. Verify the result with `rpm -Kv`
+and compare two independently built/normalized outputs with `cmp`.
 
 Generate and verify the release ledger:
 
@@ -52,10 +67,8 @@ python3 scripts/arda_release_ops.py sbom \
 ```
 
 A nonzero missing-license count blocks publication. The current inventory has
-642 components and no missing package metadata. The repository still requires
-a top-level license text before public publication; Cargo's workspace
-`license = "MIT"` declaration is metadata, not a substitute for the license
-notice.
+642 components and no missing package metadata. The repository includes the
+top-level MIT `LICENSE` text required by its Cargo package metadata.
 
 ## Signature verification
 
@@ -72,6 +85,17 @@ cosign verify-blob \
 Every AppImage, DEB, RPM, SBOM, release manifest, and checksum ledger must pass
 that command before distribution.
 
+Production artifacts use keyless Sigstore bundles created by the tag-bound
+GitHub Actions workflow. Verify them with the exact release tag identity:
+
+```text
+cosign verify-blob <artifact> \
+  --bundle <artifact>.sigstore.json \
+  --certificate-identity \
+    "https://github.com/dward1502/Arda/.github/workflows/release-sign.yml@refs/tags/<tag>" \
+  --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
+```
+
 ## Key ownership and production boundary
 
 The local Stage 5 proof used a newly generated, password-encrypted ephemeral RC
@@ -80,16 +104,24 @@ the public key and detached verification bundles are retained. These signatures
 prove integrity against that candidate public key; they do not establish
 production publisher identity.
 
-Production release signing remains blocked until the operator configures one of:
+Production release signing uses `.github/workflows/release-sign.yml` with
+GitHub OIDC, Fulcio short-lived certificates, and Rekor transparency logging.
+No long-lived production private key is retained. Before enabling releases:
 
-1. a hardware-backed or KMS-held Cosign key with documented owner and recovery;
-2. a keyless Sigstore identity tied to protected release automation.
+1. create the `production-release` GitHub environment with a required
+   maintainer reviewer;
+2. protect `main` and require review for changes to the signing workflow;
+3. publish only from a reviewed `v*` tag whose commit matches the release
+   manifest;
+4. do not announce or distribute a release until every detached bundle has
+   uploaded and passed identity-bound verification.
 
-Production private keys and passwords must never be stored in the repository,
-release directory, diagnostics bundle, shell history, or support archive. Key
-rotation requires publication of the replacement trust root, a transition
-period in which old releases remain verifiable, and an incident entry if the
-rotation follows suspected compromise.
+The workflow downloads an exact six-file allowlist, verifies the manifest
+version/source commit and `SHA256SUMS`, signs each file, verifies each generated
+bundle, and only then uploads the bundles. A workflow path, repository owner,
+or OIDC issuer change is a publisher-identity rotation and requires a documented
+transition. Unexpected Rekor entries for this workflow identity are a signing
+incident.
 
 ## License policy and exceptions
 
@@ -103,8 +135,10 @@ approval in the Stage 5 risk ledger. There are no implicit exceptions.
 
 - AppImage: byte-identical across two fixed-epoch builds.
 - Release manifest and `SHA256SUMS`: byte-identical from the same inputs.
-- DEB: not byte-identical across two fixed-epoch builds.
-- RPM: not byte-identical across two fixed-epoch builds.
+- DEB: byte-identical after fixed-epoch normalization.
+- RPM: byte-identical after fixed-epoch normalization; header and payload
+  digests pass `rpm -Kv`.
 
 The exact hashes, signature status, SBOM count, and blockers are recorded in
-`docs/evidence/stage-5-release-candidate/packaging/packaging-summary.json`.
+`docs/evidence/stage-5-release-candidate/packaging/packaging-summary.json` and
+`docs/evidence/stage-5-release-candidate/packaging/linux-package-reproducibility.json`.

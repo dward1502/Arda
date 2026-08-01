@@ -17,7 +17,7 @@
 | Workbench release candidate | this plan | only release-critical product |
 | Warden/Varda durable backend | [governed-learning plan](2026-07-27-warden-varda-ceo-learning-loop.md) | required only if the optional Warden Research recurring-watchlist beta ships |
 | Warden Research product/API/HUD | [Warden Research plan](2026-07-29-warden-research-application-plan.md) | optional secondary beta; depends on governed-learning GL-1 through GL-4 |
-| Pi5 AArch64 deployment, fleet, SSH, shared recovery | [Pi5 plan](2026-07-23-pi5-outpost-integration-plan.md) | supporting infrastructure; required only for a beta that promises physical outpost support |
+| Pi5 AArch64 deployment, fleet, SSH, shared recovery | [Pi5 record](../archive/2026-07-23-pi5-outpost-integration-plan.md) | completed supporting infrastructure; required only for a beta that promises physical outpost support |
 | RELIC/CITADEL presence/presentation | [RELIC/CITADEL plan](2026-07-29-relic-citadel-plan.md) | optional feature-flagged projection; RC-5 expansion remains blocked until its base projection beta passes |
 
 No task from the three optional application/outpost plans may delay Workbench packaging, security, reliability, diagnostics, or support work.
@@ -263,11 +263,11 @@ Create `docs/releases/stage-5-release-candidate-evidence.md` at closeout with:
 
 - [ ] Signed, reproducible release candidate exists.
 - [x] Upgrade, rollback, backup, and restore pass.
-- [ ] Rust, Python, and JavaScript adapter conformance passes.
+- [x] Rust, Python, and JavaScript adapter conformance passes.
 - [x] Automated unseen-project SDK/conformance onboarding passes; external-person repetition is optional.
 - [ ] Security threat-model gates pass.
 - [ ] Reliability/soak budgets pass.
-- [ ] Automated accessibility checks and operator setup/recovery walkthrough have no blocking usability issue; five-user evaluation is optional.
+- [x] Automated accessibility checks and operator setup/recovery walkthrough have no blocking usability issue; five-user evaluation is optional.
 - [x] Documentation and diagnostics are supportable.
 - [x] Optional external-evaluator status is documented honestly and does not block release while evaluators are unavailable.
 - [x] Remaining 1.0 blockers are finite, owned, and measurable.
@@ -315,8 +315,11 @@ RELIC/CITADEL expansion remain outside the Workbench release-critical path.
 
 ## Packaging and reproducibility tranche — S5-P0/P1
 
-**Executed 2026-07-31.** The release tooling, runbook, and machine evidence are
-now present, but this tranche remains partial until the blockers below close.
+**Packaging/reproducibility and publisher-identity design complete
+2026-08-01.** The release tooling, runbook, license text, machine evidence, and
+tag-bound keyless Sigstore workflow are present. Publication remains blocked on
+remote repository hardening and a successful signing run over the final
+normalized artifacts.
 
 - [x] Built the `0.3.0-rc.0` AppImage, DEB, and RPM from the live launcher.
 - [x] Generated a deterministic multi-artifact manifest and `SHA256SUMS` with
@@ -331,20 +334,30 @@ now present, but this tranche remains partial until the blockers below close.
 - [x] Documented build, verification, key-custody, rotation, and license
   exception policy in
   `docs/operator/release-candidate-packaging-signing.md`.
-- [ ] Make DEB and RPM byte-reproducible. Both currently differ across two
-  identical fixed-epoch builds and remain supplemental rather than canonical.
-- [ ] Add the repository's top-level license text; workspace metadata declares
-  MIT, but no legal notice file is present.
-- [ ] Configure production publisher trust through a protected KMS/hardware key
-  or keyless release identity. The current ephemeral RC key proves integrity
-  only and its private half was deleted after signing.
+- [x] Made DEB and RPM byte-reproducible with
+  `scripts/arda_reproducible_packages.py`. The original failing A/B pairs
+  normalize to byte-identical outputs, and both normalized RPMs pass header and
+  payload verification with `rpm -Kv`.
+- [x] Added the repository's top-level MIT `LICENSE` text, aligned with the
+  workspace package metadata.
+- [x] Selected production publisher trust as tag-bound keyless Sigstore using
+  GitHub OIDC; added a SHA-pinned workflow, exact asset allowlist, tag/manifest
+  checks, identity-bound bundle verification, policy, and decision receipt.
+- [ ] Activate production trust remotely: land the workflow through review,
+  require maintainer approval on `production-release`, protect `main`, and pass
+  the first final-artifact signing run. The current ephemeral RC key proves
+  candidate integrity only and its private half was deleted after signing.
 
 Authoritative machine evidence is
-`docs/evidence/stage-5-release-candidate/packaging/packaging-summary.json`, with
-the release manifest, checksums, SBOM, public key, and Sigstore bundles in the
-same directory. The reproducible signed AppImage satisfies the canonical
-candidate proof, but the global signed-release exit item remains open until
-production trust and public-license blockers are resolved.
+`docs/evidence/stage-5-release-candidate/packaging/packaging-summary.json` and
+`docs/evidence/stage-5-release-candidate/packaging/linux-package-reproducibility.json`,
+and
+`docs/evidence/stage-5-release-candidate/packaging/publisher-identity-decision.json`,
+with the release manifest, checksums, SBOM, public key, and Sigstore bundles in
+the same directory. The repaired package bytes supersede the pre-normalization
+DEB/RPM candidate signatures; the global signed-release exit item remains open
+until remote trust controls are active and the final normalized artifacts are
+signed by the tag-bound workflow.
 
 ## Reliability, performance, and accessibility tranche — S5-R1/U1
 
@@ -358,26 +371,35 @@ finish before S5-R1 can close; its finite growth ceilings are 1,000 files and
 
 Automated Workbench accessibility passed 2/2 for critical/serious axe findings
 and keyboard focus order. Reduced-motion, increased-contrast, and forced-color
-CSS paths are present. HUD lint, full tests, and build pass. Native cold-start,
-idle-RSS, and guided setup/recovery evidence remain blocked because invocation
-from the automation shell failed with GDK Wayland protocol error 71. Do not mark
-S5-U1 complete until the native operator walkthrough succeeds.
+CSS paths are present. HUD lint, full tests, and build pass. The native X11
+walkthrough now passes: cold start was 0.706 seconds, five-minute aggregate RSS
+peaked at 440.78 MiB and ended at 422.0 MiB, post-warmup growth was 4.2 MiB, and
+WebKit consumed 2.58% of one CPU core. AT-SPI plus physical X11 key events proved
+dialog naming, setup/recovery text, initial focus, Tab/Shift+Tab containment,
+Escape close, and focus restoration. U1 is complete; S5-R1 remains open only for
+the original 24-hour soak receipt.
 
 Evidence:
 
 - `docs/evidence/stage-5-release-candidate/reliability/soak-smoke-final.json`
 - `docs/evidence/stage-5-release-candidate/reliability/soak-24h.json` (in progress)
 - `docs/evidence/stage-5-release-candidate/reliability/performance-accessibility.json`
+- `docs/evidence/stage-5-release-candidate/reliability/native-launcher-walkthrough.json`
+- `docs/evidence/stage-5-release-candidate/reliability/native-launcher-metrics.json`
 
 ## Adapter and support tranche — S5-A1/O1
 
-**Partial/complete split 2026-08-01.** `scripts/arda_adapter_ops.py` generates
-deny-by-default Rust, Python, and JavaScript project contracts and emits one
-conformance receipt. All three examples validate; the Python reference protocol,
-Rust engine JSONL boundary, and isolated Python/Rust golden repositories pass.
-`sdk/README.md` documents the published boundary and honestly records that
-dedicated Rust and JavaScript SDK packages do not yet exist. Therefore the full
-three-language adapter exit item remains open.
+**Complete 2026-08-01.** `scripts/arda_adapter_ops.py` generates deny-by-default
+Rust, Python, and JavaScript project contracts and emits one conformance receipt.
+All three examples validate; the executable Python reference server, Rust engine
+JSONL boundary, and isolated Python/Rust golden repositories pass. Dedicated
+Rust and JavaScript SDK packages under `sdk/rust` and `sdk/javascript` provide
+bounded 64-KiB JSONL framing, fail-closed envelope/version validation, and
+deny-by-default capability negotiation. Their focused suites pass 4/4 each and
+the regenerated cross-language conformance receipt passes every command. Python
+remains the complete executable reference server; the Rust and JavaScript
+packages intentionally provide the published bounded SDK surface rather than
+claiming additional adapter execution semantics.
 
 S5-O1 passes its bounded exercise: three isolated failures were diagnosed from
 redacted bundle contents alone (missing launcher, native dependency failure,

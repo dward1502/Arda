@@ -1,0 +1,57 @@
+{
+  "contract": "arda.stage5.linux-package-reproducibility.v1",
+  "generated_at_utc": "2026-08-01T18:38:51Z",
+  "source_date_epoch": 1785518374,
+  "status": "pass",
+  "method": {
+    "helper": "scripts/arda_reproducible_packages.py",
+    "deb": "Normalize ar-member metadata plus sorted control/data tar metadata, then recompress deterministically.",
+    "rpm": "Normalize RPMTAG_BUILDTIME and RPMTAG_FILEMTIMES, then recompute RPMSIGTAG_SHA256 without modifying payload bytes."
+  },
+  "deb": {
+    "before": {
+      "build_a_sha256": "9b9adb71f88efb5335eef6657ddc4ceb86aadab6a4c8775291c6e7b9d05d3490",
+      "build_b_sha256": "99bdab4cfcda35586a622f747a1b1bc15edcf11b03b2382321d61ac08c58deb5",
+      "byte_identical": false,
+      "root_cause": "Tauri assigned package wall-clock time to control.tar.gz and data.tar.gz members."
+    },
+    "after": {
+      "build_a_sha256": "e2c91f01d20cc9487e93bf593022f9ec170082420a3d76669e7188be12d668b8",
+      "build_b_sha256": "e2c91f01d20cc9487e93bf593022f9ec170082420a3d76669e7188be12d668b8",
+      "bytes": 5170446,
+      "byte_identical": true,
+      "validation": [
+        "cmp returned zero",
+        "ar listed debian-binary, control.tar.gz, and data.tar.gz",
+        "both tar members listed successfully"
+      ]
+    }
+  },
+  "rpm": {
+    "before": {
+      "build_a_sha256": "1da6112fc34b3cd607ccd96f42ca92b99173623a3962e50090c9a5c22574e777",
+      "build_b_sha256": "005eec26591c4fdffe6652530aac510754e4b312051c5e96cee6cb7df35f8720",
+      "byte_identical": false,
+      "payload_sha256_both": "1f9d87cd963fb2b59d3ed2b90af2ad825ac8077911091268fd892405c6cc565f",
+      "root_cause": "Tauri rpm-rs bundling assigned wall-clock values to RPMTAG_BUILDTIME and two RPMTAG_FILEMTIMES entries."
+    },
+    "after": {
+      "build_a_sha256": "c7a287e045d94e4987f4fd3f5340f5316783c7c64b3934d791075fd60f8b7b19",
+      "build_b_sha256": "c7a287e045d94e4987f4fd3f5340f5316783c7c64b3934d791075fd60f8b7b19",
+      "bytes": 5287090,
+      "build_time": 1785518374,
+      "byte_identical": true,
+      "payload_sha256_both": "1f9d87cd963fb2b59d3ed2b90af2ad825ac8077911091268fd892405c6cc565f",
+      "validation": [
+        "cmp returned zero",
+        "rpm -Kv: Header SHA256 digest OK",
+        "rpm -Kv: Payload SHA256 digest OK"
+      ]
+    }
+  },
+  "tests": {
+    "command": "python3 -m unittest scripts.tests.test_arda_reproducible_packages -v",
+    "passed": 2,
+    "failed": 0
+  }
+}

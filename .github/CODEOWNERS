@@ -1,0 +1,3 @@
+# Release trust boundary
+/.github/workflows/release-sign.yml @dward1502
+/SECURITY.md @dward1502

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Canvas } from '@react-three/fiber'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { Canvas, useThree } from '@react-three/fiber'
 import ParticleSmoke from './components/ParticleSmoke'
 import OnboardingText from './scenes/state/OnboardingText'
 import WorldTree from './scenes/components/WorldTree'
@@ -32,12 +32,44 @@ const INITIAL_STATE: GateState = {
   isReady: false,
 }
 
+function FrameClock({ reducedMotion }: { reducedMotion: boolean }) {
+  const invalidate = useThree(canvas => canvas.invalidate)
+
+  useEffect(() => {
+    invalidate()
+    if (reducedMotion) return
+
+    const interval = window.setInterval(invalidate, 50)
+    return () => window.clearInterval(interval)
+  }, [invalidate, reducedMotion])
+
+  return null
+}
+
 export default function App() {
   const [state, setState] = useState<GateState>(INITIAL_STATE)
   const [onboarding, setOnboarding] = useState<OnboardingSnapshot | null>(null)
   const [onboardingError, setOnboardingError] = useState<string | null>(null)
   const [onboardingLoading, setOnboardingLoading] = useState(false)
+  const [reducedMotion, setReducedMotion] = useState(false)
+  const onboardingTriggerRef = useRef<HTMLButtonElement>(null)
+  const restoreOnboardingFocusRef = useRef(false)
   const showLogo = state.phase >= 8.5
+
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const update = () => setReducedMotion(media.matches)
+    update()
+    media.addEventListener('change', update)
+    return () => media.removeEventListener('change', update)
+  }, [])
+
+  useEffect(() => {
+    if (state.open === 'locked' && restoreOnboardingFocusRef.current) {
+      restoreOnboardingFocusRef.current = false
+      onboardingTriggerRef.current?.focus()
+    }
+  }, [state.open])
 
   useEffect(() => {
     let cancelled = false
@@ -129,9 +161,15 @@ export default function App() {
     setOnboardingLoading(false)
   }
 
+  const closeOnboarding = useCallback(() => {
+    restoreOnboardingFocusRef.current = true
+    setState(prev => ({ ...prev, open: 'locked' }))
+  }, [])
+
   return (
     <div className="w-screen h-screen bg-black overflow-hidden relative">
-      <Canvas camera={{ position: [0, 2.5, 15], fov: 30 }}>
+      <Canvas frameloop="demand" camera={{ position: [0, 2.5, 15], fov: 30 }}>
+        <FrameClock reducedMotion={reducedMotion} />
         <Background />
 
         {/* <Stars radius={280} depth={40} count={700} factor={2.8} fade /> */}
@@ -151,7 +189,7 @@ export default function App() {
         <OnboardingPanel
           snapshot={onboarding}
           error={onboardingError}
-          onClose={() => setState(prev => ({ ...prev, open: 'locked' }))}
+          onClose={closeOnboarding}
         />
       )}
       <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-3 z-50">
@@ -162,8 +200,11 @@ export default function App() {
           REPLAY
         </button>
         <button
+          ref={onboardingTriggerRef}
           onClick={onBegin}
           disabled={onboardingLoading}
+          aria-controls="operator-onboarding-status"
+          aria-expanded={state.open === 'open'}
           className={`px-6 py-1.5 text-xs font-mono border rounded transition ${
             state.isReady
               ? 'border-[#f4e9d8]/60 text-[#f4e9d8] hover:bg-[#f4e9d8]/10'

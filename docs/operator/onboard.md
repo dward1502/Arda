@@ -26,11 +26,10 @@ ATHENA, HERMES, HADES, CHARON, MNEMOSYNE, APOLLO, PLUTUS, and ORACLE each hold d
 ## What To Read First
 
 - [Command Center](index.md)
-- [Human Thoughts](thoughts.md)
-- [ARDA HUD](../docs/arda/ARDA_HUD.md)
-- [Backend Lockdown](../docs/operations/BACKEND_LOCKDOWN.md)
-- [Company View](company_view.md)
-- [Arandur](04-Leadership/arandur/README.md)
+- [Human Philosophy](philosophy.md)
+- [Platform OS and ARDA HUD](../plans/PLATFORM_OS.md)
+- [Root daemon operations](../root-daemon.md)
+- [Company View](company-view.md)
 
 ## Current Machine Entrypoints
 
@@ -63,4 +62,4 @@ Use `docs/` for engineering contracts.
 
 Canonical readable path note:
 - boot doctrine points at `docs/operator/philosophy.md`
-- active rough capture continues in `docs/operator/notes/thoughts.md`
+- active operator context is maintained by the documents in this directory

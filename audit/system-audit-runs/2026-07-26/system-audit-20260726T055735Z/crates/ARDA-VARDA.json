@@ -1,0 +1,124 @@
+{
+  "bad": [
+    "No target-local test-like file was detected in the primary surface."
+  ],
+  "candidate_tasks": [
+    {
+      "acceptance": "Target-local test coverage exists for the primary duty surface and passes in focused cargo test runs.",
+      "owner": "arda-varda",
+      "priority": "medium",
+      "risk_class": "source_change_review_required",
+      "title": "Add target-local tests for ARDA-VARDA"
+    }
+  ],
+  "contract": "arda.audit.target_report.v1",
+  "duties": [
+    "Athena/Varda ingestion and provenance."
+  ],
+  "evidence": [
+    {
+      "exists": true,
+      "line": null,
+      "note": "primary target root",
+      "path": "crates/spine/executors/arda-varda"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "workspace membership checked from repository manifest: True",
+      "path": "Cargo.toml"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "crates/spine/executors/arda-varda/BREAKDOWN.md"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "crates/spine/executors/arda-varda/Cargo.toml"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "crates/spine/executors/arda-varda/DESIGN_ASSESSMENT.md"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "crates/spine/executors/arda-varda/INDEX.md"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "crates/spine/executors/arda-varda/OPTIMIZATION_PLAN.md"
+    }
+  ],
+  "generated_at": "2026-07-26T05:57:36.586163+00:00",
+  "good": [
+    "Primary implementation surface exists at `crates/spine/executors/arda-varda` with 31 tracked Rust files.",
+    "Crate is listed in the live Cargo workspace manifest.",
+    "Observed 702 audit/status/telemetry/logging token hits in scoped files.",
+    "Latest portability receipt has no active blockers for this target/support surface."
+  ],
+  "needs_removed": [
+    "No automatic removal recommendation; removal candidates require a follow-up evidence pass."
+  ],
+  "overview": "Read-only Phase 4/5 Good / Bad / Ugly audit for ARDA-VARDA.",
+  "potential_changes": [
+    "No immediate source change proposed by this read-only audit."
+  ],
+  "report_json_path": "crates/ARDA-VARDA.json",
+  "report_markdown_path": "crates/ARDA-VARDA.md",
+  "run_id": "system-audit-20260726T055735Z",
+  "score": 95,
+  "score_breakdown": {
+    "implementation_completeness": 18,
+    "mission_fit": 20,
+    "observability_auditability": 15,
+    "portability_config_hygiene": 15,
+    "reliability_safety": 20,
+    "ux_operator_experience": 7
+  },
+  "snapshot": {
+    "crash_counts": {
+      ".expect(": 0,
+      ".unwrap()": 0,
+      "panic!(": 0,
+      "todo!(": 0,
+      "unimplemented!(": 0
+    },
+    "keyword_hits": {
+      "athena": 1102,
+      "ingest": 1050,
+      "provenance": 13,
+      "varda": 69
+    },
+    "observability_hits": 702,
+    "primary_exists": true,
+    "primary_file_count": 50,
+    "rollup_target": null,
+    "rust_file_count": 31,
+    "sample_files": [
+      "crates/spine/executors/arda-varda/BREAKDOWN.md",
+      "crates/spine/executors/arda-varda/Cargo.toml",
+      "crates/spine/executors/arda-varda/DESIGN_ASSESSMENT.md",
+      "crates/spine/executors/arda-varda/INDEX.md",
+      "crates/spine/executors/arda-varda/OPTIMIZATION_PLAN.md",
+      "crates/spine/executors/arda-varda/PLAN.md",
+      "crates/spine/executors/arda-varda/README.md",
+      "crates/spine/executors/arda-varda/STATUS.md"
+    ],
+    "support_status": [],
+    "test_file_count": 0,
+    "workspace_member": true
+  },
+  "target": "ARDA-VARDA",
+  "target_type": "workspace_crate",
+  "ugly": []
+}

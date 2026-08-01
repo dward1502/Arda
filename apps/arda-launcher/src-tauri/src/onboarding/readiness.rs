@@ -162,7 +162,6 @@ pub fn build_readiness_projection(
             evidence: profile
                 .missing_gates
                 .iter()
-                .cloned()
                 .map(|x| format!("missing: {x}"))
                 .collect(),
             recommendation: "Populate missing endpoints before enabling service start helpers."

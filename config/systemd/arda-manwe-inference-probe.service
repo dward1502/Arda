@@ -1,0 +1,10 @@
+[Unit]
+Description=Arda Manwe Inference Probe
+After=network-online.target arda-manwe.service
+Wants=arda-manwe.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/Eregion/Arda
+Environment=ARDA_ROOT=%h/Eregion/Arda
+ExecStart=/usr/bin/bash %h/Eregion/Arda/scripts/check_manwe_inference.sh

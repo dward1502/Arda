@@ -1,0 +1,12 @@
+{
+  "contract": "arda.workbench-rc0-fixture-proof.v1",
+  "crash_boundary_count": 9,
+  "fixture": "restart_at_every_graph_boundary_preserves_exact_once_mutation",
+  "fixture_exit_code": 0,
+  "mutation_attempts": 2,
+  "observable_mutations": 1,
+  "run_id": "golden-boundary-recovery",
+  "run_truth_copied_to_upgrade_layout": true,
+  "status": "pass",
+  "terminal_nodes_succeeded": 6
+}

@@ -1,0 +1,54 @@
+{
+  "schema_version": "arda.aipkg.contract.v1",
+  "authority": "arda_aipkg_contract",
+  "status": "ready",
+  "reviewed_at_utc": "2026-07-27T00:00:00Z",
+  "implementation": {
+    "rust_surface": "crates/spine/governance/arda-core/src/aipkg.rs",
+    "dispatch_preflight_gate": "crates/spine/governance/arda-core/src/loop_engine.rs",
+    "manifest_validation": "enforced",
+    "receipt_chain_validation": "enforced",
+    "governance_evidence": "explicit_input_required",
+    "signing": "operator_or_profile_supplied; nonempty signatures enforced by receipt-chain validation"
+  },
+  "normative_rules": {
+    "zero_work_preflight_required": true,
+    "triad_gate_required": true,
+    "bacon_lite_required": true,
+    "joulework_budget_required": true,
+    "love_eq_guard_required": true,
+    "soterion_trace_required": true,
+    "package_digest_required": true,
+    "receipt_signatures_required": true,
+    "deny_incomplete_receipt_chain": true
+  },
+  "profiles": [
+    "wasm-wasi",
+    "oci-sandboxed",
+    "local-sovereign"
+  ],
+  "receipt_chain": [
+    "preflight",
+    "execution",
+    "validation"
+  ],
+  "open_standard_split": {
+    "core_law_open": true,
+    "marketplace_economics_separate": true,
+    "registry_required": false,
+    "single_payment_rail_required": false
+  },
+  "spec_paths": {
+    "container_law": "spec/aipkg/v0.1/AIPKG-CONTAINER-v0.1.md",
+    "manifest_schema": "spec/aipkg/v0.1/manifest.schema.json",
+    "manifest_example": "spec/aipkg/v0.1/manifest.example.json",
+    "execution_request_schema": "spec/aipkg/v0.1/execution-request.schema.json",
+    "receipt_schema": "spec/aipkg/v0.1/receipt.schema.json"
+  },
+  "operator_docs": [
+    "docs/operator/library/governance/aipkg.md",
+    "docs/operator/library/governance/aipkg_developer.md",
+    "docs/operator/library/governance/aipkg_safety.md"
+  ],
+  "task_ledger": "core/projects/tasks/queue.jsonl"
+}

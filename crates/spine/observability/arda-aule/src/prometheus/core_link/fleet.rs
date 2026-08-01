@@ -471,7 +471,7 @@ mod tests {
 [[nodes]]
 id = "node-backbone"
 role = "backbone_inference"
-hostname = "annunimas-server"
+hostname = "arda-server"
 tailscale_ip = "100.64.0.2"
 node_class = "backbone_compute"
 enrollment_status = "active"
@@ -492,7 +492,7 @@ llm_runtime = "multi_gpu_sovereign_backbone"
     ]
   },
   "fleet_nodes_full": [
-    { "id": "node-backbone", "hostname": "annunimas-server", "online": true, "tailscale_ips": ["100.64.0.2"] },
+    { "id": "node-backbone", "hostname": "arda-server", "online": true, "tailscale_ips": ["100.64.0.2"] },
     { "id": "node-unconfigured", "hostname": "rogue-node", "online": false, "tailscale_ips": ["100.64.0.99"] }
   ]
 }"#,
@@ -555,7 +555,7 @@ llm_runtime = "multi_gpu_sovereign_backbone"
 [[nodes]]
 id = "node-backbone"
 role = "backbone_inference"
-hostname = "annunimas-server"
+hostname = "arda-server"
 tailscale_ip = "100.64.0.2"
 node_class = "backbone_compute"
 enrollment_status = "active"
@@ -570,9 +570,9 @@ capabilities = ["routing", "reasoning"]
 [[node]]
 id = "node-backbone"
 role = "backbone_inference"
-hostname = "annunimas-server"
+hostname = "arda-server"
 tailscale_ip = "100.64.0.2"
-ssh_user = "annunimas"
+ssh_user = "arda"
 node_class = "backbone_compute"
 enrollment_status = "active"
 llm_runtime = "multi_gpu_sovereign_backbone"

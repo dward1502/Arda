@@ -1,0 +1,245 @@
+{
+  "accepted_run_final_state": {
+    "event_count": 21,
+    "nodes": [
+      {
+        "id": "plan",
+        "output_digest": "stage4-provider-accepted-plan",
+        "state": "succeeded"
+      },
+      {
+        "id": "approval",
+        "output_digest": "stage4-provider-accepted-approved",
+        "state": "succeeded"
+      },
+      {
+        "id": "execute",
+        "output_digest": "sha256:f47667146e3bfb1bb9c436b9376aa680ed49adfb6463dba584f77ccae4010209",
+        "state": "succeeded"
+      },
+      {
+        "id": "verify",
+        "output_digest": "sha256:b324f27bf91fb9b11ed54b5c64221c6d599f5da27052a73ad3a9b162b42eb3d9",
+        "state": "succeeded"
+      },
+      {
+        "id": "review",
+        "output_digest": "sha256:3167919b7042cfa5d66b8f548380e61b1f74bd26961711d8c616451c081027d9",
+        "state": "succeeded"
+      },
+      {
+        "id": "close",
+        "output_digest": "sha256:13b009a14de5fc8e35a7fd127ae9b5072425dc1a5e11fe201ea03bb7abf4d9b4",
+        "state": "succeeded"
+      }
+    ]
+  },
+  "bounded_result": {
+    "changed_paths": [
+      "src/lib.rs"
+    ],
+    "commit_created": false,
+    "fixture_sha256_after": "sha256:f9169cc7313db0a63ff22f955048f877e75877462413fd871a88adc7227dc050",
+    "fixture_sha256_before": "sha256:49eb6a5aa635219f5cdf706f7b7475fdf3eb8ff215882010a0e972cd89560673",
+    "fixture_value_after": 42,
+    "fixture_value_before": 0,
+    "mutation_evidence": {
+      "output_digest": "sha256:7f27155c40ff8809595a92ccfacdf5b9c5d8ab6f38ee32887624dca85f010d54",
+      "provider_action": "{\"mode\":\"replace\",\"new_string\":\"pub fn private_beta_value() -> u32 {\\n    42\\n}\",\"old_string\":\"pub fn private_beta_value() -> u32 {\\n    0\\n}\",\"path\":\"/tmp/arda-stage4-provider/target/stage4-live-project/src/lib.rs\"}",
+      "tool": "patch"
+    },
+    "test_evidence": [
+      {
+        "check_id": "cargo-test",
+        "command": "cargo test --quiet",
+        "exit_code": 0,
+        "output_digest": "sha256:c2a47a552508021ca51ee42b4e382053b59bc8120d1d8bfb8d7339af84254131",
+        "status": "passed"
+      }
+    ]
+  },
+  "captured_at_utc": "2026-07-31T21:40:47Z",
+  "digest_verification": {
+    "algorithm": "SHA-256 over serde_json serialization of the typed receipt with receipt_digest set to an empty string",
+    "claimed": "sha256:f47667146e3bfb1bb9c436b9376aa680ed49adfb6463dba584f77ccae4010209",
+    "recomputed": "sha256:f47667146e3bfb1bb9c436b9376aa680ed49adfb6463dba584f77ccae4010209",
+    "result": "matched"
+  },
+  "environment": {
+    "architecture": "x86_64",
+    "harness": "127.0.0.1:7879",
+    "kernel": "Linux 6.17.12-200.fc42.x86_64",
+    "os": "Bluefin LTS 10",
+    "project_fixture": "isolated temporary Rust crate outside the Arda checkout"
+  },
+  "evidence_boundary": "This proves an accepted live provider mutation through the Workbench harness API, typed receipt projection, canonical digest recomputation, bounded declared-check execution, and durable same-run recovery in the separately identified recovery run. It does not substitute for invited-evaluator evidence.",
+  "faults_found_and_fixed": [
+    {
+      "fault": "adapter-load failure left an approved provider node Ready but retry rejected Ready",
+      "fix": "accept Ready recovery and avoid duplicate Ready transition"
+    },
+    {
+      "fault": "successful unrelated terminal calls could be claimed as declared check evidence",
+      "fix": "carry project check-id to command mapping into the Hermes task and fail closed when evidence does not match"
+    },
+    {
+      "fault": "safe explicit `cd <adapter cwd> && <declared command>` wrappers were rejected",
+      "fix": "accept only the exact command or the exact adapter-cwd wrapper; unrelated commands remain rejected"
+    },
+    {
+      "fault": "HUD restart restored run state without restoring the objective needed for provider execution",
+      "fix": "persist objective text by run ID and restore it with the durable run"
+    }
+  ],
+  "provider_receipt": {
+    "adapter": "hermes-workbench",
+    "adapter_version": "1",
+    "artifacts": [
+      {
+        "digest": "sha256:f9169cc7313db0a63ff22f955048f877e75877462413fd871a88adc7227dc050",
+        "path": "src/lib.rs"
+      }
+    ],
+    "idempotency_key": "run-stage4-workbench-live-provider-accepted-execute",
+    "node_id": "execute",
+    "parent_receipts": [
+      "stage4-provider-accepted-approved"
+    ],
+    "project_contract_digest": "sha256:9b8392fee4c111dced1b0949a11b4f384311269a61e19cdeea73db7efced6acd",
+    "receipt_digest": "sha256:f47667146e3bfb1bb9c436b9376aa680ed49adfb6463dba584f77ccae4010209",
+    "recorded_at_unix_ms": 1785533959180,
+    "run_id": "run-stage4-workbench-live-provider-accepted",
+    "schema_version": "arda.execution-receipt.v1",
+    "status": "succeeded",
+    "summary": "Changed src/lib.rs so private_beta_value returns 42. Ran cargo test --quiet and it passed.",
+    "test_evidence": [
+      {
+        "check_id": "cargo-test",
+        "command": "cargo test --quiet",
+        "exit_code": 0,
+        "output_digest": "sha256:c2a47a552508021ca51ee42b4e382053b59bc8120d1d8bfb8d7339af84254131",
+        "status": "passed"
+      }
+    ],
+    "tool_evidence": [
+      {
+        "action": "{\"mode\":\"replace\",\"new_string\":\"pub fn private_beta_value() -> u32 {\\n    42\\n}\",\"old_string\":\"pub fn private_beta_value() -> u32 {\\n    0\\n}\",\"path\":\"/tmp/arda-stage4-provider/target/stage4-live-project/src/lib.rs\"}",
+        "exit_code": null,
+        "output_digest": "sha256:7f27155c40ff8809595a92ccfacdf5b9c5d8ab6f38ee32887624dca85f010d54",
+        "tool": "patch"
+      },
+      {
+        "action": "cargo test --quiet",
+        "exit_code": 0,
+        "output_digest": "sha256:c2a47a552508021ca51ee42b4e382053b59bc8120d1d8bfb8d7339af84254131",
+        "tool": "terminal"
+      },
+      {
+        "action": "sha256sum /tmp/arda-stage4-provider/target/stage4-live-project/src/lib.rs",
+        "exit_code": 0,
+        "output_digest": "sha256:a9b18c2c86e0e017324c092ed01bcdb2edf133bf12d664bc2ecba76e4a5bb117",
+        "tool": "terminal"
+      }
+    ],
+    "usage": {
+      "api_calls": 7,
+      "completed": true,
+      "estimated_cost_usd": 0.0,
+      "failed": false,
+      "input_tokens": 13366,
+      "model": "stepfun/step-3.7-flash:free",
+      "output_tokens": 1819,
+      "provider": "nous",
+      "total_tokens": 15185
+    }
+  },
+  "repository_commit": "557e4eea4d927d93e43fb3cd301aa5333edca587",
+  "restart_resume": {
+    "boundary": "provider attempt left execute running; daemon restart recovered it to ready, then accepted execution completed; second restart loaded the succeeded graph and persisted receipt",
+    "event_count": 11,
+    "receipt_byte_identical_after_restart": true,
+    "receipt_digest_after": "sha256:aa5746ccb787b513162598976a93706c936d3534f7a15b8fc679c776b0fe217d",
+    "receipt_digest_before": "sha256:aa5746ccb787b513162598976a93706c936d3534f7a15b8fc679c776b0fe217d",
+    "recorded_at_unix_ms_after": 1785532959299,
+    "recorded_at_unix_ms_before": 1785532959299,
+    "recovery_run_id": "run-stage4-workbench-live-provider-verified",
+    "response_sha256_after": "sha256:194d25780b5b733f17adcabb93e113f924f82196d5a4643ca07c1e3ce669f5e1",
+    "response_sha256_before": "sha256:194d25780b5b733f17adcabb93e113f924f82196d5a4643ca07c1e3ce669f5e1",
+    "resumed_states": [
+      {
+        "id": "plan",
+        "state": "succeeded"
+      },
+      {
+        "id": "approval",
+        "state": "succeeded"
+      },
+      {
+        "id": "execute",
+        "state": "succeeded"
+      },
+      {
+        "id": "verify",
+        "state": "pending"
+      },
+      {
+        "id": "review",
+        "state": "pending"
+      },
+      {
+        "id": "close",
+        "state": "pending"
+      }
+    ],
+    "scope": "separate fault/restart recovery run; the accepted mutation run is identified by the top-level run_id"
+  },
+  "run_id": "run-stage4-workbench-live-provider-accepted",
+  "schema_version": "arda.stage4.workbench-live-provider.v1",
+  "verification": [
+    {
+      "command": "cargo test -p arda-engine --test hermes_adapter_contract",
+      "result": "9 passed; 0 failed"
+    },
+    {
+      "command": "cargo test -p arda-engine --test harness_projects --test harness_runs --test run_recovery --test workbench_boundary_recovery --test workbench_rust_golden",
+      "result": "23 passed; 0 failed; 2 intentionally ignored"
+    },
+    {
+      "command": "npm test -- --run src/components/arda/modules/WorkbenchModule.test.tsx src/components/workbench/ChangeReview.test.tsx",
+      "result": "2 files; 7 tests passed"
+    },
+    {
+      "command": "npm run lint",
+      "result": "0 errors; 101 pre-existing warnings"
+    },
+    {
+      "command": "npm run build",
+      "result": "passed; 2574 modules transformed"
+    },
+    {
+      "command": "cargo check && cargo test commands::workbench (apps/arda-hud/src-tauri)",
+      "result": "check passed; 7 Workbench tests passed"
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "result": "passed after formatting task-owned Rust changes"
+    },
+    {
+      "command": "git diff --check -- <task-owned engine/HUD paths>",
+      "result": "passed"
+    },
+    {
+      "command": "cargo test -p arda-engine --test hermes_adapter_contract --test harness_runs",
+      "result": "13 passed; 0 failed; receipt self-verification and malformed/traversal evidence rejection covered"
+    }
+  ],
+  "workbench_origin": {
+    "api": "POST /v1/runs/{run_id}/nodes/execute/execute-provider",
+    "created_by": "arda-hud-workbench",
+    "declared_check": {
+      "command": "cargo test --quiet",
+      "id": "cargo-test"
+    },
+    "project_contract": "arda.project-contract.v1"
+  }
+}

@@ -438,7 +438,7 @@ function deriveOperatorRuntimeStatus(world: JsonRecord | null, activeRuleset: Js
 }
 
 async function deriveHumanContext(rootPath: string): Promise<JsonRecord> {
-  const [indexDoc, onboardDoc, companyView, arandurIndex, arandurThoughts, docsTree, notesTree, summariesTree, libraryTree] = await Promise.all([
+  const [indexDoc, onboardDoc, companyView, arandurIndex, arandurThoughts, docsTree] = await Promise.all([
     summarizeReadable(rootPath, 'docs/operator/index.md'),
     summarizeReadable(rootPath, 'docs/operator/onboard.md'),
     summarizeReadable(rootPath, 'docs/operator/company-view.md'),
@@ -446,6 +446,9 @@ async function deriveHumanContext(rootPath: string): Promise<JsonRecord> {
     summarizeReadable(rootPath, 'docs/operator/philosophy.md'),
     readInventoryTree(rootPath, 'docs/arda', 4),
   ])
+  const notesTree = docsTree
+  const summariesTree = docsTree
+  const libraryTree = docsTree
 
   const docs = collectInventoryPaths(docsTree, '.md').slice(0, 16).map((path) => ({
     title: titleFromPath(path),

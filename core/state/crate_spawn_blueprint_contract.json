@@ -57,7 +57,7 @@
     },
     "lib_rs": {
       "recommended_patterns": [
-        "use annunimas_core::{Agent, Task, Result}",
+        "use arda_core::{Agent, Task, Result}",
         "use annunimas_governance::{bacon_lite_validate, profile_joulework}",
         "derive(Debug, Clone) on agent struct",
         "serde derive for serialization"

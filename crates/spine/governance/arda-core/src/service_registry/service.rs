@@ -7,35 +7,25 @@ use std::{
 };
 
 /// Stable runtime status for a registered service.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ServiceStatus {
+    #[default]
     Registered,
     Running,
     Stopped,
     Failed,
 }
 
-impl Default for ServiceStatus {
-    fn default() -> Self {
-        Self::Registered
-    }
-}
-
 /// Stable service identity used by the registry.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ArdaServiceRegistryStatus {
+    #[default]
     Unknown,
     Healthy,
     Degraded,
     Unhealthy,
-}
-
-impl Default for ArdaServiceRegistryStatus {
-    fn default() -> Self {
-        Self::Unknown
-    }
 }
 
 impl fmt::Display for ArdaServiceRegistryStatus {
@@ -126,7 +116,7 @@ pub struct ServiceRegistryStateValidator {
 }
 
 /// Identity and runtime record for one registered service.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ServiceRecord {
     pub identity: crate::service_registry::crate_identity::CrateIdentity,
     pub contract: crate::service_registry::contract::ServiceContract,
@@ -139,22 +129,6 @@ pub struct ServiceRecord {
     pub handle: Option<ServiceHandle>,
     #[serde(skip)]
     pub state_file: Option<PathBuf>,
-}
-
-impl Default for ServiceRecord {
-    fn default() -> Self {
-        Self {
-            identity: crate::service_registry::crate_identity::CrateIdentity::default(),
-            contract: crate::service_registry::contract::ServiceContract::default(),
-            status: ServiceStatus::default(),
-            health: ArdaServiceRegistryStatus::default(),
-            continuity: ContinuityConfig::default(),
-            contract_config: ContractConfig::default(),
-            governance: GovernanceConfig::default(),
-            handle: None,
-            state_file: None,
-        }
-    }
 }
 
 impl ServiceRecord {

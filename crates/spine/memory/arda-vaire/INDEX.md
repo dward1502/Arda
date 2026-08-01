@@ -1,32 +1,18 @@
----
-soterion:
-  sigil: "SCROLL"
-  glyph: "📜"
-  code_point: "U+1F4DC"
-  role: "directory_index"
-  owner: "HADES"
-  status: "active"
-  last_reviewed: "2026-07-13"
----
+# arda-vaire index
 
+## Maintained documentation
 
-> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-13
+- `README.md` — public boundary, persistence contract, consumers, and current
+  verification
+- `BREAKDOWN.md` — compiled implementation map, ownership, risks, and
+  supersession record
 
-# Index: crates/memory/arda-vaire/INDEX.md
-
-## Contents
+## Direct children
 
 - `Cargo.toml`
-- `INDEX.md`
 - `README.md`
-- `crates`
-- `src`
-- `tests`
-
-## Purpose
-
-Crate index for `crates/memory/arda-vaire/INDEX.md`. See sibling `INDEX.md` for bucket metadata.
-
-## Notes
-
-Normalized from on-disk contents; review cadence is quarterly unless owner changes.
+- `BREAKDOWN.md`
+- `INDEX.md`
+- `benches/`
+- `src/`
+- `tests/`

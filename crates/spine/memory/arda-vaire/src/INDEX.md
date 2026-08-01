@@ -6,13 +6,13 @@ soterion:
   role: "directory_index"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-13"
+  last_reviewed: "2026-07-27"
 ---
 
 
-> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-13
+> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-27
 
-# Index: crates/memory/arda-vaire/src/INDEX.md
+# Index: crates/spine/memory/arda-vaire/src/INDEX.md
 
 ## Contents
 
@@ -20,14 +20,16 @@ soterion:
 - `README.md`
 - `error.rs`
 - `lib.rs`
-- `service`
+- `retrieval_eval.rs`
+- `schema.rs`
+- `service/`
 - `service.rs`
 - `significance.rs`
-- `transport`
+- `transport/`
 
 ## Purpose
 
-Crate index for `crates/memory/arda-vaire/src/INDEX.md`. See sibling `INDEX.md` for bucket metadata.
+Crate index for `crates/spine/memory/arda-vaire/src/INDEX.md`. See sibling `INDEX.md` for bucket metadata.
 
 ## Notes
 

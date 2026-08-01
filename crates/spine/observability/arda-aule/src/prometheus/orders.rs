@@ -1,6 +1,6 @@
 #![cfg(feature = "full-cli")]
 // sigil: REPAIR
-use annunimas_core::error::{AnnunimasError, Result};
+use arda_core::error::{ArdaError, Result};
 use chrono::{DateTime, Utc};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use std::collections::HashMap;
@@ -80,7 +80,7 @@ impl OrderStore {
                 if !is_permission_error(&err) {
                     return Err(err);
                 }
-                Self::new(annunimas_root().join("data").join("prometheus"))
+                Self::new(arda_aule_root().join("data").join("prometheus"))
             }
         }
     }
@@ -146,11 +146,11 @@ impl OrderStore {
 
     pub fn resolve_escalation(&self, escalation_id: &str, note: &str) -> Result<EscalationEvent> {
         let latest = self.latest_escalations_by_id()?;
-        let current = latest.get(escalation_id).ok_or_else(|| {
-            AnnunimasError::Task(format!("escalation not found: {escalation_id}"))
-        })?;
+        let current = latest
+            .get(escalation_id)
+            .ok_or_else(|| ArdaError::Task(format!("escalation not found: {escalation_id}")))?;
         if matches!(current.status, EscalationStatus::Resolved) {
-            return Err(AnnunimasError::Task(format!(
+            return Err(ArdaError::Task(format!(
                 "escalation already resolved: {escalation_id}"
             )));
         }
@@ -327,28 +327,24 @@ fn append_jsonl<T: Serialize>(path: &Path, value: &T) -> Result<()> {
     Ok(())
 }
 
-fn annunimas_root() -> PathBuf {
-    if let Ok(path) = std::env::var("ANNUNIMAS_ROOT") {
+fn arda_aule_root() -> PathBuf {
+    if let Ok(path) = std::env::var("ARDA_AULE_ROOT") {
         return PathBuf::from(path);
     }
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .and_then(Path::parent)
-        .map(Path::to_path_buf)
-        .unwrap_or_else(|| PathBuf::from("."))
+    arda_core::layout::arda_root_from(env!("CARGO_MANIFEST_DIR"))
 }
 
 fn default_root() -> PathBuf {
-    if let Ok(custom) = std::env::var("ANNUNIMAS_PROMETHEUS_HOME") {
+    if let Ok(custom) = std::env::var("ARDA_PROMETHEUS_HOME") {
         return PathBuf::from(custom);
     }
-    annunimas_root().join("data/prometheus")
+    arda_aule_root().join("data/prometheus")
 }
 
-fn is_permission_error(err: &AnnunimasError) -> bool {
+fn is_permission_error(err: &ArdaError) -> bool {
     matches!(
         err,
-        AnnunimasError::Ledger(ioe) if ioe.kind() == std::io::ErrorKind::PermissionDenied
+        ArdaError::Ledger(ioe) if ioe.kind() == std::io::ErrorKind::PermissionDenied
     )
 }
 

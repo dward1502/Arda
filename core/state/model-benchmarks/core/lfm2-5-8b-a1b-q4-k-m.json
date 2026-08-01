@@ -1,0 +1,484 @@
+{
+  "benchmark_elapsed_seconds": 41.122098654013826,
+  "checks": [
+    {
+      "category": "correctness",
+      "elapsed_seconds": 0.1933674630126916,
+      "evidence": {
+        "content": "<think></think>\n{\n  \"name\": \"arda\",\n  \"count\": 3,\n  \"enabled\": true\n}",
+        "parsed": {
+          "count": 3,
+          "enabled": true,
+          "name": "arda"
+        }
+      },
+      "name": "exact_json_schema",
+      "passed": false
+    },
+    {
+      "category": "tools",
+      "elapsed_seconds": 0.12254610899253748,
+      "evidence": {
+        "calls": [
+          {
+            "arguments": {
+              "offset": 17,
+              "path": "Cargo.toml"
+            },
+            "id": "tOyI8BQCUdvDR3MMsb3PGwR9dRfOjt9r",
+            "name": "read_file"
+          }
+        ],
+        "content": "<think></think>"
+      },
+      "name": "single_native_tool",
+      "passed": true
+    },
+    {
+      "category": "tools",
+      "elapsed_seconds": 0.09860691401991062,
+      "evidence": {
+        "calls": [
+          {
+            "arguments": {
+              "city": "Oslo"
+            },
+            "id": "kDLCCs4vkdAJ8TThR5a85IhOsfeDE8C4",
+            "name": "weather"
+          }
+        ],
+        "content": "<think></think>"
+      },
+      "name": "multi_tool_selection",
+      "passed": true
+    },
+    {
+      "category": "tools",
+      "elapsed_seconds": 0.14999429599265568,
+      "evidence": {
+        "calls": [
+          {
+            "arguments": {
+              "count": 7,
+              "enabled": "True",
+              "text": "\"line one \"quoted\"\\nline two \\\\ path\""
+            },
+            "id": "vr5NbCUotCQyBKg3BAmrspJ3avcuigzZ",
+            "name": "write_note"
+          }
+        ],
+        "content": "<think></think>"
+      },
+      "name": "tool_argument_escaping_and_types",
+      "passed": false
+    },
+    {
+      "category": "tools",
+      "elapsed_seconds": 0.4711785539984703,
+      "evidence": {
+        "final": "<think>\nOkay, the user wants me to use the multiply function for 17 times 19 and then report only the result. Let me check the tools provided. There's a multiply function that takes two integers. So I need to call multiply with a=17 and b=19. The tool response was 323. The user specified to report only RESULT=<number>, so I should output that exactly. No extra text, just the result. Let me make sure",
+        "initial_calls": [
+          {
+            "arguments": {
+              "a": 17,
+              "b": 19
+            },
+            "id": "dV8RkaVXtLaug4NMb6dhTTFG26XRzUAx",
+            "name": "multiply"
+          }
+        ]
+      },
+      "name": "tool_result_continuation",
+      "passed": false
+    },
+    {
+      "category": "correctness",
+      "elapsed_seconds": 0.2959290129947476,
+      "evidence": {
+        "content": "<think></think>\n<think>\nThe user asks: \"Output exactly ARDA_SENTINEL_7 and nothing else. Do not reveal reasoning.\"\n\nWe need to see if \"ARDA_SENTINEL_7\" is presumably some identifier or code. There's no context. The user wants exactly that string and nothing else. According to policy, we can comply if it's not disallowed.",
+        "reasoning_content": null
+      },
+      "name": "instruction_and_no_visible_reasoning",
+      "passed": false
+    },
+    {
+      "category": "correctness",
+      "elapsed_seconds": 0.3778030349931214,
+      "evidence": {
+        "content": "<think></think>\nThe workspace Cargo.toml lists members only, and the `crates/arda-router/Cargo.toml` declares the dependency `serde_json`. To change the version of `serde_json` for the `arda-router` crate, you need to edit the `Cargo.toml` file located in the `crates/arda-router` directory. This file is the one that specifies the dependencies for the `arda"
+      },
+      "name": "repository_navigation",
+      "passed": false
+    },
+    {
+      "category": "correctness",
+      "elapsed_seconds": 0.2640184619813226,
+      "evidence": {
+        "content": "<think></think>\n<think>\nWe need to diagnose the Rust compile error: \"future cannot be sent between threads safely; MutexGuard is not Send; value is used across an await\". The code snippet:\n\nlet guard = state.lock().unwrap();\nclient.send(guard.value()).await?;\ndrop(guard);"
+      },
+      "name": "rust_diagnosis",
+      "passed": false
+    },
+    {
+      "category": "correctness",
+      "elapsed_seconds": 0.9702278999902774,
+      "evidence": {
+        "code": "...",
+        "exit_code": 1,
+        "stderr": "error: expected item, found `...`\n --> /tmp/arda-model-bench-1c96ye6d/candidate.rs:1:1\n  |\n1 | ...\n  | ^^^ expected item\n  |\n  = note: for a full list of items that can appear in modules, see <https://doc.rust-lang.org/reference/items.html>\n\nerror: aborting due to 1 previous error\n\n",
+        "stdout": ""
+      },
+      "name": "small_rust_edit_validated",
+      "passed": false
+    },
+    {
+      "category": "correctness",
+      "elapsed_seconds": 0.07057672902010381,
+      "evidence": {
+        "content": "<think></think>\nCANNOT_VERIFY"
+      },
+      "name": "nonexistent_symbol_nonhallucination",
+      "passed": false
+    },
+    {
+      "category": "context",
+      "elapsed_seconds": 10.375659570010612,
+      "evidence": {
+        "content": "<think></think>\n</think>\nx x x x x x x y y y y y y y y y y y y y y y y y y y y y y y y y y y y y y y y y y y y y y y y y y y y y y y y y y y y",
+        "timings": {
+          "cache_n": 0,
+          "predicted_ms": 354.99,
+          "predicted_n": 64,
+          "predicted_per_second": 180.28676864137017,
+          "predicted_per_token_ms": 5.54671875,
+          "prompt_ms": 10002.648,
+          "prompt_n": 64547,
+          "prompt_per_second": 6452.991247917552,
+          "prompt_per_token_ms": 0.15496689234201433
+        },
+        "usage": {
+          "completion_tokens": 64,
+          "prompt_tokens": 64547,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "total_tokens": 64611
+        }
+      },
+      "name": "long_context_retrieval",
+      "passed": false
+    }
+  ],
+  "configuration": {
+    "contexts": [
+      1024,
+      8192,
+      32000
+    ],
+    "gates": {
+      "generation_tps": 30.0,
+      "memory_margin_bytes": 1073741824.0,
+      "prompt_8k_tps": 250.0,
+      "task_correctness": 0.85,
+      "tool_validity": 0.95
+    },
+    "long_context": 65000,
+    "repetitions": 3
+  },
+  "created_at": "2026-07-27T06:19:25.337902+00:00",
+  "endpoint": "http://127.0.0.1:18400",
+  "host": "core-rtx3080",
+  "memory": {
+    "gpu_total_bytes": {
+      "baseline": 10737418240,
+      "final": 10737418240,
+      "growth": 0,
+      "peak": 10737418240
+    },
+    "gpu_used_bytes": {
+      "baseline": 9110028288,
+      "final": 9784262656,
+      "growth": 674234368,
+      "peak": 9784262656
+    },
+    "process_rss_bytes": {
+      "baseline": 729903104,
+      "final": 1565401088,
+      "growth": 835497984,
+      "peak": 1565401088
+    },
+    "ram_used_bytes": {
+      "baseline": 12334264320,
+      "final": 12960829440,
+      "growth": 626565120,
+      "peak": 13120696320
+    },
+    "sample_count": 188,
+    "swap_used_bytes": {
+      "baseline": 5000458240,
+      "final": 4965097472,
+      "growth": -35360768,
+      "peak": 5000458240
+    }
+  },
+  "model": "LFM2.5-8B-A1B-Q4_K_M",
+  "model_load_seconds": 3.2596939190116245,
+  "models_response": {
+    "data": [
+      {
+        "aliases": [
+          "LFM2.5-8B-A1B-Q4_K_M"
+        ],
+        "created": 1785133124,
+        "id": "LFM2.5-8B-A1B-Q4_K_M",
+        "meta": {
+          "n_ctx_train": 128000,
+          "n_embd": 2048,
+          "n_params": 8467856832,
+          "n_vocab": 128000,
+          "size": 5147326208,
+          "vocab_type": 2
+        },
+        "object": "model",
+        "owned_by": "llamacpp",
+        "tags": []
+      }
+    ],
+    "models": [
+      {
+        "capabilities": [
+          "completion"
+        ],
+        "description": "",
+        "details": {
+          "families": [
+            ""
+          ],
+          "family": "",
+          "format": "gguf",
+          "parameter_size": "",
+          "parent_model": "",
+          "quantization_level": ""
+        },
+        "digest": "",
+        "model": "LFM2.5-8B-A1B-Q4_K_M",
+        "modified_at": "",
+        "name": "LFM2.5-8B-A1B-Q4_K_M",
+        "parameters": "",
+        "size": "",
+        "tags": [
+          ""
+        ],
+        "type": "model"
+      }
+    ],
+    "object": "list"
+  },
+  "performance": [
+    {
+      "elapsed_seconds": 1.0314805539965164,
+      "finish_reason": "length",
+      "output_characters": 626,
+      "repetition": 1,
+      "target_prompt_tokens": 1024,
+      "timings": {
+        "cache_n": 0,
+        "predicted_ms": 928.052,
+        "predicted_n": 256,
+        "predicted_per_second": 275.8466120432907,
+        "predicted_per_token_ms": 3.625203125,
+        "prompt_ms": 100.523,
+        "prompt_n": 565,
+        "prompt_per_second": 5620.604239825711,
+        "prompt_per_token_ms": 0.17791681415929203
+      },
+      "ttft_seconds": 0.1034311940020416,
+      "visible_reasoning": true
+    },
+    {
+      "elapsed_seconds": 1.0266249639971647,
+      "finish_reason": "length",
+      "output_characters": 626,
+      "repetition": 2,
+      "target_prompt_tokens": 1024,
+      "timings": {
+        "cache_n": 0,
+        "predicted_ms": 923.787,
+        "predicted_n": 256,
+        "predicted_per_second": 277.1201586512908,
+        "predicted_per_token_ms": 3.60854296875,
+        "prompt_ms": 98.275,
+        "prompt_n": 565,
+        "prompt_per_second": 5749.17323836174,
+        "prompt_per_token_ms": 0.17393805309734514
+      },
+      "ttft_seconds": 0.10313689900794998,
+      "visible_reasoning": true
+    },
+    {
+      "elapsed_seconds": 0.9916606289916672,
+      "finish_reason": "length",
+      "output_characters": 626,
+      "repetition": 3,
+      "target_prompt_tokens": 1024,
+      "timings": {
+        "cache_n": 0,
+        "predicted_ms": 889.438,
+        "predicted_n": 256,
+        "predicted_per_second": 287.822197837286,
+        "predicted_per_token_ms": 3.4743671875,
+        "prompt_ms": 98.284,
+        "prompt_n": 565,
+        "prompt_per_second": 5748.646778722885,
+        "prompt_per_token_ms": 0.17395398230088496
+      },
+      "ttft_seconds": 0.10242419899441302,
+      "visible_reasoning": true
+    },
+    {
+      "elapsed_seconds": 1.163108414009912,
+      "finish_reason": "stop",
+      "output_characters": 229,
+      "repetition": 1,
+      "target_prompt_tokens": 8192,
+      "timings": {
+        "cache_n": 0,
+        "predicted_ms": 213.434,
+        "predicted_n": 57,
+        "predicted_per_second": 267.06148036395325,
+        "predicted_per_token_ms": 3.744456140350877,
+        "prompt_ms": 942.521,
+        "prompt_n": 7733,
+        "prompt_per_second": 8204.59172792967,
+        "prompt_per_token_ms": 0.1218829690934954
+      },
+      "ttft_seconds": 0.9496670020162128,
+      "visible_reasoning": true
+    },
+    {
+      "elapsed_seconds": 1.9290918150218204,
+      "finish_reason": "length",
+      "output_characters": 760,
+      "repetition": 2,
+      "target_prompt_tokens": 8192,
+      "timings": {
+        "cache_n": 0,
+        "predicted_ms": 955.925,
+        "predicted_n": 256,
+        "predicted_per_second": 267.8034364620656,
+        "predicted_per_token_ms": 3.73408203125,
+        "prompt_ms": 950.628,
+        "prompt_n": 7733,
+        "prompt_per_second": 8134.622586332403,
+        "prompt_per_token_ms": 0.12293133324712273
+      },
+      "ttft_seconds": 0.9732013920147438,
+      "visible_reasoning": true
+    },
+    {
+      "elapsed_seconds": 1.925568303995533,
+      "finish_reason": "length",
+      "output_characters": 803,
+      "repetition": 3,
+      "target_prompt_tokens": 8192,
+      "timings": {
+        "cache_n": 0,
+        "predicted_ms": 967.093,
+        "predicted_n": 256,
+        "predicted_per_second": 264.71083959867354,
+        "predicted_per_token_ms": 3.77770703125,
+        "prompt_ms": 935.094,
+        "prompt_n": 7733,
+        "prompt_per_second": 8269.756837280529,
+        "prompt_per_token_ms": 0.12092253976464504
+      },
+      "ttft_seconds": 0.9584759999997914,
+      "visible_reasoning": true
+    },
+    {
+      "elapsed_seconds": 5.462697648996254,
+      "finish_reason": "length",
+      "output_characters": 1207,
+      "repetition": 1,
+      "target_prompt_tokens": 32000,
+      "timings": {
+        "cache_n": 0,
+        "predicted_ms": 1170.421,
+        "predicted_n": 256,
+        "predicted_per_second": 218.7247152947529,
+        "predicted_per_token_ms": 4.57195703125,
+        "prompt_ms": 4259.934,
+        "prompt_n": 31541,
+        "prompt_per_second": 7404.105321819539,
+        "prompt_per_token_ms": 0.13506020734916457
+      },
+      "ttft_seconds": 4.291754820995266,
+      "visible_reasoning": false
+    },
+    {
+      "elapsed_seconds": 5.54946292200475,
+      "finish_reason": "length",
+      "output_characters": 957,
+      "repetition": 2,
+      "target_prompt_tokens": 32000,
+      "timings": {
+        "cache_n": 0,
+        "predicted_ms": 1159.434,
+        "predicted_n": 256,
+        "predicted_per_second": 220.79738907087423,
+        "predicted_per_token_ms": 4.5290390625,
+        "prompt_ms": 4298.697,
+        "prompt_n": 31541,
+        "prompt_per_second": 7337.339663623651,
+        "prompt_per_token_ms": 0.1362891791636283
+      },
+      "ttft_seconds": 4.389521262986818,
+      "visible_reasoning": false
+    },
+    {
+      "elapsed_seconds": 5.453924203000497,
+      "finish_reason": "length",
+      "output_characters": 1118,
+      "repetition": 3,
+      "target_prompt_tokens": 32000,
+      "timings": {
+        "cache_n": 0,
+        "predicted_ms": 1142.377,
+        "predicted_n": 256,
+        "predicted_per_second": 224.09414755374104,
+        "predicted_per_token_ms": 4.46241015625,
+        "prompt_ms": 4227.197,
+        "prompt_n": 31541,
+        "prompt_per_second": 7461.4454921310735,
+        "prompt_per_token_ms": 0.13402228844995404
+      },
+      "ttft_seconds": 4.311047820025124,
+      "visible_reasoning": false
+    }
+  ],
+  "process_pid": 2448979,
+  "schema_version": 1,
+  "summary": {
+    "all_gates_passed": false,
+    "category_rates": {
+      "context": 0.0,
+      "correctness": 0.0,
+      "tools": 0.5
+    },
+    "gates": {
+      "context_stability": false,
+      "generation_tps": true,
+      "memory_margin": false,
+      "no_performance_errors": true,
+      "no_swap_growth": true,
+      "prompt_8k_tps": true,
+      "task_correctness": false,
+      "tool_validity": false
+    },
+    "median_generation_tokens_per_second": 267.06148036395325,
+    "median_prompt_8k_tokens_per_second": 8204.59172792967,
+    "median_ttft_seconds": 0.9584759999997914,
+    "practical_gpu_margin_bytes": 953155584,
+    "weighted_score": 36.938
+  }
+}

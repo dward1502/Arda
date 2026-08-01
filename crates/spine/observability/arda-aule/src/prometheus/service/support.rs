@@ -1,26 +1,22 @@
 #![cfg(feature = "full-cli")]
-use annunimas_core::error::Result;
+use arda_core::error::Result;
 use sha2::{Digest, Sha256};
 use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
-pub(crate) fn annunimas_root() -> PathBuf {
-    if let Ok(path) = std::env::var("ANNUNIMAS_ROOT") {
+pub(crate) fn arda_aule_root() -> PathBuf {
+    if let Ok(path) = std::env::var("ARDA_AULE_ROOT") {
         return PathBuf::from(path);
     }
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .and_then(Path::parent)
-        .map(Path::to_path_buf)
-        .unwrap_or_else(|| PathBuf::from("."))
+    arda_core::layout::arda_root_from(env!("CARGO_MANIFEST_DIR"))
 }
 
 pub(crate) fn prometheus_home() -> PathBuf {
-    if let Ok(path) = std::env::var("ANNUNIMAS_PROMETHEUS_HOME") {
+    if let Ok(path) = std::env::var("ARDA_PROMETHEUS_HOME") {
         return PathBuf::from(path);
     }
-    annunimas_root().join("data/prometheus")
+    arda_aule_root().join("data/prometheus")
 }
 
 pub(crate) fn append_jsonl(path: &Path, value: &serde_json::Value) -> Result<()> {

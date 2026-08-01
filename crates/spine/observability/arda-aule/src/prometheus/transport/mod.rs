@@ -4,19 +4,15 @@
 pub mod http;
 pub mod ipc;
 
-use crate::service::PrometheusService;
-use annunimas_core::error::Result;
-use std::path::{Path, PathBuf};
+use crate::prometheus::service::PrometheusService;
+use arda_core::error::Result;
+use std::path::PathBuf;
 
-fn annunimas_root() -> PathBuf {
-    if let Ok(path) = std::env::var("ANNUNIMAS_ROOT") {
+fn arda_aule_root() -> PathBuf {
+    if let Ok(path) = std::env::var("ARDA_AULE_ROOT") {
         return PathBuf::from(path);
     }
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .and_then(Path::parent)
-        .map(Path::to_path_buf)
-        .unwrap_or_else(|| PathBuf::from("."))
+    arda_core::layout::arda_root_from(env!("CARGO_MANIFEST_DIR"))
 }
 
 #[derive(Debug, Clone)]
@@ -28,7 +24,7 @@ pub struct PrometheusDaemonConfig {
 
 impl Default for PrometheusDaemonConfig {
     fn default() -> Self {
-        let socket_path = annunimas_root().join("data/prometheus/prometheus.sock");
+        let socket_path = arda_aule_root().join("data/prometheus/prometheus.sock");
         Self {
             socket_path,
             http_enabled: true,
@@ -84,8 +80,9 @@ impl PrometheusDaemon {
     }
 }
 
-fn join_error(err: tokio::task::JoinError) -> annunimas_core::error::AnnunimasError {
-    annunimas_core::error::AnnunimasError::Agent {
+#[cfg(feature = "http")]
+fn join_error(err: tokio::task::JoinError) -> arda_core::error::ArdaError {
+    arda_core::error::ArdaError::Agent {
         agent: "prometheus".to_string(),
         message: format!("daemon task failed: {err}"),
     }

@@ -44,11 +44,10 @@ tags = ["gateway"]
 
   [service.start]
   command = "cargo"
-  args = ["run", "-p", "arda-aule", "--", "serve"]
+  args = ["run", "-p", "manwe", "--", "--config", "manwe.toml"]
   cwd = "."
 
   [service.health]
-  url = "http://127.0.0.1:7171"
-  path = "/health"
+  url = "http://127.0.0.1:7171/healthz"
   interval_secs = 5
   timeout_secs = 2

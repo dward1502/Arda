@@ -12,6 +12,7 @@ use axum::{Json, Router};
 use serde::Deserialize;
 use serde_json::{json, Value};
 use std::convert::Infallible;
+use std::time::Instant;
 use tokio_stream::wrappers::IntervalStream;
 use tokio_stream::{Stream, StreamExt};
 
@@ -68,6 +69,7 @@ pub async fn run_http_server(service: PlutusService, addr: &str) -> Result<()> {
 }
 
 pub fn build_router(service: PlutusService) -> Router {
+    let middleware_state = service.clone();
     Router::new()
         .route("/status", get(status))
         .route("/register_model", post(register_model))
@@ -77,17 +79,26 @@ pub fn build_router(service: PlutusService) -> Router {
         .route("/relationship", post(relationship))
         .route("/paths", get(paths))
         .route("/events", get(events))
-        .layer(middleware::from_fn(http_admission_gate))
+        .layer(middleware::from_fn_with_state(
+            middleware_state,
+            http_admission_gate,
+        ))
         .with_state(service)
 }
 
-async fn http_admission_gate(req: Request, next: Next) -> Response {
+async fn http_admission_gate(
+    State(service): State<PlutusService>,
+    req: Request,
+    next: Next,
+) -> Response {
+    let started_at = Instant::now();
     let Some(response) =
         try_run_bounded_async("plutus_http_request", http_request_limit(), || async move {
             next.run(req).await
         })
         .await
     else {
+        service.record_transport_latency(started_at.elapsed());
         return (
             StatusCode::SERVICE_UNAVAILABLE,
             Json(json!({"ok": false, "error": "PLUTUS HTTP concurrency gate saturated"})),
@@ -95,6 +106,7 @@ async fn http_admission_gate(req: Request, next: Next) -> Response {
             .into_response();
     };
 
+    service.record_transport_latency(started_at.elapsed());
     response
 }
 
@@ -246,6 +258,7 @@ mod tests {
         assert_eq!(track_response.status(), StatusCode::OK);
 
         let paths_response = app
+            .clone()
             .oneshot(
                 Request::builder()
                     .uri("/paths")
@@ -262,5 +275,22 @@ mod tests {
         let value: Value = serde_json::from_slice(&body).expect("paths json");
         assert_eq!(value["ok"], true);
         assert!(value["paths"]["status_path"].as_str().is_some());
+
+        let metrics_response = app
+            .oneshot(
+                Request::builder()
+                    .uri("/status")
+                    .body(Body::empty())
+                    .expect("metrics request"),
+            )
+            .await
+            .expect("metrics status");
+        let body = to_bytes(metrics_response.into_body(), usize::MAX)
+            .await
+            .expect("metrics body");
+        let value: Value = serde_json::from_slice(&body).expect("metrics json");
+        assert!(value["transport_latency"]["requests_total"]
+            .as_u64()
+            .is_some_and(|count| count >= 3));
     }
 }

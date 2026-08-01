@@ -12,10 +12,10 @@
 
 use std::path::Path;
 
-use annunimas_core::contract::{Goal, GoalStatus, Plan, PlanStep};
-use annunimas_core::error::Result;
-use annunimas_core::state::{self, StateRoot};
-use annunimas_core::task::Task;
+use arda_core::contract::{Goal, GoalStatus, Plan, PlanStep};
+use arda_core::error::Result;
+use arda_core::state::{self, StateRoot};
+use arda_core::task::Task;
 use chrono::Utc;
 use serde_json::json;
 
@@ -148,7 +148,7 @@ fn step(intent: &str, params: serde_json::Value) -> PlanStep {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use annunimas_core::contract::GoalPriority;
+    use arda_core::contract::GoalPriority;
 
     fn tmp_state() -> (tempfile::TempDir, StateRoot) {
         let dir = tempfile::tempdir().unwrap();
@@ -217,7 +217,7 @@ mod tests {
         let pass = run(&st, Some(&queue)).unwrap();
         // Recipe has 3 steps for provider mesh health
         assert_eq!(pass.tasks_emitted, 3);
-        let tasks = annunimas_core::state::read_contract_tasks(&queue).unwrap();
+        let tasks = arda_core::state::read_contract_tasks(&queue).unwrap();
         assert_eq!(tasks.len(), 3);
         assert!(tasks.iter().all(|t| t.plan_id.is_some()));
         assert_eq!(

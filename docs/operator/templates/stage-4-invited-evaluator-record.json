@@ -1,0 +1,73 @@
+{
+  "schema_version": "arda.stage4.invited-evaluator-record.v1",
+  "session_id": "REPLACE_WITH_TIMESTAMPED_SESSION_ID",
+  "captured_at_utc": null,
+  "evaluator": {
+    "relationship": null,
+    "was_arda_implementer": null,
+    "recording_consent": "not_recorded"
+  },
+  "environment": {
+    "arda_commit": null,
+    "native_app_version": null,
+    "operating_system": null,
+    "installation_evidence": null
+  },
+  "fixture": {
+    "project_id": null,
+    "language": null,
+    "disposable": true,
+    "declared_test_command": null
+  },
+  "run_id": null,
+  "tasks": {
+    "orientation": {
+      "elapsed_seconds": null,
+      "current_state_answer": null,
+      "next_decision_answer": null,
+      "correct_within_30_seconds": null,
+      "assistance": null
+    },
+    "approval_scope": {
+      "commands_identified": null,
+      "writable_paths_identified": null,
+      "network_scope_identified": null,
+      "provider_model_identified": null,
+      "budget_identified": null,
+      "assistance": null
+    },
+    "change_and_verification": {
+      "answer": null,
+      "changed_path_or_diff_identified": null,
+      "exact_declared_test_identified": null,
+      "assistance": null
+    },
+    "state_distinction": {
+      "stale": null,
+      "failed": null,
+      "waiting": null,
+      "complete": null,
+      "safe_next_actions_correct": null,
+      "assistance": null
+    },
+    "restart_resume": {
+      "receipt_digest_before": null,
+      "receipt_digest_after": null,
+      "same_run_id": null,
+      "same_receipt": null,
+      "evidence_restored": null,
+      "assistance": null
+    },
+    "closure": {
+      "decision": null,
+      "reason_verbatim": null,
+      "next_action_found": null,
+      "assistance": null
+    }
+  },
+  "faults_or_confusion": [],
+  "follow_up_issue_links": [],
+  "evaluator_disposition": null,
+  "facilitator_disposition": "incomplete_until_all_fields_are_observed",
+  "stage4_gate_passed": false
+}

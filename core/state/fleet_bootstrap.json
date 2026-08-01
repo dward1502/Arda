@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-07-20T00:00:00Z",
+  "generated_at_utc": "2026-07-27T09:03:05Z",
   "schema_version": "arda.fleet-bootstrap.v2",
   "summary": {
     "providers_total": 1,
@@ -18,14 +18,14 @@
       "health_url": null,
       "status": "online",
       "models": [
-        "LFM2.5-8B-A1B-Q4_K_M"
+        "Qwen3.5-9B-Q4_K_M"
       ],
       "has_live_endpoint": true,
       "provider_hint": "openai_compat",
       "healthy": true,
       "intentional_offline": false,
       "last_error": null,
-      "ts_utc": "2026-07-20T00:00:00Z"
+      "ts_utc": "2026-07-27T09:03:05Z"
     }
   ],
   "receipts_path": "/var/home/mythos/Eregion/Arda/data/prometheus/runtime_admission_shed_receipts.jsonl"

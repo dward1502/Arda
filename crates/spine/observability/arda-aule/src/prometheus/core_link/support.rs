@@ -129,12 +129,12 @@ pub(super) fn package_required_shared_env_keys(tool: &str) -> Vec<&'static str> 
 pub(super) fn package_required_runtime_env_keys(tool: &str) -> Vec<&'static str> {
     match tool {
         "litellm" => vec!["LITELLM_PROXY_URL"],
-        "crawl4ai" => vec!["ANNUNIMAS_CRAWL4AI_URL"],
-        "playwright-mcp" => vec!["ANNUNIMAS_PLAYWRIGHT_MCP_CMD"],
+        "crawl4ai" => vec!["ARDA_CRAWL4AI_URL"],
+        "playwright-mcp" => vec!["ARDA_PLAYWRIGHT_MCP_CMD"],
         "nanoclaw" => vec![
-            "ANNUNIMAS_NANOCLAW_ROOT",
-            "ANNUNIMAS_NANOCLAW_EDGE_TARGET",
-            "ANNUNIMAS_NANOCLAW_EDGE_TRANSPORT",
+            "ARDA_NANOCLAW_ROOT",
+            "ARDA_NANOCLAW_EDGE_TARGET",
+            "ARDA_NANOCLAW_EDGE_TRANSPORT",
         ],
         _ => Vec::new(),
     }
@@ -218,7 +218,7 @@ pub(super) fn package_next_action(
             "LiteLLM is already live in MANWE; keep provider health, models, and gateway policy aligned"
         }
         ("crawl4ai", "active_in_system") => {
-            "ATHENA can already ingest through crawl4ai; use `annunimas athena crawl <url>` when capture is needed"
+            "ATHENA can already ingest through crawl4ai; use `arda athena crawl <url>` when capture is needed"
         }
         ("llmfit", "active_signal") => {
             "llmfit recommendations are already visible to MANWE route policy; tune route heuristics rather than wiring a new runtime"
@@ -238,13 +238,13 @@ pub(super) fn package_next_action(
             }
             ("litellm", _) => "complete LiteLLM env contract and provider activation path",
             ("crawl4ai", "ready_for_activation") => {
-                "run `annunimas athena crawl <url>` to capture markdown into ATHENA via the local crawl4ai service"
+                "run `arda athena crawl <url>` to capture markdown into ATHENA via the local crawl4ai service"
             }
             ("crawl4ai", "evidence_ready") => {
                 "add crawler execution adapter and authenticated ingestion path"
             }
             ("playwright-mcp", "ready_for_activation") => {
-                "start the supervised bridge and expose the governed browser session tool through annunimas-mcp"
+                "start the supervised bridge and expose the governed browser session tool through arda-mcp"
             }
             ("playwright-mcp", "evidence_ready") => {
                 "define MCP browser contract and bridge process supervision"

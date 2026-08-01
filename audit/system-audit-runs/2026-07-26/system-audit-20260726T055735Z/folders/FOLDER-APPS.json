@@ -1,0 +1,126 @@
+{
+  "bad": [
+    "Scoped files contain 4 crash-path tokens (`unwrap`, `expect`, `panic`, `todo`, or `unimplemented`) requiring manual review."
+  ],
+  "candidate_tasks": [
+    {
+      "acceptance": "Production `unwrap()` usages are removed or proven unreachable; tests cover changed paths.",
+      "owner": "folder-apps",
+      "priority": "medium",
+      "risk_class": "source_change_review_required",
+      "title": "Classify and remediate FOLDER-APPS crash-path tokens"
+    }
+  ],
+  "contract": "arda.audit.target_report.v1",
+  "duties": [
+    "Frontend and device applications including ARDA HUD and CITADEL avatar."
+  ],
+  "evidence": [
+    {
+      "exists": true,
+      "line": null,
+      "note": "primary target root",
+      "path": "apps"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "workspace membership checked from repository manifest: False",
+      "path": "Cargo.toml"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "apps/README.md"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "apps/arda-hud/ARDA_HUD_PUBLIC_PRODUCT_STRATEGY.md"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "apps/arda-hud/BREAKDOWN.md"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "apps/arda-hud/README.md"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "apps/arda-hud/arda_hud.settings.json"
+    }
+  ],
+  "generated_at": "2026-07-26T05:57:36.911567+00:00",
+  "good": [
+    "Folder surface `apps` exists with 138 tracked text files sampled for this audit.",
+    "Found 1 test-like files under the primary target surface.",
+    "Observed 416 audit/status/telemetry/logging token hits in scoped files.",
+    "Latest portability receipt has no active blockers for this target/support surface."
+  ],
+  "needs_removed": [
+    "No automatic removal recommendation; removal candidates require a follow-up evidence pass."
+  ],
+  "overview": "Read-only Phase 4/5 Good / Bad / Ugly audit for FOLDER-APPS.",
+  "potential_changes": [
+    "Classify crash-path tokens as production, test, or impossible-state assertions and remove production `unwrap()` usages.",
+    "Keep current useful operational surface, parameterize portability blockers, and remove only stale/generated/archive drift after a separate evidence pass."
+  ],
+  "report_json_path": "folders/FOLDER-APPS.json",
+  "report_markdown_path": "folders/FOLDER-APPS.md",
+  "run_id": "system-audit-20260726T055735Z",
+  "score": 93,
+  "score_breakdown": {
+    "implementation_completeness": 20,
+    "mission_fit": 20,
+    "observability_auditability": 15,
+    "portability_config_hygiene": 15,
+    "reliability_safety": 16,
+    "ux_operator_experience": 7
+  },
+  "snapshot": {
+    "crash_counts": {
+      ".expect(": 4,
+      ".unwrap()": 0,
+      "panic!(": 0,
+      "todo!(": 0,
+      "unimplemented!(": 0
+    },
+    "keyword_hits": {
+      "arda": 778,
+      "citadel": 2,
+      "package": 30,
+      "tauri": 319,
+      "vite": 124
+    },
+    "observability_hits": 416,
+    "primary_exists": true,
+    "primary_file_count": 138,
+    "rollup_target": null,
+    "rust_file_count": 23,
+    "sample_files": [
+      "apps/README.md",
+      "apps/arda-hud/ARDA_HUD_PUBLIC_PRODUCT_STRATEGY.md",
+      "apps/arda-hud/BREAKDOWN.md",
+      "apps/arda-hud/README.md",
+      "apps/arda-hud/arda_hud.settings.json",
+      "apps/arda-hud/package.json",
+      "apps/arda-hud/pnpm-lock.yaml",
+      "apps/arda-hud/pnpm-workspace.yaml"
+    ],
+    "support_status": [],
+    "test_file_count": 1,
+    "workspace_member": false
+  },
+  "target": "FOLDER-APPS",
+  "target_type": "folder",
+  "ugly": []
+}

@@ -6,13 +6,13 @@ soterion:
   role: "directory_index"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-13"
+  last_reviewed: "2026-07-25"
 ---
 
 
-> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-13
+> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-25
 
-# Index: crates/governance/arda-core/src/INDEX.md
+# Index: crates/spine/governance/arda-core/src
 
 ## Contents
 
@@ -20,7 +20,6 @@ soterion:
 - `README.md`
 - `agent.rs`
 - `aipkg.rs`
-- `alerts.rs`
 - `background.rs`
 - `config.rs`
 - `contract`
@@ -28,25 +27,33 @@ soterion:
 - `error.rs`
 - `governance`
 - `governance_gates.rs`
+- `layout.rs`
 - `learning.rs`
+- `learning_adapter.rs`
 - `ledger.rs`
 - `lib.rs`
 - `llm.rs`
 - `loop_alerts.rs`
 - `loop_economy.rs`
 - `loop_engine.rs`
+- `loop_observability.rs`
 - `message.rs`
+- `orome_runtime.rs`
 - `pipeline.rs`
 - `router.rs`
+- `service_registry`
 - `soterion.rs`
 - `soterion_watcher.rs`
 - `state.rs`
+- `systemd.rs`
 - `task.rs`
 - `tool.rs`
+- `tool_contract`
 
 ## Purpose
 
-Crate index for `crates/governance/arda-core/src/INDEX.md`. See sibling `INDEX.md` for bucket metadata.
+Direct-child index for the `arda-core` source tree. `lib.rs` is authoritative
+for the compiled public module surface.
 
 ## Notes
 

@@ -1,0 +1,453 @@
+{
+  "candidate_task_count": 13,
+  "candidate_tasks": [
+    {
+      "priority": "high",
+      "recommended_owner": "hades",
+      "risk_class": "read_only_or_bounded_fix",
+      "source": "repeated_audit_regression",
+      "task_id": "phase7_regression_001",
+      "title": "Portability summary is unavailable for cyclic comparison."
+    },
+    {
+      "priority": "medium",
+      "recommended_owner": "hades",
+      "risk_class": "read_only_or_bounded_fix",
+      "source": "repeated_audit_regression",
+      "task_id": "phase7_regression_002",
+      "title": "Setup console readiness receipt is unavailable for ARDA/Hermes visibility."
+    },
+    {
+      "priority": "medium",
+      "recommended_owner": "prometheus",
+      "risk_class": "read_only_then_bounded_fix",
+      "source": "repeated_audit_score_threshold",
+      "task_id": "phase7_low_score_arda_barrow_wight",
+      "title": "Review ARDA-BARROW-WIGHT audit score below 80 (61/100) and create bounded remediation slice."
+    },
+    {
+      "priority": "medium",
+      "recommended_owner": "prometheus",
+      "risk_class": "read_only_then_bounded_fix",
+      "source": "repeated_audit_score_threshold",
+      "task_id": "phase7_low_score_arda_core",
+      "title": "Review ARDA-CORE audit score below 80 (61/100) and create bounded remediation slice."
+    },
+    {
+      "priority": "medium",
+      "recommended_owner": "prometheus",
+      "risk_class": "read_only_then_bounded_fix",
+      "source": "repeated_audit_score_threshold",
+      "task_id": "phase7_low_score_arda_hadhafang",
+      "title": "Review ARDA-HADHAFANG audit score below 80 (61/100) and create bounded remediation slice."
+    },
+    {
+      "priority": "medium",
+      "recommended_owner": "prometheus",
+      "risk_class": "read_only_then_bounded_fix",
+      "source": "repeated_audit_score_threshold",
+      "task_id": "phase7_low_score_arda_lorien",
+      "title": "Review ARDA-LORIEN audit score below 80 (61/100) and create bounded remediation slice."
+    },
+    {
+      "priority": "medium",
+      "recommended_owner": "prometheus",
+      "risk_class": "read_only_then_bounded_fix",
+      "source": "repeated_audit_score_threshold",
+      "task_id": "phase7_low_score_arda_mandos",
+      "title": "Review ARDA-MANDOS audit score below 80 (61/100) and create bounded remediation slice."
+    },
+    {
+      "priority": "medium",
+      "recommended_owner": "prometheus",
+      "risk_class": "read_only_then_bounded_fix",
+      "source": "repeated_audit_score_threshold",
+      "task_id": "phase7_low_score_arda_ule",
+      "title": "Review ARDA-ULE audit score below 80 (61/100) and create bounded remediation slice."
+    },
+    {
+      "priority": "medium",
+      "recommended_owner": "prometheus",
+      "risk_class": "read_only_then_bounded_fix",
+      "source": "repeated_audit_score_threshold",
+      "task_id": "phase7_low_score_folder_archive",
+      "title": "Review FOLDER-ARCHIVE audit score below 80 (61/100) and create bounded remediation slice."
+    },
+    {
+      "priority": "medium",
+      "recommended_owner": "prometheus",
+      "risk_class": "read_only_then_bounded_fix",
+      "source": "repeated_audit_score_threshold",
+      "task_id": "phase7_low_score_folder_archived_scripts",
+      "title": "Review FOLDER-ARCHIVED-SCRIPTS audit score below 80 (61/100) and create bounded remediation slice."
+    },
+    {
+      "priority": "medium",
+      "recommended_owner": "prometheus",
+      "risk_class": "read_only_then_bounded_fix",
+      "source": "repeated_audit_score_threshold",
+      "task_id": "phase7_low_score_folder_audit",
+      "title": "Review FOLDER-AUDIT audit score below 80 (71/100) and create bounded remediation slice."
+    },
+    {
+      "priority": "medium",
+      "recommended_owner": "prometheus",
+      "risk_class": "read_only_then_bounded_fix",
+      "source": "repeated_audit_score_threshold",
+      "task_id": "phase7_low_score_folder_human",
+      "title": "Review FOLDER-HUMAN audit score below 80 (61/100) and create bounded remediation slice."
+    },
+    {
+      "priority": "medium",
+      "recommended_owner": "prometheus",
+      "risk_class": "read_only_then_bounded_fix",
+      "source": "repeated_audit_score_threshold",
+      "task_id": "phase7_low_score_folder_tests",
+      "title": "Review FOLDER-TESTS audit score below 80 (71/100) and create bounded remediation slice."
+    }
+  ],
+  "contract": "arda.audit.repeated_run.v1",
+  "gate_status": "warn",
+  "generated_at_utc": "2026-07-26T05:57:37Z",
+  "mode": "read_only",
+  "mutation_policy": "receipts_and_projection_state_only_no_source_config_service_or_queue_mutation",
+  "outputs": {
+    "regressions_jsonl": "audit/repeated-audit-runs/2026-07-26/repeated-audit-20260726T055735Z/regressions.jsonl",
+    "state_json": "core/state/repeated_audit_status.json",
+    "summary_json": "audit/repeated-audit-runs/2026-07-26/repeated-audit-20260726T055735Z/summary.json",
+    "summary_md": "audit/repeated-audit-runs/2026-07-26/repeated-audit-20260726T055735Z/SUMMARY.md",
+    "tasks_candidate_jsonl": "audit/repeated-audit-runs/2026-07-26/repeated-audit-20260726T055735Z/tasks-candidate.jsonl"
+  },
+  "regression_count": 2,
+  "regressions": [
+    {
+      "kind": "missing_receipt",
+      "message": "Portability summary is unavailable for cyclic comparison.",
+      "severity": "high"
+    },
+    {
+      "kind": "missing_receipt",
+      "message": "Setup console readiness receipt is unavailable for ARDA/Hermes visibility.",
+      "severity": "medium"
+    }
+  ],
+  "run_id": "repeated-audit-20260726T055735Z",
+  "snapshot": {
+    "portability": {
+      "active_blocker_findings": null,
+      "classification_counts": {},
+      "findings_total": null,
+      "path": "audit/PORTABILITY_AUDIT_2026-05-24/summary.json",
+      "pattern_counts": {},
+      "status": "missing",
+      "top_active_blockers": []
+    },
+    "setup_console": {
+      "gate_status": "missing",
+      "path": "audit/SETUP_CONSOLE_READINESS_2026-05-25/setup_console_readiness_receipt.json",
+      "portability_status": {},
+      "status": "missing",
+      "summary": {}
+    },
+    "system_audit": {
+      "candidate_task_count": 12,
+      "findings_count": 38,
+      "path": "audit/system-audit-runs/2026-07-26/system-audit-20260726T055735Z/summary.json",
+      "run_id": "system-audit-20260726T055735Z",
+      "scores": {
+        "ARDA-AULE": {
+          "score": 97,
+          "score_breakdown": {
+            "implementation_completeness": 20,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "ARDA-BARROW-WIGHT": {
+          "score": 61,
+          "score_breakdown": {
+            "implementation_completeness": 0,
+            "mission_fit": 14,
+            "observability_auditability": 6,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 6
+          }
+        },
+        "ARDA-CORE": {
+          "score": 61,
+          "score_breakdown": {
+            "implementation_completeness": 0,
+            "mission_fit": 14,
+            "observability_auditability": 6,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 6
+          }
+        },
+        "ARDA-HADHAFANG": {
+          "score": 61,
+          "score_breakdown": {
+            "implementation_completeness": 0,
+            "mission_fit": 14,
+            "observability_auditability": 6,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 6
+          }
+        },
+        "ARDA-LORIEN": {
+          "score": 61,
+          "score_breakdown": {
+            "implementation_completeness": 0,
+            "mission_fit": 14,
+            "observability_auditability": 6,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 6
+          }
+        },
+        "ARDA-MANDOS": {
+          "score": 61,
+          "score_breakdown": {
+            "implementation_completeness": 0,
+            "mission_fit": 14,
+            "observability_auditability": 6,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 6
+          }
+        },
+        "ARDA-MANWE": {
+          "score": 95,
+          "score_breakdown": {
+            "implementation_completeness": 20,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 18,
+            "ux_operator_experience": 7
+          }
+        },
+        "ARDA-OROME": {
+          "score": 95,
+          "score_breakdown": {
+            "implementation_completeness": 20,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 18,
+            "ux_operator_experience": 7
+          }
+        },
+        "ARDA-ULE": {
+          "score": 61,
+          "score_breakdown": {
+            "implementation_completeness": 0,
+            "mission_fit": 14,
+            "observability_auditability": 6,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 6
+          }
+        },
+        "ARDA-VARDA": {
+          "score": 95,
+          "score_breakdown": {
+            "implementation_completeness": 18,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "FOLDER-APPS": {
+          "score": 93,
+          "score_breakdown": {
+            "implementation_completeness": 20,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 16,
+            "ux_operator_experience": 7
+          }
+        },
+        "FOLDER-ARCHIVE": {
+          "score": 61,
+          "score_breakdown": {
+            "implementation_completeness": 0,
+            "mission_fit": 14,
+            "observability_auditability": 6,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 6
+          }
+        },
+        "FOLDER-ARCHIVED-SCRIPTS": {
+          "score": 61,
+          "score_breakdown": {
+            "implementation_completeness": 0,
+            "mission_fit": 14,
+            "observability_auditability": 6,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 6
+          }
+        },
+        "FOLDER-AUDIT": {
+          "score": 71,
+          "score_breakdown": {
+            "implementation_completeness": 10,
+            "mission_fit": 14,
+            "observability_auditability": 6,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 6
+          }
+        },
+        "FOLDER-CONFIG": {
+          "score": 88,
+          "score_breakdown": {
+            "implementation_completeness": 11,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "FOLDER-CORE": {
+          "score": 89,
+          "score_breakdown": {
+            "implementation_completeness": 12,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "FOLDER-CRATES": {
+          "score": 88,
+          "score_breakdown": {
+            "implementation_completeness": 20,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 8,
+            "ux_operator_experience": 10
+          }
+        },
+        "FOLDER-DATA": {
+          "score": 87,
+          "score_breakdown": {
+            "implementation_completeness": 10,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "FOLDER-DOCS": {
+          "score": 89,
+          "score_breakdown": {
+            "implementation_completeness": 12,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "FOLDER-HUMAN": {
+          "score": 61,
+          "score_breakdown": {
+            "implementation_completeness": 0,
+            "mission_fit": 14,
+            "observability_auditability": 6,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 6
+          }
+        },
+        "FOLDER-SCRIPTS": {
+          "score": 83,
+          "score_breakdown": {
+            "implementation_completeness": 10,
+            "mission_fit": 20,
+            "observability_auditability": 11,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 7
+          }
+        },
+        "FOLDER-TESTS": {
+          "score": 71,
+          "score_breakdown": {
+            "implementation_completeness": 10,
+            "mission_fit": 14,
+            "observability_auditability": 6,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 6
+          }
+        },
+        "HADES": {
+          "score": 100,
+          "score_breakdown": {
+            "implementation_completeness": 20,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 10
+          }
+        },
+        "MANWE": {
+          "score": 98,
+          "score_breakdown": {
+            "implementation_completeness": 20,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 18,
+            "ux_operator_experience": 10
+          }
+        },
+        "PROMETHEUS": {
+          "score": 100,
+          "score_breakdown": {
+            "implementation_completeness": 20,
+            "mission_fit": 20,
+            "observability_auditability": 15,
+            "portability_config_hygiene": 15,
+            "reliability_safety": 20,
+            "ux_operator_experience": 10
+          }
+        }
+      },
+      "status": "present",
+      "target_count": 25
+    }
+  },
+  "trends": {
+    "aggregate_deltas": {},
+    "baseline": "first_repeated_run",
+    "score_deltas": {}
+  },
+  "visibility": {
+    "portability_active_blocker_findings": null,
+    "portability_status_label": "active portability blockers present",
+    "portability_summary_path": "audit/PORTABILITY_AUDIT_2026-05-24/summary.json",
+    "portability_zero_active_blockers": false,
+    "setup_console_portability_active_blocker_findings": null,
+    "setup_console_portability_source": null,
+    "setup_console_portability_status": null,
+    "setup_console_portability_status_label": null
+  }
+}

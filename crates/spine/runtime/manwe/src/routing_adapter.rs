@@ -14,7 +14,7 @@ use anyhow::anyhow;
 use serde_json::Value;
 
 #[cfg(not(feature = "adaptive"))]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct AdaptiveRoutingAdapter {
     _flag: (),
 }

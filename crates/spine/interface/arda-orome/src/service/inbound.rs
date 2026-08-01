@@ -101,20 +101,16 @@ impl HermesService {
         let req = CommandEnvelope::new(cmd, payload);
         let mut encoded = serde_json::to_vec(&req)?;
         encoded.push(b'\n');
-        stream
-            .write_all(&encoded)
-            .map_err(|e| ArdaError::Agent {
-                agent: "manwe".to_string(),
-                message: format!("failed to write MANWE IPC request: {e}"),
-            })?;
+        stream.write_all(&encoded).map_err(|e| ArdaError::Agent {
+            agent: "manwe".to_string(),
+            message: format!("failed to write MANWE IPC request: {e}"),
+        })?;
         let mut line = String::new();
         let mut reader = BufReader::new(stream);
-        reader
-            .read_line(&mut line)
-            .map_err(|e| ArdaError::Agent {
-                agent: "manwe".to_string(),
-                message: format!("failed to read MANWE IPC response: {e}"),
-            })?;
+        reader.read_line(&mut line).map_err(|e| ArdaError::Agent {
+            agent: "manwe".to_string(),
+            message: format!("failed to read MANWE IPC response: {e}"),
+        })?;
         let response = serde_json::from_str::<ResponseEnvelope>(line.trim()).map_err(|e| {
             ArdaError::Agent {
                 agent: "manwe".to_string(),
@@ -268,7 +264,7 @@ impl HermesService {
         let _ = self.boardroom_post(BoardroomPost {
             from_agent: "hermes".to_string(),
             message_type: "illuvatar_fanout".to_string(),
-            priority: "high".to_string(),
+            priority: Priority::High,
             subject: "Illuvatar Fanout".to_string(),
             body: format!("{summary}\n\nDirective: {}", msg.content),
             mentions: vec![

@@ -694,20 +694,16 @@ impl HermesService {
         let req = CommandEnvelope::new(cmd, payload);
         let mut encoded = serde_json::to_vec(&req)?;
         encoded.push(b'\n');
-        stream
-            .write_all(&encoded)
-            .map_err(|e| ArdaError::Agent {
-                agent: "prometheus".to_string(),
-                message: format!("failed to write PROMETHEUS IPC request: {e}"),
-            })?;
+        stream.write_all(&encoded).map_err(|e| ArdaError::Agent {
+            agent: "prometheus".to_string(),
+            message: format!("failed to write PROMETHEUS IPC request: {e}"),
+        })?;
         let mut line = String::new();
         let mut reader = BufReader::new(stream);
-        reader
-            .read_line(&mut line)
-            .map_err(|e| ArdaError::Agent {
-                agent: "prometheus".to_string(),
-                message: format!("failed to read PROMETHEUS IPC response: {e}"),
-            })?;
+        reader.read_line(&mut line).map_err(|e| ArdaError::Agent {
+            agent: "prometheus".to_string(),
+            message: format!("failed to read PROMETHEUS IPC response: {e}"),
+        })?;
         let response = serde_json::from_str::<ResponseEnvelope>(line.trim()).map_err(|e| {
             ArdaError::Agent {
                 agent: "prometheus".to_string(),
@@ -726,14 +722,7 @@ pub(super) fn default_warden_queue_path() -> PathBuf {
 }
 
 fn annunimas_root() -> PathBuf {
-    if let Ok(path) = std::env::var("ANNUNIMAS_ROOT") {
-        return PathBuf::from(path);
-    }
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .and_then(std::path::Path::parent)
-        .map(std::path::Path::to_path_buf)
-        .unwrap_or_else(|| PathBuf::from("."))
+    arda_core::layout::arda_root_from(env!("CARGO_MANIFEST_DIR"))
 }
 
 pub(super) fn default_prometheus_orders_path() -> PathBuf {

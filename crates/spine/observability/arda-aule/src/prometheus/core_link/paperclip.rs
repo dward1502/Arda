@@ -87,7 +87,7 @@ pub(super) fn write_paperclip_alignment_projection(core_root: &Path) {
     let comparison_task_ids = [
         "tsk_20260311_compare_paperclip_board_governance_and_budget_de",
         "tsk_20260311_assess_paperclip_heartbeat_and_bring_your_own_ag",
-        "tsk_20260311_map_paperclip_deployment_auth_modes_to_annunimas",
+        "tsk_20260311_map_paperclip_deployment_auth_modes_to_arda",
         "tsk_20260311_evaluate_paperclip_multi_company_isolation_and_i",
     ];
     let comparison_tasks = latest_task_rows_by_id(
@@ -217,7 +217,7 @@ pub(super) fn write_paperclip_alignment_projection(core_root: &Path) {
                 "budget_delegation": true,
                 "company_control_plane": true
             },
-            "annunimas_surface": {
+            "arda_surface": {
                 "active_ruleset": governance
                     .get("contracts")
                     .and_then(|value| value.get("active_ruleset"))
@@ -254,7 +254,7 @@ pub(super) fn write_paperclip_alignment_projection(core_root: &Path) {
                 "context_delivery": ["thin_ping", "fat_payload"],
                 "bring_your_own_agents": true
             },
-            "annunimas_surface": {
+            "arda_surface": {
                 "provider_count": provider_count,
                 "local_fallback_ready": local_fallback_ready,
                 "online_comms_providers": providers_online,
@@ -286,7 +286,7 @@ pub(super) fn write_paperclip_alignment_projection(core_root: &Path) {
                 "private_network_posture": true,
                 "public_hardening": true
             },
-            "annunimas_surface": {
+            "arda_surface": {
                 "runtime_socket_contract_present": deployment_runtime_ready,
                 "required_sockets_live": deployment_socket_ready,
                 "destructive_quorum_enabled": deployment_quorum_ready,
@@ -305,7 +305,7 @@ pub(super) fn write_paperclip_alignment_projection(core_root: &Path) {
             "derived": {
                 "alignment_ready": deployment_runtime_ready && deployment_socket_ready && deployment_quorum_ready,
                 "follow_on_task_open": comparison_tasks
-                    .get("tsk_20260311_map_paperclip_deployment_auth_modes_to_annunimas")
+                    .get("tsk_20260311_map_paperclip_deployment_auth_modes_to_arda")
                     .and_then(|value| value.get("status"))
                     .and_then(Value::as_str)
                     != Some("completed")
@@ -318,7 +318,7 @@ pub(super) fn write_paperclip_alignment_projection(core_root: &Path) {
                 "template_export": true,
                 "snapshot_export": true
             },
-            "annunimas_surface": {
+            "arda_surface": {
                 "athena_policy_ready_count": athena
                     .get("status")
                     .and_then(|value| value.get("policy_ready_count"))

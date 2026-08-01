@@ -1,0 +1,113 @@
+{
+  "bad": [],
+  "candidate_tasks": [],
+  "contract": "arda.audit.target_report.v1",
+  "duties": [
+    "Runtime outputs, receipts, ledgers, snapshots, and telemetry."
+  ],
+  "evidence": [
+    {
+      "exists": true,
+      "line": null,
+      "note": "primary target root",
+      "path": "data"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "workspace membership checked from repository manifest: False",
+      "path": "Cargo.toml"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "data/manwe/bandit.json"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "data/manwe/lane_fitness.json"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "data/manwe/package_runtime_signals.json"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "data/manwe/provider_capability_receipts.json"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "sample tracked target file",
+      "path": "data/manwe/provider_runtime_state.json"
+    }
+  ],
+  "generated_at": "2026-07-26T05:57:37.193012+00:00",
+  "good": [
+    "Folder surface `data` exists with 6 tracked text files sampled for this audit.",
+    "Observed 1723 audit/status/telemetry/logging token hits in scoped files.",
+    "Latest portability receipt has no active blockers for this target/support surface."
+  ],
+  "needs_removed": [
+    "No automatic removal recommendation; removal candidates require a follow-up evidence pass."
+  ],
+  "overview": "Read-only Phase 4/5 Good / Bad / Ugly audit for FOLDER-DATA.",
+  "potential_changes": [
+    "Review whether this folder needs explicit validation or only upstream crate/script tests; do not add tests mechanically.",
+    "Keep current useful operational surface, parameterize portability blockers, and remove only stale/generated/archive drift after a separate evidence pass."
+  ],
+  "report_json_path": "folders/FOLDER-DATA.json",
+  "report_markdown_path": "folders/FOLDER-DATA.md",
+  "run_id": "system-audit-20260726T055735Z",
+  "score": 87,
+  "score_breakdown": {
+    "implementation_completeness": 10,
+    "mission_fit": 20,
+    "observability_auditability": 15,
+    "portability_config_hygiene": 15,
+    "reliability_safety": 20,
+    "ux_operator_experience": 7
+  },
+  "snapshot": {
+    "crash_counts": {
+      ".expect(": 0,
+      ".unwrap()": 0,
+      "panic!(": 0,
+      "todo!(": 0,
+      "unimplemented!(": 0
+    },
+    "keyword_hits": {
+      "ledger": 1,
+      "receipt": 2,
+      "snapshot": 0,
+      "state": 10,
+      "telemetry": 0
+    },
+    "observability_hits": 1723,
+    "primary_exists": true,
+    "primary_file_count": 6,
+    "rollup_target": null,
+    "rust_file_count": 0,
+    "sample_files": [
+      "data/manwe/bandit.json",
+      "data/manwe/lane_fitness.json",
+      "data/manwe/package_runtime_signals.json",
+      "data/manwe/provider_capability_receipts.json",
+      "data/manwe/provider_runtime_state.json",
+      "data/plutus/runtime_status.json"
+    ],
+    "support_status": [],
+    "test_file_count": 0,
+    "workspace_member": false
+  },
+  "target": "FOLDER-DATA",
+  "target_type": "folder",
+  "ugly": []
+}

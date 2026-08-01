@@ -9,8 +9,9 @@ mod prerequisites;
 mod private_config;
 mod provider;
 mod readiness;
-mod service_plan;
-mod types;
+pub mod registry;
+pub mod service_plan;
+pub mod types;
 
 pub use console::launch_console;
 pub use device::device_scan;
@@ -28,6 +29,7 @@ pub use private_config::{
 };
 pub use provider::provider_checklist;
 pub use readiness::{build_readiness_projection, l3_readiness_onboarding_checklist};
+pub use registry::{check_registry, load_registry, registry_track_ids};
 pub use service_plan::{
     apply_service_plan, build_approval_template, build_service_plan, parse_approval_receipt,
 };

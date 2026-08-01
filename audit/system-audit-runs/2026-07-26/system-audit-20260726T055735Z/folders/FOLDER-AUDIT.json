@@ -1,0 +1,71 @@
+{
+  "bad": [
+    "Folder has no obvious audit/status/telemetry/logging token hits in sampled tracked files; decide whether that is expected for this surface."
+  ],
+  "candidate_tasks": [],
+  "contract": "arda.audit.target_report.v1",
+  "duties": [
+    "Audit reports, receipts, follow-up findings, and evidence bundles."
+  ],
+  "evidence": [
+    {
+      "exists": true,
+      "line": null,
+      "note": "primary target root",
+      "path": "audit"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "workspace membership checked from repository manifest: False",
+      "path": "Cargo.toml"
+    }
+  ],
+  "generated_at": "2026-07-26T05:57:37.385537+00:00",
+  "good": [
+    "Folder surface `audit` exists with 0 tracked text files sampled for this audit.",
+    "Latest portability receipt has no active blockers for this target/support surface."
+  ],
+  "needs_removed": [
+    "No automatic removal recommendation; removal candidates require a follow-up evidence pass."
+  ],
+  "overview": "Read-only Phase 4/5 Good / Bad / Ugly audit for FOLDER-AUDIT.",
+  "potential_changes": [
+    "Review whether this folder needs explicit validation or only upstream crate/script tests; do not add tests mechanically.",
+    "Keep current useful operational surface, parameterize portability blockers, and remove only stale/generated/archive drift after a separate evidence pass."
+  ],
+  "report_json_path": "folders/FOLDER-AUDIT.json",
+  "report_markdown_path": "folders/FOLDER-AUDIT.md",
+  "run_id": "system-audit-20260726T055735Z",
+  "score": 71,
+  "score_breakdown": {
+    "implementation_completeness": 10,
+    "mission_fit": 14,
+    "observability_auditability": 6,
+    "portability_config_hygiene": 15,
+    "reliability_safety": 20,
+    "ux_operator_experience": 6
+  },
+  "snapshot": {
+    "crash_counts": {},
+    "keyword_hits": {
+      "audit": 0,
+      "findings": 0,
+      "receipt": 0,
+      "score": 0,
+      "summary": 0
+    },
+    "observability_hits": 0,
+    "primary_exists": true,
+    "primary_file_count": 0,
+    "rollup_target": null,
+    "rust_file_count": 0,
+    "sample_files": [],
+    "support_status": [],
+    "test_file_count": 0,
+    "workspace_member": false
+  },
+  "target": "FOLDER-AUDIT",
+  "target_type": "folder",
+  "ugly": []
+}

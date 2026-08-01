@@ -252,3 +252,56 @@ impl Default for JouleWorkTracker {
         Self::new()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    #[ignore = "operator-scale provenance and multiplier regression"]
+    async fn operator_scale_session_preserves_unit_and_source_invariants() {
+        let tracker = JouleWorkTracker::new();
+        let units = [
+            JouleWorkUnit::Compute,
+            JouleWorkUnit::Network,
+            JouleWorkUnit::Storage,
+            JouleWorkUnit::Attention,
+            JouleWorkUnit::Reasoning,
+        ];
+
+        for batch in 0..1_000 {
+            for unit in units {
+                tracker
+                    .track_work_with_source(
+                        "operator-scale-agent",
+                        1.0,
+                        unit,
+                        Some(format!("observed-{batch}-{unit:?}")),
+                        JouleWorkMeasurementSource::RuntimeTimer,
+                        1.0,
+                    )
+                    .await;
+                tracker
+                    .track_work_with_source(
+                        "operator-scale-agent",
+                        1.0,
+                        unit,
+                        Some(format!("fallback-{batch}-{unit:?}")),
+                        JouleWorkMeasurementSource::DefaultFallback,
+                        0.0,
+                    )
+                    .await;
+            }
+        }
+
+        let summary = tracker.summary().await;
+        assert!((summary.total - 10_600.0).abs() < 1e-6);
+        assert!((summary.observed_total - 5_300.0).abs() < 1e-6);
+        assert!((summary.default_fallback_total - 5_300.0).abs() < 1e-6);
+        assert!((summary.average_confidence - 0.5).abs() < 1e-9);
+        for unit in units {
+            let expected = unit.multiplier() * 2_000.0;
+            assert!((summary.by_unit[&unit] - expected).abs() < 1e-6);
+        }
+    }
+}

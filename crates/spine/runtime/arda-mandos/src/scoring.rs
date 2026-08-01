@@ -2,7 +2,14 @@
 //!
 //! Truth confidence scoring for the learning loop.
 
+#![allow(deprecated)]
+
+use crate::evidence::{EvidenceRef, EvidenceStance};
+use crate::reasoning::normalize_lexical_text;
+use chrono::Utc;
+
 /// Scoring result for truth confidence
+#[deprecated(note = "use OracleEngine::evaluate and Verdict instead")]
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct TruthScoringResult {
     /// The confidence score (0.0 to 1.0)
@@ -10,17 +17,19 @@ pub struct TruthScoringResult {
     /// The reason for the score
     pub reason: String,
     /// Evidence supporting the confidence
-    pub evidence: Vec<String>,
+    pub evidence: Vec<EvidenceRef>,
 }
 
 /// Trait for truth confidence scoring
+#[deprecated(note = "use OracleEngine::evaluate and Verdict instead")]
 pub trait TruthScorer {
     /// Score the truth confidence of a proposal
     fn score_truth_confidence(&self, proposal: &str) -> TruthScoringResult;
 }
 
 /// Default implementation of truth scoring
-#[derive(Debug, Clone)]
+#[deprecated(note = "use OracleEngine::evaluate and Verdict instead")]
+#[derive(Debug, Clone, Default)]
 pub struct DefaultTruthScorer;
 
 impl DefaultTruthScorer {
@@ -31,14 +40,15 @@ impl DefaultTruthScorer {
 
 impl TruthScorer for DefaultTruthScorer {
     fn score_truth_confidence(&self, proposal: &str) -> TruthScoringResult {
-        // Simple scoring logic - in a real implementation, this would be more sophisticated
-        let confidence = if proposal.contains("truth") || proposal.contains("confidence") {
-            0.9
-        } else if proposal.contains("uncertain") || proposal.contains("unknown") {
-            0.3
-        } else {
-            0.6
-        };
+        let proposal_lower = normalize_lexical_text(proposal);
+        let confidence =
+            if proposal_lower.contains("truth") || proposal_lower.contains("confidence") {
+                0.9
+            } else if proposal_lower.contains("uncertain") || proposal_lower.contains("unknown") {
+                0.3
+            } else {
+                0.6
+            };
 
         let reason = if confidence > 0.8 {
             "High confidence based on explicit truth indicators".to_string()
@@ -48,11 +58,23 @@ impl TruthScorer for DefaultTruthScorer {
             "Moderate confidence based on contextual indicators".to_string()
         };
 
-        let evidence = vec![
-            "Proposal text analysis".to_string(),
-            "Contextual indicators".to_string(),
-            "Truth-related keywords".to_string(),
-        ];
+        let observed_at = Utc::now();
+        let evidence = [
+            ("proposal-analysis", "Proposal text analysis"),
+            ("context-indicators", "Contextual indicators"),
+            ("truth-keywords", "Truth-related keywords"),
+        ]
+        .into_iter()
+        .map(|(source_id, claim)| {
+            EvidenceRef::inferred(
+                format!("oracle:truth-scorer:{source_id}"),
+                "proposal",
+                observed_at,
+                claim,
+                EvidenceStance::Neutral,
+            )
+        })
+        .collect();
 
         TruthScoringResult {
             confidence,
@@ -63,6 +85,7 @@ impl TruthScorer for DefaultTruthScorer {
 }
 
 /// Combined verdict for a proposal
+#[deprecated(note = "use OracleEngine::evaluate and Verdict instead")]
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct GateVerdict {
     /// The truth confidence score
@@ -78,32 +101,35 @@ pub struct GateVerdict {
 }
 
 /// Complete gate scoring function for the learning loop
+#[deprecated(note = "use OracleEngine::evaluate and Verdict instead")]
 pub fn score_gate(proposal: &str) -> GateVerdict {
+    let proposal_lower = normalize_lexical_text(proposal);
     // For now, we'll use simple hardcoded values to match the demonstration
     // In a real implementation, we would properly call the scorer components
-    let truth_confidence = if proposal.contains("truth") || proposal.contains("confidence") {
-        0.9
-    } else if proposal.contains("uncertain") || proposal.contains("unknown") {
-        0.3
-    } else {
-        0.6
-    };
+    let truth_confidence =
+        if proposal_lower.contains("truth") || proposal_lower.contains("confidence") {
+            0.9
+        } else if proposal_lower.contains("uncertain") || proposal_lower.contains("unknown") {
+            0.3
+        } else {
+            0.6
+        };
 
-    let operational_risk = if proposal.contains("destructive")
-        || proposal.contains("dangerous")
-        || proposal.contains("high risk")
+    let operational_risk = if proposal_lower.contains("destructive")
+        || proposal_lower.contains("dangerous")
+        || proposal_lower.contains("high risk")
     {
         0.9
-    } else if proposal.contains("safe") || proposal.contains("low risk") {
+    } else if proposal_lower.contains("safe") || proposal_lower.contains("low risk") {
         0.2
     } else {
         0.5
     };
 
     let autonomy_readiness =
-        if proposal.contains("autonomous") || proposal.contains("self-directing") {
+        if proposal_lower.contains("autonomous") || proposal_lower.contains("self-directing") {
             0.8
-        } else if proposal.contains("manual") || proposal.contains("human") {
+        } else if proposal_lower.contains("manual") || proposal_lower.contains("human") {
             0.3
         } else {
             0.5
@@ -123,5 +149,25 @@ pub fn score_gate(proposal: &str) -> GateVerdict {
         autonomy_readiness,
         gated,
         gating_reason,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn truth_scorer_emits_typed_inferred_evidence() {
+        let result = DefaultTruthScorer::new().score_truth_confidence("truth with confidence");
+
+        assert!(!result.evidence.is_empty());
+        assert!(result
+            .evidence
+            .iter()
+            .all(|evidence| evidence.kind == crate::evidence::EvidenceKind::Inferred));
+        assert!(result
+            .evidence
+            .iter()
+            .all(|evidence| evidence.digest.starts_with("sha256:")));
     }
 }

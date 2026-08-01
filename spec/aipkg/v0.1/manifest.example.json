@@ -1,0 +1,26 @@
+{
+  "manifest_version": "0.1",
+  "package_id": "org.arda.demo",
+  "version": "0.1.0",
+  "package_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+  "runtime_profile": "local-sovereign",
+  "preflight": {
+    "zero_work_required": true,
+    "compatibility_required": true,
+    "quote_required": true
+  },
+  "governance": {
+    "triad_required": true,
+    "bacon_lite_required": true,
+    "joulework_budget_required": true,
+    "love_eq_guard_required": true,
+    "soterion_trace_required": true
+  },
+  "receipts": {
+    "preflight_required": true,
+    "execution_required": true,
+    "validation_required": true,
+    "settlement_optional": true,
+    "signatures_required": true
+  }
+}

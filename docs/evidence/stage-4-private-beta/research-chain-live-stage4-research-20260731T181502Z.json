@@ -1,0 +1,92 @@
+{
+  "schema_version": "arda.stage4.research-chain-live-evidence.v1",
+  "captured_at_utc": "2026-07-31T18:15:02.902996Z",
+  "harness_url": "http://127.0.0.1:7879",
+  "run_id": "stage4-research-20260731T181502Z",
+  "attach_status": 201,
+  "plan_status": 201,
+  "brief_status": 200,
+  "brief": {
+    "schema_version": "arda.workbench.research-brief.v1",
+    "brief_id": "research-5642156a5306e462",
+    "run_id": "stage4-research-20260731T181502Z",
+    "node_id": "research-plan",
+    "question": "What cancellation-safety guidance does Tokio publish for async select loops?",
+    "generated_at_utc": "2026-07-31T18:15:05.047482505+00:00",
+    "authority": "advisory_research_evidence",
+    "execution_authorized": false,
+    "warden_provider": "searxng",
+    "warden_memory_receipt": "mem_aaf72798a48242f2875a76476c8d5f60",
+    "summary": "For the explicit question \u201cWhat cancellation-safety guidance does Tokio publish for async select loops?\u201d, Warden discovered 2 source(s); canonical content was fetched and evaluated by Varda. Review the cited excerpts and Varda readiness fields before changing the Workbench plan.",
+    "contradiction_status": "no_lexical_contradiction_detected_in_bounded_excerpts",
+    "contradictions": [],
+    "citations": [
+      {
+        "citation_id": "cite-src_b4a98f51",
+        "title": "Cancel safety in async and tokio::select!{} - help - The Rust Programming Language Forum",
+        "discovered_url": "https://users.rust-lang.org/t/cancel-safety-in-async-and-tokio-select/92381",
+        "canonical_url": "https://users.rust-lang.org/t/cancel-safety-in-async-and-tokio-select/92381",
+        "content_sha256": "sha256:adbe1793f7c7b9c583bc53bb3ad1f2e48bf4e290c076db28af35137c70fd7421",
+        "excerpt": ":12.179Z\",\"datePublished\":\"2023-04-12T09:49:12.165Z\",\"text\":\"That is the basic gist of it.\\n\\nThe underlying issue with cancellation safety is that all futures in the select other than the future that yields Poll::Ready will be dropped. If those futures own some form of state, then your future is not cancellation safe, since that owned state will be dropped whe&hellip;\",\"upvoteCount\":5,\"url\":\"https://users.rust-lang.org/t/cancel-safety-in-async-and-tokio-select/92381/2\"}],\"su",
+        "stance": "supporting_or_contextual",
+        "varda_source_id": "src_b4a98f51",
+        "varda_pipeline_id": "athpl_c11509da730b4a9daa568c2e86097a36",
+        "crawl_receipt_path": "./data/athena/crawls/src_b4a98f51.md",
+        "policy_readiness": "reference_only",
+        "confidence": 0.7466666666666667
+      },
+      {
+        "citation_id": "cite-src_cbde3f74",
+        "title": "Build with Naz : Rust async in practice tokio::select!, actor pattern & cancel safety | developerlife.com",
+        "discovered_url": "https://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio/",
+        "canonical_url": "https://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio/",
+        "content_sha256": "sha256:0bfc20b957a8140de58fa09f3d8ef0738f4f6cd03729791555ea71d34d9d39b2",
+        "excerpt": "ublished\":\"2024-07-10T10:00:00-05:00\",\"description\":\"This tutorial, video, and repo are a deep dive into the concept of cancellation safety in async code using Tokio and Rust. It affects the tokio::select! macro, and what happens to the racing Futures that don\u2019t win. The examples provided here, along with the video, will go over both code that is is cancellation safe and code that is not. These examples reflect real-world patterns, and are a generalized form of them.\",\"head",
+        "stance": "supporting_or_contextual",
+        "varda_source_id": "src_cbde3f74",
+        "varda_pipeline_id": "athpl_eaa26f4d75ca4303a9286ec86701ab58",
+        "crawl_receipt_path": "./data/athena/crawls/src_cbde3f74.md",
+        "policy_readiness": "reference_only",
+        "confidence": 0.7466666666666667
+      }
+    ],
+    "source_failures": [
+      "https://stackoverflow.com/questions/74547855/how-to-assess-cancel-safety-of-select: canonical fetch returned failure: HTTP status client error (403 Forbidden) for url (https://stackoverflow.com/questions/74547855/how-to-assess-cancel-safety-of-select)"
+    ],
+    "workbench_run_link": "arda://workbench/runs/stage4-research-20260731T181502Z?evidence=research-5642156a5306e462"
+  },
+  "events_status": 200,
+  "events": {
+    "events": [
+      {
+        "schema_version": "arda.run-event.v1",
+        "sequence": 1,
+        "run_id": "stage4-research-20260731T181502Z",
+        "node_id": "research-plan",
+        "idempotency_key": "stage4-research-plan-stage4-research-20260731T181502Z",
+        "kind": {
+          "type": "planned",
+          "project_id": "550e8400-e29b-41d4-a716-446655440000",
+          "approval_id": "stage4-research-approval"
+        },
+        "receipt_digest": "stage4-research-approval",
+        "recorded_at_unix_ms": 1785521702907
+      },
+      {
+        "schema_version": "arda.run-event.v1",
+        "sequence": 2,
+        "run_id": "stage4-research-20260731T181502Z",
+        "node_id": "research-plan",
+        "idempotency_key": "stage4-research-brief-stage4-research-20260731T181502Z",
+        "kind": {
+          "type": "evidence_linked",
+          "evidence_id": "research-5642156a5306e462",
+          "evidence_path": "data/runs/stage4-research-20260731T181502Z/evidence/research-5642156a5306e462.json",
+          "authority": "advisory_research_evidence"
+        },
+        "receipt_digest": "sha256:2f49b396b09620ec804e33c020e82d6fcfd4bf41d01501ae9b920d5a3c9d179d",
+        "recorded_at_unix_ms": 1785521705048
+      }
+    ]
+  }
+}

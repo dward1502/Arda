@@ -5,6 +5,7 @@ import {
   getSceneSlotWorkstationManifestById,
   getSceneSlotWorkstationManifestByZoneId,
   getSceneSlotWorkstationTemplates,
+  resolveSceneSlotWorkstationZoneId,
   sceneSlotZoneIdForSlot,
 } from './sceneSlotWorkstationTemplates'
 
@@ -31,6 +32,19 @@ describe('sceneSlotWorkstationTemplates', () => {
     expect(manifest?.id).toBe('scene_slot_view_desk_control_panel_workstation')
     expect(manifest?.module_ids).toContain('operating_surface')
     expect(getSceneSlotWorkstationManifestById(manifest?.id ?? null)).toEqual(manifest)
+  })
+
+  it('falls back to a functional slot template when persisted source metadata has no live manifest', () => {
+    expect(resolveSceneSlotWorkstationZoneId('view_desk_r', 'boardroom.control.right')).toBe('scene_slot:view_desk_r')
+    expect(resolveSceneSlotWorkstationZoneId('view_desk_aux', 'boardroom.control.aux')).toBe('scene_slot:view_desk_aux')
+    expect(resolveSceneSlotWorkstationZoneId('view_desk_r', 'boardroom.control.right', 'human_realm')).toBe('human_realm')
+  })
+
+  it('uses Daily Command modules for the auxiliary desk fallback', () => {
+    expect(getSceneSlotWorkstationTemplates().view_desk_aux.moduleIds).toEqual([
+      'operating_surface',
+      'executive_overview',
+    ])
   })
 
   it('rejects unknown slot ids instead of producing generic placeholders', () => {

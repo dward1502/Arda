@@ -1,20 +1,18 @@
 ---
 soterion:
-  sigil: "SCROLL"
-  glyph: "📜"
-  code_point: "U+1F4DC"
-  role: "organization_index"
+  sigil: "REPAIR"
+  glyph: "⟁"
+  code_point: "U+27C1"
+  role: "service_source_map"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-05-21"
+  last_reviewed: "2026-07-27"
 ---
 
-> 🜏 Soterion: 📜 organization_index | owner: HADES | status: active | reviewed: 2026-05-21
+# arda-orome service source
 
-# service
+This directory is compiled when `arda-orome` enables `service-runtime`. The sibling `../service.rs` is the sole service root and declares every Rust child in this directory.
 
-Purpose: HADES-generated directory overview for `crates/annunimas-hermes/src/service`.
+The feature preserves the resident-service migration surface and its tests without claiming that compatibility dispatch is live. `provider_compat.rs` bridges historical service calls to current provider orchestration: compatibility dispatch is deterministic/no-network, inbound polling is empty, and configured providers remain offline until health evidence exists. The separate `provider::HttpJsonTransport` is the concrete receipt-backed path for callers that explicitly configure and policy-gate live HTTP delivery.
 
-## Contents
-
-See `INDEX.md` for deterministic child listing.
+Do not create `service/mod.rs`, bypass provider policy, or treat Discord identifiers as canonical task identity. See `../../README.md`, `../../BREAKDOWN.md`, and `INDEX.md`.

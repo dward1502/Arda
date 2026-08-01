@@ -1,0 +1,12 @@
+[Unit]
+Description=Run Arda Aule CEO Autopilot Read-Only Cycle Every 30 Minutes
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=30min
+AccuracySec=1min
+Persistent=false
+Unit=arda-aule-autopilot-read-only.service
+
+[Install]
+WantedBy=timers.target

@@ -1,18 +1,17 @@
 ---
 soterion:
-  sigil: "SCROLL"
-  glyph: "📜"
-  code_point: "U+1F4DC"
+  sigil: "REPAIR"
+  glyph: "⟁"
+  code_point: "U+27C1"
   role: "directory_index"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-13"
+  last_reviewed: "2026-07-27"
 ---
 
+# Index: arda-orome/src/service
 
-> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-13
-
-# Index: crates/interface/annunimas-hermes/src/service/INDEX.md
+Current state: compiled by the opt-in `service-runtime` feature through the sole root `../service.rs`.
 
 ## Contents
 
@@ -25,6 +24,7 @@ soterion:
 - `inbound.rs`
 - `interrupts.rs`
 - `outbound.rs`
+- `provider_compat.rs`
 - `queue_state.rs`
 - `runtime.rs`
 - `semantic_channel.rs`
@@ -32,11 +32,3 @@ soterion:
 - `subagent_completion.rs`
 - `support.rs`
 - `task_approval.rs`
-
-## Purpose
-
-Crate index for `crates/interface/annunimas-hermes/src/service/INDEX.md`. See sibling `INDEX.md` for bucket metadata.
-
-## Notes
-
-Normalized from on-disk contents; review cadence is quarterly unless owner changes.

@@ -1,0 +1,18 @@
+[Unit]
+Description=Arda Warden scout and research API
+After=network-online.target arda-warden-searxng.service
+Wants=network-online.target arda-warden-searxng.service
+
+[Service]
+Type=simple
+ExecStart=%h/.local/lib/arda/warden/bin/arda-outpost-scout serve --bind 100.110.85.37:8092 --memory-root %h/.local/share/arda/warden --searxng-url http://127.0.0.1:18080 --source node-pi5-warden
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=%h/.local/share/arda/warden
+
+[Install]
+WantedBy=default.target

@@ -53,6 +53,43 @@ fn test_mnemosyne_memory_bridge_knowledge_deltas() {
 }
 
 #[test]
+fn test_mnemosyne_memory_bridge_covers_memory_scope_archetypes() {
+    let temp_dir = TempDir::new().expect("tempdir");
+    let service = MnemosyneService::new(temp_dir.path()).expect("service");
+    let archetypes = [
+        ("boardroom_council", "scope:boardroom_council"),
+        ("human_context", "scope:human_context"),
+        ("edge_runtime", "scope:edge_runtime"),
+        ("system_continuity", "scope:system_continuity"),
+    ];
+
+    for (archetype, scope_tag) in archetypes {
+        let encoded = service
+            .encode(InformantEvent {
+                informant_id: "athena_mneme".to_owned(),
+                crate_name: "athena".to_owned(),
+                event_type: "knowledge_delta".to_owned(),
+                ts_utc: Utc::now().to_rfc3339(),
+                content: format!(
+                    "ARDA knowledge delta for the {archetype} memory archetype with verified context"
+                ),
+                confidence_hint: Some(0.9),
+                tags: vec!["knowledge".to_owned(), scope_tag.to_owned()],
+            })
+            .expect("encode")
+            .expect("durable memory");
+        assert_eq!(encoded.memory_scope, archetype);
+        assert!(encoded.confidence >= 0.9);
+        assert!(encoded.trust > 0.0);
+    }
+
+    let recalled = service
+        .recall_relevant("knowledge archetype", 24, Some("athena"), None, 10)
+        .expect("recall");
+    assert_eq!(recalled.len(), archetypes.len());
+}
+
+#[test]
 fn test_mnemosyne_memory_bridge_supersession() {
     // Setup test environment
     let temp_dir = TempDir::new().expect("tempdir");

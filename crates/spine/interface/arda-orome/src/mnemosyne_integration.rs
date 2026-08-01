@@ -3,59 +3,28 @@
 // This file demonstrates how to use edge nodes for memory enrichment
 
 use anyhow::Result;
-use std::sync::atomic::Ordering;
-use std::sync::Arc;
-use std::time::Duration;
-use tokio::sync::Mutex; // Add this import
 
-use crate::context_cache::{CacheMetrics, ContextCache, InternalCacheMetrics};
+use crate::context_cache::AsyncContextCache;
 
-/// Cache for enriched context to avoid repeated Mnemosyne queries
-static CONTEXT_CACHE: once_cell::sync::Lazy<Arc<Mutex<ContextCache<String, String>>>> =
-    once_cell::sync::Lazy::new(|| {
-        Arc::new(Mutex::new(ContextCache::new(100, Duration::from_secs(300))))
-    });
-
-/// Metrics for cache performance
-static CACHE_METRICS: once_cell::sync::Lazy<Arc<Mutex<InternalCacheMetrics>>> =
-    once_cell::sync::Lazy::new(|| Arc::new(Mutex::new(InternalCacheMetrics::default())));
-
-/// Get cache metrics for monitoring
-pub fn get_cache_stats() -> CacheMetrics {
-    let metrics = futures::executor::block_on(CACHE_METRICS.lock());
-    CacheMetrics {
-        hits: metrics.hits.load(Ordering::Relaxed),
-        misses: metrics.misses.load(Ordering::Relaxed),
-        size: metrics.size.load(Ordering::Relaxed),
-        evictions: metrics.evictions.load(Ordering::Relaxed),
-    }
-}
+/// Async-shared cache for enriched context to avoid repeated Mnemosyne queries
+static CONTEXT_CACHE: once_cell::sync::Lazy<AsyncContextCache<String, String>> =
+    once_cell::sync::Lazy::new(|| AsyncContextCache::new(100, std::time::Duration::from_secs(300)));
 
 /// Enrich context with memories from Mnemosyne, using cache to avoid repeated queries
 pub async fn spawn_enriched_subagent(_task: &str, context: &str) -> Result<String> {
-    // Generate cache key from task and context
     let cache_key = format!("{}|{}", _task, context);
 
-    // Check cache first
-    let mut cache = futures::executor::block_on(CONTEXT_CACHE.lock());
-    if let Some(enriched) = cache.get(&cache_key) {
-        // Cache hit - update metrics
-        let metrics = futures::executor::block_on(CACHE_METRICS.lock());
-        metrics.hits.fetch_add(1, Ordering::Relaxed);
+    if let Some(enriched) = CONTEXT_CACHE.get(&cache_key).await {
         tracing::debug!(cache_key = %cache_key, "subagent context cache hit");
-        return Ok(enriched.clone());
+        return Ok(enriched);
     }
 
     tracing::debug!(cache_key = %cache_key, "subagent context cache miss");
 
-    // Cache miss - query Mnemosyne
     let mnemosyne = arda_vaire::MnemosyneService::from_default_or_fallback()?;
-    let identity = mnemosyne.identity_state()?; // This is synchronous, not async
+    let identity = mnemosyne.identity_state()?;
 
-    // Build enriched context
     let mut enriched = context.to_string();
-
-    // Add memory counts summary
     enriched.push_str("\n\n=== MEMORY SUMMARY ===\n");
     enriched.push_str(&format!(
         "  Core memories: {} (unique, high-significance)\n",
@@ -74,7 +43,6 @@ pub async fn spawn_enriched_subagent(_task: &str, context: &str) -> Result<Strin
         identity.transient_memory_count
     ));
 
-    // Add recent events if available
     if !identity.recent_events.is_empty() {
         let events_str = identity
             .recent_events
@@ -91,7 +59,6 @@ pub async fn spawn_enriched_subagent(_task: &str, context: &str) -> Result<Strin
         enriched.push_str(&format!("\n=== RECENT SESSION EVENTS ===\n{}", events_str));
     }
 
-    // Add mission focus
     if !identity.current_mission_focus.is_empty() {
         enriched.push_str(&format!(
             "\n=== CURRENT MISSION FOCUS ===\n{}\n",
@@ -99,14 +66,39 @@ pub async fn spawn_enriched_subagent(_task: &str, context: &str) -> Result<Strin
         ));
     }
 
-    // Store in cache
-    cache.put(cache_key.clone(), enriched.clone());
-    let size = cache.len();
-
-    // Update metrics
-    let metrics = futures::executor::block_on(CACHE_METRICS.lock());
-    metrics.misses.fetch_add(1, Ordering::Relaxed);
-    metrics.size.store(size, Ordering::Relaxed);
+    CONTEXT_CACHE.put(cache_key, enriched.clone()).await;
 
     Ok(enriched)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn bounded_async_cache_get_put_and_metrics() {
+        let cache: AsyncContextCache<String, String> =
+            AsyncContextCache::new(2, std::time::Duration::from_secs(60));
+        let missing = "missing".to_string();
+        let a = "a".to_string();
+        let b = "b".to_string();
+        let c = "c".to_string();
+        assert!(cache.get(&missing).await.is_none());
+
+        cache.put(a.clone(), "1".to_string()).await;
+        cache.put(b.clone(), "2".to_string()).await;
+
+        assert_eq!(cache.get(&a).await, Some("1".to_string()));
+        assert_eq!(cache.get(&b).await, Some("2".to_string()));
+
+        cache.put(c.clone(), "3".to_string()).await;
+
+        assert!(cache.get(&a).await.is_none());
+        assert_eq!(cache.get(&b).await, Some("2".to_string()));
+        assert_eq!(cache.get(&c).await, Some("3".to_string()));
+
+        let metrics = cache.metrics().await;
+        assert_eq!(metrics.size, 2);
+        assert!(metrics.evictions >= 1);
+    }
 }

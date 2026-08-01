@@ -1,0 +1,45 @@
+{
+  "config": "config/benchmarks/model-shootout-core.json",
+  "finished_at": "2026-07-27T06:41:38.456870+00:00",
+  "host": "core-rtx3080",
+  "results": [
+    {
+      "benchmark_exit_code": 0,
+      "benchmark_stderr": "",
+      "benchmark_stdout": "{\n  \"receipt\": \"/var/home/mythos/Eregion/Arda/core/state/model-benchmarks/core/qwen3-5-9b-q4-k-m.json\",\n  \"weighted_score\": 100.0,\n  \"category_rates\": {\n    \"correctness\": 1.0,\n    \"tools\": 1.0,\n    \"context\": 1.0\n  },\n  \"median_generation_tokens_per_second\": 92.21875441281149,\n  \"median_prompt_8k_tokens_per_second\": 3151.6824590293504,\n  \"median_ttft_seconds\": 2.5714871090021916,\n  \"practical_gpu_margin_bytes\": 3489660928,\n  \"gates\": {\n    \"generation_tps\": true,\n    \"prompt_8k_tps\": true,\n    \"tool_validity\": true,\n    \"task_correctness\": true,\n    \"context_stability\": true,\n    \"no_swap_growth\": true,\n    \"memory_margin\": true,\n    \"no_performance_errors\": true\n  },\n  \"all_gates_passed\": true\n}\n",
+      "load_seconds": 2.2638117029855493,
+      "model_id": "Qwen3.5-9B-Q4_K_M",
+      "name": "Qwen3.5-9B-Q4_K_M",
+      "pid": 2455684,
+      "receipt": "/var/home/mythos/Eregion/Arda/core/state/model-benchmarks/core/qwen3-5-9b-q4-k-m.json",
+      "server_log": "/var/home/mythos/Eregion/Arda/core/state/model-benchmarks/core/qwen3-5-9b-q4-k-m.server.log",
+      "status": "completed",
+      "summary": {
+        "all_gates_passed": true,
+        "category_rates": {
+          "context": 1.0,
+          "correctness": 1.0,
+          "tools": 1.0
+        },
+        "gates": {
+          "context_stability": true,
+          "generation_tps": true,
+          "memory_margin": true,
+          "no_performance_errors": true,
+          "no_swap_growth": true,
+          "prompt_8k_tps": true,
+          "task_correctness": true,
+          "tool_validity": true
+        },
+        "median_generation_tokens_per_second": 92.21875441281149,
+        "median_prompt_8k_tokens_per_second": 3151.6824590293504,
+        "median_ttft_seconds": 2.5714871090021916,
+        "practical_gpu_margin_bytes": 3489660928,
+        "weighted_score": 100.0
+      },
+      "wall_seconds": 103.61527737800498
+    }
+  ],
+  "schema_version": 1,
+  "started_at": "2026-07-27T06:39:51.300421+00:00"
+}

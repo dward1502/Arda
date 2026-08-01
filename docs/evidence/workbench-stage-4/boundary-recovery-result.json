@@ -1,0 +1,19 @@
+{
+  "compensation": null,
+  "crash_boundaries": [
+    "planned",
+    "plan",
+    "approval",
+    "execute-before-receipt",
+    "execute",
+    "verify",
+    "review",
+    "close",
+    "result"
+  ],
+  "mutation_attempts": 2,
+  "observable_mutations": 1,
+  "recovery_behavior": "uncertain execute replayed the idempotent bounded mutation and observed the already-applied target state",
+  "run_id": "golden-boundary-recovery",
+  "schema_version": "arda.workbench-recovery-result.v1"
+}

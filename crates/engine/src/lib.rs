@@ -3,18 +3,16 @@
 //! spine so callers import from `arda_engine` rather than reaching into the
 //! vendored crates directly.
 
-pub mod manwe;
-
+pub use arda_orome::provider::{
+    DispatchMetricsSnapshot, DispatchReceipt, ManualTransport, ProviderConfig, ProviderRuntime,
+    ProviderType, RoutingIntent, TransportRequest,
+};
+pub mod adapters;
 pub mod harness;
+pub mod observability;
+pub mod orome;
 pub mod registry;
+pub mod runs;
 pub mod supervisor;
+pub use arda_core::loop_observability;
 pub use arda_core::service_registry;
-
-use tracing::info;
-
-/// Boot the Arda engine. Currently a placeholder that verifies the spine crates
-/// are linked. Real service wiring lands here.
-pub fn boot() -> anyhow::Result<()> {
-    info!("arda-engine boot: linked spine");
-    Ok(())
-}

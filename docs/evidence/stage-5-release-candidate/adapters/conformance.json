@@ -1,0 +1,86 @@
+{
+  "commands": [
+    {
+      "command": [
+        "/var/home/mythos/.cache/uv/builds-v0/.tmp9oMCKl/bin/python",
+        "-m",
+        "unittest",
+        "sdk.python.tests.test_conformance",
+        "-v"
+      ],
+      "elapsed_seconds": 0.770468,
+      "output_sha256": "040b7c8b2d3fc06ba606aba79df11d473fe829c2bcd11b2c5e7ad86bc1f1aec6",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "arda-engine",
+        "--test",
+        "project_adapter_jsonl",
+        "--",
+        "--test-threads=1"
+      ],
+      "elapsed_seconds": 33.760699,
+      "output_sha256": "be890bc7d21b15eb4d5b466fe62be519dffb16a2790f44ed17244d5c7636c7a2",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "arda-project-adapter-sdk"
+      ],
+      "elapsed_seconds": 0.142294,
+      "output_sha256": "6f7c96973e8aa267008b0176291b7435d0c4c515bd846c27fcce3ebb330518a1",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "npm",
+        "test",
+        "--prefix",
+        "sdk/javascript"
+      ],
+      "elapsed_seconds": 0.157983,
+      "output_sha256": "5ce9db12156f1c2cd20ba3a63ebf024ba6ae4f4dad831d5d5cc85fde617cffa9",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "arda-engine",
+        "--test",
+        "workbench_python_golden",
+        "--test",
+        "workbench_rust_golden",
+        "--",
+        "--test-threads=1"
+      ],
+      "elapsed_seconds": 1.670603,
+      "output_sha256": "1d0a11a62dfcce79e5d223dc5e41ffbd76efa7b17c08555a84be0b7a6f99cf64",
+      "returncode": 0
+    }
+  ],
+  "contract": "arda.stage5.adapter-conformance.v1",
+  "generated_at_utc": "2026-08-01T18:24:34.825033Z",
+  "limitations": [
+    "Python is the complete executable reference server; Rust and JavaScript packages provide bounded framing, envelope validation, and capability negotiation.",
+    "The unseen-repository fixture covers an isolated Python repository; a separately sourced external repository remains unavailable."
+  ],
+  "schema": {
+    "errors": {},
+    "status": "pass",
+    "validated_examples": [
+      "spec/project-contract/v1/examples/javascript-project.json",
+      "spec/project-contract/v1/examples/python-project.json",
+      "spec/project-contract/v1/examples/rust-project.json"
+    ]
+  },
+  "status": "pass"
+}

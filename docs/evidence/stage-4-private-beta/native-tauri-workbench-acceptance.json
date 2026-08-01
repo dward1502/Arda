@@ -1,0 +1,517 @@
+{
+  "schema_version": "arda.stage4.native_tauri_acceptance.v1",
+  "recorded_at": "2026-07-31T13:24:47-07:00",
+  "verdict": "passed",
+  "run_id": "run-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4",
+  "project_id": "550e8400-e29b-41d4-a716-446655440010",
+  "objective": "native hud stage four gate three evidence completion",
+  "native_surface": {
+    "application": "arda_hud Tauri/WebKitGTK dev build",
+    "interaction_boundary": "native X11 pointer/keyboard input with AT-SPI read-back; no terminal mutation calls",
+    "capture_status": "Objective captured through the text contract. Voice will feed the same contract later. Run events: idle.",
+    "plan_status": "Run run-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4 planned. Execution remains approval-gated. Run events: live.",
+    "approval_budget": "$0.00 / 25 J",
+    "completion_statuses": [
+      "execute node execute completed with a typed receipt. Run events: live.",
+      "verify node verify completed with a typed receipt. Run events: live.",
+      "review node review completed with a typed receipt. Run events: live.",
+      "close node close completed with a typed receipt. Run events: live."
+    ],
+    "restart_status": "Resumed run run-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4 from the durable harness. Run events: live.",
+    "restart_process": {
+      "before_native_pid": 1476345,
+      "after_native_pid": 1487332
+    }
+  },
+  "prior_run_record_after_restart": {
+    "graph": {
+      "schema_version": "arda.run-graph.v1",
+      "run_id": "run-8a00511e-a309-4838-894a-a5dcdd40f87e",
+      "objective_id": "objective-8a00511e-a309-4838-894a-a5dcdd40f87e",
+      "nodes": [
+        {
+          "id": "plan",
+          "kind": "plan",
+          "state": "pending",
+          "authority": "read_only",
+          "budget": {
+            "max_joules": 25.0,
+            "max_cost_usd": 0.0
+          },
+          "retry": {
+            "max_attempts": 1
+          },
+          "timeout_ms": 60000,
+          "idempotency_key": "run-8a00511e-a309-4838-894a-a5dcdd40f87e-plan",
+          "input_digest": "objective:objective-8a00511e-a309-4838-894a-a5dcdd40f87e",
+          "output_digest": null,
+          "parent_receipts": [],
+          "checkpoint": {
+            "sequence": 0,
+            "recovery_token": null,
+            "checkpoint_digest": null
+          }
+        },
+        {
+          "id": "approval",
+          "kind": "approval",
+          "state": "succeeded",
+          "authority": "human_approval",
+          "budget": {
+            "max_joules": 25.0,
+            "max_cost_usd": 0.0
+          },
+          "retry": {
+            "max_attempts": 1
+          },
+          "timeout_ms": 60000,
+          "idempotency_key": "run-8a00511e-a309-4838-894a-a5dcdd40f87e-approval",
+          "input_digest": "objective:objective-8a00511e-a309-4838-894a-a5dcdd40f87e",
+          "output_digest": null,
+          "parent_receipts": [
+            "receipt:plan"
+          ],
+          "checkpoint": {
+            "sequence": 0,
+            "recovery_token": null,
+            "checkpoint_digest": null
+          }
+        },
+        {
+          "id": "execute",
+          "kind": "execute",
+          "state": "succeeded",
+          "authority": "execute_with_approval",
+          "budget": {
+            "max_joules": 250.0,
+            "max_cost_usd": 2.0
+          },
+          "retry": {
+            "max_attempts": 1
+          },
+          "timeout_ms": 900000,
+          "idempotency_key": "run-8a00511e-a309-4838-894a-a5dcdd40f87e-execute",
+          "input_digest": "objective:objective-8a00511e-a309-4838-894a-a5dcdd40f87e",
+          "output_digest": null,
+          "parent_receipts": [
+            "receipt:approval"
+          ],
+          "checkpoint": {
+            "sequence": 0,
+            "recovery_token": null,
+            "checkpoint_digest": null
+          }
+        },
+        {
+          "id": "verify",
+          "kind": "verify",
+          "state": "succeeded",
+          "authority": "verify",
+          "budget": {
+            "max_joules": 25.0,
+            "max_cost_usd": 0.0
+          },
+          "retry": {
+            "max_attempts": 1
+          },
+          "timeout_ms": 60000,
+          "idempotency_key": "run-8a00511e-a309-4838-894a-a5dcdd40f87e-verify",
+          "input_digest": "objective:objective-8a00511e-a309-4838-894a-a5dcdd40f87e",
+          "output_digest": null,
+          "parent_receipts": [
+            "receipt:execute"
+          ],
+          "checkpoint": {
+            "sequence": 0,
+            "recovery_token": null,
+            "checkpoint_digest": null
+          }
+        },
+        {
+          "id": "review",
+          "kind": "review",
+          "state": "succeeded",
+          "authority": "verify",
+          "budget": {
+            "max_joules": 25.0,
+            "max_cost_usd": 0.0
+          },
+          "retry": {
+            "max_attempts": 1
+          },
+          "timeout_ms": 60000,
+          "idempotency_key": "run-8a00511e-a309-4838-894a-a5dcdd40f87e-review",
+          "input_digest": "objective:objective-8a00511e-a309-4838-894a-a5dcdd40f87e",
+          "output_digest": null,
+          "parent_receipts": [
+            "receipt:verify"
+          ],
+          "checkpoint": {
+            "sequence": 0,
+            "recovery_token": null,
+            "checkpoint_digest": null
+          }
+        },
+        {
+          "id": "close",
+          "kind": "close",
+          "state": "succeeded",
+          "authority": "read_only",
+          "budget": {
+            "max_joules": 25.0,
+            "max_cost_usd": 0.0
+          },
+          "retry": {
+            "max_attempts": 1
+          },
+          "timeout_ms": 60000,
+          "idempotency_key": "run-8a00511e-a309-4838-894a-a5dcdd40f87e-close",
+          "input_digest": "objective:objective-8a00511e-a309-4838-894a-a5dcdd40f87e",
+          "output_digest": null,
+          "parent_receipts": [
+            "receipt:review"
+          ],
+          "checkpoint": {
+            "sequence": 0,
+            "recovery_token": null,
+            "checkpoint_digest": null
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "plan-to-approval",
+          "from": "plan",
+          "to": "approval",
+          "parent_receipt": "receipt:plan"
+        },
+        {
+          "id": "approval-to-execute",
+          "from": "approval",
+          "to": "execute",
+          "parent_receipt": "receipt:approval"
+        },
+        {
+          "id": "execute-to-verify",
+          "from": "execute",
+          "to": "verify",
+          "parent_receipt": "receipt:execute"
+        },
+        {
+          "id": "verify-to-review",
+          "from": "verify",
+          "to": "review",
+          "parent_receipt": "receipt:verify"
+        },
+        {
+          "id": "review-to-close",
+          "from": "review",
+          "to": "close",
+          "parent_receipt": "receipt:review"
+        }
+      ],
+      "provenance": {
+        "project_contract_digest": "project:550e8400-e29b-41d4-a716-446655440010",
+        "created_by": "arda-hud-workbench",
+        "parent_receipts": []
+      }
+    },
+    "events": [
+      {
+        "schema_version": "arda.run-event.v1",
+        "sequence": 1,
+        "run_id": "run-8a00511e-a309-4838-894a-a5dcdd40f87e",
+        "node_id": "plan",
+        "idempotency_key": "plan-1785526022248",
+        "kind": {
+          "type": "planned",
+          "project_id": "550e8400-e29b-41d4-a716-446655440010",
+          "approval_id": "approval-live-stage4-native-20260731"
+        },
+        "receipt_digest": "approval-live-stage4-native-20260731",
+        "recorded_at_unix_ms": 1785526022251
+      },
+      {
+        "schema_version": "arda.run-event.v1",
+        "sequence": 2,
+        "run_id": "run-8a00511e-a309-4838-894a-a5dcdd40f87e",
+        "node_id": "approval",
+        "idempotency_key": "approve-approval-1785526089829:approval:ready",
+        "kind": {
+          "type": "node_transition",
+          "state": "ready"
+        },
+        "receipt_digest": "approval-live-stage4-native-20260731",
+        "recorded_at_unix_ms": 1785526089831
+      },
+      {
+        "schema_version": "arda.run-event.v1",
+        "sequence": 3,
+        "run_id": "run-8a00511e-a309-4838-894a-a5dcdd40f87e",
+        "node_id": "approval",
+        "idempotency_key": "approve-approval-1785526089829:approval:running",
+        "kind": {
+          "type": "node_transition",
+          "state": "running"
+        },
+        "receipt_digest": "approval-live-stage4-native-20260731",
+        "recorded_at_unix_ms": 1785526089833
+      },
+      {
+        "schema_version": "arda.run-event.v1",
+        "sequence": 4,
+        "run_id": "run-8a00511e-a309-4838-894a-a5dcdd40f87e",
+        "node_id": "approval",
+        "idempotency_key": "approve-approval-1785526089829",
+        "kind": {
+          "type": "node_transition",
+          "state": "succeeded"
+        },
+        "receipt_digest": "approval-live-stage4-native-20260731",
+        "recorded_at_unix_ms": 1785526089835
+      },
+      {
+        "schema_version": "arda.run-event.v1",
+        "sequence": 5,
+        "run_id": "run-8a00511e-a309-4838-894a-a5dcdd40f87e",
+        "node_id": "execute",
+        "idempotency_key": "complete-execute-1785526184987:ready",
+        "kind": {
+          "type": "node_transition",
+          "state": "ready"
+        },
+        "receipt_digest": "receipt:execute",
+        "recorded_at_unix_ms": 1785526184988
+      },
+      {
+        "schema_version": "arda.run-event.v1",
+        "sequence": 6,
+        "run_id": "run-8a00511e-a309-4838-894a-a5dcdd40f87e",
+        "node_id": "execute",
+        "idempotency_key": "complete-execute-1785526184987:running",
+        "kind": {
+          "type": "node_transition",
+          "state": "running"
+        },
+        "receipt_digest": "receipt:execute",
+        "recorded_at_unix_ms": 1785526184991
+      },
+      {
+        "schema_version": "arda.run-event.v1",
+        "sequence": 7,
+        "run_id": "run-8a00511e-a309-4838-894a-a5dcdd40f87e",
+        "node_id": "execute",
+        "idempotency_key": "complete-execute-1785526184987",
+        "kind": {
+          "type": "node_transition",
+          "state": "succeeded"
+        },
+        "receipt_digest": "receipt:execute",
+        "recorded_at_unix_ms": 1785526184992
+      },
+      {
+        "schema_version": "arda.run-event.v1",
+        "sequence": 8,
+        "run_id": "run-8a00511e-a309-4838-894a-a5dcdd40f87e",
+        "node_id": "verify",
+        "idempotency_key": "complete-verify-1785526277248:ready",
+        "kind": {
+          "type": "node_transition",
+          "state": "ready"
+        },
+        "receipt_digest": "receipt:verify",
+        "recorded_at_unix_ms": 1785526277251
+      },
+      {
+        "schema_version": "arda.run-event.v1",
+        "sequence": 9,
+        "run_id": "run-8a00511e-a309-4838-894a-a5dcdd40f87e",
+        "node_id": "verify",
+        "idempotency_key": "complete-verify-1785526277248:running",
+        "kind": {
+          "type": "node_transition",
+          "state": "running"
+        },
+        "receipt_digest": "receipt:verify",
+        "recorded_at_unix_ms": 1785526277253
+      },
+      {
+        "schema_version": "arda.run-event.v1",
+        "sequence": 10,
+        "run_id": "run-8a00511e-a309-4838-894a-a5dcdd40f87e",
+        "node_id": "verify",
+        "idempotency_key": "complete-verify-1785526277248",
+        "kind": {
+          "type": "node_transition",
+          "state": "succeeded"
+        },
+        "receipt_digest": "receipt:verify",
+        "recorded_at_unix_ms": 1785526277255
+      },
+      {
+        "schema_version": "arda.run-event.v1",
+        "sequence": 11,
+        "run_id": "run-8a00511e-a309-4838-894a-a5dcdd40f87e",
+        "node_id": "review",
+        "idempotency_key": "complete-review-1785526361948:ready",
+        "kind": {
+          "type": "node_transition",
+          "state": "ready"
+        },
+        "receipt_digest": "receipt:review",
+        "recorded_at_unix_ms": 1785526361951
+      },
+      {
+        "schema_version": "arda.run-event.v1",
+        "sequence": 12,
+        "run_id": "run-8a00511e-a309-4838-894a-a5dcdd40f87e",
+        "node_id": "review",
+        "idempotency_key": "complete-review-1785526361948:running",
+        "kind": {
+          "type": "node_transition",
+          "state": "running"
+        },
+        "receipt_digest": "receipt:review",
+        "recorded_at_unix_ms": 1785526361953
+      },
+      {
+        "schema_version": "arda.run-event.v1",
+        "sequence": 13,
+        "run_id": "run-8a00511e-a309-4838-894a-a5dcdd40f87e",
+        "node_id": "review",
+        "idempotency_key": "complete-review-1785526361948",
+        "kind": {
+          "type": "node_transition",
+          "state": "succeeded"
+        },
+        "receipt_digest": "receipt:review",
+        "recorded_at_unix_ms": 1785526361956
+      },
+      {
+        "schema_version": "arda.run-event.v1",
+        "sequence": 14,
+        "run_id": "run-8a00511e-a309-4838-894a-a5dcdd40f87e",
+        "node_id": "close",
+        "idempotency_key": "complete-close-1785526436394:ready",
+        "kind": {
+          "type": "node_transition",
+          "state": "ready"
+        },
+        "receipt_digest": "receipt:close",
+        "recorded_at_unix_ms": 1785526436399
+      },
+      {
+        "schema_version": "arda.run-event.v1",
+        "sequence": 15,
+        "run_id": "run-8a00511e-a309-4838-894a-a5dcdd40f87e",
+        "node_id": "close",
+        "idempotency_key": "complete-close-1785526436394:running",
+        "kind": {
+          "type": "node_transition",
+          "state": "running"
+        },
+        "receipt_digest": "receipt:close",
+        "recorded_at_unix_ms": 1785526436402
+      },
+      {
+        "schema_version": "arda.run-event.v1",
+        "sequence": 16,
+        "run_id": "run-8a00511e-a309-4838-894a-a5dcdd40f87e",
+        "node_id": "close",
+        "idempotency_key": "complete-close-1785526436394",
+        "kind": {
+          "type": "node_transition",
+          "state": "succeeded"
+        },
+        "receipt_digest": "receipt:close",
+        "recorded_at_unix_ms": 1785526436404
+      }
+    ]
+  },
+  "gate_3_closeout": {
+    "run_id": "run-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4",
+    "project_attachment": {
+      "project_id": "550e8400-e29b-41d4-a716-446655440010",
+      "proposal_id": "proposal-stage4-native-g3-20260731",
+      "approval_id": "approval-stage4-native-g3-20260731"
+    },
+    "graph_after_restart": {
+      "node_states": {
+        "plan": "succeeded",
+        "approval": "succeeded",
+        "execute": "succeeded",
+        "verify": "succeeded",
+        "review": "succeeded",
+        "close": "succeeded"
+      },
+      "event_count": 23,
+      "first_sequence": 1,
+      "last_sequence": 23,
+      "last_event_type": "result_projected",
+      "last_event_node": "close",
+      "close_checkpoint_sequence": 22,
+      "close_recovery_token": "run-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4:close:22"
+    },
+    "review_evidence_after_restart": {
+      "changed_files": [
+        "crates/engine/src/harness/runs.rs modified +360 -9"
+      ],
+      "tests": [
+        "engine harness passed / 90 ms",
+        "HUD workbench passed / 1290 ms"
+      ],
+      "provider_receipt": {
+        "provider": "openai-codex",
+        "model": "gpt-5.6-sol",
+        "adapter": "hermes-agent",
+        "receipt_digest": "sha256:0d68e8409e456d8d059a271789e2defba2bf19c946659485ae6a08642b4e45bb",
+        "summary": "Gate 3 run run-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4"
+      }
+    },
+    "durable_sources": [
+      "data/runs/run-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4/checkpoint.json",
+      "data/runs/run-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4/events.jsonl",
+      "data/runs/run-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4/result.json"
+    ]
+  },
+  "acceptance_checks": {
+    "objective_capture_explicitly_verified": "pass",
+    "governed_run_planned": "pass",
+    "run_graph_inspected": "pass",
+    "bounded_human_approval": "pass",
+    "streamed_event_transitions": "pass",
+    "execute_verify_review_close_receipts": "pass",
+    "native_restart_same_run_resume": "pass",
+    "changed_files_review": {
+      "status": "pass",
+      "observed": "crates/engine/src/harness/runs.rs modified +360 -9 remained visible after native restart."
+    },
+    "test_receipt_review": {
+      "status": "pass",
+      "observed": "engine harness (4 passed) and HUD workbench (6 passed) receipts remained visible after native restart."
+    },
+    "provider_receipt_review": {
+      "status": "pass",
+      "observed": "openai-codex / gpt-5.6-sol through hermes-agent with digest sha256:0d68e8409e456d8d059a271789e2defba2bf19c946659485ae6a08642b4e45bb remained visible after native restart."
+    }
+  },
+  "observed_defects": [],
+  "resolved_defects": [
+    "The plan node now transitions ready to running to succeeded and persists output/checkpoint metadata.",
+    "Each succeeded node now persists output_digest, checkpoint sequence, recovery token, and checkpoint digest.",
+    "ChangeReview renders durable changed-file and test projections instead of hard-coded empty arrays.",
+    "The native surface now restores a durable provider/model/adapter receipt after restart."
+  ],
+  "resume_hardening": {
+    "implemented": true,
+    "files": [
+      "apps/arda-hud/src/components/arda/modules/WorkbenchModule.tsx",
+      "apps/arda-hud/src/components/arda/modules/WorkbenchModule.test.tsx"
+    ],
+    "behavior": "Persists the last run ID, automatically reloads its durable run record after native restart, and provides a manual durable-run recovery control.",
+    "verification": [
+      "pnpm test --run src/components/arda/modules/WorkbenchModule.test.tsx: 4 passed",
+      "pnpm run build: passed"
+    ]
+  }
+}

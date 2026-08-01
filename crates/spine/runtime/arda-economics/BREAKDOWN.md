@@ -5,7 +5,7 @@ soterion:
   role: "runtime_economics"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-17"
+  last_reviewed: "2026-07-28"
 ---
 
 # arda-economics
@@ -29,10 +29,9 @@ persistent Plutus service with governance history.
 
 ## Verification status
 - `cargo check -p arda-economics`: OK
-- `cargo test -p arda-economics`: 14 passed, 0 failed
+- `cargo test -p arda-economics --all-features`: 34 passed, 1 ignored, 0 failed
 - Doc tests: 0
-- No consumers found in `arda-engine` or `apps`; used by `arda-governance`,
-  `arda-orome`, `arda-varda`, `arda-vaire` through `PlutusService`
+- Direct Cargo consumers: `arda-mandos`, `arda-vaire`, and `arda-varda`
 
 ## Agentic-OS abstractions
 - **Economics engine**: `EconomicsEngine` with daily budget, provider-
@@ -71,32 +70,60 @@ persistent Plutus service with governance history.
 | `transport/mod.rs` | Daemon config + runner |
 | `transport/ipc.rs` | Unix socket server |
 | `transport/http.rs` | Optional HTTP/SSE server |
+| `transport/finance_stream.rs` | Finance, budget-pressure, freshness, and transport-latency export |
 | `error.rs` | Canonical error type |
 
 ## Consumer wiring
-- Used by `arda-governance` MCP runtime governance for background work
-  tracking
-- Used by `arda-orome` context_enrichment and service layer
-- Used by `arda-varda` interceptor pipeline and planning-task receipts
-- Used by `arda-vaire` tests and service emit paths
+- Used directly by `arda-mandos`, `arda-vaire`, and `arda-varda`
+- `arda-aule`, `arda-governance`, Manwe, and launcher are not direct Cargo consumers
 - Depends on: `arda-core`, `arda-governance`
 
+## Supported source classification
+
+| Classification | Count | Paths |
+|---|---:|---|
+| Production/unconditional | 11 | `src/lib.rs`, seven other top-level modules, `transport/mod.rs`, `transport/ipc.rs`, `transport/finance_stream.rs` |
+| Production/feature-gated | 1 | `transport/http.rs` (`http`, enabled by default) |
+| Generated include | 0 | None |
+| Standalone test-only source | 0 | Tests are inline |
+| Integration test/build script | 0 / 0 | None |
+| Unwired | 0 | None |
+
+The all-feature suite has 34 passing tests plus one ignored operator-scale test.
+The ignored 10,000-event provenance/multiplier test passed when executed directly.
+
 ## Ideas for improvement
-1. Add crate-level `INDEX.md`/`README.md` if missing; current docs are sparse
-2. Replace duplicated `arda_root()` / `annunimas_root()` path logic with a
-   shared layout helper under `arda-core`
-3. Make `EnergyMeter::estimate()` async or document why sync is sufficient;
-   hardware sampling may need async sysfs reads
-4. Add schema-version migration for `runtime_status.json` so state upgrades
-   don’t lose history
-5. Expose `EconomicsEngine::can_afford()` as a policy hook in `arda-core`
-   governance gates instead of local-only checks
-6. Add explicit tests for `ROIMetrics`, `LoveEquation` restore, and tariff
-   reload edge cases
-7. Consider splitting transport into a feature-gated `arda-plutus-transport`
-   crate if daemon surface grows
-8. Add budget alerting hooks when `budget_usage_percent()` crosses thresholds
-9. Make `PlutusService` implement a shared `AppendOnlyLedger` trait from
-   `arda-core` for unified ledger semantics
-10. Add operator-facing `plutus export` command or HUD section so economics
-   state is visible without JSON inspection
+Completed in the first improvement pass:
+
+1. [x] Added crate-level `README.md` and `INDEX.md`.
+2. [x] Added `arda_core::layout::arda_root_from()` and replaced this crate's
+   duplicated fixed-depth root discovery. `ARDA_ROOT` is canonical and
+   `ANNUNIMAS_ROOT` remains a compatibility fallback.
+3. [x] Made `EnergyMeter::estimate()` async while retaining a private sync
+   estimator path for the existing synchronous `JouleEstimator` contract.
+4. [x] Added v1-to-v2 `runtime_status.json` migration, rejection of unknown
+   future schemas, and full governance-record persistence in v2.
+5. [x] Added explicit ROI, LoveEquation restore, tariff validation/reload, input
+   validation, schema migration, and budget-threshold tests.
+6. [x] Added warning (80%) and critical (100%) budget threshold hooks and status
+   reporting, including finite zero-budget behavior.
+
+Completed in the second improvement pass:
+
+7. [x] Added the dependency-neutral `AffordabilityPolicy` contract and
+   `AffordabilityDecision` under `arda-core` governance gates. `EconomicsEngine`
+   implements the policy, and `dispatch_full_with_affordability()` enforces it
+   before market selection while compatibility dispatch remains allow-all.
+8. [x] Kept transport in this crate after reviewing its current three-module,
+   single-consumer surface. HTTP is already feature-gated, and extraction now
+   has explicit triggers: a second runtime consumer, an independent release
+   lifecycle, or transport dependencies materially inflating non-daemon builds.
+9. [x] Added the shared `arda_core::ledger::AppendOnlyLedger` contract.
+   `PlutusService` implements it through `runtime_events.jsonl`, and every
+   successful economic mutation appends a durable `arda.plutus.event.v1` entry.
+10. [x] Added the live `arda-cli plutus export` command with human-readable and
+    `--json` output, explicit `--path` override, missing-state handling, and
+    append-only event counts.
+
+All improvement items are resolved. Completed trackers were retired after strict
+crate, operator-scale, and direct-consumer gates.

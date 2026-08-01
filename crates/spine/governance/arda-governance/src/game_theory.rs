@@ -9,9 +9,13 @@ use arda_core::task::{Task, TaskStatus};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-use crate::{love_equation_score, profile_joulework, triad_validate};
+use crate::versions::{legacy_game_theory_policy_version, GAME_THEORY_POLICY_VERSION};
+use crate::{
+    love_dynamics_compatibility_proxy, normalize_legacy_unit_or_percent, profile_joulework,
+    triad_validate,
+};
 
-pub const GAME_THEORY_SELECTION_POLICY_VERSION: &str = "capability_weighted_local_v1";
+pub const GAME_THEORY_SELECTION_POLICY_VERSION: &str = GAME_THEORY_POLICY_VERSION;
 pub const GAME_THEORY_HEURISTIC_LABEL: &str =
     "capability_weighted_heuristic_not_autonomous_consensus";
 pub const GAME_THEORY_FALLBACK_LABEL: &str = "policy_backed_fallback_not_autonomous_consensus";
@@ -63,6 +67,34 @@ pub struct GameTheoryPolicy {
     pub autonomous_consensus: bool,
 }
 
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum GameTheoryConfidenceBand {
+    /// No eligible weighted candidates or zero confidence.
+    #[default]
+    NoData,
+    /// Confidence greater than zero and below 0.50.
+    Low,
+    /// Confidence from 0.50 (inclusive) to 0.75 (exclusive).
+    Medium,
+    /// Confidence at or above 0.75.
+    High,
+}
+
+impl GameTheoryConfidenceBand {
+    fn from_confidence(confidence: f64) -> Self {
+        if confidence <= 0.0 {
+            Self::NoData
+        } else if confidence < 0.50 {
+            Self::Low
+        } else if confidence < 0.75 {
+            Self::Medium
+        } else {
+            Self::High
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct GameTheorySelectionResult {
     pub selected_agent: Option<String>,
@@ -71,6 +103,9 @@ pub struct GameTheorySelectionResult {
     pub filtered_out_count: usize,
     pub fallback_reason: Option<String>,
     pub confidence: f64,
+    #[serde(default)]
+    pub confidence_band: GameTheoryConfidenceBand,
+    #[serde(default = "legacy_game_theory_policy_version")]
     pub selection_policy_version: String,
 }
 
@@ -92,6 +127,7 @@ impl GameTheorySelectionResult {
             filtered_out_count,
             fallback_reason: None,
             confidence,
+            confidence_band: GameTheoryConfidenceBand::from_confidence(confidence),
             selection_policy_version: GAME_THEORY_SELECTION_POLICY_VERSION.to_string(),
         }
     }
@@ -113,6 +149,7 @@ impl GameTheorySelectionResult {
             filtered_out_count,
             fallback_reason: Some(reason.to_string()),
             confidence: 0.0,
+            confidence_band: GameTheoryConfidenceBand::NoData,
             selection_policy_version: GAME_THEORY_SELECTION_POLICY_VERSION.to_string(),
         }
     }
@@ -229,7 +266,7 @@ impl GameTheory {
             name: agent.to_string(),
             total_tasks: 0,
             successful: 0,
-            average_resonance: 50.0,
+            average_resonance: 0.5,
             average_love_equation: 0.5,
             joule_honesty: 1.0,
             triad_pass_rate: 0.5,
@@ -251,11 +288,11 @@ impl GameTheory {
         }
 
         let triad = triad_validate(task, None);
-        let love = love_equation_score(task);
+        let love = love_dynamics_compatibility_proxy(task);
         let joule = profile_joulework(task);
 
         let success_rate = entry.successful as f64 / entry.total_tasks as f64;
-        entry.average_resonance = success_rate * 100.0;
+        entry.average_resonance = success_rate;
         entry.average_love_equation =
             rolling_average(entry.average_love_equation, love.score, entry.total_tasks);
         entry.joule_honesty =
@@ -288,11 +325,11 @@ fn score_supports_task(score: &AgentScore, task_type: &str, action_class: Option
 }
 
 fn selection_weight(score: &AgentScore) -> f64 {
-    let weight = score.average_resonance * 0.45
-        + score.average_love_equation * 100.0 * 0.25
-        + score.joule_honesty * 100.0 * 0.15
-        + score.triad_pass_rate * 100.0 * 0.15;
-    weight.max(0.0)
+    let weight = normalize_legacy_unit_or_percent(score.average_resonance).get() * 0.45
+        + normalize_legacy_unit_or_percent(score.average_love_equation).get() * 0.25
+        + normalize_legacy_unit_or_percent(score.joule_honesty).get() * 0.15
+        + normalize_legacy_unit_or_percent(score.triad_pass_rate).get() * 0.15;
+    weight.clamp(0.0, 1.0)
 }
 
 fn rolling_average(current: f64, sample: f64, total_tasks: u32) -> f64 {
@@ -312,18 +349,19 @@ impl Default for GameTheory {
 /// Calculate game theory score for task
 pub fn game_theory_score(task: &Task) -> f64 {
     let base = match task.status {
-        TaskStatus::Complete => 100.0,
-        TaskStatus::Running => 50.0,
-        TaskStatus::Pending => 20.0,
-        TaskStatus::Failed { .. } => 5.0,
-        TaskStatus::Retry { attempt, .. } => 30.0 / attempt as f64,
+        TaskStatus::Complete => 1.0,
+        TaskStatus::Running => 0.5,
+        TaskStatus::Pending => 0.2,
+        TaskStatus::Failed { .. } => 0.05,
+        TaskStatus::Retry { attempt, .. } => 0.3 / attempt.max(1) as f64,
     };
     let triad = triad_validate(task, None);
-    let love = love_equation_score(task);
+    let love = love_dynamics_compatibility_proxy(task);
     let joule = profile_joulework(task);
-    let governance_bonus =
-        if triad.passed { 12.0 } else { -18.0 } + (love.score * 10.0) + (joule.honesty_ratio * 8.0);
-    (base + governance_bonus).clamp(0.0, 100.0)
+    let governance_bonus = if triad.passed { 0.12 } else { -0.18 }
+        + (love.score * 0.10)
+        + (joule.honesty_ratio * 0.08);
+    (base + governance_bonus).clamp(0.0, 1.0)
 }
 
 #[cfg(test)]
@@ -418,6 +456,7 @@ mod tests {
         assert_eq!(result.filtered_out_count, 0);
         assert!(result.fallback_reason.is_none());
         assert_eq!(result.confidence, 1.0);
+        assert_eq!(result.confidence_band, GameTheoryConfidenceBand::High);
         assert_eq!(
             result.selection_policy_version,
             GAME_THEORY_SELECTION_POLICY_VERSION

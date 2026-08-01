@@ -11,7 +11,7 @@
 use arda_core::error::Result;
 use serde::{Deserialize, Serialize};
 
-use super::{athena_error, routing, GithubMetadata};
+use super::{athena_error, http_client, routing, GithubMetadata};
 
 const USER_AGENT: &str = "annunimas-athena/0.1 (+https://github.com/annunimas)";
 const README_CHAR_LIMIT: usize = 16_384;
@@ -121,16 +121,9 @@ fn github_token() -> Option<String> {
         .filter(|s| !s.is_empty())
 }
 
-fn build_client() -> Result<reqwest::Client> {
-    reqwest::Client::builder()
-        .user_agent(USER_AGENT)
-        .timeout(std::time::Duration::from_secs(15))
-        .build()
-        .map_err(|e| athena_error(format!("github client build failed: {e}")))
-}
-
 fn apply_auth(req: reqwest::RequestBuilder) -> reqwest::RequestBuilder {
     let mut req = req
+        .header(reqwest::header::USER_AGENT, USER_AGENT)
         .header("Accept", "application/vnd.github+json")
         .header("X-GitHub-Api-Version", "2022-11-28");
     if let Some(token) = github_token() {
@@ -140,7 +133,7 @@ fn apply_auth(req: reqwest::RequestBuilder) -> reqwest::RequestBuilder {
 }
 
 async fn fetch_repo_metadata(coords: RepoCoords, source_url: String) -> Result<GithubMetadata> {
-    let client = build_client()?;
+    let client = http_client::async_client()?;
     let repo_url = format!(
         "https://api.github.com/repos/{}/{}",
         coords.owner, coords.repo
@@ -155,13 +148,13 @@ async fn fetch_repo_metadata(coords: RepoCoords, source_url: String) -> Result<G
         .await
         .map_err(|e| athena_error(format!("github repo decode failed: {e}")))?;
 
-    let readme = fetch_readme(&client, &coords.owner, &coords.repo)
+    let readme = fetch_readme(client, &coords.owner, &coords.repo)
         .await
         .ok()
         .map(|text| truncate_chars(&text, README_CHAR_LIMIT));
 
     let manifest = fetch_manifest(
-        &client,
+        client,
         &coords.owner,
         &coords.repo,
         repo.default_branch.as_deref(),

@@ -128,7 +128,10 @@ pub(super) fn write_arda_source_map(core_root: &Path) {
                 rel_path(core_root.join("state/escalation_runtime.json"), &workspace_root)
             ],
             "supplemental_sources": [
-                rel_path(workspace_root.join("core/projects/tasks/queue.jsonl"), &workspace_root),
+                rel_path(
+                    crate::prometheus::queue_authority::canonical_project_task_queue(&workspace_root),
+                    &workspace_root,
+                ),
                 rel_path(workspace_root.join("core/queue/queue.jsonl"), &workspace_root),
                 rel_path(workspace_root.join("core/projects/Plans"), &workspace_root),
                 rel_path(workspace_root.join("data/prometheus/orders.jsonl"), &workspace_root),
@@ -178,7 +181,10 @@ pub(super) fn write_arda_source_map(core_root: &Path) {
                 rel_path(core_root.join("state/control_plane_lockdown.json"), &workspace_root),
                 rel_path(core_root.join("state/athena_runtime.json"), &workspace_root),
                 rel_path(workspace_root.join("data/athena/policy_readiness.jsonl"), &workspace_root),
-                rel_path(workspace_root.join("core/projects/tasks/queue.jsonl"), &workspace_root)
+                rel_path(
+                    crate::prometheus::queue_authority::canonical_project_task_queue(&workspace_root),
+                    &workspace_root,
+                )
             ],
             "arda_panels": ["paperclip_alignment", "governance_runtime", "operations_flow"]
         }),
@@ -859,12 +865,12 @@ mod tests {
     #[test]
     fn source_map_semantic_equality_ignores_generated_at_only() {
         let left = json!({
-            "schema_version": "annunimas.core.state.v1",
+            "schema_version": "arda.core.state.v1",
             "generated_at_utc": "2026-05-20T01:00:00Z",
             "sections": [{"id": "routing", "status": "ready"}]
         });
         let right = json!({
-            "schema_version": "annunimas.core.state.v1",
+            "schema_version": "arda.core.state.v1",
             "generated_at_utc": "2026-05-20T02:00:00Z",
             "sections": [{"id": "routing", "status": "ready"}]
         });
@@ -875,12 +881,12 @@ mod tests {
     #[test]
     fn source_map_semantic_equality_detects_source_changes() {
         let left = json!({
-            "schema_version": "annunimas.core.state.v1",
+            "schema_version": "arda.core.state.v1",
             "generated_at_utc": "2026-05-20T01:00:00Z",
             "sections": [{"id": "routing", "supplemental_sources": ["data/hermes/boardroom.jsonl"]}]
         });
         let right = json!({
-            "schema_version": "annunimas.core.state.v1",
+            "schema_version": "arda.core.state.v1",
             "generated_at_utc": "2026-05-20T02:00:00Z",
             "sections": [{"id": "routing", "supplemental_sources": ["data/hermes/interruptions.jsonl"]}]
         });

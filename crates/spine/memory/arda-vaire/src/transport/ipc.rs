@@ -5,6 +5,7 @@ use arda_core::error::{ArdaError, Result};
 use arda_core::spawn_bounded_background;
 use serde_json::{json, Value};
 use std::path::PathBuf;
+use std::time::Instant;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::{UnixListener, UnixStream};
 
@@ -29,10 +30,12 @@ pub async fn run_ipc_server(service: MnemosyneService, socket_path: PathBuf) -> 
             message: format!("IPC accept error: {e}"),
         })?;
         let service = service.clone();
+        let accepted_at = Instant::now();
         let _ = spawn_bounded_background(
             "mnemosyne_ipc_connection",
             ipc_connection_limit(),
             move || async move {
+                service.observe_queue_latency(accepted_at.elapsed());
                 if let Err(err) = handle_connection(stream, service).await {
                     tracing::warn!(error = %err, "MNEMOSYNE IPC client failed");
                 }
@@ -186,7 +189,10 @@ fn execute_command(service: &MnemosyneService, cmd: CommandEnvelope) -> Result<V
                 .payload
                 .get("vault_path")
                 .and_then(|v| v.as_str())
-                .unwrap_or("human/.obsidian");
+                .ok_or_else(|| ArdaError::Agent {
+                    agent: "mnemosyne".to_owned(),
+                    message: "vault_path is required for obsidian_sync".to_owned(),
+                })?;
             let max_files = cmd
                 .payload
                 .get("max_files")
@@ -258,11 +264,49 @@ mod tests {
             Some("system_continuity")
         );
 
+        let missing_vault = send_command(
+            socket_path.clone(),
+            "obsidian_sync",
+            json!({"max_files": 1}),
+        )
+        .await
+        .expect_err("missing vault path must be rejected");
+        assert!(missing_vault.to_string().contains("vault_path is required"));
+
         let stats = send_command(socket_path, "stats", json!({}))
             .await
             .expect("stats");
         assert!(stats.get("memory_counts").is_some());
 
         server.abort();
+    }
+
+    #[tokio::test]
+    async fn ipc_discloses_unreachable_socket() {
+        let dir = tempdir().expect("tempdir");
+        let err = send_command(dir.path().join("missing.sock"), "status", json!({}))
+            .await
+            .expect_err("unreachable socket");
+        assert!(err.to_string().contains("failed to connect"));
+    }
+
+    #[tokio::test]
+    async fn ipc_discloses_non_json_response() {
+        use tokio::io::AsyncWriteExt;
+        use tokio::net::UnixListener;
+
+        let dir = tempdir().expect("tempdir");
+        let socket_path = dir.path().join("malformed.sock");
+        let listener = UnixListener::bind(&socket_path).expect("bind");
+        let server = tokio::spawn(async move {
+            let (mut stream, _) = listener.accept().await.expect("accept");
+            stream.write_all(b"not-json\n").await.expect("write");
+        });
+
+        let err = send_command(socket_path, "status", json!({}))
+            .await
+            .expect_err("non-json response");
+        assert!(err.to_string().contains("invalid IPC response"));
+        server.await.expect("server");
     }
 }

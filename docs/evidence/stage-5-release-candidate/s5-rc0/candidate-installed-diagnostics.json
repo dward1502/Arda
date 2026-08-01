@@ -1,0 +1,193 @@
+{
+  "contract": "arda.private_beta_ops.v1",
+  "generated_at_utc": "2026-08-01T05:19:43.126673Z",
+  "installed_release": {
+    "artifact_sha256": "e2409c587267caa49ae0506b836a6ae79e9a190c39ed01a30e56a739d08b72da",
+    "backup_sha256": "3e4c7c614372cdb6243f8de4ff413f0e43be5a39c1018538168281b1a0ef9ff0",
+    "release_id": "sha256:a1721c7ed7b2ee37132ab80e0d0579b4bfae587ec23a508d3b564b20ef453ac8",
+    "rollback_result": null,
+    "schemas": {
+      "execution_receipt": "arda.execution-receipt.v1",
+      "private_beta_operations": "arda.private_beta_ops.v1",
+      "project_contract": "arda.project-contract.v1",
+      "run_event": "arda.run-event.v1"
+    },
+    "version": "0.3.0-rc.0"
+  },
+  "operation": "diagnostics",
+  "platform": {
+    "machine": "x86_64",
+    "python": "3.14.6",
+    "release": "6.17.12-200.fc42.x86_64",
+    "system": "Linux"
+  },
+  "readiness": {
+    "checks": [
+      {
+        "check_id": "release.supported_profile",
+        "evidence": "supported release profile: bluefin-lts-10-x86_64",
+        "recovery": "Use the declared bluefin-lts-10-x86_64 profile or a separately qualified release.",
+        "severity": "high",
+        "status": "pass"
+      },
+      {
+        "check_id": "source.contract_registry",
+        "evidence": "$ARDA_ROOT/core/state/contract_registry.json",
+        "recovery": "Set ARDA_ROOT to a complete Arda runtime root.",
+        "severity": "high",
+        "status": "pass"
+      },
+      {
+        "check_id": "source.operator_instructions",
+        "evidence": "$ARDA_ROOT/AGENTS.md",
+        "recovery": "Restore the release's operator instruction file.",
+        "severity": "medium",
+        "status": "pass"
+      },
+      {
+        "check_id": "recovery.tool",
+        "evidence": "$ARDA_ROOT/scripts/arda_beta_ops.py",
+        "recovery": "Reinstall the matching Arda private-beta release.",
+        "severity": "high",
+        "status": "pass"
+      },
+      {
+        "check_id": "recovery.documentation",
+        "evidence": "$ARDA_ROOT/docs/operator/private-beta-install-recovery.md",
+        "recovery": "Reinstall the matching Arda private-beta documentation.",
+        "severity": "medium",
+        "status": "pass"
+      },
+      {
+        "check_id": "launcher.installed",
+        "evidence": "$HOME/.local/lib/arda/arda-launcher",
+        "recovery": "Run arda_beta_ops.py install-launcher with the verified release binary.",
+        "severity": "high",
+        "status": "pass"
+      },
+      {
+        "check_id": "launcher.dynamic_libraries",
+        "evidence": "all native shared libraries resolved",
+        "recovery": "Install the documented GTK3 and WebKitGTK 4.1 runtime packages, then rerun readiness.",
+        "severity": "high",
+        "status": "pass"
+      },
+      {
+        "check_id": "tool.git",
+        "evidence": "/home/linuxbrew/.linuxbrew/bin/git",
+        "recovery": "Install git and rerun readiness.",
+        "severity": "high",
+        "status": "pass"
+      },
+      {
+        "check_id": "tool.cargo",
+        "evidence": "/var/home/mythos/.cargo/bin/cargo",
+        "recovery": "Install cargo and rerun readiness.",
+        "severity": "high",
+        "status": "pass"
+      },
+      {
+        "check_id": "tool.node",
+        "evidence": "/var/home/mythos/.local/bin/node",
+        "recovery": "Install node and rerun readiness.",
+        "severity": "medium",
+        "status": "pass"
+      },
+      {
+        "check_id": "tool.pnpm",
+        "evidence": "/var/home/mythos/.hermes/node/bin/pnpm",
+        "recovery": "Install pnpm and rerun readiness.",
+        "severity": "medium",
+        "status": "pass"
+      },
+      {
+        "check_id": "provider.manwe_endpoint",
+        "evidence": "MANWE_BASE_URL and ARDA_MANWE_BASE_URL are unset",
+        "recovery": "Configure a tested Manwe endpoint before a live-provider run.",
+        "severity": "high",
+        "status": "fail"
+      }
+    ],
+    "contract": "arda.private_beta_ops.v1",
+    "gate_status": "fail",
+    "generated_at_utc": "2026-08-01T05:19:43.409169Z",
+    "operation": "readiness",
+    "source_repository": "$ARDA_ROOT",
+    "state": {
+      "cache": {
+        "bytes": 0,
+        "exists": false,
+        "files": 0
+      },
+      "config": {
+        "bytes": 97,
+        "exists": true,
+        "files": 2
+      },
+      "data": {
+        "bytes": 125,
+        "exists": true,
+        "files": 2
+      },
+      "launcher_data": {
+        "bytes": 0,
+        "exists": false,
+        "files": 0
+      },
+      "runtime": {
+        "bytes": 0,
+        "exists": false,
+        "files": 0
+      }
+    },
+    "summary": {
+      "fail": 1,
+      "pass": 11,
+      "warn": 0
+    }
+  },
+  "source_identity": {
+    "branch": {
+      "available": true,
+      "detail": "manwe",
+      "exit_code": 0
+    },
+    "head": {
+      "available": true,
+      "detail": "557e4ee",
+      "exit_code": 0
+    },
+    "status": {
+      "available": true,
+      "detail": "M Cargo.lock",
+      "exit_code": 0
+    }
+  },
+  "tools": {
+    "cargo": {
+      "available": true,
+      "detail": "cargo 1.94.0 (85eff7c80 2026-01-15)",
+      "exit_code": 0
+    },
+    "git": {
+      "available": true,
+      "detail": "git version 2.55.0",
+      "exit_code": 0
+    },
+    "node": {
+      "available": true,
+      "detail": "v22.22.1",
+      "exit_code": 0
+    },
+    "pnpm": {
+      "available": true,
+      "detail": "10.8.1",
+      "exit_code": 0
+    },
+    "rustc": {
+      "available": true,
+      "detail": "rustc 1.94.0 (4a4ef493e 2026-03-02)",
+      "exit_code": 0
+    }
+  }
+}

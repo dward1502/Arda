@@ -1,0 +1,13 @@
+{
+  "schema_version": "arda.project-contract.v1",
+  "identity": {"project_id": "550e8400-e29b-41d4-a716-446655440003", "name": "arda-javascript-example", "kind": "javascript"},
+  "workspace": {"root": "."},
+  "runtime": {"adapter": "node"},
+  "commands": [{"id": "test", "program": "pnpm", "args": ["test"], "working_dir": "."}],
+  "checks": [{"id": "test", "command": "test"}],
+  "artifacts": [{"id": "bundle", "path": "dist/index.js"}],
+  "permissions": {"authority": "approval_required", "network": {"allow": false}, "filesystem": {"write": true}, "secrets": {"env_names": []}},
+  "rollback": {"strategy": "git_revert"},
+  "memory": {"scope": "project"},
+  "provenance": {"declared_by": "arda", "declared_at": "2026-07-31T00:00:00Z", "stage": 5}
+}

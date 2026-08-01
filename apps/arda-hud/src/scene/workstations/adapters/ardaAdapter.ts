@@ -61,7 +61,7 @@ function getOperatorRuntimeSurface(bundle: ArdaBundle): JsonRecord | null {
 }
 
 function getCharonProviderRecords(bundle: ArdaBundle): JsonRecord[] {
-  const pressure = asRecord(bundle.charonRouter?.provider_pressure)
+  const pressure = asRecord(bundle.manweRouter?.provider_pressure)
   return [
     ...asArray(pressure?.providers),
     ...(pressure?.local_fallback ? [pressure.local_fallback] : []),
@@ -259,7 +259,7 @@ export function createArdaFleetViewModel(bundle: ArdaBundle): FleetViewModel {
     ],
     sources: [
       sourceRef('operator_runtime_status', 'Operator Runtime Status', 'fresh', bundle.generatedAt, 'core/state/operator_runtime_status.json'),
-      sourceRef('charon_router', 'Charon Router', bundle.charonRouter ? 'fresh' : 'missing', bundle.generatedAt, 'core/state/manwe_router.json'),
+      sourceRef('charon_router', 'Charon Router', bundle.manweRouter ? 'fresh' : 'missing', bundle.generatedAt, 'core/state/manwe_router.json'),
     ],
     actions: [
       {

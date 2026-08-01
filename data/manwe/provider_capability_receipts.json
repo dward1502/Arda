@@ -1,0 +1,249 @@
+{
+  "schema_version": "annunimas.charon.provider-capability-receipts.v1",
+  "generated_at_utc": "2026-07-31T07:40:03.524685094+00:00",
+  "receipts": {
+    "edge_backbone::ternary-bonsai-27b-q2_0": {
+      "provider_id": "edge_backbone",
+      "model_id": "ternary-bonsai-27b-q2_0",
+      "updated_at_utc": "2026-07-27T19:56:16.135378144+00:00",
+      "capabilities": {
+        "basic_chat": {
+          "state": "passed",
+          "source": "passive_proxy_observation",
+          "observed_at_utc": "2026-07-27T19:56:16.135378144+00:00",
+          "expires_at_utc": "2026-08-03T19:56:16.135378144+00:00",
+          "outcome_class": "success",
+          "status_code": 200
+        },
+        "tools": {
+          "state": "passed",
+          "source": "passive_proxy_observation",
+          "observed_at_utc": "2026-07-27T19:48:18.982015019+00:00",
+          "expires_at_utc": "2026-08-03T19:48:18.982015019+00:00",
+          "outcome_class": "success",
+          "status_code": 200
+        }
+      }
+    },
+    "edge_backbone_bonsai27::ternary-bonsai-27b-q2_0": {
+      "provider_id": "edge_backbone_bonsai27",
+      "model_id": "ternary-bonsai-27b-q2_0",
+      "updated_at_utc": "2026-07-23T17:39:06.852089280+00:00",
+      "capabilities": {
+        "basic_chat": {
+          "state": "passed",
+          "source": "passive_proxy_observation",
+          "observed_at_utc": "2026-07-23T17:39:06.852089280+00:00",
+          "expires_at_utc": "2026-07-30T17:39:06.852089280+00:00",
+          "outcome_class": "success",
+          "status_code": 200
+        }
+      }
+    },
+    "edge_backbone_coder::nanbeige4.2-3b-q4_k_m": {
+      "provider_id": "edge_backbone_coder",
+      "model_id": "nanbeige4.2-3b-q4_k_m",
+      "updated_at_utc": "2026-07-31T06:20:05.234521318+00:00",
+      "capabilities": {
+        "basic_chat": {
+          "state": "passed",
+          "source": "passive_proxy_observation",
+          "observed_at_utc": "2026-07-31T06:20:05.234521318+00:00",
+          "expires_at_utc": "2026-08-07T06:20:05.234521318+00:00",
+          "outcome_class": "valid_tool_call",
+          "status_code": 200
+        },
+        "tools": {
+          "state": "passed",
+          "source": "passive_proxy_observation",
+          "observed_at_utc": "2026-07-31T06:20:05.234521318+00:00",
+          "expires_at_utc": "2026-08-07T06:20:05.234521318+00:00",
+          "outcome_class": "valid_tool_call",
+          "status_code": 200
+        }
+      }
+    },
+    "edge_backbone_long::bonsai-27b-q1_0": {
+      "provider_id": "edge_backbone_long",
+      "model_id": "bonsai-27b-q1_0",
+      "updated_at_utc": "2026-07-31T07:27:59.841076903+00:00",
+      "capabilities": {
+        "basic_chat": {
+          "state": "passed",
+          "source": "passive_proxy_observation",
+          "observed_at_utc": "2026-07-31T07:27:59.841076903+00:00",
+          "expires_at_utc": "2026-08-07T07:27:59.841076903+00:00",
+          "outcome_class": "success",
+          "status_code": 200
+        }
+      }
+    },
+    "edge_beelink_light::Ternary-Bonsai-8B-Q2_0": {
+      "provider_id": "edge_beelink_light",
+      "model_id": "Ternary-Bonsai-8B-Q2_0",
+      "updated_at_utc": "2026-07-30T19:59:08.327823685+00:00",
+      "capabilities": {
+        "basic_chat": {
+          "state": "passed",
+          "source": "passive_proxy_observation",
+          "observed_at_utc": "2026-07-30T19:59:08.327823685+00:00",
+          "expires_at_utc": "2026-08-06T19:59:08.327823685+00:00",
+          "outcome_class": "success",
+          "status_code": 200
+        },
+        "tools": {
+          "state": "passed",
+          "source": "passive_proxy_observation",
+          "observed_at_utc": "2026-07-27T05:23:25.397985226+00:00",
+          "expires_at_utc": "2026-08-03T05:23:25.397985226+00:00",
+          "outcome_class": "valid_tool_call",
+          "status_code": 200
+        }
+      }
+    },
+    "edge_core::Qwen3.5-9B-Q4_K_M": {
+      "provider_id": "edge_core",
+      "model_id": "Qwen3.5-9B-Q4_K_M",
+      "updated_at_utc": "2026-07-31T07:39:14.912492351+00:00",
+      "capabilities": {
+        "basic_chat": {
+          "state": "passed",
+          "source": "passive_proxy_observation",
+          "observed_at_utc": "2026-07-31T07:39:14.912492351+00:00",
+          "expires_at_utc": "2026-08-07T07:39:14.912492351+00:00",
+          "outcome_class": "success",
+          "status_code": 200
+        },
+        "tools": {
+          "state": "passed",
+          "source": "passive_proxy_observation",
+          "observed_at_utc": "2026-07-27T09:08:44.359233049+00:00",
+          "expires_at_utc": "2026-08-03T09:08:44.359233049+00:00",
+          "outcome_class": "valid_tool_call",
+          "status_code": 200
+        }
+      }
+    },
+    "edge_guardhouse::Qwen3.5-4B-Q4_K_M.gguf": {
+      "provider_id": "edge_guardhouse",
+      "model_id": "Qwen3.5-4B-Q4_K_M.gguf",
+      "updated_at_utc": "2026-07-31T03:46:38.788128113+00:00",
+      "capabilities": {
+        "basic_chat": {
+          "state": "passed",
+          "source": "passive_proxy_observation",
+          "observed_at_utc": "2026-07-31T03:46:38.788128113+00:00",
+          "expires_at_utc": "2026-08-07T03:46:38.788128113+00:00",
+          "outcome_class": "success",
+          "status_code": 200
+        },
+        "structured_output": {
+          "state": "failed",
+          "source": "passive_proxy_observation",
+          "observed_at_utc": "2026-07-26T17:42:24.445208511+00:00",
+          "expires_at_utc": "2026-07-27T17:42:24.445208511+00:00",
+          "outcome_class": "malformed_structured_output",
+          "status_code": 200
+        }
+      }
+    },
+    "google::gemini-3.1-flash-lite": {
+      "provider_id": "google",
+      "model_id": "gemini-3.1-flash-lite",
+      "updated_at_utc": "2026-07-26T17:51:34.225322292+00:00",
+      "capabilities": {
+        "basic_chat": {
+          "state": "passed",
+          "source": "passive_proxy_observation",
+          "observed_at_utc": "2026-07-26T17:51:34.225322292+00:00",
+          "expires_at_utc": "2026-08-02T17:51:34.225322292+00:00",
+          "outcome_class": "success",
+          "status_code": 200
+        }
+      }
+    },
+    "google::gemini-3.5-flash-lite": {
+      "provider_id": "google",
+      "model_id": "gemini-3.5-flash-lite",
+      "updated_at_utc": "2026-07-26T17:41:10.537894077+00:00",
+      "capabilities": {
+        "basic_chat": {
+          "state": "passed",
+          "source": "passive_proxy_observation",
+          "observed_at_utc": "2026-07-26T17:41:10.537894077+00:00",
+          "expires_at_utc": "2026-08-02T17:41:10.537894077+00:00",
+          "outcome_class": "success",
+          "status_code": 200
+        }
+      }
+    },
+    "local_fallback::Qwen3-8B-Q4_K_M": {
+      "provider_id": "local_fallback",
+      "model_id": "Qwen3-8B-Q4_K_M",
+      "updated_at_utc": "2026-07-23T17:09:02.405532874+00:00",
+      "capabilities": {
+        "basic_chat": {
+          "state": "passed",
+          "source": "passive_proxy_observation",
+          "observed_at_utc": "2026-07-23T17:09:02.405532874+00:00",
+          "expires_at_utc": "2026-07-30T17:09:02.405532874+00:00",
+          "outcome_class": "success",
+          "status_code": 200
+        }
+      }
+    },
+    "openai_sub::gpt-5.5": {
+      "provider_id": "openai_sub",
+      "model_id": "gpt-5.5",
+      "updated_at_utc": "2026-07-31T07:40:03.524685094+00:00",
+      "capabilities": {
+        "basic_chat": {
+          "state": "passed",
+          "source": "passive_proxy_observation",
+          "observed_at_utc": "2026-07-31T07:40:03.524685094+00:00",
+          "expires_at_utc": "2026-08-07T07:40:03.524685094+00:00",
+          "outcome_class": "success",
+          "status_code": 200
+        },
+        "tools": {
+          "state": "passed",
+          "source": "passive_proxy_observation",
+          "observed_at_utc": "2026-07-31T07:40:03.524685094+00:00",
+          "expires_at_utc": "2026-08-07T07:40:03.524685094+00:00",
+          "outcome_class": "success",
+          "status_code": 200
+        }
+      }
+    },
+    "openrouter::nvidia/nemotron-3-super-120b-a12b:free": {
+      "provider_id": "openrouter",
+      "model_id": "nvidia/nemotron-3-super-120b-a12b:free",
+      "updated_at_utc": "2026-07-26T16:24:14.548723173+00:00",
+      "capabilities": {
+        "basic_chat": {
+          "state": "passed",
+          "source": "passive_proxy_observation",
+          "observed_at_utc": "2026-07-26T16:24:14.548723173+00:00",
+          "expires_at_utc": "2026-08-02T16:24:14.548723173+00:00",
+          "outcome_class": "success",
+          "status_code": 200
+        }
+      }
+    },
+    "openrouter::openrouter/auto": {
+      "provider_id": "openrouter",
+      "model_id": "openrouter/auto",
+      "updated_at_utc": "2026-07-23T22:41:04.613264529+00:00",
+      "capabilities": {
+        "basic_chat": {
+          "state": "passed",
+          "source": "passive_proxy_observation",
+          "observed_at_utc": "2026-07-23T22:41:04.613264529+00:00",
+          "expires_at_utc": "2026-07-30T22:41:04.613264529+00:00",
+          "outcome_class": "success",
+          "status_code": 200
+        }
+      }
+    }
+  }
+}

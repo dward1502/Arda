@@ -1,9 +1,10 @@
 [package]
 name = "arda-launcher"
-version = "0.1.0"
+version = "0.3.0-rc.0"
 description = "A Tauri App"
 authors = ["you"]
 edition = "2021"
+license.workspace = true
 
 [lib]
 name = "arda_launcher_lib"
@@ -22,10 +23,4 @@ chrono = { version = "0.4", features = ["serde"] }
 toml = "0.8"
 sysinfo = "0.30"
 arda-core = { workspace = true }
-
-[profile.release]
-codegen-units = 1
-lto = true
-opt-level = 3
-panic = "abort"
-strip = true
+arda-contract-registry = { workspace = true }

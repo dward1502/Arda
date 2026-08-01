@@ -6,8 +6,10 @@ Arda is the operator-facing shell that evolved from Annunimas. It keeps the same
 
 ## Current workspace status
 
-- Verified with `cargo check --workspace` on the current `arda-*` crate set.
-- `arda` daemon entrypoint: `src/main.rs`
+- Workspace all-target/all-feature check and strict Clippy pass as of 2026-07-30.
+- The workspace test suite has one classified `arda-varda` shared-state failure;
+  its exact test passes in isolation. Root daemon and direct dependency suites pass.
+- `arda` composition-root entrypoint: `src/main.rs`
 - Service supervision spine: `crates/engine` (`arda-engine`)
 - Observability/CLI surface: `crates/spine/observability/arda-aule`
 - Reference/legacy sources remain in `~/Annunimas`; migrated sources in this repo are source-of-truth.
@@ -16,7 +18,7 @@ Arda is the operator-facing shell that evolved from Annunimas. It keeps the same
 
 | Path | Kind | Purpose |
 |---|---|---|
-| `src/main.rs` | Rust binary | `arda` daemon entrypoint; boots `arda-engine`, supervises services from `services.toml` |
+| `src/main.rs` | Rust binary | Composition root: discovers the repo, resolves `services.toml`, projects Warden/fleet state, starts the harness and supervisor, and coordinates shutdown |
 | `crates/engine` | Rust library | Service supervision spine: registry, supervisor, harness, manwe bridge |
 | `crates/spine/governance/arda-core` | Rust library | Core types, config, ledger, tasks, LLM provider/routing, systemd client |
 | `crates/spine/governance/arda-governance` | Rust library | Governance, triad validation, resonance, philosopher profiles |
@@ -36,11 +38,14 @@ Arda is the operator-facing shell that evolved from Annunimas. It keeps the same
 1. This file (`README.md`).
 2. `AGENTS.md` — working rules and canonical source layout.
 3. `docs/identity/ARDA_IDENTITY.md` — Annunimas-to-Arda identity transfer and operating assumptions.
-4. `crates/engine/README.md` / `BREAKDOWN.md` — how the daemon bootstraps and supervises services.
-5. `apps/arda-launcher/README.md` — what the launcher is and how to run it.
-6. `apps/arda-launcher/src-tauri/tauri.conf.json` — desktop packaging/config.
+4. `docs/root-daemon.md` — root package status, composition boundary, ownership, and verification.
+5. `crates/engine/README.md` / `BREAKDOWN.md` — registry, harness, and supervisor implementation.
+6. `apps/arda-launcher/README.md` — what the launcher is and how to run it.
+7. `apps/arda-launcher/src-tauri/tauri.conf.json` — desktop packaging/config.
 
 ## Verification
 
-- Workspace check: `cargo check --workspace`
-- Daemon boot smoke path: `cargo run -p arda -- --once`
+- Package gates: `cargo test -p arda --all-features -- --test-threads=1`
+- Maintained daemon smoke: `cargo build -p arda && ./target/debug/arda --once --no-ui`
+- Workspace check: `cargo check --workspace --all-targets --all-features`
+- Workspace Clippy: `cargo clippy --workspace --all-targets --all-features -- -D warnings`

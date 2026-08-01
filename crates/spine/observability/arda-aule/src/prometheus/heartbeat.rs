@@ -1,6 +1,6 @@
 #![cfg(feature = "full-cli")]
 // sigil: REPAIR
-use crate::core_link::CoreAutonomyProfile;
+use crate::ceo::CoreAutonomyProfile;
 use std::fmt;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -61,7 +61,7 @@ pub fn select_heartbeat_mode(profile: Option<&CoreAutonomyProfile>) -> Heartbeat
 #[cfg(test)]
 mod tests {
     use super::{select_heartbeat_mode, HeartbeatMode};
-    use crate::core_link::CoreAutonomyProfile;
+    use crate::ceo::CoreAutonomyProfile;
     use proptest::prelude::*;
     use std::collections::HashMap;
     use std::path::PathBuf;

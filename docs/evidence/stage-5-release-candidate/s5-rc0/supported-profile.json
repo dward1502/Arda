@@ -1,0 +1,21 @@
+{
+  "contract": "arda.release-compatibility.v1",
+  "message": "supported release profile: bluefin-lts-10-x86_64",
+  "observed": {
+    "machine": "x86_64",
+    "os_id": "centos",
+    "pretty_name": "Bluefin LTS",
+    "system": "Linux",
+    "version_id": "10"
+  },
+  "profile_id": "bluefin-lts-10-x86_64",
+  "status": "supported",
+  "supported_profile": {
+    "machine": "x86_64",
+    "os_id": "centos",
+    "pretty_name_prefix": "Bluefin LTS",
+    "profile_id": "bluefin-lts-10-x86_64",
+    "system": "Linux",
+    "version_id": "10"
+  }
+}

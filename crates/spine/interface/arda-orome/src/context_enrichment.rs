@@ -241,10 +241,7 @@ impl ContextEnrichmentService {
         Ok(enriched)
     }
 
-    fn build_memory_summary(
-        &self,
-        identity: &arda_vaire::service::IdentityState,
-    ) -> MemorySummary {
+    fn build_memory_summary(&self, identity: &arda_vaire::service::IdentityState) -> MemorySummary {
         let recent = &identity.recent_events;
         let avg_significance = if recent.is_empty() {
             0.0

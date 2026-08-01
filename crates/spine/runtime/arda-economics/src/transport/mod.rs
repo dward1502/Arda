@@ -1,22 +1,12 @@
 // sigil: REPAIR
+pub mod finance_stream;
 #[cfg(feature = "http")]
 pub mod http;
 pub mod ipc;
 
 use crate::service::PlutusService;
 use arda_core::error::Result;
-use std::path::{Path, PathBuf};
-
-fn annunimas_root() -> PathBuf {
-    if let Ok(path) = std::env::var("ANNUNIMAS_ROOT") {
-        return PathBuf::from(path);
-    }
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .and_then(Path::parent)
-        .map(Path::to_path_buf)
-        .unwrap_or_else(|| PathBuf::from("."))
-}
+use std::path::PathBuf;
 
 #[derive(Debug, Clone)]
 pub struct PlutusDaemonConfig {
@@ -28,7 +18,8 @@ pub struct PlutusDaemonConfig {
 impl Default for PlutusDaemonConfig {
     fn default() -> Self {
         Self {
-            socket_path: annunimas_root().join("data/plutus/plutus.sock"),
+            socket_path: arda_core::layout::arda_root_from(env!("CARGO_MANIFEST_DIR"))
+                .join("data/plutus/plutus.sock"),
             http_enabled: true,
             http_addr: format!("{}:{}", "127.0.0.1", 5119),
         }
@@ -77,6 +68,7 @@ impl PlutusDaemon {
     }
 }
 
+#[cfg(feature = "http")]
 fn join_error(err: tokio::task::JoinError) -> arda_core::error::ArdaError {
     arda_core::error::ArdaError::Agent {
         agent: "plutus".to_owned(),

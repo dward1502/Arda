@@ -9,9 +9,14 @@ import {
   createDefaultBoardroomSlotSettings,
   documentFromAssignments,
   documentWithSurfaceLayout,
+  documentWithVisualizationSelection,
+  exportBoardroomProfile,
+  importBoardroomProfile,
   loadBoardroomSlotSettings,
   parseBoardroomSlotSettings,
   readLocalBoardroomSlotAssignments,
+  readLocalBoardroomSlotSettingsDocument,
+  resetBoardroomProfile,
   saveBoardroomSlotSettings,
   saveBoardroomSlotSettingsDocument,
 } from './boardroomSlotSettings'
@@ -51,7 +56,59 @@ describe('boardroom slot settings', () => {
           target: 'service_warp_dev',
         },
       },
+      visualization: {
+        preset_id: 'standby',
+        config: {
+          density: 'medium',
+          timespan_minutes: 15,
+          alert_threshold: null,
+        },
+      },
     })
+  })
+
+  it('applies compatible visualization selections and retains the last valid selection on incompatibility', () => {
+    const document = createDefaultBoardroomSlotSettings('2026-07-30T12:00:00.000Z')
+    const accepted = documentWithVisualizationSelection(document, 'monitor_left_2', {
+      preset_id: 'topology',
+      config: { density: 'high', timespan_minutes: 30, alert_threshold: 0.75 },
+    }, '2026-07-30T12:01:00.000Z')
+    expect(accepted.ok).toBe(true)
+    expect(accepted.document.assignments.find((assignment) => assignment.slot_id === 'monitor_left_2')?.visualization).toMatchObject({
+      preset_id: 'topology',
+      config: { density: 'high', timespan_minutes: 30, alert_threshold: 0.75 },
+    })
+
+    const rejected = documentWithVisualizationSelection(accepted.document, 'monitor_left_2', {
+      preset_id: 'constellation',
+      config: { density: 'low', timespan_minutes: 60, alert_threshold: null },
+    }, '2026-07-30T12:02:00.000Z')
+    expect(rejected.ok).toBe(false)
+    expect(rejected.document).toBe(accepted.document)
+    expect(rejected.message).toContain('retained Topology')
+  })
+
+  it('exports, imports, and resets complete recoverable boardroom profiles', () => {
+    const document = createDefaultBoardroomSlotSettings('2026-07-30T13:00:00.000Z')
+    const exported = exportBoardroomProfile(document)
+    const imported = importBoardroomProfile(exported)
+
+    expect(imported.ok).toBe(true)
+    expect(imported.document).toEqual(document)
+    expect(importBoardroomProfile('{broken')).toMatchObject({ ok: false, document: null })
+    expect(resetBoardroomProfile('2026-07-30T14:00:00.000Z')).toEqual(
+      createDefaultBoardroomSlotSettings('2026-07-30T14:00:00.000Z'),
+    )
+  })
+
+  it('loads a complete local profile while remaining backward compatible with assignment-only storage', () => {
+    const document = createDefaultBoardroomSlotSettings('2026-07-30T15:00:00.000Z')
+    const documentStorage = { getItem: () => exportBoardroomProfile(document) }
+    expect(readLocalBoardroomSlotSettingsDocument(documentStorage)).toEqual(document)
+    expect(readLocalBoardroomSlotAssignments(documentStorage)).toEqual(assignmentsFromDocument(document))
+
+    const legacyStorage = { getItem: () => JSON.stringify({ monitor_left_1: 'custom_zone' }) }
+    expect(readLocalBoardroomSlotAssignments(legacyStorage).monitor_left_1).toBe('custom_zone')
   })
 
   it('normalizes partial workspace documents without losing local placeholders', () => {

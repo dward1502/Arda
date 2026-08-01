@@ -1,0 +1,95 @@
+{
+  "schema_version": "arda.mnemosyne.retrieval-eval.v1",
+  "documents": [
+    {
+      "id": "council-receipt",
+      "content": "Council evidence receipt verified for governance review",
+      "tags": ["boardroom", "governance", "receipt"],
+      "scope": "boardroom_council"
+    },
+    {
+      "id": "accessibility-preference",
+      "content": "Accessibility preference preserved for interaction continuity",
+      "tags": ["accessibility", "preference", "continuity"],
+      "scope": "human_context"
+    },
+    {
+      "id": "citadel-recovery",
+      "content": "Citadel edge telemetry recovered after runtime restart",
+      "tags": ["citadel", "edge", "telemetry", "recovery"],
+      "scope": "edge_runtime"
+    },
+    {
+      "id": "handoff-checkpoint",
+      "content": "System continuity checkpoint preserved across agent handoff",
+      "tags": ["continuity", "checkpoint", "handoff"],
+      "scope": "system_continuity"
+    },
+    {
+      "id": "promotion-lineage",
+      "content": "Memory promotion receipt links source episodes to semantic pattern",
+      "tags": ["memory", "promotion", "lineage", "semantic"],
+      "scope": "system_continuity"
+    },
+    {
+      "id": "queue-configuration",
+      "content": "Outpost deployment lesson identifies bounded queue configuration",
+      "tags": ["outpost", "deployment", "queue", "bounded"],
+      "scope": "edge_runtime"
+    },
+    {
+      "id": "provider-routing",
+      "content": "Provider routing policy selected a healthy local inference endpoint",
+      "tags": ["provider", "routing", "inference"],
+      "scope": "edge_runtime"
+    },
+    {
+      "id": "consolidation-recovery",
+      "content": "Consolidation skipped a malformed episode and retained valid memories",
+      "tags": ["consolidation", "malformed", "recovery"],
+      "scope": "system_continuity"
+    }
+  ],
+  "queries": [
+    {
+      "id": "q-council",
+      "query": "council governance receipt",
+      "relevant_document_ids": ["council-receipt"]
+    },
+    {
+      "id": "q-accessibility",
+      "query": "accessibility interaction preference",
+      "relevant_document_ids": ["accessibility-preference"]
+    },
+    {
+      "id": "q-citadel",
+      "query": "citadel telemetry restart",
+      "relevant_document_ids": ["citadel-recovery"]
+    },
+    {
+      "id": "q-handoff",
+      "query": "agent handoff checkpoint",
+      "relevant_document_ids": ["handoff-checkpoint"]
+    },
+    {
+      "id": "q-promotion",
+      "query": "promotion semantic lineage",
+      "relevant_document_ids": ["promotion-lineage"]
+    },
+    {
+      "id": "q-queue",
+      "query": "bounded deployment queue",
+      "relevant_document_ids": ["queue-configuration"]
+    },
+    {
+      "id": "q-provider",
+      "query": "healthy inference provider",
+      "relevant_document_ids": ["provider-routing"]
+    },
+    {
+      "id": "q-recovery",
+      "query": "malformed consolidation recovery",
+      "relevant_document_ids": ["consolidation-recovery"]
+    }
+  ]
+}

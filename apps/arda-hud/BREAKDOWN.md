@@ -7,7 +7,7 @@
 - `src/lib/operatingSurfaceDerivation.ts`: operating-surface reports + knowledge map
 - `src/lib/reviewGateDerivation.ts`: review-gate items, queue write requests,
   human augmentation, plan shelf, task/command/CEO council runtime
-- `src/lib/charonLive.ts`, `src/lib/hermesDashboardLauncher.ts`: live Charon
+- `src/lib/charonLive.ts`, `src/lib/hermesDashboardLauncher.ts`: live Manwe
   snapshot + Hermes runtime window orchestration
 - `src/lib/bundleDerivation.ts`: provenance/coverage/tagging helpers
 - `src/lib/surfaceAdapterManifests.ts`: adapter/workstation manifest derivation
@@ -30,7 +30,7 @@
 
 ## Consumer wiring
 
-- `arda-engine`: HUD consumes engine/manwe status via Charon live snapshot
+- `arda-engine`: HUD consumes engine/manwe status via Manwe live snapshot
 - `manwe`: HUD reads `/v1/models`, `/health`, `/status`, provider candidates
 - `arda-launcher`: conceptually upstream of HUD; launcher hands off operator to HUD
 - `arda-core`: shared governance/task/contract primitives consumed by HUD lib derivations
@@ -42,12 +42,12 @@
 2. Extract shared `lib/` derivation logic into a workspace crate if `arda-engine`
    or monorepo services need it
 3. Move PTY spawner (`tools/ptyspawn`) into a reusable runtime crate if not already
-4. Standardize Charon access paths/config; current hardcoded allowed-path allowlist
+4. Standardize Manwe access paths/config; current hardcoded allowed-path allowlist
    should match manwe adaptive catalog
 5. Replace placeholder/local-only Hermes runtime assumptions with configurable
    endpoints sourced from `EnvironmentProfile`
 6. Add CI gate for frontend tests + Rust check from the standalone package
-7. Add explicit offline/failure UI for when manwe/Charon/Hermes endpoints are
+7. Add explicit offline/failure UI for when Manwe/Hermes endpoints are
    unreachable instead of silent worst-case behavior
 8. Consider `arda-hud` standalone vs workspace membership: if it stays standalone,
    document required run order clearly; if it joins workspace, remove redundant

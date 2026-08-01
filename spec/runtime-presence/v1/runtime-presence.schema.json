@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arda.local/spec/runtime-presence/v1/runtime-presence.schema.json",
+  "title": "Arda Runtime Presence v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "projection_id",
+    "schema_version",
+    "generated_at",
+    "valid_until",
+    "nodes",
+    "edges",
+    "source_receipt_refs",
+    "redaction_class"
+  ],
+  "properties": {
+    "projection_id": { "type": "string", "minLength": 1 },
+    "schema_version": { "const": "arda.runtime-presence.v1" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "valid_until": { "type": "string", "format": "date-time" },
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/node" }
+    },
+    "edges": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/edge" }
+    },
+    "source_receipt_refs": { "$ref": "#/$defs/receiptRefs" },
+    "redaction_class": { "$ref": "#/$defs/redactionClass" }
+  },
+  "$defs": {
+    "receiptRefs": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "correlationId": {
+      "oneOf": [
+        { "type": "string", "minLength": 1 },
+        { "type": "null" }
+      ]
+    },
+    "normalized": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0
+    },
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "label",
+        "lifecycle",
+        "health",
+        "confidence",
+        "freshness_seconds",
+        "resource_pressure",
+        "run_id",
+        "task_id",
+        "source_receipt_refs"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "kind": { "enum": ["realm", "agent", "service"] },
+        "label": { "type": "string", "minLength": 1 },
+        "lifecycle": {
+          "enum": ["idle", "starting", "active", "waiting_approval", "failed", "stopped", "unknown"]
+        },
+        "health": { "enum": ["healthy", "degraded", "failed", "unknown"] },
+        "confidence": { "$ref": "#/$defs/normalized" },
+        "freshness_seconds": { "type": "integer", "minimum": 0 },
+        "resource_pressure": {
+          "oneOf": [
+            { "$ref": "#/$defs/resourcePressure" },
+            { "type": "null" }
+          ]
+        },
+        "run_id": { "$ref": "#/$defs/correlationId" },
+        "task_id": { "$ref": "#/$defs/correlationId" },
+        "source_receipt_refs": { "$ref": "#/$defs/receiptRefs" }
+      }
+    },
+    "edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "from_node_id",
+        "to_node_id",
+        "edge_type",
+        "confidence",
+        "run_id",
+        "task_id",
+        "source_receipt_refs"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "from_node_id": { "type": "string", "minLength": 1 },
+        "to_node_id": { "type": "string", "minLength": 1 },
+        "edge_type": { "enum": ["collaboration", "handoff", "wait", "dependency"] },
+        "confidence": { "$ref": "#/$defs/normalized" },
+        "run_id": { "$ref": "#/$defs/correlationId" },
+        "task_id": { "$ref": "#/$defs/correlationId" },
+        "source_receipt_refs": { "$ref": "#/$defs/receiptRefs" }
+      }
+    },
+    "resourcePressure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cpu", "memory", "provider"],
+      "properties": {
+        "cpu": { "$ref": "#/$defs/normalized" },
+        "memory": { "$ref": "#/$defs/normalized" },
+        "provider": { "$ref": "#/$defs/normalized" }
+      }
+    },
+    "redactionClass": {
+      "enum": ["public_operational", "private_metadata_removed"]
+    }
+  }
+}

@@ -355,7 +355,9 @@ impl KnowledgeTriageConfig {
             promotion_receipts_path: root.join("core/knowledge/task_promotion_receipts.jsonl"),
             execution_receipts_path: root
                 .join("data/arandur/knowledge_task_execution_receipts.jsonl"),
-            task_queue_path: root.join("core/projects/tasks/queue.jsonl"),
+            task_queue_path: crate::prometheus::queue_authority::canonical_project_task_queue(
+                &root,
+            ),
             root,
             dry_run: true,
             approval_evidence: None,

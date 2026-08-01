@@ -1,6 +1,6 @@
 #![cfg(feature = "full-cli")]
 use super::CORE_STATE_SCHEMA_VERSION;
-use annunimas_core::{load_default_soterion_registry, SoterionRegistry, SoterionRegistryEntry};
+use arda_core::{load_default_soterion_registry, SoterionRegistry, SoterionRegistryEntry};
 use chrono::Utc;
 use serde_json::{json, Map, Value};
 use std::cmp::Ordering;
@@ -172,7 +172,7 @@ fn render_projection(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use annunimas_core::SoterionGlyphEntry;
+    use arda_core::SoterionGlyphEntry;
     use std::collections::HashMap;
 
     #[test]

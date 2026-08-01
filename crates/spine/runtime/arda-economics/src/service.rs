@@ -2,31 +2,25 @@
 use crate::{
     CostModelConfig, EconomicsEngine, JouleWorkTracker, JouleWorkUnit, LoveEquation, PlutusLedger,
 };
+use arda_core::ledger::AppendOnlyLedger;
 use arda_core::{JouleWorkMeasurementSource, Task};
 use arda_governance::{
-    bacon_lite_validate, calculate_resonance_basic, triad_validate, BaconLiteResult,
+    bacon_lite_validate, calculate_resonance_with_triad, triad_validate, BaconLiteResult,
     ResonanceScore, TriadResult,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::fs;
+use std::fs::OpenOptions;
+use std::io::Write;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use std::sync::OnceLock;
+use std::time::Duration;
 use tokio::sync::Mutex;
 
-pub const PLUTUS_RUNTIME_SCHEMA_VERSION: &str = "arda.plutus.runtime.v1";
-
-fn arda_root() -> PathBuf {
-    if let Ok(path) = std::env::var("ARDA_ROOT") {
-        return PathBuf::from(path);
-    }
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .and_then(Path::parent)
-        .map(Path::to_path_buf)
-        .unwrap_or_else(|| PathBuf::from("."))
-}
+pub const PLUTUS_RUNTIME_SCHEMA_VERSION: &str = "arda.plutus.runtime.v2";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PlutusRuntimePaths {
@@ -44,6 +38,14 @@ pub struct PlutusService {
     ledger: Arc<Mutex<PlutusLedger>>,
     love: Arc<Mutex<LoveEquation>>,
     governance_history: Arc<Mutex<Vec<PlutusGovernanceRecord>>>,
+    transport_latency: Arc<TransportLatency>,
+}
+
+#[derive(Debug, Default)]
+struct TransportLatency {
+    requests_total: AtomicU64,
+    elapsed_micros_total: AtomicU64,
+    elapsed_micros_max: AtomicU64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -54,6 +56,27 @@ pub struct PlutusGovernanceRecord {
     pub bacon_lite: BaconLiteResult,
     pub resonance: ResonanceScore,
     pub recorded_at_utc: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PlutusRuntimeEvent {
+    pub schema_version: String,
+    pub action: String,
+    pub subject: String,
+    pub payload: serde_json::Value,
+    pub recorded_at_utc: String,
+}
+
+impl PlutusRuntimeEvent {
+    fn new(action: &str, subject: &str, payload: serde_json::Value) -> Self {
+        Self {
+            schema_version: "arda.plutus.event.v1".to_owned(),
+            action: action.to_owned(),
+            subject: subject.to_owned(),
+            payload,
+            recorded_at_utc: chrono::Utc::now().to_rfc3339(),
+        }
+    }
 }
 
 impl PlutusService {
@@ -69,13 +92,16 @@ impl PlutusService {
             ledger: Arc::new(Mutex::new(PlutusLedger::new())),
             love: Arc::new(Mutex::new(LoveEquation::new())),
             governance_history: Arc::new(Mutex::new(Vec::new())),
+            transport_latency: Arc::new(TransportLatency::default()),
         })
     }
 
     pub fn from_default_or_workspace_fallback() -> anyhow::Result<Self> {
         let home = std::env::var("ARDA_PLUTUS_HOME")
             .map(PathBuf::from)
-            .unwrap_or_else(|_| arda_root().join("data/plutus"));
+            .unwrap_or_else(|_| {
+                arda_core::layout::arda_root_from(env!("CARGO_MANIFEST_DIR")).join("data/plutus")
+            });
         Self::from_home(home)
     }
 
@@ -86,7 +112,60 @@ impl PlutusService {
         }
     }
 
+    pub(crate) fn record_transport_latency(&self, elapsed: Duration) {
+        let micros = u64::try_from(elapsed.as_micros()).unwrap_or(u64::MAX);
+        self.transport_latency
+            .requests_total
+            .fetch_add(1, Ordering::Relaxed);
+        self.transport_latency
+            .elapsed_micros_total
+            .fetch_add(micros, Ordering::Relaxed);
+        self.transport_latency
+            .elapsed_micros_max
+            .fetch_max(micros, Ordering::Relaxed);
+    }
+
+    fn transport_latency_snapshot(&self) -> serde_json::Value {
+        let requests = self
+            .transport_latency
+            .requests_total
+            .load(Ordering::Relaxed);
+        let total = self
+            .transport_latency
+            .elapsed_micros_total
+            .load(Ordering::Relaxed);
+        let max = self
+            .transport_latency
+            .elapsed_micros_max
+            .load(Ordering::Relaxed);
+        json!({
+            "requests_total": requests,
+            "elapsed_micros_total": total,
+            "elapsed_micros_max": max,
+            "elapsed_micros_average": if requests == 0 { 0.0 } else { total as f64 / requests as f64 },
+        })
+    }
+
     pub async fn register_model(&self, config: CostModelConfig) -> anyhow::Result<()> {
+        anyhow::ensure!(
+            !config.provider.trim().is_empty(),
+            "provider must not be empty"
+        );
+        ensure_nonnegative_finite("input_rate", config.input_rate)?;
+        ensure_nonnegative_finite("output_rate", config.output_rate)?;
+        anyhow::ensure!(
+            config.batch_size > 0,
+            "batch_size must be greater than zero"
+        );
+        let event = PlutusRuntimeEvent::new(
+            "register_model",
+            &config.provider,
+            json!({
+                "input_rate": config.input_rate,
+                "output_rate": config.output_rate,
+                "batch_size": config.batch_size,
+            }),
+        );
         let _persist_guard = self.persist_lock.lock().await;
         self.load_persisted_snapshot_into_memory_inner().await?;
         let governance = governance_record_for(
@@ -100,6 +179,7 @@ impl PlutusService {
         self.economics.lock().await.register_model(config);
         self.governance_history.lock().await.push(governance);
         self.persist_snapshot_inner(&self.snapshot().await?)?;
+        self.append_entry(&event)?;
         Ok(())
     }
 
@@ -113,8 +193,18 @@ impl PlutusService {
         self.load_persisted_snapshot_into_memory_inner().await?;
         let mut economics = self.economics.lock().await;
         let cost = economics.calculate_cost(provider, input_tokens, output_tokens);
+        let mut event = None;
         if let Some(amount) = cost {
             economics.record_spend(amount);
+            event = Some(PlutusRuntimeEvent::new(
+                "record_spend",
+                provider,
+                json!({
+                    "input_tokens": input_tokens,
+                    "output_tokens": output_tokens,
+                    "cost": amount,
+                }),
+            ));
             let governance = governance_record_for(
                 "record_spend",
                 provider,
@@ -127,6 +217,9 @@ impl PlutusService {
         }
         drop(economics);
         self.persist_snapshot_inner(&self.snapshot().await?)?;
+        if let Some(event) = event {
+            self.append_entry(&event)?;
+        }
         Ok(cost)
     }
 
@@ -137,6 +230,16 @@ impl PlutusService {
         unit: JouleWorkUnit,
         task_id: Option<String>,
     ) -> anyhow::Result<()> {
+        ensure_nonnegative_finite("amount", amount)?;
+        let event = PlutusRuntimeEvent::new(
+            "track_work",
+            agent,
+            json!({
+                "amount": amount,
+                "unit": format!("{unit:?}"),
+                "task_id": task_id.clone(),
+            }),
+        );
         let _persist_guard = self.persist_lock.lock().await;
         self.load_persisted_snapshot_into_memory_inner().await?;
         self.tracker
@@ -162,10 +265,14 @@ impl PlutusService {
         );
         self.governance_history.lock().await.push(governance);
         self.persist_snapshot_inner(&self.snapshot().await?)?;
+        self.append_entry(&event)?;
         Ok(())
     }
 
     pub async fn credit(&self, account: &str, amount: f64) -> anyhow::Result<()> {
+        anyhow::ensure!(!account.trim().is_empty(), "account must not be empty");
+        ensure_nonnegative_finite("amount", amount)?;
+        let event = PlutusRuntimeEvent::new("credit", account, json!({"amount": amount}));
         let _persist_guard = self.persist_lock.lock().await;
         self.load_persisted_snapshot_into_memory_inner().await?;
         self.ledger.lock().await.credit(account, amount);
@@ -182,6 +289,7 @@ impl PlutusService {
         );
         self.governance_history.lock().await.push(governance);
         self.persist_snapshot_inner(&self.snapshot().await?)?;
+        self.append_entry(&event)?;
         Ok(())
     }
 
@@ -193,6 +301,22 @@ impl PlutusService {
         reciprocity: f64,
         longevity: f64,
     ) -> anyhow::Result<f64> {
+        anyhow::ensure!(
+            !from.trim().is_empty() && !to.trim().is_empty(),
+            "relationship parties must not be empty"
+        );
+        ensure_unit_interval("trust", trust)?;
+        ensure_unit_interval("reciprocity", reciprocity)?;
+        ensure_unit_interval("longevity", longevity)?;
+        let event = PlutusRuntimeEvent::new(
+            "record_relationship",
+            &format!("{from}:{to}"),
+            json!({
+                "trust": trust,
+                "reciprocity": reciprocity,
+                "longevity": longevity,
+            }),
+        );
         let _persist_guard = self.persist_lock.lock().await;
         self.load_persisted_snapshot_into_memory_inner().await?;
         let mut love = self.love.lock().await;
@@ -209,6 +333,7 @@ impl PlutusService {
         );
         self.governance_history.lock().await.push(governance);
         self.persist_snapshot_inner(&self.snapshot().await?)?;
+        self.append_entry(&event)?;
         Ok(score)
     }
 
@@ -238,6 +363,7 @@ impl PlutusService {
             "ledger": ledger,
             "love_equation": love,
             "governance": governance,
+            "transport_latency": self.transport_latency_snapshot(),
         }))
     }
 
@@ -265,6 +391,10 @@ impl PlutusService {
                 return Ok(());
             }
         };
+        let (snapshot, migrated) = migrate_runtime_snapshot(snapshot)?;
+        if migrated {
+            self.persist_snapshot_inner(&snapshot)?;
+        }
         if let Some(economics) = snapshot.get("economics") {
             self.economics.lock().await.restore_from_snapshot(economics);
         }
@@ -277,11 +407,12 @@ impl PlutusService {
         if let Some(joulework) = snapshot.get("joulework") {
             self.tracker.restore_from_snapshot(joulework).await;
         }
-        if let Some(governance) = snapshot
-            .get("governance")
-            .and_then(|v| v.get("recent_records"))
-            .and_then(|v| v.as_array())
-        {
+        if let Some(governance) = snapshot.get("governance").and_then(|value| {
+            value
+                .get("records")
+                .or_else(|| value.get("recent_records"))
+                .and_then(|records| records.as_array())
+        }) {
             let mut history = self.governance_history.lock().await;
             history.clear();
             for row in governance {
@@ -302,8 +433,73 @@ impl PlutusService {
             "records_total": history.len(),
             "triad_passed_total": triad_passed_total,
             "bacon_lite_passed_total": bacon_lite_passed_total,
+            "records": history.as_slice(),
             "recent_records": recent,
         })
+    }
+}
+
+impl AppendOnlyLedger<PlutusRuntimeEvent> for PlutusService {
+    type Error = anyhow::Error;
+
+    fn append_entry(&self, entry: &PlutusRuntimeEvent) -> anyhow::Result<()> {
+        let path = self.home.join("runtime_events.jsonl");
+        let mut file = OpenOptions::new().create(true).append(true).open(path)?;
+        let mut line = serde_json::to_vec(entry)?;
+        line.push(b'\n');
+        file.write_all(&line)?;
+        file.sync_data()?;
+        Ok(())
+    }
+}
+
+fn ensure_nonnegative_finite(field: &str, value: f64) -> anyhow::Result<()> {
+    anyhow::ensure!(
+        value.is_finite() && value >= 0.0,
+        "{field} must be finite and non-negative"
+    );
+    Ok(())
+}
+
+fn ensure_unit_interval(field: &str, value: f64) -> anyhow::Result<()> {
+    anyhow::ensure!(
+        value.is_finite() && (0.0..=1.0).contains(&value),
+        "{field} must be finite and between 0 and 1"
+    );
+    Ok(())
+}
+
+fn migrate_runtime_snapshot(
+    mut snapshot: serde_json::Value,
+) -> anyhow::Result<(serde_json::Value, bool)> {
+    let object = snapshot
+        .as_object_mut()
+        .ok_or_else(|| anyhow::anyhow!("PLUTUS runtime snapshot must be a JSON object"))?;
+    let version = object
+        .get("schema_version")
+        .and_then(|value| value.as_str())
+        .unwrap_or("arda.plutus.runtime.v1");
+
+    match version {
+        PLUTUS_RUNTIME_SCHEMA_VERSION => Ok((snapshot, false)),
+        "arda.plutus.runtime.v1" => {
+            object.insert(
+                "schema_version".to_owned(),
+                serde_json::Value::String(PLUTUS_RUNTIME_SCHEMA_VERSION.to_owned()),
+            );
+            object.insert(
+                "migration".to_owned(),
+                json!({
+                    "from": "arda.plutus.runtime.v1",
+                    "to": PLUTUS_RUNTIME_SCHEMA_VERSION,
+                    "migrated_at_utc": chrono::Utc::now().to_rfc3339(),
+                }),
+            );
+            Ok((snapshot, true))
+        }
+        unsupported => anyhow::bail!(
+            "unsupported PLUTUS runtime schema {unsupported}; expected {PLUTUS_RUNTIME_SCHEMA_VERSION}"
+        ),
     }
 }
 
@@ -324,12 +520,36 @@ fn governance_record_for(
     task.clarifications_requested = 0;
     task.clarifications_resolved = 1;
     task.status = arda_core::task::TaskStatus::Complete;
+    let variance = if estimated > 0.0 && actual > 0.0 {
+        ((actual - estimated) / estimated).abs().min(1.0)
+    } else {
+        0.0
+    };
+    task.result = Some(serde_json::json!({
+        "governance_evidence": {
+            "schema_version": "arda.governance.evidence.v1",
+            "evidence_anchors": [{
+                "kind": "plutus_runtime_event",
+                "uri": format!("plutus:{action}:{subject}"),
+                "claim": "runtime economics operation recorded"
+            }],
+            "action_intent": task.description.clone(),
+            "cooperation": 1.0 - variance,
+            "defection": variance,
+            "disconfirming_evidence": ["persisted runtime snapshot may fail validation"],
+            "risk_boundary": "do not treat estimated measurements as observed energy truth",
+            "fallback_path": "retain the prior persisted runtime snapshot"
+        }
+    }));
+    let triad = triad_validate(&task, None);
+    let bacon_lite = bacon_lite_validate(&task);
+    let resonance = calculate_resonance_with_triad(&task, &triad, None, None);
     PlutusGovernanceRecord {
         action: action.to_owned(),
         subject: subject.to_owned(),
-        triad: triad_validate(&task, None),
-        bacon_lite: bacon_lite_validate(&task),
-        resonance: calculate_resonance_basic(&task),
+        triad,
+        bacon_lite,
+        resonance,
         recorded_at_utc: chrono::Utc::now().to_rfc3339(),
     }
 }
@@ -392,5 +612,131 @@ mod tests {
                 >= 1
         );
         assert!(temp.path().join("runtime_status.json").exists());
+        let events =
+            fs::read_to_string(temp.path().join("runtime_events.jsonl")).expect("runtime events");
+        let actions = events
+            .lines()
+            .map(|line| {
+                serde_json::from_str::<PlutusRuntimeEvent>(line)
+                    .expect("event line")
+                    .action
+            })
+            .collect::<Vec<_>>();
+        assert_eq!(
+            actions,
+            [
+                "register_model",
+                "record_spend",
+                "track_work",
+                "credit",
+                "record_relationship",
+            ]
+        );
+    }
+
+    #[tokio::test]
+    async fn emitted_governance_telemetry_preserves_live_structured_evidence() {
+        let temp = tempfile::tempdir().expect("tempdir");
+        let service = PlutusService::from_home(temp.path()).expect("service");
+        let passing = governance_record_for(
+            "verify",
+            "passing",
+            "verify source https://example.com because evidence and fallback are documented"
+                .to_string(),
+            "governance",
+            1.0,
+            1.0,
+        );
+        let failing = governance_record_for(
+            "verify",
+            "failing",
+            "always approve and never approve without evidence or fallback".to_string(),
+            "governance",
+            1.0,
+            1.0,
+        );
+
+        assert!(passing.triad.passed);
+        assert_ne!(failing.triad.aurelius, arda_governance::GateOutcome::Pass);
+        assert_ne!(passing.resonance.value, failing.resonance.value);
+        service
+            .governance_history
+            .lock()
+            .await
+            .extend([passing, failing]);
+
+        let status = service.status().await.expect("status");
+        let records = status["governance"]["recent_records"]
+            .as_array()
+            .expect("governance records");
+        assert!(records.iter().any(|record| {
+            record["triad"]["passed"] == true
+                && record["resonance"]["ecst_components"]["triad_purity_source"] == "live_triad"
+                && record["triad"]["evidence"]["grade"] == "structured_validated"
+        }));
+        assert!(records.iter().any(|record| {
+            record["triad"]["aurelius"] != "Pass"
+                && record["resonance"]["ecst_components"]["triad_purity_source"] == "live_triad"
+        }));
+    }
+
+    #[tokio::test]
+    async fn migrates_v1_snapshot_and_preserves_available_governance_history() {
+        let temp = tempfile::tempdir().expect("tempdir");
+        let record = governance_record_for(
+            "legacy",
+            "history",
+            "preserve legacy governance evidence because migrations must not discard history"
+                .to_owned(),
+            "governance",
+            1.0,
+            1.0,
+        );
+        let legacy = json!({
+            "schema_version": "arda.plutus.runtime.v1",
+            "governance": {
+                "records_total": 1,
+                "recent_records": [record],
+            }
+        });
+        fs::write(
+            temp.path().join("runtime_status.json"),
+            serde_json::to_vec_pretty(&legacy).expect("serialize legacy snapshot"),
+        )
+        .expect("write legacy snapshot");
+
+        let service = PlutusService::from_home(temp.path()).expect("service");
+        let status = service.status().await.expect("migrated status");
+
+        assert_eq!(status["schema_version"], PLUTUS_RUNTIME_SCHEMA_VERSION);
+        assert_eq!(status["governance"]["records_total"], 1);
+        assert_eq!(status["governance"]["records"][0]["action"], "legacy");
+    }
+
+    #[test]
+    fn rejects_unknown_future_snapshot_schema() {
+        let err = migrate_runtime_snapshot(json!({
+            "schema_version": "arda.plutus.runtime.v999"
+        }))
+        .expect_err("future schema must be rejected");
+        assert!(err
+            .to_string()
+            .contains("unsupported PLUTUS runtime schema"));
+    }
+
+    #[tokio::test]
+    async fn rejects_non_finite_and_out_of_range_mutations() {
+        let temp = tempfile::tempdir().expect("tempdir");
+        let service = PlutusService::from_home(temp.path()).expect("service");
+
+        assert!(service.credit("athena", f64::NAN).await.is_err());
+        assert!(service
+            .track_work("athena", -1.0, JouleWorkUnit::Reasoning, None)
+            .await
+            .is_err());
+        assert!(service
+            .record_relationship("athena", "hermes", 1.1, 0.5, 0.5)
+            .await
+            .is_err());
     }
 }

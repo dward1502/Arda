@@ -2,6 +2,12 @@
 import { readFile, writeScopedFile, type FileReadResult } from './weathertop'
 import { loopbackUrl } from './endpointConfig'
 import { parseJsonOrDefault, parseJsonOrNull } from './jsonParse'
+import {
+  defaultBoardroomVisualizationSelection,
+  isBoardroomVisualizationSelection,
+  resolveBoardroomVisualizationSelection,
+  type BoardroomVisualizationSelection,
+} from '../scene/boardroom/boardroomVisualizationPresets'
 
 export const ARDA_BOARDROOM_SLOT_SETTINGS_RELATIVE_PATH = 'core/state/arda_boardroom_slots.json'
 export const ARDA_BOARDROOM_SLOT_STORAGE_KEY = 'arda.boardroom.scene_slots.v1'
@@ -68,6 +74,7 @@ export interface BoardroomSlotAssignmentRecord {
   module_ids: string[]
   presentation_modes: string[]
   surface_layout: BoardroomSurfaceLayout
+  visualization: BoardroomVisualizationSelection
   updated_at_utc: string
 }
 
@@ -106,7 +113,7 @@ export const DEFAULT_BOARDROOM_SCENE_SLOT_ASSIGNMENTS: BoardroomSceneSlotAssignm
   view_desk_l: 'governance_guardhouse',
   view_desk_control_panel: 'sovereign_world',
   view_desk_r: 'human_realm',
-  view_desk_aux: 'hermes_runtime',
+  view_desk_aux: 'now_command',
 }
 
 export const BOARDROOM_WORKSTATION_ROLE_PROFILES: BoardroomRoleAssignmentProfile[] = [
@@ -166,7 +173,7 @@ export const BOARDROOM_WORKSTATION_ROLE_PROFILES: BoardroomRoleAssignmentProfile
   },
 ]
 
-const DEFAULT_ASSIGNMENT_METADATA: Record<BoardroomSceneSlotId, Omit<BoardroomSlotAssignmentRecord, 'slot_id' | 'surface_layout' | 'updated_at_utc'>> = {
+const DEFAULT_ASSIGNMENT_METADATA: Record<BoardroomSceneSlotId, Omit<BoardroomSlotAssignmentRecord, 'slot_id' | 'surface_layout' | 'visualization' | 'updated_at_utc'>> = {
   monitor_left_1: {
     component_id: 'warp-dev-service-surface',
     source_zone_id: 'service_warp_dev',
@@ -217,10 +224,10 @@ const DEFAULT_ASSIGNMENT_METADATA: Record<BoardroomSceneSlotId, Omit<BoardroomSl
     presentation_modes: ['in_scene', 'native_window'],
   },
   view_desk_aux: {
-    component_id: 'hermes-dashboard-workstation',
-    source_zone_id: 'hermes_runtime',
-    title: 'Hermes Dashboard',
-    module_ids: ['hermes_dashboard', 'operations_and_packages'],
+    component_id: 'daily-command-workstation',
+    source_zone_id: 'now_command',
+    title: 'Daily Command',
+    module_ids: ['operating_surface', 'executive_overview'],
     presentation_modes: ['in_scene', 'native_window'],
   },
 }
@@ -315,12 +322,24 @@ function createDefaultSurfaceLayout(slotId: BoardroomSceneSlotId, sourceZoneId: 
 
 function defaultAssignmentForSlot(slotId: BoardroomSceneSlotId, updatedAtUtc: string): BoardroomSlotAssignmentRecord {
   const metadata = DEFAULT_ASSIGNMENT_METADATA[slotId]
+  const roleId = inferBoardroomRoleId(metadata.source_zone_id) ?? undefined
   return {
     slot_id: slotId,
+    ...(roleId ? { role_id: roleId } : {}),
     updated_at_utc: updatedAtUtc,
     ...metadata,
     surface_layout: createDefaultSurfaceLayout(slotId, metadata.source_zone_id, metadata.component_id),
+    visualization: defaultBoardroomVisualizationSelection(metadata.source_zone_id),
   }
+}
+
+function parseVisualizationSelection(
+  value: unknown,
+  sourceZoneId: string,
+  fallback: BoardroomVisualizationSelection,
+): BoardroomVisualizationSelection {
+  if (!isBoardroomVisualizationSelection(value)) return fallback
+  return resolveBoardroomVisualizationSelection(sourceZoneId, value, fallback).selection
 }
 
 function parseSurfaceLayout(value: unknown, fallback: BoardroomSurfaceLayout): BoardroomSurfaceLayout {
@@ -415,6 +434,7 @@ export function parseBoardroomSlotSettings(value: unknown): BoardroomSlotSetting
       module_ids: stringArray(assignment.module_ids).length > 0 ? stringArray(assignment.module_ids) : profile?.module_ids ?? fallback.module_ids,
       presentation_modes: stringArray(assignment.presentation_modes).length > 0 ? stringArray(assignment.presentation_modes) : profile?.presentation_modes ?? fallback.presentation_modes,
       surface_layout: parseSurfaceLayout(assignment.surface_layout, createDefaultSurfaceLayout(slotId, sourceZoneId, componentId)),
+      visualization: parseVisualizationSelection(assignment.visualization, sourceZoneId, fallback.visualization),
       updated_at_utc: typeof assignment.updated_at_utc === 'string' ? assignment.updated_at_utc : fallback.updated_at_utc,
     })
   }
@@ -467,6 +487,7 @@ export function documentFromAssignments(
         module_ids: profile?.module_ids ?? fallback.module_ids,
         presentation_modes: profile?.presentation_modes ?? fallback.presentation_modes,
         surface_layout: createDefaultSurfaceLayout(slotId, sourceZoneId, profile?.component_id ?? fallback.component_id),
+        visualization: defaultBoardroomVisualizationSelection(sourceZoneId),
         updated_at_utc: updatedAtUtc,
       }
     }),
@@ -490,6 +511,7 @@ export function normalizeLegacyAssignments(document: BoardroomSlotSettingsDocume
         module_ids: stringArray(assignment.module_ids).length > 0 ? stringArray(assignment.module_ids) : profile?.module_ids ?? fallback.module_ids,
         presentation_modes: stringArray(assignment.presentation_modes).length > 0 ? stringArray(assignment.presentation_modes) : profile?.presentation_modes ?? fallback.presentation_modes,
         surface_layout: parseSurfaceLayout(assignment.surface_layout, createDefaultSurfaceLayout(assignment.slot_id, assignment.source_zone_id, componentId)),
+        visualization: parseVisualizationSelection(assignment.visualization, assignment.source_zone_id, defaultBoardroomVisualizationSelection(assignment.source_zone_id)),
         updated_at_utc: typeof assignment.updated_at_utc === 'string' && assignment.updated_at_utc.length > 0 ? assignment.updated_at_utc : base.updated_at_utc,
       }
     }),
@@ -513,12 +535,72 @@ export function documentWithSurfaceLayout(
   }
 }
 
+export function documentWithVisualizationSelection(
+  document: BoardroomSlotSettingsDocument,
+  slotId: BoardroomSceneSlotId,
+  requested: BoardroomVisualizationSelection,
+  updatedAtUtc = new Date().toISOString(),
+): { ok: boolean; document: BoardroomSlotSettingsDocument; message: string } {
+  const assignment = document.assignments.find((candidate) => candidate.slot_id === slotId)
+  if (!assignment) return { ok: false, document, message: `Unknown boardroom slot: ${slotId}` }
+  const resolution = resolveBoardroomVisualizationSelection(
+    assignment.source_zone_id,
+    requested,
+    assignment.visualization,
+  )
+  if (!resolution.ok) return { ok: false, document, message: resolution.message }
+  return {
+    ok: true,
+    message: resolution.message,
+    document: {
+      ...document,
+      updated_at_utc: updatedAtUtc,
+      assignments: document.assignments.map((candidate) => candidate.slot_id === slotId
+        ? { ...candidate, visualization: resolution.selection, updated_at_utc: updatedAtUtc }
+        : candidate),
+    },
+  }
+}
+
+export function exportBoardroomProfile(document: BoardroomSlotSettingsDocument): string {
+  return `${JSON.stringify(document, null, 2)}\n`
+}
+
+export function importBoardroomProfile(serialized: string): {
+  ok: boolean
+  document: BoardroomSlotSettingsDocument | null
+  message: string
+} {
+  const parsedJson = parseJsonOrNull<unknown>(serialized)
+  if (!parsedJson) return { ok: false, document: null, message: 'Boardroom profile is not valid JSON' }
+  const document = parseBoardroomSlotSettings(parsedJson)
+  if (!document) return { ok: false, document: null, message: 'Boardroom profile schema is invalid' }
+  return { ok: true, document, message: `Imported ${document.assignments.length} boardroom slots` }
+}
+
+export function resetBoardroomProfile(updatedAtUtc = new Date().toISOString()): BoardroomSlotSettingsDocument {
+  return createDefaultBoardroomSlotSettings(updatedAtUtc)
+}
+
+export function readLocalBoardroomSlotSettingsDocument(
+  storage: Pick<Storage, 'getItem'> | null | undefined,
+): BoardroomSlotSettingsDocument | null {
+  try {
+    const raw = storage?.getItem(ARDA_BOARDROOM_SLOT_STORAGE_KEY)
+    return raw ? importBoardroomProfile(raw).document : null
+  } catch {
+    return null
+  }
+}
+
 export function readLocalBoardroomSlotAssignments(storage: Pick<Storage, 'getItem'> | null | undefined): BoardroomSceneSlotAssignments {
   try {
     const raw = storage?.getItem(ARDA_BOARDROOM_SLOT_STORAGE_KEY)
     if (!raw) return { ...DEFAULT_BOARDROOM_SCENE_SLOT_ASSIGNMENTS }
     const parsed = parseJsonOrNull<unknown>(raw)
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return { ...DEFAULT_BOARDROOM_SCENE_SLOT_ASSIGNMENTS }
+    const document = parseBoardroomSlotSettings(parsed)
+    if (document) return assignmentsFromDocument(document)
     const stored = parsed as Record<string, unknown>
     return BOARDROOM_SCENE_SLOT_IDS.reduce<BoardroomSceneSlotAssignments>((assignments, slotId) => {
       const value = stored[slotId]

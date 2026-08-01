@@ -1,0 +1,112 @@
+{
+  "checks": [
+    {
+      "check_id": "AGENTS.md",
+      "evidence": [
+        "present: AGENTS.md"
+      ],
+      "recommendation": "Keep AGENTS.md current as setup-console operator context.",
+      "severity": "high",
+      "status": "pass",
+      "title": "Agent/project operating instructions available"
+    },
+    {
+      "check_id": "ARDA_ROOT_PROTOCOL.md",
+      "evidence": [
+        "present: ARDA_ROOT_PROTOCOL.md"
+      ],
+      "recommendation": "Preserve root protocol pointer for new-machine onboarding.",
+      "severity": "high",
+      "status": "pass",
+      "title": "Root protocol available"
+    },
+    {
+      "check_id": "docs.CODEMAP.md",
+      "evidence": [
+        "present: docs/CODEMAP.md"
+      ],
+      "recommendation": "Regenerate CODEMAP when repository structure materially changes.",
+      "severity": "medium",
+      "status": "pass",
+      "title": "Low-token codemap available"
+    },
+    {
+      "check_id": "scripts.runtime_build_env.sh",
+      "evidence": [
+        "present: scripts/runtime_build_env.sh"
+      ],
+      "recommendation": "Keep build output/cache paths centralized in runtime_build_env.sh.",
+      "severity": "medium",
+      "status": "pass",
+      "title": "Runtime build environment script available"
+    },
+    {
+      "check_id": "config.manwe.providers.toml",
+      "evidence": [
+        "present: config/manwe.providers.toml"
+      ],
+      "recommendation": "Use provider registry values rather than hardcoded endpoints in setup flows.",
+      "severity": "medium",
+      "status": "pass",
+      "title": "Manwe provider registry available"
+    },
+    {
+      "check_id": "environment.surface",
+      "evidence": [
+        "present: config/manwe.providers.toml",
+        "present: core/state/environment_profile.schema.json",
+        "missing: config/arda.toml",
+        "missing: config/.env.example",
+        "missing: .env.example"
+      ],
+      "recommendation": "Expose a single setup-console path from environment profile schema to local override templates.",
+      "severity": "medium",
+      "status": "pass",
+      "title": "Environment profile/template surface discoverable"
+    },
+    {
+      "check_id": "portability.receipt",
+      "evidence": [
+        "missing: audit/PORTABILITY_AUDIT_2026-05-24/summary.json"
+      ],
+      "recommendation": "Run scripts/audit/portability_audit.py before setup-console readiness publication.",
+      "severity": "medium",
+      "status": "warn",
+      "title": "Portability/config hygiene receipt available"
+    },
+    {
+      "check_id": "endpoint.assumptions",
+      "evidence": [
+        "portability receipt unavailable"
+      ],
+      "recommendation": "Generate portability receipt to classify hardcoded endpoint assumptions.",
+      "severity": "medium",
+      "status": "warn",
+      "title": "Endpoint assumptions inventoried"
+    }
+  ],
+  "gate_status": "warn",
+  "generated_at_utc": "2026-07-26T05:57:37Z",
+  "mode": "read_only",
+  "mutation_policy": "receipts_only_no_source_config_or_service_rewrites",
+  "portability_status": {
+    "active_blocker_findings": null,
+    "findings_total": null,
+    "label": "portability receipt missing",
+    "source": "audit/PORTABILITY_AUDIT_2026-05-24/summary.json",
+    "status": "missing"
+  },
+  "runner": "scripts/audit/setup_console_audit.py",
+  "runtime": {
+    "cwd": "/var/home/mythos/Eregion/Arda",
+    "host": "annunimas-core",
+    "platform": "Linux-6.17.12-200.fc42.x86_64-x86_64-with-glibc2.39",
+    "python": "3.14.6",
+    "repo_root": "/var/home/mythos/Eregion/Arda"
+  },
+  "schema_version": 1,
+  "summary": {
+    "pass": 6,
+    "warn": 2
+  }
+}

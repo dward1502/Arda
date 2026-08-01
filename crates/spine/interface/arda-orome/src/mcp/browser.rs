@@ -19,8 +19,8 @@ pub struct PlaywrightBridgeContract {
 }
 
 pub fn playwright_bridge_contract() -> PlaywrightBridgeContract {
-    let state_root = env::var("ARDA_PLAYWRIGHT_STATE_DIR")
-        .unwrap_or_else(|_| "data/mcp/playwright".to_string());
+    let state_root =
+        env::var("ARDA_PLAYWRIGHT_STATE_DIR").unwrap_or_else(|_| "data/mcp/playwright".to_string());
     PlaywrightBridgeContract {
         schema_version: "arda.mcp.playwright.v1".to_string(),
         runtime: "stdio_subprocess".to_string(),

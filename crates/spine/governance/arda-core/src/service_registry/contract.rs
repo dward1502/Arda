@@ -4,9 +4,10 @@ use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
 /// Stable identifier for a registered service.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ServiceKind {
+    #[default]
     Governance,
     Mnemosyne,
     Plutus,
@@ -29,12 +30,6 @@ impl std::fmt::Display for ServiceKind {
     }
 }
 
-impl Default for ServiceKind {
-    fn default() -> Self {
-        Self::Governance
-    }
-}
-
 impl std::str::FromStr for ServiceKind {
     type Err = String;
 
@@ -52,16 +47,11 @@ impl std::str::FromStr for ServiceKind {
 }
 
 /// Marker version for schema compatibility.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ServiceSchemaVersion {
+    #[default]
     V1,
-}
-
-impl Default for ServiceSchemaVersion {
-    fn default() -> Self {
-        Self::V1
-    }
 }
 
 /// Lifecycle contract for a registered service.

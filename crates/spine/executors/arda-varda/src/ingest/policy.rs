@@ -6,6 +6,7 @@
 
 use arda_core::error::Result;
 use arda_economics::JouleWorkUnit;
+use arda_governance::{BaconLiteEvent, GateOutcome};
 use chrono::Utc;
 use serde_json::Value;
 use std::fs;
@@ -15,12 +16,24 @@ use super::observability::planning_task_receipt_summary;
 use super::remediation::{
     remediation_notes, remediation_owner, remediation_task_id, remediation_title,
 };
+use super::schema::{migrate_jsonl_value, JsonlStoreSchema};
 use super::{athena_error, AthenaStore, BookEntry, DeepAnalysisData, DeepBookEntry};
+
+pub(super) fn ingest_quarantine_reason(event: &BaconLiteEvent) -> Option<String> {
+    (!event.passed && !event.triad_passed && event.bacon_outcome == Some(GateOutcome::Fail)).then(
+        || {
+            format!(
+                "bacon_lite_failure:{}:{}",
+                event.policy_version, event.rationale
+            )
+        },
+    )
+}
 
 fn projects_task_queue_path() -> PathBuf {
     std::env::var("ARDA_PROJECT_TASK_QUEUE_PATH")
         .map(PathBuf::from)
-        .unwrap_or_else(|_| PathBuf::from("core/projects/tasks/queue.jsonl"))
+        .unwrap_or_else(|_| super::layout::arda_root().join("core/projects/tasks/queue.jsonl"))
 }
 
 impl AthenaStore {
@@ -32,7 +45,9 @@ impl AthenaStore {
                 continue;
             }
             if let Ok(value) = serde_json::from_str::<Value>(line) {
-                items.push(value);
+                if let Ok(value) = migrate_jsonl_value(JsonlStoreSchema::PolicyReadiness, value) {
+                    items.push(value);
+                }
             }
         }
         items.reverse();
@@ -100,6 +115,11 @@ impl AthenaStore {
                 "topic": topic
             }),
         );
+        if let Err(err) =
+            super::deep_cache::DeepAnalysisCache::new(&self.root).invalidate_doc(source_id)
+        {
+            tracing::warn!(error = %err, source_id = %source_id, "ATHENA deep cache invalidation failed after opposition harvest");
+        }
 
         Ok(serde_json::json!({
             "source_id": source_id,
@@ -580,9 +600,12 @@ fn latest_policy_entries(path: &Path) -> Result<std::collections::HashMap<String
         if line.trim().is_empty() {
             continue;
         }
-        let value: Value = match serde_json::from_str(line) {
-            Ok(v) => v,
-            Err(_) => continue,
+        let value = match serde_json::from_str::<Value>(line)
+            .ok()
+            .and_then(|value| migrate_jsonl_value(JsonlStoreSchema::PolicyReadiness, value).ok())
+        {
+            Some(v) => v,
+            None => continue,
         };
         let Some(source_id) = value.get("source_id").and_then(|v| v.as_str()) else {
             continue;

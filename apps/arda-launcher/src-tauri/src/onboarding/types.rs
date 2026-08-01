@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::{BTreeMap, BTreeSet};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ValueSource {
     Environment,
@@ -11,13 +11,8 @@ pub enum ValueSource {
     ServiceRegistry,
     OperatorInput,
     Detected,
+    #[default]
     Unknown,
-}
-
-impl Default for ValueSource {
-    fn default() -> Self {
-        ValueSource::Unknown
-    }
 }
 
 #[derive(Debug, Clone, Serialize)]

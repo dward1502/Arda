@@ -1,13 +1,14 @@
 {
   "name": "arda-launcher",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.3.0-rc.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "tauri": "cargo-tauri dev",
+    "tauri": "cargo-tauri",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
+    "test": "vitest run",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -15,6 +16,7 @@
     "@react-three/fiber": "^9.6.1",
     "@react-three/postprocessing": "^3.0.4",
     "@tailwindcss/vite": "^4.3.2",
+    "@tauri-apps/api": "2",
     "@types/three": "^0.185.0",
     "framer-motion": "^12.42.2",
     "react": "^19.2.7",
@@ -29,9 +31,10 @@
     "@vitejs/plugin-react": "^6.0.3",
     "autoprefixer": "^10.5.2",
     "oxlint": "^1.71.0",
-    "postcss": "^8.5.16",
+    "postcss": "^8.5.18",
     "tailwindcss": "^4.3.2",
     "typescript": "~6.0.2",
-    "vite": "^8.1.1"
+    "vite": "^8.1.1",
+    "vitest": "^4.1.10"
   }
 }

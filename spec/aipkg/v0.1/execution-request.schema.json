@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AIPKG execution request",
+  "type": "object",
+  "required": ["package_id", "profile", "manifest_version"],
+  "properties": {
+    "package_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(\\.[a-z0-9-]+)+$"
+    },
+    "profile": {
+      "type": "string",
+      "enum": ["wasm-wasi", "oci-sandboxed", "local-sovereign"]
+    },
+    "manifest_version": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "runtime_context": {
+      "type": "object"
+    },
+    "requested_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}

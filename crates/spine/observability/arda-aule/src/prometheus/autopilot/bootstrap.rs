@@ -4,7 +4,7 @@
 
 use super::delegation::{AgentCapabilities, AgentRegistry};
 use crate::prometheus::core_link::CoreAutonomyProfile;
-use super::source_registry::AgentRosterSnapshot;
+use crate::prometheus::AgentRosterSnapshot;
 use std::collections::BTreeMap;
 use std::path::Path;
 

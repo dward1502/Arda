@@ -1,0 +1,122 @@
+{
+  "contract": "arda.stage5.reliability-soak.v1",
+  "elapsed_seconds": 3.0584340109780896,
+  "failures": [],
+  "finished_at_utc": "2026-08-01T06:04:52.508775Z",
+  "limits": {
+    "retained_failures": 20,
+    "subprocess_output": "sha256-only"
+  },
+  "protected_state": {
+    "after": {
+      "bytes": 11718051,
+      "files": 1050
+    },
+    "before": {
+      "bytes": 11718051,
+      "files": 1050
+    },
+    "growth": {
+      "bytes": 0,
+      "files": 0
+    }
+  },
+  "requested_duration_seconds": 3.0,
+  "scenarios": {
+    "adapter-crash-hang": {
+      "failed": 0,
+      "latency_ms": {
+        "max": 309.14,
+        "min": 305.862,
+        "p50": 305.862,
+        "p95": 305.862
+      },
+      "passed": 2,
+      "runs": 2
+    },
+    "checkpoint-restart": {
+      "failed": 0,
+      "latency_ms": {
+        "max": 284.754,
+        "min": 284.754,
+        "p50": 284.754,
+        "p95": 284.754
+      },
+      "passed": 1,
+      "runs": 1
+    },
+    "corrupted-tail": {
+      "failed": 0,
+      "latency_ms": {
+        "max": 191.258,
+        "min": 191.258,
+        "p50": 191.258,
+        "p95": 191.258
+      },
+      "passed": 1,
+      "runs": 1
+    },
+    "disk-pressure": {
+      "failed": 0,
+      "latency_ms": {
+        "max": 192.416,
+        "min": 192.416,
+        "p50": 192.416,
+        "p95": 192.416
+      },
+      "passed": 1,
+      "runs": 1
+    },
+    "large-noisy-output": {
+      "failed": 0,
+      "latency_ms": {
+        "max": 211.803,
+        "min": 202.222,
+        "p50": 202.222,
+        "p95": 202.222
+      },
+      "passed": 2,
+      "runs": 2
+    },
+    "model-timeout": {
+      "failed": 0,
+      "latency_ms": {
+        "max": 362.312,
+        "min": 356.148,
+        "p50": 356.148,
+        "p95": 356.148
+      },
+      "passed": 2,
+      "runs": 2
+    },
+    "network-loss": {
+      "failed": 0,
+      "latency_ms": {
+        "max": 218.299,
+        "min": 218.299,
+        "p50": 218.299,
+        "p95": 218.299
+      },
+      "passed": 1,
+      "runs": 1
+    },
+    "repeated-cancellation": {
+      "failed": 0,
+      "latency_ms": {
+        "max": 205.977,
+        "min": 205.881,
+        "p50": 205.881,
+        "p95": 205.881
+      },
+      "passed": 2,
+      "runs": 2
+    }
+  },
+  "started_at_utc": "2026-08-01T06:04:49.450327Z",
+  "status": "pass",
+  "summary": {
+    "failed": 0,
+    "passed": 12,
+    "runs": 12
+  }
+}

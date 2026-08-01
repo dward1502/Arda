@@ -463,3 +463,68 @@
   color: var(--text-muted);
   font-size: 0.74rem;
 }
+
+.workbench { display: grid; gap: 1rem; }
+.workbench-panel { display: grid; gap: 0.75rem; min-width: 0; padding: 0.85rem; border: 1px solid rgba(120, 231, 255, 0.18); border-radius: var(--radius-md); background: rgba(4, 9, 16, 0.58); }
+.workbench-panel > header, .workbench-actions, .workbench-list li { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+.workbench-panel h3, .workbench-panel h4, .workbench-panel p { margin: 0; }
+.workbench-panel header span, .workbench-panel small, .workbench-list span { color: var(--text-muted); }
+.workbench-panel label { display: grid; gap: 0.35rem; color: var(--text-muted); font-size: 0.78rem; }
+.workbench-panel input, .workbench-panel textarea { width: 100%; padding: 0.6rem; border: 1px solid var(--line); border-radius: var(--radius-sm); background: rgba(2, 6, 23, 0.8); color: var(--text); }
+.workbench-panel button { min-height: 2.35rem; padding: 0.5rem 0.75rem; border: 1px solid rgba(120, 231, 255, 0.3); border-radius: var(--radius-sm); color: var(--text); }
+.workbench-panel button:focus-visible { outline: 3px solid var(--accent-gold); outline-offset: 2px; }
+.workbench-panel button:disabled { cursor: not-allowed; opacity: 0.5; }
+.workbench-approval-fields, .workbench-review-grid, .workbench-first-screen { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+.workbench-first-screen > :first-child, .workbench-first-screen > :last-child { grid-column: 1 / -1; }
+.workbench-contract dl, .workbench-receipt { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; margin: 0.5rem 0 0; }
+.workbench-contract dl div, .workbench-receipt div { padding: 0.5rem; border: 1px solid var(--line); border-radius: var(--radius-sm); }
+.workbench-contract dt, .workbench-receipt dt { color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; }
+.workbench-contract dd, .workbench-receipt dd { margin: 0.2rem 0 0; overflow-wrap: anywhere; }
+.workbench-graph { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.5rem; padding: 0; list-style: none; }
+.workbench-node { display: grid; width: 100%; text-align: left; }
+.workbench-node--blocked { border-color: var(--accent-gold) !important; }
+.workbench-node--failed { border-color: #ff6b7a !important; }
+.workbench-node--succeeded { border-color: var(--accent-mint) !important; }
+.workbench-list, .workbench-events { display: grid; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
+.workbench-list li, .workbench-events li { padding: 0.55rem; border: 1px solid var(--line); border-radius: var(--radius-sm); }
+.workbench-list li > div:first-child, .workbench-events li { display: grid; gap: 0.2rem; }
+.workbench-list details { width: 100%; }
+.workbench-list pre { max-height: 16rem; overflow: auto; white-space: pre-wrap; }
+.workbench-error { color: #ff9aa5; }
+
+@media (max-width: 760px) {
+  .workbench-first-screen, .workbench-review-grid, .workbench-approval-fields, .workbench-contract dl, .workbench-receipt { grid-template-columns: 1fr; }
+  .workbench-first-screen > :first-child, .workbench-first-screen > :last-child { grid-column: auto; }
+  .workbench-graph { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workbench *, .workbench *::before, .workbench *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
+}
+
+@media (prefers-contrast: more) {
+  .workbench-panel,
+  .workbench-panel input,
+  .workbench-panel textarea,
+  .workbench-panel button,
+  .workbench-contract dl div,
+  .workbench-receipt div,
+  .workbench-list li,
+  .workbench-events li { border-color: currentColor; }
+  .workbench-panel header span,
+  .workbench-panel small,
+  .workbench-list span,
+  .workbench-panel label,
+  .workbench-contract dt,
+  .workbench-receipt dt { color: var(--text); }
+}
+
+@media (forced-colors: active) {
+  .workbench-panel,
+  .workbench-panel input,
+  .workbench-panel textarea,
+  .workbench-panel button { forced-color-adjust: auto; }
+  .workbench-node--blocked,
+  .workbench-node--failed,
+  .workbench-node--succeeded { border-color: ButtonText !important; }
+}

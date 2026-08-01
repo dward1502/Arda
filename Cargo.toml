@@ -2,6 +2,7 @@
 resolver = "2"
 members = [
     "crates/engine",
+    "crates/spine/contract/arda-contract-registry",
     "crates/spine/runtime/manwe",
     "crates/spine/governance/arda-core",
     "crates/spine/governance/arda-governance",
@@ -12,6 +13,24 @@ members = [
     "crates/spine/runtime/arda-mandos",
     "crates/spine/memory/arda-vaire",
     "crates/spine/executors/arda-varda",
+    "outposts/arda-outpost-protocol",
+    "outposts/arda-outpost-scout",
+    "sdk/rust",
+]
+default-members = [
+    "crates/engine",
+    "crates/spine/contract/arda-contract-registry",
+    "crates/spine/runtime/manwe",
+    "crates/spine/governance/arda-core",
+    "crates/spine/governance/arda-governance",
+    "crates/spine/interface/arda-orome",
+    "crates/spine/observability/arda-aule",
+    "crates/spine/runtime/arda-economics",
+    "crates/spine/runtime/arda-mandos",
+    "crates/spine/memory/arda-vaire",
+    "crates/spine/executors/arda-varda",
+    "outposts/arda-outpost-protocol",
+    "outposts/arda-outpost-scout",
 ]
 exclude = []
 
@@ -33,6 +52,12 @@ clap = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 anyhow = "1"
+reqwest = { workspace = true }
+toml = { workspace = true }
+
+[dev-dependencies]
+serde_json = { workspace = true }
+tempfile = { workspace = true }
 
 [workspace.package]
 version = "0.1.0"
@@ -55,6 +80,7 @@ async-trait = "0.1"
 serde_yaml = "0.9"
 # Arda crates (formerly annunimas-*) referenced via `workspace = true`
 arda-core = { path = "crates/spine/governance/arda-core" }
+arda-contract-registry = { path = "crates/spine/contract/arda-contract-registry" }
 arda-governance = { path = "crates/spine/governance/arda-governance" }
 arda-orome = { path = "crates/spine/interface/arda-orome" }
 arda-vaire = { path = "crates/spine/memory/arda-vaire" }
@@ -64,6 +90,7 @@ arda-mandos = { path = "crates/spine/runtime/arda-mandos" }
 manwe = { path = "crates/spine/runtime/manwe" }
 arda-varda = { path = "crates/spine/executors/arda-varda" }
 arda-engine = { path = "crates/engine" }
+arda-outpost-protocol = { path = "outposts/arda-outpost-protocol" }
 tokio = { version = "1", features = ["full"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
@@ -76,7 +103,7 @@ base64 = "0.22"
 fs2 = "0.4"
 # --- manwe gateway ---
 axum = "0.7"
-reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "stream"] }
 serenity = { version = "0.12", default-features = false, features = ["builder", "client", "gateway", "http", "model", "utils", "rustls_backend"] }
 tonic = { version = "0.14", default-features = false, features = ["tls-webpki-roots", "transport"] }
 prost = "0.13"

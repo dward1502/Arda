@@ -1,0 +1,277 @@
+{
+  "ARDA-AULE": {
+    "score": 97,
+    "score_breakdown": {
+      "implementation_completeness": 20,
+      "mission_fit": 20,
+      "observability_auditability": 15,
+      "portability_config_hygiene": 15,
+      "reliability_safety": 20,
+      "ux_operator_experience": 7
+    }
+  },
+  "ARDA-BARROW-WIGHT": {
+    "score": 61,
+    "score_breakdown": {
+      "implementation_completeness": 0,
+      "mission_fit": 14,
+      "observability_auditability": 6,
+      "portability_config_hygiene": 15,
+      "reliability_safety": 20,
+      "ux_operator_experience": 6
+    }
+  },
+  "ARDA-CORE": {
+    "score": 61,
+    "score_breakdown": {
+      "implementation_completeness": 0,
+      "mission_fit": 14,
+      "observability_auditability": 6,
+      "portability_config_hygiene": 15,
+      "reliability_safety": 20,
+      "ux_operator_experience": 6
+    }
+  },
+  "ARDA-HADHAFANG": {
+    "score": 61,
+    "score_breakdown": {
+      "implementation_completeness": 0,
+      "mission_fit": 14,
+      "observability_auditability": 6,
+      "portability_config_hygiene": 15,
+      "reliability_safety": 20,
+      "ux_operator_experience": 6
+    }
+  },
+  "ARDA-LORIEN": {
+    "score": 61,
+    "score_breakdown": {
+      "implementation_completeness": 0,
+      "mission_fit": 14,
+      "observability_auditability": 6,
+      "portability_config_hygiene": 15,
+      "reliability_safety": 20,
+      "ux_operator_experience": 6
+    }
+  },
+  "ARDA-MANDOS": {
+    "score": 61,
+    "score_breakdown": {
+      "implementation_completeness": 0,
+      "mission_fit": 14,
+      "observability_auditability": 6,
+      "portability_config_hygiene": 15,
+      "reliability_safety": 20,
+      "ux_operator_experience": 6
+    }
+  },
+  "ARDA-MANWE": {
+    "score": 95,
+    "score_breakdown": {
+      "implementation_completeness": 20,
+      "mission_fit": 20,
+      "observability_auditability": 15,
+      "portability_config_hygiene": 15,
+      "reliability_safety": 18,
+      "ux_operator_experience": 7
+    }
+  },
+  "ARDA-OROME": {
+    "score": 95,
+    "score_breakdown": {
+      "implementation_completeness": 20,
+      "mission_fit": 20,
+      "observability_auditability": 15,
+      "portability_config_hygiene": 15,
+      "reliability_safety": 18,
+      "ux_operator_experience": 7
+    }
+  },
+  "ARDA-ULE": {
+    "score": 61,
+    "score_breakdown": {
+      "implementation_completeness": 0,
+      "mission_fit": 14,
+      "observability_auditability": 6,
+      "portability_config_hygiene": 15,
+      "reliability_safety": 20,
+      "ux_operator_experience": 6
+    }
+  },
+  "ARDA-VARDA": {
+    "score": 95,
+    "score_breakdown": {
+      "implementation_completeness": 18,
+      "mission_fit": 20,
+      "observability_auditability": 15,
+      "portability_config_hygiene": 15,
+      "reliability_safety": 20,
+      "ux_operator_experience": 7
+    }
+  },
+  "FOLDER-APPS": {
+    "score": 93,
+    "score_breakdown": {
+      "implementation_completeness": 20,
+      "mission_fit": 20,
+      "observability_auditability": 15,
+      "portability_config_hygiene": 15,
+      "reliability_safety": 16,
+      "ux_operator_experience": 7
+    }
+  },
+  "FOLDER-ARCHIVE": {
+    "score": 61,
+    "score_breakdown": {
+      "implementation_completeness": 0,
+      "mission_fit": 14,
+      "observability_auditability": 6,
+      "portability_config_hygiene": 15,
+      "reliability_safety": 20,
+      "ux_operator_experience": 6
+    }
+  },
+  "FOLDER-ARCHIVED-SCRIPTS": {
+    "score": 61,
+    "score_breakdown": {
+      "implementation_completeness": 0,
+      "mission_fit": 14,
+      "observability_auditability": 6,
+      "portability_config_hygiene": 15,
+      "reliability_safety": 20,
+      "ux_operator_experience": 6
+    }
+  },
+  "FOLDER-AUDIT": {
+    "score": 71,
+    "score_breakdown": {
+      "implementation_completeness": 10,
+      "mission_fit": 14,
+      "observability_auditability": 6,
+      "portability_config_hygiene": 15,
+      "reliability_safety": 20,
+      "ux_operator_experience": 6
+    }
+  },
+  "FOLDER-CONFIG": {
+    "score": 88,
+    "score_breakdown": {
+      "implementation_completeness": 11,
+      "mission_fit": 20,
+      "observability_auditability": 15,
+      "portability_config_hygiene": 15,
+      "reliability_safety": 20,
+      "ux_operator_experience": 7
+    }
+  },
+  "FOLDER-CORE": {
+    "score": 89,
+    "score_breakdown": {
+      "implementation_completeness": 12,
+      "mission_fit": 20,
+      "observability_auditability": 15,
+      "portability_config_hygiene": 15,
+      "reliability_safety": 20,
+      "ux_operator_experience": 7
+    }
+  },
+  "FOLDER-CRATES": {
+    "score": 88,
+    "score_breakdown": {
+      "implementation_completeness": 20,
+      "mission_fit": 20,
+      "observability_auditability": 15,
+      "portability_config_hygiene": 15,
+      "reliability_safety": 8,
+      "ux_operator_experience": 10
+    }
+  },
+  "FOLDER-DATA": {
+    "score": 87,
+    "score_breakdown": {
+      "implementation_completeness": 10,
+      "mission_fit": 20,
+      "observability_auditability": 15,
+      "portability_config_hygiene": 15,
+      "reliability_safety": 20,
+      "ux_operator_experience": 7
+    }
+  },
+  "FOLDER-DOCS": {
+    "score": 89,
+    "score_breakdown": {
+      "implementation_completeness": 12,
+      "mission_fit": 20,
+      "observability_auditability": 15,
+      "portability_config_hygiene": 15,
+      "reliability_safety": 20,
+      "ux_operator_experience": 7
+    }
+  },
+  "FOLDER-HUMAN": {
+    "score": 61,
+    "score_breakdown": {
+      "implementation_completeness": 0,
+      "mission_fit": 14,
+      "observability_auditability": 6,
+      "portability_config_hygiene": 15,
+      "reliability_safety": 20,
+      "ux_operator_experience": 6
+    }
+  },
+  "FOLDER-SCRIPTS": {
+    "score": 83,
+    "score_breakdown": {
+      "implementation_completeness": 10,
+      "mission_fit": 20,
+      "observability_auditability": 11,
+      "portability_config_hygiene": 15,
+      "reliability_safety": 20,
+      "ux_operator_experience": 7
+    }
+  },
+  "FOLDER-TESTS": {
+    "score": 71,
+    "score_breakdown": {
+      "implementation_completeness": 10,
+      "mission_fit": 14,
+      "observability_auditability": 6,
+      "portability_config_hygiene": 15,
+      "reliability_safety": 20,
+      "ux_operator_experience": 6
+    }
+  },
+  "HADES": {
+    "score": 100,
+    "score_breakdown": {
+      "implementation_completeness": 20,
+      "mission_fit": 20,
+      "observability_auditability": 15,
+      "portability_config_hygiene": 15,
+      "reliability_safety": 20,
+      "ux_operator_experience": 10
+    }
+  },
+  "MANWE": {
+    "score": 98,
+    "score_breakdown": {
+      "implementation_completeness": 20,
+      "mission_fit": 20,
+      "observability_auditability": 15,
+      "portability_config_hygiene": 15,
+      "reliability_safety": 18,
+      "ux_operator_experience": 10
+    }
+  },
+  "PROMETHEUS": {
+    "score": 100,
+    "score_breakdown": {
+      "implementation_completeness": 20,
+      "mission_fit": 20,
+      "observability_auditability": 15,
+      "portability_config_hygiene": 15,
+      "reliability_safety": 20,
+      "ux_operator_experience": 10
+    }
+  }
+}

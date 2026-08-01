@@ -7,15 +7,17 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "lint": "oxlint",
     "test": "vitest run",
     "preview": "vite preview",
-    "tauri": "bash -lc 'source /var/home/mythos/Annunimas/scripts/runtime_build_env.sh && arda_runtime_build_env /var/home/mythos/Eregion/Arda-HUD && export PKG_CONFIG_PATH=/usr/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig __NV_DISABLE_EXPLICIT_SYNC=1 WEBKIT_DISABLE_DMABUF_RENDERER=1 WEBKIT_DISABLE_COMPOSITING_MODE=1 GDK_BACKEND=x11 && tauri \"$@\"' --",
-    "tauri:dev:stable": "PKG_CONFIG_PATH=/usr/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig __NV_DISABLE_EXPLICIT_SYNC=1 WEBKIT_DISABLE_DMABUF_RENDERER=1 WEBKIT_DISABLE_COMPOSITING_MODE=1 GDK_BACKEND=x11 pnpm tauri dev",
-    "tauri:build:stable": "bash -lc 'source /var/home/mythos/Annunimas/scripts/runtime_build_env.sh && arda_runtime_build_env /var/home/mythos/Eregion/Arda-HUD && PKG_CONFIG_PATH=/usr/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig __NV_DISABLE_EXPLICIT_SYNC=1 WEBKIT_DISABLE_DMABUF_RENDERER=1 WEBKIT_DISABLE_COMPOSITING_MODE=1 GDK_BACKEND=x11 pnpm tauri build --no-bundle'",
-    "package:stable": "bash ../../../scripts/package_arda_hud.sh",
-    "launch:stable": "bash ../../../scripts/launch_arda_hud.sh",
+    "tauri": "bash -lc 'source ../../scripts/runtime_build_env.sh && arda_runtime_build_env ../.. && export PKG_CONFIG_PATH=/usr/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig __NV_DISABLE_EXPLICIT_SYNC=1 WEBKIT_DISABLE_DMABUF_RENDERER=1 WEBKIT_DISABLE_COMPOSITING_MODE=1 GDK_BACKEND=x11 && tauri \"$@\"' --",
+    "tauri:dev:stable": "pnpm run tauri dev",
+    "tauri:build:stable": "pnpm run tauri build --no-bundle",
+    "package:stable": "bash ../../scripts/package_arda_hud.sh",
+    "launch:stable": "bash ../../scripts/launch_arda_hud.sh",
     "soterion:unicode": "bash scripts/soterion_unicode_guard.sh",
-    "export:companion-state": "node scripts/export-companion-state.mjs"
+    "export:companion-state": "node scripts/export-companion-state.mjs",
+    "verify:boardroom-assets": "node scripts/check-boardroom-asset-budget.mjs"
   },
   "packageManager": "pnpm@10.8.1",
   "engines": {
@@ -56,7 +58,9 @@
     "@types/three": "^0.183.1",
     "@vitejs/plugin-react": "^4.6.0",
     "autoprefixer": "^10.4.24",
+    "axe-core": "4.10.3",
     "jsdom": "^28.1.0",
+    "oxlint": "^1.71.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.2.0",
     "typescript": "~5.8.3",

@@ -5,7 +5,7 @@ soterion:
   role: "runtime_oracle"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-17"
+  last_reviewed: "2026-07-28"
 ---
 
 # arda-mandos
@@ -22,7 +22,7 @@ Owner: hades | Sigil: 🜏 SCROLL | Status: active
 It provides:
 
 - `OracleEngine` with triad-gated verdict generation (`Aurelius`/`Bacon`/`Sun Tzu`)
-- `Verdict` model with outcome, gate scores, reasoning, resonance, and governance metadata
+- `Verdict` model with outcome, gate scores, typed evidence provenance, bounded reasoning graph, resonance, and governance metadata
 - `PageIndex` for document/page indexing and keyword search
 - `OracleNotifier` for formatted output channels
 - `TruthScorer` / `DefaultTruthScorer` / `score_gate()` for confidence/risk/readiness scoring
@@ -39,37 +39,46 @@ It provides:
 
 ## Verification status
 
-- `cargo test -p arda-mandos`: 5 passed, 0 failed
-- `cargo check -p arda-mandos`: OK
-- Doc tests: 0
-- Import alias fixed: `arda-plutus` renamed to `arda-economics`; `use arda_economics::PlutusService` updated in `src/service.rs`
+- `cargo test -p arda-mandos --all-features`: 75 unit and 2 integration tests passed
+- `cargo test -p arda-mandos --no-default-features`: 68 unit and 2 integration tests passed
+- Strict Clippy passed for all features and no default features with `--all-targets --no-deps -- -D warnings`
+- Rustdoc passed with `RUSTDOCFLAGS='-D warnings'`, all features, and no dependencies
+- Direct consumer all-feature tests and checks passed:
+  - `arda-aule`: 164 library, 8 CLI, 14 focused integration, and 2 doc tests
+  - `arda-orome`: 86 library and 10 integration tests
 
 ## Agentic-OS abstractions
 
 - **Oracle engine**: `OracleEngine` evaluates queries through triad gates with resonance, governance, and love-equation guard
-- **Verdict model**: `VerdictOutcome` (`Pass`/`Fail`/`Conditional`), `TriadGates`, `GateReasoning`, `VerdictGovernance`
+- **Verdict model**: `VerdictOutcome` (`Pass`/`Fail`/`Conditional`), `TriadGates`, bounded `ReasoningContext`, `VerdictGovernance`
+- **Evidence provenance**: typed supplied/retrieved/inferred/unavailable references with observation-bound SHA-256 digests, per-gate assessments, explicit uncertainty/corroboration signals, integrity rejection, and export redaction
 - **Query types**: `Market`, `Document`, `Financial`, `General`
+- **Typed query contract**: centralized validation and limits, snake-case wire names,
+  correlation/causation IDs, caller/evaluation timestamps, and in-process idempotency
 - **Truth scoring**: `TruthScorer` trait with confidence/evidence; `score_gate()` returns truth confidence, operational risk, autonomy readiness, and gating decision
 - **Page index**: `PageIndex`/`PageTree`/`TocEntry` for TOC-based document indexing with keyword search
 - **Notify**: `OracleNotifier` formats verdict/query output for channels
-- **Context**: `ReasoningContext` placeholder for tree-structured queries
-- **Runtime service**: `OracleService` manages `runtime_status.json` and `verdict_history.jsonl`; emits background `joule` work and relationship signals to `PlutusService`
-- **Daemon**: `OracleDaemonConfig` + `OracleDaemon` run IPC + optional HTTP; HTTP exposes `/status`, `/evaluate`, `/verdicts`, `/paths`, `/events`
+- **Context**: bounded deterministic claim/evidence/objection/assumption graph with stable IDs, typed edges, validation, summaries, and public-only rationales
+- **Runtime service**: `OracleService` manages atomic `runtime_status.json`, versioned digest-linked `verdict_history.jsonl`, restart hydration, degraded-prefix recovery, ledger verification, verified atomic export, and bounded telemetry delivery to `PlutusService`
+- **Daemon**: `OracleDaemonConfig` + `OracleDaemon` supervise IPC and optional HTTP listeners; both transports share typed dispatch, redaction, validation, and structured errors. HTTP additionally exposes `/ledger/verify` and `/ledger/export`
 
 ## Crate layout
 
 | Module | Role |
 |--------|------|
 | `lib.rs` | Public exports for all subsystems |
+| `evidence.rs` | Typed evidence references, integrity/freshness metadata, assessments, and signals |
 | `reasoning.rs` | `OracleEngine`, `OracleQuery`, `Verdict`, triad gates, governance |
 | `pageindex.rs` | `PageIndex`, `PageTree`, `TocEntry`, `SearchResult` |
 | `notify.rs` | `OracleNotifier` formatting for output channels |
-| `context.rs` | `ReasoningContext` placeholder |
+| `context.rs` | Bounded `ReasoningContext` graph, limits, validation, deterministic traversal, and summaries |
 | `scoring.rs` | `TruthScorer`, `DefaultTruthScorer`, `score_gate()` |
 | `service.rs` | `OracleService`: runtime orchestration, verdict persistence, Plutus integration |
 | `transport/mod.rs` | Daemon config + runner |
+| `transport/dispatch.rs` | Shared typed requests, dispatch, redaction, and structured errors |
 | `transport/ipc.rs` | Unix socket server |
 | `transport/http.rs` | Optional HTTP/SSE server |
+| `tests/target_local.rs` | Target-local persistence and restart integration proof |
 
 ## Consumer wiring
 
@@ -78,13 +87,13 @@ It provides:
 - Consumes `arda-core` for error types, daemon spawn helpers, task status
 - Depends on: `arda-economics`, `arda-core`, `arda-governance`
 
-## Ideas for improvement
+## Closed Packet 4 capability set
 
-1. Flesh out `ReasoningContext` into a real tree/traversal model
-2. Add crate-level docs and module-level doc headers for `pageindex`, `notify`, `scoring`, `transport`
-3. Add doc tests on public APIs (`OracleService`, `OracleEngine`, `PageIndex`)
-4. Add explicit unit tests for `TruthScorer`/`DefaultTruthScorer` and `OracleNotifier`
-5. Add migration/schema-version guard for `runtime_status.json` so state upgrades don't lose history
-6. Expose truth-score gating as a policy hook in `arda-core` governance instead of local-only checks
-7. Consider splitting transport into a feature-gated crate if daemon surface grows
-8. Add operator-facing `oracle export` or HUD section so verdict state is visible without JSON inspection
+- Typed escalation, versioned policy, inclusive threshold boundaries, veto semantics, and bounded public reasoning are covered by executable invariants.
+- Query, evidence, PageIndex, Unicode notification, persistence, and transport behavior use stable typed contracts.
+- Verdict records are restart-safe and tamper-evident across JSON boundaries; recovery retains only the verified prefix and reports degraded reasons.
+- IPC and HTTP enforce bounded inputs and expose shared structured errors; listener supervision owns cancellation and socket cleanup.
+- Gate disposition counters and telemetry delivery counters remain low-cardinality and exclude query identifiers.
+- Verified export refuses corrupt, degraded, legacy, or authoritative-destination output, preserves destination atomicity, verifies and writes one exact byte snapshot, and confines transport-requested destinations beneath the service export root.
+
+Packet 4's temporary `CHECKLIST.md`, `CRATE_PLAN.md`, and `PLAN_CLOSEOUT.md` trackers were retired after strict producer and direct-consumer gates passed. Future work belongs in a new active plan backed by a newly observed behavior gap.

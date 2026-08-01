@@ -1,0 +1,52 @@
+{
+  "authority": "advisory_preview_only",
+  "boundary": "Search snippets were not treated as canonical fetched evidence and no Varda evaluation was fabricated.",
+  "generated_at_utc": "2026-07-31T17:57:59.094108Z",
+  "memory_receipt_present": true,
+  "query": "official Tauri v2 Linux prerequisites AppImage WebKitGTK installation",
+  "result_count": 5,
+  "results": [
+    {
+      "engine": "duckduckgo",
+      "rank": 1,
+      "score": 3.0,
+      "title": "Prerequisites - Tauri",
+      "untrusted_preview_sha256": "c58be30bf1b47b22c87e80a5f7ddd54b4680c62501d831c724e194ff6dd0646f",
+      "url": "https://v2.tauri.app/start/prerequisites/"
+    },
+    {
+      "engine": "duckduckgo",
+      "rank": 2,
+      "score": 3.0,
+      "title": "AppImage | Tauri",
+      "untrusted_preview_sha256": "6b25d3b320c95eb6bada44d2bae4cadb574595ae6ac78e85a480903ad146f95f",
+      "url": "https://v2.tauri.app/distribute/appimage/"
+    },
+    {
+      "engine": "duckduckgo",
+      "rank": 3,
+      "score": 1.1666666666666663,
+      "title": "GitHub - tauri-apps/tauri: Build smaller, faster, and more secure ...",
+      "untrusted_preview_sha256": "4cbfe54568deb4646e2d4acb9408d74447f3396c789d45b42be8cd6cd24f1dd7",
+      "url": "https://github.com/tauri-apps/tauri"
+    },
+    {
+      "engine": "duckduckgo",
+      "rank": 4,
+      "score": 0.6222222222222222,
+      "title": "Tauri Tutorial: Build a Cross-Platform App in 13 Steps [2026]",
+      "untrusted_preview_sha256": "c56369e120a8cd7d52319fe7f3c111d04b5daea0d3906d5e304fe523b267f233",
+      "url": "https://tech-insider.org/tauri-tutorial-cross-platform-rust-app-2026/"
+    },
+    {
+      "engine": "duckduckgo",
+      "rank": 5,
+      "score": 0.25,
+      "title": "Prerequisites - The Tauri Documentation WIP - GitHub Pages",
+      "untrusted_preview_sha256": "461ec18b35a35b6dcc7a0454bfaf30e3d38f23ba8d6f18acf3500b94628e8d5c",
+      "url": "https://jonaskruckenberg.github.io/tauri-docs-wip/prerequisites.html"
+    }
+  ],
+  "schema_version": "arda.stage4.warden_preview.v1",
+  "source_policy": "allowlisted_public_web"
+}

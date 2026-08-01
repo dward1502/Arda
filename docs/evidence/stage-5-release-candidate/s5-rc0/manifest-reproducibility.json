@@ -1,0 +1,11 @@
+{
+  "checksums_byte_identical": true,
+  "checksums_sha256_a": "d6793dedf8d1dfe6a816b10c81fdfea9f0850d226f5416906a6c8f0873a17ace",
+  "checksums_sha256_b": "d6793dedf8d1dfe6a816b10c81fdfea9f0850d226f5416906a6c8f0873a17ace",
+  "contract": "arda.release-reproducibility-proof.v1",
+  "manifest_byte_identical": true,
+  "manifest_sha256_a": "af93b901c768669dbb0fe63334a47c465f9fcd1d107abef7730537abe59ecf96",
+  "manifest_sha256_b": "af93b901c768669dbb0fe63334a47c465f9fcd1d107abef7730537abe59ecf96",
+  "same_declared_inputs": true,
+  "status": "pass"
+}

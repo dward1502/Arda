@@ -113,3 +113,48 @@ impl Message {
 fn default_message_schema_version() -> String {
     MESSAGE_SCHEMA_VERSION.to_string()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn message_defaults_and_payload_round_trip() {
+        let msg = Message {
+            id: Uuid::new_v4(),
+            schema_version: default_message_schema_version(),
+            payload: MessagePayload::Event {
+                source: "tests".into(),
+                event_type: "check".into(),
+                payload: json!({"ok": true}),
+            },
+            meta: SoterionMeta::default(),
+            timestamp: Utc::now(),
+        };
+
+        let encoded = serde_json::to_string(&msg).expect("encode message");
+        let decoded: Message = serde_json::from_str(&encoded).expect("decode message");
+        assert_eq!(decoded.schema_version, MESSAGE_SCHEMA_VERSION);
+        assert_eq!(decoded.meta.sigil, None);
+        assert_eq!(decoded.meta.tags.len(), 0);
+        assert!(matches!(decoded.payload, MessagePayload::Event { .. }));
+    }
+
+    #[test]
+    fn message_defaults_are_emitted_and_survive_round_trip() {
+        let original = Message::event("t", "e", json!(null));
+
+        assert_eq!(original.schema_version, MESSAGE_SCHEMA_VERSION);
+        assert!(original.meta.tags.is_empty());
+        assert!(original.meta.extra.is_empty());
+
+        let encoded = serde_json::to_string(&original).expect("encode message");
+        let decoded: Message = serde_json::from_str(&encoded).expect("decode message");
+
+        assert_eq!(decoded.schema_version, MESSAGE_SCHEMA_VERSION);
+        assert!(decoded.meta.tags.is_empty());
+        assert!(decoded.meta.extra.is_empty());
+        assert!(matches!(decoded.payload, MessagePayload::Event { .. }));
+    }
+}

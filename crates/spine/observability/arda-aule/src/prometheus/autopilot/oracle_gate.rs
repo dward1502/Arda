@@ -7,7 +7,7 @@
 use super::decomposer::{Objective, PlannedTask, Priority};
 use super::governance_policy::{TriadGateScore, TriadQuorumEvidence};
 use arda_governance::{interpret_alignment, AlignmentSignals, LoveDynamicsTrend};
-use arda_mandos::{GateResult, OracleEngine, OracleQuery, Verdict, VerdictOutcome};use chrono::Utc;
+use arda_mandos::{GateResult, OracleEngine, OracleQuery, Verdict, VerdictOutcome};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -88,14 +88,24 @@ impl OracleGate {
             ));
         }
 
-        let query = OracleQuery {
-            id: format!("autopilot::{}", objective.id),
-            task: task_summary,
-            context,
-            requester: "ceo_autopilot".into(),
-            timestamp: Utc::now(),
+        let mut query = OracleQuery::new(
+            format!("autopilot::{}", objective.id),
+            task_summary,
+            "ceo_autopilot",
+        );
+        query.context = context;
+        let verdict = match engine.evaluate(query) {
+            Ok(verdict) => verdict,
+            Err(error) => {
+                return (
+                    GateDecision::Rejected {
+                        resonance: 0.0,
+                        concerns: vec![format!("Oracle query rejected: {error}")],
+                    },
+                    None,
+                );
+            }
         };
-        let verdict = engine.evaluate(query);
         let evidence =
             quorum_evidence_from_verdict(&verdict, required_quorum_ratio, required_pass_rate);
         (decision_from_verdict(verdict), Some(evidence))
@@ -136,7 +146,7 @@ fn quorum_evidence_from_verdict(
     TriadQuorumEvidence {
         source: "oracle_gate".into(),
         query_id: verdict.query_id.clone(),
-        outcome: outcome_label(&verdict.outcome).into(),
+        outcome: verdict.outcome.as_str().into(),
         resonance: verdict.resonance_score,
         passed_gates,
         total_gates,
@@ -162,7 +172,7 @@ fn love_trend_from_verdict(verdict: &Verdict) -> LoveDynamicsTrend {
     match verdict.outcome {
         VerdictOutcome::Pass => LoveDynamicsTrend::Growing,
         VerdictOutcome::Conditional => LoveDynamicsTrend::Stable,
-        VerdictOutcome::Fail => LoveDynamicsTrend::Decaying,
+        VerdictOutcome::Fail | VerdictOutcome::Escalate => LoveDynamicsTrend::Decaying,
     }
 }
 
@@ -171,14 +181,6 @@ fn gate_score(name: &str, result: &GateResult) -> TriadGateScore {
         gate: name.into(),
         passed: result.passed,
         score: result.score,
-    }
-}
-
-fn outcome_label(outcome: &VerdictOutcome) -> &'static str {
-    match outcome {
-        VerdictOutcome::Pass => "pass",
-        VerdictOutcome::Conditional => "conditional",
-        VerdictOutcome::Fail => "fail",
     }
 }
 
@@ -197,7 +199,7 @@ fn decision_from_verdict(v: Verdict) -> GateDecision {
             resonance: v.resonance_score,
             concerns,
         },
-        VerdictOutcome::Fail => GateDecision::Rejected {
+        VerdictOutcome::Fail | VerdictOutcome::Escalate => GateDecision::Rejected {
             resonance: v.resonance_score,
             concerns,
         },

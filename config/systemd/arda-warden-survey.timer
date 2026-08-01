@@ -1,0 +1,12 @@
+[Unit]
+Description=Daily Warden repository survey
+
+[Timer]
+OnBootSec=10min
+OnUnitActiveSec=24h
+RandomizedDelaySec=20min
+Persistent=true
+Unit=arda-warden-survey.service
+
+[Install]
+WantedBy=timers.target

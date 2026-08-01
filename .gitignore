@@ -31,9 +31,15 @@ dist-ssr
 .temp
 .tmp
 
+# Python
+__pycache__/
+*.py[cod]
+
 # Logs
 logs
 *.log
+data/manwe/route_receipts.jsonl
+data/ceo/autopilot.state.json
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

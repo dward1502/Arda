@@ -16,7 +16,8 @@ path = "src/main.rs"
 
 [features]
 default = []
-adaptive = []
+adaptive = ["dep:arda-core", "dep:arda-governance", "dep:arda-economics", "dep:arda-vaire"]
+grpc = ["dep:arda-orome"]
 telemetry = ["arda-aule/telemetry"]
 
 [dependencies]
@@ -30,17 +31,19 @@ toml = { workspace = true }
 anyhow = { workspace = true }
 base64 = { workspace = true }
 fs2 = { workspace = true }
+futures = { workspace = true }
+tokio-stream = "0.1"
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 clap = { workspace = true }
 chrono = { workspace = true }
 thiserror = { workspace = true }
 tonic = { workspace = true, default-features = false, features = ["router", "tls-webpki-roots", "transport"] }
-arda-orome = { workspace = true }
-arda-core = { workspace = true }
-arda-governance = { workspace = true }
-arda-economics = { workspace = true }
-arda-vaire = { workspace = true }
+arda-orome = { workspace = true, optional = true }
+arda-core = { workspace = true, optional = true }
+arda-governance = { workspace = true, optional = true }
+arda-economics = { workspace = true, optional = true }
+arda-vaire = { workspace = true, optional = true }
 arda-aule = { workspace = true, optional = true }
 
 [build-dependencies]
@@ -52,3 +55,4 @@ version = "0.8"
 
 [dev-dependencies]
 tempfile = "3"
+tokio-stream = { version = "0.1", features = ["net"] }

@@ -10,11 +10,13 @@ soterion:
 
 > 🧬 arda-engine: 🧬 supervision_spine | owner: arda | status: active | reviewed: 2026-07-17
 
-# Breakdown: crates/engine
+# Breakdown: `crates/engine`
 
 ## Purpose (one sentence)
 
-`arda-engine` is the single dependency surface the `arda` daemon uses to reach system services. It owns process supervision, declares services from data (`services.toml`), exposes a harness HTTP control surface, and re-exports spine types so callers import from `arda_engine` instead of reaching into vendored crates directly.
+`arda-engine` is the single library boundary through which the root `arda`
+daemon resolves and supervises services, exposes its local harness, and reaches
+the supported provider/governance spine.
 
 ## Why it exists
 
@@ -28,29 +30,39 @@ The daemon previously had service spawning and discovery hardcoded in `main.rs`.
 | Declarative service discovery | `registry.rs` | Loads `services.toml`, resolves executables relative to repo root, supports required/optional and `--no-ui` filtering |
 | Harness HTTP surface | `harness.rs` | Axum app on `127.0.0.1:7878`; routes `/health`, `/v1/status`, `/v1/models`, `/v1/harness` |
 | `/v1/models` proxy to manwe | `harness.rs` | Proxies to `manwe` gateway on `:7171` so callers use one tap-in port |
-| Spine re-exports | `lib.rs`, `manwe.rs` | Re-exports `manwe` and `arda-core::service_registry` |
-| Daemon boot entrypoint | `lib.rs::boot()` | Placeholder today; real wiring lands here |
+| Spine re-exports | `lib.rs`, `manwe.rs` | Re-exports `manwe`, `arda-core::service_registry`, `arda-core::loop_observability`, and `observability` |
+| Daemon startup integration | root `src/main.rs` | Loads/resolves the real registry before `--once`; engine exposes no no-op boot hook |
 
 ## Crate layout
 
 ```
 crates/engine
 ├── Cargo.toml
+├── BREAKDOWN.md
 ├── INDEX.md
+├── OWNERSHIP.md
+├── README.md
+├── STATUS.md
 └── src
     ├── lib.rs
     ├── manwe.rs
     ├── harness.rs
+    ├── observability.rs
+    ├── orome.rs
     ├── supervisor.rs
     └── registry.rs
+└── tests
+    └── orome_smoke.rs
 ```
 
 ## Crate dependencies
 
 ```
 arda-engine
-├── arda-core     workspace  // service_registry types/constructs
-├── manwe         workspace  // inference gateway transport + re-exports
+├── arda-core       workspace  // service registry and loop observability
+├── arda-governance workspace  // aggregate governance status
+├── arda-orome      workspace  // provider runtime and dispatch smoke
+├── manwe           workspace  // inference gateway transport + re-exports
 ├── tokio         workspace  // async runtime + process + task
 ├── tracing       workspace  // logging
 ├── anyhow        workspace  // error handling
@@ -61,16 +73,28 @@ arda-engine
 └── reqwest       workspace  // outbound proxy to manwe /v1/models
 ```
 
-## Connection to manwe (`crates/spine/runtime/manwe`)
+## Supported source classification
+
+| Classification | Count | Paths |
+|---|---:|---|
+| Production/default | 7 | `src/lib.rs`, `harness.rs`, `manwe.rs`, `observability.rs`, `orome.rs`, `registry.rs`, `supervisor.rs` |
+| Production/feature-gated | 0 | No features are declared |
+| Generated include | 0 | None |
+| Standalone test-only source | 0 | Unit tests are inline |
+| Integration test | 1 | `tests/orome_smoke.rs` |
+| Build script | 0 | None |
+| Unwired | 0 | None |
+
+Every source file is reached through the default library graph or Cargo's
+integration-test discovery. No module-root collisions exist.
+
+## Connection to Manwe
 
 ### Compile-time
 
 - `arda-engine/Cargo.toml` depends on `manwe = { workspace = true }`
-- `src/manwe.rs` re-exports the full `manwe` crate publicly:
-  - `SpannedManweGateway`, `ProviderRecord`, `ProviderCatalog`
-  - `Transport`, `ApiTransport`, `CharonTransport`
-  - `ManweCore`, `ManweGovernance`, `ManweMnemosyne`, `CharonPlutus`
-  - optional `CharonService` when `manwe` is built with `adaptive` feature
+- `src/manwe.rs` re-exports the full `manwe` crate publicly so callers import
+  from `arda_engine::manwe`.
 
 ### Runtime
 
@@ -82,16 +106,22 @@ arda-engine
 
 A daemon/tool using `arda_engine` can:
 
-1. Call `arda_engine::boot()`
-2. Load services via `Registry::load(path)` and `registry::resolve(root, no_ui)`
-3. Supervise them via `Supervisor::new(services, shutdown)` + `.run()`
-4. Start the tap-in port via `harness::serve(addr, state, shutdown)`
-5. Use `arda_engine::manwe::{...}` and `arda_engine::service_registry` without depending on both crates individually
+1. Load services via `Registry::load(path)` and `Registry::resolve(root, no_ui)`.
+2. Reject required-service resolution errors.
+3. For smoke mode, exit only after that validation.
+4. Otherwise supervise through `Supervisor::new(services, shutdown).run()`.
+5. Start the tap-in port through `harness::serve(addr, state, shutdown)`.
+6. Use the supported re-exports without adding parallel direct dependencies.
 
 ## Verification status
 
-- `cargo check -p arda-engine`: successful
-- `cargo test -p arda-engine`: 1 passed (`supervisor::tests::supervises_and_reaps_child_on_shutdown`)
+- `cargo check -p arda-engine --all-targets --all-features`: passed
+- `cargo test -p arda-engine --all-features`: 10 unit + 1 integration passed
+- strict all-target Clippy and strict rustdoc: passed
+- root `arda` all-target/all-feature consumer check: passed
 - Static links to `manwe` confirmed in source:
   - `crates/engine/src/manwe.rs`
   - `crates/engine/src/harness.rs`
+- GEN3 interop surface verified:
+  - `arda-core::loop_observability` re-exported
+  - `arda-core::learning_adapter` consumed through `arda_engine::observability::EngineObservabilityStatus`

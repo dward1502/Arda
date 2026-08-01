@@ -516,9 +516,9 @@ fn upsert_arda_source_map_projection(
         });
     }
 
-    let source_map_object = source_map.as_object_mut().ok_or_else(|| {
-        ArdaError::Task("ARDA source map root must be a JSON object".to_string())
-    })?;
+    let source_map_object = source_map
+        .as_object_mut()
+        .ok_or_else(|| ArdaError::Task("ARDA source map root must be a JSON object".to_string()))?;
     source_map_object
         .entry("schema_version".to_string())
         .or_insert_with(|| serde_json::Value::String("arda.core.state.v1".to_string()));
@@ -528,9 +528,9 @@ fn upsert_arda_source_map_projection(
     if !sections_value.is_array() {
         *sections_value = serde_json::Value::Array(Vec::new());
     }
-    let sections = sections_value.as_array_mut().ok_or_else(|| {
-        ArdaError::Task("ARDA source map sections must be an array".to_string())
-    })?;
+    let sections = sections_value
+        .as_array_mut()
+        .ok_or_else(|| ArdaError::Task("ARDA source map sections must be an array".to_string()))?;
     sections.retain(|section| {
         section.get("id").and_then(|value| value.as_str()) != Some("hermes_arda_projection")
     });

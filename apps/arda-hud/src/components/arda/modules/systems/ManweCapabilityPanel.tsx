@@ -73,6 +73,8 @@ export default function CharonCapabilityPanel({ snapshot, error, loading, storag
     .slice(0, 6)
   const visibleCandidates = candidates.slice(0, 6)
   const liveState = error ? 'blocked' : loading && !snapshot ? 'loading' : snapshot ? 'observed' : 'unknown'
+  const offlineMode = !snapshot && !loading
+  const fallbackNote = offlineMode ? 'Live endpoint unreachable; showing local default until Charon/Hermes endpoints respond.' : ''
 
   return (
     <section className="systems-panel systems-panel--routing">
@@ -85,6 +87,11 @@ export default function CharonCapabilityPanel({ snapshot, error, loading, storag
           <span className="systems-kpi__label">Live Feed</span>
           <strong className="systems-kpi__value">{liveState}</strong>
           <span className="systems-kpi__note">{error || `updated ${formatTime(snapshot?.loadedAt)}`}</span>
+        </article>
+        <article className="systems-kpi systems-kpi--idle">
+          <span className="systems-kpi__label">Fallback</span>
+          <strong className="systems-kpi__value">{offlineMode ? 'local default' : 'none'}</strong>
+          <span className="systems-kpi__note">{fallbackNote || 'live route active'}</span>
         </article>
         <article className="systems-kpi systems-kpi--accent">
           <span className="systems-kpi__label">Receipt Models</span>

@@ -1,0 +1,19 @@
+[Unit]
+Description=Arda Manwe Adaptive Inference Router
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/var/home/mythos/Eregion/Arda
+Environment=RUST_LOG=info
+Environment=ARDA_ROOT=/var/home/mythos/Eregion/Arda
+Environment=ARDA_MANWE_PROVIDER_CONFIG=/var/home/mythos/Eregion/Arda/config/manwe.providers.toml
+Environment=ARDA_MANWE_TOOL_EXECUTION_MIN_CONTEXT=28000
+Environment=ARDA_MANWE_LOCAL_TOOL_CONTEXT_HEADROOM=4096
+ExecStart=/var/home/mythos/.local/bin/manwe --adaptive --bind 0.0.0.0 --port 5110
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target

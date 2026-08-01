@@ -1,8 +1,8 @@
 #![cfg(feature = "full-cli")]
 // sigil: REPAIR
-use crate::service::PrometheusService;
-use annunimas_core::error::{AnnunimasError, Result};
-use annunimas_core::try_run_bounded_async;
+use crate::prometheus::service::PrometheusService;
+use arda_core::error::{ArdaError, Result};
+use arda_core::try_run_bounded_async;
 use axum::extract::{Query, Request, State};
 use axum::http::StatusCode;
 use axum::middleware::{self, Next};
@@ -67,17 +67,16 @@ struct DriftDetectRequest {
 pub async fn run_http_server(service: PrometheusService, addr: &str) -> Result<()> {
     let app = build_router(service);
 
-    let listener =
-        tokio::net::TcpListener::bind(addr)
-            .await
-            .map_err(|e| AnnunimasError::Agent {
-                agent: "prometheus".to_string(),
-                message: format!("failed to bind HTTP listener on {addr}: {e}"),
-            })?;
+    let listener = tokio::net::TcpListener::bind(addr)
+        .await
+        .map_err(|e| ArdaError::Agent {
+            agent: "prometheus".to_string(),
+            message: format!("failed to bind HTTP listener on {addr}: {e}"),
+        })?;
 
     axum::serve(listener, app)
         .await
-        .map_err(|e| AnnunimasError::Agent {
+        .map_err(|e| ArdaError::Agent {
             agent: "prometheus".to_string(),
             message: format!("HTTP server failed: {e}"),
         })?;
@@ -131,7 +130,7 @@ async fn http_admission_gate(req: Request, next: Next) -> Response {
 }
 
 fn http_request_limit() -> usize {
-    std::env::var("ANNUNIMAS_PROMETHEUS_HTTP_MAX_CONCURRENCY")
+    std::env::var("ARDA_PROMETHEUS_HTTP_MAX_CONCURRENCY")
         .ok()
         .and_then(|raw| raw.parse::<usize>().ok())
         .filter(|value| *value > 0)
@@ -346,8 +345,8 @@ fn build_event_payload(service: &PrometheusService) -> Result<Value> {
 #[cfg(test)]
 mod tests {
     use super::{build_event_payload, build_router, http_request_limit, json_result};
-    use crate::PrometheusService;
-    use annunimas_core::error::AnnunimasError;
+    use crate::prometheus::PrometheusService;
+    use arda_core::error::ArdaError;
     use axum::body::{to_bytes, Body};
     use axum::http::{Request, StatusCode};
     use serde_json::Value;
@@ -375,13 +374,13 @@ mod tests {
         )
         .expect("boot write");
         fs::write(
-            core_root.join("realm/annunimas.toml"),
-            "[identity]\nname = \"Annunimas\"\nsigil = \"𓀀\"\n[[realms.definition]]\nid = \"command\"\ncolor = \"#fff\"\n",
+            core_root.join("realm/arda.toml"),
+            "[identity]\nname = \"Arda\"\nsigil = \"ANKH\"\n[[realms.definition]]\nid = \"command\"\ncolor = \"#fff\"\n",
         )
         .expect("identity write");
         fs::write(
             core_root.join("realm/agents.toml"),
-            "[[agent]]\nid = \"arandur\"\nsigil = \"𓀀\"\nname = \"Arandur\"\nrealm = \"command\"\nclearance = \"sovereign\"\n",
+            "[[agent]]\nid = \"arandur\"\nsigil = \"ANKH\"\nname = \"Arandur\"\nrealm = \"command\"\nclearance = \"sovereign\"\n",
         )
         .expect("agents write");
         fs::write(
@@ -438,25 +437,25 @@ mod tests {
     fn http_request_limit_uses_env_when_valid_and_falls_back_otherwise() {
         let _guard = ENV_LOCK.lock().expect("env lock");
 
-        std::env::remove_var("ANNUNIMAS_PROMETHEUS_HTTP_MAX_CONCURRENCY");
+        std::env::remove_var("ARDA_PROMETHEUS_HTTP_MAX_CONCURRENCY");
         assert_eq!(http_request_limit(), 24);
 
-        std::env::set_var("ANNUNIMAS_PROMETHEUS_HTTP_MAX_CONCURRENCY", "48");
+        std::env::set_var("ARDA_PROMETHEUS_HTTP_MAX_CONCURRENCY", "48");
         assert_eq!(http_request_limit(), 48);
 
-        std::env::set_var("ANNUNIMAS_PROMETHEUS_HTTP_MAX_CONCURRENCY", "0");
+        std::env::set_var("ARDA_PROMETHEUS_HTTP_MAX_CONCURRENCY", "0");
         assert_eq!(http_request_limit(), 24);
 
-        std::env::set_var("ANNUNIMAS_PROMETHEUS_HTTP_MAX_CONCURRENCY", "invalid");
+        std::env::set_var("ARDA_PROMETHEUS_HTTP_MAX_CONCURRENCY", "invalid");
         assert_eq!(http_request_limit(), 24);
 
-        std::env::remove_var("ANNUNIMAS_PROMETHEUS_HTTP_MAX_CONCURRENCY");
+        std::env::remove_var("ARDA_PROMETHEUS_HTTP_MAX_CONCURRENCY");
     }
 
     #[test]
     fn json_result_wraps_agent_errors_as_ok_false_payloads() {
         let payload = json_result(|| {
-            Err(AnnunimasError::Agent {
+            Err(ArdaError::Agent {
                 agent: "prometheus".to_string(),
                 message: "synthetic failure".to_string(),
             })
@@ -498,6 +497,10 @@ mod tests {
         assert_eq!(
             reroute_json["result"]["intents"][0]["target_task_id"],
             "task_alpha"
+        );
+        assert_eq!(
+            reroute_json["result"]["intents"][0]["routing_authority"],
+            "manwe"
         );
 
         let intents_response = app

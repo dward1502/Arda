@@ -50,7 +50,7 @@ pub enum CharonError {
 impl From<CharonError> for ArdaError {
     fn from(err: CharonError) -> Self {
         ArdaError::Agent {
-            agent: "charon".to_string(),
+            agent: "manwe".to_string(),
             message: err.to_string(),
         }
     }

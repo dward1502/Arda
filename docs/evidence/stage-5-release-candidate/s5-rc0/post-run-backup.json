@@ -1,0 +1,9 @@
+{
+  "archive": "/tmp/arda-stage5-rc0/post-run.tar.gz",
+  "contract": "arda.private_beta_ops.v1",
+  "excluded_secret_count": 1,
+  "file_count": 4,
+  "includes_secrets": false,
+  "operation": "backup",
+  "status": "ok"
+}

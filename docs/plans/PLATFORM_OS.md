@@ -6,20 +6,30 @@ soterion:
   role: "documentation"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-06-21"
+  last_reviewed: "2026-07-21"
+crate: platform-os
+owner: prometheus
+status: in_progress
+reviewed: "2026-06-21"
 ---
 
-> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-06-21
+> Arda Platform OS: 📜 local agent control plane / appliance roadmap | owner: prometheus | status: in_progress | reviewed: 2026-06-21
 
-# Platform OS Plan Review
+# Platform OS Plan Narrative
+
+`PLATFORM_OS` is the current Arda local agent control-plane planning surface.
+Historic narration is preserved at
+`docs/plans/PLATFORM_OS.md`. This document merges
+the prior operator narrative with the current Arda surface names so old detail is
+retained without stale crate assumptions.
 
 Status: in_progress; core freeze identified, not fully enforced
 Owner: prometheus
-Core quick reference: `core/projects/Plans/PLATFORM_OS.md`
+Operator plan: `docs/plans/PLATFORM_OS.md`
 Primary queue surface: `core/state/queue_active.json`
 Queue summary surface: `core/state/queue_summary.json`
 Runtime settings projection: `core/state/runtime_settings.json`
-Task ledger: `core/projects/tasks/queue.jsonl`
+Task ledger: `core/state/queue.jsonl`
 
 ## Purpose
 
@@ -27,7 +37,7 @@ The Platform OS plan shapes Annunimas into an auditable local agent control plan
 
 ## Current Review Summary
 
-The core Platform OS plan is present and active at `core/projects/Plans/PLATFORM_OS.md`. It defines a staged migration path: freeze the OS core surface, separate tenant/staged crates, extract private consumer applications, and later prove a bootable Bluefin appliance with first-boot health checks.
+The core Platform OS plan is present and active at `docs/plans/PLATFORM_OS.md`. It defines a staged migration path: freeze the OS core surface, separate tenant/staged crates, extract private consumer applications, and later prove a bootable Bluefin appliance with first-boot health checks.
 
 Current evidence shows the 18-crate core surface has been identified, but enforcement remains in progress. `docs/plans/platform-os-core-manifest-audit.md` reports the workspace still has 26 members, including 8 non-core/staged/private members. `docs/plans/platform-os-schema-freeze-audit.md` reports queue/federation/runtime projection contracts are frozen at evidence level, with open follow-up gaps for standalone JSON Schema files and top-level mutation policy consistency on some projections.
 
@@ -59,7 +69,7 @@ The current planned OS core surface is:
 - `arda-governance`
 - `arda-plutus`
 - `arda-athena`
-- `arda-mnemosyne`
+- `arda-vaire`
 
 ## Current Workspace Drift
 
@@ -80,7 +90,7 @@ This is acceptable for the current plan-review closeout because the review packe
 
 | Surface | Review result |
 | --- | --- |
-| `core/projects/Plans/PLATFORM_OS.md` | Exists; active plan; defines stages S1-S4 and the 18-crate OS core set. |
+| `docs/plans/PLATFORM_OS.md` | Exists; active plan; defines stages S1-S4 and the 18-crate OS core set. |
 | `Cargo.toml` | Exists; workspace still has 26 members, including all 18 planned core crates plus 8 non-core/staged/private members. |
 | `docs/plans/platform-os-core-manifest-audit.md` | Exists; identifies exact core surface and records workspace mismatch as follow-on enforcement work. |
 | `docs/plans/platform-os-schema-freeze-audit.md` | Exists; records queue/federation/runtime projection ABI freeze evidence and open schema hardening gaps. |
@@ -108,6 +118,9 @@ Platform OS work remains subject to:
 - append-only queue integrity before and after same-id task closeout;
 - operator approval for destructive migration, external publication, or production-impacting changes.
 
-## Closeout Criteria
+## References
 
-The Platform OS plan review packet can be closed when this human narrative exists, the core quick reference exists, current workspace/schema-freeze evidence has been inspected, and the append-only queue guard passes before the same-id terminal record is appended. Follow-on implementation remains open under the already queued S1/S2/S3 Platform OS task records.
+- Crate/surface: `docs/plans/PLATFORM_OS.md`
+- Operator plan: `docs/plans/PLATFORM_OS.md`
+- Runtime projections: `core/state/queue_active.json`, `core/state/queue_summary.json`, `core/state/runtime_settings.json`
+- Audits: `docs/plans/platform-os-core-manifest-audit.md`, `docs/plans/platform-os-schema-freeze-audit.md`

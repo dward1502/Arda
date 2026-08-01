@@ -1,0 +1,14 @@
+{
+  "name": "@arda/project-adapter-sdk",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Bounded framing helpers for arda.project-adapter.v1",
+  "exports": "./src/index.js",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

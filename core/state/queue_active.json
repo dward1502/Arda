@@ -1,17 +1,138 @@
 {
-  "active_task_count": 0,
+  "active_task_count": 10,
   "agent_reading_policy": {
     "default_surface": "core/state/queue_active.json",
     "fallback_surface": "core/state/queue_summary.json",
     "hygiene_surface": "core/state/queue_hygiene.json",
-    "raw_queue_policy": "Do not read core/projects/tasks/queue.jsonl for task discovery. Use this compact active projection first; open the raw queue only for exact id evidence or appending a task record."
+    "raw_queue_policy": "Do not read the raw queue for task discovery. Use this compact active projection first; open the raw queue only for exact id evidence or appending a task record."
   },
   "authority": "queue_active_projection",
-  "generated_at_utc": "2026-07-03T05:39:33Z",
-  "latest_task_ids_total": 175,
+  "generated_at_utc": "2026-07-31T07:11:54.423838820+00:00",
+  "latest_task_ids_total": 185,
   "mutation_policy": "read_only_latest_by_id_projection_no_queue_compaction",
-  "raw_ledger_rows_total": 336,
+  "raw_ledger_rows_total": 346,
   "schema_version": "annunimas.queue_active.v1",
   "source": "core/projects/tasks/queue.jsonl",
-  "tasks": []
+  "tasks": [
+    {
+      "completed_at_utc": null,
+      "id": "tsk_policy_4ba11e3136e1",
+      "origin": "athena_policy_gate",
+      "owner": "athena",
+      "priority": "high",
+      "queued_at_utc": "2026-03-09T21:24:28.659746919+00:00",
+      "result": null,
+      "scope": null,
+      "status": "queued",
+      "title": "Improve confidence evidence for src_23dcfccf"
+    },
+    {
+      "completed_at_utc": null,
+      "id": "tsk_policy_fdd090b1bd2d",
+      "origin": "athena_policy_gate",
+      "owner": "athena",
+      "priority": "high",
+      "queued_at_utc": "2026-03-09T21:24:28.659818850+00:00",
+      "result": null,
+      "scope": null,
+      "status": "queued",
+      "title": "Add opposing viewpoints for src_23dcfccf"
+    },
+    {
+      "completed_at_utc": null,
+      "id": "tsk_policy_4cb7a3ecb538",
+      "origin": "athena_evidence_planner",
+      "owner": "prometheus",
+      "priority": "high",
+      "queued_at_utc": "2026-05-30T18:08:02.056081367+00:00",
+      "result": null,
+      "scope": "task_generation",
+      "status": "queued",
+      "title": "ATHENA evidence plan for src_ea7a1c0f: context-engineering workflow"
+    },
+    {
+      "completed_at_utc": null,
+      "id": "tsk_policy_95b32e5b6148",
+      "origin": "athena_evidence_planner",
+      "owner": "mnemosyne",
+      "priority": "high",
+      "queued_at_utc": "2026-05-30T18:08:02.056081367+00:00",
+      "result": null,
+      "scope": "task_generation",
+      "status": "queued",
+      "title": "ATHENA evidence plan for src_ea7a1c0f: memory accumulation strategy"
+    },
+    {
+      "completed_at_utc": null,
+      "id": "tsk_policy_a7d8f4de0fbc",
+      "origin": "athena_evidence_planner",
+      "owner": "charon",
+      "priority": "high",
+      "queued_at_utc": "2026-05-30T18:08:02.056081367+00:00",
+      "result": null,
+      "scope": "task_generation",
+      "status": "queued",
+      "title": "ATHENA evidence plan for src_ea7a1c0f: workload-specialized routing"
+    },
+    {
+      "completed_at_utc": null,
+      "id": "tsk_policy_5fd487231789",
+      "origin": "athena_evidence_planner",
+      "owner": "warden",
+      "priority": "high",
+      "queued_at_utc": "2026-05-30T18:08:02.056081367+00:00",
+      "result": null,
+      "scope": "task_generation",
+      "status": "queued",
+      "title": "ATHENA evidence plan for src_ea7a1c0f: harness and safety controls"
+    },
+    {
+      "completed_at_utc": null,
+      "id": "tsk_policy_c921f0b24e19",
+      "origin": "athena_policy_gate",
+      "owner": "prometheus",
+      "priority": "high",
+      "queued_at_utc": "2026-05-30T18:08:02.063706140+00:00",
+      "result": null,
+      "scope": null,
+      "status": "queued",
+      "title": "Raise triad readiness for src_ea7a1c0f"
+    },
+    {
+      "completed_at_utc": null,
+      "id": "tsk_policy_50b27747c219",
+      "origin": "athena_policy_gate",
+      "owner": "athena",
+      "priority": "high",
+      "queued_at_utc": "2026-05-30T18:08:02.064312168+00:00",
+      "result": null,
+      "scope": null,
+      "status": "queued",
+      "title": "Improve confidence evidence for src_ea7a1c0f"
+    },
+    {
+      "completed_at_utc": null,
+      "id": "tsk_policy_0c1511418dc3",
+      "origin": "athena_policy_gate",
+      "owner": "athena",
+      "priority": "high",
+      "queued_at_utc": "2026-05-30T18:08:02.064924256+00:00",
+      "result": null,
+      "scope": null,
+      "status": "queued",
+      "title": "Add opposing viewpoints for src_ea7a1c0f"
+    },
+    {
+      "completed_at_utc": null,
+      "id": "tsk_policy_7dbb93878f97",
+      "origin": "athena_evidence_planner",
+      "owner": "apollo",
+      "priority": "medium",
+      "queued_at_utc": "2026-05-30T18:08:02.056081367+00:00",
+      "result": null,
+      "scope": "task_generation",
+      "status": "queued",
+      "title": "ATHENA evidence plan for src_ea7a1c0f: lazy tool discovery"
+    }
+  ]
 }

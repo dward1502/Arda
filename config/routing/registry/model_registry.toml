@@ -6,7 +6,7 @@
 schema_version = "arda.model.registry.v1"
 authority = "manwe_model_lifecycle"
 status = "draft"
-last_reviewed = "2026-05-30"
+last_reviewed = "2026-07-27"
 source_audit_json = "core/state/model_freshness_audit.json"
 source_audit_markdown = "data/manwe/model_freshness_audit.md"
 
@@ -23,7 +23,7 @@ purpose = "Boardroom strategy, critique, and multi-agent deliberation."
 selection = "auto_via_manwe"
 preferred_provider_classes = ["edge", "subscription", "cloud"]
 required_capabilities = ["reasoning", "long_context", "instruction_following"]
-current_provider_ids = ["edge_backbone_coder", "openai_sub", "opencode", "openrouter"]
+current_provider_ids = ["edge_backbone_long", "openai_sub", "openrouter"]
 replacement_policy = "Prefer high-quality reasoning models with benchmark receipts; keep council seats logical, not fixed to model personas."
 rollback_target = "openai_sub/gpt-5.5"
 
@@ -33,7 +33,7 @@ purpose = "ATHENA/Scout research, source summarization, and broad catalog discov
 selection = "auto_via_manwe"
 preferred_provider_classes = ["edge", "free_cloud", "mixed_cloud"]
 required_capabilities = ["research", "summary", "long_context", "low_cost"]
-current_provider_ids = ["edge_backbone_coder", "edge_core", "opencode", "openrouter", "nvidia"]
+current_provider_ids = ["edge_backbone_long", "edge_core", "openrouter", "nvidia"]
 replacement_policy = "Prefer long-context low-cost models; cloud candidates remain routing candidates unless privacy policy permits source text egress."
 rollback_target = "edge_core/Qwen_Qwen3.5-4B-Q6_K"
 
@@ -94,23 +94,6 @@ serving_endpoint = "http://100.78.138.113:9337/v1"
 lanes = ["scout_research", "monitoring_warden", "local_fallback"]
 freshness_notes = ["older_qwen_generation_present"]
 
-[[live_model]]
-provider_id = "edge_backbone"
-model_id = "Qwen3.6-35B-A3B-UD-Q4_K_XL"
-status = "disabled_superseded"
-source_config = "config/manwe.providers.toml"
-serving_endpoint = "http://100.102.250.115:8080/v1"
-lanes = ["council"]
-freshness_notes = ["stopped_and_disabled_2026_06_06_to_free_vram_for_qwen3_coder", "retain_as_manual_rollback_only"]
-
-[[live_model]]
-provider_id = "edge_backbone_coder"
-model_id = "Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL"
-status = "active"
-source_config = "config/manwe.providers.toml"
-serving_endpoint = "http://100.102.250.115:8092/v1"
-lanes = ["scout_research", "code_forge_mind"]
-freshness_notes = ["promoted_2026_06_06_gpu_backed_64k_context", "primary_local_tool_code_lane", "old_qwen3_6_service_disabled_to_free_vram"]
 
 [[live_model]]
 provider_id = "edge_worker_light"
@@ -131,15 +114,22 @@ lanes = ["monitoring_warden"]
 freshness_notes = ["older_qwen_generation_present", "quantized_local_artifact_should_have_freshness_review"]
 
 [[live_model]]
-provider_id = "edge_backbone_bonsai27"
-model_id = "ternary-bonsai-27b-q2_0"
+provider_id = "edge_backbone_long"
+model_id = "bonsai-27b-q1_0"
 status = "active"
 source_config = "config/fleet.toml"
-serving_endpoint = "http://100.102.250.115:8095/v1"
-# Promoted 2026-07-19 to the default high-quality local route (see model_route_matrix.toml).
-# tools=false so it does NOT join the tool/code lane (edge_backbone_coder owns that).
+serving_endpoint = "http://100.102.250.115:8097/v1"
 lanes = ["council", "scout_research"]
-freshness_notes = ["added_2026_07_18", "annunimas_server_8095_serves_ternary_27b_q2_0_via_prism_fork_cuda", "tensor_split_0.05_0.95_across_2x_rtx2080s", "ctx_capped_8192_to_avoid_kv_oom", "model_emits_reasoning_trace_before_final_answer", "promoted_2026_07_19_default_high_quality_local_route"]
+freshness_notes = ["promoted_2026_07_27_after_isolated_and_concurrent_benchmarks", "gpu0_rtx2080_super", "fully_gpu_resident", "context_window_100000", "thinking_disabled", "code_proposals_require_nanbeige_or_test_verification"]
+
+[[live_model]]
+provider_id = "edge_backbone_coder"
+model_id = "nanbeige4.2-3b-q4_k_m"
+status = "active"
+source_config = "config/fleet.toml"
+serving_endpoint = "http://100.102.250.115:8098/v1"
+lanes = ["code_forge_mind"]
+freshness_notes = ["promoted_2026_07_27_after_isolated_and_concurrent_benchmarks", "gpu1_rtx2080_super", "fully_gpu_resident", "context_window_32768", "thinking_disabled", "primary_code_tool_lane"]
 
 [[removed_route]]
 provider_id = "openrouter"

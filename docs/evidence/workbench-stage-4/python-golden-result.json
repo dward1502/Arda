@@ -1,0 +1,280 @@
+{
+  "approval": {
+    "receipt": "receipt:golden-python-approval"
+  },
+  "cost_usd": 0.0,
+  "diff": "diff --git a/src/greeting.py b/src/greeting.py\nindex a09f784..4c10c0e 100644\n--- a/src/greeting.py\n+++ b/src/greeting.py\n@@ -1,2 +1,2 @@\n def greeting() -> str:\n-    return \"hello\"\n+    return \"hello, Arda\"\ndiff --git a/tests/test_greeting.py b/tests/test_greeting.py\nindex 00fc78a..a51df69 100644\n--- a/tests/test_greeting.py\n+++ b/tests/test_greeting.py\n@@ -9,7 +9,7 @@ from greeting import greeting\n \n class GreetingTest(unittest.TestCase):\n     def test_declared_greeting(self) -> None:\n-        self.assertEqual(greeting(), \"hello\")\n+        self.assertEqual(greeting(), \"hello, Arda\")\n \n \n if __name__ == \"__main__\":\n",
+  "evidence": {
+    "files": [
+      "src/greeting.py",
+      "tests/test_greeting.py"
+    ],
+    "observable_count": 1,
+    "source_digest": "sha256:719779bb4d3b23080bde9b6aff3005f8fffa33080e769da7f676477d3a62100d"
+  },
+  "graph": {
+    "edges": [
+      {
+        "from": "inspect",
+        "id": "inspect-to-plan",
+        "parent_receipt": "receipt:inspect",
+        "to": "plan"
+      },
+      {
+        "from": "plan",
+        "id": "plan-to-approval",
+        "parent_receipt": "receipt:plan",
+        "to": "approval"
+      },
+      {
+        "from": "approval",
+        "id": "approval-to-execute",
+        "parent_receipt": "receipt:approval",
+        "to": "execute"
+      },
+      {
+        "from": "execute",
+        "id": "execute-to-verify",
+        "parent_receipt": "receipt:execute",
+        "to": "verify"
+      },
+      {
+        "from": "verify",
+        "id": "verify-to-review",
+        "parent_receipt": "receipt:verify",
+        "to": "review"
+      },
+      {
+        "from": "review",
+        "id": "review-to-close",
+        "parent_receipt": "receipt:review",
+        "to": "close"
+      }
+    ],
+    "nodes": [
+      {
+        "authority": "read_only",
+        "budget": {
+          "max_cost_usd": 0.0,
+          "max_joules": 1000.0
+        },
+        "checkpoint": {
+          "checkpoint_digest": null,
+          "recovery_token": null,
+          "sequence": 0
+        },
+        "id": "inspect",
+        "idempotency_key": "golden-python-run:inspect",
+        "input_digest": "sha256:inspect-input",
+        "kind": "inspect",
+        "output_digest": null,
+        "parent_receipts": [],
+        "retry": {
+          "max_attempts": 2
+        },
+        "state": "succeeded",
+        "timeout_ms": 20000
+      },
+      {
+        "authority": "read_only",
+        "budget": {
+          "max_cost_usd": 0.0,
+          "max_joules": 1000.0
+        },
+        "checkpoint": {
+          "checkpoint_digest": null,
+          "recovery_token": null,
+          "sequence": 0
+        },
+        "id": "plan",
+        "idempotency_key": "golden-python-run:plan",
+        "input_digest": "sha256:plan-input",
+        "kind": "plan",
+        "output_digest": null,
+        "parent_receipts": [
+          "receipt:inspect"
+        ],
+        "retry": {
+          "max_attempts": 2
+        },
+        "state": "succeeded",
+        "timeout_ms": 20000
+      },
+      {
+        "authority": "human_approval",
+        "budget": {
+          "max_cost_usd": 0.0,
+          "max_joules": 1000.0
+        },
+        "checkpoint": {
+          "checkpoint_digest": null,
+          "recovery_token": null,
+          "sequence": 0
+        },
+        "id": "approval",
+        "idempotency_key": "golden-python-run:approval",
+        "input_digest": "sha256:approval-input",
+        "kind": "approval",
+        "output_digest": null,
+        "parent_receipts": [
+          "receipt:plan"
+        ],
+        "retry": {
+          "max_attempts": 2
+        },
+        "state": "succeeded",
+        "timeout_ms": 20000
+      },
+      {
+        "authority": "execute_with_approval",
+        "budget": {
+          "max_cost_usd": 0.0,
+          "max_joules": 1000.0
+        },
+        "checkpoint": {
+          "checkpoint_digest": null,
+          "recovery_token": null,
+          "sequence": 0
+        },
+        "id": "execute",
+        "idempotency_key": "golden-python-run:execute",
+        "input_digest": "sha256:execute-input",
+        "kind": "execute",
+        "output_digest": null,
+        "parent_receipts": [
+          "receipt:approval"
+        ],
+        "retry": {
+          "max_attempts": 2
+        },
+        "state": "succeeded",
+        "timeout_ms": 20000
+      },
+      {
+        "authority": "verify",
+        "budget": {
+          "max_cost_usd": 0.0,
+          "max_joules": 1000.0
+        },
+        "checkpoint": {
+          "checkpoint_digest": null,
+          "recovery_token": null,
+          "sequence": 0
+        },
+        "id": "verify",
+        "idempotency_key": "golden-python-run:verify",
+        "input_digest": "sha256:verify-input",
+        "kind": "verify",
+        "output_digest": null,
+        "parent_receipts": [
+          "receipt:execute"
+        ],
+        "retry": {
+          "max_attempts": 2
+        },
+        "state": "succeeded",
+        "timeout_ms": 20000
+      },
+      {
+        "authority": "verify",
+        "budget": {
+          "max_cost_usd": 0.0,
+          "max_joules": 1000.0
+        },
+        "checkpoint": {
+          "checkpoint_digest": null,
+          "recovery_token": null,
+          "sequence": 0
+        },
+        "id": "review",
+        "idempotency_key": "golden-python-run:review",
+        "input_digest": "sha256:review-input",
+        "kind": "review",
+        "output_digest": null,
+        "parent_receipts": [
+          "receipt:verify"
+        ],
+        "retry": {
+          "max_attempts": 2
+        },
+        "state": "succeeded",
+        "timeout_ms": 20000
+      },
+      {
+        "authority": "read_only",
+        "budget": {
+          "max_cost_usd": 0.0,
+          "max_joules": 1000.0
+        },
+        "checkpoint": {
+          "checkpoint_digest": null,
+          "recovery_token": null,
+          "sequence": 0
+        },
+        "id": "close",
+        "idempotency_key": "golden-python-run:close",
+        "input_digest": "sha256:close-input",
+        "kind": "close",
+        "output_digest": null,
+        "parent_receipts": [
+          "receipt:review"
+        ],
+        "retry": {
+          "max_attempts": 2
+        },
+        "state": "succeeded",
+        "timeout_ms": 20000
+      }
+    ],
+    "objective_id": "objective-golden-python",
+    "provenance": {
+      "created_by": "stage-4-python-golden-test",
+      "parent_receipts": [],
+      "project_contract_digest": "sha256:e2b4768f7bc86d47f2b3be3fc602856e6649f7b3e07a5f76f8e2fab56aa90961"
+    },
+    "run_id": "golden-python-run",
+    "schema_version": "arda.run-graph.v1"
+  },
+  "memory": {
+    "scope": "project",
+    "summary": "Python greeting mutation verified and closed."
+  },
+  "metrics": {
+    "failures": [
+      {
+        "error": "golden mutation arguments did not match the approved plan"
+      }
+    ],
+    "install_to_result_ms": 312,
+    "interventions": 1,
+    "observable_mutation_count": 1,
+    "recovery_behavior": "invalid approved arguments failed before mutation; corrected request resumed with recovery token"
+  },
+  "model_route": {
+    "adapter": "python-reference",
+    "model": null,
+    "provider": null
+  },
+  "project": {
+    "clean_before_attach": true,
+    "contract_digest": "sha256:e2b4768f7bc86d47f2b3be3fc602856e6649f7b3e07a5f76f8e2fab56aa90961",
+    "kind": "python",
+    "outside_cargo_workspace": true
+  },
+  "run_id": "golden-python-run",
+  "schema_version": "arda.workbench-golden-result.v1",
+  "tests": [
+    {
+      "command": "python3 -m unittest discover -s tests -v",
+      "exit_code": 0,
+      "output_digest": "sha256:98ec068307ff95ec1d53e9f189d9fd78c766b1193546f483628323584213798f"
+    }
+  ],
+  "tools": [
+    {
+      "adapter": "arda-python-golden",
+      "operation": "mutate_and_test",
+      "request_digest": "sha256:ce84bab5ea298feb75e5b611d17936bd85f118a237c3563379d14a3f8f6abd35"
+    }
+  ]
+}

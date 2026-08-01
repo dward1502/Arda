@@ -9,7 +9,10 @@
 use arda_core::{Task, TaskStatus};
 use serde::{Deserialize, Serialize};
 
-use crate::{JouleWorkProfile, LoveDynamicsScore, LoveDynamicsTrend, ResonanceComponents};
+use crate::{
+    assess_empirical_distrust, assess_nonconformist_bee, JouleWorkProfile, LoveDynamicsScore,
+    LoveDynamicsTrend, PhilosopherLifecycleReceipt, ResonanceComponents,
+};
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct AlignmentSignals {
@@ -36,6 +39,8 @@ pub struct TriadPhilosopherVerdict {
     pub action: PhilosopherAction,
     pub reason: String,
     pub alignment_score: f64,
+    #[serde(default)]
+    pub lifecycle: PhilosopherLifecycleReceipt,
 }
 
 pub fn interpret_alignment(signals: AlignmentSignals) -> TriadPhilosopherVerdict {
@@ -52,6 +57,7 @@ pub fn interpret_alignment(signals: AlignmentSignals) -> TriadPhilosopherVerdict
                 "low evidence and high sycophancy risk: cooperation may be obedience, not alignment"
                     .to_string(),
             alignment_score,
+            lifecycle: PhilosopherLifecycleReceipt::default(),
         };
     }
 
@@ -60,6 +66,7 @@ pub fn interpret_alignment(signals: AlignmentSignals) -> TriadPhilosopherVerdict
             action: PhilosopherAction::Reject,
             reason: "high defection pressure without sufficient evidence grounding".to_string(),
             alignment_score,
+            lifecycle: PhilosopherLifecycleReceipt::default(),
         };
     }
 
@@ -69,6 +76,7 @@ pub fn interpret_alignment(signals: AlignmentSignals) -> TriadPhilosopherVerdict
             reason: "love dynamics are decaying: cooperation is losing to defection pressure"
                 .to_string(),
             alignment_score,
+            lifecycle: PhilosopherLifecycleReceipt::default(),
         };
     }
 
@@ -77,6 +85,7 @@ pub fn interpret_alignment(signals: AlignmentSignals) -> TriadPhilosopherVerdict
             action: PhilosopherAction::Revise,
             reason: "independence is weak or sycophancy risk is elevated".to_string(),
             alignment_score,
+            lifecycle: PhilosopherLifecycleReceipt::default(),
         };
     }
 
@@ -90,6 +99,7 @@ pub fn interpret_alignment(signals: AlignmentSignals) -> TriadPhilosopherVerdict
                 reason: "costly but justified: evidence is strong and love dynamics are growing"
                     .to_string(),
                 alignment_score,
+                lifecycle: PhilosopherLifecycleReceipt::default(),
             };
         }
 
@@ -99,6 +109,7 @@ pub fn interpret_alignment(signals: AlignmentSignals) -> TriadPhilosopherVerdict
                 "JouleWork efficiency is low without enough alignment evidence to justify the cost"
                     .to_string(),
             alignment_score,
+            lifecycle: PhilosopherLifecycleReceipt::default(),
         };
     }
 
@@ -107,6 +118,7 @@ pub fn interpret_alignment(signals: AlignmentSignals) -> TriadPhilosopherVerdict
             action: PhilosopherAction::Hold,
             reason: "evidence grounding is insufficient for confident action".to_string(),
             alignment_score,
+            lifecycle: PhilosopherLifecycleReceipt::default(),
         };
     }
 
@@ -114,6 +126,7 @@ pub fn interpret_alignment(signals: AlignmentSignals) -> TriadPhilosopherVerdict
         action: PhilosopherAction::Proceed,
         reason: "alignment signals are coherent: evidence, independence, love dynamics, and JouleWork are acceptable".to_string(),
         alignment_score,
+        lifecycle: PhilosopherLifecycleReceipt::default(),
     }
 }
 
@@ -129,9 +142,11 @@ pub fn derive_alignment_signals(
     joule: &JouleWorkProfile,
     components: &ResonanceComponents,
 ) -> AlignmentSignals {
-    let empirical_grounding = empirical_grounding(task);
-    let independence = independence(task);
-    let sycophancy_risk = sycophancy_risk(task);
+    let empirical = assess_empirical_distrust(task);
+    let bee = assess_nonconformist_bee(task);
+    let empirical_grounding = empirical.empirical_grounding;
+    let independence = bee.independence;
+    let sycophancy_risk = bee.sycophancy_risk;
     let joule_efficiency = if joule.efficient {
         1.0 - joule.variance.min(1.0)
     } else {
@@ -200,103 +215,6 @@ fn unit_interval(value: f64) -> f64 {
     } else {
         0.0
     }
-}
-
-fn empirical_grounding(task: &Task) -> f64 {
-    let mut score: f64 = 0.20;
-
-    if task.plan_id.is_some() {
-        score += 0.10;
-    }
-
-    if let Some(result) = &task.result {
-        if has_signal_key(result, &["evidence", "proof", "verification", "verified"]) {
-            score += 0.30;
-        }
-        if has_signal_key(result, &["provenance", "source", "sources", "path", "url"]) {
-            score += 0.25;
-        }
-        if has_signal_key(result, &["recommendation", "rationale", "reason"])
-            || task.description.to_lowercase().contains("evidence")
-        {
-            score += 0.10;
-        }
-    }
-
-    score.clamp(0.0, 1.0)
-}
-
-fn independence(task: &Task) -> f64 {
-    let text = task.description.to_lowercase();
-    let mut score: f64 = if task.assigned_agent.is_some() {
-        0.70
-    } else {
-        0.55
-    };
-
-    if contains_any(
-        &text,
-        &[
-            "independent",
-            "audit",
-            "review",
-            "verify",
-            "critique",
-            "challenge",
-        ],
-    ) {
-        score += 0.20;
-    }
-    if contains_any(&text, &["rubber stamp", "just approve", "without evidence"]) {
-        score -= 0.35;
-    }
-
-    score.clamp(0.0, 1.0)
-}
-
-fn sycophancy_risk(task: &Task) -> f64 {
-    let text = task.description.to_lowercase();
-    let mut risk: f64 = 0.15;
-
-    if contains_any(
-        &text,
-        &[
-            "rubber stamp",
-            "just agree",
-            "just approve",
-            "approve without evidence",
-            "without evidence",
-        ],
-    ) {
-        risk += 0.65;
-    }
-    if task.result.is_some() && !task_has_evidence(task) {
-        risk += 0.15;
-    }
-
-    risk.clamp(0.0, 1.0)
-}
-
-fn task_has_evidence(task: &Task) -> bool {
-    task.result
-        .as_ref()
-        .map(|result| has_signal_key(result, &["evidence", "proof", "verification", "provenance"]))
-        .unwrap_or(false)
-}
-
-fn has_signal_key(value: &serde_json::Value, keys: &[&str]) -> bool {
-    match value {
-        serde_json::Value::Object(map) => map.iter().any(|(key, child)| {
-            keys.iter().any(|needle| key.eq_ignore_ascii_case(needle))
-                || has_signal_key(child, keys)
-        }),
-        serde_json::Value::Array(items) => items.iter().any(|item| has_signal_key(item, keys)),
-        _ => false,
-    }
-}
-
-fn contains_any(text: &str, needles: &[&str]) -> bool {
-    needles.iter().any(|needle| text.contains(needle))
 }
 
 #[cfg(test)]

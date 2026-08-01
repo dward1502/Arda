@@ -74,6 +74,53 @@ pub struct RouteGovernance {
     pub joule_measurement_confidence: f64,
     #[serde(default)]
     pub joule_autonomy_truth_allowed: bool,
+    #[cfg(feature = "adaptive")]
+    #[serde(default)]
+    pub realm_policy_version: String,
+    #[cfg(feature = "adaptive")]
+    #[serde(default)]
+    pub realm: String,
+    #[cfg(feature = "adaptive")]
+    #[serde(default)]
+    pub action_class: String,
+    #[cfg(feature = "adaptive")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub realm_scope_id: Option<String>,
+    #[cfg(feature = "adaptive")]
+    #[serde(default)]
+    pub realm_weighted_score: f64,
+    #[cfg(feature = "adaptive")]
+    #[serde(default)]
+    pub realm_minimum_weighted_score: f64,
+    #[cfg(feature = "adaptive")]
+    #[serde(default)]
+    pub realm_degraded: bool,
+    #[cfg(feature = "adaptive")]
+    #[serde(default)]
+    pub realm_passed: bool,
+    #[cfg(feature = "adaptive")]
+    #[serde(default)]
+    pub realm_review_requirements: Vec<String>,
+    #[cfg(feature = "adaptive")]
+    #[serde(default)]
+    pub scorer_receipts: Vec<arda_governance::GovernanceScoreReceipt>,
+    #[cfg(feature = "adaptive")]
+    #[serde(default = "default_runtime_blocking_decision")]
+    pub runtime_blocking: arda_governance::RuntimeBlockingDecision,
+}
+
+#[cfg(feature = "adaptive")]
+fn default_runtime_blocking_decision() -> arda_governance::RuntimeBlockingDecision {
+    arda_governance::RuntimeBlockingDecision {
+        policy_version: String::new(),
+        realm: String::new(),
+        action_class: String::new(),
+        scope_id: None,
+        blocking_requested: false,
+        blocking_enabled: false,
+        readiness_level: arda_governance::GovernanceReadinessLevel::DocumentedOnly,
+        reason: "realm policy has not been evaluated".to_string(),
+    }
 }
 
 impl Default for RouteGovernance {
@@ -102,6 +149,28 @@ impl Default for RouteGovernance {
             joule_measurement_source: String::new(),
             joule_measurement_confidence: 0.0,
             joule_autonomy_truth_allowed: false,
+            #[cfg(feature = "adaptive")]
+            realm_policy_version: String::new(),
+            #[cfg(feature = "adaptive")]
+            realm: String::new(),
+            #[cfg(feature = "adaptive")]
+            action_class: String::new(),
+            #[cfg(feature = "adaptive")]
+            realm_scope_id: None,
+            #[cfg(feature = "adaptive")]
+            realm_weighted_score: 0.0,
+            #[cfg(feature = "adaptive")]
+            realm_minimum_weighted_score: 0.0,
+            #[cfg(feature = "adaptive")]
+            realm_degraded: true,
+            #[cfg(feature = "adaptive")]
+            realm_passed: false,
+            #[cfg(feature = "adaptive")]
+            realm_review_requirements: Vec::new(),
+            #[cfg(feature = "adaptive")]
+            scorer_receipts: Vec::new(),
+            #[cfg(feature = "adaptive")]
+            runtime_blocking: default_runtime_blocking_decision(),
         }
     }
 }
@@ -255,7 +324,7 @@ pub struct ProviderState {
     #[serde(default = "default_driver")]
     pub driver: String,
     /// For driver=hermes_agent_cli/hermes_proxy: path to the hermes binary.
-    /// When empty, falls back to env ANNUNIMAS_HERMES_BIN, then "hermes" on PATH.
+    /// When empty, falls back to env ARDA_HERMES_BIN, then "hermes" on PATH.
     #[serde(default)]
     pub hermes_bin: Option<String>,
     /// For driver=hermes_agent_cli/hermes_proxy: the --provider argument

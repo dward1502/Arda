@@ -12,6 +12,7 @@ use axum::{Json, Router};
 use chrono::{DateTime, Utc};
 use serde::Deserialize;
 use serde_json::{json, Value};
+use std::collections::VecDeque;
 use std::convert::Infallible;
 use std::time::Duration;
 use tokio::time::timeout;
@@ -27,6 +28,12 @@ struct DigestParams {
 
 #[derive(Debug, Deserialize)]
 struct PolicyReadinessParams {
+    limit: Option<usize>,
+}
+
+#[derive(Debug, Deserialize)]
+struct DeepEventParams {
+    after: Option<usize>,
     limit: Option<usize>,
 }
 
@@ -60,6 +67,11 @@ struct DeepRequest {
 struct DeepProcessRequest {
     limit: Option<usize>,
     retry_failed: Option<bool>,
+}
+
+#[derive(Debug, Deserialize)]
+struct ScholarlyReenrichRequest {
+    limit: Option<usize>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -108,8 +120,11 @@ pub fn build_router(store: AthenaStore) -> Router {
         .route("/ingest", post(ingest))
         .route("/ingest_batch", post(ingest_batch))
         .route("/query", post(query))
+        .route("/query/stream", post(query_stream))
         .route("/deep_analyze", post(deep_analyze))
         .route("/deep_process", post(deep_process))
+        .route("/deep/events", get(deep_events))
+        .route("/scholarly_reenrich", post(scholarly_reenrich))
         .route("/digest", get(digest))
         .route("/policy_readiness", get(policy_readiness))
         .route("/policy_promote", post(policy_promote))
@@ -142,7 +157,10 @@ async fn http_admission_gate(req: Request, next: Next) -> Response {
 async fn http_timeout_gate(req: Request, next: Next) -> Response {
     // SSE /events stream is a long-lived response; skip the per-request timeout
     // for it so clients can hold the connection open.
-    if req.uri().path() == "/events" {
+    if matches!(
+        req.uri().path(),
+        "/events" | "/query/stream" | "/deep/events"
+    ) {
         return next.run(req).await;
     }
     let deadline = Duration::from_secs(http_request_timeout_seconds());
@@ -234,6 +252,57 @@ async fn query(
     })
 }
 
+async fn query_stream(
+    State(store): State<AthenaStore>,
+    Json(req): Json<QueryRequest>,
+) -> Sse<impl Stream<Item = std::result::Result<Event, Infallible>>> {
+    let query = req.query;
+    let limit = req.limit.unwrap_or(8);
+    let (tx, rx) = tokio::sync::mpsc::channel::<std::result::Result<Event, Infallible>>(8);
+
+    tokio::task::spawn_blocking(move || {
+        let mut rank = 0usize;
+        let result = store.stream_query_matches(&query, limit, |matched| {
+            rank += 1;
+            let payload = json!({
+                "stream_version": "athena.query.v1",
+                "query": query,
+                "rank": rank,
+                "match": matched,
+            });
+            tx.blocking_send(Ok(Event::default()
+                .event("match")
+                .data(payload.to_string())))
+                .is_ok()
+        });
+
+        let event = match result {
+            Ok(total_matches) => Event::default().event("complete").data(
+                json!({
+                    "stream_version": "athena.query.v1",
+                    "query": query,
+                    "total_matches": total_matches,
+                })
+                .to_string(),
+            ),
+            Err(err) => Event::default().event("error").data(
+                json!({
+                    "stream_version": "athena.query.v1",
+                    "query": query,
+                    "error": err.to_string(),
+                })
+                .to_string(),
+            ),
+        };
+        let _ = tx.blocking_send(Ok(event));
+    });
+
+    let stream = futures::stream::unfold(rx, |mut rx| async move {
+        rx.recv().await.map(|event| (event, rx))
+    });
+    Sse::new(stream).keep_alive(KeepAlive::default())
+}
+
 async fn deep_analyze(
     State(store): State<AthenaStore>,
     Json(req): Json<DeepRequest>,
@@ -256,6 +325,16 @@ async fn deep_process(
     map_result(|| {
         let out =
             store.process_deep_queue(req.limit.unwrap_or(25), req.retry_failed.unwrap_or(false))?;
+        Ok(json!({"ok": true, "result": out}))
+    })
+}
+
+async fn scholarly_reenrich(
+    State(store): State<AthenaStore>,
+    Json(req): Json<ScholarlyReenrichRequest>,
+) -> impl IntoResponse {
+    map_result(|| {
+        let out = store.process_scholarly_reenrichment_queue(req.limit.unwrap_or(25))?;
         Ok(json!({"ok": true, "result": out}))
     })
 }
@@ -330,6 +409,75 @@ async fn events(
     Sse::new(stream).keep_alive(KeepAlive::default())
 }
 
+async fn deep_events(
+    State(store): State<AthenaStore>,
+    Query(params): Query<DeepEventParams>,
+) -> Sse<impl Stream<Item = std::result::Result<Event, Infallible>>> {
+    let state = (
+        store,
+        params.after.unwrap_or(0),
+        params.limit.unwrap_or(100).clamp(1, 1_000),
+        VecDeque::<(usize, Value)>::new(),
+        true,
+    );
+    let stream = futures::stream::unfold(
+        state,
+        |(store, mut cursor, limit, mut pending, first_poll)| async move {
+            let mut first_poll = first_poll;
+            loop {
+                if let Some((id, value)) = pending.pop_front() {
+                    let event_name = value
+                        .get("event")
+                        .and_then(Value::as_str)
+                        .unwrap_or("deep_queue");
+                    let data = serde_json::to_string(&value).unwrap_or_else(|_| "{}".to_string());
+                    let event = Event::default()
+                        .id(id.to_string())
+                        .event(event_name)
+                        .data(data);
+                    return Some((Ok(event), (store, cursor, limit, pending, false)));
+                }
+
+                if !first_poll {
+                    tokio::time::sleep(Duration::from_millis(500)).await;
+                }
+                first_poll = false;
+                let reader = store.clone();
+                match tokio::task::spawn_blocking(move || {
+                    reader.deep_queue_events_after(cursor, limit)
+                })
+                .await
+                {
+                    Ok(Ok((scanned_cursor, events))) => {
+                        cursor = scanned_cursor;
+                        pending.extend(events);
+                    }
+                    Ok(Err(err)) => {
+                        let data = serde_json::to_string(&json!({
+                            "stream_version": "athena.deep-queue.v1",
+                            "error": err.to_string()
+                        }))
+                        .unwrap_or_else(|_| "{}".to_string());
+                        let event = Event::default().event("error").data(data);
+                        return Some((Ok(event), (store, cursor, limit, pending, false)));
+                    }
+                    Err(err) => {
+                        let data = serde_json::to_string(&json!({
+                            "stream_version": "athena.deep-queue.v1",
+                            "error": format!("deep queue reader task failed: {err}")
+                        }))
+                        .unwrap_or_else(|_| "{}".to_string());
+                        let event = Event::default().event("error").data(data);
+                        return Some((Ok(event), (store, cursor, limit, pending, false)));
+                    }
+                }
+            }
+        },
+    );
+
+    Sse::new(stream).keep_alive(KeepAlive::default())
+}
+
 fn map_result<F>(f: F) -> Json<Value>
 where
     F: FnOnce() -> Result<Value>,
@@ -380,10 +528,14 @@ fn build_event_payload(store: &AthenaStore) -> Result<Value> {
                 "deep_graph_events": status.deep_graph_events,
             },
             "pipeline": {
+                "active_crawls_total": status.active_crawls_total,
+                "active_crawls": status.active_crawls,
                 "deep_queue_depth": status.deep_queue_depth,
                 "deep_queue_failed": status.deep_queue_failed,
                 "policy_ready_count": status.policy_ready_count,
                 "reference_only_count": status.reference_only_count,
+                "recent_completed_pipelines": status.recent_completed_pipelines,
+                "last_error": status.last_activity_error,
             },
             "latest_activity": {
                 "digest_at_utc": latest_digest_at,
@@ -440,6 +592,8 @@ mod tests {
     use axum::http::Request;
     use axum::http::StatusCode;
     use serde_json::Value;
+    use std::io::{Read, Write};
+    use std::net::TcpListener;
     use tempfile::tempdir;
     use tokio::sync::oneshot;
     use tower::ServiceExt;
@@ -451,6 +605,7 @@ mod tests {
     #[tokio::test]
     async fn http_contract_status_ingest_query() {
         let _guard = env_guard();
+        std::env::set_var("ATHENA_STALE_SOURCE_THRESHOLD_SECONDS", "0");
         let dir = tempdir().expect("tempdir");
         let store = AthenaStore::new(dir.path()).expect("store");
         let app = build_router(store);
@@ -483,6 +638,40 @@ mod tests {
             .expect("ingest");
         assert_eq!(ingest_response.status(), StatusCode::OK);
 
+        let refreshed_status = app
+            .clone()
+            .oneshot(
+                Request::builder()
+                    .uri("/status")
+                    .body(Body::empty())
+                    .expect("refreshed status request"),
+            )
+            .await
+            .expect("refreshed status");
+        let body = to_bytes(refreshed_status.into_body(), usize::MAX)
+            .await
+            .expect("refreshed status body");
+        let value: Value = serde_json::from_slice(&body).expect("refreshed status json");
+        assert_eq!(value["status"]["source_freshness_total"], 1);
+        assert!(value["status"]["oldest_source_age_seconds"].is_number());
+        assert_eq!(value["status"]["stale_source_threshold_seconds"], 0);
+        assert_eq!(value["status"]["stale_sources_total"], 1);
+        assert_eq!(
+            value["status"]["stale_source_advisory"]["severity"],
+            "advisory"
+        );
+        assert_eq!(value["status"]["active_crawls_total"], 0);
+        assert_eq!(
+            value["status"]["recent_completed_pipelines"]
+                .as_array()
+                .map(Vec::len),
+            Some(1)
+        );
+        assert_eq!(
+            value["status"]["source_freshness"].as_array().map(Vec::len),
+            Some(1)
+        );
+
         let query_response = app
             .oneshot(
                 Request::builder()
@@ -500,12 +689,132 @@ mod tests {
             .await
             .expect("query body");
         let value: Value = serde_json::from_slice(&body).expect("query json");
+        std::env::remove_var("ATHENA_STALE_SOURCE_THRESHOLD_SECONDS");
         let total_matches = value
             .get("query")
             .and_then(|q| q.get("total_matches"))
             .and_then(|v| v.as_u64())
             .unwrap_or(0);
         assert!(total_matches >= 1);
+        assert_eq!(value["query"]["matches"][0]["shallow_only"], true);
+    }
+
+    #[tokio::test]
+    async fn http_query_stream_emits_scored_matches_then_complete() {
+        let _guard = env_guard();
+        let dir = tempdir().expect("tempdir");
+        let store = AthenaStore::new(dir.path()).expect("store");
+        store
+            .ingest(
+                "https://github.com/example/rust-streaming-api",
+                "http-test",
+                "streaming contract",
+            )
+            .expect("ingest");
+        let app = build_router(store);
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/query/stream")
+                    .header("content-type", "application/json")
+                    .body(Body::from(r#"{"query":"rust","limit":5}"#))
+                    .expect("streaming query request"),
+            )
+            .await
+            .expect("streaming query response");
+
+        assert_eq!(response.status(), StatusCode::OK);
+        assert!(response
+            .headers()
+            .get("content-type")
+            .and_then(|value| value.to_str().ok())
+            .is_some_and(|value| value.starts_with("text/event-stream")));
+        let body = to_bytes(response.into_body(), usize::MAX)
+            .await
+            .expect("streaming query body");
+        let text = String::from_utf8(body.to_vec()).expect("SSE utf8");
+
+        assert!(text.contains("event: match\n"), "SSE body: {text}");
+        assert!(text.contains("\"score\":"), "SSE body: {text}");
+        assert!(text.contains("\"citations\":"), "SSE body: {text}");
+        assert!(text.contains("\"shallow_only\":true"), "SSE body: {text}");
+        assert!(text.contains("event: complete\n"), "SSE body: {text}");
+        assert!(text.contains("\"stream_version\":\"athena.query.v1\""));
+        assert!(
+            text.find("event: match\n").expect("match event")
+                < text.find("event: complete\n").expect("complete event")
+        );
+    }
+
+    #[tokio::test]
+    async fn http_status_reports_a_live_production_crawl() {
+        let _guard = env_guard();
+        let dir = tempdir().expect("tempdir");
+        let store = AthenaStore::new(dir.path()).expect("store");
+        let app = build_router(store.clone());
+        let listener = match TcpListener::bind("127.0.0.1:0") {
+            Ok(listener) => listener,
+            Err(err) if err.kind() == std::io::ErrorKind::PermissionDenied => return,
+            Err(err) => panic!("bind: {err}"),
+        };
+        let addr = listener.local_addr().expect("addr");
+        let (accepted_tx, accepted_rx) = oneshot::channel();
+        let (release_tx, release_rx) = std::sync::mpsc::channel();
+        let server = std::thread::spawn(move || {
+            let (mut stream, _) = listener.accept().expect("accept");
+            let mut request = [0u8; 4096];
+            let _ = stream.read(&mut request).expect("read request");
+            let _ = accepted_tx.send(());
+            release_rx.recv().expect("release response");
+            let body =
+                r##"{"url":"https://example.com/live","markdown":"# Live\n","success":true}"##;
+            let response = format!(
+                "HTTP/1.1 200 OK\r\ncontent-type: application/json\r\ncontent-length: {}\r\nconnection: close\r\n\r\n{}",
+                body.len(),
+                body
+            );
+            stream
+                .write_all(response.as_bytes())
+                .expect("write response");
+        });
+
+        let crawling_store = store.clone();
+        let crawl = tokio::spawn(async move {
+            crawling_store
+                .crawl4ai_fetch_markdown(
+                    &format!("http://{}", addr),
+                    "https://example.com/live?token=secret",
+                    "fit",
+                    None,
+                )
+                .await
+        });
+        accepted_rx.await.expect("crawl accepted");
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .uri("/status")
+                    .body(Body::empty())
+                    .expect("status request"),
+            )
+            .await
+            .expect("status");
+        let body = to_bytes(response.into_body(), usize::MAX)
+            .await
+            .expect("status body");
+        let status: Value = serde_json::from_slice(&body).expect("status json");
+        assert_eq!(status["status"]["active_crawls_total"], 1);
+        assert_eq!(
+            status["status"]["active_crawls"][0]["url"],
+            "https://example.com/live"
+        );
+
+        release_tx.send(()).expect("release server");
+        crawl.await.expect("crawl task").expect("crawl result");
+        server.join().expect("join server");
     }
 
     #[tokio::test]
@@ -539,6 +848,8 @@ mod tests {
         let text = String::from_utf8(body.to_vec()).expect("metrics utf8");
         assert!(text.contains("# TYPE athena_ingest_documents_total counter"));
         assert!(text.contains("athena_query_total 1"));
+        assert!(text.contains("# TYPE athena_source_age_seconds gauge"));
+        assert!(text.contains("athena_source_age_seconds{source_id=\"src_"));
     }
 
     #[tokio::test]
@@ -659,18 +970,18 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn http_timeout_gate_passes_through_events_path() {
+    async fn http_timeout_gate_passes_through_deep_events_path() {
         use axum::middleware;
         use axum::routing::get;
         use axum::Router;
 
         let _guard = env_guard();
         // Timeout would fire before the "slow" handler returns, but the
-        // middleware must short-circuit the /events path.
+        // middleware must short-circuit the /deep/events path.
         std::env::set_var("ARDA_ATHENA_HTTP_REQUEST_TIMEOUT_SECS", "1");
         let app: Router = Router::new()
             .route(
-                "/events",
+                "/deep/events",
                 get(|| async {
                     tokio::time::sleep(std::time::Duration::from_millis(1_500)).await;
                     "keep-alive"
@@ -681,7 +992,7 @@ mod tests {
         let response = app
             .oneshot(
                 Request::builder()
-                    .uri("/events")
+                    .uri("/deep/events")
                     .body(Body::empty())
                     .expect("events request"),
             )
@@ -689,6 +1000,50 @@ mod tests {
             .expect("events");
         assert_eq!(response.status(), StatusCode::OK);
         std::env::remove_var("ARDA_ATHENA_HTTP_REQUEST_TIMEOUT_SECS");
+    }
+
+    #[tokio::test]
+    async fn deep_queue_event_stream_emits_versioned_queue_records() {
+        use tokio_stream::StreamExt as _;
+
+        let _guard = env_guard();
+        let dir = tempdir().expect("tempdir");
+        let store = AthenaStore::new(dir.path()).expect("store");
+        store
+            .queue_deep_analysis("src_sse", "http-test", "stream contract")
+            .expect("queue deep analysis");
+        let app = build_router(store);
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .uri("/deep/events?after=0")
+                    .body(Body::empty())
+                    .expect("deep events request"),
+            )
+            .await
+            .expect("deep events response");
+        assert_eq!(response.status(), StatusCode::OK);
+        assert!(response
+            .headers()
+            .get("content-type")
+            .and_then(|value| value.to_str().ok())
+            .is_some_and(|value| value.starts_with("text/event-stream")));
+
+        let mut body = response.into_body().into_data_stream();
+        let chunk = tokio::time::timeout(std::time::Duration::from_secs(2), body.next())
+            .await
+            .expect("first SSE frame before timeout")
+            .expect("first SSE frame")
+            .expect("valid SSE frame");
+        let text = String::from_utf8(chunk.to_vec()).expect("SSE utf8");
+        assert!(text.contains("id: 1\n"), "SSE body: {text}");
+        assert!(text.contains("event: deep_queued\n"), "SSE body: {text}");
+        assert!(text.contains("\"schema_version\":2"), "SSE body: {text}");
+        assert!(
+            text.contains("\"source_id\":\"src_sse\""),
+            "SSE body: {text}"
+        );
     }
 
     #[test]
@@ -739,5 +1094,12 @@ mod tests {
             .and_then(|v| v.as_array())
             .map(|items| !items.is_empty())
             .unwrap_or(false));
+        assert_eq!(payload["knowledge"]["pipeline"]["active_crawls_total"], 0);
+        assert!(
+            payload["knowledge"]["pipeline"]["recent_completed_pipelines"]
+                .as_array()
+                .map(|items| !items.is_empty())
+                .unwrap_or(false)
+        );
     }
 }

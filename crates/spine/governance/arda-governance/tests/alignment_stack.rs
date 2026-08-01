@@ -1,8 +1,8 @@
 use arda_core::{Task, TaskStatus};
 use arda_governance::{
-    calculate_resonance_basic, derive_alignment_signals, evaluate_love_dynamics,
-    interpret_alignment, profile_joulework, AlignmentSignals, LoveDynamicsInput, LoveDynamicsTrend,
-    PhilosopherAction,
+    calculate_resonance_with_triad, derive_alignment_signals, evaluate_love_dynamics,
+    interpret_alignment, profile_joulework, triad_validate, AlignmentSignals, LoveDynamicsInput,
+    LoveDynamicsTrend, PhilosopherAction,
 };
 
 #[test]
@@ -80,7 +80,7 @@ fn derives_alignment_signals_from_task_joulework_love_and_resonance_metadata() {
     task.assigned_agent = Some("athena".to_string());
     task.result = Some(serde_json::json!({
         "evidence": ["cargo test -p arda-governance"],
-        "provenance": {"path": "crates/arda-governance"},
+        "provenance": {"path": "crates/spine/governance/arda-governance"},
         "recommendation": "proceed"
     }));
     task.joule_cost_estimated = 4.0;
@@ -88,7 +88,8 @@ fn derives_alignment_signals_from_task_joulework_love_and_resonance_metadata() {
     task.clarifications_requested = 1;
     task.clarifications_resolved = 1;
 
-    let resonance = calculate_resonance_basic(&task);
+    let triad = triad_validate(&task, None);
+    let resonance = calculate_resonance_with_triad(&task, &triad, None, None);
     let components = resonance
         .ecst_components
         .as_ref()
@@ -124,7 +125,8 @@ fn resonance_attaches_philosopher_verdict_without_requiring_new_callers() {
     task.joule_cost_estimated = 2.0;
     task.joule_cost_actual = 2.0;
 
-    let score = calculate_resonance_basic(&task);
+    let triad = triad_validate(&task, None);
+    let score = calculate_resonance_with_triad(&task, &triad, None, None);
     let verdict = score
         .triad_philosopher
         .as_ref()

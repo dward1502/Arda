@@ -6,6 +6,7 @@ use std::path::{Path, PathBuf};
 
 use super::support::latest_jsonl_entries_by_id;
 use super::{read_json_file, CORE_STATE_SCHEMA_VERSION};
+use crate::prometheus::queue_authority::canonical_project_task_queue;
 
 pub fn write_operator_actions_projection(core_root: &Path) {
     let snapshot_path = core_root.join("state").join("operator_actions.json");
@@ -13,7 +14,7 @@ pub fn write_operator_actions_projection(core_root: &Path) {
         .parent()
         .map(Path::to_path_buf)
         .unwrap_or_else(|| PathBuf::from("."));
-    let tasks = latest_jsonl_entries_by_id(&workspace_root.join("core/projects/tasks/queue.jsonl"));
+    let tasks = latest_jsonl_entries_by_id(&canonical_project_task_queue(&workspace_root));
     let package_runtime = read_json_file(
         core_root
             .join("state")

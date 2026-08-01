@@ -56,6 +56,7 @@ export interface AgentPresenceState {
 
 export interface PresenceLedgerStatus {
   source: PresenceLedgerSource
+  sourcePath: string
   freshness: PresenceLedgerFreshness
   validEventCount: number
   ignoredLineCount: number

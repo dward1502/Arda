@@ -25,21 +25,42 @@ requests_per_minute = 120
   [[provider.model]]
   id = "Ternary-Bonsai-8B-Q2_0"
   capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background", "monitoring"]
-  context_window = 131072
+  context_window = 32768
   is_default = true
-  capabilities = { tools = true, structured_output = true, streaming = true }
+  capabilities = { tools = true, structured_output = false, streaming = true }
   aliases = ["ternary-bonsai-8b", "bonsai-8b", "b8", "Ternary-Bonsai-8B-Q2_0"]
-  notes = "Updated 2026-07-18. Beelink SER9 Pro :9337 now serves Ternary-Bonsai-8B-Q2_0 (ternary Q2_0 GGUF) via the Prism-ML llama.cpp fork built with GGML_VULKAN against the AMD Radeon 890M (Vulkan0). The stock ggerganov/llama.cpp rejects this ternary quant (tensor-layout mismatch), so only the Prism fork parses it. Replaces the prior Qwen_Qwen3.5-4B-Q6_K mainline lane."
+  notes = "Benchmark winner 2026-07-26 (receipt score 100.0; all correctness, tool, context, memory, and performance gates passed). Median generation 26.59 tok/s, 8K prefill 252.64 tok/s, 8K TTFT 30.73s; uncached 32K TTFT 250.14s. Serve via Prism-ML llama.cpp/Vulkan on :9337. Suitable for efficient bounded edge work; do not force for latency-sensitive long-context Hermes code-agent continuations."
+
+[[provider]]
+id = "edge_carnice"
+name = "Beelink Carnice 9B Worker"
+base_url = "http://100.103.125.88:1234/v1"
+enabled = false
+access_tier = "local"
+quality_band = "medium"
+requests_per_minute = 20
+max_completion_tokens = 2048
+
+  [[provider.model]]
+  id = "Carnice-9b-Q6_K"
+  capable_tasks = ["research", "reasoning", "chat", "summary", "background"]
+  context_window = 65536
+  is_default = true
+  capabilities = { tools = false, structured_output = false, streaming = true, visible_reasoning = true }
+  aliases = ["carnice-9b", "Carnice-9b-Q6_K"]
+  notes = "Disabled after the isolated 2026-07-26 shootout selected Ternary Bonsai for Beelink's single active model lane. Carnice Q4 scored 84.242 and passed correctness/tools, but failed generation and long-context performance gates (10.40 tok/s; 8K TTFT 66.06s)."
 
 [[provider]]
 id = "edge_core"
 name = "Annunimas Core (3080 Workstation)"
 base_url = "http://100.78.138.113:9337/v1"
-enabled = false
+enabled = true
 access_tier = "local"
-quality_band = "medium"
+quality_band = "high"
 requests_per_minute = 60
 max_completion_tokens = 2048
+probe_model = "Qwen3.5-9B-Q4_K_M"
+probe_profile = "benchmark_validated_local"
 # CRASH-GUARD: this provider runs on the operator's main PC alongside heavy
 # GPU workloads such as browsers and VS Code. The 3080 workstation is VRAM-
 # constrained; avoid tool/concurrency spikes here without first confirming
@@ -47,119 +68,61 @@ max_completion_tokens = 2048
 # while browsers/other GPU apps are active.
 
   [[provider.model]]
-  id = "LFM2.5-8B-A1B-Q4_K_M"
-  capable_tasks = ["research", "reasoning", "chat", "summary", "background"]
-  context_window = 131072
-  is_default = false
-  capabilities = { tools = true, structured_output = false, streaming = true, visible_reasoning = true }
-  aliases = ["lfm2.5-8b-a1b", "lfm-2.5-8b-a1b", "liquidai-core", "lfm-core"]
-
-  [[provider.model]]
   id = "Qwen3.5-9B-Q4_K_M"
   capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
-  context_window = 32768
+  context_window = 73728
   is_default = true
   capabilities = { tools = true, structured_output = true, streaming = true }
   aliases = ["qwen3.5-9b", "qwen35-9b"]
-
-  [[provider.model]]
-  id = "Qwen_Qwen3.5-4B-Q6_K"
-  capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
-  context_window = 32768
-  is_default = false
-  capabilities = { tools = true, structured_output = true, streaming = true }
-  aliases = ["qwen3.5-4b", "qwen35-4b", "Qwen3.5-4B"]
+  notes = "Benchmark winner 2026-07-26 (receipt score 100.0; every deployment gate passed). Median generation 92.22 tok/s, 8K prefill 3151.68 tok/s, 8K TTFT 2.57s, 2.26s load; practical RTX 3080 VRAM margin 3.25 GiB with Q4/Q4 KV cache."
 
 [[provider]]
-id = "edge_backbone"
-name = "Annunimas Server LFM2.5 Fast Lane"
-# Sovereign annunimas-server lane. Updated 2026-06-16: LFM2.5 is the
-# always-on fast/general local provider on port 8093. Manwe's runtime probe
-# owns the live healthy flag.
-#
-# CRASH-GUARD: this provider runs on the operator's main PC alongside heavy
-# GPU workloads such as browsers and VS Code. Keep this lane lightweight:
-# non-tool, moderate rate, low max tokens, and by default only for low-risk
-# non-coding traffic. Do not change `tools = false` or raise
-# `requests_per_minute` without confirming headroom via this machine's GPU
-# pressure monitor / task manager first.
-base_url = "http://100.102.250.115:8093/v1"
-enabled = false
-access_tier = "local"
-quality_band = "medium"
-requests_per_minute = 30
-max_completion_tokens = 2048
-
-  [[provider.model]]
-  id = "lfm2.5-8b-a1b-q4km"
-  capable_tasks = ["research", "reasoning", "chat", "summary", "background"]
-  context_window = 32768
-  is_default = true
-  capabilities = { tools = false, structured_output = true, streaming = true, visible_reasoning = true }
-  aliases = ["lfm2.5", "lfm25", "lfm2.5-8b"]
-
-[[provider]]
-id = "edge_backbone_coder"
-name = "Annunimas Server Qwen2.5-Coder 7B"
-# Replaced 2026-07-19: Genma4 12B coder retired; this lane now serves
-# Qwen2.5-Coder-7B-Instruct-Q4_K_M on the same :8094 endpoint.
-base_url = "http://100.102.250.115:8094/v1"
-enabled = false
-access_tier = "local"
-quality_band = "high"
-requests_per_minute = 60
-max_completion_tokens = 4096
-
-  [[provider.model]]
-  id = "qwen2.5-coder-7b-q4km"
-  capable_tasks = ["code", "reasoning", "chat", "summary", "background"]
-  context_window = 32768
-  is_default = true
-  capabilities = { tools = true, structured_output = true, streaming = true, visible_reasoning = false }
-  aliases = ["qwen2.5-coder-7b", "qwen25-coder-7b", "qwen2.5-coder", "annunimas-server-coder"]
-
-[[provider]]
-id = "edge_backbone_vision"
-name = "Annunimas Server Qwen2.5-VL Vision"
-base_url = "http://100.102.250.115:8081/v1"
-enabled = false
-access_tier = "local"
-quality_band = "medium"
-requests_per_minute = 60
-max_completion_tokens = 2048
-
-  [[provider.model]]
-  id = "Qwen2.5-VL-7B-Instruct"
-  capable_tasks = ["vision", "chat", "summary"]
-  context_window = 4096
-  is_default = true
-  capabilities = { tools = false, structured_output = false, streaming = true }
-  aliases = ["qwen2.5-vl", "qwen-vl", "vision-local"]
-
-[[provider]]
-id = "edge_backbone_bonsai27"
-name = "Annunimas Server Ternary Bonsai 27B Lane"
-# Sovereign annunimas-server lane. Added 2026-07-18: Ternary-Bonsai-27B-Q2_0
-# (ternary Q2_0 GGUF) served by the Prism-ML llama.cpp fork built with
-# GGML_CUDA against the 2x RTX 2080 Super (8G each) on annunimas-server,
-# tensor-split 0.05/0.95 across both GPUs (GPU0 is VRAM-tight behind the
-# LFM25 + Gemma4 lanes). The stock ggerganov/llama.cpp cannot parse this
-# ternary quant (tensor-layout mismatch), so only the Prism fork works.
-base_url = "http://100.102.250.115:8095/v1"
+id = "edge_backbone_long"
+name = "Annunimas Server Bonsai 27B Q1 Review Lane"
+# Long-context review/research lane on GPU 0 of the 2x RTX 2080 Super server.
+base_url = "http://100.102.250.115:8097/v1"
 enabled = true
 access_tier = "local"
 quality_band = "high"
 requests_per_minute = 20
-max_completion_tokens = 1024
+max_completion_tokens = 2048
+supports_tools = false
+supports_structured_output = true
+probe_model = "bonsai-27b-q1_0"
+probe_profile = "benchmark_validated_local"
 
   [[provider.model]]
-  id = "ternary-bonsai-27b-q2_0"
+  id = "bonsai-27b-q1_0"
   capable_tasks = ["research", "reasoning", "chat", "summary", "background"]
+  context_window = 100000
+  is_default = true
+  capabilities = { tools = false, structured_output = true, streaming = true, visible_reasoning = false }
+  aliases = ["bonsai-27b", "bonsai-review", "b27q1", "Bonsai-27B-Q1_0"]
+  notes = "Long-context review/research lane, served fully GPU-resident by llama-server-bonsai-q1.service at :8097 with 100K context and thinking disabled. Use Nanbeige or executable tests to verify code proposals from this lane."
+
+[[provider]]
+id = "edge_backbone_coder"
+name = "Annunimas Server Nanbeige4.2 3B Coding Lane"
+# Primary code/tool lane on GPU 1 of the 2x RTX 2080 Super server.
+base_url = "http://100.102.250.115:8098/v1"
+enabled = true
+access_tier = "local"
+quality_band = "medium"
+requests_per_minute = 60
+max_completion_tokens = 2048
+supports_tools = true
+supports_structured_output = true
+probe_model = "nanbeige4.2-3b-q4_k_m"
+probe_profile = "benchmark_validated_local"
+
+  [[provider.model]]
+  id = "nanbeige4.2-3b-q4_k_m"
+  capable_tasks = ["code", "chat", "summary", "background"]
   context_window = 32768
   is_default = true
-  capabilities = { tools = false, structured_output = false, streaming = true, visible_reasoning = false }
-  aliases = ["ternary-bonsai-27b", "bonsai-27b", "b27", "Ternary-Bonsai-27B-Q2_0"]
-  notes = "27B ternary Q2_0 (~6.7G). Served via llama-server-bonsai27.service (user systemd, enabled). As of 2026-07-21 this lane serves 32768 context on 2x RTX 2080 Super with --n-gpu-layers 600 --main-gpu 0 --split-mode row --tensor-split 0.20,0.80; the 999/all-layers path is blocked by Prism-fork allocator behavior on this host. Model emits a reasoning trace (thinking=1) before the final answer; visible_reasoning set false so the router treats it as a default-capable local model (the trace still arrives in reasoning_content for clients that read it)."
+  capabilities = { tools = true, structured_output = true, streaming = true, visible_reasoning = false }
+  aliases = ["nanbeige", "nanbeige-coder", "local-coder", "Nanbeige4.2-3B-Q4_K_M"]
+  notes = "Primary coding/tool lane, served fully GPU-resident by llama-server-nanbeige.service at :8098 with 32K context and thinking disabled. Route code, edit, test, and routine agent work here."
 
 [[provider]]
 id = "edge_laptop"
@@ -181,7 +144,7 @@ requests_per_minute = 60
 id = "edge_guardhouse"
 name = "Warden Pi5 Guardhouse"
 base_url = "http://100.110.85.37:1234/v1"
-enabled = false
+enabled = true
 access_tier = "local"
 quality_band = "low"
 requests_per_minute = 60
@@ -382,38 +345,37 @@ api_key_env = "LITELLM_API_KEY"
 id = "google"
 name = "Google Gemini"
 base_url = "https://generativelanguage.googleapis.com/v1beta/openai"
-enabled = false
+enabled = true
 api_key_env = "GEMINI_API_KEY"
 access_tier = "free_cloud"
 quality_band = "high"
 requests_per_minute = 15
 requests_per_day = 1500
 
-  # Confirmed working via OpenAI-compat endpoint.
-  # Pro models (2.5-pro, 3.x-pro) are available in the Gemini API but
-  # timeout on the free tier quota — excluded until a paid key is configured.
+  # Refreshed from the live catalog on 2026-07-23. Gemini 2.0 was shut down;
+  # gemini-3.1-flash-lite completed a live free-tier inference probe.
 
   [[provider.model]]
-  id = "gemini-2.0-flash"
-  capable_tasks = ["code", "research", "chat", "summary"]
+  id = "gemini-3.1-flash-lite"
+  capable_tasks = ["chat", "summary", "background"]
   context_window = 1048576
   is_default = true
 
   [[provider.model]]
-  id = "gemini-2.5-flash"
+  id = "gemini-3.5-flash"
   capable_tasks = ["code", "research", "reasoning", "chat", "summary", "background"]
   context_window = 1048576
   is_default = false
   capabilities = { visible_reasoning = true }
 
   [[provider.model]]
-  id = "gemini-2.5-flash-lite"
+  id = "gemini-3.5-flash-lite"
   capable_tasks = ["chat", "summary", "background"]
   context_window = 1048576
   is_default = false
 
   [[provider.model]]
-  id = "gemini-3-flash-preview"
+  id = "gemini-3.6-flash"
   capable_tasks = ["code", "research", "reasoning", "chat", "summary"]
   context_window = 1048576
   is_default = false
@@ -906,7 +868,7 @@ name = "OpenAI Codex (ChatGPT subscription via Hermes auth)"
 driver = "codex_responses"
 hermes_provider = "openai-codex"
 base_url = "https://chatgpt.com/backend-api/codex"
-enabled = false
+enabled = true
 access_tier = "paid_cloud"
 quality_band = "high"
 requests_per_minute = 60

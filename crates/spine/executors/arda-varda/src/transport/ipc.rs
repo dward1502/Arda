@@ -72,7 +72,7 @@ fn ipc_idle_timeout() -> Duration {
 
 fn ipc_io_timeout() -> Duration {
     // Default 120s: ATHENA deep_analyze runs LLM-driven knowledge extraction
-    // through Charon's model router, which can take 30-90s on large models.
+    // through Manwe's model router, which can take 30-90s on large models.
     // Override via ARDA_ATHENA_IPC_IO_TIMEOUT_SECS for fast-path tools
     // that need tighter timeouts.
     let secs = std::env::var("ARDA_ATHENA_IPC_IO_TIMEOUT_SECS")
@@ -254,6 +254,14 @@ fn execute_command(store: &AthenaStore, cmd: CommandEnvelope) -> Result<Value> {
                 .unwrap_or(false);
             Ok(store.process_deep_queue(limit, retry_failed)?)
         }
+        "scholarly_reenrich" => {
+            let limit = cmd
+                .payload
+                .get("limit")
+                .and_then(|v| v.as_u64())
+                .unwrap_or(25) as usize;
+            Ok(store.process_scholarly_reenrichment_queue(limit)?)
+        }
         "digest" => {
             let source_id = payload_str_optional(&cmd.payload, "source_id");
             let limit = cmd
@@ -361,6 +369,8 @@ mod tests {
 
     #[tokio::test]
     async fn ipc_round_trip_ingest_query_status() {
+        let _guard = env_guard();
+        std::env::set_var("ATHENA_STALE_SOURCE_THRESHOLD_SECONDS", "0");
         let dir = tempdir().expect("tempdir");
         let store = AthenaStore::new(dir.path()).expect("store");
         let socket_path = dir.path().join("athena.sock");
@@ -406,6 +416,34 @@ mod tests {
             .await
             .expect("status");
         assert_eq!(status.get("books_count").and_then(|v| v.as_u64()), Some(1));
+        assert_eq!(
+            status
+                .get("stale_source_threshold_seconds")
+                .and_then(|v| v.as_u64()),
+            Some(0)
+        );
+        assert_eq!(
+            status.get("stale_sources_total").and_then(|v| v.as_u64()),
+            Some(1)
+        );
+        assert_eq!(
+            status
+                .get("stale_source_advisory")
+                .and_then(|v| v.get("severity"))
+                .and_then(|v| v.as_str()),
+            Some("advisory")
+        );
+        assert_eq!(
+            status.get("active_crawls_total").and_then(|v| v.as_u64()),
+            Some(0)
+        );
+        assert_eq!(
+            status
+                .get("recent_completed_pipelines")
+                .and_then(|v| v.as_array())
+                .map(Vec::len),
+            Some(1)
+        );
 
         let metrics = send_command(socket_path, "metrics", json!({}))
             .await
@@ -420,6 +458,7 @@ mod tests {
             .unwrap_or("")
             .contains("athena_ingest_documents_total"));
 
+        std::env::remove_var("ATHENA_STALE_SOURCE_THRESHOLD_SECONDS");
         server.abort();
     }
 

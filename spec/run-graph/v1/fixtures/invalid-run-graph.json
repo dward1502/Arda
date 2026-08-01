@@ -1,0 +1,27 @@
+{
+  "schema_version": "arda.run-graph.v1",
+  "run_id": "invalid-run",
+  "objective_id": "invalid-objective",
+  "nodes": [
+    {
+      "id": "execute",
+      "kind": "execute",
+      "state": "pending",
+      "authority": "execute_with_approval",
+      "budget": {"max_joules": 10.0, "max_cost_usd": 0.0},
+      "retry": {"max_attempts": 1},
+      "timeout_ms": 0,
+      "idempotency_key": "invalid-execute",
+      "input_digest": null,
+      "output_digest": null,
+      "parent_receipts": [],
+      "checkpoint": {"sequence": 0, "recovery_token": null, "checkpoint_digest": null}
+    }
+  ],
+  "edges": [],
+  "provenance": {
+    "project_contract_digest": "sha256:invalid",
+    "created_by": "s4-c1-test",
+    "parent_receipts": []
+  }
+}

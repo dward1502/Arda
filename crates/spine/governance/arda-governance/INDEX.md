@@ -6,28 +6,38 @@ soterion:
   role: "directory_index"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-13"
+  last_reviewed: "2026-07-28"
 ---
 
 
-> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-13
+> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-28
 
-# Index: crates/governance/arda-governance/INDEX.md
+# Index: crates/spine/governance/arda-governance/INDEX.md
 
 ## Contents
 
 - `Cargo.toml`
-- `GOVERNANCE_ALIGNMENT_PLAN.md`
+- `BREAKDOWN.md`
+- `GOVERNANCE_PROVENANCE.md`
 - `INDEX.md`
-- `OPTIMIZATION_PLAN.md`
+- `OWNERSHIP.md`
+- `PLAN.md`
 - `README.md`
+- `STATUS.md`
 - `src`
 - `tests`
 
 ## Purpose
 
-Crate index for `crates/governance/arda-governance/INDEX.md`. See sibling `INDEX.md` for bucket metadata.
+Canonical navigation for the crate. `README.md` explains use, `STATUS.md` records current
+health, `BREAKDOWN.md` maps implementation, and `PLAN.md` holds future discussion.
 
 ## Notes
 
-Normalized from on-disk contents; review cadence is quarterly unless owner changes.
+Completed phase/checklist and superseded optimization/alignment plans were removed after
+their final state was reconciled into the canonical documents. Git history remains the audit
+record. Review this index whenever root documentation changes.
+
+The contents list exactly covers all ten direct children. `PLAN.md` is intentionally retained
+as a future-discussion queue with `Current commitments: None`; it is not a completed execution
+tracker.

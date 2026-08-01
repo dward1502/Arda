@@ -1,6 +1,7 @@
 use super::{MemoryCounts, MnemosyneService, MnemosyneStats};
+use crate::schema::CONTINUITY_SCHEMA_VERSION;
 use crate::service::retrieval::checkpoint_policy;
-use crate::service::store::walk_dir;
+use crate::service::store::{episodic_schema_counts, walk_dir};
 use arda_core::error::Result;
 use chrono::{DateTime, Duration, Utc};
 use std::path::Path;
@@ -8,6 +9,8 @@ use std::path::Path;
 impl MnemosyneService {
     pub fn stats(&self) -> Result<MnemosyneStats> {
         let records = self.read_episodic_records()?;
+        let (legacy_episodic_records, unsupported_episodic_records) =
+            episodic_schema_counts(&self.episodic_root);
         let recent = self.recall_recent(48, None)?;
         let mut counts = MemoryCounts {
             core: 0,
@@ -53,6 +56,7 @@ impl MnemosyneService {
         };
 
         Ok(MnemosyneStats {
+            schema_version: CONTINUITY_SCHEMA_VERSION.to_owned(),
             generated_at_utc: Utc::now().to_rfc3339(),
             memory_counts: counts,
             last_consolidation_utc,
@@ -66,11 +70,15 @@ impl MnemosyneService {
                 &self.archive_root.join("consolidation.jsonl"),
             ),
             malformed_episodic_records: count_malformed_episodic_records(&self.episodic_root),
+            legacy_episodic_records,
+            unsupported_episodic_records,
+            observability: self.observability_snapshot(),
         })
     }
 
     pub fn status(&self) -> Result<serde_json::Value> {
         Ok(serde_json::json!({
+            "schema_version": CONTINUITY_SCHEMA_VERSION,
             "ok": true,
             "status": self.stats()?,
         }))

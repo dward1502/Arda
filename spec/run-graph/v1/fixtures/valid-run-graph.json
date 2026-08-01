@@ -1,0 +1,68 @@
+{
+  "schema_version": "arda.run-graph.v1",
+  "run_id": "s4-c1-replay",
+  "objective_id": "objective-s4-c1",
+  "nodes": [
+    {
+      "id": "approval",
+      "kind": "approval",
+      "state": "pending",
+      "authority": "human_approval",
+      "budget": {"max_joules": 1.0, "max_cost_usd": 0.0},
+      "retry": {"max_attempts": 1},
+      "timeout_ms": 1000,
+      "idempotency_key": "approval-s4-c1",
+      "input_digest": "sha256:objective",
+      "output_digest": null,
+      "parent_receipts": [],
+      "checkpoint": {"sequence": 0, "recovery_token": null, "checkpoint_digest": null}
+    },
+    {
+      "id": "execute",
+      "kind": "execute",
+      "state": "pending",
+      "authority": "execute_with_approval",
+      "budget": {"max_joules": 100.0, "max_cost_usd": 1.0},
+      "retry": {"max_attempts": 1},
+      "timeout_ms": 5000,
+      "idempotency_key": "execute-s4-c1",
+      "input_digest": "sha256:plan",
+      "output_digest": null,
+      "parent_receipts": ["receipt:approval-s4-c1"],
+      "checkpoint": {"sequence": 0, "recovery_token": null, "checkpoint_digest": null}
+    },
+    {
+      "id": "verify",
+      "kind": "verify",
+      "state": "pending",
+      "authority": "verify",
+      "budget": {"max_joules": 20.0, "max_cost_usd": 0.0},
+      "retry": {"max_attempts": 1},
+      "timeout_ms": 3000,
+      "idempotency_key": "verify-s4-c1",
+      "input_digest": "sha256:result",
+      "output_digest": null,
+      "parent_receipts": ["receipt:execute-s4-c1"],
+      "checkpoint": {"sequence": 0, "recovery_token": null, "checkpoint_digest": null}
+    }
+  ],
+  "edges": [
+    {
+      "id": "approval-to-execute",
+      "from": "approval",
+      "to": "execute",
+      "parent_receipt": "receipt:approval-s4-c1"
+    },
+    {
+      "id": "execute-to-verify",
+      "from": "execute",
+      "to": "verify",
+      "parent_receipt": "receipt:execute-s4-c1"
+    }
+  ],
+  "provenance": {
+    "project_contract_digest": "sha256:s4-c1-project-contract",
+    "created_by": "s4-c1-test",
+    "parent_receipts": []
+  }
+}

@@ -6,14 +6,16 @@ use super::a2h::{
     append_pending_authorization, authorize_for_escalation_with_id, process_h2a_responses,
     write_message, H2AProcessReport, HumanApprovedObjective,
 };
-use super::apollo_bridge::{dispatch_with_conditions as apollo_dispatch, ApolloClient, Dispatch};
 use super::bootstrap::{load_defaults, load_registry_from_world, LoadedDefaults};
+use super::core_executor_bridge::{
+    dispatch_with_conditions as executor_dispatch, CoreExecutorClient, Dispatch, ExecutionStatus,
+};
 use super::dashboard::{build_snapshot, DashboardSnapshot};
 use super::decomposer::{Objective, ObjectiveDecomposer, PlannedTask, Priority};
 use super::delegation::{delegate_plan, AgentRegistry, DelegationReport};
 use super::evidence_registry::EvidenceRegistry;
 use super::governance_policy::{GovernanceDecision, GovernanceGate, GovernancePolicy};
-use super::learning::{LearningState, LearningStore};
+use super::learning::LearningStore;
 use super::oracle_gate::{GateDecision, OracleGate};
 use super::outcomes::OutcomeObserver;
 use super::pipeline_bridge::submit_plan as submit_plan_to_pipeline;
@@ -29,7 +31,8 @@ use super::source_registry::SourceRegistry;
 use super::task_queue::{QueueRecord, TaskQueueAnalyzer, TaskQueueMetrics};
 use super::taxonomy::is_apollo_dispatchable;
 use super::validator::{PlanValidator, ValidationResult};
-use arda_core::orders::{OrderStatus, OrderStore};
+use crate::prometheus::orders::{OrderStatus, OrderStore};
+use crate::prometheus::queue_authority::canonical_project_task_queue;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -81,7 +84,7 @@ impl AutopilotConfig {
             base_costs: _,
         } = load_defaults(&core_root);
         Self {
-            queue_path: root.join("core/projects/tasks/queue.jsonl"),
+            queue_path: canonical_project_task_queue(&root),
             objectives_path: root.join("core/projects/objectives/inbox.jsonl"),
             world_path: root.join("core/state/world.json"),
             state_path: root.join("data/ceo/autopilot.state.json"),
@@ -418,14 +421,14 @@ pub struct CeoAutopilot {
     learning: arda_core::learning::LearningState,
     oracle: OracleGate,
     governance_policy: GovernancePolicy,
-    apollo: ApolloClient,
+    apollo: CoreExecutorClient,
     consecutive_failures: usize,
 }
 
-const HADES_INTROSPECTION_CONTRACT: &str = "annunimas.prometheus.hades_introspection_projection.v1";
-const SOVEREIGN_ADAPTERS_CONTRACT: &str = "annunimas.prometheus.sovereign_adapter_projection.v1";
-const COUNCIL_RUNTIME_CONTRACT: &str = "annunimas.prometheus.council_runtime_projection.v1";
-const AUTONOMY_READINESS_GATE_CONTRACT: &str = "annunimas.prometheus.autonomy_readiness_gate.v1";
+const HADES_INTROSPECTION_CONTRACT: &str = "arda.prometheus.hades_introspection_projection.v1";
+const SOVEREIGN_ADAPTERS_CONTRACT: &str = "arda.prometheus.sovereign_adapter_projection.v1";
+const COUNCIL_RUNTIME_CONTRACT: &str = "arda.prometheus.council_runtime_projection.v1";
+const AUTONOMY_READINESS_GATE_CONTRACT: &str = "arda.prometheus.autonomy_readiness_gate.v1";
 
 fn load_hades_introspection(root: &Path) -> HadesIntrospectionProjection {
     let policy_report_path = root.join("data/hades/lifecycle_policy_automation_report.json");
@@ -631,7 +634,7 @@ fn adapter_receipt(
                 .count();
             base(
                 true,
-                "crates/annunimas-prometheus/src/autopilot/governance_policy.rs".into(),
+                "crates/spine/observability/arda-aule/src/autopilot/governance_policy.rs".into(),
                 plans.len(),
                 plans.len(),
                 "task_promotion_gate".into(),
@@ -654,7 +657,7 @@ fn adapter_receipt(
                 .count();
             base(
                 true,
-                "crates/annunimas-prometheus/src/autopilot/oracle_gate.rs".into(),
+                "crates/spine/observability/arda-aule/src/autopilot/oracle_gate.rs".into(),
                 plans.len(),
                 invoked,
                 "validation_gate".into(),
@@ -676,7 +679,7 @@ fn adapter_receipt(
             let joule_limited = plans.iter().filter(|plan| plan.joule_limited).count();
             base(
                 true,
-                "crates/annunimas-prometheus/src/autopilot/runner.rs".into(),
+                "crates/spine/observability/arda-aule/src/autopilot/runner.rs".into(),
                 plans.len(),
                 plans.len(),
                 "budget_gate".into(),
@@ -721,7 +724,7 @@ fn adapter_receipt(
         }
         "ceo" => base(
             true,
-            "crates/annunimas-prometheus/src/autopilot/runner.rs".into(),
+            "crates/spine/observability/arda-aule/src/autopilot/runner.rs".into(),
             plans.len(),
             plans.len(),
             "canonical_engine_guard".into(),
@@ -824,7 +827,7 @@ fn council_cycle_record(
         })
         .count();
     serde_json::json!({
-        "schema_version": "annunimas.council.agent_conversation.v1",
+        "schema_version": "arda.council.agent_conversation.v1",
         "conversation_id": conversation_id,
         "ts_utc": ts,
         "topic": "ceo-autopilot cycle assessment",
@@ -1121,7 +1124,7 @@ impl CeoAutopilot {
             costs.insert(k, v);
         }
         let decomposer = ObjectiveDecomposer::default().with_base_costs(costs);
-        let apollo = ApolloClient::auto(cfg.apollo_socket_path.clone());
+        let apollo = CoreExecutorClient::auto(cfg.apollo_socket_path.clone());
         tracing::info!(
             transport = apollo.transport_label(),
             socket = %cfg.apollo_socket_path.display(),
@@ -1363,9 +1366,13 @@ impl CeoAutopilot {
                         let max_attempts = self.cfg.apollo_max_attempts.max(1);
                         for attempt in 1..=max_attempts {
                             let attempt_qid = qid.clone();
-                            let dr =
-                                apollo_dispatch(&self.apollo, &attempt_qid, pt, oracle_conditions)
-                                    .await;
+                            let dr = executor_dispatch(
+                                &self.apollo,
+                                &attempt_qid,
+                                pt,
+                                oracle_conditions,
+                            )
+                            .await;
                             let _ = append_apollo_dispatch_attempt_to_queue(
                                 &self.cfg.queue_path,
                                 &obj.id,
@@ -1636,7 +1643,7 @@ impl CeoAutopilot {
                 } else {
                     format!("{}__retry{}", step.queue_id, attempt)
                 };
-                let dispatch = apollo_dispatch(&self.apollo, &attempt_qid, &step.plan, &[]).await;
+                let dispatch = executor_dispatch(&self.apollo, &attempt_qid, &step.plan, &[]).await;
                 let appended = append_apollo_dispatch_attempt_to_queue(
                     &self.cfg.queue_path,
                     &step.objective_id,
@@ -1738,7 +1745,7 @@ struct ObjectiveCandidate {
     requires_review: bool,
 }
 
-const OBJECTIVE_SELECTION_CONTRACT: &str = "annunimas.arandur.objective_selection.v1";
+const OBJECTIVE_SELECTION_CONTRACT: &str = "arda.arandur.objective_selection.v1";
 
 fn select_cycle_objectives(
     cfg: &AutopilotConfig,
@@ -1747,17 +1754,17 @@ fn select_cycle_objectives(
     approved_objectives: Vec<HumanApprovedObjective>,
     inbox_objectives: Vec<Objective>,
 ) -> (Vec<CycleObjective>, ObjectiveSelectionReport) {
-    let source_registry = SourceRegistry::arandur_default(&cfg.root);
+    let source_registry = SourceRegistry::arandur_with_queue(&cfg.root, &cfg.queue_path);
     let h2a_source_path = source_registry
-        .by_contract("annunimas.h2a.approvals.v1")
+        .by_contract("arda.h2a.approvals.v1")
         .map(|source| source.path.to_string_lossy().to_string())
         .unwrap_or_else(|| cfg.h2a_path.to_string_lossy().to_string());
     let objective_inbox_source_path = source_registry
-        .by_contract("annunimas.prometheus.objective_inbox.v1")
+        .by_contract("arda.prometheus.objective_inbox.v1")
         .map(|source| source.path.to_string_lossy().to_string())
         .unwrap_or_else(|| cfg.objectives_path.to_string_lossy().to_string());
     let canonical_queue_source_path = source_registry
-        .by_contract("annunimas.canonical_task_queue.v1")
+        .by_contract("arda.canonical_task_queue.v1")
         .map(|source| source.path.to_string_lossy().to_string())
         .unwrap_or_else(|| cfg.queue_path.to_string_lossy().to_string());
     let (effective_queue_records, stale_raw_queue_record_count) =
@@ -2591,7 +2598,7 @@ fn dispatch_retryable(dispatch: &Dispatch) -> bool {
     matches!(
         dispatch,
         Dispatch::Submitted {
-            status: crate::prometheus::autopilot::apollo_bridge::ExecutionStatus::Failed | ExecutionStatus::Cancelled | ExecutionStatus::Timeout,
+            status: ExecutionStatus::Failed | ExecutionStatus::Cancelled | ExecutionStatus::Timeout,
             ..
         }
     )
@@ -2599,9 +2606,9 @@ fn dispatch_retryable(dispatch: &Dispatch) -> bool {
 
 /// Resolve the Apollo IPC socket path used for autopilot dispatch.
 ///
-/// Order: explicit `ANNUNIMAS_APOLLO_SOCKET` env var > `<root>/data/apollo/apollo.sock`.
+/// Order: explicit `ARDA_APOLLO_SOCKET` env var > `<root>/data/apollo/apollo.sock`.
 fn apollo_socket_default(root: &Path) -> PathBuf {
-    if let Ok(raw) = std::env::var("ANNUNIMAS_APOLLO_SOCKET") {
+    if let Ok(raw) = std::env::var("ARDA_APOLLO_SOCKET") {
         if !raw.is_empty() {
             return PathBuf::from(raw);
         }
@@ -2698,32 +2705,32 @@ mod tests {
             r#"
 [[sovereign_crates]]
 id = "governance"
-crate = "annunimas-governance"
+crate = "arda-governance"
 status = "contract_required"
 
 [[sovereign_crates]]
 id = "oracle"
-crate = "annunimas-oracle"
+crate = "arda-oracle"
 status = "active_prototype"
 
 [[sovereign_crates]]
 id = "plutus"
-crate = "annunimas-plutus"
+crate = "arda-economics"
 status = "contract_required"
 
 [[sovereign_crates]]
 id = "human"
-crate = "annunimas-human"
+crate = "arda-human"
 status = "contract_required"
 
 [[sovereign_crates]]
 id = "council"
-crate = "annunimas-council"
+crate = "arda-council"
 status = "active_subordinate"
 
 [[sovereign_crates]]
 id = "ceo"
-crate = "annunimas-ceo"
+crate = "arda-ceo"
 status = "active_subordinate"
 "#,
         )
@@ -2732,7 +2739,7 @@ status = "active_subordinate"
         std::fs::write(
             root.join("data/prometheus/autonomy_operating_loop_preflight.json"),
             serde_json::json!({
-                "schema_version": "annunimas.autonomy_operating_loop_preflight.v1",
+                "schema_version": "arda.autonomy_operating_loop_preflight.v1",
                 "loop": {"missing_required_stages": []},
                 "summary": {
                     "lane_count": 12,
@@ -2747,7 +2754,7 @@ status = "active_subordinate"
         std::fs::write(
             root.join("data/hades/autonomy_cleanup_approval_packets.json"),
             serde_json::json!({
-                "schema_version": "annunimas.hades.cleanup_approval_packets.v1",
+                "schema_version": "arda.hades.cleanup_approval_packets.v1",
                 "candidate_count": 0,
                 "cleanup_authorized": false,
                 "requires_operator_approval_for_mutation": true,
@@ -2760,7 +2767,7 @@ status = "active_subordinate"
         std::fs::create_dir_all(root.join("data/athena")).expect("athena data");
         std::fs::write(
             root.join("data/athena/external_source_lane_ledger.jsonl"),
-            r#"{"schema_version":"annunimas.athena.external_source_lane.v1","source_id":"web","task_promotion_allowed":true,"canonical_url":"https://example.invalid/source","verification_status":"source_receipted"}
+            r#"{"schema_version":"arda.athena.external_source_lane.v1","source_id":"web","task_promotion_allowed":true,"canonical_url":"https://example.invalid/source","verification_status":"source_receipted"}
 "#,
         )
         .expect("external ledger");
@@ -3425,7 +3432,7 @@ status = "active_subordinate"
         .unwrap_or_else(|err| panic!("mkdir receipt parent failed: {err}"));
         std::fs::write(
             &receipt_path,
-            r#"{"contract":"annunimas.arandur.operator_approved_candidates_execution.v1","tasks":[{"candidate_id":"candidate_arda_visualization_and_presence","approval_packet_id":"arandur_approval_20260521T191923Z_candidate_arda_visualization_and_presence","status":"executed_verified"},{"candidate_id":"candidate_ais_smb_os_and_relic","approval_packet_id":"arandur_approval_20260521T205014Z_candidate_ais_smb_os_and_relic","status":"executed_verified"}]}"#,
+            r#"{"contract":"arda.arandur.operator_approved_candidates_execution.v1","tasks":[{"candidate_id":"candidate_arda_visualization_and_presence","approval_packet_id":"arandur_approval_20260521T191923Z_candidate_arda_visualization_and_presence","status":"executed_verified"},{"candidate_id":"candidate_ais_smb_os_and_relic","approval_packet_id":"arandur_approval_20260521T205014Z_candidate_ais_smb_os_and_relic","status":"executed_verified"}]}"#,
         )
         .unwrap_or_else(|err| panic!("write receipt failed: {err}"));
 
@@ -3499,7 +3506,7 @@ status = "active_subordinate"
         .unwrap_or_else(|err| panic!("mkdir receipt parent failed: {err}"));
         std::fs::write(
             &receipt_path,
-            r#"{"contract":"annunimas.arandur.operator_approved_candidates_execution.v1","tasks":[{"candidate_id":"candidate_arda_visualization_and_presence","approval_packet_id":"arandur_approval_20260521T191923Z_candidate_arda_visualization_and_presence","status":"executed_verified"}]}"#,
+            r#"{"contract":"arda.arandur.operator_approved_candidates_execution.v1","tasks":[{"candidate_id":"candidate_arda_visualization_and_presence","approval_packet_id":"arandur_approval_20260521T191923Z_candidate_arda_visualization_and_presence","status":"executed_verified"}]}"#,
         )
         .unwrap_or_else(|err| panic!("write receipt failed: {err}"));
 
@@ -3614,19 +3621,19 @@ status = "active_subordinate"
     fn dispatch_retryable_only_retries_terminal_apollo_failures() {
         assert!(dispatch_retryable(&Dispatch::Submitted {
             task_id: "failed".into(),
-            status: crate::prometheus::autopilot::apollo_bridge::ExecutionStatus::Failed,
+            status: ExecutionStatus::Failed,
             joules: 0.0,
             transport: "in_process",
         }));
         assert!(dispatch_retryable(&Dispatch::Submitted {
             task_id: "timeout".into(),
-            status: crate::prometheus::autopilot::apollo_bridge::ExecutionStatus::Timeout,
+            status: ExecutionStatus::Timeout,
             joules: 0.0,
             transport: "daemon",
         }));
         assert!(!dispatch_retryable(&Dispatch::Submitted {
             task_id: "ok".into(),
-            status: crate::prometheus::autopilot::apollo_bridge::ExecutionStatus::Completed,
+            status: ExecutionStatus::Completed,
             joules: 1.0,
             transport: "in_process",
         }));

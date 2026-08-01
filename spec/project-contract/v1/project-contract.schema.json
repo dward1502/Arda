@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arda.local/spec/project-contract/v1/project-contract.schema.json",
+  "title": "arda.project-contract.v1",
+  "type": "object",
+  "required": ["schema_version", "identity", "workspace", "runtime", "commands", "checks", "artifacts", "rollback", "memory", "provenance"],
+  "properties": {
+    "schema_version": {"const": "arda.project-contract.v1"},
+    "identity": {
+      "type": "object",
+      "required": ["project_id", "name", "kind"],
+      "properties": {
+        "project_id": {"type": "string", "format": "uuid"},
+        "name": {"type": "string", "minLength": 1},
+        "kind": {"type": "string", "minLength": 1}
+      }
+    },
+    "workspace": {
+      "type": "object",
+      "required": ["root"],
+      "properties": {"root": {"$ref": "#/$defs/relativePath"}}
+    },
+    "runtime": {
+      "type": "object",
+      "required": ["adapter"],
+      "properties": {"adapter": {"type": "string", "minLength": 1}}
+    },
+    "commands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "program", "working_dir"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "program": {"type": "string", "minLength": 1},
+          "args": {"type": "array", "items": {"type": "string"}},
+          "working_dir": {"$ref": "#/$defs/relativePath"}
+        }
+      }
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "command"],
+        "properties": {"id": {"type": "string"}, "command": {"type": "string"}}
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "path"],
+        "properties": {"id": {"type": "string"}, "path": {"$ref": "#/$defs/relativePath"}}
+      }
+    },
+    "permissions": {
+      "type": "object",
+      "properties": {
+        "authority": {"enum": ["deny_by_default", "read_only", "approval_required"], "default": "deny_by_default"},
+        "network": {"type": "object", "properties": {"allow": {"type": "boolean", "default": false}}},
+        "filesystem": {"type": "object", "properties": {"write": {"type": "boolean", "default": false}}},
+        "secrets": {
+          "type": "object",
+          "properties": {"env_names": {"type": "array", "items": {"type": "string", "pattern": "^[A-Z_][A-Z0-9_]*$"}}}
+        }
+      }
+    },
+    "rollback": {"type": "object", "required": ["strategy"], "properties": {"strategy": {"type": "string"}}},
+    "memory": {"type": "object", "required": ["scope"], "properties": {"scope": {"type": "string"}}},
+    "provenance": {
+      "type": "object",
+      "required": ["declared_by", "declared_at"],
+      "properties": {
+        "declared_by": {"type": "string"},
+        "declared_at": {"type": "string", "format": "date-time"}
+      },
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "not": {"pattern": "(^/|(^|/)\\.\\.(/|$))"}
+    }
+  },
+  "additionalProperties": true
+}

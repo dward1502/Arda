@@ -7,6 +7,7 @@ use chrono::{DateTime, Duration, Utc};
 use serde_json::Value;
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
+use std::time::Instant;
 
 impl MnemosyneService {
     pub fn recall_recent(
@@ -14,7 +15,10 @@ impl MnemosyneService {
         hours: i64,
         crate_filter: Option<&str>,
     ) -> Result<Vec<RecallRecentEntry>> {
-        self.recall_recent_scoped(hours, crate_filter, None)
+        let started = Instant::now();
+        let out = self.recall_recent_scoped(hours, crate_filter, None)?;
+        self.observe_recall(out.len(), None, started.elapsed());
+        Ok(out)
     }
 
     pub fn recall_relevant(
@@ -25,6 +29,7 @@ impl MnemosyneService {
         scope_filter: Option<&str>,
         limit: usize,
     ) -> Result<Vec<RecallRecentEntry>> {
+        let started = Instant::now();
         let mut out = self.recall_recent_scoped(hours, crate_filter, scope_filter)?;
         let query_terms = query_terms(query);
         if !query_terms.is_empty() {
@@ -37,6 +42,17 @@ impl MnemosyneService {
             });
         }
         out.truncate(limit.max(1));
+        let fidelity = if query_terms.is_empty() || out.is_empty() {
+            None
+        } else {
+            Some(
+                out.iter()
+                    .map(|entry| query_match_score(&query_terms, &entry.content, &entry.tags))
+                    .sum::<f64>()
+                    / out.len() as f64,
+            )
+        };
+        self.observe_recall(out.len(), fidelity, started.elapsed());
         Ok(out)
     }
 
@@ -107,11 +123,15 @@ impl MnemosyneService {
                 }
             }
             out.push(RecallRecentEntry {
+                schema_version: record.schema_version,
+                migrated_from_schema: record.migrated_from_schema,
                 memory_id: record.memory_id,
                 source_crate: record.source_crate,
                 event_type: record.event_type,
                 memory_scope: record.memory_scope,
                 significance: record.significance,
+                confidence: record.confidence,
+                trust: record.trust,
                 sigil: record.sigil,
                 content: record.content,
                 ts_utc: record.ts_utc,
@@ -504,12 +524,5 @@ fn path_exists(path: &str) -> Option<bool> {
 }
 
 fn arda_root() -> PathBuf {
-    if let Ok(path) = std::env::var("ARDA_ROOT") {
-        return PathBuf::from(path);
-    }
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .and_then(Path::parent)
-        .map(Path::to_path_buf)
-        .unwrap_or_else(|| PathBuf::from("."))
+    arda_core::layout::arda_root_from(env!("CARGO_MANIFEST_DIR"))
 }

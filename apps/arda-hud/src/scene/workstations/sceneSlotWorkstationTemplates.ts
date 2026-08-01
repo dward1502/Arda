@@ -52,8 +52,8 @@ const SCENE_SLOT_WORKSTATION_TEMPLATES: Record<BoardroomSceneSlotId, SceneSlotWo
     presentationModes: ['in_scene', 'native_window'],
   },
   view_desk_aux: {
-    title: 'Desk Aux Hermes Template',
-    moduleIds: ['hermes_dashboard', 'operations_and_packages'],
+    title: 'Desk Aux Daily Command Template',
+    moduleIds: ['operating_surface', 'executive_overview'],
     presentationModes: ['in_scene', 'native_window'],
   },
 }
@@ -68,6 +68,15 @@ function manifestIdForSlot(slotId: string): string {
 
 export function sceneSlotZoneIdForSlot(slotId: string): string {
   return `${SCENE_SLOT_ZONE_PREFIX}${slotId}`
+}
+
+export function resolveSceneSlotWorkstationZoneId(
+  assignmentSlotId: string | undefined,
+  sceneZoneId: string,
+  assignmentSourceZoneId?: string,
+): string {
+  if (assignmentSourceZoneId) return assignmentSourceZoneId
+  return sceneSlotZoneIdForSlot(assignmentSlotId ?? sceneZoneId)
 }
 
 export function getSceneSlotWorkstationTemplate(slotId: string): SceneSlotWorkstationTemplate | null {

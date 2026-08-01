@@ -1,0 +1,17 @@
+{
+  "candidate_artifact_sha256": "e2409c587267caa49ae0506b836a6ae79e9a190c39ed01a30e56a739d08b72da",
+  "contract": "arda.release-upgrade.v1",
+  "created_at_utc": "2026-08-01T05:19:43.052995Z",
+  "operation": "upgrade",
+  "pre_upgrade_backup": "/tmp/arda-stage5-rc0/pre-upgrade.tar.gz",
+  "pre_upgrade_backup_sha256": "3e4c7c614372cdb6243f8de4ff413f0e43be5a39c1018538168281b1a0ef9ff0",
+  "prior_artifact": "/tmp/arda-stage5-rc0/home/.local/state/arda/upgrades/20260801T051943Z-36712b66f5bd/arda-launcher",
+  "prior_artifact_sha256": "36712b66f5bda057e58cf2e2b56abb0ca31ee7700f1ce9895324a7413cc38d49",
+  "rollback_receipt": "/tmp/arda-stage5-rc0/home/.local/state/arda/upgrades/20260801T051943Z-36712b66f5bd/upgrade-receipt.json",
+  "source_identity_before": {
+    "head": "557e4eea4d927d93e43fb3cd301aa5333edca587",
+    "kind": "git",
+    "status_sha256": "ee2aede5f58db9097babd04e297f649c6dc826fb55b8f1a10ace0d617bea3185"
+  },
+  "status": "ok"
+}

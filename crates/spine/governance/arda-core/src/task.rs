@@ -5,21 +5,16 @@ use uuid::Uuid;
 
 pub type TaskId = Uuid;
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq, Hash)]
 #[serde(rename_all = "snake_case")]
 pub enum JouleWorkMeasurementSource {
     OperatorEstimate,
+    #[default]
     DefaultFallback,
     RuntimeTimer,
     ProcessResourceSample,
     ProviderUsageReport,
     ExternalPowerMeter,
-}
-
-impl Default for JouleWorkMeasurementSource {
-    fn default() -> Self {
-        Self::DefaultFallback
-    }
 }
 
 impl JouleWorkMeasurementSource {
@@ -78,6 +73,11 @@ pub struct Task {
     pub plan_id: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub plan_step_index: Option<usize>,
+
+    // AIPKG contract: optional package manifest attached to a Task.
+    // When present, dispatch runs preflight validation before execution.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub aipkg_manifest: Option<crate::aipkg::AipkgManifest>,
 }
 
 impl Task {
@@ -103,6 +103,7 @@ impl Task {
             clarifications_resolved: 0,
             plan_id: None,
             plan_step_index: None,
+            aipkg_manifest: None,
         }
     }
 
@@ -165,5 +166,78 @@ impl Task {
             _ => 0.2,
         };
         (base * factor).min(1.0) * 100.0
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn joule_measurement_source_observed_flags_true_for_observed_sources() {
+        assert!(JouleWorkMeasurementSource::RuntimeTimer.is_observed());
+        assert!(JouleWorkMeasurementSource::ProcessResourceSample.is_observed());
+        assert!(JouleWorkMeasurementSource::ProviderUsageReport.is_observed());
+        assert!(JouleWorkMeasurementSource::ExternalPowerMeter.is_observed());
+    }
+
+    #[test]
+    fn joule_measurement_source_observed_flags_false_for_unobserved_sources() {
+        assert!(!JouleWorkMeasurementSource::DefaultFallback.is_observed());
+        assert!(!JouleWorkMeasurementSource::OperatorEstimate.is_observed());
+    }
+
+    #[test]
+    fn joule_measurement_source_is_autonomy_truth_excludes_default_fallback() {
+        assert!(!JouleWorkMeasurementSource::DefaultFallback.is_autonomy_truth());
+        assert!(JouleWorkMeasurementSource::OperatorEstimate.is_autonomy_truth());
+        assert!(JouleWorkMeasurementSource::RuntimeTimer.is_autonomy_truth());
+    }
+
+    #[test]
+    fn task_status_serializes_retry_round_trip() {
+        let task = Task {
+            id: Uuid::new_v4(),
+            description: "retry me".into(),
+            task_type: "probe".into(),
+            status: TaskStatus::Retry {
+                attempt: 2,
+                max_attempts: 5,
+            },
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            assigned_agent: None,
+            result: None,
+            planning_started_at: None,
+            execution_started_at: None,
+            joule_cost_estimated: 1.0,
+            joule_cost_actual: 0.0,
+            joulework_measurement_source: JouleWorkMeasurementSource::DefaultFallback,
+            joulework_measurement_confidence: 0.0,
+            clarifications_requested: 0,
+            clarifications_resolved: 0,
+            plan_id: None,
+            plan_step_index: None,
+            aipkg_manifest: None,
+        };
+
+        let encoded = serde_json::to_string(&task).expect("encode task");
+        let decoded: Task = serde_json::from_str(&encoded).expect("decode task");
+        assert_eq!(
+            decoded.status,
+            TaskStatus::Retry {
+                attempt: 2,
+                max_attempts: 5,
+            }
+        );
+    }
+
+    #[test]
+    fn plan_lineage_survives_round_trip() {
+        let task = Task::new("t", "probe").with_plan_lineage("p1", 3);
+        let encoded = serde_json::to_string(&task).expect("encode task");
+        let decoded: Task = serde_json::from_str(&encoded).expect("decode task");
+        assert_eq!(decoded.plan_id, Some("p1".to_string()));
+        assert_eq!(decoded.plan_step_index, Some(3));
     }
 }

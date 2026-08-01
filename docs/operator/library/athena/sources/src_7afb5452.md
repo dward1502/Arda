@@ -1,0 +1,33 @@
+# ATHENA Source Book
+
+- source_id: `src_7afb5452`
+- pipeline_id: `athpl_c7174085a7994718abdea1a2895f1ce4`
+- status: `deep`
+- source_type: `RawNote`
+- updated_at_utc: `2026-07-28T00:32:23.953860171+00:00`
+- url: OPPOSING_VIEWPOINT CHALLENGE for src_3c43db4d: This perspective questions assump
+- athena_book: `/tmp/.tmpL1Fvui/books/src_7afb5452.jsonl`
+- machine_index: `data/knowledge/athena/index/sources.jsonl`
+
+## Summary
+
+**Title**: OPPOSING_VIEWPOINT CHALLENGE for src_3c43db4d: This perspective questions assump
+
+Initial shallow ingest completed for RawNote.
+
+**Tags**: governance, rawnote, research
+
+**Deep Recommended**: true
+
+**Deep Reason**: New source ingested; deep analysis should be scheduled.
+
+## Deep Analysis
+
+Initial shallow ingest completed for RawNote. Deep synthesis generated from deterministic governance scaffold.
+
+- confidence: `0.8217`
+- triad_passed: `true`
+- love_alignment: `0.7500`
+- joule_estimated: `12.7250`
+- joule_actual: `13.7430`
+

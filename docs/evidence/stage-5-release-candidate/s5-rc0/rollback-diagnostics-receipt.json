@@ -1,0 +1,7 @@
+{
+  "bundle": "/tmp/arda-stage5-rc0/rollback-diagnostics.tar.gz",
+  "contract": "arda.private_beta_ops.v1",
+  "operation": "diagnostics",
+  "redaction": "secret-named files omitted; secret-like values and absolute operator paths redacted",
+  "status": "ok"
+}

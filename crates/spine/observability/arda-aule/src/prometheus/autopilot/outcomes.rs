@@ -5,7 +5,7 @@
 
 use super::delegation::AgentRegistry;
 use super::task_queue::QueueRecord;
-use arda_core::learning::{LearningState, OutcomeStats};
+use arda_core::learning::LearningState;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;

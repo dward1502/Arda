@@ -1,0 +1,37 @@
+{
+  "schema_version": "arda.varda.retrieval_benchmark_fixture.v1",
+  "provenance": {
+    "owner": "arda-varda",
+    "purpose": "Deterministic local relevance and citation regression baseline",
+    "created_at_utc": "2026-07-27T00:00:00Z",
+    "license": "repository-test-fixture"
+  },
+  "documents": [
+    {
+      "id": "auth",
+      "content": "Authentication service design uses OAuth access tokens, refresh tokens, and strict credential rotation for secure API sessions."
+    },
+    {
+      "id": "retrieval",
+      "content": "Knowledge retrieval uses field weighted BM25 ranking, citation spans, corpus statistics, and relevance scoring for local search."
+    },
+    {
+      "id": "observability",
+      "content": "Runtime observability exports Prometheus counters, latency histograms, queue depth gauges, and advisory freshness alerts."
+    }
+  ],
+  "queries": [
+    {
+      "query": "OAuth token authentication",
+      "expected_document_ids": ["auth"]
+    },
+    {
+      "query": "BM25 citation retrieval",
+      "expected_document_ids": ["retrieval"]
+    },
+    {
+      "query": "Prometheus queue metrics",
+      "expected_document_ids": ["observability"]
+    }
+  ]
+}

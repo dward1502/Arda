@@ -186,7 +186,7 @@ export async function writeScopedFile(
   relativePath: string,
   content: string
 ): Promise<FileReadResult> {
-  return invoke<FileReadResult>('write_scoped_file', { ardaRoot, relativePath, content })
+  return invoke<FileReadResult>('write_scoped_file', { numenorPath: ardaRoot, relativePath, content })
 }
 
 export async function openSourcePath(sourcePath: string): Promise<SourcePathResult> {

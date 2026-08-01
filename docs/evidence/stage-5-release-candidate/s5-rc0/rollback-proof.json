@@ -1,0 +1,9 @@
+{
+  "contract": "arda.release-upgrade.v1",
+  "operation": "rollback",
+  "restored_artifact_sha256": "36712b66f5bda057e58cf2e2b56abb0ca31ee7700f1ce9895324a7413cc38d49",
+  "restored_state_file_count": 4,
+  "source_repository_touched": false,
+  "status": "ok",
+  "terminal_run_truth_preserved": true
+}

@@ -1,0 +1,45 @@
+schema_version = "arda.governance.realm_policy.v1"
+policy_version = "phase8-operations-v1"
+
+[global_default]
+required_lenses = ["aurelius", "bacon", "sun_tzu"]
+minimum_weighted_score = 0.60
+strict = false
+review_requirements = ["operator_review"]
+autonomous_blocking_enabled = false
+
+[global_default.weights]
+aurelius = 1.0
+bacon = 1.0
+sun_tzu = 1.0
+
+[global_default.thresholds]
+aurelius = 0.60
+bacon = 0.50
+sun_tzu = 0.50
+
+[[scopes]]
+scope_id = "operations-strategy"
+realm = "operations"
+action_class = "deployment"
+required_lenses = ["aurelius", "bacon", "sun_tzu"]
+minimum_weighted_score = 0.70
+strict = true
+review_requirements = ["operator_review", "independent_review"]
+autonomous_blocking_enabled = true
+readiness_subsystem = "realm:operations:action:deployment"
+
+[scopes.weights]
+aurelius = 0.7
+bacon = 0.5
+sun_tzu = 1.8
+
+[scopes.thresholds]
+aurelius = 0.60
+bacon = 0.50
+sun_tzu = 0.75
+
+[scopes.blocking_controls]
+rollback_enabled = true
+operator_disable_enabled = true
+independent_review_receipt_ids = ["review-operations-deployment-001"]

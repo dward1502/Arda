@@ -1,0 +1,10 @@
+{
+  "generated_at_utc": "2026-07-31T07:40:32.404045178+00:00",
+  "llmfit_backend": "optional_signal_absent",
+  "llmfit_recommendation_count": 0,
+  "llmfit_local_max_params_b": null,
+  "llmfit_top_model_names": [],
+  "nanoclaw_binary_present": false,
+  "nanoclaw_runtime_ready": false,
+  "nanoclaw_probe_state": "not_configured"
+}

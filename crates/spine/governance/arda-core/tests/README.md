@@ -13,8 +13,11 @@ soterion:
 
 # tests
 
-Purpose: HADES-generated directory overview for `crates/arda-core/tests`.
+Purpose: integration-test overview for `crates/spine/governance/arda-core/tests`.
 
 ## Contents
 
-See `INDEX.md` for deterministic child listing.
+- `tool_harness_smoke.rs` verifies that the migrated sovereign tool contract remains public.
+- `INDEX.md` is the deterministic child listing.
+
+Contract serialization and state round-trips are covered by unit tests beside their source.

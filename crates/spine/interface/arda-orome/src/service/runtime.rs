@@ -1,5 +1,22 @@
 use super::*;
 
+fn project_root_for_service_root(root: &Path) -> PathBuf {
+    if root.file_name().and_then(|name| name.to_str()) == Some("hermes")
+        && root
+            .parent()
+            .and_then(|parent| parent.file_name())
+            .and_then(|name| name.to_str())
+            == Some("data")
+    {
+        return root
+            .parent()
+            .and_then(Path::parent)
+            .map(Path::to_path_buf)
+            .unwrap_or_else(|| PathBuf::from("."));
+    }
+    root.to_path_buf()
+}
+
 impl HermesService {
     pub fn from_default_or_fallback() -> Result<Self> {
         let primary = default_root();
@@ -17,6 +34,16 @@ impl HermesService {
     pub fn new(root: impl AsRef<Path>) -> Result<Self> {
         let root = root.as_ref().to_path_buf();
         fs::create_dir_all(&root)?;
+        let project_root = project_root_for_service_root(&root);
+        let bacon_lite_writer = BaconLiteWriter::start_from_env(BaconLiteLogPaths::from_base_dir(
+            project_root.clone(),
+        ))?;
+        let mnemosyne_home = std::env::var_os("ARDA_MNEMOSYNE_HOME")
+            .map(PathBuf::from)
+            .unwrap_or_else(|| project_root.join("data/mnemosyne"));
+        let plutus_home = std::env::var_os("ARDA_PLUTUS_HOME")
+            .map(PathBuf::from)
+            .unwrap_or_else(|| project_root.join("data/plutus"));
         let messages_path = root.join("messages.jsonl");
         let boardroom_path = root.join("boardroom.jsonl");
         let outbound_queue_path = root.join("outbound_queue.jsonl");
@@ -63,10 +90,14 @@ impl HermesService {
             comms_events_path,
             calendar_cache_path,
             council_sessions_path,
-            mnemosyne: MnemosyneService::from_default_or_fallback().ok(),
+            bacon_lite_writer,
+            plutus_home,
+            mnemosyne: MnemosyneService::new(mnemosyne_home).ok(),
             providers: Arc::new(ProviderRuntime::from_defaults()),
             seen_inbound_ids: Arc::new(Mutex::new(HashSet::new())),
             reroute_timestamps: Arc::new(StdMutex::new(VecDeque::new())),
+            registry_state: SharedRegistryStateStorage::default(),
+            router_state: SharedRouterStateStorage::default(),
         })
     }
 
@@ -131,22 +162,7 @@ impl HermesService {
     }
 
     fn project_root_hint(&self) -> PathBuf {
-        if self.root.file_name().and_then(|name| name.to_str()) == Some("hermes")
-            && self
-                .root
-                .parent()
-                .and_then(|parent| parent.file_name())
-                .and_then(|name| name.to_str())
-                == Some("data")
-        {
-            return self
-                .root
-                .parent()
-                .and_then(Path::parent)
-                .map(Path::to_path_buf)
-                .unwrap_or_else(|| PathBuf::from("."));
-        }
-        self.root.clone()
+        project_root_for_service_root(&self.root)
     }
 
     pub(super) fn manwe_outbound_route(&self, msg: &OutboundMessage) -> Result<serde_json::Value> {
@@ -200,5 +216,13 @@ impl HermesService {
                 tracing::debug!(error = %err, "failed to emit HERMES mnemosyne event");
             }
         }
+    }
+
+    pub fn registry_state(&self) -> SharedRegistryStateStorage {
+        self.registry_state.clone()
+    }
+
+    pub fn router_state(&self) -> SharedRouterStateStorage {
+        self.router_state.clone()
     }
 }

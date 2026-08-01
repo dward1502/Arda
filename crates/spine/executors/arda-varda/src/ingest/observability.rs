@@ -9,12 +9,16 @@ use arda_core::error::Result;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use std::collections::BTreeMap;
 use std::fs;
 use std::path::Path;
 
 use super::{
-    AthenaAutonomyRecommendation, AthenaKnowledgeVaultSourceLaneObservation,
-    AthenaKnowledgeVaultStatus, AthenaStatus, AthenaStore, AthenaVaultSynthesisQueueItem,
+    AthenaAutonomyRecommendation, AthenaGovernanceCounterSummary,
+    AthenaKnowledgeVaultSourceLaneObservation, AthenaKnowledgeVaultStatus,
+    AthenaLearningCounterSummary, AthenaOperatorStatus, AthenaSourceFreshness,
+    AthenaStaleSourceAdvisory, AthenaStatus, AthenaStore, AthenaSynthesisQueueSummary,
+    AthenaVaultSynthesisQueueItem, ClassificationCache, ClassificationCacheProfile, IngestRecord,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -42,6 +46,75 @@ pub(super) struct IngestObservabilitySummary {
 }
 
 impl AthenaStore {
+    /// Measure the existing in-memory cache before considering persistence.
+    pub fn profile_classification_cache(iterations: usize) -> ClassificationCacheProfile {
+        let iterations = iterations.max(1);
+        let unique = ClassificationCache::default();
+        let unique_started = std::time::Instant::now();
+        for index in 0..iterations {
+            let _ = unique.classify(&format!("https://docs.rs/profile-{index}"));
+        }
+        let unique_elapsed = unique_started.elapsed().as_nanos() as u64;
+
+        let cached = ClassificationCache::default();
+        let input = "https://docs.rs/tokio/latest/tokio/";
+        let _ = cached.classify(input);
+        let cached_started = std::time::Instant::now();
+        for _ in 0..iterations {
+            let _ = cached.classify(input);
+        }
+        let cached_elapsed = cached_started.elapsed().as_nanos() as u64;
+        let unique_mean_nanoseconds = unique_elapsed / iterations as u64;
+        let cached_mean_nanoseconds = cached_elapsed / iterations as u64;
+        let decision_threshold_nanoseconds = 100_000;
+
+        ClassificationCacheProfile {
+            schema_version: "arda.varda.classification_cache_profile.v1".to_string(),
+            iterations,
+            unique_mean_nanoseconds,
+            cached_mean_nanoseconds,
+            persistent_cache_recommended: unique_mean_nanoseconds >= decision_threshold_nanoseconds,
+            decision_threshold_nanoseconds,
+        }
+    }
+
+    /// Project canonical ATHENA status for engine and CLI readers.
+    pub fn operator_status(&self) -> Result<AthenaOperatorStatus> {
+        let status = self.status()?;
+        let completed_total = status
+            .knowledge_vault
+            .source_lane_observations
+            .iter()
+            .map(|lane| lane.policy_ready_sources_total)
+            .sum();
+        let pending_total = status.knowledge_vault.synthesis_queue.len();
+        let malformed_total = status.policy_readiness_malformed_records;
+        Ok(AthenaOperatorStatus {
+            schema_version: "arda.varda.operator_status.v1".to_string(),
+            storage_root: status.storage_root,
+            synthesis_queue: AthenaSynthesisQueueSummary {
+                authority: status.knowledge_vault.authority,
+                pending_total,
+                completed_total,
+                malformed_total,
+                empty: pending_total == 0 && completed_total == 0 && malformed_total == 0,
+                pending: status.knowledge_vault.synthesis_queue,
+            },
+            governance: AthenaGovernanceCounterSummary {
+                owner: "arda-varda".to_string(),
+                policy_ready_promotions_total: status.policy_ready_promotions_total,
+                policy_ready_regressions_total: status.policy_ready_regressions_total,
+                malformed_records_total: status.policy_readiness_malformed_records,
+            },
+            learning: AthenaLearningCounterSummary {
+                owner: "arda-varda".to_string(),
+                task_emission_receipts_total: status.task_emission_receipts_total,
+                task_emission_success_total: status.task_emission_success_total,
+                task_emission_skipped_total: status.task_emission_skipped_total,
+            },
+        })
+    }
+
     pub fn status(&self) -> Result<AthenaStatus> {
         let books_count = fs::read_dir(&self.books_dir)?
             .filter_map(|e| e.ok())
@@ -51,6 +124,10 @@ impl AthenaStore {
         let digest_events = line_count(&self.digest_path)?;
         let (deep_queue_depth, deep_queue_failed) =
             deep_queue_status_counts(&self.deep_queue_path)?;
+        let (scholarly_reenrichment_pending, scholarly_reenrichment_failed) =
+            super::scholarly::scholarly_reenrichment_status_counts(
+                &self.scholarly_reenrichment_path,
+            )?;
         // Update the deep queue depth gauge
         self.metrics.set_deep_queue_depth(deep_queue_depth as u64);
         let deep_graph_events = line_count(&self.deep_graph_path)?;
@@ -64,13 +141,55 @@ impl AthenaStore {
         let (policy_ready_promotions_total, policy_ready_regressions_total) =
             policy_readiness_delta_summary(&self.policy_readiness_path)?;
         let source_provenance_coverage_ratio = self.source_provenance_coverage_ratio()?;
+        let source_freshness = source_freshness_summary(&self.digest_path, Utc::now())?;
+        self.metrics.set_source_age_seconds(
+            source_freshness
+                .iter()
+                .map(|source| (source.source_id.clone(), source.age_seconds)),
+        );
+        let oldest_source_age_seconds = source_freshness
+            .iter()
+            .map(|source| source.age_seconds)
+            .max();
+        let stale_source_threshold_seconds = std::env::var("ATHENA_STALE_SOURCE_THRESHOLD_SECONDS")
+            .ok()
+            .and_then(|value| value.parse::<u64>().ok())
+            .unwrap_or(7 * 24 * 60 * 60);
+        let stale_source_ids = source_freshness
+            .iter()
+            .filter(|source| source.age_seconds >= stale_source_threshold_seconds)
+            .map(|source| source.source_id.clone())
+            .collect::<Vec<_>>();
+        let stale_source_advisory = (!stale_source_ids.is_empty()).then(|| {
+            AthenaStaleSourceAdvisory {
+                severity: "advisory".to_string(),
+                message: format!(
+                    "{} source(s) exceed the configured freshness threshold; no mutation was performed",
+                    stale_source_ids.len()
+                ),
+                source_ids: stale_source_ids.clone(),
+            }
+        });
         let task_receipts = planning_task_receipt_summary(&self.planning_task_receipts_path)?;
         let knowledge_vault = self.knowledge_vault_status()?;
+        let now = Utc::now();
+        let (active_crawls, process_error) = self.activity_tracker.snapshot(now);
+        let recent_completed_pipelines = super::activity::recent_completed_pipelines(
+            &self.digest_path,
+            &self.crawl_receipts_path,
+            8,
+        )?;
+        let durable_error = super::activity::latest_durable_error(
+            &self.deep_queue_path,
+            &self.scholarly_reenrichment_path,
+        )?;
+        let last_activity_error = super::activity::latest_error(process_error, durable_error);
 
         Ok(AthenaStatus {
             storage_root: self.root.display().to_string(),
             digest_path: self.digest_path.display().to_string(),
             deep_queue_path: self.deep_queue_path.display().to_string(),
+            scholarly_reenrichment_path: self.scholarly_reenrichment_path.display().to_string(),
             deep_graph_path: self.deep_graph_path.display().to_string(),
             policy_readiness_path: self.policy_readiness_path.display().to_string(),
             planning_task_receipts_path: self.planning_task_receipts_path.display().to_string(),
@@ -78,6 +197,8 @@ impl AthenaStore {
             digest_events,
             deep_queue_depth,
             deep_queue_failed,
+            scholarly_reenrichment_pending,
+            scholarly_reenrichment_failed,
             deep_graph_events,
             ingest_success_total: ingest_metrics.ingest_success_total,
             deduplicated_ingests_total: ingest_metrics.deduplicated_ingests_total,
@@ -96,6 +217,16 @@ impl AthenaStore {
             execution_posture: "workstation_first_laptop_operator_fallback".to_string(),
             operator_ingress_role: "laptop_terminal_optional_fallback".to_string(),
             source_provenance_coverage_ratio,
+            source_freshness_total: source_freshness.len(),
+            oldest_source_age_seconds,
+            stale_source_threshold_seconds,
+            stale_sources_total: stale_source_ids.len(),
+            stale_source_advisory,
+            source_freshness,
+            active_crawls_total: active_crawls.len(),
+            active_crawls,
+            recent_completed_pipelines,
+            last_activity_error,
             memory_lanes: vec![
                 "episodic".to_string(),
                 "source_book".to_string(),
@@ -162,7 +293,48 @@ impl AthenaStore {
     }
 
     pub fn recent_deep_queue_events(&self, limit: usize) -> Result<Vec<Value>> {
-        read_recent_jsonl(&self.deep_queue_path, limit)
+        Ok(read_recent_jsonl(&self.deep_queue_path, limit)?
+            .into_iter()
+            .filter_map(|value| {
+                super::schema::migrate_jsonl_value(
+                    super::schema::JsonlStoreSchema::DeepQueue,
+                    value,
+                )
+                .ok()
+            })
+            .collect())
+    }
+
+    /// Read migrated deep-queue records strictly after a one-based JSONL line
+    /// cursor. The first tuple value advances across every scanned line while
+    /// event IDs remain stable even when malformed/future records are skipped.
+    pub fn deep_queue_events_after(
+        &self,
+        after: usize,
+        limit: usize,
+    ) -> Result<(usize, Vec<(usize, Value)>)> {
+        let content = fs::read_to_string(&self.deep_queue_path)?;
+        let mut scanned_cursor = after;
+        let mut events = Vec::new();
+        for (index, line) in content
+            .lines()
+            .enumerate()
+            .skip(after)
+            .take(limit.clamp(1, 1_000))
+        {
+            scanned_cursor = index + 1;
+            let Some(value) = serde_json::from_str::<Value>(line).ok().and_then(|value| {
+                super::schema::migrate_jsonl_value(
+                    super::schema::JsonlStoreSchema::DeepQueue,
+                    value,
+                )
+                .ok()
+            }) else {
+                continue;
+            };
+            events.push((scanned_cursor, value));
+        }
+        Ok((scanned_cursor, events))
     }
 
     pub fn recent_deep_graph_events(&self, limit: usize) -> Result<Vec<Value>> {
@@ -195,6 +367,40 @@ pub(super) fn read_recent_jsonl(path: &Path, limit: usize) -> Result<Vec<Value>>
     }
 }
 
+pub(super) fn source_freshness_summary(
+    path: &Path,
+    now: chrono::DateTime<Utc>,
+) -> Result<Vec<AthenaSourceFreshness>> {
+    let content = fs::read_to_string(path)?;
+    let mut latest = BTreeMap::<String, AthenaSourceFreshness>::new();
+    for line in content.lines() {
+        if line.trim().is_empty() {
+            continue;
+        }
+        let Ok(record) = serde_json::from_str::<IngestRecord>(line) else {
+            continue;
+        };
+        let last_full_refresh_utc = if record.last_full_refresh_utc.is_empty() {
+            record.processed_at_utc
+        } else {
+            record.last_full_refresh_utc
+        };
+        let Some(age_seconds) = super::source::source_age_seconds(&last_full_refresh_utc, now)
+        else {
+            continue;
+        };
+        latest.insert(
+            record.id.clone(),
+            AthenaSourceFreshness {
+                source_id: record.id,
+                last_full_refresh_utc,
+                age_seconds,
+            },
+        );
+    }
+    Ok(latest.into_values().collect())
+}
+
 pub(super) fn deep_queue_status_counts(path: &Path) -> Result<(usize, usize)> {
     let content = fs::read_to_string(path)?;
     let mut latest = std::collections::HashMap::<String, String>::new();
@@ -202,9 +408,9 @@ pub(super) fn deep_queue_status_counts(path: &Path) -> Result<(usize, usize)> {
         if line.trim().is_empty() {
             continue;
         }
-        let value: Value = match serde_json::from_str(line) {
-            Ok(v) => v,
-            Err(_) => continue,
+        let value = match migrated_record(line, super::schema::JsonlStoreSchema::DeepQueue) {
+            Some(v) => v,
+            None => continue,
         };
         let Some(source_id) = value.get("source_id").and_then(|v| v.as_str()) else {
             continue;
@@ -237,9 +443,9 @@ pub(super) fn policy_readiness_summary(
         if line.trim().is_empty() {
             continue;
         }
-        let value: Value = match serde_json::from_str(line) {
-            Ok(v) => v,
-            Err(_) => {
+        let value = match migrated_record(line, super::schema::JsonlStoreSchema::PolicyReadiness) {
+            Some(v) => v,
+            None => {
                 malformed_records += 1;
                 continue;
             }
@@ -311,9 +517,9 @@ pub(super) fn knowledge_vault_source_lane_observations(
         if line.trim().is_empty() {
             continue;
         }
-        let value: Value = match serde_json::from_str(line) {
-            Ok(v) => v,
-            Err(_) => continue,
+        let value = match migrated_record(line, super::schema::JsonlStoreSchema::PolicyReadiness) {
+            Some(v) => v,
+            None => continue,
         };
         let Some(source_id) = value.get("source_id").and_then(Value::as_str) else {
             continue;
@@ -382,7 +588,9 @@ fn knowledge_vault_autonomy_recommendations(
 ) -> Vec<AthenaAutonomyRecommendation> {
     observations
         .iter()
-        .filter(|observation| observation.ingested_sources_total > 0)
+        .filter(|observation| {
+            observation.ingested_sources_total > observation.policy_ready_sources_total
+        })
         .map(|observation| AthenaAutonomyRecommendation {
             recommendation_id: format!(
                 "athena.vault.{}.safe_local_ingest_review",
@@ -396,7 +604,9 @@ fn knowledge_vault_autonomy_recommendations(
             ),
             safe_local: true,
             human_gate_required: false,
-            evidence_count: observation.ingested_sources_total,
+            evidence_count: observation
+                .ingested_sources_total
+                .saturating_sub(observation.policy_ready_sources_total),
         })
         .collect()
 }
@@ -499,9 +709,9 @@ pub(super) fn average_deep_queue_latency_seconds(path: &Path) -> Result<f64> {
         if line.trim().is_empty() {
             continue;
         }
-        let value: Value = match serde_json::from_str(line) {
-            Ok(v) => v,
-            Err(_) => continue,
+        let value = match migrated_record(line, super::schema::JsonlStoreSchema::DeepQueue) {
+            Some(v) => v,
+            None => continue,
         };
         let Some(source_id) = value.get("source_id").and_then(|v| v.as_str()) else {
             continue;
@@ -547,9 +757,9 @@ pub(super) fn policy_readiness_delta_summary(path: &Path) -> Result<(usize, usiz
         if line.trim().is_empty() {
             continue;
         }
-        let value: Value = match serde_json::from_str(line) {
-            Ok(v) => v,
-            Err(_) => continue,
+        let value = match migrated_record(line, super::schema::JsonlStoreSchema::PolicyReadiness) {
+            Some(v) => v,
+            None => continue,
         };
         let Some(source_id) = value.get("source_id").and_then(|v| v.as_str()) else {
             continue;
@@ -568,6 +778,11 @@ pub(super) fn policy_readiness_delta_summary(path: &Path) -> Result<(usize, usiz
         }
     }
     Ok((promotions, regressions))
+}
+
+fn migrated_record(line: &str, schema: super::schema::JsonlStoreSchema) -> Option<Value> {
+    let value = serde_json::from_str::<Value>(line).ok()?;
+    super::schema::migrate_jsonl_value(schema, value).ok()
 }
 
 pub(super) fn planning_task_receipt_summary(path: &Path) -> Result<PlanningTaskReceiptSummary> {

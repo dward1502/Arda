@@ -342,7 +342,7 @@ pub(super) fn write_mnemosyne_continuity_projection(core_root: &Path) {
     };
 
     let snapshot = json!({
-        "schema_version": CORE_STATE_SCHEMA_VERSION,
+        "schema_version": "arda.mnemosyne.continuity.v1",
         "generated_at_utc": Utc::now().to_rfc3339(),
         "authority": "mnemosyne_continuity_projection",
         "status": status,

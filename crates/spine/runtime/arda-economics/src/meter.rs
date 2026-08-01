@@ -19,6 +19,21 @@ pub struct JouleSample {
     pub sampled_at: DateTime<Utc>,
 }
 
+/// A deterministic meter failure. Registries use this contract to skip a
+/// failed hardware backend and continue to the estimator fallback.
+#[derive(Debug, thiserror::Error)]
+pub enum MeterError {
+    #[error("meter {meter} failed: {message}")]
+    Backend {
+        meter: &'static str,
+        message: String,
+    },
+    #[error("invalid work profile: {0}")]
+    InvalidWork(String),
+    #[error("meter {meter} returned invalid joules: {joules}")]
+    InvalidSample { meter: &'static str, joules: f64 },
+}
+
 /// Where the reading came from. Lets the ledger separate measured
 /// energy from estimated energy without losing fidelity.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -71,7 +86,9 @@ pub enum WorkProfile {
 }
 
 /// Energy meter abstraction. Every backend (RAPL/NVML/Pi5/powermetrics
-/// + the estimator fallback) implements this trait.
+/// + the estimator fallback) implements this trait. Sampling is async so
+/// hardware backends can perform non-blocking platform reads.
+#[async_trait::async_trait]
 pub trait EnergyMeter: Send + Sync {
     /// Stable name for telemetry (e.g. `"rapl"`, `"estimator"`).
     fn name(&self) -> &'static str;
@@ -81,7 +98,21 @@ pub trait EnergyMeter: Send + Sync {
     fn available(&self) -> bool;
 
     /// Produce a joule estimate for the given work.
-    fn estimate(&self, work: &WorkProfile) -> JouleSample;
+    async fn estimate(&self, work: &WorkProfile) -> Result<JouleSample, MeterError>;
+}
+
+fn validate_work(work: &WorkProfile) -> Result<(), MeterError> {
+    match work {
+        WorkProfile::Cloud { .. } => Ok(()),
+        WorkProfile::Local { duration_secs }
+            if duration_secs.is_finite() && *duration_secs >= 0.0 =>
+        {
+            Ok(())
+        }
+        WorkProfile::Local { duration_secs } => Err(MeterError::InvalidWork(format!(
+            "duration_secs must be finite and non-negative, got {duration_secs}"
+        ))),
+    }
 }
 
 // ---------------------------------------------------------------
@@ -95,6 +126,8 @@ pub enum TariffError {
     Io(#[from] std::io::Error),
     #[error("tariffs parse error: {0}")]
     Parse(String),
+    #[error("invalid tariff rate for {field}: {value}; rates must be finite and non-negative")]
+    InvalidRate { field: String, value: f64 },
 }
 
 #[derive(Debug, Deserialize)]
@@ -128,6 +161,7 @@ pub struct TariffTable {
     /// Default if no entry matches.
     default_input: f64,
     default_output: f64,
+    loaded_at_utc: DateTime<Utc>,
 }
 
 impl TariffTable {
@@ -155,6 +189,7 @@ impl TariffTable {
             output,
             default_input: 0.02,
             default_output: 0.06,
+            loaded_at_utc: Utc::now(),
         }
     }
 
@@ -163,17 +198,39 @@ impl TariffTable {
     /// this again — there's no daemon, the caller decides cadence.
     pub fn load_from_path(path: &Path) -> Result<Self, TariffError> {
         let raw = std::fs::read_to_string(path).map_err(TariffError::Io)?;
-        Self::load_from_str(&raw)
+        let mut table = Self::load_from_str(&raw)?;
+        table.loaded_at_utc = std::fs::metadata(path)
+            .ok()
+            .and_then(|metadata| metadata.modified().ok())
+            .map(DateTime::<Utc>::from)
+            .unwrap_or_else(Utc::now);
+        Ok(table)
     }
 
     /// Parse from a TOML string. Useful for tests.
     pub fn load_from_str(raw: &str) -> Result<Self, TariffError> {
         let file: TariffFile =
             toml::from_str(raw).map_err(|e| TariffError::Parse(e.to_string()))?;
+        validate_rate(
+            "defaults.joules_per_input_token",
+            file.defaults.joules_per_input_token,
+        )?;
+        validate_rate(
+            "defaults.joules_per_output_token",
+            file.defaults.joules_per_output_token,
+        )?;
         let mut input = std::collections::HashMap::new();
         let mut output = std::collections::HashMap::new();
         for e in file.entries.unwrap_or_default() {
             let key = format!("{}/{}", e.provider, e.model);
+            validate_rate(
+                &format!("entries[{key}].joules_per_input_token"),
+                e.joules_per_input_token,
+            )?;
+            validate_rate(
+                &format!("entries[{key}].joules_per_output_token"),
+                e.joules_per_output_token,
+            )?;
             input.insert(key.clone(), e.joules_per_input_token);
             output.insert(key, e.joules_per_output_token);
         }
@@ -182,6 +239,7 @@ impl TariffTable {
             output,
             default_input: file.defaults.joules_per_input_token,
             default_output: file.defaults.joules_per_output_token,
+            loaded_at_utc: Utc::now(),
         })
     }
 
@@ -190,6 +248,17 @@ impl TariffTable {
     pub fn reload_from_path(&mut self, path: &Path) -> Result<(), TariffError> {
         *self = Self::load_from_path(path)?;
         Ok(())
+    }
+
+    /// Timestamp of the currently active tariff source. File-backed tables use
+    /// the source modification time; in-memory/default tables use load time.
+    pub fn loaded_at_utc(&self) -> DateTime<Utc> {
+        self.loaded_at_utc
+    }
+
+    /// Whether this table is older than the caller's accepted freshness window.
+    pub fn is_stale_at(&self, now: DateTime<Utc>, max_age: chrono::Duration) -> bool {
+        now.signed_duration_since(self.loaded_at_utc) > max_age
     }
 
     fn rates(&self, provider: &str, model: &str) -> (f64, f64) {
@@ -201,6 +270,17 @@ impl TariffTable {
             .copied()
             .unwrap_or(self.default_output);
         (i, o)
+    }
+}
+
+fn validate_rate(field: &str, value: f64) -> Result<(), TariffError> {
+    if value.is_finite() && value >= 0.0 {
+        Ok(())
+    } else {
+        Err(TariffError::InvalidRate {
+            field: field.to_owned(),
+            value,
+        })
     }
 }
 
@@ -237,18 +317,8 @@ impl EstimatorMeter {
         self.local_joules_per_sec = j;
         self
     }
-}
 
-impl EnergyMeter for EstimatorMeter {
-    fn name(&self) -> &'static str {
-        "estimator"
-    }
-
-    fn available(&self) -> bool {
-        true
-    }
-
-    fn estimate(&self, work: &WorkProfile) -> JouleSample {
+    fn estimate_sync(&self, work: &WorkProfile) -> JouleSample {
         let (joules, source) = match work {
             WorkProfile::Cloud {
                 provider,
@@ -257,8 +327,8 @@ impl EnergyMeter for EstimatorMeter {
                 output_tokens,
             } => {
                 let (ri, ro) = self.tariffs.rates(provider, model);
-                let j = ri * (*input_tokens as f64) + ro * (*output_tokens as f64);
-                (j, SampleSource::EstimatorTariff)
+                let joules = ri * (*input_tokens as f64) + ro * (*output_tokens as f64);
+                (joules, SampleSource::EstimatorTariff)
             }
             WorkProfile::Local { duration_secs } => (
                 self.local_joules_per_sec * duration_secs,
@@ -269,6 +339,30 @@ impl EnergyMeter for EstimatorMeter {
             joules,
             source,
             sampled_at: Utc::now(),
+        }
+    }
+}
+
+#[async_trait::async_trait]
+impl EnergyMeter for EstimatorMeter {
+    fn name(&self) -> &'static str {
+        "estimator"
+    }
+
+    fn available(&self) -> bool {
+        true
+    }
+
+    async fn estimate(&self, work: &WorkProfile) -> Result<JouleSample, MeterError> {
+        validate_work(work)?;
+        let sample = self.estimate_sync(work);
+        if sample.joules.is_finite() && sample.joules >= 0.0 {
+            Ok(sample)
+        } else {
+            Err(MeterError::InvalidSample {
+                meter: self.name(),
+                joules: sample.joules,
+            })
         }
     }
 }
@@ -342,6 +436,7 @@ impl HardwareMeter {
     }
 }
 
+#[async_trait::async_trait]
 impl EnergyMeter for HardwareMeter {
     fn name(&self) -> &'static str {
         self.name
@@ -351,11 +446,20 @@ impl EnergyMeter for HardwareMeter {
         self.probe_paths.iter().any(|path| Path::new(path).exists())
     }
 
-    fn estimate(&self, work: &WorkProfile) -> JouleSample {
-        JouleSample {
+    async fn estimate(&self, work: &WorkProfile) -> Result<JouleSample, MeterError> {
+        validate_work(work)?;
+        let sample = JouleSample {
             joules: self.local_joules(work),
             source: self.source,
             sampled_at: Utc::now(),
+        };
+        if sample.joules.is_finite() && sample.joules >= 0.0 {
+            Ok(sample)
+        } else {
+            Err(MeterError::InvalidSample {
+                meter: self.name(),
+                joules: sample.joules,
+            })
         }
     }
 }
@@ -402,7 +506,7 @@ fn default_intent_profile(intent: &str) -> WorkProfile {
 impl arda_core::loop_engine::JouleEstimator for EstimatorMeter {
     fn estimate_for_task(&self, task: &arda_core::task::Task) -> f64 {
         let profile = default_intent_profile(&task.task_type);
-        self.estimate(&profile).joules
+        self.estimate_sync(&profile).joules
     }
 }
 
@@ -448,6 +552,38 @@ impl MeterRegistry {
         }
         Arc::new(EstimatorMeter::with_default_tariffs())
     }
+
+    /// Estimate with ordered backend fallback. Available registered meters are
+    /// tried in order; backend errors and invalid samples are skipped. A fresh,
+    /// deterministic estimator is the final fallback.
+    pub async fn estimate(&self, work: &WorkProfile) -> Result<JouleSample, MeterError> {
+        for meter in &self.meters {
+            if !meter.available() {
+                continue;
+            }
+            match meter.estimate(work).await {
+                Ok(sample) if sample.joules.is_finite() && sample.joules >= 0.0 => {
+                    return Ok(sample);
+                }
+                Ok(sample) => {
+                    tracing::warn!(
+                        meter = meter.name(),
+                        joules = sample.joules,
+                        "energy meter returned invalid sample; trying fallback"
+                    );
+                }
+                Err(error) => {
+                    tracing::warn!(
+                        meter = meter.name(),
+                        error = %error,
+                        "energy meter failed; trying fallback"
+                    );
+                }
+            }
+        }
+
+        EstimatorMeter::with_default_tariffs().estimate(work).await
+    }
 }
 
 impl Default for MeterRegistry {
@@ -460,38 +596,88 @@ impl Default for MeterRegistry {
 mod tests {
     use super::*;
 
-    #[test]
-    fn estimator_uses_tariff_for_known_model() {
+    struct FailingMeter;
+
+    #[async_trait::async_trait]
+    impl EnergyMeter for FailingMeter {
+        fn name(&self) -> &'static str {
+            "failing_hardware"
+        }
+
+        fn available(&self) -> bool {
+            true
+        }
+
+        async fn estimate(&self, _work: &WorkProfile) -> Result<JouleSample, MeterError> {
+            Err(MeterError::Backend {
+                meter: self.name(),
+                message: "simulated read failure".to_owned(),
+            })
+        }
+    }
+
+    struct NonFiniteMeter;
+
+    #[async_trait::async_trait]
+    impl EnergyMeter for NonFiniteMeter {
+        fn name(&self) -> &'static str {
+            "non_finite_hardware"
+        }
+
+        fn available(&self) -> bool {
+            true
+        }
+
+        async fn estimate(&self, _work: &WorkProfile) -> Result<JouleSample, MeterError> {
+            Ok(JouleSample {
+                joules: f64::NAN,
+                source: SampleSource::Rapl,
+                sampled_at: Utc::now(),
+            })
+        }
+    }
+
+    #[tokio::test]
+    async fn estimator_uses_tariff_for_known_model() {
         let m = EstimatorMeter::with_default_tariffs();
-        let s = m.estimate(&WorkProfile::Cloud {
-            provider: "anthropic".into(),
-            model: "claude-haiku-4-5".into(),
-            input_tokens: 1_000,
-            output_tokens: 500,
-        });
+        let s = m
+            .estimate(&WorkProfile::Cloud {
+                provider: "anthropic".into(),
+                model: "claude-haiku-4-5".into(),
+                input_tokens: 1_000,
+                output_tokens: 500,
+            })
+            .await
+            .expect("sample");
         // 1000 * 0.005 + 500 * 0.015 = 5.0 + 7.5 = 12.5
         assert!((s.joules - 12.5).abs() < 1e-9);
         assert_eq!(s.source, SampleSource::EstimatorTariff);
         assert!(!s.source.is_measured());
     }
 
-    #[test]
-    fn estimator_falls_back_to_default_for_unknown_model() {
+    #[tokio::test]
+    async fn estimator_falls_back_to_default_for_unknown_model() {
         let m = EstimatorMeter::with_default_tariffs();
-        let s = m.estimate(&WorkProfile::Cloud {
-            provider: "weird".into(),
-            model: "unknown-7b".into(),
-            input_tokens: 100,
-            output_tokens: 100,
-        });
+        let s = m
+            .estimate(&WorkProfile::Cloud {
+                provider: "weird".into(),
+                model: "unknown-7b".into(),
+                input_tokens: 100,
+                output_tokens: 100,
+            })
+            .await
+            .expect("sample");
         // 100 * 0.02 + 100 * 0.06 = 2.0 + 6.0 = 8.0
         assert!((s.joules - 8.0).abs() < 1e-9);
     }
 
-    #[test]
-    fn estimator_local_uses_joules_per_sec() {
+    #[tokio::test]
+    async fn estimator_local_uses_joules_per_sec() {
         let m = EstimatorMeter::with_default_tariffs().with_local_joules_per_sec(10.0);
-        let s = m.estimate(&WorkProfile::Local { duration_secs: 4.0 });
+        let s = m
+            .estimate(&WorkProfile::Local { duration_secs: 4.0 })
+            .await
+            .expect("sample");
         assert!((s.joules - 40.0).abs() < 1e-9);
         assert_eq!(s.source, SampleSource::EstimatorConstant);
     }
@@ -529,6 +715,19 @@ mod tests {
     }
 
     #[test]
+    fn tariff_table_rejects_negative_and_non_finite_rates() {
+        for value in ["-0.1", "nan"] {
+            let raw = format!(
+                "[defaults]\njoules_per_input_token = {value}\njoules_per_output_token = 0.2"
+            );
+            assert!(matches!(
+                TariffTable::load_from_str(&raw),
+                Err(TariffError::InvalidRate { .. })
+            ));
+        }
+    }
+
+    #[test]
     fn tariff_table_reloads_from_disk() {
         use std::io::Write;
         let dir = tempfile::tempdir().unwrap();
@@ -554,6 +753,31 @@ mod tests {
         drop(f);
         table.reload_from_path(&path).unwrap();
         assert_eq!(table.rates("a", "b"), (7.0, 9.0));
+    }
+
+    #[test]
+    fn tariff_table_exposes_deterministic_staleness_hook() {
+        let table = TariffTable::default_v0_2();
+        let loaded = table.loaded_at_utc();
+        let max_age = chrono::Duration::seconds(300);
+        assert!(!table.is_stale_at(loaded + chrono::Duration::seconds(300), max_age));
+        assert!(table.is_stale_at(loaded + chrono::Duration::seconds(301), max_age));
+    }
+
+    #[test]
+    fn failed_tariff_reload_keeps_last_valid_table() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let path = dir.path().join("tariffs.toml");
+        std::fs::write(
+            &path,
+            "[defaults]\njoules_per_input_token = 1.0\njoules_per_output_token = 2.0",
+        )
+        .expect("valid tariffs");
+        let mut table = TariffTable::load_from_path(&path).expect("load valid tariffs");
+
+        std::fs::write(&path, "not valid toml = [").expect("invalid tariffs");
+        assert!(table.reload_from_path(&path).is_err());
+        assert_eq!(table.rates("a", "b"), (1.0, 2.0));
     }
 
     #[test]
@@ -589,8 +813,8 @@ mod tests {
         assert!(!SampleSource::EstimatorConstant.is_measured());
     }
 
-    #[test]
-    fn hardware_meter_marks_local_samples_as_measured_source() {
+    #[tokio::test]
+    async fn hardware_meter_marks_local_samples_as_measured_source() {
         let meter = HardwareMeter {
             name: "test_hardware",
             source: SampleSource::Rapl,
@@ -598,9 +822,53 @@ mod tests {
             local_watts: 12.0,
         };
         assert!(!meter.available());
-        let sample = meter.estimate(&WorkProfile::Local { duration_secs: 2.5 });
+        let sample = meter
+            .estimate(&WorkProfile::Local { duration_secs: 2.5 })
+            .await
+            .expect("sample");
         assert!((sample.joules - 30.0).abs() < 1e-9);
         assert_eq!(sample.source, SampleSource::Rapl);
         assert!(sample.source.is_measured());
+    }
+
+    #[tokio::test]
+    async fn registry_falls_back_after_hardware_backend_failure() {
+        let mut registry = MeterRegistry::new();
+        registry.register(Arc::new(FailingMeter));
+
+        let sample = registry
+            .estimate(&WorkProfile::Local { duration_secs: 2.0 })
+            .await
+            .expect("estimator fallback");
+
+        assert_eq!(sample.source, SampleSource::EstimatorConstant);
+        assert!((sample.joules - 50.0).abs() < f64::EPSILON);
+    }
+
+    #[tokio::test]
+    async fn registry_rejects_non_finite_hardware_sample_before_fallback() {
+        let mut registry = MeterRegistry::new();
+        registry.register(Arc::new(NonFiniteMeter));
+
+        let sample = registry
+            .estimate(&WorkProfile::Local { duration_secs: 1.0 })
+            .await
+            .expect("estimator fallback");
+
+        assert_eq!(sample.source, SampleSource::EstimatorConstant);
+        assert!(sample.joules.is_finite());
+    }
+
+    #[tokio::test]
+    async fn invalid_work_fails_even_when_only_estimator_is_available() {
+        let registry = MeterRegistry::new();
+        let error = registry
+            .estimate(&WorkProfile::Local {
+                duration_secs: f64::NAN,
+            })
+            .await
+            .expect_err("non-finite duration must fail");
+
+        assert!(matches!(error, MeterError::InvalidWork(_)));
     }
 }

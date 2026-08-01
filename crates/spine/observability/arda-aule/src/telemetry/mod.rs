@@ -6,26 +6,24 @@
 //! - shutdown/guard helpers for clean process exit
 //! - semantic event helpers for runtime/engine surfaces
 //!
-//! All public items are gated behind `cfg(feature = "telemetry")` so
-//! consumers can import `ardea_telemetry` unconditionally; the actual
-//! runtime wiring compiles away when the feature is off.
+//! The module is exported as `arda_aule::telemetry` only when the crate's
+//! `telemetry` feature is enabled.
 
 use std::borrow::Cow;
 
-#[cfg(feature = "telemetry")]
 pub mod config;
-#[cfg(feature = "telemetry")]
-pub mod events;
-#[cfg(feature = "telemetry")]
-pub mod tracer;
+mod events;
+mod tracer;
 
 pub(crate) mod semantic {
-    pub const SERVICE_NAME: &'static str = "arda-runtime";
-    pub const SCHEMA_VERSION: &'static str = "arda.telemetry.v1";
+    pub const SERVICE_NAME: &str = "arda-runtime";
 }
 
+/// Semantic schema carried by events emitted through this module.
+pub const SCHEMA_VERSION: &str = "arda.telemetry.v1";
+
 /// Build identifier appended to structured event payloads.
-pub(crate) const ARDA_TELEMETRY_BUILD: &'static str = "arda.telemetry.substrate.v1";
+pub(crate) const ARDA_TELEMETRY_BUILD: &str = "arda.telemetry.substrate.v1";
 
 /// Crate-local event namespace. Consumers should use this value for
 /// `crate` structured fields so dashboards can filter across crates.
@@ -33,10 +31,47 @@ pub fn crate_namespace() -> &'static str {
     "arda-aule"
 }
 
+/// Emit one structured telemetry event through the selected trace/log
+/// destination. Event attributes are preserved as structured JSON.
+pub fn emit(event: TelemetryEvent) {
+    events::emit(event);
+}
+
+/// Build the OpenTelemetry tracing layer when an OTLP endpoint is configured.
+pub fn tracing_layer() -> Option<
+    tracing_opentelemetry::OpenTelemetryLayer<
+        tracing_subscriber::Registry,
+        opentelemetry_sdk::trace::SdkTracer,
+    >,
+> {
+    tracer::otel_layer()
+}
+
+/// Flush and shut down the configured tracer provider.
+pub fn shutdown() {
+    tracer::shutdown_tracer();
+}
+
+/// Return a process-lifetime guard that flushes telemetry when dropped.
+pub fn shutdown_guard() -> ShutdownGuard {
+    ShutdownGuard
+}
+
+pub struct ShutdownGuard;
+
+impl Drop for ShutdownGuard {
+    fn drop(&mut self) {
+        shutdown();
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Destination {
+    /// Emit an OpenTelemetry-compatible tracing span.
     Traces,
+    /// Emit a root event to the configured `tracing` log layers.
     Logs,
+    /// Emit both the tracing span and the local `tracing` log event.
     Both,
 }
 

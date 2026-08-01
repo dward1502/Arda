@@ -1,8 +1,8 @@
 // sigil: REPAIR
 //
 // In-process Prometheus counter/gauge/histogram store for ATHENA.
-// Mirrors `crates/annunimas-charon/src/service/metrics.rs` — hand-rolled,
-// no extra dep, single Mutex; emission paths are not in the hottest loop.
+// Mirrors Manwe's hand-rolled service metrics — no extra dependency and a
+// single Mutex; emission paths are not in the hottest loop.
 //
 // Phase 4 scope (subset of OPTIMIZATION_PLAN.md C1):
 //   athena_ingest_documents_total{source_kind,outcome}
@@ -13,8 +13,9 @@
 //   athena_index_rebuilds_total
 //   athena_index_entries                                     (gauge — last index size)
 //   athena_policy_readiness_malformed_records                (gauge — JSONL parse failures)
+//   athena_source_age_seconds{source_id}                     (gauge — full-refresh age)
 
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::sync::Mutex;
 
 const QUERY_LATENCY_BUCKETS_S: [f64; 10] =
@@ -37,6 +38,7 @@ struct MetricsInner {
     index_rebuilds: u64,
     index_entries: u64,
     policy_readiness_malformed_records: u64,
+    source_age_seconds: BTreeMap<String, u64>,
 }
 
 impl AthenaMetrics {
@@ -85,6 +87,14 @@ impl AthenaMetrics {
         g.policy_readiness_malformed_records = count;
     }
 
+    pub fn set_source_age_seconds<I>(&self, ages: I)
+    where
+        I: IntoIterator<Item = (String, u64)>,
+    {
+        let mut g = self.lock();
+        g.source_age_seconds = ages.into_iter().collect();
+    }
+
     pub fn snapshot(&self) -> AthenaMetricsSnapshot {
         let g = self.lock();
         AthenaMetricsSnapshot {
@@ -97,6 +107,7 @@ impl AthenaMetrics {
             index_rebuilds: g.index_rebuilds,
             index_entries: g.index_entries,
             policy_readiness_malformed_records: g.policy_readiness_malformed_records,
+            source_age_series: g.source_age_seconds.len(),
         }
     }
 
@@ -180,6 +191,18 @@ impl AthenaMetrics {
             g.policy_readiness_malformed_records
         ));
 
+        buf.push_str(
+            "# HELP athena_source_age_seconds Seconds since the source was last fully refreshed\n",
+        );
+        buf.push_str("# TYPE athena_source_age_seconds gauge\n");
+        for (source_id, age_seconds) in &g.source_age_seconds {
+            buf.push_str(&format!(
+                "athena_source_age_seconds{{source_id=\"{}\"}} {}\n",
+                escape(source_id),
+                age_seconds
+            ));
+        }
+
         buf
     }
 
@@ -202,6 +225,7 @@ pub struct AthenaMetricsSnapshot {
     pub index_rebuilds: u64,
     pub index_entries: u64,
     pub policy_readiness_malformed_records: u64,
+    pub source_age_series: usize,
 }
 
 fn escape(value: &str) -> String {
@@ -314,6 +338,21 @@ mod tests {
         let out = m.render_prometheus();
         assert!(out.contains("athena_policy_readiness_malformed_records 2"));
         assert_eq!(m.snapshot().policy_readiness_malformed_records, 2);
+    }
+
+    #[test]
+    fn source_age_gauges_replace_and_render_per_source() {
+        let m = AthenaMetrics::new();
+        m.set_source_age_seconds([("src_beta".to_string(), 12), ("src_alpha".to_string(), 7)]);
+        let out = m.render_prometheus();
+        assert!(out.contains("athena_source_age_seconds{source_id=\"src_alpha\"} 7"));
+        assert!(out.contains("athena_source_age_seconds{source_id=\"src_beta\"} 12"));
+        assert_eq!(m.snapshot().source_age_series, 2);
+
+        m.set_source_age_seconds([("src_alpha".to_string(), 8)]);
+        let refreshed = m.render_prometheus();
+        assert!(refreshed.contains("athena_source_age_seconds{source_id=\"src_alpha\"} 8"));
+        assert!(!refreshed.contains("src_beta"));
     }
 
     #[test]

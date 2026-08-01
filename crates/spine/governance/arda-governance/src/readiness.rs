@@ -208,6 +208,15 @@ pub fn missing_evidence_for_level(
         .collect()
 }
 
+/// Project the crate's conservative default readiness report.
+///
+/// ```
+/// use arda_governance::default_governance_readiness_report;
+///
+/// let report = default_governance_readiness_report();
+/// assert_eq!(report.schema_version, "arda.governance.readiness.v1");
+/// assert!(!report.default_autonomy_ready);
+/// ```
 pub fn default_governance_readiness_report() -> GovernanceReadinessReport {
     governance_readiness_report_with_independent_reviews(&[])
 }
@@ -221,7 +230,7 @@ pub fn governance_readiness_report_with_independent_reviews(
             GovernanceReadinessEvidence::source_metadata_disclosed(),
             GovernanceReadinessLevel::AutonomyReadyForScope,
             vec![
-                "crates/arda-governance/src/triad.rs".to_string(),
+                "crates/spine/governance/arda-governance/src/triad.rs".to_string(),
                 "docs/contracts/GOVERNANCE_CURRENT_STATE.md".to_string(),
             ],
             "heuristic_local",
@@ -254,7 +263,7 @@ pub fn governance_readiness_report_with_independent_reviews(
             GovernanceReadinessEvidence::source_metadata_disclosed(),
             GovernanceReadinessLevel::RuntimeReceipted,
             vec![
-                "crates/arda-governance/src/resonance.rs".to_string(),
+                "crates/spine/governance/arda-governance/src/resonance.rs".to_string(),
                 "docs/contracts/GOVERNANCE_CURRENT_STATE.md".to_string(),
             ],
             "live_source_disclosed_when_explicitly_called",
@@ -265,7 +274,7 @@ pub fn governance_readiness_report_with_independent_reviews(
             GovernanceReadinessEvidence::source_metadata_disclosed(),
             GovernanceReadinessLevel::AutonomyReadyForScope,
             vec![
-                "crates/arda-governance/src/game_theory.rs".to_string(),
+                "crates/spine/governance/arda-governance/src/game_theory.rs".to_string(),
                 "docs/contracts/GOVERNANCE_CURRENT_STATE.md".to_string(),
             ],
             "capability_weighted_heuristic_not_autonomous_consensus",
@@ -287,7 +296,7 @@ pub fn governance_readiness_report_with_independent_reviews(
             GovernanceReadinessEvidence::source_metadata_disclosed(),
             GovernanceReadinessLevel::RuntimeReceipted,
             vec![
-                "crates/arda-governance/src/love_dynamics.rs".to_string(),
+                "crates/spine/governance/arda-governance/src/love_dynamics.rs".to_string(),
                 "docs/contracts/GOVERNANCE_CURRENT_STATE.md".to_string(),
             ],
             "canonical_formula_source_disclosed",

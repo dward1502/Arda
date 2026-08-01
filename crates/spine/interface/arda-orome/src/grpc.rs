@@ -12,12 +12,12 @@ mod route_governance {
 }
 
 pub use health_model::{
-    health_model_service_server::{HealthModelService, HealthModelServiceServer},
     health_model_service_client::HealthModelServiceClient,
+    health_model_service_server::{HealthModelService, HealthModelServiceServer},
     HealthRequest, HealthResponse, ListModelsRequest, ListModelsResponse, ModelInfo,
 };
 pub use route_governance::{
-    route_governance_service_server::{RouteGovernanceService, RouteGovernanceServiceServer},
     route_governance_service_client::RouteGovernanceServiceClient,
+    route_governance_service_server::{RouteGovernanceService, RouteGovernanceServiceServer},
     GovernanceVerdictRequest, GovernanceVerdictResponse, RouteRequest, RouteResponse,
 };

@@ -13,7 +13,7 @@ use serde_json::Value;
 use std::collections::BTreeSet;
 use std::path::Path;
 
-pub const ACTION_CLASS_CONTRACT: &str = "annunimas.action_classification.v1";
+pub const ACTION_CLASS_CONTRACT: &str = "arda.action_classification.v1";
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -719,6 +719,7 @@ mod tests {
                 action: arda_governance::PhilosopherAction::Hold,
                 reason: "evidence grounding is insufficient for confident action".into(),
                 alignment_score: 0.42,
+                lifecycle: Default::default(),
             }),
         };
 

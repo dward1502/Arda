@@ -1,0 +1,20 @@
+{
+  "artifacts_distinct": true,
+  "candidate_artifact_sha256": "e2409c587267caa49ae0506b836a6ae79e9a190c39ed01a30e56a739d08b72da",
+  "candidate_version": "0.3.0-rc.0",
+  "checksums_reproducible": true,
+  "contract": "arda.s5-rc0-proof.v1",
+  "diagnostics_identifies_installed_release": true,
+  "diagnostics_identifies_pre_upgrade_backup": true,
+  "manifest_reproducible": true,
+  "mutation_attempts": 2,
+  "observable_mutations": 1,
+  "release_id": "sha256:a1721c7ed7b2ee37132ab80e0d0579b4bfae587ec23a508d3b564b20ef453ac8",
+  "rollback_result_machine_readable": true,
+  "secret_state_preserved_without_archive": true,
+  "source_repository_touched": false,
+  "stage4_artifact_sha256": "36712b66f5bda057e58cf2e2b56abb0ca31ee7700f1ce9895324a7413cc38d49",
+  "status": "pass",
+  "supported_profile": "bluefin-lts-10-x86_64",
+  "terminal_run_truth_preserved": true
+}

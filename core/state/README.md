@@ -251,4 +251,4 @@ This directory contains runtime data. Files may be automatically generated and u
 
 ## Related Components
 
-- [arda-mnemosyne](/var/home/mythos/Eregion/Arda/crates/arda-mnemosyne) - State management
+- [arda-vaire](../../crates/spine/memory/arda-vaire) - Durable memory and continuity

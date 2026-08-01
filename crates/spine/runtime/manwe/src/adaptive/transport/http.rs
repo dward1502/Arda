@@ -1,4 +1,7 @@
 use crate::adaptive::service::ManweService;
+use crate::adaptive::service::{
+    classify_provider_operational_state, hermes_cli_readiness_summary, hermes_proxy_base_url,
+};
 use crate::types::ManweRequestEnvelope;
 use crate::types::{ModelState, ProviderState};
 use arda_core::error::{ArdaError, Result};
@@ -18,6 +21,10 @@ use tokio_stream::wrappers::IntervalStream;
 use tokio_stream::{Stream, StreamExt};
 use tracing::warn;
 
+// Security note: MANWE binds to localhost and IPC is a Unix-domain socket.
+// These transport boundaries are the primary trust domain; auth here is
+// defense-in-depth for mutation-exposed handlers only.
+
 pub async fn run_http_server(service: ManweService, addr: &str) -> Result<()> {
     tracing::info!(addr = %addr, "starting MANWE HTTP server");
     // D1: spawn in-process active health probe loop. Pre-warms the
@@ -28,6 +35,8 @@ pub async fn run_http_server(service: ManweService, addr: &str) -> Result<()> {
     let app = Router::new()
         .route("/v1/models", get(openai_models))
         .route("/v1/chat/completions", post(openai_chat_completions))
+        .route("/v1/capabilities", get(capabilities))
+        .route("/healthz", get(health))
         .route("/health", get(health))
         .route("/status", get(status))
         .route("/state", get(state))
@@ -52,13 +61,12 @@ pub async fn run_http_server(service: ManweService, addr: &str) -> Result<()> {
         .layer(middleware::from_fn(http_admission_gate))
         .with_state(service);
 
-    let listener =
-        tokio::net::TcpListener::bind(addr)
-            .await
-            .map_err(|e| ArdaError::Agent {
-                agent: "manwe".to_string(),
-                message: format!("failed to bind HTTP listener on {addr}: {e}"),
-            })?;
+    let listener = tokio::net::TcpListener::bind(addr)
+        .await
+        .map_err(|e| ArdaError::Agent {
+            agent: "manwe".to_string(),
+            message: format!("failed to bind HTTP listener on {addr}: {e}"),
+        })?;
     tracing::info!(addr = %addr, "MANWE HTTP server listening");
     axum::serve(listener, app)
         .await
@@ -136,6 +144,10 @@ async fn health(State(service): State<ManweService>) -> impl IntoResponse {
                     "budget_pressure": status.budget_pressure,
                     "route_guardrails": status.route_guardrails,
                     "alerts": status.alerts,
+                    "config_source": status.config_source,
+                    "config_path": status.config_path,
+                    "bootstrap_state_path": status.bootstrap_state_path,
+                    "catalog_generation": status.catalog_generation,
                 })),
             )
                 .into_response()
@@ -147,6 +159,38 @@ async fn health(State(service): State<ManweService>) -> impl IntoResponse {
                 "service": "manwe",
                 "error": err.to_string(),
             })),
+        )
+            .into_response(),
+    }
+}
+
+async fn capabilities(State(service): State<ManweService>) -> impl IntoResponse {
+    match service.status().await {
+        Ok(status) => {
+            let paths = service.paths();
+            Json(json!({
+                "mode": "adaptive",
+                "runtime": "full_governed",
+                "adaptive_routing": true,
+                "governance": true,
+                "quota_mesh": true,
+                "policy_authority": "manwe_service",
+                "providers_total": status.providers_total,
+                "providers_enabled": status.providers_enabled,
+                "providers_healthy": status.providers_healthy,
+                "route_guardrails": status.route_guardrails,
+                "route_receipts": paths["state_path"],
+                "governance_receipts": paths["governance_events_path"],
+                "config_source": status.config_source,
+                "config_path": status.config_path,
+                "bootstrap_state_path": status.bootstrap_state_path,
+                "catalog_generation": status.catalog_generation,
+            }))
+            .into_response()
+        }
+        Err(err) => (
+            StatusCode::SERVICE_UNAVAILABLE,
+            Json(json!({"error": err.to_string()})),
         )
             .into_response(),
     }
@@ -867,9 +911,7 @@ fn probe_throttle_decision(
             }
         }
     }
-    let Some(recent_failure) = recent_probe_failure(&provider.id, model, recent_events) else {
-        return None;
-    };
+    let recent_failure = recent_probe_failure(&provider.id, model, recent_events)?;
     if !probe_failure_class_triggers_throttle(&recent_failure.class) {
         return None;
     }
@@ -1036,7 +1078,7 @@ fn probe_attempt_outcome_class(status: u16, marker_found: bool) -> &'static str 
 }
 
 fn probe_attempt_should_mark_health_failure(status: u16, marker_found: bool) -> bool {
-    !(status < 300 && !marker_found)
+    status >= 300 || marker_found
 }
 
 fn probe_result_payload(
@@ -1139,8 +1181,15 @@ struct ModelStreamingValidationRequest {
 
 async fn provider_result(
     State(service): State<ManweService>,
+    headers: HeaderMap,
     Json(req): Json<ProviderResultRequest>,
 ) -> impl IntoResponse {
+    if !authorize_mutation(&headers) {
+        return openai_error(
+            StatusCode::UNAUTHORIZED,
+            "missing or invalid Authorization header for mutation",
+        );
+    }
     map_result_async(async move {
         service
             .mark_provider_result(&req.provider_id, req.ok, req.latency_ms, req.error)
@@ -1148,12 +1197,20 @@ async fn provider_result(
         Ok(json!({"ok": true}))
     })
     .await
+    .into_response()
 }
 
 async fn model_streaming_validation(
     State(service): State<ManweService>,
+    headers: HeaderMap,
     Json(req): Json<ModelStreamingValidationRequest>,
 ) -> impl IntoResponse {
+    if !authorize_mutation(&headers) {
+        return openai_error(
+            StatusCode::UNAUTHORIZED,
+            "missing or invalid Authorization header for mutation",
+        );
+    }
     map_result_async(async move {
         service
             .mark_model_streaming_validation(
@@ -1166,10 +1223,22 @@ async fn model_streaming_validation(
         Ok(json!({"ok": true}))
     })
     .await
+    .into_response()
 }
 
-async fn reload_config(State(service): State<ManweService>) -> impl IntoResponse {
-    map_result_async(async move { service.reload_provider_config().await }).await
+async fn reload_config(
+    State(service): State<ManweService>,
+    headers: HeaderMap,
+) -> impl IntoResponse {
+    if !authorize_mutation(&headers) {
+        return openai_error(
+            StatusCode::UNAUTHORIZED,
+            "missing or invalid Authorization header for mutation",
+        );
+    }
+    map_result_async(async move { service.reload_provider_config().await })
+        .await
+        .into_response()
 }
 
 async fn reconcile_catalogs(State(service): State<ManweService>) -> impl IntoResponse {
@@ -1259,7 +1328,7 @@ fn providers_query_ids(query: &ProvidersQuery) -> Vec<String> {
 
 fn provider_row(
     provider: ProviderState,
-    capacity_probe: Option<crate::service::ProviderCapacityProbeRecord>,
+    capacity_probe: Option<crate::adaptive::service::ProviderCapacityProbeRecord>,
     recent_events: &[Value],
     include_models: bool,
 ) -> Value {
@@ -2122,6 +2191,7 @@ async fn openai_body_to_envelope_with_headers(
         "execution_lane",
         "force_provider_id",
         "force_model_id",
+        "allow_forced_provider_fallback",
         "exclude_provider_ids",
         "excluded_provider_ids",
         "exclude_model_ids",
@@ -2160,6 +2230,7 @@ async fn openai_body_to_envelope_with_headers(
             "execution_lane",
             "force_provider_id",
             "force_model_id",
+            "allow_forced_provider_fallback",
             "exclude_provider_ids",
             "excluded_provider_ids",
             "exclude_model_ids",
@@ -2200,6 +2271,7 @@ async fn openai_body_to_envelope_with_headers(
             "execution_lane",
             "force_provider_id",
             "force_model_id",
+            "allow_forced_provider_fallback",
             "dry_run",
             "tool_use_required",
             "source_surface",
@@ -2240,6 +2312,7 @@ async fn openai_body_to_envelope_with_headers(
                 "execution_lane",
                 "force_provider_id",
                 "force_model_id",
+                "allow_forced_provider_fallback",
                 "exclude_provider_ids",
                 "excluded_provider_ids",
                 "exclude_model_ids",
@@ -2684,6 +2757,20 @@ fn openai_error(status: StatusCode, message: &str) -> Response {
         .into_response()
 }
 
+fn authorize_mutation(headers: &HeaderMap) -> bool {
+    const ENV: &str = "ARDA_MANWE_API_KEY";
+    let Some(expected) = std::env::var(ENV)
+        .ok()
+        .filter(|value| !value.trim().is_empty())
+    else {
+        return true;
+    };
+    headers
+        .get(axum::http::header::AUTHORIZATION)
+        .and_then(|value| value.to_str().ok())
+        .is_some_and(|header| header == format!("Bearer {expected}"))
+}
+
 async fn build_event_payload(service: &ManweService) -> Result<Value> {
     let status = service.status().await?;
     let providers = service.providers().await;
@@ -2798,8 +2885,8 @@ mod tests {
         openai_completion_to_sse, should_emulate_streaming_tool_response, strip_reasoning_fields,
         visible_provider_catalog_models,
     };
+    use crate::adaptive::service::ManweService;
     use crate::types::{ManweRequestEnvelope, ModelState, ProviderState};
-    use crate::ManweService;
     use axum::body::to_bytes;
     use axum::extract::State;
     use axum::http::{HeaderMap, StatusCode};
@@ -2810,6 +2897,32 @@ mod tests {
     use tempfile::tempdir;
 
     static ENV_LOCK: Mutex<()> = Mutex::new(());
+
+    #[test]
+    fn mutation_auth_is_optional_but_requires_exact_bearer_when_configured() {
+        let _guard = ENV_LOCK.lock().expect("env lock");
+        let mut headers = HeaderMap::new();
+
+        std::env::remove_var("ARDA_MANWE_API_KEY");
+        assert!(super::authorize_mutation(&headers));
+
+        std::env::set_var("ARDA_MANWE_API_KEY", "test-secret");
+        assert!(!super::authorize_mutation(&headers));
+
+        headers.insert(
+            axum::http::header::AUTHORIZATION,
+            "Bearer wrong-secret".parse().expect("header value"),
+        );
+        assert!(!super::authorize_mutation(&headers));
+
+        headers.insert(
+            axum::http::header::AUTHORIZATION,
+            "Bearer test-secret".parse().expect("header value"),
+        );
+        assert!(super::authorize_mutation(&headers));
+
+        std::env::remove_var("ARDA_MANWE_API_KEY");
+    }
 
     #[test]
     fn nvidia_catalog_visibility_preserves_configured_models() {
@@ -3605,7 +3718,8 @@ mod tests {
                 "extra_body": {
                     "routing": {
                         "force_provider_id": "nvidia",
-                        "force_model_id": "meta/llama-3.1-8b-instruct"
+                        "force_model_id": "meta/llama-3.1-8b-instruct",
+                        "allow_forced_provider_fallback": true
                     }
                 }
             }),
@@ -3615,6 +3729,7 @@ mod tests {
 
         assert_eq!(req.options["force_provider_id"], "nvidia");
         assert_eq!(req.options["force_model_id"], "meta/llama-3.1-8b-instruct");
+        assert_eq!(req.options["allow_forced_provider_fallback"], true);
     }
 
     #[tokio::test]
@@ -3679,7 +3794,31 @@ mod tests {
 
     #[tokio::test]
     async fn openai_requested_model_sets_forced_provider_and_model_for_exact_match() {
+        let _guard = ENV_LOCK.lock().expect("env lock");
         let dir = tempdir().expect("tempdir");
+        let config_path = dir.path().join("manwe.providers.toml");
+        fs::write(
+            &config_path,
+            r#"
+[[provider]]
+id = "google"
+name = "Google Test"
+base_url = "http://127.0.0.1:9/v1"
+enabled = true
+healthy = true
+access_tier = "free"
+quality_band = "high"
+
+  [[provider.model]]
+  id = "gemini-2.0-flash"
+  capable_tasks = ["chat"]
+  context_window = 32768
+  is_default = true
+"#,
+        )
+        .expect("config write");
+
+        std::env::set_var("ARDA_MANWE_PROVIDER_CONFIG", &config_path);
         let service = ManweService::new(dir.path()).expect("service");
 
         let req = openai_body_to_envelope(
@@ -3691,6 +3830,8 @@ mod tests {
         )
         .await
         .expect("envelope");
+
+        std::env::remove_var("ARDA_MANWE_PROVIDER_CONFIG");
 
         assert_eq!(req.options["force_provider_id"], "google");
         assert_eq!(req.options["force_model_id"], "gemini-2.0-flash");

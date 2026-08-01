@@ -6,7 +6,7 @@ soterion:
   role: "operator_desktop"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-17"
+  last_reviewed: "2026-07-29"
 ---
 
 # arda-launcher
@@ -26,10 +26,9 @@ the operator onboarding surface: prerequisite detection, environment profiling,
 provider checklisting, guided session creation, service-plan generation, and
 private-config staging all happen in the Rust side under `onboarding/`.
 
-Frontend is intentionally lightweight for now — atmospheric background, logo,
-phase-animated CTA — and the backend is the real work. The launcher is
-expected to grow into the bootstrapper that hands the operator off to live
-ARDA services.
+The frontend now consumes the read-only registry, readiness, and service-plan
+commands through one tested TypeScript contract and displays onboarding output
+without acquiring service mutation or approval authority.
 
 ## Where it lives
 
@@ -40,29 +39,40 @@ ARDA services.
 
 ## Verification status
 
-- `cargo check -p arda-launcher`: OK
-- Build output: `Finished "dev" profile` in ~2s
-- Warnings: only upstream `arda-core` unused imports/warnings, none in
-  `arda-launcher` itself
-- Tests: no unit/doc tests in this crate build; tests exist under
-  `src-tauri/src/onboarding/tests.rs` but are not auto-discovered by default
-  Tauri build layout
+- `cargo test -p arda-launcher --all-features`: 8 passed
+- `cargo fmt -p arda-launcher -- --check`: passed
+- `cargo clippy -p arda-launcher --all-targets --all-features -- -D warnings`:
+  passed
+- `pnpm test`: 2 command-contract tests passed
+- `pnpm run lint`: 0 warnings and 0 errors
+- `pnpm run build`: passed
+- Frontend package, Cargo package, and Tauri bundle versions: aligned at `0.3.0-rc.0`
+- `pnpm run tauri build`: v0.2 release binary, DEB, and RPM produced; AppImage
+  stage reaches a populated AppDir but Tauri's cached `linuxdeploy` fails on
+  CentOS 10 `.relr.dyn` sections
+- Direct `appimagetool` fallback: v0.2 AppImage assembled and extracted with
+  `AppRun`, desktop entry, icon, and launcher binary present
 
 ## Binary / runtime
 
 - Desktop entry: `src-tauri/src/main.rs` calls `arda_launcher_lib::run()`
-- `src-tauri/src/lib.rs`: thin Tauri builder surface; currently registers one
-  sample command `greet`; the real surface is the `onboarding` moduleIndex +
-  Tauri commands produced by `build_guided_session()`
-- Tauri commands are exposed to the frontend via `#[tauri::command]` handlers
+- `src-tauri/src/lib.rs`: registers the typed `registry_status`,
+  `readiness_status`, `service_plan_status`, and intrinsic `release_identity`
+  commands; no `greet` command
+- `src-tauri/src/onboarding/mod.rs`: includes `tests.rs` through
+  `#[cfg(test)] mod tests`, so the onboarding suite is compiled normally
+- Commands expose read-only registry/readiness/service-plan projections; the
+  apply/private-config functions are not registered as frontend commands
 - `src-tauri/build.rs`: Tauri codegen hook
 - Window config: `tauri.conf.json`
 
 ## Frontend
 
 - `src/main.tsx`: React root, mounts `<App/>`
-- `src/App.tsx`: phase-animated composition; `ParticleSmoke`, `WorldTree`,
-  `OnboardingText`, `ArdaLogo`, `Background` layered under a `<Canvas>`
+- `src/App.tsx`: registry-gated scene that loads a typed onboarding snapshot
+- `src/components/OnboardingPanel.tsx`: accessible readiness/service-plan panel
+- `src/lib/tauri-core-compat.ts`: typed Tauri command contract and snapshot load
+- `src/lib/tauri-core-compat.test.ts`: exact command/argument/payload tests
 - `src/components/ArdaLogo.tsx`: ARDA badge/mark
 - `src/components/ParticleSmoke.tsx`: `<canvas>`-based starfield / smoke
 - `src/scenes/components/WorldTree.tsx`: animated SVG world-tree
@@ -108,21 +118,26 @@ open behavior |
 
 ## Consumer wiring
 
-- `arda-engine`: uses `arda-launcher` types for operator-side bootstrap state
-- `arda-hud`: reads launcher/projections when surfacing readiness state
-- `arda-launcher`: itself depends on `arda-core` for task, contract, and
-  service-registry primitives
-- `manwe`: launcher assumes manwe on `:7171` when computing endpoints
+- `arda-launcher` depends on `arda-core` for governance primitives and
+  `arda-contract-registry` for registry resolution.
+- `EnvironmentProfile` discovers Manwe through `MANWE_BASE_URL` or
+  `ARDA_MANWE_BASE_URL`; launcher production code has no `:7171` literal.
+- Manwe, engine, root daemon, service registry, scripts, and tests still share
+  the workspace's `:7171` compatibility default. Changing it requires a
+  coordinated fleet/consumer migration, not a launcher-local replacement.
+- No direct Rust package consumes `arda-launcher`; the frontend is its direct
+  command consumer.
 
 ## Improvement ideas
 
-1. Remove orphaned `src/App.css` and the unused `greet` sample command from
-   `lib.rs`; replace with real Tauri commands that drive the onboarding flow
-2. Wire `build_guided_session()` and the onboarding outputs into actual
-   frontend panels instead of the current placeholder phase animation only
-3. Add `onboarding/tests.rs` coverage to CI and fix any compilation gaps
-4. Move hardcoded `127.0.0.1:7171` assumptions to configurable endpoints
-   discovered via `EnvironmentProfile`
+1. Add an explicit user-confirmed command only when service-plan application is
+   ready; preserve the existing backend human-gate receipts.
+2. Generate frontend bindings from Rust contracts if command growth makes the
+   hand-maintained TypeScript mirror unsafe.
+3. Coordinate any `:7171` default migration across Manwe, engine, daemon,
+   registry, scripts, and fleet configuration before changing compatibility.
+4. Repair or replace Tauri's AppImage `linuxdeploy` toolchain for modern
+   `.relr.dyn` binaries; direct `appimagetool` assembly is the verified fallback.
 5. Add `sysinfo`-driven resource checks (RAM/disk) to prerequisites before
    recommending local assistant / local model routes
 6. Consider extracting the onboarding Rust module into a workspace crate if

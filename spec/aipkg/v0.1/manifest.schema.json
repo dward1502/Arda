@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AIPKG manifest",
+  "type": "object",
+  "required": [
+    "manifest_version",
+    "package_id",
+    "version",
+    "package_digest",
+    "runtime_profile",
+    "preflight",
+    "governance",
+    "receipts"
+  ],
+  "properties": {
+    "manifest_version": {"type": "string", "const": "0.1"},
+    "package_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(\\.[a-z0-9-]+)+$"
+    },
+    "version": {"type": "string"},
+    "package_digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "runtime_profile": {
+      "type": "string",
+      "enum": ["wasm-wasi", "oci-sandboxed", "local-sovereign"]
+    },
+    "preflight": {
+      "type": "object",
+      "required": ["zero_work_required", "compatibility_required", "quote_required"],
+      "properties": {
+        "zero_work_required": {"type": "boolean"},
+        "compatibility_required": {"type": "boolean"},
+        "quote_required": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "governance": {
+      "type": "object",
+      "required": [
+        "triad_required",
+        "bacon_lite_required",
+        "joulework_budget_required",
+        "love_eq_guard_required",
+        "soterion_trace_required"
+      ],
+      "properties": {
+        "triad_required": {"type": "boolean"},
+        "bacon_lite_required": {"type": "boolean"},
+        "joulework_budget_required": {"type": "boolean"},
+        "love_eq_guard_required": {"type": "boolean"},
+        "soterion_trace_required": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "receipts": {
+      "type": "object",
+      "required": [
+        "preflight_required",
+        "execution_required",
+        "validation_required",
+        "signatures_required"
+      ],
+      "properties": {
+        "preflight_required": {"type": "boolean"},
+        "execution_required": {"type": "boolean"},
+        "validation_required": {"type": "boolean"},
+        "settlement_optional": {"type": "boolean"},
+        "signatures_required": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

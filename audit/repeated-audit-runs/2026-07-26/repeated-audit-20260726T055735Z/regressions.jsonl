@@ -1,0 +1,2 @@
+{"kind": "missing_receipt", "message": "Portability summary is unavailable for cyclic comparison.", "severity": "high"}
+{"kind": "missing_receipt", "message": "Setup console readiness receipt is unavailable for ARDA/Hermes visibility.", "severity": "medium"}

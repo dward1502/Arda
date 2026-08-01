@@ -9,7 +9,10 @@ export interface BoardroomMonitorModelBinding {
 }
 
 export function deriveBoardroomMonitorModelBinding(zone: BoardroomSpatialZone): BoardroomMonitorModelBinding | null {
-  if (zone.kind !== 'upper_monitor' || !zone.binding) return null
+  const supportsFittedModel = zone.kind === 'upper_monitor'
+    || zone.kind === 'desk_surface'
+    || zone.kind === 'control_panel'
+  if (!supportsFittedModel || !zone.binding) return null
 
   return {
     zoneId: zone.id,

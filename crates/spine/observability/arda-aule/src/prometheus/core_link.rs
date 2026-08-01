@@ -40,7 +40,7 @@ use self::support::{
     summarize_description, summarize_env_file, summarize_field_count_value, summarize_field_counts,
 };
 
-const CORE_STATE_SCHEMA_VERSION: &str = "annunimas.core.state.v1";
+const CORE_STATE_SCHEMA_VERSION: &str = "arda.core.state.v1";
 
 #[derive(Debug, Clone)]
 pub struct CoreAutonomyProfile {
@@ -52,16 +52,23 @@ pub struct CoreAutonomyProfile {
     pub source_root: PathBuf,
 }
 
+pub fn refresh_queue_projections(core_root: &Path) {
+    operations_flow::write_queue_summary_projection(core_root);
+    operations_flow::write_queue_active_projection(core_root);
+}
+
 impl CoreAutonomyProfile {
     pub fn load(core_root: impl AsRef<Path>) -> Option<Self> {
         Self::try_load(core_root).ok()
     }
 
-    pub fn try_load(core_root: impl AsRef<Path>) -> Result<Self, crate::error::PrometheusError> {
+    pub fn try_load(
+        core_root: impl AsRef<Path>,
+    ) -> Result<Self, crate::prometheus::error::PrometheusError> {
         let core_root = core_root.as_ref().to_path_buf();
         let boot_path = core_root.join("realm").join("boot.toml");
         let boot = try_read_boot(&boot_path)?;
-        let identity = read_identity(&core_root.join("realm").join("annunimas.toml"));
+        let identity = read_identity(&core_root.join("realm").join("arda.toml"));
         let agents = read_agents(&core_root.join("realm").join("agents.toml"));
         let world = reconcile_world_state(&core_root, &boot, identity.as_ref(), agents.as_ref());
         write_system_manifest(
@@ -97,7 +104,7 @@ impl CoreAutonomyProfile {
         human_context::write_business_runtime_projection(&core_root);
         human_context::write_personal_runtime_projection(&core_root);
         human_context::write_human_context_projection(&core_root);
-        operations_flow::write_queue_summary_projection(&core_root);
+        refresh_queue_projections(&core_root);
         arda::write_repo_reorganization_projection(&core_root);
         topology::write_output_topology_projection(&core_root);
         governance_runtime::write_system_control_projection(&core_root);
@@ -315,18 +322,18 @@ struct BootNightlyFile {
     nightly: Option<BootNightlyConfig>,
 }
 
-fn try_read_boot(path: &Path) -> Result<BootConfig, crate::error::PrometheusError> {
+fn try_read_boot(path: &Path) -> Result<BootConfig, crate::prometheus::error::PrometheusError> {
     let content = std::fs::read_to_string(path).map_err(|e| {
         if e.kind() == std::io::ErrorKind::NotFound {
-            crate::error::PrometheusError::BootConfigMissing {
+            crate::prometheus::error::PrometheusError::BootConfigMissing {
                 path: path.to_path_buf(),
             }
         } else {
-            crate::error::PrometheusError::Io(e)
+            crate::prometheus::error::PrometheusError::Io(e)
         }
     })?;
     toml::from_str::<BootConfig>(&content).map_err(|source| {
-        crate::error::PrometheusError::BootConfigInvalid {
+        crate::prometheus::error::PrometheusError::BootConfigInvalid {
             path: path.to_path_buf(),
             source,
         }
@@ -629,7 +636,7 @@ fn write_system_manifest(
     let now = Utc::now().to_rfc3339();
     let ceo_id = boot.ceo.agent_id.as_deref().unwrap_or("arandur");
     let active_ruleset = read_json_file(core_root.join("state").join("active_ruleset.json"))
-        .unwrap_or_else(|| json!({"active_ruleset":"annunimas_totality"}));
+        .unwrap_or_else(|| json!({"active_ruleset":"arda_totality"}));
     let autonomy_runtime = read_json_file(core_root.join("state").join("autonomy_runtime.json"))
         .unwrap_or_else(
             || json!({"mode":"normal","source":"system_manifest_default","violations":[]}),
@@ -728,7 +735,7 @@ fn storage_root_entry(
 
 #[cfg(test)]
 mod tests {
-    use super::operations_flow::write_queue_summary_projection;
+    use super::operations_flow::{write_queue_active_projection, write_queue_summary_projection};
     use super::{CoreAutonomyProfile, CORE_STATE_SCHEMA_VERSION};
     use serde_json::{json, Value};
     use std::fs;
@@ -745,9 +752,9 @@ mod tests {
             core_root.join("realm/boot.toml"),
             r#"
 [system]
-name = "Annunimas"
+name = "Arda"
 version = "0.1.0"
-sigil = "𓀀"
+sigil = "ANKH"
 
 [ceo]
 agent_id = "arandur"
@@ -771,11 +778,11 @@ ingest = 2.0
         .expect("boot write");
 
         fs::write(
-            core_root.join("realm/annunimas.toml"),
+            core_root.join("realm/arda.toml"),
             r##"
 [identity]
-name = "Annunimas"
-sigil = "𓀀"
+name = "Arda"
+sigil = "ANKH"
 
 [[realms.definition]]
 id = "command"
@@ -793,7 +800,7 @@ color = "#00e5ff"
             r#"
 [[agent]]
 id = "arandur"
-sigil = "𓀀"
+sigil = "ANKH"
 name = "Arandur"
 realm = "command"
 clearance = "sovereign"
@@ -912,7 +919,7 @@ resonance = 0.95
                 .expect("mnemosyne read"),
         )
         .expect("mnemosyne parse");
-        assert_eq!(mnemosyne["schema_version"], CORE_STATE_SCHEMA_VERSION);
+        assert_eq!(mnemosyne["schema_version"], "arda.mnemosyne.continuity.v1");
         assert_eq!(mnemosyne["authority"], "mnemosyne_continuity_projection");
 
         let memory_identity: serde_json::Value = serde_json::from_str(
@@ -1282,8 +1289,8 @@ resonance = 0.95
         )
         .expect("boot write");
         fs::write(
-            core_root.join("realm/annunimas.toml"),
-            "[identity]\nname = \"Annunimas\"\nsigil = \"A\"\n[[realms.definition]]\nid = \"command\"\ncolor = \"#fff\"\n",
+            core_root.join("realm/arda.toml"),
+            "[identity]\nname = \"Arda\"\nsigil = \"A\"\n[[realms.definition]]\nid = \"command\"\ncolor = \"#fff\"\n",
         )
         .expect("identity write");
         fs::write(
@@ -1323,7 +1330,7 @@ resonance = 0.95
         fs::write(
             config_root.join("runtime.generated.env"),
             format!(
-                "ANNUNIMAS_AUTONOMY_REQUIRED_LIVE_SOCKETS={}:{}\n",
+                "ARDA_AUTONOMY_REQUIRED_LIVE_SOCKETS={}:{}\n",
                 sock_a.display(),
                 sock_b.display()
             ),
@@ -1382,12 +1389,12 @@ resonance = 0.95
 
         fs::write(
             core_root.join("realm/boot.toml"),
-            "[system]\nname = \"Annunimas\"\nversion = \"0.1.0\"\nsigil = \"A\"\n[ceo]\nagent_id = \"arandur\"\nheartbeat_ms = 500\ntriad_bypass = false\n[joulework.base_costs]\nanalyze = 5.0\ncommunicate = 3.0\n",
+            "[system]\nname = \"Arda\"\nversion = \"0.1.0\"\nsigil = \"A\"\n[ceo]\nagent_id = \"arandur\"\nheartbeat_ms = 500\ntriad_bypass = false\n[joulework.base_costs]\nanalyze = 5.0\ncommunicate = 3.0\n",
         )
         .expect("boot write");
         fs::write(
-            core_root.join("realm/annunimas.toml"),
-            "[identity]\nname = \"Annunimas\"\nsigil = \"A\"\n[[realms.definition]]\nid = \"command\"\ncolor = \"#fff\"\n",
+            core_root.join("realm/arda.toml"),
+            "[identity]\nname = \"Arda\"\nsigil = \"A\"\n[[realms.definition]]\nid = \"command\"\ncolor = \"#fff\"\n",
         )
         .expect("identity write");
         fs::write(
@@ -1397,7 +1404,7 @@ resonance = 0.95
         .expect("agents write");
         fs::write(
             core_root.join("state/active_ruleset.json"),
-            "{ \"active_ruleset\": \"annunimas_totality\" }\n",
+            "{ \"active_ruleset\": \"arda_totality\" }\n",
         )
         .expect("ruleset write");
         fs::write(
@@ -1539,6 +1546,7 @@ resonance = 0.95
         .expect("queue write");
 
         write_queue_summary_projection(&core_root);
+        write_queue_active_projection(&core_root);
 
         let queue: serde_json::Value = serde_json::from_str(
             &fs::read_to_string(core_root.join("state/queue_summary.json")).expect("queue read"),
@@ -1555,6 +1563,16 @@ resonance = 0.95
             "core/state/queue_active.json"
         );
         assert_eq!(queue["arda_hints"]["alert_on_queued_tasks"], true);
+
+        let active: serde_json::Value = serde_json::from_str(
+            &fs::read_to_string(core_root.join("state/queue_active.json"))
+                .expect("active queue read"),
+        )
+        .expect("active queue parse");
+        assert_eq!(active["raw_ledger_rows_total"], 3);
+        assert_eq!(active["latest_task_ids_total"], 2);
+        assert_eq!(active["active_task_count"], 1);
+        assert_eq!(active["tasks"][0]["id"], "tsk_b");
     }
 
     #[test]
@@ -1590,13 +1608,13 @@ resonance = 0.95
         )
         .expect("boot write");
         fs::write(
-            core_root.join("realm/annunimas.toml"),
-            "[identity]\nname = \"Annunimas\"\nsigil = \"𓀀\"\n[[realms.definition]]\nid = \"command\"\ncolor = \"#fff\"\n",
+            core_root.join("realm/arda.toml"),
+            "[identity]\nname = \"Arda\"\nsigil = \"ANKH\"\n[[realms.definition]]\nid = \"command\"\ncolor = \"#fff\"\n",
         )
         .expect("identity write");
         fs::write(
             core_root.join("realm/agents.toml"),
-            "[[agent]]\nid = \"arandur\"\nsigil = \"𓀀\"\nname = \"Arandur\"\nrealm = \"command\"\nclearance = \"sovereign\"\n",
+            "[[agent]]\nid = \"arandur\"\nsigil = \"ANKH\"\nname = \"Arandur\"\nrealm = \"command\"\nclearance = \"sovereign\"\n",
         )
         .expect("agents write");
         fs::write(
@@ -1819,12 +1837,12 @@ notes = "Primary guardhouse"
         .expect("fleet config write");
         fs::write(
             core_root.join("edge/targets.example.toml"),
-            "[[node]]\nid = \"edge-pi5-01\"\nrole = \"warden\"\nhostname = \"pi5-warden\"\ntailscale_ip = \"100.64.0.10\"\nssh_user = \"annunimas\"\nathena_enabled = true\nhermes_enabled = true\n",
+            "[[node]]\nid = \"edge-pi5-01\"\nrole = \"warden\"\nhostname = \"pi5-warden\"\ntailscale_ip = \"100.64.0.10\"\nssh_user = \"arda\"\nathena_enabled = true\nhermes_enabled = true\n",
         )
         .expect("targets write");
         fs::write(
             core_root.join("edge/targets.toml"),
-            "[[node]]\nid = \"node-pi5-warden\"\nrole = \"warden_guardhouse\"\nhostname = \"pi5-warden\"\ntailscale_ip = \"100.64.0.10\"\nssh_user = \"annunimas\"\nwarden_enabled = true\nhermes_enabled = true\nnode_class = \"edge_guardhouse\"\nenrollment_status = \"active\"\nllm_runtime = \"edge_llm_light\"\nnotes = \"Primary guardhouse\"\n",
+            "[[node]]\nid = \"node-pi5-warden\"\nrole = \"warden_guardhouse\"\nhostname = \"pi5-warden\"\ntailscale_ip = \"100.64.0.10\"\nssh_user = \"arda\"\nwarden_enabled = true\nhermes_enabled = true\nnode_class = \"edge_guardhouse\"\nenrollment_status = \"active\"\nllm_runtime = \"edge_llm_light\"\nnotes = \"Primary guardhouse\"\n",
         )
         .expect("targets canonical write");
         fs::write(
@@ -1835,7 +1853,7 @@ notes = "Primary guardhouse"
     "client_surface": "element"
   },
   "root_space": {
-    "alias": "#annunimas:matrix.local"
+    "alias": "#arda:matrix.local"
   },
   "rooms": [
     {"id": "ops-boardroom"},

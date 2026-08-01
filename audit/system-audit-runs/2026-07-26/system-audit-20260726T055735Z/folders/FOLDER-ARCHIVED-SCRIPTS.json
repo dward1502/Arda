@@ -1,0 +1,72 @@
+{
+  "bad": [
+    "Folder has no obvious audit/status/telemetry/logging token hits in sampled tracked files; decide whether that is expected for this surface."
+  ],
+  "candidate_tasks": [],
+  "contract": "arda.audit.target_report.v1",
+  "duties": [
+    "Retired automation kept for historical reference."
+  ],
+  "evidence": [
+    {
+      "exists": false,
+      "line": null,
+      "note": "primary target root",
+      "path": "archived_scripts"
+    },
+    {
+      "exists": true,
+      "line": null,
+      "note": "workspace membership checked from repository manifest: False",
+      "path": "Cargo.toml"
+    }
+  ],
+  "generated_at": "2026-07-26T05:57:37.623929+00:00",
+  "good": [
+    "Latest portability receipt has no active blockers for this target/support surface."
+  ],
+  "needs_removed": [
+    "No automatic removal recommendation; removal candidates require a follow-up evidence pass."
+  ],
+  "overview": "Read-only Phase 4/5 Good / Bad / Ugly audit for FOLDER-ARCHIVED-SCRIPTS.",
+  "potential_changes": [
+    "Review whether this folder needs explicit validation or only upstream crate/script tests; do not add tests mechanically.",
+    "Keep current useful operational surface, parameterize portability blockers, and remove only stale/generated/archive drift after a separate evidence pass."
+  ],
+  "report_json_path": "folders/FOLDER-ARCHIVED-SCRIPTS.json",
+  "report_markdown_path": "folders/FOLDER-ARCHIVED-SCRIPTS.md",
+  "run_id": "system-audit-20260726T055735Z",
+  "score": 61,
+  "score_breakdown": {
+    "implementation_completeness": 0,
+    "mission_fit": 14,
+    "observability_auditability": 6,
+    "portability_config_hygiene": 15,
+    "reliability_safety": 20,
+    "ux_operator_experience": 6
+  },
+  "snapshot": {
+    "crash_counts": {},
+    "keyword_hits": {
+      "archive": 0,
+      "historical": 0,
+      "retired": 0,
+      "script": 0,
+      "superseded": 0
+    },
+    "observability_hits": 0,
+    "primary_exists": false,
+    "primary_file_count": 0,
+    "rollup_target": null,
+    "rust_file_count": 0,
+    "sample_files": [],
+    "support_status": [],
+    "test_file_count": 0,
+    "workspace_member": false
+  },
+  "target": "FOLDER-ARCHIVED-SCRIPTS",
+  "target_type": "folder",
+  "ugly": [
+    "Primary implementation surface `archived_scripts` is missing."
+  ]
+}

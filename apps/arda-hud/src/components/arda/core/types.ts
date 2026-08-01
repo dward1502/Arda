@@ -1,5 +1,6 @@
 // sigil: REPAIR
 import type { BoardroomSurfaceLayout } from '../../../lib/boardroomSlotSettings'
+import type { BoardroomVisualizationSelection } from '../../../scene/boardroom/boardroomVisualizationPresets'
 
 export type ThemeId = 'cyberpunk' | 'gibson2' | 'eva'
 
@@ -51,4 +52,5 @@ export interface MonitorAssignment {
   widgetCount?: number
   embedUrl?: string | null
   surfaceLayout?: BoardroomSurfaceLayout
+  visualization?: BoardroomVisualizationSelection
 }

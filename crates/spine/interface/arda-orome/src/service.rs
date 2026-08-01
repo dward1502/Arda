@@ -4,21 +4,25 @@ use crate::mcp::McpMessage;
 use crate::provider::{DispatchReceipt, ProviderRuntime};
 use crate::types::{
     BoardroomManweRouteEvidence, BoardroomOracleLink, BoardroomPost, BoardroomQuorumDecision,
-    BoardroomQuorumPacket, BoardroomTriadScores, ManweRouteHint, CommsEvent, CommsEventRisk,
-    CommsEventType, CommsEventVisibility, CouncilCommandSeat, CouncilDiscussionNote,
-    CouncilDiscussionProjection, CouncilDiscussionPromotion, InboundMessage, IntentResult,
-    InterruptionDisposition, InterruptionMessage, LocalCouncilSummaryFallbackMetadata,
-    LocalCouncilSummaryRoute, OperatingRoomEvent, OperatingRoomEventKind, OutboundMessage,
-    PromotionState, SubagentCompletionPacket, SubagentCompletionProjection, TaskApprovalPacket,
+    BoardroomQuorumPacket, BoardroomTriadScores, CommsEvent, CommsEventRisk, CommsEventType,
+    CommsEventVisibility, CouncilCommandSeat, CouncilDiscussionNote, CouncilDiscussionProjection,
+    CouncilDiscussionPromotion, InboundMessage, IntentResult, InterruptionDisposition,
+    InterruptionMessage, LocalCouncilSummaryFallbackMetadata, LocalCouncilSummaryRoute,
+    ManweRouteHint, OperatingRoomEvent, OperatingRoomEventKind, OutboundMessage, PromotionState,
+    SubagentCompletionPacket, SubagentCompletionProjection, TaskApprovalPacket,
     TaskApprovalProjection, TaskApprovalProposal,
 };
+use crate::Priority;
 use arda_core::daemon::{CommandEnvelope, ResponseEnvelope};
 use arda_core::error::{ArdaError, Result};
+use arda_core::orome_runtime::{SharedRegistryStateStorage, SharedRouterStateStorage};
 use arda_core::task::Task;
 use arda_core::{spawn_bounded_background, try_run_bounded_async};
-use arda_governance::{record_bacon_lite, triad_validate, TriadConfig};
-use arda_vaire::{InformantEvent, MnemosyneService};
 use arda_economics::{JouleWorkUnit, PlutusService};
+use arda_governance::{
+    enqueue_bacon_lite_with, triad_validate, BaconLiteLogPaths, BaconLiteWriter, TriadConfig,
+};
+use arda_vaire::{InformantEvent, MnemosyneService};
 use chrono::Utc;
 use fs2::FileExt;
 use serde::{Deserialize, Serialize};
@@ -38,6 +42,7 @@ mod decision;
 mod inbound;
 mod interrupts;
 mod outbound;
+mod provider_compat;
 mod queue_state;
 mod runtime;
 mod semantic_channel;
@@ -74,10 +79,14 @@ pub struct HermesService {
     comms_events_path: PathBuf,
     calendar_cache_path: PathBuf,
     council_sessions_path: PathBuf,
+    bacon_lite_writer: BaconLiteWriter,
+    plutus_home: PathBuf,
     mnemosyne: Option<MnemosyneService>,
     providers: Arc<ProviderRuntime>,
     seen_inbound_ids: Arc<Mutex<HashSet<String>>>,
     reroute_timestamps: Arc<StdMutex<VecDeque<std::time::Instant>>>,
+    registry_state: SharedRegistryStateStorage,
+    router_state: SharedRouterStateStorage,
 }
 
 impl HermesService {
@@ -113,7 +122,7 @@ mod tests {
         InterruptionMessage, OperatingRoomEventKind, OutboundMessage, PromotionState,
     };
     use arda_core::try_run_bounded_async;
-    use arda_plutus::PlutusService;
+    use arda_economics::PlutusService;
     use async_trait::async_trait;
     use std::fs;
     use std::sync::Arc;
@@ -203,7 +212,9 @@ mod tests {
         let _guard = env_guard();
         let dir = tempdir().expect("tempdir");
         let plutus_home = dir.path().join("plutus");
-        std::env::set_var("ANNUNIMAS_PLUTUS_HOME", &plutus_home);
+        std::env::set_var("ARDA_PLUTUS_HOME", &plutus_home);
+        std::env::set_var("ARDA_PRESSURE_ADMISSION_ENABLED", "false");
+        std::env::set_var("ANNUNIMAS_BACKGROUND_SIGNAL_MAX_CONCURRENCY", "16");
         let service = HermesService::new(dir.path()).expect("service");
 
         let _ = service
@@ -226,14 +237,13 @@ mod tests {
                 "routing complete",
             ))
             .expect("boardroom");
-        std::thread::sleep(Duration::from_millis(150));
 
         let status = service.status().await.expect("status");
         assert!(status.messages_today.inbound >= 1);
         assert!(status.messages_today.outbound >= 1);
         assert!(status.boardroom_active);
         let mut plutus_status = serde_json::json!({});
-        for _ in 0..20 {
+        for _ in 0..100 {
             plutus_status = PlutusService::from_home(&plutus_home)
                 .expect("plutus service")
                 .status()
@@ -250,7 +260,7 @@ mod tests {
             {
                 break;
             }
-            std::thread::sleep(Duration::from_millis(50));
+            tokio::time::sleep(Duration::from_millis(50)).await;
         }
         assert!(
             plutus_status["love_equation"]["relationships_total"]
@@ -264,7 +274,9 @@ mod tests {
                 .unwrap_or_default()
                 > 0.0
         );
-        std::env::remove_var("ANNUNIMAS_PLUTUS_HOME");
+        std::env::remove_var("ARDA_PLUTUS_HOME");
+        std::env::remove_var("ARDA_PRESSURE_ADMISSION_ENABLED");
+        std::env::remove_var("ANNUNIMAS_BACKGROUND_SIGNAL_MAX_CONCURRENCY");
     }
 
     #[test]
@@ -436,9 +448,9 @@ mod tests {
             vec![ProviderConfig {
                 id: "discord".to_string(),
                 kind: ProviderType::Discord,
-                enabled: true,
-                persistent: true,
-                fallback_to_direct_api: false,
+                name: "Discord test channel".to_string(),
+                endpoint: String::new(),
+                capabilities: vec!["send".to_string(), "stream".to_string()],
             }],
             vec![("discord".to_string(), fake.clone())],
         ));
@@ -547,6 +559,11 @@ mod tests {
         let _guard = env_guard();
         let dir = tempdir().expect("tempdir");
         std::env::set_var("ANNUNIMAS_HERMES_SEND_MAX_CONCURRENCY", "1");
+        std::env::set_var("ARDA_PLUTUS_HOME", dir.path().join("plutus"));
+        std::env::set_var(
+            "ARDA_PRESSURE_ADMISSION_RECEIPTS_PATH",
+            dir.path().join("pressure_admission_receipts.jsonl"),
+        );
         let service = HermesService::new(dir.path()).expect("service");
         let acquired = Arc::new(tokio::sync::Notify::new());
         let release = Arc::new(tokio::sync::Notify::new());
@@ -582,6 +599,8 @@ mod tests {
         release.notify_waiters();
         holder.await.expect("holder");
         std::env::remove_var("ANNUNIMAS_HERMES_SEND_MAX_CONCURRENCY");
+        std::env::remove_var("ARDA_PLUTUS_HOME");
+        std::env::remove_var("ARDA_PRESSURE_ADMISSION_RECEIPTS_PATH");
     }
 
     #[tokio::test]
@@ -591,6 +610,7 @@ mod tests {
         let missing_socket = dir.path().join("missing-manwe.sock");
         std::env::set_var("ANNUNIMAS_MANWE_SOCKET", &missing_socket);
         std::env::set_var("ANNUNIMAS_HERMES_AUTO_TRANSPORT", "discord");
+        std::env::set_var("ARDA_MANWE_STATE_DIR", dir.path().join("manwe"));
 
         let service = HermesService::new(dir.path()).expect("service");
         let routed = service
@@ -609,11 +629,17 @@ mod tests {
 
         std::env::remove_var("ANNUNIMAS_MANWE_SOCKET");
         std::env::remove_var("ANNUNIMAS_HERMES_AUTO_TRANSPORT");
+        std::env::remove_var("ARDA_MANWE_STATE_DIR");
     }
 
     #[test]
     fn council_flow_writes_events() {
+        let _guard = env_guard();
         let dir = tempdir().expect("tempdir");
+        std::env::set_var(
+            "ARDA_PRESSURE_ADMISSION_RECEIPTS_PATH",
+            dir.path().join("pressure_admission_receipts.jsonl"),
+        );
         let service = HermesService::new(dir.path()).expect("service");
         let opened = service
             .council_open(
@@ -634,6 +660,7 @@ mod tests {
             .expect("close");
         let boardroom = service.boardroom_recent(10).expect("recent");
         assert!(boardroom.len() >= 3);
+        std::env::remove_var("ARDA_PRESSURE_ADMISSION_RECEIPTS_PATH");
     }
 
     #[test]
@@ -1269,7 +1296,7 @@ mod tests {
         assert!(decision.approved);
         assert!(decision
             .canonical_refs
-            .contains(&format!("council_session:council_approval_1")));
+            .contains(&"council_session:council_approval_1".to_string()));
         assert!(decision
             .canonical_refs
             .iter()
@@ -1387,6 +1414,7 @@ mod tests {
         let _guard = env_guard();
         let dir = tempdir().expect("tempdir");
         let plutus_home = dir.path().join("plutus");
+        std::env::set_var("ARDA_PLUTUS_HOME", &plutus_home);
         let service = HermesService::new(dir.path()).expect("service");
         let warden_queue = dir.path().join("warden").join("informant_queue.jsonl");
         let apollo_hook = dir.path().join("apollo").join("interruptions.jsonl");
@@ -1400,8 +1428,6 @@ mod tests {
         std::env::set_var("ANNUNIMAS_WARDEN_QUEUE_PATH", &warden_queue);
         std::env::set_var("ANNUNIMAS_APOLLO_INTERRUPT_QUEUE_PATH", &apollo_hook);
         std::env::set_var("ANNUNIMAS_PROMETHEUS_ORDERS_PATH", &orders_path);
-        std::env::set_var("ANNUNIMAS_PLUTUS_HOME", &plutus_home);
-
         let mut msg = InterruptionMessage::new("voice", "operator", "switch to queue cleanup");
         msg.channel = Some("discord".to_string());
         let out = service.interrupt(msg).expect("interrupt");
@@ -1458,7 +1484,7 @@ mod tests {
                 .unwrap_or_default()
                 >= 1
         );
-        std::env::remove_var("ANNUNIMAS_PLUTUS_HOME");
+        std::env::remove_var("ARDA_PLUTUS_HOME");
     }
 
     #[test]
@@ -1496,6 +1522,7 @@ mod tests {
     fn reroute_failures_enter_dlq_and_can_be_retried() {
         let _guard = env_guard();
         let dir = tempdir().expect("tempdir");
+        std::env::set_var("ARDA_MANWE_STATE_DIR", dir.path().join("manwe"));
         let service = HermesService::new(dir.path()).expect("service");
         std::env::set_var("ANNUNIMAS_HERMES_REROUTE_MAX_PER_SEC", "5");
 
@@ -1518,6 +1545,7 @@ mod tests {
         assert!(retry.get("failed").and_then(|v| v.as_u64()).unwrap_or(0) >= 1);
         let dlq_after = fs::read_to_string(dir.path().join("reroute_dlq.jsonl")).expect("dlq read");
         assert!(dlq_after.contains("\"attempt\":2"));
+        std::env::remove_var("ARDA_MANWE_STATE_DIR");
     }
 
     #[test]
@@ -1572,10 +1600,7 @@ mod tests {
             )
             .expect("event");
 
-        assert_eq!(
-            event.schema_version,
-            "arda.hermes.operating_room_event.v1"
-        );
+        assert_eq!(event.schema_version, "arda.hermes.operating_room_event.v1");
         assert_eq!(event.kind, OperatingRoomEventKind::Status);
         assert_eq!(event.topic, "hermes_discord_operating_room");
         assert!(!event.discord_projection_permitted);
@@ -1886,10 +1911,7 @@ mod tests {
             )
             .expect("packet");
 
-        assert_eq!(
-            packet.schema_version,
-            "arda.hermes.boardroom_quorum.v1"
-        );
+        assert_eq!(packet.schema_version, "arda.hermes.boardroom_quorum.v1");
         assert_eq!(packet.session_id, "council_gate_36");
         assert_eq!(packet.status, "review_required");
         assert!(packet.status_reason.contains("oracle_verdict_missing"));
@@ -1920,7 +1942,7 @@ mod tests {
         let verdicts = dir.path().join("oracle_verdicts.jsonl");
         fs::write(
             &verdicts,
-            r#"{"query_id":"oracle_gate_36","outcome":"Pass","resonance_score":0.87,"gates":{"aurelius":{"score":0.91},"bacon":{"score":0.88},"sun_tzu":{"score":0.79}}}
+            r#"{"query_id":"oracle_gate_36","outcome":"pass","resonance_score":0.87,"gates":{"aurelius":{"score":0.91},"bacon":{"score":0.88},"sun_tzu":{"score":0.79}}}
 "#,
         )
         .expect("verdict write");
@@ -1951,7 +1973,7 @@ mod tests {
             packet.oracle.verdict_locator.as_deref(),
             Some(verdicts.to_str().unwrap_or_default())
         );
-        assert_eq!(packet.oracle.outcome.as_deref(), Some("Pass"));
+        assert_eq!(packet.oracle.outcome.as_deref(), Some("pass"));
         assert_eq!(packet.oracle.triad_scores.aurelius, Some(0.91));
         assert_eq!(packet.oracle.triad_scores.bacon, Some(0.88));
         assert_eq!(packet.oracle.triad_scores.sun_tzu, Some(0.79));
@@ -2055,7 +2077,7 @@ mod tests {
         let verdicts = dir.path().join("oracle_verdicts.jsonl");
         fs::write(
             &verdicts,
-            r#"{"query_id":"oracle_gate_36","outcome":"Pass","resonance_score":0.87,"gates":{"aurelius":{"score":0.91},"bacon":{"score":0.88},"sun_tzu":{"score":0.79}}}
+            r#"{"query_id":"oracle_gate_36","outcome":"pass","resonance_score":0.87,"gates":{"aurelius":{"score":0.91},"bacon":{"score":0.88},"sun_tzu":{"score":0.79}}}
 "#,
         )
         .expect("verdict write");
@@ -2133,10 +2155,7 @@ mod tests {
 
         let plan = service.discord_channel_plan();
 
-        assert_eq!(
-            plan.schema_version,
-            "arda.hermes.discord_channel_plan.v1"
-        );
+        assert_eq!(plan.schema_version, "arda.hermes.discord_channel_plan.v1");
         assert_eq!(plan.mode, "read_only_discovery");
         assert_eq!(plan.guild_id.as_deref(), Some("[REDACTED]"));
         assert_eq!(plan.category_id.as_deref(), Some("[REDACTED]"));

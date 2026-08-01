@@ -1,142 +1,125 @@
 ---
 soterion:
-  sigil: "SCROLL"
-  glyph: "📜"
-  role: "memory_service"
-  owner: "HADES"
-  status: "active"
-  last_reviewed: "2026-07-17"
+  sigil: SCROLL
+  glyph: 📜
+  code_point: U+1F4DC
+  role: memory_service
+  owner: HADES
+  status: active
+  last_reviewed: 2026-07-27
 ---
 
-# arda-vaire
-Memory service for Arda agents: significance-weighted episodic records,
-identity state, recall/recent/relevant, knowledge-seed recall, consolidation,
-Obsidian sync, and daemon transport.
-Owner: hades | Sigil: 📜 SCROLL | Status: active
+# arda-vaire breakdown
 
-## Summary
-`arda-vaire` is the continuous memory/identity persistence layer for the
-Mnemosyne agent. It stores significance-weighted memory events with hash-
-chained episodic integrity, provides scoped recall, synthesizes identity
-state, and exposes an optional HTTP/SSE + Unix-socket daemon interface.
+## Scope
 
-This crate is **blocked in tests** by a missing test dependency:
-`service.rs:303` imports `arda_plutus::PlutusService` but `arda-plutus`
-is not declared in `Cargo.toml`. Compile-time check passes because
-`cargo check` does not build test-only code by default; `cargo test`
-fails on this unresolved import.
+`arda-vaire` owns local event scoring, persistence, recall, identity-state
+synthesis, consolidation, promotion receipts, Obsidian indexing, and optional
+IPC/HTTP delivery for the Mnemosyne memory surface.
 
-- Crate root: `/var/home/mythos/Eregion/Arda/crates/spine/memory/arda-vaire`
-- Data roots: `data/mnemosyne/*`, env-overridable via `ARDA_MNEMOSYNE_HOME`
-- Contract dual-write opt-in: `ARDA_CONTRACT_MEMORY_ROOT`
+It does not own global governance policy, consumer-specific task authority,
+the Prometheus backend, or the separate
+`core/state/mnemosyne_continuity.json` operator projection.
 
-## Verification status
+## Compiled source map
 
-- `cargo check -p arda-vaire`: OK
-- `cargo test -p arda-vaire`: 24 passed, 0 failed
-- Doc tests: 0
-- Import alias fixed: test-only `arda_plutus::PlutusService` renamed to `arda_economics::PlutusService` in `src/service.rs:303`
-- Nested legacy test tree removed: `crates/spine/memory/arda-vaire/crates/annunimas-mnemosyne/` was a superseded carryover from the Annunimas port; deleted after confirming tests were already promoted to top-level `tests/`
+- `src/lib.rs` — module declarations and crate-root re-exports
+- `src/error.rs` — typed memory and IPC errors
+- `src/schema.rs` — durable episodic and continuity schema identifiers
+- `src/retrieval_eval.rs` — equivalent-dataset contracts, adapter boundary,
+  baseline ranker, and retrieval quality evaluation
+- `src/significance.rs` — deterministic significance classification
+- `src/service.rs` — public data contracts, orchestration, observability state,
+  knowledge-seed bridging, and crate-local tests
+- `src/service/store.rs` — data-root resolution, episodic/noise persistence,
+  contract dual-write, record decoding, and scope derivation
+- `src/service/retrieval.rs` — recent/scoped/relevant recall, lexical ranking,
+  knowledge-seed recall, and identity synthesis
+- `src/service/promotion.rs` — consolidation, semantic/procedural promotion,
+  receipts, and Obsidian synchronization
+- `src/service/status.rs` — statistics, status, recent ledgers, and path reports
+- `src/transport/mod.rs` — daemon configuration and transport orchestration
+- `src/transport/ipc.rs` — Unix-socket JSON command server/client
+- `src/transport/http.rs` — default-feature HTTP/SSE routes
 
-## Port status from Annunimas
+Every Rust source file under `src/` is reachable from `src/lib.rs`; there is no
+unwired source subtree or module-root collision.
 
-Source: `~/Annunimas/crates/annunimas-mnemosyne/`
+## Data and behavior boundaries
 
-Ported correctly:
-- All `annunimas_*` prefixes → `arda_*`
-- `AnnunimasError` → `ArdaError`
-- `annunimas_root()` → `arda_root()`, `ANNUNIMAS_ROOT` → `ARDA_ROOT`
-- `annunimas_plutus::JouleWorkUnit::Reasoning` → `arda_economics::JouleWorkUnit::Reasoning`
-- All transport/http + transport/ipc error paths
-- All service submodules: `store.rs`, `retrieval.rs`, `promotion.rs`, `status.rs`
-- Top-level tests promoted: `tests/knowledge_deltas.rs`, `tests/public_flows.rs`
+- `encode` evaluates significance and writes either episodic or noise data.
+- Episodic records include source, scope, confidence, trust, and chain metadata.
+- `recall_relevant` uses bounded lexical ranking with protected-scope weighting;
+  it is not a BM25, vector, or hybrid index.
+- `consolidate` promotes eligible repeated procedural patterns and emits
+  promotion receipts that retain source memory IDs.
+- `sync_obsidian` requires an explicit vault path and indexes Markdown content
+  into a separate JSONL surface; it does not make human notes canonical machine
+  truth.
+- Observability reports recall counts/fidelity/latency, IPC queue latency,
+  consolidation depth, and receipt totals. Configured services atomically
+  persist those snapshots for `arda-aule` consumption.
+- HTTP is feature-gated; IPC is compiled independently of HTTP. Neither
+  transport is required for direct library consumers.
 
-Intentionally different in Arda:
-- `lib.rs` public exports are simplified: Arda exports only `InformantEvent` + `MnemosyneService`; Annunimas exported transport daemon types as well. This is a conscious Arda simplification, not missing port work.
+## Live integrations
 
-Superseded source:
-- `~/Annunimas/crates/annunimas-mnemosyne/` is the legacy source tree. Do not modify it from Arda. Use it only as a reference for historical context or missing pieces.
+- `arda-varda`: unconditional encode consumer
+- `arda-outpost-scout`: unconditional scoped encode/recall consumer
+- `arda-orome`: `service-runtime`-feature identity and relevant-recall consumer
+- `arda-aule`: `full-cli`-feature status consumer
+- `manwe`: `adaptive`-feature encode consumer
 
-## Agentic-OS abstractions
-- **Memory encoding**: `encode(InformantEvent)` -> optional recall entry
-  - significance scoring from joulework, love equation, triad, bacon-lite
-  - classification into 5 tiers with sigil:
-    - MNEME_CORE / MNEME_ACTIVE / MNEME_PERIPHERAL / MNEME_TRANSIENT / MNEME_RELEASED
-  - low-significance events go to noise ledger, not episodic storage
-- **Hash chain integrity**: SHA256 chain over previous head + event +
-  significance; stored in `chain_head`
-- **Episodic store**: monthly JSONL files under `episodic/YYYY-MM/`
-  - header + body record format
-  - malformed-record tolerance in read path
-- **Consolidation**: tag-clustered semantic patterns + procedural skills
-  - thresholds: min cluster size 2, avg significance >= 0.4
-  - archive log with sweep metadata
-- **Recall surfaces**:
-  - `recall_recent(hours, crate_filter)`
-  - `recall_recent_scoped(hours, crate_filter, scope_filter)`
-  - `recall_relevant(query, hours, crate_filter, scope_filter, limit)`
-  - `recall_knowledge_seeds(query, limit)` from triage registry + Athena deep books
-  - `identity_state()` -> counts/mission focus/recent events
-- **Memory checkpoint policy**:
-  - derives recall window, checkpoint interval, consolidation bias
-  - driven by recent memory pressure and priority tags
-- **Obsidian sync**:
-  - indexes `.md`/`.canvas` files, writes obsidian_index.jsonl
-  - encodes each note as an `InformantEvent` with 0.65 confidence hint
-- **Status/observability**:
-  - counts by sigil class, malformed record counts
-  - last/next consolidation timestamps
-  - checkpoint policy reporting
-- **Daemon transport**:
-  - IPC Unix socket + optional HTTP/SSE
-  - configurable timeouts via env
-- **Phase 1 contract dual-write**:
-  - optional `MemoryRecord` write to `<contract_root>/episodic/<id>.json`
-  - atomic tmp+rename; primary write never poisoned by dual-write failure
-  - env-controlled with `ARDA_CONTRACT_MEMORY_ROOT=auto` defaulting to
-    `core/state/memory`
+## Completed review work
 
-## Crate layout
-| Module | Role |
-|--------|------|
-| `lib.rs` | Public exports: `InformantEvent`, `MnemosyneService` |
-| `service.rs` | Core store: encode, recall, identity, consolidate, obsidian sync, dual-write |
-| `service/store.rs` | File append helpers, hash chain, path defaults, dual-write plumbing |
-| `service/retrieval.rs` | Recent/relevant/knowledge-seed recall + scoring |
-| `service/status.rs` | Stats, status, malformed-record accounting |
-| `service/promotion.rs` | Consolidation + Obsidian sync |
-| `significance.rs` | Significance scoring, tier classification, bonuses/penalties |
-| `error.rs` | Canonical error type |
-| `transport/mod.rs` | Daemon config + runner |
-| `transport/ipc.rs` | Unix socket server |
-| `transport/http.rs` | Optional HTTP/SSE server |
-| `README.md` | Sigil/metadata overview |
+The former implementation checklist is complete and was retired into Git
+history after this reconciliation. Verified capabilities include:
 
-## Consumer wiring
-- Used by:
-  - `arda-orome` context enrichment
-  - `arda-varda` interceptor pipeline
-  - likely `engine`/CLI via `from_default_or_fallback()`
-- Depends on:
-  - `arda-core`
-  - `arda-governance`
-  - `arda-economics`
+- default and no-default feature test coverage
+- HTTP contract/status/encode/recall and SSE payload coverage
+- IPC round-trip, unreachable-socket, malformed-response, and local-default
+  behavior
+- knowledge-delta coverage for boardroom, human-context, edge-runtime, and
+  system-continuity scopes
+- confidence/trust disclosure in recall results
+- receipt-backed promotion and duplicate/overload/novelty regressions
+- recall, IPC, consolidation, and promotion observability
+- controlled Hit@1/latency regression benchmark
+- equivalent-dataset adapter contract with Hit@1, Recall@K, and MRR evidence
+- atomic durable observability/status/statistics export and bounded-label
+  `arda-aule` Prometheus ingestion
+- append/consolidation soak coverage with malformed-record and restart recovery
+- bounded fallback work-signal execution through one shared Tokio runtime,
+  verified by the 512-event operator-scale soak
+- explicit episodic/continuity schema versions, legacy read migration, and
+  unsupported-future-schema disclosure
+- canonical `<arda-root>/data/mnemosyne` config/socket defaults with direct
+  library use independent of transport daemons
 
-## Ideas for improvement
-1. Fix test compile error: add missing `arda-plutus` dependency or
-   remove unused `PlutusService` import from tests
-2. Make recall queries filter by `memory_scope`, sigil class, and
-   significance threshold in `read_episodic_records` instead of in-memory
-3. Replace full-disk `read_episodic_records()` reads with indexed month
-   metadata so large stores don’t scan everything
-4. Add async store methods or a bounded async gateway so daemon transport
-   doesn’t compete with sync encode paths
-5. Make Obsidian sync incremental: track `last_synced_at_utc` per note
-   instead of re-reading everything
-6. Add explicit retention policy for noise/transient episodic files so
-   disk usage doesn’t grow unbounded
-7. Use shared ledger/append trait from `arda-core` instead of custom
-   `append_jsonl`
-8. Surface memory pressure/readiness metrics through `engine`/HUD
-9. Add schema-versioned episodic records with migration support
-10. Replace hard-coded sigil multipliers with governance-configurable weights
+## Verification evidence
+
+Verified 2026-07-27:
+
+- `cargo check -p arda-vaire` — pass
+- `cargo test -p arda-vaire --all-features` — 30 unit + 13 integration tests
+  pass
+- `cargo test -p arda-vaire --no-default-features` — 27 unit + 13 integration
+  tests pass
+- benchmark target completes 600 queries at Hit@1 `1.000`
+- equivalent-dataset gate — 6 queries at Hit@1/Recall@3/MRR `1.000`
+- recovery test — 128 append attempts, 8 consolidation cycles, 3 malformed
+  durable surfaces, and restart recovery
+- explicit operator-scale soak — 512 append attempts and 8 consolidation cycles
+- `cargo test -p arda-aule --all-features --test metrics_exporter_cli` — pass
+- strict rustdoc initially found invalid `<root>/<id>` markup in `service.rs`;
+  the comment was corrected and the strict documentation gate now passes
+
+## Documentation supersession
+
+| Retired path | Current authority | Reason |
+| --- | --- | --- |
+| `CHECKLIST.md` | `BREAKDOWN.md` completed review work | All implementation items were verified |
+| `CRATE_PLAN.md` | `BREAKDOWN.md` completed review work | Completed implementation packet duplicated maintained evidence |
+| `STATUS.md` | `README.md` verification + this file | Status and risk prose duplicated maintained docs |
+| `OWNERSHIP.md` | Scope and data/behavior boundaries above | Ownership claims were stale and incomplete |
+| `docs/plans/MNEMOSYNE.md` | `README.md` + this file | All hardening and comparative gates were completed; active-plan copy retired |

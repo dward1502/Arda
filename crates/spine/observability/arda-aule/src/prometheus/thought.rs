@@ -1,5 +1,5 @@
 #![cfg(feature = "full-cli")]
-use annunimas_core::error::Result;
+use arda_core::error::Result;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use std::fs::{self, OpenOptions};
@@ -137,7 +137,7 @@ impl ThoughtLedger {
 }
 
 fn default_machine_thought_path() -> PathBuf {
-    if let Ok(path) = std::env::var("ANNUNIMAS_PROMETHEUS_MINDS") {
+    if let Ok(path) = std::env::var("ARDA_PROMETHEUS_MINDS") {
         return PathBuf::from(path);
     }
     if let Ok(home) = std::env::var("HOME") {
@@ -149,10 +149,10 @@ fn default_machine_thought_path() -> PathBuf {
     PathBuf::from(".citadel/minds/machine")
 }
 
-fn is_permission_error(err: &annunimas_core::error::AnnunimasError) -> bool {
+fn is_permission_error(err: &arda_core::error::ArdaError) -> bool {
     matches!(
         err,
-        annunimas_core::error::AnnunimasError::Ledger(ioe) if ioe.kind() == std::io::ErrorKind::PermissionDenied
+        arda_core::error::ArdaError::Ledger(ioe) if ioe.kind() == std::io::ErrorKind::PermissionDenied
     )
 }
 

@@ -1,0 +1,83 @@
+{
+  "contract": "arda.stage5.performance-accessibility.v1",
+  "generated_at_utc": "2026-08-01T18:21:23Z",
+  "status": "partial",
+  "automated_accessibility": {
+    "status": "pass",
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "axe_critical_serious_scan_ms": 613.72468,
+    "keyboard_focus_order_ms": 21.79898,
+    "coverage": [
+      "initial Workbench state",
+      "captured-objective Workbench state",
+      "native keyboard focus order",
+      "prefers-reduced-motion",
+      "prefers-contrast: more",
+      "forced-colors: active"
+    ],
+    "excluded_rule": "color-contrast (jsdom cannot calculate rendered contrast)",
+    "budgets": {
+      "axe_scan_ms_max": 2000,
+      "keyboard_focus_test_ms_max": 100
+    }
+  },
+  "automated_performance": {
+    "status": "pass",
+    "fault_matrix_p95_ms_max_observed": 356.148,
+    "fault_matrix_p95_ms_budget": 1000,
+    "checkpoint_restart_ms_observed": 284.754,
+    "checkpoint_restart_ms_budget": 1000,
+    "short_soak_protected_growth_files": 0,
+    "short_soak_protected_growth_bytes": 0,
+    "long_soak_growth_budget_files": 1000,
+    "long_soak_growth_budget_bytes": 67108864,
+    "maximum_unbounded_queue_or_log_growth": 0,
+    "hud_javascript_asset_bytes": 2099896,
+    "hud_javascript_asset_budget_bytes": 3145728,
+    "largest_redacted_diagnostic_bundle_bytes": 1530,
+    "diagnostic_bundle_budget_bytes": 1048576
+  },
+  "native_measurements": {
+    "status": "pass",
+    "runtime_backend": "x11",
+    "cold_start": {
+      "observed_seconds": 0.706,
+      "budget_seconds_max": 2.0,
+      "status": "pass"
+    },
+    "idle_resource_use": {
+      "measurement_seconds": 300.246,
+      "aggregate_rss_start_mib": 391.33,
+      "aggregate_rss_end_mib": 422.0,
+      "aggregate_rss_peak_mib": 440.78,
+      "aggregate_rss_peak_budget_mib": 512.0,
+      "post_warmup_growth_mib": 4.2,
+      "post_warmup_growth_budget_mib": 64.0,
+      "webkit_cpu_one_core_percent": 2.58,
+      "webkit_cpu_one_core_percent_budget": 10.0,
+      "status": "pass"
+    },
+    "operator_setup_recovery_walkthrough": {
+      "status": "pass",
+      "dialog_role_and_name_exposed": true,
+      "setup_and_recovery_text_exposed": true,
+      "initial_focus_close": true,
+      "tab_contained": true,
+      "shift_tab_contained": true,
+      "escape_closes": true,
+      "focus_restored_to_trigger": true
+    },
+    "non_blocking_warning": "WebKitGTK reported one failed 800x600 GBM allocation, then remained operational on the hardware-backed X11 path.",
+    "rejected_runtime_configuration": "Disabling the DMABUF renderer caused 124.36 MiB/min RSS growth and 46.8% WebKit CPU; it is retained only as failed stress evidence and is not the accepted launch path."
+  },
+  "evidence": {
+    "short_soak": "docs/evidence/stage-5-release-candidate/reliability/soak-smoke-final.json",
+    "accessibility_test": "apps/arda-hud/src/components/arda/modules/WorkbenchModule.accessibility.test.tsx",
+    "native_walkthrough": "docs/evidence/stage-5-release-candidate/reliability/native-launcher-walkthrough.json",
+    "native_idle_metrics": "docs/evidence/stage-5-release-candidate/reliability/native-launcher-metrics.json",
+    "support_exercise": "docs/evidence/stage-5-release-candidate/support/support-exercise.json",
+    "long_soak": "docs/evidence/stage-5-release-candidate/reliability/soak-24h.json (in progress)"
+  }
+}

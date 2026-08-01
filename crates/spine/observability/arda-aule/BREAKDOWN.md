@@ -5,89 +5,134 @@ soterion:
   role: "observability_home"
   owner: "ARDA"
   status: "active"
-  last_reviewed: "2026-07-17"
+  last_reviewed: "2026-07-28"
 ---
 
 # arda-aule
-Observability home crate for Arda: intended host for prometheus/ceo/cli
-surfaces; currently contains only a copied council blueprint stub.
+Consolidated observability and operator-control crate for Arda.
 Owner: arda | Sigil: 🜃 ANKH | Status: active
 
 ## Summary
-`arda-aule` is intended to be the observability-area home for:
-- `annunimas-prometheus` — executive orchestrator (`/core` linkage,
-  pipeline, confidence scoring, council gate, orders/escalations,
-  autopilot, cli commands)
-- `annunimas-ceo` — CEO orchestration brain (decomposition, delegation,
-  decision engine, learning)
-- `annunimas-cli` — primary CLI entrypoint for running Annunimas locally
-  with commands for athena, prometheus, charon, mnemosyne, hades, hermes,
-  apollo, plutus, oracle, chronos, forge-mind, etc.
+`arda-aule` is the observability-area home for:
+- `contract`, `service`, and `council` — stable observability contracts and compatibility types
+- `governance_metrics` — typed governance snapshot rendering
+- `telemetry` — feature-gated tracing and structured event wiring
+- `ceo` — core autonomy profile, pipeline, and router primitives under `full-cli`
+- `prometheus` — projections, council gate, heartbeat, orders, planning, registry, service,
+  thought ledger, autopilot, execution intents, IPC, and optional HTTP transport under `full-cli`
+- `arda-cli` — one supported binary containing governance, Plutus, Prometheus, and CEO-autopilot
+  commands
+- `arda-cli metrics` — the `http`-gated projection exporter and one-shot snapshot surface for
+  queue, autonomy, pressure, audit-health, provider-budget, and optional node metrics
 
-Currently none of those surfaces live under `arda-aule`. The crate only
-contains a near-copy of `arda-council`'s blueprint, and its docs are stale:
-`INDEX.md` and `README.md` are missing, and the `.bak` variants still
-describe `Arda-Council`.
-
-The actual implementations exist in parallel under
-`/var/home/mythos/Annunimas/crates/` as standalone `annunimas-*` crates
-that are **not** wired into the Arda workspace. They depend on each other
-and on sibling `annunimas-*` crates, not on `arda-*` crates.
+Provider and fleet routing are owned by Manwe. Aule records durable routing intents and does not
+duplicate Manwe's provider-selection implementation.
 
 ## Where things are today
 - Arda workspace member: `crates/spine/observability/arda-aule`
-- Current source: only `lib.rs`, `contract.rs`, `council.rs`, `service.rs`
-  (council blueprint copy)
-- Real implementations (outside Arda workspace):
-  - `~/Annunimas/crates/annunimas-prometheus/`: ~60 source files, benches,
-    tests, binaries
-  - `~/Annunimas/crates/annunimas-ceo/`: thin wrapper around prometheus
-  - `~/Annunimas/crates/annunimas-cli/`: full CLI with commands/,
-    export_surface/, policy_guard, observability entry
+- Active library surfaces: the default modules plus `src/ceo/` and every module declared by
+  `src/prometheus/mod.rs` under `full-cli`
+- Active operator binary: `src/cli/main.rs`
+- `full-cli` enables the consolidated CEO/Prometheus graph and `arda-cli`
+- `http` adds the optional Prometheus HTTP transport; IPC is available with `full-cli`
+
+## Exact Rust source classification
+
+Inventory date: 2026-07-28. Total: 85 Rust files.
+
+### Production/default (5)
+
+- `src/lib.rs`
+- `src/contract.rs`
+- `src/council.rs`
+- `src/governance_metrics.rs`
+- `src/service.rs`
+
+### Production/feature-gated (72)
+
+`telemetry` (4):
+
+- `src/telemetry/mod.rs`
+- `src/telemetry/config.rs`
+- `src/telemetry/events.rs`
+- `src/telemetry/tracer.rs`
+
+`full-cli` (66):
+
+- `src/ceo/mod.rs`, `src/ceo/core_link.rs`, `src/ceo/pipeline.rs`, `src/ceo/router.rs`
+- `src/cli/main.rs`
+- `src/prometheus/mod.rs`
+- `src/prometheus/autopilot/{mod,a2h,bootstrap,core_executor_bridge,dashboard,decomposer,delegation,evidence_registry,governance_policy,knowledge_triage,learning,oracle_gate,outcomes,pipeline_bridge,planner,queue_operation,queue_writer,reporting,runner,service_health,source_registry,task_queue,taxonomy,validator}.rs`
+- `src/prometheus/core_link.rs`
+- `src/prometheus/core_link/{arda,chronos,fleet,governance_runtime,hermes_command,human_context,io,memory,operations_flow,operator_actions,package_enablement,paperclip,snapshot,soterion,storage_pressure,support,topology,warden}.rs`
+- `src/prometheus/{council,error,heartbeat,orders,planner,queue_authority,registry,router,service,thought}.rs`
+- `src/prometheus/service/{drift,execution_intents,runtime,status,support}.rs`
+- `src/prometheus/transport/{mod,ipc}.rs`
+
+`http` (2; `http` implies `full-cli`):
+
+- `src/cli/metrics_exporter.rs`
+- `src/prometheus/transport/http.rs`
+
+### Generated include (0)
+
+No `include!` or generated Rust source is present.
+
+### Test-only (0)
+
+No standalone file under `src/` is reachable only through `cfg(test)`. Inline unit-test modules remain classified with their production host files.
+
+### Integration test/build script (8)
+
+- `tests/autopilot_surface.rs`
+- `tests/ceo_surface.rs`
+- `tests/contract_smoke.rs`
+- `tests/council_surface.rs`
+- `tests/council_surface_full.rs`
+- `tests/governance_cli.rs`
+- `tests/metrics_exporter_cli.rs`
+- `tests/telemetry_surface.rs`
+
+There is no `build.rs`.
+
+### Unwired (0)
+
+Every Rust source is reachable from `src/lib.rs`, the `arda-cli` binary root, or a declared integration-test target. There are no simultaneous `foo.rs` and `foo/mod.rs` roots.
+
+## Feature and dependency graph
+
+- Default features are empty and compile only the five default production files.
+- `telemetry` activates the OpenTelemetry/OTLP/tracing dependency closure and four telemetry files.
+- `full-cli` activates `arda-core`, `arda-vaire`, `arda-economics`, `arda-orome`, `arda-mandos`, `arda-varda`, and `telemetry`; it compiles CEO, Prometheus, and `arda-cli`.
+- `http` activates `full-cli`, Axum, Tower, Tokio Stream, Sysinfo, HTTP transport, node metrics, and `metrics_exporter.rs`.
+- `metrics_exporter_cli` is explicitly declared with `required-features = ["http"]`.
+
+The only direct Cargo consumer is Manwe: its `telemetry` feature enables `arda-aule/telemetry`, and its startup/service-event paths call that public module.
 
 ## Verification status
-- `cargo check -p arda-aule`: OK
-- `cargo test -p arda-aule`: 3 integration + 3 doc tests passing (blueprint only)
-- `~/Annunimas/crates/annunimas-*` are not buildable from Arda workspace
-  because they reference `annunimas-*` deps not present in Arda `Cargo.toml`
 
-## Agentic-OS abstractions that should live here
-- **Prometheus pipeline**: receive task, estimate joule cost, score
-  confidence, route/delegate, persist lifecycle decisions to ledger
-- **CEO orchestration**: objective decomposition, agent delegation,
-  council/oracle/warden triangulation, learning feedback loops
-- **CLI surface**: operator commands for every service, policy-guard
-  gating, export surfaces, observability entry points
-- **Transport**: IPC + HTTP/SSE daemon for prometheus/ceo surfaces
-- **Council-gate**: confidence adjustment scaffold for complex decisions
-- **Core linkage**: bridge to `core/realm/boot.toml`, `core/state/world.json`
-- **Orders/escalations**: append-only stores with active/pending counters
+- `cargo fmt -p arda-aule -- --check`: passing as of 2026-07-28.
+- `cargo check -p arda-aule --no-default-features`: passing.
+- `cargo test -p arda-aule --no-default-features -- --test-threads=1`: 5 unit/integration tests plus 2 doctests passed.
+- `cargo check -p arda-aule --all-targets --all-features`: passing.
+- `cargo test -p arda-aule --all-features -- --test-threads=1`: 187 unit/integration tests plus 2 doctests passed.
+- Process-level governance and metrics-exporter tests validate JSON and Prometheus contracts.
+- Strict Clippy, Rustdoc, and Manwe telemetry consumer gates are maintained in `STATUS.md`.
 
-## Crate layout desired
-| Module | Source | Role |
-|--------|--------|------|
-| `prometheus/` | `~/Annunimas/crates/annunimas-prometheus/src/*` | Executive orchestrator |
-| `ceo/` | `~/Annunimas/crates/annunimas-ceo/src/*` | CEO brain |
-| `cli/` | `~/Annunimas/crates/annunimas-cli/src/*` | CLI entrypoint |
-| `contract.rs` | existing or new | Observability contract for Arda |
-| `council.rs` | existing or shared | Re-export from `arda-council` |
-| `service.rs` | new | Readiness probe tying prometheus/ceo/cli status |
+## Decisions
+- Keep observability contracts, governance metrics, telemetry, and the operator binary in `arda-aule`.
+- Keep `src/council.rs` as the canonical supported compatibility surface.
+- Do not expose command variants whose runtime implementation is absent.
+- Keep provider routing in Manwe and task execution in the active core loop/executor; Aule owns
+  governance, observability, autopilot coordination, and durable queue/intent production.
+- Preserve the currently consumed `annunimas_*` metric names as an external monitoring ABI until
+  dashboards, alert rules, runtime consumers, and scrape jobs migrate together; do not add new
+  legacy-named series.
 
-## Ideas for improvement
-1. **Migrate prometheus/ceo/cli into arda-aule**: copy or symlink the
-   `~/Annunimas/crates/annunimas-*` sources under
-   `crates/spine/observability/arda-aule/`, then rewrite their deps from
-   `annunimas-*` to `arda-*` equivalents
-2. **Retire annunimas-* naming in Arda**: replace all `annunimas-*` crate
-   references with `arda-*` equivalents to align with active tree
-3. **Keep council blueprint minimal**: once the real observability code
-   moves in, reduce or remove the council copy; re-export from
-   `arda-council` instead
-4. **Fix stale docs**: generate real `INDEX.md`/`README.md` for `arda-aule`
-   describing its actual contents after migration
-5. **Update core/state contracts**: `business_intelligence_suite_contract.json`
-   already points to `arda-aule`; ensure it matches the migrated surface
-6. **Wire CLI commands into engine/HUD**: make `annunimas-cli` commands
-   accessible via engine API or Tauri launcher
-7. **Add workspace-level tests**: once migrated, add integration tests
-   proving prometheus pipeline runs end-to-end from Arda workspace
+## Archived foundation records
+
+- [`PROMETHEUS.md`](../../../../docs/archive/PROMETHEUS.md)
+- [`BASELINE.md`](../../../../docs/archive/arda-aule/BASELINE.md)
+- [`IMPROVEMENT_PLAN.md`](../../../../docs/archive/arda-aule/IMPROVEMENT_PLAN.md)
+- [`DEPENDENCY_AUDIT.md`](../../../../docs/archive/arda-aule/DEPENDENCY_AUDIT.md)
+- [`STEP6_HANDOFF.md`](../../../../docs/archive/arda-aule/STEP6_HANDOFF.md)

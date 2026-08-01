@@ -10,6 +10,8 @@ use std::fs::OpenOptions;
 use std::io::{BufRead, BufReader, Write};
 use std::path::{Path, PathBuf};
 
+use crate::prometheus::queue_authority::canonical_project_task_queue;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct QueueRecord {
     pub id: String,
@@ -200,7 +202,7 @@ impl ActiveQueueExecutor {
     pub fn new(root: impl AsRef<Path>) -> Self {
         let root = root.as_ref();
         Self {
-            queue_path: root.join("core/projects/tasks/queue.jsonl"),
+            queue_path: canonical_project_task_queue(root),
             active_projection_path: root.join("core/state/queue_active.json"),
         }
     }

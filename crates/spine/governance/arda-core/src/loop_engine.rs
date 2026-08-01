@@ -23,8 +23,11 @@ use crate::contract::{
     TriadVerdict,
 };
 use crate::error::Result;
-use crate::governance_gates::{GovernanceGates, GovernancePolicyMode};
+use crate::governance_gates::{
+    AffordabilityPolicy, AllowAllAffordability, GovernanceGates, GovernancePolicyMode,
+};
 use crate::ledger::Ledger;
+use crate::loop_observability::{DecisionLatencyKind, LatencyProbe, LoopObservabilityConfig};
 use crate::state::{self, StateRoot};
 use crate::task::{Task, TaskStatus};
 
@@ -50,10 +53,10 @@ fn agent_for_intent(intent: &str) -> Option<&'static str> {
 #[derive(Debug, Default)]
 pub struct DispatchPass {
     pub tasks_seen: usize,
-    pub dispatched: Vec<String>,          // task ids
-    pub no_route: Vec<String>,            // (task id) intents we don't know how to route
-    pub already_terminal: Vec<String>,    // already-Complete/Failed contract tasks; nothing to do
-    pub triad_unconsulted: Vec<String>,   // recorded as audit-flagged unconsulted decisions
+    pub dispatched: Vec<String>,              // task ids
+    pub no_route: Vec<String>,                // (task id) intents we don't know how to route
+    pub already_terminal: Vec<String>, // already-Complete/Failed contract tasks; nothing to do
+    pub triad_unconsulted: Vec<String>, // recorded as audit-flagged unconsulted decisions
     pub budget_blocked: Vec<String>, // task ids skipped because goal joule budget for today is exhausted
     pub bids_recorded: usize,        // total bids ledgered across all dispatched tasks
     pub market_collapses: Vec<String>, // task ids no agent was willing to bid on
@@ -64,6 +67,8 @@ pub struct DispatchPass {
     pub triad_vetoes: Vec<String>,   // live triad: Fail outcomes recorded as veto evidence
     pub triad_blocked: Vec<String>,  // live triad: Fail outcomes blocked by policy
     pub action_gate_blocked: Vec<String>, // action-class gates blocked dispatch before execution
+    pub aipkg_preflight_blocked: Vec<String>, // task ids blocked by failing AIPKG preflight
+    pub aipkg_preflight_passed: usize, // task ids that passed AIPKG preflight
     pub capped_at: Option<usize>,    // dispatch loop bailed out at this count (rate cap)
     pub halted: bool,                // halt file present; dispatcher refused to act
 }
@@ -253,6 +258,35 @@ pub fn dispatch_full(
     bid_board: &dyn BidBoard,
     gates: &GovernanceGates,
 ) -> Result<DispatchPass> {
+    dispatch_full_with_affordability(
+        state,
+        queue_path,
+        cap_per_tick,
+        estimator,
+        triad,
+        bid_board,
+        gates,
+        &AllowAllAffordability,
+    )
+}
+
+/// Dispatch with an explicit runtime affordability provider. This is the
+/// governance integration point implemented by `EconomicsEngine`; compatibility
+/// entrypoints retain allow-all behavior until a provider is supplied.
+// This compatibility boundary keeps each governance collaborator explicit. A
+// parameter object would obscure the public integration contract and break
+// existing consumers without reducing the underlying dependencies.
+#[allow(clippy::too_many_arguments)]
+pub fn dispatch_full_with_affordability(
+    state: &StateRoot,
+    queue_path: &Path,
+    cap_per_tick: usize,
+    estimator: &dyn JouleEstimator,
+    triad: &dyn TriadConsultant,
+    bid_board: &dyn BidBoard,
+    gates: &GovernanceGates,
+    affordability: &dyn AffordabilityPolicy,
+) -> Result<DispatchPass> {
     let mut pass = DispatchPass::default();
 
     // Halt file short-circuits everything. Refuse to dispatch but
@@ -274,6 +308,11 @@ pub fn dispatch_full(
     }
 
     let ledger = ledger_for(state)?;
+
+    let loop_observability_config = LoopObservabilityConfig::from_env();
+    let mut tick_probe = LatencyProbe::new(loop_observability_config.max_latency_samples);
+    tick_probe.with_kind(DecisionLatencyKind::LoopTick);
+
     let now_ts = Utc::now().format("%Y%m%dT%H%M%S").to_string();
 
     // ----- Phase 2 step 7: per-goal joule budget bookkeeping. -----
@@ -328,12 +367,52 @@ pub fn dispatch_full(
             break;
         }
 
+        // AIPKG preflight gate: if a task carries a manifest, validate
+        // it before allocating joule/bids/triad resources. Invalid or
+        // failing manifests are recorded and skipped.
+        if let Some(manifest) = task.aipkg_manifest.as_ref() {
+            match manifest.validate() {
+                Ok(_) => pass.aipkg_preflight_passed += 1,
+                Err(err) => {
+                    pass.aipkg_preflight_blocked.push(format!("{id}:{}", err));
+                    continue;
+                }
+            }
+        }
+
         let intent = task.task_type.clone();
 
         // Joule estimate first — needed by both the budget gate
         // and (via task.joule_cost_estimated) the StaticBidBoard.
         let joule_estimate = estimator.estimate_for_task(&task);
         task.joule_cost_estimated = joule_estimate;
+
+        let affordability_decision = gates.evaluate_affordability(affordability, joule_estimate);
+        if !affordability_decision.allowed {
+            let mut budget_decision = Decision::new(
+                format!("budget_{now_ts}_{dispatch_seq:04}"),
+                DecisionClass::Budget,
+                task.id.to_string(),
+                affordability_decision.policy,
+                format!(
+                    "runtime affordability denied cost {joule_estimate:.2}: {}",
+                    affordability_decision.reason
+                ),
+                triad.consult(&task),
+            );
+            budget_decision.joule_estimate = joule_estimate;
+            budget_decision.extensions.insert(
+                "affordability".to_owned(),
+                serde_json::to_value(&affordability_decision)?,
+            );
+            ledger.append(&budget_decision)?;
+            dispatch_seq += 1;
+            pass.budget_blocked.push(format!(
+                "{id}:policy={}:cost={joule_estimate:.2}:reason={}",
+                affordability_decision.policy, affordability_decision.reason
+            ));
+            continue;
+        }
 
         // Per-goal joule budget enforcement (step 7). If today's
         // spend on this task's goal would exceed the daily budget,
@@ -458,6 +537,10 @@ pub fn dispatch_full(
                 "council_joule_cost": dispatch_policy.council_joule_cost,
             }),
         );
+        dec.extensions.insert(
+            "affordability".to_owned(),
+            serde_json::to_value(&affordability_decision)?,
+        );
         dec.extensions
             .insert("action_gate".to_string(), action_gate.to_json());
         ledger.append(&dec)?;
@@ -527,6 +610,12 @@ pub fn dispatch_full(
             }
         }
         pass.dispatched.push(id);
+    }
+
+    if loop_observability_config.economy_snapshot_enabled {
+        let _ = tick_probe
+            .with_kind(DecisionLatencyKind::EconomySnapshot)
+            .sample();
     }
 
     Ok(pass)
@@ -760,6 +849,7 @@ pub struct TickSummary {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::aipkg::{AipkgGovernance, AipkgManifest, AipkgPreflight, AipkgReceiptPolicy};
     use crate::contract::{Goal, GoalPriority, Plan, PlanStep};
 
     fn tmp_state() -> (tempfile::TempDir, StateRoot, PathBuf) {
@@ -856,6 +946,15 @@ mod tests {
         let pass = dispatch_with_cap(&st, &q, 2).unwrap();
         assert_eq!(pass.dispatched.len(), 2);
         assert_eq!(pass.capped_at, Some(2));
+    }
+
+    #[test]
+    fn dispatch_cap_zero_dispatches_nothing() {
+        let (_d, st, q) = tmp_state();
+        seed_one_plan_with_tasks(&st, &q, "probe_provider");
+        let pass = dispatch_with_cap(&st, &q, 0).unwrap();
+        assert_eq!(pass.dispatched.len(), 0);
+        assert_eq!(pass.capped_at, Some(0));
     }
 
     #[test]
@@ -1053,6 +1152,111 @@ action_classes:
     }
 
     #[test]
+    fn dispatch_skips_terminal_tasks_and_does_not_double_count_budget() {
+        let (_d, st, q) = tmp_state();
+        let g = Goal::new("g1", "T", "I", "owner", GoalPriority::Medium);
+        state::write_goal(&st, &g).unwrap();
+        let today_suffix = format!("_{}", Utc::now().format("%Y%m%d"));
+        let plan_id = format!("plan_g1{today_suffix}");
+        let plan = Plan::new(
+            &plan_id,
+            "g1",
+            "summary",
+            vec![
+                PlanStep {
+                    intent: "probe_provider".into(),
+                    params: json!({}),
+                },
+                PlanStep {
+                    intent: "probe_provider".into(),
+                    params: json!({}),
+                },
+            ],
+        );
+        state::write_plan(&st, &plan).unwrap();
+
+        let mut t0 = Task::new("t0", "probe_provider").with_plan_lineage(&plan_id, 0);
+        t0.status = TaskStatus::Complete;
+        t0.joule_cost_estimated = 4.0;
+        let t1 = Task::new("t1", "probe_provider").with_plan_lineage(&plan_id, 1);
+        state::append_task(&q, &t0).unwrap();
+        state::append_task(&q, &t1).unwrap();
+
+        let pass = dispatch_full(
+            &st,
+            &q,
+            64,
+            &ZeroJouleEstimator,
+            &UnconsultedTriad,
+            &StaticBidBoard,
+            &GovernanceGates::permissive(),
+        )
+        .unwrap();
+        assert_eq!(pass.dispatched.len(), 1);
+        assert_eq!(pass.budget_blocked.len(), 0);
+        assert_eq!(pass.already_terminal, vec![t0.id.to_string()]);
+    }
+
+    #[test]
+    fn dispatch_cap_limits_dispatched_task_count() {
+        let (_d, st, q) = tmp_state();
+        let g = Goal::new("g1", "T", "I", "owner", GoalPriority::Medium);
+        state::write_goal(&st, &g).unwrap();
+        let today_suffix = format!("_{}", Utc::now().format("%Y%m%d"));
+        let plan_id = format!("plan_g1{today_suffix}");
+        let plan = Plan::new(
+            &plan_id,
+            "g1",
+            "summary",
+            (0..3)
+                .map(|_| PlanStep {
+                    intent: "probe_provider".into(),
+                    params: json!({}),
+                })
+                .collect(),
+        );
+        state::write_plan(&st, &plan).unwrap();
+        for i in 0..3 {
+            let t = Task::new(format!("t{i}"), "probe_provider").with_plan_lineage(&plan_id, i);
+            state::append_task(&q, &t).unwrap();
+        }
+
+        let pass = dispatch_full(
+            &st,
+            &q,
+            1,
+            &ZeroJouleEstimator,
+            &UnconsultedTriad,
+            &StaticBidBoard,
+            &GovernanceGates::permissive(),
+        )
+        .unwrap();
+        assert_eq!(pass.dispatched.len(), 1);
+        assert_eq!(pass.capped_at, Some(1));
+        assert_eq!(pass.budget_blocked.len(), 0);
+        assert_eq!(pass.no_route.len(), 0);
+    }
+
+    #[test]
+    fn dispatch_blocks_budget_when_estimator_reports_high_joule_cost() {
+        struct OneHundredJoule;
+        impl JouleEstimator for OneHundredJoule {
+            fn estimate_for_task(&self, _task: &Task) -> f64 {
+                100.0
+            }
+        }
+
+        let (_d, st, q) = tmp_state();
+        let g = Goal::new("g1", "T", "I", "owner", GoalPriority::Medium);
+        state::write_goal(&st, &g).unwrap();
+        seed_one_plan_with_tasks(&st, &q, "probe_provider");
+        let pass = dispatch_with_cap_and_estimator(&st, &q, 64, &OneHundredJoule).unwrap();
+        assert_eq!(pass.dispatched.len(), 1);
+        // Budget gate does not reject a single unknown task for a high estimator.
+        assert_eq!(pass.budget_blocked.len(), 0);
+    }
+
+    #[test]
     fn dispatch_blocks_when_goal_budget_exhausted() {
         struct FixedThree;
         impl JouleEstimator for FixedThree {
@@ -1100,6 +1304,61 @@ action_classes:
         // to 6 > 5 and gets budget-blocked.
         assert_eq!(pass.dispatched.len(), 1);
         assert_eq!(pass.budget_blocked.len(), 1);
+    }
+
+    #[test]
+    fn dispatch_uses_runtime_affordability_policy() {
+        struct FixedThree;
+        impl JouleEstimator for FixedThree {
+            fn estimate_for_task(&self, _task: &Task) -> f64 {
+                3.0
+            }
+        }
+        struct TwoJouleRuntimeBudget;
+        impl AffordabilityPolicy for TwoJouleRuntimeBudget {
+            fn policy_name(&self) -> &'static str {
+                "test_runtime_budget"
+            }
+
+            fn can_afford(&self, estimated_cost: f64) -> bool {
+                estimated_cost <= 2.0
+            }
+        }
+
+        let (_d, st, q) = tmp_state();
+        seed_one_plan_with_tasks(&st, &q, "probe_provider");
+        let pass = dispatch_full_with_affordability(
+            &st,
+            &q,
+            64,
+            &FixedThree,
+            &UnconsultedTriad,
+            &StaticBidBoard,
+            &GovernanceGates::permissive(),
+            &TwoJouleRuntimeBudget,
+        )
+        .unwrap();
+
+        assert!(pass.dispatched.is_empty());
+        assert_eq!(pass.budget_blocked.len(), 1);
+        assert!(pass.budget_blocked[0].contains("policy=test_runtime_budget"));
+        assert!(pass.budget_blocked[0].contains("reason=budget_exceeded"));
+
+        let today = Utc::now().format("%Y-%m-%d");
+        let ledger_path = st
+            .root()
+            .join("ledger")
+            .join(format!("ledger_{today}.jsonl"));
+        let decisions = std::fs::read_to_string(ledger_path).unwrap();
+        let budget_decision = decisions
+            .lines()
+            .map(|line| serde_json::from_str::<Decision>(line).unwrap())
+            .find(|decision| decision.decision_class == DecisionClass::Budget)
+            .expect("budget denial decision");
+        assert_eq!(
+            budget_decision.extensions["affordability"]["allowed"],
+            false
+        );
     }
 
     #[test]
@@ -1247,6 +1506,124 @@ classes:
         let tasks = state::read_contract_tasks(&q).unwrap();
         let last = tasks.last().expect("at least one task");
         assert!((last.joule_cost_estimated - 3.5).abs() < 1e-9);
+    }
+
+    #[test]
+    fn dispatch_accepts_tasks_with_valid_aipkg_manifest() {
+        struct AnyBidder;
+        impl BidBoard for AnyBidder {
+            fn bids_for(&self, _task: &Task) -> Vec<AgentBid> {
+                vec![AgentBid {
+                    agent_id: "warden",
+                    joule_cost: 1.0,
+                    confidence: 1.0,
+                }]
+            }
+        }
+
+        let manifest = AipkgManifest {
+            manifest_version: "0.1".into(),
+            package_id: "org.arda.valid".into(),
+            version: "0.1.0".into(),
+            package_digest:
+                "sha256:1111111111111111111111111111111111111111111111111111111111111111".into(),
+            runtime_profile: "local-sovereign".into(),
+            preflight: AipkgPreflight {
+                zero_work_required: true,
+                compatibility_required: true,
+                quote_required: true,
+            },
+            governance: AipkgGovernance {
+                triad_required: true,
+                bacon_lite_required: true,
+                joulework_budget_required: true,
+                love_eq_guard_required: true,
+                soterion_trace_required: true,
+            },
+            receipts: AipkgReceiptPolicy {
+                preflight_required: true,
+                execution_required: true,
+                validation_required: true,
+                settlement_optional: true,
+                signatures_required: true,
+            },
+        };
+
+        let (_d, st, q) = tmp_state();
+        seed_one_plan_with_tasks(&st, &q, "probe_provider");
+        let mut tasks = state::read_contract_tasks(&q).unwrap();
+        let mut task = tasks.pop().expect("seeded task");
+        task.aipkg_manifest = Some(manifest);
+        state::append_task(&q, &task).unwrap();
+
+        let pass = dispatch_full(
+            &st,
+            &q,
+            64,
+            &ZeroJouleEstimator,
+            &UnconsultedTriad,
+            &AnyBidder,
+            &GovernanceGates::permissive(),
+        )
+        .unwrap();
+
+        assert_eq!(pass.aipkg_preflight_passed, 1);
+        assert_eq!(pass.aipkg_preflight_blocked.len(), 0);
+        assert_eq!(pass.dispatched.len(), 1);
+    }
+
+    #[test]
+    fn dispatch_blocks_tasks_with_invalid_aipkg_manifest() {
+        let manifest = AipkgManifest {
+            manifest_version: "not-0.1".into(),
+            package_id: "no-namespace".into(),
+            version: "0.1.0".into(),
+            package_digest: "sha256:".into(),
+            runtime_profile: "unknown".into(),
+            preflight: AipkgPreflight {
+                zero_work_required: false,
+                compatibility_required: true,
+                quote_required: true,
+            },
+            governance: AipkgGovernance {
+                triad_required: true,
+                bacon_lite_required: true,
+                joulework_budget_required: true,
+                love_eq_guard_required: true,
+                soterion_trace_required: true,
+            },
+            receipts: AipkgReceiptPolicy {
+                preflight_required: true,
+                execution_required: true,
+                validation_required: true,
+                settlement_optional: false,
+                signatures_required: true,
+            },
+        };
+
+        let (_d, st, q) = tmp_state();
+        seed_one_plan_with_tasks(&st, &q, "probe_provider");
+        let mut tasks = state::read_contract_tasks(&q).unwrap();
+        let mut task = tasks.pop().expect("seeded task");
+        task.aipkg_manifest = Some(manifest);
+        state::append_task(&q, &task).unwrap();
+
+        let pass = dispatch_full(
+            &st,
+            &q,
+            64,
+            &ZeroJouleEstimator,
+            &UnconsultedTriad,
+            &StaticBidBoard,
+            &GovernanceGates::permissive(),
+        )
+        .unwrap();
+
+        assert_eq!(pass.aipkg_preflight_passed, 0);
+        assert_eq!(pass.dispatched.len(), 0);
+        assert_eq!(pass.aipkg_preflight_blocked.len(), 1);
+        let blocked = &pass.aipkg_preflight_blocked[0];
+        assert!(blocked.contains("manifest_version must be 0.1"));
     }
 
     #[test]

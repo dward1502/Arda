@@ -1,0 +1,60 @@
+{
+  "contract": "arda.stage5.publisher-identity-decision.v1",
+  "generated_at_utc": "2026-08-01T18:49:02Z",
+  "status": "selected-activation-pending",
+  "decision": {
+    "scheme": "sigstore-keyless-github-oidc",
+    "rationale": [
+      "No long-lived production private key or recovery secret is retained.",
+      "The public dward1502/Arda repository has GitHub Actions enabled.",
+      "Fulcio binds a short-lived certificate to the tag-bound workflow identity.",
+      "Rekor supplies a publicly auditable signing event."
+    ],
+    "certificate_identity_template": "https://github.com/dward1502/Arda/.github/workflows/release-sign.yml@refs/tags/<tag>",
+    "oidc_issuer": "https://token.actions.githubusercontent.com",
+    "workflow": ".github/workflows/release-sign.yml"
+  },
+  "live_repository_state": {
+    "repository": "dward1502/Arda",
+    "visibility": "PUBLIC",
+    "actions_enabled": true,
+    "allowed_actions": "all",
+    "sha_pinning_required_remotely": false,
+    "main_branch_protected": false,
+    "environments": []
+  },
+  "implemented_controls": {
+    "action_revisions_pinned": true,
+    "asset_allowlist_count": 6,
+    "release_tag_version_match_required": true,
+    "tag_commit_manifest_match_required": true,
+    "sha256_ledger_verification_required": true,
+    "generated_bundle_verification_required": true,
+    "least_privilege_job_permissions": [
+      "contents: write",
+      "id-token: write"
+    ],
+    "production_release_environment_declared": true
+  },
+  "verification": {
+    "actionlint": {
+      "command": "/tmp/actionlint-1.7.12/actionlint -shellcheck=/home/linuxbrew/.linuxbrew/bin/shellcheck .github/workflows/release-sign.yml",
+      "version": "1.7.12",
+      "status": "pass"
+    },
+    "policy_updated": "SECURITY.md",
+    "runbook_updated": "docs/operator/release-candidate-packaging-signing.md"
+  },
+  "activation_gates": [
+    "Commit and push the workflow through normal repository review.",
+    "Create the production-release environment with a required maintainer reviewer.",
+    "Protect main and require review for signing-workflow changes.",
+    "Generate final normalized artifacts and publish a reviewed v* release.",
+    "Require the workflow run and all six identity-bound bundle verifications to pass before distribution."
+  ],
+  "limitations": [
+    "No remote repository settings were changed and no workflow was pushed from this session.",
+    "No production OIDC signature can be generated before the workflow exists on GitHub and is triggered by a release tag.",
+    "Retained candidate-key signatures cover pre-normalization candidate bytes and are not production publisher signatures."
+  ]
+}

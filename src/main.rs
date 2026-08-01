@@ -50,17 +50,11 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     info!("arda daemon starting");
-    arda_engine::boot()?;
-
-    if cli.once {
-        info!("arda daemon: --once set, exiting after boot");
-        return Ok(());
-    }
 
     // Resolve supervised services from data (services.toml). To add/remove an
     // app (launcher, HUD, `manwe` gateway), edit the toml — not this file.
     let root = repo_root();
-    let reg = Registry::load(std::path::Path::new(SERVICES_TOML))
+    let reg = Registry::load(&root.join(SERVICES_TOML))
         .map_err(|e| anyhow::anyhow!("{e}\n(running from {root:?}; expected {SERVICES_TOML})"))?;
     let (services, errors) = reg.resolve(&root, cli.no_ui);
 
@@ -90,6 +84,15 @@ async fn main() -> anyhow::Result<()> {
         }
     }
 
+    if cli.once {
+        info!(
+            resolved_services = services.len(),
+            no_ui = cli.no_ui,
+            "arda daemon: registry smoke passed; --once set, exiting before supervision"
+        );
+        return Ok(());
+    }
+
     let shutdown = Shutdown::new();
     let supervisor = Supervisor::new(services, shutdown.clone());
 
@@ -102,10 +105,22 @@ async fn main() -> anyhow::Result<()> {
     // Harness tap-in surface: the ONE port Hermes/Agent connects to. Honours
     // `--harness-addr` (e.g. to expose on a different interface) and falls back
     // to 127.0.0.1:7878.
+    let client = reqwest::Client::builder()
+        .timeout(arda_engine::harness::DEFAULT_MANWE_PROXY_TIMEOUT)
+        .build()
+        .unwrap_or_default();
     let harness_state = arda_engine::harness::HarnessState {
+        harness_addr: arda_engine::harness::DEFAULT_HARNESS_ADDR.to_string(),
         child_pids: harness_pids,
         service_names: Arc::new(reg.services.iter().map(|s| s.name.clone()).collect()),
         manwe_url: "http://127.0.0.1:7171".to_string(),
+        client,
+        manwe_proxy_timeout: arda_engine::harness::DEFAULT_MANWE_PROXY_TIMEOUT,
+        manwe_proxy_bearer: std::env::var("ARDA_MANWE_PROXY_BEARER").ok(),
+        warden_scout_url: discover_warden_scout_url(&root),
+        warden_scout_timeout: arda_engine::harness::DEFAULT_WARDEN_SCOUT_TIMEOUT,
+        presence_inputs: arda_engine::harness::presence::HarnessPresenceState::default(),
+        workbench_root: root.clone(),
     };
     let harness_addr: Option<SocketAddr> = cli
         .harness_addr
@@ -151,4 +166,23 @@ fn repo_root() -> PathBuf {
             }
         }
     }
+}
+
+fn discover_warden_scout_url(root: &std::path::Path) -> Option<String> {
+    if let Ok(url) = std::env::var("ARDA_WARDEN_SCOUT_URL") {
+        if !url.trim().is_empty() {
+            return Some(url);
+        }
+    }
+
+    let fleet = std::fs::read_to_string(root.join("config/fleet.toml")).ok()?;
+    let value: toml::Value = toml::from_str(&fleet).ok()?;
+    value
+        .get("nodes")?
+        .as_array()?
+        .iter()
+        .find(|node| node.get("id").and_then(toml::Value::as_str) == Some("node-pi5-warden"))?
+        .get("scout_url")?
+        .as_str()
+        .map(str::to_owned)
 }

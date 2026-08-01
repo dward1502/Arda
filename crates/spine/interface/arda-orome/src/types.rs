@@ -1,4 +1,5 @@
 // sigil: REPAIR
+use crate::Priority;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 
@@ -66,7 +67,7 @@ impl OutboundMessage {
 pub struct BoardroomPost {
     pub from_agent: String,
     pub message_type: String,
-    pub priority: String,
+    pub priority: Priority,
     pub subject: String,
     pub body: String,
     #[serde(default)]
@@ -410,7 +411,7 @@ impl BoardroomPost {
         Self {
             from_agent: from_agent.into(),
             message_type: message_type.into(),
-            priority: "normal".to_string(),
+            priority: Priority::Normal,
             subject: subject.into(),
             body: body.into(),
             mentions: Vec::new(),
@@ -499,4 +500,32 @@ impl InterruptionMessage {
             task_id: None,
         }
     }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InterruptionEnvelope {
+    pub schema_version: String,
+    pub event_id: String,
+    pub message: InterruptionMessage,
+    pub ledger_writes: Vec<String>,
+    pub decision: InterruptionLedgerDecision,
+    pub created_at_utc: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum InterruptionLedgerDecision {
+    PolicySafe,
+    RequiresOperatorReview,
+    PolicyBlocked,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TaskApprovalEnvelope {
+    pub schema_version: String,
+    pub proposal_id: String,
+    pub approval_id: String,
+    pub ledger_writes: Vec<String>,
+    pub decision: InterruptionLedgerDecision,
+    pub created_at_utc: String,
 }

@@ -14,20 +14,46 @@ use serde::{Deserialize, Serialize};
 
 use crate::contract::DecisionClass;
 
-#[derive(Debug, Clone, Copy, Deserialize, Serialize, PartialEq, Eq)]
+/// Runtime budget contract consumed by governance without depending on a
+/// concrete economics implementation.
+pub trait AffordabilityPolicy: Send + Sync {
+    fn policy_name(&self) -> &'static str;
+    fn can_afford(&self, estimated_cost: f64) -> bool;
+}
+
+/// Default used by compatibility dispatch entrypoints that have no economics
+/// provider wired yet.
+pub struct AllowAllAffordability;
+
+impl AffordabilityPolicy for AllowAllAffordability {
+    fn policy_name(&self) -> &'static str {
+        "allow_all_compatibility"
+    }
+
+    fn can_afford(&self, _estimated_cost: f64) -> bool {
+        true
+    }
+}
+
+#[derive(Debug, Clone, Serialize, PartialEq)]
+pub struct AffordabilityDecision {
+    pub contract: &'static str,
+    pub policy: &'static str,
+    pub policy_mode: GovernancePolicyMode,
+    pub estimated_cost: f64,
+    pub allowed: bool,
+    pub reason: &'static str,
+}
+
+#[derive(Debug, Clone, Copy, Default, Deserialize, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum GovernancePolicyMode {
     ObserveOnly,
+    #[default]
     RecordAndProceed,
     BlockOnFail,
     EscalateToHuman,
     RequireIndependentReceipts,
-}
-
-impl Default for GovernancePolicyMode {
-    fn default() -> Self {
-        Self::RecordAndProceed
-    }
 }
 
 #[derive(Debug, Clone, Copy, Deserialize)]
@@ -132,6 +158,30 @@ impl GovernanceGates {
             .copied()
             .unwrap_or(self.default)
     }
+
+    pub fn evaluate_affordability(
+        &self,
+        affordability: &dyn AffordabilityPolicy,
+        estimated_cost: f64,
+    ) -> AffordabilityDecision {
+        let policy_mode = self.policy_for(DecisionClass::Budget).policy_mode();
+        let finite_nonnegative = estimated_cost.is_finite() && estimated_cost >= 0.0;
+        let affordable = finite_nonnegative && affordability.can_afford(estimated_cost);
+        AffordabilityDecision {
+            contract: "arda.governance.affordability.v1",
+            policy: affordability.policy_name(),
+            policy_mode,
+            estimated_cost,
+            allowed: affordable,
+            reason: if !finite_nonnegative {
+                "invalid_estimated_cost"
+            } else if affordable {
+                "within_budget"
+            } else {
+                "budget_exceeded"
+            },
+        }
+    }
 }
 
 #[cfg(test)]
@@ -219,6 +269,118 @@ action_classes:
         assert_eq!(
             g.policy_for_action_class("unknown_action").policy_mode(),
             GovernancePolicyMode::RecordAndProceed
+        );
+    }
+
+    #[test]
+    fn affordability_hook_rejects_over_budget_and_invalid_costs() {
+        struct TenJouleBudget;
+        impl AffordabilityPolicy for TenJouleBudget {
+            fn policy_name(&self) -> &'static str {
+                "test_ten_joule_budget"
+            }
+
+            fn can_afford(&self, estimated_cost: f64) -> bool {
+                estimated_cost <= 10.0
+            }
+        }
+
+        let gates = GovernanceGates::permissive();
+        assert!(gates.evaluate_affordability(&TenJouleBudget, 10.0).allowed);
+        let exceeded = gates.evaluate_affordability(&TenJouleBudget, 10.1);
+        assert!(!exceeded.allowed);
+        assert_eq!(exceeded.reason, "budget_exceeded");
+        assert_eq!(
+            gates
+                .evaluate_affordability(&TenJouleBudget, f64::NAN)
+                .reason,
+            "invalid_estimated_cost"
+        );
+    }
+
+    #[test]
+    fn empty_yaml_yields_permissive_defaults() {
+        let g = GovernanceGates::load_from_str("").unwrap();
+        for c in [
+            DecisionClass::Dispatch,
+            DecisionClass::Governance,
+            DecisionClass::Budget,
+            DecisionClass::Retire,
+            DecisionClass::Bid,
+        ] {
+            let p = g.policy_for(c);
+            assert!(!p.require_council);
+            assert_eq!(p.council_joule_cost, 0.0);
+            assert!(!p.block_on_triad_fail);
+        }
+    }
+
+    #[test]
+    fn exact_joule_boundary_is_within_budget() {
+        struct ExactTenJouleBudget;
+        impl AffordabilityPolicy for ExactTenJouleBudget {
+            fn policy_name(&self) -> &'static str {
+                "exact_ten_joule"
+            }
+
+            fn can_afford(&self, estimated_cost: f64) -> bool {
+                estimated_cost <= 10.0
+            }
+        }
+
+        let gates = GovernanceGates::permissive();
+        let bounded = gates.evaluate_affordability(&ExactTenJouleBudget, 10.0);
+        assert!(bounded.allowed);
+        assert_eq!(bounded.reason, "within_budget");
+    }
+
+    #[test]
+    fn block_on_fail_policy_mode_surfaces_for_budget_class() {
+        let raw = r#"
+default:
+  policy_mode: record_and_proceed
+classes:
+  budget:
+    policy_mode: block_on_fail
+"#;
+        let gates = GovernanceGates::load_from_str(raw).unwrap();
+        let budget_policy = gates.policy_for(DecisionClass::Budget);
+        assert!(budget_policy.blocks_on_triad_fail());
+        assert_eq!(
+            budget_policy.policy_mode(),
+            GovernancePolicyMode::BlockOnFail
+        );
+    }
+
+    #[test]
+    fn action_class_override_overrides_class_default() {
+        let raw = r#"
+default:
+  require_council: false
+  council_joule_cost: 0.0
+classes:
+  dispatch:
+    require_council: true
+    council_joule_cost: 1.0
+action_classes:
+  read_only_audit:
+    require_council: false
+"#;
+        let gates = GovernanceGates::load_from_str(raw).unwrap();
+        let class_default = gates.policy_for(DecisionClass::Dispatch);
+        let action_override = gates.policy_for_action_class("read_only_audit");
+        assert!(class_default.require_council);
+        assert_eq!(class_default.council_joule_cost, 1.0);
+        assert!(!action_override.require_council);
+        assert_eq!(action_override.council_joule_cost, 0.0);
+    }
+
+    #[test]
+    fn non_json_payload_returns_parse_error() {
+        let err = GovernanceGates::load_from_str("- not: [valid").unwrap_err();
+        assert!(
+            matches!(err, GovernanceGatesError::Parse(_)),
+            "expected Parse error, got {err:?}"
         );
     }
 }

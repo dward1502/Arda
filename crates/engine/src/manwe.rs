@@ -1,7 +1,6 @@
-//! Re-exports for the Arda engine.
-//!
-//! `arda-engine` re-exports these spine crates so app code can depend on one
-//! crate path instead of reaching into the vendored layer directly.
+//! Re-exports for the Arda engine routing/provider surface.
 
-pub use arda_core::service_registry;
-pub use manwe;
+pub use arda_orome::provider::{
+    DispatchMetricsSnapshot, DispatchReceipt, ManualTransport, ProviderConfig, ProviderRuntime,
+    ProviderType, RoutingIntent, TransportRequest,
+};

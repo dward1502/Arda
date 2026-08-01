@@ -26,6 +26,10 @@ use crate::onboarding::provider_checklist;
 use crate::onboarding::readiness::build_readiness_projection;
 use crate::onboarding::types::*;
 
+#[expect(
+    clippy::vec_init_then_push,
+    reason = "conditional human-gated actions follow the fixed read-only onboarding actions"
+)]
 pub fn build_service_plan(profile: &EnvironmentProfile, root: &Path) -> ServicePlan {
     let readiness = build_readiness_projection(profile, root);
     let mut actions = Vec::new();

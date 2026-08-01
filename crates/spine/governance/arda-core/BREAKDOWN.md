@@ -2,13 +2,15 @@
 soterion:
   sigil: "SCROLL"
   glyph: "📜"
+  code_point: "U+1F4DC"
   role: "governance_spine"
   owner: "arda"
   status: "active"
-  last_reviewed: "2026-07-17"
+  last_reviewed: "2026-07-28"
 ---
 
 # arda-core
+
 Shared primitives and contracts for the Arda governance spine.
 Owner: arda | Sigil: 📜 SCROLL | Status: active
 
@@ -52,27 +54,34 @@ without adding a second direct dependency.
 | Module | Role |
 |--------|------|
 | `agent.rs` | `Agent` trait, `AgentManifest`, sigil metadata. |
+| `aipkg.rs` | AIPKG manifest/preflight law, explicit governance evidence, and fail-closed signed receipt-chain validation. |
 | `config.rs` | Runtime config for governance/spine choices. |
-| `contract.rs` | `Decision`, `DecisionClass`, `TriadOutcome`, `PhilosopherVerdict`, `Plan`, `Goal`, `Reflection`, `MemoryRecord`. |
+| `contract/` | `Decision`, `DecisionClass`, `TriadOutcome`, `PhilosopherVerdict`, `Plan`, `Goal`, `Reflection`, `MemoryRecord`. |
 | `daemon.rs` | IPC command/response envelopes. |
 | `error.rs` | Canonical shared error type/result alias. |
-| `governance.rs` / `governance_gates.rs` | Policy modes, per-class gates, YAML-loadable override map. |
+| `governance/` / `governance_gates.rs` | Policy modes, corpus hints, per-class gates, YAML-loadable override map. |
 | `learning.rs` | Outcome stats, learning state/store, gate lifecycle packets. |
 | `ledger.rs` | Append-only Decision/message JSONL output with Soterion enrichment. |
+| `layout.rs` | Layout/public-surface helper types. |
+| `learning_adapter.rs` | GEN3 learning-to-domain adaptation + ledger receipt for interop. |
 | `llm.rs` | Provider-agnostic LLM client + OpenAI-compatible HTTP backend. |
-| `loop_engine.rs` | Dispatcher, reflector, joule market, council billing, halting. |
+| `loop_alerts.rs` | Loop alert emitter tied to dispatcher outcomes. |
 | `loop_economy.rs` | Leaderboard-style economy snapshot from ledger. |
-| `loop_alerts.rs` | Alert primitives tied to loop telemetry. |
+| `loop_engine.rs` | Dispatcher, reflector, joule market, council billing, halting. |
+| `loop_observability.rs` | GEN3 env-toggled loop observability config + bounded latency probes. |
+| `orome_runtime.rs` | Shared registry/router runtime state types. |
+| `message.rs` | Spine message type with Soterion envelope metadata. |
+| `pipeline.rs` | Pipeline helpers for orchestrated execution stages. |
 | `router.rs` | Capability-based agent router over `AgentManifest`/`Agent`. |
+| `service_registry/` | Folded registry surface: registry, validator, contract, records, continuity, test support. |
+| `soterion.rs` | Registry/index utilities for sigil → metadata mapping. |
+| `soterion_watcher.rs` | Watcher around sigil registry changes. |
 | `state.rs` | `StateRoot` + typed read/write helpers for goals/plans/outcomes/memory/queue. |
 | `systemd.rs` | systemd list-units query surface for supervised services. |
 | `task.rs` | `Task`, `TaskStatus`, joule/phased timing/resonance metrics. |
 | `tool.rs` | `ToolRegistry`, `ToolEntry`, sigil/harness classification from `registry.toml`. |
-| `tool_contract/types.rs` | Tool harness metadata, risk, side effects, envelopes. |
-| `tool_contract/mod.rs` | Re-export hub for `service.rs` and `types.rs`. |
-| `service_registry/` | Moved `arda-service-registry` surface: registry, validator, contract, records, continuity. |
-| `soterion.rs` | Registry/index utilities for sigil → metadata mapping. |
-| `soterion_watcher.rs` | Watcher around sigil registry changes. |
+| `tool_contract/types.rs` | Tool harness metadata, risk, side effects, envelopes, `InvocationPlan`. |
+| `tool_contract/service.rs` | Governance-baseline helpers, idempotency enforcement, invocation plan wiring. |
 | `background.rs` | Pressure-aware bounded work gate for sync/async/background work. |
 
 ## How arda-engine is connected
@@ -85,12 +94,12 @@ without adding a second direct dependency.
   from needing two direct dependencies.
 
 ## Verification status
-- Compile-time: `cargo check -p arda-core` -> OK with 3 warning-level
-  diagnostics unrelated to boundary correctness.
-- Compile-time: `cargo check -p arda-engine` -> OK, only 1 unrelated
-  unused `mut` in `supervisor.rs`.
-- Runtime wiring: `engine` imports `arda-core::service_registry` and
-  `manwe` successfully; no linkage failure observed.
+- Compile-time: `cargo check -p arda-core` -> OK
+- Tests: `cargo test -p arda-core --all-features` -> 111/111 passing (110 unit, 1 smoke,
+  0 doc-tests).
+- Compile-time consumer check: `cargo check -p arda-engine` -> OK.
+- Runtime wiring: `engine` imports `arda-core::service_registry`, observability,
+  and `manwe` successfully; no linkage failure observed.
 - Evidence: `engine/src/manwe.rs`, `engine/src/lib.rs`, and both
   `engine/INDEX.md` and `arda-core/INDEX.md`.
 
@@ -104,8 +113,48 @@ without adding a second direct dependency.
 - `crates/spine/governance/arda-core/src/background.rs`
 - `crates/spine/governance/arda-core/src/service_registry/mod.rs`
 - `crates/spine/governance/arda-core/src/systemd.rs`
-- `crates/engine/src manwe.rs`, `engine/src/lib.rs`
+- `crates/spine/governance/arda-core/src/message.rs`
+- `crates/spine/governance/arda-core/src/loop_alerts.rs`
+- `crates/spine/governance/arda-core/src/soterion_watcher.rs`
+- `crates/spine/governance/arda-core/src/tool_contract/service.rs`
+- `crates/engine/src/manwe.rs`, `engine/src/lib.rs`
 
 ## Warnings / follow-ups
-- `service_registry/registry.rs:37` ignores `upsert_contract(...)` result.
-- `tool_contract/service.rs:5,7` has 2 unused imports.
+- No `arda-core` compiler warnings in the 2026-07-27 strict Clippy check.
+- Legacy `src/alerts.rs` was retired on 2026-07-25 after repository and history
+  searches confirmed it had no export or consumer; `loop_alerts.rs` is canonical.
+- `ServiceRegistry::from_snapshot` intentionally skips rejected records;
+  duplicate-skip behavior is tested.
+- Remaining GEN3 questions are maintained in `docs/interop/landscape.md`.
+- Docs last refreshed against the `manwe` branch source of truth on
+  2026-07-27.
+
+## Foundation conclusion
+The crate’s stabilization plan is complete: GEN1 documentation alignment and
+GEN2 robustness are closed, implemented GEN3 surfaces are additive and tested,
+and the current compiled surface passes all 111 tests. `arda-core` is therefore
+the recorded stable foundation for subsequent crate-by-crate repair work.
+
+## Exact Rust source classification (2026-07-28)
+
+Production/default (45):
+
+- `src/agent.rs`, `src/aipkg.rs`, `src/background.rs`, `src/config.rs`
+- `src/contract/{decision,goal,ledger_entry,memory,mod,plan,reflection}.rs`
+- `src/daemon.rs`, `src/error.rs`
+- `src/governance/{corpus,mod}.rs`, `src/governance_gates.rs`
+- `src/layout.rs`, `src/learning.rs`, `src/learning_adapter.rs`, `src/ledger.rs`, `src/lib.rs`
+- `src/llm.rs`, `src/loop_alerts.rs`, `src/loop_economy.rs`, `src/loop_engine.rs`
+- `src/loop_observability.rs`, `src/message.rs`, `src/orome_runtime.rs`, `src/pipeline.rs`
+- `src/router.rs`
+- `src/service_registry/{contract,crate_identity,mod,registry,service,test_support}.rs`
+- `src/soterion.rs`, `src/soterion_watcher.rs`, `src/state.rs`, `src/systemd.rs`
+- `src/task.rs`, `src/tool.rs`
+- `src/tool_contract/{mod,service,types}.rs`
+
+Integration test/build script: `tests/tool_harness_smoke.rs` / none.
+
+Production/feature-gated: 0. Generated include: 0. Test-only standalone source: 0. Unwired: 0.
+`service_registry/test_support.rs` is deliberately production/default despite its name because
+it is a publicly compiled service-registry fixture API. The module graph has no latent
+file-vs-directory root collision.

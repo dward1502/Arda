@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Arda Manwe inference probe every 10 minutes
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=10min
+Persistent=true
+Unit=arda-manwe-inference-probe.service
+
+[Install]
+WantedBy=timers.target

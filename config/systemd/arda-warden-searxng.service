@@ -1,0 +1,16 @@
+[Unit]
+Description=Arda Warden local metasearch provider
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+EnvironmentFile=-%h/.config/arda/warden/searxng.env
+ExecStartPre=-/usr/bin/docker rm -f arda-warden-searxng
+ExecStart=/usr/bin/docker run --rm --name arda-warden-searxng --publish 127.0.0.1:18080:8080 --volume %h/.config/arda/warden/searxng:/etc/searxng:Z -e SEARXNG_SECRET ${SEARXNG_IMAGE}
+ExecStop=/usr/bin/docker stop -t 15 arda-warden-searxng
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target

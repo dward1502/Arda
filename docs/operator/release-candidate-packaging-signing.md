@@ -106,15 +106,27 @@ production publisher identity.
 
 Production release signing uses `.github/workflows/release-sign.yml` with
 GitHub OIDC, Fulcio short-lived certificates, and Rekor transparency logging.
-No long-lived production private key is retained. Before enabling releases:
+No long-lived production private key is retained. Production activation now
+enforces the following controls:
 
-1. create the `production-release` GitHub environment with a required
-   maintainer reviewer;
-2. protect `main` and require review for changes to the signing workflow;
+1. the `production-release` GitHub environment requires a named maintainer
+   reviewer;
+2. `main` requires PR and CODEOWNER review for changes to the signing workflow;
 3. publish only from a reviewed `v*` tag whose commit matches the release
    manifest;
 4. do not announce or distribute a release until every detached bundle has
    uploaded and passed identity-bound verification.
+
+The first production run passed for `v0.3.0-rc.0` at source commit
+`28cde28b9fd97fdc91de36418da872b1628ae41b`. Workflow run `30714060617`
+uploaded six bundles, and all six were independently re-downloaded and verified
+against the exact tag identity and GitHub OIDC issuer. The activation receipt is
+`docs/evidence/stage-5-release-candidate/packaging/production-signing-activation.json`.
+
+The repository currently has one collaborator. To avoid deadlocking the sole
+maintainer, branch-protection admin enforcement and environment self-review
+prevention remain disabled. Add a second trusted maintainer before enabling
+those stronger controls.
 
 The workflow downloads an exact six-file allowlist, verifies the manifest
 version/source commit and `SHA256SUMS`, signs each file, verifies each generated

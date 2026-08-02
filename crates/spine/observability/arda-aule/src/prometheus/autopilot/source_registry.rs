@@ -106,13 +106,17 @@ mod tests {
 
         assert_eq!(registry.contract, SOURCE_REGISTRY_CONTRACT);
         assert_eq!(registry.active_sources().count(), 4);
-        assert!(registry
-            .by_contract("arda.canonical_task_queue.v1")
-            .is_some());
-        assert!(registry
-            .sources
-            .iter()
-            .all(|source| !source.canonical_queue_mutation_allowed));
+        assert!(
+            registry
+                .by_contract("arda.canonical_task_queue.v1")
+                .is_some()
+        );
+        assert!(
+            registry
+                .sources
+                .iter()
+                .all(|source| !source.canonical_queue_mutation_allowed)
+        );
     }
 
     #[test]

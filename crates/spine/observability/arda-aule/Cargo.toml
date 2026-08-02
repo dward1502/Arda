@@ -2,6 +2,7 @@
 name = "arda-aule"
 version = "0.1.0"
 edition = "2021"
+license.workspace = true
 
 [features]
 default = []
@@ -48,7 +49,7 @@ phf = { version = "0.11", features = ["macros"] }
 async-trait = "0.1"
 once_cell = "1"
 prometheus = "0.14"
-dotenv = "0.15"
+
 fs2 = "0.4"
 arda-outpost-protocol = { path = "../../../../outposts/arda-outpost-protocol" }
 tempfile = { version = "3", optional = true }

@@ -1,0 +1,32 @@
+{
+  "changes": [
+    {
+      "additions": 360,
+      "deletions": 9,
+      "diff": null,
+      "path": "crates/engine/src/harness/runs.rs",
+      "status": "modified"
+    }
+  ],
+  "provider_receipt": {
+    "adapter": "hermes-agent",
+    "model": "gpt-5.6-sol",
+    "provider": "openai-codex",
+    "receipt_digest": "sha256:0d68e8409e456d8d059a271789e2defba2bf19c946659485ae6a08642b4e45bb",
+    "summary": "Gate 3 run run-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4"
+  },
+  "tests": [
+    {
+      "details": null,
+      "duration_ms": 90,
+      "name": "engine harness",
+      "status": "passed"
+    },
+    {
+      "details": null,
+      "duration_ms": 1290,
+      "name": "HUD workbench",
+      "status": "passed"
+    }
+  ]
+}

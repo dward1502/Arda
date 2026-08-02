@@ -3,6 +3,7 @@
 name = "arda-engine"
 version = "0.1.0"
 edition = "2021"
+license.workspace = true
 
 [dependencies]
 arda-core = { workspace = true }

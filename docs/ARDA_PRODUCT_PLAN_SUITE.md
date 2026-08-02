@@ -42,12 +42,13 @@ Priority:
 4. benchmark databases, voice frameworks, communications, CRM, and external agents before adopting them;
 5. keep all optional products removable and subordinate to Arda contracts.
 
-## Existing plans retained as dependencies
+## Implementation authorities and completed supporting records
 
-These plans remain authoritative for their non-overlapping implementation domains:
+Active plans remain authoritative for their implementation domains; completed
+supporting records preserve verified dependencies and operator procedures:
 
-- [Warden → Varda → Aulë governed learning loop](plans/2026-07-27-warden-varda-ceo-learning-loop.md) — canonical Warden/Varda backend receipts and authority
-- [Pi5 deployment, fleet, and recovery](plans/2026-07-23-pi5-outpost-integration-plan.md) — AArch64 delivery, fleet/SSH truth, and shared node recovery only
+- [Warden → Varda → Aulë governed learning loop](archive/2026-07-27-warden-varda-ceo-learning-loop.md) — completed Warden/Varda backend receipts and authority
+- [Pi5 deployment, fleet, and recovery](archive/2026-07-23-pi5-outpost-integration-plan.md) — completed AArch64 delivery, fleet/SSH truth, and shared node recovery record
 - [RELIC/CITADEL](plans/2026-07-29-relic-citadel-plan.md) — canonical presence and presentation authority
 - [Embodied interface](plans/EMBODIED_INTERFACE.md)
 - [Platform OS](plans/PLATFORM_OS.md)

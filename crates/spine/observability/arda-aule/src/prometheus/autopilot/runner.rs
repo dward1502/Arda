@@ -3,16 +3,16 @@
 //! Main autonomous CEO loop with Oracle gate + Apollo execution + A2H escalation.
 
 use super::a2h::{
-    append_pending_authorization, authorize_for_escalation_with_id, process_h2a_responses,
-    write_message, H2AProcessReport, HumanApprovedObjective,
+    H2AProcessReport, HumanApprovedObjective, append_pending_authorization,
+    authorize_for_escalation_with_id, process_h2a_responses, write_message,
 };
-use super::bootstrap::{load_defaults, load_registry_from_world, LoadedDefaults};
+use super::bootstrap::{LoadedDefaults, load_defaults, load_registry_from_world};
 use super::core_executor_bridge::{
-    dispatch_with_conditions as executor_dispatch, CoreExecutorClient, Dispatch, ExecutionStatus,
+    CoreExecutorClient, Dispatch, ExecutionStatus, dispatch_with_conditions as executor_dispatch,
 };
-use super::dashboard::{build_snapshot, DashboardSnapshot};
+use super::dashboard::{DashboardSnapshot, build_snapshot};
 use super::decomposer::{Objective, ObjectiveDecomposer, PlannedTask, Priority};
-use super::delegation::{delegate_plan, AgentRegistry, DelegationReport};
+use super::delegation::{AgentRegistry, DelegationReport, delegate_plan};
 use super::evidence_registry::EvidenceRegistry;
 use super::governance_policy::{GovernanceDecision, GovernanceGate, GovernancePolicy};
 use super::learning::LearningStore;
@@ -20,10 +20,10 @@ use super::oracle_gate::{GateDecision, OracleGate};
 use super::outcomes::OutcomeObserver;
 use super::pipeline_bridge::submit_plan as submit_plan_to_pipeline;
 use super::planner::{
-    acceptance_criteria_from_report, source_contract_and_type_for_path, ObjectivePacket,
-    ObjectivePacketInput, ObjectivePacketReport,
+    ObjectivePacket, ObjectivePacketInput, ObjectivePacketReport, acceptance_criteria_from_report,
+    source_contract_and_type_for_path,
 };
-use super::queue_operation::{append_approved_packet_plan, QueueOperation, QueueOperationStatus};
+use super::queue_operation::{QueueOperation, QueueOperationStatus, append_approved_packet_plan};
 use super::queue_writer::append_apollo_dispatch_attempt_to_queue;
 use super::reporting::{write_daily_report, write_weekly_report};
 use super::service_health::{ServiceHealthMonitor, ServiceHealthReport, UserSystemd};
@@ -33,13 +33,13 @@ use super::taxonomy::is_apollo_dispatchable;
 use super::validator::{PlanValidator, ValidationResult};
 use crate::prometheus::orders::{OrderStatus, OrderStore};
 use crate::prometheus::queue_authority::canonical_project_task_queue;
-use chrono::Utc;
+use chrono::{DateTime, Duration as ChronoDuration, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 
 #[derive(Debug, Clone)]
@@ -191,7 +191,7 @@ impl Default for SovereignAdapterProjection {
     fn default() -> Self {
         Self {
             contract: SOVEREIGN_ADAPTERS_CONTRACT.to_owned(),
-            config_path: "config/autonomy_operating_loop.toml".to_owned(),
+            config_path: CANONICAL_AUTONOMY_CONFIG.to_owned(),
             source_available: false,
             adapter_count: 0,
             active_runtime_adapter_count: 0,
@@ -301,13 +301,126 @@ impl Default for AutonomyReadinessGateProjection {
 #[derive(Debug, Deserialize)]
 struct AutonomyLoopConfig {
     sovereign_crates: Option<Vec<SovereignCrateConfig>>,
+    lanes: Option<Vec<AutonomyLaneConfig>>,
+    #[serde(rename = "loop")]
+    loop_config: Option<AutonomyLoopStageConfig>,
+}
+
+#[derive(Debug, Deserialize)]
+struct AutonomyLaneConfig {
+    id: String,
+    agent: Option<String>,
+    engine_interface: Option<String>,
+    default_policy: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+struct AutonomyLoopStageConfig {
+    stages: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct AutonomyPreflightSummary {
+    pub lane_count: usize,
+    pub lane_configured_count: usize,
+    pub lane_incomplete_count: usize,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct AutonomyPreflightLoop {
+    pub configured_stages: Vec<String>,
+    pub missing_required_stages: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct AutonomyPreflightReport {
+    pub schema_version: String,
+    pub generated_at_utc: String,
+    pub config_path: String,
+    pub task_promotion_allowed: bool,
+    #[serde(rename = "loop")]
+    pub loop_: AutonomyPreflightLoop,
+    pub summary: AutonomyPreflightSummary,
+}
+
+pub fn inspect_autonomy_preflight(
+    root: impl AsRef<Path>,
+) -> std::io::Result<AutonomyPreflightReport> {
+    let root = root.as_ref();
+    let config_path = root.join(CANONICAL_AUTONOMY_CONFIG);
+    let legacy_path = root.join(LEGACY_AUTONOMY_CONFIG);
+    if config_path.exists() && legacy_path.exists() {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::InvalidInput,
+            format!(
+                "ambiguous autonomy config paths: canonical={} legacy={}",
+                config_path.display(),
+                legacy_path.display()
+            ),
+        ));
+    }
+    let content = std::fs::read_to_string(&config_path)?;
+    let config = toml::from_str::<AutonomyLoopConfig>(&content)
+        .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidData, error))?;
+    let lanes = config.lanes.unwrap_or_default();
+    let lane_incomplete_count = lanes
+        .iter()
+        .filter(|lane| {
+            lane.id.trim().is_empty()
+                || lane.agent.as_deref().is_none_or(str::is_empty)
+                || lane.engine_interface.as_deref().is_none_or(str::is_empty)
+                || lane.default_policy.as_deref().is_none_or(str::is_empty)
+        })
+        .count();
+    let configured_stages = config
+        .loop_config
+        .and_then(|loop_config| loop_config.stages)
+        .unwrap_or_default();
+    let required_stages = ["info", "ingest", "audit"];
+    let missing_required_stages = required_stages
+        .into_iter()
+        .filter(|required| !configured_stages.iter().any(|stage| stage == required))
+        .map(str::to_owned)
+        .collect();
+
+    Ok(AutonomyPreflightReport {
+        schema_version: "arda.autonomy_operating_loop_preflight.v1".to_owned(),
+        generated_at_utc: Utc::now().to_rfc3339(),
+        config_path: config_path.display().to_string(),
+        task_promotion_allowed: false,
+        loop_: AutonomyPreflightLoop {
+            configured_stages,
+            missing_required_stages,
+        },
+        summary: AutonomyPreflightSummary {
+            lane_count: lanes.len(),
+            lane_configured_count: lanes.len().saturating_sub(lane_incomplete_count),
+            lane_incomplete_count,
+        },
+    })
+}
+
+pub fn write_autonomy_preflight(root: impl AsRef<Path>) -> std::io::Result<PathBuf> {
+    let root = root.as_ref();
+    let report = inspect_autonomy_preflight(root)?;
+    let output = root.join("data/prometheus/autonomy_operating_loop_preflight.json");
+    let parent = output.parent().expect("preflight output has parent");
+    std::fs::create_dir_all(parent)?;
+    let temporary = output.with_extension(format!("tmp-{}", std::process::id()));
+    let body = serde_json::to_vec_pretty(&report).map_err(std::io::Error::other)?;
+    std::fs::write(&temporary, body)?;
+    if let Err(error) = std::fs::rename(&temporary, &output) {
+        let _ = std::fs::remove_file(&temporary);
+        return Err(error);
+    }
+    Ok(output)
 }
 
 #[derive(Debug, Deserialize)]
 struct SovereignCrateConfig {
     id: String,
     #[serde(rename = "crate")]
-    crate_name: String,
+    crate_name: Option<String>,
     loop_stages: Option<Vec<String>>,
     gate: Option<String>,
     status: Option<String>,
@@ -429,6 +542,9 @@ const HADES_INTROSPECTION_CONTRACT: &str = "arda.prometheus.hades_introspection_
 const SOVEREIGN_ADAPTERS_CONTRACT: &str = "arda.prometheus.sovereign_adapter_projection.v1";
 const COUNCIL_RUNTIME_CONTRACT: &str = "arda.prometheus.council_runtime_projection.v1";
 const AUTONOMY_READINESS_GATE_CONTRACT: &str = "arda.prometheus.autonomy_readiness_gate.v1";
+const CANONICAL_AUTONOMY_CONFIG: &str = "config/governance/autonomy_operating_loop.toml";
+const LEGACY_AUTONOMY_CONFIG: &str = "config/autonomy_operating_loop.toml";
+const AUTONOMY_PREFLIGHT_MAX_AGE_HOURS: i64 = 24;
 
 fn load_hades_introspection(root: &Path) -> HadesIntrospectionProjection {
     let policy_report_path = root.join("data/hades/lifecycle_policy_automation_report.json");
@@ -524,8 +640,20 @@ fn load_sovereign_adapters(
     plans: &[PlanCycle],
     h2a: &H2AProcessReport,
 ) -> SovereignAdapterProjection {
-    let config_path = root.join("config/autonomy_operating_loop.toml");
+    let config_path = root.join(CANONICAL_AUTONOMY_CONFIG);
+    let legacy_path = root.join(LEGACY_AUTONOMY_CONFIG);
     let display_config_path = config_path.display().to_string();
+    if config_path.exists() && legacy_path.exists() {
+        return SovereignAdapterProjection {
+            config_path: display_config_path,
+            error: Some(format!(
+                "ambiguous_autonomy_config_paths: canonical={} legacy={}",
+                config_path.display(),
+                legacy_path.display()
+            )),
+            ..Default::default()
+        };
+    }
     let content = match std::fs::read_to_string(&config_path) {
         Ok(content) => content,
         Err(err) if err.kind() == std::io::ErrorKind::NotFound => {
@@ -605,7 +733,7 @@ fn adapter_receipt(
                 evidence_summary: Vec<String>| {
         SovereignAdapterReceipt {
             id: item.id.clone(),
-            crate_name: item.crate_name.clone(),
+            crate_name: item.crate_name.clone().unwrap_or_default(),
             status: status.clone(),
             loop_stages: loop_stages.clone(),
             gate: gate.clone(),
@@ -847,7 +975,7 @@ fn council_cycle_record(
         "related_task": selected,
         "confidence": "medium",
         "source_links": [
-            "config/autonomy_operating_loop.toml",
+            CANONICAL_AUTONOMY_CONFIG,
             "docs/contracts/autonomous-operating-loop-contract.md"
         ],
         "receipt_links": [
@@ -900,6 +1028,23 @@ fn load_autonomy_readiness_gate(
     match read_json_value(&preflight_path) {
         Ok(Some(value)) => {
             gate.preflight_source_available = true;
+            match value
+                .get("generated_at_utc")
+                .and_then(Value::as_str)
+                .map(str::parse::<DateTime<Utc>>)
+            {
+                Some(Ok(generated_at))
+                    if generated_at
+                        < Utc::now() - ChronoDuration::hours(AUTONOMY_PREFLIGHT_MAX_AGE_HOURS) =>
+                {
+                    hold_reasons.push("autonomy_preflight_stale".to_string());
+                }
+                Some(Ok(_)) => {}
+                Some(Err(_)) => {
+                    hold_reasons.push("autonomy_preflight_generated_at_invalid".to_string())
+                }
+                None => hold_reasons.push("autonomy_preflight_generated_at_missing".to_string()),
+            }
             let summary = value.get("summary").unwrap_or(&Value::Null);
             gate.lane_count = summary
                 .get("lane_count")
@@ -1723,11 +1868,7 @@ impl CeoAutopilot {
 }
 
 fn clean_zero(value: f64) -> f64 {
-    if value == 0.0 {
-        0.0
-    } else {
-        value
-    }
+    if value == 0.0 { 0.0 } else { value }
 }
 
 struct CycleObjective {
@@ -2699,9 +2840,14 @@ mod tests {
     use super::*;
 
     fn write_allow_readiness_artifacts(root: &Path) {
-        std::fs::create_dir_all(root.join("config")).expect("config dir");
+        std::fs::create_dir_all(
+            root.join(CANONICAL_AUTONOMY_CONFIG)
+                .parent()
+                .expect("canonical config parent"),
+        )
+        .expect("config dir");
         std::fs::write(
-            root.join("config/autonomy_operating_loop.toml"),
+            root.join(CANONICAL_AUTONOMY_CONFIG),
             r#"
 [[sovereign_crates]]
 id = "governance"
@@ -2740,6 +2886,7 @@ status = "active_subordinate"
             root.join("data/prometheus/autonomy_operating_loop_preflight.json"),
             serde_json::json!({
                 "schema_version": "arda.autonomy_operating_loop_preflight.v1",
+                "generated_at_utc": Utc::now().to_rfc3339(),
                 "loop": {"missing_required_stages": []},
                 "summary": {
                     "lane_count": 12,
@@ -2774,6 +2921,206 @@ status = "active_subordinate"
         std::fs::create_dir_all(root.join("data/council")).expect("council data");
         std::fs::write(root.join("data/council/agent_conversations.jsonl"), "")
             .expect("council ledger");
+    }
+
+    #[test]
+    fn sovereign_adapters_use_canonical_governance_config_path() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let canonical = dir
+            .path()
+            .join("config/governance/autonomy_operating_loop.toml");
+        std::fs::create_dir_all(canonical.parent().expect("canonical parent"))
+            .expect("canonical parent");
+        std::fs::write(
+            &canonical,
+            r#"
+[[sovereign_crates]]
+id = "ceo"
+crate = "arda-ceo"
+status = "active_subordinate"
+"#,
+        )
+        .expect("canonical config");
+
+        let cfg = AutopilotConfig::from_root(dir.path());
+        let projection =
+            load_sovereign_adapters(dir.path(), &cfg, &[], &H2AProcessReport::default());
+
+        assert!(projection.source_available);
+        assert_eq!(projection.config_path, canonical.display().to_string());
+        assert_eq!(projection.adapter_count, 1);
+    }
+
+    #[test]
+    fn sovereign_adapters_hold_on_ambiguous_legacy_and_canonical_config_paths() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let canonical = dir
+            .path()
+            .join("config/governance/autonomy_operating_loop.toml");
+        let legacy = dir.path().join("config/autonomy_operating_loop.toml");
+        std::fs::create_dir_all(canonical.parent().expect("canonical parent"))
+            .expect("canonical parent");
+        std::fs::write(&canonical, "").expect("canonical config");
+        std::fs::write(&legacy, "").expect("legacy config");
+
+        let cfg = AutopilotConfig::from_root(dir.path());
+        let projection =
+            load_sovereign_adapters(dir.path(), &cfg, &[], &H2AProcessReport::default());
+
+        assert!(!projection.source_available);
+        assert!(
+            projection
+                .error
+                .as_deref()
+                .is_some_and(|error| error.contains("ambiguous_autonomy_config_paths"))
+        );
+    }
+
+    #[tokio::test]
+    async fn read_only_cycle_reports_missing_readiness_evidence_without_creating_placeholders() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let canonical = dir
+            .path()
+            .join("config/governance/autonomy_operating_loop.toml");
+        std::fs::create_dir_all(canonical.parent().expect("canonical parent"))
+            .expect("canonical parent");
+        std::fs::write(&canonical, "").expect("canonical config");
+
+        let mut config = AutopilotConfig::from_root(dir.path());
+        config.read_only = true;
+        let mut autopilot = CeoAutopilot::from_world(config);
+        let report = autopilot.run_cycle().await;
+
+        assert_eq!(report.autonomy_readiness.decision, "hold");
+        for reason in [
+            "autonomy_preflight_missing",
+            "hades_cleanup_approval_packets_missing",
+            "athena_external_source_lane_ledger_missing",
+        ] {
+            assert!(
+                report
+                    .autonomy_readiness
+                    .reasons
+                    .iter()
+                    .any(|item| item == reason)
+            );
+        }
+        for path in [
+            "data/prometheus/autonomy_operating_loop_preflight.json",
+            "data/hades/autonomy_cleanup_approval_packets.json",
+            "data/athena/external_source_lane_ledger.jsonl",
+        ] {
+            assert!(
+                !dir.path().join(path).exists(),
+                "read-only cycle created {path}"
+            );
+        }
+    }
+
+    #[test]
+    fn readiness_gate_holds_when_preflight_evidence_is_stale() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        write_allow_readiness_artifacts(dir.path());
+        std::fs::write(
+            dir.path()
+                .join("data/prometheus/autonomy_operating_loop_preflight.json"),
+            serde_json::json!({
+                "schema_version": "arda.autonomy_operating_loop_preflight.v1",
+                "generated_at_utc": "2000-01-01T00:00:00Z",
+                "loop": {"missing_required_stages": []},
+                "summary": {
+                    "lane_count": 12,
+                    "lane_configured_count": 12,
+                    "lane_incomplete_count": 0
+                }
+            })
+            .to_string(),
+        )
+        .expect("stale preflight");
+        let cfg = AutopilotConfig::from_root(dir.path());
+        let sovereign =
+            load_sovereign_adapters(dir.path(), &cfg, &[], &H2AProcessReport::default());
+        let hades = load_hades_introspection(dir.path());
+        let council =
+            load_council_runtime(dir.path(), true, &ObjectiveSelectionReport::default(), &[]);
+
+        let gate = load_autonomy_readiness_gate(dir.path(), &hades, &sovereign, &council);
+
+        assert_eq!(gate.decision, "hold");
+        assert!(
+            gate.reasons
+                .iter()
+                .any(|reason| reason == "autonomy_preflight_stale")
+        );
+    }
+
+    #[test]
+    fn autonomy_preflight_reports_configured_lanes_without_enabling_promotion() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let canonical = dir
+            .path()
+            .join("config/governance/autonomy_operating_loop.toml");
+        std::fs::create_dir_all(canonical.parent().expect("canonical parent"))
+            .expect("canonical parent");
+        std::fs::write(
+            &canonical,
+            r#"
+schema_version = "arda.autonomy_operating_loop.v1"
+
+[loop]
+stages = ["info", "ingest", "audit"]
+
+[[lanes]]
+id = "intake"
+agent = "athena"
+engine_interface = "knowledge_triage"
+default_policy = "ledger_before_task"
+"#,
+        )
+        .expect("canonical config");
+
+        let report = inspect_autonomy_preflight(dir.path()).expect("preflight report");
+
+        assert_eq!(
+            report.schema_version,
+            "arda.autonomy_operating_loop_preflight.v1"
+        );
+        assert_eq!(report.summary.lane_count, 1);
+        assert_eq!(report.summary.lane_incomplete_count, 0);
+        assert!(!report.task_promotion_allowed);
+        assert!(
+            !dir.path()
+                .join("data/prometheus/autonomy_operating_loop_preflight.json")
+                .exists()
+        );
+    }
+
+    #[test]
+    fn writing_preflight_publishes_only_the_readiness_projection() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let canonical = dir
+            .path()
+            .join("config/governance/autonomy_operating_loop.toml");
+        std::fs::create_dir_all(canonical.parent().expect("canonical parent"))
+            .expect("canonical parent");
+        std::fs::write(
+            &canonical,
+            "[loop]\nstages = [\"info\", \"ingest\", \"audit\"]\n",
+        )
+        .expect("canonical config");
+
+        let output = write_autonomy_preflight(dir.path()).expect("write preflight");
+        let payload: Value =
+            serde_json::from_str(&std::fs::read_to_string(&output).expect("output"))
+                .expect("preflight json");
+
+        assert_eq!(payload["task_promotion_allowed"], false);
+        assert_eq!(
+            payload["schema_version"],
+            "arda.autonomy_operating_loop_preflight.v1"
+        );
+        assert!(!dir.path().join("core/projects/tasks/queue.jsonl").exists());
+        assert!(!dir.path().join("data/hades/action_queue.jsonl").exists());
     }
 
     #[tokio::test]
@@ -2914,11 +3261,13 @@ status = "active_subordinate"
             report.objective_selection.candidates[0].review_gate,
             super::super::governance_policy::GovernanceGate::HumanRequired
         );
-        assert!(report.objective_selection.candidates[0]
-            .rejection_reason
-            .as_deref()
-            .unwrap_or_default()
-            .starts_with("blocked_by_gate:HumanRequired:"));
+        assert!(
+            report.objective_selection.candidates[0]
+                .rejection_reason
+                .as_deref()
+                .unwrap_or_default()
+                .starts_with("blocked_by_gate:HumanRequired:")
+        );
         assert_eq!(
             std::fs::read_to_string(&cfg.queue_path).unwrap_or_default(),
             ""
@@ -2966,11 +3315,13 @@ status = "active_subordinate"
             report.objective_selection.candidates[0].review_gate,
             super::super::governance_policy::GovernanceGate::TriadQuorumRequired
         );
-        assert!(report.objective_selection.candidates[0]
-            .rejection_reason
-            .as_deref()
-            .unwrap_or_default()
-            .starts_with("blocked_by_gate:TriadQuorumRequired:"));
+        assert!(
+            report.objective_selection.candidates[0]
+                .rejection_reason
+                .as_deref()
+                .unwrap_or_default()
+                .starts_with("blocked_by_gate:TriadQuorumRequired:")
+        );
         assert_eq!(
             std::fs::read_to_string(&cfg.queue_path).unwrap_or_default(),
             ""
@@ -3123,9 +3474,11 @@ status = "active_subordinate"
         assert_eq!(report.objectives_considered, 0);
         assert_eq!(report.objectives_selected, 0);
         assert!(report.selected_objective_id.is_none());
-        assert!(report
-            .next_recommended_action
-            .contains("add a bounded objective"));
+        assert!(
+            report
+                .next_recommended_action
+                .contains("add a bounded objective")
+        );
     }
 
     #[test]
@@ -3191,11 +3544,13 @@ status = "active_subordinate"
             report.candidates[0].review_gate,
             super::super::governance_policy::GovernanceGate::HadesReviewRequired
         );
-        assert!(report.candidates[0]
-            .rejection_reason
-            .as_deref()
-            .unwrap_or_default()
-            .starts_with("blocked_by_gate:HadesReviewRequired:"));
+        assert!(
+            report.candidates[0]
+                .rejection_reason
+                .as_deref()
+                .unwrap_or_default()
+                .starts_with("blocked_by_gate:HadesReviewRequired:")
+        );
     }
 
     #[test]
@@ -3237,11 +3592,13 @@ status = "active_subordinate"
             report.candidates[0].review_gate,
             super::super::governance_policy::GovernanceGate::ReviewRequired
         );
-        assert!(report.candidates[0]
-            .rejection_reason
-            .as_deref()
-            .unwrap_or_default()
-            .contains("Arandur recommendation requires operator review"));
+        assert!(
+            report.candidates[0]
+                .rejection_reason
+                .as_deref()
+                .unwrap_or_default()
+                .contains("Arandur recommendation requires operator review")
+        );
     }
 
     #[test]
@@ -3276,13 +3633,15 @@ status = "active_subordinate"
             report.candidates[0].blocked_reason_code.as_deref(),
             Some("operator_approval_packet_missing")
         );
-        assert!(report
-            .blocked_candidate_groups
-            .iter()
-            .any(
-                |group| group.reason_code == "operator_approval_packet_missing"
-                    && group.governance_class == "arandur_recommendation"
-            ));
+        assert!(
+            report
+                .blocked_candidate_groups
+                .iter()
+                .any(
+                    |group| group.reason_code == "operator_approval_packet_missing"
+                        && group.governance_class == "arandur_recommendation"
+                )
+        );
     }
 
     #[test]
@@ -3465,11 +3824,13 @@ status = "active_subordinate"
             assert!(candidate.completion_receipt_path.as_deref().is_some_and(|path| {
                 path.ends_with("audit/ARANDUR_OPERATOR_APPROVED_CANDIDATES_EXECUTION_2026-05-21/execution_receipt.json")
             }));
-            assert!(candidate
-                .rejection_reason
-                .as_deref()
-                .unwrap_or_default()
-                .contains("recognized_completed"));
+            assert!(
+                candidate
+                    .rejection_reason
+                    .as_deref()
+                    .unwrap_or_default()
+                    .contains("recognized_completed")
+            );
         }
     }
 
@@ -3522,10 +3883,12 @@ status = "active_subordinate"
         assert_eq!(report.status, "blocked");
         assert_eq!(report.objectives_considered, 2);
         assert_eq!(report.objectives_blocked_by_gate, 1);
-        assert!(!report
-            .candidates
-            .iter()
-            .any(|candidate| candidate.source_record_id == "open-arda"));
+        assert!(
+            !report
+                .candidates
+                .iter()
+                .any(|candidate| candidate.source_record_id == "open-arda")
+        );
         assert!(report.candidates.iter().any(|candidate| {
             candidate.source_record_id == "approved-arda"
                 && candidate.governance_class == "operator_approved_executed"

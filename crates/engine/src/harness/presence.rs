@@ -158,14 +158,12 @@ fn is_authorized(addr: &std::net::SocketAddr, headers: &HeaderMap, required: &st
     };
 
     let parsed = parse_capability(&capability);
-    verify_enrolled_outpost(parsed, required)
+    verify_enrolled_outpost(addr, parsed, required)
 }
 
 fn parse_bearer_capability(headers: &HeaderMap) -> Option<String> {
     let authorization = headers.get(AUTHORIZATION)?.to_str().ok()?;
-    let mut parts = authorization.splitn(2, ' ');
-    let scheme = parts.next()?;
-    let token = parts.next()?;
+    let (scheme, token) = authorization.split_once(' ')?;
 
     if !scheme.eq_ignore_ascii_case("bearer") {
         return None;
@@ -175,9 +173,7 @@ fn parse_bearer_capability(headers: &HeaderMap) -> Option<String> {
 }
 
 fn parse_capability(value: &str) -> Option<(&str, &str)> {
-    let mut parts = value.splitn(2, ':');
-    let namespace = parts.next()?;
-    let action = parts.next()?;
+    let (namespace, action) = value.split_once(':')?;
 
     if namespace.is_empty() || action.is_empty() {
         return None;
@@ -186,8 +182,20 @@ fn parse_capability(value: &str) -> Option<(&str, &str)> {
     Some((namespace, action))
 }
 
-fn verify_enrolled_outpost(capability: Option<(&str, &str)>, required: &str) -> bool {
+fn verify_enrolled_outpost(
+    addr: &std::net::SocketAddr,
+    capability: Option<(&str, &str)>,
+    required: &str,
+) -> bool {
     let enrollment = &ENROLLED_CITADEL;
+
+    if !enrollment
+        .allowed_ips
+        .iter()
+        .any(|allowed| addr.ip().to_string() == *allowed)
+    {
+        return false;
+    }
 
     let required_parts = match required.split_once('.') {
         Some(parts) => parts,

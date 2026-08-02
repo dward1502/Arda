@@ -11,9 +11,18 @@ use std::path::{Path, PathBuf};
 impl MnemosyneService {
     pub fn consolidate(&self, hours: i64) -> Result<ConsolidationReport> {
         let recent = self.recall_recent(hours.max(1), None)?;
+        let blocked_count = recent
+            .iter()
+            .filter(|entry| is_raw_warden_observation(entry))
+            .count();
+        let eligible_recent = recent
+            .iter()
+            .filter(|entry| !is_raw_warden_observation(entry))
+            .cloned()
+            .collect::<Vec<_>>();
 
         let mut grouped_by_tag: HashMap<String, Vec<RecallRecentEntry>> = HashMap::new();
-        for entry in &recent {
+        for entry in &eligible_recent {
             if entry.tags.is_empty() {
                 grouped_by_tag
                     .entry("untagged".to_owned())
@@ -53,6 +62,7 @@ impl MnemosyneService {
                 .map(|entry| entry.memory_id.clone())
                 .collect::<Vec<_>>();
 
+            let approval_references = approval_references(&cluster);
             let summary = cluster
                 .iter()
                 .take(3)
@@ -72,6 +82,7 @@ impl MnemosyneService {
                 "summary": summary,
                 "promotion_receipt_id": receipt_id,
                 "source_memory_ids": source_memory_ids,
+                "approval_references": approval_references,
                 "average_confidence": cluster.iter().map(|entry| entry.confidence).sum::<f64>() / cluster.len() as f64,
                 "average_trust": cluster.iter().map(|entry| entry.trust).sum::<f64>() / cluster.len() as f64,
             });
@@ -83,6 +94,7 @@ impl MnemosyneService {
                     "promoted_record_id": pattern_id,
                     "promoted_kind": "semantic",
                     "source_memory_ids": source_memory_ids,
+                    "approval_references": approval_references,
                     "created_at_utc": Utc::now().to_rfc3339(),
                 }),
             )?;
@@ -115,6 +127,7 @@ impl MnemosyneService {
                 .iter()
                 .map(|entry| entry.memory_id.clone())
                 .collect::<Vec<_>>();
+            let approval_references = approval_references(&entries);
             let sample = entries
                 .iter()
                 .take(3)
@@ -130,6 +143,7 @@ impl MnemosyneService {
                 "summary": sample,
                 "promotion_receipt_id": receipt_id,
                 "source_memory_ids": source_memory_ids,
+                "approval_references": approval_references,
                 "average_confidence": entries.iter().map(|entry| entry.confidence).sum::<f64>() / entries.len() as f64,
                 "average_trust": entries.iter().map(|entry| entry.trust).sum::<f64>() / entries.len() as f64,
             });
@@ -141,6 +155,7 @@ impl MnemosyneService {
                     "promoted_record_id": skill_id,
                     "promoted_kind": "procedural",
                     "source_memory_ids": source_memory_ids,
+                    "approval_references": approval_references,
                     "created_at_utc": Utc::now().to_rfc3339(),
                 }),
             )?;
@@ -154,8 +169,12 @@ impl MnemosyneService {
             "action": "consolidation_sweep",
             "window_hours": hours.max(1),
             "episodic_scanned": recent.len(),
+            "observed_count": recent.len(),
+            "eligible_count": eligible_recent.len(),
             "semantic_patterns_written": semantic_written,
             "procedural_patterns_written": procedural_written,
+            "promoted_count": semantic_written + procedural_written,
+            "blocked_count": blocked_count,
         });
         let archive_log_path = self.archive_root.join("consolidation.jsonl");
         append_jsonl(&archive_log_path, &archived)?;
@@ -173,9 +192,14 @@ impl MnemosyneService {
             archived_records_written: 1,
             promotion_receipts_written,
             consolidation_depth,
+            observed_count: recent.len(),
+            eligible_count: eligible_recent.len(),
+            promoted_count: semantic_written + procedural_written,
+            blocked_count,
         })
     }
 
+    /// Optional import tooling; not exposed through the default runtime transports.
     pub fn sync_obsidian(
         &self,
         vault_path: impl AsRef<Path>,
@@ -274,6 +298,30 @@ where
         }
     }
     set.into_iter().collect()
+}
+
+fn approval_references(entries: &[RecallRecentEntry]) -> Vec<String> {
+    entries
+        .iter()
+        .flat_map(|entry| entry.tags.iter())
+        .filter_map(|tag| tag.strip_prefix("approval_reference:"))
+        .filter(|reference| !reference.trim().is_empty())
+        .map(str::to_owned)
+        .collect::<std::collections::BTreeSet<_>>()
+        .into_iter()
+        .collect()
+}
+
+fn is_raw_warden_observation(entry: &RecallRecentEntry) -> bool {
+    entry.source_crate.eq_ignore_ascii_case("warden")
+        || entry
+            .event_type
+            .eq_ignore_ascii_case("external_observation")
+        || entry.tags.iter().any(|tag| {
+            tag.eq_ignore_ascii_case("warden")
+                || tag.eq_ignore_ascii_case("raw_warden_observation")
+                || tag.eq_ignore_ascii_case("external_observation")
+        })
 }
 
 fn collect_obsidian_files(root: &Path, out: &mut Vec<PathBuf>) -> Result<()> {

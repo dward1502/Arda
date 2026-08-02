@@ -7,7 +7,7 @@ owner = "prometheus_hades_chronos"
 spine = "autonomous_operating_loop"
 engine = "ceo_autopilot"
 engine_owner = "prometheus"
-config_contract = "config/autonomy_operating_loop.toml"
+config_contract = "config/governance/autonomy_operating_loop.toml"
 contract_doc = "docs/contracts/autonomous-operating-loop-contract.md"
 rule = "the loop is the portable policy/config spine; ceo-autopilot remains the orchestration and execution engine"
 

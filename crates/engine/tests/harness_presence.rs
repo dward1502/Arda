@@ -9,11 +9,10 @@
 
 use std::{sync::Arc, time::Duration};
 
-use axum::{routing::get, Router};
 use reqwest::Client;
 use tokio::sync::Notify;
 
-use arda_engine::harness::presence::{HarnessPresenceState, PresenceRouter};
+use arda_engine::harness::presence::HarnessPresenceState;
 use arda_engine::harness::{serve, HarnessState};
 
 #[tokio::test]
@@ -43,7 +42,7 @@ async fn presence_snapshot_returns_versioned_projection() {
         "arda.runtime-presence.v1"
     );
     assert!(snapshot["snapshot_sequence"].as_u64().unwrap() >= 1);
-    assert!(snapshot["generated_at"].as_str().unwrap().len() > 0);
+    assert!(!snapshot["generated_at"].as_str().unwrap().is_empty());
 
     shutdown.notify_waiters();
     handle.await.expect("harness join");

@@ -60,6 +60,62 @@ Live verification on 2026-07-23 established:
 - no CITADEL scout worker, chatbot bridge, council worker, or ARDA HUD companion
   service is deployed yet. Those are implementation gaps, not abandoned ideas.
 
+### Pi5 operator status and recovery
+
+The canonical operator aliases are `warden` and `citadel`. The older
+`raspberrypi` alias is retained only for CITADEL compatibility. Do not use the
+SSH alias as proof of Tailscale identity: CITADEL's Tailscale name remains
+`raspberrypi-1`, while its observed OS hostname remains `raspberrypi`.
+
+Run the read-only gates independently for one node or both:
+
+```bash
+scripts/pi5_outpost_status.sh warden
+scripts/pi5_outpost_status.sh citadel
+scripts/pi5_outpost_status.sh all
+```
+
+The output separates fleet-record validation, Tailscale reachability, TCP/22,
+key-only SSH identity, each named user unit, and each application health URL.
+A failed network gate is not reported as a failed service gate, and a fleet/host
+identity mismatch fails closed. Every network and remote command has a finite
+timeout.
+
+Mutations require one explicit node and one allowlisted service group:
+
+```bash
+scripts/pi5_outpost_restart.sh warden scout
+scripts/pi5_outpost_restart.sh warden inference
+scripts/pi5_outpost_restart.sh citadel presence
+scripts/pi5_outpost_restart.sh warden node-reboot
+scripts/pi5_outpost_restart.sh citadel node-reboot
+```
+
+There is no all-fleet restart or caller-supplied unit/remote-command mode.
+Restart success requires both the exact named unit state and the relevant HTTP
+health check. `node-reboot` is a real reboot: it requires non-interactive sudo,
+proves that the node went away and returned with a changed boot ID, then checks
+all baseline units and health URLs for that node.
+
+Warden scout delivery and binary rollback use:
+
+```bash
+scripts/pi5_warden_scout_delivery.sh status
+scripts/pi5_warden_scout_delivery.sh rollback
+```
+
+The last-known-good current-source artifact verified on 2026-08-01 has SHA-256
+`42c15c9184d0e7e15e37e16e50c972f3c85ee00a142d42320866331ef90bed4e`;
+its local provenance manifest is
+`~/.cache/arda-artifacts/pi5-warden/arda-outpost-scout.manifest.json`. The helper
+verifies the staged checksum, preserves the immediately prior binary, and never
+modifies Warden's append-only memory root. CITADEL renderer/kiosk artifact
+rollback is application-specific and remains governed by the RELIC/CITADEL
+plan; this shared procedure only restarts its named units.
+
+Helpers contain no passwords or provider credentials. They require existing
+key-only SSH aliases and use `sudo -n` only for an explicitly selected reboot.
+
 The first ARDA HUD integration should be a Pi-safe companion projection fed by
 the same bounded state bundle as the desktop HUD, not an attempt to run the full
 Tauri operator cockpit on the round display. Interactive chat and scout requests

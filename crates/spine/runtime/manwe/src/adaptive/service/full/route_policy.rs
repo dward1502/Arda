@@ -591,13 +591,8 @@ fn task_affinity_score(model: &ModelState, task_type: &str) -> u8 {
                 1
             }
         }
-        "chat" | "summary" | "background" => {
-            if model.is_default {
-                2
-            } else {
-                1
-            }
-        }
+        "chat" | "summary" | "background" if model.is_default => 2,
+        "chat" | "summary" | "background" => 1,
         _ => 1,
     }
 }

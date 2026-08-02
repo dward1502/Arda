@@ -1,32 +1,26 @@
 {
-  "generated_at_utc": "2026-07-31T07:40:03.535254379+00:00",
+  "generated_at_utc": "2026-08-02T20:05:59.831276076+00:00",
   "lanes": {
     "execution": {
       "edge_backbone_coder": {
-        "avg_latency_ms": 4964,
-        "success_count": 17,
-        "failure_count": 2,
-        "last_result_utc": "2026-07-31T07:38:57.996599151+00:00"
+        "avg_latency_ms": null,
+        "success_count": 0,
+        "failure_count": 1,
+        "last_result_utc": "2026-08-02T08:41:50.167600755+00:00"
       },
       "openai_sub": {
-        "avg_latency_ms": 14134,
-        "success_count": 41,
+        "avg_latency_ms": 31341,
+        "success_count": 1,
         "failure_count": 0,
-        "last_result_utc": "2026-07-31T07:40:03.535248509+00:00"
+        "last_result_utc": "2026-08-02T08:49:58.642383+00:00"
       }
     },
     "interactive": {
-      "edge_backbone_long": {
-        "avg_latency_ms": 222,
-        "success_count": 46,
-        "failure_count": 1,
-        "last_result_utc": "2026-07-31T07:39:14.682258354+00:00"
-      },
       "edge_core": {
-        "avg_latency_ms": 275,
-        "success_count": 3,
+        "avg_latency_ms": 140,
+        "success_count": 48,
         "failure_count": 0,
-        "last_result_utc": "2026-07-31T07:39:14.922492258+00:00"
+        "last_result_utc": "2026-08-02T20:05:59.831273216+00:00"
       }
     }
   }

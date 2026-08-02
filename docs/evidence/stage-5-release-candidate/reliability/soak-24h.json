@@ -1,0 +1,247 @@
+{
+  "contract": "arda.stage5.reliability-soak.v1",
+  "elapsed_seconds": 86400.000099458,
+  "failures": [
+    {
+      "at_utc": "2026-08-01T07:12:32.359544Z",
+      "output_sha256": "23813cc88129bba0fffdd46f589c2681163efdac24ce7094ce913177b48b5e58",
+      "returncode": 101,
+      "scenario": "disk-pressure"
+    },
+    {
+      "at_utc": "2026-08-01T07:17:19.970417Z",
+      "output_sha256": "a5fd17ddc464165c13cefb5f6855df34ed25b79d8ae3a374de28641a76d38a1f",
+      "returncode": 101,
+      "scenario": "network-loss"
+    },
+    {
+      "at_utc": "2026-08-01T07:22:43.168721Z",
+      "output_sha256": "d908b89144cd8af6ca5d353c926d97978d073c7b74cbefb6d4ab311159448df9",
+      "returncode": 101,
+      "scenario": "network-loss"
+    },
+    {
+      "at_utc": "2026-08-01T07:28:01.017734Z",
+      "output_sha256": "1aa2ba89944a8665772098be29a45e8a1dc68d7853785189ec11456f3e1d9b07",
+      "returncode": 101,
+      "scenario": "network-loss"
+    },
+    {
+      "at_utc": "2026-08-01T07:28:40.052135Z",
+      "output_sha256": "491022af3bd6f81fe393015b41986e19fefcf710629b194a50b0e80f715233bb",
+      "returncode": 101,
+      "scenario": "disk-pressure"
+    },
+    {
+      "at_utc": "2026-08-01T07:29:19.220399Z",
+      "output_sha256": "e50264ba76f3d70b8f8c76632c7ecc340ac63b019926e6a9e7ed0a41460f63a7",
+      "returncode": 101,
+      "scenario": "corrupted-tail"
+    },
+    {
+      "at_utc": "2026-08-01T07:33:15.543445Z",
+      "output_sha256": "1668cbb3b7585e9e61a8b2a00d95e0c4ab92182dfb2119608d61a584a4ae72de",
+      "returncode": 101,
+      "scenario": "network-loss"
+    },
+    {
+      "at_utc": "2026-08-01T07:38:28.415050Z",
+      "output_sha256": "e5ff38ea3f355b8c68c0f7fc503cc42a4241e00ad2629b12a0097bb0d0e23a76",
+      "returncode": 101,
+      "scenario": "network-loss"
+    },
+    {
+      "at_utc": "2026-08-01T07:43:39.897166Z",
+      "output_sha256": "9f5f82448b396c0d1199a3103f5273d3604fbd38be9bd6244870b685e27cec6b",
+      "returncode": 101,
+      "scenario": "network-loss"
+    },
+    {
+      "at_utc": "2026-08-01T07:46:14.974079Z",
+      "output_sha256": "b0706bb3cb1d8b8336b1928a518dd4e961b6960b02bcadf2b39e4dac1c295242",
+      "returncode": 101,
+      "scenario": "repeated-cancellation"
+    },
+    {
+      "at_utc": "2026-08-01T07:48:58.605371Z",
+      "output_sha256": "9eb43e9d78fe74a46161f623f7211d0d7b4b51132e4a1ba7b30fe4ae87ff30e7",
+      "returncode": 101,
+      "scenario": "network-loss"
+    },
+    {
+      "at_utc": "2026-08-01T07:54:11.232178Z",
+      "output_sha256": "6bffa0e5ebf1c66dd36366ca3b7cdae6a9d703b2d6361b6d456a1bc083008659",
+      "returncode": 101,
+      "scenario": "network-loss"
+    },
+    {
+      "at_utc": "2026-08-01T07:56:51.265182Z",
+      "output_sha256": "3df1e307a9fe0a2592721844313d73761673b4c5cbe0e6c9ef4fbf77a326c436",
+      "returncode": 101,
+      "scenario": "repeated-cancellation"
+    },
+    {
+      "at_utc": "2026-08-01T07:59:35.082478Z",
+      "output_sha256": "0c45c819dac614460d9b8995408f3c19b0e95a0585899d37e4a0b50cf4c74dd9",
+      "returncode": 101,
+      "scenario": "network-loss"
+    },
+    {
+      "at_utc": "2026-08-01T08:01:23.015220Z",
+      "output_sha256": "1467ea1caa34c3858002dd3380c7febface296fa2643b5d7aab7cceeabd3268e",
+      "returncode": 101,
+      "scenario": "checkpoint-restart"
+    },
+    {
+      "at_utc": "2026-08-01T08:01:53.404190Z",
+      "output_sha256": "1467ea1caa34c3858002dd3380c7febface296fa2643b5d7aab7cceeabd3268e",
+      "returncode": 101,
+      "scenario": "repeated-cancellation"
+    },
+    {
+      "at_utc": "2026-08-01T08:02:23.779946Z",
+      "output_sha256": "1467ea1caa34c3858002dd3380c7febface296fa2643b5d7aab7cceeabd3268e",
+      "returncode": 101,
+      "scenario": "adapter-crash-hang"
+    },
+    {
+      "at_utc": "2026-08-01T08:02:54.162277Z",
+      "output_sha256": "1467ea1caa34c3858002dd3380c7febface296fa2643b5d7aab7cceeabd3268e",
+      "returncode": 101,
+      "scenario": "model-timeout"
+    },
+    {
+      "at_utc": "2026-08-01T08:03:24.552484Z",
+      "output_sha256": "1467ea1caa34c3858002dd3380c7febface296fa2643b5d7aab7cceeabd3268e",
+      "returncode": 101,
+      "scenario": "large-noisy-output"
+    },
+    {
+      "at_utc": "2026-08-01T08:03:54.950528Z",
+      "output_sha256": "1467ea1caa34c3858002dd3380c7febface296fa2643b5d7aab7cceeabd3268e",
+      "returncode": 101,
+      "scenario": "network-loss"
+    }
+  ],
+  "finished_at_utc": "2026-08-02T06:07:41.090954Z",
+  "limits": {
+    "retained_failures": 20,
+    "subprocess_output": "sha256-only"
+  },
+  "protected_state": {
+    "after": {
+      "bytes": 11718051,
+      "files": 1050
+    },
+    "before": {
+      "bytes": 11718051,
+      "files": 1050
+    },
+    "growth": {
+      "bytes": 0,
+      "files": 0
+    },
+    "maximum_growth": {
+      "bytes": 67108864,
+      "files": 1000
+    }
+  },
+  "requested_duration_seconds": 86400.0,
+  "scenarios": {
+    "adapter-crash-hang": {
+      "failed": 3,
+      "latency_ms": {
+        "max": 19291.83,
+        "min": 302.369,
+        "p50": 346.057,
+        "p95": 9460.202
+      },
+      "passed": 309,
+      "runs": 312
+    },
+    "checkpoint-restart": {
+      "failed": 3,
+      "latency_ms": {
+        "max": 21889.181,
+        "min": 243.177,
+        "p50": 296.253,
+        "p95": 10206.692
+      },
+      "passed": 308,
+      "runs": 311
+    },
+    "corrupted-tail": {
+      "failed": 3,
+      "latency_ms": {
+        "max": 13586.19,
+        "min": 188.428,
+        "p50": 228.692,
+        "p95": 9139.866
+      },
+      "passed": 308,
+      "runs": 311
+    },
+    "disk-pressure": {
+      "failed": 4,
+      "latency_ms": {
+        "max": 33799.288,
+        "min": 188.254,
+        "p50": 225.999,
+        "p95": 9375.266
+      },
+      "passed": 308,
+      "runs": 312
+    },
+    "large-noisy-output": {
+      "failed": 4,
+      "latency_ms": {
+        "max": 14902.548,
+        "min": 199.689,
+        "p50": 247.807,
+        "p95": 10008.853
+      },
+      "passed": 308,
+      "runs": 312
+    },
+    "model-timeout": {
+      "failed": 3,
+      "latency_ms": {
+        "max": 17369.783,
+        "min": 353.014,
+        "p50": 395.255,
+        "p95": 9664.438
+      },
+      "passed": 309,
+      "runs": 312
+    },
+    "network-loss": {
+      "failed": 15,
+      "latency_ms": {
+        "max": 32649.595,
+        "min": 20.422,
+        "p50": 258.955,
+        "p95": 15355.468
+      },
+      "passed": 297,
+      "runs": 312
+    },
+    "repeated-cancellation": {
+      "failed": 5,
+      "latency_ms": {
+        "max": 18788.534,
+        "min": 196.122,
+        "p50": 237.197,
+        "p95": 9798.224
+      },
+      "passed": 307,
+      "runs": 312
+    }
+  },
+  "started_at_utc": "2026-08-01T06:07:41.090713Z",
+  "status": "fail",
+  "summary": {
+    "failed": 40,
+    "passed": 2454,
+    "runs": 2494
+  }
+}

@@ -98,7 +98,7 @@ uuid = { version = "1", features = ["v4", "serde"] }
 clap = { version = "4", features = ["derive"] }
 futures = "0.3"
 rand = "0.8"
-yaml-rust = "0.4"
+yaml-rust2 = "0.11"
 base64 = "0.22"
 fs2 = "0.4"
 # --- manwe gateway ---

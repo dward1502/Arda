@@ -173,19 +173,6 @@ fn release_identity() -> ReleaseIdentity {
     }
 }
 
-#[cfg(test)]
-mod release_identity_tests {
-    use super::*;
-
-    #[test]
-    fn release_identity_reports_compiled_package_version() {
-        let identity = release_identity();
-        assert_eq!(identity.contract, "arda.launcher-release-identity.v1");
-        assert_eq!(identity.version, env!("CARGO_PKG_VERSION"));
-        assert_eq!(identity.supported_profile, "bluefin-lts-10-x86_64");
-    }
-}
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -198,4 +185,17 @@ pub fn run() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[cfg(test)]
+mod release_identity_tests {
+    use super::*;
+
+    #[test]
+    fn release_identity_reports_compiled_package_version() {
+        let identity = release_identity();
+        assert_eq!(identity.contract, "arda.launcher-release-identity.v1");
+        assert_eq!(identity.version, env!("CARGO_PKG_VERSION"));
+        assert_eq!(identity.supported_profile, "bluefin-lts-10-x86_64");
+    }
 }

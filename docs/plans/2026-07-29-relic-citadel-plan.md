@@ -1,205 +1,142 @@
-# RELIC and CITADEL Runtime Presence Implementation Plan
+# RELIC and CITADEL Runtime Presence Plan
 
-> **For Hermes:** Preserve the outpost placement rule. RELIC/CITADEL code belongs under `outposts/` or `apps/`, never inside `crates/spine/`. Verify live Pi state before making operational claims or deployments.
+> **For Hermes:** This is the canonical presence and presentation authority. Keep renderer, bridge, kiosk, scene semantics, accessibility, display-safe companion state, and CITADEL application recovery here. Do not place these tasks in the Pi5, governed-learning, or Warden Research plans.
 
-**Goal:** Convert Arda runtime truth into a legible geometric presence display on desktop and CITADEL Pi hardware without giving the renderer execution authority or exposing private task content.
-
-**Architecture:** A core projection producer emits a sanitized, versioned runtime-presence graph. A read-only bridge converts it to scene state. RELIC renders that state locally and can operate offline on the last valid snapshot. CITADEL owns kiosk, display, hardware, and recovery behavior; Arda core owns identity, provenance, policy, and revocation.
-
-**Tech stack:** Rust projection/bridge, JSON Schema, WebSocket/SSE, Three.js/R3F, Tauri or static kiosk build, systemd user services on Pi5.
-
-**Target stage:** Stage 5 projection beta; optional 1.0 companion, never a Workbench critical dependency  
+**Status:** Active optional projection plan; reconciled on 2026-07-31
+**Target:** Optional Stage 5 projection beta; never a Workbench release-candidate dependency
 **Source design:** `docs/MIRROMERE_RELIC_OUTPOST_VISION.md`  
-**Existing prototype:** `/var/home/mythos/Eregion/relic-kiosk` is external and must not be silently copied or modified without provenance and operator review.
-**Provenance audit:** `docs/research/2026-07-30-mirromere-relic-provenance-audit.md`; external sidecar/protocol integration is the approved posture, with no source migration.
+**Provenance decision:** external sidecar/protocol integration only; no source migration from `/var/home/mythos/Eregion/relic-kiosk`
+**Shared node operations:** [Pi5 deployment/fleet/recovery](../archive/2026-07-23-pi5-outpost-integration-plan.md)
 
----
+## Goal and boundary
 
-## Verified starting point
+Arda produces a sanitized, versioned runtime-presence graph. A read-only bridge converts fresh snapshots into scene state. RELIC renders locally and falls back to an explicit last-valid/idle-degraded state. CITADEL owns kiosk/display/application recovery; Arda core owns identity, provenance, policy, and revocation.
 
-- CITADEL live state was reverified after reboot on 2026-07-30: Raspberry Pi 5 Model B Rev 1.1, Debian 13, 8 GiB RAM, DSI-2 at 800x800/63 Hz, and no thermal throttling. `relic.service` and `citadel-kiosk.service` are enabled/active, `citadel-companion.service` is disabled/inactive, Chromium targets `http://127.0.0.1:8091/`, and the old `annunimas.relic.scene.v1` scripted fixture is still the active display input.
-- The external prototype implements black-field Three.js geometry, up to three agents, council fusion, static/scripted modes, and an old `annunimas.relic.scene.v1` contract.
-- `core/state/embodied_interface.json` and `core/state/tauri_embodiment.json` preserve useful rendering doctrine but retain legacy schema identities.
-- `outposts/arda-outpost-protocol` already defines observation and authority boundaries and is the correct shared outpost contract location.
-- `docs/plans/EMBODIED_INTERFACE.md` contains stale references; this plan follows live paths and the newer vision document.
+RELIC may display lifecycle, health, run/task correlation, handoffs, bounded resource pressure, freshness, confidence, approval waiting, and failure. It may not issue model/tool requests, mutate work, expose prompts/messages/secrets/private health data, or invent activity from decorative motion.
 
-## Product boundary
+## Stage 4/live-source audit
 
-RELIC displays:
-- agent/service lifecycle;
-- task/run correlation without private prompt content;
-- collaboration/handoff edges;
-- bounded resource pressure;
-- freshness, degraded state, and confidence;
-- approval-waiting and failure states.
+### Complete foundations
 
-RELIC does not:
-- issue model/tool requests;
-- mutate tasks or services;
-- render secrets, raw prompts, private messages, or health details;
-- infer activity from decorative timers;
-- claim an agent is active when projection evidence is stale.
+- [x] External prototype provenance was audited in `docs/research/2026-07-30-mirromere-relic-provenance-audit.md`; missing root license/Git provenance requires protocol-sidecar integration.
+- [x] `arda.runtime-presence.v1` exists in `outposts/arda-outpost-protocol/src/presence.rs` with schema/example fixtures under `spec/runtime-presence/v1/` and focused tests.
+- [x] Invalid, expired, unsupported, or unverifiable projections resolve to `idle_degraded`; unknown payload fields are rejected.
 
-## Phase 0 — Provenance and scene-contract freeze
+### Partial implementation discovered by reconciliation
 
-### Task 0.1: Audit the external prototype — COMPLETE (2026-07-30)
+- `crates/spine/observability/arda-aule/src/presence_projection.rs` now builds a deterministic sanitized projection and has stale/unknown-input tests.
+- `crates/engine/src/harness/presence.rs` now exposes `GET /v1/presence/snapshot` and `GET /v1/presence/events`; `crates/engine/tests/harness_presence.rs` covers loopback and a capability-shaped remote path.
+- The current producer is not live-ready: it uses a fixed timestamp/projection ID, `current_inputs()` always returns empty vectors, `HarnessPresenceState::update_inputs` is a no-op, and remote enrollment is hard-coded rather than loaded from canonical identity/capability state.
+- No repository-owned RELIC bridge crate, RELIC systemd unit, deploy/verify helper, or canonical `apps/relic` renderer exists.
+- The external CITADEL sidecar remains independently recoverable and still consumes the legacy scripted scene contract; its operational state must be reverified immediately before deployment work.
 
-**Read-only inputs**
-- `/var/home/mythos/Eregion/relic-kiosk/README.md`
-- package manifests, source tree, license, assets, deployment scripts, and current Git provenance.
+Stage 4 Workbench acceptance does not imply RELIC/CITADEL completion. Presence work remained optional and isolated throughout Stage 4.
 
-**Deliverable**
-- [x] Create: `docs/research/2026-07-30-mirromere-relic-provenance-audit.md`
+## Ownership boundary after reconciliation
 
-**Gate**
-Choose one explicitly:
-1. migrate owned/permissively licensed code;
-2. retain external sidecar and integrate by protocol;
-3. reimplement only the documented scene contract.
+| Concern | Exclusive owner |
+|---|---|
+| runtime-presence schema, producer, publication, bridge, scene semantics, renderer, kiosk, display accessibility, application recovery/soak | this plan |
+| generic Pi fleet inventory, SSH reachability, node-level restart/reboot helpers | Pi5 plan |
+| Warden/Varda backend receipts and learning authority | governed-learning plan |
+| research questions, watchlists, briefs, research HUD | Warden Research plan |
 
-**Decision:** retain the external artifact as an independently recoverable sidecar and integrate only by an Arda-owned protocol. The missing root license and unavailable Git provenance prohibit source migration. A clean-room implementation remains available after the scene protocol stabilizes.
+## Open presence/presentation tasks — exclusive ownership
 
-### Task 0.2: Define `arda.runtime-presence.v1` — COMPLETE (2026-07-30)
+### RC-1 — Connect the presence projection to live runtime truth
 
-**Files**
-- [x] Create: `outposts/arda-outpost-protocol/src/presence.rs` and export it additively from the protocol crate.
-- [x] Create: `spec/runtime-presence/v1/runtime-presence.schema.json`
-- [x] Create: `spec/runtime-presence/v1/example.json`
-- [x] Test: `outposts/arda-outpost-protocol/tests/runtime_presence.rs`
+**Files:** `arda-aule/src/presence_projection.rs`, `arda-engine/src/harness/presence.rs`, harness state/identity integration, and focused tests
 
-**Required fields**
-- projection ID/version, generated/valid-until timestamps;
-- realm/agent/service nodes;
-- typed collaboration, handoff, wait, and dependency edges;
-- run/task correlation IDs;
-- lifecycle, health, confidence, freshness;
-- bounded normalized resource pressure;
-- source receipt references;
-- redaction class.
+- [ ] Replace fixed time/ID generation with deterministic IDs derived from canonical input receipts plus an injected/testable clock.
+- [ ] Feed bounded engine service, run graph, approval/handoff, provider, and resource inputs into stored `HarnessPresenceState`.
+- [ ] Make `update_inputs` persist the latest bounded snapshot and make snapshot/SSE routes publish that state rather than empty fixtures.
+- [ ] Load enrolled outpost identity, `presence.read` capability, revocation, and allowed network posture from canonical contracts; remove hard-coded bearer authority.
+- [ ] Prove stale/missing inputs reduce confidence and scene state instead of inventing nodes, edges, or motion.
 
-**Acceptance**
-- [x] Expired, unverifiable, unsupported, invalid-window, or out-of-range projections produce an explicit `idle_degraded` scene disposition.
-- [x] Contract fixture contains no prompt, message, payload, secret, or private health-detail field; the Rust contract also rejects unknown payload fields.
+**Acceptance:** fixed receipts produce a deterministic projection; live harness input changes produce fresh snapshots/events; revoked, stale, malformed, or unauthorized callers fail closed.
 
-**Evidence (2026-07-30)**
-- `cargo test --manifest-path outposts/arda-outpost-protocol/Cargo.toml --all-features -- --test-threads=1` passed all 18 integration tests, including 7 `runtime_presence` tests.
-- `npx --yes --package ajv-cli --package ajv-formats ajv validate --spec=draft2020 --strict=false -c ajv-formats -s spec/runtime-presence/v1/runtime-presence.schema.json -d spec/runtime-presence/v1/example.json` returned `example.json valid` with RFC 3339 date-time format checking enabled.
-- `rustfmt --edition 2021 --check src/presence.rs src/lib.rs tests/runtime_presence.rs` and the scoped `git diff --check` both passed.
-- No deployment mutation was performed during discovery; the current Pi sidecar remains the rollback-safe active surface while Phase 1 projection work begins.
-
-## Phase 1 — Core runtime projection
-
-### Task 1.1: Produce a sanitized presence graph
+### RC-2 — Add the Arda-owned read-only RELIC bridge
 
 **Files**
-- Create: `crates/spine/observability/arda-aule/src/presence_projection.rs`
-- Modify: `crates/spine/observability/arda-aule/src/lib.rs` or the current public module root after inspection.
-- Test: package-local projection tests.
 
-**Inputs**
-- engine service status;
-- run graph state;
-- Aulë telemetry;
-- approval and handoff receipts;
-- bounded provider/resource state.
-
-**Acceptance**
-- Projection is deterministic for fixed inputs.
-- Unknown/stale input reduces confidence rather than inventing motion.
-
-### Task 1.2: Publish through the existing harness
-
-**Files**
-- Create: `crates/engine/src/harness/presence.rs`
-- Modify: `crates/engine/src/harness.rs`
-- Test: `crates/engine/tests/harness_presence.rs`
-
-**Endpoints**
-- `GET /v1/presence/snapshot`
-- `GET /v1/presence/events` via SSE or WebSocket
-
-**Acceptance**
-- Loopback default; remote CITADEL access requires enrolled outpost identity and a read-only capability.
-
-## Phase 2 — Canonical RELIC application
-
-### Task 2.1: Create or import the renderer after the provenance gate
-
-**Files if canonicalized in Arda**
-- Create: `apps/relic/package.json`
-- Create: `apps/relic/src/main.ts`
-- Create: `apps/relic/src/runtimePresence.ts`
-- Create: `apps/relic/src/scene/RelicScene.ts`
-- Create: `apps/relic/src/scene/geometryRegistry.ts`
-- Create: `apps/relic/README.md`
-
-**Acceptance**
-- Static fixture, live harness, and last-known-valid modes are separate and visibly identified.
-- Scene motion derives from event/state transitions.
-- Software/WebGL fallback remains usable on Pi5.
-
-### Task 2.2: Implement visual semantics
-
-Map lifecycle and edge types to geometry, color, motion, and fusion through a versioned registry. Include a legend/operator inspect mode so appearance is not an undocumented codebook.
-
-### Task 2.3: Add accessibility and low-stimulation modes
-
-Support reduced motion, reduced brightness, high contrast, no-audio default, and a text status fallback.
-
-## Phase 3 — CITADEL bridge and deployment
-
-### Task 3.1: Add outpost bridge
-
-**Files**
 - Create: `outposts/arda-relic-bridge/Cargo.toml`
-- Create: `outposts/arda-relic-bridge/src/main.rs`
-- Create: `outposts/arda-relic-bridge/src/cache.rs`
-- Create: `outposts/arda-relic-bridge/src/client.rs`
-- Test replay, expiry, redaction, reconnect, and cache corruption.
+- Create bridge client/cache/scene-adapter modules and focused replay/expiry/redaction/reconnect/corruption tests.
 
-**Acceptance**
-- Bridge has read-only presence capability.
-- Network loss shows last-valid timestamp and transitions to idle after expiry.
+**Open work**
 
-### Task 3.2: Package CITADEL services
+- [ ] Consume only `arda.runtime-presence.v1` through `presence.read`.
+- [ ] Validate schema, time window, redaction class, source receipts, and monotonic snapshot sequence.
+- [ ] Cache the last valid sanitized snapshot atomically and expose its age.
+- [ ] On network loss, show last-valid timestamp and transition to idle-degraded after expiry.
+- [ ] Emit the external sidecar's scene adapter as a protocol boundary without copying or modifying unlicensed source.
+
+### RC-3 — Canonical presentation semantics
+
+**Depends on:** RC-1 and RC-2
+
+- [ ] Define a versioned registry from lifecycle/health/edge/freshness states to geometry, color, motion, fusion, and text fallback.
+- [ ] Provide legend/operator inspection so appearance is not an undocumented codebook.
+- [ ] Derive all motion from state/event transitions, never decorative activity timers.
+- [ ] Support reduced motion, reduced brightness, high contrast, no-audio default, and text-only status.
+- [ ] Keep static fixture, live harness, cached last-valid, and idle-degraded modes visibly distinct.
+
+The separately maintained sidecar remains the default renderer for the first projection beta. A clean-room `apps/relic` implementation is a later decision after the protocol and semantics stabilize; it is not an open release task now.
+
+### RC-4 — Package, deploy, recover, and soak CITADEL presence
+
+**Depends on:** RC-1 through RC-3 and Pi5 PI5-2/PI5-3 shared node checks
 
 **Files**
+
 - Create: `config/systemd/arda-relic-bridge.service`
-- Create: `config/systemd/arda-relic-kiosk.service`
+- Create: `config/systemd/arda-relic-kiosk.service` only if replacing the existing external unit is explicitly approved.
 - Create: `scripts/deploy_relic_citadel.sh`
 - Create: `scripts/verify_relic_citadel.sh`
 
-Remote deployment is operator-approved and must preserve a rollback to the prior kiosk.
+**Open work**
 
-## Phase 4 — Collaboration and council visualization
+- [ ] Build/checksum the bridge, preserve the prior sidecar and units, and require explicit operator deployment approval.
+- [ ] Verify bridge, renderer, kiosk, display, network-loss, cache-corruption, reboot, rollback, and stale-scene behavior independently.
+- [ ] Prove renderer compromise cannot mutate Arda and no private content crosses the projection.
+- [ ] Complete a seven-day kiosk soak within thermal, memory, storage, and restart budgets.
+- [ ] Verify immediate low-stimulation and text-only switching on the physical display.
 
-Add multi-agent handoffs and council fusion only after run graph edges carry real receipt IDs. A fused visual form must dissolve when evidence expires or members leave the run.
+### RC-5 — Optional companion and collaboration expansion
 
-## Phase 5 — Optional companion projection
+**Blocked until:** RC-1 through RC-4 projection beta acceptance
 
-CITADEL may display bounded chat/approval notifications using separate contracts. It remains a presentation and advisory surface; mutations route back to the kernel's normal approval path.
+- [ ] Add council fusion only when run/council edges carry real receipt IDs and dissolve when evidence expires.
+- [ ] Add chat or approval notifications only through separate bounded contracts that route mutations back through normal kernel approval.
+- [ ] Add any broader HUD companion state only as sanitized presentation data with independent stale/offline behavior.
 
-## Verification ladder
+RC-5 is optional expansion. Do not begin it during Stage 5 reconciliation or before the base presence beta is accepted.
+
+## Stage 5 dependency
+
+- RELIC/CITADEL is feature-flagged and independently recoverable.
+- No RC task blocks the Workbench release candidate, Warden backend, or Warden Research beta.
+- If the projection beta is selected, RC-1 through RC-4 become its own release gate; RC-5 remains deferred.
+- Generic node checks/restart mechanics come from the Pi5 plan, but application-specific bridge/kiosk recovery and soak remain here.
+
+## Verification
 
 ```bash
 cargo test --manifest-path outposts/arda-outpost-protocol/Cargo.toml --all-features -- --test-threads=1
-cargo test -p arda-aule --all-features -- --test-threads=1
+cargo test -p arda-aule presence_projection --all-features -- --test-threads=1
 cargo test -p arda-engine --test harness_presence -- --test-threads=1
 cargo test --manifest-path outposts/arda-relic-bridge/Cargo.toml --all-features -- --test-threads=1
-cd apps/relic && pnpm test && pnpm build
 ```
 
-For a separately approved live deployment:
+Run bridge/application/deployment commands only after their files exist. A separately approved physical deployment must also pass `scripts/verify_relic_citadel.sh` and record rollback plus soak evidence.
 
-```bash
-bash scripts/verify_relic_citadel.sh
-```
+## Projection beta acceptance
 
-## Release acceptance
+- [x] Presence schema and degraded-state contract are versioned and tested.
+- [ ] Every rendered active form/edge traces to fresh runtime receipts from live harness state.
+- [ ] Stale, disconnected, cached, and fixture modes are unmistakable.
+- [ ] Remote identity/capability/revocation is canonical and fail-closed.
+- [ ] Renderer/bridge cannot mutate Arda or expose private content.
+- [ ] CITADEL recovers after process failure, network loss, reboot, and rollback.
+- [ ] Seven-day soak and physical accessibility checks pass.
 
-- Every active form and edge is traceable to a fresh runtime receipt.
-- Stale/disconnected state is visually unmistakable.
-- Renderer cannot mutate Arda even if compromised.
-- Pi5 recovers after reboot and network loss.
-- Seven-day kiosk soak stays within thermal, memory, storage, and restart limits.
-- Operator can switch immediately to low-stimulation or text-only status.
+External-person evaluation is optional supplementary confidence while no separate evaluator or clean machine is available; protocol fixtures, operator display acceptance, and recovery/soak evidence are the active gates.

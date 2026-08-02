@@ -15,7 +15,7 @@
 | Surface | Authority | Stage 5 relationship |
 |---|---|---|
 | Workbench release candidate | this plan | only release-critical product |
-| Warden/Varda durable backend | [governed-learning plan](2026-07-27-warden-varda-ceo-learning-loop.md) | required only if the optional Warden Research recurring-watchlist beta ships |
+| Warden/Varda durable backend | [governed-learning plan](../archive/2026-07-27-warden-varda-ceo-learning-loop.md) | completed supporting authority; required only if the optional Warden Research recurring-watchlist beta ships |
 | Warden Research product/API/HUD | [Warden Research plan](2026-07-29-warden-research-application-plan.md) | optional secondary beta; depends on governed-learning GL-1 through GL-4 |
 | Pi5 AArch64 deployment, fleet, SSH, shared recovery | [Pi5 record](../archive/2026-07-23-pi5-outpost-integration-plan.md) | completed supporting infrastructure; required only for a beta that promises physical outpost support |
 | RELIC/CITADEL presence/presentation | [RELIC/CITADEL plan](2026-07-29-relic-citadel-plan.md) | optional feature-flagged projection; RC-5 expansion remains blocked until its base projection beta passes |
@@ -361,13 +361,20 @@ signed by the tag-bound workflow.
 
 ## Reliability, performance, and accessibility tranche — S5-R1/U1
 
-**In progress 2026-08-01.** A bounded eight-scenario runner now rotates exact
+**S5-R1 remains open 2026-08-02.** A bounded eight-scenario runner rotates exact
 registered tests for repeated cancellation, adapter crash/hang, model timeout,
 oversized/noisy output, network loss, disk-pressure write failure, corrupted
 journal tail, and checkpoint restart. The final smoke receipt passed 12/12 with
-zero protected-state growth. The authoritative 24-hour run is active and must
-finish before S5-R1 can close; its finite growth ceilings are 1,000 files and
-64 MiB, and subprocess output is retained only as SHA-256.
+zero protected-state growth. The first authoritative 24-hour run completed but
+failed: 2,494 attempts included 40 nonzero subprocess exits while protected
+state growth remained zero. Its SHA-256-only failure capture does not preserve
+enough diagnostic detail to assign those exits to a product defect versus an
+ambient build/test failure, so it cannot close S5-R1. A fresh run was started
+from the currently passing scenario matrix, then deliberately stopped when the
+shared `/var` volume reached 100% during broader release verification; a run
+under disk exhaustion would not be valid evidence. Free verified-safe capacity
+first, then run one uninterrupted 24-hour matrix. Its finite growth ceilings are
+1,000 files and 64 MiB.
 
 Automated Workbench accessibility passed 2/2 for critical/serious axe findings
 and keyboard focus order. Reduced-motion, increased-contrast, and forced-color
@@ -382,7 +389,8 @@ the original 24-hour soak receipt.
 Evidence:
 
 - `docs/evidence/stage-5-release-candidate/reliability/soak-smoke-final.json`
-- `docs/evidence/stage-5-release-candidate/reliability/soak-24h.json` (in progress)
+- `docs/evidence/stage-5-release-candidate/reliability/soak-24h.json` (completed failed run; retained)
+- `docs/evidence/stage-5-release-candidate/reliability/soak-24h-rerun-20260802.json` (not emitted; interrupted before a valid receipt because `/var` reached 100% capacity)
 - `docs/evidence/stage-5-release-candidate/reliability/performance-accessibility.json`
 - `docs/evidence/stage-5-release-candidate/reliability/native-launcher-walkthrough.json`
 - `docs/evidence/stage-5-release-candidate/reliability/native-launcher-metrics.json`

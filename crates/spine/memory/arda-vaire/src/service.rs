@@ -1,4 +1,4 @@
-use crate::significance::{classify_significance, evaluate_significance, SignificanceResult};
+use crate::significance::{SignificanceResult, classify_significance, evaluate_significance};
 use arda_core::error::{ArdaError, Result};
 use arda_economics::{JouleWorkUnit, PlutusService};
 use chrono::{DateTime, Duration, Utc};
@@ -11,6 +11,7 @@ use std::time::Duration as StdDuration;
 // coordinates scoring, persistence, retrieval, and consolidation. `store`
 // owns the on-disk JSONL layout; `retrieval` owns ranking; `promotion` owns
 // derived semantic/procedural records and their promotion receipts.
+pub mod governed;
 mod promotion;
 mod retrieval;
 mod status;
@@ -137,6 +138,10 @@ pub struct ConsolidationReport {
     pub archived_records_written: usize,
     pub promotion_receipts_written: usize,
     pub consolidation_depth: usize,
+    pub observed_count: usize,
+    pub eligible_count: usize,
+    pub promoted_count: usize,
+    pub blocked_count: usize,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -433,7 +438,8 @@ impl MnemosyneService {
 
 #[cfg(test)]
 mod tests {
-    use super::{store::append_jsonl, InformantEvent, MnemosyneService};
+    use super::governed;
+    use super::{InformantEvent, MnemosyneService, store::append_jsonl};
     use arda_economics::PlutusService;
     use chrono::Utc;
     use std::fs;
@@ -563,9 +569,11 @@ mod tests {
         }
         let content = fs::read_to_string(&path).expect("read");
         assert_eq!(content.lines().count(), 200);
-        assert!(content
-            .lines()
-            .all(|line| serde_json::from_str::<serde_json::Value>(line).is_ok()));
+        assert!(
+            content
+                .lines()
+                .all(|line| serde_json::from_str::<serde_json::Value>(line).is_ok())
+        );
     }
 
     #[test]
@@ -699,9 +707,11 @@ mod tests {
         assert!((0.0..=1.0).contains(&relevant[0].trust));
         let metrics = svc.observability_snapshot();
         assert_eq!(metrics.recall_requests_total, 1);
-        assert!(metrics
-            .last_recall_fidelity
-            .is_some_and(|value| value > 0.0));
+        assert!(
+            metrics
+                .last_recall_fidelity
+                .is_some_and(|value| value > 0.0)
+        );
     }
 
     #[test]
@@ -1094,6 +1104,60 @@ mod tests {
                     .as_array()
                     .is_some_and(|ids| ids.len() >= 2)
         }));
+    }
+
+    #[test]
+    fn repeated_raw_warden_observations_are_blocked_from_promotion() {
+        let dir = tempdir().expect("tempdir");
+        let svc = MnemosyneService::new(dir.path()).expect("svc");
+        for index in 0..4 {
+            svc.encode(make_event(
+                "warden",
+                "external_observation",
+                &format!("Repeated raw Warden observation {index}"),
+                vec!["raw_warden_observation", "governance"],
+            ))
+            .expect("encode");
+        }
+
+        let report = svc.consolidate(24).expect("consolidate");
+        assert_eq!(report.observed_count, 4);
+        assert_eq!(report.eligible_count, 0);
+        assert_eq!(report.promoted_count, 0);
+        assert_eq!(report.blocked_count, 4);
+        assert_eq!(report.promotion_receipts_written, 0);
+    }
+
+    #[test]
+    fn governed_derived_receipts_preserve_approval_references() {
+        let dir = tempdir().expect("tempdir");
+        let svc = MnemosyneService::new(dir.path()).expect("svc");
+        for index in 0..2 {
+            svc.ingest_approved_delta(governed::ApprovedKnowledgeDelta {
+                delta_id: format!("delta-{index}"),
+                source_reference: format!("https://example.com/{index}"),
+                warden_observation_id: format!("obs-{index}"),
+                varda_evaluation_id: format!("eval-{index}"),
+                approval_reference: format!("approval-{index}"),
+                content: format!("Approved governed knowledge {index}"),
+                correction_of: None,
+            })
+            .expect("approved intake");
+        }
+
+        let report = svc.consolidate(24).expect("consolidate");
+        assert!(report.promoted_count > 0);
+        let receipts =
+            fs::read_to_string(dir.path().join("archive").join("promotion_receipts.jsonl"))
+                .expect("promotion receipts");
+        for line in receipts.lines() {
+            let value: serde_json::Value = serde_json::from_str(line).expect("receipt json");
+            assert!(
+                value["approval_references"]
+                    .as_array()
+                    .is_some_and(|references| !references.is_empty())
+            );
+        }
     }
 
     #[test]

@@ -21,6 +21,7 @@ mod crawl;
 mod curriculum_generator;
 mod deep;
 mod deep_cache;
+pub mod external_lane;
 mod extraction;
 mod github;
 mod http_client;

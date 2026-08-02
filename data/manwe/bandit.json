@@ -21,7 +21,7 @@
       "failures": 0
     },
     "chat|tools=false|structured=false|stream=false\u001fedge_core\u001fQwen3.5-9B-Q4_K_M": {
-      "successes": 282,
+      "successes": 620,
       "failures": 2
     },
     "chat|tools=false|structured=false|stream=false\u001fedge_guardhouse\u001fQwen3.5-4B-Q4_K_M.gguf": {
@@ -41,7 +41,7 @@
       "failures": 0
     },
     "chat|tools=false|structured=false|stream=false\u001fopenai_sub\u001fgpt-5.5": {
-      "successes": 3,
+      "successes": 4,
       "failures": 0
     },
     "chat|tools=false|structured=false|stream=false\u001fopenrouter\u001fnvidia/nemotron-3-super-120b-a12b:free": {
@@ -73,7 +73,7 @@
       "failures": 0
     },
     "code|tools=false|structured=false|stream=false\u001fopenai_sub\u001fgpt-5.5": {
-      "successes": 19,
+      "successes": 21,
       "failures": 0
     },
     "code|tools=true|structured=false|stream=false\u001fedge_backbone\u001fternary-bonsai-27b-q2_0": {
@@ -82,7 +82,7 @@
     },
     "code|tools=true|structured=false|stream=false\u001fedge_backbone_coder\u001fnanbeige4.2-3b-q4_k_m": {
       "successes": 58,
-      "failures": 5
+      "failures": 11
     },
     "code|tools=true|structured=false|stream=false\u001fedge_beelink_light\u001fTernary-Bonsai-8B-Q2_0": {
       "successes": 6,
@@ -93,7 +93,7 @@
       "failures": 0
     },
     "code|tools=true|structured=false|stream=false\u001fopenai_sub\u001fgpt-5.5": {
-      "successes": 678,
+      "successes": 1264,
       "failures": 0
     }
   }

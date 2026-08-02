@@ -40,16 +40,16 @@ impl CharonService {
                     });
                 }
             }
-            "llamacpp" => {
+            "llamacpp"
                 if candidates.iter().any(|candidate| {
                     let id = &providers[candidate.provider_index].id;
                     is_local_provider(id) && !is_primary_local_surface_provider(id)
-                }) {
-                    candidates.retain(|candidate| {
-                        let id = &providers[candidate.provider_index].id;
-                        is_local_provider(id) && !is_primary_local_surface_provider(id)
-                    });
-                }
+                }) =>
+            {
+                candidates.retain(|candidate| {
+                    let id = &providers[candidate.provider_index].id;
+                    is_local_provider(id) && !is_primary_local_surface_provider(id)
+                });
             }
             _ => {}
         }

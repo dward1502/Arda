@@ -64,6 +64,13 @@ async fn search_route_persists_and_recall_returns_the_observation() {
         "https://example.com/governance"
     );
     assert!(search_json["memory"]["memory_id"].is_string());
+    assert_eq!(
+        search_json["research_chain"]["suggestion"]["authority"],
+        "advisory_only"
+    );
+    let ledger = std::fs::read_to_string(root.path().join("data/warden/research_receipts.jsonl"))
+        .expect("research receipt ledger");
+    assert_eq!(ledger.lines().count(), 1);
 
     let recall = app
         .oneshot(
@@ -110,6 +117,43 @@ async fn health_route_identifies_the_warden_runtime() {
     assert_eq!(json["status"], "ok");
     assert_eq!(json["source"], "node-pi5-warden");
     assert_eq!(json["authority"], "advisory");
+}
+
+#[tokio::test]
+async fn suggestion_route_persists_advisory_ingress_and_deduplicates() {
+    let root = tempfile::tempdir().expect("runtime root");
+    let state = ScoutRuntimeState::new(root.path(), "http://127.0.0.1:9", "node-pi5-warden")
+        .expect("runtime state");
+    let now = chrono::Utc::now();
+    let suggestion = json!({
+        "schema_version":"arda.warden.research.v1",
+        "suggestion_id":"suggestion-fixed",
+        "idempotency_key":"aule:fixed",
+        "created_at_utc":now.to_rfc3339(),
+        "expires_at_utc":(now + chrono::Duration::minutes(5)).to_rfc3339(),
+        "query":"bounded advisory query",
+        "max_results":2,
+        "budget_bytes":4096,
+        "authority":"advisory_only"
+    });
+    let app = build_runtime_router(state);
+    for _ in 0..2 {
+        let response = app
+            .clone()
+            .oneshot(
+                Request::post("/suggestions")
+                    .header("content-type", "application/json")
+                    .body(Body::from(suggestion.to_string()))
+                    .unwrap(),
+            )
+            .await
+            .expect("suggestion response");
+        assert_eq!(response.status(), StatusCode::OK);
+    }
+    let ledger =
+        std::fs::read_to_string(root.path().join("data/warden/research_suggestions.jsonl"))
+            .expect("suggestion ledger");
+    assert_eq!(ledger.lines().count(), 1);
 }
 
 #[tokio::test]

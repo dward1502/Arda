@@ -18,6 +18,8 @@ work under `docs/plans/`.
 
 ## Completed closeouts
 
+- [`2026-07-27-warden-varda-ceo-learning-loop.md`](2026-07-27-warden-varda-ceo-learning-loop.md)
+  — completed durable Warden/Varda/Aulë receipt chain, governed Vairë knowledge intake, and replay-safe proposal receipts.
 - [`2026-07-29-arda-workbench-private-beta-plan.md`](2026-07-29-arda-workbench-private-beta-plan.md)
   — completed contract, engine, adapter, HUD, Rust/Python golden-path, and exact-once recovery implementation tranche; remaining release gates continue in the active Stage 4 plan.
 - [`2026-07-30-arda-hud-boardroom-visual-system-plan.md`](2026-07-30-arda-hud-boardroom-visual-system-plan.md)

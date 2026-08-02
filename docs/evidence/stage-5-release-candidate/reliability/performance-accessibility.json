@@ -78,6 +78,7 @@
     "native_walkthrough": "docs/evidence/stage-5-release-candidate/reliability/native-launcher-walkthrough.json",
     "native_idle_metrics": "docs/evidence/stage-5-release-candidate/reliability/native-launcher-metrics.json",
     "support_exercise": "docs/evidence/stage-5-release-candidate/support/support-exercise.json",
-    "long_soak": "docs/evidence/stage-5-release-candidate/reliability/soak-24h.json (in progress)"
+    "long_soak_failed": "docs/evidence/stage-5-release-candidate/reliability/soak-24h.json (completed with 40 nonzero scenario exits; cannot close S5-R1)",
+    "long_soak_rerun": "not emitted; 2026-08-02 rerun was stopped before a valid receipt when the shared /var volume reached 100% capacity"
   }
 }

@@ -9,6 +9,7 @@ authors.workspace = true
 [features]
 default = ["http"]
 http = ["dep:axum", "dep:tower", "dep:tokio-stream"]
+obsidian-import = []
 
 [dependencies]
 arda-core = { workspace = true }

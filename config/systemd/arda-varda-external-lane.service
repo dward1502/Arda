@@ -1,0 +1,16 @@
+[Unit]
+Description=Import one governed Warden observation through Varda and Crawl4AI
+After=arda-varda.service arda-crawl4ai.service
+Wants=arda-varda.service
+
+[Service]
+Type=oneshot
+EnvironmentFile=-%h/.config/arda/varda/external-lane.env
+ExecStart=%h/Eregion/Arda/scripts/arda-varda-external-lane-import.sh
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+
+[Install]
+WantedBy=default.target

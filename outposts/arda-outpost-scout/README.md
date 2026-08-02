@@ -72,6 +72,39 @@ cargo clippy -p arda-outpost-scout --all-targets --all-features -- -D warnings
 RUSTDOCFLAGS='-D warnings' cargo doc -p arda-outpost-scout --no-deps --all-features
 ```
 
+## Warden AArch64 delivery
+
+The supported delivery path is rootless cross-compilation on the Arda operator
+host. It does not install a Rust toolchain on Warden. The pinned inputs are Rust
+`1.94.0`, `cross` `0.2.5`, target `aarch64-unknown-linux-gnu`, Cargo's checked-in
+lockfile, and the `cross` target image whose resolved digest is recorded in the
+artifact manifest.
+
+One-time operator-host setup:
+
+```bash
+rustup toolchain install 1.94.0 --profile minimal
+cargo install cross --version 0.2.5 --locked
+```
+
+Podman, `jq`, OpenSSH, and non-interactive key access through the canonical
+`warden` alias are also required. Build and operate the fixed-scope delivery with:
+
+```bash
+scripts/pi5_warden_scout_delivery.sh build
+scripts/pi5_warden_scout_delivery.sh deploy
+scripts/pi5_warden_scout_delivery.sh smoke
+scripts/pi5_warden_scout_delivery.sh reboot-verify
+scripts/pi5_warden_scout_delivery.sh rollback
+```
+
+Artifacts and manifests default to
+`~/.cache/arda-artifacts/pi5-warden/`. Deployment accepts no host, command,
+service, password, or credential argument. It stages and verifies the checksum,
+preserves the prior binary, atomically replaces only the Warden scout binary,
+restarts only `arda-warden-scout.service`, and checks health. Rollback restores
+the immediately prior binary without modifying the append-only memory root.
+
 ## Notes
 - Intended to run standalone on Pi5/runtime toolchains.
 - Output is serializable with protocol contract types from `arda-outpost-protocol`

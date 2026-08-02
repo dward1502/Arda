@@ -1,0 +1,36 @@
+{
+  "schema_version": "arda.run-graph.v1",
+  "run_id": "stage4-research-20260731T181502Z",
+  "objective_id": "objective-stage4-research-20260731T181502Z",
+  "nodes": [
+    {
+      "id": "research-plan",
+      "kind": "plan",
+      "state": "pending",
+      "authority": "read_only",
+      "budget": {
+        "max_joules": 1.0,
+        "max_cost_usd": 0.0
+      },
+      "retry": {
+        "max_attempts": 1
+      },
+      "timeout_ms": 120000,
+      "idempotency_key": "node-stage4-research-20260731T181502Z",
+      "input_digest": null,
+      "output_digest": null,
+      "parent_receipts": [],
+      "checkpoint": {
+        "sequence": 0,
+        "recovery_token": null,
+        "checkpoint_digest": null
+      }
+    }
+  ],
+  "edges": [],
+  "provenance": {
+    "project_contract_digest": "sha256:stage4-research-fixture",
+    "created_by": "stage4-private-beta-closeout",
+    "parent_receipts": []
+  }
+}

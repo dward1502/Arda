@@ -441,10 +441,8 @@ pub(super) fn provider_score(
                 score -= 8.0;
             }
         }
-        "background" => {
-            if is_primary_local_surface_provider(&p.id) || is_local_fallback(&p.id) {
-                score += 12.0;
-            }
+        "background" if is_primary_local_surface_provider(&p.id) || is_local_fallback(&p.id) => {
+            score += 12.0;
         }
         _ => {}
     }

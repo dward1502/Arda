@@ -100,6 +100,7 @@ pub struct GovernancePolicy {
     pub triad_quorum_ratio: f64,
     pub triad_required_pass_rate: f64,
     pub autonomous_classes: BTreeSet<String>,
+    pub review_required_classes: BTreeSet<String>,
     pub human_required_classes: BTreeSet<String>,
     pub triad_quorum_classes: BTreeSet<String>,
     pub hades_lifecycle_classes: BTreeSet<String>,
@@ -124,6 +125,7 @@ impl Default for GovernancePolicy {
                 "routine_maintenance",
                 "provider_status_check",
             ]),
+            review_required_classes: set(["review_required"]),
             human_required_classes: set([
                 "funds_movement",
                 "legal_commitment",
@@ -264,7 +266,12 @@ impl GovernancePolicy {
         }
         .to_string();
 
-        if self.human_required_classes.contains(&action_class) {
+        if self.review_required_classes.contains(&action_class) {
+            requires_human = true;
+            reasons.push(format!(
+                "action_class '{action_class}' is a configured review-only class and cannot delegate"
+            ));
+        } else if self.human_required_classes.contains(&action_class) {
             gate = GovernanceGate::HumanRequired;
             requires_human = true;
             reasons.push(format!(
@@ -624,10 +631,12 @@ mod tests {
         assert_eq!(decision.gate, GovernanceGate::TriadQuorumApproved);
         assert!(decision.requires_triad);
         assert!(decision.allowed_to_delegate);
-        assert!(decision
-            .evidence
-            .iter()
-            .any(|item| item.contains("oracle_quorum:autopilot::obj1")));
+        assert!(
+            decision
+                .evidence
+                .iter()
+                .any(|item| item.contains("oracle_quorum:autopilot::obj1"))
+        );
         assert_eq!(
             decision
                 .triad_quorum
@@ -678,10 +687,12 @@ mod tests {
         assert_eq!(decision.gate, GovernanceGate::TriadQuorumRequired);
         assert!(decision.requires_triad);
         assert!(!decision.allowed_to_delegate);
-        assert!(decision
-            .reasons
-            .iter()
-            .any(|reason| reason.contains("insufficient ORACLE triad quorum")));
+        assert!(
+            decision
+                .reasons
+                .iter()
+                .any(|reason| reason.contains("insufficient ORACLE triad quorum"))
+        );
     }
 
     #[test]
@@ -754,6 +765,22 @@ mod tests {
         assert_eq!(decision.gate, GovernanceGate::ReviewRequired);
         assert!(decision.requires_human);
         assert!(!decision.allowed_to_delegate);
+    }
+
+    #[test]
+    fn configured_review_required_class_is_explicit_and_non_executable() {
+        let policy = GovernancePolicy::default();
+        let decision = policy.classify_objective(&tagged_obj("review_required"), &[]);
+
+        assert_eq!(decision.gate, GovernanceGate::ReviewRequired);
+        assert!(decision.requires_human);
+        assert!(!decision.allowed_to_delegate);
+        assert!(
+            decision
+                .reasons
+                .iter()
+                .any(|reason| reason.contains("configured review-only class"))
+        );
     }
 
     #[test]

@@ -1,0 +1,192 @@
+{
+  "schema_version": "arda.run-graph.v1",
+  "run_id": "run-8a00511e-a309-4838-894a-a5dcdd40f87e",
+  "objective_id": "objective-8a00511e-a309-4838-894a-a5dcdd40f87e",
+  "nodes": [
+    {
+      "id": "plan",
+      "kind": "plan",
+      "state": "pending",
+      "authority": "read_only",
+      "budget": {
+        "max_joules": 25.0,
+        "max_cost_usd": 0.0
+      },
+      "retry": {
+        "max_attempts": 1
+      },
+      "timeout_ms": 60000,
+      "idempotency_key": "run-8a00511e-a309-4838-894a-a5dcdd40f87e-plan",
+      "input_digest": "objective:objective-8a00511e-a309-4838-894a-a5dcdd40f87e",
+      "output_digest": null,
+      "parent_receipts": [],
+      "checkpoint": {
+        "sequence": 0,
+        "recovery_token": null,
+        "checkpoint_digest": null
+      }
+    },
+    {
+      "id": "approval",
+      "kind": "approval",
+      "state": "succeeded",
+      "authority": "human_approval",
+      "budget": {
+        "max_joules": 25.0,
+        "max_cost_usd": 0.0
+      },
+      "retry": {
+        "max_attempts": 1
+      },
+      "timeout_ms": 60000,
+      "idempotency_key": "run-8a00511e-a309-4838-894a-a5dcdd40f87e-approval",
+      "input_digest": "objective:objective-8a00511e-a309-4838-894a-a5dcdd40f87e",
+      "output_digest": null,
+      "parent_receipts": [
+        "receipt:plan"
+      ],
+      "checkpoint": {
+        "sequence": 0,
+        "recovery_token": null,
+        "checkpoint_digest": null
+      }
+    },
+    {
+      "id": "execute",
+      "kind": "execute",
+      "state": "succeeded",
+      "authority": "execute_with_approval",
+      "budget": {
+        "max_joules": 250.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 1
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "run-8a00511e-a309-4838-894a-a5dcdd40f87e-execute",
+      "input_digest": "objective:objective-8a00511e-a309-4838-894a-a5dcdd40f87e",
+      "output_digest": null,
+      "parent_receipts": [
+        "receipt:approval"
+      ],
+      "checkpoint": {
+        "sequence": 0,
+        "recovery_token": null,
+        "checkpoint_digest": null
+      }
+    },
+    {
+      "id": "verify",
+      "kind": "verify",
+      "state": "succeeded",
+      "authority": "verify",
+      "budget": {
+        "max_joules": 25.0,
+        "max_cost_usd": 0.0
+      },
+      "retry": {
+        "max_attempts": 1
+      },
+      "timeout_ms": 60000,
+      "idempotency_key": "run-8a00511e-a309-4838-894a-a5dcdd40f87e-verify",
+      "input_digest": "objective:objective-8a00511e-a309-4838-894a-a5dcdd40f87e",
+      "output_digest": null,
+      "parent_receipts": [
+        "receipt:execute"
+      ],
+      "checkpoint": {
+        "sequence": 0,
+        "recovery_token": null,
+        "checkpoint_digest": null
+      }
+    },
+    {
+      "id": "review",
+      "kind": "review",
+      "state": "succeeded",
+      "authority": "verify",
+      "budget": {
+        "max_joules": 25.0,
+        "max_cost_usd": 0.0
+      },
+      "retry": {
+        "max_attempts": 1
+      },
+      "timeout_ms": 60000,
+      "idempotency_key": "run-8a00511e-a309-4838-894a-a5dcdd40f87e-review",
+      "input_digest": "objective:objective-8a00511e-a309-4838-894a-a5dcdd40f87e",
+      "output_digest": null,
+      "parent_receipts": [
+        "receipt:verify"
+      ],
+      "checkpoint": {
+        "sequence": 0,
+        "recovery_token": null,
+        "checkpoint_digest": null
+      }
+    },
+    {
+      "id": "close",
+      "kind": "close",
+      "state": "succeeded",
+      "authority": "read_only",
+      "budget": {
+        "max_joules": 25.0,
+        "max_cost_usd": 0.0
+      },
+      "retry": {
+        "max_attempts": 1
+      },
+      "timeout_ms": 60000,
+      "idempotency_key": "run-8a00511e-a309-4838-894a-a5dcdd40f87e-close",
+      "input_digest": "objective:objective-8a00511e-a309-4838-894a-a5dcdd40f87e",
+      "output_digest": null,
+      "parent_receipts": [
+        "receipt:review"
+      ],
+      "checkpoint": {
+        "sequence": 0,
+        "recovery_token": null,
+        "checkpoint_digest": null
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "plan-to-approval",
+      "from": "plan",
+      "to": "approval",
+      "parent_receipt": "receipt:plan"
+    },
+    {
+      "id": "approval-to-execute",
+      "from": "approval",
+      "to": "execute",
+      "parent_receipt": "receipt:approval"
+    },
+    {
+      "id": "execute-to-verify",
+      "from": "execute",
+      "to": "verify",
+      "parent_receipt": "receipt:execute"
+    },
+    {
+      "id": "verify-to-review",
+      "from": "verify",
+      "to": "review",
+      "parent_receipt": "receipt:verify"
+    },
+    {
+      "id": "review-to-close",
+      "from": "review",
+      "to": "close",
+      "parent_receipt": "receipt:review"
+    }
+  ],
+  "provenance": {
+    "project_contract_digest": "project:550e8400-e29b-41d4-a716-446655440010",
+    "created_by": "arda-hud-workbench",
+    "parent_receipts": []
+  }
+}

@@ -1,0 +1,24 @@
+.research-workspace { display: grid; gap: 1rem; }
+.research-toolbar, .research-section-heading, .research-watchlist-controls { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.research-toolbar p, .research-muted { color: var(--text-muted, #aab4c3); }
+.research-eyebrow, .research-section-heading span { color: var(--accent-gold, #e6b75b); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; }
+.research-panel { border: 1px solid color-mix(in srgb, var(--accent-gold, #e6b75b) 25%, transparent); padding: 1rem; background: color-mix(in srgb, var(--panel-bg, #121821) 88%, transparent); }
+.research-form { display: grid; gap: .75rem; }
+.research-form label, .research-approval-fields label { display: grid; gap: .3rem; color: var(--text-muted, #aab4c3); font-size: .78rem; }
+.research-form textarea, .research-form input, .research-approval-fields input { color: inherit; background: var(--input-bg, #0b1118); border: 1px solid color-mix(in srgb, var(--text-muted, #aab4c3) 40%, transparent); padding: .55rem; font: inherit; }
+.research-form-grid, .research-approval-fields, .research-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: .75rem; }
+.research-form button, .research-toolbar button, .research-watchlist-controls button { justify-self: start; border: 1px solid var(--accent-gold, #e6b75b); background: transparent; color: inherit; padding: .55rem .8rem; cursor: pointer; }
+.research-form button:focus-visible, .research-toolbar button:focus-visible, .research-watchlist-controls button:focus-visible, .research-citation-toggle:focus-visible, .research-brief-picker button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+.research-check { display: flex !important; grid-template-columns: auto 1fr !important; align-items: start; }
+.research-brief-picker { display: grid; gap: .5rem; }
+.research-brief-picker button { display: grid; text-align: left; gap: .25rem; color: inherit; background: transparent; border: 1px solid color-mix(in srgb, var(--text-muted, #aab4c3) 35%, transparent); padding: .65rem; cursor: pointer; }
+.research-brief-picker button[aria-selected="true"] { border-color: var(--accent-gold, #e6b75b); }
+.research-brief-picker small, .research-state small, .research-citation-toggle small { color: var(--text-muted, #aab4c3); }
+.research-summary { font-size: 1rem; line-height: 1.5; }
+.research-state-legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: .5rem; }
+.research-state { display: grid; gap: .2rem; padding: .55rem; border-left: 3px solid currentColor; background: color-mix(in srgb, currentColor 8%, transparent); }
+.research-state--positive { color: #79d6a5; }.research-state--warning { color: #e6b75b; }.research-state--danger { color: #ff8c8c; }.research-state--neutral { color: #b6c2d2; }
+.research-metrics { margin: 1rem 0; }.research-metrics div { display: grid; gap: .2rem; }.research-metrics dt { color: var(--text-muted, #aab4c3); font-size: .72rem; text-transform: uppercase; }.research-metrics dd { margin: 0; }
+.research-citations { border-top: 1px solid color-mix(in srgb, var(--text-muted, #aab4c3) 25%, transparent); padding-top: .8rem; }.research-citation-list { display: grid; gap: .4rem; padding: 0; list-style: none; }.research-citation-toggle { width: 100%; display: flex; justify-content: space-between; text-align: left; color: inherit; background: transparent; border: 1px solid color-mix(in srgb, var(--text-muted, #aab4c3) 25%, transparent); padding: .6rem; cursor: pointer; }.research-citation-toggle span:first-child { display: grid; gap: .2rem; }.research-citation-detail { display: grid; gap: .5rem; padding: .7rem; background: color-mix(in srgb, var(--text-muted, #aab4c3) 8%, transparent); }.research-citation-detail blockquote { margin: 0; border-left: 2px solid var(--accent-gold, #e6b75b); padding-left: .7rem; }.research-error { color: #ff8c8c; }.research-approval-fields { border-top: 1px solid color-mix(in srgb, var(--text-muted, #aab4c3) 25%, transparent); padding-top: .8rem; }
+@media (prefers-reduced-motion: reduce) { .research-workspace *, .research-workspace *::before, .research-workspace *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+@media (prefers-contrast: more) { .research-panel, .research-brief-picker button, .research-citation-toggle { border-width: 2px; } }

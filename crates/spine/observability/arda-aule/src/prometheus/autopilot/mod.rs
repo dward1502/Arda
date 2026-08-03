@@ -29,36 +29,36 @@ pub mod taxonomy;
 pub mod validator;
 
 pub use a2h::{
-    H2AProcessReport, HumanApprovedObjective, PendingAuthorization, PendingAuthorizationStatus,
     append_pending_authorization, authorize_for_escalation, authorize_for_escalation_with_id,
-    process_h2a_responses, write_message,
+    process_h2a_responses, write_message, H2AProcessReport, HumanApprovedObjective,
+    PendingAuthorization, PendingAuthorizationStatus,
 };
-pub use bootstrap::{LoadedDefaults, load_defaults, load_registry_from_world};
+pub use bootstrap::{load_defaults, load_registry_from_world, LoadedDefaults};
 pub use core_executor_bridge::{
-    Dispatch, ExecutionStatus, dispatch as executor_dispatch,
-    dispatch_with_conditions as executor_dispatch_with_conditions,
+    dispatch as executor_dispatch, dispatch_with_conditions as executor_dispatch_with_conditions,
+    Dispatch, ExecutionStatus,
 };
 pub use dashboard::{Alert, AlertSeverity, DashboardSnapshot};
 pub use decomposer::{Objective, ObjectiveDecomposer, PlannedTask, Priority};
 pub use delegation::{
-    AgentCapabilities, AgentRegistry, Delegation, DelegationReport, delegate_plan,
+    delegate_plan, AgentCapabilities, AgentRegistry, Delegation, DelegationReport,
 };
-pub use evidence_registry::{EVIDENCE_REGISTRY_CONTRACT, EvidenceRecord, EvidenceRegistry};
+pub use evidence_registry::{EvidenceRecord, EvidenceRegistry, EVIDENCE_REGISTRY_CONTRACT};
 pub use knowledge_triage::{
-    AutonomyLane, KNOWLEDGE_ACTIONABLE_REVIEW_GATE, KNOWLEDGE_ACTIONABLE_REVIEW_SCHEMA,
-    KNOWLEDGE_SAFE_LOCAL_PROMOTION_GATE, KNOWLEDGE_TASK_EXECUTION_RECEIPT_SCHEMA,
-    KNOWLEDGE_TASK_PROMOTION_RECEIPT_SCHEMA, KnowledgeActionableReviewRecord,
-    KnowledgeClassification, KnowledgeExecutionDecision, KnowledgeTaskExecutionReceipt,
-    KnowledgeTaskExecutionReport, KnowledgeTaskPromotionReceipt, KnowledgeTaskPromotionReport,
-    KnowledgeTriageConfig, KnowledgeTriageRecord, KnowledgeTriageReport, PromotionDecision,
     classify_knowledge_source, execute_knowledge_task_queue, promote_knowledge_tasks,
-    run_knowledge_triage,
+    run_knowledge_triage, AutonomyLane, KnowledgeActionableReviewRecord, KnowledgeClassification,
+    KnowledgeExecutionDecision, KnowledgeTaskExecutionReceipt, KnowledgeTaskExecutionReport,
+    KnowledgeTaskPromotionReceipt, KnowledgeTaskPromotionReport, KnowledgeTriageConfig,
+    KnowledgeTriageRecord, KnowledgeTriageReport, PromotionDecision,
+    KNOWLEDGE_ACTIONABLE_REVIEW_GATE, KNOWLEDGE_ACTIONABLE_REVIEW_SCHEMA,
+    KNOWLEDGE_SAFE_LOCAL_PROMOTION_GATE, KNOWLEDGE_TASK_EXECUTION_RECEIPT_SCHEMA,
+    KNOWLEDGE_TASK_PROMOTION_RECEIPT_SCHEMA,
 };
 pub use learning::{LearningState, LearningStore, OutcomeStats};
 pub use learning_consumer::{
-    LearningConsumerError, LearningConsumptionReceipt, LearningCycleInput, LearningCycleMetrics,
-    LearningCycleReceipt, LearningCycleReport, LearningDisposition, LearningLoopPolicy,
-    LearningLoopSwitches, consume_approved_delta, emit_research_suggestion, run_learning_cycle,
+    consume_approved_delta, emit_research_suggestion, run_learning_cycle, LearningConsumerError,
+    LearningConsumptionReceipt, LearningCycleInput, LearningCycleMetrics, LearningCycleReceipt,
+    LearningCycleReport, LearningDisposition, LearningLoopPolicy, LearningLoopSwitches,
 };
 pub use oracle_gate::{GateDecision, OracleGate};
 pub use outcomes::{ObservedCursor, OutcomeObserver};
@@ -70,13 +70,13 @@ pub use queue_writer::{
 };
 pub use reporting::write_daily_report;
 pub use runner::{
-    AutonomyPreflightReport, AutonomyPreflightSummary, AutopilotConfig, CeoAutopilot, CycleReport,
-    PlanCycle, ceo_loop, inspect_autonomy_preflight, write_autonomy_preflight,
+    ceo_loop, inspect_autonomy_preflight, write_autonomy_preflight, AutonomyPreflightReport,
+    AutonomyPreflightSummary, AutopilotConfig, CeoAutopilot, CycleReport, PlanCycle,
 };
 pub use service_health::{
     ServiceHealth, ServiceHealthMonitor, ServiceHealthReport, SystemdQuery, UserSystemd,
 };
-pub use source_registry::{SOURCE_REGISTRY_CONTRACT, SourceDescriptor, SourceRegistry};
+pub use source_registry::{SourceDescriptor, SourceRegistry, SOURCE_REGISTRY_CONTRACT};
 pub use task_queue::{QueueRecord, TaskQueueAnalyzer, TaskQueueMetrics};
-pub use taxonomy::{CANONICAL_TYPES, canonical, is_apollo_dispatchable};
+pub use taxonomy::{canonical, is_apollo_dispatchable, CANONICAL_TYPES};
 pub use validator::{PlanValidator, ValidationResult};

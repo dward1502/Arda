@@ -15,6 +15,7 @@ members = [
     "crates/spine/executors/arda-varda",
     "outposts/arda-outpost-protocol",
     "outposts/arda-outpost-scout",
+    "outposts/arda-relic-bridge",
     "sdk/rust",
 ]
 default-members = [
@@ -31,6 +32,7 @@ default-members = [
     "crates/spine/executors/arda-varda",
     "outposts/arda-outpost-protocol",
     "outposts/arda-outpost-scout",
+    "outposts/arda-relic-bridge",
 ]
 exclude = []
 

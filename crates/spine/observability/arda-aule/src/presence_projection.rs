@@ -6,6 +6,7 @@
 
 use chrono::{DateTime, Duration as ChronoDuration, Utc};
 use serde::Serialize;
+use sha2::{Digest, Sha256};
 
 #[allow(unused_imports)]
 use arda_outpost_protocol::presence::{
@@ -93,11 +94,19 @@ pub struct EdgePresence {
 /// Unknown, stale, or malformed inputs reduce confidence and can fall back to
 /// `IdleDegraded` scene states instead of inventing runtime motion.
 pub fn build_presence_projection(inputs: ProjectionInputs) -> RuntimePresenceProjection {
-    let now = fixed_utc_now();
+    build_presence_projection_at(inputs, fixed_utc_now())
+}
+
+/// Build a projection with an injected clock for runtime and deterministic tests.
+pub fn build_presence_projection_at(
+    mut inputs: ProjectionInputs,
+    now: DateTime<Utc>,
+) -> RuntimePresenceProjection {
+    canonicalize_inputs(&mut inputs);
     let valid_until = now + ChronoDuration::seconds(30);
 
     if inputs.is_empty() {
-        return empty_projection(now, valid_until);
+        return empty_projection(&inputs, now, valid_until);
     }
 
     let mut nodes = Vec::with_capacity(inputs.services.len() + inputs.agents.len());
@@ -108,12 +117,13 @@ pub fn build_presence_projection(inputs: ProjectionInputs) -> RuntimePresencePro
         nodes.push(node_from_agent(agent));
     }
 
+    let projection_id = projection_id(&inputs, now);
     let mut source_receipt_refs = inputs.source_receipt_refs;
     source_receipt_refs.sort_unstable();
     source_receipt_refs.dedup();
 
     RuntimePresenceProjection {
-        projection_id: "arda-runtime-presence-001".to_string(),
+        projection_id,
         schema_version: RUNTIME_PRESENCE_SCHEMA_VERSION.to_string(),
         generated_at: now,
         valid_until,
@@ -122,6 +132,25 @@ pub fn build_presence_projection(inputs: ProjectionInputs) -> RuntimePresencePro
         source_receipt_refs,
         redaction_class: RedactionClass::PublicOperational,
     }
+}
+
+fn canonicalize_inputs(inputs: &mut ProjectionInputs) {
+    inputs
+        .services
+        .sort_by(|left, right| left.id.cmp(&right.id));
+    inputs.agents.sort_by(|left, right| left.id.cmp(&right.id));
+    inputs.edges.sort_by(|left, right| left.id.cmp(&right.id));
+    inputs.source_receipt_refs.sort();
+    inputs.source_receipt_refs.dedup();
+}
+
+fn projection_id(inputs: &ProjectionInputs, now: DateTime<Utc>) -> String {
+    let material = serde_json::json!({
+        "inputs": inputs,
+        "clock": now.to_rfc3339(),
+    });
+    let digest = Sha256::digest(serde_json::to_vec(&material).expect("presence inputs serialize"));
+    format!("arda-runtime-presence-{:x}", digest)
 }
 
 fn node_from_service(service: &ServicePresence) -> PresenceNode {
@@ -170,9 +199,13 @@ fn node_from_agent(agent: &AgentPresence) -> PresenceNode {
     }
 }
 
-fn empty_projection(now: DateTime<Utc>, valid_until: DateTime<Utc>) -> RuntimePresenceProjection {
+fn empty_projection(
+    inputs: &ProjectionInputs,
+    now: DateTime<Utc>,
+    valid_until: DateTime<Utc>,
+) -> RuntimePresenceProjection {
     RuntimePresenceProjection {
-        projection_id: "arda-runtime-presence-empty".to_string(),
+        projection_id: projection_id(inputs, now),
         schema_version: RUNTIME_PRESENCE_SCHEMA_VERSION.to_string(),
         generated_at: now,
         valid_until,

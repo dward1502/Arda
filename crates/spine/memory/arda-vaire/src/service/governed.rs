@@ -161,21 +161,19 @@ mod tests {
                 .len(),
             1
         );
-        assert!(
-            service
-                .ingest_approved_delta(ApprovedKnowledgeDelta {
-                    approval_reference: String::new(),
-                    ..ApprovedKnowledgeDelta {
-                        delta_id: "raw".into(),
-                        source_reference: "src".into(),
-                        warden_observation_id: "obs".into(),
-                        varda_evaluation_id: "eval".into(),
-                        approval_reference: "".into(),
-                        content: "raw".into(),
-                        correction_of: None,
-                    }
-                })
-                .is_err()
-        );
+        assert!(service
+            .ingest_approved_delta(ApprovedKnowledgeDelta {
+                approval_reference: String::new(),
+                ..ApprovedKnowledgeDelta {
+                    delta_id: "raw".into(),
+                    source_reference: "src".into(),
+                    warden_observation_id: "obs".into(),
+                    varda_evaluation_id: "eval".into(),
+                    approval_reference: "".into(),
+                    content: "raw".into(),
+                    correction_of: None,
+                }
+            })
+            .is_err());
     }
 }

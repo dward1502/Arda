@@ -246,8 +246,6 @@ mod tests {
             Some("system_continuity")
         );
 
-
-
         let stats = send_command(socket_path, "stats", json!({}))
             .await
             .expect("stats");

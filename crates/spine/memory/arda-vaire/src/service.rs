@@ -1,4 +1,4 @@
-use crate::significance::{SignificanceResult, classify_significance, evaluate_significance};
+use crate::significance::{classify_significance, evaluate_significance, SignificanceResult};
 use arda_core::error::{ArdaError, Result};
 use arda_economics::{JouleWorkUnit, PlutusService};
 use chrono::{DateTime, Duration, Utc};
@@ -439,7 +439,7 @@ impl MnemosyneService {
 #[cfg(test)]
 mod tests {
     use super::governed;
-    use super::{InformantEvent, MnemosyneService, store::append_jsonl};
+    use super::{store::append_jsonl, InformantEvent, MnemosyneService};
     use arda_economics::PlutusService;
     use chrono::Utc;
     use std::fs;
@@ -569,11 +569,9 @@ mod tests {
         }
         let content = fs::read_to_string(&path).expect("read");
         assert_eq!(content.lines().count(), 200);
-        assert!(
-            content
-                .lines()
-                .all(|line| serde_json::from_str::<serde_json::Value>(line).is_ok())
-        );
+        assert!(content
+            .lines()
+            .all(|line| serde_json::from_str::<serde_json::Value>(line).is_ok()));
     }
 
     #[test]
@@ -707,11 +705,9 @@ mod tests {
         assert!((0.0..=1.0).contains(&relevant[0].trust));
         let metrics = svc.observability_snapshot();
         assert_eq!(metrics.recall_requests_total, 1);
-        assert!(
-            metrics
-                .last_recall_fidelity
-                .is_some_and(|value| value > 0.0)
-        );
+        assert!(metrics
+            .last_recall_fidelity
+            .is_some_and(|value| value > 0.0));
     }
 
     #[test]
@@ -1152,11 +1148,9 @@ mod tests {
                 .expect("promotion receipts");
         for line in receipts.lines() {
             let value: serde_json::Value = serde_json::from_str(line).expect("receipt json");
-            assert!(
-                value["approval_references"]
-                    .as_array()
-                    .is_some_and(|references| !references.is_empty())
-            );
+            assert!(value["approval_references"]
+                .as_array()
+                .is_some_and(|references| !references.is_empty()));
         }
     }
 

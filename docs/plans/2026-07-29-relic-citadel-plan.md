@@ -26,7 +26,7 @@ RELIC may display lifecycle, health, run/task correlation, handoffs, bounded res
 
 - `crates/spine/observability/arda-aule/src/presence_projection.rs` now builds a deterministic sanitized projection and has stale/unknown-input tests.
 - `crates/engine/src/harness/presence.rs` now exposes `GET /v1/presence/snapshot` and `GET /v1/presence/events`; `crates/engine/tests/harness_presence.rs` covers loopback and a capability-shaped remote path.
-- The current producer is not live-ready: it uses a fixed timestamp/projection ID, `current_inputs()` always returns empty vectors, `HarnessPresenceState::update_inputs` is a no-op, and remote enrollment is hard-coded rather than loaded from canonical identity/capability state.
+- RC-1 is now partially closed: projection IDs are derived from canonicalized inputs plus an injected clock; `HarnessPresenceState` stores the latest bounded inputs; and snapshot/SSE routes publish that state. Remote enrollment remains hard-coded and is still an explicit fail-closed follow-up.
 - No repository-owned RELIC bridge crate, RELIC systemd unit, deploy/verify helper, or canonical `apps/relic` renderer exists.
 - The external CITADEL sidecar remains independently recoverable and still consumes the legacy scripted scene contract; its operational state must be reverified immediately before deployment work.
 
@@ -47,13 +47,15 @@ Stage 4 Workbench acceptance does not imply RELIC/CITADEL completion. Presence w
 
 **Files:** `arda-aule/src/presence_projection.rs`, `arda-engine/src/harness/presence.rs`, harness state/identity integration, and focused tests
 
-- [ ] Replace fixed time/ID generation with deterministic IDs derived from canonical input receipts plus an injected/testable clock.
-- [ ] Feed bounded engine service, run graph, approval/handoff, provider, and resource inputs into stored `HarnessPresenceState`.
-- [ ] Make `update_inputs` persist the latest bounded snapshot and make snapshot/SSE routes publish that state rather than empty fixtures.
+- [x] Replace fixed time/ID generation with deterministic IDs derived from canonical input receipts plus an injected/testable clock.
+- [x] Feed bounded engine service, run graph, approval/handoff, provider, and resource inputs into stored `HarnessPresenceState`.
+- [x] Make `update_inputs` persist the latest bounded snapshot and make snapshot/SSE routes publish that state rather than empty fixtures.
 - [ ] Load enrolled outpost identity, `presence.read` capability, revocation, and allowed network posture from canonical contracts; remove hard-coded bearer authority.
-- [ ] Prove stale/missing inputs reduce confidence and scene state instead of inventing nodes, edges, or motion.
+- [x] Prove stale/missing inputs reduce confidence and scene state instead of inventing nodes, edges, or motion.
 
 **Acceptance:** fixed receipts produce a deterministic projection; live harness input changes produce fresh snapshots/events; revoked, stale, malformed, or unauthorized callers fail closed.
+
+**Evidence (2026-08-03):** `cargo test -p arda-aule presence_projection --all-features -- --test-threads=1` passed 7 tests; `cargo test -p arda-engine --test harness_presence -- --test-threads=1` passed 6 tests, including `presence_snapshot_publishes_updated_live_inputs`. Identity enrollment/revocation loading remains open.
 
 ### RC-2 — Add the Arda-owned read-only RELIC bridge
 
@@ -64,11 +66,13 @@ Stage 4 Workbench acceptance does not imply RELIC/CITADEL completion. Presence w
 
 **Open work**
 
-- [ ] Consume only `arda.runtime-presence.v1` through `presence.read`.
-- [ ] Validate schema, time window, redaction class, source receipts, and monotonic snapshot sequence.
-- [ ] Cache the last valid sanitized snapshot atomically and expose its age.
-- [ ] On network loss, show last-valid timestamp and transition to idle-degraded after expiry.
+- [x] Consume only `arda.runtime-presence.v1` through `presence.read`.
+- [x] Validate schema, time window, redaction class, source receipts, and monotonic snapshot sequence.
+- [x] Cache the last valid sanitized snapshot atomically and expose its age.
+- [x] On network loss, show last-valid timestamp and transition to idle-degraded after expiry.
 - [ ] Emit the external sidecar's scene adapter as a protocol boundary without copying or modifying unlicensed source.
+
+**Evidence (2026-08-03):** Added `outposts/arda-relic-bridge`. `cargo test -p arda-relic-bridge --all-features -- --test-threads=1` passed 3 tests covering valid receipt acceptance/age, monotonic sequence rejection, expiry to `idle_degraded`, strict unknown-field rejection, and unverifiable receipt rejection. Renderer/sidecar adapter emission remains open.
 
 ### RC-3 — Canonical presentation semantics
 

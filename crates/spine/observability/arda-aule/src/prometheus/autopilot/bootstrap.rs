@@ -3,8 +3,8 @@
 //! Wire boot.toml + world.json into autopilot config and registry.
 
 use super::delegation::{AgentCapabilities, AgentRegistry};
-use crate::prometheus::AgentRosterSnapshot;
 use crate::prometheus::core_link::CoreAutonomyProfile;
+use crate::prometheus::AgentRosterSnapshot;
 use std::collections::BTreeMap;
 use std::path::Path;
 

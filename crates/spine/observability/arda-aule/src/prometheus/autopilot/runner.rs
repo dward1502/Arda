@@ -3,16 +3,16 @@
 //! Main autonomous CEO loop with Oracle gate + Apollo execution + A2H escalation.
 
 use super::a2h::{
-    H2AProcessReport, HumanApprovedObjective, append_pending_authorization,
-    authorize_for_escalation_with_id, process_h2a_responses, write_message,
+    append_pending_authorization, authorize_for_escalation_with_id, process_h2a_responses,
+    write_message, H2AProcessReport, HumanApprovedObjective,
 };
-use super::bootstrap::{LoadedDefaults, load_defaults, load_registry_from_world};
+use super::bootstrap::{load_defaults, load_registry_from_world, LoadedDefaults};
 use super::core_executor_bridge::{
-    CoreExecutorClient, Dispatch, ExecutionStatus, dispatch_with_conditions as executor_dispatch,
+    dispatch_with_conditions as executor_dispatch, CoreExecutorClient, Dispatch, ExecutionStatus,
 };
-use super::dashboard::{DashboardSnapshot, build_snapshot};
+use super::dashboard::{build_snapshot, DashboardSnapshot};
 use super::decomposer::{Objective, ObjectiveDecomposer, PlannedTask, Priority};
-use super::delegation::{AgentRegistry, DelegationReport, delegate_plan};
+use super::delegation::{delegate_plan, AgentRegistry, DelegationReport};
 use super::evidence_registry::EvidenceRegistry;
 use super::governance_policy::{GovernanceDecision, GovernanceGate, GovernancePolicy};
 use super::learning::LearningStore;
@@ -20,10 +20,10 @@ use super::oracle_gate::{GateDecision, OracleGate};
 use super::outcomes::OutcomeObserver;
 use super::pipeline_bridge::submit_plan as submit_plan_to_pipeline;
 use super::planner::{
-    ObjectivePacket, ObjectivePacketInput, ObjectivePacketReport, acceptance_criteria_from_report,
-    source_contract_and_type_for_path,
+    acceptance_criteria_from_report, source_contract_and_type_for_path, ObjectivePacket,
+    ObjectivePacketInput, ObjectivePacketReport,
 };
-use super::queue_operation::{QueueOperation, QueueOperationStatus, append_approved_packet_plan};
+use super::queue_operation::{append_approved_packet_plan, QueueOperation, QueueOperationStatus};
 use super::queue_writer::append_apollo_dispatch_attempt_to_queue;
 use super::reporting::{write_daily_report, write_weekly_report};
 use super::service_health::{ServiceHealthMonitor, ServiceHealthReport, UserSystemd};
@@ -38,8 +38,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 use std::time::Duration;
 
 #[derive(Debug, Clone)]
@@ -1868,7 +1868,11 @@ impl CeoAutopilot {
 }
 
 fn clean_zero(value: f64) -> f64 {
-    if value == 0.0 { 0.0 } else { value }
+    if value == 0.0 {
+        0.0
+    } else {
+        value
+    }
 }
 
 struct CycleObjective {
@@ -2968,12 +2972,10 @@ status = "active_subordinate"
             load_sovereign_adapters(dir.path(), &cfg, &[], &H2AProcessReport::default());
 
         assert!(!projection.source_available);
-        assert!(
-            projection
-                .error
-                .as_deref()
-                .is_some_and(|error| error.contains("ambiguous_autonomy_config_paths"))
-        );
+        assert!(projection
+            .error
+            .as_deref()
+            .is_some_and(|error| error.contains("ambiguous_autonomy_config_paths")));
     }
 
     #[tokio::test]
@@ -2997,13 +2999,11 @@ status = "active_subordinate"
             "hades_cleanup_approval_packets_missing",
             "athena_external_source_lane_ledger_missing",
         ] {
-            assert!(
-                report
-                    .autonomy_readiness
-                    .reasons
-                    .iter()
-                    .any(|item| item == reason)
-            );
+            assert!(report
+                .autonomy_readiness
+                .reasons
+                .iter()
+                .any(|item| item == reason));
         }
         for path in [
             "data/prometheus/autonomy_operating_loop_preflight.json",
@@ -3047,11 +3047,10 @@ status = "active_subordinate"
         let gate = load_autonomy_readiness_gate(dir.path(), &hades, &sovereign, &council);
 
         assert_eq!(gate.decision, "hold");
-        assert!(
-            gate.reasons
-                .iter()
-                .any(|reason| reason == "autonomy_preflight_stale")
-        );
+        assert!(gate
+            .reasons
+            .iter()
+            .any(|reason| reason == "autonomy_preflight_stale"));
     }
 
     #[test]
@@ -3088,11 +3087,10 @@ default_policy = "ledger_before_task"
         assert_eq!(report.summary.lane_count, 1);
         assert_eq!(report.summary.lane_incomplete_count, 0);
         assert!(!report.task_promotion_allowed);
-        assert!(
-            !dir.path()
-                .join("data/prometheus/autonomy_operating_loop_preflight.json")
-                .exists()
-        );
+        assert!(!dir
+            .path()
+            .join("data/prometheus/autonomy_operating_loop_preflight.json")
+            .exists());
     }
 
     #[test]
@@ -3261,13 +3259,11 @@ default_policy = "ledger_before_task"
             report.objective_selection.candidates[0].review_gate,
             super::super::governance_policy::GovernanceGate::HumanRequired
         );
-        assert!(
-            report.objective_selection.candidates[0]
-                .rejection_reason
-                .as_deref()
-                .unwrap_or_default()
-                .starts_with("blocked_by_gate:HumanRequired:")
-        );
+        assert!(report.objective_selection.candidates[0]
+            .rejection_reason
+            .as_deref()
+            .unwrap_or_default()
+            .starts_with("blocked_by_gate:HumanRequired:"));
         assert_eq!(
             std::fs::read_to_string(&cfg.queue_path).unwrap_or_default(),
             ""
@@ -3315,13 +3311,11 @@ default_policy = "ledger_before_task"
             report.objective_selection.candidates[0].review_gate,
             super::super::governance_policy::GovernanceGate::TriadQuorumRequired
         );
-        assert!(
-            report.objective_selection.candidates[0]
-                .rejection_reason
-                .as_deref()
-                .unwrap_or_default()
-                .starts_with("blocked_by_gate:TriadQuorumRequired:")
-        );
+        assert!(report.objective_selection.candidates[0]
+            .rejection_reason
+            .as_deref()
+            .unwrap_or_default()
+            .starts_with("blocked_by_gate:TriadQuorumRequired:"));
         assert_eq!(
             std::fs::read_to_string(&cfg.queue_path).unwrap_or_default(),
             ""
@@ -3474,11 +3468,9 @@ default_policy = "ledger_before_task"
         assert_eq!(report.objectives_considered, 0);
         assert_eq!(report.objectives_selected, 0);
         assert!(report.selected_objective_id.is_none());
-        assert!(
-            report
-                .next_recommended_action
-                .contains("add a bounded objective")
-        );
+        assert!(report
+            .next_recommended_action
+            .contains("add a bounded objective"));
     }
 
     #[test]
@@ -3544,13 +3536,11 @@ default_policy = "ledger_before_task"
             report.candidates[0].review_gate,
             super::super::governance_policy::GovernanceGate::HadesReviewRequired
         );
-        assert!(
-            report.candidates[0]
-                .rejection_reason
-                .as_deref()
-                .unwrap_or_default()
-                .starts_with("blocked_by_gate:HadesReviewRequired:")
-        );
+        assert!(report.candidates[0]
+            .rejection_reason
+            .as_deref()
+            .unwrap_or_default()
+            .starts_with("blocked_by_gate:HadesReviewRequired:"));
     }
 
     #[test]
@@ -3592,13 +3582,11 @@ default_policy = "ledger_before_task"
             report.candidates[0].review_gate,
             super::super::governance_policy::GovernanceGate::ReviewRequired
         );
-        assert!(
-            report.candidates[0]
-                .rejection_reason
-                .as_deref()
-                .unwrap_or_default()
-                .contains("Arandur recommendation requires operator review")
-        );
+        assert!(report.candidates[0]
+            .rejection_reason
+            .as_deref()
+            .unwrap_or_default()
+            .contains("Arandur recommendation requires operator review"));
     }
 
     #[test]
@@ -3633,15 +3621,13 @@ default_policy = "ledger_before_task"
             report.candidates[0].blocked_reason_code.as_deref(),
             Some("operator_approval_packet_missing")
         );
-        assert!(
-            report
-                .blocked_candidate_groups
-                .iter()
-                .any(
-                    |group| group.reason_code == "operator_approval_packet_missing"
-                        && group.governance_class == "arandur_recommendation"
-                )
-        );
+        assert!(report
+            .blocked_candidate_groups
+            .iter()
+            .any(
+                |group| group.reason_code == "operator_approval_packet_missing"
+                    && group.governance_class == "arandur_recommendation"
+            ));
     }
 
     #[test]
@@ -3824,13 +3810,11 @@ default_policy = "ledger_before_task"
             assert!(candidate.completion_receipt_path.as_deref().is_some_and(|path| {
                 path.ends_with("audit/ARANDUR_OPERATOR_APPROVED_CANDIDATES_EXECUTION_2026-05-21/execution_receipt.json")
             }));
-            assert!(
-                candidate
-                    .rejection_reason
-                    .as_deref()
-                    .unwrap_or_default()
-                    .contains("recognized_completed")
-            );
+            assert!(candidate
+                .rejection_reason
+                .as_deref()
+                .unwrap_or_default()
+                .contains("recognized_completed"));
         }
     }
 
@@ -3883,12 +3867,10 @@ default_policy = "ledger_before_task"
         assert_eq!(report.status, "blocked");
         assert_eq!(report.objectives_considered, 2);
         assert_eq!(report.objectives_blocked_by_gate, 1);
-        assert!(
-            !report
-                .candidates
-                .iter()
-                .any(|candidate| candidate.source_record_id == "open-arda")
-        );
+        assert!(!report
+            .candidates
+            .iter()
+            .any(|candidate| candidate.source_record_id == "open-arda"));
         assert!(report.candidates.iter().any(|candidate| {
             candidate.source_record_id == "approved-arda"
                 && candidate.governance_class == "operator_approved_executed"

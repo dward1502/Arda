@@ -23,18 +23,34 @@ use axum::{
 };
 use reqwest::header::AUTHORIZATION;
 use serde::Serialize;
-use tokio::time::interval;
+use tokio::{sync::RwLock, time::interval};
 use tracing::warn;
 
 use crate::harness::HarnessState;
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Clone)]
 pub struct HarnessPresenceState {
     sequence: Arc<AtomicUsize>,
+    inputs: Arc<RwLock<ProjectionInputs>>,
 }
 
 impl HarnessPresenceState {
-    pub async fn update_inputs(&self, _inputs: ProjectionInputs) {}
+    pub async fn update_inputs(&self, inputs: ProjectionInputs) {
+        *self.inputs.write().await = inputs;
+    }
+
+    pub async fn read_inputs(&self) -> ProjectionInputs {
+        self.inputs.read().await.clone()
+    }
+}
+
+impl Default for HarnessPresenceState {
+    fn default() -> Self {
+        Self {
+            sequence: Arc::new(AtomicUsize::new(0)),
+            inputs: Arc::new(RwLock::new(ProjectionInputs::empty())),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -69,7 +85,7 @@ pub async fn presence_snapshot(
         return not_authorized().into_response();
     }
 
-    let projector = build_presence_projection(current_inputs());
+    let projector = build_presence_projection(harness.presence_inputs.read_inputs().await);
     let snapshot_sequence = next_sequence(&harness.presence_inputs).await;
 
     let response = PresenceSnapshotResponse {
@@ -97,7 +113,7 @@ pub async fn presence_events(
     let stream = async_stream::stream! {
         loop {
             let _ = ticker.tick().await;
-            let projector = build_presence_projection(current_inputs());
+            let projector = build_presence_projection(harness.presence_inputs.read_inputs().await);
             sequence += 1;
 
             let event = match axum::response::sse::Event::default()
@@ -224,15 +240,6 @@ fn not_authorized() -> (StatusCode, axum::Json<serde_json::Value>) {
             serde_json::json!({"error": "enrolled outpost identity and presence.read capability required"}),
         ),
     )
-}
-
-fn current_inputs() -> ProjectionInputs {
-    ProjectionInputs {
-        services: vec![],
-        agents: vec![],
-        edges: vec![],
-        source_receipt_refs: vec![],
-    }
 }
 
 async fn next_sequence(state: &HarnessPresenceState) -> usize {

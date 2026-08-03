@@ -175,7 +175,7 @@ pub fn blocked_summaries(operations: &[QueueOperation]) -> Vec<QueueOperationBlo
 mod tests {
     use super::super::decomposer::Priority;
     use super::super::governance_policy::GovernanceGate;
-    use super::super::planner::{OBJECTIVE_PACKET_CONTRACT, ObjectivePacketInput};
+    use super::super::planner::{ObjectivePacketInput, OBJECTIVE_PACKET_CONTRACT};
     use super::super::source_registry::ArandurSourceType;
     use super::*;
 
@@ -341,10 +341,8 @@ mod tests {
         assert!(summaries.iter().any(|summary| {
             summary.reason_code == "operator_approval_packet_missing" && summary.count == 2
         }));
-        assert!(
-            summaries
-                .iter()
-                .any(|summary| { summary.reason_code == "read_only_mode" && summary.count == 1 })
-        );
+        assert!(summaries
+            .iter()
+            .any(|summary| { summary.reason_code == "read_only_mode" && summary.count == 1 }));
     }
 }

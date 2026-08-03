@@ -23,6 +23,7 @@ use tracing::{info, warn};
 pub mod presence;
 mod projects;
 mod research;
+mod research_operator;
 mod runs;
 
 /// Default harness bind address.
@@ -83,6 +84,36 @@ fn router(state: HarnessState) -> axum::Router {
         .route("/v1/scout/search", post(scout_search))
         .route("/v1/scout/recall", post(scout_recall))
         .route("/v1/research/brief", post(research::create_brief))
+        .route(
+            "/v1/research/questions",
+            post(research_operator::create_question).get(research_operator::list_questions),
+        )
+        .route(
+            "/v1/research/questions/:id",
+            get(research_operator::get_question),
+        )
+        .route(
+            "/v1/research/watchlists",
+            post(research_operator::create_watchlist).get(research_operator::list_watchlists),
+        )
+        .route(
+            "/v1/research/watchlists/:id",
+            get(research_operator::get_watchlist),
+        )
+        .route(
+            "/v1/research/watchlists/:id/pause",
+            post(research_operator::pause_watchlist),
+        )
+        .route(
+            "/v1/research/watchlists/:id/resume",
+            post(research_operator::resume_watchlist),
+        )
+        .route(
+            "/v1/research/watchlists/:id/retire",
+            post(research_operator::retire_watchlist),
+        )
+        .route("/v1/research/briefs", get(research_operator::list_briefs))
+        .route("/v1/research/briefs/:id", get(research_operator::get_brief))
         .route("/v1/harness", get(harness_info))
         .route("/v1/projects/validate", post(projects::validate_project))
         .route("/v1/projects/attach", post(projects::attach_project))
@@ -264,6 +295,9 @@ async fn harness_info(State(st): State<HarnessState>) -> impl IntoResponse {
                 "/v1/scout/search",
                 "/v1/scout/recall",
                 "/v1/research/brief",
+                "/v1/research/questions",
+                "/v1/research/watchlists",
+                "/v1/research/briefs",
                 "/v1/harness"
             ],
         })),

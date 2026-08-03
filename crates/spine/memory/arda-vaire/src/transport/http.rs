@@ -263,7 +263,6 @@ mod tests {
         assert_eq!(memories[0]["source_crate"].as_str(), Some("prometheus"));
     }
 
-
     #[test]
     fn event_payload_includes_continuity_sections() {
         let dir = tempdir().expect("tempdir");

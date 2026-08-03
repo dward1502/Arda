@@ -528,7 +528,11 @@ fn u64_field(row: &serde_json::Value, key: &str) -> u64 {
 
 fn f64_field(row: &serde_json::Value, key: &str) -> f64 {
     let value = row.get(key).and_then(|value| value.as_f64()).unwrap_or(0.0);
-    if value == 0.0 { 0.0 } else { value }
+    if value == 0.0 {
+        0.0
+    } else {
+        value
+    }
 }
 
 #[cfg(test)]

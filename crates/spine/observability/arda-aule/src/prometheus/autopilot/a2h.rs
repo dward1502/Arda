@@ -336,11 +336,9 @@ mod tests {
         assert_eq!(approved[0].conditions, vec!["watch logs".to_string()]);
         assert_eq!(report.responses_processed, 1);
         assert_eq!(report.objectives_resumed, 1);
-        assert!(
-            std::fs::read_to_string(&pending)
-                .unwrap()
-                .contains("\"status\":\"resumed\"")
-        );
+        assert!(std::fs::read_to_string(&pending)
+            .unwrap()
+            .contains("\"status\":\"resumed\""));
     }
 
     #[test]

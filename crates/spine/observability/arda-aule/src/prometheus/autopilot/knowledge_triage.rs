@@ -1827,12 +1827,10 @@ mod tests {
         assert!(!report.artifacts_written);
         assert!(!cfg.inventory_path.exists());
         assert!(!cfg.registry_path.exists());
-        assert!(
-            report
-                .registry_records
-                .iter()
-                .all(|record| !record.mutate_task_queue)
-        );
+        assert!(report
+            .registry_records
+            .iter()
+            .all(|record| !record.mutate_task_queue));
     }
 
     #[test]
@@ -1842,11 +1840,10 @@ mod tests {
         let cfg = KnowledgeTriageConfig::for_root(&root);
 
         assert!(cfg.source_roots.iter().all(|path| path.starts_with(&root)));
-        assert!(
-            !cfg.source_roots
-                .iter()
-                .any(|path| path.ends_with("Eregion"))
-        );
+        assert!(!cfg
+            .source_roots
+            .iter()
+            .any(|path| path.ends_with("Eregion")));
     }
 
     #[test]
@@ -1982,12 +1979,10 @@ Next step: add tests for existing crate.",
         assert!(!report.artifacts_written);
         assert!(!cfg.task_queue_path.exists());
         assert!(!cfg.promotion_receipts_path.exists());
-        assert!(
-            report
-                .receipts
-                .iter()
-                .all(|receipt| !receipt.requires_human)
-        );
+        assert!(report
+            .receipts
+            .iter()
+            .all(|receipt| !receipt.requires_human));
         assert!(report.receipts.iter().any(|receipt| {
             receipt
                 .receipt_reason
@@ -2028,11 +2023,9 @@ Next step: add tests for existing crate.",
             report.receipts[0].execution_decision,
             KnowledgeExecutionDecision::DryRunEligible
         );
-        assert!(
-            report.receipts[0]
-                .receipt_reason
-                .contains("dry-run: would hand off safe-local internal task to Arandur")
-        );
+        assert!(report.receipts[0]
+            .receipt_reason
+            .contains("dry-run: would hand off safe-local internal task to Arandur"));
     }
 
     #[test]
@@ -2073,11 +2066,9 @@ Next step: add tests for existing crate.",
             KnowledgeExecutionDecision::HumanReviewRequired
         );
         assert!(report.receipts[0].requires_human);
-        assert!(
-            report.receipts[0]
-                .receipt_reason
-                .contains("risk boundary stops Arandur execution")
-        );
+        assert!(report.receipts[0]
+            .receipt_reason
+            .contains("risk boundary stops Arandur execution"));
     }
 
     #[test]
@@ -2106,14 +2097,12 @@ Next step: add tests for existing crate.",
         assert!(!report.artifacts_written);
         assert!(!cfg.task_queue_path.exists());
         assert!(!cfg.promotion_receipts_path.exists());
-        assert!(
-            report
-                .receipts
-                .iter()
-                .any(|receipt| receipt.receipt_reason.contains(
-                    "explicit approval evidence required before safe-local task queue mutation"
-                ))
-        );
+        assert!(report
+            .receipts
+            .iter()
+            .any(|receipt| receipt.receipt_reason.contains(
+                "explicit approval evidence required before safe-local task queue mutation"
+            )));
     }
 
     #[test]

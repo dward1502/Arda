@@ -631,12 +631,10 @@ mod tests {
         assert_eq!(decision.gate, GovernanceGate::TriadQuorumApproved);
         assert!(decision.requires_triad);
         assert!(decision.allowed_to_delegate);
-        assert!(
-            decision
-                .evidence
-                .iter()
-                .any(|item| item.contains("oracle_quorum:autopilot::obj1"))
-        );
+        assert!(decision
+            .evidence
+            .iter()
+            .any(|item| item.contains("oracle_quorum:autopilot::obj1")));
         assert_eq!(
             decision
                 .triad_quorum
@@ -687,12 +685,10 @@ mod tests {
         assert_eq!(decision.gate, GovernanceGate::TriadQuorumRequired);
         assert!(decision.requires_triad);
         assert!(!decision.allowed_to_delegate);
-        assert!(
-            decision
-                .reasons
-                .iter()
-                .any(|reason| reason.contains("insufficient ORACLE triad quorum"))
-        );
+        assert!(decision
+            .reasons
+            .iter()
+            .any(|reason| reason.contains("insufficient ORACLE triad quorum")));
     }
 
     #[test]
@@ -775,12 +771,10 @@ mod tests {
         assert_eq!(decision.gate, GovernanceGate::ReviewRequired);
         assert!(decision.requires_human);
         assert!(!decision.allowed_to_delegate);
-        assert!(
-            decision
-                .reasons
-                .iter()
-                .any(|reason| reason.contains("configured review-only class"))
-        );
+        assert!(decision
+            .reasons
+            .iter()
+            .any(|reason| reason.contains("configured review-only class")));
     }
 
     #[test]

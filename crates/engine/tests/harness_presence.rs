@@ -12,8 +12,10 @@ use std::{sync::Arc, time::Duration};
 use reqwest::Client;
 use tokio::sync::Notify;
 
+use arda_aule::presence_projection::{ProjectionInputs, ServicePresence};
 use arda_engine::harness::presence::HarnessPresenceState;
 use arda_engine::harness::{serve, HarnessState};
+use arda_outpost_protocol::presence::{HealthState, LifecycleState, ResourcePressure};
 
 #[tokio::test]
 async fn presence_snapshot_returns_versioned_projection() {
@@ -43,6 +45,59 @@ async fn presence_snapshot_returns_versioned_projection() {
     );
     assert!(snapshot["snapshot_sequence"].as_u64().unwrap() >= 1);
     assert!(!snapshot["generated_at"].as_str().unwrap().is_empty());
+
+    shutdown.notify_waiters();
+    handle.await.expect("harness join");
+}
+
+#[tokio::test]
+async fn presence_snapshot_publishes_updated_live_inputs() {
+    let harness_addr = "127.0.0.1:0".parse().unwrap();
+    let state = harness_state();
+    let presence = state.presence_inputs.clone();
+    presence
+        .update_inputs(ProjectionInputs {
+            services: vec![ServicePresence {
+                id: "service-manwe".to_string(),
+                label: "Manwe".to_string(),
+                lifecycle: LifecycleState::Active,
+                health: HealthState::Healthy,
+                confidence: 0.9,
+                freshness_seconds: 1,
+                resource_pressure: ResourcePressure {
+                    cpu: 0.1,
+                    memory: 0.2,
+                    provider: 0.0,
+                },
+                run_id: None,
+                task_id: None,
+                source_receipt_refs: vec!["receipt:manwe".to_string()],
+            }],
+            agents: Vec::new(),
+            edges: Vec::new(),
+            source_receipt_refs: vec!["receipt:manwe".to_string()],
+        })
+        .await;
+    let shutdown = Arc::new(Notify::new());
+    let (bound, handle) = serve(Some(harness_addr), state, shutdown.clone())
+        .await
+        .expect("start harness");
+
+    let snapshot: serde_json::Value = client()
+        .get(format!("http://{bound}/v1/presence/snapshot"))
+        .send()
+        .await
+        .expect("send snapshot request")
+        .json()
+        .await
+        .expect("snapshot json");
+
+    assert_eq!(snapshot["snapshot"]["nodes"].as_array().unwrap().len(), 1);
+    assert_eq!(snapshot["snapshot"]["nodes"][0]["id"], "service-manwe");
+    assert!(snapshot["snapshot"]["projection_id"]
+        .as_str()
+        .unwrap()
+        .starts_with("arda-runtime-presence-"));
 
     shutdown.notify_waiters();
     handle.await.expect("harness join");

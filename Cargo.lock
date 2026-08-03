@@ -385,6 +385,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "arda-relic-bridge"
+version = "0.1.0"
+dependencies = [
+ "arda-outpost-protocol",
+ "chrono",
+ "parking_lot",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+]
+
+[[package]]
 name = "arda-vaire"
 version = "0.1.0"
 dependencies = [

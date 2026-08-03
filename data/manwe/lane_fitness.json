@@ -1,26 +1,12 @@
 {
-  "generated_at_utc": "2026-08-02T20:05:59.831276076+00:00",
+  "generated_at_utc": "2026-08-03T00:54:43.403541298+00:00",
   "lanes": {
-    "execution": {
-      "edge_backbone_coder": {
-        "avg_latency_ms": null,
-        "success_count": 0,
-        "failure_count": 1,
-        "last_result_utc": "2026-08-02T08:41:50.167600755+00:00"
-      },
-      "openai_sub": {
-        "avg_latency_ms": 31341,
-        "success_count": 1,
-        "failure_count": 0,
-        "last_result_utc": "2026-08-02T08:49:58.642383+00:00"
-      }
-    },
     "interactive": {
       "edge_core": {
-        "avg_latency_ms": 140,
-        "success_count": 48,
+        "avg_latency_ms": 137,
+        "success_count": 49,
         "failure_count": 0,
-        "last_result_utc": "2026-08-02T20:05:59.831273216+00:00"
+        "last_result_utc": "2026-08-03T00:54:43.403538058+00:00"
       }
     }
   }

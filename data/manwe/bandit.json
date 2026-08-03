@@ -21,7 +21,7 @@
       "failures": 0
     },
     "chat|tools=false|structured=false|stream=false\u001fedge_core\u001fQwen3.5-9B-Q4_K_M": {
-      "successes": 620,
+      "successes": 647,
       "failures": 2
     },
     "chat|tools=false|structured=false|stream=false\u001fedge_guardhouse\u001fQwen3.5-4B-Q4_K_M.gguf": {

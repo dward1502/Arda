@@ -31,6 +31,7 @@ export { default as SourceActionContractPanel } from './modules/SourceActionCont
 export { default as PlanningActionContractPanel } from './modules/PlanningActionContractPanel'
 export { buildPlanningTaskPivotPreview } from './modules/PlanningActionContractPanel'
 export { default as WorkbenchModule } from './modules/WorkbenchModule'
+export { default as ResearchModule } from './modules/ResearchModule'
 export { default as OperationsActionContractPanel } from './modules/OperationsActionContractPanel'
 export { buildOperationsActionContracts } from './modules/OperationsActionContractPanel'
 export { default as WorldTerminalActionContractPanel } from './modules/WorldTerminalActionContractPanel'

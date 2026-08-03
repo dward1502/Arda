@@ -1,0 +1,15 @@
+[package]
+name = "arda-relic-bridge"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+arda-outpost-protocol = { path = "../arda-outpost-protocol" }
+chrono.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+parking_lot = "0.12"
+
+[dev-dependencies]

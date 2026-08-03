@@ -141,8 +141,8 @@ async fn run_topics(
 mod tests {
     use super::*;
     use arda_outpost_protocol::ResearchSuggestionLedger;
-    use axum::{routing::get, Json, Router};
     use axum::http::StatusCode;
+    use axum::{routing::get, Json, Router};
     use serde_json::json;
     use tempfile::tempdir;
 
@@ -167,9 +167,12 @@ mod tests {
         let searx_listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
         let searx_addr = searx_listener.local_addr().unwrap();
         let searx_handle = tokio::spawn(async move {
-            axum::serve(searx_listener, Router::new().route("/search", get(mock_search)))
-                .await
-                .unwrap();
+            axum::serve(
+                searx_listener,
+                Router::new().route("/search", get(mock_search)),
+            )
+            .await
+            .unwrap();
         });
 
         let scout_listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();

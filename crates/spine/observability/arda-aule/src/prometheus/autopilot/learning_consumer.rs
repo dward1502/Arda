@@ -473,18 +473,16 @@ mod tests {
         )
         .unwrap()
         .unwrap();
-        assert!(
-            import_next_canonical_result(
-                &research_path,
-                dir.path().join("varda-evaluations.jsonl"),
-                &observation.normalized_url,
-                "canonical fetched content",
-                now,
-                now,
-            )
-            .unwrap()
-            .is_none()
-        );
+        assert!(import_next_canonical_result(
+            &research_path,
+            dir.path().join("varda-evaluations.jsonl"),
+            &observation.normalized_url,
+            "canonical fetched content",
+            now,
+            now,
+        )
+        .unwrap()
+        .is_none());
 
         let delta = approved_delta(&evaluation, "canonical fetched content").unwrap();
         let governed = arda_vaire::ApprovedKnowledgeDelta {

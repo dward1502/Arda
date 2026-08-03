@@ -39,6 +39,7 @@ __pycache__/
 logs
 *.log
 data/manwe/route_receipts.jsonl
+data/manwe/package_runtime_signals.json
 data/ceo/autopilot.state.json
 npm-debug.log*
 yarn-debug.log*

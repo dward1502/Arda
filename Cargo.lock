@@ -225,8 +225,10 @@ dependencies = [
  "arda-aule",
  "arda-core",
  "arda-governance",
+ "arda-mandos",
  "arda-orome",
  "arda-outpost-protocol",
+ "arda-rumil",
  "arda-varda",
  "async-stream",
  "axum 0.7.9",
@@ -244,6 +246,7 @@ dependencies = [
  "toml 0.8.2",
  "tracing",
  "tracing-subscriber",
+ "uuid",
 ]
 
 [[package]]
@@ -293,6 +296,7 @@ dependencies = [
  "arda-core",
  "arda-economics",
  "arda-governance",
+ "arda-rumil",
  "async-trait",
  "axum 0.7.9",
  "chrono",
@@ -357,6 +361,7 @@ name = "arda-outpost-scout"
 version = "0.1.0"
 dependencies = [
  "arda-outpost-protocol",
+ "arda-rumil",
  "arda-vaire",
  "assert_cmd",
  "axum 0.7.9",
@@ -391,9 +396,29 @@ dependencies = [
  "arda-outpost-protocol",
  "chrono",
  "parking_lot",
+ "reqwest 0.12.28",
  "serde",
  "serde_json",
  "thiserror 1.0.69",
+ "tokio",
+]
+
+[[package]]
+name = "arda-rumil"
+version = "0.1.0"
+dependencies = [
+ "arda-outpost-protocol",
+ "cargo_metadata 0.18.1",
+ "chrono",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tempfile",
+ "thiserror 1.0.69",
+ "tokio",
+ "toml 0.8.2",
+ "uuid",
+ "walkdir",
 ]
 
 [[package]]
@@ -426,6 +451,7 @@ dependencies = [
  "arda-economics",
  "arda-governance",
  "arda-outpost-protocol",
+ "arda-rumil",
  "arda-vaire",
  "async-trait",
  "axum 0.7.9",
@@ -934,6 +960,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e35af189006b9c0f00a064685c727031e3ed2d8020f7ba284d78cc2671bd36ea"
 dependencies = [
  "serde",
+]
+
+[[package]]
+name = "cargo_metadata"
+version = "0.18.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2d886547e41f740c616ae73108f6eb70afe6d940c7bc697cb30f13daec073037"
+dependencies = [
+ "camino",
+ "cargo-platform",
+ "semver",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
 ]
 
 [[package]]
@@ -5307,7 +5347,7 @@ checksum = "3e176a18e67764923c4f1ce66f25ae4abe5f688384d5eb1a0fa6c77f3d90f887"
 dependencies = [
  "anyhow",
  "brotli",
- "cargo_metadata",
+ "cargo_metadata 0.19.2",
  "ctor",
  "dom_query",
  "dunce",

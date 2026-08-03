@@ -2,21 +2,22 @@
 
 ## Scope
 
-`arda-outpost-scout` owns bounded repository survey, governed SearXNG research,
-advisory observation conversion, durable Vairë memory ingestion/recall, and the
-Warden HTTP/CLI runtime. It does not own task queues, approvals, dispatch,
+`arda-outpost-scout` owns bounded repository survey, a direct bounded Rúmil audit
+consumer, governed SearXNG research, advisory observation conversion, durable
+Vairë memory ingestion/recall, and the Warden HTTP/CLI runtime. It does not own task queues, approvals, dispatch,
 execution, model inference, Athena ledger production, or council decisions.
 
 ## Supported source graph
 
-All nine Rust files under `src/` are wired. The crate has no optional Cargo
+All ten Rust files under `src/` are wired. The crate has no optional Cargo
 features, build script, generated includes, or detached Rust source.
 
 | Path | Classification | Role |
 | --- | --- | --- |
 | `src/lib.rs` | production/default | Module declarations and public exports |
+| `src/audit.rs` | production/default | Relative-root Rúmil audit execution, packet persistence, idempotency receipts, compact observation projection, and packet-only follow-up |
 | `src/main.rs` | production/default binary | `serve` and bounded `run-topics` CLI |
-| `src/runtime.rs` | production/default | Axum health, search, survey, and recall routes |
+| `src/runtime.rs` | production/default | Axum health, search, survey, audit, packet follow-up, and recall routes |
 | `src/research.rs` | production/default | Request policy/expiry validation, bounded SearXNG client, source validation, advisory conversion |
 | `src/memory.rs` | production/default | Append-only Vairë ingestion receipts, filtered recall, degraded fallback state |
 | `src/survey.rs` | production/default | Depth- and root-class-bounded Cargo/app discovery |
@@ -24,7 +25,7 @@ features, build script, generated includes, or detached Rust source.
 | `src/suggestion.rs` | production/default | Non-authoritative advisory summaries |
 | `src/error.rs` | production/default | Survey and manifest error contract |
 
-Six integration-test targets are wired through Cargo:
+Eight integration-test targets are wired through Cargo:
 
 | Path | Classification | Proof |
 | --- | --- | --- |
@@ -34,6 +35,8 @@ Six integration-test targets are wired through Cargo:
 | `tests/memory_fixtures.rs` | test-only | Receipt preservation, append-only recall, fallback/stale behavior, no queue authority |
 | `tests/runtime_api.rs` | test-only | Health, policy/expiry rejection, persistence, recall |
 | `tests/runtime_cli.rs` | test-only | Supported CLI command surface |
+| `tests/rumil_audit_contract.rs` | test-only | Bounded execution, partial state, replay/conflict, expiry/authority, persistence, and packet-only follow-up |
+| `tests/rumil_runtime_api.rs` | test-only | HTTP audit/follow-up, compact Vairë projection, recall, and duplicate suppression |
 
 `observation.rs` and `suggestion.rs` also contain adjacent unit tests for status
 classification and advisory generation.
@@ -69,7 +72,7 @@ promotion, dispatch, or execution. Its protocol authority is always advisory.
 ## Dependencies and consumers
 
 Normal dependencies are the shared workspace HTTP/async/serialization stack,
-`arda-outpost-protocol`, and `arda-vaire`. There are no optional dependencies or
+`arda-outpost-protocol`, `arda-rumil`, and `arda-vaire`. There are no optional dependencies or
 feature modes.
 
 `cargo tree -i arda-outpost-scout --edges normal` identifies no Cargo consumer;

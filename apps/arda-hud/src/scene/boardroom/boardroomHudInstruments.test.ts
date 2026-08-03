@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { createDefaultBoardroomSlotSettings } from '../../lib/boardroomSlotSettings'
 import {
   deriveFleetHudInstrument,
   deriveBoardroomHudInstruments,
@@ -103,6 +104,7 @@ describe('Phase 3 source-backed slot adapters', () => {
       observedAtUtc: '2026-07-30T20:15:00Z',
       freshness: 'fresh' as const,
     }
+    const assignments = createDefaultBoardroomSlotSettings('2026-08-03T00:00:00Z').assignments
     const instruments = deriveBoardroomHudInstruments({
       fleetHealth: { liveTargets: 2, totalTargets: 2, routableProviders: 1, unexpectedOffline: 0, intentionalOffline: 0, source },
       queue: { completed: 4, priorityBuckets: 2, ownerBuckets: 2, source },
@@ -111,15 +113,16 @@ describe('Phase 3 source-backed slot adapters', () => {
       governance: { reviewItems: 4, pendingItems: 2, source },
       human: { documents: 5, notes: 2, source },
       dailyCommand: { lanes: 4, attentionLanes: 1, source },
-    })
+    }, assignments)
 
     expect(instruments.monitor_left_2.title).toBe('Routing')
     expect(instruments.monitor_left_3.title).toBe('Knowledge')
     expect(instruments.monitor_left_4.title).toBe('Operations')
     expect(instruments.view_desk_l.title).toBe('Governance')
     expect(instruments.view_desk_control_panel.title).toBe('Fleet')
-    expect(instruments.view_desk_r.title).toBe('Human Realm')
-    expect(instruments.view_desk_aux.title).toBe('Daily Command')
+    expect(instruments.view_desk_r.title).toBe('Routing')
+    expect(instruments.view_desk_aux.title).toBe('Human Realm')
+    expect(instruments.command_core.title).toBe('Daily Command')
     expect(Object.values(instruments).every((instrument) => instrument.source === source)).toBe(true)
   })
 

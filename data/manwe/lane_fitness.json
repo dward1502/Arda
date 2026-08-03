@@ -1,12 +1,66 @@
 {
-  "generated_at_utc": "2026-08-03T00:54:43.403541298+00:00",
+  "generated_at_utc": "2026-08-03T13:36:00.994424334+00:00",
   "lanes": {
+    "execution": {
+      "openai_sub": {
+        "avg_latency_ms": 17271,
+        "success_count": 3,
+        "failure_count": 0,
+        "last_result_utc": "2026-08-03T10:31:47.568016148+00:00"
+      }
+    },
+    "free": {
+      "edge_beelink_light": {
+        "avg_latency_ms": 294,
+        "success_count": 1,
+        "failure_count": 0,
+        "last_result_utc": "2026-08-03T07:20:57.292946400+00:00"
+      },
+      "edge_core": {
+        "avg_latency_ms": 845,
+        "success_count": 1,
+        "failure_count": 0,
+        "last_result_utc": "2026-08-03T07:20:35.599644652+00:00"
+      },
+      "edge_guardhouse": {
+        "avg_latency_ms": 19930,
+        "success_count": 1,
+        "failure_count": 0,
+        "last_result_utc": "2026-08-03T07:20:55.679740518+00:00"
+      }
+    },
     "interactive": {
       "edge_core": {
-        "avg_latency_ms": 137,
+        "avg_latency_ms": 152,
         "success_count": 49,
         "failure_count": 0,
-        "last_result_utc": "2026-08-03T00:54:43.403538058+00:00"
+        "last_result_utc": "2026-08-03T13:36:00.994420724+00:00"
+      }
+    },
+    "local": {
+      "edge_backbone_long": {
+        "avg_latency_ms": null,
+        "success_count": 0,
+        "failure_count": 1,
+        "last_result_utc": "2026-08-03T07:20:33.363702367+00:00"
+      },
+      "edge_beelink_light": {
+        "avg_latency_ms": 290,
+        "success_count": 1,
+        "failure_count": 0,
+        "last_result_utc": "2026-08-03T07:20:33.674579096+00:00"
+      },
+      "edge_core": {
+        "avg_latency_ms": 883,
+        "success_count": 1,
+        "failure_count": 0,
+        "last_result_utc": "2026-08-03T07:19:57.651129726+00:00"
+      },
+      "edge_guardhouse": {
+        "avg_latency_ms": 20297,
+        "success_count": 1,
+        "failure_count": 0,
+        "last_result_utc": "2026-08-03T07:20:17.964030223+00:00"
       }
     }
   }

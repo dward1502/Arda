@@ -4,10 +4,10 @@
 This document defines the hologram/presence contract for the ARDA scene
 runtime.
 
-It is a Phase 6.1 execution target referenced by:
+It is the live presence authority referenced by:
 
-- `docs/arda/ARDA_FRONTEND_REBUILD.md`
-- `apps/arda-hud/src/scene/boardroom/BOARDROOM_CONTRACT.md`
+- `../boardroom/BOARDROOM_CONTRACT.md`
+- `CONTRACTS.md`
 
 ## Purpose
 
@@ -24,8 +24,10 @@ Presence is expressed through these surfaces, all bound to the
 `hologram_anchor`:
 
 - `hologram_base_plate` — projection-origin geometry
-- `hologram_body` — projected silhouette or full avatar volume
-- `hologram_halo` — optional orbital/emphasis ring
+- `hologram_body` — `AvatarPresenceLayer` representation, currently the
+  phase-driven `ParticleOrb`
+- `hologram_halo` — optional orbital/emphasis ring and bounded support-agent
+  markers
 - `hologram_pulse_light` — local emissive point light
 - `hologram_overlay_panel` — diegetic info overlay anchored to presence
 
@@ -69,6 +71,9 @@ The presence may animate through:
 - halo rotation
 - pulse intensity ramp on activation
 - subtle displacement on state change
+- phase-driven materialization and dematerialization
+- bounded mood-derived density, turbulence, dissolve, and color-temperature
+  changes when a valid persona projection exists
 
 The presence may not:
 
@@ -79,15 +84,50 @@ The presence may not:
 
 ## State Bindings
 
-Presence state binds to runtime signals only through named bindings:
+`AgentPresenceState`, derived in `presenceState.ts`, is the lifecycle authority.
+The live layer receives that typed state at the permanent
+`boardroom.avatar.emitter` and derives rendering values through the pure
+`presenceVisualState()` and `presenceSupportMarkers()` helpers.
+
+The corresponding runtime concepts are:
 
 - `presence.attention` — visibility / emphasis level
 - `presence.mode` — idle / speaking / advising / alert
 - `presence.accent` — optional color shift within bounded range
 - `presence.anchor_target` — anchor currently held in attention
 
-A component may not drive presence through free-form UI props; it reads
-from these bindings.
+A component may not invent parallel lifecycle state or bypass those helpers.
+Phase, scenario, urgency, primary-agent identity, and alert precedence remain
+authoritative even when optional identity state is available.
+
+## Persona Projection Influence
+
+`AvatarPresenceLayer` may read the latest canonical
+`core/state/identity/<actor>.json` projection through the existing generic read
+boundary and validated `statefulPersona.ts` parser.
+
+- positive valence may increase density, warm color temperature, and calm
+  motion;
+- negative valence may reduce density, cool color temperature, increase
+  turbulence, and increase dissolve tendency;
+- only non-stale traits meeting the bounded confidence threshold may add a
+  subtle trait accent;
+- alert state overrides persona-derived color and pulse behavior;
+- missing, malformed, unsupported, stale, or actor-mismatched data produces
+  neutral phase-only behavior without an error surface.
+
+Persona projection is read-only visual input. The HUD must not create a second
+identity store, projection writer, scheduler, avatar pipeline, or IPC channel.
+
+## Particle Runtime Rules
+
+- animation buffers and reusable vectors are preallocated;
+- each frame starts from immutable base positions rather than previous-frame
+  output, preventing accumulated drift;
+- materialization and dismissal use deterministic bounded transition stepping;
+- once idle dismissal reaches zero, particle frame mutation hard-pauses;
+- reduced-motion and disabled-motion settings retain a stable representation;
+- support-agent markers come only from `presenceSupportMarkers()`.
 
 ## Overlay Rules
 
@@ -118,15 +158,14 @@ It must not:
 
 This contract depends on:
 
-- `boardroom/BOARDROOM_CONTRACT.md`
-- `systems/CONTRACTS.md`
-- `systems/CONTRACTS.md`
-- `systems/CONTRACTS.md`
-- `shaders/SHADER_CONTRACT.md`
+- `../boardroom/BOARDROOM_CONTRACT.md`
+- `CONTRACTS.md`
+- `../shaders/SHADER_CONTRACT.md`
 
 ## Exit Requirement
 
 The presence contract is satisfied only when the hologram anchor reads as a
 restrained, embodied operating peer with bounded animation and diegetic
-overlay, and when driving presence state is done through the named bindings
-rather than through component-level prop plumbing.
+overlay; lifecycle behavior traces to `AgentPresenceState`; optional persona
+input fails neutral; alert precedence is preserved; and the dismissed particle
+simulation reaches a hard-paused state.

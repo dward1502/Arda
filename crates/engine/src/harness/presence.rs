@@ -11,7 +11,7 @@ use std::{
     time::Duration,
 };
 
-use arda_aule::presence_projection::{build_presence_projection, ProjectionInputs};
+use arda_aule::presence_projection::ProjectionInputs;
 use arda_outpost_protocol::presence::RuntimePresenceProjection;
 use axum::http::{HeaderMap, StatusCode};
 use axum::response::Sse;
@@ -21,6 +21,7 @@ use axum::{
     routing::get,
     Router,
 };
+use chrono::Utc;
 use reqwest::header::AUTHORIZATION;
 use serde::Serialize;
 use tokio::{sync::RwLock, time::interval};
@@ -85,7 +86,10 @@ pub async fn presence_snapshot(
         return not_authorized().into_response();
     }
 
-    let projector = build_presence_projection(harness.presence_inputs.read_inputs().await);
+    let projector = arda_aule::presence_projection::build_presence_projection_at(
+        harness.presence_inputs.read_inputs().await,
+        Utc::now(),
+    );
     let snapshot_sequence = next_sequence(&harness.presence_inputs).await;
 
     let response = PresenceSnapshotResponse {
@@ -113,7 +117,10 @@ pub async fn presence_events(
     let stream = async_stream::stream! {
         loop {
             let _ = ticker.tick().await;
-            let projector = build_presence_projection(harness.presence_inputs.read_inputs().await);
+            let projector = arda_aule::presence_projection::build_presence_projection_at(
+        harness.presence_inputs.read_inputs().await,
+        Utc::now(),
+    );
             sequence += 1;
 
             let event = match axum::response::sse::Event::default()

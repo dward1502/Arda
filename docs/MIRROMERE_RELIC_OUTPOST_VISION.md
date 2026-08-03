@@ -174,12 +174,12 @@ This is a useful precursor for Mirromere, but it is not a health model. Environm
 
 ### Known stale references in the older plan
 
-The outdated `docs/plans/EMBODIED_INTERFACE.md` references these paths, which are not currently present in this checkout:
+The earlier `docs/plans/EMBODIED_INTERFACE.md` referenced paths that are not currently present in this checkout:
 
 - `docs/plans/2026-05-27-citadel-companion-embodied-roadmap.md`
 - `docs/contracts/citadel-voice-physical-interaction-safety-contract.md`
 
-Their claimed boundaries should not be treated as active contracts until equivalent canonical Arda documents are restored or rewritten.
+That file has been retired as stale; embodied-interface planning is consolidated into the canonical RELIC/CITADEL plan and this document. The referenced roadmaps and contracts above are not active until equivalent canonical Arda documents are restored or rewritten.
 
 ## Outpost Architecture
 
@@ -512,6 +512,7 @@ Useful future sources may include Kp, Dst, IMF Bz, solar-wind speed/density, F10
 ## References
 
 - `docs/plans/EMBODIED_INTERFACE.md` — prior embodied-interface narrative and historical status
+Embodied-interface planning is consolidated into `docs/plans/2026-07-29-relic-citadel-plan.md` and this document. The earlier `docs/plans/EMBODIED_INTERFACE.md` narrative has been retired as stale and removed from the tree; do not reference it.
 - `core/state/embodied_interface.json` — current legacy embodiment mapping
 - `core/state/tauri_embodiment.json` — current legacy rendering doctrine
 - `crates/spine/governance/arda-governance/src/environmental.rs` — typed advisory environmental signals

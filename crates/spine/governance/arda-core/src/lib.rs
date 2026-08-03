@@ -20,6 +20,7 @@ pub mod loop_observability;
 pub mod message;
 pub mod orome_runtime;
 pub mod personal_ops;
+pub mod personal_ops_projection;
 pub mod pipeline;
 pub mod project_contract;
 pub mod router;

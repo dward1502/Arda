@@ -24,6 +24,7 @@ pub mod mcp;
 pub mod message;
 #[cfg(test)]
 pub mod message_retry_expiry;
+pub mod personal_reminder;
 #[cfg(feature = "service-runtime")]
 pub mod mnemosyne_integration;
 #[cfg(feature = "service-runtime")]
@@ -50,7 +51,8 @@ pub use types::{
     CouncilDiscussionPromotion, IntentResult, InterruptionDisposition, InterruptionEnvelope,
     InterruptionLedgerDecision, InterruptionMessage, LocalCouncilSummaryFallbackMetadata,
     LocalCouncilSummaryRoute, ManweRouteHint, OperatingRoomEvent, OperatingRoomEventKind,
-    PromotionState, SubagentCompletionPacket, SubagentCompletionProjection, TaskApprovalEnvelope,
+    PersonalReminderDeliveryState, PersonalReminderReceipt, PersonalReminderRequest, PromotionState,
+    SubagentCompletionPacket, SubagentCompletionProjection, TaskApprovalEnvelope,
     TaskApprovalPacket, TaskApprovalProjection, TaskApprovalProposal,
 };
 

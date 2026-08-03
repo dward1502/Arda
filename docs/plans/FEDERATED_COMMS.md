@@ -6,30 +6,18 @@ soterion:
   role: "documentation"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-21"
+  last_reviewed: "2026-08-02"
 crate: federated-comms
 owner: prometheus
 status: active
-reviewed: "2026-07-21"
+reviewed: "2026-08-02"
 ---
 
-> Arda Federated Comms: 📜 layered communications doctrine | owner: prometheus | status: active | reviewed: 2026-07-21
+> Arda Federated Comms: 📜 layered communications doctrine | owner: prometheus | status: active | reviewed: 2026-08-02
 
-# Federated Comms Plan Narrative
+# Federated Comms Plan
 
 `FEDERATED_COMMS` is the current Arda layered communications doctrine surface.
-Historic narration is preserved at
-`docs/plans/FEDERATED_COMMS.md`.
-
-The current plan retains
-retains the prior operator narrative; only references/metadata are updated for
-the post-Annunimas Arda layout.
-
-Status: active
-Owner: prometheus
-Human plan: `docs/plans/FEDERATED_COMMS.md`
-Core runtime: `core/state/federated_comms.json`
-Task ledger: `core/state/queue.jsonl`
 
 ## Purpose
 
@@ -47,12 +35,20 @@ Defines the layered communications doctrine above local sovereign control.
 
 ## Primary Runtime Surfaces
 
-- `core/state/federated_comms.json`
-- `core/state/federated_comms_runtime.json`
-- `core/edge/targets.toml`
+- `core/state/federated_comms.json` — current as of 2026-08-02
+- `core/state/federated_comms_runtime.json` — current as of 2026-08-02
+- `core/state/matrix_boardrooms.json` — source of the boardroom routing contract
+
+## Corrections from review (2026-08-02)
+
+- `core/state/queue.jsonl` was not canonical. Consumers read the compact
+  `core/state/queue_summary.json` projection first; the append-only raw ledger
+  remains implementation-level evidence rather than an active-plan dependency.
+- `core/edge/targets.toml` does not exist in this checkout; edge device inventory lives in `core/state/embodied_interface.json` `hardware_targets`.
 
 ## References
 
-- Crate/surface: `docs/plans/FEDERATED_COMMS.md`
-- Original narrative: `docs/plans/FEDERATED_COMMS.md`
+- Doctrine: `docs/plans/FEDERATED_COMMS.md`
 - Core runtime: `core/state/federated_comms.json`
+- Runtime state: `core/state/federated_comms_runtime.json`
+- Matrix routing: `core/state/matrix_boardrooms.json`

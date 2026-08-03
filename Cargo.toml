@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
+    ".",
     "crates/engine",
     "crates/spine/contract/arda-contract-registry",
     "crates/spine/runtime/manwe",
@@ -11,6 +12,7 @@ members = [
     "apps/arda-launcher/src-tauri",
     "crates/spine/runtime/arda-economics",
     "crates/spine/runtime/arda-mandos",
+    "crates/spine/runtime/arda-rumil",
     "crates/spine/memory/arda-vaire",
     "crates/spine/executors/arda-varda",
     "outposts/arda-outpost-protocol",
@@ -19,6 +21,7 @@ members = [
     "sdk/rust",
 ]
 default-members = [
+    ".",
     "crates/engine",
     "crates/spine/contract/arda-contract-registry",
     "crates/spine/runtime/manwe",
@@ -28,6 +31,7 @@ default-members = [
     "crates/spine/observability/arda-aule",
     "crates/spine/runtime/arda-economics",
     "crates/spine/runtime/arda-mandos",
+    "crates/spine/runtime/arda-rumil",
     "crates/spine/memory/arda-vaire",
     "crates/spine/executors/arda-varda",
     "outposts/arda-outpost-protocol",
@@ -89,6 +93,7 @@ arda-vaire = { path = "crates/spine/memory/arda-vaire" }
 arda-aule = { path = "crates/spine/observability/arda-aule" }
 arda-economics = { path = "crates/spine/runtime/arda-economics" }
 arda-mandos = { path = "crates/spine/runtime/arda-mandos" }
+arda-rumil = { path = "crates/spine/runtime/arda-rumil" }
 manwe = { path = "crates/spine/runtime/manwe" }
 arda-varda = { path = "crates/spine/executors/arda-varda" }
 arda-engine = { path = "crates/engine" }

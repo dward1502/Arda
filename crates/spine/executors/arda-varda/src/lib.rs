@@ -5,6 +5,7 @@ pub mod benchmark;
 pub mod human;
 pub mod ingest;
 pub mod learning;
+pub mod rumil;
 pub mod transport;
 
 use arda_core::agent::{Agent, AgentManifest};
@@ -19,6 +20,7 @@ pub use ingest::external_lane::{
     ExternalEvaluationReceipt, ExternalLaneError, ExternalLaneInput,
 };
 pub use ingest::AthenaStore;
+pub use rumil::{evaluate_rumil_evidence, RumilEvaluationDisposition, RumilEvaluationReceipt};
 use std::collections::HashMap;
 use std::sync::Arc;
 

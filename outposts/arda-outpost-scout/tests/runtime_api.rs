@@ -10,18 +10,35 @@ fn serve_search_fixture() -> (String, std::thread::JoinHandle<()>) {
     let listener = TcpListener::bind("127.0.0.1:0").expect("bind search fixture");
     let address = listener.local_addr().expect("search fixture address");
     let handle = std::thread::spawn(move || {
-        let (mut stream, _) = listener.accept().expect("accept search request");
-        let mut request = [0_u8; 4096];
-        let bytes_read = stream.read(&mut request).expect("read search request");
-        assert!(bytes_read > 0, "search request must not be empty");
-        let body = r#"{"results":[{"title":"Agent governance","url":"https://example.com/governance","content":"A new governed agent runtime","engine":"fixture","score":1.0}]}"#;
-        let response = format!(
-            "HTTP/1.1 200 OK\r\ncontent-type: application/json\r\ncontent-length: {}\r\nconnection: close\r\n\r\n{}",
-            body.len(), body
-        );
-        stream
-            .write_all(response.as_bytes())
-            .expect("write search response");
+        let canonical_content = "A new governed agent runtime";
+        for _ in 0..2 {
+            let (mut stream, _) = listener.accept().expect("accept search/crawl request");
+            let mut request = [0_u8; 4096];
+            let _ = stream.read(&mut request).expect("read request");
+            let request_str = String::from_utf8_lossy(&request);
+            if request_str.contains("POST /md") {
+                let body = format!(
+                    r#"{{"url":"https://example.com/governance","markdown":"{}","success":true}}"#,
+                    canonical_content
+                );
+                let response = format!(
+                    "HTTP/1.1 200 OK\r\ncontent-type: application/json\r\ncontent-length: {}\r\nconnection: close\r\n\r\n{}",
+                    body.len(), body
+                );
+                stream
+                    .write_all(response.as_bytes())
+                    .expect("write crawl response");
+            } else {
+                let body = r#"{"results":[{"title":"Agent governance","url":"https://example.com/governance","content":"A new governed agent runtime","engine":"fixture","score":1.0}]}"#;
+                let response = format!(
+                    "HTTP/1.1 200 OK\r\ncontent-type: application/json\r\ncontent-length: {}\r\nconnection: close\r\n\r\n{}",
+                    body.len(), body
+                );
+                stream
+                    .write_all(response.as_bytes())
+                    .expect("write search response");
+            }
+        }
     });
     (format!("http://{address}"), handle)
 }

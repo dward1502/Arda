@@ -23,10 +23,13 @@ libc = "0.2"
 reqwest = { workspace = true }
 arda-aule = { workspace = true }
 arda-outpost-protocol = { workspace = true }
+arda-mandos = { workspace = true }
+arda-rumil = { workspace = true }
 arda-varda = { workspace = true }
 async-stream = "0.3"
 futures-core = "0.3"
 chrono = { workspace = true }
+uuid = { workspace = true }
 
 [dev-dependencies]
 tokio = { workspace = true }
@@ -35,3 +38,4 @@ reqwest = { workspace = true }
 axum = "=0.7.9"
 serde_json = { workspace = true }
 tempfile = { workspace = true }
+uuid = { workspace = true }

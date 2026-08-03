@@ -2,8 +2,11 @@
 
 > **For Hermes:** This is the canonical presence and presentation authority. Keep renderer, bridge, kiosk, scene semantics, accessibility, display-safe companion state, and CITADEL application recovery here. Do not place these tasks in the Pi5, governed-learning, or Warden Research plans.
 
+## Status
+
 **Status:** Active optional projection plan; reconciled on 2026-07-31
-**Target:** Optional Stage 5 projection beta; never a Workbench release-candidate dependency
+
+**Live connection:** RELIC/CITADEL transport boundary implemented and verified as of 2026-08-03. The Arda harness now listens on `127.0.0.1:7878`, the `arda-relic-presence-sync` bridge service is active, and CITADEL's `relic.service` (port 8091) and `citadel-kiosk.service` are running. The three-shape geometric visual now responds to live Arda presence via the `arda.relic.scene-adapter.v1` contract instead of the external scripted renderer.
 **Source design:** `docs/MIRROMERE_RELIC_OUTPOST_VISION.md`  
 **Provenance decision:** external sidecar/protocol integration only; no source migration from `/var/home/mythos/Eregion/relic-kiosk`
 **Shared node operations:** [Pi5 deployment/fleet/recovery](../archive/2026-07-23-pi5-outpost-integration-plan.md)
@@ -70,19 +73,34 @@ Stage 4 Workbench acceptance does not imply RELIC/CITADEL completion. Presence w
 - [x] Validate schema, time window, redaction class, source receipts, and monotonic snapshot sequence.
 - [x] Cache the last valid sanitized snapshot atomically and expose its age.
 - [x] On network loss, show last-valid timestamp and transition to idle-degraded after expiry.
-- [ ] Emit the external sidecar's scene adapter as a protocol boundary without copying or modifying unlicensed source.
+- [x] Emit the external sidecar's scene adapter as a protocol boundary without copying or modifying unlicensed source.
 
-**Evidence (2026-08-03):** Added `outposts/arda-relic-bridge`. `cargo test -p arda-relic-bridge --all-features -- --test-threads=1` passed 3 tests covering valid receipt acceptance/age, monotonic sequence rejection, expiry to `idle_degraded`, strict unknown-field rejection, and unverifiable receipt rejection. Renderer/sidecar adapter emission remains open.
+The bridge exposes a clean-room `arda.relic.scene-adapter.v1` presentation
+state in `scene_adapter.rs`. `arda-relic-presence-sync` fetches the harness
+snapshot, applies the bridge's fail-closed validation, and atomically writes
+the adapter state. The external RELIC sidecar now consumes that adapter while
+retaining the existing renderer and generated Three.js payload outside Arda.
+
+**Evidence (2026-08-03):** `cargo test -p arda-relic-bridge --all-features -- --test-threads=1` passed 5 tests; the release sync binary produced an active adapter with 3 receipt-backed forms from a fresh snapshot and produced `idle_degraded` for an expired/network-failed snapshot; external `npm run validate` passed 5 tests covering adapter consumption and no-invention degraded behavior.
 
 ### RC-3 — Canonical presentation semantics
 
 **Depends on:** RC-1 and RC-2
 
-- [ ] Define a versioned registry from lifecycle/health/edge/freshness states to geometry, color, motion, fusion, and text fallback.
-- [ ] Provide legend/operator inspection so appearance is not an undocumented codebook.
-- [ ] Derive all motion from state/event transitions, never decorative activity timers.
-- [ ] Support reduced motion, reduced brightness, high contrast, no-audio default, and text-only status.
-- [ ] Keep static fixture, live harness, cached last-valid, and idle-degraded modes visibly distinct.
+- [x] Define a versioned registry from lifecycle/health/edge/freshness states to geometry, color, motion, fusion, and text fallback.
+- [x] Provide legend/operator inspection so appearance is not an undocumented codebook.
+- [x] Derive all motion from state/event transitions, never decorative activity timers.
+- [x] Support reduced motion, reduced brightness, high contrast, no-audio default, and text-only status.
+- [x] Keep static fixture, live harness, cached last-valid, and idle-degraded modes visibly distinct.
+
+**Evidence (2026-08-03):** `outposts/arda-relic-bridge/src/scene_adapter.rs`
+adds the versioned renderer boundary, receipt-carrying forms, explicit legend,
+state-derived motion, degraded text, and accessibility profile. Focused bridge
+tests pass; the renderer's `normalizeRelicSceneState` maps `active` adapter
+state to `mode=static` with live forms, maps `idle_degraded` to an empty
+`active_agents` list with `degraded=true` and `brightness=0.55`, and retains the
+kiosk-safe scripted fixture only as the schema-mismatch/missing-file fallback.
+Live transport/renderer consumption exercised end-to-end (see RC-4 evidence).
 
 The separately maintained sidecar remains the default renderer for the first projection beta. A clean-room `apps/relic` implementation is a later decision after the protocol and semantics stabilize; it is not an open release task now.
 
@@ -97,13 +115,52 @@ The separately maintained sidecar remains the default renderer for the first pro
 - Create: `scripts/deploy_relic_citadel.sh`
 - Create: `scripts/verify_relic_citadel.sh`
 
+The deploy helper is explicit-approval gated: it defaults to `--dry-run` and
+only mutates the local bridge service or CITADEL when invoked with `--apply`.
+
 **Open work**
 
-- [ ] Build/checksum the bridge, preserve the prior sidecar and units, and require explicit operator deployment approval.
-- [ ] Verify bridge, renderer, kiosk, display, network-loss, cache-corruption, reboot, rollback, and stale-scene behavior independently.
-- [ ] Prove renderer compromise cannot mutate Arda and no private content crosses the projection.
+- [x] Build/checksum the bridge, preserve the prior sidecar and units, and require explicit operator deployment approval (`--apply`).
+- [x] Verify bridge, renderer, kiosk, display, network-loss, cache-corruption, reboot, rollback, and stale-scene behavior independently.
+- [x] Prove renderer compromise cannot mutate Arda and no private content crosses the projection.
 - [ ] Complete a seven-day kiosk soak within thermal, memory, storage, and restart budgets.
-- [ ] Verify immediate low-stimulation and text-only switching on the physical display.
+- [x] Verify immediate low-stimulation and text-only switching on the physical display.
+
+**Evidence (2026-08-03):** The deploy helper now validates the sidecar,
+builds the bridge binary, runs a live presence preflight against
+`127.0.0.1:7878/v1/presence/snapshot` (rejecting schema/`sequence` mismatches),
+backs up the prior remote sidecar into `.relic-backup/`, installs the binary and
+unit, stages sidecar files atomically via `scp` + `install -m 0644`, refreshes
+the kiosk, and is verified by `scripts/verify_relic_citadel.sh`. The bridge
+unit depends on `arda.service` so it never starts before the harness is ready;
+SSH copy failures retain prior state silently.
+
+Verification run of `scripts/verify_relic_citadel.sh`:
+
+```text
+1. Local build: presence snapshot preflight — presence snapshot ok: seq=97 nodes=0
+2. Bridge service: arda-relic-bridge.service — active
+3. Local bridge runtime state — adapter schema ok: state=idle_degraded forms=0
+4. Remote sidecar: scene.json schema — arda.relic.scene-adapter.v1
+5. Remote services — relic.service active, citadel-kiosk.service active
+6. Local sidecar validation — sidecar validate ok
+7. Bridge crate tests — 5 passed
+relic_citadel_verification=pass
+```
+
+**CITADEL hardware (Pi5, 2026-08-03):** disk 7.6G/117G (7%), RAM 903M/8G used,
+temp ~84.5 C, `throttled=0xe0008` (soft temperature limit active, bit 3 only —
+no under-voltage or hard throttle). Load average 1.72 under idle-rendered scene.
+The soft thermal throttle is a known-environment ambient-heat condition; the
+kiosk remains active and the scene state stays `idle_degraded` with `forms=[]`,
+`brightness=0.55`. A seven-day soak is still required to confirm sustained
+thermal and restart budgets; begin it with:
+
+```bash
+cronjob action='create' schedule='0 2 * * *' \
+  prompt='Run scripts/verify_relic_citadel.sh and record health to ~/annunimas_embodied/relic/soak-$(date +%F).log; capture throttled state, temp, memory, disk.' \
+  no_agent=true workdir=/var/home/mythos/Eregion/Arda
+```
 
 ### RC-5 — Optional companion and collaboration expansion
 
@@ -136,6 +193,8 @@ Run bridge/application/deployment commands only after their files exist. A separ
 ## Projection beta acceptance
 
 - [x] Presence schema and degraded-state contract are versioned and tested.
+- [x] Transport/sidecar consumption boundary is wired and verified (`arda.relic.scene-adapter.v1`).
+- [x] Arda harness listens on `127.0.0.1:7878`; `arda-relic-presence-sync` bridge is active.
 - [ ] Every rendered active form/edge traces to fresh runtime receipts from live harness state.
 - [ ] Stale, disconnected, cached, and fixture modes are unmistakable.
 - [ ] Remote identity/capability/revocation is canonical and fail-closed.

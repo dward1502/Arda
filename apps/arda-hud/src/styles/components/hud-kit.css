@@ -1,0 +1,108 @@
+/* ── HudPanel / HudFrame ───────────────────────────────── */
+
+.hud-panel {
+  position: relative;
+  background: var(--hud-frame-bg);
+  border: 1px solid var(--hud-border);
+  border-radius: var(--hud-radius);
+  color: var(--text);
+  font-family: var(--body-font);
+  box-shadow: var(--hud-glow);
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+}
+
+/* Cut-corner effect using clip-path (matches the sheet) */
+.hud-panel--cut {
+  clip-path: polygon(
+    var(--hud-cut) 0%,
+    100% 0%,
+    100% calc(100% - var(--hud-cut)),
+    calc(100% - var(--hud-cut)) 100%,
+    0% 100%,
+    0% var(--hud-cut)
+  );
+}
+
+/* Accent variants */
+.hud-panel--cyan {
+  --hud-border: rgba(0, 212, 255, 0.55);
+  box-shadow: var(--hud-glow);
+}
+.hud-panel--orange {
+  --hud-border: rgba(255, 107, 53, 0.55);
+  box-shadow: 0 0 20px rgba(255, 107, 53, 0.18);
+}
+.hud-panel--purple {
+  --hud-border: rgba(199, 36, 255, 0.55);
+  box-shadow: 0 0 20px rgba(199, 36, 255, 0.18);
+}
+.hud-panel--danger {
+  --hud-border: rgba(255, 51, 102, 0.65);
+  box-shadow: 0 0 22px rgba(255, 51, 102, 0.22);
+}
+.hud-panel--gold {
+  --hud-border: rgba(249, 202, 36, 0.55);
+  box-shadow: 0 0 20px rgba(249, 202, 36, 0.18);
+}
+
+.hud-panel--strong {
+  background: var(--hud-frame-bg-strong);
+  border-color: var(--hud-border-strong);
+  box-shadow: var(--hud-glow-strong);
+}
+
+.hud-panel--glow {
+  box-shadow: var(--hud-glow-strong);
+}
+
+/* Header */
+.hud-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--hud-header-height);
+  padding: 0 var(--space-3);
+  background: rgba(0, 0, 0, 0.28);
+  border-bottom: 1px solid var(--hud-border);
+  font-family: var(--title-font);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.hud-header__title {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.hud-header__status {
+  font-size: 0.65rem;
+  opacity: 0.85;
+}
+
+/* Body */
+.hud-panel__body {
+  padding: var(--space-3);
+}
+
+/* Small status chip (matches the sheet’s ERROR / SYSTEM chips) */
+.hud-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.45rem;
+  border: 1px solid currentColor;
+  border-radius: 2px;
+  font-family: var(--title-font);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.hud-chip--cyan   { color: var(--accent); }
+.hud-chip--orange { color: var(--hud-accent-orange); }
+.hud-chip--danger { color: var(--hud-danger); }
+.hud-chip--gold   { color: var(--hud-accent-gold); }

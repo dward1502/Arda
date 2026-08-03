@@ -1,11 +1,14 @@
 # arda-outpost-scout
 
-Bounded survey and source-bearing research runtime for Arda outposts.
+Bounded survey, Rúmil audit, and source-bearing research runtime for Arda outposts.
 
 ## What it does
 Walks a bounded repository surface, queries one operator-configured local
 SearXNG endpoint, converts results into advisory outpost observations, and
 stores complete observations through `arda-vaire` with durable receipt IDs.
+It also accepts expiring, read-only Rúmil inventory requests rooted beneath the
+configured runtime root, persists full packets outside memory, and projects only
+compact audit receipts into Vairë.
 
 ## Maturity
 - Stable: bounded repo survey, governed research requests, source validation,
@@ -18,6 +21,8 @@ stores complete observations through `arda-vaire` with durable receipt IDs.
 - `observation::{CrateObservation, CrateStatus, SurveyReport}`
 - `SearxngClient::search(ResearchRequest)` -> `ResearchReport`
 - `build_runtime_router(ScoutRuntimeState)` -> Axum router
+- `ScoutAuditService::execute(ScoutAuditRequest)` -> `ScoutAuditOutcome`
+- `ScoutAuditService::followup(AuditFollowupRequest)` -> bounded packet sections
 - `ObservationMemoryBridge::encode_observation(observation)` -> `MemoryFallback`
 - `ObservationMemoryBridge::recall_observations(request)` -> `ScoutRecallReport`
 - `encode_observation_to_memory(root, observation)` and
@@ -53,9 +58,26 @@ stores complete observations through `arda-vaire` with durable receipt IDs.
 - Research observations are `raw_measurement` with `advisory` authority. They
   cannot approve, dispatch, promote, or append to the project task queue.
 
+## Rúmil audit contract
+
+- `/audit` accepts only non-expired `advisory_read_only` requests using the
+  `bounded_request_root` policy and mandatory file, byte, excerpt, and timeout
+  budgets.
+- Audit roots are relative to the configured Warden runtime root. Absolute paths
+  and parent traversal are rejected before scanning.
+- Full packets are stored under `data/warden/rumil_audits/`; the append-only
+  receipt ledger records request, packet digest, audit ID, completeness, and
+  authority.
+- Identical retries replay the same packet without duplicate receipt or Vairë
+  write. Reusing a request ID with changed content is rejected.
+- `/audit/followup` reads an existing packet by audit ID and permits only fixed,
+  bounded sections and packet-relative path prefixes. It accepts no scan root.
+- Vairë receives a compact advisory receipt observation, never the full file
+  record collection.
+
 ## HTTP and CLI runtime
 
-- `serve`: `/health`, `/search`, `/survey`, and `/recall`.
+- `serve`: `/health`, `/search`, `/survey`, `/audit`, `/audit/followup`, and `/recall`.
 - `run-topics`: submits at most 16 configured topics with the fixed source policy
   and a 15-minute expiry.
 - The root daemon harness proxies health/search/recall when

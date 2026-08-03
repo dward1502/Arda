@@ -14,10 +14,11 @@ use sha2::{Digest, Sha256};
 
 use crate::observation::build_observation;
 use crate::{
-    survey_repo, AcknowledgementReceipt, ExternalObservationReceipt, MemoryFallback,
-    ObservationMemoryBridge, PersistedResearchChain, ResearchDispatch, ResearchReceiptLedger,
-    ResearchReport, ResearchRequest, ResearchSuggestion, ResearchSuggestionLedger,
-    ScoutRecallQuery, ScoutRecallReport, SearxngClient,
+    survey_repo, AcknowledgementReceipt, AuditFollowupRequest, AuditFollowupResponse,
+    ExternalObservationReceipt, MemoryFallback, ObservationMemoryBridge, PersistedResearchChain,
+    ResearchDispatch, ResearchReceiptLedger, ResearchReport, ResearchRequest, ResearchSuggestion,
+    ResearchSuggestionLedger, ScoutAuditError, ScoutAuditOutcome, ScoutAuditRequest,
+    ScoutAuditService, ScoutRecallQuery, ScoutRecallReport, SearxngClient,
 };
 
 const MEMORY_SCOPE: &str = "outpost_scout";
@@ -79,6 +80,14 @@ pub struct SuggestionResponse {
     pub status: &'static str,
 }
 
+#[derive(Debug, Serialize)]
+pub struct AuditResponse {
+    pub audit: ScoutAuditOutcome,
+    /// Present only for the first execution. Idempotent replays do not append
+    /// duplicate Vairë records.
+    pub memory: Option<MemoryFallback>,
+}
+
 #[derive(Debug, Deserialize)]
 struct SurveyRequest {
     root: PathBuf,
@@ -97,6 +106,8 @@ pub fn build_runtime_router(state: ScoutRuntimeState) -> Router {
         .route("/suggestions", post(enqueue_suggestion))
         .route("/dispatch", post(dispatch_next))
         .route("/survey", post(survey))
+        .route("/audit", post(audit))
+        .route("/audit/followup", post(audit_followup))
         .route("/recall", post(recall))
         .with_state(state)
 }
@@ -237,11 +248,16 @@ async fn execute_search(
     let result = report.results.first().ok_or_else(|| {
         internal_error("research provider returned no source results; no receipt was published")
     })?;
+    let canonical_content = state
+        .search
+        .crawl_canonical_content(&result.url, "fit")
+        .await
+        .map_err(internal_error)?;
     let observation = ExternalObservationReceipt::completed(
         &suggestion,
         &dispatch,
         &result.url,
-        hex_digest(result.content.as_bytes()),
+        hex_digest(canonical_content.as_bytes()),
         hex_digest(result.url.as_bytes()),
         now,
     )
@@ -284,6 +300,48 @@ async fn survey(
     .map_err(internal_error)?
 }
 
+async fn audit(
+    State(state): State<ScoutRuntimeState>,
+    Json(request): Json<ScoutAuditRequest>,
+) -> Result<Json<AuditResponse>, (StatusCode, Json<Value>)> {
+    tokio::task::spawn_blocking(move || {
+        let service = ScoutAuditService::new(&state.memory_root, &state.source);
+        let outcome = service
+            .execute(request, chrono::Utc::now())
+            .map_err(audit_error)?;
+        let memory = if outcome.replayed {
+            None
+        } else {
+            Some(
+                state
+                    .memory()
+                    .encode_observation_to_memory(&outcome.observation)
+                    .map_err(internal_error)?,
+            )
+        };
+        Ok(Json(AuditResponse {
+            audit: outcome,
+            memory,
+        }))
+    })
+    .await
+    .map_err(internal_error)?
+}
+
+async fn audit_followup(
+    State(state): State<ScoutRuntimeState>,
+    Json(request): Json<AuditFollowupRequest>,
+) -> Result<Json<AuditFollowupResponse>, (StatusCode, Json<Value>)> {
+    tokio::task::spawn_blocking(move || {
+        ScoutAuditService::new(&state.memory_root, &state.source)
+            .followup(request)
+            .map(Json)
+            .map_err(audit_error)
+    })
+    .await
+    .map_err(internal_error)?
+}
+
 async fn recall(
     State(state): State<ScoutRuntimeState>,
     Json(query): Json<ScoutRecallQuery>,
@@ -303,4 +361,13 @@ fn bad_request(error: impl std::fmt::Display) -> (StatusCode, Json<Value>) {
         StatusCode::BAD_REQUEST,
         Json(json!({"error": error.to_string()})),
     )
+}
+
+fn audit_error(error: ScoutAuditError) -> (StatusCode, Json<Value>) {
+    let status = match error {
+        ScoutAuditError::Rejected(_) => StatusCode::BAD_REQUEST,
+        ScoutAuditError::NotFound(_) => StatusCode::NOT_FOUND,
+        _ => StatusCode::INTERNAL_SERVER_ERROR,
+    };
+    (status, Json(json!({"error": error.to_string()})))
 }

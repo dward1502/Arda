@@ -11,6 +11,7 @@ pub mod adapters;
 pub mod harness;
 pub mod observability;
 pub mod orome;
+pub mod personal_ops;
 pub mod registry;
 pub mod runs;
 pub mod supervisor;

@@ -5,6 +5,7 @@ import { derivePresenceLedgerProjection } from '../scene/systems/presenceState'
 import { classifyFreshness, getOperatorLabel, getSafeRefreshCommand, normalizeTimestamp, type ArdaSourceProvenance } from './ardaProvenance'
 import { deriveAutomationStatusSurface } from './automationStatus'
 import { parseJsonOrNull } from './jsonParse'
+import { resolveWorkstationProfile } from './firstLevelTerminalContracts'
 import {
   collectInventoryPaths,
   filenameFromPath,
@@ -740,14 +741,19 @@ function deriveSceneSurfaces(sections: ArdaSection[]): ArdaSceneSurface[] {
 }
 
 function deriveWorkstationManifests(sections: ArdaSection[]): ArdaWorkstationManifest[] {
-  return sections.map((section) => ({
-    id: `${section.id}_workstation`,
-    title: `${section.title} Workstation`,
-    source_zone_id: section.id,
-    entry_anchor_id: `${section.id}_workstation_entry`,
-    module_ids: [...section.arda_panels],
-    presentation_modes: ['in_scene', 'native_window'],
-  }))
+  return sections.map((section) => {
+    const profile = resolveWorkstationProfile(section.id, section.arda_panels)
+    return {
+      id: `${section.id}_workstation`,
+      title: `${section.title} Workstation`,
+      source_zone_id: section.id,
+      entry_anchor_id: `${section.id}_workstation_entry`,
+      module_ids: profile.moduleIds,
+      rejected_panel_ids: profile.rejectedPanelIds,
+      module_adapter: profile.adapted ? 'profile' : 'direct',
+      presentation_modes: ['in_scene', 'native_window'],
+    }
+  })
 }
 
 function sourceKindForPath(sourcePath: string): ArdaSourceProvenance['sourceKind'] {

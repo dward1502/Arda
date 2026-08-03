@@ -16,6 +16,9 @@
 - `src/lib/ingest/`: parser/registry/types/sources for external data ingestion
 - `src/lib/endpointConfig.ts`, `src/lib/providerRouting.ts`, `src/lib/avatarPersona.ts`,
   `src/lib/weathertop.ts`, `src/lib/configWalkthrough.ts`: endpoint/provider/auth config
+- `src/lib/statefulPersona.ts`: validated read-only consumer for canonical
+  `persona.*` identity projections; static avatar persona helpers remain
+  rendering skins rather than identity authority
 - `src/lib/systemActionBus.ts`, `src/lib/automationStatus.ts`: action descriptors + state
 - `src/lib/tauriGuard.ts`, `src/lib/operatorStore.ts`, `src/lib/ardaLiveListener.ts`:
   Tauri guardrails + runtime listener
@@ -27,6 +30,18 @@
   - `src/lib/` source/surface/projection tests
   - `src/scene/` scene/boardroom/world derivation tests
   - `src/utils/` multi-window helper tests
+
+## Boardroom presence
+
+- `src/scene/systems/presenceState.ts`: canonical phase/scenario/urgency state
+  derivation and pure visual projection, including bounded optional persona
+  influence with alert precedence
+- `src/scene/boardroom/AvatarPresenceLayer.tsx`: live emitter-bound orchestrator
+  and canonical persona projection loader
+- `src/scene/boardroom/ParticleOrb.tsx`: preallocated particle renderer with
+  neutral fallback and hard-paused dismissed state
+- `src/scene/boardroom/particlePresence.ts`: deterministic materialize,
+  dematerialize, density, and motion transitions
 
 ## Consumer wiring
 

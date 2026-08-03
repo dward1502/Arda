@@ -182,6 +182,10 @@ impl MnemosyneService {
         let now = Utc::now().to_rfc3339();
         std::fs::write(&self.last_consolidation_path, &now)?;
 
+        // Persona is a projection of the same canonical memory records and
+        // therefore runs inside consolidation rather than on a new scheduler.
+        self.derive_identity_summary("arandur", None)?;
+
         self.observe_consolidation(consolidation_depth, promotion_receipts_written);
         Ok(ConsolidationReport {
             consolidated_at_utc: now,

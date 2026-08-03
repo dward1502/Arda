@@ -21,18 +21,22 @@ impl MnemosyneService {
                 Self::new(arda_root().join("data").join("mnemosyne"))?
             }
         };
-        Ok(apply_contract_dual_write_from_env(svc).with_metrics_root(
-            arda_root()
-                .join("core")
-                .join("metrics")
-                .join("by_crate")
-                .join("mnemosyne"),
-        ))
+        let arda_root = arda_root();
+        Ok(apply_contract_dual_write_from_env(svc)
+            .with_metrics_root(
+                arda_root
+                    .join("core")
+                    .join("metrics")
+                    .join("by_crate")
+                    .join("mnemosyne"),
+            )
+            .with_human_projection_root(arda_root.join("human")))
     }
 
     pub fn new(root: impl AsRef<Path>) -> Result<Self> {
         let root = root.as_ref().to_path_buf();
         let metrics_root = inferred_metrics_root(&root);
+        let human_projection_root = inferred_human_projection_root(&root);
         let episodic_root = root.join("episodic");
         let semantic_root = root.join("semantic");
         let procedural_root = root.join("procedural");
@@ -41,11 +45,13 @@ impl MnemosyneService {
         let noise_ledger_path = root.join("noise.jsonl");
         let obsidian_index_path = root.join("obsidian_index.jsonl");
         let last_consolidation_path = root.join("last_consolidation_utc");
+        let persona_root = root.join("persona");
 
         fs::create_dir_all(&episodic_root)?;
         fs::create_dir_all(&semantic_root)?;
         fs::create_dir_all(&procedural_root)?;
         fs::create_dir_all(&archive_root)?;
+        fs::create_dir_all(&persona_root)?;
         OpenOptions::new()
             .create(true)
             .append(true)
@@ -71,6 +77,8 @@ impl MnemosyneService {
             noise_ledger_path,
             obsidian_index_path,
             last_consolidation_path,
+            persona_root,
+            human_projection_root,
             contract_memory_root: None,
             metrics_root,
             observability: Default::default(),
@@ -83,6 +91,15 @@ impl MnemosyneService {
     /// Existing on-disk Mnemosyne files are untouched.
     pub fn with_contract_memory_root(mut self, contract_memory_root: PathBuf) -> Self {
         self.contract_memory_root = Some(contract_memory_root);
+        self
+    }
+
+    /// Configure a local human-readable projection tree.
+    ///
+    /// This filesystem path may be opened as an Obsidian vault, but it does not
+    /// configure an Obsidian account, plugin, or cloud synchronization API.
+    pub fn with_human_projection_root(mut self, human_projection_root: PathBuf) -> Self {
+        self.human_projection_root = Some(human_projection_root);
         self
     }
 
@@ -380,6 +397,14 @@ fn inferred_metrics_root(memory_root: &Path) -> Option<PathBuf> {
     )
 }
 
+fn inferred_human_projection_root(memory_root: &Path) -> Option<PathBuf> {
+    let data_root = memory_root.parent()?;
+    if memory_root.file_name()? != "mnemosyne" || data_root.file_name()? != "data" {
+        return None;
+    }
+    Some(data_root.parent()?.join("human"))
+}
+
 pub(super) fn append_jsonl<T: Serialize>(path: &Path, value: &T) -> Result<()> {
     let mut file = OpenOptions::new().create(true).append(true).open(path)?;
     file.lock_exclusive()?;
@@ -396,17 +421,21 @@ pub(super) fn append_jsonl<T: Serialize>(path: &Path, value: &T) -> Result<()> {
 }
 
 pub(super) fn write_atomic_json<T: Serialize>(path: &Path, value: &T) -> Result<()> {
+    write_atomic(path, &serde_json::to_vec_pretty(value)?)
+}
+
+pub(super) fn write_atomic(path: &Path, content: &[u8]) -> Result<()> {
     let parent = path.parent().ok_or_else(|| ArdaError::Agent {
         agent: "mnemosyne".to_owned(),
-        message: format!("metrics path has no parent: {}", path.display()),
+        message: format!("atomic-write path has no parent: {}", path.display()),
     })?;
     fs::create_dir_all(parent)?;
     let file_name = path
         .file_name()
         .and_then(|value| value.to_str())
-        .unwrap_or("snapshot.json");
+        .unwrap_or("projection");
     let temporary = parent.join(format!(".{file_name}.tmp"));
-    fs::write(&temporary, serde_json::to_vec_pretty(value)?)?;
+    fs::write(&temporary, content)?;
     fs::rename(temporary, path)?;
     Ok(())
 }

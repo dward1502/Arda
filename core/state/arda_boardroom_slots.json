@@ -309,15 +309,16 @@
     {
       "slot_id": "view_desk_control_panel",
       "role_id": "fleet",
-      "component_id": "command-podium-workstation",
-      "source_zone_id": "sovereign_world",
-      "title": "Command Podium",
+      "component_id": "fleet-workstation",
+      "source_zone_id": "fleet_and_backbone",
+      "title": "Systems + Fleet",
       "module_ids": [
-        "executive_overview",
-        "systems"
+        "systems",
+        "operations_and_packages"
       ],
       "presentation_modes": [
-        "in_scene"
+        "in_scene",
+        "native_window"
       ],
       "surface_layout": {
         "enabled": true,
@@ -330,28 +331,28 @@
               "id": "view_desk_control_panel.metrics",
               "kind": "metric_strip",
               "title": "Metrics",
-              "data_binding": "sovereign_world.summary",
+              "data_binding": "fleet_and_backbone.summary",
               "grid_area": "top"
             },
             {
               "id": "view_desk_control_panel.stream",
               "kind": "particle_stream",
               "title": "Flow",
-              "data_binding": "sovereign_world.health",
+              "data_binding": "fleet_and_backbone.health",
               "grid_area": "main"
             },
             {
               "id": "view_desk_control_panel.status",
               "kind": "status_grid",
               "title": "Status",
-              "data_binding": "sovereign_world.status",
+              "data_binding": "fleet_and_backbone.status",
               "grid_area": "side"
             }
           ]
         },
         "focus": {
           "mode": "in_scene_workstation",
-          "target": "sovereign_world",
+          "target": "fleet_and_backbone",
           "refresh_ms": 1000
         },
         "embed": {
@@ -360,7 +361,7 @@
         }
       },
       "visualization": {
-        "preset_id": "topology",
+        "preset_id": "standby",
         "config": {
           "density": "medium",
           "timespan_minutes": 15,
@@ -371,12 +372,12 @@
     },
     {
       "slot_id": "view_desk_r",
-      "component_id": "human-business-workstation",
-      "source_zone_id": "human_realm",
-      "title": "Human + Business",
+      "component_id": "routing-comms-workstation",
+      "source_zone_id": "routing_and_comms",
+      "title": "Routing + Communications",
       "module_ids": [
-        "human_realm",
-        "business"
+        "systems",
+        "operations_and_packages"
       ],
       "presentation_modes": [
         "in_scene",
@@ -393,28 +394,28 @@
               "id": "view_desk_r.metrics",
               "kind": "metric_strip",
               "title": "Metrics",
-              "data_binding": "human_realm.summary",
+              "data_binding": "routing_and_comms.summary",
               "grid_area": "top"
             },
             {
               "id": "view_desk_r.stream",
               "kind": "particle_stream",
               "title": "Flow",
-              "data_binding": "human_realm.health",
+              "data_binding": "routing_and_comms.health",
               "grid_area": "main"
             },
             {
               "id": "view_desk_r.status",
               "kind": "status_grid",
               "title": "Status",
-              "data_binding": "human_realm.status",
+              "data_binding": "routing_and_comms.status",
               "grid_area": "side"
             }
           ]
         },
         "focus": {
           "mode": "native_window",
-          "target": "human_realm",
+          "target": "routing_and_comms",
           "refresh_ms": 1000
         },
         "embed": {
@@ -434,12 +435,12 @@
     },
     {
       "slot_id": "view_desk_aux",
-      "component_id": "daily-command-workstation",
-      "source_zone_id": "now_command",
-      "title": "Daily Command",
+      "component_id": "human-business-workstation",
+      "source_zone_id": "human_business_personal",
+      "title": "Human + Business",
       "module_ids": [
-        "operating_surface",
-        "executive_overview"
+        "human_realm",
+        "business"
       ],
       "presentation_modes": [
         "in_scene",
@@ -456,28 +457,28 @@
               "id": "view_desk_aux.metrics",
               "kind": "metric_strip",
               "title": "Metrics",
-              "data_binding": "now_command.summary",
+              "data_binding": "human_business_personal.summary",
               "grid_area": "top"
             },
             {
               "id": "view_desk_aux.stream",
               "kind": "particle_stream",
               "title": "Flow",
-              "data_binding": "now_command.health",
+              "data_binding": "human_business_personal.health",
               "grid_area": "main"
             },
             {
               "id": "view_desk_aux.status",
               "kind": "status_grid",
               "title": "Status",
-              "data_binding": "now_command.status",
+              "data_binding": "human_business_personal.status",
               "grid_area": "side"
             }
           ]
         },
         "focus": {
           "mode": "native_window",
-          "target": "now_command",
+          "target": "human_business_personal",
           "refresh_ms": 1000
         },
         "embed": {
@@ -486,7 +487,7 @@
         }
       },
       "visualization": {
-        "preset_id": "pulse",
+        "preset_id": "standby",
         "config": {
           "density": "medium",
           "timespan_minutes": 15,

@@ -331,3 +331,150 @@ pub struct DailyBrief {
     pub source_receipts: Vec<String>,
     pub uncertainty_disclosure: String,
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum PersonalOpsRecordType {
+    CaptureRecorded,
+    ItemClassified,
+    ItemScheduled,
+    ItemCompleted,
+    ReminderAttempted,
+    ReminderAcknowledged,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CaptureRecordedEvent {
+    pub event_id: Uuid,
+    pub occurred_at: DateTime<Utc>,
+    pub operator_id: String,
+    pub capture: InboxCapture,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ItemClassifiedEvent {
+    pub event_id: Uuid,
+    pub occurred_at: DateTime<Utc>,
+    pub operator_id: String,
+    pub item_id: Uuid,
+    pub kind: PersonalItemKind,
+    pub evidence_class: EvidenceClass,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub confidence: Option<f32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub rationale: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ItemScheduledEvent {
+    pub event_id: Uuid,
+    pub occurred_at: DateTime<Utc>,
+    pub operator_id: String,
+    pub item_id: Uuid,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub scheduled_at: Option<DateTime<Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub due_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ItemCompletedEvent {
+    pub event_id: Uuid,
+    pub occurred_at: DateTime<Utc>,
+    pub operator_id: String,
+    pub item_id: Uuid,
+    pub completed_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ReminderAttemptedEvent {
+    pub event_id: Uuid,
+    pub occurred_at: DateTime<Utc>,
+    pub operator_id: String,
+    pub item_id: Uuid,
+    pub receipt: ReminderReceipt,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ReminderAcknowledgedEvent {
+    pub event_id: Uuid,
+    pub occurred_at: DateTime<Utc>,
+    pub operator_id: String,
+    pub reminder_id: Uuid,
+    pub state: ReminderDeliveryState,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub receipt_reference: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "event_type", rename_all = "snake_case")]
+pub enum PersonalOpsRecord {
+    CaptureRecorded(CaptureRecordedEvent),
+    ItemClassified(ItemClassifiedEvent),
+    ItemScheduled(ItemScheduledEvent),
+    ItemCompleted(ItemCompletedEvent),
+    ReminderAttempted(ReminderAttemptedEvent),
+    ReminderAcknowledged(ReminderAcknowledgedEvent),
+}
+
+impl PersonalOpsRecord {
+    pub fn event_id(&self) -> Uuid {
+        match self {
+            Self::CaptureRecorded(e) => e.event_id,
+            Self::ItemClassified(e) => e.event_id,
+            Self::ItemScheduled(e) => e.event_id,
+            Self::ItemCompleted(e) => e.event_id,
+            Self::ReminderAttempted(e) => e.event_id,
+            Self::ReminderAcknowledged(e) => e.event_id,
+        }
+    }
+
+    pub fn occurred_at(&self) -> DateTime<Utc> {
+        match self {
+            Self::CaptureRecorded(e) => e.occurred_at,
+            Self::ItemClassified(e) => e.occurred_at,
+            Self::ItemScheduled(e) => e.occurred_at,
+            Self::ItemCompleted(e) => e.occurred_at,
+            Self::ReminderAttempted(e) => e.occurred_at,
+            Self::ReminderAcknowledged(e) => e.occurred_at,
+        }
+    }
+
+    pub fn operator_id(&self) -> &str {
+        match self {
+            Self::CaptureRecorded(e) => &e.operator_id,
+            Self::ItemClassified(e) => &e.operator_id,
+            Self::ItemScheduled(e) => &e.operator_id,
+            Self::ItemCompleted(e) => &e.operator_id,
+            Self::ReminderAttempted(e) => &e.operator_id,
+            Self::ReminderAcknowledged(e) => &e.operator_id,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ItemState {
+    Draft,
+    Active,
+    Completed,
+    Cancelled,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ClassificationReason {
+    OperatorInput,
+    Inference,
+    Import,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ReminderState {
+    pub delivery_state: ReminderDeliveryState,
+    pub attempt_count: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub last_acknowledged_at: Option<DateTime<Utc>>,
+    pub policy: ReminderPolicy,
+    pub non_clinical_disclosure: String,
+}

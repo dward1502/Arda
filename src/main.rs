@@ -37,6 +37,11 @@ struct Cli {
     /// here, never to `manwe`'s internal 7171 gateway port.
     #[arg(long)]
     harness_addr: Option<String>,
+
+    /// Run only the local harness surface. The separately managed Manwe unit
+    /// remains the owner of the 7171 gateway port.
+    #[arg(long)]
+    harness_only: bool,
 }
 
 /// Path to the data-driven service registry.
@@ -56,7 +61,11 @@ async fn main() -> anyhow::Result<()> {
     let root = repo_root();
     let reg = Registry::load(&root.join(SERVICES_TOML))
         .map_err(|e| anyhow::anyhow!("{e}\n(running from {root:?}; expected {SERVICES_TOML})"))?;
-    let (services, errors) = reg.resolve(&root, cli.no_ui);
+    let (services, errors) = if cli.harness_only {
+        (Vec::new(), Vec::new())
+    } else {
+        reg.resolve(&root, cli.no_ui)
+    };
 
     // Required-but-missing services are hard failures.
     if !errors.is_empty() {
@@ -69,7 +78,9 @@ async fn main() -> anyhow::Result<()> {
         );
     }
 
-    if services.is_empty() {
+    if cli.harness_only {
+        info!("arda daemon: harness-only mode; no child services will be supervised");
+    } else if services.is_empty() {
         warn!(
             "arda daemon: no services resolved (--no-ui={}); nothing to supervise",
             cli.no_ui
@@ -143,7 +154,11 @@ async fn main() -> anyhow::Result<()> {
         }
     });
 
-    supervisor.run().await;
+    if cli.harness_only {
+        harness_shutdown.notified().await;
+    } else {
+        supervisor.run().await;
+    }
     info!("arda daemon: stopped");
     Ok(())
 }

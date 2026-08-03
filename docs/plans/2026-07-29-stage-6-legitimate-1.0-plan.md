@@ -2,6 +2,8 @@
 
 > **For Hermes:** Stage 6 is the release decision and proof phase. Do not expand scope to satisfy every long-term Arda vision. Ship the smallest complete, supportable promise and preserve later applications as compatible extensions.
 
+**System completion coordination:** [Arda System Unification and Usability Plan](2026-08-02-arda-system-unification-and-usability-plan.md). This Stage 6 plan remains authoritative for 1.0 release gates; the coordination plan adds no product scope.
+
 **Release promise:** Connect a supported software project to a sovereign AI development environment you own. Arda plans, researches when needed, executes bounded work, verifies it with the project's commands, explains the evidence, records every consequential action, and resumes safely.
 
 **Product:** Arda Workbench 1.0 for the declared Linux support matrix  

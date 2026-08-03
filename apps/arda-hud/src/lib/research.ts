@@ -76,6 +76,22 @@ export interface ResearchBriefClaim {
   support?: 'supporting' | 'opposing' | 'mixed' | 'unknown'
 }
 
+export interface RumilBriefEvidence {
+  audit_id: string
+  project_id: string
+  packet_reference: string
+  packet_sha256: string
+  completeness: 'complete' | 'partial' | 'failed'
+  evidence_classes: Array<'tool_backed' | 'heuristic' | 'historical' | 'partial' | 'unavailable'>
+  stale_baseline: boolean
+  rejected_providers: string[]
+  missing_evidence: string[]
+  evaluation_status: 'accepted_advisory' | 'review_required' | 'rejected'
+  degraded_reasons: string[]
+  authority: 'advisory_read_only'
+  execution_authorized: false
+}
+
 export interface ResearchBrief {
   schema_version: string
   brief_id: string
@@ -97,6 +113,7 @@ export interface ResearchBrief {
   expires_at_utc?: string
   material_fingerprint?: string
   no_change_receipt?: string
+  rumil_evidence?: RumilBriefEvidence
 }
 
 export interface BriefListResponse { briefs: ResearchBrief[] }

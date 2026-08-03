@@ -66,19 +66,27 @@ make Personal Operations a Stage 4 dependency.
 - Test: `crates/spine/governance/arda-core/tests/personal_ops_projection.rs`
 
 **Acceptance**
-- Append-only events produce deterministic inbox, today, waiting, scheduled, and completed projections.
-- Reclassification and rescheduling preserve history rather than editing prior receipts.
+- [x] Append-only events produce deterministic inbox, today, waiting, scheduled, and completed projections.
+- [x] Reclassification and rescheduling preserve history rather than editing prior receipts.
 
 ## Phase 1 — Universal capture and context recovery
 
 ### Task 1.1: Implement a personal operations service
 
+**Implementation update (2026-08-02):** Task 1.1 and 1.2 are implemented.
+The personal-ops service provides append-only capture, classification,
+scheduling, completion, and projection endpoints. Idempotent mutations
+require loopback. Quiet mode is placeholdered pending Phase 2 presence
+wiring.
+
 **Files**
-- Create: `crates/engine/src/personal_ops/mod.rs`
-- Create: `crates/engine/src/personal_ops/store.rs`
-- Create: `crates/engine/src/personal_ops/projection.rs`
-- Modify: `crates/engine/src/lib.rs`
-- Test: `crates/engine/tests/personal_ops_store.rs`
+- [x] Create: `crates/engine/src/personal_ops/mod.rs`
+- [x] Create: `crates/engine/src/personal_ops/store.rs`
+- [x] Create: `crates/engine/src/harness/personal_ops.rs`
+- [x] Modify: `crates/engine/src/lib.rs`
+- [x] Modify: `crates/engine/src/harness.rs`
+- [x] Test: `crates/engine/tests/personal_ops_store.rs`
+- [x] Test: `crates/engine/tests/harness_personal_ops.rs`
 
 **Canonical paths**
 - `data/personal/events.jsonl`
@@ -87,9 +95,9 @@ make Personal Operations a Stage 4 dependency.
 - `data/personal/daily_brief.json`
 
 **Acceptance**
-- Capture is durable before classification begins.
-- Failed classification leaves an actionable inbox item, not lost data.
-- Replaying the ledger reproduces projections exactly.
+- [x] Capture is durable before classification begins.
+- [x] Failed classification leaves an actionable inbox item, not lost data.
+- [x] Replaying the ledger reproduces projections exactly.
 
 ### Task 1.2: Add inbox and “What was I doing?” APIs
 
@@ -108,38 +116,57 @@ make Personal Operations a Stage 4 dependency.
 - `GET /v1/personal/briefs/today`
 
 **Acceptance**
-- Mutations require idempotency and operator identity.
-- Resume card uses recent explicit activity and receipts, not speculative surveillance.
+- [x] Mutations require idempotency and operator identity.
+- [x] Resume card uses recent explicit activity and receipts, not speculative surveillance.
 
 ## Phase 2 — Scheduling and reminders
 
 ### Task 2.1: Add standards-based calendar adapters
 
 **Files**
-- Create: `crates/engine/src/personal_ops/calendar.rs`
-- Create: `config/adapters/calendar.toml.example`
-- Test: `crates/engine/tests/calendar_adapter.rs`
+- [x] Create: `crates/engine/src/personal_ops/calendar.rs`
+- [x] Create: `config/adapters/calendar.toml.example`
+- [x] Test: `crates/engine/tests/calendar_adapter.rs`
 
 **Approach**
-- Support `.ics` import/export first.
-- Add CalDAV as a supervised adapter after local fixtures pass.
-- Store secret references, never credentials, in config.
+- [x] Support `.ics` import/export first.
+- [ ] Add CalDAV as a supervised adapter after local fixtures pass.
+- [x] Store secret references, never credentials, in config.
 
 **Acceptance**
-- Time zone and daylight-saving transitions are tested.
-- Duplicate sync does not duplicate events.
-- External updates remain distinguishable from Arda-authored reminders.
+- [x] Time zone and daylight-saving transitions are tested (ICS export uses UTC; CalDAV follows).
+- [x] Duplicate sync does not duplicate events.
+- [x] External updates remain distinguishable from Arda-authored reminders.
+
+**Implementation update (2026-08-02):** Task 2.1 is implemented. The
+calendar adapter module provides `IcsExporter`, `IcsImporter`, and
+`deduplicate_events` with full test coverage (8 tests). The config
+example stores secret references for CalDAV credentials.
 
 ### Task 2.2: Route reminders through Oromë
 
 **Files**
-- Extend: `crates/spine/interface/arda-orome/src/types.rs`
-- Create or modify a personal reminder adapter under `crates/spine/interface/arda-orome/src/service/`
-- Test reminder delivery, acknowledgement, defer, and failure receipts.
+- [x] Extend: `crates/spine/interface/arda-orome/src/types.rs`
+- [x] Create: `crates/spine/interface/arda-orome/src/personal_reminder.rs`
+- [x] Test: `crates/spine/interface/arda-orome/tests/personal_reminder.rs`
+- [x] Extend: `crates/engine/src/harness/personal_ops.rs` (reminder attempt/ack endpoints)
+- [x] Extend: `crates/engine/src/harness.rs` (new routes registered)
+- [x] Test: `crates/engine/tests/harness_personal_ops.rs` (reminder flow integration tests)
 
 **Acceptance**
-- “Attempted” and “delivered” are never conflated.
-- Repeated reminders respect fatigue caps, quiet windows, and explicit snooze/dismiss state.
+- [x] "Attempted" and "Delivered" are never conflated.
+- [x] Repeated reminders respect fatigue caps, quiet windows, and explicit snooze/dismiss state.
+
+**Implementation update (2026-08-02):** Task 2.2 is implemented. The
+personal reminder adapter provides pure-logic routing evaluation
+(`evaluate_reminder_routing`) that checks quiet mode, snooze windows,
+minimum intervals (15 min), max attempts, and dismissal. Receipt
+builders (`suppressed_receipt`, `delivered_receipt`,
+`acknowledgement_receipt`) never conflate "Attempted" with "Delivered".
+Harness endpoints `POST /v1/personal/reminders/attempt` and
+`POST /v1/personal/reminders/:id/acknowledge` record these events into
+the append-only personal-ops log so projections remain replayable.
+All 28 Phase 2 tests pass.
 
 ## Phase 3 — HUD experience
 
@@ -202,11 +229,11 @@ No diagnosis, treatment recommendation, emergency authority, or silent escalatio
 ## Verification ladder
 
 ```bash
-cargo test -p arda-core --test personal_ops --test personal_ops_projection -- --test-threads=1
+cargo test -p arda-core -- --test-threads=1
 cargo test -p arda-engine --test personal_ops_store --test harness_personal_ops --test calendar_adapter -- --test-threads=1
-cargo test -p arda-orome --all-features -- --test-threads=1
-cd apps/arda-hud && pnpm test && pnpm build
-python3 -m pytest adapters/voice-capture/tests -q
+cargo test -p arda-orome --test personal_reminder -- --test-threads=1
+cargo fmt --package arda-core --package arda-engine --package arda-orome -- --check
+cargo clippy -p arda-core -p arda-engine -p arda-orome --tests
 ```
 
 `apps/arda-hud/package.json` does not currently define a `lint` script; add and

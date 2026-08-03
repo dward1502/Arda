@@ -235,7 +235,7 @@ export const BOARDROOM_SPATIAL_ZONES: BoardroomSpatialZone[] = [
     label: 'Service Health',
     kind: 'physical_button',
     interaction: 'open_workstation',
-    binding: 'systems_health',
+    binding: 'fleet_and_backbone',
     position: [-0.3, 0.414, 1.42],
     rotation: [0, 0, 0],
     size: [0.14, 0.045, 0.16],

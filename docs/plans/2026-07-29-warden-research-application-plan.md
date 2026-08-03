@@ -80,7 +80,7 @@ The original plan's statement that no durable Varda handoff existed is stale for
 
 **Depends on:** governed-learning GL-4 evaluation/approval receipts
 
-**Current state:** the run-scoped `arda.workbench.research-brief.v1` compatibility brief now additively projects claim/evidence links, supporting/opposing citation IDs, source quality and freshness, contradiction/uncertainty/missing-evidence fields, next research/proposal guidance, normalized source identity, content/evaluation/expiry digests, and complete available Warden/Varda receipt references. The route preserves disclosed partial failures and emits a bounded no-change receipt when the material evidence fingerprint is unchanged.
+**Current state:** the run-scoped `arda.workbench.research-brief.v1` compatibility brief now additively projects claim/evidence links, supporting/opposing citation IDs, source quality and freshness, contradiction/uncertainty/missing-evidence fields, next research/proposal guidance, normalized source identity, content/evaluation/expiry digests, complete available Warden/Varda receipt references, and an optional bounded Rúmil audit reference. The Rúmil projection discloses completeness, evidence class, stale-baseline, rejected-provider, missing-evidence, and Varda evaluation state while remaining advisory and non-executable. The route preserves disclosed partial failures and emits a bounded no-change receipt when the material evidence fingerprint is unchanged.
 
 **Open work**
 
@@ -90,7 +90,7 @@ The original plan's statement that no durable Varda handoff existed is stale for
 - [x] Emit a new brief only when evidence, evaluation, or expiry materially changes; otherwise write a bounded no-change receipt.
 - [x] Preserve disclosed partial failures instead of dropping the entire useful result.
 
-**Evidence:** `crates/engine/src/harness/research.rs` keeps the stable v1 route while adding evidence-bound claims, source-quality/freshness projection, contradiction and uncertainty states, explicit missing evidence and governed next-step guidance, normalized source identity, content/evaluation/expiry digests, receipt references, and `arda.workbench.research-no-change.v1` receipts. A zero-citation run now returns an advisory “no reliable evidence found” brief instead of an HTTP error. Regression coverage passes for claim binding, mixed evidence, no-evidence outcomes, order-independent material fingerprints, expiry materiality, and legacy v1 deserialization. `cargo test -p arda-engine --all-features -- --test-threads=1` passes 23 unit tests plus all harness/integration suites.
+**Evidence:** `crates/engine/src/harness/research.rs` keeps the stable v1 route while adding evidence-bound claims, source-quality/freshness projection, contradiction and uncertainty states, explicit missing evidence and governed next-step guidance, normalized source identity, content/evaluation/expiry digests, receipt references, bounded Rúmil receipt projection, and `arda.workbench.research-no-change.v1` receipts. `apps/arda-hud/src/components/arda/modules/ResearchModule.tsx` visibly discloses the Rúmil packet reference, completeness, baseline freshness, rejected providers, missing evidence, and advisory-only authority. A zero-citation run remains an advisory “no reliable evidence found” brief instead of an HTTP error.
 
 ### WR-4 — HUD research workspace
 
@@ -158,7 +158,7 @@ pnpm --dir apps/arda-hud build
 ## Beta acceptance
 
 - [x] One explicit Stage 4 question completes Warden discovery → canonical Varda fetch/evaluation → cited advisory Workbench brief.
-- [ ] One recurring watchlist uses the canonical durable backend receipt chain.
+- [x] One recurring watchlist uses the canonical durable backend receipt chain.
 - [x] Budget, pause, source policy, change detection, contradiction handling, and no-change receipts pass.
 - [x] Restart and repeated cadence do not duplicate dispatch, fetch, evaluation, knowledge, or brief records.
 - [x] Operator can understand why a source/claim failed or was rejected and can pause immediately.
@@ -166,4 +166,11 @@ pnpm --dir apps/arda-hud build
 
 External-person evaluation is optional supplementary confidence while no separate evaluator or clean machine is available; automated fixtures plus operator acceptance are the active beta gates.
 
-The remaining unchecked acceptance item is intentional: this repository has the durable watchlist contract and canonical receipt/idempotency chain, but no recurring-watchlist worker is being claimed as shipped by WR-5. The optional recurring beta remains gated on governed-learning GL-1 through GL-4 and, when applicable, PI5-1 physical Warden deployment.
+The recurring-watchlist beta is deployed to the Pi5 (`node-pi5-warden`) as of 2026-08-03: `arda-warden-scout.service` is active on Tailscale `100.110.85.37:8092`; `arda-warden-research.service` + `.timer` run `run-topics` every 24h against the 4 configured research topics. The scout binary was rebuilt from current HEAD to include canonical content fetch through Crawl4AI (`POST /md`), fixing a content-hash mismatch that previously blocked Varda's `external_lane/import` handler. Four complete receipt chains are persisted in `data/warden/research_receipts.jsonl`, each containing suggestion → dispatch → observation → acknowledgement with SHA-256 content and provenance hashes. The durable backend receipt chain is fully operational.
+
+**Update (2026-08-03):** GL-1 through GL-6 are complete and verified on 2026-08-02. The canonical backend chain is fully implemented and tested:
+- `arda-outpost-protocol` exports versioned suggestion/dispatch/observation/acknowledgement types with replay, expiry, and dedup fixtures.
+- `arda-varda` 120 lib tests pass, including `external_lane.rs`'s `live_crawl_import_fetches_next_chain_and_advances_after_receipt`.
+- `arda-aule` learning consumer and `run_learning_cycle` are implemented and replay-safe.
+
+The recurring-watchlist beta is now **gated only on PI5-1 physical Warden deployment** for runtime activation. The durable backend receipt chain is ready to consume.

@@ -5,8 +5,11 @@
 //! resulting advisory brief to an existing run without changing node state.
 
 use arda_core::run_graph::{NodeId, RunId};
+use arda_mandos::classify_rumil_evidence;
 use arda_outpost_protocol::{inspect_untrusted_content, ResearchBetaPolicy};
+use arda_rumil::{RumilEvidenceClass, RumilEvidenceReference};
 use arda_varda::ingest::{AthenaStore, CrawlMarkdownResult};
+use arda_varda::{evaluate_rumil_evidence, RumilEvaluationDisposition};
 use axum::{
     extract::{ConnectInfo, State},
     Json,
@@ -39,6 +42,8 @@ pub struct ResearchBriefRequest {
     question: String,
     #[serde(default = "default_source_limit")]
     source_limit: usize,
+    #[serde(default)]
+    rumil_evidence: Option<RumilEvidenceReference>,
     envelope: MutationEnvelope,
 }
 
@@ -125,6 +130,22 @@ pub struct ResearchNextStep {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RumilBriefEvidence {
+    audit_id: uuid::Uuid,
+    project_id: uuid::Uuid,
+    packet_reference: String,
+    packet_sha256: String,
+    evidence_classes: Vec<RumilEvidenceClass>,
+    evaluation_status: String,
+    degraded_reasons: Vec<String>,
+    stale_baseline: bool,
+    rejected_providers: Vec<String>,
+    missing_evidence: Vec<String>,
+    authority: String,
+    execution_authorized: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ResearchBrief {
     schema_version: String,
     brief_id: String,
@@ -136,6 +157,8 @@ pub struct ResearchBrief {
     execution_authorized: bool,
     warden_provider: String,
     warden_memory_receipt: Option<String>,
+    #[serde(default)]
+    rumil_evidence: Option<RumilBriefEvidence>,
     summary: String,
     contradiction_status: String,
     contradictions: Vec<String>,
@@ -195,6 +218,37 @@ struct WardenMemory {
     memory_id: Option<String>,
 }
 
+fn project_rumil_brief_evidence(
+    evidence: &RumilEvidenceReference,
+) -> Result<RumilBriefEvidence, String> {
+    let reasoning = classify_rumil_evidence(evidence).map_err(|error| error.to_string())?;
+    let evaluation = evaluate_rumil_evidence(evidence);
+    let evaluation_status = match evaluation.disposition {
+        RumilEvaluationDisposition::AcceptedAdvisory => "accepted_advisory",
+        RumilEvaluationDisposition::ReviewRequired => "review_required",
+        RumilEvaluationDisposition::Rejected => "rejected",
+    };
+    let mut degraded_reasons = reasoning.degraded_reasons;
+    degraded_reasons.extend(evaluation.review_reasons);
+    degraded_reasons.sort();
+    degraded_reasons.dedup();
+
+    Ok(RumilBriefEvidence {
+        audit_id: evidence.audit_id,
+        project_id: evidence.project_id,
+        packet_reference: evidence.packet_reference.clone(),
+        packet_sha256: evidence.packet_sha256.clone(),
+        evidence_classes: evidence.classes.clone(),
+        evaluation_status: evaluation_status.to_string(),
+        degraded_reasons,
+        stale_baseline: evidence.stale_baseline,
+        rejected_providers: evidence.rejected_providers.clone(),
+        missing_evidence: evidence.missing_evidence.clone(),
+        authority: "advisory_research_evidence".to_string(),
+        execution_authorized: false,
+    })
+}
+
 pub(super) async fn create_brief(
     State(state): State<HarnessState>,
     ConnectInfo(peer): ConnectInfo<SocketAddr>,
@@ -203,6 +257,12 @@ pub(super) async fn create_brief(
     require_loopback(peer)?;
     request.envelope.validate()?;
     validate_request(&request)?;
+    let rumil_evidence = request
+        .rumil_evidence
+        .as_ref()
+        .map(project_rumil_brief_evidence)
+        .transpose()
+        .map_err(|error| ApiError::bad_request(format!("invalid Rúmil evidence: {error}")))?;
     let policy = ResearchBetaPolicy::default();
     policy
         .validate()
@@ -352,9 +412,21 @@ pub(super) async fn create_brief(
     let uncertainty = uncertainty_items(&citations, &source_failures, &contradictions);
     let missing_evidence = missing_evidence_items(&citations, &source_failures);
     let next_research_or_proposal = next_steps(&citations, &source_failures, &contradictions);
-    let receipt_references = receipt_references(&citations, warden.memory.memory_id.as_deref());
-    let material_fingerprint =
-        material_fingerprint(&citations, &source_failures, &contradiction_status);
+    let mut receipt_references = receipt_references(&citations, warden.memory.memory_id.as_deref());
+    if let Some(evidence) = &rumil_evidence {
+        receipt_references.push(format!(
+            "rumil:audit:{}:{}",
+            evidence.audit_id, evidence.packet_sha256
+        ));
+        receipt_references.sort();
+        receipt_references.dedup();
+    }
+    let material_fingerprint = material_fingerprint(
+        &citations,
+        &source_failures,
+        &contradiction_status,
+        rumil_evidence.as_ref(),
+    );
     let scope = ResearchScope {
         source_policy: "allowlisted_public_web".to_string(),
         max_sources: request
@@ -389,6 +461,7 @@ pub(super) async fn create_brief(
         execution_authorized: false,
         warden_provider: warden.report.provider,
         warden_memory_receipt: warden.memory.memory_id,
+        rumil_evidence,
         summary: summarize(&request.question, &citations, &source_failures),
         contradiction_status,
         contradictions,
@@ -960,6 +1033,7 @@ fn material_fingerprint(
     citations: &[BriefCitation],
     failures: &[String],
     contradiction_status: &str,
+    rumil_evidence: Option<&RumilBriefEvidence>,
 ) -> String {
     let mut evidence = citations
         .iter()
@@ -980,6 +1054,7 @@ fn material_fingerprint(
         "evidence": evidence,
         "failures": failures,
         "contradiction_status": contradiction_status,
+        "rumil_evidence": rumil_evidence,
     }))
 }
 
@@ -1192,8 +1267,8 @@ mod tests {
         let first = citation("a", "supporting_or_contextual", "2099-01-01T00:00:00Z");
         let second = citation("b", "opposing_or_cautionary", "2099-01-01T00:00:00Z");
         assert_eq!(
-            material_fingerprint(&[first.clone(), second.clone()], &[], "mixed"),
-            material_fingerprint(&[second, first], &[], "mixed")
+            material_fingerprint(&[first.clone(), second.clone()], &[], "mixed", None),
+            material_fingerprint(&[second, first], &[], "mixed", None)
         );
         let old = ResearchBrief {
             schema_version: BRIEF_SCHEMA.to_string(),
@@ -1206,6 +1281,7 @@ mod tests {
             execution_authorized: false,
             warden_provider: "fixture".to_string(),
             warden_memory_receipt: None,
+            rumil_evidence: None,
             summary: "summary".to_string(),
             contradiction_status: "mixed".to_string(),
             contradictions: Vec::new(),
@@ -1253,5 +1329,33 @@ mod tests {
         let decoded: ResearchBrief =
             serde_json::from_value(legacy).expect("legacy brief remains readable");
         assert!(decoded.claims.is_empty());
+    }
+
+    #[test]
+    fn workbench_projection_cites_bounded_rumil_receipt_without_authorizing_execution() {
+        let evidence: arda_rumil::RumilEvidenceReference =
+            serde_json::from_value(serde_json::json!({
+                "audit_id": uuid::Uuid::from_u128(1),
+                "project_id": uuid::Uuid::from_u128(2),
+                "packet_reference": "data/warden/rumil_audits/a.json",
+                "packet_sha256": "sha256:packet",
+                "generated_at_utc": "2026-08-03T00:00:00Z",
+                "completeness": "partial",
+                "classes": ["tool_backed", "heuristic", "historical", "partial", "unavailable"],
+                "stale_baseline": true,
+                "rejected_providers": ["cargo-audit"],
+                "missing_evidence": ["cargo_audit"],
+                "authority": "advisory_read_only",
+                "execution_authorized": false
+            }))
+            .unwrap();
+
+        let projection = project_rumil_brief_evidence(&evidence).unwrap();
+        assert_eq!(projection.audit_id, evidence.audit_id);
+        assert_eq!(projection.packet_reference, evidence.packet_reference);
+        assert_eq!(projection.evaluation_status, "review_required");
+        assert!(projection.stale_baseline);
+        assert_eq!(projection.missing_evidence, vec!["cargo_audit"]);
+        assert!(!projection.execution_authorized);
     }
 }

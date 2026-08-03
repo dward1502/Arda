@@ -54,6 +54,8 @@ export interface ArdaWorkstationManifest {
   source_zone_id: string
   entry_anchor_id: string
   module_ids: string[]
+  rejected_panel_ids?: string[]
+  module_adapter?: 'profile' | 'direct'
   presentation_modes: Array<'in_scene' | 'native_window'>
 }
 

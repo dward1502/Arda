@@ -21,7 +21,7 @@ export type BoardroomSceneSlotAssignments = Record<BoardroomSceneSlotId, string>
 export type BoardroomWorkstationRoleId = 'fleet' | 'work' | 'decisions' | 'knowledge' | 'evidence' | 'settings'
 export type BoardroomSurfaceAdapterType = 'component_grid' | 'external_url' | 'service_embed' | 'media_viewer' | 'streaming_text' | 'remote_desktop' | 'agent_activity'
 export type BoardroomSurfacePreviewMode = 'component_grid' | 'service_status' | 'inline_embed' | 'media_thumbnail' | 'stream_feed' | 'remote_preview' | 'agent_activity'
-export type BoardroomSurfaceFocusMode = 'in_scene_workstation' | 'native_window' | 'external_browser' | 'inline_embed'
+export type BoardroomSurfaceFocusMode = 'in_scene_workstation' | 'native_window' | 'external_browser' | 'inline_embed' | 'remote_preview'
 export type BoardroomSurfaceWidgetKind =
   | 'metric_strip'
   | 'particle_stream'
@@ -65,6 +65,14 @@ export interface BoardroomSurfaceLayout {
   }
 }
 
+export interface BoardroomAgentClaim {
+  owner: string
+  activity_kind: 'agent_activity' | 'streaming_text' | 'remote_session' | 'iframe_preview'
+  payload_binding: string
+  fallback_preview: BoardroomSurfaceLayout['preview']
+  lease_expires_at_utc: string
+}
+
 export interface BoardroomSlotAssignmentRecord {
   slot_id: BoardroomSceneSlotId
   role_id?: BoardroomWorkstationRoleId
@@ -75,6 +83,7 @@ export interface BoardroomSlotAssignmentRecord {
   presentation_modes: string[]
   surface_layout: BoardroomSurfaceLayout
   visualization: BoardroomVisualizationSelection
+  agent_claims?: BoardroomAgentClaim[]
   updated_at_utc: string
 }
 
@@ -111,9 +120,9 @@ export const DEFAULT_BOARDROOM_SCENE_SLOT_ASSIGNMENTS: BoardroomSceneSlotAssignm
   monitor_left_3: 'memory_and_continuity',
   monitor_left_4: 'planning_and_queue',
   view_desk_l: 'governance_guardhouse',
-  view_desk_control_panel: 'sovereign_world',
-  view_desk_r: 'human_realm',
-  view_desk_aux: 'now_command',
+  view_desk_control_panel: 'fleet_and_backbone',
+  view_desk_r: 'routing_and_comms',
+  view_desk_aux: 'human_business_personal',
 }
 
 export const BOARDROOM_WORKSTATION_ROLE_PROFILES: BoardroomRoleAssignmentProfile[] = [
@@ -210,24 +219,24 @@ const DEFAULT_ASSIGNMENT_METADATA: Record<BoardroomSceneSlotId, Omit<BoardroomSl
     presentation_modes: ['in_scene', 'native_window'],
   },
   view_desk_control_panel: {
-    component_id: 'command-podium-workstation',
-    source_zone_id: 'sovereign_world',
-    title: 'Command Podium',
-    module_ids: ['executive_overview', 'systems'],
-    presentation_modes: ['in_scene'],
+    component_id: 'fleet-workstation',
+    source_zone_id: 'fleet_and_backbone',
+    title: 'Systems + Fleet',
+    module_ids: ['systems', 'operations_and_packages'],
+    presentation_modes: ['in_scene', 'native_window'],
   },
   view_desk_r: {
-    component_id: 'human-business-workstation',
-    source_zone_id: 'human_realm',
-    title: 'Human + Business',
-    module_ids: ['human_realm', 'business'],
+    component_id: 'routing-comms-workstation',
+    source_zone_id: 'routing_and_comms',
+    title: 'Routing + Communications',
+    module_ids: ['systems', 'operations_and_packages'],
     presentation_modes: ['in_scene', 'native_window'],
   },
   view_desk_aux: {
-    component_id: 'daily-command-workstation',
-    source_zone_id: 'now_command',
-    title: 'Daily Command',
-    module_ids: ['operating_surface', 'executive_overview'],
+    component_id: 'human-business-workstation',
+    source_zone_id: 'human_business_personal',
+    title: 'Human + Business',
+    module_ids: ['human_realm', 'business'],
     presentation_modes: ['in_scene', 'native_window'],
   },
 }
@@ -235,6 +244,25 @@ const DEFAULT_ASSIGNMENT_METADATA: Record<BoardroomSceneSlotId, Omit<BoardroomSl
 const LOCAL_SERVICE_EMBED_URLS: Record<string, string> = {
   service_beelink_grafana: 'http://100.103.125.88:3000',
   service_beelink_openwebui: 'http://100.103.125.88:8080',
+}
+
+function isBoardroomSurfaceWidgetKind(value: unknown): value is BoardroomSurfaceWidgetKind {
+  return typeof value === 'string' && (
+    value === 'metric_strip'
+    || value === 'particle_stream'
+    || value === 'sparkline'
+    || value === 'status_grid'
+    || value === 'agent_comms'
+    || value === 'media_tile'
+    || value === 'iframe_preview'
+    || value === 'markdown_doc'
+    || value === 'pdf_doc'
+    || value === 'image_asset'
+    || value === 'video_asset'
+    || value === 'document_asset'
+    || value === 'data_stream'
+    || value === 'remote_session'
+  )
 }
 
 function isBoardroomSceneSlotId(value: unknown): value is BoardroomSceneSlotId {
@@ -355,7 +383,7 @@ function parseSurfaceLayout(value: unknown, fallback: BoardroomSurfaceLayout): B
         const record = widget as Record<string, unknown>
         return {
           id: typeof record.id === 'string' ? record.id : fallback.preview.widgets[index]?.id ?? `widget.${index + 1}`,
-          kind: typeof record.kind === 'string' ? record.kind as BoardroomSurfaceWidgetKind : fallback.preview.widgets[index]?.kind ?? 'metric_strip',
+          kind: typeof record.kind === 'string' && isBoardroomSurfaceWidgetKind(record.kind) ? record.kind : (fallback.preview.widgets[index]?.kind ?? 'metric_strip'),
           title: typeof record.title === 'string' ? record.title : fallback.preview.widgets[index]?.title ?? 'Widget',
           data_binding: typeof record.data_binding === 'string' ? record.data_binding : fallback.preview.widgets[index]?.data_binding ?? fallback.focus.target,
           grid_area: typeof record.grid_area === 'string' ? record.grid_area : fallback.preview.widgets[index]?.grid_area ?? 'main',
@@ -435,6 +463,7 @@ export function parseBoardroomSlotSettings(value: unknown): BoardroomSlotSetting
       presentation_modes: stringArray(assignment.presentation_modes).length > 0 ? stringArray(assignment.presentation_modes) : profile?.presentation_modes ?? fallback.presentation_modes,
       surface_layout: parseSurfaceLayout(assignment.surface_layout, createDefaultSurfaceLayout(slotId, sourceZoneId, componentId)),
       visualization: parseVisualizationSelection(assignment.visualization, sourceZoneId, fallback.visualization),
+      agent_claims: assignment.agent_claims ? parseBoardroomAgentClaims(assignment.agent_claims) : undefined,
       updated_at_utc: typeof assignment.updated_at_utc === 'string' ? assignment.updated_at_utc : fallback.updated_at_utc,
     })
   }
@@ -645,6 +674,157 @@ export async function loadBoardroomSlotSettings(rootPath: string): Promise<Board
   }
 }
 
+function isBoardroomAgentActivityKind(value: unknown): value is BoardroomAgentClaim['activity_kind'] {
+  return value === 'agent_activity' || value === 'streaming_text' || value === 'remote_session' || value === 'iframe_preview'
+}
+
+function parseBoardroomAgentClaims(value: unknown): BoardroomAgentClaim[] {
+  if (!Array.isArray(value)) return []
+  return value
+    .filter((entry): entry is Record<string, unknown> => entry && typeof entry === 'object' && !Array.isArray(entry))
+    .map((claim): BoardroomAgentClaim | null => {
+      const owner = typeof claim.owner === 'string' && claim.owner.length > 0 ? claim.owner : null
+      if (!owner) return null
+      const activityKind = isBoardroomAgentActivityKind(claim.activity_kind) ? claim.activity_kind : 'agent_activity'
+      const payloadBinding = typeof claim.payload_binding === 'string' ? claim.payload_binding : ''
+      const leaseExpiresAt = typeof claim.lease_expires_at_utc === 'string' ? claim.lease_expires_at_utc : new Date(0).toISOString()
+      return {
+        owner,
+        activity_kind: activityKind,
+        payload_binding: payloadBinding,
+        fallback_preview: {
+          mode: 'stream_feed' as const,
+          refresh_ms: 2500,
+          widgets: [
+            { id: `${owner}.activity`, kind: 'agent_comms', title: 'Agent activity', data_binding: payloadBinding || 'agent.live', grid_area: 'main' },
+          ],
+        },
+        lease_expires_at_utc: leaseExpiresAt,
+      }
+    })
+    .filter((claim): claim is BoardroomAgentClaim => claim !== null)
+}
+
+export interface BoardroomMonitorSlotSource {
+  sourceZoneId: string
+  assignment: BoardroomSlotAssignmentRecord
+  claim: BoardroomAgentClaim | null
+  active: boolean
+}
+
+export function resolveMonitorSlotSource(
+  slotId: BoardroomSceneSlotId,
+  document: BoardroomSlotSettingsDocument,
+  nowUtc: string = new Date().toISOString(),
+): BoardroomMonitorSlotSource | null {
+  const assignment = document.assignments.find((candidate) => candidate.slot_id === slotId)
+  if (!assignment) return null
+  if (!BOARDROOM_MONITOR_SLOT_IDS.includes(slotId as typeof BOARDROOM_MONITOR_SLOT_IDS[number])) return null
+  const claims = parseBoardroomAgentClaims(assignment.agent_claims)
+  const now = new Date(nowUtc).getTime()
+  const liveClaims = claims
+    .filter((claim) => new Date(claim.lease_expires_at_utc).getTime() > now)
+    .sort((left, right) => left.lease_expires_at_utc.localeCompare(right.lease_expires_at_utc))
+  const activeClaim = liveClaims.length > 0 ? liveClaims[0] ?? null : null
+  return {
+    sourceZoneId: assignment.source_zone_id,
+    assignment,
+    claim: activeClaim,
+    active: activeClaim !== null,
+  }
+}
+
+export function claimMonitorSlot(
+  document: BoardroomSlotSettingsDocument,
+  slotId: BoardroomSceneSlotId,
+  claim: BoardroomAgentClaim,
+  nowUtc: string = new Date().toISOString(),
+): BoardroomSlotSettingsDocument {
+  return {
+    ...document,
+    updated_at_utc: nowUtc,
+    assignments: document.assignments.map((assignment) => {
+      if (assignment.slot_id !== slotId) return assignment
+      const existing = parseBoardroomAgentClaims(assignment.agent_claims)
+      const withoutOwner = existing.filter((existing) => existing.owner !== claim.owner)
+      return {
+        ...assignment,
+        agent_claims: [...withoutOwner, claim],
+        updated_at_utc: nowUtc,
+      }
+    }),
+  }
+}
+
+export function releaseMonitorSlot(
+  document: BoardroomSlotSettingsDocument,
+  slotId: BoardroomSceneSlotId,
+  owner: string,
+  updatedAtUtc: string = new Date().toISOString(),
+): BoardroomSlotSettingsDocument {
+  return {
+    ...document,
+    updated_at_utc: updatedAtUtc,
+    assignments: document.assignments.map((assignment) => {
+      if (assignment.slot_id !== slotId) return assignment
+      const existing = parseBoardroomAgentClaims(assignment.agent_claims)
+      return {
+        ...assignment,
+        agent_claims: existing.filter((claim) => claim.owner !== owner),
+        updated_at_utc: updatedAtUtc,
+      }
+    }),
+  }
+}
+
+export function refreshMonitorSlot(
+  document: BoardroomSlotSettingsDocument,
+  slotId: BoardroomSceneSlotId,
+  owner: string,
+  leaseExpiresAtUtc: string,
+  updatedAtUtc: string = new Date().toISOString(),
+): BoardroomSlotSettingsDocument {
+  const assignment = document.assignments.find((candidate) => candidate.slot_id === slotId)
+  const existing = parseBoardroomAgentClaims(assignment?.agent_claims)
+  if (!existing.some((claim) => claim.owner === owner)) {
+    throw new Error(`Agent '${owner}' does not own monitor slot '${slotId}'`)
+  }
+  return {
+    ...document,
+    updated_at_utc: updatedAtUtc,
+    assignments: document.assignments.map((candidate) => candidate.slot_id === slotId
+      ? {
+          ...candidate,
+          agent_claims: existing.map((claim) => claim.owner === owner
+            ? { ...claim, lease_expires_at_utc: leaseExpiresAtUtc }
+            : claim),
+          updated_at_utc: updatedAtUtc,
+        }
+      : candidate),
+  }
+}
+
+export function resetMonitorSlot(
+  document: BoardroomSlotSettingsDocument,
+  slotId: BoardroomSceneSlotId,
+  updatedAtUtc: string = new Date().toISOString(),
+): BoardroomSlotSettingsDocument {
+  return {
+    ...document,
+    updated_at_utc: updatedAtUtc,
+    assignments: document.assignments.map((assignment) => {
+      if (assignment.slot_id !== slotId) return assignment
+      const fallback = createDefaultBoardroomSlotSettings(updatedAtUtc).assignments.find((candidate) => candidate.slot_id === slotId)!
+      return {
+        ...assignment,
+        surface_layout: fallback.surface_layout,
+        agent_claims: undefined,
+        updated_at_utc: updatedAtUtc,
+      }
+    }),
+  }
+}
+
 export async function saveBoardroomSlotSettings(
   rootPath: string,
   assignments: BoardroomSceneSlotAssignments,
@@ -662,4 +842,112 @@ export async function saveBoardroomSlotSettingsDocument(
     return { success: false, content: null, error: 'invalid boardroom slot settings document', path: ARDA_BOARDROOM_SLOT_SETTINGS_RELATIVE_PATH }
   }
   return writeScopedFile(rootPath, ARDA_BOARDROOM_SLOT_SETTINGS_RELATIVE_PATH, `${JSON.stringify(parsed, null, 2)}\n`)
+}
+
+export interface MonitorSurfaceRequest {
+  slotId: string
+  sourceZoneId: string
+  focusMode: string
+  title?: string
+  width?: number
+  height?: number
+}
+
+export interface SurfaceBridgeResult {
+  ok: boolean
+  message: string
+  windowLabel?: string
+  sourceZoneId: string
+  slotId: string
+}
+
+export async function createMonitorSurface(request: MonitorSurfaceRequest): Promise<SurfaceBridgeResult> {
+  const { invoke } = await import('@tauri-apps/api/core')
+  return invoke<SurfaceBridgeResult>('create_monitor_surface', { request: {
+    slotId: request.slotId,
+    sourceZoneId: request.sourceZoneId,
+    focusMode: request.focusMode,
+    title: request.title ?? null,
+    width: request.width ?? null,
+    height: request.height ?? null,
+  } })
+}
+
+export async function dismissMonitorSurface(windowLabel: string): Promise<string> {
+  const { invoke } = await import('@tauri-apps/api/core')
+  return invoke<string>('dismiss_monitor_surface', { windowLabel })
+}
+
+export interface AgentClaimMonitorRequest {
+  slotId: string
+  owner: string
+  activityKind: 'agent_activity' | 'streaming_text' | 'remote_session' | 'iframe_preview'
+  payloadBinding: string
+  focusMode: 'in_scene_workstation' | 'native_window' | 'external_browser' | 'inline_embed' | 'remote_preview'
+  title?: string
+  width?: number
+  height?: number
+}
+
+export interface AgentClaimResult {
+  ok: boolean
+  message: string
+  slotId: string
+  windowLabel?: string
+  active: boolean
+  leaseExpiresAtUtc: string
+}
+
+export async function agentClaimMonitor(request: AgentClaimMonitorRequest): Promise<AgentClaimResult> {
+  const { invoke } = await import('@tauri-apps/api/core')
+  const result = await invoke<AgentClaimResult>('claim_monitor_slot', { request: {
+    slotId: request.slotId,
+    owner: request.owner,
+    activityKind: request.activityKind,
+    payloadBinding: request.payloadBinding,
+    focusMode: request.focusMode,
+    title: request.title ?? null,
+    width: request.width ?? null,
+    height: request.height ?? null,
+  } })
+  return result
+}
+
+export async function agentReleaseMonitor(slotId: string, owner: string): Promise<AgentClaimResult> {
+  const { invoke } = await import('@tauri-apps/api/core')
+  return invoke<AgentClaimResult>('release_monitor_slot', { slotId, owner })
+}
+
+export async function agentRefreshMonitorLease(slotId: string, owner: string): Promise<AgentClaimResult> {
+  const { invoke } = await import('@tauri-apps/api/core')
+  return invoke<AgentClaimResult>('refresh_monitor_slot_lease', { request: {
+    slotId,
+    owner,
+  } })
+}
+
+export interface AgentSurfacePayload {
+  slotId: string
+  owner: string
+  payloadBinding: string
+  content: string
+  mime: string
+}
+
+export interface AgentSurfacePayloadResult {
+  ok: boolean
+  message: string
+  slotId: string
+}
+
+export async function agentPushSurfacePayload(payload: AgentSurfacePayload): Promise<AgentSurfacePayloadResult> {
+  const { invoke } = await import('@tauri-apps/api/core')
+  const result = await invoke<AgentSurfacePayloadResult>('push_surface_payload', { payload: {
+    slotId: payload.slotId,
+    owner: payload.owner,
+    payloadBinding: payload.payloadBinding,
+    content: payload.content,
+    mime: payload.mime,
+  } })
+  return result
 }

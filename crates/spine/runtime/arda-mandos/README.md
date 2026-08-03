@@ -10,6 +10,7 @@ Mandos provides decision support. It does not grant execution, approval, or auto
 - `OracleService`: serialized evaluation, idempotent request identity, versioned JSONL persistence, restart hydration, integrity verification, atomic verified export, bounded recent history, and bounded best-effort Plutus telemetry.
 - `OracleDaemon`: supervised IPC and optional HTTP listeners with bounded payloads and graceful shutdown.
 - `EvidenceRef`, `ReasoningContext`, and `PageIndex`: typed provenance, bounded public reasoning graphs, and stable document references.
+- `classify_rumil_evidence`: filesystem-free preservation of Rúmil tool-backed, heuristic, historical, partial, and unavailable classifications; only complete, current tool-backed receipts are admitted for reasoning.
 
 ## Runtime interfaces
 

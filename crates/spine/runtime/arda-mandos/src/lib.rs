@@ -7,6 +7,7 @@ pub mod evidence;
 pub mod notify;
 pub mod pageindex;
 pub mod reasoning;
+pub mod rumil;
 pub mod scoring;
 pub mod service;
 pub mod transport;
@@ -34,6 +35,7 @@ pub use reasoning::{
     DEFAULT_ORACLE_POLICY_VERSION, MAX_QUERY_CONTEXT_ITEMS, MAX_QUERY_CONTEXT_ITEM_BYTES,
     MAX_QUERY_ID_BYTES, MAX_QUERY_REQUESTER_BYTES, MAX_QUERY_TASK_BYTES,
 };
+pub use rumil::{classify_rumil_evidence, MandosRumilEvidence};
 #[allow(deprecated)]
 pub use scoring::{DefaultTruthScorer, TruthScorer, TruthScoringResult};
 pub use service::{

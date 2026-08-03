@@ -1,7 +1,13 @@
 // sigil: REPAIR
-import { FolderKanban, ShieldCheck, XCircle } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { FolderKanban, ShieldCheck, UserRound, XCircle } from 'lucide-react'
 import ModuleCard from '../ModuleCard'
 import StatusBadge from '../../kit/StatusBadge'
+import {
+  loadStatefulPersona,
+  unavailableStatefulPersona,
+  type StatefulPersona,
+} from '../../../lib/statefulPersona'
 
 export interface HumanAugmentationApproval {
   id: string
@@ -37,6 +43,8 @@ interface ArandurApprovalWorkstationProps {
   queueWriteRequests: ArandurQueueWriteRequest[]
   busy: boolean
   message?: string | null
+  rootPath?: string | null
+  persona?: StatefulPersona
   onApprove: (request: ArandurQueueWriteRequest) => void
   onReject: (request: ArandurQueueWriteRequest) => void
 }
@@ -58,13 +66,34 @@ export default function ArandurApprovalWorkstation({
   queueWriteRequests,
   busy,
   message,
+  rootPath,
+  persona,
   onApprove,
   onReject,
 }: ArandurApprovalWorkstationProps) {
+  const [loadedPersona, setLoadedPersona] = useState<StatefulPersona>(() => (
+    persona ?? unavailableStatefulPersona('arandur')
+  ))
+  const displayedPersona = persona ?? loadedPersona
   const selectedRequest = queueWriteRequests.find((request) => request.executionStatus !== 'executed') ?? queueWriteRequests[0] ?? null
   const matchingApproval = selectedRequest
     ? approvals.find((approval) => approval.commandSignature === selectedRequest.id)
     : approvals[0]
+
+  useEffect(() => {
+    if (persona) return
+    if (!rootPath) {
+      setLoadedPersona(unavailableStatefulPersona('arandur', 'ARDA root unavailable; persona projection cannot be loaded.'))
+      return
+    }
+    let cancelled = false
+    void loadStatefulPersona(rootPath, 'arandur').then((projection) => {
+      if (!cancelled) setLoadedPersona(projection)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [persona, rootPath])
 
   return (
     <ModuleCard title="Arandur Approval Workstation" eyebrow="Operator-gated automation" accent="ember" tag="Arandur">
@@ -118,6 +147,32 @@ export default function ArandurApprovalWorkstation({
             )) : null}
           </div>
         </div>
+      </div>
+      <div style={{ marginTop: 16 }}>
+        <div className="module-subtitle"><UserRound size={14} /> Personality</div>
+        {displayedPersona.status === 'ready' ? (
+          <div className="document-list compact">
+            {displayedPersona.traits.length > 0 ? displayedPersona.traits.map((trait) => (
+              <article className="document-list__item" key={trait.traitId}>
+                <p>
+                  {trait.label} / {Math.round(trait.confidence * 100)}% / {trait.evidenceCount} evidence
+                  {trait.stale ? ' / stale' : ''}
+                </p>
+              </article>
+            )) : (
+              <article className="document-list__item"><p>No promoted traits.</p></article>
+            )}
+            <article className="document-list__item">
+              <p>
+                {displayedPersona.moodSummary
+                  ? `Mood ${displayedPersona.moodSummary.weightedValence >= 0 ? '+' : ''}${displayedPersona.moodSummary.weightedValence.toFixed(2)} / ${displayedPersona.moodSummary.sampleCount} samples`
+                  : 'Mood unavailable / no eligible samples'}
+              </p>
+            </article>
+          </div>
+        ) : (
+          <article className="document-list__item"><p>{displayedPersona.message}</p></article>
+        )}
       </div>
       <div className="split-stack" style={{ marginTop: 16 }}>
         <div>

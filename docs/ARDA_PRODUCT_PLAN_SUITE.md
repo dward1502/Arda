@@ -1,8 +1,9 @@
 # Arda Product Plan Suite
 
 **Status:** Active portfolio index  
-**Updated:** 2026-07-31
+**Updated:** 2026-08-02
 **Strategic source:** [Arda 1.0 Product Readiness Assessment](ARDA_1_0_PRODUCT_READINESS.md)
+**Completion authority:** [Arda System Unification and Usability Plan](plans/2026-08-02-arda-system-unification-and-usability-plan.md)
 
 This index preserves the complete first-party application vision while keeping Arda 1.0 focused on one supportable product promise.
 
@@ -11,6 +12,8 @@ This index preserves the complete first-party application vision while keeping A
 **Arda Workbench is the Stage 4–6 release-critical product.**
 
 The other first-party applications reuse the same kernel contracts and progress independently. They do not delay Workbench 1.0 and cannot silently create parallel task, memory, policy, identity, communications, or receipt systems.
+
+The product and subsystem scope is frozen to the existing documented plan estate. Remaining development completes, composes, simplifies, hardens, and makes that system usable; it does not add new agents, applications, or parallel authorities.
 
 ## Stage plans
 
@@ -50,8 +53,7 @@ supporting records preserve verified dependencies and operator procedures:
 - [Warden → Varda → Aulë governed learning loop](archive/2026-07-27-warden-varda-ceo-learning-loop.md) — completed Warden/Varda backend receipts and authority
 - [Pi5 deployment, fleet, and recovery](archive/2026-07-23-pi5-outpost-integration-plan.md) — completed AArch64 delivery, fleet/SSH truth, and shared node recovery record
 - [RELIC/CITADEL](plans/2026-07-29-relic-citadel-plan.md) — canonical presence and presentation authority
-- [Embodied interface](plans/EMBODIED_INTERFACE.md)
-- [Platform OS](plans/PLATFORM_OS.md)
+- Embodied interface planning is consolidated into [RELIC/CITADEL](plans/2026-07-29-relic-citadel-plan.md) and [Mirromere/RELIC outpost vision](MIRROMERE_RELIC_OUTPOST_VISION.md). The earlier standalone `plans/EMBODIED_INTERFACE.md` was stale and has been removed; do not reference it.
 - [Federated communications](plans/FEDERATED_COMMS.md)
 - [Hades lifecycle](plans/HADES.md)
 
@@ -93,11 +95,12 @@ The Workbench contracts, durable engine/recovery path, HUD objective-to-review f
 
 ### Now — Stage 5 release candidate
 
-1. Execute Stage 5 S5-RC0 artifact identity and upgrade/rollback proof.
-2. Continue Workbench security, reliability, adapter, diagnostics, and support gates.
-3. Treat external-person evaluation as optional supplementary confidence until evaluators are available; never fabricate proxy sign-off.
-4. Start secondary betas only after their independent dependencies pass.
-5. Keep Mirromere, RELIC/CITADEL, and Company Operations feature-flagged and independently recoverable; do not begin optional RELIC/CITADEL expansion before its base projection beta closes.
+1. Reconcile the final signed artifact set against local packaging and lifecycle evidence.
+2. Close the remaining Workbench security gate and obtain one valid uninterrupted 24-hour reliability receipt.
+3. Execute system unification through the [unification and usability plan](plans/2026-08-02-arda-system-unification-and-usability-plan.md); do not expand product scope.
+4. Treat external-person evaluation as optional supplementary confidence until evaluators are available; never fabricate proxy sign-off.
+5. Start secondary betas only after their independent dependencies pass.
+6. Keep Mirromere, RELIC/CITADEL, and Company Operations feature-flagged and independently recoverable; do not begin optional RELIC/CITADEL expansion before its base projection beta closes.
 
 ### Stage 6
 
@@ -110,6 +113,7 @@ The Workbench contracts, durable engine/recovery path, HUD objective-to-review f
 - A plan is not evidence that a feature exists.
 - A completion claim includes focused tests and the plan's release gate.
 - A first-party application reuses kernel authorities rather than cloning them.
+- A new task must close an existing plan item, defect, usability failure, operational gate, or measurable improvement; otherwise it is out of scope.
 - New external dependencies require a measured spike, license/SBOM review, failure tests, and removal instructions.
 - Hardware and sensor paths are opt-in and not Workbench dependencies.
 - Commercial progress is measured by operator time recovered, useful repeat usage, paid delivery evidence, and realized—not forecast—value.

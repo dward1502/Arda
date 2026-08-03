@@ -20,6 +20,7 @@ use serde::Serialize;
 use tokio::sync::Notify;
 use tracing::{info, warn};
 
+pub mod personal_ops;
 pub mod presence;
 mod projects;
 mod research;
@@ -115,6 +116,37 @@ fn router(state: HarnessState) -> axum::Router {
         .route("/v1/research/briefs", get(research_operator::list_briefs))
         .route("/v1/research/briefs/:id", get(research_operator::get_brief))
         .route("/v1/harness", get(harness_info))
+        .route(
+            "/v1/personal-ops/projection",
+            get(personal_ops::get_projection),
+        )
+        .route("/v1/personal/captures", post(personal_ops::create_capture))
+        .route("/v1/personal/inbox", get(personal_ops::get_inbox))
+        .route(
+            "/v1/personal/items/:id/classify",
+            post(personal_ops::classify_item),
+        )
+        .route(
+            "/v1/personal/items/:id/schedule",
+            post(personal_ops::schedule_item),
+        )
+        .route(
+            "/v1/personal/items/:id/complete",
+            post(personal_ops::complete_item),
+        )
+        .route("/v1/personal/resume", get(personal_ops::get_resume))
+        .route(
+            "/v1/personal/briefs/today",
+            get(personal_ops::get_today_brief),
+        )
+        .route(
+            "/v1/personal/reminders/attempt",
+            post(personal_ops::record_reminder_attempt),
+        )
+        .route(
+            "/v1/personal/reminders/:id/acknowledge",
+            post(personal_ops::acknowledge_reminder),
+        )
         .route("/v1/projects/validate", post(projects::validate_project))
         .route("/v1/projects/attach", post(projects::attach_project))
         .route("/v1/projects", get(projects::list_projects))
@@ -298,7 +330,17 @@ async fn harness_info(State(st): State<HarnessState>) -> impl IntoResponse {
                 "/v1/research/questions",
                 "/v1/research/watchlists",
                 "/v1/research/briefs",
-                "/v1/harness"
+                "/v1/harness",
+                "/v1/personal-ops/projection",
+                "/v1/personal/captures",
+                "/v1/personal/inbox",
+                "/v1/personal/items/:id/classify",
+                "/v1/personal/items/:id/schedule",
+                "/v1/personal/items/:id/complete",
+                "/v1/personal/resume",
+                "/v1/personal/briefs/today",
+                "/v1/personal/reminders/attempt",
+                "/v1/personal/reminders/:id/acknowledge"
             ],
         })),
     )

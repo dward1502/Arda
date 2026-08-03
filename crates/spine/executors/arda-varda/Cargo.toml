@@ -12,6 +12,7 @@ human-import = []
 [dependencies]
 arda-outpost-protocol = { path = "../../../../outposts/arda-outpost-protocol" }
 arda-core = { workspace = true }
+arda-rumil = { workspace = true }
 arda-vaire = { workspace = true }
 arda-governance = { workspace = true }
 arda-economics = { workspace = true }

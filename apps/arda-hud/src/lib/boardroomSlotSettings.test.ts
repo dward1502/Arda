@@ -6,6 +6,7 @@ import {
   BOARDROOM_SCENE_SLOT_IDS,
   DEFAULT_BOARDROOM_SCENE_SLOT_ASSIGNMENTS,
   assignmentsFromDocument,
+  claimMonitorSlot,
   createDefaultBoardroomSlotSettings,
   documentFromAssignments,
   documentWithSurfaceLayout,
@@ -16,9 +17,14 @@ import {
   parseBoardroomSlotSettings,
   readLocalBoardroomSlotAssignments,
   readLocalBoardroomSlotSettingsDocument,
+  refreshMonitorSlot,
+  releaseMonitorSlot,
   resetBoardroomProfile,
+  resetMonitorSlot,
   saveBoardroomSlotSettings,
   saveBoardroomSlotSettingsDocument,
+  resolveMonitorSlotSource,
+  type BoardroomAgentClaim,
 } from './boardroomSlotSettings'
 import { readFile, writeScopedFile } from './weathertop'
 
@@ -308,5 +314,247 @@ describe('boardroom slot settings', () => {
       component_id: 'fleet-workstation',
       module_ids: ['systems', 'operations_and_packages'],
     })
+  })
+
+  it('degrades malformed surface layout fields into safe defaults', () => {
+    const malformed = parseBoardroomSlotSettings({
+      schema_version: 'arda.arda_boardroom_slots.v1',
+      updated_at_utc: '2026-07-30T12:00:00.000Z',
+      assignments: [
+        {
+          slot_id: 'monitor_left_1',
+          component_id: 'test-surface',
+          source_zone_id: 'service_test',
+          title: 'Malformed Test',
+          module_ids: ['service_embed'],
+          presentation_modes: ['in_scene'],
+          surface_layout: {
+            // unknown adapter_type falls back to component_grid via default
+            adapter_type: 'nonexistent_adapter',
+            preview: {
+              mode: 'unknown_preview_mode',
+              refresh_ms: 'not-a-number',
+              widgets: [
+                // unknown widget kind degrades to metric_strip
+                { id: 'w1', kind: 'unknown_kind', title: 'Bad', data_binding: 'x', grid_area: 'main' },
+                // widget with missing kind
+                { id: 'w2', title: 'NoKind', data_binding: 'y', grid_area: 'side' },
+              ],
+            },
+            focus: {
+              mode: 'bogus_focus_mode',
+              target: 12345,
+              refresh_ms: null,
+            },
+            embed: {
+              url: null,
+              allow_inline: 'yes',
+            },
+          },
+          updated_at_utc: '2026-07-30T12:00:00.000Z',
+        },
+      ],
+    })
+
+    expect(malformed).not.toBeNull()
+    const layout = malformed!.assignments[0].surface_layout
+    // unknown adapter_type is preserved as string but parseSurfaceLayout keeps it
+    expect(layout.adapter_type).toBe('nonexistent_adapter')
+    expect(layout.preview.mode).toBe('unknown_preview_mode')
+    // non-finite refresh_ms falls back to default
+    expect(layout.preview.refresh_ms).toBeGreaterThan(0)
+    // unknown widget kind falls back to the default layout's widget at that index
+    // (service_test → status_grid at index 0); missing kind too
+    expect(layout.preview.widgets[0].kind).toBe('status_grid')
+    expect(layout.preview.widgets[1].kind).toBe('metric_strip')
+    // widget ids and data_binding preserved
+    expect(layout.preview.widgets[0].id).toBe('w1')
+    expect(layout.preview.widgets[0].data_binding).toBe('x')
+    expect(layout.preview.widgets[1].id).toBe('w2')
+    expect(layout.preview.widgets[1].data_binding).toBe('y')
+    // non-string focus.target falls back; non-string mode preserved as-is by parser
+    expect(typeof layout.focus.target).toBe('string')
+    expect(layout.focus.refresh_ms).toBeGreaterThan(0)
+    // non-boolean allow_inline falls back to boolean default
+    expect(typeof layout.embed.allow_inline).toBe('boolean')
+  })
+
+  it('preserves remote_preview focus mode through round-trip', () => {
+    const document = createDefaultBoardroomSlotSettings('2026-07-30T12:00:00.000Z')
+    const updated = documentWithSurfaceLayout(document, 'monitor_left_1', {
+      ...document.assignments[0].surface_layout,
+      focus: {
+        mode: 'remote_preview',
+        target: 'service_warp_dev',
+        refresh_ms: 2000,
+      },
+    }, '2026-07-30T12:01:00.000Z')
+    const exported = exportBoardroomProfile(updated)
+    const imported = importBoardroomProfile(exported)
+    expect(imported.ok).toBe(true)
+    const layout = imported.document!.assignments[0].surface_layout
+    expect(layout.focus.mode).toBe('remote_preview')
+    expect(layout.focus.target).toBe('service_warp_dev')
+  })
+
+  it('claims a monitor slot and resolves the live binding at runtime', () => {
+    const document = createDefaultBoardroomSlotSettings('2026-07-30T12:00:00.000Z')
+    const claim: BoardroomAgentClaim = {
+      owner: 'hermes-agent-001',
+      activity_kind: 'agent_activity',
+      payload_binding: 'hermes.live_stream',
+      fallback_preview: document.assignments[0].surface_layout.preview,
+      lease_expires_at_utc: '2026-12-31T23:59:59.000Z',
+    }
+    const claimed = claimMonitorSlot(document, 'monitor_left_1', claim, '2026-07-30T12:01:00.000Z')
+    const monitorAssignment = claimed.assignments.find((a) => a.slot_id === 'monitor_left_1')!
+    expect(monitorAssignment.agent_claims).toHaveLength(1)
+    expect(monitorAssignment.agent_claims![0].owner).toBe('hermes-agent-001')
+
+    const resolved = resolveMonitorSlotSource('monitor_left_1', claimed, '2026-07-30T12:02:00.000Z')
+    expect(resolved).not.toBeNull()
+    expect(resolved!.active).toBe(true)
+    expect(resolved!.claim?.owner).toBe('hermes-agent-001')
+  })
+
+  it('falls back to persisted assignment when no live claim is active', () => {
+    const document = createDefaultBoardroomSlotSettings('2026-07-30T12:00:00.000Z')
+    const resolved = resolveMonitorSlotSource('monitor_left_1', document, '2026-07-30T12:00:00.000Z')
+    expect(resolved).not.toBeNull()
+    expect(resolved!.active).toBe(false)
+    expect(resolved!.claim).toBeNull()
+    expect(resolved!.sourceZoneId).toBe('service_warp_dev')
+  })
+
+  it('does not resolve claims for non-monitor (desk) slots', () => {
+    const document = createDefaultBoardroomSlotSettings('2026-07-30T12:00:00.000Z')
+    const resolved = resolveMonitorSlotSource('view_desk_l', document, '2026-07-30T12:00:00.000Z')
+    expect(resolved).toBeNull()
+  })
+
+  it('releases a monitor claim for a single owner without clearing others', () => {
+    const document = createDefaultBoardroomSlotSettings('2026-07-30T12:00:00.000Z')
+    const claimA: BoardroomAgentClaim = {
+      owner: 'hermes-agent-001',
+      activity_kind: 'agent_activity',
+      payload_binding: 'hermes.live_stream',
+      fallback_preview: document.assignments[0].surface_layout.preview,
+      lease_expires_at_utc: '2026-12-31T23:59:59.000Z',
+    }
+    const claimB: BoardroomAgentClaim = {
+      owner: 'hermes-agent-002',
+      activity_kind: 'streaming_text',
+      payload_binding: 'queue.heartbeat',
+      fallback_preview: document.assignments[0].surface_layout.preview,
+      lease_expires_at_utc: '2026-12-31T23:59:59.000Z',
+    }
+    const withTwo = claimMonitorSlot(claimMonitorSlot(document, 'monitor_left_1', claimA), 'monitor_left_1', claimB)
+    expect(withTwo.assignments[0].agent_claims).toHaveLength(2)
+
+    const released = releaseMonitorSlot(withTwo, 'monitor_left_1', 'hermes-agent-001', '2026-07-30T12:05:00.000Z')
+    const releasedClaims = released.assignments[0].agent_claims ?? []
+    expect(releasedClaims).toHaveLength(1)
+    expect(releasedClaims[0].owner).toBe('hermes-agent-002')
+    // other slots are untouched
+    expect(released.assignments.find((a) => a.slot_id === 'monitor_left_2')?.agent_claims).toBeUndefined()
+  })
+
+  it('refreshes only the matching monitor owner lease', () => {
+    const document = createDefaultBoardroomSlotSettings('2026-07-30T12:00:00.000Z')
+    const claim: BoardroomAgentClaim = {
+      owner: 'hermes-agent-001',
+      activity_kind: 'agent_activity',
+      payload_binding: 'hermes.live_stream',
+      fallback_preview: document.assignments[0].surface_layout.preview,
+      lease_expires_at_utc: '2026-07-30T12:05:00.000Z',
+    }
+    const claimed = claimMonitorSlot(document, 'monitor_left_1', claim)
+
+    const refreshed = refreshMonitorSlot(
+      claimed,
+      'monitor_left_1',
+      'hermes-agent-001',
+      '2026-07-30T12:10:00.000Z',
+      '2026-07-30T12:06:00.000Z',
+    )
+
+    expect(refreshed.assignments[0].agent_claims?.[0].lease_expires_at_utc).toBe('2026-07-30T12:10:00.000Z')
+    expect(refreshed.assignments[0].updated_at_utc).toBe('2026-07-30T12:06:00.000Z')
+    expect(() => refreshMonitorSlot(claimed, 'monitor_left_1', 'other-agent', '2026-07-30T12:10:00.000Z')).toThrow(/does not own/)
+  })
+
+  it('resets a monitor slot claim and restores default surface layout', () => {
+    const document = createDefaultBoardroomSlotSettings('2026-07-30T12:00:00.000Z')
+    const claim: BoardroomAgentClaim = {
+      owner: 'hermes-agent-001',
+      activity_kind: 'agent_activity',
+      payload_binding: 'hermes.live_stream',
+      fallback_preview: document.assignments[0].surface_layout.preview,
+      lease_expires_at_utc: '2026-12-31T23:59:59.000Z',
+    }
+    const claimed = claimMonitorSlot(document, 'monitor_left_1', claim, '2026-07-30T12:01:00.000Z')
+    expect(claimed.assignments[0].agent_claims).toBeDefined()
+
+    const reset = resetMonitorSlot(claimed, 'monitor_left_1', '2026-07-30T12:10:00.000Z')
+    expect(reset.assignments[0].agent_claims).toBeUndefined()
+    expect(reset.assignments[0].surface_layout).toEqual(
+      createDefaultBoardroomSlotSettings('2026-07-30T12:10:00.000Z').assignments[0].surface_layout,
+    )
+    // other slots untouched
+    expect(reset.assignments.find((a) => a.slot_id === 'monitor_left_2')?.source_zone_id).toBe('routing_and_comms')
+  })
+
+  it('round-trips agent claims through export/import persistence', () => {
+    const document = createDefaultBoardroomSlotSettings('2026-07-30T12:00:00.000Z')
+    const claim: BoardroomAgentClaim = {
+      owner: 'hermes-agent-001',
+      activity_kind: 'agent_activity',
+      payload_binding: 'hermes.live_stream',
+      fallback_preview: document.assignments[0].surface_layout.preview,
+      lease_expires_at_utc: '2026-12-31T23:59:59.000Z',
+    }
+    const claimed = claimMonitorSlot(document, 'monitor_left_1', claim, '2026-07-30T12:01:00.000Z')
+    const exported = exportBoardroomProfile(claimed)
+    const imported = importBoardroomProfile(exported)
+    expect(imported.ok).toBe(true)
+    const monitorAssignment = imported.document!.assignments.find((a) => a.slot_id === 'monitor_left_1')!
+    expect(monitorAssignment.agent_claims).toHaveLength(1)
+    expect(monitorAssignment.agent_claims![0].owner).toBe('hermes-agent-001')
+    expect(monitorAssignment.agent_claims![0].activity_kind).toBe('agent_activity')
+  })
+
+  it('filters out malformed agent claims during parse', () => {
+    const parsed = parseBoardroomSlotSettings({
+      schema_version: 'arda.arda_boardroom_slots.v1',
+      updated_at_utc: '2026-07-30T12:00:00.000Z',
+      assignments: [
+        {
+          slot_id: 'monitor_left_1',
+          component_id: 'warp-dev-service-surface',
+          source_zone_id: 'service_warp_dev',
+          title: 'Warp',
+          module_ids: ['service_embed'],
+          presentation_modes: ['in_scene'],
+          surface_layout: {
+            enabled: true,
+            adapter_type: 'external_url',
+            preview: { mode: 'service_status', refresh_ms: 5000, widgets: [] },
+            focus: { mode: 'native_window', target: 'service_warp_dev', refresh_ms: 5000 },
+            embed: { url: null, allow_inline: false },
+          },
+          agent_claims: [
+            { owner: 'good-agent', activity_kind: 'agent_activity', payload_binding: 'x', lease_expires_at_utc: '2026-12-31T23:59:59.000Z', fallback_preview: {} },
+            { owner: '', activity_kind: 'streaming_text', payload_binding: 'bad', lease_expires_at_utc: '2026-12-31T23:59:59.000Z', fallback_preview: {} },
+            { owner: 'no-lease', activity_kind: 'bad_kind', payload_binding: 'x', fallback_preview: {} },
+          ],
+          updated_at_utc: '2026-07-30T12:00:00.000Z',
+        },
+      ],
+    })
+    expect(parsed).not.toBeNull()
+    const claims = parsed!.assignments[0].agent_claims ?? []
+    expect(claims).toHaveLength(2)
+    expect(claims[0].owner).toBe('good-agent')
+    expect(claims[1].activity_kind).toBe('agent_activity')
   })
 })

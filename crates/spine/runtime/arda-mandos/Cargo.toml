@@ -14,6 +14,7 @@ http = ["dep:axum", "dep:tower", "dep:tokio-stream"]
 arda-economics = { workspace = true }
 arda-core = { workspace = true }
 arda-governance = { workspace = true }
+arda-rumil = { workspace = true }
 serde.workspace = true
 serde_json.workspace = true
 tokio.workspace = true

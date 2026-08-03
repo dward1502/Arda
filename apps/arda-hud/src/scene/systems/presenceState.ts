@@ -6,6 +6,7 @@ import {
   normalizeArdaPresenceEvent,
 } from '../../lib/ardaPresenceSchema'
 import { parseJsonOrNull } from '../../lib/jsonParse'
+import type { StatefulPersona } from '../../lib/statefulPersona'
 import type {
   AgentPresenceState,
   PresenceLedgerFreshness,
@@ -423,7 +424,45 @@ export function presenceSupportMarkers(state: AgentPresenceState): PresenceSuppo
   })
 }
 
-export function presenceVisualState(state: AgentPresenceState): PresenceVisualState {
+function clampPersonaSignal(value: number): number {
+  return Math.max(-1, Math.min(1, value))
+}
+
+function personaVisualInfluence(persona?: StatefulPersona): Pick<
+  PresenceVisualState,
+  'particleDensity' | 'noiseMultiplier' | 'dissolveBias' | 'colorTemperature' | 'traitAccent'
+> {
+  if (!persona || persona.status !== 'ready') {
+    return {
+      particleDensity: 1,
+      noiseMultiplier: 1,
+      dissolveBias: 0,
+      colorTemperature: 0,
+      traitAccent: 0,
+    }
+  }
+
+  const valence = persona.moodSummary
+    ? clampPersonaSignal(persona.moodSummary.weightedValence)
+    : 0
+  const traitAccent = persona.traits.reduce((strongest, trait) => {
+    if (trait.stale || trait.confidence < 0.7) return strongest
+    return Math.max(strongest, Math.min(1, trait.confidence))
+  }, 0)
+  return {
+    particleDensity: 1 + valence * 0.18,
+    noiseMultiplier: 1 - valence * 0.35,
+    dissolveBias: valence < 0 ? -valence * 0.35 : 0,
+    colorTemperature: valence,
+    traitAccent,
+  }
+}
+
+export function presenceVisualState(
+  state: AgentPresenceState,
+  persona?: StatefulPersona,
+): PresenceVisualState {
+  const personaInfluence = personaVisualInfluence(persona)
   if (state.urgency === 'high' || state.scenario === 'alert' || state.phase === 'alert' || state.phase === 'awaiting_user') {
     return {
       pulseRate: 2.15,
@@ -432,6 +471,7 @@ export function presenceVisualState(state: AgentPresenceState): PresenceVisualSt
       scanlineOpacity: 0.34,
       lightIntensity: 1.65,
       supportMarkerScale: 0.88,
+      ...personaInfluence,
     }
   }
   return {
@@ -441,5 +481,6 @@ export function presenceVisualState(state: AgentPresenceState): PresenceVisualSt
     scanlineOpacity: 0.26,
     lightIntensity: 1.25,
     supportMarkerScale: 0.72,
+    ...personaInfluence,
   }
 }

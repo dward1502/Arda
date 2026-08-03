@@ -5,6 +5,7 @@ import ArandurApprovalWorkstation, {
   type ArandurQueueWriteRequest,
   type HumanAugmentationApproval,
 } from './ArandurApprovalWorkstation'
+import type { StatefulPersona } from '../../../lib/statefulPersona'
 
 const writeRequest: ArandurQueueWriteRequest = {
   id: 'queue-write-arandur-social-scout',
@@ -39,6 +40,23 @@ const approval: HumanAugmentationApproval = {
   status: 'pending',
   note: 'Awaiting operator approval for Arandur queue write.',
   commandSignature: 'queue-write-arandur-social-scout',
+}
+
+const projectedPersona: StatefulPersona = {
+  actor: 'arandur',
+  status: 'ready',
+  sourceRecordId: 'persona:arandur:projection',
+  traits: [
+    { traitId: 'direct', label: 'Direct', evidenceCount: 4, confidence: 0.4, stale: false },
+    { traitId: 'curious', label: 'Curious', evidenceCount: 3, confidence: 0.3, stale: true },
+  ],
+  moodSummary: {
+    asOf: '2026-08-03T12:00:00Z',
+    weightedValence: 0.42,
+    sampleCount: 6,
+    windowHours: 336,
+  },
+  message: 'Persona projection loaded from Vairë.',
 }
 
 describe('ArandurApprovalWorkstation', () => {
@@ -99,5 +117,39 @@ describe('ArandurApprovalWorkstation', () => {
     expect(screen.getByText(/No Arandur queue write requests detected/i)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Approve queue write/i })).toBeDisabled()
     expect(screen.getByRole('button', { name: /Reject queue write/i })).toBeDisabled()
+  })
+
+  it('renders memory-backed traits, stale state, and mood without static persona text', () => {
+    render(
+      <ArandurApprovalWorkstation
+        approvals={[]}
+        queueWriteRequests={[]}
+        busy={false}
+        persona={projectedPersona}
+        onApprove={vi.fn()}
+        onReject={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByText('Personality')).toBeInTheDocument()
+    expect(screen.getByText(/Direct.*40%.*4 evidence/i)).toBeInTheDocument()
+    expect(screen.getByText(/Curious.*stale/i)).toBeInTheDocument()
+    expect(screen.getByText(/Mood.*\+0.42.*6 samples/i)).toBeInTheDocument()
+  })
+
+  it('shows a neutral unavailable state instead of invented traits', () => {
+    render(
+      <ArandurApprovalWorkstation
+        approvals={[]}
+        queueWriteRequests={[]}
+        busy={false}
+        persona={{ ...projectedPersona, status: 'unavailable', traits: [], moodSummary: null, message: 'Persona projection unavailable.' }}
+        onApprove={vi.fn()}
+        onReject={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByText('Persona projection unavailable.')).toBeInTheDocument()
+    expect(screen.queryByText(/Direct.*40%/i)).not.toBeInTheDocument()
   })
 })

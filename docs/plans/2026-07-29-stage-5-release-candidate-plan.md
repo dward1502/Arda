@@ -2,6 +2,8 @@
 
 > **For Hermes:** Stage 5 is active following operator acceptance of the Stage 4 evidence on 2026-07-31. Stage 5 converts a useful private beta into an installable, supportable release candidate; it is not a feature-expansion sprint.
 
+**System completion coordination:** [Arda System Unification and Usability Plan](2026-08-02-arda-system-unification-and-usability-plan.md). This Stage 5 plan remains authoritative for release-candidate gates; the coordination plan adds no product scope.
+
 **Lifecycle status:** ACTIVE as of 2026-07-31.
 
 **Stage objective:** Prove Arda Workbench works across the declared supported profiles, repositories, providers, and failure conditions with supportable installation, upgrades, security boundaries, and documentation. External-person repetition remains optional until a separate evaluator and clean machine are available.

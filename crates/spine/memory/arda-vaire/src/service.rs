@@ -12,6 +12,7 @@ use std::time::Duration as StdDuration;
 // owns the on-disk JSONL layout; `retrieval` owns ranking; `promotion` owns
 // derived semantic/procedural records and their promotion receipts.
 pub mod governed;
+mod persona_derive;
 mod promotion;
 mod retrieval;
 mod status;
@@ -178,10 +179,12 @@ pub struct MnemosyneService {
     semantic_root: PathBuf,
     procedural_root: PathBuf,
     archive_root: PathBuf,
+    persona_root: PathBuf,
     chain_head_path: PathBuf,
     noise_ledger_path: PathBuf,
     obsidian_index_path: PathBuf,
     last_consolidation_path: PathBuf,
+    human_projection_root: Option<PathBuf>,
     /// When set, every successful encode() also writes a v0.1
     /// `MemoryRecord` to `root/episodic/id.json`. The dual-write path is
     /// opt-in so existing tests and offline runs are unchanged.

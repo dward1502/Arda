@@ -1,0 +1,10 @@
+//! Personal operations service: append-only event log and projection.
+//!
+//! Reuses arda-core's personal-ops contract types and projection builder,
+//! backed by a JSONL event log store.
+
+pub mod calendar;
+pub mod store;
+
+pub use arda_core::personal_ops_projection::{build_projection, PersonalOpsProjection};
+pub use store::{LoadError, PersonalOpsLogStore};

@@ -142,7 +142,10 @@ mod tests {
     use super::*;
     use arda_outpost_protocol::ResearchSuggestionLedger;
     use axum::http::StatusCode;
-    use axum::{routing::get, Json, Router};
+    use axum::{
+        routing::{get, post},
+        Json, Router,
+    };
     use serde_json::json;
     use tempfile::tempdir;
 
@@ -161,6 +164,17 @@ mod tests {
         )
     }
 
+    async fn mock_crawl() -> (StatusCode, Json<serde_json::Value>) {
+        (
+            StatusCode::OK,
+            Json(json!({
+                "url": "https://example.com/static-topic",
+                "markdown": "canonical static-topic evidence",
+                "success": true
+            })),
+        )
+    }
+
     #[tokio::test]
     async fn static_topics_produce_the_typed_durable_suggestion_contract() {
         let root = tempdir().unwrap();
@@ -169,7 +183,9 @@ mod tests {
         let searx_handle = tokio::spawn(async move {
             axum::serve(
                 searx_listener,
-                Router::new().route("/search", get(mock_search)),
+                Router::new()
+                    .route("/search", get(mock_search))
+                    .route("/md", post(mock_crawl)),
             )
             .await
             .unwrap();

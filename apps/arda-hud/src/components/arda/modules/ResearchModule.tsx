@@ -105,6 +105,19 @@ export default function ResearchModule() {
           <p className="research-summary">{selectedBrief.executive_summary || 'No executive summary was recorded.'}</p>
           <div className="research-state-legend">{['preview', 'fetched', 'evaluated', 'approved', 'proposal'].map((state) => { const projection = projectResearchState(state); return <span className={`research-state research-state--${projection.tone}`} key={state}><strong>{projection.label}</strong><small>{projection.description}</small></span> })}</div>
           <dl className="research-metrics"><div><dt>Next cadence</dt><dd>{selectedWatchlist ? formatCadence(questions.find((item) => selectedWatchlist.question_ids.includes(item.question_id))?.cadence ?? { kind: 'manual' }) : 'Manual'}</dd></div><div><dt>Budget</dt><dd>{questions[0]?.budgets.max_fetch_bytes.toLocaleString() ?? 'Not declared'} bytes</dd></div><div><dt>Freshness</dt><dd>{selectedBrief.stale ? 'Stale — refresh required' : 'Within declared expiry'}</dd></div><div><dt>Backend hold</dt><dd>{selectedBrief.next_proposal?.length ? 'Proposal-only next step' : 'No hold reported'}</dd></div></dl>
+          {selectedBrief.rumil_evidence ? <section className="research-citations" aria-label="Rúmil audit evidence">
+            <header className="research-section-heading"><h3>Rúmil audit evidence</h3><span>{selectedBrief.rumil_evidence.completeness}</span></header>
+            <dl className="research-metrics">
+              <div><dt>Evaluation</dt><dd>{selectedBrief.rumil_evidence.evaluation_status.replace(/_/g, ' ')}</dd></div>
+              <div><dt>Baseline</dt><dd>{selectedBrief.rumil_evidence.stale_baseline ? 'Stale baseline' : 'Current baseline'}</dd></div>
+              <div><dt>Authority</dt><dd>Advisory only — execution disabled</dd></div>
+              <div><dt>Packet</dt><dd>{selectedBrief.rumil_evidence.packet_reference}</dd></div>
+            </dl>
+            <p><strong>Evidence classes:</strong> {selectedBrief.rumil_evidence.evidence_classes.join(', ')}</p>
+            {selectedBrief.rumil_evidence.rejected_providers.length ? <p><strong>Rejected providers:</strong> {selectedBrief.rumil_evidence.rejected_providers.join(', ')}</p> : null}
+            {selectedBrief.rumil_evidence.missing_evidence.length ? <p><strong>Missing evidence:</strong> {selectedBrief.rumil_evidence.missing_evidence.join(', ')}</p> : null}
+            {selectedBrief.rumil_evidence.degraded_reasons.length ? <p><strong>Coverage notes:</strong> {selectedBrief.rumil_evidence.degraded_reasons.join('; ')}</p> : null}
+          </section> : null}
           <ResearchCitationDrawer citations={selectedBrief.citations ?? []} />
         </div> : null}
       </section>

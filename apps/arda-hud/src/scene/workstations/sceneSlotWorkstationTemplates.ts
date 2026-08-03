@@ -42,18 +42,18 @@ const SCENE_SLOT_WORKSTATION_TEMPLATES: Record<BoardroomSceneSlotId, SceneSlotWo
     presentationModes: ['in_scene', 'native_window'],
   },
   view_desk_control_panel: {
-    title: 'Desk Control Command Template',
-    moduleIds: ['operating_surface', 'executive_overview', 'systems'],
-    presentationModes: ['in_scene'],
+    title: 'Desk Systems + Fleet Template',
+    moduleIds: ['systems', 'operations_and_packages'],
+    presentationModes: ['in_scene', 'native_window'],
   },
   view_desk_r: {
-    title: 'Desk Right Human Realm Template',
-    moduleIds: ['human_realm', 'business', 'personal_growth'],
+    title: 'Desk Right Routing + Communications Template',
+    moduleIds: ['systems', 'operations_and_packages'],
     presentationModes: ['in_scene', 'native_window'],
   },
   view_desk_aux: {
-    title: 'Desk Aux Daily Command Template',
-    moduleIds: ['operating_surface', 'executive_overview'],
+    title: 'Desk Aux Human + Business Template',
+    moduleIds: ['human_realm', 'business'],
     presentationModes: ['in_scene', 'native_window'],
   },
 }

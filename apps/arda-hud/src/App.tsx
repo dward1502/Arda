@@ -1,5 +1,5 @@
 // sigil: REPAIR
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import {
   Activity,
   BookOpenText,
@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import {
   BusinessModule,
+  ArandurApprovalWorkstation,
   ExecutiveOverviewModule,
   HermesDashboardModule,
   HumanRealmModule,
@@ -56,6 +57,7 @@ import { getArandurQueueWriteRequests, getHumanAugmentationRuntime, getPlanShelf
 import { deriveBoardroomHudInstruments } from './scene/boardroom/boardroomHudInstruments'
 import { adaptBoardroomHudSource } from './scene/boardroom/boardroomHudSourceAdapters'
 import BoardroomViewport from './scene/boardroom/BoardroomViewport'
+import MonitorSurfaceNativeAcceptance from './scene/boardroom/MonitorSurfaceNativeAcceptance'
 import WorldRuntimeViewport from './scene/world/WorldViewport'
 import { calculateWorldDistrictUrgencies } from './scene/world/worldDistrictUrgency'
 
@@ -97,10 +99,18 @@ import { useBoardroomSlotAssignments } from './components/arda/hooks/useBoardroo
 import { useManweLiveSnapshot } from './components/arda/hooks/useManweLiveSnapshot'
 import { useWorldSurfaceAssignments } from './components/arda/hooks/useWorldSurfaceAssignments'
 import {
+  agentClaimMonitor,
+  agentRefreshMonitorLease,
+  agentReleaseMonitor,
   BOARDROOM_MONITOR_SLOT_IDS,
   BOARDROOM_SCENE_SLOT_IDS,
   BOARDROOM_WORKSTATION_ROLE_PROFILES,
+  createMonitorSurface,
+  dismissMonitorSurface,
+  type BoardroomSceneSlotId,
+  type MonitorSurfaceRequest,
 } from './lib/boardroomSlotSettings'
+import { claimFromMonitorEvent, normalizeMonitorLeaseExpiry, type MonitorClaimChangedEvent } from './scene/boardroom/monitorSurfaceRuntime'
 import {
   WORLD_SCENE_SURFACE_IDS,
   WORLD_TERMINAL_SURFACE_IDS,
@@ -260,6 +270,10 @@ export default function App() {
     setAssignments: setBoardroomSceneSlotAssignments,
     document: boardroomSlotDocument,
     surfaceLayouts: boardroomSurfaceLayouts,
+    monitorSlotSources: boardroomMonitorSlotSources,
+    claimMonitorSlot: claimBoardroomMonitorSlot,
+    releaseMonitorSlot: releaseBoardroomMonitorSlot,
+    refreshMonitorSlot: refreshBoardroomMonitorSlot,
     updateSurfaceLayout: updateBoardroomSurfaceLayout,
     updateVisualization: updateBoardroomVisualization,
     exportProfile: exportBoardroomProfile,
@@ -269,6 +283,68 @@ export default function App() {
     message: boardroomSlotAssignmentMessage,
     saveStatus: boardroomSlotSaveStatus,
   } = useBoardroomSlotAssignments(bundle?.rootPath)
+  const hydratedMonitorClaimsRef = useRef(new Set<string>())
+  const monitorClaimEventStateRef = useRef({
+    sources: boardroomMonitorSlotSources,
+    claim: claimBoardroomMonitorSlot,
+    release: releaseBoardroomMonitorSlot,
+  })
+  monitorClaimEventStateRef.current = {
+    sources: boardroomMonitorSlotSources,
+    claim: claimBoardroomMonitorSlot,
+    release: releaseBoardroomMonitorSlot,
+  }
+  const boardroomAgentClaims = useMemo(() => BOARDROOM_MONITOR_SLOT_IDS.reduce<Record<string, import('./lib/boardroomSlotSettings').BoardroomAgentClaim | null>>((claims, slotId) => {
+    claims[slotId] = boardroomMonitorSlotSources[slotId]?.claim ?? null
+    return claims
+  }, {}), [boardroomMonitorSlotSources])
+
+  useEffect(() => {
+    if (!('__TAURI_INTERNALS__' in window)) return
+    let unlisten: (() => void) | null = null
+    let cancelled = false
+    void import('@tauri-apps/api/event').then(({ listen }) => listen<MonitorClaimChangedEvent>(
+      'monitor-claim-changed',
+      ({ payload }) => {
+        if (!BOARDROOM_MONITOR_SLOT_IDS.includes(payload.slotId as typeof BOARDROOM_MONITOR_SLOT_IDS[number])) return
+        const slotId = payload.slotId as BoardroomSceneSlotId
+        const eventState = monitorClaimEventStateRef.current
+        if (!payload.active) {
+          eventState.release(slotId, payload.owner)
+          return
+        }
+        const fallbackPreview = eventState.sources[slotId]?.assignment.surface_layout.preview
+        if (!fallbackPreview) return
+        eventState.claim(slotId, claimFromMonitorEvent(payload, fallbackPreview))
+      },
+    )).then((dispose) => {
+      if (cancelled) dispose()
+      else unlisten = dispose
+    })
+    return () => {
+      cancelled = true
+      unlisten?.()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!('__TAURI_INTERNALS__' in window)) return
+    for (const slotId of BOARDROOM_MONITOR_SLOT_IDS) {
+      const source = boardroomMonitorSlotSources[slotId]
+      const claim = source?.claim
+      if (!claim) continue
+      const key = `${slotId}:${claim.owner}`
+      if (hydratedMonitorClaimsRef.current.has(key)) continue
+      hydratedMonitorClaimsRef.current.add(key)
+      void agentClaimMonitor({
+        slotId,
+        owner: claim.owner,
+        activityKind: claim.activity_kind,
+        payloadBinding: claim.payload_binding,
+        focusMode: source.assignment.surface_layout.focus.mode,
+      }).catch(() => hydratedMonitorClaimsRef.current.delete(key))
+    }
+  }, [boardroomMonitorSlotSources])
   const {
     assignments: worldSceneSurfaceAssignments,
     surfaceLayouts: worldSurfaceLayouts,
@@ -641,7 +717,7 @@ export default function App() {
         attentionLanes: pendingReviewItems,
         source: adaptBoardroomHudSource(sourceProvenance, 'daily-command'),
       },
-      })
+      }, boardroomSlotDocument.assignments)
       return Object.fromEntries(Object.entries(instruments).map(([slotId, instrument]) => {
         const configured = boardroomSlotDocument.assignments.find((assignment) => assignment.slot_id === slotId)?.visualization
         return [slotId, configured ? { ...instrument, preset: configured.preset_id } : instrument]
@@ -1047,6 +1123,25 @@ export default function App() {
                 )}
               </div>
             </div>
+          </div>
+          <div style={{ marginTop: 16 }}>
+            <ArandurApprovalWorkstation
+              approvals={humanAugmentation.approvals}
+              queueWriteRequests={arandurQueueWriteRequests}
+              busy={approvalBusy}
+              message={approvalMessage}
+              rootPath={bundle?.rootPath ?? null}
+              onApprove={(request) => {
+                const item = reviewGateItems.find((candidate) => candidate.id === request.id)
+                if (item) void submitReviewGateDecision(item, 'approved')
+                else setApprovalMessage(`Review packet unavailable for ${request.id}`)
+              }}
+              onReject={(request) => {
+                const item = reviewGateItems.find((candidate) => candidate.id === request.id)
+                if (item) void submitReviewGateDecision(item, 'rejected')
+                else setApprovalMessage(`Review packet unavailable for ${request.id}`)
+              }}
+            />
           </div>
           <div style={{ marginTop: 16 }}>
             <ReviewGateWorkstation
@@ -1586,7 +1681,6 @@ export default function App() {
           themeOptions={THEMES}
           monitorAssignments={BOARDROOM_SCENE_SLOT_IDS.map((slotId) => {
           const sourceZoneId = boardroomSceneSlotAssignments[slotId]
-          const roleProfile = BOARDROOM_WORKSTATION_ROLE_PROFILES.find((profile) => profile.source_zone_id === sourceZoneId) ?? null
             const adapter = getSurfaceAdapterManifest(sourceZoneId)
             const surfaceLayout = boardroomSurfaceLayouts[slotId]
             const visualization = boardroomSlotDocument.assignments.find((assignment) => assignment.slot_id === slotId)?.visualization
@@ -1682,6 +1776,18 @@ export default function App() {
 
   const buildWorkstationModules = (manifest: ArdaWorkstationManifest | null) => {
     const sourceZoneId = manifest?.source_zone_id ?? null
+    const rejectedPanelIds = manifest?.rejected_panel_ids ?? []
+    const adapterMissingModule = rejectedPanelIds.length > 0 ? {
+      id: 'section_focus' as ModuleId,
+      title: 'Module Adapter Missing',
+      node: (
+        <section className="arda-module">
+          <h2>Module adapter missing</h2>
+          <p>The source-map panel taxonomy is not silently renderable as HUD modules.</p>
+          <code>{rejectedPanelIds.join(', ')}</code>
+        </section>
+      ),
+    } : null
     if (sourceZoneId === 'systems_health' || sourceZoneId === 'routing_health' || sourceZoneId === 'sovereign_world') {
       const fleetModule = {
         id: 'systems' as ModuleId,
@@ -1690,7 +1796,7 @@ export default function App() {
       }
       const supplementalLayout = (manifest?.module_ids.length ? manifest.module_ids : sectionToPanelLayout(sourceZoneId))
         .filter((moduleId): moduleId is ModuleId => moduleId in moduleRegistry && moduleId !== 'systems')
-      return [
+      const modules = [
         fleetModule,
         ...supplementalLayout.map((moduleId) => ({
           id: moduleId,
@@ -1698,6 +1804,9 @@ export default function App() {
           node: moduleRegistry[moduleId].node,
         })),
       ]
+      return adapterMissingModule
+        ? [...modules.filter((module) => module.id !== adapterMissingModule.id), adapterMissingModule]
+        : modules
     }
     if (sourceZoneId === 'settings') {
       return [{
@@ -1708,11 +1817,14 @@ export default function App() {
     }
     const layout = (manifest?.module_ids.length ? manifest.module_ids : sectionToPanelLayout(sourceZoneId))
       .filter((moduleId): moduleId is ModuleId => moduleId in moduleRegistry)
-    return layout.map((moduleId) => ({
+    const modules = layout.map((moduleId) => ({
       id: moduleId,
       title: moduleRegistry[moduleId].title,
       node: moduleRegistry[moduleId].node,
     }))
+    return adapterMissingModule
+      ? [...modules.filter((module) => module.id !== adapterMissingModule.id), adapterMissingModule]
+      : modules
   }
   const boardroomDeskSurfaces = {
     left: {
@@ -2050,6 +2162,34 @@ export default function App() {
       originAnchorId: manifest.entry_anchor_id,
       presentationMode: 'native_window',
     })
+  }
+
+  const openBoardroomMonitorSurface = (request: MonitorSurfaceRequest) => {
+    if (!('__TAURI_INTERNALS__' in window)) {
+      const manifest = getWorkstationManifestByZoneId(workstationManifests, request.sourceZoneId)
+      openWorkstationWindow(manifest)
+      return
+    }
+    void createMonitorSurface(request).catch((error) => console.error('Failed to create monitor surface', error))
+  }
+
+  const releaseBoardroomMonitorClaim = (slotId: BoardroomSceneSlotId, owner: string) => {
+    releaseBoardroomMonitorSlot(slotId, owner)
+    if (!('__TAURI_INTERNALS__' in window)) return
+    void agentReleaseMonitor(slotId, owner).then((result) => {
+      if (result.windowLabel) return dismissMonitorSurface(result.windowLabel)
+    }).catch((error) => console.error('Failed to release monitor claim', error))
+  }
+
+  const refreshBoardroomMonitorClaim = (slotId: BoardroomSceneSlotId, owner: string) => {
+    if (!('__TAURI_INTERNALS__' in window)) {
+      refreshBoardroomMonitorSlot(slotId, owner, new Date(Date.now() + 300_000).toISOString())
+      return
+    }
+    void agentRefreshMonitorLease(slotId, owner).then((result) => {
+      const expiry = normalizeMonitorLeaseExpiry(result.leaseExpiresAtUtc)
+      if (result.ok && expiry) refreshBoardroomMonitorSlot(slotId, owner, expiry)
+    }).catch((error) => console.error('Failed to refresh monitor claim', error))
   }
 
   const spawnFloatingWorkstation = (zoneId: string | null) => {
@@ -2419,6 +2559,7 @@ export default function App() {
       <div className="arda-background" />
       {error ? <div className="arda-error">{error}</div> : null}
       {isLoading && !bundle ? <div className="arda-loading">Loading core-state bundle...</div> : null}
+      <MonitorSurfaceNativeAcceptance source={boardroomMonitorSlotSources.monitor_left_1} />
 
       {/* <nav className="operating-surface-rail" aria-label="ARDA operating surface navigation">
         <div className="operating-surface-rail__brief">
@@ -2501,14 +2642,20 @@ export default function App() {
             }))}
             slotAssignments={boardroomSceneSlotAssignments}
             surfaceLayouts={boardroomSurfaceLayouts}
+            monitorSlotSources={boardroomMonitorSlotSources}
+            agentClaims={boardroomAgentClaims}
+            onReleaseMonitor={releaseBoardroomMonitorClaim}
+            onRefreshMonitor={refreshBoardroomMonitorClaim}
             sourceProvenance={bundle?.sourceProvenance ?? []}
             instruments={boardroomHudInstruments}
             fleetViewModel={fleetViewModel}
             presenceState={bundle?.agentPresenceState}
             presenceStatus={bundle?.agentPresenceStatus}
+            rootPath={bundle?.rootPath ?? null}
             sceneOverlay={floatingWorkstationSceneOverlay}
             onActivate={handleSceneAnchorActivate}
             onOpenWorkstation={spawnFloatingWorkstation}
+            onOpenMonitorSurface={openBoardroomMonitorSurface}
             onOpenHermesDashboard={handleOpenHermesDashboard}
             onOpenHermesCli={handleOpenHermesCli}
             onOpenSettings={() => spawnFloatingWorkstation('settings')}

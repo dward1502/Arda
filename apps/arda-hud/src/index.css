@@ -16,6 +16,7 @@
 @import "./styles/components/hermes-dashboard.css";
 @import "./styles/components/service-surfaces.css";
 @import "./styles/components/research.css";
+@import "./styles/components/hud-kit.css";
 @import "./styles/scene/scene-stage.css";
 @import "./styles/scene/boardroom.css";
 @import "./styles/scene/workstations.css";

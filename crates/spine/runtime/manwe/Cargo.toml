@@ -15,9 +15,8 @@ name = "manwe"
 path = "src/main.rs"
 
 [features]
-default = []
+default = ["adaptive"]
 adaptive = ["dep:arda-core", "dep:arda-governance", "dep:arda-economics", "dep:arda-vaire"]
-grpc = ["dep:arda-orome"]
 telemetry = ["arda-aule/telemetry"]
 
 [dependencies]
@@ -38,21 +37,14 @@ tracing-subscriber = { workspace = true }
 clap = { workspace = true }
 chrono = { workspace = true }
 thiserror = { workspace = true }
-tonic = { workspace = true, default-features = false, features = ["router", "tls-webpki-roots", "transport"] }
-arda-orome = { workspace = true, optional = true }
 arda-core = { workspace = true, optional = true }
 arda-governance = { workspace = true, optional = true }
 arda-economics = { workspace = true, optional = true }
 arda-vaire = { workspace = true, optional = true }
 arda-aule = { workspace = true, optional = true }
 
-[build-dependencies]
-tonic = { version = "0.14", default-features = false, features = ["tls-webpki-roots", "transport"] }
-prost-build = "0.13"
-
 [dependencies.rand]
 version = "0.8"
 
 [dev-dependencies]
 tempfile = "3"
-tokio-stream = { version = "0.1", features = ["net"] }

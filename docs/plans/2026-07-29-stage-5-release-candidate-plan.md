@@ -6,7 +6,7 @@
 
 **Lifecycle status:** ACTIVE as of 2026-07-31.
 
-**Stage objective:** Prove Arda Workbench works across the declared supported profiles, repositories, providers, and failure conditions with supportable installation, upgrades, security boundaries, and documentation. External-person repetition remains optional until a separate evaluator and clean machine are available.
+**Stage objective:** Prove Arda Workbench works across the declared supported profiles, repositories, providers, and failure conditions with supportable installation, upgrades, security boundaries, and documentation. One qualifying independent non-author evaluator receipt is required; broader external-person repetition remains optional.
 
 **Primary product:** Arda Workbench release candidate  
 **Secondary betas:** Personal Operations and Warden Research  
@@ -18,7 +18,7 @@
 |---|---|---|
 | Workbench release candidate | this plan | only release-critical product |
 | Warden/Varda durable backend | [governed-learning plan](../archive/2026-07-27-warden-varda-ceo-learning-loop.md) | completed supporting authority; required only if the optional Warden Research recurring-watchlist beta ships |
-| Warden Research product/API/HUD | [Warden Research plan](2026-07-29-warden-research-application-plan.md) | optional secondary beta; depends on governed-learning GL-1 through GL-4 |
+| Warden Research product/API/HUD | [archived Warden Research record](../archive/2026-07-29-warden-research-application-plan.md) | completed optional secondary beta record; not release-critical |
 | Pi5 AArch64 deployment, fleet, SSH, shared recovery | [Pi5 record](../archive/2026-07-23-pi5-outpost-integration-plan.md) | completed supporting infrastructure; required only for a beta that promises physical outpost support |
 | RELIC/CITADEL presence/presentation | [RELIC/CITADEL plan](2026-07-29-relic-citadel-plan.md) | optional feature-flagged projection; RC-5 expansion remains blocked until its base projection beta passes |
 
@@ -35,7 +35,7 @@ No task from the three optional application/outpost plans may delay Workbench pa
 
 ## Exit definition
 
-Stage 5 is complete when a signed release candidate can be installed, upgraded, used, diagnosed, backed up, restored, and rolled back across the declared supported environment matrix while preserving run truth and project source. Automated isolated-profile evidence plus operator acceptance are the active gates. External-person evaluation is optional supplementary confidence until a separate evaluator and clean machine are available.
+Stage 5 is complete when a signed release candidate can be installed, upgraded, used, diagnosed, backed up, restored, and rolled back across the declared supported environment matrix while preserving run truth and project source. Automated isolated-profile evidence, operator acceptance, and one qualifying independent non-author evaluator receipt are active gates. Broader external-person repetition remains optional.
 
 ## Workstream 1 — Supported product matrix
 
@@ -88,6 +88,14 @@ From the prior beta version: upgrade, complete a run, rollback, and restore stat
 **Gate S5-A1**
 The conformance fixture integrates a previously unseen repository from the published SDK documentation without editing Arda source. A later external-person walkthrough is desirable but non-gating while no separate evaluator is available.
 
+**Closed 2026-08-05.** A separately sourced checkout of
+`BurntSushi/byteorder` at commit
+`5a82625fae462e8ba64cec8146b24a372b4d75c6` was onboarded from
+`sdk/README.md` with the published Rust contract template, schema-validated,
+and executed with the declared `cargo test` command: 802 tests passed and zero
+failed without editing Arda source. The machine receipt is
+`docs/evidence/stage-5-release-candidate/adapters/external-repository-onboarding.json`.
+
 ## Workstream 4 — Security and privacy hardening
 
 ### Execution status — 2026-07-31
@@ -103,16 +111,28 @@ The conformance fixture integrates a previously unseen repository from the publi
 - Pinned project-adapter handshake and result provenance to the configured
   adapter identity/version, and added malicious instruction/argument-injection
   regression coverage.
-- Fixed the production npm advisory by updating `postcss` from `8.5.16` to
-  `8.5.18`.
+- Fixed the original production npm advisory by updating `postcss` from
+  `8.5.16` to `8.5.18`, then closed the follow-up
+  `GHSA-fxqj-rqcc-2cmp` / `CVE-2026-69153` by advancing both Tauri applications
+  to `postcss >=8.5.23`.
 - Fixed `RUSTSEC-2024-0437` through `prometheus 0.14.0` / `protobuf 3.7.2`
   and fixed `RUSTSEC-2026-0221` with `event-listener 5.4.2`.
 - Final scans report zero Cargo vulnerabilities and zero production npm
-  advisories. `RUSTSEC-2024-0429` remains an owned Tauri/GTK migration blocker;
-  eighteen unmaintained transitive-package warnings remain inventory follow-up.
+  advisories. `RUSTSEC-2024-0429` is mitigated by a checksum-pinned vendored
+  `glib 0.18.5` containing only the exact upstream `VariantStrIter` fix; because
+  RustSec scanners omit path dependencies, the source verifier and optimized
+  regression are mandatory. Eighteen unmaintained transitive-package warnings
+  remain inventory follow-up.
 - Machine evidence: `docs/evidence/stage-5-release-candidate/security/`.
 - Added the missing top-level MIT `LICENSE`; final signed artifacts remain stale
   until rebuilt after all Stage 5 source and lockfile changes.
+- The isolated GTK4/Tauri fork candidate compiled and passed focused native and
+  frontend gates, but independent review rejected it: the Tao/Wry/Muda deltas
+  contain untested event-loop, unsafe-lifetime, IPC/session, and display-backend
+  changes, and the configured tray-icon commit is unavailable. Candidate
+  `fd58583` remains isolated and must not be integrated or signed. Stage 5 instead
+  uses the bounded, checksum-pinned upstream `glib 0.18.5` safety backport; see
+  `docs/evidence/stage-5-release-candidate/security/glib-0185-backport-spike-20260805.md`.
 
 Threat-model and test:
 - malicious repository instructions;
@@ -165,6 +185,14 @@ All critical/high findings are fixed or release-blocked with an explicit mitigat
 **Gate S5-R1**
 No lost terminal state, duplicate mutation, unexplained completion, or unbounded state growth during the soak matrix.
 
+**Current rerun boundary (2026-08-05):** The active 24-hour run is valid only
+for its immutable `20260805T010420Z` source snapshot. Thirty-five fingerprinted
+source inputs changed after that snapshot, including Launcher/HUD, `arda-core`,
+and `arda-vaire` code plus Cargo lockfiles. Its eventual receipt remains useful
+runner/fault-matrix evidence but cannot close S5-R1 for the final candidate. Once
+the active source is frozen, start one new uninterrupted 24-hour run from that
+exact snapshot before final artifact publication.
+
 ## Workstream 6 — UX and accessibility
 
 **Deliverables**
@@ -179,7 +207,7 @@ No lost terminal state, duplicate mutation, unexplained completion, or unbounded
 - import/export and safe reset.
 
 **Gate S5-U1**
-Complete automated keyboard/focus/accessibility checks and an operator-run guided setup/recovery walkthrough; resolve all blocking findings. Moderated multi-person evaluation remains optional supplementary validation until participants are available.
+Complete automated keyboard/focus/accessibility checks and an operator-run guided setup/recovery walkthrough; resolve all blocking findings. One qualifying independent non-author evaluator must pass the final comprehension gate; moderated multi-person evaluation remains optional supplementary validation.
 
 ## Workstream 7 — Support and operations
 
@@ -205,9 +233,13 @@ Recurring watchlists may ship only if governed-learning GL-1 through GL-4 and Wa
 ### Mirromere and RELIC/CITADEL
 Experimental feature flags only. Sensor and kiosk failures must not affect Workbench. Hardware/device support is explicitly listed, not implied. RELIC/CITADEL RC-5 companion/collaboration expansion is deferred until RC-1 through RC-4 independently pass.
 
-## Workstream 9 — Optional external beta evidence
+## Workstream 9 — Independent evaluator and optional broader beta evidence
 
-This workstream is supplementary and does not block Stage 5 while no separate evaluator or clean machine is available. Do not fabricate proxy sign-off. Continue collecting machine-readable isolated-profile, conformance, recovery, security, and operator-acceptance evidence instead.
+One qualifying independent non-author evaluator receipt is release-gating under
+`docs/operator/stage-5-independent-evaluator-guide.md`; do not fabricate proxy
+sign-off. The broader cohort below remains supplementary and does not block
+Stage 5. Continue collecting machine-readable isolated-profile, conformance,
+recovery, security, and operator-acceptance evidence independently.
 
 Recruit a small, consent-based cohort representing:
 - existing Rust project;
@@ -257,7 +289,7 @@ Create `docs/releases/stage-5-release-candidate-evidence.md` at closeout with:
 - security review and unresolved risk ledger;
 - soak/performance results;
 - adapter conformance results;
-- external evaluator findings if an evaluator becomes available; otherwise record the explicit non-gating limitation;
+- one independent non-author evaluator receipt covering state, authority, evidence quality, and recovery comprehension; broader five-user evaluation remains optional;
 - accessibility findings;
 - explicit 1.0 blockers.
 
@@ -267,11 +299,14 @@ Create `docs/releases/stage-5-release-candidate-evidence.md` at closeout with:
 - [x] Upgrade, rollback, backup, and restore pass.
 - [x] Rust, Python, and JavaScript adapter conformance passes.
 - [x] Automated unseen-project SDK/conformance onboarding passes; external-person repetition is optional.
-- [ ] Security threat-model gates pass.
+- [x] Security threat-model gates pass. SEC-GLIB-001 is mitigated by the bounded,
+  checksum-pinned upstream backport documented in
+  `docs/evidence/stage-5-release-candidate/security/glib-0185-backport-spike-20260805.md`;
+  its path-dependency verifier and optimized regression remain mandatory.
 - [ ] Reliability/soak budgets pass.
-- [x] Automated accessibility checks and operator setup/recovery walkthrough have no blocking usability issue; five-user evaluation is optional.
+- [x] Automated accessibility checks and operator setup/recovery walkthrough have no blocking usability issue.
 - [x] Documentation and diagnostics are supportable.
-- [x] Optional external-evaluator status is documented honestly and does not block release while evaluators are unavailable.
+- [ ] Independent evaluator status is documented honestly; the release remains blocked until one qualifying receipt passes `docs/operator/stage-5-independent-evaluator-guide.md`.
 - [x] Remaining 1.0 blockers are finite, owned, and measurable.
 
 ## Stage 5 deferrals
@@ -331,6 +366,13 @@ normalized artifacts.
   zero missing package-license declarations.
 - [x] Proved the canonical AppImage byte-identical across two builds using
   `SOURCE_DATE_EPOCH` and pinned `appimagetool` 1.9.1.
+- [x] Repaired the Bluefin RELR packaging failure with a fail-closed direct
+  AppImage assembly path that pins and verifies appimagetool 1.9.1 plus the
+  type-2 runtime. Two real outputs from the populated RELR-era AppDir were
+  byte-identical at
+  `7ce0900826d1e099879f6c76c0bed104123eca38bb0dd8cb6ccff85ff1d025bf`;
+  six focused packaging/release-ops tests pass. This closes the toolchain defect,
+  not the final-source artifact/signing/lifecycle gate.
 - [x] Signed every package, SBOM, manifest, and checksum ledger with detached
   Cosign bundles and verified each bundle against the retained RC public key.
 - [x] Documented build, verification, key-custody, rotation, and license
@@ -345,14 +387,16 @@ normalized artifacts.
 - [x] Selected production publisher trust as tag-bound keyless Sigstore using
   GitHub OIDC; added a SHA-pinned workflow, exact asset allowlist, tag/manifest
   checks, identity-bound bundle verification, policy, and decision receipt.
-- [ ] Activate production trust remotely: land the workflow through review,
-  require maintainer approval on `production-release`, protect `main`, and pass
-  the first final-artifact signing run. The current ephemeral RC key proves
-  candidate integrity only and its private half was deleted after signing.
+- [x] Activated production trust remotely: the workflow landed through review,
+  `production-release` requires maintainer approval, `main` is protected, and
+  the first tag-bound signing run passed. The final-source artifact set still
+  requires a new signing run and remains owned by the global signed-release exit
+  gate and U4 rather than reopening remote trust activation.
 
 Authoritative machine evidence is
 `docs/evidence/stage-5-release-candidate/packaging/packaging-summary.json` and
 `docs/evidence/stage-5-release-candidate/packaging/linux-package-reproducibility.json`,
+`docs/evidence/stage-5-release-candidate/packaging/appimage-relr-preflight-20260805.md`,
 and
 `docs/evidence/stage-5-release-candidate/packaging/publisher-identity-decision.json`,
 with the release manifest, checksums, SBOM, public key, and Sigstore bundles in
@@ -363,20 +407,30 @@ signed by the tag-bound workflow.
 
 ## Reliability, performance, and accessibility tranche — S5-R1/U1
 
-**S5-R1 remains open 2026-08-02.** A bounded eight-scenario runner rotates exact
-registered tests for repeated cancellation, adapter crash/hang, model timeout,
-oversized/noisy output, network loss, disk-pressure write failure, corrupted
-journal tail, and checkpoint restart. The final smoke receipt passed 12/12 with
-zero protected-state growth. The first authoritative 24-hour run completed but
-failed: 2,494 attempts included 40 nonzero subprocess exits while protected
-state growth remained zero. Its SHA-256-only failure capture does not preserve
-enough diagnostic detail to assign those exits to a product defect versus an
-ambient build/test failure, so it cannot close S5-R1. A fresh run was started
-from the currently passing scenario matrix, then deliberately stopped when the
-shared `/var` volume reached 100% during broader release verification; a run
-under disk exhaustion would not be valid evidence. Free verified-safe capacity
-first, then run one uninterrupted 24-hour matrix. Its finite growth ceilings are
-1,000 files and 64 MiB.
+**S5-R1 remains open 2026-08-04.** The bounded runner now rotates eleven exact
+registered tests for repeated cancellation, operator rejection, provider loss,
+external process kill/restart, adapter crash, model timeout, oversized/noisy
+output, network loss, disk-pressure write failure, corrupted journal tail, and
+checkpoint restart. The U3 all-scenario smoke passed 11/11 with zero
+protected-state growth. Two authoritative 24-hour runs completed but
+failed: the first recorded 40 nonzero exits in 2,494 attempts, and the 2026-08-03
+rerun recorded 132 nonzero exits in 2,827 attempts despite a final 17.34-hour
+failure-free tail. Both remain failed evidence; the second result cannot be
+reinterpreted as a pass.
+
+The runner now retains a bounded redacted diagnostic tail and explicit root
+cause, scenario, command, duration, and output digest for each failure; records
+and periodically verifies a source-tree fingerprint; uses a dedicated
+`CARGO_TARGET_DIR`; rejects exact filters that select zero tests; and invalidates
+the run if a 64-GiB free-space floor is breached. Its evaluator has 11/11
+focused unit tests passing. The valid U3 smoke exercised all eleven scenarios
+with unchanged source identity and preserved capacity. The incomplete
+eight-scenario `20260804-v2` run was stopped without a receipt rather than being
+misrepresented as U3 evidence. A fresh frozen-source 86,400-second run started
+at 2026-08-05T01:05:04Z under `atd`; its pending receipt is
+`soak-24h-u3-20260805.json`. S5-R1 remains open until that run emits a valid
+zero-failure receipt. Finite protected-state growth ceilings remain 1,000 files
+and 64 MiB.
 
 Automated Workbench accessibility passed 2/2 for critical/serious axe findings
 and keyboard focus order. Reduced-motion, increased-contrast, and forced-color
@@ -393,6 +447,9 @@ Evidence:
 - `docs/evidence/stage-5-release-candidate/reliability/soak-smoke-final.json`
 - `docs/evidence/stage-5-release-candidate/reliability/soak-24h.json` (completed failed run; retained)
 - `docs/evidence/stage-5-release-candidate/reliability/soak-24h-rerun-20260802.json` (not emitted; interrupted before a valid receipt because `/var` reached 100% capacity)
+- `docs/evidence/stage-5-release-candidate/reliability/soak-24h-rerun-20260803.json` (completed failed run; retained)
+- `docs/evidence/stage-5-release-candidate/reliability/u3-degradation-smoke-20260804.json` (valid 11/11 U3 matrix smoke)
+- `docs/evidence/stage-5-release-candidate/reliability/soak-24h-u3-20260805.json` (active frozen-source U3 rerun; receipt pending)
 - `docs/evidence/stage-5-release-candidate/reliability/performance-accessibility.json`
 - `docs/evidence/stage-5-release-candidate/reliability/native-launcher-walkthrough.json`
 - `docs/evidence/stage-5-release-candidate/reliability/native-launcher-metrics.json`

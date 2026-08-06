@@ -1,19 +1,40 @@
 {
+  "accepted_exceptions": [
+    {
+      "advisory": "RUSTSEC-2024-0429",
+      "control": "checksum-pinned exact upstream VariantStrIter backport",
+      "evidence": "glib-0185-backport-spike-20260805.md",
+      "id": "SEC-GLIB-001",
+      "status": "mitigated",
+      "sunset": "replace with maintained Tauri GTK4 chain when available"
+    }
+  ],
   "cargo": {
+    "path_dependency_caveat": "cargo-audit and cargo-deny omit path dependencies; scanner output alone does not verify vendored glib",
+    "path_dependency_controls": [
+      "scripts/verify_glib_0185_backport.py",
+      "scripts/tests/test_glib_backport.py",
+      "optimized VariantStrIter regression"
+    ],
     "vulnerabilities": 0,
     "warning_counts": {
-      "unmaintained": 18,
-      "unsound": 1
+      "unmaintained": 16,
+      "unsound": 0
     }
   },
   "evidence": [
     "cargo-audit.json",
     "pnpm-audit.json",
+    "pnpm-audit-launcher.json",
+    "pnpm-audit-hud.json",
+    "glib-0185-backport-spike-20260805.md",
     "../../../security/stage-5-threat-model.md",
     "../../../../SECURITY.md"
   ],
   "fixed": [
     "GHSA-r28c-9q8g-f849",
+    "GHSA-fxqj-rqcc-2cmp",
+    "RUSTSEC-2024-0429",
     "RUSTSEC-2024-0437",
     "RUSTSEC-2026-0221",
     "adapter-identity-version-downgrade",
@@ -26,8 +47,7 @@
     "SEC-AUTH-001",
     "SEC-ADAPTER-001",
     "SEC-SIGN-001",
-    "PKG-STALE-001",
-    "SEC-GLIB-001"
+    "PKG-STALE-001"
   ],
   "pnpm": {
     "advisories": 0,

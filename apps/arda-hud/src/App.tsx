@@ -25,6 +25,7 @@ import {
   OperatingSurfacePlanModule,
   OperationsActionContractPanel,
   PanelWorkspace,
+  PersonalOperationsModule,
   PlanningActionContractPanel,
   WorkbenchModule,
   RuntimeModeBadge,
@@ -138,6 +139,7 @@ import {
   WORKSTATION_FOCUSED_ZONES,
 } from './components/arda/modules/fleet/focusedWorkstationModuleHelpers'
 import { openHermesRuntimeWindow, ensureHermesRuntimeSpots, describeHermesRuntimeLaunch } from './lib/hermesDashboardLauncher'
+import { companyOpsFromProjection } from './lib/companyOps'
 const THEMES: ThemeOption[] = [
   { id: 'cyberpunk', label: 'Cyberpunk' },
   { id: 'gibson2', label: 'Gibson 2.0' },
@@ -878,6 +880,10 @@ export default function App() {
       : 'idle'
 
   const moduleRegistry: Record<ModuleId, { title: string; node: ReactNode }> = {
+    personal_operations: {
+      title: 'Personal Operations',
+      node: <PersonalOperationsModule />,
+    },
     operating_surface: {
       title: 'Operating Surface Review',
       node: (
@@ -1635,6 +1641,7 @@ export default function App() {
           stateKeys={asArray(asRecord(businessRuntime?.highlights)?.state_keys).map((value) => getString(value)).filter(Boolean)}
           sourceCoverage={businessCoverage}
           sourceProvenance={bundle?.sourceProvenance ?? []}
+          companyOps={companyOpsFromProjection(businessRuntime?.company_ops)}
           tag={businessTag}
         />
       ),

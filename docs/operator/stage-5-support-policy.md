@@ -28,10 +28,8 @@ A blocker closes only when a regression test or machine-readable receipt reprodu
 | ID | Severity | Status | Scope and workaround | Closure evidence |
 |---|---|---|---|---|
 | SEC-AUTH-001 | S0 | Open | Harness has no inbound bearer authentication. It therefore rejects non-loopback binds; do not expose it remotely. | Authenticated endpoint tests and revised threat model |
-| SEC-SIGN-001 | S0 | Open | Candidate signatures use an ephemeral exercise key. Do not publish as production identity. | Operator-owned KMS/hardware-backed signing receipt |
-| LEGAL-LICENSE-001 | S0 | Open | Repository has no top-level MIT license text. Do not claim license-complete distribution. | Reviewed `LICENSE` plus license scan |
-| SEC-GLIB-001 | S1 | Open | Tauri resolves `glib 0.18.5` with RUSTSEC-2024-0429. Keep the risk explicit pending coordinated GTK/Tauri migration. | `cargo audit` without the advisory or an approved replacement stack |
-| UX-WAYLAND-001 | S2 | Open | Native launcher invocation in the current automation shell failed with GDK Wayland protocol error 71. Build/test gates pass, but cold-start and idle-RSS evidence are unavailable. Run the operator walkthrough from a healthy graphical login. | Native startup, sustained idle, and click-through receipt |
+| PKG-EVIDENCE-001 | S0 | Open | The published `v0.3.0-rc.0` asset set has tag-bound keyless signatures, but the current source and local candidate have not been rebuilt, reconciled, and signed as one final identity. Do not promote the local candidate. | One final source/artifact manifest with normalized package hashes, signatures, and lifecycle receipts |
+| SEC-GLIB-001 | S1 | Mitigated; bounded local backport | Launcher and HUD resolve the same vendored `glib 0.18.5` with the exact upstream `VariantStrIter` fix. RustSec scanners omit path dependencies, so the pinned-archive verifier and optimized regression are mandatory compensating controls. The rejected GTK4 fork remains rejected. | `../evidence/stage-5-release-candidate/security/glib-0185-backport-spike-20260805.md`; `scripts/verify_glib_0185_backport.py`; `scripts/tests/test_glib_backport.py`; replace with maintained upstream GTK4 when available |
 | TEST-ACT-001 | S3 | Open | Existing Learning Loop tests emit React `act(...)` warnings while passing. | Warning-free focused tests |
 
 ## Seeded support exercise
@@ -61,6 +59,24 @@ It fails if a secret canary, credential filename, isolated HOME, or source path 
 6. Link the fix to an exact test and machine-readable evidence receipt.
 7. Update this registry and the Stage 5 evidence packet; do not silently remove unresolved entries.
 
+## Operator terminology
+
+Operator-facing instructions retain Arda's internal identities but always pair
+them with functional labels:
+
+- **Workbench** — governed project attachment, run, evidence review, and closeout surface.
+- **Manwe** — local provider and inference gateway; a missing Manwe endpoint means provider routing is unavailable.
+- **Oromë** — approval and dispatch boundary; it cannot silently replace explicit operator approval.
+- **Mirromere** — optional ambient-assistant application.
+- **RELIC/CITADEL** — optional runtime-presence and avatar presentation surfaces.
+
 ## Support boundaries
 
-The first public cohort supports only the profile declared in the release manifest. Best-effort help for other distributions, hardware, external adapters, local model stacks, and experimental Mirromere/RELIC/CITADEL surfaces does not expand the supported matrix. Never imply clinical, safety-critical, or unattended authority guarantees.
+The first public cohort supports only `bluefin-lts-10-x86_64`, the profile
+declared in the release manifest. The harness remains loopback-only while inbound
+authentication is absent. Best-effort help for other distributions, hardware,
+external adapters, local model stacks, and experimental Mirromere/RELIC/CITADEL
+surfaces does not expand the supported matrix. Diagnostics are local and
+operator-initiated; redaction is not permission to share an archive without
+inspection. Never imply clinical, safety-critical, unattended-authority, or
+general multi-user guarantees.

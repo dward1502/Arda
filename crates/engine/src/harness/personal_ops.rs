@@ -5,12 +5,13 @@
 
 use axum::{
     extract::{ConnectInfo, Path, State},
-    http::StatusCode,
+    http::{HeaderMap, StatusCode},
     response::IntoResponse,
     Json,
 };
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 
 use super::HarnessState;
 use crate::personal_ops::PersonalOpsLogStore;
@@ -72,6 +73,66 @@ fn not_loopback() -> (StatusCode, axum::Json<serde_json::Value>) {
     )
 }
 
+type MutationError = (StatusCode, Json<serde_json::Value>);
+
+fn mutation_event_id(
+    headers: &HeaderMap,
+    operator_id: &str,
+    operation: &str,
+) -> Result<uuid::Uuid, MutationError> {
+    if operator_id.trim().is_empty() {
+        return Err((
+            StatusCode::BAD_REQUEST,
+            Json(serde_json::json!({"error": "operator_id cannot be empty"})),
+        ));
+    }
+    let header_operator = headers
+        .get("x-arda-operator-id")
+        .and_then(|value| value.to_str().ok())
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .ok_or_else(|| {
+            (
+                StatusCode::UNAUTHORIZED,
+                Json(serde_json::json!({"error": "x-arda-operator-id header required"})),
+            )
+        })?;
+    if header_operator != operator_id {
+        return Err((
+            StatusCode::FORBIDDEN,
+            Json(serde_json::json!({"error": "operator identity mismatch"})),
+        ));
+    }
+    let key = headers
+        .get("idempotency-key")
+        .and_then(|value| value.to_str().ok())
+        .map(str::trim)
+        .filter(|value| !value.is_empty() && value.len() <= 256)
+        .ok_or_else(|| {
+            (
+                StatusCode::BAD_REQUEST,
+                Json(serde_json::json!({"error": "bounded Idempotency-Key header required"})),
+            )
+        })?;
+
+    Ok(deterministic_uuid(&format!(
+        "{operator_id}\0{operation}\0{key}"
+    )))
+}
+
+fn deterministic_uuid(input: &str) -> uuid::Uuid {
+    let digest = Sha256::digest(input.as_bytes());
+    let mut bytes = [0_u8; 16];
+    bytes.copy_from_slice(&digest[..16]);
+    bytes[6] = (bytes[6] & 0x0f) | 0x50;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    uuid::Uuid::from_bytes(bytes)
+}
+
+fn derived_capture_id(event_id: uuid::Uuid) -> uuid::Uuid {
+    deterministic_uuid(&format!("arda.personal.capture\0{event_id}"))
+}
+
 fn to_utc(input: &str) -> Result<chrono::DateTime<Utc>, String> {
     chrono::DateTime::parse_from_rfc3339(input)
         .map(|dt| dt.with_timezone(&Utc))
@@ -82,16 +143,17 @@ fn to_utc(input: &str) -> Result<chrono::DateTime<Utc>, String> {
 pub async fn create_capture(
     State(state): State<HarnessState>,
     ConnectInfo(peer): ConnectInfo<std::net::SocketAddr>,
+    headers: HeaderMap,
     Json(req): Json<CaptureRequest>,
 ) -> impl IntoResponse {
     if !require_loopback(&peer) {
         return not_loopback().into_response();
     }
-    if req.text.as_deref().map_or(true, |s| s.trim().is_empty())
+    if req.text.as_deref().is_none_or(|s| s.trim().is_empty())
         && req
             .audio_reference
             .as_deref()
-            .map_or(true, |s| s.trim().is_empty())
+            .is_none_or(|s| s.trim().is_empty())
     {
         return (
             StatusCode::BAD_REQUEST,
@@ -100,7 +162,11 @@ pub async fn create_capture(
             .into_response();
     }
 
-    let capture_id = uuid::Uuid::new_v4();
+    let event_id = match mutation_event_id(&headers, &req.operator_id, "captures.create") {
+        Ok(id) => id,
+        Err(error) => return error.into_response(),
+    };
+    let capture_id = derived_capture_id(event_id);
     let capture = arda_core::personal_ops::InboxCapture {
         capture_id,
         captured_at: Utc::now(),
@@ -122,7 +188,7 @@ pub async fn create_capture(
     let envelope = arda_core::personal_ops::PersonalOpsEnvelope::new(
         arda_core::personal_ops::PersonalOpsRecord::CaptureRecorded(
             arda_core::personal_ops::CaptureRecordedEvent {
-                event_id: uuid::Uuid::new_v4(),
+                event_id,
                 occurred_at: Utc::now(),
                 operator_id: req.operator_id.clone(),
                 capture,
@@ -154,6 +220,7 @@ pub async fn classify_item(
     State(state): State<HarnessState>,
     ConnectInfo(peer): ConnectInfo<std::net::SocketAddr>,
     Path(item_id): Path<String>,
+    headers: HeaderMap,
     Json(req): Json<ClassifyRequest>,
 ) -> impl IntoResponse {
     if !require_loopback(&peer) {
@@ -169,12 +236,27 @@ pub async fn classify_item(
                 .into_response();
         }
     };
+    if req.item_id != item_id {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(serde_json::json!({ "error": "body item_id must match path" })),
+        )
+            .into_response();
+    }
+    let event_id = match mutation_event_id(
+        &headers,
+        &req.operator_id,
+        &format!("items.{item_id}.classify"),
+    ) {
+        Ok(id) => id,
+        Err(error) => return error.into_response(),
+    };
     let kind = parse_kind(&req.kind);
     let evidence = parse_evidence(req.evidence_class.as_deref());
     let envelope = arda_core::personal_ops::PersonalOpsEnvelope::new(
         arda_core::personal_ops::PersonalOpsRecord::ItemClassified(
             arda_core::personal_ops::ItemClassifiedEvent {
-                event_id: uuid::Uuid::new_v4(),
+                event_id,
                 occurred_at: Utc::now(),
                 operator_id: req.operator_id.clone(),
                 item_id: item_uuid,
@@ -228,6 +310,7 @@ pub async fn schedule_item(
     State(state): State<HarnessState>,
     ConnectInfo(peer): ConnectInfo<std::net::SocketAddr>,
     Path(item_id): Path<String>,
+    headers: HeaderMap,
     Json(req): Json<ScheduleRequest>,
 ) -> impl IntoResponse {
     if !require_loopback(&peer) {
@@ -243,12 +326,20 @@ pub async fn schedule_item(
                 .into_response();
         }
     };
+    let event_id = match mutation_event_id(
+        &headers,
+        &req.operator_id,
+        &format!("items.{item_id}.schedule"),
+    ) {
+        Ok(id) => id,
+        Err(error) => return error.into_response(),
+    };
     let scheduled_at = req.scheduled_at.as_ref().and_then(|s| to_utc(s).ok());
     let due_at = req.due_at.as_ref().and_then(|s| to_utc(s).ok());
     let envelope = arda_core::personal_ops::PersonalOpsEnvelope::new(
         arda_core::personal_ops::PersonalOpsRecord::ItemScheduled(
             arda_core::personal_ops::ItemScheduledEvent {
-                event_id: uuid::Uuid::new_v4(),
+                event_id,
                 occurred_at: Utc::now(),
                 operator_id: req.operator_id.clone(),
                 item_id: item_uuid,
@@ -277,6 +368,7 @@ pub async fn complete_item(
     State(state): State<HarnessState>,
     ConnectInfo(peer): ConnectInfo<std::net::SocketAddr>,
     Path(item_id): Path<String>,
+    headers: HeaderMap,
     Json(req): Json<CompleteRequest>,
 ) -> impl IntoResponse {
     if !require_loopback(&peer) {
@@ -292,10 +384,18 @@ pub async fn complete_item(
                 .into_response();
         }
     };
+    let event_id = match mutation_event_id(
+        &headers,
+        &req.operator_id,
+        &format!("items.{item_id}.complete"),
+    ) {
+        Ok(id) => id,
+        Err(error) => return error.into_response(),
+    };
     let envelope = arda_core::personal_ops::PersonalOpsEnvelope::new(
         arda_core::personal_ops::PersonalOpsRecord::ItemCompleted(
             arda_core::personal_ops::ItemCompletedEvent {
-                event_id: uuid::Uuid::new_v4(),
+                event_id,
                 occurred_at: Utc::now(),
                 operator_id: req.operator_id.clone(),
                 item_id: item_uuid,
@@ -462,6 +562,7 @@ pub struct ReminderAttemptRequest {
 pub async fn record_reminder_attempt(
     State(state): State<HarnessState>,
     ConnectInfo(peer): ConnectInfo<std::net::SocketAddr>,
+    headers: HeaderMap,
     Json(req): Json<ReminderAttemptRequest>,
 ) -> impl IntoResponse {
     if !require_loopback(&peer) {
@@ -487,11 +588,19 @@ pub async fn record_reminder_attempt(
                 .into_response();
         }
     };
+    let event_id = match mutation_event_id(
+        &headers,
+        &req.operator_id,
+        &format!("reminders.{reminder_uuid}.attempt"),
+    ) {
+        Ok(id) => id,
+        Err(error) => return error.into_response(),
+    };
     let delivery_state = parse_delivery_state(&req.state);
     let envelope = arda_core::personal_ops::PersonalOpsEnvelope::new(
         arda_core::personal_ops::PersonalOpsRecord::ReminderAttempted(
             arda_core::personal_ops::ReminderAttemptedEvent {
-                event_id: uuid::Uuid::new_v4(),
+                event_id,
                 occurred_at: Utc::now(),
                 operator_id: req.operator_id.clone(),
                 item_id: item_uuid,
@@ -533,6 +642,7 @@ pub async fn acknowledge_reminder(
     State(state): State<HarnessState>,
     ConnectInfo(peer): ConnectInfo<std::net::SocketAddr>,
     Path(reminder_id): Path<String>,
+    headers: HeaderMap,
     Json(req): Json<ReminderAcknowledgeRequest>,
 ) -> impl IntoResponse {
     if !require_loopback(&peer) {
@@ -548,11 +658,19 @@ pub async fn acknowledge_reminder(
                 .into_response();
         }
     };
+    let event_id = match mutation_event_id(
+        &headers,
+        &req.operator_id,
+        &format!("reminders.{reminder_id}.acknowledge"),
+    ) {
+        Ok(id) => id,
+        Err(error) => return error.into_response(),
+    };
     let delivery_state = parse_delivery_state(&req.state);
     let envelope = arda_core::personal_ops::PersonalOpsEnvelope::new(
         arda_core::personal_ops::PersonalOpsRecord::ReminderAcknowledged(
             arda_core::personal_ops::ReminderAcknowledgedEvent {
-                event_id: uuid::Uuid::new_v4(),
+                event_id,
                 occurred_at: Utc::now(),
                 operator_id: req.operator_id.clone(),
                 reminder_id: reminder_uuid,
@@ -623,6 +741,7 @@ pub async fn get_today_brief(State(state): State<HarnessState>) -> impl IntoResp
         .count();
 
     let quiet_mode = false;
+    let source_records = super::personal_briefs::personal_event_sources(&events);
 
     (
         StatusCode::OK,
@@ -635,6 +754,7 @@ pub async fn get_today_brief(State(state): State<HarnessState>) -> impl IntoResp
                 "reminders_awaiting_ack": reminders_awaiting,
                 "quiet_mode": quiet_mode,
                 "uncertainty_disclosure": "Brief reconstructed from local event log; items may change as captures are reclassified.",
+                "source_records": source_records,
             },
         })),
     )

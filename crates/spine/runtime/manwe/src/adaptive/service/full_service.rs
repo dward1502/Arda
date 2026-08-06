@@ -3,10 +3,11 @@ use crate::adaptive::types::{ManweRequestEnvelope, ProviderState, RouteDecision}
 use arda_core::error::{ArdaError, Result};
 use arda_core::task::{JouleWorkMeasurementSource, Task};
 use arda_governance::{
-    default_governance_readiness_report, enqueue_bacon_lite_with, evaluate_realm_governance,
-    load_governance_chain, load_realm_policy, BaconLiteLogPaths, BaconLiteWriter,
-    GovernanceChainConfig, LocalGovernanceScorer, RealmGovernanceVerdict, RealmPolicyConfig,
-    RealmPolicyReloadReceipt, RealmPolicyStore, RuntimeBlockingAuthority, RuntimeBlockingDecision,
+    default_governance_readiness_report, enqueue_bacon_lite_with_description,
+    evaluate_realm_governance, load_governance_chain, load_realm_policy, BaconLiteLogPaths,
+    BaconLiteWriter, GovernanceChainConfig, LocalGovernanceScorer, RealmGovernanceVerdict,
+    RealmPolicyConfig, RealmPolicyReloadReceipt, RealmPolicyStore, RuntimeBlockingAuthority,
+    RuntimeBlockingDecision,
 };
 use arda_economics::JouleWorkUnit;
 use chrono::Utc;
@@ -226,6 +227,13 @@ fn route_governance_task(req: &ManweRequestEnvelope) -> Task {
     task.joulework_measurement_source = JouleWorkMeasurementSource::OperatorEstimate;
     task.joulework_measurement_confidence = 0.55;
     task
+}
+
+fn route_governance_receipt_description(req: &ManweRequestEnvelope) -> String {
+    format!(
+        "route request for agent={} task_type={} prompt=[redacted]",
+        req.agent_id, req.task_type
+    )
 }
 
 #[derive(Clone)]
@@ -575,6 +583,7 @@ impl CharonService {
         // operator can trace one user request gateway → Manwe → upstream.
         let route_id = format!("{:016x}", rand::random::<u64>());
         let bacon_task = route_governance_task(&req);
+        let bacon_receipt_description = route_governance_receipt_description(&req);
         let governance_chain = load_route_governance_chain();
         let chain_result =
             evaluate_route_governance_chain(&bacon_task, &req.options, &governance_chain);
@@ -670,11 +679,12 @@ impl CharonService {
                         "failure".to_string(),
                     ],
                 );
-                if let Err(record_err) = enqueue_bacon_lite_with(
+                if let Err(record_err) = enqueue_bacon_lite_with_description(
                     &self.bacon_lite_writer,
                     "manwe",
                     "route_failed",
                     &bacon_task,
+                    bacon_receipt_description.clone(),
                     serde_json::json!({
                         "agent_id": req.agent_id,
                         "task_type": req.task_type,
@@ -765,11 +775,12 @@ impl CharonService {
         drop(providers);
 
         {
-            if let Err(err) = enqueue_bacon_lite_with(
+            if let Err(err) = enqueue_bacon_lite_with_description(
                 &self.bacon_lite_writer,
                 "manwe",
                 "route_selected",
                 &bacon_task,
+                bacon_receipt_description,
                 serde_json::json!({
                     "agent_id": req.agent_id,
                     "task_type": req.task_type,

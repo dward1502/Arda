@@ -44,6 +44,7 @@ pub struct ProjectedItem {
     pub scheduled_at: Option<String>,
     pub due_at: Option<String>,
     pub completed_at: Option<String>,
+    pub reminder_id: Option<Uuid>,
     pub reminder_state: Option<ReminderState>,
     pub reminder_attempts: u64,
     pub reminder_acknowledged_at: Option<String>,
@@ -124,34 +125,41 @@ fn handle_classification(
 ) {
     let item_id = e.item_id;
     let confidence = e.confidence;
+    let content = inbox
+        .iter()
+        .find(|item| item.capture_id == item_id)
+        .map(|item| item.content.clone())
+        .unwrap_or_default();
 
     inbox.retain(|item| item.capture_id != item_id);
 
-    if !items.contains_key(&item_id) {
-        items.insert(
-            item_id,
-            ProjectedItem {
+    match items.entry(item_id) {
+        std::collections::btree_map::Entry::Vacant(entry) => {
+            entry.insert(ProjectedItem {
                 item_id,
                 kind: e.kind,
                 operator_id: e.operator_id.clone(),
-                content: String::new(),
+                content,
                 evidence_class: e.evidence_class,
                 confidence,
                 classification_reason: reason_from_evidence(e.evidence_class),
                 scheduled_at: None,
                 due_at: None,
                 completed_at: None,
+                reminder_id: None,
                 reminder_state: None,
                 reminder_attempts: 0,
                 reminder_acknowledged_at: None,
                 current_state: ItemState::Active,
-            },
-        );
-    } else if let Some(item) = items.get_mut(&item_id) {
-        if item.evidence_class != EvidenceClass::OperatorAuthored {
-            item.kind = e.kind;
-            item.evidence_class = e.evidence_class;
-            item.confidence = confidence;
+            });
+        }
+        std::collections::btree_map::Entry::Occupied(mut entry) => {
+            let item = entry.get_mut();
+            if item.evidence_class != EvidenceClass::OperatorAuthored {
+                item.kind = e.kind;
+                item.evidence_class = e.evidence_class;
+                item.confidence = confidence;
+            }
         }
     }
 }
@@ -183,6 +191,7 @@ fn handle_reminder_attempted(
 ) {
     if let Some(item) = items.get_mut(&e.item_id) {
         item.reminder_attempts += 1;
+        item.reminder_id = Some(e.receipt.reminder_id);
         let attempt_count = if let Some(state) = &item.reminder_state {
             state.attempt_count + 1
         } else {
@@ -203,7 +212,10 @@ fn handle_reminder_acknowledged(
     items: &mut BTreeMap<Uuid, ProjectedItem>,
 ) {
     for item in items.values_mut() {
-        if let Some(state) = &mut item.reminder_state {
+        if item.reminder_id == Some(e.reminder_id) {
+            let Some(state) = &mut item.reminder_state else {
+                continue;
+            };
             state.delivery_state = e.state;
             state.last_acknowledged_at = Some(e.occurred_at);
             item.reminder_acknowledged_at = Some(e.occurred_at.to_rfc3339());
@@ -242,7 +254,7 @@ fn bucket_item(
         projection.today.push(clone_item(item));
     }
 
-    let is_waiting = item.reminder_state.as_ref().map_or(false, |state| {
+    let is_waiting = item.reminder_state.as_ref().is_some_and(|state| {
         matches!(
             state.delivery_state,
             ReminderDeliveryState::Attempted | ReminderDeliveryState::Deferred
@@ -282,6 +294,7 @@ fn clone_item(item: &ProjectedItem) -> ProjectedItem {
         scheduled_at: item.scheduled_at.clone(),
         due_at: item.due_at.clone(),
         completed_at: item.completed_at.clone(),
+        reminder_id: item.reminder_id,
         reminder_state: item.reminder_state.clone(),
         reminder_attempts: item.reminder_attempts,
         reminder_acknowledged_at: item.reminder_acknowledged_at.clone(),

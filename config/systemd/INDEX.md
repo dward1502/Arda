@@ -14,9 +14,9 @@ soterion:
 # Index: config/systemd
 
 - `README.md`
+- `arda.service` (canonical root runtime; installs `arda-manwe.service` as a compatibility alias)
 - `arda-aule-autopilot-read-only.service`
 - `arda-aule-autopilot-read-only.timer`
-- `arda-manwe.service`
 - `arda-manwe-inference-probe.service`
 - `arda-manwe-inference-probe.timer`
 - `arda-metrics-exporter.service`

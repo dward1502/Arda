@@ -64,6 +64,8 @@ ssh "${SSH_OPTS[@]}" "$REMOTE_HOST" \
 # --- install local bridge service ---
 echo "deploy: local bridge service"
 install -Dm0755 "${ROOT_DIR}/target/release/arda-relic-presence-sync" ~/.local/bin/arda-relic-presence-sync
+install -Dm0755 "${ROOT_DIR}/scripts/relic_presence_sync.sh" \
+  ~/.local/lib/arda/relic/relic_presence_sync.sh
 install -Dm0644 "${ROOT_DIR}/config/systemd/arda-relic-bridge.service" \
   "${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user/arda-relic-bridge.service"
 systemctl_user() {

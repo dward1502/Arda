@@ -4,7 +4,7 @@ soterion:
   glyph: "📜"
   code_point: "U+1F4DC"
   role: "documentation"
-  owner: "HADES"
+  owner: "prometheus"
   status: "active"
   last_reviewed: "2026-08-02"
 crate: federated-comms

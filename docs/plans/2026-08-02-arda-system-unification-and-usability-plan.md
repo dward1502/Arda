@@ -13,7 +13,7 @@
 
 - [Stage 5 — Release Candidate](2026-07-29-stage-5-release-candidate-plan.md)
 - [Stage 6 — Legitimate 1.0](2026-07-29-stage-6-legitimate-1.0-plan.md)
-- [Arda Product Plan Suite](../ARDA_PRODUCT_PLAN_SUITE.md)
+- [Arda Product Plan Suite](ARDA_PRODUCT_PLAN_SUITE.md)
 
 ---
 
@@ -59,11 +59,11 @@ If none can be identified, the task is out of scope.
 
 | Domain | Existing authority | This plan's role |
 |---|---|---|
-| Workbench release candidate | `2026-07-29-stage-5-release-candidate-plan.md` | Coordinate remaining signed-artifact, security, and soak gates; do not duplicate them. |
+| Workbench release candidate | `2026-07-29-stage-5-release-candidate-plan.md` | Coordinate the remaining signed-artifact, soak, and independent-evaluator gates; do not duplicate them. |
 | Workbench 1.0 | `2026-07-29-stage-6-legitimate-1.0-plan.md` | Enter only after Stage 5 closes; preserve its release evidence requirements. |
-| Product/application classification | `docs/ARDA_PRODUCT_PLAN_SUITE.md` and application plans | Keep Workbench release-critical; classify all other applications honestly. |
+| Product/application classification | `docs/plans/ARDA_PRODUCT_PLAN_SUITE.md` and application plans | Keep Workbench release-critical; classify all other applications honestly. |
 | Root process composition | `src/main.rs`, `services.toml`, `crates/engine/src/registry.rs`, `crates/engine/src/supervisor.rs` | Establish one canonical startup, health, shutdown, and recovery path. |
-| Routing/runtime convergence | `MANWE_SINGLE_RUNTIME_CONVERGENCE.md` | Consume that plan's result; do not create another routing runtime. |
+| Routing/runtime convergence | `../archive/MANWE_SINGLE_RUNTIME_CONVERGENCE.md` | Consume the completed result; do not create another routing runtime. |
 | Contracts and governance | Existing spine contract/governance crates | Reuse typed contracts and verdicts; do not add parallel policy or receipt formats. |
 | Memory | `arda-vaire` and its active plans | Verify storage, retrieval, and behavioral use without creating another memory store. |
 | Audit/evidence | `arda-rumil` and its live crate docs/tests | Use bounded audit evidence; do not reopen the archived Rúmil implementation plan. |
@@ -97,18 +97,26 @@ A capability is not called operational merely because its crate compiles or its 
 
 **Files:**
 
-- Modify: `docs/ARDA_PRODUCT_PLAN_SUITE.md`
+- Modify: `docs/plans/ARDA_PRODUCT_PLAN_SUITE.md`
 - Modify as evidence warrants: `docs/plans/*.md`
 - Modify on closeout: `docs/archive/README.md`
 
 **Work:**
 
-- [ ] Classify every active plan as release-critical, optional but bounded, dependency-blocked, or stale/superseded.
-- [ ] Map every unchecked requirement to exactly one implementation authority.
-- [ ] Remove stale duplicate requirements and repair links without deleting unique acceptance criteria.
-- [ ] Keep optional applications out of the Stage 5/6 critical path.
-- [ ] Archive each completed plan immediately after its live gates pass.
-- [ ] Record the finite Stage 5 blockers as the first release-critical queue: final signed artifact reconciliation, security closeout, and a valid uninterrupted 24-hour reliability receipt.
+- [x] Classify every active plan as release-critical, optional but bounded, dependency-blocked, or stale/superseded.
+- [x] Map every unchecked requirement to exactly one implementation authority.
+- [x] Remove stale duplicate requirements and repair links without deleting unique acceptance criteria.
+- [x] Keep optional applications out of the Stage 5/6 critical path.
+- [x] Archive each completed plan immediately after its live gates pass.
+- [x] Record the finite Stage 5 blockers as the first release-critical queue: final signed-artifact reconciliation, a valid uninterrupted 24-hour reliability receipt, and one qualifying independent non-author evaluator receipt. Security closed through the bounded, checksum-pinned `glib 0.18.5` upstream backport on 2026-08-05.
+
+**U0 closeout evidence (2026-08-04):** `docs/plans/ARDA_PRODUCT_PLAN_SUITE.md`
+now contains the finite active-plan ownership ledger, including plan-local open
+counts/acceptance surfaces and the exact Stage 5 blocker queue. The fully
+accepted Warden Research plan moved to `docs/archive/`; stale OpenFang and
+Platform OS architecture queues moved to historical records after their unique
+remaining boundaries were assigned to current authorities. Optional products
+remain outside the Workbench Stage 5/6 critical path.
 
 **Gate U0:** Every open plan item has one owner, one acceptance surface, and one release classification; no completed plan remains in `docs/plans/`.
 
@@ -123,7 +131,7 @@ A capability is not called operational merely because its crate compiles or its 
 - Modify: `crates/engine/src/registry.rs`
 - Modify: `crates/engine/src/supervisor.rs`
 - Modify: `tests/root_daemon.rs`
-- Coordinate with: `docs/plans/MANWE_SINGLE_RUNTIME_CONVERGENCE.md`
+- Coordinate with: `docs/archive/MANWE_SINGLE_RUNTIME_CONVERGENCE.md` (completed U1 authority)
 
 **TDD sequence:**
 
@@ -135,12 +143,24 @@ A capability is not called operational merely because its crate compiles or its 
 
 **Work:**
 
-- [ ] Declare the canonical root command and supported headless/UI profiles.
-- [ ] Reconcile repository supervision with any independently managed user-systemd services so one process owner exists per service.
-- [ ] Complete Manwë single-runtime convergence without changing the coordinated `:7171` contract before consumer verification.
-- [ ] Expose required, optional, starting, healthy, degraded, restarting, and stopped states through one operator-readable status surface.
-- [ ] Prove bounded restart backoff, clean shutdown, and no duplicate service ownership.
-- [ ] Remove dual-runtime language and stale launch instructions only after cutover evidence passes.
+- [x] Declare the canonical root command and supported headless/UI profiles.
+- [x] Reconcile repository supervision with user-systemd declarations so one process owner exists per service.
+- [x] Complete Manwë single-runtime convergence without changing the coordinated `:7171` contract.
+- [x] Expose required, optional, starting, healthy, degraded, restarting, and stopped states through one operator-readable status surface.
+- [x] Prove bounded restart backoff, clean shutdown, and no duplicate service ownership.
+- [x] Remove dual-runtime language and stale launch instructions after cutover evidence passes.
+
+**Closeout evidence (2026-08-04):**
+
+- `arda --no-ui` is the canonical headless invocation; the former `--harness-only` parallel-ownership profile is rejected by a CLI regression test.
+- `services.toml` declares required Manwë ownership under the root daemon on the coordinated `:7171` contract.
+- `/v1/status` reports requirement, lifecycle state, PID, restart count, bounded backoff, and readiness/failure detail for every resolved service.
+- `config/systemd/arda.service` owns the root process and aliases `arda-manwe.service`; it does not define a second Manwë process owner.
+- Root and supervisor tests prove required-service failure, readiness state, bounded restart, signal shutdown, and child reaping.
+- Manwë has one unconditional governed executable path; static-only modules and the gRPC process path are retired.
+- Manwë admission control reserves interactive capacity under explicitly marked bulk execution/background load; the saturation regression proves an interactive request is still admitted.
+- Focused gates pass: root integration `5/5`; `arda-engine` `25` unit tests plus integration suites; Manwë `281` library tests plus `3` binary tests; single-process smoke; documentation validation.
+- Installing the new binary/unit over the currently running legacy user session remains U4 installation/recovery scope, not a second supported topology.
 
 **Gate U1:** One documented command starts the supported topology; every required service becomes healthy or produces a precise blocking state; shutdown leaves no owned child process; no service is simultaneously owned by two supervisors.
 
@@ -157,6 +177,7 @@ A capability is not called operational merely because its crate compiles or its 
 - Modify as required: `apps/arda-hud/src/`
 - Test: `crates/engine/tests/workbench_rust_golden.rs`
 - Test: `crates/engine/tests/workbench_python_golden.rs`
+- Test: `crates/engine/tests/workbench_javascript_golden.rs`
 - Test: `crates/engine/tests/workbench_boundary_recovery.rs`
 
 **Required chain:**
@@ -165,12 +186,55 @@ A capability is not called operational merely because its crate compiles or its 
 
 **Work:**
 
-- [ ] Pin one Rust and one Python golden workflow through the root-composed runtime.
-- [ ] Add the JavaScript/TypeScript workflow already required by Stage 5/6 adapter scope without creating another execution authority.
-- [ ] Prove accepted, rejected, revised, cancelled, failed, and resumed outcomes.
-- [ ] Correlate audit, policy, execution, verification, memory, and HUD projections with one stable lineage identifier.
-- [ ] Ensure every HUD claim is backed by live receipt/state and visibly distinguishes stale, partial, unavailable, and failed evidence.
-- [ ] Prove that no audit, evaluation, memory, or UI projection can authorize execution.
+- [x] Pin one Rust and one Python golden workflow through the root-composed runtime.
+- [x] Add the JavaScript/TypeScript workflow already required by Stage 5/6 adapter scope without creating another execution authority.
+- [x] Prove accepted, rejected, revised, cancelled, failed, and resumed outcomes.
+- [x] Correlate audit, policy, execution, verification, memory, and HUD projections with one stable lineage identifier.
+- [x] Ensure every HUD claim is backed by live receipt/state and visibly distinguishes stale, partial, unavailable, and failed evidence.
+- [x] Prove that no audit, evaluation, memory, or UI projection can authorize execution.
+
+**U2 closeout evidence (2026-08-04):**
+
+- `crates/engine/tests/harness_runs.rs` drives the canonical harness routes for
+  plan, approval, operator completion, cancellation, SSE projection, durable
+  reads, and failed verification. `complete_run_node` now makes a `verify` node
+  terminally `failed` when project-native check evidence is absent, not passed,
+  or still running; downstream review therefore cannot report false success.
+- `workbench_rust_golden.rs`, `workbench_python_golden.rs`, and the added
+  `workbench_javascript_golden.rs` all use the canonical project contract,
+  run-graph, run-store, receipt, and bounded adapter owners. The JavaScript
+  fixture imports `sdk/javascript`, fails closed before mutation on mismatched
+  arguments, performs one idempotent mutation, runs `node --test`, and reaches a
+  restart-safe closed graph. No language adapter introduces an execution or
+  approval authority.
+- `workbench_boundary_recovery.rs`, `run_recovery.rs`, and
+  `project_adapter_jsonl.rs` cover every graph-boundary restart, duplicate
+  idempotency keys, corrupt/truncated state, partial/noisy adapter output,
+  timeout, cancellation, process reaping, and exact-once mutation.
+- `WorkbenchModule.tsx` now persists the proposal and approval lineage needed
+  after native restart, wires rejection to canonical run cancellation before a
+  revised objective can be planned, and keeps the `run_id` on every graph,
+  receipt, evidence, and event projection. `RunTimeline.tsx` labels live,
+  partial, stale, and unavailable stream states explicitly; failed nodes and
+  failed project checks remain visible from canonical engine state.
+- Authority remains in `arda-core` run-graph transitions and the engine harness:
+  HUD code can request approval/cancellation but cannot transition a node or
+  manufacture a receipt. Audit, policy, memory, and evaluation data remain
+  provenance/evidence fields consumed by that graph, not execution gates.
+- Required gates passed: `cargo fmt --all -- --check`; `cargo test -p arda-core
+  -p arda-engine` (including all three language goldens and recovery suites);
+  JavaScript SDK `node --test` (`4/4`); HUD `pnpm test` (`395/395`), `pnpm run
+  build`, and `pnpm run lint` (zero errors, existing warnings only); the scoped
+  documentation link check (`63` local links, `0` broken), release-ops help, and
+  reliability-soak help gates also pass. The Tauri
+  release build compiled the release binary and produced DEB/RPM candidates;
+  the pre-existing linuxdeploy AppImage wrapper failure remains owned by U4 and
+  Stage 5 packaging rather than creating a second U2 runtime path.
+- Supplementary repository-wide checks remain honest baseline findings rather
+  than U2 evidence: strict Clippy is blocked in the existing
+  `arda-outpost-protocol::watchlist::new` argument-count lint. This U2 change
+  introduces no Clippy finding; resolving that dependency-owned lint is outside
+  the Workbench operational-loop boundary.
 
 **Gate U2:** The installed candidate completes and explains all three supported adapter workflows, survives restart, and never reports success without project-native verification evidence.
 
@@ -188,12 +252,45 @@ A capability is not called operational merely because its crate compiles or its 
 
 **Work:**
 
-- [ ] Correlate semantic receipts with trace/span or equivalent runtime lineage IDs.
-- [ ] Define measured budgets for startup, idle resource use, UI latency, event projection, recovery, diagnostics, and bounded state growth.
-- [ ] Exercise provider loss, network loss, process kill, disk pressure, malformed/truncated state, model timeout, adapter crash/noisy output, cancellation, and operator rejection.
-- [ ] Preserve enough bounded diagnostics to assign every nonzero soak exit to a scenario and root cause.
+- [x] Correlate semantic receipts with trace/span or equivalent runtime lineage IDs.
+- [x] Define measured budgets for startup, idle resource use, UI latency, event projection, recovery, diagnostics, and bounded state growth.
+- [x] Exercise provider loss, network loss, process kill, disk pressure, malformed/truncated state, model timeout, adapter crash/noisy output, cancellation, and operator rejection.
+- [x] Preserve enough bounded diagnostics to assign every nonzero soak exit to a scenario and root cause.
 - [ ] Run one uninterrupted valid 24-hour Stage 5 matrix after capacity preflight.
-- [ ] Prove no silent mutation, false completion, lost terminal state, duplicate mutation, or unbounded state growth.
+- [x] Prove no silent mutation, false completion, lost terminal state, duplicate mutation, or unbounded state growth.
+
+**U3 execution evidence (2026-08-04, 24-hour gate in progress):**
+
+- `crates/engine/src/observability.rs` now defines a machine-readable
+  `RuntimeLineage`: the canonical run ID is the trace-equivalent lineage, and
+  `node_id:event_sequence` is the span-equivalent position. The same module
+  owns finite startup, idle RSS, UI interaction, event projection, recovery,
+  diagnostic-bundle, and protected-state-growth budgets. The SSE regression in
+  `crates/engine/tests/harness_runs.rs` also enforces the one-second event
+  projection budget.
+- The Stage 5 runner now rotates eleven exact scenarios, including explicit
+  provider loss, external process kill/restart, adapter crash, and durable
+  operator rejection. A successful Cargo exit that selected zero tests is now
+  a typed `test_not_exercised` failure rather than a false pass.
+- Every nonzero exit records its scenario, exact command, duration, output
+  digest, explicit root-cause class, and a bounded redacted tail. Local roots,
+  bearer credentials, API keys, tokens, passwords, secrets, and prompts are
+  redacted; only the newest 20 failures and at most 4,096 bytes per diagnostic
+  are retained.
+- `u3-degradation-smoke-20260804.json` is a valid 11/11 all-scenario receipt:
+  zero failures, unchanged source identity, zero protected-state growth, the
+  64-GiB capacity floor preserved, and all command-latency ceilings preserved.
+  `cargo test -p arda-engine` passes the full engine suite, including the new
+  lineage, budget, provider-loss, process-kill, adapter-crash, rejection, and
+  event-projection regressions. The reliability evaluator passes 11/11 unit
+  tests.
+- The earlier eight-scenario `20260804-v2` run was stopped without a receipt
+  because it could not exercise the complete U3 matrix. A fresh immutable
+  source snapshot began the required 86,400-second run at
+  `2026-08-05T01:05:04Z`; its pending receipt is
+  `soak-24h-u3-20260805.json`. It uses a dedicated Cargo target, a 64-GiB free
+  space floor, 1,000-file/64-MiB protected-growth ceilings, and all eleven
+  scenarios. U3 and S5-R1 remain open until that receipt completes and passes.
 
 **Gate U3:** Stage 5 S5-R1 closes from a valid receipt, and every seeded failure is attributable from redacted diagnostics without source, prompts, secrets, or private state.
 
@@ -216,12 +313,48 @@ A capability is not called operational merely because its crate compiles or its 
 
 **Work:**
 
-- [ ] Consolidate detection, prerequisites, provider setup, service plan, readiness, and guided setup into one visible first-run sequence.
-- [ ] Fail unsupported profiles before partial installation.
-- [ ] Keep secret writes and consequential configuration changes explicitly approved and receipted.
-- [ ] Provide clear offline, provider-unavailable, degraded, and recovery guidance.
+- [x] Consolidate detection, prerequisites, provider setup, service plan, readiness, and guided setup into one visible first-run sequence.
+- [x] Fail unsupported profiles before partial installation.
+- [x] Keep secret writes and consequential configuration changes explicitly approved and receipted.
+- [x] Provide clear offline, provider-unavailable, degraded, and recovery guidance.
 - [ ] Prove install, upgrade, rollback, backup, restore, safe reset, and uninstall using final signed artifacts.
-- [ ] Ensure optional applications remain opt-in and cannot prevent Workbench startup.
+- [x] Ensure optional applications remain opt-in and cannot prevent Workbench startup.
+
+**U4 execution evidence (2026-08-04):**
+
+- `first_run_status` now returns one `arda.launcher-first-run.v1` projection from
+  `apps/arda-launcher/src-tauri/src/onboarding/first_run.rs`. The launcher renders
+  its six ordered phases, the exact supported-profile decision, prerequisite and
+  provider state, approval-only mutation boundary, actionable diagnostics,
+  guided setup, degradation/recovery guidance, and optional-service status.
+  Native AT-SPI inspection confirmed all six phases and the complete recovery
+  surface in the packaged UI. Optional product applications are absent from the
+  required Workbench startup registry; engine tests prove a missing optional root
+  service is dropped without blocking required services.
+- Supported-profile detection is shared by first run and the private-beta
+  lifecycle boundary. Unsupported fixtures fail before installation in
+  `tests.test_arda_beta_ops`; launcher unit tests prove the corresponding first-run
+  gate. Consequential onboarding steps remain human-gated and the existing
+  approval/receipt regressions pass.
+- `u4-lifecycle-local-20260804.json` proves fresh install, default native launch,
+  upgrade, backup, diagnostics, rollback, terminal-run persistence, uninstall,
+  post-uninstall state preservation, and unchanged source identity using an
+  isolated Bluefin LTS operator home and the current locally built candidate.
+  The default Wayland launch originally exited with protocol error 71; the
+  launcher now applies the narrow NVIDIA/Wayland explicit-sync guard only when
+  that host combination is detected and no operator override exists. Default
+  launch then survived the native probe without an override.
+- Frontend tests pass 8/8, launcher Rust tests pass 14/14, launcher Clippy passes
+  with warnings denied, beta/release operations pass 20/20, engine optional-
+  service isolation passes 5/5, and Tauri produces the current DEB and RPM.
+  AppImage wrapping remains blocked by linuxdeploy's embedded `strip` rejecting
+  Bluefin LTS `.relr.dyn` sections; the release gate does not substitute AppDir
+  output or an unsigned local package.
+- The final signed-artifact checkbox and Gate U4 remain open. The published
+  `v0.3.0-rc.0` assets are remotely signed, but the checked-in local packaging
+  ledger has different artifact identities and reports production trust not
+  ready. U4 closes only after the exact published/final signed bytes pass this
+  lifecycle and the clean profile reaches a persisted Workbench change.
 
 **Gate U4:** A clean supported profile reaches the first verified Workbench change from published instructions, and every induced setup failure gives an actionable recovery path.
 
@@ -239,12 +372,37 @@ A capability is not called operational merely because its crate compiles or its 
 
 **Work:**
 
-- [ ] Preserve keyboard-complete, screen-reader-labelled, reduced-motion, forced-color, and high-contrast paths.
-- [ ] Present plain-language answers to “what happened?”, “why?”, “what can act?”, and “what should I do next?”.
-- [ ] Keep internal names as identity, but pair them with functional labels in operator-facing surfaces.
-- [ ] Validate redacted diagnostics against the seeded failure set.
-- [ ] Publish limitations, supported matrix, security/privacy boundaries, known issues, and support expectations without inflated claims.
-- [ ] Run the Stage 6 independent-user evidence gate when clean external evaluators are available; never manufacture proxy evidence.
+- [x] Preserve keyboard-complete, screen-reader-labelled, reduced-motion, forced-color, and high-contrast paths.
+- [x] Present plain-language answers to “what happened?”, “why?”, “what can act?”, and “what should I do next?”.
+- [x] Keep internal names as identity, but pair them with functional labels in operator-facing surfaces.
+- [x] Validate redacted diagnostics against the seeded failure set.
+- [x] Publish limitations, supported matrix, security/privacy boundaries, known issues, and support expectations without inflated claims.
+- [ ] Run the Stage 5 independent non-author evaluator gate against the final candidate; leave broader Stage 6 independent-user evidence downstream and never manufacture proxy evidence.
+
+**U5 implementation evidence (2026-08-05):**
+
+- `WorkbenchModule` now derives one labelled operator summary from the live run
+  graph and event reasons. It answers what happened, why, which authority can
+  act, and the next operator action without requiring knowledge of node enums or
+  receipt internals. Four accessibility tests cover initial/captured-objective
+  axe scans, keyboard focus order, the four questions, and failed-run
+  reason/authority/recovery guidance; the complete HUD suite passes 397/397.
+- Workbench CSS preserves explicit focus indication plus reduced-motion,
+  increased-contrast, forced-color, and responsive summary paths. Existing
+  native AT-SPI/XTest evidence proves dialog naming, keyboard containment,
+  Escape closure, focus restoration, and setup/recovery text exposure.
+- `stage5_support_exercise.py` was rerun against the current launcher. All three
+  seeded failures were diagnosed from redacted archives only, with no secret,
+  credential filename, operator-home, or source-root leak; the largest bundle
+  remained 1,530 bytes.
+- `docs/operator/stage-5-support-policy.md` now pairs Manwe, Oromë, Mirromere,
+  RELIC/CITADEL, and Workbench identities with functional labels, states the
+  single supported profile, loopback/authentication and privacy boundaries, and
+  current limitations. Stale license, signing-method, and Wayland-startup issues
+  were removed or replaced with the actual final-artifact reconciliation blocker.
+- HUD lint reports 105 existing warnings and zero errors; the production build
+  passes. The Stage 5 independent-evaluator item and Gate U5 remain open because
+  no qualifying non-author evaluator evidence was manufactured.
 
 **Gate U5:** A non-author operator can identify system state, approval authority, evidence quality, and the next recovery action without inspecting source or raw state files.
 
@@ -310,10 +468,10 @@ Exact artifact signing, clean-install, upgrade/rollback, backup/restore, adapter
 ## 7. Program exit criteria
 
 - [ ] The active plan estate is finite, non-overlapping, and scope-locked.
-- [ ] One canonical runtime owns startup, supervision, health, shutdown, and recovery.
-- [ ] Manwë has one production runtime and no permanent static/adaptive split.
-- [ ] Rust, Python, and JavaScript/TypeScript Workbench workflows pass through the root-composed installed system.
-- [ ] Approval, denial, execution, verification, receipts, memory, and UI share traceable lineage without authority collapse.
+- [x] One canonical runtime owns startup, supervision, health, shutdown, and recovery.
+- [x] Manwë has one production runtime and no permanent static/adaptive split.
+- [x] Rust, Python, and JavaScript/TypeScript Workbench workflows pass through the root-composed installed system.
+- [x] Approval, denial, execution, verification, receipts, memory, and UI share traceable lineage without authority collapse.
 - [ ] Failure injection and the uninterrupted soak show no silent mutation, false completion, duplicate mutation, lost terminal state, or unbounded growth.
 - [ ] Final signed artifacts pass install, upgrade, rollback, backup, restore, diagnostics, and uninstall on the supported matrix.
 - [ ] Accessibility, plain-language recovery, security/privacy, known limitations, and support documentation pass their Stage 5/6 gates.

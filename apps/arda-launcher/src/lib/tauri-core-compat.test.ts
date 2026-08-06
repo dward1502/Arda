@@ -3,6 +3,7 @@ import { invoke } from '@tauri-apps/api/core'
 import {
   invokeOnboardingSnapshot,
   invokeRegistryStatus,
+  type OnboardingSnapshot,
   type ReadinessProjection,
   type RegistryStatusPayload,
   type ServicePlan,
@@ -56,6 +57,33 @@ const servicePlan: ServicePlan = {
   ],
 }
 
+const onboarding: OnboardingSnapshot = {
+  contract: 'arda.launcher.first-run.v1',
+  generated_at_utc: '2026-08-04T00:00:00Z',
+  gate_status: 'warn',
+  can_start_workbench: false,
+  mutation_policy: 'explicit_approval_and_receipt_required',
+  profile: 'local',
+  machine_role: 'workstation',
+  compatibility: {
+    status: 'supported',
+    profile_id: 'bluefin-lts-10-x86_64',
+    supported_profile: 'bluefin-lts-10-x86_64',
+    architecture: 'x86_64',
+    os_id: 'centos',
+    version_id: '10',
+    pretty_name: 'Bluefin LTS 10',
+    message: 'Supported profile verified before setup actions.',
+  },
+  prerequisites: { summary: { pass: 5 } },
+  providers: { providers: [] },
+  readiness,
+  servicePlan,
+  guided: { steps: [], next_actions: [] },
+  recovery: [],
+  optionalServices: [],
+}
+
 describe('Tauri onboarding command contract', () => {
   beforeEach(() => {
     invokeMock.mockReset()
@@ -68,18 +96,10 @@ describe('Tauri onboarding command contract', () => {
     expect(invokeMock).toHaveBeenCalledWith('registry_status', { root: '/arda' })
   })
 
-  it('loads readiness and service plan through the real command names', async () => {
-    invokeMock
-      .mockResolvedValueOnce(readiness)
-      .mockResolvedValueOnce(servicePlan)
+  it('loads the ordered first-run projection through one command', async () => {
+    invokeMock.mockResolvedValueOnce(onboarding)
 
-    await expect(invokeOnboardingSnapshot({ root: '/arda' })).resolves.toEqual({
-      readiness,
-      servicePlan,
-    })
-    expect(invokeMock.mock.calls).toEqual([
-      ['readiness_status', { root: '/arda' }],
-      ['service_plan_status', { root: '/arda' }],
-    ])
+    await expect(invokeOnboardingSnapshot({ root: '/arda' })).resolves.toEqual(onboarding)
+    expect(invokeMock.mock.calls).toEqual([['first_run_status', { root: '/arda' }]])
   })
 })

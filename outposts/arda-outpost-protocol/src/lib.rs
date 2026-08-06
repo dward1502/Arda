@@ -1,5 +1,6 @@
 //! Shared outpost protocol types: observations, authority envelope, schema constants.
 
+pub mod access;
 pub mod authority;
 pub mod error;
 pub mod observation;
@@ -9,6 +10,9 @@ pub mod research;
 pub mod research_beta;
 pub mod watchlist;
 
+pub use access::{
+    NetworkPosture, OutpostAccessContract, OutpostEnrollment, OUTPOST_ACCESS_SCHEMA_VERSION,
+};
 pub use authority::AuthorityClass;
 pub use error::OutpostProtocolError;
 pub use observation::{

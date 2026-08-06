@@ -1,10 +1,10 @@
 {
-  "generated_at_utc": "2026-08-03T02:48:14.523182607+00:00",
+  "generated_at_utc": "2026-08-04T21:19:56.828888962+00:00",
   "metrics": {
     "last_consolidation_depth": 0,
     "last_queue_latency_ms": null,
     "last_recall_fidelity": null,
-    "last_recall_latency_ms": 14,
+    "last_recall_latency_ms": 13,
     "promotion_receipts_total": 0,
     "queue_observations_total": 0,
     "recall_requests_total": 1,

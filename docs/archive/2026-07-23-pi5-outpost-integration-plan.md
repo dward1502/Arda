@@ -5,7 +5,7 @@
 **Lifecycle status:** COMPLETE locally on 2026-08-01; archived after all PI5-1 through PI5-3 acceptance gates passed
 **Stage posture:** Supporting infrastructure; not a Workbench release-candidate gate
 **Canonical backend authority:** [Warden → Varda → Aulë governed learning loop](2026-07-27-warden-varda-ceo-learning-loop.md)
-**Canonical research product authority:** [Warden Research](../plans/2026-07-29-warden-research-application-plan.md)
+**Canonical research product authority:** [Warden Research](2026-07-29-warden-research-application-plan.md)
 **Canonical presence/presentation authority:** [RELIC/CITADEL](../plans/2026-07-29-relic-citadel-plan.md)
 
 ## Reconciliation decision

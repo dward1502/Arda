@@ -43,8 +43,8 @@ optional = false
 tags = ["gateway"]
 
   [service.start]
-  command = "cargo"
-  args = ["run", "-p", "manwe", "--", "--config", "manwe.toml"]
+  command = "target/release/manwe"
+  args = ["--config", "manwe.toml", "--bind", "127.0.0.1", "--port", "7171"]
   cwd = "."
 
   [service.health]

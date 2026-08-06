@@ -1,8 +1,13 @@
 //! Bounded project-adapter process boundary.
 
+mod company;
 mod hermes;
 mod jsonl;
 
+pub use company::{
+    CompanyAdapterCapability, CompanyAdapterError, CompanyAdapterOperation, CompanyAdapterRequest,
+    CompanyResource, ReferenceCrmAdapter,
+};
 pub use hermes::{
     HermesAdapter, HermesAdapterConfig, HermesAdapterError, HermesArtifactEvidence,
     HermesExecutionReceipt, HermesNodeTask, HermesReceiptStatus, HermesTestEvidence,

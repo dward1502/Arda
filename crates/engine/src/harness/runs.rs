@@ -450,6 +450,7 @@ pub(super) async fn complete_run_node(
             node_id.as_str()
         )));
     }
+    let is_verification = node.kind == NodeKind::Verify;
     if matches!(
         node.state,
         NodeState::Pending | NodeState::Blocked | NodeState::Failed
@@ -511,11 +512,23 @@ pub(super) async fn complete_run_node(
         Some(request.receipt_digest.clone()),
     )
     .map_err(store_error)?;
+    let verification_failed = is_verification
+        && request.evidence.as_ref().is_none_or(|evidence| {
+            evidence.tests.is_empty()
+                || evidence
+                    .tests
+                    .iter()
+                    .any(|test| test.status != TestStatus::Passed)
+        });
     apply_transition_once(
         &store,
         &mut graph,
         &node_id,
-        NodeState::Succeeded,
+        if verification_failed {
+            NodeState::Failed
+        } else {
+            NodeState::Succeeded
+        },
         request.envelope.idempotency_key.clone(),
         Some(request.receipt_digest.clone()),
     )

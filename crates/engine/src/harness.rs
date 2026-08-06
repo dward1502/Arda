@@ -12,14 +12,18 @@ use std::time::Duration;
 
 use crate::harness::presence::HarnessPresenceState;
 use axum::extract::State;
-use axum::http::StatusCode;
+use axum::http::{header, HeaderName, HeaderValue, Method, StatusCode};
 use axum::response::IntoResponse;
 use axum::routing::{get, post};
 use axum::Json;
 use serde::Serialize;
 use tokio::sync::Notify;
+use tower_http::cors::CorsLayer;
 use tracing::{info, warn};
 
+use crate::supervisor::ServiceRuntimeStatus;
+
+mod personal_briefs;
 pub mod personal_ops;
 pub mod presence;
 mod projects;
@@ -45,6 +49,8 @@ pub struct HarnessState {
     pub child_pids: Arc<tokio::sync::RwLock<Vec<u32>>>,
     /// Names of services the harness knows about.
     pub service_names: Arc<Vec<String>>,
+    /// Live lifecycle/readiness state for every process owned by the root supervisor.
+    pub service_statuses: Arc<tokio::sync::RwLock<Vec<ServiceRuntimeStatus>>>,
     /// The `manwe` gateway base URL the harness proxies `/v1/models` to.
     pub manwe_url: String,
     /// HTTP client used for outbound proxy requests.
@@ -72,6 +78,7 @@ struct Status {
     manwe_url: String,
     warden_scout_url: Option<String>,
     services: Vec<String>,
+    service_statuses: Vec<ServiceRuntimeStatus>,
     child_pids: Vec<u32>,
 }
 
@@ -140,6 +147,14 @@ fn router(state: HarnessState) -> axum::Router {
             get(personal_ops::get_today_brief),
         )
         .route(
+            "/v1/personal/briefs/morning",
+            get(personal_briefs::get_morning_brief),
+        )
+        .route(
+            "/v1/personal/briefs/transition",
+            get(personal_briefs::get_transition_brief),
+        )
+        .route(
             "/v1/personal/reminders/attempt",
             post(personal_ops::record_reminder_attempt),
         )
@@ -168,6 +183,25 @@ fn router(state: HarnessState) -> axum::Router {
             HarnessPresenceState::default(),
         ))
         .with_state(state)
+        .layer(harness_cors_layer())
+}
+
+fn harness_cors_layer() -> CorsLayer {
+    CorsLayer::new()
+        .allow_origin([
+            HeaderValue::from_static("tauri://localhost"),
+            HeaderValue::from_static("http://tauri.localhost"),
+            HeaderValue::from_static("http://localhost:1421"),
+            HeaderValue::from_static("http://127.0.0.1:1421"),
+        ])
+        .allow_methods([Method::GET, Method::POST])
+        .allow_headers([
+            header::ACCEPT,
+            header::AUTHORIZATION,
+            header::CONTENT_TYPE,
+            HeaderName::from_static("idempotency-key"),
+            HeaderName::from_static("x-arda-operator-id"),
+        ])
 }
 
 /// Liveness probe. Returns 200 once the harness is listening.
@@ -180,12 +214,14 @@ async fn health() -> impl IntoResponse {
 /// the system's shape.
 async fn status(State(st): State<HarnessState>) -> impl IntoResponse {
     let pids = st.child_pids.read().await.clone();
+    let service_statuses = st.service_statuses.read().await.clone();
     let body = Status {
         daemon: "arda",
         harness_addr: st.harness_addr.clone(),
         manwe_url: st.manwe_url.clone(),
         warden_scout_url: st.warden_scout_url.clone(),
         services: (*st.service_names).clone(),
+        service_statuses,
         child_pids: pids,
     };
     (StatusCode::OK, Json(body))
@@ -403,6 +439,7 @@ mod tests {
             harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
             child_pids: Arc::new(RwLock::new(Vec::new())),
             service_names: Arc::new(Vec::new()),
+            service_statuses: Arc::new(RwLock::new(Vec::new())),
             manwe_url: "http://127.0.0.1:1".into(),
             client: reqwest::Client::new(),
             manwe_proxy_timeout: DEFAULT_MANWE_PROXY_TIMEOUT,
@@ -449,6 +486,7 @@ mod tests {
             harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
             child_pids: Arc::new(RwLock::new(Vec::new())),
             service_names: Arc::new(Vec::new()),
+            service_statuses: Arc::new(RwLock::new(Vec::new())),
             manwe_url: "http://127.0.0.1:1".into(),
             client: reqwest::Client::new(),
             manwe_proxy_timeout: DEFAULT_MANWE_PROXY_TIMEOUT,
@@ -536,6 +574,7 @@ mod tests {
             harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
             child_pids: Arc::new(RwLock::new(Vec::new())),
             service_names: Arc::new(Vec::new()),
+            service_statuses: Arc::new(RwLock::new(Vec::new())),
             manwe_url: format!("http://{upstream_addr}"),
             client: reqwest::Client::new(),
             manwe_proxy_timeout: DEFAULT_MANWE_PROXY_TIMEOUT,
@@ -575,6 +614,7 @@ mod tests {
             harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
             child_pids: Arc::new(RwLock::new(Vec::new())),
             service_names: Arc::new(Vec::new()),
+            service_statuses: Arc::new(RwLock::new(Vec::new())),
             manwe_url: "http://127.0.0.1:1".into(),
             client: reqwest::Client::new(),
             manwe_proxy_timeout: Duration::from_millis(100),
@@ -612,6 +652,7 @@ mod tests {
             harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
             child_pids: Arc::new(RwLock::new(Vec::new())),
             service_names: Arc::new(Vec::new()),
+            service_statuses: Arc::new(RwLock::new(Vec::new())),
             manwe_url: "http://127.0.0.1:1".into(),
             client: reqwest::Client::new(),
             manwe_proxy_timeout: DEFAULT_MANWE_PROXY_TIMEOUT,

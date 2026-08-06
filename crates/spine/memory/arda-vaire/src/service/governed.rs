@@ -3,7 +3,7 @@
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use super::MnemosyneService;
 use arda_core::error::{ArdaError, Result};
@@ -107,11 +107,11 @@ impl MnemosyneService {
     }
 }
 
-fn governed_receipts_path(root: &PathBuf) -> PathBuf {
+fn governed_receipts_path(root: &Path) -> PathBuf {
     root.join("governed_knowledge_receipts.jsonl")
 }
 
-fn read_receipts(path: &PathBuf) -> Result<Vec<GovernedKnowledgeReceipt>> {
+fn read_receipts(path: &Path) -> Result<Vec<GovernedKnowledgeReceipt>> {
     let contents = match std::fs::read_to_string(path) {
         Ok(contents) => contents,
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(Vec::new()),
@@ -156,7 +156,7 @@ mod tests {
         let second = service.ingest_approved_delta(delta).unwrap();
         assert_eq!(first.receipt_id, second.receipt_id);
         assert_eq!(
-            read_receipts(&governed_receipts_path(&dir.path().to_path_buf()))
+            read_receipts(&governed_receipts_path(dir.path()))
                 .unwrap()
                 .len(),
             1

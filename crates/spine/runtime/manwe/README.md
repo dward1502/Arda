@@ -1,184 +1,108 @@
 # manwe
 
-`manwe` is Arda's local OpenAI-compatible inference gateway. It owns the
-stable HTTP entry point on `127.0.0.1:7171`, discovers local fleet providers,
-selects an eligible upstream, forwards chat-completion requests, and records
-route receipts.
+`manwe` is Arda's single governed OpenAI-compatible inference gateway. The
+binary always starts `ManweService` and the HTTP transport from
+`src/adaptive/transport/http.rs`; there is no selectable static or gRPC process.
 
-Status: active with its foundation baseline complete as of 2026-07-27. The
-default and full governed `adaptive` runtimes have maintained process smoke
-coverage; the `telemetry` and all-feature contracts pass their focused checks.
-See [`STATUS.md`](STATUS.md) for verification evidence and bounded continuing
-risks.
-
-## Runtime surface
-
-The binary in `src/main.rs` serves:
-
-| Method | Path | Purpose |
-|---|---|---|
-| `GET` | `/healthz`, `/health`, `/status` | Runtime, config, and provider health |
-| `GET` | `/providers`, `/state` | Current fleet-provider view |
-| `GET` | `/metrics` | Prometheus text metrics |
-| `GET` | `/v1/models` | OpenAI-compatible model catalog |
-| `GET` | `/v1/capabilities` | Routing mode and resource-group state |
-| `POST` | `/v1/chat/completions` | OpenAI-compatible inference proxy |
-
-Defaults:
-
-- HTTP bind: `127.0.0.1:7171`
-- Static config: `manwe.toml`, with an embedded local Ollama fallback
-- Fleet catalog: `$ARDA_ROOT/config/fleet.toml`, probed at startup and every 60 seconds
-- Model references: explicit `provider/model`, a catalog model ID, `auto`, or
-  `local/auto`
-- Receipts: `$ARDA_ROOT/data/manwe/route_receipts.jsonl`
-
-Configuration ownership and precedence:
-
-- Static forwarding config is owned by `--config` (default `manwe.toml`). A
-  valid file wins; a missing, unreadable, malformed, or provider-empty file
-  selects the embedded Ollama fallback and reports the exact fallback reason.
-- Static fleet discovery is independent of forwarding config and is owned by
-  `ARDA_MANWE_FLEET_CONFIG`, legacy alias
-  `ANNUNIMAS_CHARON_FLEET_CONFIG`, then `$ARDA_ROOT/config/fleet.toml`. Missing
-  or malformed fleet input produces an empty fleet catalog; it does not replace
-  static forwarding providers.
-- Full governed adaptive mode does not consume either static catalog. Its
-  provider source is `ARDA_MANWE_PROVIDER_CONFIG`, legacy environment alias
-  `ANNUNIMAS_CHARON_PROVIDER_CONFIG`, then
-  `$ARDA_ROOT/config/manwe.providers.toml`. Missing or invalid provider input
-  selects governed defaults.
-- Adaptive mutation routes are open for local compatibility when
-  `ARDA_MANWE_API_KEY` is unset. When it is set to a non-empty value,
-  provider-result, model-streaming-validation, and config-reload mutations
-  require an exact `Authorization: Bearer <value>` header.
-- Adaptive runtime state is owned by `ARDA_MANWE_STATE_DIR`, then
-  `ARDA_MANWE_HOME`, then `$ARDA_ROOT/data/manwe`, then the compatibility
-  `$ARDA_HOME/data/manwe` root. If no environment root is supplied, Manwe uses
-  its build-derived Arda workspace root; it never derives mutable state from the
-  process working directory. Provider runtime state overlays configured provider
-  identity; it does not own endpoint or credential configuration.
-
-`/healthz` and `/v1/capabilities` expose credential-free `config_source`,
-config paths, and `catalog_generation`. Generation starts at `1` after startup
-and increments after each successful catalog reload. No API key values are
-included in these diagnostics.
-
-## Build and run
+## Canonical runtime
 
 From the workspace root:
 
 ```text
-cargo run -p manwe -- --config manwe.toml
-cargo run -p manwe --features adaptive -- --adaptive
-cargo run -p manwe --features grpc -- --grpc
+cargo run -p manwe -- --config manwe.toml --bind 0.0.0.0 --port 7171
 ```
 
-Useful flags are `--bind`, `--port`, `--config`, `--adaptive`, and `--grpc`.
-`MANWE_ROUTING_MODE=adaptive` is equivalent to `--adaptive`. Requesting an
-adaptive or gRPC mode without compiling its Cargo feature fails fast.
+`--adaptive` remains accepted as a hidden compatibility no-op while installed
+launchers converge. It does not select another runtime. `--grpc` fails with an
+explicit retirement message.
 
-The gRPC server is opt-in. It binds `MANWE_GRPC_PORT`, defaulting to
-`0.0.0.0:50051`, and runs alongside HTTP only when both `--features grpc` and
-`--grpc` are used.
+The root daemon owns the supported production launch through `services.toml`:
+
+```text
+cargo run -p arda -- --no-ui
+```
+
+That profile supervises Manwe, probes `http://127.0.0.1:7171/healthz`, and
+publishes lifecycle/readiness state from the root harness at
+`http://127.0.0.1:7878/v1/status`. The normal profile also includes the launcher
+and HUD.
+
+## HTTP surface
+
+| Method | Path | Purpose |
+|---|---|---|
+| `GET` | `/healthz`, `/health`, `/status` | Governed runtime and provider health |
+| `GET` | `/providers`, `/state` | Provider state and routing eligibility |
+| `GET` | `/providers/capabilities` | Capability receipts |
+| `GET` | `/provider_candidates` | Current route candidates |
+| `GET` | `/observability` | Route, lane, and tool-fit evidence |
+| `GET` | `/metrics` | Prometheus metrics |
+| `GET` | `/v1/models` | OpenAI-compatible model catalog |
+| `GET` | `/v1/capabilities` | Runtime/capability contract |
+| `POST` | `/v1/chat/completions` | OpenAI-compatible governed routing |
+
+The coordinated HTTP contract is port `7171`. Local callers use
+`127.0.0.1:7171`; the canonical workstation service binds `0.0.0.0:7171` so
+approved Tailscale consumers retain access. Change the port or bind only with
+engine, HUD, monitoring, Hermes bridge, and offsite-operator consumer updates.
+
+## Provider and state ownership
+
+Provider configuration resolves in this order:
+
+1. `ARDA_MANWE_PROVIDER_CONFIG`
+2. compatibility alias `ANNUNIMAS_CHARON_PROVIDER_CONFIG`
+3. `$ARDA_ROOT/config/manwe.providers.toml`
+4. governed bootstrap defaults
+
+Mutable state resolves from `ARDA_MANWE_STATE_DIR`, `ARDA_MANWE_HOME`,
+`$ARDA_ROOT/data/manwe`, compatibility `$ARDA_HOME/data/manwe`, then the
+build-derived workspace root. Important evidence includes:
+
+- `state.jsonl` and `governance_events.jsonl`
+- `tool_fit_ledger.jsonl`
+- `provider_runtime_state.json`
+- `provider_capability_receipts.json`
+- `lane_fitness.json` and `bandit.json`
+
+Provider identity, access tier, health, quotas, model capabilities, lane fitness,
+and route outcomes feed one selection model for local, free-cloud, and paid
+providers. Credentials are referenced by environment-variable name and are not
+emitted by status surfaces.
+
+The HTTP listener is loopback-only; expose it remotely only through an
+authenticated reverse proxy. Mutation routes retain local compatibility when
+`ARDA_MANWE_API_KEY` is unset. When configured, callers must provide the exact
+bearer token.
 
 ## Cargo features
 
-| Feature | Current effect |
+| Feature | Effect |
 |---|---|
-| default | Builds the public types/config library and the fleet-backed HTTP gateway |
-| `adaptive` | Compiles the full governed `ManweService`; `--adaptive` starts its policy, quotas, persistence, provider drivers, and HTTP transport |
-| `grpc` | Compiles the tonic services and permits `--grpc` |
-| `telemetry` | Emits adaptive state, governance, and memory events through the feature-gated `arda_aule::telemetry` API |
+| default (`adaptive`) | Builds the only supported governed runtime |
+| `telemetry` | Adds `arda_aule` OpenTelemetry emission and shutdown flushing |
 
-With `telemetry`, Manwe installs the `arda_aule` OpenTelemetry layer at process
-startup. Set `ARDA_OTLP_ENDPOINT` or `OTEL_EXPORTER_OTLP_ENDPOINT` to enable
-OTLP trace export; the provider is flushed on process exit. Telemetry event
-attributes are serialized without loss into the selected trace/log destination.
-
-`--adaptive` and `MANWE_ROUTING_MODE=adaptive` select the full governed
-`ManweService`. `/v1/capabilities` identifies this runtime as
-`full_governed` with `policy_authority: manwe_service`, `governance: true`, and
-`quota_mesh: true`. Static mode retains the smaller fleet-policy gateway.
-
-Adaptive previews and route selections load `config/governance/realm_policies.toml`,
-resolve `governance_realm` and `governance_action_class` request metadata (defaulting to
-`routing`/`provider_selection`), and attach the typed realm-policy verdict, scorer receipts,
-and runtime-blocking decision to `RouteGovernance`. Policy load failure falls back to the
-validated non-blocking default. `ARDA_GOVERNANCE_BLOCKING_ENABLED` is only an operator request;
-the governance authority still requires scoped autonomy-ready evidence before it can block.
-
-### Streaming contract
-
-The fleet-backed binary accepts OpenAI requests with `stream=true` and preserves
-the upstream SSE content type and bytes, but it intentionally buffers the full
-upstream body before returning it. It attempts to persist the final route receipt
-before the caller consumes the response and marks the response with
-`x-manwe-streaming-mode: buffered`. This surface does not promise live SSE
-pass-through, incremental latency, or streaming backpressure. Clients that need
-those properties must not treat this binary path as a true streaming transport.
-As on non-streaming routes, receipt persistence is best-effort and a write
-failure is logged without replacing an otherwise valid upstream response.
-
-Run both maintained process-level contracts with:
-
-```text
-python crates/spine/runtime/manwe/tests/process_smoke.py
-```
-
-The `grpc` feature also has an in-process runtime smoke test that binds an
-ephemeral listener, connects generated tonic clients, and exercises both the
-health/model and route-governance services.
+Building the binary with `--no-default-features` fails at compile time rather
+than silently restoring a smaller router.
 
 ## Public library surface
 
-`src/lib.rs` currently exports:
-
-- `config`, `error`, `routing_adapter`, and `types`
-- `adaptive` when the `adaptive` feature is enabled
-- `ManweConfig`, `ManweRequestEnvelope`, `ModelState`, `ProviderState`, and
-  `RouteDecision`
-
-The gateway binary has private modules for provider discovery, receipts,
-resource limits, and optional gRPC. The source graph has been reconciled: the
-governed service implementations are attached explicitly from
-`src/adaptive/service/full/`, and obsolete parallel source copies are retired.
-[`BREAKDOWN.md`](BREAKDOWN.md) records the evidence and retained boundaries.
-
-## Workspace integration
-
-- `arda-engine` depends on and re-exports the `manwe` library, and its harness
-  proxies `/v1/models` to a configured Manwe URL.
-- `arda-launcher` discovers `MANWE_BASE_URL` / `ARDA_MANWE_BASE_URL` during
-  onboarding.
-- `services.toml` registers the required canonical gateway as
-  `cargo run -p manwe -- --config manwe.toml`, with
-  `http://127.0.0.1:7171/healthz` as its health contract.
-- `arda-engine` deserializes the manifest's singular `[[service]]` command,
-  arguments, working directory, tags, and health metadata. In `--no-ui` mode,
-  it drops launcher/HUD entries and continues to supervise Manwe.
+`src/lib.rs` exports `config`, `error`, `routing_adapter`, `types`, and the
+governed `adaptive` tree, plus the principal public request/provider/route
+models. `src/types.rs` remains the canonical domain model.
 
 ## Verification
-
-The current 2026-07-27 foundation closure includes:
 
 ```text
 cargo check -p manwe --all-targets --all-features
 cargo clippy -p manwe --all-targets --all-features -- -D warnings
-cargo test -p manwe --all-features
+cargo test -p manwe --all-features -- --test-threads=1
 cargo fmt -p manwe -- --check
 python crates/spine/runtime/manwe/tests/process_smoke.py
 python crates/spine/runtime/manwe/tests/check_docs.py
-cargo test -p arda-engine
+cargo test -p arda-engine --all-targets -- --test-threads=1
+cargo test --test root_daemon -- --test-threads=1
 ```
 
-These commands pass. The all-feature suite contains 278 library and 29 binary
-tests; `STATUS.md` records downstream and live-runtime evidence.
-
-## Documentation
-
-- [`STATUS.md`](STATUS.md) — current evidence, health, boundaries, and risks
-- [`BREAKDOWN.md`](BREAKDOWN.md) — crate shape, active module graph, and consumers
-- [`PROVIDERS.md`](PROVIDERS.md) — static and governed provider/config contract
-- [Archived CHARON foundation plan](../../../../docs/archive/CHARON.md)
-- [Archived foundation checklist](../../../../docs/archive/MANWE_FOUNDATION_CHECKLIST.md)
+See [`STATUS.md`](STATUS.md), [`BREAKDOWN.md`](BREAKDOWN.md), and
+[`PROVIDERS.md`](PROVIDERS.md) for current evidence and boundaries.

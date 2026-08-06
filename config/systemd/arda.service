@@ -1,16 +1,18 @@
 [Unit]
-Description=Arda local harness tap-in surface
-After=network-online.target arda-manwe.service
-Wants=network-online.target arda-manwe.service
+Description=Arda canonical root runtime supervisor
+After=network-online.target
+Wants=network-online.target
 
 [Service]
 Type=simple
 WorkingDirectory=%h/Eregion/Arda
 Environment=RUST_LOG=info
 Environment=ARDA_ROOT=%h/Eregion/Arda
-ExecStart=%h/.local/bin/arda --harness-only
-Restart=always
+Environment=PATH=%h/.cargo/bin:%h/.local/bin:/usr/local/bin:/usr/bin
+ExecStart=%h/.local/bin/arda --no-ui
+Restart=on-failure
 RestartSec=3
 
 [Install]
 WantedBy=default.target
+Alias=arda-manwe.service

@@ -2,6 +2,7 @@
 pub mod agent;
 pub mod aipkg;
 pub mod background;
+pub mod company_ops;
 pub mod config;
 pub mod contract;
 pub mod daemon;

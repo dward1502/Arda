@@ -1,8 +1,8 @@
 //! Receipt-driven Warden import and Varda approval boundary.
 
 use arda_outpost_protocol::{
-    validate_research_chain, AcknowledgementReceipt, ExternalObservationReceipt, ResearchDispatch,
-    ResearchReceiptLedger, ResearchSuggestion,
+    validate_research_chain, AcknowledgementReceipt, ExternalObservationReceipt,
+    PersistedResearchChain, ResearchDispatch, ResearchReceiptLedger, ResearchSuggestion,
 };
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -165,6 +165,50 @@ pub fn append_evaluation_receipt(
     Ok(())
 }
 
+fn supersede_expired_chain(
+    ledger: &ResearchReceiptLedger,
+    evaluation_ledger_path: impl AsRef<Path>,
+    sequence: u64,
+    chain: &PersistedResearchChain,
+    now: DateTime<Utc>,
+) -> Result<Option<ExternalEvaluationReceipt>, ExternalLaneError> {
+    if chain.suggestion.expires_at_utc > now {
+        return Ok(None);
+    }
+
+    // The chain was valid when Warden emitted it, but its bounded authority no
+    // longer permits a new canonical fetch. Validate the persisted parent
+    // links at the suggestion's creation boundary, then record a terminal
+    // non-promotable disposition so an expired head cannot poison the lane.
+    validate_research_chain(
+        &chain.suggestion,
+        &chain.dispatch,
+        &chain.observation,
+        &chain.acknowledgement,
+        chain.suggestion.created_at_utc,
+    )?;
+    let receipt = ExternalEvaluationReceipt {
+        schema_version: "arda.athena.external_evaluation.v1".to_owned(),
+        suggestion_id: chain.suggestion.suggestion_id.clone(),
+        dispatch_id: chain.dispatch.dispatch_id.clone(),
+        observation_id: chain.observation.observation_id.clone(),
+        normalized_url: chain.observation.normalized_url.clone(),
+        retrieved_at_utc: chain.observation.observed_at_utc,
+        content_hash: chain.observation.content_hash.clone(),
+        decision: EvaluationDecision::Superseded,
+        rationale: "research suggestion expired before Varda evaluation; canonical refetch skipped"
+            .to_owned(),
+        approval_reference: None,
+    };
+    append_evaluation_receipt(&receipt, evaluation_ledger_path)?;
+    ledger.advance_cursor(
+        "observations",
+        sequence,
+        chain.observation.observation_id.clone(),
+    )?;
+    Ok(Some(receipt))
+}
+
 /// Consume the next persisted Warden chain exactly once against a canonical
 /// fetch result. The cursor advances only after evaluation receipt persistence.
 pub fn import_next_canonical_result(
@@ -186,6 +230,11 @@ pub fn import_next_canonical_result(
     let Some((sequence, chain)) = next else {
         return Ok(None);
     };
+    if let Some(receipt) =
+        supersede_expired_chain(&ledger, &evaluation_ledger_path, sequence, &chain, now)?
+    {
+        return Ok(Some(receipt));
+    }
     let receipt = evaluate_external_lane(
         ExternalLaneInput {
             suggestion: &chain.suggestion,
@@ -222,6 +271,15 @@ pub async fn import_next_from_crawl4ai(
     let Some(chain) = chains.get(cursor.sequence as usize) else {
         return Ok(None);
     };
+    if let Some(receipt) = supersede_expired_chain(
+        &ledger,
+        &evaluation_ledger_path,
+        cursor.sequence + 1,
+        chain,
+        now,
+    )? {
+        return Ok(Some(receipt));
+    }
     let crawl = crawl4ai_fetch_markdown(
         crawl_service_url,
         &chain.observation.normalized_url,
@@ -391,5 +449,78 @@ mod tests {
                 .sequence,
             1
         );
+    }
+
+    #[test]
+    fn expired_chain_is_superseded_without_fetch_and_advances_cursor() {
+        let dir = tempdir().unwrap();
+        let now = Utc::now();
+        let created_at = now - Duration::minutes(10);
+        let suggestion = ResearchSuggestion::new(
+            "expired crawl import",
+            "expired-crawl-suggestion",
+            created_at,
+            now - Duration::minutes(5),
+            2,
+            1024,
+        )
+        .unwrap();
+        let dispatch =
+            ResearchDispatch::accepted(&suggestion, "expired-crawl-dispatch", created_at, 1)
+                .unwrap();
+        let url = "https://example.com/expired";
+        let observation = ExternalObservationReceipt::completed(
+            &suggestion,
+            &dispatch,
+            url,
+            sha256_hex(b"expired canonical content"),
+            sha256_hex(url.as_bytes()),
+            created_at,
+        )
+        .unwrap();
+        let acknowledgement =
+            AcknowledgementReceipt::completed(&suggestion, &dispatch, &observation, created_at)
+                .unwrap();
+        let research_path = dir.path().join("warden.jsonl");
+        let evaluation_path = dir.path().join("evaluations.jsonl");
+        ResearchReceiptLedger::open(&research_path)
+            .unwrap()
+            .append_complete_chain(
+                &suggestion,
+                &dispatch,
+                &observation,
+                &acknowledgement,
+                created_at,
+            )
+            .unwrap();
+
+        let receipt = tokio::runtime::Runtime::new()
+            .unwrap()
+            .block_on(import_next_from_crawl4ai(
+                &research_path,
+                &evaluation_path,
+                "http://127.0.0.1:1",
+                "fit",
+                None,
+                now,
+                now,
+            ))
+            .unwrap()
+            .unwrap();
+
+        assert_eq!(receipt.decision, EvaluationDecision::Superseded);
+        assert!(receipt.approval_reference.is_none());
+        assert!(approved_delta(&receipt, "must not promote").is_err());
+        assert_eq!(
+            ResearchReceiptLedger::open(&research_path)
+                .unwrap()
+                .read_cursor("observations")
+                .unwrap()
+                .sequence,
+            1
+        );
+        let persisted: ExternalEvaluationReceipt =
+            serde_json::from_str(std::fs::read_to_string(evaluation_path).unwrap().trim()).unwrap();
+        assert_eq!(persisted.decision, EvaluationDecision::Superseded);
     }
 }

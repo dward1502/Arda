@@ -5,7 +5,11 @@
 set -u
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SYNC_BIN="${ARDA_RELIC_SYNC_BIN:-${ROOT_DIR}/target/release/arda-relic-presence-sync}"
+DEFAULT_SYNC_BIN="${HOME}/.local/bin/arda-relic-presence-sync"
+if [[ ! -x "$DEFAULT_SYNC_BIN" ]]; then
+  DEFAULT_SYNC_BIN="${ARDA_ROOT:-$ROOT_DIR}/target/release/arda-relic-presence-sync"
+fi
+SYNC_BIN="${ARDA_RELIC_SYNC_BIN:-$DEFAULT_SYNC_BIN}"
 PRESENCE_URL="${ARDA_RELIC_PRESENCE_URL:-http://127.0.0.1:7878/v1/presence/snapshot}"
 REMOTE_HOST="${ARDA_RELIC_REMOTE_HOST:-citadel}"
 REMOTE_ROOT="${ARDA_RELIC_REMOTE_ROOT:-/home/citadel/annunimas_embodied/relic}"

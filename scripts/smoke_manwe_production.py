@@ -16,8 +16,8 @@ import uuid
 from pathlib import Path
 from typing import Any, Callable
 
-BASE_URL = "http://127.0.0.1:5110"
-PORT = 5110
+BASE_URL = "http://127.0.0.1:7171"
+PORT = 7171
 PROVIDER = "edge_core"
 MODEL_ID = "LFM2.5-8B-A1B-Q4_K_M"
 PINNED_MODEL = f"{PROVIDER}/{MODEL_ID}"
@@ -110,7 +110,7 @@ def check_health_and_models() -> None:
     require(status == 200, f"/healthz returned HTTP {status}: {health}")
     require(health.get("runtime") == "arda-manwe", f"/healthz runtime is {health.get('runtime')!r}")
     require(health.get("port") == PORT, f"/healthz port is {health.get('port')!r}")
-    pass_check("/healthz identifies runtime=arda-manwe on port 5110")
+    pass_check("/healthz identifies runtime=arda-manwe on port 7171")
 
     status, models, _ = http_json("GET", "/v1/models", timeout=5)
     require(status == 200, f"/v1/models returned HTTP {status}: {models}")

@@ -498,6 +498,7 @@ mod tests {
             harness_addr: "127.0.0.1:7878".to_string(),
             child_pids: Arc::new(RwLock::new(Vec::new())),
             service_names: Arc::new(Vec::new()),
+            service_statuses: Arc::new(RwLock::new(Vec::new())),
             manwe_url: "http://127.0.0.1:1".to_string(),
             client: reqwest::Client::new(),
             manwe_proxy_timeout: std::time::Duration::from_secs(1),

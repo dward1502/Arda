@@ -4,6 +4,7 @@
 //! primitives so downstream consumers only need to depend on
 //! `arda-engine` instead of reaching into `arda-core` directly.
 
+use crate::runs::RunEvent;
 use arda_core::learning::LearningStore;
 use arda_core::learning_adapter::build_learning_ledger_receipt;
 use arda_core::loop_observability::{LatencyProbe, LoopObservabilityConfig};
@@ -11,6 +12,64 @@ use arda_governance::metrics::global_governance_metrics;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::BTreeMap;
+
+/// Stable correlation fields carried by every durable Workbench semantic event.
+/// `run_id` is the trace-equivalent lineage and the event sequence is the
+/// span-equivalent position within that lineage.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct RuntimeLineage {
+    pub trace_id: String,
+    pub span_id: String,
+    pub run_id: String,
+    pub node_id: String,
+    pub event_sequence: u64,
+    pub receipt_digest: Option<String>,
+}
+
+impl RuntimeLineage {
+    pub fn from_run_event(event: &RunEvent) -> Self {
+        let run_id = event.run_id.as_str().to_string();
+        let node_id = event.node_id.as_str().to_string();
+        Self {
+            trace_id: run_id.clone(),
+            span_id: format!("{node_id}:{}", event.sequence),
+            run_id,
+            node_id,
+            event_sequence: event.sequence,
+            receipt_digest: event.receipt_digest.clone(),
+        }
+    }
+}
+
+/// Finite Stage 5/U3 operating budgets. Values are mirrored into release
+/// evidence with measured observations; this type is the machine-readable
+/// runtime contract, not a source of synthetic measurements.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct OperationalReliabilityBudgets {
+    pub startup_latency_ms_max: u64,
+    pub idle_rss_peak_mib_max: u64,
+    pub ui_interaction_latency_ms_max: u64,
+    pub event_projection_latency_ms_max: u64,
+    pub recovery_latency_ms_max: u64,
+    pub diagnostic_bundle_bytes_max: u64,
+    pub protected_state_growth_files_max: u64,
+    pub protected_state_growth_bytes_max: u64,
+}
+
+impl Default for OperationalReliabilityBudgets {
+    fn default() -> Self {
+        Self {
+            startup_latency_ms_max: 2_000,
+            idle_rss_peak_mib_max: 512,
+            ui_interaction_latency_ms_max: 100,
+            event_projection_latency_ms_max: 1_000,
+            recovery_latency_ms_max: 1_000,
+            diagnostic_bundle_bytes_max: 1_048_576,
+            protected_state_growth_files_max: 1_000,
+            protected_state_growth_bytes_max: 67_108_864,
+        }
+    }
+}
 
 /// Aggregated observability status for the Arda engine.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -145,5 +204,36 @@ mod tests {
             EngineObservabilityStatus::from_env_and_store(&store_path, "governance", "test", 1);
         assert!(status.learning.learning_path.ends_with("learn.json"));
         assert_eq!(status.learning.retained_count, 0);
+    }
+
+    #[test]
+    fn runtime_lineage_projects_run_event_without_minting_new_authority() {
+        use crate::runs::RunEventKind;
+        use arda_core::run_graph::{NodeId, RunId};
+
+        let event = RunEvent {
+            schema_version: RunEvent::SCHEMA_VERSION.to_string(),
+            sequence: 7,
+            run_id: RunId::new("run-u3-lineage").unwrap(),
+            node_id: NodeId::new("verify").unwrap(),
+            idempotency_key: "verify-u3".to_string(),
+            kind: RunEventKind::ResultProjected,
+            receipt_digest: Some("sha256:receipt".to_string()),
+            recorded_at_unix_ms: 1,
+        };
+
+        let lineage = RuntimeLineage::from_run_event(&event);
+        assert_eq!(lineage.trace_id, "run-u3-lineage");
+        assert_eq!(lineage.span_id, "verify:7");
+        assert_eq!(lineage.receipt_digest.as_deref(), Some("sha256:receipt"));
+    }
+
+    #[test]
+    fn operational_budgets_are_finite_and_serialize_with_named_boundaries() {
+        let budgets = OperationalReliabilityBudgets::default();
+        let value = serde_json::to_value(&budgets).unwrap();
+        assert_eq!(value["startup_latency_ms_max"], 2_000);
+        assert_eq!(value["event_projection_latency_ms_max"], 1_000);
+        assert_eq!(value["protected_state_growth_bytes_max"], 67_108_864);
     }
 }

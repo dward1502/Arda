@@ -419,8 +419,12 @@ async fn graph_node_timeout_terminates_and_reaps_hermes() {
     let root = TempDir::new().expect("project root");
     let adapter = adapter(&root, "sleep");
 
+    // Leave enough startup headroom for the Python fixture to publish both PID
+    // files before the adapter's deadline. The previous 80 ms budget could
+    // expire during interpreter startup under sustained soak load, which tested
+    // scheduler latency rather than descendant termination and reaping.
     let error = adapter
-        .execute(&task(80), AdapterCancellation::new())
+        .execute(&task(1_000), AdapterCancellation::new())
         .await
         .expect_err("sleeping Hermes process must time out");
 
@@ -441,6 +445,20 @@ async fn graph_node_timeout_terminates_and_reaps_hermes() {
         !process_is_alive(child_pid),
         "timed-out Hermes descendant pid {child_pid} survived"
     );
+}
+
+#[tokio::test]
+async fn missing_provider_executable_is_a_typed_spawn_failure() {
+    let root = TempDir::new().expect("project root");
+    let adapter = adapter(&root, "success");
+    std::fs::remove_file(root.path().join("hermes")).expect("remove provider executable");
+
+    let error = adapter
+        .execute(&task(1_000), AdapterCancellation::new())
+        .await
+        .expect_err("missing provider executable must fail");
+
+    assert!(matches!(error, HermesAdapterError::Io { .. }));
 }
 
 #[tokio::test]

@@ -1,6 +1,9 @@
 # sigil: REPAIR
 [workspace]
 
+[patch.crates-io]
+glib = { path = "../../../vendor/glib-0.18.5" }
+
 [package]
 name = "arda_hud"
 version = "0.1.0"

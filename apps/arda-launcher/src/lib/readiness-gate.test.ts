@@ -25,6 +25,25 @@ function readiness(
   summary: Record<string, number>,
 ): OnboardingSnapshot {
   return {
+    contract: 'arda.launcher.first-run.v1',
+    generated_at_utc: '2026-08-04T00:00:00Z',
+    gate_status,
+    can_start_workbench: gate_status === 'pass',
+    mutation_policy: 'explicit_approval_and_receipt_required',
+    profile: 'local',
+    machine_role: 'workstation',
+    compatibility: {
+      status: 'supported',
+      profile_id: 'bluefin-lts-10-x86_64',
+      supported_profile: 'bluefin-lts-10-x86_64',
+      architecture: 'x86_64',
+      os_id: 'centos',
+      version_id: '10',
+      pretty_name: 'Bluefin LTS 10',
+      message: 'supported',
+    },
+    prerequisites: { summary: { pass: 4 } },
+    providers: { providers: [] },
     readiness: {
       gate_status,
       mode: 'read-only',
@@ -34,7 +53,18 @@ function readiness(
       pass: [],
       warn: [],
     },
-    servicePlan: null,
+    servicePlan: {
+      contract: 'arda.onboarding.service_plan.v1',
+      generated_at_utc: '2026-08-04T00:00:00Z',
+      profile: 'local',
+      machine_role: 'workstation',
+      gate_status: 'human_gated',
+      approval_contract_required: 'arda.onboarding.approval.v1',
+      actions: [],
+    },
+    guided: { steps: [], next_actions: [] },
+    recovery: [],
+    optionalServices: [],
   }
 }
 
@@ -55,11 +85,21 @@ describe('evaluateReadinessGate', () => {
     })
   })
 
-  it('reports missing readiness as a failure', () => {
-    const snapshot: OnboardingSnapshot = { readiness: null, servicePlan: null }
-    expect(evaluateReadinessGate(registry(), snapshot)).toEqual({
+  it('reports failed readiness as a failure', () => {
+    expect(evaluateReadinessGate(registry(), readiness('fail', { fail: 1 }))).toEqual({
       registry: 'fail',
       statusLabel: 'Readiness blocked: 1 failed check(s)',
+      isReady: false,
+    })
+  })
+
+  it('blocks unsupported profiles before readiness can pass', () => {
+    const snapshot = readiness('pass', { pass: 7 })
+    snapshot.compatibility.status = 'unsupported'
+    snapshot.compatibility.pretty_name = 'Ubuntu 24.04'
+    expect(evaluateReadinessGate(registry(), snapshot)).toEqual({
+      registry: 'fail',
+      statusLabel: 'Unsupported profile: Ubuntu 24.04',
       isReady: false,
     })
   })

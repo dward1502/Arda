@@ -1,4 +1,5 @@
 use super::*;
+use crate::adaptive::service::route_governance_receipt_description;
 use std::collections::BTreeMap;
 use std::sync::Mutex;
 
@@ -136,6 +137,24 @@ fn derive_execution_profile_respects_background_priority() {
     assert_eq!(profile.execution_lane, "background");
     assert_eq!(profile.route_class, "background_maintenance");
     assert_eq!(profile.context_window_target, 16_384);
+}
+
+#[test]
+fn route_receipt_description_does_not_persist_prompt_text() {
+    let req = ManweRequestEnvelope {
+        agent_id: "hermes".to_string(),
+        task_type: "chat".to_string(),
+        priority: "normal".to_string(),
+        messages: vec![serde_json::json!({"content": "private user prompt"})],
+        options: serde_json::json!({}),
+    };
+
+    let description = route_governance_receipt_description(&req);
+    assert_eq!(
+        description,
+        "route request for agent=hermes task_type=chat prompt=[redacted]"
+    );
+    assert!(!description.contains("private user prompt"));
 }
 
 #[test]

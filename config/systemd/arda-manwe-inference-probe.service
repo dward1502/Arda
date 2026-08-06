@@ -1,7 +1,7 @@
 [Unit]
 Description=Arda Manwe Inference Probe
-After=network-online.target arda-manwe.service
-Wants=arda-manwe.service
+After=network-online.target arda.service
+Wants=arda.service
 
 [Service]
 Type=oneshot

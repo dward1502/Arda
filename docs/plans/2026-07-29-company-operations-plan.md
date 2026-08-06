@@ -11,6 +11,33 @@
 **Target stage:** Stage 5 internal alpha; Stage 6 commercial-operations beta  
 **Primary business objective:** recover operator time and turn Arda into a force multiplier for paid external work.
 
+**Implementation status (2026-08-04):** Stage 5 internal-alpha implementation complete. Stage 6 pilot evidence remains operator-gated: no real client record, external message, monetary commitment, or autonomous charge was fabricated or performed to close this plan.
+
+### Implemented evidence
+
+- Phase 0: `arda-core::company_ops` now owns versioned records, privacy/authority classes, confidence ranges, approval-gated commitments, receipt-backed realized value, config loading, Workbench objective proposals, and client-delivery validation. `spec/company-ops/v1/company-ops.schema.json`, `config/business/company-operations.toml`, and `docs/migrations/company-operations-legacy-config.md` define the external and migration boundaries.
+- Phase 1: `arda-aule::company_ops` provides a locked append-only JSONL store, idempotency, deterministic replay, forecast/time/evidence/risk scoring, reviewed-outcome feedback for related organizations, redacted projections, and canonical `data/business/{opportunities,drafts,commitments,experiments,outcomes,company-ops}.json` outputs.
+- Phase 2: `arda-engine::adapters::company` provides capability-allowlisted CRM, calendar, email, project/issue, and accounting-export operations plus a read-only, stable-ID CRM reference implementation. Write approvals are bound to an exact operation/resource scope. `arda-orome::commercial` requires the approved proposal ID, scope, price, due date, and expiry to match before external transport and preserves attempted/accepted/delivered/failed truth.
+- Phase 3: the Business module loads Aulë's canonical summary projection and renders the next action, active paid/client engagements, commitments, opportunities, experiments, approval drafts, receipt-backed expected-versus-realized value, and cost/time constraints through dedicated tested panels.
+- Phases 4–5: bounded experiments can become `WorkbenchObjectiveProposal` records only with matching approval receipts; delivery bundles enforce acceptance evidence, scope/support boundaries, change/overrun fields, and invoice-export-only behavior.
+
+### Verification evidence
+
+- `cargo test -p arda-core --test company_ops -- --test-threads=1`: 7 passed.
+- `cargo test -p arda-aule --all-features -- --test-threads=1`: package suite passed, including 183 library tests and 4 Company Operations tests.
+- `cargo test -p arda-economics --all-features -- --test-threads=1`: 34 passed, 1 ignored operator-scale test.
+- `cargo test -p arda-orome --all-features -- --test-threads=1`: 86 library tests and all integration tests passed, including 2 commercial-delivery tests.
+- `cargo test -p arda-engine --test company_adapter_contract -- --test-threads=1`: 3 passed.
+- `cargo check --workspace --all-targets`: passed.
+- `apps/arda-hud`: `pnpm test` passed 100 files / 392 tests; `pnpm lint` passed with 105 pre-existing warnings and 0 errors; `pnpm build` passed.
+
+### Remaining Stage 6 operator-gated pilot evidence
+
+- Represent one operator-selected real client engagement through a configured adapter without exposing restricted data.
+- Approve one generated Workbench objective and verify its actual deliverable receipt.
+- Explicitly approve one external draft, dispatch it through Oromë, and capture real provider delivery truth.
+- Record one reviewed outcome and feed the resulting evidence back into scoring.
+
 ---
 
 ## Verified starting point

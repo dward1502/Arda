@@ -18,7 +18,7 @@ impl Default for ManweDaemonConfig {
         Self {
             socket_path: crate::config::arda_root().join("data/manwe/manwe.sock"),
             http_enabled: true,
-            http_addr: format!("{}:{}", "127.0.0.1", 5110),
+            http_addr: format!("{}:{}", "127.0.0.1", 7171),
         }
     }
 }

@@ -4,10 +4,10 @@
 
 ## Status
 
-**Status:** Active optional projection plan; reconciled on 2026-07-31
+**Status:** Active final soak gate; implementation/recovery reconciled on 2026-08-04
 
 **Live connection:** RELIC/CITADEL transport boundary implemented and verified as of 2026-08-03. The Arda harness now listens on `127.0.0.1:7878`, the `arda-relic-presence-sync` bridge service is active, and CITADEL's `relic.service` (port 8091) and `citadel-kiosk.service` are running. The three-shape geometric visual now responds to live Arda presence via the `arda.relic.scene-adapter.v1` contract instead of the external scripted renderer.
-**Source design:** `docs/MIRROMERE_RELIC_OUTPOST_VISION.md`  
+**Source design:** `docs/plans/MIRROMERE_RELIC_OUTPOST_VISION.md`
 **Provenance decision:** external sidecar/protocol integration only; no source migration from `/var/home/mythos/Eregion/relic-kiosk`
 **Shared node operations:** [Pi5 deployment/fleet/recovery](../archive/2026-07-23-pi5-outpost-integration-plan.md)
 
@@ -25,13 +25,13 @@ RELIC may display lifecycle, health, run/task correlation, handoffs, bounded res
 - [x] `arda.runtime-presence.v1` exists in `outposts/arda-outpost-protocol/src/presence.rs` with schema/example fixtures under `spec/runtime-presence/v1/` and focused tests.
 - [x] Invalid, expired, unsupported, or unverifiable projections resolve to `idle_degraded`; unknown payload fields are rejected.
 
-### Partial implementation discovered by reconciliation
+### Implemented runtime state after reconciliation
 
 - `crates/spine/observability/arda-aule/src/presence_projection.rs` now builds a deterministic sanitized projection and has stale/unknown-input tests.
 - `crates/engine/src/harness/presence.rs` now exposes `GET /v1/presence/snapshot` and `GET /v1/presence/events`; `crates/engine/tests/harness_presence.rs` covers loopback and a capability-shaped remote path.
-- RC-1 is now partially closed: projection IDs are derived from canonicalized inputs plus an injected clock; `HarnessPresenceState` stores the latest bounded inputs; and snapshot/SSE routes publish that state. Remote enrollment remains hard-coded and is still an explicit fail-closed follow-up.
-- No repository-owned RELIC bridge crate, RELIC systemd unit, deploy/verify helper, or canonical `apps/relic` renderer exists.
-- The external CITADEL sidecar remains independently recoverable and still consumes the legacy scripted scene contract; its operational state must be reverified immediately before deployment work.
+- RC-1's transport and authorization boundary is closed: projection IDs are derived from canonicalized inputs plus an injected clock; `HarnessPresenceState` stores the latest bounded inputs; snapshot/SSE routes publish that state; and remote access loads the strict `arda.outpost-access.v1` contract from `config/outposts/access.toml`. Bearer values stay outside Git in the contract-named environment variable, and absent secrets, revocation, wrong capabilities, disallowed network posture, malformed contracts, or spoofed forwarding posture fail closed.
+- The repository-owned `arda-relic-bridge` crate, systemd unit, deployment/verification helpers, and seven-day soak collector exist. The external renderer remains outside Arda under the protocol-sidecar provenance decision.
+- The CITADEL sidecar consumes `arda.relic.scene-adapter.v1`; live, expired, disconnected, and unverifiable inputs resolve through the same receipt-validating bridge rather than the legacy scripted activity path.
 
 Stage 4 Workbench acceptance does not imply RELIC/CITADEL completion. Presence work remained optional and isolated throughout Stage 4.
 
@@ -53,12 +53,12 @@ Stage 4 Workbench acceptance does not imply RELIC/CITADEL completion. Presence w
 - [x] Replace fixed time/ID generation with deterministic IDs derived from canonical input receipts plus an injected/testable clock.
 - [x] Feed bounded engine service, run graph, approval/handoff, provider, and resource inputs into stored `HarnessPresenceState`.
 - [x] Make `update_inputs` persist the latest bounded snapshot and make snapshot/SSE routes publish that state rather than empty fixtures.
-- [ ] Load enrolled outpost identity, `presence.read` capability, revocation, and allowed network posture from canonical contracts; remove hard-coded bearer authority.
+- [x] Load enrolled outpost identity, `presence.read` capability, revocation, and allowed network posture from canonical contracts; remove hard-coded bearer authority.
 - [x] Prove stale/missing inputs reduce confidence and scene state instead of inventing nodes, edges, or motion.
 
 **Acceptance:** fixed receipts produce a deterministic projection; live harness input changes produce fresh snapshots/events; revoked, stale, malformed, or unauthorized callers fail closed.
 
-**Evidence (2026-08-03):** `cargo test -p arda-aule presence_projection --all-features -- --test-threads=1` passed 7 tests; `cargo test -p arda-engine --test harness_presence -- --test-threads=1` passed 6 tests, including `presence_snapshot_publishes_updated_live_inputs`. Identity enrollment/revocation loading remains open.
+**Evidence (2026-08-04):** `cargo test -p arda-aule presence_projection --all-features -- --test-threads=1` passes 7 tests. `cargo test -p arda-engine --test harness_presence -- --test-threads=1` passes 8 tests, including live-input publication plus no-enrollment, valid capability, wrong capability, revocation, and disallowed-network cases. `cargo test -p arda-outpost-protocol access -- --test-threads=1` passes 3 strict contract tests. The release `arda` binary was rebuilt, installed, restarted, and returned `ok` from `127.0.0.1:7878/health`; unresolved bearer environment variables intentionally leave remote access disabled.
 
 ### RC-2 — Add the Arda-owned read-only RELIC bridge
 
@@ -154,15 +154,26 @@ no under-voltage or hard throttle). Load average 1.72 under idle-rendered scene.
 The soft thermal throttle is a known-environment ambient-heat condition; the
 kiosk remains active and the scene state stays `idle_degraded` with `forms=[]`,
 `brightness=0.55`. A seven-day soak is still required to confirm sustained
-thermal and restart budgets; begin it with:
+thermal and restart budgets. `scripts/relic_citadel_soak.py sample` collects
+the local/remote scene schemas and sizes, service state/restarts/memory, Pi
+temperature/throttle flags, and disk headroom; `evaluate` enforces the window.
 
-```bash
-cronjob action='create' schedule='0 2 * * *' \
-  prompt='Run scripts/verify_relic_citadel.sh and record health to ~/annunimas_embodied/relic/soak-$(date +%F).log; capture throttled state, temp, memory, disk.' \
-  no_agent=true workdir=/var/home/mythos/Eregion/Arda
-```
+**Recovery correction and new soak baseline (2026-08-04):** live inspection found
+the installed bridge unit incorrectly launched the one-shot sync binary without
+arguments, causing 383 failed restart attempts. The unit now runs the continuous
+`relic_presence_sync.sh` transport, and deployment installs that script alongside
+the binary. A forced bridge-process failure incremented `NRestarts` from 0 to 1
+and recovered to `active`; an unreachable endpoint plus a corrupted local scene
+was atomically replaced by a valid empty `idle_degraded` adapter. CITADEL was then
+rebooted: `relic.service` and `citadel-kiosk.service` returned active, and the
+remote adapter resumed. `scripts/verify_relic_citadel.sh` passed all seven gates.
 
-### RC-5 — Optional companion and collaboration expansion
+The seven-day gate was reset after those recovery exercises. Its first sample is
+`~/.local/state/arda/relic-soak/sample-20260804T162511Z.json`; daily samples are
+scheduled through 2026-08-11, followed by `scripts/relic_citadel_soak.py evaluate`.
+The current evaluator fails only the required elapsed-window/sample-count checks.
+
+### RC-5 — Post-plan optional companion and collaboration backlog
 
 **Blocked until:** RC-1 through RC-4 projection beta acceptance
 
@@ -170,7 +181,7 @@ cronjob action='create' schedule='0 2 * * *' \
 - [ ] Add chat or approval notifications only through separate bounded contracts that route mutations back through normal kernel approval.
 - [ ] Add any broader HUD companion state only as sanitized presentation data with independent stale/offline behavior.
 
-RC-5 is optional expansion. Do not begin it during Stage 5 reconciliation or before the base presence beta is accepted.
+RC-5 is optional expansion and is not a closure gate for this plan. Do not begin it during Stage 5 reconciliation or before the base presence beta is accepted.
 
 ## Stage 5 dependency
 
@@ -195,11 +206,11 @@ Run bridge/application/deployment commands only after their files exist. A separ
 - [x] Presence schema and degraded-state contract are versioned and tested.
 - [x] Transport/sidecar consumption boundary is wired and verified (`arda.relic.scene-adapter.v1`).
 - [x] Arda harness listens on `127.0.0.1:7878`; `arda-relic-presence-sync` bridge is active.
-- [ ] Every rendered active form/edge traces to fresh runtime receipts from live harness state.
-- [ ] Stale, disconnected, cached, and fixture modes are unmistakable.
-- [ ] Remote identity/capability/revocation is canonical and fail-closed.
-- [ ] Renderer/bridge cannot mutate Arda or expose private content.
-- [ ] CITADEL recovers after process failure, network loss, reboot, and rollback.
-- [ ] Seven-day soak and physical accessibility checks pass.
+- [x] Every rendered active form/edge traces to fresh runtime receipts from live harness state.
+- [x] Stale, disconnected, cached, and fixture modes are unmistakable.
+- [x] Remote identity/capability/revocation is canonical and fail-closed.
+- [x] Renderer/bridge cannot mutate Arda or expose private content.
+- [x] CITADEL recovers after process failure, network loss, reboot, and rollback.
+- [ ] Seven-day soak passes (physical accessibility switching already passed).
 
 External-person evaluation is optional supplementary confidence while no separate evaluator or clean machine is available; protocol fixtures, operator display acceptance, and recovery/soak evidence are the active gates.

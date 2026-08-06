@@ -61,8 +61,60 @@ export interface ServicePlan {
 }
 
 export interface OnboardingSnapshot {
-  readiness: ReadinessProjection | null
-  servicePlan: ServicePlan | null
+  contract: string
+  generated_at_utc: string
+  gate_status: RegistryGate
+  can_start_workbench: boolean
+  mutation_policy: string
+  profile: string
+  machine_role: string
+  compatibility: {
+    status: 'supported' | 'unsupported'
+    profile_id: string | null
+    supported_profile: string
+    architecture: string
+    os_id: string
+    version_id: string
+    pretty_name: string
+    message: string
+  }
+  prerequisites: {
+    summary: Record<string, number>
+  }
+  providers: {
+    providers: Array<{
+      provider_id: string
+      provider_name: string
+      enabled: boolean
+      missing_env: string[]
+    }>
+  }
+  readiness: ReadinessProjection
+  servicePlan: ServicePlan
+  guided: {
+    steps: Array<{
+      step_id: string
+      title: string
+      status: string
+      prompt: string
+      evidence: string[]
+      next_action: string
+    }>
+    next_actions: string[]
+  }
+  recovery: Array<{
+    condition_id: string
+    detected: boolean
+    summary: string
+    action: string
+  }>
+  optionalServices: Array<{
+    service_id: string
+    status: string
+    enabled: boolean
+    blocks_workbench: boolean
+    guidance: string
+  }>
 }
 
 type RootArgs = { root?: string }
@@ -92,9 +144,5 @@ export function invokeServicePlanStatus(args: RootArgs): Promise<ServicePlan | n
 }
 
 export async function invokeOnboardingSnapshot(args: RootArgs): Promise<OnboardingSnapshot> {
-  const [readiness, servicePlan] = await Promise.all([
-    invokeReadinessStatus(args),
-    invokeServicePlanStatus(args),
-  ])
-  return { readiness, servicePlan }
+  return invokeCommand('first_run_status', args)
 }

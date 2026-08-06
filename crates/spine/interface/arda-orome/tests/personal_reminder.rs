@@ -3,13 +3,11 @@
 //! Verifies that "Attempted" and "Delivered" are never conflated,
 //! fatigue caps, quiet windows, and snooze/dismiss state are respected.
 
-use arda_orome::types::{
-    PersonalReminderDeliveryState, PersonalReminderRequest,
-};
 use arda_orome::personal_reminder::{
-    acknowledgement_receipt, delivered_receipt, evaluate_reminder_routing,
-    suppressed_receipt, ReminderRoutingState, RoutingDecision,
+    acknowledgement_receipt, delivered_receipt, evaluate_reminder_routing, suppressed_receipt,
+    ReminderRoutingState, RoutingDecision,
 };
+use arda_orome::types::{PersonalReminderDeliveryState, PersonalReminderRequest};
 use chrono::{TimeZone, Utc};
 
 fn base_request() -> PersonalReminderRequest {
@@ -161,15 +159,13 @@ fn delivered_receipt_marks_state_delivered_when_provider_message_id_present() {
     let state = base_state();
     let now = Utc.with_ymd_and_hms(2026, 8, 2, 10, 30, 0).unwrap();
 
-    let receipt = delivered_receipt(
-        &req,
-        &state,
-        Some("provider-msg-123".to_string()),
-        now,
-    );
+    let receipt = delivered_receipt(&req, &state, Some("provider-msg-123".to_string()), now);
 
     assert_eq!(receipt.state, PersonalReminderDeliveryState::Delivered);
-    assert_eq!(receipt.provider_message_id.as_deref(), Some("provider-msg-123"));
+    assert_eq!(
+        receipt.provider_message_id.as_deref(),
+        Some("provider-msg-123")
+    );
     assert!(!receipt.suppressed);
     assert_eq!(receipt.attempt_number, 1);
 }

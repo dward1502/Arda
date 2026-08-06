@@ -204,7 +204,7 @@ impl Drop for HermesRuntimeState {
 const DEFAULT_HERMES_RUNTIME_HOST: &str = "127.0.0.1";
 const DEFAULT_HERMES_RUNTIME_PORT: u16 = 9119;
 const DEFAULT_CHARON_HOST: &str = "127.0.0.1";
-const DEFAULT_CHARON_PORT: u16 = 5110;
+const DEFAULT_CHARON_PORT: u16 = 7171;
 const HERMES_RUNTIME_WINDOW_LABEL: &str = "arda-workstation-hermes_runtime_workstation";
 const HERMES_TERMINAL_WINDOW_LABEL: &str = "arda-hermes-terminal";
 const HERMES_TERMINAL_WINDOW_PATH: &str = "terminal.html";

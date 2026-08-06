@@ -38,7 +38,13 @@ default-members = [
     "outposts/arda-outpost-scout",
     "outposts/arda-relic-bridge",
 ]
-exclude = []
+exclude = ["vendor/glib-0.18.5"]
+
+[patch.crates-io]
+# Stage 5 bounded security backport for RUSTSEC-2024-0429.
+# The vendored source must remain byte-identical to glib 0.18.5 except for the
+# upstream `VariantStrIter` mutability fix and Arda provenance note.
+glib = { path = "vendor/glib-0.18.5" }
 
 [package]
 name = "arda"

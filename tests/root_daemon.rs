@@ -207,6 +207,33 @@ scout_url = "http://fleet.example:8092"
     .expect("supervised child did not start");
     let child_pid = fs::read_to_string(&pid_file).expect("read child pid");
 
+    let runtime_status = tokio::time::timeout(Duration::from_secs(5), async {
+        loop {
+            let response = client
+                .get(format!("http://{harness_addr}/v1/status"))
+                .send()
+                .await
+                .expect("runtime status request");
+            let body = response.json::<Value>().await.expect("runtime status JSON");
+            if body["service_statuses"][0]["state"] == "healthy" {
+                break body;
+            }
+            tokio::time::sleep(Duration::from_millis(25)).await;
+        }
+    })
+    .await
+    .expect("service never reached healthy state");
+    assert_eq!(
+        runtime_status["service_statuses"][0]["name"],
+        "headless-worker"
+    );
+    assert_eq!(runtime_status["service_statuses"][0]["required"], true);
+    assert_eq!(runtime_status["service_statuses"][0]["state"], "healthy");
+    assert_eq!(
+        runtime_status["service_statuses"][0]["pid"],
+        child_pid.trim().parse::<u32>().expect("numeric child pid")
+    );
+
     let signal = Command::new("kill")
         .args(["-INT", &daemon.id().to_string()])
         .status()

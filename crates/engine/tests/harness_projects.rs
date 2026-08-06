@@ -19,6 +19,7 @@ async fn start_harness(
         harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
         child_pids: Arc::new(RwLock::new(Vec::new())),
         service_names: Arc::new(Vec::new()),
+        service_statuses: Arc::new(RwLock::new(Vec::new())),
         manwe_url: "http://127.0.0.1:1".into(),
         client: reqwest::Client::new(),
         manwe_proxy_timeout: DEFAULT_MANWE_PROXY_TIMEOUT,

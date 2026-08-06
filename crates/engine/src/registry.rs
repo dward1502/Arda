@@ -5,11 +5,12 @@
 //! directory, UI classification, and health contract used by operators.
 
 use std::path::{Path, PathBuf};
+use std::time::Duration;
 
 use serde::Deserialize;
 use tracing::{debug, warn};
 
-use crate::supervisor::Service;
+use crate::supervisor::{HealthProbe, Service};
 
 /// Process command declared for one service.
 #[derive(Debug, Clone, Deserialize)]
@@ -162,6 +163,12 @@ impl Registry {
                 args: spec.start.args.clone(),
                 cwd,
                 required: spec.required,
+                optional: spec.optional,
+                health: spec.health.as_ref().map(|health| HealthProbe {
+                    url: health.probe_url(),
+                    interval: Duration::from_secs(health.interval_secs.unwrap_or(5).max(1)),
+                    timeout: Duration::from_secs(health.timeout_secs.unwrap_or(2).max(1)),
+                }),
             });
         }
 
@@ -201,10 +208,17 @@ mod tests {
             .find(|service| service.name == "manwe")
             .expect("manwe service is registered");
         assert!(manwe.required);
-        assert_eq!(manwe.start.command, "cargo");
+        assert_eq!(manwe.start.command, "target/release/manwe");
         assert_eq!(
             manwe.start.args,
-            ["run", "-p", "manwe", "--", "--config", "manwe.toml"]
+            [
+                "--config",
+                "manwe.toml",
+                "--bind",
+                "127.0.0.1",
+                "--port",
+                "7171",
+            ]
         );
         assert_eq!(
             manwe.health.as_ref().map(HealthSpec::probe_url).as_deref(),
@@ -214,10 +228,15 @@ mod tests {
 
     #[test]
     fn no_ui_keeps_manwe_and_drops_ui_services() {
-        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-        let registry =
-            Registry::load(&root.join("services.toml")).expect("workspace services.toml loads");
-        let (services, errors) = registry.resolve(&root, true);
+        let workspace = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+        let registry = Registry::load(&workspace.join("services.toml"))
+            .expect("workspace services.toml loads");
+        let root = tempfile::tempdir().expect("temporary root");
+        let manwe = root.path().join("target/release/manwe");
+        std::fs::create_dir_all(manwe.parent().expect("binary parent"))
+            .expect("create binary parent");
+        std::fs::write(&manwe, b"").expect("create binary fixture");
+        let (services, errors) = registry.resolve(root.path(), true);
 
         assert!(
             errors.is_empty(),
@@ -225,7 +244,7 @@ mod tests {
         );
         assert_eq!(services.len(), 1);
         assert_eq!(services[0].name, "manwe");
-        assert_eq!(services[0].cwd.as_deref(), Some(root.as_path()));
+        assert_eq!(services[0].cwd.as_deref(), Some(root.path()));
     }
 
     #[test]

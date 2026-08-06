@@ -3,6 +3,7 @@ use arda_core::personal_ops::{
 };
 use arda_engine::personal_ops::PersonalOpsLogStore;
 use chrono::{TimeZone, Utc};
+use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
 use uuid::Uuid;
 
@@ -41,7 +42,7 @@ fn make_envelope(record: PersonalOpsRecord) -> PersonalOpsEnvelope<PersonalOpsRe
 
 fn temp_root() -> PathBuf {
     let root = tempfile::tempdir().unwrap();
-    root.into_path()
+    root.keep()
 }
 
 #[test]
@@ -87,4 +88,28 @@ fn canonical_path_is_data_personal_events_jsonl() {
     let root = temp_root();
     let store = PersonalOpsLogStore::new(&root);
     assert_eq!(store.events_path, root.join("data/personal/events.jsonl"));
+}
+
+#[test]
+fn append_once_deduplicates_event_ids_and_uses_owner_only_permissions() {
+    let root = temp_root();
+    let store = PersonalOpsLogStore::new(&root);
+    let envelope = make_envelope(capture_event(make_capture()));
+
+    assert!(store.append_once(&envelope).unwrap());
+    assert!(!store.append_once(&envelope).unwrap());
+    assert_eq!(store.load_all().unwrap().len(), 1);
+
+    let directory_mode = std::fs::metadata(store.events_path.parent().unwrap())
+        .unwrap()
+        .permissions()
+        .mode()
+        & 0o777;
+    let file_mode = std::fs::metadata(&store.events_path)
+        .unwrap()
+        .permissions()
+        .mode()
+        & 0o777;
+    assert_eq!(directory_mode, 0o700);
+    assert_eq!(file_mode, 0o600);
 }

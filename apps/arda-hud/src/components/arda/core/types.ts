@@ -7,6 +7,7 @@ export type ThemeId = 'cyberpunk' | 'gibson2' | 'eva'
 export type ModuleId =
   | 'executive_overview'
   | 'operating_surface'
+  | 'personal_operations'
   | 'section_focus'
   | 'human_realm'
   | 'systems'

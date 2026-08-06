@@ -494,10 +494,11 @@ async function deriveHumanContext(rootPath: string): Promise<JsonRecord> {
 }
 
 async function deriveBusinessRuntime(rootPath: string): Promise<JsonRecord> {
-  const [companyView, businessState, clientTree] = await Promise.all([
+  const [companyView, businessState, clientTree, companyOps] = await Promise.all([
     summarizeReadable(rootPath, 'docs/operator/company-view.md'),
     readJson(rootPath, 'data/business/soterion-business.json'),
     readInventoryTree(rootPath, 'data/business/clients', 5),
+    readJson(rootPath, 'data/business/company-ops.json'),
   ])
   const clientPaths = collectInventoryPaths(clientTree, '.json')
   const stateKeys = Object.keys(businessState ?? {})
@@ -506,6 +507,7 @@ async function deriveBusinessRuntime(rootPath: string): Promise<JsonRecord> {
     mode: 'derived_from_workspace',
     company_view: companyView,
     state: businessState ?? {},
+    company_ops: companyOps ?? {},
     counts: {
       client_records_total: clientPaths.length,
       state_keys_total: stateKeys.length,
@@ -1117,7 +1119,11 @@ export function createCoreStateSource(): ArdaDataSource {
       ])
       const safeLocalWorkCyclePreflight = await readJson(rootPath, 'data/prometheus/safe_local_work_cycle_preflight.json')
       const finalHumanContext = humanContext ?? derivedHumanContext
-      const finalBusinessRuntime = businessRuntime ?? derivedBusinessRuntime
+      const finalBusinessRuntime = {
+        ...(derivedBusinessRuntime ?? {}),
+        ...(businessRuntime ?? {}),
+        company_ops: derivedBusinessRuntime?.company_ops ?? {},
+      }
       const finalPersonalRuntime = personalRuntime ?? derivedPersonalRuntime
       const finalQueueSummary = queueSummary ?? deriveQueueSummaryFromActiveProjection(queueActiveProjection) ?? deriveQueueSummaryFromEntries(queueEntries)
       const finalRuntimeSettings = runtimeSettings ?? deriveRuntimeSettings(activeRuleset)

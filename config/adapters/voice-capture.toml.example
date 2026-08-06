@@ -1,0 +1,27 @@
+schema_version = "arda.voice-capture.config.v1"
+
+# This executable must be a local speech-to-text program. The adapter never
+# downloads a model or sends audio over the network.
+executable = "whisper-cli"
+model = "/absolute/path/to/local-model.gguf"
+audio_root = "/absolute/path/to/supervised/audio-inbox"
+allowed_extensions = [".wav", ".flac", ".mp3", ".m4a", ".ogg"]
+arguments = ["--model", "{model}", "--file", "{audio_path}", "--output-txt", "-"]
+
+[supervision]
+timeout_seconds = 45
+max_audio_bytes = 26214400
+max_output_bytes = 262144
+
+[retention]
+# Success does not delete the file; the supervising inbox performs cleanup only
+# after the operator has reviewed the editable transcript.
+audio = "ephemeral"
+# Set to "retain" only through an explicit local policy decision.
+transcript = "ephemeral"
+
+[policy]
+operator_review_required = true
+external_send_authorized = false
+governed_action_authorized = false
+failure_state = "recoverable_inbox"

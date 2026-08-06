@@ -1,8 +1,8 @@
 [Unit]
 Description=Arda Aule CEO Autopilot Read-Only Cycle
 Documentation=file:///var/home/mythos/Eregion/Arda/crates/spine/observability/arda-aule/README.md
-After=network-online.target arda-manwe.service
-Wants=network-online.target arda-manwe.service
+After=network-online.target arda.service
+Wants=network-online.target arda.service
 
 [Service]
 Type=oneshot

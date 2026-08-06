@@ -10,6 +10,9 @@ use std::path::{Path, PathBuf};
 
 impl MnemosyneService {
     pub fn consolidate(&self, hours: i64) -> Result<ConsolidationReport> {
+        if self.contract_memory_root.is_some() {
+            self.apply_retention(Utc::now())?;
+        }
         let recent = self.recall_recent(hours.max(1), None)?;
         let blocked_count = recent
             .iter()

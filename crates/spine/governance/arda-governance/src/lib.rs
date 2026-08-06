@@ -36,7 +36,8 @@ pub mod vision;
 
 pub use audio::{capture_audio_governance, AudioEnvironment, AudioGovernance};
 pub use bacon_lite::{
-    bacon_lite_validate, build_bacon_lite_event, enqueue_bacon_lite, enqueue_bacon_lite_with,
+    bacon_lite_validate, build_bacon_lite_event, build_bacon_lite_event_with_description,
+    enqueue_bacon_lite, enqueue_bacon_lite_with, enqueue_bacon_lite_with_description,
     global_bacon_lite_counters, read_bacon_lite_summary, read_latest_bacon_lite_event,
     record_bacon_lite, record_bacon_lite_to, BaconLiteAggregate, BaconLiteBackpressurePolicy,
     BaconLiteEnqueueError, BaconLiteEvent, BaconLiteLedgerSummary, BaconLiteLogPaths,

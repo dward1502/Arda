@@ -80,4 +80,31 @@ describe('WorkbenchModule', () => {
     expect(within(review).getByText('approval · approval')).toBeTruthy()
     expect(within(review).getByText('pending · human approval')).toBeTruthy()
   })
+
+  it('rejects a durable approval through the typed cancel boundary and keeps revision explicit', async () => {
+    const approval = {
+      id: 'approval', kind: 'approval', state: 'blocked', authority: 'human_approval',
+      budget: { max_joules: 25, max_cost_usd: 0 }, retry: { max_attempts: 1 }, timeout_ms: 60_000,
+      idempotency_key: 'run-reject-1-approval', input_digest: 'objective:objective-reject-1', output_digest: null,
+      parent_receipts: ['receipt:plan'], checkpoint: { sequence: 1, recovery_token: 'resume-reject-1', checkpoint_digest: 'checkpoint:reject-1' },
+    }
+    const run = {
+      graph: { schema_version: 'arda.run-graph.v1', run_id: 'run-reject-1', objective_id: 'objective-reject-1', nodes: [approval], edges: [], provenance: { project_contract_digest: 'project:project-1', created_by: 'test', parent_receipts: [] } },
+      events: [], review: { changes: [], tests: [], provider_receipt: null },
+    }
+    const cancelled = { ...run, graph: { ...run.graph, nodes: [{ ...approval, state: 'cancelled' }] } }
+    window.localStorage.setItem('arda.workbench.last-run-id', 'run-reject-1')
+    window.localStorage.setItem('arda.workbench.objective.run-reject-1', 'Original objective')
+    window.localStorage.setItem('arda.workbench.proposal.run-reject-1', 'proposal-reject-1')
+    window.localStorage.setItem('arda.workbench.approval.run-reject-1', 'approval-reject-1')
+    mockedInvoke.mockImplementation((command) => {
+      if (command === 'get_workbench_run') return Promise.resolve(run)
+      if (command === 'cancel_workbench_run') return Promise.resolve(cancelled)
+      return Promise.resolve(undefined)
+    })
+    render(<WorkbenchModule />)
+    fireEvent.click(await screen.findByRole('button', { name: 'Reject' }))
+    await waitFor(() => expect(mockedInvoke).toHaveBeenCalledWith('cancel_workbench_run', { request: expect.objectContaining({ run_id: 'run-reject-1', reason: expect.stringContaining('revise the objective') }) }))
+    expect(await screen.findByText(/Approval approval rejected\. Revise the objective/)).toBeTruthy()
+  })
 })

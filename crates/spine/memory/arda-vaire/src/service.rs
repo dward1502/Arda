@@ -11,10 +11,13 @@ use std::time::Duration as StdDuration;
 // coordinates scoring, persistence, retrieval, and consolidation. `store`
 // owns the on-disk JSONL layout; `retrieval` owns ranking; `promotion` owns
 // derived semantic/procedural records and their promotion receipts.
+pub mod governance;
 pub mod governed;
 mod persona_derive;
 mod promotion;
+pub mod retention;
 mod retrieval;
+pub mod scope_policy;
 mod status;
 mod store;
 
@@ -118,6 +121,12 @@ pub struct MemoryObservabilitySnapshot {
     pub last_queue_latency_ms: Option<u64>,
     pub last_consolidation_depth: usize,
     pub promotion_receipts_total: u64,
+    pub retention_runs_total: u64,
+    pub retention_decayed_total: u64,
+    pub compression_runs_total: u64,
+    pub compression_source_records_total: u64,
+    pub revocation_receipts_total: u64,
+    pub quarantine_records_total: u64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -239,6 +248,33 @@ impl MnemosyneService {
                 .unwrap_or_else(|poisoned| poisoned.into_inner());
             metrics.last_consolidation_depth = depth;
             metrics.promotion_receipts_total += receipts as u64;
+            metrics.clone()
+        };
+        self.persist_observability_best_effort(&snapshot);
+    }
+
+    pub(super) fn observe_governance(
+        &self,
+        retention_decayed: Option<usize>,
+        compression_sources: Option<usize>,
+        revocation_receipts: usize,
+        quarantined_records: usize,
+    ) {
+        let snapshot = {
+            let mut metrics = self
+                .observability
+                .lock()
+                .unwrap_or_else(|poisoned| poisoned.into_inner());
+            if let Some(decayed) = retention_decayed {
+                metrics.retention_runs_total += 1;
+                metrics.retention_decayed_total += decayed as u64;
+            }
+            if let Some(sources) = compression_sources {
+                metrics.compression_runs_total += 1;
+                metrics.compression_source_records_total += sources as u64;
+            }
+            metrics.revocation_receipts_total += revocation_receipts as u64;
+            metrics.quarantine_records_total += quarantined_records as u64;
             metrics.clone()
         };
         self.persist_observability_best_effort(&snapshot);

@@ -195,6 +195,27 @@ async fn adapter_timeout_terminates_and_reaps_process() {
 }
 
 #[tokio::test]
+async fn adapter_crash_is_a_typed_failure_without_false_completion() {
+    let root = TempDir::new().expect("project root");
+    let mut adapter_config = config(&root, Duration::from_secs(1));
+    adapter_config.args = vec!["-u".into(), "-c".into(), "raise SystemExit(17)".into()];
+    let adapter = JsonlAdapter::new(adapter_config).expect("valid adapter config");
+
+    let error = adapter
+        .execute(
+            request("adapter-crash", "echo", json!({"value": "safe"})),
+            AdapterCancellation::new(),
+        )
+        .await
+        .expect_err("crashed adapter must not complete");
+
+    assert!(matches!(
+        error,
+        AdapterError::Protocol(_) | AdapterError::Io(_)
+    ));
+}
+
+#[tokio::test]
 async fn adapter_cancellation_terminates_and_reaps_process() {
     let root = TempDir::new().expect("project root");
     let pid_path = root.path().join("cancel.pid");

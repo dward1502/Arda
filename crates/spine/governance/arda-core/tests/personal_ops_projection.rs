@@ -1,7 +1,8 @@
 use arda_core::personal_ops::{
     CaptureContent, CaptureRecordedEvent, CaptureSource, EvidenceClass, InboxCapture,
     ItemClassifiedEvent, ItemCompletedEvent, ItemScheduledEvent, PersonalItemKind,
-    PersonalOpsEnvelope, PersonalOpsRecord,
+    PersonalOpsEnvelope, PersonalOpsRecord, ReminderAcknowledgedEvent, ReminderAttemptedEvent,
+    ReminderDeliveryState, ReminderReceipt,
 };
 use arda_core::personal_ops_projection::build_projection;
 use chrono::{Datelike, TimeZone, Utc};
@@ -137,6 +138,7 @@ fn classification_promotes_capture_to_today_bucket() {
         "capture should leave inbox after classification"
     );
     assert_eq!(proj.today.len(), 1, "inferred task should appear in today");
+    assert_eq!(proj.today[0].content, "Call the transplant coordinator");
 }
 
 #[test]
@@ -193,4 +195,77 @@ fn scheduled_today_appears_in_today_bucket() {
 
 fn now_date() -> chrono::NaiveDateTime {
     Utc::now().naive_local()
+}
+
+#[test]
+fn reminder_acknowledgement_updates_only_the_matching_reminder() {
+    let first = make_capture();
+    let first_id = first.capture_id;
+    let second = make_capture();
+    let second_id = second.capture_id;
+    let first_reminder = Uuid::new_v4();
+    let second_reminder = Uuid::new_v4();
+    let attempted = |item_id, reminder_id| {
+        PersonalOpsRecord::ReminderAttempted(ReminderAttemptedEvent {
+            event_id: Uuid::new_v4(),
+            occurred_at: captured_at(),
+            operator_id: "operator-0".to_owned(),
+            item_id,
+            receipt: ReminderReceipt {
+                reminder_id,
+                item_id,
+                attempted_at: captured_at(),
+                state: ReminderDeliveryState::Attempted,
+                channel: "local".to_owned(),
+                receipt_reference: None,
+            },
+        })
+    };
+    let events = vec![
+        make_envelope(capture_event(first)),
+        make_envelope(classify_event(
+            first_id,
+            PersonalItemKind::Reminder,
+            EvidenceClass::OperatorAuthored,
+        )),
+        make_envelope(capture_event(second)),
+        make_envelope(classify_event(
+            second_id,
+            PersonalItemKind::Reminder,
+            EvidenceClass::OperatorAuthored,
+        )),
+        make_envelope(attempted(first_id, first_reminder)),
+        make_envelope(attempted(second_id, second_reminder)),
+        make_envelope(PersonalOpsRecord::ReminderAcknowledged(
+            ReminderAcknowledgedEvent {
+                event_id: Uuid::new_v4(),
+                occurred_at: captured_at(),
+                operator_id: "operator-0".to_owned(),
+                reminder_id: first_reminder,
+                state: ReminderDeliveryState::Acknowledged,
+                receipt_reference: None,
+            },
+        )),
+    ];
+
+    let projection = build_projection(&events, Utc::now(), Utc::now().date_naive());
+    let first_item = projection
+        .today
+        .iter()
+        .find(|item| item.item_id == first_id)
+        .unwrap();
+    let second_item = projection
+        .today
+        .iter()
+        .find(|item| item.item_id == second_id)
+        .unwrap();
+
+    assert_eq!(
+        first_item.reminder_state.as_ref().unwrap().delivery_state,
+        ReminderDeliveryState::Acknowledged
+    );
+    assert_eq!(
+        second_item.reminder_state.as_ref().unwrap().delivery_state,
+        ReminderDeliveryState::Attempted
+    );
 }

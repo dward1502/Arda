@@ -130,7 +130,7 @@ wiring.
 
 **Approach**
 - [x] Support `.ics` import/export first.
-- [ ] Add CalDAV as a supervised adapter after local fixtures pass.
+- [x] Add CalDAV as a supervised adapter after local fixtures pass.
 - [x] Store secret references, never credentials, in config.
 
 **Acceptance**
@@ -138,10 +138,11 @@ wiring.
 - [x] Duplicate sync does not duplicate events.
 - [x] External updates remain distinguishable from Arda-authored reminders.
 
-**Implementation update (2026-08-02):** Task 2.1 is implemented. The
+**Implementation update (2026-08-04):** Task 2.1 is implemented. The
 calendar adapter module provides `IcsExporter`, `IcsImporter`, and
-`deduplicate_events` with full test coverage (8 tests). The config
-example stores secret references for CalDAV credentials.
+`deduplicate_events`, plus a supervised CalDAV GET/PUT client with bounded
+timeouts and retries. The config example stores secret references rather than
+CalDAV credentials.
 
 ### Task 2.2: Route reminders through Oromë
 
@@ -173,10 +174,10 @@ All 28 Phase 2 tests pass.
 ### Task 3.1: Build Personal Operations module
 
 **Files**
-- Create: `apps/arda-hud/src/components/arda/modules/PersonalOperationsModule.tsx`
-- Create: `apps/arda-hud/src/components/arda/modules/PersonalOperationsModule.test.tsx`
-- Create: `apps/arda-hud/src/lib/personalOps.ts`
-- Modify: `apps/arda-hud/src/App.tsx`
+- [x] Create: `apps/arda-hud/src/components/arda/modules/PersonalOperationsModule.tsx`
+- [x] Create: `apps/arda-hud/src/components/arda/modules/PersonalOperationsModule.test.tsx`
+- [x] Create: `apps/arda-hud/src/lib/personalOps.ts`
+- [x] Integrate the module into the HUD module registry and configured layouts.
 
 **First screen**
 - one next action;
@@ -187,32 +188,47 @@ All 28 Phase 2 tests pass.
 - quiet-mode status.
 
 **Acceptance**
-- Capture can be completed from keyboard in one action after focus.
-- The UI never requires categorization before save.
-- Screen-reader labels, reduced motion, high contrast, and keyboard paths are tested.
+- [x] Capture can be completed from keyboard in one action after focus.
+- [x] The UI never requires categorization before save.
+- [x] Screen-reader labels, reduced motion, high contrast, and keyboard paths are tested.
 
 ### Task 3.2: Add review-assisted organization
 
 Classification suggestions show confidence and rationale. Bulk review is bounded; no automatic conversion of every note into a task.
+
+**Acceptance**
+- [x] Suggestions disclose confidence and rationale.
+- [x] Operator confirmation is explicit and writes operator-authored evidence.
+- [x] Bulk confirmation is capped at 10 items and never runs automatically.
 
 ## Phase 4 — Voice input and daily replay
 
 ### Task 4.1: Add local speech capture adapter
 
 **Files**
-- Create: `adapters/voice-capture/README.md`
-- Create: `adapters/voice-capture/arda_adapter.py`
-- Create: `adapters/voice-capture/tests/test_adapter.py`
-- Add supervised configuration under `config/adapters/`.
+- [x] Create: `adapters/voice-capture/README.md`
+- [x] Create: `adapters/voice-capture/arda_adapter.py`
+- [x] Create: `adapters/voice-capture/tests/test_adapter.py`
+- [x] Add supervised configuration under `config/adapters/`.
 
 **Acceptance**
-- Audio retention defaults to ephemeral; transcript retention is explicit.
-- Transcript is editable before any external send or governed action.
-- Offline/failure returns the audio capture to a recoverable inbox state.
+- [x] Audio retention defaults to ephemeral; transcript retention is explicit.
+- [x] Transcript is editable before any external send or governed action.
+- [x] Offline/failure returns the audio capture to a recoverable inbox state.
 
 ### Task 4.2: Produce morning and transition briefs
 
 Briefs summarize operator-authored schedules, unresolved captures, recent run receipts, and explicitly connected projects. They must cite source records and expose uncertainty.
+
+**Files**
+- [x] Create: `crates/engine/src/harness/personal_briefs.rs`
+- [x] Modify: `crates/engine/src/harness.rs`
+- [x] Test: `crates/engine/tests/harness_personal_ops.rs`
+
+**Acceptance**
+- [x] Morning and transition endpoints expose scheduled items and unresolved captures.
+- [x] Recent receipts and projects come only from their explicit local registries.
+- [x] Every brief carries source records and uncertainty disclosures.
 
 ## Phase 5 — Optional wellness support
 
@@ -236,18 +252,26 @@ cargo fmt --package arda-core --package arda-engine --package arda-orome -- --ch
 cargo clippy -p arda-core -p arda-engine -p arda-orome --tests
 ```
 
-`apps/arda-hud/package.json` does not currently define a `lint` script; add and
-enforce that gate before the Phase 3 HUD beta rather than listing a command that
-cannot run.
+The HUD `lint`, full `test`, and production `build` scripts are now enforced.
+Lint currently succeeds with pre-existing warnings elsewhere in the HUD.
 
 ## Release acceptance
 
-- Thought-to-durable-capture median is under five seconds in operator testing.
-- Restart loses no accepted capture.
-- Daily brief cites its sources and can be corrected.
-- Reminder delivery truth is receipted.
-- A week-long dogfood run demonstrates manageable reminder volume and successful context recovery.
-- Operator can export or delete personal application data without damaging Arda system receipts.
+- [ ] Thought-to-durable-capture median is under five seconds in operator testing.
+- [ ] Restart loses no accepted capture.
+- [ ] Daily brief cites its sources and can be corrected.
+- [x] Reminder delivery truth is receipted.
+- [ ] A week-long dogfood run demonstrates manageable reminder volume and successful context recovery.
+- [ ] Operator can export or delete personal application data without damaging Arda system receipts.
+
+**Implementation update (2026-08-04):** Phases 0–4 are implemented and their
+focused Rust, Python, HUD unit, full HUD test, and production-build gates pass.
+The plan remains active: release is blocked on operator correction, export, and
+deletion flows; failure-injection/restart recovery; runtime privacy and
+accessibility validation; and the one-week dogfood period. The full strict
+workspace Clippy gate is also blocked by unrelated existing warnings in
+`arda-outpost-protocol/src/watchlist.rs` and
+`crates/engine/src/harness/research.rs`.
 
 ## Rollout rule
 

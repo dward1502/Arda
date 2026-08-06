@@ -1,8 +1,124 @@
 use arda_engine::personal_ops::calendar::{
-    deduplicate_events, CalendarAdapterConfig, CalendarAdapterKind, CalendarEvent,
-    CalendarEventSource, IcsExporter, IcsImporter,
+    deduplicate_events, CaldavFetchRequest, CaldavFetchResponse, CaldavSecretResolver,
+    CaldavSyncClient, CaldavSyncError, CaldavTransport, CalendarAdapterConfig, CalendarAdapterKind,
+    CalendarEvent, CalendarEventSource, IcsExporter, IcsImporter, RetrySleeper,
 };
 use chrono::{TimeZone, Utc};
+use std::cell::RefCell;
+use std::collections::{BTreeMap, BTreeSet};
+
+#[derive(Default)]
+struct FixtureSecrets {
+    values: BTreeMap<String, String>,
+    requested: RefCell<Vec<String>>,
+}
+
+impl FixtureSecrets {
+    fn with(mut self, key: &str, value: &str) -> Self {
+        self.values.insert(key.to_string(), value.to_string());
+        self
+    }
+}
+
+impl CaldavSecretResolver for FixtureSecrets {
+    fn resolve(&self, secret_ref: &str) -> Result<String, CaldavSyncError> {
+        self.requested.borrow_mut().push(secret_ref.to_string());
+        self.values
+            .get(secret_ref)
+            .cloned()
+            .ok_or_else(|| CaldavSyncError::SecretUnavailable {
+                secret_ref: secret_ref.to_string(),
+            })
+    }
+}
+
+struct FixtureTransport {
+    responses: RefCell<Vec<Result<CaldavFetchResponse, CaldavSyncError>>>,
+    requests: RefCell<Vec<CaldavFetchRequest>>,
+}
+
+impl FixtureTransport {
+    fn new(responses: Vec<Result<CaldavFetchResponse, CaldavSyncError>>) -> Self {
+        Self {
+            responses: RefCell::new(responses.into_iter().rev().collect()),
+            requests: RefCell::new(Vec::new()),
+        }
+    }
+}
+
+impl CaldavTransport for FixtureTransport {
+    fn fetch_calendar(
+        &self,
+        request: CaldavFetchRequest,
+        username: &str,
+        password: &str,
+    ) -> Result<CaldavFetchResponse, CaldavSyncError> {
+        assert_eq!(username, "fixture-user");
+        assert_eq!(password, "fixture-password");
+        self.requests.borrow_mut().push(request);
+        self.responses
+            .borrow_mut()
+            .pop()
+            .expect("fixture response available")
+    }
+}
+
+#[derive(Default)]
+struct FixtureSleeper {
+    delays_ms: RefCell<Vec<u64>>,
+}
+
+impl RetrySleeper for FixtureSleeper {
+    fn sleep_ms(&self, delay_ms: u64) {
+        self.delays_ms.borrow_mut().push(delay_ms);
+    }
+}
+
+fn caldav_config() -> CalendarAdapterConfig {
+    CalendarAdapterConfig {
+        adapter: CalendarAdapterKind::Caldav,
+        timezone: "UTC".to_string(),
+        caldav_url: Some("https://caldav.example.test/dav".to_string()),
+        caldav_username_ref: Some("secret://calendar/user".to_string()),
+        caldav_password_ref: Some("secret://calendar/pass".to_string()),
+        calendar_id: "personal".to_string(),
+        request_timeout_ms: 5_000,
+        max_attempts: 3,
+        initial_retry_delay_ms: 10,
+        max_retry_delay_ms: 40,
+    }
+}
+
+fn caldav_secrets() -> FixtureSecrets {
+    FixtureSecrets::default()
+        .with("secret://calendar/user", "fixture-user")
+        .with("secret://calendar/pass", "fixture-password")
+}
+
+fn caldav_ics() -> String {
+    IcsExporter::export(&[
+        CalendarEvent {
+            uid: "external-1@example.test".to_string(),
+            summary: "External appointment".to_string(),
+            description: None,
+            start: Utc.with_ymd_and_hms(2026, 11, 1, 5, 30, 0).unwrap(),
+            end: Some(Utc.with_ymd_and_hms(2026, 11, 1, 6, 30, 0).unwrap()),
+            timezone: "UTC".to_string(),
+            source: CalendarEventSource::Import,
+            recurrence_rule: None,
+        },
+        CalendarEvent {
+            uid: "external-2@example.test".to_string(),
+            summary: "External follow-up".to_string(),
+            description: Some("Provider changed the note".to_string()),
+            start: Utc.with_ymd_and_hms(2026, 3, 8, 7, 30, 0).unwrap(),
+            end: None,
+            timezone: "UTC".to_string(),
+            source: CalendarEventSource::Import,
+            recurrence_rule: None,
+        },
+    ])
+}
 
 fn sample_event() -> CalendarEvent {
     CalendarEvent {
@@ -175,4 +291,145 @@ calendar_id = "my-calendar"
         Some("https://caldav.example.com")
     );
     assert_eq!(config.calendar_id, "my-calendar");
+}
+
+#[test]
+fn caldav_sync_resolves_secret_refs_and_preserves_arda_authority() {
+    let transport = FixtureTransport::new(vec![Ok(CaldavFetchResponse {
+        status: 207,
+        body: caldav_ics(),
+    })]);
+    let secrets = caldav_secrets();
+    let sleeper = FixtureSleeper::default();
+    let existing = CalendarEvent {
+        uid: "external-1@example.test".to_string(),
+        summary: "Arda-owned appointment".to_string(),
+        description: None,
+        start: Utc.with_ymd_and_hms(2026, 11, 1, 5, 30, 0).unwrap(),
+        end: None,
+        timezone: "UTC".to_string(),
+        source: CalendarEventSource::Arda,
+        recurrence_rule: None,
+    };
+
+    let outcome = CaldavSyncClient::new(&transport, &secrets, &sleeper)
+        .sync(&caldav_config(), vec![existing])
+        .expect("CalDAV sync succeeds");
+
+    assert_eq!(outcome.attempts, 1);
+    assert_eq!(outcome.events.len(), 2);
+    assert_eq!(
+        outcome
+            .events
+            .iter()
+            .find(|event| event.uid == "external-1@example.test")
+            .unwrap()
+            .source,
+        CalendarEventSource::Arda
+    );
+    assert_eq!(
+        outcome.imported_uids,
+        BTreeSet::from([
+            "external-1@example.test".to_string(),
+            "external-2@example.test".to_string(),
+        ])
+    );
+    assert_eq!(
+        secrets.requested.borrow().as_slice(),
+        ["secret://calendar/user", "secret://calendar/pass"]
+    );
+    let request = transport.requests.borrow();
+    assert_eq!(request.len(), 1);
+    assert_eq!(request[0].timeout_ms, 5_000);
+    assert_eq!(request[0].calendar_id, "personal");
+}
+
+#[test]
+fn caldav_sync_retries_only_transient_failures_with_bounded_backoff() {
+    let transport = FixtureTransport::new(vec![
+        Err(CaldavSyncError::Transport {
+            message: "temporary connection failure".to_string(),
+            retryable: true,
+        }),
+        Ok(CaldavFetchResponse {
+            status: 503,
+            body: String::new(),
+        }),
+        Ok(CaldavFetchResponse {
+            status: 207,
+            body: caldav_ics(),
+        }),
+    ]);
+    let secrets = caldav_secrets();
+    let sleeper = FixtureSleeper::default();
+
+    let outcome = CaldavSyncClient::new(&transport, &secrets, &sleeper)
+        .sync(&caldav_config(), Vec::new())
+        .expect("third bounded attempt succeeds");
+
+    assert_eq!(outcome.attempts, 3);
+    assert_eq!(sleeper.delays_ms.borrow().as_slice(), [10, 20]);
+    assert_eq!(transport.requests.borrow().len(), 3);
+}
+
+#[test]
+fn caldav_sync_does_not_retry_authentication_failures() {
+    let transport = FixtureTransport::new(vec![Ok(CaldavFetchResponse {
+        status: 401,
+        body: "credential rejected".to_string(),
+    })]);
+    let secrets = caldav_secrets();
+    let sleeper = FixtureSleeper::default();
+
+    let error = CaldavSyncClient::new(&transport, &secrets, &sleeper)
+        .sync(&caldav_config(), Vec::new())
+        .unwrap_err();
+
+    assert_eq!(
+        error,
+        CaldavSyncError::HttpStatus {
+            status: 401,
+            retryable: false,
+        }
+    );
+    assert!(sleeper.delays_ms.borrow().is_empty());
+    assert_eq!(transport.requests.borrow().len(), 1);
+}
+
+#[test]
+fn caldav_sync_rejects_inline_credentials_before_transport() {
+    let mut config = caldav_config();
+    config.caldav_password_ref = Some("plain-text-password".to_string());
+    let transport = FixtureTransport::new(Vec::new());
+    let secrets = caldav_secrets();
+    let sleeper = FixtureSleeper::default();
+
+    let error = CaldavSyncClient::new(&transport, &secrets, &sleeper)
+        .sync(&config, Vec::new())
+        .unwrap_err();
+
+    assert!(matches!(error, CaldavSyncError::InvalidConfiguration(_)));
+    assert!(transport.requests.borrow().is_empty());
+    assert!(secrets.requested.borrow().is_empty());
+}
+
+#[test]
+fn caldav_sync_parses_multistatus_calendar_data() {
+    let encoded = caldav_ics().replace('&', "&amp;").replace('<', "&lt;");
+    let body = format!(
+        "<d:multistatus xmlns:d=\"DAV:\" xmlns:c=\"urn:ietf:params:xml:ns:caldav\"><d:response><c:calendar-data>{encoded}</c:calendar-data></d:response></d:multistatus>"
+    );
+    let transport = FixtureTransport::new(vec![Ok(CaldavFetchResponse { status: 207, body })]);
+    let secrets = caldav_secrets();
+    let sleeper = FixtureSleeper::default();
+
+    let outcome = CaldavSyncClient::new(&transport, &secrets, &sleeper)
+        .sync(&caldav_config(), Vec::new())
+        .expect("CalDAV multistatus parses");
+
+    assert_eq!(outcome.events.len(), 2);
+    assert!(outcome
+        .events
+        .iter()
+        .all(|event| event.source == CalendarEventSource::Import));
 }

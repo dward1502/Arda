@@ -291,10 +291,10 @@ fn read_manwe_http_json(workspace_root: &Path, path: &str) -> Option<Value> {
             let port = std::env::var("ARDA_MANWE_HTTP_PORT")
                 .ok()
                 .and_then(|value| value.parse::<u16>().ok())
-                .unwrap_or(5110);
+                .unwrap_or(7171);
             format!("{host}:{port}")
         })
-        .unwrap_or_else(|| "127.0.0.1:5110".to_string());
+        .unwrap_or_else(|| "127.0.0.1:7171".to_string());
     let addr = addr.parse::<SocketAddr>().ok()?;
     let timeout = Duration::from_millis(1_500);
     let mut stream = TcpStream::connect_timeout(&addr, timeout).ok()?;

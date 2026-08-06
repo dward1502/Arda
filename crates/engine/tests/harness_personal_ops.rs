@@ -72,6 +72,7 @@ fn base_state(workbench_root: std::path::PathBuf) -> HarnessState {
         harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
         child_pids: Arc::new(RwLock::new(Vec::new())),
         service_names: Arc::new(Vec::new()),
+        service_statuses: Arc::new(RwLock::new(Vec::new())),
         manwe_url: "http://127.0.0.1:1".into(),
         client: reqwest::Client::new(),
         manwe_proxy_timeout: DEFAULT_MANWE_PROXY_TIMEOUT,
@@ -81,6 +82,57 @@ fn base_state(workbench_root: std::path::PathBuf) -> HarnessState {
         presence_inputs: HarnessPresenceState::default(),
         workbench_root,
     }
+}
+
+#[tokio::test]
+async fn harness_allows_personal_ops_preflight_only_from_hud_origins() {
+    let root = tempfile::tempdir().unwrap();
+    let state = base_state(root.path().to_path_buf());
+    let shutdown = Arc::new(Notify::new());
+    let (bound, harness_handle) = harness::serve(
+        Some("127.0.0.1:0".parse().unwrap()),
+        state,
+        shutdown.clone(),
+    )
+    .await
+    .expect("start harness");
+    let client = reqwest::Client::new();
+    let endpoint = format!("http://{bound}/v1/personal/captures");
+
+    let allowed = client
+        .request(reqwest::Method::OPTIONS, &endpoint)
+        .header("origin", "http://tauri.localhost")
+        .header("access-control-request-method", "POST")
+        .header(
+            "access-control-request-headers",
+            "content-type,x-arda-operator-id,idempotency-key",
+        )
+        .send()
+        .await
+        .expect("allowed preflight");
+    assert!(allowed.status().is_success());
+    assert_eq!(
+        allowed
+            .headers()
+            .get("access-control-allow-origin")
+            .and_then(|value| value.to_str().ok()),
+        Some("http://tauri.localhost")
+    );
+
+    let rejected = client
+        .request(reqwest::Method::OPTIONS, endpoint)
+        .header("origin", "https://example.com")
+        .header("access-control-request-method", "POST")
+        .send()
+        .await
+        .expect("untrusted preflight response");
+    assert!(rejected
+        .headers()
+        .get("access-control-allow-origin")
+        .is_none());
+
+    shutdown.notify_waiters();
+    harness_handle.await.unwrap();
 }
 
 #[tokio::test]
@@ -172,6 +224,8 @@ async fn capture_endpoint_creates_capture_and_appears_in_inbox() {
 
     let resp = reqwest::Client::new()
         .post(format!("http://{bound}/v1/personal/captures"))
+        .header("x-arda-operator-id", "operator-0")
+        .header("idempotency-key", Uuid::new_v4().to_string())
         .json(&serde_json::json!({
             "operator_id": "operator-0",
             "text": "Test capture from endpoint"
@@ -213,6 +267,8 @@ async fn reminder_attempt_and_acknowledge_flow_updates_projection() {
     // Create a capture
     let create_resp = reqwest::Client::new()
         .post(format!("http://{bound}/v1/personal/captures"))
+        .header("x-arda-operator-id", "operator-0")
+        .header("idempotency-key", Uuid::new_v4().to_string())
         .json(&serde_json::json!({
             "operator_id": "operator-0",
             "text": "Take medication"
@@ -231,6 +287,8 @@ async fn reminder_attempt_and_acknowledge_flow_updates_projection() {
         .post(format!(
             "http://{bound}/v1/personal/items/{capture_id}/classify"
         ))
+        .header("x-arda-operator-id", "operator-0")
+        .header("idempotency-key", Uuid::new_v4().to_string())
         .json(&serde_json::json!({
             "operator_id": "operator-0",
             "item_id": capture_id,
@@ -246,6 +304,8 @@ async fn reminder_attempt_and_acknowledge_flow_updates_projection() {
     let reminder_uuid = uuid::Uuid::new_v4().to_string();
     let attempt_resp = reqwest::Client::new()
         .post(format!("http://{bound}/v1/personal/reminders/attempt"))
+        .header("x-arda-operator-id", "operator-0")
+        .header("idempotency-key", Uuid::new_v4().to_string())
         .json(&serde_json::json!({
             "operator_id": "operator-0",
             "item_id": capture_id,
@@ -269,13 +329,20 @@ async fn reminder_attempt_and_acknowledge_flow_updates_projection() {
     let today_items = proj["projection"]["today"].as_array().unwrap();
     assert_eq!(today_items.len(), 1);
     let item = &today_items[0];
-    assert_eq!(item["reminder_state"]["attempt_count"].as_u64().unwrap_or(0), 1);
+    assert_eq!(
+        item["reminder_state"]["attempt_count"]
+            .as_u64()
+            .unwrap_or(0),
+        1
+    );
 
     // Acknowledge the reminder
     let ack_resp = reqwest::Client::new()
         .post(format!(
             "http://{bound}/v1/personal/reminders/{reminder_uuid}/acknowledge"
         ))
+        .header("x-arda-operator-id", "operator-0")
+        .header("idempotency-key", Uuid::new_v4().to_string())
         .json(&serde_json::json!({
             "operator_id": "operator-0",
             "state": "acknowledged",
@@ -304,12 +371,7 @@ async fn reminder_attempt_rejects_non_loopback_bind() {
     let root = tempfile::tempdir().unwrap();
     let state = base_state(root.path().to_path_buf());
     let shutdown = Arc::new(Notify::new());
-    let result = harness::serve(
-        Some("0.0.0.0:0".parse().unwrap()),
-        state,
-        shutdown.clone(),
-    )
-    .await;
+    let result = harness::serve(Some("0.0.0.0:0".parse().unwrap()), state, shutdown.clone()).await;
     assert!(result.is_err());
     assert!(result.unwrap_err().to_string().contains("loopback"));
 }
@@ -330,6 +392,8 @@ async fn classify_and_complete_flow_updates_projection() {
     // Create a capture
     let create_resp = reqwest::Client::new()
         .post(format!("http://{bound}/v1/personal/captures"))
+        .header("x-arda-operator-id", "operator-0")
+        .header("idempotency-key", Uuid::new_v4().to_string())
         .json(&serde_json::json!({
             "operator_id": "operator-0",
             "text": "Write the plan"
@@ -357,6 +421,8 @@ async fn classify_and_complete_flow_updates_projection() {
         .post(format!(
             "http://{bound}/v1/personal/items/{capture_id}/classify"
         ))
+        .header("x-arda-operator-id", "operator-0")
+        .header("idempotency-key", Uuid::new_v4().to_string())
         .json(&serde_json::json!({
             "operator_id": "operator-0",
             "item_id": capture_id,
@@ -382,6 +448,8 @@ async fn classify_and_complete_flow_updates_projection() {
         .post(format!(
             "http://{bound}/v1/personal/items/{capture_id}/complete"
         ))
+        .header("x-arda-operator-id", "operator-0")
+        .header("idempotency-key", Uuid::new_v4().to_string())
         .json(&serde_json::json!({
             "operator_id": "operator-0"
         }))
@@ -420,6 +488,8 @@ async fn resume_and_brief_endpoints_work() {
     // POST a capture
     let create_resp = reqwest::Client::new()
         .post(format!("http://{bound}/v1/personal/captures"))
+        .header("x-arda-operator-id", "operator-0")
+        .header("idempotency-key", Uuid::new_v4().to_string())
         .json(&serde_json::json!({
             "operator_id": "operator-0",
             "text": "Finish report"
@@ -438,6 +508,8 @@ async fn resume_and_brief_endpoints_work() {
         .post(format!(
             "http://{bound}/v1/personal/items/{capture_id}/classify"
         ))
+        .header("x-arda-operator-id", "operator-0")
+        .header("idempotency-key", Uuid::new_v4().to_string())
         .json(&serde_json::json!({
             "operator_id": "operator-0",
             "item_id": capture_id,
@@ -448,6 +520,31 @@ async fn resume_and_brief_endpoints_work() {
         .await
         .unwrap();
     assert_eq!(classify_resp.status(), 201);
+
+    std::fs::create_dir_all(root.path().join("data/workbench")).unwrap();
+    std::fs::write(
+        root.path().join("data/workbench/projects.json"),
+        serde_json::to_vec(&serde_json::json!({
+            "schema_version": "arda.workbench.project-registry.v1",
+            "projects": [{"contract": {"identity": {"project_id": "project-1"}}}]
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+    std::fs::create_dir_all(root.path().join("data/runs/run-1")).unwrap();
+    std::fs::write(
+        root.path().join("data/runs/run-1/events.jsonl"),
+        format!(
+            "{}\n",
+            serde_json::json!({
+                "sequence": 1,
+                "kind": "result_projected",
+                "receipt_digest": format!("sha256:{}", "a".repeat(64)),
+                "recorded_at_unix_ms": 1_786_000_000_000_u64
+            })
+        ),
+    )
+    .unwrap();
 
     // Resume endpoint
     let resume: Value = reqwest::get(format!("http://{bound}/v1/personal/resume"))
@@ -470,6 +567,114 @@ async fn resume_and_brief_endpoints_work() {
         .unwrap();
     assert_eq!(brief["schema_version"], "arda.harness.personal-ops.v1");
     assert_eq!(brief["brief"]["today"].as_array().unwrap().len(), 1);
+    assert_eq!(
+        brief["brief"]["source_records"].as_array().unwrap().len(),
+        2
+    );
+
+    for kind in ["morning", "transition"] {
+        let context_brief: Value =
+            reqwest::get(format!("http://{bound}/v1/personal/briefs/{kind}"))
+                .await
+                .unwrap()
+                .json()
+                .await
+                .unwrap();
+        assert_eq!(
+            context_brief["schema_version"],
+            "arda.harness.personal-brief.v1"
+        );
+        assert_eq!(context_brief["brief"]["kind"], kind);
+        assert_eq!(
+            context_brief["brief"]["operator_authored_schedule"]
+                .as_array()
+                .unwrap()
+                .len(),
+            1
+        );
+        assert_eq!(
+            context_brief["brief"]["explicitly_connected_projects"][0]["project_id"],
+            "project-1"
+        );
+        assert_eq!(
+            context_brief["brief"]["recent_run_receipts"][0]["run_id"],
+            "run-1"
+        );
+        assert!(context_brief["brief"]["source_records"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|source| source["source_type"] == "run_receipt"));
+        assert!(!context_brief["brief"]["uncertainty"]
+            .as_array()
+            .unwrap()
+            .is_empty());
+    }
+
+    shutdown.notify_waiters();
+    harness_handle.await.unwrap();
+}
+
+#[tokio::test]
+async fn mutations_require_identity_and_replay_idempotency_keys_exactly_once() {
+    let root = tempfile::tempdir().unwrap();
+    let state = base_state(root.path().to_path_buf());
+    let shutdown = Arc::new(Notify::new());
+    let (bound, harness_handle) = harness::serve(
+        Some("127.0.0.1:0".parse().unwrap()),
+        state,
+        shutdown.clone(),
+    )
+    .await
+    .expect("start harness");
+    let client = reqwest::Client::new();
+    let url = format!("http://{bound}/v1/personal/captures");
+    let body = serde_json::json!({
+        "operator_id": "operator-0",
+        "text": "Replay-safe capture"
+    });
+
+    let missing_identity = client.post(&url).json(&body).send().await.unwrap();
+    assert_eq!(missing_identity.status(), 401);
+
+    let mismatch = client
+        .post(&url)
+        .header("x-arda-operator-id", "someone-else")
+        .header("idempotency-key", "identity-mismatch")
+        .json(&body)
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(mismatch.status(), 403);
+
+    let send = || {
+        client
+            .post(&url)
+            .header("x-arda-operator-id", "operator-0")
+            .header("idempotency-key", "same-capture-operation")
+            .json(&body)
+            .send()
+    };
+    let first = send().await.unwrap();
+    let second = send().await.unwrap();
+    assert_eq!(first.status(), 201);
+    assert_eq!(second.status(), 201);
+    let first_body: Value = first.json().await.unwrap();
+    let second_body: Value = second.json().await.unwrap();
+    assert_eq!(first_body["event_id"], second_body["event_id"]);
+    assert_eq!(first_body["capture_id"], second_body["capture_id"]);
+
+    let projection: Value = reqwest::get(format!("http://{bound}/v1/personal-ops/projection"))
+        .await
+        .unwrap()
+        .json()
+        .await
+        .unwrap();
+    assert_eq!(projection["projection"]["event_count"], 1);
+    assert_eq!(
+        projection["projection"]["inbox"].as_array().unwrap().len(),
+        1
+    );
 
     shutdown.notify_waiters();
     harness_handle.await.unwrap();

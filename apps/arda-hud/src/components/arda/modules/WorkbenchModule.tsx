@@ -9,6 +9,7 @@ import {
   approveWorkbenchRun,
   attachProjectContract,
   buildRunGraph,
+  cancelWorkbenchRun,
   completeWorkbenchRunNode,
   createObjective,
   executeWorkbenchProviderNode,
@@ -20,6 +21,7 @@ import {
   type MutationEnvelope,
   type ProjectValidation,
   type RunGraph,
+  type RunNode,
   type RunRecord,
   type RunReviewEvidence,
   type WorkbenchEvent,
@@ -30,6 +32,64 @@ function messageOf(error: unknown): string { return error instanceof Error ? err
 
 const LAST_RUN_STORAGE_KEY = 'arda.workbench.last-run-id'
 const objectiveStorageKey = (runId: string) => `arda.workbench.objective.${runId}`
+const proposalStorageKey = (runId: string) => `arda.workbench.proposal.${runId}`
+const approvalStorageKey = (runId: string) => `arda.workbench.approval.${runId}`
+
+export interface OperatorSummary {
+  whatHappened: string
+  why: string
+  whatCanAct: string
+  nextAction: string
+}
+
+function authorityLabel(node: RunNode | null): string {
+  if (!node) return 'No component can mutate project state until a governed run is prepared.'
+  switch (node.authority) {
+    case 'human_approval': return 'Only the operator can approve or reject this step.'
+    case 'execute_with_approval': return 'The execution provider may act only after operator approval.'
+    case 'verify': return 'The verifier can inspect recorded evidence; it cannot approve mutations.'
+    case 'compensate_with_approval': return 'Recovery can act only after explicit operator approval.'
+    default: return 'The runtime may inspect data without changing project state.'
+  }
+}
+
+export function summarizeOperatorState(input: {
+  graph: RunGraph | null
+  events: WorkbenchEvent[]
+  error: string | null
+  message: string
+  validationValid: boolean
+  attached: boolean
+  objectivePresent: boolean
+  runPresent: boolean
+}): OperatorSummary {
+  const active = input.graph?.nodes.find((node) => ['failed', 'cancelled', 'running', 'blocked', 'ready', 'pending'].includes(node.state)) ?? null
+  const latestReason = [...input.events].reverse().map((event) => event.kind?.reason ?? event.event?.reason ?? event.reason).find(Boolean)
+  const completed = Boolean(input.graph?.nodes.length) && input.graph!.nodes.every((node) => node.state === 'succeeded')
+  const whatHappened = input.error
+    ? `The latest operation did not complete: ${input.error}`
+    : completed
+      ? 'The governed run completed and its recorded evidence is ready for review.'
+      : active
+        ? `The run is at the ${active.kind} step, which is ${active.state}.`
+        : input.message
+  const why = latestReason
+    ? `Recorded reason: ${latestReason}`
+    : active?.state === 'blocked'
+      ? 'The step is blocked until its declared authority or dependency is satisfied.'
+      : active
+        ? `The run follows its governed sequence and ${active.kind} is the next incomplete step.`
+        : 'No run decision has been made yet.'
+  let nextAction = 'Validate a project contract before attaching it.'
+  if (input.validationValid && !input.attached) nextAction = 'Review the validated permissions, then attach the project with approved proposal and approval IDs.'
+  else if (input.attached && !input.objectivePresent) nextAction = 'Describe and capture the objective for this project.'
+  else if (input.attached && input.objectivePresent && !input.runPresent) nextAction = 'Review the run graph, then plan the governed run.'
+  else if (active?.kind === 'approval') nextAction = 'Review the requested authority and approve or reject the step.'
+  else if (active?.state === 'failed' || active?.state === 'cancelled') nextAction = 'Inspect the recorded reason and receipts, then revise or recover the run.'
+  else if (active) nextAction = `Select the ${active.kind} step and complete its displayed evidence or authority requirement.`
+  else if (completed) nextAction = 'Review changed files, checks, provider receipt, and the final timeline before closeout.'
+  return { whatHappened, why, whatCanAct: authorityLabel(active), nextAction }
+}
 
 export default function WorkbenchModule() {
   const [path, setPath] = useState('')
@@ -66,6 +126,8 @@ export default function WorkbenchModule() {
         setObjectiveText(storedObjective)
         setObjective({ schemaVersion: 'arda.workbench.objective.v1', objectiveId: record.graph.objective_id, text: storedObjective, inputMode: 'text' })
       }
+      setProposalId(window.localStorage.getItem(proposalStorageKey(record.graph.run_id)) ?? '')
+      setApprovalId(window.localStorage.getItem(approvalStorageKey(record.graph.run_id)) ?? '')
       setSelectedNodeId(record.graph.nodes.find((node) => node.state !== 'succeeded')?.id ?? record.graph.nodes.at(-1)?.id ?? null)
       setMessage(`Resumed run ${record.graph.run_id} from the durable harness.`)
     }).catch((caught) => {
@@ -152,6 +214,8 @@ export default function WorkbenchModule() {
       setObjectiveText(storedObjective)
       setObjective({ schemaVersion: 'arda.workbench.objective.v1', objectiveId: record.graph.objective_id, text: storedObjective, inputMode: 'text' })
     }
+    setProposalId(window.localStorage.getItem(proposalStorageKey(record.graph.run_id)) ?? '')
+    setApprovalId(window.localStorage.getItem(approvalStorageKey(record.graph.run_id)) ?? '')
     setSelectedNodeId(record.graph.nodes.find((node) => node.state !== 'succeeded')?.id ?? record.graph.nodes.at(-1)?.id ?? null)
     setMessage(`Resumed run ${record.graph.run_id} from the durable harness.`)
   })
@@ -179,6 +243,8 @@ export default function WorkbenchModule() {
     if (!attached || !validation?.projectId || !graph) throw new Error('Attach the project and capture an objective before planning')
     const result = await planWorkbenchRun(validation.projectId, graph, envelope('plan'))
     setRun(result); setGraph(result.graph)
+    window.localStorage.setItem(proposalStorageKey(result.graph.run_id), proposalId.trim())
+    window.localStorage.setItem(approvalStorageKey(result.graph.run_id), approvalId.trim())
     setEvents(result.events); setMessage(`Run ${result.graph.run_id} planned. Execution remains approval-gated.`)
   })
   const approve = (nodeId: string) => void act(async () => {
@@ -187,6 +253,16 @@ export default function WorkbenchModule() {
     setRun(result); setGraph(result.graph)
     setEvents(result.events)
     setMessage(`Approval ${nodeId} recorded by the typed harness endpoint.`)
+  })
+  const reject = (nodeId: string) => void act(async () => {
+    if (!run) throw new Error('No planned run is available for rejection')
+    const result = await cancelWorkbenchRun(
+      run.graph.run_id,
+      `Approval ${nodeId} rejected; revise the objective before planning a new run.`,
+      envelope(`reject-${nodeId}`),
+    )
+    setRun(result); setGraph(result.graph); setEvents(result.events)
+    setMessage(`Approval ${nodeId} rejected. Revise the objective and capture a replacement run.`)
   })
   const complete = () => void act(async () => {
     if (!run || !selectedNode) throw new Error('Select a run node before recording a receipt')
@@ -212,6 +288,16 @@ export default function WorkbenchModule() {
 
   const approvals = graph?.nodes.filter((node) => node.kind === 'approval') ?? []
   const selectedNode = graph?.nodes.find((node) => node.id === selectedNodeId) ?? null
+  const operatorSummary = summarizeOperatorState({
+    graph,
+    events,
+    error,
+    message,
+    validationValid: validation?.valid === true,
+    attached: attached !== null,
+    objectivePresent: objective !== null,
+    runPresent: run !== null,
+  })
   return (
     <ModuleCard title="Workbench" eyebrow="Governed operator surface" accent="gold">
       <div className="workbench" aria-label="ARDA Workbench">
@@ -236,7 +322,16 @@ export default function WorkbenchModule() {
           <small>Voice input will produce the same arda.workbench.objective.v1 contract; it does not bypass this boundary.</small>
         </form>
         {error ? <p role="alert" className="workbench-error">{error}</p> : null}<p role="status" aria-live="polite">{message} Run events: {streamStatus}.</p>
-        <div className="workbench-first-screen"><RunGraphView graph={graph} selectedNodeId={selectedNodeId} onSelectNode={(node) => setSelectedNodeId(node.id)} /><ApprovalPanel approvals={approvals} busy={busy} onApprove={approve} /><ChangeReview changes={run?.review?.changes ?? []} tests={run?.review?.tests ?? []} providerReceipt={run?.review?.provider_receipt} selectedNode={selectedNode} events={events} onComplete={complete} onExecuteProvider={executeProvider} busy={busy} /><RunTimeline events={events} graph={graph} /></div>
+        <section className="workbench-panel workbench-operator-summary" aria-labelledby="workbench-operator-summary-title">
+          <header><h3 id="workbench-operator-summary-title">Operator summary</h3><span>plain-language run state</span></header>
+          <dl>
+            <div><dt>What happened?</dt><dd>{operatorSummary.whatHappened}</dd></div>
+            <div><dt>Why?</dt><dd>{operatorSummary.why}</dd></div>
+            <div><dt>What can act?</dt><dd>{operatorSummary.whatCanAct}</dd></div>
+            <div><dt>What should I do next?</dt><dd>{operatorSummary.nextAction}</dd></div>
+          </dl>
+        </section>
+        <div className="workbench-first-screen"><RunGraphView graph={graph} selectedNodeId={selectedNodeId} onSelectNode={(node) => setSelectedNodeId(node.id)} /><ApprovalPanel approvals={approvals} busy={busy} onApprove={approve} onReject={reject} /><ChangeReview changes={run?.review?.changes ?? []} tests={run?.review?.tests ?? []} providerReceipt={run?.review?.provider_receipt} selectedNode={selectedNode} events={events} onComplete={complete} onExecuteProvider={executeProvider} busy={busy} /><RunTimeline events={events} graph={graph} streamStatus={streamStatus} /></div>
       </div>
     </ModuleCard>
   )

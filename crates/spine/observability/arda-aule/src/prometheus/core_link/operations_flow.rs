@@ -358,7 +358,7 @@ pub fn write_queue_active_projection(core_root: &Path) {
     });
 
     let snapshot = json!({
-        "schema_version": "annunimas.queue_active.v1",
+        "schema_version": "arda.queue_active.v1",
         "generated_at_utc": Utc::now().to_rfc3339(),
         "authority": "queue_active_projection",
         "source": rel_path(queue_path, &workspace_root),

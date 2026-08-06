@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arda.local/spec/company-ops/v1/company-ops.schema.json",
+  "title": "Arda Company Operations v1",
+  "type": "object",
+  "required": ["schema_version", "record_type", "record"],
+  "properties": {
+    "schema_version": { "const": "arda.company-ops.v1" },
+    "record_type": {
+      "enum": ["organization", "contact_reference", "client_engagement", "opportunity", "product_hypothesis", "revenue_experiment", "proposal_draft", "approval_receipt", "commitment", "outcome_receipt", "workbench_objective_proposal", "client_delivery_bundle"]
+    },
+    "record": { "type": "object" }
+  },
+  "$defs": {
+    "privacy_class": { "enum": ["general", "commercial_confidential", "contact_restricted", "personal_restricted"] },
+    "authority": { "enum": ["read_only", "bounded_observation", "proposal_only", "review_required", "explicit_operator_approval", "prohibited"] },
+    "confidence_range": {
+      "type": "object",
+      "required": ["low", "expected", "high", "confidence"],
+      "properties": {
+        "low": { "type": "number" },
+        "expected": { "type": "number" },
+        "high": { "type": "number" },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "pipeline_stage": { "enum": ["lead", "qualified", "proposed", "won", "lost", "delivered", "invoiced", "paid"] }
+  },
+  "additionalProperties": false
+}

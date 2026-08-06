@@ -5,7 +5,7 @@
 **Status:** Complete; archived after GL-1 through GL-6 acceptance and workspace verification on 2026-08-02
 **Scope:** Durable, replayable research dispatch, evidence evaluation, approval, governed memory, and proposal receipts
 **Stage posture:** Required only for the optional Stage 5 Warden Research beta; not a Workbench release-candidate blocker
-**Product dependency:** [Warden Research](../plans/2026-07-29-warden-research-application-plan.md)
+**Product dependency:** [Warden Research](2026-07-29-warden-research-application-plan.md)
 
 ## Goal and authority
 

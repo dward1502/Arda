@@ -10,6 +10,7 @@ use std::process::Stdio;
 use std::sync::Arc;
 use std::time::Duration;
 
+use serde::Serialize;
 use tokio::process::{Child, Command};
 use tokio::sync::{Mutex, Notify, RwLock};
 use tracing::{error, info, warn};
@@ -27,6 +28,37 @@ pub struct Service {
     /// If true, a missing exe is a hard error rather than a skip. Defaults to
     /// false for backwards compatibility with the optional-launcher behaviour.
     pub required: bool,
+    pub optional: bool,
+    pub health: Option<HealthProbe>,
+}
+
+#[derive(Clone)]
+pub struct HealthProbe {
+    pub url: String,
+    pub interval: Duration,
+    pub timeout: Duration,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ServiceLifecycle {
+    Starting,
+    Healthy,
+    Degraded,
+    Restarting,
+    Stopped,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ServiceRuntimeStatus {
+    pub name: String,
+    pub required: bool,
+    pub optional: bool,
+    pub state: ServiceLifecycle,
+    pub pid: Option<u32>,
+    pub restart_count: u32,
+    pub backoff_ms: Option<u64>,
+    pub detail: String,
 }
 
 #[derive(Clone)]
@@ -64,6 +96,7 @@ struct Inner {
     /// Live child PIDs, mirrored so diagnostics (e.g. `child_pids`) can read
     /// them without disturbing the `Child` owned by `supervise_one`.
     pids: Arc<RwLock<Vec<Option<u32>>>>,
+    statuses: Arc<RwLock<Vec<ServiceRuntimeStatus>>>,
     /// Optional external mirror kept in sync with `pids` so the harness status
     /// surface can read live PIDs without owning the supervisor's internals.
     pid_mirror: RwLock<Option<Arc<RwLock<Vec<u32>>>>>,
@@ -82,16 +115,34 @@ impl Supervisor {
             state.push(None);
             pids.push(None);
         }
+        let statuses = services
+            .iter()
+            .map(|service| ServiceRuntimeStatus {
+                name: service.name.to_string(),
+                required: service.required,
+                optional: service.optional,
+                state: ServiceLifecycle::Stopped,
+                pid: None,
+                restart_count: 0,
+                backoff_ms: None,
+                detail: "not started".to_string(),
+            })
+            .collect();
         Supervisor {
             inner: Arc::new(Inner {
                 services,
                 state: Arc::new(RwLock::new(state)),
                 pids: Arc::new(RwLock::new(pids)),
+                statuses: Arc::new(RwLock::new(statuses)),
                 pid_mirror: RwLock::new(None),
                 join_handles: Arc::new(Mutex::new(Vec::new())),
                 shutdown,
             }),
         }
+    }
+
+    pub fn statuses(&self) -> Arc<RwLock<Vec<ServiceRuntimeStatus>>> {
+        self.inner.statuses.clone()
     }
 
     /// Attach an external PID mirror the supervisor keeps in sync. Passing
@@ -136,6 +187,7 @@ impl Supervisor {
                 );
                 let state = self.inner.state.clone();
                 let pids = self.inner.pids.clone();
+                let statuses = self.inner.statuses.clone();
                 let shutdown = self.inner.shutdown.clone();
                 let svc = Service {
                     name: svc.name,
@@ -143,9 +195,11 @@ impl Supervisor {
                     args: svc.args.clone(),
                     cwd: svc.cwd.clone(),
                     required: svc.required,
+                    optional: svc.optional,
+                    health: svc.health.clone(),
                 };
                 handles.push(tokio::spawn(async move {
-                    supervise_one(i, svc, state, pids, shutdown).await;
+                    supervise_one(i, svc, state, pids, statuses, shutdown).await;
                 }));
             }
         }
@@ -188,6 +242,12 @@ impl Supervisor {
         for h in handles.drain(..) {
             let _ = h.await;
         }
+        for status in self.inner.statuses.write().await.iter_mut() {
+            status.state = ServiceLifecycle::Stopped;
+            status.pid = None;
+            status.backoff_ms = None;
+            status.detail = "stopped by supervisor shutdown".to_string();
+        }
         info!("supervisor: all children stopped");
     }
 
@@ -214,12 +274,20 @@ async fn supervise_one(
     svc: Service,
     state: Arc<RwLock<Vec<Option<Child>>>>,
     pids: Arc<RwLock<Vec<Option<u32>>>>,
+    statuses: Arc<RwLock<Vec<ServiceRuntimeStatus>>>,
     shutdown: Shutdown,
 ) {
     let mut backoff = Duration::from_millis(250);
     const MAX_BACKOFF: Duration = Duration::from_secs(10);
 
     loop {
+        {
+            let mut runtime = statuses.write().await;
+            runtime[idx].state = ServiceLifecycle::Starting;
+            runtime[idx].pid = None;
+            runtime[idx].backoff_ms = None;
+            runtime[idx].detail = "spawning child process".to_string();
+        }
         let mut cmd = Command::new(&svc.exe);
         for a in &svc.args {
             cmd.arg(a);
@@ -235,6 +303,13 @@ async fn supervise_one(
             Ok(c) => c,
             Err(e) => {
                 error!("supervisor: failed to spawn '{}': {e}", svc.name);
+                {
+                    let mut runtime = statuses.write().await;
+                    runtime[idx].state = ServiceLifecycle::Restarting;
+                    runtime[idx].restart_count += 1;
+                    runtime[idx].backoff_ms = Some(backoff.as_millis() as u64);
+                    runtime[idx].detail = format!("spawn failed: {e}");
+                }
                 tokio::select! {
                     _ = shutdown.wait() => {
                         info!("supervisor: '{}' not retrying (shutdown)", svc.name);
@@ -258,6 +333,56 @@ async fn supervise_one(
             guard[idx] = Some(child);
             let mut pg = pids.write().await;
             pg[idx] = pid;
+        }
+        {
+            let mut runtime = statuses.write().await;
+            runtime[idx].state = if svc.health.is_some() {
+                ServiceLifecycle::Starting
+            } else {
+                ServiceLifecycle::Healthy
+            };
+            runtime[idx].pid = pid;
+            runtime[idx].backoff_ms = None;
+            runtime[idx].detail = if svc.health.is_some() {
+                "child spawned; waiting for readiness probe".to_string()
+            } else {
+                "child process is running; no readiness probe declared".to_string()
+            };
+        }
+        if let (Some(health), Some(probed_pid)) = (svc.health.clone(), pid) {
+            let probe_statuses = statuses.clone();
+            let probe_pids = pids.clone();
+            tokio::spawn(async move {
+                let client = reqwest::Client::new();
+                loop {
+                    if probe_pids.read().await.get(idx).copied().flatten() != Some(probed_pid) {
+                        return;
+                    }
+                    let result = client.get(&health.url).timeout(health.timeout).send().await;
+                    let mut runtime = probe_statuses.write().await;
+                    let status = &mut runtime[idx];
+                    match result {
+                        Ok(response) if response.status().is_success() => {
+                            status.state = ServiceLifecycle::Healthy;
+                            status.detail = format!("readiness probe passed: {}", health.url);
+                        }
+                        Ok(response) => {
+                            status.state = ServiceLifecycle::Degraded;
+                            status.detail = format!(
+                                "readiness probe returned {}: {}",
+                                response.status(),
+                                health.url
+                            );
+                        }
+                        Err(error) => {
+                            status.state = ServiceLifecycle::Degraded;
+                            status.detail = format!("readiness probe failed: {error}");
+                        }
+                    }
+                    drop(runtime);
+                    tokio::time::sleep(health.interval).await;
+                }
+            });
         }
 
         // Wait for the child to exit OR the shutdown signal. The `Child` lives in
@@ -284,6 +409,13 @@ async fn supervise_one(
                     let mut pg = pids.write().await;
                     pg[idx] = None;
                 }
+                {
+                    let mut runtime = statuses.write().await;
+                    runtime[idx].state = ServiceLifecycle::Stopped;
+                    runtime[idx].pid = None;
+                    runtime[idx].backoff_ms = None;
+                    runtime[idx].detail = "stopped by supervisor shutdown".to_string();
+                }
                 info!("supervisor: '{}' stopped on shutdown", svc.name);
                 return;
             }
@@ -297,6 +429,14 @@ async fn supervise_one(
         match status {
             Some(code) => warn!("supervisor: '{}' exited (code {:?})", svc.name, code),
             None => warn!("supervisor: '{}' exited (no status)", svc.name),
+        }
+        {
+            let mut runtime = statuses.write().await;
+            runtime[idx].state = ServiceLifecycle::Restarting;
+            runtime[idx].pid = None;
+            runtime[idx].restart_count += 1;
+            runtime[idx].backoff_ms = Some(backoff.as_millis() as u64);
+            runtime[idx].detail = "child exited; bounded restart scheduled".to_string();
         }
 
         tokio::select! {
@@ -330,6 +470,8 @@ mod tests {
             args: vec!["5".into()],
             cwd: None,
             required: false,
+            optional: true,
+            health: None,
         };
         let exists = svc.exe.exists();
         let shutdown = Shutdown::new();
@@ -365,5 +507,105 @@ mod tests {
                 .unwrap_or(false);
             assert!(!alive, "child pid {pid} was not reaped on shutdown");
         }
+    }
+
+    #[tokio::test]
+    async fn restart_state_reports_attempt_count_and_bounded_backoff() {
+        let temp = tempfile::tempdir().expect("tempdir");
+        let marker = temp.path().join("started-once");
+        let script = format!(
+            "if [ ! -e '{}' ]; then : > '{}'; exit 7; fi; sleep 5",
+            marker.display(),
+            marker.display()
+        );
+        let svc = Service {
+            name: "restart-once",
+            exe: PathBuf::from("/bin/sh"),
+            args: vec!["-c".into(), script],
+            cwd: None,
+            required: true,
+            optional: false,
+            health: None,
+        };
+        let shutdown = Shutdown::new();
+        let supervisor = Supervisor::new(vec![svc], shutdown.clone());
+        let statuses = supervisor.statuses();
+        let task = tokio::spawn({
+            let supervisor = supervisor.clone();
+            async move { supervisor.run().await }
+        });
+
+        tokio::time::timeout(Duration::from_secs(5), async {
+            loop {
+                let status = statuses.read().await[0].clone();
+                if status.restart_count == 1 && status.state == ServiceLifecycle::Healthy {
+                    assert_eq!(status.backoff_ms, None);
+                    assert!(status.pid.is_some());
+                    break;
+                }
+                tokio::time::sleep(Duration::from_millis(25)).await;
+            }
+        })
+        .await
+        .expect("service restarted within bounded backoff");
+
+        shutdown.trigger();
+        task.await.expect("supervisor join");
+        let status = statuses.read().await[0].clone();
+        assert_eq!(status.state, ServiceLifecycle::Stopped);
+        assert_eq!(status.restart_count, 1);
+        assert_eq!(status.pid, None);
+    }
+
+    #[tokio::test]
+    async fn killed_child_is_reaped_and_restarted_with_visible_attribution() {
+        let svc = Service {
+            name: "kill-recovery",
+            exe: PathBuf::from("/usr/bin/sleep"),
+            args: vec!["30".into()],
+            cwd: None,
+            required: true,
+            optional: false,
+            health: None,
+        };
+        let shutdown = Shutdown::new();
+        let supervisor = Supervisor::new(vec![svc], shutdown.clone());
+        let statuses = supervisor.statuses();
+        let task = tokio::spawn({
+            let supervisor = supervisor.clone();
+            async move { supervisor.run().await }
+        });
+
+        let original_pid = tokio::time::timeout(Duration::from_secs(5), async {
+            loop {
+                if let Some(pid) = statuses.read().await[0].pid {
+                    break pid;
+                }
+                tokio::time::sleep(Duration::from_millis(25)).await;
+            }
+        })
+        .await
+        .expect("initial supervised process");
+        assert!(std::process::Command::new("/bin/kill")
+            .args(["-KILL", &original_pid.to_string()])
+            .status()
+            .expect("kill child")
+            .success());
+
+        tokio::time::timeout(Duration::from_secs(5), async {
+            loop {
+                let status = statuses.read().await[0].clone();
+                if status.restart_count >= 1 && status.pid.is_some_and(|pid| pid != original_pid) {
+                    assert_eq!(status.state, ServiceLifecycle::Healthy);
+                    break;
+                }
+                tokio::time::sleep(Duration::from_millis(25)).await;
+            }
+        })
+        .await
+        .expect("killed process restarted with attribution");
+
+        shutdown.trigger();
+        task.await.expect("supervisor join");
     }
 }

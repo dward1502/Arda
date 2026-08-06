@@ -8,6 +8,13 @@ timezone = "UTC"
 # --- CalDAV adapter (only used when adapter = "caldav") ---
 # Secret references only — never inline credentials.
 caldav_url = ""
-caldav_username_ref = "secret://caldev/username"
-caldav_password_ref = "secret://caldev/password"
+caldav_username_ref = "secret://caldav/username"
+caldav_password_ref = "secret://caldav/password"
 calendar_id = "personal"
+
+# Bounded supervision. Authentication/configuration failures fail closed;
+# only transient transport, rate-limit, and server failures are retried.
+request_timeout_ms = 15000
+max_attempts = 3
+initial_retry_delay_ms = 250
+max_retry_delay_ms = 2000

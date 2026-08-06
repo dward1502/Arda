@@ -42,3 +42,9 @@ work under `docs/plans/`.
   — completed identity derivation, promotion/decay, local Markdown projection, and HUD persona-consumer companion plan.
 - [`ARDA_AVATAR_PRESENCE_PLAN.md`](ARDA_AVATAR_PRESENCE_PLAN.md)
   — superseded visual-presence precursor retained as historical design context; live behavior is authoritative in the HUD source, tests, and presence contract.
+- [`2026-07-29-warden-research-application-plan.md`](2026-07-29-warden-research-application-plan.md)
+  — completed and verified research contracts, API, cited/change-aware brief, HUD workspace, beta reliability, and physical Warden deployment evidence.
+- [`OPENFANG.md`](OPENFANG.md)
+  — completed comparative-architecture extraction record; remaining bounded concerns are owned by current topology, package, communications, and HUD authorities.
+- [`PLATFORM_OS.md`](PLATFORM_OS.md)
+  — superseded pre-unification control-plane roadmap retained for history; current runtime composition and release ownership live in the system-unification and Stage 5/6 plans.

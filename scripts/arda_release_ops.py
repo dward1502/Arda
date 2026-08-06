@@ -91,6 +91,12 @@ def default_build_inputs(root: Path) -> dict[str, Any]:
     appimagetool = Path(os.environ.get("APPIMAGETOOL") or shutil.which("appimagetool") or "appimagetool")
     if not appimagetool.is_file():
         raise FileNotFoundError(f"appimagetool not found: {appimagetool}")
+    runtime_value = os.environ.get("APPIMAGE_RUNTIME")
+    if not runtime_value:
+        raise FileNotFoundError("APPIMAGE_RUNTIME must name the pinned AppImage runtime")
+    appimage_runtime = Path(runtime_value)
+    if not appimage_runtime.is_file():
+        raise FileNotFoundError(f"AppImage runtime not found: {appimage_runtime}")
     return {
         "source_commit": command_line(["git", "rev-parse", "HEAD"], root),
         "source_tree_sha256": source_tree_sha256(root),
@@ -105,6 +111,7 @@ def default_build_inputs(root: Path) -> dict[str, Any]:
             "node": command_line(["node", "--version"], root),
             "appimagetool": command_line([str(appimagetool), "--version"], root),
             "appimagetool_sha256": sha256_file(appimagetool),
+            "appimage_runtime_sha256": sha256_file(appimage_runtime),
         },
     }
 

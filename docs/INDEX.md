@@ -2,13 +2,14 @@
 
 ## Key active docs
 
-- `docs/ARDA_1_0_PRODUCT_READINESS.md`
-- `docs/ARDA_PRODUCT_PLAN_SUITE.md`
+- `docs/plans/ARDA_1_0_PRODUCT_READINESS.md`
+- `docs/plans/ARDA_PRODUCT_PLAN_SUITE.md`
 - `docs/CODEMAP.md`
 - `docs/FILE_TREE.jsonl`
 - `docs/INDEX.md`
-- `docs/MIRROMERE_RELIC_OUTPOST_VISION.md`
-- `docs/PROVENANCE_AND_ATTRIBUTION.md`
+- `docs/plans/MIRROMERE_RELIC_OUTPOST_VISION.md`
+- `docs/plans/Mirromere_PRD.md`
+- `docs/plans/PROVENANCE_AND_ATTRIBUTION.md`
 - `docs/operations/INDEX.md`
 - `docs/contracts/ARDA_ECOSYSTEM_STANDARD_INDEX.md`
 - `docs/contracts/arda-ecosystem-standard-track-1-observability.md`

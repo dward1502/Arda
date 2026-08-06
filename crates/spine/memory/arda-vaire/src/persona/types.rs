@@ -88,7 +88,7 @@ pub const PROMOTION_WINDOW_HOURS: i64 = 30 * 24; // 30 days
 pub const STALE_THRESHOLD_DAYS: i64 = 60;
 
 /// Mood decay half-life in hours (24h).
-pub const MOOD_DECAY_LAMBDA: f64 = std::f64::consts::LN_2 / 24.0;
+pub const MOOD_DECAY_HALF_LIFE_HOURS: f64 = 24.0;
 
 /// Mood window: last 200 samples or 14 days (whichever smaller).
 pub const MOOD_MAX_SAMPLES: usize = 200;
@@ -112,7 +112,7 @@ pub fn is_stale(last_reinforced: &DateTime<Utc>, as_of: &DateTime<Utc>) -> bool 
 
 /// Compute the exponential decay weight for a sample given its age in hours.
 pub fn mood_decay_weight(age_hours: f64) -> f64 {
-    (-MOOD_DECAY_LAMBDA * age_hours).exp()
+    crate::service::retention::exponential_decay_weight(age_hours, MOOD_DECAY_HALF_LIFE_HOURS)
 }
 
 #[cfg(test)]

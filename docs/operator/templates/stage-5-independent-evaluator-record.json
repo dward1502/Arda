@@ -1,0 +1,113 @@
+{
+  "schema_version": "arda.stage5.independent-evaluator-record.v1",
+  "session_id": "REPLACE_WITH_TIMESTAMPED_SESSION_ID",
+  "captured_at_utc": null,
+  "evaluator": {
+    "relationship": null,
+    "was_arda_implementer": null,
+    "recording_consent": "not_recorded"
+  },
+  "environment": {
+    "source_commit": null,
+    "release_manifest_sha256": null,
+    "signed_artifact_name": null,
+    "signed_artifact_sha256": null,
+    "signature_verified": null,
+    "native_app_version": null,
+    "operating_system": null,
+    "supported_profile": null,
+    "clean_account_or_vm": null,
+    "installation_evidence": null
+  },
+  "fixture": {
+    "project_id": null,
+    "source_identity": null,
+    "language": null,
+    "disposable": true,
+    "declared_change_scope": null,
+    "declared_verification_command": null
+  },
+  "run_id": null,
+  "tasks": {
+    "install_and_first_run": {
+      "elapsed_seconds": null,
+      "current_state_answer": null,
+      "next_action_answer": null,
+      "correct_within_60_seconds": null,
+      "package_level_path_only": null,
+      "friction": [],
+      "assistance": null,
+      "passed": false
+    },
+    "readiness_and_authority": {
+      "authority_answer": null,
+      "approval_boundary_answer": null,
+      "blocking_condition_answer": null,
+      "assistance": null,
+      "passed": false
+    },
+    "project_onboarding": {
+      "project_identity_identified": null,
+      "declared_command_identified": null,
+      "writable_paths_identified": null,
+      "network_scope_identified": null,
+      "secret_scope_identified": null,
+      "provider_model_identified": null,
+      "budget_identified": null,
+      "approval_control_found": null,
+      "assistance": null,
+      "passed": false
+    },
+    "evidence_comprehension": {
+      "answer_verbatim": null,
+      "actual_change_identified": null,
+      "exact_verification_identified": null,
+      "provider_model_provenance_identified": null,
+      "receipt_status_identified": null,
+      "assistance": null,
+      "passed": false
+    },
+    "failure_and_recovery": {
+      "seeded_failure": null,
+      "failure_boundary_answer": null,
+      "supporting_evidence_answer": null,
+      "next_safe_action_answer": null,
+      "retry_reset_rollback_distinguished": null,
+      "receipt_digest_before": null,
+      "receipt_digest_after": null,
+      "assistance": null,
+      "passed": false
+    },
+    "restart_and_resume": {
+      "same_run_id": null,
+      "same_receipt": null,
+      "approval_state_restored": null,
+      "change_evidence_restored": null,
+      "verification_evidence_restored": null,
+      "recovery_guidance_restored": null,
+      "assistance": null,
+      "passed": false
+    },
+    "final_disposition": {
+      "decision": null,
+      "reason_verbatim": null,
+      "next_action_found": null,
+      "assistance": null,
+      "passed": false
+    }
+  },
+  "faults_or_confusion": [],
+  "critical_usability_or_safety_defects": [],
+  "follow_up_issue_links": [],
+  "evaluator_disposition": null,
+  "facilitator_disposition": "incomplete_until_all_required_fields_are_observed",
+  "gate_checks": {
+    "non_author": false,
+    "final_signed_identity_verified": false,
+    "all_tasks_passed_independently": false,
+    "state_authority_evidence_and_recovery_understood": false,
+    "no_unresolved_critical_defect": false,
+    "record_complete": false
+  },
+  "stage5_gate_passed": false
+}

@@ -53,6 +53,8 @@
 //! - [`service::ObservabilityBrief`]: Compact observability summary
 //! - [`presence_projection::build_presence_projection`]: Runtime presence projection for outposts
 
+#[cfg(feature = "full-cli")]
+pub mod company_ops;
 pub mod contract;
 pub mod council;
 pub mod governance_metrics;

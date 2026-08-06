@@ -2,7 +2,7 @@
 
 **Audit date:** 2026-08-05
 **Scope:** `a59e135a^..a59e135a`, plus corrective HEAD validation
-**Disposition:** corrective source changes pass focused gates; release freeze remains blocked on local-history sanitation
+**Disposition:** corrective source changes and local-history sanitation complete; final source verification and reliability gates remain open
 
 ## Findings
 
@@ -98,8 +98,15 @@ Two read-only follow-up reviews raised three additional candidate blockers:
 
 Existing non-fatal frontend test warnings remain visible: React `act(...)` warnings and duplicate Three.js import warnings. They did not fail the suite and were not introduced by the audited fixes.
 
-## Remaining release blocker
+## History sanitation and remaining gates
 
-The current tree no longer tracks generated runtime state, but the unpushed local history still contains it in `a59e135a` and `6f5ba670`. A normal future push would retain those objects. Before final source identity, artifact signing, or any push, the ahead-only commits must be rewritten or rebuilt into a sanitized lineage and then re-audited for the removed paths and sensitive strings.
+The ahead-only lineage was rebuilt from `origin/manwe` on 2026-08-06. The
+sanitized branch retains the corrected final tree while omitting the generated
+runtime directories and the inherited Annunimas queue archive. `a59e135a` is no
+longer reachable from the `manwe` branch. A local backup ref retains the original
+lineage for recovery and must never be pushed.
 
-This audit does not authorize a release freeze. The active soak is also a diagnostic snapshot predating these corrective commits; it cannot qualify the corrected final source.
+History sanitation removes this source-publication blocker but does not itself
+authorize a release freeze. The completed U3 soak is a valid failed diagnostic
+snapshot that predates the corrections. Final source still requires focused
+verification, a complete-matrix smoke, and a fresh uninterrupted 24-hour soak.

@@ -1,7 +1,7 @@
 # Tauri/GTK security migration preflight — 2026-08-05
 
 Lane: `stage5/tauri-gtk-security`
-Worktree: `/var/home/mythos/Eregion/Arda-worktrees/tauri-gtk-security`
+Worktree: local isolated `tauri-gtk-security` worktree (not retained in release evidence)
 Baseline: `f646245ce5dde26490dfbacb209571ce8f064fc6`
 
 ## Verified baseline graph

@@ -12,7 +12,7 @@ fi
 SYNC_BIN="${ARDA_RELIC_SYNC_BIN:-$DEFAULT_SYNC_BIN}"
 PRESENCE_URL="${ARDA_RELIC_PRESENCE_URL:-http://127.0.0.1:7878/v1/presence/snapshot}"
 REMOTE_HOST="${ARDA_RELIC_REMOTE_HOST:-citadel}"
-REMOTE_ROOT="${ARDA_RELIC_REMOTE_ROOT:-/home/citadel/annunimas_embodied/relic}"
+REMOTE_ROOT="${ARDA_RELIC_REMOTE_ROOT:-annunimas_embodied/relic}"
 REMOTE_STATE="${REMOTE_ROOT}/public/scene.json"
 INTERVAL_SECONDS="${ARDA_RELIC_SYNC_INTERVAL_SECONDS:-3}"
 RUNTIME_ROOT="${XDG_RUNTIME_DIR:-/tmp}/arda-relic-bridge"

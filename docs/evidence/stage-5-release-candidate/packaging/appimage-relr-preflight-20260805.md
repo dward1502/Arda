@@ -1,7 +1,7 @@
 # AppImage RELR-capable packaging preflight — 2026-08-05
 
 Lane: `stage5/appimage-relr`
-Worktree: `/var/home/mythos/Eregion/Arda-worktrees/appimage-relr`
+Worktree: local isolated `appimage-relr` worktree (not retained in release evidence)
 Baseline: `f646245ce5dde26490dfbacb209571ce8f064fc6`
 
 ## Implemented in this lane

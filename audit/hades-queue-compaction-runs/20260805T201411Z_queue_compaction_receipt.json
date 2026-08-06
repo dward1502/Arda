@@ -14,11 +14,11 @@
     "rows": 346,
     "sha256": "7ba22c09b2816f6d36ab3c9a4b6417eb9adb97858dd0ee000e6b2e1a809dedf6"
   },
-  "archive": {
-    "path": "audit/hades-queue-compaction-runs/20260805T201411Z_annunimas_queue_legacy.jsonl",
+  "retired_source": {
+    "retention": "omitted_from_release_lineage",
     "rows": 346,
     "sha256": "7ba22c09b2816f6d36ab3c9a4b6417eb9adb97858dd0ee000e6b2e1a809dedf6",
-    "byte_for_byte_verified": true
+    "reason": "inherited runtime queue contained host-specific historical records"
   },
   "replacement": {
     "path": "core/projects/tasks/queue.jsonl",
@@ -28,7 +28,7 @@
     "retained_task_ids": []
   },
   "rollback": {
-    "available": true,
-    "method": "Restore the archived JSONL byte-for-byte only with explicit operator authorization."
+    "available_in_release_lineage": false,
+    "method": "Use an authorized private backup, never the public release lineage."
   }
 }

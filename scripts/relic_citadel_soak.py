@@ -16,7 +16,9 @@ from typing import Any
 SCHEMA = "arda.relic-citadel.soak-sample.v1"
 DEFAULT_ROOT = pathlib.Path.home() / ".local/state/arda/relic-soak"
 LOCAL_SCENE = pathlib.Path(os.environ.get("XDG_RUNTIME_DIR", "/tmp")) / "arda-relic-bridge/scene.json"
-REMOTE_SCENE = "/home/citadel/annunimas_embodied/relic/public/scene.json"
+REMOTE_SCENE = os.environ.get(
+    "ARDA_RELIC_REMOTE_SCENE", "annunimas_embodied/relic/public/scene.json"
+)
 SERVICES_LOCAL = ("arda.service", "arda-relic-bridge.service")
 SERVICES_REMOTE = ("relic.service", "citadel-kiosk.service")
 # Current undervoltage, frequency-cap, and hard-throttle flags. Historical flags

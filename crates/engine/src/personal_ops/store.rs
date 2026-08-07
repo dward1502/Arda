@@ -89,6 +89,52 @@ impl PersonalOpsLogStore {
         }
         Ok(events)
     }
+
+    /// Delete records owned by one operator while retaining all other personal
+    /// records. This rewrites only the personal application log; system run,
+    /// governance, and execution receipts live outside this path.
+    pub fn delete_operator(&self, operator_id: &str) -> Result<usize, LoadError> {
+        let mut file = match std::fs::OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(&self.events_path)
+        {
+            Ok(file) => file,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(0),
+            Err(error) => return Err(LoadError::Io(error)),
+        };
+        let _lock = FileLock::exclusive(&file).map_err(LoadError::Io)?;
+        let mut retained = Vec::new();
+        let mut deleted = 0;
+
+        file.seek(SeekFrom::Start(0)).map_err(LoadError::Io)?;
+        for (line_no, line) in BufReader::new(&file).lines().enumerate() {
+            let line = line.map_err(LoadError::Io)?;
+            if line.trim().is_empty() {
+                continue;
+            }
+            let envelope: PersonalOpsEnvelope<PersonalOpsRecord> = serde_json::from_str(&line)
+                .map_err(|error| LoadError::Parse {
+                    line: line_no + 1,
+                    error,
+                })?;
+            if envelope.record.operator_id() == operator_id {
+                deleted += 1;
+            } else {
+                retained.push(envelope);
+            }
+        }
+
+        file.set_len(0).map_err(LoadError::Io)?;
+        file.seek(SeekFrom::Start(0)).map_err(LoadError::Io)?;
+        for envelope in retained {
+            let line = serde_json::to_string(&envelope)
+                .map_err(|error| LoadError::Parse { line: 0, error })?;
+            writeln!(file, "{line}").map_err(LoadError::Io)?;
+        }
+        file.sync_all().map_err(LoadError::Io)?;
+        Ok(deleted)
+    }
 }
 
 struct FileLock {

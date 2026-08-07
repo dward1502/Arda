@@ -67,11 +67,20 @@ export interface PersonalOpsSnapshot {
   }
 }
 
+export interface PersonalDataExport {
+  schema_version: 'arda.personal-data-export.v1'
+  generated_at: string
+  operator_id: string
+  events: unknown[]
+}
+
 export interface PersonalOpsClient {
   loadSnapshot(): Promise<PersonalOpsSnapshot>
   createCapture(text: string): Promise<{ event_id: string; capture_id: string }>
   confirmClassification(itemId: string, kind: string): Promise<{ event_id: string }>
   acknowledgeReminder(reminderId: string): Promise<{ event_id: string }>
+  exportPersonalData(): Promise<PersonalDataExport>
+  deletePersonalData(): Promise<{ receipt_id: string; deleted_events: number; system_receipts_modified: false }>
 }
 
 export function buildPersonalOpsUrl(
@@ -145,6 +154,18 @@ export function createPersonalOpsClient(
         headers: mutationHeaders('acknowledge'),
         body: JSON.stringify({ operator_id: operatorId, state: 'acknowledged' }),
       }).then(readJson<{ event_id: string }>)
+    },
+    async exportPersonalData() {
+      return fetch(url('/v1/personal/data/export'), {
+        headers: { 'x-arda-operator-id': operatorId },
+      }).then(readJson<PersonalDataExport>)
+    },
+    deletePersonalData() {
+      return fetch(url('/v1/personal/data'), {
+        method: 'DELETE',
+        headers: mutationHeaders('delete-personal-data'),
+        body: JSON.stringify({ operator_id: operatorId }),
+      }).then(readJson<{ receipt_id: string; deleted_events: number; system_receipts_modified: false }>)
     },
   }
 }

@@ -12,6 +12,7 @@ use axum::{
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
+use std::os::unix::fs::PermissionsExt;
 
 use super::HarnessState;
 use crate::personal_ops::PersonalOpsLogStore;
@@ -59,6 +60,11 @@ pub struct ScheduleRequest {
 
 #[derive(Debug, Deserialize)]
 pub struct CompleteRequest {
+    pub operator_id: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct DeletePersonalDataRequest {
     pub operator_id: String,
 }
 
@@ -127,6 +133,60 @@ fn deterministic_uuid(input: &str) -> uuid::Uuid {
     bytes[6] = (bytes[6] & 0x0f) | 0x50;
     bytes[8] = (bytes[8] & 0x3f) | 0x80;
     uuid::Uuid::from_bytes(bytes)
+}
+
+fn operator_from_headers(headers: &HeaderMap) -> Result<&str, MutationError> {
+    headers
+        .get("x-arda-operator-id")
+        .and_then(|value| value.to_str().ok())
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .ok_or_else(|| {
+            (
+                StatusCode::UNAUTHORIZED,
+                Json(serde_json::json!({"error": "x-arda-operator-id header required"})),
+            )
+        })
+}
+
+fn write_deletion_receipt(
+    root: &std::path::Path,
+    receipt_id: uuid::Uuid,
+    operator_id: &str,
+    deleted_events: usize,
+) -> std::io::Result<()> {
+    let directory = root.join("audit/personal-data-deletions");
+    std::fs::create_dir_all(&directory)?;
+    std::fs::set_permissions(&directory, std::fs::Permissions::from_mode(0o700))?;
+    let path = directory.join(format!("{receipt_id}.json"));
+    let temporary = directory.join(format!(".{receipt_id}.tmp-{}", std::process::id()));
+    let payload = serde_json::to_vec_pretty(&serde_json::json!({
+        "schema_version": "arda.personal-data-deletion-receipt.v1",
+        "receipt_id": receipt_id,
+        "operator_id_sha256": format!("{:x}", Sha256::digest(operator_id.as_bytes())),
+        "deleted_events": deleted_events,
+        "completed_at": Utc::now().to_rfc3339(),
+        "system_receipts_modified": false,
+    }))?;
+    std::fs::write(&temporary, payload)?;
+    std::fs::set_permissions(&temporary, std::fs::Permissions::from_mode(0o600))?;
+    std::fs::rename(temporary, path)
+}
+
+fn read_deletion_receipt(
+    root: &std::path::Path,
+    receipt_id: uuid::Uuid,
+) -> std::io::Result<Option<serde_json::Value>> {
+    let path = root
+        .join("audit/personal-data-deletions")
+        .join(format!("{receipt_id}.json"));
+    match std::fs::read_to_string(path) {
+        Ok(payload) => serde_json::from_str(&payload)
+            .map(Some)
+            .map_err(std::io::Error::other),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(None),
+        Err(error) => Err(error),
+    }
 }
 
 fn derived_capture_id(event_id: uuid::Uuid) -> uuid::Uuid {
@@ -690,6 +750,102 @@ pub async fn acknowledge_reminder(
     (
         StatusCode::CREATED,
         Json(serde_json::json!({ "event_id": envelope.record.event_id().to_string() })),
+    )
+        .into_response()
+}
+
+/// Export the authenticated operator's personal event records.
+pub async fn export_personal_data(
+    State(state): State<HarnessState>,
+    headers: HeaderMap,
+) -> impl IntoResponse {
+    let operator_id = match operator_from_headers(&headers) {
+        Ok(operator_id) => operator_id,
+        Err(error) => return error.into_response(),
+    };
+    let store = PersonalOpsLogStore::new(&state.workbench_root);
+    let events = match store.load_all() {
+        Ok(events) => events
+            .into_iter()
+            .filter(|event| event.record.operator_id() == operator_id)
+            .collect::<Vec<_>>(),
+        Err(error) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({"error": format!("failed to load event log: {error}")})),
+            )
+                .into_response();
+        }
+    };
+    (
+        StatusCode::OK,
+        Json(serde_json::json!({
+            "schema_version": "arda.personal-data-export.v1",
+            "generated_at": Utc::now().to_rfc3339(),
+            "operator_id": operator_id,
+            "events": events,
+        })),
+    )
+        .into_response()
+}
+
+/// Delete the authenticated operator's personal application records only.
+pub async fn delete_personal_data(
+    State(state): State<HarnessState>,
+    ConnectInfo(peer): ConnectInfo<std::net::SocketAddr>,
+    headers: HeaderMap,
+    Json(req): Json<DeletePersonalDataRequest>,
+) -> impl IntoResponse {
+    if !require_loopback(&peer) {
+        return not_loopback().into_response();
+    }
+    let receipt_id = match mutation_event_id(&headers, &req.operator_id, "personal-data.delete") {
+        Ok(id) => id,
+        Err(error) => return error.into_response(),
+    };
+    match read_deletion_receipt(&state.workbench_root, receipt_id) {
+        Ok(Some(receipt)) => return (StatusCode::OK, Json(receipt)).into_response(),
+        Ok(None) => {}
+        Err(error) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({"error": format!("failed to read deletion receipt: {error}")})),
+            )
+                .into_response();
+        }
+    }
+    let store = PersonalOpsLogStore::new(&state.workbench_root);
+    let deleted_events = match store.delete_operator(&req.operator_id) {
+        Ok(count) => count,
+        Err(error) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({"error": format!("failed to delete personal data: {error}")})),
+            )
+                .into_response();
+        }
+    };
+    if let Err(error) = write_deletion_receipt(
+        &state.workbench_root,
+        receipt_id,
+        &req.operator_id,
+        deleted_events,
+    ) {
+        return (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(
+                serde_json::json!({"error": format!("failed to write deletion receipt: {error}")}),
+            ),
+        )
+            .into_response();
+    }
+    (
+        StatusCode::OK,
+        Json(serde_json::json!({
+            "receipt_id": receipt_id,
+            "deleted_events": deleted_events,
+            "system_receipts_modified": false,
+        })),
     )
         .into_response()
 }

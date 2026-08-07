@@ -27,6 +27,7 @@ export default function PersonalOperationsModule({
   const [capture, setCapture] = useState('')
   const [busy, setBusy] = useState(false)
   const [selectedReviewIds, setSelectedReviewIds] = useState<Set<string>>(new Set())
+  const [deletePending, setDeletePending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [status, setStatus] = useState('Loading personal operations')
 
@@ -113,6 +114,44 @@ export default function PersonalOperationsModule({
     } catch (caught) {
       setError(messageOf(caught))
       setStatus('Classification review failed')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const exportPersonalData = async () => {
+    if (busy) return
+    setBusy(true)
+    setError(null)
+    try {
+      const exported = await ops.exportPersonalData()
+      const href = URL.createObjectURL(new Blob([JSON.stringify(exported, null, 2)], { type: 'application/json' }))
+      const link = document.createElement('a')
+      link.href = href
+      link.download = `arda-personal-data-${exported.generated_at.slice(0, 10)}.json`
+      link.click()
+      URL.revokeObjectURL(href)
+      setStatus(`Personal data export ready with ${exported.events.length} event${exported.events.length === 1 ? '' : 's'}`)
+    } catch (caught) {
+      setError(messageOf(caught))
+      setStatus('Personal data export failed')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const deletePersonalData = async () => {
+    if (busy) return
+    setBusy(true)
+    setError(null)
+    try {
+      const result = await ops.deletePersonalData()
+      setDeletePending(false)
+      await refresh()
+      setStatus(`Deleted ${result.deleted_events} personal event${result.deleted_events === 1 ? '' : 's'}; system receipts preserved`)
+    } catch (caught) {
+      setError(messageOf(caught))
+      setStatus('Personal data deletion failed')
     } finally {
       setBusy(false)
     }
@@ -242,6 +281,28 @@ export default function PersonalOperationsModule({
           </button>
         </section>
       ) : null}
+
+      <section className="personal-ops__data-controls" aria-labelledby="personal-ops-data-controls">
+        <h3 id="personal-ops-data-controls">Personal data controls</h3>
+        <button type="button" disabled={busy} onClick={() => void exportPersonalData()}>
+          Export personal data
+        </button>
+        {deletePending ? (
+          <>
+            <button type="button" disabled={busy} onClick={() => void deletePersonalData()}>
+              Confirm delete personal data
+            </button>
+            <button type="button" disabled={busy} onClick={() => setDeletePending(false)}>
+              Cancel personal data deletion
+            </button>
+          </>
+        ) : (
+          <button type="button" disabled={busy} onClick={() => setDeletePending(true)}>
+            Delete personal data
+          </button>
+        )}
+        <small>Deletion removes personal application records only. System execution and governance receipts are preserved.</small>
+      </section>
 
       <div className="personal-ops__reminder-summary">
         {brief?.reminders_awaiting_ack === 1

@@ -76,6 +76,17 @@ function client(overrides: Partial<PersonalOpsClient> = {}): PersonalOpsClient {
     createCapture: vi.fn(async () => ({ event_id: 'event-1', capture_id: 'capture-2' })),
     confirmClassification: vi.fn(async () => ({ event_id: 'event-classify' })),
     acknowledgeReminder: vi.fn(async () => ({ event_id: 'event-2' })),
+    exportPersonalData: vi.fn(async () => ({
+      schema_version: 'arda.personal-data-export.v1' as const,
+      generated_at: '2026-08-06T14:00:00Z',
+      operator_id: 'operator',
+      events: [{}],
+    })),
+    deletePersonalData: vi.fn(async () => ({
+      receipt_id: 'delete-receipt',
+      deleted_events: 1,
+      system_receipts_modified: false as const,
+    })),
     ...overrides,
   }
 }
@@ -135,5 +146,24 @@ describe('PersonalOperationsModule', () => {
     const failingClient = client({ loadSnapshot: vi.fn(async () => { throw new Error('network offline') }) })
     render(<PersonalOperationsModule client={failingClient} operatorId="operator" />)
     expect(await screen.findByRole('alert')).toHaveTextContent('network offline')
+  })
+
+  it('exports personal data and requires an explicit second action before deletion', async () => {
+    const ops = client()
+    const download = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+    render(<PersonalOperationsModule client={ops} operatorId="operator" />)
+    await screen.findByRole('heading', { name: 'Personal Operations' })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Export personal data' }))
+    await waitFor(() => expect(ops.exportPersonalData).toHaveBeenCalledTimes(1))
+    expect(download).toHaveBeenCalledTimes(1)
+    expect(screen.getByRole('status').textContent).toContain('Personal data export ready with 1 event')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Delete personal data' }))
+    expect(ops.deletePersonalData).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm delete personal data' }))
+    await waitFor(() => expect(ops.deletePersonalData).toHaveBeenCalledTimes(1))
+    expect(screen.getByRole('status').textContent).toContain('Deleted 1 personal event; system receipts preserved')
+    download.mockRestore()
   })
 })

@@ -88,11 +88,10 @@ wiring.
 - [x] Test: `crates/engine/tests/personal_ops_store.rs`
 - [x] Test: `crates/engine/tests/harness_personal_ops.rs`
 
-**Canonical paths**
-- `data/personal/events.jsonl`
-- `data/personal/inbox.json`
-- `data/personal/today.json`
-- `data/personal/daily_brief.json`
+**Canonical storage and projection boundary**
+- `data/personal/events.jsonl` is the only durable personal-operations event store.
+- Inbox, today, resume, and daily-brief views are deterministic HTTP projections
+  rebuilt from that ledger; no second mutable snapshot store is authoritative.
 
 **Acceptance**
 - [x] Capture is durable before classification begins.
@@ -262,16 +261,21 @@ Lint currently succeeds with pre-existing warnings elsewhere in the HUD.
 - [ ] Daily brief cites its sources and can be corrected.
 - [x] Reminder delivery truth is receipted.
 - [ ] A week-long dogfood run demonstrates manageable reminder volume and successful context recovery.
-- [ ] Operator can export or delete personal application data without damaging Arda system receipts.
+- [x] Operator can export or delete personal application data without damaging Arda system receipts.
 
-**Implementation update (2026-08-04):** Phases 0–4 are implemented and their
-focused Rust, Python, HUD unit, full HUD test, and production-build gates pass.
-The plan remains active: release is blocked on operator correction, export, and
-deletion flows; failure-injection/restart recovery; runtime privacy and
-accessibility validation; and the one-week dogfood period. The full strict
-workspace Clippy gate is also blocked by unrelated existing warnings in
-`arda-outpost-protocol/src/watchlist.rs` and
-`crates/engine/src/harness/research.rs`.
+**Implementation update (2026-08-06):** Phases 0–4 are implemented. Authenticated
+`GET /v1/personal/data/export` and idempotent
+`DELETE /v1/personal/data` paths now export or delete only the requesting
+operator's personal event records. Deletion writes a separate, hashed-operator
+receipt under `audit/personal-data-deletions/` and leaves system run,
+governance, and execution receipts untouched. The HUD exposes export plus an
+explicit two-step deletion action. Focused engine and HUD tests and the HUD
+production build pass. The plan remains active: release is blocked on daily
+brief correction, failure-injection/restart recovery, runtime privacy and
+accessibility validation, and the one-week dogfood period. The strict engine
+Clippy gate remains blocked by the unrelated existing
+`arda-outpost-protocol/src/watchlist.rs` argument-count warning and
+`crates/engine/src/harness/research.rs` unnecessary-allocation warning.
 
 ## Rollout rule
 

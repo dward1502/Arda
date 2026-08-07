@@ -14,7 +14,7 @@ use crate::harness::presence::HarnessPresenceState;
 use axum::extract::State;
 use axum::http::{header, HeaderName, HeaderValue, Method, StatusCode};
 use axum::response::IntoResponse;
-use axum::routing::{get, post};
+use axum::routing::{delete, get, post};
 use axum::Json;
 use serde::Serialize;
 use tokio::sync::Notify;
@@ -142,6 +142,14 @@ fn router(state: HarnessState) -> axum::Router {
             post(personal_ops::complete_item),
         )
         .route("/v1/personal/resume", get(personal_ops::get_resume))
+        .route(
+            "/v1/personal/data/export",
+            get(personal_ops::export_personal_data),
+        )
+        .route(
+            "/v1/personal/data",
+            delete(personal_ops::delete_personal_data),
+        )
         .route(
             "/v1/personal/briefs/today",
             get(personal_ops::get_today_brief),

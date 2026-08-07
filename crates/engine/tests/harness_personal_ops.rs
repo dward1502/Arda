@@ -252,6 +252,92 @@ async fn capture_endpoint_creates_capture_and_appears_in_inbox() {
 }
 
 #[tokio::test]
+async fn personal_data_export_and_delete_preserve_system_receipts() {
+    let root = tempfile::tempdir().unwrap();
+    let system_receipt = root.path().join("data/runs/system-receipt.json");
+    std::fs::create_dir_all(system_receipt.parent().unwrap()).unwrap();
+    std::fs::write(&system_receipt, b"{\"status\":\"pass\"}\n").unwrap();
+    let state = base_state(root.path().to_path_buf());
+    let shutdown = Arc::new(Notify::new());
+    let (bound, harness_handle) = harness::serve(
+        Some("127.0.0.1:0".parse().unwrap()),
+        state,
+        shutdown.clone(),
+    )
+    .await
+    .expect("start harness");
+    let client = reqwest::Client::new();
+
+    let create = client
+        .post(format!("http://{bound}/v1/personal/captures"))
+        .header("x-arda-operator-id", "operator-0")
+        .header("idempotency-key", Uuid::new_v4().to_string())
+        .json(&serde_json::json!({
+            "operator_id": "operator-0",
+            "text": "Export then delete this capture"
+        }))
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(create.status(), 201);
+
+    let export = client
+        .get(format!("http://{bound}/v1/personal/data/export"))
+        .header("x-arda-operator-id", "operator-0")
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(export.status(), 200);
+    let export: Value = export.json().await.unwrap();
+    assert_eq!(export["schema_version"], "arda.personal-data-export.v1");
+    assert_eq!(export["operator_id"], "operator-0");
+    assert_eq!(export["events"].as_array().unwrap().len(), 1);
+
+    let deletion_key = Uuid::new_v4().to_string();
+    let delete = client
+        .delete(format!("http://{bound}/v1/personal/data"))
+        .header("x-arda-operator-id", "operator-0")
+        .header("idempotency-key", &deletion_key)
+        .json(&serde_json::json!({"operator_id": "operator-0"}))
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(delete.status(), 200);
+    let delete: Value = delete.json().await.unwrap();
+    assert_eq!(delete["deleted_events"], 1);
+    assert_eq!(delete["system_receipts_modified"], false);
+
+    let replay: Value = client
+        .delete(format!("http://{bound}/v1/personal/data"))
+        .header("x-arda-operator-id", "operator-0")
+        .header("idempotency-key", &deletion_key)
+        .json(&serde_json::json!({"operator_id": "operator-0"}))
+        .send()
+        .await
+        .unwrap()
+        .json()
+        .await
+        .unwrap();
+    assert_eq!(replay["receipt_id"], delete["receipt_id"]);
+    assert_eq!(replay["deleted_events"], 1);
+
+    let projection: Value = reqwest::get(format!("http://{bound}/v1/personal-ops/projection"))
+        .await
+        .unwrap()
+        .json()
+        .await
+        .unwrap();
+    assert_eq!(projection["projection"]["event_count"], 0);
+    assert_eq!(
+        std::fs::read_to_string(&system_receipt).unwrap(),
+        "{\"status\":\"pass\"}\n"
+    );
+
+    shutdown.notify_waiters();
+    harness_handle.await.unwrap();
+}
+
+#[tokio::test]
 async fn reminder_attempt_and_acknowledge_flow_updates_projection() {
     let root = tempfile::tempdir().unwrap();
     let state = base_state(root.path().to_path_buf());

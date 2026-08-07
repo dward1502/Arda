@@ -88,6 +88,10 @@ describe('boardroom spatial layout contract', () => {
     expect(getBoardroomSpatialZone('boardroom.lower.left_inner')?.rotation[1]).toBeGreaterThan(0.1)
     expect(getBoardroomSpatialZone('boardroom.lower.right_inner')?.rotation[1]).toBeLessThan(-0.1)
     expect(getBoardroomSpatialZone('boardroom.lower.right_wrap')?.rotation[1]).toBeLessThan(-0.25)
+    expect(getBoardroomSpatialZone('boardroom.lower.left_wrap')?.rotation[2]).toBeLessThan(0)
+    expect(getBoardroomSpatialZone('boardroom.lower.left_inner')?.rotation[2]).toBeLessThan(0)
+    expect(getBoardroomSpatialZone('boardroom.lower.right_inner')?.rotation[2]).toBeGreaterThan(0)
+    expect(getBoardroomSpatialZone('boardroom.lower.right_wrap')?.rotation[2]).toBeGreaterThan(0)
   })
 
   it('gives the five lower surfaces a deliberate tactical-to-command hierarchy', () => {
@@ -111,6 +115,9 @@ describe('boardroom spatial layout contract', () => {
     )
 
     expect([leftWrap, leftInner, rightInner, rightWrap].every((zone) => zone.rotation[0] > 0)).toBe(true)
+    expect(leftWrap.rotation[0]).toBeGreaterThan(leftInner.rotation[0])
+    expect(rightWrap.rotation[0]).toBeGreaterThan(rightInner.rotation[0])
+    expect(leftWrap.rotation[0]).toBeCloseTo(rightWrap.rotation[0], 6)
     expect(leftWrap.rotation[1]).toBeCloseTo(-rightWrap.rotation[1], 3)
     expect(leftInner.rotation[1]).toBeCloseTo(-rightInner.rotation[1], 3)
   })

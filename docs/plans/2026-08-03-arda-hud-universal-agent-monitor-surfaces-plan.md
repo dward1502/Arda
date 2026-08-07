@@ -6,6 +6,14 @@
 
 **Goal:** Turn all five authored upper 3D monitors into independent, full-aperture display surfaces that agents can claim concurrently, render with arbitrary supported visual content, and open into full workstation windows that preserve the same live session and content.
 
+## Current implementation evidence
+
+The physical-display foundation is now integrated across the five upper monitors, five lower desk apertures, and command core. Boardroom display pixels render through CanvasTexture-backed WebGL planes under the authored transforms; the prior native-safe-but-screen-space DOM cards and HTML control overlays are no longer the production boardroom path. The exported stage, runtime lower-desk rig quaternions, nested surface-fit transforms, and widened camera composition are aligned.
+
+On 2026-08-07, the running native Tauri HUD visibly showed all five upper and all five lower displays fitted inside their authored apertures, with the complete outer console in frame. The focused boardroom suite passed 96/96 tests, the production frontend build passed, and lint completed with zero errors (105 pre-existing repository warnings). Reduced-motion mode now keeps valid payload content visible and marks it static instead of replacing it with `NO DATA` or an offline state.
+
+This evidence closes only the physical CanvasTexture integration slice. Pointer interaction could not be accepted in that run because the desktop-action approval timed out, and the typed multi-content session registry, five-owner orchestration, same-session workstation handoff, and final operator acceptance remain open.
+
 **Architecture:** Introduce a versioned monitor-session contract shared by Rust and TypeScript, a five-slot topology with one canonical slot per physical monitor, and a renderer registry that chooses texture, media, web, terminal, document, or remote-session rendering from a typed content descriptor. The boardroom monitor and focused workstation subscribe to the same session rather than constructing different content paths. Full-screen content is rendered inside the authored 3D aperture; ownership and lease controls stay outside the content area.
 
 **Tech stack:** Tauri 2, Rust, React, TypeScript, React Three Fiber, Three.js textures, Drei HTML only where native WebKit acceptance proves it works, HTML media elements, Tauri events/commands, Vitest, Rust unit tests, CUA/AT-SPI native acceptance.

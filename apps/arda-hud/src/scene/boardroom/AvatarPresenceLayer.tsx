@@ -1,5 +1,6 @@
 // sigil: REPAIR
-import { useEffect, useMemo, useState } from 'react'
+import { useFrame } from '@react-three/fiber'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
 import {
   loadStatefulPersona,
@@ -68,10 +69,15 @@ export function AvatarPresenceLayer({
 
   return (
     <group name="arda-avatar-presence-layer">
+      <HolographicAvatarForm
+        presenceState={presenceState}
+        motionEnabled={motionEnabled}
+        visualState={visualState}
+      />
       <ParticleOrb
         presenceState={presenceState}
         count={particleCount}
-        radius={particleRadius}
+        radius={particleRadius * 0.78}
         motionEnabled={motionEnabled}
         persona={activePersona}
       />
@@ -82,6 +88,79 @@ export function AvatarPresenceLayer({
           ))}
         </group>
       ) : null}
+    </group>
+  )
+}
+
+function HolographicAvatarForm({
+  presenceState,
+  motionEnabled,
+  visualState,
+}: {
+  presenceState: AgentPresenceState
+  motionEnabled: boolean
+  visualState: ReturnType<typeof presenceVisualState>
+}) {
+  const groupRef = useRef<THREE.Group>(null)
+  const isActive = presenceState.phase !== 'idle'
+  const isAlert = presenceState.scenario === 'alert' || presenceState.urgency === 'high'
+  const color = isAlert ? '#ff4f9d' : '#75e9ff'
+  const opacity = (isActive ? 0.56 : 0.32) * visualState.ringOpacity
+
+  useFrame(({ clock }) => {
+    if (!groupRef.current || !motionEnabled) return
+    const elapsed = clock.getElapsedTime()
+    groupRef.current.rotation.y = Math.sin(elapsed * 0.42) * 0.075
+    groupRef.current.position.y = Math.sin(elapsed * 0.88) * 0.012
+  })
+
+  return (
+    <group ref={groupRef} name="arda-holographic-avatar-form" scale={0.95}>
+      <mesh position={[0, 0.66, 0]} renderOrder={20}>
+        <cylinderGeometry args={[0.29, 0.18, 0.56, 8, 1, true]} />
+        <meshBasicMaterial color={color} transparent opacity={opacity * 0.18} depthTest={false} depthWrite={false} side={THREE.DoubleSide} blending={THREE.AdditiveBlending} />
+      </mesh>
+      <mesh position={[0, 0.66, 0]} renderOrder={20}>
+        <cylinderGeometry args={[0.29, 0.18, 0.56, 8, 1, true]} />
+        <meshBasicMaterial color={color} transparent opacity={opacity} wireframe depthTest={false} depthWrite={false} blending={THREE.AdditiveBlending} />
+      </mesh>
+      <mesh position={[0, 1.025, 0]} scale={[0.82, 1, 0.78]} renderOrder={20}>
+        <icosahedronGeometry args={[0.165, 1]} />
+        <meshBasicMaterial color={color} transparent opacity={opacity * 0.2} depthTest={false} depthWrite={false} blending={THREE.AdditiveBlending} />
+      </mesh>
+      <mesh position={[0, 1.025, 0]} scale={[0.82, 1, 0.78]} renderOrder={20}>
+        <icosahedronGeometry args={[0.165, 1]} />
+        <meshBasicMaterial color={color} transparent opacity={opacity + 0.12} wireframe depthTest={false} depthWrite={false} blending={THREE.AdditiveBlending} />
+      </mesh>
+      <mesh position={[0, 1.025, 0.122]} renderOrder={21}>
+        <boxGeometry args={[0.14, 0.018, 0.01]} />
+        <meshBasicMaterial color={isAlert ? '#fff0f7' : '#d9fbff'} transparent opacity={0.8} depthTest={false} depthWrite={false} toneMapped={false} />
+      </mesh>
+      <mesh position={[0, 0.9, 0]} renderOrder={20}>
+        <cylinderGeometry args={[0.075, 0.095, 0.14, 8]} />
+        <meshBasicMaterial color={color} transparent opacity={opacity * 0.46} wireframe depthTest={false} depthWrite={false} blending={THREE.AdditiveBlending} />
+      </mesh>
+      <mesh position={[0, 0.62, 0]} renderOrder={21}>
+        <cylinderGeometry args={[0.008, 0.014, 0.68, 8]} />
+        <meshBasicMaterial color="#f38cff" transparent opacity={isActive ? 0.52 : 0.2} depthTest={false} depthWrite={false} toneMapped={false} />
+      </mesh>
+      <mesh position={[0, 0.91, 0]} rotation={[Math.PI / 2, 0, 0]} renderOrder={21}>
+        <torusGeometry args={[0.285, 0.008, 8, 48]} />
+        <meshBasicMaterial color={color} transparent opacity={opacity * 0.72} depthTest={false} depthWrite={false} blending={THREE.AdditiveBlending} />
+      </mesh>
+      {[0.38, 0.62, 0.86].map((height, index) => (
+        <mesh key={height} position={[0, height, 0]} rotation={[Math.PI / 2, 0, 0]} renderOrder={21}>
+          <torusGeometry args={[0.25 - index * 0.035, 0.006, 8, 40]} />
+          <meshBasicMaterial
+            color={index === 1 ? '#f38cff' : color}
+            transparent
+            opacity={opacity * (0.92 - index * 0.14)}
+            depthTest={false}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+      ))}
     </group>
   )
 }

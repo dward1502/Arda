@@ -11,7 +11,7 @@ describe('monitor surface runtime bridge', () => {
   it('renders real payload content instead of a synthetic timer tick', () => {
     expect(formatMonitorSurfaceStream({ content: 'provider healthy', mime: 'text/plain' }, false)).toBe('provider healthy')
     expect(formatMonitorSurfaceStream(null, false)).toBe('[NO DATA — awaiting agent payload]')
-    expect(formatMonitorSurfaceStream({ content: 'ignored', mime: 'text/plain' }, true)).toBe('[NO DATA — reduced-motion mode active]')
+    expect(formatMonitorSurfaceStream({ content: 'still visible', mime: 'text/plain' }, true)).toBe('still visible')
   })
 
   it('normalizes unix lease values emitted by the Rust API', () => {

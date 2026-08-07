@@ -24,9 +24,8 @@ export interface MonitorClaimChangedEvent {
 
 export function formatMonitorSurfaceStream(
   payload: Pick<MonitorSurfacePayloadEvent, 'content' | 'mime'> | null,
-  reducedMotion: boolean,
+  _reducedMotion: boolean,
 ): string {
-  if (reducedMotion) return '[NO DATA — reduced-motion mode active]'
   const content = payload?.content.trim()
   return content ? content : '[NO DATA — awaiting agent payload]'
 }

@@ -43,6 +43,7 @@ import {
 } from './boardroomHudInstruments'
 
 import { AvatarPresenceLayer } from './AvatarPresenceLayer'
+import { BoardroomInstrumentScreen } from './BoardroomInstrumentScreen'
 import { parseJsonOrNull } from '../../lib/jsonParse'
 import { deriveBoardroomPresenceStatusView } from './boardroomPresenceStatus'
 import { resolveSceneSlotWorkstationZoneId } from '../workstations/sceneSlotWorkstationTemplates'
@@ -484,21 +485,6 @@ function formatFleetValue(value: number | string | null | undefined, fallback = 
 }
 
 const BOARDROOM_WORKSTATION_ZONE_IDS = new Set(['sovereign_world', 'settings'])
-const isNativeTauriRuntime = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window
-
-export function resolveBoardroomSurfaceRenderStrategy(
-  previewMode: BoardroomPreviewMode,
-  nativeRuntime: boolean,
-): { transform: boolean; rotation: BoardroomVec3 | undefined } {
-  return {
-    transform: !nativeRuntime,
-    rotation: nativeRuntime
-      ? undefined
-      : previewMode === 'monitor_surface'
-        ? [0, 0, 0]
-        : [-Math.PI / 2, 0, 0],
-  }
-}
 
 function getSceneWorkstations(workstations: WorkstationManifestDefinition[]): WorkstationManifestDefinition[] {
   return workstations.filter((workstation) => !BOARDROOM_WORKSTATION_ZONE_IDS.has(workstation.sourceZoneId))
@@ -577,103 +563,6 @@ function instrumentModelForAssignment(
   }
 }
 
-function HudInstrumentVisualization({ model, glowId }: { model: HudInstrumentModel; glowId: string }) {
-  const renderNodes = (withLinks: boolean) => (
-    <>
-      {withLinks ? model.links.map(([from, to]) => (
-        <line
-          className="hud-instrument__link"
-          key={`${from}-${to}`}
-          x1={model.nodes[from].x}
-          y1={model.nodes[from].y}
-          x2={model.nodes[to].x}
-          y2={model.nodes[to].y}
-        />
-      )) : null}
-      {model.nodes.map((node, index) => (
-        <g className={`hud-instrument__node hud-instrument__node--${node.state}`} key={node.id}>
-          <circle cx={node.x} cy={node.y} r={index % 3 === 0 ? 2.7 : 2.1} />
-          {index % 4 === 0 ? <circle cx={node.x} cy={node.y} r="5.2" /> : null}
-        </g>
-      ))}
-    </>
-  )
-
-  return (
-    <svg className={`hud-instrument__scope hud-instrument__scope--${model.preset}`} viewBox="0 0 100 100" role="img" aria-hidden="true">
-      <defs>
-        <radialGradient id={glowId} cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="currentColor" stopOpacity="0.34" />
-          <stop offset="68%" stopColor="currentColor" stopOpacity="0.08" />
-          <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-      <path className="hud-instrument__grid" d="M 8 25 H 92 M 8 50 H 92 M 8 75 H 92 M 25 8 V 92 M 50 8 V 92 M 75 8 V 92" />
-      <circle className="hud-instrument__glow" cx="50" cy="50" r="48" fill={`url(#${glowId})`} />
-
-      {model.preset === 'topology' ? (
-        <>
-          {model.rings.map((ring, index) => (
-            <circle className={`hud-instrument__ring hud-instrument__ring--${index}`} key={ring} cx="50" cy="50" r={ring} />
-          ))}
-          <path className="hud-instrument__axis" d="M 8 50 H 92 M 50 12 V 88" />
-          {renderNodes(true)}
-          <path className="hud-instrument__sweep" d="M 50 50 L 82 24 A 41 41 0 0 1 88 42" />
-        </>
-      ) : null}
-
-      {model.preset === 'routes' ? (
-        <>
-          {[24, 50, 76].map((y, index) => (
-            <g className="hud-instrument__route" key={y}>
-              <path d={`M 8 ${y} C 30 ${y - 18}, 66 ${y + 18}, 92 ${y}`} />
-              <circle className={`hud-instrument__packet hud-instrument__packet--${index}`} cx={28 + index * 20} cy={y + (index - 1) * 5} r="2.5" />
-            </g>
-          ))}
-          {renderNodes(false)}
-        </>
-      ) : null}
-
-      {model.preset === 'lanes' ? (
-        <>
-          {model.nodes.slice(0, 5).map((node, index) => (
-            <g className="hud-instrument__lane" key={node.id}>
-              <rect x="10" y={14 + index * 16} width="80" height="7" rx="3.5" />
-              <rect className="hud-instrument__lane-fill" x="10" y={14 + index * 16} width={Math.max(16, Math.min(80, node.x * 0.8))} height="7" rx="3.5" />
-              <circle cx={Math.max(18, Math.min(86, node.x * 0.8 + 8))} cy={17.5 + index * 16} r="2" />
-            </g>
-          ))}
-        </>
-      ) : null}
-
-      {model.preset === 'constellation' ? (
-        <>
-          <path className="hud-instrument__constellation-orbit" d="M 12 58 C 26 16, 74 16, 88 58 C 73 87, 27 87, 12 58 Z" />
-          {renderNodes(true)}
-        </>
-      ) : null}
-
-      {model.preset === 'pulse' ? (
-        <>
-          <path className="hud-instrument__pulse-guide" d="M 8 50 H 92" />
-          <polyline
-            className="hud-instrument__pulse-wave"
-            points={model.nodes.map((node, index) => `${8 + index * (84 / Math.max(1, model.nodes.length - 1))},${20 + node.y * 0.58}`).join(' ')}
-          />
-          <path className="hud-instrument__scan" d="M 12 16 V 84" />
-        </>
-      ) : null}
-
-      {model.preset === 'standby' ? (
-        <>
-          <path className="hud-instrument__standby-frame" d="M 14 18 H 86 V 82 H 14 Z M 22 26 L 78 74 M 78 26 L 22 74" />
-          <circle className="hud-instrument__standby-glyph" cx="50" cy="50" r="8" />
-        </>
-      ) : null}
-    </svg>
-  )
-}
-
 function HermesDashboardMonitorSurface({
   zone,
   claim,
@@ -704,75 +593,43 @@ function HermesDashboardMonitorSurface({
 
   const leaseColor = isStale() ? '#ff6b6b' : '#5defff'
   const streamText = formatMonitorSurfaceStream(payload, !motionEnabled)
-
-  const surfacePosition: Vec3 = [0, 0, 0.12]
-  const distanceFactor = zone.previewMode === 'monitor_surface' ? 4.1 : 4.3
-  const renderStrategy = resolveBoardroomSurfaceRenderStrategy(zone.previewMode, isNativeTauriRuntime)
+  const model: HudInstrumentModel = {
+    title: streamText || claim.payload_binding,
+    eyebrow: 'Agent Monitor',
+    tone: isStale() ? 'rose' : 'cyan',
+    status: isStale() ? 'watch' : 'nominal',
+    glyph: motionEnabled ? 'LIVE' : 'STATIC',
+    preset: 'routes',
+    nodes: [],
+    links: [],
+    rings: [],
+  }
 
   return (
     <>
-      <Html
-        center
-        transform={renderStrategy.transform}
-        distanceFactor={distanceFactor}
-        position={surfacePosition}
-        rotation={renderStrategy.rotation}
-      >
-        <div className={`hud-instrument hud-instrument--monitor-surface hud-instrument--${motionEnabled ? 'live' : 'static'}`}>
-          <button
-            type="button"
-            className="hud-instrument"
-            onClick={onActivate}
-            aria-label={`Open ${claim.payload_binding} monitor surface`}
-          >
-            <span className="hud-instrument__header">
-              <span>
-                <b>AGENT MONITOR</b>
-              </span>
-              <i>🖥</i>
-            </span>
-            <div className="hud-instrument__content">
-              <span className="hud-instrument__stream">
-                {streamText}
-              </span>
-            </div>
-            <span className="hud-instrument__footer">
-              <span className={`hud-instrument__status hud-instrument__status--${isStale() ? 'attention' : 'nominal'}`}>
-                {motionEnabled ? 'live' : 'NO DATA'}
-              </span>
-              <span className="hud-instrument__pips">
-                <i style={{ color: leaseColor }} />
-                <i style={{ color: leaseColor }} />
-                <i style={{ color: leaseColor }} />
-                <i style={{ color: leaseColor }} />
-                <i style={{ color: leaseColor }} />
-              </span>
-            </span>
-          </button>
-        </div>
-      </Html>
-      <Html center distanceFactor={distanceFactor} position={surfacePosition} pointerEvents="auto">
-        <div className="monitor-surface-agent-controls">
-          <button
-            type="button"
-            className="monitor-surface-agent-controls__btn"
-            onClick={onRefreshLease}
-            aria-label="Refresh lease"
-            title="Refresh lease"
-          >
-            {'⟳'}
-          </button>
-          <button
-            type="button"
-            className="monitor-surface-agent-controls__btn"
-            onClick={onRelease}
-            aria-label="Release claim"
-            title="Release claim"
-          >
-            {'✕'}
-          </button>
-        </div>
-      </Html>
+      <BoardroomInstrumentScreen
+        slotId={zone.id}
+        previewMode={zone.previewMode}
+        size={zone.size}
+        model={model}
+        onActivate={onActivate}
+      />
+      <group position={[zone.size[0] * 0.32, zone.size[1] * 0.3, 0.14]} rotation={[Math.PI / 2, 0, 0]}>
+        <PhysicalControlButtonSurface
+          label="Refresh lease"
+          size={[0.12, 0.025, 0.12]}
+          color={leaseColor}
+          onClick={onRefreshLease}
+        />
+      </group>
+      <group position={[zone.size[0] * 0.42, zone.size[1] * 0.3, 0.14]} rotation={[Math.PI / 2, 0, 0]}>
+        <PhysicalControlButtonSurface
+          label="Release claim"
+          size={[0.12, 0.025, 0.12]}
+          color="#ff789c"
+          onClick={onRelease}
+        />
+      </group>
     </>
   )
 }
@@ -791,56 +648,15 @@ function HudInstrumentSurface({
   onActivate: () => void
 }) {
   const model = instrument ?? instrumentModelForAssignment(zone, assignment, persistedSourceZoneId)
-  const deskRole = zone.id.includes('wrap') ? 'outer' : zone.id.includes('inner') ? 'inner' : 'standard'
-  const className = `hud-instrument hud-instrument--${zone.previewMode} hud-instrument--desk-${deskRole} hud-instrument--${model.tone} hud-instrument--${model.status}`
-  const glowId = `${zone.id.replace(/[^a-z0-9_-]/gi, '-')}-glow`
-  const sourceTime = model.source?.observedAtUtc?.slice(11, 16) ?? '--:--'
-  const sourceTitle = model.source
-    ? `${(model.source.sourceIds ?? [model.source.sourceId]).join(', ')} · ${model.source.sourcePaths.join(', ')} · observed ${model.source.observedAtUtc ?? 'unknown'}`
-    : undefined
-  const distanceFactor = zone.previewMode === 'monitor_surface' ? 4.1 : 4.3
-  const surfacePosition: Vec3 = zone.previewMode === 'monitor_surface'
-    ? [0, 0, 0.12]
-    : [0, zone.size[1] / 2 + 0.045, 0]
-  const renderStrategy = resolveBoardroomSurfaceRenderStrategy(zone.previewMode, isNativeTauriRuntime)
 
   return (
-    <Html
-      center
-      transform={renderStrategy.transform}
-      distanceFactor={distanceFactor}
-      position={surfacePosition}
-      rotation={renderStrategy.rotation}
-      pointerEvents="auto"
-    >
-        <button type="button" className={className} onClick={onActivate} aria-label={`Open ${model.title}`}>
-          <span className="hud-instrument__header">
-            <span>
-              <b>{model.eyebrow}</b>
-              <strong>{model.title}</strong>
-            </span>
-            <i>{model.glyph}</i>
-          </span>
-          <HudInstrumentVisualization model={model} glowId={glowId} />
-          <span className="hud-instrument__footer">
-            <span className={`hud-instrument__status hud-instrument__status--${model.status}`}>
-              {model.status === 'nominal' ? 'live' : model.status === 'offline' ? 'no data' : model.status}
-            </span>
-            {model.source ? (
-              <span className={`hud-instrument__source hud-instrument__source--${model.source.freshness}`} title={sourceTitle}>
-                {model.source.freshness} {sourceTime}Z
-              </span>
-            ) : null}
-            <span className="hud-instrument__pips">
-              <i />
-              <i />
-              <i />
-              <i />
-              <i />
-            </span>
-          </span>
-        </button>
-    </Html>
+    <BoardroomInstrumentScreen
+      slotId={zone.id}
+      previewMode={zone.previewMode}
+      size={zone.size}
+      model={model}
+      onActivate={onActivate}
+    />
   )
 }
 
@@ -855,132 +671,97 @@ function FleetPreviewSurface({
   fleetViewModel: FleetViewModel
   onActivate: () => void
 }) {
-  const provider = fleetViewModel.providers.find((candidate) => candidate.enabled && candidate.healthy)
-    ?? fleetViewModel.providers[0]
-    ?? null
-  const primaryRoute = fleetViewModel.laneOwnership.find((lane) => lane.route)?.route ?? null
   const liveMetric = fleetViewModel.metrics.find((metric) => metric.id === 'live_targets')
   const totalMetric = fleetViewModel.metrics.find((metric) => metric.id === 'total_targets')
   const offlineMetric = fleetViewModel.metrics.find((metric) => metric.id === 'unexpected_offline')
-  const modelCount = fleetViewModel.providers.reduce((count, item) => count + item.models.length, 0)
-  const distanceFactor = zone.previewMode === 'monitor_surface' ? 4.2 : 4.3
-  const surfacePosition: Vec3 = zone.previewMode === 'monitor_surface'
-    ? [0, 0, 0.14]
-    : [0, zone.size[1] / 2 + 0.05, 0]
-  const renderStrategy = resolveBoardroomSurfaceRenderStrategy(zone.previewMode, isNativeTauriRuntime)
+  const fallbackModel = instrumentModelForAssignment(zone, assignment)
+  const offlineCount = Number(offlineMetric?.value ?? 0)
+  const model: HudInstrumentModel = {
+    ...fallbackModel,
+    eyebrow: 'Fleet',
+    title: assignment?.title.replace(/\s+Workstation$/, '') ?? fleetViewModel.title,
+    glyph: `${formatFleetValue(liveMetric?.value)}/${formatFleetValue(totalMetric?.value)}`,
+    tone: offlineCount > 0 ? 'gold' : 'cyan',
+    status: fleetViewModel.status === 'ok'
+      ? 'nominal'
+      : fleetViewModel.status === 'attention'
+        ? 'watch'
+        : 'offline',
+  }
 
   return (
-    <Html
-      center
-      transform={renderStrategy.transform}
-      distanceFactor={distanceFactor}
-      position={surfacePosition}
-      rotation={renderStrategy.rotation}
-      pointerEvents="auto"
-    >
-        <button
-          type="button"
-          className={`fleet-preview-surface fleet-preview-surface--${zone.previewMode} fleet-preview-surface--${fleetViewModel.status}`}
-          onClick={onActivate}
-          aria-label={`Open ${assignment?.title ?? fleetViewModel.title} fleet workstation`}
-        >
-          <span className="fleet-preview-surface__header">
-            <b>FLEET</b>
-            <i>{fleetViewModel.status}</i>
-          </span>
-          <strong>{assignment?.title.replace(/\s+Workstation$/, '') ?? fleetViewModel.title}</strong>
-          <span className="fleet-preview-surface__metrics">
-            <span><b>{formatFleetValue(liveMetric?.value)}</b><small>live</small></span>
-            <span><b>{formatFleetValue(totalMetric?.value)}</b><small>total</small></span>
-            <span><b>{formatFleetValue(offlineMetric?.value, '0')}</b><small>offline</small></span>
-          </span>
-          <span className="fleet-preview-surface__route">
-            <span>{primaryRoute ? `${primaryRoute.providerId} / ${primaryRoute.modelId}` : 'routing unassigned'}</span>
-            <small>{provider ? `${provider.providerName} · ${modelCount} models` : 'no provider projection'}</small>
-          </span>
-        </button>
-    </Html>
+    <BoardroomInstrumentScreen
+      slotId={zone.id}
+      previewMode={zone.previewMode}
+      size={zone.size}
+      model={model}
+      onActivate={onActivate}
+    />
   )
 }
 
 function CommandCoreSurface({
+  zone,
   onControl,
   nowInstrument,
   healthInstrument,
   routingInstrument,
 }: {
+  zone: BoardroomSpatialZone
   onControl: (action: BoardroomPhysicalControlAction) => void
   nowInstrument?: HudInstrumentModel
   healthInstrument?: HudInstrumentModel
   routingInstrument?: HudInstrumentModel
 }) {
-  const renderStrategy = resolveBoardroomSurfaceRenderStrategy('desk_surface', isNativeTauriRuntime)
-  const buttonProps = (actionId: string) => {
-    const action = getBoardroomPhysicalControlAction(actionId)
-    const state = deriveBoardroomPhysicalControlState(actionId, null)
-    return {
-      'aria-label': action.label,
-      'data-authority': action.authority,
-      disabled: state.disabled,
-      onClick: () => onControl(action),
-      title: `${action.authority} · verify ${action.verificationPath}`,
-    }
+  const openAction = getBoardroomPhysicalControlAction('open_command_core')
+  const model: HudInstrumentModel = nowInstrument ?? {
+    title: 'ARDA Control',
+    eyebrow: 'Command Core',
+    tone: 'cyan',
+    status: healthInstrument?.status ?? 'offline',
+    glyph: routingInstrument?.glyph ?? 'NO DATA',
+    preset: 'pulse',
+    nodes: [],
+    links: [],
+    rings: [],
   }
+  const controls = [
+    { id: 'open_approval_queue', color: '#8cffc7', position: [0.42, 0.075, -0.17] as Vec3 },
+    { id: 'open_emergency_stop', color: '#ff789c', position: [0.65, 0.075, -0.17] as Vec3 },
+    { id: 'open_route_selector', color: '#5defff', position: [0.42, 0.075, 0.17] as Vec3 },
+    { id: 'enter_world', color: '#b98cff', position: [0.65, 0.075, 0.17] as Vec3 },
+  ]
 
   return (
-    <Html
-      center
-      transform={renderStrategy.transform}
-      distanceFactor={4.3}
-      position={[0, 0.05, 0]}
-      rotation={renderStrategy.rotation}
-      pointerEvents="auto"
-    >
-        <div className="command-core-terminal" aria-label="Boardroom command core">
-          <button type="button" className="command-core-terminal__screen" {...buttonProps('open_command_core')}>
-            <span className="command-core-terminal__eyebrow">Command Core</span>
-            <strong>{nowInstrument?.title ?? 'ARDA CONTROL'}</strong>
-            <span className="command-core-terminal__scope">
-              <i />
-              <i />
-              <i />
-              <i />
-            </span>
-            <small>
-              MODE COMMAND · NOW {nowInstrument?.glyph ?? 'NO DATA'} · HEALTH {healthInstrument?.status ?? 'offline'} · ROUTES {routingInstrument?.glyph ?? 'NO DATA'}
-            </small>
-          </button>
-          <div className="command-core-terminal__buttons">
-            <button type="button" className="command-core-terminal__button command-core-terminal__button--go" {...buttonProps('open_approval_queue')}>GO</button>
-            <button type="button" className="command-core-terminal__button command-core-terminal__button--stop" {...buttonProps('open_emergency_stop')}>STOP</button>
-            <button type="button" className="command-core-terminal__button" {...buttonProps('open_route_selector')}>ROUTE</button>
-            <button type="button" className="command-core-terminal__button" {...buttonProps('enter_world')}>WORLD</button>
-          </div>
-        </div>
-    </Html>
+    <>
+      <group position={[-0.22, 0, 0]}>
+        <BoardroomInstrumentScreen
+          slotId={zone.id}
+          previewMode="desk_surface"
+          size={[zone.size[0] * 0.72, zone.size[1], zone.size[2] * 0.9]}
+          model={{ ...model, eyebrow: 'Command Core' }}
+          onActivate={() => onControl(openAction)}
+        />
+      </group>
+      {controls.map((control) => {
+        const action = getBoardroomPhysicalControlAction(control.id)
+        const state = deriveBoardroomPhysicalControlState(control.id, null)
+        return (
+          <group key={control.id} position={control.position}>
+            <PhysicalControlButtonSurface
+              label={action.label}
+              size={[0.17, 0.04, 0.17]}
+              color={control.color}
+              controlState={state}
+              title={`${action.authority} · verify ${action.verificationPath}`}
+              onClick={() => onControl(action)}
+            />
+          </group>
+        )
+      })}
+    </>
   )
 }
-
-function HermesTerminalSurface({ onOpenHermesDashboard }: { onOpenHermesDashboard: () => void }) {
-  return (
-    <Html center transform distanceFactor={5.2} position={[0, 0, 0.28]}>
-      <button type="button" className="hermes-desk-terminal" onClick={onOpenHermesDashboard} aria-label="Open Hermes Dashboard">
-        <span className="hermes-desk-terminal__bar">
-          <b>HERMES</b>
-          <i>9119</i>
-        </span>
-        <span className="hermes-desk-terminal__lines">
-          <i />
-          <i />
-          <i />
-          <i />
-        </span>
-        <strong>DASHBOARD TERMINAL</strong>
-      </button>
-    </Html>
-  )
-}
-
 
 function PhysicalControlButtonSurface({
   label,
@@ -1087,28 +868,39 @@ function AvatarEmitterBase({
 
   return (
     <group position={zone.position} name="arda-presence-emitter">
-      <mesh position={[0, -0.08, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[geometry.ringRadius, geometry.ringTubeRadius, 16, 96]} />
-        <meshStandardMaterial color={emitterColor} emissive={emitterColor} emissiveIntensity={isActive ? 2.1 : 0.82} roughness={0.18} metalness={0.42} />
+      <mesh position={[0, -0.02, 0]}>
+        <cylinderGeometry args={[geometry.baseTopRadius, geometry.baseBottomRadius, 0.11, 12]} />
+        <meshStandardMaterial color="#050b12" emissive="#102638" emissiveIntensity={0.54} roughness={0.26} metalness={0.78} />
       </mesh>
-      <mesh position={[0, -0.1, 0]}>
-        <cylinderGeometry args={[geometry.baseTopRadius, geometry.baseBottomRadius, 0.12, 72]} />
-        <meshStandardMaterial color="#071018" emissive="#12344a" emissiveIntensity={0.75} roughness={0.34} metalness={0.6} />
+      <mesh position={[0, 0.045, 0]}>
+        <cylinderGeometry args={[geometry.coreTopRadius, geometry.baseTopRadius, 0.04, 12]} />
+        <meshStandardMaterial color="#0b1721" emissive={emitterColor} emissiveIntensity={0.38} roughness={0.22} metalness={0.7} />
       </mesh>
       <group ref={pulseRef}>
-        <mesh position={[0, 0.02, 0]}>
-          <cylinderGeometry args={[geometry.coreTopRadius, geometry.coreBottomRadius, 0.04, 72]} />
-          <meshStandardMaterial color="#7df2ff" emissive={emitterColor} emissiveIntensity={isActive ? 2.8 : 1.25} transparent opacity={isActive ? 0.72 : 0.46} />
+        <mesh position={[0, 0.07, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[geometry.ringRadius, geometry.ringTubeRadius, 10, 72]} />
+          <meshStandardMaterial color={emitterColor} emissive={emitterColor} emissiveIntensity={isActive ? 2.5 : 1.1} roughness={0.14} metalness={0.35} />
         </mesh>
-        {[0, 1, 2].map((index) => (
-          <mesh key={index} position={[0, 0.13 + index * 0.075, 0]} rotation={[Math.PI / 2, 0, 0]}>
-            <torusGeometry args={[geometry.coreTopRadius * (0.78 + index * 0.24), geometry.ringTubeRadius * 0.22, 8, 48]} />
-            <meshBasicMaterial color={emitterColor} transparent opacity={isActive ? 0.52 - index * 0.1 : 0.16 - index * 0.03} />
-          </mesh>
-        ))}
+        {Array.from({ length: 6 }, (_, index) => {
+          const angle = (index / 6) * Math.PI * 2
+          return (
+            <mesh
+              key={index}
+              position={[Math.sin(angle) * geometry.ringRadius, 0.052, Math.cos(angle) * geometry.ringRadius]}
+              rotation={[0, angle, 0]}
+            >
+              <boxGeometry args={[0.105, 0.035, 0.045]} />
+              <meshStandardMaterial color="#122431" emissive={index % 2 === 0 ? emitterColor : '#f06dd7'} emissiveIntensity={0.9} metalness={0.62} roughness={0.24} />
+            </mesh>
+          )
+        })}
       </group>
+      <mesh position={[0, 0.24, 0]}>
+        <cylinderGeometry args={[geometry.coreTopRadius * 0.65, geometry.ringRadius * 0.82, 0.34, 32, 1, true]} />
+        <meshBasicMaterial color={emitterColor} transparent opacity={isActive ? 0.09 : 0.035} side={THREE.DoubleSide} depthWrite={false} blending={THREE.AdditiveBlending} />
+      </mesh>
       <pointLight position={[0, 0.42, 0]} intensity={isActive ? 1.25 : 0.58} distance={geometry.lightDistance} color={emitterColor} />
-      <group position={[0, 0.72, 0]}>
+      <group position={[0, 0.18, 0]}>
         <AvatarPresenceLayer
           presenceState={presenceState}
           motionEnabled={motionEnabled}
@@ -1442,6 +1234,7 @@ function BoardroomScene({
 
       <group position={commandCoreZone.position} rotation={commandCoreZone.rotation}>
         <CommandCoreSurface
+          zone={commandCoreZone}
           onControl={activateCommandControl}
           nowInstrument={instruments.command_core}
           healthInstrument={instruments.view_desk_control_panel}
@@ -1617,6 +1410,7 @@ export default function BoardroomViewport(props: BoardroomViewportProps) {
       data-boardroom-render-profile={renderProfile.id}
     >
       <Canvas
+        key={`boardroom-camera-${BOARDROOM_CAMERA_COMPOSITION.fov}`}
         camera={{ position: BOARDROOM_CAMERA_COMPOSITION.position, fov: BOARDROOM_CAMERA_COMPOSITION.fov }}
         dpr={renderProfile.dpr}
         frameloop={renderProfile.frameloop}

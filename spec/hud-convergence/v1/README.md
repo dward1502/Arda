@@ -1,8 +1,8 @@
 # HUD frontend/backend convergence contract v1
 
-**Status:** Draft contract preparation; implementation is blocked by the Stage 5 frozen-source boundary.
+**Status:** Adopted C0 contract; production-path implementation in progress.
 
-This directory defines the shared C0 fixture boundary for Rust, the Tauri bridge, and React. It does not authorize backend feature work while the Stage 5 candidate is frozen.
+This directory defines the shared C0 fixture boundary for Rust, the Tauri bridge, and React. The operator ended the replacement Stage 5 soak on 2026-08-07 and authorized production-path convergence; release qualification now proceeds independently at the next actual candidate freeze.
 
 ## Authority decisions
 

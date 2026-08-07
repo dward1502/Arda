@@ -2,7 +2,7 @@
 
 **Audited:** 2026-08-06
 **Scope:** read-only audit of the current HUD source and its live Rust/Tauri/HTTP/SSE owners
-**Conclusion:** the Workbench canonical loop is connected. Contract preparation is now explicit; implementation remains blocked by the Stage 5 frozen-source boundary.
+**Conclusion:** the Workbench canonical loop is connected. Contract preparation is explicit and production-path C0 implementation is now active; Stage 5 release qualification proceeds independently.
 
 ## Authority rule
 
@@ -35,7 +35,7 @@ The draft authority and transport boundary is now versioned at [`spec/hud-conver
 - per-run opaque SSE cursors, gap reload, deterministic deduplication, terminal closure, and durable recovery;
 - five canonical independently owned monitor sessions with same-session workstation continuity.
 
-`tests/test_workbench_contract_fixtures.py` is the preparation gate. Rust, Tauri, and React must consume the same passing fixture when C0 implementation begins after Stage 5 closes.
+`tests/test_workbench_contract_fixtures.py` is the preparation gate. Rust, Tauri, and React consume the same passing fixture while C0 production handlers and projections are converged.
 
 ## Finite 1.0 convergence backlog
 

@@ -23,7 +23,7 @@ No row below converts a partial or blocked gate into a pass.
 | U4 local installation lifecycle | Pass for unsigned local candidate; final signed gate open | `../evidence/stage-5-release-candidate/reliability/u4-lifecycle-local-20260804.json` | Re-run fresh install, Workbench persistence, upgrade, backup/restore, rollback, diagnostics, safe reset, and uninstall against one reconciled final signed artifact identity. |
 | Supported Linux profile | Pass for initial profile | `../evidence/stage-5-release-candidate/s5-rc0/supported-profile.json` | Maintain the declared `bluefin-lts-10-x86_64` boundary. |
 | Reliability fault-matrix smoke | Pass | `../evidence/stage-5-release-candidate/reliability/u3-degradation-smoke-20260804.json` | 11/11 runs passed across the complete U3 failure matrix with zero state growth and unchanged source identity. |
-| 24-hour soak | Failed; hardened snapshot rerun active but superseded for final-source closure | `../evidence/stage-5-release-candidate/reliability/soak-24h.json`; `../evidence/stage-5-release-candidate/reliability/soak-24h-rerun-20260803.json` | Two completed runs failed: 40/2,494 and 132/2,827 nonzero exits. The hardened eleven-scenario run started 2026-08-05T01:05:04Z and remains useful runner/fault-matrix evidence, but 35 fingerprinted source inputs changed after its immutable snapshot. Inspect its receipt, then run one new uninterrupted soak from the exact frozen final source before closing S5-R1. |
+| 24-hour soak | Pass | `../evidence/stage-5-release-candidate/reliability/soak-24h-final-efd118b5-20260807.json`; `../evidence/stage-5-release-candidate/reliability/soak-24h-final-efd118b5-20260807-assessment.md` | The uninterrupted final-source run passed 2,844/2,844 executions across all eleven scenarios with unchanged source identity, zero protected-state growth, preserved latency budgets, and preserved disk headroom. |
 | Automated performance | Pass | `../evidence/stage-5-release-candidate/reliability/performance-accessibility.json` | Re-run after final artifact build. |
 | Automated accessibility | Pass | `../evidence/stage-5-release-candidate/reliability/performance-accessibility.json` | Two automated Workbench tests passed; critical/serious axe findings were zero. |
 | Native performance/accessibility acceptance | Pass | `../evidence/stage-5-release-candidate/reliability/performance-accessibility.json`; `../evidence/stage-5-release-candidate/reliability/native-launcher-walkthrough.json` | X11 cold-start, sustained-idle, AT-SPI/key-event keyboard, setup/recovery, and focus-containment acceptance passed. |
@@ -66,10 +66,13 @@ large/noisy output. Protected state growth was zero files and zero bytes.
 The hardened evaluator has 11/11 focused unit tests passing. The current smoke
 made 11/11 successful attempts with every scenario represented, unchanged
 source identity, zero protected-state growth, and preserved disk headroom. The
-active 24-hour run uses an immutable source snapshot and an isolated Cargo target
-outside that source tree. Nonzero exits retain explicit scenario/root-cause
-attribution plus bounded redacted diagnostics; successful exact filters that
-select zero tests are rejected as false passes.
+final-source 24-hour run from `efd118b5` then passed 2,844/2,844 executions across
+the same eleven scenarios. Its launch identity matches the receipt's unchanged
+before/after source fingerprint; protected-state growth was zero, every latency
+budget held, and the 64-GiB disk floor was preserved. Nonzero exits remain
+fail-closed with explicit scenario/root-cause attribution and bounded redacted
+diagnostics; successful exact filters that select zero tests are rejected as
+false passes.
 
 Automated performance remained within declared budgets:
 
@@ -149,7 +152,6 @@ by `PKG-EVIDENCE-001`.
 
 | ID | Severity | Owner | Required closure |
 |---|---|---|---|
-| REL-SOAK-001 | Release gate | Reliability maintainer | Two completed 24-hour receipts failed. Let the frozen-source `soak-24h-u3-20260805.json` run complete, then require a valid zero-failure receipt across all eleven scenarios with unchanged source identity, preserved 64-GiB disk floor, and bounded protected-state growth. |
 | USABILITY-EVAL-001 | Release gate | UX/release maintainer | The neutral guide and fail-closed record template are prepared. Have a clean non-author evaluator identify current system state, approval authority, evidence quality, and the next recovery action without source or raw-state access; retain the completed evaluator receipt rather than substituting author or agent self-review. |
 | SEC-AUTH-001 | High if remotely exposed | Engine/harness maintainer | Keep all harness binds loopback-only; implement inbound authentication before remote or multi-user exposure. |
 | SEC-ADAPTER-001 | High for third-party adapters | Adapter runtime maintainer | Pin adapter artifact digest/signature; self-reported identity/version alone cannot defeat a malicious replacement binary. |

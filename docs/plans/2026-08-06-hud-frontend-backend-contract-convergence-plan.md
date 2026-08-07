@@ -1,6 +1,6 @@
 # HUD Frontend–Backend Contract Convergence and 1.0 Closeout Plan
 
-**Status:** Active, audit/contract-preparation only while the `efd118b5` frozen-source Stage 5 soak and release gates remain open
+**Status:** Active, audit/contract-preparation only while the remaining Stage 5 release gates remain open
 **Adopted:** 2026-08-06
 **Audit authority:** [HUD frontend/backend integration audit](../audits/2026-08-06-hud-frontend-backend-integration.md)
 
@@ -8,7 +8,7 @@
 
 Contract preparation is complete and implementation remains dependency-blocked. The shared draft boundary is recorded in [`spec/hud-convergence/v1`](../../spec/hud-convergence/v1/README.md), with one schema and fixed passing/fail-closed fixtures. Freeze-safe tests in `crates/engine/tests/hud_convergence_contract.rs`, `apps/arda-hud/src-tauri/tests/hud_convergence_contract.rs`, and `apps/arda-hud/src/lib/hudConvergenceContract.test.ts` now consume that same fixture and pin cross-layer authority, projection-state, event-stream, and five-monitor semantics. These are preparation tests, not evidence that production handlers or projections implement C0. No backend feature or runtime source was changed by this preparation slice.
 
-Stage 5 is still open: the final-source soak receipt, qualifying independent evaluator receipt, and exact signed-artifact lifecycle remain unresolved in the release evidence. C0 implementation and all C1–C3 work therefore remain blocked by the frozen-source boundary below.
+The final-source soak gate passed on `efd118b5`, but Stage 5 is still open: the qualifying independent evaluator receipt and exact signed-artifact lifecycle remain unresolved in the release evidence. C0 implementation and all C1–C3 work therefore remain blocked by the frozen-source boundary below.
 
 ## 1.0 definition
 

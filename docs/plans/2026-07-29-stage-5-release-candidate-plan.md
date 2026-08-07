@@ -185,13 +185,13 @@ All critical/high findings are fixed or release-blocked with an explicit mitigat
 **Gate S5-R1**
 No lost terminal state, duplicate mutation, unexplained completion, or unbounded state growth during the soak matrix.
 
-**Current rerun boundary (2026-08-05):** The active 24-hour run is valid only
-for its immutable `20260805T010420Z` source snapshot. Thirty-five fingerprinted
-source inputs changed after that snapshot, including Launcher/HUD, `arda-core`,
-and `arda-vaire` code plus Cargo lockfiles. Its eventual receipt remains useful
-runner/fault-matrix evidence but cannot close S5-R1 for the final candidate. Once
-the active source is frozen, start one new uninterrupted 24-hour run from that
-exact snapshot before final artifact publication.
+**Final-source closure (2026-08-07):** The uninterrupted 24-hour run from frozen
+commit `efd118b5` passed 2,844 of 2,844 scenario executions across all eleven
+failure classes. Source identity remained unchanged, protected-state growth was
+zero, every latency budget held, and the 64-GiB disk floor was preserved. The
+receipt
+`docs/evidence/stage-5-release-candidate/reliability/soak-24h-final-efd118b5-20260807.json`
+and its adjacent assessment close S5-R1 for this final source identity.
 
 ## Workstream 6 — UX and accessibility
 
@@ -407,16 +407,17 @@ signed by the tag-bound workflow.
 
 ## Reliability, performance, and accessibility tranche — S5-R1/U1
 
-**S5-R1 remains open 2026-08-04.** The bounded runner now rotates eleven exact
+**S5-R1 complete 2026-08-07.** The bounded runner rotates eleven exact
 registered tests for repeated cancellation, operator rejection, provider loss,
 external process kill/restart, adapter crash, model timeout, oversized/noisy
 output, network loss, disk-pressure write failure, corrupted journal tail, and
 checkpoint restart. The U3 all-scenario smoke passed 11/11 with zero
-protected-state growth. Two authoritative 24-hour runs completed but
-failed: the first recorded 40 nonzero exits in 2,494 attempts, and the 2026-08-03
-rerun recorded 132 nonzero exits in 2,827 attempts despite a final 17.34-hour
-failure-free tail. Both remain failed evidence; the second result cannot be
-reinterpreted as a pass.
+protected-state growth. Three authoritative 24-hour runs completed but failed:
+the first recorded 40 nonzero exits in 2,494 attempts, the 2026-08-03 rerun
+recorded 132 nonzero exits in 2,827 attempts despite a final 17.34-hour
+failure-free tail, and `soak-24h-u3-20260805.json` completed 2,850/2,851 attempts
+with one genuine model-timeout fixture-startup failure. All remain failed
+evidence and cannot be reinterpreted as passes.
 
 The runner now retains a bounded redacted diagnostic tail and explicit root
 cause, scenario, command, duration, and output digest for each failure; records
@@ -426,11 +427,12 @@ the run if a 64-GiB free-space floor is breached. Its evaluator has 11/11
 focused unit tests passing. The valid U3 smoke exercised all eleven scenarios
 with unchanged source identity and preserved capacity. The incomplete
 eight-scenario `20260804-v2` run was stopped without a receipt rather than being
-misrepresented as U3 evidence. A fresh frozen-source 86,400-second run started
-at 2026-08-05T01:05:04Z under `atd`; its pending receipt is
-`soak-24h-u3-20260805.json`. S5-R1 remains open until that run emits a valid
-zero-failure receipt. Finite protected-state growth ceilings remain 1,000 files
-and 64 MiB.
+misrepresented as U3 evidence. After correcting the fixture startup race, a
+fresh 86,400-second run from frozen final commit `efd118b5` completed at
+2026-08-07T05:51:54Z. Its valid receipt passed all 2,844 scenario executions with
+zero failures, unchanged source identity, zero protected-state growth, preserved
+latency budgets, and preserved disk headroom. Finite protected-state growth
+ceilings remain 1,000 files and 64 MiB.
 
 Automated Workbench accessibility passed 2/2 for critical/serious axe findings
 and keyboard focus order. Reduced-motion, increased-contrast, and forced-color
@@ -439,8 +441,7 @@ walkthrough now passes: cold start was 0.706 seconds, five-minute aggregate RSS
 peaked at 440.78 MiB and ended at 422.0 MiB, post-warmup growth was 4.2 MiB, and
 WebKit consumed 2.58% of one CPU core. AT-SPI plus physical X11 key events proved
 dialog naming, setup/recovery text, initial focus, Tab/Shift+Tab containment,
-Escape close, and focus restoration. U1 is complete; S5-R1 remains open only for
-the original 24-hour soak receipt.
+Escape close, and focus restoration. U1 and S5-R1 are complete.
 
 Evidence:
 
@@ -449,7 +450,9 @@ Evidence:
 - `docs/evidence/stage-5-release-candidate/reliability/soak-24h-rerun-20260802.json` (not emitted; interrupted before a valid receipt because `/var` reached 100% capacity)
 - `docs/evidence/stage-5-release-candidate/reliability/soak-24h-rerun-20260803.json` (completed failed run; retained)
 - `docs/evidence/stage-5-release-candidate/reliability/u3-degradation-smoke-20260804.json` (valid 11/11 U3 matrix smoke)
-- `docs/evidence/stage-5-release-candidate/reliability/soak-24h-u3-20260805.json` (active frozen-source U3 rerun; receipt pending)
+- `docs/evidence/stage-5-release-candidate/reliability/soak-24h-u3-20260805.json` (completed failed run; retained)
+- `docs/evidence/stage-5-release-candidate/reliability/soak-24h-final-efd118b5-20260807.json` (valid final-source pass)
+- `docs/evidence/stage-5-release-candidate/reliability/soak-24h-final-efd118b5-20260807-assessment.md`
 - `docs/evidence/stage-5-release-candidate/reliability/performance-accessibility.json`
 - `docs/evidence/stage-5-release-candidate/reliability/native-launcher-walkthrough.json`
 - `docs/evidence/stage-5-release-candidate/reliability/native-launcher-metrics.json`

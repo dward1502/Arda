@@ -23,7 +23,7 @@ No row below converts a partial or blocked gate into a pass.
 | U4 local installation lifecycle | Pass for unsigned local candidate; final signed gate open | `../evidence/stage-5-release-candidate/reliability/u4-lifecycle-local-20260804.json` | Re-run fresh install, Workbench persistence, upgrade, backup/restore, rollback, diagnostics, safe reset, and uninstall against one reconciled final signed artifact identity. |
 | Supported Linux profile | Pass for initial profile | `../evidence/stage-5-release-candidate/s5-rc0/supported-profile.json` | Maintain the declared `bluefin-lts-10-x86_64` boundary. |
 | Reliability fault-matrix smoke | Pass | `../evidence/stage-5-release-candidate/reliability/u3-degradation-smoke-20260804.json` | 11/11 runs passed across the complete U3 failure matrix with zero state growth and unchanged source identity. |
-| 24-hour soak | In progress for `0.3.0-rc.1` | `../evidence/stage-5-release-candidate/reliability/soak-24h-final-efd118b5-20260807.json`; live launch under `~/.local/state/arda/stage5-final-6616addd/` | The `efd118b5` run passed 2,844/2,844, but release-version-only commit `6616addd` supersedes that source identity. Its 11/11 smoke passed; accept only the new 86,400-second receipt. |
+| 24-hour soak | Accepted for development; exact final-source release rerun deferred | `../evidence/stage-5-release-candidate/reliability/soak-24h-final-efd118b5-20260807.json`; stopped launch record under `~/.local/state/arda/stage5-final-6616addd/` | The `efd118b5` run passed 2,844/2,844 and the `6616addd` smoke passed 11/11. The operator stopped the replacement elapsed run; it emitted no final receipt and is not release evidence. This no longer freezes ongoing development. |
 | Automated performance | Pass | `../evidence/stage-5-release-candidate/reliability/performance-accessibility.json` | Re-run after final artifact build. |
 | Automated accessibility | Pass | `../evidence/stage-5-release-candidate/reliability/performance-accessibility.json` | Two automated Workbench tests passed; critical/serious axe findings were zero. |
 | Native performance/accessibility acceptance | Pass | `../evidence/stage-5-release-candidate/reliability/performance-accessibility.json`; `../evidence/stage-5-release-candidate/reliability/native-launcher-walkthrough.json` | X11 cold-start, sustained-idle, AT-SPI/key-event keyboard, setup/recovery, and focus-containment acceptance passed. |
@@ -73,9 +73,12 @@ budget held, and the 64-GiB disk floor was preserved. Nonzero exits remain
 fail-closed with explicit scenario/root-cause attribution and bounded redacted
 diagnostics; successful exact filters that select zero tests are rejected as
 false passes. Release-only commit `6616addd` aligns the candidate at
-`0.3.0-rc.1`; its 11/11 smoke passed and a new final-source soak began at
-2026-08-07T06:57:37Z. The previous pass remains valid historical evidence but
-does not close the gate for this superseding source identity.
+`0.3.0-rc.1`; its 11/11 smoke passed. The replacement final-source soak began
+at 2026-08-07T06:57:37Z and was intentionally stopped at
+2026-08-07T07:28:51Z. It emitted no final receipt and is not release evidence.
+The completed `efd118b5` run and current smoke are accepted for continued
+development; exact final-source qualification is deferred until an actual
+public release requires it.
 
 Automated performance remained within declared budgets:
 
@@ -155,7 +158,7 @@ by `PKG-EVIDENCE-001`.
 
 | ID | Severity | Owner | Required closure |
 |---|---|---|---|
-| REL-SOAK-002 | Release gate | Reliability maintainer | Allow the `6616addd` 86,400-second run to finish uninterrupted; accept only a valid receipt with all eleven scenarios represented, zero failures, unchanged source identity, bounded protected-state growth, preserved latency budgets, and preserved 64-GiB disk headroom. |
+| REL-SOAK-002 | Deferred release qualification | Reliability maintainer | The operator stopped the `6616addd` elapsed run and removed it from the development critical path. If public-release policy later requires exact final-source qualification, start a fresh uninterrupted run; do not resume or reinterpret the stopped launch. |
 | USABILITY-EVAL-001 | Release gate | UX/release maintainer | The neutral guide and fail-closed record template are prepared. Have a clean non-author evaluator identify current system state, approval authority, evidence quality, and the next recovery action without source or raw-state access; retain the completed evaluator receipt rather than substituting author or agent self-review. |
 | SEC-AUTH-001 | High if remotely exposed | Engine/harness maintainer | Keep all harness binds loopback-only; implement inbound authentication before remote or multi-user exposure. |
 | SEC-ADAPTER-001 | High for third-party adapters | Adapter runtime maintainer | Pin adapter artifact digest/signature; self-reported identity/version alone cannot defeat a malicious replacement binary. |

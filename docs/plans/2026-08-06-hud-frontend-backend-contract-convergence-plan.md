@@ -1,14 +1,14 @@
 # HUD Frontend–Backend Contract Convergence and 1.0 Closeout Plan
 
-**Status:** Active, audit/contract-preparation only while the remaining Stage 5 release gates remain open
+**Status:** Active implementation; Stage 5 release qualification continues independently
 **Adopted:** 2026-08-06
 **Audit authority:** [HUD frontend/backend integration audit](../audits/2026-08-06-hud-frontend-backend-integration.md)
 
 ## Current execution state
 
-Contract preparation is complete and implementation remains dependency-blocked. The shared draft boundary is recorded in [`spec/hud-convergence/v1`](../../spec/hud-convergence/v1/README.md), with one schema and fixed passing/fail-closed fixtures. Freeze-safe tests in `crates/engine/tests/hud_convergence_contract.rs`, `apps/arda-hud/src-tauri/tests/hud_convergence_contract.rs`, and `apps/arda-hud/src/lib/hudConvergenceContract.test.ts` now consume that same fixture and pin cross-layer authority, projection-state, event-stream, and five-monitor semantics. These are preparation tests, not evidence that production handlers or projections implement C0. No backend feature or runtime source was changed by this preparation slice.
+Contract preparation is complete and C0 implementation is now authorized. The shared draft boundary is recorded in [`spec/hud-convergence/v1`](../../spec/hud-convergence/v1/README.md), with one schema and fixed passing/fail-closed fixtures. Freeze-safe tests in `crates/engine/tests/hud_convergence_contract.rs`, `apps/arda-hud/src-tauri/tests/hud_convergence_contract.rs`, and `apps/arda-hud/src/lib/hudConvergenceContract.test.ts` now consume that same fixture and pin cross-layer authority, projection-state, event-stream, and five-monitor semantics. These preparation tests do not yet prove that production handlers or projections implement C0; that production-path work is the active next phase.
 
-The final-source soak passed on `efd118b5`, but the required release-version-only commit `6616addd` supersedes that identity for `0.3.0-rc.1`. Its 11/11 smoke passed and a new 86,400-second soak is running. Stage 5 is also still missing the qualifying independent evaluator receipt and exact signed-artifact lifecycle. C0 implementation and all C1–C3 work therefore remain blocked by the frozen-source boundary below.
+The final-source soak passed on `efd118b5`, and release-version-only commit `6616addd` passed the complete 11/11 smoke matrix. The operator stopped the replacement elapsed run because it was no longer helping current development. That stopped run is not release evidence, but it no longer freezes HUD convergence. Stage 5's independent evaluator and exact signed-artifact lifecycle remain separate release-qualification work; they do not block C0 implementation.
 
 ## 1.0 definition
 
@@ -24,17 +24,14 @@ Arda 1.0 is the supported Workbench product with:
 
 RELIC/CITADEL and Mirromere are explicitly outside this 1.0 scope. Their retained records do not block release.
 
-## Frozen-source boundary
+## Development and release boundary
 
-Until Stage 5 closes:
+While Stage 5 release qualification remains open:
 
-- do not add backend features or alter the clean `6616addd` candidate;
-- allow the uninterrupted 24-hour receipt to finish;
-- build reproducible artifacts from that exact clean source;
-- publish and verify the tag-bound signed artifact set;
-- run install, upgrade, backup, restore, rollback, reset, and uninstall against those exact bytes;
-- obtain a qualifying independent non-author evaluation without agent/self-review substitution;
-- permit only read-only integration audit, contract drafting, plan cleanup, and test design in this workstream.
+- proceed with C0 implementation and subsequent HUD convergence phases against the canonical branch;
+- keep release evidence honest: the stopped `6616addd` run is not a completed soak;
+- defer tag-bound signing, exact-byte lifecycle proof, and independent evaluation until the next actual release-candidate freeze;
+- when release qualification resumes, choose a new exact clean source identity and regenerate only the evidence required by the then-current release policy.
 
 ## Phase C0 — Freeze frontend/backend contracts
 

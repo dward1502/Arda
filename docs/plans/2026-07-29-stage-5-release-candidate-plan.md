@@ -185,7 +185,7 @@ All critical/high findings are fixed or release-blocked with an explicit mitigat
 **Gate S5-R1**
 No lost terminal state, duplicate mutation, unexplained completion, or unbounded state growth during the soak matrix.
 
-**Superseded-source closure (2026-08-07):** The uninterrupted 24-hour run from
+**Reliability disposition (2026-08-07):** The uninterrupted 24-hour run from
 commit `efd118b5` passed 2,844 of 2,844 scenario executions across all eleven
 failure classes. Source identity remained unchanged, protected-state growth was
 zero, every latency budget held, and the 64-GiB disk floor was preserved. The
@@ -193,9 +193,12 @@ receipt
 `docs/evidence/stage-5-release-candidate/reliability/soak-24h-final-efd118b5-20260807.json`
 and its adjacent assessment close S5-R1 for that source identity. The necessary
 release-version-only commit `6616addd` supersedes it as the `0.3.0-rc.1`
-candidate. Its 11/11 smoke passed and a new 86,400-second soak is active under
-`~/.local/state/arda/stage5-final-6616addd/`; S5-R1 is open until that receipt
-passes.
+candidate. Its 11/11 smoke passed. The operator then stopped the replacement
+86,400-second run and removed this elapsed-time gate from the current
+development critical path. The stopped run under
+`~/.local/state/arda/stage5-final-6616addd/` is not release evidence. Existing
+reliability evidence supports continued implementation; a new final-source
+qualification run is needed only if a later public-release policy requires it.
 
 ## Workstream 6 — UX and accessibility
 
@@ -411,7 +414,7 @@ signed by the tag-bound workflow.
 
 ## Reliability, performance, and accessibility tranche — S5-R1/U1
 
-**S5-R1 reopened for `0.3.0-rc.1` on 2026-08-07.** The bounded runner rotates eleven exact
+**S5-R1 accepted for continued development; final `0.3.0-rc.1` qualification deferred on 2026-08-07.** The bounded runner rotates eleven exact
 registered tests for repeated cancellation, operator rejection, provider loss,
 external process kill/restart, adapter crash, model timeout, oversized/noisy
 output, network loss, disk-pressure write failure, corrupted journal tail, and
@@ -441,7 +444,10 @@ new, release-only commit `6616addd` aligns package, Cargo, lockfile, and Tauri
 versions at `0.3.0-rc.1`. Its 11/11 all-scenario smoke passed with unchanged
 source identity and zero protected-state growth. A new 86,400-second run began
 at 2026-08-07T06:57:37Z from that clean commit; its launch and eventual receipt
-are retained under `~/.local/state/arda/stage5-final-6616addd/`.
+are retained under `~/.local/state/arda/stage5-final-6616addd/`. The operator
+stopped that replacement run after its green smoke and removed it from the
+current development critical path. It emitted no final receipt and must not be
+cited as a completed release soak.
 
 Automated Workbench accessibility passed 2/2 for critical/serious axe findings
 and keyboard focus order. Reduced-motion, increased-contrast, and forced-color
@@ -450,8 +456,9 @@ walkthrough now passes: cold start was 0.706 seconds, five-minute aggregate RSS
 peaked at 440.78 MiB and ended at 422.0 MiB, post-warmup growth was 4.2 MiB, and
 WebKit consumed 2.58% of one CPU core. AT-SPI plus physical X11 key events proved
 dialog naming, setup/recovery text, initial focus, Tab/Shift+Tab containment,
-Escape close, and focus restoration. U1 remains complete; S5-R1 awaits the
-`6616addd` receipt.
+Escape close, and focus restoration. U1 remains complete. S5-R1 is sufficient
+for continued development based on the completed `efd118b5` run and the
+`6616addd` smoke; exact final-source release qualification is deferred.
 
 Evidence:
 

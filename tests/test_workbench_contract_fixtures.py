@@ -57,6 +57,55 @@ class WorkbenchContractFixtureTests(unittest.TestCase):
             "spec/run-graph/v1/fixtures/invalid-run-graph.json",
         )
 
+    def test_hud_convergence_shared_fixture(self) -> None:
+        validator = self.validator(
+            "spec/hud-convergence/v1/hud-frontend-backend-contract.schema.json"
+        )
+        fixture_path = "spec/hud-convergence/v1/fixtures/valid-shared-contract.json"
+        self.assert_valid(validator, fixture_path)
+        self.assert_invalid(
+            validator,
+            "spec/hud-convergence/v1/fixtures/invalid-client-authority.json",
+        )
+
+        fixture = json.loads((REPO_ROOT / fixture_path).read_text(encoding="utf-8"))
+        self.assertEqual(
+            fixture["mutation"]["intent"]["intent_id"],
+            fixture["mutation"]["receipt"]["intent_id"],
+        )
+        self.assertEqual(
+            fixture["mutation"]["intent"]["operator_id"],
+            fixture["mutation"]["receipt"]["operator_id"],
+        )
+        self.assertEqual(
+            fixture["mutation"]["intent"]["action"],
+            fixture["mutation"]["receipt"]["action"],
+        )
+        self.assertEqual(
+            {state["status"] for state in fixture["load_states"]},
+            {"loading", "healthy", "stale", "partial", "degraded", "unavailable", "failed"},
+        )
+        expected_slots = {
+            "monitor_left_1",
+            "monitor_left_2",
+            "monitor_center",
+            "monitor_right_1",
+            "monitor_right_2",
+        }
+        sessions = fixture["monitor_sessions"]
+        self.assertEqual(set(sessions), expected_slots)
+        self.assertEqual({session["slot_id"] for session in sessions.values()}, expected_slots)
+        self.assertEqual(len({session["owner"] for session in sessions.values()}), 5)
+        self.assertEqual(
+            {session["content"]["kind"] for session in sessions.values()},
+            {"web", "media", "document", "terminal", "custom"},
+        )
+        for session in sessions.values():
+            self.assertEqual(
+                session["session_id"],
+                session["workstation_handoff"]["session_id"],
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

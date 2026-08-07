@@ -1,0 +1,35 @@
+{
+  "schema_version": "arda.hud.frontend-backend-contract.v1",
+  "identity": {
+    "session_id": "browser-created-session",
+    "operator_id": "operator-0",
+    "authority_owner": "react",
+    "authenticated_at_utc": "2026-08-06T20:00:00Z",
+    "expires_at_utc": "2026-08-06T22:00:00Z"
+  },
+  "mutation": {
+    "intent": {
+      "intent_id": "intent-unsafe",
+      "operator_id": "operator-0",
+      "operator_session_id": "browser-created-session",
+      "action": "workbench.approve",
+      "target": "run-client/node-client",
+      "idempotency_key": "random-browser-key",
+      "authority_reference": "browser-policy-safe"
+    },
+    "receipt": {
+      "receipt_id": "browser-receipt",
+      "intent_id": "intent-unsafe",
+      "operator_id": "operator-0",
+      "action": "workbench.approve",
+      "status": "accepted",
+      "authority_owner": "react",
+      "recorded_at_utc": "2026-08-06T20:00:00Z",
+      "durable_reference": "localStorage"
+    }
+  },
+  "workbench": {},
+  "load_states": [],
+  "event_stream": {},
+  "monitor_sessions": {}
+}

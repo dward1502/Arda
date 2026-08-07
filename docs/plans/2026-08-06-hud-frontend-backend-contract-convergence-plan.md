@@ -6,7 +6,7 @@
 
 ## Current execution state
 
-Contract preparation is complete and implementation remains dependency-blocked. The shared draft boundary is recorded in [`spec/hud-convergence/v1`](../../spec/hud-convergence/v1/README.md), with one schema and fixed passing/fail-closed fixtures for Rust, Tauri, and React. No backend feature or frozen-candidate source was changed by this preparation slice.
+Contract preparation is complete and implementation remains dependency-blocked. The shared draft boundary is recorded in [`spec/hud-convergence/v1`](../../spec/hud-convergence/v1/README.md), with one schema and fixed passing/fail-closed fixtures. Freeze-safe tests in `crates/engine/tests/hud_convergence_contract.rs`, `apps/arda-hud/src-tauri/tests/hud_convergence_contract.rs`, and `apps/arda-hud/src/lib/hudConvergenceContract.test.ts` now consume that same fixture and pin cross-layer authority, projection-state, event-stream, and five-monitor semantics. These are preparation tests, not evidence that production handlers or projections implement C0. No backend feature or runtime source was changed by this preparation slice.
 
 Stage 5 is still open: the final-source soak receipt, qualifying independent evaluator receipt, and exact signed-artifact lifecycle remain unresolved in the release evidence. C0 implementation and all C1–C3 work therefore remain blocked by the frozen-source boundary below.
 
@@ -77,7 +77,7 @@ Define:
 
 **Gate:** one shared contract test fixture drives Rust, Tauri, and React state handling.
 
-**Prepared fixture:** `spec/hud-convergence/v1/fixtures/valid-shared-contract.json` defines all seven load states, backend cursor/reconnect semantics, durable recovery, and five independent monitor sessions with same-session workstation handoff. `tests/test_workbench_contract_fixtures.py` validates that fixture and rejects browser-created authority. C0 implementation must consume this same fixture in Rust, Tauri, and React tests rather than creating divergent copies.
+**Prepared fixture:** `spec/hud-convergence/v1/fixtures/valid-shared-contract.json` defines all seven load states, backend cursor/reconnect semantics, durable recovery, and five independent monitor sessions with same-session workstation handoff. `tests/test_workbench_contract_fixtures.py` validates that fixture and rejects browser-created authority. The engine, Tauri, and React preparation tests named above consume the same file directly; production-path conformance remains open until C0 implementation is permitted.
 
 ## Phase C1 — Integrate vertical workflows
 

@@ -71,4 +71,12 @@ Current `arda.arda_boardroom_slots.v1` data exposes only `monitor_left_1` throug
 - Passing fixture: `fixtures/valid-shared-contract.json`
 - Fail-closed fixture: `fixtures/invalid-client-authority.json`
 
-The fixed-fixture gate in `tests/test_workbench_contract_fixtures.py` validates the schema, both fixtures, the seven-state vocabulary, five canonical monitor slots, independent owners, and same-session workstation continuity. Rust, Tauri, and React implementation tests must consume the same passing fixture during C0 implementation rather than copying its values into language-specific fixtures.
+The fixed-fixture gate in `tests/test_workbench_contract_fixtures.py` validates the schema, both fixtures, the seven-state vocabulary, five canonical monitor slots, independent owners, and same-session workstation continuity.
+
+Freeze-safe preparation consumers load this same fixture directly:
+
+- `crates/engine/tests/hud_convergence_contract.rs`
+- `apps/arda-hud/src-tauri/tests/hud_convergence_contract.rs`
+- `apps/arda-hud/src/lib/hudConvergenceContract.test.ts`
+
+They prove that all three layers resolve one fixture and agree on authority, state, stream, and monitor invariants. They do not claim that production handlers or React projections implement the contract yet.

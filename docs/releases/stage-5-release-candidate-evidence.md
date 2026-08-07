@@ -23,7 +23,7 @@ No row below converts a partial or blocked gate into a pass.
 | U4 local installation lifecycle | Pass for unsigned local candidate; final signed gate open | `../evidence/stage-5-release-candidate/reliability/u4-lifecycle-local-20260804.json` | Re-run fresh install, Workbench persistence, upgrade, backup/restore, rollback, diagnostics, safe reset, and uninstall against one reconciled final signed artifact identity. |
 | Supported Linux profile | Pass for initial profile | `../evidence/stage-5-release-candidate/s5-rc0/supported-profile.json` | Maintain the declared `bluefin-lts-10-x86_64` boundary. |
 | Reliability fault-matrix smoke | Pass | `../evidence/stage-5-release-candidate/reliability/u3-degradation-smoke-20260804.json` | 11/11 runs passed across the complete U3 failure matrix with zero state growth and unchanged source identity. |
-| 24-hour soak | Pass | `../evidence/stage-5-release-candidate/reliability/soak-24h-final-efd118b5-20260807.json`; `../evidence/stage-5-release-candidate/reliability/soak-24h-final-efd118b5-20260807-assessment.md` | The uninterrupted final-source run passed 2,844/2,844 executions across all eleven scenarios with unchanged source identity, zero protected-state growth, preserved latency budgets, and preserved disk headroom. |
+| 24-hour soak | In progress for `0.3.0-rc.1` | `../evidence/stage-5-release-candidate/reliability/soak-24h-final-efd118b5-20260807.json`; live launch under `~/.local/state/arda/stage5-final-6616addd/` | The `efd118b5` run passed 2,844/2,844, but release-version-only commit `6616addd` supersedes that source identity. Its 11/11 smoke passed; accept only the new 86,400-second receipt. |
 | Automated performance | Pass | `../evidence/stage-5-release-candidate/reliability/performance-accessibility.json` | Re-run after final artifact build. |
 | Automated accessibility | Pass | `../evidence/stage-5-release-candidate/reliability/performance-accessibility.json` | Two automated Workbench tests passed; critical/serious axe findings were zero. |
 | Native performance/accessibility acceptance | Pass | `../evidence/stage-5-release-candidate/reliability/performance-accessibility.json`; `../evidence/stage-5-release-candidate/reliability/native-launcher-walkthrough.json` | X11 cold-start, sustained-idle, AT-SPI/key-event keyboard, setup/recovery, and focus-containment acceptance passed. |
@@ -72,7 +72,10 @@ before/after source fingerprint; protected-state growth was zero, every latency
 budget held, and the 64-GiB disk floor was preserved. Nonzero exits remain
 fail-closed with explicit scenario/root-cause attribution and bounded redacted
 diagnostics; successful exact filters that select zero tests are rejected as
-false passes.
+false passes. Release-only commit `6616addd` aligns the candidate at
+`0.3.0-rc.1`; its 11/11 smoke passed and a new final-source soak began at
+2026-08-07T06:57:37Z. The previous pass remains valid historical evidence but
+does not close the gate for this superseding source identity.
 
 Automated performance remained within declared budgets:
 
@@ -152,11 +155,12 @@ by `PKG-EVIDENCE-001`.
 
 | ID | Severity | Owner | Required closure |
 |---|---|---|---|
+| REL-SOAK-002 | Release gate | Reliability maintainer | Allow the `6616addd` 86,400-second run to finish uninterrupted; accept only a valid receipt with all eleven scenarios represented, zero failures, unchanged source identity, bounded protected-state growth, preserved latency budgets, and preserved 64-GiB disk headroom. |
 | USABILITY-EVAL-001 | Release gate | UX/release maintainer | The neutral guide and fail-closed record template are prepared. Have a clean non-author evaluator identify current system state, approval authority, evidence quality, and the next recovery action without source or raw-state access; retain the completed evaluator receipt rather than substituting author or agent self-review. |
 | SEC-AUTH-001 | High if remotely exposed | Engine/harness maintainer | Keep all harness binds loopback-only; implement inbound authentication before remote or multi-user exposure. |
 | SEC-ADAPTER-001 | High for third-party adapters | Adapter runtime maintainer | Pin adapter artifact digest/signature; self-reported identity/version alone cannot defeat a malicious replacement binary. |
 | SEC-GLIB-001 | High advisory; mitigated | Launcher maintainer | Both Tauri consumers resolve the checksum-pinned vendored `glib 0.18.5` with the exact upstream `&mut` fix. Preserve the verifier/regression controls and replace the exception with maintained upstream GTK4 when available. |
-| PKG-EVIDENCE-001 | Release gate | Release maintainer | Regenerate local manifest/SBOM/checksum/reproducibility and release-lifecycle evidence for the exact remotely signed `v0.3.0-rc.0` asset identities. |
+| PKG-EVIDENCE-001 | Release gate | Release maintainer | Remote `v0.3.0-rc.0` checksums and all six signatures verify, but its source identity is seven commits behind `efd118b5` and its manifest records a dirty worktree. Release-only commit `6616addd` establishes the unused `0.3.0-rc.1` identity. After its final soak passes, build from that exact clean commit, publish a tag-bound prerelease, reconcile its exact signed bytes, and run the U4 lifecycle against them. |
 
 
 ## Final approval rule

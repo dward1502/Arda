@@ -8,7 +8,7 @@
 
 Contract preparation is complete and implementation remains dependency-blocked. The shared draft boundary is recorded in [`spec/hud-convergence/v1`](../../spec/hud-convergence/v1/README.md), with one schema and fixed passing/fail-closed fixtures. Freeze-safe tests in `crates/engine/tests/hud_convergence_contract.rs`, `apps/arda-hud/src-tauri/tests/hud_convergence_contract.rs`, and `apps/arda-hud/src/lib/hudConvergenceContract.test.ts` now consume that same fixture and pin cross-layer authority, projection-state, event-stream, and five-monitor semantics. These are preparation tests, not evidence that production handlers or projections implement C0. No backend feature or runtime source was changed by this preparation slice.
 
-The final-source soak gate passed on `efd118b5`, but Stage 5 is still open: the qualifying independent evaluator receipt and exact signed-artifact lifecycle remain unresolved in the release evidence. C0 implementation and all C1–C3 work therefore remain blocked by the frozen-source boundary below.
+The final-source soak passed on `efd118b5`, but the required release-version-only commit `6616addd` supersedes that identity for `0.3.0-rc.1`. Its 11/11 smoke passed and a new 86,400-second soak is running. Stage 5 is also still missing the qualifying independent evaluator receipt and exact signed-artifact lifecycle. C0 implementation and all C1–C3 work therefore remain blocked by the frozen-source boundary below.
 
 ## 1.0 definition
 
@@ -28,7 +28,7 @@ RELIC/CITADEL and Mirromere are explicitly outside this 1.0 scope. Their retaine
 
 Until Stage 5 closes:
 
-- do not add backend features or alter the `efd118b5` candidate;
+- do not add backend features or alter the clean `6616addd` candidate;
 - allow the uninterrupted 24-hour receipt to finish;
 - build reproducible artifacts from that exact clean source;
 - publish and verify the tag-bound signed artifact set;

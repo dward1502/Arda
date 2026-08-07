@@ -144,6 +144,15 @@ steps successfully. The remote asset identities differ from the older local
 packaging summary, so that summary cannot alone prove the published artifact
 lifecycle; regenerate one reconciled evidence packet before promotion.
 
+The 2026-08-06 reconciliation packet is
+`docs/evidence/stage-5-release-candidate/packaging/remote-signed-artifact-reconciliation-20260806.json`.
+It verifies the remote checksum ledger and all six Sigstore bundles, but fails
+closed for final-source promotion: the published tag and manifest bind to
+`28cde28b9fd97fdc91de36418da872b1628ae41b`, the manifest records
+`tracked_worktree_clean=false`, and the frozen final source is
+`efd118b5339f42df133fdfb9d3256c64a02b7e59`. The signed bytes are authentic
+published RC bytes, not final-source Stage 5 evidence.
+
 The separate Bluefin RELR packaging defect is repaired in commit `30d0a5f`.
 The fail-closed helper pins and verifies appimagetool 1.9.1 and the type-2
 runtime, and two real outputs from the populated RELR-era AppDir are

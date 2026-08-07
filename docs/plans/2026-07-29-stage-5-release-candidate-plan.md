@@ -10,7 +10,7 @@
 
 **Primary product:** Arda Workbench release candidate  
 **Secondary betas:** Personal Operations and Warden Research  
-**Optional projections:** Mirromere and RELIC/CITADEL, isolated from the release-critical path
+**Outside 1.0:** Mirromere and RELIC/CITADEL feature expansion; retained operations remain isolated from the release-critical path
 
 ## Reconciled Stage 5 authorities and dependencies — 2026-07-31
 
@@ -20,9 +20,9 @@
 | Warden/Varda durable backend | [governed-learning plan](../archive/2026-07-27-warden-varda-ceo-learning-loop.md) | completed supporting authority; required only if the optional Warden Research recurring-watchlist beta ships |
 | Warden Research product/API/HUD | [archived Warden Research record](../archive/2026-07-29-warden-research-application-plan.md) | completed optional secondary beta record; not release-critical |
 | Pi5 AArch64 deployment, fleet, SSH, shared recovery | [Pi5 record](../archive/2026-07-23-pi5-outpost-integration-plan.md) | completed supporting infrastructure; required only for a beta that promises physical outpost support |
-| RELIC/CITADEL presence/presentation | [RELIC/CITADEL plan](2026-07-29-relic-citadel-plan.md) | optional feature-flagged projection; RC-5 expansion remains blocked until its base projection beta passes |
+| RELIC/CITADEL presence/presentation | [retained RELIC/CITADEL operations](../operations/relic-citadel-presence.md) | existing recovery/soak history is nonblocking; feature expansion is outside 1.0 |
 
-No task from the three optional application/outpost plans may delay Workbench packaging, security, reliability, diagnostics, or support work.
+No deferred application/outpost task may delay Workbench packaging, security, reliability, diagnostics, or support work.
 
 ---
 
@@ -409,8 +409,12 @@ and
 with the release manifest, checksums, SBOM, public key, and Sigstore bundles in
 the same directory. The repaired package bytes supersede the pre-normalization
 DEB/RPM candidate signatures; the global signed-release exit item remains open
-until remote trust controls are active and the final normalized artifacts are
-signed by the tag-bound workflow.
+until the final normalized artifacts are signed by the tag-bound workflow and
+pass the installed lifecycle. The 2026-08-06 remote reconciliation verifies all
+six published `v0.3.0-rc.0` signatures but fails closed because those assets bind
+to source `28cde28b` with `tracked_worktree_clean=false`, not frozen final source
+`efd118b5`; see
+`docs/evidence/stage-5-release-candidate/packaging/remote-signed-artifact-reconciliation-20260806.json`.
 
 ## Reliability, performance, and accessibility tranche — S5-R1/U1
 

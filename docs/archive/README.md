@@ -18,6 +18,13 @@ work under `docs/plans/`.
 
 ## Completed closeouts
 
+Deferred, non-1.0 records live under [`deferred/`](deferred/). They preserve
+design and internal-alpha evidence but hold no active 1.0 implementation
+authority. This includes Mirromere, Company Operations pilot work, and external
+product adoption research.
+
+- [`ARDA_1_0_PRODUCT_READINESS.md`](ARDA_1_0_PRODUCT_READINESS.md)
+  — superseded point-in-time readiness assessment; current portfolio and completion authority live in the product-plan suite and system-unification plan.
 - [`2026-07-27-warden-varda-ceo-learning-loop.md`](2026-07-27-warden-varda-ceo-learning-loop.md)
   — completed durable Warden/Varda/Aulë receipt chain, governed Vairë knowledge intake, and replay-safe proposal receipts.
 - [`2026-07-29-arda-workbench-private-beta-plan.md`](2026-07-29-arda-workbench-private-beta-plan.md)

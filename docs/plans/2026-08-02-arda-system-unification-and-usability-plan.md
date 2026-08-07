@@ -13,6 +13,7 @@
 
 - [Stage 5 — Release Candidate](2026-07-29-stage-5-release-candidate-plan.md)
 - [Stage 6 — Legitimate 1.0](2026-07-29-stage-6-legitimate-1.0-plan.md)
+- [HUD Frontend–Backend Contract Convergence](2026-08-06-hud-frontend-backend-contract-convergence-plan.md)
 - [Arda Product Plan Suite](ARDA_PRODUCT_PLAN_SUITE.md)
 
 ---
@@ -351,9 +352,12 @@ remain outside the Workbench Stage 5/6 critical path.
   Bluefin LTS `.relr.dyn` sections; the release gate does not substitute AppDir
   output or an unsigned local package.
 - The final signed-artifact checkbox and Gate U4 remain open. The published
-  `v0.3.0-rc.0` assets are remotely signed, but the checked-in local packaging
-  ledger has different artifact identities and reports production trust not
-  ready. U4 closes only after the exact published/final signed bytes pass this
+  `v0.3.0-rc.0` checksum ledger and all six Sigstore bundles verify, but the
+  release tag and manifest bind to source `28cde28b`, seven commits behind frozen
+  final source `efd118b5`, and the manifest records
+  `tracked_worktree_clean=false`. The fail-closed reconciliation receipt is
+  `docs/evidence/stage-5-release-candidate/packaging/remote-signed-artifact-reconciliation-20260806.json`.
+  U4 closes only after exact signed bytes from clean final source pass this
   lifecycle and the clean profile reaches a persisted Workbench change.
 
 **Gate U4:** A clean supported profile reaches the first verified Workbench change from published instructions, and every induced setup failure gives an actionable recovery path.
@@ -414,6 +418,8 @@ remain outside the Workbench Stage 5/6 critical path.
 
 - [ ] Close and archive Stage 5 only after its exact release gates and evidence packet pass.
 - [ ] Execute Stage 6 as the release decision and proof phase, not a feature-expansion stage.
+- [ ] Execute frontend/backend convergence one vertical workflow at a time after Stage 5 closes; preserve Rust authority and require durable restart recovery.
+- [ ] Accept all five upper monitor sessions and workstation continuity natively without changing World View into a workspace.
 - [ ] Classify every first-party application as supported, beta, preview, research, or not distributed.
 - [ ] Archive every completed domain plan and repair all active references.
 - [ ] Leave one live authority per domain: source/contracts, compact crate status, operator docs, and release evidence.
@@ -475,6 +481,8 @@ Exact artifact signing, clean-install, upgrade/rollback, backup/restore, adapter
 - [ ] Failure injection and the uninterrupted soak show no silent mutation, false completion, duplicate mutation, lost terminal state, or unbounded growth.
 - [ ] Final signed artifacts pass install, upgrade, rollback, backup, restore, diagnostics, and uninstall on the supported matrix.
 - [ ] Accessibility, plain-language recovery, security/privacy, known limitations, and support documentation pass their Stage 5/6 gates.
+- [ ] HUD health, Workbench, Research, and Personal Operations use frozen backend-owned identity, state, error, receipt, and recovery contracts.
+- [ ] All five upper monitor surfaces pass native concurrent-owner, full-aperture, same-session workstation, and restart-recovery acceptance.
 - [ ] Other first-party applications are honestly classified and cannot block or destabilize Workbench.
 - [ ] Completed plans are archived, stale paths are repaired, and the default documentation route describes the live system.
 - [ ] Post-closeout development is limited to measurable improvement of existing supported workflows.

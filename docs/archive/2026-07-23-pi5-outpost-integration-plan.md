@@ -6,7 +6,7 @@
 **Stage posture:** Supporting infrastructure; not a Workbench release-candidate gate
 **Canonical backend authority:** [Warden → Varda → Aulë governed learning loop](2026-07-27-warden-varda-ceo-learning-loop.md)
 **Canonical research product authority:** [Warden Research](2026-07-29-warden-research-application-plan.md)
-**Canonical presence/presentation authority:** [RELIC/CITADEL](../plans/2026-07-29-relic-citadel-plan.md)
+**Retained presence/presentation operations:** [RELIC/CITADEL](../operations/relic-citadel-presence.md)
 
 ## Reconciliation decision
 
@@ -125,7 +125,7 @@ Application-specific bridge, renderer, kiosk, stale-scene, and soak behavior rem
 - Create: `scripts/pi5_outpost_status.sh`
 - Create: `scripts/pi5_outpost_restart.sh`
 - Modify only if validation requires it: `config/fleet.toml`
-- Update operator recovery guidance in `docs/MIRROMERE_RELIC_OUTPOST_VISION.md`
+- Update operator recovery guidance in `docs/archive/deferred/MIRROMERE_RELIC_OUTPOST_VISION.md`
 
 **Open work**
 
@@ -145,7 +145,7 @@ Application-specific bridge, renderer, kiosk, stale-scene, and soak behavior rem
   `:8092/health` checks passed on attempt 1. Live `citadel presence` restart
   changed only `relic.service` and `citadel-kiosk.service`; both units and
   `:8091/` passed on attempt 1. A subsequent full status run passed every gate.
-- `docs/MIRROMERE_RELIC_OUTPOST_VISION.md` records exact status, scoped restart,
+- `docs/archive/deferred/MIRROMERE_RELIC_OUTPOST_VISION.md` records exact status, scoped restart,
   reboot, and Warden rollback commands plus last-known-good artifact SHA-256
   `42c15c9184d0e7e15e37e16e50c972f3c85ee00a142d42320866331ef90bed4e`.
   No helper accepts passwords, credentials, arbitrary hosts, arbitrary units,

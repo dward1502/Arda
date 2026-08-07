@@ -9,7 +9,7 @@ import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-REGISTRY = ROOT / "docs/plans/PROVENANCE_AND_ATTRIBUTION.md"
+REGISTRY = ROOT / "docs/contracts/PROVENANCE_AND_ATTRIBUTION.md"
 REQUIRED_ROOT_FILES = (ROOT / "LICENSE", ROOT / "NOTICE", REGISTRY)
 APP_MANIFESTS = (
     ROOT / "apps/arda-hud/package.json",

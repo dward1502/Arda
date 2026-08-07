@@ -1,6 +1,8 @@
 # Product Requirements Document (PRD)
 ## Mirromere — Presence Mirror Interface for ARDA
 
+> **Lifecycle:** Deferred design record retained outside the Arda 1.0 release scope as of 2026-08-06. It is not active plan authority.
+
 **Version:** 1.0  
 **Status:** Draft for Ingestion  
 **Date:** 2026-07-26  

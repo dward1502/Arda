@@ -1,5 +1,7 @@
 # Arda Company Operations Implementation Plan
 
+> **Lifecycle:** Deferred outside the Arda 1.0 release scope on 2026-08-06. The implemented internal-alpha evidence is retained; the real-engagement pilot gates remain honest future evidence and do not block 1.0.
+
 > **For Hermes:** Build this as a governed application over Workbench, Personal Operations, Warden Research, Oromë, Aulë, and Economics. Do not create an unconstrained “CEO agent” or let proposals become executable work without receipts and approval.
 
 **Goal:** Help the operator convert ideas, client needs, research, and development capacity into revenue-producing products and services while preserving human authority over commitments, money, external communications, publication, and deployment.

@@ -1,8 +1,10 @@
 # Mirromere and Relic: Embodied Outpost Vision
 
-**Status:** Active architectural vision; implementation is intentionally incremental and safety-gated  
+> **Lifecycle:** Deferred vision record retained outside the Arda 1.0 release scope as of 2026-08-06. It is not active plan authority.
+
+**Status:** Deferred outside 1.0; no active implementation authority
 **Scope:** Arda core, modular Rust outposts, ambient assistance, embodied visualization, and health-support boundaries  
-**Supersedes:** No existing contract. This document carries forward the useful intent from the outdated `docs/plans/EMBODIED_INTERFACE.md` while separating verified current state from future design.
+**Supersedes:** No existing contract. This document carries forward useful intent from the retired historical `EMBODIED_INTERFACE.md` record while separating verified current state from future design.
 
 ## Vision
 
@@ -512,7 +514,7 @@ Useful future sources may include Kp, Dst, IMF Bz, solar-wind speed/density, F10
 ## References
 
 - `docs/plans/EMBODIED_INTERFACE.md` — prior embodied-interface narrative and historical status
-Embodied-interface planning is consolidated into `docs/plans/2026-07-29-relic-citadel-plan.md` and this document. The earlier `docs/plans/EMBODIED_INTERFACE.md` narrative has been retired as stale and removed from the tree; do not reference it.
+Embodied-interface history is retained in `docs/operations/relic-citadel-presence.md` and this deferred record. The earlier `docs/plans/EMBODIED_INTERFACE.md` narrative has been retired as stale and removed from the tree; do not reference it.
 - `core/state/embodied_interface.json` — current legacy embodiment mapping
 - `core/state/tauri_embodiment.json` — current legacy rendering doctrine
 - `crates/spine/governance/arda-governance/src/environmental.rs` — typed advisory environmental signals

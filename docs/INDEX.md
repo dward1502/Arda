@@ -2,14 +2,15 @@
 
 ## Key active docs
 
-- `docs/plans/ARDA_1_0_PRODUCT_READINESS.md`
 - `docs/plans/ARDA_PRODUCT_PLAN_SUITE.md`
+- `docs/plans/2026-08-06-hud-frontend-backend-contract-convergence-plan.md`
+- `docs/audits/2026-08-06-hud-frontend-backend-integration.md`
+- `docs/audits/2026-08-06-arda-1.0-plan-estate.md`
 - `docs/CODEMAP.md`
 - `docs/FILE_TREE.jsonl`
 - `docs/INDEX.md`
-- `docs/plans/MIRROMERE_RELIC_OUTPOST_VISION.md`
-- `docs/plans/Mirromere_PRD.md`
-- `docs/plans/PROVENANCE_AND_ATTRIBUTION.md`
+- `docs/contracts/PROVENANCE_AND_ATTRIBUTION.md`
+- `docs/architecture/FEDERATED_COMMS.md`
 - `docs/operations/INDEX.md`
 - `docs/contracts/ARDA_ECOSYSTEM_STANDARD_INDEX.md`
 - `docs/contracts/arda-ecosystem-standard-track-1-observability.md`
@@ -19,6 +20,7 @@
 
 ## Archive
 
+- `archive/ARDA_1_0_PRODUCT_READINESS.md`
 - `archive/AIPKG.md`
 - `archive/CHARON.md`
 - `archive/MANWE_FOUNDATION_CHECKLIST.md`
@@ -45,4 +47,6 @@
 
 `docs/plans/` contains only current active plans. Its contents are intentionally
 discovered dynamically rather than hard-coded here; completed plans are removed
-or retained under `docs/archive/` according to their evidence needs.
+or retained under `docs/archive/` according to their evidence needs. Normative
+non-plan documents live under their owning contract, architecture, or operations
+directory.

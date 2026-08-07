@@ -30,7 +30,7 @@ as attributed architecture or research references only unless a component-level
 record explicitly identifies an adaptation or incorporated artifact. Their
 source identities and unresolved review boundaries are tracked in:
 
-  docs/plans/PROVENANCE_AND_ATTRIBUTION.md
+  docs/contracts/PROVENANCE_AND_ATTRIBUTION.md
 
 This NOTICE records the currently verified project-level boundary. It must be
 updated when a release incorporates material whose upstream license requires

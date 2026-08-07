@@ -1,13 +1,15 @@
 # RELIC and CITADEL Runtime Presence Plan
 
-> **For Hermes:** This is the canonical presence and presentation authority. Keep renderer, bridge, kiosk, scene semantics, accessibility, display-safe companion state, and CITADEL application recovery here. Do not place these tasks in the Pi5, governed-learning, or Warden Research plans.
+> **Lifecycle:** Removed from Arda 1.0 product scope on 2026-08-06. This operational record remains only to preserve the already-running sidecar recovery/soak history; it does not block Workbench/HUD 1.0 and must not seed new presence features.
+
+> **For Hermes:** This is a retained operational record for the existing renderer, bridge, kiosk, and recovery procedures. It owns no new 1.0 implementation work.
 
 ## Status
 
-**Status:** Active final soak gate; implementation/recovery reconciled on 2026-08-04
+**Status:** Retained operations; no active 1.0 gate. Implementation/recovery reconciled on 2026-08-04.
 
 **Live connection:** RELIC/CITADEL transport boundary implemented and verified as of 2026-08-03. The Arda harness now listens on `127.0.0.1:7878`, the `arda-relic-presence-sync` bridge service is active, and CITADEL's `relic.service` (port 8091) and `citadel-kiosk.service` are running. The three-shape geometric visual now responds to live Arda presence via the `arda.relic.scene-adapter.v1` contract instead of the external scripted renderer.
-**Source design:** `docs/plans/MIRROMERE_RELIC_OUTPOST_VISION.md`
+**Source design:** `docs/archive/deferred/MIRROMERE_RELIC_OUTPOST_VISION.md`
 **Provenance decision:** external sidecar/protocol integration only; no source migration from `/var/home/mythos/Eregion/relic-kiosk`
 **Shared node operations:** [Pi5 deployment/fleet/recovery](../archive/2026-07-23-pi5-outpost-integration-plan.md)
 

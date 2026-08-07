@@ -1,5 +1,7 @@
 # External Product Integration Research and Adoption Plan
 
+> **Lifecycle:** Deferred reference retained outside the Arda 1.0 release scope on 2026-08-06. Candidates require fresh need, license, security, maintenance, and egress review before adoption.
+
 > **For Hermes:** Treat every external product as an adapter candidate, not an architecture mandate. Before dependency adoption, reverify the current upstream release, license, security posture, maintenance activity, transitive dependencies, and data-egress behavior.
 
 **Goal:** Reuse mature external ecosystems where they accelerate Arda while retaining Arda's Rust-owned governance, identity, run graph, evidence, memory, authority, and receipt contracts.
@@ -50,7 +52,7 @@ Arda should not replace its kernel with an external agent framework. It should u
 - Oromë already implements MCP server/tool surfaces and governed external-source connector contracts; its `mcp/protocol.rs` still identifies part of the protocol surface as a placeholder.
 - Aulë already has optional OpenTelemetry 0.32/OTLP dependencies and an emission/shutdown test.
 - HUD and Launcher already depend on Three.js and React Three Fiber.
-- `docs/plans/FEDERATED_COMMS.md` already selects Matrix as the leading federated-room candidate.
+- `docs/architecture/FEDERATED_COMMS.md` already selects Matrix as the leading federated-room candidate.
 - Personal Operations is already planned around iCalendar first and CalDAV later.
 - Arda already has task, governance, memory, routing, telemetry, evidence, communications, and receipt domains. External products must not create competing sources of truth.
 

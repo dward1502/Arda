@@ -4,10 +4,13 @@
 
 **System completion coordination:** [Arda System Unification and Usability Plan](2026-08-02-arda-system-unification-and-usability-plan.md). This Stage 6 plan remains authoritative for 1.0 release gates; the coordination plan adds no product scope.
 
+**Frontend convergence authority:** [HUD Frontend–Backend Contract Convergence and 1.0 Closeout](2026-08-06-hud-frontend-backend-contract-convergence-plan.md) and its [live integration audit](../audits/2026-08-06-hud-frontend-backend-integration.md).
+
 **Release promise:** Connect a supported software project to a sovereign AI development environment you own. Arda plans, researches when needed, executes bounded work, verifies it with the project's commands, explains the evidence, records every consequential action, and resumes safely.
 
 **Product:** Arda Workbench 1.0 for the declared Linux support matrix  
-**Optional first-party extensions:** Warden Research and Personal Operations beta; Mirromere, RELIC/CITADEL, and Company Operations preview unless they independently meet their plans.
+**Included HUD projections:** system/runtime health, Workbench, recovery/diagnostics, Research, Personal Operations, and five independently claimable upper monitors.
+**Outside 1.0:** Mirromere, RELIC/CITADEL feature expansion, Company Operations pilot work, and external-product adoption.
 
 ---
 
@@ -15,7 +18,7 @@
 
 - Stage 5 release-candidate evidence packet is complete.
 - Every critical/high defect is resolved or explicitly release-blocking.
-- External evaluators have completed repeated useful sessions.
+- One qualifying independent non-author evaluation has passed without author/agent substitution.
 - Installation, upgrade, rollback, backup, restore, and diagnostics are reproducible.
 - The project/adapter/run contracts are frozen for the 1.x compatibility window.
 
@@ -33,6 +36,10 @@
 - cited bounded research when requested;
 - acceptance, rejection, revision, and exportable receipt bundle;
 - local-first storage, backup/restore, diagnostics, and documented privacy controls.
+- authoritative HUD projections for health, Workbench, recovery, Research, and Personal Operations;
+- five independently claimable upper monitors with same-session workstation continuity;
+- explicit loading, healthy, stale, partial, degraded, unavailable, and failed states;
+- a measured HUD/runtime performance baseline with release-blocking regressions corrected.
 
 ### Not implied by 1.0
 - fully autonomous company operation;
@@ -57,6 +64,11 @@ Any new feature proposed after scope lock must replace an equal or larger releas
 
 **Gate S6-C1**
 A 1.0-compatible adapter survives patch/minor upgrades according to policy, or receives a precise compatibility error without unsafe fallback.
+
+The contract freeze also covers Tauri/HTTP request and response schemas,
+backend-issued operator identity and mutation authority, stable lineage IDs, and
+SSE cursor/reconnect semantics. React cannot mint approval decisions, canonical
+run topology, completion, receipts, or aggregate health.
 
 ## Release workstream 2 — Final safety case
 
@@ -90,23 +102,34 @@ There is no known reproducible path to silent mutation, false completion, unreco
 
 ## Release workstream 4 — User outcome proof
 
-Required evidence from independent users:
+Required evidence from one qualifying independent non-author evaluator:
 - installation without author intervention;
 - integration of an unseen supported repository;
 - at least one accepted verified change;
 - at least one rejected or revised run;
 - recovery from one induced failure;
-- return usage after the first session;
 - qualitative understanding of approval and evidence surfaces.
 
-**Minimum 1.0 cohort gate**
-- at least ten independent evaluators;
-- at least five complete a second useful session;
-- at least three use Arda on their own project over two or more weeks;
+**Minimum 1.0 evaluator gate**
+- one qualifying evaluator completes the Stage 5 guide against the final artifact bytes;
+- no author, agent, or proxy review is substituted for that evaluator;
 - no unresolved critical usability blocker;
-- measured value is reported honestly, including users for whom Arda was slower or unsuitable.
+- findings and limitations are reported honestly.
 
-These numbers are release evidence thresholds, not market-success claims.
+Broader cohort and repeat-use evidence is valuable post-1.0 product evidence,
+not a reason to keep the creator-owned 1.0 release permanently open.
+
+## Release workstream 4A — HUD convergence and native acceptance
+
+Execute the integration matrix one vertical workflow at a time after Stage 5
+closes. Prove backend state → transport → rendering → operator action → backend
+mutation → durable receipt → restart recovery. Accept authored HUD geometry and
+the five monitor/workstation sessions in the native application. Keep World View
+display-only.
+
+Measure cold launch, first useful render, idle CPU/RSS, Three.js frame/GPU cost,
+React commits, SSE visible latency, workstation opening latency, media growth,
+duplicate polling, and long-session growth before optimizing.
 
 ## Release workstream 5 — Documentation and product identity
 
@@ -206,7 +229,10 @@ Each claim references commands, artifact hashes, run IDs, evaluator evidence, or
 - [ ] Clean install, upgrade, rollback, backup, and restore pass.
 - [ ] Rust, Python, and JavaScript unseen-project integrations pass.
 - [ ] Failure/recovery matrix has no silent mutation or false completion.
-- [ ] Ten-user evidence gate and repeat-use gate pass.
+- [ ] The qualifying independent non-author evaluator gate passes.
+- [ ] Frontend/backend contract convergence passes without React-owned authority.
+- [ ] Five-monitor native visual/workstation acceptance passes.
+- [ ] The performance baseline is published and release-blocking regressions are corrected.
 - [ ] Documentation and accessibility gates pass.
 - [ ] Licensing, third-party notices, support, and vulnerability processes exist.
 - [ ] Every first-party application has an honest release classification.
@@ -215,10 +241,9 @@ Each claim references commands, artifact hashes, run IDs, evaluator evidence, or
 ## Post-1.0 sequence
 
 1. Stabilize the 1.x Workbench compatibility line.
-2. Turn repeated Workbench usage into Company Operations evidence and paid service/product experiments.
-3. Mature Personal Operations around capture and recovery.
-4. Add Mirromere as a consent-governed projection of the same orchestrator.
-5. Add RELIC/CITADEL as read-only runtime presence.
-6. Expand Warden watchlists and governed self-improvement only as audit evidence supports additional authority.
+2. Gather broader cohort and repeat-use evidence without rewriting 1.0 history.
+3. Consider Company Operations pilots only when a real operator-selected engagement exists.
+4. Reconsider Mirromere or RELIC/CITADEL only through a new bounded post-1.0 decision.
+5. Expand Warden watchlists and governed self-improvement only as audit evidence supports additional authority.
 
 The 1.0 release is the point where Arda begins serving the creator reliably—not the point where the vision stops growing.

@@ -1,5 +1,10 @@
 # Arda 1.0 Product Readiness and Product Direction
 
+> Archived 2026-08-06. This superseded point-in-time baseline is retained for
+> history, not active execution. Current authority lives in
+> `../plans/ARDA_PRODUCT_PLAN_SUITE.md` and
+> `../plans/2026-08-02-arda-system-unification-and-usability-plan.md`.
+
 **Assessment date:** 2026-07-29  
 **Current classification:** Integrated Platform Alpha  
 **Readiness score:** 51.6/100  

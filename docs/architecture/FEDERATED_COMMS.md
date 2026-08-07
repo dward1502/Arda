@@ -15,7 +15,7 @@ reviewed: "2026-08-02"
 
 > Arda Federated Comms: 📜 layered communications doctrine | owner: prometheus | status: active | reviewed: 2026-08-02
 
-# Federated Comms Plan
+# Federated Communications Architecture
 
 `FEDERATED_COMMS` is the current Arda layered communications doctrine surface.
 
@@ -48,7 +48,7 @@ Defines the layered communications doctrine above local sovereign control.
 
 ## References
 
-- Doctrine: `docs/plans/FEDERATED_COMMS.md`
+- Doctrine: `docs/architecture/FEDERATED_COMMS.md`
 - Core runtime: `core/state/federated_comms.json`
 - Runtime state: `core/state/federated_comms_runtime.json`
 - Matrix routing: `core/state/matrix_boardrooms.json`

@@ -1,5 +1,7 @@
 # Mirromere Ambient Avatar Implementation Plan
 
+> **Lifecycle:** Deferred outside the Arda 1.0 release scope on 2026-08-06. This design-only record is retained for future reconsideration and has no active implementation authority.
+
 > **For Hermes:** Use `subagent-driven-development`. Implement monitor-first, local-first, and capability-by-capability; do not activate camera, microphone, identity, or physical action in a single broad packet.
 
 **Goal:** Deliver a JARVIS-like first-party ambient interface that can speak, listen, display Arda state, capture personal operations input, and embody the orchestrator while remaining safe, quiet, and useful when sensors, models, or the network fail.
@@ -9,7 +11,7 @@
 **Tech stack:** Tauri 2, Rust, React, React Three Fiber, Three.js/WebGPU with WebGL fallback, VRM, local STT/TTS sidecars, Manwe, Oromë, Vairë, Personal Operations API.
 
 **Target stage:** Stage 5 monitor alpha; physical mirror beta after Stage 6 Workbench 1.0  
-**Source design:** `docs/plans/Mirromere_PRD.md` and `docs/plans/MIRROMERE_RELIC_OUTPOST_VISION.md`
+**Source design:** `docs/archive/deferred/Mirromere_PRD.md` and `docs/archive/deferred/MIRROMERE_RELIC_OUTPOST_VISION.md`
 **Critical correction:** camera/face presence may provide context but never sole identity, authority, or clinical evidence.
 **Provenance audit:** `docs/research/2026-07-30-mirromere-relic-provenance-audit.md`; no executable Mirromere prototype was found, so this plan remains design-only and clean-room.
 
@@ -18,8 +20,8 @@
 ## Verified starting point
 
 - No `apps/mirromere/` application exists in the current workspace.
-- `docs/plans/Mirromere_PRD.md` defines scenes, VRM direction, local speech, and a Rust-owned state machine, but includes aspirational names and authority that must be reconciled with current Manwe/Oromë/governance boundaries.
-- `docs/plans/MIRROMERE_RELIC_OUTPOST_VISION.md` establishes current outpost, privacy, wellness, and evidence-class boundaries.
+- `docs/archive/deferred/Mirromere_PRD.md` defines scenes, VRM direction, local speech, and a Rust-owned state machine, but includes aspirational names and authority that must be reconciled with current Manwe/Oromë/governance boundaries.
+- `docs/archive/deferred/MIRROMERE_RELIC_OUTPOST_VISION.md` establishes current outpost, privacy, wellness, and evidence-class boundaries.
 - ARDA HUD already has world, boardroom, presence, scene transition, and runtime source infrastructure that can be referenced but must not be copied wholesale.
 - Voice, camera, wake-word, and physical action are not active default capabilities.
 - No executable Mirromere prototype, dependency inventory, asset-rights record, or runtime recovery path exists in the inspected `/var/home/mythos/Eregion` tree.

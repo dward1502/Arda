@@ -2,6 +2,7 @@ use crate::commands::monitor_surface::contract::{is_session_active, MonitorSurfa
 use crate::commands::monitor_surface::registry::{
     MonitorSessionRecord, WorkstationHandoff, MONITOR_SESSION_REGISTRY_SCHEMA_VERSION,
 };
+use std::sync::{Arc, Barrier};
 
 const DEFAULT_LEASE_SECS: u64 = 7200;
 
@@ -52,6 +53,72 @@ fn contract_claims_five_independent_monitor_sessions() {
             snapshot.sessions[&format!("monitor_{index}")].owner,
             format!("agent-{index}")
         );
+    }
+}
+
+#[test]
+fn contract_serializes_concurrent_claims_to_one_active_owner() {
+    let state = Arc::new(MonitorSurfaceContractState::new());
+    let barrier = Arc::new(Barrier::new(6));
+    let mut handles = Vec::new();
+
+    for index in 1..=5 {
+        let state = Arc::clone(&state);
+        let barrier = Arc::clone(&barrier);
+        handles.push(std::thread::spawn(move || {
+            let mut record = base_record();
+            record.owner = format!("concurrent-agent-{index}");
+            record.session_id = format!("concurrent-session-{index}");
+            record.surface_session_id = record.session_id.clone();
+            record.workstation_handoff.session_id = record.session_id.clone();
+            barrier.wait();
+            state.claim_session(record)
+        }));
+    }
+    barrier.wait();
+
+    let results = handles
+        .into_iter()
+        .map(|handle| handle.join().unwrap())
+        .collect::<Vec<_>>();
+    assert_eq!(results.iter().filter(|result| result.is_ok()).count(), 1);
+    assert_eq!(state.session_registry().sessions.len(), 1);
+}
+
+#[test]
+fn contract_keeps_concurrent_release_and_reclaim_atomic() {
+    let state = Arc::new(MonitorSurfaceContractState::new());
+    state.claim_session(base_record()).unwrap();
+    let barrier = Arc::new(Barrier::new(3));
+
+    let release_state = Arc::clone(&state);
+    let release_barrier = Arc::clone(&barrier);
+    let release = std::thread::spawn(move || {
+        release_barrier.wait();
+        release_state.release_session("monitor_1", "agent-web")
+    });
+
+    let claim_state = Arc::clone(&state);
+    let claim_barrier = Arc::clone(&barrier);
+    let claim = std::thread::spawn(move || {
+        let mut record = base_record();
+        record.owner = "replacement-agent".to_string();
+        record.session_id = "replacement-session".to_string();
+        record.surface_session_id = record.session_id.clone();
+        record.workstation_handoff.session_id = record.session_id.clone();
+        claim_barrier.wait();
+        claim_state.claim_session(record)
+    });
+
+    barrier.wait();
+    assert!(release.join().unwrap().is_ok());
+    let claim_result = claim.join().unwrap();
+    let snapshot = state.session_registry();
+    assert!(snapshot.sessions.len() <= 1);
+    if claim_result.is_ok() {
+        assert_eq!(snapshot.sessions["monitor_1"].owner, "replacement-agent");
+    } else {
+        assert!(snapshot.sessions.is_empty());
     }
 }
 

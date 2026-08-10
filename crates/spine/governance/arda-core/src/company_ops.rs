@@ -4,13 +4,18 @@
 //! and realized outcomes. They never grant Company Operations authority to send,
 //! spend, publish, deploy, or make a client commitment on its own.
 
+use crate::capability_composition::{CapabilityComposition, CompositionScope, EgressTarget};
+use crate::run_graph::{ObjectiveId, RunGraph, RunId};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeSet;
 use std::path::Path;
 use uuid::Uuid;
 
 pub const COMPANY_OPS_SCHEMA_VERSION: &str = "arda.company-ops.v1";
 pub const COMPANY_OPS_CONFIG_SCHEMA_VERSION: &str = "arda.company-operations.config.v1";
+pub const COMMERCIAL_LIFECYCLE_SCHEMA_VERSION: &str = "arda.commercial-lifecycle.v1";
+pub const COMPANY_OPERATIONS_CAPABILITY_ID: &str = "company_operations";
 
 #[derive(Debug, thiserror::Error, PartialEq)]
 pub enum CompanyOpsError {
@@ -40,6 +45,16 @@ pub enum CompanyOpsError {
     ExperimentApprovalRequired,
     #[error("client delivery bundle is missing acceptance evidence or a scope boundary")]
     InvalidDeliveryBundle,
+    #[error("company operations must be explicitly selected for a business-scoped composition")]
+    CompanyOperationsNotSelected,
+    #[error("commercial project, objective, and run lineage does not match")]
+    CommercialLineageMismatch,
+    #[error("commercial lifecycle record is invalid")]
+    InvalidCommercialRecord,
+    #[error("external commercial state requires an explicit egress destination")]
+    MissingCommercialEgress,
+    #[error("commercial egress must name an external destination")]
+    InvalidCommercialEgress,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -49,6 +64,172 @@ pub enum PrivacyClass {
     CommercialConfidential,
     ContactRestricted,
     PersonalRestricted,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct CommercialLineage {
+    pub project_id: Uuid,
+    pub project_contract_digest: String,
+    pub objective_id: ObjectiveId,
+    pub run_id: RunId,
+}
+
+impl CommercialLineage {
+    pub fn from_composition(
+        composition: &CapabilityComposition,
+        run: &RunGraph,
+    ) -> Result<Self, CompanyOpsError> {
+        if composition.validate().is_err() || run.validate().is_err() {
+            return Err(CompanyOpsError::InvalidCommercialRecord);
+        }
+        if composition.scope != CompositionScope::Business
+            || !composition
+                .capabilities
+                .required
+                .contains(COMPANY_OPERATIONS_CAPABILITY_ID)
+        {
+            return Err(CompanyOpsError::CompanyOperationsNotSelected);
+        }
+        if !run.matches_composition_lineage(composition) {
+            return Err(CompanyOpsError::CommercialLineageMismatch);
+        }
+        Ok(Self {
+            project_id: composition.lineage.project_id,
+            project_contract_digest: composition.lineage.project_contract_digest.clone(),
+            objective_id: ObjectiveId::new(composition.lineage.objective_id.clone())
+                .map_err(|_| CompanyOpsError::InvalidCommercialRecord)?,
+            run_id: RunId::new(composition.lineage.run_id.clone())
+                .map_err(|_| CompanyOpsError::InvalidCommercialRecord)?,
+        })
+    }
+
+    fn validate(&self) -> Result<(), CompanyOpsError> {
+        if self.project_contract_digest.trim().is_empty()
+            || self.objective_id.as_str().trim().is_empty()
+            || self.run_id.as_str().trim().is_empty()
+        {
+            return Err(CompanyOpsError::InvalidCommercialRecord);
+        }
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CommercialLifecycleState {
+    Opportunity,
+    Quote,
+    Deliverable,
+    Acceptance,
+    Invoice,
+    Settlement,
+    AccountingExport,
+}
+
+impl CommercialLifecycleState {
+    pub fn requires_external_approval(self) -> bool {
+        matches!(
+            self,
+            Self::Quote
+                | Self::Deliverable
+                | Self::Invoice
+                | Self::Settlement
+                | Self::AccountingExport
+        )
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct CommercialEgress {
+    pub target: EgressTarget,
+    pub destination: String,
+}
+
+impl CommercialEgress {
+    fn validate(&self) -> Result<(), CompanyOpsError> {
+        if self.destination.trim().is_empty()
+            || !matches!(
+                self.target,
+                EgressTarget::HostedProvider
+                    | EgressTarget::ExternalAdapter
+                    | EgressTarget::PublicNetwork
+            )
+        {
+            return Err(CompanyOpsError::InvalidCommercialEgress);
+        }
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct CommercialLifecycleRecord {
+    pub schema_version: String,
+    pub record_id: Uuid,
+    pub engagement_id: Uuid,
+    pub subject_id: String,
+    pub state: CommercialLifecycleState,
+    pub lineage: CommercialLineage,
+    pub business_scope: CompositionScope,
+    pub privacy: PrivacyClass,
+    #[serde(default)]
+    pub evidence_receipt_ids: BTreeSet<String>,
+    #[serde(default)]
+    pub artifact_receipt_ids: BTreeSet<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub approval_receipt_id: Option<Uuid>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub egress: Option<CommercialEgress>,
+    pub recorded_at: DateTime<Utc>,
+}
+
+impl CommercialLifecycleRecord {
+    pub fn validate(&self) -> Result<(), CompanyOpsError> {
+        if self.schema_version != COMMERCIAL_LIFECYCLE_SCHEMA_VERSION
+            || self.subject_id.trim().is_empty()
+            || self.business_scope != CompositionScope::Business
+            || !matches!(
+                self.privacy,
+                PrivacyClass::CommercialConfidential | PrivacyClass::ContactRestricted
+            )
+            || self
+                .evidence_receipt_ids
+                .iter()
+                .chain(&self.artifact_receipt_ids)
+                .any(|receipt| receipt.trim().is_empty())
+        {
+            return Err(CompanyOpsError::InvalidCommercialRecord);
+        }
+        self.lineage.validate()?;
+        if self.state.requires_external_approval() {
+            if self.approval_receipt_id.is_none() {
+                return Err(CompanyOpsError::MissingApprovalReceipt);
+            }
+            self.egress
+                .as_ref()
+                .ok_or(CompanyOpsError::MissingCommercialEgress)?
+                .validate()?;
+        } else if let Some(egress) = &self.egress {
+            egress.validate()?;
+        }
+        if self.state == CommercialLifecycleState::Deliverable
+            && self.artifact_receipt_ids.is_empty()
+        {
+            return Err(CompanyOpsError::InvalidCommercialRecord);
+        }
+        if matches!(
+            self.state,
+            CommercialLifecycleState::Acceptance
+                | CommercialLifecycleState::Settlement
+                | CommercialLifecycleState::AccountingExport
+        ) && self.evidence_receipt_ids.is_empty()
+        {
+            return Err(CompanyOpsError::InvalidCommercialRecord);
+        }
+        Ok(())
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -498,15 +679,20 @@ pub struct ClientDeliveryBundle {
     pub handoff_boundary: String,
     pub support_boundary: String,
     pub invoice_export_only: bool,
+    pub lifecycle: CommercialLifecycleRecord,
 }
 
 impl ClientDeliveryBundle {
     pub fn validate(&self) -> Result<(), CompanyOpsError> {
+        self.lifecycle.validate()?;
         if self.deliverables.is_empty()
             || self.acceptance_evidence.is_empty()
             || self.handoff_boundary.trim().is_empty()
             || self.support_boundary.trim().is_empty()
             || !self.invoice_export_only
+            || self.lifecycle.state != CommercialLifecycleState::Deliverable
+            || self.lifecycle.subject_id != self.commitment_id.to_string()
+            || self.lifecycle.lineage.run_id.as_str() != self.workbench_run_id
         {
             return Err(CompanyOpsError::InvalidDeliveryBundle);
         }

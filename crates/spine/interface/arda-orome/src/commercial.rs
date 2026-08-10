@@ -1,12 +1,21 @@
 //! Approval-gated commercial drafts and delivery truth.
 
 use crate::provider::{DispatchReceipt, FleetScope, TransportRequest};
-use arda_core::company_ops::{ApprovalReceipt, ProposalDraft};
+use arda_core::capability_composition::CompositionScope;
+use arda_core::company_ops::{
+    ApprovalReceipt, CommercialEgress, CommercialLifecycleRecord, CommercialLifecycleState,
+    CommercialLineage, PrivacyClass, ProposalDraft, COMMERCIAL_LIFECYCLE_SCHEMA_VERSION,
+};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeSet;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CommercialDraft {
+    pub lineage: CommercialLineage,
+    pub business_scope: CompositionScope,
+    pub privacy: PrivacyClass,
+    pub egress: CommercialEgress,
     pub proposal: ProposalDraft,
     pub source_context: Vec<String>,
     pub commitments: Vec<String>,
@@ -33,7 +42,25 @@ impl CommercialDraft {
         {
             return Err(CommercialDeliveryError::ApprovalRequired);
         }
-        let payload = serde_json::to_string(self)?;
+        let lifecycle = CommercialLifecycleRecord {
+            schema_version: COMMERCIAL_LIFECYCLE_SCHEMA_VERSION.into(),
+            record_id: self.proposal.proposal_id,
+            engagement_id: self.proposal.engagement_id,
+            subject_id: self.proposal.proposal_id.to_string(),
+            state: CommercialLifecycleState::Quote,
+            lineage: self.lineage.clone(),
+            business_scope: self.business_scope,
+            privacy: self.privacy,
+            evidence_receipt_ids: self.source_context.iter().cloned().collect::<BTreeSet<_>>(),
+            artifact_receipt_ids: BTreeSet::new(),
+            approval_receipt_id: Some(approval.receipt_id),
+            egress: Some(self.egress.clone()),
+            recorded_at: now,
+        };
+        lifecycle
+            .validate()
+            .map_err(|_| CommercialDeliveryError::InvalidLifecycle)?;
+        let payload = serde_json::to_string(&(self, lifecycle))?;
         Ok(
             TransportRequest::new(self.proposal.proposal_id.to_string(), payload)
                 .for_scope(FleetScope::External)
@@ -89,4 +116,6 @@ pub enum CommercialDeliveryError {
     ApprovalRequired,
     #[error("commercial draft serialization failed: {0}")]
     Serialization(#[from] serde_json::Error),
+    #[error("commercial delivery has an invalid lifecycle record")]
+    InvalidLifecycle,
 }

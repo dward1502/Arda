@@ -1,4 +1,7 @@
-use arda_core::company_ops::{AdapterProvenance, ApprovalReceipt, CommercialAuthority};
+use arda_core::company_ops::{
+    AdapterProvenance, ApprovalReceipt, CommercialAuthority, CommercialLifecycleRecord,
+    CommercialLifecycleState,
+};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -76,6 +79,7 @@ pub struct CompanyAdapterRequest {
     pub authority: CommercialAuthority,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub approval: Option<ApprovalReceipt>,
+    pub lifecycle: CommercialLifecycleRecord,
 }
 
 impl CompanyAdapterRequest {
@@ -104,8 +108,24 @@ impl CompanyAdapterRequest {
             {
                 return Err(CompanyAdapterError::ApprovalRequired);
             }
+            self.lifecycle
+                .validate()
+                .map_err(|_| CompanyAdapterError::InvalidCommercialLifecycle)?;
             if approval.approved_scope != self.operation.approval_scope(&self.resource_id) {
                 return Err(CompanyAdapterError::ApprovalScopeMismatch);
+            }
+            if self.lifecycle.state != CommercialLifecycleState::AccountingExport
+                || self.lifecycle.subject_id != self.resource_id
+                || self.lifecycle.approval_receipt_id != Some(approval.receipt_id)
+            {
+                return Err(CompanyAdapterError::CommercialLineageMismatch);
+            }
+        } else {
+            self.lifecycle
+                .validate()
+                .map_err(|_| CompanyAdapterError::InvalidCommercialLifecycle)?;
+            if self.lifecycle.state != CommercialLifecycleState::Opportunity {
+                return Err(CompanyAdapterError::CommercialLineageMismatch);
             }
         }
         Ok(())
@@ -179,4 +199,8 @@ pub enum CompanyAdapterError {
     ApprovalScopeMismatch,
     #[error("CRM rows require unique stable external IDs")]
     DuplicateOrMissingExternalId,
+    #[error("company adapter request has an invalid commercial lifecycle record")]
+    InvalidCommercialLifecycle,
+    #[error("company adapter operation does not match its commercial lifecycle lineage")]
+    CommercialLineageMismatch,
 }

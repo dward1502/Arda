@@ -1,10 +1,15 @@
+use arda_core::capability_composition::{CapabilityComposition, CompositionScope, EgressTarget};
 use arda_core::company_ops::{
-    ApprovalReceipt, ClientDeliveryBundle, CommercialAuthority, CompanyOpsConfig, CompanyOpsError,
-    ConfidenceRange, ContactReference, EngagementState, OperatorTimeBudget, OutcomeKind,
-    OutcomeReceipt, PrivacyClass, ProductHypothesis, ProposalDraft, RevenueExperiment,
-    ValueEstimate,
+    ApprovalReceipt, ClientDeliveryBundle, CommercialAuthority, CommercialEgress,
+    CommercialLifecycleRecord, CommercialLifecycleState, CommercialLineage, CompanyOpsConfig,
+    CompanyOpsError, ConfidenceRange, ContactReference, EngagementState, OperatorTimeBudget,
+    OutcomeKind, OutcomeReceipt, PrivacyClass, ProductHypothesis, ProposalDraft, RevenueExperiment,
+    ValueEstimate, COMMERCIAL_LIFECYCLE_SCHEMA_VERSION, COMPANY_OPERATIONS_CAPABILITY_ID,
 };
+use arda_core::run_graph::{ObjectiveId, Provenance, RunGraph, RunId};
 use chrono::{Duration, TimeZone, Utc};
+use std::collections::BTreeSet;
+use std::path::PathBuf;
 use uuid::Uuid;
 
 fn now() -> chrono::DateTime<Utc> {
@@ -22,6 +27,64 @@ fn estimate() -> ValueEstimate {
         },
         basis: "two comparable engagements".into(),
         evidence: vec![],
+    }
+}
+
+fn commercial_composition() -> CapabilityComposition {
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../../../spec/capability-composition/v1/fixtures/valid-software-project.json");
+    let mut composition =
+        CapabilityComposition::from_json_str(&std::fs::read_to_string(path).unwrap()).unwrap();
+    composition.scope = CompositionScope::Business;
+    composition
+        .capabilities
+        .required
+        .insert(COMPANY_OPERATIONS_CAPABILITY_ID.to_string());
+    composition
+        .capabilities
+        .forbidden
+        .remove(COMPANY_OPERATIONS_CAPABILITY_ID);
+    composition
+}
+
+fn commercial_run(composition: &CapabilityComposition) -> RunGraph {
+    RunGraph {
+        schema_version: RunGraph::SCHEMA_VERSION.into(),
+        run_id: RunId::new(composition.lineage.run_id.clone()).unwrap(),
+        objective_id: ObjectiveId::new(composition.lineage.objective_id.clone()).unwrap(),
+        nodes: vec![],
+        edges: vec![],
+        provenance: Provenance {
+            project_contract_digest: composition.lineage.project_contract_digest.clone(),
+            created_by: "company-ops-test".into(),
+            parent_receipts: vec![],
+        },
+    }
+}
+
+fn lifecycle(
+    state: CommercialLifecycleState,
+    approval_receipt_id: Option<Uuid>,
+) -> CommercialLifecycleRecord {
+    let composition = commercial_composition();
+    let run = commercial_run(&composition);
+    CommercialLifecycleRecord {
+        schema_version: COMMERCIAL_LIFECYCLE_SCHEMA_VERSION.into(),
+        record_id: Uuid::new_v4(),
+        engagement_id: Uuid::new_v4(),
+        subject_id: "commercial-subject-1".into(),
+        state,
+        lineage: CommercialLineage::from_composition(&composition, &run).unwrap(),
+        business_scope: CompositionScope::Business,
+        privacy: PrivacyClass::CommercialConfidential,
+        evidence_receipt_ids: BTreeSet::from(["receipt:source".into()]),
+        artifact_receipt_ids: BTreeSet::from(["artifact:deliverable".into()]),
+        approval_receipt_id,
+        egress: Some(CommercialEgress {
+            target: EgressTarget::ExternalAdapter,
+            destination: "accounting:client-ledger".into(),
+        }),
+        recorded_at: now(),
     }
 }
 
@@ -203,9 +266,14 @@ fn experiment_requires_approval_before_becoming_workbench_objective() {
 
 #[test]
 fn client_delivery_requires_receipts_boundaries_and_export_only_invoicing() {
+    let commitment_id = Uuid::new_v4();
+    let mut delivery_lifecycle =
+        lifecycle(CommercialLifecycleState::Deliverable, Some(Uuid::new_v4()));
+    delivery_lifecycle.subject_id = commitment_id.to_string();
+    let workbench_run_id = delivery_lifecycle.lineage.run_id.as_str().to_string();
     let valid = ClientDeliveryBundle {
-        commitment_id: Uuid::new_v4(),
-        workbench_run_id: "run-1".into(),
+        commitment_id,
+        workbench_run_id,
         deliverables: vec!["artifact".into()],
         acceptance_evidence: vec!["tests pass".into()],
         change_requests: vec![],
@@ -213,6 +281,7 @@ fn client_delivery_requires_receipts_boundaries_and_export_only_invoicing() {
         handoff_boundary: "artifact handoff".into(),
         support_boundary: "seven days".into(),
         invoice_export_only: true,
+        lifecycle: delivery_lifecycle,
     };
     assert_eq!(valid.validate(), Ok(()));
     let invalid = ClientDeliveryBundle {
@@ -222,5 +291,88 @@ fn client_delivery_requires_receipts_boundaries_and_export_only_invoicing() {
     assert_eq!(
         invalid.validate(),
         Err(CompanyOpsError::InvalidDeliveryBundle)
+    );
+}
+
+#[test]
+fn commercial_lifecycle_maps_every_state_to_stable_project_run_lineage() {
+    let composition = commercial_composition();
+    let run = commercial_run(&composition);
+    let lineage = CommercialLineage::from_composition(&composition, &run).unwrap();
+    assert_eq!(lineage.project_id, composition.lineage.project_id);
+    assert_eq!(lineage.run_id.as_str(), composition.lineage.run_id);
+    assert_eq!(
+        lineage.objective_id.as_str(),
+        composition.lineage.objective_id
+    );
+
+    for state in [
+        CommercialLifecycleState::Opportunity,
+        CommercialLifecycleState::Quote,
+        CommercialLifecycleState::Deliverable,
+        CommercialLifecycleState::Acceptance,
+        CommercialLifecycleState::Invoice,
+        CommercialLifecycleState::Settlement,
+        CommercialLifecycleState::AccountingExport,
+    ] {
+        let approval = state.requires_external_approval().then(Uuid::new_v4);
+        let mut record = lifecycle(state, approval);
+        if !state.requires_external_approval() {
+            record.egress = None;
+        }
+        assert_eq!(record.validate(), Ok(()), "state {state:?}");
+    }
+}
+
+#[test]
+fn commercial_activation_is_business_only_and_explicitly_selected() {
+    let mut composition = commercial_composition();
+    let run = commercial_run(&composition);
+    assert!(CommercialLineage::from_composition(&composition, &run).is_ok());
+
+    let mut mismatched_run = run.clone();
+    mismatched_run.provenance.project_contract_digest = "sha256:wrong-project".into();
+    assert_eq!(
+        CommercialLineage::from_composition(&composition, &mismatched_run),
+        Err(CompanyOpsError::CommercialLineageMismatch)
+    );
+
+    composition.scope = CompositionScope::Personal;
+    assert_eq!(
+        CommercialLineage::from_composition(&composition, &run),
+        Err(CompanyOpsError::CompanyOperationsNotSelected)
+    );
+    composition.scope = CompositionScope::Business;
+    composition
+        .capabilities
+        .required
+        .remove(COMPANY_OPERATIONS_CAPABILITY_ID);
+    assert_eq!(
+        CommercialLineage::from_composition(&composition, &run),
+        Err(CompanyOpsError::CompanyOperationsNotSelected)
+    );
+}
+
+#[test]
+fn external_commercial_states_require_exact_approval_and_explicit_egress() {
+    let approval_id = Uuid::new_v4();
+    let mut invoice = lifecycle(CommercialLifecycleState::Invoice, None);
+    assert_eq!(
+        invoice.validate(),
+        Err(CompanyOpsError::MissingApprovalReceipt)
+    );
+    invoice.approval_receipt_id = Some(approval_id);
+    invoice.egress = None;
+    assert_eq!(
+        invoice.validate(),
+        Err(CompanyOpsError::MissingCommercialEgress)
+    );
+    invoice.egress = Some(CommercialEgress {
+        target: EgressTarget::LocalDevice,
+        destination: "accounting:client-ledger".into(),
+    });
+    assert_eq!(
+        invoice.validate(),
+        Err(CompanyOpsError::InvalidCommercialEgress)
     );
 }

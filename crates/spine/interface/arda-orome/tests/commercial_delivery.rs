@@ -1,6 +1,9 @@
+use arda_core::capability_composition::{CompositionScope, EgressTarget};
 use arda_core::company_ops::{
-    ApprovalReceipt, CommercialAuthority, ConfidenceRange, ProposalDraft, ValueEstimate,
+    ApprovalReceipt, CommercialAuthority, CommercialEgress, CommercialLineage, ConfidenceRange,
+    PrivacyClass, ProposalDraft, ValueEstimate,
 };
+use arda_core::run_graph::{ObjectiveId, RunId};
 use arda_orome::commercial::{CommercialDeliveryReceipt, CommercialDeliveryState, CommercialDraft};
 use arda_orome::provider::{DispatchReceipt, FleetScope};
 use chrono::{Duration, TimeZone, Utc};
@@ -11,30 +14,43 @@ fn now() -> chrono::DateTime<Utc> {
 }
 
 fn draft() -> CommercialDraft {
-    CommercialDraft {
-        proposal: ProposalDraft {
-            proposal_id: Uuid::new_v4(),
-            engagement_id: Uuid::new_v4(),
-            title: "Paid discovery".into(),
-            scope: "Bounded discovery".into(),
-            price: ValueEstimate {
-                currency: "USD".into(),
-                range: ConfidenceRange {
-                    low: 900.0,
-                    expected: 1_000.0,
-                    high: 1_100.0,
-                    confidence: 0.8,
-                },
-                basis: "rate card".into(),
-                evidence: vec![],
+    let proposal = ProposalDraft {
+        proposal_id: Uuid::new_v4(),
+        engagement_id: Uuid::new_v4(),
+        title: "Paid discovery".into(),
+        scope: "Bounded discovery".into(),
+        price: ValueEstimate {
+            currency: "USD".into(),
+            range: ConfidenceRange {
+                low: 900.0,
+                expected: 1_000.0,
+                high: 1_100.0,
+                confidence: 0.8,
             },
-            proposed_due_at: now() + Duration::days(7),
-            audience: "client".into(),
-            risk: "scope".into(),
+            basis: "rate card".into(),
             evidence: vec![],
-            authority: CommercialAuthority::ProposalOnly,
-            expires_at: now() + Duration::days(2),
         },
+        proposed_due_at: now() + Duration::days(7),
+        audience: "client".into(),
+        risk: "scope".into(),
+        evidence: vec![],
+        authority: CommercialAuthority::ProposalOnly,
+        expires_at: now() + Duration::days(2),
+    };
+    CommercialDraft {
+        lineage: CommercialLineage {
+            project_id: Uuid::new_v4(),
+            project_contract_digest: "sha256:project-contract".into(),
+            objective_id: ObjectiveId::new("objective:commercial-delivery").unwrap(),
+            run_id: RunId::new("run:commercial-delivery").unwrap(),
+        },
+        business_scope: CompositionScope::Business,
+        privacy: PrivacyClass::CommercialConfidential,
+        egress: CommercialEgress {
+            target: EgressTarget::ExternalAdapter,
+            destination: "crm:client-contact".into(),
+        },
+        proposal,
         source_context: vec!["crm:opportunity:1".into()],
         commitments: vec!["No work before approval".into()],
         approval_required: true,
@@ -59,6 +75,14 @@ fn external_send_requires_matching_approval_and_orome_external_scope() {
     let request = draft.prepare_external_request(&approval, now()).unwrap();
     assert_eq!(request.fleet_scope, FleetScope::External);
     assert!(request.approved);
+    let payload: serde_json::Value = serde_json::from_str(&request.payload).unwrap();
+    assert_eq!(payload[1]["state"], "quote");
+    assert_eq!(
+        payload[1]["approval_receipt_id"],
+        approval.receipt_id.to_string()
+    );
+    assert_eq!(payload[1]["business_scope"], "business");
+    assert_eq!(payload[1]["egress"]["destination"], "crm:client-contact");
 
     approval.approved_scope = "Expanded unreviewed scope".into();
     assert!(draft.prepare_external_request(&approval, now()).is_err());

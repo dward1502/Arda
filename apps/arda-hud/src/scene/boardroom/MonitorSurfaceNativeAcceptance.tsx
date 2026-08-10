@@ -16,6 +16,7 @@ import {
 import { windowManager } from '../../utils/multiWindow'
 import { coerceRuntimeMonitorRegistry } from '../../lib/monitorSurfaceRegistryBridge'
 import { createMonitorSessionWindowConfig } from './monitorSessionWorkstationRoute'
+import type { OperatorProjection } from '../../lib/operatorProjection'
 
 const SLOT_ID = 'monitor_1'
 const OWNER = 'hermes-agent-acceptance'
@@ -41,7 +42,13 @@ function formatClaim(result: AgentClaimResult): string {
   return `${result.message}; active=${result.active}; lease=${result.leaseExpiresAtUtc || 'none'}${result.windowLabel ? `; window=${result.windowLabel}` : ''}`
 }
 
-export default function MonitorSurfaceNativeAcceptance({ source }: { source: BoardroomMonitorSlotSource | null }) {
+export default function MonitorSurfaceNativeAcceptance({
+  source,
+  operatorProjection,
+}: {
+  source: BoardroomMonitorSlotSource | null
+  operatorProjection: OperatorProjection | null
+}) {
   const env = (import.meta as ImportMeta & { env: Record<string, string | boolean | undefined> }).env
   const enabled = env.DEV === true && env.VITE_MONITOR_ACCEPTANCE === '1'
   const [records, setRecords] = useState<AcceptanceRecord[]>(readRecords)
@@ -287,6 +294,34 @@ export default function MonitorSurfaceNativeAcceptance({ source }: { source: Boa
           })}
         >
           Phase 6 release session
+        </button>
+        <button
+          type="button"
+          disabled={busy || !operatorProjection}
+          onClick={() => void run('P9 mounted operator projection', async () => {
+            if (!operatorProjection) return { ok: false, detail: 'Canonical operator projection unavailable' }
+            const result = await agentClaimMonitorSurface({
+              slotId: SLOT_ID,
+              owner: { kind: 'agent', name: OWNER },
+              initialContent: {
+                kind: 'component',
+                rendererId: 'operator_projection',
+                props: { ...operatorProjection },
+              },
+              ttlMs: 3_600_000,
+            })
+            const registry = coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())
+            const session = registry?.sessions[SLOT_ID]
+            if (session) windowManager.open(createMonitorSessionWindowConfig(session))
+            return {
+              ok: result.ok
+                && session?.content.kind === 'component'
+                && session.content.rendererId === 'operator_projection',
+              detail: `${result.message}; projection=${operatorProjection.projection_id}; session=${session?.surface_session_id ?? 'none'}`,
+            }
+          })}
+        >
+          P9 Mount projection
         </button>
         <button
           type="button"

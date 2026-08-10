@@ -9,6 +9,7 @@ import { resolveMonitorApertureGeometry } from './monitorApertureGeometry'
 import type { HudInstrumentModel, HudTone } from './boardroomHudInstruments'
 import { formatMonitorSurfaceStream } from './monitorSurfaceRuntime'
 import type { MonitorSurfacePayloadEvent } from './monitorSurfaceRuntime'
+import { resolveOperatorProjectionCanvasModel } from './operatorProjectionMonitorRenderer'
 
 const TONE_COLORS: Record<HudTone, string> = {
   cyan: '#5defff',
@@ -153,6 +154,37 @@ function drawDocumentText(canvas: HTMLCanvasElement, title: string, content: str
     y += 28
     if (y > canvas.height - 38) return
   }
+}
+
+function drawOperatorProjection(canvas: HTMLCanvasElement, props: Record<string, unknown>): boolean {
+  const model = resolveOperatorProjectionCanvasModel(props)
+  if (!model.ok) return false
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return false
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
+  ctx.fillStyle = '#02070d'
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+  ctx.strokeStyle = '#5defff88'
+  ctx.lineWidth = 5
+  ctx.strokeRect(7, 7, canvas.width - 14, canvas.height - 14)
+  ctx.fillStyle = '#5defff'
+  ctx.font = '900 24px IBM Plex Mono, monospace'
+  ctx.fillText(`OPERATOR PROJECTION · ${model.authority.toUpperCase()}`, 40, 50)
+  ctx.fillStyle = '#effcff'
+  ctx.font = '900 42px IBM Plex Sans, sans-serif'
+  ctx.fillText(truncate(ctx, model.title, canvas.width - 80), 40, 105)
+  ctx.fillStyle = '#8cffc7'
+  ctx.font = '700 19px IBM Plex Mono, monospace'
+  ctx.fillText(`${model.projectionId} · ${model.freshness.toUpperCase()}`, 40, 142)
+  ctx.fillStyle = '#d9f8ff'
+  ctx.font = '650 21px IBM Plex Mono, monospace'
+  model.rows.slice(0, 8).forEach((row, index) => {
+    ctx.fillText(truncate(ctx, row, canvas.width - 80), 40, 196 + index * 43)
+  })
+  ctx.fillStyle = 'rgba(221,248,255,0.58)'
+  ctx.font = '700 18px IBM Plex Mono, monospace'
+  ctx.fillText('CANONICAL · STATUS ONLY · NO LOCAL MUTATIONS', 40, canvas.height - 35)
+  return true
 }
 
 type RendererKind = 'text' | 'image' | 'video' | 'canvas' | 'unknown'
@@ -324,6 +356,14 @@ export function BoardroomApertureSurface({
         }
         if (descriptor.kind === 'terminal') {
           showMessage('TERMINAL SESSION UNAVAILABLE', descriptor.sessionId)
+          return
+        }
+        if (descriptor.kind === 'component' && descriptor.rendererId === 'operator_projection') {
+          if (!drawOperatorProjection(canvas, descriptor.props)) {
+            showMessage('PROJECTION UNAVAILABLE', 'canonical projection failed validation', '#ff789c')
+            return
+          }
+          markUpdated()
           return
         }
         if (descriptor.kind === 'image') {

@@ -10,6 +10,7 @@ export type MonitorRendererAdapter =
   | 'terminal_session'
   | 'image_texture'
   | 'video_texture'
+  | 'component_canvas'
   | 'unsupported'
 
 export type MonitorRemoteTransport = 'hls' | 'mjpeg'
@@ -213,6 +214,13 @@ const rendererDefinitions = [
   }),
   defineRenderer('component', (_target, descriptor) => {
     if (!isNonEmptyIdentifier(descriptor.rendererId)) return invalid('empty component renderer id')
+    if (descriptor.rendererId === 'operator_projection') {
+      return renderer('component_canvas', {
+        rendererId: descriptor.rendererId,
+        props: descriptor.props,
+        authority: 'read_only',
+      })
+    }
     return unsupported(`trusted component renderer '${descriptor.rendererId}' is not registered`)
   }),
   defineRenderer('fallback', (_target, descriptor) => unsupported(descriptor.reason || 'fallback content requested')),

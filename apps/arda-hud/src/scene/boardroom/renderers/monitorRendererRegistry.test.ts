@@ -145,6 +145,19 @@ describe('monitor renderer registry', () => {
     })).toMatchObject({ ok: true, adapter: 'video_texture', muted: true })
     expect(resolve('aperture', {
       kind: 'component',
+      rendererId: 'operator_projection',
+      props: { projection_id: 'projection-p9-fixture' },
+    })).toMatchObject({
+      ok: true,
+      adapter: 'component_canvas',
+      source: {
+        rendererId: 'operator_projection',
+        props: { projection_id: 'projection-p9-fixture' },
+        authority: 'read_only',
+      },
+    })
+    expect(resolve('aperture', {
+      kind: 'component',
       rendererId: 'unknown',
       props: {},
     })).toMatchObject({ ok: false, kind: 'unsupported' })

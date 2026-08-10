@@ -2685,7 +2685,10 @@ export default function App() {
       <div className="arda-background" />
       {error ? <div className="arda-error">{error}</div> : null}
       {isLoading && !bundle ? <div className="arda-loading">Loading core-state bundle...</div> : null}
-      <MonitorSurfaceNativeAcceptance source={boardroomMonitorSlotSources.monitor_1} />
+      <MonitorSurfaceNativeAcceptance
+        source={boardroomMonitorSlotSources.monitor_1}
+        operatorProjection={bundle?.operatorProjection ?? null}
+      />
 
       {/* <nav className="operating-surface-rail" aria-label="ARDA operating surface navigation">
         <div className="operating-surface-rail__brief">

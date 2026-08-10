@@ -473,7 +473,26 @@ async fn gateway_reminder_acknowledgement_requires_a_delivered_attempt() {
     let root = TempDir::new().expect("root");
     let (bound, shutdown, handle) = start_harness(&root).await;
     let client = reqwest::Client::new();
-    let item_id = uuid::Uuid::new_v4().to_string();
+    let capture: Value = client
+        .post(format!("http://{bound}/v1/personal/captures"))
+        .header("x-arda-operator-id", "discord-user-1")
+        .header("idempotency-key", "reminder-owner-capture")
+        .json(&json!({
+            "operator_id": "discord-user-1",
+            "text": "Reminder ownership fixture"
+        }))
+        .send()
+        .await
+        .expect("capture request")
+        .error_for_status()
+        .expect("capture status")
+        .json()
+        .await
+        .expect("capture body");
+    let item_id = capture["capture_id"]
+        .as_str()
+        .expect("canonical capture id")
+        .to_string();
     let reminder_id = uuid::Uuid::new_v4().to_string();
 
     let out_of_order = client

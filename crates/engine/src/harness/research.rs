@@ -598,7 +598,7 @@ async fn fetch_and_evaluate(
     let prompt_injection_detected = inspection.prompt_injection_detected;
     let prompt_injection_signals = inspection.signals;
     let content_sha256 = format!("sha256:{:x}", Sha256::digest(&bytes));
-    let canonical_url = normalize_source_identity(&canonical.to_string());
+    let canonical_url = normalize_source_identity(canonical.as_ref());
     let fetched_at_utc = Utc::now().to_rfc3339();
     let expires_at_utc = expires_at.to_rfc3339();
     let freshness_status = if expires_at > Utc::now() {

@@ -1,0 +1,419 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arda.local/spec/external-capability/v1/external-capability.schema.json",
+  "title": "arda.external-capability.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "identity",
+    "capabilities",
+    "data_classes",
+    "requirements",
+    "interface",
+    "resource_limits",
+    "health",
+    "lifecycle",
+    "provenance",
+    "compatibility",
+    "authority"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "arda.external-capability.v1"
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "adapter_id",
+        "candidate_id",
+        "version",
+        "source",
+        "license",
+        "source_digest",
+        "sbom"
+      ],
+      "properties": {
+        "adapter_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "candidate_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "license": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-fA-F]{64}$"
+        },
+        "sbom": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "format",
+            "digest",
+            "reference"
+          ],
+          "properties": {
+            "format": {
+              "type": "string",
+              "minLength": 1
+            },
+            "digest": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-fA-F]{64}$"
+            },
+            "reference": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "capabilities": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "minLength": 1
+      },
+      "additionalProperties": {
+        "enum": [
+          "experimental",
+          "preview",
+          "stable"
+        ]
+      }
+    },
+    "data_classes": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "public",
+          "internal",
+          "private",
+          "health",
+          "financial"
+        ]
+      }
+    },
+    "requirements": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "filesystem_read",
+        "filesystem_write",
+        "process_spawn",
+        "network",
+        "egress_destinations",
+        "devices",
+        "secrets"
+      ],
+      "properties": {
+        "filesystem_read": {
+          "type": "boolean"
+        },
+        "filesystem_write": {
+          "type": "boolean"
+        },
+        "process_spawn": {
+          "type": "boolean"
+        },
+        "network": {
+          "enum": [
+            "denied",
+            "local_only",
+            "external_approved"
+          ]
+        },
+        "egress_destinations": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "devices": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "secrets": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "purpose",
+              "reference"
+            ],
+            "properties": {
+              "purpose": {
+                "type": "string",
+                "minLength": 1
+              },
+              "reference": {
+                "type": "string",
+                "pattern": "^secret://[^=]+$"
+              }
+            }
+          }
+        }
+      }
+    },
+    "interface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "input_schema",
+        "output_schema",
+        "protocols"
+      ],
+      "properties": {
+        "input_schema": {
+          "type": "string",
+          "minLength": 1
+        },
+        "output_schema": {
+          "type": "string",
+          "minLength": 1
+        },
+        "protocols": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "project_adapter",
+              "mcp",
+              "otlp",
+              "cal_dav",
+              "jsonl"
+            ]
+          }
+        }
+      }
+    },
+    "resource_limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "timeout_ms",
+        "max_input_bytes",
+        "max_output_bytes",
+        "max_memory_bytes",
+        "max_processes"
+      ],
+      "properties": {
+        "timeout_ms": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_input_bytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_output_bytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_memory_bytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_processes": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "health": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "probe_operation",
+        "freshness_secs",
+        "degraded_after_failures",
+        "unavailable_after_failures"
+      ],
+      "properties": {
+        "probe_operation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "freshness_secs": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "degraded_after_failures": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "unavailable_after_failures": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "retry",
+        "cancellation",
+        "idempotency",
+        "compensation"
+      ],
+      "properties": {
+        "retry": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "max_attempts",
+            "initial_delay_ms",
+            "max_delay_ms"
+          ],
+          "properties": {
+            "max_attempts": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "initial_delay_ms": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "max_delay_ms": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "cancellation": {
+          "enum": [
+            "immediate",
+            "graceful",
+            "checkpoint_then_stop"
+          ]
+        },
+        "idempotency": {
+          "enum": [
+            "required",
+            "read_only"
+          ]
+        },
+        "compensation": {
+          "enum": [
+            "none",
+            "best_effort",
+            "required"
+          ]
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receipt_schema",
+        "correlation_required",
+        "source_digest_required",
+        "observed_at_required"
+      ],
+      "properties": {
+        "receipt_schema": {
+          "type": "string",
+          "minLength": 1
+        },
+        "correlation_required": {
+          "type": "boolean"
+        },
+        "source_digest_required": {
+          "type": "boolean"
+        },
+        "observed_at_required": {
+          "type": "boolean"
+        }
+      }
+    },
+    "compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "minimum_arda_version",
+        "tested_at",
+        "backup_operation",
+        "removal_operation",
+        "rollback_operation"
+      ],
+      "properties": {
+        "minimum_arda_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tested_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "backup_operation": {
+          "type": "string",
+          "pattern": "^[^\\s;|&]+$"
+        },
+        "removal_operation": {
+          "type": "string",
+          "pattern": "^[^\\s;|&]+$"
+        },
+        "rollback_operation": {
+          "type": "string",
+          "pattern": "^[^\\s;|&]+$"
+        }
+      }
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authority_ceiling",
+        "task_authority",
+        "memory_authority",
+        "governance_authority"
+      ],
+      "properties": {
+        "authority_ceiling": {
+          "enum": [
+            "read_only",
+            "plan",
+            "propose",
+            "execute_with_approval"
+          ]
+        },
+        "task_authority": {
+          "const": false
+        },
+        "memory_authority": {
+          "const": false
+        },
+        "governance_authority": {
+          "const": false
+        }
+      }
+    }
+  }
+}

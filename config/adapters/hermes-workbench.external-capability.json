@@ -1,0 +1,90 @@
+{
+  "schema_version": "arda.external-capability.v1",
+  "identity": {
+    "adapter_id": "hermes-workbench",
+    "candidate_id": "nousresearch-hermes-agent",
+    "version": "0.20.0+b3aa561f",
+    "source": "https://github.com/NousResearch/hermes-agent.git#b3aa561faffd64f05436e429a6415d175e534ec9",
+    "license": "MIT",
+    "source_digest": "sha256:529a213ed88ab3fe91c29136b0e940a66e2c08fa1e9417ae59cdf74d03a4c9de",
+    "sbom": {
+      "format": "uv-lock",
+      "digest": "sha256:1ce77070728a7acf603f2b026a73d7da87e6ba118ed3e2bbebe470c7a9d5bab9",
+      "reference": "${HERMES_HOME}/hermes-agent/uv.lock"
+    }
+  },
+  "capabilities": {
+    "project.execute": "stable",
+    "project.verify": "stable"
+  },
+  "data_classes": [
+    "internal",
+    "private"
+  ],
+  "requirements": {
+    "filesystem_read": true,
+    "filesystem_write": true,
+    "process_spawn": true,
+    "network": "external_approved",
+    "egress_destinations": [
+      "provider://configured-allowlist"
+    ],
+    "devices": [],
+    "secrets": [
+      {
+        "purpose": "isolated Hermes profile",
+        "reference": "secret://hermes/profile"
+      }
+    ]
+  },
+  "interface": {
+    "input_schema": "arda.project-adapter.v1/request",
+    "output_schema": "arda.project-adapter.v1/result",
+    "protocols": [
+      "project_adapter",
+      "jsonl"
+    ]
+  },
+  "resource_limits": {
+    "timeout_ms": 900000,
+    "max_input_bytes": 131072,
+    "max_output_bytes": 1048576,
+    "max_memory_bytes": 4294967296,
+    "max_processes": 1
+  },
+  "health": {
+    "probe_operation": "hermes.version",
+    "freshness_secs": 86400,
+    "degraded_after_failures": 1,
+    "unavailable_after_failures": 3
+  },
+  "lifecycle": {
+    "retry": {
+      "max_attempts": 2,
+      "initial_delay_ms": 250,
+      "max_delay_ms": 2000
+    },
+    "cancellation": "graceful",
+    "idempotency": "required",
+    "compensation": "required"
+  },
+  "provenance": {
+    "receipt_schema": "arda.hermes-execution-receipt.v1",
+    "correlation_required": true,
+    "source_digest_required": true,
+    "observed_at_required": true
+  },
+  "compatibility": {
+    "minimum_arda_version": "0.1.0",
+    "tested_at": "2026-08-09T12:00:00Z",
+    "backup_operation": "hermes.profile.backup",
+    "removal_operation": "hermes.adapter.disable",
+    "rollback_operation": "hermes.profile.restore"
+  },
+  "authority": {
+    "authority_ceiling": "execute_with_approval",
+    "task_authority": false,
+    "memory_authority": false,
+    "governance_authority": false
+  }
+}

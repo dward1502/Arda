@@ -10,6 +10,7 @@ use std::time::Duration;
 use serde::Deserialize;
 use tracing::{debug, warn};
 
+use crate::adapters::{AdapterCatalog, AdapterCatalogError, AdapterKind};
 use crate::supervisor::{HealthProbe, Service};
 use arda_core::service_registry::{
     CapabilityDeclaration, CapabilityHealth, CapabilityRegistry, CapabilityRegistryError,
@@ -70,6 +71,23 @@ pub struct ServiceSpec {
     pub health: Option<HealthSpec>,
 }
 
+/// One governed adapter contract attached to the canonical service registry.
+#[derive(Debug, Clone, Deserialize)]
+pub struct AdapterSpec {
+    pub kind: AdapterKind,
+    pub contract: String,
+    #[serde(default)]
+    pub installed: bool,
+    #[serde(default = "not_configured")]
+    pub health: CapabilityHealth,
+    #[serde(default)]
+    pub eligible: bool,
+}
+
+fn not_configured() -> CapabilityHealth {
+    CapabilityHealth::NotConfigured
+}
+
 impl ServiceSpec {
     fn is_ui(&self) -> bool {
         self.tags.iter().any(|tag| tag == "ui")
@@ -83,6 +101,10 @@ pub struct Registry {
     /// the manifest's canonical singular TOML array name.
     #[serde(rename = "service", alias = "services", default)]
     pub services: Vec<ServiceSpec>,
+    #[serde(rename = "adapter", alias = "adapters", default)]
+    pub adapters: Vec<AdapterSpec>,
+    #[serde(skip)]
+    source_root: PathBuf,
 }
 
 impl Registry {
@@ -90,8 +112,12 @@ impl Registry {
     pub fn load(path: &Path) -> anyhow::Result<Registry> {
         let text = std::fs::read_to_string(path)
             .map_err(|e| anyhow::anyhow!("failed to read services file {path:?}: {e}"))?;
-        let reg: Registry =
+        let mut reg: Registry =
             toml::from_str(&text).map_err(|e| anyhow::anyhow!("failed to parse {path:?}: {e}"))?;
+        reg.source_root = path
+            .parent()
+            .unwrap_or_else(|| Path::new("."))
+            .to_path_buf();
         reg.validate(path)?;
         Ok(reg)
     }
@@ -143,7 +169,31 @@ impl Registry {
                 registry.register(declaration.clone(), runtime)?;
             }
         }
+        let catalog = self.adapter_catalog().map_err(|error| {
+            CapabilityRegistryError::InvalidDeclaration {
+                id: "adapter-catalog".to_string(),
+                version: "1".to_string(),
+                reason: error.to_string(),
+            }
+        })?;
+        catalog.register_capabilities(&mut registry)?;
         Ok(registry)
+    }
+
+    /// Load governed adapter contracts from the same root as `services.toml`.
+    pub fn adapter_catalog(&self) -> Result<AdapterCatalog, AdapterCatalogError> {
+        let mut catalog = AdapterCatalog::new();
+        for adapter in &self.adapters {
+            catalog.load_contract(
+                &self.source_root,
+                adapter.kind,
+                &adapter.contract,
+                adapter.installed,
+                adapter.health,
+                adapter.eligible,
+            )?;
+        }
+        Ok(catalog)
     }
 
     /// Derive operator state directly from the supplied live registry.
@@ -151,16 +201,26 @@ impl Registry {
         &self,
         live: &CapabilityRegistry,
     ) -> Vec<CapabilityStateProjection> {
-        let declared = self
+        let mut declared = self
             .services
             .iter()
             .flat_map(|service| &service.capabilities)
-            .map(|capability| (capability.id.as_str(), capability.version.as_str()))
+            .map(|capability| (capability.id.clone(), capability.version.clone()))
             .collect::<std::collections::HashSet<_>>();
+        if let Ok(catalog) = self.adapter_catalog() {
+            declared.extend(catalog.records().flat_map(|adapter| {
+                adapter
+                    .contract
+                    .capabilities
+                    .keys()
+                    .cloned()
+                    .map(|id| (id, adapter.contract.identity.version.clone()))
+            }));
+        }
         live.projection()
             .into_iter()
             .filter(|capability| {
-                declared.contains(&(capability.id.as_str(), capability.version.as_str()))
+                declared.contains(&(capability.id.clone(), capability.version.clone()))
             })
             .collect()
     }
@@ -359,12 +419,43 @@ optional = true
             .capability_registry()
             .expect("capability authorities are unique");
 
-        assert_eq!(capabilities.records().count(), 4);
+        assert_eq!(capabilities.records().count(), 8);
         assert!(capabilities.get("inference.route", "1").is_some());
         let model = capabilities
             .get("model.worker.local", "1")
             .expect("model worker is declared");
         assert_eq!(model.runtime.health, CapabilityHealth::Unavailable);
+        assert!(capabilities
+            .get("project.execute", "0.20.0+b3aa561f")
+            .is_some());
+        assert!(capabilities.get("project.adapter.jsonl", "0.1.0").is_some());
+        assert!(capabilities.get("telemetry.export.otlp", "0.1.0").is_some());
+    }
+
+    #[test]
+    fn workspace_adapter_catalog_distinguishes_kind_install_health_and_eligibility() {
+        let manifest = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../services.toml");
+        let registry = Registry::load(&manifest).expect("workspace services.toml loads");
+        let catalog = registry.adapter_catalog().expect("adapter catalog loads");
+
+        assert_eq!(catalog.records().count(), 3);
+        let built_in = catalog.get("arda-jsonl-project").unwrap();
+        assert_eq!(built_in.kind, AdapterKind::BuiltIn);
+        assert!(built_in.installed);
+        assert_eq!(built_in.health, CapabilityHealth::Ready);
+        assert!(built_in.eligible);
+
+        let external = catalog.get("hermes-workbench").unwrap();
+        assert_eq!(external.kind, AdapterKind::External);
+        assert!(external.installed);
+        assert_eq!(external.health, CapabilityHealth::Unavailable);
+        assert!(!external.eligible);
+
+        let sidecar = catalog.get("arda-otlp-sidecar").unwrap();
+        assert_eq!(sidecar.kind, AdapterKind::Sidecar);
+        assert!(!sidecar.installed);
+        assert_eq!(sidecar.health, CapabilityHealth::NotConfigured);
+        assert!(!sidecar.eligible);
     }
 
     #[test]

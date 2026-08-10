@@ -95,3 +95,24 @@ tags = ["gateway"]
   url = "http://127.0.0.1:7171/healthz"
   interval_secs = 5
   timeout_secs = 2
+
+[[adapter]]
+kind = "built_in"
+contract = "config/adapters/arda-jsonl-project.external-capability.json"
+installed = true
+health = "ready"
+eligible = true
+
+[[adapter]]
+kind = "external"
+contract = "config/adapters/hermes-workbench.external-capability.json"
+installed = true
+health = "unavailable"
+eligible = false
+
+[[adapter]]
+kind = "sidecar"
+contract = "config/adapters/arda-otlp-sidecar.external-capability.json"
+installed = false
+health = "not_configured"
+eligible = false

@@ -1,0 +1,81 @@
+{
+  "schema_version": "arda.external-capability.v1",
+  "identity": {
+    "version": "0.1.0",
+    "source": "arda://crates/engine/src/adapters/jsonl.rs",
+    "license": "MIT",
+    "source_digest": "sha256:05ae086b585d64de9eddea58939123a5b24687bd0c9dd4256e8ce72cfe47f61e",
+    "sbom": {
+      "format": "cargo-lock",
+      "digest": "sha256:ddbb44aff4f21b9a999564f5204feac52a7e12fadcde602fad1783e0eb3622cf",
+      "reference": "Cargo.lock"
+    },
+    "adapter_id": "arda-jsonl-project",
+    "candidate_id": "arda-engine-jsonl"
+  },
+  "capabilities": {
+    "project.adapter.jsonl": "stable"
+  },
+  "data_classes": [
+    "internal"
+  ],
+  "requirements": {
+    "filesystem_read": true,
+    "filesystem_write": true,
+    "process_spawn": false,
+    "network": "denied",
+    "egress_destinations": [],
+    "devices": [],
+    "secrets": []
+  },
+  "interface": {
+    "input_schema": "arda.project-adapter.v1/request",
+    "output_schema": "arda.project-adapter.v1/result",
+    "protocols": [
+      "project_adapter",
+      "jsonl"
+    ]
+  },
+  "resource_limits": {
+    "timeout_ms": 30000,
+    "max_input_bytes": 131072,
+    "max_output_bytes": 1048576,
+    "max_memory_bytes": 268435456,
+    "max_processes": 1
+  },
+  "health": {
+    "probe_operation": "jsonl.path.read_write",
+    "freshness_secs": 300,
+    "degraded_after_failures": 1,
+    "unavailable_after_failures": 2
+  },
+  "lifecycle": {
+    "retry": {
+      "max_attempts": 2,
+      "initial_delay_ms": 10,
+      "max_delay_ms": 100
+    },
+    "cancellation": "immediate",
+    "idempotency": "required",
+    "compensation": "required"
+  },
+  "provenance": {
+    "receipt_schema": "arda.project-adapter.v1",
+    "correlation_required": true,
+    "source_digest_required": true,
+    "observed_at_required": true
+  },
+  "compatibility": {
+    "minimum_arda_version": "0.1.0",
+    "tested_at": "2026-08-09T12:00:00Z",
+    "backup_operation": "jsonl.snapshot",
+    "removal_operation": "jsonl.adapter.disable",
+    "rollback_operation": "jsonl.snapshot.restore"
+  },
+  "authority": {
+    "authority_ceiling": "execute_with_approval",
+    "task_authority": false,
+    "memory_authority": false,
+    "governance_authority": false
+  }
+}

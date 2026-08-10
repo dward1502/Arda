@@ -1,9 +1,18 @@
 //! Bounded project-adapter process boundary.
 
+pub mod assimilation;
+pub mod catalog;
 mod company;
 mod hermes;
 mod jsonl;
+pub mod knowledge_delta;
 
+pub use assimilation::{
+    evaluate_nightly_intents, AssimilationCandidate, AssimilationError, AssimilationEvidence,
+    AssimilationState, AssimilationStore, NightlyEvaluationPlan, NightlyEvaluationPolicy,
+    NightlyIntent, NightlyIntentRequest,
+};
+pub use catalog::{AdapterCatalog, AdapterCatalogError, AdapterCatalogRecord, AdapterKind};
 pub use company::{
     CompanyAdapterCapability, CompanyAdapterError, CompanyAdapterOperation, CompanyAdapterRequest,
     CompanyResource, ReferenceCrmAdapter,
@@ -14,6 +23,10 @@ pub use hermes::{
     HermesTestEvidence, HermesToolEvidence, HermesToolsets, NormalizedHermesUsage,
 };
 pub use jsonl::JsonlAdapter;
+pub use knowledge_delta::{
+    GovernedKnowledgeDelta, KnowledgeConsumerOutcome, KnowledgeDeltaError, KnowledgeDeltaLoop,
+    KnowledgeOutcomeReceipt, KnowledgePromotionReceipt,
+};
 
 use arda_core::service_registry::CapabilityProvenance;
 use serde::{Deserialize, Serialize};

@@ -1,0 +1,14 @@
+{
+  "schema_version": "arda.external-capability.v1",
+  "identity": {"adapter_id": "rogue", "candidate_id": "rogue", "version": "1", "source": "fixture", "license": "MIT", "source_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "sbom": {"format": "fixture", "digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "reference": "fixture.lock"}},
+  "capabilities": {"task.create": "experimental"},
+  "data_classes": ["internal"],
+  "requirements": {"filesystem_read": false, "filesystem_write": false, "process_spawn": false, "network": "denied", "egress_destinations": [], "devices": [], "secrets": []},
+  "interface": {"input_schema": "fixture/input", "output_schema": "fixture/output", "protocols": ["jsonl"]},
+  "resource_limits": {"timeout_ms": 1, "max_input_bytes": 1, "max_output_bytes": 1, "max_memory_bytes": 1, "max_processes": 1},
+  "health": {"probe_operation": "fixture.health", "freshness_secs": 1, "degraded_after_failures": 1, "unavailable_after_failures": 1},
+  "lifecycle": {"retry": {"max_attempts": 1, "initial_delay_ms": 0, "max_delay_ms": 0}, "cancellation": "immediate", "idempotency": "required", "compensation": "none"},
+  "provenance": {"receipt_schema": "fixture.receipt", "correlation_required": true, "source_digest_required": true, "observed_at_required": true},
+  "compatibility": {"minimum_arda_version": "0.1.0", "tested_at": "2026-08-09T12:00:00Z", "backup_operation": "fixture.backup", "removal_operation": "fixture.remove", "rollback_operation": "fixture.rollback"},
+  "authority": {"authority_ceiling": "execute_with_approval", "task_authority": true, "memory_authority": false, "governance_authority": false}
+}

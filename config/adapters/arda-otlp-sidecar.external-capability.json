@@ -1,0 +1,82 @@
+{
+  "schema_version": "arda.external-capability.v1",
+  "identity": {
+    "version": "0.1.0",
+    "source": "arda://crates/spine/observability/arda-aule/src/telemetry/tracer.rs",
+    "license": "MIT",
+    "source_digest": "sha256:215e81c87644fb020d48b6d673b9f47be6f371d5fd9fb2fbb9cbb7bcb2efea60",
+    "sbom": {
+      "format": "cargo-lock",
+      "digest": "sha256:ddbb44aff4f21b9a999564f5204feac52a7e12fadcde602fad1783e0eb3622cf",
+      "reference": "Cargo.lock"
+    },
+    "adapter_id": "arda-otlp-sidecar",
+    "candidate_id": "arda-aule-otlp-exporter"
+  },
+  "capabilities": {
+    "telemetry.export.otlp": "preview"
+  },
+  "data_classes": [
+    "internal"
+  ],
+  "requirements": {
+    "filesystem_read": false,
+    "filesystem_write": false,
+    "process_spawn": false,
+    "network": "external_approved",
+    "egress_destinations": [
+      "config://ARDA_OTLP_ENDPOINT"
+    ],
+    "devices": [],
+    "secrets": []
+  },
+  "interface": {
+    "input_schema": "opentelemetry.trace.v1",
+    "output_schema": "otlp.export-receipt.v1",
+    "protocols": [
+      "otlp"
+    ]
+  },
+  "resource_limits": {
+    "timeout_ms": 5000,
+    "max_input_bytes": 1048576,
+    "max_output_bytes": 65536,
+    "max_memory_bytes": 268435456,
+    "max_processes": 1
+  },
+  "health": {
+    "probe_operation": "otlp.endpoint.probe",
+    "freshness_secs": 60,
+    "degraded_after_failures": 1,
+    "unavailable_after_failures": 3
+  },
+  "lifecycle": {
+    "retry": {
+      "max_attempts": 3,
+      "initial_delay_ms": 100,
+      "max_delay_ms": 1000
+    },
+    "cancellation": "graceful",
+    "idempotency": "read_only",
+    "compensation": "none"
+  },
+  "provenance": {
+    "receipt_schema": "arda.telemetry-receipt.v1",
+    "correlation_required": true,
+    "source_digest_required": true,
+    "observed_at_required": true
+  },
+  "compatibility": {
+    "minimum_arda_version": "0.1.0",
+    "tested_at": "2026-08-09T12:00:00Z",
+    "backup_operation": "otlp.config.snapshot",
+    "removal_operation": "otlp.sidecar.disable",
+    "rollback_operation": "otlp.config.restore"
+  },
+  "authority": {
+    "authority_ceiling": "read_only",
+    "task_authority": false,
+    "memory_authority": false,
+    "governance_authority": false
+  }
+}

@@ -27,6 +27,7 @@ arda-outpost-protocol = { workspace = true }
 arda-mandos = { workspace = true }
 arda-rumil = { workspace = true }
 arda-varda = { workspace = true }
+arda-vaire = { workspace = true }
 async-stream = "0.3"
 futures-core = "0.3"
 chrono = { workspace = true }

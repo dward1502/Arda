@@ -98,6 +98,7 @@ impl MnemosyneService {
             confidence_hint: Some(1.0),
             tags: vec![
                 "governed".to_owned(),
+                format!("delta_id:{}", receipt.delta_id),
                 format!("approval_reference:{}", receipt.approval_reference),
                 format!("warden_observation:{}", receipt.warden_observation_id),
                 format!("varda_evaluation:{}", receipt.varda_evaluation_id),

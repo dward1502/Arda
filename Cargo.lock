@@ -230,6 +230,7 @@ dependencies = [
  "arda-orome",
  "arda-outpost-protocol",
  "arda-rumil",
+ "arda-vaire",
  "arda-varda",
  "async-stream",
  "axum 0.7.9",

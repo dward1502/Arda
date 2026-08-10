@@ -9,6 +9,7 @@ pub mod contract;
 pub mod council_run;
 pub mod daemon;
 pub mod error;
+pub mod external_capability;
 pub mod governance;
 pub mod governance_gates;
 pub mod layout;

@@ -1,0 +1,114 @@
+{
+  "schema_version": "arda.offline-x402-case.v1",
+  "contract": {
+    "schema_version": "arda.payment-capability.v1",
+    "capability_id": "payment",
+    "lineage": {
+      "project_id": "018f6d52-8441-7b83-b43f-31fbc2d50c24",
+      "project_contract_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "objective_id": "objective:paid-api-fixture",
+      "run_id": "run:offline-x402-fixture"
+    },
+    "rail": {
+      "rail": "x402",
+      "provider": "offline-fixture-provider",
+      "network": "eip155:84532-fixture",
+      "asset": "USDC-fixture",
+      "asset_decimals": 2
+    },
+    "payer_reference": "payer:operator-fixture",
+    "payee_reference": "payee:service-fixture",
+    "quote": {
+      "quote_id": "quote:offline-001",
+      "amount": "10.00",
+      "currency_asset": "USDC-fixture",
+      "expires_at": "2026-08-11T12:00:00Z",
+      "terms_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    "budget": {
+      "per_action_limit": "10.00",
+      "cumulative_limit": "25.00",
+      "cumulative_spent_before": "5.00"
+    },
+    "acceptance": {
+      "condition": "HTTP 200 with service receipt",
+      "condition_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+      "artifact_receipt_ids": ["artifact:paid-api-response"]
+    },
+    "replay": {
+      "idempotency_key": "payment:offline-001",
+      "challenge_nonce": "nonce:offline-001"
+    },
+    "approval": {
+      "approval_receipt_id": "018f6d52-8441-7b83-b43f-31fbc2d50c25",
+      "quote_id": "quote:offline-001",
+      "run_id": "run:offline-x402-fixture",
+      "amount": "10.00",
+      "currency_asset": "USDC-fixture",
+      "payer_reference": "payer:operator-fixture",
+      "payee_reference": "payee:service-fixture",
+      "network": "eip155:84532-fixture",
+      "terms_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "approved_at": "2026-08-10T11:00:00Z",
+      "expires_at": "2026-08-11T12:00:00Z"
+    },
+    "settlement": {
+      "state": "not_attempted",
+      "receipt_id": null,
+      "confirmations": 0,
+      "provider_reference": null
+    },
+    "compensation": {
+      "state": "refund_available",
+      "process_reference": "policy:offline-refund-v1"
+    },
+    "accounting": {
+      "classification": "software_service_expense",
+      "tax_jurisdiction": "operator_review_required",
+      "export_code": "fixture-x402-service"
+    },
+    "redacted_custody_reference": "redacted:custody-adapter-fixture",
+    "security": {
+      "requested_mode": "offline_fixture",
+      "emergency_revoked": false,
+      "fail_closed_on_provider_error": true,
+      "operator_visibility_required": true,
+      "automatic_environment_promotion": false,
+      "live_funds_authorized": false,
+      "required_confirmations": 1,
+      "reorg_policy": "revalidate_and_suspend",
+      "max_quote_ttl_seconds": 172800
+    }
+  },
+  "exchange": {
+    "quote": {
+      "quote_id": "quote:offline-001",
+      "amount": "10.00",
+      "currency_asset": "USDC-fixture",
+      "payee_reference": "payee:service-fixture",
+      "network": "eip155:84532-fixture",
+      "expires_at": "2026-08-11T12:00:00Z",
+      "terms_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    "challenge": {
+      "challenge_id": "challenge:offline-001",
+      "quote_id": "quote:offline-001",
+      "amount": "10.00",
+      "currency_asset": "USDC-fixture",
+      "payee_reference": "payee:service-fixture",
+      "network": "eip155:84532-fixture",
+      "nonce": "nonce:offline-001",
+      "expires_at": "2026-08-11T12:00:00Z"
+    },
+    "payment_response": {
+      "payment_id": "payment:offline-001",
+      "quote_id": "quote:offline-001",
+      "challenge_id": "challenge:offline-001",
+      "provider_status": "confirmed",
+      "settlement_receipt_id": "settlement:offline-001",
+      "confirmations": 1,
+      "signature_scheme": "offline-fixture-sha256-v1",
+      "signature": "sha256:d3c26c4bcc967eaa1f68954e64463cdda8021f1a761416c73a64c0c5a61805b2"
+    }
+  }
+}

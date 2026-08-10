@@ -23,6 +23,7 @@ pub mod loop_engine;
 pub mod loop_observability;
 pub mod message;
 pub mod orome_runtime;
+pub mod payment_capability;
 pub mod personal_ops;
 pub mod personal_ops_projection;
 pub mod pipeline;

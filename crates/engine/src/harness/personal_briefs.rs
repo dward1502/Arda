@@ -1,31 +1,38 @@
 //! Source-cited morning and context-transition briefs.
 
-use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
+use axum::{
+    extract::State,
+    http::{HeaderMap, StatusCode},
+    response::IntoResponse,
+    Json,
+};
 use chrono::Utc;
 use serde_json::{json, Value};
 
 use super::HarnessState;
-use crate::personal_ops::PersonalOpsLogStore;
 
-pub(super) async fn get_morning_brief(State(state): State<HarnessState>) -> impl IntoResponse {
-    build_context_brief(&state, "morning")
+pub(super) async fn get_morning_brief(
+    State(state): State<HarnessState>,
+    headers: HeaderMap,
+) -> impl IntoResponse {
+    build_context_brief(&state, &headers, "morning")
 }
 
-pub(super) async fn get_transition_brief(State(state): State<HarnessState>) -> impl IntoResponse {
-    build_context_brief(&state, "transition")
+pub(super) async fn get_transition_brief(
+    State(state): State<HarnessState>,
+    headers: HeaderMap,
+) -> impl IntoResponse {
+    build_context_brief(&state, &headers, "transition")
 }
 
-fn build_context_brief(state: &HarnessState, kind: &str) -> axum::response::Response {
-    let store = PersonalOpsLogStore::new(&state.workbench_root);
-    let events = match store.load_all() {
+fn build_context_brief(
+    state: &HarnessState,
+    headers: &HeaderMap,
+    kind: &str,
+) -> axum::response::Response {
+    let events = match super::personal_ops::operator_events(state, headers) {
         Ok(events) => events,
-        Err(error) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(json!({ "error": format!("failed to load event log: {error}") })),
-            )
-                .into_response();
-        }
+        Err(error) => return error.into_response(),
     };
     let now = Utc::now();
     let projection = crate::personal_ops::build_projection(&events, now, now.naive_local().date());

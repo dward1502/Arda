@@ -142,6 +142,34 @@ fn classification_promotes_capture_to_today_bucket() {
 }
 
 #[test]
+fn operator_authored_reclassification_corrects_the_projected_item() {
+    let capture = make_capture();
+    let capture_id = capture.capture_id;
+    let events = vec![
+        make_envelope(capture_event(capture)),
+        make_envelope(classify_event(
+            capture_id,
+            PersonalItemKind::Task,
+            EvidenceClass::OperatorAuthored,
+        )),
+        make_envelope(classify_event(
+            capture_id,
+            PersonalItemKind::Reminder,
+            EvidenceClass::OperatorAuthored,
+        )),
+    ];
+
+    let projection = build_projection(&events, Utc::now(), Utc::now().date_naive());
+
+    assert_eq!(projection.today.len(), 1);
+    assert_eq!(projection.today[0].kind, PersonalItemKind::Reminder);
+    assert_eq!(
+        projection.today[0].evidence_class,
+        EvidenceClass::OperatorAuthored
+    );
+}
+
+#[test]
 fn classification_then_completion_moves_to_completed() {
     let capture = make_capture();
     let capture_id = capture.capture_id;

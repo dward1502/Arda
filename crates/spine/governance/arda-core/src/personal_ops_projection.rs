@@ -155,10 +155,13 @@ fn handle_classification(
         }
         std::collections::btree_map::Entry::Occupied(mut entry) => {
             let item = entry.get_mut();
-            if item.evidence_class != EvidenceClass::OperatorAuthored {
+            if e.evidence_class == EvidenceClass::OperatorAuthored
+                || item.evidence_class != EvidenceClass::OperatorAuthored
+            {
                 item.kind = e.kind;
                 item.evidence_class = e.evidence_class;
                 item.confidence = confidence;
+                item.classification_reason = reason_from_evidence(e.evidence_class);
             }
         }
     }

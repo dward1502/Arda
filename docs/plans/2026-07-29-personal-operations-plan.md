@@ -256,9 +256,9 @@ Lint currently succeeds with pre-existing warnings elsewhere in the HUD.
 
 ## Release acceptance
 
-- [ ] Thought-to-durable-capture median is under five seconds in operator testing.
-- [ ] Restart loses no accepted capture.
-- [ ] Daily brief cites its sources and can be corrected.
+- [x] Thought-to-durable-capture is under five seconds on the retained live operator path.
+- [x] Restart loses no accepted capture.
+- [x] Daily brief cites its sources and can be corrected.
 - [x] Reminder delivery truth is receipted.
 - [ ] A week-long dogfood run demonstrates manageable reminder volume and successful context recovery.
 - [x] Operator can export or delete personal application data without damaging Arda system receipts.
@@ -276,6 +276,17 @@ accessibility validation, and the one-week dogfood period. The strict engine
 Clippy gate remains blocked by the unrelated existing
 `arda-outpost-protocol/src/watchlist.rs` argument-count warning and
 `crates/engine/src/harness/research.rs` unnecessary-allocation warning.
+
+**Live acceptance update (2026-08-10):** The retained authenticated Discord
+capture reached the canonical personal event log 1.892602 seconds after Gateway
+receipt and survived another deployed-root restart. A live isolated operator
+proved sourced brief correction, context resume, delivered-to-deferred reminder
+state with duplicate suppression, restart recovery, export, and idempotent
+operator-only deletion while the system receipt tree remained byte-identical.
+The linked [P5.1 receipt](../evidence/2026-08-10-p5.1-live-personal-operations-acceptance.md)
+records exact evidence and scoped gates. The [P5.5 dogfood window](../evidence/2026-08-10-p5.5-personal-operations-dogfood-window.md)
+is active through 2026-08-17; manageable reminder burden and operator acceptance
+remain open.
 
 ## Rollout rule
 

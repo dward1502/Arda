@@ -338,7 +338,7 @@ async fn personal_data_export_and_delete_preserve_system_receipts() {
 }
 
 #[tokio::test]
-async fn reminder_attempt_and_acknowledge_flow_updates_projection() {
+async fn reminder_attempt_and_defer_flow_updates_projection_without_double_counting_resume() {
     let root = tempfile::tempdir().unwrap();
     let state = base_state(root.path().to_path_buf());
     let shutdown = Arc::new(Notify::new());
@@ -431,7 +431,7 @@ async fn reminder_attempt_and_acknowledge_flow_updates_projection() {
         .header("idempotency-key", Uuid::new_v4().to_string())
         .json(&serde_json::json!({
             "operator_id": "operator-0",
-            "state": "acknowledged",
+            "state": "deferred",
             "receipt_reference": "ack-ref-456"
         }))
         .send()
@@ -447,6 +447,14 @@ async fn reminder_attempt_and_acknowledge_flow_updates_projection() {
         .await
         .unwrap();
     assert_eq!(proj["projection"]["event_count"], 4);
+
+    let resume: Value = reqwest::get(format!("http://{bound}/v1/personal/resume"))
+        .await
+        .unwrap()
+        .json()
+        .await
+        .unwrap();
+    assert_eq!(resume["resume"]["active_count"], 1);
 
     shutdown.notify_waiters();
     harness_handle.await.unwrap();
@@ -761,6 +769,80 @@ async fn mutations_require_identity_and_replay_idempotency_keys_exactly_once() {
         projection["projection"]["inbox"].as_array().unwrap().len(),
         1
     );
+
+    shutdown.notify_waiters();
+    harness_handle.await.unwrap();
+}
+
+#[tokio::test]
+async fn personal_views_require_identity_and_exclude_other_operators() {
+    let root = tempfile::tempdir().unwrap();
+    let state = base_state(root.path().to_path_buf());
+    let shutdown = Arc::new(Notify::new());
+    let (bound, harness_handle) = harness::serve(
+        Some("127.0.0.1:0".parse().unwrap()),
+        state,
+        shutdown.clone(),
+    )
+    .await
+    .expect("start harness");
+    let client = reqwest::Client::new();
+
+    let mut capture_ids = std::collections::BTreeMap::new();
+    for operator_id in ["operator-a", "operator-b"] {
+        let response = client
+            .post(format!("http://{bound}/v1/personal/captures"))
+            .header("x-arda-operator-id", operator_id)
+            .header("idempotency-key", format!("capture-{operator_id}"))
+            .json(&serde_json::json!({
+                "operator_id": operator_id,
+                "text": format!("private capture for {operator_id}")
+            }))
+            .send()
+            .await
+            .unwrap();
+        assert_eq!(response.status(), 201);
+        let body: Value = response.json().await.unwrap();
+        capture_ids.insert(operator_id, body["capture_id"].as_str().unwrap().to_owned());
+    }
+
+    let operator_b_capture = capture_ids.get("operator-b").unwrap();
+    let cross_operator_mutation = client
+        .post(format!(
+            "http://{bound}/v1/personal/items/{operator_b_capture}/classify"
+        ))
+        .header("x-arda-operator-id", "operator-a")
+        .header("idempotency-key", "cross-operator-classification")
+        .json(&serde_json::json!({
+            "operator_id": "operator-a",
+            "item_id": operator_b_capture,
+            "kind": "task",
+            "evidence_class": "operator_authored"
+        }))
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(cross_operator_mutation.status(), 403);
+
+    let unauthenticated = client
+        .get(format!("http://{bound}/v1/personal/inbox"))
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(unauthenticated.status(), 401);
+
+    for operator_id in ["operator-a", "operator-b"] {
+        let response = client
+            .get(format!("http://{bound}/v1/personal/inbox"))
+            .header("x-arda-operator-id", operator_id)
+            .send()
+            .await
+            .unwrap();
+        assert_eq!(response.status(), 200);
+        let body: Value = response.json().await.unwrap();
+        assert_eq!(body["inbox"].as_array().unwrap().len(), 1);
+        assert_eq!(body["inbox"][0]["operator_id"], operator_id);
+    }
 
     shutdown.notify_waiters();
     harness_handle.await.unwrap();

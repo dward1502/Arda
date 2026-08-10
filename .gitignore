@@ -44,6 +44,7 @@ logs
 /data/prometheus/
 data/ceo/autopilot.state.json
 /data/personal/
+/audit/personal-data-deletions/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

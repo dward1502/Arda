@@ -117,7 +117,9 @@ export function createPersonalOpsClient(
     'x-arda-operator-id': operatorId,
     'idempotency-key': idempotencyKey(action),
   })
-  const get = <T>(path: string) => fetch(url(path)).then(readJson<T>)
+  const get = <T>(path: string) => fetch(url(path), {
+    headers: { 'x-arda-operator-id': operatorId },
+  }).then(readJson<T>)
 
   return {
     async loadSnapshot() {

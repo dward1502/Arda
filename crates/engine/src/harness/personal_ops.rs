@@ -149,6 +149,81 @@ fn operator_from_headers(headers: &HeaderMap) -> Result<&str, MutationError> {
         })
 }
 
+pub(super) fn operator_events(
+    state: &HarnessState,
+    headers: &HeaderMap,
+) -> Result<
+    Vec<arda_core::personal_ops::PersonalOpsEnvelope<arda_core::personal_ops::PersonalOpsRecord>>,
+    MutationError,
+> {
+    let events = PersonalOpsLogStore::new(&state.workbench_root)
+        .load_all()
+        .map_err(|error| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({ "error": format!("failed to load event log: {error}") })),
+            )
+        })?;
+    let header_operator = headers
+        .get("x-arda-operator-id")
+        .and_then(|value| value.to_str().ok())
+        .map(str::trim)
+        .filter(|value| !value.is_empty());
+    if let Some(operator_id) = header_operator {
+        return Ok(events
+            .into_iter()
+            .filter(|event| event.record.operator_id() == operator_id)
+            .collect());
+    }
+    let operators = events
+        .iter()
+        .map(|event| event.record.operator_id())
+        .collect::<std::collections::BTreeSet<_>>();
+    if operators.len() > 1 {
+        return Err((
+            StatusCode::UNAUTHORIZED,
+            Json(serde_json::json!({
+                "error": "x-arda-operator-id header required when multiple operators have personal data"
+            })),
+        ));
+    }
+    Ok(events)
+}
+
+fn require_item_owner(
+    state: &HarnessState,
+    operator_id: &str,
+    item_id: uuid::Uuid,
+) -> Result<(), MutationError> {
+    let events = PersonalOpsLogStore::new(&state.workbench_root)
+        .load_all()
+        .map_err(|error| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({ "error": format!("failed to load event log: {error}") })),
+            )
+        })?;
+    let owner = events.iter().find_map(|event| match &event.record {
+        arda_core::personal_ops::PersonalOpsRecord::CaptureRecorded(capture)
+            if capture.capture.capture_id == item_id =>
+        {
+            Some(capture.operator_id.as_str())
+        }
+        _ => None,
+    });
+    match owner {
+        Some(owner) if owner == operator_id => Ok(()),
+        Some(_) => Err((
+            StatusCode::FORBIDDEN,
+            Json(serde_json::json!({ "error": "personal item belongs to another operator" })),
+        )),
+        None => Err((
+            StatusCode::NOT_FOUND,
+            Json(serde_json::json!({ "error": "personal item not found" })),
+        )),
+    }
+}
+
 fn write_deletion_receipt(
     root: &std::path::Path,
     receipt_id: uuid::Uuid,
@@ -303,6 +378,9 @@ pub async fn classify_item(
         )
             .into_response();
     }
+    if let Err(error) = require_item_owner(&state, &req.operator_id, item_uuid) {
+        return error.into_response();
+    }
     let event_id = match mutation_event_id(
         &headers,
         &req.operator_id,
@@ -386,6 +464,9 @@ pub async fn schedule_item(
                 .into_response();
         }
     };
+    if let Err(error) = require_item_owner(&state, &req.operator_id, item_uuid) {
+        return error.into_response();
+    }
     let event_id = match mutation_event_id(
         &headers,
         &req.operator_id,
@@ -444,6 +525,9 @@ pub async fn complete_item(
                 .into_response();
         }
     };
+    if let Err(error) = require_item_owner(&state, &req.operator_id, item_uuid) {
+        return error.into_response();
+    }
     let event_id = match mutation_event_id(
         &headers,
         &req.operator_id,
@@ -480,17 +564,13 @@ pub async fn complete_item(
 
 /// Get the current personal-ops projection (inbox, today, waiting, scheduled,
 /// completed) by replaying the append-only event log.
-pub async fn get_projection(State(state): State<HarnessState>) -> impl IntoResponse {
-    let store = PersonalOpsLogStore::new(&state.workbench_root);
-    let events = match store.load_all() {
+pub async fn get_projection(
+    State(state): State<HarnessState>,
+    headers: HeaderMap,
+) -> impl IntoResponse {
+    let events = match operator_events(&state, &headers) {
         Ok(events) => events,
-        Err(error) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(serde_json::json!({ "error": format!("failed to load event log: {error}") })),
-            )
-                .into_response();
-        }
+        Err(error) => return error.into_response(),
     };
 
     let now = Utc::now();
@@ -508,17 +588,10 @@ pub async fn get_projection(State(state): State<HarnessState>) -> impl IntoRespo
 }
 
 /// Get the inbox: unclassified captures awaiting organization.
-pub async fn get_inbox(State(state): State<HarnessState>) -> impl IntoResponse {
-    let store = PersonalOpsLogStore::new(&state.workbench_root);
-    let events = match store.load_all() {
+pub async fn get_inbox(State(state): State<HarnessState>, headers: HeaderMap) -> impl IntoResponse {
+    let events = match operator_events(&state, &headers) {
         Ok(events) => events,
-        Err(error) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(serde_json::json!({ "error": format!("failed to load event log: {error}") })),
-            )
-                .into_response();
-        }
+        Err(error) => return error.into_response(),
     };
 
     let now = Utc::now();
@@ -552,24 +625,26 @@ pub struct ResumeCard {
     pub generated_at: String,
 }
 
-pub async fn get_resume(State(state): State<HarnessState>) -> impl IntoResponse {
-    let store = PersonalOpsLogStore::new(&state.workbench_root);
-    let events = match store.load_all() {
+pub async fn get_resume(
+    State(state): State<HarnessState>,
+    headers: HeaderMap,
+) -> impl IntoResponse {
+    let events = match operator_events(&state, &headers) {
         Ok(events) => events,
-        Err(error) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(serde_json::json!({ "error": format!("failed to load event log: {error}") })),
-            )
-                .into_response();
-        }
+        Err(error) => return error.into_response(),
     };
 
     let now = Utc::now();
     let local_date = now.naive_local().date();
     let projection = crate::personal_ops::build_projection(&events, now, local_date);
 
-    let active_count = projection.today.len() + projection.waiting.len();
+    let active_count = projection
+        .today
+        .iter()
+        .chain(&projection.waiting)
+        .map(|item| item.item_id)
+        .collect::<std::collections::BTreeSet<_>>()
+        .len();
     let summary = if active_count == 0 {
         if projection.inbox.is_empty() {
             "Nothing in progress. Check your captures or scheduled items.".to_owned()
@@ -648,6 +723,9 @@ pub async fn record_reminder_attempt(
                 .into_response();
         }
     };
+    if let Err(error) = require_item_owner(&state, &req.operator_id, item_uuid) {
+        return error.into_response();
+    }
     let event_id = match mutation_event_id(
         &headers,
         &req.operator_id,
@@ -928,17 +1006,13 @@ fn parse_delivery_state(s: &str) -> arda_core::personal_ops::ReminderDeliverySta
 }
 
 /// Get the today brief: items due today plus reminder state.
-pub async fn get_today_brief(State(state): State<HarnessState>) -> impl IntoResponse {
-    let store = PersonalOpsLogStore::new(&state.workbench_root);
-    let events = match store.load_all() {
+pub async fn get_today_brief(
+    State(state): State<HarnessState>,
+    headers: HeaderMap,
+) -> impl IntoResponse {
+    let events = match operator_events(&state, &headers) {
         Ok(events) => events,
-        Err(error) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(serde_json::json!({ "error": format!("failed to load event log: {error}") })),
-            )
-                .into_response();
-        }
+        Err(error) => return error.into_response(),
     };
 
     let now = Utc::now();

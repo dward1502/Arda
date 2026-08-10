@@ -299,7 +299,9 @@ async fn apply_command(
             ))
         }
         Command::Context => {
-            let response = get_json(state, "/v1/personal/resume").await?;
+            let response =
+                get_operator_json(state, "/v1/personal/resume", &incoming.operator.operator_id)
+                    .await?;
             let summary = response["resume"]["summary"]
                 .as_str()
                 .unwrap_or("No personal resume context is available.")
@@ -747,6 +749,20 @@ fn mutation_envelope(message_id: &str, timestamp: &str) -> Value {
 
 async fn get_json(state: &HarnessState, path: &str) -> Result<Value, ApiError> {
     proxy_json(state.client.get(url(state, path))).await
+}
+
+async fn get_operator_json(
+    state: &HarnessState,
+    path: &str,
+    operator_id: &str,
+) -> Result<Value, ApiError> {
+    proxy_json(
+        state
+            .client
+            .get(url(state, path))
+            .header("x-arda-operator-id", operator_id),
+    )
+    .await
 }
 
 async fn post_json(

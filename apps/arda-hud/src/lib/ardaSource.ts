@@ -6,6 +6,7 @@ import { classifyFreshness, getOperatorLabel, getSafeRefreshCommand, normalizeTi
 import { deriveAutomationStatusSurface } from './automationStatus'
 import { parseJsonOrNull } from './jsonParse'
 import { resolveWorkstationProfile } from './firstLevelTerminalContracts'
+import { parseOperatorProjection } from './operatorProjection'
 import {
   collectInventoryPaths,
   filenameFromPath,
@@ -966,6 +967,7 @@ export function createCoreStateSource(): ArdaDataSource {
       const { rootPath, settings } = await bundleMetric.mark('loadArdaHudSettings', () => loadArdaHudSettings())
       const [
         snapshot,
+        operatorProjectionRaw,
         remoteConfidenceSnapshot,
         world,
         humanContext,
@@ -1042,6 +1044,7 @@ export function createCoreStateSource(): ArdaDataSource {
         presenceEventLedgerText,
       ] = await Promise.all([
         readJson(rootPath, settings.arda_snapshot_path),
+        readJson(rootPath, 'core/state/operator_projection.json'),
         readJson(rootPath, settings.remote_confidence_snapshot_path),
         readJson(rootPath, settings.world_path),
         readJson(rootPath, settings.human_context_path),
@@ -1148,6 +1151,9 @@ export function createCoreStateSource(): ArdaDataSource {
       const workstationManifests = deriveWorkstationManifests(sections)
       const finalSourceMap = sourceMap ?? deriveSourceMap(rootPath, sections)
       const finalSnapshot = snapshot ?? deriveSnapshot(world, sections)
+      const operatorProjection = operatorProjectionRaw
+        ? parseOperatorProjection(operatorProjectionRaw)
+        : null
       const finalRemoteConfidenceSnapshot = normalizeRemoteConfidenceSnapshot(remoteConfidenceSnapshot)
       const finalSafeLocalWorkCyclePreflight = normalizeSafeLocalWorkCyclePreflight(safeLocalWorkCyclePreflight)
       const sourceProvenance = await deriveProvenanceRecords(rootPath, sections)
@@ -1177,6 +1183,7 @@ export function createCoreStateSource(): ArdaDataSource {
         generatedAt,
         settings: asRecord(settings),
         snapshot: finalSnapshot,
+        operatorProjection,
         remoteConfidenceSnapshot: finalRemoteConfidenceSnapshot,
         safeLocalWorkCyclePreflight: finalSafeLocalWorkCyclePreflight,
         l3ReadinessProjection,

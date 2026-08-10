@@ -1,6 +1,7 @@
 // sigil: REPAIR
 import type { AutomationStatusSurface } from './automationStatus'
 import type { ArdaSourceProvenance } from './ardaProvenance'
+import type { OperatorProjection } from './operatorProjection'
 import type { AgentPresenceState, PresenceLedgerStatus } from '../scene/systems/presenceTypes'
 
 export type JsonRecord = Record<string, unknown>
@@ -80,6 +81,7 @@ export interface ArdaBundle {
   generatedAt: string
   settings: JsonRecord | null
   snapshot: JsonRecord | null
+  operatorProjection: OperatorProjection | null
   remoteConfidenceSnapshot: JsonRecord | null
   safeLocalWorkCyclePreflight: JsonRecord | null
   l3ReadinessProjection: JsonRecord | null

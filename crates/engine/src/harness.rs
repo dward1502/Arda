@@ -24,6 +24,7 @@ use tracing::{info, warn};
 use crate::supervisor::ServiceRuntimeStatus;
 
 mod operator_messages;
+mod operator_projection;
 mod personal_briefs;
 pub mod personal_ops;
 pub mod presence;
@@ -88,6 +89,10 @@ fn router(state: HarnessState) -> axum::Router {
     axum::Router::new()
         .route("/health", get(health))
         .route("/v1/status", get(status))
+        .route(
+            "/v1/operator-projection",
+            get(operator_projection::get_projection),
+        )
         .route("/v1/models", get(models))
         .route("/v1/scout/health", get(scout_health))
         .route("/v1/scout/search", post(scout_search))
@@ -372,6 +377,7 @@ async fn harness_info(State(st): State<HarnessState>) -> impl IntoResponse {
             "routes": [
                 "/health",
                 "/v1/status",
+                "/v1/operator-projection",
                 "/v1/models",
                 "/v1/scout/health",
                 "/v1/scout/search",

@@ -18,6 +18,12 @@ and an unavailable optional capability so omission or false completion is
 visible in every projection consumer.
 
 The canonical runtime handoff path is
-`core/state/operator_projection.json`. Absence means unavailable projection
-data; the HUD does not derive a competing operator truth from its local scene
-state. Mutation remains behind separately authorized operation endpoints.
+`core/state/operator_projection.json`. The loopback harness exposes the same
+validated payload through read-only `GET /v1/operator-projection`: a missing
+handoff returns HTTP `404` with `state: unavailable`, an invalid handoff returns
+HTTP `422` with `state: failed`, and mutation methods are not routed. CLI and
+phone-connected Hermes sessions may consume that endpoint while the HUD reads
+the canonical file directly. The API does not rewrite IDs, state, freshness, or
+provenance. Consumers must not reconstruct a competing operator truth from
+scene-local or channel-local state; canonical mutation remains behind separately
+authorized operation endpoints.

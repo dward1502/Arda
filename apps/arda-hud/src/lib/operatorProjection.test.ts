@@ -41,6 +41,24 @@ describe('canonical operator projection', () => {
     expect(Object.keys(signals)).not.toContain('actions')
   })
 
+  it('preserves the canonical IDs, run state, freshness, and provenance used by CLI/API', () => {
+    const projection = parseOperatorProjection(fixtureValue())
+
+    expect({
+      projectionId: projection.projection_id,
+      objectiveIds: projection.objectives.map((objective) => objective.objective_id),
+      runs: projection.runs.map((run) => ({ runId: run.run_id, state: run.status })),
+      freshness: projection.freshness,
+      evidenceIds: projection.evidence.map((evidence) => evidence.evidence_id),
+    }).toEqual({
+      projectionId: 'projection-p9-fixture',
+      objectiveIds: ['objective-p9'],
+      runs: [{ runId: 'run-p9', state: 'running' }],
+      freshness: 'fresh',
+      evidenceIds: ['evidence-p9'],
+    })
+  })
+
   it('fails closed on unknown fields and inconsistent stale state', () => {
     expect(() => parseOperatorProjection({ ...fixtureValue() as object, transition: 'approve' }))
       .toThrow(/unknown operator projection field: transition/)

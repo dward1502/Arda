@@ -1,3 +1,4 @@
+use arda_core::operator_projection::OperatorProjection;
 use arda_engine::harness::presence::HarnessPresenceState;
 use arda_engine::harness::{
     self, HarnessState, DEFAULT_HARNESS_ADDR, DEFAULT_MANWE_PROXY_TIMEOUT,
@@ -25,14 +26,38 @@ fn base_state(workbench_root: PathBuf) -> HarnessState {
     }
 }
 
-fn fixture() -> &'static str {
-    include_str!("../../../spec/operator-projection/v1/fixtures/valid-operator-projection.json")
+fn write_run(root: &Path, body: &str) {
+    let directory = root.join("data/runs/run-api");
+    std::fs::create_dir_all(&directory).unwrap();
+    std::fs::write(directory.join("checkpoint.json"), body).unwrap();
 }
 
-fn publish(root: &Path, body: &str) {
-    let path = root.join("core/state/operator_projection.json");
-    std::fs::create_dir_all(path.parent().unwrap()).unwrap();
-    std::fs::write(path, body).unwrap();
+fn valid_run() -> &'static str {
+    r#"{
+  "schema_version": "arda.run-graph.v1",
+  "run_id": "run-api",
+  "objective_id": "objective-api",
+  "nodes": [{
+    "id": "execute",
+    "kind": "execute",
+    "state": "running",
+    "authority": "read_only",
+    "budget": { "max_joules": 10.0, "max_cost_usd": 0.0 },
+    "retry": { "max_attempts": 1 },
+    "timeout_ms": 60000,
+    "idempotency_key": "run-api-execute",
+    "input_digest": "objective:objective-api",
+    "output_digest": null,
+    "parent_receipts": [],
+    "checkpoint": { "sequence": 0, "recovery_token": null, "checkpoint_digest": null }
+  }],
+  "edges": [],
+  "provenance": {
+    "project_contract_digest": "project:api",
+    "created_by": "harness-test",
+    "parent_receipts": []
+  }
+}"#
 }
 
 async fn start(root: &Path) -> (String, Arc<Notify>, tokio::task::JoinHandle<()>) {
@@ -48,9 +73,9 @@ async fn start(root: &Path) -> (String, Arc<Notify>, tokio::task::JoinHandle<()>
 }
 
 #[tokio::test]
-async fn canonical_operator_projection_endpoint_preserves_ids_state_and_authority() {
+async fn canonical_operator_projection_endpoint_publishes_and_preserves_live_ids() {
     let root = tempfile::tempdir().unwrap();
-    publish(root.path(), fixture());
+    write_run(root.path(), valid_run());
     let (base, shutdown, handle) = start(root.path()).await;
 
     let response = reqwest::get(format!("{base}/v1/operator-projection"))
@@ -58,14 +83,22 @@ async fn canonical_operator_projection_endpoint_preserves_ids_state_and_authorit
         .unwrap();
     assert_eq!(response.status(), 200);
     let projection: Value = response.json().await.unwrap();
-    let canonical: Value = serde_json::from_str(fixture()).unwrap();
-    assert_eq!(projection, canonical, "CLI/API must return the canonical handoff without rewriting IDs, state, freshness, or provenance");
-    assert_eq!(projection["projection_id"], "projection-p9-fixture");
     assert_eq!(projection["authority"], "read_only");
     assert_eq!(projection["freshness"], "fresh");
-    assert_eq!(projection["objectives"][0]["objective_id"], "objective-p9");
-    assert_eq!(projection["runs"][0]["run_id"], "run-p9");
+    assert_eq!(projection["objectives"][0]["objective_id"], "objective-api");
+    assert_eq!(projection["runs"][0]["run_id"], "run-api");
     assert_eq!(projection["runs"][0]["status"], "running");
+
+    let persisted =
+        std::fs::read_to_string(root.path().join("core/state/operator_projection.json")).unwrap();
+    let persisted: Value = serde_json::from_str(&persisted).unwrap();
+    assert_eq!(projection["schema_version"], persisted["schema_version"]);
+    assert_eq!(projection["authority"], persisted["authority"]);
+    assert_eq!(projection["objectives"], persisted["objectives"]);
+    assert_eq!(projection["runs"], persisted["runs"]);
+    assert_eq!(projection["dependencies"], persisted["dependencies"]);
+    OperatorProjection::from_json_str(&serde_json::to_string(&projection).unwrap()).unwrap();
+    OperatorProjection::from_json_str(&serde_json::to_string(&persisted).unwrap()).unwrap();
 
     let mutation = reqwest::Client::new()
         .post(format!("{base}/v1/operator-projection"))
@@ -80,7 +113,7 @@ async fn canonical_operator_projection_endpoint_preserves_ids_state_and_authorit
 }
 
 #[tokio::test]
-async fn operator_projection_endpoint_exposes_unavailable_and_invalid_states() {
+async fn operator_projection_endpoint_exposes_unavailable_and_invalid_source_states() {
     let root = tempfile::tempdir().unwrap();
     let (base, shutdown, handle) = start(root.path()).await;
 
@@ -91,16 +124,38 @@ async fn operator_projection_endpoint_exposes_unavailable_and_invalid_states() {
     let missing_body: Value = missing.json().await.unwrap();
     assert_eq!(missing_body["state"], "unavailable");
 
-    publish(
-        root.path(),
-        &fixture().replace("arda.operator-projection.v1", "arda.operator-projection.v0"),
-    );
+    write_run(root.path(), "{not-json");
     let invalid = reqwest::get(format!("{base}/v1/operator-projection"))
         .await
         .unwrap();
     assert_eq!(invalid.status(), 422);
     let invalid_body: Value = invalid.json().await.unwrap();
     assert_eq!(invalid_body["state"], "failed");
+    shutdown.notify_waiters();
+    handle.await.unwrap();
+}
+
+#[tokio::test]
+async fn harness_publishes_projection_for_file_consumers_without_an_api_read() {
+    let root = tempfile::tempdir().unwrap();
+    write_run(root.path(), valid_run());
+    let (_base, shutdown, handle) = start(root.path()).await;
+    let output = root.path().join("core/state/operator_projection.json");
+
+    tokio::time::timeout(std::time::Duration::from_secs(3), async {
+        loop {
+            if output.is_file() {
+                break;
+            }
+            tokio::time::sleep(std::time::Duration::from_millis(25)).await;
+        }
+    })
+    .await
+    .expect("publisher must materialize the HUD handoff without an API request");
+
+    let projection = std::fs::read_to_string(output).unwrap();
+    let projection = OperatorProjection::from_json_str(&projection).unwrap();
+    assert_eq!(projection.runs[0].run_id, "run-api");
 
     shutdown.notify_waiters();
     handle.await.unwrap();

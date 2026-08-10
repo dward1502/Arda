@@ -423,8 +423,14 @@ pub async fn serve(
     let bound = listener.local_addr()?;
     state.harness_addr = bound.to_string();
     info!("harness: listening on {bound}");
+    let publisher_root = state.workbench_root.clone();
     let app = router(state);
+    let publisher_shutdown = shutdown.clone();
     let handle = tokio::spawn(async move {
+        let publisher = tokio::spawn(operator_projection::publish_continuously(
+            publisher_root,
+            publisher_shutdown,
+        ));
         axum::serve(
             listener,
             app.into_make_service_with_connect_info::<SocketAddr>(),
@@ -432,6 +438,8 @@ pub async fn serve(
         .with_graceful_shutdown(async move { shutdown.notified().await })
         .await
         .ok();
+        publisher.abort();
+        let _ = publisher.await;
         info!("harness: stopped");
     });
     Ok((bound, handle))

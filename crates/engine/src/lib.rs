@@ -11,6 +11,7 @@ pub mod adapters;
 pub mod council;
 pub mod harness;
 pub mod observability;
+pub mod operator_projection;
 pub mod orome;
 pub mod personal_ops;
 pub mod registry;

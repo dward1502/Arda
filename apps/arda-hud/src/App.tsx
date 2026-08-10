@@ -2899,13 +2899,6 @@ export default function App() {
           onExit={() => {
             runSceneTransition('Returning To Boardroom', 'boardroom')
           }}
-          onOpenPanel={(sourceZoneId) => {
-            if (sourceZoneId) {
-              setActiveSectionId(sourceZoneId)
-              setPanelModeKey(sourceZoneId)
-            }
-            runSceneTransition('Opening Focused Panel', 'panel')
-          }}
         />
       ) : null}
 

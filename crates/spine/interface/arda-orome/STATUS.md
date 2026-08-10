@@ -3,20 +3,24 @@
 Crate: `crates/spine/interface/arda-orome`
 Version: `0.1.0`
 State: **transport-complete, source-classified, and verified**
-Reviewed: 2026-07-27
+Reviewed: 2026-08-09
 Required crate-local stabilization work: **complete**
 
 ## Current state
 
-- The default six-family interface surface remains stable.
+- The default seven-family interface surface remains stable.
 - The former 35-file unwired inventory is resolved: 29 source files were retained behind `service-runtime`, one compatibility module was added, and six unsupported files were retired.
-- No Rust file is unwired: the all-feature tree has 47 production-compiled files and three unit-test-only files.
+- No Rust file is unwired: the all-feature tree has 50 production-compiled files and three unit-test-only files.
 - The no-op default `http` feature and its unused optional dependencies were removed.
 - Service/MCP/context/Discord-contract dependencies are optional and activated only by `service-runtime`.
 - `intent` and `registry` support both unit tests and `service-runtime`; `message_retry_expiry`, `router`, and provider tests remain test-only.
 - `HttpJsonTransport` provides opt-in live HTTP dispatch with bounded responses and provider-message receipt proof.
 - Fleet policy defaults to local-only; trusted-fleet targets require an explicit provider allowlist and external scope requires approval.
 - `HermesService` scopes Bacon-Lite, Mnemosyne, and Plutus evidence to its configured project root while retaining explicit home overrides.
+- The default surface now includes a credential-free Hermes `MessageEvent` to
+  `arda.operator-session.v1` bridge with durable duplicate/replay rejection,
+  separately supplied canonical approval bindings, redaction, response
+  correlation, and five-state transport health.
 
 ## Runtime boundary
 
@@ -28,15 +32,17 @@ Passed from the workspace root on 2026-07-27:
 
 - `cargo fmt -p arda-orome -- --check`.
 - `cargo check -p arda-orome --no-default-features`.
-- `cargo test -p arda-orome --no-default-features`: 21 passed (14 unit, 7 integration).
-- `cargo test -p arda-orome --all-features -- --test-threads=1`: 96 passed (86 unit, 10 integration).
-- `cargo clippy -p arda-orome --all-targets --all-features --quiet -- -D warnings`.
+- `cargo test -p arda-orome --no-default-features`: 42 passed.
+- `cargo test -p arda-orome --all-features -- --test-threads=1`: 117 passed.
+- `cargo clippy -p arda-orome --all-targets --all-features --no-deps --quiet -- -D warnings`.
 - `cargo doc -p arda-orome --no-deps --all-features`.
 - `cargo test -p arda-engine --test orome_smoke`: 1 passed.
 - `cargo check -p manwe --features grpc`.
 - `cargo check -p arda-aule --features full-cli`.
 
 Cargo emitted only the existing workspace warning about the ignored non-root launcher profile.
+Dependency-inclusive strict Clippy remains blocked by the unrelated pre-existing
+`too_many_arguments` finding in `arda-outpost-protocol/src/watchlist.rs`.
 
 ## HERMES disposition
 

@@ -16,24 +16,29 @@ interface SceneSlotWorkstationTemplate {
 }
 
 const SCENE_SLOT_WORKSTATION_TEMPLATES: Record<BoardroomSceneSlotId, SceneSlotWorkstationTemplate> = {
-  monitor_left_1: {
-    title: 'Monitor Left 1 Service Template',
+  monitor_1: {
+    title: 'Monitor 1 Warp Service Template',
     moduleIds: ['service_embed', 'systems'],
     presentationModes: ['in_scene', 'native_window'],
   },
-  monitor_left_2: {
-    title: 'Monitor Left 2 Routing Template',
+  monitor_2: {
+    title: 'Monitor 2 Routing Template',
     moduleIds: ['operations_and_packages', 'systems', 'governance_controls'],
     presentationModes: ['in_scene', 'native_window'],
   },
-  monitor_left_3: {
-    title: 'Monitor Left 3 Knowledge Template',
+  monitor_3: {
+    title: 'Monitor 3 Knowledge Template',
     moduleIds: ['section_focus', 'human_realm'],
     presentationModes: ['in_scene', 'native_window'],
   },
-  monitor_left_4: {
-    title: 'Monitor Left 4 Planning Template',
+  monitor_4: {
+    title: 'Monitor 4 Planning Template',
     moduleIds: ['planning', 'section_focus'],
+    presentationModes: ['in_scene', 'native_window'],
+  },
+  monitor_5: {
+    title: 'Monitor 5 Human + Business Template',
+    moduleIds: ['human_realm', 'business'],
     presentationModes: ['in_scene', 'native_window'],
   },
   view_desk_l: {

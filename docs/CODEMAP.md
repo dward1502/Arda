@@ -6,29 +6,32 @@ soterion:
   role: "documentation"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-05-21"
+  last_reviewed: "2026-08-08"
 ---
 
-> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-05-21
+> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-08-08
 
-# Annunimas Codemap
+# Arda Codemap
 
-Low-token entrypoint for navigating the repository. Updated 2026-05-26.
+Low-token entrypoint for the canonical Arda repository. Updated 2026-08-08
+from `cargo metadata --no-deps --format-version 1` and live path inspection.
+It navigates the Arda 1.0 personal agent ecosystem; Workbench and optional
+capabilities are consumers of one governed kernel, not separate product roots.
 
 ## Top Level
 
 | Directory | Purpose |
 |-----------|---------|
-| `crates/` | Rust workspace and agent crates — 25 workspace members |
-| `apps/` | UI and device-facing applications (ARDA HUD, CITADEL avatar) |
+| `crates/` | Rust engine and spine packages |
+| `apps/` | Canonical HUD and launcher applications |
 | `config/` | Operator-managed TOML/YAML/JSON configuration and generated runtime env files |
 | `core/` | Realm, state, edge, project data read/written by services |
 | `data/` | Runtime outputs, receipts, ledgers, state snapshots |
 | `docs/` | 📜 Soterion documentation: human-facing design, migration, integration, and operations notes |
 | `human/` | Human notes, plans, summaries, and Obsidian-style knowledge surfaces |
-| `archive/` | Historical snapshots — usually not needed for current work |
-| `archived_scripts/` | Historical scripts kept outside the active automation path |
-| `audit/` | Audit reports and follow-up findings |
+| `outposts/` | Bounded outpost protocol, scout, and read-only RELIC bridge packages |
+| `sdk/` | Project-adapter SDKs |
+| `vendor/` | Explicitly vendored dependency sources governed by workspace policy |
 | `scripts/` | Operator scripts, bootstrap flows, system utilities, systemd unit sources |
 | `tests/` | Cross-crate integration tests |
 | `meta/` | Marketing, licensing, registry-adjacent metadata |
@@ -41,16 +44,20 @@ Runtime/build/noisy directories commonly present locally: `.cache/`, `.tmp/`, `t
 ## Build
 
 ```bash
-source scripts/runtime_build_env.sh && cargo build -p annunimas-cli --release
+cargo build -p arda
+cargo check --workspace --all-targets --all-features
 ```
 
-> Binary goes to `~/.cache/annunimas-build/target/release/annunimas-cli` — this is what systemd services run, not `./target/`.
+Installed systemd units may execute previously built artifacts. A running unit
+does not prove that the current source tree was rebuilt or deployed.
 
 ## System Status Pointers
 
 - Canonical operator entry: `AGENTS.md`
-- Root authority pointer: `ANNUNIMAS_ROOT_PROTOCOL.md`
-- Current status snapshot: `ANNUNIMAS_SYSTEM_STATUS_REPORT.md`
+- Root authority pointer: `ARDA_ROOT_PROTOCOL.md`
+- Product doctrine: `docs/architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md`
+- Master convergence plan: `docs/plans/2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md`
+- Current bounded status snapshot: `ARDA_SYSTEM_STATUS_REPORT.md`
 - Task queue projection: `core/state/queue_summary.json`
 - Task queue ledger: `core/projects/tasks/queue.jsonl` (append-only evidence; avoid broad reads)
 - Runtime truth surfaces: `core/state/`, `data/`
@@ -59,67 +66,56 @@ source scripts/runtime_build_env.sh && cargo build -p annunimas-cli --release
 
 ## Primary Entry Points
 
-- `Cargo.toml` — workspace definition, default member is `annunimas-cli`
-- `crates/annunimas-cli/src/main.rs` — top-level CLI and subcommand wiring
-- `crates/annunimas-charon/src/service.rs` — provider state, health, proxy logic
-- `crates/annunimas-charon/src/service/route_policy.rs` — routing decisions, provider/model filtering
-- `crates/annunimas-hermes/src/service.rs` — comms queueing, delivery, CHARON routing
-- `crates/annunimas-prometheus/src/pipeline.rs` — orchestration pipeline
-- `crates/annunimas-systemd/src/lib.rs` — typed `systemctl --user` client consumed by Prometheus/autopilot; supervision policy stays in `annunimas-prometheus`, executor stays as systemd + `scripts/agent_supervisor.sh`
-- `crates/annunimas-hades/src/service/organization.rs` — HADES organization/audit automation surface
-- `${HOME}/Eregion/arda-hud/src/` — ARDA HUD frontend modules
-- `${HOME}/Eregion/arda-hud/src-tauri/` — ARDA HUD Tauri shell, excluded from the root Rust workspace
+- `Cargo.toml` — 18-member workspace; root package and binary are `arda`
+- `src/main.rs` — canonical composition root
+- `crates/engine/src/lib.rs` — durable run/project execution and service supervision
+- `crates/spine/governance/arda-core/src/lib.rs` — cross-subsystem contracts
+- `crates/spine/runtime/manwe/src/lib.rs` — optional model/provider routing
+- `crates/spine/interface/arda-orome/src/lib.rs` — communication semantics
+- `crates/spine/memory/arda-vaire/src/lib.rs` — canonical long-term memory
+- `crates/spine/observability/arda-aule/src/lib.rs` — observability and operator CLI surfaces
+- `apps/arda-hud/src/` and `apps/arda-hud/src-tauri/` — canonical native HUD
+- `apps/arda-launcher/src-tauri/` — launcher package included in the workspace
 
 ---
 
-## Rust Crate Map
+## Rust Package Map
 
-Workspace members in `Cargo.toml`:
+`cargo metadata` resolves these 18 packages. There is no `arda-council`
+package; council behavior is provided by current governance, Oromë, and Aulë
+surfaces rather than a fabricated crate boundary.
 
-| Crate | Role |
-|-------|------|
-| `annunimas-cli` | Operator entrypoint, daemon launcher, command surfaces |
-| `annunimas-core` | Shared primitives: Task, Agent, Ledger, Router, contracts |
-| `annunimas-ceo` | CEO/autopilot loop scaffolding |
-| `annunimas-prometheus` | Orchestration pipeline, supervisor/autopilot policy |
-| `annunimas-mnemosyne` | Memory continuity, recall, consolidation |
-| `annunimas-charon` | LLM provider routing, health tracking, streaming proxy |
-| `annunimas-athena` | Knowledge ingestion, triage, digest/query surfaces |
-| `annunimas-hades` | Lifecycle, queue/sweep cleanup, organization automation |
-| `annunimas-governance` | Triad, Resonance, Game-Theory primitives |
-| `annunimas-warden` | Monitoring, alerts, guardhouse/security posture |
-| `annunimas-comm` | Communications primitives shared by Hermes/edge bridges |
-| `annunimas-mcp` | MCP server bridge surface |
-| `annunimas-hermes` | Comms routing, outbound delivery, Discord/A2A/edge provider orchestration |
-| `annunimas-oracle` | Reasoning and triad validation |
-| `annunimas-plutus` | JouleWork accounting and economics |
-| `annunimas-apollo` | Workflow execution surface |
-| `annunimas-chronos` | Temporal workflow orchestration, predictive maintenance, continuous audit automation |
-| `annunimas-tool-harness` | Shared tool execution harness |
-| `annunimas-service-registry` | Service endpoint registry |
-| `annunimas-council` | Multi-agent boardroom/council deliberation |
-| `annunimas-forge-mind` | Code/build agent integration |
-| `annunimas-signal-grid` | Cross-agent signal/event mesh |
-| `annunimas-fleet` | Fleet/topology coordination and node telemetry |
-| `annunimas-systemd` | Thin typed `systemctl --user` client |
-| `annunimas-human` | Human knowledge/vault interface and Mnemosyne bridge |
-
-Chronos is included above as a current workspace member.
+| Package | Path | Current role |
+|---|---|---|
+| `arda` | `.` | canonical composition-root binary |
+| `arda-engine` | `crates/engine` | durable project/run execution and supervision |
+| `arda-contract-registry` | `crates/spine/contract/arda-contract-registry` | contract registration and lookup |
+| `arda-core` | `crates/spine/governance/arda-core` | shared contracts and governance gates |
+| `arda-governance` | `crates/spine/governance/arda-governance` | advisory governance and evidence evaluation |
+| `arda-orome` | `crates/spine/interface/arda-orome` | communications semantics and transports |
+| `arda-aule` | `crates/spine/observability/arda-aule` | observability, projections, and operator CLI |
+| `arda-vaire` | `crates/spine/memory/arda-vaire` | canonical memory authority |
+| `arda-varda` | `crates/spine/executors/arda-varda` | governed evidence ingest/query service |
+| `arda-economics` | `crates/spine/runtime/arda-economics` | JouleWork/resource accounting |
+| `arda-mandos` | `crates/spine/runtime/arda-mandos` | reasoning/verdict runtime |
+| `arda-rumil` | `crates/spine/runtime/arda-rumil` | project-audit coordination |
+| `manwe` | `crates/spine/runtime/manwe` | optional model/provider routing |
+| `arda-launcher` | `apps/arda-launcher/src-tauri` | native launcher |
+| `arda-outpost-protocol` | `outposts/arda-outpost-protocol` | bounded outpost contracts |
+| `arda-outpost-scout` | `outposts/arda-outpost-scout` | advisory outpost research/survey worker |
+| `arda-relic-bridge` | `outposts/arda-relic-bridge` | read-only presence projection bridge |
+| `arda-project-adapter-sdk` | `sdk/rust` | external-project adapter SDK |
 
 ---
 
 ## Device and UI Surfaces
 
-- `/var/home/mythos/Eregion/arda-hud/` — Tauri HUD application surface; final validation is native Tauri, not host Vite-only preview
-- `/var/home/mythos/Eregion/citadel-avatar/` — Pi5 kiosk/avatar display private consumer
-
-ARDA HUD native validation path:
-
-```bash
-distrobox enter lothlorien -- bash -lc 'cd /var/home/mythos/Eregion/arda-hud && npm run tauri:dev:stable'
-distrobox enter lothlorien -- bash -lc 'cd /var/home/mythos/Eregion/arda-hud && npm run tauri:build:stable'
-distrobox enter lothlorien -- bash -lc 'cd /var/home/mythos/Annunimas && scripts/launch_arda_hud.sh'
-```
+- `apps/arda-hud/` — canonical Tauri HUD; final visual acceptance is native
+  Tauri, not browser preview.
+- `apps/arda-launcher/` — canonical desktop launcher.
+- `outposts/arda-relic-bridge/` — read-only runtime-presence bridge.
+- External CITADEL/Mirromere consumers are optional and are not workspace
+  package or base-release requirements.
 
 ---
 
@@ -127,22 +123,14 @@ distrobox enter lothlorien -- bash -lc 'cd /var/home/mythos/Annunimas && scripts
 
 | File | Purpose |
 |------|---------|
-| `config/charon.providers.toml` | Provider pool, models, rate limits |
-| `config/litellm.proxy.yaml` | LiteLLM proxy config (Anthropic bridge at :4000) |
+| `config/manwe.providers.toml` | Manwë provider/model routing input |
 | `config/fleet.toml` | Fleet node metadata and inference endpoints |
-| `config/model_route_matrix.toml` | Cross-provider model routing matrix |
-| `config/llm_model_routes.json` | Per-task model routing |
-| `config/system_constitution.yaml` | System-wide constitutional rules |
-| `config/topology_registry.yaml` | Node/topology registration |
-| `config/warden.toml` | Warden monitoring config |
+| `config/routing/model_route_matrix.toml` | Cross-provider route policy input |
+| `config/governance/autonomy_operating_loop.toml` | Draft operating-loop contract; not live proof |
 | `config/monitoring-setup/` | Canonical Beelink Grafana/Prometheus bundle; no local Grafana tree |
-| `apps/arda-hud/arda_hud.settings.json` | ARDA HUD settings |
-| `config/default.toml` | System defaults |
-| `config/llm.toml` | LLM provider config |
-| `config/runtime.generated.env` | Generated runtime environment snapshot |
-| `core/realm/annunimas.toml` | System identity and laws |
-| `core/realm/agents.toml` | Agent roster and authority |
-| `core/realm/boot.toml` | Boot order, ARDA paths, JouleWork baseline |
+| `core/knowledge/realm/arda.toml` | System identity and laws |
+| `core/knowledge/realm/agents.toml` | Agent roster and authority |
+| `core/knowledge/realm/boot.toml` | Boot order and baseline inputs |
 | `core/state/` | Machine-readable runtime truth snapshots |
 | `core/state/arda_source_map.json` | ARDA source/projection map |
 | `core/state/system_source_map.json` | System source/projection map |
@@ -150,52 +138,40 @@ distrobox enter lothlorien -- bash -lc 'cd /var/home/mythos/Annunimas && scripts
 | `core/projects/tasks/queue.jsonl` | Active and historical append-only task queue ledger; use for exact evidence or appends |
 | `data/prometheus/` | Supervisor/autopilot outputs, preflight snapshots, maintenance receipts |
 | `data/hades/` | HADES queue/action/organization automation state |
-| `data/charon/` | Router state, bandit/lane fitness, governance events |
-| `data/mnemosyne/` | Episodic memory and chain state |
-| `data/knowledge/athena/` | Athena knowledge index and source registry |
+| `data/` | Runtime outputs and receipts; inspect only for a task that needs live evidence |
 
 ---
 
 ## Common Task Entry Paths
 
 **Change provider routing / models**
-→ `config/charon.providers.toml`, `config/model_route_matrix.toml`, `crates/annunimas-charon/src/service/route_policy.rs`
-→ Reload live: `cargo run -p annunimas-cli -- charon reload-config` or POST the operator-local Charon reload endpoint when explicitly validating a private deployment
+→ `config/manwe.providers.toml`, `config/routing/model_route_matrix.toml`, `crates/spine/runtime/manwe/`
 
 **Change routing logic / scoring**
-→ `crates/annunimas-charon/src/service/route_policy.rs`
-→ `crates/annunimas-charon/src/service.rs`
+→ `crates/spine/runtime/manwe/src/`
 
 **Change Hermes delivery/classification**
-→ `crates/annunimas-hermes/src/service.rs`, `src/router.rs`, `src/provider.rs`, `src/transport/`
+→ `crates/engine/src/adapters/hermes.rs`, `crates/spine/interface/arda-orome/`
 
 **Change CLI behavior**
-→ `crates/annunimas-cli/src/main.rs`, `src/commands/`, `src/export_surface/`
-
-**Change CITADEL display**
-→ `/var/home/mythos/Eregion/citadel-avatar/index.html`, `metatron-cube.js`, `run.sh`
+→ `src/main.rs`, `crates/spine/observability/arda-aule/src/cli/`
 
 **Change ARDA HUD**
-→ `/var/home/mythos/Eregion/arda-hud/` (Tauri); settings: `apps/arda-hud/arda_hud.settings.json`
+→ `apps/arda-hud/` (native Tauri acceptance required)
 
 **Change supervisor / agent lifecycle**
-→ `scripts/agent_supervisor.sh` (executor); `annunimas-prometheus` (policy + autopilot service-health); `annunimas-systemd` (typed query client)
+→ `src/main.rs`, `crates/engine/src/`, `services.toml`
 
 **Change autonomous operating loop / control plane**
-→ Canonical contract: `docs/contracts/autonomous-operating-loop-contract.md`
-→ Portable config: `config/autonomy_operating_loop.toml`
-→ Engine: `docs/operations/CEO_AUTOPILOT.md`, `crates/annunimas-prometheus/src/autopilot/`
-→ Subordinate lanes: HADES lifecycle, ATHENA source ledgers, Council discussion, Oracle validation, Plutus JouleWork, Hermes confirmation
+→ Product doctrine: `docs/architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md`
+→ Portable config: `config/governance/autonomy_operating_loop.toml`
+→ Runtime composition: `crates/engine/`; observability: `crates/spine/observability/arda-aule/`
 
-**Change HADES organization automation**
-→ `crates/annunimas-hades/src/service/organization.rs`, `scripts/hades_organization_maintenance.sh`, `docs/operations/HADES_ORGANIZATION_AUTOMATION_PLAN.md`
-
-**Change human knowledge ingestion**
-→ `crates/annunimas-human/`, `human/`, `human_ingest_inventory.json`, `ingest_human_notes.py`
-
-**Change Beelink monitoring / Grafana dashboards**
-→ `config/monitoring-setup/prometheus-central.yml`, `config/monitoring-setup/prometheus-rules/`, `config/monitoring-setup/grafana-dashboards/`
-→ Live services are on Beelink: Grafana `100.103.125.88:3000`, Prometheus `100.103.125.88:9090`; do not recreate local `config/grafana/` or `config/prometheus.yml`.
+**Change monitoring configuration**
+→ `config/monitoring-setup/prometheus-central.yml`,
+`config/monitoring-setup/prometheus-rules/`, and
+`config/monitoring-setup/grafana-dashboards/`; re-probe the deployment before
+claiming any endpoint is live.
 
 ---
 
@@ -206,5 +182,5 @@ distrobox enter lothlorien -- bash -lc 'cd /var/home/mythos/Annunimas && scripts
 - Documentation and generated documentation indexes should use the Soterion/SCROLL marker: YAML `soterion.sigil: "SCROLL"`, glyph `📜`, code point `U+1F4DC`, role `documentation` or `directory_index`; `FILE_TREE.jsonl` records use `"sigil":"📜"` and `"domain":"documentation"`.
 - Restrict search to `crates/`, `apps/`, `config/`, `scripts/`, or `docs/operations/` before widening.
 - Avoid broad searches over `data/`, `human/`, `archive/`, and runtime output directories unless you need runtime or knowledge context.
-- Each crate should have a `README.md` with deployment/ops context; `annunimas-human` is currently an exception, so inspect `src/lib.rs` directly.
-- Crate-level index: `crates/INDEX.jsonl`, `crates/INDEX_TREE.md`.
+- Prefer each package's `README.md`, `STATUS.md`, `BREAKDOWN.md`, and `INDEX.md`
+  when present, then verify claims in its public module graph and tests.

@@ -11,7 +11,9 @@ use commands::workbench::{
 };
 use commands::monitor_surface::{
     claim_monitor_slot, release_monitor_slot, refresh_monitor_slot_lease,
-    push_surface_payload, MonitorSurfaceState,
+    push_surface_payload, claim_monitor_surface, release_monitor_surface,
+    refresh_monitor_surface_lease, get_monitor_surface_registry,
+    restore_monitor_surface_registry, MonitorSurfaceState, TypedMonitorSurfaceState,
 };
 use portable_pty::CommandBuilder;
 use serde::{Deserialize, Serialize};
@@ -2924,6 +2926,7 @@ pub fn run() {
         .manage(HermesRuntimeState::default())
         .manage(WorkbenchEventStreamState::default())
         .manage(MonitorSurfaceState::default())
+        .manage(TypedMonitorSurfaceState::new())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             validate_project_contract,
@@ -2984,6 +2987,11 @@ pub fn run() {
             release_monitor_slot,
             push_surface_payload,
             refresh_monitor_slot_lease,
+            claim_monitor_surface,
+            release_monitor_surface,
+            refresh_monitor_surface_lease,
+            get_monitor_surface_registry,
+            restore_monitor_surface_registry,
         ])
         .build(tauri::generate_context!())
         .unwrap_or_else(|error| {

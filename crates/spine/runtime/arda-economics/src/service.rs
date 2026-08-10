@@ -599,6 +599,22 @@ mod tests {
         assert_eq!(status["authority"], "plutus_service");
         assert_eq!(status["economics"]["providers"][0], "openai");
         assert_eq!(status["ledger"]["accounts_total"], 1);
+        assert_eq!(
+            status["joulework"]["runs"]["task1"]["average_confidence"],
+            0.5
+        );
+        assert_eq!(
+            status["joulework"]["runs"]["task1"]["by_source"]["operator_estimate"],
+            4.0
+        );
+        assert_eq!(
+            status["joulework"]["runs"]["task1"]["autonomy_truth_allowed"],
+            false
+        );
+        assert_eq!(
+            status["joulework"]["runs"]["task1"]["continuity_only"],
+            true
+        );
         assert!(
             status["governance"]["records_total"]
                 .as_u64()
@@ -612,6 +628,15 @@ mod tests {
                 >= 1
         );
         assert!(temp.path().join("runtime_status.json").exists());
+        let persisted_status: serde_json::Value = serde_json::from_str(
+            &fs::read_to_string(temp.path().join("runtime_status.json"))
+                .expect("persisted runtime status"),
+        )
+        .expect("valid persisted runtime status");
+        assert_eq!(
+            persisted_status["joulework"]["runs"]["task1"]["average_confidence"],
+            0.5
+        );
         let events =
             fs::read_to_string(temp.path().join("runtime_events.jsonl")).expect("runtime events");
         let actions = events

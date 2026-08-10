@@ -6,7 +6,9 @@
 
 use super::AdapterCancellation;
 use crate::runs::{RunEventDraft, RunEventKind};
-use arda_core::run_graph::{AuthorityClass, NodeId, NodeKind, NodeState, RunId, RunNode};
+use arda_core::run_graph::{
+    AuthorityClass, NodeId, NodeKind, NodeState, RunId, RunNode, WorkerRouteClass,
+};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
@@ -169,8 +171,19 @@ pub struct NormalizedHermesUsage {
     pub output_tokens: u64,
     pub total_tokens: u64,
     pub estimated_cost_usd: f64,
+    #[serde(default)]
+    pub cost_measurement: CostMeasurement,
     pub completed: bool,
     pub failed: bool,
+}
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CostMeasurement {
+    Observed,
+    Estimated,
+    #[default]
+    Unknown,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -269,7 +282,7 @@ struct HermesSessionExport {
     #[serde(default)]
     output_tokens: u64,
     #[serde(default)]
-    estimated_cost_usd: f64,
+    estimated_cost_usd: Option<f64>,
     #[serde(default)]
     actual_cost_usd: Option<f64>,
     #[serde(default)]
@@ -304,6 +317,17 @@ struct HermesSessionFunction {
 
 impl From<&HermesSessionExport> for NormalizedHermesUsage {
     fn from(session: &HermesSessionExport) -> Self {
+        let (estimated_cost_usd, cost_measurement) = session
+            .actual_cost_usd
+            .filter(|cost| cost.is_finite() && *cost >= 0.0)
+            .map(|cost| (cost, CostMeasurement::Observed))
+            .or_else(|| {
+                session
+                    .estimated_cost_usd
+                    .filter(|cost| cost.is_finite() && *cost >= 0.0)
+                    .map(|cost| (cost, CostMeasurement::Estimated))
+            })
+            .unwrap_or((0.0, CostMeasurement::Unknown));
         Self {
             provider: session.billing_provider.clone(),
             model: session.model.clone(),
@@ -311,10 +335,8 @@ impl From<&HermesSessionExport> for NormalizedHermesUsage {
             input_tokens: session.input_tokens,
             output_tokens: session.output_tokens,
             total_tokens: session.input_tokens.saturating_add(session.output_tokens),
-            estimated_cost_usd: session
-                .actual_cost_usd
-                .filter(|cost| cost.is_finite() && *cost >= 0.0)
-                .unwrap_or(session.estimated_cost_usd),
+            estimated_cost_usd,
+            cost_measurement,
             completed: true,
             failed: false,
         }
@@ -381,8 +403,18 @@ impl HermesAdapter {
             return Err(HermesAdapterError::Cancelled);
         }
 
-        let total_timeout =
-            Duration::from_millis(task.node.timeout_ms.min(self.config.max_timeout_ms));
+        let mut timeout_ms = task.node.timeout_ms.min(self.config.max_timeout_ms);
+        if let Some(worker) = &task.node.worker {
+            let remaining = worker
+                .deadline_unix_ms
+                .checked_sub(unix_time_ms()?)
+                .ok_or(HermesAdapterError::DeadlineExceeded)?;
+            timeout_ms = timeout_ms.min(u64::try_from(remaining).unwrap_or(u64::MAX));
+            if timeout_ms == 0 {
+                return Err(HermesAdapterError::DeadlineExceeded);
+            }
+        }
+        let total_timeout = Duration::from_millis(timeout_ms);
         let started = tokio::time::Instant::now();
         let mut command = Command::new(&self.executable);
         command
@@ -495,10 +527,7 @@ impl HermesAdapter {
         Ok(receipt)
     }
 
-    fn validate_task<'a>(
-        &'a self,
-        task: &HermesNodeTask,
-    ) -> Result<&'a [String], HermesAdapterError> {
+    fn validate_task(&self, task: &HermesNodeTask) -> Result<Vec<String>, HermesAdapterError> {
         if task.node.state != NodeState::Ready {
             return Err(HermesAdapterError::NodeNotReady(task.node.state));
         }
@@ -537,7 +566,31 @@ impl HermesAdapter {
         if toolsets.is_empty() {
             return Err(HermesAdapterError::NoToolsForAuthority(task.node.authority));
         }
-        Ok(toolsets)
+        let Some(worker) = &task.node.worker else {
+            return Ok(toolsets.clone());
+        };
+        if !matches!(
+            worker.route_class,
+            WorkerRouteClass::Local | WorkerRouteClass::Hosted
+        ) {
+            return Err(HermesAdapterError::InvalidTask(
+                "Hermes can execute only local or hosted worker routes".into(),
+            ));
+        }
+        if worker.output_contract != RESULT_SCHEMA_VERSION {
+            return Err(HermesAdapterError::InvalidTask(format!(
+                "worker output contract must be {RESULT_SCHEMA_VERSION}"
+            )));
+        }
+        if worker.allowed_toolsets.is_empty()
+            || !worker
+                .allowed_toolsets
+                .iter()
+                .all(|requested| toolsets.contains(requested))
+        {
+            return Err(HermesAdapterError::WorkerToolsetEscalation);
+        }
+        Ok(worker.allowed_toolsets.iter().cloned().collect())
     }
 
     fn build_prompt(&self, task: &HermesNodeTask) -> Result<String, HermesAdapterError> {
@@ -1212,6 +1265,10 @@ pub enum HermesAdapterError {
     HumanApprovalCannotExecute,
     #[error("no Hermes toolsets configured for authority {0:?}")]
     NoToolsForAuthority(AuthorityClass),
+    #[error("worker toolsets exceed the toolsets authorized for this node")]
+    WorkerToolsetEscalation,
+    #[error("worker deadline elapsed before Hermes execution")]
+    DeadlineExceeded,
     #[error("invalid Hermes task: {0}")]
     InvalidTask(String),
     #[error("Hermes prompt is {actual} bytes, above configured limit {limit}")]

@@ -6,19 +6,22 @@ soterion:
   role: "documentation"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-18"
+  last_reviewed: "2026-08-08"
 ---
 
-> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-07-18
+> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-08-08
 
-# ANNUNIMAS SYSTEM STATUS REPORT
+# ARDA SYSTEM STATUS REPORT
 
-**Updated:** 2026-07-18 PDT
-**Validation basis:** current workspace state, live listener/runtime checks, and cargo checks for the active Arda crate set.
-**System:** Arda — the continued, slimmed-down Annunimas workspace.
+**Updated:** 2026-08-08 PDT
+**Validation basis:** live Cargo metadata, listener inventory, and user-systemd
+unit state captured during P0.1 doctrine reconciliation. This is a bounded
+snapshot, not release qualification or proof that current source was deployed.
+**System:** Arda 1.0 personal agent ecosystem.
 **Realm:** Sovereign Intelligence Infrastructure
-**Status:** WORKSPACE VALIDATED / OPERATIONAL IN EVIDENCE PORTION ⚠️
-**Branch:** `launcher`
+**Status:** `specified` product doctrine / current workspace metadata resolved /
+selected installed services active
+**Branch:** `visual/hud-boardroom-convergence`
 **Sigil:** ∇ ⚡ ◈ ♥ ↝
 
 ---
@@ -28,11 +31,13 @@ soterion:
 Current capability posture:
 
 - Arda canonical root: `/var/home/mythos/Eregion/Arda`
-- Legacy `annunimas-*` crate names should be read as `arda-*`; Arda is the slimmed-down continuation of Annunimas.
-- Rust workspace validates cleanly under `cargo check`; manwe builds with and without the `adaptive` feature.
-- Active Charon-compatible router is reachable on `0.0.0.0:5110`; LiteLLM is reachable on `127.0.0.1:4000`; metrics on `9101`; node exporter on `9100`; local mesh-llm on `3131` and `9337`.
-- No `arda*` or `annunimas*` user systemd units are loaded in the current environment; runtime evidence is process-listener based, not systemd-unit based.
-- Workspace warning cleanup is complete for `arda-core`, `arda-engine`, `arda` bin, and `manwe`.
+- `cargo metadata --no-deps --format-version 1` resolves 18 packages and 16
+  default members.
+- The root package/binary is `arda`; `src/main.rs` remains composition authority.
+- The workspace contains no standalone council package; council behavior is
+  owned by current governance, Oromë, and Aulë surfaces.
+- Optional revenue/x402, council, local-inference, external-adapter, and health
+  capabilities are not universal product goals or default release gates.
 
 ---
 
@@ -42,54 +47,50 @@ Live listener/runtime snapshot:
 
 | Service / Surface | State |
 |------|-------|
-| Charon/router (`annunimas-cli`) | ✅ listening on `0.0.0.0:5110` |
-| LiteLLM bridge | ✅ listening on `127.0.0.1:4000` |
-| Metrics exporter | ✅ listening on `0.0.0.0:9101` |
-| Node exporter | ✅ listening on `*:9100` |
-| Local mesh-llm | ✅ listening on `0.0.0.0:3131` |
-| Beelink SER9 :9337 (Ternary-Bonsai-8B-Q2_0) | ✅ Prism-ML llama.cpp fork + Vulkan (AMD Radeon 890M), reachable on `http://100.103.125.88:9337/v1` |
-| Annunimas-Server :8095 (Ternary-Bonsai-27B-Q2_0) | ✅ Canonical `edge_backbone` route; Prism-ML llama.cpp fork + CUDA, tensor-split across 2× RTX 2080 Super, reachable on `http://100.102.250.115:8095/v1` with 32K context. Former :8081/:8093/:8094 lanes are disabled. Tool execution stays on tool-capable providers. |
-| Arda user systemd units | ⚠️ none loaded |
+| `arda.service` | active/running; started 2026-08-07 21:58:59 PDT |
+| `arda-manwe.service` | active/running; started 2026-08-07 21:58:59 PDT |
+| `arda-metrics-exporter.service` | active/running; started 2026-08-07 21:58:59 PDT |
+| `arda-varda.service` | active/running; started 2026-08-07 21:58:59 PDT |
+| `arda-relic-bridge.service` | active/running; started 2026-08-07 21:58:59 PDT |
+| Listener inventory | `:5110`, `:9101`, `:9100`, and `:9337` were listening; no ownership or API-health claim is inferred from listener presence alone |
 
-Evidence basis: `ss -ltnp`, process ownership, repo workspace validation.
+Evidence basis: `systemctl --user is-active/show` and `ss -ltn`. Active units
+prove process supervision only, not current-source deployment or workflow health.
 
 ---
 
-## 🔧 CHARON PROVIDER MESH
+## 🔧 MODEL/PROVIDER ROUTING
 
-- **Router/binary surface:** active Charon router listener on `0.0.0.0:5110`
-- **Local gateway crate:** `manwe` at `crates/spine/runtime/manwe`; default static gateway is `127.0.0.1:7171`
-- **Provider state projection:** no live `core/state/charon_router.json` or `core/state/queue_summary.json` state observed under the Arda root
-- **Active local mesh-llm endpoints:** `3131`; Beelink SER9 :9337 (Ternary-Bonsai-8B-Q2_0, Prism/Vulkan); Annunimas-Server :8095 (Ternary-Bonsai-27B-Q2_0, Prism/CUDA tensor-split)
-- **Active LiteLLM endpoint:** `4000`
-
-Operational note: This review does not verify provider/model count from state files because those files were not present at scan time. Route behavior should be validated directly against the running router on `:5110`.
+- Canonical package: `manwe` at `crates/spine/runtime/manwe`.
+- Canonical configuration input: `config/manwe.providers.toml`.
+- Coordinated consumer assumptions around `:7171` must be audited before any
+  bind change; this snapshot does not change that contract.
+- The legacy `:5110` listener remains visible, but listener presence does not
+  identify package version, provider health, or route eligibility.
 
 ---
 
 ## 🧭 COMMAND AND SUBSYSTEM SURFACE
 
-Workspace root surface:
-- Package: `arda`
-- Members include: `arda-engine`, `arda-core`, `arda-council`, `arda-governance`, `arda-orome`, `arda-aule`, `arda-vaire`, `arda-economics`, `arda-mandos`, `arda-varda`, `manwe`, and the Tauri app memberspaces.
+Workspace packages are listed from live metadata in `docs/CODEMAP.md`. The
+current command binaries are `arda`, `arda-cli`, `manwe`, `arda-launcher`,
+`arda-varda-server`, `arda-varda-benchmark`, `arda-outpost-scout`, and
+`arda-relic-presence-sync`.
 
-Known subsystem surfs currently documented/implemented:
-- Charon router / manwe gateway
-- Local inference endpoints: mesh-llm on `3131`; Beelink SER9 :9337 (Ternary-Bonsai-8B-Q2_0, Prism/Vulkan); Annunimas-Server :8095 (Ternary-Bonsai-27B-Q2_0, Prism/CUDA tensor-split)
-- LiteLLM gateway on `4000`
-- Metrics exporter `9101`
-- Node exporter `9100`
-
-CLI default LLM surface and unit-file runtime surfaces should be confirmed from live command output before quoting exact provider/model strings here.
+Package names and source presence establish `compile_active` candidates only.
+They do not establish `root_composed`, `workflow_proven`, `operator_accepted`,
+or `release_supported` maturity without their specific gates.
 
 ---
 
 ## 🖥️ UI, DEVICE, AND OBSERVABILITY SURFACES
 
-- **ARDA HUD:** expected under `apps/arda-hud/`; final validation should run via `pnpm run tauri dev` inside the app workspace.
-- **ARDA launcher:** expected under `apps/arda-launcher/`; validation should run via `pnpm run tauri dev/check` there.
-- **Metrics:** Annunimas metrics exporter is listened on `9101`; node exporter on `9100`.
-- **Local model infrastructure:** local mesh-llm/OpenAI-compatible endpoints are listening on `3131` and `9337`.
+- **ARDA HUD:** canonical at `apps/arda-hud/`; final visual acceptance requires
+  native Tauri and is not claimed by this report.
+- **ARDA launcher:** canonical at `apps/arda-launcher/`; package presence is not
+  install or operator acceptance.
+- **RELIC/CITADEL:** the checked-in bridge is read-only. External display or
+  Mirromere behavior remains optional and separately gated.
 
 ---
 
@@ -97,29 +98,24 @@ CLI default LLM surface and unit-file runtime surfaces should be confirmed from 
 
 Validation run during this report refresh:
 
-- `git status` and `cargo metadata`
-- `cargo check --workspace`
-- `cargo check -p manwe --features adaptive`
-- `ss -ltnp`
-- `systemctl --user list-units 'arda*' --all --no-pager`
-- `ls -la ~/.cache/annunimas-build`
+- `cargo metadata --no-deps --format-version 1`
+- metadata package/target extraction (18 packages, 16 default members)
+- `ss -ltn`
+- `systemctl --user list-units 'arda*' 'annunimas*' --all --no-pager --plain`
+- `systemctl --user is-active/show` for the five active services above
 
-Results / notes:
-
-- All Arda workspace crate checks validate; no error states remain from the manwe adaptive/default split or `arda-core` warning cleanup.
-- `arda-engine` unused-mut warning fixed.
-- `arda` bin unused-variable warning fixed.
-- `manwe` dead-code warning for `DefaultFreezeNone` removed in both `src/types.rs` and `src/adaptive/types.rs`.
-- Direct `/v1/healthz` or `/status` probe behavior for Charon was not verified in this pass beyond listener presence; add an HTTP probe against `127.0.0.1:5110` before treating endpoint health as fully confirmed.
+No workspace compile/test, external endpoint, phone, native HUD, restart,
+privacy, packaging, or release-support claim is made by this P0.1 refresh.
 
 ---
 
 ## ↝ NEXT OPERATOR CHECKS
 
-1. Confirm why `arda*`/`annunimas*` user units are unloaded; if this box is traditionally managed by systemd timer units, re-evaluate whether the environment now relies on foreground/process supervision instead.
-2. Probe Charon endpoint behavior on `127.0.0.1:5110` directly and capture provider/model/route metadata into a current state file inside the Arda repo, if state files are expected.
-3. If ARDA HUD validation is still pending, run `pnpm run tauri dev` in the relevant app workspace and verify native surface behavior rather than relying on host-only preview.
-4. Refresh this report after any provider catalog/policy or mesh-llm endpoint change.
+1. Complete P0.2 active-plan authority reconciliation.
+2. Add P0.3 completion-language checks through the existing HADES Markdown
+   health path.
+3. Re-probe and record capability-specific runtime evidence only in the plan
+   task that owns that acceptance gate.
 
 ---
 

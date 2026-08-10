@@ -32,9 +32,9 @@ product adoption research.
 - [`2026-07-30-arda-hud-boardroom-visual-system-plan.md`](2026-07-30-arda-hud-boardroom-visual-system-plan.md)
   — completed six-phase boardroom visual system, typed physical controls, performance profiles, and visual-regression evidence.
 - [`2026-07-30-arda-hud-agentic-monitor-surfaces-plan.md`](2026-07-30-arda-hud-agentic-monitor-surfaces-plan.md)
-  — completed persisted agent claims, authorized live payloads, native monitor create/focus/dismiss, lease handling, restart fallback, and operator-visible Tauri acceptance.
+  — superseded by `2026-08-03-arda-hud-universal-agent-monitor-surfaces-plan.md`; the prior closeout was invalidated by underscoped acceptance.
 - [`2026-07-30-arda-hud-agentic-monitor-surfaces-checklist.md`](2026-07-30-arda-hud-agentic-monitor-surfaces-checklist.md)
-  — retained slice-by-slice implementation and verification evidence for the completed agentic monitor surface plan.
+  — retained historical implementation slice for the superseded agentic monitor surface plan; current authority is the universal monitor surfaces plan.
 - [`2026-07-28-eight-package-first-class-closeout.md`](2026-07-28-eight-package-first-class-closeout.md)
   — evidence-backed closeout record for the remaining eight Cargo packages.
 - [`2026-08-03-arda-rumil-project-audit-plan.md`](2026-08-03-arda-rumil-project-audit-plan.md)

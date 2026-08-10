@@ -38,13 +38,13 @@
     "monitor_sessions": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["monitor_left_1", "monitor_left_2", "monitor_center", "monitor_right_1", "monitor_right_2"],
+      "required": ["monitor_1", "monitor_2", "monitor_3", "monitor_4", "monitor_5"],
       "properties": {
-        "monitor_left_1": { "$ref": "#/$defs/monitor_session" },
-        "monitor_left_2": { "$ref": "#/$defs/monitor_session" },
-        "monitor_center": { "$ref": "#/$defs/monitor_session" },
-        "monitor_right_1": { "$ref": "#/$defs/monitor_session" },
-        "monitor_right_2": { "$ref": "#/$defs/monitor_session" }
+        "monitor_1": { "$ref": "#/$defs/monitor_session" },
+        "monitor_2": { "$ref": "#/$defs/monitor_session" },
+        "monitor_3": { "$ref": "#/$defs/monitor_session" },
+        "monitor_4": { "$ref": "#/$defs/monitor_session" },
+        "monitor_5": { "$ref": "#/$defs/monitor_session" }
       }
     }
   },
@@ -177,7 +177,7 @@
       "additionalProperties": false,
       "required": ["slot_id", "session_id", "owner", "revision", "lease_expires_at_utc", "content", "workstation_handoff"],
       "properties": {
-        "slot_id": { "enum": ["monitor_left_1", "monitor_left_2", "monitor_center", "monitor_right_1", "monitor_right_2"] },
+        "slot_id": { "enum": ["monitor_1", "monitor_2", "monitor_3", "monitor_4", "monitor_5"] },
         "session_id": { "$ref": "#/$defs/non_empty" },
         "owner": { "$ref": "#/$defs/non_empty" },
         "revision": { "type": "integer", "minimum": 1 },

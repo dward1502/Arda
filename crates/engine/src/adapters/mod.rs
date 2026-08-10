@@ -9,12 +9,13 @@ pub use company::{
     CompanyResource, ReferenceCrmAdapter,
 };
 pub use hermes::{
-    HermesAdapter, HermesAdapterConfig, HermesAdapterError, HermesArtifactEvidence,
-    HermesExecutionReceipt, HermesNodeTask, HermesReceiptStatus, HermesTestEvidence,
-    HermesToolEvidence, HermesToolsets, NormalizedHermesUsage,
+    CostMeasurement, HermesAdapter, HermesAdapterConfig, HermesAdapterError,
+    HermesArtifactEvidence, HermesExecutionReceipt, HermesNodeTask, HermesReceiptStatus,
+    HermesTestEvidence, HermesToolEvidence, HermesToolsets, NormalizedHermesUsage,
 };
 pub use jsonl::JsonlAdapter;
 
+use arda_core::service_registry::CapabilityProvenance;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::{BTreeMap, BTreeSet};
@@ -67,6 +68,28 @@ pub struct AdapterProvenance {
     pub started_at: String,
     pub finished_at: String,
     pub request_digest: String,
+}
+
+impl AdapterProvenance {
+    pub fn capability_provenance(&self) -> CapabilityProvenance {
+        CapabilityProvenance::ExternalAdapter {
+            adapter_id: self.adapter.clone(),
+            adapter_version: self.adapter_version.clone(),
+            source_digest: self.request_digest.clone(),
+        }
+    }
+}
+
+pub fn model_worker_capability_provenance(
+    provider: impl Into<String>,
+    model: impl Into<String>,
+    source_digest: impl Into<String>,
+) -> CapabilityProvenance {
+    CapabilityProvenance::ModelWorker {
+        provider: provider.into(),
+        model: model.into(),
+        source_digest: source_digest.into(),
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
@@ -131,4 +154,43 @@ pub enum AdapterError {
     Timeout,
     #[error("adapter was cancelled")]
     Cancelled,
+}
+
+#[cfg(test)]
+mod capability_provenance_tests {
+    use super::*;
+    use arda_core::service_registry::CapabilityProvenance;
+
+    #[test]
+    fn external_adapter_receipt_projects_capability_provenance() {
+        let receipt = AdapterProvenance {
+            adapter: "hermes".to_string(),
+            adapter_version: "1.2.3".to_string(),
+            cwd: PathBuf::from("project"),
+            started_at: "2026-08-08T00:00:00Z".to_string(),
+            finished_at: "2026-08-08T00:00:01Z".to_string(),
+            request_digest: "sha256:request".to_string(),
+        };
+
+        assert_eq!(
+            receipt.capability_provenance(),
+            CapabilityProvenance::ExternalAdapter {
+                adapter_id: "hermes".to_string(),
+                adapter_version: "1.2.3".to_string(),
+                source_digest: "sha256:request".to_string(),
+            }
+        );
+    }
+
+    #[test]
+    fn model_worker_route_projects_capability_provenance() {
+        assert_eq!(
+            model_worker_capability_provenance("local", "worker-a", "sha256:route"),
+            CapabilityProvenance::ModelWorker {
+                provider: "local".to_string(),
+                model: "worker-a".to_string(),
+                source_digest: "sha256:route".to_string(),
+            }
+        );
+    }
 }

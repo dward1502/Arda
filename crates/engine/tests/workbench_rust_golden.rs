@@ -1,7 +1,8 @@
 use arda_core::project_contract::ProjectContract;
 use arda_core::run_graph::{
-    AuthorityClass, Budget, CheckpointMetadata, NodeId, NodeKind, NodeState, ObjectiveId,
-    Provenance, RetryPolicy, RunEdge, RunGraph, RunId, RunNode,
+    AuthorityClass, Budget, CheckpointMetadata, EvidencePolicy, NodeId, NodeKind, NodeState,
+    ObjectiveId, Provenance, RetryPolicy, RunEdge, RunGraph, RunId, RunNode, WorkerExecutionSpec,
+    WorkerRole, WorkerRouteClass,
 };
 use arda_engine::adapters::{
     AdapterCancellation, HermesAdapter, HermesAdapterConfig, HermesNodeTask,
@@ -87,6 +88,7 @@ fn node(id: &str, kind: NodeKind, authority: AuthorityClass, parent: Option<&str
         output_digest: None,
         parent_receipts: parent.into_iter().map(str::to_string).collect(),
         checkpoint: CheckpointMetadata::default(),
+        worker: None,
     }
 }
 
@@ -126,6 +128,53 @@ fn graph(contract_digest: &str) -> RunGraph {
             edges.push(edge);
         }
     }
+    for node in &mut nodes {
+        let (role, evidence_policy, dependencies) = match node.id.as_str() {
+            "execute" => (
+                WorkerRole::Implementer,
+                EvidencePolicy::WorkerReport,
+                vec![node_id("approval")],
+            ),
+            "verify" => (
+                WorkerRole::IndependentVerifier,
+                EvidencePolicy::ProjectNativeChecks,
+                vec![node_id("execute")],
+            ),
+            _ => continue,
+        };
+        node.worker = Some(WorkerExecutionSpec {
+            role,
+            worker_id: format!("hermes:golden-{role:?}").to_lowercase(),
+            route_id: "hosted:fixture-provider/fixture-model".into(),
+            route_class: WorkerRouteClass::Hosted,
+            prompt_digest: format!("sha256:{}", "a".repeat(64)),
+            allowed_toolsets: ["file".into(), "terminal".into()].into_iter().collect(),
+            dependencies,
+            deadline_unix_ms: 4_000_000_000_000,
+            output_contract: "arda.hermes-job-result.v1".into(),
+            evidence_policy,
+        });
+        node.budget.max_cost_usd = 1.0;
+    }
+    let mut cancellation_probe = node(
+        "cancellation-probe",
+        NodeKind::Inspect,
+        AuthorityClass::ReadOnly,
+        None,
+    );
+    cancellation_probe.worker = Some(WorkerExecutionSpec {
+        role: WorkerRole::DeterministicTool,
+        worker_id: "deterministic:cancellation-probe".into(),
+        route_id: "deterministic:fixture-cancellation".into(),
+        route_class: WorkerRouteClass::Deterministic,
+        prompt_digest: format!("sha256:{}", "c".repeat(64)),
+        allowed_toolsets: ["terminal".into()].into_iter().collect(),
+        dependencies: Vec::new(),
+        deadline_unix_ms: 4_000_000_000_000,
+        output_contract: "arda.worker-cancellation.v1".into(),
+        evidence_policy: EvidencePolicy::DeterministicReceipt,
+    });
+    nodes.push(cancellation_probe);
     let graph = RunGraph {
         schema_version: RunGraph::SCHEMA_VERSION.into(),
         run_id: RunId::new(RUN_ID).unwrap(),
@@ -227,6 +276,21 @@ async fn clean_rust_repository_completes_approved_vertical_slice_with_one_run_id
     complete_node(&store, &mut graph, "inspect", "receipt:inspect");
     complete_node(&store, &mut graph, "plan", "receipt:plan");
     complete_node(&store, &mut graph, "approval", APPROVAL_RECEIPT);
+    for (state, suffix) in [
+        (NodeState::Ready, "ready"),
+        (NodeState::Running, "running"),
+        (NodeState::Cancelled, "cancelled"),
+    ] {
+        apply_transition_once(
+            &store,
+            &mut graph,
+            &node_id("cancellation-probe"),
+            state,
+            format!("{RUN_ID}:cancellation-probe:{suffix}"),
+            Some("receipt:cancellation-probe".into()),
+        )
+        .unwrap();
+    }
     apply_transition_once(
         &store,
         &mut graph,
@@ -278,10 +342,55 @@ async fn clean_rust_repository_completes_approved_vertical_slice_with_one_run_id
         project_contract_digest: contract_digest.clone(),
     };
 
+    apply_transition_once(
+        &store,
+        &mut graph,
+        &node_id("execute"),
+        NodeState::Running,
+        format!("{RUN_ID}:execute:attempt-1:running"),
+        Some(APPROVAL_RECEIPT.into()),
+    )
+    .unwrap();
     let first_error = adapter
         .execute(&task, AdapterCancellation::new())
         .await
         .expect_err("fixture injects one recoverable adapter failure");
+    apply_transition_once(
+        &store,
+        &mut graph,
+        &node_id("execute"),
+        NodeState::Failed,
+        format!("{RUN_ID}:execute:attempt-1:failed"),
+        Some(digest(first_error.to_string().as_bytes())),
+    )
+    .unwrap();
+    {
+        let execute = graph
+            .nodes
+            .iter_mut()
+            .find(|node| node.id.as_str() == "execute")
+            .unwrap();
+        execute.checkpoint.sequence = 1;
+        execute.checkpoint.recovery_token = Some(format!("{RUN_ID}:execute:revision-1"));
+    }
+    apply_transition_once(
+        &store,
+        &mut graph,
+        &node_id("execute"),
+        NodeState::Ready,
+        format!("{RUN_ID}:execute:revision-1:ready"),
+        Some(APPROVAL_RECEIPT.into()),
+    )
+    .unwrap();
+    apply_transition_once(
+        &store,
+        &mut graph,
+        &node_id("execute"),
+        NodeState::Running,
+        format!("{RUN_ID}:execute:revision-1:running"),
+        Some(APPROVAL_RECEIPT.into()),
+    )
+    .unwrap();
     let receipt = adapter
         .execute(&task, AdapterCancellation::new())
         .await
@@ -299,21 +408,151 @@ async fn clean_rust_repository_completes_approved_vertical_slice_with_one_run_id
         &store,
         &mut graph,
         &node_id("execute"),
-        NodeState::Running,
-        format!("{RUN_ID}:execute:running"),
-        Some(APPROVAL_RECEIPT.into()),
-    )
-    .unwrap();
-    apply_transition_once(
-        &store,
-        &mut graph,
-        &node_id("execute"),
         NodeState::Succeeded,
         format!("{RUN_ID}:execute:succeeded"),
         Some(receipt.receipt_digest.clone()),
     )
     .unwrap();
-    complete_node(&store, &mut graph, "verify", "receipt:verify");
+    apply_transition_once(
+        &store,
+        &mut graph,
+        &node_id("verify"),
+        NodeState::Ready,
+        format!("{RUN_ID}:verify:attempt-1:ready"),
+        Some(receipt.receipt_digest.clone()),
+    )
+    .unwrap();
+    apply_transition_once(
+        &store,
+        &mut graph,
+        &node_id("verify"),
+        NodeState::Running,
+        format!("{RUN_ID}:verify:attempt-1:running"),
+        Some(receipt.receipt_digest.clone()),
+    )
+    .unwrap();
+
+    // Preserve a real failed project-native verification before revision.
+    let verified_source = fs::read_to_string(project.join("src/lib.rs")).unwrap();
+    let invalid_revision = verified_source.replacen(
+        "assert_eq!(greeting(), \"hello, Arda\")",
+        "assert_eq!(greeting(), \"revision required\")",
+        1,
+    );
+    assert_ne!(invalid_revision, verified_source);
+    fs::write(project.join("src/lib.rs"), invalid_revision).unwrap();
+    let failed_verification = Command::new("cargo")
+        .args(["test", "--quiet"])
+        .current_dir(&project)
+        .output()
+        .unwrap();
+    assert!(!failed_verification.status.success());
+    let failed_verification_digest = digest(
+        [
+            failed_verification.stdout.as_slice(),
+            failed_verification.stderr.as_slice(),
+        ]
+        .concat()
+        .as_slice(),
+    );
+    apply_transition_once(
+        &store,
+        &mut graph,
+        &node_id("verify"),
+        NodeState::Failed,
+        format!("{RUN_ID}:verify:attempt-1:failed"),
+        Some(failed_verification_digest.clone()),
+    )
+    .unwrap();
+    {
+        let verify = graph
+            .nodes
+            .iter_mut()
+            .find(|node| node.id.as_str() == "verify")
+            .unwrap();
+        verify.checkpoint.sequence = 1;
+        verify.checkpoint.recovery_token = Some(format!("{RUN_ID}:verify:revision-1"));
+        verify
+            .parent_receipts
+            .push(failed_verification_digest.clone());
+    }
+    fs::write(project.join("src/lib.rs"), &verified_source).unwrap();
+    apply_transition_once(
+        &store,
+        &mut graph,
+        &node_id("verify"),
+        NodeState::Ready,
+        format!("{RUN_ID}:verify:revision-1:ready"),
+        Some(failed_verification_digest.clone()),
+    )
+    .unwrap();
+    apply_transition_once(
+        &store,
+        &mut graph,
+        &node_id("verify"),
+        NodeState::Running,
+        format!("{RUN_ID}:verify:revision-1:running"),
+        Some(failed_verification_digest.clone()),
+    )
+    .unwrap();
+    let verify_task = HermesNodeTask {
+        run_id: graph.run_id.clone(),
+        node: {
+            // The task payload is the validated Ready snapshot; durable graph
+            // state is moved to Running before provider I/O.
+            let mut node = graph
+                .nodes
+                .iter()
+                .find(|node| node.id.as_str() == "verify")
+                .unwrap()
+                .clone();
+            node.state = NodeState::Ready;
+            node
+        },
+        objective: "Independently verify the approved Rust greeting change.".into(),
+        instructions: "Inspect the resulting diff and run the project-native test without relying on the implementer summary.".into(),
+        checks: vec!["test".into()],
+        check_commands: BTreeMap::from([("test".into(), "cargo test --quiet".into())]),
+        project_contract_digest: contract_digest.clone(),
+    };
+    let verifier_receipt = adapter
+        .execute(&verify_task, AdapterCancellation::new())
+        .await
+        .expect("independent verifier returns a separately receipted native check");
+    assert_ne!(receipt.receipt_digest, verifier_receipt.receipt_digest);
+    assert_eq!(verifier_receipt.test_evidence.len(), 1);
+    apply_transition_once(
+        &store,
+        &mut graph,
+        &node_id("verify"),
+        NodeState::Succeeded,
+        format!("{RUN_ID}:verify:succeeded"),
+        Some(verifier_receipt.receipt_digest.clone()),
+    )
+    .unwrap();
+    drop(store);
+    let store = RunStore::open(&state_root, RunId::new(RUN_ID).unwrap()).unwrap();
+    let recovered = store.recover().unwrap();
+    let recovered_event_count = recovered.events.len();
+    let mut graph = recovered.checkpoint.expect("worker graph survives restart");
+    assert_eq!(
+        graph
+            .nodes
+            .iter()
+            .find(|node| node.id.as_str() == "verify")
+            .unwrap()
+            .state,
+        NodeState::Succeeded
+    );
+    assert_eq!(
+        graph
+            .nodes
+            .iter()
+            .find(|node| node.id.as_str() == "cancellation-probe")
+            .unwrap()
+            .state,
+        NodeState::Cancelled
+    );
     complete_node(&store, &mut graph, "review", "receipt:review");
     complete_node(&store, &mut graph, "close", "receipt:close");
 
@@ -347,7 +586,18 @@ async fn clean_rust_repository_completes_approved_vertical_slice_with_one_run_id
         },
         "tools": receipt.tool_evidence,
         "evidence": receipt.artifacts,
-        "cost_usd": receipt.usage.estimated_cost_usd,
+        "cost_usd": receipt.usage.estimated_cost_usd + verifier_receipt.usage.estimated_cost_usd,
+        "workers": [
+            {
+                "role": "implementer",
+                "receipt_digest": receipt.receipt_digest,
+            },
+            {
+                "role": "independent_verifier",
+                "receipt_digest": verifier_receipt.receipt_digest,
+                "evidence_policy": "project_native_checks",
+            }
+        ],
         "approval": {"receipt": APPROVAL_RECEIPT},
         "diff": diff,
         "tests": receipt.test_evidence,
@@ -358,8 +608,11 @@ async fn clean_rust_repository_completes_approved_vertical_slice_with_one_run_id
         "metrics": {
             "install_to_result_ms": started.elapsed().as_millis(),
             "interventions": 1,
-            "failures": [first_error.to_string()],
-            "recovery_behavior": "automatic retry after a recorded transient adapter failure",
+            "failures": [first_error.to_string(), failed_verification_digest],
+            "recovery_behavior": "durable execute retry, failed-verification revision lineage, and checkpoint restart",
+            "recovered_event_count": recovered_event_count,
+            "revision_sequence": 1,
+            "cancelled_worker": "cancellation-probe",
             "observable_mutation_count": 1
         }
     });
@@ -386,6 +639,11 @@ async fn clean_rust_repository_completes_approved_vertical_slice_with_one_run_id
         serde_json::from_slice(&fs::read(store.result_path()).unwrap()).unwrap();
     assert_eq!(persisted["run_id"], RUN_ID);
     assert_eq!(persisted["metrics"]["observable_mutation_count"], 1);
+    assert_eq!(persisted["metrics"]["revision_sequence"], 1);
+    assert_eq!(
+        persisted["metrics"]["cancelled_worker"],
+        "cancellation-probe"
+    );
     assert_eq!(persisted["model_route"]["model"], "fixture-model");
     assert_eq!(
         store

@@ -12,7 +12,12 @@ The final-source soak passed on `efd118b5`, and release-version-only commit `661
 
 ## 1.0 definition
 
-Arda 1.0 is the supported Workbench product with:
+This plan owns the HUD/Workbench **release-qualification slice** of Arda 1.0;
+the product doctrine and master convergence authority are
+[`../architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md`](../architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md)
+and
+[`2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md`](2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md).
+Within this bounded slice, supported Workbench/HUD release requires:
 
 1. Stage 5 closed against the exact frozen candidate and signed artifact bytes;
 2. backend contracts frozen and Rust authority preserved;
@@ -22,7 +27,9 @@ Arda 1.0 is the supported Workbench product with:
 6. a measured performance baseline with release-blocking regressions corrected;
 7. active plans reduced to finite, non-overlapping 1.0 authorities.
 
-RELIC/CITADEL and Mirromere are explicitly outside this 1.0 scope. Their retained records do not block release.
+RELIC/CITADEL and Mirromere are outside this bounded HUD/Workbench release
+slice and do not block it. They remain optional Arda-compatible capabilities
+with their own implementation and acceptance gates.
 
 ## Development and release boundary
 

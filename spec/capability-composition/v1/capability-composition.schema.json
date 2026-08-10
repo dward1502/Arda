@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arda.local/spec/capability-composition/v1/capability-composition.schema.json",
+  "title": "arda.capability-composition.v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "lineage",
+    "outcome",
+    "scope",
+    "sensitivity",
+    "capabilities",
+    "roles",
+    "route_preferences",
+    "council_mode",
+    "proactive_communication",
+    "joulework_budget",
+    "authority",
+    "permissions",
+    "lifecycle"
+  ],
+  "properties": {
+    "schema_version": {"const": "arda.capability-composition.v1"},
+    "lineage": {"$ref": "#/$defs/lineage"},
+    "outcome": {"$ref": "#/$defs/outcome"},
+    "scope": {"enum": ["personal", "business", "system"]},
+    "sensitivity": {"$ref": "#/$defs/sensitivity"},
+    "capabilities": {"$ref": "#/$defs/capabilities"},
+    "roles": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {"$ref": "#/$defs/identifier"},
+      "additionalProperties": {"$ref": "#/$defs/role"}
+    },
+    "route_preferences": {"$ref": "#/$defs/routePreferences"},
+    "council_mode": {"enum": ["disabled", "advisory", "required"]},
+    "proactive_communication": {"enum": ["disabled", "approval_required", "allowed"]},
+    "joulework_budget": {"$ref": "#/$defs/jouleworkBudget"},
+    "authority": {"$ref": "#/$defs/authority"},
+    "permissions": {"$ref": "#/$defs/permissions"},
+    "lifecycle": {"$ref": "#/$defs/lifecycle"}
+  },
+  "$defs": {
+    "identifier": {"type": "string", "minLength": 1, "pattern": ".*\\S.*"},
+    "stringSet": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/identifier"},
+      "uniqueItems": true
+    },
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "not": {"pattern": "(^/|(^|/)\\.\\.(/|$))"}
+    },
+    "lineage": {
+      "type": "object",
+      "required": ["objective_id", "project_id", "run_id", "project_contract_digest"],
+      "properties": {
+        "objective_id": {"$ref": "#/$defs/identifier"},
+        "project_id": {"type": "string", "format": "uuid"},
+        "run_id": {"$ref": "#/$defs/identifier"},
+        "project_contract_digest": {"$ref": "#/$defs/identifier"}
+      },
+      "additionalProperties": false
+    },
+    "outcome": {
+      "type": "object",
+      "required": ["description", "acceptance_conditions"],
+      "properties": {
+        "description": {"$ref": "#/$defs/identifier"},
+        "acceptance_conditions": {
+          "allOf": [{"$ref": "#/$defs/stringSet"}, {"minItems": 1}]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sensitivity": {
+      "type": "object",
+      "required": ["data_classes", "permitted_egress"],
+      "properties": {
+        "data_classes": {
+          "type": "array",
+          "items": {"enum": ["public", "internal", "private", "health", "financial"]},
+          "uniqueItems": true
+        },
+        "permitted_egress": {
+          "type": "array",
+          "items": {"enum": ["local_device", "local_network", "hosted_provider", "external_adapter", "public_network"]},
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "capabilities": {
+      "type": "object",
+      "required": ["required"],
+      "properties": {
+        "required": {"allOf": [{"$ref": "#/$defs/stringSet"}, {"minItems": 1}]},
+        "optional": {"$ref": "#/$defs/stringSet"},
+        "forbidden": {"$ref": "#/$defs/stringSet"}
+      },
+      "additionalProperties": false
+    },
+    "role": {
+      "type": "object",
+      "required": ["kind", "authority"],
+      "properties": {
+        "kind": {"enum": ["worker", "planner", "reviewer", "operator"]},
+        "authority": {"$ref": "#/$defs/authorityClass"},
+        "required_capabilities": {"$ref": "#/$defs/stringSet"}
+      },
+      "additionalProperties": false
+    },
+    "authorityClass": {
+      "enum": ["read_only", "plan", "propose", "execute_with_approval", "execute_bounded"]
+    },
+    "routePreferences": {
+      "type": "object",
+      "required": ["mode"],
+      "properties": {
+        "mode": {"enum": ["local_only", "prefer_local", "prefer_hosted", "hosted_only"]},
+        "allowed_providers": {"$ref": "#/$defs/stringSet"}
+      },
+      "additionalProperties": false
+    },
+    "jouleworkBudget": {
+      "type": "object",
+      "required": ["max_joules", "max_cost_usd", "max_operator_seconds"],
+      "properties": {
+        "max_joules": {"type": "number", "minimum": 0},
+        "max_cost_usd": {"type": "number", "minimum": 0},
+        "max_operator_seconds": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "authority": {
+      "type": "object",
+      "required": ["signed_request_digest", "authority_ceiling"],
+      "properties": {
+        "signed_request_digest": {"type": "string", "pattern": "^sha256:[0-9a-fA-F]{64}$"},
+        "authority_ceiling": {"$ref": "#/$defs/authorityClass"},
+        "approval_scopes": {"$ref": "#/$defs/stringSet"}
+      },
+      "additionalProperties": false
+    },
+    "permissions": {
+      "type": "object",
+      "required": ["filesystem", "network"],
+      "properties": {
+        "tools": {"$ref": "#/$defs/stringSet"},
+        "filesystem": {
+          "type": "object",
+          "properties": {
+            "read_roots": {"type": "array", "items": {"$ref": "#/$defs/relativePath"}, "uniqueItems": true},
+            "write_roots": {"type": "array", "items": {"$ref": "#/$defs/relativePath"}, "uniqueItems": true}
+          },
+          "additionalProperties": false
+        },
+        "network": {"enum": ["denied", "local_only", "external_approved"]},
+        "devices": {"$ref": "#/$defs/stringSet"},
+        "payments": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "lifecycle": {
+      "type": "object",
+      "required": ["restart", "cancellation", "compensation", "notification"],
+      "properties": {
+        "restart": {"enum": ["resume_from_checkpoint", "restart_node", "operator_decision"]},
+        "cancellation": {"enum": ["immediate", "checkpoint_then_stop", "operator_approval"]},
+        "compensation": {"enum": ["none", "best_effort", "required"]},
+        "notification": {"enum": ["silent", "on_state_change", "on_intervention", "always"]}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

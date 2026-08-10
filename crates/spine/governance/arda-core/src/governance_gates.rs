@@ -13,6 +13,124 @@ use std::path::Path;
 use serde::{Deserialize, Serialize};
 
 use crate::contract::DecisionClass;
+use crate::task::JouleWorkMeasurementSource;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ActionReversibility {
+    Reversible,
+    Compensatable,
+    Irreversible,
+    Unknown,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ConsentAuthority {
+    OperatorAuthored,
+    ScopedApproval,
+    PolicyAllowed,
+    Inferred,
+    Missing,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CoercionRisk {
+    None,
+    Low,
+    Elevated,
+    High,
+    Unknown,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum JouleWorkBudgetClass {
+    Quiet,
+    Routine,
+    Elevated,
+    Consequential,
+}
+
+impl JouleWorkBudgetClass {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Quiet => "quiet",
+            Self::Routine => "routine",
+            Self::Elevated => "elevated",
+            Self::Consequential => "consequential",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct OperatorBurdenEstimate {
+    pub estimated_interruption_seconds: u64,
+    pub estimated_recovery_seconds: u64,
+    pub source: JouleWorkMeasurementSource,
+    pub confidence: f64,
+}
+
+impl Default for OperatorBurdenEstimate {
+    fn default() -> Self {
+        Self {
+            estimated_interruption_seconds: 0,
+            estimated_recovery_seconds: 0,
+            source: JouleWorkMeasurementSource::DefaultFallback,
+            confidence: 0.0,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct HumanImpactReviewInput {
+    pub affected_parties: Vec<String>,
+    pub reversibility: ActionReversibility,
+    pub interruption_reason: Option<String>,
+    pub consent_authority: ConsentAuthority,
+    pub uncertainty: f64,
+    pub coercion_risk: CoercionRisk,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct HumanFacingActionReview {
+    pub schema_version: String,
+    pub semantic: String,
+    pub affected_parties: Vec<String>,
+    pub reversibility: ActionReversibility,
+    pub interruption_reason: Option<String>,
+    pub consent_authority: ConsentAuthority,
+    pub uncertainty: f64,
+    pub coercion_risk: CoercionRisk,
+}
+
+impl HumanFacingActionReview {
+    pub const SCHEMA_VERSION: &'static str = "arda.human-impact-review.v1";
+    pub const SEMANTIC: &'static str = "canonical_relational_human_impact_review";
+
+    pub fn proactive_message_explanation(&self, budget_class: JouleWorkBudgetClass) -> String {
+        format!(
+            "Interruption basis: {}. JouleWork budget class: {}.",
+            self.interruption_reason
+                .as_deref()
+                .unwrap_or("no interruption basis supplied"),
+            budget_class.as_str()
+        )
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct AutonomyBasisDecision {
+    pub contract: &'static str,
+    pub allowed: bool,
+    pub reason: &'static str,
+    pub measurement_source: JouleWorkMeasurementSource,
+    pub measurement_confidence: f64,
+}
 
 /// Runtime budget contract consumed by governance without depending on a
 /// concrete economics implementation.
@@ -182,6 +300,32 @@ impl GovernanceGates {
             },
         }
     }
+
+    pub fn evaluate_autonomy_basis(
+        &self,
+        measurement_source: JouleWorkMeasurementSource,
+        measurement_confidence: f64,
+    ) -> AutonomyBasisDecision {
+        let confidence_is_valid =
+            measurement_confidence.is_finite() && (0.0..=1.0).contains(&measurement_confidence);
+        let confidence_is_sufficient = confidence_is_valid && measurement_confidence > 0.0;
+        let allowed = confidence_is_sufficient && measurement_source.is_autonomy_truth();
+        AutonomyBasisDecision {
+            contract: "arda.governance.autonomy-basis.v1",
+            allowed,
+            reason: if !confidence_is_valid {
+                "invalid_measurement_confidence"
+            } else if !measurement_source.is_autonomy_truth() {
+                "fallback_or_synthetic_measurement"
+            } else if !confidence_is_sufficient {
+                "insufficient_measurement_confidence"
+            } else {
+                "independent_measurement_basis_present"
+            },
+            measurement_source,
+            measurement_confidence,
+        }
+    }
 }
 
 #[cfg(test)]
@@ -296,6 +440,47 @@ action_classes:
                 .reason,
             "invalid_estimated_cost"
         );
+    }
+
+    #[test]
+    fn fallback_and_synthetic_totals_cannot_authorize_autonomy() {
+        let gates = GovernanceGates::permissive();
+        for source in [
+            JouleWorkMeasurementSource::DefaultFallback,
+            JouleWorkMeasurementSource::SyntheticRestoration,
+        ] {
+            let decision = gates.evaluate_autonomy_basis(source, 1.0);
+            assert!(!decision.allowed);
+            assert_eq!(decision.reason, "fallback_or_synthetic_measurement");
+        }
+        assert!(
+            gates
+                .evaluate_autonomy_basis(JouleWorkMeasurementSource::RuntimeTimer, 0.9)
+                .allowed
+        );
+        assert_eq!(
+            gates
+                .evaluate_autonomy_basis(JouleWorkMeasurementSource::OperatorEstimate, 0.0)
+                .reason,
+            "insufficient_measurement_confidence"
+        );
+    }
+
+    #[test]
+    fn proactive_explanation_names_interruption_basis_and_budget_class() {
+        let review = HumanFacingActionReview {
+            schema_version: HumanFacingActionReview::SCHEMA_VERSION.to_string(),
+            semantic: HumanFacingActionReview::SEMANTIC.to_string(),
+            affected_parties: vec!["operator".to_string()],
+            reversibility: ActionReversibility::Reversible,
+            interruption_reason: Some("appointment starts in ten minutes".to_string()),
+            consent_authority: ConsentAuthority::OperatorAuthored,
+            uncertainty: 0.1,
+            coercion_risk: CoercionRisk::Low,
+        };
+        let explanation = review.proactive_message_explanation(JouleWorkBudgetClass::Routine);
+        assert!(explanation.contains("appointment starts in ten minutes"));
+        assert!(explanation.contains("budget class: routine"));
     }
 
     #[test]

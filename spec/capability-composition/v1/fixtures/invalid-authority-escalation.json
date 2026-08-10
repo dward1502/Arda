@@ -1,0 +1,16 @@
+{
+  "schema_version": "arda.capability-composition.v1",
+  "lineage": {"objective_id": "objective-escalation", "project_id": "550e8400-e29b-41d4-a716-446655440103", "run_id": "run-escalation-1", "project_contract_digest": "sha256:escalation-project"},
+  "outcome": {"description": "Attempt authority escalation", "acceptance_conditions": ["escalation is rejected"]},
+  "scope": "system",
+  "sensitivity": {"data_classes": ["internal"], "permitted_egress": ["local_device"]},
+  "capabilities": {"required": ["planner"], "optional": [], "forbidden": []},
+  "roles": {"planner": {"kind": "planner", "authority": "execute_bounded", "required_capabilities": ["planner"]}},
+  "route_preferences": {"mode": "local_only", "allowed_providers": []},
+  "council_mode": "disabled",
+  "proactive_communication": "disabled",
+  "joulework_budget": {"max_joules": 1.0, "max_cost_usd": 0.0, "max_operator_seconds": 1},
+  "authority": {"signed_request_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "authority_ceiling": "plan", "approval_scopes": []},
+  "permissions": {"tools": [], "filesystem": {"read_roots": [], "write_roots": []}, "network": "denied", "devices": [], "payments": false},
+  "lifecycle": {"restart": "operator_decision", "cancellation": "immediate", "compensation": "none", "notification": "silent"}
+}

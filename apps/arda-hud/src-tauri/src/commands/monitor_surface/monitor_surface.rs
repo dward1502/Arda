@@ -543,8 +543,11 @@ mod command_contract_tests {
 
     #[test]
     fn test_is_monitor_slot_id() {
-        assert!(is_monitor_slot_id("monitor_left_1"));
-        assert!(is_monitor_slot_id("monitor_left_2"));
+        assert!(is_monitor_slot_id("monitor_1"));
+        assert!(is_monitor_slot_id("monitor_2"));
+        assert!(is_monitor_slot_id("monitor_3"));
+        assert!(is_monitor_slot_id("monitor_4"));
+        assert!(is_monitor_slot_id("monitor_5"));
         assert!(!is_monitor_slot_id("view_desk_l"));
         assert!(!is_monitor_slot_id("view_desk_aux"));
         assert!(!is_monitor_slot_id(""));
@@ -589,7 +592,7 @@ mod command_contract_tests {
     fn test_claim_accepts_valid_request() {
         let state = MonitorSurfaceState::default();
         let request = MonitorClaimRequest {
-            slot_id: "monitor_left_1".to_string(),
+            slot_id: "monitor_1".to_string(),
             owner: "hermes-agent-001".to_string(),
             activity_kind: "agent_activity".to_string(),
             payload_binding: "hermes.live_stream".to_string(),
@@ -598,7 +601,7 @@ mod command_contract_tests {
         assert!(register_claim(&state, &request, unix_now() + MONITOR_CLAIM_TTL_SECS).is_ok());
         assert_eq!(
             surface_bridge_window_label(&request.slot_id),
-            "arda-monitor-surface--monitor_left_1"
+            "arda-monitor-surface--monitor_1"
         );
     }
 
@@ -616,7 +619,7 @@ mod command_contract_tests {
     fn test_release_succeeds_for_monitor_slot() {
         let state = MonitorSurfaceState::default();
         let request = MonitorClaimRequest {
-            slot_id: "monitor_left_1".to_string(),
+            slot_id: "monitor_1".to_string(),
             owner: "hermes-agent-001".to_string(),
             activity_kind: "agent_activity".to_string(),
             payload_binding: "hermes.live_stream".to_string(),
@@ -635,7 +638,7 @@ mod command_contract_tests {
     fn test_refresh_lease_succeeds_for_monitor_slot() {
         let state = MonitorSurfaceState::default();
         let request = MonitorClaimRequest {
-            slot_id: "monitor_left_3".to_string(),
+            slot_id: "monitor_2".to_string(),
             owner: "hermes-agent-001".to_string(),
             activity_kind: "agent_activity".to_string(),
             payload_binding: "hermes.live_stream".to_string(),

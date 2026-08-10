@@ -48,18 +48,18 @@ describe('boardroom slot settings', () => {
     expect(document.authority).toBe(ARDA_BOARDROOM_SLOT_SETTINGS_RELATIVE_PATH)
     expect(document.assignments.map((assignment) => assignment.slot_id)).toEqual([...BOARDROOM_SCENE_SLOT_IDS])
     expect(document.assignments[0]).toMatchObject({
-      slot_id: 'monitor_left_1',
-      component_id: 'warp-dev-service-surface',
-      source_zone_id: 'service_warp_dev',
-      module_ids: ['service_embed'],
+      slot_id: 'monitor_1',
+      component_id: 'ambient-monitor-surface',
+      source_zone_id: '',
+      module_ids: [],
       surface_layout: {
-        adapter_type: 'external_url',
+        adapter_type: 'agent_activity',
         preview: {
-          mode: 'service_status',
+          mode: 'agent_activity',
         },
         focus: {
-          mode: 'native_window',
-          target: 'service_warp_dev',
+          mode: 'in_scene_workstation',
+          target: '',
         },
       },
       visualization: {
@@ -75,17 +75,17 @@ describe('boardroom slot settings', () => {
 
   it('applies compatible visualization selections and retains the last valid selection on incompatibility', () => {
     const document = createDefaultBoardroomSlotSettings('2026-07-30T12:00:00.000Z')
-    const accepted = documentWithVisualizationSelection(document, 'monitor_left_2', {
+    const accepted = documentWithVisualizationSelection(document, 'view_desk_r', {
       preset_id: 'topology',
       config: { density: 'high', timespan_minutes: 30, alert_threshold: 0.75 },
     }, '2026-07-30T12:01:00.000Z')
     expect(accepted.ok).toBe(true)
-    expect(accepted.document.assignments.find((assignment) => assignment.slot_id === 'monitor_left_2')?.visualization).toMatchObject({
+    expect(accepted.document.assignments.find((assignment) => assignment.slot_id === 'view_desk_r')?.visualization).toMatchObject({
       preset_id: 'topology',
       config: { density: 'high', timespan_minutes: 30, alert_threshold: 0.75 },
     })
 
-    const rejected = documentWithVisualizationSelection(accepted.document, 'monitor_left_2', {
+    const rejected = documentWithVisualizationSelection(accepted.document, 'view_desk_r', {
       preset_id: 'constellation',
       config: { density: 'low', timespan_minutes: 60, alert_threshold: null },
     }, '2026-07-30T12:02:00.000Z')
@@ -98,9 +98,9 @@ describe('boardroom slot settings', () => {
     const document = createDefaultBoardroomSlotSettings('2026-07-30T13:00:00.000Z')
     const exported = exportBoardroomProfile(document)
     const imported = importBoardroomProfile(exported)
-
     expect(imported.ok).toBe(true)
-    expect(imported.document).toEqual(document)
+    expect(imported.document?.schema_version).toBe('arda.arda_boardroom_slots.v2')
+    expect(imported.document?.assignments.map((assignment) => assignment.slot_id)).toEqual([...BOARDROOM_SCENE_SLOT_IDS])
     expect(importBoardroomProfile('{broken')).toMatchObject({ ok: false, document: null })
     expect(resetBoardroomProfile('2026-07-30T14:00:00.000Z')).toEqual(
       createDefaultBoardroomSlotSettings('2026-07-30T14:00:00.000Z'),
@@ -110,11 +110,11 @@ describe('boardroom slot settings', () => {
   it('loads a complete local profile while remaining backward compatible with assignment-only storage', () => {
     const document = createDefaultBoardroomSlotSettings('2026-07-30T15:00:00.000Z')
     const documentStorage = { getItem: () => exportBoardroomProfile(document) }
-    expect(readLocalBoardroomSlotSettingsDocument(documentStorage)).toEqual(document)
+    expect(readLocalBoardroomSlotSettingsDocument(documentStorage)?.assignments.map((a) => a.slot_id)).toEqual([...BOARDROOM_SCENE_SLOT_IDS])
     expect(readLocalBoardroomSlotAssignments(documentStorage)).toEqual(assignmentsFromDocument(document))
 
-    const legacyStorage = { getItem: () => JSON.stringify({ monitor_left_1: 'custom_zone' }) }
-    expect(readLocalBoardroomSlotAssignments(legacyStorage).monitor_left_1).toBe('custom_zone')
+    const legacyStorage = { getItem: () => JSON.stringify({ monitor_1: 'custom_zone' }) }
+    expect(readLocalBoardroomSlotAssignments(legacyStorage).monitor_1).toBe('custom_zone')
   })
 
   it('normalizes partial workspace documents without losing local placeholders', () => {
@@ -123,7 +123,7 @@ describe('boardroom slot settings', () => {
       updated_at_utc: '2026-05-22T01:00:00.000Z',
       assignments: [
         {
-          slot_id: 'monitor_left_2',
+          slot_id: 'monitor_2',
           component_id: 'custom-routing',
           source_zone_id: 'routing_and_comms',
           title: 'Routing',
@@ -165,8 +165,8 @@ describe('boardroom slot settings', () => {
 
     expect(parsed).not.toBeNull()
     expect(parsed?.assignments).toHaveLength(BOARDROOM_SCENE_SLOT_IDS.length)
-    expect(assignmentsFromDocument(parsed!).monitor_left_2).toBe('routing_and_comms')
-    expect(parsed?.assignments.find((assignment) => assignment.slot_id === 'monitor_left_2')?.surface_layout.preview.widgets[0]).toMatchObject({
+    expect(assignmentsFromDocument(parsed!).monitor_2).toBe('routing_and_comms')
+    expect(parsed?.assignments.find((assignment) => assignment.slot_id === 'monitor_2')?.surface_layout.preview.widgets[0]).toMatchObject({
       id: 'routing.flow',
       kind: 'particle_stream',
     })
@@ -176,12 +176,12 @@ describe('boardroom slot settings', () => {
   it('reads browser-local assignments defensively', () => {
     const storage = {
       getItem: () => JSON.stringify({
-        monitor_left_1: 'custom_zone',
+        monitor_1: 'custom_zone',
         view_desk_l: 42,
       }),
     }
 
-    expect(readLocalBoardroomSlotAssignments(storage).monitor_left_1).toBe('custom_zone')
+    expect(readLocalBoardroomSlotAssignments(storage).monitor_1).toBe('custom_zone')
     expect(readLocalBoardroomSlotAssignments(storage).view_desk_l).toBe(DEFAULT_BOARDROOM_SCENE_SLOT_ASSIGNMENTS.view_desk_l)
     expect(readLocalBoardroomSlotAssignments({ getItem: () => '{broken' })).toEqual(DEFAULT_BOARDROOM_SCENE_SLOT_ASSIGNMENTS)
   })
@@ -191,7 +191,7 @@ describe('boardroom slot settings', () => {
       success: true,
       content: JSON.stringify(documentFromAssignments({
         ...DEFAULT_BOARDROOM_SCENE_SLOT_ASSIGNMENTS,
-        monitor_left_1: 'governance_guardhouse',
+        monitor_1: 'governance_guardhouse',
       }, '2026-05-22T02:00:00.000Z')),
       error: null,
       path: ARDA_BOARDROOM_SLOT_SETTINGS_RELATIVE_PATH,
@@ -201,7 +201,7 @@ describe('boardroom slot settings', () => {
 
     expect(mockedReadFile).toHaveBeenCalledWith(`/arda/${ARDA_BOARDROOM_SLOT_SETTINGS_RELATIVE_PATH}`)
     expect(result.mode).toBe('workspace')
-    expect(result.assignments.monitor_left_1).toBe('governance_guardhouse')
+    expect(result.assignments.monitor_1).toBe('governance_guardhouse')
   })
 
   it('saves assignments through the scoped write IPC contract only', async () => {
@@ -223,8 +223,8 @@ describe('boardroom slot settings', () => {
   it('updates and saves a surface layout without dropping the slot contract document', async () => {
     mockedWriteScopedFile.mockResolvedValueOnce({ success: true, content: 'ok', error: null, path: ARDA_BOARDROOM_SLOT_SETTINGS_RELATIVE_PATH })
     const document = createDefaultBoardroomSlotSettings('2026-06-01T00:00:00.000Z')
-    const current = document.assignments.find((assignment) => assignment.slot_id === 'monitor_left_2')!.surface_layout
-    const updated = documentWithSurfaceLayout(document, 'monitor_left_2', {
+    const current = document.assignments.find((assignment) => assignment.slot_id === 'monitor_2')!.surface_layout
+    const updated = documentWithSurfaceLayout(document, 'monitor_2', {
       ...current,
       adapter_type: 'service_embed',
       focus: {
@@ -242,7 +242,7 @@ describe('boardroom slot settings', () => {
     const [, , content] = mockedWriteScopedFile.mock.calls[0]
     const saved = JSON.parse(content)
     expect(saved.assignments).toHaveLength(BOARDROOM_SCENE_SLOT_IDS.length)
-    expect(saved.assignments.find((assignment: { slot_id: string }) => assignment.slot_id === 'monitor_left_2').surface_layout).toMatchObject({
+    expect(saved.assignments.find((assignment: { slot_id: string }) => assignment.slot_id === 'monitor_2').surface_layout).toMatchObject({
       adapter_type: 'service_embed',
       embed: {
         url: 'http://127.0.0.1:3000',
@@ -254,11 +254,11 @@ describe('boardroom slot settings', () => {
   it('creates safe native-window layouts for configured Beelink local services', () => {
     const document = documentFromAssignments({
       ...DEFAULT_BOARDROOM_SCENE_SLOT_ASSIGNMENTS,
-      monitor_left_1: 'service_beelink_grafana',
-      monitor_left_2: 'service_beelink_openwebui',
+      monitor_1: 'service_beelink_grafana',
+      monitor_2: 'service_beelink_openwebui',
     }, '2026-06-01T02:00:00.000Z')
 
-    expect(document.assignments.find((assignment) => assignment.slot_id === 'monitor_left_1')?.surface_layout).toMatchObject({
+    expect(document.assignments.find((assignment) => assignment.slot_id === 'monitor_1')?.surface_layout).toMatchObject({
       adapter_type: 'service_embed',
       focus: {
         mode: 'native_window',
@@ -269,7 +269,7 @@ describe('boardroom slot settings', () => {
         allow_inline: false,
       },
     })
-    expect(document.assignments.find((assignment) => assignment.slot_id === 'monitor_left_2')?.surface_layout.embed).toMatchObject({
+    expect(document.assignments.find((assignment) => assignment.slot_id === 'monitor_2')?.surface_layout.embed).toMatchObject({
       url: 'http://100.103.125.88:8080',
       allow_inline: false,
     })
@@ -279,12 +279,12 @@ describe('boardroom slot settings', () => {
     const fleetProfile = BOARDROOM_WORKSTATION_ROLE_PROFILES.find((profile) => profile.role_id === 'fleet')!
     const document = documentFromAssignments({
       ...DEFAULT_BOARDROOM_SCENE_SLOT_ASSIGNMENTS,
-      monitor_left_1: fleetProfile.source_zone_id,
+      monitor_1: fleetProfile.source_zone_id,
     }, '2026-06-01T03:00:00.000Z')
-    const assignment = document.assignments.find((candidate) => candidate.slot_id === 'monitor_left_1')!
+    const assignment = document.assignments.find((candidate) => candidate.slot_id === 'monitor_1')!
 
     expect(assignment).toMatchObject({
-      slot_id: 'monitor_left_1',
+      slot_id: 'monitor_1',
       role_id: 'fleet',
       source_zone_id: 'systems_health',
       component_id: 'fleet-workstation',
@@ -300,14 +300,14 @@ describe('boardroom slot settings', () => {
       updated_at_utc: '2026-06-01T04:00:00.000Z',
       assignments: [
         {
-          slot_id: 'monitor_left_1',
+          slot_id: 'monitor_1',
           role_id: 'fleet',
           updated_at_utc: '2026-06-01T04:00:00.000Z',
         },
       ],
     })
 
-    const assignment = parsed?.assignments.find((candidate) => candidate.slot_id === 'monitor_left_1')
+    const assignment = parsed?.assignments.find((candidate) => candidate.slot_id === 'monitor_1')
     expect(assignment).toMatchObject({
       role_id: 'fleet',
       source_zone_id: 'systems_health',
@@ -322,7 +322,7 @@ describe('boardroom slot settings', () => {
       updated_at_utc: '2026-07-30T12:00:00.000Z',
       assignments: [
         {
-          slot_id: 'monitor_left_1',
+          slot_id: 'monitor_1',
           component_id: 'test-surface',
           source_zone_id: 'service_test',
           title: 'Malformed Test',
@@ -381,7 +381,7 @@ describe('boardroom slot settings', () => {
 
   it('preserves remote_preview focus mode through round-trip', () => {
     const document = createDefaultBoardroomSlotSettings('2026-07-30T12:00:00.000Z')
-    const updated = documentWithSurfaceLayout(document, 'monitor_left_1', {
+    const updated = documentWithSurfaceLayout(document, 'monitor_1', {
       ...document.assignments[0].surface_layout,
       focus: {
         mode: 'remote_preview',
@@ -406,24 +406,24 @@ describe('boardroom slot settings', () => {
       fallback_preview: document.assignments[0].surface_layout.preview,
       lease_expires_at_utc: '2026-12-31T23:59:59.000Z',
     }
-    const claimed = claimMonitorSlot(document, 'monitor_left_1', claim, '2026-07-30T12:01:00.000Z')
-    const monitorAssignment = claimed.assignments.find((a) => a.slot_id === 'monitor_left_1')!
+    const claimed = claimMonitorSlot(document, 'monitor_1', claim, '2026-07-30T12:01:00.000Z')
+    const monitorAssignment = claimed.assignments.find((a) => a.slot_id === 'monitor_1')!
     expect(monitorAssignment.agent_claims).toHaveLength(1)
     expect(monitorAssignment.agent_claims![0].owner).toBe('hermes-agent-001')
 
-    const resolved = resolveMonitorSlotSource('monitor_left_1', claimed, '2026-07-30T12:02:00.000Z')
+    const resolved = resolveMonitorSlotSource('monitor_1', claimed, '2026-07-30T12:02:00.000Z')
     expect(resolved).not.toBeNull()
     expect(resolved!.active).toBe(true)
     expect(resolved!.claim?.owner).toBe('hermes-agent-001')
   })
 
-  it('falls back to persisted assignment when no live claim is active', () => {
+  it('keeps an unclaimed monitor ambient when no live claim is active', () => {
     const document = createDefaultBoardroomSlotSettings('2026-07-30T12:00:00.000Z')
-    const resolved = resolveMonitorSlotSource('monitor_left_1', document, '2026-07-30T12:00:00.000Z')
+    const resolved = resolveMonitorSlotSource('monitor_1', document, '2026-07-30T12:00:00.000Z')
     expect(resolved).not.toBeNull()
     expect(resolved!.active).toBe(false)
     expect(resolved!.claim).toBeNull()
-    expect(resolved!.sourceZoneId).toBe('service_warp_dev')
+    expect(resolved!.sourceZoneId).toBe('')
   })
 
   it('does not resolve claims for non-monitor (desk) slots', () => {
@@ -448,15 +448,15 @@ describe('boardroom slot settings', () => {
       fallback_preview: document.assignments[0].surface_layout.preview,
       lease_expires_at_utc: '2026-12-31T23:59:59.000Z',
     }
-    const withTwo = claimMonitorSlot(claimMonitorSlot(document, 'monitor_left_1', claimA), 'monitor_left_1', claimB)
+    const withTwo = claimMonitorSlot(claimMonitorSlot(document, 'monitor_1', claimA), 'monitor_1', claimB)
     expect(withTwo.assignments[0].agent_claims).toHaveLength(2)
 
-    const released = releaseMonitorSlot(withTwo, 'monitor_left_1', 'hermes-agent-001', '2026-07-30T12:05:00.000Z')
+    const released = releaseMonitorSlot(withTwo, 'monitor_1', 'hermes-agent-001', '2026-07-30T12:05:00.000Z')
     const releasedClaims = released.assignments[0].agent_claims ?? []
     expect(releasedClaims).toHaveLength(1)
     expect(releasedClaims[0].owner).toBe('hermes-agent-002')
     // other slots are untouched
-    expect(released.assignments.find((a) => a.slot_id === 'monitor_left_2')?.agent_claims).toBeUndefined()
+    expect(released.assignments.find((a) => a.slot_id === 'monitor_2')?.agent_claims).toBeUndefined()
   })
 
   it('refreshes only the matching monitor owner lease', () => {
@@ -468,11 +468,11 @@ describe('boardroom slot settings', () => {
       fallback_preview: document.assignments[0].surface_layout.preview,
       lease_expires_at_utc: '2026-07-30T12:05:00.000Z',
     }
-    const claimed = claimMonitorSlot(document, 'monitor_left_1', claim)
+    const claimed = claimMonitorSlot(document, 'monitor_1', claim)
 
     const refreshed = refreshMonitorSlot(
       claimed,
-      'monitor_left_1',
+      'monitor_1',
       'hermes-agent-001',
       '2026-07-30T12:10:00.000Z',
       '2026-07-30T12:06:00.000Z',
@@ -480,7 +480,7 @@ describe('boardroom slot settings', () => {
 
     expect(refreshed.assignments[0].agent_claims?.[0].lease_expires_at_utc).toBe('2026-07-30T12:10:00.000Z')
     expect(refreshed.assignments[0].updated_at_utc).toBe('2026-07-30T12:06:00.000Z')
-    expect(() => refreshMonitorSlot(claimed, 'monitor_left_1', 'other-agent', '2026-07-30T12:10:00.000Z')).toThrow(/does not own/)
+    expect(() => refreshMonitorSlot(claimed, 'monitor_1', 'other-agent', '2026-07-30T12:10:00.000Z')).toThrow(/does not own/)
   })
 
   it('resets a monitor slot claim and restores default surface layout', () => {
@@ -492,16 +492,16 @@ describe('boardroom slot settings', () => {
       fallback_preview: document.assignments[0].surface_layout.preview,
       lease_expires_at_utc: '2026-12-31T23:59:59.000Z',
     }
-    const claimed = claimMonitorSlot(document, 'monitor_left_1', claim, '2026-07-30T12:01:00.000Z')
+    const claimed = claimMonitorSlot(document, 'monitor_1', claim, '2026-07-30T12:01:00.000Z')
     expect(claimed.assignments[0].agent_claims).toBeDefined()
 
-    const reset = resetMonitorSlot(claimed, 'monitor_left_1', '2026-07-30T12:10:00.000Z')
+    const reset = resetMonitorSlot(claimed, 'monitor_1', '2026-07-30T12:10:00.000Z')
     expect(reset.assignments[0].agent_claims).toBeUndefined()
     expect(reset.assignments[0].surface_layout).toEqual(
       createDefaultBoardroomSlotSettings('2026-07-30T12:10:00.000Z').assignments[0].surface_layout,
     )
     // other slots untouched
-    expect(reset.assignments.find((a) => a.slot_id === 'monitor_left_2')?.source_zone_id).toBe('routing_and_comms')
+    expect(reset.assignments.find((a) => a.slot_id === 'monitor_2')?.source_zone_id).toBe('')
   })
 
   it('round-trips agent claims through export/import persistence', () => {
@@ -513,11 +513,11 @@ describe('boardroom slot settings', () => {
       fallback_preview: document.assignments[0].surface_layout.preview,
       lease_expires_at_utc: '2026-12-31T23:59:59.000Z',
     }
-    const claimed = claimMonitorSlot(document, 'monitor_left_1', claim, '2026-07-30T12:01:00.000Z')
+    const claimed = claimMonitorSlot(document, 'monitor_1', claim, '2026-07-30T12:01:00.000Z')
     const exported = exportBoardroomProfile(claimed)
     const imported = importBoardroomProfile(exported)
     expect(imported.ok).toBe(true)
-    const monitorAssignment = imported.document!.assignments.find((a) => a.slot_id === 'monitor_left_1')!
+    const monitorAssignment = imported.document!.assignments.find((a) => a.slot_id === 'monitor_1')!
     expect(monitorAssignment.agent_claims).toHaveLength(1)
     expect(monitorAssignment.agent_claims![0].owner).toBe('hermes-agent-001')
     expect(monitorAssignment.agent_claims![0].activity_kind).toBe('agent_activity')
@@ -529,7 +529,7 @@ describe('boardroom slot settings', () => {
       updated_at_utc: '2026-07-30T12:00:00.000Z',
       assignments: [
         {
-          slot_id: 'monitor_left_1',
+          slot_id: 'monitor_1',
           component_id: 'warp-dev-service-surface',
           source_zone_id: 'service_warp_dev',
           title: 'Warp',
@@ -556,5 +556,34 @@ describe('boardroom slot settings', () => {
     expect(claims).toHaveLength(2)
     expect(claims[0].owner).toBe('good-agent')
     expect(claims[1].activity_kind).toBe('agent_activity')
+  })
+
+  it('migrates legacy v1 monitor_left_* ids to canonical slots without changing desk assignments', () => {
+    const legacy = {
+      schema_version: 'arda.arda_boardroom_slots.v1',
+      updated_at_utc: '2026-08-07T00:00:00.000Z',
+      assignments: [
+        { slot_id: 'monitor_left_1', source_zone_id: 'service_warp_dev', component_id: 'w1', title: 'Left', module_ids: [], presentation_modes: ['in_scene'], surface_layout: { enabled: true, adapter_type: 'component_grid', preview: { mode: 'component_grid', refresh_ms: 1000, widgets: [] }, focus: { mode: 'native_window', target: 'service_warp_dev', refresh_ms: 1000 }, embed: { url: null, allow_inline: false } }, visualization: { preset_id: 'standby', config: {} }, updated_at_utc: '2026-08-07T00:00:00.000Z' },
+        { slot_id: 'monitor_left_3', source_zone_id: 'memory_and_continuity', component_id: 'w3', title: 'Center-right', module_ids: [], presentation_modes: ['in_scene'], surface_layout: { enabled: true, adapter_type: 'component_grid', preview: { mode: 'component_grid', refresh_ms: 1000, widgets: [] }, focus: { mode: 'native_window', target: 'memory_and_continuity', refresh_ms: 1000 }, embed: { url: null, allow_inline: false } }, visualization: { preset_id: 'standby', config: {} }, updated_at_utc: '2026-08-07T00:00:00.000Z' },
+        { slot_id: 'view_desk_l', source_zone_id: 'governance_guardhouse', component_id: 'd1', title: 'Desk', module_ids: [], presentation_modes: ['in_scene'], surface_layout: { enabled: true, adapter_type: 'component_grid', preview: { mode: 'component_grid', refresh_ms: 1000, widgets: [] }, focus: { mode: 'native_window', target: 'governance_guardhouse', refresh_ms: 1000 }, embed: { url: null, allow_inline: false } }, visualization: { preset_id: 'standby', config: {} }, updated_at_utc: '2026-08-07T00:00:00.000Z' },
+      ],
+    }
+
+    const parsed = parseBoardroomSlotSettings(legacy)
+    expect(parsed).not.toBeNull()
+    expect(parsed!.schema_version).toBe('arda.arda_boardroom_slots.v2')
+    expect(parsed!.assignments.map((a) => a.slot_id)).toEqual([...BOARDROOM_SCENE_SLOT_IDS])
+    expect(parsed!.assignments.find((a) => a.slot_id === 'monitor_1')?.source_zone_id).toBe('service_warp_dev')
+    expect(parsed!.assignments.find((a) => a.slot_id === 'monitor_4')?.source_zone_id).toBe('memory_and_continuity')
+    expect(parsed!.assignments.find((a) => a.slot_id === 'view_desk_l')?.source_zone_id).toBe('governance_guardhouse')
+  })
+
+  it('preserves v2 documents through parse and export/import round-trip', () => {
+    const document = createDefaultBoardroomSlotSettings('2026-08-07T01:00:00.000Z')
+    const exported = exportBoardroomProfile(document)
+    const imported = importBoardroomProfile(exported)
+    expect(imported.ok).toBe(true)
+    expect(imported.document?.schema_version).toBe('arda.arda_boardroom_slots.v2')
+    expect(imported.document?.assignments.map((a) => a.slot_id)).toEqual([...BOARDROOM_SCENE_SLOT_IDS])
   })
 })

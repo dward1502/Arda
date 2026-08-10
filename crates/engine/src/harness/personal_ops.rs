@@ -718,6 +718,74 @@ pub async fn acknowledge_reminder(
                 .into_response();
         }
     };
+    let delivery_state = match req.state.to_lowercase().as_str() {
+        "acknowledged" => arda_core::personal_ops::ReminderDeliveryState::Acknowledged,
+        "deferred" => arda_core::personal_ops::ReminderDeliveryState::Deferred,
+        "dismissed" => arda_core::personal_ops::ReminderDeliveryState::Dismissed,
+        _ => {
+            return (
+                StatusCode::BAD_REQUEST,
+                Json(serde_json::json!({
+                    "error": "reminder acknowledgement state must be acknowledged, deferred, or dismissed"
+                })),
+            )
+                .into_response();
+        }
+    };
+    let store = PersonalOpsLogStore::new(&state.workbench_root);
+    let events = match store.load_all() {
+        Ok(events) => events,
+        Err(error) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({ "error": format!("failed to load event log: {error}") })),
+            )
+                .into_response();
+        }
+    };
+    let latest_attempt = events
+        .iter()
+        .enumerate()
+        .rev()
+        .find_map(|(index, envelope)| match &envelope.record {
+            arda_core::personal_ops::PersonalOpsRecord::ReminderAttempted(event)
+                if event.receipt.reminder_id == reminder_uuid
+                    && event.operator_id == req.operator_id =>
+            {
+                Some((index, &event.receipt))
+            }
+            _ => None,
+        });
+    let latest_ack = events
+        .iter()
+        .enumerate()
+        .rev()
+        .find_map(|(index, envelope)| match &envelope.record {
+            arda_core::personal_ops::PersonalOpsRecord::ReminderAcknowledged(event)
+                if event.reminder_id == reminder_uuid && event.operator_id == req.operator_id =>
+            {
+                Some(index)
+            }
+            _ => None,
+        });
+    let Some((attempt_index, receipt)) = latest_attempt else {
+        return (
+            StatusCode::CONFLICT,
+            Json(serde_json::json!({
+                "error": "reminder cannot be acknowledged before a delivery attempt"
+            })),
+        )
+            .into_response();
+    };
+    if !receipt.was_delivered() || latest_ack.is_some_and(|ack_index| ack_index > attempt_index) {
+        return (
+            StatusCode::CONFLICT,
+            Json(serde_json::json!({
+                "error": "reminder has no unacknowledged delivered attempt"
+            })),
+        )
+            .into_response();
+    }
     let event_id = match mutation_event_id(
         &headers,
         &req.operator_id,
@@ -726,7 +794,6 @@ pub async fn acknowledge_reminder(
         Ok(id) => id,
         Err(error) => return error.into_response(),
     };
-    let delivery_state = parse_delivery_state(&req.state);
     let envelope = arda_core::personal_ops::PersonalOpsEnvelope::new(
         arda_core::personal_ops::PersonalOpsRecord::ReminderAcknowledged(
             arda_core::personal_ops::ReminderAcknowledgedEvent {
@@ -739,7 +806,6 @@ pub async fn acknowledge_reminder(
             },
         ),
     );
-    let store = PersonalOpsLogStore::new(&state.workbench_root);
     if let Err(e) = store.append(&envelope) {
         return (
             StatusCode::INTERNAL_SERVER_ERROR,

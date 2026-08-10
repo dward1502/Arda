@@ -20,9 +20,9 @@ describe('monitor surface runtime bridge', () => {
   })
 
   it('maps an authorized native claim event into the persisted boardroom contract', () => {
-    const fallback = { mode: 'agent_activity', refresh_ms: 1000, widgets: [] }
+    const fallback = { mode: 'agent_activity' as const, refresh_ms: 1000, widgets: [] }
     expect(claimFromMonitorEvent({
-      slotId: 'monitor_left_1',
+      slotId: 'monitor_1',
       owner: 'hermes-agent-001',
       activityKind: 'agent_activity',
       payloadBinding: 'hermes.live_stream',
@@ -39,17 +39,17 @@ describe('monitor surface runtime bridge', () => {
   })
 
   it('routes monitor focus to a scoped native surface without changing desk behavior', () => {
-    expect(resolveMonitorSurfaceOpenRequest('monitor_left_1', 'hermes.live_stream', 'remote_preview')).toEqual({
-      slotId: 'monitor_left_1',
+    expect(resolveMonitorSurfaceOpenRequest('monitor_1', 'hermes.live_stream', 'remote_preview')).toEqual({
+      slotId: 'monitor_1',
       sourceZoneId: 'hermes_runtime',
       focusMode: 'remote_preview',
-      title: 'ARDA Monitor — monitor_left_1',
+      title: 'ARDA Monitor — monitor_1',
     })
     expect(resolveMonitorSurfaceOpenRequest('view_desk_l', 'systems_health', 'native_window')).toBeNull()
   })
 
   it('uses the assignment slot contract instead of the spatial scene-zone id', () => {
-    expect(resolveMonitorContractSlotId('boardroom.monitor.left', 'monitor_left_1')).toBe('monitor_left_1')
+    expect(resolveMonitorContractSlotId('boardroom.monitor.left', 'monitor_1')).toBe('monitor_1')
     expect(resolveMonitorContractSlotId('monitor_center', undefined)).toBe('monitor_center')
   })
 })

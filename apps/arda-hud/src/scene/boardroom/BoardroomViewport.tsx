@@ -44,6 +44,15 @@ import {
 
 import { AvatarPresenceLayer } from './AvatarPresenceLayer'
 import { BoardroomInstrumentScreen } from './BoardroomInstrumentScreen'
+import { CommandCoreInstrumentScreen } from './CommandCoreInstrumentScreen'
+import { LowerInstrumentScreen } from './LowerInstrumentScreen'
+import { resolveLowerInstrumentRole } from './lowerInstrumentSignal'
+import { UpperAmbientMonitorScreen } from './UpperAmbientMonitorScreen'
+import { isUpperMonitorInteractive, resolveUpperMonitorDisplayMode } from './upperAmbientSignal'
+import { MonitorOwnershipRail } from './MonitorOwnershipRail'
+import { BoardroomApertureSurface } from './BoardroomApertureSurface'
+import type { MonitorRecordsBySlot } from '../../lib/monitorSurfaceRegistryBridge'
+import type { MonitorSurfaceSessionRecord } from '../../lib/monitorSurfaceContract'
 import { parseJsonOrNull } from '../../lib/jsonParse'
 import { deriveBoardroomPresenceStatusView } from './boardroomPresenceStatus'
 import { resolveSceneSlotWorkstationZoneId } from '../workstations/sceneSlotWorkstationTemplates'
@@ -78,6 +87,7 @@ interface BoardroomViewportProps {
   slotAssignments: Record<string, string>
   surfaceLayouts?: Record<string, BoardroomSurfaceLayout>
   monitorSlotSources?: Record<string, BoardroomMonitorSlotSource | null>
+  monitorRecordsBySlot?: MonitorRecordsBySlot
   agentClaims?: Record<string, BoardroomAgentClaim | null>
   onReleaseMonitor?: (slotId: BoardroomSceneSlotId, owner: string) => void
   onRefreshMonitor?: (slotId: BoardroomSceneSlotId, owner: string) => void
@@ -91,6 +101,7 @@ interface BoardroomViewportProps {
   onActivate: (anchorId: string) => void
   onOpenWorkstation: (zoneId: string) => void
   onOpenMonitorSurface?: (request: MonitorSurfaceRequest) => void
+  onOpenMonitorSession?: (record: MonitorSurfaceSessionRecord) => void
   onOpenHermesDashboard: () => void
   onOpenHermesCli: () => void
   onOpenSettings: () => void
@@ -290,14 +301,14 @@ function InteractionPad({
   showHitbox?: boolean
   draggable?: boolean
   onMovePosition?: (position: Vec3) => void
-  onActivate: () => void
+  onActivate?: () => void
   children?: ReactNode
 }) {
   const dragRef = useRef<{ pointerId: number; startPoint: THREE.Vector3; basePosition: Vec3; moved: boolean } | null>(null)
   const suppressNextClickRef = useRef(false)
 
   const handleActivate = () => {
-    onActivate()
+    onActivate?.()
   }
 
   const handlePointerDown = (event: ThreeEvent<PointerEvent>) => {
@@ -350,7 +361,7 @@ function InteractionPad({
       position={position}
       rotation={rotation}
       userData={{ sceneSlotId: slotId }}
-      onClick={handleClick}
+      onClick={onActivate ? handleClick : undefined}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -563,91 +574,36 @@ function instrumentModelForAssignment(
   }
 }
 
-function HermesDashboardMonitorSurface({
-  zone,
-  claim,
-  payload,
-  motionEnabled,
-  onActivate,
-  onRelease,
-  onRefreshLease,
-}: {
-  zone: BoardroomSpatialZone
-  claim: BoardroomAgentClaim
-  payload: MonitorSurfacePayloadEvent | null
-  motionEnabled: boolean
-  onActivate: () => void
-  onRelease: () => void
-  onRefreshLease: () => void
-}) {
-
-  const isStale = () => {
-    try {
-      const expiry = new Date(claim.lease_expires_at_utc)
-      const remaining = expiry.getTime() - Date.now()
-      return remaining < 5000
-    } catch {
-      return true
-    }
-  }
-
-  const leaseColor = isStale() ? '#ff6b6b' : '#5defff'
-  const streamText = formatMonitorSurfaceStream(payload, !motionEnabled)
-  const model: HudInstrumentModel = {
-    title: streamText || claim.payload_binding,
-    eyebrow: 'Agent Monitor',
-    tone: isStale() ? 'rose' : 'cyan',
-    status: isStale() ? 'watch' : 'nominal',
-    glyph: motionEnabled ? 'LIVE' : 'STATIC',
-    preset: 'routes',
-    nodes: [],
-    links: [],
-    rings: [],
-  }
-
-  return (
-    <>
-      <BoardroomInstrumentScreen
-        slotId={zone.id}
-        previewMode={zone.previewMode}
-        size={zone.size}
-        model={model}
-        onActivate={onActivate}
-      />
-      <group position={[zone.size[0] * 0.32, zone.size[1] * 0.3, 0.14]} rotation={[Math.PI / 2, 0, 0]}>
-        <PhysicalControlButtonSurface
-          label="Refresh lease"
-          size={[0.12, 0.025, 0.12]}
-          color={leaseColor}
-          onClick={onRefreshLease}
-        />
-      </group>
-      <group position={[zone.size[0] * 0.42, zone.size[1] * 0.3, 0.14]} rotation={[Math.PI / 2, 0, 0]}>
-        <PhysicalControlButtonSurface
-          label="Release claim"
-          size={[0.12, 0.025, 0.12]}
-          color="#ff789c"
-          onClick={onRelease}
-        />
-      </group>
-    </>
-  )
-}
-
 function HudInstrumentSurface({
   zone,
   assignment,
   persistedSourceZoneId,
   instrument,
+  motionEnabled,
   onActivate,
 }: {
   zone: BoardroomSpatialZone
   assignment: WorkstationManifestDefinition | null
   persistedSourceZoneId?: string
   instrument?: HudInstrumentModel
+  motionEnabled?: boolean
   onActivate: () => void
 }) {
   const model = instrument ?? instrumentModelForAssignment(zone, assignment, persistedSourceZoneId)
+  const lowerRole = resolveLowerInstrumentRole(zone.id)
+
+  if (lowerRole) {
+    return (
+      <LowerInstrumentScreen
+        slotId={zone.id}
+        role={lowerRole}
+        size={zone.size}
+        model={model}
+        motionEnabled={motionEnabled}
+        onActivate={onActivate}
+      />
+    )
+  }
 
   return (
     <BoardroomInstrumentScreen
@@ -664,11 +620,13 @@ function FleetPreviewSurface({
   zone,
   assignment,
   fleetViewModel,
+  motionEnabled,
   onActivate,
 }: {
   zone: BoardroomSpatialZone
   assignment: WorkstationManifestDefinition | null
   fleetViewModel: FleetViewModel
+  motionEnabled?: boolean
   onActivate: () => void
 }) {
   const liveMetric = fleetViewModel.metrics.find((metric) => metric.id === 'live_targets')
@@ -687,6 +645,20 @@ function FleetPreviewSurface({
       : fleetViewModel.status === 'attention'
         ? 'watch'
         : 'offline',
+  }
+  const lowerRole = resolveLowerInstrumentRole(zone.id)
+
+  if (lowerRole) {
+    return (
+      <LowerInstrumentScreen
+        slotId={zone.id}
+        role={lowerRole}
+        size={zone.size}
+        model={model}
+        motionEnabled={motionEnabled}
+        onActivate={onActivate}
+      />
+    )
   }
 
   return (
@@ -735,11 +707,10 @@ function CommandCoreSurface({
   return (
     <>
       <group position={[-0.22, 0, 0]}>
-        <BoardroomInstrumentScreen
+        <CommandCoreInstrumentScreen
           slotId={zone.id}
-          previewMode="desk_surface"
           size={[zone.size[0] * 0.72, zone.size[1], zone.size[2] * 0.9]}
-          model={{ ...model, eyebrow: 'Command Core' }}
+          model={model}
           onActivate={() => onControl(openAction)}
         />
       </group>
@@ -936,6 +907,7 @@ function BoardroomScene({
   slotAssignments,
   surfaceLayouts = {},
   monitorSlotSources = {},
+  monitorRecordsBySlot,
   agentClaims = {},
   onReleaseMonitor,
   onRefreshMonitor,
@@ -949,6 +921,7 @@ function BoardroomScene({
   onActivate,
   onOpenWorkstation,
   onOpenMonitorSurface,
+  onOpenMonitorSession,
   onOpenHermesDashboard,
   onOpenHermesCli,
   onOpenSettings,
@@ -1126,23 +1099,22 @@ function BoardroomScene({
         const focus = resolveMonitorFocus(monitorSlotId, slotAssignments, monitorSlotSources, surfaceLayouts, agentClaims, new Date().toISOString())
         const effectiveSourceZoneId = focus?.sourceZoneId ?? persistedSourceZoneId
         const workstationZoneId = getSlotWorkstationZoneId(slot, assignment)
-        const instrument = resolveBoardroomHudInstrument(instruments, slot.id, slot.assignmentSlotId)
+        const typedRecord = monitorRecordsBySlot?.[monitorSlotId as keyof MonitorRecordsBySlot] ?? null
+        const activeClaim = shouldRenderActiveMonitorClaim(focus)
+          ? (agentClaims[monitorSlotId] ?? (monitorSlotSources[monitorSlotId]?.claim ?? null))
+          : null
+        const displayMode = resolveUpperMonitorDisplayMode(Boolean(typedRecord), Boolean(activeClaim))
         const handleMonitorActivate = () => {
+          if (typedRecord && onOpenMonitorSession) {
+            onOpenMonitorSession(typedRecord)
+            return
+          }
           const request = resolveMonitorSurfaceOpenRequest(monitorSlotId, effectiveSourceZoneId ?? null, focus?.focusMode ?? 'native_window')
           if (request && onOpenMonitorSurface) {
             onOpenMonitorSurface(request)
             return
           }
           onOpenWorkstation(workstationZoneId)
-        }
-        const activeClaim = shouldRenderActiveMonitorClaim(focus)
-          ? (agentClaims[monitorSlotId] ?? (monitorSlotSources[monitorSlotId]?.claim ?? null))
-          : null
-        const handleMonitorRelease = () => {
-          if (activeClaim && onReleaseMonitor) onReleaseMonitor(monitorSlotId as typeof BOARDROOM_MONITOR_SLOT_IDS[number], activeClaim.owner)
-        }
-        const handleMonitorRefreshLease = () => {
-          if (activeClaim && onRefreshMonitor) onRefreshMonitor(monitorSlotId as typeof BOARDROOM_MONITOR_SLOT_IDS[number], activeClaim.owner)
         }
         return (
         <InteractionPad
@@ -1158,34 +1130,67 @@ function BoardroomScene({
           showHitbox={false}
           draggable={debug}
           onMovePosition={(position) => moveZone(slot.id, position)}
-          onActivate={handleMonitorActivate}
+          onActivate={isUpperMonitorInteractive(displayMode) ? handleMonitorActivate : undefined}
         >
-          {fleetViewModel && isFleetWorkstationAssignment(assignment) ? (
-            <FleetPreviewSurface
-              zone={slot}
-              assignment={assignment}
-              fleetViewModel={fleetViewModel}
-              onActivate={handleMonitorActivate}
+          {displayMode === 'session' && typedRecord ? (
+            <BoardroomApertureSurface
+              zoneId={monitorSlotId}
+              previewMode={slot.previewMode}
+              size={slot.size}
+              model={{
+                eyebrow: typedRecord.owner,
+                title: typedRecord.content.kind,
+                glyph: `R${typedRecord.revision}`,
+                tone: 'cyan',
+                status: 'nominal',
+                preset: 'routes',
+                nodes: [],
+                links: [],
+                rings: [],
+                source: { freshness: renderProfile.motionEnabled ? 'fresh' : 'derived', sourceId: typedRecord.surface_session_id, sourcePaths: [], observedAtUtc: typedRecord.updated_at_utc },
+              }}
+              descriptor={typedRecord.content}
+              rootPath={rootPath}
+              motionEnabled={renderProfile.motionEnabled}
+              active
+              onActivate={() => onOpenMonitorSession?.(typedRecord)}
             />
-          ) : activeClaim ? (
-            <HermesDashboardMonitorSurface
-              zone={slot}
-              claim={activeClaim}
+          ) : displayMode === 'claim' && activeClaim ? (
+            <BoardroomApertureSurface
+              zoneId={monitorSlotId}
+              previewMode={slot.previewMode}
+              size={slot.size}
+              model={{
+                eyebrow: 'Agent Monitor',
+                title: activeClaim.payload_binding,
+                glyph: formatMonitorSurfaceStream(monitorPayloads[monitorSlotId] ?? null, !renderProfile.motionEnabled) || activeClaim.payload_binding,
+                tone: 'cyan',
+                status: 'nominal',
+                preset: 'routes',
+                nodes: [],
+                links: [],
+                rings: [],
+                source: { freshness: renderProfile.motionEnabled ? 'fresh' : 'derived', sourceId: activeClaim.owner, sourcePaths: [], observedAtUtc: new Date().toISOString() },
+              }}
               payload={monitorPayloads[monitorSlotId] ?? null}
               motionEnabled={renderProfile.motionEnabled}
+              active={!!activeClaim}
               onActivate={handleMonitorActivate}
-              onRelease={handleMonitorRelease}
-              onRefreshLease={handleMonitorRefreshLease}
             />
           ) : (
-            <HudInstrumentSurface
-              zone={slot}
-              assignment={assignment}
-              persistedSourceZoneId={effectiveSourceZoneId}
-              instrument={instrument}
-              onActivate={handleMonitorActivate}
+            <UpperAmbientMonitorScreen
+              slotId={monitorSlotId}
+              size={slot.size}
+              motionEnabled={renderProfile.motionEnabled}
             />
           )}
+          <MonitorOwnershipRail
+            slotId={monitorSlotId}
+            size={slot.size}
+            session={typedRecord}
+            claim={activeClaim}
+            motionEnabled={renderProfile.motionEnabled}
+          />
         </InteractionPad>
         )
       })}
@@ -1217,6 +1222,7 @@ function BoardroomScene({
               zone={slot}
               assignment={assignment}
               fleetViewModel={fleetViewModel}
+              motionEnabled={renderProfile.motionEnabled}
               onActivate={() => onOpenWorkstation(workstationZoneId)}
             />
           ) : (
@@ -1225,6 +1231,7 @@ function BoardroomScene({
               assignment={assignment}
               persistedSourceZoneId={persistedSourceZoneId}
               instrument={instrument}
+              motionEnabled={renderProfile.motionEnabled}
               onActivate={() => onOpenWorkstation(workstationZoneId)}
             />
           )}

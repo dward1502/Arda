@@ -11,7 +11,6 @@ service-runtime = [
     "dep:arda-economics",
     "dep:arda-mandos",
     "dep:arda-vaire",
-    "dep:fs2",
     "dep:once_cell",
     "dep:reqwest",
     "dep:tracing",
@@ -28,7 +27,7 @@ serde_json = "1"
 tokio = { version = "1", features = ["full"] }
 tracing = { version = "0.1", optional = true }
 thiserror.workspace = true
-fs2 = { version = "0.4", optional = true }
+fs2 = "0.4"
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1", features = ["v4", "serde"] }
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"], optional = true }

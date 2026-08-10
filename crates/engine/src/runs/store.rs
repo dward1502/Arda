@@ -1,5 +1,9 @@
 use super::RecoveredRun;
-use arda_core::run_graph::{NodeId, NodeState, RunGraph, RunGraphError, RunId};
+use arda_core::council_run::CouncilRun;
+use arda_core::run_graph::{
+    CapabilityCompositionReceipt, CompositionTrigger, NodeId, NodeState, RunGraph, RunGraphError,
+    RunId,
+};
 use serde::{Deserialize, Serialize};
 use std::fs::{self, OpenOptions};
 use std::io::Write;
@@ -23,6 +27,17 @@ pub enum RunEventKind {
         evidence_id: String,
         evidence_path: String,
         authority: String,
+    },
+    CapabilityCompositionSelected {
+        composition_digest: String,
+        trigger: CompositionTrigger,
+        selected_capability_count: usize,
+    },
+    GovernanceEvaluated {
+        action_digest: String,
+        verdict: String,
+        approval_required: bool,
+        transition: NodeState,
     },
     ResultProjected,
 }
@@ -61,17 +76,27 @@ pub enum AppendOutcome {
 #[derive(Debug, Clone)]
 pub struct RunStore {
     run_id: RunId,
+    root: PathBuf,
     directory: PathBuf,
 }
 
 impl RunStore {
     pub fn open(root: impl AsRef<Path>, run_id: RunId) -> Result<Self, RunStoreError> {
-        let directory = root.as_ref().join("data/runs").join(run_id.as_str());
+        let root = root.as_ref().to_path_buf();
+        let directory = root.join("data/runs").join(run_id.as_str());
         fs::create_dir_all(&directory).map_err(|source| RunStoreError::Io {
             path: directory.clone(),
             source,
         })?;
-        Ok(Self { run_id, directory })
+        Ok(Self {
+            run_id,
+            root,
+            directory,
+        })
+    }
+
+    pub fn run_id(&self) -> &RunId {
+        &self.run_id
     }
 
     pub fn events_path(&self) -> PathBuf {
@@ -92,17 +117,48 @@ impl RunStore {
             .join(format!("{}.json", node_id.as_str()))
     }
 
+    pub fn composition_receipt_path(&self) -> PathBuf {
+        self.directory.join("capability-composition.json")
+    }
+
+    pub fn governance_receipts_path(&self) -> PathBuf {
+        self.directory.join("governance-receipts.jsonl")
+    }
+
+    pub fn resource_ledger_path(&self) -> PathBuf {
+        self.root.join("data/resource-ledger/events.jsonl")
+    }
+
+    pub fn council_run_path(&self) -> PathBuf {
+        self.directory.join("council-run.json")
+    }
+
+    pub fn composition_receipt_archive_path(&self, receipt_digest: &str) -> PathBuf {
+        self.directory
+            .join("capability-composition-receipts")
+            .join(format!("{receipt_digest}.json"))
+    }
+
     pub fn append(&self, draft: RunEventDraft) -> Result<AppendOutcome, RunStoreError> {
         if draft.idempotency_key.trim().is_empty() {
             return Err(RunStoreError::EmptyIdempotencyKey);
         }
         let recovered = self.recover()?;
-        if let Some(sequence) = recovered
-            .applied_idempotency_keys
-            .get(&draft.idempotency_key)
+        if let Some(existing) = recovered
+            .events
+            .iter()
+            .find(|event| event.idempotency_key == draft.idempotency_key)
         {
+            if existing.node_id != draft.node_id
+                || existing.kind != draft.kind
+                || existing.receipt_digest != draft.receipt_digest
+            {
+                return Err(RunStoreError::IdempotencyConflict {
+                    key: draft.idempotency_key,
+                });
+            }
             return Ok(AppendOutcome::AlreadyApplied {
-                sequence: *sequence,
+                sequence: existing.sequence,
             });
         }
 
@@ -254,6 +310,101 @@ impl RunStore {
             Err(source) => Err(RunStoreError::Io { path, source }),
         }
     }
+
+    pub fn write_council_run(
+        &self,
+        council: &CouncilRun,
+        graph: &RunGraph,
+    ) -> Result<String, RunStoreError> {
+        council
+            .validate(graph)
+            .map_err(|error| RunStoreError::InvalidCouncilRun(error.to_string()))?;
+        if council.run_id != self.run_id.as_str() {
+            return Err(RunStoreError::CouncilRunIdMismatch {
+                expected: self.run_id.as_str().to_string(),
+                actual: council.run_id.clone(),
+            });
+        }
+        let digest = council
+            .stable_digest()
+            .map_err(|error| RunStoreError::InvalidCouncilRun(error.to_string()))?;
+        let bytes = serde_json::to_vec_pretty(council).map_err(RunStoreError::Serialize)?;
+        atomic_write(&self.council_run_path(), &bytes)?;
+        Ok(digest)
+    }
+
+    pub fn read_council_run(&self) -> Result<Option<CouncilRun>, RunStoreError> {
+        let path = self.council_run_path();
+        let council = match fs::read_to_string(&path) {
+            Ok(raw) => {
+                serde_json::from_str::<CouncilRun>(&raw).map_err(RunStoreError::Serialize)?
+            }
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+            Err(source) => return Err(RunStoreError::Io { path, source }),
+        };
+        if council.run_id != self.run_id.as_str() {
+            return Err(RunStoreError::CouncilRunIdMismatch {
+                expected: self.run_id.as_str().to_string(),
+                actual: council.run_id,
+            });
+        }
+        Ok(Some(council))
+    }
+
+    pub fn write_composition_receipt(
+        &self,
+        receipt: &CapabilityCompositionReceipt,
+    ) -> Result<String, RunStoreError> {
+        if receipt.schema_version != CapabilityCompositionReceipt::SCHEMA_VERSION {
+            return Err(RunStoreError::UnsupportedCompositionReceiptVersion(
+                receipt.schema_version.clone(),
+            ));
+        }
+        if receipt.run_id != self.run_id.as_str() {
+            return Err(RunStoreError::CompositionReceiptRunIdMismatch {
+                expected: self.run_id.as_str().to_string(),
+                actual: receipt.run_id.clone(),
+            });
+        }
+        let digest = receipt
+            .digest()
+            .map_err(|error| RunStoreError::InvalidCompositionReceipt(error.to_string()))?;
+        let bytes = serde_json::to_vec_pretty(receipt).map_err(RunStoreError::Serialize)?;
+        let archive_path = self.composition_receipt_archive_path(&digest);
+        if let Some(parent) = archive_path.parent() {
+            fs::create_dir_all(parent).map_err(|source| RunStoreError::Io {
+                path: parent.to_path_buf(),
+                source,
+            })?;
+        }
+        atomic_write(&archive_path, &bytes)?;
+        atomic_write(&self.composition_receipt_path(), &bytes)?;
+        Ok(digest)
+    }
+
+    pub fn read_composition_receipt(
+        &self,
+    ) -> Result<Option<CapabilityCompositionReceipt>, RunStoreError> {
+        let path = self.composition_receipt_path();
+        let receipt = match fs::read_to_string(&path) {
+            Ok(raw) => serde_json::from_str::<CapabilityCompositionReceipt>(&raw)
+                .map_err(RunStoreError::Serialize)?,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+            Err(source) => return Err(RunStoreError::Io { path, source }),
+        };
+        if receipt.schema_version != CapabilityCompositionReceipt::SCHEMA_VERSION {
+            return Err(RunStoreError::UnsupportedCompositionReceiptVersion(
+                receipt.schema_version,
+            ));
+        }
+        if receipt.run_id != self.run_id.as_str() {
+            return Err(RunStoreError::CompositionReceiptRunIdMismatch {
+                expected: self.run_id.as_str().to_string(),
+                actual: receipt.run_id,
+            });
+        }
+        Ok(Some(receipt))
+    }
 }
 
 fn atomic_write(path: &Path, bytes: &[u8]) -> Result<(), RunStoreError> {
@@ -307,6 +458,18 @@ pub enum RunStoreError {
     CorruptCheckpoint { path: PathBuf, message: String },
     #[error("idempotency key cannot be empty")]
     EmptyIdempotencyKey,
+    #[error("idempotency key {key:?} was reused for a different durable mutation")]
+    IdempotencyConflict { key: String },
     #[error("run graph validation failed: {0}")]
     Graph(#[source] RunGraphError),
+    #[error("unsupported capability composition receipt version: {0}")]
+    UnsupportedCompositionReceiptVersion(String),
+    #[error("capability composition receipt run id mismatch: expected {expected}, got {actual}")]
+    CompositionReceiptRunIdMismatch { expected: String, actual: String },
+    #[error("invalid capability composition receipt: {0}")]
+    InvalidCompositionReceipt(String),
+    #[error("invalid council run: {0}")]
+    InvalidCouncilRun(String),
+    #[error("council run id mismatch: expected {expected}, got {actual}")]
+    CouncilRunIdMismatch { expected: String, actual: String },
 }

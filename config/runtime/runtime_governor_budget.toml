@@ -8,7 +8,9 @@ authority = "runtime_governor_budget_policy"
 monthly_spend_usd_soft_cap = 250.0
 monthly_spend_usd_hard_cap = 400.0
 daily_spend_usd_soft_cap = 100.0
+daily_spend_usd_hard_cap = 200.0
 local_joulework_daily_soft_cap = 1500.0
+local_joulework_daily_hard_cap = 2500.0
 edge_model_storage_gib_soft_cap = 250.0
 
 [routing_load_shed]

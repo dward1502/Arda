@@ -1,0 +1,77 @@
+{
+  "schema_version": "arda.council-run.v1",
+  "council_id": "release-council-1",
+  "canonical_task_ref": "task:choose-release-plan",
+  "run_id": "council-run-1",
+  "question": "Should the proposed credential migration proceed?",
+  "evidence_boundary": ["artifact:release-plan", "receipt:security-scan"],
+  "participants": [
+    {
+      "role": "proposer",
+      "node_id": "proposer",
+      "worker_id": "worker:proposer",
+      "route_id": "route:proposer",
+      "route_class": "hosted",
+      "provider_id": "hosted:hermes",
+      "model_id": "model:proposer",
+      "opinion_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "confidence": 0.82,
+      "uncertainty": "Cutover timing depends on operator availability.",
+      "evidence_refs": ["receipt:proposer"]
+    },
+    {
+      "role": "security_critic",
+      "node_id": "security",
+      "worker_id": "worker:security",
+      "route_id": "route:security",
+      "route_class": "local",
+      "provider_id": "manwe:llama.cpp",
+      "model_id": "model:security",
+      "opinion_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "confidence": 0.78,
+      "uncertainty": "Credential revocation behavior needs native verification.",
+      "evidence_refs": ["receipt:security"]
+    },
+    {
+      "role": "implementation_critic",
+      "node_id": "implementation",
+      "worker_id": "worker:implementation",
+      "route_id": "route:implementation",
+      "route_class": "local",
+      "provider_id": "manwe:llama.cpp",
+      "model_id": "model:implementation",
+      "opinion_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+      "confidence": 0.74,
+      "uncertainty": "Rollback duration has not been load-tested.",
+      "evidence_refs": ["receipt:implementation"]
+    },
+    {
+      "role": "adjudicator",
+      "node_id": "adjudicator",
+      "worker_id": "worker:adjudicator",
+      "route_id": "route:adjudicator",
+      "route_class": "hosted",
+      "provider_id": "hosted:hermes",
+      "model_id": "model:adjudicator",
+      "opinion_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "confidence": 0.8,
+      "uncertainty": "The unresolved security objection is material.",
+      "evidence_refs": ["receipt:adjudicator"]
+    }
+  ],
+  "agreements": ["The migration needs a rollback checkpoint."],
+  "material_tensions": [
+    {
+      "tension_id": "tension:credential-overlap",
+      "participant_roles": ["proposer", "security_critic"],
+      "summary": "The proposer accepts credential overlap while the security critic rejects it.",
+      "evidence_refs": ["receipt:proposer", "receipt:security"],
+      "resolved": false
+    }
+  ],
+  "synthesis": "Revise the credential cutover before release.",
+  "escalation_recommendation": "Return the plan for revision.",
+  "authority": "human_decision_required",
+  "non_approval": true,
+  "state": "revision_required"
+}

@@ -11,6 +11,7 @@ pub enum JouleWorkMeasurementSource {
     OperatorEstimate,
     #[default]
     DefaultFallback,
+    SyntheticRestoration,
     RuntimeTimer,
     ProcessResourceSample,
     ProviderUsageReport,
@@ -29,7 +30,7 @@ impl JouleWorkMeasurementSource {
     }
 
     pub fn is_autonomy_truth(self) -> bool {
-        !matches!(self, Self::DefaultFallback)
+        !matches!(self, Self::DefaultFallback | Self::SyntheticRestoration)
     }
 }
 
@@ -184,12 +185,14 @@ mod tests {
     #[test]
     fn joule_measurement_source_observed_flags_false_for_unobserved_sources() {
         assert!(!JouleWorkMeasurementSource::DefaultFallback.is_observed());
+        assert!(!JouleWorkMeasurementSource::SyntheticRestoration.is_observed());
         assert!(!JouleWorkMeasurementSource::OperatorEstimate.is_observed());
     }
 
     #[test]
     fn joule_measurement_source_is_autonomy_truth_excludes_default_fallback() {
         assert!(!JouleWorkMeasurementSource::DefaultFallback.is_autonomy_truth());
+        assert!(!JouleWorkMeasurementSource::SyntheticRestoration.is_autonomy_truth());
         assert!(JouleWorkMeasurementSource::OperatorEstimate.is_autonomy_truth());
         assert!(JouleWorkMeasurementSource::RuntimeTimer.is_autonomy_truth());
     }

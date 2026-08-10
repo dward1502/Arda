@@ -62,9 +62,10 @@ pub use game_theory::{
     game_theory_score, GameTheory, GameTheoryConfidenceBand, GameTheoryPolicy,
     GameTheorySelectionKind, GameTheorySelectionResult,
 };
-pub use joulework::{profile_joulework, JouleWorkProfile};
+pub use joulework::{profile_joulework, profile_joulework_with_burden, JouleWorkProfile};
 pub use love_dynamics::{
-    evaluate_love_dynamics, LoveDynamicsInput, LoveDynamicsScore, LoveDynamicsTrend,
+    evaluate_human_impact_review, evaluate_love_dynamics, LoveDynamicsInput, LoveDynamicsScore,
+    LoveDynamicsTrend,
 };
 #[allow(deprecated)]
 pub use love_equation::{

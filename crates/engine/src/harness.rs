@@ -23,6 +23,7 @@ use tracing::{info, warn};
 
 use crate::supervisor::ServiceRuntimeStatus;
 
+mod operator_messages;
 mod personal_briefs;
 pub mod personal_ops;
 pub mod presence;
@@ -173,7 +174,12 @@ fn router(state: HarnessState) -> axum::Router {
         .route("/v1/projects/validate", post(projects::validate_project))
         .route("/v1/projects/attach", post(projects::attach_project))
         .route("/v1/projects", get(projects::list_projects))
+        .route(
+            "/v1/operator/messages",
+            post(operator_messages::ingest_operator_message),
+        )
         .route("/v1/runs/plan", post(runs::plan_run))
+        .route("/v1/runs", get(runs::list_runs))
         .route("/v1/runs/:id/approve", post(runs::approve_run))
         .route(
             "/v1/runs/:id/nodes/:node_id/complete",

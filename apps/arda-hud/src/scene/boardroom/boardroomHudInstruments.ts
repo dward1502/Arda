@@ -420,9 +420,11 @@ export function deriveBoardroomHudInstruments(
   assignments: BoardroomSlotAssignmentRecord[] = [],
 ): BoardroomHudInstrumentMap {
   const instruments: BoardroomHudInstrumentMap = {
-    monitor_left_2: deriveRoutingHudInstrument(input.routing),
-    monitor_left_3: deriveKnowledgeHudInstrument(input.knowledge),
-    monitor_left_4: deriveQueueHudInstrument(input.queue),
+    monitor_1: deriveFleetHudInstrument(input.fleetHealth),
+    monitor_2: deriveRoutingHudInstrument(input.routing),
+    monitor_3: deriveKnowledgeHudInstrument(input.knowledge),
+    monitor_4: deriveQueueHudInstrument(input.queue),
+    monitor_5: deriveHumanHudInstrument(input.human),
     command_core: deriveDailyCommandHudInstrument(input.dailyCommand),
   }
   for (const assignment of assignments) {

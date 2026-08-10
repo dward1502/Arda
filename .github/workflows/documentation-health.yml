@@ -1,0 +1,37 @@
+name: Documentation Health
+
+on:
+  pull_request:
+    paths:
+      - "docs/plans/**"
+      - "docs/DEVELOPMENT.md"
+      - "scripts/hades_markdown_link_check.py"
+      - "tests/test_hades_markdown_link_check.py"
+      - ".github/workflows/documentation-health.yml"
+  push:
+    paths:
+      - "docs/plans/**"
+      - "docs/DEVELOPMENT.md"
+      - "scripts/hades_markdown_link_check.py"
+      - "tests/test_hades_markdown_link_check.py"
+      - ".github/workflows/documentation-health.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  active-plan-claims:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Run HADES Markdown checker tests
+        run: python -m unittest tests.test_hades_markdown_link_check -v
+
+      - name: Validate active-plan links and completion language
+        run: |
+          python scripts/hades_markdown_link_check.py \
+            --root docs/plans \
+            --out /tmp/arda-doc-health.md \
+            --check-completion-language

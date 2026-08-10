@@ -4,10 +4,11 @@
 //! primitives so downstream consumers only need to depend on
 //! `arda-engine` instead of reaching into `arda-core` directly.
 
-use crate::runs::RunEvent;
+use crate::runs::{RunEvent, RunEventKind};
 use arda_core::learning::LearningStore;
 use arda_core::learning_adapter::build_learning_ledger_receipt;
 use arda_core::loop_observability::{LatencyProbe, LoopObservabilityConfig};
+use arda_core::run_graph::CompositionTrigger;
 use arda_governance::metrics::global_governance_metrics;
 use serde::Deserialize;
 use serde::Serialize;
@@ -38,6 +39,37 @@ impl RuntimeLineage {
             event_sequence: event.sequence,
             receipt_digest: event.receipt_digest.clone(),
         }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct CapabilityCompositionObservation {
+    pub run_id: String,
+    pub event_sequence: u64,
+    pub composition_digest: String,
+    pub receipt_digest: String,
+    pub trigger: CompositionTrigger,
+    pub selected_capability_count: usize,
+}
+
+impl CapabilityCompositionObservation {
+    pub fn from_run_event(event: &RunEvent) -> Option<Self> {
+        let RunEventKind::CapabilityCompositionSelected {
+            composition_digest,
+            trigger,
+            selected_capability_count,
+        } = &event.kind
+        else {
+            return None;
+        };
+        Some(Self {
+            run_id: event.run_id.as_str().to_string(),
+            event_sequence: event.sequence,
+            composition_digest: composition_digest.clone(),
+            receipt_digest: event.receipt_digest.clone()?,
+            trigger: *trigger,
+            selected_capability_count: *selected_capability_count,
+        })
     }
 }
 

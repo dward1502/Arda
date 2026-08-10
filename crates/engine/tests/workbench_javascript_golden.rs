@@ -96,6 +96,7 @@ fn graph(contract_digest: &str) -> RunGraph {
             output_digest: None,
             parent_receipts: Vec::new(),
             checkpoint: CheckpointMetadata::default(),
+            worker: None,
         })
         .collect();
     for index in 1..nodes.len() {

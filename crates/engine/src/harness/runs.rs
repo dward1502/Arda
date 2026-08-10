@@ -1,4 +1,4 @@
-use arda_core::run_graph::{NodeId, NodeKind, NodeState, RunGraph, RunId};
+use arda_core::run_graph::{NodeId, NodeKind, NodeState, RunGraph, RunId, WorkerRouteClass};
 use axum::{
     extract::{ConnectInfo, Path, State},
     http::StatusCode,
@@ -7,17 +7,22 @@ use axum::{
     Json,
 };
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap};
 use std::convert::Infallible;
 use std::net::SocketAddr;
 use std::path::{Component, Path as FsPath, PathBuf};
-use std::time::Duration;
+use std::sync::LazyLock;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use tokio::sync::Mutex;
 
 use crate::adapters::{
-    AdapterCancellation, HermesAdapter, HermesExecutionReceipt, HermesNodeTask, HermesReceiptStatus,
+    AdapterCancellation, CostMeasurement, HermesAdapter, HermesExecutionReceipt, HermesNodeTask,
+    HermesReceiptStatus,
 };
 use crate::runs::{
-    apply_transition_once, AppendOutcome, RunEvent, RunEventDraft, RunEventKind, RunStore,
+    apply_transition_once, project_worker_progress, schedule_ready_workers, AppendOutcome,
+    ResourceMeasurementSource, ResourceUsageDraft, RunEvent, RunEventDraft, RunEventKind, RunStore,
+    WorkerAvailability, WorkerLimits, WorkerProgressState, WorkerUsage,
 };
 
 use super::{
@@ -31,6 +36,16 @@ use super::{
 const MAX_REVIEW_ITEMS: usize = 128;
 const MAX_REVIEW_PATH_BYTES: usize = 4096;
 const MAX_REVIEW_TEXT_BYTES: usize = 64 * 1024;
+
+/// Live provider cancellation handles keyed by `run_id/node_id`.
+///
+/// The durable run journal remains authoritative across restart. This registry
+/// exists only long enough to propagate an authenticated cancellation into the
+/// currently running Hermes child process.
+static ACTIVE_PROVIDER_CANCELLATIONS: LazyLock<Mutex<HashMap<String, AdapterCancellation>>> =
+    LazyLock::new(|| Mutex::new(HashMap::new()));
+static ACTIVE_PROVIDER_ROUTES: LazyLock<Mutex<HashMap<String, WorkerRouteClass>>> =
+    LazyLock::new(|| Mutex::new(HashMap::new()));
 
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -132,11 +147,17 @@ pub struct RunResponse {
     graph: RunGraph,
     events: Vec<RunEvent>,
     review: RunReviewEvidence,
+    worker_progress: BTreeMap<String, WorkerProgressState>,
 }
 
 #[derive(Debug, Serialize)]
 pub struct RunEventsResponse {
     events: Vec<RunEvent>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct RunListResponse {
+    runs: Vec<RunResponse>,
 }
 
 #[derive(Debug, Serialize)]
@@ -326,10 +347,11 @@ pub(super) async fn cancel_run(
 ) -> Result<Json<RunResponse>, ApiError> {
     require_loopback(peer)?;
     request.envelope.validate()?;
-    let _guard = WORKBENCH_MUTATIONS.lock().await;
     if request.reason.trim().is_empty() {
         return Err(ApiError::bad_request("cancellation reason cannot be empty"));
     }
+    let _guard = WORKBENCH_MUTATIONS.lock().await;
+    cancel_active_provider_run(&id).await;
     let (store, mut graph) = load_run(&state, &id)?;
     let recovered = store.recover().map_err(store_error)?;
     if recovered
@@ -556,23 +578,22 @@ pub(super) async fn execute_provider_node(
         return Err(ApiError::bad_request("provider objective cannot be empty"));
     }
 
-    // Serialize this first production slice with the existing Workbench mutation
-    // lock. The durable receipt is written before terminal projection, so a
-    // retry after an interrupted response reuses provider evidence rather than
-    // issuing a second model call.
-    let _guard = WORKBENCH_MUTATIONS.lock().await;
-    let (store, mut graph) = load_run(&state, &id)?;
+    // Serialize setup and terminal projection with the Workbench mutation lock,
+    // but release it while Hermes runs so an authenticated cancel request can
+    // propagate to the live child process.
+    let mut _mutation_guard = Some(WORKBENCH_MUTATIONS.lock().await);
+    let (mut store, mut graph) = load_run(&state, &id)?;
     let node_id = NodeId::new(node_id)
         .map_err(|error| ApiError::bad_request(format!("invalid node id: {error}")))?;
-    let node = graph
+    let mut node = graph
         .nodes
         .iter()
         .find(|node| node.id == node_id)
         .ok_or_else(|| ApiError::not_found(format!("node `{}` was not found", node_id.as_str())))?
         .clone();
-    if node.kind != NodeKind::Execute {
+    if !matches!(node.kind, NodeKind::Execute | NodeKind::Verify) {
         return Err(ApiError::conflict(format!(
-            "node `{}` is not a provider-executable node",
+            "node `{}` is not an execute or verify provider worker",
             node_id.as_str()
         )));
     }
@@ -603,6 +624,56 @@ pub(super) async fn execute_provider_node(
         }
         receipt
     } else {
+        let cancellation_key = format!("{id}/{}", node_id.as_str());
+        if node.state == NodeState::Running {
+            if ACTIVE_PROVIDER_CANCELLATIONS
+                .lock()
+                .await
+                .contains_key(&cancellation_key)
+            {
+                return Err(ApiError::conflict(format!(
+                    "node `{}` already has an active provider worker",
+                    node_id.as_str()
+                )));
+            }
+            apply_transition_once(
+                &store,
+                &mut graph,
+                &node_id,
+                NodeState::Failed,
+                format!(
+                    "{}:provider-orphaned:{}",
+                    node.idempotency_key, node.checkpoint.sequence
+                ),
+                node.input_digest.clone(),
+            )
+            .map_err(store_error)?;
+            if node.checkpoint.sequence >= u64::from(node.retry.max_attempts) {
+                return Err(ApiError::conflict(format!(
+                    "node `{}` exhausted provider attempts after restart recovery",
+                    node_id.as_str()
+                )));
+            }
+            apply_transition_once(
+                &store,
+                &mut graph,
+                &node_id,
+                NodeState::Ready,
+                format!(
+                    "{}:provider-retry-ready:{}",
+                    node.idempotency_key,
+                    node.checkpoint.sequence + 1
+                ),
+                node.input_digest.clone(),
+            )
+            .map_err(store_error)?;
+            node = graph
+                .nodes
+                .iter()
+                .find(|candidate| candidate.id == node_id)
+                .expect("recovered provider node remains present")
+                .clone();
+        }
         if !matches!(
             node.state,
             NodeState::Pending | NodeState::Ready | NodeState::Blocked | NodeState::Failed
@@ -614,6 +685,7 @@ pub(super) async fn execute_provider_node(
             )));
         }
         require_succeeded_dependencies(&graph, &node_id)?;
+        enforce_worker_admission(&state, &store, &graph, &node_id).await?;
         let approval_receipt =
             node.parent_receipts.first().cloned().ok_or_else(|| {
                 ApiError::conflict("provider execution requires an approval receipt")
@@ -696,18 +768,105 @@ pub(super) async fn execute_provider_node(
             check_commands,
             project_contract_digest: graph.provenance.project_contract_digest.clone(),
         };
-        let receipt = adapter
-            .execute(&task, AdapterCancellation::new())
+        let attempt = graph
+            .nodes
+            .iter()
+            .find(|candidate| candidate.id == node_id)
+            .map(|candidate| candidate.checkpoint.sequence + 1)
+            .expect("provider node remains present");
+        if attempt > u64::from(node.retry.max_attempts) {
+            return Err(ApiError::conflict(format!(
+                "node `{}` exhausted provider attempts",
+                node_id.as_str()
+            )));
+        }
+        graph
+            .nodes
+            .iter_mut()
+            .find(|candidate| candidate.id == node_id)
+            .expect("provider node remains present")
+            .checkpoint
+            .sequence = attempt;
+        apply_transition_once(
+            &store,
+            &mut graph,
+            &node_id,
+            NodeState::Running,
+            format!("{}:provider-running:{attempt}", node.idempotency_key),
+            node.input_digest.clone(),
+        )
+        .map_err(store_error)?;
+        let cancellation = AdapterCancellation::new();
+        ACTIVE_PROVIDER_CANCELLATIONS
+            .lock()
             .await
-            .map_err(|error| {
-                ApiError::internal(format!("Workbench provider execution failed: {error}"))
-            })?;
+            .insert(cancellation_key.clone(), cancellation.clone());
+        if let Some(worker) = node.worker.as_ref() {
+            ACTIVE_PROVIDER_ROUTES
+                .lock()
+                .await
+                .insert(cancellation_key.clone(), worker.route_class);
+        }
+        drop(_mutation_guard.take());
+
+        let execution = adapter.execute(&task, cancellation).await;
+        ACTIVE_PROVIDER_CANCELLATIONS
+            .lock()
+            .await
+            .remove(&cancellation_key);
+        ACTIVE_PROVIDER_ROUTES
+            .lock()
+            .await
+            .remove(&cancellation_key);
+        _mutation_guard = Some(WORKBENCH_MUTATIONS.lock().await);
+
+        // Cancellation may have updated the journal while the child was
+        // running. Reload so that durable terminal state wins over a late child
+        // result and cannot be overwritten by provider finalization.
+        let (reloaded_store, reloaded_graph) = load_run(&state, &id)?;
+        store = reloaded_store;
+        graph = reloaded_graph;
+        if graph
+            .nodes
+            .iter()
+            .any(|candidate| candidate.state == NodeState::Cancelled)
+        {
+            return Err(ApiError::conflict(format!(
+                "run `{id}` was cancelled while provider execution was active"
+            )));
+        }
+        let receipt = execution.map_err(|error| {
+            ApiError::internal(format!("Workbench provider execution failed: {error}"))
+        })?;
         let value = serde_json::to_value(&receipt).map_err(|error| {
             ApiError::internal(format!("failed to serialize provider receipt: {error}"))
         })?;
         store
             .write_execution_receipt(&node_id, &value)
             .map_err(store_error)?;
+        store
+            .append_resource_usage(ResourceUsageDraft {
+                idempotency_key: format!("{}:provider-usage", receipt.idempotency_key),
+                source: if receipt.usage.cost_measurement == CostMeasurement::Observed {
+                    ResourceMeasurementSource::Observed
+                } else {
+                    ResourceMeasurementSource::DefaultFallback
+                },
+                provider_id: Some(
+                    receipt
+                        .usage
+                        .provider
+                        .clone()
+                        .unwrap_or_else(|| "unknown-provider".into()),
+                ),
+                local_joulework: 0.0,
+                hosted_cost_usd: receipt.usage.estimated_cost_usd,
+                hosted_requests: receipt.usage.api_calls,
+                supersedes: None,
+            })
+            .map_err(|error| {
+                ApiError::internal(format!("resource usage persistence failed: {error}"))
+            })?;
         receipt
     };
 
@@ -724,6 +883,161 @@ pub(super) async fn execute_provider_node(
         run: run_response(&store, graph)?,
         receipt,
     }))
+}
+
+async fn cancel_active_provider_run(run_id: &str) {
+    let prefix = format!("{run_id}/");
+    let active = ACTIVE_PROVIDER_CANCELLATIONS
+        .lock()
+        .await
+        .iter()
+        .filter(|(key, _)| key.starts_with(&prefix))
+        .map(|(_, cancellation)| cancellation.clone())
+        .collect::<Vec<_>>();
+    for cancellation in active {
+        cancellation.cancel();
+    }
+}
+
+async fn enforce_worker_admission(
+    state: &HarnessState,
+    store: &RunStore,
+    graph: &RunGraph,
+    node_id: &NodeId,
+) -> Result<(), ApiError> {
+    let Some(worker) = graph
+        .nodes
+        .iter()
+        .find(|node| node.id == *node_id)
+        .and_then(|node| node.worker.as_ref())
+    else {
+        return Ok(());
+    };
+    let config_path = std::env::var_os("ARDA_WORKER_LIMITS_CONFIG")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| {
+            state
+                .workbench_root
+                .join("config/runtime/worker_orchestration.toml")
+        });
+    let limits = match std::fs::read_to_string(&config_path) {
+        Ok(raw) => WorkerLimits::from_toml_str(&raw).map_err(|error| {
+            ApiError::internal(format!(
+                "invalid worker admission policy at {}: {error}",
+                config_path.display()
+            ))
+        })?,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => WorkerLimits::default(),
+        Err(error) => {
+            return Err(ApiError::internal(format!(
+                "worker admission policy could not be read at {}: {error}",
+                config_path.display()
+            )));
+        }
+    };
+    let active_routes = ACTIVE_PROVIDER_ROUTES.lock().await;
+    let active_total_workers = active_routes.len();
+    let active_local_workers = active_routes
+        .values()
+        .filter(|route| **route == WorkerRouteClass::Local)
+        .count();
+    let active_hosted_workers = active_routes
+        .values()
+        .filter(|route| **route == WorkerRouteClass::Hosted)
+        .count();
+    drop(active_routes);
+
+    let now_unix_ms = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_millis();
+    let daily = store
+        .resource_rollup_since(now_unix_ms.saturating_sub(86_400_000), None)
+        .map_err(|error| ApiError::internal(format!("daily resource rollup failed: {error}")))?;
+    let mut spent_cost_usd = 0.0;
+    for candidate in &graph.nodes {
+        let Some(value) = store
+            .read_execution_receipt(&candidate.id)
+            .map_err(store_error)?
+        else {
+            continue;
+        };
+        let receipt: HermesExecutionReceipt = serde_json::from_value(value).map_err(|error| {
+            ApiError::internal(format!("stored provider receipt is invalid: {error}"))
+        })?;
+        spent_cost_usd += receipt.usage.estimated_cost_usd;
+    }
+    let usage = WorkerUsage {
+        active_total_workers,
+        active_local_workers,
+        active_hosted_workers,
+        spent_cost_usd,
+        spent_joules: 0.0,
+        cycle_spent_cost_usd: spent_cost_usd,
+        cycle_spent_joules: 0.0,
+        daily_spent_cost_usd: daily.hosted_cost_usd,
+    };
+    let mut availability = WorkerAvailability::default();
+    if worker.route_class == WorkerRouteClass::Local {
+        let target = format!("{}/healthz", state.manwe_url.trim_end_matches('/'));
+        availability.local_worker_available = state
+            .client
+            .get(target)
+            .timeout(Duration::from_secs(2))
+            .send()
+            .await
+            .is_ok_and(|response| response.status().is_success());
+    }
+    availability.local_thermal_ok = std::env::var("ARDA_LOCAL_THERMAL_OK")
+        .map(|value| value != "0" && !value.eq_ignore_ascii_case("false"))
+        .unwrap_or(true);
+    if let Ok(routes) = std::env::var("ARDA_DEGRADED_WORKER_ROUTES") {
+        availability.degraded_routes = routes
+            .split(',')
+            .map(str::trim)
+            .filter(|route| !route.is_empty())
+            .map(str::to_string)
+            .collect();
+    }
+    let decision = schedule_ready_workers(graph, &limits, &usage, &availability, now_unix_ms);
+    if decision.selected.iter().any(|selected| selected == node_id) {
+        return Ok(());
+    }
+    let reason = decision
+        .blocked
+        .iter()
+        .chain(decision.queued.iter())
+        .find(|blocked| blocked.node_id == *node_id)
+        .map(|blocked| format!("{:?}", blocked.reason))
+        .unwrap_or_else(|| "not selected by deterministic scheduler".into());
+    Err(ApiError::conflict(format!(
+        "worker `{}` was not admitted: {reason}",
+        node_id.as_str()
+    )))
+}
+
+#[cfg(test)]
+mod active_provider_cancellation_tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn run_cancellation_signals_registered_provider_child() {
+        let cancellation = AdapterCancellation::new();
+        let mut signal = cancellation.subscribe();
+        ACTIVE_PROVIDER_CANCELLATIONS
+            .lock()
+            .await
+            .insert("run-live/execute".into(), cancellation);
+
+        cancel_active_provider_run("run-live").await;
+        signal.changed().await.expect("cancellation signal");
+        assert!(*signal.borrow());
+
+        ACTIVE_PROVIDER_CANCELLATIONS
+            .lock()
+            .await
+            .remove("run-live/execute");
+    }
 }
 
 fn provider_config_path(root: &std::path::Path) -> PathBuf {
@@ -855,6 +1169,37 @@ fn review_evidence_from_receipt(
     })
 }
 
+pub(super) async fn list_runs(
+    State(state): State<HarnessState>,
+) -> Result<Json<RunListResponse>, ApiError> {
+    let root = state.workbench_root.join("data/runs");
+    let entries = match std::fs::read_dir(&root) {
+        Ok(entries) => entries,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+            return Ok(Json(RunListResponse { runs: Vec::new() }));
+        }
+        Err(error) => {
+            return Err(ApiError::internal(format!(
+                "failed to list run journals at {}: {error}",
+                root.display()
+            )));
+        }
+    };
+    let mut ids = entries
+        .filter_map(Result::ok)
+        .filter(|entry| entry.path().join("checkpoint.json").is_file())
+        .filter_map(|entry| entry.file_name().into_string().ok())
+        .filter(|id| validate_run_id(id).is_ok())
+        .collect::<Vec<_>>();
+    ids.sort();
+    let mut runs = Vec::with_capacity(ids.len());
+    for id in ids {
+        let (store, graph) = load_run(&state, &id)?;
+        runs.push(run_response(&store, graph)?);
+    }
+    Ok(Json(RunListResponse { runs }))
+}
+
 pub(super) async fn get_run(
     State(state): State<HarnessState>,
     Path(id): Path<String>,
@@ -938,10 +1283,12 @@ fn run_response(store: &RunStore, graph: RunGraph) -> Result<RunResponse, ApiErr
         .transpose()
         .map_err(store_error)?
         .unwrap_or_default();
+    let worker_progress = project_worker_progress(&graph);
     Ok(RunResponse {
         graph,
         events,
         review,
+        worker_progress,
     })
 }
 

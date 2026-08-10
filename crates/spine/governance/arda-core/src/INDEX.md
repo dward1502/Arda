@@ -6,11 +6,11 @@ soterion:
   role: "directory_index"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-25"
+  last_reviewed: "2026-08-08"
 ---
 
 
-> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-25
+> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-08-08
 
 # Index: crates/spine/governance/arda-core/src
 
@@ -21,6 +21,8 @@ soterion:
 - `agent.rs`
 - `aipkg.rs`
 - `background.rs`
+- `capability_composition.rs`
+- `company_ops.rs`
 - `config.rs`
 - `contract`
 - `daemon.rs`
@@ -39,8 +41,12 @@ soterion:
 - `loop_observability.rs`
 - `message.rs`
 - `orome_runtime.rs`
+- `personal_ops.rs`
+- `personal_ops_projection.rs`
 - `pipeline.rs`
+- `project_contract.rs`
 - `router.rs`
+- `run_graph.rs`
 - `service_registry`
 - `soterion.rs`
 - `soterion_watcher.rs`

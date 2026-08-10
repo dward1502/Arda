@@ -13,7 +13,7 @@ not a dashboard wrapper.
 The current target is a seated C-shaped operator cockpit:
 
 - lower desk surfaces wrap around the user
-- four upper monitors sit above the lower row
+- five independently addressable upper monitors sit above the lower row
 - the rear window carries the cyberpunk city/world view
 - ARDA presence rises from a circular desk emitter behind the center control
   surface
@@ -30,6 +30,7 @@ The boardroom must expose these anchors:
 - `upper_monitor_2`
 - `upper_monitor_3`
 - `upper_monitor_4`
+- `upper_monitor_5`
 - `center_console`
 - `governance_control`
 - `systems_control`
@@ -49,6 +50,7 @@ Current primitive zones:
 
 - `boardroom.monitor.left`
 - `boardroom.monitor.center_left`
+- `boardroom.monitor.center`
 - `boardroom.monitor.center_right`
 - `boardroom.monitor.right`
 - `boardroom.lower.left_wrap`
@@ -111,18 +113,21 @@ They are for:
 
 ### Upper Monitors
 
-Upper monitors are configurable preview surfaces.
+Upper monitors are independent agent canvases backed by canonical slots
+`monitor_1..monitor_5`.
 
 They are for:
 
-- compact live previews
-- tactical snapshots
-- workstation entry points
+- full-aperture typed session content while occupied
+- quiet, slot-specific ambient pixels while idle
+- same-session workstation entry while occupied
 
 They are not for:
 
 - full dashboard walls
 - dense spreadsheet-like content
+- static departmental defaults
+- generic-panel activation while idle
 
 ### Center Console
 

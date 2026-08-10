@@ -27,6 +27,7 @@ pub mod message;
 pub mod message_retry_expiry;
 #[cfg(feature = "service-runtime")]
 pub mod mnemosyne_integration;
+pub mod operator_bridge;
 pub mod personal_reminder;
 #[cfg(feature = "service-runtime")]
 pub mod protocol;

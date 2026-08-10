@@ -11,6 +11,10 @@ use serde::Deserialize;
 use tracing::{debug, warn};
 
 use crate::supervisor::{HealthProbe, Service};
+use arda_core::service_registry::{
+    CapabilityDeclaration, CapabilityHealth, CapabilityRegistry, CapabilityRegistryError,
+    CapabilityRuntimeState, CapabilityStateProjection,
+};
 
 /// Process command declared for one service.
 #[derive(Debug, Clone, Deserialize)]
@@ -59,6 +63,8 @@ pub struct ServiceSpec {
     pub optional: bool,
     #[serde(default)]
     pub tags: Vec<String>,
+    #[serde(default, rename = "capability")]
+    pub capabilities: Vec<CapabilityDeclaration>,
     pub start: StartSpec,
     #[serde(default)]
     pub health: Option<HealthSpec>,
@@ -112,7 +118,51 @@ impl Registry {
                 anyhow::bail!("service '{}' has an empty start command", spec.name);
             }
         }
+        self.capability_registry().map_err(|error| {
+            anyhow::anyhow!("services registry {path:?} has invalid capability authority: {error}")
+        })?;
         Ok(())
+    }
+
+    /// Materialize declarations into the canonical live capability registry.
+    /// Runtime health starts fail-closed until the supervisor reports evidence.
+    pub fn capability_registry(&self) -> Result<CapabilityRegistry, CapabilityRegistryError> {
+        let mut registry = CapabilityRegistry::new();
+        for service in &self.services {
+            for declaration in &service.capabilities {
+                let runtime = CapabilityRuntimeState {
+                    installed: true,
+                    health: if service.health.is_some() {
+                        CapabilityHealth::Unavailable
+                    } else {
+                        CapabilityHealth::NotConfigured
+                    },
+                    eligible: false,
+                    selected: false,
+                };
+                registry.register(declaration.clone(), runtime)?;
+            }
+        }
+        Ok(registry)
+    }
+
+    /// Derive operator state directly from the supplied live registry.
+    pub fn capability_projection(
+        &self,
+        live: &CapabilityRegistry,
+    ) -> Vec<CapabilityStateProjection> {
+        let declared = self
+            .services
+            .iter()
+            .flat_map(|service| &service.capabilities)
+            .map(|capability| (capability.id.as_str(), capability.version.as_str()))
+            .collect::<std::collections::HashSet<_>>();
+        live.projection()
+            .into_iter()
+            .filter(|capability| {
+                declared.contains(&(capability.id.as_str(), capability.version.as_str()))
+            })
+            .collect()
     }
 
     /// Resolve manifest commands and working directories into concrete
@@ -195,6 +245,9 @@ fn resolve_command(root: &Path, command: &str) -> Option<PathBuf> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use arda_core::service_registry::{
+        CapabilityHealth, CapabilityRegistryError, CapabilityRuntimeState,
+    };
 
     #[test]
     fn workspace_registry_declares_canonical_manwe_process() {
@@ -296,5 +349,93 @@ optional = true
 
         assert!(errors.is_empty());
         assert!(services.is_empty());
+    }
+
+    #[test]
+    fn workspace_registry_declares_capabilities_and_builds_live_registry() {
+        let manifest = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../services.toml");
+        let registry = Registry::load(&manifest).expect("workspace services.toml loads");
+        let capabilities = registry
+            .capability_registry()
+            .expect("capability authorities are unique");
+
+        assert_eq!(capabilities.records().count(), 4);
+        assert!(capabilities.get("inference.route", "1").is_some());
+        let model = capabilities
+            .get("model.worker.local", "1")
+            .expect("model worker is declared");
+        assert_eq!(model.runtime.health, CapabilityHealth::Unavailable);
+    }
+
+    #[test]
+    fn duplicate_capability_authorities_are_rejected() {
+        let registry: Registry = toml::from_str(
+            r#"
+[[service]]
+name = "first"
+required = true
+start.command = "first"
+
+[[service.capability]]
+id = "duplicate"
+version = "1"
+owner = "first"
+maturity = "stable"
+data_classes = ["internal"]
+authority_ceiling = "read_only"
+removal_status = "active"
+execution_adapter = { kind = "service", service = "first" }
+provenance = { kind = "internal", source = "fixture", source_digest = "sha256:first" }
+
+[[service]]
+name = "second"
+required = true
+start.command = "second"
+
+[[service.capability]]
+id = "duplicate"
+version = "1"
+owner = "second"
+maturity = "stable"
+data_classes = ["internal"]
+authority_ceiling = "read_only"
+removal_status = "active"
+execution_adapter = { kind = "service", service = "second" }
+provenance = { kind = "internal", source = "fixture", source_digest = "sha256:second" }
+"#,
+        )
+        .expect("duplicate authority fixture parses");
+
+        assert!(matches!(
+            registry.capability_registry(),
+            Err(CapabilityRegistryError::DuplicateAuthority { .. })
+        ));
+    }
+
+    #[test]
+    fn capability_projection_reads_updated_live_registry_state() {
+        let manifest = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../services.toml");
+        let registry = Registry::load(&manifest).expect("workspace services.toml loads");
+        let mut live = registry.capability_registry().unwrap();
+        live.set_runtime_state(
+            "inference.route",
+            "1",
+            CapabilityRuntimeState {
+                installed: true,
+                health: CapabilityHealth::Ready,
+                eligible: true,
+                selected: true,
+            },
+        )
+        .unwrap();
+
+        let projection = registry.capability_projection(&live);
+        let route = projection
+            .iter()
+            .find(|capability| capability.id == "inference.route")
+            .unwrap();
+        assert!(route.healthy);
+        assert!(route.eligible);
+        assert!(route.selected);
     }
 }

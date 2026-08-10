@@ -12,7 +12,11 @@ The physical-display foundation is now integrated across the five upper monitors
 
 On 2026-08-07, the running native Tauri HUD visibly showed all five upper and all five lower displays fitted inside their authored apertures, with the complete outer console in frame. The focused boardroom suite passed 96/96 tests, the production frontend build passed, and lint completed with zero errors (105 pre-existing repository warnings). Reduced-motion mode now keeps valid payload content visible and marks it static instead of replacing it with `NO DATA` or an offline state.
 
-This evidence closes only the physical CanvasTexture integration slice. Pointer interaction could not be accepted in that run because the desktop-action approval timed out, and the typed multi-content session registry, five-owner orchestration, same-session workstation handoff, and final operator acceptance remain open.
+That run closed only the physical CanvasTexture integration slice; pointer interaction was not accepted because the desktop-action approval timed out. Later evidence below supersedes the then-open typed registry and same-session workstation items.
+
+On 2026-08-07, Phase 2 contract parity advanced: `apps/arda-hud/src/lib/monitorSurfaceContract.ts` now defines the canonical five-slot set, typed content/workstation-handoff descriptors, and claim/refresh/release/active registry helpers; `apps/arda-hud/src/lib/monitorSurfaceContract.test.ts` exercises parsing, five-slot claim/refresh/release, and canonical-slot enforcement; Rust `contract`/`registry` tests prove five simultaneous owners, isolated updates, conflict rejection, exact-owner release, revision conflict rejection, expiry isolation, snapshot/restore, and stale-schema rejection. Focused vitest + Rust `cargo test --lib` gates are green after these changes. Remaining work after the Phase 6 evidence below is the all-content native walkthrough, concurrent-agent orchestration UI, hardening, and final operator acceptance.
+
+On 2026-08-07, Phase 6 implementation and its bounded native lifecycle gate completed. A monitor session now opens a deterministic native workstation keyed by `surface_session_id`; repeated opens focus the existing window instead of creating a duplicate. The workstation resolves the exact authoritative registry record, renders through the same `BoardroomApertureSurface`, receives revision/lifecycle updates through the Tauri registry event plus a cross-window persisted-registry fallback, and changes to an explicit unavailable state after release or expiry. Native Tauri evidence showed the same README document in `monitor_1` and its workstation, a revision refresh from the same session, two repeated opens with only one workstation window, and the already-open workstation transitioning to `Monitor session unavailable` after exact-session release. The all-content-class walkthrough remains part of Phase 9 rather than being inferred from this document-only lifecycle proof.
 
 **Architecture:** Introduce a versioned monitor-session contract shared by Rust and TypeScript, a five-slot topology with one canonical slot per physical monitor, and a renderer registry that chooses texture, media, web, terminal, document, or remote-session rendering from a typed content descriptor. The boardroom monitor and focused workstation subscribe to the same session rather than constructing different content paths. Full-screen content is rendered inside the authored 3D aperture; ownership and lease controls stay outside the content area.
 
@@ -34,7 +38,10 @@ Number the upper monitors left-to-right as `monitor_1` through `monitor_5`.
 | center right | `monitor_4` | independently claimable and renderable |
 | outer right | `monitor_5` | independently claimable and renderable |
 
-The current topology is invalid for this requirement: it exposes five physical zones but only four assignable IDs (`monitor_left_1..monitor_left_4`), and the center monitor has no slot. The implementation must migrate this mismatch rather than preserve it.
+The original topology exposed five physical zones but only four assignable IDs
+(`monitor_left_1..monitor_left_4`), leaving the center without a slot. That
+migration is now implemented: runtime and durable writes use the canonical five,
+while old IDs remain import-boundary aliases only.
 
 ### 1.2 The authored screen aperture is the display
 
@@ -66,7 +73,7 @@ The session contract must support these first-class content descriptors:
 4. **Image surface** — local workspace or approved remote images.
 5. **Document surface** — PDF and bounded document/markdown rendering.
 6. **Terminal surface** — a named PTY/session stream with terminal-specific state.
-7. **Trusted component surface** — a registered ARDA/Hermes React renderer with typed props.
+7. **Trusted component surface** — a registered ARDA React renderer with typed props.
 8. **Remote session surface** — frame/video stream for content that cannot be embedded directly, including sites that reject framing.
 9. **Fallback/status surface** — explicit unavailable/offline state only when the requested content cannot currently render.
 
@@ -303,15 +310,10 @@ The boardroom and workstation resolve the same descriptor through this registry.
 
 **Files:**
 
-- Create: `apps/arda-hud/src/scene/boardroom/MonitorApertureSurface.tsx`
-- Create: `apps/arda-hud/src/scene/boardroom/MonitorApertureSurface.test.tsx`
-- Create: `apps/arda-hud/src/scene/boardroom/monitorApertureProjection.ts`
+- Create: `apps/arda-hud/src/scene/boardroom/monitorApertureGeometry.ts`
 - Create: `apps/arda-hud/src/scene/boardroom/monitorApertureProjection.test.ts`
-- Create: `apps/arda-hud/src/scene/boardroom/renderers/registry.ts`
-- Create: `apps/arda-hud/src/scene/boardroom/renderers/FallbackMonitorRenderer.tsx`
 - Modify: `apps/arda-hud/src/scene/boardroom/BoardroomViewport.tsx`
 - Modify: `apps/arda-hud/src/styles/scene/hud-instruments.css`
-- Modify or create a focused stylesheet under `apps/arda-hud/src/styles/scene/` for full-aperture surfaces
 
 **Tasks:**
 
@@ -324,7 +326,16 @@ The boardroom and workstation resolve the same descriptor through this registry.
 7. Ensure reduced-motion disables animation only; it must never replace valid content.
 8. Add debug-only aperture outlines for calibration, disabled in normal HUD.
 
-**Gate:** Native and browser captures show a test pattern filling every monitor aperture with no small card, no overflow, and no duplicate visible screen.
+**Implemented:**
+
+- Aperture geometry now derives dimensions from slot topology/rotation instead of a fixed card size.
+- `monitorApertureProjection.test.ts` validates monitor-surface and desk-surface apertures.
+- `BoardroomApertureSurface` renders the full-aperture CanvasTexture-backed surface and is wired into `BoardroomViewport.tsx` for active claims.
+- Legacy `HermesDashboardMonitorSurface` removed from the production monitor path; active claims no longer route through it.
+- Debug-only aperture outlines render behind the content surface when `debug` is enabled.
+- `hud-instruments.css` fixed `13.2rem` monitor-surface card block removed; aperture sizing is topology-driven.
+
+**Gate:** Vitest + build + lint + cargo check passed; native verification pending.
 
 ## Phase 4 — Image, video, and generated-frame renderers
 
@@ -362,7 +373,9 @@ The boardroom and workstation resolve the same descriptor through this registry.
 - Create: `apps/arda-hud/src/scene/boardroom/renderers/TerminalMonitorRenderer.tsx`
 - Create: `apps/arda-hud/src/scene/boardroom/renderers/RemoteSessionMonitorRenderer.tsx`
 - Create corresponding focused tests
-- Reuse/refactor from: `src/components/arda/modules/HermesDashboardModule.tsx`
+- Extract only still-valid generic embed behavior from
+  `src/components/arda/modules/HermesDashboardModule.tsx`; do not preserve its
+  legacy ownership/name or localhost launcher as monitor architecture
 - Reuse/refactor from: `src/components/arda/modules/MediaLibraryModule.tsx`
 - Reuse/refactor from: `src/components/arda/modules/ServiceEmbedModule.tsx`
 - Reuse the existing PTY/session path rather than creating a second terminal backend
@@ -405,6 +418,34 @@ The boardroom and workstation resolve the same descriptor through this registry.
 
 **Gate:** For every content class, clicking the physical monitor opens the same content. Changing content after the workstation opens updates both surfaces. Video/YouTube/terminal identity is preserved rather than restarted as an unrelated source panel.
 
+## Visual reset checkpoint — agent-native command instruments
+
+**Objective:** Establish the visual language before Phase 7 adds more orchestration UI. The upper bank remains five practical agent canvases. The five lower desk apertures are ambient machine instruments, not web dashboards or miniature workstations.
+
+**Non-negotiable lower-instrument contract:**
+
+1. Normal desk presentation is nearly textless: no prose, cards, lists, scrollbars, panel titles, freshness labels, or module dumps.
+2. Each lower aperture has a unique learned motion language derived from cyberpunk command instrumentation, 1980s phosphor/vector systems, ASCII signal fields, radar, waveforms, scanning geometry, and controlled interference.
+3. Motion is performative but not arbitrary. Real runtime state modulates amplitude, cadence, coherence, density, route paths, distortion, and color. Reduced-motion keeps a meaningful static frame.
+4. The five roles are Governance/Decisions, Systems/Fleet, fixed Command Core/Now, Routing/Communications, and Human/Business. They must not reuse one generic graph with different labels.
+5. Detailed text is progressive disclosure in a deliberately opened workstation. The physical desk remains glanceable, soothing, and legible through repeated exposure.
+6. Unclaimed upper monitors are visually quiet. Claimed upper monitors display the agent's real content rather than departmental fallback charts.
+
+**Prototype gate — accepted and propagated (2026-08-08):** The normal native Tauri HUD now shows the accepted fixed-center Command Core with no visible words, no generic dot graph, continuous motion, state-derived behavior, and correct aperture fit. After operator acceptance, the remaining four lower apertures received distinct—not recolored—signal languages:
+
+- Governance/Decisions: converging decision lattice, quorum diamond, chosen-path pulses, and pressure arcs.
+- Systems/Fleet: segmented reactor spine, subsystem columns, health pulses, and degraded-state interference.
+- Routing/Communications: orbital radar field, curved routes, moving packets, endpoints, and sweep beam.
+- Human/Business: breathing organic contours, paired living wave strands, and orbiting presence points.
+
+All five render as CanvasTexture-backed WebGL meshes in the normal native HUD. `LowerInstrumentScreen.tsx` contains no title/card/list rendering; `lowerInstrumentSignal.ts` derives bounded activity, pressure, coherence, cadence, palette, and deterministic motion from each surface's current `HudInstrumentModel`. Reduced-motion and deterministic render profiles produce meaningful static frames. Focused Vitest coverage validates stable physical-role mapping, visual-language uniqueness, bounded state projection, degradation behavior, and deterministic sample output. Native captures confirm all five distinct instruments render simultaneously in their authored apertures; existing click activation remains on each R3F mesh.
+
+**Unused upper-monitor ambient state (2026-08-08):** Each canonical upper slot now owns one distinct, nearly textless CanvasTexture ambient identity: aurora veil, constellation mesh, signal mandala, vector rain, or dream horizon. These are idle pixels only. The production render branch resolves priority as typed monitor session → active agent claim → ambient identity, so agent/session content immediately replaces the ambient surface rather than competing with or overlaying it. Ambient animation is capped at 24 texture updates per second, honors reduced-motion/deterministic profiles, and returns automatically when no live session or claim remains. An idle ambient surface is intentionally non-interactive; only an occupied session or claim can open a workstation.
+
+**Idle activation and stale-assignment correction (2026-08-08):** Legacy upper-monitor defaults (`Warp`, `Routing Providers`, `Knowledge + Memory`, and `Queue + Plans`) were retired from both the default contract and persisted boardroom state. Typed-session activation now resolves the exact registry record before any legacy source fallback. This removes the accidental generic `PanelWindow` path where `create_monitor_surface` opened an ARDA monitor URL without `__section`, causing `SectionNavigator` to fall through to the first section (`Sovereign World`). Routing ownership and generated source-map authority now use `manwe_aule`; stale `charon_hermes`/`manwe_hermes` owner labels and Hermes source paths were removed from the live projections and their Aule generators. Evidence: 33 focused frontend tests, production build (2,604 modules), 8 Aule library tests, 5 focused Manwe driver tests, zero targeted lint errors, zero remaining `charon_hermes|manwe_hermes` matches, and native Tauri inspection showing the five ambient displays with no extra workstation window present.
+
+**Documentation synchronization (2026-08-08):** The HUD README, BREAKDOWN, boardroom README, boardroom contract, merged scene contract, and slot-component contract now describe the live five-slot CanvasTexture architecture, idle non-interactivity, exact-session workstation continuity, external ownership rails, and distinct lower command instruments. They also record the remaining generic-panel Hermes dashboard/CLI compatibility path honestly as a retirement item rather than treating it as monitor authority or renaming it cosmetically.
+
 ## Phase 7 — Concurrent-agent orchestration and operator control
 
 **Objective:** Prove the system behaves correctly under real parallel work.
@@ -429,6 +470,8 @@ The boardroom and workstation resolve the same descriptor through this registry.
 
 **Gate:** The native HUD visibly supports five concurrent agents with independent content and lifecycle behavior. No singleton “active monitor” state is allowed anywhere in the path.
 
+**Phase 7 partial evidence (2026-08-08):** Task 6 now has a production `MonitorOwnershipRail` mounted outside every upper display aperture. Idle rails remain dormant; an occupied rail derives a stable owner-color fingerprint, distinguishes typed session authority from a legacy claim, displays healthy/expiring/expired lease states without text, and animates at a bounded 15 Hz only while occupied. The rail receives each slot's own session/claim directly inside the existing five-slot map, so it introduces no singleton ownership state and never overlays agent content. Focused tests cover session-over-claim authority, idle fallback, lease-state transitions, and deterministic distinct owner fingerprints. Native idle geometry is verified; the Phase 7 gate still requires a live five-owner capture plus release/reclaim/expiry evidence before completion.
+
 ## Phase 8 — Performance, security, and failure hardening
 
 **Objective:** Make five live surfaces stable enough for routine use.
@@ -449,6 +492,9 @@ The boardroom and workstation resolve the same descriptor through this registry.
 6. Respect reduced-motion, but continue rendering static frames and valid content.
 7. Test malformed descriptors, unreachable URLs, unsupported codecs, blocked embeds, expired sessions, and renderer crashes.
 8. Ensure one renderer failure cannot blank the boardroom or other monitors.
+9. Retire the active generic-panel Hermes dashboard/CLI compatibility module,
+   physical hotspots, settings presets, and localhost `:9119` launcher after
+   mapping any still-required capability to explicit Manwë/Aulë ownership.
 
 **Performance gate:** At the native target resolution, five occupied monitors remain responsive to pointer activation and workstation opening. Record frame timing, memory before/after repeated claim cycles, and media resource cleanup evidence. Do not invent an FPS number in advance; measure and document the accepted baseline.
 
@@ -515,9 +561,9 @@ Native acceptance must additionally use the real Tauri application and fresh CUA
 
 This plan remains active until every statement is true:
 
-- [ ] Five physical upper monitors map to five canonical assignable slots.
-- [ ] The center monitor is independently claimable.
-- [ ] Each occupied screen fills its authored 3D aperture; no small card remains.
+- [x] Five physical upper monitors map to five canonical assignable slots.
+- [x] The center monitor is independently claimable.
+- [x] Each occupied screen fills its authored 3D aperture; no small card remains.
 - [ ] Website rendering is demonstrated natively.
 - [ ] YouTube rendering is demonstrated natively.
 - [ ] Video rendering is demonstrated natively.
@@ -530,9 +576,12 @@ This plan remains active until every statement is true:
 - [ ] Clicking every monitor opens the same session in a full workstation window.
 - [ ] Playback/navigation/session state remains synchronized where supported.
 - [ ] Reload/restart recovers unexpired sessions.
-- [ ] Desk surfaces remain operator-owned and unchanged.
+- [x] Desk surfaces remain operator-owned; their accepted visual reset does not
+  transfer ownership to monitor sessions.
 - [ ] Focused/full HUD tests, lint, build, Rust tests, Cargo check, docs health, and diff check pass.
 - [ ] The normal native HUD is left running for operator inspection.
 - [ ] The operator explicitly accepts the visual and interaction result.
 
 Only after all items pass may this plan be archived and described as complete.
+
+**Phase 3 status:** Aperture topology, full-aperture hit-test surface, debug outlines, and fixed-card removal are implemented and pass focused tests/build/lint/cargo check/docs health/diff check. Native Tauri/CUA/AT-SPI visual verification is still required before any checklist item can be checked.

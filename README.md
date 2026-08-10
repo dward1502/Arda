@@ -1,14 +1,19 @@
 # Arda
 
-> The slimmed-down continuation of Annunimas: a local-first, auditable agent control plane.
+> A local-first, phone-accessible, governed personal agent ecosystem.
 
-Arda is the operator-facing shell that evolved from Annunimas. It keeps the same control-plane purpose — routing model calls, coordinating agents, recording decisions, gating autonomy, and visualizing operational state — but refactored into a smaller, more composable `arda-*` crate layout. The canonical Rust workspace lives in this repo; `~/Annunimas` remains the live reference architecture and should not be modified unless explicitly requested.
+Arda helps one sovereign operator organize personal life and projects, preserve context, coordinate hosted and local workers, integrate external systems, and act proactively without taking unearned authority. Workbench, Personal Operations, research, council, economic tools, and device/outpost integrations are composable capabilities over one task, memory, governance, communications, and receipt model—not separate product identities. The canonical Rust workspace lives in this repository; `~/Annunimas` is reference architecture and should not be modified unless explicitly requested.
+
+The Arda 1.0 product authority is [Arda 1.0 Personal Agent Ecosystem](docs/architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md). Its [current-state gap report](docs/audits/2026-08-08-arda-1.0-vision-to-live-gap-report.md) and [implementation plan](docs/plans/2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md) distinguish implemented foundations from operator-accepted and release-supported behavior.
 
 ## Current workspace status
 
-- Workspace all-target/all-feature check and strict Clippy pass as of 2026-07-30.
-- The workspace test suite has one classified `arda-varda` shared-state failure;
-  its exact test passes in isolation. Root daemon and direct dependency suites pass.
+- `cargo metadata --no-deps --format-version 1` resolves 18 current workspace
+  packages (16 default members) as of 2026-08-08.
+- The root binary is `arda`; the workspace has no `arda-council` package.
+- Installed services and listeners are runtime evidence, not Cargo topology or
+  release support. Use `ARDA_SYSTEM_STATUS_REPORT.md` for the latest bounded
+  snapshot and re-probe before operational decisions.
 - `arda` composition-root entrypoint: `src/main.rs`
 - Service supervision spine: `crates/engine` (`arda-engine`)
 - Observability/CLI surface: `crates/spine/observability/arda-aule`
@@ -22,10 +27,10 @@ Arda is the operator-facing shell that evolved from Annunimas. It keeps the same
 | `crates/engine` | Rust library | Service supervision spine: registry, supervisor, harness, manwe bridge |
 | `crates/spine/governance/arda-core` | Rust library | Core types, config, ledger, tasks, LLM provider/routing, systemd client |
 | `crates/spine/governance/arda-governance` | Rust library | Governance, triad validation, resonance, philosopher profiles |
-| `crates/spine/runtime/arda-economics` | Rust library | Plutus model: economics, joule work, cost/ledger/service transport |
+| `crates/spine/runtime/arda-economics` | Rust library | JouleWork and resource accounting: measured/default costs, confidence, status, ledger/service transport |
 | `crates/spine/runtime/arda-mandos` | Rust library | Oracle/runtime: reasoning, verdicts, scoring, transport |
 | `crates/spine/memory/arda-vaire` | Rust library | Memory service: informant events, transport |
-| `crates/spine/runtime/manwe` | Rust library | Charon/manwe gateway types and routing adapter |
+| `crates/spine/runtime/manwe` | Rust library | Single governed model/provider runtime, route policy, capability state, and adaptive routing |
 | `crates/spine/interface/arda-orome` | Rust library | Comms/bridge: A2H/A2A message types |
 | `crates/spine/executors/arda-varda` | Rust library | Athena agent + ingest/query/deep-analysis + HTTP transport |
 | `crates/spine/observability/arda-aule` | Rust library + CLI | Prometheus/CEO autopilot, CLI, observability surfaces |
@@ -37,11 +42,12 @@ Arda is the operator-facing shell that evolved from Annunimas. It keeps the same
 
 1. This file (`README.md`).
 2. `AGENTS.md` — working rules and canonical source layout.
-3. `docs/identity/ARDA_IDENTITY.md` — Annunimas-to-Arda identity transfer and operating assumptions.
-4. `docs/root-daemon.md` — root package status, composition boundary, ownership, and verification.
-5. `crates/engine/README.md` / `BREAKDOWN.md` — registry, harness, and supervisor implementation.
-6. `apps/arda-launcher/README.md` — what the launcher is and how to run it.
-7. `apps/arda-launcher/src-tauri/tauri.conf.json` — desktop packaging/config.
+3. `docs/architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md` — product doctrine and capability-composition model.
+4. `docs/plans/2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md` — active convergence plan and evidence gates.
+5. `docs/root-daemon.md` — root package status, composition boundary, ownership, and verification.
+6. `crates/engine/README.md` and `crates/engine/BREAKDOWN.md` — registry,
+   harness, and supervisor implementation.
+7. `apps/arda-launcher/README.md` — what the launcher is and how to run it.
 
 ## Verification
 

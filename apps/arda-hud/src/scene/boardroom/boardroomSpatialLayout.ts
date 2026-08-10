@@ -105,30 +105,30 @@ export interface BoardroomSpatialZone {
 export const BOARDROOM_SPATIAL_ZONES: BoardroomSpatialZone[] = [
   {
     id: 'boardroom.monitor.left', label: 'Monitor 00', kind: 'upper_monitor', interaction: 'open_workstation',
-    binding: 'upper_monitor_1', assignmentSlotId: 'monitor_left_1', assignmentIndex: 0,
+    binding: 'upper_monitor_1', assignmentSlotId: 'monitor_1', assignmentIndex: 0,
     position: [-3.8, 1.48, -0.62], rotation: [0, 0.415, 0], size: [1.63, 0.8, 0.08],
     color: '#5defff', previewMode: 'monitor_surface',
   },
   {
     id: 'boardroom.monitor.center_left', label: 'Monitor 01', kind: 'upper_monitor', interaction: 'open_workstation',
-    binding: 'upper_monitor_2', assignmentSlotId: 'monitor_left_2', assignmentIndex: 1,
+    binding: 'upper_monitor_2', assignmentSlotId: 'monitor_2', assignmentIndex: 1,
     position: [-1.9, 1.54, -0.78], rotation: [0, 0.218, 0], size: [1.63, 0.8, 0.08],
     color: '#5defff', previewMode: 'monitor_surface',
   },
   {
     id: 'boardroom.monitor.center', label: 'Monitor 02', kind: 'upper_monitor', interaction: 'open_workstation',
-    binding: 'upper_monitor_3', assignmentIndex: 2, position: [0, 1.57, -0.84], rotation: [0, 0, 0],
+    binding: 'upper_monitor_3', assignmentSlotId: 'monitor_3', assignmentIndex: 2, position: [0, 1.57, -0.84], rotation: [0, 0, 0],
     size: [1.63, 0.8, 0.08], color: '#5defff', primary: true, previewMode: 'monitor_surface',
   },
   {
     id: 'boardroom.monitor.center_right', label: 'Monitor 03', kind: 'upper_monitor', interaction: 'open_workstation',
-    binding: 'upper_monitor_3', assignmentSlotId: 'monitor_left_3', assignmentIndex: 2,
+    binding: 'upper_monitor_3', assignmentSlotId: 'monitor_4', assignmentIndex: 2,
     position: [1.9, 1.54, -0.78], rotation: [0, -0.218, 0], size: [1.63, 0.8, 0.08],
     color: '#5defff', previewMode: 'monitor_surface',
   },
   {
     id: 'boardroom.monitor.right', label: 'Monitor 04', kind: 'upper_monitor', interaction: 'open_workstation',
-    binding: 'upper_monitor_4', assignmentSlotId: 'monitor_left_4', assignmentIndex: 3,
+    binding: 'upper_monitor_4', assignmentSlotId: 'monitor_5', assignmentIndex: 3,
     position: [3.8, 1.48, -0.62], rotation: [0, -0.415, 0], size: [1.63, 0.8, 0.08],
     color: '#5defff', previewMode: 'monitor_surface',
   },

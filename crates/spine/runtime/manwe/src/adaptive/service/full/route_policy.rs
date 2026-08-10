@@ -197,6 +197,7 @@ fn joule_measurement_source_label(source: JouleWorkMeasurementSource) -> String 
     match source {
         JouleWorkMeasurementSource::OperatorEstimate => "operator_estimate",
         JouleWorkMeasurementSource::DefaultFallback => "default_fallback",
+        JouleWorkMeasurementSource::SyntheticRestoration => "synthetic_restoration",
         JouleWorkMeasurementSource::RuntimeTimer => "runtime_timer",
         JouleWorkMeasurementSource::ProcessResourceSample => "process_resource_sample",
         JouleWorkMeasurementSource::ProviderUsageReport => "provider_usage_report",

@@ -28,10 +28,11 @@ describe('boardroom spatial layout contract', () => {
   it('defines configurable monitor and desk slots separately from ARDA data', () => {
     expect(BOARDROOM_MONITOR_ZONES).toHaveLength(5)
     expect(BOARDROOM_MONITOR_ZONES.filter((zone) => zone.assignmentSlotId).map((zone) => zone.assignmentSlotId)).toEqual([
-      'monitor_left_1',
-      'monitor_left_2',
-      'monitor_left_3',
-      'monitor_left_4',
+      'monitor_1',
+      'monitor_2',
+      'monitor_3',
+      'monitor_4',
+      'monitor_5',
     ])
     expect(BOARDROOM_CONTROL_ZONES.map((zone) => zone.assignmentSlotId)).toEqual([
       'view_desk_l',

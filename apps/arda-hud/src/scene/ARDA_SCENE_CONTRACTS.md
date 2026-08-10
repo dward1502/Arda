@@ -65,12 +65,13 @@ renaming the slot.
 
 Slot assignment rules:
   - slot id is geometry identity, not domain identity
-  - unassigned slots must still open a slot-specific template workstation
+  - unassigned upper monitors render slot-specific ambient pixels and do not
+    open a workstation; unassigned desk/operator slots may retain templates
   - slot assignment must be configurable without changing scene code
   - scene visuals must not be named after assigned components
 
 Current visible boardroom scene slot ids:
-  - monitor_left_1 through monitor_left_4
+  - monitor_1 through monitor_5
   - view_desk_l
   - view_desk_control_panel
   - view_desk_r
@@ -86,7 +87,7 @@ not a dashboard wrapper.
 ### Required anchors
 
 - desk_left_surface, desk_right_surface
-- upper_monitor_1 through upper_monitor_4
+- upper_monitor_1 through upper_monitor_5
 - center_console
 - governance_control, systems_control, network_control, human_control
 - settings_control
@@ -102,7 +103,8 @@ rather than owning routing or data freshness themselves.
 ### Anchor semantics
 
 - desk surfaces are always-visible command surfaces for high-signal previews
-- upper monitors are configurable preview surfaces, not full dashboard walls
+- upper monitors are independent agent canvases: occupied slots show typed
+  full-aperture content and idle slots remain ambient and non-interactive
 - center console hosts mode-affecting commands and high-priority controls
 - hologram anchor is the embodiment point for ARDA/Arandur presence
 - world gate is the explicit boardroom-to-world transition anchor

@@ -200,7 +200,7 @@ pub fn write_operator_actions_projection(core_root: &Path) {
                 });
             actions.push(json!({
                 "title": format!("{target_id} requires fleet recovery remediation"),
-                "owner": "manwe_hermes",
+                "owner": "manwe_aule",
                 "status": "operator_confirmation_required",
                 "kind": "fleet_recovery_failed",
                 "note": attempt_note,

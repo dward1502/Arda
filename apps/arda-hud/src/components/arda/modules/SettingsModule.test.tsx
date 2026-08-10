@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import SettingsModule from './SettingsModule'
 
 const routingAssignment = {
-  slot: 'monitor_left_2',
+  slot: 'monitor_2',
   label: 'Routing and Communication',
   sourceZoneId: 'routing_and_comms',
   componentId: 'routing-surface',
@@ -31,12 +31,12 @@ describe('SettingsModule boardroom visualization profiles', () => {
       />,
     )
 
-    const select = screen.getByLabelText('Visualization for monitor_left_2')
+    const select = screen.getByLabelText('Visualization for monitor_2')
     expect(Array.from((select as HTMLSelectElement).options).map((option) => option.value)).toEqual([
       'standby', 'topology', 'routes', 'pulse',
     ])
     fireEvent.change(select, { target: { value: 'topology' } })
-    expect(onUpdateVisualization).toHaveBeenCalledWith('monitor_left_2', {
+    expect(onUpdateVisualization).toHaveBeenCalledWith('monitor_2', {
       preset_id: 'topology',
       config: routingAssignment.visualization.config,
     })

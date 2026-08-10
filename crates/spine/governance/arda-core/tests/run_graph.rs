@@ -1,7 +1,9 @@
 use arda_core::run_graph::{
-    AuthorityClass, Budget, CheckpointMetadata, EdgeId, NodeId, NodeKind, NodeState, ObjectiveId,
-    Provenance, RetryPolicy, RunEdge, RunGraph, RunGraphError, RunId, RunNode,
+    AuthorityClass, Budget, CheckpointMetadata, EdgeId, EvidencePolicy, NodeId, NodeKind,
+    NodeState, ObjectiveId, Provenance, RetryPolicy, RunEdge, RunGraph, RunGraphError, RunId,
+    RunNode, WorkerExecutionSpec, WorkerRole, WorkerRouteClass,
 };
+use std::collections::BTreeSet;
 use std::path::PathBuf;
 
 fn spec_fixture(name: &str) -> PathBuf {
@@ -27,6 +29,7 @@ fn node(id: &str, kind: NodeKind, authority: AuthorityClass, idempotency_key: &s
         output_digest: None,
         parent_receipts: vec!["receipt:parent".to_string()],
         checkpoint: CheckpointMetadata::default(),
+        worker: None,
     }
 }
 
@@ -158,4 +161,87 @@ fn canonical_rust_type_rejects_fixed_invalid_run_graph_fixtures() {
             "{fixture} must fail closed"
         );
     }
+}
+
+#[test]
+fn validates_persisted_worker_roles_and_exact_dependency_contracts() {
+    let mut approval = node(
+        "approval",
+        NodeKind::Approval,
+        AuthorityClass::HumanApproval,
+        "approval-worker",
+    );
+    approval.worker = Some(WorkerExecutionSpec {
+        role: WorkerRole::HumanApproval,
+        worker_id: "operator:owner".into(),
+        route_id: "human:owner".into(),
+        route_class: WorkerRouteClass::Human,
+        prompt_digest: format!("sha256:{}", "a".repeat(64)),
+        allowed_toolsets: BTreeSet::new(),
+        dependencies: Vec::new(),
+        deadline_unix_ms: 1_800_000_000_000,
+        output_contract: "arda.human-decision-receipt.v1".into(),
+        evidence_policy: EvidencePolicy::HumanDecisionReceipt,
+    });
+    let mut execute = node(
+        "execute",
+        NodeKind::Execute,
+        AuthorityClass::ExecuteWithApproval,
+        "implementation-worker",
+    );
+    execute.worker = Some(WorkerExecutionSpec {
+        role: WorkerRole::Implementer,
+        worker_id: "hermes:implementation-1".into(),
+        route_id: "hosted:implementation".into(),
+        route_class: WorkerRouteClass::Hosted,
+        prompt_digest: format!("sha256:{}", "b".repeat(64)),
+        allowed_toolsets: BTreeSet::from(["file".into(), "terminal".into()]),
+        dependencies: vec![NodeId::new("approval").unwrap()],
+        deadline_unix_ms: 1_800_000_000_000,
+        output_contract: "arda.hermes-job-result.v1".into(),
+        evidence_policy: EvidencePolicy::WorkerReport,
+    });
+    let edge = RunEdge {
+        id: EdgeId::new("approval-to-execute").unwrap(),
+        from: NodeId::new("approval").unwrap(),
+        to: NodeId::new("execute").unwrap(),
+        parent_receipt: Some("receipt:approval".into()),
+    };
+
+    graph(vec![approval.clone(), execute.clone()], vec![edge.clone()])
+        .validate()
+        .unwrap();
+
+    execute.worker.as_mut().unwrap().dependencies.clear();
+    assert!(matches!(
+        graph(vec![approval, execute], vec![edge]).validate(),
+        Err(RunGraphError::WorkerDependencyMismatch(_))
+    ));
+}
+
+#[test]
+fn independent_verifier_requires_native_project_evidence() {
+    let mut verifier = node(
+        "verify",
+        NodeKind::Verify,
+        AuthorityClass::Verify,
+        "independent-verifier",
+    );
+    verifier.worker = Some(WorkerExecutionSpec {
+        role: WorkerRole::IndependentVerifier,
+        worker_id: "hermes:verification-1".into(),
+        route_id: "hosted:verification".into(),
+        route_class: WorkerRouteClass::Hosted,
+        prompt_digest: format!("sha256:{}", "c".repeat(64)),
+        allowed_toolsets: BTreeSet::from(["terminal".into()]),
+        dependencies: Vec::new(),
+        deadline_unix_ms: 1_800_000_000_000,
+        output_contract: "arda.verification-receipt.v1".into(),
+        evidence_policy: EvidencePolicy::WorkerReport,
+    });
+
+    assert!(matches!(
+        graph(vec![verifier], vec![]).validate(),
+        Err(RunGraphError::WorkerRoleMismatch(_))
+    ));
 }

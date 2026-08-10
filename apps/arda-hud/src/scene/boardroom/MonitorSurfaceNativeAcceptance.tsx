@@ -1,16 +1,23 @@
 import { useMemo, useState } from 'react'
 import {
   agentClaimMonitor,
+  agentClaimMonitorSurface,
+  agentGetMonitorSurfaceRegistry,
   agentPushSurfacePayload,
+  agentRefreshMonitorSurfaceLease,
   agentRefreshMonitorLease,
   agentReleaseMonitor,
+  agentReleaseMonitorSurface,
   createMonitorSurface,
   dismissMonitorSurface,
   type AgentClaimResult,
   type BoardroomMonitorSlotSource,
 } from '../../lib/boardroomSlotSettings'
+import { windowManager } from '../../utils/multiWindow'
+import { coerceRuntimeMonitorRegistry } from '../../lib/monitorSurfaceRegistryBridge'
+import { createMonitorSessionWindowConfig } from './monitorSessionWorkstationRoute'
 
-const SLOT_ID = 'monitor_left_1'
+const SLOT_ID = 'monitor_1'
 const OWNER = 'hermes-agent-acceptance'
 const BINDING = 'hermes.acceptance'
 const STORAGE_KEY = 'arda.monitor-surface-native-acceptance'
@@ -182,7 +189,7 @@ export default function MonitorSurfaceNativeAcceptance({ source }: { source: Boa
           disabled={busy}
           onClick={() => void run('unauthorized claim rejected', async () => {
             const result = await agentClaimMonitor({
-              slotId: 'monitor_left_2',
+              slotId: 'monitor_2',
               owner: 'unauthorized-agent',
               activityKind: 'agent_activity',
               payloadBinding: 'hermes.acceptance',
@@ -203,6 +210,83 @@ export default function MonitorSurfaceNativeAcceptance({ source }: { source: Boa
           })}
         >
           8 Release/dismiss
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void run('typed same-session claim', async () => {
+            const result = await agentClaimMonitorSurface({
+              slotId: SLOT_ID,
+              owner: { kind: 'agent', name: OWNER },
+              initialContent: {
+                kind: 'document',
+                documentKind: 'markdown',
+                source: { kind: 'local', path: 'README.md' },
+              },
+              ttlMs: 3_600_000,
+            })
+            return {
+              ok: result.ok && result.session?.workstation_handoff.session_id === result.session?.surface_session_id,
+              detail: `${result.message}; session=${result.session?.surface_session_id ?? 'none'}`,
+            }
+          })}
+        >
+          Phase 6 typed claim
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void run('typed same-session workstation', async () => {
+            const registry = await agentGetMonitorSurfaceRegistry()
+            const session = coerceRuntimeMonitorRegistry(registry)?.sessions[SLOT_ID]
+            if (!session) return { ok: false, detail: 'No active typed monitor_1 session' }
+            windowManager.open(createMonitorSessionWindowConfig(session))
+            return {
+              ok: session.workstation_handoff.session_id === session.surface_session_id,
+              detail: `opened session=${session.surface_session_id}`,
+            }
+          })}
+        >
+          Phase 6 open workstation
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void run('typed same-session refresh', async () => {
+            const registry = coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())
+            const session = registry?.sessions[SLOT_ID]
+            if (!session) return { ok: false, detail: 'No active typed monitor_1 session' }
+            const result = await agentRefreshMonitorSurfaceLease(
+              session.surface_session_id,
+              { kind: 'agent', name: OWNER },
+              3_600_000,
+            )
+            return {
+              ok: result.ok && result.session?.revision === session.revision + 1,
+              detail: `${result.message}; revision=${result.session?.revision ?? 'none'}`,
+            }
+          })}
+        >
+          Phase 6 refresh session
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void run('typed same-session release', async () => {
+            const registry = coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())
+            const session = registry?.sessions[SLOT_ID]
+            if (!session) return { ok: false, detail: 'No active typed monitor_1 session' }
+            const result = await agentReleaseMonitorSurface(
+              session.surface_session_id,
+              { kind: 'agent', name: OWNER },
+            )
+            return {
+              ok: result.ok && result.session === null,
+              detail: `${result.message}; released=${session.surface_session_id}`,
+            }
+          })}
+        >
+          Phase 6 release session
         </button>
         <button
           type="button"

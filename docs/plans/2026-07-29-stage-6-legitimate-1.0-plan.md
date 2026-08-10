@@ -1,22 +1,22 @@
 # Arda Stage 6 — Legitimate 1.0 Plan
 
-> **For Hermes:** Stage 6 is the release decision and proof phase. Do not expand scope to satisfy every long-term Arda vision. Ship the smallest complete, supportable promise and preserve later applications as compatible extensions.
+> **For Hermes:** Stage 6 is the release decision and proof phase. The [Arda 1.0 Personal Agent Ecosystem Plan](2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md) now owns product scope and required vertical proofs. This plan owns artifact, compatibility, safety, quality, support, independent-user, and release-decision gates; it must not substitute Workbench-only evidence for the master-plan product proofs.
 
-**System completion coordination:** [Arda System Unification and Usability Plan](2026-08-02-arda-system-unification-and-usability-plan.md). This Stage 6 plan remains authoritative for 1.0 release gates; the coordination plan adds no product scope.
+**System completion coordination:** [Arda System Unification and Usability Plan](2026-08-02-arda-system-unification-and-usability-plan.md). This Stage 6 plan remains authoritative for release qualification, not product identity.
 
 **Frontend convergence authority:** [HUD Frontend–Backend Contract Convergence and 1.0 Closeout](2026-08-06-hud-frontend-backend-contract-convergence-plan.md) and its [live integration audit](../audits/2026-08-06-hud-frontend-backend-integration.md).
 
-**Release promise:** Connect a supported software project to a sovereign AI development environment you own. Arda plans, researches when needed, executes bounded work, verifies it with the project's commands, explains the evidence, records every consequential action, and resumes safely.
+**Release promise:** Operate one local-first personal agent ecosystem from phone and desktop: preserve personal and project context, compose bounded workers and optional capabilities, complete verified external-project work, provide governed proactive assistance, explain evidence, request appropriate authority, and resume safely.
 
-**Product:** Arda Workbench 1.0 for the declared Linux support matrix  
+**Product:** Arda 1.0 personal-agent-ecosystem base for the declared Linux support matrix; Workbench remains the release-critical artifact path<br>
 **Included HUD projections:** system/runtime health, Workbench, recovery/diagnostics, Research, Personal Operations, and five independently claimable upper monitors.
-**Outside 1.0:** Mirromere, RELIC/CITADEL feature expansion, Company Operations pilot work, and external-product adoption.
+**Optional/not base blockers:** Mirromere hardware, RELIC/CITADEL feature expansion, Company Operations pilots, live x402/payment execution, and validated-device ingestion. Their attachment contracts and truthful status follow the master plan.
 
 ---
 
 ## Entry criteria
 
-- Stage 5 release-candidate evidence packet is complete.
+- Entry requires the Stage 5 release-candidate evidence packet to be complete.
 - Every critical/high defect is resolved or explicitly release-blocking.
 - One qualifying independent non-author evaluation has passed without author/agent substitution.
 - Installation, upgrade, rollback, backup, restore, and diagnostics are reproducible.
@@ -25,6 +25,11 @@
 ## 1.0 scope lock
 
 ### Included
+- capability-composed objectives over one task, memory, governance, communications, and receipt model;
+- one phone-accessible authenticated operator session sharing canonical lineage with desktop surfaces;
+- Personal Operations capture, context resume, reminders, and bounded proactive assistance;
+- useful optional local-inference/council participation with explicit non-approval semantics;
+- a governed external-adapter and assimilation proof;
 - Linux install and launcher;
 - project attach/import;
 - Rust, Python, JavaScript/TypeScript adapters;
@@ -51,6 +56,10 @@
 - Mirromere or CITADEL hardware as required components.
 
 Any new feature proposed after scope lock must replace an equal or larger release risk, not merely add capability.
+
+The master convergence plan's P0–P6, P9, and required P10 vertical proofs are
+entry criteria for the corrected 1.0 release candidate. Optional payment,
+validated-device, Mirromere, and Company distributions remain separately gated.
 
 ## Release workstream 1 — Contract and compatibility freeze
 
@@ -243,7 +252,8 @@ Each claim references commands, artifact hashes, run IDs, evaluator evidence, or
 1. Stabilize the 1.x Workbench compatibility line.
 2. Gather broader cohort and repeat-use evidence without rewriting 1.0 history.
 3. Consider Company Operations pilots only when a real operator-selected engagement exists.
-4. Reconsider Mirromere or RELIC/CITADEL only through a new bounded post-1.0 decision.
+4. Advance Mirromere or RELIC/CITADEL only through a bounded master-plan
+   decision; shipping those optional distributions may occur after the base.
 5. Expand Warden watchlists and governed self-improvement only as audit evidence supports additional authority.
 
 The 1.0 release is the point where Arda begins serving the creator reliably—not the point where the vision stops growing.

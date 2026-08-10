@@ -2,9 +2,11 @@
 pub mod agent;
 pub mod aipkg;
 pub mod background;
+pub mod capability_composition;
 pub mod company_ops;
 pub mod config;
 pub mod contract;
+pub mod council_run;
 pub mod daemon;
 pub mod error;
 pub mod governance;
@@ -23,6 +25,7 @@ pub mod orome_runtime;
 pub mod personal_ops;
 pub mod personal_ops_projection;
 pub mod pipeline;
+pub mod proactive_communication;
 pub mod project_contract;
 pub mod router;
 pub mod run_graph;
@@ -38,8 +41,13 @@ pub mod tool_contract;
 pub use agent::Agent;
 pub use aipkg::{AipkgGovernance, AipkgManifest, AipkgPreflight, AipkgReceiptPolicy};
 pub use background::{spawn_bounded_background, try_run_bounded, try_run_bounded_async};
+pub use capability_composition::{CapabilityComposition, CapabilityCompositionError};
 pub use config::Config;
 pub use contract::CONTRACT_VERSION;
+pub use council_run::{
+    CouncilAuthority, CouncilParticipant, CouncilRoleKind, CouncilRun, CouncilRunError,
+    CouncilState, MaterialTension, OperatorDisposition,
+};
 pub use daemon::{CommandEnvelope, ResponseEnvelope};
 pub use error::{ArdaError, Result};
 pub use ledger::Ledger;

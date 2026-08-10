@@ -13,7 +13,8 @@ registry types, and the unified Arda error type.
 - `OWNERSHIP.md` — authority and integration boundaries
 - `docs/` — interop landscape, implemented GEN3 consumers, and open questions
 - `src/` — compiled crate surface; see `src/lib.rs` and `src/INDEX.md`
-- `tests/` — sovereign tool-contract smoke coverage
+- `tests/` — capability, personal/company/project/run contract coverage and
+  sovereign tool-contract smoke coverage
 
 ## Purpose (one line)
 Shared spine surface for the Arda governance bus.

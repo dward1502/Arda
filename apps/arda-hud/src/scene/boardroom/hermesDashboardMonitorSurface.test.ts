@@ -19,7 +19,7 @@ function makeSource(): BoardroomMonitorSlotSource {
   return {
     sourceZoneId: 'hermes.live_stream',
     assignment: {
-      slot_id: 'monitor_left_1',
+      slot_id: 'monitor_1',
       component_id: 'test',
       source_zone_id: 'hermes.live_stream',
       title: 'Hermes Live',
@@ -53,19 +53,19 @@ describe('HermesDashboardMonitorSurface — reduced-motion policy', () => {
   it('resolveMonitorFocus returns remote_preview focus mode for active claim with hermes.live_stream binding', () => {
     const claim = makeClaim()
     const sources: Record<string, BoardroomMonitorSlotSource | null> = {
-      monitor_left_1: makeSource(),
+      monitor_1: makeSource(),
     }
-    const claims = { monitor_left_1: claim }
-    const assignments = { monitor_left_1: 'hermes.live_stream' }
+    const claims = { monitor_1: claim }
+    const assignments = { monitor_1: 'hermes.live_stream' }
     const layouts = {
-      monitor_left_1: {
+      monitor_1: {
         enabled: true, adapter_type: 'agent_activity',
         preview: { mode: 'agent_activity', refresh_ms: 1000, widgets: [] },
         focus: { mode: 'remote_preview', target: 'hermes.live_stream', refresh_ms: 1000 },
         embed: { url: null, allow_inline: false },
       },
     }
-    const result = resolveMonitorFocus('monitor_left_1', assignments, sources, layouts, claims, NOW)
+    const result = resolveMonitorFocus('monitor_1', assignments, sources, layouts, claims, NOW)
     expect(result).not.toBeNull()
     expect(result!.hasActiveClaim).toBe(true)
     expect(result!.focusMode).toBe('remote_preview')
@@ -85,14 +85,14 @@ describe('HermesDashboardMonitorSurface — reduced-motion policy', () => {
   it('resolveMonitorFocus falls back to persisted when claim lease is expired', () => {
     const expiredClaim = makeClaim({ lease_expires_at_utc: '2026-01-01T00:00:00.000Z' })
     const sources: Record<string, BoardroomMonitorSlotSource | null> = {
-      monitor_left_1: { ...makeSource(), claim: expiredClaim, active: false },
+      monitor_1: { ...makeSource(), claim: expiredClaim, active: false },
     }
     const result = resolveMonitorFocus(
-      'monitor_left_1',
-      { monitor_left_1: 'service_warp_dev' },
+      'monitor_1',
+      { monitor_1: 'service_warp_dev' },
       sources,
       {},
-      { monitor_left_1: expiredClaim },
+      { monitor_1: expiredClaim },
       NOW,
     )
     expect(result!.hasActiveClaim).toBe(false)
@@ -101,11 +101,11 @@ describe('HermesDashboardMonitorSurface — reduced-motion policy', () => {
 
   it('resolveMonitorFocus returns remote_preview focus when layout specifies it with no active claim', () => {
     const result = resolveMonitorFocus(
-      'monitor_left_1',
-      { monitor_left_1: 'hermes.live_stream' },
+      'monitor_1',
+      { monitor_1: 'hermes.live_stream' },
       {},
       {
-        monitor_left_1: {
+        monitor_1: {
           enabled: true, adapter_type: 'agent_activity',
           preview: { mode: 'agent_activity', refresh_ms: 1000, widgets: [] },
           focus: { mode: 'remote_preview', target: 'hermes.live_stream', refresh_ms: 1000 },

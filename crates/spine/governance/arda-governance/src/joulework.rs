@@ -5,6 +5,7 @@
 //! JouleWork equation or wage/token model. See `../GOVERNANCE_PROVENANCE.md`
 //! for the exact source, adaptation boundary, and terms review.
 
+use arda_core::governance_gates::OperatorBurdenEstimate;
 use arda_core::{JouleWorkMeasurementSource, Task};
 use serde::{Deserialize, Serialize};
 
@@ -23,9 +24,20 @@ pub struct JouleWorkProfile {
     pub observed_measurement: bool,
     pub autonomy_truth_allowed: bool,
     pub efficient: bool,
+    #[serde(default)]
+    pub run_id: String,
+    #[serde(default)]
+    pub operator_burden: OperatorBurdenEstimate,
 }
 
 pub fn profile_joulework(task: &Task) -> JouleWorkProfile {
+    profile_joulework_with_burden(task, OperatorBurdenEstimate::default())
+}
+
+pub fn profile_joulework_with_burden(
+    task: &Task,
+    mut operator_burden: OperatorBurdenEstimate,
+) -> JouleWorkProfile {
     let estimated = task.joule_cost_estimated.max(0.0);
     let actual = task.joule_cost_actual.max(0.0);
     let variance = if estimated > 0.0 && actual > 0.0 {
@@ -39,6 +51,11 @@ pub fn profile_joulework(task: &Task) -> JouleWorkProfile {
         1.0
     };
 
+    operator_burden.confidence = if operator_burden.confidence.is_finite() {
+        operator_burden.confidence.clamp(0.0, 1.0)
+    } else {
+        0.0
+    };
     let profile = JouleWorkProfile {
         policy_version: JOULEWORK_POLICY_VERSION.to_string(),
         estimated,
@@ -50,6 +67,8 @@ pub fn profile_joulework(task: &Task) -> JouleWorkProfile {
         observed_measurement: task.joulework_measurement_source.is_observed(),
         autonomy_truth_allowed: task.joulework_measurement_source.is_autonomy_truth(),
         efficient: variance <= 0.25,
+        run_id: task.id.to_string(),
+        operator_burden,
     };
     crate::global_governance_metrics().observe_joule_honesty(&profile);
     profile
@@ -100,5 +119,27 @@ mod tests {
         assert_eq!(profile.measurement_confidence, 0.0);
         assert!(!profile.observed_measurement);
         assert!(!profile.autonomy_truth_allowed);
+    }
+
+    #[test]
+    fn joulework_profile_keeps_operator_burden_explicitly_estimated() {
+        let task = Task::new("prepare proactive reminder", "communicate");
+        let profile = profile_joulework_with_burden(
+            &task,
+            OperatorBurdenEstimate {
+                estimated_interruption_seconds: 20,
+                estimated_recovery_seconds: 90,
+                source: JouleWorkMeasurementSource::OperatorEstimate,
+                confidence: 0.6,
+            },
+        );
+
+        assert_eq!(profile.run_id, task.id.to_string());
+        assert_eq!(profile.operator_burden.estimated_interruption_seconds, 20);
+        assert_eq!(profile.operator_burden.estimated_recovery_seconds, 90);
+        assert_eq!(
+            profile.operator_burden.source,
+            JouleWorkMeasurementSource::OperatorEstimate
+        );
     }
 }

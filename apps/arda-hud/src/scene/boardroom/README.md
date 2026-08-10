@@ -32,9 +32,9 @@ performance contract.
 
 ## Agentic monitor surfaces
 
-- Five upper-monitor zones are scene anchors; four expose assignable monitor slots
-  (`monitor_left_1..monitor_left_4`). Desk surfaces remain operator-owned,
-  read-only reference surfaces.
+- Five upper-monitor zones are scene anchors; all five expose canonical,
+  independently claimable slots (`monitor_1..monitor_5`). Desk surfaces remain
+  operator-owned command instruments.
 - `useBoardroomSlotAssignments.ts` persists monitor claims and resolves live claim,
   static assignment, then workspace fallback precedence.
 - `App.tsx` synchronizes native `monitor-claim-changed` and
@@ -42,34 +42,36 @@ performance contract.
 - `monitorSurfaceRuntime.ts` validates and bounds live payloads before they reach
   `BoardroomViewport.tsx`; scene zones resolve through their stable
   `assignmentSlotId` before entering the monitor contract.
-- Every active claim gets the live claim preview. The operator-configured focus
-  mode controls activation behavior (`native_window`, `remote_preview`, and so on)
-  but does not suppress the claimed monitor content.
+- Render precedence is typed monitor session, then active agent claim, then the
+  slot's unique ambient identity. Idle ambient monitors are intentionally
+  non-interactive and have no static departmental assignment.
+- Clicking an occupied typed monitor resolves the exact session registry record
+  and opens/focuses its `surfaceSessionId` workstation. It must never fall back
+  to a generic source-zone panel while that session exists.
 - Monitor activation and dismissal use the Tauri surface bridge; Rust ownership in
-  `commands/monitor_surface.rs` enforces one active owner, bounded leases, allowed
-  Hermes identities, and exact payload-binding authorization.
+  `commands/monitor_surface/` enforces one active owner per canonical slot,
+  bounded leases, owner authorization, revision isolation, and exact
+  payload-binding authorization.
 - Missing, expired, or malformed live state renders explicit fallback/`NO DATA`
   content rather than synthetic telemetry.
 
 ## Native monitor rendering
 
-- Browser rendering keeps Drei's perspective-transformed HTML so preview cards
-  follow the physical monitor planes.
-- Native Tauri/WebKit rendering uses the same visible preview content through a
-  non-transformed, screen-space `Html` path. WebKitGTK reduced transformed Drei
-  content to nearly zero-sized compositor layers even though its accessibility
-  targets remained active, which made every at-rest monitor look blank.
-- `resolveBoardroomSurfaceRenderStrategy()` is the shared runtime decision for
-  upper monitors, lower desk surfaces, fleet previews, and the command core.
-  Native rendering does not add a separate transparent hit target; the visible
-  surface is also the accessible activation target.
-- Fleet preview cards have bounded monitor and desk heights so live metrics stay
-  inside their physical apertures in both runtimes.
+- Production boardroom pixels render through CanvasTexture-backed WebGL planes
+  fitted to the authored monitor and desk apertures. Perspective-transformed
+  DOM cards and screen-space HTML overlays are not the production path.
+- `BoardroomApertureSurface` hosts both boardroom and focused-workstation content
+  through the same typed renderer registry.
+- Upper ambient animation is bounded and honors deterministic/reduced-motion
+  profiles without replacing valid content.
+- Lower desk apertures use unique radar, waveform, lattice, reactor, and organic
+  signal languages; detailed text belongs in deliberately opened workstations.
 
 Native acceptance is performed against the running `ARDA HUD` window with CUA,
 not inferred from the browser build. The acceptance path must confirm visible
-content on all five upper monitors and all five lower terminal zones, open one
-surface through its visible card, and close it back to the boardroom.
+content on all five upper monitors and all five lower apertures, prove that an
+idle upper monitor does nothing, then open an occupied monitor and verify the
+focused window preserves the same session and content.
 
 For a repeatable development-only agent-claim walkthrough, launch with
 `VITE_MONITOR_ACCEPTANCE=1 pnpm run tauri dev`. The resulting

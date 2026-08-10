@@ -17,13 +17,26 @@ shell, `src/` holds the React surface.
 ## What it does
 
 - renders the R3F boardroom as the primary operating scene;
+- treats the five upper monitors as independent agent-owned canvases: idle
+  monitors render quiet ambient identities, while occupied monitors render the
+  authoritative typed session and open that exact session in a workstation;
+- renders the five lower apertures as distinct, nearly textless command
+  instruments derived from live state rather than miniature web dashboards;
 - projects runtime, research, governance, settings, and review surfaces into
   typed workstations;
 - observes Manwë through the configured OpenAI-compatible model, health, and
   status contracts rather than treating a dated port as permanent authority;
-- opens Hermes Dashboard and Hermes CLI as distinct operator actions; and
+- projects routing/provider readiness under the current Manwë + Aulë authority;
+  legacy Hermes dashboard/CLI launchers remain compatibility surfaces pending
+  explicit retirement and are not upper-monitor ownership authority; and
 - renders Arandur as a progressive particle presence driven by canonical
   presence events and an optional Vairë persona projection.
+
+Idle upper monitors are deliberately non-interactive. Legacy static assignments
+for Warp, Routing Providers, Knowledge + Memory, and Queue + Plans are not
+defaults. Only a valid typed monitor session or live agent claim may activate a
+monitor workstation, preventing an unassigned screen from falling through to
+the generic Sovereign World panel.
 
 ## Arandur presence and persona projection
 
@@ -68,7 +81,8 @@ pnpm tauri build    # produces the platform bundle under src-tauri/target
 
 - `arda` (root daemon) supervises Manwë and owns runtime lifecycle.
 - `arda-launcher` is the atmospheric onboarding/title screen.
-- `arda-hud` is the operator dashboard for the gateway those two produce.
+- `arda-hud` is the spatial operator environment for the gateway those two
+  produce.
 
 The HUD remains a projection and control surface. Canonical tasks, memory,
 identity, policy, and runtime authority stay in their owning Arda subsystems.

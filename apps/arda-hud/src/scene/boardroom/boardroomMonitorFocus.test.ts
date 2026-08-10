@@ -19,7 +19,7 @@ function makeSource(claim: BoardroomAgentClaim | null, active: boolean): Boardro
   return {
     sourceZoneId: claim?.payload_binding ?? 'service_warp_dev',
     assignment: {
-      slot_id: 'monitor_left_1',
+      slot_id: 'monitor_1',
       component_id: 'test',
       source_zone_id: 'service_warp_dev',
       title: 'Test',
@@ -47,27 +47,27 @@ describe('resolveMonitorFocus', () => {
   it('resolves the active claim source when a live binding exists', () => {
     const claim = makeClaim()
     const sources: Record<string, BoardroomMonitorSlotSource | null> = {
-      monitor_left_1: makeSource(claim, true),
+      monitor_1: makeSource(claim, true),
     }
-    const claims = { monitor_left_1: claim }
-    const assignments = { monitor_left_1: 'service_warp_dev' }
-    const result = resolveMonitorFocus('monitor_left_1', assignments, sources, {}, claims, NOW)
+    const claims = { monitor_1: claim }
+    const assignments = { monitor_1: 'service_warp_dev' }
+    const result = resolveMonitorFocus('monitor_1', assignments, sources, {}, claims, NOW)
     expect(result).not.toBeNull()
     expect(result!.hasActiveClaim).toBe(true)
     expect(result!.sourceZoneId).toBe('hermes.live_stream')
   })
 
   it('falls back to persisted assignment when no live claim is active', () => {
-    const assignments = { monitor_left_1: 'service_warp_dev' }
-    const result = resolveMonitorFocus('monitor_left_1', assignments, { monitor_left_1: null }, {}, {}, NOW)
+    const assignments = { monitor_1: 'service_warp_dev' }
+    const result = resolveMonitorFocus('monitor_1', assignments, { monitor_1: null }, {}, {}, NOW)
     expect(result).not.toBeNull()
     expect(result!.hasActiveClaim).toBe(false)
     expect(result!.sourceZoneId).toBe('service_warp_dev')
   })
 
   it('falls back to default focus mode when no surface layout exists', () => {
-    const assignments = { monitor_left_1: 'routing_and_comms' }
-    const result = resolveMonitorFocus('monitor_left_1', assignments, {}, {}, {}, NOW)
+    const assignments = { monitor_1: 'routing_and_comms' }
+    const result = resolveMonitorFocus('monitor_1', assignments, {}, {}, {}, NOW)
     expect(result).not.toBeNull()
     expect(result!.hasActiveClaim).toBe(false)
     expect(result!.focusMode).toBe('in_scene_workstation')
@@ -76,17 +76,17 @@ describe('resolveMonitorFocus', () => {
   it('ignores inactive claims and falls back to persisted assignment', () => {
     const expiredClaim = makeClaim({ lease_expires_at_utc: '2026-01-01T00:00:00.000Z' })
     const sources: Record<string, BoardroomMonitorSlotSource | null> = {
-      monitor_left_1: makeSource(expiredClaim, false),
+      monitor_1: makeSource(expiredClaim, false),
     }
-    const result = resolveMonitorFocus('monitor_left_1', { monitor_left_1: 'service_warp_dev' }, sources, {}, {}, NOW)
+    const result = resolveMonitorFocus('monitor_1', { monitor_1: 'service_warp_dev' }, sources, {}, {}, NOW)
     expect(result!.hasActiveClaim).toBe(false)
     expect(result!.sourceZoneId).toBe('service_warp_dev')
   })
 
   it('uses layout focus mode when available', () => {
-    const assignments = { monitor_left_1: 'service_warp_dev' }
+    const assignments = { monitor_1: 'service_warp_dev' }
     const layouts = {
-      monitor_left_1: {
+      monitor_1: {
         enabled: true,
         adapter_type: 'service_embed' as const,
         preview: { mode: 'stream_feed' as const, refresh_ms: 2500, widgets: [] },
@@ -94,7 +94,15 @@ describe('resolveMonitorFocus', () => {
         embed: { url: 'http://example.com', allow_inline: false },
       },
     }
-    const result = resolveMonitorFocus('monitor_left_1', assignments, {}, layouts, {}, NOW)
+    const result = resolveMonitorFocus('monitor_1', assignments, {}, {
+      monitor_1: {
+        enabled: true,
+        adapter_type: 'service_embed' as const,
+        preview: { mode: 'stream_feed' as const, refresh_ms: 2500, widgets: [] },
+        focus: { mode: 'remote_preview' as const, target: 'service_warp_dev', refresh_ms: 1000 },
+        embed: { url: 'http://example.com', allow_inline: false },
+      },
+    } satisfies Record<string, import('../../lib/boardroomSlotSettings').BoardroomSurfaceLayout>, {}, NOW)
     expect(result!.focusMode).toBe('remote_preview')
     expect(result!.sourceZoneId).toBe('service_warp_dev')
   })

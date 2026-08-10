@@ -59,6 +59,12 @@ import { deriveBoardroomHudInstruments } from './scene/boardroom/boardroomHudIns
 import { adaptBoardroomHudSource } from './scene/boardroom/boardroomHudSourceAdapters'
 import BoardroomViewport from './scene/boardroom/BoardroomViewport'
 import MonitorSurfaceNativeAcceptance from './scene/boardroom/MonitorSurfaceNativeAcceptance'
+import MonitorSessionWorkstation from './scene/boardroom/MonitorSessionWorkstation'
+import {
+  createMonitorSessionWindowConfig,
+  findMonitorSessionRecord,
+  parseMonitorSessionWorkstationId,
+} from './scene/boardroom/monitorSessionWorkstationRoute'
 import WorldRuntimeViewport from './scene/world/WorldViewport'
 import { calculateWorldDistrictUrgencies } from './scene/world/worldDistrictUrgency'
 
@@ -100,9 +106,14 @@ import { useBoardroomSlotAssignments } from './components/arda/hooks/useBoardroo
 import { useManweLiveSnapshot } from './components/arda/hooks/useManweLiveSnapshot'
 import { useWorldSurfaceAssignments } from './components/arda/hooks/useWorldSurfaceAssignments'
 import {
-  agentClaimMonitor,
   agentRefreshMonitorLease,
   agentReleaseMonitor,
+  agentClaimMonitorSurface,
+  agentReleaseMonitorSurface,
+  agentRefreshMonitorSurfaceLease,
+  MONITOR_SURFACE_REGISTRY_STORAGE_KEY,
+  persistMonitorSurfaceRegistry,
+  rehydrateMonitorSurfaceRegistry,
   BOARDROOM_MONITOR_SLOT_IDS,
   BOARDROOM_SCENE_SLOT_IDS,
   BOARDROOM_WORKSTATION_ROLE_PROFILES,
@@ -111,7 +122,15 @@ import {
   type BoardroomSceneSlotId,
   type MonitorSurfaceRequest,
 } from './lib/boardroomSlotSettings'
-import { claimFromMonitorEvent, normalizeMonitorLeaseExpiry, type MonitorClaimChangedEvent } from './scene/boardroom/monitorSurfaceRuntime'
+import {
+  createEmptyMonitorRegistryBySlot,
+  coerceRuntimeMonitorRegistry,
+  createMonitorSurfaceRegistryBridge,
+  selectActiveMonitorRecords,
+  type MonitorRecordsBySlot,
+} from './lib/monitorSurfaceRegistryBridge'
+import type { MonitorSurfaceSessionRecord } from './lib/monitorSurfaceContract'
+import { claimFromMonitorEvent, normalizeMonitorLeaseExpiry, resolveMonitorContractSlotId, type MonitorClaimChangedEvent } from './scene/boardroom/monitorSurfaceRuntime'
 import {
   WORLD_SCENE_SURFACE_IDS,
   WORLD_TERMINAL_SURFACE_IDS,
@@ -250,6 +269,7 @@ export default function App() {
   const showCustomWindowControls = currentWindowRole !== 'workstation'
   const { closeWindow, minimizeWindow, toggleFullscreen, startDragging } = useArdaWindowControls(currentWindowId)
   const initialWorkstationId = searchParams.get('__workstation')
+  const initialMonitorSessionId = parseMonitorSessionWorkstationId(initialWorkstationId)
   const initialSectionId = searchParams.get('__section')
   const initialView = (searchParams.get('__view') as ViewMode | null) ?? 'boardroom'
   const [theme, setTheme] = useState<ThemeId>('gibson2')
@@ -285,6 +305,9 @@ export default function App() {
     message: boardroomSlotAssignmentMessage,
     saveStatus: boardroomSlotSaveStatus,
   } = useBoardroomSlotAssignments(bundle?.rootPath)
+  const [monitorRecordsBySlot, setMonitorRecordsBySlot] = useState<MonitorRecordsBySlot>(
+    createEmptyMonitorRegistryBySlot,
+  )
   const hydratedMonitorClaimsRef = useRef(new Set<string>())
   const monitorClaimEventStateRef = useRef({
     sources: boardroomMonitorSlotSources,
@@ -330,7 +353,7 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    if (!('__TAURI_INTERNALS__' in window)) return
+    if (initialMonitorSessionId || !('__TAURI_INTERNALS__' in window)) return
     for (const slotId of BOARDROOM_MONITOR_SLOT_IDS) {
       const source = boardroomMonitorSlotSources[slotId]
       const claim = source?.claim
@@ -338,15 +361,76 @@ export default function App() {
       const key = `${slotId}:${claim.owner}`
       if (hydratedMonitorClaimsRef.current.has(key)) continue
       hydratedMonitorClaimsRef.current.add(key)
-      void agentClaimMonitor({
-        slotId,
-        owner: claim.owner,
-        activityKind: claim.activity_kind,
-        payloadBinding: claim.payload_binding,
-        focusMode: source.assignment.surface_layout.focus.mode,
+      void rehydrateMonitorSurfaceRegistry().then((registry) => {
+        if (registry?.sessions[slotId]) return
+        return agentClaimMonitorSurface({
+          slotId,
+          owner: { kind: 'agent', name: claim.owner },
+          initialContent: {
+            kind: 'web',
+            url: claim.payload_binding,
+            display: source.assignment.surface_layout.focus.mode === 'remote_preview' ? 'capture_stream' : 'inline',
+            sandboxProfile: 'default',
+          },
+          ttlMs: 3_600_000,
+        })
       }).catch(() => hydratedMonitorClaimsRef.current.delete(key))
     }
-  }, [boardroomMonitorSlotSources])
+  }, [boardroomMonitorSlotSources, initialMonitorSessionId])
+
+  useEffect(() => {
+    if (initialMonitorSessionId || !('__TAURI_INTERNALS__' in window)) return
+    void rehydrateMonitorSurfaceRegistry().catch(() => undefined)
+  }, [initialMonitorSessionId])
+
+  useEffect(() => {
+    if (!('__TAURI_INTERNALS__' in window)) return
+    let cancelled = false
+    let bridge: ReturnType<typeof createMonitorSurfaceRegistryBridge> | null = null
+    let expiryTimer: ReturnType<typeof setTimeout> | null = null
+    const applyRegistry = (registry: Parameters<typeof selectActiveMonitorRecords>[0]) => {
+      if (cancelled || !registry) return
+      setMonitorRecordsBySlot(selectActiveMonitorRecords(registry))
+      if (expiryTimer) clearTimeout(expiryTimer)
+      const now = Date.now()
+      const nextExpiry = Object.values(registry.sessions)
+        .map((session) => new Date(session.lease_expires_at_utc).getTime())
+        .filter((expiry) => Number.isFinite(expiry) && expiry > now)
+        .sort((a, b) => a - b)[0]
+      if (nextExpiry) expiryTimer = setTimeout(() => applyRegistry(registry), Math.max(1, nextExpiry - now + 1))
+    }
+    const handleRegistryStorage = (event: StorageEvent) => {
+      if (event.key !== MONITOR_SURFACE_REGISTRY_STORAGE_KEY || !event.newValue) return
+      try {
+        const registry = coerceRuntimeMonitorRegistry(JSON.parse(event.newValue))
+        if (registry) applyRegistry(registry)
+      } catch {
+        // Ignore malformed cross-window persistence updates.
+      }
+    }
+    window.addEventListener('storage', handleRegistryStorage)
+    void Promise.all([
+      import('@tauri-apps/api/core'),
+      import('@tauri-apps/api/event'),
+    ]).then(([{ invoke }, { listen }]) => {
+      if (cancelled) return
+      bridge = createMonitorSurfaceRegistryBridge({
+        invoke: (command, args) => invoke(command, args),
+        listen: (event, handler) => listen(event, handler),
+        onRegistry: (registry) => {
+          applyRegistry(registry)
+          void persistMonitorSurfaceRegistry(registry)
+        },
+      })
+      return bridge.start()
+    }).catch(() => undefined)
+    return () => {
+      cancelled = true
+      if (expiryTimer) clearTimeout(expiryTimer)
+      window.removeEventListener('storage', handleRegistryStorage)
+      void bridge?.stop()
+    }
+  }, [])
   const {
     assignments: worldSceneSurfaceAssignments,
     surfaceLayouts: worldSurfaceLayouts,
@@ -2180,11 +2264,23 @@ export default function App() {
     void createMonitorSurface(request).catch((error) => console.error('Failed to create monitor surface', error))
   }
 
+  const openMonitorSessionWorkstation = (record: MonitorSurfaceSessionRecord) => {
+    windowManager.open(createMonitorSessionWindowConfig(record))
+  }
+
   const releaseBoardroomMonitorClaim = (slotId: BoardroomSceneSlotId, owner: string) => {
     releaseBoardroomMonitorSlot(slotId, owner)
     if (!('__TAURI_INTERNALS__' in window)) return
-    void agentReleaseMonitor(slotId, owner).then((result) => {
-      if (result.windowLabel) return dismissMonitorSurface(result.windowLabel)
+    const monitorSlotId = resolveMonitorContractSlotId(slotId, slotId)
+    const session = monitorSlotId ? monitorRecordsBySlot[monitorSlotId] : null
+    if (!session || session.owner !== owner) {
+      void agentReleaseMonitor(slotId, owner).then((result) => {
+        if (result.windowLabel) return dismissMonitorSurface(result.windowLabel)
+      }).catch((error) => console.error('Failed to release legacy monitor claim', error))
+      return
+    }
+    void agentReleaseMonitorSurface(session.surface_session_id, { kind: 'agent', name: owner }).then((result) => {
+      if (result.ok) persistMonitorSurfaceRegistry(result.registry)
     }).catch((error) => console.error('Failed to release monitor claim', error))
   }
 
@@ -2193,9 +2289,21 @@ export default function App() {
       refreshBoardroomMonitorSlot(slotId, owner, new Date(Date.now() + 300_000).toISOString())
       return
     }
-    void agentRefreshMonitorLease(slotId, owner).then((result) => {
-      const expiry = normalizeMonitorLeaseExpiry(result.leaseExpiresAtUtc)
-      if (result.ok && expiry) refreshBoardroomMonitorSlot(slotId, owner, expiry)
+    const monitorSlotId = resolveMonitorContractSlotId(slotId, slotId)
+    const session = monitorSlotId ? monitorRecordsBySlot[monitorSlotId] : null
+    if (!session || session.owner !== owner) {
+      void agentRefreshMonitorLease(slotId, owner).then((result) => {
+        const expiry = normalizeMonitorLeaseExpiry(result.leaseExpiresAtUtc)
+        if (result.ok && expiry) refreshBoardroomMonitorSlot(slotId, owner, expiry)
+      }).catch((error) => console.error('Failed to refresh legacy monitor claim', error))
+      return
+    }
+    void agentRefreshMonitorSurfaceLease(session.surface_session_id, { kind: 'agent', name: owner }, 3_600_000).then((result) => {
+      const expiry = normalizeMonitorLeaseExpiry(result.session?.lease_expires_at_utc ?? '')
+      if (result.ok) {
+        persistMonitorSurfaceRegistry(result.registry)
+        if (expiry) refreshBoardroomMonitorSlot(slotId, owner, expiry)
+      }
     }).catch((error) => console.error('Failed to refresh monitor claim', error))
   }
 
@@ -2547,6 +2655,17 @@ export default function App() {
     ? floatingWorkstations.map(renderFloatingWorkstation)
     : null
 
+  if (initialMonitorSessionId) {
+    const record = findMonitorSessionRecord(monitorRecordsBySlot, initialMonitorSessionId)
+    return (
+      <MonitorSessionWorkstation
+        sessionId={initialMonitorSessionId}
+        record={record}
+        rootPath={bundle?.rootPath ?? null}
+      />
+    )
+  }
+
   return (
     <div className={`arda-app arda-app--${viewMode}`}>
       {showCustomWindowControls ? (
@@ -2566,7 +2685,7 @@ export default function App() {
       <div className="arda-background" />
       {error ? <div className="arda-error">{error}</div> : null}
       {isLoading && !bundle ? <div className="arda-loading">Loading core-state bundle...</div> : null}
-      <MonitorSurfaceNativeAcceptance source={boardroomMonitorSlotSources.monitor_left_1} />
+      <MonitorSurfaceNativeAcceptance source={boardroomMonitorSlotSources.monitor_1} />
 
       {/* <nav className="operating-surface-rail" aria-label="ARDA operating surface navigation">
         <div className="operating-surface-rail__brief">
@@ -2650,6 +2769,7 @@ export default function App() {
             slotAssignments={boardroomSceneSlotAssignments}
             surfaceLayouts={boardroomSurfaceLayouts}
             monitorSlotSources={boardroomMonitorSlotSources}
+            monitorRecordsBySlot={monitorRecordsBySlot}
             agentClaims={boardroomAgentClaims}
             onReleaseMonitor={releaseBoardroomMonitorClaim}
             onRefreshMonitor={refreshBoardroomMonitorClaim}
@@ -2663,6 +2783,7 @@ export default function App() {
             onActivate={handleSceneAnchorActivate}
             onOpenWorkstation={spawnFloatingWorkstation}
             onOpenMonitorSurface={openBoardroomMonitorSurface}
+            onOpenMonitorSession={openMonitorSessionWorkstation}
             onOpenHermesDashboard={handleOpenHermesDashboard}
             onOpenHermesCli={handleOpenHermesCli}
             onOpenSettings={() => spawnFloatingWorkstation('settings')}

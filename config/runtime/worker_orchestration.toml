@@ -1,0 +1,16 @@
+schema_version = "arda.worker-limits.v1"
+
+# Hard admission caps. Excess workers remain durably queued; limits are never
+# advisory and no retry may bypass them.
+max_total_workers = 4
+max_local_workers = 1
+max_hosted_workers = 3
+
+# Reservations use each node's maximum budget multiplied by its remaining
+# attempts. Actual usage from retries, verifiers, and replacement workers must
+# be charged to run, orchestration-cycle, and daily counters before rescheduling.
+max_run_cost_usd = 5.0
+max_run_joules = 50000.0
+max_cycle_cost_usd = 10.0
+max_cycle_joules = 100000.0
+max_daily_cost_usd = 25.0

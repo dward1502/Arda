@@ -1,16 +1,23 @@
 # Arda System Unification and Usability Plan
 
-> **For Hermes:** Execute this plan as a scope-frozen integration program. Use existing domain plans as implementation authorities; do not create new agents, applications, queues, memory systems, policy layers, or speculative capability domains.
+> **For Hermes:** Execute this plan as a scope-frozen integration and release
+> program subordinate to the [Arda 1.0 Personal Agent Ecosystem master plan](2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md).
+> Use existing domain plans as implementation authorities; do not create new
+> agents, applications, queues, memory systems, policy layers, or speculative
+> capability domains.
 
 **Status:** Active
 **Adopted:** 2026-08-02
 **Owner:** Arda system/runtime maintainers
-**Goal:** Finish the capabilities already committed under `docs/` and `docs/plans/`, compose them into one dependable Arda system, and mature that system into a functional, supportable product for other users without expanding its conceptual scope.
+**Goal:** Finish and compose the release-critical capabilities assigned here,
+then qualify them as a functional, supportable distribution without replacing
+the master plan's broader product identity or optional-capability boundaries.
 
 **Architecture:** The root `arda` daemon, `services.toml`, `arda-engine`, Manwë, the launcher, and the HUD form the canonical runtime and operator path. Existing domain crates remain the owners of their contracts and state; this plan coordinates composition, end-to-end proof, simplification, release readiness, and plan closeout rather than cloning domain work.
 
 **Primary release authorities:**
 
+- [Arda 1.0 Personal Agent Ecosystem master convergence plan](2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md) — product scope and required vertical proofs
 - [Stage 5 — Release Candidate](2026-07-29-stage-5-release-candidate-plan.md)
 - [Stage 6 — Legitimate 1.0](2026-07-29-stage-6-legitimate-1.0-plan.md)
 - [HUD Frontend–Backend Contract Convergence](2026-08-06-hud-frontend-backend-contract-convergence-plan.md)
@@ -61,8 +68,9 @@ If none can be identified, the task is out of scope.
 | Domain | Existing authority | This plan's role |
 |---|---|---|
 | Workbench release candidate | `2026-07-29-stage-5-release-candidate-plan.md` | Coordinate the remaining signed-artifact, soak, and independent-evaluator gates; do not duplicate them. |
-| Workbench 1.0 | `2026-07-29-stage-6-legitimate-1.0-plan.md` | Enter only after Stage 5 closes; preserve its release evidence requirements. |
-| Product/application classification | `docs/plans/ARDA_PRODUCT_PLAN_SUITE.md` and application plans | Keep Workbench release-critical; classify all other applications honestly. |
+| Arda 1.0 product convergence | `2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md` | Consume required vertical proofs and optional-capability boundaries; do not redefine product identity from this release slice. |
+| Stage 6 release qualification | `2026-07-29-stage-6-legitimate-1.0-plan.md` | Enter only after Stage 5 closes; preserve its artifact, compatibility, support, and release evidence requirements. |
+| Product/application classification | `docs/plans/ARDA_PRODUCT_PLAN_SUITE.md` and application plans | Keep Workbench release-critical while classifying optional applications and distributions honestly. |
 | Root process composition | `src/main.rs`, `services.toml`, `crates/engine/src/registry.rs`, `crates/engine/src/supervisor.rs` | Establish one canonical startup, health, shutdown, and recovery path. |
 | Routing/runtime convergence | `../archive/MANWE_SINGLE_RUNTIME_CONVERGENCE.md` | Consume the completed result; do not create another routing runtime. |
 | Contracts and governance | Existing spine contract/governance crates | Reuse typed contracts and verdicts; do not add parallel policy or receipt formats. |
@@ -120,6 +128,13 @@ remaining boundaries were assigned to current authorities. Optional products
 remain outside the Workbench Stage 5/6 critical path.
 
 **Gate U0:** Every open plan item has one owner, one acceptance surface, and one release classification; no completed plan remains in `docs/plans/`.
+
+**P0.2 authority reconciliation — 2026-08-08:** U0 remains the release-plan
+estate result, while the new master plan owns product convergence. The active
+directory contains eight Markdown authorities: six plans with unchecked work,
+one active HUD convergence plan whose prose phases/gates are unresolved, and
+one role-aware portfolio index. No completed implementation plan was reopened
+or retained merely to rewrite historical evidence.
 
 ### U1 — Establish one canonical runtime topology
 
@@ -412,7 +427,10 @@ remain outside the Workbench Stage 5/6 critical path.
 
 ### U6 — Release, closeout, and post-plan improvement mode
 
-**Objective:** Close the finite plan estate and transition from architecture expansion to measured maintenance and improvement.
+**Objective:** Close this finite release/integration estate and transition its
+supported distribution to measured maintenance and improvement. Optional
+capabilities may still advance only through the master plan's bounded gates;
+this closeout does not erase them from Arda's architecture.
 
 **Work:**
 

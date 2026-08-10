@@ -2,7 +2,9 @@
 
 > **For Hermes:** Stage 5 is active following operator acceptance of the Stage 4 evidence on 2026-07-31. Stage 5 converts a useful private beta into an installable, supportable release candidate; it is not a feature-expansion sprint.
 
-**System completion coordination:** [Arda System Unification and Usability Plan](2026-08-02-arda-system-unification-and-usability-plan.md). This Stage 5 plan remains authoritative for release-candidate gates; the coordination plan adds no product scope.
+**Product/master authority:** [Arda 1.0 Personal Agent Ecosystem Plan](2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md). This Stage 5 plan remains authoritative for Workbench-centered release-candidate packaging, security, reliability, diagnostics, support, and evaluator gates—not product identity.
+
+**System completion coordination:** [Arda System Unification and Usability Plan](2026-08-02-arda-system-unification-and-usability-plan.md).
 
 **Lifecycle status:** ACTIVE as of 2026-07-31.
 
@@ -10,7 +12,8 @@
 
 **Primary product:** Arda Workbench release candidate  
 **Secondary betas:** Personal Operations and Warden Research  
-**Outside 1.0:** Mirromere and RELIC/CITADEL feature expansion; retained operations remain isolated from the release-critical path
+**Optional/not Stage 5 blockers:** Mirromere and RELIC/CITADEL feature
+expansion; retained operations remain isolated from this release-critical path
 
 ## Reconciled Stage 5 authorities and dependencies — 2026-07-31
 
@@ -20,7 +23,7 @@
 | Warden/Varda durable backend | [governed-learning plan](../archive/2026-07-27-warden-varda-ceo-learning-loop.md) | completed supporting authority; required only if the optional Warden Research recurring-watchlist beta ships |
 | Warden Research product/API/HUD | [archived Warden Research record](../archive/2026-07-29-warden-research-application-plan.md) | completed optional secondary beta record; not release-critical |
 | Pi5 AArch64 deployment, fleet, SSH, shared recovery | [Pi5 record](../archive/2026-07-23-pi5-outpost-integration-plan.md) | completed supporting infrastructure; required only for a beta that promises physical outpost support |
-| RELIC/CITADEL presence/presentation | [retained RELIC/CITADEL operations](../operations/relic-citadel-presence.md) | existing recovery/soak history is nonblocking; feature expansion is outside 1.0 |
+| RELIC/CITADEL presence/presentation | [retained RELIC/CITADEL operations](../operations/relic-citadel-presence.md) | existing recovery/soak history is nonblocking; feature expansion is an optional master-plan capability, not a Stage 5 gate |
 
 No deferred application/outpost task may delay Workbench packaging, security, reliability, diagnostics, or support work.
 
@@ -28,7 +31,7 @@ No deferred application/outpost task may delay Workbench packaging, security, re
 
 ## Entry criteria
 
-- Stage 4 exit checklist and evidence packet are complete under the operator-approved local-only profile; independent evaluator evidence is optional supplementary validation.
+- Maturity: `workflow_proven` — the Stage 4 exit checklist and evidence packet are complete under the operator-approved local-only profile documented in the [archived Stage 4 plan](../archive/2026-07-29-stage-4-private-beta-plan.md); independent evaluator evidence is optional supplementary validation.
 - No critical unresolved data-loss, duplicate-mutation, secret-exposure, or authority-bypass issue.
 - Run graph and project contracts have a documented compatibility policy.
 - One Rust and one Python adapter path are repeatable.

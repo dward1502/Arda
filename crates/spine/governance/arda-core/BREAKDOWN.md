@@ -6,7 +6,7 @@ soterion:
   role: "governance_spine"
   owner: "arda"
   status: "active"
-  last_reviewed: "2026-07-28"
+  last_reviewed: "2026-08-08"
 ---
 
 # arda-core
@@ -73,7 +73,8 @@ without adding a second direct dependency.
 | `message.rs` | Spine message type with Soterion envelope metadata. |
 | `pipeline.rs` | Pipeline helpers for orchestrated execution stages. |
 | `router.rs` | Capability-based agent router over `AgentManifest`/`Agent`. |
-| `service_registry/` | Folded registry surface: registry, validator, contract, records, continuity, test support. |
+| `run_graph.rs` | Durable run DAG plus hard-constraint-first minimal capability selection and canonical selection/non-selection receipts. |
+| `service_registry/` | Folded service and capability registry surface: versioned authorities, live health/eligibility state, provenance, contracts, records, continuity, and test support. |
 | `soterion.rs` | Registry/index utilities for sigil → metadata mapping. |
 | `soterion_watcher.rs` | Watcher around sigil registry changes. |
 | `state.rs` | `StateRoot` + typed read/write helpers for goals/plans/outcomes/memory/queue. |
@@ -83,6 +84,7 @@ without adding a second direct dependency.
 | `tool_contract/types.rs` | Tool harness metadata, risk, side effects, envelopes, `InvocationPlan`. |
 | `tool_contract/service.rs` | Governance-baseline helpers, idempotency enforcement, invocation plan wiring. |
 | `background.rs` | Pressure-aware bounded work gate for sync/async/background work. |
+| `capability_composition.rs` | Strict `arda.capability-composition.v1` model, semantic policy validation, canonical SHA-256 digest, and stable objective/project/run lineage. |
 
 ## How arda-engine is connected
 - `engine/src/manwe.rs:6` — re-exports `manwe` as the runtime supervision shim
@@ -95,8 +97,8 @@ without adding a second direct dependency.
 
 ## Verification status
 - Compile-time: `cargo check -p arda-core` -> OK
-- Tests: `cargo test -p arda-core --all-features` -> 111/111 passing (110 unit, 1 smoke,
-  0 doc-tests).
+- Tests: `cargo test -p arda-core --all-features` -> 165/165 passing (111 unit,
+  53 contract/integration, 1 smoke, 0 doc-tests).
 - Compile-time consumer check: `cargo check -p arda-engine` -> OK.
 - Runtime wiring: `engine` imports `arda-core::service_registry`, observability,
   and `manwe` successfully; no linkage failure observed.
@@ -132,27 +134,29 @@ without adding a second direct dependency.
 ## Foundation conclusion
 The crate’s stabilization plan is complete: GEN1 documentation alignment and
 GEN2 robustness are closed, implemented GEN3 surfaces are additive and tested,
-and the current compiled surface passes all 111 tests. `arda-core` is therefore
+and the current compiled surface passes all 161 tests. `arda-core` is therefore
 the recorded stable foundation for subsequent crate-by-crate repair work.
 
-## Exact Rust source classification (2026-07-28)
+## Exact Rust source classification (2026-08-08)
 
-Production/default (45):
+Production/default (52):
 
-- `src/agent.rs`, `src/aipkg.rs`, `src/background.rs`, `src/config.rs`
+- `src/agent.rs`, `src/aipkg.rs`, `src/background.rs`, `src/capability_composition.rs`, `src/config.rs`
+- `src/company_ops.rs`
 - `src/contract/{decision,goal,ledger_entry,memory,mod,plan,reflection}.rs`
 - `src/daemon.rs`, `src/error.rs`
 - `src/governance/{corpus,mod}.rs`, `src/governance_gates.rs`
 - `src/layout.rs`, `src/learning.rs`, `src/learning_adapter.rs`, `src/ledger.rs`, `src/lib.rs`
 - `src/llm.rs`, `src/loop_alerts.rs`, `src/loop_economy.rs`, `src/loop_engine.rs`
-- `src/loop_observability.rs`, `src/message.rs`, `src/orome_runtime.rs`, `src/pipeline.rs`
-- `src/router.rs`
-- `src/service_registry/{contract,crate_identity,mod,registry,service,test_support}.rs`
+- `src/loop_observability.rs`, `src/message.rs`, `src/orome_runtime.rs`, `src/personal_ops.rs`
+- `src/personal_ops_projection.rs`, `src/pipeline.rs`, `src/project_contract.rs`, `src/router.rs`, `src/run_graph.rs`
+- `src/service_registry/{capability,contract,crate_identity,mod,registry,service,test_support}.rs`
 - `src/soterion.rs`, `src/soterion_watcher.rs`, `src/state.rs`, `src/systemd.rs`
 - `src/task.rs`, `src/tool.rs`
 - `src/tool_contract/{mod,service,types}.rs`
 
-Integration test/build script: `tests/tool_harness_smoke.rs` / none.
+Integration tests (9): `tests/{capability_composition,capability_registry,company_ops,deterministic_composition,personal_ops,personal_ops_projection,project_contract,run_graph,tool_harness_smoke}.rs`.
+Build script: none.
 
 Production/feature-gated: 0. Generated include: 0. Test-only standalone source: 0. Unwired: 0.
 `service_registry/test_support.rs` is deliberately production/default despite its name because

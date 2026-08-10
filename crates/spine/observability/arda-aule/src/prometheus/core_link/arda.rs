@@ -71,15 +71,14 @@ pub(super) fn write_arda_source_map(core_root: &Path) {
         json!({
             "id": "routing_and_comms",
             "title": "Routing And Communications",
-            "owner": "manwe_hermes",
+            "owner": "manwe_aule",
             "status": "ready",
             "primary_sources": [
                 rel_path(core_root.join("state/manwe_router.json"), &workspace_root),
-                rel_path(core_root.join("state/hermes_command.json"), &workspace_root)
+                rel_path(core_root.join("state/operator_runtime_status.json"), &workspace_root)
             ],
             "supplemental_sources": [
-                rel_path(workspace_root.join("data/hermes/boardroom.jsonl"), &workspace_root),
-                rel_path(workspace_root.join("data/hermes/interruptions.jsonl"), &workspace_root),
+                rel_path(core_root.join("state/operator_actions.json"), &workspace_root),
                 rel_path(workspace_root.join("data/prometheus/arda_presence_events.jsonl"), &workspace_root)
             ],
             "arda_panels": ["boardroom", "inference_router", "interrupts"]

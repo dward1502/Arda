@@ -7,8 +7,10 @@
 - `src/lib/operatingSurfaceDerivation.ts`: operating-surface reports + knowledge map
 - `src/lib/reviewGateDerivation.ts`: review-gate items, queue write requests,
   human augmentation, plan shelf, task/command/CEO council runtime
-- `src/lib/charonLive.ts`, `src/lib/hermesDashboardLauncher.ts`: live Manwe
-  snapshot + Hermes runtime window orchestration
+- `src/lib/charonLive.ts`: legacy-named compatibility reader for the live Manwë
+  snapshot; it is not Charon ownership authority
+- `src/lib/hermesDashboardLauncher.ts`: legacy dashboard/CLI compatibility
+  launcher pending explicit retirement; it is not monitor-session authority
 - `src/lib/bundleDerivation.ts`: provenance/coverage/tagging helpers
 - `src/lib/surfaceAdapterManifests.ts`: adapter/workstation manifest derivation
 - `src/lib/settingsLayout.ts`, `src/lib/worldSurfaceSettings.ts`,
@@ -22,6 +24,11 @@
 - `src/lib/systemActionBus.ts`, `src/lib/automationStatus.ts`: action descriptors + state
 - `src/lib/tauriGuard.ts`, `src/lib/operatorStore.ts`, `src/lib/ardaLiveListener.ts`:
   Tauri guardrails + runtime listener
+- `src/lib/monitorSurfaceContract.ts`, `src/lib/boardroomSessionRegistry.ts`,
+  `src/lib/monitorSurfaceRegistryBridge.ts`: canonical five-slot session schema,
+  persisted registry projection, and native event bridge
+- `src/lib/boardroomRenderContent.ts`: resolves typed session/claim content before
+  any ambient fallback
 
 ## Frontend testing
 
@@ -43,6 +50,20 @@
 - `src/scene/boardroom/particlePresence.ts`: deterministic materialize,
   dematerialize, density, and motion transitions
 
+## Boardroom display system
+
+- `BoardroomApertureSurface.tsx`: full-aperture CanvasTexture/WebGL display host
+- `UpperAmbientMonitorScreen.tsx`: five unique idle upper-monitor identities;
+  ambient screens are non-interactive until occupied
+- `MonitorSessionWorkstation.tsx`: focused window bound to the exact typed
+  `surfaceSessionId`
+- `MonitorOwnershipRail.tsx`: external lease/owner signal that never overlays
+  agent content
+- `LowerInstrumentScreen.tsx` and `CommandCoreInstrumentScreen.tsx`: distinct,
+  nearly textless state-driven desk instruments
+- `renderers/`: typed image, video, web, document, terminal, component, and
+  remote-session monitor renderers
+
 ## Consumer wiring
 
 - `arda-engine`: HUD consumes engine/manwe status via Manwe live snapshot
@@ -59,11 +80,12 @@
 3. Move PTY spawner (`tools/ptyspawn`) into a reusable runtime crate if not already
 4. Standardize Manwe access paths/config; current hardcoded allowed-path allowlist
    should match manwe adaptive catalog
-5. Replace placeholder/local-only Hermes runtime assumptions with configurable
-   endpoints sourced from `EnvironmentProfile`
+5. Retire the active generic-panel Hermes dashboard/CLI compatibility surface
+   and migrate any still-required capability to explicit Manwë/Aulë ownership;
+   do not cosmetically rename the localhost `:9119` embed
 6. Add CI gate for frontend tests + Rust check from the standalone package
-7. Add explicit offline/failure UI for when Manwe/Hermes endpoints are
-   unreachable instead of silent worst-case behavior
+7. Add explicit offline/failure UI for unavailable Manwë/Aulë projections and
+   any temporarily retained compatibility endpoint
 8. Consider `arda-hud` standalone vs workspace membership: if it stays standalone,
    document required run order clearly; if it joins workspace, remove redundant
    copies of shared types

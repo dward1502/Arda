@@ -119,7 +119,7 @@ pub(super) async fn invoke_hermes_cli(
                     "type": "cached_provider_unavailable",
                 },
                 "_charon_driver": "hermes_agent_cli",
-                "_charon_hermes_readiness_cache": "blocked",
+                "_manwe_aule_readiness_cache": "blocked",
             }),
             error: Some(error),
         });

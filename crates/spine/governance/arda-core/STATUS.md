@@ -6,7 +6,7 @@ soterion:
   role: "governance_spine_status"
   owner: "ARDA-CORE / HADES"
   status: "active"
-  last_reviewed: "2026-07-28"
+  last_reviewed: "2026-08-08"
 ---
 # arda-core status
 
@@ -15,22 +15,23 @@ Sigil: 📜 SCROLL
 
 ## Build
 - `cargo check -p arda-core` -> OK
-- `cargo test -p arda-core --all-features` -> 111/111 passing
-  - 110 unit tests
+- `cargo test -p arda-core --all-features` -> 161/161 passing
+  - 111 unit tests
+  - 49 contract/integration tests
   - 1 smoke test: `sovereign_baseline_contract_is_migrated`
   - 0 doc-tests
 - `cargo clippy -p arda-core --all-targets --all-features -- -D warnings` -> OK
 - `cargo check -p arda-core --no-default-features` -> OK
-- `cargo test -p arda-core --no-default-features -- --test-threads=1` -> 111/111 passing
+- `cargo test -p arda-core --no-default-features -- --test-threads=1` -> 161/161 passing
 - `cargo check -p arda-core --all-targets --all-features` -> OK
 - `RUSTDOCFLAGS='-D warnings' cargo doc -p arda-core --no-deps --all-features` -> OK
 
 ## Source classification
-- Production/default: 45 files.
+- Production/default: 52 files.
 - Production/feature-gated: 0 files (the manifest declares no features).
 - Generated include: 0 files.
 - Test-only standalone source: 0 files.
-- Integration test/build script: 1 integration test and 0 build scripts.
+- Integration test/build script: 8 integration tests and 0 build scripts.
 - Unwired: 0 files.
 - Latent file-vs-directory module-root collisions: 0.
 
@@ -57,6 +58,8 @@ The exhaustive path list is maintained in `BREAKDOWN.md`.
 - `src/background.rs` bounded execution for sync/async/background
 - `src/ledger.rs` append-only JSONL output with Soterion enrichment
 - `src/service_registry/registry.rs` duplicate registration rejection
+- `src/service_registry/capability.rs` versioned capability authority,
+  provenance validation, fail-closed runtime states, and live projection
 - `src/soterion_watcher.rs` markdown index watcher with persistence
 - `src/state.rs` episodic/semantic memory split and plan/goal round trip
 - `src/service_registry/registry.rs` snapshot/from_snapshot tests added for
@@ -108,8 +111,9 @@ The exhaustive path list is maintained in `BREAKDOWN.md`.
 ## Foundation designation
 - Foundation baseline: complete as of 2026-07-25.
 - GEN1 documentation alignment and GEN2 robustness work are closed.
-- Implemented GEN3 observability/learning interop and AIPKG receipt-chain law
-  are additive and covered by the current 111-test baseline.
+- Implemented GEN3 observability/learning interop, AIPKG receipt-chain law, and
+  capability-composition and capability-registry contracts are additive and
+  covered by the current 161-test baseline.
 - The crate remains active and maintained; “complete” means this stabilization
   plan is closed, not that future evidence-backed features are prohibited.
 

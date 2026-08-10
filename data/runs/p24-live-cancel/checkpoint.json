@@ -1,0 +1,68 @@
+{
+  "schema_version": "arda.run-graph.v1",
+  "run_id": "p24-live-cancel",
+  "objective_id": "objective-p24-live-cancel",
+  "nodes": [
+    {
+      "id": "approval",
+      "kind": "approval",
+      "state": "succeeded",
+      "authority": "human_approval",
+      "budget": {
+        "max_joules": 1000.0,
+        "max_cost_usd": 0.0
+      },
+      "retry": {
+        "max_attempts": 1
+      },
+      "timeout_ms": 120000,
+      "idempotency_key": "p24-live-cancel:approval",
+      "input_digest": null,
+      "output_digest": "gateway:1535994587649282098",
+      "parent_receipts": [],
+      "checkpoint": {
+        "sequence": 4,
+        "recovery_token": "p24-live-cancel:approval:4",
+        "checkpoint_digest": "sha256:6bafda32a1c8c061cd583d9f814e2c2f625d80899ce6a13720667c385b9305ec"
+      }
+    },
+    {
+      "id": "execute",
+      "kind": "execute",
+      "state": "cancelled",
+      "authority": "execute_with_approval",
+      "budget": {
+        "max_joules": 1000.0,
+        "max_cost_usd": 1.0
+      },
+      "retry": {
+        "max_attempts": 1
+      },
+      "timeout_ms": 120000,
+      "idempotency_key": "p24-live-cancel:execute",
+      "input_digest": null,
+      "output_digest": null,
+      "parent_receipts": [
+        "gateway:1535994587649282098"
+      ],
+      "checkpoint": {
+        "sequence": 0,
+        "recovery_token": null,
+        "checkpoint_digest": null
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "approval-to-execute",
+      "from": "approval",
+      "to": "execute",
+      "parent_receipt": "gateway:1535994587649282098"
+    }
+  ],
+  "provenance": {
+    "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+    "created_by": "p24-live-proof",
+    "parent_receipts": []
+  }
+}

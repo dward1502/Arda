@@ -83,16 +83,16 @@ describe('resolveBoardroomHudInstrument', () => {
     const fallback = { ...instrument, title: 'Slot fallback' }
     const instruments: BoardroomHudInstrumentMap = {
       'boardroom.monitor.left': exact,
-      monitor_left_1: fallback,
+      monitor_1: fallback,
     }
 
-    expect(resolveBoardroomHudInstrument(instruments, 'boardroom.monitor.left', 'monitor_left_1')).toBe(exact)
+    expect(resolveBoardroomHudInstrument(instruments, 'boardroom.monitor.left', 'monitor_1')).toBe(exact)
   })
 
   it('uses the persisted assignment slot when no scene-zone instrument exists', () => {
-    const instruments: BoardroomHudInstrumentMap = { monitor_left_1: instrument }
+    const instruments: BoardroomHudInstrumentMap = { monitor_1: instrument }
 
-    expect(resolveBoardroomHudInstrument(instruments, 'boardroom.monitor.left', 'monitor_left_1')).toBe(instrument)
+    expect(resolveBoardroomHudInstrument(instruments, 'boardroom.monitor.left', 'monitor_1')).toBe(instrument)
   })
 })
 
@@ -115,9 +115,9 @@ describe('Phase 3 source-backed slot adapters', () => {
       dailyCommand: { lanes: 4, attentionLanes: 1, source },
     }, assignments)
 
-    expect(instruments.monitor_left_2.title).toBe('Routing')
-    expect(instruments.monitor_left_3.title).toBe('Knowledge')
-    expect(instruments.monitor_left_4.title).toBe('Operations')
+    expect(instruments.monitor_2.title).toBe('Routing')
+    expect(instruments.monitor_3.title).toBe('Knowledge')
+    expect(instruments.monitor_4.title).toBe('Operations')
     expect(instruments.view_desk_l.title).toBe('Governance')
     expect(instruments.view_desk_control_panel.title).toBe('Fleet')
     expect(instruments.view_desk_r.title).toBe('Routing')

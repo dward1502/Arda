@@ -12,11 +12,11 @@ const projectionStates = [
 ]
 
 const monitorSlots = [
-  'monitor_left_1',
-  'monitor_left_2',
-  'monitor_center',
-  'monitor_right_1',
-  'monitor_right_2',
+  'monitor_1',
+  'monitor_2',
+  'monitor_3',
+  'monitor_4',
+  'monitor_5',
 ]
 
 describe('shared HUD convergence contract', () => {

@@ -21,6 +21,9 @@ The default build exposes:
 - `governance`: ledger-backed approval and interruption decisions;
 - `grpc`: generated health-model and route-governance tonic surfaces;
 - `message`: A2A messages, threads, TTL, signatures, and envelopes;
+- `operator_bridge`: credential-free Hermes `MessageEvent` normalization,
+  exact-once operator-session persistence, approval replay protection,
+  audience redaction, correlated responses, and transport health;
 - `provider`: adapter registry, bounded dispatch, fanout, fleet policy, streaming, metrics, receipts, and an opt-in receipt-backed HTTP JSON transport;
 - `types`: boardroom, council, approval, completion, interruption, and operator payloads.
 
@@ -41,6 +44,13 @@ The feature is opt-in. Its historical resident-service compatibility dispatch re
 ## Integration
 
 Implement `provider::ProviderTransport`, register a `ProviderConfig`, and dispatch through `ProviderRuntime`. Do not bypass timeout, retry, expiry, fanout, fleet-scope, metrics, or receipt behavior.
+
+For phone/chat ingress, project Hermes Agent's normalized `MessageEvent` into
+`operator_bridge::BridgeRequest`; never pass `raw_message`, free-form metadata,
+or credentials. Approval ingestion additionally requires an
+`ApprovalBinding` loaded separately from canonical Arda state, so transport JSON
+cannot mint its own pending approval. The engine consumer is
+`arda_engine::orome::OromeOperatorRuntime`.
 
 `HttpJsonTransport` is available with `service-runtime`. It posts a bounded JSON envelope containing `message_id`, `payload`, `streaming`, and `fleet_scope` to an HTTP provider endpoint. A successful response must contain a non-empty `message_id`; optional `chunks` become stream events. Redirects are disabled, response bodies are bounded, and HTTP success without a provider message ID is treated as failure rather than delivery proof.
 

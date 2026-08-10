@@ -640,7 +640,7 @@ async fn resume_and_brief_endpoints_work() {
         .await
         .unwrap();
     assert_eq!(resume["schema_version"], "arda.harness.personal-ops.v1");
-    assert!(resume["resume"]["summary"].as_str().unwrap().len() > 0);
+    assert!(!resume["resume"]["summary"].as_str().unwrap().is_empty());
     assert_eq!(resume["resume"]["inbox_count"], 0);
     assert_eq!(resume["resume"]["today_count"], 1);
 

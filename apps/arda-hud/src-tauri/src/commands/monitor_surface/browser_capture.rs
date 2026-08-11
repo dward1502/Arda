@@ -4,6 +4,8 @@ use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::io::{ErrorKind, Read, Write};
 use std::net::{SocketAddr, TcpListener, TcpStream};
+#[cfg(unix)]
+use std::os::unix::process::CommandExt;
 use std::process::{Child, Command, Stdio};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Condvar, Mutex};
@@ -84,11 +86,15 @@ impl BrowserLaunchPlan {
     }
 
     fn spawn(&self) -> Result<Child, String> {
-        Command::new(&self.program)
+        let mut command = Command::new(&self.program);
+        command
             .args(&self.args)
             .stdin(Stdio::null())
             .stdout(Stdio::null())
-            .stderr(Stdio::null())
+            .stderr(Stdio::null());
+        #[cfg(unix)]
+        command.process_group(0);
+        command
             .spawn()
             .map_err(|error| format!("failed to launch owned browser process: {error}"))
     }
@@ -253,6 +259,12 @@ impl OwnedBrowserCapture {
     fn stop(mut self) {
         self.shutdown.store(true, Ordering::Release);
         self.frames.wake();
+        #[cfg(unix)]
+        // The browser owns renderer/zygote descendants that can outlive the launcher and
+        // recreate its profile after an apparently successful root-process shutdown.
+        unsafe {
+            libc::kill(-(self.child.id() as i32), libc::SIGKILL);
+        }
         let _ = self.child.kill();
         let _ = self.child.wait();
         if let Some(thread) = self.capture_thread.take() {
@@ -261,7 +273,12 @@ impl OwnedBrowserCapture {
         if let Some(thread) = self.stream_thread.take() {
             let _ = thread.join();
         }
-        let _ = std::fs::remove_dir_all(&self.profile_path);
+        for pass in 0..3 {
+            let _ = std::fs::remove_dir_all(&self.profile_path);
+            if pass < 2 {
+                thread::sleep(Duration::from_millis(50));
+            }
+        }
     }
 }
 

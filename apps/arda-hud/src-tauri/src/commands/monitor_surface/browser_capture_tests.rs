@@ -353,6 +353,16 @@ fn two_live_browser_captures_are_concurrent_and_lifecycle_isolated() {
     assert!(state.status(&second_session_id).is_err());
     assert!(!std::path::Path::new(&second_profile).exists());
 
+    std::thread::sleep(Duration::from_millis(300));
+    assert!(
+        !std::path::Path::new(&first_profile).exists(),
+        "first browser descendants must not recreate the deleted profile"
+    );
+    assert!(
+        !std::path::Path::new(&second_profile).exists(),
+        "second browser descendants must not recreate the deleted profile"
+    );
+
     page_shutdown.store(true, Ordering::Release);
     page_thread.join().expect("test page server should stop");
 }

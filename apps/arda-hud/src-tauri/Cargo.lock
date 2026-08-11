@@ -127,6 +127,7 @@ dependencies = [
  "chrono",
  "futures-util",
  "hostname",
+ "libc",
  "notify",
  "num_cpus",
  "portable-pty",

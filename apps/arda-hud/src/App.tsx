@@ -272,6 +272,7 @@ export default function App() {
   const initialMonitorSessionId = parseMonitorSessionWorkstationId(initialWorkstationId)
   const initialSectionId = searchParams.get('__section')
   const initialView = (searchParams.get('__view') as ViewMode | null) ?? 'boardroom'
+  const [viewMode, setViewMode] = useState<ViewMode>(initialView)
   const [theme, setTheme] = useState<ThemeId>('gibson2')
   const [activeSectionId, setActiveSectionId] = useState<string | null>(initialSectionId)
   const [moduleOrder, setModuleOrder] = useState<ModuleId[]>(() => readStoredModuleOrder())
@@ -286,7 +287,7 @@ export default function App() {
     snapshot: manweLiveSnapshot,
     error: manweLiveError,
     isLoading: manweLiveLoading,
-  } = useManweLiveSnapshot(5000)
+  } = useManweLiveSnapshot(5000, viewMode !== 'boardroom')
   const {
     assignments: boardroomSceneSlotAssignments,
     setAssignments: setBoardroomSceneSlotAssignments,
@@ -441,7 +442,6 @@ export default function App() {
   } = useWorldSurfaceAssignments(bundle?.rootPath)
   useArdaActionAdapters(bundle)
   const [editMode, setEditMode] = useState(false)
-  const [viewMode, setViewMode] = useState<ViewMode>(initialView)
   const [derivedBusy, setDerivedBusy] = useState(false)
   const [approvalDecisionClass, setApprovalDecisionClass] = useState('provider_reroute')
   const [approvalApprovers, setApprovalApprovers] = useState('aurelius,bacon')
@@ -468,7 +468,7 @@ export default function App() {
   const [councilMessage, setCouncilMessage] = useState<string | null>(null)
   const [panelModeKey, setPanelModeKey] = useState<string | null>(null)
   const [transitionLabel, setTransitionLabel] = useState<string | null>(null)
-  const liveRuntime = useArdaRuntimePulse()
+  const liveRuntime = useArdaRuntimePulse(viewMode !== 'boardroom')
   const [floatingWorkstations, setFloatingWorkstations] = useState<FloatingWorkstationState[]>([])
   const [workstationModuleById, setWorkstationModuleById] = useState<Record<string, ModuleId>>(() => {
     if (!initialWorkstationId) return {}

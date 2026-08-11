@@ -4,11 +4,11 @@ import type { ArdaBundle, ArdaDataSource } from '../../../lib/ardaBundleTypes'
 
 interface UseArdaBundleOptions {
   source: ArdaDataSource
-  refreshIntervalMs?: number
+  refreshIntervalMs?: number | null
   onLoaded?: (bundle: ArdaBundle) => void
 }
 
-export function useArdaBundle({ source, refreshIntervalMs = 5000, onLoaded }: UseArdaBundleOptions) {
+export function useArdaBundle({ source, refreshIntervalMs = null, onLoaded }: UseArdaBundleOptions) {
   const [bundle, setBundle] = useState<ArdaBundle | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -16,7 +16,7 @@ export function useArdaBundle({ source, refreshIntervalMs = 5000, onLoaded }: Us
   const sourceRef = useRef<ArdaDataSource>(source)
   sourceRef.current = source
   const initialLoadCompletedRef = useRef(false)
-  const retryIntervalMsRef = useRef(refreshIntervalMs)
+  const retryIntervalMsRef = useRef(refreshIntervalMs ?? 5000)
   const retryAttemptRef = useRef(0)
   const refreshTimerRef = useRef<number | null>(null)
 
@@ -55,7 +55,7 @@ export function useArdaBundle({ source, refreshIntervalMs = 5000, onLoaded }: Us
 
     setBundle(nextBundle)
     setError(null)
-    retryIntervalMsRef.current = refreshIntervalMs
+    retryIntervalMsRef.current = refreshIntervalMs ?? 5000
     retryAttemptRef.current = 0
   }, [onLoaded, refreshIntervalMs])
 
@@ -81,19 +81,22 @@ export function useArdaBundle({ source, refreshIntervalMs = 5000, onLoaded }: Us
     initialLoadCompletedRef.current = false
     setIsLoading(true)
     retryAttemptRef.current = 0
-    retryIntervalMsRef.current = refreshIntervalMs
+    retryIntervalMsRef.current = refreshIntervalMs ?? 5000
     setError(null)
     setBundle(null)
 
     void load()
 
-    const interval = window.setInterval(() => {
+    // A bundle load fans out across the complete durable projection inventory.
+    // Keep periodic full reloads opt-in; live runtime channels and explicit
+    // operator actions refresh independently without blocking the boardroom.
+    const interval = refreshIntervalMs == null ? null : window.setInterval(() => {
       cancelPendingRefresh()
       void load()
     }, refreshIntervalMs)
 
     return () => {
-      clearInterval(interval)
+      if (interval != null) clearInterval(interval)
       cancelPendingRefresh()
       setIsLoading(false)
       initialLoadCompletedRef.current = false

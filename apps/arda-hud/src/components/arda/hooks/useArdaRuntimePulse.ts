@@ -8,10 +8,11 @@ import {
   type HudPulseEvent,
 } from '../../../lib/weathertop'
 
-export function useArdaRuntimePulse(intervalMs = 5000) {
+export function useArdaRuntimePulse(enabled = true, intervalMs = 5000) {
   const [liveRuntime, setLiveRuntime] = useState<LiveRuntimeChannelEvidence | null>(null)
 
   useEffect(() => {
+    if (!enabled) return
     let disposed = false
     let unlisten: (() => void) | null = null
 
@@ -41,7 +42,7 @@ export function useArdaRuntimePulse(intervalMs = 5000) {
       if (unlisten) unlisten()
       void stopHudPulseStream().catch(() => undefined)
     }
-  }, [intervalMs])
+  }, [enabled, intervalMs])
 
   return liveRuntime
 }

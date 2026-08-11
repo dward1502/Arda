@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { loadManweLiveSnapshot, type ManweLiveSnapshot } from '../../../lib/manweLive'
 
-export function useManweLiveSnapshot(refreshIntervalMs = 5000) {
+export function useManweLiveSnapshot(refreshIntervalMs = 5000, enabled = true) {
   const [snapshot, setSnapshot] = useState<ManweLiveSnapshot | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -32,6 +32,7 @@ export function useManweLiveSnapshot(refreshIntervalMs = 5000) {
   }, [])
 
   useEffect(() => {
+    if (!enabled) return
     let cancelled = false
     const load = async () => {
       if (!cancelled) {
@@ -44,7 +45,7 @@ export function useManweLiveSnapshot(refreshIntervalMs = 5000) {
       cancelled = true
       window.clearInterval(interval)
     }
-  }, [refresh, refreshIntervalMs])
+  }, [enabled, refresh, refreshIntervalMs])
 
   return { snapshot, error, isLoading, refresh }
 }

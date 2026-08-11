@@ -59,18 +59,24 @@ implementation plan remains active solely to revise historical evidence.
 |---|---|---|
 | 4 — Private Beta | complete and operator-accepted; independent evaluator evidence is optional supplementary validation | [Archived Stage 4 Private Beta](../archive/2026-07-29-stage-4-private-beta-plan.md) |
 | 5 — Release Candidate | complete for the documented single-operator local profile; independent non-author repetition remains optional and unperformed | [Archived Stage 5 Release Candidate](../archive/2026-07-29-stage-5-release-candidate-plan.md) |
-| 6 — Legitimate 1.0 | signed supported personal-agent-ecosystem base with Workbench release proof and independent user evidence | [Stage 6 Legitimate 1.0](2026-07-29-stage-6-legitimate-1.0-plan.md) |
+| 6 — Legitimate 1.0 | active signed-system release proof under the single-operator local profile; independent-user evidence is optional and unperformed | [Stage 6 Legitimate 1.0](2026-07-29-stage-6-legitimate-1.0-plan.md) |
 
-## First-party application plans
+## First-party application release classifications
 
-| Application | Purpose | Target maturity | Plan |
+This table is the sole live application-classification authority. “Supported”
+means included in the declared release profile. Beta and preview applications
+remain opt-in and cannot weaken Workbench. Research and not-distributed entries
+are not shipped product promises.
+
+| Application or distribution shell | Purpose | Release classification | Evidence and remaining boundary |
 |---|---|---|---|
-| Arda Workbench | sovereign governed development environment | Stage 4 implementation tranche complete; Stage 6 supported | [Completed Workbench Private Beta implementation plan](../archive/2026-07-29-arda-workbench-private-beta-plan.md) |
-| Personal Operations | capture, reminders, schedule, recovery, contacts | Implemented; private-alpha operator acceptance open; optional beta | [Operational acceptance](../operations/personal-operations-private-alpha-acceptance.md) · [archived implementation plan](../archive/2026-07-29-personal-operations-plan.md) |
-| Mirromere | consent-governed ambient voice/avatar projection | optional 1.0-compatible outpost; implementation deferred | [Deferred Mirromere record](../archive/deferred/2026-07-29-mirromere-plan.md) |
-| Warden Research | bounded cited research and watchlists | implemented and accepted; historical optional-beta record | [Archived Warden Research](../archive/2026-07-29-warden-research-application-plan.md) |
-| RELIC/CITADEL | read-only geometric runtime presence | optional 1.0-compatible projection; retained operations | [RELIC/CITADEL operations](../operations/relic-citadel-presence.md) |
-| Company Operations | opportunity, client, experiment, value, and commitment cockpit | optional capability; internal alpha retained and live pilot separately gated | [Deferred Company Operations record](../archive/deferred/2026-07-29-company-operations-plan.md) |
+| Arda Launcher | native onboarding and release lifecycle | **supported** | Signed `v0.3.0-rc.1` launcher lifecycle and support evidence; read-only/proposal-only authority is documented in `apps/arda-launcher/README.md`. |
+| Arda HUD / Workbench | governed project execution and canonical desktop operator environment | **supported** | [Completed Workbench implementation](../archive/2026-07-29-arda-workbench-private-beta-plan.md); Stage 6 still gates full HUD convergence and monitor acceptance before 1.0 promotion. |
+| Warden Research | bounded cited research and watchlists | **beta** | Implemented and accepted optional-beta record: [Archived Warden Research](../archive/2026-07-29-warden-research-application-plan.md). |
+| Personal Operations | capture, reminders, schedule, recovery, and contacts | **preview** | Implementation is complete, but native operator and seven-day dogfood acceptance remain open: [operational acceptance](../operations/personal-operations-private-alpha-acceptance.md). |
+| RELIC/CITADEL | read-only geometric runtime-presence projection | **preview** | Projection and recovery gates pass; the seven-day physical soak remains open: [RELIC/CITADEL operations](../operations/relic-citadel-presence.md). |
+| Company Operations | opportunity, client, experiment, value, and commitment cockpit | **research** | Internal-alpha implementation is retained, but no real client/pilot evidence is claimed: [deferred Company Operations record](../archive/deferred/2026-07-29-company-operations-plan.md). |
+| Mirromere | consent-governed ambient voice/avatar projection | **not distributed** | Design-only; no executable application or accepted hardware/privacy path exists: [deferred Mirromere record](../archive/deferred/2026-07-29-mirromere-plan.md). |
 
 ## External product integration
 

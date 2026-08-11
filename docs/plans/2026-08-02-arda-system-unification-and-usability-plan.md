@@ -442,8 +442,8 @@ and
 - [x] Record the Stage 5 evaluator disposition against the final candidate. The
   operator selected the single-operator local release profile on 2026-08-11;
   independent non-author evaluation remains optional and was not performed or
-  represented as proxy evidence. Broader Stage 6 independent-user policy
-  remains downstream.
+  represented as proxy evidence. The operator subsequently selected the same
+  optional/unperformed evaluator disposition for Stage 6.
 
 **U5 implementation evidence (2026-08-05; remediated 2026-08-11):**
 
@@ -496,8 +496,8 @@ this closeout does not erase them from Arda's architecture.
 - [ ] Execute Stage 6 as the release decision and proof phase, not a feature-expansion stage.
 - [ ] Execute frontend/backend convergence one vertical workflow at a time after Stage 5 closes; preserve Rust authority and require durable restart recovery.
 - [ ] Accept all five upper monitor sessions and workstation continuity natively without changing World View into a workspace.
-- [ ] Classify every first-party application as supported, beta, preview, research, or not distributed.
-- [ ] Archive every completed domain plan and repair all active references.
+- [x] Classify every first-party application as supported, beta, preview, research, or not distributed. The product-plan suite is the sole live classification authority.
+- [x] Archive every completed domain plan and repair all active references. Stage 5 moved to `docs/archive/`; the remaining execution plans retain unresolved work, and the post-move link gate passes.
 - [ ] Leave one live authority per domain: source/contracts, compact crate status, operator docs, and release evidence.
 - [ ] Convert post-closeout work intake to defects, measured performance/usability failures, security findings, compatibility obligations, and user evidence.
 - [ ] Reject post-closeout proposals that add a parallel authority or do not improve an existing supported workflow.

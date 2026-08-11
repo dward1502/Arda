@@ -1,5 +1,5 @@
 // sigil: REPAIR
-import { Canvas, useFrame, type ThreeEvent } from '@react-three/fiber'
+import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber'
 import { Environment, Html, OrbitControls, useGLTF, useTexture } from '@react-three/drei'
 import { Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import * as THREE from 'three'
@@ -1182,7 +1182,7 @@ function BoardroomScene({
             <UpperAmbientMonitorScreen
               slotId={monitorSlotId}
               size={slot.size}
-              motionEnabled={renderProfile.motionEnabled}
+              motionEnabled={false}
             />
           )}
           <MonitorOwnershipRail
@@ -1190,7 +1190,7 @@ function BoardroomScene({
             size={slot.size}
             session={typedRecord}
             claim={activeClaim}
-            motionEnabled={renderProfile.motionEnabled}
+            motionEnabled={false}
           />
         </InteractionPad>
         )
@@ -1223,7 +1223,7 @@ function BoardroomScene({
               zone={slot}
               assignment={assignment}
               fleetViewModel={fleetViewModel}
-              motionEnabled={renderProfile.motionEnabled}
+              motionEnabled={false}
               onActivate={() => onOpenWorkstation(workstationZoneId)}
             />
           ) : (
@@ -1232,7 +1232,7 @@ function BoardroomScene({
               assignment={assignment}
               persistedSourceZoneId={persistedSourceZoneId}
               instrument={instrument}
-              motionEnabled={renderProfile.motionEnabled}
+              motionEnabled={false}
               onActivate={() => onOpenWorkstation(workstationZoneId)}
             />
           )}
@@ -1393,8 +1393,39 @@ function BoardroomScene({
   )
 }
 
+function BoardroomFrameRateProbe() {
+  const frameCount = useRef(0)
+  const sampledAt = useRef(performance.now())
+  const gl = useThree((state) => state.gl)
+  const rendererReported = useRef(false)
+  useFrame(() => {
+    if (!rendererReported.current) {
+      const context = gl.getContext()
+      const extension = context.getExtension('WEBGL_debug_renderer_info')
+      const renderer = extension
+        ? String(context.getParameter(extension.UNMASKED_RENDERER_WEBGL))
+        : 'renderer unavailable'
+      const rendererOutput = document.getElementById('boardroom-renderer-probe')
+      if (rendererOutput) {
+        rendererOutput.textContent = renderer
+        rendererReported.current = true
+      }
+    }
+    frameCount.current += 1
+    const now = performance.now()
+    const elapsed = now - sampledAt.current
+    if (elapsed < 1000) return
+    const output = document.getElementById('boardroom-frame-rate-probe')
+    if (output) output.textContent = `Scene ${(frameCount.current * 1000 / elapsed).toFixed(1)} FPS`
+    frameCount.current = 0
+    sampledAt.current = now
+  })
+  return null
+}
+
 export default function BoardroomViewport(props: BoardroomViewportProps) {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+  const acceptanceEnabled = import.meta.env.DEV && import.meta.env.VITE_MONITOR_ACCEPTANCE === '1'
 
   useEffect(() => {
     const query = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -1425,10 +1456,18 @@ export default function BoardroomViewport(props: BoardroomViewportProps) {
         shadows={renderProfile.shadows}
       >
         <color attach="background" args={['#05080d']} />
+        {acceptanceEnabled ? <BoardroomFrameRateProbe /> : null}
         <Suspense fallback={null}>
           <BoardroomScene {...props} renderProfile={renderProfile} />
         </Suspense>
       </Canvas>
+      {acceptanceEnabled ? (
+        <div style={{ position: 'fixed', right: '1rem', top: '3.5rem', zIndex: 10000, color: '#8cffc7', textAlign: 'right' }}>
+          <output id="boardroom-frame-rate-probe">Scene measuring…</output>
+          <br />
+          <output id="boardroom-renderer-probe">renderer measuring…</output>
+        </div>
+      ) : null}
       {props.sceneOverlay ? (
         <div className="scene-runtime-workstation-layer">
           {props.sceneOverlay}

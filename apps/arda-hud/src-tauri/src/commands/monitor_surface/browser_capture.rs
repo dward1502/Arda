@@ -218,6 +218,36 @@ pub struct ClickBrowserCaptureRequest {
     pub y: f64,
 }
 
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ScrollBrowserCaptureRequest {
+    pub session_id: String,
+    pub owner: String,
+    pub expected_revision: u64,
+    pub x: f64,
+    pub y: f64,
+    pub delta_x: f64,
+    pub delta_y: f64,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TypeBrowserCaptureRequest {
+    pub session_id: String,
+    pub owner: String,
+    pub expected_revision: u64,
+    pub text: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct KeyBrowserCaptureRequest {
+    pub session_id: String,
+    pub owner: String,
+    pub expected_revision: u64,
+    pub key: String,
+}
+
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BrowserCaptureDescriptor {
@@ -476,6 +506,67 @@ impl BrowserCaptureState {
         Ok(capture.snapshot())
     }
 
+    pub(crate) fn scroll(
+        &self,
+        request: ScrollBrowserCaptureRequest,
+    ) -> Result<BrowserCaptureDescriptor, String> {
+        let commands =
+            browser_scroll_commands(request.x, request.y, request.delta_x, request.delta_y)?;
+        self.dispatch_input(
+            &request.session_id,
+            &request.owner,
+            request.expected_revision,
+            commands,
+        )
+    }
+
+    pub(crate) fn type_text(
+        &self,
+        request: TypeBrowserCaptureRequest,
+    ) -> Result<BrowserCaptureDescriptor, String> {
+        let commands = browser_text_commands(&request.text)?;
+        self.dispatch_input(
+            &request.session_id,
+            &request.owner,
+            request.expected_revision,
+            commands,
+        )
+    }
+
+    pub(crate) fn key(
+        &self,
+        request: KeyBrowserCaptureRequest,
+    ) -> Result<BrowserCaptureDescriptor, String> {
+        let commands = browser_key_commands(&request.key)?;
+        self.dispatch_input(
+            &request.session_id,
+            &request.owner,
+            request.expected_revision,
+            commands,
+        )
+    }
+
+    fn dispatch_input(
+        &self,
+        session_id: &str,
+        owner: &str,
+        expected_revision: u64,
+        commands: Vec<Value>,
+    ) -> Result<BrowserCaptureDescriptor, String> {
+        let mut sessions = self
+            .sessions
+            .lock()
+            .map_err(|_| "browser capture registry lock poisoned".to_string())?;
+        let capture = sessions
+            .get_mut(session_id)
+            .ok_or_else(|| format!("browser capture session '{session_id}' is unavailable"))?;
+        ensure_browser_running(capture)?;
+        authorize_browser_control(&capture.descriptor, owner, expected_revision)?;
+        execute_cdp_commands(capture.cdp_port, commands)?;
+        capture.descriptor.revision = capture.descriptor.revision.saturating_add(1);
+        Ok(capture.snapshot())
+    }
+
     pub(crate) fn stop(&self, request: StopBrowserCaptureRequest) -> Result<(), String> {
         let capture = {
             let mut sessions = self
@@ -564,6 +655,39 @@ pub async fn click_browser_capture(
     tauri::async_runtime::spawn_blocking(move || state.click(request))
         .await
         .map_err(|error| format!("browser capture input task failed: {error}"))?
+}
+
+#[tauri::command]
+pub async fn scroll_browser_capture(
+    state: State<'_, BrowserCaptureState>,
+    request: ScrollBrowserCaptureRequest,
+) -> Result<BrowserCaptureDescriptor, String> {
+    let state = state.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || state.scroll(request))
+        .await
+        .map_err(|error| format!("browser capture scroll task failed: {error}"))?
+}
+
+#[tauri::command]
+pub async fn type_browser_capture(
+    state: State<'_, BrowserCaptureState>,
+    request: TypeBrowserCaptureRequest,
+) -> Result<BrowserCaptureDescriptor, String> {
+    let state = state.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || state.type_text(request))
+        .await
+        .map_err(|error| format!("browser capture text task failed: {error}"))?
+}
+
+#[tauri::command]
+pub async fn key_browser_capture(
+    state: State<'_, BrowserCaptureState>,
+    request: KeyBrowserCaptureRequest,
+) -> Result<BrowserCaptureDescriptor, String> {
+    let state = state.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || state.key(request))
+        .await
+        .map_err(|error| format!("browser capture key task failed: {error}"))?
 }
 
 #[tauri::command]
@@ -668,6 +792,56 @@ pub(crate) fn browser_click_commands(x: f64, y: f64) -> Result<Vec<Value>, Strin
         json!({
             "method": "Input.dispatchMouseEvent",
             "params": {"type": "mouseReleased", "x": x, "y": y, "button": "left", "clickCount": 1}
+        }),
+    ])
+}
+
+pub(crate) fn browser_scroll_commands(
+    x: f64,
+    y: f64,
+    delta_x: f64,
+    delta_y: f64,
+) -> Result<Vec<Value>, String> {
+    browser_click_commands(x, y)?;
+    if !delta_x.is_finite() || !delta_y.is_finite() {
+        return Err("browser wheel deltas must be finite".to_string());
+    }
+    Ok(vec![json!({
+        "method": "Input.dispatchMouseEvent",
+        "params": {
+            "type": "mouseWheel",
+            "x": x,
+            "y": y,
+            "deltaX": delta_x.clamp(-4096.0, 4096.0),
+            "deltaY": delta_y.clamp(-4096.0, 4096.0)
+        }
+    })])
+}
+
+pub(crate) fn browser_text_commands(text: &str) -> Result<Vec<Value>, String> {
+    if text.is_empty() || text.len() > 4096 || text.contains('\0') {
+        return Err("browser text input must contain 1-4096 bytes without NUL".to_string());
+    }
+    Ok(vec![json!({
+        "method": "Input.insertText",
+        "params": {"text": text}
+    })])
+}
+
+pub(crate) fn browser_key_commands(key: &str) -> Result<Vec<Value>, String> {
+    let code = match key {
+        "Enter" | "Backspace" | "Tab" | "Escape" | "ArrowUp" | "ArrowDown" | "ArrowLeft"
+        | "ArrowRight" | "Delete" | "Home" | "End" | "PageUp" | "PageDown" => key,
+        _ => return Err(format!("unsupported browser workstation key '{key}'")),
+    };
+    Ok(vec![
+        json!({
+            "method": "Input.dispatchKeyEvent",
+            "params": {"type": "keyDown", "key": key, "code": code}
+        }),
+        json!({
+            "method": "Input.dispatchKeyEvent",
+            "params": {"type": "keyUp", "key": key, "code": code}
         }),
     ])
 }

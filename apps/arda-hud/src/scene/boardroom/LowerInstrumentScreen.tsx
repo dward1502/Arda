@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import type { HudInstrumentModel } from './boardroomHudInstruments'
 import type { BoardroomVec3 } from './boardroomSpatialLayout'
 import { resolveBoardroomInstrumentSurfaceGeometry } from './BoardroomInstrumentScreen'
+import { shouldDrawInstrumentFrame } from './instrumentFrameCadence'
 import {
   deriveLowerInstrumentSignal,
   sampleLowerInstrumentSequence,
@@ -372,8 +373,8 @@ export function LowerInstrumentScreen({
   const signal = useMemo(() => deriveLowerInstrumentSignal(role, model), [model, role])
   const texture = useMemo(() => {
     const canvas = document.createElement('canvas')
-    canvas.width = 1024
-    canvas.height = 512
+    canvas.width = 512
+    canvas.height = 256
     const next = new THREE.CanvasTexture(canvas)
     next.colorSpace = THREE.SRGBColorSpace
     next.minFilter = THREE.LinearFilter
@@ -389,10 +390,14 @@ export function LowerInstrumentScreen({
     const startedAt = performance.now()
     let animationFrame = 0
     let disposed = false
+    let lastDrawAt = Number.NEGATIVE_INFINITY
     const draw = (now: number) => {
       if (disposed) return
-      drawFrame(texture.canvas, signal, (now - startedAt) / 1000, animate)
-      texture.texture.needsUpdate = true
+      if (shouldDrawInstrumentFrame(now, lastDrawAt)) {
+        drawFrame(texture.canvas, signal, (now - startedAt) / 1000, animate)
+        texture.texture.needsUpdate = true
+        lastDrawAt = now
+      }
       if (animate) animationFrame = requestAnimationFrame(draw)
     }
     draw(startedAt)

@@ -5,10 +5,10 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use super::browser_capture::{
-    authorize_browser_control, browser_click_commands, loopback_mjpeg_url,
-    BrowserCaptureDescriptor, BrowserCaptureState, BrowserLaunchPlan, BrowserRuntime,
-    ClickBrowserCaptureRequest, FrameHub, NavigateBrowserCaptureRequest,
-    StartBrowserCaptureRequest, StopBrowserCaptureRequest,
+    authorize_browser_control, browser_click_commands, browser_key_commands,
+    browser_scroll_commands, browser_text_commands, loopback_mjpeg_url, BrowserCaptureDescriptor,
+    BrowserCaptureState, BrowserLaunchPlan, BrowserRuntime, ClickBrowserCaptureRequest, FrameHub,
+    NavigateBrowserCaptureRequest, StartBrowserCaptureRequest, StopBrowserCaptureRequest,
 };
 
 #[test]
@@ -130,6 +130,28 @@ fn browser_pointer_input_is_bounded_and_emits_a_complete_click() {
     assert!(browser_click_commands(-1.0, 10.0).is_err());
     assert!(browser_click_commands(1281.0, 10.0).is_err());
     assert!(browser_click_commands(10.0, f64::NAN).is_err());
+}
+
+#[test]
+fn browser_workstation_input_emits_wheel_text_and_special_keys() {
+    let wheel = browser_scroll_commands(640.0, 360.0, 0.0, 240.0)
+        .expect("finite wheel input inside the capture viewport should be accepted");
+    assert_eq!(wheel[0]["method"], "Input.dispatchMouseEvent");
+    assert_eq!(wheel[0]["params"]["type"], "mouseWheel");
+    assert_eq!(wheel[0]["params"]["deltaY"], 240.0);
+    assert!(browser_scroll_commands(640.0, 360.0, f64::NAN, 1.0).is_err());
+
+    let text = browser_text_commands("Arda monitor")
+        .expect("ordinary workstation text should be accepted");
+    assert_eq!(text[0]["method"], "Input.insertText");
+    assert_eq!(text[0]["params"]["text"], "Arda monitor");
+    assert!(browser_text_commands("").is_err());
+
+    let key = browser_key_commands("Enter").expect("supported editing keys should be accepted");
+    assert_eq!(key.len(), 2);
+    assert_eq!(key[0]["params"]["type"], "keyDown");
+    assert_eq!(key[1]["params"]["type"], "keyUp");
+    assert!(browser_key_commands("F12").is_err());
 }
 
 #[test]

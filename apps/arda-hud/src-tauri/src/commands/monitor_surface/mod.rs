@@ -11,7 +11,8 @@ pub use monitor_surface::{
 
 pub use browser_capture::{
     click_browser_capture, get_browser_capture_frame, get_browser_capture_status,
-    navigate_browser_capture, start_browser_capture, stop_browser_capture, BrowserCaptureState,
+    key_browser_capture, navigate_browser_capture, scroll_browser_capture, start_browser_capture,
+    stop_browser_capture, type_browser_capture, BrowserCaptureState,
 };
 
 pub use typed::{

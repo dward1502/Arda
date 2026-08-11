@@ -4,7 +4,7 @@
 
 **Status:** Active corrective plan — implementation substantially converged; native multi-content walkthrough, hardening evidence, and operator acceptance remain open
 
-**Goal:** Turn all five authored upper 3D monitors into independent, full-aperture display surfaces that agents can claim concurrently, render with arbitrary supported visual content, and open into full workstation windows that preserve the same live session and content.
+**Goal:** Turn all five authored upper 3D monitors into independent, passive full-aperture previews that agents can claim concurrently, render with arbitrary supported visual content, and open into legible, fully interactive workstation windows that preserve the same live session and content.
 
 ## Current implementation evidence
 
@@ -41,6 +41,10 @@ The smallest complete vertical slice is bounded to one real browser session befo
 **Second-browser concurrency expansion — 2026-08-11:** A barrier-synchronized installed-browser gate now starts two Chromium captures through the same shared manager at the same time and keeps both live concurrently. The first run passed without a production repair, confirming the existing per-session map already supports distinct concurrent sessions. The gate proves distinct process IDs, loopback stream URLs, owners, profiles, and changing frame revisions; cross-owner stop is rejected; stopping and deleting the first process/profile leaves the second stream advancing; and the second process/profile is independently cleaned up. This is backend/process acceptance only. It does not substitute for visibly observing two simultaneous browser streams in two physical native HUD apertures, which remains part of the Phase 9 multi-content walkthrough.
 
 **Two-aperture native acceptance — 2026-08-11:** The development-only native acceptance harness can now start and own two browser sessions concurrently, route them through authoritative `remote_session` claims for `monitor_1` and `monitor_2`, roll back every fulfilled capture if either startup fails, and stop all owned captures together. In the real Tauri/WebKit HUD, the final lifecycle run recorded `PASS two-browser-native` for `browser-monitor-a-1786438065326` (PID `1900138`, frames `2`, muted) and `browser-monitor-b-1786438065326` (PID `1900139`, frames `2`, muted). The first two authored upper-monitor apertures simultaneously displayed two independent Three.js pages; temporal observation showed the cube at different orientations while both streams remained embedded in their physical apertures. `PASS stop-browsers: stopped=2; failed=0` followed, and both physical apertures immediately returned to their native instruments because the exact surface claims were released. A later clean rerun exposed one Chromium profile recreated after the launcher exited. Browser launches now own a Unix process group, stop kills that full group, and profile deletion uses a bounded post-kill sweep; the installed two-browser gate now waits `300 ms` and proves neither profile is recreated. That gate passed with no matching processes or profiles. This closes the second-browser physical-aperture observation and cleanup gates without claiming YouTube acceptance.
+
+**Passive-preview / interactive-workstation correction — 2026-08-11:** A physical 3D monitor is a live display surface, not a second browser input surface. It continuously presents the real Chromium screencast but does not need scene-level pointer, wheel, text, or keyboard routing. Activating it opens the same owned session in a legible browser workstation with an explicit title/address shell. Workstation navigation, clicks, wheel events, text insertion, and special keys are owner/revision-checked and dispatched through Chromium CDP. YouTube acceptance must navigate this universal browser session to the real YouTube site and visibly prove the running player in both surfaces; a fixture, screenshot, downloaded clip, prerecorded loop, or special-purpose imitation is invalid. Native YouTube proof remains open because the desktop-action approval gate timed out during this run.
+
+**Performance correction — 2026-08-11:** Native instrumentation exposed a 2.5–4.1 FPS scene while ten passive 1024×512 CanvasTextures independently repainted and uploaded at animation cadence. Lower, upper, and command-core backing canvases are now 512×256; redraw cadence is bounded; and passive ambient/desk instruments redraw on state changes instead of continuously competing with the Three.js scene. The same native window then measured approximately 14–15 FPS with continuous command-core/presence motion and the authored environment, shadows, and DPR restored. Disabling shadows and reducing DPR did not improve that ceiling and was reverted. The application-level texture-upload collapse is repaired; the remaining approximately 15 FPS ceiling belongs to the native WebKit/WebGL renderer path on the observed `Apple GPU` context and is not disguised by degrading authored scene quality.
 
 Transport choice for this slice is loopback MJPEG fed by Chromium DevTools `Page.startScreencast`: the current renderer already consumes MJPEG as an image texture, current CSP allows loopback HTTP, and the installed Brave Flatpak exposes a Chromium CDP endpoint. WebRTC would add an unrelated signaling/media stack before one honest stream exists. The capture manager remains transport-bounded so WebRTC can be added later without changing monitor ownership contracts.
 
@@ -94,7 +98,7 @@ Required presentation:
 The session contract must support these first-class content descriptors:
 
 1. **Web surface** — an embeddable site or web application.
-2. **YouTube surface** — a canonical YouTube embed descriptor, not a raw page URL.
+2. **YouTube surface** — the real YouTube site/player running in an owned browser session; any embed descriptor must resolve through that real runtime rather than a simulated or prerecorded scene asset.
 3. **Video surface** — local workspace media, approved remote media, HLS/WebM/MP4 where the runtime supports it.
 4. **Image surface** — local workspace or approved remote images.
 5. **Document surface** — PDF and bounded document/markdown rendering.
@@ -117,7 +121,7 @@ The session contract must support these first-class content descriptors:
 
 ### 1.5 Click-through workstation continuity
 
-Clicking any occupied monitor opens or focuses a workstation window bound to the same `surfaceSessionId`.
+Clicking any occupied monitor opens or focuses a workstation window bound to the same `surfaceSessionId`. The physical aperture is a passive live preview; browser pointer, wheel, text, keyboard, and navigation input belongs in this opened workstation.
 
 The workstation must preserve:
 

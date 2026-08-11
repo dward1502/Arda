@@ -62,10 +62,20 @@ performance contract.
   DOM cards and screen-space HTML overlays are not the production path.
 - `BoardroomApertureSurface` hosts both boardroom and focused-workstation content
   through the same typed renderer registry.
+- A browser-backed physical aperture is a passive live Chromium preview. Activating
+  it opens the same owned session in a legible browser workstation; URL navigation,
+  pointer, wheel, text, and special-key input is routed there through CDP rather
+  than duplicated as fragile scene-level interaction.
+- Real-browser acceptance must use the requested live site/player. Screenshots,
+  downloaded clips, prerecorded loops, and special-purpose imitations are not
+  evidence for YouTube or other browser content.
 - Upper ambient animation is bounded and honors deterministic/reduced-motion
   profiles without replacing valid content.
 - Lower desk apertures use unique radar, waveform, lattice, reactor, and organic
   signal languages; detailed text belongs in deliberately opened workstations.
+- Passive upper/lower instrument canvases redraw on state changes instead of
+  continuously uploading independent textures. This preserves authored scene
+  motion without allowing decorative instruments to starve the main renderer.
 
 Native acceptance is performed against the running `ARDA HUD` window with CUA,
 not inferred from the browser build. The acceptance path must confirm visible

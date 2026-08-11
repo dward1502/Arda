@@ -12,6 +12,11 @@ export interface BrowserCaptureDescriptor {
   frameRevision: number
 }
 
+export interface BrowserCaptureFrame {
+  revision: number
+  jpegBase64: string
+}
+
 export interface BrowserMonitorSessionRequest {
   slotId: UpperMonitorSlotId
   owner: AgentSurfaceOwner
@@ -126,6 +131,24 @@ export async function agentStopBrowserMonitorSession(
   await invoke('stop_browser_capture', { request: identity })
 }
 
+export async function agentGetBrowserMonitorSession(
+  sessionId: string,
+): Promise<BrowserCaptureDescriptor> {
+  const { invoke } = await import('@tauri-apps/api/core')
+  return invoke<BrowserCaptureDescriptor>('get_browser_capture_status', { sessionId })
+}
+
+export async function agentGetBrowserMonitorFrame(
+  sessionId: string,
+  afterRevision: number,
+): Promise<BrowserCaptureFrame | null> {
+  const { invoke } = await import('@tauri-apps/api/core')
+  return invoke<BrowserCaptureFrame | null>('get_browser_capture_frame', {
+    sessionId,
+    afterRevision,
+  })
+}
+
 export async function navigateBrowserMonitorSession(
   capture: BrowserCaptureDescriptor,
   url: string,
@@ -172,4 +195,49 @@ export async function agentClickBrowserMonitorSession(
   const { invoke } = await import('@tauri-apps/api/core')
   return clickBrowserMonitorSession(capture, position, (request) =>
     invoke<BrowserCaptureDescriptor>('click_browser_capture', { request }))
+}
+
+export async function agentScrollBrowserMonitorSession(
+  capture: BrowserCaptureDescriptor,
+  input: BrowserPointerPosition & { deltaX: number; deltaY: number },
+): Promise<BrowserCaptureDescriptor> {
+  const { invoke } = await import('@tauri-apps/api/core')
+  return invoke<BrowserCaptureDescriptor>('scroll_browser_capture', {
+    request: {
+      sessionId: capture.sessionId,
+      owner: capture.owner,
+      expectedRevision: capture.revision,
+      ...input,
+    },
+  })
+}
+
+export async function agentTypeBrowserMonitorSession(
+  capture: BrowserCaptureDescriptor,
+  text: string,
+): Promise<BrowserCaptureDescriptor> {
+  const { invoke } = await import('@tauri-apps/api/core')
+  return invoke<BrowserCaptureDescriptor>('type_browser_capture', {
+    request: {
+      sessionId: capture.sessionId,
+      owner: capture.owner,
+      expectedRevision: capture.revision,
+      text,
+    },
+  })
+}
+
+export async function agentKeyBrowserMonitorSession(
+  capture: BrowserCaptureDescriptor,
+  key: string,
+): Promise<BrowserCaptureDescriptor> {
+  const { invoke } = await import('@tauri-apps/api/core')
+  return invoke<BrowserCaptureDescriptor>('key_browser_capture', {
+    request: {
+      sessionId: capture.sessionId,
+      owner: capture.owner,
+      expectedRevision: capture.revision,
+      key,
+    },
+  })
 }

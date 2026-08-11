@@ -106,9 +106,8 @@ export default function HermesDashboardModule({
             launched: result.launched,
             url: result.url,
             port: result.port,
-            identity: result.identity,
-            spotCount: result.spotCount,
-            failure: result.failure,
+            runtimeIdentity: result.runtimeIdentity,
+            state: result.state,
           }),
         )
         void refreshStatus()
@@ -181,23 +180,6 @@ export default function HermesDashboardModule({
         ? 'pending'
         : 'not listening'
 
-  useEffect(() => {
-    let cancelled = false
-    void ensureHermesRuntimeSpots()
-      .then((result) => {
-        if (!cancelled && !(result.ready && result.url)) {
-          console.log('[HermesDashboardModule] ensureHermesRuntimeSpots', result)
-        }
-      })
-      .catch((error) => {
-        if (!cancelled) {
-          console.log('[HermesDashboardModule] ensureHermesRuntimeSpots failed', error)
-        }
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [])
 
   return (
     <ModuleCard title="Hermes Dashboard" eyebrow="Real embedded Hermes surface" accent="mint" tag={tag}>

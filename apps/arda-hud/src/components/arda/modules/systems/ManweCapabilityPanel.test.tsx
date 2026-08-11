@@ -5,7 +5,18 @@ import type { ManweLiveSnapshot } from '../../../../lib/manweLive'
 import CharonCapabilityPanel from './ManweCapabilityPanel'
 
 const liveSnapshot: ManweLiveSnapshot = {
+  schemaVersion: 'arda.system-health.manwe.v1',
+  state: 'healthy',
+  sourceRevision: 'manwe-test',
+  sourceTimeUtc: '2026-06-05T12:00:00Z',
+  recoveryAction: null,
+  sources: [
+    { sourceId: 'health', path: '/healthz', state: 'observed', error: null },
+    { sourceId: 'capabilities', path: '/providers/capabilities', state: 'observed', error: null },
+    { sourceId: 'provider_candidates', path: '/provider_candidates', state: 'observed', error: null },
+  ],
   loadedAt: '2026-06-05T12:00:00Z',
+  health: null,
   capabilities: {
     ok: true,
     capabilities: {
@@ -71,10 +82,10 @@ const liveSnapshot: ManweLiveSnapshot = {
 
 describe('CharonCapabilityPanel', () => {
   it('renders live capability receipts and candidate guard state', () => {
-    render(<CharonCapabilityPanel snapshot={liveSnapshot} error={null} loading={false} />)
+    render(<CharonCapabilityPanel snapshot={liveSnapshot} error={null} loading={false} storagePressure={null} />)
 
     expect(screen.getByRole('heading', { name: /Model Receipts \+ Promotion Guard/i })).toBeInTheDocument()
-    expect(screen.getByText('observed')).toBeInTheDocument()
+    expect(screen.getByText('healthy')).toBeInTheDocument()
     expect(screen.getByText('6')).toBeInTheDocument()
     expect(screen.getByText('1')).toBeInTheDocument()
     expect(screen.getByText('4')).toBeInTheDocument()
@@ -88,11 +99,27 @@ describe('CharonCapabilityPanel', () => {
   })
 
   it('shows the operator-facing error when the Charon stream is unavailable', () => {
-    render(<CharonCapabilityPanel snapshot={null} error="Charon /provider_candidates returned 502" loading={false} />)
+    render(<CharonCapabilityPanel snapshot={null} error="Charon /provider_candidates returned 502" loading={false} storagePressure={null} />)
 
     expect(screen.getByText('blocked')).toBeInTheDocument()
     expect(screen.getByText('Charon /provider_candidates returned 502')).toBeInTheDocument()
     expect(screen.getByText('No live provider evidence yet.')).toBeInTheDocument()
     expect(screen.getByText('No provider candidates loaded.')).toBeInTheDocument()
+  })
+
+  it('shows the backend recovery action for a partial projection', () => {
+    render(<CharonCapabilityPanel
+      snapshot={{
+        ...liveSnapshot,
+        state: 'partial',
+        recoveryAction: 'Restore the unavailable Manwe projection source.',
+      }}
+      error={null}
+      loading={false}
+      storagePressure={null}
+    />)
+
+    expect(screen.getByText('partial')).toBeInTheDocument()
+    expect(screen.getByText(/Restore the unavailable Manwe projection source/i)).toBeInTheDocument()
   })
 })

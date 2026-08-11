@@ -91,6 +91,8 @@ Complete one workflow before opening the next.
 
 Converge Hermes and Manwë projections without treating one successful subprocess, file, or endpoint read as aggregate health. Coordinate any change to the existing `:7171` consumers.
 
+**Manwë production slice completed (2026-08-11):** installed Tauri now calls the single Rust-owned `read_manwe_runtime_projection` command. The versioned `arda.system-health.manwe.v1` envelope reads all three configured `:7171` sources, names a deterministic source revision/time, distinguishes `healthy`, `degraded`, `partial`, and `unavailable`, preserves usable sources during partial failure, and supplies an operator recovery action. React no longer invokes the former generic `read_charon_json` producer. Four Rust aggregation tests, the HUD suite (509 tests), `cargo check`, and the production HUD build pass. The Hermes half of C1.1 remains open; C1.2 must not begin until that projection is reconciled.
+
 ### C1.2 Workbench canonical loop
 
 Prove:

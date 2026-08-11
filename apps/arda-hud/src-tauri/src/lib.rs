@@ -19,6 +19,7 @@ use commands::monitor_surface::{
     stop_browser_capture, type_browser_capture,
     BrowserCaptureState, MonitorSurfaceState, TypedMonitorSurfaceState,
 };
+use commands::system_health::read_manwe_runtime_projection;
 use portable_pty::CommandBuilder;
 use serde::{Deserialize, Serialize};
 use std::fs;
@@ -278,13 +279,6 @@ fn charon_socket_addr() -> Result<SocketAddr, String> {
         .map_err(|error| format!("invalid Charon socket address: {error}"))?
         .next()
         .ok_or_else(|| "Charon socket address did not resolve".to_string())
-}
-
-fn allowed_charon_path(path: &str) -> bool {
-    matches!(
-        path,
-        "/health" | "/status" | "/providers/capabilities" | "/provider_candidates"
-    )
 }
 
 fn read_local_http_json(addr: SocketAddr, path: &str) -> Result<serde_json::Value, String> {
@@ -906,14 +900,6 @@ fn run_setup_readiness_check(
         receipt_path,
         result_path,
     ))
-}
-
-#[tauri::command]
-fn read_charon_json(path: String) -> Result<serde_json::Value, String> {
-    if !allowed_charon_path(&path) {
-        return Err(format!("unsupported Charon HUD path: {path}"));
-    }
-    read_local_http_json(charon_socket_addr()?, &path)
 }
 
 #[tauri::command]
@@ -2965,7 +2951,7 @@ pub fn run() {
             run_setup_readiness_check,
             run_setup_repair_preflight,
             run_setup_repair_execution_gate,
-            read_charon_json,
+            read_manwe_runtime_projection,
             run_athena_knowledge_ingestion,
             run_athena_digest_refresh,
             run_athena_policy_readiness_preview,

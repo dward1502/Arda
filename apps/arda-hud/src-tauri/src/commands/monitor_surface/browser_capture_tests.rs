@@ -229,3 +229,130 @@ fn live_browser_capture_publishes_changing_frames_and_stops_its_process() {
     page_shutdown.store(true, Ordering::Release);
     page_thread.join().expect("test page server should stop");
 }
+
+#[test]
+#[ignore = "requires an installed Chromium runtime"]
+fn two_live_browser_captures_are_concurrent_and_lifecycle_isolated() {
+    let listener = TcpListener::bind(("127.0.0.1", 0)).expect("test page listener");
+    listener
+        .set_nonblocking(true)
+        .expect("nonblocking listener");
+    let page_port = listener.local_addr().expect("test page address").port();
+    let page_shutdown = Arc::new(AtomicBool::new(false));
+    let page_shutdown_thread = page_shutdown.clone();
+    let page_thread = std::thread::spawn(move || {
+        let body = r#"<!doctype html><html><body><script>
+          let frame = 0;
+          setInterval(() => {
+            frame += 1;
+            document.body.style.backgroundColor = `hsl(${frame % 360} 80% 35%)`;
+            document.body.textContent = `ARDA CONCURRENT FRAME ${frame}`;
+          }, 40);
+        </script></body></html>"#;
+        while !page_shutdown_thread.load(Ordering::Acquire) {
+            match listener.accept() {
+                Ok((mut stream, _)) => {
+                    let mut request = [0_u8; 1024];
+                    let _ = stream.read(&mut request);
+                    let response = format!(
+                        "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
+                        body.len(), body
+                    );
+                    let _ = stream.write_all(response.as_bytes());
+                }
+                Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
+                    std::thread::sleep(Duration::from_millis(10));
+                }
+                Err(error) => panic!("test page server failed: {error}"),
+            }
+        }
+    });
+
+    let process_id = std::process::id();
+    let first_session_id = format!("browser-concurrent-a-{process_id}");
+    let second_session_id = format!("browser-concurrent-b-{process_id}");
+    let first_profile = format!("/tmp/arda-hud-browser-{first_session_id}");
+    let second_profile = format!("/tmp/arda-hud-browser-{second_session_id}");
+    let state = BrowserCaptureState::default();
+    let barrier = Arc::new(std::sync::Barrier::new(3));
+
+    let first_state = state.clone();
+    let first_barrier = barrier.clone();
+    let first_url = format!("http://127.0.0.1:{page_port}/first");
+    let first_id = first_session_id.clone();
+    let first_start = std::thread::spawn(move || {
+        first_barrier.wait();
+        first_state.start(StartBrowserCaptureRequest {
+            session_id: first_id,
+            owner: "browser-concurrent-owner-a".to_string(),
+            url: first_url,
+        })
+    });
+
+    let second_state = state.clone();
+    let second_barrier = barrier.clone();
+    let second_url = format!("http://127.0.0.1:{page_port}/second");
+    let second_id = second_session_id.clone();
+    let second_start = std::thread::spawn(move || {
+        second_barrier.wait();
+        second_state.start(StartBrowserCaptureRequest {
+            session_id: second_id,
+            owner: "browser-concurrent-owner-b".to_string(),
+            url: second_url,
+        })
+    });
+
+    barrier.wait();
+    let first = first_start
+        .join()
+        .expect("first startup thread should finish")
+        .expect("first browser should publish changing frames");
+    let second = second_start
+        .join()
+        .expect("second startup thread should finish")
+        .expect("second browser should publish changing frames");
+
+    assert_ne!(first.process_id, second.process_id);
+    assert_ne!(first.stream_url, second.stream_url);
+    assert_ne!(first.owner, second.owner);
+    assert!(first.muted && second.muted);
+    assert!(first.frame_revision >= 2 && second.frame_revision >= 2);
+    assert!(std::path::Path::new(&first_profile).is_dir());
+    assert!(std::path::Path::new(&second_profile).is_dir());
+
+    assert!(state
+        .stop(StopBrowserCaptureRequest {
+            session_id: first_session_id.clone(),
+            owner: second.owner.clone(),
+        })
+        .expect_err("one browser owner must not stop the other browser")
+        .contains("owner mismatch"));
+
+    state
+        .stop(StopBrowserCaptureRequest {
+            session_id: first_session_id.clone(),
+            owner: first.owner.clone(),
+        })
+        .expect("first owner should stop only the first browser");
+    assert!(state.status(&first_session_id).is_err());
+    assert!(!std::path::Path::new(&first_profile).exists());
+
+    std::thread::sleep(Duration::from_millis(200));
+    let second_later = state
+        .status(&second_session_id)
+        .expect("second browser must remain live after first-browser cleanup");
+    assert!(second_later.frame_revision > second.frame_revision);
+    assert!(std::path::Path::new(&second_profile).is_dir());
+
+    state
+        .stop(StopBrowserCaptureRequest {
+            session_id: second_session_id.clone(),
+            owner: second.owner,
+        })
+        .expect("second owner should stop the second browser");
+    assert!(state.status(&second_session_id).is_err());
+    assert!(!std::path::Path::new(&second_profile).exists());
+
+    page_shutdown.store(true, Ordering::Release);
+    page_thread.join().expect("test page server should stop");
+}

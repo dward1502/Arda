@@ -63,6 +63,7 @@ Tauri's cached `linuxdeploy` bundles an old `strip` that rejects modern ELF
 `.relr.dyn` sections as unknown section type `0x13`. The launcher package script
 sets linuxdeploy's supported `NO_STRIP=true` control, preserving those already
 stripped system libraries instead of passing them through the incompatible
-tool. The normal `pnpm run tauri build` entry point now produces the AppImage,
-DEB, and RPM; `tests.test_arda_appimage` keeps this compatibility control from
-silently regressing.
+tool. It also puts the distro's GNU coreutils before Homebrew uutils because the
+cached GTK plugin relies on GNU `cp --parents` behavior. The normal
+`pnpm run tauri build` entry point now produces the AppImage, DEB, and RPM;
+`tests.test_arda_appimage` keeps these compatibility controls from regressing.

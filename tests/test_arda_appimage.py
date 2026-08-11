@@ -17,7 +17,10 @@ SPEC.loader.exec_module(appimage)
 class AppImagePackagingTests(unittest.TestCase):
     def test_tauri_build_disables_incompatible_linuxdeploy_strip(self) -> None:
         package = json.loads((ROOT / "apps/arda-launcher/package.json").read_text(encoding="utf-8"))
-        self.assertEqual(package["scripts"]["tauri"], "NO_STRIP=true cargo-tauri")
+        self.assertEqual(
+            package["scripts"]["tauri"],
+            "PATH=/usr/bin:/usr/sbin:$PATH NO_STRIP=true cargo-tauri",
+        )
 
     def test_fetch_verified_reuses_matching_cached_input(self) -> None:
         with tempfile.TemporaryDirectory() as temp:

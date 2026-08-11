@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "tauri": "NO_STRIP=true cargo-tauri",
+    "tauri": "PATH=/usr/bin:/usr/sbin:$PATH NO_STRIP=true cargo-tauri",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "test": "vitest run",

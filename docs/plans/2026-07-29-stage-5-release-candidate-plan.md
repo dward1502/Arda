@@ -7,8 +7,7 @@
 **System completion coordination:** [Arda System Unification and Usability Plan](2026-08-02-arda-system-unification-and-usability-plan.md).
 
 **Lifecycle status:** ACTIVE; implementation and S5-R1 reliability qualification
-are complete, but release closeout remains blocked on one reconciled final signed
-artifact lifecycle and one qualifying independent non-author evaluator receipt.
+are evidence-backed by the [Stage 5 release-candidate ledger](../releases/stage-5-release-candidate-evidence.md), but release closeout remains blocked on one reconciled final signed artifact lifecycle and one qualifying independent non-author evaluator receipt.
 Reconciled against the completed soak evidence on 2026-08-10.
 
 **Stage objective:** Prove Arda Workbench works across the declared supported profiles, repositories, providers, and failure conditions with supportable installation, upgrades, security boundaries, and documentation. One qualifying independent non-author evaluator receipt is required; broader external-person repetition remains optional.

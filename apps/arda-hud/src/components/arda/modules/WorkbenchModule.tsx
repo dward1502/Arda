@@ -39,11 +39,12 @@ export interface OperatorSummary {
   whatHappened: string
   why: string
   whatCanAct: string
+  evidenceQuality: string
   nextAction: string
 }
 
 function authorityLabel(node: RunNode | null): string {
-  if (!node) return 'No component can mutate project state until a governed run is prepared.'
+  if (!node) return 'Arda may inspect and validate only. Only the operator can authorize a project mutation.'
   switch (node.authority) {
     case 'human_approval': return 'Only the operator can approve or reject this step.'
     case 'execute_with_approval': return 'The execution provider may act only after operator approval.'
@@ -66,6 +67,7 @@ export function summarizeOperatorState(input: {
   const active = input.graph?.nodes.find((node) => ['failed', 'cancelled', 'running', 'blocked', 'ready', 'pending'].includes(node.state)) ?? null
   const latestReason = [...input.events].reverse().map((event) => event.kind?.reason ?? event.event?.reason ?? event.reason).find(Boolean)
   const completed = Boolean(input.graph?.nodes.length) && input.graph!.nodes.every((node) => node.state === 'succeeded')
+  const failed = input.graph?.nodes.some((node) => node.state === 'failed') ?? false
   const whatHappened = input.error
     ? `The latest operation did not complete: ${input.error}`
     : completed
@@ -80,6 +82,15 @@ export function summarizeOperatorState(input: {
       : active
         ? `The run follows its governed sequence and ${active.kind} is the next incomplete step.`
         : 'No run decision has been made yet.'
+  const evidenceQuality = input.error
+    ? 'An application error is visible. Do not treat this operation as successful.'
+    : !input.graph
+      ? 'No execution receipt or project verification evidence exists yet.'
+      : failed
+        ? 'Failure evidence is recorded. Project success is not proven; inspect the failed boundary and its receipt before recovery.'
+        : completed
+          ? 'The graph reports all steps succeeded. Confirm the changed files, exact project check, provider provenance, and final receipt before closeout.'
+          : 'Evidence is partial while the run is incomplete. A green step or provider statement alone is not proof of project success.'
   let nextAction = 'Validate a project contract before attaching it.'
   if (input.validationValid && !input.attached) nextAction = 'Review the validated permissions, then attach the project with approved proposal and approval IDs.'
   else if (input.attached && !input.objectivePresent) nextAction = 'Describe and capture the objective for this project.'
@@ -88,7 +99,7 @@ export function summarizeOperatorState(input: {
   else if (active?.state === 'failed' || active?.state === 'cancelled') nextAction = 'Inspect the recorded reason and receipts, then revise or recover the run.'
   else if (active) nextAction = `Select the ${active.kind} step and complete its displayed evidence or authority requirement.`
   else if (completed) nextAction = 'Review changed files, checks, provider receipt, and the final timeline before closeout.'
-  return { whatHappened, why, whatCanAct: authorityLabel(active), nextAction }
+  return { whatHappened, why, whatCanAct: authorityLabel(active), evidenceQuality, nextAction }
 }
 
 export default function WorkbenchModule() {
@@ -328,6 +339,7 @@ export default function WorkbenchModule() {
             <div><dt>What happened?</dt><dd>{operatorSummary.whatHappened}</dd></div>
             <div><dt>Why?</dt><dd>{operatorSummary.why}</dd></div>
             <div><dt>What can act?</dt><dd>{operatorSummary.whatCanAct}</dd></div>
+            <div><dt>What evidence is available?</dt><dd>{operatorSummary.evidenceQuality}</dd></div>
             <div><dt>What should I do next?</dt><dd>{operatorSummary.nextAction}</dd></div>
           </dl>
         </section>

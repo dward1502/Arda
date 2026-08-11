@@ -22,7 +22,7 @@ No row below converts a partial or blocked gate into a pass.
 | Gate | Status | Evidence | Closure required |
 |---|---|---|---|
 | S5-RC0 artifact identity and upgrade/rollback | Pass | `../evidence/stage-5-release-candidate/s5-rc0/s5-rc0-summary.json`; `../evidence/stage-5-release-candidate/s5-rc0/rollback-proof.json` | Re-run against final rebuilt artifacts. |
-| U4 local installation lifecycle | Pass for unsigned local candidate; final signed gate open | `../evidence/stage-5-release-candidate/reliability/u4-lifecycle-local-20260804.json` | Re-run fresh install, Workbench persistence, upgrade, backup/restore, rollback, diagnostics, safe reset, and uninstall against one reconciled final signed artifact identity. |
+| U4 installation lifecycle | Pass for current unsigned local candidate; published signed candidate fails default native startup; final signed gate open | `../evidence/stage-5-release-candidate/reliability/u4-lifecycle-local-20260804.json`; `../evidence/stage-5-release-candidate/reliability/u4-signed-v0.3.0-rc.0-lifecycle-20260811.json` | Publish one clean current candidate, verify its identity-bound signature, then re-run fresh install, Workbench persistence, upgrade, backup/restore, rollback, diagnostics, safe reset, and uninstall without a compatibility override. |
 | Supported Linux profile | Pass for initial profile | `../evidence/stage-5-release-candidate/s5-rc0/supported-profile.json` | Maintain the declared `bluefin-lts-10-x86_64` boundary. |
 | Reliability fault-matrix smoke | Pass | `../evidence/stage-5-release-candidate/reliability/u3-degradation-smoke-20260804.json` | 11/11 runs passed across the complete U3 failure matrix with zero state growth and unchanged source identity. |
 | 24-hour soak / S5-R1 | Pass for source `efd118b5` | `../evidence/stage-5-release-candidate/reliability/soak-24h-final-efd118b5-20260807.json`; `../evidence/stage-5-release-candidate/reliability/soak-24h-final-efd118b5-20260807-assessment.md` | The valid run completed 86,400 seconds and passed 2,844/2,844 scenarios. The later `6616addd` smoke passed 11/11, but its stopped elapsed run emitted no receipt and is not cited. Re-run at the next freeze only if then-current release policy requires exact-candidate elapsed qualification. |
@@ -129,11 +129,13 @@ the secret-leak check and retained machine-verifiable hashes. Operator guidance
 now pairs internal identities with functional labels and states the supported
 profile, local-only authentication boundary, diagnostic-sharing caution, and
 known limitations. U5 implementation and automated/native infrastructure gates
-pass. The neutral protocol and fail-closed record template are prepared in
+pass. A reported non-author attempt failed to identify system state and approval
+authority, so it is not a qualifying pass. The launcher and Workbench now expose
+those answers plus evidence quality and next action explicitly. The neutral
+protocol and fail-closed record template are prepared in
 `docs/operator/stage-5-independent-evaluator-guide.md` and
 `docs/operator/templates/stage-5-independent-evaluator-record.json`, but no
-qualifying non-author session has occurred, so comprehension acceptance remains
-open.
+qualifying non-author pass has occurred, so comprehension acceptance remains open.
 
 ### Packaging
 

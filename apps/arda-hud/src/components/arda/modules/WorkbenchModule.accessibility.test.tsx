@@ -54,8 +54,10 @@ describe('WorkbenchModule accessibility gate', () => {
     expect(screen.getByText('What happened?')).toBeTruthy()
     expect(screen.getByText('Why?')).toBeTruthy()
     expect(screen.getByText('What can act?')).toBeTruthy()
+    expect(screen.getByText('What evidence is available?')).toBeTruthy()
     expect(screen.getByText('What should I do next?')).toBeTruthy()
     expect(screen.getByText('Validate a project contract before attaching it.')).toBeTruthy()
+    expect(screen.getByText('No execution receipt or project verification evidence exists yet.')).toBeTruthy()
   })
 
   it('explains failed-run authority, reason, and recovery action', () => {
@@ -79,6 +81,7 @@ describe('WorkbenchModule accessibility gate', () => {
     expect(summary.whatHappened).toContain('execute step')
     expect(summary.why).toContain('Provider timed out')
     expect(summary.whatCanAct).toContain('only after operator approval')
+    expect(summary.evidenceQuality).toContain('Project success is not proven')
     expect(summary.nextAction).toContain('revise or recover')
   })
 })

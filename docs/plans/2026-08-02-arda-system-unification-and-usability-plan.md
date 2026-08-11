@@ -384,6 +384,23 @@ or retained merely to rewrite historical evidence.
   U4 closes only after exact signed bytes from clean final source pass this
   lifecycle and the clean profile reaches a persisted Workbench change.
 
+**U4/U5 prerequisite audit (2026-08-11):**
+
+- Gates U0 through U3 retain their cited passing receipts; no missing U0-U3
+  prerequisite was found in the live gate ledger.
+- The U4 harness now accepts an identity-bound Sigstore bundle and fails closed
+  when signature verification fails or a signed candidate cannot launch on the
+  supported profile without a compatibility override.
+- All six `v0.3.0-rc.0` release assets passed their checksum ledger and Sigstore
+  identity checks. The exact signed AppImage then passed install, upgrade,
+  backup, diagnostics, rollback, state preservation, and uninstall, but failed
+  default Wayland startup and required `GDK_BACKEND=x11`. The fail-closed receipt
+  is `docs/evidence/stage-5-release-candidate/reliability/u4-signed-v0.3.0-rc.0-lifecycle-20260811.json`.
+- The current local launcher survived default native startup and passed the same
+  isolated lifecycle without an override, but it is unsigned and therefore does
+  not close U4. A new clean, tag-bound signed candidate containing the startup
+  and U5 comprehension fixes remains required before final U4/U5 evaluation.
+
 **Gate U4:** A clean supported profile reaches the first verified Workbench change from published instructions, and every induced setup failure gives an actionable recovery path.
 
 ### U5 — Accessibility, comprehension, and supportability
@@ -401,20 +418,21 @@ or retained merely to rewrite historical evidence.
 **Work:**
 
 - [x] Preserve keyboard-complete, screen-reader-labelled, reduced-motion, forced-color, and high-contrast paths.
-- [x] Present plain-language answers to “what happened?”, “why?”, “what can act?”, and “what should I do next?”.
+- [x] Present plain-language answers to “what happened?”, “why?”, “what can act?”, “what evidence is available?”, and “what should I do next?”.
 - [x] Keep internal names as identity, but pair them with functional labels in operator-facing surfaces.
 - [x] Validate redacted diagnostics against the seeded failure set.
 - [x] Publish limitations, supported matrix, security/privacy boundaries, known issues, and support expectations without inflated claims.
 - [ ] Run the Stage 5 independent non-author evaluator gate against the final candidate; leave broader Stage 6 independent-user evidence downstream and never manufacture proxy evidence.
 
-**U5 implementation evidence (2026-08-05):**
+**U5 implementation evidence (2026-08-05; remediated 2026-08-11):**
 
 - `WorkbenchModule` now derives one labelled operator summary from the live run
   graph and event reasons. It answers what happened, why, which authority can
-  act, and the next operator action without requiring knowledge of node enums or
-  receipt internals. Four accessibility tests cover initial/captured-objective
-  axe scans, keyboard focus order, the four questions, and failed-run
-  reason/authority/recovery guidance; the complete HUD suite passes 397/397.
+  act, what evidence is available, and the next operator action without requiring
+  knowledge of node enums or receipt internals. Four accessibility tests cover
+  initial/captured-objective axe scans, keyboard focus order, the five questions,
+  and failed-run reason/authority/recovery guidance; the current HUD suite passes
+  507/507.
 - Workbench CSS preserves explicit focus indication plus reduced-motion,
   increased-contrast, forced-color, and responsive summary paths. Existing
   native AT-SPI/XTest evidence proves dialog naming, keyboard containment,
@@ -429,8 +447,14 @@ or retained merely to rewrite historical evidence.
   current limitations. Stale license, signing-method, and Wayland-startup issues
   were removed or replaced with the actual final-artifact reconciliation blocker.
 - HUD lint reports 105 existing warnings and zero errors; the production build
-  passes. The Stage 5 independent-evaluator item and Gate U5 remain open because
-  no qualifying non-author evaluator evidence was manufactured.
+  passes. A reported non-author attempt could not identify current system state
+  or approval authority, so it did not satisfy Gate U5 and is not represented as
+  a pass receipt. The launcher now presents a top-level Operator orientation
+  block naming current state, read-only actions, sole operator approval authority,
+  evidence quality, execution blockers, and the exact next action. Launcher tests
+  pass 11/11; focused Workbench tests pass 9/9; both frontend builds pass. Gate U5
+  remains open until this remediated flow is exercised by a qualifying non-author
+  against the new final signed candidate.
 
 **Gate U5:** A non-author operator can identify system state, approval authority, evidence quality, and the next recovery action without inspecting source or raw state files.
 

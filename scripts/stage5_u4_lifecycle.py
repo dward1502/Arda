@@ -21,6 +21,50 @@ from typing import Any
 import arda_beta_ops as beta_ops
 
 
+def verify_sigstore_bundle(
+    candidate: Path,
+    bundle: Path | None,
+    certificate_identity: str | None,
+    certificate_oidc_issuer: str | None,
+) -> dict[str, Any]:
+    supplied = (bundle is not None, certificate_identity is not None, certificate_oidc_issuer is not None)
+    if any(supplied) and not all(supplied):
+        raise beta_ops.BetaOpsError(
+            "--sigstore-bundle, --certificate-identity, and --certificate-oidc-issuer must be supplied together"
+        )
+    if bundle is None:
+        return {"verified": False, "status": "not-provided"}
+    bundle = bundle.resolve()
+    if not bundle.is_file():
+        raise beta_ops.BetaOpsError(f"Sigstore bundle not found: {bundle}")
+    try:
+        result = subprocess.run(
+            [
+                "cosign", "verify-blob", str(candidate.resolve()),
+                "--bundle", str(bundle),
+                "--certificate-identity", certificate_identity or "",
+                "--certificate-oidc-issuer", certificate_oidc_issuer or "",
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+    except (OSError, subprocess.TimeoutExpired) as error:
+        raise beta_ops.BetaOpsError(f"Sigstore verification could not run: {error}") from error
+    if result.returncode != 0:
+        detail = result.stderr.strip() or result.stdout.strip() or f"exit {result.returncode}"
+        raise beta_ops.BetaOpsError(f"Sigstore verification failed: {detail}")
+    return {
+        "verified": True,
+        "status": "pass",
+        "bundle": bundle.name,
+        "bundle_sha256": beta_ops.hash_file(bundle),
+        "certificate_identity": certificate_identity,
+        "certificate_oidc_issuer": certificate_oidc_issuer,
+    }
+
+
 def launch_probe(executable: Path, environment: dict[str, str]) -> tuple[bool, int | None]:
     process = subprocess.Popen(
         [str(executable)],
@@ -41,7 +85,7 @@ def launch_probe(executable: Path, environment: dict[str, str]) -> tuple[bool, i
     return survived, return_code
 
 
-def run_lifecycle(root: Path, candidate: Path) -> dict[str, Any]:
+def run_lifecycle(root: Path, candidate: Path, signing: dict[str, Any] | None = None) -> dict[str, Any]:
     root = root.resolve()
     candidate = candidate.resolve()
     candidate_sha = beta_ops.hash_file(candidate)
@@ -97,12 +141,23 @@ def run_lifecycle(root: Path, candidate: Path) -> dict[str, Any]:
         state_preserved = run_truth.is_file() and beta_ops.hash_file(run_truth) == run_truth_sha
         source_after = beta_ops.source_identity(root)
 
+        signed = bool(signing and signing.get("verified"))
+        if signed:
+            status = "pass-signed-candidate-lifecycle" if launch_default_survived else "fail-signed-candidate-lifecycle"
+            blocker = (
+                None
+                if launch_default_survived
+                else "The signed candidate did not launch on the supported profile without a compatibility override."
+            )
+        else:
+            status = "pass-local-candidate-lifecycle"
+            blocker = "No identity-bound Sigstore bundle was supplied for this candidate."
         return {
             "contract": "arda.stage5.u4-lifecycle-evidence.v1",
             "generated_at_utc": beta_ops.utc_iso(),
-            "status": "pass-local-unsigned-candidate",
+            "status": status,
             "acceptance": {
-                "final_signed_artifact_exercised": False,
+                "final_signed_artifact_exercised": signed,
                 "fresh_install": True,
                 "candidate_launch_survived_3s": launch_survived,
                 "candidate_default_launch_survived_3s": launch_default_survived,
@@ -128,7 +183,8 @@ def run_lifecycle(root: Path, candidate: Path) -> dict[str, Any]:
                 "default_return_code": launch_default_return_code,
             },
             "mutation_scope": "isolated temporary operator home only",
-            "blocker": "Final signed package bytes are not available: Stage 5 packaging evidence reports production_trust_ready=false and normalized_linux_packages_signed=false.",
+            "signing": signing or {"verified": False, "status": "not-provided"},
+            "blocker": blocker,
         }
 
 
@@ -137,14 +193,29 @@ def main() -> int:
     parser.add_argument("--root", type=Path, required=True)
     parser.add_argument("--candidate", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--sigstore-bundle", type=Path)
+    parser.add_argument("--certificate-identity")
+    parser.add_argument("--certificate-oidc-issuer")
     args = parser.parse_args()
 
-    result = run_lifecycle(args.root, args.candidate)
+    try:
+        signing = verify_sigstore_bundle(
+            args.candidate,
+            args.sigstore_bundle,
+            args.certificate_identity,
+            args.certificate_oidc_issuer,
+        )
+        result = run_lifecycle(args.root, args.candidate, signing)
+    except beta_ops.BetaOpsError as error:
+        print(json.dumps({"status": "fail", "error": str(error)}, sort_keys=True))
+        return 2
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(result, sort_keys=True))
     informational = {"final_signed_artifact_exercised", "candidate_default_launch_survived_3s"}
     required = [value for key, value in result["acceptance"].items() if key not in informational]
+    if result["acceptance"]["final_signed_artifact_exercised"]:
+        required.append(result["acceptance"]["candidate_default_launch_survived_3s"])
     return 0 if all(required) else 1
 
 

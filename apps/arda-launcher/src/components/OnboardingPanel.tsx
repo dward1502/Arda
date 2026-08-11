@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import type { OnboardingSnapshot } from '../lib/tauri-core-compat'
+import { summarizeFirstRunOrientation } from '../lib/first-run-orientation'
 
 interface OnboardingPanelProps {
   snapshot: OnboardingSnapshot | null
@@ -12,6 +13,7 @@ export default function OnboardingPanel({ snapshot, error, onClose }: Onboarding
   const readiness = snapshot?.readiness
   const servicePlan = snapshot?.servicePlan
   const actionableChecks = readiness?.checks.filter(check => check.status !== 'pass') ?? []
+  const orientation = snapshot ? summarizeFirstRunOrientation(snapshot) : null
 
   useEffect(() => {
     const panel = panelRef.current
@@ -84,6 +86,30 @@ export default function OnboardingPanel({ snapshot, error, onClose }: Onboarding
 
       {snapshot && (
         <div className="mt-5 grid gap-4 md:grid-cols-2">
+          {orientation && (
+            <article
+              aria-labelledby="operator-orientation-title"
+              className="rounded border border-[#f4e9d8]/40 bg-[#f4e9d8]/[0.06] p-4 md:col-span-2"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 id="operator-orientation-title" className="text-sm uppercase tracking-wider">
+                  Operator orientation
+                </h3>
+                <span className="rounded border border-white/20 px-2 py-1 text-[10px] uppercase text-white/70">
+                  {snapshot.gate_status}
+                </span>
+              </div>
+              <dl className="mt-3 grid gap-3 text-xs">
+                <div><dt className="text-white/50">Current system state</dt><dd className="mt-1 text-sm">{orientation.systemState}</dd></div>
+                <div><dt className="text-white/50">What Arda can do now</dt><dd className="mt-1">{orientation.canActNow}</dd></div>
+                <div><dt className="text-white/50">Who can approve changes</dt><dd className="mt-1 font-semibold text-amber-100">{orientation.approvalAuthority}</dd></div>
+                <div><dt className="text-white/50">Evidence quality</dt><dd className="mt-1">{orientation.evidenceQuality}</dd></div>
+                <div><dt className="text-white/50">What prevents execution</dt><dd className="mt-1">{orientation.executionBlockers}</dd></div>
+                <div><dt className="text-white/50">Do this next</dt><dd className="mt-1 font-semibold text-emerald-100">{orientation.nextAction}</dd></div>
+              </dl>
+            </article>
+          )}
+
           <article className="rounded border border-white/15 bg-white/[0.03] p-4 md:col-span-2">
             <h3 className="text-sm uppercase tracking-wider">First-run sequence</h3>
             <ol className="mt-3 grid gap-2 text-xs sm:grid-cols-2 lg:grid-cols-3">

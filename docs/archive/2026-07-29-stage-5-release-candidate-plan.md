@@ -1,19 +1,23 @@
 # Arda Stage 5 — Release Candidate Plan
 
-> **For Hermes:** Stage 5 is active following operator acceptance of the Stage 4 evidence on 2026-07-31. Stage 5 converts a useful private beta into an installable, supportable release candidate; it is not a feature-expansion sprint.
+> **For Hermes:** Stage 5 closed on 2026-08-11 against the signed
+> `v0.3.0-rc.1` evidence packet and the operator-approved single-operator local
+> release profile. This archived plan is historical release authority, not an
+> active feature-expansion queue.
 
-**Product/master authority:** [Arda 1.0 Personal Agent Ecosystem Plan](2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md). This Stage 5 plan remains authoritative for Workbench-centered release-candidate packaging, security, reliability, diagnostics, support, and evaluator gates—not product identity.
+**Product/master authority:** [Arda 1.0 Personal Agent Ecosystem Plan](../plans/2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md). This Stage 5 plan remains the historical authority for Workbench-centered release-candidate packaging, security, reliability, diagnostics, support, and release-profile gates—not product identity.
 
-**System completion coordination:** [Arda System Unification and Usability Plan](2026-08-02-arda-system-unification-and-usability-plan.md).
+**System completion coordination:** [Arda System Unification and Usability Plan](../plans/2026-08-02-arda-system-unification-and-usability-plan.md).
 
-**Lifecycle status:** ACTIVE; implementation, S5-R1 reliability qualification,
-and the reconciled final signed-artifact lifecycle are evidence-backed by the
+**Lifecycle status:** COMPLETE and archived; implementation, S5-R1 reliability
+qualification, and the reconciled final signed-artifact lifecycle are
+evidence-backed by the
 [Stage 5 release-candidate ledger](../releases/stage-5-release-candidate-evidence.md).
-Release closeout remains blocked only on one qualifying independent non-author
-evaluator receipt. Reconciled against the signed `v0.3.0-rc.1` evidence on
-2026-08-11.
+On 2026-08-11 the operator selected the single-operator local release profile,
+making independent non-author evaluation an optional future confidence signal
+rather than claiming it occurred.
 
-**Stage objective:** Prove Arda Workbench works across the declared supported profiles, repositories, providers, and failure conditions with supportable installation, upgrades, security boundaries, and documentation. One qualifying independent non-author evaluator receipt is required; broader external-person repetition remains optional.
+**Stage objective:** Prove Arda Workbench works across the declared supported profiles, repositories, providers, and failure conditions with supportable installation, upgrades, security boundaries, and documentation. Automated isolated-profile and native operator evidence are required for the selected release profile; independent non-author and broader external-person repetition remain optional future confidence signals.
 
 **Primary product:** Arda Workbench release candidate  
 **Secondary betas:** Personal Operations and Warden Research  
@@ -25,9 +29,9 @@ expansion; retained operations remain isolated from this release-critical path
 | Surface | Authority | Stage 5 relationship |
 |---|---|---|
 | Workbench release candidate | this plan | only release-critical product |
-| Warden/Varda durable backend | [governed-learning plan](../archive/2026-07-27-warden-varda-ceo-learning-loop.md) | completed supporting authority; required only if the optional Warden Research recurring-watchlist beta ships |
-| Warden Research product/API/HUD | [archived Warden Research record](../archive/2026-07-29-warden-research-application-plan.md) | completed optional secondary beta record; not release-critical |
-| Pi5 AArch64 deployment, fleet, SSH, shared recovery | [Pi5 record](../archive/2026-07-23-pi5-outpost-integration-plan.md) | completed supporting infrastructure; required only for a beta that promises physical outpost support |
+| Warden/Varda durable backend | [governed-learning plan](2026-07-27-warden-varda-ceo-learning-loop.md) | completed supporting authority; required only if the optional Warden Research recurring-watchlist beta ships |
+| Warden Research product/API/HUD | [archived Warden Research record](2026-07-29-warden-research-application-plan.md) | completed optional secondary beta record; not release-critical |
+| Pi5 AArch64 deployment, fleet, SSH, shared recovery | [Pi5 record](2026-07-23-pi5-outpost-integration-plan.md) | completed supporting infrastructure; required only for a beta that promises physical outpost support |
 | RELIC/CITADEL presence/presentation | [retained RELIC/CITADEL operations](../operations/relic-citadel-presence.md) | existing recovery/soak history is nonblocking; feature expansion is an optional master-plan capability, not a Stage 5 gate |
 
 No deferred application/outpost task may delay Workbench packaging, security, reliability, diagnostics, or support work.
@@ -36,14 +40,14 @@ No deferred application/outpost task may delay Workbench packaging, security, re
 
 ## Entry criteria
 
-- Maturity: `workflow_proven` — the Stage 4 exit checklist and evidence packet are complete under the operator-approved local-only profile documented in the [archived Stage 4 plan](../archive/2026-07-29-stage-4-private-beta-plan.md); independent evaluator evidence is optional supplementary validation.
+- Maturity: `workflow_proven` — the Stage 4 exit checklist and evidence packet are complete under the operator-approved local-only profile documented in the [archived Stage 4 plan](2026-07-29-stage-4-private-beta-plan.md); independent evaluator evidence is optional supplementary validation.
 - No critical unresolved data-loss, duplicate-mutation, secret-exposure, or authority-bypass issue.
 - Run graph and project contracts have a documented compatibility policy.
 - One Rust and one Python adapter path are repeatable.
 
 ## Exit definition
 
-Stage 5 is complete when a signed release candidate can be installed, upgraded, used, diagnosed, backed up, restored, and rolled back across the declared supported environment matrix while preserving run truth and project source. Automated isolated-profile evidence, operator acceptance, and one qualifying independent non-author evaluator receipt are active gates. Broader external-person repetition remains optional.
+Stage 5 is complete when a signed release candidate can be installed, upgraded, used, diagnosed, backed up, restored, and rolled back across the declared supported environment matrix while preserving run truth and project source. Automated isolated-profile evidence and operator acceptance are active gates for the selected single-operator local release profile. Independent non-author and broader external-person repetition remain optional.
 
 ## Workstream 1 — Supported product matrix
 
@@ -248,13 +252,13 @@ Recurring watchlists may ship only if governed-learning GL-1 through GL-4 and Wa
 ### Mirromere and RELIC/CITADEL
 Experimental feature flags only. Sensor and kiosk failures must not affect Workbench. Hardware/device support is explicitly listed, not implied. RELIC/CITADEL RC-5 companion/collaboration expansion is deferred until RC-1 through RC-4 independently pass.
 
-## Workstream 9 — Independent evaluator and optional broader beta evidence
+## Workstream 9 — Optional independent evaluator and broader beta evidence
 
-One qualifying independent non-author evaluator receipt is release-gating under
-`docs/operator/stage-5-independent-evaluator-guide.md`; do not fabricate proxy
-sign-off. The broader cohort below remains supplementary and does not block
-Stage 5. Continue collecting machine-readable isolated-profile, conformance,
-recovery, security, and operator-acceptance evidence independently.
+Independent non-author evaluation is optional supplementary validation under
+the operator-approved single-operator local release profile recorded in
+`docs/evidence/stage-5-release-candidate/release-policy/operator-release-profile-decision-20260811.json`.
+Do not fabricate proxy sign-off or claim that the prepared guide was executed.
+The broader cohort below is also supplementary and does not block Stage 5.
 
 Recruit a small, consent-based cohort representing:
 - existing Rust project;
@@ -304,7 +308,7 @@ Create `docs/releases/stage-5-release-candidate-evidence.md` at closeout with:
 - security review and unresolved risk ledger;
 - soak/performance results;
 - adapter conformance results;
-- one independent non-author evaluator receipt covering state, authority, evidence quality, and recovery comprehension; broader five-user evaluation remains optional;
+- the release-profile decision and honest independent-evaluator status; any later non-author receipt covers state, authority, evidence quality, and recovery comprehension but remains supplementary;
 - accessibility findings;
 - explicit 1.0 blockers.
 
@@ -327,7 +331,9 @@ Create `docs/releases/stage-5-release-candidate-evidence.md` at closeout with:
   force at the next actual freeze requires it.
 - [x] Automated accessibility checks and operator setup/recovery walkthrough have no blocking usability issue.
 - [x] Documentation and diagnostics are supportable.
-- [ ] Independent evaluator status is documented honestly; the release remains blocked until one qualifying receipt passes `docs/operator/stage-5-independent-evaluator-guide.md`.
+- [x] Independent evaluator status is documented honestly. No evaluation was
+  performed; the operator-approved release-profile decision makes it an
+  optional future confidence signal without claiming proxy evidence.
 - [x] Remaining 1.0 blockers are finite, owned, and measurable.
 
 ## Stage 5 deferrals

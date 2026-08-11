@@ -28,7 +28,11 @@ product adoption research.
 - [`2026-07-27-warden-varda-ceo-learning-loop.md`](2026-07-27-warden-varda-ceo-learning-loop.md)
   — completed durable Warden/Varda/Aulë receipt chain, governed Vairë knowledge intake, and replay-safe proposal receipts.
 - [`2026-07-29-arda-workbench-private-beta-plan.md`](2026-07-29-arda-workbench-private-beta-plan.md)
-  — completed contract, engine, adapter, HUD, Rust/Python golden-path, and exact-once recovery implementation tranche; remaining release gates continue in the active Stage 4 plan.
+  — completed Workbench application contract, engine, adapter, HUD, Rust/Python golden-path, and exact-once recovery implementation tranche.
+- [`2026-07-29-stage-4-private-beta-plan.md`](2026-07-29-stage-4-private-beta-plan.md)
+  — completed and operator-accepted Stage 4 private-beta qualification under its documented local-only profile.
+- [`2026-07-29-stage-5-release-candidate-plan.md`](2026-07-29-stage-5-release-candidate-plan.md)
+  — completed signed `v0.3.0-rc.1` packaging, lifecycle, security, reliability, conformance, accessibility, support, and single-operator local release-profile qualification; independent non-author evaluation remains an optional future confidence signal and is not claimed as performed.
 - [`2026-07-29-personal-operations-plan.md`](2026-07-29-personal-operations-plan.md)
   — completed Personal Operations contracts, append-only service, calendar/reminder adapters, HUD, voice/brief, restart, correction, export/deletion, privacy, and accessibility implementation; native operator and seven-day dogfood acceptance remain open in the operational acceptance record.
 - [`2026-07-30-arda-hud-boardroom-visual-system-plan.md`](2026-07-30-arda-hud-boardroom-visual-system-plan.md)

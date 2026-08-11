@@ -27,7 +27,6 @@ they do not transfer or duplicate implementation ownership.
 | Active authority | Classification | Open ownership and acceptance surface | Release relationship |
 |---|---|---|---|
 | [Arda 1.0 Personal Agent Ecosystem](2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md) | **master product convergence** | Owns capability composition, phone operator sessions, multi-worker/council proof, proactive personal operation, external assimilation, optional capability attachment, and whole-system vertical acceptance. | Defines the complete 1.0 base; delegates bounded implementation and release gates to the plans below. |
-| [Stage 5 Release Candidate](2026-07-29-stage-5-release-candidate-plan.md) | **release qualification deferred from development path** | Owns its remaining exact-artifact and independent-evaluator evidence. | Existing `efd118b5` soak evidence and the `6616addd` 11/11 smoke support continued implementation. Exact-source signing, lifecycle, evaluator, and any policy-required final soak return only at the next actual release freeze. |
 | [System Unification and Usability](2026-08-02-arda-system-unification-and-usability-plan.md) | **release-critical** | Owns remaining U3–U6 recovery, install, usability, and closeout requirements. U0–U2 are closed. | Coordinates Stage 5/6 without replacing product doctrine or either release authority. |
 | [Stage 6 Legitimate 1.0](2026-07-29-stage-6-legitimate-1.0-plan.md) | **active release authority** | Owns the release decision, compatibility, evidence, HUD convergence, and native acceptance gates. | Qualifies the corrected product promise after required master-plan vertical proofs; public release remains an exact-source decision. |
 | [HUD Frontend–Backend Contract Convergence](2026-08-06-hud-frontend-backend-contract-convergence-plan.md) | **active release-critical integration** | Owns contract freeze, five vertical workflows, native design acceptance, and measured performance closeout. | C0 implementation is the current integration frontier. |
@@ -48,8 +47,8 @@ optional/private-alpha capabilities unless the master plan promotes a bounded
 slice. Their absence does not block the base; their contracts must remain
 compatible with the one Arda authority model.
 
-**Active-plan inventory — 2026-08-08:** `docs/plans/` contains eight Markdown
-authorities. Six have unchecked execution or release gates. The HUD convergence
+**Active-plan inventory — 2026-08-11:** `docs/plans/` contains six Markdown
+authorities. Four have unchecked execution or release gates. The HUD convergence
 plan has unresolved prose-defined C0–C4 gates despite using no checkbox list,
 and this portfolio file is the role-aware active index. No completed
 implementation plan remains active solely to revise historical evidence.
@@ -59,7 +58,7 @@ implementation plan remains active solely to revise historical evidence.
 | Stage | Outcome | Plan |
 |---|---|---|
 | 4 — Private Beta | complete and operator-accepted; independent evaluator evidence is optional supplementary validation | [Archived Stage 4 Private Beta](../archive/2026-07-29-stage-4-private-beta-plan.md) |
-| 5 — Release Candidate | active: independently installable, secure, recoverable, supportable candidate | [Stage 5 Release Candidate](2026-07-29-stage-5-release-candidate-plan.md) |
+| 5 — Release Candidate | complete for the documented single-operator local profile; independent non-author repetition remains optional and unperformed | [Archived Stage 5 Release Candidate](../archive/2026-07-29-stage-5-release-candidate-plan.md) |
 | 6 — Legitimate 1.0 | signed supported personal-agent-ecosystem base with Workbench release proof and independent user evidence | [Stage 6 Legitimate 1.0](2026-07-29-stage-6-legitimate-1.0-plan.md) |
 
 ## First-party application plans
@@ -131,13 +130,14 @@ Maturity: `workflow_proven` — the Workbench contracts, durable engine/recovery
 - [x] Review external-product spikes against open Stage 4 gates; no spike is authorized because current blockers are internal contracts, native commands, adapters, and UI flows.
 - [x] Repair touched legacy operational truth without launching broad migration work.
 
-### Now — Stage 5 release candidate
+### Completed — Stage 5 release candidate
 
-1. Implement the C0 frontend/backend authority and event-state contracts.
-2. Integrate the five vertical HUD workflows and complete the corrective five-monitor surface.
-3. Close Personal Operations operator/restart acceptance and system-unification usability work.
-4. Archive each completed authority immediately so `docs/plans/` remains an execution frontier.
-5. At the next actual release freeze, reconcile one clean source with signed bytes, lifecycle proof, and a qualifying independent evaluator; proxy sign-off must never be fabricated.
+The signed `v0.3.0-rc.1` artifact, lifecycle, reliability, security,
+conformance, accessibility, support, and release-profile evidence passed. The
+operator selected the single-operator local profile on 2026-08-11, making
+independent non-author repetition optional without claiming it occurred. The
+historical authority is archived; Stage 6 is now the active release-decision
+phase.
 
 ### Stage 6
 

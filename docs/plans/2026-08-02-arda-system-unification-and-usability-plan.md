@@ -18,7 +18,7 @@ the master plan's broader product identity or optional-capability boundaries.
 **Primary release authorities:**
 
 - [Arda 1.0 Personal Agent Ecosystem master convergence plan](2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md) — product scope and required vertical proofs
-- [Stage 5 — Release Candidate](2026-07-29-stage-5-release-candidate-plan.md)
+- [Archived Stage 5 — Release Candidate](../archive/2026-07-29-stage-5-release-candidate-plan.md)
 - [Stage 6 — Legitimate 1.0](2026-07-29-stage-6-legitimate-1.0-plan.md)
 - [HUD Frontend–Backend Contract Convergence](2026-08-06-hud-frontend-backend-contract-convergence-plan.md)
 - [Arda Product Plan Suite](ARDA_PRODUCT_PLAN_SUITE.md)
@@ -67,7 +67,7 @@ If none can be identified, the task is out of scope.
 
 | Domain | Existing authority | This plan's role |
 |---|---|---|
-| Workbench release candidate | `2026-07-29-stage-5-release-candidate-plan.md` | Coordinate the remaining independent-evaluator gate and preserve the closed signed-artifact and soak evidence; do not duplicate them. |
+| Workbench release candidate | `../archive/2026-07-29-stage-5-release-candidate-plan.md` | Consume the completed signed-artifact, lifecycle, release-profile, and soak evidence; do not reopen or duplicate it. |
 | Arda 1.0 product convergence | `2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md` | Consume required vertical proofs and optional-capability boundaries; do not redefine product identity from this release slice. |
 | Stage 6 release qualification | `2026-07-29-stage-6-legitimate-1.0-plan.md` | Enter only after Stage 5 closes; preserve its artifact, compatibility, support, and release evidence requirements. |
 | Product/application classification | `docs/plans/ARDA_PRODUCT_PLAN_SUITE.md` and application plans | Keep Workbench release-critical while classifying optional applications and distributions honestly. |
@@ -439,7 +439,11 @@ and
 - [x] Keep internal names as identity, but pair them with functional labels in operator-facing surfaces.
 - [x] Validate redacted diagnostics against the seeded failure set.
 - [x] Publish limitations, supported matrix, security/privacy boundaries, known issues, and support expectations without inflated claims.
-- [ ] Run the Stage 5 independent non-author evaluator gate against the final candidate; leave broader Stage 6 independent-user evidence downstream and never manufacture proxy evidence.
+- [x] Record the Stage 5 evaluator disposition against the final candidate. The
+  operator selected the single-operator local release profile on 2026-08-11;
+  independent non-author evaluation remains optional and was not performed or
+  represented as proxy evidence. Broader Stage 6 independent-user policy
+  remains downstream.
 
 **U5 implementation evidence (2026-08-05; remediated 2026-08-11):**
 
@@ -470,10 +474,14 @@ and
   block naming current state, read-only actions, sole operator approval authority,
   evidence quality, execution blockers, and the exact next action. Launcher tests
   pass 11/11; focused Workbench tests pass 9/9; both frontend builds pass. The
-  final signed candidate now exists and passes U4. Gate U5 remains open only
-  until this remediated flow is exercised by a qualifying non-author.
+  final signed candidate now exists and passes U4. The Stage 5 U5 profile gate
+  closed from the explicit operator release-profile decision without claiming
+  a qualifying non-author session.
 
-**Gate U5:** A non-author operator can identify system state, approval authority, evidence quality, and the next recovery action without inspecting source or raw state files.
+**Gate U5 — passed for the selected Stage 5 release profile on 2026-08-11:**
+Automated and native operator evidence demonstrates identifiable system state,
+approval authority, evidence quality, and recovery action. Independent
+non-author repetition remains optional and is explicitly not claimed.
 
 ### U6 — Release, closeout, and post-plan improvement mode
 
@@ -484,7 +492,7 @@ this closeout does not erase them from Arda's architecture.
 
 **Work:**
 
-- [ ] Close and archive Stage 5 only after its exact release gates and evidence packet pass.
+- [x] Close and archive Stage 5 only after its exact release gates and evidence packet pass. Closed 2026-08-11 under the documented single-operator local release profile.
 - [ ] Execute Stage 6 as the release decision and proof phase, not a feature-expansion stage.
 - [ ] Execute frontend/backend convergence one vertical workflow at a time after Stage 5 closes; preserve Rust authority and require durable restart recovery.
 - [ ] Accept all five upper monitor sessions and workstation continuity natively without changing World View into a workspace.
@@ -547,7 +555,7 @@ Exact artifact signing, clean-install, upgrade/rollback, backup/restore, adapter
 - [x] Rust, Python, and JavaScript/TypeScript Workbench workflows pass through the root-composed installed system.
 - [x] Approval, denial, execution, verification, receipts, memory, and UI share traceable lineage without authority collapse.
 - [x] Failure injection and the uninterrupted soak show no silent mutation, false completion, duplicate mutation, lost terminal state, or unbounded growth.
-- [ ] Final signed artifacts pass install, upgrade, rollback, backup, restore, diagnostics, and uninstall on the supported matrix.
+- [x] Final signed artifacts pass install, upgrade, rollback, backup, restore, diagnostics, and uninstall on the supported matrix.
 - [ ] Accessibility, plain-language recovery, security/privacy, known limitations, and support documentation pass their Stage 5/6 gates.
 - [ ] HUD health, Workbench, Research, and Personal Operations use frozen backend-owned identity, state, error, receipt, and recovery contracts.
 - [ ] All five upper monitor surfaces pass native concurrent-owner, full-aperture, same-session workstation, and restart-recovery acceptance.

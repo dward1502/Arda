@@ -5,16 +5,17 @@ Reconciled: 2026-08-11
 
 ## Verdict
 
-**Not release-ready.** Stage 5 has passing RC0 upgrade/rollback, the valid
+**Release-candidate ready for the selected single-operator local profile.** Stage 5 has passing RC0 upgrade/rollback, the valid
 86,400-second S5-R1 soak, automated and native accessibility/performance, adapter
 conformance, security scanning, support-exercise evidence, and a successful
 tag-bound keyless signing workflow. The clean `v0.3.0-rc.1` tag, manifest,
 checksums, six signatures, and installed lifecycle now reconcile to source
-`8a5e3f75`. Publication remains blocked only by a qualifying independent
-non-author evaluator pass. The
+`8a5e3f75`. On 2026-08-11 the operator explicitly made independent non-author
+evaluation an optional future confidence signal; no evaluator session or
+receipt is claimed. The
 local-only endpoint posture, bounded GLib backport, and local-adapter trust model
 remain explicit accepted support boundaries; they do not substitute for the
-remaining open release gate.
+selected release profile.
 
 No row below converts a partial or blocked gate into a pass.
 
@@ -34,7 +35,7 @@ No row below converts a partial or blocked gate into a pass.
 | Adapter SDK/conformance | Pass | `../evidence/stage-5-release-candidate/adapters/conformance.json`; `../evidence/stage-5-release-candidate/adapters/external-repository-onboarding.json` | Repeat the conformance suite on final source. The separately sourced onboarding gate is closed. |
 | Support exercise | Pass | `../evidence/stage-5-release-candidate/support/support-exercise.json`; `../operator/stage-5-support-policy.md` | Repeat against final package if diagnostics format changes. |
 | Packaging, SBOM, checksums, signatures | Pass | `../evidence/stage-5-release-candidate/packaging/remote-signed-artifact-reconciliation-v0.3.0-rc.1-20260811.json`; [release `v0.3.0-rc.1`](https://github.com/dward1502/Arda/releases/tag/v0.3.0-rc.1); [signing run 31543599410](https://github.com/dward1502/Arda/actions/runs/31543599410) | Closed: exact allowlist, checksum ledger, clean source identity, six tag-bound Sigstore bundles, and installed lifecycle all pass. |
-| Final release approval | Blocked | This ledger | One qualifying independent non-author evaluator receipt must close `USABILITY-EVAL-001`. |
+| Final Stage 5 approval | Pass for the single-operator local profile | `../evidence/stage-5-release-candidate/release-policy/operator-release-profile-decision-20260811.json`; this ledger | Closed without claiming an independent evaluation. Stage 6 retains its own release-decision and native acceptance gates. |
 
 ## Verified evidence summary
 
@@ -177,7 +178,7 @@ source/artifact identity, signing, and installed lifecycle, closing
 | ID | Severity | Owner | Required closure |
 |---|---|---|---|
 | REL-SOAK-002 | Deferred policy check; not a current blocker | Reliability maintainer | S5-R1 passed on `efd118b5`. The operator stopped the later `6616addd` elapsed run and removed it from the development critical path. If policy at the next release freeze requires exact-candidate qualification, start a fresh uninterrupted run; do not resume or reinterpret the stopped launch. |
-| USABILITY-EVAL-001 | Release gate | UX/release maintainer | The neutral guide and fail-closed record template are prepared. Have a clean non-author evaluator identify current system state, approval authority, evidence quality, and the next recovery action without source or raw-state access; retain the completed evaluator receipt rather than substituting author or agent self-review. |
+| USABILITY-EVAL-001 | Optional future confidence signal | UX/release maintainer | No evaluation was performed. The neutral guide and fail-closed record template remain prepared for a future clean non-author evaluator; author, operator, or agent self-review must never be relabelled as that evidence. |
 | SEC-AUTH-001 | High if remotely exposed | Engine/harness maintainer | Keep all harness binds loopback-only; implement inbound authentication before remote or multi-user exposure. |
 | SEC-ADAPTER-001 | High for third-party adapters | Adapter runtime maintainer | Pin adapter artifact digest/signature; self-reported identity/version alone cannot defeat a malicious replacement binary. |
 | SEC-GLIB-001 | High advisory; mitigated | Launcher maintainer | Both Tauri consumers resolve the checksum-pinned vendored `glib 0.18.5` with the exact upstream `&mut` fix. Preserve the verifier/regression controls and replace the exception with maintained upstream GTK4 when available. |
@@ -186,8 +187,8 @@ source/artifact identity, signing, and installed lifecycle, closing
 
 ## Final approval rule
 
-Stage 5 may be marked complete only after all required receipts are regenerated
-from the same final source/artifact identity, all release-gate rows above pass,
-and every critical/high item is either closed or accepted through the documented
-release policy by the named owner. Until then, the candidate remains local-only
-and non-promotable.
+Stage 5 is complete for the documented single-operator local release profile:
+all required receipts reconcile to the final source/artifact identity, every
+required gate row passes, and the operator release-policy decision accepts the
+remaining evaluator limitation without claiming the evaluation occurred.
+Stage 6 owns any broader support or 1.0 promotion decision.

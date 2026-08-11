@@ -11,6 +11,14 @@
 **Target stage:** Stage 5 private alpha; not a Workbench 1.0 blocker  
 **Primary doctrine:** **Capture now, organize later**
 
+**Lifecycle status:** IMPLEMENTATION COMPLETE and archived on 2026-08-10.
+Phases 0–4 and every automatable release-acceptance behavior are implemented
+and verified. Optional wellness support remains unapproved and deferred by the
+[privacy review](../security/personal-operations-privacy-review.md). Native
+operator observation and the uninterrupted seven-day dogfood verdict remain
+open under the [private-alpha operational acceptance record](../operations/personal-operations-private-alpha-acceptance.md);
+they do not keep this non-release-blocking implementation plan active.
+
 ---
 
 ## Verified starting point
@@ -260,7 +268,7 @@ Lint currently succeeds with pre-existing warnings elsewhere in the HUD.
 - [x] Restart loses no accepted capture.
 - [x] Daily brief cites its sources and can be corrected.
 - [x] Reminder delivery truth is receipted.
-- [ ] A week-long dogfood run demonstrates manageable reminder volume and successful context recovery.
+- [ ] A week-long dogfood run demonstrates manageable reminder volume and successful context recovery. This operator/time gate transferred to the [private-alpha operational acceptance record](../operations/personal-operations-private-alpha-acceptance.md) and is not claimed complete here.
 - [x] Operator can export or delete personal application data without damaging Arda system receipts.
 
 **Implementation update (2026-08-06):** Phases 0–4 are implemented. Authenticated
@@ -270,9 +278,9 @@ operator's personal event records. Deletion writes a separate, hashed-operator
 receipt under `audit/personal-data-deletions/` and leaves system run,
 governance, and execution receipts untouched. The HUD exposes export plus an
 explicit two-step deletion action. Focused engine and HUD tests and the HUD
-production build pass. The plan remains active: release is blocked on daily
-brief correction, failure-injection/restart recovery, runtime privacy and
-accessibility validation, and the one-week dogfood period. The strict engine
+production build pass. At that checkpoint, the plan remained active pending daily brief correction,
+failure-injection/restart recovery, runtime privacy and accessibility validation,
+and the one-week dogfood period. The strict engine
 Clippy gate remains blocked by the unrelated existing
 `arda-outpost-protocol/src/watchlist.rs` argument-count warning and
 `crates/engine/src/harness/research.rs` unnecessary-allocation warning.
@@ -287,6 +295,12 @@ The linked [P5.1 receipt](../evidence/2026-08-10-p5.1-live-personal-operations-a
 records exact evidence and scoped gates. The [P5.5 dogfood window](../evidence/2026-08-10-p5.5-personal-operations-dogfood-window.md)
 is active through 2026-08-17; manageable reminder burden and operator acceptance
 remain open.
+
+**Implementation closeout (2026-08-10):** P5.1 closes the remaining automatable
+implementation, correction, restart, identity, export, deletion, privacy, and
+receipt-preservation gaps. The implementation plan is therefore complete.
+P5.5 remains real, open operator evidence and continues only in the operational
+acceptance record; no elapsed time or operator verdict is inferred by archiving.
 
 ## Rollout rule
 

@@ -88,6 +88,7 @@ export interface MonitorSurfaceSessionRecord {
   opened_at_utc: string
   lease_expires_at_utc: string
   content: MonitorContentDescriptor
+  playback?: MonitorPlaybackState
   workstation_handoff: WorkstationHandoffDescriptor
   created_at_utc: string
   updated_at_utc: string
@@ -327,10 +328,26 @@ export function isMonitorSessionRecord(value: unknown): value is MonitorSurfaceS
     typeof record.opened_at_utc === 'string' &&
     typeof record.lease_expires_at_utc === 'string' &&
     typeof record.content === 'object' &&
+    isMonitorPlaybackState(record.playback) &&
     typeof record.workstation_handoff === 'object' &&
     typeof record.created_at_utc === 'string' &&
     typeof record.updated_at_utc === 'string'
   )
+}
+
+function isMonitorPlaybackState(value: unknown): boolean {
+  if (value === undefined) return true
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false
+  const playback = value as Record<string, unknown>
+  if (typeof playback.playing !== 'boolean') return false
+  return ['currentTime', 'duration', 'volume'].every((field) => (
+    playback[field] === undefined || (
+      typeof playback[field] === 'number' &&
+      Number.isFinite(playback[field]) &&
+      playback[field] >= 0 &&
+      (field !== 'volume' || playback[field] <= 1)
+    )
+  ))
 }
 
 export function isSessionActive(record: MonitorSurfaceSessionRecord, nowUtc = Date.now()): boolean {
@@ -360,5 +377,6 @@ export function toMonitorSurfaceSession(
     leaseExpiresAtUtc: record.lease_expires_at_utc,
     createdAtUtc: record.created_at_utc,
     updatedAtUtc: record.updated_at_utc,
+    playback: record.playback,
   }
 }

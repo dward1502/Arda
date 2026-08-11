@@ -8,6 +8,7 @@ import {
   parseMonitorSessionRegistry,
   refreshMonitorSessionLease,
   releaseMonitorSession,
+  toMonitorSurfaceSession,
 } from './monitorSurfaceContract'
 
 const CANONICAL_SLOTS = ['monitor_1', 'monitor_2', 'monitor_3', 'monitor_4', 'monitor_5'] as const
@@ -44,6 +45,7 @@ describe('monitor session contract', () => {
           opened_at_utc: '2026-08-07T10:00:00.000Z',
           lease_expires_at_utc: '2026-08-07T12:00:00.000Z',
           content: { kind: 'web', url: 'https://example.invalid/dashboard', display: 'capture_stream', sandboxProfile: 'default' },
+          playback: { playing: false, currentTime: 42.5, volume: 0.25 },
           workstation_handoff: { session_id: 'session-web', mode: 'same_live_session' },
           created_at_utc: '2026-08-07T10:00:00.000Z',
           updated_at_utc: '2026-08-07T10:00:00.000Z',
@@ -56,6 +58,11 @@ describe('monitor session contract', () => {
     expect(Object.keys(parsed!.sessions)).toHaveLength(1)
     expect(parsed!.sessions.monitor_1.owner).toBe('agent:agent-web')
     expect(parsed!.sessions.monitor_1.content.kind).toBe('web')
+    expect(toMonitorSurfaceSession(parsed!.sessions.monitor_1).playback).toEqual({
+      playing: false,
+      currentTime: 42.5,
+      volume: 0.25,
+    })
     expect(parseMonitorSessionRegistry({ ...registryInput, schema_version: 'arda.monitor-session-registry.v0' })).toBeNull()
   })
 

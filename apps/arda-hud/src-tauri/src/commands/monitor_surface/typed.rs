@@ -54,6 +54,17 @@ impl TypedMonitorSurfaceState {
             .refresh_session(slot_id, owner, revision, ttl_secs)
     }
 
+    pub fn patch_playback(
+        &self,
+        surface_session_id: &str,
+        owner: &str,
+        expected_revision: u64,
+        playback: Option<serde_json::Value>,
+    ) -> Result<ActiveSessionProjection, String> {
+        self.contract
+            .patch_playback(surface_session_id, owner, expected_revision, playback)
+    }
+
     pub fn snapshot(&self) -> SessionRegistryDocument {
         self.contract.session_registry()
     }
@@ -81,6 +92,15 @@ pub struct TypedMonitorClaimResult {
     pub slot_id: String,
     pub registry: SessionRegistryDocument,
     pub session: Option<MonitorSessionRecord>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TypedMonitorPlaybackPatchRequest {
+    pub surface_session_id: String,
+    pub owner: String,
+    pub expected_revision: u64,
+    pub playback: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -145,6 +165,7 @@ pub fn claim_monitor_surface(
         lease_expires_at_utc: (now + chrono::Duration::seconds(request.ttl_secs as i64))
             .to_rfc3339(),
         content: request.content,
+        playback: None,
         workstation_handoff: WorkstationHandoff {
             session_id: surface_session_id,
             mode: request.workstation_handoff.mode,
@@ -225,6 +246,36 @@ pub fn refresh_monitor_surface_lease(
         ok: true,
         message: format!("Lease refreshed for slot '{}'", record.slot_id),
         slot_id: record.slot_id,
+        registry,
+        session,
+    })
+}
+
+#[tauri::command]
+pub fn patch_monitor_surface_playback(
+    app: AppHandle,
+    state: State<'_, TypedMonitorSurfaceState>,
+    request: TypedMonitorPlaybackPatchRequest,
+) -> Result<TypedMonitorClaimResult, String> {
+    let projection = state.patch_playback(
+        &request.surface_session_id,
+        &request.owner,
+        request.expected_revision,
+        request.playback,
+    )?;
+    let registry = state.snapshot();
+    let session = registry.sessions.get(&projection.slot_id).cloned();
+    emit_registry_changed(
+        &app,
+        "playback",
+        &projection.slot_id,
+        &registry,
+        session.clone(),
+    );
+    Ok(TypedMonitorClaimResult {
+        ok: true,
+        message: format!("Playback patched for slot '{}'", projection.slot_id),
+        slot_id: projection.slot_id,
         registry,
         session,
     })

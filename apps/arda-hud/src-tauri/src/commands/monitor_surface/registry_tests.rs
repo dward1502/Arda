@@ -19,6 +19,7 @@ fn base_record() -> MonitorSessionRecord {
             "display": "capture_stream",
             "sandboxProfile": "default"
         }),
+        playback: None,
         workstation_handoff: WorkstationHandoff {
             session_id: "session-web".to_string(),
             mode: "same_live_session".to_string(),

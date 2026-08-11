@@ -98,6 +98,7 @@ export function coerceRuntimeMonitorRegistry(value: unknown): MonitorSessionRegi
       opened_at_utc: record.openedAtUtc,
       lease_expires_at_utc: record.leaseExpiresAtUtc,
       content: record.content,
+      ...(record.playback === undefined ? {} : { playback: record.playback }),
       workstation_handoff: {
         session_id: handoff.sessionId,
         mode: handoff.mode,
@@ -128,6 +129,7 @@ export function toRuntimeMonitorRegistry(registry: MonitorSessionRegistryDescrip
       openedAtUtc: record.opened_at_utc,
       leaseExpiresAtUtc: record.lease_expires_at_utc,
       content: record.content,
+      ...(record.playback === undefined ? {} : { playback: record.playback }),
       workstationHandoff: {
         sessionId: record.workstation_handoff.session_id,
         mode: record.workstation_handoff.mode,

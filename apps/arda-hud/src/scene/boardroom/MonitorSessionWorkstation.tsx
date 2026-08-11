@@ -60,6 +60,7 @@ export default function MonitorSessionWorkstation({ sessionId, record, rootPath 
               },
             }}
             descriptor={record.content}
+            playback={record.playback}
             rootPath={rootPath}
             motionEnabled
             active

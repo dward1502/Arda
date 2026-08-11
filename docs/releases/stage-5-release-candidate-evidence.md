@@ -1,17 +1,19 @@
 # Stage 5 release-candidate evidence
 
 Generated: 2026-08-05T00:49:08-07:00
+Reconciled: 2026-08-10
 
 ## Verdict
 
-**Not release-ready.** Stage 5 has passing RC0 upgrade/rollback, bounded smoke,
-automated and native accessibility/performance, adapter conformance, security
-scanning, support-exercise evidence, and a successful tag-bound keyless signing
-workflow. Publication remains blocked by the failed long-soak, release-evidence
-reconciliation to the remotely signed artifacts, the Tauri/GTK GLib advisory,
-and the explicit local-only security boundary. An exact-pinned GTK4 fork
-candidate was compiled and tested, then rejected by independent source review;
-it is not a promotable replacement stack.
+**Not release-ready.** Stage 5 has passing RC0 upgrade/rollback, the valid
+86,400-second S5-R1 soak, automated and native accessibility/performance, adapter
+conformance, security scanning, support-exercise evidence, and a successful
+tag-bound keyless signing workflow. Publication remains blocked by two required
+receipts that do not exist for one final candidate identity: a reconciled signed
+artifact lifecycle and a qualifying independent non-author evaluator pass. The
+local-only endpoint posture, bounded GLib backport, and local-adapter trust model
+remain explicit accepted support boundaries; they do not substitute for either
+open release gate.
 
 No row below converts a partial or blocked gate into a pass.
 
@@ -23,7 +25,7 @@ No row below converts a partial or blocked gate into a pass.
 | U4 local installation lifecycle | Pass for unsigned local candidate; final signed gate open | `../evidence/stage-5-release-candidate/reliability/u4-lifecycle-local-20260804.json` | Re-run fresh install, Workbench persistence, upgrade, backup/restore, rollback, diagnostics, safe reset, and uninstall against one reconciled final signed artifact identity. |
 | Supported Linux profile | Pass for initial profile | `../evidence/stage-5-release-candidate/s5-rc0/supported-profile.json` | Maintain the declared `bluefin-lts-10-x86_64` boundary. |
 | Reliability fault-matrix smoke | Pass | `../evidence/stage-5-release-candidate/reliability/u3-degradation-smoke-20260804.json` | 11/11 runs passed across the complete U3 failure matrix with zero state growth and unchanged source identity. |
-| 24-hour soak | Accepted for development; exact final-source release rerun deferred | `../evidence/stage-5-release-candidate/reliability/soak-24h-final-efd118b5-20260807.json`; stopped launch record under `~/.local/state/arda/stage5-final-6616addd/` | The `efd118b5` run passed 2,844/2,844 and the `6616addd` smoke passed 11/11. The operator stopped the replacement elapsed run; it emitted no final receipt and is not release evidence. This no longer freezes ongoing development. |
+| 24-hour soak / S5-R1 | Pass for source `efd118b5` | `../evidence/stage-5-release-candidate/reliability/soak-24h-final-efd118b5-20260807.json`; `../evidence/stage-5-release-candidate/reliability/soak-24h-final-efd118b5-20260807-assessment.md` | The valid run completed 86,400 seconds and passed 2,844/2,844 scenarios. The later `6616addd` smoke passed 11/11, but its stopped elapsed run emitted no receipt and is not cited. Re-run at the next freeze only if then-current release policy requires exact-candidate elapsed qualification. |
 | Automated performance | Pass | `../evidence/stage-5-release-candidate/reliability/performance-accessibility.json` | Re-run after final artifact build. |
 | Automated accessibility | Pass | `../evidence/stage-5-release-candidate/reliability/performance-accessibility.json` | Two automated Workbench tests passed; critical/serious axe findings were zero. |
 | Native performance/accessibility acceptance | Pass | `../evidence/stage-5-release-candidate/reliability/performance-accessibility.json`; `../evidence/stage-5-release-candidate/reliability/native-launcher-walkthrough.json` | X11 cold-start, sustained-idle, AT-SPI/key-event keyboard, setup/recovery, and focus-containment acceptance passed. |
@@ -163,16 +165,16 @@ passes 6/6. This closes the package-tool implementation defect; the final
 source/artifact reconciliation, signing, and installed lifecycle remain owned
 by `PKG-EVIDENCE-001`.
 
-## Owned blockers
+## Owned blockers and accepted/deferred boundaries
 
 | ID | Severity | Owner | Required closure |
 |---|---|---|---|
-| REL-SOAK-002 | Deferred release qualification | Reliability maintainer | The operator stopped the `6616addd` elapsed run and removed it from the development critical path. If public-release policy later requires exact final-source qualification, start a fresh uninterrupted run; do not resume or reinterpret the stopped launch. |
+| REL-SOAK-002 | Deferred policy check; not a current blocker | Reliability maintainer | S5-R1 passed on `efd118b5`. The operator stopped the later `6616addd` elapsed run and removed it from the development critical path. If policy at the next release freeze requires exact-candidate qualification, start a fresh uninterrupted run; do not resume or reinterpret the stopped launch. |
 | USABILITY-EVAL-001 | Release gate | UX/release maintainer | The neutral guide and fail-closed record template are prepared. Have a clean non-author evaluator identify current system state, approval authority, evidence quality, and the next recovery action without source or raw-state access; retain the completed evaluator receipt rather than substituting author or agent self-review. |
 | SEC-AUTH-001 | High if remotely exposed | Engine/harness maintainer | Keep all harness binds loopback-only; implement inbound authentication before remote or multi-user exposure. |
 | SEC-ADAPTER-001 | High for third-party adapters | Adapter runtime maintainer | Pin adapter artifact digest/signature; self-reported identity/version alone cannot defeat a malicious replacement binary. |
 | SEC-GLIB-001 | High advisory; mitigated | Launcher maintainer | Both Tauri consumers resolve the checksum-pinned vendored `glib 0.18.5` with the exact upstream `&mut` fix. Preserve the verifier/regression controls and replace the exception with maintained upstream GTK4 when available. |
-| PKG-EVIDENCE-001 | Release gate | Release maintainer | Remote `v0.3.0-rc.0` checksums and all six signatures verify, but its source identity is seven commits behind `efd118b5` and its manifest records a dirty worktree. Release-only commit `6616addd` establishes the unused `0.3.0-rc.1` identity. After its final soak passes, build from that exact clean commit, publish a tag-bound prerelease, reconcile its exact signed bytes, and run the U4 lifecycle against them. |
+| PKG-EVIDENCE-001 | Release gate | Release maintainer | Remote `v0.3.0-rc.0` checksums and all six signatures verify, but its source identity is seven commits behind `efd118b5` and its manifest records a dirty worktree. At the next actual freeze, select one exact clean source identity, satisfy any then-current elapsed-soak policy, publish a tag-bound prerelease, reconcile its exact signed bytes, and run the U4 lifecycle against them. |
 
 
 ## Final approval rule

@@ -6,7 +6,10 @@
 
 **System completion coordination:** [Arda System Unification and Usability Plan](2026-08-02-arda-system-unification-and-usability-plan.md).
 
-**Lifecycle status:** ACTIVE as of 2026-07-31.
+**Lifecycle status:** ACTIVE; implementation and S5-R1 reliability qualification
+are complete, but release closeout remains blocked on one reconciled final signed
+artifact lifecycle and one qualifying independent non-author evaluator receipt.
+Reconciled against the completed soak evidence on 2026-08-10.
 
 **Stage objective:** Prove Arda Workbench works across the declared supported profiles, repositories, providers, and failure conditions with supportable installation, upgrades, security boundaries, and documentation. One qualifying independent non-author evaluator receipt is required; broader external-person repetition remains optional.
 
@@ -313,7 +316,11 @@ Create `docs/releases/stage-5-release-candidate-evidence.md` at closeout with:
   checksum-pinned upstream backport documented in
   `docs/evidence/stage-5-release-candidate/security/glib-0185-backport-spike-20260805.md`;
   its path-dependency verifier and optimized regression remain mandatory.
-- [ ] Reliability/soak budgets pass.
+- [x] Reliability/soak budgets pass for S5-R1. The valid `efd118b5` receipt ran
+  86,400 seconds and passed 2,844/2,844 scenario executions with unchanged source,
+  zero protected-state growth, preserved disk headroom, and every latency budget
+  held. A later exact-candidate rerun is required only if the release policy in
+  force at the next actual freeze requires it.
 - [x] Automated accessibility checks and operator setup/recovery walkthrough have no blocking usability issue.
 - [x] Documentation and diagnostics are supportable.
 - [ ] Independent evaluator status is documented honestly; the release remains blocked until one qualifying receipt passes `docs/operator/stage-5-independent-evaluator-guide.md`.

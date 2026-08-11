@@ -22,6 +22,8 @@ pub struct MonitorSessionRecord {
     pub opened_at_utc: String,
     pub lease_expires_at_utc: String,
     pub content: serde_json::Value,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub playback: Option<serde_json::Value>,
     pub workstation_handoff: WorkstationHandoff,
     pub created_at_utc: String,
     pub updated_at_utc: String,
@@ -99,6 +101,29 @@ pub fn validate_session_content(content: &serde_json::Value) -> Result<String, S
     Ok(kind.to_string())
 }
 
+pub fn validate_playback_state(playback: &serde_json::Value) -> Result<(), String> {
+    let object = playback
+        .as_object()
+        .ok_or_else(|| "monitor playback state must be a JSON object".to_string())?;
+    if !object
+        .get("playing")
+        .is_some_and(serde_json::Value::is_boolean)
+    {
+        return Err("monitor playback state.playing must be a boolean".to_string());
+    }
+    for field in ["currentTime", "duration", "volume"] {
+        if let Some(value) = object.get(field) {
+            let number = value
+                .as_f64()
+                .ok_or_else(|| format!("monitor playback state.{field} must be a number"))?;
+            if number < 0.0 || (field == "volume" && number > 1.0) {
+                return Err(format!("monitor playback state.{field} is out of range"));
+            }
+        }
+    }
+    Ok(())
+}
+
 pub fn validate_registry_document(document: &SessionRegistryDocument) -> Result<(), String> {
     if document.schema_version != MONITOR_SESSION_REGISTRY_SCHEMA_VERSION {
         return Err(format!(
@@ -119,6 +144,9 @@ pub fn validate_registry_document(document: &SessionRegistryDocument) -> Result<
                 "record kind '{}' does not match content.kind '{}' for slot '{}'",
                 record.kind, content_kind, record.slot_id
             ));
+        }
+        if let Some(playback) = &record.playback {
+            validate_playback_state(playback)?;
         }
     }
     Ok(())
@@ -152,6 +180,8 @@ pub struct ActiveSessionProjection {
     pub revision: u64,
     pub lease_expires_at_utc: String,
     pub content: serde_json::Value,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub playback: Option<serde_json::Value>,
     pub workstation_handoff: WorkstationHandoff,
 }
 
@@ -166,6 +196,7 @@ impl From<MonitorSessionRecord> for ActiveSessionProjection {
             revision: record.revision,
             lease_expires_at_utc: record.lease_expires_at_utc,
             content: record.content,
+            playback: record.playback,
             workstation_handoff: record.workstation_handoff,
         }
     }

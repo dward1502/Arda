@@ -1,7 +1,7 @@
 # Personal Operations privacy review
 
 **Review date:** 2026-08-10
-**Scope:** `arda.personal-ops.v1`, the local harness APIs, calendar and voice adapters, HUD projection, and optional wellness work proposed in `docs/plans/2026-07-29-personal-operations-plan.md`.
+**Scope:** `arda.personal-ops.v1`, the local harness APIs, calendar and voice adapters, HUD projection, and optional wellness work proposed in the [archived implementation plan](../archive/2026-07-29-personal-operations-plan.md).
 
 ## Decision
 

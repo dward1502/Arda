@@ -17,6 +17,7 @@ fn record(slot_id: &str, owner: &str, content: serde_json::Value) -> MonitorSess
         opened_at_utc: chrono::Utc::now().to_rfc3339(),
         lease_expires_at_utc: (chrono::Utc::now() + chrono::Duration::hours(1)).to_rfc3339(),
         content,
+        playback: None,
         workstation_handoff: WorkstationHandoff {
             session_id,
             mode: "same_live_session".to_string(),

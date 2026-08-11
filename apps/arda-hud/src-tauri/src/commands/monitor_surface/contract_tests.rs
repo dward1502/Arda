@@ -24,6 +24,7 @@ fn base_record() -> MonitorSessionRecord {
             "display": "capture_stream",
             "sandboxProfile": "default"
         }),
+        playback: None,
         workstation_handoff: WorkstationHandoff {
             session_id: "session-web".to_string(),
             mode: "same_live_session".to_string(),
@@ -177,6 +178,48 @@ fn contract_refresh_preserves_content_and_advances_revision() {
     assert!(is_session_active(
         &state.active_session(&record.slot_id).unwrap()
     ));
+}
+
+#[test]
+fn contract_patches_playback_with_owner_and_revision_guards() {
+    let state = MonitorSurfaceContractState::new();
+    let record = base_record();
+    state.claim_session(record.clone()).unwrap();
+
+    let playback = serde_json::json!({
+        "playing": false,
+        "currentTime": 42.5,
+        "volume": 0.25
+    });
+    let patched = state
+        .patch_playback(
+            &record.surface_session_id,
+            &record.owner,
+            record.revision,
+            Some(playback.clone()),
+        )
+        .unwrap();
+
+    assert_eq!(patched.revision, record.revision + 1);
+    assert_eq!(patched.playback, Some(playback));
+    assert!(state
+        .patch_playback(
+            &record.surface_session_id,
+            &record.owner,
+            record.revision,
+            None,
+        )
+        .unwrap_err()
+        .contains("revision conflict"));
+    assert!(state
+        .patch_playback(
+            &record.surface_session_id,
+            "other-owner",
+            patched.revision,
+            None,
+        )
+        .unwrap_err()
+        .contains("owned by"));
 }
 
 #[test]

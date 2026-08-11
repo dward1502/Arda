@@ -158,6 +158,25 @@ describe('monitor renderer registry', () => {
     })
     expect(resolve('aperture', {
       kind: 'component',
+      rendererId: 'generated_frame',
+      props: {
+        frameId: 'frame-42',
+        source: { kind: 'local', path: 'state/generated/frame-42.webp' },
+        fit: 'cover',
+      },
+    })).toMatchObject({
+      ok: true,
+      adapter: 'image_texture',
+      source: {
+        rendererId: 'generated_frame',
+        frameId: 'frame-42',
+        source: { kind: 'local', path: 'state/generated/frame-42.webp' },
+        fit: 'cover',
+        authority: 'session_owner',
+      },
+    })
+    expect(resolve('aperture', {
+      kind: 'component',
       rendererId: 'unknown',
       props: {},
     })).toMatchObject({ ok: false, kind: 'unsupported' })

@@ -1094,6 +1094,7 @@ export interface MonitorSurfaceSessionRecord {
   opened_at_utc: string
   lease_expires_at_utc: string
   content: MonitorSurfaceContentDescriptor
+  playback?: import('./monitorSurfaceContract').MonitorPlaybackState
   workstation_handoff: { session_id: string; mode: string }
   created_at_utc: string
   updated_at_utc: string
@@ -1163,6 +1164,24 @@ export async function agentRefreshMonitorSurfaceLease(surfaceSessionId: string, 
     surfaceSessionId,
     owner: serializeMonitorSurfaceOwner(owner),
     ttlSecs: Math.max(1, Math.floor(ttlMs / 1000)),
+  })
+  return normalizeMonitorSurfaceClaimResult(result)
+}
+
+export async function agentPatchMonitorSurfacePlayback(
+  surfaceSessionId: string,
+  owner: MonitorSurfaceOwner,
+  expectedRevision: number,
+  playback: import('./monitorSurfaceContract').MonitorPlaybackState | null,
+): Promise<MonitorSurfaceClaimResult> {
+  const { invoke } = await import('@tauri-apps/api/core')
+  const result = await invoke<unknown>('patch_monitor_surface_playback', {
+    request: {
+      surfaceSessionId,
+      owner: serializeMonitorSurfaceOwner(owner),
+      expectedRevision,
+      playback,
+    },
   })
   return normalizeMonitorSurfaceClaimResult(result)
 }

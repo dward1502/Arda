@@ -1,9 +1,9 @@
 use std::sync::Mutex;
 
 use crate::commands::monitor_surface::registry::{
-    session_registry_document_json, validate_registry_document, validate_session_content,
-    ActiveSessionProjection, MonitorSessionRecord, SessionRegistryDocument,
-    MONITOR_SESSION_REGISTRY_SCHEMA_VERSION,
+    session_registry_document_json, validate_playback_state, validate_registry_document,
+    validate_session_content, ActiveSessionProjection, MonitorSessionRecord,
+    SessionRegistryDocument, MONITOR_SESSION_REGISTRY_SCHEMA_VERSION,
 };
 
 #[derive(Debug, Default)]
@@ -84,6 +84,42 @@ impl MonitorSurfaceContractState {
         record.revision = revision;
         record.lease_expires_at_utc =
             (chrono::Utc::now() + chrono::Duration::seconds(ttl_secs as i64)).to_rfc3339();
+        record.updated_at_utc = chrono::Utc::now().to_rfc3339();
+        let projection: ActiveSessionProjection = record.clone().into();
+        registry.updated_at_utc = chrono::Utc::now().to_rfc3339();
+        Ok(projection)
+    }
+
+    pub fn patch_playback(
+        &self,
+        surface_session_id: &str,
+        owner: &str,
+        expected_revision: u64,
+        playback: Option<serde_json::Value>,
+    ) -> Result<ActiveSessionProjection, String> {
+        if let Some(value) = &playback {
+            validate_playback_state(value)?;
+        }
+        let mut registry = self.registry.lock().unwrap();
+        let record = registry
+            .sessions
+            .values_mut()
+            .find(|record| record.surface_session_id == surface_session_id)
+            .ok_or_else(|| format!("no active session '{}'", surface_session_id))?;
+        if record.owner != owner {
+            return Err(format!(
+                "session '{}' is owned by '{}'",
+                surface_session_id, record.owner
+            ));
+        }
+        if record.revision != expected_revision {
+            return Err(format!(
+                "revision conflict for session '{}'",
+                surface_session_id
+            ));
+        }
+        record.revision += 1;
+        record.playback = playback;
         record.updated_at_utc = chrono::Utc::now().to_rfc3339();
         let projection: ActiveSessionProjection = record.clone().into();
         registry.updated_at_utc = chrono::Utc::now().to_rfc3339();

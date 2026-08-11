@@ -17,6 +17,7 @@ import { windowManager } from '../../utils/multiWindow'
 import { coerceRuntimeMonitorRegistry } from '../../lib/monitorSurfaceRegistryBridge'
 import { createMonitorSessionWindowConfig } from './monitorSessionWorkstationRoute'
 import type { OperatorProjection } from '../../lib/operatorProjection'
+import { agentStartBrowserMonitorSession } from '../../lib/browserMonitorSession'
 
 const SLOT_ID = 'monitor_1'
 const OWNER = 'hermes-agent-acceptance'
@@ -294,6 +295,25 @@ export default function MonitorSurfaceNativeAcceptance({
           })}
         >
           Phase 6 release session
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void run('real browser monitor stream', async () => {
+            const result = await agentStartBrowserMonitorSession({
+              slotId: SLOT_ID,
+              owner: { kind: 'agent', name: 'browser-monitor-acceptance' },
+              url: 'https://time.is/',
+              ttlMs: 10 * 60_000,
+              captureSessionId: `browser-monitor-1-${Date.now()}`,
+            })
+            return {
+              ok: result.capture.muted && result.capture.frameRevision >= 2 && result.claim.ok,
+              detail: `${result.capture.sessionId}; pid=${result.capture.processId}; frames=${result.capture.frameRevision}; muted=${result.capture.muted}`,
+            }
+          })}
+        >
+          Start real browser monitor 1
         </button>
         <button
           type="button"

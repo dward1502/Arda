@@ -1150,6 +1150,7 @@ function BoardroomScene({
                 source: { freshness: renderProfile.motionEnabled ? 'fresh' : 'derived', sourceId: typedRecord.surface_session_id, sourcePaths: [], observedAtUtc: typedRecord.updated_at_utc },
               }}
               descriptor={typedRecord.content}
+              playback={typedRecord.playback}
               rootPath={rootPath}
               motionEnabled={renderProfile.motionEnabled}
               active

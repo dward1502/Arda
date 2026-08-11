@@ -52,4 +52,18 @@ describe('monitor aperture descriptor state', () => {
       transport: 'webrtc',
     })).toMatchObject({ mode: 'message', title: 'CONTENT UNAVAILABLE' })
   })
+
+  it('passes bounded local image and video descriptors to the asset resolver', () => {
+    expect(resolveMonitorApertureDescriptorState({
+      kind: 'image',
+      source: { kind: 'local', path: '.tmp/monitor/image.png' },
+      fit: 'contain',
+    })).toEqual({ mode: 'render' })
+    expect(resolveMonitorApertureDescriptorState({
+      kind: 'video',
+      source: { kind: 'local', path: '.tmp/monitor/video.mp4' },
+      fit: 'cover',
+      autoplay: true,
+    })).toEqual({ mode: 'render' })
+  })
 })

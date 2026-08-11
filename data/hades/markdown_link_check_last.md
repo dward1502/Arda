@@ -1,53 +1,13 @@
 # HADES Markdown Link Check
 
-- Root: `/var/home/mythos/Eregion/Arda`
-- Local links checked: 275
-- Broken local links: 45
+- Root: `/var/home/mythos/Eregion/Arda/docs`
+- Local links checked: 137
+- Broken local links: 0
+- Completion-language check enabled: true
+- Completion-language issues: 0
 
-## Broken Links
+No broken local Markdown links found.
 
-- `docs/operator/onboard.md` -> `thoughts.md`
-- `docs/operator/onboard.md` -> `../docs/arda/ARDA_HUD.md`
-- `docs/operator/onboard.md` -> `../docs/operations/BACKEND_LOCKDOWN.md`
-- `docs/operator/onboard.md` -> `company_view.md`
-- `docs/operator/onboard.md` -> `04-Leadership/arandur/README.md`
-- `docs/operator/philosophy.md` -> `04-Leadership/CEO/thoughts.md`
-- `docs/operator/philosophy.md` -> `04-Leadership/CEO/thoughts.md`
-- `core/knowledge/clients/README.md` -> `/var/home/mythos/Arda/core/clients/_registry.toml`
-- `core/knowledge/clients/README.md` -> `/var/home/mythos/Arda/crates/spine/arda-hermes`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/aipkg_contract.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/aipkg_edge_lab_contract.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/aipkg_marketplace_separation_contract.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/_archive/arda_citadel_pattern_extraction_plan.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/arda_snapshot.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/_archive/athena_hermes_capability_reconciliation_plan.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/manwe_router.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/crawl4ai_runtime_contract.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/eliza_alignment.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/_archive/engineering_process_automation_security_uplift_plan.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/_archive/framework_gate_intake_plan.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/_archive/imported_corpus_activation_program.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/legion_hierarchy.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/numenor_prime_merge_registry.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/_archive/numenor_prime_promotion_batch_01.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/_archive/numenor_prime_promotion_batch_02.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/_archive/numenor_prime_promotion_batch_03.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/_archive/numenor_prime_promotion_batch_04.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/_archive/numenor_prime_promotion_batch_05.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/_archive/numenor_prime_promotion_batch_06.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/openfang_alignment.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/operations_flow.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/playwright_mcp_productization_contract.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/scrapling_runtime_contract.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/source_absorption_pipeline.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/_archive/system_lift_activation_review.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/system_snapshot.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/task_lifecycle_runtime.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/valinor_merge_registry.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/valinor_project_dossiers.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/_archive/valinor_promotion_batch_01.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/_archive/valinor_promotion_batch_02.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/_archive/valinor_promotion_batch_03.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/warden_guardhouse.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/core/state/warden_policy_authority.json`
-- `core/state/README.md` -> `/var/home/mythos/Eregion/Arda/crates/arda-mnemosyne`
+## Completion Language
+
+No completion-language issues found.

@@ -117,7 +117,11 @@ A capability is not called operational merely because its crate compiles or its 
 - [x] Remove stale duplicate requirements and repair links without deleting unique acceptance criteria.
 - [x] Keep optional applications out of the Stage 5/6 critical path.
 - [x] Archive each completed plan immediately after its live gates pass.
-- [x] Record the finite Stage 5 blockers as the first release-critical queue: final signed-artifact reconciliation, a valid uninterrupted 24-hour reliability receipt, and one qualifying independent non-author evaluator receipt. Security closed through the bounded, checksum-pinned `glib 0.18.5` upstream backport on 2026-08-05.
+- [x] Record the finite Stage 5 blockers as the first release-critical queue. The
+  valid uninterrupted 24-hour reliability receipt closed on 2026-08-07; the
+  remaining blockers are final signed-artifact reconciliation/lifecycle and one
+  qualifying independent non-author evaluator receipt. Security closed through
+  the bounded, checksum-pinned `glib 0.18.5` upstream backport on 2026-08-05.
 
 **U0 closeout evidence (2026-08-04):** `docs/plans/ARDA_PRODUCT_PLAN_SUITE.md`
 now contains the finite active-plan ownership ledger, including plan-local open
@@ -272,10 +276,10 @@ or retained merely to rewrite historical evidence.
 - [x] Define measured budgets for startup, idle resource use, UI latency, event projection, recovery, diagnostics, and bounded state growth.
 - [x] Exercise provider loss, network loss, process kill, disk pressure, malformed/truncated state, model timeout, adapter crash/noisy output, cancellation, and operator rejection.
 - [x] Preserve enough bounded diagnostics to assign every nonzero soak exit to a scenario and root cause.
-- [ ] Run one uninterrupted valid 24-hour Stage 5 matrix after capacity preflight.
+- [x] Run one uninterrupted valid 24-hour Stage 5 matrix after capacity preflight.
 - [x] Prove no silent mutation, false completion, lost terminal state, duplicate mutation, or unbounded state growth.
 
-**U3 execution evidence (2026-08-04, 24-hour gate in progress):**
+**U3 closeout evidence (reconciled 2026-08-10):**
 
 - `crates/engine/src/observability.rs` now defines a machine-readable
   `RuntimeLineage`: the canonical run ID is the trace-equivalent lineage, and
@@ -301,12 +305,17 @@ or retained merely to rewrite historical evidence.
   event-projection regressions. The reliability evaluator passes 11/11 unit
   tests.
 - The earlier eight-scenario `20260804-v2` run was stopped without a receipt
-  because it could not exercise the complete U3 matrix. A fresh immutable
-  source snapshot began the required 86,400-second run at
-  `2026-08-05T01:05:04Z`; its pending receipt is
-  `soak-24h-u3-20260805.json`. It uses a dedicated Cargo target, a 64-GiB free
-  space floor, 1,000-file/64-MiB protected-growth ceilings, and all eleven
-  scenarios. U3 and S5-R1 remain open until that receipt completes and passes.
+  because it could not exercise the complete U3 matrix. Subsequent failed runs
+  remain retained as failed evidence and are not reinterpreted. The final valid
+  run from clean commit `efd118b5` completed 86,400 seconds on 2026-08-07 and
+  passed 2,844/2,844 executions across all eleven scenarios with unchanged
+  source identity, zero protected-state growth, every latency budget held, and
+  the 64-GiB floor preserved. Its receipt and assessment are
+  `docs/evidence/stage-5-release-candidate/reliability/soak-24h-final-efd118b5-20260807.json`
+  and the adjacent `-assessment.md`. U3 and S5-R1 are closed. The later stopped
+  `6616addd` elapsed run emitted no receipt and is not evidence; a new
+  exact-candidate run is needed only if policy at the next actual release freeze
+  requires it.
 
 **Gate U3:** Stage 5 S5-R1 closes from a valid receipt, and every seeded failure is attributable from redacted diagnostics without source, prompts, secrets, or private state.
 
@@ -496,7 +505,7 @@ Exact artifact signing, clean-install, upgrade/rollback, backup/restore, adapter
 - [x] Manwë has one production runtime and no permanent static/adaptive split.
 - [x] Rust, Python, and JavaScript/TypeScript Workbench workflows pass through the root-composed installed system.
 - [x] Approval, denial, execution, verification, receipts, memory, and UI share traceable lineage without authority collapse.
-- [ ] Failure injection and the uninterrupted soak show no silent mutation, false completion, duplicate mutation, lost terminal state, or unbounded growth.
+- [x] Failure injection and the uninterrupted soak show no silent mutation, false completion, duplicate mutation, lost terminal state, or unbounded growth.
 - [ ] Final signed artifacts pass install, upgrade, rollback, backup, restore, diagnostics, and uninstall on the supported matrix.
 - [ ] Accessibility, plain-language recovery, security/privacy, known limitations, and support documentation pass their Stage 5/6 gates.
 - [ ] HUD health, Workbench, Research, and Personal Operations use frozen backend-owned identity, state, error, receipt, and recovery contracts.

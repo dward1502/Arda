@@ -1,7 +1,8 @@
 // sigil: REPAIR
 import { useEffect, useMemo } from 'react'
+import { convertFileSrc } from '@tauri-apps/api/core'
 import * as THREE from 'three'
-import type { MonitorContentDescriptor } from '../../lib/monitorSurfaceContract'
+import type { MonitorContentDescriptor, MonitorPlaybackState } from '../../lib/monitorSurfaceContract'
 import { readFile } from '../../lib/weathertop'
 import { resolveMonitorApertureDescriptorState } from './monitorApertureDescriptorState'
 import type { BoardroomPreviewMode, BoardroomVec3 } from './boardroomSpatialLayout'
@@ -10,6 +11,8 @@ import type { HudInstrumentModel, HudTone } from './boardroomHudInstruments'
 import { formatMonitorSurfaceStream } from './monitorSurfaceRuntime'
 import type { MonitorSurfacePayloadEvent } from './monitorSurfaceRuntime'
 import { resolveOperatorProjectionCanvasModel } from './operatorProjectionMonitorRenderer'
+import { pumpMjpegFrames, parseGeneratedFrameProps, resolveMonitorMediaUrl, resolveVideoPlaybackPlan } from './monitorMediaRuntime'
+import { createMonitorMediaLifecycle } from './monitorMediaLifecycle'
 
 const TONE_COLORS: Record<HudTone, string> = {
   cyan: '#5defff',
@@ -28,6 +31,7 @@ interface BoardroomApertureSurfaceProps {
   motionEnabled?: boolean
   payload?: Pick<MonitorSurfacePayloadEvent, 'content' | 'mime'>
   descriptor?: MonitorContentDescriptor
+  playback?: MonitorPlaybackState
   rootPath?: string | null
   active?: boolean
   debug?: boolean
@@ -233,6 +237,7 @@ export function BoardroomApertureSurface({
   motionEnabled,
   payload,
   descriptor,
+  playback,
   rootPath,
   active = true,
   debug = false,
@@ -272,6 +277,7 @@ export function BoardroomApertureSurface({
     let animationFrame = 0
     let image: HTMLImageElement | null = null
     let video: HTMLVideoElement | null = null
+    const mediaLifecycle = createMonitorMediaLifecycle(cancelAnimationFrame)
 
     const markUpdated = () => {
       if (!disposed) nextTexture.needsUpdate = true
@@ -282,6 +288,7 @@ export function BoardroomApertureSurface({
     }
     const loadImage = (source: string, fit: 'contain' | 'cover') => {
       image = new Image()
+      mediaLifecycle.registerImage(image)
       image.crossOrigin = 'anonymous'
       image.onload = () => {
         if (disposed || !image) return
@@ -295,12 +302,42 @@ export function BoardroomApertureSurface({
       image.onerror = () => showMessage('IMAGE UNAVAILABLE', source, '#ff789c')
       image.src = source
     }
+    const loadMjpeg = (source: string) => {
+      image = new Image()
+      const streamImage = image
+      mediaLifecycle.registerImage(streamImage)
+      streamImage.crossOrigin = 'anonymous'
+      streamImage.onerror = () => showMessage('STREAM UNAVAILABLE', source, '#ff789c')
+      const drawFrame = () => {
+        const view = fitRect(
+          canvas.width,
+          canvas.height,
+          streamImage.naturalWidth,
+          streamImage.naturalHeight,
+          'contain',
+        )
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.fillStyle = '#02060b'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        ctx.drawImage(streamImage, view.x, view.y, view.width, view.height)
+        markUpdated()
+      }
+      const scheduleFrame = (next: () => void) => {
+        animationFrame = requestAnimationFrame(next)
+        mediaLifecycle.scheduleAnimationFrame(animationFrame)
+      }
+      streamImage.src = source
+      pumpMjpegFrames(streamImage, drawFrame, scheduleFrame, () => !disposed)
+    }
     const loadVideo = (source: string, fit: 'contain' | 'cover', loop: boolean, autoplay: boolean) => {
+      const playbackPlan = resolveVideoPlaybackPlan(playback, autoplay)
       video = document.createElement('video')
       video.src = source
       video.crossOrigin = 'anonymous'
       video.loop = loop
       video.muted = true
+      mediaLifecycle.registerVideo(video)
+      video.volume = playbackPlan.volume
       video.playsInline = true
       video.preload = 'auto'
       const tick = () => {
@@ -314,9 +351,12 @@ export function BoardroomApertureSurface({
           markUpdated()
         }
         animationFrame = requestAnimationFrame(tick)
+        mediaLifecycle.scheduleAnimationFrame(animationFrame)
       }
       video.addEventListener('loadedmetadata', () => {
-        if (autoplay) void video?.play().catch(() => undefined)
+        if (video && playbackPlan.seekTo != null) video.currentTime = playbackPlan.seekTo
+        if (playbackPlan.playing) void video?.play().catch(() => undefined)
+        else video?.pause()
         tick()
       }, { once: true })
       video.addEventListener('error', () => showMessage('VIDEO UNAVAILABLE', source, '#ff789c'), { once: true })
@@ -366,19 +406,31 @@ export function BoardroomApertureSurface({
           markUpdated()
           return
         }
+        if (descriptor.kind === 'component' && descriptor.rendererId === 'generated_frame') {
+          const frame = parseGeneratedFrameProps(descriptor.props)
+          if (!frame) {
+            showMessage('FRAME UNAVAILABLE', 'generated-frame descriptor failed validation', '#ff789c')
+            return
+          }
+          const source = resolveMonitorMediaUrl(frame.source, rootPath, convertFileSrc)
+          if (source.ok === true) loadImage(source.url, frame.fit)
+          else showMessage('FRAME SOURCE UNAVAILABLE', source.reason)
+          return
+        }
         if (descriptor.kind === 'image') {
-          if (descriptor.source.kind === 'remote') loadImage(descriptor.source.url, descriptor.fit)
-          else showMessage('LOCAL IMAGE URL REQUIRED', descriptor.source.path)
+          const source = resolveMonitorMediaUrl(descriptor.source, rootPath, convertFileSrc)
+          if (source.ok === true) loadImage(source.url, descriptor.fit)
+          else showMessage('IMAGE SOURCE UNAVAILABLE', source.reason)
           return
         }
         if (descriptor.kind === 'video') {
-          if (descriptor.source.kind === 'remote') {
-            loadVideo(descriptor.source.url, descriptor.fit, descriptor.loop ?? false, descriptor.autoplay ?? false)
-          } else showMessage('LOCAL VIDEO URL REQUIRED', descriptor.source.path)
+          const source = resolveMonitorMediaUrl(descriptor.source, rootPath, convertFileSrc)
+          if (source.ok === true) loadVideo(source.url, descriptor.fit, descriptor.loop ?? false, descriptor.autoplay ?? false)
+          else showMessage('VIDEO SOURCE UNAVAILABLE', source.reason)
           return
         }
         if (descriptor.kind === 'remote_session') {
-          if (descriptor.transport === 'mjpeg') loadImage(descriptor.streamUrl, 'contain')
+          if (descriptor.transport === 'mjpeg') loadMjpeg(descriptor.streamUrl)
           else if (descriptor.transport === 'hls') loadVideo(descriptor.streamUrl, 'contain', true, true)
           return
         }
@@ -410,18 +462,9 @@ export function BoardroomApertureSurface({
     void render()
     return () => {
       disposed = true
-      if (animationFrame) cancelAnimationFrame(animationFrame)
-      if (image) {
-        image.onload = null
-        image.onerror = null
-      }
-      if (video) {
-        video.pause()
-        video.removeAttribute('src')
-        video.load()
-      }
+      mediaLifecycle.dispose()
     }
-  }, [descriptor, payload, renderModel, rootPath, texture])
+  }, [descriptor, payload, playback, renderModel, rootPath, texture])
 
   useEffect(() => () => texture.texture.dispose(), [texture])
 

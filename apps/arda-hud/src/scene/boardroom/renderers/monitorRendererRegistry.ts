@@ -1,4 +1,5 @@
 import type { MonitorContentDescriptor, MonitorMediaSource } from '../../../lib/monitorSurfaceContract'
+import { parseGeneratedFrameProps } from '../monitorMediaRuntime'
 
 export type MonitorRendererTarget = 'aperture' | 'workstation'
 
@@ -219,6 +220,17 @@ const rendererDefinitions = [
         rendererId: descriptor.rendererId,
         props: descriptor.props,
         authority: 'read_only',
+      })
+    }
+    if (descriptor.rendererId === 'generated_frame') {
+      const frame = parseGeneratedFrameProps(descriptor.props)
+      if (!frame) return invalid('invalid generated-frame props')
+      return renderer('image_texture', {
+        rendererId: descriptor.rendererId,
+        frameId: frame.frameId,
+        source: frame.source,
+        fit: frame.fit,
+        authority: 'session_owner',
       })
     }
     return unsupported(`trusted component renderer '${descriptor.rendererId}' is not registered`)

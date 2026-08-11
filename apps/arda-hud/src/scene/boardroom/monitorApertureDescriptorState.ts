@@ -39,14 +39,5 @@ export function resolveMonitorApertureDescriptorState(
     }
   }
 
-  if ((descriptor.kind === 'image' || descriptor.kind === 'video') && descriptor.source.kind === 'local') {
-    return {
-      mode: 'message',
-      title: descriptor.kind === 'image' ? 'LOCAL IMAGE URL REQUIRED' : 'LOCAL VIDEO URL REQUIRED',
-      detail: descriptor.source.path,
-      color: '#ffd37a',
-    }
-  }
-
   return { mode: 'render' }
 }

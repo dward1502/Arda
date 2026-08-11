@@ -1,4 +1,5 @@
 pub mod contract;
+pub mod browser_capture;
 pub mod monitor_surface;
 pub mod registry;
 pub mod typed;
@@ -8,11 +9,19 @@ pub use monitor_surface::{
     MonitorSurfaceState,
 };
 
-pub use typed::{
-    claim_monitor_surface, get_monitor_surface_registry, refresh_monitor_surface_lease,
-    release_monitor_surface, restore_monitor_surface_registry, TypedMonitorSurfaceState,
+pub use browser_capture::{
+    get_browser_capture_status, start_browser_capture, stop_browser_capture,
+    BrowserCaptureState,
 };
 
+pub use typed::{
+    claim_monitor_surface, get_monitor_surface_registry, patch_monitor_surface_playback,
+    refresh_monitor_surface_lease, release_monitor_surface, restore_monitor_surface_registry,
+    TypedMonitorSurfaceState,
+};
+
+#[cfg(test)]
+mod browser_capture_tests;
 #[cfg(test)]
 mod contract_tests;
 #[cfg(test)]

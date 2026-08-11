@@ -2,7 +2,7 @@
 
 > **For Hermes:** Use `subagent-driven-development` to execute this plan task-by-task. This is a corrective replacement for the underscoped 2026-07-30 agentic-monitor implementation. Do not archive or describe this plan as complete until every native visual and concurrent-agent acceptance gate below passes and the operator accepts the result in the running HUD.
 
-**Status:** Active corrective plan — prior closeout invalidated
+**Status:** Active corrective plan — implementation substantially converged; native multi-content walkthrough, hardening evidence, and operator acceptance remain open
 
 **Goal:** Turn all five authored upper 3D monitors into independent, full-aperture display surfaces that agents can claim concurrently, render with arbitrary supported visual content, and open into full workstation windows that preserve the same live session and content.
 
@@ -14,9 +14,29 @@ On 2026-08-07, the running native Tauri HUD visibly showed all five upper and al
 
 That run closed only the physical CanvasTexture integration slice; pointer interaction was not accepted because the desktop-action approval timed out. Later evidence below supersedes the then-open typed registry and same-session workstation items.
 
-On 2026-08-07, Phase 2 contract parity advanced: `apps/arda-hud/src/lib/monitorSurfaceContract.ts` now defines the canonical five-slot set, typed content/workstation-handoff descriptors, and claim/refresh/release/active registry helpers; `apps/arda-hud/src/lib/monitorSurfaceContract.test.ts` exercises parsing, five-slot claim/refresh/release, and canonical-slot enforcement; Rust `contract`/`registry` tests prove five simultaneous owners, isolated updates, conflict rejection, exact-owner release, revision conflict rejection, expiry isolation, snapshot/restore, and stale-schema rejection. Focused vitest + Rust `cargo test --lib` gates are green after these changes. Remaining work after the Phase 6 evidence below is the all-content native walkthrough, concurrent-agent orchestration UI, hardening, and final operator acceptance.
+On 2026-08-07, Phase 2 contract parity advanced: `apps/arda-hud/src/lib/monitorSurfaceContract.ts` now defines the canonical five-slot set, typed content/workstation-handoff descriptors, and claim/refresh/release/active registry helpers; `apps/arda-hud/src/lib/monitorSurfaceContract.test.ts` exercises parsing, five-slot claim/refresh/release, and canonical-slot enforcement; Rust `contract`/`registry` tests prove five simultaneous owners, isolated updates, conflict rejection, exact-owner release, revision conflict rejection, expiry isolation, snapshot/restore, and stale-schema rejection. Focused vitest + Rust `cargo test --lib` gates are green after these changes.
 
 On 2026-08-07, Phase 6 implementation and its bounded native lifecycle gate completed. A monitor session now opens a deterministic native workstation keyed by `surface_session_id`; repeated opens focus the existing window instead of creating a duplicate. The workstation resolves the exact authoritative registry record, renders through the same `BoardroomApertureSurface`, receives revision/lifecycle updates through the Tauri registry event plus a cross-window persisted-registry fallback, and changes to an explicit unavailable state after release or expiry. Native Tauri evidence showed the same README document in `monitor_1` and its workstation, a revision refresh from the same session, two repeated opens with only one workstation window, and the already-open workstation transitioning to `Monitor session unavailable` after exact-session release. The all-content-class walkthrough remains part of Phase 9 rather than being inferred from this document-only lifecycle proof.
+
+On 2026-08-10, the monitor convergence slice closed the remaining machine-verifiable registry gaps. The TypeScript persistence gate now round-trips all five canonical sessions without collapsing slot, owner, revision, descriptor, or workstation identity. Barrier-synchronized Rust tests prove competing same-slot claims serialize to exactly one owner and a release/reclaim race leaves zero or one valid replacement, never duplicate or corrupted ownership. The canonical `arda.operator-projection.v1` is now published by `arda-engine`, consumed by the HUD, and registered as a read-only trusted component renderer through the existing typed monitor session and same-session workstation path. Focused HUD convergence tests passed 46/46, focused Tauri monitor-surface tests passed 34/34, the complete HUD suite passed 483/483, TypeScript and the production build passed, the complete `arda-engine` suite passed, and strict `arda-engine` library Clippy passed. A controlled native Tauri restart preserved the accepted five-upper/five-lower composition. These results do not substitute for the still-open five-content native walkthrough or explicit operator acceptance.
+
+### 2026-08-10 live browser-stream corrective slice
+
+**First new-session rule:** no visual substitute may satisfy a runtime capability gate. Screenshots, downloaded video, static browser frames, acceptance-panel labels, and placeholders are never evidence for browser, YouTube, terminal, navigation, input, or same-session continuity. A failed stream remains an explicit failed stream.
+
+Live audit found a typed, revisioned five-slot registry, same-session workstation identity, CanvasTexture aperture rendering, and HLS/MJPEG descriptor support, but no browser process launcher, capture producer, MJPEG/WebRTC server, browser navigation/input authority, or capture lifecycle manager. The renderer registry therefore correctly reports that aperture web and YouTube content require a capture stream; the prior showcase bypassed that gate with a downloaded trailer, a browser screenshot, and an ASCII screenshot. Those temporary controls and media were removed. The later Phase 4-only claim controls, claim generator, and two local WebM fixtures were also removed after reference tracing proved that they were acceptance-only and no longer had a production consumer; the legitimate media renderer, mute, and disposal fixes and their focused tests remain. No HUD, Tauri, Vite, CDP, or capture process remained after cleanup.
+
+The smallest complete vertical slice is bounded to one real browser session before navigation, input, or multi-browser expansion:
+
+1. Add RED Rust tests for browser launch planning, loopback-only stream URLs, unique per-session profile/ports, forced audio mute, owner/session lifecycle isolation, changing-frame publication, and honest startup/stream failure.
+2. Add an owned native browser-capture state that launches one browser process with an isolated profile, consumes its continuous DevTools screencast, and publishes a loopback MJPEG stream. Keep frame bytes out of Tauri JSON and monitor persistence.
+3. Add start/status/stop Tauri commands. Starting returns the real `remote_session` identity and stream URL only after a changing frame stream is available; failure returns an error and never synthesizes media.
+4. Reuse the existing `remote_session` renderer and typed monitor claim path so the physical CanvasTexture aperture and same-session workstation consume the exact stream/session identity.
+5. Prove focused tests and one native browser stream with visibly changing frames, process ownership, mute state, release cleanup, and workstation continuity. Only then extend the same manager with owner/revision-guarded navigation and input, a second isolated browser, YouTube, and the live ARDA terminal/generated-frame session.
+
+**Implementation evidence — 2026-08-10:** The RED-GREEN backend slice now launches an isolated direct/Flatpak Brave runtime, forces mute, waits for two real CDP screencast revisions, publishes loopback MJPEG, exposes owner-checked start/status/stop commands, tears down the process/profile, and reports failure rather than substituting imagery. The ignored installed-browser gate passed with one real process and changing revisions (`1 passed`, `2.33s`). The first failure was traced to Chromium keeping `/json/list` alive; the client now completes the response at its declared `Content-Length` instead of waiting for EOF. The aperture MJPEG path now redraws the live image into its `CanvasTexture` every animation frame and closes the stream on disposal. A frontend orchestration boundary starts capture first, rejects unmuted or fewer-than-two-frame descriptors, claims the typed `remote_session` only after that gate, and stops capture if the authoritative claim fails. The frontend suite passes `496` tests and the production TypeScript/Vite build passes. Native visual observation remains open, so this is implementation evidence—not acceptance.
+
+Transport choice for this slice is loopback MJPEG fed by Chromium DevTools `Page.startScreencast`: the current renderer already consumes MJPEG as an image texture, current CSP allows loopback HTTP, and the installed Brave Flatpak exposes a Chromium CDP endpoint. WebRTC would add an unrelated signaling/media stack before one honest stream exists. The capture manager remains transport-bounded so WebRTC can be added later without changing monitor ownership contracts.
 
 **Architecture:** Introduce a versioned monitor-session contract shared by Rust and TypeScript, a five-slot topology with one canonical slot per physical monitor, and a renderer registry that chooses texture, media, web, terminal, document, or remote-session rendering from a typed content descriptor. The boardroom monitor and focused workstation subscribe to the same session rather than constructing different content paths. Full-screen content is rendered inside the authored 3D aperture; ownership and lease controls stay outside the content area.
 
@@ -107,9 +127,9 @@ The workstation is not allowed to fall back to a generic source-zone panel when 
 
 ---
 
-## 2. Verified current-state defects
+## 2. Verified pre-correction baseline defects
 
-The corrective implementation begins from these source-backed facts:
+The corrective implementation began from these source-backed facts. Items 1–8 are retained as the historical RED baseline, not as claims about the current tree. Phases 0–7 below record their implemented corrections; the remaining product gap is native all-content/concurrency acceptance plus Phase 8 hardening evidence.
 
 1. `boardroomSpatialLayout.ts` defines five `upper_monitor` zones, but `boardroomSlotSettings.ts` defines only four monitor slots.
 2. `boardroom.monitor.center` has no `assignmentSlotId` and duplicates the `upper_monitor_3` binding used by center-right.
@@ -249,6 +269,8 @@ The boardroom and workstation resolve the same descriptor through this registry.
 
 **Gate:** This phase is complete only when failures describe the actual topology, renderer, and handoff gaps—not missing test setup.
 
+**Status — baseline captured; one topology assertion remains incorrect:** The archived 2026-07-30 plan and checklist identify the underscoped closeout and link to this corrective authority. `universalMonitorAcceptance.test.ts` establishes the five-slot, content-kind, multi-owner, and session-handoff contract gates, but its test named `without duplicated center binding` currently expects `upper_monitor_3` twice. That assertion records the old defect instead of the required unique-binding outcome and must be corrected with Phase 1.
+
 ## Phase 1 — Five-slot topology and persisted-state migration
 
 **Objective:** Give all five authored monitors stable, independent runtime and persistence identities.
@@ -273,6 +295,8 @@ The boardroom and workstation resolve the same descriptor through this registry.
 6. Verify import/export/reload round trips without changing desk assignments.
 
 **Gate:** Five physical monitors, five canonical slots, five unique fallback assignments, no duplicated center binding, and no desk-state mutation.
+
+**Status — canonical slot/persistence work complete; physical-binding gate open:** Runtime and durable writes use `monitor_1..monitor_5`; old IDs are migration aliases only. The center monitor has its own canonical assignment, canonical-slot validation rejects unknown runtime IDs, and slot-setting round-trip tests preserve lower-desk ownership and configuration. However, `boardroom.monitor.center` and `boardroom.monitor.center_right` still both declare `binding: 'upper_monitor_3'`; the model-binding tests also accept `[upper_monitor_1, upper_monitor_2, upper_monitor_3, upper_monitor_3, upper_monitor_4]` even though the scene contract declares `upper_monitor_1..upper_monitor_5`. Phase 1 is therefore not complete until the five authored physical bindings are unique and the misleading tests are corrected.
 
 ## Phase 2 — Versioned multi-agent session registry
 
@@ -303,6 +327,8 @@ The boardroom and workstation resolve the same descriptor through this registry.
 9. Remove prefix-only slot acceptance and validate the canonical five-slot set.
 
 **Gate:** Rust tests prove five simultaneous owners, isolated updates, conflict rejection, exact-owner release, revision conflict rejection, expiry isolation, and reload reconstruction.
+
+**Status — machine-verifiable implementation complete:** TypeScript and Rust share the v2 registry shape, the Tauri commands emit/restore complete records, and active sessions rehydrate from persisted state. The 2026-08-10 additions prove all-five local persistence plus barrier-synchronized claim and release/reclaim races. Native restart/operator acceptance remains in Phase 9 rather than reopening this contract phase.
 
 ## Phase 3 — Full-aperture renderer foundation
 
@@ -335,7 +361,7 @@ The boardroom and workstation resolve the same descriptor through this registry.
 - Debug-only aperture outlines render behind the content surface when `debug` is enabled.
 - `hud-instruments.css` fixed `13.2rem` monitor-surface card block removed; aperture sizing is topology-driven.
 
-**Gate:** Vitest + build + lint + cargo check passed; native verification pending.
+**Gate — complete:** Vitest + build + lint + Cargo checks passed, and the 2026-08-07 native Tauri run verified all five occupied upper surfaces fitted within the authored apertures with the full console composition visible.
 
 ## Phase 4 — Image, video, and generated-frame renderers
 
@@ -360,6 +386,8 @@ The boardroom and workstation resolve the same descriptor through this registry.
 6. Dispose textures, media elements, and subscriptions when content changes or a lease ends.
 
 **Gate:** Five monitors concurrently show distinct visual content, including at least two playing videos or frame streams, without cross-slot replacement or leaked audio.
+
+**Status — implementation complete; native gate open:** `BoardroomApertureSurface` renders local or HTTP(S) images and video, MJPEG, HLS-backed streams, and owner-scoped `generated_frame` content into its CanvasTexture with explicit `contain`/`cover`. Local files resolve through Tauri's `protocol-asset` feature with the canonical workspace as the only configured asset scope; traversal and non-HTTP(S) remote schemes fail closed. Playback state now survives the TypeScript/Rust registry boundary and is mutated through an owner-, session-identity-, and revision-guarded Tauri command; boardroom video remains muted. The media lifecycle tracker disposes image callbacks, video sources, and animation frames idempotently, and its focused test returns every active counter to zero after 25 replacement cycles. The development-only native acceptance harness can claim five distinct deterministic visual sessions, including two local autoplay WebM streams, patch their authoritative playback state, and record exact active image/video/frame and unmuted-video counts. Phase 4 remains open only because no qualifying native operator receipt yet proves the five-aperture/two-stream gate on the authored scene; harness availability and automated lifecycle evidence are not substituted for that receipt.
 
 ## Phase 5 — Web, YouTube, document, and terminal renderers
 
@@ -392,6 +420,8 @@ The boardroom and workstation resolve the same descriptor through this registry.
 
 **Gate:** Native HUD acceptance demonstrates a website, YouTube playback, local/approved video, image, document, and terminal across separate monitors. A known frame-blocked website must render through the remote-session/capture path or report a precise unsupported state; it cannot be credited from an external browser opening.
 
+**Status — contract and bounded adapters implemented; native gate open:** The renderer registry covers all nine descriptor kinds, rejects unsafe paths/schemes, limits sandbox profiles and trusted component IDs, requires capture streams for web/YouTube aperture pixels, and reports unsupported WebRTC honestly. Markdown/text documents render through the CanvasTexture path; PDF and unavailable terminal sessions report explicit limitations; HLS/MJPEG provide declared capture adapters; `operator_projection` is the first registered trusted component. The workstation still renders through `BoardroomApertureSurface`, so registry plans for direct iframe/YouTube/PTY workstation adapters are not yet mounted as separate live adapters. No website, YouTube, PDF, or named PTY is credited until the Phase 9 native walkthrough proves it.
+
 ## Phase 6 — Workstation window bound to the same session
 
 **Objective:** Clicking a monitor opens a full workstation containing the exact same content/session.
@@ -417,6 +447,8 @@ The boardroom and workstation resolve the same descriptor through this registry.
 8. Preserve fallback workstation routing only for unclaimed monitors.
 
 **Gate:** For every content class, clicking the physical monitor opens the same content. Changing content after the workstation opens updates both surfaces. Video/YouTube/terminal identity is preserved rather than restarted as an unrelated source panel.
+
+**Status — session lifecycle complete; all-content gate open:** Stable window identity, exact-registry lookup, duplicate-window focus, cross-window revision updates, persisted-registry fallback, and release/expiry detachment are implemented and were exercised natively with one markdown document session. Per-content playback/navigation continuity remains open with the Phase 4/5 renderer work and Phase 9 walkthrough.
 
 ## Visual reset checkpoint — agent-native command instruments
 
@@ -470,7 +502,7 @@ All five render as CanvasTexture-backed WebGL meshes in the normal native HUD. `
 
 **Gate:** The native HUD visibly supports five concurrent agents with independent content and lifecycle behavior. No singleton “active monitor” state is allowed anywhere in the path.
 
-**Phase 7 partial evidence (2026-08-08):** Task 6 now has a production `MonitorOwnershipRail` mounted outside every upper display aperture. Idle rails remain dormant; an occupied rail derives a stable owner-color fingerprint, distinguishes typed session authority from a legacy claim, displays healthy/expiring/expired lease states without text, and animates at a bounded 15 Hz only while occupied. The rail receives each slot's own session/claim directly inside the existing five-slot map, so it introduces no singleton ownership state and never overlays agent content. Focused tests cover session-over-claim authority, idle fallback, lease-state transitions, and deterministic distinct owner fingerprints. Native idle geometry is verified; the Phase 7 gate still requires a live five-owner capture plus release/reclaim/expiry evidence before completion.
+**Phase 7 implementation evidence (updated 2026-08-10):** Task 6 has a production `MonitorOwnershipRail` mounted outside every upper display aperture. Idle rails remain dormant; an occupied rail derives a stable owner-color fingerprint, distinguishes typed session authority from a legacy claim, displays healthy/expiring/expired lease states without text, and animates at a bounded 15 Hz only while occupied. The rail receives each slot's own session/claim directly inside the existing five-slot map, so it introduces no singleton ownership state and never overlays agent content. All-five in-memory and persisted cardinality now pass; barrier-synchronized Rust tests prove same-slot conflict serialization and atomic release/reclaim; existing registry tests cover wrong-owner rejection, isolated expiry selection, revision conflicts, and snapshot restoration. Focused HUD convergence tests passed 46/46 and focused Tauri monitor-surface tests passed 34/34. Native idle geometry and the five-upper composition are verified, but the Phase 7 product gate remains open until one native run visibly exercises five owners, middle release, sixth-agent reclaim, expiry isolation, and recovery together.
 
 ## Phase 8 — Performance, security, and failure hardening
 
@@ -497,6 +529,8 @@ All five render as CanvasTexture-backed WebGL meshes in the normal native HUD. `
    mapping any still-required capability to explicit Manwë/Aulë ownership.
 
 **Performance gate:** At the native target resolution, five occupied monitors remain responsive to pointer activation and workstation opening. Record frame timing, memory before/after repeated claim cycles, and media resource cleanup evidence. Do not invent an FPS number in advance; measure and document the accepted baseline.
+
+**Status — partially implemented:** URL/path/sandbox/component validation, muted boardroom media, explicit unsupported states, reduced-motion/static rendering, bounded ownership-rail cadence, CanvasTexture disposal, and per-renderer failure messages are implemented and covered by focused tests. The generic Hermes dashboard/CLI compatibility path is documented as non-authoritative but has not yet been fully retired. Native five-surface frame timing, memory/resource-cycle measurements, hidden-renderer throttling, malformed/live failure isolation, and shutdown cleanup evidence remain open.
 
 ## Phase 9 — Native visual acceptance and documentation closeout
 
@@ -533,6 +567,8 @@ All five render as CanvasTexture-backed WebGL meshes in the normal native HUD. `
 
 **No-closeout rule:** Unit tests, build success, Rust tests, one claimed monitor, a text payload, a generic child window, or an acceptance panel reporting green are not sufficient to close this plan.
 
+**Current Phase 9 position (2026-08-10):** The normal native HUD has been restarted successfully with the accepted five-upper/five-lower composition intact, and a one-session markdown lifecycle was previously exercised end-to-end. The canonical operator projection is mounted through the typed descriptor path and the dev-only acceptance control can claim it and open its authoritative workstation. The required simultaneous five-content/five-owner walkthrough, every-monitor activation, content mutation, release/reassign/expiry/restart sequence, blocked-embed exercise, measured performance baseline, and explicit operator acceptance have not yet been completed as one qualifying native run.
+
 ---
 
 ## 5. Verification commands
@@ -563,6 +599,7 @@ This plan remains active until every statement is true:
 
 - [x] Five physical upper monitors map to five canonical assignable slots.
 - [x] The center monitor is independently claimable.
+- [ ] All five physical model bindings are unique; the center and center-right no longer duplicate `upper_monitor_3`.
 - [x] Each occupied screen fills its authored 3D aperture; no small card remains.
 - [ ] Website rendering is demonstrated natively.
 - [ ] YouTube rendering is demonstrated natively.
@@ -584,4 +621,4 @@ This plan remains active until every statement is true:
 
 Only after all items pass may this plan be archived and described as complete.
 
-**Phase 3 status:** Aperture topology, full-aperture hit-test surface, debug outlines, and fixed-card removal are implemented and pass focused tests/build/lint/cargo check/docs health/diff check. Native Tauri/CUA/AT-SPI visual verification is still required before any checklist item can be checked.
+**Implementation status summary (updated 2026-08-10):** Phase 2 and Phase 3 are complete. Phase 0 captured the corrective baseline, but its duplicate-binding assertion must be repaired with the still-open physical-binding remainder of Phase 1. Phase 6 same-session lifecycle is complete for the bounded markdown proof. Phase 7's registry, persistence, race-safety, and ownership-rail implementation is machine-verified, while its combined native orchestration gate remains open. Phases 4, 5, and 8 are partial. Phase 9 and the unchecked completion items remain the archive blockers.

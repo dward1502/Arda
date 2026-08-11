@@ -6,10 +6,10 @@ soterion:
   role: "organization_index"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-08-03"
+  last_reviewed: "2026-08-10"
 ---
 
-> 🜏 Soterion: 📜 organization_index | owner: HADES | status: active | reviewed: 2026-08-03
+> 🜏 Soterion: 📜 organization_index | owner: HADES | status: active | reviewed: 2026-08-10
 
 # Documentation archive
 
@@ -29,6 +29,8 @@ product adoption research.
   — completed durable Warden/Varda/Aulë receipt chain, governed Vairë knowledge intake, and replay-safe proposal receipts.
 - [`2026-07-29-arda-workbench-private-beta-plan.md`](2026-07-29-arda-workbench-private-beta-plan.md)
   — completed contract, engine, adapter, HUD, Rust/Python golden-path, and exact-once recovery implementation tranche; remaining release gates continue in the active Stage 4 plan.
+- [`2026-07-29-personal-operations-plan.md`](2026-07-29-personal-operations-plan.md)
+  — completed Personal Operations contracts, append-only service, calendar/reminder adapters, HUD, voice/brief, restart, correction, export/deletion, privacy, and accessibility implementation; native operator and seven-day dogfood acceptance remain open in the operational acceptance record.
 - [`2026-07-30-arda-hud-boardroom-visual-system-plan.md`](2026-07-30-arda-hud-boardroom-visual-system-plan.md)
   — completed six-phase boardroom visual system, typed physical controls, performance profiles, and visual-regression evidence.
 - [`2026-07-30-arda-hud-agentic-monitor-surfaces-plan.md`](2026-07-30-arda-hud-agentic-monitor-surfaces-plan.md)

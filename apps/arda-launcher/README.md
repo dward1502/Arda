@@ -153,9 +153,9 @@ contract and must not be changed from this leaf app alone.
 - Packet 7 complete locally on 2026-07-29.
 - **Begin** loads typed readiness and service-plan projections into an accessible
   read-only panel; backend errors are shown instead of discarded.
-- Eight Rust onboarding tests and two frontend command-contract tests pass.
+- Fourteen Rust launcher tests and eleven frontend contract/orientation tests pass.
 - Strict Rust gates, frontend lint/test/build, release binary, DEB, and RPM pass.
-- Frontend, Cargo, and Tauri bundle metadata are aligned at version `0.2.0`.
-- AppImage assembly is blocked by Tauri's cached `linuxdeploy` using an old
-  `strip` that rejects CentOS 10 `.relr.dyn` sections; direct `appimagetool`
-  assembly and extraction verification pass. See `STATUS.md`.
+- Frontend, Cargo, and Tauri bundle metadata are aligned at version `0.3.0-rc.1`.
+- Linux packaging sets `NO_STRIP=true` for Tauri's cached `linuxdeploy`, whose
+  old bundled `strip` cannot read modern `.relr.dyn` sections. AppImage, DEB,
+  and RPM assembly pass through the normal `pnpm run tauri build` entry point.

@@ -1,4 +1,5 @@
 import importlib.util
+import json
 import os
 import tempfile
 import unittest
@@ -6,6 +7,7 @@ from pathlib import Path
 
 
 MODULE_PATH = Path(__file__).resolve().parents[1] / "scripts" / "arda_appimage.py"
+ROOT = MODULE_PATH.parents[1]
 SPEC = importlib.util.spec_from_file_location("arda_appimage", MODULE_PATH)
 assert SPEC and SPEC.loader
 appimage = importlib.util.module_from_spec(SPEC)
@@ -13,6 +15,10 @@ SPEC.loader.exec_module(appimage)
 
 
 class AppImagePackagingTests(unittest.TestCase):
+    def test_tauri_build_disables_incompatible_linuxdeploy_strip(self) -> None:
+        package = json.loads((ROOT / "apps/arda-launcher/package.json").read_text(encoding="utf-8"))
+        self.assertEqual(package["scripts"]["tauri"], "NO_STRIP=true cargo-tauri")
+
     def test_fetch_verified_reuses_matching_cached_input(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             cached = Path(temp) / "tool"

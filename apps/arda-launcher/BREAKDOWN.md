@@ -39,19 +39,17 @@ without acquiring service mutation or approval authority.
 
 ## Verification status
 
-- `cargo test -p arda-launcher --all-features`: 8 passed
+- `cargo test -p arda-launcher --all-features`: 14 passed
 - `cargo fmt -p arda-launcher -- --check`: passed
 - `cargo clippy -p arda-launcher --all-targets --all-features -- -D warnings`:
   passed
-- `pnpm test`: 2 command-contract tests passed
+- `pnpm test`: 11 contract/orientation tests passed
 - `pnpm run lint`: 0 warnings and 0 errors
 - `pnpm run build`: passed
-- Frontend package, Cargo package, and Tauri bundle versions: aligned at `0.3.0-rc.0`
-- `pnpm run tauri build`: v0.2 release binary, DEB, and RPM produced; AppImage
-  stage reaches a populated AppDir but Tauri's cached `linuxdeploy` fails on
-  CentOS 10 `.relr.dyn` sections
-- Direct `appimagetool` fallback: v0.2 AppImage assembled and extracted with
-  `AppRun`, desktop entry, icon, and launcher binary present
+- Frontend package, Cargo package, and Tauri bundle versions: aligned at `0.3.0-rc.1`
+- `pnpm run tauri build`: release binary, DEB, RPM, and AppImage produced with
+  linuxdeploy's `NO_STRIP=true` compatibility control for modern `.relr.dyn`
+  sections
 
 ## Binary / runtime
 
@@ -136,8 +134,8 @@ open behavior |
    hand-maintained TypeScript mirror unsafe.
 3. Coordinate any `:7171` default migration across Manwe, engine, daemon,
    registry, scripts, and fleet configuration before changing compatibility.
-4. Repair or replace Tauri's AppImage `linuxdeploy` toolchain for modern
-   `.relr.dyn` binaries; direct `appimagetool` assembly is the verified fallback.
+4. Remove `NO_STRIP=true` after Tauri's cached linuxdeploy advances to a bundled
+   binutils release that supports modern `.relr.dyn` sections.
 5. Add `sysinfo`-driven resource checks (RAM/disk) to prerequisites before
    recommending local assistant / local model routes
 6. Consider extracting the onboarding Rust module into a workspace crate if

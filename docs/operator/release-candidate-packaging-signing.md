@@ -29,10 +29,12 @@ build `5735cc5` is not suitable: it injects the current time and conflicts with
 
 ## Build and verify
 
-Build the frontend and native launcher, then create DEB/RPM bundles with Tauri.
-Tauri's AppImage `linuxdeploy` phase currently fails after producing a complete
-AppDir. Fetch the verified RELR-capable assembly inputs and package that AppDir
-twice with the pinned `appimagetool`, pinned runtime, and fixed epoch:
+Build the frontend and native launcher, then create AppImage/DEB/RPM bundles
+with Tauri. The launcher package script sets linuxdeploy's supported
+`NO_STRIP=true` control because its bundled old `strip` cannot read modern
+`.relr.dyn` sections; this does not skip Rust release optimization. Repackage
+the complete AppDir twice with the pinned `appimagetool`, pinned runtime, and
+fixed epoch for the byte-reproducibility proof:
 
 ```text
 python3 scripts/arda_appimage.py fetch --cache-dir <tool-cache>

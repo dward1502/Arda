@@ -42,14 +42,14 @@ coordinated environment/fleet migration.
 
 ## Verification
 
-- Rust onboarding tests: 8 passed.
+- Rust launcher tests: 14 passed.
 - Rustfmt: passed.
 - Strict all-target/all-feature Clippy with `-D warnings`: passed.
-- Frontend contract tests: 2 passed.
+- Frontend contract/orientation tests: 11 passed.
 - Oxlint: 0 warnings and 0 errors.
 - TypeScript/Vite production build: passed.
 - Tauri release binary: produced.
-- Frontend, Cargo, and Tauri bundle versions: aligned at `0.3.0-rc.0`.
+- Frontend, Cargo, and Tauri bundle versions: aligned at `0.3.0-rc.1`.
 - S5-RC0 compatibility, deterministic manifest/checksum, isolated upgrade,
   exact-once Workbench recovery, diagnostics, and rollback proof: passed under
   `docs/evidence/stage-5-release-candidate/s5-rc0/`.
@@ -57,14 +57,12 @@ coordinated environment/fleet migration.
 - RPM: `target/release/bundle/rpm/arda-launcher-0.2.0-1.x86_64.rpm`.
 - Manual AppImage: `target/release/bundle/appimage/arda-launcher_0.2.0_amd64-manual.AppImage`.
 
-## Packaging limitation
+## Packaging compatibility
 
-The normal `pnpm run tauri build` reaches AppImage assembly after successfully
-producing the binary, DEB, and RPM. Tauri's cached `linuxdeploy` then invokes a
-bundled old `strip` that rejects CentOS 10 ELF `.relr.dyn` sections as unknown
-section type `0x13`. The populated AppDir remains at
-`target/release/bundle/appimage/arda-launcher.AppDir`. Direct `appimagetool`
-assembly succeeds, and extraction verifies `AppRun`, the desktop entry, icon,
-and launcher executable. The manual AppImage is the verified fallback; a normal
-Tauri-generated AppImage is not claimed until the external `linuxdeploy`
-toolchain incompatibility is fixed.
+Tauri's cached `linuxdeploy` bundles an old `strip` that rejects modern ELF
+`.relr.dyn` sections as unknown section type `0x13`. The launcher package script
+sets linuxdeploy's supported `NO_STRIP=true` control, preserving those already
+stripped system libraries instead of passing them through the incompatible
+tool. The normal `pnpm run tauri build` entry point now produces the AppImage,
+DEB, and RPM; `tests.test_arda_appimage` keeps this compatibility control from
+silently regressing.

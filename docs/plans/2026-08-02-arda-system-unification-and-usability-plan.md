@@ -372,9 +372,10 @@ or retained merely to rewrite historical evidence.
 - Frontend tests pass 8/8, launcher Rust tests pass 14/14, launcher Clippy passes
   with warnings denied, beta/release operations pass 20/20, engine optional-
   service isolation passes 5/5, and Tauri produces the current DEB and RPM.
-  AppImage wrapping remains blocked by linuxdeploy's embedded `strip` rejecting
-  Bluefin LTS `.relr.dyn` sections; the release gate does not substitute AppDir
-  output or an unsigned local package.
+  Tauri AppImage wrapping now passes through the normal package entry point with
+  linuxdeploy's supported `NO_STRIP=true` control, avoiding its bundled old
+  `strip` that rejects Bluefin LTS `.relr.dyn` sections. This does not substitute
+  an unsigned local package for the final signed-artifact gate.
 - The final signed-artifact checkbox and Gate U4 remain open. The published
   `v0.3.0-rc.0` checksum ledger and all six Sigstore bundles verify, but the
   release tag and manifest bind to source `28cde28b`, seven commits behind frozen

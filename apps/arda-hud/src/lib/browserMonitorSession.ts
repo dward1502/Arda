@@ -25,6 +25,15 @@ interface BrowserCaptureIdentity {
   owner: string
 }
 
+interface BrowserCaptureControlIdentity extends BrowserCaptureIdentity {
+  expectedRevision: number
+}
+
+export interface BrowserPointerPosition {
+  x: number
+  y: number
+}
+
 interface SurfaceClaimResult {
   ok: boolean
   session: unknown | null
@@ -115,4 +124,52 @@ export async function agentStopBrowserMonitorSession(
 ): Promise<void> {
   const { invoke } = await import('@tauri-apps/api/core')
   await invoke('stop_browser_capture', { request: identity })
+}
+
+export async function navigateBrowserMonitorSession(
+  capture: BrowserCaptureDescriptor,
+  url: string,
+  navigateCapture: (
+    request: BrowserCaptureControlIdentity & { url: string },
+  ) => Promise<BrowserCaptureDescriptor>,
+): Promise<BrowserCaptureDescriptor> {
+  return navigateCapture({
+    sessionId: capture.sessionId,
+    owner: capture.owner,
+    expectedRevision: capture.revision,
+    url,
+  })
+}
+
+export async function clickBrowserMonitorSession(
+  capture: BrowserCaptureDescriptor,
+  position: BrowserPointerPosition,
+  clickCapture: (
+    request: BrowserCaptureControlIdentity & BrowserPointerPosition,
+  ) => Promise<BrowserCaptureDescriptor>,
+): Promise<BrowserCaptureDescriptor> {
+  return clickCapture({
+    sessionId: capture.sessionId,
+    owner: capture.owner,
+    expectedRevision: capture.revision,
+    ...position,
+  })
+}
+
+export async function agentNavigateBrowserMonitorSession(
+  capture: BrowserCaptureDescriptor,
+  url: string,
+): Promise<BrowserCaptureDescriptor> {
+  const { invoke } = await import('@tauri-apps/api/core')
+  return navigateBrowserMonitorSession(capture, url, (request) =>
+    invoke<BrowserCaptureDescriptor>('navigate_browser_capture', { request }))
+}
+
+export async function agentClickBrowserMonitorSession(
+  capture: BrowserCaptureDescriptor,
+  position: BrowserPointerPosition,
+): Promise<BrowserCaptureDescriptor> {
+  const { invoke } = await import('@tauri-apps/api/core')
+  return clickBrowserMonitorSession(capture, position, (request) =>
+    invoke<BrowserCaptureDescriptor>('click_browser_capture', { request }))
 }

@@ -1,5 +1,5 @@
-pub mod contract;
 pub mod browser_capture;
+pub mod contract;
 pub mod monitor_surface;
 pub mod registry;
 pub mod typed;
@@ -10,8 +10,8 @@ pub use monitor_surface::{
 };
 
 pub use browser_capture::{
-    get_browser_capture_status, start_browser_capture, stop_browser_capture,
-    BrowserCaptureState,
+    click_browser_capture, get_browser_capture_frame, get_browser_capture_status,
+    navigate_browser_capture, start_browser_capture, stop_browser_capture, BrowserCaptureState,
 };
 
 pub use typed::{

@@ -2,11 +2,24 @@ import { describe, expect, it, vi } from 'vitest'
 import {
   pumpMjpegFrames,
   parseGeneratedFrameProps,
+  resolveMjpegRenderPath,
   resolveMonitorMediaUrl,
   resolveVideoPlaybackPlan,
 } from './monitorMediaRuntime'
 
 describe('monitor media runtime', () => {
+  it('routes owned loopback browser sessions through native frame delivery', () => {
+    expect(resolveMjpegRenderPath(
+      'http://127.0.0.1:46577/session/browser-monitor-1.mjpeg',
+      'browser-monitor-1',
+    )).toEqual({ kind: 'native-browser-frames', sessionId: 'browser-monitor-1' })
+
+    expect(resolveMjpegRenderPath(
+      'https://camera.example.invalid/live.mjpeg',
+      'camera-1',
+    )).toEqual({ kind: 'mjpeg-image' })
+  })
+
   it('keeps drawing changing MJPEG pixels into the CanvasTexture aperture', () => {
     const source = { naturalWidth: 0, naturalHeight: 0 }
     const drawFrame = vi.fn()

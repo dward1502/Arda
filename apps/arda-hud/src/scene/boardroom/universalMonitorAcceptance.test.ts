@@ -89,8 +89,8 @@ describe('universal monitor acceptance', () => {
       'upper_monitor_1',
       'upper_monitor_2',
       'upper_monitor_3',
-      'upper_monitor_3',
       'upper_monitor_4',
+      'upper_monitor_5',
     ])
   })
 

@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
-import { startBrowserMonitorSession } from './browserMonitorSession'
+import {
+  clickBrowserMonitorSession,
+  navigateBrowserMonitorSession,
+  startBrowserMonitorSession,
+} from './browserMonitorSession'
 
 describe('browser monitor session', () => {
   it('publishes a remote-session descriptor only after real changing muted frames exist', async () => {
@@ -59,5 +63,44 @@ describe('browser monitor session', () => {
     })).rejects.toThrow('occupied')
 
     expect(stopCapture).toHaveBeenCalledWith({ sessionId: 'browser-monitor-2', owner: 'agent:browser-b' })
+  })
+
+  it('navigates with the exact owner and current capture revision', async () => {
+    const capture = {
+      sessionId: 'browser-monitor-3', owner: 'agent:browser-c', revision: 4,
+      url: 'https://example.com', streamUrl: 'http://127.0.0.1:39113/session/browser-monitor-3.mjpeg',
+      transport: 'mjpeg' as const, muted: true, processId: 4444, frameRevision: 8,
+    }
+    const navigateCapture = vi.fn().mockResolvedValue({ ...capture, revision: 5, url: 'https://example.org' })
+
+    const result = await navigateBrowserMonitorSession(capture, 'https://example.org', navigateCapture)
+
+    expect(navigateCapture).toHaveBeenCalledWith({
+      sessionId: capture.sessionId,
+      owner: capture.owner,
+      expectedRevision: 4,
+      url: 'https://example.org',
+    })
+    expect(result.revision).toBe(5)
+  })
+
+  it('dispatches pointer input with the exact owner and current capture revision', async () => {
+    const capture = {
+      sessionId: 'browser-monitor-4', owner: 'agent:browser-d', revision: 9,
+      url: 'https://example.com', streamUrl: 'http://127.0.0.1:39114/session/browser-monitor-4.mjpeg',
+      transport: 'mjpeg' as const, muted: true, processId: 4545, frameRevision: 12,
+    }
+    const clickCapture = vi.fn().mockResolvedValue({ ...capture, revision: 10 })
+
+    const result = await clickBrowserMonitorSession(capture, { x: 640, y: 360 }, clickCapture)
+
+    expect(clickCapture).toHaveBeenCalledWith({
+      sessionId: capture.sessionId,
+      owner: capture.owner,
+      expectedRevision: 9,
+      x: 640,
+      y: 360,
+    })
+    expect(result.revision).toBe(10)
   })
 })

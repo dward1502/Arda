@@ -17,9 +17,10 @@ describe('boardroom monitor model bindings', () => {
       'upper_monitor_1',
       'upper_monitor_2',
       'upper_monitor_3',
-      'upper_monitor_3',
       'upper_monitor_4',
+      'upper_monitor_5',
     ])
+    expect(BOARDROOM_MONITOR_ZONES.map((zone) => zone.assignmentIndex)).toEqual([0, 1, 2, 3, 4])
   })
 
   it('keeps model bindings separate from workstation assignment semantics', () => {

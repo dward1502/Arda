@@ -21,6 +21,23 @@ interface MjpegFrameSource {
   naturalHeight: number
 }
 
+export type MjpegRenderPath =
+  | { kind: 'native-browser-frames'; sessionId: string }
+  | { kind: 'mjpeg-image' }
+
+export function resolveMjpegRenderPath(streamUrl: string, sessionId: string): MjpegRenderPath {
+  try {
+    const url = new URL(streamUrl)
+    const expectedPath = `/session/${encodeURIComponent(sessionId)}.mjpeg`
+    if (url.protocol === 'http:' && url.hostname === '127.0.0.1' && url.pathname === expectedPath) {
+      return { kind: 'native-browser-frames', sessionId }
+    }
+  } catch {
+    // The media contract validator reports malformed URLs before rendering.
+  }
+  return { kind: 'mjpeg-image' }
+}
+
 export function pumpMjpegFrames(
   source: MjpegFrameSource,
   drawFrame: () => void,

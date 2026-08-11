@@ -1,6 +1,6 @@
 // sigil: REPAIR
 import { useEffect, useMemo } from 'react'
-import { convertFileSrc } from '@tauri-apps/api/core'
+import { convertFileSrc, invoke } from '@tauri-apps/api/core'
 import * as THREE from 'three'
 import type { MonitorContentDescriptor, MonitorPlaybackState } from '../../lib/monitorSurfaceContract'
 import { readFile } from '../../lib/weathertop'
@@ -11,7 +11,13 @@ import type { HudInstrumentModel, HudTone } from './boardroomHudInstruments'
 import { formatMonitorSurfaceStream } from './monitorSurfaceRuntime'
 import type { MonitorSurfacePayloadEvent } from './monitorSurfaceRuntime'
 import { resolveOperatorProjectionCanvasModel } from './operatorProjectionMonitorRenderer'
-import { pumpMjpegFrames, parseGeneratedFrameProps, resolveMonitorMediaUrl, resolveVideoPlaybackPlan } from './monitorMediaRuntime'
+import {
+  pumpMjpegFrames,
+  parseGeneratedFrameProps,
+  resolveMjpegRenderPath,
+  resolveMonitorMediaUrl,
+  resolveVideoPlaybackPlan,
+} from './monitorMediaRuntime'
 import { createMonitorMediaLifecycle } from './monitorMediaLifecycle'
 
 const TONE_COLORS: Record<HudTone, string> = {
@@ -193,6 +199,11 @@ function drawOperatorProjection(canvas: HTMLCanvasElement, props: Record<string,
 
 type RendererKind = 'text' | 'image' | 'video' | 'canvas' | 'unknown'
 
+interface NativeBrowserCaptureFrame {
+  revision: number
+  jpegBase64: string
+}
+
 function resolveRendererFromPayload(
   payload: Pick<MonitorSurfacePayloadEvent, 'content' | 'mime'> | null | undefined,
 ): RendererKind {
@@ -329,6 +340,55 @@ export function BoardroomApertureSurface({
       streamImage.src = source
       pumpMjpegFrames(streamImage, drawFrame, scheduleFrame, () => !disposed)
     }
+    const loadNativeBrowserFrames = (sessionId: string) => {
+      image = new Image()
+      const frameImage = image
+      mediaLifecycle.registerImage(frameImage)
+      let revision = 0
+
+      const scheduleNext = () => {
+        if (disposed) return
+        animationFrame = requestAnimationFrame(() => void poll())
+        mediaLifecycle.scheduleAnimationFrame(animationFrame)
+      }
+      const drawFrame = () => {
+        if (disposed) return
+        const view = fitRect(
+          canvas.width,
+          canvas.height,
+          frameImage.naturalWidth,
+          frameImage.naturalHeight,
+          'contain',
+        )
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.fillStyle = '#02060b'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        ctx.drawImage(frameImage, view.x, view.y, view.width, view.height)
+        markUpdated()
+        scheduleNext()
+      }
+      const poll = async () => {
+        try {
+          const frame = await invoke<NativeBrowserCaptureFrame | null>('get_browser_capture_frame', {
+            sessionId,
+            afterRevision: revision,
+          })
+          if (disposed) return
+          if (!frame) {
+            scheduleNext()
+            return
+          }
+          revision = frame.revision
+          frameImage.onload = drawFrame
+          frameImage.onerror = () => showMessage('STREAM FRAME UNAVAILABLE', sessionId, '#ff789c')
+          frameImage.src = `data:image/jpeg;base64,${frame.jpegBase64}`
+        } catch (error) {
+          if (!disposed) showMessage('STREAM UNAVAILABLE', String(error), '#ff789c')
+        }
+      }
+
+      void poll()
+    }
     const loadVideo = (source: string, fit: 'contain' | 'cover', loop: boolean, autoplay: boolean) => {
       const playbackPlan = resolveVideoPlaybackPlan(playback, autoplay)
       video = document.createElement('video')
@@ -430,7 +490,11 @@ export function BoardroomApertureSurface({
           return
         }
         if (descriptor.kind === 'remote_session') {
-          if (descriptor.transport === 'mjpeg') loadMjpeg(descriptor.streamUrl)
+          if (descriptor.transport === 'mjpeg') {
+            const renderPath = resolveMjpegRenderPath(descriptor.streamUrl, descriptor.sessionId)
+            if (renderPath.kind === 'native-browser-frames') loadNativeBrowserFrames(renderPath.sessionId)
+            else loadMjpeg(descriptor.streamUrl)
+          }
           else if (descriptor.transport === 'hls') loadVideo(descriptor.streamUrl, 'contain', true, true)
           return
         }

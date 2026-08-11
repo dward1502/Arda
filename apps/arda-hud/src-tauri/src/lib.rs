@@ -10,11 +10,12 @@ use commands::workbench::{
     validate_project_contract, WorkbenchEventStreamState,
 };
 use commands::monitor_surface::{
-    claim_monitor_slot, claim_monitor_surface, get_browser_capture_status,
-    get_monitor_surface_registry, patch_monitor_surface_playback, push_surface_payload,
-    refresh_monitor_slot_lease, refresh_monitor_surface_lease, release_monitor_slot,
-    release_monitor_surface, restore_monitor_surface_registry, start_browser_capture,
-    stop_browser_capture, BrowserCaptureState, MonitorSurfaceState, TypedMonitorSurfaceState,
+    claim_monitor_slot, claim_monitor_surface, click_browser_capture, get_browser_capture_frame,
+    get_browser_capture_status, get_monitor_surface_registry, navigate_browser_capture,
+    patch_monitor_surface_playback, push_surface_payload, refresh_monitor_slot_lease,
+    refresh_monitor_surface_lease, release_monitor_slot, release_monitor_surface,
+    restore_monitor_surface_registry, start_browser_capture, stop_browser_capture,
+    BrowserCaptureState, MonitorSurfaceState, TypedMonitorSurfaceState,
 };
 use portable_pty::CommandBuilder;
 use serde::{Deserialize, Serialize};
@@ -2996,6 +2997,9 @@ pub fn run() {
             get_monitor_surface_registry,
             restore_monitor_surface_registry,
             start_browser_capture,
+            navigate_browser_capture,
+            click_browser_capture,
+            get_browser_capture_frame,
             get_browser_capture_status,
             stop_browser_capture,
         ])

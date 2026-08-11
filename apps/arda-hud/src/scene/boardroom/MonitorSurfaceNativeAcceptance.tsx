@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   agentClaimMonitor,
   agentClaimMonitorSurface,
@@ -17,7 +17,10 @@ import { windowManager } from '../../utils/multiWindow'
 import { coerceRuntimeMonitorRegistry } from '../../lib/monitorSurfaceRegistryBridge'
 import { createMonitorSessionWindowConfig } from './monitorSessionWorkstationRoute'
 import type { OperatorProjection } from '../../lib/operatorProjection'
-import { agentStartBrowserMonitorSession } from '../../lib/browserMonitorSession'
+import {
+  agentStartBrowserMonitorSession,
+  agentStopBrowserMonitorSession,
+} from '../../lib/browserMonitorSession'
 
 const SLOT_ID = 'monitor_1'
 const OWNER = 'hermes-agent-acceptance'
@@ -54,7 +57,13 @@ export default function MonitorSurfaceNativeAcceptance({
   const enabled = env.DEV === true && env.VITE_MONITOR_ACCEPTANCE === '1'
   const [records, setRecords] = useState<AcceptanceRecord[]>(readRecords)
   const [busy, setBusy] = useState(false)
+  const activeBrowserCaptureRef = useRef<{ sessionId: string; owner: string } | null>(null)
   const passed = useMemo(() => records.filter((record) => record.ok).length, [records])
+
+  useEffect(() => () => {
+    const activeCapture = activeBrowserCaptureRef.current
+    if (activeCapture) void agentStopBrowserMonitorSession(activeCapture)
+  }, [])
 
   if (!enabled) return null
 
@@ -300,13 +309,22 @@ export default function MonitorSurfaceNativeAcceptance({
           type="button"
           disabled={busy}
           onClick={() => void run('real browser monitor stream', async () => {
+            const priorCapture = activeBrowserCaptureRef.current
+            if (priorCapture) {
+              await agentStopBrowserMonitorSession(priorCapture)
+              activeBrowserCaptureRef.current = null
+            }
             const result = await agentStartBrowserMonitorSession({
               slotId: SLOT_ID,
               owner: { kind: 'agent', name: 'browser-monitor-acceptance' },
-              url: 'https://time.is/',
+              url: 'https://threejs.org/examples/webgl_geometry_cube.html',
               ttlMs: 10 * 60_000,
               captureSessionId: `browser-monitor-1-${Date.now()}`,
             })
+            activeBrowserCaptureRef.current = {
+              sessionId: result.capture.sessionId,
+              owner: result.capture.owner,
+            }
             return {
               ok: result.capture.muted && result.capture.frameRevision >= 2 && result.claim.ok,
               detail: `${result.capture.sessionId}; pid=${result.capture.processId}; frames=${result.capture.frameRevision}; muted=${result.capture.muted}`,

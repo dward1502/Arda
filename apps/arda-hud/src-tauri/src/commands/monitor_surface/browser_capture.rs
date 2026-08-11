@@ -16,6 +16,8 @@ use tungstenite::{Message, WebSocket};
 const BROWSER_START_TIMEOUT: Duration = Duration::from_secs(20);
 const FRAME_WAIT_SLICE: Duration = Duration::from_millis(500);
 const MJPEG_BOUNDARY: &str = "arda-frame";
+const CAPTURE_WIDTH: f64 = 1280.0;
+const CAPTURE_HEIGHT: f64 = 720.0;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum BrowserRuntime {
@@ -145,6 +147,14 @@ impl FrameHub {
             .unwrap_or_default()
     }
 
+    pub fn latest_after(&self, revision: u64) -> Option<PublishedFrame> {
+        let state = self.inner.0.lock().ok()?;
+        (state.revision > revision && !state.jpeg.is_empty()).then(|| PublishedFrame {
+            revision: state.revision,
+            jpeg: state.jpeg.clone(),
+        })
+    }
+
     pub fn wait_for_revision_after(
         &self,
         revision: u64,
@@ -183,6 +193,25 @@ pub struct StopBrowserCaptureRequest {
     pub owner: String,
 }
 
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NavigateBrowserCaptureRequest {
+    pub session_id: String,
+    pub owner: String,
+    pub expected_revision: u64,
+    pub url: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ClickBrowserCaptureRequest {
+    pub session_id: String,
+    pub owner: String,
+    pub expected_revision: u64,
+    pub x: f64,
+    pub y: f64,
+}
+
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BrowserCaptureDescriptor {
@@ -197,8 +226,16 @@ pub struct BrowserCaptureDescriptor {
     pub frame_revision: u64,
 }
 
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BrowserCaptureFrame {
+    pub revision: u64,
+    pub jpeg_base64: String,
+}
+
 struct OwnedBrowserCapture {
     descriptor: BrowserCaptureDescriptor,
+    cdp_port: u16,
     child: Child,
     shutdown: Arc<AtomicBool>,
     frames: FrameHub,
@@ -234,7 +271,10 @@ pub struct BrowserCaptureState {
 }
 
 impl BrowserCaptureState {
-    pub(crate) fn start(&self, request: StartBrowserCaptureRequest) -> Result<BrowserCaptureDescriptor, String> {
+    pub(crate) fn start(
+        &self,
+        request: StartBrowserCaptureRequest,
+    ) -> Result<BrowserCaptureDescriptor, String> {
         validate_session_id(&request.session_id)?;
         if request.owner.trim().is_empty() {
             return Err("browser capture owner is required".to_string());
@@ -261,22 +301,14 @@ impl BrowserCaptureState {
             .local_addr()
             .map_err(|error| format!("failed to inspect browser MJPEG listener: {error}"))?
             .port();
-        let plan = BrowserLaunchPlan::new(
-            runtime,
-            &request.session_id,
-            &request.url,
-            cdp_port,
-        )?;
+        let plan = BrowserLaunchPlan::new(runtime, &request.session_id, &request.url, cdp_port)?;
         let mut child = plan.spawn()?;
         let process_id = child.id();
         let shutdown = Arc::new(AtomicBool::new(false));
         let frames = FrameHub::default();
         let capture_thread = spawn_cdp_capture_thread(cdp_port, frames.clone(), shutdown.clone());
-        let stream_thread = spawn_mjpeg_server_thread(
-            stream_listener,
-            frames.clone(),
-            shutdown.clone(),
-        )?;
+        let stream_thread =
+            spawn_mjpeg_server_thread(stream_listener, frames.clone(), shutdown.clone())?;
 
         let deadline = Instant::now() + BROWSER_START_TIMEOUT;
         let first = wait_for_live_frame(&frames, 0, deadline);
@@ -312,6 +344,7 @@ impl BrowserCaptureState {
         };
         let capture = OwnedBrowserCapture {
             descriptor: descriptor.clone(),
+            cdp_port,
             child,
             shutdown,
             frames,
@@ -344,17 +377,100 @@ impl BrowserCaptureState {
         }
     }
 
+    pub(crate) fn frame(
+        &self,
+        session_id: &str,
+        after_revision: u64,
+    ) -> Result<Option<BrowserCaptureFrame>, String> {
+        // Native WebKit can reject an otherwise healthy multipart MJPEG image;
+        // expose the same captured revisions for Tauri IPC CanvasTexture delivery.
+        let sessions = self
+            .sessions
+            .lock()
+            .map_err(|_| "browser capture registry lock poisoned".to_string())?;
+        let capture = sessions
+            .get(session_id)
+            .ok_or_else(|| format!("browser capture session '{session_id}' is unavailable"))?;
+        if let Some(reason) = capture.frames.failure() {
+            return Err(format!("browser capture stream failed: {reason}"));
+        }
+        Ok(capture
+            .frames
+            .latest_after(after_revision)
+            .map(|frame| BrowserCaptureFrame {
+                revision: frame.revision,
+                jpeg_base64: base64::engine::general_purpose::STANDARD.encode(frame.jpeg),
+            }))
+    }
+
+    pub(crate) fn navigate(
+        &self,
+        request: NavigateBrowserCaptureRequest,
+    ) -> Result<BrowserCaptureDescriptor, String> {
+        validate_http_url(&request.url)?;
+        let mut sessions = self
+            .sessions
+            .lock()
+            .map_err(|_| "browser capture registry lock poisoned".to_string())?;
+        let capture = sessions.get_mut(&request.session_id).ok_or_else(|| {
+            format!(
+                "browser capture session '{}' is unavailable",
+                request.session_id
+            )
+        })?;
+        ensure_browser_running(capture)?;
+        authorize_browser_control(
+            &capture.descriptor,
+            &request.owner,
+            request.expected_revision,
+        )?;
+        execute_cdp_commands(
+            capture.cdp_port,
+            vec![json!({"method": "Page.navigate", "params": {"url": &request.url}})],
+        )?;
+        capture.descriptor.url = request.url;
+        capture.descriptor.revision = capture.descriptor.revision.saturating_add(1);
+        Ok(capture.snapshot())
+    }
+
+    pub(crate) fn click(
+        &self,
+        request: ClickBrowserCaptureRequest,
+    ) -> Result<BrowserCaptureDescriptor, String> {
+        let commands = browser_click_commands(request.x, request.y)?;
+        let mut sessions = self
+            .sessions
+            .lock()
+            .map_err(|_| "browser capture registry lock poisoned".to_string())?;
+        let capture = sessions.get_mut(&request.session_id).ok_or_else(|| {
+            format!(
+                "browser capture session '{}' is unavailable",
+                request.session_id
+            )
+        })?;
+        ensure_browser_running(capture)?;
+        authorize_browser_control(
+            &capture.descriptor,
+            &request.owner,
+            request.expected_revision,
+        )?;
+        execute_cdp_commands(capture.cdp_port, commands)?;
+        capture.descriptor.revision = capture.descriptor.revision.saturating_add(1);
+        Ok(capture.snapshot())
+    }
+
     pub(crate) fn stop(&self, request: StopBrowserCaptureRequest) -> Result<(), String> {
         let capture = {
             let mut sessions = self
                 .sessions
                 .lock()
                 .map_err(|_| "browser capture registry lock poisoned".to_string())?;
-            let current = sessions
-                .get(&request.session_id)
-                .ok_or_else(|| {
-                    format!("browser capture session '{}' is unavailable", request.session_id)
-                })?;
+            let current = sessions.get(&request.session_id).ok_or_else(|| {
+                format!(
+                    "browser capture session '{}' is unavailable",
+                    request.session_id
+                )
+            })?;
             if current.descriptor.owner != request.owner {
                 return Err("browser capture owner mismatch".to_string());
             }
@@ -370,7 +486,12 @@ impl BrowserCaptureState {
         let captures = self
             .sessions
             .lock()
-            .map(|mut sessions| sessions.drain().map(|(_, capture)| capture).collect::<Vec<_>>())
+            .map(|mut sessions| {
+                sessions
+                    .drain()
+                    .map(|(_, capture)| capture)
+                    .collect::<Vec<_>>()
+            })
             .unwrap_or_default();
         for capture in captures {
             capture.stop();
@@ -395,6 +516,37 @@ pub fn get_browser_capture_status(
     session_id: String,
 ) -> Result<BrowserCaptureDescriptor, String> {
     state.status(&session_id)
+}
+
+#[tauri::command]
+pub fn get_browser_capture_frame(
+    state: State<'_, BrowserCaptureState>,
+    session_id: String,
+    after_revision: u64,
+) -> Result<Option<BrowserCaptureFrame>, String> {
+    state.frame(&session_id, after_revision)
+}
+
+#[tauri::command]
+pub async fn navigate_browser_capture(
+    state: State<'_, BrowserCaptureState>,
+    request: NavigateBrowserCaptureRequest,
+) -> Result<BrowserCaptureDescriptor, String> {
+    let state = state.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || state.navigate(request))
+        .await
+        .map_err(|error| format!("browser capture navigation task failed: {error}"))?
+}
+
+#[tauri::command]
+pub async fn click_browser_capture(
+    state: State<'_, BrowserCaptureState>,
+    request: ClickBrowserCaptureRequest,
+) -> Result<BrowserCaptureDescriptor, String> {
+    let state = state.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || state.click(request))
+        .await
+        .map_err(|error| format!("browser capture input task failed: {error}"))?
 }
 
 #[tauri::command]
@@ -435,8 +587,10 @@ fn validate_session_id(session_id: &str) -> Result<(), String> {
             .bytes()
             .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_'))
     {
-        return Err("browser capture session ID must use 1-96 ASCII letters, digits, '-' or '_'"
-            .to_string());
+        return Err(
+            "browser capture session ID must use 1-96 ASCII letters, digits, '-' or '_'"
+                .to_string(),
+        );
     }
     Ok(())
 }
@@ -449,6 +603,56 @@ fn validate_http_url(url: &str) -> Result<(), String> {
         return Err("browser capture navigation requires an HTTP(S) URL".to_string());
     }
     Ok(())
+}
+
+pub(crate) fn authorize_browser_control(
+    descriptor: &BrowserCaptureDescriptor,
+    owner: &str,
+    expected_revision: u64,
+) -> Result<(), String> {
+    if descriptor.owner != owner {
+        return Err("browser capture owner mismatch".to_string());
+    }
+    if descriptor.revision != expected_revision {
+        return Err(format!(
+            "browser capture revision conflict: expected {expected_revision}, current {}",
+            descriptor.revision
+        ));
+    }
+    Ok(())
+}
+
+fn ensure_browser_running(capture: &mut OwnedBrowserCapture) -> Result<(), String> {
+    if let Some(reason) = capture.frames.failure() {
+        return Err(format!("browser capture stream failed: {reason}"));
+    }
+    match capture.child.try_wait() {
+        Ok(None) => Ok(()),
+        Ok(Some(status)) => Err(format!("browser capture process exited: {status}")),
+        Err(error) => Err(format!("browser capture process status failed: {error}")),
+    }
+}
+
+pub(crate) fn browser_click_commands(x: f64, y: f64) -> Result<Vec<Value>, String> {
+    if !x.is_finite()
+        || !y.is_finite()
+        || !(0.0..=CAPTURE_WIDTH).contains(&x)
+        || !(0.0..=CAPTURE_HEIGHT).contains(&y)
+    {
+        return Err(format!(
+            "browser pointer coordinates must be finite and inside {CAPTURE_WIDTH}x{CAPTURE_HEIGHT}"
+        ));
+    }
+    Ok(vec![
+        json!({
+            "method": "Input.dispatchMouseEvent",
+            "params": {"type": "mousePressed", "x": x, "y": y, "button": "left", "clickCount": 1}
+        }),
+        json!({
+            "method": "Input.dispatchMouseEvent",
+            "params": {"type": "mouseReleased", "x": x, "y": y, "button": "left", "clickCount": 1}
+        }),
+    ])
 }
 
 fn discover_browser_runtime() -> Result<BrowserRuntime, String> {
@@ -513,11 +717,7 @@ fn spawn_cdp_capture_thread(
     })
 }
 
-fn run_cdp_capture(
-    cdp_port: u16,
-    frames: &FrameHub,
-    shutdown: &AtomicBool,
-) -> Result<(), String> {
+fn run_cdp_capture(cdp_port: u16, frames: &FrameHub, shutdown: &AtomicBool) -> Result<(), String> {
     let deadline = Instant::now() + BROWSER_START_TIMEOUT;
     let websocket_url = loop {
         if shutdown.load(Ordering::Acquire) {
@@ -542,9 +742,7 @@ fn run_cdp_capture(
 
     socket
         .send(Message::Text(
-            json!({"id": 1, "method": "Page.enable"})
-                .to_string()
-                .into(),
+            json!({"id": 1, "method": "Page.enable"}).to_string().into(),
         ))
         .map_err(|error| format!("failed to enable browser CDP page: {error}"))?;
     socket
@@ -627,6 +825,41 @@ fn run_cdp_capture(
                 ))
                 .map_err(|error| format!("failed to acknowledge browser CDP frame: {error}"))?;
             command_id = command_id.saturating_add(1);
+        }
+    }
+    let _ = socket.close(None);
+    Ok(())
+}
+
+fn execute_cdp_commands(port: u16, commands: Vec<Value>) -> Result<(), String> {
+    let websocket_url = read_cdp_page_target(port)?;
+    let mut socket = connect_loopback_websocket(port, &websocket_url)?;
+    for (index, mut command) in commands.into_iter().enumerate() {
+        let command_id = index as u64 + 1;
+        let command_object = command
+            .as_object_mut()
+            .ok_or_else(|| "browser CDP command must be a JSON object".to_string())?;
+        command_object.insert("id".to_string(), Value::from(command_id));
+        socket
+            .send(Message::Text(command.to_string().into()))
+            .map_err(|error| format!("failed to send browser CDP control command: {error}"))?;
+
+        loop {
+            let message = socket
+                .read()
+                .map_err(|error| format!("browser CDP control response failed: {error}"))?;
+            let Message::Text(text) = message else {
+                continue;
+            };
+            let response: Value = serde_json::from_str(text.as_str())
+                .map_err(|error| format!("browser CDP control returned invalid JSON: {error}"))?;
+            if response.get("id").and_then(Value::as_u64) != Some(command_id) {
+                continue;
+            }
+            if let Some(error) = response.get("error") {
+                return Err(format!("browser rejected CDP control command: {error}"));
+            }
+            break;
         }
     }
     let _ = socket.close(None);

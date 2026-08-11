@@ -20,9 +20,12 @@ import type { OperatorProjection } from '../../lib/operatorProjection'
 import {
   agentStartBrowserMonitorSession,
   agentStopBrowserMonitorSession,
+  type BrowserMonitorSessionRequest,
 } from '../../lib/browserMonitorSession'
+import type { AgentSurfaceOwner } from '../../lib/monitorSurfaceContract'
 
 const SLOT_ID = 'monitor_1'
+const SECOND_SLOT_ID = 'monitor_2'
 const OWNER = 'hermes-agent-acceptance'
 const BINDING = 'hermes.acceptance'
 const STORAGE_KEY = 'arda.monitor-surface-native-acceptance'
@@ -31,6 +34,19 @@ interface AcceptanceRecord {
   step: string
   ok: boolean
   detail: string
+}
+
+interface ActiveBrowserCapture {
+  sessionId: string
+  owner: string
+  surfaceSessionId: string
+  surfaceOwner: AgentSurfaceOwner
+}
+
+async function stopBrowserCapture(active: ActiveBrowserCapture): Promise<void> {
+  await agentStopBrowserMonitorSession({ sessionId: active.sessionId, owner: active.owner })
+  const released = await agentReleaseMonitorSurface(active.surfaceSessionId, active.surfaceOwner)
+  if (!released.ok) throw new Error(released.message || `failed to release ${active.surfaceSessionId}`)
 }
 
 function readRecords(): AcceptanceRecord[] {
@@ -57,12 +73,14 @@ export default function MonitorSurfaceNativeAcceptance({
   const enabled = env.DEV === true && env.VITE_MONITOR_ACCEPTANCE === '1'
   const [records, setRecords] = useState<AcceptanceRecord[]>(readRecords)
   const [busy, setBusy] = useState(false)
-  const activeBrowserCaptureRef = useRef<{ sessionId: string; owner: string } | null>(null)
+  const activeBrowserCapturesRef = useRef<ActiveBrowserCapture[]>([])
   const passed = useMemo(() => records.filter((record) => record.ok).length, [records])
 
   useEffect(() => () => {
-    const activeCapture = activeBrowserCaptureRef.current
-    if (activeCapture) void agentStopBrowserMonitorSession(activeCapture)
+    const activeCaptures = activeBrowserCapturesRef.current.splice(0)
+    if (activeCaptures.length > 0) {
+      void Promise.allSettled(activeCaptures.map(stopBrowserCapture))
+    }
   }, [])
 
   if (!enabled) return null
@@ -309,29 +327,96 @@ export default function MonitorSurfaceNativeAcceptance({
           type="button"
           disabled={busy}
           onClick={() => void run('real browser monitor stream', async () => {
-            const priorCapture = activeBrowserCaptureRef.current
-            if (priorCapture) {
-              await agentStopBrowserMonitorSession(priorCapture)
-              activeBrowserCaptureRef.current = null
-            }
+            const priorCaptures = activeBrowserCapturesRef.current.splice(0)
+            await Promise.allSettled(priorCaptures.map(stopBrowserCapture))
+            const surfaceOwner: AgentSurfaceOwner = { kind: 'agent', name: 'browser-monitor-acceptance' }
             const result = await agentStartBrowserMonitorSession({
               slotId: SLOT_ID,
-              owner: { kind: 'agent', name: 'browser-monitor-acceptance' },
+              owner: surfaceOwner,
               url: 'https://threejs.org/examples/webgl_geometry_cube.html',
               ttlMs: 10 * 60_000,
               captureSessionId: `browser-monitor-1-${Date.now()}`,
             })
-            activeBrowserCaptureRef.current = {
+            activeBrowserCapturesRef.current.push({
               sessionId: result.capture.sessionId,
               owner: result.capture.owner,
-            }
+              surfaceSessionId: result.claim.session!.surface_session_id,
+              surfaceOwner,
+            })
             return {
               ok: result.capture.muted && result.capture.frameRevision >= 2 && result.claim.ok,
               detail: `${result.capture.sessionId}; pid=${result.capture.processId}; frames=${result.capture.frameRevision}; muted=${result.capture.muted}`,
             }
           })}
         >
-          Start real browser monitor 1
+          start browser
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void run('two-browser-native', async () => {
+            const priorCaptures = activeBrowserCapturesRef.current.splice(0)
+            await Promise.allSettled(priorCaptures.map(stopBrowserCapture))
+            const startedAt = Date.now()
+            const requests: BrowserMonitorSessionRequest[] = [
+              {
+                slotId: SLOT_ID,
+                owner: { kind: 'agent' as const, name: `${OWNER}-browser-a` },
+                url: 'https://threejs.org/examples/webgl_animation_keyframes.html',
+                ttlMs: 120_000,
+                captureSessionId: `browser-monitor-a-${startedAt}`,
+              },
+              {
+                slotId: SECOND_SLOT_ID,
+                owner: { kind: 'agent' as const, name: `${OWNER}-browser-b` },
+                url: 'https://threejs.org/examples/webgl_geometry_cube.html',
+                ttlMs: 120_000,
+                captureSessionId: `browser-monitor-b-${startedAt}`,
+              },
+            ]
+            const results = await Promise.allSettled(requests.map(agentStartBrowserMonitorSession))
+            const activeResults = results.flatMap((result) => result.status === 'fulfilled' ? [result.value] : [])
+            activeBrowserCapturesRef.current.push(...activeResults.map(({ capture, claim }, index) => ({
+              sessionId: capture.sessionId,
+              owner: capture.owner,
+              surfaceSessionId: claim.session!.surface_session_id,
+              surfaceOwner: requests[index].owner,
+            })))
+            const failure = results.find((result) => result.status === 'rejected')
+            if (failure?.status === 'rejected') {
+              const rollback = activeBrowserCapturesRef.current.filter(
+                (active) => activeResults.some(({ capture }) => capture.sessionId === active.sessionId),
+              )
+              await Promise.allSettled(rollback.map(stopBrowserCapture))
+              activeBrowserCapturesRef.current = activeBrowserCapturesRef.current.filter(
+                (active) => !activeResults.some(({ capture }) => capture.sessionId === active.sessionId),
+              )
+              throw failure.reason
+            }
+            return {
+              ok: activeResults.length === 2,
+              detail: activeResults.map(({ capture }, index) =>
+                `${requests[index].slotId}=${capture.sessionId}; pid=${capture.processId}; frames=${capture.frameRevision}; muted=${capture.muted}`
+              ).join(' | '),
+            }
+          })}
+        >
+          start 2 browsers
+        </button>
+        <button
+          type="button"
+          disabled={busy || activeBrowserCapturesRef.current.length === 0}
+          onClick={() => void run('stop-browsers', async () => {
+            const activeCaptures = activeBrowserCapturesRef.current.splice(0)
+            const results = await Promise.allSettled(activeCaptures.map(stopBrowserCapture))
+            const failed = results.filter((result) => result.status === 'rejected')
+            return {
+              ok: failed.length === 0,
+              detail: `stopped=${results.length - failed.length}; failed=${failed.length}`,
+            }
+          })}
+        >
+          stop browsers
         </button>
         <button
           type="button"

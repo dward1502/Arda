@@ -36,7 +36,7 @@ export interface BrowserPointerPosition {
 
 interface SurfaceClaimResult {
   ok: boolean
-  session: unknown | null
+  session: { surface_session_id: string } | null
   message?: string
 }
 

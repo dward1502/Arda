@@ -1,6 +1,6 @@
 # Arda Workbench release-candidate packaging and signing
 
-This runbook covers the declared Stage 5 Linux profile and the `0.3.0-rc.0`
+This runbook covers the declared Stage 5 Linux profile and the `0.3.0-rc.1`
 Workbench launcher. The Linux release set includes the x86_64 AppImage, DEB,
 and RPM packages.
 
@@ -75,7 +75,7 @@ Generate and verify the release ledger:
 
 ```text
 python3 scripts/arda_release_ops.py bundle-manifest \
-  --root "$PWD" --version 0.3.0-rc.0 \
+  --root "$PWD" --version 0.3.0-rc.1 \
   --artifact <AppImage> --artifact <DEB> --artifact <RPM> \
   --artifact <release-sbom.json> \
   --output <release-dir>/release-bundle-manifest.json \

@@ -73,8 +73,8 @@ network_control_plane:
   restricted_remote_protocols:
     - tailscale_ssh_for_break_glass_or_admin_only
   workstation_authority:
-    manwe_control_base_url: "http://100.78.138.113:5110"
-    manwe_openai_base_url: "http://100.78.138.113:5110/v1"
+    manwe_control_base_url: "http://100.78.138.113:7171"
+    manwe_openai_base_url: "http://100.78.138.113:7171/v1"
     inference_base_url: "http://100.78.138.113:1234"
   edge_worker_authority:
     beelink_inference_base_url: "http://100.103.125.88:9337/v1"

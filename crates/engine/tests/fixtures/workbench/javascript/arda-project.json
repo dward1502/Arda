@@ -1,0 +1,28 @@
+{
+  "schema_version": "arda.project-contract.v1",
+  "identity": {
+    "project_id": "597ea84d-9be5-4a88-84d4-c7f99f2fcaa4",
+    "name": "arda-javascript-golden-fixture",
+    "kind": "javascript"
+  },
+  "workspace": {"root": "."},
+  "runtime": {"adapter": "javascript-reference"},
+  "commands": [
+    {"id": "test", "program": "node", "args": ["--test"], "working_dir": "."}
+  ],
+  "checks": [{"id": "test", "command": "test"}],
+  "artifacts": [{"id": "module", "path": "src/greeting.js"}],
+  "permissions": {
+    "authority": "approval_required",
+    "network": {"allow": false},
+    "filesystem": {"write": true},
+    "secrets": {"env_names": []}
+  },
+  "rollback": {"strategy": "git_revert"},
+  "memory": {"scope": "project"},
+  "provenance": {
+    "declared_by": "arda-u2-golden-test",
+    "declared_at": "2026-08-04T00:00:00Z",
+    "stage": 6
+  }
+}

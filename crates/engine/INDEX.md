@@ -5,10 +5,10 @@ soterion:
   role: "supervision_spine"
   owner: "arda"
   status: "active"
-  last_reviewed: "2026-07-13"
+  last_reviewed: "2026-08-08"
 ---
 
-> 🧬 arda-engine: 🧬 supervision_spine | owner: arda | status: active | reviewed: 2026-07-13
+> 🧬 arda-engine: 🧬 supervision_spine | owner: arda | status: active | reviewed: 2026-08-08
 
 # Index: `crates/engine`
 
@@ -24,14 +24,19 @@ reaching into vendored crates directly.
 - `INDEX.md` — this direct-child map.
 - `src/`
   - `lib.rs` — supported modules and spine re-exports.
+  - `adapters/` — governed external adapter execution and provenance.
   - `harness.rs` — local operator HTTP surface and bounded proxies.
   - `manwe.rs` — supported Manwe re-exports.
   - `observability.rs` — aggregate engine loop/learning projection.
   - `orome.rs` — provider/runtime compatibility surface.
-  - `registry.rs` — declarative service loading and resolution.
+  - `registry.rs` — declarative service loading, capability authorities, live
+    capability projection, and resolution.
+  - `personal_ops/` — durable personal operations stores and calendar adapter.
+  - `runs/` — run execution, canonical governance enforcement, append-only
+    resource accounting, recovery, and persistence.
   - `supervisor.rs` — child lifecycle, restart/backoff, and shutdown.
-- `tests/`
-  - `orome_smoke.rs` — direct provider dispatch integration smoke.
+- `tests/` — 17 Cargo integration targets covering adapters, harness routes,
+  personal/project/run state, Workbench boundaries, HUD, and Oromë smoke.
 
 ## Purpose (one line)
 Process supervision spine for the Arda daemon — owns child processes (launcher,

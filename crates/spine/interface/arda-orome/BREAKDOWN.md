@@ -15,11 +15,11 @@ Canonical implementation map for `crates/spine/interface/arda-orome`.
 
 ## Build topology
 
-The source inventory contains 50 Rust files.
+The live `src/**/*.rs` inventory contains 53 Rust files.
 
 | All-feature class | Count | Meaning |
 |---|---:|---|
-| Production-compiled | 47 | Reachable from `src/lib.rs`, including generated gRPC and `service-runtime` modules |
+| Production-compiled | 50 | Reachable from `src/lib.rs`, including the crate root, generated gRPC, and `service-runtime` modules |
 | Unit-test-only | 3 | `message_retry_expiry`, `router`, and `provider/tests.rs` |
 | Unwired | 0 | No Rust source is left outside a declared production/test/generated boundary |
 
@@ -27,7 +27,8 @@ The default build keeps the stable six-family interface surface. `service-runtim
 
 ## Default modules
 
-- `comm.rs`, `governance.rs`, `grpc.rs`, generated `grpc/*.rs`, `message.rs`, and `types.rs`;
+- `comm.rs`, `governance.rs`, `grpc.rs`, generated `grpc/*.rs`, `message.rs`,
+  `operator_bridge.rs`, and `types.rs`;
 - `provider/{adapter,orchestration,registry,runtime,streaming}.rs` and `provider/mod.rs`.
 
 ## Opt-in `service-runtime` modules
@@ -60,6 +61,20 @@ The following unsupported files were deleted after module-graph, consumer, and h
 - service-owned governance, memory, and resource evidence is rooted in the configured service project, with explicit environment overrides retained;
 - `ManualTransport` never proves live delivery;
 - HTTP success without a non-empty provider message ID is not delivery proof.
+
+## Operator bridge invariants
+
+- Hermes owns platform callbacks, credentials, authentication, and allowlists;
+- Arda accepts only a strict normalized `MessageEvent` subset with complete event
+  and attachment provenance;
+- duplicate event IDs and consumed approval digests fail closed under one locked
+  append-only session ledger;
+- canonical pending approval state is a separate engine argument and cannot be
+  supplied by transport JSON;
+- private, health, and financial content is withheld from group/public
+  projections while canonical lineage remains intact;
+- every response projection carries the originating platform message plus Arda
+  session/objective/project/task/run IDs.
 
 ## Features and generation
 

@@ -1,0 +1,53 @@
+{
+  "schema_version": "arda.operator-session.v1",
+  "operator": {
+    "operator_id": "operator:mythos",
+    "authenticated": true,
+    "authentication_method": "device_enrollment",
+    "authenticated_at": "2026-08-08T10:12:00Z"
+  },
+  "lineage": {
+    "session_id": "session:approval-002",
+    "objective_id": "objective:home-maintenance",
+    "project_id": "project:citadel",
+    "task_id": "task:repair-request",
+    "run_id": "run:repair-request-17"
+  },
+  "projection": {
+    "transport": "matrix",
+    "adapter_id": "hermes-gateway:matrix-primary",
+    "conversation_id": "matrix:room:operator-private",
+    "thread_id": "matrix:thread:approval-17",
+    "audience": "operator_private",
+    "platform_message_id": "matrix:event:9003"
+  },
+  "incoming": {
+    "event_id": "matrix:event:9003",
+    "idempotency_key": "operator-event:matrix:9003",
+    "received_at": "2026-08-08T10:12:01Z"
+  },
+  "content": {
+    "sensitivity": "internal",
+    "text": "Approve again.",
+    "attachments": []
+  },
+  "operation": "approve",
+  "approval": {
+    "scope": ["dispatch:repair-request", "cost:usd:125.00"],
+    "action_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "expires_at": "2026-08-08T10:25:00Z",
+    "single_use_state": "consumed",
+    "consumed_by_event_id": "matrix:event:9002"
+  },
+  "delivery": {
+    "state": "pending",
+    "attempt": 0,
+    "next_retry_at": null,
+    "acknowledgement_id": null,
+    "last_error_code": null
+  },
+  "result": {
+    "summary": "Replay fixture: the approval was already consumed by an earlier event.",
+    "evidence_refs": ["arda://operator-events/operator-event:matrix:9002"]
+  }
+}

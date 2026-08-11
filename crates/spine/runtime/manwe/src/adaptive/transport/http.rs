@@ -16,16 +16,18 @@ use axum::routing::{get, post};
 use axum::{Json, Router};
 use serde_json::{json, Value};
 use std::convert::Infallible;
+use std::net::SocketAddr;
 use std::sync::OnceLock;
 use tokio_stream::wrappers::IntervalStream;
 use tokio_stream::{Stream, StreamExt};
 use tracing::warn;
 
-// Security note: MANWE binds to localhost and IPC is a Unix-domain socket.
-// These transport boundaries are the primary trust domain; auth here is
-// defense-in-depth for mutation-exposed handlers only.
+// Security note: MANWE HTTP is deliberately loopback-only and IPC is a
+// Unix-domain socket. Expose it remotely only through an authenticated proxy;
+// route-level mutation auth remains defense in depth for local callers.
 
 pub async fn run_http_server(service: ManweService, addr: &str) -> Result<()> {
+    validate_http_bind(addr)?;
     tracing::info!(addr = %addr, "starting MANWE HTTP server");
     // D1: spawn in-process active health probe loop. Pre-warms the
     // connection pool and emits liveness metrics every 60s so cold
@@ -77,16 +79,43 @@ pub async fn run_http_server(service: ManweService, addr: &str) -> Result<()> {
     Ok(())
 }
 
+fn validate_http_bind(addr: &str) -> Result<SocketAddr> {
+    let socket = addr
+        .parse::<SocketAddr>()
+        .map_err(|error| ArdaError::Agent {
+            agent: "manwe".to_string(),
+            message: format!("invalid HTTP bind address `{addr}`: {error}"),
+        })?;
+    if !socket.ip().is_loopback() {
+        return Err(ArdaError::Agent {
+            agent: "manwe".to_string(),
+            message: format!(
+                "refusing non-loopback HTTP bind `{addr}`; use an authenticated reverse proxy"
+            ),
+        });
+    }
+    Ok(socket)
+}
+
 async fn http_admission_gate(req: Request, next: Next) -> Response {
-    let Some(response) =
-        try_run_bounded_async("manwe_http_request", http_request_limit(), || async move {
-            next.run(req).await
-        })
-        .await
+    let bulk = request_uses_bulk_lane(req.headers());
+    let Some(response) = try_run_admitted_async(
+        "manwe_http_request",
+        "manwe_http_bulk_request",
+        http_request_limit(),
+        http_interactive_reserve(),
+        bulk,
+        || async move { next.run(req).await },
+    )
+    .await
     else {
         return (
             StatusCode::SERVICE_UNAVAILABLE,
-            Json(json!({"ok": false, "error": "MANWE HTTP concurrency gate saturated"})),
+            Json(json!({
+                "ok": false,
+                "error": "MANWE HTTP concurrency gate saturated",
+                "lane": if bulk { "bulk" } else { "interactive" }
+            })),
         )
             .into_response();
     };
@@ -100,6 +129,51 @@ fn http_request_limit() -> usize {
         .and_then(|raw| raw.parse::<usize>().ok())
         .filter(|value| *value > 0)
         .unwrap_or(24)
+}
+
+fn http_interactive_reserve() -> usize {
+    std::env::var("ARDA_MANWE_HTTP_INTERACTIVE_RESERVE")
+        .ok()
+        .and_then(|raw| raw.parse::<usize>().ok())
+        .filter(|value| *value > 0)
+        .unwrap_or(4)
+}
+
+fn request_uses_bulk_lane(headers: &HeaderMap) -> bool {
+    ["x-manwe-execution-lane", "x-manwe-workload-role"]
+        .iter()
+        .filter_map(|name| headers.get(*name))
+        .filter_map(|value| value.to_str().ok())
+        .any(|value| {
+            matches!(
+                value.trim().to_ascii_lowercase().as_str(),
+                "background" | "batch" | "execution" | "orchestrator" | "probe"
+            )
+        })
+}
+
+async fn try_run_admitted_async<F, Fut, T>(
+    total_label: &'static str,
+    bulk_label: &'static str,
+    total_limit: usize,
+    interactive_reserve: usize,
+    bulk: bool,
+    work: F,
+) -> Option<T>
+where
+    F: FnOnce() -> Fut,
+    Fut: std::future::Future<Output = T>,
+{
+    if !bulk {
+        return try_run_bounded_async(total_label, total_limit, work).await;
+    }
+
+    let bulk_limit = total_limit.saturating_sub(interactive_reserve).max(1);
+    try_run_bounded_async(bulk_label, bulk_limit, || async move {
+        try_run_bounded_async(total_label, total_limit, work).await
+    })
+    .await
+    .flatten()
 }
 
 async fn status(State(service): State<ManweService>) -> impl IntoResponse {
@@ -2882,7 +2956,8 @@ mod tests {
     use super::{
         build_event_payload, filter_provider_catalog_models, http_request_limit,
         openai_body_to_envelope, openai_body_to_envelope_with_headers, openai_chat_completions,
-        openai_completion_to_sse, should_emulate_streaming_tool_response, strip_reasoning_fields,
+        openai_completion_to_sse, request_uses_bulk_lane, should_emulate_streaming_tool_response,
+        strip_reasoning_fields, try_run_admitted_async, validate_http_bind,
         visible_provider_catalog_models,
     };
     use crate::adaptive::service::ManweService;
@@ -2893,10 +2968,92 @@ mod tests {
     use axum::Json;
     use serde_json::{json, Value};
     use std::fs;
-    use std::sync::Mutex;
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    use std::sync::{Arc, Mutex};
     use tempfile::tempdir;
 
     static ENV_LOCK: Mutex<()> = Mutex::new(());
+
+    #[test]
+    fn http_bind_accepts_loopback_addresses() {
+        assert!(validate_http_bind("127.0.0.1:7171").is_ok());
+        assert!(validate_http_bind("[::1]:7171").is_ok());
+    }
+
+    #[test]
+    fn http_bind_rejects_non_loopback_addresses() {
+        let error = validate_http_bind("0.0.0.0:7171").expect_err("wildcard bind must fail");
+        assert!(error
+            .to_string()
+            .contains("refusing non-loopback HTTP bind"));
+    }
+
+    #[test]
+    fn admission_classifies_explicit_work_lanes_without_demoting_unmarked_interaction() {
+        let mut headers = HeaderMap::new();
+        assert!(!request_uses_bulk_lane(&headers));
+
+        headers.insert("x-manwe-execution-lane", "execution".parse().unwrap());
+        assert!(request_uses_bulk_lane(&headers));
+
+        headers.insert("x-manwe-execution-lane", "interactive".parse().unwrap());
+        assert!(!request_uses_bulk_lane(&headers));
+
+        headers.insert("x-manwe-workload-role", "background".parse().unwrap());
+        assert!(request_uses_bulk_lane(&headers));
+    }
+
+    #[tokio::test]
+    async fn bulk_saturation_preserves_one_interactive_slot() {
+        let entered = Arc::new(AtomicUsize::new(0));
+        let release = Arc::new(tokio::sync::Notify::new());
+        let worker_entered = Arc::clone(&entered);
+        let worker_release = Arc::clone(&release);
+        let worker = tokio::spawn(async move {
+            try_run_admitted_async(
+                "manwe_http_admission_test_total",
+                "manwe_http_admission_test_bulk",
+                2,
+                1,
+                true,
+                || async move {
+                    worker_entered.fetch_add(1, Ordering::SeqCst);
+                    worker_release.notified().await;
+                    "bulk"
+                },
+            )
+            .await
+        });
+
+        while entered.load(Ordering::SeqCst) != 1 {
+            tokio::task::yield_now().await;
+        }
+
+        let rejected_bulk = try_run_admitted_async(
+            "manwe_http_admission_test_total",
+            "manwe_http_admission_test_bulk",
+            2,
+            1,
+            true,
+            || async { "second bulk" },
+        )
+        .await;
+        assert_eq!(rejected_bulk, None);
+
+        let interactive = try_run_admitted_async(
+            "manwe_http_admission_test_total",
+            "manwe_http_admission_test_bulk",
+            2,
+            1,
+            false,
+            || async { "interactive" },
+        )
+        .await;
+        assert_eq!(interactive, Some("interactive"));
+
+        release.notify_waiters();
+        assert_eq!(worker.await.unwrap(), Some("bulk"));
+    }
 
     #[test]
     fn mutation_auth_is_optional_but_requires_exact_bearer_when_configured() {

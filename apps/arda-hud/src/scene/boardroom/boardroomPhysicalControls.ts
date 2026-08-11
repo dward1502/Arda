@@ -42,7 +42,7 @@ export const BOARDROOM_PHYSICAL_CONTROL_ACTIONS: BoardroomPhysicalControlAction[
     label: 'Service Health',
     shortLabel: 'HEALTH',
     authority: 'read_only',
-    targetZoneId: 'systems_health',
+    targetZoneId: 'fleet_and_backbone',
     verificationPath: 'fleetViewModel.status',
   },
   {
@@ -93,7 +93,7 @@ export const BOARDROOM_PHYSICAL_CONTROL_ACTIONS: BoardroomPhysicalControlAction[
   {
     id: 'open_emergency_stop',
     zoneId: 'boardroom.control.center.stop',
-    label: 'Emergency Stop / Cancel',
+    label: 'Gated Stop / Cancel Review',
     shortLabel: 'STOP',
     authority: 'approval_required',
     targetZoneId: 'governance_guardhouse',

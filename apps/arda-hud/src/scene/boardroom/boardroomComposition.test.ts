@@ -7,11 +7,11 @@ import {
 } from './boardroomComposition'
 
 describe('boardroom operator composition', () => {
-  it('keeps the five-monitor arc while moving the camera closer and the desk lower in frame', () => {
+  it('keeps the five-monitor arc while framing the complete outer desk displays', () => {
     expect(BOARDROOM_MONITOR_ZONES).toHaveLength(5)
     expect(BOARDROOM_CAMERA_COMPOSITION.position[2]).toBeLessThan(10)
     expect(BOARDROOM_CAMERA_COMPOSITION.position[1]).toBeGreaterThan(3.35)
-    expect(BOARDROOM_CAMERA_COMPOSITION.fov).toBe(30)
+    expect(BOARDROOM_CAMERA_COMPOSITION.fov).toBe(32)
     expect(BOARDROOM_CAMERA_COMPOSITION.target[1]).toBeGreaterThanOrEqual(2)
   })
 
@@ -22,7 +22,8 @@ describe('boardroom operator composition', () => {
 
     expect(emitter.size[0]).toBeGreaterThanOrEqual(1.16 * 1.2)
     expect(emitter.size[0]).toBeLessThanOrEqual(1.16 * 1.3)
-    expect(geometry.ringRadius).toBeCloseTo(emitter.size[0] / 2, 4)
+    expect(geometry.ringRadius).toBeLessThan(emitter.size[0] / 2)
+    expect(geometry.baseBottomRadius).toBeLessThan(geometry.ringRadius * 1.1)
     expect(emitter.position[0]).toBe(centerMonitor.position[0])
     expect(emitter.position[1] + emitter.size[1] / 2).toBeLessThan(centerMonitor.position[1] - centerMonitor.size[1] / 2)
   })

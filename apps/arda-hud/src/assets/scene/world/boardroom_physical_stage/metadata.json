@@ -29,5 +29,6 @@
       "recessed_physical_control_well"
     ]
   },
+  "runtime_surface_contract": "Embedded display content renders as CanvasTexture-backed WebGL meshes fitted to the authored apertures. DOM/Html cards floating over the physical shell are not an acceptable native Tauri implementation.",
   "notes": "Physical-shell asset only. Five interactive monitor surfaces, five hierarchical lower-console surfaces, the animated ARDA presence emitter, and four kinetic buttons remain runtime Three.js elements aligned over authored apertures."
 }

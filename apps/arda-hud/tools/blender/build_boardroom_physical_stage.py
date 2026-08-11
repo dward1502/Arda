@@ -310,7 +310,9 @@ def create_lower_insert(
     materials: dict[str, bpy.types.Material],
     collection: bpy.types.Collection,
 ) -> None:
-    pitch = math.radians(29.0)
+    # The outermost inserts sit lower toward the operator so their content does
+    # not read as upright wings at the edge of the command bank.
+    pitch = math.radians(32.0 if index in (0, 4) else 29.0)
     rig = bpy.data.objects.new(f"DeskInsert.{index:02d}.Rig", None)
     rig.location = location
     rig.rotation_euler = (pitch, 0.0, yaw)

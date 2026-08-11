@@ -1,0 +1,78 @@
+{
+  "contract": "arda.stage5.remote-signed-artifact-reconciliation.v1",
+  "generated_at": "2026-08-06T15:59:17Z",
+  "status": "blocked-source-identity-mismatch",
+  "release": {
+    "repository": "dward1502/Arda",
+    "tag": "v0.3.0-rc.0",
+    "url": "https://github.com/dward1502/Arda/releases/tag/v0.3.0-rc.0",
+    "published_at": "2026-08-01T19:06:48Z",
+    "tag_target_commit": "28cde28b9fd97fdc91de36418da872b1628ae41b",
+    "manifest_source_commit": "28cde28b9fd97fdc91de36418da872b1628ae41b",
+    "manifest_source_tree_sha256": "46c413ddcac5265170ff6e3da2e51ec2f6565076c2a2f4f04655cb7a9084baa0",
+    "manifest_tracked_worktree_clean": false,
+    "release_id": "sha256:b01574fb71d11ed156453fac75eba84139e9a74905866f3b490aa3821c6bb7f6"
+  },
+  "required_final_source": {
+    "commit": "efd118b5339f42df133fdfb9d3256c64a02b7e59",
+    "tree": "f499a4d6f66bbf0a6845bd33f77061ba2f47835c",
+    "frozen_worktree": "/var/home/mythos/Eregion/Arda-worktrees/stage5-final-efd118b5",
+    "commits_after_published_source": 7
+  },
+  "reliability_dependency": {
+    "status_at_reconciliation": "running",
+    "started_at": "2026-08-06T05:51:54Z",
+    "source_commit": "efd118b5339f42df133fdfb9d3256c64a02b7e59",
+    "duration_seconds": 86400,
+    "receipt_path": "/var/home/mythos/.local/state/arda/stage5-final-efd118b5/final-24h-receipt.json"
+  },
+  "verification": {
+    "checksum_ledger": {
+      "status": "pass",
+      "sha256": "6ac12fa590c07a5c4cb9579ee62705733f960780faa5926d2bb8fdec3aab5b41"
+    },
+    "sigstore": {
+      "status": "pass-for-published-nonfinal-source",
+      "certificate_identity": "https://github.com/dward1502/Arda/.github/workflows/release-sign.yml@refs/tags/v0.3.0-rc.0",
+      "certificate_oidc_issuer": "https://token.actions.githubusercontent.com",
+      "verified_assets": [
+        "SHA256SUMS",
+        "arda-launcher-0.3.0-rc.0-1.x86_64.rpm",
+        "arda-launcher_0.3.0-rc.0_amd64.AppImage",
+        "arda-launcher_0.3.0-rc.0_amd64.deb",
+        "release-bundle-manifest.json",
+        "release-sbom.json"
+      ]
+    },
+    "artifacts": [
+      {
+        "name": "arda-launcher-0.3.0-rc.0-1.x86_64.rpm",
+        "sha256": "d17fe79e6f9d259eb5ebefd68f6316f12db9c099d48b8fdb273eb2ee2cfe8121",
+        "size_bytes": 5116483
+      },
+      {
+        "name": "arda-launcher_0.3.0-rc.0_amd64.AppImage",
+        "sha256": "20dd1d804c06895c6f7aa63196e91daec864239f3a7b2b757479e1006dd0a03a",
+        "size_bytes": 97655288
+      },
+      {
+        "name": "arda-launcher_0.3.0-rc.0_amd64.deb",
+        "sha256": "0a495c4e43a50ba5d2edd39e431cd1a27779b078a1642633e22d7c747492d75a",
+        "size_bytes": 4987276
+      },
+      {
+        "name": "release-sbom.json",
+        "sha256": "e217f010898632628e40ce1f9586fbef21211ffaf17e9b09c32b11a09ed21f06",
+        "size_bytes": 124297
+      }
+    ]
+  },
+  "decision": {
+    "pkg_evidence_001_closed": false,
+    "u4_final_signed_lifecycle_closed": false,
+    "reason": "The published and correctly signed v0.3.0-rc.0 assets are bound to commit 28cde28b, while the frozen final Stage 5 source is efd118b5. The published manifest also records tracked_worktree_clean=false. These assets cannot qualify as final-source release evidence.",
+    "required_next_action": "After the frozen 24-hour soak passes, build normalized artifacts from clean commit efd118b5, generate a manifest with source_commit=efd118b5 and tracked_worktree_clean=true, publish a new tag-bound prerelease, verify all Sigstore bundles, then execute the U4 lifecycle against those exact signed bytes.",
+    "external_side_effects_performed": false,
+    "push_or_release_publication_performed": false
+  }
+}

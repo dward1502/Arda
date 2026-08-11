@@ -6,10 +6,10 @@ soterion:
   role: documentation
   owner: HADES
   status: active
-  last_reviewed: 2026-07-27
+  last_reviewed: 2026-08-05
 ---
 
-> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-07-27
+> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-08-05
 
 # arda-vaire
 
@@ -34,6 +34,16 @@ Primary service operations:
   `observability_snapshot`
 - maintenance: `consolidate` and `sync_obsidian`; Obsidian synchronization
   requires an explicit vault path in library, IPC, and HTTP calls
+- retention primitives: `service::retention` exposes the shared decay function,
+  domain configurations, canonical-record scoring, and forget eligibility;
+  consolidation applies persisted `Active -> Decayed` transitions
+- governed lifecycle: `correct_memory`, `correction_chain`,
+  `compress_episodic_batch`, `apply_retention`, `write_governed_memory`,
+  `recall_governed_memories`, `quarantine_provenance`, `clear_quarantine`,
+  `revoke_memory`, and `validate_revoke_receipt_chain`
+- policy-aware entry points: `encode_with_context` and
+  `recall_recent_scoped_with_context`; legacy entry points traverse the same
+  policy chokepoint with an explicit internal compatibility context
 - optional contract-store copy: `with_contract_memory_root`
 - durable runtime export: `with_metrics_root` and `export_runtime_snapshots`
 
@@ -50,6 +60,7 @@ transport server.
 - Low-significance records: `noise.jsonl`
 - Derived stores: `semantic/` and `procedural/`
 - Promotion evidence: `archive/promotion_receipts.jsonl`
+- Revoke evidence: `revoke_receipts.jsonl`, idempotent and hash-chained
 - Optional contract dual-write: `ARDA_CONTRACT_MEMORY_ROOT`; the value `auto`
   selects `<arda-root>/core/state/memory`
 
@@ -89,6 +100,18 @@ Feature-gated dependencies:
 - `manwe` writes events under `adaptive`.
 
 ## Verification
+
+Governance closeout verified 2026-08-05:
+
+- `cargo test -p arda-vaire --all-features` — 63 unit, 13 integration, and 1
+  recovery test pass; 1 declared operator-scale soak ignored
+- `cargo test -p arda-vaire --no-default-features` — 61 unit, 13 integration,
+  and 1 recovery test pass; 1 declared operator-scale soak ignored
+- `cargo clippy -p arda-vaire --all-features --all-targets -- -D warnings` — pass
+- `RUSTDOCFLAGS='-D warnings' cargo doc -p arda-vaire --all-features --no-deps`
+  — pass
+- `cargo test -p arda-core quarantined_state_has_a_stable_wire_value` — pass
+- `cargo check --workspace --all-targets` — pass
 
 Verified 2026-07-27 after first-class hardening:
 

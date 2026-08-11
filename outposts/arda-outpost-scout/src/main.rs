@@ -89,43 +89,151 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Command::RunTopics { config, endpoint } => {
             let config: TopicConfig = serde_json::from_slice(&std::fs::read(config)?)?;
-            let endpoint = reqwest::Url::parse(&endpoint)?.join("search")?;
-            let client = reqwest::Client::builder()
-                .connect_timeout(std::time::Duration::from_secs(5))
-                .timeout(std::time::Duration::from_secs(30))
-                .build()?;
-            let mut outcomes = Vec::new();
-            for topic in config
-                .topics
-                .into_iter()
-                .filter(|topic| topic.enabled)
-                .take(16)
-            {
-                let response = client
-                    .post(endpoint.clone())
-                    .json(&ResearchRequest {
-                        query: topic.query,
-                        limit: topic.limit,
-                        source_policy: ALLOWLISTED_PUBLIC_WEB_POLICY.to_string(),
-                        expires_at: Some(chrono::Utc::now() + chrono::Duration::minutes(15)),
-                    })
-                    .send()
-                    .await?;
-                let status = response.status();
-                let detail = response.json::<serde_json::Value>().await?;
-                outcomes.push(TopicOutcome {
-                    id: topic.id,
-                    status: status.as_u16().to_string(),
-                    detail,
-                });
-                if !status.is_success() {
-                    serde_json::to_writer_pretty(std::io::stdout(), &outcomes)?;
-                    return Err(format!("research topic failed with HTTP {status}").into());
-                }
-            }
+            let outcomes = run_topics(config, endpoint).await?;
             serde_json::to_writer_pretty(std::io::stdout(), &outcomes)?;
             println!();
         }
     }
     Ok(())
+}
+
+async fn run_topics(
+    config: TopicConfig,
+    endpoint: String,
+) -> Result<Vec<TopicOutcome>, Box<dyn std::error::Error>> {
+    let endpoint = reqwest::Url::parse(&endpoint)?.join("search")?;
+    let client = reqwest::Client::builder()
+        .connect_timeout(std::time::Duration::from_secs(5))
+        .timeout(std::time::Duration::from_secs(30))
+        .build()?;
+    let mut outcomes = Vec::new();
+    for topic in config
+        .topics
+        .into_iter()
+        .filter(|topic| topic.enabled)
+        .take(16)
+    {
+        let response = client
+            .post(endpoint.clone())
+            .json(&ResearchRequest {
+                query: topic.query,
+                limit: topic.limit,
+                source_policy: ALLOWLISTED_PUBLIC_WEB_POLICY.to_string(),
+                expires_at: Some(chrono::Utc::now() + chrono::Duration::minutes(15)),
+            })
+            .send()
+            .await?;
+        let status = response.status();
+        let detail = response.json::<serde_json::Value>().await?;
+        outcomes.push(TopicOutcome {
+            id: topic.id,
+            status: status.as_u16().to_string(),
+            detail,
+        });
+        if !status.is_success() {
+            return Err(format!("research topic failed with HTTP {status}").into());
+        }
+    }
+    Ok(outcomes)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use arda_outpost_protocol::ResearchSuggestionLedger;
+    use axum::http::StatusCode;
+    use axum::{
+        routing::{get, post},
+        Json, Router,
+    };
+    use serde_json::json;
+    use tempfile::tempdir;
+
+    async fn mock_search() -> (StatusCode, Json<serde_json::Value>) {
+        (
+            StatusCode::OK,
+            Json(json!({
+                "results": [{
+                    "title": "Static topic source",
+                    "url": "https://example.com/static-topic",
+                    "content": "canonical static-topic evidence",
+                    "engine": "fixture",
+                    "score": 1.0
+                }]
+            })),
+        )
+    }
+
+    async fn mock_crawl() -> (StatusCode, Json<serde_json::Value>) {
+        (
+            StatusCode::OK,
+            Json(json!({
+                "url": "https://example.com/static-topic",
+                "markdown": "canonical static-topic evidence",
+                "success": true
+            })),
+        )
+    }
+
+    #[tokio::test]
+    async fn static_topics_produce_the_typed_durable_suggestion_contract() {
+        let root = tempdir().unwrap();
+        let searx_listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let searx_addr = searx_listener.local_addr().unwrap();
+        let searx_handle = tokio::spawn(async move {
+            axum::serve(
+                searx_listener,
+                Router::new()
+                    .route("/search", get(mock_search))
+                    .route("/md", post(mock_crawl)),
+            )
+            .await
+            .unwrap();
+        });
+
+        let scout_listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let scout_addr = scout_listener.local_addr().unwrap();
+        let state = ScoutRuntimeState::new(
+            root.path(),
+            format!("http://{searx_addr}"),
+            "static-topic-fixture",
+        )
+        .unwrap();
+        let scout_handle = tokio::spawn(async move {
+            axum::serve(scout_listener, build_runtime_router(state))
+                .await
+                .unwrap();
+        });
+
+        let outcomes = run_topics(
+            TopicConfig {
+                topics: vec![ResearchTopic {
+                    id: "static-topic-1".to_owned(),
+                    query: "static topic query".to_owned(),
+                    enabled: true,
+                    limit: 1,
+                }],
+            },
+            format!("http://{scout_addr}"),
+        )
+        .await
+        .unwrap();
+
+        assert_eq!(outcomes.len(), 1);
+        assert_eq!(outcomes[0].status, "200");
+        let suggestions = ResearchSuggestionLedger::open(
+            root.path().join("data/warden/research_suggestions.jsonl"),
+        )
+        .unwrap()
+        .suggestions()
+        .unwrap();
+        assert_eq!(suggestions.len(), 1);
+        assert_eq!(suggestions[0].schema_version, "arda.warden.research.v1");
+        assert_eq!(suggestions[0].authority, "advisory_only");
+        assert_eq!(suggestions[0].query, "static topic query");
+        assert_eq!(suggestions[0].max_results, 1);
+
+        scout_handle.abort();
+        searx_handle.abort();
+    }
 }

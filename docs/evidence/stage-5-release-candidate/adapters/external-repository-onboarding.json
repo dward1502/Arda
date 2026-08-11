@@ -1,0 +1,89 @@
+{
+  "contract": "arda.stage5.external-repository-onboarding.v1",
+  "execution": {
+    "command": [
+      "cargo",
+      "test"
+    ],
+    "output_sha256": "043a8721e581ab126451795da7696a657fa6a5ae25884570296ae74fdab04e9c",
+    "returncode": 0,
+    "test_result_groups": [
+      {
+        "failed": 0,
+        "filtered_out": 0,
+        "ignored": 0,
+        "measured": 0,
+        "passed": 680
+      },
+      {
+        "failed": 0,
+        "filtered_out": 0,
+        "ignored": 0,
+        "measured": 0,
+        "passed": 122
+      }
+    ],
+    "toolchain": [
+      "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+      "cargo 1.97.1 (c980f4866 2026-06-30)"
+    ],
+    "total_failed": 0,
+    "total_passed": 802,
+    "working_directory": "isolated external clone outside the Arda repository"
+  },
+  "generated_at_utc": "2026-08-05T11:51:20.802458Z",
+  "integrity": {
+    "arda_source_edit_required": false,
+    "expected_onboarding_only_change": "arda-project.json",
+    "repository_status": [
+      "?? arda-project.json"
+    ],
+    "source_head_unchanged": true,
+    "source_tree_unchanged": true
+  },
+  "limitations": [
+    "This closes the separately sourced repository SDK/onboarding machine gate only; it is not non-author usability evaluation.",
+    "The generated contract declares network denied; this proof did not claim kernel-level network namespace enforcement for cargo test.",
+    "The external clone and build outputs are disposable and are not release artifacts."
+  ],
+  "onboarding": {
+    "contract_adjustment": "Removed the generated binary artifact declaration because byteorder is a library; no artifact claim is required for its test-only onboarding.",
+    "contract_sha256": "00ab32c0648d41b532e9e994f8d9c6ceea36450cea3996205552d31c185ed470",
+    "generator_command": [
+      "python3",
+      "scripts/arda_adapter_ops.py",
+      "template",
+      "--kind",
+      "rust",
+      "--name",
+      "byteorder",
+      "--project-id",
+      "8c920486-207a-4e49-853c-d291aeeb53a0",
+      "--declared-at",
+      "2026-08-05T11:50:00Z",
+      "--output",
+      "<external-repository>/arda-project.json"
+    ],
+    "permissions": {
+      "authority": "approval_required",
+      "filesystem": {
+        "write": true
+      },
+      "network": {
+        "allow": false
+      },
+      "secrets": {
+        "env_names": []
+      }
+    },
+    "schema_status": "pass",
+    "sdk_documentation": "sdk/README.md"
+  },
+  "source": {
+    "commit": "5a82625fae462e8ba64cec8146b24a372b4d75c6",
+    "repository": "https://github.com/BurntSushi/byteorder.git",
+    "selection": "separately sourced public Rust library; not authored or vendored by Arda",
+    "tree": "ca23c82f457fbcabfce58058490f2d7cb640ac45"
+  },
+  "status": "pass"
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { BoardroomSurfaceLayout } from '../../lib/boardroomSlotSettings'
+import type { BoardroomSurfaceAdapterType, BoardroomSurfaceLayout } from '../../lib/boardroomSlotSettings'
 import { deriveBoardroomSurfacePreviewModel, type BoardroomSurfacePreviewWidgetModel } from './boardroomSurfacePreviewModel'
 
 const baseLayout: BoardroomSurfaceLayout = {
@@ -53,5 +53,41 @@ describe('boardroom surface preview model', () => {
 
     const kinds = model.widgets.map((widget: BoardroomSurfacePreviewWidgetModel) => widget.kind)
     expect(kinds).toEqual(['data_stream', 'markdown_doc'])
+  })
+
+  it('falls back to generic tone and glyph for unknown adapter types', () => {
+    const customLayout: BoardroomSurfaceLayout = {
+      ...baseLayout,
+      adapter_type: 'nonexistent_adapter' as BoardroomSurfaceAdapterType,
+    }
+    const model = deriveBoardroomSurfacePreviewModel({ title: 'Unknown Adapter', layout: customLayout })
+    expect(model.tone).toBe('cyan')
+    expect(model.glyph).toBe('GRID')
+  })
+
+  it('reports attention status for iframe_preview widgets when inline embed is disabled', () => {
+    const iframeLayout: BoardroomSurfaceLayout = {
+      ...baseLayout,
+      adapter_type: 'component_grid',
+      embed: { url: 'http://example.com/embed', allow_inline: false },
+      preview: {
+        ...baseLayout.preview,
+        widgets: [
+          { id: 'iframe1', kind: 'iframe_preview', title: 'Iframe', data_binding: 'http://example.com/embed', grid_area: 'main' },
+        ],
+      },
+      focus: { mode: 'remote_preview', target: 'http://example.com/embed', refresh_ms: 1000 },
+    }
+    const model = deriveBoardroomSurfacePreviewModel({ title: 'Iframe Surface', layout: iframeLayout })
+    expect(model.widgets[0].status).toBe('attention')
+  })
+
+  it('renders disabled status for all widgets when layout is disabled', () => {
+    const model = deriveBoardroomSurfacePreviewModel({
+      title: 'Disabled Surface',
+      layout: { ...baseLayout, enabled: false },
+    })
+    expect(model.status).toBe('disabled')
+    expect(model.widgets.every((widget: BoardroomSurfacePreviewWidgetModel) => widget.status === 'disabled')).toBe(true)
   })
 })

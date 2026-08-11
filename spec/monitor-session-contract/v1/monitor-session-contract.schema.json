@@ -1,0 +1,125 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "arda.monitor-session-contract.v1",
+  "type": "object",
+  "required": ["schema_version", "canonical_slots", "session", "claim_request"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["arda.monitor-session-contract.v1"]
+    },
+    "canonical_slots": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 5,
+      "maxItems": 5,
+      "uniqueItems": true
+    },
+    "session": {
+      "$ref": "#/$defs/monitor_session"
+    },
+    "claim_request": {
+      "$ref": "#/$defs/claim_request"
+    },
+    "invalid_session": {
+      "$ref": "#/$defs/monitor_session"
+    }
+  },
+  "$defs": {
+    "monitor_kind": {
+      "type": "string",
+      "enum": ["monitor", "desk", "external", "inline"]
+    },
+    "content_descriptor": {
+      "type": "object",
+      "required": ["kind", "binding", "focus_mode"],
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "binding": {
+          "type": "string"
+        },
+        "focus_mode": {
+          "type": "string"
+        }
+      }
+    },
+    "workstation_handoff": {
+      "type": "object",
+      "required": ["session_id", "mode"],
+      "properties": {
+        "session_id": {
+          "type": "string"
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["same_live_session", "independent_window", "unsupported"]
+        }
+      }
+    },
+    "monitor_session": {
+      "type": "object",
+      "required": ["slot_id", "session_id", "owner", "kind", "revision", "opened_at_utc", "lease_expires_at_utc", "content", "workstation_handoff"],
+      "properties": {
+        "slot_id": {
+          "type": "string"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/monitor_kind"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "opened_at_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lease_expires_at_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "content": {
+          "$ref": "#/$defs/content_descriptor"
+        },
+        "workstation_handoff": {
+          "$ref": "#/$defs/workstation_handoff"
+        }
+      }
+    },
+    "claim_request": {
+      "type": "object",
+      "required": ["slot_id", "kind", "owner", "ttl_ms", "content", "workstation_handoff"],
+      "properties": {
+        "slot_id": {
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/monitor_kind"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "ttl_ms": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "content": {
+          "$ref": "#/$defs/content_descriptor"
+        },
+        "workstation_handoff": {
+          "$ref": "#/$defs/workstation_handoff"
+        }
+      }
+    }
+  }
+}

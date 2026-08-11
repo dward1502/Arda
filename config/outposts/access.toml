@@ -1,0 +1,10 @@
+# Canonical read-only access policy for remote outposts. Bearer values remain
+# outside Git and are resolved from the named environment variable at startup.
+schema_version = "arda.outpost-access.v1"
+
+[[enrollments]]
+outpost_id = "node-pi5-citadel-avatar"
+bearer_env = "ARDA_CITADEL_PRESENCE_BEARER"
+capabilities = ["presence.read"]
+revoked = false
+network_posture = { allow_forwarded = true, allowed_ips = ["100.119.130.127"] }

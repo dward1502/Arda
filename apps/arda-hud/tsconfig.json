@@ -34,6 +34,7 @@
     "src/components/kit/**/*.tsx",
     "src/components/ui/**/*.tsx",
     "src/components/hud/**/*.tsx",
+    "src/scene/**/*",
     "src/utils/**/*"
   ],
   "exclude": [
@@ -46,7 +47,8 @@
     "src/lib/avatarPersona.ts",
     "src/lib/hudEventSchema.ts",
     "src/lib/systemActionBus.ts",
-    "src/utils"
+    "src/utils",
+    "src/scene/BoardroomMermaidExample.tsx"
   ],
   "references": [
     {

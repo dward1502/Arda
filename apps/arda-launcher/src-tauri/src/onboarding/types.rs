@@ -376,3 +376,54 @@ pub struct GuidedSession {
     pub steps: Vec<GuidedStep>,
     pub next_actions: Vec<String>,
 }
+
+#[derive(Debug, Clone, Serialize)]
+pub struct CompatibilityProjection {
+    pub contract: String,
+    pub status: String,
+    pub profile_id: Option<String>,
+    pub supported_profile: String,
+    pub architecture: String,
+    pub os_id: String,
+    pub version_id: String,
+    pub pretty_name: String,
+    pub message: String,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct RecoveryGuidance {
+    pub condition_id: String,
+    pub detected: bool,
+    pub summary: String,
+    pub action: String,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct OptionalServiceProjection {
+    pub service_id: String,
+    pub status: String,
+    pub enabled: bool,
+    pub blocks_workbench: bool,
+    pub guidance: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct FirstRunProjection {
+    pub contract: String,
+    pub generated_at_utc: String,
+    pub gate_status: String,
+    pub can_start_workbench: bool,
+    pub mutation_policy: String,
+    pub profile: String,
+    pub machine_role: String,
+    pub compatibility: CompatibilityProjection,
+    pub prerequisites: PrerequisiteReport,
+    pub providers: ProviderChecklist,
+    pub readiness: ReadinessProjection,
+    #[serde(rename = "servicePlan")]
+    pub service_plan: ServicePlan,
+    pub guided: GuidedSession,
+    pub recovery: Vec<RecoveryGuidance>,
+    #[serde(rename = "optionalServices")]
+    pub optional_services: Vec<OptionalServiceProjection>,
+}

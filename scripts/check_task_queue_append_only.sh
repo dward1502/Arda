@@ -22,23 +22,30 @@ if ! git -C "$ROOT" rev-parse --verify HEAD >/dev/null 2>&1; then
 fi
 
 base_ref="HEAD"
-base="$(git -C "$ROOT" show "$base_ref:$QUEUE_REL" 2>/dev/null || true)"
+base=""
+base_found=false
+if git -C "$ROOT" cat-file -e "$base_ref:$QUEUE_REL" 2>/dev/null; then
+  base="$(git -C "$ROOT" show "$base_ref:$QUEUE_REL")"
+  base_found=true
+fi
 if [[ -f "$QUEUE_PATH" ]]; then
   current="$(<"$QUEUE_PATH")"
 else
   current=""
 fi
 
-if [[ -z "$base" ]]; then
+if [[ "$base_found" != true ]]; then
   while IFS= read -r candidate; do
-    if base="$(git -C "$ROOT" show "$candidate:$QUEUE_REL" 2>/dev/null)"; then
+    if git -C "$ROOT" cat-file -e "$candidate:$QUEUE_REL" 2>/dev/null; then
+      base="$(git -C "$ROOT" show "$candidate:$QUEUE_REL")"
       base_ref="$candidate"
+      base_found=true
       break
     fi
   done < <(git -C "$ROOT" rev-list --all -- "$QUEUE_REL")
 fi
 
-if [[ -z "$base" ]]; then
+if [[ "$base_found" != true ]]; then
   echo "queue append-only guard: no historical baseline for $QUEUE_REL; skipping" >&2
   exit 0
 fi

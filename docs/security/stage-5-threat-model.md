@@ -47,15 +47,21 @@ The Stage 5 engine gate exercises:
    canonical executable paths and deny-by-default capabilities. Owner: adapter
    runtime maintainer. Third-party adapter distribution requires artifact digest
    or signature pinning before enablement.
-3. `SEC-SIGN-001` — RC signatures use an ephemeral encrypted local key. Mitigation: checksums and bundles are independently verifiable for this candidate. Owner: release maintainer. Production release requires operator-owned hardware/KMS custody and rotation.
-4. `PKG-STALE-001` — the top-level MIT `LICENSE` now exists, but the signed RC
-   artifacts predate the license and subsequent security/reliability changes.
-   Owner: release maintainer. Final publication requires a clean rebuild, new
-   SBOM/manifest/checksums, and fresh signatures.
-5. `SEC-GLIB-001` — Tauri's GTK dependency resolves `glib 0.18.5`, which carries
-   `RUSTSEC-2024-0429`. Arda does not directly call the affected
-   `VariantStrIter` API. Owner: launcher maintainer. Mitigation is local-only use;
-   closure requires the coordinated Tauri/GTK upgrade to `glib >=0.20.0`.
+3. `PKG-EVIDENCE-001` — the published `v0.3.0-rc.0` assets have tag-bound
+   keyless signatures, but they predate the top-level MIT `LICENSE` and
+   subsequent security/reliability changes. Owner: release maintainer. Final
+   publication requires one clean rebuild and a reconciled
+   SBOM/manifest/checksum/signature/lifecycle evidence set for the same bytes.
+4. `SEC-GLIB-001` — **Mitigated by a bounded local backport.** Tauri's maintained
+   GTK3 graph still requires `glib 0.18.5`, so both Launcher and HUD resolve a
+   vendored copy with the exact upstream `VariantStrIter` mutability fix from
+   gtk-rs-core pull request 1343. The crates.io archive checksum, complete source
+   delta, optimized regression, and both consumer paths are verified by
+   `scripts/verify_glib_0185_backport.py` and
+   `scripts/tests/test_glib_backport.py`. RustSec scanners omit path dependencies,
+   so those controls are mandatory and scanner output alone is insufficient.
+   Owner: launcher maintainer. Replace this exception with a maintained Tauri
+   GTK4 chain when available. The previously rejected GTK4 fork remains rejected.
 
 ## Gate commands
 

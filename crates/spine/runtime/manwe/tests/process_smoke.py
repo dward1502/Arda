@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Process-level smoke tests for the canonical static and full adaptive Manwe runtimes."""
+"""Process-level smoke test for the single governed Manwe runtime."""
 
 from __future__ import annotations
 
@@ -123,103 +123,7 @@ def assert_common_surfaces(port: int, mode: str) -> None:
     assert status == 200 and capabilities["mode"] == mode, capabilities
 
 
-def run_static(root: Path, upstream_port: int) -> None:
-    port = free_port()
-    root.mkdir(parents=True)
-    config = root / "manwe.toml"
-    config.write_text(
-        "\n".join(
-            [
-                'bind = "127.0.0.1"',
-                f"port = {port}",
-                'default_provider = "smoke"',
-                "",
-                "[providers.smoke]",
-                f'base_url = "http://127.0.0.1:{upstream_port}/v1"',
-                'models = ["smoke-model"]',
-            ]
-        )
-    )
-    malformed_fleet = root / "fleet.toml"
-    malformed_fleet.write_text("[[nodes]\n")
-    env = os.environ.copy()
-    env["ARDA_ROOT"] = str(root)
-    env["ARDA_MANWE_FLEET_CONFIG"] = str(malformed_fleet)
-    env["ANNUNIMAS_CHARON_FLEET_CONFIG"] = str(root / "ignored-legacy-fleet.toml")
-    process = subprocess.Popen(
-        [str(BINARY), "--config", str(config), "--bind", "127.0.0.1", "--port", str(port)],
-        cwd=CRATE,
-        env=env,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True,
-    )
-    try:
-        wait_ready(port)
-        assert_common_surfaces(port, "static")
-        _, capabilities, _ = request(port, "/v1/capabilities")
-        assert capabilities["config_source"] == "file", capabilities
-        assert capabilities["config_path"] == str(config), capabilities
-        assert capabilities["fleet_config_path"] == str(malformed_fleet), capabilities
-        assert capabilities["route_receipts"] == str(
-            root / "data" / "manwe" / "route_receipts.jsonl"
-        ), capabilities
-        assert capabilities["catalog_generation"] == 1, capabilities
-        assert capabilities["fleet_providers"] == 0, capabilities
-        status, body, _ = request(
-            port,
-            "/v1/chat/completions",
-            {"model": "smoke-model", "messages": [{"role": "user", "content": "smoke"}]},
-        )
-        assert status == 200 and body["choices"][0]["message"]["content"] == TOKEN, body
-    finally:
-        stop(process)
-
-
-def run_static_fallback_matrix(root: Path) -> None:
-    cases = {
-        "missing": (None, "embedded_missing"),
-        "malformed": ("[providers\n", "embedded_malformed"),
-        "partial": ('bind = "127.0.0.1"\n', "embedded_empty"),
-    }
-    for name, (contents, expected_source) in cases.items():
-        case_root = root / name
-        case_root.mkdir(parents=True)
-        config = case_root / "manwe.toml"
-        if contents is not None:
-            config.write_text(contents)
-        fleet = case_root / "fleet.toml"
-        if name != "missing":
-            fleet.write_text("[[nodes]\n" if name == "malformed" else "")
-        port = free_port()
-        env = os.environ.copy()
-        env["ARDA_ROOT"] = str(case_root)
-        if name == "missing":
-            env.pop("ARDA_MANWE_FLEET_CONFIG", None)
-            env["ANNUNIMAS_CHARON_FLEET_CONFIG"] = str(fleet)
-        else:
-            env["ARDA_MANWE_FLEET_CONFIG"] = str(fleet)
-            env["ANNUNIMAS_CHARON_FLEET_CONFIG"] = str(case_root / "ignored-legacy.toml")
-        process = subprocess.Popen(
-            [str(BINARY), "--config", str(config), "--bind", "127.0.0.1", "--port", str(port)],
-            cwd=CRATE,
-            env=env,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-        )
-        try:
-            wait_ready(port)
-            _, capabilities, _ = request(port, "/v1/capabilities")
-            assert capabilities["config_source"] == expected_source, capabilities
-            assert capabilities["fleet_config_path"] == str(fleet), capabilities
-            assert capabilities["fleet_providers"] == 0, capabilities
-            assert capabilities["catalog_generation"] == 1, capabilities
-        finally:
-            stop(process)
-
-
-def run_adaptive(root: Path, upstream_port: int) -> None:
+def run_canonical(root: Path, upstream_port: int) -> None:
     port = free_port()
     config_dir = root / "config"
     config_dir.mkdir(parents=True)
@@ -251,7 +155,7 @@ def run_adaptive(root: Path, upstream_port: int) -> None:
     env.pop("ANNUNIMAS_CHARON_PROVIDER_CONFIG", None)
     env.update({"ARDA_HOME": str(root), "ARDA_ROOT": str(root)})
     process = subprocess.Popen(
-        [str(BINARY), "--adaptive", "--bind", "127.0.0.1", "--port", str(port)],
+        [str(BINARY), "--bind", "127.0.0.1", "--port", str(port)],
         cwd=CRATE,
         env=env,
         stdout=subprocess.PIPE,
@@ -285,7 +189,7 @@ def run_adaptive(root: Path, upstream_port: int) -> None:
 
 
 def main() -> None:
-    subprocess.run(["cargo", "build", "-p", "manwe", "--features", "adaptive"], cwd=REPO, check=True)
+    subprocess.run(["cargo", "build", "-p", "manwe"], cwd=REPO, check=True)
     before_outputs = output_snapshot()
     upstream_port = free_port()
     server = ThreadingHTTPServer(("127.0.0.1", upstream_port), ControlledUpstream)
@@ -294,15 +198,13 @@ def main() -> None:
     try:
         with tempfile.TemporaryDirectory(prefix="manwe-process-smoke-") as tmp:
             root = Path(tmp)
-            run_static(root / "static", upstream_port)
-            run_static_fallback_matrix(root / "static-fallbacks")
-            run_adaptive(root / "adaptive", upstream_port)
+            run_canonical(root / "canonical", upstream_port)
     finally:
         server.shutdown()
         server.server_close()
         thread.join(timeout=5)
     assert output_snapshot() == before_outputs, "Manwe recreated or modified crate-local output"
-    print("PASS: Manwe static and full governed adaptive process smoke tests")
+    print("PASS: Manwe single governed process smoke test")
 
 
 if __name__ == "__main__":

@@ -55,7 +55,7 @@ describe('surface adapter manifests', () => {
 
   it('resolves focused adapter contracts with inline-embed status', () => {
     expect(getSurfaceAdapterFocusContract('service_beelink_grafana')).toMatchObject({
-      focusMode: 'native_window',
+      focusMode: 'remote_preview',
       target: 'http://100.103.125.88:3000',
       inlineStatus: 'blocked',
     })

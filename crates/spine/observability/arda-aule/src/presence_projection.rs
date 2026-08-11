@@ -6,6 +6,7 @@
 
 use chrono::{DateTime, Duration as ChronoDuration, Utc};
 use serde::Serialize;
+use sha2::{Digest, Sha256};
 
 #[allow(unused_imports)]
 use arda_outpost_protocol::presence::{
@@ -93,11 +94,19 @@ pub struct EdgePresence {
 /// Unknown, stale, or malformed inputs reduce confidence and can fall back to
 /// `IdleDegraded` scene states instead of inventing runtime motion.
 pub fn build_presence_projection(inputs: ProjectionInputs) -> RuntimePresenceProjection {
-    let now = fixed_utc_now();
+    build_presence_projection_at(inputs, fixed_utc_now())
+}
+
+/// Build a projection with an injected clock for runtime and deterministic tests.
+pub fn build_presence_projection_at(
+    mut inputs: ProjectionInputs,
+    now: DateTime<Utc>,
+) -> RuntimePresenceProjection {
+    canonicalize_inputs(&mut inputs);
     let valid_until = now + ChronoDuration::seconds(30);
 
     if inputs.is_empty() {
-        return empty_projection(now, valid_until);
+        return empty_projection(&inputs, now, valid_until);
     }
 
     let mut nodes = Vec::with_capacity(inputs.services.len() + inputs.agents.len());
@@ -108,12 +117,13 @@ pub fn build_presence_projection(inputs: ProjectionInputs) -> RuntimePresencePro
         nodes.push(node_from_agent(agent));
     }
 
+    let projection_id = projection_id(&inputs, now);
     let mut source_receipt_refs = inputs.source_receipt_refs;
     source_receipt_refs.sort_unstable();
     source_receipt_refs.dedup();
 
     RuntimePresenceProjection {
-        projection_id: "arda-runtime-presence-001".to_string(),
+        projection_id,
         schema_version: RUNTIME_PRESENCE_SCHEMA_VERSION.to_string(),
         generated_at: now,
         valid_until,
@@ -122,6 +132,25 @@ pub fn build_presence_projection(inputs: ProjectionInputs) -> RuntimePresencePro
         source_receipt_refs,
         redaction_class: RedactionClass::PublicOperational,
     }
+}
+
+fn canonicalize_inputs(inputs: &mut ProjectionInputs) {
+    inputs
+        .services
+        .sort_by(|left, right| left.id.cmp(&right.id));
+    inputs.agents.sort_by(|left, right| left.id.cmp(&right.id));
+    inputs.edges.sort_by(|left, right| left.id.cmp(&right.id));
+    inputs.source_receipt_refs.sort();
+    inputs.source_receipt_refs.dedup();
+}
+
+fn projection_id(inputs: &ProjectionInputs, now: DateTime<Utc>) -> String {
+    let material = serde_json::json!({
+        "inputs": inputs,
+        "clock": now.to_rfc3339(),
+    });
+    let digest = Sha256::digest(serde_json::to_vec(&material).expect("presence inputs serialize"));
+    format!("arda-runtime-presence-{:x}", digest)
 }
 
 fn node_from_service(service: &ServicePresence) -> PresenceNode {
@@ -170,102 +199,13 @@ fn node_from_agent(agent: &AgentPresence) -> PresenceNode {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn deterministic_inputs_yield_deterministic_projection() {
-        let inputs = inputs_fixture();
-        let first = build_presence_projection(inputs.clone());
-        let second = build_presence_projection(inputs);
-        assert_eq!(first, second);
-    }
-
-    #[test]
-    fn stale_service_reduces_confidence_instead_of_motion() {
-        let mut inputs = inputs_fixture();
-        inputs.services[0].freshness_seconds = 10_000;
-
-        let projection = build_presence_projection(inputs);
-        let node = projection
-            .nodes
-            .iter()
-            .find(|node| node.id == "service-manwe")
-            .expect("service node");
-        assert_eq!(node.health, HealthState::Degraded);
-        assert_eq!(node.confidence, 0.0);
-    }
-
-    #[test]
-    fn empty_inputs_produce_verifiable_but_empty_presence() {
-        let projection = build_presence_projection(ProjectionInputs::empty());
-        assert!(projection.nodes.is_empty());
-        assert!(projection.edges.is_empty());
-        let disposition = projection.scene_disposition_at(projection.generated_at);
-        assert_eq!(disposition.state, SceneState::IdleDegraded);
-        assert_eq!(
-            disposition.degraded_reason,
-            Some(DegradedReason::Unverifiable)
-        );
-    }
-
-    #[test]
-    fn unknown_node_id_is_not_invented() {
-        let inputs = inputs_fixture();
-        let projection = build_presence_projection(inputs);
-        assert!(!projection
-            .nodes
-            .iter()
-            .any(|node| node.id == "agent-mystery"));
-    }
-
-    #[test]
-    fn unknown_edge_target_falls_back_to_degraded_idle() {
-        let mut inputs = inputs_fixture();
-        inputs.edges.clear();
-        inputs.source_receipt_refs.clear();
-
-        let projection = build_presence_projection(inputs);
-        let disposition = projection.scene_disposition_at(projection.generated_at);
-        assert_eq!(disposition.state, SceneState::IdleDegraded);
-        assert_eq!(
-            disposition.degraded_reason,
-            Some(DegradedReason::Unverifiable)
-        );
-    }
-
-    #[test]
-    fn schema_version_mismatch_is_idle_degraded() {
-        let mut projection = build_presence_projection(inputs_fixture());
-        projection.schema_version = "unsupported".into();
-        let disposition = projection.scene_disposition_at(projection.generated_at);
-        assert_eq!(disposition.state, SceneState::IdleDegraded);
-        assert_eq!(
-            disposition.degraded_reason,
-            Some(DegradedReason::UnsupportedSchema)
-        );
-    }
-
-    #[test]
-    fn stale_inputs_keep_confidence_low() {
-        let mut inputs = inputs_fixture();
-        inputs.agents[0].freshness_seconds = 5_000;
-
-        let projection = build_presence_projection(inputs);
-        let node = projection
-            .nodes
-            .iter()
-            .find(|node| node.id == "agent-awa")
-            .expect("agent node");
-        assert_eq!(node.confidence, 0.0);
-        assert_eq!(node.health, HealthState::Degraded);
-    }
-}
-
-fn empty_projection(now: DateTime<Utc>, valid_until: DateTime<Utc>) -> RuntimePresenceProjection {
+fn empty_projection(
+    inputs: &ProjectionInputs,
+    now: DateTime<Utc>,
+    valid_until: DateTime<Utc>,
+) -> RuntimePresenceProjection {
     RuntimePresenceProjection {
-        projection_id: "arda-runtime-presence-empty".to_string(),
+        projection_id: projection_id(inputs, now),
         schema_version: RUNTIME_PRESENCE_SCHEMA_VERSION.to_string(),
         generated_at: now,
         valid_until,
@@ -369,4 +309,97 @@ fn inputs_fixture() -> ProjectionInputs {
 
 fn fixed_utc_now() -> DateTime<Utc> {
     DateTime::from_timestamp(1_700_000_000, 0).expect("fixed timestamp must be valid")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn deterministic_inputs_yield_deterministic_projection() {
+        let inputs = inputs_fixture();
+        let first = build_presence_projection(inputs.clone());
+        let second = build_presence_projection(inputs);
+        assert_eq!(first, second);
+    }
+
+    #[test]
+    fn stale_service_reduces_confidence_instead_of_motion() {
+        let mut inputs = inputs_fixture();
+        inputs.services[0].freshness_seconds = 10_000;
+
+        let projection = build_presence_projection(inputs);
+        let node = projection
+            .nodes
+            .iter()
+            .find(|node| node.id == "service-manwe")
+            .expect("service node");
+        assert_eq!(node.health, HealthState::Degraded);
+        assert_eq!(node.confidence, 0.0);
+    }
+
+    #[test]
+    fn empty_inputs_produce_verifiable_but_empty_presence() {
+        let projection = build_presence_projection(ProjectionInputs::empty());
+        assert!(projection.nodes.is_empty());
+        assert!(projection.edges.is_empty());
+        let disposition = projection.scene_disposition_at(projection.generated_at);
+        assert_eq!(disposition.state, SceneState::IdleDegraded);
+        assert_eq!(
+            disposition.degraded_reason,
+            Some(DegradedReason::Unverifiable)
+        );
+    }
+
+    #[test]
+    fn unknown_node_id_is_not_invented() {
+        let inputs = inputs_fixture();
+        let projection = build_presence_projection(inputs);
+        assert!(!projection
+            .nodes
+            .iter()
+            .any(|node| node.id == "agent-mystery"));
+    }
+
+    #[test]
+    fn unknown_edge_target_falls_back_to_degraded_idle() {
+        let mut inputs = inputs_fixture();
+        inputs.edges.clear();
+        inputs.source_receipt_refs.clear();
+
+        let projection = build_presence_projection(inputs);
+        let disposition = projection.scene_disposition_at(projection.generated_at);
+        assert_eq!(disposition.state, SceneState::IdleDegraded);
+        assert_eq!(
+            disposition.degraded_reason,
+            Some(DegradedReason::Unverifiable)
+        );
+    }
+
+    #[test]
+    fn schema_version_mismatch_is_idle_degraded() {
+        let mut projection = build_presence_projection(inputs_fixture());
+        projection.schema_version = "unsupported".into();
+        let disposition = projection.scene_disposition_at(projection.generated_at);
+        assert_eq!(disposition.state, SceneState::IdleDegraded);
+        assert_eq!(
+            disposition.degraded_reason,
+            Some(DegradedReason::UnsupportedSchema)
+        );
+    }
+
+    #[test]
+    fn stale_inputs_keep_confidence_low() {
+        let mut inputs = inputs_fixture();
+        inputs.agents[0].freshness_seconds = 5_000;
+
+        let projection = build_presence_projection(inputs);
+        let node = projection
+            .nodes
+            .iter()
+            .find(|node| node.id == "agent-awa")
+            .expect("agent node");
+        assert_eq!(node.confidence, 0.0);
+        assert_eq!(node.health, HealthState::Degraded);
+    }
 }

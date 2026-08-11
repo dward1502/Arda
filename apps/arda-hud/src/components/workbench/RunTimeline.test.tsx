@@ -8,8 +8,16 @@ const graph: RunGraph = { schema_version: 'arda.run-graph.v1', run_id: 'run-1', 
 describe('RunTimeline', () => {
   it('shows costs, events, resume path, and reduced-motion posture', () => {
     Object.defineProperty(window, 'matchMedia', { configurable: true, value: vi.fn(() => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() })) })
-    const { container } = render(<RunTimeline graph={graph} events={[{ sequence: 1, node_id: 'execute', event: { type: 'node_transition', state: 'running' } }]} />)
+    const { container } = render(<RunTimeline graph={graph} streamStatus="error" events={[{ sequence: 1, node_id: 'execute', event: { type: 'node_transition', state: 'running' } }]} />)
     expect(screen.getByText('$1.25 maximum')).toBeTruthy(); expect(screen.getByText('resume-2')).toBeTruthy()
     expect(screen.getByText('node transition')).toBeTruthy(); expect(container.querySelector('.workbench-timeline--reduced-motion')).toBeTruthy()
+    expect(screen.getByText(/Stale: durable snapshot retained/)).toBeTruthy()
+  })
+
+  it('distinguishes partial and live run projections', () => {
+    const { rerender } = render(<RunTimeline graph={graph} events={[]} streamStatus="connecting" />)
+    expect(screen.getByText(/Partial: durable snapshot loaded/)).toBeTruthy()
+    rerender(<RunTimeline graph={graph} events={[]} streamStatus="live" />)
+    expect(screen.getByText(/Live: canonical run events are current/)).toBeTruthy()
   })
 })

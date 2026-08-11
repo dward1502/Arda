@@ -34,4 +34,18 @@
   --sidebar-width: 17.5rem;
   --panel-width: 13.75rem;
   --hotspot-width: 10.625rem;
+  /* ── Cyberpunk HUD kit ─────────────────────────────────── */
+  --hud-frame-bg: rgba(6, 12, 22, 0.82);
+  --hud-frame-bg-strong: rgba(8, 14, 28, 0.94);
+  --hud-cut: 10px;
+  --hud-border: rgba(0, 212, 255, 0.42);
+  --hud-border-strong: rgba(0, 212, 255, 0.75);
+  --hud-glow: 0 0 22px rgba(0, 212, 255, 0.22);
+  --hud-glow-strong: 0 0 32px rgba(0, 212, 255, 0.35);
+  --hud-radius: 2px; /* almost sharp edges */
+  --hud-header-height: 2.1rem;
+  --hud-accent-orange: #ff6b35;
+  --hud-accent-purple: #c724ff;
+  --hud-accent-gold: #f9ca24;
+  --hud-danger: #ff3366;
 }

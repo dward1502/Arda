@@ -17,7 +17,7 @@ soterion:
 
 This document records the conceptual and implementation provenance of
 `arda-governance`. It applies the classifications defined in
-[`docs/PROVENANCE_AND_ATTRIBUTION.md`](../../../../docs/PROVENANCE_AND_ATTRIBUTION.md).
+[`docs/contracts/PROVENANCE_AND_ATTRIBUTION.md`](../../../../docs/contracts/PROVENANCE_AND_ATTRIBUTION.md).
 It is intentionally conservative: unknown source identities and licenses are marked as
 pending rather than guessed.
 

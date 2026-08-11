@@ -1,4 +1,5 @@
 import type { ArdaFreshnessState } from '../../lib/ardaProvenance'
+import type { BoardroomSlotAssignmentRecord } from '../../lib/boardroomSlotSettings'
 
 export type HudTone = 'cyan' | 'violet' | 'gold' | 'mint' | 'rose'
 
@@ -398,14 +399,37 @@ export function deriveDailyCommandHudInstrument(input: DailyCommandHudInput): Hu
   })
 }
 
-export function deriveBoardroomHudInstruments(input: BoardroomHudInstrumentInput): BoardroomHudInstrumentMap {
-  return {
-    monitor_left_2: deriveRoutingHudInstrument(input.routing),
-    monitor_left_3: deriveKnowledgeHudInstrument(input.knowledge),
-    monitor_left_4: deriveQueueHudInstrument(input.queue),
-    view_desk_l: deriveGovernanceHudInstrument(input.governance),
-    view_desk_control_panel: deriveFleetHudInstrument(input.fleetHealth),
-    view_desk_r: deriveHumanHudInstrument(input.human),
-    view_desk_aux: deriveDailyCommandHudInstrument(input.dailyCommand),
+function instrumentForWidgetBindings(
+  input: BoardroomHudInstrumentInput,
+  assignment: BoardroomSlotAssignmentRecord,
+): HudInstrumentModel {
+  const bindings = assignment.surface_layout.preview.widgets
+    .map((widget) => widget.data_binding.toLowerCase())
+    .join(' ')
+  if (bindings.includes('governance')) return deriveGovernanceHudInstrument(input.governance)
+  if (bindings.includes('routing') || bindings.includes('comms') || bindings.includes('manwe')) return deriveRoutingHudInstrument(input.routing)
+  if (bindings.includes('human') || bindings.includes('business') || bindings.includes('personal')) return deriveHumanHudInstrument(input.human)
+  if (bindings.includes('fleet') || bindings.includes('system') || bindings.includes('backbone')) return deriveFleetHudInstrument(input.fleetHealth)
+  if (bindings.includes('queue') || bindings.includes('planning')) return deriveQueueHudInstrument(input.queue)
+  if (bindings.includes('knowledge') || bindings.includes('memory')) return deriveKnowledgeHudInstrument(input.knowledge)
+  return deriveDailyCommandHudInstrument(input.dailyCommand)
+}
+
+export function deriveBoardroomHudInstruments(
+  input: BoardroomHudInstrumentInput,
+  assignments: BoardroomSlotAssignmentRecord[] = [],
+): BoardroomHudInstrumentMap {
+  const instruments: BoardroomHudInstrumentMap = {
+    monitor_1: deriveFleetHudInstrument(input.fleetHealth),
+    monitor_2: deriveRoutingHudInstrument(input.routing),
+    monitor_3: deriveKnowledgeHudInstrument(input.knowledge),
+    monitor_4: deriveQueueHudInstrument(input.queue),
+    monitor_5: deriveHumanHudInstrument(input.human),
+    command_core: deriveDailyCommandHudInstrument(input.dailyCommand),
   }
+  for (const assignment of assignments) {
+    if (!assignment.slot_id.startsWith('view_desk_')) continue
+    instruments[assignment.slot_id] = instrumentForWidgetBindings(input, assignment)
+  }
+  return instruments
 }

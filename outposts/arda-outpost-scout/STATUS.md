@@ -6,9 +6,9 @@ Branch: `manwe`
 Documentation: `README.md`, `INDEX.md`, `BREAKDOWN.md`, `STATUS.md`, `OWNERSHIP.md`
 
 Current signature: a standalone library/binary leaf that performs bounded
-repository survey and fixed-policy SearXNG research, emits source-bearing
-advisory observations, and returns append-only Vairë memory receipt IDs without
-queue, approval, promotion, model, or execution authority.
+repository survey, bounded Rúmil audit, and fixed-policy SearXNG research; emits
+source-bearing advisory observations; and returns append-only Vairë memory
+receipt IDs without queue, approval, promotion, model, or execution authority.
 
 ## Live integration
 
@@ -16,8 +16,24 @@ queue, approval, promotion, model, or execution authority.
 - Root `arda-engine` harness proxies governed scout requests over HTTP.
 - ARDA HUD reads Athena scout ledgers/runtime state as a partial evidence lane.
 - Durable Warden→Athena/council projection production remains open plan work.
-- Nine production Rust files and six integration-test targets are fully
+- Ten production Rust files and eight integration-test targets are fully
   classified in `BREAKDOWN.md`.
+
+## RUMIL-6 direct-consumer integration
+
+- Added `/audit` without changing the legacy `/survey` contract.
+- Audit roots are relative to the configured runtime root; expiry, advisory
+  authority, capabilities, root policy, and all budgets are validated first.
+- Full packets stay under `data/warden/rumil_audits/`; Vairë receives only a
+  compact advisory receipt observation.
+- Digest-bound replay returns the same audit ID without duplicate ledger or
+  memory writes; changed-content request-ID reuse is rejected.
+- `/audit/followup` selects bounded stored-packet sections by audit ID and has no
+  arbitrary filesystem-root field.
+- Direct contract fixtures: 6 passed; HTTP/Vairë integration fixtures: 2 passed.
+- Full scout all-feature suite, strict crate-owned Clippy, warning-denied Rustdoc,
+  Rúmil feature matrix, Vairë/Mandos/Varda/engine consumer matrix, queue guard,
+  and `git diff --check` passed.
 
 ## Packet 6 contract repairs
 

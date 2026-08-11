@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import type { OnboardingSnapshot } from '../lib/tauri-core-compat'
+import { summarizeFirstRunOrientation } from '../lib/first-run-orientation'
 
 interface OnboardingPanelProps {
   snapshot: OnboardingSnapshot | null
@@ -12,6 +13,7 @@ export default function OnboardingPanel({ snapshot, error, onClose }: Onboarding
   const readiness = snapshot?.readiness
   const servicePlan = snapshot?.servicePlan
   const actionableChecks = readiness?.checks.filter(check => check.status !== 'pass') ?? []
+  const orientation = snapshot ? summarizeFirstRunOrientation(snapshot) : null
 
   useEffect(() => {
     const panel = panelRef.current
@@ -61,7 +63,7 @@ export default function OnboardingPanel({ snapshot, error, onClose }: Onboarding
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-[10px] uppercase tracking-[0.3em] text-[#f4e9d8]/50">
-            Read-only onboarding
+            Approval-gated first run
           </p>
           <h2 className="mt-1 text-lg">Environment readiness</h2>
         </div>
@@ -84,30 +86,87 @@ export default function OnboardingPanel({ snapshot, error, onClose }: Onboarding
 
       {snapshot && (
         <div className="mt-5 grid gap-4 md:grid-cols-2">
-          <article className="rounded border border-white/15 bg-white/[0.03] p-4">
-            <h3 className="text-sm uppercase tracking-wider">Readiness</h3>
-            {readiness ? (
-              <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-xs">
-                <dt className="text-white/50">Gate</dt>
-                <dd>{readiness.gate_status}</dd>
-                <dt className="text-white/50">Mode</dt>
-                <dd>{readiness.mode}</dd>
-                <dt className="text-white/50">Pass</dt>
-                <dd>{readiness.summary.pass ?? 0}</dd>
-                <dt className="text-white/50">Warnings</dt>
-                <dd>{readiness.summary.warn ?? 0}</dd>
-                <dt className="text-white/50">Failures</dt>
-                <dd>{readiness.summary.fail ?? 0}</dd>
-                <dt className="text-white/50">Mutation</dt>
-                <dd className="break-words">{readiness.mutation_policy}</dd>
+          {orientation && (
+            <article
+              aria-labelledby="operator-orientation-title"
+              className="rounded border border-[#f4e9d8]/40 bg-[#f4e9d8]/[0.06] p-4 md:col-span-2"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 id="operator-orientation-title" className="text-sm uppercase tracking-wider">
+                  Operator orientation
+                </h3>
+                <span className="rounded border border-white/20 px-2 py-1 text-[10px] uppercase text-white/70">
+                  {snapshot.gate_status}
+                </span>
+              </div>
+              <dl className="mt-3 grid gap-3 text-xs">
+                <div><dt className="text-white/50">Current system state</dt><dd className="mt-1 text-sm">{orientation.systemState}</dd></div>
+                <div><dt className="text-white/50">What Arda can do now</dt><dd className="mt-1">{orientation.canActNow}</dd></div>
+                <div><dt className="text-white/50">Who can approve changes</dt><dd className="mt-1 font-semibold text-amber-100">{orientation.approvalAuthority}</dd></div>
+                <div><dt className="text-white/50">Evidence quality</dt><dd className="mt-1">{orientation.evidenceQuality}</dd></div>
+                <div><dt className="text-white/50">What prevents execution</dt><dd className="mt-1">{orientation.executionBlockers}</dd></div>
+                <div><dt className="text-white/50">Do this next</dt><dd className="mt-1 font-semibold text-emerald-100">{orientation.nextAction}</dd></div>
               </dl>
-            ) : (
-              <p className="mt-3 text-xs text-amber-200">Readiness profile unavailable.</p>
-            )}
+            </article>
+          )}
+
+          <article className="rounded border border-white/15 bg-white/[0.03] p-4 md:col-span-2">
+            <h3 className="text-sm uppercase tracking-wider">First-run sequence</h3>
+            <ol className="mt-3 grid gap-2 text-xs sm:grid-cols-2 lg:grid-cols-3">
+              {[
+                ['01', 'Compatibility detection'],
+                ['02', 'Prerequisite checks'],
+                ['03', 'Provider setup'],
+                ['04', 'Service plan'],
+                ['05', 'Readiness review'],
+                ['06', 'Guided setup'],
+              ].map(([index, title]) => (
+                <li key={index} className="rounded border border-white/10 p-2">
+                  <span className="mr-2 text-white/40">{index}</span>{title}
+                </li>
+              ))}
+            </ol>
+            <p className="mt-3 text-xs text-white/60">
+              Mutation boundary: {snapshot.mutation_policy}. No setup action runs automatically.
+            </p>
+          </article>
+
+          <article className={`rounded border p-4 ${snapshot.compatibility.status === 'supported' ? 'border-emerald-400/30 bg-emerald-950/10' : 'border-red-400/40 bg-red-950/20'}`}>
+            <h3 className="text-sm uppercase tracking-wider">01 · Compatibility</h3>
+            <p className="mt-2 text-xs">{snapshot.compatibility.pretty_name} · {snapshot.compatibility.architecture}</p>
+            <p className="mt-2 text-xs text-white/70">{snapshot.compatibility.message}</p>
+            <p className="mt-2 text-[10px] text-white/45">Required: {snapshot.compatibility.supported_profile}</p>
           </article>
 
           <article className="rounded border border-white/15 bg-white/[0.03] p-4">
-            <h3 className="text-sm uppercase tracking-wider">Service plan</h3>
+            <h3 className="text-sm uppercase tracking-wider">02 · Prerequisites</h3>
+            <dl className="mt-3 grid grid-cols-2 gap-2 text-xs">
+              {Object.entries(snapshot.prerequisites.summary).map(([status, count]) => (
+                <div key={status} className="contents">
+                  <dt className="capitalize text-white/50">{status}</dt><dd>{count}</dd>
+                </div>
+              ))}
+            </dl>
+          </article>
+
+          <article className="rounded border border-white/15 bg-white/[0.03] p-4 md:col-span-2">
+            <h3 className="text-sm uppercase tracking-wider">03 · Providers</h3>
+            {snapshot.providers.providers.length > 0 ? (
+              <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+                {snapshot.providers.providers.map(provider => (
+                  <li key={provider.provider_id} className="rounded border border-white/10 p-3 text-xs">
+                    <span>{provider.provider_name}</span>
+                    <p className="mt-1 text-white/55">
+                      {provider.enabled ? 'enabled' : 'disabled'} · {provider.missing_env.length > 0 ? `missing ${provider.missing_env.join(', ')}` : 'configuration present'}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            ) : <p className="mt-2 text-xs text-white/60">No provider configuration is enabled.</p>}
+          </article>
+
+          <article className="rounded border border-white/15 bg-white/[0.03] p-4">
+            <h3 className="text-sm uppercase tracking-wider">04 · Service plan</h3>
             {servicePlan ? (
               <>
                 <p className="mt-2 text-xs text-white/60">
@@ -131,6 +190,28 @@ export default function OnboardingPanel({ snapshot, error, onClose }: Onboarding
               </>
             ) : (
               <p className="mt-3 text-xs text-amber-200">Service plan unavailable.</p>
+            )}
+          </article>
+
+          <article className="rounded border border-white/15 bg-white/[0.03] p-4">
+            <h3 className="text-sm uppercase tracking-wider">05 · Readiness</h3>
+            {readiness ? (
+              <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-xs">
+                <dt className="text-white/50">Gate</dt>
+                <dd>{readiness.gate_status}</dd>
+                <dt className="text-white/50">Mode</dt>
+                <dd>{readiness.mode}</dd>
+                <dt className="text-white/50">Pass</dt>
+                <dd>{readiness.summary.pass ?? 0}</dd>
+                <dt className="text-white/50">Warnings</dt>
+                <dd>{readiness.summary.warn ?? 0}</dd>
+                <dt className="text-white/50">Failures</dt>
+                <dd>{readiness.summary.fail ?? 0}</dd>
+                <dt className="text-white/50">Mutation</dt>
+                <dd className="break-words">{readiness.mutation_policy}</dd>
+              </dl>
+            ) : (
+              <p className="mt-3 text-xs text-amber-200">Readiness profile unavailable.</p>
             )}
           </article>
 
@@ -158,6 +239,45 @@ export default function OnboardingPanel({ snapshot, error, onClose }: Onboarding
                       <p className="mt-2 text-white/60">Evidence: {check.evidence.join('; ')}</p>
                     )}
                     <p className="mt-1 text-white/85">Recovery: {check.recommendation}</p>
+                  </li>
+                ))}
+              </ul>
+            </article>
+          )}
+
+          <article className="rounded border border-white/15 bg-white/[0.03] p-4 md:col-span-2">
+            <h3 className="text-sm uppercase tracking-wider">06 · Guided setup</h3>
+            <ol className="mt-3 space-y-2">
+              {snapshot.guided.steps.map(step => (
+                <li key={step.step_id} className="rounded border border-white/10 p-3 text-xs">
+                  <div className="flex justify-between gap-3"><span>{step.title}</span><span className="uppercase text-white/50">{step.status}</span></div>
+                  <p className="mt-1 text-white/65">{step.prompt}</p>
+                  <p className="mt-1">Next: {step.next_action}</p>
+                </li>
+              ))}
+            </ol>
+          </article>
+
+          <article className="rounded border border-white/15 bg-white/[0.03] p-4 md:col-span-2">
+            <h3 className="text-sm uppercase tracking-wider">Degradation and recovery</h3>
+            <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+              {snapshot.recovery.map(item => (
+                <li key={item.condition_id} className={`rounded border p-3 text-xs ${item.detected ? 'border-amber-300/40 bg-amber-950/15' : 'border-white/10'}`}>
+                  <div className="uppercase">{item.condition_id} · {item.detected ? 'detected' : 'guidance'}</div>
+                  <p className="mt-1 text-white/60">{item.summary}</p>
+                  <p className="mt-1">Recovery: {item.action}</p>
+                </li>
+              ))}
+            </ul>
+          </article>
+
+          {snapshot.optionalServices.length > 0 && (
+            <article className="rounded border border-white/15 bg-white/[0.03] p-4 md:col-span-2">
+              <h3 className="text-sm uppercase tracking-wider">Optional runtime services</h3>
+              <ul className="mt-3 space-y-2">
+                {snapshot.optionalServices.map(service => (
+                  <li key={service.service_id} className="text-xs">
+                    {service.service_id} · opt-in · disabled · does not block required services
                   </li>
                 ))}
               </ul>

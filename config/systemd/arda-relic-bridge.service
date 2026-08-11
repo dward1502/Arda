@@ -1,0 +1,16 @@
+[Unit]
+Description=Arda read-only RELIC presence bridge
+After=network-online.target arda.service
+Wants=network-online.target arda.service
+
+[Service]
+Type=simple
+WorkingDirectory=/var/home/mythos/Eregion/Arda
+Environment=ARDA_ROOT=%h/Eregion/Arda
+Environment=RUST_LOG=info
+ExecStart=%h/.local/lib/arda/relic/relic_presence_sync.sh
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

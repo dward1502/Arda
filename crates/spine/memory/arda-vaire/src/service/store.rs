@@ -1,5 +1,7 @@
+use super::scope_policy::{self, ConsumerContext, PolicyDisposition, PolicyOperation};
 use super::{EpisodicRecord, InformantEvent, MnemosyneService, RecallRecentEntry};
 use crate::schema::{EPISODIC_SCHEMA_VERSION, LEGACY_EPISODIC_SCHEMA_VERSION};
+use arda_core::contract::{MemoryKind, MemoryRecord};
 use arda_core::error::{ArdaError, Result};
 use chrono::Utc;
 use fs2::FileExt;
@@ -21,18 +23,22 @@ impl MnemosyneService {
                 Self::new(arda_root().join("data").join("mnemosyne"))?
             }
         };
-        Ok(apply_contract_dual_write_from_env(svc).with_metrics_root(
-            arda_root()
-                .join("core")
-                .join("metrics")
-                .join("by_crate")
-                .join("mnemosyne"),
-        ))
+        let arda_root = arda_root();
+        Ok(apply_contract_dual_write_from_env(svc)
+            .with_metrics_root(
+                arda_root
+                    .join("core")
+                    .join("metrics")
+                    .join("by_crate")
+                    .join("mnemosyne"),
+            )
+            .with_human_projection_root(arda_root.join("human")))
     }
 
     pub fn new(root: impl AsRef<Path>) -> Result<Self> {
         let root = root.as_ref().to_path_buf();
         let metrics_root = inferred_metrics_root(&root);
+        let human_projection_root = inferred_human_projection_root(&root);
         let episodic_root = root.join("episodic");
         let semantic_root = root.join("semantic");
         let procedural_root = root.join("procedural");
@@ -41,11 +47,13 @@ impl MnemosyneService {
         let noise_ledger_path = root.join("noise.jsonl");
         let obsidian_index_path = root.join("obsidian_index.jsonl");
         let last_consolidation_path = root.join("last_consolidation_utc");
+        let persona_root = root.join("persona");
 
         fs::create_dir_all(&episodic_root)?;
         fs::create_dir_all(&semantic_root)?;
         fs::create_dir_all(&procedural_root)?;
         fs::create_dir_all(&archive_root)?;
+        fs::create_dir_all(&persona_root)?;
         OpenOptions::new()
             .create(true)
             .append(true)
@@ -71,6 +79,8 @@ impl MnemosyneService {
             noise_ledger_path,
             obsidian_index_path,
             last_consolidation_path,
+            persona_root,
+            human_projection_root,
             contract_memory_root: None,
             metrics_root,
             observability: Default::default(),
@@ -86,6 +96,15 @@ impl MnemosyneService {
         self
     }
 
+    /// Configure a local human-readable projection tree.
+    ///
+    /// This filesystem path may be opened as an Obsidian vault, but it does not
+    /// configure an Obsidian account, plugin, or cloud synchronization API.
+    pub fn with_human_projection_root(mut self, human_projection_root: PathBuf) -> Self {
+        self.human_projection_root = Some(human_projection_root);
+        self
+    }
+
     /// Configure the durable metrics directory consumed by `arda-aule`.
     pub fn with_metrics_root(mut self, metrics_root: PathBuf) -> Self {
         self.metrics_root = Some(metrics_root);
@@ -93,8 +112,39 @@ impl MnemosyneService {
     }
 
     pub fn encode(&self, event: InformantEvent) -> Result<Option<RecallRecentEntry>> {
+        self.encode_with_context(event, None)
+    }
+
+    /// Encode with explicit consumer provenance for scope-policy mediation.
+    pub fn encode_with_context(
+        &self,
+        event: InformantEvent,
+        context: Option<&ConsumerContext>,
+    ) -> Result<Option<RecallRecentEntry>> {
         let significance = self.apply_adaptive_significance(&event);
         let memory_scope = derive_memory_scope(&event);
+        let memory_id = format!("mem_{}", uuid::Uuid::new_v4().simple());
+        let contract_record =
+            contract_memory_record(&memory_id, &event, &memory_scope, significance.significance);
+        match scope_policy::evaluate(&contract_record, PolicyOperation::Write, context) {
+            PolicyDisposition::Block | PolicyDisposition::Redact(_) => {
+                return Err(ArdaError::Agent {
+                    agent: "vaire".to_owned(),
+                    message: "memory encode blocked by scope policy".to_owned(),
+                });
+            }
+            PolicyDisposition::Quarantine => {
+                if self.contract_memory_root.is_none() {
+                    return Err(ArdaError::Agent {
+                        agent: "vaire".to_owned(),
+                        message: "quarantined encode requires a contract memory root".to_owned(),
+                    });
+                }
+                self.write_governed_memory(contract_record, context)?;
+                return Ok(None);
+            }
+            PolicyDisposition::Allow => {}
+        }
         if significance.class == "noise" {
             append_jsonl(
                 &self.noise_ledger_path,
@@ -108,7 +158,9 @@ impl MnemosyneService {
             return Ok(None);
         }
 
-        let memory_id = format!("mem_{}", uuid::Uuid::new_v4().simple());
+        if self.contract_memory_root.is_some() {
+            self.write_governed_memory(contract_record, context)?;
+        }
         let month_dir = self
             .episodic_root
             .join(Utc::now().format("%Y-%m").to_string());
@@ -148,26 +200,6 @@ impl MnemosyneService {
 
         append_jsonl(&memory_path, &header)?;
         append_jsonl(&memory_path, &body)?;
-
-        // Phase 1 dual-write into the v0.1 contract location. Failure
-        // here MUST NOT poison the existing write: log + continue, so
-        // a misconfigured contract root never breaks Mnemosyne's
-        // primary path.
-        if let Some(contract_root) = &self.contract_memory_root {
-            if let Err(err) = write_contract_memory_record(
-                contract_root,
-                &memory_id,
-                &event,
-                significance.significance,
-            ) {
-                tracing::warn!(
-                    error = %err,
-                    contract_root = %contract_root.display(),
-                    memory_id = %memory_id,
-                    "MNEMOSYNE contract dual-write failed (primary write succeeded)"
-                );
-            }
-        }
 
         self.emit_work_signal_background(
             "mnemosyne",
@@ -380,6 +412,14 @@ fn inferred_metrics_root(memory_root: &Path) -> Option<PathBuf> {
     )
 }
 
+fn inferred_human_projection_root(memory_root: &Path) -> Option<PathBuf> {
+    let data_root = memory_root.parent()?;
+    if memory_root.file_name()? != "mnemosyne" || data_root.file_name()? != "data" {
+        return None;
+    }
+    Some(data_root.parent()?.join("human"))
+}
+
 pub(super) fn append_jsonl<T: Serialize>(path: &Path, value: &T) -> Result<()> {
     let mut file = OpenOptions::new().create(true).append(true).open(path)?;
     file.lock_exclusive()?;
@@ -396,17 +436,21 @@ pub(super) fn append_jsonl<T: Serialize>(path: &Path, value: &T) -> Result<()> {
 }
 
 pub(super) fn write_atomic_json<T: Serialize>(path: &Path, value: &T) -> Result<()> {
+    write_atomic(path, &serde_json::to_vec_pretty(value)?)
+}
+
+pub(super) fn write_atomic(path: &Path, content: &[u8]) -> Result<()> {
     let parent = path.parent().ok_or_else(|| ArdaError::Agent {
         agent: "mnemosyne".to_owned(),
-        message: format!("metrics path has no parent: {}", path.display()),
+        message: format!("atomic-write path has no parent: {}", path.display()),
     })?;
     fs::create_dir_all(parent)?;
     let file_name = path
         .file_name()
         .and_then(|value| value.to_str())
-        .unwrap_or("snapshot.json");
+        .unwrap_or("projection");
     let temporary = parent.join(format!(".{file_name}.tmp"));
-    fs::write(&temporary, serde_json::to_vec_pretty(value)?)?;
+    fs::write(&temporary, content)?;
     fs::rename(temporary, path)?;
     Ok(())
 }
@@ -528,32 +572,89 @@ fn derive_memory_scope(event: &InformantEvent) -> String {
     }
 }
 
-/// Write a v0.1 `MemoryRecord` to `<contract_root>/episodic/<id>.json`
-/// alongside the primary Mnemosyne files. Atomic via tmp+rename so a
-/// crashed dual-write never leaves a half-written contract record on
-/// disk for the validator to choke on.
-fn write_contract_memory_record(
-    contract_root: &Path,
+fn contract_memory_record(
     memory_id: &str,
     event: &InformantEvent,
+    memory_scope: &str,
     salience: f64,
-) -> Result<()> {
-    use arda_core::contract::{MemoryKind, MemoryRecord};
-
-    let dir = contract_root.join("episodic");
-    fs::create_dir_all(&dir)?;
+) -> MemoryRecord {
     let agent = if event.crate_name.is_empty() {
         "mnemosyne"
     } else {
         event.crate_name.as_str()
     };
-    let mut rec = MemoryRecord::new(memory_id, MemoryKind::Episodic, agent, &event.content);
-    rec.salience = salience;
+    let mut record = MemoryRecord::new(memory_id, MemoryKind::Episodic, agent, &event.content);
+    record.salience = salience;
+    let domain = memory_domain(event, memory_scope);
+    record.extensions.insert(
+        "memory_domain".into(),
+        serde_json::to_value(domain).expect("memory domain serializes"),
+    );
+    record
+        .extensions
+        .insert("memory_scope".into(), serde_json::json!(memory_scope));
+    record.extensions.insert(
+        "evidence_class".into(),
+        serde_json::json!(tag_value(&event.tags, "evidence_class").unwrap_or("inferred")),
+    );
+    if event.tags.iter().any(|tag| tag == "source_external") {
+        record
+            .extensions
+            .insert("source_external".into(), serde_json::json!(true));
+    }
+    if let Some(source) = tag_value(&event.tags, "source_reference") {
+        record
+            .extensions
+            .insert("source_reference".into(), serde_json::json!(source));
+    }
+    for key in ["source_expected", "source_observed"] {
+        if let Some(value) = tag_value(&event.tags, key) {
+            record
+                .extensions
+                .insert(key.to_owned(), serde_json::json!(value));
+        }
+    }
+    if let Some(summary) = tag_value(&event.tags, "public_summary") {
+        record
+            .extensions
+            .insert("public_summary".into(), serde_json::json!(summary));
+    }
+    for tag in &event.tags {
+        if let Some((key, value)) = tag.split_once(':') {
+            if matches!(key, "sensitivity.health" | "sensitivity.identity") {
+                record
+                    .extensions
+                    .insert(key.to_owned(), serde_json::json!(value));
+            }
+        }
+    }
+    if domain == super::scope_policy::MemoryDomain::Personal
+        && event.tags.iter().any(|tag| tag == "operator_authored")
+    {
+        record
+            .extensions
+            .insert("operator_authored".into(), serde_json::json!(true));
+    }
+    record
+}
 
-    let final_path = dir.join(format!("{memory_id}.json"));
-    let tmp_path = dir.join(format!(".{memory_id}.json.tmp"));
-    let bytes = serde_json::to_vec_pretty(&rec)?;
-    std::fs::write(&tmp_path, &bytes)?;
-    std::fs::rename(&tmp_path, &final_path)?;
-    Ok(())
+fn memory_domain(event: &InformantEvent, memory_scope: &str) -> super::scope_policy::MemoryDomain {
+    use super::scope_policy::MemoryDomain;
+    match tag_value(&event.tags, "memory_domain") {
+        Some("personal") => MemoryDomain::Personal,
+        Some("business") => MemoryDomain::Business,
+        Some("system") => MemoryDomain::System,
+        _ if matches!(memory_scope, "human_context" | "operator_persona") => MemoryDomain::Personal,
+        _ if matches!(memory_scope, "boardroom_council" | "project_execution") => {
+            MemoryDomain::Business
+        }
+        _ => MemoryDomain::System,
+    }
+}
+
+fn tag_value<'a>(tags: &'a [String], key: &str) -> Option<&'a str> {
+    tags.iter().find_map(|tag| {
+        tag.strip_prefix(key)
+            .and_then(|value| value.strip_prefix(':'))
+    })
 }

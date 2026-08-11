@@ -9,6 +9,16 @@ use commands::workbench::{
     get_workbench_run_events, plan_workbench_run, start_workbench_run_event_stream,
     validate_project_contract, WorkbenchEventStreamState,
 };
+use commands::monitor_surface::{
+    claim_monitor_slot, claim_monitor_surface, click_browser_capture, get_browser_capture_frame,
+    get_browser_capture_status, get_monitor_surface_registry, key_browser_capture,
+    navigate_browser_capture,
+    patch_monitor_surface_playback, push_surface_payload, refresh_monitor_slot_lease,
+    refresh_monitor_surface_lease, release_monitor_slot, release_monitor_surface,
+    restore_monitor_surface_registry, scroll_browser_capture, start_browser_capture,
+    stop_browser_capture, type_browser_capture,
+    BrowserCaptureState, MonitorSurfaceState, TypedMonitorSurfaceState,
+};
 use portable_pty::CommandBuilder;
 use serde::{Deserialize, Serialize};
 use std::fs;
@@ -200,7 +210,7 @@ impl Drop for HermesRuntimeState {
 const DEFAULT_HERMES_RUNTIME_HOST: &str = "127.0.0.1";
 const DEFAULT_HERMES_RUNTIME_PORT: u16 = 9119;
 const DEFAULT_CHARON_HOST: &str = "127.0.0.1";
-const DEFAULT_CHARON_PORT: u16 = 5110;
+const DEFAULT_CHARON_PORT: u16 = 7171;
 const HERMES_RUNTIME_WINDOW_LABEL: &str = "arda-workstation-hermes_runtime_workstation";
 const HERMES_TERMINAL_WINDOW_LABEL: &str = "arda-hermes-terminal";
 const HERMES_TERMINAL_WINDOW_PATH: &str = "terminal.html";
@@ -2691,6 +2701,211 @@ async fn async_resize_pty(
         .map_err(|error| error.to_string())
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct SurfaceBridgeResult {
+    ok: bool,
+    message: String,
+    window_label: Option<String>,
+    source_zone_id: String,
+    slot_id: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct MonitorSurfaceRequest {
+    slot_id: String,
+    source_zone_id: String,
+    focus_mode: String,
+    title: Option<String>,
+    width: Option<f64>,
+    height: Option<f64>,
+}
+
+pub(crate) fn surface_bridge_window_label(slot_id: &str) -> String {
+    format!("arda-monitor-surface--{slot_id}")
+}
+
+fn is_allowed_surface_source(source_zone_id: &str) -> bool {
+    if source_zone_id == "hermes_runtime" {
+        return true;
+    }
+    if source_zone_id.starts_with("service_") {
+        return true;
+    }
+    source_zone_id.starts_with("monitor_left_") || source_zone_id.starts_with("view_desk_")
+}
+
+pub(crate) fn is_allowed_focus_mode(mode: &str) -> bool {
+    matches!(
+        mode,
+        "in_scene_workstation" | "native_window" | "external_browser" | "remote_preview"
+    )
+}
+
+#[tauri::command]
+fn create_monitor_surface(
+    app: AppHandle,
+    state: State<'_, HermesRuntimeState>,
+    request: MonitorSurfaceRequest,
+) -> Result<SurfaceBridgeResult, String> {
+    if !is_allowed_focus_mode(&request.focus_mode) {
+        return Ok(SurfaceBridgeResult {
+            ok: false,
+            message: format!(
+                "Surface focus mode '{}' is not permitted for monitor surfaces",
+                request.focus_mode
+            ),
+            window_label: None,
+            source_zone_id: request.source_zone_id,
+            slot_id: request.slot_id,
+        });
+    }
+
+    if !is_allowed_surface_source(&request.source_zone_id) {
+        return Ok(SurfaceBridgeResult {
+            ok: false,
+            message: format!(
+                "Source zone '{}' is not permitted for monitor surface creation",
+                request.source_zone_id
+            ),
+            window_label: None,
+            source_zone_id: request.source_zone_id,
+            slot_id: request.slot_id,
+        });
+    }
+
+    let window_label = surface_bridge_window_label(&request.slot_id);
+
+    if let Some(window) = app.get_webview_window(&window_label) {
+        let _ = window.unminimize();
+        let _ = window.show();
+        window.set_focus().map_err(|e| e.to_string())?;
+        return Ok(SurfaceBridgeResult {
+            ok: true,
+            message: "Monitor surface window already exists; focused.".to_string(),
+            window_label: Some(window_label),
+            source_zone_id: request.source_zone_id.clone(),
+            slot_id: request.slot_id.clone(),
+        });
+    }
+
+    // For hermes_runtime source, ensure the runtime process is available.
+    if request.source_zone_id == "hermes_runtime" {
+        let _ = ensure_hermes_runtime_process(&state)?;
+    }
+
+    let title = request.title.unwrap_or_else(|| {
+        format!("ARDA Monitor — {}", request.slot_id)
+    });
+    let width = request.width.unwrap_or(820.0);
+    let height = request.height.unwrap_or(560.0);
+
+    let webview_url = if request.source_zone_id == "hermes_runtime" {
+        let config = hermes_runtime_config();
+        let parsed_url =
+            tauri::Url::parse(&config.url()).map_err(|error| error.to_string())?;
+        WebviewUrl::External(parsed_url)
+    } else {
+        let path = format!(
+            "index.html?__view=panel&__windowId={}&__windowRole=monitor&__slot={}&__source={}&#38;",
+            window_label,
+            request.slot_id,
+            request.source_zone_id,
+        );
+        WebviewUrl::App(path.into())
+    };
+
+    let mut builder = WebviewWindowBuilder::new(&app, window_label.clone(), webview_url)
+        .title(title)
+        .inner_size(width, height)
+        .resizable(true)
+        .focused(true)
+        .decorations(true);
+
+    if let Some(main) = app.get_webview_window("main") {
+        builder = builder.center();
+        if let Ok(is_fullscreen) = main.is_fullscreen() {
+            if is_fullscreen {
+                builder = builder.fullscreen(false);
+            }
+        }
+    } else {
+        builder = builder.center();
+    }
+
+    let window = builder
+        .build()
+        .map_err(|error| format!("failed to create monitor surface window: {error}"))?;
+
+    let _ = window.emit(
+        "monitor-surface-sync",
+        serde_json::json!({
+            "slotId": request.slot_id,
+            "sourceZoneId": request.source_zone_id,
+            "focusMode": request.focus_mode,
+            "windowLabel": &window_label,
+        }),
+    );
+
+    Ok(SurfaceBridgeResult {
+        ok: true,
+        message: format!(
+            "Created monitor surface for slot '{}' (source: {})",
+            request.slot_id, request.source_zone_id
+        ),
+        window_label: Some(window_label),
+        source_zone_id: request.source_zone_id.clone(),
+        slot_id: request.slot_id.clone(),
+    })
+}
+
+#[tauri::command]
+fn dismiss_monitor_surface(
+    app: AppHandle,
+    window_label: Option<String>,
+) -> Result<String, String> {
+    let label = window_label.as_deref().ok_or_else(|| "window_label is required".to_string())?;
+    let window = app
+        .get_webview_window(label)
+        .ok_or_else(|| format!("Monitor surface window '{}' not found", label))?;
+    window.close().map_err(|error| error.to_string())?;
+    Ok(format!("Dismissed monitor surface window '{}'", label))
+}
+
+#[cfg(test)]
+mod surface_bridge_tests {
+    use super::*;
+
+    #[test]
+    fn test_is_allowed_focus_mode() {
+        assert!(is_allowed_focus_mode("in_scene_workstation"));
+        assert!(is_allowed_focus_mode("native_window"));
+        assert!(is_allowed_focus_mode("external_browser"));
+        assert!(is_allowed_focus_mode("remote_preview"));
+        assert!(!is_allowed_focus_mode("bogus_mode"));
+        assert!(!is_allowed_focus_mode(""));
+    }
+
+    #[test]
+    fn test_is_allowed_surface_source() {
+        assert!(is_allowed_surface_source("hermes_runtime"));
+        assert!(is_allowed_surface_source("service_beelink_grafana"));
+        assert!(is_allowed_surface_source("monitor_left_1"));
+        assert!(is_allowed_surface_source("view_desk_aux"));
+        assert!(!is_allowed_surface_source("arbitrary_string"));
+        assert!(!is_allowed_surface_source("settings"));
+    }
+
+    #[test]
+    fn test_surface_bridge_window_label() {
+        assert_eq!(
+            surface_bridge_window_label("monitor_left_1"),
+            "arda-monitor-surface--monitor_left_1"
+        );
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let pty_system = portable_pty::native_pty_system();
@@ -2714,6 +2929,9 @@ pub fn run() {
         .manage(HudPulseStreamState::default())
         .manage(HermesRuntimeState::default())
         .manage(WorkbenchEventStreamState::default())
+        .manage(MonitorSurfaceState::default())
+        .manage(TypedMonitorSurfaceState::new())
+        .manage(BrowserCaptureState::default())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             validate_project_contract,
@@ -2768,6 +2986,27 @@ pub fn run() {
             async_write_to_pty,
             async_read_from_pty,
             async_resize_pty,
+            create_monitor_surface,
+            dismiss_monitor_surface,
+            claim_monitor_slot,
+            release_monitor_slot,
+            push_surface_payload,
+            refresh_monitor_slot_lease,
+            claim_monitor_surface,
+            release_monitor_surface,
+            refresh_monitor_surface_lease,
+            patch_monitor_surface_playback,
+            get_monitor_surface_registry,
+            restore_monitor_surface_registry,
+            start_browser_capture,
+            navigate_browser_capture,
+            click_browser_capture,
+            scroll_browser_capture,
+            type_browser_capture,
+            key_browser_capture,
+            get_browser_capture_frame,
+            get_browser_capture_status,
+            stop_browser_capture,
         ])
         .build(tauri::generate_context!())
         .unwrap_or_else(|error| {
@@ -2776,6 +3015,9 @@ pub fn run() {
         })
         .run(|app_handle, event| {
             if matches!(event, tauri::RunEvent::ExitRequested { .. }) {
+                app_handle
+                    .state::<BrowserCaptureState>()
+                    .cleanup_all();
                 app_handle
                     .state::<HermesRuntimeState>()
                     .cleanup_owned_child();

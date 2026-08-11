@@ -1,7 +1,50 @@
 use super::*;
 use crate::types::CouncilApprovalDecision;
+use arda_core::{council_run::CouncilRun, run_graph::RunGraph};
 
 impl HermesService {
+    /// Retain the canonical structured council result after validating every
+    /// participant against the authoritative run graph. Discussion remains
+    /// non-authoritative; only an operator disposition receipt can conclude a
+    /// council that requires a human decision.
+    pub fn record_structured_council_run(
+        &self,
+        council: &CouncilRun,
+        graph: &RunGraph,
+    ) -> Result<String> {
+        council
+            .validate(graph)
+            .map_err(|error| ArdaError::Task(format!("invalid council run: {error}")))?;
+        let digest = council
+            .stable_digest()
+            .map_err(|error| ArdaError::Task(format!("invalid council run: {error}")))?;
+        append_jsonl(&self.council_sessions_path, council)?;
+        let _event = self.record_comms_event(
+            CommsEventType::Status,
+            "council",
+            CommsEventVisibility::OperatorVisible,
+            if council.material_tensions.is_empty() {
+                CommsEventRisk::Low
+            } else {
+                CommsEventRisk::Medium
+            },
+            &format!(
+                "structured council {} state={:?} tensions={} non_approval=true",
+                council.council_id,
+                council.state,
+                council.material_tensions.len()
+            ),
+            vec![
+                council.canonical_task_ref.clone(),
+                format!("run:{}", council.run_id),
+                digest.clone(),
+            ],
+            PromotionState::Unpromoted,
+            true,
+        )?;
+        Ok(digest)
+    }
+
     pub fn council_command_seats(&self) -> Vec<CouncilCommandSeat> {
         vec![
             CouncilCommandSeat {

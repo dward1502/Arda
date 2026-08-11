@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
+    ".",
     "crates/engine",
     "crates/spine/contract/arda-contract-registry",
     "crates/spine/runtime/manwe",
@@ -11,13 +12,16 @@ members = [
     "apps/arda-launcher/src-tauri",
     "crates/spine/runtime/arda-economics",
     "crates/spine/runtime/arda-mandos",
+    "crates/spine/runtime/arda-rumil",
     "crates/spine/memory/arda-vaire",
     "crates/spine/executors/arda-varda",
     "outposts/arda-outpost-protocol",
     "outposts/arda-outpost-scout",
+    "outposts/arda-relic-bridge",
     "sdk/rust",
 ]
 default-members = [
+    ".",
     "crates/engine",
     "crates/spine/contract/arda-contract-registry",
     "crates/spine/runtime/manwe",
@@ -27,12 +31,20 @@ default-members = [
     "crates/spine/observability/arda-aule",
     "crates/spine/runtime/arda-economics",
     "crates/spine/runtime/arda-mandos",
+    "crates/spine/runtime/arda-rumil",
     "crates/spine/memory/arda-vaire",
     "crates/spine/executors/arda-varda",
     "outposts/arda-outpost-protocol",
     "outposts/arda-outpost-scout",
+    "outposts/arda-relic-bridge",
 ]
-exclude = []
+exclude = ["vendor/glib-0.18.5"]
+
+[patch.crates-io]
+# Stage 5 bounded security backport for RUSTSEC-2024-0429.
+# The vendored source must remain byte-identical to glib 0.18.5 except for the
+# upstream `VariantStrIter` mutability fix and Arda provenance note.
+glib = { path = "vendor/glib-0.18.5" }
 
 [package]
 name = "arda"
@@ -87,6 +99,7 @@ arda-vaire = { path = "crates/spine/memory/arda-vaire" }
 arda-aule = { path = "crates/spine/observability/arda-aule" }
 arda-economics = { path = "crates/spine/runtime/arda-economics" }
 arda-mandos = { path = "crates/spine/runtime/arda-mandos" }
+arda-rumil = { path = "crates/spine/runtime/arda-rumil" }
 manwe = { path = "crates/spine/runtime/manwe" }
 arda-varda = { path = "crates/spine/executors/arda-varda" }
 arda-engine = { path = "crates/engine" }
@@ -98,7 +111,7 @@ uuid = { version = "1", features = ["v4", "serde"] }
 clap = { version = "4", features = ["derive"] }
 futures = "0.3"
 rand = "0.8"
-yaml-rust = "0.4"
+yaml-rust2 = "0.11"
 base64 = "0.22"
 fs2 = "0.4"
 # --- manwe gateway ---

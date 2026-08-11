@@ -21,6 +21,7 @@ async fn start_harness(
         harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
         child_pids: Arc::new(RwLock::new(Vec::new())),
         service_names: Arc::new(Vec::new()),
+        service_statuses: Arc::new(RwLock::new(Vec::new())),
         manwe_url: "http://127.0.0.1:1".into(),
         client: reqwest::Client::new(),
         manwe_proxy_timeout: DEFAULT_MANWE_PROXY_TIMEOUT,
@@ -248,6 +249,7 @@ async fn run_event_stream_is_sse_and_emits_canonical_events() {
         .error_for_status()
         .expect("plan status");
 
+    let projection_started = std::time::Instant::now();
     let mut response = client
         .get(format!("http://{bound}/v1/runs/run-stream/events/stream"))
         .send()
@@ -277,6 +279,10 @@ async fn run_event_stream_is_sse_and_emits_canonical_events() {
     })
     .await
     .expect("stream event timeout");
+    assert!(
+        projection_started.elapsed() < std::time::Duration::from_secs(1),
+        "event projection exceeded the 1s U3 budget"
+    );
     let text = String::from_utf8(frame).expect("utf-8 SSE frame");
     assert!(text.contains("event: run_event"));
     assert!(text.contains("\"schema_version\":\"arda.run-event.v1\""));
@@ -332,6 +338,47 @@ async fn cancel_is_idempotent_and_mutations_require_typed_envelopes() {
         .await
         .expect("cancel retry");
     assert_eq!(retry.status(), 200);
+
+    shutdown.notify_waiters();
+    handle.await.expect("harness join");
+}
+
+#[tokio::test]
+async fn operator_rejection_is_durable_and_cannot_authorize_execution() {
+    let root = TempDir::new().expect("temp root");
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    let client = reqwest::Client::new();
+    attach(&client, bound).await;
+    assert_eq!(
+        plan(&client, bound, "run-rejected", "approval-node", "approval")
+            .await
+            .status(),
+        201
+    );
+
+    let rejected: Value = client
+        .post(format!("http://{bound}/v1/runs/run-rejected/cancel"))
+        .json(&json!({
+            "reason": "approval rejected; revise objective before replanning",
+            "envelope": envelope("reject-run-rejected")
+        }))
+        .send()
+        .await
+        .expect("rejection request")
+        .error_for_status()
+        .expect("rejection status")
+        .json()
+        .await
+        .expect("rejection body");
+    assert!(rejected["graph"]["nodes"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .all(|node| node["state"] == "cancelled"));
+    assert!(rejected["events"].as_array().unwrap().iter().any(|event| {
+        event["kind"]["type"] == "cancelled"
+            && event["kind"]["reason"] == "approval rejected; revise objective before replanning"
+    }));
 
     shutdown.notify_waiters();
     handle.await.expect("harness join");
@@ -537,4 +584,98 @@ async fn operator_receipts_complete_execute_verify_review_and_close_in_order() {
 
     shutdown.notify_waiters();
     handle.await.expect("harness join");
+}
+
+#[tokio::test]
+async fn failed_verification_is_durable_and_blocks_review() {
+    let root = TempDir::new().expect("temp root");
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    let client = reqwest::Client::new();
+    attach(&client, bound).await;
+
+    client
+        .post(format!("http://{bound}/v1/runs/plan"))
+        .json(&json!({
+            "project_id": PROJECT_ID,
+            "graph": completion_graph("run-failed-verification"),
+            "envelope": envelope("plan-failed-verification")
+        }))
+        .send()
+        .await
+        .expect("plan request")
+        .error_for_status()
+        .expect("plan status");
+    client
+        .post(format!(
+            "http://{bound}/v1/runs/run-failed-verification/approve"
+        ))
+        .json(&json!({"node_id": "approval", "envelope": envelope("approve-failed-verification")}))
+        .send()
+        .await
+        .expect("approve request")
+        .error_for_status()
+        .expect("approve status");
+
+    client
+        .post(format!(
+            "http://{bound}/v1/runs/run-failed-verification/nodes/execute/complete"
+        ))
+        .json(&json!({
+            "envelope": envelope("complete-failed-verification-execute"),
+            "receipt_digest": receipt_digest("execute")
+        }))
+        .send()
+        .await
+        .expect("execute completion")
+        .error_for_status()
+        .expect("execute status");
+
+    let failed: Value = client
+        .post(format!(
+            "http://{bound}/v1/runs/run-failed-verification/nodes/verify/complete"
+        ))
+        .json(&json!({
+            "envelope": envelope("complete-failed-verification-verify"),
+            "receipt_digest": receipt_digest("verify"),
+            "evidence": {"tests": [{
+                "name": "cargo test --quiet",
+                "status": "failed",
+                "duration_ms": 12,
+                "details": "fixture assertion failed"
+            }]}
+        }))
+        .send()
+        .await
+        .expect("verify completion")
+        .error_for_status()
+        .expect("verify status")
+        .json()
+        .await
+        .expect("failed run response");
+    assert_eq!(
+        failed["graph"]["nodes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|node| node["id"] == "verify")
+            .unwrap()["state"],
+        "failed"
+    );
+    assert_eq!(failed["review"]["tests"][0]["status"], "failed");
+
+    let blocked = client
+        .post(format!(
+            "http://{bound}/v1/runs/run-failed-verification/nodes/review/complete"
+        ))
+        .json(&json!({
+            "envelope": envelope("complete-blocked-review"),
+            "receipt_digest": receipt_digest("review")
+        }))
+        .send()
+        .await
+        .expect("blocked review request");
+    assert_eq!(blocked.status(), 409);
+
+    shutdown.notify_waiters();
+    handle.await.expect("harness shutdown");
 }

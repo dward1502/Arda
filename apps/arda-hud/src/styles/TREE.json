@@ -1,0 +1,70 @@
+{
+  "name": "styles",
+  "type": "dir",
+  "path": "apps/arda-hud/src/styles",
+  "children": {
+    "INDEX.md": { "name": "INDEX.md", "type": "file" },
+    "TREE.json": { "name": "TREE.json", "type": "file" },
+    "TREE.md": { "name": "TREE.md", "type": "file" },
+    "adapters": {
+      "name": "adapters",
+      "type": "dir",
+      "children": {
+        "fleet.css": { "name": "fleet.css", "type": "file" }
+      }
+    },
+    "components": {
+      "name": "components",
+      "type": "dir",
+      "children": {
+        "cards.css": { "name": "cards.css", "type": "file" },
+        "controls.css": { "name": "controls.css", "type": "file" },
+        "data-display.css": { "name": "data-display.css", "type": "file" },
+        "hermes-dashboard.css": { "name": "hermes-dashboard.css", "type": "file" },
+        "media-library.css": { "name": "media-library.css", "type": "file" },
+        "modules.css": { "name": "modules.css", "type": "file" },
+        "research.css": { "name": "research.css", "type": "file" },
+        "service-surfaces.css": { "name": "service-surfaces.css", "type": "file" }
+      }
+    },
+    "foundation": {
+      "name": "foundation",
+      "type": "dir",
+      "children": {
+        "base.css": { "name": "base.css", "type": "file" },
+        "keyframes.css": { "name": "keyframes.css", "type": "file" },
+        "themes.css": { "name": "themes.css", "type": "file" },
+        "tokens.css": { "name": "tokens.css", "type": "file" },
+        "utilities.css": { "name": "utilities.css", "type": "file" }
+      }
+    },
+    "layout": {
+      "name": "layout",
+      "type": "dir",
+      "children": {
+        "app-shell.css": { "name": "app-shell.css", "type": "file" },
+        "panels.css": { "name": "panels.css", "type": "file" },
+        "workspace.css": { "name": "workspace.css", "type": "file" }
+      }
+    },
+    "scene": {
+      "name": "scene",
+      "type": "dir",
+      "children": {
+        "boardroom.css": { "name": "boardroom.css", "type": "file" },
+        "hud-instruments.css": { "name": "hud-instruments.css", "type": "file" },
+        "scene-stage.css": { "name": "scene-stage.css", "type": "file" },
+        "terminal-surfaces.css": { "name": "terminal-surfaces.css", "type": "file" },
+        "workstations.css": { "name": "workstations.css", "type": "file" },
+        "world.css": { "name": "world.css", "type": "file" }
+      }
+    },
+    "tokens": {
+      "name": "tokens",
+      "type": "dir",
+      "children": {
+        "nightcity.tokens.ts": { "name": "nightcity.tokens.ts", "type": "file" }
+      }
+    }
+  }
+}

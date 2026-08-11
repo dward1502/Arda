@@ -1569,6 +1569,7 @@ resonance = 0.95
                 .expect("active queue read"),
         )
         .expect("active queue parse");
+        assert_eq!(active["schema_version"], "arda.queue_active.v1");
         assert_eq!(active["raw_ledger_rows_total"], 3);
         assert_eq!(active["latest_task_ids_total"], 2);
         assert_eq!(active["active_task_count"], 1);

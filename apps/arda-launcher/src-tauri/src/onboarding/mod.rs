@@ -2,6 +2,7 @@ mod console;
 mod constants;
 mod device;
 mod environment;
+mod first_run;
 mod guided;
 mod helpers;
 mod io;
@@ -16,6 +17,7 @@ pub mod types;
 pub use console::launch_console;
 pub use device::device_scan;
 pub use environment::{build_environment_profile, workspace_root};
+pub use first_run::build_first_run_projection;
 pub use guided::build_guided_session;
 pub use helpers::now_utc;
 pub use io::{

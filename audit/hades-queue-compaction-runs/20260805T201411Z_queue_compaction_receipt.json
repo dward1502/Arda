@@ -1,0 +1,34 @@
+{
+  "schema_version": "arda.hades.queue-compaction.v1",
+  "status": "completed",
+  "operation": "annunimas_legacy_queue_retirement",
+  "executed_at_utc": "2026-08-05T20:14:11Z",
+  "authority": {
+    "decision_class": "workspace_cleanup",
+    "approver": "operator",
+    "instruction": "Clear the inherited Annunimas queue state and start a new Arda queue; Arda plans have not yet populated a queue."
+  },
+  "source": {
+    "path": "core/projects/tasks/queue.jsonl",
+    "namespace": "annunimas",
+    "rows": 346,
+    "sha256": "7ba22c09b2816f6d36ab3c9a4b6417eb9adb97858dd0ee000e6b2e1a809dedf6"
+  },
+  "retired_source": {
+    "retention": "omitted_from_release_lineage",
+    "rows": 346,
+    "sha256": "7ba22c09b2816f6d36ab3c9a4b6417eb9adb97858dd0ee000e6b2e1a809dedf6",
+    "reason": "inherited runtime queue contained host-specific historical records"
+  },
+  "replacement": {
+    "path": "core/projects/tasks/queue.jsonl",
+    "namespace": "arda",
+    "rows": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_task_ids": []
+  },
+  "rollback": {
+    "available_in_release_lineage": false,
+    "method": "Use an authorized private backup, never the public release lineage."
+  }
+}

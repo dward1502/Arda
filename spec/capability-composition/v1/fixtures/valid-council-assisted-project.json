@@ -1,0 +1,64 @@
+{
+  "schema_version": "arda.capability-composition.v1",
+  "lineage": {
+    "objective_id": "objective-council-review",
+    "project_id": "550e8400-e29b-41d4-a716-446655440102",
+    "run_id": "run-council-review-1",
+    "project_contract_digest": "sha256:council-project"
+  },
+  "outcome": {
+    "description": "Produce a council-assisted business proposal for operator review",
+    "acceptance_conditions": ["council dissent is preserved", "no external commitment occurs without approval"]
+  },
+  "scope": "business",
+  "sensitivity": {
+    "data_classes": ["internal"],
+    "permitted_egress": ["local_device", "hosted_provider"]
+  },
+  "capabilities": {
+    "required": ["council", "research", "artifact_receipt"],
+    "optional": ["hosted_inference"],
+    "forbidden": ["payment", "external_write"]
+  },
+  "roles": {
+    "planner": {
+      "kind": "planner",
+      "authority": "propose",
+      "required_capabilities": ["council"]
+    },
+    "reviewer": {
+      "kind": "reviewer",
+      "authority": "read_only",
+      "required_capabilities": ["artifact_receipt"]
+    }
+  },
+  "route_preferences": {
+    "mode": "prefer_local",
+    "allowed_providers": ["local_inference", "hosted_inference"]
+  },
+  "council_mode": "required",
+  "proactive_communication": "approval_required",
+  "joulework_budget": {
+    "max_joules": 10000.0,
+    "max_cost_usd": 2.0,
+    "max_operator_seconds": 600
+  },
+  "authority": {
+    "signed_request_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "authority_ceiling": "propose",
+    "approval_scopes": ["hosted_inference"]
+  },
+  "permissions": {
+    "tools": ["research.read", "council.deliberate"],
+    "filesystem": {"read_roots": ["core/knowledge"], "write_roots": ["audit/council"]},
+    "network": "external_approved",
+    "devices": [],
+    "payments": false
+  },
+  "lifecycle": {
+    "restart": "operator_decision",
+    "cancellation": "operator_approval",
+    "compensation": "none",
+    "notification": "on_intervention"
+  }
+}

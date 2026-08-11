@@ -1,11 +1,14 @@
 # arda-outpost-scout
 
-Bounded survey and source-bearing research runtime for Arda outposts.
+Bounded survey, Rúmil audit, and source-bearing research runtime for Arda outposts.
 
 ## What it does
 Walks a bounded repository surface, queries one operator-configured local
 SearXNG endpoint, converts results into advisory outpost observations, and
 stores complete observations through `arda-vaire` with durable receipt IDs.
+It also accepts expiring, read-only Rúmil inventory requests rooted beneath the
+configured runtime root, persists full packets outside memory, and projects only
+compact audit receipts into Vairë.
 
 ## Maturity
 - Stable: bounded repo survey, governed research requests, source validation,
@@ -18,6 +21,8 @@ stores complete observations through `arda-vaire` with durable receipt IDs.
 - `observation::{CrateObservation, CrateStatus, SurveyReport}`
 - `SearxngClient::search(ResearchRequest)` -> `ResearchReport`
 - `build_runtime_router(ScoutRuntimeState)` -> Axum router
+- `ScoutAuditService::execute(ScoutAuditRequest)` -> `ScoutAuditOutcome`
+- `ScoutAuditService::followup(AuditFollowupRequest)` -> bounded packet sections
 - `ObservationMemoryBridge::encode_observation(observation)` -> `MemoryFallback`
 - `ObservationMemoryBridge::recall_observations(request)` -> `ScoutRecallReport`
 - `encode_observation_to_memory(root, observation)` and
@@ -53,9 +58,26 @@ stores complete observations through `arda-vaire` with durable receipt IDs.
 - Research observations are `raw_measurement` with `advisory` authority. They
   cannot approve, dispatch, promote, or append to the project task queue.
 
+## Rúmil audit contract
+
+- `/audit` accepts only non-expired `advisory_read_only` requests using the
+  `bounded_request_root` policy and mandatory file, byte, excerpt, and timeout
+  budgets.
+- Audit roots are relative to the configured Warden runtime root. Absolute paths
+  and parent traversal are rejected before scanning.
+- Full packets are stored under `data/warden/rumil_audits/`; the append-only
+  receipt ledger records request, packet digest, audit ID, completeness, and
+  authority.
+- Identical retries replay the same packet without duplicate receipt or Vairë
+  write. Reusing a request ID with changed content is rejected.
+- `/audit/followup` reads an existing packet by audit ID and permits only fixed,
+  bounded sections and packet-relative path prefixes. It accepts no scan root.
+- Vairë receives a compact advisory receipt observation, never the full file
+  record collection.
+
 ## HTTP and CLI runtime
 
-- `serve`: `/health`, `/search`, `/survey`, and `/recall`.
+- `serve`: `/health`, `/search`, `/survey`, `/audit`, `/audit/followup`, and `/recall`.
 - `run-topics`: submits at most 16 configured topics with the fixed source policy
   and a 15-minute expiry.
 - The root daemon harness proxies health/search/recall when
@@ -71,6 +93,39 @@ cargo test -p arda-outpost-scout --all-features
 cargo clippy -p arda-outpost-scout --all-targets --all-features -- -D warnings
 RUSTDOCFLAGS='-D warnings' cargo doc -p arda-outpost-scout --no-deps --all-features
 ```
+
+## Warden AArch64 delivery
+
+The supported delivery path is rootless cross-compilation on the Arda operator
+host. It does not install a Rust toolchain on Warden. The pinned inputs are Rust
+`1.94.0`, `cross` `0.2.5`, target `aarch64-unknown-linux-gnu`, Cargo's checked-in
+lockfile, and the `cross` target image whose resolved digest is recorded in the
+artifact manifest.
+
+One-time operator-host setup:
+
+```bash
+rustup toolchain install 1.94.0 --profile minimal
+cargo install cross --version 0.2.5 --locked
+```
+
+Podman, `jq`, OpenSSH, and non-interactive key access through the canonical
+`warden` alias are also required. Build and operate the fixed-scope delivery with:
+
+```bash
+scripts/pi5_warden_scout_delivery.sh build
+scripts/pi5_warden_scout_delivery.sh deploy
+scripts/pi5_warden_scout_delivery.sh smoke
+scripts/pi5_warden_scout_delivery.sh reboot-verify
+scripts/pi5_warden_scout_delivery.sh rollback
+```
+
+Artifacts and manifests default to
+`~/.cache/arda-artifacts/pi5-warden/`. Deployment accepts no host, command,
+service, password, or credential argument. It stages and verifies the checksum,
+preserves the prior binary, atomically replaces only the Warden scout binary,
+restarts only `arda-warden-scout.service`, and checks health. Rollback restores
+the immediately prior binary without modifying the append-only memory root.
 
 ## Notes
 - Intended to run standalone on Pi5/runtime toolchains.

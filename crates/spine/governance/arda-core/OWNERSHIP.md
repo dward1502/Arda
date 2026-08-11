@@ -3,13 +3,14 @@
 Crate: `crates/spine/governance/arda-core`
 Owner: ARDA / foundational runtime contracts
 Status: active
-Reviewed: 2026-07-28
+Reviewed: 2026-08-08
 
 ## This crate owns
 
 - Shared lifecycle data, task/goal/plan/reflection contracts, error and configuration primitives.
 - The loop engine's dispatch, economy, alert, observability, and learning primitives.
-- Service-registry, tool-contract, AIPKG, Soterion, ledger, systemd, and provider abstractions.
+- Service and capability registry authority/invariants, tool-contract, AIPKG,
+  Soterion, ledger, systemd, and provider abstractions.
 - Stable modules that direct consumers compile against.
 
 ## This crate does not own

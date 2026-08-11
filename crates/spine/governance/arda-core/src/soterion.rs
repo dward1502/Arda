@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 use std::sync::OnceLock;
-use yaml_rust::{Yaml, YamlLoader};
+use yaml_rust2::{Yaml, YamlLoader};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct SoterionMeta {

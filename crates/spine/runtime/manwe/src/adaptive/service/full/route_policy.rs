@@ -197,6 +197,7 @@ fn joule_measurement_source_label(source: JouleWorkMeasurementSource) -> String 
     match source {
         JouleWorkMeasurementSource::OperatorEstimate => "operator_estimate",
         JouleWorkMeasurementSource::DefaultFallback => "default_fallback",
+        JouleWorkMeasurementSource::SyntheticRestoration => "synthetic_restoration",
         JouleWorkMeasurementSource::RuntimeTimer => "runtime_timer",
         JouleWorkMeasurementSource::ProcessResourceSample => "process_resource_sample",
         JouleWorkMeasurementSource::ProviderUsageReport => "provider_usage_report",
@@ -591,13 +592,8 @@ fn task_affinity_score(model: &ModelState, task_type: &str) -> u8 {
                 1
             }
         }
-        "chat" | "summary" | "background" => {
-            if model.is_default {
-                2
-            } else {
-                1
-            }
-        }
+        "chat" | "summary" | "background" if model.is_default => 2,
+        "chat" | "summary" | "background" => 1,
         _ => 1,
     }
 }

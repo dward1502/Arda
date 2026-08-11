@@ -5,17 +5,9 @@ pub(super) fn arda_root() -> PathBuf {
 }
 
 pub(super) fn bacon_lite_base(service_root: &Path) -> PathBuf {
-    #[cfg(test)]
-    {
-        // Unit routes must keep generated governance evidence inside their
-        // injected temporary service root.
-        service_root.to_path_buf()
-    }
-    #[cfg(not(test))]
-    {
-        let _ = service_root;
-        arda_root()
-    }
+    // Governance route receipts are runtime state. Keep every projection under
+    // the injected service root rather than mutating tracked workspace docs.
+    service_root.to_path_buf()
 }
 
 #[cfg(test)]
@@ -23,7 +15,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn bacon_lite_test_output_uses_the_injected_service_root() {
+    fn bacon_lite_output_uses_the_injected_service_root() {
         assert_eq!(
             bacon_lite_base(Path::new("/tmp/manwe-test")),
             PathBuf::from("/tmp/manwe-test")

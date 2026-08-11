@@ -1,9 +1,0 @@
-{
-  "duplicate_idempotency_records": 0,
-  "execution_intents_path": "/var/home/mythos/Eregion/Arda/data/prometheus/execution_intents.jsonl",
-  "pending_recovered": 0,
-  "replay_safe": true,
-  "source": "prometheus_startup_recovery",
-  "total_latest_intents": 0,
-  "ts_utc": "2026-07-26T18:04:27.105612217+00:00"
-}

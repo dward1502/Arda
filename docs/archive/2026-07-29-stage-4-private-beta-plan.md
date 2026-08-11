@@ -116,7 +116,7 @@ If an invited evaluator becomes available, assess whether they can:
 
 ## Workstream 5 — Research support
 
-Use `docs/plans/2026-07-27-warden-varda-ceo-learning-loop.md` plus the Warden application plan.
+Use `docs/archive/2026-07-27-warden-varda-ceo-learning-loop.md` plus the Warden application plan.
 
 **Stage 4 minimum**
 - explicit question only; recurring autonomous watchlists may remain experimental;

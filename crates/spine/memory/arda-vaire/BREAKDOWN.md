@@ -6,7 +6,7 @@ soterion:
   role: memory_service
   owner: HADES
   status: active
-  last_reviewed: 2026-07-27
+  last_reviewed: 2026-08-05
 ---
 
 # arda-vaire breakdown
@@ -35,6 +35,17 @@ the Prometheus backend, or the separate
   contract dual-write, record decoding, and scope derivation
 - `src/service/retrieval.rs` — recent/scoped/relevant recall, lexical ranking,
   knowledge-seed recall, and identity synthesis
+- `src/service/retention.rs` — shared exponential decay, domain retention
+  configurations, canonical-record scoring, and forget-eligibility calculation
+- `src/service/scope_policy.rs` — typed consumer context and the centralized
+  Allow/Redact/Quarantine/Block policy table for store and recall boundaries
+- `src/service/governance.rs` — persisted correction chains, governed episodic
+  compression, retention sweeps, provenance quarantine/clearance, revoke
+  cascades, and idempotent hash-chained revoke receipts
+- `src/service/governed.rs` — approved knowledge-delta intake and provenance
+  receipts
+- `src/service/persona_derive.rs` — canonical-evidence persona derivation and
+  replaceable machine/human projections
 - `src/service/promotion.rs` — consolidation, semantic/procedural promotion,
   receipts, and Obsidian synchronization
 - `src/service/status.rs` — statistics, status, recent ledgers, and path reports
@@ -48,11 +59,24 @@ unwired source subtree or module-root collision.
 ## Data and behavior boundaries
 
 - `encode` evaluates significance and writes either episodic or noise data.
+- `encode_with_context` applies store policy before persistence; provenance
+  mismatches are retained only as canonical quarantined records, while embedded
+  system credentials are blocked before either store can receive them.
 - Episodic records include source, scope, confidence, trust, and chain metadata.
+- Canonical governance records use explicit personal/business/system domains;
+  subsystem memory scopes remain separate metadata rather than being overloaded.
 - `recall_relevant` uses bounded lexical ranking with protected-scope weighting;
   it is not a BM25, vector, or hybrid index.
+- Governed and primary recall exclude Decayed, Quarantined, and Revoked states;
+  correction recall resolves only the active current record while preserving a
+  bidirectionally walkable audit chain.
 - `consolidate` promotes eligible repeated procedural patterns and emits
-  promotion receipts that retain source memory IDs.
+  promotion receipts that retain source memory IDs; it first runs the persisted
+  retention sweep.
+- `compress_episodic_batch` requires at least 20 low-salience episodic records in
+  one domain and subsystem scope within seven days, then links every source ID.
+- Revoke never deletes records. Cascades can leave derivatives unchanged, mark
+  semantic/persona projections stale, or persist regeneration-required markers.
 - `sync_obsidian` requires an explicit vault path and indexes Markdown content
   into a separate JSONL surface; it does not make human notes canonical machine
   truth.
@@ -89,6 +113,13 @@ history after this reconciliation. Verified capabilities include:
 - atomic durable observability/status/statistics export and bounded-label
   `arda-aule` Prometheus ingestion
 - append/consolidation soak coverage with malformed-record and restart recovery
+- consumer-context redaction and explicit missing-context failure
+- consolidation-driven domain retention and default decayed-record exclusion
+- correction/supersession current-record recall and full chain traversal
+- compression threshold, same-scope, age-window, and provenance checks
+- ingestion-time provenance quarantine plus operator-authorized clearance
+- idempotent revoke receipts, full hash-chain validation, and stale semantic and
+  persona projection marking
 - bounded fallback work-signal execution through one shared Tokio runtime,
   verified by the 512-event operator-scale soak
 - explicit episodic/continuity schema versions, legacy read migration, and

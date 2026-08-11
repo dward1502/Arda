@@ -2,25 +2,33 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   ARDA_BOARDROOM_SLOT_STORAGE_KEY,
+  BOARDROOM_MONITOR_SLOT_IDS,
   BOARDROOM_SCENE_SLOT_IDS,
   DEFAULT_BOARDROOM_SCENE_SLOT_ASSIGNMENTS,
   assignmentsFromDocument,
+  claimMonitorSlot,
   createDefaultBoardroomSlotSettings,
   documentFromAssignments,
   documentWithSurfaceLayout,
   documentWithVisualizationSelection,
   exportBoardroomProfile,
   importBoardroomProfile,
+  loadBoardroomSlotSettings,
+  readLocalBoardroomSlotSettingsDocument,
+  refreshMonitorSlot,
+  releaseMonitorSlot,
+  resetBoardroomProfile,
+  resetMonitorSlot,
+  resolveMonitorSlotSource,
+  type BoardroomAgentClaim,
+  type BoardroomMonitorSlotSource,
   type BoardroomSceneSlotAssignments,
   type BoardroomSceneSlotId,
   type BoardroomSlotAssignmentMode,
   type BoardroomSlotSettingsDocument,
-  loadBoardroomSlotSettings,
-  readLocalBoardroomSlotSettingsDocument,
-  resetBoardroomProfile,
+  type BoardroomSurfaceLayout,
   saveBoardroomSlotSettingsDocument,
   surfaceLayoutsFromDocument,
-  type BoardroomSurfaceLayout,
 } from '../../../lib/boardroomSlotSettings'
 import { parseJsonOrNull } from '../../../lib/jsonParse'
 import type { BoardroomVisualizationSelection } from '../../../scene/boardroom/boardroomVisualizationPresets'
@@ -33,6 +41,11 @@ interface UseBoardroomSlotAssignmentsResult {
   saveStatus: 'idle' | 'saving' | 'saved' | 'error'
   document: BoardroomSlotSettingsDocument
   surfaceLayouts: Record<string, BoardroomSurfaceLayout>
+  monitorSlotSources: Record<string, BoardroomMonitorSlotSource | null>
+  claimMonitorSlot: (slotId: BoardroomSceneSlotId, claim: BoardroomAgentClaim) => void
+  releaseMonitorSlot: (slotId: BoardroomSceneSlotId, owner: string) => void
+  refreshMonitorSlot: (slotId: BoardroomSceneSlotId, owner: string, leaseExpiresAtUtc: string) => void
+  resetMonitorSlot: (slotId: BoardroomSceneSlotId) => void
   updateSurfaceLayout: (slotId: BoardroomSceneSlotId, updater: BoardroomSurfaceLayout | ((current: BoardroomSurfaceLayout) => BoardroomSurfaceLayout)) => void
   updateVisualization: (slotId: BoardroomSceneSlotId, selection: BoardroomVisualizationSelection) => { ok: boolean; message: string }
   exportProfile: () => string
@@ -159,6 +172,33 @@ export function useBoardroomSlotAssignments(rootPath: string | null | undefined)
     return { ok: result.ok, message: result.message }
   }
 
+  const claimSlot = (slotId: BoardroomSceneSlotId, claim: BoardroomAgentClaim) => {
+    markDirty()
+    setDocument((current) => claimMonitorSlot(current, slotId, claim))
+  }
+
+  const releaseSlot = (slotId: BoardroomSceneSlotId, owner: string) => {
+    markDirty()
+    setDocument((current) => releaseMonitorSlot(current, slotId, owner))
+  }
+
+  const refreshSlot = (slotId: BoardroomSceneSlotId, owner: string, leaseExpiresAtUtc: string) => {
+    markDirty()
+    setDocument((current) => refreshMonitorSlot(current, slotId, owner, leaseExpiresAtUtc))
+  }
+
+  const resetSlot = (slotId: BoardroomSceneSlotId) => {
+    markDirty()
+    setDocument((current) => resetMonitorSlot(current, slotId))
+  }
+
+  const monitorSlotSources: Record<string, BoardroomMonitorSlotSource | null> = useMemo(() => {
+    return BOARDROOM_MONITOR_SLOT_IDS.reduce<Record<string, BoardroomMonitorSlotSource | null>>((sources, slotId) => {
+      sources[slotId] = resolveMonitorSlotSource(slotId, document)
+      return sources
+    }, {})
+  }, [document])
+
   const importProfile = (serialized: string) => {
     const result = importBoardroomProfile(serialized)
     if (!result.ok || !result.document) {
@@ -188,6 +228,11 @@ export function useBoardroomSlotAssignments(rootPath: string | null | undefined)
     saveStatus,
     document,
     surfaceLayouts: surfaceLayoutsFromDocument(document),
+    monitorSlotSources,
+    claimMonitorSlot: claimSlot,
+    releaseMonitorSlot: releaseSlot,
+    refreshMonitorSlot: refreshSlot,
+    resetMonitorSlot: resetSlot,
     updateSurfaceLayout,
     updateVisualization,
     exportProfile: () => exportBoardroomProfile(document),

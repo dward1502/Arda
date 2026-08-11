@@ -160,6 +160,24 @@ pub fn build_bacon_lite_event(
     task: &Task,
     context: Value,
 ) -> std::io::Result<BaconLiteEvent> {
+    build_bacon_lite_event_with_description(
+        crate_name,
+        action,
+        task,
+        task.description.clone(),
+        context,
+    )
+}
+
+/// Construct an event while keeping the full task available to governance
+/// scoring and persisting only the caller-provided safe description.
+pub fn build_bacon_lite_event_with_description(
+    crate_name: &str,
+    action: &str,
+    task: &Task,
+    persisted_description: String,
+    context: Value,
+) -> std::io::Result<BaconLiteEvent> {
     let result = bacon_lite_validate(task);
     let resonance = calculate_resonance_with_triad(task, &result.triad, None, None);
     let event = BaconLiteEvent {
@@ -173,7 +191,7 @@ pub fn build_bacon_lite_event(
         action: action.to_string(),
         task_id: task.id.to_string(),
         task_type: task.task_type.clone(),
-        description: task.description.clone(),
+        description: persisted_description,
         passed: result.passed,
         confidence: result.confidence,
         rationale: result.rationale,
@@ -450,6 +468,30 @@ pub fn enqueue_bacon_lite_with(
 ) -> Result<BaconLiteEvent, BaconLiteEnqueueError> {
     let event = build_bacon_lite_event(crate_name, action, task, context)
         .map_err(BaconLiteEnqueueError::Invalid)?;
+    writer
+        .try_enqueue(event.clone())
+        .map_err(BaconLiteEnqueueError::Transport)?;
+    Ok(event)
+}
+
+/// Enqueue an event while keeping sensitive task text out of the ledger.
+/// Governance scoring still evaluates the original task.
+pub fn enqueue_bacon_lite_with_description(
+    writer: &BaconLiteWriter,
+    crate_name: &str,
+    action: &str,
+    task: &Task,
+    persisted_description: String,
+    context: Value,
+) -> Result<BaconLiteEvent, BaconLiteEnqueueError> {
+    let event = build_bacon_lite_event_with_description(
+        crate_name,
+        action,
+        task,
+        persisted_description,
+        context,
+    )
+    .map_err(BaconLiteEnqueueError::Invalid)?;
     writer
         .try_enqueue(event.clone())
         .map_err(BaconLiteEnqueueError::Transport)?;
@@ -1005,6 +1047,29 @@ mod tests {
         let result = bacon_lite_validate(&task);
         assert!(result.confidence >= 0.0);
         assert_eq!(result.mode, "bacon_lite");
+    }
+
+    #[test]
+    fn safe_description_does_not_change_governance_scoring() {
+        let task = Task::new(
+            "private prompt with evidence https://example.com",
+            "dispatch",
+        );
+        let original =
+            build_bacon_lite_event("manwe", "route", &task, Value::Null).expect("original event");
+        let redacted = build_bacon_lite_event_with_description(
+            "manwe",
+            "route",
+            &task,
+            "route prompt=[redacted]".to_string(),
+            Value::Null,
+        )
+        .expect("redacted event");
+
+        assert_eq!(redacted.description, "route prompt=[redacted]");
+        assert_eq!(redacted.passed, original.passed);
+        assert_eq!(redacted.confidence, original.confidence);
+        assert_eq!(redacted.triad_passed, original.triad_passed);
     }
 
     #[test]

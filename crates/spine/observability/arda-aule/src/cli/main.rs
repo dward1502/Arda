@@ -265,6 +265,14 @@ enum AutopilotCommands {
         #[arg(long)]
         root: Option<PathBuf>,
     },
+    /// Inspect or explicitly publish the autonomous-loop preflight projection.
+    Preflight {
+        #[arg(long)]
+        root: Option<PathBuf>,
+        /// Persist only the preflight projection; never enables promotion.
+        #[arg(long)]
+        write: bool,
+    },
     KnowledgeTriage {
         #[arg(long)]
         root: Option<PathBuf>,
@@ -728,8 +736,9 @@ fn handle_prometheus(command: PrometheusCommands) -> Result<()> {
 
 fn handle_autopilot(command: AutopilotCommands, default_root: PathBuf) -> Result<()> {
     use arda_aule::prometheus::autopilot::{
-        ceo_loop, execute_knowledge_task_queue, promote_knowledge_tasks, run_knowledge_triage,
-        AutopilotConfig, CeoAutopilot, KnowledgeTriageConfig,
+        ceo_loop, execute_knowledge_task_queue, inspect_autonomy_preflight,
+        promote_knowledge_tasks, run_knowledge_triage, write_autonomy_preflight, AutopilotConfig,
+        CeoAutopilot, KnowledgeTriageConfig,
     };
     use std::sync::atomic::AtomicBool;
     use std::sync::Arc;
@@ -791,6 +800,23 @@ fn handle_autopilot(command: AutopilotCommands, default_root: PathBuf) -> Result
                     json!({"error": "autopilot state not found", "path": path.display().to_string()})
                 });
             println!("{}", serde_json::to_string_pretty(&value)?);
+        }
+        AutopilotCommands::Preflight { root, write } => {
+            let root = resolve_root(root);
+            let report = inspect_autonomy_preflight(&root)?;
+            let output = if write {
+                Some(write_autonomy_preflight(&root)?.display().to_string())
+            } else {
+                None
+            };
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&json!({
+                    "report": report,
+                    "output": output,
+                    "task_promotion_allowed": false,
+                }))?
+            );
         }
         AutopilotCommands::KnowledgeTriage {
             root,

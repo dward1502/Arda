@@ -1,0 +1,28 @@
+schema_version = "arda.rumil.project-profile.v1"
+profile_id = "generic-python-v1"
+project_kind = "python"
+execution_role = "host"
+capabilities = ["inventory", "manifest_observation", "organization"]
+providers = []
+
+[inventory]
+root_relative = "."
+max_depth = 12
+max_files = 50000
+max_total_bytes = 134217728
+max_excerpt_bytes = 32768
+scan_timeout_seconds = 45
+command_timeout_seconds = 45
+exclusions = [".git", ".venv", "venv", "__pycache__", ".mypy_cache", ".pytest_cache", ".env", "*.pem", "*.key"]
+redactions = ["credentials", "tokens", "private_keys", "raw_source_excerpts"]
+
+[retention]
+packet_class = "bounded_project_audit"
+max_age_days = 90
+
+[organization]
+review_required = true
+no_delete = true
+no_move = true
+no_rewrite = true
+mutation_authorized = false

@@ -26,7 +26,7 @@ describe('boardroom expanded physical controls', () => {
       label: 'Service Health',
       shortLabel: 'HEALTH',
       authority: 'read_only',
-      targetZoneId: 'systems_health',
+      targetZoneId: 'fleet_and_backbone',
       verificationPath: 'fleetViewModel.status',
     }))
     for (const action of BOARDROOM_PHYSICAL_CONTROL_ACTIONS) {
@@ -38,7 +38,7 @@ describe('boardroom expanded physical controls', () => {
     expect(getBoardroomSpatialZone('boardroom.button.service_health')).toMatchObject({
       kind: 'physical_button',
       interaction: 'open_workstation',
-      binding: 'systems_health',
+      binding: 'fleet_and_backbone',
     })
   })
 
@@ -99,7 +99,7 @@ describe('boardroom expanded physical controls', () => {
     expect(resolveBoardroomPhysicalControlInteraction(action, state)).toEqual({
       kind: 'dispatch',
       actionId: 'service_health_status',
-      targetZoneId: 'systems_health',
+      targetZoneId: 'fleet_and_backbone',
       message: 'Opening Service Health.',
       verificationPath: 'fleetViewModel.status',
     })

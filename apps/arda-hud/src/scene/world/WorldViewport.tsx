@@ -11,7 +11,6 @@ import { getSceneAssetByBinding } from '../systems/sceneAssets'
 import { useSceneMaterial } from '../systems/sceneMaterials'
 import WorldDistrictPresenceCue from './WorldDistrictPresenceCue'
 import { resolveWorldDistrictPresentation } from './worldDistrictPresentation'
-import { resolveWorldDistrictWorkflow } from './worldDistrictWorkflows'
 import type { WorldDistrictUrgency } from './worldDistrictUrgency'
 import type { WorldSurfaceLayout } from '../../lib/worldSurfaceSettings'
 import WorldTerminalSurfacePreview from './WorldTerminalSurfacePreview'
@@ -26,7 +25,6 @@ interface WorldRuntimeViewportProps {
   surfaceLayouts?: Record<string, WorldSurfaceLayout>
   presenceState?: AgentPresenceState
   onExit: () => void
-  onOpenPanel: (sourceZoneId?: string) => void
 }
 
 const DISTRICT_ASSET_BINDINGS = [
@@ -49,7 +47,6 @@ function SceneAssetModel({
   position?: [number, number, number]
   rotation?: [number, number, number]
   scale?: number | [number, number, number]
-  onClick?: () => void
 }) {
   const asset = getSceneAssetByBinding(binding)
   if (!asset?.glbUrl) return <>{fallback}</>
@@ -64,7 +61,6 @@ function LoadedSceneAsset({
   position?: [number, number, number]
   rotation?: [number, number, number]
   scale?: number | [number, number, number]
-  onClick?: () => void
 }) {
   const gltf = useGLTF(url)
   const scene = useMemo(() => gltf.scene.clone(true) as Group, [gltf.scene])
@@ -79,7 +75,6 @@ function WorldRuntimeScene({
   presenceState = DEFAULT_AGENT_PRESENCE_STATE,
   debug = false,
   onExit,
-  onOpenPanel,
 }: Omit<WorldRuntimeViewportProps, 'active'>) {
   const districts = zones.filter((zone) => zone.scene === 'world')
   const terminals = anchors.filter((anchor) => anchor.type === 'terminal' || anchor.type === 'workstation_spawn').slice(0, 3)
@@ -110,9 +105,6 @@ function WorldRuntimeScene({
         const columnHeight = 2.8 + (index % 4) * 1.35
         const binding = DISTRICT_ASSET_BINDINGS[index % DISTRICT_ASSET_BINDINGS.length]
         const presentation = resolveWorldDistrictPresentation(zone, districtUrgencies[zone.id])
-        const workflow = resolveWorldDistrictWorkflow(zone, surfaceLayouts)
-        const openTargetZoneId = workflow.openTargetZoneId || presentation.openTargetZoneId
-        const openDistrictPanel = () => onOpenPanel(openTargetZoneId)
         return (
           <group
             key={zone.id}
@@ -120,21 +112,14 @@ function WorldRuntimeScene({
             userData={{
               sceneWorldDistrictId: zone.id,
               sceneWorldDistrictUrgency: presentation.tone,
-              sceneWorldDistrictAction: presentation.actionLabel,
-              sceneWorldDistrictSourceZoneId: openTargetZoneId,
-              sceneWorldDistrictSurfaceAdapter: workflow.adapterType,
-              sceneWorldDistrictFocusMode: workflow.focusMode,
-              sceneWorldDistrictPreviewWidgets: workflow.previewWidgetCount,
-              sceneWorldDistrictSafeActions: workflow.safeActions.map((action) => action.id),
-              sceneWorldDistrictGatedActions: workflow.gatedActions.map((action) => action.id),
+              sceneWorldDisplayOnly: true,
             }}
           >
             <SceneAssetModel
               binding={binding}
               scale={0.9 + (index % 3) * 0.08}
-              onClick={openDistrictPanel}
               fallback={(
-                <mesh onClick={openDistrictPanel} material={districtMaterial}>
+                <mesh material={districtMaterial}>
                   <boxGeometry args={[1.4, columnHeight, 1.4]} />
                 </mesh>
               )}
@@ -150,16 +135,14 @@ function WorldRuntimeScene({
               />
             </mesh>
             <Html center distanceFactor={11}>
-              <button
-                type="button"
-                className={`scene-anchor-label scene-anchor-label--urgency-${presentation.tone}`}
+              <div
+                className={`scene-anchor-label scene-anchor-label--display-only scene-anchor-label--urgency-${presentation.tone}`}
                 style={{ '--district-urgency-color': presentation.color } as CSSProperties}
                 title={presentation.detail}
-                onClick={openDistrictPanel}
               >
                 {presentation.title}
-                <span>{presentation.badge} · {workflow.safeActions[0]?.label ?? presentation.actionLabel}</span>
-              </button>
+                <span>{presentation.badge} · DISPLAY ONLY</span>
+              </div>
             </Html>
           </group>
         )
@@ -169,26 +152,22 @@ function WorldRuntimeScene({
         const terminalSurfaceId = ['terminal_queue', 'terminal_tools', 'terminal_status'][index] ?? anchor.id
         const surfaceLayout = surfaceLayouts[terminalSurfaceId]
         const terminalPreview = deriveWorldTerminalSurfacePreviewModel({ terminalId: terminalSurfaceId, layout: surfaceLayout })
-        const openTargetZoneId = surfaceLayout?.focus.target ?? anchor.zoneId
         return (
           <group
             key={anchor.id}
             position={[6 + index * 2.2, -0.2, 4 - index * 2]}
             userData={{
               sceneWorldTerminalId: terminalSurfaceId,
-              sceneWorldTerminalSourceZoneId: openTargetZoneId,
               sceneWorldTerminalSurfaceAdapter: terminalPreview.adapterType,
-              sceneWorldTerminalFocusMode: terminalPreview.focusMode,
-              sceneWorldTerminalSafeActionSummary: terminalPreview.safeActionSummary,
               sceneWorldTerminalPreviewWidgets: terminalPreview.widgets.length,
+              sceneWorldDisplayOnly: true,
             }}
           >
             <SceneAssetModel
               binding={['center_console', 'systems_control', 'network_control'][index] ?? 'settings_control'}
               scale={0.7}
-              onClick={() => onOpenPanel(openTargetZoneId)}
               fallback={(
-                <mesh onClick={() => onOpenPanel(openTargetZoneId)} material={terminalMaterial}>
+                <mesh material={terminalMaterial}>
                   <cylinderGeometry args={[0.35, 0.35, 1.3, 24]} />
                 </mesh>
               )}
@@ -197,7 +176,6 @@ function WorldRuntimeScene({
               terminalId={terminalSurfaceId}
               layout={surfaceLayout}
               label={anchor.label}
-              onActivate={() => onOpenPanel(openTargetZoneId)}
             />
           </group>
         )
@@ -218,7 +196,6 @@ function WorldRuntimeScene({
             ]}
             actions={[
               { label: 'Boardroom', onClick: onExit },
-              { label: 'Workstation', onClick: () => onOpenPanel() },
             ]}
           />
         </Html>

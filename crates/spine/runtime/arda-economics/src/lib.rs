@@ -11,7 +11,9 @@ pub use economics::{
     BudgetAlert, CostModel, CostModelConfig, EconomicsEngine, LinearCostModel, ROIMetrics,
 };
 pub use error::{EconomicsError, Result};
-pub use joule_work::{JouleWork, JouleWorkSummary, JouleWorkTracker, JouleWorkUnit};
+pub use joule_work::{
+    JouleWork, JouleWorkRunSummary, JouleWorkSummary, JouleWorkTracker, JouleWorkUnit,
+};
 pub use ledger::PlutusLedger;
 pub use love_equation::{LoveConfig, LoveEquation, LoveScore};
 pub use meter::{

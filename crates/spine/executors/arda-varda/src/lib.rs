@@ -1,7 +1,11 @@
 pub mod benchmark;
+/// Optional filesystem import tooling. The default runtime is receipt-driven
+/// and does not scan the human workspace.
+#[cfg(feature = "human-import")]
 pub mod human;
 pub mod ingest;
 pub mod learning;
+pub mod rumil;
 pub mod transport;
 
 use arda_core::agent::{Agent, AgentManifest};
@@ -10,7 +14,13 @@ use arda_core::llm::{ChatMessage, ChatRequest, LlmProvider};
 use arda_core::task::Task;
 use arda_core::SoterionMeta;
 use async_trait::async_trait;
-use ingest::AthenaStore;
+pub use ingest::external_lane::{
+    append_evaluation_receipt, approved_delta, evaluate_external_lane,
+    import_next_canonical_result, import_next_from_crawl4ai, EvaluationDecision,
+    ExternalEvaluationReceipt, ExternalLaneError, ExternalLaneInput,
+};
+pub use ingest::AthenaStore;
+pub use rumil::{evaluate_rumil_evidence, RumilEvaluationDisposition, RumilEvaluationReceipt};
 use std::collections::HashMap;
 use std::sync::Arc;
 

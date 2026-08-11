@@ -529,3 +529,97 @@ pub struct TaskApprovalEnvelope {
     pub decision: InterruptionLedgerDecision,
     pub created_at_utc: String,
 }
+
+/// Request to deliver a personal reminder through Oromë.
+/// Fatigue caps, quiet windows, and snooze/dismiss state are
+/// checked by the adapter before every attempt.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PersonalReminderRequest {
+    pub schema_version: String,
+    pub reminder_id: String,
+    pub item_id: String,
+    pub operator_id: String,
+    pub subject: String,
+    pub body: String,
+    pub provider: String,
+    pub channel: String,
+    pub attempt_number: u32,
+    pub max_attempts: u32,
+    pub quiet_mode: bool,
+    pub snoozed_until_utc: Option<String>,
+    pub created_at_utc: String,
+}
+
+impl Default for PersonalReminderRequest {
+    fn default() -> Self {
+        Self {
+            schema_version: "arda.orome.personal-reminder.v1".to_string(),
+            reminder_id: String::new(),
+            item_id: String::new(),
+            operator_id: String::new(),
+            subject: String::new(),
+            body: String::new(),
+            provider: String::new(),
+            channel: String::new(),
+            attempt_number: 0,
+            max_attempts: 3,
+            quiet_mode: false,
+            snoozed_until_utc: None,
+            created_at_utc: chrono::Utc::now().to_rfc3339(),
+        }
+    }
+}
+
+/// Delivery receipt for a personal reminder attempt.
+/// "Attempted" and "Delivered" are never conflated — the caller
+/// must check `state` to distinguish transport-level attempts from
+/// confirmed delivery/acknowledgement.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PersonalReminderReceipt {
+    pub schema_version: String,
+    pub reminder_id: String,
+    pub item_id: String,
+    pub attempted_at_utc: String,
+    pub state: PersonalReminderDeliveryState,
+    pub attempt_number: u32,
+    pub max_attempts: u32,
+    pub provider: String,
+    pub channel: String,
+    pub provider_message_id: Option<String>,
+    pub error: Option<String>,
+    pub quiet_mode_active: bool,
+    /// True if the reminder was suppressed this cycle due to quiet
+    /// windows, fatigue caps, or explicit snooze/dismiss.
+    pub suppressed: bool,
+    #[serde(default)]
+    pub non_clinical_disclosure: Option<String>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum PersonalReminderDeliveryState {
+    /// Transport attempted but not yet confirmed delivered.
+    Attempted,
+    /// Provider confirmed receipt of the message.
+    Delivered,
+    /// Operator acknowledged the reminder.
+    Acknowledged,
+    /// Operator deferred the reminder to a later time.
+    Deferred,
+    /// Operator dismissed the reminder.
+    Dismissed,
+    /// Reminder exhausted retry budget without delivery.
+    Failed,
+}
+
+impl PersonalReminderReceipt {
+    pub fn was_delivered(&self) -> bool {
+        matches!(
+            self.state,
+            PersonalReminderDeliveryState::Delivered
+                | PersonalReminderDeliveryState::Acknowledged
+                | PersonalReminderDeliveryState::Deferred
+                | PersonalReminderDeliveryState::Dismissed
+        )
+    }
+}

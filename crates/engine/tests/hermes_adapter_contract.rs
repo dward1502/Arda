@@ -1,10 +1,10 @@
 use arda_core::run_graph::{
-    AuthorityClass, Budget, CheckpointMetadata, NodeId, NodeKind, NodeState, RetryPolicy, RunId,
-    RunNode,
+    AuthorityClass, Budget, CheckpointMetadata, EvidencePolicy, NodeId, NodeKind, NodeState,
+    RetryPolicy, RunId, RunNode, WorkerExecutionSpec, WorkerRole, WorkerRouteClass,
 };
 use arda_engine::adapters::{
-    AdapterCancellation, HermesAdapter, HermesAdapterConfig, HermesAdapterError, HermesNodeTask,
-    HermesReceiptStatus,
+    AdapterCancellation, CostMeasurement, HermesAdapter, HermesAdapterConfig, HermesAdapterError,
+    HermesNodeTask, HermesReceiptStatus,
 };
 use std::collections::BTreeMap;
 use std::fs;
@@ -96,6 +96,9 @@ session = {
         },
     ],
 }
+if mode == "unknown_cost":
+    session.pop("estimated_cost_usd")
+    session.pop("actual_cost_usd")
 transcript_path.write_text(json.dumps(session), encoding="utf-8")
 result = {
     "schema_version": "arda.hermes-job-result.v1",
@@ -197,6 +200,7 @@ fn task(timeout_ms: u64) -> HermesNodeTask {
             output_digest: None,
             parent_receipts: vec!["sha256:approval".into()],
             checkpoint: CheckpointMetadata::default(),
+            worker: None,
         },
         objective: "Implement the approved bounded change and run its declared check.".into(),
         instructions: "Change only the approved project files.".into(),
@@ -206,6 +210,21 @@ fn task(timeout_ms: u64) -> HermesNodeTask {
             "/usr/bin/python3 -c 'assert 2 + 2 == 4'".into(),
         )]),
         project_contract_digest: "sha256:project-contract".into(),
+    }
+}
+
+fn worker_contract(toolsets: &[&str], deadline_unix_ms: u128) -> WorkerExecutionSpec {
+    WorkerExecutionSpec {
+        role: WorkerRole::Implementer,
+        worker_id: "hermes:implementation-1".into(),
+        route_id: "hosted:implementation".into(),
+        route_class: WorkerRouteClass::Hosted,
+        prompt_digest: format!("sha256:{}", "f".repeat(64)),
+        allowed_toolsets: toolsets.iter().map(|toolset| (*toolset).into()).collect(),
+        dependencies: Vec::new(),
+        deadline_unix_ms,
+        output_contract: "arda.hermes-job-result.v1".into(),
+        evidence_policy: EvidencePolicy::WorkerReport,
     }
 }
 
@@ -275,6 +294,7 @@ async fn graph_node_becomes_bounded_hermes_job_and_canonical_receipt() {
     assert_eq!(receipt.tool_evidence[0].exit_code, Some(0));
     assert_eq!(receipt.test_evidence[0].status, "passed");
     assert_eq!(receipt.usage.estimated_cost_usd, 0.001);
+    assert_eq!(receipt.usage.cost_measurement, CostMeasurement::Observed);
     assert!(receipt.tool_evidence[0]
         .output_digest
         .starts_with("sha256:"));
@@ -399,6 +419,18 @@ async fn documented_quiet_output_variants_preserve_the_machine_result() {
 }
 
 #[tokio::test]
+async fn missing_provider_cost_is_disclosed_as_unknown() {
+    let root = TempDir::new().unwrap();
+    let receipt = adapter(&root, "unknown_cost")
+        .execute(&task(800), AdapterCancellation::new())
+        .await
+        .expect("unknown billing data remains explicitly qualified");
+
+    assert_eq!(receipt.usage.estimated_cost_usd, 0.0);
+    assert_eq!(receipt.usage.cost_measurement, CostMeasurement::Unknown);
+}
+
+#[tokio::test]
 async fn execute_authority_requires_a_parent_approval_receipt_before_spawn() {
     let root = TempDir::new().expect("project root");
     let adapter = adapter(&root, "success");
@@ -415,12 +447,43 @@ async fn execute_authority_requires_a_parent_approval_receipt_before_spawn() {
 }
 
 #[tokio::test]
+async fn persisted_worker_toolsets_cannot_escalate_beyond_authority() {
+    let root = TempDir::new().unwrap();
+    let adapter = adapter(&root, "success");
+    let mut task = task(1_000);
+    task.node.worker = Some(worker_contract(&["file", "web"], 4_000_000_000_000));
+
+    assert!(matches!(
+        adapter.execute(&task, AdapterCancellation::new()).await,
+        Err(HermesAdapterError::WorkerToolsetEscalation)
+    ));
+}
+
+#[tokio::test]
+async fn elapsed_persisted_worker_deadline_prevents_spawn() {
+    let root = TempDir::new().unwrap();
+    let adapter = adapter(&root, "success");
+    let mut task = task(1_000);
+    task.node.worker = Some(worker_contract(&["file", "terminal"], 1));
+
+    assert!(matches!(
+        adapter.execute(&task, AdapterCancellation::new()).await,
+        Err(HermesAdapterError::DeadlineExceeded)
+    ));
+    assert!(!root.path().join("capture.json").exists());
+}
+
+#[tokio::test]
 async fn graph_node_timeout_terminates_and_reaps_hermes() {
     let root = TempDir::new().expect("project root");
     let adapter = adapter(&root, "sleep");
 
+    // Leave enough startup headroom for the Python fixture to publish both PID
+    // files before the adapter's deadline. The previous 80 ms budget could
+    // expire during interpreter startup under sustained soak load, which tested
+    // scheduler latency rather than descendant termination and reaping.
     let error = adapter
-        .execute(&task(80), AdapterCancellation::new())
+        .execute(&task(1_000), AdapterCancellation::new())
         .await
         .expect_err("sleeping Hermes process must time out");
 
@@ -441,6 +504,20 @@ async fn graph_node_timeout_terminates_and_reaps_hermes() {
         !process_is_alive(child_pid),
         "timed-out Hermes descendant pid {child_pid} survived"
     );
+}
+
+#[tokio::test]
+async fn missing_provider_executable_is_a_typed_spawn_failure() {
+    let root = TempDir::new().expect("project root");
+    let adapter = adapter(&root, "success");
+    std::fs::remove_file(root.path().join("hermes")).expect("remove provider executable");
+
+    let error = adapter
+        .execute(&task(1_000), AdapterCancellation::new())
+        .await
+        .expect_err("missing provider executable must fail");
+
+    assert!(matches!(error, HermesAdapterError::Io { .. }));
 }
 
 #[tokio::test]

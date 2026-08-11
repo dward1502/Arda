@@ -15,6 +15,8 @@
 @import "./styles/components/media-library.css";
 @import "./styles/components/hermes-dashboard.css";
 @import "./styles/components/service-surfaces.css";
+@import "./styles/components/research.css";
+@import "./styles/components/hud-kit.css";
 @import "./styles/scene/scene-stage.css";
 @import "./styles/scene/boardroom.css";
 @import "./styles/scene/workstations.css";
@@ -1169,4 +1171,199 @@
   box-shadow:
     0 0.75rem 1.8rem rgba(0, 0, 0, 0.34),
     0 0 1.4rem rgba(255, 184, 76, 0.14);
+}
+
+.personal-ops__summary,
+.personal-ops__disclosure,
+.personal-ops__placeholder {
+  color: rgba(220, 240, 246, 0.76);
+  line-height: 1.5;
+}
+
+.personal-ops__capture {
+  display: grid;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.personal-ops__capture label,
+.personal-ops h3 {
+  color: #eafff5;
+  font-weight: 700;
+}
+
+.personal-ops__capture textarea {
+  min-height: 5rem;
+  resize: vertical;
+  border: 1px solid rgba(122, 255, 197, 0.38);
+  border-radius: 0.55rem;
+  background: rgba(2, 12, 15, 0.72);
+  padding: 0.75rem;
+  color: #f4fffb;
+  font: inherit;
+}
+
+.personal-ops button {
+  min-height: 2.75rem;
+  border: 1px solid rgba(122, 255, 197, 0.48);
+  border-radius: 0.5rem;
+  background: rgba(34, 116, 82, 0.28);
+  color: #eefff7;
+  cursor: pointer;
+}
+
+.personal-ops button:focus-visible,
+.personal-ops__capture textarea:focus-visible {
+  outline: 3px solid #fff3a8;
+  outline-offset: 2px;
+}
+
+.personal-ops button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.personal-ops__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.personal-ops__timeline,
+.personal-ops__list {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.personal-ops__timeline li {
+  display: grid;
+  gap: 0.3rem;
+  border-left: 2px solid rgba(122, 255, 197, 0.46);
+  padding-left: 0.7rem;
+}
+
+.personal-ops__timeline span,
+.personal-ops__timeline small {
+  color: rgba(220, 240, 246, 0.72);
+}
+
+.personal-ops__status,
+.personal-ops__error,
+.personal-ops__reminder-summary {
+  margin: 0.75rem 0;
+  padding: 0.55rem 0.7rem;
+  border-left: 3px solid rgba(122, 255, 197, 0.6);
+  background: rgba(5, 18, 21, 0.62);
+}
+
+.personal-ops__error {
+  border-left-color: #ff9b87;
+  color: #ffe5df;
+}
+
+@media (max-width: 760px) {
+  .personal-ops__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .personal-ops--reduced-motion *,
+  .personal-ops--reduced-motion *::before,
+  .personal-ops--reduced-motion *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .personal-ops--high-contrast {
+    --personal-ops-border: #ffffff;
+  }
+
+  .personal-ops--high-contrast button,
+  .personal-ops--high-contrast textarea,
+  .personal-ops--high-contrast .personal-ops__timeline li {
+    border-color: var(--personal-ops-border);
+  }
+}
+
+.company-ops__next {
+  border: 1px solid rgba(87, 225, 255, 0.38);
+  border-left: 4px solid #57e1ff;
+  border-radius: 0.65rem;
+  background: rgba(5, 24, 31, 0.72);
+  padding: 0.9rem;
+}
+
+.company-ops__next h3,
+.company-ops__next p { margin: 0.25rem 0; }
+
+.company-ops__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.company-ops__grid > section,
+[aria-labelledby='company-value'] {
+  border: 1px solid rgba(130, 174, 190, 0.24);
+  border-radius: 0.65rem;
+  background: rgba(4, 14, 19, 0.64);
+  padding: 0.8rem;
+}
+
+.company-ops__list {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.company-ops__list li,
+.company-ops__values div {
+  display: grid;
+  gap: 0.2rem;
+  border-left: 3px solid rgba(87, 225, 255, 0.5);
+  padding-left: 0.65rem;
+}
+
+.company-ops__list small,
+.company-ops__values dt { color: rgba(211, 234, 242, 0.7); }
+
+.company-stage {
+  width: fit-content;
+  border: 1px solid rgba(255, 210, 120, 0.42);
+  border-radius: 999px;
+  padding: 0.08rem 0.45rem;
+  color: #ffe3a2;
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+}
+
+.company-stage--qualified,
+.company-stage--proposed { border-color: rgba(87, 225, 255, 0.5); color: #a8f1ff; }
+.company-stage--won,
+.company-stage--delivered,
+.company-stage--paid { border-color: rgba(109, 255, 176, 0.5); color: #b6ffd6; }
+.company-stage--invoiced { border-color: rgba(255, 211, 122, 0.5); color: #ffe4a8; }
+
+.company-ops__values {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.company-ops__values dd { margin: 0; }
+
+@media (max-width: 760px) {
+  .company-ops__grid,
+  .company-ops__values { grid-template-columns: 1fr; }
 }

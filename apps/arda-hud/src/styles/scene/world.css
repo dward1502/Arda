@@ -504,10 +504,16 @@
     );
   padding: 0.38rem;
   color: var(--world-terminal-color);
-  cursor: pointer;
+  cursor: default;
+  pointer-events: none;
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.045),
     0 0 1.1rem color-mix(in srgb, var(--world-terminal-color) 22%, transparent);
+}
+
+.scene-runtime-canvas--world .scene-anchor-label--display-only {
+  cursor: default;
+  pointer-events: none;
 }
 
 .world-terminal-preview--cyan {

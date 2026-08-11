@@ -1,0 +1,2 @@
+# Preserve checksum-verified upstream vendored sources byte-for-byte.
+vendor/glib-0.18.5/** -whitespace

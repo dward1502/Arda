@@ -102,6 +102,8 @@ pub enum ResearchError {
     InvalidSourceUrl(String),
     #[error("invalid SearXNG endpoint: {0}")]
     InvalidEndpoint(String),
+    #[error("crawl4ai returned no markdown for URL: {0}")]
+    CrawlMissingMarkdown(String),
     #[error("SearXNG request failed: {0}")]
     Request(#[from] reqwest::Error),
 }
@@ -169,5 +171,34 @@ impl SearxngClient {
             expires_at: request.expires_at.expect("validated request expiry"),
             results,
         })
+    }
+
+    /// Fetch the canonical markdown content of a URL through Crawl4AI so the
+    /// content hash recorded in the research observation matches what Varda's
+    /// external-lane import handler will re-fetch and verify.
+    pub async fn crawl_canonical_content(
+        &self,
+        url: &str,
+        filter: &str,
+    ) -> Result<String, ResearchError> {
+        let endpoint = format!("{}/md", self.endpoint.as_str().trim_end_matches('/'));
+        let markdown: serde_json::Value = self
+            .client
+            .post(&endpoint)
+            .json(&serde_json::json!({
+                "url": url,
+                "f": filter,
+                "c": "0"
+            }))
+            .send()
+            .await?
+            .error_for_status()?
+            .json()
+            .await?;
+        markdown
+            .get("markdown")
+            .and_then(|v| v.as_str())
+            .map(str::to_owned)
+            .ok_or_else(|| ResearchError::CrawlMissingMarkdown(url.to_string()))
     }
 }

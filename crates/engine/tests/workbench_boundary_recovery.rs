@@ -30,6 +30,7 @@ fn node(id: &str, kind: NodeKind, authority: AuthorityClass, parent: Option<&str
         output_digest: None,
         parent_receipts: parent.into_iter().map(str::to_string).collect(),
         checkpoint: CheckpointMetadata::default(),
+        worker: None,
     }
 }
 

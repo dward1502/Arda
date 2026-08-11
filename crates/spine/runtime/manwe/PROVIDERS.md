@@ -1,93 +1,65 @@
 # Providers
 
-Manwe has two selectable HTTP runtimes with separate provider inputs. Do not
-treat their TOML files or persisted state as interchangeable.
+Manwe has one governed provider model. Local, free-cloud, subscription, and paid
+providers use the same enrollment, health, capability, quota, fitness, and
+selection records.
 
-## Static runtime (default)
+## Configuration precedence
 
-The default binary combines two catalogs:
+1. `ARDA_MANWE_PROVIDER_CONFIG`
+2. compatibility alias `ANNUNIMAS_CHARON_PROVIDER_CONFIG`
+3. `$ARDA_ROOT/config/manwe.providers.toml`
+4. governed bootstrap defaults
 
-1. `--config <path>` (default `manwe.toml`) owns fallback forwarding
-   providers. A valid non-empty file is used. A missing, unreadable, malformed,
-   or provider-empty file selects the embedded local Ollama configuration.
-2. `ARDA_MANWE_FLEET_CONFIG`, legacy alias
-   `ANNUNIMAS_CHARON_FLEET_CONFIG`, then
-   [`$ARDA_ROOT/config/fleet.toml`](../../../../config/fleet.toml), owns fleet discovery.
-   Missing or malformed fleet input produces an empty fleet catalog; it does
-   not replace the forwarding providers from `--config`.
+Each `[[provider]]` defines identity, `base_url`, optional `api_key_env`, access
+tier, limits, driver selection, and nested `[[provider.model]]` entries. Model
+entries carry context and capability truth. The legacy configured `healthy`
+field is ignored because live probes own readiness.
 
-Fleet providers are probed at startup and the catalog is reloaded and probed
-every 60 seconds. Requests first try an eligible fleet route and then the
-static forwarding catalog. Explicit `provider/model`, catalog model IDs,
-`auto`, and the local-only `local/auto` alias are supported.
+The optional fleet bootstrap overlay resolves from `ARDA_FLEET_BOOTSTRAP_STATE`
+then `$ARDA_ROOT/core/state/fleet_bootstrap.json`. Provider and tool-fit
+intelligence overlays have dedicated environment overrides.
 
-The static runtime exposes `/providers`, `/state`, `/v1/models`,
-`/v1/capabilities`, and `/v1/chat/completions`. It writes best-effort route
-receipts to `$ARDA_ROOT/data/manwe/route_receipts.jsonl`.
+## Runtime state and evidence
 
-Static startup validates the selected forwarding configuration's provider
-presence, bind address, endpoint shape, and non-noise API keys. Provider reachability
-and model availability remain runtime probe/forwarding concerns.
+Mutable state resolves from `ARDA_MANWE_STATE_DIR`, `ARDA_MANWE_HOME`,
+`$ARDA_ROOT/data/manwe`, compatibility `$ARDA_HOME/data/manwe`, then the
+build-derived workspace root.
 
-## Full governed adaptive runtime
+The service maintains:
 
-Compile with `adaptive` and select it with `--adaptive` or
-`MANWE_ROUTING_MODE=adaptive`. This starts
-[`adaptive/transport/http.rs`](src/adaptive/transport/http.rs) and
-`ManweService`; it does not consume `manwe.toml` or `config/fleet.toml` as its
-provider catalog.
+- provider runtime/probe state;
+- provider capability receipts;
+- task-class and tool-schema route outcomes;
+- sanitized tool-fit observations;
+- lane-fitness and bandit learning state;
+- route and governance event ledgers.
 
-Provider configuration resolves as follows:
+Selection consumes this evidence together with request task class, context,
+tool schema, origin/privacy, cost policy, resource pressure, cooldown, and quota
+state. `/providers`, `/providers/capabilities`, `/provider_candidates`,
+`/observability`, route headers, and persisted receipts expose why a candidate
+was admitted, rejected, or selected.
 
-1. `ARDA_MANWE_PROVIDER_CONFIG`.
-2. Legacy environment alias `ANNUNIMAS_CHARON_PROVIDER_CONFIG`.
-3. `$ARDA_ROOT/config/manwe.providers.toml`. If `ARDA_ROOT` is unset, the
-   build-derived Manwe source ancestor is used.
-4. Governed built-in providers when the file is missing; governed defaults
-   after a malformed or provider-empty file is rejected.
+## Capability and mutation boundary
 
-The optional fleet bootstrap overlay resolves from
-`ARDA_FLEET_BOOTSTRAP_STATE`, then
-`$ARDA_ROOT/core/state/fleet_bootstrap.json`. Provider and tool-fit
-intelligence overlays have their own `ARDA_PROVIDER_INTELLIGENCE_PATH` and
-`ARDA_TOOL_FIT_MODEL_INTELLIGENCE_PATH` overrides.
-
-Each `[[provider]]` may define identity, `base_url`, `api_key_env`, limits,
-driver selection, and nested `[[provider.model]]` records. A configured
-`api_key_env` is checked by name; credentials are not stored in status output.
-The legacy `healthy` field is ignored because live probes own health.
+A provider may be configured but ineligible because it is disabled, unhealthy,
+missing its named credential, over quota, in cooldown, blocked by governance,
+or lacks a required model capability. Status output contains credential names
+and bounded diagnostics, never secret values.
 
 Provider-result, model-streaming-validation, and provider-config reload routes
-are mutation surfaces. If `ARDA_MANWE_API_KEY` is unset or empty, they retain
-the local compatibility behavior. If it is set, callers must provide the exact
-`Authorization: Bearer <value>` header. The key is never emitted in status or
-capability responses.
+are mutation surfaces. If `ARDA_MANWE_API_KEY` is set, they require the exact
+bearer token. If unset, local compatibility remains available. The HTTP server
+rejects non-loopback bind addresses; remote access belongs behind an
+authenticated reverse proxy.
 
-Adaptive mutable state resolves from `ARDA_MANWE_STATE_DIR`, then
-`ARDA_MANWE_HOME`, then `$ARDA_ROOT/data/manwe`, then the compatibility
-`$ARDA_HOME/data/manwe` root, and finally the build-derived Arda workspace root.
-The service root contains:
+## Stable endpoint contract
 
-- `state.jsonl` and `governance_events.jsonl`
-- `tool_fit_ledger.jsonl`
-- `provider_runtime_state.json`
-- `provider_capability_receipts.json`
-- `lane_fitness.json` and `bandit.json`
+The only supported process serves the governed HTTP/OpenAI API on port `7171`.
+`manwe.toml` supplies bind/port compatibility values only; it is not a second
+provider catalog. The former static fleet/forwarding process and standalone
+gRPC process have been retired.
 
-Persisted runtime state overlays probe/model memory onto configured provider
-identity; it does not own endpoints or credentials. The governed HTTP surface
-adds `/providers/capabilities` and `/provider_candidates` (singular
-`provider`, underscore), plus probe, reconciliation, routing, observability,
-path, event, and metric endpoints. There is no `/providers/candidates` route.
-
-## Operational boundary
-
-- A provider can be configured but ineligible because it is disabled,
-  unhealthy, missing its named credential, over quota, in cooldown, or lacks a
-  required model capability.
-- Static and governed status/capability responses report credential-free config
-  provenance and catalog generation.
-- Buffered SSE is the static binary's documented stream contract; it is not
-  live incremental pass-through. See [`README.md`](README.md).
-- `ARDA_ROUTE_*` remains the canonical shared route-policy namespace because
-  Manwe, Varda, and Aule consume it; it is not a legacy Manwe naming surface.
+`ARDA_ROUTE_*` remains a shared policy namespace because Manwe, Varda, and Aule
+consume it; it is not a stale private runtime selector.

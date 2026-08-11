@@ -9,8 +9,8 @@
   "scenarios": [
     {
       "bundle": "missing-launcher.tar.gz",
-      "bundle_bytes": 1525,
-      "bundle_sha256": "fbd836a7ffcc1e8466c82e37c30f39c23d33b168fc4fed9ed43b9ff4a0ebf11b",
+      "bundle_bytes": 1530,
+      "bundle_sha256": "caaf1b6d6858ba9067aa2b653040a3d98feca4db69950ca049bb3871ff23b78a",
       "diagnosis": "missing-launcher",
       "readiness_gate": "fail",
       "redaction_leaks": [],
@@ -19,8 +19,8 @@
     },
     {
       "bundle": "native-dependency-failure.tar.gz",
-      "bundle_bytes": 1513,
-      "bundle_sha256": "fc1edb7f94425e567deb7257b1807470ab10eea6a2c1acf99d215dde0f9c6f65",
+      "bundle_bytes": 1517,
+      "bundle_sha256": "7e9938f4239c703cac1b784a31974179879ed0dc57465da32c6f56d49b117f2e",
       "diagnosis": "native-dependency-failure",
       "readiness_gate": "fail",
       "redaction_leaks": [],
@@ -29,8 +29,8 @@
     },
     {
       "bundle": "missing-provider-endpoint.tar.gz",
-      "bundle_bytes": 1530,
-      "bundle_sha256": "ac00e3441d634391b2e82708abcac31d3303760d79e99ace6968cfd949dbbcca",
+      "bundle_bytes": 1529,
+      "bundle_sha256": "f98fbcea9675a01ddb6a3189d1838d1490c993896aaa756c00e72a9ae6462e57",
       "diagnosis": "missing-provider-endpoint",
       "readiness_gate": "fail",
       "redaction_leaks": [],

@@ -30,20 +30,20 @@ describe('sceneSlotWorkstationTemplates', () => {
     const manifest = getSceneSlotWorkstationManifestByZoneId('scene_slot:view_desk_control_panel')
 
     expect(manifest?.id).toBe('scene_slot_view_desk_control_panel_workstation')
-    expect(manifest?.module_ids).toContain('operating_surface')
+    expect(manifest?.module_ids).toContain('systems')
     expect(getSceneSlotWorkstationManifestById(manifest?.id ?? null)).toEqual(manifest)
   })
 
   it('falls back to a functional slot template when persisted source metadata has no live manifest', () => {
     expect(resolveSceneSlotWorkstationZoneId('view_desk_r', 'boardroom.control.right')).toBe('scene_slot:view_desk_r')
     expect(resolveSceneSlotWorkstationZoneId('view_desk_aux', 'boardroom.control.aux')).toBe('scene_slot:view_desk_aux')
-    expect(resolveSceneSlotWorkstationZoneId('view_desk_r', 'boardroom.control.right', 'human_realm')).toBe('human_realm')
+    expect(resolveSceneSlotWorkstationZoneId('view_desk_r', 'boardroom.control.right', 'routing_and_comms')).toBe('routing_and_comms')
   })
 
-  it('uses Daily Command modules for the auxiliary desk fallback', () => {
+  it('uses Human and Business modules for the auxiliary desk fallback', () => {
     expect(getSceneSlotWorkstationTemplates().view_desk_aux.moduleIds).toEqual([
-      'operating_surface',
-      'executive_overview',
+      'human_realm',
+      'business',
     ])
   })
 

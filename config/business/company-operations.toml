@@ -1,0 +1,32 @@
+schema_version = "arda.company-operations.config.v1"
+mode = "operator_cockpit"
+
+[authority]
+external_messages = "explicit_operator_approval"
+scope_date_price = "explicit_operator_approval"
+spend = "prohibited"
+deploy_publish = "explicit_operator_approval"
+legal_agreements = "prohibited"
+
+[storage]
+event_log = "data/business/events.jsonl"
+opportunities_projection = "data/business/opportunities.json"
+drafts_projection = "data/business/drafts.json"
+commitments_projection = "data/business/commitments.json"
+experiments_projection = "data/business/experiments.json"
+outcomes_projection = "data/business/outcomes.json"
+summary_projection = "data/business/company-ops.json"
+
+[adapters]
+protocol = "arda.company-adapter.v1"
+secrets = "adapter_local_or_os_keyring"
+crm_mode = "read_only"
+communications_owner = "arda-orome"
+work_execution_owner = "workbench"
+
+[scoring]
+show_components = true
+show_uncertainty = true
+include_operator_time = true
+include_strategic_fit = true
+include_family_time_constraints = true

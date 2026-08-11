@@ -79,6 +79,11 @@ export interface PresenceVisualState {
   scanlineOpacity: number
   lightIntensity: number
   supportMarkerScale: number
+  particleDensity: number
+  noiseMultiplier: number
+  dissolveBias: number
+  colorTemperature: number
+  traitAccent: number
 }
 
 export interface PresenceSupportMarker {

@@ -1,0 +1,20 @@
+# Calendar adapter configuration for personal-ops reminders.
+# Schema version tracks the config shape; adapters read this at startup.
+schema_version = "arda.personal-ops.calendar.v1"
+adapter = "ics"
+# IANA timezone for local-scheduling interpretation (e.g. "America/New_York").
+timezone = "UTC"
+
+# --- CalDAV adapter (only used when adapter = "caldav") ---
+# Secret references only — never inline credentials.
+caldav_url = ""
+caldav_username_ref = "secret://caldav/username"
+caldav_password_ref = "secret://caldav/password"
+calendar_id = "personal"
+
+# Bounded supervision. Authentication/configuration failures fail closed;
+# only transient transport, rate-limit, and server failures are retried.
+request_timeout_ms = 15000
+max_attempts = 3
+initial_retry_delay_ms = 250
+max_retry_delay_ms = 2000

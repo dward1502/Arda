@@ -12,15 +12,15 @@ The audit inspected the current Arda checkout plus the direct external paths nam
 
 ### Located evidence
 
-A filename search under `/var/home/mythos/Eregion` found no executable Mirromere application or prototype. The only filename containing `mirromere` is the untracked portfolio plan:
+A filename search under `/var/home/mythos/Eregion` found no executable Mirromere application or prototype. The retained portfolio record is:
 
-- `docs/plans/2026-07-29-mirromere-plan.md`
+- `docs/archive/deferred/2026-07-29-mirromere-plan.md`
 
-The canonical design evidence currently consists of:
+The canonical deferred design evidence currently consists of:
 
-- `docs/Mirromere_PRD.md`
-- `docs/MIRROMERE_RELIC_OUTPOST_VISION.md`
-- `docs/plans/2026-07-29-mirromere-plan.md`
+- `docs/archive/deferred/Mirromere_PRD.md`
+- `docs/archive/deferred/MIRROMERE_RELIC_OUTPOST_VISION.md`
+- `docs/archive/deferred/2026-07-29-mirromere-plan.md`
 
 The two established design documents are tracked in Arda history; the last commit touching that set is `76df43e02a58c3f7b5c4640f0e1a2a96a33b9a9a`. The portfolio plan is currently untracked in the shared worktree.
 

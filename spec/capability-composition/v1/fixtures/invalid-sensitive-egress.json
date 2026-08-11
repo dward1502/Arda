@@ -1,0 +1,16 @@
+{
+  "schema_version": "arda.capability-composition.v1",
+  "lineage": {"objective_id": "objective-sensitive-egress", "project_id": "550e8400-e29b-41d4-a716-446655440104", "run_id": "run-sensitive-egress-1", "project_contract_digest": "sha256:sensitive-project"},
+  "outcome": {"description": "Attempt private-data external egress", "acceptance_conditions": ["external egress is rejected"]},
+  "scope": "personal",
+  "sensitivity": {"data_classes": ["private", "health"], "permitted_egress": ["hosted_provider"]},
+  "capabilities": {"required": ["personal_operations"], "optional": [], "forbidden": []},
+  "roles": {"planner": {"kind": "planner", "authority": "plan", "required_capabilities": ["personal_operations"]}},
+  "route_preferences": {"mode": "prefer_hosted", "allowed_providers": ["hosted_provider"]},
+  "council_mode": "disabled",
+  "proactive_communication": "disabled",
+  "joulework_budget": {"max_joules": 10.0, "max_cost_usd": 1.0, "max_operator_seconds": 5},
+  "authority": {"signed_request_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", "authority_ceiling": "plan", "approval_scopes": []},
+  "permissions": {"tools": [], "filesystem": {"read_roots": [], "write_roots": []}, "network": "external_approved", "devices": [], "payments": false},
+  "lifecycle": {"restart": "operator_decision", "cancellation": "immediate", "compensation": "none", "notification": "silent"}
+}

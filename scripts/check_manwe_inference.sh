@@ -4,7 +4,7 @@
 set -euo pipefail
 
 HOST="${ARDA_MANWE_HTTP_HOST:-127.0.0.1}"
-PORT="${ARDA_MANWE_HTTP_PORT:-5110}"
+PORT="${ARDA_MANWE_HTTP_PORT:-7171}"
 BASE_URL="http://${HOST}:${PORT}"
 COMPLETIONS_URL="${BASE_URL}/v1/chat/completions"
 PAYLOAD='{"model":"auto","messages":[{"role":"user","content":"Reply with exactly: ok"}],"max_tokens":8}'
@@ -13,6 +13,7 @@ STATE_FILE="${STATE_DIR}/manwe_inference_failures"
 FAIL_THRESHOLD="${ARDA_MANWE_INFERENCE_FAIL_THRESHOLD:-2}"
 PROBE_TIMEOUT="${ARDA_MANWE_INFERENCE_TIMEOUT:-30}"
 READY_TIMEOUT="${ARDA_MANWE_INFERENCE_READY_TIMEOUT:-25}"
+SYSTEMD_UNIT="${ARDA_MANWE_SYSTEMD_UNIT:-arda.service}"
 
 mkdir -p "$STATE_DIR"
 
@@ -38,8 +39,8 @@ if (( count < FAIL_THRESHOLD )); then
   exit 0
 fi
 
-printf 'manwe inference probe: %s consecutive failures — restarting arda-manwe.service\n' "$count" >&2
-systemctl --user restart arda-manwe.service
+printf 'manwe inference probe: %s consecutive failures — restarting %s\n' "$count" "$SYSTEMD_UNIT" >&2
+systemctl --user restart "$SYSTEMD_UNIT"
 write_count 0
 
 deadline=$(( $(date +%s) + READY_TIMEOUT ))

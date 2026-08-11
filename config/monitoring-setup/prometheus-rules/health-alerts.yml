@@ -20,7 +20,7 @@ groups:
           severity: critical
         annotations:
           summary: "Manwe metrics endpoint is unavailable"
-          description: "Grafana can show the Manwe scrape failure, but live Manwe internals require annunimas-manwe on 100.78.138.113:5110 to expose /metrics."
+          description: "Grafana can show the Manwe scrape failure, but live Manwe internals require canonical arda.service on 100.78.138.113:7171 to expose /metrics."
 
   - name: annunimas-fleet-capacity
     rules:

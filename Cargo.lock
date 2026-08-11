@@ -131,7 +131,6 @@ dependencies = [
  "base64 0.22.1",
  "chrono",
  "clap",
- "dotenv",
  "fs2",
  "futures",
  "notify",
@@ -188,13 +187,14 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_yaml",
+ "sha2",
  "tempfile",
  "thiserror 1.0.69",
  "tokio",
  "toml 0.8.2",
  "tracing",
  "uuid",
- "yaml-rust",
+ "yaml-rust2",
 ]
 
 [[package]]
@@ -226,8 +226,11 @@ dependencies = [
  "arda-aule",
  "arda-core",
  "arda-governance",
+ "arda-mandos",
  "arda-orome",
  "arda-outpost-protocol",
+ "arda-rumil",
+ "arda-vaire",
  "arda-varda",
  "async-stream",
  "axum 0.7.9",
@@ -243,8 +246,10 @@ dependencies = [
  "thiserror 1.0.69",
  "tokio",
  "toml 0.8.2",
+ "tower-http",
  "tracing",
  "tracing-subscriber",
+ "uuid",
 ]
 
 [[package]]
@@ -271,7 +276,7 @@ dependencies = [
 
 [[package]]
 name = "arda-launcher"
-version = "0.3.0-rc.0"
+version = "0.3.0-rc.1"
 dependencies = [
  "anyhow",
  "arda-contract-registry",
@@ -294,6 +299,7 @@ dependencies = [
  "arda-core",
  "arda-economics",
  "arda-governance",
+ "arda-rumil",
  "async-trait",
  "axum 0.7.9",
  "chrono",
@@ -325,7 +331,7 @@ dependencies = [
  "fs2",
  "futures",
  "once_cell",
- "prost 0.14.4",
+ "prost",
  "reqwest 0.12.28",
  "serde",
  "serde_json",
@@ -347,7 +353,10 @@ dependencies = [
  "parking_lot",
  "serde",
  "serde_json",
+ "tempfile",
  "thiserror 1.0.69",
+ "toml 0.8.2",
+ "url",
  "uuid",
 ]
 
@@ -356,6 +365,7 @@ name = "arda-outpost-scout"
 version = "0.1.0"
 dependencies = [
  "arda-outpost-protocol",
+ "arda-rumil",
  "arda-vaire",
  "assert_cmd",
  "axum 0.7.9",
@@ -365,6 +375,7 @@ dependencies = [
  "reqwest 0.12.28",
  "serde",
  "serde_json",
+ "sha2",
  "tempfile",
  "thiserror 1.0.69",
  "tokio",
@@ -380,6 +391,38 @@ version = "0.1.0"
 dependencies = [
  "serde_json",
  "thiserror 1.0.69",
+]
+
+[[package]]
+name = "arda-relic-bridge"
+version = "0.1.0"
+dependencies = [
+ "arda-outpost-protocol",
+ "chrono",
+ "parking_lot",
+ "reqwest 0.12.28",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+ "tokio",
+]
+
+[[package]]
+name = "arda-rumil"
+version = "0.1.0"
+dependencies = [
+ "arda-outpost-protocol",
+ "cargo_metadata 0.18.1",
+ "chrono",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tempfile",
+ "thiserror 1.0.69",
+ "tokio",
+ "toml 0.8.2",
+ "uuid",
+ "walkdir",
 ]
 
 [[package]]
@@ -411,6 +454,8 @@ dependencies = [
  "arda-core",
  "arda-economics",
  "arda-governance",
+ "arda-outpost-protocol",
+ "arda-rumil",
  "arda-vaire",
  "async-trait",
  "axum 0.7.9",
@@ -422,12 +467,19 @@ dependencies = [
  "serde_json",
  "sha2",
  "tempfile",
+ "thiserror 1.0.69",
  "tokio",
  "tokio-stream",
  "tower",
  "tracing",
  "uuid",
 ]
+
+[[package]]
+name = "arraydeque"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7d902e3d592a523def97af8f317b08ce16b7ab854c1985a0c671e6f15cebc236"
 
 [[package]]
 name = "assert_cmd"
@@ -912,6 +964,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e35af189006b9c0f00a064685c727031e3ed2d8020f7ba284d78cc2671bd36ea"
 dependencies = [
  "serde",
+]
+
+[[package]]
+name = "cargo_metadata"
+version = "0.18.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2d886547e41f740c616ae73108f6eb70afe6d940c7bc697cb30f13daec073037"
+dependencies = [
+ "camino",
+ "cargo-platform",
+ "semver",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
 ]
 
 [[package]]
@@ -1411,12 +1477,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "dotenv"
-version = "0.15.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "77c90badedccf4105eca100756a0b1289e191f6fcbdadd3cee1d2f614f97da8f"
-
-[[package]]
 name = "dpi"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1492,6 +1552,15 @@ name = "embed_plist"
 version = "1.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4ef6b89e5b37196644d8796de5268852ff179b44e96276cf4290264843743bb7"
+
+[[package]]
+name = "encoding_rs"
+version = "0.8.35"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "75030f3c4f45dafd7586dd6780965a8c7e8e285a5ecb86713e63a79c5b2766f3"
+dependencies = [
+ "cfg-if",
+]
 
 [[package]]
 name = "endi"
@@ -1990,8 +2059,6 @@ dependencies = [
 [[package]]
 name = "glib"
 version = "0.18.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "233daaf6e83ae6a12a52055f568f9d7cf4671dabb78ff9560ab6da230ce00ee5"
 dependencies = [
  "bitflags 2.13.0",
  "futures-channel",
@@ -2139,9 +2206,27 @@ dependencies = [
 
 [[package]]
 name = "hashbrown"
+version = "0.16.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "841d1cc9bed7f9236f321df977030373f4a4163ae1a7dbfe1a51a2c1a51d9100"
+dependencies = [
+ "foldhash 0.2.0",
+]
+
+[[package]]
+name = "hashbrown"
 version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a"
+
+[[package]]
+name = "hashlink"
+version = "0.11.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "824e001ac4f3012dd16a264bec811403a67ca9deb6c102fc5049b32c4574b35f"
+dependencies = [
+ "hashbrown 0.16.1",
+]
 
 [[package]]
 name = "heck"
@@ -2733,12 +2818,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "linked-hash-map"
-version = "0.5.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0717cef1bc8b636c6e1c1bbdefc09e6322da8a9321966e8928ef80d20f7f770f"
-
-[[package]]
 name = "linux-raw-sys"
 version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2780,7 +2859,6 @@ dependencies = [
  "arda-core",
  "arda-economics",
  "arda-governance",
- "arda-orome",
  "arda-vaire",
  "axum 0.7.9",
  "base64 0.22.1",
@@ -2788,7 +2866,6 @@ dependencies = [
  "clap",
  "fs2",
  "futures",
- "prost-build 0.13.5",
  "rand 0.8.7",
  "regex",
  "reqwest 0.12.28",
@@ -2799,7 +2876,6 @@ dependencies = [
  "tokio",
  "tokio-stream",
  "toml 0.8.2",
- "tonic",
  "tracing",
  "tracing-subscriber",
 ]
@@ -3293,7 +3369,7 @@ dependencies = [
  "opentelemetry",
  "opentelemetry-proto",
  "opentelemetry_sdk",
- "prost 0.14.4",
+ "prost",
  "thiserror 2.0.18",
  "tokio",
  "tonic",
@@ -3308,7 +3384,7 @@ checksum = "56d658ba1faf63f7b9c492cfbe6e0ec365440a16132d3270c1065f7b33f1b638"
 dependencies = [
  "opentelemetry",
  "opentelemetry_sdk",
- "prost 0.14.4",
+ "prost",
  "tonic",
  "tonic-prost",
 ]
@@ -3406,16 +3482,6 @@ name = "percent-encoding"
 version = "2.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9b4f627cb1b25917193a259e49bdad08f671f8d9708acfd5fe0a8c1455d87220"
-
-[[package]]
-name = "petgraph"
-version = "0.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3672b37090dbd86368a4145bc067582552b29c27377cad4e0a306c97f9bd7772"
-dependencies = [
- "fixedbitset",
- "indexmap 2.14.0",
-]
 
 [[package]]
 name = "petgraph"
@@ -3802,42 +3868,12 @@ dependencies = [
 
 [[package]]
 name = "prost"
-version = "0.13.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2796faa41db3ec313a31f7624d9286acf277b52de526150b7e69f3debf891ee5"
-dependencies = [
- "bytes",
- "prost-derive 0.13.5",
-]
-
-[[package]]
-name = "prost"
 version = "0.14.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "528ac67416ff8646872a3c02cad9cc4ee5dc9f9540c9b10771855c95cb2e5ae1"
 dependencies = [
  "bytes",
- "prost-derive 0.14.4",
-]
-
-[[package]]
-name = "prost-build"
-version = "0.13.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "be769465445e8c1474e9c5dac2018218498557af32d9ed057325ec9a41ae81bf"
-dependencies = [
- "heck 0.5.0",
- "itertools",
- "log",
- "multimap",
- "once_cell",
- "petgraph 0.7.1",
- "prettyplease",
- "prost 0.13.5",
- "prost-types 0.13.5",
- "regex",
- "syn 2.0.118",
- "tempfile",
+ "prost-derive",
 ]
 
 [[package]]
@@ -3850,28 +3886,15 @@ dependencies = [
  "itertools",
  "log",
  "multimap",
- "petgraph 0.8.3",
+ "petgraph",
  "prettyplease",
- "prost 0.14.4",
- "prost-types 0.14.4",
+ "prost",
+ "prost-types",
  "pulldown-cmark",
  "pulldown-cmark-to-cmark",
  "regex",
  "syn 2.0.118",
  "tempfile",
-]
-
-[[package]]
-name = "prost-derive"
-version = "0.13.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8a56d757972c98b346a9b766e3f02746cde6dd1cd1d1d563472929fdd74bec4d"
-dependencies = [
- "anyhow",
- "itertools",
- "proc-macro2",
- "quote",
- "syn 2.0.118",
 ]
 
 [[package]]
@@ -3889,20 +3912,11 @@ dependencies = [
 
 [[package]]
 name = "prost-types"
-version = "0.13.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "52c2c1bf36ddb1a1c396b3601a3cec27c2462e45f07c386894ec3ccf5332bd16"
-dependencies = [
- "prost 0.13.5",
-]
-
-[[package]]
-name = "prost-types"
 version = "0.14.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f94967dc7688f3054c7fac87473ffae4cc4c3904800e2d9f5b857246d8963b0a"
 dependencies = [
- "prost 0.14.4",
+ "prost",
 ]
 
 [[package]]
@@ -5270,7 +5284,7 @@ checksum = "3e176a18e67764923c4f1ce66f25ae4abe5f688384d5eb1a0fa6c77f3d90f887"
 dependencies = [
  "anyhow",
  "brotli",
- "cargo_metadata",
+ "cargo_metadata 0.19.2",
  "ctor",
  "dom_query",
  "dunce",
@@ -5676,7 +5690,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "50849f68853be452acf590cde0b146665b8d507b3b8af17261df47e02c209ea0"
 dependencies = [
  "bytes",
- "prost 0.14.4",
+ "prost",
  "tonic",
 ]
 
@@ -5688,8 +5702,8 @@ checksum = "654e5643eff75d7f8c99197ce1440ed19a3474eada74c12bbac488b2cafdae27"
 dependencies = [
  "prettyplease",
  "proc-macro2",
- "prost-build 0.14.4",
- "prost-types 0.14.4",
+ "prost-build",
+ "prost-types",
  "quote",
  "syn 2.0.118",
  "tempfile",
@@ -5702,8 +5716,8 @@ version = "0.14.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "73ab1b02061f83d519bba3caa167f88f261ef05720ab8ebc954ade70de3348e8"
 dependencies = [
- "prost 0.14.4",
- "prost-types 0.14.4",
+ "prost",
+ "prost-types",
  "tonic",
 ]
 
@@ -6877,12 +6891,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "yaml-rust"
-version = "0.4.5"
+name = "yaml-rust2"
+version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "56c1936c4cc7a1c9ab21a1ebb602eb942ba868cbd44a99cb7cdc5892335e1c85"
+checksum = "631a50d867fafb7093e709d75aaee9e0e0d5deb934021fcea25ac2fe09edc51e"
 dependencies = [
- "linked-hash-map",
+ "arraydeque",
+ "encoding_rs",
+ "hashlink",
 ]
 
 [[package]]

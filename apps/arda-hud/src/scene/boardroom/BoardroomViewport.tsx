@@ -1,10 +1,17 @@
 // sigil: REPAIR
-import { Canvas, useFrame, type ThreeEvent } from '@react-three/fiber'
+import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber'
 import { Environment, Html, OrbitControls, useGLTF, useTexture } from '@react-three/drei'
 import { Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import * as THREE from 'three'
 import type { Group } from 'three'
-import type { BoardroomSurfaceLayout } from '../../lib/boardroomSlotSettings'
+import {
+  BOARDROOM_MONITOR_SLOT_IDS,
+  type BoardroomAgentClaim,
+  type BoardroomMonitorSlotSource,
+  type BoardroomSceneSlotId,
+  type BoardroomSurfaceLayout,
+  type MonitorSurfaceRequest,
+} from '../../lib/boardroomSlotSettings'
 import type { ArdaSourceProvenance } from '../../lib/ardaProvenance'
 import type { SceneAnchorDefinition, SceneZoneDefinition, WorkstationManifestDefinition } from '../systems/runtimeTypes'
 import type { FleetViewModel, WorkstationStatus } from '../workstations/viewModels'
@@ -21,6 +28,7 @@ import {
   getBoardroomSpatialZone,
   normalizeBoardroomZonePositionOverrides,
   serializeBoardroomZonePositionOverrides,
+  type BoardroomPreviewMode,
   type BoardroomSpatialZone,
   type BoardroomVec3,
   type BoardroomZonePositionOverrides,
@@ -34,7 +42,17 @@ import {
   type HudTone,
 } from './boardroomHudInstruments'
 
-import PresenceAvatar from './PresenceAvatar'
+import { AvatarPresenceLayer } from './AvatarPresenceLayer'
+import { BoardroomInstrumentScreen } from './BoardroomInstrumentScreen'
+import { CommandCoreInstrumentScreen } from './CommandCoreInstrumentScreen'
+import { LowerInstrumentScreen } from './LowerInstrumentScreen'
+import { resolveLowerInstrumentRole } from './lowerInstrumentSignal'
+import { UpperAmbientMonitorScreen } from './UpperAmbientMonitorScreen'
+import { isUpperMonitorInteractive, resolveUpperMonitorDisplayMode } from './upperAmbientSignal'
+import { MonitorOwnershipRail } from './MonitorOwnershipRail'
+import { BoardroomApertureSurface } from './BoardroomApertureSurface'
+import type { MonitorRecordsBySlot } from '../../lib/monitorSurfaceRegistryBridge'
+import type { MonitorSurfaceSessionRecord } from '../../lib/monitorSurfaceContract'
 import { parseJsonOrNull } from '../../lib/jsonParse'
 import { deriveBoardroomPresenceStatusView } from './boardroomPresenceStatus'
 import { resolveSceneSlotWorkstationZoneId } from '../workstations/sceneSlotWorkstationTemplates'
@@ -53,6 +71,12 @@ import {
   resolveBoardroomRenderProfile,
   type BoardroomRenderProfile,
 } from './boardroomPerformance'
+import {
+  formatMonitorSurfaceStream,
+  resolveMonitorContractSlotId,
+  resolveMonitorSurfaceOpenRequest,
+  type MonitorSurfacePayloadEvent,
+} from './monitorSurfaceRuntime'
 
 interface BoardroomViewportProps {
   active: boolean
@@ -62,14 +86,22 @@ interface BoardroomViewportProps {
   workstations: WorkstationManifestDefinition[]
   slotAssignments: Record<string, string>
   surfaceLayouts?: Record<string, BoardroomSurfaceLayout>
+  monitorSlotSources?: Record<string, BoardroomMonitorSlotSource | null>
+  monitorRecordsBySlot?: MonitorRecordsBySlot
+  agentClaims?: Record<string, BoardroomAgentClaim | null>
+  onReleaseMonitor?: (slotId: BoardroomSceneSlotId, owner: string) => void
+  onRefreshMonitor?: (slotId: BoardroomSceneSlotId, owner: string) => void
   sourceProvenance?: ArdaSourceProvenance[]
   instruments?: BoardroomHudInstrumentMap
   fleetViewModel?: FleetViewModel | null
   presenceState?: AgentPresenceState
   presenceStatus?: PresenceLedgerStatus
+  rootPath?: string | null
   sceneOverlay?: ReactNode
   onActivate: (anchorId: string) => void
   onOpenWorkstation: (zoneId: string) => void
+  onOpenMonitorSurface?: (request: MonitorSurfaceRequest) => void
+  onOpenMonitorSession?: (record: MonitorSurfaceSessionRecord) => void
   onOpenHermesDashboard: () => void
   onOpenHermesCli: () => void
   onOpenSettings: () => void
@@ -269,14 +301,14 @@ function InteractionPad({
   showHitbox?: boolean
   draggable?: boolean
   onMovePosition?: (position: Vec3) => void
-  onActivate: () => void
+  onActivate?: () => void
   children?: ReactNode
 }) {
   const dragRef = useRef<{ pointerId: number; startPoint: THREE.Vector3; basePosition: Vec3; moved: boolean } | null>(null)
   const suppressNextClickRef = useRef(false)
 
   const handleActivate = () => {
-    onActivate()
+    onActivate?.()
   }
 
   const handlePointerDown = (event: ThreeEvent<PointerEvent>) => {
@@ -329,7 +361,7 @@ function InteractionPad({
       position={position}
       rotation={rotation}
       userData={{ sceneSlotId: slotId }}
-      onClick={handleClick}
+      onClick={onActivate ? handleClick : undefined}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -393,6 +425,62 @@ function getSlotWorkstationZoneId(
   return resolveSceneSlotWorkstationZoneId(slot.assignmentSlotId, slot.id, assignment?.sourceZoneId)
 }
 
+export function resolveMonitorFocus(
+  slotId: string,
+  slotAssignments: Record<string, string>,
+  monitorSlotSources: Record<string, BoardroomMonitorSlotSource | null>,
+  surfaceLayouts: Record<string, BoardroomSurfaceLayout>,
+  agentClaims: Record<string, BoardroomAgentClaim | null>,
+  _nowUtc: string,
+): { sourceZoneId: string | null; focusMode: string; hasActiveClaim: boolean } | null {
+  if (!BOARDROOM_MONITOR_SLOT_IDS.includes(slotId as typeof BOARDROOM_MONITOR_SLOT_IDS[number])) return null
+  const source = monitorSlotSources[slotId] ?? null
+  const activeClaim = source?.claim ?? agentClaims[slotId] ?? null
+  if (activeClaim && source?.active) {
+    const layout = surfaceLayouts[slotId]
+    const focusMode = layout?.focus.mode ?? 'remote_preview'
+    return {
+      sourceZoneId: activeClaim.payload_binding,
+      focusMode,
+      hasActiveClaim: true,
+    }
+  }
+  const persistedSourceZoneId = slotAssignments[slotId] ?? null
+  const layout = surfaceLayouts[slotId]
+  const fallbackLayout = layout ?? createDefaultSurfaceLayoutForMonitor(slotId, persistedSourceZoneId)
+  return {
+    sourceZoneId: persistedSourceZoneId,
+    focusMode: fallbackLayout.focus.mode,
+    hasActiveClaim: false,
+  }
+}
+
+export function shouldRenderActiveMonitorClaim(
+  focus: { hasActiveClaim: boolean } | null,
+): boolean {
+  return focus?.hasActiveClaim === true
+}
+
+function createDefaultSurfaceLayoutForMonitor(slotId: string, sourceZoneId: string | null): BoardroomSurfaceLayout {
+  const effectiveSource = sourceZoneId ?? slotId
+  if (effectiveSource === 'hermes_runtime') {
+    return {
+      enabled: true,
+      adapter_type: 'agent_activity',
+      preview: { mode: 'agent_activity', refresh_ms: 1000, widgets: [] },
+      focus: { mode: 'remote_preview', target: effectiveSource, refresh_ms: 1000 },
+      embed: { url: null, allow_inline: false },
+    }
+  }
+  return {
+    enabled: true,
+    adapter_type: 'component_grid',
+    preview: { mode: 'component_grid', refresh_ms: 3000, widgets: [] },
+    focus: { mode: 'in_scene_workstation', target: effectiveSource, refresh_ms: 1000 },
+    embed: { url: null, allow_inline: false },
+  }
+}
+
 function isFleetWorkstationAssignment(assignment: WorkstationManifestDefinition | null): boolean {
   if (!assignment) return false
   return assignment.sourceZoneId === 'systems_health'
@@ -408,7 +496,6 @@ function formatFleetValue(value: number | string | null | undefined, fallback = 
 }
 
 const BOARDROOM_WORKSTATION_ZONE_IDS = new Set(['sovereign_world', 'settings'])
-const isNativeTauriRuntime = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window
 
 function getSceneWorkstations(workstations: WorkstationManifestDefinition[]): WorkstationManifestDefinition[] {
   return workstations.filter((workstation) => !BOARDROOM_WORKSTATION_ZONE_IDS.has(workstation.sourceZoneId))
@@ -487,177 +574,45 @@ function instrumentModelForAssignment(
   }
 }
 
-function HudInstrumentVisualization({ model, glowId }: { model: HudInstrumentModel; glowId: string }) {
-  const renderNodes = (withLinks: boolean) => (
-    <>
-      {withLinks ? model.links.map(([from, to]) => (
-        <line
-          className="hud-instrument__link"
-          key={`${from}-${to}`}
-          x1={model.nodes[from].x}
-          y1={model.nodes[from].y}
-          x2={model.nodes[to].x}
-          y2={model.nodes[to].y}
-        />
-      )) : null}
-      {model.nodes.map((node, index) => (
-        <g className={`hud-instrument__node hud-instrument__node--${node.state}`} key={node.id}>
-          <circle cx={node.x} cy={node.y} r={index % 3 === 0 ? 2.7 : 2.1} />
-          {index % 4 === 0 ? <circle cx={node.x} cy={node.y} r="5.2" /> : null}
-        </g>
-      ))}
-    </>
-  )
-
-  return (
-    <svg className={`hud-instrument__scope hud-instrument__scope--${model.preset}`} viewBox="0 0 100 100" role="img" aria-hidden="true">
-      <defs>
-        <radialGradient id={glowId} cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="currentColor" stopOpacity="0.34" />
-          <stop offset="68%" stopColor="currentColor" stopOpacity="0.08" />
-          <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-      <path className="hud-instrument__grid" d="M 8 25 H 92 M 8 50 H 92 M 8 75 H 92 M 25 8 V 92 M 50 8 V 92 M 75 8 V 92" />
-      <circle className="hud-instrument__glow" cx="50" cy="50" r="48" fill={`url(#${glowId})`} />
-
-      {model.preset === 'topology' ? (
-        <>
-          {model.rings.map((ring, index) => (
-            <circle className={`hud-instrument__ring hud-instrument__ring--${index}`} key={ring} cx="50" cy="50" r={ring} />
-          ))}
-          <path className="hud-instrument__axis" d="M 8 50 H 92 M 50 12 V 88" />
-          {renderNodes(true)}
-          <path className="hud-instrument__sweep" d="M 50 50 L 82 24 A 41 41 0 0 1 88 42" />
-        </>
-      ) : null}
-
-      {model.preset === 'routes' ? (
-        <>
-          {[24, 50, 76].map((y, index) => (
-            <g className="hud-instrument__route" key={y}>
-              <path d={`M 8 ${y} C 30 ${y - 18}, 66 ${y + 18}, 92 ${y}`} />
-              <circle className={`hud-instrument__packet hud-instrument__packet--${index}`} cx={28 + index * 20} cy={y + (index - 1) * 5} r="2.5" />
-            </g>
-          ))}
-          {renderNodes(false)}
-        </>
-      ) : null}
-
-      {model.preset === 'lanes' ? (
-        <>
-          {model.nodes.slice(0, 5).map((node, index) => (
-            <g className="hud-instrument__lane" key={node.id}>
-              <rect x="10" y={14 + index * 16} width="80" height="7" rx="3.5" />
-              <rect className="hud-instrument__lane-fill" x="10" y={14 + index * 16} width={Math.max(16, Math.min(80, node.x * 0.8))} height="7" rx="3.5" />
-              <circle cx={Math.max(18, Math.min(86, node.x * 0.8 + 8))} cy={17.5 + index * 16} r="2" />
-            </g>
-          ))}
-        </>
-      ) : null}
-
-      {model.preset === 'constellation' ? (
-        <>
-          <path className="hud-instrument__constellation-orbit" d="M 12 58 C 26 16, 74 16, 88 58 C 73 87, 27 87, 12 58 Z" />
-          {renderNodes(true)}
-        </>
-      ) : null}
-
-      {model.preset === 'pulse' ? (
-        <>
-          <path className="hud-instrument__pulse-guide" d="M 8 50 H 92" />
-          <polyline
-            className="hud-instrument__pulse-wave"
-            points={model.nodes.map((node, index) => `${8 + index * (84 / Math.max(1, model.nodes.length - 1))},${20 + node.y * 0.58}`).join(' ')}
-          />
-          <path className="hud-instrument__scan" d="M 12 16 V 84" />
-        </>
-      ) : null}
-
-      {model.preset === 'standby' ? (
-        <>
-          <path className="hud-instrument__standby-frame" d="M 14 18 H 86 V 82 H 14 Z M 22 26 L 78 74 M 78 26 L 22 74" />
-          <circle className="hud-instrument__standby-glyph" cx="50" cy="50" r="8" />
-        </>
-      ) : null}
-    </svg>
-  )
-}
-
 function HudInstrumentSurface({
   zone,
   assignment,
   persistedSourceZoneId,
   instrument,
+  motionEnabled,
   onActivate,
 }: {
   zone: BoardroomSpatialZone
   assignment: WorkstationManifestDefinition | null
   persistedSourceZoneId?: string
   instrument?: HudInstrumentModel
+  motionEnabled?: boolean
   onActivate: () => void
 }) {
   const model = instrument ?? instrumentModelForAssignment(zone, assignment, persistedSourceZoneId)
-  const deskRole = zone.id.includes('wrap') ? 'outer' : zone.id.includes('inner') ? 'inner' : 'standard'
-  const className = `hud-instrument hud-instrument--${zone.previewMode} hud-instrument--desk-${deskRole} hud-instrument--${model.tone} hud-instrument--${model.status}`
-  const glowId = `${zone.id.replace(/[^a-z0-9_-]/gi, '-')}-glow`
-  const sourceTime = model.source?.observedAtUtc?.slice(11, 16) ?? '--:--'
-  const sourceTitle = model.source
-    ? `${(model.source.sourceIds ?? [model.source.sourceId]).join(', ')} · ${model.source.sourcePaths.join(', ')} · observed ${model.source.observedAtUtc ?? 'unknown'}`
-    : undefined
-  const distanceFactor = zone.previewMode === 'monitor_surface' ? 4.1 : 4.3
-  const surfacePosition: Vec3 = zone.previewMode === 'monitor_surface'
-    ? [0, 0, 0.12]
-    : [0, zone.size[1] / 2 + 0.045, 0]
+  const lowerRole = resolveLowerInstrumentRole(zone.id)
+
+  if (lowerRole) {
+    return (
+      <LowerInstrumentScreen
+        slotId={zone.id}
+        role={lowerRole}
+        size={zone.size}
+        model={model}
+        motionEnabled={motionEnabled}
+        onActivate={onActivate}
+      />
+    )
+  }
 
   return (
-    <>
-      <Html
-        center
-        transform
-        distanceFactor={distanceFactor}
-        position={surfacePosition}
-        rotation={zone.previewMode === 'monitor_surface' ? [0, 0, 0] : [-Math.PI / 2, 0, 0]}
-      >
-        <button type="button" className={className} onClick={onActivate} aria-label={`Open ${model.title}`}>
-          <span className="hud-instrument__header">
-            <span>
-              <b>{model.eyebrow}</b>
-              <strong>{model.title}</strong>
-            </span>
-            <i>{model.glyph}</i>
-          </span>
-          <HudInstrumentVisualization model={model} glowId={glowId} />
-          <span className="hud-instrument__footer">
-            <span className={`hud-instrument__status hud-instrument__status--${model.status}`}>
-              {model.status === 'nominal' ? 'live' : model.status === 'offline' ? 'no data' : model.status}
-            </span>
-            {model.source ? (
-              <span className={`hud-instrument__source hud-instrument__source--${model.source.freshness}`} title={sourceTitle}>
-                {model.source.freshness} {sourceTime}Z
-              </span>
-            ) : null}
-            <span className="hud-instrument__pips">
-              <i />
-              <i />
-              <i />
-              <i />
-              <i />
-            </span>
-          </span>
-        </button>
-      </Html>
-      {isNativeTauriRuntime ? (
-        <Html center distanceFactor={distanceFactor} position={surfacePosition} pointerEvents="auto">
-          <button
-            type="button"
-            className={`boardroom-scene__monitor-native-target boardroom-scene__monitor-native-target--${zone.previewMode}`}
-            aria-label={`Open ${model.title}`}
-            onClick={onActivate}
-          />
-        </Html>
-      ) : null}
-    </>
+    <BoardroomInstrumentScreen
+      slotId={zone.id}
+      previewMode={zone.previewMode}
+      size={zone.size}
+      model={model}
+      onActivate={onActivate}
+    />
   )
 }
 
@@ -665,145 +620,119 @@ function FleetPreviewSurface({
   zone,
   assignment,
   fleetViewModel,
+  motionEnabled,
   onActivate,
 }: {
   zone: BoardroomSpatialZone
   assignment: WorkstationManifestDefinition | null
   fleetViewModel: FleetViewModel
+  motionEnabled?: boolean
   onActivate: () => void
 }) {
-  const provider = fleetViewModel.providers.find((candidate) => candidate.enabled && candidate.healthy)
-    ?? fleetViewModel.providers[0]
-    ?? null
-  const primaryRoute = fleetViewModel.laneOwnership.find((lane) => lane.route)?.route ?? null
   const liveMetric = fleetViewModel.metrics.find((metric) => metric.id === 'live_targets')
   const totalMetric = fleetViewModel.metrics.find((metric) => metric.id === 'total_targets')
   const offlineMetric = fleetViewModel.metrics.find((metric) => metric.id === 'unexpected_offline')
-  const modelCount = fleetViewModel.providers.reduce((count, item) => count + item.models.length, 0)
-  const distanceFactor = zone.previewMode === 'monitor_surface' ? 4.2 : 4.3
-  const surfacePosition: Vec3 = zone.previewMode === 'monitor_surface'
-    ? [0, 0, 0.14]
-    : [0, zone.size[1] / 2 + 0.05, 0]
+  const fallbackModel = instrumentModelForAssignment(zone, assignment)
+  const offlineCount = Number(offlineMetric?.value ?? 0)
+  const model: HudInstrumentModel = {
+    ...fallbackModel,
+    eyebrow: 'Fleet',
+    title: assignment?.title.replace(/\s+Workstation$/, '') ?? fleetViewModel.title,
+    glyph: `${formatFleetValue(liveMetric?.value)}/${formatFleetValue(totalMetric?.value)}`,
+    tone: offlineCount > 0 ? 'gold' : 'cyan',
+    status: fleetViewModel.status === 'ok'
+      ? 'nominal'
+      : fleetViewModel.status === 'attention'
+        ? 'watch'
+        : 'offline',
+  }
+  const lowerRole = resolveLowerInstrumentRole(zone.id)
+
+  if (lowerRole) {
+    return (
+      <LowerInstrumentScreen
+        slotId={zone.id}
+        role={lowerRole}
+        size={zone.size}
+        model={model}
+        motionEnabled={motionEnabled}
+        onActivate={onActivate}
+      />
+    )
+  }
 
   return (
-    <>
-      <Html
-        center
-        transform
-        distanceFactor={distanceFactor}
-        position={surfacePosition}
-        rotation={zone.previewMode === 'monitor_surface' ? [0, 0, 0] : [-Math.PI / 2, 0, 0]}
-      >
-        <button
-          type="button"
-          className={`fleet-preview-surface fleet-preview-surface--${zone.previewMode} fleet-preview-surface--${fleetViewModel.status}`}
-          onClick={onActivate}
-          aria-label={`Open ${assignment?.title ?? fleetViewModel.title} fleet workstation`}
-        >
-          <span className="fleet-preview-surface__header">
-            <b>FLEET</b>
-            <i>{fleetViewModel.status}</i>
-          </span>
-          <strong>{assignment?.title.replace(/\s+Workstation$/, '') ?? fleetViewModel.title}</strong>
-          <span className="fleet-preview-surface__metrics">
-            <span><b>{formatFleetValue(liveMetric?.value)}</b><small>live</small></span>
-            <span><b>{formatFleetValue(totalMetric?.value)}</b><small>total</small></span>
-            <span><b>{formatFleetValue(offlineMetric?.value, '0')}</b><small>offline</small></span>
-          </span>
-          <span className="fleet-preview-surface__route">
-            <span>{primaryRoute ? `${primaryRoute.providerId} / ${primaryRoute.modelId}` : 'routing unassigned'}</span>
-            <small>{provider ? `${provider.providerName} · ${modelCount} models` : 'no provider projection'}</small>
-          </span>
-        </button>
-      </Html>
-      {isNativeTauriRuntime ? (
-        <Html center distanceFactor={distanceFactor} position={surfacePosition} pointerEvents="auto">
-          <button
-            type="button"
-            className={`boardroom-scene__monitor-native-target boardroom-scene__monitor-native-target--${zone.previewMode}`}
-            aria-label={`Open ${assignment?.title ?? fleetViewModel.title} fleet workstation`}
-            onClick={onActivate}
-          />
-        </Html>
-      ) : null}
-    </>
+    <BoardroomInstrumentScreen
+      slotId={zone.id}
+      previewMode={zone.previewMode}
+      size={zone.size}
+      model={model}
+      onActivate={onActivate}
+    />
   )
 }
 
 function CommandCoreSurface({
+  zone,
   onControl,
+  nowInstrument,
+  healthInstrument,
+  routingInstrument,
 }: {
+  zone: BoardroomSpatialZone
   onControl: (action: BoardroomPhysicalControlAction) => void
+  nowInstrument?: HudInstrumentModel
+  healthInstrument?: HudInstrumentModel
+  routingInstrument?: HudInstrumentModel
 }) {
-  const buttonProps = (actionId: string) => {
-    const action = getBoardroomPhysicalControlAction(actionId)
-    const state = deriveBoardroomPhysicalControlState(actionId, null)
-    return {
-      'aria-label': action.label,
-      'data-authority': action.authority,
-      disabled: state.disabled,
-      onClick: () => onControl(action),
-      title: `${action.authority} · verify ${action.verificationPath}`,
-    }
+  const openAction = getBoardroomPhysicalControlAction('open_command_core')
+  const model: HudInstrumentModel = nowInstrument ?? {
+    title: 'ARDA Control',
+    eyebrow: 'Command Core',
+    tone: 'cyan',
+    status: healthInstrument?.status ?? 'offline',
+    glyph: routingInstrument?.glyph ?? 'NO DATA',
+    preset: 'pulse',
+    nodes: [],
+    links: [],
+    rings: [],
   }
+  const controls = [
+    { id: 'open_approval_queue', color: '#8cffc7', position: [0.42, 0.075, -0.17] as Vec3 },
+    { id: 'open_emergency_stop', color: '#ff789c', position: [0.65, 0.075, -0.17] as Vec3 },
+    { id: 'open_route_selector', color: '#5defff', position: [0.42, 0.075, 0.17] as Vec3 },
+    { id: 'enter_world', color: '#b98cff', position: [0.65, 0.075, 0.17] as Vec3 },
+  ]
 
   return (
     <>
-      <Html center transform distanceFactor={4.3} position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <div className="command-core-terminal" aria-label="Boardroom command core">
-          <button type="button" className="command-core-terminal__screen" {...buttonProps('open_command_core')}>
-            <span className="command-core-terminal__eyebrow">Command Core</span>
-            <strong>ARDA CONTROL</strong>
-            <span className="command-core-terminal__scope">
-              <i />
-              <i />
-              <i />
-              <i />
-            </span>
-            <small>mode / health / routes</small>
-          </button>
-          <div className="command-core-terminal__buttons">
-            <button type="button" className="command-core-terminal__button command-core-terminal__button--go" {...buttonProps('open_approval_queue')}>GO</button>
-            <button type="button" className="command-core-terminal__button command-core-terminal__button--stop" {...buttonProps('open_emergency_stop')}>STOP</button>
-            <button type="button" className="command-core-terminal__button" {...buttonProps('open_route_selector')}>ROUTE</button>
-            <button type="button" className="command-core-terminal__button" {...buttonProps('enter_world')}>WORLD</button>
-          </div>
-        </div>
-      </Html>
-      {isNativeTauriRuntime ? (
-        <Html center distanceFactor={4.3} position={[0, 0.05, 0]} pointerEvents="auto">
-          <button
-            type="button"
-            className="command-core-terminal__native-screen-target"
-            aria-label="Open ARDA Control"
-            {...buttonProps('open_command_core')}
-          />
-        </Html>
-      ) : null}
+      <group position={[-0.22, 0, 0]}>
+        <CommandCoreInstrumentScreen
+          slotId={zone.id}
+          size={[zone.size[0] * 0.72, zone.size[1], zone.size[2] * 0.9]}
+          model={model}
+          onActivate={() => onControl(openAction)}
+        />
+      </group>
+      {controls.map((control) => {
+        const action = getBoardroomPhysicalControlAction(control.id)
+        const state = deriveBoardroomPhysicalControlState(control.id, null)
+        return (
+          <group key={control.id} position={control.position}>
+            <PhysicalControlButtonSurface
+              label={action.label}
+              size={[0.17, 0.04, 0.17]}
+              color={control.color}
+              controlState={state}
+              title={`${action.authority} · verify ${action.verificationPath}`}
+              onClick={() => onControl(action)}
+            />
+          </group>
+        )
+      })}
     </>
   )
 }
-
-function HermesTerminalSurface({ onOpenHermesDashboard }: { onOpenHermesDashboard: () => void }) {
-  return (
-    <Html center transform distanceFactor={5.2} position={[0, 0, 0.28]}>
-      <button type="button" className="hermes-desk-terminal" onClick={onOpenHermesDashboard} aria-label="Open Hermes Dashboard">
-        <span className="hermes-desk-terminal__bar">
-          <b>HERMES</b>
-          <i>9119</i>
-        </span>
-        <span className="hermes-desk-terminal__lines">
-          <i />
-          <i />
-          <i />
-          <i />
-        </span>
-        <strong>DASHBOARD TERMINAL</strong>
-      </button>
-    </Html>
-  )
-}
-
 
 function PhysicalControlButtonSurface({
   label,
@@ -887,10 +816,12 @@ function AvatarEmitterBase({
   zone,
   presenceState,
   motionEnabled,
+  rootPath,
 }: {
   zone: BoardroomSpatialZone
   presenceState: AgentPresenceState
   motionEnabled: boolean
+  rootPath?: string | null
 }) {
   const geometry = deriveAvatarEmitterGeometry(zone.size)
   const pulseRef = useRef<THREE.Group>(null)
@@ -908,27 +839,45 @@ function AvatarEmitterBase({
 
   return (
     <group position={zone.position} name="arda-presence-emitter">
-      <mesh position={[0, -0.08, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[geometry.ringRadius, geometry.ringTubeRadius, 16, 96]} />
-        <meshStandardMaterial color={emitterColor} emissive={emitterColor} emissiveIntensity={isActive ? 2.1 : 0.82} roughness={0.18} metalness={0.42} />
+      <mesh position={[0, -0.02, 0]}>
+        <cylinderGeometry args={[geometry.baseTopRadius, geometry.baseBottomRadius, 0.11, 12]} />
+        <meshStandardMaterial color="#050b12" emissive="#102638" emissiveIntensity={0.54} roughness={0.26} metalness={0.78} />
       </mesh>
-      <mesh position={[0, -0.1, 0]}>
-        <cylinderGeometry args={[geometry.baseTopRadius, geometry.baseBottomRadius, 0.12, 72]} />
-        <meshStandardMaterial color="#071018" emissive="#12344a" emissiveIntensity={0.75} roughness={0.34} metalness={0.6} />
+      <mesh position={[0, 0.045, 0]}>
+        <cylinderGeometry args={[geometry.coreTopRadius, geometry.baseTopRadius, 0.04, 12]} />
+        <meshStandardMaterial color="#0b1721" emissive={emitterColor} emissiveIntensity={0.38} roughness={0.22} metalness={0.7} />
       </mesh>
       <group ref={pulseRef}>
-        <mesh position={[0, 0.02, 0]}>
-          <cylinderGeometry args={[geometry.coreTopRadius, geometry.coreBottomRadius, 0.04, 72]} />
-          <meshStandardMaterial color="#7df2ff" emissive={emitterColor} emissiveIntensity={isActive ? 2.8 : 1.25} transparent opacity={isActive ? 0.72 : 0.46} />
+        <mesh position={[0, 0.07, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[geometry.ringRadius, geometry.ringTubeRadius, 10, 72]} />
+          <meshStandardMaterial color={emitterColor} emissive={emitterColor} emissiveIntensity={isActive ? 2.5 : 1.1} roughness={0.14} metalness={0.35} />
         </mesh>
-        {[0, 1, 2].map((index) => (
-          <mesh key={index} position={[0, 0.13 + index * 0.075, 0]} rotation={[Math.PI / 2, 0, 0]}>
-            <torusGeometry args={[geometry.coreTopRadius * (0.78 + index * 0.24), geometry.ringTubeRadius * 0.22, 8, 48]} />
-            <meshBasicMaterial color={emitterColor} transparent opacity={isActive ? 0.52 - index * 0.1 : 0.16 - index * 0.03} />
-          </mesh>
-        ))}
+        {Array.from({ length: 6 }, (_, index) => {
+          const angle = (index / 6) * Math.PI * 2
+          return (
+            <mesh
+              key={index}
+              position={[Math.sin(angle) * geometry.ringRadius, 0.052, Math.cos(angle) * geometry.ringRadius]}
+              rotation={[0, angle, 0]}
+            >
+              <boxGeometry args={[0.105, 0.035, 0.045]} />
+              <meshStandardMaterial color="#122431" emissive={index % 2 === 0 ? emitterColor : '#f06dd7'} emissiveIntensity={0.9} metalness={0.62} roughness={0.24} />
+            </mesh>
+          )
+        })}
       </group>
+      <mesh position={[0, 0.24, 0]}>
+        <cylinderGeometry args={[geometry.coreTopRadius * 0.65, geometry.ringRadius * 0.82, 0.34, 32, 1, true]} />
+        <meshBasicMaterial color={emitterColor} transparent opacity={isActive ? 0.09 : 0.035} side={THREE.DoubleSide} depthWrite={false} blending={THREE.AdditiveBlending} />
+      </mesh>
       <pointLight position={[0, 0.42, 0]} intensity={isActive ? 1.25 : 0.58} distance={geometry.lightDistance} color={emitterColor} />
+      <group position={[0, 0.18, 0]}>
+        <AvatarPresenceLayer
+          presenceState={presenceState}
+          motionEnabled={motionEnabled}
+          rootPath={rootPath}
+        />
+      </group>
     </group>
   )
 }
@@ -957,14 +906,22 @@ function BoardroomScene({
   workstations,
   slotAssignments,
   surfaceLayouts = {},
+  monitorSlotSources = {},
+  monitorRecordsBySlot,
+  agentClaims = {},
+  onReleaseMonitor,
+  onRefreshMonitor,
   sourceProvenance = [],
   instruments = {},
   fleetViewModel = null,
   presenceState = DEFAULT_AGENT_PRESENCE_STATE,
   presenceStatus,
+  rootPath = null,
   debug = false,
   onActivate,
   onOpenWorkstation,
+  onOpenMonitorSurface,
+  onOpenMonitorSession,
   onOpenHermesDashboard,
   onOpenHermesCli,
   onOpenSettings,
@@ -977,6 +934,24 @@ function BoardroomScene({
     message: string
     state: BoardroomPhysicalControlState
   } | null>(null)
+  const [monitorPayloads, setMonitorPayloads] = useState<Record<string, MonitorSurfacePayloadEvent>>({})
+
+  useEffect(() => {
+    if (!('__TAURI_INTERNALS__' in window)) return
+    let unlisten: (() => void) | null = null
+    let cancelled = false
+    void import('@tauri-apps/api/event').then(({ listen }) => listen<MonitorSurfacePayloadEvent>(
+      'monitor-surface-payload',
+      ({ payload }) => setMonitorPayloads((current) => ({ ...current, [payload.slotId]: payload })),
+    )).then((dispose) => {
+      if (cancelled) dispose()
+      else unlisten = dispose
+    })
+    return () => {
+      cancelled = true
+      unlisten?.()
+    }
+  }, [])
   const monitorZones = useMemo(
     () => BOARDROOM_MONITOR_ZONES.map((zone) => withPositionOverride(zone, zonePositionOverrides)),
     [zonePositionOverrides],
@@ -1118,10 +1093,29 @@ function BoardroomScene({
       {skylinePlateUrl ? <CyberpunkCityWindow url={skylinePlateUrl} /> : null}
 
       {monitorZones.map((slot) => {
+        const monitorSlotId = resolveMonitorContractSlotId(slot.id, slot.assignmentSlotId)
         const assignment = getSlotAssignment(sceneWorkstations, slotAssignments, slot)
         const persistedSourceZoneId = slot.assignmentSlotId ? slotAssignments[slot.assignmentSlotId] : undefined
+        const focus = resolveMonitorFocus(monitorSlotId, slotAssignments, monitorSlotSources, surfaceLayouts, agentClaims, new Date().toISOString())
+        const effectiveSourceZoneId = focus?.sourceZoneId ?? persistedSourceZoneId
         const workstationZoneId = getSlotWorkstationZoneId(slot, assignment)
-        const instrument = resolveBoardroomHudInstrument(instruments, slot.id, slot.assignmentSlotId)
+        const typedRecord = monitorRecordsBySlot?.[monitorSlotId as keyof MonitorRecordsBySlot] ?? null
+        const activeClaim = shouldRenderActiveMonitorClaim(focus)
+          ? (agentClaims[monitorSlotId] ?? (monitorSlotSources[monitorSlotId]?.claim ?? null))
+          : null
+        const displayMode = resolveUpperMonitorDisplayMode(Boolean(typedRecord), Boolean(activeClaim))
+        const handleMonitorActivate = () => {
+          if (typedRecord && onOpenMonitorSession) {
+            onOpenMonitorSession(typedRecord)
+            return
+          }
+          const request = resolveMonitorSurfaceOpenRequest(monitorSlotId, effectiveSourceZoneId ?? null, focus?.focusMode ?? 'native_window')
+          if (request && onOpenMonitorSurface) {
+            onOpenMonitorSurface(request)
+            return
+          }
+          onOpenWorkstation(workstationZoneId)
+        }
         return (
         <InteractionPad
           key={slot.id}
@@ -1136,24 +1130,68 @@ function BoardroomScene({
           showHitbox={false}
           draggable={debug}
           onMovePosition={(position) => moveZone(slot.id, position)}
-          onActivate={() => onOpenWorkstation(workstationZoneId)}
+          onActivate={isUpperMonitorInteractive(displayMode) ? handleMonitorActivate : undefined}
         >
-          {fleetViewModel && isFleetWorkstationAssignment(assignment) ? (
-            <FleetPreviewSurface
-              zone={slot}
-              assignment={assignment}
-              fleetViewModel={fleetViewModel}
-              onActivate={() => onOpenWorkstation(workstationZoneId)}
+          {displayMode === 'session' && typedRecord ? (
+            <BoardroomApertureSurface
+              zoneId={monitorSlotId}
+              previewMode={slot.previewMode}
+              size={slot.size}
+              model={{
+                eyebrow: typedRecord.owner,
+                title: typedRecord.content.kind,
+                glyph: `R${typedRecord.revision}`,
+                tone: 'cyan',
+                status: 'nominal',
+                preset: 'routes',
+                nodes: [],
+                links: [],
+                rings: [],
+                source: { freshness: renderProfile.motionEnabled ? 'fresh' : 'derived', sourceId: typedRecord.surface_session_id, sourcePaths: [], observedAtUtc: typedRecord.updated_at_utc },
+              }}
+              descriptor={typedRecord.content}
+              playback={typedRecord.playback}
+              rootPath={rootPath}
+              motionEnabled={renderProfile.motionEnabled}
+              active
+              onActivate={() => onOpenMonitorSession?.(typedRecord)}
+            />
+          ) : displayMode === 'claim' && activeClaim ? (
+            <BoardroomApertureSurface
+              zoneId={monitorSlotId}
+              previewMode={slot.previewMode}
+              size={slot.size}
+              model={{
+                eyebrow: 'Agent Monitor',
+                title: activeClaim.payload_binding,
+                glyph: formatMonitorSurfaceStream(monitorPayloads[monitorSlotId] ?? null, !renderProfile.motionEnabled) || activeClaim.payload_binding,
+                tone: 'cyan',
+                status: 'nominal',
+                preset: 'routes',
+                nodes: [],
+                links: [],
+                rings: [],
+                source: { freshness: renderProfile.motionEnabled ? 'fresh' : 'derived', sourceId: activeClaim.owner, sourcePaths: [], observedAtUtc: new Date().toISOString() },
+              }}
+              payload={monitorPayloads[monitorSlotId] ?? null}
+              motionEnabled={renderProfile.motionEnabled}
+              active={!!activeClaim}
+              onActivate={handleMonitorActivate}
             />
           ) : (
-            <HudInstrumentSurface
-              zone={slot}
-              assignment={assignment}
-              persistedSourceZoneId={persistedSourceZoneId}
-              instrument={instrument}
-              onActivate={() => onOpenWorkstation(workstationZoneId)}
+            <UpperAmbientMonitorScreen
+              slotId={monitorSlotId}
+              size={slot.size}
+              motionEnabled={false}
             />
           )}
+          <MonitorOwnershipRail
+            slotId={monitorSlotId}
+            size={slot.size}
+            session={typedRecord}
+            claim={activeClaim}
+            motionEnabled={false}
+          />
         </InteractionPad>
         )
       })}
@@ -1185,6 +1223,7 @@ function BoardroomScene({
               zone={slot}
               assignment={assignment}
               fleetViewModel={fleetViewModel}
+              motionEnabled={false}
               onActivate={() => onOpenWorkstation(workstationZoneId)}
             />
           ) : (
@@ -1193,6 +1232,7 @@ function BoardroomScene({
               assignment={assignment}
               persistedSourceZoneId={persistedSourceZoneId}
               instrument={instrument}
+              motionEnabled={false}
               onActivate={() => onOpenWorkstation(workstationZoneId)}
             />
           )}
@@ -1201,7 +1241,13 @@ function BoardroomScene({
       })}
 
       <group position={commandCoreZone.position} rotation={commandCoreZone.rotation}>
-        <CommandCoreSurface onControl={activateCommandControl} />
+        <CommandCoreSurface
+          zone={commandCoreZone}
+          onControl={activateCommandControl}
+          nowInstrument={instruments.command_core}
+          healthInstrument={instruments.view_desk_control_panel}
+          routingInstrument={instruments.view_desk_r}
+        />
       </group>
 
 
@@ -1303,10 +1349,10 @@ function BoardroomScene({
         zone={avatarEmitterZone}
         presenceState={presenceState}
         motionEnabled={renderProfile.motionEnabled}
+        rootPath={rootPath}
       />
       {debug ? (
         <>
-          <PresenceAvatar position={avatarEmitterZone.position} scale={0.82} presenceState={presenceState} />
           <BoardroomMissionCue presenceState={presenceState} />
           <PresenceLedgerStatusBadge state={presenceState} status={presenceStatus} />
         </>
@@ -1347,8 +1393,42 @@ function BoardroomScene({
   )
 }
 
+function BoardroomFrameRateProbe() {
+  const frameCount = useRef(0)
+  const sampledAt = useRef(performance.now())
+  const gl = useThree((state) => state.gl)
+  const rendererReported = useRef(false)
+  useFrame(() => {
+    if (!rendererReported.current) {
+      const context = gl.getContext()
+      const extension = context.getExtension('WEBGL_debug_renderer_info')
+      const reportedRenderer = extension
+        ? String(context.getParameter(extension.UNMASKED_RENDERER_WEBGL))
+        : 'renderer unavailable'
+      const renderer = reportedRenderer === 'Apple GPU' && navigator.userAgent.includes('Linux')
+        ? 'WebKitGTK masked GPU (Linux)'
+        : reportedRenderer
+      const rendererOutput = document.getElementById('boardroom-renderer-probe')
+      if (rendererOutput) {
+        rendererOutput.textContent = renderer
+        rendererReported.current = true
+      }
+    }
+    frameCount.current += 1
+    const now = performance.now()
+    const elapsed = now - sampledAt.current
+    if (elapsed < 1000) return
+    const output = document.getElementById('boardroom-frame-rate-probe')
+    if (output) output.textContent = `Scene ${(frameCount.current * 1000 / elapsed).toFixed(1)} FPS`
+    frameCount.current = 0
+    sampledAt.current = now
+  })
+  return null
+}
+
 export default function BoardroomViewport(props: BoardroomViewportProps) {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+  const acceptanceEnabled = import.meta.env.DEV && import.meta.env.VITE_MONITOR_ACCEPTANCE === '1'
 
   useEffect(() => {
     const query = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -1372,16 +1452,25 @@ export default function BoardroomViewport(props: BoardroomViewportProps) {
       data-boardroom-render-profile={renderProfile.id}
     >
       <Canvas
+        key={`boardroom-camera-${BOARDROOM_CAMERA_COMPOSITION.fov}`}
         camera={{ position: BOARDROOM_CAMERA_COMPOSITION.position, fov: BOARDROOM_CAMERA_COMPOSITION.fov }}
         dpr={renderProfile.dpr}
         frameloop={renderProfile.frameloop}
         shadows={renderProfile.shadows}
       >
         <color attach="background" args={['#05080d']} />
+        {acceptanceEnabled ? <BoardroomFrameRateProbe /> : null}
         <Suspense fallback={null}>
           <BoardroomScene {...props} renderProfile={renderProfile} />
         </Suspense>
       </Canvas>
+      {acceptanceEnabled ? (
+        <div style={{ position: 'fixed', right: '1rem', top: '3.5rem', zIndex: 10000, color: '#8cffc7', textAlign: 'right' }}>
+          <output id="boardroom-frame-rate-probe">Scene measuring…</output>
+          <br />
+          <output id="boardroom-renderer-probe">renderer measuring…</output>
+        </div>
+      ) : null}
       {props.sceneOverlay ? (
         <div className="scene-runtime-workstation-layer">
           {props.sceneOverlay}

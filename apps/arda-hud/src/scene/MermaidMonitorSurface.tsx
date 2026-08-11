@@ -25,7 +25,7 @@ import {
 } from "./mermaidCanvasRenderer";
 
 export interface MermaidMonitorSurfaceProps {
-  /** Stable scene slot id, e.g. "monitor_left_3" — see boardroom slot contract */
+  /** Stable scene slot id, e.g. "monitor_3" — see boardroom slot contract */
   slotId: string;
   /** Mermaid diagram source. Update this prop as the agent's plan/graph changes. */
   diagramSource: string;

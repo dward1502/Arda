@@ -1,0 +1,20 @@
+[Unit]
+Description=Arda Varda governed evidence HTTP service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/Eregion/Arda
+Environment=ARDA_ATHENA_ROOT=%h/Eregion/Arda/data/athena
+Environment=ARDA_VARDA_BIND=127.0.0.1:5111
+ExecStart=%h/.local/lib/arda/varda/bin/arda-varda-server
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ReadWritePaths=%h/Eregion/Arda/data
+
+[Install]
+WantedBy=default.target

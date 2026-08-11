@@ -83,6 +83,8 @@ pub struct RunNode {
     pub output_digest: Option<String>,
     pub parent_receipts: Vec<String>,
     pub checkpoint: CheckpointMetadata,
+    #[serde(default)]
+    pub worker: Option<Value>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -115,6 +117,8 @@ pub struct RunRecord {
     pub graph: RunGraph,
     pub events: Vec<Value>,
     pub review: RunReviewEvidence,
+    #[serde(default)]
+    pub worker_progress: std::collections::BTreeMap<String, String>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]

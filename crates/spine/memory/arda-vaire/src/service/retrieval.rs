@@ -1,8 +1,12 @@
+use super::scope_policy::{
+    self, ConsumerContext, MemoryDomain, PolicyDisposition, PolicyOperation,
+};
 use super::{
     IdentityState, KnowledgeSeedRecallEntry, MemoryCheckpointPolicy, MnemosyneService,
     RecallRecentEntry,
 };
-use arda_core::error::Result;
+use arda_core::contract::{MemoryKind, MemoryRecord};
+use arda_core::error::{ArdaError, Result};
 use chrono::{DateTime, Duration, Utc};
 use serde_json::Value;
 use std::collections::{HashMap, HashSet};
@@ -103,8 +107,38 @@ impl MnemosyneService {
         crate_filter: Option<&str>,
         scope_filter: Option<&str>,
     ) -> Result<Vec<RecallRecentEntry>> {
+        let mut compatibility = ConsumerContext::new(
+            "vaire-compatibility",
+            vec![
+                MemoryDomain::Personal,
+                MemoryDomain::Business,
+                MemoryDomain::System,
+            ],
+        );
+        compatibility.operator_authorized = true;
+        self.recall_recent_scoped_with_context(
+            hours,
+            crate_filter,
+            scope_filter,
+            Some(&compatibility),
+        )
+    }
+
+    /// Recall through the typed scope-policy boundary.
+    pub fn recall_recent_scoped_with_context(
+        &self,
+        hours: i64,
+        crate_filter: Option<&str>,
+        scope_filter: Option<&str>,
+        context: Option<&ConsumerContext>,
+    ) -> Result<Vec<RecallRecentEntry>> {
         let cutoff = Utc::now() - Duration::hours(hours.max(1));
         let mut out = Vec::new();
+        let governed = if self.contract_memory_root.is_some() {
+            self.read_contract_records()?
+        } else {
+            Vec::new()
+        };
 
         for record in self.read_episodic_records()? {
             if let Ok(dt) = DateTime::parse_from_rfc3339(&record.ts_utc) {
@@ -122,7 +156,7 @@ impl MnemosyneService {
                     continue;
                 }
             }
-            out.push(RecallRecentEntry {
+            let mut entry = RecallRecentEntry {
                 schema_version: record.schema_version,
                 migrated_from_schema: record.migrated_from_schema,
                 memory_id: record.memory_id,
@@ -136,6 +170,85 @@ impl MnemosyneService {
                 content: record.content,
                 ts_utc: record.ts_utc,
                 tags: record.tags,
+            };
+            let policy_record = governed
+                .iter()
+                .find(|candidate| candidate.id == entry.memory_id)
+                .cloned()
+                .unwrap_or_else(|| recall_policy_record(&entry));
+            match scope_policy::evaluate(&policy_record, PolicyOperation::Read, context) {
+                PolicyDisposition::Allow => out.push(entry),
+                PolicyDisposition::Redact(fields) => {
+                    entry.content = scope_policy::redact(&policy_record, &fields).content;
+                    out.push(entry);
+                }
+                PolicyDisposition::Quarantine => {}
+                PolicyDisposition::Block => {
+                    if scope_policy::domain(&policy_record) == MemoryDomain::Personal
+                        && context.is_none()
+                    {
+                        return Err(ArdaError::Agent {
+                            agent: "vaire".to_owned(),
+                            message: "personal memory recall requires consumer context".to_owned(),
+                        });
+                    }
+                }
+            }
+        }
+
+        let primary_ids = out
+            .iter()
+            .map(|entry| entry.memory_id.clone())
+            .collect::<HashSet<_>>();
+        for record in &governed {
+            if record.kind != MemoryKind::Episodic
+                || primary_ids.contains(record.id.as_str())
+                || record.last_seen_at < cutoff
+            {
+                continue;
+            }
+            if crate_filter.is_some_and(|filter| record.agent != filter) {
+                continue;
+            }
+            let memory_scope = record
+                .extensions
+                .get("memory_scope")
+                .and_then(|value| value.as_str())
+                .unwrap_or("system_continuity");
+            if scope_filter.is_some_and(|scope| memory_scope != scope) {
+                continue;
+            }
+            let content = match scope_policy::evaluate(record, PolicyOperation::Read, context) {
+                PolicyDisposition::Allow => record.content.clone(),
+                PolicyDisposition::Redact(fields) => scope_policy::redact(record, &fields).content,
+                PolicyDisposition::Quarantine => continue,
+                PolicyDisposition::Block => {
+                    if scope_policy::domain(record) == MemoryDomain::Personal && context.is_none() {
+                        return Err(ArdaError::Agent {
+                            agent: "vaire".to_owned(),
+                            message: "personal memory recall requires consumer context".to_owned(),
+                        });
+                    }
+                    continue;
+                }
+            };
+            out.push(RecallRecentEntry {
+                schema_version: crate::schema::EPISODIC_SCHEMA_VERSION.to_owned(),
+                migrated_from_schema: None,
+                memory_id: record.id.clone(),
+                source_crate: record.agent.clone(),
+                event_type: "governed_memory".to_owned(),
+                memory_scope: memory_scope.to_owned(),
+                significance: record.salience,
+                confidence: 1.0,
+                trust: 1.0,
+                sigil: match record.state {
+                    arda_core::contract::MemoryState::Promoted => "MNEME_CORE".to_owned(),
+                    _ => "MNEME_ACTIVE".to_owned(),
+                },
+                content,
+                ts_utc: record.last_seen_at.to_rfc3339(),
+                tags: Vec::new(),
             });
         }
 
@@ -220,6 +333,51 @@ impl MnemosyneService {
             current_mission_focus: focus,
         })
     }
+}
+
+fn recall_policy_record(entry: &RecallRecentEntry) -> MemoryRecord {
+    let mut record = MemoryRecord::new(
+        &entry.memory_id,
+        MemoryKind::Episodic,
+        &entry.source_crate,
+        &entry.content,
+    );
+    record.salience = entry.significance;
+    let domain =
+        tag_value(&entry.tags, "memory_domain").unwrap_or(match entry.memory_scope.as_str() {
+            "human_context" | "operator_persona" => "personal",
+            "boardroom_council" | "project_execution" => "business",
+            _ => "system",
+        });
+    record
+        .extensions
+        .insert("memory_domain".into(), serde_json::json!(domain));
+    record.extensions.insert(
+        "evidence_class".into(),
+        serde_json::json!(tag_value(&entry.tags, "evidence_class").unwrap_or("inferred")),
+    );
+    if let Some(summary) = tag_value(&entry.tags, "public_summary") {
+        record
+            .extensions
+            .insert("public_summary".into(), serde_json::json!(summary));
+    }
+    for tag in &entry.tags {
+        if let Some((key, value)) = tag.split_once(':') {
+            if matches!(key, "sensitivity.health" | "sensitivity.identity") {
+                record
+                    .extensions
+                    .insert(key.to_owned(), serde_json::json!(value));
+            }
+        }
+    }
+    record
+}
+
+fn tag_value<'a>(tags: &'a [String], key: &str) -> Option<&'a str> {
+    tags.iter().find_map(|tag| {
+        tag.strip_prefix(key)
+            .and_then(|value| value.strip_prefix(':'))
+    })
 }
 
 pub(super) fn checkpoint_policy(recent: &[RecallRecentEntry]) -> MemoryCheckpointPolicy {

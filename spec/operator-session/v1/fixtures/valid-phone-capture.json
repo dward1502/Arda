@@ -1,0 +1,60 @@
+{
+  "schema_version": "arda.operator-session.v1",
+  "operator": {
+    "operator_id": "operator:mythos",
+    "authenticated": true,
+    "authentication_method": "gateway_identity",
+    "authenticated_at": "2026-08-08T10:00:00Z"
+  },
+  "lineage": {
+    "session_id": "session:phone-capture-001",
+    "objective_id": null,
+    "project_id": null,
+    "task_id": null,
+    "run_id": null
+  },
+  "projection": {
+    "transport": "telegram",
+    "adapter_id": "hermes-gateway:telegram-primary",
+    "conversation_id": "conversation:private-42",
+    "thread_id": null,
+    "audience": "operator_private",
+    "platform_message_id": "telegram:message:1001"
+  },
+  "incoming": {
+    "event_id": "telegram:update:7001",
+    "idempotency_key": "operator-event:telegram:7001",
+    "received_at": "2026-08-08T10:00:01Z"
+  },
+  "content": {
+    "sensitivity": "private",
+    "text": "Capture the follow-up obligation from today's appointment.",
+    "attachments": [
+      {
+        "attachment_id": "attachment:voice-note-001",
+        "media_type": "audio/ogg",
+        "byte_length": 18432,
+        "content_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "source_ref": "gateway-attachment://telegram/voice-note-001",
+        "provenance": {
+          "transport_event_id": "telegram:update:7001",
+          "operator_supplied": true,
+          "captured_at": "2026-08-08T10:00:00Z"
+        }
+      }
+    ]
+  },
+  "operation": "capture",
+  "approval": null,
+  "delivery": {
+    "state": "pending",
+    "attempt": 0,
+    "next_retry_at": null,
+    "acknowledgement_id": null,
+    "last_error_code": null
+  },
+  "result": {
+    "summary": "Private phone capture awaiting canonical task persistence.",
+    "evidence_refs": ["arda://operator-events/operator-event:telegram:7001"]
+  }
+}

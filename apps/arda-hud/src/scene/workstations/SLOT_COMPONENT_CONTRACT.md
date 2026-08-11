@@ -6,10 +6,11 @@ workstation components over time.
 
 Examples:
 
-- `monitor_left_1`
-- `monitor_left_2`
-- `monitor_left_3`
-- `monitor_left_4`
+- `monitor_1`
+- `monitor_2`
+- `monitor_3`
+- `monitor_4`
+- `monitor_5`
 - `view_desk_l`
 - `view_desk_control_panel`
 - `view_desk_r`
@@ -37,7 +38,10 @@ Each slot assignment must define:
 
 ## Template Rule
 
-Unassigned slots must still open a workstation template.
+Unassigned operator/desk slots may open a workstation template. Unassigned
+upper monitors are the exception: they render their slot-specific ambient
+identity and must remain non-interactive until a typed session or live claim
+occupies the slot.
 
 The fallback zone ID format is:
 
@@ -45,9 +49,10 @@ The fallback zone ID format is:
 scene_slot:<slot_id>
 ```
 
-This gives every visual slot a real runtime container before final custom
-components exist. These fallback containers must be slot-specific templates, not
-one generic placeholder for every slot.
+This gives configurable operator slots a real runtime container before final
+custom components exist. These fallback containers must be slot-specific
+templates, not one generic placeholder. They must never be used to make an idle
+upper monitor open the generic panel or Sovereign World.
 
 The current template registry lives in
 `sceneSlotWorkstationTemplates.ts` and defines title, module set, presentation
@@ -70,7 +75,7 @@ permanently domain-specific.
 
 Good:
 
-- `monitor_left_1`
+- `monitor_1`
 - `view_desk_control_panel`
 
 Avoid:
@@ -83,4 +88,8 @@ Avoid:
 This contract is satisfied when every visible slot can open either:
 
 - its assigned workstation/component, or
-- a slot-specific template workstation using `scene_slot:<slot_id>`.
+- for operator/desk slots, a slot-specific template workstation using
+  `scene_slot:<slot_id>`.
+
+An idle upper monitor satisfies the contract by showing its ambient identity and
+performing no activation action.

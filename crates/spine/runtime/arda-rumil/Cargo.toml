@@ -1,0 +1,35 @@
+# sigil: REPAIR
+[package]
+name = "arda-rumil"
+version.workspace = true
+edition = "2021"
+license.workspace = true
+authors.workspace = true
+
+[features]
+default = ["std", "walkdir", "crypto"]
+std = []
+walkdir = ["dep:walkdir"]
+cargo = ["dep:cargo_metadata"]
+git = []
+crypto = ["dep:sha2"]
+json = []
+provider = ["dep:tokio", "crypto"]
+
+[dependencies]
+arda-outpost-protocol = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true, features = ["v4", "v5", "serde"] }
+thiserror = { workspace = true }
+toml = { workspace = true }
+sha2 = { version = "0.10", optional = true }
+walkdir = { version = "2", optional = true }
+cargo_metadata = { version = "0.18", optional = true, default-features = false }
+tokio = { workspace = true, features = ["io-util", "process", "rt", "time"], optional = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true, features = ["rt-multi-thread", "macros", "time"] }

@@ -1,0 +1,207 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arda.local/spec/hud-convergence/v1/hud-frontend-backend-contract.schema.json",
+  "title": "ARDA HUD frontend/backend shared contract fixture",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "identity", "mutation", "workbench", "load_states", "event_stream", "monitor_sessions"],
+  "properties": {
+    "schema_version": { "const": "arda.hud.frontend-backend-contract.v1" },
+    "identity": { "$ref": "#/$defs/operator_session" },
+    "mutation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["intent", "receipt"],
+      "properties": {
+        "intent": { "$ref": "#/$defs/mutation_intent" },
+        "receipt": { "$ref": "#/$defs/mutation_receipt" }
+      }
+    },
+    "workbench": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["plan_intent", "plan_result", "approval_intent", "completion_intent"],
+      "properties": {
+        "plan_intent": { "$ref": "#/$defs/plan_intent" },
+        "plan_result": { "$ref": "#/$defs/plan_result" },
+        "approval_intent": { "$ref": "#/$defs/approval_intent" },
+        "completion_intent": { "$ref": "#/$defs/completion_intent" }
+      }
+    },
+    "load_states": {
+      "type": "array",
+      "minItems": 7,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/load_state" }
+    },
+    "event_stream": { "$ref": "#/$defs/event_stream" },
+    "monitor_sessions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["monitor_1", "monitor_2", "monitor_3", "monitor_4", "monitor_5"],
+      "properties": {
+        "monitor_1": { "$ref": "#/$defs/monitor_session" },
+        "monitor_2": { "$ref": "#/$defs/monitor_session" },
+        "monitor_3": { "$ref": "#/$defs/monitor_session" },
+        "monitor_4": { "$ref": "#/$defs/monitor_session" },
+        "monitor_5": { "$ref": "#/$defs/monitor_session" }
+      }
+    }
+  },
+  "$defs": {
+    "non_empty": { "type": "string", "minLength": 1 },
+    "operator_session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["session_id", "operator_id", "authority_owner", "authenticated_at_utc", "expires_at_utc"],
+      "properties": {
+        "session_id": { "$ref": "#/$defs/non_empty" },
+        "operator_id": { "$ref": "#/$defs/non_empty" },
+        "authority_owner": { "const": "arda-engine" },
+        "authenticated_at_utc": { "type": "string", "format": "date-time" },
+        "expires_at_utc": { "type": "string", "format": "date-time" }
+      }
+    },
+    "mutation_intent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["intent_id", "operator_id", "operator_session_id", "action", "target", "idempotency_key", "authority_reference"],
+      "properties": {
+        "intent_id": { "$ref": "#/$defs/non_empty" },
+        "operator_id": { "$ref": "#/$defs/non_empty" },
+        "operator_session_id": { "$ref": "#/$defs/non_empty" },
+        "action": { "$ref": "#/$defs/non_empty" },
+        "target": { "$ref": "#/$defs/non_empty" },
+        "idempotency_key": { "$ref": "#/$defs/non_empty" },
+        "authority_reference": { "$ref": "#/$defs/non_empty" }
+      }
+    },
+    "mutation_receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["receipt_id", "intent_id", "operator_id", "action", "status", "authority_owner", "recorded_at_utc", "durable_reference"],
+      "properties": {
+        "receipt_id": { "$ref": "#/$defs/non_empty" },
+        "intent_id": { "$ref": "#/$defs/non_empty" },
+        "operator_id": { "$ref": "#/$defs/non_empty" },
+        "action": { "$ref": "#/$defs/non_empty" },
+        "status": { "enum": ["accepted", "rejected"] },
+        "authority_owner": { "const": "arda-engine" },
+        "recorded_at_utc": { "type": "string", "format": "date-time" },
+        "durable_reference": { "$ref": "#/$defs/non_empty" }
+      }
+    },
+    "plan_intent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["project_id", "objective", "input_mode", "operator_session_id", "idempotency_key"],
+      "properties": {
+        "project_id": { "$ref": "#/$defs/non_empty" },
+        "objective": { "$ref": "#/$defs/non_empty" },
+        "input_mode": { "enum": ["operator_text", "approved_proposal"] },
+        "operator_session_id": { "$ref": "#/$defs/non_empty" },
+        "idempotency_key": { "$ref": "#/$defs/non_empty" }
+      }
+    },
+    "plan_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["run_id", "objective_id", "node_ids", "revision", "authority_owner", "durable_reference"],
+      "properties": {
+        "run_id": { "$ref": "#/$defs/non_empty" },
+        "objective_id": { "$ref": "#/$defs/non_empty" },
+        "node_ids": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/non_empty" } },
+        "revision": { "type": "integer", "minimum": 1 },
+        "authority_owner": { "const": "arda-engine" },
+        "durable_reference": { "$ref": "#/$defs/non_empty" }
+      }
+    },
+    "approval_intent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["run_id", "node_id", "operator_action", "operator_session_id", "idempotency_key", "authority_reference"],
+      "properties": {
+        "run_id": { "$ref": "#/$defs/non_empty" },
+        "node_id": { "$ref": "#/$defs/non_empty" },
+        "operator_action": { "enum": ["approve", "reject"] },
+        "operator_session_id": { "$ref": "#/$defs/non_empty" },
+        "idempotency_key": { "$ref": "#/$defs/non_empty" },
+        "authority_reference": { "$ref": "#/$defs/non_empty" }
+      }
+    },
+    "completion_intent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["run_id", "node_id", "operator_session_id", "idempotency_key", "authority_reference"],
+      "properties": {
+        "run_id": { "$ref": "#/$defs/non_empty" },
+        "node_id": { "$ref": "#/$defs/non_empty" },
+        "operator_session_id": { "$ref": "#/$defs/non_empty" },
+        "idempotency_key": { "$ref": "#/$defs/non_empty" },
+        "authority_reference": { "$ref": "#/$defs/non_empty" }
+      }
+    },
+    "load_state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "source_name", "source_revision", "source_time_utc", "recovery_action"],
+      "properties": {
+        "status": { "enum": ["loading", "healthy", "stale", "partial", "degraded", "unavailable", "failed"] },
+        "source_name": { "$ref": "#/$defs/non_empty" },
+        "source_revision": { "type": ["string", "null"] },
+        "source_time_utc": { "type": ["string", "null"], "format": "date-time" },
+        "recovery_action": { "type": ["string", "null"] },
+        "missing_sources": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/non_empty" } },
+        "reason": { "type": ["string", "null"] }
+      }
+    },
+    "event_stream": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["run_id", "stream_id", "cursor", "last_sequence", "reconnect_from_cursor", "deduplicate_by", "gap_policy", "terminal_policy", "ownership", "durable_recovery"],
+      "properties": {
+        "run_id": { "$ref": "#/$defs/non_empty" },
+        "stream_id": { "$ref": "#/$defs/non_empty" },
+        "cursor": { "$ref": "#/$defs/non_empty" },
+        "last_sequence": { "type": "integer", "minimum": 0 },
+        "reconnect_from_cursor": { "const": true },
+        "deduplicate_by": { "const": ["run_id", "sequence"] },
+        "gap_policy": { "const": "reload_durable_run_before_accepting_later_events" },
+        "terminal_policy": { "const": "close_only_terminal_run_stream" },
+        "ownership": { "const": "one_independent_stream_per_run" },
+        "durable_recovery": { "const": "backend_run_store" }
+      }
+    },
+    "monitor_session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slot_id", "session_id", "owner", "revision", "lease_expires_at_utc", "content", "workstation_handoff"],
+      "properties": {
+        "slot_id": { "enum": ["monitor_1", "monitor_2", "monitor_3", "monitor_4", "monitor_5"] },
+        "session_id": { "$ref": "#/$defs/non_empty" },
+        "owner": { "$ref": "#/$defs/non_empty" },
+        "revision": { "type": "integer", "minimum": 1 },
+        "lease_expires_at_utc": { "type": "string", "format": "date-time" },
+        "content": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "binding", "focus_mode"],
+          "properties": {
+            "kind": { "enum": ["web", "media", "document", "terminal", "custom"] },
+            "binding": { "$ref": "#/$defs/non_empty" },
+            "focus_mode": { "enum": ["native_window", "inline_embed", "remote_preview"] }
+          }
+        },
+        "workstation_handoff": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["session_id", "mode"],
+          "properties": {
+            "session_id": { "$ref": "#/$defs/non_empty" },
+            "mode": { "const": "same_live_session" }
+          }
+        }
+      }
+    }
+  }
+}

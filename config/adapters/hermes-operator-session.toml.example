@@ -1,0 +1,37 @@
+# Arda-side, credential-free projection of the Hermes Gateway normalized event boundary.
+# Platform callbacks, allowlists, pairing, tokens, and Relay authentication remain
+# exclusively in Hermes Agent. Do not add platform tokens to this file.
+
+schema_version = "arda.hermes-operator-bridge-config.v1"
+adapter_id = "hermes-gateway:relay-primary"
+enabled = false
+
+[ingress]
+# Hermes Relay is the selected full-MessageEvent path. The public agent:start
+# hook is intentionally unsupported because it truncates text and omits event
+# and attachment provenance.
+source = "hermes_relay_message_event"
+contract = "hermes.message-event.stable-subset.v1"
+require_authenticated_operator = true
+require_platform_message_id = true
+reject_unknown_fields = true
+
+[authority]
+platform_credentials_owner = "hermes_gateway"
+pending_approval_owner = "arda_engine"
+operator_session_owner = "arda_engine"
+allow_transport_supplied_pending_approval = false
+
+[persistence]
+relative_state_directory = "data/orome/operator-bridge"
+operator_sessions = "operator_sessions.jsonl"
+
+[privacy]
+redact_sensitive_group_and_public_content = true
+persist_raw_message = false
+persist_free_form_metadata = false
+persist_platform_credentials = false
+
+[health]
+stale_after_seconds = 300
+states = ["not_configured", "unavailable", "degraded", "stale", "ready"]

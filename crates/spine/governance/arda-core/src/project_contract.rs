@@ -1,3 +1,4 @@
+use crate::capability_composition::CapabilityComposition;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
 use std::collections::{BTreeMap, HashSet};
@@ -244,6 +245,10 @@ impl ProjectContract {
 
     pub fn check(&self, id: &str) -> Option<&CheckDeclaration> {
         self.checks.iter().find(|check| check.id == id)
+    }
+
+    pub fn matches_composition_lineage(&self, composition: &CapabilityComposition) -> bool {
+        self.identity.project_id == composition.lineage.project_id
     }
 }
 

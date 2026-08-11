@@ -5,6 +5,7 @@ import { parseJsonOrNull } from './jsonParse'
 export const MODULE_STORAGE_KEY = 'arda.module.order.v1'
 const DEFAULT_MODULE_ORDER: ModuleId[] = [
   'operating_surface',
+  'personal_operations',
   'executive_overview',
   'section_focus',
   'human_realm',
@@ -23,7 +24,7 @@ const DEFAULT_MODULE_ORDER: ModuleId[] = [
 ]
 const PANEL_LAYOUTS: Record<string, ModuleId[]> = {
   sovereign_world: ['operating_surface', 'executive_overview', 'systems'],
-  now_command: ['operating_surface', 'executive_overview', 'governance_controls', 'systems'],
+  now_command: ['operating_surface', 'personal_operations', 'executive_overview', 'governance_controls', 'systems'],
   governance_guardhouse: ['governance_controls', 'operating_surface'],
   decisions: ['governance_controls', 'operating_surface'],
   knowledge_and_reasoning: ['human_realm', 'section_focus'],
@@ -36,7 +37,7 @@ const PANEL_LAYOUTS: Record<string, ModuleId[]> = {
   planning_and_queue: ['planning', 'learning_loop', 'operations_and_packages', 'section_focus'],
   business_ops: ['business', 'planning', 'operations_and_packages'],
   evidence_trust: ['operating_surface', 'systems', 'human_realm'],
-  personal_growth: ['personal_growth', 'human_realm'],
+  personal_growth: ['personal_operations', 'personal_growth', 'human_realm'],
   culture_and_art: ['culture_and_art', 'human_realm'],
   service_factory_ai: ['service_embed'],
   service_warp_dev: ['service_embed'],
@@ -49,6 +50,7 @@ const PANEL_LAYOUTS: Record<string, ModuleId[]> = {
 const PANEL_TITLES: Record<string, string> = {
   sovereign_world: 'Sovereign World',
   now_command: 'Now Command Surface',
+  personal_operations: 'Personal Operations',
   governance_guardhouse: 'Governance Guardhouse',
   decisions: 'Decisions',
   knowledge_and_reasoning: 'Knowledge And Reasoning',

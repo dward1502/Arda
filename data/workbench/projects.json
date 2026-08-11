@@ -1,0 +1,136 @@
+{
+  "schema_version": "arda.workbench.project-registry.v1",
+  "projects": [
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "550e8400-e29b-41d4-a716-446655440000",
+          "name": "arda-rust-example",
+          "kind": "rust"
+        },
+        "workspace": {
+          "root": "."
+        },
+        "runtime": {
+          "adapter": "cargo"
+        },
+        "commands": [
+          {
+            "id": "test",
+            "program": "cargo",
+            "args": [
+              "test",
+              "-p",
+              "arda-core"
+            ],
+            "working_dir": "."
+          }
+        ],
+        "checks": [
+          {
+            "id": "test",
+            "command": "test"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "library",
+            "path": "target/debug/libarda_core.rlib"
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": false
+          },
+          "filesystem": {
+            "write": true
+          },
+          "secrets": {
+            "env_names": []
+          }
+        },
+        "rollback": {
+          "strategy": "git_revert"
+        },
+        "memory": {
+          "scope": "project"
+        },
+        "provenance": {
+          "declared_by": "arda",
+          "declared_at": "2026-07-30T00:00:00Z",
+          "stage": 4
+        }
+      },
+      "approval_id": "stage4-research-approval",
+      "proposal_id": "stage4-research-proposal",
+      "idempotency_key": "stage4-research-attach-v1"
+    },
+    {
+      "contract": {
+        "schema_version": "arda.project-contract.v1",
+        "identity": {
+          "project_id": "550e8400-e29b-41d4-a716-446655440010",
+          "name": "s4-c1-fixture",
+          "kind": "rust"
+        },
+        "workspace": {
+          "root": "."
+        },
+        "runtime": {
+          "adapter": "cargo"
+        },
+        "commands": [
+          {
+            "id": "test",
+            "program": "cargo",
+            "args": [
+              "test",
+              "-p",
+              "arda-core"
+            ],
+            "working_dir": "."
+          }
+        ],
+        "checks": [
+          {
+            "id": "test",
+            "command": "test"
+          }
+        ],
+        "artifacts": [
+          {
+            "id": "library",
+            "path": "target/debug/libarda_core.rlib"
+          }
+        ],
+        "permissions": {
+          "authority": "approval_required",
+          "network": {
+            "allow": false
+          },
+          "filesystem": {
+            "write": true
+          },
+          "secrets": {
+            "env_names": []
+          }
+        },
+        "rollback": {
+          "strategy": "git_revert"
+        },
+        "memory": {
+          "scope": "project"
+        },
+        "provenance": {
+          "declared_by": "s4-c1-test",
+          "declared_at": "2026-07-31T00:00:00Z"
+        }
+      },
+      "approval_id": "approval-stage4-native-g3-20260731",
+      "proposal_id": "proposal-stage4-native-g3-20260731",
+      "idempotency_key": "attach-1785528753322"
+    }
+  ]
+}

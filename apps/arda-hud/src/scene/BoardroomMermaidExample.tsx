@@ -43,7 +43,7 @@ export function BoardroomMermaidExample() {
 
   return (
     <MermaidMonitorSurface
-      slotId="monitor_left_3"
+      slotId="monitor_3"
       diagramSource={diagramSource}
       position={[-1.2, 1.4, -2.0]}
       onFocusRequest={handleFocusRequest}

@@ -1,5 +1,5 @@
 // sigil: REPAIR
-use crate::ingest::AthenaStore;
+use crate::{import_next_from_crawl4ai, ingest::AthenaStore};
 use arda_core::error::{ArdaError, Result};
 use arda_core::try_run_bounded_async;
 use axum::extract::{DefaultBodyLimit, Query, Request, State};
@@ -49,6 +49,13 @@ struct IngestBatchRequest {
     inputs: Vec<String>,
     submitted_by: Option<String>,
     task_context: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+struct ExternalLaneImportRequest {
+    crawl_service_url: String,
+    filter: Option<String>,
+    query: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -119,6 +126,7 @@ pub fn build_router(store: AthenaStore) -> Router {
         .route("/metrics", get(metrics))
         .route("/ingest", post(ingest))
         .route("/ingest_batch", post(ingest_batch))
+        .route("/external_lane/import", post(external_lane_import))
         .route("/query", post(query))
         .route("/query/stream", post(query_stream))
         .route("/deep_analyze", post(deep_analyze))
@@ -240,6 +248,37 @@ async fn ingest_batch(
         )?;
         Ok(json!({"ok": true, "report": result}))
     })
+}
+
+async fn external_lane_import(
+    State(store): State<AthenaStore>,
+    Json(req): Json<ExternalLaneImportRequest>,
+) -> impl IntoResponse {
+    let data_root = store
+        .root
+        .parent()
+        .unwrap_or(store.root.as_path())
+        .to_path_buf();
+    let result = import_next_from_crawl4ai(
+        data_root.join("warden/research_receipts.jsonl"),
+        data_root.join("varda/external_evaluations.jsonl"),
+        &req.crawl_service_url,
+        req.filter.as_deref().unwrap_or("fit"),
+        req.query.as_deref(),
+        Utc::now(),
+        Utc::now(),
+    )
+    .await;
+    match result {
+        Ok(receipt) => (
+            StatusCode::OK,
+            Json(json!({ "ok": true, "receipt": receipt })),
+        ),
+        Err(error) => (
+            StatusCode::BAD_GATEWAY,
+            Json(json!({ "ok": false, "error": error.to_string() })),
+        ),
+    }
 }
 
 async fn query(

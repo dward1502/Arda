@@ -1,0 +1,228 @@
+{
+  "contract": "arda.stage5.reliability-soak.v1",
+  "elapsed_seconds": 86400.000061789,
+  "failures": [
+    {
+      "at_utc": "2026-08-05T16:13:44.471153Z",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "arda-engine",
+        "--test",
+        "hermes_adapter_contract",
+        "graph_node_timeout_terminates_and_reaps_hermes",
+        "--",
+        "--exact"
+      ],
+      "diagnostic": {
+        "captured_bytes": 942,
+        "tail": "\nrunning 1 test\ntest graph_node_timeout_terminates_and_reaps_hermes ... FAILED\n\nfailures:\n\n---- graph_node_timeout_terminates_and_reaps_hermes stdout ----\n\nthread 'graph_node_timeout_terminates_and_reaps_hermes' (1663483) panicked at crates/engine/tests/hermes_adapter_contract.rs:429:10:\npid file: Os { code: 2, kind: NotFound, message: \"No such file or directory\" }\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    graph_node_timeout_terminates_and_reaps_hermes\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.12s\n\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.19s\n     Running tests/hermes_adapter_contract.rs ($HOME/.local/state/arda/stage5-soak/20260805T010420Z/cargo-target/debug/deps/hermes_adapter_contract-4300a861e9f79a35)\nerror: test failed, to rerun pass `-p arda-engine --test hermes_adapter_contract`\n",
+        "total_bytes": 942,
+        "truncated": false
+      },
+      "duration_ms": 347.863,
+      "output_sha256": "3115d7c5e1cf1fefdfc3f820f39532aecf1fc0a9f8b4957d5fcb20b8b527dfe1",
+      "returncode": 101,
+      "root_cause": "timeout",
+      "scenario": "model-timeout"
+    }
+  ],
+  "finished_at_utc": "2026-08-06T01:05:05.548152Z",
+  "invalid_reason": null,
+  "limits": {
+    "diagnostic_bundle_bytes": 4096,
+    "retained_failures": 20,
+    "subprocess_output": "bounded-redacted-tail"
+  },
+  "protected_state": {
+    "after": {
+      "bytes": 11718185,
+      "files": 1050
+    },
+    "before": {
+      "bytes": 11718185,
+      "files": 1050
+    },
+    "growth": {
+      "bytes": 0,
+      "files": 0
+    },
+    "maximum_growth": {
+      "bytes": 67108864,
+      "files": 1000
+    }
+  },
+  "requested_duration_seconds": 86400.0,
+  "scenarios": {
+    "adapter-crash": {
+      "failed": 0,
+      "latency_budget_ms": 180000,
+      "latency_budget_preserved": true,
+      "latency_ms": {
+        "max": 597.556,
+        "min": 192.84,
+        "p50": 202.643,
+        "p95": 231.515
+      },
+      "passed": 259,
+      "runs": 259
+    },
+    "checkpoint-restart": {
+      "failed": 0,
+      "latency_budget_ms": 180000,
+      "latency_budget_preserved": true,
+      "latency_ms": {
+        "max": 467.738,
+        "min": 235.555,
+        "p50": 244.665,
+        "p95": 272.84
+      },
+      "passed": 259,
+      "runs": 259
+    },
+    "corrupted-tail": {
+      "failed": 0,
+      "latency_budget_ms": 180000,
+      "latency_budget_preserved": true,
+      "latency_ms": {
+        "max": 9312.974,
+        "min": 184.951,
+        "p50": 193.948,
+        "p95": 215.687
+      },
+      "passed": 259,
+      "runs": 259
+    },
+    "disk-pressure": {
+      "failed": 0,
+      "latency_budget_ms": 180000,
+      "latency_budget_preserved": true,
+      "latency_ms": {
+        "max": 348.181,
+        "min": 185.195,
+        "p50": 192.911,
+        "p95": 217.829
+      },
+      "passed": 259,
+      "runs": 259
+    },
+    "large-noisy-output": {
+      "failed": 0,
+      "latency_budget_ms": 180000,
+      "latency_budget_preserved": true,
+      "latency_ms": {
+        "max": 366.352,
+        "min": 193.12,
+        "p50": 203.235,
+        "p95": 227.863
+      },
+      "passed": 259,
+      "runs": 259
+    },
+    "model-timeout": {
+      "failed": 1,
+      "latency_budget_ms": 180000,
+      "latency_budget_preserved": true,
+      "latency_ms": {
+        "max": 452.186,
+        "min": 268.529,
+        "p50": 277.46,
+        "p95": 301.391
+      },
+      "passed": 258,
+      "runs": 259
+    },
+    "network-loss": {
+      "failed": 0,
+      "latency_budget_ms": 180000,
+      "latency_budget_preserved": true,
+      "latency_ms": {
+        "max": 3829.189,
+        "min": 221.342,
+        "p50": 229.821,
+        "p95": 254.719
+      },
+      "passed": 259,
+      "runs": 259
+    },
+    "operator-rejection": {
+      "failed": 0,
+      "latency_budget_ms": 180000,
+      "latency_budget_preserved": true,
+      "latency_ms": {
+        "max": 373.677,
+        "min": 191.335,
+        "p50": 200.598,
+        "p95": 223.876
+      },
+      "passed": 260,
+      "runs": 260
+    },
+    "process-kill": {
+      "failed": 0,
+      "latency_budget_ms": 180000,
+      "latency_budget_preserved": true,
+      "latency_ms": {
+        "max": 9878.14,
+        "min": 507.401,
+        "p50": 515.76,
+        "p95": 540.314
+      },
+      "passed": 259,
+      "runs": 259
+    },
+    "provider-loss": {
+      "failed": 0,
+      "latency_budget_ms": 180000,
+      "latency_budget_preserved": true,
+      "latency_ms": {
+        "max": 934.349,
+        "min": 185.533,
+        "p50": 194.432,
+        "p95": 216.76
+      },
+      "passed": 259,
+      "runs": 259
+    },
+    "repeated-cancellation": {
+      "failed": 0,
+      "latency_budget_ms": 180000,
+      "latency_budget_preserved": true,
+      "latency_ms": {
+        "max": 37237.909,
+        "min": 192.934,
+        "p50": 202.134,
+        "p95": 226.247
+      },
+      "passed": 260,
+      "runs": 260
+    }
+  },
+  "source_integrity": {
+    "after": {
+      "bytes": 142818981,
+      "files": 1544,
+      "sha256": "8f24584d08ba12ddd0f574e44126e309afdab402c0ed549fc1884cceb1f1b54c"
+    },
+    "before": {
+      "bytes": 142818981,
+      "files": 1544,
+      "sha256": "8f24584d08ba12ddd0f574e44126e309afdab402c0ed549fc1884cceb1f1b54c"
+    },
+    "unchanged": true
+  },
+  "started_at_utc": "2026-08-05T01:05:05.160066Z",
+  "status": "fail",
+  "storage": {
+    "floor_preserved": true,
+    "minimum_free_bytes": 68719476736,
+    "minimum_observed_free_bytes": 78989627392
+  },
+  "summary": {
+    "failed": 1,
+    "passed": 2850,
+    "runs": 2851
+  },
+  "validity": "valid"
+}

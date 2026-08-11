@@ -8,7 +8,7 @@ remote_cwd = "~"
 # If omitted, the bridge does not pass `--toolsets`, so Hermes Agent uses its own
 # current config/default tool registry instead of an Annunimas-side allowlist.
 provider = "custom"
-base_url = "http://100.78.138.113:5110/v1"
+base_url = "http://100.78.138.113:7171/v1"
 api_key = "no-key-required"
 model = "auto"
 timeout_seconds = 180

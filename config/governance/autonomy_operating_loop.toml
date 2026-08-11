@@ -7,7 +7,7 @@ owner = "prometheus_hades_chronos"
 spine = "autonomous_operating_loop"
 engine = "ceo_autopilot"
 engine_owner = "prometheus"
-config_contract = "config/autonomy_operating_loop.toml"
+config_contract = "config/governance/autonomy_operating_loop.toml"
 contract_doc = "docs/contracts/autonomous-operating-loop-contract.md"
 rule = "the loop is the portable policy/config spine; ceo-autopilot remains the orchestration and execution engine"
 
@@ -30,6 +30,19 @@ stages = [
   "replan",
   "confirm",
 ]
+
+# Personal-continuity interruption policy. Evaluation is side-effect free;
+# delivery and execution require separate durable exactly-once receipts.
+[proactive_communication]
+max_delivery_attempts = 1
+max_interruptions_per_window = 3
+defer_noncritical_during_quiet_window = true
+suppress_at_high_fatigue = true
+require_evidence = true
+allow_reversible_pre_authorized_actions = true
+preferred_channel = "operator_session"
+digest_channel = "digest"
+max_message_chars = 280
 
 [portability]
 root = "."

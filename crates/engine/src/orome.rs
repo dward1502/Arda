@@ -1,10 +1,67 @@
 //! Live arda-orome interface wiring owned by the engine.
 
+use arda_orome::operator_bridge::{
+    ApprovalBinding, BridgeError, BridgeRequest, OperatorBridge, OperatorBridgeResponse,
+    OperatorSessionEvent, OperatorTransportHealth, TransportHealthInput,
+};
 use arda_orome::provider::{
     DispatchMetricsSnapshot, DispatchReceipt, ManualTransport, ProviderConfig, ProviderRuntime,
     ProviderType, RoutingIntent, TransportRequest,
 };
+use chrono::{DateTime, Utc};
 use serde::Serialize;
+use std::path::Path;
+
+/// Engine-owned entry point for canonical operator-session ingestion.
+/// Hermes owns platform callbacks and credentials; this runtime owns Arda's
+/// durable event and approval replay boundary.
+#[derive(Debug, Clone)]
+pub struct OromeOperatorRuntime {
+    bridge: OperatorBridge,
+}
+
+impl OromeOperatorRuntime {
+    pub fn new(state_root: impl AsRef<Path>) -> Result<Self, BridgeError> {
+        Ok(Self {
+            bridge: OperatorBridge::new(state_root)?,
+        })
+    }
+
+    pub fn ingest(
+        &self,
+        request: BridgeRequest,
+        now: DateTime<Utc>,
+    ) -> Result<OperatorSessionEvent, BridgeError> {
+        self.bridge.ingest(request, now)
+    }
+
+    pub fn ingest_approval(
+        &self,
+        request: BridgeRequest,
+        pending: &ApprovalBinding,
+        now: DateTime<Utc>,
+    ) -> Result<OperatorSessionEvent, BridgeError> {
+        self.bridge.ingest_approval(request, pending, now)
+    }
+
+    pub fn correlate_response(
+        &self,
+        session: &OperatorSessionEvent,
+        summary: impl Into<String>,
+        evidence_refs: Vec<String>,
+    ) -> OperatorBridgeResponse {
+        self.bridge
+            .correlate_response(session, summary, evidence_refs)
+    }
+
+    pub fn transport_health(
+        &self,
+        input: TransportHealthInput,
+        now: DateTime<Utc>,
+    ) -> OperatorTransportHealth {
+        OperatorTransportHealth::derive(input, now)
+    }
+}
 
 #[derive(Debug, Clone, Serialize)]
 pub struct OromeSmokeReport {

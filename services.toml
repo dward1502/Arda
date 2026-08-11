@@ -8,6 +8,17 @@ required = true
 optional = false
 tags = ["ui"]
 
+  [[service.capability]]
+  id = "operator.launcher"
+  version = "1"
+  owner = "arda-launcher"
+  maturity = "stable"
+  data_classes = ["internal"]
+  authority_ceiling = "execute_with_approval"
+  removal_status = "active"
+  execution_adapter = { kind = "service", service = "arda-launcher" }
+  provenance = { kind = "internal", source = "services.toml", source_digest = "sha256:operator-launcher-v1" }
+
   [service.start]
   command = "cargo"
   args = ["tauri", "dev"]
@@ -24,6 +35,17 @@ path = "apps/arda-hud"
 required = false
 optional = true
 tags = ["ui"]
+
+  [[service.capability]]
+  id = "operator.hud.observe"
+  version = "1"
+  owner = "arda-hud"
+  maturity = "preview"
+  data_classes = ["internal"]
+  authority_ceiling = "read_only"
+  removal_status = "active"
+  execution_adapter = { kind = "service", service = "arda-hud" }
+  provenance = { kind = "internal", source = "services.toml", source_digest = "sha256:operator-hud-observe-v1" }
 
   [service.start]
   command = "pnpm"
@@ -42,12 +64,55 @@ required = true
 optional = false
 tags = ["gateway"]
 
+  [[service.capability]]
+  id = "inference.route"
+  version = "1"
+  owner = "manwe"
+  maturity = "stable"
+  data_classes = ["internal"]
+  authority_ceiling = "plan"
+  removal_status = "active"
+  execution_adapter = { kind = "service", service = "manwe" }
+  provenance = { kind = "internal", source = "services.toml", source_digest = "sha256:inference-route-v1" }
+
+  [[service.capability]]
+  id = "model.worker.local"
+  version = "1"
+  owner = "manwe"
+  maturity = "preview"
+  data_classes = ["internal"]
+  authority_ceiling = "propose"
+  removal_status = "active"
+  execution_adapter = { kind = "model_worker", provider = "local", model = "configured-route" }
+  provenance = { kind = "model_worker", provider = "local", model = "configured-route", source_digest = "sha256:model-worker-local-v1" }
+
   [service.start]
-  command = "cargo"
-  args = ["run", "-p", "manwe", "--", "--config", "manwe.toml"]
+  command = "target/release/manwe"
+  args = ["--config", "manwe.toml", "--bind", "127.0.0.1", "--port", "7171"]
   cwd = "."
 
   [service.health]
   url = "http://127.0.0.1:7171/healthz"
   interval_secs = 5
   timeout_secs = 2
+
+[[adapter]]
+kind = "built_in"
+contract = "config/adapters/arda-jsonl-project.external-capability.json"
+installed = true
+health = "ready"
+eligible = true
+
+[[adapter]]
+kind = "external"
+contract = "config/adapters/hermes-workbench.external-capability.json"
+installed = true
+health = "unavailable"
+eligible = false
+
+[[adapter]]
+kind = "sidecar"
+contract = "config/adapters/arda-otlp-sidecar.external-capability.json"
+installed = false
+health = "not_configured"
+eligible = false

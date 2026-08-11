@@ -22,6 +22,10 @@ pub struct LoveEquationScore {
     pub semantic: String,
     #[serde(default = "default_love_equation_source")]
     pub source: String,
+    #[serde(default = "default_love_equation_display_label")]
+    pub display_label: String,
+    #[serde(default)]
+    pub canonical_relational_evaluation: bool,
 }
 
 fn default_love_equation_semantic() -> String {
@@ -30,6 +34,10 @@ fn default_love_equation_semantic() -> String {
 
 fn default_love_equation_source() -> String {
     "impact_reach_energy_time_proxy_not_canonical_love_dynamics".to_string()
+}
+
+fn default_love_equation_display_label() -> String {
+    "Legacy task-value proxy (not canonical Love Dynamics)".to_string()
 }
 
 /// Compatibility task-value proxy retained for callers that predate canonical
@@ -73,6 +81,8 @@ pub fn love_dynamics_compatibility_proxy(task: &Task) -> LoveEquationScore {
         time,
         semantic: default_love_equation_semantic(),
         source: default_love_equation_source(),
+        display_label: default_love_equation_display_label(),
+        canonical_relational_evaluation: false,
     };
     crate::global_governance_metrics().observe_love_proxy(&score);
     score
@@ -107,6 +117,8 @@ mod tests {
         assert!(score.impact > 0.9);
         assert_eq!(score.semantic, "task_value_proxy");
         assert!(score.source.contains("not_canonical_love_dynamics"));
+        assert!(score.display_label.contains("Legacy task-value proxy"));
+        assert!(!score.canonical_relational_evaluation);
     }
 
     #[test]
@@ -121,6 +133,7 @@ mod tests {
             score.source,
             "impact_reach_energy_time_proxy_not_canonical_love_dynamics"
         );
+        assert!(!score.canonical_relational_evaluation);
     }
 
     #[test]

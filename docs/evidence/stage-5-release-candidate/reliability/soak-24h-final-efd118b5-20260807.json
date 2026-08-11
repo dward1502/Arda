@@ -1,0 +1,202 @@
+{
+  "contract": "arda.stage5.reliability-soak.v1",
+  "elapsed_seconds": 86400.00007683001,
+  "failures": [],
+  "finished_at_utc": "2026-08-07T05:51:56.028828Z",
+  "invalid_reason": null,
+  "limits": {
+    "diagnostic_bundle_bytes": 4096,
+    "retained_failures": 20,
+    "subprocess_output": "bounded-redacted-tail"
+  },
+  "protected_state": {
+    "after": {
+      "bytes": 0,
+      "files": 0
+    },
+    "before": {
+      "bytes": 0,
+      "files": 0
+    },
+    "growth": {
+      "bytes": 0,
+      "files": 0
+    },
+    "maximum_growth": {
+      "bytes": 0,
+      "files": 0
+    }
+  },
+  "requested_duration_seconds": 86400.0,
+  "scenarios": {
+    "adapter-crash": {
+      "failed": 0,
+      "latency_budget_ms": 180000,
+      "latency_budget_preserved": true,
+      "latency_ms": {
+        "max": 279.425,
+        "min": 197.229,
+        "p50": 220.187,
+        "p95": 242.197
+      },
+      "passed": 259,
+      "runs": 259
+    },
+    "checkpoint-restart": {
+      "failed": 0,
+      "latency_budget_ms": 180000,
+      "latency_budget_preserved": true,
+      "latency_ms": {
+        "max": 511.788,
+        "min": 241.323,
+        "p50": 264.962,
+        "p95": 289.895
+      },
+      "passed": 258,
+      "runs": 258
+    },
+    "corrupted-tail": {
+      "failed": 0,
+      "latency_budget_ms": 180000,
+      "latency_budget_preserved": true,
+      "latency_ms": {
+        "max": 388.846,
+        "min": 188.901,
+        "p50": 212.325,
+        "p95": 232.843
+      },
+      "passed": 258,
+      "runs": 258
+    },
+    "disk-pressure": {
+      "failed": 0,
+      "latency_budget_ms": 180000,
+      "latency_budget_preserved": true,
+      "latency_ms": {
+        "max": 428.701,
+        "min": 187.613,
+        "p50": 210.39,
+        "p95": 230.747
+      },
+      "passed": 258,
+      "runs": 258
+    },
+    "large-noisy-output": {
+      "failed": 0,
+      "latency_budget_ms": 180000,
+      "latency_budget_preserved": true,
+      "latency_ms": {
+        "max": 708.344,
+        "min": 197.492,
+        "p50": 220.582,
+        "p95": 242.097
+      },
+      "passed": 258,
+      "runs": 258
+    },
+    "model-timeout": {
+      "failed": 0,
+      "latency_budget_ms": 180000,
+      "latency_budget_preserved": true,
+      "latency_ms": {
+        "max": 1405.813,
+        "min": 1193.883,
+        "p50": 1215.51,
+        "p95": 1238.367
+      },
+      "passed": 259,
+      "runs": 259
+    },
+    "network-loss": {
+      "failed": 0,
+      "latency_budget_ms": 180000,
+      "latency_budget_preserved": true,
+      "latency_ms": {
+        "max": 371.802,
+        "min": 229.168,
+        "p50": 251.732,
+        "p95": 277.768
+      },
+      "passed": 258,
+      "runs": 258
+    },
+    "operator-rejection": {
+      "failed": 0,
+      "latency_budget_ms": 180000,
+      "latency_budget_preserved": true,
+      "latency_ms": {
+        "max": 518.045,
+        "min": 196.016,
+        "p50": 218.821,
+        "p95": 250.749
+      },
+      "passed": 259,
+      "runs": 259
+    },
+    "process-kill": {
+      "failed": 0,
+      "latency_budget_ms": 180000,
+      "latency_budget_preserved": true,
+      "latency_ms": {
+        "max": 646.809,
+        "min": 514.213,
+        "p50": 537.159,
+        "p95": 566.034
+      },
+      "passed": 259,
+      "runs": 259
+    },
+    "provider-loss": {
+      "failed": 0,
+      "latency_budget_ms": 180000,
+      "latency_budget_preserved": true,
+      "latency_ms": {
+        "max": 340.275,
+        "min": 190.137,
+        "p50": 211.666,
+        "p95": 233.106
+      },
+      "passed": 259,
+      "runs": 259
+    },
+    "repeated-cancellation": {
+      "failed": 0,
+      "latency_budget_ms": 180000,
+      "latency_budget_preserved": true,
+      "latency_ms": {
+        "max": 361.329,
+        "min": 195.567,
+        "p50": 219.98,
+        "p95": 243.873
+      },
+      "passed": 259,
+      "runs": 259
+    }
+  },
+  "source_integrity": {
+    "after": {
+      "bytes": 142293456,
+      "files": 1541,
+      "sha256": "3254da9e964dd488ab6550d79fa21b4f382af2facae8a99ea79678aaaff01c27"
+    },
+    "before": {
+      "bytes": 142293456,
+      "files": 1541,
+      "sha256": "3254da9e964dd488ab6550d79fa21b4f382af2facae8a99ea79678aaaff01c27"
+    },
+    "unchanged": true
+  },
+  "started_at_utc": "2026-08-06T05:51:55.392246Z",
+  "status": "pass",
+  "storage": {
+    "floor_preserved": true,
+    "minimum_free_bytes": 68719476736,
+    "minimum_observed_free_bytes": 168845426688
+  },
+  "summary": {
+    "failed": 0,
+    "passed": 2844,
+    "runs": 2844
+  },
+  "validity": "valid"
+}

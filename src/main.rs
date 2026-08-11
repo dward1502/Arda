@@ -95,6 +95,7 @@ async fn main() -> anyhow::Result<()> {
 
     let shutdown = Shutdown::new();
     let supervisor = Supervisor::new(services, shutdown.clone());
+    let service_statuses = supervisor.statuses();
 
     // Shared live-PID mirror so the harness status surface can report what is
     // actually running without reaching into the supervisor's internals.
@@ -109,17 +110,29 @@ async fn main() -> anyhow::Result<()> {
         .timeout(arda_engine::harness::DEFAULT_MANWE_PROXY_TIMEOUT)
         .build()
         .unwrap_or_default();
+    let presence_access_path = root.join("config/outposts/access.toml");
+    let presence_inputs =
+        arda_engine::harness::presence::HarnessPresenceState::load_access_contract(
+            &presence_access_path,
+        )
+        .unwrap_or_else(|error| {
+            warn!(
+                "arda daemon: remote presence access disabled; canonical contract failed closed: {error}"
+            );
+            arda_engine::harness::presence::HarnessPresenceState::default()
+        });
     let harness_state = arda_engine::harness::HarnessState {
         harness_addr: arda_engine::harness::DEFAULT_HARNESS_ADDR.to_string(),
         child_pids: harness_pids,
         service_names: Arc::new(reg.services.iter().map(|s| s.name.clone()).collect()),
+        service_statuses,
         manwe_url: "http://127.0.0.1:7171".to_string(),
         client,
         manwe_proxy_timeout: arda_engine::harness::DEFAULT_MANWE_PROXY_TIMEOUT,
         manwe_proxy_bearer: std::env::var("ARDA_MANWE_PROXY_BEARER").ok(),
         warden_scout_url: discover_warden_scout_url(&root),
         warden_scout_timeout: arda_engine::harness::DEFAULT_WARDEN_SCOUT_TIMEOUT,
-        presence_inputs: arda_engine::harness::presence::HarnessPresenceState::default(),
+        presence_inputs,
         workbench_root: root.clone(),
     };
     let harness_addr: Option<SocketAddr> = cli
@@ -185,4 +198,15 @@ fn discover_warden_scout_url(root: &std::path::Path) -> Option<String> {
         .get("scout_url")?
         .as_str()
         .map(str::to_owned)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn harness_only_parallel_owner_profile_is_not_supported() {
+        let result = Cli::try_parse_from(["arda", "--harness-only"]);
+        assert!(result.is_err());
+    }
 }

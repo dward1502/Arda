@@ -150,7 +150,25 @@ in place while restoring verified non-secret config/data and records the backup
 hash, run-truth comparison, and source-tree comparison in machine-readable
 receipts.
 
-Run `arda-launcher` inside the user's graphical session. The launcher now evaluates both the contract registry and onboarding readiness before claiming `Ready`. A warning or failure changes the action to `REVIEW`; it does not claim the runtime can begin. The review panel exposes every non-passing check, its evidence, severity, and recovery instruction.
+Run `arda-launcher` inside the user's graphical session. The launcher evaluates
+one first-run projection before claiming `Ready`. Select `REVIEW` to follow the
+visible sequence in order:
+
+1. supported-profile compatibility;
+2. prerequisite checks;
+3. provider setup state;
+4. service plan;
+5. readiness review; and
+6. guided setup.
+
+The panel is diagnostic and approval-gated: loading it performs no configuration
+write. Secret writes and consequential service changes still require explicit
+human approval and a receipt. A warning or failure does not claim the runtime can
+begin. Every non-passing check includes its evidence, severity, and recovery
+instruction. Offline routing, unavailable providers, degraded readiness, and
+general recovery appear as separate plain-language conditions. Optional root runtime services are shown as opt-in and disabled. Optional
+application products are not members of the required Workbench startup registry;
+their absence cannot block the Workbench start decision.
 
 ## 3. Readiness diagnostics
 
@@ -279,7 +297,14 @@ Recovery order:
 
 ## Current release evidence boundary
 
-This workflow proves install mechanics, truthful readiness reporting, state backup/restore, quarantine reset, managed uninstall, and redacted diagnostics. It does not by itself prove:
+This workflow proves install mechanics, truthful readiness reporting, state
+backup/restore, quarantine reset, managed uninstall, and redacted diagnostics.
+The local U4 lifecycle receipt at
+`../evidence/stage-5-release-candidate/reliability/u4-lifecycle-local-20260804.json`
+also proves default native startup, upgrade/rollback, terminal-run preservation,
+post-uninstall state preservation, and unchanged source identity for the current
+unsigned local candidate. It deliberately does not claim the final signed
+artifact gate. This workflow does not by itself prove:
 
 - sustained native HUD objective-to-review click-through;
 - live HUD event streaming;

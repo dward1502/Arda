@@ -10,42 +10,42 @@
     {
       "kind": "fleet_recovery_failed",
       "note": "Latest recovery path targeted `annunimas-server.tail91c3c1.ts.net` and reported: tailscale_peer_offline.",
-      "owner": "charon_hermes",
+      "owner": "manwe_aule",
       "status": "operator_confirmation_required",
       "title": "node-backbone-server requires fleet recovery remediation"
     },
     {
       "kind": "fleet_recovery_failed",
       "note": "Latest recovery path targeted `annunimas-server.tail91c3c1.ts.net` and reported: tailscale_peer_offline.",
-      "owner": "charon_hermes",
+      "owner": "manwe_aule",
       "status": "operator_confirmation_required",
       "title": "node-backbone-gemma4-coder requires fleet recovery remediation"
     },
     {
       "kind": "fleet_recovery_failed",
       "note": "Latest recovery path targeted `annunimas-server.tail91c3c1.ts.net` and reported: tailscale_peer_offline.",
-      "owner": "charon_hermes",
+      "owner": "manwe_aule",
       "status": "operator_confirmation_required",
       "title": "node-backbone-vision requires fleet recovery remediation"
     },
     {
       "kind": "fleet_recovery_failed",
       "note": "Latest recovery path targeted `unknown` and reported: No ED25519 host key is known for beelink.tail91c3c1.ts.net. and you have requested strict checking.\r\nHost key verification failed..",
-      "owner": "charon_hermes",
+      "owner": "manwe_aule",
       "status": "operator_confirmation_required",
       "title": "node-ser9-carnice requires fleet recovery remediation"
     },
     {
       "kind": "fleet_recovery_failed",
       "note": "Latest recovery path targeted `laptop.tail91c3c1.ts.net` and reported: tailscale_peer_offline.",
-      "owner": "charon_hermes",
+      "owner": "manwe_aule",
       "status": "operator_confirmation_required",
       "title": "node-laptop requires fleet recovery remediation"
     },
     {
       "kind": "fleet_recovery_failed",
       "note": "Latest recovery path targeted `raspberrypi-1.tail91c3c1.ts.net` and reported: tailscale_peer_offline.",
-      "owner": "charon_hermes",
+      "owner": "manwe_aule",
       "status": "operator_confirmation_required",
       "title": "node-pi5-citadel-avatar requires fleet recovery remediation"
     }

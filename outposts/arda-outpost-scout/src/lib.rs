@@ -1,3 +1,4 @@
+pub mod audit;
 pub mod error;
 pub mod memory;
 pub mod observation;
@@ -7,6 +8,10 @@ pub mod suggestion;
 pub mod survey;
 
 pub use arda_outpost_protocol::*;
+pub use audit::{
+    AuditFollowupRequest, AuditFollowupResponse, AuditFollowupSection, AuditSummary,
+    ScoutAuditError, ScoutAuditOutcome, ScoutAuditRequest, ScoutAuditService,
+};
 pub use error::{Result, ScoutError};
 pub use memory::{
     CredentialProposal, MemoryFallback, ObservationMemoryBridge, RecalledScoutObservation,

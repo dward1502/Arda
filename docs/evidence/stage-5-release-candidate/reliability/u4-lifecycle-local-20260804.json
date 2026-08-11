@@ -1,0 +1,33 @@
+{
+  "acceptance": {
+    "backup": true,
+    "candidate_default_launch_survived_3s": true,
+    "candidate_launch_survived_3s": true,
+    "diagnostics": true,
+    "final_signed_artifact_exercised": false,
+    "fresh_install": true,
+    "rollback": true,
+    "source_repository_unchanged": true,
+    "state_preserved_after_uninstall": true,
+    "terminal_run_truth_preserved": true,
+    "uninstall": true,
+    "upgrade": true
+  },
+  "artifacts": {
+    "baseline_sha256": "32a176b8f07edb1a67a757465527c3bbbb70db9ae221c888ae1db7a6d814562a",
+    "candidate_sha256": "2d2b3a3701c835850035bfae7c9878ab99f5c73378aeae841bc95f080508ac1e",
+    "installed_candidate_sha256": "2d2b3a3701c835850035bfae7c9878ab99f5c73378aeae841bc95f080508ac1e",
+    "restored_baseline_sha256": "32a176b8f07edb1a67a757465527c3bbbb70db9ae221c888ae1db7a6d814562a"
+  },
+  "blocker": "Final signed package bytes are not available: Stage 5 packaging evidence reports production_trust_ready=false and normalized_linux_packages_signed=false.",
+  "contract": "arda.stage5.u4-lifecycle-evidence.v1",
+  "generated_at_utc": "2026-08-05T07:48:40.558096Z",
+  "launch_recovery": {
+    "default_return_code": null,
+    "override": null,
+    "required": false
+  },
+  "mutation_scope": "isolated temporary operator home only",
+  "status": "pass-local-unsigned-candidate",
+  "supported_profile": "bluefin-lts-10-x86_64"
+}

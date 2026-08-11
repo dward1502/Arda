@@ -1,5 +1,6 @@
 
 .fleet-preview-surface {
+  box-sizing: border-box;
   width: 12rem;
   border: 1px solid rgba(105, 233, 255, 0.42);
   border-radius: 0.3rem;
@@ -19,22 +20,36 @@
   cursor: pointer;
 }
 
+.fleet-preview-surface--monitor_surface {
+  height: 5.88rem;
+  overflow: hidden;
+}
+
 .fleet-preview-surface--desk_surface {
   width: 8.6rem;
-  aspect-ratio: 2.12;
+  height: 4.06rem;
+  overflow: hidden;
   padding: 0.24rem;
 }
 
+.fleet-preview-surface--monitor_surface .fleet-preview-surface__header,
+.fleet-preview-surface--desk_surface .fleet-preview-surface__header {
+  margin-bottom: 0.2rem;
+}
+
+.fleet-preview-surface--monitor_surface .fleet-preview-surface__metrics,
 .fleet-preview-surface--desk_surface .fleet-preview-surface__metrics {
   gap: 0.18rem;
   margin: 0.24rem 0;
 }
 
+.fleet-preview-surface--monitor_surface .fleet-preview-surface__metrics span,
 .fleet-preview-surface--desk_surface .fleet-preview-surface__metrics span {
   border-radius: 0.2rem;
   padding: 0.16rem;
 }
 
+.fleet-preview-surface--monitor_surface .fleet-preview-surface__route,
 .fleet-preview-surface--desk_surface .fleet-preview-surface__route {
   display: none;
 }

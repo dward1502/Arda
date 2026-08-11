@@ -1,0 +1,68 @@
+{
+  "schema_version": "arda.capability-composition.v1",
+  "lineage": {
+    "objective_id": "objective-s4-c1",
+    "project_id": "550e8400-e29b-41d4-a716-446655440010",
+    "run_id": "s4-c1-replay",
+    "project_contract_digest": "sha256:s4-c1-project-contract"
+  },
+  "outcome": {
+    "description": "Implement and verify a bounded software change",
+    "acceptance_conditions": ["focused tests pass", "artifact receipt binds the source result"]
+  },
+  "scope": "system",
+  "sensitivity": {
+    "data_classes": ["internal"],
+    "permitted_egress": ["local_device"]
+  },
+  "capabilities": {
+    "required": ["hermes", "verification", "artifact_receipt"],
+    "forbidden": ["payment", "health_device"]
+  },
+  "roles": {
+    "planner": {
+      "kind": "planner",
+      "authority": "plan",
+      "required_capabilities": ["hermes"]
+    },
+    "worker": {
+      "kind": "worker",
+      "authority": "execute_with_approval",
+      "required_capabilities": ["hermes"]
+    },
+    "reviewer": {
+      "kind": "reviewer",
+      "authority": "read_only",
+      "required_capabilities": ["verification", "artifact_receipt"]
+    }
+  },
+  "route_preferences": {
+    "mode": "prefer_local",
+    "allowed_providers": ["local_inference", "hosted_fallback"]
+  },
+  "council_mode": "disabled",
+  "proactive_communication": "approval_required",
+  "joulework_budget": {
+    "max_joules": 25000.0,
+    "max_cost_usd": 5.0,
+    "max_operator_seconds": 900
+  },
+  "authority": {
+    "signed_request_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "authority_ceiling": "execute_with_approval",
+    "approval_scopes": ["workspace_write", "test_execution"]
+  },
+  "permissions": {
+    "tools": ["filesystem.read", "filesystem.write", "process.test"],
+    "filesystem": {"read_roots": ["."], "write_roots": ["crates/spine/governance/arda-core", "spec/capability-composition"]},
+    "network": "denied",
+    "devices": [],
+    "payments": false
+  },
+  "lifecycle": {
+    "restart": "resume_from_checkpoint",
+    "cancellation": "checkpoint_then_stop",
+    "compensation": "best_effort",
+    "notification": "on_state_change"
+  }
+}

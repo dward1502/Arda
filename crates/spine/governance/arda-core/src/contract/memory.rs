@@ -17,6 +17,7 @@ pub enum MemoryKind {
 pub enum MemoryState {
     Active,
     Decayed,
+    Quarantined,
     Revoked,
     Promoted,
 }
@@ -58,5 +59,17 @@ impl MemoryRecord {
             last_seen_at: now,
             extensions: HashMap::new(),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn quarantined_state_has_a_stable_wire_value() {
+        let state: MemoryState = serde_json::from_str("\"quarantined\"").unwrap();
+        assert_eq!(state, MemoryState::Quarantined);
+        assert_eq!(serde_json::to_string(&state).unwrap(), "\"quarantined\"");
     }
 }

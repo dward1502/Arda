@@ -13,6 +13,7 @@
 - [`Cargo.lock`](Cargo.lock) — standalone outpost lockfile.
 - [`src/lib.rs`](src/lib.rs) — library root and public exports.
 - [`src/main.rs`](src/main.rs) — Warden scout CLI/runtime binary.
+- [`src/audit.rs`](src/audit.rs) — bounded Rúmil audit consumer and packet follow-up.
 - [`src/runtime.rs`](src/runtime.rs) — HTTP API.
 - [`src/research.rs`](src/research.rs) — governed SearXNG research.
 - [`src/memory.rs`](src/memory.rs) — receipt ingestion and recall.
@@ -29,3 +30,5 @@
 - [`tests/memory_fixtures.rs`](tests/memory_fixtures.rs)
 - [`tests/runtime_api.rs`](tests/runtime_api.rs)
 - [`tests/runtime_cli.rs`](tests/runtime_cli.rs)
+- [`tests/rumil_audit_contract.rs`](tests/rumil_audit_contract.rs)
+- [`tests/rumil_runtime_api.rs`](tests/rumil_runtime_api.rs)

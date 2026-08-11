@@ -1,0 +1,249 @@
+/* ══════════════════════════════════════════════════════
+   WORKSTATION SHELL – FORCED HARD GEOMETRY
+   ══════════════════════════════════════════════════════ */
+
+.scene-workstation {
+  --line: rgba(0, 212, 255, 0.6);
+  --line-dim: rgba(0, 212, 255, 0.2);
+  --line-strong: #00d4ff;
+  --bg: rgba(3, 8, 14, 0.97);
+  --bg-header: rgba(2, 6, 12, 0.98);
+  --cut: 14px;
+
+  position: fixed !important;
+  display: grid !important;
+  grid-template-rows: auto auto auto 1fr !important;
+  overflow: hidden !important;
+  color: #e2f0ff !important;
+  background: var(--bg) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75) !important;
+  backdrop-filter: blur(10px);
+  isolation: isolate;
+  touch-action: none;
+  font-family: var(--body-font);
+
+  /* Force hard cut corners */
+  clip-path: polygon(
+    var(--cut) 0%,
+    100% 0%,
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    0% 100%,
+    0% var(--cut)
+  ) !important;
+}
+
+/* Kill any remaining border-radius from other stylesheets */
+.scene-workstation,
+.scene-workstation * {
+  border-radius: 0 !important;
+}
+
+/* Corner brackets */
+.scene-workstation::before,
+.scene-workstation::after {
+  content: "" !important;
+  position: absolute !important;
+  width: 18px !important;
+  height: 18px !important;
+  pointer-events: none !important;
+  z-index: 20 !important;
+}
+
+.scene-workstation::before {
+  top: 0 !important;
+  left: 0 !important;
+  border-top: 2px solid var(--line-strong) !important;
+  border-left: 2px solid var(--line-strong) !important;
+  border-right: none !important;
+  border-bottom: none !important;
+}
+
+.scene-workstation::after {
+  right: 0 !important;
+  bottom: 0 !important;
+  border-right: 2px solid var(--line-strong) !important;
+  border-bottom: 2px solid var(--line-strong) !important;
+  border-top: none !important;
+  border-left: none !important;
+}
+
+/* ── Titlebar ─────────────────────────────────────── */
+
+.sw-titlebar {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 0.75rem !important;
+  padding: 0.55rem 0.75rem 0.45rem !important;
+  background: var(--bg-header) !important;
+  border-bottom: 1px solid var(--line-dim) !important;
+  cursor: grab !important;
+  user-select: none !important;
+  border-radius: 0 !important;
+}
+
+.sw-identity {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.05rem !important;
+  min-width: 0 !important;
+}
+
+.sw-eyebrow {
+  font-size: 0.55rem !important;
+  letter-spacing: 0.2em !important;
+  text-transform: uppercase !important;
+  color: rgba(140, 190, 230, 0.55) !important;
+  font-family: var(--title-font) !important;
+}
+
+.sw-title {
+  margin: 0 !important;
+  font-family: var(--title-font) !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  color: #e8f4ff !important;
+  letter-spacing: 0.04em !important;
+}
+
+.sw-subtitle {
+  margin: 0 !important;
+  font-size: 0.65rem !important;
+  color: rgba(160, 200, 235, 0.5) !important;
+}
+
+/* ── Buttons ──────────────────────────────────────── */
+
+.sw-actions {
+  display: flex !important;
+  gap: 0.25rem !important;
+}
+
+.sw-btn {
+  width: 1.6rem !important;
+  height: 1.6rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 1px solid rgba(0, 212, 255, 0.35) !important;
+  background: rgba(0, 20, 35, 0.7) !important;
+  color: rgba(180, 220, 255, 0.85) !important;
+  border-radius: 0 !important;
+  transition: all 100ms ease !important;
+}
+
+.sw-btn:hover {
+  border-color: rgba(0, 212, 255, 0.8) !important;
+  background: rgba(0, 212, 255, 0.12) !important;
+  color: #fff !important;
+}
+
+.sw-btn--danger {
+  border-color: rgba(255, 70, 90, 0.4) !important;
+  color: rgba(255, 160, 175, 0.9) !important;
+}
+
+.sw-btn--danger:hover {
+  border-color: rgba(255, 70, 90, 0.75) !important;
+  background: rgba(255, 50, 70, 0.15) !important;
+  color: #ffd0d6 !important;
+}
+
+/* ── Tabs ─────────────────────────────────────────── */
+
+.sw-tabs {
+  display: flex !important;
+  gap: 0.2rem !important;
+  padding: 0.3rem 0.6rem 0.4rem !important;
+  border-bottom: 1px solid var(--line-dim) !important;
+  overflow-x: auto !important;
+}
+
+.sw-tab {
+  white-space: nowrap !important;
+  padding: 0.22rem 0.5rem !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: rgba(160, 200, 235, 0.5) !important;
+  font-size: 0.58rem !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  border-radius: 0 !important;
+  transition: all 100ms ease !important;
+}
+
+.sw-tab:hover {
+  color: rgba(200, 230, 255, 0.85) !important;
+  border-color: rgba(0, 212, 255, 0.3) !important;
+}
+
+.sw-tab.is-active {
+  color: #e8f6ff !important;
+  border-color: rgba(0, 212, 255, 0.55) !important;
+  background: rgba(0, 212, 255, 0.1) !important;
+}
+
+/* ── Technical strip ──────────────────────────────── */
+
+.sw-strip {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0.5rem !important;
+  padding: 0.25rem 0.75rem !important;
+  background: rgba(0, 0, 0, 0.4) !important;
+  border-bottom: 1px solid var(--line-dim) !important;
+  font-size: 0.55rem !important;
+  letter-spacing: 0.1em !important;
+}
+
+.sw-strip__code {
+  font-family: "IBM Plex Mono", "SF Mono", monospace !important;
+  color: rgba(0, 212, 255, 0.85) !important;
+  text-transform: uppercase !important;
+}
+
+.sw-strip__hint {
+  color: rgba(150, 190, 225, 0.4) !important;
+}
+
+/* ── Body ─────────────────────────────────────────── */
+
+.sw-body {
+  min-height: 0 !important;
+  overflow: auto !important;
+  padding: 0.65rem !important;
+}
+
+/* ── Resize handle ────────────────────────────────── */
+
+.sw-resize {
+  position: absolute !important;
+  bottom: 0 !important;
+  right: 0 !important;
+  width: 16px !important;
+  height: 16px !important;
+  cursor: se-resize !important;
+  background: linear-gradient(135deg, transparent 50%, rgba(0, 212, 255, 0.5) 50%) !important;
+  opacity: 0.6 !important;
+  border-radius: 0 !important;
+  z-index: 30 !important;
+}
+
+.scene-workstation:hover .sw-resize {
+  opacity: 1 !important;
+}
+
+/* States */
+.scene-workstation.is-dragging,
+.scene-workstation.is-resizing {
+  user-select: none !important;
+}
+
+.scene-workstation.is-dragging .sw-body,
+.scene-workstation.is-resizing .sw-body {
+  pointer-events: none !important;
+}

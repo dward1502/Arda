@@ -46,6 +46,7 @@ Operationally, the crate now includes:
 - deterministic governance/accounting scaffolding
 - Unix socket IPC and HTTP/SSE transport surfaces
 - CLI-facing daemon/service integration
+- advisory-only Rúmil receipt evaluation; partial, stale, rejected-provider, and missing-evidence receipts require review, and no Rúmil result authorizes execution
 
 Current scoped verification: `cargo test -p arda-varda` passes 120 tests.
 

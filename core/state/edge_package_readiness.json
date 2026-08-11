@@ -12,21 +12,21 @@
       {
         "kind": "fleet_recovery_failed",
         "note": "Latest recovery path targeted `unknown` and reported: No ED25519 host key is known for annunimas-server.tail91c3c1.ts.net. and you have requested strict checking.\r\nHost key verification failed..",
-        "owner": "charon_hermes",
+        "owner": "manwe_aule",
         "status": "operator_confirmation_required",
         "title": "node-backbone-server-long requires fleet recovery remediation"
       },
       {
         "kind": "fleet_recovery_failed",
         "note": "Latest recovery path targeted `laptop.tail91c3c1.ts.net` and reported: tailscale_peer_offline.",
-        "owner": "charon_hermes",
+        "owner": "manwe_aule",
         "status": "operator_confirmation_required",
         "title": "node-laptop requires fleet recovery remediation"
       },
       {
         "kind": "fleet_recovery_failed",
         "note": "Latest recovery path targeted `unknown` and reported: No ED25519 host key is known for raspberrypi-1.tail91c3c1.ts.net. and you have requested strict checking.\r\nHost key verification failed..",
-        "owner": "charon_hermes",
+        "owner": "manwe_aule",
         "status": "operator_confirmation_required",
         "title": "node-pi5-citadel-avatar requires fleet recovery remediation"
       }

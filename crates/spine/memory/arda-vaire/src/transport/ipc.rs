@@ -184,24 +184,6 @@ fn execute_command(service: &MnemosyneService, cmd: CommandEnvelope) -> Result<V
                 .unwrap_or(24);
             Ok(serde_json::to_value(service.consolidate(hours)?)?)
         }
-        "obsidian_sync" => {
-            let vault_path = cmd
-                .payload
-                .get("vault_path")
-                .and_then(|v| v.as_str())
-                .ok_or_else(|| ArdaError::Agent {
-                    agent: "mnemosyne".to_owned(),
-                    message: "vault_path is required for obsidian_sync".to_owned(),
-                })?;
-            let max_files = cmd
-                .payload
-                .get("max_files")
-                .and_then(|v| v.as_u64())
-                .unwrap_or(200) as usize;
-            Ok(serde_json::to_value(
-                service.sync_obsidian(vault_path, max_files)?,
-            )?)
-        }
         other => Err(ArdaError::Agent {
             agent: "mnemosyne".to_owned(),
             message: format!("unknown IPC command: {other}"),
@@ -263,15 +245,6 @@ mod tests {
             recall[0]["memory_scope"].as_str(),
             Some("system_continuity")
         );
-
-        let missing_vault = send_command(
-            socket_path.clone(),
-            "obsidian_sync",
-            json!({"max_files": 1}),
-        )
-        .await
-        .expect_err("missing vault path must be rejected");
-        assert!(missing_vault.to_string().contains("vault_path is required"));
 
         let stats = send_command(socket_path, "stats", json!({}))
             .await

@@ -40,12 +40,10 @@ export default function WorldTerminalSurfacePreview({
   terminalId,
   layout,
   label,
-  onActivate,
 }: {
   terminalId: string
   layout: WorldSurfaceLayout | undefined
   label: string
-  onActivate: () => void
 }) {
   const model = deriveWorldTerminalSurfacePreviewModel({ terminalId, layout })
   const className = [
@@ -56,7 +54,7 @@ export default function WorldTerminalSurfacePreview({
 
   return (
     <Html center distanceFactor={9}>
-      <button type="button" className={className} onClick={onActivate} aria-label={`Open ${model.title}`}>
+      <div className={className} aria-label={`${model.title} status display`}>
         <span className="world-terminal-preview__header">
           <b>{label}</b>
           <i>{model.glyph}</i>
@@ -68,10 +66,10 @@ export default function WorldTerminalSurfacePreview({
           ))}
         </span>
         <span className="world-terminal-preview__footer">
-          <span>{model.safeActionSummary}</span>
-          <small>{model.focusMode.replace(/_/g, ' ')}</small>
+          <span>DISPLAY ONLY</span>
+          <small>{model.status}</small>
         </span>
-      </button>
+      </div>
     </Html>
   )
 }

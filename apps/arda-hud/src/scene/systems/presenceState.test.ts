@@ -1,5 +1,6 @@
 // sigil: REPAIR
 import { describe, expect, it } from 'vitest'
+import type { StatefulPersona } from '../../lib/statefulPersona'
 import {
   DEFAULT_AGENT_PRESENCE_STATE,
   deriveLatestPresenceStateFromEventLedger,
@@ -11,6 +12,28 @@ import {
 } from './presenceState'
 
 const FIXED_NOW = '2026-05-18T12:00:00.000Z'
+
+function personaWithValence(weightedValence: number, stale = false): StatefulPersona {
+  return {
+    actor: 'arandur',
+    status: 'ready',
+    sourceRecordId: 'persona-arandur',
+    traits: [{
+      traitId: 'direct',
+      label: 'Direct',
+      evidenceCount: 8,
+      confidence: 0.8,
+      stale,
+    }],
+    moodSummary: {
+      asOf: FIXED_NOW,
+      weightedValence,
+      sampleCount: 6,
+      windowHours: 336,
+    },
+    message: 'ready',
+  }
+}
 
 describe('boardroom presence state', () => {
   it('defaults to a calm Arandur-centered idle state', () => {
@@ -273,6 +296,11 @@ describe('boardroom presence state', () => {
       scanlineOpacity: 0.26,
       lightIntensity: 1.25,
       supportMarkerScale: 0.72,
+      particleDensity: 1,
+      noiseMultiplier: 1,
+      dissolveBias: 0,
+      colorTemperature: 0,
+      traitAccent: 0,
     })
 
     expect(presenceVisualState({
@@ -288,6 +316,47 @@ describe('boardroom presence state', () => {
       scanlineOpacity: 0.34,
       lightIntensity: 1.65,
       supportMarkerScale: 0.88,
+      particleDensity: 1,
+      noiseMultiplier: 1,
+      dissolveBias: 0,
+      colorTemperature: 0,
+      traitAccent: 0,
     })
+  })
+
+  it('maps positive and negative persona valence to distinct visual uniforms', () => {
+    const positive = presenceVisualState(DEFAULT_AGENT_PRESENCE_STATE, personaWithValence(0.8))
+    const negative = presenceVisualState(DEFAULT_AGENT_PRESENCE_STATE, personaWithValence(-0.8))
+
+    expect(positive.particleDensity).toBeGreaterThan(negative.particleDensity)
+    expect(positive.noiseMultiplier).toBeLessThan(negative.noiseMultiplier)
+    expect(positive.colorTemperature).toBeGreaterThan(0)
+    expect(negative.colorTemperature).toBeLessThan(0)
+    expect(positive.dissolveBias).toBe(0)
+    expect(negative.dissolveBias).toBeGreaterThan(0)
+  })
+
+  it('ignores stale traits and unavailable persona data without changing phase behavior', () => {
+    const baseline = presenceVisualState(DEFAULT_AGENT_PRESENCE_STATE)
+    const stale = presenceVisualState(DEFAULT_AGENT_PRESENCE_STATE, personaWithValence(0, true))
+    const unavailable = presenceVisualState(DEFAULT_AGENT_PRESENCE_STATE, {
+      ...personaWithValence(0.9),
+      status: 'unavailable',
+    })
+
+    expect(stale.traitAccent).toBe(0)
+    expect(unavailable).toEqual(baseline)
+  })
+
+  it('preserves alert pulse precedence when persona mood is positive', () => {
+    const alert = presenceVisualState({
+      ...DEFAULT_AGENT_PRESENCE_STATE,
+      scenario: 'alert',
+      phase: 'alert',
+      urgency: 'high',
+    }, personaWithValence(1))
+
+    expect(alert.pulseRate).toBe(2.15)
+    expect(alert.ringOpacity).toBe(1)
   })
 })

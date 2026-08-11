@@ -24,7 +24,7 @@ scrape_configs:
   - job_name: manwe
     metrics_path: /metrics
     static_configs:
-      - targets: ['100.78.138.113:5110']
+      - targets: ['100.78.138.113:7171']
         labels:
           node: annunimas-core
           fleet_role: core_compute

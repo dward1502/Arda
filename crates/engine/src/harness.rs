@@ -12,17 +12,25 @@ use std::time::Duration;
 
 use crate::harness::presence::HarnessPresenceState;
 use axum::extract::State;
-use axum::http::StatusCode;
+use axum::http::{header, HeaderName, HeaderValue, Method, StatusCode};
 use axum::response::IntoResponse;
-use axum::routing::{get, post};
+use axum::routing::{delete, get, post};
 use axum::Json;
 use serde::Serialize;
 use tokio::sync::Notify;
+use tower_http::cors::CorsLayer;
 use tracing::{info, warn};
 
+use crate::supervisor::ServiceRuntimeStatus;
+
+mod operator_messages;
+mod operator_projection;
+mod personal_briefs;
+pub mod personal_ops;
 pub mod presence;
 mod projects;
 mod research;
+mod research_operator;
 mod runs;
 
 /// Default harness bind address.
@@ -43,6 +51,8 @@ pub struct HarnessState {
     pub child_pids: Arc<tokio::sync::RwLock<Vec<u32>>>,
     /// Names of services the harness knows about.
     pub service_names: Arc<Vec<String>>,
+    /// Live lifecycle/readiness state for every process owned by the root supervisor.
+    pub service_statuses: Arc<tokio::sync::RwLock<Vec<ServiceRuntimeStatus>>>,
     /// The `manwe` gateway base URL the harness proxies `/v1/models` to.
     pub manwe_url: String,
     /// HTTP client used for outbound proxy requests.
@@ -70,6 +80,7 @@ struct Status {
     manwe_url: String,
     warden_scout_url: Option<String>,
     services: Vec<String>,
+    service_statuses: Vec<ServiceRuntimeStatus>,
     child_pids: Vec<u32>,
 }
 
@@ -78,16 +89,102 @@ fn router(state: HarnessState) -> axum::Router {
     axum::Router::new()
         .route("/health", get(health))
         .route("/v1/status", get(status))
+        .route(
+            "/v1/operator-projection",
+            get(operator_projection::get_projection),
+        )
         .route("/v1/models", get(models))
         .route("/v1/scout/health", get(scout_health))
         .route("/v1/scout/search", post(scout_search))
         .route("/v1/scout/recall", post(scout_recall))
         .route("/v1/research/brief", post(research::create_brief))
+        .route(
+            "/v1/research/questions",
+            post(research_operator::create_question).get(research_operator::list_questions),
+        )
+        .route(
+            "/v1/research/questions/:id",
+            get(research_operator::get_question),
+        )
+        .route(
+            "/v1/research/watchlists",
+            post(research_operator::create_watchlist).get(research_operator::list_watchlists),
+        )
+        .route(
+            "/v1/research/watchlists/:id",
+            get(research_operator::get_watchlist),
+        )
+        .route(
+            "/v1/research/watchlists/:id/pause",
+            post(research_operator::pause_watchlist),
+        )
+        .route(
+            "/v1/research/watchlists/:id/resume",
+            post(research_operator::resume_watchlist),
+        )
+        .route(
+            "/v1/research/watchlists/:id/retire",
+            post(research_operator::retire_watchlist),
+        )
+        .route("/v1/research/briefs", get(research_operator::list_briefs))
+        .route("/v1/research/briefs/:id", get(research_operator::get_brief))
         .route("/v1/harness", get(harness_info))
+        .route(
+            "/v1/personal-ops/projection",
+            get(personal_ops::get_projection),
+        )
+        .route("/v1/personal/captures", post(personal_ops::create_capture))
+        .route("/v1/personal/inbox", get(personal_ops::get_inbox))
+        .route(
+            "/v1/personal/items/:id/classify",
+            post(personal_ops::classify_item),
+        )
+        .route(
+            "/v1/personal/items/:id/schedule",
+            post(personal_ops::schedule_item),
+        )
+        .route(
+            "/v1/personal/items/:id/complete",
+            post(personal_ops::complete_item),
+        )
+        .route("/v1/personal/resume", get(personal_ops::get_resume))
+        .route(
+            "/v1/personal/data/export",
+            get(personal_ops::export_personal_data),
+        )
+        .route(
+            "/v1/personal/data",
+            delete(personal_ops::delete_personal_data),
+        )
+        .route(
+            "/v1/personal/briefs/today",
+            get(personal_ops::get_today_brief),
+        )
+        .route(
+            "/v1/personal/briefs/morning",
+            get(personal_briefs::get_morning_brief),
+        )
+        .route(
+            "/v1/personal/briefs/transition",
+            get(personal_briefs::get_transition_brief),
+        )
+        .route(
+            "/v1/personal/reminders/attempt",
+            post(personal_ops::record_reminder_attempt),
+        )
+        .route(
+            "/v1/personal/reminders/:id/acknowledge",
+            post(personal_ops::acknowledge_reminder),
+        )
         .route("/v1/projects/validate", post(projects::validate_project))
         .route("/v1/projects/attach", post(projects::attach_project))
         .route("/v1/projects", get(projects::list_projects))
+        .route(
+            "/v1/operator/messages",
+            post(operator_messages::ingest_operator_message),
+        )
         .route("/v1/runs/plan", post(runs::plan_run))
+        .route("/v1/runs", get(runs::list_runs))
         .route("/v1/runs/:id/approve", post(runs::approve_run))
         .route(
             "/v1/runs/:id/nodes/:node_id/complete",
@@ -105,6 +202,25 @@ fn router(state: HarnessState) -> axum::Router {
             HarnessPresenceState::default(),
         ))
         .with_state(state)
+        .layer(harness_cors_layer())
+}
+
+fn harness_cors_layer() -> CorsLayer {
+    CorsLayer::new()
+        .allow_origin([
+            HeaderValue::from_static("tauri://localhost"),
+            HeaderValue::from_static("http://tauri.localhost"),
+            HeaderValue::from_static("http://localhost:1421"),
+            HeaderValue::from_static("http://127.0.0.1:1421"),
+        ])
+        .allow_methods([Method::GET, Method::POST])
+        .allow_headers([
+            header::ACCEPT,
+            header::AUTHORIZATION,
+            header::CONTENT_TYPE,
+            HeaderName::from_static("idempotency-key"),
+            HeaderName::from_static("x-arda-operator-id"),
+        ])
 }
 
 /// Liveness probe. Returns 200 once the harness is listening.
@@ -117,12 +233,14 @@ async fn health() -> impl IntoResponse {
 /// the system's shape.
 async fn status(State(st): State<HarnessState>) -> impl IntoResponse {
     let pids = st.child_pids.read().await.clone();
+    let service_statuses = st.service_statuses.read().await.clone();
     let body = Status {
         daemon: "arda",
         harness_addr: st.harness_addr.clone(),
         manwe_url: st.manwe_url.clone(),
         warden_scout_url: st.warden_scout_url.clone(),
         services: (*st.service_names).clone(),
+        service_statuses,
         child_pids: pids,
     };
     (StatusCode::OK, Json(body))
@@ -259,12 +377,26 @@ async fn harness_info(State(st): State<HarnessState>) -> impl IntoResponse {
             "routes": [
                 "/health",
                 "/v1/status",
+                "/v1/operator-projection",
                 "/v1/models",
                 "/v1/scout/health",
                 "/v1/scout/search",
                 "/v1/scout/recall",
                 "/v1/research/brief",
-                "/v1/harness"
+                "/v1/research/questions",
+                "/v1/research/watchlists",
+                "/v1/research/briefs",
+                "/v1/harness",
+                "/v1/personal-ops/projection",
+                "/v1/personal/captures",
+                "/v1/personal/inbox",
+                "/v1/personal/items/:id/classify",
+                "/v1/personal/items/:id/schedule",
+                "/v1/personal/items/:id/complete",
+                "/v1/personal/resume",
+                "/v1/personal/briefs/today",
+                "/v1/personal/reminders/attempt",
+                "/v1/personal/reminders/:id/acknowledge"
             ],
         })),
     )
@@ -291,8 +423,14 @@ pub async fn serve(
     let bound = listener.local_addr()?;
     state.harness_addr = bound.to_string();
     info!("harness: listening on {bound}");
+    let publisher_root = state.workbench_root.clone();
     let app = router(state);
+    let publisher_shutdown = shutdown.clone();
     let handle = tokio::spawn(async move {
+        let publisher = tokio::spawn(operator_projection::publish_continuously(
+            publisher_root,
+            publisher_shutdown,
+        ));
         axum::serve(
             listener,
             app.into_make_service_with_connect_info::<SocketAddr>(),
@@ -300,6 +438,8 @@ pub async fn serve(
         .with_graceful_shutdown(async move { shutdown.notified().await })
         .await
         .ok();
+        publisher.abort();
+        let _ = publisher.await;
         info!("harness: stopped");
     });
     Ok((bound, handle))
@@ -327,6 +467,7 @@ mod tests {
             harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
             child_pids: Arc::new(RwLock::new(Vec::new())),
             service_names: Arc::new(Vec::new()),
+            service_statuses: Arc::new(RwLock::new(Vec::new())),
             manwe_url: "http://127.0.0.1:1".into(),
             client: reqwest::Client::new(),
             manwe_proxy_timeout: DEFAULT_MANWE_PROXY_TIMEOUT,
@@ -373,6 +514,7 @@ mod tests {
             harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
             child_pids: Arc::new(RwLock::new(Vec::new())),
             service_names: Arc::new(Vec::new()),
+            service_statuses: Arc::new(RwLock::new(Vec::new())),
             manwe_url: "http://127.0.0.1:1".into(),
             client: reqwest::Client::new(),
             manwe_proxy_timeout: DEFAULT_MANWE_PROXY_TIMEOUT,
@@ -460,6 +602,7 @@ mod tests {
             harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
             child_pids: Arc::new(RwLock::new(Vec::new())),
             service_names: Arc::new(Vec::new()),
+            service_statuses: Arc::new(RwLock::new(Vec::new())),
             manwe_url: format!("http://{upstream_addr}"),
             client: reqwest::Client::new(),
             manwe_proxy_timeout: DEFAULT_MANWE_PROXY_TIMEOUT,
@@ -499,6 +642,7 @@ mod tests {
             harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
             child_pids: Arc::new(RwLock::new(Vec::new())),
             service_names: Arc::new(Vec::new()),
+            service_statuses: Arc::new(RwLock::new(Vec::new())),
             manwe_url: "http://127.0.0.1:1".into(),
             client: reqwest::Client::new(),
             manwe_proxy_timeout: Duration::from_millis(100),
@@ -536,6 +680,7 @@ mod tests {
             harness_addr: DEFAULT_HARNESS_ADDR.to_string(),
             child_pids: Arc::new(RwLock::new(Vec::new())),
             service_names: Arc::new(Vec::new()),
+            service_statuses: Arc::new(RwLock::new(Vec::new())),
             manwe_url: "http://127.0.0.1:1".into(),
             client: reqwest::Client::new(),
             manwe_proxy_timeout: DEFAULT_MANWE_PROXY_TIMEOUT,

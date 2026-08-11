@@ -3,7 +3,7 @@ import type { ArdaWorkstationManifest } from './ardaSource'
 
 export type SurfaceAdapterKind = 'arda' | 'third_party_service' | 'local_service' | 'media_adapter' | 'session_adapter' | 'custom' | 'research_book'
 export type SurfaceAdapterTrust = 'operator_curated' | 'athena_researched' | 'unverified'
-export type SurfaceAdapterFocusMode = 'native_window' | 'external_browser' | 'inline_embed' | 'preview_only'
+export type SurfaceAdapterFocusMode = 'native_window' | 'external_browser' | 'inline_embed' | 'preview_only' | 'remote_preview'
 
 export interface SurfaceAdapterManifest {
   id: string
@@ -233,16 +233,19 @@ export function getSurfaceAdapterFocusContract(sourceZoneId: string | null | und
     : manifest.embedUrl || manifest.externalUrl
       ? 'blocked'
       : 'unavailable'
+  const remotePreviewAllowed = !manifest.allowInlineEmbed && !!manifest.embedUrl
   return {
     sourceZoneId: manifest.sourceZoneId,
-    focusMode: manifest.preferredFocusMode,
+    focusMode: remotePreviewAllowed ? 'remote_preview' : manifest.preferredFocusMode,
     target,
     inlineStatus,
     reason: manifest.allowInlineEmbed
       ? 'Inline embedding is explicitly allowed for this adapter.'
-      : manifest.preferredFocusMode === 'preview_only'
-        ? 'This adapter is a preview-only declaration until a focused target exists.'
-        : 'Use the focused surface path; inline embedding is disabled until policy and runtime behavior are verified.',
+      : remotePreviewAllowed
+        ? 'Inline embedding is disabled; use remote_preview focus mode for a scoped preview surface.'
+        : manifest.preferredFocusMode === 'preview_only'
+          ? 'This adapter is a preview-only declaration until a focused target exists.'
+          : 'Use the focused surface path; inline embedding is disabled until policy and runtime behavior are verified.',
   }
 }
 

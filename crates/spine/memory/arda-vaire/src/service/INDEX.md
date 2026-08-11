@@ -6,11 +6,11 @@ soterion:
   role: "directory_index"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-07-13"
+  last_reviewed: "2026-08-05"
 ---
 
 
-> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-07-13
+> 🜏 Soterion: 📜 directory_index | owner: HADES | status: active | reviewed: 2026-08-05
 
 # Index: crates/spine/memory/arda-vaire/src/service/INDEX.md
 
@@ -18,8 +18,13 @@ soterion:
 
 - `INDEX.md`
 - `README.md`
+- `governance.rs`
+- `governed.rs`
+- `persona_derive.rs`
 - `promotion.rs`
+- `retention.rs`
 - `retrieval.rs`
+- `scope_policy.rs`
 - `status.rs`
 - `store.rs`
 

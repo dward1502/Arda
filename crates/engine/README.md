@@ -8,7 +8,9 @@ owns startup sequencing and supplies runtime configuration.
 ## Public surface
 
 - `registry::Registry`: load and resolve `services.toml`, including required,
-  optional, and `--no-ui` service behavior.
+  optional, and `--no-ui` service behavior; materialize versioned capability
+  declarations into a fail-closed live registry.
+- `adapters`: external-adapter and model-worker execution provenance.
 - `supervisor::{Supervisor, Service, Shutdown}`: spawn, monitor, restart, and
   stop resolved child processes.
 - `harness::{serve, HarnessState}`: local health/status, Manwe model proxy, and
@@ -33,8 +35,7 @@ validates and resolves the real service registry before `--once` exits.
 
 ## Verification
 
-The 2026-07-28 first-class closeout passed formatting, no-default and
-all-feature check/test, strict all-target Clippy, strict rustdoc, and root
-`arda` consumer compilation. The suite contains 10 unit tests and 1 integration
-test. See [STATUS.md](STATUS.md) for exact commands and [BREAKDOWN.md](BREAKDOWN.md)
-for the complete source graph.
+The 2026-08-08 capability-registry gate passed formatting, the full 112-test
+suite, strict rustdoc, and root `arda` consumer compilation. See
+[STATUS.md](STATUS.md) for exact commands, including two unrelated pre-existing
+strict-Clippy findings, and [BREAKDOWN.md](BREAKDOWN.md) for the source graph.

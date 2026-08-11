@@ -11,4 +11,10 @@ describe('ApprovalPanel', () => {
     const button = screen.getByRole('button', { name: 'Approve' }); button.focus(); fireEvent.click(button)
     expect(document.activeElement).toBe(button); expect(onApprove).toHaveBeenCalledWith('approval-1')
   })
+
+  it('exposes explicit rejection for revision', () => {
+    const onReject = vi.fn(); render(<ApprovalPanel approvals={[approval]} onApprove={vi.fn()} onReject={onReject} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Reject' }))
+    expect(onReject).toHaveBeenCalledWith('approval-1')
+  })
 })

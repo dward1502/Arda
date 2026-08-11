@@ -1,0 +1,196 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arda.local/spec/operator-session/v1/operator-session.schema.json",
+  "title": "arda.operator-session.v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "operator",
+    "lineage",
+    "projection",
+    "incoming",
+    "content",
+    "operation",
+    "approval",
+    "delivery",
+    "result"
+  ],
+  "properties": {
+    "schema_version": {"const": "arda.operator-session.v1"},
+    "operator": {"$ref": "#/$defs/operator"},
+    "lineage": {"$ref": "#/$defs/lineage"},
+    "projection": {"$ref": "#/$defs/projection"},
+    "incoming": {"$ref": "#/$defs/incoming"},
+    "content": {"$ref": "#/$defs/content"},
+    "operation": {
+      "enum": ["capture", "query", "approve", "reject", "revise", "cancel", "resume"]
+    },
+    "approval": {
+      "oneOf": [
+        {"$ref": "#/$defs/approval"},
+        {"type": "null"}
+      ]
+    },
+    "delivery": {"$ref": "#/$defs/delivery"},
+    "result": {"$ref": "#/$defs/result"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"operation": {"enum": ["approve", "reject", "revise"]}}},
+      "then": {"properties": {"approval": {"$ref": "#/$defs/approval"}}},
+      "else": {"properties": {"approval": {"type": "null"}}}
+    }
+  ],
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": ".*\\S.*"
+    },
+    "nullableIdentifier": {
+      "oneOf": [
+        {"$ref": "#/$defs/identifier"},
+        {"type": "null"}
+      ]
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "uriReference": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2048,
+      "not": {"pattern": "^([dD][aA][tT][aA]:|[jJ][aA][vV][aA][sS][cC][rR][iI][pP][tT]:)"}
+    },
+    "operator": {
+      "type": "object",
+      "required": ["operator_id", "authenticated", "authentication_method", "authenticated_at"],
+      "properties": {
+        "operator_id": {"$ref": "#/$defs/identifier"},
+        "authenticated": {"const": true},
+        "authentication_method": {
+          "enum": ["gateway_identity", "device_enrollment", "local_session", "service_capability"]
+        },
+        "authenticated_at": {"type": "string", "format": "date-time"}
+      },
+      "additionalProperties": false
+    },
+    "lineage": {
+      "type": "object",
+      "required": ["session_id", "objective_id", "project_id", "task_id", "run_id"],
+      "properties": {
+        "session_id": {"$ref": "#/$defs/identifier"},
+        "objective_id": {"$ref": "#/$defs/nullableIdentifier"},
+        "project_id": {"$ref": "#/$defs/nullableIdentifier"},
+        "task_id": {"$ref": "#/$defs/nullableIdentifier"},
+        "run_id": {"$ref": "#/$defs/nullableIdentifier"}
+      },
+      "additionalProperties": false
+    },
+    "projection": {
+      "type": "object",
+      "required": ["transport", "adapter_id", "conversation_id", "thread_id", "audience", "platform_message_id"],
+      "properties": {
+        "transport": {"enum": ["telegram", "discord", "matrix", "web", "local", "other"]},
+        "adapter_id": {"$ref": "#/$defs/identifier"},
+        "conversation_id": {"$ref": "#/$defs/identifier"},
+        "thread_id": {"$ref": "#/$defs/nullableIdentifier"},
+        "audience": {"enum": ["operator_private", "direct", "group", "public"]},
+        "platform_message_id": {"$ref": "#/$defs/identifier"}
+      },
+      "additionalProperties": false
+    },
+    "incoming": {
+      "type": "object",
+      "required": ["event_id", "idempotency_key", "received_at"],
+      "properties": {
+        "event_id": {"$ref": "#/$defs/identifier"},
+        "idempotency_key": {"$ref": "#/$defs/identifier"},
+        "received_at": {"type": "string", "format": "date-time"}
+      },
+      "additionalProperties": false
+    },
+    "content": {
+      "type": "object",
+      "required": ["sensitivity", "text", "attachments"],
+      "properties": {
+        "sensitivity": {"enum": ["public", "internal", "private", "health", "financial"]},
+        "text": {"type": ["string", "null"], "maxLength": 16384},
+        "attachments": {
+          "type": "array",
+          "maxItems": 16,
+          "items": {"$ref": "#/$defs/attachment"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "attachment": {
+      "type": "object",
+      "required": ["attachment_id", "media_type", "byte_length", "content_digest", "source_ref", "provenance"],
+      "properties": {
+        "attachment_id": {"$ref": "#/$defs/identifier"},
+        "media_type": {"$ref": "#/$defs/identifier"},
+        "byte_length": {"type": "integer", "minimum": 0, "maximum": 52428800},
+        "content_digest": {"$ref": "#/$defs/digest"},
+        "source_ref": {"$ref": "#/$defs/uriReference"},
+        "provenance": {
+          "type": "object",
+          "required": ["transport_event_id", "operator_supplied", "captured_at"],
+          "properties": {
+            "transport_event_id": {"$ref": "#/$defs/identifier"},
+            "operator_supplied": {"type": "boolean"},
+            "captured_at": {"type": "string", "format": "date-time"}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "approval": {
+      "type": "object",
+      "required": ["scope", "action_digest", "expires_at", "single_use_state", "consumed_by_event_id"],
+      "properties": {
+        "scope": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/identifier"}
+        },
+        "action_digest": {"$ref": "#/$defs/digest"},
+        "expires_at": {"type": "string", "format": "date-time"},
+        "single_use_state": {"enum": ["available", "consumed", "revoked"]},
+        "consumed_by_event_id": {"$ref": "#/$defs/nullableIdentifier"}
+      },
+      "additionalProperties": false
+    },
+    "delivery": {
+      "type": "object",
+      "required": ["state", "attempt", "next_retry_at", "acknowledgement_id", "last_error_code"],
+      "properties": {
+        "state": {"enum": ["pending", "acknowledged", "retry_scheduled", "exhausted"]},
+        "attempt": {"type": "integer", "minimum": 0},
+        "next_retry_at": {"type": ["string", "null"], "format": "date-time"},
+        "acknowledgement_id": {"$ref": "#/$defs/nullableIdentifier"},
+        "last_error_code": {"$ref": "#/$defs/nullableIdentifier"}
+      },
+      "additionalProperties": false
+    },
+    "result": {
+      "type": "object",
+      "required": ["summary", "evidence_refs"],
+      "properties": {
+        "summary": {"type": "string", "maxLength": 1024},
+        "evidence_refs": {
+          "type": "array",
+          "uniqueItems": true,
+          "maxItems": 64,
+          "items": {"$ref": "#/$defs/uriReference"}
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

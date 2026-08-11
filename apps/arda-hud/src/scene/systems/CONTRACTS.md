@@ -77,6 +77,21 @@ Presence is not:
   - a persistent audio spam layer
   - a replacement for explicit state surfaces
 
+### Progressive particle representation
+
+The permanent `boardroom.avatar.emitter` mounts `AvatarPresenceLayer` and its
+phase-driven `ParticleOrb`. Materialization, dismissal, support markers, and
+visual intensity derive from `AgentPresenceState` through pure helpers. The
+particle simulation uses preallocated buffers, immutable base positions, and a
+hard pause after idle dismissal reaches zero.
+
+The layer may consume a validated, read-only canonical Vairë persona
+projection. Mood may tune bounded density, turbulence, dissolve bias, and color
+temperature; only current high-confidence traits may add a subtle accent.
+Missing or invalid identity data fails neutral, and alert state retains color
+and pulse precedence. No second identity store, writer, scheduler, avatar
+pipeline, or IPC channel is permitted.
+
 ### Emissive behavior
 
 Presence emissive intensity must map to state:

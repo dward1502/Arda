@@ -1,0 +1,44 @@
+{
+  "schema_version": "arda.monitor-session-contract.v1",
+  "$schema": "./monitor-session-contract.schema.json",
+  "canonical_slots": [
+    "monitor_1",
+    "monitor_2",
+    "monitor_3",
+    "monitor_4",
+    "monitor_5"
+  ],
+  "session": {
+    "slot_id": "monitor_1",
+    "session_id": "session-web",
+    "owner": "agent-web",
+    "kind": "monitor",
+    "revision": 1,
+    "opened_at_utc": "2026-08-06T20:00:00.000Z",
+    "lease_expires_at_utc": "2026-08-06T22:00:00.000Z",
+    "content": {
+      "kind": "web",
+      "binding": "https://example.invalid/dashboard",
+      "focus_mode": "remote_preview"
+    },
+    "workstation_handoff": {
+      "session_id": "session-web",
+      "mode": "same_live_session"
+    }
+  },
+  "claim_request": {
+    "slot_id": "monitor_1",
+    "kind": "monitor",
+    "owner": "agent-web",
+    "ttl_ms": 7200000,
+    "content": {
+      "kind": "web",
+      "binding": "https://example.invalid/dashboard",
+      "focus_mode": "remote_preview"
+    },
+    "workstation_handoff": {
+      "session_id": "session-web",
+      "mode": "same_live_session"
+    }
+  }
+}

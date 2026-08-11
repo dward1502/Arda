@@ -7,6 +7,7 @@
 #[cfg(feature = "service-runtime")]
 pub mod agent;
 pub mod comm;
+pub mod commercial;
 #[cfg(feature = "service-runtime")]
 pub mod context_cache;
 #[cfg(feature = "service-runtime")]
@@ -26,6 +27,8 @@ pub mod message;
 pub mod message_retry_expiry;
 #[cfg(feature = "service-runtime")]
 pub mod mnemosyne_integration;
+pub mod operator_bridge;
+pub mod personal_reminder;
 #[cfg(feature = "service-runtime")]
 pub mod protocol;
 pub mod provider;
@@ -50,6 +53,7 @@ pub use types::{
     CouncilDiscussionPromotion, IntentResult, InterruptionDisposition, InterruptionEnvelope,
     InterruptionLedgerDecision, InterruptionMessage, LocalCouncilSummaryFallbackMetadata,
     LocalCouncilSummaryRoute, ManweRouteHint, OperatingRoomEvent, OperatingRoomEventKind,
+    PersonalReminderDeliveryState, PersonalReminderReceipt, PersonalReminderRequest,
     PromotionState, SubagentCompletionPacket, SubagentCompletionProjection, TaskApprovalEnvelope,
     TaskApprovalPacket, TaskApprovalProjection, TaskApprovalProposal,
 };

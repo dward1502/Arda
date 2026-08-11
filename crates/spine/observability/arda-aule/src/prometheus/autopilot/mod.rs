@@ -13,6 +13,7 @@ pub mod evidence_registry;
 pub mod governance_policy;
 pub mod knowledge_triage;
 pub mod learning;
+pub mod learning_consumer;
 pub mod oracle_gate;
 pub mod outcomes;
 pub mod pipeline_bridge;
@@ -54,6 +55,11 @@ pub use knowledge_triage::{
     KNOWLEDGE_TASK_PROMOTION_RECEIPT_SCHEMA,
 };
 pub use learning::{LearningState, LearningStore, OutcomeStats};
+pub use learning_consumer::{
+    consume_approved_delta, emit_research_suggestion, run_learning_cycle, LearningConsumerError,
+    LearningConsumptionReceipt, LearningCycleInput, LearningCycleMetrics, LearningCycleReceipt,
+    LearningCycleReport, LearningDisposition, LearningLoopPolicy, LearningLoopSwitches,
+};
 pub use oracle_gate::{GateDecision, OracleGate};
 pub use outcomes::{ObservedCursor, OutcomeObserver};
 pub use pipeline_bridge::submit_plan as submit_plan_to_pipeline;
@@ -63,7 +69,10 @@ pub use queue_writer::{
     append_plan_to_queue_with_conditions, task_id_for,
 };
 pub use reporting::write_daily_report;
-pub use runner::{ceo_loop, AutopilotConfig, CeoAutopilot, CycleReport, PlanCycle};
+pub use runner::{
+    ceo_loop, inspect_autonomy_preflight, write_autonomy_preflight, AutonomyPreflightReport,
+    AutonomyPreflightSummary, AutopilotConfig, CeoAutopilot, CycleReport, PlanCycle,
+};
 pub use service_health::{
     ServiceHealth, ServiceHealthMonitor, ServiceHealthReport, SystemdQuery, UserSystemd,
 };

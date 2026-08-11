@@ -29,12 +29,6 @@ struct ConsolidateRequest {
     hours: Option<i64>,
 }
 
-#[derive(Debug, Deserialize)]
-struct ObsidianSyncRequest {
-    vault_path: String,
-    max_files: Option<usize>,
-}
-
 fn build_router(service: MnemosyneService) -> Router {
     Router::new()
         .route("/status", get(status))
@@ -44,7 +38,6 @@ fn build_router(service: MnemosyneService) -> Router {
         .route("/encode", post(encode))
         .route("/recall_recent", get(recall_recent))
         .route("/consolidate", post(consolidate))
-        .route("/obsidian_sync", post(obsidian_sync))
         .route("/events", get(events))
         .layer(middleware::from_fn(http_admission_gate))
         .with_state(service)
@@ -146,21 +139,6 @@ async fn consolidate(
     map_result(|| Ok(json!({"ok": true, "report": service.consolidate(req.hours.unwrap_or(24))?})))
 }
 
-async fn obsidian_sync(
-    State(service): State<MnemosyneService>,
-    Json(req): Json<ObsidianSyncRequest>,
-) -> impl IntoResponse {
-    map_result(|| {
-        Ok(json!({
-            "ok": true,
-            "report": service.sync_obsidian(
-                &req.vault_path,
-                req.max_files.unwrap_or(200),
-            )?
-        }))
-    })
-}
-
 async fn events(
     State(service): State<MnemosyneService>,
 ) -> Sse<impl Stream<Item = std::result::Result<Event, Infallible>>> {
@@ -189,7 +167,7 @@ fn build_event_payload(service: &MnemosyneService) -> Result<Value> {
     let identity = service.identity_state()?;
     let recent_memories = service.recall_recent(48, None)?;
     let noise = service.recent_noise_events(8);
-    let obsidian = service.recent_obsidian_entries(8);
+
     let high_significance = recent_memories
         .iter()
         .filter(|entry| entry.significance >= 0.8)
@@ -205,12 +183,10 @@ fn build_event_payload(service: &MnemosyneService) -> Result<Value> {
         "memory_flow": {
             "recent_memories": recent_memories,
             "noise_events": noise,
-            "obsidian_bridge": obsidian,
             "counts": {
                 "recent_memory_count": identity.recent_events.len(),
                 "high_significance_memories": high_significance,
-                "noise_events": noise.len(),
-                "obsidian_entries": obsidian.len()
+                "noise_events": noise.len()
             }
         },
         "arda_hints": {
@@ -285,25 +261,6 @@ mod tests {
         let memories = value["memories"].as_array().expect("memories");
         assert_eq!(memories.len(), 1);
         assert_eq!(memories[0]["source_crate"].as_str(), Some("prometheus"));
-    }
-
-    #[tokio::test]
-    async fn obsidian_sync_requires_an_explicit_vault_path() {
-        let dir = tempdir().expect("tempdir");
-        let app = build_router(MnemosyneService::new(dir.path()).expect("service"));
-        let response = app
-            .oneshot(
-                Request::builder()
-                    .method("POST")
-                    .uri("/obsidian_sync")
-                    .header("content-type", "application/json")
-                    .body(Body::from("{}"))
-                    .expect("sync request"),
-            )
-            .await
-            .expect("sync response");
-
-        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
     }
 
     #[test]

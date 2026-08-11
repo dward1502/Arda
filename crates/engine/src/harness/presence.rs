@@ -7,12 +7,17 @@
 //! `presence.read` capability.
 
 use std::{
+    fs,
+    net::IpAddr,
+    path::Path,
     sync::{atomic::AtomicUsize, Arc},
     time::Duration,
 };
 
-use arda_aule::presence_projection::{build_presence_projection, ProjectionInputs};
-use arda_outpost_protocol::presence::RuntimePresenceProjection;
+use arda_aule::presence_projection::ProjectionInputs;
+use arda_outpost_protocol::{
+    presence::RuntimePresenceProjection, OutpostAccessContract, OutpostEnrollment,
+};
 use axum::http::{HeaderMap, StatusCode};
 use axum::response::Sse;
 use axum::{
@@ -21,20 +26,72 @@ use axum::{
     routing::get,
     Router,
 };
+use chrono::Utc;
 use reqwest::header::AUTHORIZATION;
 use serde::Serialize;
-use tokio::time::interval;
+use sha2::{Digest, Sha256};
+use tokio::{sync::RwLock, time::interval};
 use tracing::warn;
 
 use crate::harness::HarnessState;
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Clone)]
 pub struct HarnessPresenceState {
     sequence: Arc<AtomicUsize>,
+    inputs: Arc<RwLock<ProjectionInputs>>,
+    access: Arc<Vec<ResolvedOutpostEnrollment>>,
 }
 
 impl HarnessPresenceState {
-    pub async fn update_inputs(&self, _inputs: ProjectionInputs) {}
+    pub async fn update_inputs(&self, inputs: ProjectionInputs) {
+        *self.inputs.write().await = inputs;
+    }
+
+    pub async fn read_inputs(&self) -> ProjectionInputs {
+        self.inputs.read().await.clone()
+    }
+
+    pub fn load_access_contract(path: &Path) -> Result<Self, String> {
+        let raw = fs::read_to_string(path)
+            .map_err(|error| format!("read {}: {error}", path.display()))?;
+        let contract: OutpostAccessContract =
+            toml::from_str(&raw).map_err(|error| format!("parse {}: {error}", path.display()))?;
+        Self::from_access_contract(contract, |name| std::env::var(name).ok())
+    }
+
+    pub fn from_access_contract(
+        contract: OutpostAccessContract,
+        resolve_secret: impl Fn(&str) -> Option<String>,
+    ) -> Result<Self, String> {
+        contract.validate()?;
+        let access = contract
+            .enrollments
+            .into_iter()
+            .filter_map(|enrollment| {
+                let secret = resolve_secret(&enrollment.bearer_env)?;
+                if secret.is_empty() {
+                    return None;
+                }
+                Some(ResolvedOutpostEnrollment::new(enrollment, &secret))
+            })
+            .collect();
+
+        Ok(Self {
+            sequence: Arc::new(AtomicUsize::new(0)),
+            inputs: Arc::new(RwLock::new(ProjectionInputs::empty())),
+            access: Arc::new(access),
+        })
+    }
+}
+
+impl Default for HarnessPresenceState {
+    fn default() -> Self {
+        Self {
+            sequence: Arc::new(AtomicUsize::new(0)),
+            inputs: Arc::new(RwLock::new(ProjectionInputs::empty())),
+            access: Arc::new(Vec::new()),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -65,11 +122,14 @@ pub async fn presence_snapshot(
     ConnectInfo(addr): ConnectInfo<std::net::SocketAddr>,
     headers: HeaderMap,
 ) -> impl IntoResponse {
-    if !is_authorized(&addr, &headers, "presence.read") {
+    if !is_authorized(&harness.presence_inputs, &addr, &headers, "presence.read") {
         return not_authorized().into_response();
     }
 
-    let projector = build_presence_projection(current_inputs());
+    let projector = arda_aule::presence_projection::build_presence_projection_at(
+        harness.presence_inputs.read_inputs().await,
+        Utc::now(),
+    );
     let snapshot_sequence = next_sequence(&harness.presence_inputs).await;
 
     let response = PresenceSnapshotResponse {
@@ -87,7 +147,7 @@ pub async fn presence_events(
     ConnectInfo(addr): ConnectInfo<std::net::SocketAddr>,
     headers: HeaderMap,
 ) -> impl IntoResponse {
-    if !is_authorized(&addr, &headers, "presence.read") {
+    if !is_authorized(&harness.presence_inputs, &addr, &headers, "presence.read") {
         return not_authorized().into_response();
     }
 
@@ -97,7 +157,10 @@ pub async fn presence_events(
     let stream = async_stream::stream! {
         loop {
             let _ = ticker.tick().await;
-            let projector = build_presence_projection(current_inputs());
+            let projector = arda_aule::presence_projection::build_presence_projection_at(
+                harness.presence_inputs.read_inputs().await,
+                Utc::now(),
+            );
             sequence += 1;
 
             let event = match axum::response::sse::Event::default()
@@ -131,20 +194,27 @@ struct PresenceEventEnvelope {
     snapshot: RuntimePresenceProjection,
 }
 
-#[derive(Debug, Clone)]
-struct OutpostEnrollment {
-    outpost_id: &'static str,
-    granted_capabilities: &'static [(&'static str, &'static str)],
-    allowed_ips: &'static [&'static str],
+#[derive(Debug)]
+struct ResolvedOutpostEnrollment {
+    contract: OutpostEnrollment,
+    bearer_sha256: [u8; 32],
 }
 
-static ENROLLED_CITADEL: OutpostEnrollment = OutpostEnrollment {
-    outpost_id: "citadel-outpost-1",
-    granted_capabilities: &[("presence", "read")],
-    allowed_ips: &["127.0.0.1"],
-};
+impl ResolvedOutpostEnrollment {
+    fn new(contract: OutpostEnrollment, bearer: &str) -> Self {
+        Self {
+            contract,
+            bearer_sha256: Sha256::digest(bearer.as_bytes()).into(),
+        }
+    }
+}
 
-fn is_authorized(addr: &std::net::SocketAddr, headers: &HeaderMap, required: &str) -> bool {
+fn is_authorized(
+    state: &HarnessPresenceState,
+    addr: &std::net::SocketAddr,
+    headers: &HeaderMap,
+    required: &str,
+) -> bool {
     // A loopback reverse proxy can carry a remote caller. Once it supplies
     // forwarding metadata, require the enrolled outpost capability rather
     // than treating the proxy socket itself as local authority.
@@ -152,61 +222,62 @@ fn is_authorized(addr: &std::net::SocketAddr, headers: &HeaderMap, required: &st
         return true;
     }
 
-    let capability = match parse_bearer_capability(headers) {
+    let bearer = match parse_bearer(headers) {
         Some(token) => token,
         None => return false,
     };
 
-    let parsed = parse_capability(&capability);
-    verify_enrolled_outpost(parsed, required)
+    let Some((request_ip, forwarded)) = request_ip(addr, headers) else {
+        return false;
+    };
+    verify_enrolled_outpost(state, request_ip, forwarded, &bearer, required)
 }
 
-fn parse_bearer_capability(headers: &HeaderMap) -> Option<String> {
+fn parse_bearer(headers: &HeaderMap) -> Option<String> {
     let authorization = headers.get(AUTHORIZATION)?.to_str().ok()?;
-    let mut parts = authorization.splitn(2, ' ');
-    let scheme = parts.next()?;
-    let token = parts.next()?;
+    let (scheme, token) = authorization.split_once(' ')?;
 
-    if !scheme.eq_ignore_ascii_case("bearer") {
+    if !scheme.eq_ignore_ascii_case("bearer") || token.is_empty() {
         return None;
     }
 
     Some(token.to_string())
 }
 
-fn parse_capability(value: &str) -> Option<(&str, &str)> {
-    let mut parts = value.splitn(2, ':');
-    let namespace = parts.next()?;
-    let action = parts.next()?;
-
-    if namespace.is_empty() || action.is_empty() {
+fn request_ip(addr: &std::net::SocketAddr, headers: &HeaderMap) -> Option<(IpAddr, bool)> {
+    let Some(forwarded) = headers.get("x-forwarded-for") else {
+        return Some((addr.ip(), false));
+    };
+    if !addr.ip().is_loopback() {
         return None;
     }
-
-    Some((namespace, action))
+    let first = forwarded.to_str().ok()?.split(',').next()?.trim();
+    Some((first.parse().ok()?, true))
 }
 
-fn verify_enrolled_outpost(capability: Option<(&str, &str)>, required: &str) -> bool {
-    let enrollment = &ENROLLED_CITADEL;
-
-    let required_parts = match required.split_once('.') {
-        Some(parts) => parts,
-        None => return false,
-    };
-
-    if !enrollment
-        .granted_capabilities
-        .iter()
-        .any(|(ns, action)| *ns == required_parts.0 && *action == required_parts.1)
-    {
-        return false;
-    }
-
-    let Some((outpost_id, granted_capability)) = capability else {
-        return false;
-    };
-
-    outpost_id == enrollment.outpost_id && granted_capability == required
+fn verify_enrolled_outpost(
+    state: &HarnessPresenceState,
+    request_ip: IpAddr,
+    forwarded: bool,
+    bearer: &str,
+    required: &str,
+) -> bool {
+    let digest: [u8; 32] = Sha256::digest(bearer.as_bytes()).into();
+    state.access.iter().any(|enrollment| {
+        !enrollment.contract.revoked
+            && enrollment
+                .contract
+                .capabilities
+                .iter()
+                .any(|value| value == required)
+            && (!forwarded || enrollment.contract.network_posture.allow_forwarded)
+            && enrollment
+                .contract
+                .network_posture
+                .allowed_ips
+                .contains(&request_ip)
+            && enrollment.bearer_sha256 == digest
+    })
 }
 
 fn not_authorized() -> (StatusCode, axum::Json<serde_json::Value>) {
@@ -216,15 +287,6 @@ fn not_authorized() -> (StatusCode, axum::Json<serde_json::Value>) {
             serde_json::json!({"error": "enrolled outpost identity and presence.read capability required"}),
         ),
     )
-}
-
-fn current_inputs() -> ProjectionInputs {
-    ProjectionInputs {
-        services: vec![],
-        agents: vec![],
-        edges: vec![],
-        source_receipt_refs: vec![],
-    }
 }
 
 async fn next_sequence(state: &HarnessPresenceState) -> usize {

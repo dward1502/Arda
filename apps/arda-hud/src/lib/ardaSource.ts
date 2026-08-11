@@ -5,6 +5,8 @@ import { derivePresenceLedgerProjection } from '../scene/systems/presenceState'
 import { classifyFreshness, getOperatorLabel, getSafeRefreshCommand, normalizeTimestamp, type ArdaSourceProvenance } from './ardaProvenance'
 import { deriveAutomationStatusSurface } from './automationStatus'
 import { parseJsonOrNull } from './jsonParse'
+import { resolveWorkstationProfile } from './firstLevelTerminalContracts'
+import { parseOperatorProjection } from './operatorProjection'
 import {
   collectInventoryPaths,
   filenameFromPath,
@@ -493,10 +495,11 @@ async function deriveHumanContext(rootPath: string): Promise<JsonRecord> {
 }
 
 async function deriveBusinessRuntime(rootPath: string): Promise<JsonRecord> {
-  const [companyView, businessState, clientTree] = await Promise.all([
+  const [companyView, businessState, clientTree, companyOps] = await Promise.all([
     summarizeReadable(rootPath, 'docs/operator/company-view.md'),
     readJson(rootPath, 'data/business/soterion-business.json'),
     readInventoryTree(rootPath, 'data/business/clients', 5),
+    readJson(rootPath, 'data/business/company-ops.json'),
   ])
   const clientPaths = collectInventoryPaths(clientTree, '.json')
   const stateKeys = Object.keys(businessState ?? {})
@@ -505,6 +508,7 @@ async function deriveBusinessRuntime(rootPath: string): Promise<JsonRecord> {
     mode: 'derived_from_workspace',
     company_view: companyView,
     state: businessState ?? {},
+    company_ops: companyOps ?? {},
     counts: {
       client_records_total: clientPaths.length,
       state_keys_total: stateKeys.length,
@@ -740,14 +744,19 @@ function deriveSceneSurfaces(sections: ArdaSection[]): ArdaSceneSurface[] {
 }
 
 function deriveWorkstationManifests(sections: ArdaSection[]): ArdaWorkstationManifest[] {
-  return sections.map((section) => ({
-    id: `${section.id}_workstation`,
-    title: `${section.title} Workstation`,
-    source_zone_id: section.id,
-    entry_anchor_id: `${section.id}_workstation_entry`,
-    module_ids: [...section.arda_panels],
-    presentation_modes: ['in_scene', 'native_window'],
-  }))
+  return sections.map((section) => {
+    const profile = resolveWorkstationProfile(section.id, section.arda_panels)
+    return {
+      id: `${section.id}_workstation`,
+      title: `${section.title} Workstation`,
+      source_zone_id: section.id,
+      entry_anchor_id: `${section.id}_workstation_entry`,
+      module_ids: profile.moduleIds,
+      rejected_panel_ids: profile.rejectedPanelIds,
+      module_adapter: profile.adapted ? 'profile' : 'direct',
+      presentation_modes: ['in_scene', 'native_window'],
+    }
+  })
 }
 
 function sourceKindForPath(sourcePath: string): ArdaSourceProvenance['sourceKind'] {
@@ -958,6 +967,7 @@ export function createCoreStateSource(): ArdaDataSource {
       const { rootPath, settings } = await bundleMetric.mark('loadArdaHudSettings', () => loadArdaHudSettings())
       const [
         snapshot,
+        operatorProjectionRaw,
         remoteConfidenceSnapshot,
         world,
         humanContext,
@@ -1034,6 +1044,7 @@ export function createCoreStateSource(): ArdaDataSource {
         presenceEventLedgerText,
       ] = await Promise.all([
         readJson(rootPath, settings.arda_snapshot_path),
+        readJson(rootPath, 'core/state/operator_projection.json'),
         readJson(rootPath, settings.remote_confidence_snapshot_path),
         readJson(rootPath, settings.world_path),
         readJson(rootPath, settings.human_context_path),
@@ -1111,7 +1122,11 @@ export function createCoreStateSource(): ArdaDataSource {
       ])
       const safeLocalWorkCyclePreflight = await readJson(rootPath, 'data/prometheus/safe_local_work_cycle_preflight.json')
       const finalHumanContext = humanContext ?? derivedHumanContext
-      const finalBusinessRuntime = businessRuntime ?? derivedBusinessRuntime
+      const finalBusinessRuntime = {
+        ...(derivedBusinessRuntime ?? {}),
+        ...(businessRuntime ?? {}),
+        company_ops: derivedBusinessRuntime?.company_ops ?? {},
+      }
       const finalPersonalRuntime = personalRuntime ?? derivedPersonalRuntime
       const finalQueueSummary = queueSummary ?? deriveQueueSummaryFromActiveProjection(queueActiveProjection) ?? deriveQueueSummaryFromEntries(queueEntries)
       const finalRuntimeSettings = runtimeSettings ?? deriveRuntimeSettings(activeRuleset)
@@ -1136,6 +1151,9 @@ export function createCoreStateSource(): ArdaDataSource {
       const workstationManifests = deriveWorkstationManifests(sections)
       const finalSourceMap = sourceMap ?? deriveSourceMap(rootPath, sections)
       const finalSnapshot = snapshot ?? deriveSnapshot(world, sections)
+      const operatorProjection = operatorProjectionRaw
+        ? parseOperatorProjection(operatorProjectionRaw)
+        : null
       const finalRemoteConfidenceSnapshot = normalizeRemoteConfidenceSnapshot(remoteConfidenceSnapshot)
       const finalSafeLocalWorkCyclePreflight = normalizeSafeLocalWorkCyclePreflight(safeLocalWorkCyclePreflight)
       const sourceProvenance = await deriveProvenanceRecords(rootPath, sections)
@@ -1165,6 +1183,7 @@ export function createCoreStateSource(): ArdaDataSource {
         generatedAt,
         settings: asRecord(settings),
         snapshot: finalSnapshot,
+        operatorProjection,
         remoteConfidenceSnapshot: finalRemoteConfidenceSnapshot,
         safeLocalWorkCyclePreflight: finalSafeLocalWorkCyclePreflight,
         l3ReadinessProjection,

@@ -173,15 +173,17 @@ class WindowManager {
 
   private openNativeWorkstation(config: WindowConfig): void {
     safeTauriInvoke<string>('open_workstation_window', {
-      window_label: config.id,
-      title: config.title,
-      subtitle: config.subtitle ?? null,
-      workstation_id: config.workstationId ?? config.id,
-      source_zone_id: config.sourceZoneId ?? null,
-      origin_anchor_id: config.originAnchorId ?? null,
-      presentation_mode: config.presentationMode ?? 'native_window',
-      width: config.width ?? 600,
-      height: config.height ?? 400,
+      request: {
+        window_label: config.id,
+        title: config.title,
+        subtitle: config.subtitle ?? null,
+        workstation_id: config.workstationId ?? config.id,
+        source_zone_id: config.sourceZoneId ?? null,
+        origin_anchor_id: config.originAnchorId ?? null,
+        presentation_mode: config.presentationMode ?? 'native_window',
+        width: config.width ?? 600,
+        height: config.height ?? 400,
+      },
     })
       .then(() => {
         this.emit('window-opened', {

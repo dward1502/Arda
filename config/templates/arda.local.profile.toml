@@ -16,7 +16,7 @@ project_task_queue = "core/projects/tasks/queue.jsonl"
 warden_queue = "data/warden/informant_queue.jsonl"
 
 [endpoints]
-manwe_base_url = "http://127.0.0.1:5110"
+manwe_base_url = "http://127.0.0.1:7171"
 hermes_base_url = "http://127.0.0.1:5102"
 arda_hud_url = "http://127.0.0.1:1420"
 local_model_base_url = "http://127.0.0.1:9337/v1"

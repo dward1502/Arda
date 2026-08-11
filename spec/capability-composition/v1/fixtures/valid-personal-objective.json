@@ -1,0 +1,64 @@
+{
+  "schema_version": "arda.capability-composition.v1",
+  "lineage": {
+    "objective_id": "objective-personal-reminder",
+    "project_id": "550e8400-e29b-41d4-a716-446655440101",
+    "run_id": "run-personal-reminder-1",
+    "project_contract_digest": "sha256:personal-project"
+  },
+  "outcome": {
+    "description": "Remind the operator to take evening medication on the phone",
+    "acceptance_conditions": ["one phone notification is delivered", "no unrelated capability is selected"]
+  },
+  "scope": "personal",
+  "sensitivity": {
+    "data_classes": ["private", "health"],
+    "permitted_egress": ["local_device"]
+  },
+  "capabilities": {
+    "required": ["personal_operations", "phone_notification"],
+    "optional": [],
+    "forbidden": ["payment", "workbench", "council"]
+  },
+  "roles": {
+    "planner": {
+      "kind": "planner",
+      "authority": "plan",
+      "required_capabilities": ["personal_operations"]
+    },
+    "worker": {
+      "kind": "worker",
+      "authority": "propose",
+      "required_capabilities": ["phone_notification"]
+    }
+  },
+  "route_preferences": {
+    "mode": "local_only",
+    "allowed_providers": []
+  },
+  "council_mode": "disabled",
+  "proactive_communication": "allowed",
+  "joulework_budget": {
+    "max_joules": 250.0,
+    "max_cost_usd": 0.0,
+    "max_operator_seconds": 30
+  },
+  "authority": {
+    "signed_request_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "authority_ceiling": "propose",
+    "approval_scopes": ["phone_notification"]
+  },
+  "permissions": {
+    "tools": ["personal_ops.read", "phone.notify"],
+    "filesystem": {"read_roots": ["core/state/personal"], "write_roots": []},
+    "network": "local_only",
+    "devices": ["operator_phone"],
+    "payments": false
+  },
+  "lifecycle": {
+    "restart": "resume_from_checkpoint",
+    "cancellation": "immediate",
+    "compensation": "none",
+    "notification": "on_intervention"
+  }
+}

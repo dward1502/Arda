@@ -5,10 +5,17 @@
 `arda-engine` owns reusable daemon mechanics:
 
 - parsing and resolving declarative `services.toml` entries;
+- materializing configured capability declarations into canonical live registry
+  state and projecting that state without static status copies;
 - rejecting unresolved required services and filtering optional/UI services;
 - child process supervision, restart/backoff, PID publication, and shutdown;
 - the local harness router, listener lifecycle, Manwe proxy, and Warden scout proxy;
 - bounded engine-level observability projections;
+- canonical runtime governance enforcement: advisory Love, Triad, Bacon-lite,
+  readiness, realm-policy, and JouleWork results become one digest-bound engine
+  verdict before any governed run transition;
+- append-only governance receipt and resource-usage persistence, including
+  observed/default provenance, cap enforcement, and restart-safe projection;
 - the supported Manwe, Orome, and core-spine re-export surface.
 
 ## Root-daemon-owned authority
@@ -30,7 +37,10 @@ loader/resolver, then exit before spawning children or binding the harness.
 - Manwe owns inference gateway behavior and port `7171`.
 - Aule owns Prometheus exposition and telemetry aggregation.
 - Orome owns provider dispatch behavior.
-- Governance/core crates own policy and service-registry schemas.
+- Governance/core crates own evaluator and capability/service-registry schemas,
+  duplicate authority law, runtime-state invariants, and provenance validation.
+  Their Love, Triad, Bacon-lite, readiness, and realm-policy outputs are advisory;
+  they do not mutate engine run state.
 - `arda-engine` does not own a hidden global `boot()` lifecycle and must not
   perform ambient mutation merely because it was linked.
 

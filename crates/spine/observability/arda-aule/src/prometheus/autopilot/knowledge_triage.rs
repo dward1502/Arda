@@ -338,16 +338,11 @@ pub struct KnowledgeTriageConfig {
 impl KnowledgeTriageConfig {
     pub fn for_root(root: impl AsRef<Path>) -> Self {
         let root = root.as_ref().to_path_buf();
-        let home = root
-            .parent()
-            .map(Path::to_path_buf)
-            .unwrap_or_else(|| root.clone());
         Self {
             source_roots: vec![
                 root.join("human"),
                 root.join("docs"),
                 root.join("docs/plans"),
-                home.join("Eregion"),
             ],
             inventory_path: root.join("core/knowledge/source_inventory.jsonl"),
             registry_path: root.join("core/knowledge/triage_registry.jsonl"),
@@ -1177,9 +1172,12 @@ fn promotion_reason_for_lane(
         AutonomyLane::HumanApprovalRequired => format!(
             "human review required because risk_class={risk_class:?} or confidence/source ambiguity crosses safe-local bounds"
         ),
-        AutonomyLane::Blocked => "source is archived, completed, stale, unsafe, or outside active scope".into(),
+        AutonomyLane::Blocked => {
+            "source is archived, completed, stale, unsafe, or outside active scope".into()
+        }
         AutonomyLane::CandidateOnly if actionable => {
-            "actionable evidence exists but source is not eligible for automatic task creation".into()
+            "actionable evidence exists but source is not eligible for automatic task creation"
+                .into()
         }
         AutonomyLane::CandidateOnly => "planning context only; no executable task promotion".into(),
         AutonomyLane::AutoExecuteSafeLocalTask => {
@@ -1836,6 +1834,19 @@ mod tests {
     }
 
     #[test]
+    fn for_root_uses_only_explicit_repository_source_roots() {
+        let dir = tempfile::tempdir().unwrap_or_else(|err| panic!("tempdir failed: {err}"));
+        let root = dir.path().join("Arda");
+        let cfg = KnowledgeTriageConfig::for_root(&root);
+
+        assert!(cfg.source_roots.iter().all(|path| path.starts_with(&root)));
+        assert!(!cfg
+            .source_roots
+            .iter()
+            .any(|path| path.ends_with("Eregion")));
+    }
+
+    #[test]
     fn write_mode_emits_review_queue_only_for_risky_candidates() {
         let dir = tempfile::tempdir().unwrap_or_else(|err| panic!("tempdir failed: {err}"));
         let root = dir.path();
@@ -1972,9 +1983,11 @@ Next step: add tests for existing crate.",
             .receipts
             .iter()
             .all(|receipt| !receipt.requires_human));
-        assert!(report.receipts.iter().any(|receipt| receipt
-            .receipt_reason
-            .contains("dry-run: would create safe-local internal task")));
+        assert!(report.receipts.iter().any(|receipt| {
+            receipt
+                .receipt_reason
+                .contains("dry-run: would create safe-local internal task")
+        }));
     }
 
     #[test]

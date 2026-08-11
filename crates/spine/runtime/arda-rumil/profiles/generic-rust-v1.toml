@@ -1,0 +1,28 @@
+schema_version = "arda.rumil.project-profile.v1"
+profile_id = "generic-rust-v1"
+project_kind = "rust"
+execution_role = "host"
+capabilities = ["inventory", "rust_build_check", "dependency_security", "dependency_policy", "rust_module_structure", "organization"]
+providers = ["rumil.cargo_check.v1", "rumil.cargo_audit.v1", "rumil.cargo_deny.v1", "rumil.cargo_modules.v1"]
+
+[inventory]
+root_relative = "."
+max_depth = 12
+max_files = 50000
+max_total_bytes = 134217728
+max_excerpt_bytes = 32768
+scan_timeout_seconds = 45
+command_timeout_seconds = 60
+exclusions = [".git", "target", ".env", "*.pem", "*.key"]
+redactions = ["credentials", "tokens", "private_keys", "raw_source_excerpts"]
+
+[retention]
+packet_class = "bounded_project_audit"
+max_age_days = 90
+
+[organization]
+review_required = true
+no_delete = true
+no_move = true
+no_rewrite = true
+mutation_authorized = false

@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arda.local/spec/council-run/v1/council-run.schema.json",
+  "title": "arda.council-run.v1",
+  "type": "object",
+  "required": ["schema_version", "council_id", "canonical_task_ref", "run_id", "question", "evidence_boundary", "participants", "agreements", "material_tensions", "synthesis", "escalation_recommendation", "authority", "non_approval", "state"],
+  "properties": {
+    "schema_version": {"const": "arda.council-run.v1"},
+    "council_id": {"$ref": "#/$defs/text"},
+    "canonical_task_ref": {"type": "string", "pattern": "^task:.+"},
+    "run_id": {"$ref": "#/$defs/text"},
+    "question": {"$ref": "#/$defs/text"},
+    "evidence_boundary": {"$ref": "#/$defs/nonEmptyTextSet"},
+    "participants": {
+      "type": "array",
+      "minItems": 4,
+      "items": {"$ref": "#/$defs/participant"}
+    },
+    "agreements": {"type": "array", "items": {"$ref": "#/$defs/text"}, "uniqueItems": true},
+    "material_tensions": {"type": "array", "items": {"$ref": "#/$defs/tension"}},
+    "synthesis": {"$ref": "#/$defs/text"},
+    "escalation_recommendation": {"$ref": "#/$defs/text"},
+    "authority": {"enum": ["advisory", "human_decision_required"]},
+    "non_approval": {"const": true},
+    "operator_disposition": {"$ref": "#/$defs/operatorDisposition"},
+    "state": {"enum": ["collecting_opinions", "pending_operator", "revision_required", "concluded"]}
+  },
+  "$defs": {
+    "text": {"type": "string", "minLength": 1, "pattern": ".*\\S.*"},
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-fA-F]{64}$"},
+    "nonEmptyTextSet": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/text"}},
+    "role": {"enum": ["proposer", "security_critic", "implementation_critic", "adjudicator"]},
+    "routeClass": {"enum": ["local", "hosted", "deterministic", "human"]},
+    "participant": {
+      "type": "object",
+      "required": ["role", "node_id", "worker_id", "route_id", "route_class", "provider_id", "model_id", "opinion_digest", "confidence", "uncertainty", "evidence_refs"],
+      "properties": {
+        "role": {"$ref": "#/$defs/role"},
+        "node_id": {"$ref": "#/$defs/text"},
+        "worker_id": {"$ref": "#/$defs/text"},
+        "route_id": {"$ref": "#/$defs/text"},
+        "route_class": {"$ref": "#/$defs/routeClass"},
+        "provider_id": {"$ref": "#/$defs/text"},
+        "model_id": {"$ref": "#/$defs/text"},
+        "opinion_digest": {"$ref": "#/$defs/digest"},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "uncertainty": {"$ref": "#/$defs/text"},
+        "evidence_refs": {"$ref": "#/$defs/nonEmptyTextSet"}
+      },
+      "additionalProperties": false
+    },
+    "tension": {
+      "type": "object",
+      "required": ["tension_id", "participant_roles", "summary", "evidence_refs", "resolved"],
+      "properties": {
+        "tension_id": {"$ref": "#/$defs/text"},
+        "participant_roles": {"type": "array", "minItems": 2, "uniqueItems": true, "items": {"$ref": "#/$defs/role"}},
+        "summary": {"$ref": "#/$defs/text"},
+        "evidence_refs": {"$ref": "#/$defs/nonEmptyTextSet"},
+        "resolved": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "operatorDisposition": {
+      "type": "object",
+      "required": ["operator_id", "decision", "reason", "receipt_ref"],
+      "properties": {
+        "operator_id": {"$ref": "#/$defs/text"},
+        "decision": {"$ref": "#/$defs/text"},
+        "reason": {"$ref": "#/$defs/text"},
+        "receipt_ref": {"type": "string", "pattern": "^receipt:.+"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

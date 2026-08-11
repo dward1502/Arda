@@ -157,6 +157,12 @@ fn service_plan_status(root: Option<String>) -> Option<crate::onboarding::types:
     Some(crate::onboarding::build_service_plan(&profile, &root_path))
 }
 
+#[tauri::command]
+fn first_run_status(root: Option<String>) -> Result<crate::onboarding::FirstRunProjection, String> {
+    let root_path = resolve_root(root);
+    crate::onboarding::build_first_run_projection(&root_path).map_err(|error| error.to_string())
+}
+
 #[derive(Debug, Serialize)]
 struct ReleaseIdentity {
     contract: &'static str,
@@ -173,6 +179,52 @@ fn release_identity() -> ReleaseIdentity {
     }
 }
 
+#[cfg(target_os = "linux")]
+fn needs_nvidia_wayland_explicit_sync_guard(
+    wayland_display_present: bool,
+    nvidia_driver_present: bool,
+    override_present: bool,
+) -> bool {
+    wayland_display_present && nvidia_driver_present && !override_present
+}
+
+#[cfg(target_os = "linux")]
+fn configure_linux_graphics_environment() {
+    let wayland_display_present = std::env::var_os("WAYLAND_DISPLAY").is_some();
+    let nvidia_driver_present = std::path::Path::new("/proc/driver/nvidia/version").is_file()
+        || std::path::Path::new("/sys/module/nvidia").exists();
+    let override_present = std::env::var_os("__NV_DISABLE_EXPLICIT_SYNC").is_some();
+
+    if needs_nvidia_wayland_explicit_sync_guard(
+        wayland_display_present,
+        nvidia_driver_present,
+        override_present,
+    ) {
+        // WebKitGTK can terminate with Wayland protocol error 71 on NVIDIA's
+        // explicit-sync path. Limit the guard to that host combination and
+        // preserve any operator-provided override.
+        std::env::set_var("__NV_DISABLE_EXPLICIT_SYNC", "1");
+    }
+}
+
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
+    #[cfg(target_os = "linux")]
+    configure_linux_graphics_environment();
+
+    tauri::Builder::default()
+        .plugin(tauri_plugin_opener::init())
+        .invoke_handler(tauri::generate_handler![
+            registry_status,
+            readiness_status,
+            service_plan_status,
+            first_run_status,
+            release_identity
+        ])
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
+}
+
 #[cfg(test)]
 mod release_identity_tests {
     use super::*;
@@ -184,18 +236,17 @@ mod release_identity_tests {
         assert_eq!(identity.version, env!("CARGO_PKG_VERSION"));
         assert_eq!(identity.supported_profile, "bluefin-lts-10-x86_64");
     }
-}
 
-#[cfg_attr(mobile, tauri::mobile_entry_point)]
-pub fn run() {
-    tauri::Builder::default()
-        .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![
-            registry_status,
-            readiness_status,
-            service_plan_status,
-            release_identity
-        ])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn graphics_guard_is_limited_to_unoverridden_nvidia_wayland_sessions() {
+        assert!(needs_nvidia_wayland_explicit_sync_guard(true, true, false));
+        assert!(!needs_nvidia_wayland_explicit_sync_guard(
+            false, true, false
+        ));
+        assert!(!needs_nvidia_wayland_explicit_sync_guard(
+            true, false, false
+        ));
+        assert!(!needs_nvidia_wayland_explicit_sync_guard(true, true, true));
+    }
 }

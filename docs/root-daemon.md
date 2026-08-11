@@ -1,6 +1,6 @@
 # Root `arda` daemon package
 
-Status: first-class composition root verified locally on 2026-07-30
+Status: canonical composition root verified locally on 2026-08-04
 Package: workspace root `arda` binary
 Entrypoint: [`src/main.rs`](../src/main.rs)
 Direct workspace dependency: [`arda-engine`](../crates/engine/README.md)
@@ -37,10 +37,9 @@ Warden scout precedence is:
    `warden` (case-insensitive);
 3. unavailable (`null`) when neither source exists.
 
-The root harness still projects the established Manwe compatibility endpoint
-`http://127.0.0.1:7171`. It was not changed in Packet 8 because Manwe,
-`services.toml`, launcher environment discovery, engine tests, and other
-consumers must move through one coordinated endpoint/fleet contract.
+The root harness projects the coordinated Manwe endpoint
+`http://127.0.0.1:7171`. The root-owned Manwe process binds `0.0.0.0:7171` so
+verified local and fleet consumers share one contract.
 
 ## CLI semantics
 
@@ -50,6 +49,9 @@ consumers must move through one coordinated endpoint/fleet contract.
 | `--no-ui` | Exclude services tagged `ui` before required-service error accounting; headless services remain required. |
 | `--harness-addr <ADDR>` | Bind the engine harness to the supplied address; default is `127.0.0.1:8088`. |
 
+There is no supported harness-only ownership profile. The removed
+`--harness-only` flag is covered by a CLI rejection test.
+
 Maintained configuration smoke:
 
 ```text
@@ -57,8 +59,9 @@ cargo build -p arda
 ./target/debug/arda --once --no-ui
 ```
 
-The verified workspace registry resolves exactly one headless service, `manwe`,
-and exits before supervision in this mode.
+The verified workspace registry resolves exactly one required headless service,
+`manwe`. Without `--once`, the root daemon owns that process for its full
+lifecycle.
 
 ## Source breakdown
 
@@ -66,7 +69,7 @@ and exits before supervision in this mode.
 |---|---|
 | [`src/main.rs`](../src/main.rs) | CLI, root discovery, composition, endpoint projection, startup ordering, and shutdown coordination. |
 | [`tests/root_daemon.rs`](../tests/root_daemon.rs) | CLI-level composition tests using isolated registries, scripts, ports, and fleet fixtures. |
-| [`services.toml`](../services.toml) | Declarative launcher/HUD/Manwe process registry. |
+| [`services.toml`](../services.toml) | Declarative required/optional process registry; currently owns required Manwe. |
 | [`config/fleet.toml`](../config/fleet.toml) | Fleet-owned fallback source for Warden scout discovery; unchanged by Packet 8. |
 | [`crates/engine/src/registry.rs`](../crates/engine/src/registry.rs) | Registry schema, validation, command resolution, and `--no-ui` filtering. |
 | [`crates/engine/src/harness.rs`](../crates/engine/src/harness.rs) | HTTP status/model/scout projection and graceful harness shutdown. |
@@ -114,21 +117,31 @@ Package-local:
 Direct dependency:
 
 - `arda-engine` all-target/all-feature check passes.
-- 11 engine tests pass, including supervisor reaping and root harness forwarding.
-- Strict `arda-engine` Clippy passes.
+- 25 engine unit tests plus integration suites pass, including readiness,
+  bounded restart state, supervisor reaping, and root harness forwarding.
+- Strict combined U1 Clippy currently stops on an unrelated pre-existing
+  `clippy::unnecessary_to_owned` warning in
+  `crates/engine/src/harness/research.rs:601`; the focused builds and test
+  suites pass.
 
-Workspace-wide:
+U1 cross-package evidence:
 
-- `cargo check --workspace --all-targets --all-features` passes.
-- `cargo clippy --workspace --all-targets --all-features -- -D warnings` passes.
-- `cargo test --workspace --all-features -- --test-threads=1` reaches an
-  unrelated `arda-varda` shared-state failure:
-  `ingest::tests::persistent_index_is_shared_across_live_store_instances`
-  observed 0 instead of 1 after 119 sibling tests passed. The exact failing test
-  passes when rerun alone, classifying it as suite-order/shared-state
-  interference rather than a root daemon regression.
+- `cargo build -p arda -p manwe --all-features` passes.
+- `cargo test -p manwe --all-features -- --test-threads=1` passes: 281 library
+  and 3 binary tests.
+- `cargo test --test root_daemon -- --test-threads=1` passes 5/5.
+- Manwe single-process smoke and documentation validation pass.
+- Formatting and `git diff --check` pass.
 
-## Packet 8 repair
+## Canonical process ownership
+
+`config/systemd/arda.service` starts the root daemon. `arda-manwe.service` is an
+alias to that unit rather than an independent service definition. The source
+topology therefore has one owner for Manwe startup, health, restart, shutdown,
+and recovery. Installation over a currently running legacy user session is U4
+installation/recovery scope.
+
+## Packet 8 repair (historical)
 
 The daemon already discovered an ancestor repository root but loaded bare
 `services.toml` relative to the process working directory. Packet 8 changed the

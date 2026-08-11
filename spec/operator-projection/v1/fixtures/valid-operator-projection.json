@@ -1,0 +1,125 @@
+{
+  "schema_version": "arda.operator-projection.v1",
+  "projection_id": "projection-p9-fixture",
+  "generated_at": "2026-08-10T12:00:00Z",
+  "authority": "read_only",
+  "freshness": "fresh",
+  "objectives": [
+    {
+      "objective_id": "objective-p9",
+      "project_id": "project-arda",
+      "title": "Unify operator projections",
+      "status": "active"
+    }
+  ],
+  "runs": [
+    {
+      "run_id": "run-p9",
+      "objective_id": "objective-p9",
+      "status": "running",
+      "nodes": [
+        { "node_id": "plan", "kind": "plan", "state": "succeeded" },
+        { "node_id": "implement", "kind": "execute", "state": "running" }
+      ],
+      "workers": [
+        {
+          "node_id": "implement",
+          "role": "implementer",
+          "worker_id": "hermes-p9",
+          "route_id": "manwe-auto",
+          "state": "running"
+        }
+      ]
+    }
+  ],
+  "capabilities": [
+    {
+      "capability_id": "hermes_workbench",
+      "version": "1",
+      "health": "ready",
+      "selected": true,
+      "optional": false,
+      "selection_reasons": ["required implementer role"]
+    },
+    {
+      "capability_id": "validated_device",
+      "version": "1",
+      "health": "unavailable",
+      "selected": false,
+      "optional": true,
+      "selection_reasons": []
+    }
+  ],
+  "pending_approvals": [
+    {
+      "approval_id": "approval-p9",
+      "run_id": "run-p9",
+      "node_id": "implement",
+      "scope": "write repository files",
+      "action_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "expires_at": "2026-08-10T13:00:00Z",
+      "status": "pending"
+    }
+  ],
+  "councils": [
+    {
+      "council_id": "council-p9",
+      "run_id": "run-p9",
+      "state": "awaiting_operator",
+      "synthesis": "Preserve canonical authority while converging views.",
+      "material_tensions": ["projection breadth versus calm presentation"],
+      "non_approval": true
+    }
+  ],
+  "personal_operations": {
+    "captures": 3,
+    "resumable_items": 1,
+    "reminders": [
+      {
+        "reminder_id": "reminder-p9",
+        "item_id": "personal-item-p9",
+        "status": "deferred",
+        "next_due_at": "2026-08-10T18:00:00Z"
+      }
+    ]
+  },
+  "joulework": {
+    "budget_joules": 1000.0,
+    "consumed_joules": 250.0,
+    "remaining_joules": 750.0,
+    "source": "observed",
+    "source_confidence": 0.92
+  },
+  "evidence": [
+    {
+      "evidence_id": "evidence-p9",
+      "kind": "test_receipt",
+      "uri": "arda://runs/run-p9/tests/operator-projection",
+      "observed_at": "2026-08-10T11:59:00Z",
+      "freshness": "fresh"
+    }
+  ],
+  "communications": [
+    {
+      "communication_id": "message-p9",
+      "transport": "discord",
+      "delivery": "delivered",
+      "acknowledgement": "pending",
+      "updated_at": "2026-08-10T11:58:00Z"
+    }
+  ],
+  "dependencies": [
+    {
+      "dependency_id": "arda-harness",
+      "health": "ready",
+      "freshness": "fresh",
+      "detail": "loopback operator projection source"
+    },
+    {
+      "dependency_id": "warden-scout",
+      "health": "degraded",
+      "freshness": "stale",
+      "detail": "last successful receipt is outside the freshness window"
+    }
+  ]
+}

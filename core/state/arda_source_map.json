@@ -106,15 +106,14 @@
         "interrupts"
       ],
       "id": "routing_and_comms",
-      "owner": "charon_hermes",
+      "owner": "manwe_aule",
       "primary_sources": [
         "core/state/manwe_router.json",
-        "core/state/hermes_command.json"
+        "core/state/operator_runtime_status.json"
       ],
       "status": "ready",
       "supplemental_sources": [
-        "data/hermes/boardroom.jsonl",
-        "data/hermes/interruptions.jsonl",
+        "core/state/operator_actions.json",
         "data/prometheus/arda_presence_events.jsonl"
       ],
       "title": "Routing And Communications"

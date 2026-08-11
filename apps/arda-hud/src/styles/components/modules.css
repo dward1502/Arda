@@ -480,6 +480,10 @@
 .workbench-contract dl div, .workbench-receipt div { padding: 0.5rem; border: 1px solid var(--line); border-radius: var(--radius-sm); }
 .workbench-contract dt, .workbench-receipt dt { color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; }
 .workbench-contract dd, .workbench-receipt dd { margin: 0.2rem 0 0; overflow-wrap: anywhere; }
+.workbench-operator-summary dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; margin: 0.5rem 0 0; }
+.workbench-operator-summary dl div { padding: 0.6rem; border: 1px solid var(--line); border-radius: var(--radius-sm); }
+.workbench-operator-summary dt { color: var(--text-muted); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; }
+.workbench-operator-summary dd { margin: 0.25rem 0 0; overflow-wrap: anywhere; }
 .workbench-graph { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.5rem; padding: 0; list-style: none; }
 .workbench-node { display: grid; width: 100%; text-align: left; }
 .workbench-node--blocked { border-color: var(--accent-gold) !important; }
@@ -493,7 +497,7 @@
 .workbench-error { color: #ff9aa5; }
 
 @media (max-width: 760px) {
-  .workbench-first-screen, .workbench-review-grid, .workbench-approval-fields, .workbench-contract dl, .workbench-receipt { grid-template-columns: 1fr; }
+  .workbench-first-screen, .workbench-review-grid, .workbench-approval-fields, .workbench-contract dl, .workbench-receipt, .workbench-operator-summary dl { grid-template-columns: 1fr; }
   .workbench-first-screen > :first-child, .workbench-first-screen > :last-child { grid-column: auto; }
   .workbench-graph { grid-template-columns: 1fr; }
 }
@@ -509,6 +513,7 @@
   .workbench-panel button,
   .workbench-contract dl div,
   .workbench-receipt div,
+  .workbench-operator-summary dl div,
   .workbench-list li,
   .workbench-events li { border-color: currentColor; }
   .workbench-panel header span,
@@ -516,7 +521,8 @@
   .workbench-list span,
   .workbench-panel label,
   .workbench-contract dt,
-  .workbench-receipt dt { color: var(--text); }
+  .workbench-receipt dt,
+  .workbench-operator-summary dt { color: var(--text); }
 }
 
 @media (forced-colors: active) {

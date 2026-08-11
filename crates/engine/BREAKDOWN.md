@@ -5,10 +5,10 @@ soterion:
   role: "supervision_spine"
   owner: "arda"
   status: "active"
-  last_reviewed: "2026-07-17"
+  last_reviewed: "2026-08-08"
 ---
 
-> 🧬 arda-engine: 🧬 supervision_spine | owner: arda | status: active | reviewed: 2026-07-17
+> 🧬 arda-engine: 🧬 supervision_spine | owner: arda | status: active | reviewed: 2026-08-08
 
 # Breakdown: `crates/engine`
 
@@ -28,6 +28,9 @@ The daemon previously had service spawning and discovery hardcoded in `main.rs`.
 |---|---|---|
 | Process supervision with restart + backoff | `supervisor.rs` | Tokio-based `Supervisor`, `Service`, `Shutdown`; exponential backoff capped at 10s |
 | Declarative service discovery | `registry.rs` | Loads `services.toml`, resolves executables relative to repo root, supports required/optional and `--no-ui` filtering |
+| Capability authority/runtime projection | `registry.rs`, `adapters/mod.rs` | Materializes canonical capability declarations, starts health fail-closed, derives live projections, and records external-adapter/model-worker provenance |
+| Deterministic per-run capability composition | `runs/executor.rs`, `runs/store.rs`, `observability.rs` | Selects the minimal signed/eligible set before model input, archives digest-bound receipts, enforces observed re-evaluation boundaries, and projects journal evidence |
+| Canonical governance and resource enforcement | `runs/governance.rs`, `runs/resource_ledger.rs`, `runs/store.rs` | Makes the engine the sole runtime mutator for normalized evaluator outputs, binds verdicts to transitions, persists append-only usage provenance, and enforces spend/resource/pressure caps at route and execution boundaries |
 | Harness HTTP surface | `harness.rs` | Axum app on `127.0.0.1:7878`; routes `/health`, `/v1/status`, `/v1/models`, `/v1/harness` |
 | `/v1/models` proxy to manwe | `harness.rs` | Proxies to `manwe` gateway on `:7171` so callers use one tap-in port |
 | Spine re-exports | `lib.rs`, `manwe.rs` | Re-exports `manwe`, `arda-core::service_registry`, `arda-core::loop_observability`, and `observability` |
@@ -43,16 +46,14 @@ crates/engine
 ├── OWNERSHIP.md
 ├── README.md
 ├── STATUS.md
-└── src
-    ├── lib.rs
-    ├── manwe.rs
-    ├── harness.rs
-    ├── observability.rs
-    ├── orome.rs
-    ├── supervisor.rs
-    └── registry.rs
-└── tests
-    └── orome_smoke.rs
+├── src
+│   ├── adapters/
+│   ├── harness/
+│   ├── personal_ops/
+│   ├── runs/
+│   └── lib.rs, manwe.rs, harness.rs, observability.rs, orome.rs,
+│       supervisor.rs, registry.rs
+└── tests/ (17 Cargo integration test targets)
 ```
 
 ## Crate dependencies
@@ -77,11 +78,11 @@ arda-engine
 
 | Classification | Count | Paths |
 |---|---:|---|
-| Production/default | 7 | `src/lib.rs`, `harness.rs`, `manwe.rs`, `observability.rs`, `orome.rs`, `registry.rs`, `supervisor.rs` |
+| Production/default | 25 | Every `src/**/*.rs` file reached from `src/lib.rs` |
 | Production/feature-gated | 0 | No features are declared |
 | Generated include | 0 | None |
 | Standalone test-only source | 0 | Unit tests are inline |
-| Integration test | 1 | `tests/orome_smoke.rs` |
+| Integration test | 17 | Every top-level `tests/*.rs` target; fixture source is test data, not a Cargo target |
 | Build script | 0 | None |
 | Unwired | 0 | None |
 
@@ -108,17 +109,21 @@ A daemon/tool using `arda_engine` can:
 
 1. Load services via `Registry::load(path)` and `Registry::resolve(root, no_ui)`.
 2. Reject required-service resolution errors.
-3. For smoke mode, exit only after that validation.
-4. Otherwise supervise through `Supervisor::new(services, shutdown).run()`.
-5. Start the tap-in port through `harness::serve(addr, state, shutdown)`.
-6. Use the supported re-exports without adding parallel direct dependencies.
+3. Compose a run through `compose_run_capabilities`; initial composition is
+   single-shot and re-evaluation requires an observed failure, health change, or
+   signed operator amendment.
+4. For smoke mode, exit only after registry validation.
+5. Otherwise supervise through `Supervisor::new(services, shutdown).run()`.
+6. Start the tap-in port through `harness::serve(addr, state, shutdown)`.
+7. Use the supported re-exports without adding parallel direct dependencies.
 
 ## Verification status
 
 - `cargo check -p arda-engine --all-targets --all-features`: passed
-- `cargo test -p arda-engine --all-features`: 10 unit + 1 integration passed
-- strict all-target Clippy and strict rustdoc: passed
-- root `arda` all-target/all-feature consumer check: passed
+- `cargo test -p arda-engine`: 115 passed, 2 ignored
+- strict rustdoc: passed; strict engine-only all-target Clippy has two unrelated
+  pre-existing findings, plus one dependency finding, recorded in `STATUS.md`
+- root `arda` all-target consumer check: passed
 - Static links to `manwe` confirmed in source:
   - `crates/engine/src/manwe.rs`
   - `crates/engine/src/harness.rs`

@@ -1,13 +1,18 @@
+use arda_core::governance_gates::{
+    ActionReversibility, CoercionRisk, ConsentAuthority, HumanFacingActionReview,
+    HumanImpactReviewInput,
+};
 use arda_core::Task;
 use arda_governance::{
     bacon_lite_validate, calculate_resonance_without_governance,
-    default_governance_readiness_report, evaluate_governance_chain, evaluate_love_dynamics,
-    interpret_alignment, load_philosopher_profiles_from_str, love_dynamics_compatibility_proxy,
-    profile_joulework, triad_validate, AlignmentSignals, BaconLiteEvent, BaconLiteResult,
-    GameTheory, GameTheorySelectionResult, GovernanceChainConfig, GovernanceChainResult,
-    GovernanceEvidence, GovernanceEvidenceAssessment, GovernanceReadinessReport, JouleWorkProfile,
-    LoveDynamicsInput, LoveDynamicsScore, LoveDynamicsTrend, LoveEquationScore,
-    PhilosopherProfileStatusProjection, ResonanceScore, TriadPhilosopherVerdict, TriadResult,
+    default_governance_readiness_report, evaluate_governance_chain, evaluate_human_impact_review,
+    evaluate_love_dynamics, interpret_alignment, load_philosopher_profiles_from_str,
+    love_dynamics_compatibility_proxy, profile_joulework, triad_validate, AlignmentSignals,
+    BaconLiteEvent, BaconLiteResult, GameTheory, GameTheorySelectionResult, GovernanceChainConfig,
+    GovernanceChainResult, GovernanceEvidence, GovernanceEvidenceAssessment,
+    GovernanceReadinessReport, JouleWorkProfile, LoveDynamicsInput, LoveDynamicsScore,
+    LoveDynamicsTrend, LoveEquationScore, PhilosopherProfileStatusProjection, ResonanceScore,
+    TriadPhilosopherVerdict, TriadResult,
 };
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -47,6 +52,7 @@ fn public_result_shapes_match_the_v1_compatibility_fixture() {
     assert_public_wire_type::<GovernanceEvidence>();
     assert_public_wire_type::<GovernanceEvidenceAssessment>();
     assert_public_wire_type::<GovernanceReadinessReport>();
+    assert_public_wire_type::<HumanFacingActionReview>();
     assert_public_wire_type::<JouleWorkProfile>();
     assert_public_wire_type::<LoveDynamicsScore>();
     assert_public_wire_type::<LoveEquationScore>();
@@ -108,6 +114,18 @@ fn public_result_shapes_match_the_v1_compatibility_fixture() {
         &contracts,
         "LoveEquationScore",
         &love_dynamics_compatibility_proxy(&task),
+    );
+    assert_contract(
+        &contracts,
+        "HumanFacingActionReview",
+        &evaluate_human_impact_review(HumanImpactReviewInput {
+            affected_parties: vec!["operator".to_string()],
+            reversibility: ActionReversibility::Reversible,
+            interruption_reason: Some("scheduled reminder".to_string()),
+            consent_authority: ConsentAuthority::OperatorAuthored,
+            uncertainty: 0.1,
+            coercion_risk: CoercionRisk::Low,
+        }),
     );
 
     let love = evaluate_love_dynamics(LoveDynamicsInput {

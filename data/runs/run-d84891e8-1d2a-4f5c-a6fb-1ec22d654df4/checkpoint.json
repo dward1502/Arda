@@ -1,0 +1,192 @@
+{
+  "schema_version": "arda.run-graph.v1",
+  "run_id": "run-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4",
+  "objective_id": "objective-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4",
+  "nodes": [
+    {
+      "id": "plan",
+      "kind": "plan",
+      "state": "succeeded",
+      "authority": "read_only",
+      "budget": {
+        "max_joules": 25.0,
+        "max_cost_usd": 0.0
+      },
+      "retry": {
+        "max_attempts": 1
+      },
+      "timeout_ms": 60000,
+      "idempotency_key": "run-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4-plan",
+      "input_digest": "objective:objective-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4",
+      "output_digest": "receipt:plan",
+      "parent_receipts": [],
+      "checkpoint": {
+        "sequence": 4,
+        "recovery_token": "run-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4:plan:4",
+        "checkpoint_digest": "sha256:1040e69a6f79f7849d07ed9ebea61f77a2b3740f9feef1e54bd1f10b058c6a74"
+      }
+    },
+    {
+      "id": "approval",
+      "kind": "approval",
+      "state": "succeeded",
+      "authority": "human_approval",
+      "budget": {
+        "max_joules": 25.0,
+        "max_cost_usd": 0.0
+      },
+      "retry": {
+        "max_attempts": 1
+      },
+      "timeout_ms": 60000,
+      "idempotency_key": "run-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4-approval",
+      "input_digest": "objective:objective-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4",
+      "output_digest": "approval-stage4-native-g3-20260731",
+      "parent_receipts": [
+        "receipt:plan"
+      ],
+      "checkpoint": {
+        "sequence": 7,
+        "recovery_token": "run-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4:approval:7",
+        "checkpoint_digest": "sha256:5db06a61e130858aaf1495d07084c503a3ab0e2093e5714786f46e6962c58318"
+      }
+    },
+    {
+      "id": "execute",
+      "kind": "execute",
+      "state": "succeeded",
+      "authority": "execute_with_approval",
+      "budget": {
+        "max_joules": 250.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 1
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "run-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4-execute",
+      "input_digest": "objective:objective-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4",
+      "output_digest": "sha256:0d68e8409e456d8d059a271789e2defba2bf19c946659485ae6a08642b4e45bb",
+      "parent_receipts": [
+        "approval-stage4-native-g3-20260731"
+      ],
+      "checkpoint": {
+        "sequence": 10,
+        "recovery_token": "run-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4:execute:10",
+        "checkpoint_digest": "sha256:708982d1c510e4fd217240c3acee02c6d28e2e7de01237413ccf70bc3565ca38"
+      }
+    },
+    {
+      "id": "verify",
+      "kind": "verify",
+      "state": "succeeded",
+      "authority": "verify",
+      "budget": {
+        "max_joules": 25.0,
+        "max_cost_usd": 0.0
+      },
+      "retry": {
+        "max_attempts": 1
+      },
+      "timeout_ms": 60000,
+      "idempotency_key": "run-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4-verify",
+      "input_digest": "objective:objective-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4",
+      "output_digest": "sha256:0d68e8409e456d8d059a271789e2defba2bf19c946659485ae6a08642b4e45bb",
+      "parent_receipts": [
+        "sha256:0d68e8409e456d8d059a271789e2defba2bf19c946659485ae6a08642b4e45bb"
+      ],
+      "checkpoint": {
+        "sequence": 14,
+        "recovery_token": "run-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4:verify:14",
+        "checkpoint_digest": "sha256:0583337aafd62e0da3f943ff9aeab924b526c5c2bf447318035dd1addcafacf4"
+      }
+    },
+    {
+      "id": "review",
+      "kind": "review",
+      "state": "succeeded",
+      "authority": "verify",
+      "budget": {
+        "max_joules": 25.0,
+        "max_cost_usd": 0.0
+      },
+      "retry": {
+        "max_attempts": 1
+      },
+      "timeout_ms": 60000,
+      "idempotency_key": "run-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4-review",
+      "input_digest": "objective:objective-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4",
+      "output_digest": "sha256:0d68e8409e456d8d059a271789e2defba2bf19c946659485ae6a08642b4e45bb",
+      "parent_receipts": [
+        "sha256:0d68e8409e456d8d059a271789e2defba2bf19c946659485ae6a08642b4e45bb"
+      ],
+      "checkpoint": {
+        "sequence": 18,
+        "recovery_token": "run-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4:review:18",
+        "checkpoint_digest": "sha256:0c816fbd37a83049ea985f013c85b36312b8fdb0d4c4e4408e38aca12c690d84"
+      }
+    },
+    {
+      "id": "close",
+      "kind": "close",
+      "state": "succeeded",
+      "authority": "read_only",
+      "budget": {
+        "max_joules": 25.0,
+        "max_cost_usd": 0.0
+      },
+      "retry": {
+        "max_attempts": 1
+      },
+      "timeout_ms": 60000,
+      "idempotency_key": "run-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4-close",
+      "input_digest": "objective:objective-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4",
+      "output_digest": "sha256:0d68e8409e456d8d059a271789e2defba2bf19c946659485ae6a08642b4e45bb",
+      "parent_receipts": [
+        "sha256:0d68e8409e456d8d059a271789e2defba2bf19c946659485ae6a08642b4e45bb"
+      ],
+      "checkpoint": {
+        "sequence": 22,
+        "recovery_token": "run-d84891e8-1d2a-4f5c-a6fb-1ec22d654df4:close:22",
+        "checkpoint_digest": "sha256:17bc21022ac2e12254c6383172180cab3b364e63ea6b0f425da3850f9155a9ce"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "plan-to-approval",
+      "from": "plan",
+      "to": "approval",
+      "parent_receipt": "receipt:plan"
+    },
+    {
+      "id": "approval-to-execute",
+      "from": "approval",
+      "to": "execute",
+      "parent_receipt": "approval-stage4-native-g3-20260731"
+    },
+    {
+      "id": "execute-to-verify",
+      "from": "execute",
+      "to": "verify",
+      "parent_receipt": "sha256:0d68e8409e456d8d059a271789e2defba2bf19c946659485ae6a08642b4e45bb"
+    },
+    {
+      "id": "verify-to-review",
+      "from": "verify",
+      "to": "review",
+      "parent_receipt": "sha256:0d68e8409e456d8d059a271789e2defba2bf19c946659485ae6a08642b4e45bb"
+    },
+    {
+      "id": "review-to-close",
+      "from": "review",
+      "to": "close",
+      "parent_receipt": "sha256:0d68e8409e456d8d059a271789e2defba2bf19c946659485ae6a08642b4e45bb"
+    }
+  ],
+  "provenance": {
+    "project_contract_digest": "project:550e8400-e29b-41d4-a716-446655440010",
+    "created_by": "arda-hud-workbench",
+    "parent_receipts": []
+  }
+}

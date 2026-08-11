@@ -1,6 +1,6 @@
 # Arda Workbench release-candidate packaging and signing
 
-This runbook covers the declared Stage 5 Linux profile and the `0.3.0-rc.0`
+This runbook covers the declared Stage 5 Linux profile and the `0.3.0-rc.1`
 Workbench launcher. The Linux release set includes the x86_64 AppImage, DEB,
 and RPM packages.
 
@@ -14,18 +14,50 @@ records:
 - Cargo and pnpm lockfile SHA-256 values;
 - Rust, Cargo, Node, pnpm, and AppImage tool versions;
 - the AppImage tool binary SHA-256;
+- the separately pinned AppImage runtime SHA-256;
 - supported profile and schema/rollback compatibility.
 
-The reproducible AppImage proof uses upstream `appimagetool` 1.9.1, pinned by
-SHA-256. The older AppImageKit build `5735cc5` is not suitable: it injects the
-current time and conflicts with `SOURCE_DATE_EPOCH`.
+The reproducible AppImage proof uses upstream `appimagetool` 1.9.1 x86_64,
+pinned to SHA-256
+`ed4ce84f0d9caff66f50bcca6ff6f35aae54ce8135408b3fa33abfc3cb384eb0`.
+The type-2 x86_64 runtime is fetched separately and pinned to SHA-256
+`1cc49bcf1e2ccd593c379adb17c9f85a36d619088296504de95b1d06215aebbf`.
+The runtime release URL is mutable; the checksum is the immutable authority and
+the fetch fails closed if upstream replaces those bytes. The older AppImageKit
+build `5735cc5` is not suitable: it injects the current time and conflicts with
+`SOURCE_DATE_EPOCH`.
 
 ## Build and verify
 
-Build the frontend and native launcher, then create DEB/RPM bundles with Tauri.
-Tauri's AppImage `linuxdeploy` phase currently fails after producing a complete
-AppDir. Package that AppDir with the pinned `appimagetool` and a fixed
-`SOURCE_DATE_EPOCH`.
+Build the frontend and native launcher, then create AppImage/DEB/RPM bundles
+with Tauri. The launcher package script sets linuxdeploy's supported
+`NO_STRIP=true` control because its bundled old `strip` cannot read modern
+`.relr.dyn` sections; this does not skip Rust release optimization. The script
+also prioritizes `/usr/bin` so linuxdeploy's GTK plugin receives GNU
+`cp --parents`, not the incompatible Homebrew uutils implementation. Repackage
+the complete AppDir twice with the pinned `appimagetool`, pinned runtime, and
+fixed epoch for the byte-reproducibility proof:
+
+```text
+python3 scripts/arda_appimage.py fetch --cache-dir <tool-cache>
+export APPIMAGETOOL=<tool-cache>/appimagetool-1.9.1-x86_64.AppImage
+export APPIMAGE_RUNTIME=<tool-cache>/runtime-x86_64-1cc49bcf1e2c
+export SOURCE_DATE_EPOCH="$(git show -s --format=%ct HEAD)"
+
+python3 scripts/arda_appimage.py package \
+  --appdir <Arda.AppDir> --output <first>/arda-launcher.AppImage \
+  --appimagetool "$APPIMAGETOOL" --runtime "$APPIMAGE_RUNTIME" \
+  --source-date-epoch "$SOURCE_DATE_EPOCH"
+python3 scripts/arda_appimage.py package \
+  --appdir <Arda.AppDir> --output <second>/arda-launcher.AppImage \
+  --appimagetool "$APPIMAGETOOL" --runtime "$APPIMAGE_RUNTIME" \
+  --source-date-epoch "$SOURCE_DATE_EPOCH"
+cmp <first>/arda-launcher.AppImage <second>/arda-launcher.AppImage
+```
+
+`arda_appimage.py` rejects unpinned tool/runtime bytes, missing AppDir metadata,
+and outputs that are not real type-2 AppImages. AppDir output alone does not
+satisfy the release gate.
 
 Tauri 2.9.4 writes wall-clock metadata into DEB tar members and into the RPM
 `BUILDTIME`/`FILEMTIMES` tags. Normalize both package formats before hashing,
@@ -47,7 +79,7 @@ Generate and verify the release ledger:
 
 ```text
 python3 scripts/arda_release_ops.py bundle-manifest \
-  --root "$PWD" --version 0.3.0-rc.0 \
+  --root "$PWD" --version 0.3.0-rc.1 \
   --artifact <AppImage> --artifact <DEB> --artifact <RPM> \
   --artifact <release-sbom.json> \
   --output <release-dir>/release-bundle-manifest.json \

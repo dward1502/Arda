@@ -581,6 +581,8 @@ All five render as CanvasTexture-backed WebGL meshes in the normal native HUD. `
 
 **Current Phase 9 position (2026-08-11):** The normal native HUD has been restarted successfully with the accepted five-upper/five-lower composition intact, and a one-session markdown lifecycle was previously exercised end-to-end. The canonical operator projection is mounted through the typed descriptor path and the dev-only acceptance control can claim it and open its authoritative workstation. A real muted Chromium/CDP session now provides visibly changing website pixels inside physical Monitor 1, with revisioned native-frame delivery used where WebKit cannot consume multipart MJPEG directly. This advances—but does not close—the native walkthrough. The required simultaneous five-content/five-owner run, every-monitor activation, content mutation, release/reassign/expiry/restart sequence, blocked-embed exercise, measured performance baseline, and explicit operator acceptance remain open.
 
+**Durable restart slice — 2026-08-11:** `TypedMonitorSurfaceState` is now initialized from an app-data registry owned by Rust rather than treating browser storage as recovery authority. Every claim, release, lease refresh, playback patch, and explicit restore serializes through one mutation lock and atomically replaces the durable registry after `sync_all`; a failed write rolls the in-memory contract back. RED-GREEN tests reconstruct state from disk and preserve five distinct slot, owner, descriptor, revision, and workstation identities, while corrupt durable input fails explicitly. The focused Rust monitor gate now passes 45/45 with two installed-Chromium tests ignored, Cargo check passes, the complete HUD suite passes 507/507, and the production build passes. This closes machine-verifiable five-session persistence but not the required installed-HUD restart walkthrough or operator acceptance.
+
 ---
 
 ## 5. Verification commands
@@ -614,12 +616,15 @@ This plan remains active until every statement is true:
 - [x] All five physical model bindings are unique; the center and center-right no longer duplicate `upper_monitor_3`.
 - [x] Each occupied screen fills its authored 3D aperture; no small card remains.
 - [x] Website rendering is demonstrated natively.
-- [ ] YouTube rendering is demonstrated natively.
+- [x] YouTube rendering is demonstrated natively with the real Chromium player and
+  same-session workstation; no fixture, screenshot, or downloaded clip was used.
 - [ ] Video rendering is demonstrated natively.
 - [ ] Image rendering is demonstrated natively.
-- [ ] Document rendering is demonstrated natively.
+- [x] Document rendering is demonstrated natively through the one-session markdown
+  lifecycle and authoritative workstation.
 - [ ] Terminal or trusted custom-agent UI rendering is demonstrated natively.
-- [ ] Frame-blocked web content has a working capture/remote-session path or an explicit unsupported result that is not falsely credited.
+- [x] Frame-blocked web content has a working owned Chromium/CDP capture and typed
+  `remote_session` path; failures remain explicit and are not replaced by fixtures.
 - [ ] At least five concurrent sessions with multiple owners are demonstrated.
 - [ ] Updates, release, expiry, and reassignment are isolated per monitor.
 - [ ] Clicking every monitor opens the same session in a full workstation window.

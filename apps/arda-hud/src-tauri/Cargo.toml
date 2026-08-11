@@ -40,6 +40,9 @@ portable-pty = "0.8"
 tungstenite = { version = "0.26", default-features = false, features = ["handshake"] }
 arda-core = { path = "../../../crates/spine/governance/arda-core" }
 
+[dev-dependencies]
+tempfile = "3"
+
 [lints.rust]
 unsafe_code = "allow"
 

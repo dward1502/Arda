@@ -2930,8 +2930,18 @@ pub fn run() {
         .manage(HermesRuntimeState::default())
         .manage(WorkbenchEventStreamState::default())
         .manage(MonitorSurfaceState::default())
-        .manage(TypedMonitorSurfaceState::new())
         .manage(BrowserCaptureState::default())
+        .setup(|app| {
+            let persistence_path = app
+                .path()
+                .app_data_dir()
+                .map_err(std::io::Error::other)?
+                .join("monitor-session-registry.json");
+            let monitor_state = TypedMonitorSurfaceState::with_persistence_path(persistence_path)
+                .map_err(std::io::Error::other)?;
+            app.manage(monitor_state);
+            Ok(())
+        })
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             validate_project_contract,

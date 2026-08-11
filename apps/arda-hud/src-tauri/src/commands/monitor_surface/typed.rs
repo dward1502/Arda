@@ -1,5 +1,9 @@
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
+use std::fs::{self, File};
+use std::io::Write;
+use std::path::{Path, PathBuf};
+use std::sync::Mutex;
 use tauri::{AppHandle, Emitter, State};
 
 use crate::commands::monitor_surface::contract::MonitorSurfaceContractState;
@@ -13,6 +17,8 @@ const REGISTRY_CHANGED_EVENT: &str = "monitor-surface-registry-changed";
 #[derive(Debug)]
 pub struct TypedMonitorSurfaceState {
     contract: MonitorSurfaceContractState,
+    persistence_path: Option<PathBuf>,
+    mutation_lock: Mutex<()>,
 }
 
 impl Default for TypedMonitorSurfaceState {
@@ -25,14 +31,106 @@ impl TypedMonitorSurfaceState {
     pub fn new() -> Self {
         Self {
             contract: MonitorSurfaceContractState::new(),
+            persistence_path: None,
+            mutation_lock: Mutex::new(()),
         }
+    }
+
+    pub fn with_persistence_path(path: PathBuf) -> Result<Self, String> {
+        let state = Self {
+            contract: MonitorSurfaceContractState::new(),
+            persistence_path: Some(path.clone()),
+            mutation_lock: Mutex::new(()),
+        };
+        if path.exists() {
+            let bytes = fs::read(&path).map_err(|error| {
+                format!(
+                    "read durable monitor session registry '{}': {error}",
+                    path.display()
+                )
+            })?;
+            let document =
+                serde_json::from_slice::<SessionRegistryDocument>(&bytes).map_err(|error| {
+                    format!(
+                        "parse durable monitor session registry '{}': {error}",
+                        path.display()
+                    )
+                })?;
+            state.contract.restore(document)?;
+        } else {
+            state.persist_snapshot()?;
+        }
+        Ok(state)
+    }
+
+    fn persist_document(path: &Path, document: &SessionRegistryDocument) -> Result<(), String> {
+        let parent = path.parent().ok_or_else(|| {
+            format!(
+                "durable monitor session registry '{}' has no parent directory",
+                path.display()
+            )
+        })?;
+        fs::create_dir_all(parent).map_err(|error| {
+            format!(
+                "create monitor session registry directory '{}': {error}",
+                parent.display()
+            )
+        })?;
+        let temporary = path.with_extension("json.tmp");
+        let bytes = serde_json::to_vec_pretty(document)
+            .map_err(|error| format!("serialize durable monitor session registry: {error}"))?;
+        let mut file = File::create(&temporary).map_err(|error| {
+            format!(
+                "create temporary monitor session registry '{}': {error}",
+                temporary.display()
+            )
+        })?;
+        file.write_all(&bytes).map_err(|error| {
+            format!(
+                "write temporary monitor session registry '{}': {error}",
+                temporary.display()
+            )
+        })?;
+        file.sync_all().map_err(|error| {
+            format!(
+                "sync temporary monitor session registry '{}': {error}",
+                temporary.display()
+            )
+        })?;
+        fs::rename(&temporary, path).map_err(|error| {
+            format!(
+                "replace durable monitor session registry '{}': {error}",
+                path.display()
+            )
+        })
+    }
+
+    fn persist_snapshot(&self) -> Result<(), String> {
+        if let Some(path) = &self.persistence_path {
+            Self::persist_document(path, &self.contract.session_registry())?;
+        }
+        Ok(())
+    }
+
+    fn persist_or_rollback(&self, before: SessionRegistryDocument) -> Result<(), String> {
+        if let Err(error) = self.persist_snapshot() {
+            self.contract.restore(before).map_err(|rollback_error| {
+                format!("{error}; failed to roll back monitor session registry: {rollback_error}")
+            })?;
+            return Err(error);
+        }
+        Ok(())
     }
 
     pub fn claim_session(
         &self,
         request: MonitorSessionRecord,
     ) -> Result<ActiveSessionProjection, String> {
-        self.contract.claim_session(request)
+        let _guard = self.mutation_lock.lock().unwrap();
+        let before = self.contract.session_registry();
+        let projection = self.contract.claim_session(request)?;
+        self.persist_or_rollback(before)?;
+        Ok(projection)
     }
 
     pub fn release_session(
@@ -40,7 +138,11 @@ impl TypedMonitorSurfaceState {
         slot_id: &str,
         owner: &str,
     ) -> Result<SessionRegistryDocument, String> {
-        self.contract.release_session(slot_id, owner)
+        let _guard = self.mutation_lock.lock().unwrap();
+        let before = self.contract.session_registry();
+        let registry = self.contract.release_session(slot_id, owner)?;
+        self.persist_or_rollback(before)?;
+        Ok(registry)
     }
 
     pub fn refresh_session(
@@ -50,8 +152,13 @@ impl TypedMonitorSurfaceState {
         revision: u64,
         ttl_secs: u64,
     ) -> Result<ActiveSessionProjection, String> {
-        self.contract
-            .refresh_session(slot_id, owner, revision, ttl_secs)
+        let _guard = self.mutation_lock.lock().unwrap();
+        let before = self.contract.session_registry();
+        let projection = self
+            .contract
+            .refresh_session(slot_id, owner, revision, ttl_secs)?;
+        self.persist_or_rollback(before)?;
+        Ok(projection)
     }
 
     pub fn patch_playback(
@@ -61,8 +168,13 @@ impl TypedMonitorSurfaceState {
         expected_revision: u64,
         playback: Option<serde_json::Value>,
     ) -> Result<ActiveSessionProjection, String> {
-        self.contract
-            .patch_playback(surface_session_id, owner, expected_revision, playback)
+        let _guard = self.mutation_lock.lock().unwrap();
+        let before = self.contract.session_registry();
+        let projection =
+            self.contract
+                .patch_playback(surface_session_id, owner, expected_revision, playback)?;
+        self.persist_or_rollback(before)?;
+        Ok(projection)
     }
 
     pub fn snapshot(&self) -> SessionRegistryDocument {
@@ -70,7 +182,10 @@ impl TypedMonitorSurfaceState {
     }
 
     pub fn restore(&self, document: SessionRegistryDocument) -> Result<(), String> {
-        self.contract.restore(document)
+        let _guard = self.mutation_lock.lock().unwrap();
+        let before = self.contract.session_registry();
+        self.contract.restore(document)?;
+        self.persist_or_rollback(before)
     }
 }
 

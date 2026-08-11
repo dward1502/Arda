@@ -67,7 +67,7 @@ If none can be identified, the task is out of scope.
 
 | Domain | Existing authority | This plan's role |
 |---|---|---|
-| Workbench release candidate | `2026-07-29-stage-5-release-candidate-plan.md` | Coordinate the remaining signed-artifact, soak, and independent-evaluator gates; do not duplicate them. |
+| Workbench release candidate | `2026-07-29-stage-5-release-candidate-plan.md` | Coordinate the remaining independent-evaluator gate and preserve the closed signed-artifact and soak evidence; do not duplicate them. |
 | Arda 1.0 product convergence | `2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md` | Consume required vertical proofs and optional-capability boundaries; do not redefine product identity from this release slice. |
 | Stage 6 release qualification | `2026-07-29-stage-6-legitimate-1.0-plan.md` | Enter only after Stage 5 closes; preserve its artifact, compatibility, support, and release evidence requirements. |
 | Product/application classification | `docs/plans/ARDA_PRODUCT_PLAN_SUITE.md` and application plans | Keep Workbench release-critical while classifying optional applications and distributions honestly. |
@@ -118,9 +118,10 @@ A capability is not called operational merely because its crate compiles or its 
 - [x] Keep optional applications out of the Stage 5/6 critical path.
 - [x] Archive each completed plan immediately after its live gates pass.
 - [x] Record the finite Stage 5 blockers as the first release-critical queue. The
-  valid uninterrupted 24-hour reliability receipt closed on 2026-08-07; the
-  remaining blockers are final signed-artifact reconciliation/lifecycle and one
-  qualifying independent non-author evaluator receipt. Security closed through
+  valid uninterrupted 24-hour reliability receipt closed on 2026-08-07, and the
+  final signed-artifact reconciliation/lifecycle closed on 2026-08-11. The sole
+  remaining blocker is one qualifying independent non-author evaluator receipt.
+  Security closed through
   the bounded, checksum-pinned `glib 0.18.5` upstream backport on 2026-08-05.
 
 **U0 closeout evidence (2026-08-04):** `docs/plans/ARDA_PRODUCT_PLAN_SUITE.md`
@@ -342,7 +343,7 @@ or retained merely to rewrite historical evidence.
 - [x] Fail unsupported profiles before partial installation.
 - [x] Keep secret writes and consequential configuration changes explicitly approved and receipted.
 - [x] Provide clear offline, provider-unavailable, degraded, and recovery guidance.
-- [ ] Prove install, upgrade, rollback, backup, restore, safe reset, and uninstall using final signed artifacts.
+- [x] Prove install, upgrade, rollback, backup, restore, safe reset, and uninstall using final signed artifacts.
 - [x] Ensure optional applications remain opt-in and cannot prevent Workbench startup.
 
 **U4 execution evidence (2026-08-04):**
@@ -376,14 +377,15 @@ or retained merely to rewrite historical evidence.
   linuxdeploy's supported `NO_STRIP=true` control, avoiding its bundled old
   `strip` that rejects Bluefin LTS `.relr.dyn` sections. This does not substitute
   an unsigned local package for the final signed-artifact gate.
-- The final signed-artifact checkbox and Gate U4 remain open. The published
+- At this 2026-08-04 checkpoint, the final signed-artifact checkbox and Gate U4
+  remained open. The published
   `v0.3.0-rc.0` checksum ledger and all six Sigstore bundles verify, but the
   release tag and manifest bind to source `28cde28b`, seven commits behind frozen
   final source `efd118b5`, and the manifest records
   `tracked_worktree_clean=false`. The fail-closed reconciliation receipt is
   `docs/evidence/stage-5-release-candidate/packaging/remote-signed-artifact-reconciliation-20260806.json`.
-  U4 closes only after exact signed bytes from clean final source pass this
-  lifecycle and the clean profile reaches a persisted Workbench change.
+  U4 would close only after exact signed bytes from clean final source passed this
+  lifecycle and the clean profile reached a persisted Workbench change.
 
 **U4/U5 prerequisite audit (2026-08-11):**
 
@@ -402,7 +404,21 @@ or retained merely to rewrite historical evidence.
   not close U4. A new clean, tag-bound signed candidate containing the startup
   and U5 comprehension fixes remains required before final U4/U5 evaluation.
 
-**Gate U4:** A clean supported profile reaches the first verified Workbench change from published instructions, and every induced setup failure gives an actionable recovery path.
+**U4 closeout (2026-08-11):** `v0.3.0-rc.1` supersedes the prerequisite-audit
+blocker above. The tag and clean manifest both bind to source
+`8a5e3f75db3867803d56c0b3568ec5fc51794349`; signing run `31543599410` passed
+the exact six-asset checksum, identity, sign, verify, and upload gates. A fresh
+download contained exactly six artifacts and six detached Sigstore bundles, and
+all bundles verified against the tag-bound workflow identity. The downloaded
+signed AppImage then passed default native launch, fresh install, upgrade,
+backup, diagnostics, rollback/restore, terminal-truth preservation, uninstall,
+post-uninstall state preservation, and source immutability without a
+compatibility override. Authoritative receipts are
+`docs/evidence/stage-5-release-candidate/packaging/remote-signed-artifact-reconciliation-v0.3.0-rc.1-20260811.json`
+and
+`docs/evidence/stage-5-release-candidate/reliability/u4-signed-v0.3.0-rc.1-lifecycle-20260811.json`.
+
+**Gate U4 — passed 2026-08-11:** A clean supported profile reaches the first verified Workbench change from published instructions, and every induced setup failure gives an actionable recovery path.
 
 ### U5 — Accessibility, comprehension, and supportability
 
@@ -453,9 +469,9 @@ or retained merely to rewrite historical evidence.
   a pass receipt. The launcher now presents a top-level Operator orientation
   block naming current state, read-only actions, sole operator approval authority,
   evidence quality, execution blockers, and the exact next action. Launcher tests
-  pass 11/11; focused Workbench tests pass 9/9; both frontend builds pass. Gate U5
-  remains open until this remediated flow is exercised by a qualifying non-author
-  against the new final signed candidate.
+  pass 11/11; focused Workbench tests pass 9/9; both frontend builds pass. The
+  final signed candidate now exists and passes U4. Gate U5 remains open only
+  until this remediated flow is exercised by a qualifying non-author.
 
 **Gate U5:** A non-author operator can identify system state, approval authority, evidence quality, and the next recovery action without inspecting source or raw state files.
 

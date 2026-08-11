@@ -6,9 +6,12 @@
 
 **System completion coordination:** [Arda System Unification and Usability Plan](2026-08-02-arda-system-unification-and-usability-plan.md).
 
-**Lifecycle status:** ACTIVE; implementation and S5-R1 reliability qualification
-are evidence-backed by the [Stage 5 release-candidate ledger](../releases/stage-5-release-candidate-evidence.md), but release closeout remains blocked on one reconciled final signed artifact lifecycle and one qualifying independent non-author evaluator receipt.
-Reconciled against the completed soak evidence on 2026-08-10.
+**Lifecycle status:** ACTIVE; implementation, S5-R1 reliability qualification,
+and the reconciled final signed-artifact lifecycle are evidence-backed by the
+[Stage 5 release-candidate ledger](../releases/stage-5-release-candidate-evidence.md).
+Release closeout remains blocked only on one qualifying independent non-author
+evaluator receipt. Reconciled against the signed `v0.3.0-rc.1` evidence on
+2026-08-11.
 
 **Stage objective:** Prove Arda Workbench works across the declared supported profiles, repositories, providers, and failure conditions with supportable installation, upgrades, security boundaries, and documentation. One qualifying independent non-author evaluator receipt is required; broader external-person repetition remains optional.
 
@@ -129,8 +132,8 @@ failed without editing Arda source. The machine receipt is
   regression are mandatory. Eighteen unmaintained transitive-package warnings
   remain inventory follow-up.
 - Machine evidence: `docs/evidence/stage-5-release-candidate/security/`.
-- Added the missing top-level MIT `LICENSE`; final signed artifacts remain stale
-  until rebuilt after all Stage 5 source and lockfile changes.
+- Added the missing top-level MIT `LICENSE`; final artifacts were rebuilt and
+  signed as `v0.3.0-rc.1` after the Stage 5 source and lockfile changes.
 - The isolated GTK4/Tauri fork candidate compiled and passed focused native and
   frontend gates, but independent review rejected it: the Tao/Wry/Muda deltas
   contain untested event-loop, unsafe-lifetime, IPC/session, and display-backend
@@ -307,7 +310,9 @@ Create `docs/releases/stage-5-release-candidate-evidence.md` at closeout with:
 
 ## Exit criteria
 
-- [ ] Signed, reproducible release candidate exists.
+- [x] Signed, reproducible release candidate exists. `v0.3.0-rc.1` binds its tag
+  and clean manifest to `8a5e3f75`, all six Sigstore bundles verify, and the
+  downloaded signed AppImage passes the U4 lifecycle.
 - [x] Upgrade, rollback, backup, and restore pass.
 - [x] Rust, Python, and JavaScript adapter conformance passes.
 - [x] Automated unseen-project SDK/conformance onboarding passes; external-person repetition is optional.
@@ -407,10 +412,9 @@ active, and the first final-artifact signing run passed for `v0.3.0-rc.0`.
   `main` now requires PR/CODEOWNER review, and signing run `30714060617` passed
   all six tag-bound OIDC bundle verifications for `v0.3.0-rc.0`. The repository
   has one collaborator, so admin bypass and environment self-review remain
-  enabled until a second trusted maintainer is added. The final-source artifact
-  set still
-  requires a new signing run and remains owned by the global signed-release exit
-  gate and U4 rather than reopening remote trust activation.
+  enabled until a second trusted maintainer is added. Final-source signing run
+  `31543599410` subsequently passed for `v0.3.0-rc.1` and closed the global
+  signed-release exit gate and U4.
 
 Authoritative machine evidence is
 `docs/evidence/stage-5-release-candidate/packaging/packaging-summary.json` and
@@ -421,16 +425,14 @@ and
 and
 `docs/evidence/stage-5-release-candidate/packaging/production-signing-activation.json`.
 The release manifest, checksums, SBOM, normalized packages, and six
-identity-bound Sigstore bundles for `v0.3.0-rc.0` are published at
-`https://github.com/dward1502/Arda/releases/tag/v0.3.0-rc.0`. The repaired
-package bytes supersede the pre-normalization
-DEB/RPM candidate signatures; the global signed-release exit item remains open
-until the final normalized artifacts are signed by the tag-bound workflow and
-pass the installed lifecycle. The 2026-08-06 remote reconciliation verifies all
-six published `v0.3.0-rc.0` signatures but fails closed because those assets bind
-to source `28cde28b` with `tracked_worktree_clean=false`, not frozen final source
-`efd118b5`; see
-`docs/evidence/stage-5-release-candidate/packaging/remote-signed-artifact-reconciliation-20260806.json`.
+identity-bound Sigstore bundles for `v0.3.0-rc.1` are published at
+`https://github.com/dward1502/Arda/releases/tag/v0.3.0-rc.1`. The tag and clean
+manifest bind to `8a5e3f75`; all six downloaded bundles verify against the exact
+tag-bound workflow identity, and the downloaded signed AppImage passes the U4
+lifecycle without a compatibility override. See
+`docs/evidence/stage-5-release-candidate/packaging/remote-signed-artifact-reconciliation-v0.3.0-rc.1-20260811.json`
+and
+`docs/evidence/stage-5-release-candidate/reliability/u4-signed-v0.3.0-rc.1-lifecycle-20260811.json`.
 
 ## Reliability, performance, and accessibility tranche — S5-R1/U1
 
@@ -493,6 +495,8 @@ Evidence:
 - `docs/evidence/stage-5-release-candidate/reliability/performance-accessibility.json`
 - `docs/evidence/stage-5-release-candidate/reliability/native-launcher-walkthrough.json`
 - `docs/evidence/stage-5-release-candidate/reliability/native-launcher-metrics.json`
+- `docs/evidence/stage-5-release-candidate/reliability/u4-signed-v0.3.0-rc.1-lifecycle-20260811.json`
+- `docs/evidence/stage-5-release-candidate/packaging/remote-signed-artifact-reconciliation-v0.3.0-rc.1-20260811.json`
 
 ## Adapter and support tranche — S5-A1/O1
 

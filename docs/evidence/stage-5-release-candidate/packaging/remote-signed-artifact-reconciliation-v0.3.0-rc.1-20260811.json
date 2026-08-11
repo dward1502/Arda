@@ -1,0 +1,54 @@
+{
+  "contract": "arda.stage5.remote-signed-artifact-reconciliation.v1",
+  "generated_at_utc": "2026-08-11T22:46:25Z",
+  "status": "pass",
+  "release": {
+    "tag": "v0.3.0-rc.1",
+    "url": "https://github.com/dward1502/Arda/releases/tag/v0.3.0-rc.1",
+    "published_at_utc": "2026-08-11T22:43:09Z",
+    "prerelease": true,
+    "draft": false,
+    "tag_commit": "8a5e3f75db3867803d56c0b3568ec5fc51794349",
+    "manifest_source_commit": "8a5e3f75db3867803d56c0b3568ec5fc51794349",
+    "manifest_tracked_worktree_clean": true,
+    "main_integration_commit": "97c167b886f93d45125e4203c50ff84b477ae703"
+  },
+  "signing_run": {
+    "id": 31543599410,
+    "url": "https://github.com/dward1502/Arda/actions/runs/31543599410",
+    "workflow": "Sign release assets",
+    "event": "release",
+    "head_sha": "8a5e3f75db3867803d56c0b3568ec5fc51794349",
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "verification": {
+    "published_asset_count": 12,
+    "unsigned_asset_allowlist_count": 6,
+    "sigstore_bundle_count": 6,
+    "exact_allowlist": true,
+    "checksum_ledger": "pass",
+    "tag_manifest_source_agreement": true,
+    "certificate_identity": "https://github.com/dward1502/Arda/.github/workflows/release-sign.yml@refs/tags/v0.3.0-rc.1",
+    "certificate_oidc_issuer": "https://token.actions.githubusercontent.com",
+    "all_sigstore_bundles_verified": true
+  },
+  "artifacts": {
+    "arda-launcher-0.3.0-rc.1-1.x86_64.rpm": "d2ff9f8490cb97893db64c04ecc486d7f8391c0be653df347aafb2e784dda074",
+    "arda-launcher_0.3.0-rc.1_amd64.AppImage": "f332e34c39ae82674c002ab4d395522b580e02c91745fe983f62d5a345490bb3",
+    "arda-launcher_0.3.0-rc.1_amd64.deb": "6c6c53208991f8ab15d6e99d1134549538439fb3da0b7b1ff07f56bceb7b70aa",
+    "release-sbom.json": "3b2d56b66f1737dbd36edc7a2b4063e8ff610537c4e8a19eda729f584395ef16",
+    "release-bundle-manifest.json": "205dad071107e6570e4818019edf042f7a8b33a31c0789ca86a3be7ae0e40adf",
+    "SHA256SUMS": "21708f6e0879f8f86a90d9128df10a6b70a1f0c73a89df89fb33eafb5207d724"
+  },
+  "lifecycle": {
+    "receipt": "docs/evidence/stage-5-release-candidate/reliability/u4-signed-v0.3.0-rc.1-lifecycle-20260811.json",
+    "receipt_sha256": "3706c82c2253e8b8694993083c9958edf74709a0704231968eb43602c04bf64d",
+    "status": "pass-signed-candidate-lifecycle",
+    "final_signed_artifact_exercised": true,
+    "default_launch_survived": true,
+    "compatibility_override_required": false,
+    "all_required_acceptance_checks": true
+  },
+  "blocker": null
+}

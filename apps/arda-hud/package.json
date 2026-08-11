@@ -10,7 +10,7 @@
     "lint": "oxlint",
     "test": "vitest run",
     "preview": "vite preview",
-    "tauri": "bash -lc 'source ../../scripts/runtime_build_env.sh && arda_runtime_build_env ../.. && export PKG_CONFIG_PATH=/usr/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig __NV_DISABLE_EXPLICIT_SYNC=1 WEBKIT_DISABLE_DMABUF_RENDERER=1 WEBKIT_DISABLE_COMPOSITING_MODE=1 GDK_BACKEND=x11 && tauri \"$@\"' --",
+    "tauri": "bash -lc 'source ../../scripts/runtime_build_env.sh && arda_runtime_build_env ../.. && export PKG_CONFIG_PATH=/usr/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig __NV_DISABLE_EXPLICIT_SYNC=1 && tauri \"$@\"' --",
     "tauri:dev:stable": "pnpm run tauri dev",
     "tauri:build:stable": "pnpm run tauri build --no-bundle",
     "package:stable": "bash ../../scripts/package_arda_hud.sh",

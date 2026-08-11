@@ -49,6 +49,20 @@ async function stopBrowserCapture(active: ActiveBrowserCapture): Promise<void> {
   if (!released.ok) throw new Error(released.message || `failed to release ${active.surfaceSessionId}`)
 }
 
+async function releaseStaleAcceptanceClaim(slotId: string): Promise<void> {
+  const registry = coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())
+  const session = registry?.sessions[slotId]
+  if (!session) return
+  const acceptanceOwner = session.owner === 'agent:browser-monitor-acceptance'
+    || session.owner.startsWith(`agent:${OWNER}-browser-`)
+  if (!acceptanceOwner) return
+  const released = await agentReleaseMonitorSurface(
+    session.surface_session_id,
+    { kind: 'agent', name: session.owner.slice('agent:'.length) },
+  )
+  if (!released.ok) throw new Error(released.message || `failed to reclaim ${session.surface_session_id}`)
+}
+
 function readRecords(): AcceptanceRecord[] {
   try {
     const parsed = JSON.parse(window.sessionStorage.getItem(STORAGE_KEY) ?? '[]')
@@ -329,11 +343,12 @@ export default function MonitorSurfaceNativeAcceptance({
           onClick={() => void run('real browser monitor stream', async () => {
             const priorCaptures = activeBrowserCapturesRef.current.splice(0)
             await Promise.allSettled(priorCaptures.map(stopBrowserCapture))
+            await releaseStaleAcceptanceClaim(SLOT_ID)
             const surfaceOwner: AgentSurfaceOwner = { kind: 'agent', name: 'browser-monitor-acceptance' }
             const result = await agentStartBrowserMonitorSession({
               slotId: SLOT_ID,
               owner: surfaceOwner,
-              url: 'https://threejs.org/examples/webgl_geometry_cube.html',
+              url: 'https://www.youtube.com/watch?v=YE7VzlLtp-4',
               ttlMs: 10 * 60_000,
               captureSessionId: `browser-monitor-1-${Date.now()}`,
             })
@@ -357,6 +372,7 @@ export default function MonitorSurfaceNativeAcceptance({
           onClick={() => void run('two-browser-native', async () => {
             const priorCaptures = activeBrowserCapturesRef.current.splice(0)
             await Promise.allSettled(priorCaptures.map(stopBrowserCapture))
+            await Promise.all([releaseStaleAcceptanceClaim(SLOT_ID), releaseStaleAcceptanceClaim(SECOND_SLOT_ID)])
             const startedAt = Date.now()
             const requests: BrowserMonitorSessionRequest[] = [
               {

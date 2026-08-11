@@ -1402,9 +1402,12 @@ function BoardroomFrameRateProbe() {
     if (!rendererReported.current) {
       const context = gl.getContext()
       const extension = context.getExtension('WEBGL_debug_renderer_info')
-      const renderer = extension
+      const reportedRenderer = extension
         ? String(context.getParameter(extension.UNMASKED_RENDERER_WEBGL))
         : 'renderer unavailable'
+      const renderer = reportedRenderer === 'Apple GPU' && navigator.userAgent.includes('Linux')
+        ? 'WebKitGTK masked GPU (Linux)'
+        : reportedRenderer
       const rendererOutput = document.getElementById('boardroom-renderer-probe')
       if (rendererOutput) {
         rendererOutput.textContent = renderer

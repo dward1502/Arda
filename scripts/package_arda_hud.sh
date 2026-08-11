@@ -124,9 +124,6 @@ if [[ "$TAURI_BUILD" == "true" ]]; then
     TAURI_ATTEMPTED="true"
     export NO_STRIP
     export __NV_DISABLE_EXPLICIT_SYNC="${__NV_DISABLE_EXPLICIT_SYNC:-1}"
-    export WEBKIT_DISABLE_DMABUF_RENDERER="${WEBKIT_DISABLE_DMABUF_RENDERER:-1}"
-    export WEBKIT_DISABLE_COMPOSITING_MODE="${WEBKIT_DISABLE_COMPOSITING_MODE:-1}"
-    export GDK_BACKEND="${GDK_BACKEND:-x11}"
 
     set +e
     if [[ "$TAURI_BUNDLE" == "true" ]]; then

@@ -23,6 +23,11 @@ fn browser_launch_plan_isolates_profile_and_forces_audio_mute() {
 
     assert!(plan.args.iter().any(|arg| arg == "--mute-audio"));
     assert!(plan.args.iter().any(|arg| arg == "--headless=new"));
+    assert!(plan.args.iter().any(|arg| {
+        arg.starts_with("--user-agent=Mozilla/5.0 (X11; Linux x86_64)")
+            && arg.contains(" Chrome/")
+            && !arg.contains("HeadlessChrome")
+    }));
     assert!(plan
         .args
         .iter()

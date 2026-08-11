@@ -20,6 +20,8 @@ const FRAME_WAIT_SLICE: Duration = Duration::from_millis(500);
 const MJPEG_BOUNDARY: &str = "arda-frame";
 const CAPTURE_WIDTH: f64 = 1280.0;
 const CAPTURE_HEIGHT: f64 = 720.0;
+const NORMAL_LINUX_CHROMIUM_USER_AGENT: &str = "Mozilla/5.0 (X11; Linux x86_64) \
+AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum BrowserRuntime {
@@ -75,6 +77,7 @@ impl BrowserLaunchPlan {
             "--metrics-recording-only".to_string(),
             "--mute-audio".to_string(),
             "--autoplay-policy=no-user-gesture-required".to_string(),
+            format!("--user-agent={NORMAL_LINUX_CHROMIUM_USER_AGENT}"),
             "--window-size=1280,720".to_string(),
             url.to_string(),
         ]);

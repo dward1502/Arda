@@ -80,13 +80,6 @@ if [[ -z "$LATEST_PATH" ]]; then
 fi
 
 export __NV_DISABLE_EXPLICIT_SYNC="${__NV_DISABLE_EXPLICIT_SYNC:-1}"
-export WEBKIT_DISABLE_DMABUF_RENDERER="${WEBKIT_DISABLE_DMABUF_RENDERER:-1}"
-export WEBKIT_DISABLE_COMPOSITING_MODE="${WEBKIT_DISABLE_COMPOSITING_MODE:-1}"
-export LIBGL_ALWAYS_SOFTWARE="${LIBGL_ALWAYS_SOFTWARE:-1}"
-export LIBGL_DRI3_DISABLE="${LIBGL_DRI3_DISABLE:-1}"
-export MESA_LOADER_DRIVER_OVERRIDE="${MESA_LOADER_DRIVER_OVERRIDE:-llvmpipe}"
-export GSK_RENDERER="${GSK_RENDERER:-cairo}"
-export GDK_BACKEND="${GDK_BACKEND:-x11}"
 # GTK sound-event modules are optional and frequently unavailable in
 # containerized/distrobox shells; leaving GTK_MODULES set can print a
 # scary but non-fatal "failed to load module canberra-gtk-module" warning.

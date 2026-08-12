@@ -543,4 +543,34 @@ mod tests {
             .join("data/warden/research_suggestions.jsonl")
             .exists());
     }
+
+    #[test]
+    fn versioned_research_registries_recover_after_restart() {
+        let root = tempdir().expect("temp root");
+        let question = question();
+        let watchlist = ResearchWatchlist::new(
+            "Runtime notices",
+            vec![question.question_id.clone()],
+        )
+        .expect("watchlist");
+
+        write_json_atomic(
+            &questions_path(root.path()),
+            QUESTION_SCHEMA,
+            std::slice::from_ref(&question),
+        )
+        .expect("persist questions");
+        write_json_atomic(
+            &watchlists_path(root.path()),
+            WATCHLIST_SCHEMA,
+            std::slice::from_ref(&watchlist),
+        )
+        .expect("persist watchlists");
+
+        assert_eq!(load_questions(root.path()).expect("recover questions"), vec![question]);
+        assert_eq!(
+            load_watchlists(root.path()).expect("recover watchlists"),
+            vec![watchlist]
+        );
+    }
 }

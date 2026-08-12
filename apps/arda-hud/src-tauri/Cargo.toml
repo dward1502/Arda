@@ -39,6 +39,7 @@ libc = "0.2"
 portable-pty = "0.8"
 tungstenite = { version = "0.26", default-features = false, features = ["handshake"] }
 arda-core = { path = "../../../crates/spine/governance/arda-core" }
+arda-outpost-protocol = { path = "../../../outposts/arda-outpost-protocol" }
 
 [dev-dependencies]
 tempfile = "3"

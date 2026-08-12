@@ -119,10 +119,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "arda-outpost-protocol"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "parking_lot",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+ "toml 0.8.2",
+ "url",
+ "uuid",
+]
+
+[[package]]
 name = "arda_hud"
 version = "0.1.0"
 dependencies = [
  "arda-core",
+ "arda-outpost-protocol",
  "base64 0.22.1",
  "chrono",
  "futures-util",

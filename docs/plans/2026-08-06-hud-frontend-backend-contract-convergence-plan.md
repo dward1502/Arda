@@ -68,6 +68,16 @@ Correct the current audit findings:
 
 **Gate:** malformed, fabricated, expired, mismatched, replayed, or cross-operator authority fails closed in Rust and never renders as accepted.
 
+**Research authority closeout (2026-08-11):** Research now uses installed Tauri
+commands rather than browser HTTP. React submits bounded question/watchlist/action
+intent and an approval reference only. Rust resolves configured authenticated
+operator authority, rejects mismatched/expired/non-policy-safe approvals, owns
+stable IDs, expiry, and idempotency, and returns the versioned
+`arda.hud.research-projection.v1` aggregate with source revision/time, stale or
+partial state, failures, and recovery guidance. Engine question/watchlist
+registries remain atomically persisted behind explicit v1 schemas and now have a
+restart-recovery regression test.
+
 **Prepared Workbench boundary:** planning accepts project/objective/session/idempotency intent and returns the Rust-created graph; approval accepts approve/reject intent and an authority reference; completion accepts target/session/idempotency intent. The browser does not send `policy_safe`, approval timestamps, graph topology, completion evidence, or receipt digests as authority.
 
 ### C0.3 Freeze event and state semantics

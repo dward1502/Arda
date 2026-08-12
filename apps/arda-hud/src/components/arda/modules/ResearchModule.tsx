@@ -3,32 +3,29 @@ import ModuleCard from '../ModuleCard'
 import ResearchCitationDrawer from './ResearchCitationDrawer'
 import {
   changeResearchWatchlistState,
-  createMutationEnvelope,
   createResearchQuestion,
   createResearchWatchlist,
   formatCadence,
-  listResearchBriefs,
-  listResearchQuestions,
-  listResearchWatchlists,
+  getResearchProjection,
   newQuestionDraft,
   newWatchlistDraft,
   projectResearchState,
   type ResearchBrief,
   type ResearchQuestion,
+  type ResearchQuestionDraft,
   type ResearchWatchlist,
 } from '../../../lib/research'
 
 function errorMessage(value: unknown): string { return value instanceof Error ? value.message : String(value) }
 
 export default function ResearchModule() {
-  const [question, setQuestion] = useState<ResearchQuestion>(() => newQuestionDraft())
-  const [watchlist, setWatchlist] = useState<ResearchWatchlist>(() => newWatchlistDraft())
+  const [question, setQuestion] = useState<ResearchQuestionDraft>(() => newQuestionDraft())
+  const [watchlist, setWatchlist] = useState(() => newWatchlistDraft())
   const [questions, setQuestions] = useState<ResearchQuestion[]>([])
   const [watchlists, setWatchlists] = useState<ResearchWatchlist[]>([])
   const [briefs, setBriefs] = useState<ResearchBrief[]>([])
   const [selectedBriefId, setSelectedBriefId] = useState<string | null>(null)
-  const [proposalId, setProposalId] = useState('hud-research')
-  const [approvalId, setApprovalId] = useState('hud-research-operator')
+  const [approvalReference, setApprovalReference] = useState('')
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('Research remains advisory; approved knowledge and proposals are separate states.')
   const [error, setError] = useState<string | null>(null)
@@ -41,16 +38,16 @@ export default function ResearchModule() {
     try { await operation() } catch (caught) { setError(errorMessage(caught)) } finally { setBusy(false) }
   }
   const refresh = () => void run(async () => {
-    const [questionResponse, watchlistResponse, briefResponse] = await Promise.all([listResearchQuestions(), listResearchWatchlists(), listResearchBriefs()])
-    setQuestions(questionResponse.questions); setWatchlists(watchlistResponse.watchlists); setBriefs(briefResponse.briefs)
-    setMessage('Research workspace refreshed from the typed harness projection.')
+    const projection = await getResearchProjection()
+    setQuestions(projection.questions); setWatchlists(projection.watchlists); setBriefs(projection.briefs)
+    setMessage(`Research workspace ${projection.state} at revision ${projection.sourceRevision}.${projection.recoveryAction ? ` ${projection.recoveryAction}` : ''}`)
   })
   useEffect(() => { refresh() }, [])
 
   const submitQuestion = (event: FormEvent) => {
     event.preventDefault()
     void run(async () => {
-      const response = await createResearchQuestion(question, createMutationEnvelope(proposalId, approvalId, 'question'))
+      const response = await createResearchQuestion(question, approvalReference)
       setQuestions((current) => [...current.filter((item) => item.question_id !== response.question.question_id), response.question])
       setWatchlist((current) => ({ ...current, question_ids: current.question_ids.includes(response.question.question_id) ? current.question_ids : [...current.question_ids, response.question.question_id] }))
       setQuestion(newQuestionDraft())
@@ -61,14 +58,14 @@ export default function ResearchModule() {
     event.preventDefault()
     void run(async () => {
       if (!watchlist.question_ids.length) throw new Error('Select at least one composed question before creating a watchlist')
-      const created = await createResearchWatchlist(watchlist, createMutationEnvelope(proposalId, approvalId, 'watchlist'))
+      const created = await createResearchWatchlist(watchlist, approvalReference)
       setWatchlists((current) => [...current.filter((item) => item.watchlist_id !== created.watchlist_id), created])
       setMessage(`Watchlist ${created.name || created.watchlist_id} created with ${created.question_ids.length} bounded question(s).`)
     })
   }
   const changeState = (action: 'pause' | 'resume' | 'retire') => void run(async () => {
     if (!selectedWatchlist) throw new Error('Create or refresh a watchlist before changing its state')
-    const changed = await changeResearchWatchlistState(selectedWatchlist.watchlist_id, action, createMutationEnvelope(proposalId, approvalId, action))
+    const changed = await changeResearchWatchlistState(selectedWatchlist.watchlist_id, action, approvalReference)
     setWatchlists((current) => current.map((item) => item.watchlist_id === changed.watchlist_id ? changed : item))
     setMessage(`Watchlist ${action} receipt recorded. Pause is immediately available.`)
   })
@@ -85,7 +82,7 @@ export default function ResearchModule() {
         <form className="research-form" onSubmit={submitQuestion}>
           <label>Question<textarea required value={question.question} onChange={(event) => setQuestion({ ...question, question: event.target.value })} rows={3} placeholder="What should Warden investigate?" /></label>
           <label>Rationale<textarea required value={question.rationale} onChange={(event) => setQuestion({ ...question, rationale: event.target.value })} rows={2} placeholder="Why is this bounded research useful?" /></label>
-          <div className="research-form-grid"><label>Owner<input required value={question.owner} onChange={(event) => setQuestion({ ...question, owner: event.target.value })} /></label><label>Max sources<input type="number" min="1" max="50" value={question.source_policy.max_sources_per_run} onChange={(event) => setQuestion({ ...question, source_policy: { ...question.source_policy, max_sources_per_run: Number(event.target.value) } })} /></label><label>Max results<input type="number" min="1" max="100" value={question.budgets.max_results} onChange={(event) => setQuestion({ ...question, budgets: { ...question.budgets, max_results: Number(event.target.value) } })} /></label></div>
+          <div className="research-form-grid"><label>Max sources<input type="number" min="1" max="50" value={question.source_policy.max_sources_per_run} onChange={(event) => setQuestion({ ...question, source_policy: { ...question.source_policy, max_sources_per_run: Number(event.target.value) } })} /></label><label>Max results<input type="number" min="1" max="100" value={question.budgets.max_results} onChange={(event) => setQuestion({ ...question, budgets: { ...question.budgets, max_results: Number(event.target.value) } })} /></label></div>
           <button type="submit" disabled={busy}>Create bounded question</button>
         </form>
       </section>
@@ -121,7 +118,7 @@ export default function ResearchModule() {
           <ResearchCitationDrawer citations={selectedBrief.citations ?? []} />
         </div> : null}
       </section>
-      <div className="research-approval-fields"><label>Proposal ID<input value={proposalId} onChange={(event) => setProposalId(event.target.value)} /></label><label>Approval ID<input value={approvalId} onChange={(event) => setApprovalId(event.target.value)} /></label></div>
+      <div className="research-approval-fields"><label>Approval reference<input required value={approvalReference} onChange={(event) => setApprovalReference(event.target.value)} /></label></div>
     </div>
   </ModuleCard>
 }

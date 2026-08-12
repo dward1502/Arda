@@ -19,6 +19,10 @@ use commands::monitor_surface::{
     stop_browser_capture, type_browser_capture,
     BrowserCaptureState, MonitorSurfaceState, TypedMonitorSurfaceState,
 };
+use commands::research::{
+    change_research_watchlist_state, create_research_question, create_research_watchlist,
+    get_research_projection,
+};
 use commands::system_health::read_manwe_runtime_projection;
 use portable_pty::CommandBuilder;
 use serde::{Deserialize, Serialize};
@@ -3073,6 +3077,10 @@ pub fn run() {
             get_workbench_run,
             get_workbench_run_events,
             start_workbench_run_event_stream,
+            get_research_projection,
+            create_research_question,
+            create_research_watchlist,
+            change_research_watchlist_state,
             read_file,
             get_arda_root,
             get_numenor_path,

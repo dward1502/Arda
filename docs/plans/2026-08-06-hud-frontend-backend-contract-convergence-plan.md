@@ -6,7 +6,7 @@
 
 ## Current execution state
 
-The shared boundary is recorded in [`spec/hud-convergence/v1`](../../spec/hud-convergence/v1/README.md), with one schema and fixed passing/fail-closed fixtures. Rust now owns system health, Workbench, Research, Personal Operations, and monitor-session authority paths, and the five-monitor native lifecycle result is closed. On 2026-08-12 the root daemon became the fail-closed configured-operator authority: `ARDA_OPERATOR_ID`/`--operator-id` is required, `/v1/status` publishes the selected identity, the HUD resolves it without a frontend fallback, and Personal Operations rejects non-configured read and mutation identities. Stage 6 production acceptance remains open for final envelope handling plus one complete backend mutation, durable receipt, and restart-recovery proof per required vertical workflow.
+The shared boundary is recorded in [`spec/hud-convergence/v1`](../../spec/hud-convergence/v1/README.md), with one schema and fixed passing/fail-closed fixtures. Rust now owns system health, Workbench, Research, Personal Operations, and monitor-session authority paths, and the five-monitor native lifecycle result is closed. On 2026-08-12 the root daemon became the fail-closed configured-operator authority: `ARDA_OPERATOR_ID`/`--operator-id` is required, `/v1/status` publishes the selected identity, the HUD resolves it without a frontend fallback, and Personal Operations rejects non-configured read and mutation identities. The same date also closed the Workbench HTTP/Tauri error-envelope boundary: shared harness errors emit versioned `arda.hud.error.v1` failures with stable code, message, and recovery action; Tauri accepts only that complete envelope and rejects legacy/unversioned failure bodies. Stage 6 production acceptance remains open for one complete backend mutation, durable receipt, and restart-recovery proof per required vertical workflow.
 
 Stage 5 closed on `v0.3.0-rc.1` under the selected single-operator local release profile. Its signed-artifact lifecycle is historical candidate evidence, not qualification of final `1.0.0` bytes. Stage 6 now owns the remaining production acceptance and release decision without reopening completed five-monitor lifecycle acceptance.
 
@@ -54,7 +54,7 @@ Freeze:
 
 **Gate:** every operator-facing mutation names one Rust owner, one authenticated identity source, one idempotency rule, and one durable receipt.
 
-**Prepared contract:** `arda-engine` owns authenticated operator sessions, policy decisions, authoritative IDs/timestamps, revisions, and durable receipts. React supplies a typed intent plus a stable retry key; Tauri transports it without creating authority. The current endpoint-to-target delta is retained in the integration audit and the shared contract README.
+**Implemented contract:** `arda-engine` owns authenticated operator sessions, policy decisions, authoritative IDs/timestamps, revisions, durable receipts, and versioned operator-facing failures. React supplies a typed intent plus a stable retry key; Tauri transports it without creating authority and renders only complete `arda.hud.error.v1` failures with recovery guidance. Legacy or malformed failure bodies are treated as contract violations rather than accepted operator truth. The current endpoint-to-target delta is retained in the integration audit and the shared contract README.
 
 ### C0.2 Remove frontend authority fabrication
 
@@ -81,7 +81,7 @@ Define:
 
 **Gate:** one shared contract test fixture drives Rust, Tauri, and React state handling.
 
-**Prepared fixture:** `spec/hud-convergence/v1/fixtures/valid-shared-contract.json` defines all seven load states, backend cursor/reconnect semantics, durable recovery, and five independent monitor sessions with same-session workstation handoff. `tests/test_workbench_contract_fixtures.py` validates that fixture and rejects browser-created authority. The engine, Tauri, and React preparation tests named above consume the same file directly; production-path conformance remains open until C0 implementation is permitted.
+**Implemented fixture:** `spec/hud-convergence/v1/fixtures/valid-shared-contract.json` defines all seven load states, the versioned error envelope, backend cursor/reconnect semantics, durable recovery, and five independent monitor sessions with same-session workstation handoff. `tests/test_workbench_contract_fixtures.py` validates that fixture and rejects browser-created authority. Engine, Tauri, and React tests consume the same file directly; executable harness and Tauri tests additionally prove production error serialization, recovery guidance, and fail-closed rejection of unversioned failures.
 
 ## Phase C1 — Integrate vertical workflows
 

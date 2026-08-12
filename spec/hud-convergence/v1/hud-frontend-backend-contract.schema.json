@@ -4,7 +4,7 @@
   "title": "ARDA HUD frontend/backend shared contract fixture",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "identity", "mutation", "workbench", "load_states", "event_stream", "monitor_sessions"],
+  "required": ["schema_version", "identity", "mutation", "error_envelope", "workbench", "load_states", "event_stream", "monitor_sessions"],
   "properties": {
     "schema_version": { "const": "arda.hud.frontend-backend-contract.v1" },
     "identity": { "$ref": "#/$defs/operator_session" },
@@ -17,6 +17,7 @@
         "receipt": { "$ref": "#/$defs/mutation_receipt" }
       }
     },
+    "error_envelope": { "$ref": "#/$defs/error_envelope" },
     "workbench": {
       "type": "object",
       "additionalProperties": false,
@@ -89,6 +90,18 @@
         "authority_owner": { "const": "arda-engine" },
         "recorded_at_utc": { "type": "string", "format": "date-time" },
         "durable_reference": { "$ref": "#/$defs/non_empty" }
+      }
+    },
+    "error_envelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "status", "code", "message", "recovery_action"],
+      "properties": {
+        "schema_version": { "const": "arda.hud.error.v1" },
+        "status": { "const": "failed" },
+        "code": { "$ref": "#/$defs/non_empty" },
+        "message": { "$ref": "#/$defs/non_empty" },
+        "recovery_action": { "$ref": "#/$defs/non_empty" }
       }
     },
     "plan_intent": {

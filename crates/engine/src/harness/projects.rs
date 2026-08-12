@@ -113,42 +113,54 @@ pub struct ProjectListResponse {
 #[derive(Debug)]
 pub(super) struct ApiError {
     status: StatusCode,
+    code: &'static str,
     message: String,
+    recovery_action: &'static str,
 }
 
 impl ApiError {
     pub(super) fn bad_request(message: impl Into<String>) -> Self {
         Self {
             status: StatusCode::BAD_REQUEST,
+            code: "invalid_request",
             message: message.into(),
+            recovery_action: "Correct the request using the published contract and retry.",
         }
     }
 
     pub(super) fn not_found(message: impl Into<String>) -> Self {
         Self {
             status: StatusCode::NOT_FOUND,
+            code: "not_found",
             message: message.into(),
+            recovery_action: "Reload authoritative state and choose an existing target.",
         }
     }
 
     pub(super) fn conflict(message: impl Into<String>) -> Self {
         Self {
             status: StatusCode::CONFLICT,
+            code: "conflict",
             message: message.into(),
+            recovery_action: "Reload authoritative state before retrying the intent.",
         }
     }
 
     pub(super) fn forbidden(message: impl Into<String>) -> Self {
         Self {
             status: StatusCode::FORBIDDEN,
+            code: "forbidden",
             message: message.into(),
+            recovery_action: "Use the configured operator authority or request approval.",
         }
     }
 
     pub(super) fn internal(message: impl Into<String>) -> Self {
         Self {
             status: StatusCode::INTERNAL_SERVER_ERROR,
+            code: "internal_error",
             message: message.into(),
+            recovery_action: "Inspect the harness diagnostics and retry only after recovery.",
         }
     }
 }
@@ -157,7 +169,13 @@ impl IntoResponse for ApiError {
     fn into_response(self) -> Response {
         (
             self.status,
-            Json(serde_json::json!({"error": self.message})),
+            Json(serde_json::json!({
+                "schema_version": "arda.hud.error.v1",
+                "status": "failed",
+                "code": self.code,
+                "message": self.message,
+                "recovery_action": self.recovery_action,
+            })),
         )
             .into_response()
     }
@@ -169,7 +187,9 @@ pub(super) fn require_loopback(peer: SocketAddr) -> Result<(), ApiError> {
     } else {
         Err(ApiError {
             status: StatusCode::FORBIDDEN,
+            code: "loopback_required",
             message: "Workbench mutations are loopback-only".to_string(),
+            recovery_action: "Submit the mutation through the local Arda HUD.",
         })
     }
 }

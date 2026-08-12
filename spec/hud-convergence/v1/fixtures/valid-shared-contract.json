@@ -28,6 +28,13 @@
       "durable_reference": "data/runs/run-42/events.jsonl#sequence=12"
     }
   },
+  "error_envelope": {
+    "schema_version": "arda.hud.error.v1",
+    "status": "failed",
+    "code": "conflict",
+    "message": "The idempotency key is already bound to another intent.",
+    "recovery_action": "Reload authoritative state before retrying the intent."
+  },
   "workbench": {
     "plan_intent": {
       "project_id": "project-arda",

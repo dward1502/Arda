@@ -23,6 +23,11 @@ fn tauri_boundary_uses_backend_receipts_without_creating_authority() {
     assert_eq!(receipt["authority_owner"], "arda-engine");
     assert!(!intent.contains_key("receipt_id"));
     assert!(!intent.contains_key("durable_reference"));
+    assert_eq!(
+        contract["error_envelope"]["schema_version"],
+        "arda.hud.error.v1"
+    );
+    assert_eq!(contract["error_envelope"]["status"], "failed");
 }
 
 #[test]

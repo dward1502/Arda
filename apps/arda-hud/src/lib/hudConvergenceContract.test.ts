@@ -40,6 +40,16 @@ describe('shared HUD convergence contract', () => {
     expect(contract.load_states.map(({ status }) => status)).toEqual(projectionStates)
   })
 
+  it('pins operator-readable fail-closed error envelopes', () => {
+    expect(contract.error_envelope).toMatchObject({
+      schema_version: 'arda.hud.error.v1',
+      status: 'failed',
+    })
+    expect(contract.error_envelope.code).not.toBe('')
+    expect(contract.error_envelope.message).not.toBe('')
+    expect(contract.error_envelope.recovery_action).not.toBe('')
+  })
+
   it('pins five independently owned same-session monitor handoffs', () => {
     expect(Object.keys(contract.monitor_sessions)).toEqual(monitorSlots)
 

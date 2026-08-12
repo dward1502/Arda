@@ -24,6 +24,11 @@ fn shared_fixture_pins_engine_authority_and_durable_recovery() {
         contract["event_stream"]["durable_recovery"],
         "backend_run_store"
     );
+    assert_eq!(
+        contract["error_envelope"]["schema_version"],
+        "arda.hud.error.v1"
+    );
+    assert_eq!(contract["error_envelope"]["status"], "failed");
 
     let intent = contract["mutation"]["intent"]
         .as_object()

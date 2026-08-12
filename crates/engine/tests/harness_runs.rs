@@ -30,6 +30,7 @@ async fn start_harness(
         warden_scout_timeout: DEFAULT_WARDEN_SCOUT_TIMEOUT,
         presence_inputs: HarnessPresenceState::default(),
         workbench_root: root.path().to_path_buf(),
+        operator_id: "operator-0".to_string(),
     };
     let (bound, handle) = serve(
         Some("127.0.0.1:0".parse().expect("loopback address")),

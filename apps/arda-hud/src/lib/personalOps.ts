@@ -83,6 +83,10 @@ export interface PersonalOpsClient {
   deletePersonalData(): Promise<{ receipt_id: string; deleted_events: number; system_receipts_modified: false }>
 }
 
+interface HarnessStatus {
+  operator_id?: unknown
+}
+
 export function buildPersonalOpsUrl(
   path: string,
   base = import.meta.env.VITE_ARDA_HARNESS_URL ?? 'http://127.0.0.1:7878',
@@ -107,18 +111,28 @@ async function readJson<T>(response: Response): Promise<T> {
   throw new Error(`Personal operations request failed: ${detail}`)
 }
 
+export async function loadConfiguredOperatorId(baseUrl?: string): Promise<string> {
+  const status = await fetch(buildPersonalOpsUrl('/v1/status', baseUrl)).then(readJson<HarnessStatus>)
+  if (typeof status.operator_id !== 'string' || status.operator_id.trim().length === 0) {
+    throw new Error('Personal operations request failed: harness did not publish a configured operator identity')
+  }
+  return status.operator_id.trim()
+}
+
 export function createPersonalOpsClient(
   operatorId: string,
   baseUrl?: string,
 ): PersonalOpsClient {
+  const configuredOperatorId = operatorId.trim()
+  if (!configuredOperatorId) throw new Error('Personal operations require a configured operator identity')
   const url = (path: string) => buildPersonalOpsUrl(path, baseUrl)
   const mutationHeaders = (action: string) => ({
     'content-type': 'application/json',
-    'x-arda-operator-id': operatorId,
+    'x-arda-operator-id': configuredOperatorId,
     'idempotency-key': idempotencyKey(action),
   })
   const get = <T>(path: string) => fetch(url(path), {
-    headers: { 'x-arda-operator-id': operatorId },
+    headers: { 'x-arda-operator-id': configuredOperatorId },
   }).then(readJson<T>)
 
   return {
@@ -134,7 +148,7 @@ export function createPersonalOpsClient(
       return fetch(url('/v1/personal/captures'), {
         method: 'POST',
         headers: mutationHeaders('capture'),
-        body: JSON.stringify({ operator_id: operatorId, text }),
+        body: JSON.stringify({ operator_id: configuredOperatorId, text }),
       }).then(readJson<{ event_id: string; capture_id: string }>)
     },
     confirmClassification(itemId, kind) {
@@ -142,7 +156,7 @@ export function createPersonalOpsClient(
         method: 'POST',
         headers: mutationHeaders('classify'),
         body: JSON.stringify({
-          operator_id: operatorId,
+          operator_id: configuredOperatorId,
           item_id: itemId,
           kind,
           evidence_class: 'operator_authored',
@@ -154,19 +168,19 @@ export function createPersonalOpsClient(
       return fetch(url(`/v1/personal/reminders/${encodeURIComponent(reminderId)}/acknowledge`), {
         method: 'POST',
         headers: mutationHeaders('acknowledge'),
-        body: JSON.stringify({ operator_id: operatorId, state: 'acknowledged' }),
+        body: JSON.stringify({ operator_id: configuredOperatorId, state: 'acknowledged' }),
       }).then(readJson<{ event_id: string }>)
     },
     async exportPersonalData() {
       return fetch(url('/v1/personal/data/export'), {
-        headers: { 'x-arda-operator-id': operatorId },
+        headers: { 'x-arda-operator-id': configuredOperatorId },
       }).then(readJson<PersonalDataExport>)
     },
     deletePersonalData() {
       return fetch(url('/v1/personal/data'), {
         method: 'DELETE',
         headers: mutationHeaders('delete-personal-data'),
-        body: JSON.stringify({ operator_id: operatorId }),
+        body: JSON.stringify({ operator_id: configuredOperatorId }),
       }).then(readJson<{ receipt_id: string; deleted_events: number; system_receipts_modified: false }>)
     },
   }

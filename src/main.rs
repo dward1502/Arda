@@ -37,6 +37,10 @@ struct Cli {
     /// here, never to `manwe`'s internal 7171 gateway port.
     #[arg(long)]
     harness_addr: Option<String>,
+
+    /// Stable operator identity used to authorize local HUD mutations.
+    #[arg(long)]
+    operator_id: Option<String>,
 }
 
 /// Path to the data-driven service registry.
@@ -121,6 +125,7 @@ async fn main() -> anyhow::Result<()> {
             );
             arda_engine::harness::presence::HarnessPresenceState::default()
         });
+    let operator_id = configured_operator_id(cli.operator_id.as_deref())?;
     let harness_state = arda_engine::harness::HarnessState {
         harness_addr: arda_engine::harness::DEFAULT_HARNESS_ADDR.to_string(),
         child_pids: harness_pids,
@@ -134,6 +139,7 @@ async fn main() -> anyhow::Result<()> {
         warden_scout_timeout: arda_engine::harness::DEFAULT_WARDEN_SCOUT_TIMEOUT,
         presence_inputs,
         workbench_root: root.clone(),
+        operator_id,
     };
     let harness_addr: Option<SocketAddr> = cli
         .harness_addr
@@ -159,6 +165,17 @@ async fn main() -> anyhow::Result<()> {
     supervisor.run().await;
     info!("arda daemon: stopped");
     Ok(())
+}
+
+fn configured_operator_id(cli_value: Option<&str>) -> anyhow::Result<String> {
+    let configured = cli_value
+        .map(str::to_owned)
+        .or_else(|| std::env::var("ARDA_OPERATOR_ID").ok())
+        .map(|value| value.trim().to_owned())
+        .filter(|value| !value.is_empty());
+    configured.ok_or_else(|| {
+        anyhow::anyhow!("operator identity is required; set ARDA_OPERATOR_ID or pass --operator-id")
+    })
 }
 
 /// Best-effort repo root: the directory containing `services.toml`. We are
@@ -208,5 +225,18 @@ mod tests {
     fn harness_only_parallel_owner_profile_is_not_supported() {
         let result = Cli::try_parse_from(["arda", "--harness-only"]);
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn configured_operator_identity_is_trimmed() {
+        assert_eq!(
+            configured_operator_id(Some(" operator:primary ")).unwrap(),
+            "operator:primary"
+        );
+    }
+
+    #[test]
+    fn blank_operator_identity_is_rejected() {
+        assert!(configured_operator_id(Some("   ")).is_err());
     }
 }

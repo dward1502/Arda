@@ -71,11 +71,14 @@ pub struct HarnessState {
     pub presence_inputs: presence::HarnessPresenceState,
     /// Repository root containing canonical project and run state.
     pub workbench_root: PathBuf,
+    /// Canonical operator identity configured by the root daemon.
+    pub operator_id: String,
 }
 
 #[derive(Serialize)]
 struct Status {
     daemon: &'static str,
+    operator_id: String,
     harness_addr: String,
     manwe_url: String,
     warden_scout_url: Option<String>,
@@ -236,6 +239,7 @@ async fn status(State(st): State<HarnessState>) -> impl IntoResponse {
     let service_statuses = st.service_statuses.read().await.clone();
     let body = Status {
         daemon: "arda",
+        operator_id: st.operator_id.clone(),
         harness_addr: st.harness_addr.clone(),
         manwe_url: st.manwe_url.clone(),
         warden_scout_url: st.warden_scout_url.clone(),
@@ -372,6 +376,7 @@ async fn harness_info(State(st): State<HarnessState>) -> impl IntoResponse {
         StatusCode::OK,
         Json(serde_json::json!({
             "harness": "arda",
+            "operator_id": st.operator_id,
             "bind": st.harness_addr,
             "connect_here": true,
             "routes": [
@@ -476,6 +481,7 @@ mod tests {
             warden_scout_timeout: std::time::Duration::from_secs(2),
             presence_inputs: HarnessPresenceState::default(),
             workbench_root: std::env::temp_dir(),
+            operator_id: "operator-0".to_string(),
         };
 
         let error = serve(
@@ -523,6 +529,7 @@ mod tests {
             warden_scout_timeout: std::time::Duration::from_secs(2),
             presence_inputs: HarnessPresenceState::default(),
             workbench_root: std::env::temp_dir(),
+            operator_id: "operator-0".to_string(),
         };
         let (bound, harness_handle) = serve(
             Some("127.0.0.1:0".parse().expect("harness address")),
@@ -611,6 +618,7 @@ mod tests {
             warden_scout_timeout: std::time::Duration::from_secs(2),
             presence_inputs: HarnessPresenceState::default(),
             workbench_root: std::env::temp_dir(),
+            operator_id: "operator-0".to_string(),
         };
         let (bound, harness_handle) = serve(
             Some("127.0.0.1:0".parse().expect("harness address")),
@@ -651,6 +659,7 @@ mod tests {
             warden_scout_timeout: Duration::from_millis(100),
             presence_inputs: HarnessPresenceState::default(),
             workbench_root: std::env::temp_dir(),
+            operator_id: "operator-0".to_string(),
         };
         let (bound, harness_handle) = serve(
             Some("127.0.0.1:0".parse().expect("harness address")),
@@ -689,6 +698,7 @@ mod tests {
             warden_scout_timeout: std::time::Duration::from_secs(2),
             presence_inputs: HarnessPresenceState::default(),
             workbench_root: std::env::temp_dir(),
+            operator_id: "operator-0".to_string(),
         };
         let shutdown = Arc::new(Notify::new());
         let (bound, harness_handle) = serve(

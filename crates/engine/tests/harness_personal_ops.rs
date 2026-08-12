@@ -81,7 +81,16 @@ fn base_state(workbench_root: std::path::PathBuf) -> HarnessState {
         warden_scout_timeout: DEFAULT_WARDEN_SCOUT_TIMEOUT,
         presence_inputs: HarnessPresenceState::default(),
         workbench_root,
+        operator_id: "operator-0".to_string(),
     }
+}
+
+async fn authenticated_get(url: String) -> reqwest::Result<reqwest::Response> {
+    reqwest::Client::new()
+        .get(url)
+        .header("x-arda-operator-id", "operator-0")
+        .send()
+        .await
 }
 
 #[tokio::test]
@@ -148,7 +157,7 @@ async fn personal_ops_projection_endpoint_returns_empty_when_no_events() {
     .await
     .expect("start harness");
 
-    let response: Value = reqwest::get(format!("http://{bound}/v1/personal-ops/projection"))
+    let response: Value = authenticated_get(format!("http://{bound}/v1/personal-ops/projection"))
         .await
         .unwrap()
         .json()
@@ -194,7 +203,7 @@ async fn personal_ops_projection_endpoint_reflects_appended_events() {
     .await
     .expect("start harness");
 
-    let response: Value = reqwest::get(format!("http://{bound}/v1/personal-ops/projection"))
+    let response: Value = authenticated_get(format!("http://{bound}/v1/personal-ops/projection"))
         .await
         .unwrap()
         .json()
@@ -235,7 +244,7 @@ async fn capture_endpoint_creates_capture_and_appears_in_inbox() {
         .unwrap();
     assert_eq!(resp.status(), 201);
 
-    let inbox: Value = reqwest::get(format!("http://{bound}/v1/personal/inbox"))
+    let inbox: Value = authenticated_get(format!("http://{bound}/v1/personal/inbox"))
         .await
         .unwrap()
         .json()
@@ -321,7 +330,7 @@ async fn personal_data_export_and_delete_preserve_system_receipts() {
     assert_eq!(replay["receipt_id"], delete["receipt_id"]);
     assert_eq!(replay["deleted_events"], 1);
 
-    let projection: Value = reqwest::get(format!("http://{bound}/v1/personal-ops/projection"))
+    let projection: Value = authenticated_get(format!("http://{bound}/v1/personal-ops/projection"))
         .await
         .unwrap()
         .json()
@@ -405,7 +414,7 @@ async fn reminder_attempt_and_defer_flow_updates_projection_without_double_count
     assert_eq!(attempt_resp.status(), 201);
 
     // Projection should show the reminder state on the item
-    let proj: Value = reqwest::get(format!("http://{bound}/v1/personal-ops/projection"))
+    let proj: Value = authenticated_get(format!("http://{bound}/v1/personal-ops/projection"))
         .await
         .unwrap()
         .json()
@@ -440,7 +449,7 @@ async fn reminder_attempt_and_defer_flow_updates_projection_without_double_count
     assert_eq!(ack_resp.status(), 201);
 
     // Projection should now show 4 events (capture + classify + attempt + ack)
-    let proj: Value = reqwest::get(format!("http://{bound}/v1/personal-ops/projection"))
+    let proj: Value = authenticated_get(format!("http://{bound}/v1/personal-ops/projection"))
         .await
         .unwrap()
         .json()
@@ -448,7 +457,7 @@ async fn reminder_attempt_and_defer_flow_updates_projection_without_double_count
         .unwrap();
     assert_eq!(proj["projection"]["event_count"], 4);
 
-    let resume: Value = reqwest::get(format!("http://{bound}/v1/personal/resume"))
+    let resume: Value = authenticated_get(format!("http://{bound}/v1/personal/resume"))
         .await
         .unwrap()
         .json()
@@ -502,7 +511,7 @@ async fn classify_and_complete_flow_updates_projection() {
         .to_owned();
 
     // Inbox should have 1 item
-    let inbox: Value = reqwest::get(format!("http://{bound}/v1/personal/inbox"))
+    let inbox: Value = authenticated_get(format!("http://{bound}/v1/personal/inbox"))
         .await
         .unwrap()
         .json()
@@ -529,7 +538,7 @@ async fn classify_and_complete_flow_updates_projection() {
     assert_eq!(classify_resp.status(), 201);
 
     // After classification, inbox should be empty
-    let inbox: Value = reqwest::get(format!("http://{bound}/v1/personal/inbox"))
+    let inbox: Value = authenticated_get(format!("http://{bound}/v1/personal/inbox"))
         .await
         .unwrap()
         .json()
@@ -553,7 +562,7 @@ async fn classify_and_complete_flow_updates_projection() {
     assert_eq!(complete_resp.status(), 201);
 
     // Projection should show 1 completed item
-    let proj: Value = reqwest::get(format!("http://{bound}/v1/personal-ops/projection"))
+    let proj: Value = authenticated_get(format!("http://{bound}/v1/personal-ops/projection"))
         .await
         .unwrap()
         .json()
@@ -641,7 +650,7 @@ async fn resume_and_brief_endpoints_work() {
     .unwrap();
 
     // Resume endpoint
-    let resume: Value = reqwest::get(format!("http://{bound}/v1/personal/resume"))
+    let resume: Value = authenticated_get(format!("http://{bound}/v1/personal/resume"))
         .await
         .unwrap()
         .json()
@@ -653,7 +662,7 @@ async fn resume_and_brief_endpoints_work() {
     assert_eq!(resume["resume"]["today_count"], 1);
 
     // Brief endpoint
-    let brief: Value = reqwest::get(format!("http://{bound}/v1/personal/briefs/today"))
+    let brief: Value = authenticated_get(format!("http://{bound}/v1/personal/briefs/today"))
         .await
         .unwrap()
         .json()
@@ -668,7 +677,7 @@ async fn resume_and_brief_endpoints_work() {
 
     for kind in ["morning", "transition"] {
         let context_brief: Value =
-            reqwest::get(format!("http://{bound}/v1/personal/briefs/{kind}"))
+            authenticated_get(format!("http://{bound}/v1/personal/briefs/{kind}"))
                 .await
                 .unwrap()
                 .json()
@@ -758,7 +767,7 @@ async fn mutations_require_identity_and_replay_idempotency_keys_exactly_once() {
     assert_eq!(first_body["event_id"], second_body["event_id"]);
     assert_eq!(first_body["capture_id"], second_body["capture_id"]);
 
-    let projection: Value = reqwest::get(format!("http://{bound}/v1/personal-ops/projection"))
+    let projection: Value = authenticated_get(format!("http://{bound}/v1/personal-ops/projection"))
         .await
         .unwrap()
         .json()
@@ -775,9 +784,10 @@ async fn mutations_require_identity_and_replay_idempotency_keys_exactly_once() {
 }
 
 #[tokio::test]
-async fn personal_views_require_identity_and_exclude_other_operators() {
+async fn personal_views_require_the_configured_identity() {
     let root = tempfile::tempdir().unwrap();
-    let state = base_state(root.path().to_path_buf());
+    let mut state = base_state(root.path().to_path_buf());
+    state.operator_id = "operator-configured".to_string();
     let shutdown = Arc::new(Notify::new());
     let (bound, harness_handle) = harness::serve(
         Some("127.0.0.1:0".parse().unwrap()),
@@ -788,41 +798,41 @@ async fn personal_views_require_identity_and_exclude_other_operators() {
     .expect("start harness");
     let client = reqwest::Client::new();
 
-    let mut capture_ids = std::collections::BTreeMap::new();
-    for operator_id in ["operator-a", "operator-b"] {
-        let response = client
-            .post(format!("http://{bound}/v1/personal/captures"))
-            .header("x-arda-operator-id", operator_id)
-            .header("idempotency-key", format!("capture-{operator_id}"))
-            .json(&serde_json::json!({
-                "operator_id": operator_id,
-                "text": format!("private capture for {operator_id}")
-            }))
-            .send()
-            .await
-            .unwrap();
-        assert_eq!(response.status(), 201);
-        let body: Value = response.json().await.unwrap();
-        capture_ids.insert(operator_id, body["capture_id"].as_str().unwrap().to_owned());
-    }
+    let status: Value = client
+        .get(format!("http://{bound}/v1/status"))
+        .send()
+        .await
+        .unwrap()
+        .json()
+        .await
+        .unwrap();
+    assert_eq!(status["operator_id"], "operator-configured");
 
-    let operator_b_capture = capture_ids.get("operator-b").unwrap();
-    let cross_operator_mutation = client
-        .post(format!(
-            "http://{bound}/v1/personal/items/{operator_b_capture}/classify"
-        ))
-        .header("x-arda-operator-id", "operator-a")
-        .header("idempotency-key", "cross-operator-classification")
+    let rejected = client
+        .post(format!("http://{bound}/v1/personal/captures"))
+        .header("x-arda-operator-id", "operator-other")
+        .header("idempotency-key", "wrong-operator")
         .json(&serde_json::json!({
-            "operator_id": "operator-a",
-            "item_id": operator_b_capture,
-            "kind": "task",
-            "evidence_class": "operator_authored"
+            "operator_id": "operator-other",
+            "text": "must not mutate"
         }))
         .send()
         .await
         .unwrap();
-    assert_eq!(cross_operator_mutation.status(), 403);
+    assert_eq!(rejected.status(), 403);
+
+    let accepted = client
+        .post(format!("http://{bound}/v1/personal/captures"))
+        .header("x-arda-operator-id", "operator-configured")
+        .header("idempotency-key", "configured-operator")
+        .json(&serde_json::json!({
+            "operator_id": "operator-configured",
+            "text": "configured identity capture"
+        }))
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(accepted.status(), 201);
 
     let unauthenticated = client
         .get(format!("http://{bound}/v1/personal/inbox"))
@@ -831,18 +841,24 @@ async fn personal_views_require_identity_and_exclude_other_operators() {
         .unwrap();
     assert_eq!(unauthenticated.status(), 401);
 
-    for operator_id in ["operator-a", "operator-b"] {
-        let response = client
-            .get(format!("http://{bound}/v1/personal/inbox"))
-            .header("x-arda-operator-id", operator_id)
-            .send()
-            .await
-            .unwrap();
-        assert_eq!(response.status(), 200);
-        let body: Value = response.json().await.unwrap();
-        assert_eq!(body["inbox"].as_array().unwrap().len(), 1);
-        assert_eq!(body["inbox"][0]["operator_id"], operator_id);
-    }
+    let wrong_view = client
+        .get(format!("http://{bound}/v1/personal/inbox"))
+        .header("x-arda-operator-id", "operator-other")
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(wrong_view.status(), 403);
+
+    let response = client
+        .get(format!("http://{bound}/v1/personal/inbox"))
+        .header("x-arda-operator-id", "operator-configured")
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(response.status(), 200);
+    let body: Value = response.json().await.unwrap();
+    assert_eq!(body["inbox"].as_array().unwrap().len(), 1);
+    assert_eq!(body["inbox"][0]["operator_id"], "operator-configured");
 
     shutdown.notify_waiters();
     harness_handle.await.unwrap();

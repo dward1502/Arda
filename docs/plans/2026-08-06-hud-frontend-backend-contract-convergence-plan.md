@@ -6,7 +6,7 @@
 
 ## Current execution state
 
-The shared boundary is recorded in [`spec/hud-convergence/v1`](../../spec/hud-convergence/v1/README.md), with one schema and fixed passing/fail-closed fixtures. Rust now owns system health, Workbench, Research, Personal Operations, and monitor-session authority paths, and the five-monitor native lifecycle result is closed. Stage 6 production acceptance remains open for configured identity and envelope handling plus one complete backend mutation, durable receipt, and restart-recovery proof per release workflow; fixture and helper tests alone do not close those final paths.
+The shared boundary is recorded in [`spec/hud-convergence/v1`](../../spec/hud-convergence/v1/README.md), with one schema and fixed passing/fail-closed fixtures. Rust now owns system health, Workbench, Research, Personal Operations, and monitor-session authority paths, and the five-monitor native lifecycle result is closed. On 2026-08-12 the root daemon became the fail-closed configured-operator authority: `ARDA_OPERATOR_ID`/`--operator-id` is required, `/v1/status` publishes the selected identity, the HUD resolves it without a frontend fallback, and Personal Operations rejects non-configured read and mutation identities. Stage 6 production acceptance remains open for final envelope handling plus one complete backend mutation, durable receipt, and restart-recovery proof per required vertical workflow.
 
 Stage 5 closed on `v0.3.0-rc.1` under the selected single-operator local release profile. Its signed-artifact lifecycle is historical candidate evidence, not qualification of final `1.0.0` bytes. Stage 6 now owns the remaining production acceptance and release decision without reopening completed five-monitor lifecycle acceptance.
 

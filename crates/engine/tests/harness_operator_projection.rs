@@ -23,6 +23,7 @@ fn base_state(workbench_root: PathBuf) -> HarnessState {
         warden_scout_timeout: DEFAULT_WARDEN_SCOUT_TIMEOUT,
         presence_inputs: HarnessPresenceState::default(),
         workbench_root,
+        operator_id: "operator-0".to_string(),
     }
 }
 

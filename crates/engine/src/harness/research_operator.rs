@@ -507,6 +507,7 @@ mod tests {
             warden_scout_timeout: std::time::Duration::from_secs(1),
             presence_inputs: super::super::presence::HarnessPresenceState::default(),
             workbench_root: root,
+            operator_id: "operator-0".to_string(),
         }
     }
 

@@ -60,6 +60,7 @@ fn receipt_digest(node_id: &str) -> String {
     let marker = match node_id {
         "execute" => 'e',
         "verify" => 'f',
+        "verify-recovered" => 'b',
         "review" => 'a',
         "close" => 'c',
         "different-close" => 'd',
@@ -834,10 +835,51 @@ async fn failed_verification_is_durable_and_blocks_review() {
         "failed"
     );
     assert_eq!(failed["review"]["tests"][0]["status"], "failed");
+    assert_eq!(
+        failed["recovery_diagnostics"]["failure_owner"],
+        "arda-engine/workbench.verify"
+    );
+    assert_eq!(
+        failed["recovery_diagnostics"]["failure_reason"],
+        "Project-native verification failed: fixture assertion failed"
+    );
+    assert_eq!(
+        failed["recovery_diagnostics"]["last_valid_state"]["node_id"],
+        "execute"
+    );
+    assert_eq!(
+        failed["recovery_diagnostics"]["last_valid_state"]["receipt_digest"],
+        receipt_digest("execute")
+    );
+    assert_eq!(
+        failed["recovery_diagnostics"]["post_recovery_receipt"],
+        Value::Null
+    );
+
+    shutdown.notify_waiters();
+    handle.await.expect("harness shutdown");
+
+    let (restarted_bound, restarted_shutdown, restarted_handle) = start_harness(&root).await;
+    let recovered: Value = client
+        .get(format!(
+            "http://{restarted_bound}/v1/runs/run-failed-verification"
+        ))
+        .send()
+        .await
+        .expect("recovery diagnostics request")
+        .error_for_status()
+        .expect("recovery diagnostics status")
+        .json()
+        .await
+        .expect("recovery diagnostics body");
+    assert_eq!(
+        recovered["recovery_diagnostics"],
+        failed["recovery_diagnostics"]
+    );
 
     let blocked = client
         .post(format!(
-            "http://{bound}/v1/runs/run-failed-verification/nodes/review/complete"
+            "http://{restarted_bound}/v1/runs/run-failed-verification/nodes/review/complete"
         ))
         .json(&json!({
             "envelope": envelope("complete-blocked-review"),
@@ -848,6 +890,53 @@ async fn failed_verification_is_durable_and_blocks_review() {
         .expect("blocked review request");
     assert_eq!(blocked.status(), 409);
 
-    shutdown.notify_waiters();
-    handle.await.expect("harness shutdown");
+    let recovered_after_retry: Value = client
+        .post(format!(
+            "http://{restarted_bound}/v1/runs/run-failed-verification/nodes/verify/complete"
+        ))
+        .json(&json!({
+            "envelope": envelope("retry-failed-verification-verify"),
+            "receipt_digest": receipt_digest("verify-recovered"),
+            "evidence": {"tests": [{
+                "name": "cargo test --quiet",
+                "status": "passed",
+                "duration_ms": 14,
+                "details": "fixture assertion corrected"
+            }]}
+        }))
+        .send()
+        .await
+        .expect("verification recovery request")
+        .error_for_status()
+        .expect("verification recovery status")
+        .json()
+        .await
+        .expect("verification recovery body");
+    assert_eq!(
+        recovered_after_retry["recovery_diagnostics"]["post_recovery_receipt"],
+        receipt_digest("verify-recovered")
+    );
+
+    restarted_shutdown.notify_waiters();
+    restarted_handle.await.expect("restarted harness shutdown");
+
+    let (final_bound, final_shutdown, final_handle) = start_harness(&root).await;
+    let final_recovery: Value = client
+        .get(format!(
+            "http://{final_bound}/v1/runs/run-failed-verification"
+        ))
+        .send()
+        .await
+        .expect("final recovery request")
+        .error_for_status()
+        .expect("final recovery status")
+        .json()
+        .await
+        .expect("final recovery body");
+    assert_eq!(
+        final_recovery["recovery_diagnostics"]["post_recovery_receipt"],
+        receipt_digest("verify-recovered")
+    );
+    final_shutdown.notify_waiters();
+    final_handle.await.expect("final harness shutdown");
 }

@@ -136,8 +136,26 @@ pub struct RunRecord {
     pub graph: RunGraph,
     pub events: Vec<Value>,
     pub review: RunReviewEvidence,
+    pub recovery_diagnostics: Option<RecoveryDiagnostics>,
     #[serde(default)]
     pub worker_progress: std::collections::BTreeMap<String, String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RecoveryDiagnostics {
+    pub failure_owner: String,
+    pub failed_node_id: String,
+    pub failure_reason: String,
+    pub last_valid_state: Option<LastValidRunState>,
+    pub safe_recovery_action: String,
+    pub post_recovery_receipt: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LastValidRunState {
+    pub node_id: String,
+    pub state: String,
+    pub receipt_digest: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]

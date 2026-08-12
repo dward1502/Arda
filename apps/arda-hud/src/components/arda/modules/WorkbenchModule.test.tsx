@@ -107,4 +107,35 @@ describe('WorkbenchModule', () => {
     await waitFor(() => expect(mockedInvoke).toHaveBeenCalledWith('cancel_workbench_run', { request: expect.objectContaining({ run_id: 'run-reject-1', reason: expect.stringContaining('revise the objective') }) }))
     expect(await screen.findByText(/Approval approval rejected\. Revise the objective/)).toBeTruthy()
   })
+
+  it('renders backend-owned recovery diagnostics after durable resume', async () => {
+    const run = {
+      graph: {
+        schema_version: 'arda.run-graph.v1', run_id: 'run-failed-1', objective_id: 'objective-failed-1', edges: [],
+        provenance: { project_contract_digest: 'sha256:project', created_by: 'arda-engine', parent_receipts: [] },
+        nodes: [{
+          id: 'verify', kind: 'verify', state: 'failed', authority: 'verify',
+          budget: { max_joules: 25, max_cost_usd: 0 }, retry: { max_attempts: 1 }, timeout_ms: 60_000,
+          idempotency_key: 'verify-1', input_digest: 'sha256:input', output_digest: 'sha256:failed', parent_receipts: [],
+          checkpoint: { sequence: 2, recovery_token: 'recover-verify', checkpoint_digest: 'sha256:checkpoint' },
+        }],
+      },
+      events: [], review: { changes: [], tests: [{ name: 'cargo test', status: 'failed', details: 'fixture assertion failed' }], provider_receipt: null },
+      recovery_diagnostics: {
+        failure_owner: 'arda-engine/workbench.verify', failed_node_id: 'verify',
+        failure_reason: 'Project-native verification failed: fixture assertion failed',
+        last_valid_state: { node_id: 'execute', state: 'succeeded', receipt_digest: 'sha256:execute' },
+        safe_recovery_action: 'Correct the failing project check, then retry verification; review remains blocked until passing evidence is durable.',
+        post_recovery_receipt: null,
+      },
+    }
+    window.localStorage.setItem('arda.workbench.last-run-id', 'run-failed-1')
+    mockedInvoke.mockImplementation((command) => command === 'get_workbench_run' ? Promise.resolve(run) : Promise.resolve(undefined))
+    render(<WorkbenchModule />)
+
+    const diagnostics = await screen.findByLabelText('Recovery diagnostics')
+    expect(within(diagnostics).getByText('arda-engine/workbench.verify')).toBeTruthy()
+    expect(within(diagnostics).getByText('execute · succeeded · sha256:execute')).toBeTruthy()
+    expect(within(diagnostics).getByText('Recovery has not produced a successful durable receipt.')).toBeTruthy()
+  })
 })

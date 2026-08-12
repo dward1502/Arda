@@ -108,6 +108,19 @@ Cover objective, planning, approval/rejection, provider execution, verification 
 
 Expose exact failure owner, last valid state, safe recovery action, and post-recovery receipt. Never reduce missing evidence to success.
 
+**Accepted Workbench recovery-diagnostics slice (2026-08-12):** the Rust
+harness now derives a `recovery_diagnostics` projection from the durable run
+graph, event ledger, review evidence, and receipts. Tauri transports that typed
+projection without recreating authority, and React renders failure owner,
+failure reason, last succeeded node/receipt, the backend-selected safe recovery
+action, and an explicit missing or successful post-recovery receipt. The focused
+`failed_verification_is_durable_and_blocks_review` harness test proves failed
+verification remains blocked across process restart, then records a successful
+retry receipt and recovers that receipt after a second fresh-process restart.
+`WorkbenchModule.test.tsx` proves the HUD resumes and renders the backend-owned
+diagnostics. This closes the bounded Workbench verification-failure diagnostic
+path only; broader Stage 6 production error/recovery acceptance remains open.
+
 ### C1.4 Research/evidence projection
 
 Converge authenticated question/watchlist/brief lifecycle, citations, freshness, idempotency, pause/resume/retire, and restart recovery.

@@ -558,7 +558,7 @@ Exact artifact signing, clean-install, upgrade/rollback, backup/restore, adapter
 - [x] Failure injection and the uninterrupted soak show no silent mutation, false completion, duplicate mutation, lost terminal state, or unbounded growth.
 - [x] Final signed artifacts pass install, upgrade, rollback, backup, restore, diagnostics, and uninstall on the supported matrix.
 - [ ] Accessibility, plain-language recovery, security/privacy, known limitations, and support documentation pass their Stage 5/6 gates.
-- [ ] HUD health, Workbench, Research, and Personal Operations use frozen backend-owned identity, state, error, receipt, and recovery contracts.
+- [x] HUD health, Workbench, Research, and Personal Operations use frozen backend-owned identity, state, error, receipt, and recovery contracts. Native configured-identity/envelope walkthroughs remain acceptance evidence rather than implementation authority.
 - [ ] All five upper monitor surfaces pass native concurrent-owner, full-aperture, same-session workstation, and restart-recovery acceptance.
 - [ ] Other first-party applications are honestly classified and cannot block or destabilize Workbench.
 - [ ] Completed plans are archived, stale paths are repaired, and the default documentation route describes the live system.

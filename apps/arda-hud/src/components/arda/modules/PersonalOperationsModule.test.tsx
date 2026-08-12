@@ -4,6 +4,12 @@ import PersonalOperationsModule from './PersonalOperationsModule'
 import type { PersonalOpsClient, PersonalOpsSnapshot } from '../../../lib/personalOps'
 
 const snapshot: PersonalOpsSnapshot = {
+  schemaVersion: 'arda.hud.personal-ops-projection.v1',
+  state: 'healthy',
+  sourceRevision: 'personal-ops-revision-1',
+  sourceTimeUtc: '2026-08-04T09:00:00Z',
+  failures: [],
+  recoveryAction: null,
   inbox: {
     schema_version: 'arda.harness.personal-ops.v1',
     inbox: [
@@ -93,7 +99,7 @@ function client(overrides: Partial<PersonalOpsClient> = {}): PersonalOpsClient {
 
 describe('PersonalOperationsModule', () => {
   it('renders the backend-backed first screen without requiring categorization', async () => {
-    render(<PersonalOperationsModule client={client()} operatorId="operator" />)
+    render(<PersonalOperationsModule client={client()} />)
 
     expect(await screen.findByRole('heading', { name: 'Personal Operations' })).toBeInTheDocument()
     expect(screen.getByLabelText('Rapid capture')).toBeInTheDocument()
@@ -106,7 +112,7 @@ describe('PersonalOperationsModule', () => {
 
   it('submits capture with Enter from the focused textarea and preserves newline with Shift+Enter', async () => {
     const ops = client()
-    render(<PersonalOperationsModule client={ops} operatorId="operator" />)
+    render(<PersonalOperationsModule client={ops} />)
     const capture = await screen.findByLabelText('Rapid capture')
 
     fireEvent.change(capture, { target: { value: 'Buy tea' } })
@@ -120,9 +126,9 @@ describe('PersonalOperationsModule', () => {
 
   it('exposes screen-reader status, keyboard acknowledgement, reduced-motion and high-contrast posture', async () => {
     const ops = client()
-    const { container } = render(<PersonalOperationsModule client={ops} operatorId="operator" />)
+    const { container } = render(<PersonalOperationsModule client={ops} />)
 
-    expect(await screen.findByRole('status')).toHaveTextContent('Personal operations loaded')
+    expect(await screen.findByRole('status')).toHaveTextContent('Personal operations healthy at revision personal-ops-revision-1')
     const ack = screen.getByRole('button', { name: 'Acknowledge reminder for Prepare launch checklist' })
     ack.focus()
     fireEvent.keyDown(ack, { key: 'Enter' })
@@ -134,24 +140,25 @@ describe('PersonalOperationsModule', () => {
   it('announces loading, error, and empty states accessibly', async () => {
     const emptyClient = client({
       loadSnapshot: vi.fn(async () => ({
+        schemaVersion: 'arda.hud.personal-ops-projection.v1' as const, state: 'healthy' as const, sourceRevision: 'empty-1', sourceTimeUtc: '2026-08-04T09:00:00Z', failures: [], recoveryAction: null,
         inbox: { schema_version: 'arda.harness.personal-ops.v1', inbox: [] },
         resume: { schema_version: 'arda.harness.personal-ops.v1', resume: { summary: 'Nothing in progress. Check your captures or scheduled items.', active_count: 0, inbox_count: 0, today_count: 0, waiting_count: 0, generated_at: '2026-08-04T09:00:00Z' } },
         todayBrief: { schema_version: 'arda.harness.personal-ops.v1', brief: { generated_at: '2026-08-04T09:00:00Z', today: [], waiting: [], reminders_awaiting_ack: 0, quiet_mode: false, uncertainty_disclosure: 'Brief reconstructed from local event log.' } },
       })),
     })
-    render(<PersonalOperationsModule client={emptyClient} operatorId="operator" />)
+    render(<PersonalOperationsModule client={emptyClient} />)
     expect(screen.getByRole('status')).toHaveTextContent('Loading personal operations')
     expect(await screen.findByText('No timeline items for today.')).toBeInTheDocument()
 
     const failingClient = client({ loadSnapshot: vi.fn(async () => { throw new Error('network offline') }) })
-    render(<PersonalOperationsModule client={failingClient} operatorId="operator" />)
+    render(<PersonalOperationsModule client={failingClient} />)
     expect(await screen.findByRole('alert')).toHaveTextContent('network offline')
   })
 
   it('exports personal data and requires an explicit second action before deletion', async () => {
     const ops = client()
     const download = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
-    render(<PersonalOperationsModule client={ops} operatorId="operator" />)
+    render(<PersonalOperationsModule client={ops} />)
     await screen.findByRole('heading', { name: 'Personal Operations' })
 
     fireEvent.click(screen.getByRole('button', { name: 'Export personal data' }))

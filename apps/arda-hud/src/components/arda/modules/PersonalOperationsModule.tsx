@@ -4,7 +4,6 @@ import ModuleCard from '../ModuleCard'
 
 interface PersonalOperationsModuleProps {
   client?: PersonalOpsClient
-  operatorId?: string
 }
 
 function messageOf(error: unknown): string {
@@ -19,9 +18,8 @@ function formatTime(value: string | null): string {
 
 export default function PersonalOperationsModule({
   client,
-  operatorId = 'operator-0',
 }: PersonalOperationsModuleProps) {
-  const defaultClient = useMemo(() => createPersonalOpsClient(operatorId), [operatorId])
+  const defaultClient = useMemo(() => createPersonalOpsClient(), [])
   const ops = client ?? defaultClient
   const [snapshot, setSnapshot] = useState<PersonalOpsSnapshot | null>(null)
   const [capture, setCapture] = useState('')
@@ -43,7 +41,7 @@ export default function PersonalOperationsModule({
     void ops.loadSnapshot().then((next) => {
       if (cancelled) return
       setSnapshot(next)
-      setStatus('Personal operations loaded')
+      setStatus(`Personal operations ${next.state} at revision ${next.sourceRevision}.${next.recoveryAction ? ` ${next.recoveryAction}` : ''}`)
     }).catch((caught) => {
       if (cancelled) return
       setError(messageOf(caught))

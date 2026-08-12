@@ -19,6 +19,10 @@ use commands::monitor_surface::{
     stop_browser_capture, type_browser_capture,
     BrowserCaptureState, MonitorSurfaceState, TypedMonitorSurfaceState,
 };
+use commands::personal_ops::{
+    acknowledge_personal_reminder, confirm_personal_classification, create_personal_capture,
+    delete_personal_data, export_personal_data, get_personal_ops_projection,
+};
 use commands::research::{
     change_research_watchlist_state, create_research_question, create_research_watchlist,
     get_research_projection,
@@ -3081,6 +3085,12 @@ pub fn run() {
             create_research_question,
             create_research_watchlist,
             change_research_watchlist_state,
+            get_personal_ops_projection,
+            create_personal_capture,
+            confirm_personal_classification,
+            acknowledge_personal_reminder,
+            export_personal_data,
+            delete_personal_data,
             read_file,
             get_arda_root,
             get_numenor_path,

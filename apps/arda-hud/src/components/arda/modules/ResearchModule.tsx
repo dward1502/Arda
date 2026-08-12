@@ -7,6 +7,7 @@ import {
   createResearchQuestion,
   createResearchWatchlist,
   formatCadence,
+  loadResearchOperatorId,
   listResearchBriefs,
   listResearchQuestions,
   listResearchWatchlists,
@@ -30,6 +31,7 @@ export default function ResearchModule() {
   const [proposalId, setProposalId] = useState('hud-research')
   const [approvalId, setApprovalId] = useState('hud-research-operator')
   const [busy, setBusy] = useState(false)
+  const [operatorId, setOperatorId] = useState<string | null>(null)
   const [message, setMessage] = useState('Research remains advisory; approved knowledge and proposals are separate states.')
   const [error, setError] = useState<string | null>(null)
 
@@ -41,7 +43,9 @@ export default function ResearchModule() {
     try { await operation() } catch (caught) { setError(errorMessage(caught)) } finally { setBusy(false) }
   }
   const refresh = () => void run(async () => {
-    const [questionResponse, watchlistResponse, briefResponse] = await Promise.all([listResearchQuestions(), listResearchWatchlists(), listResearchBriefs()])
+    const configuredOperator = operatorId ?? await loadResearchOperatorId()
+    setOperatorId(configuredOperator)
+    const [questionResponse, watchlistResponse, briefResponse] = await Promise.all([listResearchQuestions(configuredOperator), listResearchWatchlists(configuredOperator), listResearchBriefs(configuredOperator)])
     setQuestions(questionResponse.questions); setWatchlists(watchlistResponse.watchlists); setBriefs(briefResponse.briefs)
     setMessage('Research workspace refreshed from the typed harness projection.')
   })
@@ -50,7 +54,8 @@ export default function ResearchModule() {
   const submitQuestion = (event: FormEvent) => {
     event.preventDefault()
     void run(async () => {
-      const response = await createResearchQuestion(question, createMutationEnvelope(proposalId, approvalId, 'question'))
+      if (!operatorId) throw new Error('Research operator identity is not loaded')
+      const response = await createResearchQuestion(operatorId, { ...question, owner: operatorId }, createMutationEnvelope(proposalId, approvalId, 'question'))
       setQuestions((current) => [...current.filter((item) => item.question_id !== response.question.question_id), response.question])
       setWatchlist((current) => ({ ...current, question_ids: current.question_ids.includes(response.question.question_id) ? current.question_ids : [...current.question_ids, response.question.question_id] }))
       setQuestion(newQuestionDraft())
@@ -61,14 +66,16 @@ export default function ResearchModule() {
     event.preventDefault()
     void run(async () => {
       if (!watchlist.question_ids.length) throw new Error('Select at least one composed question before creating a watchlist')
-      const created = await createResearchWatchlist(watchlist, createMutationEnvelope(proposalId, approvalId, 'watchlist'))
+      if (!operatorId) throw new Error('Research operator identity is not loaded')
+      const created = await createResearchWatchlist(operatorId, watchlist, createMutationEnvelope(proposalId, approvalId, 'watchlist'))
       setWatchlists((current) => [...current.filter((item) => item.watchlist_id !== created.watchlist_id), created])
       setMessage(`Watchlist ${created.name || created.watchlist_id} created with ${created.question_ids.length} bounded question(s).`)
     })
   }
   const changeState = (action: 'pause' | 'resume' | 'retire') => void run(async () => {
     if (!selectedWatchlist) throw new Error('Create or refresh a watchlist before changing its state')
-    const changed = await changeResearchWatchlistState(selectedWatchlist.watchlist_id, action, createMutationEnvelope(proposalId, approvalId, action))
+    if (!operatorId) throw new Error('Research operator identity is not loaded')
+    const changed = await changeResearchWatchlistState(operatorId, selectedWatchlist.watchlist_id, action, createMutationEnvelope(proposalId, approvalId, action))
     setWatchlists((current) => current.map((item) => item.watchlist_id === changed.watchlist_id ? changed : item))
     setMessage(`Watchlist ${action} receipt recorded. Pause is immediately available.`)
   })

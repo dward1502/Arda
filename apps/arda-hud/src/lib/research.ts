@@ -198,9 +198,20 @@ async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
   return response.json() as Promise<T>
 }
 
-export const listResearchQuestions = () => requestJson<QuestionListResponse>('/v1/research/questions')
-export const listResearchWatchlists = () => requestJson<WatchlistListResponse>('/v1/research/watchlists')
-export const listResearchBriefs = () => requestJson<BriefListResponse>('/v1/research/briefs')
-export const createResearchQuestion = (question: ResearchQuestion, envelope: MutationEnvelope, readOnly = false) => requestJson<QuestionCreateResponse>('/v1/research/questions', { method: 'POST', body: JSON.stringify({ question, read_only: readOnly, envelope }) })
-export const createResearchWatchlist = (watchlist: ResearchWatchlist, envelope: MutationEnvelope) => requestJson<ResearchWatchlist>('/v1/research/watchlists', { method: 'POST', body: JSON.stringify({ watchlist, envelope }) })
-export const changeResearchWatchlistState = (id: string, action: 'pause' | 'resume' | 'retire', envelope: MutationEnvelope) => requestJson<ResearchWatchlist>(`/v1/research/watchlists/${encodeURIComponent(id)}/${action}`, { method: 'POST', body: JSON.stringify({ envelope }) })
+interface HarnessStatus { operator_id?: unknown }
+
+export async function loadResearchOperatorId(): Promise<string> {
+  const status = await requestJson<HarnessStatus>('/v1/status')
+  if (typeof status.operator_id !== 'string' || !status.operator_id.trim()) {
+    throw new Error('Research request failed: harness did not publish a configured operator identity')
+  }
+  return status.operator_id.trim()
+}
+
+const operatorHeaders = (operatorId: string) => ({ 'x-arda-operator-id': operatorId })
+export const listResearchQuestions = (operatorId: string) => requestJson<QuestionListResponse>('/v1/research/questions', { headers: operatorHeaders(operatorId) })
+export const listResearchWatchlists = (operatorId: string) => requestJson<WatchlistListResponse>('/v1/research/watchlists', { headers: operatorHeaders(operatorId) })
+export const listResearchBriefs = (operatorId: string) => requestJson<BriefListResponse>('/v1/research/briefs', { headers: operatorHeaders(operatorId) })
+export const createResearchQuestion = (operatorId: string, question: ResearchQuestion, envelope: MutationEnvelope, readOnly = false) => requestJson<QuestionCreateResponse>('/v1/research/questions', { method: 'POST', headers: operatorHeaders(operatorId), body: JSON.stringify({ question, read_only: readOnly, envelope }) })
+export const createResearchWatchlist = (operatorId: string, watchlist: ResearchWatchlist, envelope: MutationEnvelope) => requestJson<ResearchWatchlist>('/v1/research/watchlists', { method: 'POST', headers: operatorHeaders(operatorId), body: JSON.stringify({ watchlist, envelope }) })
+export const changeResearchWatchlistState = (operatorId: string, id: string, action: 'pause' | 'resume' | 'retire', envelope: MutationEnvelope) => requestJson<ResearchWatchlist>(`/v1/research/watchlists/${encodeURIComponent(id)}/${action}`, { method: 'POST', headers: operatorHeaders(operatorId), body: JSON.stringify(envelope) })

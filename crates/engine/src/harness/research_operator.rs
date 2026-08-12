@@ -8,7 +8,7 @@
 use arda_outpost_protocol::{ResearchQuestion, ResearchSuggestion, ResearchWatchlist};
 use axum::{
     extract::{ConnectInfo, Path, State},
-    http::StatusCode,
+    http::{HeaderMap, StatusCode},
     Json,
 };
 use chrono::Utc;
@@ -68,9 +68,11 @@ pub(super) struct BriefListResponse {
 pub(super) async fn create_question(
     State(state): State<HarnessState>,
     ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    headers: HeaderMap,
     Json(request): Json<CreateQuestionRequest>,
 ) -> Result<(StatusCode, Json<QuestionCreateResponse>), ApiError> {
     require_loopback(peer)?;
+    require_operator(&state, &headers, &request.question.owner)?;
     request.envelope.validate()?;
     request
         .question
@@ -121,7 +123,9 @@ pub(super) async fn create_question(
 
 pub(super) async fn list_questions(
     State(state): State<HarnessState>,
+    headers: HeaderMap,
 ) -> Result<Json<QuestionListResponse>, ApiError> {
+    require_operator_header(&state, &headers)?;
     Ok(Json(QuestionListResponse {
         questions: load_questions(&state.workbench_root)?,
     }))
@@ -129,8 +133,10 @@ pub(super) async fn list_questions(
 
 pub(super) async fn get_question(
     State(state): State<HarnessState>,
+    headers: HeaderMap,
     Path(id): Path<String>,
 ) -> Result<Json<ResearchQuestion>, ApiError> {
+    require_operator_header(&state, &headers)?;
     load_questions(&state.workbench_root)?
         .into_iter()
         .find(|question| question.question_id == id)
@@ -141,9 +147,11 @@ pub(super) async fn get_question(
 pub(super) async fn create_watchlist(
     State(state): State<HarnessState>,
     ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    headers: HeaderMap,
     Json(request): Json<CreateWatchlistRequest>,
 ) -> Result<(StatusCode, Json<ResearchWatchlist>), ApiError> {
     require_loopback(peer)?;
+    require_operator_header(&state, &headers)?;
     request.envelope.validate()?;
     if request.watchlist.schema_version != arda_outpost_protocol::WATCHLIST_SCHEMA_VERSION
         || request.watchlist.question_ids.is_empty()
@@ -172,7 +180,9 @@ pub(super) async fn create_watchlist(
 
 pub(super) async fn list_watchlists(
     State(state): State<HarnessState>,
+    headers: HeaderMap,
 ) -> Result<Json<WatchlistListResponse>, ApiError> {
+    require_operator_header(&state, &headers)?;
     Ok(Json(WatchlistListResponse {
         watchlists: load_watchlists(&state.workbench_root)?,
     }))
@@ -180,17 +190,21 @@ pub(super) async fn list_watchlists(
 
 pub(super) async fn get_watchlist(
     State(state): State<HarnessState>,
+    headers: HeaderMap,
     Path(id): Path<String>,
 ) -> Result<Json<ResearchWatchlist>, ApiError> {
+    require_operator_header(&state, &headers)?;
     find_watchlist(&state, &id).map(Json)
 }
 
 pub(super) async fn pause_watchlist(
     State(state): State<HarnessState>,
     ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    headers: HeaderMap,
     Path(id): Path<String>,
     Json(envelope): Json<MutationEnvelope>,
 ) -> Result<Json<ResearchWatchlist>, ApiError> {
+    require_operator_header(&state, &headers)?;
     transition_watchlist(&state, peer, id, envelope, |watchlist| {
         watchlist
             .pause()
@@ -202,9 +216,11 @@ pub(super) async fn pause_watchlist(
 pub(super) async fn resume_watchlist(
     State(state): State<HarnessState>,
     ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    headers: HeaderMap,
     Path(id): Path<String>,
     Json(envelope): Json<MutationEnvelope>,
 ) -> Result<Json<ResearchWatchlist>, ApiError> {
+    require_operator_header(&state, &headers)?;
     transition_watchlist(&state, peer, id, envelope, |watchlist| {
         watchlist
             .resume()
@@ -216,9 +232,11 @@ pub(super) async fn resume_watchlist(
 pub(super) async fn retire_watchlist(
     State(state): State<HarnessState>,
     ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    headers: HeaderMap,
     Path(id): Path<String>,
     Json(envelope): Json<MutationEnvelope>,
 ) -> Result<Json<ResearchWatchlist>, ApiError> {
+    require_operator_header(&state, &headers)?;
     transition_watchlist(&state, peer, id, envelope, |watchlist| {
         watchlist.retire();
         Ok(())
@@ -256,7 +274,9 @@ where
 
 pub(super) async fn list_briefs(
     State(state): State<HarnessState>,
+    headers: HeaderMap,
 ) -> Result<Json<BriefListResponse>, ApiError> {
+    require_operator_header(&state, &headers)?;
     let mut briefs = Vec::new();
     let runs = state.workbench_root.join("data/runs");
     if let Ok(entries) = fs::read_dir(runs) {
@@ -296,12 +316,14 @@ pub(super) async fn list_briefs(
 
 pub(super) async fn get_brief(
     State(state): State<HarnessState>,
+    headers: HeaderMap,
     Path(id): Path<String>,
 ) -> Result<Json<serde_json::Value>, ApiError> {
+    require_operator_header(&state, &headers)?;
     if id.contains('/') || id.contains('\\') || id.contains("..") {
         return Err(ApiError::bad_request("invalid research brief id"));
     }
-    let briefs = list_briefs(State(state)).await?.0.briefs;
+    let briefs = list_briefs(State(state), headers).await?.0.briefs;
     briefs
         .into_iter()
         .find(|brief| {
@@ -359,6 +381,38 @@ fn find_watchlist(state: &HarnessState, id: &str) -> Result<ResearchWatchlist, A
         .into_iter()
         .find(|watchlist| watchlist.watchlist_id == id)
         .ok_or_else(|| ApiError::not_found(format!("research watchlist `{id}` was not found")))
+}
+
+fn require_operator_header<'a>(
+    state: &HarnessState,
+    headers: &'a HeaderMap,
+) -> Result<&'a str, ApiError> {
+    let operator = headers
+        .get("x-arda-operator-id")
+        .and_then(|value| value.to_str().ok())
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .ok_or_else(|| ApiError::forbidden("x-arda-operator-id header required"))?;
+    if operator != state.operator_id {
+        return Err(ApiError::forbidden(
+            "operator identity is not authorized by daemon configuration",
+        ));
+    }
+    Ok(operator)
+}
+
+fn require_operator(
+    state: &HarnessState,
+    headers: &HeaderMap,
+    record_owner: &str,
+) -> Result<(), ApiError> {
+    let operator = require_operator_header(state, headers)?;
+    if operator != record_owner.trim() {
+        return Err(ApiError::forbidden(
+            "research record owner does not match configured operator authority",
+        ));
+    }
+    Ok(())
 }
 
 fn questions_path(root: &FsPath) -> PathBuf {
@@ -447,7 +501,7 @@ mod tests {
 
     fn question() -> ResearchQuestion {
         ResearchQuestion::new(
-            "operator@example.test",
+            "operator-0",
             "What changed in the Arda runtime?",
             "Keep the operator brief current.",
             vec!["runtime".to_string()],
@@ -533,6 +587,10 @@ mod tests {
         let (status, Json(response)) = create_question(
             State(state(root_path.clone())),
             ConnectInfo("127.0.0.1:1234".parse().unwrap()),
+            HeaderMap::from_iter([(
+                "x-arda-operator-id".parse().unwrap(),
+                "operator-0".parse().unwrap(),
+            )]),
             Json(request),
         )
         .await

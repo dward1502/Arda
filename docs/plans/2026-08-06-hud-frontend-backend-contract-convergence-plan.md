@@ -125,6 +125,20 @@ path only; broader Stage 6 production error/recovery acceptance remains open.
 
 Converge authenticated question/watchlist/brief lifecycle, citations, freshness, idempotency, pause/resume/retire, and restart recovery.
 
+**Accepted authenticated Research lifecycle slice (2026-08-12):** the harness
+now requires the daemon-configured `x-arda-operator-id` for question, watchlist,
+and brief reads and mutations, and rejects question records whose owner differs
+from that authority. The HUD first loads that identity from `/v1/status`, uses it
+as the question owner, and sends it on every Research request rather than
+manufacturing a frontend identity. The focused
+`authenticated_research_watchlist_survives_process_restart` test drives the real
+HTTP boundary through authenticated question creation, watchlist creation, and
+pause; stops the harness; launches a fresh process with the same persistence
+root; and recovers the paused watchlist and its question linkage. Missing
+authentication is also rejected. This closes the bounded authenticated
+question/watchlist pause and restart path only; brief generation, citations,
+freshness, resume/retire, and mutation replay remain open.
+
 ### C1.5 Personal Operations
 
 Converge authenticated operator identity, revision-consistent snapshot loading, capture/classification/reminder receipts, export/delete boundaries, and restart recovery. Complete the plan's existing operator gates without fabricating dogfood evidence.

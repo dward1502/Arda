@@ -8,7 +8,7 @@ beforeEach(() => {
   fetchMock.mockReset()
   fetchMock.mockImplementation((input: RequestInfo | URL) => {
     const url = String(input)
-    const body = url.endsWith('/questions') ? { questions: [] } : url.endsWith('/watchlists') ? { watchlists: [] } : { briefs: [] }
+    const body = url.endsWith('/status') ? { operator_id: 'operator-0' } : url.endsWith('/questions') ? { questions: [] } : url.endsWith('/watchlists') ? { watchlists: [] } : { briefs: [] }
     return Promise.resolve(new Response(JSON.stringify(body), { status: 200, headers: { 'Content-Type': 'application/json' } }))
   })
   vi.stubGlobal('fetch', fetchMock)
@@ -22,13 +22,18 @@ describe('ResearchModule', () => {
     expect(screen.getByRole('button', { name: 'Create bounded question' })).toBeTruthy()
     expect(screen.getByRole('heading', { name: 'Compose watchlist' })).toBeTruthy()
     expect(screen.getByText('Warden → Varda → advisory brief')).toBeTruthy()
-    expect(fetchMock).toHaveBeenCalledTimes(3)
+    expect(fetchMock).toHaveBeenCalledTimes(4)
+    for (const [, init] of fetchMock.mock.calls.slice(1)) {
+      expect((init as RequestInit).headers).toMatchObject({ 'x-arda-operator-id': 'operator-0' })
+    }
   })
 
   it('discloses bounded Rumil completeness and degraded evidence states', async () => {
     fetchMock.mockImplementation((input: RequestInfo | URL) => {
       const url = String(input)
-      const body = url.endsWith('/questions')
+      const body = url.endsWith('/status')
+        ? { operator_id: 'operator-0' }
+        : url.endsWith('/questions')
         ? { questions: [] }
         : url.endsWith('/watchlists')
           ? { watchlists: [] }

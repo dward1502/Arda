@@ -1,14 +1,14 @@
 # HUD Frontend–Backend Contract Convergence and 1.0 Closeout Plan
 
-**Status:** Active implementation; Stage 5 release qualification continues independently
+**Status:** Active implementation; Stage 5 is closed and Stage 6 acceptance remains open
 **Adopted:** 2026-08-06
 **Audit authority:** [HUD frontend/backend integration audit](../audits/2026-08-06-hud-frontend-backend-integration.md)
 
 ## Current execution state
 
-Contract preparation is complete and C0 implementation is now authorized. The shared draft boundary is recorded in [`spec/hud-convergence/v1`](../../spec/hud-convergence/v1/README.md), with one schema and fixed passing/fail-closed fixtures. Freeze-safe tests in `crates/engine/tests/hud_convergence_contract.rs`, `apps/arda-hud/src-tauri/tests/hud_convergence_contract.rs`, and `apps/arda-hud/src/lib/hudConvergenceContract.test.ts` now consume that same fixture and pin cross-layer authority, projection-state, event-stream, and five-monitor semantics. These preparation tests do not yet prove that production handlers or projections implement C0; that production-path work is the active next phase.
+The shared boundary is recorded in [`spec/hud-convergence/v1`](../../spec/hud-convergence/v1/README.md), with one schema and fixed passing/fail-closed fixtures. Rust now owns system health, Workbench, Research, Personal Operations, and monitor-session authority paths, and the five-monitor native lifecycle result is closed. Stage 6 production acceptance remains open for configured identity and envelope handling plus one complete backend mutation, durable receipt, and restart-recovery proof per release workflow; fixture and helper tests alone do not close those final paths.
 
-The final-source soak passed on `efd118b5`, and release-version-only commit `6616addd` passed the complete 11/11 smoke matrix. The operator stopped the replacement elapsed run because it was no longer helping current development. That stopped run is not release evidence, but it no longer freezes HUD convergence. Stage 5's independent evaluator and exact signed-artifact lifecycle remain separate release-qualification work; they do not block C0 implementation.
+Stage 5 closed on `v0.3.0-rc.1` under the selected single-operator local release profile. Its signed-artifact lifecycle is historical candidate evidence, not qualification of final `1.0.0` bytes. Stage 6 now owns the remaining production acceptance and release decision without reopening completed five-monitor lifecycle acceptance.
 
 ## 1.0 definition
 

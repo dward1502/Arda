@@ -12,6 +12,15 @@
 **Included HUD projections:** system/runtime health, Workbench, recovery/diagnostics, Research, Personal Operations, and five independently claimable upper monitors.
 **Optional/not base blockers:** Mirromere hardware, RELIC/CITADEL feature expansion, Company Operations pilots, live x402/payment execution, and validated-device ingestion. Their attachment contracts and truthful status follow the master plan.
 
+**Execution state (2026-08-12):** Stage 6 is active. The first qualification
+tranche hardened `scripts/arda_release_ops.py`: release source identity now
+covers the root runtime, launcher and HUD, workspace crates, SDKs, schemas,
+configuration, vendored dependencies, release tooling, service composition, and
+the tag-bound signing workflow. Manifest generation fails closed when tracked
+release source is dirty. Focused tests pin every covered production surface.
+This makes a future clean-source freeze trustworthy; it does not freeze the
+current dirty worktree, create final 1.0 bytes, or satisfy any artifact matrix.
+
 ---
 
 ## Entry criteria
@@ -232,7 +241,9 @@ Each claim references commands, artifact hashes, run IDs, evaluator evidence, or
 
 ## Stage 6 exit criteria
 
-- [ ] 1.0 scope and compatibility policy are frozen.
+- [ ] 1.0 scope and compatibility policy are frozen. Scope is declared above;
+  the source-identity and clean-tree freeze gate is implemented, but no final
+  clean source revision or `1.0.0` artifact bytes have been selected.
 - [ ] Signed release artifacts pass the supported matrix.
 - [ ] Independent security review has no unresolved blocker.
 - [ ] Clean install, upgrade, rollback, backup, and restore pass.

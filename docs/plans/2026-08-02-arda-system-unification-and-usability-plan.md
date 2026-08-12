@@ -232,8 +232,9 @@ or retained merely to rewrite historical evidence.
   `project_adapter_jsonl.rs` cover every graph-boundary restart, duplicate
   idempotency keys, corrupt/truncated state, partial/noisy adapter output,
   timeout, cancellation, process reaping, and exact-once mutation.
-- `WorkbenchModule.tsx` now persists the proposal and approval lineage needed
-  after native restart, wires rejection to canonical run cancellation before a
+- `WorkbenchModule.tsx` now persists only the approval reference needed after
+  native restart; Rust resolves the configured proposal/approval lineage and
+  wires rejection to canonical run cancellation before a
   revised objective can be planned, and keeps the `run_id` on every graph,
   receipt, evidence, and event projection. `RunTimeline.tsx` labels live,
   partial, stale, and unavailable stream states explicitly; failed nodes and

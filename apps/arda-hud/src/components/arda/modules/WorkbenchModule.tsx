@@ -8,7 +8,6 @@ import RunTimeline from '../../workbench/RunTimeline'
 import {
   approveWorkbenchRun,
   attachProjectContract,
-  buildRunGraph,
   cancelWorkbenchRun,
   completeWorkbenchRunNode,
   createObjective,
@@ -18,7 +17,7 @@ import {
   startWorkbenchRunEventStream,
   validateProjectContract,
   type AttachedProject,
-  type MutationEnvelope,
+  type MutationIntent,
   type ProjectValidation,
   type RunGraph,
   type RunNode,
@@ -32,7 +31,6 @@ function messageOf(error: unknown): string { return error instanceof Error ? err
 
 const LAST_RUN_STORAGE_KEY = 'arda.workbench.last-run-id'
 const objectiveStorageKey = (runId: string) => `arda.workbench.objective.${runId}`
-const proposalStorageKey = (runId: string) => `arda.workbench.proposal.${runId}`
 const approvalStorageKey = (runId: string) => `arda.workbench.approval.${runId}`
 
 export interface OperatorSummary {
@@ -92,9 +90,9 @@ export function summarizeOperatorState(input: {
           ? 'The graph reports all steps succeeded. Confirm the changed files, exact project check, provider provenance, and final receipt before closeout.'
           : 'Evidence is partial while the run is incomplete. A green step or provider statement alone is not proof of project success.'
   let nextAction = 'Validate a project contract before attaching it.'
-  if (input.validationValid && !input.attached) nextAction = 'Review the validated permissions, then attach the project with approved proposal and approval IDs.'
+  if (input.validationValid && !input.attached) nextAction = 'Review the validated permissions, then attach the project with an approval reference.'
   else if (input.attached && !input.objectivePresent) nextAction = 'Describe and capture the objective for this project.'
-  else if (input.attached && input.objectivePresent && !input.runPresent) nextAction = 'Review the run graph, then plan the governed run.'
+  else if (input.attached && input.objectivePresent && !input.runPresent) nextAction = 'Submit the objective intent; then review the Rust-created governed run graph.'
   else if (active?.kind === 'approval') nextAction = 'Review the requested authority and approve or reject the step.'
   else if (active?.state === 'failed' || active?.state === 'cancelled') nextAction = 'Inspect the recorded reason and receipts, then revise or recover the run.'
   else if (active) nextAction = `Select the ${active.kind} step and complete its displayed evidence or authority requirement.`
@@ -112,8 +110,7 @@ export default function WorkbenchModule() {
   const [run, setRun] = useState<RunRecord | null>(null)
   const [events, setEvents] = useState<WorkbenchEvent[]>([])
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
-  const [proposalId, setProposalId] = useState('')
-  const [approvalId, setApprovalId] = useState('')
+  const [approvalReference, setApprovalReference] = useState('')
   const [receiptDigest, setReceiptDigest] = useState('')
   const [evidenceJson, setEvidenceJson] = useState('')
   const [resumeRunId, setResumeRunId] = useState('')
@@ -137,8 +134,7 @@ export default function WorkbenchModule() {
         setObjectiveText(storedObjective)
         setObjective({ schemaVersion: 'arda.workbench.objective.v1', objectiveId: record.graph.objective_id, text: storedObjective, inputMode: 'text' })
       }
-      setProposalId(window.localStorage.getItem(proposalStorageKey(record.graph.run_id)) ?? '')
-      setApprovalId(window.localStorage.getItem(approvalStorageKey(record.graph.run_id)) ?? '')
+      setApprovalReference(window.localStorage.getItem(approvalStorageKey(record.graph.run_id)) ?? '')
       setSelectedNodeId(record.graph.nodes.find((node) => node.state !== 'succeeded')?.id ?? record.graph.nodes.at(-1)?.id ?? null)
       setMessage(`Resumed run ${record.graph.run_id} from the durable harness.`)
     }).catch((caught) => {
@@ -206,10 +202,9 @@ export default function WorkbenchModule() {
     }
   }, [run?.graph.run_id])
 
-  const envelope = (action: string): MutationEnvelope => {
-    if (!proposalId.trim() || !approvalId.trim()) throw new Error('Proposal ID and approval ID are required for mutations')
-    const stamp = Date.now()
-    return { approval: { schema_version: 'arda.orome.task_approval.v1', proposal_id: proposalId.trim(), approval_id: approvalId.trim(), ledger_writes: [], decision: 'policy_safe', created_at_utc: new Date(stamp).toISOString() }, idempotency_key: `${action}-${stamp}` }
+  const intent = (): MutationIntent => {
+    if (!approvalReference.trim()) throw new Error('An approval reference is required for mutations')
+    return { approvalReference: approvalReference.trim() }
   }
   const act = async (operation: () => Promise<void>) => {
     setBusy(true); setError(null)
@@ -225,8 +220,7 @@ export default function WorkbenchModule() {
       setObjectiveText(storedObjective)
       setObjective({ schemaVersion: 'arda.workbench.objective.v1', objectiveId: record.graph.objective_id, text: storedObjective, inputMode: 'text' })
     }
-    setProposalId(window.localStorage.getItem(proposalStorageKey(record.graph.run_id)) ?? '')
-    setApprovalId(window.localStorage.getItem(approvalStorageKey(record.graph.run_id)) ?? '')
+    setApprovalReference(window.localStorage.getItem(approvalStorageKey(record.graph.run_id)) ?? '')
     setSelectedNodeId(record.graph.nodes.find((node) => node.state !== 'succeeded')?.id ?? record.graph.nodes.at(-1)?.id ?? null)
     setMessage(`Resumed run ${record.graph.run_id} from the durable harness.`)
   })
@@ -238,7 +232,7 @@ export default function WorkbenchModule() {
   })
   const attach = () => void act(async () => {
     if (!validation?.valid) throw new Error('A passing validation is required before attachment')
-    const result = await attachProjectContract(path, envelope('attach'))
+    const result = await attachProjectContract(path, intent())
     setAttached(result); setMessage(`Attached project ${validation.projectId}.`)
   })
   const capture = (event: FormEvent) => {
@@ -246,21 +240,20 @@ export default function WorkbenchModule() {
     try {
       const next = createObjective(objectiveText, 'text')
       setObjective(next)
-      const nextGraph = buildRunGraph(next, validation?.projectId ?? 'unattached')
-      setGraph(nextGraph); setSelectedNodeId(nextGraph.nodes[0]?.id ?? null); setMessage('Objective captured through the text contract. Voice will feed the same contract later.')
+      setRun(null); setGraph(null); setEvents([]); setSelectedNodeId(null); setMessage('Objective intent captured. Rust will create the governed run graph after attachment.')
     } catch (caught) { setError(messageOf(caught)) }
   }
   const plan = () => void act(async () => {
-    if (!attached || !validation?.projectId || !graph) throw new Error('Attach the project and capture an objective before planning')
-    const result = await planWorkbenchRun(validation.projectId, graph, envelope('plan'))
+    if (!attached || !validation?.projectId || !objective) throw new Error('Attach the project and capture an objective before planning')
+    const result = await planWorkbenchRun(validation.projectId, objective, intent())
     setRun(result); setGraph(result.graph)
-    window.localStorage.setItem(proposalStorageKey(result.graph.run_id), proposalId.trim())
-    window.localStorage.setItem(approvalStorageKey(result.graph.run_id), approvalId.trim())
+    setObjective((current) => current ? { ...current, objectiveId: result.graph.objective_id } : current)
+    window.localStorage.setItem(approvalStorageKey(result.graph.run_id), approvalReference.trim())
     setEvents(result.events); setMessage(`Run ${result.graph.run_id} planned. Execution remains approval-gated.`)
   })
   const approve = (nodeId: string) => void act(async () => {
     if (!run) throw new Error('No planned run is available for approval')
-    const result = await approveWorkbenchRun(run.graph.run_id, nodeId, envelope(`approve-${nodeId}`))
+    const result = await approveWorkbenchRun(run.graph.run_id, nodeId, intent())
     setRun(result); setGraph(result.graph)
     setEvents(result.events)
     setMessage(`Approval ${nodeId} recorded by the typed harness endpoint.`)
@@ -270,7 +263,7 @@ export default function WorkbenchModule() {
     const result = await cancelWorkbenchRun(
       run.graph.run_id,
       `Approval ${nodeId} rejected; revise the objective before planning a new run.`,
-      envelope(`reject-${nodeId}`),
+      intent(),
     )
     setRun(result); setGraph(result.graph); setEvents(result.events)
     setMessage(`Approval ${nodeId} rejected. Revise the objective and capture a replacement run.`)
@@ -285,14 +278,14 @@ export default function WorkbenchModule() {
       if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('Review evidence must be a JSON object')
       evidence = parsed as RunReviewEvidence
     }
-    const result = await completeWorkbenchRunNode(run.graph.run_id, selectedNode.id, receiptDigest.trim(), envelope(`complete-${selectedNode.id}`), evidence)
+    const result = await completeWorkbenchRunNode(run.graph.run_id, selectedNode.id, receiptDigest.trim(), intent(), evidence)
     setRun(result); setGraph(result.graph); setEvents(result.events)
     setMessage(`${selectedNode.kind} node ${selectedNode.id} completed with a typed receipt.`)
   })
   const executeProvider = () => void act(async () => {
     if (!run || !selectedNode || selectedNode.kind !== 'execute') throw new Error('Select the execute node before invoking the provider')
     if (!objective?.text) throw new Error('The captured objective is required for provider execution')
-    const result = await executeWorkbenchProviderNode(run.graph.run_id, selectedNode.id, objective.text, envelope(`provider-${selectedNode.id}`))
+    const result = await executeWorkbenchProviderNode(run.graph.run_id, selectedNode.id, objective.text, intent())
     setRun(result.run); setGraph(result.run.graph); setEvents(result.run.events)
     setMessage(`Live provider receipt ${String(result.receipt.receipt_digest ?? 'recorded')} correlated to run ${run.graph.run_id}.`)
   })
@@ -321,7 +314,7 @@ export default function WorkbenchModule() {
             <dl><div><dt>Project</dt><dd>{validation.projectId ?? 'missing'}</dd></div><div><dt>Root</dt><dd>{validation.root ?? 'missing'}</dd></div><div><dt>Provider posture</dt><dd>{validation.providerPosture ?? 'not declared'}</dd></div><div><dt>Effective permissions</dt><dd>{validation.effectivePermissions.join(', ') || 'none declared'}</dd></div><div><dt>Project checks</dt><dd>{validation.projectChecks.join(', ') || 'none declared'}</dd></div></dl>
             {validation.errors.length ? <ul>{validation.errors.map((item) => <li key={item}>{item}</li>)}</ul> : null}
           </div> : null}
-          <div className="workbench-approval-fields"><label>Proposal ID<input value={proposalId} onChange={(event) => setProposalId(event.target.value)} /></label><label>Approval ID<input value={approvalId} onChange={(event) => setApprovalId(event.target.value)} /></label></div>
+          <label>Approval reference<input value={approvalReference} onChange={(event) => setApprovalReference(event.target.value)} /></label>
           <label>Receipt digest<input value={receiptDigest} onChange={(event) => setReceiptDigest(event.target.value)} placeholder="sha256:..." /></label>
           <label>Review evidence JSON<textarea value={evidenceJson} onChange={(event) => setEvidenceJson(event.target.value)} rows={4} placeholder='{"changes":[],"tests":[],"provider_receipt":null}' /></label>
           <div className="workbench-approval-fields"><label>Resume run ID<input value={resumeRunId} onChange={(event) => setResumeRunId(event.target.value)} /></label><button type="button" disabled={busy || !resumeRunId.trim()} onClick={resume}>Resume durable run</button></div>
@@ -329,7 +322,7 @@ export default function WorkbenchModule() {
         <form className="workbench-panel" onSubmit={capture}>
           <header><h3>Objective</h3><span>{objective?.inputMode ?? 'text first'}</span></header>
           <label>Objective<textarea value={objectiveText} onChange={(event) => setObjectiveText(event.target.value)} rows={3} /></label>
-          <div className="workbench-actions"><button type="submit">Capture objective</button><button type="button" disabled={busy || !attached || !graph} onClick={plan}>Plan governed run</button></div>
+          <div className="workbench-actions"><button type="submit">Capture objective</button><button type="button" disabled={busy || !attached || !objective} onClick={plan}>Plan governed run</button></div>
           <small>Voice input will produce the same arda.workbench.objective.v1 contract; it does not bypass this boundary.</small>
         </form>
         {error ? <p role="alert" className="workbench-error">{error}</p> : null}<p role="status" aria-live="polite">{message} Run events: {streamStatus}.</p>

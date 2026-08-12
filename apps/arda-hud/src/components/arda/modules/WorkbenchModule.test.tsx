@@ -63,22 +63,18 @@ describe('WorkbenchModule', () => {
     expect(within(summary).getByText('authority:approval_required, network:false')).toBeTruthy()
     expect(within(summary).getByText('cargo')).toBeTruthy(); expect(within(summary).getByText('test')).toBeTruthy()
     const attach = screen.getByRole('button', { name: 'Attach project' }); expect((attach as HTMLButtonElement).disabled).toBe(false)
-    fireEvent.change(screen.getByLabelText('Proposal ID'), { target: { value: 'proposal-1' } }); fireEvent.change(screen.getByLabelText('Approval ID'), { target: { value: 'approval-1' } }); fireEvent.click(attach)
-    await waitFor(() => expect(mockedInvoke).toHaveBeenCalledWith('attach_project_contract', expect.objectContaining({ path: '/workspace/project.json', envelope: expect.any(Object) })))
+    fireEvent.change(screen.getByLabelText('Approval reference'), { target: { value: 'approval-1' } }); fireEvent.click(attach)
+    await waitFor(() => expect(mockedInvoke).toHaveBeenCalledWith('attach_project_contract', { path: '/workspace/project.json', intent: { approvalReference: 'approval-1' } }))
   })
 
-  it('captures text in the shared objective contract and exposes the approval-first graph', () => {
+  it('captures objective intent without fabricating a frontend run graph', () => {
     render(<WorkbenchModule />)
     fireEvent.change(screen.getByLabelText('Objective'), { target: { value: 'Add one tested parser edge case' } })
     fireEvent.click(screen.getByRole('button', { name: 'Capture objective' }))
-    expect(screen.getByRole('button', { name: 'approval: pending' })).toBeTruthy()
-    expect(screen.getByRole('button', { name: 'review: pending' })).toBeTruthy()
-    expect(screen.getByText(/arda.workbench.objective.v1/)).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'approval: pending' })).toBeNull()
+    expect(screen.getByRole('status').textContent).toContain('Rust will create the governed run graph')
+    expect(screen.getByText(/No run planned/)).toBeTruthy()
     expect(screen.getByText('No changes recorded.')).toBeTruthy(); expect(screen.getByText('No tests have run.')).toBeTruthy()
-    fireEvent.click(screen.getByRole('button', { name: 'approval: pending' }))
-    const review = screen.getByLabelText('Selected run node review')
-    expect(within(review).getByText('approval · approval')).toBeTruthy()
-    expect(within(review).getByText('pending · human approval')).toBeTruthy()
   })
 
   it('rejects a durable approval through the typed cancel boundary and keeps revision explicit', async () => {
@@ -95,7 +91,6 @@ describe('WorkbenchModule', () => {
     const cancelled = { ...run, graph: { ...run.graph, nodes: [{ ...approval, state: 'cancelled' }] } }
     window.localStorage.setItem('arda.workbench.last-run-id', 'run-reject-1')
     window.localStorage.setItem('arda.workbench.objective.run-reject-1', 'Original objective')
-    window.localStorage.setItem('arda.workbench.proposal.run-reject-1', 'proposal-reject-1')
     window.localStorage.setItem('arda.workbench.approval.run-reject-1', 'approval-reject-1')
     mockedInvoke.mockImplementation((command) => {
       if (command === 'get_workbench_run') return Promise.resolve(run)
@@ -104,7 +99,7 @@ describe('WorkbenchModule', () => {
     })
     render(<WorkbenchModule />)
     fireEvent.click(await screen.findByRole('button', { name: 'Reject' }))
-    await waitFor(() => expect(mockedInvoke).toHaveBeenCalledWith('cancel_workbench_run', { request: expect.objectContaining({ run_id: 'run-reject-1', reason: expect.stringContaining('revise the objective') }) }))
+    await waitFor(() => expect(mockedInvoke).toHaveBeenCalledWith('cancel_workbench_run', { request: expect.objectContaining({ run_id: 'run-reject-1', reason: expect.stringContaining('revise the objective'), intent: { approvalReference: 'approval-reject-1' } }) }))
     expect(await screen.findByText(/Approval approval rejected\. Revise the objective/)).toBeTruthy()
   })
 })

@@ -32,7 +32,7 @@ describe('WorkbenchModule accessibility gate', () => {
 
     fireEvent.change(screen.getByLabelText('Objective'), { target: { value: 'Verify one accessible recovery path' } })
     fireEvent.click(screen.getByRole('button', { name: 'Capture objective' }))
-    expect(screen.getByRole('button', { name: 'approval: pending' })).toBeTruthy()
+    expect(screen.getByRole('status').textContent).toContain('Rust will create the governed run graph')
     await expectNoBlockingViolations(container)
   })
 

@@ -10,18 +10,8 @@ export interface ProjectValidation {
   errors: string[]
 }
 
-export interface TaskApproval {
-  schema_version: 'arda.orome.task_approval.v1'
-  proposal_id: string
-  approval_id: string
-  ledger_writes: string[]
-  decision: 'policy_safe' | 'policy_blocked'
-  created_at_utc: string
-}
-
-export interface MutationEnvelope {
-  approval: TaskApproval
-  idempotency_key: string
+export interface MutationIntent {
+  approvalReference: string
 }
 
 export interface AttachedProject {
@@ -77,7 +67,7 @@ export interface RunReviewEvidence {
 
 export interface WorkbenchObjective {
   schemaVersion: 'arda.workbench.objective.v1'
-  objectiveId: string
+  objectiveId?: string
   text: string
   inputMode: 'text' | 'voice'
 }
@@ -125,85 +115,33 @@ export interface ProviderReceiptRecord {
 export function createObjective(text: string, inputMode: WorkbenchObjective['inputMode'] = 'text'): WorkbenchObjective {
   const trimmed = text.trim()
   if (!trimmed) throw new Error('Objective text is required')
-  const suffix = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}`
   return {
     schemaVersion: 'arda.workbench.objective.v1',
-    objectiveId: `objective-${suffix}`,
     text: trimmed,
     inputMode,
-  }
-}
-
-export function buildRunGraph(objective: WorkbenchObjective, projectId: string): RunGraph {
-  const runId = `run-${objective.objectiveId.replace(/^objective-/, '')}`
-  const checkpoint = { sequence: 0, recovery_token: null, checkpoint_digest: null }
-  const node = (
-    id: string,
-    kind: RunNodeKind,
-    authority: RunNode['authority'],
-    cost: number,
-    receipts: string[] = [],
-  ): RunNode => ({
-    id,
-    kind,
-    state: 'pending',
-    authority,
-    budget: { max_joules: kind === 'execute' ? 250 : 25, max_cost_usd: cost },
-    retry: { max_attempts: 1 },
-    timeout_ms: kind === 'execute' ? 900_000 : 60_000,
-    idempotency_key: `${runId}-${id}`,
-    input_digest: `objective:${objective.objectiveId}`,
-    output_digest: null,
-    parent_receipts: receipts,
-    checkpoint: { ...checkpoint },
-  })
-  return {
-    schema_version: 'arda.run-graph.v1',
-    run_id: runId,
-    objective_id: objective.objectiveId,
-    nodes: [
-      node('plan', 'plan', 'read_only', 0),
-      node('approval', 'approval', 'human_approval', 0, ['receipt:plan']),
-      node('execute', 'execute', 'execute_with_approval', 2, ['receipt:approval']),
-      node('verify', 'verify', 'verify', 0, ['receipt:execute']),
-      node('review', 'review', 'verify', 0, ['receipt:verify']),
-      node('close', 'close', 'read_only', 0, ['receipt:review']),
-    ],
-    edges: [
-      { id: 'plan-to-approval', from: 'plan', to: 'approval', parent_receipt: 'receipt:plan' },
-      { id: 'approval-to-execute', from: 'approval', to: 'execute', parent_receipt: 'receipt:approval' },
-      { id: 'execute-to-verify', from: 'execute', to: 'verify', parent_receipt: 'receipt:execute' },
-      { id: 'verify-to-review', from: 'verify', to: 'review', parent_receipt: 'receipt:verify' },
-      { id: 'review-to-close', from: 'review', to: 'close', parent_receipt: 'receipt:review' },
-    ],
-    provenance: {
-      project_contract_digest: `project:${projectId}`,
-      created_by: 'arda-hud-workbench',
-      parent_receipts: [],
-    },
   }
 }
 
 export const validateProjectContract = (path: string) =>
   safeTauriInvoke<ProjectValidation>('validate_project_contract', { path })
 
-export const attachProjectContract = (path: string, envelope: MutationEnvelope) =>
-  safeTauriInvoke<AttachedProject>('attach_project_contract', { path, envelope })
+export const attachProjectContract = (path: string, intent: MutationIntent) =>
+  safeTauriInvoke<AttachedProject>('attach_project_contract', { path, intent })
 
-export const planWorkbenchRun = (projectId: string, graph: RunGraph, envelope: MutationEnvelope) =>
-  safeTauriInvoke<RunRecord>('plan_workbench_run', { request: { project_id: projectId, graph, envelope } })
+export const planWorkbenchRun = (projectId: string, objective: WorkbenchObjective, intent: MutationIntent) =>
+  safeTauriInvoke<RunRecord>('plan_workbench_run', { request: { project_id: projectId, objective: { text: objective.text, input_mode: objective.inputMode }, intent } })
 
-export const approveWorkbenchRun = (runId: string, nodeId: string, envelope: MutationEnvelope) =>
-  safeTauriInvoke<RunRecord>('approve_workbench_run', { request: { run_id: runId, node_id: nodeId, envelope } })
+export const approveWorkbenchRun = (runId: string, nodeId: string, intent: MutationIntent) =>
+  safeTauriInvoke<RunRecord>('approve_workbench_run', { request: { run_id: runId, node_id: nodeId, intent } })
 
-export const completeWorkbenchRunNode = (runId: string, nodeId: string, receiptDigest: string, envelope: MutationEnvelope, evidence?: RunReviewEvidence) =>
-  safeTauriInvoke<RunRecord>('complete_workbench_run_node', { request: { run_id: runId, node_id: nodeId, receipt_digest: receiptDigest, envelope, evidence } })
+export const completeWorkbenchRunNode = (runId: string, nodeId: string, receiptDigest: string, intent: MutationIntent, evidence?: RunReviewEvidence) =>
+  safeTauriInvoke<RunRecord>('complete_workbench_run_node', { request: { run_id: runId, node_id: nodeId, receipt_digest: receiptDigest, intent, evidence } })
 
-export const executeWorkbenchProviderNode = (runId: string, nodeId: string, objective: string, envelope: MutationEnvelope) =>
-  safeTauriInvoke<ExecuteProviderNodeResponse>('execute_workbench_provider_node', { request: { run_id: runId, node_id: nodeId, objective, envelope } })
+export const executeWorkbenchProviderNode = (runId: string, nodeId: string, objective: string, intent: MutationIntent) =>
+  safeTauriInvoke<ExecuteProviderNodeResponse>('execute_workbench_provider_node', { request: { run_id: runId, node_id: nodeId, objective, intent } })
 
-export const cancelWorkbenchRun = (runId: string, reason: string, envelope: MutationEnvelope) =>
-  safeTauriInvoke<RunRecord>('cancel_workbench_run', { request: { run_id: runId, reason, envelope } })
+export const cancelWorkbenchRun = (runId: string, reason: string, intent: MutationIntent) =>
+  safeTauriInvoke<RunRecord>('cancel_workbench_run', { request: { run_id: runId, reason, intent } })
 
 export const getWorkbenchRun = (runId: string) =>
   safeTauriInvoke<RunRecord>('get_workbench_run', { runId })

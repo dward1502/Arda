@@ -44,6 +44,19 @@ pub struct MutationEnvelope {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct MutationIntent {
+    pub approval_reference: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct WorkbenchObjectiveIntent {
+    pub text: String,
+    pub input_mode: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AttachedProject {
     pub contract: Value,
     pub approval_id: String,
@@ -155,7 +168,15 @@ pub struct ProviderReceiptEvidence {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct PlanRunRequest {
+    pub project_id: String,
+    pub objective: WorkbenchObjectiveIntent,
+    pub intent: MutationIntent,
+}
+
+#[derive(Debug, Clone, Serialize)]
+struct HarnessPlanRunRequest {
     pub project_id: String,
     pub graph: RunGraph,
     pub envelope: MutationEnvelope,
@@ -165,7 +186,7 @@ pub struct PlanRunRequest {
 pub struct ApproveRunRequest {
     pub run_id: String,
     pub node_id: String,
-    pub envelope: MutationEnvelope,
+    pub intent: MutationIntent,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -173,7 +194,7 @@ pub struct CompleteRunNodeRequest {
     pub run_id: String,
     pub node_id: String,
     pub receipt_digest: String,
-    pub envelope: MutationEnvelope,
+    pub intent: MutationIntent,
     pub evidence: Option<RunReviewEvidence>,
 }
 
@@ -182,7 +203,7 @@ pub struct ExecuteProviderNodeRequest {
     pub run_id: String,
     pub node_id: String,
     pub objective: String,
-    pub envelope: MutationEnvelope,
+    pub intent: MutationIntent,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -195,7 +216,7 @@ pub struct ExecuteProviderNodeResponse {
 pub struct CancelRunRequest {
     pub run_id: String,
     pub reason: String,
-    pub envelope: MutationEnvelope,
+    pub intent: MutationIntent,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -266,6 +287,175 @@ fn checked_id<'a>(value: &'a str, label: &str) -> Result<&'a str, String> {
         return Err(format!("{label} contains unsupported characters"));
     }
     Ok(value)
+}
+
+fn stable_hash(parts: &[&str]) -> u64 {
+    let mut hash = 0xcbf29ce484222325_u64;
+    for part in parts {
+        for byte in part.as_bytes().iter().chain(std::iter::once(&0_u8)) {
+            hash ^= u64::from(*byte);
+            hash = hash.wrapping_mul(0x100000001b3);
+        }
+    }
+    hash
+}
+
+fn resolve_mutation_intent(
+    intent: &MutationIntent,
+    action: &str,
+    resource: &str,
+) -> Result<MutationEnvelope, String> {
+    let operator_id = std::env::var("ARDA_OPERATOR_ID")
+        .map_err(|_| "ARDA_OPERATOR_ID is required for Workbench mutations".to_string())?;
+    let raw = std::env::var("ARDA_WORKBENCH_APPROVAL_ENVELOPE_JSON").map_err(|_| {
+        "ARDA_WORKBENCH_APPROVAL_ENVELOPE_JSON is required; Workbench will not mint approval"
+            .to_string()
+    })?;
+    let approval: TaskApproval = serde_json::from_str(&raw)
+        .map_err(|error| format!("configured Workbench approval envelope is invalid: {error}"))?;
+    let max_age_seconds = std::env::var("ARDA_WORKBENCH_APPROVAL_MAX_AGE_SECONDS")
+        .ok()
+        .map(|value| {
+            value.parse::<i64>().map_err(|_| {
+                "ARDA_WORKBENCH_APPROVAL_MAX_AGE_SECONDS must be an integer".to_string()
+            })
+        })
+        .transpose()?
+        .unwrap_or(3_600);
+    resolve_mutation_intent_from(
+        intent,
+        action,
+        resource,
+        &operator_id,
+        approval,
+        chrono::Utc::now(),
+        max_age_seconds,
+    )
+}
+
+fn resolve_mutation_intent_from(
+    intent: &MutationIntent,
+    action: &str,
+    resource: &str,
+    operator_id: &str,
+    approval: TaskApproval,
+    now: chrono::DateTime<chrono::Utc>,
+    max_age_seconds: i64,
+) -> Result<MutationEnvelope, String> {
+    let approval_reference = intent.approval_reference.trim();
+    if approval_reference.is_empty() {
+        return Err("approval reference is required for Workbench mutations".to_string());
+    }
+    if operator_id.trim().is_empty() {
+        return Err("ARDA_OPERATOR_ID cannot be empty".to_string());
+    }
+    if approval.schema_version != "arda.orome.task_approval.v1" {
+        return Err("configured Workbench approval has an unsupported schema".to_string());
+    }
+    if approval.approval_id != approval_reference {
+        return Err(
+            "approval reference does not match the configured approval envelope".to_string(),
+        );
+    }
+    if approval.decision != "policy_safe" {
+        return Err("configured Workbench approval does not authorize mutation".to_string());
+    }
+    if approval.proposal_id.trim().is_empty() || approval.created_at_utc.trim().is_empty() {
+        return Err("configured Workbench approval is missing required lineage".to_string());
+    }
+    if max_age_seconds <= 0 {
+        return Err("Workbench approval maximum age must be positive".to_string());
+    }
+    let created = chrono::DateTime::parse_from_rfc3339(&approval.created_at_utc)
+        .map_err(|_| "configured Workbench approval timestamp is invalid".to_string())?
+        .with_timezone(&chrono::Utc);
+    let age = now.signed_duration_since(created).num_seconds();
+    if age < -300 {
+        return Err("configured Workbench approval timestamp is in the future".to_string());
+    }
+    if age > max_age_seconds {
+        return Err("configured Workbench approval has expired".to_string());
+    }
+    let digest = stable_hash(&[action, resource, approval_reference, &operator_id]);
+    Ok(MutationEnvelope {
+        approval,
+        idempotency_key: format!("workbench-{action}-{digest:016x}"),
+    })
+}
+
+fn canonical_run_graph(
+    project_id: &str,
+    objective: &WorkbenchObjectiveIntent,
+    operator_id: &str,
+) -> Result<RunGraph, String> {
+    let text = objective.text.trim();
+    if text.is_empty() {
+        return Err("objective text is required".to_string());
+    }
+    if !matches!(objective.input_mode.as_str(), "text" | "voice") {
+        return Err("objective input mode must be text or voice".to_string());
+    }
+    let digest = stable_hash(&[project_id, text, &objective.input_mode]);
+    let run_id = format!("run-{digest:016x}");
+    let objective_id = format!("objective-{digest:016x}");
+    let definitions = [
+        ("plan", "plan", "read_only", 0.0),
+        ("approval", "approval", "human_approval", 0.0),
+        ("execute", "execute", "execute_with_approval", 2.0),
+        ("verify", "verify", "verify", 0.0),
+        ("review", "review", "verify", 0.0),
+        ("close", "close", "read_only", 0.0),
+    ];
+    let nodes = definitions
+        .iter()
+        .enumerate()
+        .map(|(index, (id, kind, authority, cost))| RunNode {
+            id: (*id).to_string(),
+            kind: (*kind).to_string(),
+            state: "pending".to_string(),
+            authority: (*authority).to_string(),
+            budget: Budget {
+                max_joules: if *kind == "execute" { 250.0 } else { 25.0 },
+                max_cost_usd: *cost,
+            },
+            retry: RetryPolicy { max_attempts: 1 },
+            timeout_ms: if *kind == "execute" { 900_000 } else { 60_000 },
+            idempotency_key: format!("{run_id}-{id}"),
+            input_digest: Some(format!("objective:{objective_id}")),
+            output_digest: None,
+            parent_receipts: index
+                .checked_sub(1)
+                .map(|previous| vec![format!("receipt:{}", definitions[previous].0)])
+                .unwrap_or_default(),
+            checkpoint: CheckpointMetadata {
+                sequence: 0,
+                recovery_token: None,
+                checkpoint_digest: None,
+            },
+            worker: None,
+        })
+        .collect();
+    let edges = definitions
+        .windows(2)
+        .map(|pair| RunEdge {
+            id: format!("{}-to-{}", pair[0].0, pair[1].0),
+            from: pair[0].0.to_string(),
+            to: pair[1].0.to_string(),
+            parent_receipt: Some(format!("receipt:{}", pair[0].0)),
+        })
+        .collect();
+    Ok(RunGraph {
+        schema_version: "arda.run-graph.v1".to_string(),
+        run_id,
+        objective_id,
+        nodes,
+        edges,
+        provenance: RunProvenance {
+            project_contract_digest: format!("pending:{project_id}"),
+            created_by: operator_id.to_string(),
+            parent_receipts: Vec::new(),
+        },
+    })
 }
 
 fn read_contract(path: &str) -> Result<(PathBuf, Value), String> {
@@ -432,9 +622,10 @@ pub async fn validate_project_contract(path: String) -> Result<ProjectValidation
 #[tauri::command]
 pub async fn attach_project_contract(
     path: String,
-    envelope: MutationEnvelope,
+    intent: MutationIntent,
 ) -> Result<AttachedProject, String> {
     let (_, contract) = read_contract(&path)?;
+    let envelope = resolve_mutation_intent(&intent, "attach", &path)?;
     post_json(
         "/v1/projects/attach",
         &AttachRequest {
@@ -447,17 +638,38 @@ pub async fn attach_project_contract(
 
 #[tauri::command]
 pub async fn plan_workbench_run(request: PlanRunRequest) -> Result<RunRecord, String> {
-    post_json("/v1/runs/plan", &request).await
+    let operator_id = std::env::var("ARDA_OPERATOR_ID")
+        .map_err(|_| "ARDA_OPERATOR_ID is required to plan a Workbench run".to_string())?;
+    let graph = canonical_run_graph(&request.project_id, &request.objective, &operator_id)?;
+    let envelope = resolve_mutation_intent(
+        &request.intent,
+        "plan",
+        &format!("{}:{}", request.project_id, graph.objective_id),
+    )?;
+    post_json(
+        "/v1/runs/plan",
+        &HarnessPlanRunRequest {
+            project_id: request.project_id,
+            graph,
+            envelope,
+        },
+    )
+    .await
 }
 
 #[tauri::command]
 pub async fn approve_workbench_run(request: ApproveRunRequest) -> Result<RunRecord, String> {
     let run_id = checked_id(&request.run_id, "run_id")?;
+    let envelope = resolve_mutation_intent(
+        &request.intent,
+        "approve",
+        &format!("{run_id}:{}", request.node_id),
+    )?;
     post_json(
         &format!("/v1/runs/{run_id}/approve"),
         &ApproveRequest {
             node_id: &request.node_id,
-            envelope: &request.envelope,
+            envelope: &envelope,
         },
     )
     .await
@@ -472,9 +684,14 @@ pub async fn complete_workbench_run_node(
     if request.receipt_digest.trim().is_empty() {
         return Err("receipt_digest is required".to_string());
     }
+    let envelope = resolve_mutation_intent(
+        &request.intent,
+        "complete",
+        &format!("{run_id}:{node_id}:{}", request.receipt_digest),
+    )?;
     let body = CompleteRequest {
         receipt_digest: &request.receipt_digest,
-        envelope: &request.envelope,
+        envelope: &envelope,
         evidence: request.evidence.as_ref(),
     };
     post_json(
@@ -493,11 +710,16 @@ pub async fn execute_workbench_provider_node(
     if request.objective.trim().is_empty() {
         return Err("provider objective is required".to_string());
     }
+    let envelope = resolve_mutation_intent(
+        &request.intent,
+        "execute-provider",
+        &format!("{run_id}:{node_id}:{}", request.objective.trim()),
+    )?;
     post_json(
         &format!("/v1/runs/{run_id}/nodes/{node_id}/execute-provider"),
         &ExecuteProviderRequest {
             objective: request.objective.trim(),
-            envelope: &request.envelope,
+            envelope: &envelope,
         },
     )
     .await
@@ -506,11 +728,16 @@ pub async fn execute_workbench_provider_node(
 #[tauri::command]
 pub async fn cancel_workbench_run(request: CancelRunRequest) -> Result<RunRecord, String> {
     let run_id = checked_id(&request.run_id, "run_id")?;
+    let envelope = resolve_mutation_intent(
+        &request.intent,
+        "cancel",
+        &format!("{run_id}:{}", request.reason),
+    )?;
     post_json(
         &format!("/v1/runs/{run_id}/cancel"),
         &CancelRequest {
             reason: &request.reason,
-            envelope: &request.envelope,
+            envelope: &envelope,
         },
     )
     .await
@@ -610,6 +837,102 @@ mod tests {
         let path = std::env::temp_dir().join(format!("arda-workbench-{unique}.json"));
         fs::write(&path, serde_json::to_vec(value).expect("fixture JSON")).expect("fixture write");
         path
+    }
+
+    #[test]
+    fn rust_creates_stable_canonical_graph_from_objective_intent() {
+        let objective = WorkbenchObjectiveIntent {
+            text: "Apply the bounded change".to_string(),
+            input_mode: "text".to_string(),
+        };
+        let first = canonical_run_graph("project-1", &objective, "operator-1").expect("graph");
+        let second = canonical_run_graph("project-1", &objective, "operator-1").expect("graph");
+
+        assert_eq!(first.run_id, second.run_id);
+        assert_eq!(first.objective_id, second.objective_id);
+        assert_eq!(first.nodes.len(), 6);
+        assert_eq!(first.edges.len(), 5);
+        assert_eq!(first.provenance.created_by, "operator-1");
+        assert_eq!(first.nodes[2].kind, "execute");
+        assert_eq!(first.nodes[2].authority, "execute_with_approval");
+    }
+
+    #[test]
+    fn frontend_cannot_supply_run_graph_or_approval_decision() {
+        let request = json!({
+            "project_id": "project-1",
+            "objective": {"text": "bounded work", "input_mode": "text"},
+            "intent": {"approvalReference": "approval-1"},
+            "graph": {"run_id": "frontend-owned"}
+        });
+        assert!(serde_json::from_value::<PlanRunRequest>(request).is_err());
+
+        let now = chrono::DateTime::parse_from_rfc3339("2026-08-11T16:00:00Z")
+            .expect("timestamp")
+            .with_timezone(&chrono::Utc);
+        let approval = TaskApproval {
+            schema_version: "arda.orome.task_approval.v1".to_string(),
+            proposal_id: "proposal-1".to_string(),
+            approval_id: "approval-1".to_string(),
+            ledger_writes: Vec::new(),
+            decision: "policy_safe".to_string(),
+            created_at_utc: "2026-08-11T15:59:00Z".to_string(),
+        };
+        let envelope = resolve_mutation_intent_from(
+            &MutationIntent {
+                approval_reference: "approval-1".to_string(),
+            },
+            "plan",
+            "project-1:objective-1",
+            "operator-1",
+            approval.clone(),
+            now,
+            3_600,
+        )
+        .expect("resolved backend envelope");
+        assert_eq!(envelope.approval.decision, "policy_safe");
+        assert_eq!(envelope.approval.approval_id, "approval-1");
+        assert_eq!(envelope.approval.proposal_id, "proposal-1");
+        assert!(envelope.idempotency_key.starts_with("workbench-plan-"));
+
+        let mut denied = approval.clone();
+        denied.decision = "policy_blocked".to_string();
+        assert!(resolve_mutation_intent_from(
+            &MutationIntent {
+                approval_reference: "approval-1".to_string()
+            },
+            "plan",
+            "resource",
+            "operator-1",
+            denied,
+            now,
+            3_600,
+        )
+        .is_err());
+        assert!(resolve_mutation_intent_from(
+            &MutationIntent {
+                approval_reference: "other-approval".to_string()
+            },
+            "plan",
+            "resource",
+            "operator-1",
+            approval.clone(),
+            now,
+            3_600,
+        )
+        .is_err());
+        assert!(resolve_mutation_intent_from(
+            &MutationIntent {
+                approval_reference: "approval-1".to_string()
+            },
+            "plan",
+            "resource",
+            "operator-1",
+            approval,
+            now,
+            30,
+        )
+        .is_err());
     }
 
     #[test]

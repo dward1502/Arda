@@ -104,6 +104,8 @@ backend state → transport → frontend rendering → operator action
 
 Cover objective, planning, approval/rejection, provider execution, verification failure, completion, cancellation, retry, event loss/reconnect, and resume.
 
+**Implementation convergence completed (2026-08-11):** React now submits only project/objective intent and an approval reference. It cannot submit a run graph or approval decision. The HUD Rust boundary deterministically creates run/objective IDs, six-node topology, edges, authority, budgets, retries, checkpoints, provenance, and idempotency keys; the canonical engine still replaces the provisional project digest and owns the durable journal/checkpoint. Rust resolves—but never mints—the configured Oromë envelope from `ARDA_WORKBENCH_APPROVAL_ENVELOPE_JSON`, requires `ARDA_OPERATOR_ID`, enforces exact reference/schema/`policy_safe`/lineage matching, and rejects future or expired envelopes under `ARDA_WORKBENCH_APPROVAL_MAX_AGE_SECONDS` (default one hour). Nine focused HUD Rust tests, eight engine harness integration tests, 512 HUD tests, `cargo check`, and the production build pass. Native configured-envelope execution and the shared C2 stream cursor/reconnect contract remain acceptance work, not implementation substitutes. Research is the next serial convergence blocker.
+
 ### C1.3 Recovery and diagnostics
 
 Expose exact failure owner, last valid state, safe recovery action, and post-recovery receipt. Never reduce missing evidence to success.

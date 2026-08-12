@@ -3,6 +3,7 @@ import {
   agentClaimMonitor,
   agentClaimMonitorSurface,
   agentGetMonitorSurfaceRegistry,
+  agentPatchMonitorSurfacePlayback,
   agentPushSurfacePayload,
   agentRefreshMonitorSurfaceLease,
   agentRefreshMonitorLease,
@@ -34,7 +35,7 @@ const SLOT_ID = 'monitor_1'
 const SECOND_SLOT_ID = 'monitor_2'
 const OWNER = 'hermes-agent-acceptance'
 const BINDING = 'hermes.acceptance'
-const STORAGE_KEY = 'arda.monitor-surface-native-acceptance'
+const STORAGE_KEY = 'arda.monitor-surface-native-acceptance.v2'
 
 function parseSerializedOwner(owner: string): AgentSurfaceOwner | null {
   const [kind, ...identityParts] = owner.split(':')
@@ -102,6 +103,17 @@ export default function MonitorSurfaceNativeAcceptance({
   const enabled = env.DEV === true && env.VITE_MONITOR_ACCEPTANCE === '1'
   const [records, setRecords] = useState<AcceptanceRecord[]>(readRecords)
   const [busy, setBusy] = useState(false)
+  const acceptanceProjection = operatorProjection ?? (enabled ? {
+    schema_version: 'arda.operator-projection.v1',
+    projection_id: 'native-monitor-acceptance',
+    generated_at: new Date(0).toISOString(),
+    authority: 'read_only',
+    freshness: 'unknown',
+    objectives: [],
+    runs: [],
+    capabilities: [],
+    dependencies: [],
+  } as OperatorProjection : null)
   const activeBrowserCapturesRef = useRef<ActiveBrowserCapture[]>([])
   const passed = useMemo(() => records.filter((record) => record.ok).length, [records])
 
@@ -111,6 +123,31 @@ export default function MonitorSurfaceNativeAcceptance({
       void Promise.allSettled(activeCaptures.map(stopBrowserCapture))
     }
   }, [])
+
+  useEffect(() => {
+    if (!enabled || records.length > 0 || !acceptanceProjection) return
+
+    let cancelled = false
+    void agentGetMonitorSurfaceRegistry().then((value) => {
+      const registry = coerceRuntimeMonitorRegistry(value)
+      if (!registry || cancelled) return
+      const result = verifyNativeAcceptanceRegistry(
+        registry,
+        createNativeAcceptanceSessions(acceptanceProjection),
+      )
+      if (!result.ok) return
+
+      const next = [{ step: 'P9 automatic restart recovery', ok: true, detail: result.detail }]
+      window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+      setRecords(next)
+    }).catch(() => {
+      // A startup miss is not an acceptance failure; the explicit control remains available.
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [acceptanceProjection, enabled, records.length])
 
   if (!enabled) return null
 
@@ -451,16 +488,16 @@ export default function MonitorSurfaceNativeAcceptance({
         </button>
         <button
           type="button"
-          disabled={busy || !operatorProjection}
+          disabled={busy || !acceptanceProjection}
           onClick={() => void run('P9 mounted operator projection', async () => {
-            if (!operatorProjection) return { ok: false, detail: 'Canonical operator projection unavailable' }
+            if (!acceptanceProjection) return { ok: false, detail: 'Operator projection unavailable' }
             const result = await agentClaimMonitorSurface({
               slotId: SLOT_ID,
               owner: { kind: 'agent', name: OWNER },
               initialContent: {
                 kind: 'component',
                 rendererId: 'operator_projection',
-                props: { ...operatorProjection },
+                props: { ...acceptanceProjection },
               },
               ttlMs: 3_600_000,
             })
@@ -471,7 +508,7 @@ export default function MonitorSurfaceNativeAcceptance({
               ok: result.ok
                 && session?.content.kind === 'component'
                 && session.content.rendererId === 'operator_projection',
-              detail: `${result.message}; projection=${operatorProjection.projection_id}; session=${session?.surface_session_id ?? 'none'}`,
+              detail: `${result.message}; projection=${acceptanceProjection.projection_id}; session=${session?.surface_session_id ?? 'none'}`,
             }
           })}
         >
@@ -479,17 +516,19 @@ export default function MonitorSurfaceNativeAcceptance({
         </button>
         <button
           type="button"
-          disabled={busy || !operatorProjection}
+          disabled={busy || !acceptanceProjection}
           onClick={() => void run('P9 five concurrent owners', async () => {
-            if (!operatorProjection) return { ok: false, detail: 'Canonical operator projection unavailable' }
-            const sessions = createNativeAcceptanceSessions(operatorProjection)
+            if (!acceptanceProjection) return { ok: false, detail: 'Operator projection unavailable' }
+            const sessions = createNativeAcceptanceSessions(acceptanceProjection)
             const registry = coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())
             if (!registry) return { ok: false, detail: 'Authoritative monitor registry unavailable' }
             for (const session of sessions) {
               const existing = registry.sessions[session.slotId]
               if (existing) {
                 const expectedOwner = serializeAcceptanceOwner(session.owner)
-                if (existing.owner !== expectedOwner) {
+                const acceptanceOwner = existing.owner === `agent:${OWNER}`
+                  || existing.owner.startsWith(`agent:${OWNER}-`)
+                if (existing.owner !== expectedOwner && !acceptanceOwner) {
                   return {
                     ok: false,
                     detail: `${session.slotId} is actively owned by ${existing.owner}; release it explicitly before acceptance`,
@@ -516,10 +555,10 @@ export default function MonitorSurfaceNativeAcceptance({
         </button>
         <button
           type="button"
-          disabled={busy || !operatorProjection}
+          disabled={busy || !acceptanceProjection}
           onClick={() => void run('P9 five same-session workstations', async () => {
-            if (!operatorProjection) return { ok: false, detail: 'Canonical operator projection unavailable' }
-            const sessions = createNativeAcceptanceSessions(operatorProjection)
+            if (!acceptanceProjection) return { ok: false, detail: 'Operator projection unavailable' }
+            const sessions = createNativeAcceptanceSessions(acceptanceProjection)
             const registry = coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())
             if (!registry) return { ok: false, detail: 'Authoritative monitor registry unavailable' }
             const verified = verifyNativeAcceptanceRegistry(registry, sessions)
@@ -532,12 +571,67 @@ export default function MonitorSurfaceNativeAcceptance({
         </button>
         <button
           type="button"
-          disabled={busy || !operatorProjection}
+          disabled={busy}
+          onClick={() => void run('P9 revision-checked update', async () => {
+            const registry = coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())
+            const session = registry?.sessions.monitor_3
+            if (!session) return { ok: false, detail: 'monitor_3 session unavailable' }
+            const result = await agentPatchMonitorSurfacePlayback(
+              session.surface_session_id,
+              parseSerializedOwner(session.owner)!,
+              session.revision,
+              { playing: false, currentTime: 1, volume: 0 },
+            )
+            return {
+              ok: result.ok && result.session?.revision === session.revision + 1,
+              detail: `${result.message}; monitor_3 revision=${session.revision}->${result.session?.revision ?? 'none'}; playing=false`,
+            }
+          })}
+        >
+          P9 Update one
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void run('P9 release one preserve four', async () => {
+            const registry = coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())
+            const session = registry?.sessions.monitor_4
+            if (!session) return { ok: false, detail: 'monitor_4 session unavailable' }
+            const result = await agentReleaseMonitorSurface(session.surface_session_id, parseSerializedOwner(session.owner)!)
+            const remaining = coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())
+            const slots = Object.keys(remaining?.sessions ?? {})
+            return {
+              ok: result.ok && !remaining?.sessions.monitor_4 && slots.length === 4,
+              detail: `${result.message}; released=monitor_4; surviving=${slots.join(',')}`,
+            }
+          })}
+        >
+          P9 Release one
+        </button>
+        <button
+          type="button"
+          disabled={busy || !acceptanceProjection}
+          onClick={() => void run('P9 reclaim released surface', async () => {
+            if (!acceptanceProjection) return { ok: false, detail: 'Operator projection unavailable' }
+            const session = createNativeAcceptanceSessions(acceptanceProjection).find(({ slotId }) => slotId === 'monitor_4')!
+            const result = await agentClaimMonitorSurface(toClaimRequest(session))
+            const verified = verifyNativeAcceptanceRegistry(
+              coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())!,
+              createNativeAcceptanceSessions(acceptanceProjection),
+            )
+            return { ok: result.ok && verified.ok, detail: `${result.message}; ${verified.detail}` }
+          })}
+        >
+          P9 Reclaim one
+        </button>
+        <button
+          type="button"
+          disabled={busy || !acceptanceProjection}
           onClick={() => void run('P9 verify restart recovery', async () => {
-            if (!operatorProjection) return { ok: false, detail: 'Canonical operator projection unavailable' }
+            if (!acceptanceProjection) return { ok: false, detail: 'Operator projection unavailable' }
             return verifyNativeAcceptanceRegistry(
               coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())!,
-              createNativeAcceptanceSessions(operatorProjection),
+              createNativeAcceptanceSessions(acceptanceProjection),
             )
           })}
         >

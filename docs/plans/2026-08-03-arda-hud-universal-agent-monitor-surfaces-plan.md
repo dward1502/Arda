@@ -581,6 +581,20 @@ All five render as CanvasTexture-backed WebGL meshes in the normal native HUD. `
 
 **Current Phase 9 position (2026-08-11):** The normal native HUD has been restarted successfully with the accepted five-upper/five-lower composition intact, and a one-session markdown lifecycle was previously exercised end-to-end. The canonical operator projection is mounted through the typed descriptor path and the dev-only acceptance control can claim it and open its authoritative workstation. A real muted Chromium/CDP session now provides visibly changing website pixels inside physical Monitor 1, with revisioned native-frame delivery used where WebKit cannot consume multipart MJPEG directly. This advances—but does not close—the native walkthrough. The required simultaneous five-content/five-owner run, every-monitor activation, content mutation, release/reassign/expiry/restart sequence, blocked-embed exercise, measured performance baseline, and explicit operator acceptance remain open.
 
+**Five-session orchestration slice — 2026-08-11:** The development-only native
+acceptance overlay now has one bounded Phase 9 claim that replaces only stale
+acceptance-owned claims, refuses to displace unrelated active owners, and
+creates five canonical sessions with five distinct agent owners and document, image,
+video, read-only terminal, and canonical operator-projection descriptors. A second
+control opens five stable native workstation identities from the authoritative
+same-session handoffs, and a third re-reads and validates the Rust registry after a
+real restart. The model gate passes 2/2, the full HUD suite passes 517/517, lint exits
+zero with 126 pre-existing warnings, production build passes, and the Tauri library
+gate passes 86/86 with two installed-Chromium tests ignored. The development HUD was
+successfully built and launched, but CUA/AT-SPI exposed no capturable application
+window in this execution environment. Therefore no physical-aperture, five-window,
+media-rendering, restart, or operator-acceptance checkbox is closed from this slice.
+
 **Durable restart slice — 2026-08-11:** `TypedMonitorSurfaceState` is now initialized from an app-data registry owned by Rust rather than treating browser storage as recovery authority. Every claim, release, lease refresh, playback patch, and explicit restore serializes through one mutation lock and atomically replaces the durable registry after `sync_all`; a failed write rolls the in-memory contract back. RED-GREEN tests reconstruct state from disk and preserve five distinct slot, owner, descriptor, revision, and workstation identities, while corrupt durable input fails explicitly. The focused Rust monitor gate now passes 45/45 with two installed-Chromium tests ignored, Cargo check passes, the complete HUD suite passes 507/507, and the production build passes. This closes machine-verifiable five-session persistence but not the required installed-HUD restart walkthrough or operator acceptance.
 
 ---

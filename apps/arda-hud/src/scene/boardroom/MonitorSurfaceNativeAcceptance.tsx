@@ -23,12 +23,27 @@ import {
   type BrowserMonitorSessionRequest,
 } from '../../lib/browserMonitorSession'
 import type { AgentSurfaceOwner } from '../../lib/monitorSurfaceContract'
+import {
+  createNativeAcceptanceSessions,
+  serializeAcceptanceOwner,
+  toClaimRequest,
+  verifyNativeAcceptanceRegistry,
+} from './nativeMonitorAcceptanceModel'
 
 const SLOT_ID = 'monitor_1'
 const SECOND_SLOT_ID = 'monitor_2'
 const OWNER = 'hermes-agent-acceptance'
 const BINDING = 'hermes.acceptance'
 const STORAGE_KEY = 'arda.monitor-surface-native-acceptance'
+
+function parseSerializedOwner(owner: string): AgentSurfaceOwner | null {
+  const [kind, ...identityParts] = owner.split(':')
+  const identity = identityParts.join(':').trim()
+  if (!identity) return null
+  if (kind === 'operator') return { kind, id: identity }
+  if (kind === 'agent' || kind === 'system') return { kind, name: identity }
+  return null
+}
 
 interface AcceptanceRecord {
   step: string
@@ -461,6 +476,72 @@ export default function MonitorSurfaceNativeAcceptance({
           })}
         >
           P9 Mount projection
+        </button>
+        <button
+          type="button"
+          disabled={busy || !operatorProjection}
+          onClick={() => void run('P9 five concurrent owners', async () => {
+            if (!operatorProjection) return { ok: false, detail: 'Canonical operator projection unavailable' }
+            const sessions = createNativeAcceptanceSessions(operatorProjection)
+            const registry = coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())
+            if (!registry) return { ok: false, detail: 'Authoritative monitor registry unavailable' }
+            for (const session of sessions) {
+              const existing = registry.sessions[session.slotId]
+              if (existing) {
+                const expectedOwner = serializeAcceptanceOwner(session.owner)
+                if (existing.owner !== expectedOwner) {
+                  return {
+                    ok: false,
+                    detail: `${session.slotId} is actively owned by ${existing.owner}; release it explicitly before acceptance`,
+                  }
+                }
+                const existingOwner = parseSerializedOwner(existing.owner)
+                if (!existingOwner) return { ok: false, detail: `invalid owner for ${session.slotId}: ${existing.owner}` }
+                const released = await agentReleaseMonitorSurface(existing.surface_session_id, existingOwner)
+                if (!released.ok) return { ok: false, detail: `failed to clear ${session.slotId}: ${released.message}` }
+              }
+            }
+            const claimed = await Promise.all(sessions.map((session) => agentClaimMonitorSurface(toClaimRequest(session))))
+            if (claimed.some((result) => !result.ok)) {
+              return { ok: false, detail: claimed.map(({ message }) => message).join(' | ') }
+            }
+            const result = verifyNativeAcceptanceRegistry(
+              coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())!,
+              sessions,
+            )
+            return result
+          })}
+        >
+          P9 Claim five
+        </button>
+        <button
+          type="button"
+          disabled={busy || !operatorProjection}
+          onClick={() => void run('P9 five same-session workstations', async () => {
+            if (!operatorProjection) return { ok: false, detail: 'Canonical operator projection unavailable' }
+            const sessions = createNativeAcceptanceSessions(operatorProjection)
+            const registry = coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())
+            if (!registry) return { ok: false, detail: 'Authoritative monitor registry unavailable' }
+            const verified = verifyNativeAcceptanceRegistry(registry, sessions)
+            if (!verified.ok) return verified
+            sessions.forEach(({ slotId }) => windowManager.open(createMonitorSessionWindowConfig(registry.sessions[slotId])))
+            return { ok: true, detail: `opened=${sessions.length}; ${verified.detail}` }
+          })}
+        >
+          P9 Open five
+        </button>
+        <button
+          type="button"
+          disabled={busy || !operatorProjection}
+          onClick={() => void run('P9 verify restart recovery', async () => {
+            if (!operatorProjection) return { ok: false, detail: 'Canonical operator projection unavailable' }
+            return verifyNativeAcceptanceRegistry(
+              coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())!,
+              createNativeAcceptanceSessions(operatorProjection),
+            )
+          })}
+        >
+          P9 Verify five
         </button>
         <button
           type="button"

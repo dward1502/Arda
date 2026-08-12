@@ -87,8 +87,13 @@ For a repeatable development-only agent-claim walkthrough, launch with
 `VITE_MONITOR_ACCEPTANCE=1 pnpm run tauri dev`. The resulting
 `MonitorSurfaceNativeAcceptance` overlay invokes the real Tauri claim, payload,
 create/focus, lease refresh, reload, authorization-rejection, release, and dismiss
-paths while keeping each result operator-visible. It is absent unless that
-development environment flag is explicitly enabled.
+paths while keeping each result operator-visible. Its Phase 9 controls can also
+claim five canonical slots with five distinct owners and document, image, video,
+terminal, and canonical-projection descriptors; open all five exact same-session
+workstations; and verify the durable registry after a real restart. The controls
+prepare and report the walkthrough, but their green output is not visual acceptance:
+the operator must still inspect every physical aperture and workstation natively.
+The overlay is absent unless that development environment flag is explicitly enabled.
 
 The current sparse, low-contrast World View presentation is intentional and is
 not a boardroom monitor defect or a visual-refinement priority.

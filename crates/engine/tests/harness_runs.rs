@@ -588,6 +588,177 @@ async fn operator_receipts_complete_execute_verify_review_and_close_in_order() {
 }
 
 #[tokio::test]
+async fn completed_workbench_mutation_survives_process_restart_and_replays_once() {
+    let root = TempDir::new().expect("temp root");
+    let client = reqwest::Client::new();
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    attach(&client, bound).await;
+
+    client
+        .post(format!("http://{bound}/v1/runs/plan"))
+        .json(&json!({
+            "project_id": PROJECT_ID,
+            "graph": completion_graph("run-restart-recovery"),
+            "envelope": envelope("plan-run-restart-recovery")
+        }))
+        .send()
+        .await
+        .expect("plan request")
+        .error_for_status()
+        .expect("plan status");
+    client
+        .post(format!(
+            "http://{bound}/v1/runs/run-restart-recovery/approve"
+        ))
+        .json(&json!({
+            "node_id": "approval",
+            "envelope": envelope("approve-run-restart-recovery")
+        }))
+        .send()
+        .await
+        .expect("approve request")
+        .error_for_status()
+        .expect("approve status");
+
+    let completion_body = json!({
+        "envelope": envelope("complete-run-restart-recovery-execute"),
+        "receipt_digest": receipt_digest("execute"),
+        "evidence": {
+            "changes": [{
+                "path": "src/lib.rs",
+                "status": "modified",
+                "additions": 1,
+                "deletions": 1
+            }],
+            "provider_receipt": {
+                "provider": "nous",
+                "model": "fixture-model",
+                "adapter": "hermes-workbench",
+                "receipt_digest": receipt_digest("execute"),
+                "summary": "Restart acceptance mutation completed."
+            }
+        }
+    });
+    let completed: Value = client
+        .post(format!(
+            "http://{bound}/v1/runs/run-restart-recovery/nodes/execute/complete"
+        ))
+        .json(&completion_body)
+        .send()
+        .await
+        .expect("complete request")
+        .error_for_status()
+        .expect("complete status")
+        .json()
+        .await
+        .expect("complete body");
+    let completed_node = completed["graph"]["nodes"]
+        .as_array()
+        .and_then(|nodes| nodes.iter().find(|node| node["id"] == "execute"))
+        .expect("completed execute node");
+    assert_eq!(completed_node["state"], "succeeded");
+    assert_eq!(completed_node["output_digest"], receipt_digest("execute"));
+    let recovery_token = completed_node["checkpoint"]["recovery_token"]
+        .as_str()
+        .expect("recovery token")
+        .to_string();
+    let checkpoint_digest = completed_node["checkpoint"]["checkpoint_digest"]
+        .as_str()
+        .expect("checkpoint digest")
+        .to_string();
+    let events_path = root
+        .path()
+        .join("data/runs/run-restart-recovery/events.jsonl");
+    let checkpoint_path = root
+        .path()
+        .join("data/runs/run-restart-recovery/checkpoint.json");
+    let result_path = root
+        .path()
+        .join("data/runs/run-restart-recovery/result.json");
+    assert!(events_path.exists(), "durable event receipt must exist");
+    assert!(checkpoint_path.exists(), "durable checkpoint must exist");
+    assert!(result_path.exists(), "durable review projection must exist");
+    let events_before_restart = std::fs::read(&events_path).expect("read durable events");
+    let checkpoint_before_restart =
+        std::fs::read(&checkpoint_path).expect("read durable checkpoint");
+    let result_before_restart = std::fs::read(&result_path).expect("read durable result");
+
+    shutdown.notify_waiters();
+    handle.await.expect("first harness shutdown");
+
+    let (restarted_bound, restarted_shutdown, restarted_handle) = start_harness(&root).await;
+    let recovered: Value = client
+        .get(format!(
+            "http://{restarted_bound}/v1/runs/run-restart-recovery"
+        ))
+        .send()
+        .await
+        .expect("recover run request")
+        .error_for_status()
+        .expect("recover run status")
+        .json()
+        .await
+        .expect("recover run body");
+    let recovered_node = recovered["graph"]["nodes"]
+        .as_array()
+        .and_then(|nodes| nodes.iter().find(|node| node["id"] == "execute"))
+        .expect("recovered execute node");
+    assert_eq!(recovered_node["state"], "succeeded");
+    assert_eq!(recovered_node["output_digest"], receipt_digest("execute"));
+    assert_eq!(
+        recovered_node["checkpoint"]["recovery_token"],
+        recovery_token
+    );
+    assert_eq!(
+        recovered_node["checkpoint"]["checkpoint_digest"],
+        checkpoint_digest
+    );
+    assert_eq!(
+        recovered["review"]["provider_receipt"]["receipt_digest"],
+        receipt_digest("execute")
+    );
+
+    let replay: Value = client
+        .post(format!(
+            "http://{restarted_bound}/v1/runs/run-restart-recovery/nodes/execute/complete"
+        ))
+        .json(&completion_body)
+        .send()
+        .await
+        .expect("completion replay")
+        .error_for_status()
+        .expect("completion replay status")
+        .json()
+        .await
+        .expect("completion replay body");
+    assert_eq!(
+        replay["graph"]["nodes"]
+            .as_array()
+            .and_then(|nodes| nodes.iter().find(|node| node["id"] == "execute"))
+            .expect("replayed execute node")["checkpoint"]["recovery_token"],
+        recovery_token
+    );
+    assert_eq!(
+        std::fs::read(&events_path).expect("read replayed events"),
+        events_before_restart,
+        "idempotent replay must not append another mutation receipt"
+    );
+    assert_eq!(
+        std::fs::read(&checkpoint_path).expect("read replayed checkpoint"),
+        checkpoint_before_restart,
+        "authoritative checkpoint must remain stable after replay"
+    );
+    assert_eq!(
+        std::fs::read(&result_path).expect("read replayed result"),
+        result_before_restart,
+        "durable review projection must remain stable after replay"
+    );
+
+    restarted_shutdown.notify_waiters();
+    restarted_handle.await.expect("restarted harness shutdown");
+}
+
+#[tokio::test]
 async fn failed_verification_is_durable_and_blocks_review() {
     let root = TempDir::new().expect("temp root");
     let (bound, shutdown, handle) = start_harness(&root).await;

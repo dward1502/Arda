@@ -25,13 +25,15 @@ assistance, optional council deliberation, local inference, external-project
 work, interoperable systems, economic tools, and multimodal interaction are
 composable capabilities of one personal agent ecosystem.
 
-The executable implementation authority is
-[`../plans/2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md`](../plans/2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md).
+The current executable implementation authority is the
+[0.9 baseline and improvement plan](../plans/2026-08-12-arda-0.9-baseline-and-improvement-plan.md).
+The broader 1.0 convergence plan is
+[retained as deferred authority](../archive/deferred/1.0/2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md).
 The source-backed gap analysis is
 [`../audits/2026-08-08-arda-1.0-vision-to-live-gap-report.md`](../audits/2026-08-08-arda-1.0-vision-to-live-gap-report.md).
-Existing Stage 5/6 plans continue to own release engineering and artifact
-qualification, but their older Workbench-only product boundary no longer
-limits the meaning of Arda 1.0.
+Historical Stage 5 evidence and deferred Stage 6 plans retain release-engineering
+and future artifact-qualification context, but their older Workbench-only product
+boundary no longer limits the meaning of Arda 1.0.
 
 ## Executive definition
 

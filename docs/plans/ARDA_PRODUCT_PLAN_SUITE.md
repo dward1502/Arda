@@ -1,164 +1,60 @@
 # Arda Product Plan Suite
 
-**Status:** Active portfolio index  
-**Updated:** 2026-08-08
-**Historical readiness baseline:** [Arda 1.0 Product Readiness Assessment](../archive/ARDA_1_0_PRODUCT_READINESS.md)
-**Product doctrine:** [Arda 1.0 Personal Agent Ecosystem](../architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md)<br>
-**Master convergence authority:** [Arda 1.0 Personal Agent Ecosystem Implementation Plan](2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md)<br>
-**Release-engineering coordination:** [Arda System Unification and Usability Plan](2026-08-02-arda-system-unification-and-usability-plan.md)
-
-This index preserves the complete personal-agent-ecosystem vision while keeping optional capabilities independently installable and removable.
+**Status:** Active portfolio index<br>
+**Updated:** 2026-08-12<br>
+**Current release baseline:** [Arda 0.9 Baseline](../releases/0.9/BASELINE.md)<br>
+**Active improvement authority:** [Arda 0.9 Baseline and Improvement Plan](2026-08-12-arda-0.9-baseline-and-improvement-plan.md)<br>
+**Product doctrine:** [Arda Personal Agent Ecosystem](../architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md)
 
 ## Product decision
 
-**Arda 1.0 is one governed personal agent ecosystem. Workbench is its first proven execution capability and remains release-critical.**
+Arda `0.9.0` is the personal/internal whole-system baseline. Workbench is the
+first workflow-proven execution capability inside one governed local-first
+personal-agent ecosystem. The 0.9 profile is single-operator and loopback-only.
 
-Personal Operations, research, council, local inference, economic tools, external systems, Mirromere, and other outposts reuse the same kernel contracts. Optional distributions progress independently and cannot silently create parallel task, memory, policy, identity, communications, or receipt systems.
+Independent flow review is not required for this personal baseline. Its absence
+is disclosed and may not be converted into an independent-qualification claim.
+Final public `1.0.0` qualification remains a separate, fail-closed future
+decision.
 
-The product identity and required 1.0 vertical proofs are frozen by the master convergence plan. New work must complete, compose, simplify, harden, or make that system usable. New capabilities require a measured need and existing-authority reuse; no work may introduce parallel authorities.
+## Active planning authority
 
-## Finite active-plan ownership ledger
+`docs/plans/` contains only this portfolio index and the finite 0.9 improvement
+plan. The latter owns Personal Operations dogfood disposition, 0.9 defects,
+remaining dependency assessment, stale-link repair, and later measured
+HUD/runtime accessibility and performance work.
 
-This table is the portfolio classification and ownership authority required by
-U0. An unchecked checklist item is owned only by the plan named in its row and
-is accepted only at that plan's stated gate. Cross-links express dependencies;
-they do not transfer or duplicate implementation ownership.
+Completed Stage 5, system-unification, and HUD convergence plans are historical
+records under `docs/archive/`. The broader ecosystem convergence plan and Stage
+6 final-1.0 qualification plan are retained under `docs/archive/deferred/1.0/`.
+They do not create active 0.9 blockers.
 
-| Active authority | Classification | Open ownership and acceptance surface | Release relationship |
-|---|---|---|---|
-| [Arda 1.0 Personal Agent Ecosystem](2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md) | **master product convergence** | Owns capability composition, phone operator sessions, multi-worker/council proof, proactive personal operation, external assimilation, optional capability attachment, and whole-system vertical acceptance. | Defines the complete 1.0 base; delegates bounded implementation and release gates to the plans below. |
-| [System Unification and Usability](2026-08-02-arda-system-unification-and-usability-plan.md) | **release-critical** | Owns remaining U3–U6 recovery, install, usability, and closeout requirements. U0–U2 are closed. | Coordinates Stage 5/6 without replacing product doctrine or either release authority. |
-| [Stage 6 Legitimate 1.0](2026-07-29-stage-6-legitimate-1.0-plan.md) | **active release authority** | Owns the release decision, compatibility, evidence, HUD convergence, and native acceptance gates. | Qualifies the corrected product promise after required master-plan vertical proofs; public release remains an exact-source decision. |
-| [HUD Frontend–Backend Contract Convergence](2026-08-06-hud-frontend-backend-contract-convergence-plan.md) | **active release-critical integration** | Owns contract freeze, five vertical workflows, native design acceptance, and measured performance closeout. | C0 implementation is the current integration frontier. |
-| [Personal Operations private-alpha acceptance](../operations/personal-operations-private-alpha-acceptance.md) | **implemented optional application; operational acceptance open** | Owns native operator observation and the uninterrupted seven-day dogfood verdict; the completed implementation authority is [archived](../archive/2026-07-29-personal-operations-plan.md). | Its frontend/backend projection is covered by convergence; operator evidence may not be fabricated. |
-| [HUD Universal Agent Monitor Surfaces](2026-08-03-arda-hud-universal-agent-monitor-surfaces-plan.md) | **1.0 corrective surface** | Owns its 15 remaining monitor-session and native visual acceptance checks. | Operator acceptance in the running HUD is part of the local 1.0 definition. |
-| [Rúmil project audit](../../crates/spine/runtime/arda-rumil/README.md) | **optional but bounded** | Read-only project audit coordination, normalized findings, baselines, comparisons, and review-only organization plans. | No Rúmil finding authorizes mutation or blocks Workbench unless a release gate explicitly consumes its evidence. |
+## Product classification
 
-Completed Warden Research work is archived and remains the historical authority
-for its 29 accepted checks. [Manwe Single-Runtime Convergence](../archive/MANWE_SINGLE_RUNTIME_CONVERGENCE.md)
-is also archived after U1 accepted its nine convergence checks and preserved the
-coordinated `:7171` contract. The stale OpenFang and Platform OS planning
-surfaces are archived: their unique still-relevant boundaries are now owned by
-the U1 topology result, Rúmil's review-only audit surface, the retained
-Federated Communications doctrine, and the corrective HUD plan rather than
-parallel architecture queues. Mirromere, RELIC/CITADEL expansion, Company
-Operations, economic rails, device ingestion, and external products remain
-optional/private-alpha capabilities unless the master plan promotes a bounded
-slice. Their absence does not block the base; their contracts must remain
-compatible with the one Arda authority model.
-
-**Active-plan inventory — 2026-08-11:** `docs/plans/` contains six Markdown
-authorities. Four have unchecked execution or release gates. The HUD convergence
-plan has unresolved prose-defined C0–C4 gates despite using no checkbox list,
-and this portfolio file is the role-aware active index. No completed
-implementation plan remains active solely to revise historical evidence.
-
-## Stage plans
-
-| Stage | Outcome | Plan |
+| Surface | 0.9 classification | Authority |
 |---|---|---|
-| 4 — Private Beta | complete and operator-accepted; independent evaluator evidence is optional supplementary validation | [Archived Stage 4 Private Beta](../archive/2026-07-29-stage-4-private-beta-plan.md) |
-| 5 — Release Candidate | complete for the documented single-operator local profile; independent non-author repetition remains optional and unperformed | [Archived Stage 5 Release Candidate](../archive/2026-07-29-stage-5-release-candidate-plan.md) |
-| 6 — Legitimate 1.0 | active signed-system release proof under the single-operator local profile; independent-user evidence is optional and unperformed | [Stage 6 Legitimate 1.0](2026-07-29-stage-6-legitimate-1.0-plan.md) |
+| Arda Workbench | supported personal baseline; workflow-proven | [0.9 baseline](../releases/0.9/BASELINE.md) |
+| Native launcher/packages | supported on declared x86_64 Bluefin LTS 10 profile; unsigned | [0.9 baseline](../releases/0.9/BASELINE.md) |
+| HUD health, Workbench, Research, Personal Operations, monitor sessions | implemented backend-owned projections | [archived HUD convergence record](../archive/2026-08-06-hud-frontend-backend-contract-convergence-plan.md) |
+| Research/watchlists | bounded implemented workflow | [archived Warden Research record](../archive/2026-07-29-warden-research-application-plan.md) |
+| Personal Operations | implemented; genuine operator acceptance open | [operational acceptance](../operations/personal-operations-private-alpha-acceptance.md) |
+| Rúmil project audit | optional, read-only bounded capability | [Rúmil status](../../crates/spine/runtime/arda-rumil/STATUS.md) |
+| RELIC/CITADEL, Mirromere, Company Operations, payments, extra devices | optional/deferred; not base-distributed or 0.9-blocking | [deferred records](../archive/deferred/) |
+| Phone/multi-user/remote profile | unsupported for 0.9 | [0.9 limitations](../releases/0.9/BASELINE.md#known-limitations) |
 
-## First-party application release classifications
+## Authority history
 
-This table is the sole live application-classification authority. “Supported”
-means included in the declared release profile. Beta and preview applications
-remain opt-in and cannot weaken Workbench. Research and not-distributed entries
-are not shipped product promises.
-
-| Application or distribution shell | Purpose | Release classification | Evidence and remaining boundary |
-|---|---|---|---|
-| Arda Launcher | native onboarding and release lifecycle | **supported** | Signed `v0.3.0-rc.1` launcher lifecycle and support evidence; read-only/proposal-only authority is documented in `apps/arda-launcher/README.md`. |
-| Arda HUD / Workbench | governed project execution and canonical desktop operator environment | **supported** | [Completed Workbench implementation](../archive/2026-07-29-arda-workbench-private-beta-plan.md); Stage 6 still gates full HUD convergence and monitor acceptance before 1.0 promotion. |
-| Warden Research | bounded cited research and watchlists | **beta** | Implemented and accepted optional-beta record: [Archived Warden Research](../archive/2026-07-29-warden-research-application-plan.md). |
-| Personal Operations | capture, reminders, schedule, recovery, and contacts | **preview** | Implementation is complete, but native operator and seven-day dogfood acceptance remain open: [operational acceptance](../operations/personal-operations-private-alpha-acceptance.md). |
-| RELIC/CITADEL | read-only geometric runtime-presence projection | **preview** | Projection and recovery gates pass; the seven-day physical soak remains open: [RELIC/CITADEL operations](../operations/relic-citadel-presence.md). |
-| Company Operations | opportunity, client, experiment, value, and commitment cockpit | **research** | Internal-alpha implementation is retained, but no real client/pilot evidence is claimed: [deferred Company Operations record](../archive/deferred/2026-07-29-company-operations-plan.md). |
-| Mirromere | consent-governed ambient voice/avatar projection | **not distributed** | Design-only; no executable application or accepted hardware/privacy path exists: [deferred Mirromere record](../archive/deferred/2026-07-29-mirromere-plan.md). |
-
-## External product integration
-
-[Deferred External Product Integration Research and Adoption Plan](../archive/deferred/2026-07-29-external-product-integration-plan.md) retains the candidate matrix and boundaries. The master convergence plan now authorizes only the governed adapter/assimilation foundation and one measured low-risk vertical proof; individual candidates still require their own evidence and gate.
-
-Priority:
-1. complete existing MCP and OpenTelemetry boundaries;
-2. choose a Workbench graph renderer;
-3. add standards-first iCalendar/CalDAV and optional local STT;
-4. benchmark databases, voice frameworks, communications, CRM, and external agents before adopting them;
-5. keep all optional products removable and subordinate to Arda contracts.
-
-## Implementation authorities and completed supporting records
-
-Active plans remain authoritative for their implementation domains; completed
-supporting records preserve verified dependencies and operator procedures:
-
-- [Warden → Varda → Aulë governed learning loop](../archive/2026-07-27-warden-varda-ceo-learning-loop.md) — completed Warden/Varda backend receipts and authority
-- [Pi5 deployment, fleet, and recovery](../archive/2026-07-23-pi5-outpost-integration-plan.md) — completed AArch64 delivery, fleet/SSH truth, and shared node recovery record
-- [Manwe single-runtime convergence](../archive/MANWE_SINGLE_RUNTIME_CONVERGENCE.md) — completed U1 governed-runtime, `:7171`, admission-fairness, and process-smoke authority
-- [RELIC/CITADEL operations](../operations/relic-citadel-presence.md) — retained optional recovery/soak history
-- [Deferred Mirromere/RELIC outpost vision](../archive/deferred/MIRROMERE_RELIC_OUTPOST_VISION.md) — retained optional 1.0-compatible design context; no current hardware implementation authority
-- [Federated communications](../architecture/FEDERATED_COMMS.md)
-- [Rúmil project-audit authority](../../crates/spine/runtime/arda-rumil/README.md)
-
-Where an older plan contains stale Annunimas names, paths, ports, or machine claims, current Arda source and runtime evidence win. The new plans define product scope; existing domain plans retain implementation detail until audited, merged, or closed.
-
-## Dependency graph
-
-```text
-Arda core contracts + existing service receipts
-        |
-        +--> Workbench run graph + project contract
-        |       +--> Stage 4 private beta
-        |       +--> Stage 5 adapter/release hardening
-        |       +--> Stage 6 Workbench artifact qualification
-        |
-        +--> Warden/Varda research --> Research projection
-        |
-        +--> Personal Operations projection
-        |
-        +--> HUD health + Workbench + Research + Personal Operations
-                --> frontend/backend contract convergence
-                --> five-monitor native acceptance
-```
-
-## Execution order
-
-### Completed — Stage 4 critical path
-
-Maturity: `workflow_proven` — the Workbench contracts, durable engine/recovery path, HUD objective-to-review flow, Rust/Python adapters, explicit-question Warden/Varda evidence path, and isolated clean-profile install/recovery evidence are complete and operator-accepted under the [archived Stage 4 record](../archive/2026-07-29-stage-4-private-beta-plan.md). External-person evaluation remains optional supplementary validation because no separate evaluator or clean machine is available.
-
-### Completed scope classification
-
-- [x] Preserve Personal Operations capture and reminder contracts in `arda.personal-ops.v1`; live HUD convergence remains active.
-- [x] Audit Mirromere/RELIC prototype provenance; keep unlicensed/non-Git external source out of Arda.
-- [x] Review external-product spikes against open Stage 4 gates; no spike is authorized because current blockers are internal contracts, native commands, adapters, and UI flows.
-- [x] Repair touched legacy operational truth without launching broad migration work.
-
-### Completed — Stage 5 release candidate
-
-The signed `v0.3.0-rc.1` artifact, lifecycle, reliability, security,
-conformance, accessibility, support, and release-profile evidence passed. The
-operator selected the single-operator local profile on 2026-08-11, making
-independent non-author repetition optional without claiming it occurred. The
-historical authority is archived; Stage 6 is now the active release-decision
-phase.
-
-### Stage 6
-
-- Freeze the Arda 1.0 base contracts after the master-plan required vertical proofs; retain Workbench artifact qualification.
-- Execute [frontend/backend contract convergence](2026-08-06-hud-frontend-backend-contract-convergence-plan.md) one vertical workflow at a time.
-- Accept the five-monitor corrective surface natively and publish measured performance/support limits.
-- Keep optional Mirromere, RELIC/CITADEL expansion, Company Operations, economic, and device implementations independently gated and removable.
+- [Stage 5 release candidate](../archive/2026-07-29-stage-5-release-candidate-plan.md) — completed historical candidate/release-engineering tranche.
+- [System unification and usability](../archive/2026-08-02-arda-system-unification-and-usability-plan.md) — U0–U5 and bounded U6 implementation history.
+- [HUD frontend/backend convergence](../archive/2026-08-06-hud-frontend-backend-contract-convergence-plan.md) — implemented authority and restart-recovery history; remaining refinements moved to the 0.9 plan.
+- [Deferred Stage 6 final 1.0 qualification](../archive/deferred/1.0/2026-07-29-stage-6-legitimate-1.0-plan.md) — signed-byte, independent review, supported matrix, and final release gates.
+- [Deferred complete-vision convergence](../archive/deferred/1.0/2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md) — broader whole-ecosystem proofs and optional capability composition.
 
 ## Portfolio rules
 
 - A plan is not evidence that a feature exists.
-- A completion claim includes focused tests and the plan's release gate.
-- A first-party application reuses kernel authorities rather than cloning them.
-- A new task must close an existing plan item, defect, usability failure, operational gate, or measurable improvement; otherwise it is out of scope.
-- New external dependencies require a measured spike, license/SBOM review, failure tests, and removal instructions.
-- Hardware and sensor paths are opt-in and not Workbench dependencies.
-- Commercial progress is measured by operator time recovered, useful repeat usage, paid delivery evidence, and realized—not forecast—value.
-- Completed active plans are removed or archived according to repository policy; this index must be updated at the same time.
+- Source, tests, receipts, operator evidence, and exact artifact identity remain distinct maturity signals.
+- Optional capabilities reuse kernel authorities and cannot block the 0.9 base.
+- New work must fix a defect, satisfy a named evidence gap, improve a supported workflow measurably, or answer an explicit operator need.
+- No author or agent may represent omitted independent review as completed review.
+- Completed plans leave `docs/plans/`; future/deferred plans hold no current execution authority.

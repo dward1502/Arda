@@ -6,10 +6,10 @@ soterion:
   role: "organization_index"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-08-10"
+  last_reviewed: "2026-08-12"
 ---
 
-> 🜏 Soterion: 📜 organization_index | owner: HADES | status: active | reviewed: 2026-08-10
+> 🜏 Soterion: 📜 organization_index | owner: HADES | status: active | reviewed: 2026-08-12
 
 # Documentation archive
 
@@ -22,6 +22,20 @@ Deferred, non-1.0 records live under [`deferred/`](deferred/). They preserve
 design and internal-alpha evidence but hold no active 1.0 implementation
 authority. This includes Mirromere, Company Operations pilot work, and external
 product adoption research.
+
+- [`2026-07-29-stage-5-release-candidate-plan.md`](2026-07-29-stage-5-release-candidate-plan.md)
+  — completed historical signed-candidate, reliability, packaging, and support tranche; independent flow review was intentionally omitted from the later personal 0.9 profile, not backfilled.
+- [`2026-08-02-arda-system-unification-and-usability-plan.md`](2026-08-02-arda-system-unification-and-usability-plan.md)
+  — completed bounded system-unification implementation history; final public-release qualification moved to deferred 1.0 authority.
+- [`2026-08-06-hud-frontend-backend-contract-convergence-plan.md`](2026-08-06-hud-frontend-backend-contract-convergence-plan.md)
+  — implemented backend authority, monitor lifecycle, and restart-recovery convergence retained as 0.9 evidence.
+
+## Deferred future release authorities
+
+- [`deferred/1.0/2026-07-29-stage-6-legitimate-1.0-plan.md`](deferred/1.0/2026-07-29-stage-6-legitimate-1.0-plan.md)
+  — future exact-signed-byte, independent security/release review, supported-matrix, and final public `1.0.0` qualification.
+- [`deferred/1.0/2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md`](deferred/1.0/2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md)
+  — broader ecosystem composition and whole-system proofs retained without blocking 0.9.
 
 - [`ARDA_1_0_PRODUCT_READINESS.md`](ARDA_1_0_PRODUCT_READINESS.md)
   — superseded point-in-time readiness assessment; current portfolio and completion authority live in the product-plan suite and system-unification plan.
@@ -38,9 +52,11 @@ product adoption research.
 - [`2026-07-30-arda-hud-boardroom-visual-system-plan.md`](2026-07-30-arda-hud-boardroom-visual-system-plan.md)
   — completed six-phase boardroom visual system, typed physical controls, performance profiles, and visual-regression evidence.
 - [`2026-07-30-arda-hud-agentic-monitor-surfaces-plan.md`](2026-07-30-arda-hud-agentic-monitor-surfaces-plan.md)
-  — superseded by `2026-08-03-arda-hud-universal-agent-monitor-surfaces-plan.md`; the prior closeout was invalidated by underscoped acceptance.
+  — superseded by the completed [`2026-08-03` universal monitor plan](2026-08-03-arda-hud-universal-agent-monitor-surfaces-plan.md); the prior closeout was invalidated by underscoped acceptance.
 - [`2026-07-30-arda-hud-agentic-monitor-surfaces-checklist.md`](2026-07-30-arda-hud-agentic-monitor-surfaces-checklist.md)
-  — retained historical implementation slice for the superseded agentic monitor surface plan; current authority is the universal monitor surfaces plan.
+  — retained historical implementation slice for the superseded agentic monitor surface plan; completed historical authority is the universal monitor surfaces plan below.
+- [`2026-08-03-arda-hud-universal-agent-monitor-surfaces-plan.md`](2026-08-03-arda-hud-universal-agent-monitor-surfaces-plan.md)
+  — completed and operator-accepted five-monitor native session surface, including multi-content rendering, exact workstation continuity, lifecycle isolation, blocked-frame capture, synchronization, and restart recovery.
 - [`2026-07-28-eight-package-first-class-closeout.md`](2026-07-28-eight-package-first-class-closeout.md)
   — evidence-backed closeout record for the remaining eight Cargo packages.
 - [`2026-08-03-arda-rumil-project-audit-plan.md`](2026-08-03-arda-rumil-project-audit-plan.md)

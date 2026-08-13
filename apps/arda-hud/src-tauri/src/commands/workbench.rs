@@ -10,6 +10,25 @@ const DEFAULT_HARNESS_URL: &str = "http://127.0.0.1:7878";
 pub const WORKBENCH_RUN_EVENT: &str = "arda://workbench-run-event";
 pub const WORKBENCH_STREAM_ERROR: &str = "arda://workbench-stream-error";
 
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct HarnessErrorEnvelope {
+    pub schema_version: String,
+    pub status: String,
+    pub code: String,
+    pub message: String,
+    pub recovery_action: String,
+}
+
+impl std::fmt::Display for HarnessErrorEnvelope {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            formatter,
+            "{} [{}]. Recovery: {}",
+            self.message, self.code, self.recovery_action
+        )
+    }
+}
+
 #[derive(Default)]
 pub struct WorkbenchEventStreamState {
     task: Mutex<Option<tauri::async_runtime::JoinHandle<()>>>,
@@ -130,8 +149,26 @@ pub struct RunRecord {
     pub graph: RunGraph,
     pub events: Vec<Value>,
     pub review: RunReviewEvidence,
+    pub recovery_diagnostics: Option<RecoveryDiagnostics>,
     #[serde(default)]
     pub worker_progress: std::collections::BTreeMap<String, String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RecoveryDiagnostics {
+    pub failure_owner: String,
+    pub failed_node_id: String,
+    pub failure_reason: String,
+    pub last_valid_state: Option<LastValidRunState>,
+    pub safe_recovery_action: String,
+    pub post_recovery_receipt: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LastValidRunState {
+    pub node_id: String,
+    pub state: String,
+    pub receipt_digest: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -573,8 +610,25 @@ async fn decode<T: DeserializeOwned>(response: reqwest::Response) -> Result<T, S
             .await
             .map_err(|error| format!("Harness returned an invalid response: {error}"));
     }
-    let detail = response.text().await.unwrap_or_default();
-    Err(format!("Harness request failed ({status}): {detail}"))
+    let bytes = response.bytes().await.unwrap_or_default();
+    Err(decode_harness_error(status, &bytes))
+}
+
+fn decode_harness_error(status: reqwest::StatusCode, bytes: &[u8]) -> String {
+    match serde_json::from_slice::<HarnessErrorEnvelope>(&bytes) {
+        Ok(envelope)
+            if envelope.schema_version == "arda.hud.error.v1"
+                && envelope.status == "failed"
+                && !envelope.code.trim().is_empty()
+                && !envelope.message.trim().is_empty()
+                && !envelope.recovery_action.trim().is_empty() =>
+        {
+            format!("Harness request failed ({status}): {envelope}")
+        }
+        _ => format!(
+            "Harness request failed ({status}): invalid or missing arda.hud.error.v1 envelope"
+        ),
+    }
 }
 
 async fn post_json<B: Serialize + ?Sized, T: DeserializeOwned>(
@@ -979,6 +1033,33 @@ mod tests {
         assert_eq!(checked_id("run-1", "run_id"), Ok("run-1"));
         assert!(checked_id("../shell", "run_id").is_err());
         assert!(checked_id("run/approve", "run_id").is_err());
+    }
+
+    #[test]
+    fn decodes_operator_readable_harness_error_envelope() {
+        let payload = serde_json::to_vec(&json!({
+            "schema_version": "arda.hud.error.v1",
+            "status": "failed",
+            "code": "conflict",
+            "message": "The retry key is already bound.",
+            "recovery_action": "Reload authoritative state before retrying the intent."
+        }))
+        .expect("error envelope");
+
+        assert_eq!(
+            decode_harness_error(reqwest::StatusCode::CONFLICT, &payload),
+            "Harness request failed (409 Conflict): The retry key is already bound. [conflict]. Recovery: Reload authoritative state before retrying the intent."
+        );
+    }
+
+    #[test]
+    fn rejects_unversioned_harness_error_body() {
+        let payload =
+            serde_json::to_vec(&json!({"error": "legacy failure"})).expect("legacy body");
+        assert_eq!(
+            decode_harness_error(reqwest::StatusCode::BAD_REQUEST, &payload),
+            "Harness request failed (400 Bad Request): invalid or missing arda.hud.error.v1 envelope"
+        );
     }
 
     #[test]

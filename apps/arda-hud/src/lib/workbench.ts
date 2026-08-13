@@ -52,6 +52,16 @@ export interface RunRecord {
   graph: RunGraph
   events: WorkbenchEvent[]
   review: RunReviewEvidence
+  recovery_diagnostics?: RecoveryDiagnostics | null
+}
+
+export interface RecoveryDiagnostics {
+  failure_owner: string
+  failed_node_id: string
+  failure_reason: string
+  last_valid_state: { node_id: string; state: RunNodeState; receipt_digest: string | null } | null
+  safe_recovery_action: string
+  post_recovery_receipt: string | null
 }
 
 export interface ExecuteProviderNodeResponse {

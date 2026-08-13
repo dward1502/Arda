@@ -19,31 +19,42 @@ import { coerceRuntimeMonitorRegistry } from '../../lib/monitorSurfaceRegistryBr
 import { createMonitorSessionWindowConfig } from './monitorSessionWorkstationRoute'
 import type { OperatorProjection } from '../../lib/operatorProjection'
 import {
+  agentClickBrowserMonitorSession,
+  agentGetBrowserMonitorSession,
+  agentNavigateBrowserMonitorSession,
   agentStartBrowserMonitorSession,
   agentStopBrowserMonitorSession,
   type BrowserMonitorSessionRequest,
 } from '../../lib/browserMonitorSession'
-import type { AgentSurfaceOwner } from '../../lib/monitorSurfaceContract'
 import {
-  createNativeAcceptanceSessions,
-  serializeAcceptanceOwner,
-  toClaimRequest,
-  verifyNativeAcceptanceRegistry,
-} from './nativeMonitorAcceptanceModel'
+  getPtyMonitorSession,
+  startPtyMonitorSession,
+  stopPtyMonitorSession,
+  writePtyMonitorSession,
+} from '../../lib/ptyMonitorSession'
+import type { AgentSurfaceOwner } from '../../lib/monitorSurfaceContract'
 
 const SLOT_ID = 'monitor_1'
 const SECOND_SLOT_ID = 'monitor_2'
 const OWNER = 'hermes-agent-acceptance'
 const BINDING = 'hermes.acceptance'
-const STORAGE_KEY = 'arda.monitor-surface-native-acceptance.v2'
-
-function parseSerializedOwner(owner: string): AgentSurfaceOwner | null {
-  const [kind, ...identityParts] = owner.split(':')
-  const identity = identityParts.join(':').trim()
-  if (!identity) return null
-  if (kind === 'operator') return { kind, id: identity }
-  if (kind === 'agent' || kind === 'system') return { kind, name: identity }
-  return null
+const PTY_OWNER = 'arda.agent.hermes-acceptance'
+const PTY_SESSION_ID = 'arda-p9-live-pty'
+const DOGFOOD_PTY_OWNER = 'arda.agent.p9-dogfood-terminal'
+const DOGFOOD_PTY_SESSION_ID = 'arda-p9-dogfood-terminal'
+const STORAGE_KEY = 'arda.monitor-surface-native-acceptance'
+const WALKTHROUGH_OWNER_PREFIX = `${OWNER}-p9-`
+const WALKTHROUGH_SLOTS = ['monitor_1', 'monitor_2', 'monitor_3', 'monitor_4', 'monitor_5'] as const
+const ACCEPTANCE_OPERATOR_PROJECTION: OperatorProjection = {
+  schema_version: 'arda.operator-projection.v1',
+  projection_id: 'monitor-native-acceptance-projection',
+  generated_at: '2026-08-12T00:00:00.000Z',
+  authority: 'read_only',
+  freshness: 'fresh',
+  objectives: [], runs: [], capabilities: [], pending_approvals: [], councils: [],
+  personal_operations: { captures: 0, resumable_items: 0, reminders: [] },
+  joulework: { budget_joules: 1, consumed_joules: 0, remaining_joules: 1, source: 'synthetic_restoration', source_confidence: 1 },
+  evidence: [], communications: [], dependencies: [],
 }
 
 interface AcceptanceRecord {
@@ -69,7 +80,9 @@ async function releaseStaleAcceptanceClaim(slotId: string): Promise<void> {
   const registry = coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())
   const session = registry?.sessions[slotId]
   if (!session) return
-  const acceptanceOwner = session.owner === 'agent:browser-monitor-acceptance'
+  const acceptanceOwner = session.owner === `agent:${OWNER}`
+    || session.owner.startsWith(`agent:${WALKTHROUGH_OWNER_PREFIX}`)
+    || session.owner === 'agent:browser-monitor-acceptance'
     || session.owner.startsWith(`agent:${OWNER}-browser-`)
   if (!acceptanceOwner) return
   const released = await agentReleaseMonitorSurface(
@@ -101,19 +114,9 @@ export default function MonitorSurfaceNativeAcceptance({
 }) {
   const env = (import.meta as ImportMeta & { env: Record<string, string | boolean | undefined> }).env
   const enabled = env.DEV === true && env.VITE_MONITOR_ACCEPTANCE === '1'
+  const acceptanceProjection = operatorProjection ?? ACCEPTANCE_OPERATOR_PROJECTION
   const [records, setRecords] = useState<AcceptanceRecord[]>(readRecords)
   const [busy, setBusy] = useState(false)
-  const acceptanceProjection = operatorProjection ?? (enabled ? {
-    schema_version: 'arda.operator-projection.v1',
-    projection_id: 'native-monitor-acceptance',
-    generated_at: new Date(0).toISOString(),
-    authority: 'read_only',
-    freshness: 'unknown',
-    objectives: [],
-    runs: [],
-    capabilities: [],
-    dependencies: [],
-  } as OperatorProjection : null)
   const activeBrowserCapturesRef = useRef<ActiveBrowserCapture[]>([])
   const passed = useMemo(() => records.filter((record) => record.ok).length, [records])
 
@@ -124,32 +127,19 @@ export default function MonitorSurfaceNativeAcceptance({
     }
   }, [])
 
-  useEffect(() => {
-    if (!enabled || records.length > 0 || !acceptanceProjection) return
-
-    let cancelled = false
-    void agentGetMonitorSurfaceRegistry().then((value) => {
-      const registry = coerceRuntimeMonitorRegistry(value)
-      if (!registry || cancelled) return
-      const result = verifyNativeAcceptanceRegistry(
-        registry,
-        createNativeAcceptanceSessions(acceptanceProjection),
-      )
-      if (!result.ok) return
-
-      const next = [{ step: 'P9 automatic restart recovery', ok: true, detail: result.detail }]
-      window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(next))
-      setRecords(next)
-    }).catch(() => {
-      // A startup miss is not an acceptance failure; the explicit control remains available.
-    })
-
-    return () => {
-      cancelled = true
-    }
-  }, [acceptanceProjection, enabled, records.length])
-
   if (!enabled) return null
+
+  const claimWalkthroughSurface = async (
+    slotId: typeof WALKTHROUGH_SLOTS[number],
+    ownerName: string,
+    initialContent: Parameters<typeof agentClaimMonitorSurface>[0]['initialContent'],
+    ttlMs = 10 * 60_000,
+  ) => agentClaimMonitorSurface({
+    slotId,
+    owner: { kind: 'agent', name: ownerName },
+    initialContent,
+    ttlMs,
+  })
 
   const record = (step: string, ok: boolean, detail: string) => {
     setRecords((current) => {
@@ -421,7 +411,139 @@ export default function MonitorSurfaceNativeAcceptance({
         <button
           type="button"
           disabled={busy}
-          onClick={() => void run('two-browser-native', async () => {
+          onClick={() => void run('P9 five native content sessions', async () => {
+            const priorCaptures = activeBrowserCapturesRef.current.splice(0)
+            await Promise.allSettled(priorCaptures.map(stopBrowserCapture))
+            await Promise.all(WALKTHROUGH_SLOTS.map(releaseStaleAcceptanceClaim))
+
+            const browserOwner: AgentSurfaceOwner = { kind: 'agent', name: `${WALKTHROUGH_OWNER_PREFIX}youtube` }
+            const browser = await agentStartBrowserMonitorSession({
+              slotId: 'monitor_1',
+              owner: browserOwner,
+              url: 'https://www.youtube.com/watch?v=YE7VzlLtp-4',
+              ttlMs: 10 * 60_000,
+              captureSessionId: `p9-youtube-${Date.now()}`,
+            })
+            activeBrowserCapturesRef.current.push({
+              sessionId: browser.capture.sessionId,
+              owner: browser.capture.owner,
+              surfaceSessionId: browser.claim.session!.surface_session_id,
+              surfaceOwner: browserOwner,
+            })
+
+            const results = await Promise.all([
+              claimWalkthroughSurface('monitor_2', `${WALKTHROUGH_OWNER_PREFIX}video`, {
+                kind: 'video',
+                source: { kind: 'remote', url: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4' },
+                mime: 'video/mp4', fit: 'cover', loop: true, autoplay: true, muted: true,
+              }),
+              claimWalkthroughSurface('monitor_3', `${WALKTHROUGH_OWNER_PREFIX}image`, {
+                kind: 'image',
+                source: { kind: 'local', path: 'apps/arda-hud/src/assets/scene/world/boardroom_physical_stage/boardroom_physical_stage_reference.png' },
+                fit: 'contain', alt: 'ARDA boardroom physical stage reference',
+              }),
+              claimWalkthroughSurface('monitor_4', `${WALKTHROUGH_OWNER_PREFIX}document`, {
+                kind: 'document', documentKind: 'markdown', source: { kind: 'local', path: 'README.md' },
+              }),
+              claimWalkthroughSurface('monitor_5', `${WALKTHROUGH_OWNER_PREFIX}projection`, {
+                kind: 'component', rendererId: 'operator_projection', props: { ...acceptanceProjection },
+              }),
+            ])
+            const registry = coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())
+            const sessions = WALKTHROUGH_SLOTS.map((slotId) => registry?.sessions[slotId]).filter(Boolean)
+            const owners = new Set(sessions.map((session) => session!.owner))
+            const kinds = sessions.map((session) => session!.content.kind).join(',')
+            return {
+              ok: browser.claim.ok && browser.capture.muted && browser.capture.frameRevision >= 2
+                && results.every((result) => result.ok) && sessions.length === 5 && owners.size === 5,
+              detail: `sessions=${sessions.length}; owners=${owners.size}; kinds=${kinds}; youtubeFrames=${browser.capture.frameRevision}`,
+            }
+          })}
+        >
+          P9 Claim five content sessions
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void run('P9 open all same-session workstations', async () => {
+            const registry = coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())
+            const sessions = WALKTHROUGH_SLOTS.map((slotId) => registry?.sessions[slotId]).filter(Boolean)
+            sessions.forEach((session) => windowManager.open(createMonitorSessionWindowConfig(session!)))
+            const exact = sessions.every((session) =>
+              session!.workstation_handoff.mode === 'same_live_session'
+              && session!.workstation_handoff.session_id === session!.surface_session_id)
+            return { ok: sessions.length === 5 && exact, detail: `opened=${sessions.length}; exactSameSession=${exact}` }
+          })}
+        >
+          P9 Open all workstations
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void run('P9 isolated update release expiry reassignment', async () => {
+            let registry = coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())
+            const video = registry?.sessions.monitor_2
+            const image = registry?.sessions.monitor_3
+            const document = registry?.sessions.monitor_4
+            if (!video || !image || !document) return { ok: false, detail: 'five-session walkthrough is not active' }
+            const survivorIds = ['monitor_1', 'monitor_2', 'monitor_4', 'monitor_5']
+              .map((slotId) => registry?.sessions[slotId]?.surface_session_id)
+            const patched = await agentPatchMonitorSurfacePlayback(
+              video.surface_session_id,
+              { kind: 'agent', name: `${WALKTHROUGH_OWNER_PREFIX}video` },
+              video.revision,
+              { playing: true, currentTime: 2, volume: 0 },
+            )
+            const released = await agentReleaseMonitorSurface(
+              image.surface_session_id,
+              { kind: 'agent', name: `${WALKTHROUGH_OWNER_PREFIX}image` },
+            )
+            registry = coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())
+            const isolated = survivorIds.every((id, index) =>
+              registry?.sessions[['monitor_1', 'monitor_2', 'monitor_4', 'monitor_5'][index]]?.surface_session_id === id)
+            const reassigned = await claimWalkthroughSurface('monitor_3', `${WALKTHROUGH_OWNER_PREFIX}sixth-agent`, {
+              kind: 'image',
+              source: { kind: 'local', path: 'apps/arda-hud/src/scene/boardroom/__visual_baselines__/boardroom-default-web.png' },
+              fit: 'cover', alt: 'Reassigned boardroom baseline',
+            })
+            const shortened = await agentRefreshMonitorSurfaceLease(
+              document.surface_session_id,
+              { kind: 'agent', name: `${WALKTHROUGH_OWNER_PREFIX}document` },
+              1_000,
+            )
+            await new Promise((resolve) => window.setTimeout(resolve, 1_200))
+            const afterExpiry = coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())
+            const expired = new Date(afterExpiry!.sessions.monitor_4.lease_expires_at_utc).getTime() <= Date.now()
+            return {
+              ok: patched.ok && patched.session?.revision === video.revision + 1 && released.ok
+                && isolated && reassigned.ok && shortened.ok && expired,
+              detail: `update=${video.revision}->${patched.session?.revision}; releaseIsolated=${isolated}; reassigned=${reassigned.session?.owner}; expiredOnly=monitor_4:${expired}`,
+            }
+          })}
+        >
+          P9 Lifecycle isolation
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void run('P9 frame-blocked capture path', async () => {
+            const registry = coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())
+            const session = registry?.sessions.monitor_1
+            const capture = activeBrowserCapturesRef.current.find((item) => item.surfaceSessionId === session?.surface_session_id)
+            return {
+              ok: session?.content.kind === 'remote_session' && session.content.transport === 'mjpeg' && Boolean(capture),
+              detail: session?.content.kind === 'remote_session'
+                ? `real Chromium/CDP capture; transport=${session.content.transport}; session=${session.content.sessionId}`
+                : 'no real capture-backed browser session is active',
+            }
+          })}
+        >
+          P9 Verify blocked-frame path
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void run('P9 two-browser trailer navigation isolation', async () => {
             const priorCaptures = activeBrowserCapturesRef.current.splice(0)
             await Promise.allSettled(priorCaptures.map(stopBrowserCapture))
             await Promise.all([releaseStaleAcceptanceClaim(SLOT_ID), releaseStaleAcceptanceClaim(SECOND_SLOT_ID)])
@@ -430,7 +552,7 @@ export default function MonitorSurfaceNativeAcceptance({
               {
                 slotId: SLOT_ID,
                 owner: { kind: 'agent' as const, name: `${OWNER}-browser-a` },
-                url: 'https://threejs.org/examples/webgl_animation_keyframes.html',
+                url: 'https://www.youtube.com/watch?v=QeCItSg-wmI',
                 ttlMs: 120_000,
                 captureSessionId: `browser-monitor-a-${startedAt}`,
               },
@@ -438,7 +560,7 @@ export default function MonitorSurfaceNativeAcceptance({
                 slotId: SECOND_SLOT_ID,
                 owner: { kind: 'agent' as const, name: `${OWNER}-browser-b` },
                 url: 'https://threejs.org/examples/webgl_geometry_cube.html',
-                ttlMs: 120_000,
+                ttlMs: 180_000,
                 captureSessionId: `browser-monitor-b-${startedAt}`,
               },
             ]
@@ -461,15 +583,47 @@ export default function MonitorSurfaceNativeAcceptance({
               )
               throw failure.reason
             }
+            const [trailerStarted, navigatorStarted] = activeResults
+            const trailerBeforeNavigation = await agentGetBrowserMonitorSession(trailerStarted.capture.sessionId)
+            const navigatorAfterNavigation = await agentNavigateBrowserMonitorSession(
+              navigatorStarted.capture,
+              'https://threejs.org/examples/webgl_animation_keyframes.html',
+            )
+            let crossSessionPointerRejected = false
+            try {
+              await agentClickBrowserMonitorSession(
+                { ...trailerStarted.capture, owner: navigatorStarted.capture.owner },
+                { x: 640, y: 360 },
+              )
+            } catch {
+              crossSessionPointerRejected = true
+            }
+            const trailerAfterNavigation = await agentGetBrowserMonitorSession(trailerStarted.capture.sessionId)
+            const navigatorObserved = await agentGetBrowserMonitorSession(navigatorStarted.capture.sessionId)
+            const registry = coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())
+            const trailerSurface = registry?.sessions[SLOT_ID]
+            const navigatorSurface = registry?.sessions[SECOND_SLOT_ID]
+            if (trailerSurface) windowManager.open(createMonitorSessionWindowConfig(trailerSurface))
+            if (navigatorSurface) windowManager.open(createMonitorSessionWindowConfig(navigatorSurface))
+            const distinct = trailerAfterNavigation.processId !== navigatorObserved.processId
+              && trailerAfterNavigation.sessionId !== navigatorObserved.sessionId
+              && trailerAfterNavigation.owner !== navigatorObserved.owner
+              && trailerAfterNavigation.streamUrl !== navigatorObserved.streamUrl
+              && trailerSurface?.surface_session_id !== navigatorSurface?.surface_session_id
+              && trailerSurface?.lease_expires_at_utc !== navigatorSurface?.lease_expires_at_utc
+            const isolatedNavigation = trailerAfterNavigation.url === trailerBeforeNavigation.url
+              && trailerAfterNavigation.revision === trailerBeforeNavigation.revision
+              && navigatorObserved.url === navigatorAfterNavigation.url
+              && navigatorObserved.revision === navigatorStarted.capture.revision + 1
             return {
-              ok: activeResults.length === 2,
-              detail: activeResults.map(({ capture }, index) =>
-                `${requests[index].slotId}=${capture.sessionId}; pid=${capture.processId}; frames=${capture.frameRevision}; muted=${capture.muted}`
-              ).join(' | '),
+              ok: activeResults.length === 2 && distinct && isolatedNavigation && crossSessionPointerRejected
+                && trailerAfterNavigation.muted && navigatorObserved.muted
+                && trailerAfterNavigation.frameRevision >= 2 && navigatorObserved.frameRevision >= 2,
+              detail: `trailer=${trailerAfterNavigation.sessionId}; pid=${trailerAfterNavigation.processId}; rev=${trailerAfterNavigation.revision}; frames=${trailerAfterNavigation.frameRevision}; muted=${trailerAfterNavigation.muted}; lease=${trailerSurface?.lease_expires_at_utc} | navigator=${navigatorObserved.sessionId}; pid=${navigatorObserved.processId}; rev=${navigatorObserved.revision}; frames=${navigatorObserved.frameRevision}; muted=${navigatorObserved.muted}; lease=${navigatorSurface?.lease_expires_at_utc}; navigated=${navigatorObserved.url}; distinct=${distinct}; isolated=${isolatedNavigation}; crossPointerRejected=${crossSessionPointerRejected}; audioPolicy=per-process-mute`,
             }
           })}
         >
-          start 2 browsers
+          verify 2 browsers + isolation
         </button>
         <button
           type="button"
@@ -488,9 +642,176 @@ export default function MonitorSurfaceNativeAcceptance({
         </button>
         <button
           type="button"
-          disabled={busy || !acceptanceProjection}
+          disabled={busy}
+          onClick={() => void run('P9 live PTY session', async () => {
+            await releaseStaleAcceptanceClaim(SLOT_ID)
+            await startPtyMonitorSession(
+              PTY_SESSION_ID,
+              PTY_OWNER,
+              "printf 'ARDA_PTY_READY\\n'; while IFS= read -r line; do printf 'ARDA_PTY:%s\\n' \"$line\"; done",
+            )
+            let ready = await getPtyMonitorSession(PTY_SESSION_ID)
+            for (let attempt = 0; attempt < 30 && !ready.output.includes('ARDA_PTY_READY'); attempt += 1) {
+              await new Promise((resolve) => window.setTimeout(resolve, 40))
+              ready = await getPtyMonitorSession(PTY_SESSION_ID)
+            }
+            let wrongOwnerRejected = false
+            try {
+              await writePtyMonitorSession(PTY_SESSION_ID, 'arda.agent.other', ready.revision, 'wrong-owner\n')
+            } catch {
+              wrongOwnerRejected = true
+            }
+            const claimed = await agentClaimMonitorSurface({
+              slotId: SLOT_ID,
+              owner: { kind: 'agent', name: OWNER },
+              initialContent: { kind: 'terminal', sessionId: PTY_SESSION_ID, readOnly: false, theme: 'arda-cyan' },
+              ttlMs: 3_600_000,
+            })
+            const registry = coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())
+            const surface = registry?.sessions[SLOT_ID]
+            if (surface) windowManager.open(createMonitorSessionWindowConfig(surface))
+            const handedOff = await writePtyMonitorSession(
+              PTY_SESSION_ID,
+              PTY_OWNER,
+              ready.revision,
+              'workstation-intervention\n',
+            )
+            let observed = handedOff
+            for (let attempt = 0; attempt < 30 && !observed.output.includes('ARDA_PTY:workstation-intervention'); attempt += 1) {
+              await new Promise((resolve) => window.setTimeout(resolve, 40))
+              observed = await getPtyMonitorSession(PTY_SESSION_ID)
+            }
+            return {
+              ok: claimed.ok
+                && wrongOwnerRejected
+                && surface?.content.kind === 'terminal'
+                && surface.content.sessionId === PTY_SESSION_ID
+                && observed.output.includes('ARDA_PTY:workstation-intervention')
+                && observed.outputRevision > ready.outputRevision,
+              detail: `session=${observed.sessionId}; owner=${observed.owner}; pid=${observed.processId}; rev=${observed.revision}; streamRev=${ready.outputRevision}->${observed.outputRevision}; wrongOwnerRejected=${wrongOwnerRejected}; handoff=${surface?.workstation_handoff.session_id ?? 'none'}`,
+            }
+          })}
+        >
+          P9 live PTY + handoff
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void run('P9 stop PTY', async () => {
+            await stopPtyMonitorSession(PTY_SESSION_ID, PTY_OWNER)
+            const registry = coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())
+            const surface = registry?.sessions[SLOT_ID]
+            const released = surface?.content.kind === 'terminal' && surface.content.sessionId === PTY_SESSION_ID
+              ? await agentReleaseMonitorSurface(surface.surface_session_id, { kind: 'agent', name: OWNER })
+              : null
+            let unavailable = false
+            try { await getPtyMonitorSession(PTY_SESSION_ID) } catch { unavailable = true }
+            return {
+              ok: unavailable && (released == null || released.ok),
+              detail: `session=${PTY_SESSION_ID}; unavailable=${unavailable}; surfaceReleased=${released?.ok ?? 'not-active'}`,
+            }
+          })}
+        >
+          stop PTY
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void run('P9 three-surface dogfood', async () => {
+            const priorCaptures = activeBrowserCapturesRef.current.splice(0)
+            await Promise.allSettled(priorCaptures.map(stopBrowserCapture))
+            await Promise.all(WALKTHROUGH_SLOTS.slice(0, 3).map(releaseStaleAcceptanceClaim))
+            const research = await claimWalkthroughSurface('monitor_1', `${WALKTHROUGH_OWNER_PREFIX}research`, {
+              kind: 'document',
+              documentKind: 'markdown',
+              source: { kind: 'local', path: 'docs/plans/2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md' },
+            }, 180_000)
+            const browserRequest: BrowserMonitorSessionRequest = {
+              slotId: 'monitor_2',
+              owner: { kind: 'agent', name: `${WALKTHROUGH_OWNER_PREFIX}browser-operation` },
+              url: 'https://docs.rs/portable-pty/latest/portable_pty/',
+              ttlMs: 180_000,
+              captureSessionId: `p9-dogfood-browser-${Date.now()}`,
+            }
+            const browser = await agentStartBrowserMonitorSession(browserRequest)
+            activeBrowserCapturesRef.current.push({
+              sessionId: browser.capture.sessionId,
+              owner: browser.capture.owner,
+              surfaceSessionId: browser.claim.session!.surface_session_id,
+              surfaceOwner: browserRequest.owner,
+            })
+            await startPtyMonitorSession(
+              DOGFOOD_PTY_SESSION_ID,
+              DOGFOOD_PTY_OWNER,
+              "cargo test --manifest-path src-tauri/Cargo.toml pty_capture --lib --quiet; printf 'ARDA_BUILD_OBSERVED\\n'; while IFS= read -r line; do printf 'ARDA_INTERVENTION:%s\\n' \"$line\"; done",
+            )
+            const terminal = await claimWalkthroughSurface('monitor_3', `${WALKTHROUGH_OWNER_PREFIX}terminal-build`, {
+              kind: 'terminal', sessionId: DOGFOOD_PTY_SESSION_ID, readOnly: false, theme: 'arda-cyan',
+            }, 180_000)
+            let build = await getPtyMonitorSession(DOGFOOD_PTY_SESSION_ID)
+            for (let attempt = 0; attempt < 300 && !build.output.includes('ARDA_BUILD_OBSERVED'); attempt += 1) {
+              await new Promise((resolve) => window.setTimeout(resolve, 100))
+              build = await getPtyMonitorSession(DOGFOOD_PTY_SESSION_ID)
+            }
+            await writePtyMonitorSession(
+              DOGFOOD_PTY_SESSION_ID,
+              DOGFOOD_PTY_OWNER,
+              build.revision,
+              'exact-session-workstation\n',
+            )
+            let intervened = build
+            for (let attempt = 0; attempt < 30 && !intervened.output.includes('ARDA_INTERVENTION:exact-session-workstation'); attempt += 1) {
+              await new Promise((resolve) => window.setTimeout(resolve, 40))
+              intervened = await getPtyMonitorSession(DOGFOOD_PTY_SESSION_ID)
+            }
+            const registry = coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())
+            const sessions = WALKTHROUGH_SLOTS.slice(0, 3).map((slotId) => registry?.sessions[slotId])
+            sessions.forEach((session) => { if (session) windowManager.open(createMonitorSessionWindowConfig(session)) })
+            const exactHandoffs = sessions.every((session) => session?.workstation_handoff.mode === 'same_live_session'
+              && session.workstation_handoff.session_id === session.surface_session_id)
+            return {
+              ok: research.ok && terminal.ok
+                && browser.capture.frameRevision >= 1
+                && intervened.output.includes('ARDA_BUILD_OBSERVED')
+                && intervened.output.includes('ARDA_INTERVENTION:exact-session-workstation')
+                && exactHandoffs,
+              detail: `research=${research.session?.surface_session_id}; browser=${browser.capture.sessionId}/frames=${browser.capture.frameRevision}; terminal=${terminal.session?.surface_session_id}/streamRev=${intervened.outputRevision}; exactHandoffs=${exactHandoffs}; lowerApproval=operator-observation-required`,
+            }
+          })}
+        >
+          P9 dogfood 3 surfaces
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void run('P9 stop dogfood', async () => {
+            const captures = activeBrowserCapturesRef.current.splice(0)
+            const browserStops = await Promise.allSettled(captures.map(stopBrowserCapture))
+            await stopPtyMonitorSession(DOGFOOD_PTY_SESSION_ID, DOGFOOD_PTY_OWNER).catch(() => undefined)
+            const registry = coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())
+            const releases = await Promise.all(WALKTHROUGH_SLOTS.slice(0, 3).map(async (slotId) => {
+              const session = registry?.sessions[slotId]
+              if (!session || !session.owner.startsWith(`agent:${WALKTHROUGH_OWNER_PREFIX}`)) return true
+              const result = await agentReleaseMonitorSurface(
+                session.surface_session_id,
+                { kind: 'agent', name: session.owner.slice('agent:'.length) },
+              )
+              return result.ok
+            }))
+            let ptyUnavailable = false
+            try { await getPtyMonitorSession(DOGFOOD_PTY_SESSION_ID) } catch { ptyUnavailable = true }
+            return {
+              ok: browserStops.every((result) => result.status === 'fulfilled') && releases.every(Boolean) && ptyUnavailable,
+              detail: `browserStopped=${browserStops.length}; ptyUnavailable=${ptyUnavailable}; surfacesReleased=${releases.filter(Boolean).length}/3`,
+            }
+          })}
+        >
+          stop dogfood
+        </button>
+        <button
+          type="button"
+          disabled={busy}
           onClick={() => void run('P9 mounted operator projection', async () => {
-            if (!acceptanceProjection) return { ok: false, detail: 'Operator projection unavailable' }
             const result = await agentClaimMonitorSurface({
               slotId: SLOT_ID,
               owner: { kind: 'agent', name: OWNER },
@@ -513,129 +834,6 @@ export default function MonitorSurfaceNativeAcceptance({
           })}
         >
           P9 Mount projection
-        </button>
-        <button
-          type="button"
-          disabled={busy || !acceptanceProjection}
-          onClick={() => void run('P9 five concurrent owners', async () => {
-            if (!acceptanceProjection) return { ok: false, detail: 'Operator projection unavailable' }
-            const sessions = createNativeAcceptanceSessions(acceptanceProjection)
-            const registry = coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())
-            if (!registry) return { ok: false, detail: 'Authoritative monitor registry unavailable' }
-            for (const session of sessions) {
-              const existing = registry.sessions[session.slotId]
-              if (existing) {
-                const expectedOwner = serializeAcceptanceOwner(session.owner)
-                const acceptanceOwner = existing.owner === `agent:${OWNER}`
-                  || existing.owner.startsWith(`agent:${OWNER}-`)
-                if (existing.owner !== expectedOwner && !acceptanceOwner) {
-                  return {
-                    ok: false,
-                    detail: `${session.slotId} is actively owned by ${existing.owner}; release it explicitly before acceptance`,
-                  }
-                }
-                const existingOwner = parseSerializedOwner(existing.owner)
-                if (!existingOwner) return { ok: false, detail: `invalid owner for ${session.slotId}: ${existing.owner}` }
-                const released = await agentReleaseMonitorSurface(existing.surface_session_id, existingOwner)
-                if (!released.ok) return { ok: false, detail: `failed to clear ${session.slotId}: ${released.message}` }
-              }
-            }
-            const claimed = await Promise.all(sessions.map((session) => agentClaimMonitorSurface(toClaimRequest(session))))
-            if (claimed.some((result) => !result.ok)) {
-              return { ok: false, detail: claimed.map(({ message }) => message).join(' | ') }
-            }
-            const result = verifyNativeAcceptanceRegistry(
-              coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())!,
-              sessions,
-            )
-            return result
-          })}
-        >
-          P9 Claim five
-        </button>
-        <button
-          type="button"
-          disabled={busy || !acceptanceProjection}
-          onClick={() => void run('P9 five same-session workstations', async () => {
-            if (!acceptanceProjection) return { ok: false, detail: 'Operator projection unavailable' }
-            const sessions = createNativeAcceptanceSessions(acceptanceProjection)
-            const registry = coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())
-            if (!registry) return { ok: false, detail: 'Authoritative monitor registry unavailable' }
-            const verified = verifyNativeAcceptanceRegistry(registry, sessions)
-            if (!verified.ok) return verified
-            sessions.forEach(({ slotId }) => windowManager.open(createMonitorSessionWindowConfig(registry.sessions[slotId])))
-            return { ok: true, detail: `opened=${sessions.length}; ${verified.detail}` }
-          })}
-        >
-          P9 Open five
-        </button>
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => void run('P9 revision-checked update', async () => {
-            const registry = coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())
-            const session = registry?.sessions.monitor_3
-            if (!session) return { ok: false, detail: 'monitor_3 session unavailable' }
-            const result = await agentPatchMonitorSurfacePlayback(
-              session.surface_session_id,
-              parseSerializedOwner(session.owner)!,
-              session.revision,
-              { playing: false, currentTime: 1, volume: 0 },
-            )
-            return {
-              ok: result.ok && result.session?.revision === session.revision + 1,
-              detail: `${result.message}; monitor_3 revision=${session.revision}->${result.session?.revision ?? 'none'}; playing=false`,
-            }
-          })}
-        >
-          P9 Update one
-        </button>
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => void run('P9 release one preserve four', async () => {
-            const registry = coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())
-            const session = registry?.sessions.monitor_4
-            if (!session) return { ok: false, detail: 'monitor_4 session unavailable' }
-            const result = await agentReleaseMonitorSurface(session.surface_session_id, parseSerializedOwner(session.owner)!)
-            const remaining = coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())
-            const slots = Object.keys(remaining?.sessions ?? {})
-            return {
-              ok: result.ok && !remaining?.sessions.monitor_4 && slots.length === 4,
-              detail: `${result.message}; released=monitor_4; surviving=${slots.join(',')}`,
-            }
-          })}
-        >
-          P9 Release one
-        </button>
-        <button
-          type="button"
-          disabled={busy || !acceptanceProjection}
-          onClick={() => void run('P9 reclaim released surface', async () => {
-            if (!acceptanceProjection) return { ok: false, detail: 'Operator projection unavailable' }
-            const session = createNativeAcceptanceSessions(acceptanceProjection).find(({ slotId }) => slotId === 'monitor_4')!
-            const result = await agentClaimMonitorSurface(toClaimRequest(session))
-            const verified = verifyNativeAcceptanceRegistry(
-              coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())!,
-              createNativeAcceptanceSessions(acceptanceProjection),
-            )
-            return { ok: result.ok && verified.ok, detail: `${result.message}; ${verified.detail}` }
-          })}
-        >
-          P9 Reclaim one
-        </button>
-        <button
-          type="button"
-          disabled={busy || !acceptanceProjection}
-          onClick={() => void run('P9 verify restart recovery', async () => {
-            if (!acceptanceProjection) return { ok: false, detail: 'Operator projection unavailable' }
-            return verifyNativeAcceptanceRegistry(
-              coerceRuntimeMonitorRegistry(await agentGetMonitorSurfaceRegistry())!,
-              createNativeAcceptanceSessions(acceptanceProjection),
-            )
-          })}
-        >
-          P9 Verify five
         </button>
         <button
           type="button"

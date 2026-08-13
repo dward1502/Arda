@@ -49,7 +49,8 @@ coordinated environment/fleet migration.
 - Oxlint: 0 warnings and 0 errors.
 - TypeScript/Vite production build: passed.
 - Tauri release binary: produced.
-- Frontend, Cargo, and Tauri bundle versions: aligned at `0.3.0-rc.1`.
+- Frontend, Cargo, and Tauri bundle versions: aligned at `0.9.0` for the
+  personal/internal baseline; signed `v0.3.0-rc.1` remains historical evidence only.
 - S5-RC0 compatibility, deterministic manifest/checksum, isolated upgrade,
   exact-once Workbench recovery, diagnostics, and rollback proof: passed under
   `docs/evidence/stage-5-release-candidate/s5-rc0/`.

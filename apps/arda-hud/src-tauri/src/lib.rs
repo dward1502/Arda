@@ -12,22 +12,14 @@ use commands::workbench::{
 use commands::monitor_surface::{
     claim_monitor_slot, claim_monitor_surface, click_browser_capture, get_browser_capture_frame,
     get_browser_capture_status, get_monitor_surface_registry, key_browser_capture,
-    navigate_browser_capture,
+    navigate_browser_capture, get_pty_capture_status,
     patch_monitor_surface_playback, push_surface_payload, refresh_monitor_slot_lease,
     refresh_monitor_surface_lease, release_monitor_slot, release_monitor_surface,
     restore_monitor_surface_registry, scroll_browser_capture, start_browser_capture,
-    stop_browser_capture, type_browser_capture,
-    BrowserCaptureState, MonitorSurfaceState, TypedMonitorSurfaceState,
+    start_pty_capture, stop_browser_capture, stop_pty_capture, type_browser_capture,
+    write_pty_capture, BrowserCaptureState, MonitorSurfaceState, PtyCaptureState,
+    TypedMonitorSurfaceState,
 };
-use commands::personal_ops::{
-    acknowledge_personal_reminder, confirm_personal_classification, create_personal_capture,
-    delete_personal_data, export_personal_data, get_personal_ops_projection,
-};
-use commands::research::{
-    change_research_watchlist_state, create_research_question, create_research_watchlist,
-    get_research_projection,
-};
-use commands::system_health::read_manwe_runtime_projection;
 use portable_pty::CommandBuilder;
 use serde::{Deserialize, Serialize};
 use std::fs;
@@ -110,40 +102,24 @@ struct WorkstationWindowRequest {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 struct HermesRuntimeWindowResult {
     window_label: String,
     url: String,
     port: u16,
-    launched: bool,
-    ready: bool,
-    runtime_identity: Option<String>,
-    state: String,
+    launched_process: bool,
+    already_listening: bool,
 }
 
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-struct HermesRuntimeProbes {
-    port: bool,
-    identity: bool,
-}
-
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-struct HermesRuntimeProjection {
-    schema_version: &'static str,
-    state: String,
-    source_revision: String,
-    source_time_utc: String,
+#[derive(Debug, Serialize, Deserialize)]
+struct HermesRuntimeStatus {
     url: String,
+    host: String,
     port: u16,
-    runtime_available: bool,
-    runtime_identity: Option<String>,
-    runtime_launched: bool,
-    runtime_ready: bool,
-    probes: HermesRuntimeProbes,
-    failure: Option<String>,
-    recovery_action: Option<String>,
+    port_open: bool,
+    identity_verified: bool,
+    owned_process_running: bool,
+    state: String,
+    message: String,
 }
 
 #[derive(Debug, Serialize)]
@@ -303,6 +279,13 @@ fn charon_socket_addr() -> Result<SocketAddr, String> {
         .map_err(|error| format!("invalid Charon socket address: {error}"))?
         .next()
         .ok_or_else(|| "Charon socket address did not resolve".to_string())
+}
+
+fn allowed_charon_path(path: &str) -> bool {
+    matches!(
+        path,
+        "/health" | "/status" | "/providers/capabilities" | "/provider_candidates"
+    )
 }
 
 fn read_local_http_json(addr: SocketAddr, path: &str) -> Result<serde_json::Value, String> {
@@ -924,6 +907,14 @@ fn run_setup_readiness_check(
         receipt_path,
         result_path,
     ))
+}
+
+#[tauri::command]
+fn read_charon_json(path: String) -> Result<serde_json::Value, String> {
+    if !allowed_charon_path(&path) {
+        return Err(format!("unsupported Charon HUD path: {path}"));
+    }
+    read_local_http_json(charon_socket_addr()?, &path)
 }
 
 #[tauri::command]
@@ -2254,7 +2245,10 @@ fn hermes_runtime_identity_verified(config: &HermesRuntimeConfig) -> bool {
     let Ok(response) = hermes_runtime_probe(config) else {
         return false;
     };
-    hermes_runtime_response_is_verified(&response)
+    let lower = response.to_ascii_lowercase();
+    (response.starts_with("HTTP/1.1 200") || response.starts_with("HTTP/1.0 200"))
+        && (lower.contains("hermes agent dashboard")
+            || (lower.contains("hermes") && lower.contains("dashboard")))
 }
 
 fn hermes_runtime_owned_process_running(state: &HermesRuntimeState) -> bool {
@@ -2277,82 +2271,50 @@ fn hermes_runtime_owned_process_running(state: &HermesRuntimeState) -> bool {
     }
 }
 
-fn hermes_runtime_response_is_verified(response: &str) -> bool {
-    let lower = response.to_ascii_lowercase();
-    (response.starts_with("HTTP/1.1 200") || response.starts_with("HTTP/1.0 200"))
-        && (lower.contains("hermes agent dashboard")
-            || (lower.contains("hermes") && lower.contains("dashboard")))
-}
-
-fn build_hermes_runtime_projection(
-    config: &HermesRuntimeConfig,
-    port_open: bool,
-    identity_probe: Result<bool, String>,
-    owned_process_running: bool,
-) -> HermesRuntimeProjection {
-    let (state, failure, recovery_action) = match (port_open, &identity_probe, owned_process_running)
-    {
-        (true, Ok(true), _) => ("healthy", None, None),
-        (true, Ok(false), _) => (
-            "degraded",
-            Some(format!(
-                "Port {} is listening, but the responder is not Hermes Dashboard",
-                config.port
-            )),
-            Some("Stop the conflicting listener or configure ARDA_HERMES_RUNTIME_PORT".to_string()),
-        ),
-        (true, Err(error), _) => (
-            "failed",
-            Some(error.clone()),
-            Some("Inspect the Hermes dashboard listener and retry the identity probe".to_string()),
-        ),
-        (false, _, true) => (
-            "starting",
-            None,
-            Some("Wait for Hermes startup; restart it if this state persists".to_string()),
-        ),
-        (false, _, false) => (
-            "unavailable",
-            Some(format!("Hermes Dashboard is not listening at {}", config.url())),
-            Some("Start the Hermes dashboard from this surface".to_string()),
-        ),
-    };
-    let identity_verified = matches!(identity_probe, Ok(true));
-    let runtime_identity = identity_verified
-        .then(|| format!("hermes-dashboard:{}:{}", config.host, config.port));
-    HermesRuntimeProjection {
-        schema_version: "arda.system-health.hermes.v1",
-        state: state.to_string(),
-        source_revision: format!(
-            "hermes-{}-{}-{}-{}",
-            config.host, config.port, state, owned_process_running
-        ),
-        source_time_utc: chrono::Utc::now().to_rfc3339(),
-        url: config.url(),
-        port: config.port,
-        runtime_available: port_open,
-        runtime_identity,
-        runtime_launched: owned_process_running,
-        runtime_ready: identity_verified,
-        probes: HermesRuntimeProbes {
-            port: port_open,
-            identity: identity_verified,
-        },
-        failure,
-        recovery_action,
-    }
-}
-
-fn read_hermes_runtime_health_inner(state: &HermesRuntimeState) -> HermesRuntimeProjection {
+fn read_hermes_runtime_status_inner(state: &HermesRuntimeState) -> HermesRuntimeStatus {
     let config = hermes_runtime_config();
     let port_open = hermes_runtime_port_open(&config);
-    let identity_probe = if port_open {
-        hermes_runtime_probe(&config).map(|response| hermes_runtime_response_is_verified(&response))
-    } else {
-        Ok(false)
-    };
+    let identity_verified = port_open && hermes_runtime_identity_verified(&config);
     let owned_process_running = hermes_runtime_owned_process_running(state);
-    build_hermes_runtime_projection(&config, port_open, identity_probe, owned_process_running)
+    let (state_label, message) = if identity_verified {
+        let mode = if owned_process_running {
+            "ARDA-owned Hermes runtime process is running"
+        } else {
+            "Verified existing Hermes runtime listener is available"
+        };
+        ("ready", format!("{mode}: {}", config.url()))
+    } else if port_open {
+        (
+            "blocked",
+            format!(
+                "Port {} is listening, but it did not identify as Hermes runtime",
+                config.port
+            ),
+        )
+    } else if owned_process_running {
+        (
+            "starting",
+            format!(
+                "ARDA-owned Hermes runtime process is running, waiting for {}",
+                config.url()
+            ),
+        )
+    } else {
+        (
+            "offline",
+            format!("Hermes runtime is not listening at {}", config.url()),
+        )
+    };
+    HermesRuntimeStatus {
+        url: config.url(),
+        host: config.host,
+        port: config.port,
+        port_open,
+        identity_verified,
+        owned_process_running,
+        state: state_label.to_string(),
+        message,
+    }
 }
 
 fn wait_for_hermes_runtime_ready(config: &HermesRuntimeConfig, timeout: Duration) -> bool {
@@ -2441,89 +2403,10 @@ fn ensure_hermes_runtime_process(state: &HermesRuntimeState) -> Result<(bool, bo
 }
 
 #[tauri::command]
-fn read_hermes_runtime_health(
+fn read_hermes_runtime_status(
     state: State<'_, HermesRuntimeState>,
-) -> Result<HermesRuntimeProjection, String> {
-    Ok(read_hermes_runtime_health_inner(&state))
-}
-
-#[cfg(test)]
-mod hermes_runtime_health_tests {
-    use super::*;
-
-    fn projection(
-        port_open: bool,
-        identity_probe: Result<bool, String>,
-        owned: bool,
-    ) -> HermesRuntimeProjection {
-        build_hermes_runtime_projection(
-            &HermesRuntimeConfig::default(),
-            port_open,
-            identity_probe,
-            owned,
-        )
-    }
-
-    #[test]
-    fn hermes_health_distinguishes_all_release_states() {
-        assert_eq!(projection(true, Ok(true), false).state, "healthy");
-        assert_eq!(projection(true, Ok(false), false).state, "degraded");
-        assert_eq!(
-            projection(true, Err("probe failed".to_string()), false).state,
-            "failed"
-        );
-        assert_eq!(projection(false, Ok(false), true).state, "starting");
-        assert_eq!(projection(false, Ok(false), false).state, "unavailable");
-    }
-
-    #[test]
-    fn hermes_health_only_issues_identity_for_verified_runtime() {
-        let healthy = projection(true, Ok(true), false);
-        let degraded = projection(true, Ok(false), false);
-
-        assert_eq!(
-            healthy.runtime_identity.as_deref(),
-            Some("hermes-dashboard:127.0.0.1:9119")
-        );
-        assert!(healthy.runtime_ready);
-        assert!(healthy.recovery_action.is_none());
-        assert!(degraded.runtime_identity.is_none());
-        assert!(!degraded.runtime_ready);
-        assert!(degraded.recovery_action.is_some());
-    }
-
-    #[test]
-    fn hermes_health_and_window_serialize_the_registered_frontend_contract() {
-        let healthy = projection(true, Ok(true), false);
-        let health_json = serde_json::to_value(&healthy).expect("serialize health");
-        assert_eq!(
-            health_json["schemaVersion"],
-            "arda.system-health.hermes.v1"
-        );
-        assert_eq!(health_json["state"], "healthy");
-        assert_eq!(
-            health_json["runtimeIdentity"],
-            "hermes-dashboard:127.0.0.1:9119"
-        );
-        assert!(health_json.get("source_revision").is_none());
-
-        let window = HermesRuntimeWindowResult {
-            window_label: HERMES_RUNTIME_WINDOW_LABEL.to_string(),
-            url: healthy.url,
-            port: healthy.port,
-            launched: false,
-            ready: healthy.runtime_ready,
-            runtime_identity: healthy.runtime_identity,
-            state: healthy.state,
-        };
-        let window_json = serde_json::to_value(window).expect("serialize window result");
-        assert_eq!(window_json["windowLabel"], HERMES_RUNTIME_WINDOW_LABEL);
-        assert_eq!(
-            window_json["runtimeIdentity"],
-            "hermes-dashboard:127.0.0.1:9119"
-        );
-        assert!(window_json.get("window_label").is_none());
-    }
+) -> Result<HermesRuntimeStatus, String> {
+    Ok(read_hermes_runtime_status_inner(&state))
 }
 
 #[tauri::command]
@@ -2532,17 +2415,14 @@ async fn ensure_hermes_runtime_surface(
 ) -> Result<HermesRuntimeWindowResult, String> {
     let state = state.inner().clone();
     tauri::async_runtime::spawn_blocking(move || {
-        let (launched_process, _already_listening) = ensure_hermes_runtime_process(&state)?;
+        let (launched_process, already_listening) = ensure_hermes_runtime_process(&state)?;
         let config = hermes_runtime_config();
-        let projection = read_hermes_runtime_health_inner(&state);
         Ok(HermesRuntimeWindowResult {
             window_label: HERMES_RUNTIME_WINDOW_LABEL.to_string(),
             url: config.url(),
             port: config.port,
-            launched: launched_process,
-            ready: projection.runtime_ready,
-            runtime_identity: projection.runtime_identity,
-            state: projection.state,
+            launched_process,
+            already_listening,
         })
     })
     .await
@@ -2555,9 +2435,8 @@ fn open_hermes_runtime_window(
     state: State<'_, HermesRuntimeState>,
 ) -> Result<HermesRuntimeWindowResult, String> {
     if let Some(window) = app.get_webview_window(HERMES_RUNTIME_WINDOW_LABEL) {
-        let (_launched_process, _already_listening) = ensure_hermes_runtime_process(&state)?;
+        let (_launched_process, already_listening) = ensure_hermes_runtime_process(&state)?;
         let config = hermes_runtime_config();
-        let projection = read_hermes_runtime_health_inner(&state);
         let _ = window.unminimize();
         let _ = window.show();
         window.set_focus().map_err(|e| e.to_string())?;
@@ -2565,16 +2444,13 @@ fn open_hermes_runtime_window(
             window_label: HERMES_RUNTIME_WINDOW_LABEL.to_string(),
             url: config.url(),
             port: config.port,
-            launched: projection.runtime_launched,
-            ready: projection.runtime_ready,
-            runtime_identity: projection.runtime_identity,
-            state: projection.state,
+            launched_process: false,
+            already_listening,
         });
     }
 
     let (launched_process, already_listening) = ensure_hermes_runtime_process(&state)?;
     let config = hermes_runtime_config();
-    let projection = read_hermes_runtime_health_inner(&state);
     let url = config.url();
     let parsed_url = tauri::Url::parse(&url).map_err(|error| error.to_string())?;
 
@@ -2614,10 +2490,8 @@ fn open_hermes_runtime_window(
         window_label: HERMES_RUNTIME_WINDOW_LABEL.to_string(),
         url,
         port: config.port,
-        launched: launched_process,
-        ready: projection.runtime_ready,
-        runtime_identity: projection.runtime_identity,
-        state: projection.state,
+        launched_process,
+        already_listening,
     })
 }
 
@@ -3057,18 +2931,9 @@ pub fn run() {
         .manage(HermesRuntimeState::default())
         .manage(WorkbenchEventStreamState::default())
         .manage(MonitorSurfaceState::default())
+        .manage(TypedMonitorSurfaceState::new())
         .manage(BrowserCaptureState::default())
-        .setup(|app| {
-            let persistence_path = app
-                .path()
-                .app_data_dir()
-                .map_err(std::io::Error::other)?
-                .join("monitor-session-registry.json");
-            let monitor_state = TypedMonitorSurfaceState::with_persistence_path(persistence_path)
-                .map_err(std::io::Error::other)?;
-            app.manage(monitor_state);
-            Ok(())
-        })
+        .manage(PtyCaptureState::default())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             validate_project_contract,
@@ -3081,16 +2946,6 @@ pub fn run() {
             get_workbench_run,
             get_workbench_run_events,
             start_workbench_run_event_stream,
-            get_research_projection,
-            create_research_question,
-            create_research_watchlist,
-            change_research_watchlist_state,
-            get_personal_ops_projection,
-            create_personal_capture,
-            confirm_personal_classification,
-            acknowledge_personal_reminder,
-            export_personal_data,
-            delete_personal_data,
             read_file,
             get_arda_root,
             get_numenor_path,
@@ -3102,7 +2957,7 @@ pub fn run() {
             run_setup_readiness_check,
             run_setup_repair_preflight,
             run_setup_repair_execution_gate,
-            read_manwe_runtime_projection,
+            read_charon_json,
             run_athena_knowledge_ingestion,
             run_athena_digest_refresh,
             run_athena_policy_readiness_preview,
@@ -3121,7 +2976,7 @@ pub fn run() {
             start_hud_pulse_stream,
             stop_hud_pulse_stream,
             ensure_hermes_runtime_surface,
-            read_hermes_runtime_health,
+            read_hermes_runtime_status,
             open_hermes_runtime_window,
             open_hermes_terminal_window,
             open_workstation_window,
@@ -3154,6 +3009,10 @@ pub fn run() {
             get_browser_capture_frame,
             get_browser_capture_status,
             stop_browser_capture,
+            start_pty_capture,
+            get_pty_capture_status,
+            write_pty_capture,
+            stop_pty_capture,
         ])
         .build(tauri::generate_context!())
         .unwrap_or_else(|error| {
@@ -3165,6 +3024,7 @@ pub fn run() {
                 app_handle
                     .state::<BrowserCaptureState>()
                     .cleanup_all();
+                app_handle.state::<PtyCaptureState>().cleanup_all();
                 app_handle
                     .state::<HermesRuntimeState>()
                     .cleanup_owned_child();

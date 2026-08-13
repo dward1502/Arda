@@ -1,14 +1,17 @@
 # HUD Frontend–Backend Contract Convergence and 1.0 Closeout Plan
 
-**Status:** Active implementation; Stage 5 release qualification continues independently
+**Status:** Archived 2026-08-12 — backend authority and restart-recovery
+convergence form the 0.9 baseline; remaining performance, accessibility, and
+final-1.0 qualification work is explicitly deferred or owned by the active 0.9
+improvement plan.
 **Adopted:** 2026-08-06
 **Audit authority:** [HUD frontend/backend integration audit](../audits/2026-08-06-hud-frontend-backend-integration.md)
 
 ## Current execution state
 
-Contract preparation is complete and C0 implementation is now authorized. The shared draft boundary is recorded in [`spec/hud-convergence/v1`](../../spec/hud-convergence/v1/README.md), with one schema and fixed passing/fail-closed fixtures. Freeze-safe tests in `crates/engine/tests/hud_convergence_contract.rs`, `apps/arda-hud/src-tauri/tests/hud_convergence_contract.rs`, and `apps/arda-hud/src/lib/hudConvergenceContract.test.ts` now consume that same fixture and pin cross-layer authority, projection-state, event-stream, and five-monitor semantics. These preparation tests do not yet prove that production handlers or projections implement C0; that production-path work is the active next phase.
+The shared boundary is recorded in [`spec/hud-convergence/v1`](../../spec/hud-convergence/v1/README.md), with one schema and fixed passing/fail-closed fixtures. Rust now owns system health, Workbench, Research, Personal Operations, and monitor-session authority paths, and the five-monitor native lifecycle result is closed. On 2026-08-12 the root daemon became the fail-closed configured-operator authority: `ARDA_OPERATOR_ID`/`--operator-id` is required, `/v1/status` publishes the selected identity, the HUD resolves it without a frontend fallback, and Personal Operations rejects non-configured read and mutation identities. The same date also closed the Workbench HTTP/Tauri error-envelope boundary: shared harness errors emit versioned `arda.hud.error.v1` failures with stable code, message, and recovery action; Tauri accepts only that complete envelope and rejects legacy/unversioned failure bodies. Workbench restart acceptance now executes the production HTTP attach, plan, approve, and completion routes, verifies the journal receipt/checkpoint/review projection on disk, stops the harness process, starts a fresh harness against the same root, recovers the authoritative receipt and checkpoint, and proves the same idempotency key cannot append a second mutation. Stage 6 production acceptance remains open for the other required vertical workflows and final signed `1.0.0` artifact gates.
 
-The final-source soak passed on `efd118b5`, and release-version-only commit `6616addd` passed the complete 11/11 smoke matrix. The operator stopped the replacement elapsed run because it was no longer helping current development. That stopped run is not release evidence, but it no longer freezes HUD convergence. Stage 5's independent evaluator and exact signed-artifact lifecycle remain separate release-qualification work; they do not block C0 implementation.
+Stage 5 closed on `v0.3.0-rc.1` under the selected single-operator local release profile. Its signed-artifact lifecycle is historical candidate evidence, not qualification of final `1.0.0` bytes. Stage 6 now owns the remaining production acceptance and release decision without reopening completed five-monitor lifecycle acceptance.
 
 ## 1.0 definition
 
@@ -54,7 +57,7 @@ Freeze:
 
 **Gate:** every operator-facing mutation names one Rust owner, one authenticated identity source, one idempotency rule, and one durable receipt.
 
-**Prepared contract:** `arda-engine` owns authenticated operator sessions, policy decisions, authoritative IDs/timestamps, revisions, and durable receipts. React supplies a typed intent plus a stable retry key; Tauri transports it without creating authority. The current endpoint-to-target delta is retained in the integration audit and the shared contract README.
+**Implemented contract:** `arda-engine` owns authenticated operator sessions, policy decisions, authoritative IDs/timestamps, revisions, durable receipts, and versioned operator-facing failures. React supplies a typed intent plus a stable retry key; Tauri transports it without creating authority and renders only complete `arda.hud.error.v1` failures with recovery guidance. Legacy or malformed failure bodies are treated as contract violations rather than accepted operator truth. The current endpoint-to-target delta is retained in the integration audit and the shared contract README.
 
 ### C0.2 Remove frontend authority fabrication
 
@@ -67,16 +70,6 @@ Correct the current audit findings:
 - Personal Operations must not default silently to `operator-0` as identity authority.
 
 **Gate:** malformed, fabricated, expired, mismatched, replayed, or cross-operator authority fails closed in Rust and never renders as accepted.
-
-**Research authority closeout (2026-08-11):** Research now uses installed Tauri
-commands rather than browser HTTP. React submits bounded question/watchlist/action
-intent and an approval reference only. Rust resolves configured authenticated
-operator authority, rejects mismatched/expired/non-policy-safe approvals, owns
-stable IDs, expiry, and idempotency, and returns the versioned
-`arda.hud.research-projection.v1` aggregate with source revision/time, stale or
-partial state, failures, and recovery guidance. Engine question/watchlist
-registries remain atomically persisted behind explicit v1 schemas and now have a
-restart-recovery regression test.
 
 **Prepared Workbench boundary:** planning accepts project/objective/session/idempotency intent and returns the Rust-created graph; approval accepts approve/reject intent and an authority reference; completion accepts target/session/idempotency intent. The browser does not send `policy_safe`, approval timestamps, graph topology, completion evidence, or receipt digests as authority.
 
@@ -91,7 +84,7 @@ Define:
 
 **Gate:** one shared contract test fixture drives Rust, Tauri, and React state handling.
 
-**Prepared fixture:** `spec/hud-convergence/v1/fixtures/valid-shared-contract.json` defines all seven load states, backend cursor/reconnect semantics, durable recovery, and five independent monitor sessions with same-session workstation handoff. `tests/test_workbench_contract_fixtures.py` validates that fixture and rejects browser-created authority. The engine, Tauri, and React preparation tests named above consume the same file directly; production-path conformance remains open until C0 implementation is permitted.
+**Implemented fixture:** `spec/hud-convergence/v1/fixtures/valid-shared-contract.json` defines all seven load states, the versioned error envelope, backend cursor/reconnect semantics, durable recovery, and five independent monitor sessions with same-session workstation handoff. `tests/test_workbench_contract_fixtures.py` validates that fixture and rejects browser-created authority. Engine, Tauri, and React tests consume the same file directly; executable harness and Tauri tests additionally prove production error serialization, recovery guidance, and fail-closed rejection of unversioned failures.
 
 ## Phase C1 — Integrate vertical workflows
 
@@ -100,8 +93,6 @@ Complete one workflow before opening the next.
 ### C1.1 System/runtime health
 
 Converge Hermes and Manwë projections without treating one successful subprocess, file, or endpoint read as aggregate health. Coordinate any change to the existing `:7171` consumers.
-
-**C1.1 completed (2026-08-11):** installed Tauri now owns separate versioned Rust projections for both runtime domains. `arda.system-health.manwe.v1` aggregates all three configured `:7171` sources, preserves bounded partial truth, and replaces the former generic `read_charon_json` producer. `arda.system-health.hermes.v1` is the command actually registered as `read_hermes_runtime_health`; it freezes `healthy`, `degraded`, `starting`, `unavailable`, and `failed`, issues identity only after an HTTP identity probe, carries revision/time and recovery action, and uses the same identity predicate for launch and health. The frontend rejects out-of-order projections and no longer starts Hermes twice from one module mount. Seven focused Rust tests, the HUD suite (510 tests), `cargo check`, and the production HUD build pass. Live Manwë was healthy on all three sources; Hermes was truthfully unavailable at `:9119` during the evidence run. C1.2 Workbench is now the next serial blocker.
 
 ### C1.2 Workbench canonical loop
 
@@ -114,15 +105,42 @@ backend state → transport → frontend rendering → operator action
 
 Cover objective, planning, approval/rejection, provider execution, verification failure, completion, cancellation, retry, event loss/reconnect, and resume.
 
-**Implementation convergence completed (2026-08-11):** React now submits only project/objective intent and an approval reference. It cannot submit a run graph or approval decision. The HUD Rust boundary deterministically creates run/objective IDs, six-node topology, edges, authority, budgets, retries, checkpoints, provenance, and idempotency keys; the canonical engine still replaces the provisional project digest and owns the durable journal/checkpoint. Rust resolves—but never mints—the configured Oromë envelope from `ARDA_WORKBENCH_APPROVAL_ENVELOPE_JSON`, requires `ARDA_OPERATOR_ID`, enforces exact reference/schema/`policy_safe`/lineage matching, and rejects future or expired envelopes under `ARDA_WORKBENCH_APPROVAL_MAX_AGE_SECONDS` (default one hour). Nine focused HUD Rust tests, eight engine harness integration tests, 512 HUD tests, `cargo check`, and the production build pass. Native configured-envelope execution and the shared C2 stream cursor/reconnect contract remain acceptance work, not implementation substitutes. Research is the next serial convergence blocker.
+**Accepted restart vertical (2026-08-12):** `completed_workbench_mutation_survives_process_restart_and_replays_once` drives the real harness HTTP boundary through project attachment, planning, approval, and execute-node completion. It requires the durable `events.jsonl` mutation receipt, `checkpoint.json`, and `result.json`; shuts down the serving process; launches a fresh harness with the same persistence root; reads the run through `GET /v1/runs/{id}`; and verifies state, output receipt, recovery token, checkpoint digest, and review evidence are authoritative after restart. Replaying the exact completion intent after restart leaves all three durable artifacts byte-identical, proving no duplicate mutation receipt. This closes the bounded Workbench mutation → receipt → restart-recovery frontier, not the remaining C1 workflows or Stage 6 release qualification.
 
 ### C1.3 Recovery and diagnostics
 
 Expose exact failure owner, last valid state, safe recovery action, and post-recovery receipt. Never reduce missing evidence to success.
 
+**Accepted Workbench recovery-diagnostics slice (2026-08-12):** the Rust
+harness now derives a `recovery_diagnostics` projection from the durable run
+graph, event ledger, review evidence, and receipts. Tauri transports that typed
+projection without recreating authority, and React renders failure owner,
+failure reason, last succeeded node/receipt, the backend-selected safe recovery
+action, and an explicit missing or successful post-recovery receipt. The focused
+`failed_verification_is_durable_and_blocks_review` harness test proves failed
+verification remains blocked across process restart, then records a successful
+retry receipt and recovers that receipt after a second fresh-process restart.
+`WorkbenchModule.test.tsx` proves the HUD resumes and renders the backend-owned
+diagnostics. This closes the bounded Workbench verification-failure diagnostic
+path only; broader Stage 6 production error/recovery acceptance remains open.
+
 ### C1.4 Research/evidence projection
 
 Converge authenticated question/watchlist/brief lifecycle, citations, freshness, idempotency, pause/resume/retire, and restart recovery.
+
+**Accepted authenticated Research lifecycle slice (2026-08-12):** the harness
+now requires the daemon-configured `x-arda-operator-id` for question, watchlist,
+and brief reads and mutations, and rejects question records whose owner differs
+from that authority. The HUD first loads that identity from `/v1/status`, uses it
+as the question owner, and sends it on every Research request rather than
+manufacturing a frontend identity. The focused
+`authenticated_research_watchlist_survives_process_restart` test drives the real
+HTTP boundary through authenticated question creation, watchlist creation, and
+pause; stops the harness; launches a fresh process with the same persistence
+root; and recovers the paused watchlist and its question linkage. Missing
+authentication is also rejected. This closes the bounded authenticated
+question/watchlist pause and restart path only; brief generation, citations,
+freshness, resume/retire, and mutation replay remain open.
 
 ### C1.5 Personal Operations
 

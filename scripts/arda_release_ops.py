@@ -16,6 +16,26 @@ from typing import Any
 CONTRACT = "arda.release-bundle.v1"
 SBOM_CONTRACT = "arda.release-sbom.v1"
 SUPPORTED_PROFILE = "bluefin-lts-10-x86_64"
+RELEASE_SOURCE_ROOTS = (
+    ".github/workflows/release-sign.yml",
+    "apps/arda-hud/",
+    "apps/arda-launcher/",
+    "config/",
+    "crates/",
+    "scripts/",
+    "sdk/",
+    "spec/",
+    "src/",
+    "vendor/",
+)
+RELEASE_SOURCE_FILES = {
+    "Cargo.lock",
+    "Cargo.toml",
+    "package.json",
+    "pnpm-lock.yaml",
+    "rust-toolchain.toml",
+    "services.toml",
+}
 
 
 def sha256_file(path: Path) -> str:
@@ -51,8 +71,6 @@ def source_tree_sha256(root: Path) -> str:
         capture_output=True,
         check=True,
     )
-    included_roots = ("apps/arda-launcher/", "crates/", "src/")
-    included_files = {"Cargo.toml", "Cargo.lock", "package.json", "pnpm-lock.yaml", "rust-toolchain.toml"}
     excluded_parts = {"node_modules", "dist", "target", "__pycache__"}
     digest = hashlib.sha256()
     for raw_path in sorted(filter(None, result.stdout.split(b"\0"))):
@@ -60,7 +78,7 @@ def source_tree_sha256(root: Path) -> str:
         path = Path(relative)
         if path.name.endswith(".tsbuildinfo") or any(part in excluded_parts for part in path.parts):
             continue
-        if relative not in included_files and not relative.startswith(included_roots):
+        if relative not in RELEASE_SOURCE_FILES and not relative.startswith(RELEASE_SOURCE_ROOTS):
             continue
         absolute = root / path
         if not absolute.is_file() or absolute.is_symlink():
@@ -135,6 +153,8 @@ def generate_bundle_manifest(
 ) -> dict[str, Any]:
     if not artifacts:
         raise ValueError("at least one artifact is required")
+    if build_inputs.get("tracked_worktree_clean") is False:
+        raise ValueError("release bundles require a clean tracked worktree")
     names = [path.name for path in artifacts]
     if len(names) != len(set(names)):
         raise ValueError("artifact basenames must be unique")

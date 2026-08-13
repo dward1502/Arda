@@ -302,6 +302,7 @@ fn harness_state_with_presence(presence_inputs: HarnessPresenceState) -> Harness
         warden_scout_timeout: Duration::from_secs(2),
         presence_inputs,
         workbench_root: std::env::temp_dir(),
+        operator_id: "operator-0".to_string(),
     }
 }
 

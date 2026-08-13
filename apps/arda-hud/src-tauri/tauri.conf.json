@@ -37,7 +37,7 @@
         "connect-src": "'self' ipc: http://ipc.localhost http://localhost:* http://127.0.0.1:* ws://localhost:* ws://127.0.0.1:*",
         "frame-src": "http://127.0.0.1:* http://localhost:*",
         "img-src": "'self' asset: http://asset.localhost http://127.0.0.1:* data: blob:",
-        "media-src": "'self' asset: http://asset.localhost blob:",
+        "media-src": "'self' asset: http://asset.localhost https: blob:",
         "style-src": "'self' 'unsafe-inline'",
         "font-src": "'self' data:",
         "object-src": "'none'",

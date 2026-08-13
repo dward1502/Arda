@@ -1,23 +1,19 @@
 # Arda Stage 5 — Release Candidate Plan
 
-> **For Hermes:** Stage 5 closed on 2026-08-11 against the signed
-> `v0.3.0-rc.1` evidence packet and the operator-approved single-operator local
-> release profile. This archived plan is historical release authority, not an
-> active feature-expansion queue.
+> **For Hermes:** Stage 5 is active following operator acceptance of the Stage 4 evidence on 2026-07-31. Stage 5 converts a useful private beta into an installable, supportable release candidate; it is not a feature-expansion sprint.
 
-**Product/master authority:** [Arda 1.0 Personal Agent Ecosystem Plan](../plans/2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md). This Stage 5 plan remains the historical authority for Workbench-centered release-candidate packaging, security, reliability, diagnostics, support, and release-profile gates—not product identity.
+**Product/master authority:** [Arda 1.0 Personal Agent Ecosystem Plan](2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md). This Stage 5 plan remains authoritative for Workbench-centered release-candidate packaging, security, reliability, diagnostics, support, and evaluator gates—not product identity.
 
-**System completion coordination:** [Arda System Unification and Usability Plan](../plans/2026-08-02-arda-system-unification-and-usability-plan.md).
+**System completion coordination:** [Arda System Unification and Usability Plan](2026-08-02-arda-system-unification-and-usability-plan.md).
 
-**Lifecycle status:** COMPLETE and archived; implementation, S5-R1 reliability
-qualification, and the reconciled final signed-artifact lifecycle are
-evidence-backed by the
-[Stage 5 release-candidate ledger](../releases/stage-5-release-candidate-evidence.md).
-On 2026-08-11 the operator selected the single-operator local release profile,
-making independent non-author evaluation an optional future confidence signal
-rather than claiming it occurred.
+**Lifecycle status:** ARCHIVED 2026-08-12 as the completed historical candidate
+and release-engineering tranche. Its signed `v0.3.0-rc.1` evidence remains
+historical; the current personal baseline is [Arda 0.9](../releases/0.9/BASELINE.md).
+Independent flow review is intentionally omitted for 0.9 and is not represented
+as performed. Final signed-byte and independent-review requirements remain in
+the deferred 1.0 authority.
 
-**Stage objective:** Prove Arda Workbench works across the declared supported profiles, repositories, providers, and failure conditions with supportable installation, upgrades, security boundaries, and documentation. Automated isolated-profile and native operator evidence are required for the selected release profile; independent non-author and broader external-person repetition remain optional future confidence signals.
+**Stage objective:** Prove Arda Workbench works across the declared supported profiles, repositories, providers, and failure conditions with supportable installation, upgrades, security boundaries, and documentation. One qualifying independent non-author evaluator receipt is required; broader external-person repetition remains optional.
 
 **Primary product:** Arda Workbench release candidate  
 **Secondary betas:** Personal Operations and Warden Research  
@@ -29,9 +25,9 @@ expansion; retained operations remain isolated from this release-critical path
 | Surface | Authority | Stage 5 relationship |
 |---|---|---|
 | Workbench release candidate | this plan | only release-critical product |
-| Warden/Varda durable backend | [governed-learning plan](2026-07-27-warden-varda-ceo-learning-loop.md) | completed supporting authority; required only if the optional Warden Research recurring-watchlist beta ships |
-| Warden Research product/API/HUD | [archived Warden Research record](2026-07-29-warden-research-application-plan.md) | completed optional secondary beta record; not release-critical |
-| Pi5 AArch64 deployment, fleet, SSH, shared recovery | [Pi5 record](2026-07-23-pi5-outpost-integration-plan.md) | completed supporting infrastructure; required only for a beta that promises physical outpost support |
+| Warden/Varda durable backend | [governed-learning plan](../archive/2026-07-27-warden-varda-ceo-learning-loop.md) | completed supporting authority; required only if the optional Warden Research recurring-watchlist beta ships |
+| Warden Research product/API/HUD | [archived Warden Research record](../archive/2026-07-29-warden-research-application-plan.md) | completed optional secondary beta record; not release-critical |
+| Pi5 AArch64 deployment, fleet, SSH, shared recovery | [Pi5 record](../archive/2026-07-23-pi5-outpost-integration-plan.md) | completed supporting infrastructure; required only for a beta that promises physical outpost support |
 | RELIC/CITADEL presence/presentation | [retained RELIC/CITADEL operations](../operations/relic-citadel-presence.md) | existing recovery/soak history is nonblocking; feature expansion is an optional master-plan capability, not a Stage 5 gate |
 
 No deferred application/outpost task may delay Workbench packaging, security, reliability, diagnostics, or support work.
@@ -40,14 +36,14 @@ No deferred application/outpost task may delay Workbench packaging, security, re
 
 ## Entry criteria
 
-- Maturity: `workflow_proven` — the Stage 4 exit checklist and evidence packet are complete under the operator-approved local-only profile documented in the [archived Stage 4 plan](2026-07-29-stage-4-private-beta-plan.md); independent evaluator evidence is optional supplementary validation.
+- Maturity: `workflow_proven` — the Stage 4 exit checklist and evidence packet are complete under the operator-approved local-only profile documented in the [archived Stage 4 plan](../archive/2026-07-29-stage-4-private-beta-plan.md); independent evaluator evidence is optional supplementary validation.
 - No critical unresolved data-loss, duplicate-mutation, secret-exposure, or authority-bypass issue.
 - Run graph and project contracts have a documented compatibility policy.
 - One Rust and one Python adapter path are repeatable.
 
 ## Exit definition
 
-Stage 5 is complete when a signed release candidate can be installed, upgraded, used, diagnosed, backed up, restored, and rolled back across the declared supported environment matrix while preserving run truth and project source. Automated isolated-profile evidence and operator acceptance are active gates for the selected single-operator local release profile. Independent non-author and broader external-person repetition remain optional.
+Stage 5 is complete when a signed release candidate can be installed, upgraded, used, diagnosed, backed up, restored, and rolled back across the declared supported environment matrix while preserving run truth and project source. Automated isolated-profile evidence, operator acceptance, and one qualifying independent non-author evaluator receipt are active gates. Broader external-person repetition remains optional.
 
 ## Workstream 1 — Supported product matrix
 
@@ -136,8 +132,8 @@ failed without editing Arda source. The machine receipt is
   regression are mandatory. Eighteen unmaintained transitive-package warnings
   remain inventory follow-up.
 - Machine evidence: `docs/evidence/stage-5-release-candidate/security/`.
-- Added the missing top-level MIT `LICENSE`; final artifacts were rebuilt and
-  signed as `v0.3.0-rc.1` after the Stage 5 source and lockfile changes.
+- Added the missing top-level MIT `LICENSE`; final signed artifacts remain stale
+  until rebuilt after all Stage 5 source and lockfile changes.
 - The isolated GTK4/Tauri fork candidate compiled and passed focused native and
   frontend gates, but independent review rejected it: the Tao/Wry/Muda deltas
   contain untested event-loop, unsafe-lifetime, IPC/session, and display-backend
@@ -252,13 +248,13 @@ Recurring watchlists may ship only if governed-learning GL-1 through GL-4 and Wa
 ### Mirromere and RELIC/CITADEL
 Experimental feature flags only. Sensor and kiosk failures must not affect Workbench. Hardware/device support is explicitly listed, not implied. RELIC/CITADEL RC-5 companion/collaboration expansion is deferred until RC-1 through RC-4 independently pass.
 
-## Workstream 9 — Optional independent evaluator and broader beta evidence
+## Workstream 9 — Independent evaluator and optional broader beta evidence
 
-Independent non-author evaluation is optional supplementary validation under
-the operator-approved single-operator local release profile recorded in
-`docs/evidence/stage-5-release-candidate/release-policy/operator-release-profile-decision-20260811.json`.
-Do not fabricate proxy sign-off or claim that the prepared guide was executed.
-The broader cohort below is also supplementary and does not block Stage 5.
+One qualifying independent non-author evaluator receipt is release-gating under
+`docs/operator/stage-5-independent-evaluator-guide.md`; do not fabricate proxy
+sign-off. The broader cohort below remains supplementary and does not block
+Stage 5. Continue collecting machine-readable isolated-profile, conformance,
+recovery, security, and operator-acceptance evidence independently.
 
 Recruit a small, consent-based cohort representing:
 - existing Rust project;
@@ -308,15 +304,13 @@ Create `docs/releases/stage-5-release-candidate-evidence.md` at closeout with:
 - security review and unresolved risk ledger;
 - soak/performance results;
 - adapter conformance results;
-- the release-profile decision and honest independent-evaluator status; any later non-author receipt covers state, authority, evidence quality, and recovery comprehension but remains supplementary;
+- one independent non-author evaluator receipt covering state, authority, evidence quality, and recovery comprehension; broader five-user evaluation remains optional;
 - accessibility findings;
 - explicit 1.0 blockers.
 
 ## Exit criteria
 
-- [x] Signed, reproducible release candidate exists. `v0.3.0-rc.1` binds its tag
-  and clean manifest to `8a5e3f75`, all six Sigstore bundles verify, and the
-  downloaded signed AppImage passes the U4 lifecycle.
+- [ ] Signed, reproducible release candidate exists.
 - [x] Upgrade, rollback, backup, and restore pass.
 - [x] Rust, Python, and JavaScript adapter conformance passes.
 - [x] Automated unseen-project SDK/conformance onboarding passes; external-person repetition is optional.
@@ -331,9 +325,7 @@ Create `docs/releases/stage-5-release-candidate-evidence.md` at closeout with:
   force at the next actual freeze requires it.
 - [x] Automated accessibility checks and operator setup/recovery walkthrough have no blocking usability issue.
 - [x] Documentation and diagnostics are supportable.
-- [x] Independent evaluator status is documented honestly. No evaluation was
-  performed; the operator-approved release-profile decision makes it an
-  optional future confidence signal without claiming proxy evidence.
+- [ ] Independent evaluator status is documented honestly; the release remains blocked until one qualifying receipt passes `docs/operator/stage-5-independent-evaluator-guide.md`.
 - [x] Remaining 1.0 blockers are finite, owned, and measurable.
 
 ## Stage 5 deferrals
@@ -379,10 +371,11 @@ RELIC/CITADEL expansion remain outside the Workbench release-critical path.
 
 ## Packaging and reproducibility tranche — S5-P0/P1
 
-**Packaging/reproducibility and production publisher identity complete
+**Packaging/reproducibility and publisher-identity design complete
 2026-08-01.** The release tooling, runbook, license text, machine evidence, and
-tag-bound keyless Sigstore workflow are present. Remote repository hardening is
-active, and the first final-artifact signing run passed for `v0.3.0-rc.0`.
+tag-bound keyless Sigstore workflow are present. Publication remains blocked on
+remote repository hardening and a successful signing run over the final
+normalized artifacts.
 
 - [x] Built the `0.3.0-rc.0` AppImage, DEB, and RPM from the live launcher.
 - [x] Generated a deterministic multi-artifact manifest and `SHA256SUMS` with
@@ -413,14 +406,11 @@ active, and the first final-artifact signing run passed for `v0.3.0-rc.0`.
 - [x] Selected production publisher trust as tag-bound keyless Sigstore using
   GitHub OIDC; added a SHA-pinned workflow, exact asset allowlist, tag/manifest
   checks, identity-bound bundle verification, policy, and decision receipt.
-- [x] Activated production trust remotely: PR #2 landed the workflow, the
-  `production-release` environment required and recorded maintainer approval,
-  `main` now requires PR/CODEOWNER review, and signing run `30714060617` passed
-  all six tag-bound OIDC bundle verifications for `v0.3.0-rc.0`. The repository
-  has one collaborator, so admin bypass and environment self-review remain
-  enabled until a second trusted maintainer is added. Final-source signing run
-  `31543599410` subsequently passed for `v0.3.0-rc.1` and closed the global
-  signed-release exit gate and U4.
+- [x] Activated production trust remotely: the workflow landed through review,
+  `production-release` requires maintainer approval, `main` is protected, and
+  the first tag-bound signing run passed. The final-source artifact set still
+  requires a new signing run and remains owned by the global signed-release exit
+  gate and U4 rather than reopening remote trust activation.
 
 Authoritative machine evidence is
 `docs/evidence/stage-5-release-candidate/packaging/packaging-summary.json` and
@@ -428,17 +418,29 @@ Authoritative machine evidence is
 `docs/evidence/stage-5-release-candidate/packaging/appimage-relr-preflight-20260805.md`,
 and
 `docs/evidence/stage-5-release-candidate/packaging/publisher-identity-decision.json`,
-and
-`docs/evidence/stage-5-release-candidate/packaging/production-signing-activation.json`.
-The release manifest, checksums, SBOM, normalized packages, and six
-identity-bound Sigstore bundles for `v0.3.0-rc.1` are published at
-`https://github.com/dward1502/Arda/releases/tag/v0.3.0-rc.1`. The tag and clean
-manifest bind to `8a5e3f75`; all six downloaded bundles verify against the exact
-tag-bound workflow identity, and the downloaded signed AppImage passes the U4
-lifecycle without a compatibility override. See
-`docs/evidence/stage-5-release-candidate/packaging/remote-signed-artifact-reconciliation-v0.3.0-rc.1-20260811.json`
-and
-`docs/evidence/stage-5-release-candidate/reliability/u4-signed-v0.3.0-rc.1-lifecycle-20260811.json`.
+with the release manifest, checksums, SBOM, public key, and Sigstore bundles in
+the same directory. The repaired package bytes supersede the pre-normalization
+DEB/RPM candidate signatures; the global signed-release exit item remains open
+until the final normalized artifacts are signed by the tag-bound workflow and
+pass the installed lifecycle. The 2026-08-06 remote reconciliation verifies all
+six published `v0.3.0-rc.0` signatures but fails closed because those assets bind
+to source `28cde28b` with `tracked_worktree_clean=false`, not frozen final source
+`efd118b5`; see
+`docs/evidence/stage-5-release-candidate/packaging/remote-signed-artifact-reconciliation-20260806.json`.
+
+The 2026-08-11 local `0.3.0-rc.1` freeze supersedes the old local packaging
+candidate: clean source `8a5e3f75` produced AppImage, DEB, and RPM bundles, a
+645-component zero-missing-license SBOM, a manifest with
+`tracked_worktree_clean=true`, and a verified checksum ledger. Two fixed-epoch
+AppImage packages were byte-identical at
+`f332e34c39ae82674c002ab4d395522b580e02c91745fe983f62d5a345490bb3`;
+the normalized RPM passed header and payload verification. That exact AppImage
+passed the isolated U4 lifecycle and default native startup without an override
+in
+`docs/evidence/stage-5-release-candidate/reliability/u4-local-v0.3.0-rc.1-lifecycle-20260811.json`.
+It remains unsigned and unpublished: tag-bound signing, remote identity
+reconciliation, the signed-byte lifecycle, and independent evaluation remain
+open and may not be replaced by this local proof.
 
 ## Reliability, performance, and accessibility tranche — S5-R1/U1
 
@@ -501,8 +503,6 @@ Evidence:
 - `docs/evidence/stage-5-release-candidate/reliability/performance-accessibility.json`
 - `docs/evidence/stage-5-release-candidate/reliability/native-launcher-walkthrough.json`
 - `docs/evidence/stage-5-release-candidate/reliability/native-launcher-metrics.json`
-- `docs/evidence/stage-5-release-candidate/reliability/u4-signed-v0.3.0-rc.1-lifecycle-20260811.json`
-- `docs/evidence/stage-5-release-candidate/packaging/remote-signed-artifact-reconciliation-v0.3.0-rc.1-20260811.json`
 
 ## Adapter and support tranche — S5-A1/O1
 

@@ -14,6 +14,42 @@ SPEC.loader.exec_module(release_ops)
 
 
 class ReleaseOpsTests(unittest.TestCase):
+    def test_release_source_identity_covers_every_production_surface(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+            covered = (
+                "apps/arda-launcher/main.ts",
+                "apps/arda-hud/main.tsx",
+                "crates/engine/src/lib.rs",
+                "sdk/javascript/src/index.js",
+                "spec/project-contract/v1/schema.json",
+                "scripts/arda_beta_ops.py",
+                "src/main.rs",
+                "config/providers.toml",
+                "vendor/glib/src/lib.rs",
+                ".github/workflows/release-sign.yml",
+                "Cargo.toml",
+                "services.toml",
+            )
+            for relative in covered:
+                path = root / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(f"{relative}: first\n", encoding="utf-8")
+            subprocess.run(["git", "add", "."], cwd=root, check=True)
+
+            baseline = release_ops.source_tree_sha256(root)
+            for relative in covered:
+                path = root / relative
+                original = path.read_text(encoding="utf-8")
+                path.write_text(f"{relative}: second\n", encoding="utf-8")
+                self.assertNotEqual(
+                    baseline,
+                    release_ops.source_tree_sha256(root),
+                    f"release identity omitted {relative}",
+                )
+                path.write_text(original, encoding="utf-8")
+
     def test_source_tree_identity_tracks_source_content_but_ignores_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
@@ -75,6 +111,20 @@ class ReleaseOpsTests(unittest.TestCase):
             for artifact in (deb, appimage):
                 (first_dir / artifact.name).write_bytes(artifact.read_bytes())
             self.assertTrue(release_ops.verify_checksums(first_dir / "SHA256SUMS", first_dir))
+
+    def test_bundle_manifest_rejects_dirty_release_source(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            artifact = root / "arda-launcher.AppImage"
+            artifact.write_bytes(b"artifact")
+            with self.assertRaisesRegex(ValueError, "clean tracked worktree"):
+                release_ops.generate_bundle_manifest(
+                    [artifact],
+                    root / "release-bundle-manifest.json",
+                    root / "SHA256SUMS",
+                    "1.0.0",
+                    {"source_commit": "abc123", "tracked_worktree_clean": False},
+                )
 
     def test_sbom_traverses_only_launcher_reachable_cargo_nodes_and_reports_missing_licenses(self) -> None:
         cargo = {

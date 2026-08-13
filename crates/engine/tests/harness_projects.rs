@@ -28,6 +28,7 @@ async fn start_harness(
         warden_scout_timeout: DEFAULT_WARDEN_SCOUT_TIMEOUT,
         presence_inputs: HarnessPresenceState::default(),
         workbench_root: root.path().to_path_buf(),
+        operator_id: "operator-0".to_string(),
     };
     let (bound, handle) = serve(
         Some("127.0.0.1:0".parse().expect("loopback address")),
@@ -97,6 +98,16 @@ async fn project_routes_validate_attach_and_list_typed_contracts() {
         .await
         .expect("blocked approval request");
     assert_eq!(blocked.status(), 403);
+    let blocked: Value = blocked.json().await.expect("blocked envelope");
+    assert_eq!(blocked["schema_version"], "arda.hud.error.v1");
+    assert_eq!(blocked["status"], "failed");
+    assert_eq!(blocked["code"], "forbidden");
+    assert!(blocked["message"]
+        .as_str()
+        .is_some_and(|message| message.contains("does not authorize mutation")));
+    assert!(blocked["recovery_action"]
+        .as_str()
+        .is_some_and(|action| action.contains("configured operator authority")));
 
     let attached = client
         .post(format!("http://{bound}/v1/projects/attach"))

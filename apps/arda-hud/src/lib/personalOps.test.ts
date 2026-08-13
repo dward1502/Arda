@@ -1,46 +1,44 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { createPersonalOpsClient, loadConfiguredOperatorId } from './personalOps'
 
-const { invokeMock } = vi.hoisted(() => ({ invokeMock: vi.fn() }))
-
-vi.mock('@tauri-apps/api/core', () => ({ invoke: invokeMock }))
-
-import { createPersonalOpsClient } from './personalOps'
-
-describe('Personal Operations Rust authority client', () => {
-  beforeEach(() => {
-    invokeMock.mockReset()
-    ;(window as Window & { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__ = {}
+describe('configured personal operations identity', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
   })
 
-  it('loads one versioned aggregate projection through Tauri', async () => {
-    invokeMock.mockResolvedValue({ schemaVersion: 'arda.hud.personal-ops-projection.v1' })
-    await createPersonalOpsClient().loadSnapshot()
-    expect(invokeMock).toHaveBeenCalledWith('get_personal_ops_projection', undefined)
+  it('loads and trims the daemon-configured operator identity', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      operator_id: ' operator:primary ',
+    }), { status: 200 }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await expect(loadConfiguredOperatorId('http://127.0.0.1:7878')).resolves.toBe('operator:primary')
+    expect(fetchMock).toHaveBeenCalledWith('http://127.0.0.1:7878/v1/status')
   })
 
-  it('submits bounded intent without browser authority fields', async () => {
-    invokeMock.mockResolvedValue({ event_id: 'event-1', capture_id: 'capture-1' })
-    await createPersonalOpsClient().createCapture('Buy tea')
-    expect(invokeMock).toHaveBeenCalledWith('create_personal_capture', {
-      intent: { text: 'Buy tea' },
-    })
-    expect(JSON.stringify(invokeMock.mock.calls)).not.toMatch(/operatorId|idempotency|occurredAt/)
+  it('fails closed when status omits the configured identity', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({ daemon: 'arda' }), {
+      status: 200,
+    })))
+
+    await expect(loadConfiguredOperatorId()).rejects.toThrow('did not publish a configured operator identity')
   })
 
-  it('keeps identity, evidence and receipts out of classification intent', async () => {
-    invokeMock.mockResolvedValue({ event_id: 'event-2' })
-    await createPersonalOpsClient().confirmClassification('item-1', 'task')
-    expect(invokeMock).toHaveBeenCalledWith('confirm_personal_classification', {
-      intent: { itemId: 'item-1', kind: 'task' },
-    })
-    expect(JSON.stringify(invokeMock.mock.calls)).not.toMatch(/operatorId|evidenceClass|rationale|eventId/)
+  it('rejects a blank identity before issuing requests', () => {
+    expect(() => createPersonalOpsClient('   ')).toThrow('require a configured operator identity')
   })
 
-  it('requires the Rust command to validate the fixed destructive confirmation', async () => {
-    invokeMock.mockResolvedValue({ receipt_id: 'receipt-1', deleted_events: 1 })
-    await createPersonalOpsClient().deletePersonalData()
-    expect(invokeMock).toHaveBeenCalledWith('delete_personal_data', {
-      intent: { confirmation: 'delete-personal-data' },
-    })
+  it('uses the normalized identity in read headers and mutation bodies', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ event_id: 'event-1', capture_id: 'capture-1' }), {
+      status: 201,
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+    const client = createPersonalOpsClient(' operator:primary ', 'http://127.0.0.1:7878')
+
+    await client.createCapture('configured identity')
+
+    const init = fetchMock.mock.calls[0][1] as RequestInit
+    expect(init.headers).toMatchObject({ 'x-arda-operator-id': 'operator:primary' })
+    expect(JSON.parse(String(init.body))).toMatchObject({ operator_id: 'operator:primary' })
   })
 })

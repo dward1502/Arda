@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useState, type KeyboardEvent } from 'react'
-import { createPersonalOpsClient, type PersonalOpsClient, type PersonalOpsSnapshot } from '../../../lib/personalOps'
+import { createPersonalOpsClient, loadConfiguredOperatorId, type PersonalOpsClient, type PersonalOpsSnapshot } from '../../../lib/personalOps'
 import ModuleCard from '../ModuleCard'
 
 interface PersonalOperationsModuleProps {
   client?: PersonalOpsClient
+  operatorId?: string
 }
 
 function messageOf(error: unknown): string {
@@ -18,8 +19,13 @@ function formatTime(value: string | null): string {
 
 export default function PersonalOperationsModule({
   client,
+  operatorId,
 }: PersonalOperationsModuleProps) {
-  const defaultClient = useMemo(() => createPersonalOpsClient(), [])
+  const [configuredOperatorId, setConfiguredOperatorId] = useState<string | null>(() => operatorId?.trim() || null)
+  const defaultClient = useMemo(
+    () => configuredOperatorId ? createPersonalOpsClient(configuredOperatorId) : null,
+    [configuredOperatorId],
+  )
   const ops = client ?? defaultClient
   const [snapshot, setSnapshot] = useState<PersonalOpsSnapshot | null>(null)
   const [capture, setCapture] = useState('')
@@ -27,9 +33,27 @@ export default function PersonalOperationsModule({
   const [selectedReviewIds, setSelectedReviewIds] = useState<Set<string>>(new Set())
   const [deletePending, setDeletePending] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [status, setStatus] = useState('Loading personal operations')
+  const [status, setStatus] = useState(client || configuredOperatorId
+    ? 'Loading personal operations'
+    : 'Resolving configured operator identity')
+
+  useEffect(() => {
+    if (client || configuredOperatorId) return
+    let cancelled = false
+    void loadConfiguredOperatorId().then((identity) => {
+      if (cancelled) return
+      setConfiguredOperatorId(identity)
+      setStatus('Loading personal operations')
+    }).catch((caught) => {
+      if (cancelled) return
+      setError(messageOf(caught))
+      setStatus('Personal operations unavailable')
+    })
+    return () => { cancelled = true }
+  }, [client, configuredOperatorId])
 
   const refresh = useCallback(async () => {
+    if (!ops) throw new Error('Configured operator identity is unavailable')
     const next = await ops.loadSnapshot()
     setSnapshot(next)
     setStatus('Personal operations loaded')
@@ -37,11 +61,12 @@ export default function PersonalOperationsModule({
   }, [ops])
 
   useEffect(() => {
+    if (!ops) return
     let cancelled = false
     void ops.loadSnapshot().then((next) => {
       if (cancelled) return
       setSnapshot(next)
-      setStatus(`Personal operations ${next.state} at revision ${next.sourceRevision}.${next.recoveryAction ? ` ${next.recoveryAction}` : ''}`)
+      setStatus('Personal operations loaded')
     }).catch((caught) => {
       if (cancelled) return
       setError(messageOf(caught))
@@ -52,7 +77,7 @@ export default function PersonalOperationsModule({
 
   const submitCapture = async () => {
     const text = capture.trim()
-    if (!text || busy) return
+    if (!text || busy || !ops) return
     setBusy(true)
     setError(null)
     try {
@@ -75,7 +100,7 @@ export default function PersonalOperationsModule({
   }
 
   const acknowledge = async (reminderId: string) => {
-    if (busy) return
+    if (busy || !ops) return
     setBusy(true)
     setError(null)
     try {
@@ -101,7 +126,7 @@ export default function PersonalOperationsModule({
 
   const confirmSelected = async () => {
     const selected = reviewCandidates.filter((item) => selectedReviewIds.has(item.item_id)).slice(0, 10)
-    if (selected.length === 0 || busy) return
+    if (selected.length === 0 || busy || !ops) return
     setBusy(true)
     setError(null)
     try {
@@ -118,7 +143,7 @@ export default function PersonalOperationsModule({
   }
 
   const exportPersonalData = async () => {
-    if (busy) return
+    if (busy || !ops) return
     setBusy(true)
     setError(null)
     try {
@@ -139,7 +164,7 @@ export default function PersonalOperationsModule({
   }
 
   const deletePersonalData = async () => {
-    if (busy) return
+    if (busy || !ops) return
     setBusy(true)
     setError(null)
     try {
@@ -174,12 +199,12 @@ export default function PersonalOperationsModule({
           id="personal-ops-capture"
           aria-label="Rapid capture"
           value={capture}
-          disabled={busy}
+          disabled={busy || !ops}
           placeholder="Capture a thought; classify it later"
           onChange={(event) => setCapture(event.target.value)}
           onKeyDown={onCaptureKeyDown}
         />
-        <button type="button" disabled={busy || capture.trim().length === 0} onClick={() => void submitCapture()}>
+        <button type="button" disabled={busy || !ops || capture.trim().length === 0} onClick={() => void submitCapture()}>
           Save capture
         </button>
         <small>Enter saves. Shift+Enter adds a line. No category is required.</small>

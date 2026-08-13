@@ -148,6 +148,24 @@ pub struct RunResponse {
     events: Vec<RunEvent>,
     review: RunReviewEvidence,
     worker_progress: BTreeMap<String, WorkerProgressState>,
+    recovery_diagnostics: Option<RecoveryDiagnostics>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct RecoveryDiagnostics {
+    failure_owner: String,
+    failed_node_id: String,
+    failure_reason: String,
+    last_valid_state: Option<LastValidRunState>,
+    safe_recovery_action: String,
+    post_recovery_receipt: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct LastValidRunState {
+    node_id: String,
+    state: NodeState,
+    receipt_digest: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -1284,12 +1302,101 @@ fn run_response(store: &RunStore, graph: RunGraph) -> Result<RunResponse, ApiErr
         .map_err(store_error)?
         .unwrap_or_default();
     let worker_progress = project_worker_progress(&graph);
+    let recovery_diagnostics = project_recovery_diagnostics(&graph, &events, &review);
     Ok(RunResponse {
         graph,
         events,
         review,
         worker_progress,
+        recovery_diagnostics,
     })
+}
+
+fn project_recovery_diagnostics(
+    graph: &RunGraph,
+    events: &[RunEvent],
+    review: &RunReviewEvidence,
+) -> Option<RecoveryDiagnostics> {
+    let failure_event = events.iter().rev().find(|event| {
+        matches!(
+            event.kind,
+            RunEventKind::NodeTransition {
+                state: NodeState::Failed
+            }
+        )
+    })?;
+    let failed_node = graph
+        .nodes
+        .iter()
+        .find(|node| node.id == failure_event.node_id)?;
+    let failed_index = graph
+        .nodes
+        .iter()
+        .position(|node| node.id == failed_node.id)?;
+    let last_valid_state = graph.nodes[..failed_index]
+        .iter()
+        .rev()
+        .find(|node| node.state == NodeState::Succeeded)
+        .map(|node| LastValidRunState {
+            node_id: node.id.as_str().to_owned(),
+            state: node.state,
+            receipt_digest: node.output_digest.clone(),
+        });
+    let failure_reason = match failed_node.kind {
+        NodeKind::Verify => review
+            .tests
+            .iter()
+            .find(|test| test.status == TestStatus::Failed)
+            .and_then(|test| test.details.clone())
+            .map(|details| format!("Project-native verification failed: {details}"))
+            .unwrap_or_else(|| {
+                "Project-native verification did not produce passing evidence.".into()
+            }),
+        NodeKind::Execute => review
+            .provider_receipt
+            .as_ref()
+            .map(|receipt| receipt.summary.clone())
+            .unwrap_or_else(|| {
+                "Execution failed before a successful provider receipt was recorded.".into()
+            }),
+        _ => format!(
+            "The {} node entered the failed state.",
+            failed_node.id.as_str()
+        ),
+    };
+    let safe_recovery_action = match failed_node.kind {
+        NodeKind::Verify => "Correct the failing project check, then retry verification; review remains blocked until passing evidence is durable.",
+        NodeKind::Execute => "Inspect the provider receipt and retry only within the node's declared attempt and approval bounds.",
+        _ => "Inspect the durable run events and retry only through the node's declared authority boundary.",
+    }
+    .to_owned();
+    let post_recovery_receipt = (failed_node.state == NodeState::Succeeded)
+        .then(|| failed_node.output_digest.clone())
+        .flatten();
+
+    Some(RecoveryDiagnostics {
+        failure_owner: format!("arda-engine/workbench.{}", node_kind_name(failed_node.kind)),
+        failed_node_id: failed_node.id.as_str().to_owned(),
+        failure_reason,
+        last_valid_state,
+        safe_recovery_action,
+        post_recovery_receipt,
+    })
+}
+
+fn node_kind_name(kind: NodeKind) -> &'static str {
+    match kind {
+        NodeKind::Inspect => "inspect",
+        NodeKind::Retrieve => "retrieve",
+        NodeKind::Research => "research",
+        NodeKind::Plan => "plan",
+        NodeKind::Approval => "approval",
+        NodeKind::Execute => "execute",
+        NodeKind::Verify => "verify",
+        NodeKind::Review => "review",
+        NodeKind::Compensate => "compensate",
+        NodeKind::Close => "close",
+    }
 }
 
 fn project_review_evidence(

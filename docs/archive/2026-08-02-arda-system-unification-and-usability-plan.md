@@ -6,8 +6,11 @@
 > agents, applications, queues, memory systems, policy layers, or speculative
 > capability domains.
 
-**Status:** Active
+**Status:** Archived 2026-08-12 — U0 through U5 and the bounded convergence
+implementation are historical evidence; unresolved final-1.0 qualification was
+deferred rather than treated as active 0.9 work.
 **Adopted:** 2026-08-02
+**Last reconciled:** 2026-08-12
 **Owner:** Arda system/runtime maintainers
 **Goal:** Finish and compose the release-critical capabilities assigned here,
 then qualify them as a functional, supportable distribution without replacing
@@ -18,7 +21,7 @@ the master plan's broader product identity or optional-capability boundaries.
 **Primary release authorities:**
 
 - [Arda 1.0 Personal Agent Ecosystem master convergence plan](2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md) — product scope and required vertical proofs
-- [Archived Stage 5 — Release Candidate](../archive/2026-07-29-stage-5-release-candidate-plan.md)
+- [Stage 5 — Release Candidate](2026-07-29-stage-5-release-candidate-plan.md)
 - [Stage 6 — Legitimate 1.0](2026-07-29-stage-6-legitimate-1.0-plan.md)
 - [HUD Frontend–Backend Contract Convergence](2026-08-06-hud-frontend-backend-contract-convergence-plan.md)
 - [Arda Product Plan Suite](ARDA_PRODUCT_PLAN_SUITE.md)
@@ -67,7 +70,7 @@ If none can be identified, the task is out of scope.
 
 | Domain | Existing authority | This plan's role |
 |---|---|---|
-| Workbench release candidate | `../archive/2026-07-29-stage-5-release-candidate-plan.md` | Consume the completed signed-artifact, lifecycle, release-profile, and soak evidence; do not reopen or duplicate it. |
+| Workbench release candidate | `2026-07-29-stage-5-release-candidate-plan.md` | Coordinate the remaining signed-artifact, soak, and independent-evaluator gates; do not duplicate them. |
 | Arda 1.0 product convergence | `2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md` | Consume required vertical proofs and optional-capability boundaries; do not redefine product identity from this release slice. |
 | Stage 6 release qualification | `2026-07-29-stage-6-legitimate-1.0-plan.md` | Enter only after Stage 5 closes; preserve its artifact, compatibility, support, and release evidence requirements. |
 | Product/application classification | `docs/plans/ARDA_PRODUCT_PLAN_SUITE.md` and application plans | Keep Workbench release-critical while classifying optional applications and distributions honestly. |
@@ -118,10 +121,9 @@ A capability is not called operational merely because its crate compiles or its 
 - [x] Keep optional applications out of the Stage 5/6 critical path.
 - [x] Archive each completed plan immediately after its live gates pass.
 - [x] Record the finite Stage 5 blockers as the first release-critical queue. The
-  valid uninterrupted 24-hour reliability receipt closed on 2026-08-07, and the
-  final signed-artifact reconciliation/lifecycle closed on 2026-08-11. The sole
-  remaining blocker is one qualifying independent non-author evaluator receipt.
-  Security closed through
+  valid uninterrupted 24-hour reliability receipt closed on 2026-08-07; the
+  remaining blockers are final signed-artifact reconciliation/lifecycle and one
+  qualifying independent non-author evaluator receipt. Security closed through
   the bounded, checksum-pinned `glib 0.18.5` upstream backport on 2026-08-05.
 
 **U0 closeout evidence (2026-08-04):** `docs/plans/ARDA_PRODUCT_PLAN_SUITE.md`
@@ -232,9 +234,8 @@ or retained merely to rewrite historical evidence.
   `project_adapter_jsonl.rs` cover every graph-boundary restart, duplicate
   idempotency keys, corrupt/truncated state, partial/noisy adapter output,
   timeout, cancellation, process reaping, and exact-once mutation.
-- `WorkbenchModule.tsx` now persists only the approval reference needed after
-  native restart; Rust resolves the configured proposal/approval lineage and
-  wires rejection to canonical run cancellation before a
+- `WorkbenchModule.tsx` now persists the proposal and approval lineage needed
+  after native restart, wires rejection to canonical run cancellation before a
   revised objective can be planned, and keeps the `run_id` on every graph,
   receipt, evidence, and event projection. `RunTimeline.tsx` labels live,
   partial, stale, and unavailable stream states explicitly; failed nodes and
@@ -378,15 +379,14 @@ or retained merely to rewrite historical evidence.
   linuxdeploy's supported `NO_STRIP=true` control, avoiding its bundled old
   `strip` that rejects Bluefin LTS `.relr.dyn` sections. This does not substitute
   an unsigned local package for the final signed-artifact gate.
-- At this 2026-08-04 checkpoint, the final signed-artifact checkbox and Gate U4
-  remained open. The published
+- The final signed-artifact checkbox and Gate U4 remain open. The published
   `v0.3.0-rc.0` checksum ledger and all six Sigstore bundles verify, but the
   release tag and manifest bind to source `28cde28b`, seven commits behind frozen
   final source `efd118b5`, and the manifest records
   `tracked_worktree_clean=false`. The fail-closed reconciliation receipt is
   `docs/evidence/stage-5-release-candidate/packaging/remote-signed-artifact-reconciliation-20260806.json`.
-  U4 would close only after exact signed bytes from clean final source passed this
-  lifecycle and the clean profile reached a persisted Workbench change.
+  U4 closes only after exact signed bytes from clean final source pass this
+  lifecycle and the clean profile reaches a persisted Workbench change.
 
 **U4/U5 prerequisite audit (2026-08-11):**
 
@@ -400,21 +400,24 @@ or retained merely to rewrite historical evidence.
   backup, diagnostics, rollback, state preservation, and uninstall, but failed
   default Wayland startup and required `GDK_BACKEND=x11`. The fail-closed receipt
   is `docs/evidence/stage-5-release-candidate/reliability/u4-signed-v0.3.0-rc.0-lifecycle-20260811.json`.
-- The current local launcher survived default native startup and passed the same
-  isolated lifecycle without an override, but it is unsigned and therefore does
-  not close U4. A new clean, tag-bound signed candidate containing the startup
-  and U5 comprehension fixes remains required before final U4/U5 evaluation.
+- Clean source `8a5e3f75` produced all three `0.3.0-rc.1` Linux bundles. The
+  fixed-epoch AppImage was byte-identical across two packages at
+  `f332e34c39ae82674c002ab4d395522b580e02c91745fe983f62d5a345490bb3`
+  and passed default native startup plus the complete isolated lifecycle without
+  an override. The receipt is
+  `docs/evidence/stage-5-release-candidate/reliability/u4-local-v0.3.0-rc.1-lifecycle-20260811.json`.
+  This local unsigned run established the candidate baseline before signing.
 
-**U4 closeout (2026-08-11):** `v0.3.0-rc.1` supersedes the prerequisite-audit
-blocker above. The tag and clean manifest both bind to source
+**U4 closeout (2026-08-11):** `v0.3.0-rc.1` superseded the unsigned baseline.
+The tag and clean manifest bind to source
 `8a5e3f75db3867803d56c0b3568ec5fc51794349`; signing run `31543599410` passed
 the exact six-asset checksum, identity, sign, verify, and upload gates. A fresh
-download contained exactly six artifacts and six detached Sigstore bundles, and
-all bundles verified against the tag-bound workflow identity. The downloaded
-signed AppImage then passed default native launch, fresh install, upgrade,
-backup, diagnostics, rollback/restore, terminal-truth preservation, uninstall,
-post-uninstall state preservation, and source immutability without a
-compatibility override. Authoritative receipts are
+download contained exactly six artifacts and six detached Sigstore bundles,
+and all bundles verified against the tag-bound workflow identity. The
+downloaded signed AppImage then passed default native launch, fresh install,
+upgrade, backup, diagnostics, rollback/restore, terminal-truth preservation,
+uninstall, post-uninstall state preservation, and source immutability without
+a compatibility override. The authoritative receipts are
 `docs/evidence/stage-5-release-candidate/packaging/remote-signed-artifact-reconciliation-v0.3.0-rc.1-20260811.json`
 and
 `docs/evidence/stage-5-release-candidate/reliability/u4-signed-v0.3.0-rc.1-lifecycle-20260811.json`.
@@ -442,9 +445,8 @@ and
 - [x] Publish limitations, supported matrix, security/privacy boundaries, known issues, and support expectations without inflated claims.
 - [x] Record the Stage 5 evaluator disposition against the final candidate. The
   operator selected the single-operator local release profile on 2026-08-11;
-  independent non-author evaluation remains optional and was not performed or
-  represented as proxy evidence. The operator subsequently selected the same
-  optional/unperformed evaluator disposition for Stage 6.
+  no qualifying non-author evaluation was performed or represented by proxy.
+  Stage 6 retains its explicit independent non-author evaluator gate.
 
 **U5 implementation evidence (2026-08-05; remediated 2026-08-11):**
 
@@ -475,14 +477,15 @@ and
   block naming current state, read-only actions, sole operator approval authority,
   evidence quality, execution blockers, and the exact next action. Launcher tests
   pass 11/11; focused Workbench tests pass 9/9; both frontend builds pass. The
-  final signed candidate now exists and passes U4. The Stage 5 U5 profile gate
-  closed from the explicit operator release-profile decision without claiming
-  a qualifying non-author session.
+  final signed candidate passed U4. The explicit operator release-profile
+  decision closed the Stage 5 U5 profile gate without claiming a qualifying
+  non-author session; it does not close Stage 6's independent-user gate.
 
 **Gate U5 — passed for the selected Stage 5 release profile on 2026-08-11:**
 Automated and native operator evidence demonstrates identifiable system state,
-approval authority, evidence quality, and recovery action. Independent
-non-author repetition remains optional and is explicitly not claimed.
+approval authority, evidence quality, and recovery action for the selected
+Stage 5 profile. Independent non-author repetition remains explicitly
+unperformed and release-gating in Stage 6.
 
 ### U6 — Release, closeout, and post-plan improvement mode
 
@@ -496,14 +499,39 @@ this closeout does not erase them from Arda's architecture.
 - [x] Close and archive Stage 5 only after its exact release gates and evidence packet pass. Closed 2026-08-11 under the documented single-operator local release profile.
 - [ ] Execute Stage 6 as the release decision and proof phase, not a feature-expansion stage.
 - [ ] Execute frontend/backend convergence one vertical workflow at a time after Stage 5 closes; preserve Rust authority and require durable restart recovery.
-- [ ] Accept all five upper monitor sessions and workstation continuity natively without changing World View into a workspace.
+- [x] Accept all five upper monitor sessions and workstation continuity natively without changing World View into a workspace. On 2026-08-12 the native Tauri HUD recovered five distinct canonical sessions after a full process stop/restart; the clean overlay reported `sessions=5`, `owners=5`, and `handoffs=same_live_session`, with all five payloads rendered.
 - [x] Classify every first-party application as supported, beta, preview, research, or not distributed. The product-plan suite is the sole live classification authority.
-- [x] Archive every completed domain plan and repair all active references. Stage 5 moved to `docs/archive/`; the remaining execution plans retain unresolved work, and the post-move link gate passes.
+- [x] Archive every completed domain plan and repair all active references. Stage 5 is archived on the release line; the remaining execution plans retain unresolved work.
 - [ ] Leave one live authority per domain: source/contracts, compact crate status, operator docs, and release evidence.
 - [ ] Convert post-closeout work intake to defects, measured performance/usability failures, security findings, compatibility obligations, and user evidence.
 - [ ] Reject post-closeout proposals that add a parallel authority or do not improve an existing supported workflow.
 
 **Gate U6:** Stage 6 evidence is complete, the default documentation route matches runtime truth, `docs/plans/` contains no completed work, and future work is improvement of the released system rather than subsystem expansion.
+
+**Current U6 frontier (reconciled 2026-08-12):** Stage 5 lifecycle and support
+profile gates are closed, backend-owned HUD authority is implemented for system
+health, Workbench, Research, Personal Operations, and monitor sessions, and the
+five-monitor native lifecycle walkthrough has passed. Stage 6 execution has
+started by making release source identity cover every production surface and by
+rejecting dirty-source manifest generation. The Workbench verification-failure
+vertical now exposes backend-owned recovery diagnostics through Tauri and React,
+including durable failure owner, last valid receipt, safe recovery action, and a
+post-recovery receipt proven across two fresh-process restarts. U6 remains open:
+no final clean
+`1.0.0` source or signed artifact bytes have been selected, and production
+frontend/backend acceptance, final supported-matrix and recovery evidence,
+security review, performance and native accessibility evidence, the final
+release documentation/evidence packet, and post-closeout intake activation are
+still required.
+
+**U6 audit/preflight (2026-08-12):**
+[`u6-audit-and-preflight-20260812.md`](../evidence/stage-6-1.0/u6-audit-and-preflight-20260812.md)
+records the passing source, frontend, security, support, documentation, restart,
+and Stage 5 signature revalidation gates. It also records the release blockers
+that may not be closed by author or agent evidence: no final clean `1.0.0`
+source or signed bytes, no qualifying independent non-author evaluator receipt,
+no independent final release-critical security review, and open required
+whole-system/phone proofs. U6 remains active and fail-closed.
 
 ---
 
@@ -550,17 +578,17 @@ Exact artifact signing, clean-install, upgrade/rollback, backup/restore, adapter
 
 ## 7. Program exit criteria
 
-- [ ] The active plan estate is finite, non-overlapping, and scope-locked.
+- [x] The active plan estate is finite, non-overlapping, and scope-locked; remaining active plans retain distinct unresolved release or product-proof gates.
 - [x] One canonical runtime owns startup, supervision, health, shutdown, and recovery.
 - [x] Manwë has one production runtime and no permanent static/adaptive split.
 - [x] Rust, Python, and JavaScript/TypeScript Workbench workflows pass through the root-composed installed system.
 - [x] Approval, denial, execution, verification, receipts, memory, and UI share traceable lineage without authority collapse.
 - [x] Failure injection and the uninterrupted soak show no silent mutation, false completion, duplicate mutation, lost terminal state, or unbounded growth.
-- [x] Final signed artifacts pass install, upgrade, rollback, backup, restore, diagnostics, and uninstall on the supported matrix.
+- [x] The final Stage 5 signed artifacts pass install, upgrade, rollback, backup, restore, diagnostics, and uninstall on the selected supported profile; Stage 6 still requires qualification of its final 1.0 bytes.
 - [ ] Accessibility, plain-language recovery, security/privacy, known limitations, and support documentation pass their Stage 5/6 gates.
-- [x] HUD health, Workbench, Research, and Personal Operations use frozen backend-owned identity, state, error, receipt, and recovery contracts. Native configured-identity/envelope walkthroughs remain acceptance evidence rather than implementation authority.
-- [ ] All five upper monitor surfaces pass native concurrent-owner, full-aperture, same-session workstation, and restart-recovery acceptance.
-- [ ] Other first-party applications are honestly classified and cannot block or destabilize Workbench.
+- [x] HUD health, Workbench, Research, and Personal Operations use backend-owned identity, state, error, receipt, and recovery contracts; final Stage 6 contract freeze and configured-identity acceptance remain release evidence gates.
+- [x] All five upper monitor surfaces pass native concurrent-owner, full-aperture, same-session workstation, and restart-recovery lifecycle acceptance. Separate live-browser media proofs remain owned by the master/monitor plans and do not reopen this lifecycle result.
+- [x] Other first-party applications are honestly classified and cannot block or destabilize Workbench.
 - [ ] Completed plans are archived, stale paths are repaired, and the default documentation route describes the live system.
 - [ ] Post-closeout development is limited to measurable improvement of existing supported workflows.
 

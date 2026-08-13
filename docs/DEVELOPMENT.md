@@ -3,7 +3,7 @@
 This guide defines contributor-facing repository rules that complement
 [`AGENTS.md`](../AGENTS.md). Product identity and evidence vocabulary are owned
 by the [Arda 1.0 product doctrine](architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md)
-and the [master convergence plan](plans/2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md).
+and the [current 0.9 improvement plan](plans/2026-08-12-arda-0.9-baseline-and-improvement-plan.md).
 
 ## Active-plan completion claims
 

@@ -336,6 +336,16 @@ export default function WorkbenchModule() {
             <div><dt>What should I do next?</dt><dd>{operatorSummary.nextAction}</dd></div>
           </dl>
         </section>
+        {run?.recovery_diagnostics ? <section className="workbench-panel" aria-labelledby="workbench-recovery-diagnostics-title">
+          <header><h3 id="workbench-recovery-diagnostics-title">Recovery diagnostics</h3><span>backend-owned durable projection</span></header>
+          <dl>
+            <div><dt>Failure owner</dt><dd>{run.recovery_diagnostics.failure_owner}</dd></div>
+            <div><dt>Failure</dt><dd>{run.recovery_diagnostics.failure_reason}</dd></div>
+            <div><dt>Last valid state</dt><dd>{run.recovery_diagnostics.last_valid_state ? `${run.recovery_diagnostics.last_valid_state.node_id} · ${run.recovery_diagnostics.last_valid_state.state} · ${run.recovery_diagnostics.last_valid_state.receipt_digest ?? 'no receipt'}` : 'No prior succeeded node was recorded.'}</dd></div>
+            <div><dt>Safe recovery</dt><dd>{run.recovery_diagnostics.safe_recovery_action}</dd></div>
+            <div><dt>Post-recovery receipt</dt><dd>{run.recovery_diagnostics.post_recovery_receipt ?? 'Recovery has not produced a successful durable receipt.'}</dd></div>
+          </dl>
+        </section> : null}
         <div className="workbench-first-screen"><RunGraphView graph={graph} selectedNodeId={selectedNodeId} onSelectNode={(node) => setSelectedNodeId(node.id)} /><ApprovalPanel approvals={approvals} busy={busy} onApprove={approve} onReject={reject} /><ChangeReview changes={run?.review?.changes ?? []} tests={run?.review?.tests ?? []} providerReceipt={run?.review?.provider_receipt} selectedNode={selectedNode} events={events} onComplete={complete} onExecuteProvider={executeProvider} busy={busy} /><RunTimeline events={events} graph={graph} streamStatus={streamStatus} /></div>
       </div>
     </ModuleCard>

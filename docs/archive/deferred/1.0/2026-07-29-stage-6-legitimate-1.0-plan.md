@@ -1,6 +1,10 @@
 # Arda Stage 6 — Legitimate 1.0 Plan
 
-> **For Hermes:** Stage 6 is the release decision and proof phase. The [Arda 1.0 Personal Agent Ecosystem Plan](2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md) now owns product scope and required vertical proofs. This plan owns artifact, compatibility, safety, quality, support, evaluator-disposition, and release-decision gates; it must not substitute Workbench-only evidence for the master-plan product proofs.
+> **Lifecycle:** DEFERRED on 2026-08-12. This document retains future public/final
+> `1.0.0` qualification gates. It is not active 0.9 authority, and none of its
+> independent or exact-signed-byte gates are represented as complete.
+
+> **For Hermes:** Stage 6 is the release decision and proof phase. The [Arda 1.0 Personal Agent Ecosystem Plan](2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md) now owns product scope and required vertical proofs. This plan owns artifact, compatibility, safety, quality, support, independent-user, and release-decision gates; it must not substitute Workbench-only evidence for the master-plan product proofs.
 
 **System completion coordination:** [Arda System Unification and Usability Plan](2026-08-02-arda-system-unification-and-usability-plan.md). This Stage 6 plan remains authoritative for release qualification, not product identity.
 
@@ -12,15 +16,28 @@
 **Included HUD projections:** system/runtime health, Workbench, recovery/diagnostics, Research, Personal Operations, and five independently claimable upper monitors.
 **Optional/not base blockers:** Mirromere hardware, RELIC/CITADEL feature expansion, Company Operations pilots, live x402/payment execution, and validated-device ingestion. Their attachment contracts and truthful status follow the master plan.
 
+**Execution state (2026-08-12):** Stage 6 is active. The first qualification
+tranche hardened `scripts/arda_release_ops.py`: release source identity now
+covers the root runtime, launcher and HUD, workspace crates, SDKs, schemas,
+configuration, vendored dependencies, release tooling, service composition, and
+the tag-bound signing workflow. Manifest generation fails closed when tracked
+release source is dirty. Focused tests pin every covered production surface.
+This makes a future clean-source freeze trustworthy; it does not freeze the
+current dirty worktree, create final 1.0 bytes, or satisfy any artifact matrix.
+
+The 2026-08-12 U6 preflight is recorded in
+[`u6-audit-and-preflight-20260812.md`](../evidence/stage-6-1.0/u6-audit-and-preflight-20260812.md).
+It closes no independent or artifact gate: final `1.0.0` source/bytes,
+independent evaluator and security-review receipts, whole-system/phone proofs,
+and exact-artifact qualification remain release blockers.
+
 ---
 
 ## Entry criteria
 
 - Entry requires the Stage 5 release-candidate evidence packet to be complete.
 - Every critical/high defect is resolved or explicitly release-blocking.
-- The evaluator disposition is recorded honestly. Under the operator-approved
-  single-operator local profile, independent-user evaluation is optional and
-  explicitly unperformed; no author/agent substitution is claimed.
+- One qualifying independent non-author evaluation has passed without author/agent substitution.
 - Installation, upgrade, rollback, backup, restore, and diagnostics are reproducible.
 - The project/adapter/run contracts are frozen for the 1.x compatibility window.
 
@@ -111,9 +128,9 @@ Run the release artifact, not only source builds, against:
 **Gate S6-Q1**
 There is no known reproducible path to silent mutation, false completion, unrecoverable project-source loss, secret disclosure, or receipt/run-state inconsistency in the supported matrix.
 
-## Release workstream 4 — Optional independent-user outcome proof
+## Release workstream 4 — User outcome proof
 
-If a future independent non-author evaluator is available, collect:
+Required evidence from one qualifying independent non-author evaluator:
 - installation without author intervention;
 - integration of an unseen supported repository;
 - at least one accepted verified change;
@@ -121,12 +138,11 @@ If a future independent non-author evaluator is available, collect:
 - recovery from one induced failure;
 - qualitative understanding of approval and evidence surfaces.
 
-**Selected-profile evaluator gate**
-- the operator release-profile decision is retained at
-  `docs/evidence/stage-6-1.0/release-policy/operator-release-profile-decision-20260811.json`;
-- independent-user evidence is recorded as optional and unperformed;
-- no author, agent, or proxy review is substituted for an evaluator;
-- any future findings and limitations are reported honestly.
+**Minimum 1.0 evaluator gate**
+- one qualifying evaluator completes the Stage 5 guide against the final artifact bytes;
+- no author, agent, or proxy review is substituted for that evaluator;
+- no unresolved critical usability blocker;
+- findings and limitations are reported honestly.
 
 Broader cohort and repeat-use evidence is valuable post-1.0 product evidence,
 not a reason to keep the creator-owned 1.0 release permanently open.
@@ -201,13 +217,6 @@ At release freeze, classify every application as:
 
 A preview cannot read private state or activate sensors merely because Workbench is installed. Extension failures never downgrade the core Workbench safety guarantees.
 
-The authoritative classification is the
-[Arda Product Plan Suite application table](ARDA_PRODUCT_PLAN_SUITE.md#first-party-application-release-classifications).
-It classifies the Launcher and HUD/Workbench as supported, Warden Research as
-beta, Personal Operations and RELIC/CITADEL as preview, Company Operations as
-research, and Mirromere as not distributed. Those labels do not waive each
-application's remaining acceptance gates.
-
 ## Final gate commands
 
 The exact closeout script should be created before RC freeze and must invoke the live, supported checks. Minimum source gates:
@@ -242,20 +251,21 @@ Each claim references commands, artifact hashes, run IDs, evaluator evidence, or
 
 ## Stage 6 exit criteria
 
-- [ ] 1.0 scope and compatibility policy are frozen.
+- [ ] 1.0 scope and compatibility policy are frozen. Scope is declared above;
+  the source-identity and clean-tree freeze gate is implemented, but no final
+  clean source revision or `1.0.0` artifact bytes have been selected.
 - [ ] Signed release artifacts pass the supported matrix.
 - [ ] Independent security review has no unresolved blocker.
 - [ ] Clean install, upgrade, rollback, backup, and restore pass.
 - [ ] Rust, Python, and JavaScript unseen-project integrations pass.
 - [ ] Failure/recovery matrix has no silent mutation or false completion.
-- [x] The independent-user disposition is documented honestly for the selected
-  single-operator local profile; evaluation is optional and unperformed.
+- [ ] The qualifying independent non-author evaluator gate passes.
 - [ ] Frontend/backend contract convergence passes without React-owned authority.
 - [ ] Five-monitor native visual/workstation acceptance passes.
 - [ ] The performance baseline is published and release-blocking regressions are corrected.
 - [ ] Documentation and accessibility gates pass.
 - [ ] Licensing, third-party notices, support, and vulnerability processes exist.
-- [x] Every first-party application has an honest release classification.
+- [ ] Every first-party application has an honest release classification.
 - [ ] Known limitations are published without marketing inflation.
 
 ## Post-1.0 sequence

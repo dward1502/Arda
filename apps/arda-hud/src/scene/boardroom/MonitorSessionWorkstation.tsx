@@ -9,6 +9,8 @@ import {
 } from 'react'
 import { Canvas } from '@react-three/fiber'
 import type { MonitorSurfaceSessionRecord } from '../../lib/monitorSurfaceContract'
+import { agentGetMonitorSurfaceRegistry } from '../../lib/boardroomSlotSettings'
+import { coerceRuntimeMonitorRegistry } from '../../lib/monitorSurfaceRegistryBridge'
 import {
   agentClickBrowserMonitorSession,
   agentGetBrowserMonitorFrame,
@@ -224,7 +226,26 @@ function BrowserSessionWorkstation({ sessionId }: { sessionId: string }) {
 }
 
 export default function MonitorSessionWorkstation({ sessionId, record, rootPath }: MonitorSessionWorkstationProps) {
-  if (!record) {
+  const [hydratedRecord, setHydratedRecord] = useState(record)
+
+  useEffect(() => {
+    if (record) {
+      setHydratedRecord(record)
+      return
+    }
+    let cancelled = false
+    void agentGetMonitorSurfaceRegistry()
+      .then((value) => {
+        if (cancelled) return
+        const registry = coerceRuntimeMonitorRegistry(value)
+        setHydratedRecord(Object.values(registry?.sessions ?? {})
+          .find((session) => session.surface_session_id === sessionId) ?? null)
+      })
+      .catch(() => undefined)
+    return () => { cancelled = true }
+  }, [record, sessionId])
+
+  if (!hydratedRecord) {
     return (
       <main className="monitor-session-workstation monitor-session-workstation--unavailable">
         <h1>Monitor session unavailable</h1>
@@ -234,35 +255,35 @@ export default function MonitorSessionWorkstation({ sessionId, record, rootPath 
     )
   }
 
-  const title = 'title' in record.content && typeof record.content.title === 'string'
-    ? record.content.title
-    : `${record.owner} monitor session`
+  const title = 'title' in hydratedRecord.content && typeof hydratedRecord.content.title === 'string'
+    ? hydratedRecord.content.title
+    : `${hydratedRecord.owner} monitor session`
 
   return (
-    <main className="monitor-session-workstation" data-session-id={record.surface_session_id}>
+    <main className="monitor-session-workstation" data-session-id={hydratedRecord.surface_session_id}>
       <header className="monitor-session-workstation__header">
         <div>
-          <span className="monitor-session-workstation__eyebrow">{record.slot_id}</span>
+          <span className="monitor-session-workstation__eyebrow">{hydratedRecord.slot_id}</span>
           <h1>{title}</h1>
         </div>
         <div className="monitor-session-workstation__ownership" aria-label="Session ownership">
-          <strong>{record.owner} · r{record.revision}</strong>
-          <span>{record.surface_session_id}</span>
+          <strong>{hydratedRecord.owner} · r{hydratedRecord.revision}</strong>
+          <span>{hydratedRecord.surface_session_id}</span>
         </div>
       </header>
       <section className="monitor-session-workstation__surface" aria-label="Live monitor session content">
-        {record.content.kind === 'remote_session' && record.content.transport === 'mjpeg' ? (
-          <BrowserSessionWorkstation sessionId={record.content.sessionId} />
+        {hydratedRecord.content.kind === 'remote_session' && hydratedRecord.content.transport === 'mjpeg' ? (
+          <BrowserSessionWorkstation sessionId={hydratedRecord.content.sessionId} />
         ) : (
         <Canvas orthographic camera={{ position: [0, 0, 10], zoom: 70 }} dpr={[1, 1.5]}>
           <ambientLight intensity={1.2} />
           <BoardroomApertureSurface
-            zoneId={record.slot_id}
+            zoneId={hydratedRecord.slot_id}
             previewMode="monitor_surface"
             size={[12, 7.2, 1]}
             model={{
               title,
-              eyebrow: `${record.slot_id} · ${record.owner}`,
+              eyebrow: `${hydratedRecord.slot_id} · ${hydratedRecord.owner}`,
               status: 'nominal',
               tone: 'cyan',
               glyph: '◇',
@@ -272,13 +293,13 @@ export default function MonitorSessionWorkstation({ sessionId, record, rootPath 
               rings: [],
               source: {
                 freshness: 'fresh',
-                sourceId: record.surface_session_id,
+                sourceId: hydratedRecord.surface_session_id,
                 sourcePaths: [],
-                observedAtUtc: record.updated_at_utc,
+                observedAtUtc: hydratedRecord.updated_at_utc,
               },
             }}
-            descriptor={record.content}
-            playback={record.playback}
+            descriptor={hydratedRecord.content}
+            playback={hydratedRecord.playback}
             rootPath={rootPath}
             motionEnabled
             active

@@ -4,7 +4,7 @@
 
 Arda helps one sovereign operator organize personal life and projects, preserve context, coordinate hosted and local workers, integrate external systems, and act proactively without taking unearned authority. Workbench, Personal Operations, research, council, economic tools, and device/outpost integrations are composable capabilities over one task, memory, governance, communications, and receipt model—not separate product identities. The canonical Rust workspace lives in this repository; `~/Annunimas` is reference architecture and should not be modified unless explicitly requested.
 
-The Arda 1.0 product authority is [Arda 1.0 Personal Agent Ecosystem](docs/architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md). Its [current-state gap report](docs/audits/2026-08-08-arda-1.0-vision-to-live-gap-report.md) and [implementation plan](docs/plans/2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md) distinguish implemented foundations from operator-accepted and release-supported behavior.
+The current product authority is the [Arda 0.9 Baseline](docs/releases/0.9/BASELINE.md). The broader [Arda 1.0 Personal Agent Ecosystem](docs/architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md) remains future doctrine rather than active 0.9 execution authority.
 
 ## Current workspace status
 
@@ -43,7 +43,7 @@ The Arda 1.0 product authority is [Arda 1.0 Personal Agent Ecosystem](docs/archi
 1. This file (`README.md`).
 2. `AGENTS.md` — working rules and canonical source layout.
 3. `docs/architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md` — product doctrine and capability-composition model.
-4. `docs/plans/2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md` — active convergence plan and evidence gates.
+4. `docs/plans/2026-08-12-arda-0.9-baseline-and-improvement-plan.md` — finite active improvement and evidence frontier.
 5. `docs/root-daemon.md` — root package status, composition boundary, ownership, and verification.
 6. `crates/engine/README.md` and `crates/engine/BREAKDOWN.md` — registry,
    harness, and supervisor implementation.

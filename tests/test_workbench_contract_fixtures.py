@@ -81,6 +81,11 @@ class WorkbenchContractFixtureTests(unittest.TestCase):
             fixture["mutation"]["intent"]["action"],
             fixture["mutation"]["receipt"]["action"],
         )
+        self.assertEqual(fixture["error_envelope"]["schema_version"], "arda.hud.error.v1")
+        self.assertEqual(fixture["error_envelope"]["status"], "failed")
+        self.assertTrue(fixture["error_envelope"]["code"])
+        self.assertTrue(fixture["error_envelope"]["message"])
+        self.assertTrue(fixture["error_envelope"]["recovery_action"])
         self.assertEqual(
             {state["status"] for state in fixture["load_states"]},
             {"loading", "healthy", "stale", "partial", "degraded", "unavailable", "failed"},

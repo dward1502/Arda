@@ -32,6 +32,7 @@ async fn start_harness(
         warden_scout_timeout: DEFAULT_WARDEN_SCOUT_TIMEOUT,
         presence_inputs: HarnessPresenceState::default(),
         workbench_root: root.path().to_path_buf(),
+        operator_id: "discord-user-1".to_string(),
     };
     let (bound, handle) = serve(
         Some("127.0.0.1:0".parse().expect("loopback")),
@@ -198,6 +199,7 @@ async fn authenticated_gateway_capture_is_durable_and_duplicate_safe() {
 
     let inbox: Value = client
         .get(format!("http://{bound}/v1/personal/inbox"))
+        .header("x-arda-operator-id", "discord-user-1")
         .send()
         .await
         .expect("inbox")

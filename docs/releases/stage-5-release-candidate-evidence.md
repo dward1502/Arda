@@ -5,17 +5,15 @@ Reconciled: 2026-08-11
 
 ## Verdict
 
-**Release-candidate ready for the selected single-operator local profile.** Stage 5 has passing RC0 upgrade/rollback, the valid
+**Not release-ready.** Stage 5 has passing RC0 upgrade/rollback, the valid
 86,400-second S5-R1 soak, automated and native accessibility/performance, adapter
 conformance, security scanning, support-exercise evidence, and a successful
-tag-bound keyless signing workflow. The clean `v0.3.0-rc.1` tag, manifest,
-checksums, six signatures, and installed lifecycle now reconcile to source
-`8a5e3f75`. On 2026-08-11 the operator explicitly made independent non-author
-evaluation an optional future confidence signal; no evaluator session or
-receipt is claimed. The
+tag-bound keyless signing workflow. Publication remains blocked by two required
+receipts that do not exist for one final candidate identity: a reconciled signed
+artifact lifecycle and a qualifying independent non-author evaluator pass. The
 local-only endpoint posture, bounded GLib backport, and local-adapter trust model
-remain explicit accepted support boundaries; they do not substitute for the
-selected release profile.
+remain explicit accepted support boundaries; they do not substitute for either
+open release gate.
 
 No row below converts a partial or blocked gate into a pass.
 
@@ -23,8 +21,8 @@ No row below converts a partial or blocked gate into a pass.
 
 | Gate | Status | Evidence | Closure required |
 |---|---|---|---|
-| S5-RC0 artifact identity and upgrade/rollback | Pass | `../evidence/stage-5-release-candidate/s5-rc0/s5-rc0-summary.json`; `../evidence/stage-5-release-candidate/s5-rc0/rollback-proof.json`; `../evidence/stage-5-release-candidate/reliability/u4-signed-v0.3.0-rc.1-lifecycle-20260811.json` | Closed against the final rebuilt signed AppImage by the U4 lifecycle. |
-| U4 installation lifecycle | Pass for final signed `v0.3.0-rc.1` candidate | `../evidence/stage-5-release-candidate/reliability/u4-signed-v0.3.0-rc.1-lifecycle-20260811.json`; `../evidence/stage-5-release-candidate/packaging/remote-signed-artifact-reconciliation-v0.3.0-rc.1-20260811.json` | Closed: the downloaded signed AppImage passed default launch and the complete isolated lifecycle without a compatibility override. |
+| S5-RC0 artifact identity and upgrade/rollback | Pass | `../evidence/stage-5-release-candidate/s5-rc0/s5-rc0-summary.json`; `../evidence/stage-5-release-candidate/s5-rc0/rollback-proof.json` | Re-run against final rebuilt artifacts. |
+| U4 installation lifecycle | Pass for exact clean unsigned `0.3.0-rc.1`; published signed RC.0 fails default native startup; final signed gate open | `../evidence/stage-5-release-candidate/reliability/u4-local-v0.3.0-rc.1-lifecycle-20260811.json`; `../evidence/stage-5-release-candidate/reliability/u4-signed-v0.3.0-rc.0-lifecycle-20260811.json` | Publish source `8a5e3f75` as one tag-bound candidate, verify its identity-bound signature, then run the same lifecycle against the downloaded signed bytes without a compatibility override. |
 | Supported Linux profile | Pass for initial profile | `../evidence/stage-5-release-candidate/s5-rc0/supported-profile.json` | Maintain the declared `bluefin-lts-10-x86_64` boundary. |
 | Reliability fault-matrix smoke | Pass | `../evidence/stage-5-release-candidate/reliability/u3-degradation-smoke-20260804.json` | 11/11 runs passed across the complete U3 failure matrix with zero state growth and unchanged source identity. |
 | 24-hour soak / S5-R1 | Pass for source `efd118b5` | `../evidence/stage-5-release-candidate/reliability/soak-24h-final-efd118b5-20260807.json`; `../evidence/stage-5-release-candidate/reliability/soak-24h-final-efd118b5-20260807-assessment.md` | The valid run completed 86,400 seconds and passed 2,844/2,844 scenarios. The later `6616addd` smoke passed 11/11, but its stopped elapsed run emitted no receipt and is not cited. Re-run at the next freeze only if then-current release policy requires exact-candidate elapsed qualification. |
@@ -34,8 +32,8 @@ No row below converts a partial or blocked gate into a pass.
 | Security scans and threat regressions | Pass with owned support boundaries | `../evidence/stage-5-release-candidate/security/security-summary.json`; `../evidence/stage-5-release-candidate/security/glib-0185-backport-spike-20260805.md`; `../evidence/stage-5-release-candidate/security/tauri-gtk-migration-preflight-20260805.md`; `../security/stage-5-threat-model.md` | SEC-GLIB-001 is mitigated by the checksum-pinned exact upstream fix in a local `glib 0.18.5` path dependency. The rejected GTK4 fork remains rejected. Path dependencies are omitted by RustSec scanners, so the archive/source verifier and optimized regression are mandatory. |
 | Adapter SDK/conformance | Pass | `../evidence/stage-5-release-candidate/adapters/conformance.json`; `../evidence/stage-5-release-candidate/adapters/external-repository-onboarding.json` | Repeat the conformance suite on final source. The separately sourced onboarding gate is closed. |
 | Support exercise | Pass | `../evidence/stage-5-release-candidate/support/support-exercise.json`; `../operator/stage-5-support-policy.md` | Repeat against final package if diagnostics format changes. |
-| Packaging, SBOM, checksums, signatures | Pass | `../evidence/stage-5-release-candidate/packaging/remote-signed-artifact-reconciliation-v0.3.0-rc.1-20260811.json`; [release `v0.3.0-rc.1`](https://github.com/dward1502/Arda/releases/tag/v0.3.0-rc.1); [signing run 31543599410](https://github.com/dward1502/Arda/actions/runs/31543599410) | Closed: exact allowlist, checksum ledger, clean source identity, six tag-bound Sigstore bundles, and installed lifecycle all pass. |
-| Final Stage 5 approval | Pass for the single-operator local profile | `../evidence/stage-5-release-candidate/release-policy/operator-release-profile-decision-20260811.json`; this ledger | Closed without claiming an independent evaluation. Stage 6 retains its own release-decision and native acceptance gates. |
+| Packaging, SBOM, checksums, signatures | Pass locally for clean `0.3.0-rc.1`; production signature open | `../evidence/stage-5-release-candidate/reliability/u4-local-v0.3.0-rc.1-lifecycle-20260811.json`; [release `v0.3.0-rc.0`](https://github.com/dward1502/Arda/releases/tag/v0.3.0-rc.0); [signing run 30714060617](https://github.com/dward1502/Arda/actions/runs/30714060617) | Local source `8a5e3f75` produced a clean manifest, checksum ledger, 645-component zero-missing-license SBOM, byte-reproducible AppImage, normalized DEB/RPM, and passing U4 lifecycle. Publish/sign only through the authorized tag workflow, then reconcile all downloaded bytes. |
+| Final release approval | Blocked | This ledger | All critical/high blockers and required acceptance evidence must close. |
 
 ## Verified evidence summary
 
@@ -51,20 +49,16 @@ The RC0 receipt reports:
 - secret state preserved without archiving it; and
 - no source-repository mutation.
 
-The U4 local lifecycle rerun additionally passed fresh install, native startup,
+The exact clean `0.3.0-rc.1` U4 local lifecycle rerun additionally passed fresh install, native startup,
 upgrade, backup, redacted diagnostics, rollback, terminal-run persistence,
 uninstall, post-uninstall state preservation, and unchanged source identity on
-the declared Bluefin LTS profile. This receipt uses the current locally built
-executable and explicitly records `final_signed_artifact_exercised=false`; it is
+the declared Bluefin LTS profile. Its AppImage is the byte-reproducible output
+from clean source `8a5e3f75`, with SHA-256
+`f332e34c39ae82674c002ab4d395522b580e02c91745fe983f62d5a345490bb3`.
+The receipt explicitly records `final_signed_artifact_exercised=false`; it is
 implementation evidence, not closure of the final artifact gate. A narrow
 NVIDIA/Wayland explicit-sync startup guard resolved the supported host's default
 Wayland protocol-error exit without requiring a user-provided launch override.
-
-The final `v0.3.0-rc.1` rerun closes the signed-artifact boundary. Its tag and
-clean manifest bind to `8a5e3f75`; all six detached bundles verify against the
-exact tag workflow identity. The freshly downloaded signed AppImage passed the
-same lifecycle, including default native startup, with
-`final_signed_artifact_exercised=true` and no compatibility override.
 
 ### Reliability, performance, and accessibility
 
@@ -147,12 +141,16 @@ qualifying non-author pass has occurred, so comprehension acceptance remains ope
 
 ### Packaging
 
-The local packaging evidence records a 642-component SBOM with zero missing
-dependency licenses and byte-identical AppImage/normalized DEB/RPM proof. The
-published `v0.3.0-rc.1` release has all six allowlisted assets plus detached
-keyless Sigstore bundles; GitHub Actions run `31543599410` completed its
+The current clean `0.3.0-rc.1` packaging run records a 645-component SBOM with
+zero missing dependency licenses, a clean-source manifest at `8a5e3f75`, a
+verified checksum ledger, a byte-identical fixed-epoch AppImage pair, normalized
+DEB/RPM outputs, and passing RPM header/payload digests. The
+published `v0.3.0-rc.0` release has all six allowlisted assets plus detached
+keyless Sigstore bundles; GitHub Actions run `30714060617` completed its
 identity-bound download, checksum verification, signing, verification, and upload
-steps successfully.
+steps successfully. The remote asset identities differ from the older local
+packaging summary, so that summary cannot alone prove the published artifact
+lifecycle; regenerate one reconciled evidence packet before promotion.
 
 The 2026-08-06 reconciliation packet is
 `docs/evidence/stage-5-release-candidate/packaging/remote-signed-artifact-reconciliation-20260806.json`.
@@ -169,26 +167,26 @@ runtime, and two real outputs from the populated RELR-era AppDir are
 byte-identical at
 `7ce0900826d1e099879f6c76c0bed104123eca38bb0dd8cb6ccff85ff1d025bf`.
 `python3 -m unittest tests.test_arda_appimage tests.test_arda_release_ops`
-passes 6/6. The rc.1 reconciliation receipt verifies the final
-source/artifact identity, signing, and installed lifecycle, closing
-`PKG-EVIDENCE-001`.
+passes 6/6. This closes the package-tool implementation defect; the final
+source/artifact reconciliation, signing, and installed lifecycle remain owned
+by `PKG-EVIDENCE-001`.
 
 ## Owned blockers and accepted/deferred boundaries
 
 | ID | Severity | Owner | Required closure |
 |---|---|---|---|
 | REL-SOAK-002 | Deferred policy check; not a current blocker | Reliability maintainer | S5-R1 passed on `efd118b5`. The operator stopped the later `6616addd` elapsed run and removed it from the development critical path. If policy at the next release freeze requires exact-candidate qualification, start a fresh uninterrupted run; do not resume or reinterpret the stopped launch. |
-| USABILITY-EVAL-001 | Optional future confidence signal | UX/release maintainer | No evaluation was performed. The neutral guide and fail-closed record template remain prepared for a future clean non-author evaluator; author, operator, or agent self-review must never be relabelled as that evidence. |
+| USABILITY-EVAL-001 | Release gate | UX/release maintainer | The neutral guide and fail-closed record template are prepared. Have a clean non-author evaluator identify current system state, approval authority, evidence quality, and the next recovery action without source or raw-state access; retain the completed evaluator receipt rather than substituting author or agent self-review. |
 | SEC-AUTH-001 | High if remotely exposed | Engine/harness maintainer | Keep all harness binds loopback-only; implement inbound authentication before remote or multi-user exposure. |
 | SEC-ADAPTER-001 | High for third-party adapters | Adapter runtime maintainer | Pin adapter artifact digest/signature; self-reported identity/version alone cannot defeat a malicious replacement binary. |
 | SEC-GLIB-001 | High advisory; mitigated | Launcher maintainer | Both Tauri consumers resolve the checksum-pinned vendored `glib 0.18.5` with the exact upstream `&mut` fix. Preserve the verifier/regression controls and replace the exception with maintained upstream GTK4 when available. |
-| PKG-EVIDENCE-001 | Closed 2026-08-11 | Release maintainer | `v0.3.0-rc.1` binds tag and clean manifest to `8a5e3f75`; all six bundles and the downloaded signed AppImage lifecycle pass. |
+| PKG-EVIDENCE-001 | Release gate | Release maintainer | Clean source `8a5e3f75` now has a complete local `0.3.0-rc.1` asset set and passing unsigned lifecycle. Publish that exact commit through the tag-bound prerelease workflow, reconcile every downloaded checksum and identity-bound Sigstore bundle, and run U4 against the downloaded signed AppImage without an override. |
 
 
 ## Final approval rule
 
-Stage 5 is complete for the documented single-operator local release profile:
-all required receipts reconcile to the final source/artifact identity, every
-required gate row passes, and the operator release-policy decision accepts the
-remaining evaluator limitation without claiming the evaluation occurred.
-Stage 6 owns any broader support or 1.0 promotion decision.
+Stage 5 may be marked complete only after all required receipts are regenerated
+from the same final source/artifact identity, all release-gate rows above pass,
+and every critical/high item is either closed or accepted through the documented
+release policy by the named owner. Until then, the candidate remains local-only
+and non-promotable.

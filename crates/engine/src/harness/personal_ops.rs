@@ -82,6 +82,7 @@ fn not_loopback() -> (StatusCode, axum::Json<serde_json::Value>) {
 type MutationError = (StatusCode, Json<serde_json::Value>);
 
 fn mutation_event_id(
+    state: &HarnessState,
     headers: &HeaderMap,
     operator_id: &str,
     operation: &str,
@@ -107,6 +108,14 @@ fn mutation_event_id(
         return Err((
             StatusCode::FORBIDDEN,
             Json(serde_json::json!({"error": "operator identity mismatch"})),
+        ));
+    }
+    if header_operator != state.operator_id {
+        return Err((
+            StatusCode::FORBIDDEN,
+            Json(serde_json::json!({
+                "error": "operator identity is not authorized by daemon configuration"
+            })),
         ));
     }
     let key = headers
@@ -135,8 +144,11 @@ fn deterministic_uuid(input: &str) -> uuid::Uuid {
     uuid::Uuid::from_bytes(bytes)
 }
 
-fn operator_from_headers(headers: &HeaderMap) -> Result<&str, MutationError> {
-    headers
+fn operator_from_headers<'a>(
+    state: &HarnessState,
+    headers: &'a HeaderMap,
+) -> Result<&'a str, MutationError> {
+    let operator_id = headers
         .get("x-arda-operator-id")
         .and_then(|value| value.to_str().ok())
         .map(str::trim)
@@ -146,7 +158,16 @@ fn operator_from_headers(headers: &HeaderMap) -> Result<&str, MutationError> {
                 StatusCode::UNAUTHORIZED,
                 Json(serde_json::json!({"error": "x-arda-operator-id header required"})),
             )
-        })
+        })?;
+    if operator_id != state.operator_id {
+        return Err((
+            StatusCode::FORBIDDEN,
+            Json(serde_json::json!({
+                "error": "operator identity is not authorized by daemon configuration"
+            })),
+        ));
+    }
+    Ok(operator_id)
 }
 
 pub(super) fn operator_events(
@@ -164,30 +185,11 @@ pub(super) fn operator_events(
                 Json(serde_json::json!({ "error": format!("failed to load event log: {error}") })),
             )
         })?;
-    let header_operator = headers
-        .get("x-arda-operator-id")
-        .and_then(|value| value.to_str().ok())
-        .map(str::trim)
-        .filter(|value| !value.is_empty());
-    if let Some(operator_id) = header_operator {
-        return Ok(events
-            .into_iter()
-            .filter(|event| event.record.operator_id() == operator_id)
-            .collect());
-    }
-    let operators = events
-        .iter()
-        .map(|event| event.record.operator_id())
-        .collect::<std::collections::BTreeSet<_>>();
-    if operators.len() > 1 {
-        return Err((
-            StatusCode::UNAUTHORIZED,
-            Json(serde_json::json!({
-                "error": "x-arda-operator-id header required when multiple operators have personal data"
-            })),
-        ));
-    }
-    Ok(events)
+    let operator_id = operator_from_headers(state, headers)?;
+    Ok(events
+        .into_iter()
+        .filter(|event| event.record.operator_id() == operator_id)
+        .collect())
 }
 
 fn require_item_owner(
@@ -297,7 +299,7 @@ pub async fn create_capture(
             .into_response();
     }
 
-    let event_id = match mutation_event_id(&headers, &req.operator_id, "captures.create") {
+    let event_id = match mutation_event_id(&state, &headers, &req.operator_id, "captures.create") {
         Ok(id) => id,
         Err(error) => return error.into_response(),
     };
@@ -382,6 +384,7 @@ pub async fn classify_item(
         return error.into_response();
     }
     let event_id = match mutation_event_id(
+        &state,
         &headers,
         &req.operator_id,
         &format!("items.{item_id}.classify"),
@@ -468,6 +471,7 @@ pub async fn schedule_item(
         return error.into_response();
     }
     let event_id = match mutation_event_id(
+        &state,
         &headers,
         &req.operator_id,
         &format!("items.{item_id}.schedule"),
@@ -529,6 +533,7 @@ pub async fn complete_item(
         return error.into_response();
     }
     let event_id = match mutation_event_id(
+        &state,
         &headers,
         &req.operator_id,
         &format!("items.{item_id}.complete"),
@@ -727,6 +732,7 @@ pub async fn record_reminder_attempt(
         return error.into_response();
     }
     let event_id = match mutation_event_id(
+        &state,
         &headers,
         &req.operator_id,
         &format!("reminders.{reminder_uuid}.attempt"),
@@ -865,6 +871,7 @@ pub async fn acknowledge_reminder(
             .into_response();
     }
     let event_id = match mutation_event_id(
+        &state,
         &headers,
         &req.operator_id,
         &format!("reminders.{reminder_id}.acknowledge"),
@@ -903,7 +910,7 @@ pub async fn export_personal_data(
     State(state): State<HarnessState>,
     headers: HeaderMap,
 ) -> impl IntoResponse {
-    let operator_id = match operator_from_headers(&headers) {
+    let operator_id = match operator_from_headers(&state, &headers) {
         Ok(operator_id) => operator_id,
         Err(error) => return error.into_response(),
     };
@@ -943,10 +950,11 @@ pub async fn delete_personal_data(
     if !require_loopback(&peer) {
         return not_loopback().into_response();
     }
-    let receipt_id = match mutation_event_id(&headers, &req.operator_id, "personal-data.delete") {
-        Ok(id) => id,
-        Err(error) => return error.into_response(),
-    };
+    let receipt_id =
+        match mutation_event_id(&state, &headers, &req.operator_id, "personal-data.delete") {
+            Ok(id) => id,
+            Err(error) => return error.into_response(),
+        };
     match read_deletion_receipt(&state.workbench_root, receipt_id) {
         Ok(Some(receipt)) => return (StatusCode::OK, Json(receipt)).into_response(),
         Ok(None) => {}

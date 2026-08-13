@@ -1,5 +1,3 @@
-import { safeTauriInvoke } from './tauriGuard'
-
 export interface PersonalOpsInboxItem {
   capture_id: string
   operator_id: string
@@ -40,15 +38,7 @@ export interface PersonalOpsItem {
   current_state: string
 }
 
-export type PersonalOpsLoadState = 'healthy' | 'stale' | 'degraded' | 'unavailable' | 'failed'
-
 export interface PersonalOpsSnapshot {
-  schemaVersion: 'arda.hud.personal-ops-projection.v1'
-  state: PersonalOpsLoadState
-  sourceRevision: string
-  sourceTimeUtc: string
-  failures: string[]
-  recoveryAction: string | null
   inbox: {
     schema_version: string
     inbox: PersonalOpsInboxItem[]
@@ -93,13 +83,105 @@ export interface PersonalOpsClient {
   deletePersonalData(): Promise<{ receipt_id: string; deleted_events: number; system_receipts_modified: false }>
 }
 
-export function createPersonalOpsClient(): PersonalOpsClient {
+interface HarnessStatus {
+  operator_id?: unknown
+}
+
+export function buildPersonalOpsUrl(
+  path: string,
+  base = import.meta.env.VITE_ARDA_HARNESS_URL ?? 'http://127.0.0.1:7878',
+): string {
+  return `${base.replace(/\/$/, '')}/${path.replace(/^\//, '')}`
+}
+
+function idempotencyKey(action: string): string {
+  const suffix = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`
+  return `arda-hud-${action}-${suffix}`
+}
+
+async function readJson<T>(response: Response): Promise<T> {
+  if (response.ok) return response.json() as Promise<T>
+  let detail = `${response.status} ${response.statusText}`.trim()
+  try {
+    const body = await response.json() as { error?: unknown }
+    if (typeof body.error === 'string') detail = body.error
+  } catch {
+    // Preserve the status when an upstream proxy returns a non-JSON body.
+  }
+  throw new Error(`Personal operations request failed: ${detail}`)
+}
+
+export async function loadConfiguredOperatorId(baseUrl?: string): Promise<string> {
+  const status = await fetch(buildPersonalOpsUrl('/v1/status', baseUrl)).then(readJson<HarnessStatus>)
+  if (typeof status.operator_id !== 'string' || status.operator_id.trim().length === 0) {
+    throw new Error('Personal operations request failed: harness did not publish a configured operator identity')
+  }
+  return status.operator_id.trim()
+}
+
+export function createPersonalOpsClient(
+  operatorId: string,
+  baseUrl?: string,
+): PersonalOpsClient {
+  const configuredOperatorId = operatorId.trim()
+  if (!configuredOperatorId) throw new Error('Personal operations require a configured operator identity')
+  const url = (path: string) => buildPersonalOpsUrl(path, baseUrl)
+  const mutationHeaders = (action: string) => ({
+    'content-type': 'application/json',
+    'x-arda-operator-id': configuredOperatorId,
+    'idempotency-key': idempotencyKey(action),
+  })
+  const get = <T>(path: string) => fetch(url(path), {
+    headers: { 'x-arda-operator-id': configuredOperatorId },
+  }).then(readJson<T>)
+
   return {
-    loadSnapshot: () => safeTauriInvoke<PersonalOpsSnapshot>('get_personal_ops_projection'),
-    createCapture: (text) => safeTauriInvoke('create_personal_capture', { intent: { text } }),
-    confirmClassification: (itemId, kind) => safeTauriInvoke('confirm_personal_classification', { intent: { itemId, kind } }),
-    acknowledgeReminder: (reminderId) => safeTauriInvoke('acknowledge_personal_reminder', { intent: { reminderId } }),
-    exportPersonalData: () => safeTauriInvoke<PersonalDataExport>('export_personal_data'),
-    deletePersonalData: () => safeTauriInvoke('delete_personal_data', { intent: { confirmation: 'delete-personal-data' } }),
+    async loadSnapshot() {
+      const [inbox, resume, todayBrief] = await Promise.all([
+        get<PersonalOpsSnapshot['inbox']>('/v1/personal/inbox'),
+        get<PersonalOpsSnapshot['resume']>('/v1/personal/resume'),
+        get<PersonalOpsSnapshot['todayBrief']>('/v1/personal/briefs/today'),
+      ])
+      return { inbox, resume, todayBrief }
+    },
+    createCapture(text) {
+      return fetch(url('/v1/personal/captures'), {
+        method: 'POST',
+        headers: mutationHeaders('capture'),
+        body: JSON.stringify({ operator_id: configuredOperatorId, text }),
+      }).then(readJson<{ event_id: string; capture_id: string }>)
+    },
+    confirmClassification(itemId, kind) {
+      return fetch(url(`/v1/personal/items/${encodeURIComponent(itemId)}/classify`), {
+        method: 'POST',
+        headers: mutationHeaders('classify'),
+        body: JSON.stringify({
+          operator_id: configuredOperatorId,
+          item_id: itemId,
+          kind,
+          evidence_class: 'operator_authored',
+          rationale: 'Confirmed in bounded HUD review',
+        }),
+      }).then(readJson<{ event_id: string }>)
+    },
+    acknowledgeReminder(reminderId) {
+      return fetch(url(`/v1/personal/reminders/${encodeURIComponent(reminderId)}/acknowledge`), {
+        method: 'POST',
+        headers: mutationHeaders('acknowledge'),
+        body: JSON.stringify({ operator_id: configuredOperatorId, state: 'acknowledged' }),
+      }).then(readJson<{ event_id: string }>)
+    },
+    async exportPersonalData() {
+      return fetch(url('/v1/personal/data/export'), {
+        headers: { 'x-arda-operator-id': configuredOperatorId },
+      }).then(readJson<PersonalDataExport>)
+    },
+    deletePersonalData() {
+      return fetch(url('/v1/personal/data'), {
+        method: 'DELETE',
+        headers: mutationHeaders('delete-personal-data'),
+        body: JSON.stringify({ operator_id: configuredOperatorId }),
+      }).then(readJson<{ receipt_id: string; deleted_events: number; system_receipts_modified: false }>)
+    },
   }
 }

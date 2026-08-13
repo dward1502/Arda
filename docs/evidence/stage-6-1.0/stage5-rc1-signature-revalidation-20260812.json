@@ -1,0 +1,45 @@
+{
+  "contract": "arda.stage6.historical-stage5-signature-revalidation.v1",
+  "verified_at_utc": "2026-08-13T05:11:00Z",
+  "release_tag": "v0.3.0-rc.1",
+  "source_commit": "8a5e3f75db3867803d56c0b3568ec5fc51794349",
+  "workflow_run": 31543599410,
+  "workflow_conclusion": "success",
+  "certificate_identity": "https://github.com/dward1502/Arda/.github/workflows/release-sign.yml@refs/tags/v0.3.0-rc.1",
+  "oidc_issuer": "https://token.actions.githubusercontent.com",
+  "checksums_status": "pass",
+  "sigstore_verified": 6,
+  "artifacts": [
+    {
+      "name": "arda-launcher-0.3.0-rc.1-1.x86_64.rpm",
+      "sha256": "d2ff9f8490cb97893db64c04ecc486d7f8391c0be653df347aafb2e784dda074",
+      "size_bytes": 5272486
+    },
+    {
+      "name": "arda-launcher_0.3.0-rc.1_amd64.AppImage",
+      "sha256": "f332e34c39ae82674c002ab4d395522b580e02c91745fe983f62d5a345490bb3",
+      "size_bytes": 99842552
+    },
+    {
+      "name": "arda-launcher_0.3.0-rc.1_amd64.deb",
+      "sha256": "6c6c53208991f8ab15d6e99d1134549538439fb3da0b7b1ff07f56bceb7b70aa",
+      "size_bytes": 5136986
+    },
+    {
+      "name": "release-bundle-manifest.json",
+      "sha256": "205dad071107e6570e4818019edf042f7a8b33a31c0789ca86a3be7ae0e40adf",
+      "size_bytes": 2308
+    },
+    {
+      "name": "release-sbom.json",
+      "sha256": "3b2d56b66f1737dbd36edc7a2b4063e8ff610537c4e8a19eda729f584395ef16",
+      "size_bytes": 124888
+    },
+    {
+      "name": "SHA256SUMS",
+      "sha256": "21708f6e0879f8f86a90d9128df10a6b70a1f0c73a89df89fb33eafb5207d724",
+      "size_bytes": 490
+    }
+  ],
+  "qualification_scope": "historical Stage 5 source/signature revalidation only; not final 1.0 artifact qualification"
+}

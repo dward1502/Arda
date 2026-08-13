@@ -186,3 +186,13 @@ approval in the Stage 5 risk ledger. There are no implicit exceptions.
 The exact hashes, signature status, SBOM count, and blockers are recorded in
 `docs/evidence/stage-5-release-candidate/packaging/packaging-summary.json` and
 `docs/evidence/stage-5-release-candidate/packaging/linux-package-reproducibility.json`.
+
+The current local `0.3.0-rc.1` handoff was built from clean source
+`8a5e3f75db3867803d56c0b3568ec5fc51794349`. Its fixed-epoch AppImage was
+byte-identical across two packages at
+`f332e34c39ae82674c002ab4d395522b580e02c91745fe983f62d5a345490bb3`,
+the SBOM reported 645 components and zero missing licenses, checksum
+verification passed, and the unsigned AppImage passed the U4 lifecycle without
+a compatibility override. These facts establish local readiness only; release
+signing, remote reconciliation, and the downloaded signed-byte lifecycle remain
+required.

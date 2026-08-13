@@ -19,8 +19,8 @@ reviewed: "2026-08-04"
 
 `PLATFORM_OS` is the superseded Arda local agent control-plane planning surface.
 Current runtime topology and release work are owned by
-`docs/plans/2026-08-02-arda-system-unification-and-usability-plan.md` and the
-Stage 5/6 plans.
+`docs/releases/0.9/BASELINE.md`; future final qualification remains under
+`docs/archive/deferred/1.0/`.
 
 ## Purpose
 

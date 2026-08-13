@@ -6,9 +6,12 @@
 
 **System completion coordination:** [Arda System Unification and Usability Plan](2026-08-02-arda-system-unification-and-usability-plan.md).
 
-**Lifecycle status:** ACTIVE; implementation and S5-R1 reliability qualification
-are evidence-backed by the [Stage 5 release-candidate ledger](../releases/stage-5-release-candidate-evidence.md), but release closeout remains blocked on one reconciled final signed artifact lifecycle and one qualifying independent non-author evaluator receipt.
-Reconciled against the completed soak evidence on 2026-08-10.
+**Lifecycle status:** ARCHIVED 2026-08-12 as the completed historical candidate
+and release-engineering tranche. Its signed `v0.3.0-rc.1` evidence remains
+historical; the current personal baseline is [Arda 0.9](../releases/0.9/BASELINE.md).
+Independent flow review is intentionally omitted for 0.9 and is not represented
+as performed. Final signed-byte and independent-review requirements remain in
+the deferred 1.0 authority.
 
 **Stage objective:** Prove Arda Workbench works across the declared supported profiles, repositories, providers, and failure conditions with supportable installation, upgrades, security boundaries, and documentation. One qualifying independent non-author evaluator receipt is required; broader external-person repetition remains optional.
 

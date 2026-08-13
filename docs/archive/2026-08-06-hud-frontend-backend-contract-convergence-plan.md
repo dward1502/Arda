@@ -1,6 +1,9 @@
 # HUD Frontend–Backend Contract Convergence and 1.0 Closeout Plan
 
-**Status:** Active implementation; Stage 5 is closed and Stage 6 acceptance remains open
+**Status:** Archived 2026-08-12 — backend authority and restart-recovery
+convergence form the 0.9 baseline; remaining performance, accessibility, and
+final-1.0 qualification work is explicitly deferred or owned by the active 0.9
+improvement plan.
 **Adopted:** 2026-08-06
 **Audit authority:** [HUD frontend/backend integration audit](../audits/2026-08-06-hud-frontend-backend-integration.md)
 

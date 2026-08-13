@@ -155,7 +155,7 @@ contract and must not be changed from this leaf app alone.
   read-only panel; backend errors are shown instead of discarded.
 - Fourteen Rust launcher tests and eleven frontend contract/orientation tests pass.
 - Strict Rust gates, frontend lint/test/build, release binary, DEB, and RPM pass.
-- Frontend, Cargo, and Tauri bundle metadata are aligned at version `0.3.0-rc.2`.
+- Frontend, Cargo, and Tauri bundle metadata are aligned at version `0.9.0`.
 - Linux packaging sets `NO_STRIP=true` for Tauri's cached `linuxdeploy`, whose
   old bundled `strip` cannot read modern `.relr.dyn` sections. AppImage, DEB,
   and RPM assembly pass through the normal `pnpm run tauri build` entry point.

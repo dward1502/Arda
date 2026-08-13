@@ -54,7 +54,7 @@ protocol is a pointer map, not a live status ledger.
 | `core/state/` | Machine-readable runtime projections and source maps |
 | `data/` | Runtime receipts, ledgers, telemetry, service outputs |
 | `docs/architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md` | Arda 1.0 product doctrine, capability composition, personal-system and optional-capability boundaries |
-| `docs/plans/2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md` | Master convergence and acceptance plan |
+| `docs/releases/0.9/BASELINE.md` | Current whole-system capability, evidence, limitation, and release baseline |
 | `docs/contracts/ARDA_ECOSYSTEM_STANDARD_INDEX.md` | Ecosystem standard index |
 | `docs/contracts/arda-ecosystem-standard-track-2-governance.md` | Governance/runtime contracts |
 
@@ -116,7 +116,7 @@ Operational note: preserve coordinated `:7171` consumer behavior when changing M
 1. This file (`ARDA_ROOT_PROTOCOL.md`)
 2. `AGENTS.md`
 3. `docs/architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md`
-4. `docs/plans/2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md`
+4. `docs/releases/0.9/BASELINE.md`
 5. `docs/CODEMAP.md`
 6. `core/knowledge/realm/arda.toml`
 7. `core/knowledge/realm/agents.toml`

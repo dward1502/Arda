@@ -117,7 +117,7 @@ python3 scripts/arda_beta_ops.py compatibility \
 python3 scripts/arda_beta_ops.py release-manifest \
   --root "$ARDA_ROOT" --home "$HOME" \
   --artifact "$LAUNCHER_ARTIFACT" \
-  --version 0.3.0-rc.2 \
+  --version 0.9.0 \
   --output /path/to/release-manifest.json \
   --checksums-output /path/to/SHA256SUMS
 ```

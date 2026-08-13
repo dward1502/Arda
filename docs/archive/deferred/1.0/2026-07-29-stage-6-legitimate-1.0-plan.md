@@ -1,5 +1,9 @@
 # Arda Stage 6 — Legitimate 1.0 Plan
 
+> **Lifecycle:** DEFERRED on 2026-08-12. This document retains future public/final
+> `1.0.0` qualification gates. It is not active 0.9 authority, and none of its
+> independent or exact-signed-byte gates are represented as complete.
+
 > **For Hermes:** Stage 6 is the release decision and proof phase. The [Arda 1.0 Personal Agent Ecosystem Plan](2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md) now owns product scope and required vertical proofs. This plan owns artifact, compatibility, safety, quality, support, independent-user, and release-decision gates; it must not substitute Workbench-only evidence for the master-plan product proofs.
 
 **System completion coordination:** [Arda System Unification and Usability Plan](2026-08-02-arda-system-unification-and-usability-plan.md). This Stage 6 plan remains authoritative for release qualification, not product identity.

@@ -1,12 +1,13 @@
 # Arda Workbench Alpha Tester Handoff
 
-This packet is for testing the current Workbench release candidate. It is not a
-claim that Arda 1.0 is complete. Personal Operations, payments, remote devices,
-and other optional applications are not required for this Workbench alpha.
+This packet is for disclosed testing of the Arda 0.9 personal baseline. It is
+not a claim that Arda 1.0 is complete or that 0.9 received independent flow
+review. Personal Operations, payments, remote devices, and other optional
+applications are not required for this Workbench alpha.
 
 ## What the facilitator supplies
 
-- the exact `arda-source-0.3.0-rc.2.tar.gz` source archive;
+- the exact `arda-source-0.9.0.tar.gz` source archive;
 - one native launcher package for the tester's supported Linux environment;
 - `release-bundle-manifest.json`, `release-sbom.json`, and `SHA256SUMS`;
 - this guide and `templates/alpha-tester-record.json`;
@@ -32,14 +33,14 @@ From the handoff directory:
 
 ```bash
 sha256sum --check SHA256SUMS
-tar -xzf arda-source-0.3.0-rc.2.tar.gz
-export ARDA_ROOT="$PWD/arda-source-0.3.0-rc.2"
+tar -xzf arda-source-0.9.0.tar.gz
+export ARDA_ROOT="$PWD/arda-source-0.9.0"
 python3 "$ARDA_ROOT/scripts/arda_beta_ops.py" compatibility \
   --root "$ARDA_ROOT" --home "$HOME"
-chmod +x "$PWD/arda-launcher_0.3.0-rc.2_amd64.AppImage"
+chmod +x "$PWD/arda-launcher_0.9.0_amd64.AppImage"
 python3 "$ARDA_ROOT/scripts/arda_beta_ops.py" install-launcher \
   --root "$ARDA_ROOT" \
-  --artifact "$PWD/arda-launcher_0.3.0-rc.2_amd64.AppImage"
+  --artifact "$PWD/arda-launcher_0.9.0_amd64.AppImage"
 arda-launcher
 ```
 
@@ -67,8 +68,8 @@ useful alpha evidence and should remain failed in the record.
 
 ## Evidence boundary
 
-This alpha can validate installability and reveal defects now. It closes the
-formal independent-evaluator release gate only when the tested bytes are the
-eventual exact signed release candidate and every requirement in
-`stage-5-independent-evaluator-guide.md` is satisfied. Do not rewrite an alpha
-record into a final pass after the artifact identity changes.
+This alpha can validate installability and reveal defects now. Independent flow
+review is intentionally not a 0.9 gate, so an alpha record is feedback rather
+than independent qualification. A future final release must use its own exact
+signed bytes and then-current evaluation policy; do not rewrite this record into
+a final pass after the artifact identity changes.

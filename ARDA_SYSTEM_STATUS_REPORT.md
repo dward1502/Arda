@@ -6,117 +6,59 @@ soterion:
   role: "documentation"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-08-08"
+  last_reviewed: "2026-08-12"
 ---
 
-> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-08-08
+> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-08-12
 
 # ARDA SYSTEM STATUS REPORT
 
-**Updated:** 2026-08-08 PDT
-**Validation basis:** live Cargo metadata, listener inventory, and user-systemd
-unit state captured during P0.1 doctrine reconciliation. This is a bounded
-snapshot, not release qualification or proof that current source was deployed.
-**System:** Arda 1.0 personal agent ecosystem.
-**Realm:** Sovereign Intelligence Infrastructure
-**Status:** `specified` product doctrine / current workspace metadata resolved /
-selected installed services active
+**Updated:** 2026-08-12<br>
+**Current identity:** `0.9.0` personal/internal baseline<br>
+**Canonical status authority:** [`docs/releases/0.9/BASELINE.md`](docs/releases/0.9/BASELINE.md)<br>
 **Branch:** `visual/hud-boardroom-convergence`
-**Sigil:** ∇ ⚡ ◈ ♥ ↝
 
----
+## Whole-system posture
 
-## ∇ SOVEREIGNTY STATUS
+Arda is a local-first, single-operator personal-agent ecosystem with one Rust
+runtime composition path, governed Workbench execution, durable receipts and
+recovery, Manwë provider routing, native launcher packaging, and backend-owned
+HUD projections for system health, Workbench, Research, Personal Operations,
+and monitor sessions.
 
-Current capability posture:
+The workspace resolves 18 packages. `queue.jsonl` is the canonical queue ledger;
+`queue_active.json` and `queue_summary.json` are generated read projections, not
+parallel queue authorities.
 
-- Arda canonical root: `/var/home/mythos/Eregion/Arda`
-- `cargo metadata --no-deps --format-version 1` resolves 18 packages and 16
-  default members.
-- The root package/binary is `arda`; `src/main.rs` remains composition authority.
-- The workspace contains no standalone council package; council behavior is
-  owned by current governance, Oromë, and Aulë surfaces.
-- Optional revenue/x402, council, local-inference, external-adapter, and health
-  capabilities are not universal product goals or default release gates.
+## Maturity summary
 
----
+| Surface | Current maturity |
+|---|---|
+| Workbench | workflow-proven with durable restart and replay protection |
+| HUD authority | implemented and tested; Rust authority preserved |
+| Five monitor sessions | native implementation operator-accepted |
+| Research/watchlists | bounded authenticated workflow-proven slice |
+| Personal Operations | implemented; sustained operator verdict open through 2026-08-17 |
+| Launcher/packages | AppImage, DEB, and RPM package-proven on the declared profile |
+| Phone, remote, and multi-user use | unsupported in 0.9 |
+| Optional payments/devices/outposts/company expansion | deferred and nonblocking |
 
-## ⚡ RUNTIME SERVICES
+## Release posture
 
-Live listener/runtime snapshot:
+Version `0.9.0` is self-qualified and unsigned. Independent flow review is
+intentionally omitted for this personal baseline and is not claimed. It is fit
+for operator use and disclosed alpha feedback, not public-production or final
+`1.0.0` qualification.
 
-| Service / Surface | State |
-|------|-------|
-| `arda.service` | active/running; started 2026-08-07 21:58:59 PDT |
-| `arda-manwe.service` | active/running; started 2026-08-07 21:58:59 PDT |
-| `arda-metrics-exporter.service` | active/running; started 2026-08-07 21:58:59 PDT |
-| `arda-varda.service` | active/running; started 2026-08-07 21:58:59 PDT |
-| `arda-relic-bridge.service` | active/running; started 2026-08-07 21:58:59 PDT |
-| Listener inventory | `:5110`, `:9101`, `:9100`, and `:9337` were listening; no ownership or API-health claim is inferred from listener presence alone |
+A future final release remains fail-closed on exact signed bytes, supported
+lifecycle qualification, independent release-critical security/code review,
+genuine operator evidence, and the required whole-system proofs.
 
-Evidence basis: `systemctl --user is-active/show` and `ss -ltn`. Active units
-prove process supervision only, not current-source deployment or workflow health.
+## Active work
 
----
-
-## 🔧 MODEL/PROVIDER ROUTING
-
-- Canonical package: `manwe` at `crates/spine/runtime/manwe`.
-- Canonical configuration input: `config/manwe.providers.toml`.
-- Coordinated consumer assumptions around `:7171` must be audited before any
-  bind change; this snapshot does not change that contract.
-- The legacy `:5110` listener remains visible, but listener presence does not
-  identify package version, provider health, or route eligibility.
-
----
-
-## 🧭 COMMAND AND SUBSYSTEM SURFACE
-
-Workspace packages are listed from live metadata in `docs/CODEMAP.md`. The
-current command binaries are `arda`, `arda-cli`, `manwe`, `arda-launcher`,
-`arda-varda-server`, `arda-varda-benchmark`, `arda-outpost-scout`, and
-`arda-relic-presence-sync`.
-
-Package names and source presence establish `compile_active` candidates only.
-They do not establish `root_composed`, `workflow_proven`, `operator_accepted`,
-or `release_supported` maturity without their specific gates.
-
----
-
-## 🖥️ UI, DEVICE, AND OBSERVABILITY SURFACES
-
-- **ARDA HUD:** canonical at `apps/arda-hud/`; final visual acceptance requires
-  native Tauri and is not claimed by this report.
-- **ARDA launcher:** canonical at `apps/arda-launcher/`; package presence is not
-  install or operator acceptance.
-- **RELIC/CITADEL:** the checked-in bridge is read-only. External display or
-  Mirromere behavior remains optional and separately gated.
-
----
-
-## ◈ VALIDATION EVIDENCE
-
-Validation run during this report refresh:
-
-- `cargo metadata --no-deps --format-version 1`
-- metadata package/target extraction (18 packages, 16 default members)
-- `ss -ltn`
-- `systemctl --user list-units 'arda*' 'annunimas*' --all --no-pager --plain`
-- `systemctl --user is-active/show` for the five active services above
-
-No workspace compile/test, external endpoint, phone, native HUD, restart,
-privacy, packaging, or release-support claim is made by this P0.1 refresh.
-
----
-
-## ↝ NEXT OPERATOR CHECKS
-
-1. Complete P0.2 active-plan authority reconciliation.
-2. Add P0.3 completion-language checks through the existing HADES Markdown
-   health path.
-3. Re-probe and record capability-specific runtime evidence only in the plan
-   task that owns that acceptance gate.
-
----
-
-**Authority:** Arda Sovereign System
+The only active execution authority is
+[`docs/plans/2026-08-12-arda-0.9-baseline-and-improvement-plan.md`](docs/plans/2026-08-12-arda-0.9-baseline-and-improvement-plan.md).
+It owns Personal Operations dogfood disposition, 0.9 defects, dependency
+assessment, stale-link cleanup, and later measured HUD/runtime accessibility and
+performance work. Broader 1.0 material is retained under
+`docs/archive/deferred/1.0/` and creates no active 0.9 blocker.

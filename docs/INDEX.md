@@ -3,7 +3,8 @@
 ## Key active docs
 
 - `docs/plans/ARDA_PRODUCT_PLAN_SUITE.md`
-- `docs/plans/2026-08-06-hud-frontend-backend-contract-convergence-plan.md`
+- `docs/plans/2026-08-12-arda-0.9-baseline-and-improvement-plan.md`
+- `docs/releases/0.9/BASELINE.md`
 - `docs/audits/2026-08-06-hud-frontend-backend-integration.md`
 - `docs/audits/2026-08-06-arda-1.0-plan-estate.md`
 - `docs/CODEMAP.md`

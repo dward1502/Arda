@@ -6,7 +6,9 @@
 > agents, applications, queues, memory systems, policy layers, or speculative
 > capability domains.
 
-**Status:** Active — U0 through U5 are closed; U6 release closeout remains open
+**Status:** Archived 2026-08-12 — U0 through U5 and the bounded convergence
+implementation are historical evidence; unresolved final-1.0 qualification was
+deferred rather than treated as active 0.9 work.
 **Adopted:** 2026-08-02
 **Last reconciled:** 2026-08-12
 **Owner:** Arda system/runtime maintainers

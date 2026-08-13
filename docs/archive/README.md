@@ -23,6 +23,20 @@ design and internal-alpha evidence but hold no active 1.0 implementation
 authority. This includes Mirromere, Company Operations pilot work, and external
 product adoption research.
 
+- [`2026-07-29-stage-5-release-candidate-plan.md`](2026-07-29-stage-5-release-candidate-plan.md)
+  — completed historical signed-candidate, reliability, packaging, and support tranche; independent flow review was intentionally omitted from the later personal 0.9 profile, not backfilled.
+- [`2026-08-02-arda-system-unification-and-usability-plan.md`](2026-08-02-arda-system-unification-and-usability-plan.md)
+  — completed bounded system-unification implementation history; final public-release qualification moved to deferred 1.0 authority.
+- [`2026-08-06-hud-frontend-backend-contract-convergence-plan.md`](2026-08-06-hud-frontend-backend-contract-convergence-plan.md)
+  — implemented backend authority, monitor lifecycle, and restart-recovery convergence retained as 0.9 evidence.
+
+## Deferred future release authorities
+
+- [`deferred/1.0/2026-07-29-stage-6-legitimate-1.0-plan.md`](deferred/1.0/2026-07-29-stage-6-legitimate-1.0-plan.md)
+  — future exact-signed-byte, independent security/release review, supported-matrix, and final public `1.0.0` qualification.
+- [`deferred/1.0/2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md`](deferred/1.0/2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md)
+  — broader ecosystem composition and whole-system proofs retained without blocking 0.9.
+
 - [`ARDA_1_0_PRODUCT_READINESS.md`](ARDA_1_0_PRODUCT_READINESS.md)
   — superseded point-in-time readiness assessment; current portfolio and completion authority live in the product-plan suite and system-unification plan.
 - [`2026-07-27-warden-varda-ceo-learning-loop.md`](2026-07-27-warden-varda-ceo-learning-loop.md)

@@ -8,7 +8,7 @@
     "recording_consent": "not_recorded"
   },
   "candidate": {
-    "version": "0.3.0-rc.2",
+    "version": "0.9.0",
     "source_commit": null,
     "source_archive_sha256": null,
     "artifact_name": null,

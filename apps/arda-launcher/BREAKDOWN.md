@@ -46,7 +46,7 @@ without acquiring service mutation or approval authority.
 - `pnpm test`: 11 contract/orientation tests passed
 - `pnpm run lint`: 0 warnings and 0 errors
 - `pnpm run build`: passed
-- Frontend package, Cargo package, and Tauri bundle versions: aligned at `0.3.0-rc.2`
+- Frontend package, Cargo package, and Tauri bundle versions: aligned at `0.9.0`
 - `pnpm run tauri build`: release binary, DEB, RPM, and AppImage produced with
   linuxdeploy's `NO_STRIP=true` compatibility control for modern `.relr.dyn`
   sections

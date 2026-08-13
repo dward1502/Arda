@@ -21,6 +21,12 @@ release source is dirty. Focused tests pin every covered production surface.
 This makes a future clean-source freeze trustworthy; it does not freeze the
 current dirty worktree, create final 1.0 bytes, or satisfy any artifact matrix.
 
+The 2026-08-12 U6 preflight is recorded in
+[`u6-audit-and-preflight-20260812.md`](../evidence/stage-6-1.0/u6-audit-and-preflight-20260812.md).
+It closes no independent or artifact gate: final `1.0.0` source/bytes,
+independent evaluator and security-review receipts, whole-system/phone proofs,
+and exact-artifact qualification remain release blockers.
+
 ---
 
 ## Entry criteria

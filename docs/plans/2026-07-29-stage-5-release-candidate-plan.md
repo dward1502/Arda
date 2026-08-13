@@ -425,6 +425,20 @@ to source `28cde28b` with `tracked_worktree_clean=false`, not frozen final sourc
 `efd118b5`; see
 `docs/evidence/stage-5-release-candidate/packaging/remote-signed-artifact-reconciliation-20260806.json`.
 
+The 2026-08-11 local `0.3.0-rc.1` freeze supersedes the old local packaging
+candidate: clean source `8a5e3f75` produced AppImage, DEB, and RPM bundles, a
+645-component zero-missing-license SBOM, a manifest with
+`tracked_worktree_clean=true`, and a verified checksum ledger. Two fixed-epoch
+AppImage packages were byte-identical at
+`f332e34c39ae82674c002ab4d395522b580e02c91745fe983f62d5a345490bb3`;
+the normalized RPM passed header and payload verification. That exact AppImage
+passed the isolated U4 lifecycle and default native startup without an override
+in
+`docs/evidence/stage-5-release-candidate/reliability/u4-local-v0.3.0-rc.1-lifecycle-20260811.json`.
+It remains unsigned and unpublished: tag-bound signing, remote identity
+reconciliation, the signed-byte lifecycle, and independent evaluation remain
+open and may not be replaced by this local proof.
+
 ## Reliability, performance, and accessibility tranche — S5-R1/U1
 
 **S5-R1 accepted for continued development; final `0.3.0-rc.1` qualification deferred on 2026-08-07.** The bounded runner rotates eleven exact

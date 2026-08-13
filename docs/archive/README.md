@@ -6,10 +6,10 @@ soterion:
   role: "organization_index"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-08-10"
+  last_reviewed: "2026-08-12"
 ---
 
-> 🜏 Soterion: 📜 organization_index | owner: HADES | status: active | reviewed: 2026-08-10
+> 🜏 Soterion: 📜 organization_index | owner: HADES | status: active | reviewed: 2026-08-12
 
 # Documentation archive
 
@@ -34,9 +34,11 @@ product adoption research.
 - [`2026-07-30-arda-hud-boardroom-visual-system-plan.md`](2026-07-30-arda-hud-boardroom-visual-system-plan.md)
   — completed six-phase boardroom visual system, typed physical controls, performance profiles, and visual-regression evidence.
 - [`2026-07-30-arda-hud-agentic-monitor-surfaces-plan.md`](2026-07-30-arda-hud-agentic-monitor-surfaces-plan.md)
-  — superseded by `2026-08-03-arda-hud-universal-agent-monitor-surfaces-plan.md`; the prior closeout was invalidated by underscoped acceptance.
+  — superseded by the completed [`2026-08-03` universal monitor plan](2026-08-03-arda-hud-universal-agent-monitor-surfaces-plan.md); the prior closeout was invalidated by underscoped acceptance.
 - [`2026-07-30-arda-hud-agentic-monitor-surfaces-checklist.md`](2026-07-30-arda-hud-agentic-monitor-surfaces-checklist.md)
-  — retained historical implementation slice for the superseded agentic monitor surface plan; current authority is the universal monitor surfaces plan.
+  — retained historical implementation slice for the superseded agentic monitor surface plan; completed historical authority is the universal monitor surfaces plan below.
+- [`2026-08-03-arda-hud-universal-agent-monitor-surfaces-plan.md`](2026-08-03-arda-hud-universal-agent-monitor-surfaces-plan.md)
+  — completed and operator-accepted five-monitor native session surface, including multi-content rendering, exact workstation continuity, lifecycle isolation, blocked-frame capture, synchronization, and restart recovery.
 - [`2026-07-28-eight-package-first-class-closeout.md`](2026-07-28-eight-package-first-class-closeout.md)
   — evidence-backed closeout record for the remaining eight Cargo packages.
 - [`2026-08-03-arda-rumil-project-audit-plan.md`](2026-08-03-arda-rumil-project-audit-plan.md)

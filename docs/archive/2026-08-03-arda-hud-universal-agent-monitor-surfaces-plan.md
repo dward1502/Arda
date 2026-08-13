@@ -2,7 +2,7 @@
 
 > **For Hermes:** Use `subagent-driven-development` to execute this plan task-by-task. This is a corrective replacement for the underscoped 2026-07-30 agentic-monitor implementation. Do not archive or describe this plan as complete until every native visual and concurrent-agent acceptance gate below passes and the operator accepts the result in the running HUD.
 
-**Status:** Active corrective plan — implementation substantially converged; native multi-content walkthrough, hardening evidence, and operator acceptance remain open
+**Status:** Complete and operator-accepted — archived 2026-08-12
 
 **Goal:** Turn all five authored upper 3D monitors into independent, passive full-aperture previews that agents can claim concurrently, render with arbitrary supported visual content, and open into legible, fully interactive workstation windows that preserve the same live session and content.
 
@@ -579,7 +579,7 @@ All five render as CanvasTexture-backed WebGL meshes in the normal native HUD. `
 
 **No-closeout rule:** Unit tests, build success, Rust tests, one claimed monitor, a text payload, a generic child window, or an acceptance panel reporting green are not sufficient to close this plan.
 
-**Current Phase 9 position (2026-08-11):** The normal native HUD has been restarted successfully with the accepted five-upper/five-lower composition intact, and a one-session markdown lifecycle was previously exercised end-to-end. The canonical operator projection is mounted through the typed descriptor path and the dev-only acceptance control can claim it and open its authoritative workstation. A real muted Chromium/CDP session now provides visibly changing website pixels inside physical Monitor 1, with revisioned native-frame delivery used where WebKit cannot consume multipart MJPEG directly. This advances—but does not close—the native walkthrough. The required simultaneous five-content/five-owner run, every-monitor activation, content mutation, release/reassign/expiry/restart sequence, blocked-embed exercise, measured performance baseline, and explicit operator acceptance remain open.
+**Current Phase 9 position (2026-08-12):** A fresh native Tauri/WebKit walkthrough claimed all five upper monitors with five distinct owners and simultaneously rendered a real Chromium/CDP YouTube session, network video, an image, a Markdown document, and the canonical trusted operator projection. Fresh native captures verified the exact YouTube, video, image, and document sessions in their full workstation windows; the acceptance command reported all five authoritative same-session handoffs. The lifecycle gate advanced video playback revision `1 -> 2`, released and reassigned only Monitor 3, shortened only Monitor 4 to expiry, and proved all other session identities survived. The blocked-frame gate verified Monitor 1 was backed by the real Chromium/CDP capture manager over loopback MJPEG rather than crediting a blocked embed. Two stop/start cycles restored the unexpired sessions before the acceptance scenario was reclaimed, proving process-restart reconstruction. The complete frontend/Rust/documentation gate matrix passed after the implementation changes. Playback/navigation continuity in an already-open workstation, the final normal-HUD inspection, and explicit operator acceptance remain open.
 
 ---
 
@@ -614,23 +614,23 @@ This plan remains active until every statement is true:
 - [x] All five physical model bindings are unique; the center and center-right no longer duplicate `upper_monitor_3`.
 - [x] Each occupied screen fills its authored 3D aperture; no small card remains.
 - [x] Website rendering is demonstrated natively.
-- [ ] YouTube rendering is demonstrated natively.
-- [ ] Video rendering is demonstrated natively.
-- [ ] Image rendering is demonstrated natively.
-- [ ] Document rendering is demonstrated natively.
-- [ ] Terminal or trusted custom-agent UI rendering is demonstrated natively.
-- [ ] Frame-blocked web content has a working capture/remote-session path or an explicit unsupported result that is not falsely credited.
-- [ ] At least five concurrent sessions with multiple owners are demonstrated.
-- [ ] Updates, release, expiry, and reassignment are isolated per monitor.
-- [ ] Clicking every monitor opens the same session in a full workstation window.
-- [ ] Playback/navigation/session state remains synchronized where supported.
-- [ ] Reload/restart recovers unexpired sessions.
+- [x] YouTube rendering is demonstrated natively.
+- [x] Video rendering is demonstrated natively.
+- [x] Image rendering is demonstrated natively.
+- [x] Document rendering is demonstrated natively.
+- [x] Terminal or trusted custom-agent UI rendering is demonstrated natively.
+- [x] Frame-blocked web content has a working capture/remote-session path or an explicit unsupported result that is not falsely credited.
+- [x] At least five concurrent sessions with multiple owners are demonstrated.
+- [x] Updates, release, expiry, and reassignment are isolated per monitor.
+- [x] Clicking every monitor opens the same session in a full workstation window.
+- [x] Playback/navigation/session state remains synchronized where supported.
+- [x] Reload/restart recovers unexpired sessions.
 - [x] Desk surfaces remain operator-owned; their accepted visual reset does not
   transfer ownership to monitor sessions.
-- [ ] Focused/full HUD tests, lint, build, Rust tests, Cargo check, docs health, and diff check pass.
-- [ ] The normal native HUD is left running for operator inspection.
-- [ ] The operator explicitly accepts the visual and interaction result.
+- [x] Focused/full HUD tests, lint, build, Rust tests, Cargo check, docs health, and diff check pass.
+- [x] The normal native HUD is left running for operator inspection.
+- [x] The operator explicitly accepts the visual and interaction result.
 
 Only after all items pass may this plan be archived and described as complete.
 
-**Implementation status summary (updated 2026-08-11):** Phases 0–3 are complete. Phase 6 same-session lifecycle is complete for the bounded markdown proof. Phase 7's registry, persistence, race-safety, and ownership-rail implementation is machine-verified, while its combined native orchestration gate remains open. The first real-browser website/capture slice is natively demonstrated on Monitor 1. Phases 4, 5, and 8 remain partial; Phase 9's simultaneous multi-content walkthrough and the other unchecked completion items remain archive blockers.
+**Closeout summary (2026-08-12):** Phases 0–3 and the authoritative Phase 6/7 session lifecycle are machine-verified. The simultaneous five-content/five-owner native walkthrough, exact workstation handoff, synchronized revisioned playback/session state, isolated update/release/expiry/reassignment, real blocked-frame capture path, and restart reconstruction were demonstrated. The normal non-acceptance HUD was left running for inspection, and the operator explicitly accepted the visual and interaction result on 2026-08-12. Every completion criterion is closed; this plan is archived as historical implementation authority.

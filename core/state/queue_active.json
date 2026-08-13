@@ -7,7 +7,7 @@
     "raw_queue_policy": "Do not read the raw queue for task discovery. Use this compact active projection first; open the raw queue only for exact id evidence or appending a task record."
   },
   "authority": "queue_active_projection",
-  "generated_at_utc": "2026-08-11T06:21:50.977132750+00:00",
+  "generated_at_utc": "2026-08-13T06:00:50.999587620+00:00",
   "latest_task_ids_total": 0,
   "mutation_policy": "read_only_latest_by_id_projection_no_queue_compaction",
   "raw_ledger_rows_total": 0,

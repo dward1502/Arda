@@ -276,7 +276,7 @@ dependencies = [
 
 [[package]]
 name = "arda-launcher"
-version = "0.3.0-rc.1"
+version = "0.3.0-rc.2"
 dependencies = [
  "anyhow",
  "arda-contract-registry",

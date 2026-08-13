@@ -1,10 +1,11 @@
 # Arda Private-Beta Install and Recovery
 
 This runbook began as the Stage 4 operator path and now also documents the
-S5-RC0 candidate lifecycle. The launcher can be installed without root
+release-candidate lifecycle. The launcher can be installed without root
 privileges, but the current candidate still requires a complete Arda release
-checkout as `ARDA_ROOT`; a self-contained signed distribution remains later
-Stage 5 packaging work.
+checkout as `ARDA_ROOT`. An alpha handoff must therefore include the exact
+source archive identified by its manifest; the launcher package alone is not a
+self-contained Arda distribution.
 
 The commands below never write to or delete the source repository. Mutable state is restricted to the selected user's XDG directories.
 
@@ -116,7 +117,7 @@ python3 scripts/arda_beta_ops.py compatibility \
 python3 scripts/arda_beta_ops.py release-manifest \
   --root "$ARDA_ROOT" --home "$HOME" \
   --artifact "$LAUNCHER_ARTIFACT" \
-  --version 0.3.0-rc.0 \
+  --version 0.3.0-rc.2 \
   --output /path/to/release-manifest.json \
   --checksums-output /path/to/SHA256SUMS
 ```

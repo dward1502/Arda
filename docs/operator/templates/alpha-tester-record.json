@@ -1,0 +1,41 @@
+{
+  "schema_version": "arda.alpha-tester-record.v1",
+  "session_id": null,
+  "captured_at_utc": null,
+  "tester": {
+    "relationship": null,
+    "was_arda_implementer": null,
+    "recording_consent": "not_recorded"
+  },
+  "candidate": {
+    "version": "0.3.0-rc.2",
+    "source_commit": null,
+    "source_archive_sha256": null,
+    "artifact_name": null,
+    "artifact_sha256": null,
+    "checksums_verified": false,
+    "signature_verified": false,
+    "operating_system": null,
+    "supported_profile": null
+  },
+  "fixture": {
+    "project_id": null,
+    "disposable": true,
+    "declared_change_scope": null,
+    "declared_verification_command": null
+  },
+  "tasks": {
+    "install_and_start": { "passed": false, "notes": null },
+    "readiness_and_authority": { "passed": false, "notes": null },
+    "project_onboarding": { "passed": false, "notes": null },
+    "governed_change_and_evidence": { "passed": false, "notes": null },
+    "failure_and_recovery": { "passed": false, "notes": null },
+    "restart_and_resume": { "passed": false, "notes": null },
+    "diagnostics": { "passed": false, "notes": null },
+    "uninstall_state_preservation": { "passed": false, "notes": null }
+  },
+  "faults_or_confusion": [],
+  "critical_usability_or_safety_defects": [],
+  "tester_disposition": null,
+  "formal_release_gate_claimed": false
+}

@@ -27,7 +27,7 @@ ATHENA, HERMES, HADES, CHARON, MNEMOSYNE, APOLLO, PLUTUS, and ORACLE each hold d
 
 - [Command Center](index.md)
 - [Human Philosophy](philosophy.md)
-- [Historical Platform OS roadmap](../archive/PLATFORM_OS.md) and [current system unification plan](../plans/2026-08-02-arda-system-unification-and-usability-plan.md)
+- [Historical Platform OS roadmap](../archive/PLATFORM_OS.md) and [current 0.9 baseline](../releases/0.9/BASELINE.md)
 - [Root daemon operations](../root-daemon.md)
 - [Company View](company-view.md)
 

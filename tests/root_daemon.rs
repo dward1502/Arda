@@ -171,6 +171,7 @@ scout_url = "http://fleet.example:8092"
     let mut daemon = Command::new(arda_bin())
         .current_dir(root)
         .env("ARDA_REPO_ROOT", root)
+        .env("ARDA_OPERATOR_ID", "root-daemon-test-operator")
         .env("ARDA_WARDEN_SCOUT_URL", "http://env.example:8092")
         .args(["--no-ui", "--harness-addr", &harness_addr])
         .spawn()

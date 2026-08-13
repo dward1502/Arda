@@ -204,6 +204,34 @@ interface NativeBrowserCaptureFrame {
   jpegBase64: string
 }
 
+interface NativePtyCaptureFrame {
+  sessionId: string
+  owner: string
+  revision: number
+  outputRevision: number
+  processId: number | null
+  rows: number
+  cols: number
+  output: string
+}
+
+function drawPtyFrame(canvas: HTMLCanvasElement, frame: NativePtyCaptureFrame): void {
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+  ctx.fillStyle = '#010407'
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+  ctx.fillStyle = '#5defff'
+  ctx.font = '800 18px IBM Plex Mono, monospace'
+  ctx.fillText(`LIVE PTY · ${frame.sessionId} · REV ${frame.revision}/${frame.outputRevision}`, 30, 34)
+  ctx.fillStyle = '#c9fbff'
+  ctx.font = '650 17px IBM Plex Mono, monospace'
+  const lines = frame.output.replace(/\r/g, '').split('\n').slice(-21)
+  lines.forEach((line, index) => ctx.fillText(line.slice(0, frame.cols), 30, 70 + index * 20))
+  ctx.fillStyle = 'rgba(140,255,199,0.68)'
+  ctx.font = '700 15px IBM Plex Mono, monospace'
+  ctx.fillText(`OWNER ${frame.owner} · PID ${frame.processId ?? 'UNKNOWN'} · ${frame.cols}×${frame.rows}`, 30, canvas.height - 20)
+}
+
 function resolveRendererFromPayload(
   payload: Pick<MonitorSurfacePayloadEvent, 'content' | 'mime'> | null | undefined,
 ): RendererKind {
@@ -389,6 +417,27 @@ export function BoardroomApertureSurface({
 
       void poll()
     }
+    const loadNativePtyFrames = (sessionId: string) => {
+      let lastOutputRevision = -1
+      const poll = async () => {
+        try {
+          const frame = await invoke<NativePtyCaptureFrame>('get_pty_capture_status', { sessionId })
+          if (disposed) return
+          if (frame.outputRevision !== lastOutputRevision) {
+            drawPtyFrame(canvas, frame)
+            lastOutputRevision = frame.outputRevision
+            markUpdated()
+          }
+          window.setTimeout(() => void poll(), 120)
+        } catch (error) {
+          if (!disposed) {
+            showMessage('PTY STREAM UNAVAILABLE', String(error), '#ff789c')
+            window.setTimeout(() => void poll(), 350)
+          }
+        }
+      }
+      void poll()
+    }
     const loadVideo = (source: string, fit: 'contain' | 'cover', loop: boolean, autoplay: boolean) => {
       const playbackPlan = resolveVideoPlaybackPlan(playback, autoplay)
       video = document.createElement('video')
@@ -455,7 +504,7 @@ export function BoardroomApertureSurface({
           return
         }
         if (descriptor.kind === 'terminal') {
-          showMessage('TERMINAL SESSION UNAVAILABLE', descriptor.sessionId)
+          loadNativePtyFrames(descriptor.sessionId)
           return
         }
         if (descriptor.kind === 'component' && descriptor.rendererId === 'operator_projection') {

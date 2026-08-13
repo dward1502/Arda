@@ -175,6 +175,57 @@ async fn authenticated_research_watchlist_survives_process_restart() {
     assert_eq!(recovered["state"], "paused");
     assert_eq!(recovered["question_ids"][0], question()["question_id"]);
 
+    let resumed: Value = client
+        .post(format!(
+            "http://{restarted_bound}/v1/research/watchlists/{watchlist_id}/resume"
+        ))
+        .header("x-arda-operator-id", "operator-0")
+        .json(&envelope("watchlist-resume-1"))
+        .send()
+        .await
+        .expect("resume watchlist")
+        .error_for_status()
+        .expect("resume accepted")
+        .json()
+        .await
+        .expect("resume response");
+    assert_eq!(resumed["state"], "enabled");
+
+    let retired: Value = client
+        .post(format!(
+            "http://{restarted_bound}/v1/research/watchlists/{watchlist_id}/retire"
+        ))
+        .header("x-arda-operator-id", "operator-0")
+        .json(&envelope("watchlist-retire-1"))
+        .send()
+        .await
+        .expect("retire watchlist")
+        .error_for_status()
+        .expect("retire accepted")
+        .json()
+        .await
+        .expect("retire response");
+    assert_eq!(retired["state"], "retired");
+
     restarted_shutdown.notify_waiters();
     restarted_handle.await.expect("restarted harness join");
+
+    let (final_bound, final_shutdown, final_handle) = start_harness(&root).await;
+    let durable_retired: Value = client
+        .get(format!(
+            "http://{final_bound}/v1/research/watchlists/{watchlist_id}"
+        ))
+        .header("x-arda-operator-id", "operator-0")
+        .send()
+        .await
+        .expect("recover retired watchlist")
+        .error_for_status()
+        .expect("retired watchlist accepted")
+        .json()
+        .await
+        .expect("retired watchlist response");
+    assert_eq!(durable_retired["state"], "retired");
+
+    final_shutdown.notify_waiters();
+    final_handle.await.expect("final harness join");
 }

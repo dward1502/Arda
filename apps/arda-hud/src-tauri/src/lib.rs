@@ -12,12 +12,13 @@ use commands::workbench::{
 use commands::monitor_surface::{
     claim_monitor_slot, claim_monitor_surface, click_browser_capture, get_browser_capture_frame,
     get_browser_capture_status, get_monitor_surface_registry, key_browser_capture,
-    navigate_browser_capture,
+    navigate_browser_capture, get_pty_capture_status,
     patch_monitor_surface_playback, push_surface_payload, refresh_monitor_slot_lease,
     refresh_monitor_surface_lease, release_monitor_slot, release_monitor_surface,
     restore_monitor_surface_registry, scroll_browser_capture, start_browser_capture,
-    stop_browser_capture, type_browser_capture,
-    BrowserCaptureState, MonitorSurfaceState, TypedMonitorSurfaceState,
+    start_pty_capture, stop_browser_capture, stop_pty_capture, type_browser_capture,
+    write_pty_capture, BrowserCaptureState, MonitorSurfaceState, PtyCaptureState,
+    TypedMonitorSurfaceState,
 };
 use portable_pty::CommandBuilder;
 use serde::{Deserialize, Serialize};
@@ -2932,6 +2933,7 @@ pub fn run() {
         .manage(MonitorSurfaceState::default())
         .manage(TypedMonitorSurfaceState::new())
         .manage(BrowserCaptureState::default())
+        .manage(PtyCaptureState::default())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             validate_project_contract,
@@ -3007,6 +3009,10 @@ pub fn run() {
             get_browser_capture_frame,
             get_browser_capture_status,
             stop_browser_capture,
+            start_pty_capture,
+            get_pty_capture_status,
+            write_pty_capture,
+            stop_pty_capture,
         ])
         .build(tauri::generate_context!())
         .unwrap_or_else(|error| {
@@ -3018,6 +3024,7 @@ pub fn run() {
                 app_handle
                     .state::<BrowserCaptureState>()
                     .cleanup_all();
+                app_handle.state::<PtyCaptureState>().cleanup_all();
                 app_handle
                     .state::<HermesRuntimeState>()
                     .cleanup_owned_child();

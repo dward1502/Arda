@@ -719,6 +719,95 @@ async fn resume_and_brief_endpoints_work() {
 }
 
 #[tokio::test]
+async fn personal_resume_and_brief_survive_process_restart() {
+    let root = tempfile::tempdir().unwrap();
+    let state = base_state(root.path().to_path_buf());
+    let shutdown = Arc::new(Notify::new());
+    let (bound, harness_handle) = harness::serve(
+        Some("127.0.0.1:0".parse().unwrap()),
+        state,
+        shutdown.clone(),
+    )
+    .await
+    .expect("start harness");
+    let client = reqwest::Client::new();
+
+    let created: Value = client
+        .post(format!("http://{bound}/v1/personal/captures"))
+        .header("x-arda-operator-id", "operator-0")
+        .header("idempotency-key", "restart-capture")
+        .json(&serde_json::json!({
+            "operator_id": "operator-0",
+            "text": "Resume this after restart"
+        }))
+        .send()
+        .await
+        .unwrap()
+        .error_for_status()
+        .unwrap()
+        .json()
+        .await
+        .unwrap();
+    let capture_id = created["capture_id"].as_str().unwrap();
+
+    client
+        .post(format!(
+            "http://{bound}/v1/personal/items/{capture_id}/classify"
+        ))
+        .header("x-arda-operator-id", "operator-0")
+        .header("idempotency-key", "restart-classify")
+        .json(&serde_json::json!({
+            "operator_id": "operator-0",
+            "item_id": capture_id,
+            "kind": "task",
+            "evidence_class": "operator_authored"
+        }))
+        .send()
+        .await
+        .unwrap()
+        .error_for_status()
+        .unwrap();
+
+    shutdown.notify_waiters();
+    harness_handle.await.unwrap();
+
+    let restarted_state = base_state(root.path().to_path_buf());
+    let restarted_shutdown = Arc::new(Notify::new());
+    let (restarted_bound, restarted_handle) = harness::serve(
+        Some("127.0.0.1:0".parse().unwrap()),
+        restarted_state,
+        restarted_shutdown.clone(),
+    )
+    .await
+    .expect("restart harness");
+
+    let resume: Value = authenticated_get(format!("http://{restarted_bound}/v1/personal/resume"))
+        .await
+        .unwrap()
+        .json()
+        .await
+        .unwrap();
+    assert_eq!(resume["resume"]["active_count"], 1);
+    assert_eq!(resume["resume"]["today_count"], 1);
+
+    let brief: Value =
+        authenticated_get(format!("http://{restarted_bound}/v1/personal/briefs/today"))
+            .await
+            .unwrap()
+            .json()
+            .await
+            .unwrap();
+    assert_eq!(brief["brief"]["today"].as_array().unwrap().len(), 1);
+    assert_eq!(
+        brief["brief"]["today"][0]["content"],
+        "Resume this after restart"
+    );
+
+    restarted_shutdown.notify_waiters();
+    restarted_handle.await.unwrap();
+}
+
+#[tokio::test]
 async fn mutations_require_identity_and_replay_idempotency_keys_exactly_once() {
     let root = tempfile::tempdir().unwrap();
     let state = base_state(root.path().to_path_buf());

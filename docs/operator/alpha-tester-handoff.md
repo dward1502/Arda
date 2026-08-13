@@ -36,13 +36,15 @@ tar -xzf arda-source-0.3.0-rc.2.tar.gz
 export ARDA_ROOT="$PWD/arda-source-0.3.0-rc.2"
 python3 "$ARDA_ROOT/scripts/arda_beta_ops.py" compatibility \
   --root "$ARDA_ROOT" --home "$HOME"
+chmod +x "$PWD/arda-launcher_0.3.0-rc.2_amd64.AppImage"
 python3 "$ARDA_ROOT/scripts/arda_beta_ops.py" install-launcher \
-  --root "$ARDA_ROOT" --artifact "$PWD/arda-launcher"
+  --root "$ARDA_ROOT" \
+  --artifact "$PWD/arda-launcher_0.3.0-rc.2_amd64.AppImage"
 arda-launcher
 ```
 
-If a bundled AppImage is supplied, it may be launched directly after checksum
-verification. Record the exact package name and SHA-256 in the tester record.
+The AppImage may instead be launched directly after checksum verification.
+Record the exact package name and SHA-256 in the tester record.
 
 ## Alpha tasks
 

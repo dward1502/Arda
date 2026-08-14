@@ -1,0 +1,88 @@
+{
+  "contract": "arda.0.9.hud-native-performance-accessibility-baseline.v1",
+  "generated_at_utc": "2026-08-14T05:17:26Z",
+  "status": "baseline_recorded_with_blockers",
+  "candidate": {
+    "source_commit": "1c92702d",
+    "binary": "/var/home/mythos/.cache/arda-build/target/release/arda_hud",
+    "sha256": "d006b43bdce36f3ffb3ebc471649a1b70af9ce227bfcfb3f292017724c54a830",
+    "size_bytes": 27535424,
+    "build_command": "pnpm run tauri:build:stable",
+    "build_status": "pass"
+  },
+  "host": {
+    "session_type": "wayland",
+    "display": ":0",
+    "wayland_display": "wayland-0",
+    "native_gtk_webkit_prerequisites": "present"
+  },
+  "hardware_backed_x11": {
+    "environment": {
+      "GDK_BACKEND": "x11",
+      "__NV_DISABLE_EXPLICIT_SYNC": "1",
+      "ARDA_ROOT": "/var/home/mythos/Eregion/Arda"
+    },
+    "process_survived_seconds_observed": 37,
+    "native_window_detected": true,
+    "rendered_content": false,
+    "observed_surface": "black native webview with window chrome only",
+    "accessibility_elements": 6,
+    "accessibility_content_elements": 0,
+    "startup_warning": "Failed to create GBM buffer of size 1920x1080: Invalid argument",
+    "status": "fail"
+  },
+  "native_wayland": {
+    "environment": {
+      "__NV_DISABLE_EXPLICIT_SYNC": "1",
+      "ARDA_ROOT": "/var/home/mythos/Eregion/Arda"
+    },
+    "process_survived_seconds_observed": 22,
+    "webkit_process_started": true,
+    "native_window_detectable_by_x11_accessibility_driver": false,
+    "status": "unverifiable"
+  },
+  "dmabuf_disabled_x11_fallback": {
+    "environment": {
+      "GDK_BACKEND": "x11",
+      "WEBKIT_DISABLE_DMABUF_RENDERER": "1",
+      "__NV_DISABLE_EXPLICIT_SYNC": "1",
+      "ARDA_ROOT": "/var/home/mythos/Eregion/Arda"
+    },
+    "rendered_content": true,
+    "observed_surface": "full authored boardroom with upper monitors, lower instruments, and center console",
+    "measurement_seconds": 60,
+    "sample_interval_seconds": 5,
+    "samples": 13,
+    "aggregate_rss_start_mib": 605.77,
+    "aggregate_rss_end_mib": 581.14,
+    "aggregate_rss_peak_mib": 647.17,
+    "aggregate_rss_growth_mib": -24.63,
+    "aggregate_cpu_one_core_percent": 106.05,
+    "historical_peak_rss_budget_mib": 512.0,
+    "historical_cpu_one_core_percent_budget": 10.0,
+    "accessibility_elements": 6,
+    "accessibility_content_elements": 0,
+    "status": "fail",
+    "disposition": "stress/fallback evidence only; must not become the production default"
+  },
+  "automated_accessibility": {
+    "command": "pnpm test -- WorkbenchModule.accessibility.test.tsx PersonalOperationsModule.test.tsx",
+    "configured_suite_behavior": "Vitest ran the complete configured suite",
+    "test_files_passed": 131,
+    "tests_passed": 518,
+    "status": "pass",
+    "evidence_boundary": "jsdom/component semantics only; does not override missing native WebKit accessibility semantics"
+  },
+  "decision": {
+    "baseline_recorded": true,
+    "native_performance_qualified": false,
+    "native_accessibility_qualified": false,
+    "artifact_rebuild_allowed": false,
+    "blocking_findings": [
+      "The supported hardware-backed X11 path renders a black native webview after a GBM allocation failure.",
+      "The rendering fallback exceeds the historical native RSS and CPU budgets.",
+      "Native WebKit accessibility exposes no HUD content controls or monitor/console semantics."
+    ],
+    "required_next_action": "Repair the hardware-backed native render path and expose semantic native controls, then rerun a separate five-minute idle-resource sample and native keyboard/screen-reader acceptance before rebuilding the 0.9 artifact."
+  }
+}

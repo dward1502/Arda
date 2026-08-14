@@ -6,10 +6,10 @@ soterion:
   role: "release_baseline"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-08-13"
+  last_reviewed: "2026-08-14"
 ---
 
-> 🜏 Soterion: 📜 release_baseline | owner: HADES | status: active | reviewed: 2026-08-13
+> 🜏 Soterion: 📜 release_baseline | owner: HADES | status: active | reviewed: 2026-08-14
 
 # Arda 0.9 Baseline
 
@@ -99,6 +99,13 @@ of a later artifact.
 8. Exact signed-byte lifecycle, final accessibility/performance qualification,
    and an independent release-critical security review are deferred to a future
    public/final release decision.
+9. The current-source replacement HUD candidate is not qualified for a 0.9
+   artifact rebuild: its hardware-backed X11 path rendered black, its rendering
+   fallback exceeded the historical native resource budgets, and native WebKit
+   exposed no HUD content semantics. The measured
+   [0.9 native baseline](../../evidence/0.9/hud-native-performance-accessibility-baseline-20260814.json)
+   is blocker evidence, not a regression claim against the previously selected
+   0.9 artifact bytes.
 
 ## Review policy
 

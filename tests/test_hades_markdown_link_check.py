@@ -74,6 +74,15 @@ class CompletionLanguageCheckTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, report)
         self.assertIn("Completion-language issues: 0", report)
 
+    def test_accepts_rustdoc_intra_doc_links_as_non_file_targets(self) -> None:
+        result, report = self.run_check(
+            "# Active Plan\n\n"
+            "[`Variant`](struct@Variant) and [error domains](error::ErrorDomain).\n"
+        )
+
+        self.assertEqual(result.returncode, 0, report)
+        self.assertIn("Broken local links: 0", report)
+
 
 if __name__ == "__main__":
     unittest.main()

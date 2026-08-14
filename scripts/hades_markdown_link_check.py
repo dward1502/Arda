@@ -64,6 +64,19 @@ PLACEHOLDER_TARGETS = {
     "path/to/document.md",
     "path/to/plan.md",
 }
+RUSTDOC_LINK_PREFIXES = (
+    "struct@",
+    "enum@",
+    "trait@",
+    "type@",
+    "fn@",
+    "macro@",
+    "derive@",
+    "mod@",
+)
+RUSTDOC_PATH_RE = re.compile(
+    r"^[A-Za-z_][A-Za-z0-9_]*(?:::[A-Za-z_][A-Za-z0-9_]*)+$"
+)
 
 
 def is_external(target: str) -> bool:
@@ -88,6 +101,8 @@ def link_target_exists(source: Path, raw_target: str, root: Path) -> bool:
     target = raw_target.split("#", 1)[0].strip()
     target = re.sub(r":\d+$", "", target)
     if not target or target in PLACEHOLDER_TARGETS:
+        return True
+    if target.startswith(RUSTDOC_LINK_PREFIXES) or RUSTDOC_PATH_RE.fullmatch(target):
         return True
     if target.startswith("/"):
         candidate = Path(target)

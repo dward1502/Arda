@@ -218,6 +218,11 @@ export default function SceneWorkstation({
 
   return (
     <article
+      role="dialog"
+      aria-modal="false"
+      aria-label={`${title} workstation`}
+      data-workstation-id={id}
+      tabIndex={-1}
       className={`scene-workstation${isDragging ? ' scene-workstation--dragging' : ''}${isResizing ? ' scene-workstation--resizing' : ''}`}
       style={{
         left: `${x}px`,

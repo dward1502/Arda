@@ -1,8 +1,8 @@
 {
   "contract": "arda.0.9.hud-native-performance-accessibility-baseline.v1",
   "generated_at_utc": "2026-08-14T05:17:26Z",
-  "last_updated_at_utc": "2026-08-14T05:52:59Z",
-  "status": "remediation_verified_with_remaining_performance_gate",
+  "last_updated_at_utc": "2026-08-14T07:09:01Z",
+  "status": "native_qualification_verified",
   "candidate": {
     "source_commit": "1c92702d",
     "binary": "/var/home/mythos/.cache/arda-build/target/release/arda_hud",
@@ -144,20 +144,131 @@
       "cargo_check_manifest": "pass_with_pre_existing_warnings"
     }
   },
+  "qualification_20260814_followup": {
+    "source_base_commit": "e6b57228",
+    "candidate_binary": {
+      "path": "/var/home/mythos/.cache/arda-build/target/release/arda_hud",
+      "sha256": "fd9c0f973210df3dc1bd6373a9df457feed1d5dc01c386696e5f75598e7e1083",
+      "size_bytes": 27492032,
+      "build_command": "pnpm run tauri:build:stable",
+      "build_status": "pass"
+    },
+    "profiler": {
+      "contract": "arda.hud.native-process-profile.v1",
+      "path": "scripts/profile_arda_hud_native.py",
+      "launch_command": "ARDA_HUD_PROFILE_TOKEN=<unique-token> ARDA_ROOT=/var/home/mythos/Eregion/Arda scripts/launch_arda_hud.sh",
+      "measurement_command": "ARDA_HUD_PROFILE_TOKEN=<same-token> ARDA_HUD_PROFILE_DURATION=300 ARDA_HUD_PROFILE_INTERVAL=30 python3 scripts/profile_arda_hud_native.py",
+      "measurement_isolation": "No AT-SPI traversal, build, test, or second HUD process ran during the sample."
+    },
+    "host_qualified_animated_idle_contract": {
+      "scope": "single-operator 1920x1080 hardware-backed Wayland HUD on the recorded host",
+      "aggregate_cpu_one_core_percent_max": 40.0,
+      "aggregate_pss_peak_mib_max": 550.0,
+      "aggregate_pss_growth_mib_max": 16.0,
+      "aggregate_rss_observability_ceiling_mib": 700.0,
+      "metric_rationale": "PSS is the ownership gate because aggregate process-tree RSS double-counts shared WebKit, GTK, graphics-driver, binary, and asset mappings. RSS remains an operational ceiling rather than the ownership budget.",
+      "status": "adopted_for_internal_0.9_native_wayland_profile"
+    },
+    "hardware_backed_wayland_five_minute_idle": {
+      "measurement_seconds": 300.052,
+      "sample_interval_seconds": 30.0,
+      "samples": 11,
+      "aggregate_cpu_one_core_percent": 33.48,
+      "aggregate_rss_start_mib": 598.11,
+      "aggregate_rss_end_mib": 593.96,
+      "aggregate_rss_peak_mib": 673.34,
+      "aggregate_rss_growth_mib": -4.14,
+      "aggregate_pss_start_mib": 459.08,
+      "aggregate_pss_end_mib": 454.31,
+      "aggregate_pss_peak_mib": 533.69,
+      "aggregate_pss_growth_mib": -4.77,
+      "anonymous_mib_start": 232.46,
+      "anonymous_mib_end": 227.47,
+      "anonymous_mib_peak": 306.73,
+      "swap_mib_peak": 0.0,
+      "memory_leak_observed": false,
+      "status": "pass"
+    },
+    "process_ownership": {
+      "launcher": {
+        "rss_start_peak_end_mib": [200.56, 200.56, 200.07],
+        "pss_start_peak_end_mib": [143.41, 143.41, 142.7],
+        "anonymous_start_peak_end_mib": [61.99, 61.99, 61.2]
+      },
+      "webkit_network": {
+        "rss_start_peak_end_mib": [45.33, 45.51, 45.51],
+        "pss_start_peak_end_mib": [21.45, 21.49, 21.48],
+        "anonymous_start_peak_end_mib": [11.65, 11.65, 11.65]
+      },
+      "webkit_web": {
+        "rss_start_peak_end_mib": [352.21, 427.65, 348.39],
+        "pss_start_peak_end_mib": [294.22, 369.4, 290.14],
+        "anonymous_start_peak_end_mib": [158.82, 233.88, 154.62]
+      },
+      "classification": "The launcher and network process remained flat. The WebKit content process owned the transient approximately 75 MiB sawtooth and returned below its starting point. smaps can attribute the allocation to WebKit content, including the Three.js scene and loaded assets, but cannot split JavaScript heap from WebGL/driver allocations.",
+      "static_asset_context": "The production build emits compressed boardroom GLB and texture assets; runtime decoded image, geometry, JavaScript, and graphics allocations are expected to exceed their on-disk compressed sizes."
+    },
+    "discarded_experiment": {
+      "change": "30 FPS demand-loop scheduler for native Wayland",
+      "measured_cpu_one_core_percent": 33.89,
+      "baseline_cpu_one_core_percent": 33.48,
+      "disposition": "reverted because it added complexity without measurable CPU benefit; the compositor/WebKit path was already effectively cadence-limited"
+    },
+    "native_accessibility": {
+      "wayland_at_spi": {
+        "settings_action_activated": true,
+        "focused_role_after_activation": "dialog",
+        "focused_name_after_activation": "Settings workstation"
+      },
+      "trusted_keyboard_compatibility_session": {
+        "backend": "x11 with explicit WEBKIT_DISABLE_DMABUF_RENDERER compatibility profile",
+        "escape_closed_top_workstation": true,
+        "focus_restored_role": "button",
+        "focus_restored_name": "Open settings",
+        "native_tab_navigation_preserved": true,
+        "global_tab_view_switch_removed": true
+      },
+      "screen_reader": {
+        "reader": "Orca 48.0 WebKitGTK script",
+        "speech_disabled_during_test": true,
+        "open_control_presentation": "Open settings button",
+        "opened_surface_presentation": "Settings workstation dialog",
+        "restored_control_presentation_after_escape": "Open settings button",
+        "status": "pass"
+      },
+      "status": "qualified_for_internal_0.9_native_profile"
+    },
+    "verification": {
+      "frontend_test_files_passed": 133,
+      "frontend_tests_passed": 523,
+      "frontend_lint": "pass",
+      "frontend_build": "pass",
+      "stable_native_build": "pass",
+      "direct_cargo_check": "pass_with_pre_existing_dead_code_warnings",
+      "hades_local_links_checked": 423,
+      "hades_broken_local_links": 0,
+      "hades_completion_language_issues": 0,
+      "docs_health": "pass",
+      "launcher_shell_syntax": "pass",
+      "evidence_json_syntax": "pass",
+      "profiler_python_syntax": "pass",
+      "git_diff_check": "pass"
+    }
+  },
   "decision": {
     "baseline_recorded": true,
     "launcher_native_path_repaired": true,
     "compatibility_cpu_repaired": true,
     "native_semantic_controls_verified": true,
-    "native_performance_qualified": false,
-    "native_accessibility_qualified": false,
-    "artifact_rebuild_allowed": false,
-    "blocking_findings": [
-      "Direct hardware-backed X11 still renders a black webview after a GBM allocation failure; supported Wayland sessions now bypass that path.",
-      "Animated Wayland and static compatibility process trees remain above the historical 512 MiB RSS budget.",
-      "Animated Wayland remains above the historical 10% one-core idle CPU budget.",
-      "Keyboard focus-order, Escape, focus-restoration, and screen-reader acceptance remain to be completed."
+    "native_performance_qualified": true,
+    "native_accessibility_qualified": true,
+    "artifact_rebuild_allowed": true,
+    "blocking_findings": [],
+    "remaining_limitations": [
+      "Direct hardware-backed X11 still renders a black webview after a GBM allocation failure and is not a qualified backend; supported Wayland sessions bypass it.",
+      "The explicit DMABUF-disabled X11 profile remains compatibility-only.",
+      "The adopted resource contract is host-qualified for the internal 0.9 Wayland profile, not a public cross-device performance guarantee."
     ],
-    "required_next_action": "Profile native WebKit/Three.js memory ownership and settle the realistic animated-idle resource contract, then run five-minute idle and complete keyboard/screen-reader acceptance before rebuilding the 0.9 artifact."
+    "required_next_action": "Continue tester/operator defect triage from the checksum-recorded internal artifact; the Personal Operations review gate remains open through 2026-08-17."
   }
 }

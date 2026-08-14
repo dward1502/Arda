@@ -106,6 +106,12 @@ import { useBoardroomSlotAssignments } from './components/arda/hooks/useBoardroo
 import { useManweLiveSnapshot } from './components/arda/hooks/useManweLiveSnapshot'
 import { useWorldSurfaceAssignments } from './components/arda/hooks/useWorldSurfaceAssignments'
 import {
+  focusFloatingWorkstation as focusFloatingWorkstationElement,
+  rememberFloatingWorkstationFocusOrigin,
+  restoreFloatingWorkstationFocus,
+  type FloatingWorkstationFocusOrigins,
+} from './components/arda/floatingWorkstationFocus'
+import {
   agentRefreshMonitorLease,
   agentReleaseMonitor,
   agentClaimMonitorSurface,
@@ -470,6 +476,7 @@ export default function App() {
   const [transitionLabel, setTransitionLabel] = useState<string | null>(null)
   const liveRuntime = useArdaRuntimePulse(viewMode !== 'boardroom')
   const [floatingWorkstations, setFloatingWorkstations] = useState<FloatingWorkstationState[]>([])
+  const floatingWorkstationFocusOrigins = useRef<FloatingWorkstationFocusOrigins>(new Map())
   const [workstationModuleById, setWorkstationModuleById] = useState<Record<string, ModuleId>>(() => {
     if (!initialWorkstationId) return {}
     const stored = getStoredWorkstationState(initialWorkstationId)
@@ -543,6 +550,17 @@ export default function App() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        if (viewMode === 'boardroom' && floatingWorkstations.length > 0) {
+          e.preventDefault()
+          const topWorkstation = floatingWorkstations.reduce((top, workstation) =>
+            workstation.zIndex > top.zIndex ? workstation : top,
+          )
+          setFloatingWorkstations((current) => current.filter((entry) => entry.id !== topWorkstation.id))
+          window.requestAnimationFrame(() => {
+            restoreFloatingWorkstationFocus(floatingWorkstationFocusOrigins.current, topWorkstation.id)
+          })
+          return
+        }
         if (viewMode === 'world' || viewMode === 'panel') {
           runSceneTransition('Returning To Boardroom', 'boardroom')
         } else {
@@ -564,24 +582,10 @@ export default function App() {
         e.preventDefault()
         runSceneTransition('Opening Focused Panel', 'panel')
       }
-      if (e.key === 'Tab' && !e.altKey && !e.ctrlKey && !e.shiftKey) {
-        e.preventDefault()
-        const views: ViewMode[] = ['boardroom', 'world', 'panel']
-        const currentIndex = views.indexOf(viewMode)
-        const nextIndex = (currentIndex + 1) % views.length
-        const nextView = views[nextIndex]
-        const label = nextView === 'boardroom' ? 'Entering Boardroom'
-          : nextView === 'world' ? 'Entering World Mode'
-            : 'Opening Focused Panel'
-        if (nextView === 'panel' && !activeSectionId) {
-          return
-        }
-        runSceneTransition(label, nextView)
-      }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [viewMode, activeSectionId, toggleFullscreen])
+  }, [viewMode, activeSectionId, floatingWorkstations, toggleFullscreen])
 
   useEffect(() => {
     const url = new URL(window.location.href)
@@ -2360,6 +2364,9 @@ export default function App() {
   const spawnFloatingWorkstation = (zoneId: string | null) => {
     const manifest = getWorkstationManifestByZoneId(workstationManifests, zoneId)
     if (!manifest) return
+    const workstationId = `scene-${manifest.id}`
+    rememberFloatingWorkstationFocusOrigin(floatingWorkstationFocusOrigins.current, workstationId)
+    window.requestAnimationFrame(() => focusFloatingWorkstationElement(workstationId))
     setActiveSectionId(manifest.source_zone_id)
     setPanelModeKey(manifest.source_zone_id)
     setViewMode('boardroom')
@@ -2381,7 +2388,7 @@ export default function App() {
 
       const centeredLayout = getFloatingWorkstationCenteredLayout()
       const nextEntry = {
-        id: `scene-${manifest.id}`,
+        id: workstationId,
         manifestId: manifest.id,
         sourceZoneId: manifest.source_zone_id,
         originAnchorId: manifest.entry_anchor_id,
@@ -2529,10 +2536,22 @@ export default function App() {
 
   const closeFloatingWorkstation = (id: string) => {
     setFloatingWorkstations((current) => current.filter((entry) => entry.id !== id))
+    window.requestAnimationFrame(() => {
+      restoreFloatingWorkstationFocus(floatingWorkstationFocusOrigins.current, id)
+    })
   }
 
   const closeAllFloatingWorkstations = () => {
+    const topWorkstation = floatingWorkstations.reduce<FloatingWorkstationState | null>(
+      (top, workstation) => !top || workstation.zIndex > top.zIndex ? workstation : top,
+      null,
+    )
     setFloatingWorkstations([])
+    if (topWorkstation) {
+      window.requestAnimationFrame(() => {
+        restoreFloatingWorkstationFocus(floatingWorkstationFocusOrigins.current, topWorkstation.id)
+      })
+    }
   }
 
   const popoutFloatingWorkstation = (id: string) => {

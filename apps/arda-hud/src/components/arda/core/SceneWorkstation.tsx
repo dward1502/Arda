@@ -53,6 +53,10 @@ export default function SceneWorkstation({
   const resizeRef = useRef<{ pointerId: number; startX: number; startY: number; startWidth: number; startHeight: number } | null>(null)
   const resolvedActiveModuleId = activeModuleId ?? localActiveModuleId
   const activeModule = modules.find((module) => module.id === resolvedActiveModuleId) ?? modules[0] ?? null
+  const trimmedTitle = title.trim()
+  const accessibleTitle = trimmedTitle.toLowerCase().endsWith('workstation')
+    ? trimmedTitle
+    : `${trimmedTitle} workstation`
 
   const clearTextSelection = () => {
     const selection = window.getSelection?.()
@@ -220,7 +224,7 @@ export default function SceneWorkstation({
     <article
       role="dialog"
       aria-modal="false"
-      aria-label={`${title} workstation`}
+      aria-label={accessibleTitle}
       data-workstation-id={id}
       tabIndex={-1}
       className={`scene-workstation${isDragging ? ' scene-workstation--dragging' : ''}${isResizing ? ' scene-workstation--resizing' : ''}`}

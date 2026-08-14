@@ -1,7 +1,7 @@
 {
   "contract": "arda.0.9.hud-native-performance-accessibility-baseline.v1",
   "generated_at_utc": "2026-08-14T05:17:26Z",
-  "last_updated_at_utc": "2026-08-14T07:09:01Z",
+  "last_updated_at_utc": "2026-08-14T07:25:32Z",
   "status": "native_qualification_verified",
   "candidate": {
     "source_commit": "1c92702d",
@@ -254,6 +254,42 @@
       "profiler_python_syntax": "pass",
       "git_diff_check": "pass"
     }
+  },
+  "operator_defect_triage_20260814": {
+    "source_base_commit": "d2e39838",
+    "candidate_binary": {
+      "path": "/var/home/mythos/.cache/arda-build/target/release/arda_hud",
+      "sha256": "c9ae440b0f5839737a981ea1853975b81d7512e0e5828c0d4a201adcaacb4c2a",
+      "size_bytes": 27492032,
+      "build_command": "pnpm run tauri:build:stable",
+      "build_status": "pass"
+    },
+    "observed_defects": [
+      "The scene anchor and workstation controls both exposed the accessible name Open Sovereign World Workstation, making two different actions indistinguishable to screen-reader users.",
+      "Opening the titled workstation exposed the redundant dialog name Sovereign World Workstation workstation."
+    ],
+    "repairs": [
+      "Scene-anchor controls now use Navigate to semantics while workstation controls retain Open semantics.",
+      "Scene workstation dialog names append the workstation suffix only when the supplied title does not already end with it."
+    ],
+    "native_at_spi_acceptance": {
+      "named_semantic_controls": 36,
+      "duplicate_meaningful_control_names": 0,
+      "navigate_control": "Navigate to Sovereign World Workstation",
+      "open_control": "Open Sovereign World Workstation",
+      "navigate_action_activated": true,
+      "open_action_activated": true,
+      "opened_dialog_name": "Sovereign World Workstation",
+      "status": "pass"
+    },
+    "verification": {
+      "frontend_test_files_passed": 134,
+      "frontend_tests_passed": 526,
+      "frontend_lint": "pass_with_pre_existing_warnings",
+      "frontend_build": "pass",
+      "stable_native_build": "pass"
+    },
+    "disposition": "Two reproducible native accessibility defects were repaired and the checksum-recorded internal artifact was rebuilt. Broader tester/operator triage remains open rather than being inferred from this focused pass."
   },
   "decision": {
     "baseline_recorded": true,

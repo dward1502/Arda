@@ -33,7 +33,7 @@ export default function BoardroomAccessibilityControls({
         {accessibleAnchors.map((anchor) => (
           <li key={anchor.id}>
             <button type="button" onClick={() => onActivate(anchor.id)}>
-              Open {anchor.label}
+              Navigate to {anchor.label}
             </button>
           </li>
         ))}

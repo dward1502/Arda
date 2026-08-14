@@ -453,6 +453,237 @@ async fn response_error(response: reqwest::Response, action: &str) -> Result<Val
 #[cfg(test)]
 mod tests {
     use super::*;
+    use tokio::io::{AsyncReadExt, AsyncWriteExt};
+
+    fn approved_queue_fixture(root: &Path, task_id: &str) -> PathBuf {
+        let queue_path = root.join("core/projects/tasks/queue.jsonl");
+        let active_path = root.join("core/state/queue_active.json");
+        std::fs::create_dir_all(queue_path.parent().unwrap()).unwrap();
+        std::fs::create_dir_all(active_path.parent().unwrap()).unwrap();
+        std::fs::write(
+            &queue_path,
+            format!(
+                "{}\n",
+                json!({
+                    "id": task_id,
+                    "title": "Reconcile deterministic Workbench run",
+                    "status": "queued",
+                    "meta": {
+                        "action_class": "approved_autopilot_plan_step",
+                        "mutation_risk": "operator-approved",
+                        "execution_authority": "arda_workbench",
+                        "source_objective_packet_id": "objective-reconciliation",
+                        "approval_packet_id": "approval-reconciliation"
+                    }
+                })
+            ),
+        )
+        .unwrap();
+        std::fs::write(
+            &active_path,
+            format!("{{\"active\":[{{\"id\":\"{task_id}\"}}]}}\n"),
+        )
+        .unwrap();
+        queue_path
+    }
+
+    fn test_executor(root: &Path, harness_url: String) -> WorkbenchQueueExecutor {
+        WorkbenchQueueExecutor {
+            root: root.to_path_buf(),
+            harness_url,
+            project_id: DEFAULT_PROJECT_ID.into(),
+            client: reqwest::Client::builder()
+                .timeout(std::time::Duration::from_secs(2))
+                .build()
+                .unwrap(),
+        }
+    }
+
+    async fn scripted_harness(
+        responses: Vec<Option<(u16, String)>>,
+    ) -> (String, tokio::task::JoinHandle<Vec<String>>) {
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
+            .await
+            .unwrap();
+        let address = listener.local_addr().unwrap();
+        let server = tokio::spawn(async move {
+            let mut requests = Vec::new();
+            for response in responses {
+                let (mut stream, _) = listener.accept().await.unwrap();
+                let mut request = Vec::new();
+                let mut buffer = [0_u8; 4096];
+                loop {
+                    let count = stream.read(&mut buffer).await.unwrap();
+                    if count == 0 {
+                        break;
+                    }
+                    request.extend_from_slice(&buffer[..count]);
+                    let Some(headers_end) = request.windows(4).position(|part| part == b"\r\n\r\n")
+                    else {
+                        continue;
+                    };
+                    let headers = String::from_utf8_lossy(&request[..headers_end + 4]);
+                    let content_length = headers
+                        .lines()
+                        .find_map(|line| {
+                            line.to_ascii_lowercase()
+                                .strip_prefix("content-length:")
+                                .and_then(|value| value.trim().parse::<usize>().ok())
+                        })
+                        .unwrap_or(0);
+                    if request.len() >= headers_end + 4 + content_length {
+                        break;
+                    }
+                }
+                requests.push(
+                    String::from_utf8_lossy(&request)
+                        .lines()
+                        .next()
+                        .unwrap_or_default()
+                        .to_owned(),
+                );
+                let Some((status, body)) = response else {
+                    continue;
+                };
+                let reason = if status == 200 { "OK" } else { "Not Found" };
+                stream
+                    .write_all(
+                        format!(
+                            "HTTP/1.1 {status} {reason}\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
+                            body.len()
+                        )
+                        .as_bytes(),
+                    )
+                    .await
+                    .unwrap();
+            }
+            requests
+        });
+        (format!("http://{address}"), server)
+    }
+
+    #[tokio::test]
+    async fn transient_harness_outage_during_restart_preserves_claim() {
+        let dir = tempfile::tempdir().unwrap();
+        let queue_path = approved_queue_fixture(dir.path(), "outage-task");
+        ActiveQueueExecutor::new(dir.path())
+            .claim_next_approved()
+            .unwrap()
+            .expect("initial claim");
+        let before = std::fs::read(&queue_path).unwrap();
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
+            .await
+            .unwrap();
+        let unavailable_url = format!("http://{}", listener.local_addr().unwrap());
+        drop(listener);
+
+        let error = test_executor(dir.path(), unavailable_url)
+            .execute_once()
+            .await
+            .unwrap_err();
+
+        assert!(format!("{error:#}").contains("inspect existing Workbench run"));
+        assert_eq!(std::fs::read(&queue_path).unwrap(), before);
+        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
+            super::super::task_queue::TaskQueueAnalyzer::new(queue_path)
+                .load()
+                .unwrap(),
+        );
+        assert_eq!(effective[0].status.as_deref(), Some("in_progress"));
+    }
+
+    #[tokio::test]
+    async fn lost_execute_response_preserves_claim_for_run_inspection() {
+        let dir = tempfile::tempdir().unwrap();
+        let queue_path = approved_queue_fixture(dir.path(), "lost-response-task");
+        let (harness_url, server) = scripted_harness(vec![
+            Some((404, "{}".into())),
+            Some((200, "{}".into())),
+            Some((200, "{}".into())),
+            None,
+        ])
+        .await;
+
+        let error = test_executor(dir.path(), harness_url)
+            .execute_once()
+            .await
+            .unwrap_err();
+        let requests = server.await.unwrap();
+
+        assert!(format!("{error:#}").contains("dispatch approved Workbench provider"));
+        assert_eq!(requests.len(), 4);
+        assert!(requests[3].starts_with(
+            "POST /v1/runs/queue-lost-response-task/nodes/execute/execute-provider "
+        ));
+        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
+            super::super::task_queue::TaskQueueAnalyzer::new(queue_path)
+                .load()
+                .unwrap(),
+        );
+        assert_eq!(effective[0].status.as_deref(), Some("in_progress"));
+    }
+
+    #[tokio::test]
+    async fn existing_deterministic_run_still_running_remains_recoverable() {
+        let dir = tempfile::tempdir().unwrap();
+        let queue_path = approved_queue_fixture(dir.path(), "running-task");
+        let (harness_url, server) = scripted_harness(vec![Some((
+            200,
+            json!({
+                "graph": {"nodes": [{"id": "execute", "state": "running"}]},
+                "review": {"provider_receipt": null}
+            })
+            .to_string(),
+        ))])
+        .await;
+
+        let receipt = test_executor(dir.path(), harness_url)
+            .execute_once()
+            .await
+            .unwrap();
+        server.await.unwrap();
+
+        assert_eq!(receipt.status, "in_progress");
+        assert_eq!(receipt.result, "existing_run_active");
+        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
+            super::super::task_queue::TaskQueueAnalyzer::new(queue_path)
+                .load()
+                .unwrap(),
+        );
+        assert_eq!(effective[0].status.as_deref(), Some("in_progress"));
+    }
+
+    #[tokio::test]
+    async fn existing_deterministic_run_terminal_is_definitive() {
+        let dir = tempfile::tempdir().unwrap();
+        approved_queue_fixture(dir.path(), "terminal-task");
+        let claim = ActiveQueueExecutor::new(dir.path())
+            .claim_next_approved()
+            .unwrap()
+            .expect("initial claim");
+        let (harness_url, server) = scripted_harness(vec![Some((
+            200,
+            json!({
+                "graph": {"nodes": [{"id": "execute", "state": "succeeded"}]},
+                "review": {"provider_receipt": {
+                    "receipt_digest": "sha256:terminal",
+                    "summary": "provider completed before restart"
+                }}
+            })
+            .to_string(),
+        ))])
+        .await;
+
+        let outcome = test_executor(dir.path(), harness_url)
+            .dispatch_claim(&claim)
+            .await
+            .unwrap();
+        server.await.unwrap();
+
+        assert_eq!(outcome.0, "succeeded");
+        assert_eq!(outcome.1.as_deref(), Some("sha256:terminal"));
+        assert_eq!(outcome.2.as_deref(), Some("provider completed before restart"));
+    }
 
     #[test]
     fn claim_before_dispatch_crash_child() {

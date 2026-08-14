@@ -1,14 +1,20 @@
 {
-  "generated_at_utc": "2026-08-04T21:19:56.828888962+00:00",
+  "generated_at_utc": "2026-08-14T01:26:38.164035111+00:00",
   "metrics": {
+    "compression_runs_total": 0,
+    "compression_source_records_total": 0,
     "last_consolidation_depth": 0,
     "last_queue_latency_ms": null,
     "last_recall_fidelity": null,
-    "last_recall_latency_ms": 13,
+    "last_recall_latency_ms": 14,
     "promotion_receipts_total": 0,
+    "quarantine_records_total": 0,
     "queue_observations_total": 0,
     "recall_requests_total": 1,
-    "recall_results_total": 0
+    "recall_results_total": 0,
+    "retention_decayed_total": 0,
+    "retention_runs_total": 0,
+    "revocation_receipts_total": 0
   },
   "schema_version": "arda.mnemosyne.observability.v1"
 }

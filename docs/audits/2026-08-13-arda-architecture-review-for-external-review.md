@@ -82,7 +82,7 @@ The canonical `arda` binary:
 
 Evidence: `src/main.rs`, especially `Registry::load`, `Supervisor::new`, `HarnessState`, and `harness::serve`.
 
-`services.toml` is the declarative process registry. At this snapshot Manwe is the required managed service; HUD and launcher are separately classified UI applications. Many workspace crates are in-process libraries, not independently supervised services. Reviewers should not infer process isolation from crate boundaries.
+`services.toml` is the declarative process registry. At this snapshot the launcher and Manwe are required supervised services; the HUD is an optional supervised UI service. Many workspace crates are in-process libraries, not independently supervised services. Reviewers should not infer process isolation from crate boundaries.
 
 ## 4. Principal runtime flows
 

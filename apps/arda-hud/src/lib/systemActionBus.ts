@@ -13,6 +13,7 @@ export type SystemActionId =
   | 'queue_next'
   | 'activate_plan'
   | 'approve_human_augmentation'
+  | 'review_arandur_recommendation'
   | 'record_ceo_council_session'
   | 'arda.chronos_run_provider_checks'
   | 'arda.manwe_refresh_provider_intelligence'
@@ -902,6 +903,7 @@ const tauriLocalCliAdapter: SystemActionAdapter = {
   presets: ['local_cli'],
   canHandle: (action) =>
     action === 'approve_human_augmentation' ||
+    action === 'review_arandur_recommendation' ||
     action === 'record_ceo_council_session' ||
     action === 'arda.chronos_run_provider_checks' ||
     action === 'arda.manwe_refresh_provider_intelligence' ||
@@ -914,6 +916,25 @@ const tauriLocalCliAdapter: SystemActionAdapter = {
     action === 'arda.athena_refresh_digest' ||
     action === 'arda.athena_promote_policy_ready',
   execute: async (action, context) => {
+    if (action === 'review_arandur_recommendation') {
+      const numenorPath = requiredArdaRoot(context.payload)
+      if (!numenorPath) {
+        return { ok: false, provider: 'tauri-local-cli', message: 'Arandur review requires arda_root in the action payload' }
+      }
+      try {
+        const result = await safeTauriInvoke<LocalFileActionInvokeResult>('review_arandur_recommendation_action', {
+          numenorPath,
+          recommendationId: stringPayload(context.payload, 'recommendation_id', 'recommendationId'),
+          decision: stringPayload(context.payload, 'decision'),
+          reviewedBy: stringPayload(context.payload, 'reviewed_by', 'reviewedBy'),
+          note: stringPayload(context.payload, 'note') || null,
+        })
+        return normalizeFileActionResult(action, result, 'Arandur recommendation reviewed', 'Arandur recommendation review failed')
+      } catch (error) {
+        return { ok: false, provider: 'tauri-local-cli', message: `Arandur recommendation review failed: ${formatActionError(error)}` }
+      }
+    }
+
     if (action === 'approve_human_augmentation') {
       const numenorPath = requiredArdaRoot(context.payload)
       if (!numenorPath) {

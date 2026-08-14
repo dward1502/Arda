@@ -1,0 +1,12 @@
+[Unit]
+Description=Poll Arda approved canonical queue through bounded Workbench executor
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=1min
+AccuracySec=10s
+Persistent=false
+Unit=arda-workbench-queue-executor.service
+
+[Install]
+WantedBy=timers.target

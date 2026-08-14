@@ -3,6 +3,7 @@
 //! Task queue analyzer over `core/projects/tasks/queue.jsonl`.
 
 use chrono::{DateTime, Duration, Utc};
+use fs2::FileExt;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::collections::{BTreeMap, BTreeSet};
@@ -66,6 +67,14 @@ pub struct ActiveQueueExecutionAttempt {
     pub action_class: String,
     pub hades_projection_repair: bool,
     pub appended_at_utc: DateTime<Utc>,
+    pub workbench_run_id: String,
+    pub lease_expires_at_utc: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ApprovedQueueClaim {
+    pub task: QueueRecord,
+    pub attempt: ActiveQueueExecutionAttempt,
 }
 
 #[derive(Debug, Clone)]
@@ -241,36 +250,122 @@ impl ActiveQueueExecutor {
         }))
     }
 
+    pub fn select_next_approved(&self) -> std::io::Result<Option<QueueRecord>> {
+        let records = TaskQueueAnalyzer::new(&self.queue_path).load()?;
+        let effective = TaskQueueAnalyzer::effective_records(records);
+        let active_ids = self.load_active_projection_ids().unwrap_or_default();
+        Ok(effective.into_iter().find(|record| {
+            claimable_status(record)
+                && (active_ids.is_empty() || active_ids.contains(&record.id))
+                && approved_workbench_metadata(record)
+        }))
+    }
+
+    /// Atomically claim one approved task by appending its in-progress state
+    /// while holding an exclusive lock on the canonical append-only ledger.
+    pub fn claim_next_approved(&self) -> std::io::Result<Option<ApprovedQueueClaim>> {
+        if let Some(parent) = self.queue_path.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+        let mut file = OpenOptions::new()
+            .create(true)
+            .read(true)
+            .append(true)
+            .open(&self.queue_path)?;
+        file.lock_exclusive()?;
+        let result = (|| {
+            let records = read_queue_records(&file)?;
+            let effective = TaskQueueAnalyzer::effective_records(records);
+            let active_ids = self.load_active_projection_ids().unwrap_or_default();
+            let Some(task) = effective.into_iter().find(|record| {
+                claimable_status(record)
+                    && (active_ids.is_empty() || active_ids.contains(&record.id))
+                    && approved_workbench_metadata(record)
+            }) else {
+                return Ok(None);
+            };
+            let attempt = execution_attempt(&task);
+            append_attempt_to_writer(&mut file, &task, &attempt)?;
+            file.sync_data()?;
+            Ok(Some(ApprovedQueueClaim { task, attempt }))
+        })();
+        let unlock = FileExt::unlock(&file);
+        match (result, unlock) {
+            (Ok(value), Ok(())) => Ok(value),
+            (Err(error), _) | (_, Err(error)) => Err(error),
+        }
+    }
+
     pub fn append_attempt(
         &self,
         task: &QueueRecord,
     ) -> std::io::Result<ActiveQueueExecutionAttempt> {
-        let attempt = ActiveQueueExecutionAttempt {
-            contract: "arda.prometheus.active_queue_execution_attempt.v1".to_owned(),
-            executor: "prometheus.active_queue_executor".to_owned(),
-            task_id: task.id.clone(),
-            status: "attempted".to_owned(),
-            action_class: "l3_local_doc_fixture_patch".to_owned(),
-            hades_projection_repair: true,
-            appended_at_utc: Utc::now(),
-        };
-        append_jsonl_value(
-            &self.queue_path,
-            &json!({
+        let attempt = execution_attempt(task);
+        let mut file = OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(&self.queue_path)?;
+        append_attempt_to_writer(&mut file, task, &attempt)?;
+        Ok(attempt)
+    }
+
+    /// Requeue one failed approved task while preserving its approval lineage.
+    pub fn retry_failed(&self, task_id: &str) -> std::io::Result<QueueRecord> {
+        let mut file = OpenOptions::new()
+            .create(true)
+            .read(true)
+            .append(true)
+            .open(&self.queue_path)?;
+        file.lock_exclusive()?;
+        let result = (|| {
+            let effective = TaskQueueAnalyzer::effective_records(read_queue_records(&file)?);
+            let task = effective
+                .into_iter()
+                .find(|record| record.id == task_id)
+                .ok_or_else(|| {
+                    std::io::Error::new(std::io::ErrorKind::NotFound, "task not found")
+                })?;
+            if task.status.as_deref().map(normalize_task_status) != Some("failed") {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::InvalidInput,
+                    "only failed tasks may be retried",
+                ));
+            }
+            if task.result.as_deref() == Some("cancelled") || !approved_workbench_metadata(&task) {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::PermissionDenied,
+                    "cancelled or unapproved tasks require a new operator decision",
+                ));
+            }
+            let retry_sequence = task
+                .extra
+                .get("retry_sequence")
+                .and_then(Value::as_u64)
+                .unwrap_or(0)
+                + 1;
+            let value = json!({
                 "id": task.id,
                 "source_record_id": task.id,
                 "title": task.title,
                 "owner": task.owner,
                 "priority": task.priority,
-                "status": "in_progress",
-                "started_at_utc": attempt.appended_at_utc.to_rfc3339(),
-                "contract": attempt.contract,
-                "executor": attempt.executor,
-                "action_class": attempt.action_class,
-                "hades_projection_repair": attempt.hades_projection_repair,
-            }),
-        )?;
-        Ok(attempt)
+                "status": "queued",
+                "retry_sequence": retry_sequence,
+                "retried_at_utc": Utc::now().to_rfc3339(),
+                "contract": "arda.workbench.queue_retry.v1",
+                "executor": "arda_workbench.queue_executor",
+                "meta": task.extra.get("meta").cloned().unwrap_or(Value::Null),
+            });
+            writeln!(file, "{value}")?;
+            file.sync_data()?;
+            serde_json::from_value(value)
+                .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidData, error))
+        })();
+        let unlock = FileExt::unlock(&file);
+        match (result, unlock) {
+            (Ok(value), Ok(())) => Ok(value),
+            (Err(error), _) | (_, Err(error)) => Err(error),
+        }
     }
 
     pub fn append_terminal_completion(
@@ -292,6 +387,36 @@ impl ActiveQueueExecutor {
                 "contract": "arda.prometheus.active_queue_terminal_record.v1",
                 "executor": "prometheus.active_queue_executor",
                 "hades_projection_repair": true,
+            }),
+        )
+    }
+
+    pub fn append_workbench_terminal(
+        &self,
+        task: &QueueRecord,
+        status: &str,
+        result: &str,
+        run_id: &str,
+        receipt_digest: Option<&str>,
+        detail: Option<&str>,
+    ) -> std::io::Result<()> {
+        append_jsonl_value(
+            &self.queue_path,
+            &json!({
+                "id": task.id,
+                "source_record_id": task.id,
+                "title": task.title,
+                "owner": task.owner,
+                "priority": task.priority,
+                "status": status,
+                "result": result,
+                "completed_at_utc": Utc::now().to_rfc3339(),
+                "contract": "arda.workbench.queue_terminal.v1",
+                "executor": "arda_workbench.queue_executor",
+                "workbench_run_id": run_id,
+                "execution_receipt_digest": receipt_digest,
+                "detail": detail,
+                "meta": task.extra.get("meta").cloned().unwrap_or(Value::Null),
             }),
         )
     }
@@ -329,6 +454,121 @@ fn collect_projection_ids(value: &Value, ids: &mut BTreeSet<String>) {
             }
         }
         _ => {}
+    }
+}
+
+fn approved_workbench_metadata(record: &QueueRecord) -> bool {
+    record
+        .extra
+        .get("meta")
+        .and_then(Value::as_object)
+        .is_some_and(|meta| {
+            meta.get("mutation_risk").and_then(Value::as_str) == Some("operator-approved")
+                && meta.get("execution_authority").and_then(Value::as_str) == Some("arda_workbench")
+                && meta
+                    .get("approval_packet_id")
+                    .and_then(Value::as_str)
+                    .is_some_and(|id| !id.trim().is_empty())
+                && meta
+                    .get("source_objective_packet_id")
+                    .and_then(Value::as_str)
+                    .is_some_and(|id| !id.trim().is_empty())
+        })
+}
+
+fn claimable_status(record: &QueueRecord) -> bool {
+    match record.status.as_deref().map(normalize_task_status) {
+        Some("pending" | "queued") => true,
+        Some("in_progress") => record
+            .extra
+            .get("lease_expires_at_utc")
+            .and_then(Value::as_str)
+            .and_then(parse_utc)
+            .is_some_and(|deadline| deadline <= Utc::now()),
+        _ => false,
+    }
+}
+
+fn execution_attempt(task: &QueueRecord) -> ActiveQueueExecutionAttempt {
+    let action_class = task
+        .extra
+        .get("meta")
+        .and_then(Value::as_object)
+        .and_then(|meta| meta.get("action_class"))
+        .and_then(Value::as_str)
+        .unwrap_or("approved_autopilot_plan_step")
+        .to_owned();
+    ActiveQueueExecutionAttempt {
+        contract: "arda.prometheus.active_queue_execution_attempt.v1".to_owned(),
+        executor: "arda_workbench.queue_executor".to_owned(),
+        task_id: task.id.clone(),
+        status: "claimed".to_owned(),
+        action_class,
+        hades_projection_repair: false,
+        appended_at_utc: Utc::now(),
+        workbench_run_id: workbench_run_id(
+            &task.id,
+            task.extra
+                .get("retry_sequence")
+                .and_then(Value::as_u64)
+                .unwrap_or(0),
+        ),
+        lease_expires_at_utc: Utc::now() + Duration::minutes(20),
+    }
+}
+
+fn append_attempt_to_writer(
+    writer: &mut impl Write,
+    task: &QueueRecord,
+    attempt: &ActiveQueueExecutionAttempt,
+) -> std::io::Result<()> {
+    writeln!(
+        writer,
+        "{}",
+        json!({
+            "id": task.id,
+            "source_record_id": task.id,
+            "title": task.title,
+            "owner": task.owner,
+            "priority": task.priority,
+            "status": "in_progress",
+            "started_at_utc": attempt.appended_at_utc.to_rfc3339(),
+            "contract": attempt.contract,
+            "executor": attempt.executor,
+            "action_class": attempt.action_class,
+            "workbench_run_id": attempt.workbench_run_id,
+            "lease_expires_at_utc": attempt.lease_expires_at_utc.to_rfc3339(),
+            "meta": task.extra.get("meta").cloned().unwrap_or(Value::Null),
+        })
+    )
+}
+
+fn read_queue_records(file: &std::fs::File) -> std::io::Result<Vec<QueueRecord>> {
+    let mut out = Vec::new();
+    for line in BufReader::new(file.try_clone()?).lines() {
+        let line = line?;
+        if let Ok(record) = serde_json::from_str::<QueueRecord>(line.trim()) {
+            out.push(record);
+        }
+    }
+    Ok(out)
+}
+
+fn workbench_run_id(task_id: &str, retry_sequence: u64) -> String {
+    let normalized = task_id
+        .chars()
+        .map(|character| {
+            if character.is_ascii_alphanumeric() || character == '-' || character == '_' {
+                character
+            } else {
+                '-'
+            }
+        })
+        .collect::<String>();
+    if retry_sequence == 0 {
+        format!("queue-{normalized}")
+    } else {
+        format!("queue-{normalized}-attempt-{}", retry_sequence + 1)
     }
 }
 
@@ -531,6 +771,193 @@ mod tests {
     }
 
     #[test]
+    fn active_queue_executor_selects_operator_approved_workbench_task() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let mut extra = serde_json::Map::new();
+        extra.insert(
+            "meta".into(),
+            json!({
+                "action_class": "approved_autopilot_plan_step",
+                "mutation_risk": "operator-approved",
+                "execution_authority": "arda_workbench",
+                "source_objective_packet_id": "objective-1",
+                "approval_packet_id": "approval-1"
+            }),
+        );
+        let approved = QueueRecord {
+            id: "approved-task".into(),
+            status: Some("pending".into()),
+            extra,
+            ..blank("approved-task")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&approved).unwrap()),
+        )
+        .unwrap();
+        std::fs::write(&active_path, "{\"active\":[{\"id\":\"approved-task\"}]}\n").unwrap();
+
+        let selected = ActiveQueueExecutor::with_paths(&queue_path, &active_path)
+            .select_next_approved()
+            .unwrap()
+            .expect("approved task");
+
+        assert_eq!(selected.id, "approved-task");
+    }
+
+    #[test]
+    fn approved_claim_is_append_only_and_exactly_once() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "approved-task".into(),
+            title: Some("Execute bounded approved task".into()),
+            status: Some("queued".into()),
+            extra: approved_workbench_extra(),
+            ..blank("approved-task")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .unwrap();
+        std::fs::write(&active_path, "{\"active\":[{\"id\":\"approved-task\"}]}\n").unwrap();
+        let before = std::fs::read(&queue_path).unwrap();
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+
+        let claim = executor
+            .claim_next_approved()
+            .unwrap()
+            .expect("approved claim");
+        assert_eq!(claim.attempt.status, "claimed");
+        assert_eq!(claim.attempt.workbench_run_id, "queue-approved-task");
+        assert!(claim.attempt.lease_expires_at_utc > claim.attempt.appended_at_utc);
+        assert!(executor.claim_next_approved().unwrap().is_none());
+
+        let after = std::fs::read(&queue_path).unwrap();
+        assert_eq!(&after[..before.len()], before.as_slice());
+        let effective = TaskQueueAnalyzer::effective_records(
+            TaskQueueAnalyzer::new(&queue_path).load().unwrap(),
+        );
+        assert_eq!(effective[0].status.as_deref(), Some("in_progress"));
+    }
+
+    #[test]
+    fn approved_claim_rejects_missing_approval_lineage() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let task = QueueRecord {
+            id: "unscoped-task".into(),
+            status: Some("queued".into()),
+            extra: l3_human_required_extra(),
+            ..blank("unscoped-task")
+        };
+        std::fs::write(
+            &queue_path,
+            format!("{}\n", serde_json::to_string(&task).unwrap()),
+        )
+        .unwrap();
+        std::fs::write(&active_path, "{\"active\":[{\"id\":\"unscoped-task\"}]}\n").unwrap();
+
+        assert!(ActiveQueueExecutor::with_paths(&queue_path, &active_path)
+            .claim_next_approved()
+            .unwrap()
+            .is_none());
+    }
+
+    #[test]
+    fn approved_claim_recovers_an_expired_lease() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let meta = approved_workbench_extra().remove("meta").unwrap();
+        let queued = json!({
+            "id": "expired-task",
+            "status": "queued",
+            "meta": meta.clone()
+        });
+        let claimed = json!({
+            "id": "expired-task",
+            "status": "in_progress",
+            "lease_expires_at_utc": (Utc::now() - Duration::minutes(1)).to_rfc3339(),
+            "meta": meta
+        });
+        std::fs::write(&queue_path, format!("{queued}\n{claimed}\n")).unwrap();
+        std::fs::write(&active_path, "{\"active\":[{\"id\":\"expired-task\"}]}\n").unwrap();
+
+        let claim = ActiveQueueExecutor::with_paths(&queue_path, &active_path)
+            .claim_next_approved()
+            .unwrap()
+            .expect("expired lease is recoverable");
+        assert_eq!(claim.task.id, "expired-task");
+        assert_eq!(claim.attempt.workbench_run_id, "queue-expired-task");
+    }
+
+    #[test]
+    fn governed_retry_preserves_lineage_and_allocates_distinct_run_id() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let meta = approved_workbench_extra().remove("meta").unwrap();
+        std::fs::write(
+            &queue_path,
+            format!(
+                "{}\n",
+                json!({
+                    "id": "retry-task",
+                    "status": "failed",
+                    "result": "dispatch_failed",
+                    "meta": meta
+                })
+            ),
+        )
+        .unwrap();
+        std::fs::write(&active_path, "{\"active\":[{\"id\":\"retry-task\"}]}\n").unwrap();
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+
+        let retried = executor
+            .retry_failed("retry-task")
+            .expect("retry failed task");
+        assert_eq!(retried.status.as_deref(), Some("queued"));
+        assert_eq!(retried.extra["retry_sequence"], 1);
+        let claim = executor
+            .claim_next_approved()
+            .expect("claim retry")
+            .expect("retried task");
+        assert_eq!(claim.attempt.workbench_run_id, "queue-retry-task-attempt-2");
+        assert!(claim.task.extra["meta"]["approval_packet_id"].is_string());
+    }
+
+    #[test]
+    fn governed_retry_rejects_cancelled_task() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        std::fs::write(
+            &queue_path,
+            format!(
+                "{}\n",
+                json!({
+                    "id": "cancelled-task",
+                    "status": "failed",
+                    "result": "cancelled",
+                    "meta": approved_workbench_extra().remove("meta").unwrap()
+                })
+            ),
+        )
+        .unwrap();
+        let executor = ActiveQueueExecutor::with_paths(&queue_path, &active_path);
+        assert_eq!(
+            executor.retry_failed("cancelled-task").unwrap_err().kind(),
+            std::io::ErrorKind::PermissionDenied
+        );
+    }
+
+    #[test]
     fn active_queue_executor_appends_same_id_attempt_and_terminal_records() {
         let dir = tempfile::tempdir().expect("create tempdir");
         let queue_path = dir.path().join("queue.jsonl");
@@ -705,6 +1132,21 @@ mod tests {
             json!({
                 "action_class": "l3_local_doc_fixture_patch",
                 "mutation_risk": "safe-local"
+            }),
+        );
+        extra
+    }
+
+    fn approved_workbench_extra() -> serde_json::Map<String, serde_json::Value> {
+        let mut extra = serde_json::Map::new();
+        extra.insert(
+            "meta".into(),
+            json!({
+                "action_class": "approved_autopilot_plan_step",
+                "mutation_risk": "operator-approved",
+                "execution_authority": "arda_workbench",
+                "source_objective_packet_id": "objective-1",
+                "approval_packet_id": "approval-1"
             }),
         );
         extra

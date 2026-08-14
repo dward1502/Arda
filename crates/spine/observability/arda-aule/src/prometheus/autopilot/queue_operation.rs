@@ -133,6 +133,8 @@ pub fn append_approved_packet_plan(
         oracle_conditions,
         autonomy_readiness_decision,
         autonomy_readiness_reasons,
+        Some(&packet.packet_id),
+        packet.approval_packet_id.as_deref(),
     ) {
         Ok(appended_task_ids) => QueueOperation {
             contract: QUEUE_OPERATION_CONTRACT.into(),

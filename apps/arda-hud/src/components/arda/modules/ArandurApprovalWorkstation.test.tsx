@@ -82,6 +82,60 @@ describe('ArandurApprovalWorkstation', () => {
     expect(screen.getByText(/Awaiting operator approval/i)).toBeInTheDocument()
   })
 
+  it('renders approved tasks from the active universal queue', () => {
+    render(
+      <ArandurApprovalWorkstation
+        approvals={[]}
+        queueWriteRequests={[]}
+        activeTasks={[{
+          id: 'tsk-active-1',
+          title: 'Validate active queue dispatch',
+          owner: 'prometheus',
+          status: 'pending',
+          priority: 'high',
+        }]}
+        busy={false}
+        onApprove={vi.fn()}
+        onReject={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByText('Active Universal Queue')).toBeInTheDocument()
+    expect(screen.getByText('Validate active queue dispatch')).toBeInTheDocument()
+    expect(screen.getByText('prometheus / high')).toBeInTheDocument()
+  })
+
+  it('renders Workbench lineage and routes governed cancellation and retry', () => {
+    const onCancelTask = vi.fn()
+    const onRetryTask = vi.fn()
+    render(
+      <ArandurApprovalWorkstation
+        approvals={[]}
+        queueWriteRequests={[]}
+        activeTasks={[
+          {
+            id: 'running-task', title: 'Running task', owner: 'Arandur', status: 'in_progress', priority: 'high',
+            workbenchRunId: 'queue-running-task', leaseExpiresAtUtc: '2026-08-13T12:00:00Z', executionReceiptDigest: 'sha256:1234567890abcdef',
+          },
+          {
+            id: 'failed-task', title: 'Failed task', owner: 'Arandur', status: 'failed', priority: 'low', result: 'failed', detail: 'provider failed',
+          },
+        ]}
+        busy={false}
+        onApprove={vi.fn()}
+        onReject={vi.fn()}
+        onCancelTask={onCancelTask}
+        onRetryTask={onRetryTask}
+      />,
+    )
+    expect(screen.getByText('Run queue-running-task')).toBeInTheDocument()
+    expect(screen.getByText('Receipt sha256:12345')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel run' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Retry governed task' }))
+    expect(onCancelTask).toHaveBeenCalledWith(expect.objectContaining({ id: 'running-task' }))
+    expect(onRetryTask).toHaveBeenCalledWith(expect.objectContaining({ id: 'failed-task' }))
+  })
+
   it('emits approve and reject actions with the selected queue write request', () => {
     const onApprove = vi.fn()
     const onReject = vi.fn()

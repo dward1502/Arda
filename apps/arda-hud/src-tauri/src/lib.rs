@@ -3,22 +3,21 @@
 mod commands;
 
 use base64::{engine::general_purpose, Engine as _};
+use commands::monitor_surface::{
+    claim_monitor_slot, claim_monitor_surface, click_browser_capture, get_browser_capture_frame,
+    get_browser_capture_status, get_monitor_surface_registry, get_pty_capture_status,
+    key_browser_capture, navigate_browser_capture, patch_monitor_surface_playback,
+    push_surface_payload, refresh_monitor_slot_lease, refresh_monitor_surface_lease,
+    release_monitor_slot, release_monitor_surface, restore_monitor_surface_registry,
+    scroll_browser_capture, start_browser_capture, start_pty_capture, stop_browser_capture,
+    stop_pty_capture, type_browser_capture, write_pty_capture, BrowserCaptureState,
+    MonitorSurfaceState, PtyCaptureState, TypedMonitorSurfaceState,
+};
 use commands::workbench::{
     approve_workbench_run, attach_project_contract, cancel_workbench_run,
     complete_workbench_run_node, execute_workbench_provider_node, get_workbench_run,
     get_workbench_run_events, plan_workbench_run, start_workbench_run_event_stream,
     validate_project_contract, WorkbenchEventStreamState,
-};
-use commands::monitor_surface::{
-    claim_monitor_slot, claim_monitor_surface, click_browser_capture, get_browser_capture_frame,
-    get_browser_capture_status, get_monitor_surface_registry, key_browser_capture,
-    navigate_browser_capture, get_pty_capture_status,
-    patch_monitor_surface_playback, push_surface_payload, refresh_monitor_slot_lease,
-    refresh_monitor_surface_lease, release_monitor_slot, release_monitor_surface,
-    restore_monitor_surface_registry, scroll_browser_capture, start_browser_capture,
-    start_pty_capture, stop_browser_capture, stop_pty_capture, type_browser_capture,
-    write_pty_capture, BrowserCaptureState, MonitorSurfaceState, PtyCaptureState,
-    TypedMonitorSurfaceState,
 };
 use portable_pty::CommandBuilder;
 use serde::{Deserialize, Serialize};
@@ -34,10 +33,8 @@ use std::time::Duration;
 use std::time::Instant;
 use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
-use tauri::{
-    AppHandle, Emitter, Manager, State, WebviewUrl, WebviewWindowBuilder,
-};
 use tauri::async_runtime::Mutex as AsyncMutex;
+use tauri::{AppHandle, Emitter, Manager, State, WebviewUrl, WebviewWindowBuilder};
 use tauri_plugin_opener::OpenerExt;
 
 const IMAGE_PREVIEW_MAX_BYTES: u64 = 2 * 1024 * 1024;
@@ -391,12 +388,10 @@ fn pdf_mime_for_path(path: &Path) -> Option<&'static str> {
 }
 
 fn home_arda_root() -> String {
-    Path::new(
-        &std::env::var("HOME").unwrap_or_else(|_| "/var/home/mythos".to_string()),
-    )
-    .join("ARDA")
-    .to_string_lossy()
-    .into_owned()
+    Path::new(&std::env::var("HOME").unwrap_or_else(|_| "/var/home/mythos".to_string()))
+        .join("ARDA")
+        .to_string_lossy()
+        .into_owned()
 }
 
 fn resolve_existing_env(keys: &[&str]) -> Option<String> {
@@ -425,7 +420,6 @@ fn resolve_ardas_root() -> String {
     home_arda_root()
 }
 
-
 fn write_system_paths_file(root: &str, state_dir: &Path) -> Result<(), String> {
     let path = state_dir.join("system_paths.json");
     let payload = serde_json::json!({
@@ -433,12 +427,10 @@ fn write_system_paths_file(root: &str, state_dir: &Path) -> Result<(), String> {
         "arda_state_dir": state_dir.to_string_lossy().into_owned(),
         "resolved_at": chrono::Utc::now().to_rfc3339(),
     });
-    fs::create_dir_all(state_dir)
-        .map_err(|e| format!("failed to create state dir: {e}"))?;
+    fs::create_dir_all(state_dir).map_err(|e| format!("failed to create state dir: {e}"))?;
     let content = serde_json::to_string_pretty(&payload)
         .map_err(|e| format!("serialize system paths failed: {e}"))?;
-    fs::write(&path, content)
-        .map_err(|e| format!("write system paths failed: {e}"))?;
+    fs::write(&path, content).map_err(|e| format!("write system paths failed: {e}"))?;
     Ok(())
 }
 fn resolve_ardas_state_dir(root: &str) -> PathBuf {
@@ -452,7 +444,12 @@ fn resolve_ardas_state_dir(root: &str) -> PathBuf {
 }
 
 fn _resolve_voice_root() -> String {
-    if let Some(path) = resolve_existing_env(&["ANNUNIMAS_VALINOR_ROOT", "ANNUNIMAS_VOICE_ROOT", "ARDA_VALINOR_ROOT", "ARDA_VOICE_ROOT"]) {
+    if let Some(path) = resolve_existing_env(&[
+        "ANNUNIMAS_VALINOR_ROOT",
+        "ANNUNIMAS_VOICE_ROOT",
+        "ARDA_VALINOR_ROOT",
+        "ARDA_VOICE_ROOT",
+    ]) {
         return path;
     }
 
@@ -462,7 +459,10 @@ fn _resolve_voice_root() -> String {
         return arda_valinor.to_string_lossy().to_string();
     }
 
-    Path::new(&arda_root).join("Valinor").to_string_lossy().to_string()
+    Path::new(&arda_root)
+        .join("Valinor")
+        .to_string_lossy()
+        .to_string()
 }
 
 fn modified_unix(meta: &fs::Metadata) -> Option<i64> {
@@ -846,9 +846,7 @@ fn run_setup_console_audit_receipt(
             ));
         }
         Err(primary_error) => {
-            return Err(format!(
-                "{label} errored for {source}: {primary_error}"
-            ));
+            return Err(format!("{label} errored for {source}: {primary_error}"));
         }
     };
 
@@ -1894,9 +1892,7 @@ fn approve_human_augmentation_action(
     note: Option<String>,
     status: Option<String>,
 ) -> FileReadResult {
-    let build_root = Path::new(&numenor_path)
-        .join(".cache")
-        .join("arda-build");
+    let build_root = Path::new(&numenor_path).join(".cache").join("arda-build");
     let target_dir = build_root.join("target");
     let tmp_dir = build_root.join("tmp");
     let _ = fs::create_dir_all(&target_dir);
@@ -1974,6 +1970,98 @@ fn approve_human_augmentation_action(
 }
 
 #[tauri::command]
+fn review_arandur_recommendation_action(
+    numenor_path: String,
+    recommendation_id: String,
+    decision: String,
+    reviewed_by: String,
+    note: Option<String>,
+) -> FileReadResult {
+    let mut command = Command::new("cargo");
+    command
+        .arg("run")
+        .arg("-p")
+        .arg("arda-aule")
+        .arg("--features")
+        .arg("full-cli")
+        .arg("--bin")
+        .arg("arda-cli")
+        .arg("--")
+        .arg("prometheus")
+        .arg("autopilot")
+        .arg("review-recommendation")
+        .arg(&recommendation_id)
+        .arg("--decision")
+        .arg(&decision)
+        .arg("--reviewed-by")
+        .arg(&reviewed_by)
+        .arg("--root")
+        .arg(&numenor_path)
+        .current_dir(&numenor_path);
+    if let Some(note) = note.filter(|note| !note.trim().is_empty()) {
+        command.arg("--note").arg(note);
+    }
+    match command.output() {
+        Ok(result) if result.status.success() => FileReadResult {
+            success: true,
+            content: Some(String::from_utf8_lossy(&result.stdout).to_string()),
+            error: None,
+            path: format!("{numenor_path}/data/arandur/recommendations.jsonl"),
+        },
+        Ok(result) => FileReadResult {
+            success: false,
+            content: Some(String::from_utf8_lossy(&result.stdout).to_string()),
+            error: Some(String::from_utf8_lossy(&result.stderr).to_string()),
+            path: numenor_path,
+        },
+        Err(error) => FileReadResult {
+            success: false,
+            content: None,
+            error: Some(format!(
+                "failed to launch Arandur recommendation review: {error}"
+            )),
+            path: numenor_path,
+        },
+    }
+}
+
+fn run_approved_queue_cli(arda_root: String, args: &[&str]) -> Result<String, String> {
+    if arda_root.trim().is_empty() {
+        return Err("ARDA root is required".to_string());
+    }
+    let mut command = Command::new("arda-cli");
+    command
+        .arg("prometheus")
+        .arg("autopilot")
+        .args(args)
+        .arg("--root")
+        .arg(&arda_root)
+        .current_dir(&arda_root);
+    let output = run_bounded_command(command, Duration::from_secs(45), "approved queue action")?;
+    if !output.status.success() {
+        return Err(String::from_utf8_lossy(&output.stderr).trim().to_string());
+    }
+    Ok(String::from_utf8_lossy(&output.stdout).to_string())
+}
+
+#[tauri::command]
+fn cancel_approved_queue_task_action(
+    arda_root: String,
+    task_id: String,
+    reason: String,
+) -> Result<String, String> {
+    run_approved_queue_cli(
+        arda_root,
+        &["cancel-approved-task", &task_id, "--reason", &reason],
+    )
+}
+
+#[tauri::command]
+fn retry_approved_queue_task_action(arda_root: String, task_id: String) -> Result<String, String> {
+    run_approved_queue_cli(arda_root, &["retry-approved-task", &task_id])
+}
+
+#[tauri::command]
 fn record_ceo_council_session_action(
     numenor_path: String,
     objective: String,
@@ -1996,9 +2084,7 @@ fn record_ceo_council_session_action(
     memory_writes: Vec<String>,
     promoted_private_memory: bool,
 ) -> FileReadResult {
-    let build_root = Path::new(&numenor_path)
-        .join(".cache")
-        .join("arda-build");
+    let build_root = Path::new(&numenor_path).join(".cache").join("arda-build");
     let target_dir = build_root.join("target");
     let tmp_dir = build_root.join("tmp");
     let _ = fs::create_dir_all(&target_dir);
@@ -2228,10 +2314,7 @@ fn hermes_runtime_probe(config: &HermesRuntimeConfig) -> Result<String, String> 
             Ok(n) => buffer.extend_from_slice(&chunk[..n]),
             Err(error) => {
                 if buffer.is_empty() {
-                    return Err(format!(
-                        "Hermes runtime HTTP probe read failed: {}",
-                        error
-                    ));
+                    return Err(format!("Hermes runtime HTTP probe read failed: {}", error));
                 }
                 break;
             }
@@ -2629,9 +2712,7 @@ fn minimize_window(app: AppHandle, window_label: Option<String>) -> Result<(), S
 #[tauri::command]
 async fn start_dragging(app: AppHandle, window_label: Option<String>) -> Result<(), String> {
     let window = resolve_window(&app, window_label)?;
-    window
-        .start_dragging()
-        .map_err(|e| e.to_string())
+    window.start_dragging().map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -2641,7 +2722,6 @@ fn toggle_fullscreen(app: AppHandle, window_label: Option<String>) -> Result<(),
         .set_fullscreen(!window.is_fullscreen().map_err(|e| e.to_string())?)
         .map_err(|e| e.to_string())
 }
-
 
 struct AppState {
     pty_pair: Arc<AsyncMutex<portable_pty::PtyPair>>,
@@ -2676,18 +2756,13 @@ async fn async_read_from_pty(state: State<'_, AppState>) -> Result<Option<String
         }
         data.to_vec()
     };
-    let text = String::from_utf8(data.clone())
-        .map_err(|error| error.to_string())?;
+    let text = String::from_utf8(data.clone()).map_err(|error| error.to_string())?;
     reader.consume(data.len());
     Ok(Some(text))
 }
 
 #[tauri::command]
-async fn async_resize_pty(
-    rows: u16,
-    cols: u16,
-    state: State<'_, AppState>,
-) -> Result<(), String> {
+async fn async_resize_pty(rows: u16, cols: u16, state: State<'_, AppState>) -> Result<(), String> {
     state
         .pty_pair
         .lock()
@@ -2796,23 +2871,20 @@ fn create_monitor_surface(
         let _ = ensure_hermes_runtime_process(&state)?;
     }
 
-    let title = request.title.unwrap_or_else(|| {
-        format!("ARDA Monitor — {}", request.slot_id)
-    });
+    let title = request
+        .title
+        .unwrap_or_else(|| format!("ARDA Monitor — {}", request.slot_id));
     let width = request.width.unwrap_or(820.0);
     let height = request.height.unwrap_or(560.0);
 
     let webview_url = if request.source_zone_id == "hermes_runtime" {
         let config = hermes_runtime_config();
-        let parsed_url =
-            tauri::Url::parse(&config.url()).map_err(|error| error.to_string())?;
+        let parsed_url = tauri::Url::parse(&config.url()).map_err(|error| error.to_string())?;
         WebviewUrl::External(parsed_url)
     } else {
         let path = format!(
             "index.html?__view=panel&__windowId={}&__windowRole=monitor&__slot={}&__source={}&#38;",
-            window_label,
-            request.slot_id,
-            request.source_zone_id,
+            window_label, request.slot_id, request.source_zone_id,
         );
         WebviewUrl::App(path.into())
     };
@@ -2862,11 +2934,10 @@ fn create_monitor_surface(
 }
 
 #[tauri::command]
-fn dismiss_monitor_surface(
-    app: AppHandle,
-    window_label: Option<String>,
-) -> Result<String, String> {
-    let label = window_label.as_deref().ok_or_else(|| "window_label is required".to_string())?;
+fn dismiss_monitor_surface(app: AppHandle, window_label: Option<String>) -> Result<String, String> {
+    let label = window_label
+        .as_deref()
+        .ok_or_else(|| "window_label is required".to_string())?;
     let window = app
         .get_webview_window(label)
         .ok_or_else(|| format!("Monitor surface window '{}' not found", label))?;
@@ -2918,8 +2989,14 @@ pub fn run() {
             pixel_height: 0,
         })
         .expect("failed to open pty");
-    let reader = pty_pair.master.try_clone_reader().expect("failed to clone pty reader");
-    let writer = pty_pair.master.take_writer().expect("failed to take pty writer");
+    let reader = pty_pair
+        .master
+        .try_clone_reader()
+        .expect("failed to clone pty reader");
+    let writer = pty_pair
+        .master
+        .take_writer()
+        .expect("failed to take pty writer");
 
     tauri::Builder::default()
         .manage(AppState {
@@ -2972,6 +3049,9 @@ pub fn run() {
             delete_scoped_path,
             write_scoped_file,
             approve_human_augmentation_action,
+            review_arandur_recommendation_action,
+            cancel_approved_queue_task_action,
+            retry_approved_queue_task_action,
             record_ceo_council_session_action,
             start_hud_pulse_stream,
             stop_hud_pulse_stream,
@@ -3021,9 +3101,7 @@ pub fn run() {
         })
         .run(|app_handle, event| {
             if matches!(event, tauri::RunEvent::ExitRequested { .. }) {
-                app_handle
-                    .state::<BrowserCaptureState>()
-                    .cleanup_all();
+                app_handle.state::<BrowserCaptureState>().cleanup_all();
                 app_handle.state::<PtyCaptureState>().cleanup_all();
                 app_handle
                     .state::<HermesRuntimeState>()

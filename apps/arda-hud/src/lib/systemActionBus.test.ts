@@ -123,6 +123,36 @@ describe('system action capability statuses', () => {
 })
 
 describe('local CLI operator actions', () => {
+  it('reviews Arandur recommendations through the canonical autopilot ledger action', async () => {
+    setSystemActionAdapterPreset('local_cli')
+    mockedSafeTauriInvoke.mockResolvedValueOnce({
+      success: true,
+      content: 'recommendation approved',
+      error: null,
+      path: '/var/home/mythos/Arda/data/arandur/recommendations.jsonl',
+    })
+
+    const result = await executeSystemAction('review_arandur_recommendation', {
+      ...actionContext,
+      payload: {
+        arda_root: '/var/home/mythos/Arda',
+        recommendation_id: 'reco-1',
+        decision: 'approve',
+        reviewed_by: 'operator',
+        note: 'Approved in Operations.',
+      },
+    })
+
+    expect(result.ok).toBe(true)
+    expect(mockedSafeTauriInvoke).toHaveBeenCalledWith('review_arandur_recommendation_action', {
+      numenorPath: '/var/home/mythos/Arda',
+      recommendationId: 'reco-1',
+      decision: 'approve',
+      reviewedBy: 'operator',
+      note: 'Approved in Operations.',
+    })
+  })
+
   it('records human augmentation approval decisions through the Tauri local CLI adapter', async () => {
     setSystemActionAdapterPreset('local_cli')
     mockedSafeTauriInvoke.mockResolvedValueOnce({

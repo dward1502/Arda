@@ -265,6 +265,42 @@ enum AutopilotCommands {
         #[arg(long)]
         root: Option<PathBuf>,
     },
+    /// Select the next operator-approved task eligible for Workbench execution.
+    NextApprovedTask {
+        #[arg(long)]
+        root: Option<PathBuf>,
+    },
+    /// Claim and execute at most one approved canonical task through Workbench.
+    ExecuteApprovedTask {
+        #[arg(long)]
+        root: Option<PathBuf>,
+    },
+    /// Cancel the Workbench run associated with a claimed canonical task.
+    CancelApprovedTask {
+        task_id: String,
+        #[arg(long)]
+        reason: String,
+        #[arg(long)]
+        root: Option<PathBuf>,
+    },
+    /// Requeue a failed approved task with a distinct Workbench attempt id.
+    RetryApprovedTask {
+        task_id: String,
+        #[arg(long)]
+        root: Option<PathBuf>,
+    },
+    /// Append an operator decision to the Arandur recommendation ledger.
+    ReviewRecommendation {
+        recommendation_id: String,
+        #[arg(long, value_parser = ["approve", "reject"])]
+        decision: String,
+        #[arg(long)]
+        reviewed_by: String,
+        #[arg(long)]
+        note: Option<String>,
+        #[arg(long)]
+        root: Option<PathBuf>,
+    },
     /// Inspect or explicitly publish the autonomous-loop preflight projection.
     Preflight {
         #[arg(long)]
@@ -737,8 +773,8 @@ fn handle_prometheus(command: PrometheusCommands) -> Result<()> {
 fn handle_autopilot(command: AutopilotCommands, default_root: PathBuf) -> Result<()> {
     use arda_aule::prometheus::autopilot::{
         ceo_loop, execute_knowledge_task_queue, inspect_autonomy_preflight,
-        promote_knowledge_tasks, run_knowledge_triage, write_autonomy_preflight, AutopilotConfig,
-        CeoAutopilot, KnowledgeTriageConfig,
+        promote_knowledge_tasks, review_arandur_recommendation, run_knowledge_triage,
+        write_autonomy_preflight, AutopilotConfig, CeoAutopilot, KnowledgeTriageConfig,
     };
     use std::sync::atomic::AtomicBool;
     use std::sync::Arc;
@@ -800,6 +836,57 @@ fn handle_autopilot(command: AutopilotCommands, default_root: PathBuf) -> Result
                     json!({"error": "autopilot state not found", "path": path.display().to_string()})
                 });
             println!("{}", serde_json::to_string_pretty(&value)?);
+        }
+        AutopilotCommands::NextApprovedTask { root } => {
+            let root = resolve_root(root);
+            let selected = arda_aule::prometheus::autopilot::ActiveQueueExecutor::new(&root)
+                .select_next_approved()?;
+            println!("{}", serde_json::to_string_pretty(&selected)?);
+        }
+        AutopilotCommands::ExecuteApprovedTask { root } => {
+            let root = resolve_root(root);
+            let executor = arda_aule::prometheus::autopilot::WorkbenchQueueExecutor::new(root)?;
+            let runtime = tokio::runtime::Builder::new_multi_thread()
+                .enable_all()
+                .build()?;
+            let receipt = runtime.block_on(executor.execute_once())?;
+            println!("{}", serde_json::to_string_pretty(&receipt)?);
+        }
+        AutopilotCommands::CancelApprovedTask {
+            task_id,
+            reason,
+            root,
+        } => {
+            let root = resolve_root(root);
+            let executor = arda_aule::prometheus::autopilot::WorkbenchQueueExecutor::new(root)?;
+            let runtime = tokio::runtime::Builder::new_multi_thread()
+                .enable_all()
+                .build()?;
+            let receipt = runtime.block_on(executor.cancel_task(&task_id, &reason))?;
+            println!("{}", serde_json::to_string_pretty(&receipt)?);
+        }
+        AutopilotCommands::RetryApprovedTask { task_id, root } => {
+            let root = resolve_root(root);
+            let task = arda_aule::prometheus::autopilot::ActiveQueueExecutor::new(&root)
+                .retry_failed(&task_id)?;
+            println!("{}", serde_json::to_string_pretty(&task)?);
+        }
+        AutopilotCommands::ReviewRecommendation {
+            recommendation_id,
+            decision,
+            reviewed_by,
+            note,
+            root,
+        } => {
+            let root = resolve_root(root);
+            let receipt = review_arandur_recommendation(
+                root.join("data/arandur/recommendations.jsonl"),
+                &recommendation_id,
+                decision == "approve",
+                &reviewed_by,
+                note.as_deref(),
+            )?;
+            println!("{}", serde_json::to_string_pretty(&receipt)?);
         }
         AutopilotCommands::Preflight { root, write } => {
             let root = resolve_root(root);

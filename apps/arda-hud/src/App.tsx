@@ -1218,6 +1218,18 @@ export default function App() {
             <ArandurApprovalWorkstation
               approvals={humanAugmentation.approvals}
               queueWriteRequests={arandurQueueWriteRequests}
+              activeTasks={(bundle?.taskQueueEntries ?? []).map((entry) => ({
+                id: getString(entry.id, getString(entry.task_id, 'unknown')),
+                title: getString(entry.title, 'Untitled task'),
+                owner: getString(entry.owner, 'unassigned'),
+                status: getString(entry.status, 'unknown'),
+                priority: getString(entry.priority, 'medium'),
+                workbenchRunId: getString(entry.workbench_run_id, '') || null,
+                leaseExpiresAtUtc: getString(entry.lease_expires_at_utc, '') || null,
+                executionReceiptDigest: getString(entry.execution_receipt_digest, '') || null,
+                result: getString(entry.result, '') || null,
+                detail: getString(entry.detail, '') || null,
+              })).filter((task) => task.id !== 'unknown')}
               busy={approvalBusy}
               message={approvalMessage}
               rootPath={bundle?.rootPath ?? null}
@@ -1230,6 +1242,41 @@ export default function App() {
                 const item = reviewGateItems.find((candidate) => candidate.id === request.id)
                 if (item) void submitReviewGateDecision(item, 'rejected')
                 else setApprovalMessage(`Review packet unavailable for ${request.id}`)
+              }}
+              onCancelTask={(task) => {
+                void (async () => {
+                  try {
+                    setApprovalBusy(true)
+                    const { invoke } = await import('@tauri-apps/api/core')
+                    await invoke('cancel_approved_queue_task_action', {
+                      ardaRoot: bundle?.rootPath ?? '',
+                      taskId: task.id,
+                      reason: 'operator cancellation from ARDA HUD',
+                    })
+                    setApprovalMessage(`Cancellation recorded for ${task.id}`)
+                  } catch (error) {
+                    setApprovalMessage(`Cancellation failed: ${String(error)}`)
+                  } finally {
+                    setApprovalBusy(false)
+                  }
+                })()
+              }}
+              onRetryTask={(task) => {
+                void (async () => {
+                  try {
+                    setApprovalBusy(true)
+                    const { invoke } = await import('@tauri-apps/api/core')
+                    await invoke('retry_approved_queue_task_action', {
+                      ardaRoot: bundle?.rootPath ?? '',
+                      taskId: task.id,
+                    })
+                    setApprovalMessage(`Governed retry queued for ${task.id}`)
+                  } catch (error) {
+                    setApprovalMessage(`Retry failed: ${String(error)}`)
+                  } finally {
+                    setApprovalBusy(false)
+                  }
+                })()
               }}
             />
           </div>
@@ -2142,12 +2189,15 @@ export default function App() {
     setApprovalMessage(null)
     const decisionRecord = buildReviewGateDecisionRecordPreview(item, approvalApprovers)
     try {
-      const result = await executeSystemAction('approve_human_augmentation', {
+      const result = await executeSystemAction(item.kind === 'recommendation' ? 'review_arandur_recommendation' : 'approve_human_augmentation', {
         source: 'external',
         persona: 'frankyrache',
         mood: status === 'approved' ? 'success' : 'warning',
         payload: {
           numenor_path: bundle?.rootPath,
+          recommendation_id: item.kind === 'recommendation' ? item.id : undefined,
+          decision: item.kind === 'recommendation' ? (status === 'approved' ? 'approve' : 'reject') : undefined,
+          reviewed_by: item.kind === 'recommendation' ? approvalApprovers : undefined,
           decision_class: decisionRecord.decisionClass,
           command_signature: decisionRecord.commandSignature,
           approvers: decisionRecord.approvers,

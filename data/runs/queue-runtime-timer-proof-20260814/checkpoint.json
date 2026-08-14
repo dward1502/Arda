@@ -1,0 +1,118 @@
+{
+  "schema_version": "arda.run-graph.v1",
+  "run_id": "queue-runtime-timer-proof-20260814",
+  "objective_id": "runtime-timer-proof-20260814",
+  "nodes": [
+    {
+      "id": "plan",
+      "kind": "plan",
+      "state": "succeeded",
+      "authority": "read_only",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-runtime-timer-proof-20260814-plan",
+      "input_digest": null,
+      "output_digest": "runtime-timer-approval-20260814",
+      "parent_receipts": [],
+      "checkpoint": {
+        "sequence": 4,
+        "recovery_token": "queue-runtime-timer-proof-20260814:plan:4",
+        "checkpoint_digest": "sha256:3f03d9959c9e2cdd2632dfd20192c8002291776224e77a53df813cddd027c8b5"
+      }
+    },
+    {
+      "id": "approval",
+      "kind": "approval",
+      "state": "succeeded",
+      "authority": "human_approval",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-runtime-timer-proof-20260814-approval",
+      "input_digest": null,
+      "output_digest": "runtime-timer-approval-20260814",
+      "parent_receipts": [
+        "runtime-timer-approval-20260814"
+      ],
+      "checkpoint": {
+        "sequence": 7,
+        "recovery_token": "queue-runtime-timer-proof-20260814:approval:7",
+        "checkpoint_digest": "sha256:9c77072288d8773a91ff961915a80bf80b5d6d9198edca00e0c98bccc6ebe714"
+      }
+    },
+    {
+      "id": "execute",
+      "kind": "execute",
+      "state": "succeeded",
+      "authority": "execute_with_approval",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-runtime-timer-proof-20260814-execute",
+      "input_digest": null,
+      "output_digest": "sha256:cd6aa82ec907f157565b8af79f5c68edd60adeb965736b53960affd1f9a596f2",
+      "parent_receipts": [
+        "runtime-timer-approval-20260814"
+      ],
+      "checkpoint": {
+        "sequence": 10,
+        "recovery_token": "queue-runtime-timer-proof-20260814:execute:10",
+        "checkpoint_digest": "sha256:6f0f4bf9849c148bb808dbbd45acceba7bad68a8fb37ccba0135e5b9e9beb570"
+      },
+      "worker": {
+        "role": "implementer",
+        "worker_id": "hermes:queue:runtime-timer-proof-20260814",
+        "route_id": "hosted:hermes-workbench",
+        "route_class": "hosted",
+        "prompt_digest": "sha256:e43d4eec2574a1eb865cface30f65d502e92967c1cc7e9719485f384fa0348e0",
+        "allowed_toolsets": [
+          "file",
+          "terminal"
+        ],
+        "dependencies": [
+          "approval"
+        ],
+        "deadline_unix_ms": 1786670071476,
+        "output_contract": "arda.hermes-job-result.v1",
+        "evidence_policy": "worker_report"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "plan-approval",
+      "from": "plan",
+      "to": "approval",
+      "parent_receipt": "runtime-timer-approval-20260814"
+    },
+    {
+      "id": "approval-execute",
+      "from": "approval",
+      "to": "execute",
+      "parent_receipt": "runtime-timer-approval-20260814"
+    }
+  ],
+  "provenance": {
+    "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+    "created_by": "arda_workbench.queue_executor",
+    "parent_receipts": [
+      "runtime-timer-approval-20260814"
+    ]
+  }
+}

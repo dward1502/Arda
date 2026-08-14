@@ -44,6 +44,8 @@ pub fn append_plan_to_queue_with_conditions(
         oracle_conditions,
         "not_evaluated",
         &[],
+        None,
+        None,
     )
 }
 
@@ -55,6 +57,8 @@ pub fn append_plan_to_queue_with_gate_metadata(
     oracle_conditions: &[String],
     autonomy_readiness_decision: &str,
     autonomy_readiness_reasons: &[String],
+    source_objective_packet_id: Option<&str>,
+    approval_packet_id: Option<&str>,
 ) -> std::io::Result<Vec<String>> {
     let path = queue_path.as_ref();
     if let Some(p) = path.parent() {
@@ -88,6 +92,11 @@ pub fn append_plan_to_queue_with_gate_metadata(
                 "origin": "ceo_autopilot",
                 "objective_id": objective_id,
                 "plan_key": t.key,
+                "action_class": "approved_autopilot_plan_step",
+                "mutation_risk": "operator-approved",
+                "execution_authority": "arda_workbench",
+                "source_objective_packet_id": source_objective_packet_id,
+                "approval_packet_id": approval_packet_id,
                 "oracle_conditions": oracle_conditions,
                 "autonomy_readiness_decision": autonomy_readiness_decision,
                 "autonomy_readiness_reasons": autonomy_readiness_reasons,

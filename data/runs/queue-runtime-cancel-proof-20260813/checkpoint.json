@@ -1,0 +1,118 @@
+{
+  "schema_version": "arda.run-graph.v1",
+  "run_id": "queue-runtime-cancel-proof-20260813",
+  "objective_id": "runtime-cancel-proof-20260813",
+  "nodes": [
+    {
+      "id": "plan",
+      "kind": "plan",
+      "state": "succeeded",
+      "authority": "read_only",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-runtime-cancel-proof-20260813-plan",
+      "input_digest": null,
+      "output_digest": "runtime-cancel-user-directed-20260813",
+      "parent_receipts": [],
+      "checkpoint": {
+        "sequence": 4,
+        "recovery_token": "queue-runtime-cancel-proof-20260813:plan:4",
+        "checkpoint_digest": "sha256:4fa929714e101e3c4e5aa95c051621dfd1b06b0db30f268e4368617889d68ccd"
+      }
+    },
+    {
+      "id": "approval",
+      "kind": "approval",
+      "state": "succeeded",
+      "authority": "human_approval",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-runtime-cancel-proof-20260813-approval",
+      "input_digest": null,
+      "output_digest": "runtime-cancel-user-directed-20260813",
+      "parent_receipts": [
+        "runtime-cancel-user-directed-20260813"
+      ],
+      "checkpoint": {
+        "sequence": 7,
+        "recovery_token": "queue-runtime-cancel-proof-20260813:approval:7",
+        "checkpoint_digest": "sha256:00f491e7ba3da9f853bf9574e290ca3948a9d3f40dc0d03c6e1a170b8db0a365"
+      }
+    },
+    {
+      "id": "execute",
+      "kind": "execute",
+      "state": "cancelled",
+      "authority": "execute_with_approval",
+      "budget": {
+        "max_joules": 5000.0,
+        "max_cost_usd": 2.0
+      },
+      "retry": {
+        "max_attempts": 2
+      },
+      "timeout_ms": 900000,
+      "idempotency_key": "queue-runtime-cancel-proof-20260813-execute",
+      "input_digest": null,
+      "output_digest": null,
+      "parent_receipts": [
+        "runtime-cancel-user-directed-20260813"
+      ],
+      "checkpoint": {
+        "sequence": 1,
+        "recovery_token": null,
+        "checkpoint_digest": null
+      },
+      "worker": {
+        "role": "implementer",
+        "worker_id": "hermes:queue:runtime-cancel-proof-20260813",
+        "route_id": "hosted:hermes-workbench",
+        "route_class": "hosted",
+        "prompt_digest": "sha256:64ba2089f7596e7d146531067e309cac094a04580862b5f8102fb1531808b096",
+        "allowed_toolsets": [
+          "file",
+          "terminal"
+        ],
+        "dependencies": [
+          "approval"
+        ],
+        "deadline_unix_ms": 1786666379546,
+        "output_contract": "arda.hermes-job-result.v1",
+        "evidence_policy": "worker_report"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "plan-approval",
+      "from": "plan",
+      "to": "approval",
+      "parent_receipt": "runtime-cancel-user-directed-20260813"
+    },
+    {
+      "id": "approval-execute",
+      "from": "approval",
+      "to": "execute",
+      "parent_receipt": "runtime-cancel-user-directed-20260813"
+    }
+  ],
+  "provenance": {
+    "project_contract_digest": "sha256:cc49c837f3b99e6642957547a40d7713fbd2dcf8e9008f551ed1306b28d2b74c",
+    "created_by": "arda_workbench.queue_executor",
+    "parent_receipts": [
+      "runtime-cancel-user-directed-20260813"
+    ]
+  }
+}

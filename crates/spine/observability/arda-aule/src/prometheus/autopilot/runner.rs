@@ -1445,10 +1445,11 @@ impl CeoAutopilot {
             let plan_joules = plan.iter().map(|task| task.joule_cost).sum::<f64>();
             if validation.ok
                 && gate.allows_delegation()
-                && governance.allowed_to_delegate
+                && (governance.allowed_to_delegate || cycle_obj.human_approved)
                 && !self.cfg.read_only
             {
-                if !autonomy_readiness.task_promotion_allowed {
+                let operator_approved = cycle_obj.objective_packet.approval_packet_id.is_some();
+                if !autonomy_readiness.task_promotion_allowed && !operator_approved {
                     let mut queue_packet = cycle_obj.objective_packet.clone();
                     queue_packet.canonical_queue_mutation_allowed =
                         queue_packet.approval_packet_id.is_some();
@@ -2112,7 +2113,7 @@ fn select_cycle_objectives(
                 );
                 selected = Some((
                     candidate.objective.clone(),
-                    false,
+                    true,
                     candidate.human_conditions.clone(),
                 ));
             } else {
@@ -2449,6 +2450,9 @@ fn arandur_recommendation_candidates(path: &Path) -> Vec<ObjectiveCandidate> {
                 return None;
             }
             let value = serde_json::from_str::<Value>(trimmed).ok()?;
+            if value.get("review_status").and_then(Value::as_str) == Some("rejected") {
+                return None;
+            }
             let recommendation_id = value
                 .get("recommendation_id")
                 .and_then(Value::as_str)
@@ -3421,6 +3425,38 @@ default_policy = "ledger_before_task"
         assert!(queue.contains("\"oracle_conditions\":[\"watch logs\"]"));
         let pending = std::fs::read_to_string(&cfg.a2h_pending_path).unwrap();
         assert!(pending.contains("\"status\":\"resumed\""));
+    }
+
+    #[tokio::test]
+    async fn operator_approved_recommendation_activates_queue_while_global_autonomy_is_held() {
+        let dir = tempfile::tempdir().unwrap();
+        let cfg = AutopilotConfig::from_root(dir.path());
+        std::fs::create_dir_all(cfg.arandur_recommendations_path.parent().unwrap()).unwrap();
+        std::fs::write(
+            &cfg.arandur_recommendations_path,
+            r#"{"recommendation_id":"reco-approved","review_required":false,"approval_packet":{"id":"approval-reco-approved","status":"approved","approved_by":"operator","approved_at":"2026-08-13T00:00:00Z"},"candidate":{"id":"approved_task","owner":"prometheus","priority":"high","title":"Monitor approved queue activation"}}
+"#,
+        )
+        .unwrap();
+
+        let mut auto = CeoAutopilot::new(
+            cfg.clone(),
+            super::super::bootstrap::seed_default_registry(),
+        );
+        let report = auto.run_cycle().await;
+
+        assert_eq!(report.autonomy_readiness.decision, "hold");
+        assert_eq!(report.objectives_processed, 1);
+        assert!(!report.plans[0].queued_task_ids.is_empty());
+        assert_eq!(
+            report.plans[0]
+                .queue_operation
+                .as_ref()
+                .map(|operation| &operation.result_status),
+            Some(&QueueOperationStatus::Appended)
+        );
+        let queue = std::fs::read_to_string(cfg.queue_path).unwrap();
+        assert!(queue.contains("\"status\":\"pending\""));
     }
 
     #[tokio::test]

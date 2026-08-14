@@ -1,0 +1,25 @@
+{
+  "schema_version": "arda.autopilot.stale_state_archive.v1",
+  "archived_at_utc": "2026-08-13T19:16:25.219291Z",
+  "reason": "Annunimas-era autopilot state, runs, and executor evidence are not relevant to the Arda runtime baseline. Preserved for provenance and rollback; excluded from current authority.",
+  "files": [
+    {
+      "path": "data/archive/autopilot/annunimas-stale-20260813T191625Z/autopilot.state.json",
+      "bytes": 7077,
+      "sha256": "9684aad1ec21473466524c5d5859be11a5ba148f3783f704320c286f2994337d",
+      "classification": "stale_annunimas_runtime_projection"
+    },
+    {
+      "path": "data/archive/autopilot/annunimas-stale-20260813T191625Z/project_task_executor.json",
+      "bytes": 12736,
+      "sha256": "b997aede37d9a4d8ac7ed25d17f84a6fd5b3893efddb572ab00bad50ed9d7e74",
+      "classification": "stale_annunimas_runtime_projection"
+    }
+  ],
+  "replacement_authority": [
+    "data/ceo/autopilot.state.json",
+    "core/state/queue_active.json",
+    "core/state/queue_summary.json",
+    "data/arandur/recommendations.jsonl"
+  ]
+}

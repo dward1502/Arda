@@ -38,15 +38,31 @@ export interface ArandurQueueWriteRequest {
   canonicalQueueTaskId?: string | null
 }
 
+export interface ArandurActiveTask {
+  id: string
+  title: string
+  owner: string
+  status: string
+  priority: string
+  workbenchRunId?: string | null
+  leaseExpiresAtUtc?: string | null
+  executionReceiptDigest?: string | null
+  result?: string | null
+  detail?: string | null
+}
+
 interface ArandurApprovalWorkstationProps {
   approvals: HumanAugmentationApproval[]
   queueWriteRequests: ArandurQueueWriteRequest[]
+  activeTasks?: ArandurActiveTask[]
   busy: boolean
   message?: string | null
   rootPath?: string | null
   persona?: StatefulPersona
   onApprove: (request: ArandurQueueWriteRequest) => void
   onReject: (request: ArandurQueueWriteRequest) => void
+  onCancelTask?: (task: ArandurActiveTask) => void
+  onRetryTask?: (task: ArandurActiveTask) => void
 }
 
 function statusState(status: string): 'nominal' | 'warning' | 'critical' | 'info' {
@@ -64,12 +80,15 @@ function shortSha(value: string): string {
 export default function ArandurApprovalWorkstation({
   approvals,
   queueWriteRequests,
+  activeTasks = [],
   busy,
   message,
   rootPath,
   persona,
   onApprove,
   onReject,
+  onCancelTask,
+  onRetryTask,
 }: ArandurApprovalWorkstationProps) {
   const [loadedPersona, setLoadedPersona] = useState<StatefulPersona>(() => (
     persona ?? unavailableStatefulPersona('arandur')
@@ -210,6 +229,33 @@ export default function ArandurApprovalWorkstation({
             </button>
             {message ? <div className="text-[11px] text-[#b8c4d4]">{message}</div> : null}
           </div>
+        </div>
+      </div>
+      <div style={{ marginTop: 16 }}>
+        <div className="module-subtitle"><FolderKanban size={14} /> Active Universal Queue</div>
+        <div className="document-list compact">
+          {activeTasks.length > 0 ? activeTasks.slice(0, 8).map((task) => (
+            <article className="document-list__item" key={task.id}>
+              <strong>{task.title}</strong>
+              <span>{task.owner} / {task.priority}</span>
+              <StatusBadge state={statusState(task.status)} label={task.status} />
+              {task.workbenchRunId ? <span>Run {task.workbenchRunId}</span> : null}
+              {task.leaseExpiresAtUtc ? <span>Lease {task.leaseExpiresAtUtc}</span> : null}
+              {task.executionReceiptDigest ? <span>Receipt {shortSha(task.executionReceiptDigest)}</span> : null}
+              {task.detail ? <p>{task.detail}</p> : null}
+              {['in_progress', 'running', 'claimed'].includes(task.status) && onCancelTask ? (
+                <button type="button" disabled={busy} onClick={() => onCancelTask(task)}>Cancel run</button>
+              ) : null}
+              {task.status === 'failed' && task.result !== 'cancelled' && onRetryTask ? (
+                <button type="button" disabled={busy} onClick={() => onRetryTask(task)}>Retry governed task</button>
+              ) : null}
+            </article>
+          )) : (
+            <article className="document-list__item">
+              <strong>No active tasks</strong>
+              <p>Approved proposals appear here after canonical queue activation.</p>
+            </article>
+          )}
         </div>
       </div>
     </ModuleCard>

@@ -5,9 +5,11 @@ use super::execution_outcome::project_terminal_outcome;
 use super::task_queue::{ActiveQueueExecutor, ApprovedQueueClaim, QueueRecord};
 use anyhow::{anyhow, Context, Result};
 use chrono::Utc;
+use fs2::FileExt;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
+use std::fs::{File, OpenOptions};
 use std::path::{Path, PathBuf};
 
 pub const QUEUE_EXECUTION_RECEIPT_CONTRACT: &str = "arda.workbench.queue_execution_receipt.v1";
@@ -51,8 +53,12 @@ impl WorkbenchQueueExecutor {
     }
 
     pub async fn execute_once(&self) -> Result<QueueExecutionReceipt> {
+        // Hold one root-scoped process lock through claim reconciliation and
+        // dispatch. A crash releases it, so the next invocation can recover an
+        // unexpired claim without mistaking a live executor for an orphan.
+        let _executor_lock = acquire_executor_lock(&self.root)?;
         let queue = ActiveQueueExecutor::new(&self.root);
-        let Some(claim) = queue.claim_next_approved()? else {
+        let Some(claim) = queue.claim_next_approved_reconciling_orphans()? else {
             return Ok(QueueExecutionReceipt {
                 contract: QUEUE_EXECUTION_RECEIPT_CONTRACT.into(),
                 task_id: None,
@@ -299,6 +305,23 @@ impl WorkbenchQueueExecutor {
     }
 }
 
+fn acquire_executor_lock(root: &Path) -> Result<File> {
+    let lock_path = root.join("core/projects/tasks/.workbench-queue-executor.lock");
+    if let Some(parent) = lock_path.parent() {
+        std::fs::create_dir_all(parent)
+            .with_context(|| format!("create executor lock directory `{}`", parent.display()))?;
+    }
+    let lock = OpenOptions::new()
+        .create(true)
+        .read(true)
+        .write(true)
+        .open(&lock_path)
+        .with_context(|| format!("open executor lock `{}`", lock_path.display()))?;
+    lock.lock_exclusive()
+        .with_context(|| format!("acquire executor lock `{}`", lock_path.display()))?;
+    Ok(lock)
+}
+
 fn classify_existing_run(value: &Value) -> (String, Option<String>, Option<String>) {
     let execute_state = value["graph"]["nodes"]
         .as_array()
@@ -430,6 +453,90 @@ async fn response_error(response: reqwest::Response, action: &str) -> Result<Val
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn claim_before_dispatch_crash_child() {
+        let Ok(root) = std::env::var("ARDA_CLAIM_CRASH_FIXTURE_ROOT") else {
+            return;
+        };
+        let root = PathBuf::from(root);
+        let _executor_lock = acquire_executor_lock(&root).expect("acquire child executor lock");
+        let claim = ActiveQueueExecutor::new(&root)
+            .claim_next_approved_reconciling_orphans()
+            .expect("claim fixture task")
+            .expect("approved fixture claim");
+        assert_eq!(claim.task.id, "pre-dispatch-crash-task");
+        std::process::exit(86);
+    }
+
+    #[test]
+    fn process_restart_recovers_claim_before_lease_expiry() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("core/projects/tasks/queue.jsonl");
+        let active_path = dir.path().join("core/state/queue_active.json");
+        std::fs::create_dir_all(queue_path.parent().unwrap()).unwrap();
+        std::fs::create_dir_all(active_path.parent().unwrap()).unwrap();
+        std::fs::write(
+            &queue_path,
+            format!(
+                "{}\n",
+                json!({
+                    "id": "pre-dispatch-crash-task",
+                    "title": "Recover before lease expiry",
+                    "status": "queued",
+                    "meta": {
+                        "action_class": "approved_autopilot_plan_step",
+                        "mutation_risk": "operator-approved",
+                        "execution_authority": "arda_workbench",
+                        "source_objective_packet_id": "objective-crash-proof",
+                        "approval_packet_id": "approval-crash-proof"
+                    }
+                })
+            ),
+        )
+        .unwrap();
+        std::fs::write(
+            &active_path,
+            "{\"active\":[{\"id\":\"pre-dispatch-crash-task\"}]}\n",
+        )
+        .unwrap();
+
+        let child = std::process::Command::new(std::env::current_exe().unwrap())
+            .arg("--exact")
+            .arg("prometheus::autopilot::workbench_executor::tests::claim_before_dispatch_crash_child")
+            .arg("--nocapture")
+            .env("ARDA_CLAIM_CRASH_FIXTURE_ROOT", dir.path())
+            .status()
+            .expect("run crash child");
+        assert_eq!(child.code(), Some(86));
+
+        let claimed_bytes = std::fs::read(&queue_path).unwrap();
+        let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
+            super::super::task_queue::TaskQueueAnalyzer::new(&queue_path)
+                .load()
+                .unwrap(),
+        );
+        assert_eq!(effective[0].status.as_deref(), Some("in_progress"));
+        let lease = effective[0].extra["lease_expires_at_utc"]
+            .as_str()
+            .and_then(|value| chrono::DateTime::parse_from_rfc3339(value).ok())
+            .map(|value| value.with_timezone(&Utc))
+            .expect("future lease");
+        assert!(lease > Utc::now());
+
+        let _executor_lock =
+            acquire_executor_lock(dir.path()).expect("crash released executor lock");
+        let recovered = ActiveQueueExecutor::new(dir.path())
+            .claim_next_approved_reconciling_orphans()
+            .expect("recover claimed task")
+            .expect("unexpired claim recovered");
+        assert_eq!(recovered.task.id, "pre-dispatch-crash-task");
+        assert_eq!(
+            recovered.attempt.workbench_run_id,
+            "queue-pre-dispatch-crash-task"
+        );
+        assert_eq!(std::fs::read(&queue_path).unwrap(), claimed_bytes);
+    }
 
     #[test]
     fn graph_requires_the_approved_parent_and_bounded_worker() {

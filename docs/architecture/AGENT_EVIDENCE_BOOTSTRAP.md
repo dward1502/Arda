@@ -49,10 +49,13 @@ Cancellation is explicit through
 `arda-cli prometheus autopilot cancel-approved-task <TASK_ID> --reason <TEXT>`.
 Failed non-cancelled work may be retried explicitly with `retry-approved-task`;
 each retry receives a distinct Workbench run ID while preserving task and
-approval lineage. Before dispatch, expired claims are reconciled against the
-deterministic Workbench run ID, so an existing running or terminal run wins over
-redispatch. HUD Operations displays run, lease, terminal detail, and receipt
-lineage and routes cancellation/retry through these CLI authorities.
+approval lineage. A root-scoped executor lock is held from claim reconciliation
+through dispatch. Process exit releases that lock, so the next invocation can
+recover an orphaned claim immediately, even before its lease expires, and first
+reconcile its deterministic Workbench run ID. An existing running or terminal
+run always wins over redispatch. HUD Operations displays run, lease, terminal
+detail, and receipt lineage and routes cancellation/retry through these CLI
+authorities.
 The installed `arda-aule-autopilot-read-only.timer` remains independent and
 read-only; it does not execute canonical queue work.
 

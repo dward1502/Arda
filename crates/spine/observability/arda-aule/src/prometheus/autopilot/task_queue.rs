@@ -296,6 +296,54 @@ impl ActiveQueueExecutor {
         }
     }
 
+    /// Claim new work or recover a claim whose executor process no longer owns
+    /// the executor-lifetime lock. The caller must hold that root-scoped lock
+    /// for the full reconciliation and dispatch operation.
+    pub(super) fn claim_next_approved_reconciling_orphans(
+        &self,
+    ) -> std::io::Result<Option<ApprovedQueueClaim>> {
+        if let Some(parent) = self.queue_path.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+        let mut file = OpenOptions::new()
+            .create(true)
+            .read(true)
+            .append(true)
+            .open(&self.queue_path)?;
+        file.lock_exclusive()?;
+        let result = (|| {
+            let records = read_queue_records(&file)?;
+            let effective = TaskQueueAnalyzer::effective_records(records);
+            let active_ids = self.load_active_projection_ids().unwrap_or_default();
+            let is_active =
+                |task: &QueueRecord| active_ids.is_empty() || active_ids.contains(&task.id);
+            if let Some(task) = effective.iter().find(|record| {
+                record.status.as_deref().map(normalize_task_status) == Some("in_progress")
+                    && is_active(record)
+                    && approved_workbench_metadata(record)
+            }) {
+                return Ok(Some(ApprovedQueueClaim {
+                    task: task.clone(),
+                    attempt: attempt_from_claimed_task(task)?,
+                }));
+            }
+            let Some(task) = effective.into_iter().find(|record| {
+                claimable_status(record) && is_active(record) && approved_workbench_metadata(record)
+            }) else {
+                return Ok(None);
+            };
+            let attempt = execution_attempt(&task);
+            append_attempt_to_writer(&mut file, &task, &attempt)?;
+            file.sync_data()?;
+            Ok(Some(ApprovedQueueClaim { task, attempt }))
+        })();
+        let unlock = FileExt::unlock(&file);
+        match (result, unlock) {
+            (Ok(value), Ok(())) => Ok(value),
+            (Err(error), _) | (_, Err(error)) => Err(error),
+        }
+    }
+
     pub fn append_attempt(
         &self,
         task: &QueueRecord,
@@ -515,6 +563,51 @@ fn execution_attempt(task: &QueueRecord) -> ActiveQueueExecutionAttempt {
         ),
         lease_expires_at_utc: Utc::now() + Duration::minutes(20),
     }
+}
+
+fn attempt_from_claimed_task(task: &QueueRecord) -> std::io::Result<ActiveQueueExecutionAttempt> {
+    let required = |key: &str| {
+        task.extra
+            .get(key)
+            .and_then(Value::as_str)
+            .filter(|value| !value.trim().is_empty())
+            .ok_or_else(|| {
+                std::io::Error::new(
+                    std::io::ErrorKind::InvalidData,
+                    format!("claimed task `{}` omitted `{key}`", task.id),
+                )
+            })
+    };
+    let parse_timestamp = |key: &str, value: &str| {
+        parse_utc(value).ok_or_else(|| {
+            std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                format!("claimed task `{}` has invalid `{key}`", task.id),
+            )
+        })
+    };
+    let appended_at = task
+        .started_at_utc
+        .as_deref()
+        .ok_or_else(|| {
+            std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                format!("claimed task `{}` omitted `started_at_utc`", task.id),
+            )
+        })
+        .and_then(|value| parse_timestamp("started_at_utc", value))?;
+    let lease_expires_at = required("lease_expires_at_utc")?;
+    Ok(ActiveQueueExecutionAttempt {
+        contract: required("contract")?.to_owned(),
+        executor: required("executor")?.to_owned(),
+        task_id: task.id.clone(),
+        status: "claimed".to_owned(),
+        action_class: required("action_class")?.to_owned(),
+        hades_projection_repair: false,
+        appended_at_utc: appended_at,
+        workbench_run_id: required("workbench_run_id")?.to_owned(),
+        lease_expires_at_utc: parse_timestamp("lease_expires_at_utc", lease_expires_at)?,
+    })
 }
 
 fn append_attempt_to_writer(
@@ -895,6 +988,48 @@ mod tests {
             .expect("expired lease is recoverable");
         assert_eq!(claim.task.id, "expired-task");
         assert_eq!(claim.attempt.workbench_run_id, "queue-expired-task");
+    }
+
+    #[test]
+    fn approved_claim_recovers_before_lease_expiry_without_appending_a_second_attempt() {
+        let dir = tempfile::tempdir().expect("create tempdir");
+        let queue_path = dir.path().join("queue.jsonl");
+        let active_path = dir.path().join("queue_active.json");
+        let meta = approved_workbench_extra().remove("meta").unwrap();
+        let appended_at = Utc::now() - Duration::seconds(5);
+        let lease_expires_at = Utc::now() + Duration::minutes(15);
+        let queued = json!({
+            "id": "orphaned-task",
+            "status": "queued",
+            "meta": meta.clone()
+        });
+        let claimed = json!({
+            "id": "orphaned-task",
+            "source_record_id": "orphaned-task",
+            "status": "in_progress",
+            "contract": "arda.prometheus.active_queue_execution_attempt.v1",
+            "executor": "arda_workbench.queue_executor",
+            "action_class": "approved_autopilot_plan_step",
+            "hades_projection_repair": false,
+            "started_at_utc": appended_at.to_rfc3339(),
+            "workbench_run_id": "queue-orphaned-task",
+            "lease_expires_at_utc": lease_expires_at.to_rfc3339(),
+            "meta": meta
+        });
+        std::fs::write(&queue_path, format!("{queued}\n{claimed}\n")).unwrap();
+        std::fs::write(&active_path, "{\"active\":[{\"id\":\"orphaned-task\"}]}\n").unwrap();
+        let before = std::fs::read(&queue_path).unwrap();
+
+        let claim = ActiveQueueExecutor::with_paths(&queue_path, &active_path)
+            .claim_next_approved_reconciling_orphans()
+            .unwrap()
+            .expect("unexpired orphan is immediately recoverable");
+
+        assert_eq!(claim.task.id, "orphaned-task");
+        assert_eq!(claim.attempt.workbench_run_id, "queue-orphaned-task");
+        assert_eq!(claim.attempt.appended_at_utc, appended_at);
+        assert_eq!(claim.attempt.lease_expires_at_utc, lease_expires_at);
+        assert_eq!(std::fs::read(&queue_path).unwrap(), before);
     }
 
     #[test]

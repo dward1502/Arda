@@ -1,7 +1,8 @@
 {
   "contract": "arda.0.9.hud-native-performance-accessibility-baseline.v1",
   "generated_at_utc": "2026-08-14T05:17:26Z",
-  "status": "baseline_recorded_with_blockers",
+  "last_updated_at_utc": "2026-08-14T05:52:59Z",
+  "status": "remediation_verified_with_remaining_performance_gate",
   "candidate": {
     "source_commit": "1c92702d",
     "binary": "/var/home/mythos/.cache/arda-build/target/release/arda_hud",
@@ -39,7 +40,7 @@
     "process_survived_seconds_observed": 22,
     "webkit_process_started": true,
     "native_window_detectable_by_x11_accessibility_driver": false,
-    "status": "unverifiable"
+    "status": "superseded_by_remediation_measurement"
   },
   "dmabuf_disabled_x11_fallback": {
     "environment": {
@@ -62,7 +63,7 @@
     "historical_cpu_one_core_percent_budget": 10.0,
     "accessibility_elements": 6,
     "accessibility_content_elements": 0,
-    "status": "fail",
+    "status": "superseded_by_remediation_measurement",
     "disposition": "stress/fallback evidence only; must not become the production default"
   },
   "automated_accessibility": {
@@ -73,16 +74,90 @@
     "status": "pass",
     "evidence_boundary": "jsdom/component semantics only; does not override missing native WebKit accessibility semantics"
   },
+  "remediation_20260814": {
+    "source_base_commit": "0fdc03c9",
+    "candidate_binary": {
+      "path": "/var/home/mythos/.cache/arda-build/target/release/arda_hud",
+      "sha256": "0197901157b991464c4fd04ddb10f940ae48787345690cb668298337f47aa917",
+      "size_bytes": 27492032,
+      "build_command": "pnpm run tauri:build:stable",
+      "build_status": "pass"
+    },
+    "repairs": [
+      "The launcher selects GDK_BACKEND=wayland when the active Wayland session exposes a usable compositor socket; explicit operator overrides remain authoritative.",
+      "Native WebKit uses bounded DPR with shadows and the HDR environment disabled while preserving continuous boardroom motion.",
+      "The explicit WEBKIT_DISABLE_DMABUF_RENDERER compatibility path is detected by a Tauri command and switches the boardroom to static demand rendering.",
+      "A DOM-native boardroom navigation layer exposes named anchor, workstation, Hermes, and settings actions to WebKitGTK accessibility clients and becomes visually available on keyboard focus."
+    ],
+    "hardware_backed_wayland_idle": {
+      "environment": {
+        "GDK_BACKEND": "wayland",
+        "__NV_DISABLE_EXPLICIT_SYNC": "1"
+      },
+      "warmup_seconds": 10,
+      "measurement_seconds": 60.04,
+      "aggregate_cpu_one_core_percent": 38.9,
+      "aggregate_rss_start_mib": 623.57,
+      "aggregate_rss_end_mib": 597.35,
+      "aggregate_rss_peak_mib": 665.87,
+      "aggregate_rss_growth_mib": -26.22,
+      "status": "functional_but_over_historical_resource_budget"
+    },
+    "dmabuf_disabled_x11_compatibility": {
+      "rendered_content": true,
+      "observed_surface": "full authored boardroom rendered after compatibility profile activation",
+      "first_minute": {
+        "measurement_seconds": 61.0,
+        "aggregate_cpu_one_core_percent": 12.51,
+        "aggregate_rss_start_mib": 552.56,
+        "aggregate_rss_end_mib": 583.3,
+        "aggregate_rss_peak_mib": 585.11,
+        "aggregate_rss_growth_mib": 30.73
+      },
+      "steady_state_second_minute": {
+        "measurement_seconds": 61.01,
+        "aggregate_cpu_one_core_percent": 12.59,
+        "aggregate_rss_start_mib": 590.21,
+        "aggregate_rss_end_mib": 603.0,
+        "aggregate_rss_peak_mib": 610.01,
+        "aggregate_rss_growth_mib": 12.79
+      },
+      "cpu_reduction_percent_from_original_fallback": 88.13,
+      "status": "cpu_repaired_memory_over_historical_budget",
+      "disposition": "rendering compatibility only; not the production default"
+    },
+    "native_accessibility": {
+      "tool": "AT-SPI via system pyatspi",
+      "named_boardroom_controls": 36,
+      "settings_action": "press",
+      "settings_action_activated": true,
+      "settings_surface_exposed": true,
+      "close_settings_control_exposed": true,
+      "status": "semantic_controls_verified",
+      "remaining_qualification": "Complete keyboard focus-order, Escape, focus-restoration, and screen-reader acceptance."
+    },
+    "verification": {
+      "frontend_test_files_passed": 132,
+      "frontend_tests_passed": 521,
+      "frontend_build": "pass",
+      "frontend_lint": "pass_with_pre_existing_warnings",
+      "cargo_check_manifest": "pass_with_pre_existing_warnings"
+    }
+  },
   "decision": {
     "baseline_recorded": true,
+    "launcher_native_path_repaired": true,
+    "compatibility_cpu_repaired": true,
+    "native_semantic_controls_verified": true,
     "native_performance_qualified": false,
     "native_accessibility_qualified": false,
     "artifact_rebuild_allowed": false,
     "blocking_findings": [
-      "The supported hardware-backed X11 path renders a black native webview after a GBM allocation failure.",
-      "The rendering fallback exceeds the historical native RSS and CPU budgets.",
-      "Native WebKit accessibility exposes no HUD content controls or monitor/console semantics."
+      "Direct hardware-backed X11 still renders a black webview after a GBM allocation failure; supported Wayland sessions now bypass that path.",
+      "Animated Wayland and static compatibility process trees remain above the historical 512 MiB RSS budget.",
+      "Animated Wayland remains above the historical 10% one-core idle CPU budget.",
+      "Keyboard focus-order, Escape, focus-restoration, and screen-reader acceptance remain to be completed."
     ],
-    "required_next_action": "Repair the hardware-backed native render path and expose semantic native controls, then rerun a separate five-minute idle-resource sample and native keyboard/screen-reader acceptance before rebuilding the 0.9 artifact."
+    "required_next_action": "Profile native WebKit/Three.js memory ownership and settle the realistic animated-idle resource contract, then run five-minute idle and complete keyboard/screen-reader acceptance before rebuilding the 0.9 artifact."
   }
 }

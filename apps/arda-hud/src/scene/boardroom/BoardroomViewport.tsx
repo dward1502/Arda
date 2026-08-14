@@ -1,6 +1,7 @@
 // sigil: REPAIR
 import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber'
 import { Environment, Html, OrbitControls, useGLTF, useTexture } from '@react-three/drei'
+import { invoke, isTauri } from '@tauri-apps/api/core'
 import { Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import * as THREE from 'three'
 import type { Group } from 'three'
@@ -77,6 +78,7 @@ import {
   resolveMonitorSurfaceOpenRequest,
   type MonitorSurfacePayloadEvent,
 } from './monitorSurfaceRuntime'
+import BoardroomAccessibilityControls from './BoardroomAccessibilityControls'
 
 interface BoardroomViewportProps {
   active: boolean
@@ -1428,6 +1430,7 @@ function BoardroomFrameRateProbe() {
 
 export default function BoardroomViewport(props: BoardroomViewportProps) {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+  const [softwareRenderer, setSoftwareRenderer] = useState(false)
   const acceptanceEnabled = import.meta.env.DEV && import.meta.env.VITE_MONITOR_ACCEPTANCE === '1'
 
   useEffect(() => {
@@ -1438,12 +1441,23 @@ export default function BoardroomViewport(props: BoardroomViewportProps) {
     return () => query.removeEventListener('change', update)
   }, [])
 
+  useEffect(() => {
+    if (!isTauri()) return
+    let cancelled = false
+    void invoke<{ software_renderer: boolean }>('get_hud_render_context').then((context) => {
+      if (!cancelled) setSoftwareRenderer(context.software_renderer)
+    }).catch(() => undefined)
+    return () => { cancelled = true }
+  }, [])
+
   const deviceMemoryGb = (navigator as Navigator & { deviceMemory?: number }).deviceMemory
   const renderProfile = resolveBoardroomRenderProfile({
     active: props.active,
     prefersReducedMotion,
     hardwareConcurrency: navigator.hardwareConcurrency,
     deviceMemoryGb,
+    nativeWebKit: isTauri(),
+    softwareRenderer,
   })
 
   return (
@@ -1464,6 +1478,15 @@ export default function BoardroomViewport(props: BoardroomViewportProps) {
           <BoardroomScene {...props} renderProfile={renderProfile} />
         </Suspense>
       </Canvas>
+      <BoardroomAccessibilityControls
+        anchors={props.anchors}
+        workstations={props.workstations}
+        onActivate={props.onActivate}
+        onOpenWorkstation={props.onOpenWorkstation}
+        onOpenHermesDashboard={props.onOpenHermesDashboard}
+        onOpenHermesCli={props.onOpenHermesCli}
+        onOpenSettings={props.onOpenSettings}
+      />
       {acceptanceEnabled ? (
         <div style={{ position: 'fixed', right: '1rem', top: '3.5rem', zIndex: 10000, color: '#8cffc7', textAlign: 'right' }}>
           <output id="boardroom-frame-rate-probe">Scene measuring…</output>

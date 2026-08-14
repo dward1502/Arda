@@ -35,6 +35,42 @@ describe('boardroom performance profile', () => {
     expect(profile.motionEnabled).toBe(false)
   })
 
+  it('preserves motion while bounding expensive native WebKit effects', () => {
+    expect(resolveBoardroomRenderProfile({
+      active: true,
+      prefersReducedMotion: false,
+      hardwareConcurrency: 16,
+      deviceMemoryGb: 16,
+      nativeWebKit: true,
+    })).toEqual({
+      id: 'native',
+      dpr: [1, 1.25],
+      frameloop: 'always',
+      shadows: false,
+      environmentEnabled: false,
+      motionEnabled: true,
+      postProcessingEnabled: false,
+    })
+  })
+
+  it('prevents continuous rendering in the explicit software compatibility path', () => {
+    expect(resolveBoardroomRenderProfile({
+      active: true,
+      prefersReducedMotion: false,
+      hardwareConcurrency: 16,
+      deviceMemoryGb: 16,
+      nativeWebKit: true,
+      softwareRenderer: true,
+    })).toMatchObject({
+      id: 'compatibility',
+      dpr: [1, 1],
+      frameloop: 'demand',
+      motionEnabled: false,
+      shadows: false,
+      environmentEnabled: false,
+    })
+  })
+
   it('honors reduced motion independently of hardware capacity', () => {
     expect(resolveBoardroomRenderProfile({
       active: true,

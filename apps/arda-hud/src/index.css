@@ -1367,3 +1367,48 @@
   .company-ops__grid,
   .company-ops__values { grid-template-columns: 1fr; }
 }
+.boardroom-accessibility-controls {
+  position: fixed;
+  inset: 0 auto auto 0;
+  z-index: 10020;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.boardroom-accessibility-controls:focus-within {
+  width: min(30rem, calc(100vw - 2rem));
+  height: auto;
+  margin: 1rem;
+  padding: 1rem;
+  overflow: auto;
+  clip-path: none;
+  white-space: normal;
+  color: #d8f8ff;
+  background: rgba(3, 12, 19, 0.97);
+  border: 1px solid rgba(94, 225, 255, 0.72);
+}
+
+.boardroom-accessibility-controls ul {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.boardroom-accessibility-controls button {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  color: inherit;
+  text-align: left;
+  background: rgba(9, 30, 43, 0.92);
+  border: 1px solid rgba(94, 225, 255, 0.3);
+}
+
+.boardroom-accessibility-controls button:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}

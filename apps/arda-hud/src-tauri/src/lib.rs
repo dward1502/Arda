@@ -541,6 +541,19 @@ fn get_arda_root() -> String {
     resolve_ardas_root()
 }
 
+#[derive(Serialize)]
+struct HudRenderContext {
+    software_renderer: bool,
+}
+
+#[tauri::command]
+fn get_hud_render_context() -> HudRenderContext {
+    HudRenderContext {
+        software_renderer: std::env::var("WEBKIT_DISABLE_DMABUF_RENDERER")
+            .is_ok_and(|value| value == "1" || value.eq_ignore_ascii_case("true")),
+    }
+}
+
 #[tauri::command]
 fn get_numenor_path() -> String {
     resolve_ardas_root()
@@ -3025,6 +3038,7 @@ pub fn run() {
             start_workbench_run_event_stream,
             read_file,
             get_arda_root,
+            get_hud_render_context,
             get_numenor_path,
             run_chronos_provider_checks,
             run_charon_provider_intelligence_refresh,

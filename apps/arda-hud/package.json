@@ -36,7 +36,7 @@
     "framer-motion": "^12.34.3",
     "fuse.js": "^7.1.0",
     "lucide-react": "^0.575.0",
-    "mermaid": "^11.16.0",
+    "mermaid": "^11.16.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-virtualized-auto-sizer": "^2.0.3",

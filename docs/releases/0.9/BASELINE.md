@@ -6,10 +6,10 @@ soterion:
   role: "release_baseline"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-08-12"
+  last_reviewed: "2026-08-13"
 ---
 
-> 🜏 Soterion: 📜 release_baseline | owner: HADES | status: active | reviewed: 2026-08-12
+> 🜏 Soterion: 📜 release_baseline | owner: HADES | status: active | reviewed: 2026-08-13
 
 # Arda 0.9 Baseline
 
@@ -72,6 +72,10 @@ The pre-baseline verification completed on 2026-08-12 records:
 - Rust audit found zero known vulnerabilities; launcher production dependencies
   reported none; HUD production dependencies retained 1 low and 5 moderate
   findings for assessment, with no high/critical finding reported.
+
+The HUD findings in that 2026-08-12 snapshot were resolved on 2026-08-13 by
+upgrading to `mermaid 11.16.1` and transitive `dompurify 3.4.13`; the post-change
+production audit reports zero findings.
 
 Detailed command and blocker evidence is retained in
 [`u6-audit-and-preflight-20260812.md`](../../evidence/stage-6-1.0/u6-audit-and-preflight-20260812.md).

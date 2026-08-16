@@ -34,7 +34,7 @@ Current source/code/state beats documentation. Older contracts are retained only
 5. Dedicated Warden and Fleet projections have real producers and tests; Phases 4 and 5 now provide their focused HUD adapters.
 6. Freshness often describes bundle load time or source-family worst state rather than the generation time of the displayed record.
 7. Multiple authorities define assignments, panels, roles, and fallback layouts. They disagree in ways visible to the user.
-8. Three frontend artifacts are confirmed orphan/deletion candidates; other duplicates need consolidation decisions first.
+8. Phase 9 retired two proven frontend orphans and retained the now-imported canonical Fleet view after removing its duplicate layout helpers.
 9. Cross-domain links are needed, but each information class should have one owning workstation.
 10. The user’s list/detail example is especially suitable for approvals and business/routing records, but the five workstations do not need one identical shell composition.
 
@@ -191,7 +191,7 @@ AULË has producer functions and tests for all four in `core_link/warden.rs`. Th
 
 #### Human/Business/Personal
 
-- `personal_runtime.json` is now consumed by the assigned combined continuity workstation; the globally registered Personal Growth module remains a compatibility module pending Phase 9 ownership proof.
+- `personal_runtime.json` is now consumed by the assigned combined continuity workstation; the globally registered Personal Growth module remains a compatibility module because the bounded Phase 9 candidate audit did not establish deletion proof for it.
 - `hermes_command.json` is loaded/declaratively available but not converted into a coherent Communications view.
 - `provider_intelligence.json` drives action status/evidence, not the Routing provider view model.
 
@@ -251,22 +251,15 @@ Phase 1 established [`workstationComposition.ts`](../../../apps/arda-hud/src/lib
 
 ## Code and file disposition candidates
 
-### Confirmed orphan/deletion candidates
+### Phase 9 disposition
 
-These have no external source import/use in `apps/arda-hud/src`:
+The candidate set was rechecked against static imports, dynamic imports, tests, tracked scripts/manifests, composition, and Git history. The complete evidence is recorded in [`ORPHAN_RETIREMENT.md`](ORPHAN_RETIREMENT.md).
 
-1. `apps/arda-hud/src/lib/providerRouting.ts` — two-byte empty file.
-2. `apps/arda-hud/src/scene/workstations/fleetWorkstationView.tsx` — duplicate floating layout helpers and Fleet view; no imports found.
-3. `apps/arda-hud/src/components/arda/modules/fleet/FleetWorkstation.tsx` — third Fleet-focused implementation; no imports found outside itself.
+1. `apps/arda-hud/src/lib/providerRouting.ts` — **retired**; the file contained only blank lines and had no runtime or tooling consumer.
+2. `apps/arda-hud/src/scene/workstations/fleetWorkstationView.tsx` — **retained and consolidated**; `App.tsx` imports it as the canonical focused Fleet renderer and focused tests exercise it. Duplicate floating-workstation layout helpers were removed in favor of `lib/bundleDerivation.ts`.
+3. `apps/arda-hud/src/components/arda/modules/fleet/FleetWorkstation.tsx` — **retired**; it had no external consumer and duplicated provider/lane/card content outside Fleet's topology ownership.
 
-Deletion is **not yet approved**. Before removal, the implementation pass must run build/tests and confirm no dynamic or tooling reference.
-
-### Active duplicate implementation
-
-- `App.tsx` contains an inline `FleetFocusedWorkstationView` that is actively selected only for `systems_health`, `routing_health`, and `sovereign_world`, not the assigned `fleet_and_backbone` slot.
-- `BoardroomViewport.tsx` has a separate `FleetPreviewSurface` for selected preview assignments.
-
-These are not dead, but their responsibilities overlap with the orphan Fleet files and generic Systems module.
+`BoardroomViewport.tsx` retains a bounded `FleetPreviewSurface` for in-scene preview assignments; it is not a competing focused-workstation renderer.
 
 ### Competing contract code — consolidate, do not simply delete
 

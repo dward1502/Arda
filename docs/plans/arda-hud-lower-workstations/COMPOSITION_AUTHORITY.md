@@ -42,6 +42,8 @@ The Personal module is now retained instead of being discarded while adapting th
 
 No suspect file was deleted. Phase 9 still owns retirement after consumer and ownership proof.
 
+Phase 9 later retired only the two proven orphans, retained the now-imported canonical Fleet scene renderer, and documented the evidence in [`ORPHAN_RETIREMENT.md`](ORPHAN_RETIREMENT.md).
+
 ## Contract preservation
 
 - `FIRST_LEVEL_TERMINALS` still defines four configurable desks and fixed `boardroom.control.center` / `command_core_now`.

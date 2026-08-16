@@ -487,6 +487,8 @@ The surfaces look like one ARDA machine, but no two focused workstations are mer
 
 ## Phase 9 — Cleanup and authority retirement
 
+**Status:** implemented and verified on 2026-08-16. See [`ORPHAN_RETIREMENT.md`](ORPHAN_RETIREMENT.md).
+
 ### Goal
 
 Delete only artifacts proven obsolete after all runtime owners are established.
@@ -496,6 +498,8 @@ Delete only artifacts proven obsolete after all runtime owners are established.
 - `apps/arda-hud/src/lib/providerRouting.ts`
 - `apps/arda-hud/src/scene/workstations/fleetWorkstationView.tsx`
 - `apps/arda-hud/src/components/arda/modules/fleet/FleetWorkstation.tsx`
+
+Final disposition: `providerRouting.ts` and the disconnected component-level Fleet implementation were retired. The scene Fleet view was retained because Phase 5 made it the imported and tested canonical focused renderer; only its duplicate floating-layout helpers were removed.
 
 ### Tasks
 

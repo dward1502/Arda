@@ -83,6 +83,7 @@ The persisted assignment authority is `core/state/arda_boardroom_slots.json`, la
 | [Phase 6 Routing + Communications](ROUTING_COMMUNICATIONS.md) | CHARON lane/provider flow, selected-route evidence, communication receipts, and registered read-only actions | implemented and verified with recorded native visual limitation |
 | [Phase 7 Human/Business/Personal](HUMAN_BUSINESS_PERSONAL.md) | selectable continuity horizons, live reference reconciliation, value truth, and privacy-aware lower instrument | implemented and verified with recorded native visual limitation |
 | [Phase 8 visual convergence](VISUAL_CONVERGENCE.md) | shared console, line, focus, truth, type, and motion grammar with domain-specific compositions | implemented and verified with recorded native visual limitation |
+| [Phase 9 orphan retirement](ORPHAN_RETIREMENT.md) | proof-based retirement of the empty routing placeholder and disconnected Fleet module; canonical Fleet owner retained | implemented and verified with recorded native limitation |
 
 The Command Core now preserves its command bank and owns the existing Settings, Terminal, and Hermes Dashboard launchers in a separate physical utility bank. The detached bottom utility row is retired. Service Health remains owned by Fleet/Backbone and contributes state rather than retaining a duplicate detached button.
 
@@ -97,6 +98,8 @@ Routing now uses one directed-flow owner module. Lane/provider/model selection, 
 Human, Business, and Personal now use one continuity owner module. All three projections contribute distinguishable horizons; projected client/project paths reconcile against loaded inventories, planned value remains separate from realized value, and the lower instrument exposes only aggregate pressure.
 
 The lower workstation family now reads as one ARDA machine without sharing one dashboard template. Governance remains a decision chamber, Fleet a topology, Routing a directed flow field, Continuity a three-horizon console, and Command Core a tactile coherence/control surface. Source truth, keyboard focus, focused text scale, and reduced-motion behavior now use one shared grammar.
+
+The candidate audit is now reconciled. The scene Fleet view is the imported, tested canonical renderer rather than an orphan; its duplicate floating-layout helpers were removed. The empty provider-routing placeholder and disconnected legacy Fleet card stack were retired after static, dynamic, script, manifest, test, and build checks.
 
 ## Current Authority Boundaries
 

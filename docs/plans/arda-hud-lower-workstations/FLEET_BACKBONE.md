@@ -55,6 +55,8 @@ AULË remains the producer authority. The frontend reads projections only and do
 
 No suspected duplicate Fleet artifact is deleted in this phase; deletion remains gated on Phase 9 ownership and indirect-reference proof.
 
+Phase 9 subsequently retained this imported/tested scene renderer as the canonical Fleet owner, removed its unrelated duplicate floating-layout helpers, and retired the disconnected legacy Fleet card implementation. See [`ORPHAN_RETIREMENT.md`](ORPHAN_RETIREMENT.md).
+
 ## Lower instrument
 
 The lower Fleet instrument derives its node population from Fleet projection totals, not provider totals. Provider routing data cannot inflate Fleet node pressure. The existing source-path, observed-at, and freshness contract remains intact.

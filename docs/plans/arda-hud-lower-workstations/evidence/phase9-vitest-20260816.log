@@ -1,0 +1,6 @@
+RUN  v4.1.10 /var/home/mythos/Eregion/Arda/apps/arda-hud
+
+Test Files  142 passed (142)
+     Tests  576 passed (576)
+  Start at  16:19:25
+  Duration  22.64s (transform 7.51s, setup 18.88s, import 25.21s, tests 27.59s, environment 137.21s)

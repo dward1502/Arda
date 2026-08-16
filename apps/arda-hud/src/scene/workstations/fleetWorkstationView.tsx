@@ -1,91 +1,9 @@
 import { useEffect, useState } from 'react'
 import type { CSSProperties } from 'react'
 import type { FleetViewModel } from '../workstations/viewModels'
-export interface FloatingWorkstationState {
-  id: string
-  manifestId: string
-  sourceZoneId: string
-  originAnchorId: string
-  title: string
-  presentationMode: 'in_scene' | 'native_window'
-  x: number
-  y: number
-  width: number
-  height: number
-  zIndex: number
-}
 
-export const FLOATING_WORKSTATION_BASE_Z_INDEX = 320
-const FLOATING_WORKSTATION_MARGIN = 28
-const FLOATING_WORKSTATION_TILE_GAP = 18
-
-export function clampFloatingWorkstationValue(value: number, min: number, max: number): number {
-  return Math.max(min, Math.min(value, max))
-}
-
-function getFloatingWorkstationViewport() {
-  if (typeof window === 'undefined') {
-    return { width: 1440, height: 900 }
-  }
-  return {
-    width: window.innerWidth,
-    height: window.innerHeight,
-  }
-}
-
-export function getFloatingWorkstationTileLayout(index: number, total: number) {
-  const viewport = getFloatingWorkstationViewport()
-  const safeTotal = Math.max(1, total)
-  const margin = FLOATING_WORKSTATION_MARGIN
-  const gap = FLOATING_WORKSTATION_TILE_GAP
-  const availableWidth = Math.max(360, viewport.width - margin * 2)
-  const availableHeight = Math.max(280, viewport.height - margin * 2)
-
-  if (safeTotal === 1) {
-    const width = Math.min(940, availableWidth)
-    const height = Math.min(680, availableHeight)
-    return {
-      x: Math.round(margin + (availableWidth - width) / 2),
-      y: Math.round(margin + Math.max(0, (availableHeight - height) * 0.28)),
-      width,
-      height,
-    }
-  }
-
-  const columns = safeTotal <= 4 ? 2 : Math.min(3, Math.ceil(Math.sqrt(safeTotal)))
-  const rows = Math.ceil(safeTotal / columns)
-  const tileWidth = Math.floor((availableWidth - gap * (columns - 1)) / columns)
-  const tileHeight = Math.floor((availableHeight - gap * (rows - 1)) / rows)
-  const row = Math.floor(index / columns)
-  const column = index % columns
-  const rowItemCount = Math.min(columns, safeTotal - row * columns)
-  const rowWidth = rowItemCount * tileWidth + Math.max(0, rowItemCount - 1) * gap
-  const rowOffset = Math.max(0, (availableWidth - rowWidth) / 2)
-
-  return {
-    x: Math.round(margin + rowOffset + column * (tileWidth + gap)),
-    y: Math.round(margin + row * (tileHeight + gap)),
-    width: clampFloatingWorkstationValue(tileWidth, 320, availableWidth),
-    height: clampFloatingWorkstationValue(tileHeight, 240, availableHeight),
-  }
-}
-
-export function getFloatingWorkstationCenteredLayout() {
-  const viewport = getFloatingWorkstationViewport()
-  const margin = FLOATING_WORKSTATION_MARGIN
-  const availableWidth = Math.max(360, viewport.width - margin * 2)
-  const availableHeight = Math.max(280, viewport.height - margin * 2)
-  const width = Math.min(940, availableWidth)
-  const height = Math.min(680, availableHeight)
-
-  return {
-    x: Math.round(margin + Math.max(0, (availableWidth - width) / 2)),
-    y: Math.round(margin + Math.max(0, (availableHeight - height) / 2)),
-    width,
-    height,
-  }
-}
-
+// Canonical focused Fleet owner. App composition imports this view directly;
+// floating-window layout remains owned by lib/bundleDerivation.ts.
 export function FleetFocusedWorkstationView({ fleetViewModel, onRefresh }: { fleetViewModel: FleetViewModel | null; onRefresh?: () => void }) {
   const nodes = fleetViewModel?.nodes ?? []
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(nodes[0]?.id ?? null)

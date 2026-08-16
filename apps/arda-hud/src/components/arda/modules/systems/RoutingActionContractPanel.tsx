@@ -12,7 +12,7 @@ interface RoutingActionContractPanelProps {
 
 const SAFE_ROUTING_ACTION_IDS: SystemActionId[] = [
   'arda.chronos_run_provider_checks',
-  'arda.manwe_refresh_provider_intelligence',
+  'charon.refresh_provider_intelligence',
 ]
 
 function descriptorById(descriptors: SystemActionDescriptor[], actionId: SystemActionId): SystemActionDescriptor | null {

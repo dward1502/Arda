@@ -1,4 +1,6 @@
 // sigil: REPAIR
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   executeSystemAction,
@@ -65,7 +67,7 @@ describe('system action capability statuses', () => {
 
     expect(statuses.map((status) => status.id)).toEqual(expect.arrayContaining([
       'arda.chronos_run_provider_checks',
-      'arda.manwe_refresh_provider_intelligence',
+      'charon.refresh_provider_intelligence',
       'arda.queue_preview_cleanup',
       'arda.athena_ingest_knowledge',
       'arda.setup_run_repair_flow',
@@ -283,7 +285,7 @@ describe('local CLI operator actions', () => {
     })
   })
 
-  it('invokes the MANWE provider intelligence descriptor through the Tauri local CLI adapter and refreshes receipt-backed status', async () => {
+  it('invokes the registered CHARON provider intelligence command and accepted backend action ID', async () => {
     setSystemActionAdapterPreset('local_cli')
     mockedSafeTauriInvoke.mockResolvedValueOnce({
       ok: true,
@@ -293,7 +295,7 @@ describe('local CLI operator actions', () => {
       generatedAt: '2026-05-28T06:20:00.000Z',
     })
 
-    const result = await executeSystemAction('arda.manwe_refresh_provider_intelligence', actionContext)
+    const result = await executeSystemAction('charon.refresh_provider_intelligence', actionContext)
 
     expect(result).toMatchObject({
       ok: true,
@@ -305,18 +307,26 @@ describe('local CLI operator actions', () => {
       }),
     })
     expect(mockedSafeTauriInvoke).toHaveBeenCalledTimes(1)
-    expect(mockedSafeTauriInvoke).toHaveBeenCalledWith('run_manwe_provider_intelligence_refresh', {
-      actionId: 'arda.manwe_refresh_provider_intelligence',
+    expect(mockedSafeTauriInvoke).toHaveBeenCalledWith('run_charon_provider_intelligence_refresh', {
+      actionId: 'charon.refresh_provider_intelligence',
       source: 'lounge',
     })
 
-    expect(getSystemActionCapabilityStatuses().find((status) => status.id === 'arda.manwe_refresh_provider_intelligence')).toMatchObject({
+    expect(getSystemActionCapabilityStatuses().find((status) => status.id === 'charon.refresh_provider_intelligence')).toMatchObject({
       currentStatus: 'succeeded',
       lastRun: '2026-05-28T06:20:00.000Z',
       receiptPath: 'core/state/provider_intelligence.json',
       resultPath: 'core/state/provider_intelligence.json',
       failureReason: 'none observed',
     })
+  })
+
+  it('keeps the provider refresh command registered in the native invoke handler', () => {
+    const nativeSource = readFileSync(resolve(process.cwd(), 'src-tauri/src/lib.rs'), 'utf8')
+
+    expect(nativeSource).toContain('fn run_charon_provider_intelligence_refresh(')
+    expect(nativeSource).toMatch(/generate_handler!\[[\s\S]*run_charon_provider_intelligence_refresh,[\s\S]*\]/)
+    expect(nativeSource).toContain('action_id != "charon.refresh_provider_intelligence"')
   })
 
   it('invokes the setup readiness descriptor through the Tauri local CLI adapter and refreshes receipt-backed status', async () => {

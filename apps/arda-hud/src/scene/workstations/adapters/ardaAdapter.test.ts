@@ -1,7 +1,7 @@
 // sigil: REPAIR
 import { describe, expect, it } from 'vitest'
 import type { ArdaBundle } from '../../../lib/ardaSource'
-import { createArdaFleetViewModel } from './ardaAdapter'
+import { createArdaFleetViewModel, createArdaRoutingViewModel } from './ardaAdapter'
 
 function bundleWith(overrides: Partial<ArdaBundle>): ArdaBundle {
   return overrides as ArdaBundle
@@ -112,5 +112,46 @@ describe('ardaAdapter', () => {
       'fleet_runtime', 'fleet_nodes', 'fleet_models', 'fleet_health', 'fleet_hardware', 'fleet_backbone',
     ]))
     expect(model.sources.filter((source) => source.id.startsWith('fleet_')).every((source) => source.freshness.status === 'fresh')).toBe(true)
+  })
+
+  it('derives routing ownership, pressure, fitness, communication pathways, and source truth without Fleet health', () => {
+    const bundle = bundleWith({
+      generatedAt: '2026-08-16T12:00:00Z',
+      operatorRuntimeStatus: {
+        generated_at_utc: '2026-08-16T11:59:00Z',
+        charon: {
+          providers_healthy: 2,
+          providers_enabled: 3,
+          recent_route_successes: 9,
+          recent_route_failures: 1,
+          budget_pressure: { highest_level: 'warning', cooldown_total: 1 },
+        },
+        lane_routes: { interactive: { provider_id: 'groq', model_id: 'fast', route_class: 'cloud', reason: 'low latency' } },
+        lane_headroom: { interactive: { groq: 4 } },
+        lane_fitness: { interactive: { groq: { avg_latency_ms: 80, success_count: 9, failure_count: 1 } } },
+        routable_providers: [{ provider_id: 'groq', active_connections: 2, soft_caps: { interactive: 6 } }],
+      },
+      providerIntelligence: {
+        generated_at_utc: '2026-08-16T11:58:00Z',
+        providers: {
+          groq: { enabled: true, healthy: true, models: [{ id: 'fast' }] },
+          cerebras: { enabled: true, healthy: true, models: [{ id: 'reasoning' }], access_tier: 'free_cloud' },
+        },
+      },
+      hermesMessages: [{ platform: 'discord', status: 'delivered' }],
+      hermesAgentGatewayReceipts: [{ platform: 'telegram', status: 'accepted' }],
+    })
+
+    const model = createArdaRoutingViewModel(bundle)
+
+    expect(model.roleId).toBe('routing')
+    expect(model.lanes[0]).toEqual(expect.objectContaining({ lane: 'interactive', providerId: 'groq', headroom: 4 }))
+    expect(model.providers[0]).toEqual(expect.objectContaining({ providerId: 'groq', activeConnections: 2 }))
+    expect(model.providers).toContainEqual(expect.objectContaining({ providerId: 'cerebras', activeConnections: 0, modelCount: 1 }))
+    expect(model.routeHistory).toEqual({ successes: 9, failures: 1 })
+    expect(model.budgetPressure).toEqual(expect.objectContaining({ highestLevel: 'warning', cooldownTotal: 1 }))
+    expect(model.communicationPathways.map((pathway) => pathway.id)).toEqual(['discord', 'telegram'])
+    expect(model.sources.map((source) => source.id)).toEqual(expect.arrayContaining(['operator_runtime_status', 'provider_intelligence', 'manwe_router', 'chronos_runtime']))
+    expect(model.metrics.map((metric) => metric.id)).not.toContain('unexpected_offline')
   })
 })

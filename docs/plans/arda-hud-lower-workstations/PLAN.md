@@ -414,6 +414,8 @@ Use the audited governance, autonomy, augmentation, Arandur, Review Gate, Warden
 - routing and fleet focused workstations no longer share the same modules;
 - a dispatched change is not shown as complete until a receipt proves it.
 
+**Completed 2026-08-16.** Implementation and verification evidence are recorded in [Routing + Communications Flow Workstation](ROUTING_COMMUNICATIONS.md). The frontend/native CHARON command mismatch is repaired and registration-tested; native pixel interaction remains explicitly unproven in the current environment.
+
 ## Phase 7 — Human/Business/Personal continuity workstation
 
 ### Operator question

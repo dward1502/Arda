@@ -62,7 +62,7 @@ The executable first-level contract defines four configurable screens and one fi
 | 01 | `boardroom.lower.left_wrap` | `view_desk_l` | `governance_guardhouse` | `governance_controls` | [Phase 4 implemented](GOVERNANCE_GUARDHOUSE.md) |
 | 02 | `boardroom.lower.left_inner` | `view_desk_control_panel` | `fleet_and_backbone` | `systems` | [Phase 5 implemented](FLEET_BACKBONE.md) |
 | 03 | `boardroom.control.center` | none | fixed `command_core_now` | not slot-configurable | [Deep audit recorded](03-command-core.md) |
-| 04 | `boardroom.lower.right_inner` | `view_desk_r` | `routing_and_comms` | `systems`, `operations_and_packages` | [Deep audit recorded](04-routing-communications.md) |
+| 04 | `boardroom.lower.right_inner` | `view_desk_r` | `routing_and_comms` | `systems` | [Phase 6 implemented](ROUTING_COMMUNICATIONS.md) |
 | 05 | `boardroom.lower.right_wrap` | `view_desk_aux` | `human_business_personal` | `human_realm`, `business` | [Deep audit recorded](05-human-business-personal.md) |
 
 The persisted assignment authority is `core/state/arda_boardroom_slots.json`, last updated at the document level on `2026-07-31T00:13:37.927Z`. Several individual lower assignments still carry the epoch timestamp `1970-01-01T00:00:00.000Z`; this is not credible freshness evidence.
@@ -80,6 +80,7 @@ The persisted assignment authority is `core/state/arda_boardroom_slots.json`, la
 | [Phase 3 source truth](SOURCE_TRUTH.md) | shared live/snapshot/projected/stale/unavailable/missing states, source labels, and non-color cues | implemented and verified with recorded native visual limitation |
 | [Phase 4 Governance + Guardhouse](GOVERNANCE_GUARDHOUSE.md) | posture/source rails, selectable decision index, evidence detail, contextual actions, and decision-pressure instrument | implemented and verified with recorded native visual limitation |
 | [Phase 5 Fleet + Backbone](FLEET_BACKBONE.md) | AULË projection wiring, topology/rack line, selected-node evidence, refresh action, and node-pressure instrument | implemented and verified with recorded native visual limitation |
+| [Phase 6 Routing + Communications](ROUTING_COMMUNICATIONS.md) | CHARON lane/provider flow, selected-route evidence, communication receipts, and registered read-only actions | implemented and verified with recorded native visual limitation |
 
 The Command Core now preserves its command bank and owns the existing Settings, Terminal, and Hermes Dashboard launchers in a separate physical utility bank. The detached bottom utility row is retired. Service Health remains owned by Fleet/Backbone and contributes state rather than retaining a duplicate detached button.
 
@@ -88,6 +89,8 @@ Lower instruments now share an explicit source-truth contract. Every matched sou
 Governance now uses one focused decision chamber rather than stacked generic modules and a duplicate source-focus tab. Review packets and active governed tasks share a selectable index; evidence, authority, receipt binding, and source truth remain visible before any valid action is dispatched.
 
 Fleet now uses one topology-first owner module. The six AULË projection families drive node, hardware, model, health, and backbone evidence with independent source truth; provider routing remains a linked summary rather than duplicate Fleet content.
+
+Routing now uses one directed-flow owner module. Lane/provider/model selection, headroom, fitness, budget pressure, provider intelligence, and communication receipts remain distinct from Fleet-owned Service Health; disconnected communication evidence renders unavailable.
 
 ## Current Authority Boundaries
 
@@ -111,7 +114,7 @@ Phase 1 converged focused-workstation composition while preserving separate assi
 
 These are inventory findings, not deletion decisions:
 
-1. **Fleet and Routing previously opened the same two generic modules.** Phase 5 gives Fleet one topology-first owner module; Routing remains pending Phase 6 convergence.
+1. **Fleet and Routing previously opened the same two generic modules.** Phases 5 and 6 resolve them into separate topology and directed-flow owner modules.
 2. **Three role systems coexist:** physical roles (`governance_decisions`, `systems_fleet`, etc.), generic workstation roles (`fleet`, `work`, `decisions`, etc.), and source zones (`governance_guardhouse`, `fleet_and_backbone`, etc.).
 3. **Work, Knowledge, Evidence, Decisions, and Settings role profiles exist without a one-to-one mapping to the four configurable lower screens.** They may be reusable assignments rather than physical workstations; this must be proven before retaining or removing them.
 4. **Scene-slot templates also define upper-monitor workstation modules**, while the current product boundary says upper screens are independent agent canvases. These templates must be audited separately and must not silently determine lower-workstation ownership.

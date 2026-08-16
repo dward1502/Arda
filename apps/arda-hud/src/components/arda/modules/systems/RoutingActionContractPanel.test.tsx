@@ -10,7 +10,7 @@ describe('RoutingActionContractPanel', () => {
 
     expect(contract.safeActionIds).toEqual([
       'arda.chronos_run_provider_checks',
-      'arda.manwe_refresh_provider_intelligence',
+      'charon.refresh_provider_intelligence',
     ])
     expect(contract.governedMutation.status).toBe('not exposed')
     expect(contract.evidencePaths).toContain('core/state/manwe_router.json')
@@ -36,7 +36,7 @@ describe('RoutingActionContractPanel', () => {
     expect(within(panel).getByText(/Provider reroute: not exposed/)).toBeTruthy()
 
     fireEvent.click(within(panel).getByRole('button', { name: /Refresh Provider Intelligence/ }))
-    expect(onRunAction).toHaveBeenCalledWith('arda.manwe_refresh_provider_intelligence')
+    expect(onRunAction).toHaveBeenCalledWith('charon.refresh_provider_intelligence')
   })
 
   it('shows busy state for provider checks', () => {

@@ -92,7 +92,7 @@ export function getRefreshAffordanceForSourcePath(sourcePath: string): ArdaRefre
       label: 'Refresh operator runtime projection',
       safety: 'projection_refresh_only',
       command: 'cargo run -p arda-cli -- utility operator-runtime-status',
-      systemActionId: normalizedPath.endsWith('core/state/manwe_router.json') ? 'arda.manwe_refresh_provider_intelligence' : undefined,
+      systemActionId: normalizedPath.endsWith('core/state/manwe_router.json') ? 'charon.refresh_provider_intelligence' : undefined,
       executionMode: 'display_only',
       operatorInstruction: 'Run from the repository root when operator/runtime or routing projections are stale.',
       notes: 'ARDA displays this command as guidance only; it does not execute projection refreshes from provenance UI.',

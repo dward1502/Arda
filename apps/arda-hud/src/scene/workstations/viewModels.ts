@@ -2,7 +2,7 @@
 import type { WorkstationRoleId } from './workstationRoles'
 
 export type WorkstationStatus = 'ok' | 'attention' | 'empty' | 'unknown'
-export type SourceFreshnessStatus = 'fresh' | 'stale' | 'missing' | 'unknown'
+export type SourceFreshnessStatus = 'fresh' | 'stale' | 'missing' | 'unknown' | 'unavailable' | 'snapshot' | 'projected'
 export type ActionSafetyClass = 'read_only' | 'dry_run' | 'governed_mutation'
 
 export interface WorkstationMetric {
@@ -124,6 +124,47 @@ export interface FleetViewModel extends ViewModelPreludeContext, ViewModelFocuse
   backboneNodeId: string | null
 }
 
+export interface RoutingProviderViewModel {
+  providerId: string
+  providerName: string
+  enabled: boolean
+  healthy: boolean
+  activeConnections: number
+  modelCount: number
+  accessTier: string
+  qualityBand: string
+}
+
+export interface RoutingLaneViewModel {
+  lane: string
+  label: string
+  providerId: string
+  modelId: string
+  routeClass: string
+  reason: string
+  headroom: number | null
+  softCap: number | null
+  avgLatencyMs: number | null
+  successes: number
+  failures: number
+}
+
+export interface RoutingCommunicationPathway {
+  id: string
+  label: string
+  state: string
+  receipts: number
+}
+
+export interface RoutingViewModel extends ViewModelPreludeContext, ViewModelFocusedContext, ViewModelProvenanceClauseBag {
+  roleId: 'routing'
+  providers: RoutingProviderViewModel[]
+  lanes: RoutingLaneViewModel[]
+  routeHistory: { successes: number; failures: number }
+  budgetPressure: { highestLevel: string; cooldownTotal: number; exhaustedTotal: number }
+  communicationPathways: RoutingCommunicationPathway[]
+}
+
 export interface WorkViewModel extends ViewModelPreludeContext, ViewModelFocusedContext, ViewModelProvenanceClauseBag {
   roleId: 'work'
   queueToDecisionEvidence?: string
@@ -157,6 +198,7 @@ export interface SettingsViewModel extends ViewModelPreludeContext, ViewModelFoc
 
 export type WorkstationViewModel =
   | FleetViewModel
+  | RoutingViewModel
   | WorkViewModel
   | DecisionViewModel
   | KnowledgeViewModel

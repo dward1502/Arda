@@ -16,7 +16,7 @@ export type SystemActionId =
   | 'review_arandur_recommendation'
   | 'record_ceo_council_session'
   | 'arda.chronos_run_provider_checks'
-  | 'arda.manwe_refresh_provider_intelligence'
+  | 'charon.refresh_provider_intelligence'
   | 'arda.queue_preview_cleanup'
   | 'arda.queue_capture_pivot'
   | 'arda.hades_run_nightly'
@@ -180,9 +180,9 @@ const SYSTEM_ACTION_DESCRIPTORS: SystemActionDescriptor[] = [
     relatedEvidence: ['core/state/manwe_router.json', 'core/state/provider_intelligence.json'],
   },
   {
-    id: 'arda.manwe_refresh_provider_intelligence',
+    id: 'charon.refresh_provider_intelligence',
     label: 'Refresh Provider Intelligence',
-    owner: 'MANWE',
+    owner: 'CHARON',
     executor: 'scripts/refresh_provider_intelligence.py',
     purpose: 'Refresh provider/model availability intelligence used by routing and readiness surfaces.',
     riskLevel: 'read_only',
@@ -505,7 +505,7 @@ function backendReceiptForDescriptor(
       source = chronosRuntime
       currentStatus = statusFromGate(source?.status) ?? (source ? 'succeeded' : undefined)
       break
-    case 'arda.manwe_refresh_provider_intelligence':
+    case 'charon.refresh_provider_intelligence':
       source = providerIntelligence
       currentStatus = source ? 'succeeded' : undefined
       break
@@ -830,9 +830,9 @@ function localActionDefaults(action: SystemActionId): { command: string; receipt
         successMessage: 'CHRONOS provider checks refreshed',
         failureMessage: 'CHRONOS provider checks failed',
       }
-    case 'arda.manwe_refresh_provider_intelligence':
+    case 'charon.refresh_provider_intelligence':
       return {
-        command: 'run_manwe_provider_intelligence_refresh',
+        command: 'run_charon_provider_intelligence_refresh',
         receiptPath: 'core/state/provider_intelligence.json',
         successMessage: 'MANWE provider intelligence refreshed',
         failureMessage: 'MANWE provider intelligence refresh failed',
@@ -906,7 +906,7 @@ const tauriLocalCliAdapter: SystemActionAdapter = {
     action === 'review_arandur_recommendation' ||
     action === 'record_ceo_council_session' ||
     action === 'arda.chronos_run_provider_checks' ||
-    action === 'arda.manwe_refresh_provider_intelligence' ||
+    action === 'charon.refresh_provider_intelligence' ||
     action === 'arda.queue_preview_cleanup' ||
     action === 'arda.hades_run_nightly' ||
     action === 'arda.audit_run_repeated_audit' ||

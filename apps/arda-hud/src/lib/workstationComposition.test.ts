@@ -9,7 +9,7 @@ import { getSceneSlotWorkstationTemplates } from '../scene/workstations/sceneSlo
 const canonicalLowerCompositions = {
   governance_guardhouse: ['governance_controls'],
   fleet_and_backbone: ['systems', 'operations_and_packages'],
-  routing_and_comms: ['systems', 'operations_and_packages'],
+  routing_and_comms: ['systems'],
   human_business_personal: ['human_realm', 'business', 'personal_growth'],
 } as const
 

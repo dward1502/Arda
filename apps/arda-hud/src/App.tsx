@@ -72,6 +72,7 @@ import { calculateWorldDistrictUrgencies } from './scene/world/worldDistrictUrge
 import {
   createArdaFleetHealth,
   createArdaFleetViewModel,
+  createArdaRoutingViewModel,
   type ArdaFleetHealth,
 } from './scene/workstations/adapters/ardaAdapter'
 import {
@@ -146,6 +147,7 @@ import {
 import { getString, getNumber, getBoolean, getSectionById, getTimestamp, getSceneZoneById, getWorkstationManifestById, getWorkstationManifestByZoneId, formatMetric, formatBytes, formatPercent, asRecord, asArray, getAgents, getGovernanceRuntimeSignals, getHumanDocs, getHumanNotes, getOperationsFlowSummary, getOutputAccounting, getOutputTopology, getPackageEnablement, getPackageRuntimeActivation, getPaperclipAlignment, getPackageTools, getStoragePressureSummary, getStorageStores, getAutonomyReadinessSummary, getEscalationRuntime, getGovernanceSummary, getOperatorCockpitSurface, getQueueSummary,getOperatorActions } from "./lib/ardaSurfaces"
 import type { SceneAnchorDefinition, SceneZoneDefinition, WorkstationManifestDefinition } from './scene/systems/runtimeTypes'
 import { FleetFocusedWorkstationView } from './scene/workstations/fleetWorkstationView'
+import { RoutingFocusedWorkstationView } from './scene/workstations/routingWorkstationView'
 import { getCommandConsoleSurface, getCeoCouncilRuntime, getTaskLifecycleRuntime } from "./lib/reviewGateDerivation"
 import { getKnowledgeMap, getOperatingSurfaceReports } from "./lib/operatingSurfaceDerivation"
 import { sectionToPanelLayout, formatProviderLabel, formatSectionStatus, formatPanelStatus, titleForSectionOrPanel, asModuleId, localStorageOrNull, MODULE_STORAGE_KEY, readStoredModuleOrder } from './lib/settingsLayout'
@@ -647,6 +649,7 @@ export default function App() {
     [bundle],
   )
   const fleetViewModel = useMemo(() => (bundle ? createArdaFleetViewModel(bundle) : null), [bundle])
+  const routingViewModel = useMemo(() => (bundle ? createArdaRoutingViewModel(bundle) : null), [bundle])
   const laneOwnership = fleetViewModel?.laneOwnership ?? []
   const laneHeadroom = fleetViewModel?.laneHeadroom ?? []
   const laneFitness = fleetViewModel?.laneFitness ?? []
@@ -728,9 +731,11 @@ export default function App() {
         source: adaptBoardroomHudSource(sourceProvenance, 'knowledge'),
       },
       routing: {
-        routableProviders: routableProviders.length,
-        activeConnections: hottestProvider?.activeConnections ?? 0,
-        constrainedHeadroom: typeof mostConstrainedLane?.headroom === 'number' ? mostConstrainedLane.headroom : null,
+        routableProviders: routingViewModel?.providers.length ?? 0,
+        activeConnections: routingViewModel?.providers.reduce((total, provider) => total + provider.activeConnections, 0) ?? 0,
+        constrainedHeadroom: routingViewModel?.lanes.reduce<number | null>((lowest, lane) => (
+          lane.headroom === null ? lowest : lowest === null ? lane.headroom : Math.min(lowest, lane.headroom)
+        ), null) ?? null,
         source: adaptBoardroomHudSource(sourceProvenance, 'routing'),
       },
       governance: {
@@ -755,7 +760,7 @@ export default function App() {
         return [slotId, configured ? { ...instrument, preset: configured.preset_id } : instrument]
       }))
     },
-    [boardroomSlotDocument, bundle?.operationsFlow, bundle?.sourceProvenance, docs.length, fleetHealth, hottestProvider, mostConstrainedLane, notes.length, planShelf.plans.length, queueSummary, reviewGateItems, routableProviders.length, runtimeDrift],
+    [boardroomSlotDocument, bundle?.operationsFlow, bundle?.sourceProvenance, docs.length, fleetHealth, notes.length, planShelf.plans.length, queueSummary, reviewGateItems, routingViewModel, runtimeDrift],
   )
   const worldDistricts = useMemo(
     () =>
@@ -1627,6 +1632,23 @@ export default function App() {
         node: <FleetFocusedWorkstationView fleetViewModel={fleetViewModel} onRefresh={() => { void refreshBundle() }} />,
       }
       const modules = [fleetModule]
+      return adapterMissingModule
+        ? [...modules.filter((module) => module.id !== adapterMissingModule.id), adapterMissingModule]
+        : modules
+    }
+    if (sourceZoneId === 'routing_and_comms') {
+      const routingModule = {
+        id: 'systems' as ModuleId,
+        title: 'Routing + Communications',
+        node: (
+          <RoutingFocusedWorkstationView
+            busyActionId={refreshActionBusyId}
+            model={routingViewModel}
+            onRunAction={(actionId) => void submitRefreshAction(actionId)}
+          />
+        ),
+      }
+      const modules = [routingModule]
       return adapterMissingModule
         ? [...modules.filter((module) => module.id !== adapterMissingModule.id), adapterMissingModule]
         : modules

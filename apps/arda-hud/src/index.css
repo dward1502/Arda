@@ -24,6 +24,7 @@
 @import "./styles/scene/hud-instruments.css";
 @import "./styles/scene/terminal-surfaces.css";
 @import "./styles/adapters/fleet.css";
+@import "./styles/adapters/routing.css";
 
 
 @source "./**/*.{ts,tsx,html}";

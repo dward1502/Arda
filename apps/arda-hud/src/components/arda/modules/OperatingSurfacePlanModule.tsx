@@ -72,7 +72,7 @@ const laneIcons: Record<OperatingSurfaceLaneId, typeof Activity> = {
 
 const REFRESH_ACTION_IDS: SystemActionId[] = [
   'arda.chronos_run_provider_checks',
-  'arda.manwe_refresh_provider_intelligence',
+  'charon.refresh_provider_intelligence',
   'arda.queue_preview_cleanup',
   'arda.hades_run_nightly',
   'arda.hades_preview_organization_plan',

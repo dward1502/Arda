@@ -39,7 +39,7 @@ const WORKSTATION_COMPOSITIONS: Record<string, WorkstationComposition> = {
   },
   routing_and_comms: {
     title: 'Routing + Communications',
-    moduleIds: ['systems', 'operations_and_packages'],
+    moduleIds: ['systems'],
     sourcePanelIds: ['boardroom', 'inference_router', 'interrupts'],
     presentationModes: ['in_scene', 'native_window'],
   },

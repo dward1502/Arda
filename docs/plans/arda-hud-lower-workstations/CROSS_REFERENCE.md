@@ -27,7 +27,7 @@ Current source/code/state beats documentation. Older contracts are retained only
 
 ## Executive findings
 
-1. Phase 5 resolves Fleet's half of the Fleet/Routing duplication with one topology-first owner module; Routing remains pending Phase 6.
+1. Phases 5 and 6 resolve the Fleet/Routing duplication into separate topology-first and directed-flow owner modules.
 2. Phase 4 resolves Governance's stacked workflows and duplicate source tab with one evidence-first list/detail chamber.
 3. Command Core is a distinct physical control surface, but its controls mostly navigate and its central screen opens a mismatched Sovereign/Fleet workstation.
 4. Human/Business/Personal omits Personal despite loading a useful personal projection.
@@ -45,7 +45,7 @@ Current source/code/state beats documentation. Older contracts are retained only
 | Governance | `governance_controls` | Phase 4 owns review decisions and receipts in one selected-record chamber; domain workstations retain bounded approval references |
 | Fleet | `systems` | Phase 5 topology-first owner for Fleet/AULË projections; Routing data is linked only |
 | Command Core | fixed animated signal + navigation controls | Links into Planning, Governance, Routing, World; main screen duplicates Fleet/Sovereign content |
-| Routing | `systems`, `operations_and_packages` | Legacy generic stack pending Phase 6; no longer shared by Fleet |
+| Routing | `systems` | Phase 6 directed lane/provider/model flow owner; Service Health remains Fleet-owned |
 | Human/Business/Personal | `human_realm`, `business` | Plan Shelf overlaps Planning; approvals overlap Governance; Personal omitted |
 
 ## Exact duplicate module composition
@@ -59,7 +59,7 @@ systems
 operations_and_packages
 ```
 
-Phase 5 replaces this composition for Fleet with one topology-first `systems` owner module. Routing still uses the legacy generic composition pending Phase 6.
+Phase 5 replaces this composition for Fleet with one topology-first `systems` owner module. Phase 6 independently replaces Routing with one directed-flow `systems` owner module.
 
 Consequences:
 
@@ -285,9 +285,9 @@ Repo-wide command-name search found sibling Tauri source artifacts:
 
 They are not compiled by the normal Rust module path but contain stale command implementations and can confuse searches. They are cleanup candidates for a separate repository-hygiene verification, not part of this no-code audit.
 
-## Confirmed action integration defect
+## Resolved action integration defect
 
-Routing frontend invokes:
+The Phase 6 baseline found that Routing frontend invoked:
 
 ```text
 run_manwe_provider_intelligence_refresh
@@ -301,7 +301,7 @@ run_charon_provider_intelligence_refresh
 charon.refresh_provider_intelligence
 ```
 
-The frontend test mocks the frontend name, so it does not verify native registration. This is a real integration mismatch to fix later.
+Phase 6 now aligns every active frontend caller to the registered CHARON command and action ID. The frontend action test also inspects the Tauri invoke-handler registration and accepted backend action ID, closing the earlier frontend-only mock gap. See [Routing + Communications Flow Workstation](ROUTING_COMMUNICATIONS.md).
 
 ## Information architecture principles
 

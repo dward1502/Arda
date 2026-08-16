@@ -3,21 +3,23 @@ soterion:
   sigil: "SCROLL"
   role: "workstation_audit"
   owner: "WARDEN"
-  status: "active"
+  status: "implemented_phase_4_native_acceptance_pending"
   reviewed: "2026-08-16"
 ---
 
-> 🜏 Soterion: 📜 Governance and Guardhouse workstation audit | owner: WARDEN | status: active | reviewed: 2026-08-16
+> 🜏 Soterion: 📜 Governance and Guardhouse workstation audit | owner: WARDEN | status: Phase 4 implemented, native acceptance pending | reviewed: 2026-08-16
 
 # Lower Workstation 01 — Governance and Guardhouse
 
 ## Audit Status
 
+> Implementation update: Phase 4 replaced the audited stacked composition with the evidence-first Governance chamber. See [`GOVERNANCE_GUARDHOUSE.md`](GOVERNANCE_GUARDHOUSE.md). The audit evidence below records the pre-implementation state and remains useful as provenance.
+
 - Evidence review: complete for current structure and source wiring as observed on 2026-08-16.
 - Runtime context: native Tauri development process and Vite `:1421` were active during inspection.
 - Source changes: none.
 - Design changes: none.
-- Final redesign: deferred until all five lower surfaces are audited and cross-referenced.
+- The redesign decision was deferred at audit time; the later Phase 4 record is current implementation authority.
 
 ## Operator-Approved Intended Role
 
@@ -394,3 +396,7 @@ Future implementation must prove:
 | Human augmentation runtime | generated 2026-06-14 | Static approval/policy projection |
 | Autonomy readiness | updated 2026-05-24 | Older static evidence requiring prominent age handling |
 | ATHENA readiness records | timestamped 2026-07-31 | Existing reference-only review packets |
+
+## Phase 10 closeout status
+
+Governance implementation and focused contracts are green within the 142-file, 576-test Phase 10 suite, and the optimized Tauri build passed. Native list/detail, evidence-before-action, append-only approval, source/timestamp, keyboard, reduced-motion, screenshot, and frame-rate checks remain blocked because the current release exposed no controllable native window. See [`ACCEPTANCE_MATRIX.md`](ACCEPTANCE_MATRIX.md) and [`VERIFICATION_CLOSEOUT.md`](VERIFICATION_CLOSEOUT.md).

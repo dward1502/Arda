@@ -1,0 +1,5 @@
+
+> arda_hud@0.1.0 soterion:unicode /var/home/mythos/Eregion/Arda/apps/arda-hud
+> bash scripts/soterion_unicode_guard.sh
+
+Soterion Unicode guard passed: 558 UTF-8 text files; 11 glyph/code-point declarations

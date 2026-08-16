@@ -3,21 +3,23 @@ soterion:
   sigil: "SCROLL"
   role: "workstation_audit"
   owner: "MANWE"
-  status: "active"
+  status: "implemented_phase_6_native_acceptance_pending"
   reviewed: "2026-08-16"
 ---
 
-> 🜏 Soterion: 📜 Routing and Communications workstation audit | owner: MANWE | status: active | reviewed: 2026-08-16
+> 🜏 Soterion: 📜 Routing and Communications workstation audit | owner: MANWE | status: Phase 6 implemented, native acceptance pending | reviewed: 2026-08-16
 
 # Lower Monitor 04 — Routing and Communications
 
 ## Audit status
 
+> Implementation update: Phase 6 replaced the audited generic composition with the canonical directed-flow Routing owner and aligned the frontend refresh path to the registered CHARON command. See [`ROUTING_COMMUNICATIONS.md`](ROUTING_COMMUNICATIONS.md). The audit evidence below records the pre-implementation state and remains useful as provenance.
+
 - Investigation date: 2026-08-16.
 - Authority standard: current code, persisted slot state, current projections, adapters, and registered Tauri commands.
 - Documentation is context only until verified.
-- This is a current-state audit, not an approved redesign.
-- No application code or runtime state was changed.
+- This was a current-state audit at capture time, not an approved redesign.
+- No application code or runtime state was changed by the audit itself.
 
 ## Physical surface and route
 
@@ -300,3 +302,7 @@ Do not resolve until all records exist:
 - Proof that any future mutation is separately governed and receipted.
 - Native list/detail and visual acceptance tests.
 - Focused Vitest, TypeScript, Rust, and Tauri build gates.
+
+## Phase 10 closeout status
+
+Routing implementation, CHARON command-registration, and focused contracts are green within the 142-file, 576-test Phase 10 suite, and the optimized Tauri build passed. Native lane/provider selection, provider refresh receipt, source/timestamp, missing-state, hidden-polling, keyboard, reduced-motion, screenshot, and frame-rate checks remain blocked because the current release exposed no controllable native window. See [`ACCEPTANCE_MATRIX.md`](ACCEPTANCE_MATRIX.md) and [`VERIFICATION_CLOSEOUT.md`](VERIFICATION_CLOSEOUT.md).

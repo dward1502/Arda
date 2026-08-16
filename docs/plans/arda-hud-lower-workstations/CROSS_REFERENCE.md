@@ -3,11 +3,11 @@ soterion:
   sigil: "SCROLL"
   role: "cross_reference_audit"
   owner: "HERMES"
-  status: "active"
+  status: "implemented_ownership_native_acceptance_pending"
   reviewed: "2026-08-16"
 ---
 
-> 🜏 Soterion: 📜 Lower workstation cross-reference | owner: HERMES | status: active | reviewed: 2026-08-16
+> 🜏 Soterion: 📜 Lower workstation cross-reference | owner: HERMES | status: implemented ownership, native acceptance pending | reviewed: 2026-08-16
 
 # Lower Workstation Cross-Reference
 
@@ -315,12 +315,6 @@ These constraints are carried into the completed [design research](DESIGN_REFERE
 9. Detailed raw paths/hashes belong in evidence detail, not the primary scan surface.
 10. No redesign should reintroduce generic cards, identical tab stacks, or text walls across all domains.
 
-## Next gate
+## Remaining closeout gate
 
-The distinct information architectures, Command Core utility-bank direction, existing-source-first policy, and implementation phases are now written. Before editing code:
-
-1. user reviews [the implementation plan](PLAN.md);
-2. Phase 0 captures automated and native baseline evidence;
-3. Phase 1 composition convergence is implemented and verified; domain restructuring must consume [`COMPOSITION_AUTHORITY.md`](COMPOSITION_AUTHORITY.md);
-4. every implementation slice runs focused tests and native acceptance;
-5. obsolete candidates remain until their owning replacement is proven.
+Phases 1–9 implemented the ownership outcomes above, and Phase 10's complete automated gate set plus optimized Tauri build passed. The current release process exposed no controllable native window, so per-surface interaction, screenshot, and frame-rate acceptance remain blocked rather than passed. The exact remaining checks are recorded in [`ACCEPTANCE_MATRIX.md`](ACCEPTANCE_MATRIX.md); the evidence and qualification are recorded in [`VERIFICATION_CLOSEOUT.md`](VERIFICATION_CLOSEOUT.md). The plan remains active until that native matrix is evidenced.

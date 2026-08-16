@@ -3,11 +3,11 @@ soterion:
   sigil: "SCROLL"
   role: "control_surface_audit"
   owner: "HERMES"
-  status: "implemented_phase_2"
+  status: "implemented_phase_2_native_acceptance_pending"
   reviewed: "2026-08-16"
 ---
 
-> 🜏 Soterion: 📜 Command Core audit | owner: HERMES | status: Phase 2 implemented | reviewed: 2026-08-16
+> 🜏 Soterion: 📜 Command Core audit | owner: HERMES | status: Phase 2 implemented, native acceptance pending | reviewed: 2026-08-16
 
 # Lower Surface 03 — Command Core
 
@@ -231,3 +231,7 @@ Do not resolve until all records exist:
 - A test distinguishing World View scene navigation from focused workstation navigation.
 - Native hit-target and visual acceptance at the authored console geometry.
 - FPS/regression verification for the animated instrument.
+
+## Phase 10 closeout status
+
+Command Core contracts are green within the 142-file, 576-test Phase 10 suite, and the optimized Tauri build passed. Native utility-bank placement, detached-row absence, command preservation, blocked/receipt behavior, duplicate-launch prevention, hit targets, screenshot, and frame-rate checks remain blocked because the current release exposed no controllable native window. See [`ACCEPTANCE_MATRIX.md`](ACCEPTANCE_MATRIX.md) and [`VERIFICATION_CLOSEOUT.md`](VERIFICATION_CLOSEOUT.md).

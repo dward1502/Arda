@@ -3,21 +3,23 @@ soterion:
   sigil: "SCROLL"
   role: "workstation_audit"
   owner: "AULE"
-  status: "active"
+  status: "implemented_phase_5_native_acceptance_pending"
   reviewed: "2026-08-16"
 ---
 
-> 🜏 Soterion: 📜 Fleet and Backbone workstation audit | owner: AULE | status: active | reviewed: 2026-08-16
+> 🜏 Soterion: 📜 Fleet and Backbone workstation audit | owner: AULE | status: Phase 5 implemented, native acceptance pending | reviewed: 2026-08-16
 
 # Lower Monitor 02 — Fleet and Backbone
 
 ## Audit status
 
+> Implementation update: Phase 5 replaced the audited generic composition with the canonical topology-first Fleet owner, and Phase 9 retired the disconnected duplicate renderer. See [`FLEET_BACKBONE.md`](FLEET_BACKBONE.md) and [`ORPHAN_RETIREMENT.md`](ORPHAN_RETIREMENT.md). The audit evidence below records the pre-implementation state and remains useful as provenance.
+
 - Investigation date: 2026-08-16.
 - Authority standard: current code, persisted slot state, current files, and actual adapter use.
 - Documentation is context only until verified against those authorities.
-- This is a current-state audit, not an approved redesign.
-- No application code or runtime state was changed.
+- This was a current-state audit at capture time, not an approved redesign.
+- No application code or runtime state was changed by the audit itself.
 
 ## Physical surface and route
 
@@ -201,9 +203,9 @@ The generic Systems and Operations tabs receive shared system-action descriptors
 
 No evidence was found that the six dedicated fleet projection files can be edited or refreshed directly from this workstation as one governed flow.
 
-## Competing Fleet implementations
+## Historical competing Fleet implementations
 
-At least three Fleet-focused UI implementations exist:
+At audit time, at least three Fleet-focused UI implementations existed:
 
 1. A `FleetFocusedWorkstationView` defined directly inside `App.tsx`.
 2. Another `FleetFocusedWorkstationView` in `scene/workstations/fleetWorkstationView.tsx` with substantially duplicated markup.
@@ -217,7 +219,7 @@ The routing condition in `App.tsx` selects the inline dedicated view only when `
 
 The current lower workstation source zone is `fleet_and_backbone`, so it misses that branch and receives the generic `systems` registry module instead. The other Fleet implementations are not the live lower-monitor path.
 
-This is a concrete overlap/dead-wiring candidate, not yet a deletion decision.
+This was a concrete overlap/dead-wiring candidate, not a deletion decision at audit time. Phase 5 selected the scene renderer as canonical; Phase 9 later retired the disconnected component renderer after explicit deletion proof.
 
 ## Empty, missing, and stale behavior
 
@@ -285,7 +287,6 @@ Do not resolve these until all records exist:
 - `core/state/arda_source_map.json`
 - `apps/arda-hud/src/App.tsx`
 - `apps/arda-hud/src/components/arda/modules/SystemsModule.tsx`
-- `apps/arda-hud/src/components/arda/modules/fleet/FleetWorkstation.tsx`
 - `apps/arda-hud/src/scene/workstations/fleetWorkstationView.tsx`
 - `apps/arda-hud/src/scene/workstations/adapters/ardaAdapter.ts`
 - `apps/arda-hud/src/components/arda/hooks/useArdaBundle.ts`
@@ -306,3 +307,7 @@ Do not resolve these until all records exist:
 - Action capability tests for every visible control.
 - Visual acceptance at the real native workstation size.
 - Focused Vitest, TypeScript, and Tauri build gates.
+
+## Phase 10 closeout status
+
+Fleet implementation and canonical renderer contracts are green within the 142-file, 576-test Phase 10 suite, and the optimized Tauri build passed. The disconnected component-level Fleet renderer listed in the baseline audit was retired in Phase 9. Native topology selection, refresh receipt, source/timestamp, missing-state, hidden-polling, keyboard, reduced-motion, screenshot, and frame-rate checks remain blocked because the current release exposed no controllable native window. See [`ACCEPTANCE_MATRIX.md`](ACCEPTANCE_MATRIX.md) and [`VERIFICATION_CLOSEOUT.md`](VERIFICATION_CLOSEOUT.md).

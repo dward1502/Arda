@@ -3,21 +3,23 @@ soterion:
   sigil: "SCROLL"
   role: "workstation_audit"
   owner: "HERMES"
-  status: "active"
+  status: "implemented_phase_7_native_acceptance_pending"
   reviewed: "2026-08-16"
 ---
 
-> 🜏 Soterion: 📜 Human, Business, and Personal workstation audit | owner: HERMES | status: active | reviewed: 2026-08-16
+> 🜏 Soterion: 📜 Human, Business, and Personal workstation audit | owner: HERMES | status: Phase 7 implemented, native acceptance pending | reviewed: 2026-08-16
 
 # Lower Monitor 05 — Human, Business, and Personal
 
 ## Audit status
 
+> Implementation update: Phase 7 replaced the audited stacked modules with the canonical three-horizon continuity owner. See [`HUMAN_BUSINESS_PERSONAL.md`](HUMAN_BUSINESS_PERSONAL.md). The audit evidence below records the pre-implementation state and remains useful as provenance.
+
 - Investigation date: 2026-08-16.
 - Authority standard: current code, persisted state, source derivations, module composition, and rendered fields.
 - Documentation is context only until verified.
-- This is a current-state audit, not an approved redesign.
-- No application code or runtime state was changed.
+- This was a current-state audit at capture time, not an approved redesign.
+- No application code or runtime state was changed by the audit itself.
 
 ## Physical surface and route
 
@@ -326,3 +328,7 @@ Do not resolve until all records exist:
 - List/detail interaction and keyboard-accessibility tests.
 - Native visual acceptance and responsiveness tests.
 - Focused Vitest, TypeScript, Rust, and Tauri build gates.
+
+## Phase 10 closeout status
+
+Continuity implementation, inventory reconciliation, and focused contracts are green within the 142-file, 576-test Phase 10 suite, and the optimized Tauri build passed. Native three-horizon, missing-reference, privacy-summary, source/timestamp, keyboard, reduced-motion, screenshot, and frame-rate checks remain blocked because the current release exposed no controllable native window. See [`ACCEPTANCE_MATRIX.md`](ACCEPTANCE_MATRIX.md) and [`VERIFICATION_CLOSEOUT.md`](VERIFICATION_CLOSEOUT.md).

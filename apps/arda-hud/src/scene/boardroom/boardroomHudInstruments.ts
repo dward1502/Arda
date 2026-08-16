@@ -129,6 +129,7 @@ export interface RoutingHudInput {
 export interface GovernanceHudInput {
   reviewItems: number
   pendingItems: number
+  incidentItems?: number
   source?: HudInstrumentSource
 }
 
@@ -377,17 +378,18 @@ export function deriveRoutingHudInstrument(input: RoutingHudInput): HudInstrumen
 }
 
 export function deriveGovernanceHudInstrument(input: GovernanceHudInput): HudInstrumentModel {
-  const reviewItems = Math.max(0, input.reviewItems)
   const pendingItems = Math.max(0, input.pendingItems)
+  const incidentItems = Math.max(0, input.incidentItems ?? 0)
+  const pressure = clamp((pendingItems * 2 + incidentItems * 3) / 12, 0, 1)
   return commandInstrument({
     title: 'Governance',
-    eyebrow: 'REVIEW GATES',
+    eyebrow: 'DECISION PRESSURE',
     tone: 'gold',
-    glyph: `${pendingItems}/${reviewItems}`,
+    glyph: `${pendingItems}/${incidentItems}`,
     preset: 'lanes',
-    pressure: Math.max(0.2, clamp(reviewItems / 12, 0, 1)),
-    seed: reviewItems * 5 + pendingItems * 11,
-    warnCount: pendingItems > 0 ? Math.min(3, pendingItems) : 0,
+    pressure: Math.max(0.12, pressure),
+    seed: pendingItems * 11 + incidentItems * 17,
+    warnCount: Math.min(3, pendingItems + incidentItems),
     source: input.source,
   })
 }

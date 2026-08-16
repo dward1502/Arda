@@ -23,7 +23,7 @@ describe('first-level terminal contracts', () => {
       'edge_guardhouse',
       'policy_authority',
     ])).toEqual({
-      moduleIds: ['governance_controls', 'section_focus'],
+      moduleIds: ['governance_controls'],
       rejectedPanelIds: [],
       adapted: true,
     })

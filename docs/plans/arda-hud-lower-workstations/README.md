@@ -59,7 +59,7 @@ The executable first-level contract defines four configurable screens and one fi
 
 | Record | Physical zone | Slot | Live assignment | Current focused modules | Audit state |
 |---|---|---|---|---|---|
-| 01 | `boardroom.lower.left_wrap` | `view_desk_l` | `governance_guardhouse` | `governance_controls`, `section_focus` | [Deep audit recorded](01-governance-guardhouse.md) |
+| 01 | `boardroom.lower.left_wrap` | `view_desk_l` | `governance_guardhouse` | `governance_controls` | [Phase 4 implemented](GOVERNANCE_GUARDHOUSE.md) |
 | 02 | `boardroom.lower.left_inner` | `view_desk_control_panel` | `fleet_and_backbone` | `systems`, `operations_and_packages` | [Deep audit recorded](02-fleet-backbone.md) |
 | 03 | `boardroom.control.center` | none | fixed `command_core_now` | not slot-configurable | [Deep audit recorded](03-command-core.md) |
 | 04 | `boardroom.lower.right_inner` | `view_desk_r` | `routing_and_comms` | `systems`, `operations_and_packages` | [Deep audit recorded](04-routing-communications.md) |
@@ -78,10 +78,13 @@ The persisted assignment authority is `core/state/arda_boardroom_slots.json`, la
 | [Phase 1 composition authority](COMPOSITION_AUTHORITY.md) | canonical lower-workstation module composition, compatibility adapters, and old-authority dispositions | implemented and verified |
 | [Phase 2 Command Core controls](COMMAND_CORE_CONTROLS.md) | front-plate command/utility banks, detached-row retirement, callback parity, and native semantic evidence | implemented and verified with recorded native launch limitation |
 | [Phase 3 source truth](SOURCE_TRUTH.md) | shared live/snapshot/projected/stale/unavailable/missing states, source labels, and non-color cues | implemented and verified with recorded native visual limitation |
+| [Phase 4 Governance + Guardhouse](GOVERNANCE_GUARDHOUSE.md) | posture/source rails, selectable decision index, evidence detail, contextual actions, and decision-pressure instrument | implemented and verified with recorded native visual limitation |
 
 The Command Core now preserves its command bank and owns the existing Settings, Terminal, and Hermes Dashboard launchers in a separate physical utility bank. The detached bottom utility row is retired. Service Health remains owned by Fleet/Backbone and contributes state rather than retaining a duplicate detached button.
 
 Lower instruments now share an explicit source-truth contract. Every matched source carries a visible source name and one of six textual/symbolic truth states; missing and unreadable families fail visibly, and reduced-motion rendering no longer changes source authority.
+
+Governance now uses one focused decision chamber rather than stacked generic modules and a duplicate source-focus tab. Review packets and active governed tasks share a selectable index; evidence, authority, receipt binding, and source truth remain visible before any valid action is dispatched.
 
 ## Current Authority Boundaries
 

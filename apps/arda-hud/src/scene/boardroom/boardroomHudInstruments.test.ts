@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createDefaultBoardroomSlotSettings } from '../../lib/boardroomSlotSettings'
 import {
   deriveFleetHudInstrument,
+  deriveGovernanceHudInstrument,
   deriveBoardroomHudInstruments,
   deriveKnowledgeHudInstrument,
   deriveQueueHudInstrument,
@@ -12,6 +13,20 @@ import {
   resolveBoardroomHudInstrument,
   type BoardroomHudInstrumentMap,
 } from './boardroomHudInstruments'
+
+describe('deriveGovernanceHudInstrument', () => {
+  it('renders incident and actionable-decision pressure instead of raw record volume', () => {
+    const quietArchive = deriveGovernanceHudInstrument({ reviewItems: 90, pendingItems: 0, incidentItems: 0 })
+    const pressured = deriveGovernanceHudInstrument({ reviewItems: 2, pendingItems: 2, incidentItems: 1 })
+
+    expect(quietArchive.eyebrow).toBe('DECISION PRESSURE')
+    expect(quietArchive.glyph).toBe('0/0')
+    expect(pressured.glyph).toBe('2/1')
+    expect(pressured.nodes.filter((node) => node.state === 'warn')).not.toHaveLength(0)
+    expect(pressured.nodes.filter((node) => node.state === 'warn').length)
+      .toBeGreaterThan(quietArchive.nodes.filter((node) => node.state === 'warn').length)
+  })
+})
 
 describe('deriveFleetHudInstrument', () => {
   it('creates a nominal fleet instrument when targets are live', () => {

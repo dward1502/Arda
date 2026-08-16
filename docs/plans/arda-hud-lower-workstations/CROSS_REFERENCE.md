@@ -28,7 +28,7 @@ Current source/code/state beats documentation. Older contracts are retained only
 ## Executive findings
 
 1. Fleet and Routing are genuine UI duplicates: both open the same `Systems` and `Operations and Packages` modules.
-2. Governance contains several distinct workflows stacked into one tab, while its second tab only lists source metadata.
+2. Phase 4 resolves Governance's stacked workflows and duplicate source tab with one evidence-first list/detail chamber; Fleet and Routing remain unresolved.
 3. Command Core is a distinct physical control surface, but its controls mostly navigate and its central screen opens a mismatched Sovereign/Fleet workstation.
 4. Human/Business/Personal omits Personal despite loading a useful personal projection.
 5. Dedicated Warden and Fleet projections have real producers and tests but no HUD content adapters.
@@ -42,7 +42,7 @@ Current source/code/state beats documentation. Older contracts are retained only
 
 | Surface | Current modules/behavior | Direct overlap |
 |---|---|---|
-| Governance | `governance_controls`, `section_focus` | Review/approval content overlaps Planning and business drafts; Section Focus duplicates source metadata |
+| Governance | `governance_controls` | Phase 4 owns review decisions and receipts in one selected-record chamber; domain workstations retain bounded approval references |
 | Fleet | `systems`, `operations_and_packages` | Exact module duplication with Routing |
 | Command Core | fixed animated signal + navigation controls | Links into Planning, Governance, Routing, World; main screen duplicates Fleet/Sovereign content |
 | Routing | `systems`, `operations_and_packages` | Exact module duplication with Fleet |
@@ -85,6 +85,8 @@ Some information legitimately supports more than one surface if one owner retain
 | Personal priority | Human/Personal | Command Core can encode current attention without reproducing private detail |
 
 Phase 3 implements the cross-cutting source-truth boundary in [`SOURCE_TRUTH.md`](SOURCE_TRUTH.md). Domain previews consume shared `live`, `snapshot`, `projected`, `stale`, `unavailable`, and `missing` states; family-specific adapters may select matching authorities but may not infer authority from unrelated loaded data.
+
+Phase 4 implements the Governance ownership boundary in [`GOVERNANCE_GUARDHOUSE.md`](GOVERNANCE_GUARDHOUSE.md). The canonical composition is now only `governance_controls`; Warden source state, Arandur/HADES/ATHENA review records, governed active tasks, evidence, authority, and contextual actions converge in that focused view.
 
 ## Provisional ownership map
 

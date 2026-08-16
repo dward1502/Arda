@@ -16,6 +16,7 @@ import {
   BusinessModule,
   ArandurApprovalWorkstation,
   ExecutiveOverviewModule,
+  GovernanceGuardhouseWorkstation,
   HermesDashboardModule,
   HumanRealmModule,
   LineList,
@@ -763,7 +764,11 @@ export default function App() {
     () => {
       const sourceProvenance = bundle?.sourceProvenance ?? []
       const pendingReviewItems = reviewGateItems.filter((item) =>
+        item.kind !== 'athena_policy_readiness' &&
+        !item.status.toLowerCase().includes('reference_only') &&
         item.status !== 'approved' && item.status !== 'rejected').length
+      const incidentReviewItems = reviewGateItems.filter((item) =>
+        item.kind === 'hades_lifecycle' && item.status !== 'approved' && item.status !== 'rejected').length
       const commandLanes = Object.keys(asRecord(bundle?.operationsFlow) ?? {}).length
       const instruments = deriveBoardroomHudInstruments({
       fleetHealth: {
@@ -795,6 +800,7 @@ export default function App() {
       governance: {
         reviewItems: reviewGateItems.length,
         pendingItems: pendingReviewItems,
+        incidentItems: incidentReviewItems,
         source: adaptBoardroomHudSource(sourceProvenance, 'governance'),
       },
       human: {
@@ -1107,322 +1113,70 @@ export default function App() {
       ),
     },
     governance_controls: {
-      title: 'Governance Controls',
+      title: 'Governance + Guardhouse',
       node: (
-        <ModuleCard
-          title="Governance Controls"
-          eyebrow="Adjustable weights"
-          accent="ember"
-          tag={governanceTag}
-          actions={<SourceCoverageBadge coverage={governanceControlsCoverage} />}
-        >
-          <div className="split-stack">
-            <div>
-              <div className="module-subtitle"><Shield size={14} /> Weights</div>
-              <LineList items={governance.weights.slice(0, 8).map((item) => ({ label: item.label, value: formatMetric(item.value) }))} />
-            </div>
-            <div>
-              <div className="module-subtitle"><FolderKanban size={14} /> Thresholds</div>
-              <LineList items={governance.thresholds.map((item) => ({ label: item.label, value: formatMetric(item.value) }))} />
-            </div>
-          </div>
-          <div className="split-stack" style={{ marginTop: 16 }}>
-            <div>
-              <div className="module-subtitle"><Shield size={14} /> Human Augmentation</div>
-              <LineList items={humanAugmentation.summary.map((item) => ({ label: item.label, value: item.value }))} />
-              <div className="document-list compact" style={{ marginTop: 12 }}>
-                {humanAugmentation.approvals.slice(0, 4).map((approval) => (
-                  <article className="document-list__item" key={approval.id}>
-                    <strong>{approval.decisionClass}</strong>
-                    <span>{approval.approvers} / {approval.status}</span>
-                    <p>{approval.note}</p>
-                  </article>
-                ))}
-              </div>
-            </div>
-            <div>
-              <div className="module-subtitle"><FolderKanban size={14} /> Issue Approval</div>
-              <div style={{ display: 'grid', gap: 10 }}>
-                <select
-                  value={approvalDecisionClass}
-                  onChange={(event) => setApprovalDecisionClass(event.target.value)}
-                  className="rounded border border-[#334155] bg-[#0f1720] px-3 py-2 text-sm text-[#dbe7f3]"
-                >
-                  <option value="provider_reroute">provider_reroute</option>
-                  <option value="strategy_change">strategy_change</option>
-                  <option value="pricing_change">pricing_change</option>
-                  <option value="customer_commitment">customer_commitment</option>
-                  <option value="destructive_delete">destructive_delete</option>
-                </select>
-                <input
-                  value={approvalApprovers}
-                  onChange={(event) => setApprovalApprovers(event.target.value)}
-                  placeholder="approvers: aurelius,bacon"
-                  className="rounded border border-[#334155] bg-[#0f1720] px-3 py-2 text-sm text-[#dbe7f3]"
-                />
-                <input
-                  value={approvalEvidence}
-                  onChange={(event) => setApprovalEvidence(event.target.value)}
-                  placeholder="evidence: ticket-123,boardroom-note"
-                  className="rounded border border-[#334155] bg-[#0f1720] px-3 py-2 text-sm text-[#dbe7f3]"
-                />
-                <input
-                  value={approvalNote}
-                  onChange={(event) => setApprovalNote(event.target.value)}
-                  placeholder="note"
-                  className="rounded border border-[#334155] bg-[#0f1720] px-3 py-2 text-sm text-[#dbe7f3]"
-                />
-                <button
-                  onClick={() => void submitHumanAugmentationApproval()}
-                  disabled={approvalBusy}
-                  className="rounded border border-[#ff9933] bg-[#ff9933]/10 px-3 py-2 text-sm font-semibold text-[#ffb86b] transition-colors hover:bg-[#ff9933]/20 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {approvalBusy ? 'Recording...' : 'Record Approval'}
-                </button>
-                {approvalMessage ? <div className="text-[11px] text-[#b8c4d4]">{approvalMessage}</div> : null}
-              </div>
-            </div>
-          </div>
-          <div className="split-stack" style={{ marginTop: 16 }}>
-            <div>
-              <div className="module-subtitle"><Shield size={14} /> Autonomy Readiness</div>
-              <LineList items={[
-                { label: 'Posture', value: autonomyReadiness.posture },
-                ...autonomyReadiness.checkpoint.slice(0, 4),
-              ]} />
-              <div className="document-list compact" style={{ marginTop: 12 }}>
-                {autonomyReadiness.evidence.slice(0, 4).map((item) => (
-                  <article className="document-list__item" key={`${item.phase}-${item.title}`}>
-                    <strong>{item.phase} · {item.title}</strong>
-                    <span>{item.status}</span>
-                    <p>{item.source}</p>
-                  </article>
-                ))}
-              </div>
-            </div>
-            <div>
-              <div className="module-subtitle"><FolderKanban size={14} /> Next Unlocks</div>
-              <div className="document-list compact">
-                {autonomyReadiness.nextUnlocks.length > 0 ? autonomyReadiness.nextUnlocks.map((unlock) => (
-                  <article className="document-list__item" key={unlock.title}>
-                    <strong>{unlock.title}</strong>
-                    <span>{unlock.status}</span>
-                    <p>{unlock.requires || 'No additional requirements recorded.'}</p>
-                  </article>
-                )) : (
-                  <article className="document-list__item">
-                    <strong>No unlocks recorded</strong>
-                    <p>Autonomy remains governed by the current checkpoint posture.</p>
-                  </article>
-                )}
-              </div>
-            </div>
-          </div>
-          <div style={{ marginTop: 16 }}>
-            <ArandurApprovalWorkstation
-              approvals={humanAugmentation.approvals}
-              queueWriteRequests={arandurQueueWriteRequests}
-              activeTasks={(bundle?.taskQueueEntries ?? []).map((entry) => ({
-                id: getString(entry.id, getString(entry.task_id, 'unknown')),
-                title: getString(entry.title, 'Untitled task'),
-                owner: getString(entry.owner, 'unassigned'),
-                status: getString(entry.status, 'unknown'),
-                priority: getString(entry.priority, 'medium'),
-                workbenchRunId: getString(entry.workbench_run_id, '') || null,
-                leaseExpiresAtUtc: getString(entry.lease_expires_at_utc, '') || null,
-                executionReceiptDigest: getString(entry.execution_receipt_digest, '') || null,
-                result: getString(entry.result, '') || null,
-                detail: getString(entry.detail, '') || null,
-              })).filter((task) => task.id !== 'unknown')}
-              busy={approvalBusy}
-              message={approvalMessage}
-              rootPath={bundle?.rootPath ?? null}
-              onApprove={(request) => {
-                const item = reviewGateItems.find((candidate) => candidate.id === request.id)
-                if (item) void submitReviewGateDecision(item, 'approved')
-                else setApprovalMessage(`Review packet unavailable for ${request.id}`)
-              }}
-              onReject={(request) => {
-                const item = reviewGateItems.find((candidate) => candidate.id === request.id)
-                if (item) void submitReviewGateDecision(item, 'rejected')
-                else setApprovalMessage(`Review packet unavailable for ${request.id}`)
-              }}
-              onCancelTask={(task) => {
-                void (async () => {
-                  try {
-                    setApprovalBusy(true)
-                    const { invoke } = await import('@tauri-apps/api/core')
-                    await invoke('cancel_approved_queue_task_action', {
-                      ardaRoot: bundle?.rootPath ?? '',
-                      taskId: task.id,
-                      reason: 'operator cancellation from ARDA HUD',
-                    })
-                    setApprovalMessage(`Cancellation recorded for ${task.id}`)
-                  } catch (error) {
-                    setApprovalMessage(`Cancellation failed: ${String(error)}`)
-                  } finally {
-                    setApprovalBusy(false)
-                  }
-                })()
-              }}
-              onRetryTask={(task) => {
-                void (async () => {
-                  try {
-                    setApprovalBusy(true)
-                    const { invoke } = await import('@tauri-apps/api/core')
-                    await invoke('retry_approved_queue_task_action', {
-                      ardaRoot: bundle?.rootPath ?? '',
-                      taskId: task.id,
-                    })
-                    setApprovalMessage(`Governed retry queued for ${task.id}`)
-                  } catch (error) {
-                    setApprovalMessage(`Retry failed: ${String(error)}`)
-                  } finally {
-                    setApprovalBusy(false)
-                  }
-                })()
-              }}
-            />
-          </div>
-          <div style={{ marginTop: 16 }}>
-            <ReviewGateWorkstation
-              approvals={humanAugmentation.approvals}
-              items={reviewGateItems}
-              busy={approvalBusy}
-              message={approvalMessage}
-              sourceProvenance={bundle?.sourceProvenance ?? []}
-              decisionApprovers={approvalApprovers}
-              onApprove={(item) => void submitReviewGateDecision(item, 'approved')}
-              onReject={(item) => void submitReviewGateDecision(item, 'rejected')}
-            />
-          </div>
-          <div className="split-stack" style={{ marginTop: 16 }}>
-            <div>
-              <div className="module-subtitle"><Sparkles size={14} /> CEO Council</div>
-              <LineList items={ceoCouncil.summary.map((item) => ({ label: item.label, value: item.value }))} />
-              <div className="document-list compact" style={{ marginTop: 12 }}>
-                {ceoCouncil.sessions.length > 0 ? ceoCouncil.sessions.slice(0, 4).map((session) => (
-                  <article className="document-list__item" key={session.id}>
-                    <strong>{session.objective}</strong>
-                    <span>{session.loopClass} / {session.decisionClass}</span>
-                    <p>{session.outcomeStatus}</p>
-                  </article>
-                )) : (
-                  <article className="document-list__item">
-                    <strong>No council sessions yet</strong>
-                    <p>Discord ingress and council recording are ready for first live sessions.</p>
-                  </article>
-                )}
-              </div>
-            </div>
-            <div>
-              <div className="module-subtitle"><BookOpenText size={14} /> Validator Garage</div>
-              <LineList items={ceoCouncil.validators.length > 0 ? ceoCouncil.validators : [{ label: 'Pending', value: '0' }]} />
-              <div className="module-subtitle" style={{ marginTop: 16 }}><UserRound size={14} /> Memory Lanes</div>
-              <LineList items={ceoCouncil.memoryLanes.length > 0 ? ceoCouncil.memoryLanes : [{ label: 'Pending', value: '0' }]} />
-            </div>
-          </div>
-          <div className="split-stack" style={{ marginTop: 16 }}>
-            <div>
-              <div className="module-subtitle"><FolderKanban size={14} /> Record Council Session</div>
-              <div style={{ display: 'grid', gap: 10 }}>
-                <input
-                  value={councilObjective}
-                  onChange={(event) => setCouncilObjective(event.target.value)}
-                  placeholder="objective"
-                  className="rounded border border-[#334155] bg-[#0f1720] px-3 py-2 text-sm text-[#dbe7f3]"
-                />
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                  <select
-                    value={councilLoopClass}
-                    onChange={(event) => setCouncilLoopClass(event.target.value)}
-                    className="rounded border border-[#334155] bg-[#0f1720] px-3 py-2 text-sm text-[#dbe7f3]"
-                  >
-                    <option value="lightweight">lightweight</option>
-                    <option value="triad">triad</option>
-                  </select>
-                  <select
-                    value={councilDecisionClass}
-                    onChange={(event) => setCouncilDecisionClass(event.target.value)}
-                    className="rounded border border-[#334155] bg-[#0f1720] px-3 py-2 text-sm text-[#dbe7f3]"
-                  >
-                    <option value="routine_maintenance">routine_maintenance</option>
-                    <option value="provider_reroute">provider_reroute</option>
-                    <option value="strategy_change">strategy_change</option>
-                    <option value="customer_commitment">customer_commitment</option>
-                    <option value="destructive_delete">destructive_delete</option>
-                  </select>
-                </div>
-                <input
-                  value={councilParticipants}
-                  onChange={(event) => setCouncilParticipants(event.target.value)}
-                  placeholder="participants: arandur,warden,steward"
-                  className="rounded border border-[#334155] bg-[#0f1720] px-3 py-2 text-sm text-[#dbe7f3]"
-                />
-                <input
-                  value={councilProposals}
-                  onChange={(event) => setCouncilProposals(event.target.value)}
-                  placeholder="proposals: comma separated"
-                  className="rounded border border-[#334155] bg-[#0f1720] px-3 py-2 text-sm text-[#dbe7f3]"
-                />
-                <input
-                  value={councilObjections}
-                  onChange={(event) => setCouncilObjections(event.target.value)}
-                  placeholder="objections: comma separated"
-                  className="rounded border border-[#334155] bg-[#0f1720] px-3 py-2 text-sm text-[#dbe7f3]"
-                />
-                <input
-                  value={councilValidators}
-                  onChange={(event) => setCouncilValidators(event.target.value)}
-                  placeholder="validators: joulework,love_equation"
-                  className="rounded border border-[#334155] bg-[#0f1720] px-3 py-2 text-sm text-[#dbe7f3]"
-                />
-                <input
-                  value={councilMemoryLanes}
-                  onChange={(event) => setCouncilMemoryLanes(event.target.value)}
-                  placeholder="memory lanes: ceo_private_working,shared_executive"
-                  className="rounded border border-[#334155] bg-[#0f1720] px-3 py-2 text-sm text-[#dbe7f3]"
-                />
-                <textarea
-                  value={councilMemoryWrites}
-                  onChange={(event) => setCouncilMemoryWrites(event.target.value)}
-                  placeholder="memory writes: one per line, optionally lane:content"
-                  rows={3}
-                  className="rounded border border-[#334155] bg-[#0f1720] px-3 py-2 text-sm text-[#dbe7f3]"
-                />
-                <textarea
-                  value={councilSynthesis}
-                  onChange={(event) => setCouncilSynthesis(event.target.value)}
-                  placeholder="synthesis"
-                  rows={3}
-                  className="rounded border border-[#334155] bg-[#0f1720] px-3 py-2 text-sm text-[#dbe7f3]"
-                />
-                <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#b8c4d4' }}>
-                    <input type="checkbox" checked={councilTriadRequired} onChange={(event) => setCouncilTriadRequired(event.target.checked)} />
-                    Triad required
-                  </label>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#b8c4d4' }}>
-                    <input type="checkbox" checked={councilHumanEscalated} onChange={(event) => setCouncilHumanEscalated(event.target.checked)} />
-                    Human escalated
-                  </label>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#b8c4d4' }}>
-                    <input type="checkbox" checked={councilPromotedPrivateMemory} onChange={(event) => setCouncilPromotedPrivateMemory(event.target.checked)} />
-                    Promoted private memory
-                  </label>
-                </div>
-                <button
-                  onClick={() => void submitCeoCouncilSession()}
-                  disabled={councilBusy}
-                  className="rounded border border-[#6ee7b7] bg-[#6ee7b7]/10 px-3 py-2 text-sm font-semibold text-[#9ff5ce] transition-colors hover:bg-[#6ee7b7]/20 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {councilBusy ? 'Recording...' : 'Record Council Session'}
-                </button>
-                {councilMessage ? <div className="text-[11px] text-[#b8c4d4]">{councilMessage}</div> : null}
-              </div>
-            </div>
-          </div>
-        </ModuleCard>
+        <GovernanceGuardhouseWorkstation
+          governance={governance}
+          governanceSignals={governanceSignals}
+          autonomyReadiness={autonomyReadiness}
+          items={reviewGateItems}
+          activeTasks={(bundle?.taskQueueEntries ?? []).map((entry) => ({
+            id: getString(entry.id, getString(entry.task_id, 'unknown')),
+            title: getString(entry.title, 'Untitled task'),
+            owner: getString(entry.owner, 'unassigned'),
+            status: getString(entry.status, 'unknown'),
+            priority: getString(entry.priority, 'medium'),
+            workbenchRunId: getString(entry.workbench_run_id, '') || null,
+            leaseExpiresAtUtc: getString(entry.lease_expires_at_utc, '') || null,
+            executionReceiptDigest: getString(entry.execution_receipt_digest, '') || null,
+            result: getString(entry.result, '') || null,
+            detail: getString(entry.detail, '') || null,
+          })).filter((task) => task.id !== 'unknown')}
+          approvals={humanAugmentation.approvals}
+          sourceProvenance={bundle?.sourceProvenance ?? []}
+          sourceCoverage={governanceControlsCoverage}
+          busy={approvalBusy}
+          message={approvalMessage}
+          decisionApprovers={approvalApprovers}
+          onDefer={(item) => setApprovalMessage(`Deferred ${item.id}; no approval record appended`)}
+          onCancelTask={(task) => {
+            void (async () => {
+              try {
+                setApprovalBusy(true)
+                const { invoke } = await import('@tauri-apps/api/core')
+                await invoke('cancel_approved_queue_task_action', {
+                  ardaRoot: bundle?.rootPath ?? '',
+                  taskId: task.id,
+                  reason: 'operator cancellation from ARDA HUD',
+                })
+                setApprovalMessage(`Cancellation recorded for ${task.id}`)
+              } catch (error) {
+                setApprovalMessage(`Cancellation failed: ${String(error)}`)
+              } finally {
+                setApprovalBusy(false)
+              }
+            })()
+          }}
+          onRetryTask={(task) => {
+            void (async () => {
+              try {
+                setApprovalBusy(true)
+                const { invoke } = await import('@tauri-apps/api/core')
+                await invoke('retry_approved_queue_task_action', {
+                  ardaRoot: bundle?.rootPath ?? '',
+                  taskId: task.id,
+                })
+                setApprovalMessage(`Governed retry queued for ${task.id}`)
+              } catch (error) {
+                setApprovalMessage(`Retry failed: ${String(error)}`)
+              } finally {
+                setApprovalBusy(false)
+              }
+            })()
+          }}
+          onApprove={(item) => void submitReviewGateDecision(item, 'approved')}
+          onReject={(item) => void submitReviewGateDecision(item, 'rejected')}
+        />
       ),
     },
     hermes_dashboard: {

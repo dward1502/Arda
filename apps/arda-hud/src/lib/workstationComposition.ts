@@ -26,8 +26,8 @@ const WORKSTATION_COMPOSITIONS: Record<string, WorkstationComposition> = {
     presentationModes: ['in_scene', 'native_window'],
   },
   governance_guardhouse: {
-    title: 'Governance Guardhouse',
-    moduleIds: ['governance_controls', 'section_focus'],
+    title: 'Governance + Guardhouse',
+    moduleIds: ['governance_controls'],
     sourcePanelIds: ['security_posture', 'edge_guardhouse', 'policy_authority'],
     presentationModes: ['in_scene', 'native_window'],
   },

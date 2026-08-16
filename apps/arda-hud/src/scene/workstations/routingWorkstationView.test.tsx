@@ -35,7 +35,7 @@ const model: RoutingViewModel = {
 describe('RoutingFocusedWorkstationView', () => {
   it('renders routing lanes, provider detail, communications, truth states, and registered read-only actions', () => {
     const onRunAction = vi.fn()
-    render(<RoutingFocusedWorkstationView model={model} busyActionId={null} onRunAction={onRunAction} />)
+    const { container } = render(<RoutingFocusedWorkstationView model={model} busyActionId={null} onRunAction={onRunAction} />)
 
     expect(screen.getByRole('heading', { name: 'Routing + Communications' })).toBeTruthy()
     const laneRegion = screen.getByRole('region', { name: 'Routing lane ownership' })
@@ -43,6 +43,7 @@ describe('RoutingFocusedWorkstationView', () => {
     expect(screen.getByText('low latency')).toBeTruthy()
     expect(screen.getByRole('region', { name: 'Communication pathways' })).toHaveTextContent('Discord')
     expect(screen.getByText(/CHARON Router: missing/)).toBeTruthy()
+    expect(container.querySelector('.arda-source-corner [data-truth-state="missing"]')).toHaveTextContent('CHARON Router')
 
     fireEvent.click(screen.getByRole('button', { name: 'Run Provider Checks' }))
     fireEvent.click(screen.getByRole('button', { name: 'Refresh Provider Intelligence' }))

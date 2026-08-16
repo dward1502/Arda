@@ -146,6 +146,8 @@ It should not own the Plan Shelf, generic project queue, or approval decision au
 
 Phase 7 implements this ownership boundary in [`HUMAN_BUSINESS_PERSONAL.md`](HUMAN_BUSINESS_PERSONAL.md). Projected client/project paths are reconciled against the loaded live inventory, missing paths remain missing, and personal detail is withheld from the glanceable lower surface.
 
+Phase 8 implements the cross-surface physical grammar in [`VISUAL_CONVERGENCE.md`](VISUAL_CONVERGENCE.md). Console material, vector lines, focus treatment, source-corner truth cues, focused text minimums, and reduced-motion behavior are shared; each domain retains its own composition rather than inheriting a generic card or chart template.
+
 ## Cross-domain boundary questions still requiring user/design review
 
 1. Whether technical gateway/channel health belongs in Routing or a separate Communications view.

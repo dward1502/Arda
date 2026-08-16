@@ -97,9 +97,9 @@ export function RoutingFocusedWorkstationView({ model, busyActionId, onRunAction
         </section>
       </div>
 
-      <footer className="routing-focused-view__footer">
+      <footer className="routing-focused-view__footer arda-source-corner" aria-label="Routing source truth">
         <span>Routes: {model.routeHistory.successes} success / {model.routeHistory.failures} failure</span>
-        {model.sources.map((source) => <span key={source.id}>{source.label}: {source.freshness.status}</span>)}
+        {model.sources.map((source) => <span data-truth-state={source.freshness.status} key={source.id}>{source.label}: {source.freshness.status}</span>)}
       </footer>
     </div>
   )

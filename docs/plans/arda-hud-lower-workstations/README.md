@@ -82,6 +82,7 @@ The persisted assignment authority is `core/state/arda_boardroom_slots.json`, la
 | [Phase 5 Fleet + Backbone](FLEET_BACKBONE.md) | AULË projection wiring, topology/rack line, selected-node evidence, refresh action, and node-pressure instrument | implemented and verified with recorded native visual limitation |
 | [Phase 6 Routing + Communications](ROUTING_COMMUNICATIONS.md) | CHARON lane/provider flow, selected-route evidence, communication receipts, and registered read-only actions | implemented and verified with recorded native visual limitation |
 | [Phase 7 Human/Business/Personal](HUMAN_BUSINESS_PERSONAL.md) | selectable continuity horizons, live reference reconciliation, value truth, and privacy-aware lower instrument | implemented and verified with recorded native visual limitation |
+| [Phase 8 visual convergence](VISUAL_CONVERGENCE.md) | shared console, line, focus, truth, type, and motion grammar with domain-specific compositions | implemented and verified with recorded native visual limitation |
 
 The Command Core now preserves its command bank and owns the existing Settings, Terminal, and Hermes Dashboard launchers in a separate physical utility bank. The detached bottom utility row is retired. Service Health remains owned by Fleet/Backbone and contributes state rather than retaining a duplicate detached button.
 
@@ -94,6 +95,8 @@ Fleet now uses one topology-first owner module. The six AULË projection familie
 Routing now uses one directed-flow owner module. Lane/provider/model selection, headroom, fitness, budget pressure, provider intelligence, and communication receipts remain distinct from Fleet-owned Service Health; disconnected communication evidence renders unavailable.
 
 Human, Business, and Personal now use one continuity owner module. All three projections contribute distinguishable horizons; projected client/project paths reconcile against loaded inventories, planned value remains separate from realized value, and the lower instrument exposes only aggregate pressure.
+
+The lower workstation family now reads as one ARDA machine without sharing one dashboard template. Governance remains a decision chamber, Fleet a topology, Routing a directed flow field, Continuity a three-horizon console, and Command Core a tactile coherence/control surface. Source truth, keyboard focus, focused text scale, and reduced-motion behavior now use one shared grammar.
 
 ## Current Authority Boundaries
 

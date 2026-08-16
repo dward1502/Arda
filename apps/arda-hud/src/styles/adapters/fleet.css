@@ -128,15 +128,12 @@
   display: grid;
   gap: 1rem;
   min-height: 100%;
-  border: 1px solid rgba(98, 229, 255, 0.18);
+  border: 1px solid var(--arda-vector-line);
   border-radius: 1rem;
-  background: linear-gradient(
-    135deg,
-    rgba(8, 22, 36, 0.94),
-    rgba(4, 10, 18, 0.98)
-  );
+  background: var(--arda-console-material);
   padding: 1rem;
   color: #e9fbff;
+  font-size: var(--arda-text-min-focused);
 }
 
 .fleet-focused-view__eyebrow,

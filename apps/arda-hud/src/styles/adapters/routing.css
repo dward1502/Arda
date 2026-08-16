@@ -2,11 +2,12 @@
   display: grid;
   gap: 0.85rem;
   min-height: 100%;
-  border: 1px solid rgba(120, 208, 255, 0.2);
+  border: 1px solid var(--arda-vector-line);
   border-radius: 1rem;
-  background: linear-gradient(145deg, rgba(5, 17, 29, 0.98), rgba(9, 10, 18, 0.99));
+  background: var(--arda-console-material);
   padding: 1rem;
   color: #eafaff;
+  font-size: var(--arda-text-min-focused);
 }
 
 .routing-focused-view__hero,

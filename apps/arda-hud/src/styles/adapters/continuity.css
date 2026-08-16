@@ -3,8 +3,10 @@
   gap: 1rem;
   min-height: 100%;
   padding: 1rem;
+  border: 1px solid var(--arda-vector-line);
   color: var(--hud-text-primary, #d9f5e9);
-  background: radial-gradient(circle at 78% 12%, rgb(65 122 101 / 16%), transparent 34%), #07100f;
+  background: radial-gradient(circle at 78% 12%, rgb(65 122 101 / 16%), transparent 34%), var(--arda-console-material);
+  font-size: var(--arda-text-min-focused);
 }
 
 .continuity-focused-view__hero,

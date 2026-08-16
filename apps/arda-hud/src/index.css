@@ -26,6 +26,7 @@
 @import "./styles/adapters/fleet.css";
 @import "./styles/adapters/routing.css";
 @import "./styles/adapters/continuity.css";
+@import "./styles/adapters/convergence.css";
 
 
 @source "./**/*.{ts,tsx,html}";

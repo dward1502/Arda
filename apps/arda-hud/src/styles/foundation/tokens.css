@@ -48,4 +48,22 @@
   --hud-accent-purple: #c724ff;
   --hud-accent-gold: #f9ca24;
   --hud-danger: #ff3366;
+
+  /* ARDA machine grammar: shared substrate, not a shared layout. */
+  --arda-console-material: linear-gradient(145deg, rgba(5, 14, 22, 0.97), rgba(2, 7, 12, 0.99));
+  --arda-console-material-raised: rgba(8, 22, 31, 0.82);
+  --arda-vector-line: rgba(121, 222, 238, 0.2);
+  --arda-vector-line-strong: rgba(127, 236, 247, 0.68);
+  --arda-focus-outline: 2px solid #f5cf7a;
+  --arda-focus-offset: 2px;
+  --arda-text-min-focused: 0.7rem;
+  --arda-text-min-instrument: 0.5rem;
+  --arda-motion-fast: 120ms;
+  --arda-motion-slow: 260ms;
+  --arda-truth-live: #70efc0;
+  --arda-truth-snapshot: #9ccdea;
+  --arda-truth-projected: #c8a8ff;
+  --arda-truth-stale: #f5cf7a;
+  --arda-truth-unavailable: #9aa7b2;
+  --arda-truth-missing: #ff9a91;
 }

@@ -34,12 +34,14 @@ const model: ContinuityViewModel = {
 
 describe('ContinuityFocusedWorkstationView', () => {
   it('separates horizons, value truth, missing paths, and private detail on the focused surface', () => {
-    render(<ContinuityFocusedWorkstationView model={model} />)
+    const { container } = render(<ContinuityFocusedWorkstationView model={model} />)
 
     expect(screen.getByRole('heading', { name: 'Human + Business + Personal' })).toBeInTheDocument()
     expect(screen.getByText('Planned value')).toBeInTheDocument()
     expect(screen.getByText('$500.00')).toBeInTheDocument()
     expect(screen.getByText('No receipt-backed realized value')).toBeInTheDocument()
+    expect(container.querySelector('.arda-source-corner [data-truth-state="snapshot"]')).toHaveTextContent('Human Context')
+    expect(container.querySelector('.arda-source-corner [data-truth-state="unavailable"]')).toHaveTextContent('Company Operations')
 
     fireEvent.click(screen.getByRole('button', { name: /Business 2/i }))
     expect(screen.getByRole('button', { name: /Missing client/i })).toBeInTheDocument()

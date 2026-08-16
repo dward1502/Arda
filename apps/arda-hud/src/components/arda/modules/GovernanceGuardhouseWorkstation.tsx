@@ -213,9 +213,9 @@ export default function GovernanceGuardhouseWorkstation({
         ))}
       </section>
 
-      <section className="guardhouse-source-rail" aria-label="Guardhouse source states">
+      <section className="guardhouse-source-rail arda-source-corner" aria-label="Guardhouse source states">
         {viewModel.sources.map((source) => (
-          <span key={source.id} className={`guardhouse-source guardhouse-source--${source.state.replace(/ /g, '-')}`}>
+          <span data-truth-state={source.state.replace(/ /g, '-')} key={source.id} className={`guardhouse-source guardhouse-source--${source.state.replace(/ /g, '-')}`}>
             <strong>{source.label}</strong>
             <span>{source.state}</span>
             <small>{source.timestamp ?? 'no source timestamp'}</small>

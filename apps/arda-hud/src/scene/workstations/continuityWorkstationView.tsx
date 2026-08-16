@@ -68,8 +68,8 @@ export function ContinuityFocusedWorkstationView({ model }: ContinuityFocusedWor
         </section>
       </div>
 
-      <footer className="continuity-focused-view__footer">
-        {model.sources.map((source) => <span key={source.id}>{source.label}: {source.freshness.status}</span>)}
+      <footer className="continuity-focused-view__footer arda-source-corner" aria-label="Continuity source truth">
+        {model.sources.map((source) => <span data-truth-state={source.freshness.status} key={source.id}>{source.label}: {source.freshness.status}</span>)}
       </footer>
     </div>
   )

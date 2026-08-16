@@ -399,8 +399,9 @@
   display: grid;
   grid-template-columns: minmax(12rem, 0.8fr) minmax(18rem, 1.7fr);
   min-height: 25rem;
-  border: 1px solid rgba(245, 158, 11, 0.22);
-  background: rgba(2, 7, 11, 0.82);
+  border: 1px solid var(--arda-vector-line);
+  background: var(--arda-console-material);
+  font-size: var(--arda-text-min-focused);
 }
 
 .governance-record-index {

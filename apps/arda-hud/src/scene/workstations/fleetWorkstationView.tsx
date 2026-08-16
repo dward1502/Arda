@@ -159,9 +159,9 @@ export function FleetFocusedWorkstationView({ fleetViewModel, onRefresh }: { fle
           </> : <p>Select a node to inspect its evidence.</p>}
         </section>
       </div>
-      <div className="fleet-focused-view__footer">
+      <div className="fleet-focused-view__footer arda-source-corner" aria-label="Fleet source truth">
         <span>Unexpected offline: {offlineMetric?.value ?? 0}</span>
-        {fleetViewModel.sources.filter((sourceRef) => sourceRef.id.startsWith('fleet_')).map((sourceRef) => <span key={sourceRef.id}>{sourceRef.label}: {sourceRef.freshness.status}</span>)}
+        {fleetViewModel.sources.filter((sourceRef) => sourceRef.id.startsWith('fleet_')).map((sourceRef) => <span data-truth-state={sourceRef.freshness.status} key={sourceRef.id}>{sourceRef.label}: {sourceRef.freshness.status}</span>)}
       </div>
     </div>
   )

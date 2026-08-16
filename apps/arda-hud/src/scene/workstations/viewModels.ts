@@ -165,6 +165,33 @@ export interface RoutingViewModel extends ViewModelPreludeContext, ViewModelFocu
   communicationPathways: RoutingCommunicationPathway[]
 }
 
+export type ContinuityHorizonId = 'human' | 'business' | 'personal'
+export type ContinuityItemState = 'active' | 'planned' | 'realized' | 'snapshot' | 'missing'
+
+export interface ContinuityItemViewModel {
+  id: string
+  horizon: ContinuityHorizonId
+  kind: string
+  title: string
+  summary: string
+  state: ContinuityItemState
+  path?: string
+  privateDetail: boolean
+}
+
+export interface ContinuityViewModel extends ViewModelPreludeContext, ViewModelFocusedContext, ViewModelProvenanceClauseBag {
+  roleId: 'continuity'
+  horizons: Array<{ id: ContinuityHorizonId; label: string; count: number; attention: number }>
+  items: ContinuityItemViewModel[]
+  valueTruth: {
+    plannedMinor: number
+    realizedMinor: number
+    currency: string
+    realizedReceiptCount: number
+  }
+  missingReferenceCount: number
+}
+
 export interface WorkViewModel extends ViewModelPreludeContext, ViewModelFocusedContext, ViewModelProvenanceClauseBag {
   roleId: 'work'
   queueToDecisionEvidence?: string
@@ -199,6 +226,7 @@ export interface SettingsViewModel extends ViewModelPreludeContext, ViewModelFoc
 export type WorkstationViewModel =
   | FleetViewModel
   | RoutingViewModel
+  | ContinuityViewModel
   | WorkViewModel
   | DecisionViewModel
   | KnowledgeViewModel

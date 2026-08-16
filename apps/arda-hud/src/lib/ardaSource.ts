@@ -6,6 +6,7 @@ import { classifyFreshness, getOperatorLabel, getSafeRefreshCommand, normalizeTi
 import { deriveAutomationStatusSurface } from './automationStatus'
 import { parseJsonOrNull } from './jsonParse'
 import { resolveWorkstationProfile } from './firstLevelTerminalContracts'
+import { reconcileBusinessRuntimeReferences } from './businessReferenceTruth'
 import { parseOperatorProjection } from './operatorProjection'
 import {
   collectInventoryPaths,
@@ -495,13 +496,15 @@ async function deriveHumanContext(rootPath: string): Promise<JsonRecord> {
 }
 
 async function deriveBusinessRuntime(rootPath: string): Promise<JsonRecord> {
-  const [companyView, businessState, clientTree, companyOps] = await Promise.all([
+  const [companyView, businessState, clientTree, projectTree, companyOps] = await Promise.all([
     summarizeReadable(rootPath, 'docs/operator/company-view.md'),
     readJson(rootPath, 'data/business/soterion-business.json'),
     readInventoryTree(rootPath, 'data/business/clients', 5),
+    readInventoryTree(rootPath, 'data/projects', 4),
     readJson(rootPath, 'data/business/company-ops.json'),
   ])
   const clientPaths = collectInventoryPaths(clientTree, '.json')
+  const projectPaths = collectInventoryPaths(projectTree, 'project.json')
   const stateKeys = Object.keys(businessState ?? {})
   return {
     authority: 'arda_derived_business_runtime',
@@ -515,6 +518,7 @@ async function deriveBusinessRuntime(rootPath: string): Promise<JsonRecord> {
     },
     highlights: {
       client_paths: clientPaths.slice(0, 4),
+      project_paths: projectPaths,
       state_keys: stateKeys.slice(0, 6),
     },
   }
@@ -1134,11 +1138,11 @@ export function createCoreStateSource(): ArdaDataSource {
       ])
       const safeLocalWorkCyclePreflight = await readJson(rootPath, 'data/prometheus/safe_local_work_cycle_preflight.json')
       const finalHumanContext = humanContext ?? derivedHumanContext
-      const finalBusinessRuntime = {
+      const finalBusinessRuntime = reconcileBusinessRuntimeReferences({
         ...(derivedBusinessRuntime ?? {}),
         ...(businessRuntime ?? {}),
         company_ops: derivedBusinessRuntime?.company_ops ?? {},
-      }
+      }, derivedBusinessRuntime ?? {})
       const finalPersonalRuntime = personalRuntime ?? derivedPersonalRuntime
       const finalQueueSummary = queueSummary ?? deriveQueueSummaryFromActiveProjection(queueActiveProjection) ?? deriveQueueSummaryFromEntries(queueEntries)
       const finalRuntimeSettings = runtimeSettings ?? deriveRuntimeSettings(activeRuleset)

@@ -40,12 +40,8 @@ describe('sceneSlotWorkstationTemplates', () => {
     expect(resolveSceneSlotWorkstationZoneId('view_desk_r', 'boardroom.control.right', 'routing_and_comms')).toBe('routing_and_comms')
   })
 
-  it('uses the complete Human, Business, and Personal composition for the auxiliary desk fallback', () => {
-    expect(getSceneSlotWorkstationTemplates().view_desk_aux.moduleIds).toEqual([
-      'human_realm',
-      'business',
-      'personal_growth',
-    ])
+  it('uses the focused continuity owner for the auxiliary desk fallback', () => {
+    expect(getSceneSlotWorkstationTemplates().view_desk_aux.moduleIds).toEqual(['human_realm'])
   })
 
   it('rejects unknown slot ids instead of producing generic placeholders', () => {

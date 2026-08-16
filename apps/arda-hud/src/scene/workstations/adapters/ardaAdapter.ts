@@ -6,6 +6,9 @@ import type {
 import {
   createEmptyFleetViewModel,
   sourceRef,
+  type ContinuityHorizonId,
+  type ContinuityItemViewModel,
+  type ContinuityViewModel,
   type FleetLaneFitnessViewModel,
   type FleetLaneHeadroomViewModel,
   type FleetLaneOwnershipViewModel,
@@ -479,5 +482,160 @@ export function createArdaRoutingViewModel(bundle: ArdaBundle): RoutingViewModel
     },
     communicationPathways,
     provenanceClause: 'Routing claims are derived from loaded CHARON/operator snapshots; Service Health remains Fleet-owned.',
+  }
+}
+
+function continuitySourceRef(bundle: ArdaBundle, value: JsonRecord | null, id: string, label: string, path: string) {
+  if (!value) return sourceRef(id, label, 'missing', null, path, `${label} unavailable: ${path}.`)
+  const timestamp = getString(value.generated_at_utc) || getString(value.generated_at) || null
+  const ageMs = timestamp ? Date.parse(bundle.generatedAt) - Date.parse(timestamp) : Number.NaN
+  const status = timestamp && Number.isFinite(ageMs) && ageMs > 300_000 ? 'stale' : timestamp ? 'snapshot' : 'projected'
+  return sourceRef(id, label, status, timestamp, path, `${label} ${status}: ${path}.`)
+}
+
+function documentItems(value: unknown, horizon: ContinuityHorizonId, kind: string): ContinuityItemViewModel[] {
+  return asArray(value).map(asRecord).filter((record): record is JsonRecord => record !== null).map((record, index) => {
+    const path = getString(record.path)
+    return {
+      id: `${horizon}:${kind}:${path || index}`,
+      horizon,
+      kind,
+      title: getString(record.title, path.split('/').pop() || `${kind} ${index + 1}`),
+      summary: getString(record.body_preview, 'No readable preview projected.'),
+      state: 'snapshot',
+      path: path || undefined,
+      privateDetail: horizon !== 'business',
+    }
+  })
+}
+
+function getAmountMinor(value: JsonRecord | null): number {
+  return getNumber(value?.amount_minor, getNumber(value?.amount, 0))
+}
+
+export function createArdaContinuityViewModel(bundle: ArdaBundle): ContinuityViewModel {
+  const human = asRecord(bundle.humanContext)
+  const portal = asRecord(human?.human_portal)
+  const business = asRecord(bundle.businessRuntime)
+  const businessState = asRecord(business?.state)
+  const companyOps = asRecord(business?.company_ops)
+  const personal = asRecord(bundle.personalRuntime)
+  const personalHighlights = asRecord(personal?.highlights)
+  const opportunities = asArray(companyOps?.opportunities).map(asRecord).filter((record): record is JsonRecord => record !== null)
+  const engagements = asArray(companyOps?.engagements).map(asRecord).filter((record): record is JsonRecord => record !== null)
+  const projects = asArray(companyOps?.projects).map(asRecord).filter((record): record is JsonRecord => record !== null)
+  const items: ContinuityItemViewModel[] = [
+    ...documentItems(portal?.docs, 'human', 'document'),
+    ...documentItems(portal?.notes, 'human', 'note'),
+    ...asArray(business?.client_records).map(asRecord).filter((record): record is JsonRecord => record !== null).map((record, index) => {
+      const path = getString(record.path)
+      const exists = getBoolean(record.exists, false)
+      return {
+        id: `business:client:${path || index}`,
+        horizon: 'business' as const,
+        kind: 'client commitment',
+        title: path.split('/').slice(-2).join('/') || `Client ${index + 1}`,
+        summary: getString(record.body_preview, exists ? 'Referenced client record.' : 'Referenced path is absent from the live workspace.'),
+        state: exists ? 'active' as const : 'missing' as const,
+        path: path || undefined,
+        privateDetail: false,
+      }
+    }),
+    ...asArray(businessState?.offers).map(asRecord).filter((record): record is JsonRecord => record !== null).map((record, index) => ({
+      id: `business:offer:${getString(record.id, String(index))}`,
+      horizon: 'business' as const,
+      kind: 'offer',
+      title: getString(record.title, 'Untitled offer'),
+      summary: getString(record.description, 'No offer description projected.'),
+      state: 'planned' as const,
+      privateDetail: false,
+    })),
+    ...opportunities.map((record, index) => ({
+      id: `business:opportunity:${getString(record.opportunity_id, String(index))}`,
+      horizon: 'business' as const,
+      kind: 'opportunity',
+      title: getString(record.title, `Opportunity ${index + 1}`),
+      summary: getString(record.description, 'Forecast opportunity; not realized value.'),
+      state: 'planned' as const,
+      privateDetail: false,
+    })),
+    ...engagements.map((record, index) => {
+      const realizedValue = asRecord(record.realized_value)
+      const receiptBacked = getString(realizedValue?.outcome_receipt_id).length > 0
+      return {
+        id: `business:engagement:${getString(record.engagement_id, String(index))}`,
+        horizon: 'business' as const,
+        kind: 'engagement',
+        title: getString(record.title, `Engagement ${index + 1}`),
+        summary: getString(record.summary, receiptBacked ? 'Realized value is backed by an outcome receipt.' : 'Active engagement; no realized-value receipt projected.'),
+        state: receiptBacked ? 'realized' as const : 'active' as const,
+        privateDetail: false,
+      }
+    }),
+    ...projects.map((record, index) => {
+      const path = getString(record.path)
+      const missing = path.length > 0 && !getBoolean(record.exists, false)
+      return {
+        id: `business:project:${getString(record.project_id, path || String(index))}`,
+        horizon: 'business' as const,
+        kind: 'project',
+        title: getString(record.title, `Project ${index + 1}`),
+        summary: getString(record.summary, missing ? 'Referenced project path is absent from the live workspace.' : 'Business project reference.'),
+        state: missing ? 'missing' as const : 'active' as const,
+        path: path || undefined,
+        privateDetail: false,
+      }
+    }),
+    ...asArray(personalHighlights?.priorities).map((priority, index) => ({
+      id: `personal:priority:${index}`,
+      horizon: 'personal' as const,
+      kind: 'priority',
+      title: getString(priority, `Priority ${index + 1}`),
+      summary: 'Private continuity priority; details remain on the focused surface.',
+      state: 'active' as const,
+      privateDetail: true,
+    })),
+    ...documentItems(personal?.documents, 'personal', 'document'),
+  ]
+  const plannedMinor = opportunities.reduce((total, record) => total + getAmountMinor(asRecord(record.forecast_value)), 0)
+  const realized = engagements.map((record) => asRecord(record.realized_value)).filter((record): record is JsonRecord => record !== null)
+  const realizedMinor = realized.reduce((total, record) => total + getAmountMinor(record), 0)
+  const currency = getString(asRecord(opportunities[0]?.forecast_value)?.currency, getString(realized[0]?.currency, 'USD'))
+  const missingReferenceCount = items.filter((item) => item.state === 'missing').length
+  const horizons = (['human', 'business', 'personal'] as const).map((id) => {
+    const horizonItems = items.filter((item) => item.horizon === id)
+    return { id, label: id.charAt(0).toUpperCase() + id.slice(1), count: horizonItems.length, attention: horizonItems.filter((item) => item.state === 'missing').length }
+  })
+
+  return {
+    roleId: 'continuity',
+    title: 'Human + Business + Personal',
+    status: !human && !business && !personal ? 'empty' : missingReferenceCount > 0 ? 'attention' : 'ok',
+    summary: [
+      `${horizons[0].count} human context items`,
+      `${horizons[1].count} business commitments and offers`,
+      `${horizons[2].count} private continuity items`,
+      missingReferenceCount > 0 ? `${missingReferenceCount} referenced path${missingReferenceCount === 1 ? '' : 's'} missing` : 'Referenced paths reconciled',
+    ],
+    metrics: [
+      metric('human_context', 'Human Context', horizons[0].count),
+      metric('business_items', 'Business Items', horizons[1].count),
+      metric('personal_items', 'Personal Items', horizons[2].count),
+      metric('missing_references', 'Missing References', missingReferenceCount, missingReferenceCount > 0 ? 'attention' : 'good'),
+    ],
+    sources: [
+      continuitySourceRef(bundle, human, 'human_context', 'Human Context', 'core/state/human_context.json'),
+      continuitySourceRef(bundle, business, 'business_runtime', 'Business Runtime', 'core/state/business_runtime.json'),
+      continuitySourceRef(bundle, personal, 'personal_runtime', 'Personal Runtime', 'core/state/personal_runtime.json'),
+      sourceRef('company_ops', 'Company Operations', companyOps && Object.keys(companyOps).length > 0 ? 'projected' : 'unavailable', null, 'data/business/company-ops.json', companyOps && Object.keys(companyOps).length > 0 ? 'Company operations loaded from live workspace.' : 'Company operations source unavailable; no realized-value claim is made.'),
+    ],
+    actions: [],
+    previewKinds: ['continuity_pulse', 'horizon_balance', 'missing_reference_warning'],
+    focusedCapabilities: ['horizon_filtering', 'commitment_detail', 'planned_realized_value_truth', 'private_detail_boundary'],
+    rawDisclosure: false,
+    horizons,
+    items,
+    valueTruth: { plannedMinor, realizedMinor, currency, realizedReceiptCount: realized.filter((record) => getString(record.outcome_receipt_id).length > 0).length },
+    missingReferenceCount,
   }
 }

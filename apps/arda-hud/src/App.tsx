@@ -72,6 +72,7 @@ import { calculateWorldDistrictUrgencies } from './scene/world/worldDistrictUrge
 import {
   createArdaFleetHealth,
   createArdaFleetViewModel,
+  createArdaContinuityViewModel,
   createArdaRoutingViewModel,
   type ArdaFleetHealth,
 } from './scene/workstations/adapters/ardaAdapter'
@@ -148,6 +149,7 @@ import { getString, getNumber, getBoolean, getSectionById, getTimestamp, getScen
 import type { SceneAnchorDefinition, SceneZoneDefinition, WorkstationManifestDefinition } from './scene/systems/runtimeTypes'
 import { FleetFocusedWorkstationView } from './scene/workstations/fleetWorkstationView'
 import { RoutingFocusedWorkstationView } from './scene/workstations/routingWorkstationView'
+import { ContinuityFocusedWorkstationView } from './scene/workstations/continuityWorkstationView'
 import { getCommandConsoleSurface, getCeoCouncilRuntime, getTaskLifecycleRuntime } from "./lib/reviewGateDerivation"
 import { getKnowledgeMap, getOperatingSurfaceReports } from "./lib/operatingSurfaceDerivation"
 import { sectionToPanelLayout, formatProviderLabel, formatSectionStatus, formatPanelStatus, titleForSectionOrPanel, asModuleId, localStorageOrNull, MODULE_STORAGE_KEY, readStoredModuleOrder } from './lib/settingsLayout'
@@ -650,6 +652,7 @@ export default function App() {
   )
   const fleetViewModel = useMemo(() => (bundle ? createArdaFleetViewModel(bundle) : null), [bundle])
   const routingViewModel = useMemo(() => (bundle ? createArdaRoutingViewModel(bundle) : null), [bundle])
+  const continuityViewModel = useMemo(() => (bundle ? createArdaContinuityViewModel(bundle) : null), [bundle])
   const laneOwnership = fleetViewModel?.laneOwnership ?? []
   const laneHeadroom = fleetViewModel?.laneHeadroom ?? []
   const laneFitness = fleetViewModel?.laneFitness ?? []
@@ -747,6 +750,9 @@ export default function App() {
       human: {
         documents: docs.length,
         notes: notes.length,
+        businessItems: continuityViewModel?.horizons.find((horizon) => horizon.id === 'business')?.count ?? 0,
+        personalItems: continuityViewModel?.horizons.find((horizon) => horizon.id === 'personal')?.count ?? 0,
+        missingReferences: continuityViewModel?.missingReferenceCount ?? 0,
         source: adaptBoardroomHudSource(sourceProvenance, 'human'),
       },
       dailyCommand: {
@@ -760,7 +766,7 @@ export default function App() {
         return [slotId, configured ? { ...instrument, preset: configured.preset_id } : instrument]
       }))
     },
-    [boardroomSlotDocument, bundle?.operationsFlow, bundle?.sourceProvenance, docs.length, fleetHealth, notes.length, planShelf.plans.length, queueSummary, reviewGateItems, routingViewModel, runtimeDrift],
+    [boardroomSlotDocument, bundle?.operationsFlow, bundle?.sourceProvenance, continuityViewModel, docs.length, fleetHealth, notes.length, planShelf.plans.length, queueSummary, reviewGateItems, routingViewModel, runtimeDrift],
   )
   const worldDistricts = useMemo(
     () =>
@@ -1649,6 +1655,17 @@ export default function App() {
         ),
       }
       const modules = [routingModule]
+      return adapterMissingModule
+        ? [...modules.filter((module) => module.id !== adapterMissingModule.id), adapterMissingModule]
+        : modules
+    }
+    if (sourceZoneId === 'human_business_personal') {
+      const continuityModule = {
+        id: 'human_realm' as ModuleId,
+        title: 'Human + Business + Personal',
+        node: <ContinuityFocusedWorkstationView model={continuityViewModel} />,
+      }
+      const modules = [continuityModule]
       return adapterMissingModule
         ? [...modules.filter((module) => module.id !== adapterMissingModule.id), adapterMissingModule]
         : modules

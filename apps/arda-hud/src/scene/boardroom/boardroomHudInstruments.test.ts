@@ -3,6 +3,7 @@ import { createDefaultBoardroomSlotSettings } from '../../lib/boardroomSlotSetti
 import {
   deriveFleetHudInstrument,
   deriveGovernanceHudInstrument,
+  deriveHumanHudInstrument,
   deriveBoardroomHudInstruments,
   deriveKnowledgeHudInstrument,
   deriveQueueHudInstrument,
@@ -104,7 +105,20 @@ describe('deriveFleetHudInstrument', () => {
   })
 })
 
-describe('resolveBoardroomHudInstrument', () => {
+describe('boardroom HUD instruments', () => {
+  it('keeps the continuity instrument concise while including business, personal, and missing-reference pressure', () => {
+    const model = deriveHumanHudInstrument({
+      documents: 1,
+      notes: 0,
+      businessItems: 3,
+      personalItems: 2,
+      missingReferences: 1,
+    })
+
+    expect(model.glyph).toBe('6/1')
+    expect(model.nodes.filter((node) => node.state === 'warn')).not.toHaveLength(0)
+    expect(model.title).toBe('Continuity')
+  })
   const instrument = deriveFleetHudInstrument({
     liveTargets: 2,
     totalTargets: 2,
@@ -159,7 +173,7 @@ describe('Phase 3 source-backed slot adapters', () => {
     expect(instruments.view_desk_l.title).toBe('Governance')
     expect(instruments.view_desk_control_panel.title).toBe('Fleet')
     expect(instruments.view_desk_r.title).toBe('Routing')
-    expect(instruments.view_desk_aux.title).toBe('Human Realm')
+    expect(instruments.view_desk_aux.title).toBe('Continuity')
     expect(instruments.command_core.title).toBe('Daily Command')
     expect(Object.values(instruments).every((instrument) => instrument.source === source)).toBe(true)
   })

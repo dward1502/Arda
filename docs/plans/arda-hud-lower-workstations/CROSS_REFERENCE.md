@@ -30,7 +30,7 @@ Current source/code/state beats documentation. Older contracts are retained only
 1. Phases 5 and 6 resolve the Fleet/Routing duplication into separate topology-first and directed-flow owner modules.
 2. Phase 4 resolves Governance's stacked workflows and duplicate source tab with one evidence-first list/detail chamber.
 3. Command Core is a distinct physical control surface, but its controls mostly navigate and its central screen opens a mismatched Sovereign/Fleet workstation.
-4. Human/Business/Personal omits Personal despite loading a useful personal projection.
+4. Phase 7 resolves the omitted Personal projection and stacked Human/Business composition through one continuity owner.
 5. Dedicated Warden and Fleet projections have real producers and tests; Phases 4 and 5 now provide their focused HUD adapters.
 6. Freshness often describes bundle load time or source-family worst state rather than the generation time of the displayed record.
 7. Multiple authorities define assignments, panels, roles, and fallback layouts. They disagree in ways visible to the user.
@@ -46,7 +46,7 @@ Current source/code/state beats documentation. Older contracts are retained only
 | Fleet | `systems` | Phase 5 topology-first owner for Fleet/AULË projections; Routing data is linked only |
 | Command Core | fixed animated signal + navigation controls | Links into Planning, Governance, Routing, World; main screen duplicates Fleet/Sovereign content |
 | Routing | `systems` | Phase 6 directed lane/provider/model flow owner; Service Health remains Fleet-owned |
-| Human/Business/Personal | `human_realm`, `business` | Plan Shelf overlaps Planning; approvals overlap Governance; Personal omitted |
+| Human/Business/Personal | `human_realm` continuity owner | Phase 7 owns selectable Human, Business, and Personal horizons; Plan Shelf and approval authority remain elsewhere |
 
 ## Exact duplicate module composition
 
@@ -144,6 +144,8 @@ It should not own physical node inventory or generic Fleet health.
 
 It should not own the Plan Shelf, generic project queue, or approval decision authority.
 
+Phase 7 implements this ownership boundary in [`HUMAN_BUSINESS_PERSONAL.md`](HUMAN_BUSINESS_PERSONAL.md). Projected client/project paths are reconciled against the loaded live inventory, missing paths remain missing, and personal detail is withheld from the glanceable lower surface.
+
 ## Cross-domain boundary questions still requiring user/design review
 
 1. Whether technical gateway/channel health belongs in Routing or a separate Communications view.
@@ -187,7 +189,7 @@ AULË has producer functions and tests for all four in `core_link/warden.rs`. Th
 
 #### Human/Business/Personal
 
-- `personal_runtime.json` is loaded and rendered by the globally registered Personal Growth module but omitted from the assigned combined workstation.
+- `personal_runtime.json` is now consumed by the assigned combined continuity workstation; the globally registered Personal Growth module remains a compatibility module pending Phase 9 ownership proof.
 - `hermes_command.json` is loaded/declaratively available but not converted into a coherent Communications view.
 - `provider_intelligence.json` drives action status/evidence, not the Routing provider view model.
 

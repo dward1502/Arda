@@ -45,7 +45,7 @@ const WORKSTATION_COMPOSITIONS: Record<string, WorkstationComposition> = {
   },
   human_business_personal: {
     title: 'Human + Business + Personal',
-    moduleIds: ['human_realm', 'business', 'personal_growth'],
+    moduleIds: ['human_realm'],
     sourcePanelIds: ['human_notes', 'business_ops', 'personal_growth'],
     presentationModes: ['in_scene', 'native_window'],
   },

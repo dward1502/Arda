@@ -136,6 +136,9 @@ export interface GovernanceHudInput {
 export interface HumanHudInput {
   documents: number
   notes: number
+  businessItems?: number
+  personalItems?: number
+  missingReferences?: number
   source?: HudInstrumentSource
 }
 
@@ -396,14 +399,19 @@ export function deriveGovernanceHudInstrument(input: GovernanceHudInput): HudIns
 export function deriveHumanHudInstrument(input: HumanHudInput): HudInstrumentModel {
   const documents = Math.max(0, input.documents)
   const notes = Math.max(0, input.notes)
+  const businessItems = Math.max(0, input.businessItems ?? 0)
+  const personalItems = Math.max(0, input.personalItems ?? 0)
+  const missingReferences = Math.max(0, input.missingReferences ?? 0)
+  const total = documents + notes + businessItems + personalItems
   return commandInstrument({
-    title: 'Human Realm',
-    eyebrow: 'BUSINESS + PERSONAL',
+    title: 'Continuity',
+    eyebrow: 'HUMAN · BUSINESS · PERSONAL',
     tone: 'mint',
-    glyph: `${documents}/${notes}`,
+    glyph: `${total}/${missingReferences}`,
     preset: 'pulse',
-    pressure: Math.max(0.2, clamp((documents + notes) / 48, 0, 1)),
-    seed: documents * 3 + notes * 7,
+    pressure: Math.max(0.2, clamp((total + missingReferences * 4) / 48, 0, 1)),
+    seed: documents * 3 + notes * 7 + businessItems * 11 + personalItems * 13,
+    warnCount: Math.min(3, missingReferences),
     source: input.source,
   })
 }

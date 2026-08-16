@@ -63,7 +63,7 @@ The executable first-level contract defines four configurable screens and one fi
 | 02 | `boardroom.lower.left_inner` | `view_desk_control_panel` | `fleet_and_backbone` | `systems` | [Phase 5 implemented](FLEET_BACKBONE.md) |
 | 03 | `boardroom.control.center` | none | fixed `command_core_now` | not slot-configurable | [Deep audit recorded](03-command-core.md) |
 | 04 | `boardroom.lower.right_inner` | `view_desk_r` | `routing_and_comms` | `systems` | [Phase 6 implemented](ROUTING_COMMUNICATIONS.md) |
-| 05 | `boardroom.lower.right_wrap` | `view_desk_aux` | `human_business_personal` | `human_realm`, `business` | [Deep audit recorded](05-human-business-personal.md) |
+| 05 | `boardroom.lower.right_wrap` | `view_desk_aux` | `human_business_personal` | `human_realm` continuity owner | [Phase 7 implemented](HUMAN_BUSINESS_PERSONAL.md) |
 
 The persisted assignment authority is `core/state/arda_boardroom_slots.json`, last updated at the document level on `2026-07-31T00:13:37.927Z`. Several individual lower assignments still carry the epoch timestamp `1970-01-01T00:00:00.000Z`; this is not credible freshness evidence.
 
@@ -81,6 +81,7 @@ The persisted assignment authority is `core/state/arda_boardroom_slots.json`, la
 | [Phase 4 Governance + Guardhouse](GOVERNANCE_GUARDHOUSE.md) | posture/source rails, selectable decision index, evidence detail, contextual actions, and decision-pressure instrument | implemented and verified with recorded native visual limitation |
 | [Phase 5 Fleet + Backbone](FLEET_BACKBONE.md) | AULË projection wiring, topology/rack line, selected-node evidence, refresh action, and node-pressure instrument | implemented and verified with recorded native visual limitation |
 | [Phase 6 Routing + Communications](ROUTING_COMMUNICATIONS.md) | CHARON lane/provider flow, selected-route evidence, communication receipts, and registered read-only actions | implemented and verified with recorded native visual limitation |
+| [Phase 7 Human/Business/Personal](HUMAN_BUSINESS_PERSONAL.md) | selectable continuity horizons, live reference reconciliation, value truth, and privacy-aware lower instrument | implemented and verified with recorded native visual limitation |
 
 The Command Core now preserves its command bank and owns the existing Settings, Terminal, and Hermes Dashboard launchers in a separate physical utility bank. The detached bottom utility row is retired. Service Health remains owned by Fleet/Backbone and contributes state rather than retaining a duplicate detached button.
 
@@ -91,6 +92,8 @@ Governance now uses one focused decision chamber rather than stacked generic mod
 Fleet now uses one topology-first owner module. The six AULË projection families drive node, hardware, model, health, and backbone evidence with independent source truth; provider routing remains a linked summary rather than duplicate Fleet content.
 
 Routing now uses one directed-flow owner module. Lane/provider/model selection, headroom, fitness, budget pressure, provider intelligence, and communication receipts remain distinct from Fleet-owned Service Health; disconnected communication evidence renders unavailable.
+
+Human, Business, and Personal now use one continuity owner module. All three projections contribute distinguishable horizons; projected client/project paths reconcile against loaded inventories, planned value remains separate from realized value, and the lower instrument exposes only aggregate pressure.
 
 ## Current Authority Boundaries
 

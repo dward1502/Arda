@@ -11,6 +11,7 @@ describe('workstationRoles', () => {
     expect(WORKSTATION_ROLE_IDS).toEqual([
       'fleet',
       'routing',
+      'continuity',
       'work',
       'decisions',
       'knowledge',

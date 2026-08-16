@@ -1,7 +1,7 @@
 // sigil: REPAIR
 import { describe, expect, it } from 'vitest'
 import type { ArdaBundle } from '../../../lib/ardaSource'
-import { createArdaFleetViewModel, createArdaRoutingViewModel } from './ardaAdapter'
+import { createArdaContinuityViewModel, createArdaFleetViewModel, createArdaRoutingViewModel } from './ardaAdapter'
 
 function bundleWith(overrides: Partial<ArdaBundle>): ArdaBundle {
   return overrides as ArdaBundle
@@ -153,5 +153,46 @@ describe('ardaAdapter', () => {
     expect(model.communicationPathways.map((pathway) => pathway.id)).toEqual(['discord', 'telegram'])
     expect(model.sources.map((source) => source.id)).toEqual(expect.arrayContaining(['operator_runtime_status', 'provider_intelligence', 'manwe_router', 'chronos_runtime']))
     expect(model.metrics.map((metric) => metric.id)).not.toContain('unexpected_offline')
+  })
+
+  it('derives distinct human, business, and personal horizons with missing-reference and value truth', () => {
+    const bundle = bundleWith({
+      generatedAt: '2026-08-16T12:00:00Z',
+      humanContext: {
+        generated_at_utc: '2026-08-16T11:59:00Z',
+        human_portal: { docs: [{ title: 'Context', path: 'human/context.md', body_preview: 'Current context' }], notes: [] },
+      },
+      businessRuntime: {
+        generated_at_utc: '2026-08-16T11:58:00Z',
+        client_records: [
+          { path: 'data/business/clients/live.json', exists: true, body_preview: 'Active engagement' },
+          { path: 'data/business/clients/gone.json', exists: false, body_preview: 'Old engagement' },
+        ],
+        state: { offers: [{ id: 'offer', title: 'Advisory offer', status: 'internal-first', description: 'Planned product' }] },
+        company_ops: {
+          opportunities: [{ opportunity_id: 'opp', title: 'Future work', forecast_value: { amount_minor: 50000, currency: 'USD' } }],
+          engagements: [{ engagement_id: 'paid', title: 'Delivered work', state: 'paid', realized_value: { amount_minor: 25000, currency: 'USD', outcome_receipt_id: 'receipt-1' } }],
+          projects: [{ project_id: 'gone-project', title: 'Gone project', path: 'data/projects/gone/project.json', exists: false }],
+        },
+      },
+      personalRuntime: {
+        generated_at_utc: '2026-08-16T11:57:00Z',
+        highlights: { priorities: ['Family continuity'], values: ['truth'] },
+        documents: [{ title: 'Life audit', path: 'data/personal/audit.md', body_preview: 'In progress' }],
+      },
+    })
+
+    const model = createArdaContinuityViewModel(bundle)
+
+    expect(model.roleId).toBe('continuity')
+    expect(model.horizons.map((horizon) => horizon.id)).toEqual(['human', 'business', 'personal'])
+    expect(model.items).toContainEqual(expect.objectContaining({ horizon: 'business', path: 'data/business/clients/gone.json', state: 'missing' }))
+    expect(model.valueTruth).toEqual({ plannedMinor: 50000, realizedMinor: 25000, currency: 'USD', realizedReceiptCount: 1 })
+    expect(model.items).toEqual(expect.arrayContaining([
+      expect.objectContaining({ title: 'Future work', state: 'planned' }),
+      expect.objectContaining({ title: 'Delivered work', state: 'realized' }),
+      expect.objectContaining({ title: 'Gone project', state: 'missing' }),
+    ]))
+    expect(model.items.find((item) => item.title === 'Family continuity')).toEqual(expect.objectContaining({ horizon: 'personal' }))
   })
 })

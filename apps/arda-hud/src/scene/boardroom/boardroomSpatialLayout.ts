@@ -77,13 +77,6 @@ export const BOARDROOM_CONSOLE_SHELL_SEGMENTS: BoardroomConsoleShellSegment[] = 
   },
 ]
 
-export const BOARDROOM_KINETIC_CONTROL_PANEL = {
-  id: 'boardroom.controls.kinetic_panel',
-  position: [0, 0.355, 1.42] as BoardroomVec3,
-  rotation: [0, 0, 0] as BoardroomVec3,
-  size: [0.9, 0.04, 0.3] as BoardroomVec3,
-  accent: '#5defff',
-}
 
 export interface BoardroomSpatialZone {
   id: string
@@ -202,59 +195,7 @@ export const BOARDROOM_SPATIAL_ZONES: BoardroomSpatialZone[] = [
     previewMode: 'desk_surface',
     detail: 'Command Core',
   },
-  {
-    id: 'boardroom.button.hermes',
-    label: 'Hermes Dashboard',
-    kind: 'physical_button',
-    interaction: 'open_hermes',
-    binding: 'human_control',
-    position: [0.3, 0.414, 1.42],
-    rotation: [0, 0, 0],
-    size: [0.14, 0.045, 0.16],
-    color: '#a855f7',
-    primary: true,
-    previewMode: 'button',
-    detail: 'Tools + Abilities',
-  },
-  {
-    id: 'boardroom.button.hermes_cli',
-    label: 'Hermes CLI',
-    kind: 'physical_button',
-    interaction: 'open_hermes',
-    binding: 'human_control',
-    position: [0.1, 0.414, 1.42],
-    rotation: [0, 0, 0],
-    size: [0.14, 0.045, 0.16],
-    color: '#22d3ee',
-    primary: false,
-    previewMode: 'button',
-    detail: 'Open Hermes CLI',
-  },
-  {
-    id: 'boardroom.button.service_health',
-    label: 'Service Health',
-    kind: 'physical_button',
-    interaction: 'open_workstation',
-    binding: 'fleet_and_backbone',
-    position: [-0.3, 0.414, 1.42],
-    rotation: [0, 0, 0],
-    size: [0.14, 0.045, 0.16],
-    color: '#5defff',
-    previewMode: 'button',
-    detail: 'Read-only fleet status',
-  },
-  {
-    id: 'boardroom.button.settings',
-    label: 'Settings',
-    kind: 'physical_button',
-    interaction: 'open_settings',
-    binding: 'settings_control',
-    position: [-0.1, 0.414, 1.42],
-    rotation: [0, 0, 0],
-    size: [0.14, 0.045, 0.16],
-    color: '#d8e7ff',
-    previewMode: 'button',
-  },
+
   {
     id: 'boardroom.avatar.emitter',
     label: 'Avatar Emitter',

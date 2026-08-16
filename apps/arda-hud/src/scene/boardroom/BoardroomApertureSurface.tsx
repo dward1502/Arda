@@ -7,7 +7,11 @@ import { readFile } from '../../lib/weathertop'
 import { resolveMonitorApertureDescriptorState } from './monitorApertureDescriptorState'
 import type { BoardroomPreviewMode, BoardroomVec3 } from './boardroomSpatialLayout'
 import { resolveMonitorApertureGeometry } from './monitorApertureGeometry'
-import type { HudInstrumentModel, HudTone } from './boardroomHudInstruments'
+import {
+  resolveHudInstrumentTruthPresentation,
+  type HudInstrumentModel,
+  type HudTone,
+} from './boardroomHudInstruments'
 import { formatMonitorSurfaceStream } from './monitorSurfaceRuntime'
 import type { MonitorSurfacePayloadEvent } from './monitorSurfaceRuntime'
 import { resolveOperatorProjectionCanvasModel } from './operatorProjectionMonitorRenderer'
@@ -58,6 +62,7 @@ function drawInstrument(canvas: HTMLCanvasElement, model: HudInstrumentModel): v
   const height = canvas.height
   const accent = TONE_COLORS[model.tone]
   const status = statusColor(model.status)
+  const truth = model.source ? resolveHudInstrumentTruthPresentation(model.source.truthState) : null
 
   ctx.clearRect(0, 0, width, height)
   const background = ctx.createLinearGradient(0, 0, 0, height)
@@ -68,7 +73,9 @@ function drawInstrument(canvas: HTMLCanvasElement, model: HudInstrumentModel): v
 
   ctx.strokeStyle = `${accent}66`
   ctx.lineWidth = 5
+  ctx.setLineDash(model.source && model.source.truthState !== 'live' ? [18, 10] : [])
   ctx.strokeRect(7, 7, width - 14, height - 14)
+  ctx.setLineDash([])
   ctx.strokeStyle = 'rgba(255,255,255,0.055)'
   ctx.lineWidth = 2
   for (let x = 64; x < width; x += 64) {
@@ -105,7 +112,10 @@ function drawInstrument(canvas: HTMLCanvasElement, model: HudInstrumentModel): v
   ctx.textAlign = 'right'
   ctx.fillStyle = 'rgba(221,248,255,0.66)'
   ctx.font = '700 22px IBM Plex Sans, sans-serif'
-  ctx.fillText((model.source?.freshness ?? 'AGENT MONITOR').toUpperCase(), width - 44, height - 40)
+  const sourceCaption = truth && model.source
+    ? `${truth.marker} ${truth.label} · ${model.source.sourceLabel}`
+    : 'AGENT MONITOR'
+  ctx.fillText(truncate(ctx, sourceCaption, width * 0.62), width - 44, height - 40)
   ctx.textAlign = 'left'
 }
 

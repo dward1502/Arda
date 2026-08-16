@@ -8,6 +8,7 @@ import {
   deriveRoutingHudInstrument,
   previewPresetForSource,
   previewTitleForSource,
+  resolveHudInstrumentTruthPresentation,
   resolveBoardroomHudInstrument,
   type BoardroomHudInstrumentMap,
 } from './boardroomHudInstruments'
@@ -54,17 +55,23 @@ describe('deriveFleetHudInstrument', () => {
       intentionalOffline: 0,
       source: {
         sourceId: 'operator-runtime',
+        sourceLabel: 'Operator Runtime',
         sourcePaths: ['core/state/operator_runtime_status.json'],
         observedAtUtc: '2026-07-30T20:15:00Z',
         freshness: 'fresh',
+        sourceKind: 'live',
+        truthState: 'live',
       },
     })
 
     expect(instrument.source).toEqual({
       sourceId: 'operator-runtime',
+      sourceLabel: 'Operator Runtime',
       sourcePaths: ['core/state/operator_runtime_status.json'],
       observedAtUtc: '2026-07-30T20:15:00Z',
       freshness: 'fresh',
+      sourceKind: 'live',
+      truthState: 'live',
     })
   })
 })
@@ -100,9 +107,12 @@ describe('Phase 3 source-backed slot adapters', () => {
   it('maps each compact preview to the persisted workstation meaning and preserves provenance', () => {
     const source = {
       sourceId: 'test-source',
+      sourceLabel: 'Test Source',
       sourcePaths: ['core/state/test.json'],
       observedAtUtc: '2026-07-30T20:15:00Z',
       freshness: 'fresh' as const,
+      sourceKind: 'live' as const,
+      truthState: 'live' as const,
     }
     const assignments = createDefaultBoardroomSlotSettings('2026-08-03T00:00:00Z').assignments
     const instruments = deriveBoardroomHudInstruments({
@@ -133,9 +143,12 @@ describe('Phase 3 source-backed slot adapters', () => {
       ownerBuckets: 2,
       source: {
         sourceId: 'queue',
+        sourceLabel: 'Queue',
         sourcePaths: ['core/state/queue_summary.json'],
         observedAtUtc: null,
         freshness: 'missing',
+        sourceKind: null,
+        truthState: 'missing',
       },
     })
 
@@ -154,15 +167,29 @@ describe('Phase 3 source-backed slot adapters', () => {
       ownerBuckets: 2,
       source: {
         sourceId: 'planning:core/state/queue_summary.json',
+        sourceLabel: 'Queue Summary',
         sourceIds: ['planning:core/state/queue_summary.json'],
         sourcePaths: ['core/state/queue_summary.json'],
         observedAtUtc: freshness === 'unknown' ? null : '2026-07-30T20:15:00Z',
         freshness,
+        sourceKind: 'snapshot',
+        truthState: freshness === 'stale' ? 'stale' : 'unavailable',
       },
     })
 
     expect(instrument.status).toBe(expectedStatus)
     expect(instrument.status).not.toBe('nominal')
+  })
+
+  it.each([
+    ['live', '●', 'LIVE'],
+    ['snapshot', '□', 'SNAPSHOT'],
+    ['projected', '◇', 'PROJECTED'],
+    ['stale', '!', 'STALE'],
+    ['unavailable', '×', 'UNAVAILABLE'],
+    ['missing', '?', 'MISSING'],
+  ] as const)('gives %s a deterministic non-color cue', (truthState, marker, label) => {
+    expect(resolveHudInstrumentTruthPresentation(truthState)).toEqual({ marker, label })
   })
 })
 

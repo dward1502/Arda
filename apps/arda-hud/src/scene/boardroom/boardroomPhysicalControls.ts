@@ -38,7 +38,7 @@ export type BoardroomPhysicalControlInteraction =
 export const BOARDROOM_PHYSICAL_CONTROL_ACTIONS: BoardroomPhysicalControlAction[] = [
   {
     id: 'service_health_status',
-    zoneId: 'boardroom.button.service_health',
+    zoneId: 'boardroom.control.center.health',
     label: 'Service Health',
     shortLabel: 'HEALTH',
     authority: 'read_only',
@@ -47,25 +47,25 @@ export const BOARDROOM_PHYSICAL_CONTROL_ACTIONS: BoardroomPhysicalControlAction[
   },
   {
     id: 'open_settings',
-    zoneId: 'boardroom.button.settings',
+    zoneId: 'boardroom.control.center.settings',
     label: 'Settings',
-    shortLabel: 'SET',
+    shortLabel: 'SETTINGS',
     authority: 'operator_confirmed',
     targetZoneId: 'settings',
     verificationPath: 'settings workspace load status',
   },
   {
     id: 'open_hermes_cli',
-    zoneId: 'boardroom.button.hermes_cli',
+    zoneId: 'boardroom.control.center.terminal',
     label: 'Hermes CLI',
-    shortLabel: 'CLI',
+    shortLabel: 'TERMINAL',
     authority: 'operator_confirmed',
     targetZoneId: 'hermes_cli_window',
     verificationPath: 'native terminal window lifecycle',
   },
   {
     id: 'open_hermes_dashboard',
-    zoneId: 'boardroom.button.hermes',
+    zoneId: 'boardroom.control.center.hermes',
     label: 'Hermes Dashboard',
     shortLabel: 'HERMES',
     authority: 'read_only',
@@ -118,6 +118,42 @@ export const BOARDROOM_PHYSICAL_CONTROL_ACTIONS: BoardroomPhysicalControlAction[
     verificationPath: 'scene transition state',
   },
 ]
+
+export const BOARDROOM_COMMAND_CORE_CONTROL_BANKS = {
+  command: ['open_approval_queue', 'open_emergency_stop', 'open_route_selector', 'enter_world'],
+  utility: ['open_settings', 'open_hermes_cli', 'open_hermes_dashboard'],
+} as const satisfies Record<'command' | 'utility', readonly string[]>
+
+export interface BoardroomCommandCoreControlHandlers {
+  onOpenSettings: () => void
+  onOpenHermesCli: () => void
+  onOpenHermesDashboard: () => void
+  onEnterWorld: () => void
+  onOpenWorkstation: (zoneId: string) => void
+}
+
+export function dispatchBoardroomCommandCoreControl(
+  action: BoardroomPhysicalControlAction,
+  handlers: BoardroomCommandCoreControlHandlers,
+): void {
+  if (action.id === 'open_settings') {
+    handlers.onOpenSettings()
+    return
+  }
+  if (action.id === 'open_hermes_cli') {
+    handlers.onOpenHermesCli()
+    return
+  }
+  if (action.id === 'open_hermes_dashboard') {
+    handlers.onOpenHermesDashboard()
+    return
+  }
+  if (action.id === 'enter_world') {
+    handlers.onEnterWorld()
+    return
+  }
+  handlers.onOpenWorkstation(action.targetZoneId)
+}
 
 export function getBoardroomPhysicalControlAction(actionId: string): BoardroomPhysicalControlAction {
   const action = BOARDROOM_PHYSICAL_CONTROL_ACTIONS.find((candidate) => candidate.id === actionId)

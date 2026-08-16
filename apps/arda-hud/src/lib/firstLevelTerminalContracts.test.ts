@@ -32,7 +32,7 @@ describe('first-level terminal contracts', () => {
       'human_notes',
       'business_ops',
       'personal_growth',
-    ]).moduleIds).toEqual(['human_realm', 'business'])
+    ]).moduleIds).toEqual(['human_realm', 'business', 'personal_growth'])
   })
 
   it('reports unknown source panel labels instead of silently creating an empty workstation', () => {

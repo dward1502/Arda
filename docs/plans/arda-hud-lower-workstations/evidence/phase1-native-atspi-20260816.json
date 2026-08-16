@@ -1,0 +1,1241 @@
+{
+  "contract": "arda.hud.phase0-native-atspi.v1",
+  "captured_at_utc": "2026-08-16T10:45:19.257349+00:00",
+  "application": "arda_hud",
+  "node_count": 96,
+  "named_button_count": 42,
+  "named_semantic_control_count": 36,
+  "duplicate_meaningful_control_names": [],
+  "required_utility_controls": {
+    "Open settings": true,
+    "Open Hermes CLI": true,
+    "Open Hermes dashboard": true
+  },
+  "application_frame": [
+    0,
+    0,
+    1920,
+    1080
+  ],
+  "nodes": [
+    {
+      "role": "application",
+      "name": "arda_hud",
+      "bounds": null,
+      "actions": []
+    },
+    {
+      "role": "frame",
+      "name": "ARDA HUD",
+      "bounds": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "actions": []
+    },
+    {
+      "role": "panel",
+      "name": "",
+      "bounds": [
+        -2147483648,
+        -2147483648,
+        1280,
+        1
+      ],
+      "actions": []
+    },
+    {
+      "role": "panel",
+      "name": "",
+      "bounds": [
+        -2147483648,
+        -2147483648,
+        1,
+        1
+      ],
+      "actions": []
+    },
+    {
+      "role": "filler",
+      "name": "",
+      "bounds": [
+        -2147483648,
+        -2147483648,
+        1,
+        1
+      ],
+      "actions": []
+    },
+    {
+      "role": "separator",
+      "name": "",
+      "bounds": [
+        -2147483648,
+        -2147483648,
+        1,
+        1
+      ],
+      "actions": []
+    },
+    {
+      "role": "button",
+      "name": "Minimize",
+      "bounds": [
+        -2147483648,
+        -2147483648,
+        1,
+        1
+      ],
+      "actions": [
+        "click"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Maximize",
+      "bounds": [
+        -2147483648,
+        -2147483648,
+        1,
+        1
+      ],
+      "actions": [
+        "click"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Close",
+      "bounds": [
+        -2147483648,
+        -2147483648,
+        1,
+        1
+      ],
+      "actions": [
+        "click"
+      ]
+    },
+    {
+      "role": "filler",
+      "name": "",
+      "bounds": [
+        -2147483648,
+        -2147483648,
+        1,
+        1
+      ],
+      "actions": []
+    },
+    {
+      "role": "label",
+      "name": "ARDA HUD",
+      "bounds": [
+        -2147483648,
+        -2147483648,
+        1,
+        1
+      ],
+      "actions": []
+    },
+    {
+      "role": "label",
+      "name": "",
+      "bounds": [
+        -2147483648,
+        -2147483648,
+        1,
+        1
+      ],
+      "actions": []
+    },
+    {
+      "role": "filler",
+      "name": "",
+      "bounds": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "actions": []
+    },
+    {
+      "role": "filler",
+      "name": "",
+      "bounds": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "actions": []
+    },
+    {
+      "role": "filler",
+      "name": "",
+      "bounds": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "actions": []
+    },
+    {
+      "role": "scroll pane",
+      "name": "",
+      "bounds": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "actions": [
+        ""
+      ]
+    },
+    {
+      "role": "document web",
+      "name": "arda-hud",
+      "bounds": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "actions": [
+        ""
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Minimize",
+      "bounds": [
+        1795,
+        25,
+        28,
+        28
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Toggle Fullscreen",
+      "bounds": [
+        1831,
+        25,
+        28,
+        28
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Close",
+      "bounds": [
+        1867,
+        25,
+        28,
+        28
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "section",
+      "name": "",
+      "bounds": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "actions": [
+        ""
+      ]
+    },
+    {
+      "role": "landmark",
+      "name": "Boardroom controls",
+      "bounds": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "actions": [
+        ""
+      ]
+    },
+    {
+      "role": "heading",
+      "name": "Boardroom controls",
+      "bounds": [
+        0,
+        0,
+        143,
+        24
+      ],
+      "actions": [
+        ""
+      ]
+    },
+    {
+      "role": "list",
+      "name": "",
+      "bounds": [
+        0,
+        24,
+        376,
+        1793
+      ],
+      "actions": [
+        ""
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        24,
+        376,
+        44
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Navigate to World Gate",
+      "bounds": [
+        0,
+        24,
+        376,
+        44
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        73,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Navigate to Arandur Presence",
+      "bounds": [
+        0,
+        73,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        123,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Navigate to Sovereign World",
+      "bounds": [
+        0,
+        123,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        173,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Navigate to Sovereign World Workstation",
+      "bounds": [
+        0,
+        173,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        223,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Sovereign World Workstation",
+      "bounds": [
+        0,
+        223,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        273,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Governance And Guardhouse Workstation",
+      "bounds": [
+        0,
+        273,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        323,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Knowledge And Reasoning Workstation",
+      "bounds": [
+        0,
+        323,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        373,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Routing And Communications Workstation",
+      "bounds": [
+        0,
+        373,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        423,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Lifecycle Execution Economics Workstation",
+      "bounds": [
+        0,
+        423,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        473,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Memory And Continuity Workstation",
+      "bounds": [
+        0,
+        473,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        523,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Planning And Queue Workstation",
+      "bounds": [
+        0,
+        523,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        573,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Soterion Language Workstation",
+      "bounds": [
+        0,
+        573,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        623,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Governance And Operations Workstation",
+      "bounds": [
+        0,
+        623,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        673,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Paperclip Alignment Workstation",
+      "bounds": [
+        0,
+        673,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        723,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Operations Health Workstation",
+      "bounds": [
+        0,
+        723,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        773,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Framework Extensions Workstation",
+      "bounds": [
+        0,
+        773,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        823,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Package Marketplace Doctrine Workstation",
+      "bounds": [
+        0,
+        823,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        873,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Communication Adapters Workstation",
+      "bounds": [
+        0,
+        873,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        923,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Edge Enrollment Workstation",
+      "bounds": [
+        0,
+        923,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        973,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Network Native Onboarding Workstation",
+      "bounds": [
+        0,
+        973,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        1023,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Output Topology Workstation",
+      "bounds": [
+        0,
+        1023,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        1073,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Output Accounting Workstation",
+      "bounds": [
+        0,
+        1073,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        1123,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Fleet And Backbone Workstation",
+      "bounds": [
+        0,
+        1123,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        1173,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Human Business Personal Workstation",
+      "bounds": [
+        0,
+        1173,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        1223,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Business Operations Workstation",
+      "bounds": [
+        0,
+        1223,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        1273,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Personal Growth Workstation",
+      "bounds": [
+        0,
+        1273,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        1323,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Factory AI Surface workstation",
+      "bounds": [
+        0,
+        1323,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        1373,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Warp Surface workstation",
+      "bounds": [
+        0,
+        1373,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        1423,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open VAST AI OS Surface workstation",
+      "bounds": [
+        0,
+        1423,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        1473,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Beelink Grafana workstation",
+      "bounds": [
+        0,
+        1473,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        1523,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Beelink Open WebUI workstation",
+      "bounds": [
+        0,
+        1523,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        1573,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open ARDA Media Library workstation",
+      "bounds": [
+        0,
+        1573,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        1623,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Agent Remote Session workstation",
+      "bounds": [
+        0,
+        1623,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        1673,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Hermes dashboard",
+      "bounds": [
+        0,
+        1673,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        1723,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open Hermes CLI",
+      "bounds": [
+        0,
+        1723,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    },
+    {
+      "role": "list item",
+      "name": "",
+      "bounds": [
+        0,
+        1773,
+        376,
+        45
+      ],
+      "actions": [
+        "select"
+      ]
+    },
+    {
+      "role": "button",
+      "name": "Open settings",
+      "bounds": [
+        0,
+        1773,
+        376,
+        45
+      ],
+      "actions": [
+        "press"
+      ]
+    }
+  ]
+}

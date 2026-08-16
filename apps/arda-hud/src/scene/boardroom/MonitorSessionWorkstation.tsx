@@ -294,8 +294,11 @@ export default function MonitorSessionWorkstation({ sessionId, record, rootPath 
               source: {
                 freshness: 'fresh',
                 sourceId: hydratedRecord.surface_session_id,
+                sourceLabel: hydratedRecord.owner,
                 sourcePaths: [],
                 observedAtUtc: hydratedRecord.updated_at_utc,
+                sourceKind: 'live',
+                truthState: 'live',
               },
             }}
             descriptor={hydratedRecord.content}

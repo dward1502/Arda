@@ -1,9 +1,11 @@
-import type { ArdaFreshnessState } from '../../lib/ardaProvenance'
+import type { ArdaFreshnessState, ArdaSourceProvenance } from '../../lib/ardaProvenance'
 import type { BoardroomSlotAssignmentRecord } from '../../lib/boardroomSlotSettings'
 
 export type HudTone = 'cyan' | 'violet' | 'gold' | 'mint' | 'rose'
 
 export type HudInstrumentStatus = 'nominal' | 'watch' | 'external' | 'offline'
+
+export type HudInstrumentTruthState = 'live' | 'snapshot' | 'projected' | 'stale' | 'unavailable' | 'missing'
 
 export type HudInstrumentNodeState = 'good' | 'warn' | 'alert' | 'dim'
 
@@ -31,10 +33,31 @@ export interface HudInstrumentModel {
 
 export interface HudInstrumentSource {
   sourceId: string
+  sourceLabel: string
   sourceIds?: string[]
   sourcePaths: string[]
   observedAtUtc: string | null
   freshness: ArdaFreshnessState
+  sourceKind: ArdaSourceProvenance['sourceKind'] | null
+  truthState: HudInstrumentTruthState
+}
+
+export interface HudInstrumentTruthPresentation {
+  marker: '●' | '□' | '◇' | '!' | '×' | '?'
+  label: 'LIVE' | 'SNAPSHOT' | 'PROJECTED' | 'STALE' | 'UNAVAILABLE' | 'MISSING'
+}
+
+export function resolveHudInstrumentTruthPresentation(
+  truthState: HudInstrumentTruthState,
+): HudInstrumentTruthPresentation {
+  switch (truthState) {
+    case 'live': return { marker: '●', label: 'LIVE' }
+    case 'snapshot': return { marker: '□', label: 'SNAPSHOT' }
+    case 'projected': return { marker: '◇', label: 'PROJECTED' }
+    case 'stale': return { marker: '!', label: 'STALE' }
+    case 'unavailable': return { marker: '×', label: 'UNAVAILABLE' }
+    case 'missing': return { marker: '?', label: 'MISSING' }
+  }
 }
 
 export type BoardroomHudInstrumentMap = Record<string, HudInstrumentModel>
@@ -207,8 +230,9 @@ function instrumentStatusFromSource(
   source?: HudInstrumentSource,
 ): HudInstrumentStatus {
   if (!source) return status
-  if (source.freshness === 'missing' || source.freshness === 'blocked' || source.freshness === 'unknown') return 'offline'
-  if (source.freshness === 'stale') return 'watch'
+  if (source.truthState === 'missing' || source.truthState === 'unavailable') return 'offline'
+  if (source.truthState === 'stale') return 'watch'
+  if ((source.truthState === 'snapshot' || source.truthState === 'projected') && status === 'nominal') return 'external'
   return status
 }
 

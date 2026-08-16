@@ -45,7 +45,7 @@ describe('boardroom spatial layout contract', () => {
   it('exposes the primitive anchors the boardroom art pass can snap onto', () => {
     expect(getBoardroomSpatialZone('boardroom.monitor.left')?.binding).toBe('upper_monitor_1')
     expect(getBoardroomSpatialZone('boardroom.control.center')?.interaction).toBe('open_workstation')
-    expect(getBoardroomSpatialZone('boardroom.button.settings')?.interaction).toBe('open_settings')
+    expect(getBoardroomSpatialZone('boardroom.button.settings')).toBeNull()
     expect(getBoardroomSpatialZone('boardroom.avatar.emitter')?.binding).toBe('hologram_anchor')
     expect(getBoardroomSpatialZone('boardroom.world.window')?.interaction).toBe('transition_world')
   })
@@ -63,25 +63,16 @@ describe('boardroom spatial layout contract', () => {
     }
   })
 
-  it('embeds the physical controls as a compact non-overlapping desk panel', () => {
-    const panel = boardroomSpatialLayout.BOARDROOM_KINETIC_CONTROL_PANEL
-    const buttons = [
-      getBoardroomSpatialZone('boardroom.button.service_health')!,
-      getBoardroomSpatialZone('boardroom.button.settings')!,
-      getBoardroomSpatialZone('boardroom.button.hermes_cli')!,
-      getBoardroomSpatialZone('boardroom.button.hermes')!,
-    ]
-
-    expect(buttons.every((button) => button.kind === 'physical_button')).toBe(true)
-    for (let index = 1; index < buttons.length; index += 1) {
-      const previousRightEdge = buttons[index - 1].position[0] + buttons[index - 1].size[0] / 2
-      const currentLeftEdge = buttons[index].position[0] - buttons[index].size[0] / 2
-      expect(currentLeftEdge).toBeGreaterThan(previousRightEdge)
-    }
-    expect(panel.size[0]).toBeLessThan(1.8)
-    expect(buttons.every((button) => button.size[0] <= 0.3 && button.size[2] <= 0.3)).toBe(true)
-    expect(buttons.every((button) => Math.abs(button.position[0] - panel.position[0]) < panel.size[0] / 2)).toBe(true)
-    expect(buttons.every((button) => Math.abs(button.position[2] - panel.position[2]) < panel.size[2] / 2)).toBe(true)
+  it('filters persisted overrides for the retired detached control row', () => {
+    expect(normalizeBoardroomZonePositionOverrides({
+      'boardroom.button.service_health': [-0.3, 0.414, 1.42],
+      'boardroom.button.settings': [-0.1, 0.414, 1.42],
+      'boardroom.button.hermes_cli': [0.1, 0.414, 1.42],
+      'boardroom.button.hermes': [0.3, 0.414, 1.42],
+      'boardroom.control.center': [0, 0.68, -0.12],
+    })).toEqual({
+      'boardroom.control.center': [0, 0.68, -0.12],
+    })
   })
 
   it('wraps the lower desk surfaces around the operator position', () => {

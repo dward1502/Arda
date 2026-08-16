@@ -1,6 +1,7 @@
 import { ModuleId } from "../components/arda/types"
 import {ArdaSection} from "./ardaSource"
 import { parseJsonOrNull } from './jsonParse'
+import { resolveWorkstationComposition } from './workstationComposition'
 
 export const MODULE_STORAGE_KEY = 'arda.module.order.v1'
 const DEFAULT_MODULE_ORDER: ModuleId[] = [
@@ -108,6 +109,8 @@ export function moveModule(order: ModuleId[], moduleId: ModuleId, direction: 'up
 
 export function sectionToPanelLayout(sectionId: string | null): ModuleId[] {
   if (!sectionId) return ['executive_overview', 'section_focus']
+  const composition = resolveWorkstationComposition(sectionId, [])
+  if (composition.adapted) return composition.moduleIds
   return PANEL_LAYOUTS[sectionId] ?? ['section_focus', 'systems']
 }
 

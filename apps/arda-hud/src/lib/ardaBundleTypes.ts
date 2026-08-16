@@ -114,6 +114,12 @@ export interface ArdaBundle {
   queueSummary: JsonRecord | null
   queueFederation: JsonRecord | null
   fleetRuntimeDrift: JsonRecord | null
+  fleetRuntime: JsonRecord | null
+  fleetNodes: JsonRecord | null
+  fleetModels: JsonRecord | null
+  fleetHealth: JsonRecord | null
+  fleetHardware: JsonRecord | null
+  fleetBackbone: JsonRecord | null
   taskLifecycleRuntime: JsonRecord | null
   operatorRuntimeStatus: JsonRecord | null
   humanAugmentationRuntime: JsonRecord | null

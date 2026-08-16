@@ -9,6 +9,7 @@ import {
   type FleetLaneFitnessViewModel,
   type FleetLaneHeadroomViewModel,
   type FleetLaneOwnershipViewModel,
+  type FleetNodeViewModel,
   type FleetProviderModel,
   type FleetProviderTier,
   type FleetProviderViewModel,
@@ -228,6 +229,49 @@ function metric(id: string, label: string, value: number, tone: WorkstationMetri
   return { id, label, value, tone }
 }
 
+const FLEET_SOURCES = [
+  ['fleetRuntime', 'fleet_runtime', 'Fleet Runtime', 'core/state/fleet_runtime.json'],
+  ['fleetNodes', 'fleet_nodes', 'Fleet Nodes', 'core/state/fleet_nodes.json'],
+  ['fleetModels', 'fleet_models', 'Fleet Models', 'core/state/fleet_models.json'],
+  ['fleetHealth', 'fleet_health', 'Fleet Health', 'core/state/fleet_health.json'],
+  ['fleetHardware', 'fleet_hardware', 'Fleet Hardware', 'core/state/fleet_hardware.json'],
+  ['fleetBackbone', 'fleet_backbone', 'Fleet Backbone', 'core/state/fleet_backbone.json'],
+] as const
+
+function fleetSourceRefs(bundle: ArdaBundle) {
+  const bundleTime = Date.parse(bundle.generatedAt)
+  return FLEET_SOURCES.map(([key, id, label, path]) => {
+    const record = asRecord(bundle[key])
+    const timestamp = getString(record?.generated_at_utc) || null
+    const ageMs = timestamp ? bundleTime - Date.parse(timestamp) : Number.NaN
+    const freshness = !record ? 'missing' : Number.isFinite(ageMs) && ageMs <= 300_000 ? 'fresh' : timestamp ? 'stale' : 'unknown'
+    return sourceRef(id, label, freshness, timestamp, path, `${label} ${freshness}: ${path}.`)
+  })
+}
+
+function getFleetNodes(bundle: ArdaBundle): FleetNodeViewModel[] {
+  return asArray(bundle.fleetNodes?.nodes)
+    .map(asRecord)
+    .filter((node): node is JsonRecord => node !== null)
+    .map((node) => {
+      const configured = asRecord(node.configured)
+      const observed = asRecord(node.observed)
+      const hardware = asRecord(observed?.hardware)
+      const memory = asRecord(hardware?.memory)
+      const gpuCount = asArray(hardware?.nvidia_gpus).length || asArray(hardware?.gpu_inventory).length
+      return {
+        id: getString(configured?.id, getString(node.id, 'unknown')),
+        displayName: getString(node.display_name, getString(configured?.display_name, 'Unknown node')),
+        hostname: getString(configured?.hostname, getString(observed?.hostname, 'unknown')),
+        nodeClass: getString(configured?.node_class, 'unknown'),
+        online: getBoolean(observed?.online, false),
+        enrollmentStatus: getString(configured?.enrollment_status, 'unknown'),
+        expectedModels: asArray(configured?.expected_models).map((model) => getString(model)).filter(Boolean),
+        hardwareSummary: hardware ? `${getString(memory?.total, 'memory unknown')} · ${gpuCount} GPU${gpuCount === 1 ? '' : 's'}` : 'hardware unavailable',
+      }
+    })
+}
+
 export function createArdaFleetViewModel(bundle: ArdaBundle): FleetViewModel {
   const operator = getOperatorRuntimeSurface(bundle)
   if (!operator) {
@@ -236,8 +280,9 @@ export function createArdaFleetViewModel(bundle: ArdaBundle): FleetViewModel {
 
   const summary = asRecord(operator.summary)
   const fleet = asRecord(operator.fleet)
-  const totalTargets = getNumber(fleet?.targets_total, 0)
-  const liveTargets = getNumber(summary?.fleet_live_llm_nodes_total, 0)
+  const fleetNodeCounts = asRecord(bundle.fleetNodes?.counts)
+  const totalTargets = getNumber(fleetNodeCounts?.configured_total, getNumber(fleet?.targets_total, 0))
+  const liveTargets = getNumber(fleetNodeCounts?.online_total, getNumber(summary?.fleet_live_llm_nodes_total, 0))
   const routableProviderCount = getNumber(summary?.fleet_routable_local_providers_total, 0)
   const unexpectedOffline = getNumber(summary?.unexpected_offline_total, 0)
   const providers = getRoutableProviders(bundle)
@@ -260,6 +305,7 @@ export function createArdaFleetViewModel(bundle: ArdaBundle): FleetViewModel {
     sources: [
       sourceRef('operator_runtime_status', 'Operator Runtime Status', 'fresh', bundle.generatedAt, 'core/state/operator_runtime_status.json'),
       sourceRef('charon_router', 'Charon Router', bundle.manweRouter ? 'fresh' : 'missing', bundle.generatedAt, 'core/state/manwe_router.json'),
+      ...fleetSourceRefs(bundle),
     ],
     actions: [
       {
@@ -276,5 +322,7 @@ export function createArdaFleetViewModel(bundle: ArdaBundle): FleetViewModel {
     laneOwnership: getLaneOwnership(bundle),
     laneHeadroom: getLaneHeadroom(bundle, providers),
     laneFitness: getLaneFitness(bundle),
+    nodes: getFleetNodes(bundle),
+    backboneNodeId: getString(asRecord(bundle.fleetBackbone?.backbone_node)?.id) || null,
   }
 }

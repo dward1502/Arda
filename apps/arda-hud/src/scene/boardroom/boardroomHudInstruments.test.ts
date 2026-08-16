@@ -89,6 +89,19 @@ describe('deriveFleetHudInstrument', () => {
       truthState: 'live',
     })
   })
+
+  it('does not use provider inventory as Fleet topology nodes', () => {
+    const instrument = deriveFleetHudInstrument({
+      liveTargets: 0,
+      totalTargets: 0,
+      routableProviders: 12,
+      unexpectedOffline: 0,
+      intentionalOffline: 0,
+    })
+
+    expect(instrument.nodes).toHaveLength(6)
+    expect(instrument.glyph).toBe('0/6')
+  })
 })
 
 describe('resolveBoardroomHudInstrument', () => {

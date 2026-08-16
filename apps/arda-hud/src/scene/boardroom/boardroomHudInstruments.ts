@@ -281,9 +281,8 @@ export function deriveFleetHudInstrument(input: FleetHudInput): HudInstrumentMod
   const liveTargets = clamp(input.liveTargets, 0, totalTargets || input.liveTargets)
   const unexpectedOffline = Math.max(0, input.unexpectedOffline)
   const intentionalOffline = Math.max(0, input.intentionalOffline)
-  const routableProviders = Math.max(0, input.routableProviders)
   const driftedNodes = Math.max(0, input.runtimeDrift?.driftedNodes ?? 0)
-  const nodeCount = clamp(Math.max(totalTargets, routableProviders, 6), 6, FLEET_NODE_POSITIONS.length)
+  const nodeCount = clamp(Math.max(totalTargets, 6), 6, FLEET_NODE_POSITIONS.length)
   const offlineStart = clamp(liveTargets, 0, nodeCount)
   const intentionalStart = clamp(offlineStart + unexpectedOffline, 0, nodeCount)
   const runtimeStatus: HudInstrumentStatus =

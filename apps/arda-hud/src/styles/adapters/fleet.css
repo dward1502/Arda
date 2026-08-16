@@ -181,6 +181,67 @@
   color: #ffd68a;
 }
 
+.fleet-focused-view__topology {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  min-height: 8.5rem;
+  border-block: 1px solid rgba(98, 229, 255, 0.22);
+  background: repeating-linear-gradient(90deg, transparent 0 11%, rgba(98, 229, 255, 0.035) 11% 11.2%);
+}
+
+.fleet-focused-view__topology::before {
+  position: absolute;
+  right: 4%;
+  left: 4%;
+  height: 1px;
+  background: rgba(98, 229, 255, 0.34);
+  content: '';
+}
+
+.fleet-focused-view__topology-node,
+.fleet-focused-view__index button {
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(98, 229, 255, 0.24);
+  background: #07131e;
+  color: #b8d8e8;
+  font: inherit;
+  cursor: pointer;
+}
+
+.fleet-focused-view__topology-node {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 5.6rem;
+  padding: 0.65rem 0.5rem;
+  text-align: center;
+}
+
+.fleet-focused-view__topology-node--online span { color: #4affb9; }
+.fleet-focused-view__topology-node--offline span { color: #ffd68a; }
+.fleet-focused-view__topology-node[aria-pressed='true'],
+.fleet-focused-view__index button[aria-pressed='true'] {
+  border-color: #82edff;
+  box-shadow: 0 0 0 1px rgba(130, 237, 255, 0.28), inset 0 0 1.4rem rgba(26, 177, 210, 0.12);
+}
+
+.fleet-focused-view__index button {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.35rem;
+  padding: 0.6rem;
+  text-align: left;
+}
+
+.fleet-focused-view__index button b {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+}
+
 .fleet-focused-view__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

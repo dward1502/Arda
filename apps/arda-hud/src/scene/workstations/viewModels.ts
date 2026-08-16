@@ -103,12 +103,25 @@ export interface FleetLaneFitnessViewModel {
   failureCount: number
 }
 
+export interface FleetNodeViewModel {
+  id: string
+  displayName: string
+  hostname: string
+  nodeClass: string
+  online: boolean
+  enrollmentStatus: string
+  expectedModels: string[]
+  hardwareSummary: string
+}
+
 export interface FleetViewModel extends ViewModelPreludeContext, ViewModelFocusedContext, ViewModelProvenanceClauseBag {
   roleId: 'fleet'
   providers: FleetProviderViewModel[]
   laneOwnership: FleetLaneOwnershipViewModel[]
   laneHeadroom: FleetLaneHeadroomViewModel[]
   laneFitness: FleetLaneFitnessViewModel[]
+  nodes: FleetNodeViewModel[]
+  backboneNodeId: string | null
 }
 
 export interface WorkViewModel extends ViewModelPreludeContext, ViewModelFocusedContext, ViewModelProvenanceClauseBag {
@@ -213,6 +226,8 @@ export function createEmptyFleetViewModel(summary = ['Fleet projection unavailab
     laneOwnership: [],
     laneHeadroom: [],
     laneFitness: [],
+    nodes: [],
+    backboneNodeId: null,
   }
 }
 

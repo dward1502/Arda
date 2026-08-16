@@ -81,4 +81,36 @@ describe('ardaAdapter', () => {
     expect(model.summary[0]).toMatch(/projection unavailable/i)
     expect('raw' in model).toBe(false)
   })
+
+  it('joins the six fleet projections into one topology model with honest source states', () => {
+    const bundle = bundleWith({
+      generatedAt: '2026-08-16T12:00:00Z',
+      operatorRuntimeStatus: { summary: {}, fleet: {} },
+      fleetRuntime: { generated_at_utc: '2026-08-16T11:59:00Z' },
+      fleetNodes: {
+        generated_at_utc: '2026-08-16T11:59:00Z',
+        counts: { configured_total: 2, online_total: 1 },
+        nodes: [
+          { display_name: 'Core', configured: { id: 'core', hostname: 'core', node_class: 'core_compute' }, observed: { online: true } },
+          { display_name: 'Backbone', configured: { id: 'backbone', hostname: 'backbone', node_class: 'backbone_compute' }, observed: { online: false } },
+        ],
+      },
+      fleetModels: { generated_at_utc: '2026-08-16T11:59:00Z', configured_nodes: [] },
+      fleetHealth: { generated_at_utc: '2026-08-16T11:59:00Z', cleanup_summary: { status: 'recent_offline_observed' } },
+      fleetHardware: { generated_at_utc: '2026-08-16T11:59:00Z', configured_nodes: [] },
+      fleetBackbone: { generated_at_utc: '2026-08-16T11:59:00Z', backbone_node: { id: 'backbone' } },
+    })
+
+    const model = createArdaFleetViewModel(bundle)
+
+    expect(model.nodes).toEqual([
+      expect.objectContaining({ id: 'core', online: true, nodeClass: 'core_compute' }),
+      expect.objectContaining({ id: 'backbone', online: false, nodeClass: 'backbone_compute' }),
+    ])
+    expect(model.backboneNodeId).toBe('backbone')
+    expect(model.sources.map((source) => source.id)).toEqual(expect.arrayContaining([
+      'fleet_runtime', 'fleet_nodes', 'fleet_models', 'fleet_health', 'fleet_hardware', 'fleet_backbone',
+    ]))
+    expect(model.sources.filter((source) => source.id.startsWith('fleet_')).every((source) => source.freshness.status === 'fresh')).toBe(true)
+  })
 })

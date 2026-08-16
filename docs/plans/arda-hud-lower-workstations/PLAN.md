@@ -328,6 +328,8 @@ Use the audited governance, autonomy, augmentation, Arandur, Review Gate, Warden
 
 ## Phase 5 — Fleet/Backbone topology workstation
 
+**Status:** implemented and verified on 2026-08-16; see [`FLEET_BACKBONE.md`](FLEET_BACKBONE.md).
+
 ### Operator question
 
 “Which physical/runtime node or backbone link needs attention, and what is installed or drifting there?”
@@ -367,6 +369,8 @@ Use the audited governance, autonomy, augmentation, Arandur, Review Gate, Warden
 - all six Fleet projection files are accounted for;
 - zero nodes is distinct from unavailable node data;
 - no fourth Fleet renderer is introduced.
+
+**Completed 2026-08-16.** Implementation and verification evidence are recorded in [Fleet + Backbone Topology Workstation](FLEET_BACKBONE.md). Native pixel interaction remains explicitly unproven in the current environment.
 
 ## Phase 6 — Routing/Communications flow workstation
 

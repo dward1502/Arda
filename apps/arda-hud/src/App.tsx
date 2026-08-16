@@ -145,7 +145,7 @@ import {
 } from './lib/worldSurfaceSettings'
 import { getString, getNumber, getBoolean, getSectionById, getTimestamp, getSceneZoneById, getWorkstationManifestById, getWorkstationManifestByZoneId, formatMetric, formatBytes, formatPercent, asRecord, asArray, getAgents, getGovernanceRuntimeSignals, getHumanDocs, getHumanNotes, getOperationsFlowSummary, getOutputAccounting, getOutputTopology, getPackageEnablement, getPackageRuntimeActivation, getPaperclipAlignment, getPackageTools, getStoragePressureSummary, getStorageStores, getAutonomyReadinessSummary, getEscalationRuntime, getGovernanceSummary, getOperatorCockpitSurface, getQueueSummary,getOperatorActions } from "./lib/ardaSurfaces"
 import type { SceneAnchorDefinition, SceneZoneDefinition, WorkstationManifestDefinition } from './scene/systems/runtimeTypes'
-import type { FleetViewModel } from './scene/workstations/viewModels'
+import { FleetFocusedWorkstationView } from './scene/workstations/fleetWorkstationView'
 import { getCommandConsoleSurface, getCeoCouncilRuntime, getTaskLifecycleRuntime } from "./lib/reviewGateDerivation"
 import { getKnowledgeMap, getOperatingSurfaceReports } from "./lib/operatingSurfaceDerivation"
 import { sectionToPanelLayout, formatProviderLabel, formatSectionStatus, formatPanelStatus, titleForSectionOrPanel, asModuleId, localStorageOrNull, MODULE_STORAGE_KEY, readStoredModuleOrder } from './lib/settingsLayout'
@@ -203,70 +203,6 @@ interface FloatingWorkstationState {
   width: number
   height: number
   zIndex: number
-}
-
-function FleetFocusedWorkstationView({ fleetViewModel }: { fleetViewModel: FleetViewModel | null }) {
-  if (!fleetViewModel) {
-    return (
-      <div className="fleet-focused-view fleet-focused-view--empty">
-        <span className="fleet-focused-view__eyebrow">Fleet View Model</span>
-        <h3>Fleet projection unavailable</h3>
-        <p>Waiting for operator runtime and Manwe router projections.</p>
-      </div>
-    )
-  }
-
-  const primaryProvider = fleetViewModel.providers.find((provider) => provider.enabled && provider.healthy)
-    ?? fleetViewModel.providers[0]
-    ?? null
-  const offlineMetric = fleetViewModel.metrics.find((metric) => metric.id === 'unexpected_offline')
-
-  return (
-    <div className={`fleet-focused-view fleet-focused-view--${fleetViewModel.status}`}>
-      <div className="fleet-focused-view__hero">
-        <div>
-          <span className="fleet-focused-view__eyebrow">Fleet View Model</span>
-          <h3>{fleetViewModel.title}</h3>
-          {fleetViewModel.summary.map((line) => <p key={line}>{line}</p>)}
-        </div>
-        <span className="fleet-focused-view__status">{fleetViewModel.status}</span>
-      </div>
-      <div className="fleet-focused-view__metrics">
-        {fleetViewModel.metrics.map((metric) => (
-          <span className={`fleet-focused-view__metric fleet-focused-view__metric--${metric.tone ?? 'neutral'}`} key={metric.id}>
-            <b>{metric.value}{metric.unit ?? ''}</b>
-            <small>{metric.label}</small>
-          </span>
-        ))}
-      </div>
-      <div className="fleet-focused-view__grid">
-        <section>
-          <h4>Lane Ownership</h4>
-          {fleetViewModel.laneOwnership.map((lane) => (
-            <div className="fleet-focused-view__row" key={lane.lane}>
-              <span>{lane.priority}</span>
-              <b>{lane.route ? `${lane.route.providerId} / ${lane.route.modelId}` : 'unassigned'}</b>
-            </div>
-          ))}
-        </section>
-        <section>
-          <h4>Providers</h4>
-          {fleetViewModel.providers.slice(0, 4).map((provider) => (
-            <div className="fleet-focused-view__row" key={provider.providerId}>
-              <span>{provider.providerName}</span>
-              <b>{provider.healthy ? 'healthy' : 'check'} · {provider.models.length} models</b>
-            </div>
-          ))}
-          {fleetViewModel.providers.length === 0 ? <p>No routable provider projection.</p> : null}
-        </section>
-      </div>
-      <div className="fleet-focused-view__footer">
-        <span>Primary: {primaryProvider?.providerName ?? 'none'}</span>
-        <span>Unexpected offline: {offlineMetric?.value ?? 0}</span>
-        <span>Sources: {fleetViewModel.sources.map((sourceRef) => sourceRef.freshness.status).join(' / ')}</span>
-      </div>
-    </div>
-  )
 }
 
 export default function App() {
@@ -1684,22 +1620,13 @@ export default function App() {
         </section>
       ),
     } : null
-    if (sourceZoneId === 'systems_health' || sourceZoneId === 'routing_health' || sourceZoneId === 'sovereign_world') {
+    if (sourceZoneId === 'systems_health') {
       const fleetModule = {
         id: 'systems' as ModuleId,
         title: 'Fleet',
-        node: <FleetFocusedWorkstationView fleetViewModel={fleetViewModel} />,
+        node: <FleetFocusedWorkstationView fleetViewModel={fleetViewModel} onRefresh={() => { void refreshBundle() }} />,
       }
-      const supplementalLayout = (manifest?.module_ids.length ? manifest.module_ids : sectionToPanelLayout(sourceZoneId))
-        .filter((moduleId): moduleId is ModuleId => moduleId in moduleRegistry && moduleId !== 'systems')
-      const modules = [
-        fleetModule,
-        ...supplementalLayout.map((moduleId) => ({
-          id: moduleId,
-          title: moduleRegistry[moduleId].title,
-          node: moduleRegistry[moduleId].node,
-        })),
-      ]
+      const modules = [fleetModule]
       return adapterMissingModule
         ? [...modules.filter((module) => module.id !== adapterMissingModule.id), adapterMissingModule]
         : modules

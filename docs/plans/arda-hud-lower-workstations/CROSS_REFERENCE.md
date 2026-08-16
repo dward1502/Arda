@@ -27,11 +27,11 @@ Current source/code/state beats documentation. Older contracts are retained only
 
 ## Executive findings
 
-1. Fleet and Routing are genuine UI duplicates: both open the same `Systems` and `Operations and Packages` modules.
-2. Phase 4 resolves Governance's stacked workflows and duplicate source tab with one evidence-first list/detail chamber; Fleet and Routing remain unresolved.
+1. Phase 5 resolves Fleet's half of the Fleet/Routing duplication with one topology-first owner module; Routing remains pending Phase 6.
+2. Phase 4 resolves Governance's stacked workflows and duplicate source tab with one evidence-first list/detail chamber.
 3. Command Core is a distinct physical control surface, but its controls mostly navigate and its central screen opens a mismatched Sovereign/Fleet workstation.
 4. Human/Business/Personal omits Personal despite loading a useful personal projection.
-5. Dedicated Warden and Fleet projections have real producers and tests but no HUD content adapters.
+5. Dedicated Warden and Fleet projections have real producers and tests; Phases 4 and 5 now provide their focused HUD adapters.
 6. Freshness often describes bundle load time or source-family worst state rather than the generation time of the displayed record.
 7. Multiple authorities define assignments, panels, roles, and fallback layouts. They disagree in ways visible to the user.
 8. Three frontend artifacts are confirmed orphan/deletion candidates; other duplicates need consolidation decisions first.
@@ -43,23 +43,23 @@ Current source/code/state beats documentation. Older contracts are retained only
 | Surface | Current modules/behavior | Direct overlap |
 |---|---|---|
 | Governance | `governance_controls` | Phase 4 owns review decisions and receipts in one selected-record chamber; domain workstations retain bounded approval references |
-| Fleet | `systems`, `operations_and_packages` | Exact module duplication with Routing |
+| Fleet | `systems` | Phase 5 topology-first owner for Fleet/AULË projections; Routing data is linked only |
 | Command Core | fixed animated signal + navigation controls | Links into Planning, Governance, Routing, World; main screen duplicates Fleet/Sovereign content |
-| Routing | `systems`, `operations_and_packages` | Exact module duplication with Fleet |
+| Routing | `systems`, `operations_and_packages` | Legacy generic stack pending Phase 6; no longer shared by Fleet |
 | Human/Business/Personal | `human_realm`, `business` | Plan Shelf overlaps Planning; approvals overlap Governance; Personal omitted |
 
 ## Exact duplicate module composition
 
-### Fleet and Routing
+### Fleet and Routing (historical baseline; Fleet resolved in Phase 5)
 
-Both source zones adapt to:
+Before Phase 5, both source zones adapted to:
 
 ```text
 systems
 operations_and_packages
 ```
 
-Both receive the same preconstructed React nodes from the shared `moduleRegistry`. There is no per-workstation filtering inside either module.
+Phase 5 replaces this composition for Fleet with one topology-first `systems` owner module. Routing still uses the legacy generic composition pending Phase 6.
 
 Consequences:
 
@@ -174,7 +174,7 @@ It should not own the Plan Shelf, generic project queue, or approval decision au
 - `fleet_health.json`
 - `fleet_backbone.json`
 
-These are not unnecessary artifacts. AULË has explicit producer functions for all six in `crates/spine/observability/arda-aule/src/prometheus/core_link/fleet.rs`, and `core_link.rs` invokes them. The HUD lists them as source-map provenance but has no bundle fields/content adapters for them.
+These are not unnecessary artifacts. AULË has explicit producer functions for all six in `crates/spine/observability/arda-aule/src/prometheus/core_link/fleet.rs`, and `core_link.rs` invokes them. Phase 5 adds bundle fields, independent source references, and topology/node-detail consumption while preserving AULË as producer authority.
 
 #### Warden projection family
 

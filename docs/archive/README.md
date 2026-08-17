@@ -35,6 +35,8 @@ product adoption research.
   — completed finite 0.9 dependency, documentation, native qualification, and exact-artifact defect tranche; Personal Operations remains implemented but unaccepted after an empty dogfood window.
 - [`2026-08-17-launcher-local-runtime-plan.md`](2026-08-17-launcher-local-runtime-plan.md)
   — completed ambient-agent Phase 1 launcher/runtime implementation and post-restart native acceptance; live evidence remains in the operations acceptance record.
+- [`2026-08-17-hermes-continuity-handoff-plan.md`](2026-08-17-hermes-continuity-handoff-plan.md)
+  — completed ambient-agent Phase 2 Hermes phone-to-desktop continuity implementation and genuine operator acceptance; exact identifiers remain private while bounded evidence lives in the operations record.
 
 ## Deferred future release authorities
 

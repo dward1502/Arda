@@ -38,7 +38,7 @@ program or create retroactive 0.9 blockers.
 | Phase | Plan authority | Required proof |
 |---|---|---|
 | 1 | [Launcher and local runtime — completed](../archive/2026-08-17-launcher-local-runtime-plan.md) | **Accepted:** post-restart icon → health → native HUD; [operations evidence](../operations/launcher-local-runtime-acceptance.md) |
-| 2 | [Hermes continuity and handoff](ambient-agent/02-hermes-continuity-handoff.md) | same authenticated conversation lineage across phone and desktop |
+| 2 | [Hermes continuity and handoff — completed](../archive/2026-08-17-hermes-continuity-handoff-plan.md) | **Accepted:** same authenticated conversation lineage across phone and desktop; [operations evidence](../operations/hermes-continuity-handoff-acceptance.md) |
 | 3 | [HUD and Mirromere proving ground](ambient-agent/03-hud-mirromere-proving-ground.md) | one governed scene on a HUD aperture and physical second monitor |
 | 4 | [Presence, identity, and privacy](ambient-agent/04-presence-identity-privacy.md) | expiring multi-signal presence with safe veil and explicit handoff |
 | 5 | [RELIC runtime embodiment](ambient-agent/05-relic-runtime-embodiment.md) | physical receipt-backed agent-flow projection with honest degradation |
@@ -59,7 +59,7 @@ Parallel implementation and shared-file ownership follow the
 | Personal Operations | implemented; genuine operator acceptance open | [operational acceptance](../operations/personal-operations-private-alpha-acceptance.md) |
 | Rúmil project audit | optional, read-only bounded capability | [Rúmil status](../../crates/spine/runtime/arda-rumil/STATUS.md) |
 | RELIC/CITADEL, Mirromere, presence, extra devices | active post-baseline development; not yet 0.9-supported | [ambient-agent program](ambient-agent/README.md) |
-| Phone continuity | active post-baseline integration; unsupported by the 0.9 release profile | [Phase 2](ambient-agent/02-hermes-continuity-handoff.md) |
+| Phone continuity | accepted on the declared personal local profile; not public-release qualified | [Phase 2 evidence](../operations/hermes-continuity-handoff-acceptance.md) |
 | Multi-user/remote release profile | unsupported for 0.9 and not implied by the single-operator program | [0.9 limitations](../releases/0.9/BASELINE.md#known-limitations) |
 
 ## Authority history

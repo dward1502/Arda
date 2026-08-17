@@ -246,11 +246,12 @@ HUD unit, reports repeated launch as already running, and uses bounded systemd
 action polling. Hermes Gateway reuses its existing opt-in systemd `sd_notify`
 watchdog as protocol-level event-loop health; process-active alone remains
 insufficient. Focused lifecycle tests pass 25/25 and strict Clippy passes.
-Runtime acceptance remains open until the externally managed Hermes Gateway is
-restarted into its regenerated `Type=notify`, `WatchdogSec=30s` unit; this
-session is correctly blocked from restarting the gateway that hosts it. Visible
-elapsed/cancellation and native lifetime/failure acceptance remain Task 7 gates,
-so Task 7 and Phase 1 are not marked complete.
+The externally managed Hermes Gateway was restarted into its regenerated
+`Type=notify`, `WatchdogSec=30s` unit and emitted fresh watchdog ticks. A real
+launcher observer pass then reduced both `arda-runtime` and `hermes-gateway` to
+active/healthy and the aggregate to `healthy`. Visible elapsed/cancellation and
+native window lifetime/failure acceptance remain Task 7 gates, so Task 7 and
+Phase 1 are not marked complete.
 
 ## Task 8: Native restart acceptance
 

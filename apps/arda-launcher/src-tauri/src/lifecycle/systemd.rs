@@ -46,9 +46,12 @@ impl SystemdQuery for SystemctlQuery {
             return Err(SystemdQueryError::Failed);
         }
 
+        let user = std::env::var("USER").map_err(|_| SystemdQueryError::Unavailable)?;
+        let machine = format!("--machine={user}@.host");
         let mut child = Command::new("systemctl")
             .args([
                 "--user",
+                machine.as_str(),
                 "show",
                 unit,
                 "--property=LoadState,UnitFileState,ActiveState,SubState,WatchdogUSec,WatchdogTimestampMonotonic",

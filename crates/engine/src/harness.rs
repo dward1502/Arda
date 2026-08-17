@@ -23,6 +23,7 @@ use tracing::{info, warn};
 
 use crate::supervisor::ServiceRuntimeStatus;
 
+mod continuity;
 mod operator_messages;
 mod operator_projection;
 mod personal_briefs;
@@ -185,6 +186,14 @@ fn router(state: HarnessState) -> axum::Router {
         .route(
             "/v1/operator/messages",
             post(operator_messages::ingest_operator_message),
+        )
+        .route("/v1/continuity/events", post(continuity::ingest_event))
+        .route("/v1/handoffs", post(continuity::create_handoff))
+        .route("/v1/handoffs/:id/accept", post(continuity::accept_handoff))
+        .route("/v1/handoffs/:id", get(continuity::get_handoff))
+        .route(
+            "/v1/continuity/sessions/:lineage",
+            get(continuity::get_session),
         )
         .route("/v1/runs/plan", post(runs::plan_run))
         .route("/v1/runs", get(runs::list_runs))

@@ -6,10 +6,10 @@ soterion:
   role: "product_doctrine"
   owner: "PROMETHEUS"
   status: "active"
-  reviewed: "2026-08-08"
+  reviewed: "2026-08-17"
 ---
 
-> 🜏 Soterion: 📜 product doctrine | owner: PROMETHEUS | status: active | reviewed: 2026-08-08
+> 🜏 Soterion: 📜 product doctrine | owner: PROMETHEUS | status: active | reviewed: 2026-08-17
 
 # Arda 1.0 Personal Agent Ecosystem
 
@@ -28,8 +28,11 @@ composable capabilities of one personal agent ecosystem.
 The current release authority is the [0.9 baseline](../releases/0.9/BASELINE.md);
 its finite [improvement plan](../archive/2026-08-12-arda-0.9-baseline-and-improvement-plan.md)
 is a completed historical record.
-The broader 1.0 convergence plan is
-[retained as deferred authority](../archive/deferred/1.0/2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md).
+The active implementation authority is the segmented
+[Ambient Agent Program](../plans/ambient-agent/README.md). The older 1.0
+convergence plan is retained as a
+[deferred historical record](../archive/deferred/1.0/2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md),
+not as competing current authority.
 The source-backed gap analysis is
 [`../audits/2026-08-08-arda-1.0-vision-to-live-gap-report.md`](../audits/2026-08-08-arda-1.0-vision-to-live-gap-report.md).
 Historical Stage 5 evidence and deferred Stage 6 plans retain release-engineering
@@ -181,12 +184,21 @@ Arda must display stale, partial, degraded, unavailable, and failed states. It
 must not fill missing runtime, health, council, or worker information with
 convincing fiction.
 
-### 6. External systems are subordinate and removable
+### 6. External capabilities are bounded and removable
 
 Arda should reuse mature external systems through adapters when this is safer
-or faster than reimplementation. External systems do not inherit authority
-because they are connected. Their data, tools, and workers remain behind Arda
-contracts, provenance, capability allowlists, and egress policy.
+or faster than reimplementation. Connected capabilities do not inherit
+authority merely because they are available. Their data, tools, and workers
+remain behind Arda contracts, provenance, capability allowlists, and egress
+policy.
+
+Hermes is not a disposable subordinate capability in the primary operator
+relationship. Hermes owns the live conversational, session, messaging, tool,
+skill, delegation, and gateway runtime. Arda surrounds that runtime with
+durable intent, Vairë continuity, Varda knowledge governance, risk and approval
+policy, device contracts, source-truth projections, and receipts. A bounded
+Hermes CLI adapter may still execute isolated jobs, but it cannot define the
+system's main interaction architecture.
 
 ### 7. Learning does not equal self-authorization
 
@@ -201,9 +213,10 @@ Arda 1.0 retains one authority per concern:
 
 | Concern | Canonical owner | Rule |
 |---|---|---|
-| Objectives, projects, tasks, and run graphs | `arda-core` plus `arda-engine` | No interface or worker creates a parallel run authority. |
-| Execution and recovery | `arda-engine` | Exact-once observable mutation or explicit compensation. |
-| Hosted-agent execution | Hermes adapter | Hermes executes bounded jobs; Arda owns canonical state. |
+| Live conversation, sessions, messaging, tools, skills, delegation, and agent execution | Hermes Agent | Arda composes with the primary runtime instead of recreating or transiently wrapping it. |
+| Durable objectives, commitments, approvals, and governed physical intents | `arda-core` plus `arda-engine` | Model context and interfaces do not silently replace durable authority. |
+| Deterministic service and device execution/recovery | `arda-engine`, systemd, and enrolled outposts | Exact-once observable mutation or explicit compensation; no LLM watchdog. |
+| Isolated hosted worker jobs | Hermes adapter | The bounded CLI adapter is optional worker plumbing, not the operator-session architecture. |
 | Model/provider routing | Manwë | Routing is optional per task and always receipted. |
 | Governance and action classification | `arda-governance` plus policy contracts | Discussion and model confidence are not approval. |
 | Memory | Vairë | One canonical store, with personal/business/system domain policy. |
@@ -303,9 +316,10 @@ evidence but cannot lower the required authority class.
 
 ## Orchestration and workers
 
-### Arandur/orchestrator responsibility
+### Hermes/Arandur orchestrator responsibility
 
-The orchestrator should:
+The primary orchestrator runs through Hermes while consuming Arda continuity,
+governance, and capability contracts. It should:
 
 - understand intent and current life/project context;
 - decide whether to ask, act, defer, or monitor;
@@ -584,7 +598,8 @@ Arda 1.0 should let the operator:
 3. see what is active, blocked, stale, or awaiting authority;
 4. attach a personal, software, research, household, or commercial objective;
 5. have the orchestrator compose appropriate workers and capabilities;
-6. use Hermes as a bounded execution runtime;
+6. converse, delegate, use tools, and continue sessions through Hermes as the
+   primary agent runtime;
 7. use local inference for useful roles when appropriate;
 8. invoke council deliberation only when warranted;
 9. receive proactive, calm, evidence-backed messages;
@@ -604,9 +619,10 @@ peripheral must ship as a required component.
 
 ### Required for the Arda 1.0 base
 
-- canonical runtime and run graph;
+- Hermes-centered conversation, session, tool, delegation, and gateway runtime;
+- Arda-owned durable intent, governance, continuity, and receipt contracts;
 - capability composition contract;
-- Hermes worker execution and verification;
+- bounded worker execution and verification;
 - phone-accessible operator session with shared lineage;
 - Personal Operations capture, resume, reminders, and briefs;
 - Vairë memory domain policy;

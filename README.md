@@ -4,7 +4,7 @@
 
 Arda helps one sovereign operator organize personal life and projects, preserve context, coordinate hosted and local workers, integrate external systems, and act proactively without taking unearned authority. Workbench, Personal Operations, research, council, economic tools, and device/outpost integrations are composable capabilities over one task, memory, governance, communications, and receipt model—not separate product identities. The canonical Rust workspace lives in this repository; `~/Annunimas` is reference architecture and should not be modified unless explicitly requested.
 
-The current product authority is the [Arda 0.9 Baseline](docs/releases/0.9/BASELINE.md). The broader [Arda 1.0 Personal Agent Ecosystem](docs/architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md) remains future doctrine rather than active 0.9 execution authority.
+The installed/release support authority remains the [Arda 0.9 Baseline](docs/releases/0.9/BASELINE.md). Product development now follows the active [Ambient Agent Program](docs/plans/ambient-agent/README.md): Hermes remains the primary conversational and agentic runtime while Arda provides continuity, governance, embodiment, and governed outpost contracts. The broader [Arda 1.0 Personal Agent Ecosystem](docs/architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md) is active product doctrine, not proof that its runtime slices are complete.
 
 ## Current workspace status
 
@@ -35,6 +35,8 @@ The current product authority is the [Arda 0.9 Baseline](docs/releases/0.9/BASEL
 | `crates/spine/executors/arda-varda` | Rust library | Athena agent + ingest/query/deep-analysis + HTTP transport |
 | `crates/spine/observability/arda-aule` | Rust library + CLI | Prometheus/CEO autopilot, CLI, observability surfaces |
 | `apps/arda-launcher` | Tauri app | Operator desktop launcher |
+| `apps/arda-hud` | Tauri + React app | Desktop embodiment, native workstations, and Mirromere proving ground |
+| `outposts/` | Rust crates | Typed outpost, presence, and RELIC transport boundaries |
 | `config/` | Config | Operator-managed config and generated runtime env files |
 | `docs/` | Docs | Architecture, operations, plans, identity docs |
 
@@ -43,11 +45,13 @@ The current product authority is the [Arda 0.9 Baseline](docs/releases/0.9/BASEL
 1. This file (`README.md`).
 2. `AGENTS.md` — working rules and canonical source layout.
 3. `docs/architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md` — product doctrine and capability-composition model.
-4. `docs/archive/2026-08-12-arda-0.9-baseline-and-improvement-plan.md` — completed finite 0.9 improvement and evidence record.
-5. `docs/root-daemon.md` — root package status, composition boundary, ownership, and verification.
-6. `crates/engine/README.md` and `crates/engine/BREAKDOWN.md` — registry,
+4. `docs/plans/ambient-agent/README.md` — active segmented program from desktop ignition through governed physical outposts.
+5. `docs/plans/ambient-agent/WORKSTREAMS.md` — branch, ownership, dependency, and delegation boundaries.
+6. `docs/archive/2026-08-12-arda-0.9-baseline-and-improvement-plan.md` — completed finite 0.9 improvement and evidence record.
+7. `docs/root-daemon.md` — root package status, composition boundary, ownership, and verification.
+8. `crates/engine/README.md` and `crates/engine/BREAKDOWN.md` — registry,
    harness, and supervisor implementation.
-7. `apps/arda-launcher/README.md` — what the launcher is and how to run it.
+9. `apps/arda-launcher/README.md` — current launcher implementation and how to run it.
 
 ## Verification
 

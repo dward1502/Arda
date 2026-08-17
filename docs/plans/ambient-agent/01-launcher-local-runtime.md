@@ -121,6 +121,24 @@ Tauri commands, so Task 2 does not make Phase 1 wired, running, or proven.
 6. Install to the user unit directory, run `systemctl --user daemon-reload`, and verify unit discovery.
 7. Commit: `feat(runtime): add Arda session and HUD user units`.
 
+**Task 3 evidence (2026-08-17):** **Implemented** and **tested** in
+[`arda-session.target`](../../../config/systemd/arda-session.target),
+[`arda-hud.service`](../../../config/systemd/arda-hud.service), and the
+[`user-unit installer`](../../../scripts/install_arda_user_units.sh) with its
+[`verifier`](../../../scripts/verify_arda_user_units.sh). The RED verifier failed
+on the expected missing session target. GREEN passes source, temporary-install,
+and installed-unit verification plus negative fixtures for repository build paths,
+reversed HUD dependency, and transactional rollback after manager failure. A
+canonical no-bundle HUD build was installed at
+`%h/.local/lib/arda/hud/arda_hud`; source and installed SHA-256 matched. The
+installer imported only the named graphical-session environment variables,
+reloaded the live user manager, and verified both units are discovered. Live
+state remains intentionally non-started: `arda-session.target` is disabled and
+inactive, while `arda-hud.service` is static and inactive. Closing or stopping
+HUD cannot stop the backend target, and no browser-preview path is present.
+This establishes installed unit mechanics, not a wired launcher command, native
+HUD launch acceptance, restart proof, or Phase 1 proven status.
+
 ## Task 4: Expose narrow lifecycle Tauri commands
 
 **Files:**

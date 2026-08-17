@@ -43,6 +43,7 @@ require(hud, "Wants=arda-session.target", "HUD service")
 require(hud, "After=graphical-session.target arda-session.target", "HUD service")
 require(hud, "PartOf=graphical-session.target", "HUD service")
 require(hud, "ExecStart=%h/.local/lib/arda/hud/arda_hud", "HUD service")
+require(hud, "Environment=__NV_DISABLE_EXPLICIT_SYNC=1", "HUD service")
 for forbidden in (
     "target/release",
     "/Eregion/Arda",

@@ -6,6 +6,7 @@ PartOf=graphical-session.target
 
 [Service]
 Type=simple
+Environment=__NV_DISABLE_EXPLICIT_SYNC=1
 ExecCondition=/usr/bin/test -x %h/.local/lib/arda/hud/arda_hud
 ExecStart=%h/.local/lib/arda/hud/arda_hud
 Restart=on-failure

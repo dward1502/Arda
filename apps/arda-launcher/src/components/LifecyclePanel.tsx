@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   invokeLaunchNativeHud,
   invokeLifecycleStatus,
@@ -13,6 +13,8 @@ export default function LifecyclePanel() {
   const [snapshot, setSnapshot] = useState<LifecycleSnapshot | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [elapsed, setElapsed] = useState(0)
+  const cancelled = useRef(false)
   const [closeAfterHud, setCloseAfterHud] = useState(() => localStorage.getItem('arda.closeAfterHud') === 'true')
 
   const refresh = useCallback(async () => {
@@ -26,7 +28,10 @@ export default function LifecyclePanel() {
     if (!snapshot) return
     const action = lifecyclePrimaryAction(snapshot)
     if (action.kind === 'inspect') { setError('Inspect the required component evidence below.'); return }
+    cancelled.current = false
+    setElapsed(0)
     setBusy(true)
+    const timer = window.setInterval(() => setElapsed(value => value + 1), 1000)
     try {
       if (action.kind === 'start') await invokeStartSession()
       if (action.kind === 'retry') {
@@ -35,15 +40,17 @@ export default function LifecyclePanel() {
       }
       if (action.kind === 'open_hud') {
         await invokeLaunchNativeHud()
+        if (cancelled.current) return
         if (closeAfterHud) {
           const { getCurrentWindow } = await import('@tauri-apps/api/window')
           await getCurrentWindow().close()
           return
         }
       }
+      if (cancelled.current) return
       await refresh()
     } catch (cause) { setError(`Lifecycle command failed: ${cause}`) }
-    finally { setBusy(false) }
+    finally { window.clearInterval(timer); setBusy(false) }
   }
 
   if (!snapshot) return <aside className="absolute left-6 top-6 z-40 font-mono text-xs text-white/70">{error ?? 'LIFECYCLE UNKNOWN'}</aside>
@@ -58,7 +65,8 @@ export default function LifecyclePanel() {
         </div>
       ))}
       {error && <p role="alert" className="my-2 text-amber-200">{error}</p>}
-      <button disabled={busy} onClick={act} className="mt-2 border border-white/30 px-3 py-1 hover:bg-white/5 disabled:opacity-50">{busy ? 'WAIT' : action.label}</button>
+      <button disabled={busy} onClick={act} className="mt-2 border border-white/30 px-3 py-1 hover:bg-white/5 disabled:opacity-50">{busy ? `WAIT ${elapsed}s` : action.label}</button>
+      {busy && <button onClick={() => { cancelled.current = true; setBusy(false) }} className="ml-2 border border-white/20 px-2 py-1 text-white/50">CANCEL</button>}
       <label className="mt-3 flex gap-2 text-white/40">
         <input type="checkbox" checked={closeAfterHud} onChange={event => { setCloseAfterHud(event.target.checked); localStorage.setItem('arda.closeAfterHud', String(event.target.checked)) }} />
         close after HUD opens

@@ -249,9 +249,12 @@ insufficient. Focused lifecycle tests pass 25/25 and strict Clippy passes.
 The externally managed Hermes Gateway was restarted into its regenerated
 `Type=notify`, `WatchdogSec=30s` unit and emitted fresh watchdog ticks. A real
 launcher observer pass then reduced both `arda-runtime` and `hermes-gateway` to
-active/healthy and the aggregate to `healthy`. Visible elapsed/cancellation and
-native window lifetime/failure acceptance remain Task 7 gates, so Task 7 and
-Phase 1 are not marked complete.
+active/healthy and the aggregate to `healthy`. The UI now exposes elapsed wait
+and cancellation. Native service acceptance passed after applying the verified
+NVIDIA/Wayland explicit-sync guard: HUD reached active/running, launcher exit
+left HUD/session/backend active, HUD stop left the session/backend active, and
+HUD retry returned all three units to active. Task 7 is accepted on the current
+session; Phase 1 remains unproven until Task 8 post-restart click acceptance.
 
 ## Task 8: Native restart acceptance
 

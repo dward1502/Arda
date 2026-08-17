@@ -51,7 +51,7 @@ impl SystemdQuery for SystemctlQuery {
                 "--user",
                 "show",
                 unit,
-                "--property=LoadState,UnitFileState,ActiveState,SubState",
+                "--property=LoadState,UnitFileState,ActiveState,SubState,WatchdogUSec,WatchdogTimestampMonotonic",
                 "--no-pager",
             ])
             .stdout(Stdio::piped())
@@ -121,6 +121,8 @@ fn read_bounded(mut reader: impl Read, max_bytes: usize) -> Result<Vec<u8>, Syst
 pub struct UnitObservationResult {
     pub observation: UnitObservation,
     pub diagnostic: Option<Diagnostic>,
+    pub watchdog_configured: bool,
+    pub watchdog_timestamp_monotonic: u64,
 }
 
 pub fn observe_unit<S: SystemdQuery>(
@@ -198,6 +200,13 @@ fn observe_unit_from_properties(
             },
         },
         diagnostic,
+        watchdog_configured: properties
+            .get("WatchdogUSec")
+            .is_some_and(|value| !matches!(*value, "0" | "0s" | "")),
+        watchdog_timestamp_monotonic: properties
+            .get("WatchdogTimestampMonotonic")
+            .and_then(|value| value.parse().ok())
+            .unwrap_or(0),
     }
 }
 
@@ -234,6 +243,8 @@ fn unavailable_unit(
             },
         },
         diagnostic: Some(diagnostic(code, message)),
+        watchdog_configured: false,
+        watchdog_timestamp_monotonic: 0,
     }
 }
 

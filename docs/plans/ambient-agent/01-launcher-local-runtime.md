@@ -240,6 +240,18 @@ This proves install/index mechanics, not post-restart click acceptance.
 5. Verify HUD failure does not stop backend services and Launcher can retry it.
 6. Commit: `feat(launcher): gate native HUD on runtime health`.
 
+**Task 7 implementation evidence (2026-08-17):** The launcher now requires
+fresh protocol health for every required component before starting the static
+HUD unit, reports repeated launch as already running, and uses bounded systemd
+action polling. Hermes Gateway reuses its existing opt-in systemd `sd_notify`
+watchdog as protocol-level event-loop health; process-active alone remains
+insufficient. Focused lifecycle tests pass 25/25 and strict Clippy passes.
+Runtime acceptance remains open until the externally managed Hermes Gateway is
+restarted into its regenerated `Type=notify`, `WatchdogSec=30s` unit; this
+session is correctly blocked from restarting the gateway that hosts it. Visible
+elapsed/cancellation and native lifetime/failure acceptance remain Task 7 gates,
+so Task 7 and Phase 1 are not marked complete.
+
 ## Task 8: Native restart acceptance
 
 **Evidence artifact:** create an operations acceptance record only after execution under `docs/operations/` using the existing documentation convention.

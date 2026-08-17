@@ -19,6 +19,7 @@ pub struct ComponentSpec {
     pub class: ComponentClass,
     pub unit: &'static str,
     pub health_probe: Option<HealthProbeSpec>,
+    pub require_systemd_watchdog: bool,
     pub recovery_action: RecoveryActionId,
 }
 
@@ -32,6 +33,7 @@ const REQUIRED_COMPONENTS: [ComponentSpec; 2] = [
             "ok",
             true,
         )),
+        require_systemd_watchdog: false,
         recovery_action: RecoveryActionId::StartArdaSession,
     },
     ComponentSpec {
@@ -39,6 +41,7 @@ const REQUIRED_COMPONENTS: [ComponentSpec; 2] = [
         class: ComponentClass::Required,
         unit: "hermes-gateway.service",
         health_probe: None,
+        require_systemd_watchdog: true,
         recovery_action: RecoveryActionId::RestartHermesGateway,
     },
 ];
@@ -65,11 +68,13 @@ pub fn observe_component<S: SystemdQuery, H: HealthClient>(
     observed_at: DateTime<Utc>,
 ) -> ComponentObservation {
     let unit = observe_unit(systemd, spec.unit, observed_at);
-    let protocol = spec
-        .health_probe
-        .as_ref()
-        .map(|probe| observe_health(health, probe, observed_at))
-        .unwrap_or_else(|| unavailable_health(spec.component_id, observed_at));
+    let protocol = if let Some(probe) = spec.health_probe.as_ref() {
+        observe_health(health, probe, observed_at)
+    } else if spec.require_systemd_watchdog {
+        watchdog_health(spec.component_id, &unit, observed_at)
+    } else {
+        unavailable_health(spec.component_id, observed_at)
+    };
     let diagnostic = unit.diagnostic.or(protocol.diagnostic);
 
     ComponentObservation {
@@ -89,6 +94,38 @@ pub fn observe_required_components(observed_at: DateTime<Utc>) -> Vec<ComponentO
         .iter()
         .map(|spec| observe_component(spec, &systemd, &health, observed_at))
         .collect()
+}
+
+fn watchdog_health(
+    component_id: &str,
+    unit: &systemd::UnitObservationResult,
+    observed_at: DateTime<Utc>,
+) -> HealthObservationResult {
+    let healthy = unit.observation.active_state.value == ActiveState::Active
+        && unit.watchdog_configured
+        && unit.watchdog_timestamp_monotonic > 0;
+    HealthObservationResult {
+        observation: Observed {
+            value: if healthy {
+                HealthState::Healthy
+            } else {
+                HealthState::Unavailable
+            },
+            observation: ObservationMetadata {
+                source: ObservationSourceKind::Systemd,
+                source_id: format!("{component_id}:sd-notify-watchdog"),
+                observed_at,
+                freshness: Freshness::Fresh,
+            },
+        },
+        diagnostic: (!healthy).then(|| {
+            Diagnostic::new(
+                "watchdog-unavailable",
+                "Gateway sd_notify watchdog has no fresh tick",
+            )
+            .expect("static diagnostic is bounded")
+        }),
+    }
 }
 
 fn unavailable_health(component_id: &str, observed_at: DateTime<Utc>) -> HealthObservationResult {
@@ -213,7 +250,7 @@ mod tests {
             _max_output_bytes: usize,
         ) -> Result<String, SystemdQueryError> {
             Ok(
-                "LoadState=loaded\nUnitFileState=enabled\nActiveState=active\nSubState=running\n"
+                "LoadState=loaded\nUnitFileState=enabled\nActiveState=active\nSubState=running\nWatchdogUSec=30s\nWatchdogTimestampMonotonic=1234\n"
                     .to_string(),
             )
         }
@@ -420,7 +457,7 @@ mod tests {
     }
 
     #[test]
-    fn active_gateway_without_verified_protocol_probe_remains_unavailable() {
+    fn active_gateway_with_fresh_systemd_watchdog_is_healthy() {
         let component = observe_component(
             &required_component_specs()[1],
             &ActiveSystemd,
@@ -429,10 +466,10 @@ mod tests {
         );
 
         assert_eq!(component.unit.active_state.value, ActiveState::Active);
-        assert_eq!(component.protocol_health.value, HealthState::Unavailable);
+        assert_eq!(component.protocol_health.value, HealthState::Healthy);
         assert_eq!(
             reduce_aggregate_state(&[component]),
-            AggregateState::Unknown
+            AggregateState::Healthy
         );
     }
 }

@@ -34,8 +34,9 @@ Source-backed, standalone HTML/SVG visual documentation for Arda. Open
   [`../../releases/0.9/BASELINE.md`](../../releases/0.9/BASELINE.md).
 - Product direction and potential additions come from
   [`../../architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md`](../../architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md).
-- Active work comes only from
-  [`../../plans/2026-08-12-arda-0.9-baseline-and-improvement-plan.md`](../../plans/2026-08-12-arda-0.9-baseline-and-improvement-plan.md).
+- The completed finite 0.9 improvement record is
+  [`../../archive/2026-08-12-arda-0.9-baseline-and-improvement-plan.md`](../../archive/2026-08-12-arda-0.9-baseline-and-improvement-plan.md);
+  further 0.9 implementation is defect-driven.
 - Future doctrine and optional capabilities are visually distinguished from
   implemented, workflow-proven, or release-supported surfaces.
 

@@ -31,6 +31,8 @@ product adoption research.
   — implemented backend authority, monitor lifecycle, and restart-recovery convergence retained as 0.9 evidence.
 - [`2026-08-16-arda-hud-lower-workstations/`](2026-08-16-arda-hud-lower-workstations/)
   — completed lower-workstation convergence from composition authority through distinct Governance, Fleet, Routing, Continuity, and Command Core surfaces, with optimized native X11 acceptance and Phase 10 closeout evidence.
+- [`2026-08-12-arda-0.9-baseline-and-improvement-plan.md`](2026-08-12-arda-0.9-baseline-and-improvement-plan.md)
+  — completed finite 0.9 dependency, documentation, native qualification, and exact-artifact defect tranche; Personal Operations remains implemented but unaccepted after an empty dogfood window.
 
 ## Deferred future release authorities
 

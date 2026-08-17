@@ -524,7 +524,7 @@ Please answer independently and cite repository paths or this document's evidenc
 - `README.md`
 - `docs/architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md`
 - `docs/releases/0.9/BASELINE.md`
-- `docs/plans/2026-08-12-arda-0.9-baseline-and-improvement-plan.md`
+- `docs/archive/2026-08-12-arda-0.9-baseline-and-improvement-plan.md`
 - `docs/audits/2026-08-08-arda-1.0-vision-to-live-gap-report.md`
 - `ARDA_SYSTEM_STATUS_REPORT.md`
 

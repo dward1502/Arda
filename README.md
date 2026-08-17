@@ -43,7 +43,7 @@ The current product authority is the [Arda 0.9 Baseline](docs/releases/0.9/BASEL
 1. This file (`README.md`).
 2. `AGENTS.md` — working rules and canonical source layout.
 3. `docs/architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md` — product doctrine and capability-composition model.
-4. `docs/plans/2026-08-12-arda-0.9-baseline-and-improvement-plan.md` — finite active improvement and evidence frontier.
+4. `docs/archive/2026-08-12-arda-0.9-baseline-and-improvement-plan.md` — completed finite 0.9 improvement and evidence record.
 5. `docs/root-daemon.md` — root package status, composition boundary, ownership, and verification.
 6. `crates/engine/README.md` and `crates/engine/BREAKDOWN.md` — registry,
    harness, and supervisor implementation.

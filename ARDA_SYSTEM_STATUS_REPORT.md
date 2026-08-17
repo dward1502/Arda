@@ -6,14 +6,14 @@ soterion:
   role: "documentation"
   owner: "HADES"
   status: "active"
-  last_reviewed: "2026-08-12"
+  last_reviewed: "2026-08-17"
 ---
 
-> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-08-12
+> 🜏 Soterion: 📜 documentation | owner: HADES | status: active | reviewed: 2026-08-17
 
 # ARDA SYSTEM STATUS REPORT
 
-**Updated:** 2026-08-12<br>
+**Updated:** 2026-08-17<br>
 **Current identity:** `0.9.0` personal/internal baseline<br>
 **Canonical status authority:** [`docs/releases/0.9/BASELINE.md`](docs/releases/0.9/BASELINE.md)<br>
 **Branch:** `visual/hud-boardroom-convergence`
@@ -38,7 +38,7 @@ parallel queue authorities.
 | HUD authority | implemented and tested; Rust authority preserved |
 | Five monitor sessions | native implementation operator-accepted |
 | Research/watchlists | bounded authenticated workflow-proven slice |
-| Personal Operations | implemented; sustained operator verdict open through 2026-08-17 |
+| Personal Operations | implemented; first dogfood window had insufficient genuine use, so operator acceptance remains open |
 | Launcher/packages | AppImage, DEB, and RPM package-proven on the declared profile |
 | Phone, remote, and multi-user use | unsupported in 0.9 |
 | Optional payments/devices/outposts/company expansion | deferred and nonblocking |
@@ -54,11 +54,11 @@ A future final release remains fail-closed on exact signed bytes, supported
 lifecycle qualification, independent release-critical security/code review,
 genuine operator evidence, and the required whole-system proofs.
 
-## Active work
+## Continuing work
 
-The only active execution authority is
-[`docs/plans/2026-08-12-arda-0.9-baseline-and-improvement-plan.md`](docs/plans/2026-08-12-arda-0.9-baseline-and-improvement-plan.md).
-It owns Personal Operations dogfood disposition, 0.9 defects, dependency
-assessment, stale-link cleanup, and later measured HUD/runtime accessibility and
-performance work. Broader 1.0 material is retained under
+The finite 0.9 improvement plan is a completed
+[historical record](docs/archive/2026-08-12-arda-0.9-baseline-and-improvement-plan.md).
+Further 0.9 implementation is defect-driven. Personal Operations remains
+implemented but unaccepted until a future genuine-use window supplies an
+operator usefulness/burden verdict. Broader 1.0 material is retained under
 `docs/archive/deferred/1.0/` and creates no active 0.9 blocker.

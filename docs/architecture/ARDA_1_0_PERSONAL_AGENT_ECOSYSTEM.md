@@ -25,8 +25,9 @@ assistance, optional council deliberation, local inference, external-project
 work, interoperable systems, economic tools, and multimodal interaction are
 composable capabilities of one personal agent ecosystem.
 
-The current executable implementation authority is the
-[0.9 baseline and improvement plan](../plans/2026-08-12-arda-0.9-baseline-and-improvement-plan.md).
+The current release authority is the [0.9 baseline](../releases/0.9/BASELINE.md);
+its finite [improvement plan](../archive/2026-08-12-arda-0.9-baseline-and-improvement-plan.md)
+is a completed historical record.
 The broader 1.0 convergence plan is
 [retained as deferred authority](../archive/deferred/1.0/2026-08-08-arda-1.0-personal-agent-ecosystem-plan.md).
 The source-backed gap analysis is

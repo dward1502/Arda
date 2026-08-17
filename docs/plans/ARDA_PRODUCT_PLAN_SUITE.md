@@ -1,9 +1,9 @@
 # Arda Product Plan Suite
 
 **Status:** Active portfolio index<br>
-**Updated:** 2026-08-12<br>
+**Updated:** 2026-08-17<br>
 **Current release baseline:** [Arda 0.9 Baseline](../releases/0.9/BASELINE.md)<br>
-**Active improvement authority:** [Arda 0.9 Baseline and Improvement Plan](2026-08-12-arda-0.9-baseline-and-improvement-plan.md)<br>
+**Completed improvement record:** [Arda 0.9 Baseline and Improvement Plan](../archive/2026-08-12-arda-0.9-baseline-and-improvement-plan.md)<br>
 **Product doctrine:** [Arda Personal Agent Ecosystem](../architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md)
 
 ## Product decision
@@ -19,10 +19,11 @@ decision.
 
 ## Active planning authority
 
-`docs/plans/` contains only this portfolio index and the finite 0.9 improvement
-plan. The latter owns Personal Operations dogfood disposition, 0.9 defects,
-remaining dependency assessment, stale-link repair, and later measured
-HUD/runtime accessibility and performance work.
+`docs/plans/` contains only this portfolio index. The finite 0.9 improvement
+plan completed its defect, dependency, documentation, measurement, and honest
+Personal Operations disposition work and is retained under `docs/archive/`.
+Further 0.9 implementation is defect-driven; time-dependent Personal Operations
+acceptance remains in its operational record rather than an active plan.
 
 Completed Stage 5, system-unification, and HUD convergence plans are historical
 records under `docs/archive/`. The broader ecosystem convergence plan and Stage

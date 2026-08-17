@@ -57,7 +57,7 @@ does not prove that the current source tree was rebuilt or deployed.
 - Root authority pointer: `ARDA_ROOT_PROTOCOL.md`
 - Product doctrine: `docs/architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md`
 - Current baseline: `docs/releases/0.9/BASELINE.md`
-- Active improvement plan: `docs/plans/2026-08-12-arda-0.9-baseline-and-improvement-plan.md`
+- Completed improvement record: `docs/archive/2026-08-12-arda-0.9-baseline-and-improvement-plan.md`
 - Current bounded status snapshot: `ARDA_SYSTEM_STATUS_REPORT.md`
 - Task queue projection: `core/state/queue_summary.json`
 - Task queue ledger: `core/projects/tasks/queue.jsonl` (append-only evidence; avoid broad reads)

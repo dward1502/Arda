@@ -39,6 +39,11 @@ require(target, "Wants=arda.service hermes-gateway.service", "session target")
 require(target, "After=network-online.target arda.service hermes-gateway.service", "session target")
 forbid(target, "arda-hud.service", "session target")
 
+root_runtime_path = target_path.parent / "arda.service"
+if root_runtime_path.is_file():
+    root_runtime = unit_text(root_runtime_path)
+    require(root_runtime, "Environment=ARDA_OPERATOR_ID=operator:mythos", "Arda runtime")
+
 require(hud, "Wants=arda-session.target", "HUD service")
 require(hud, "After=graphical-session.target arda-session.target", "HUD service")
 require(hud, "PartOf=graphical-session.target", "HUD service")

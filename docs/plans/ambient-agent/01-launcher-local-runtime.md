@@ -191,6 +191,15 @@ No frontend consumer or native launch acceptance is claimed by this task.
 6. Run `pnpm test`, `pnpm run lint`, and `pnpm run build` in `apps/arda-launcher`.
 7. Commit: `feat(launcher): present source-truth startup flow`.
 
+**Task 5 evidence (2026-08-17):** **Implemented** and **tested** through the
+typed lifecycle helper, sparse lifecycle panel, and launcher composition. RED
+failed on the expected missing lifecycle module. GREEN passes all 20 frontend
+tests, lint, TypeScript, and the production Vite build. The primary action maps
+stopped/healthy/degraded-freshness/failure states to Start, Open HUD, bounded
+Retry, or Inspect; required components expose process, protocol health,
+freshness, and recovery identity. The close-after-HUD preference affects only
+the launcher window. This is a frontend wiring claim, not native acceptance.
+
 ## Task 6: Package the desktop icon and installation path
 
 **Files:**

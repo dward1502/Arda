@@ -86,6 +86,23 @@ observer, or runtime path is wired yet. Task 1 does not make Phase 1 proven.
 5. Run focused Rust tests and `cargo clippy -p arda-launcher --all-targets --all-features -- -D warnings`.
 6. Commit: `feat(launcher): observe bounded runtime health`.
 
+**Task 2 evidence (2026-08-17):** **Implemented** and **tested** in
+[`lifecycle/systemd.rs`](../../../apps/arda-launcher/src-tauri/src/lifecycle/systemd.rs),
+[`lifecycle/health.rs`](../../../apps/arda-launcher/src-tauri/src/lifecycle/health.rs),
+and [`lifecycle/mod.rs`](../../../apps/arda-launcher/src-tauri/src/lifecycle/mod.rs).
+The focused RED command failed on the expected missing observer APIs; GREEN
+passes 20 lifecycle tests and all 34 launcher library tests. The adapters enforce
+fixed allowlists, two-second timeouts, bounded output, and fixed diagnostics
+without retaining command, HTTP, or journal bodies. Live discovery confirmed
+`arda.service` and `hermes-gateway.service` are installed, enabled, and active;
+the allowlisted Manwë `/healthz` contract returned `ok=true`. No Hermes protocol
+endpoint was verified, so gateway protocol health remains explicitly unavailable
+rather than inferred from its active process. `arda-core`'s typed systemd client
+was inspected but does not expose `UnitFileState` or bounded `show` calls, so the
+launcher uses a narrower fixed-argument adapter. Strict Clippy, launcher binary
+check, formatting, and diff checks pass. These observers are not yet exposed by
+Tauri commands, so Task 2 does not make Phase 1 wired, running, or proven.
+
 ## Task 3: Add the user-systemd session and HUD units
 
 **Files:**

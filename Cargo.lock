@@ -282,6 +282,7 @@ dependencies = [
  "arda-contract-registry",
  "arda-core",
  "chrono",
+ "reqwest 0.12.28",
  "serde",
  "serde_json",
  "sysinfo",
@@ -289,6 +290,7 @@ dependencies = [
  "tauri-build",
  "tauri-plugin-opener",
  "toml 0.8.2",
+ "wait-timeout",
 ]
 
 [[package]]

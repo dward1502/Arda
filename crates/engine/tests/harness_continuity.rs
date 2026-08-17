@@ -204,6 +204,10 @@ async fn continuity_endpoints_enforce_identity_replay_and_transitions() {
         .await
         .unwrap();
     assert_eq!(accepted["handoff"]["state"], "accepted");
+    let vaire_records =
+        std::fs::read_to_string(root.path().join("data/vaire/continuity/records.jsonl")).unwrap();
+    assert!(vaire_records.contains("commitment:finish-phase-2"));
+    assert!(!vaire_records.contains("ordinary private conversation"));
 
     let accepted_replay: Value = client
         .post(format!("http://{bound}/v1/handoffs/handoff-1/accept"))

@@ -2,6 +2,11 @@
 
 use arda_orome::operator_bridge::OperatorIdentity;
 use arda_orome::{DataDomain, HandoffState, PrivacyClass, SurfaceHandoff, SurfaceHandoffError};
+use arda_vaire::service::scope_policy::MemoryDomain;
+use arda_vaire::{
+    ContinuityPrivacyClass, ContinuityProvenance, ContinuityRecord, MnemosyneService,
+    SurfaceHistoryEntry, VAIRE_CONTINUITY_SCHEMA_VERSION,
+};
 use axum::{
     extract::{ConnectInfo, Path, State},
     http::{HeaderMap, StatusCode},
@@ -379,6 +384,7 @@ pub async fn accept_handoff(
                 "accepted handoff replay used an unknown idempotency key",
             ));
         }
+        persist_vaire_continuity(&state, &current, &request.idempotency_key)?;
         return Ok(Json(HandoffResponse {
             schema_version: "arda.surface-handoff-response.v1",
             handoff: current,
@@ -396,13 +402,17 @@ pub async fn accept_handoff(
     accepted.state = HandoffState::Accepted;
     accepted.consent.state = arda_orome::ConsentState::Granted;
     accepted.accepted_at = Some(Utc::now());
+    let acceptance_receipt_id = receipt_id(&request.idempotency_key);
+    accepted.receipt_refs.push(format!(
+        "arda://continuity/receipts/{acceptance_receipt_id}"
+    ));
     current
         .validate_transition(&accepted)
         .map_err(handoff_error)?;
     let payload_hash = hash_json(&accepted)?;
     let receipt = TransitionReceipt {
         schema_version: "arda.continuity-receipt.v1".into(),
-        receipt_id: receipt_id(&request.idempotency_key),
+        receipt_id: acceptance_receipt_id,
         kind: "handoff_accepted".into(),
         target_ref: accepted.handoff_id.clone(),
         operator_ref: request.operator_ref,
@@ -415,6 +425,7 @@ pub async fn accept_handoff(
     };
     append_jsonl(&root.join("receipts.jsonl"), &receipt)?;
     atomic_json(&snapshot, &accepted)?;
+    persist_vaire_continuity(&state, &accepted, &request.idempotency_key)?;
     Ok(Json(HandoffResponse {
         schema_version: "arda.surface-handoff-response.v1",
         handoff: accepted,
@@ -672,6 +683,61 @@ fn continuity_event_receipt(
         payload_sha256,
         recorded_at: Utc::now(),
     }
+}
+
+fn persist_vaire_continuity(
+    state: &HarnessState,
+    handoff: &SurfaceHandoff,
+    replay_key: &str,
+) -> Result<(), ApiError> {
+    let privacy_class = match handoff.privacy_class {
+        PrivacyClass::PublicRoom => ContinuityPrivacyClass::PublicRoom,
+        PrivacyClass::SharedRoom => ContinuityPrivacyClass::SharedRoom,
+        PrivacyClass::PrivateRoom => ContinuityPrivacyClass::PrivateRoom,
+        PrivacyClass::PersonalDevice => ContinuityPrivacyClass::PersonalDevice,
+    };
+    let domains = handoff
+        .requested_domains
+        .iter()
+        .map(|domain| match domain {
+            DataDomain::System => MemoryDomain::System,
+            DataDomain::Personal => MemoryDomain::Personal,
+            DataDomain::Business => MemoryDomain::Business,
+        })
+        .collect();
+    let service = MnemosyneService::new(state.workbench_root.join("data/vaire"))
+        .map_err(|error| ApiError::internal(format!("Vairë continuity unavailable: {error}")))?;
+    service
+        .record_continuity(ContinuityRecord {
+            schema_version: VAIRE_CONTINUITY_SCHEMA_VERSION.into(),
+            record_id: format!("continuity:{}:accepted", handoff.handoff_id),
+            operator_ref: handoff.operator_ref.clone(),
+            session_lineage_id: handoff.session_lineage_id.clone(),
+            current_session_id: handoff.current_session_id.clone(),
+            topic_refs: handoff.topic_refs.clone(),
+            commitment_refs: handoff.commitment_refs.clone(),
+            active_surface_history: vec![SurfaceHistoryEntry {
+                surface_id: handoff.destination_surface_id.clone(),
+                privacy_class,
+                observed_at: handoff.accepted_at.unwrap_or_else(Utc::now),
+                expires_at: handoff.expires_at,
+            }],
+            handoff_receipt_refs: if handoff.receipt_refs.is_empty() {
+                vec![receipt_ref(replay_key)]
+            } else {
+                handoff.receipt_refs.clone()
+            },
+            memory_scope_refs: handoff.memory_scope_refs.clone(),
+            authorized_domains: domains,
+            provenance: ContinuityProvenance {
+                source: "arda-engine.surface-handoff".into(),
+                source_event_ref: format!("arda://continuity/handoffs/{}", handoff.handoff_id),
+                recorded_at: handoff.accepted_at.unwrap_or(handoff.issued_at),
+            },
+            replay_key: replay_key.to_owned(),
+        })
+        .map_err(|error| ApiError::internal(format!("Vairë continuity write failed: {error}")))?;
+    Ok(())
 }
 
 fn append_jsonl<T: Serialize>(path: &FsPath, value: &T) -> Result<(), ApiError> {

@@ -348,6 +348,20 @@ async fn continuity_projection_is_safe_for_empty_and_shared_surfaces() {
         .unwrap()
         .error_for_status()
         .unwrap();
+    let mut unrelated = handoff();
+    unrelated["handoff"]["handoff_id"] = json!("handoff-other-lineage");
+    unrelated["handoff"]["session_lineage_id"] = json!("lineage-other");
+    unrelated["handoff"]["current_session_id"] = json!("session-other");
+    unrelated["handoff"]["idempotency_key"] =
+        json!("sha256:7878787878787878787878787878787878787878787878787878787878787878");
+    client
+        .post(format!("http://{bound}/v1/handoffs"))
+        .json(&unrelated)
+        .send()
+        .await
+        .unwrap()
+        .error_for_status()
+        .unwrap();
     let projection: Value = client
         .get(format!("http://{bound}/v1/continuity/projection"))
         .header("x-arda-operator-id", "operator-1")
@@ -359,6 +373,8 @@ async fn continuity_projection_is_safe_for_empty_and_shared_surfaces() {
         .unwrap();
     assert_eq!(projection["active"], true);
     assert_eq!(projection["surface_id"], "discord:shared-room");
+    assert_eq!(projection["handoff_id"], Value::Null);
+    assert_eq!(projection["action_ids"], json!([]));
     assert_eq!(projection["private_refs_withheld"], true);
     assert_eq!(projection["topic_refs"], json!([]));
     assert_eq!(projection["commitment_refs"], json!([]));

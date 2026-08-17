@@ -491,9 +491,17 @@ pub async fn get_projection(
     let root = continuity_root(&state);
     let events = read_events(&root.join("events.jsonl"))?;
     let latest = events.iter().max_by_key(|event| event.observed_at);
-    let handoff = read_handoffs(&root.join("handoffs"))?
-        .into_iter()
-        .max_by_key(|handoff| handoff.issued_at);
+    let handoffs = read_handoffs(&root.join("handoffs"))?;
+    let handoff = latest.and_then(|event| {
+        handoffs
+            .iter()
+            .filter(|handoff| {
+                handoff.session_lineage_id == event.session_lineage_id
+                    && handoff.current_session_id == event.current_session_id
+            })
+            .cloned()
+            .max_by_key(|handoff| handoff.issued_at)
+    });
     let Some(event) = latest else {
         return Ok(Json(HudContinuityProjection {
             schema_version: "arda.continuity-projection.v1",
@@ -504,8 +512,8 @@ pub async fn get_projection(
             surface_id: None,
             privacy_class: None,
             freshness: "unavailable",
-            handoff_id: handoff.as_ref().map(|value| value.handoff_id.clone()),
-            handoff_state: handoff.as_ref().map(|value| value.state),
+            handoff_id: None,
+            handoff_state: None,
             action_ids: Vec::new(),
             private_refs_withheld: false,
             topic_refs: Vec::new(),

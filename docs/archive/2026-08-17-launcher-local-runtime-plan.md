@@ -5,11 +5,11 @@ soterion:
   code_point: "U+1F4DC"
   role: "implementation_plan"
   owner: "PROMETHEUS"
-  status: "active"
+  status: "archived"
   reviewed: "2026-08-17"
 ---
 
-> 🜏 Soterion: 📜 implementation_plan | owner: PROMETHEUS | status: active | reviewed: 2026-08-17
+> 🜏 Soterion: 📜 implementation_plan | owner: PROMETHEUS | status: archived | reviewed: 2026-08-17
 
 # Phase 1: Launcher and Local Runtime Implementation Plan
 
@@ -63,8 +63,8 @@ Process-active is not protocol-healthy. Unknown and stale remain explicit.
 5. Commit only lifecycle types/tests: `feat(launcher): define system lifecycle contract`.
 
 **Task 1 evidence (2026-08-17):** **Implemented** and **tested** in
-[`lifecycle/types.rs`](../../../apps/arda-launcher/src-tauri/src/lifecycle/types.rs)
-and [`lifecycle/mod.rs`](../../../apps/arda-launcher/src-tauri/src/lifecycle/mod.rs).
+[`lifecycle/types.rs`](../../apps/arda-launcher/src-tauri/src/lifecycle/types.rs)
+and [`lifecycle/mod.rs`](../../apps/arda-launcher/src-tauri/src/lifecycle/mod.rs).
 The focused RED command failed on the expected missing lifecycle symbols; GREEN
 passed 5 lifecycle tests. Strict Clippy and the launcher binary check also pass.
 `lib.rs` exports the module for compilation only; no lifecycle command, systemd
@@ -87,9 +87,9 @@ observer, or runtime path is wired yet. Task 1 does not make Phase 1 proven.
 6. Commit: `feat(launcher): observe bounded runtime health`.
 
 **Task 2 evidence (2026-08-17):** **Implemented** and **tested** in
-[`lifecycle/systemd.rs`](../../../apps/arda-launcher/src-tauri/src/lifecycle/systemd.rs),
-[`lifecycle/health.rs`](../../../apps/arda-launcher/src-tauri/src/lifecycle/health.rs),
-and [`lifecycle/mod.rs`](../../../apps/arda-launcher/src-tauri/src/lifecycle/mod.rs).
+[`lifecycle/systemd.rs`](../../apps/arda-launcher/src-tauri/src/lifecycle/systemd.rs),
+[`lifecycle/health.rs`](../../apps/arda-launcher/src-tauri/src/lifecycle/health.rs),
+and [`lifecycle/mod.rs`](../../apps/arda-launcher/src-tauri/src/lifecycle/mod.rs).
 The focused RED command failed on the expected missing observer APIs; GREEN
 passes 20 lifecycle tests and all 34 launcher library tests. The adapters enforce
 fixed allowlists, two-second timeouts, bounded output, and fixed diagnostics
@@ -122,10 +122,10 @@ Tauri commands, so Task 2 does not make Phase 1 wired, running, or proven.
 7. Commit: `feat(runtime): add Arda session and HUD user units`.
 
 **Task 3 evidence (2026-08-17):** **Implemented** and **tested** in
-[`arda-session.target`](../../../config/systemd/arda-session.target),
-[`arda-hud.service`](../../../config/systemd/arda-hud.service), and the
-[`user-unit installer`](../../../scripts/install_arda_user_units.sh) with its
-[`verifier`](../../../scripts/verify_arda_user_units.sh). The RED verifier failed
+[`arda-session.target`](../../config/systemd/arda-session.target),
+[`arda-hud.service`](../../config/systemd/arda-hud.service), and the
+[`user-unit installer`](../../scripts/install_arda_user_units.sh) with its
+[`verifier`](../../scripts/verify_arda_user_units.sh). The RED verifier failed
 on the expected missing session target. GREEN passes source, temporary-install,
 and installed-unit verification plus negative fixtures for repository build paths,
 reversed HUD dependency, and transactional rollback after manager failure. A
@@ -164,8 +164,8 @@ Commands:
 6. Commit: `feat(launcher): expose governed lifecycle commands`.
 
 **Task 4 evidence (2026-08-17):** **Implemented** and **tested** in
-[`lifecycle/commands.rs`](../../../apps/arda-launcher/src-tauri/src/lifecycle/commands.rs)
-and registered through the launcher [`lib.rs`](../../../apps/arda-launcher/src-tauri/src/lib.rs).
+[`lifecycle/commands.rs`](../../apps/arda-launcher/src-tauri/src/lifecycle/commands.rs)
+and registered through the launcher [`lib.rs`](../../apps/arda-launcher/src-tauri/src/lib.rs).
 RED failed on the expected missing command/control APIs. GREEN passes 5 focused
 command-policy tests and 25 lifecycle tests. The backend accepts only fixed unit
 and recovery identities, requires the exact session-stop confirmation, suppresses
@@ -272,6 +272,29 @@ session; Phase 1 remains unproven until Task 8 post-restart click acceptance.
 9. Stop one required service; verify degraded/failed truth and bounded recovery.
 10. Restart once more and repeat the happy path.
 
+**Task 8 evidence (2026-08-17):** **Accepted** on the declared
+`bluefin-lts-10-x86_64` local profile. A real reboot at 12:23 PDT was followed
+by the desktop-launched installed application, independently managed Arda and
+Hermes services, fresh Manwë and Hermes protocol health, and the health-gated
+native HUD. Replacing and reopening Launcher left the session, backend, gateway,
+and HUD active and produced no duplicate service instances. A deliberate
+Hermes Gateway outage surfaced a real required-component failure while Arda,
+the session target, and HUD remained active; bounded recovery restored a fresh
+watchdog. The normal Tauri packaging entry point produced structurally verified
+AppImage, DEB, and RPM artifacts. The canonical private-beta path reproduced
+backup-first upgrade, rollback with terminal run truth preserved, and final
+upgrade to the accepted launcher candidate. The HUD candidate was installed
+transactionally through the canonical user-unit installer. Exact artifact
+hashes, unit timestamps, evidence limits, and the unsigned/local-profile scope
+are recorded in the [operations acceptance record](../operations/launcher-local-runtime-acceptance.md).
+
 ## Phase gate
 
-Phase 1 is **proven** only when the real post-restart click path passes. Builds, unit tests, a `.desktop` file, or a manually launched dev server are insufficient. The acceptance record must identify installed artifact versions, observed units, health probes, native windows, failure injection, and date. Do not mark the phase supported until install/upgrade/rollback is also reproduced.
+Phase 1 is **proven** on the declared local profile. The real post-restart
+desktop path, source-truth health, native HUD gating, independent service
+lifetime, reconnect behavior, required-service failure and bounded recovery,
+full launcher packages, and install/upgrade/rollback lifecycle all passed on
+2026-08-17. Public signing, broader distro support, independent evaluation, and
+final `1.0.0` qualification remain separate future authorities. This completed
+plan is archived; the operations acceptance record remains the live evidence
+authority.

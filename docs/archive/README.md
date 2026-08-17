@@ -33,6 +33,8 @@ product adoption research.
   — completed lower-workstation convergence from composition authority through distinct Governance, Fleet, Routing, Continuity, and Command Core surfaces, with optimized native X11 acceptance and Phase 10 closeout evidence.
 - [`2026-08-12-arda-0.9-baseline-and-improvement-plan.md`](2026-08-12-arda-0.9-baseline-and-improvement-plan.md)
   — completed finite 0.9 dependency, documentation, native qualification, and exact-artifact defect tranche; Personal Operations remains implemented but unaccepted after an empty dogfood window.
+- [`2026-08-17-launcher-local-runtime-plan.md`](2026-08-17-launcher-local-runtime-plan.md)
+  — completed ambient-agent Phase 1 launcher/runtime implementation and post-restart native acceptance; live evidence remains in the operations acceptance record.
 
 ## Deferred future release authorities
 

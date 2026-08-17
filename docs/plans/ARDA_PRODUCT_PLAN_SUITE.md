@@ -33,11 +33,11 @@ final-1.0 qualification plan remain historical/deferred records under
 `docs/archive/deferred/1.0/`; they do not override the active ambient-agent
 program or create retroactive 0.9 blockers.
 
-## Active ambient-agent phases
+## Ambient-agent phases
 
-| Phase | Active plan | Required proof |
+| Phase | Plan authority | Required proof |
 |---|---|---|
-| 1 | [Launcher and local runtime](ambient-agent/01-launcher-local-runtime.md) | post-restart icon → health → native HUD |
+| 1 | [Launcher and local runtime — completed](../archive/2026-08-17-launcher-local-runtime-plan.md) | **Accepted:** post-restart icon → health → native HUD; [operations evidence](../operations/launcher-local-runtime-acceptance.md) |
 | 2 | [Hermes continuity and handoff](ambient-agent/02-hermes-continuity-handoff.md) | same authenticated conversation lineage across phone and desktop |
 | 3 | [HUD and Mirromere proving ground](ambient-agent/03-hud-mirromere-proving-ground.md) | one governed scene on a HUD aperture and physical second monitor |
 | 4 | [Presence, identity, and privacy](ambient-agent/04-presence-identity-privacy.md) | expiring multi-signal presence with safe veil and explicit handoff |

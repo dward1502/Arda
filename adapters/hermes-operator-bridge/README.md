@@ -25,11 +25,21 @@ route, and delivery authority. See the
 Continuity observation must use the public
 `pre_gateway_dispatch(event, gateway, session_store, **kwargs)` context, emit
 only bounded session/surface metadata out-of-band, and return `None` so normal
-conversation continues through Hermes. It must not call private gateway methods,
-copy transcripts, trust display names as identity, or expand tools/data/action
-authority. The existing command path's `_is_user_authorized` and
-`_deliver_platform_notice` calls are compatibility debt, not precedent for new
-continuity code.
+conversation continues through Hermes. It must prefer public gateway APIs, never
+copy transcripts, never trust display names as identity, and never expand
+tools/data/action authority. The existing command path's `_is_user_authorized`
+and `_deliver_platform_notice` calls are compatibility debt; continuity reuses
+only the former because this pre-auth hook has no public authorization callback.
+
+Version `0.3.0` emits only stable operator/session/surface identity, privacy and
+domain classification, bounded reference arrays, timestamps, and an idempotency
+key to `/v1/continuity/events`. Delivery runs asynchronously, persists pending
+events with mode `0600`, and retries boundedly across gateway restarts. Message
+text, raw platform payloads, credentials, media, and transcript content are never
+included. Because Hermes currently invokes `pre_gateway_dispatch` before its
+normal authorization stage and exposes no public authorization callback there,
+the bridge retains its already-deployed `_is_user_authorized` compatibility call
+as the narrow precondition for both command and continuity paths.
 
 ## Install
 

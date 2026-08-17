@@ -163,6 +163,17 @@ Commands:
 5. Run Rust tests and Clippy.
 6. Commit: `feat(launcher): expose governed lifecycle commands`.
 
+**Task 4 evidence (2026-08-17):** **Implemented** and **tested** in
+[`lifecycle/commands.rs`](../../../apps/arda-launcher/src-tauri/src/lifecycle/commands.rs)
+and registered through the launcher [`lib.rs`](../../../apps/arda-launcher/src-tauri/src/lib.rs).
+RED failed on the expected missing command/control APIs. GREEN passes 5 focused
+command-policy tests and 25 lifecycle tests. The backend accepts only fixed unit
+and recovery identities, requires the exact session-stop confirmation, suppresses
+command output, applies command and polling timeouts, and refuses native HUD
+launch unless required aggregate health is healthy and the installed binary is
+present. Strict Clippy, locked launcher check, formatting, and diff checks pass.
+No frontend consumer or native launch acceptance is claimed by this task.
+
 ## Task 5: Replace readiness claims with source-truth lifecycle UI
 
 **Files:**

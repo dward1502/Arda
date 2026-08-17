@@ -216,6 +216,12 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
+            crate::lifecycle::commands::lifecycle_status,
+            crate::lifecycle::commands::start_arda_session,
+            crate::lifecycle::commands::stop_arda_session,
+            crate::lifecycle::commands::recover_component,
+            crate::lifecycle::commands::launch_native_hud,
+            crate::lifecycle::commands::hud_status,
             registry_status,
             readiness_status,
             service_plan_status,

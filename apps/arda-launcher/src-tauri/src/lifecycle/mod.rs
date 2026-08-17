@@ -1,3 +1,4 @@
+pub mod commands;
 pub mod health;
 pub mod systemd;
 pub mod types;

@@ -105,7 +105,10 @@ export function createContinuityClient(
         `${baseUrl(base)}/v1/handoffs/${encodeURIComponent(handoffId)}/accept`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'x-arda-operator-id': operator_ref,
+          },
           body: JSON.stringify({ operator_ref, idempotency_key: idempotencyKey }),
         },
       )

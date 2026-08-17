@@ -96,6 +96,10 @@ describe('Hermes continuity projection', () => {
       'http://127.0.0.1:7878/v1/handoffs/handoff-1/accept',
       expect.objectContaining({
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-arda-operator-id': 'operator-1',
+        },
         body: JSON.stringify({
           operator_ref: 'operator-1',
           idempotency_key: 'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',

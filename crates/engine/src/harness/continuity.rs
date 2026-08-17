@@ -357,10 +357,12 @@ pub async fn create_handoff(
 pub async fn accept_handoff(
     State(state): State<HarnessState>,
     ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    headers: HeaderMap,
     Path(id): Path<String>,
     Json(request): Json<AcceptHandoffRequest>,
 ) -> Result<Json<HandoffResponse>, ApiError> {
     require_loopback(peer)?;
+    require_operator_header(&state, &headers)?;
     if request.operator_ref != state.operator_id {
         return Err(ApiError::forbidden(
             "handoff acceptance requires configured operator authority",

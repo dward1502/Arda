@@ -212,8 +212,19 @@ async fn continuity_endpoints_enforce_identity_replay_and_transitions() {
         "operator_ref": "operator-1",
         "idempotency_key": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
     });
+    assert_eq!(
+        client
+            .post(format!("http://{bound}/v1/handoffs/handoff-1/accept"))
+            .json(&accept_body)
+            .send()
+            .await
+            .unwrap()
+            .status(),
+        403
+    );
     let accepted: Value = client
         .post(format!("http://{bound}/v1/handoffs/handoff-1/accept"))
+        .header("x-arda-operator-id", "operator-1")
         .json(&accept_body)
         .send()
         .await
@@ -229,6 +240,7 @@ async fn continuity_endpoints_enforce_identity_replay_and_transitions() {
 
     let accepted_replay: Value = client
         .post(format!("http://{bound}/v1/handoffs/handoff-1/accept"))
+        .header("x-arda-operator-id", "operator-1")
         .json(&accept_body)
         .send()
         .await
@@ -240,6 +252,7 @@ async fn continuity_endpoints_enforce_identity_replay_and_transitions() {
     assert_eq!(
         client
             .post(format!("http://{bound}/v1/handoffs/handoff-1/accept"))
+            .header("x-arda-operator-id", "operator-1")
             .json(&json!({
                 "operator_ref": "operator-1",
                 "idempotency_key": "sha256:9999999999999999999999999999999999999999999999999999999999999999"

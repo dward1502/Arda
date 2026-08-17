@@ -205,12 +205,32 @@ pub async fn ingest_event(
         .map_err(|_| ApiError::internal("continuity writer lock poisoned"))?;
     fs::create_dir_all(&root).map_err(io_error)?;
     let events = root.join("events.jsonl");
+    let receipts = root.join("receipts.jsonl");
     let payload_hash = hash_json(&request.event)?;
     if let Some(existing) = find_event_by_key(&events, &request.event.idempotency_key)? {
         if hash_json(&existing)? != payload_hash {
             return Err(ApiError::conflict(
                 "continuity idempotency key was replayed with altered payload",
             ));
+        }
+        match find_receipt_by_key(&receipts, &request.event.idempotency_key)? {
+            Some(receipt)
+                if receipt.kind == "continuity_event"
+                    && receipt.target_ref == request.event.event_id
+                    && receipt.payload_sha256 == payload_hash => {}
+            Some(_) => {
+                return Err(ApiError::conflict(
+                    "continuity replay receipt does not match the persisted event",
+                ));
+            }
+            None => append_jsonl(
+                &receipts,
+                &continuity_event_receipt(
+                    &request.event,
+                    &request.operator.operator_id,
+                    payload_hash.clone(),
+                ),
+            )?,
         }
         return Ok((
             StatusCode::OK,
@@ -223,20 +243,9 @@ pub async fn ingest_event(
         ));
     }
     append_jsonl(&events, &request.event)?;
-    let receipt = TransitionReceipt {
-        schema_version: "arda.continuity-receipt.v1".into(),
-        receipt_id: receipt_id(&request.event.idempotency_key),
-        kind: "continuity_event".into(),
-        target_ref: request.event.event_id.clone(),
-        operator_ref: request.operator.operator_id,
-        session_lineage_id: request.event.session_lineage_id.clone(),
-        idempotency_key: request.event.idempotency_key.clone(),
-        from_state: None,
-        to_state: None,
-        payload_sha256: payload_hash,
-        recorded_at: Utc::now(),
-    };
-    append_jsonl(&root.join("receipts.jsonl"), &receipt)?;
+    let receipt =
+        continuity_event_receipt(&request.event, &request.operator.operator_id, payload_hash);
+    append_jsonl(&receipts, &receipt)?;
     Ok((
         StatusCode::CREATED,
         Json(ContinuityEventResponse {
@@ -624,6 +633,26 @@ fn receipt_id(key: &str) -> String {
 
 fn receipt_ref(key: &str) -> String {
     format!("arda://continuity/receipts/{}", receipt_id(key))
+}
+
+fn continuity_event_receipt(
+    event: &ContinuityEvent,
+    operator_ref: &str,
+    payload_sha256: String,
+) -> TransitionReceipt {
+    TransitionReceipt {
+        schema_version: "arda.continuity-receipt.v1".into(),
+        receipt_id: receipt_id(&event.idempotency_key),
+        kind: "continuity_event".into(),
+        target_ref: event.event_id.clone(),
+        operator_ref: operator_ref.to_owned(),
+        session_lineage_id: event.session_lineage_id.clone(),
+        idempotency_key: event.idempotency_key.clone(),
+        from_state: None,
+        to_state: None,
+        payload_sha256,
+        recorded_at: Utc::now(),
+    }
 }
 
 fn append_jsonl<T: Serialize>(path: &FsPath, value: &T) -> Result<(), ApiError> {

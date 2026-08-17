@@ -123,6 +123,8 @@ async fn continuity_endpoints_enforce_identity_replay_and_transitions() {
         .await
         .unwrap();
     assert_eq!(created.status(), 201);
+    let receipts_path = root.path().join("core/state/continuity/receipts.jsonl");
+    std::fs::remove_file(&receipts_path).unwrap();
     let replay: Value = client
         .post(format!("http://{bound}/v1/continuity/events"))
         .json(&event)
@@ -133,6 +135,8 @@ async fn continuity_endpoints_enforce_identity_replay_and_transitions() {
         .await
         .unwrap();
     assert_eq!(replay["replayed"], true);
+    let repaired_receipts = std::fs::read_to_string(&receipts_path).unwrap();
+    assert!(repaired_receipts.contains("continuity_event"));
 
     let mut altered = continuity_event(key);
     altered["event"]["surface_id"] = json!("discord:other-chat");
@@ -154,6 +158,20 @@ async fn continuity_endpoints_enforce_identity_replay_and_transitions() {
         client
             .post(format!("http://{bound}/v1/continuity/events"))
             .json(&unauthorized)
+            .send()
+            .await
+            .unwrap()
+            .status(),
+        403
+    );
+
+    let mut invalid_auth =
+        continuity_event("sha256:3434343434343434343434343434343434343434343434343434343434343434");
+    invalid_auth["operator"]["authentication_method"] = json!("plugin_assertion");
+    assert_eq!(
+        client
+            .post(format!("http://{bound}/v1/continuity/events"))
+            .json(&invalid_auth)
             .send()
             .await
             .unwrap()
@@ -257,6 +275,18 @@ async fn continuity_rejects_unknown_expired_and_cross_domain_payloads() {
             .status(),
         400
     );
+
+    let mut unknown_field =
+        continuity_event("sha256:5656565656565656565656565656565656565656565656565656565656565656");
+    unknown_field["unexpected"] = json!(true);
+    assert!(client
+        .post(format!("http://{bound}/v1/continuity/events"))
+        .json(&unknown_field)
+        .send()
+        .await
+        .unwrap()
+        .status()
+        .is_client_error());
 
     let mut expired =
         continuity_event("sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");

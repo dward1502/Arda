@@ -38,6 +38,7 @@ pub mod registry;
 pub mod router;
 #[cfg(feature = "service-runtime")]
 pub mod service;
+pub mod surface_handoff;
 pub mod types;
 pub use comm::{
     A2HMessage, Attachment, AuthPayload, Channel as A2HChannel, ClarifyPayload, CommError,
@@ -46,6 +47,10 @@ pub use comm::{
 };
 pub use governance::GovernanceHooks;
 pub use message::{A2AMessage, A2AMessageType, Envelope};
+pub use surface_handoff::{
+    ConsentState, DataDomain, HandoffConsent, HandoffState, PrivacyClass, SurfaceHandoff,
+    SurfaceHandoffError, SURFACE_HANDOFF_SCHEMA_VERSION,
+};
 pub use types::{
     BoardroomManweRouteEvidence, BoardroomOracleLink, BoardroomPost, BoardroomQuorumDecision,
     BoardroomQuorumPacket, BoardroomTriadScores, CommsEvent, CommsEventRisk, CommsEventType,

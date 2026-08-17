@@ -5,6 +5,7 @@
 //! The onboarding flow is implemented under `onboarding/`, and exposed to
 //! the frontend via Tauri commands below.
 
+pub mod lifecycle;
 pub mod onboarding;
 
 use arda_contract_registry::registry::ContractRegistry;

@@ -62,6 +62,14 @@ Process-active is not protocol-healthy. Unknown and stale remain explicit.
 4. Repeat the focused test; expect all lifecycle tests to pass.
 5. Commit only lifecycle types/tests: `feat(launcher): define system lifecycle contract`.
 
+**Task 1 evidence (2026-08-17):** **Implemented** and **tested** in
+[`lifecycle/types.rs`](../../../apps/arda-launcher/src-tauri/src/lifecycle/types.rs)
+and [`lifecycle/mod.rs`](../../../apps/arda-launcher/src-tauri/src/lifecycle/mod.rs).
+The focused RED command failed on the expected missing lifecycle symbols; GREEN
+passed 5 lifecycle tests. Strict Clippy and the launcher binary check also pass.
+`lib.rs` exports the module for compilation only; no lifecycle command, systemd
+observer, or runtime path is wired yet. Task 1 does not make Phase 1 proven.
+
 ## Task 2: Build bounded systemd and health observations
 
 **Files:**

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  getFocusedWorkstationKind,
   getStaticWorkstationManifest,
   resolveWorkstationComposition,
 } from './workstationComposition'
@@ -28,6 +29,14 @@ describe('workstation composition authority', () => {
     expect(templates.view_desk_control_panel.moduleIds).toEqual(canonicalLowerCompositions.fleet_and_backbone)
     expect(templates.view_desk_r.moduleIds).toEqual(canonicalLowerCompositions.routing_and_comms)
     expect(templates.view_desk_aux.moduleIds).toEqual(canonicalLowerCompositions.human_business_personal)
+  })
+
+  it('routes canonical lower source zones to their focused workstation owners', () => {
+    expect(getFocusedWorkstationKind('fleet_and_backbone')).toBe('fleet')
+    expect(getFocusedWorkstationKind('systems_health')).toBe('fleet')
+    expect(getFocusedWorkstationKind('routing_and_comms')).toBe('routing')
+    expect(getFocusedWorkstationKind('human_business_personal')).toBe('continuity')
+    expect(getFocusedWorkstationKind('systems')).toBeNull()
   })
 
   it('owns static utility manifests instead of duplicating them in lookup code', () => {

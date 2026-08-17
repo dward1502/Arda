@@ -3,11 +3,11 @@ soterion:
   sigil: "SCROLL"
   role: "cross_reference_audit"
   owner: "HERMES"
-  status: "implemented_ownership_native_acceptance_pending"
+  status: "complete"
   reviewed: "2026-08-16"
 ---
 
-> 🜏 Soterion: 📜 Lower workstation cross-reference | owner: HERMES | status: implemented ownership, native acceptance pending | reviewed: 2026-08-16
+> 🜏 Soterion: 📜 Lower workstation cross-reference | owner: HERMES | status: complete | reviewed: 2026-08-16
 
 # Lower Workstation Cross-Reference
 
@@ -315,6 +315,6 @@ These constraints are carried into the completed [design research](DESIGN_REFERE
 9. Detailed raw paths/hashes belong in evidence detail, not the primary scan surface.
 10. No redesign should reintroduce generic cards, identical tab stacks, or text walls across all domains.
 
-## Remaining closeout gate
+## Closeout disposition
 
-Phases 1–9 implemented the ownership outcomes above, and Phase 10's complete automated gate set plus optimized Tauri build passed. The current release process exposed no controllable native window, so per-surface interaction, screenshot, and frame-rate acceptance remain blocked rather than passed. The exact remaining checks are recorded in [`ACCEPTANCE_MATRIX.md`](ACCEPTANCE_MATRIX.md); the evidence and qualification are recorded in [`VERIFICATION_CLOSEOUT.md`](VERIFICATION_CLOSEOUT.md). The plan remains active until that native matrix is evidenced.
+Phases 1–9 implemented the ownership outcomes above. Phase 10 passed the complete automated gate set and optimized rebuild, repaired a semantic focused-view selection defect found during native traversal, and exercised the current 1920 × 1080 optimized X11 compatibility window. The final native/contract-tested boundaries, screenshots, keyboard focus restoration, Command Core response, static-demand timing, and resource qualification are recorded in [`ACCEPTANCE_MATRIX.md`](ACCEPTANCE_MATRIX.md) and [`VERIFICATION_CLOSEOUT.md`](VERIFICATION_CLOSEOUT.md). This cross-reference no longer carries active implementation authority and may be archived with the completed plan.

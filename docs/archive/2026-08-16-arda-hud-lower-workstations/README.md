@@ -3,11 +3,11 @@ soterion:
   sigil: "SCROLL"
   role: "audit_index"
   owner: "HERMES"
-  status: "active"
+  status: "complete"
   reviewed: "2026-08-16"
 ---
 
-> 🜏 Soterion: 📜 lower-workstation audit index | owner: HERMES | status: active | reviewed: 2026-08-16
+> 🜏 Soterion: 📜 lower-workstation audit index | owner: HERMES | status: complete | reviewed: 2026-08-16
 
 # ARDA HUD Lower Workstation Audit
 
@@ -73,7 +73,7 @@ The persisted assignment authority is `core/state/arda_boardroom_slots.json`, la
 |---|---|---|
 | [Cross-reference](CROSS_REFERENCE.md) | overlap, dead wiring, competing authorities, data families, and ownership split | complete |
 | [Design references](DESIGN_REFERENCES.md) | externally grounded sci-fi interaction research translated into ARDA visual and truth-state rules | complete |
-| [Implementation plan](PLAN.md) | composition, Command Core control relocation, source wiring, distinct workstation phases, cleanup, and verification | Phases 0–9 implemented; Phase 10 automated gates pass, native acceptance blocked |
+| [Implementation plan](PLAN.md) | composition, Command Core control relocation, source wiring, distinct workstation phases, cleanup, and verification | complete through Phase 10 with optimized native acceptance |
 | [Phase 0 baseline](BASELINE.md) | automated, native semantic, performance, source, and interaction baseline with explicit qualification limits | complete with recorded native limitations |
 | [Phase 1 composition authority](COMPOSITION_AUTHORITY.md) | canonical lower-workstation module composition, compatibility adapters, and old-authority dispositions | implemented and verified |
 | [Phase 2 Command Core controls](COMMAND_CORE_CONTROLS.md) | front-plate command/utility banks, detached-row retirement, callback parity, and native semantic evidence | implemented and verified with recorded native launch limitation |
@@ -84,8 +84,8 @@ The persisted assignment authority is `core/state/arda_boardroom_slots.json`, la
 | [Phase 7 Human/Business/Personal](HUMAN_BUSINESS_PERSONAL.md) | selectable continuity horizons, live reference reconciliation, value truth, and privacy-aware lower instrument | implemented and verified with recorded native visual limitation |
 | [Phase 8 visual convergence](VISUAL_CONVERGENCE.md) | shared console, line, focus, truth, type, and motion grammar with domain-specific compositions | implemented and verified with recorded native visual limitation |
 | [Phase 9 orphan retirement](ORPHAN_RETIREMENT.md) | proof-based retirement of the empty routing placeholder and disconnected Fleet module; canonical Fleet owner retained | implemented and verified with recorded native limitation |
-| [Phase 10 verification closeout](VERIFICATION_CLOSEOUT.md) | whole-product automated gates, optimized Tauri build, native launch attempt, and explicit remaining acceptance matrix | automated complete; native acceptance blocked |
-| [Native acceptance matrix](ACCEPTANCE_MATRIX.md) | per-surface native interaction, truth-state, accessibility, receipt, visual, and performance gates | blocked pending a controllable current release window |
+| [Phase 10 verification closeout](VERIFICATION_CLOSEOUT.md) | whole-product automated gates, optimized Tauri build, acceptance-found repair, native interaction, visuals, and performance | complete for the optimized X11 compatibility profile |
+| [Native acceptance matrix](ACCEPTANCE_MATRIX.md) | per-surface native interaction, truth-state, accessibility, receipt, visual, and performance gates | complete with direct-vs-contract-tested boundaries recorded |
 
 The Command Core now preserves its command bank and owns the existing Settings, Terminal, and Hermes Dashboard launchers in a separate physical utility bank. The detached bottom utility row is retired. Service Health remains owned by Fleet/Backbone and contributes state rather than retaining a duplicate detached button.
 

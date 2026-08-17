@@ -520,7 +520,7 @@ Final disposition: `providerRouting.ts` and the disconnected component-level Fle
 
 ## Phase 10 — Whole-product verification and documentation closeout
 
-**Status:** automated gates complete on 2026-08-16; native acceptance blocked because the current optimized process exposed no controllable window. See [`VERIFICATION_CLOSEOUT.md`](VERIFICATION_CLOSEOUT.md) and [`ACCEPTANCE_MATRIX.md`](ACCEPTANCE_MATRIX.md). This plan remains active and unarchived.
+**Status:** complete on 2026-08-16. Automated gates, the optimized rebuild, direct 1920 × 1080 native owner traversal, Command Core/control-bank response, keyboard Escape/focus restoration, screenshots, static-demand timing, and the adopted optimized resource profile are recorded in [`VERIFICATION_CLOSEOUT.md`](VERIFICATION_CLOSEOUT.md) and [`ACCEPTANCE_MATRIX.md`](ACCEPTANCE_MATRIX.md). The bounded plan is ready for archival.
 
 ### Automated gates
 

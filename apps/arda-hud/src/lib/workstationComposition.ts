@@ -18,6 +18,15 @@ export interface WorkstationCompositionResolution {
   adapted: boolean
 }
 
+export type FocusedWorkstationKind = 'fleet' | 'routing' | 'continuity'
+
+const FOCUSED_WORKSTATION_KINDS: Record<string, FocusedWorkstationKind> = {
+  fleet_and_backbone: 'fleet',
+  systems_health: 'fleet',
+  routing_and_comms: 'routing',
+  human_business_personal: 'continuity',
+}
+
 const WORKSTATION_COMPOSITIONS: Record<string, WorkstationComposition> = {
   sovereign_world: {
     title: 'Sovereign World',
@@ -139,6 +148,10 @@ export function resolveWorkstationComposition(
     rejectedPanelIds: sourcePanelIds.filter((panelId) => !HUD_MODULE_IDS.has(panelId as ModuleId)),
     adapted: false,
   }
+}
+
+export function getFocusedWorkstationKind(sourceZoneId: string | null): FocusedWorkstationKind | null {
+  return sourceZoneId ? FOCUSED_WORKSTATION_KINDS[sourceZoneId] ?? null : null
 }
 
 export function getStaticWorkstationManifest(sourceZoneId: string | null): ArdaWorkstationManifest | null {

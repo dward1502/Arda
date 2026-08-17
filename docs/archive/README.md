@@ -29,6 +29,8 @@ product adoption research.
   — completed bounded system-unification implementation history; final public-release qualification moved to deferred 1.0 authority.
 - [`2026-08-06-hud-frontend-backend-contract-convergence-plan.md`](2026-08-06-hud-frontend-backend-contract-convergence-plan.md)
   — implemented backend authority, monitor lifecycle, and restart-recovery convergence retained as 0.9 evidence.
+- [`2026-08-16-arda-hud-lower-workstations/`](2026-08-16-arda-hud-lower-workstations/)
+  — completed lower-workstation convergence from composition authority through distinct Governance, Fleet, Routing, Continuity, and Command Core surfaces, with optimized native X11 acceptance and Phase 10 closeout evidence.
 
 ## Deferred future release authorities
 

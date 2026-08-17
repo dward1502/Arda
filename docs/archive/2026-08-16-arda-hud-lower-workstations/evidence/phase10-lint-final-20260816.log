@@ -1,0 +1,153 @@
+
+> arda_hud@0.1.0 lint /var/home/mythos/Eregion/Arda/apps/arda-hud
+> oxlint
+
+src/lib/ingest/registry.ts:1:25: warning eslint(no-unused-vars): Identifier 'ComponentPayload' is imported but never used. help: Consider removing this import.
+src/scene/boardroom/monitorSurfaceTopology.ts:2:15: warning eslint(no-unused-vars): Type 'BoardroomSceneSlotId' is imported but never used. help: Consider removing this import.
+src/components/arda/hooks/useArdaPanelUpdates.ts:2:33: warning eslint(no-unused-vars): Identifier 'getNumenorPath' is imported but never used. help: Consider removing this import.
+src/components/arda/hooks/useArdaPanelUpdates.ts:17:11: warning eslint(no-unused-vars): Variable 'watcher' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/components/arda/hooks/useArdaPanelUpdates.ts:83:7: warning eslint(no-unused-vars): Variable 'watcherCache' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/components/arda/hooks/useArdaPanelUpdates.ts:88:9: warning eslint(no-unused-vars): Variable 'cacheKey' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/components/arda/BoardroomEditOverlay.tsx:2:15: warning eslint(no-unused-vars): Type 'ReactNode' is imported but never used. help: Consider removing this import.
+src/components/arda/BoardroomEditOverlay.tsx:33:3: warning eslint(no-unused-vars): Parameter 'boardroomSceneSlotAssignments' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.
+src/components/arda/BoardroomEditOverlay.tsx:37:3: warning eslint(no-unused-vars): Parameter 'onSlotAssignmentChange' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.
+src/components/arda/BoardroomEditOverlay.tsx:38:3: warning eslint(no-unused-vars): Parameter 'sceneSlotAssignmentOptions' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.
+src/visualizations/templates/StatusGridTemplate.tsx:1:1: warning unicorn(no-empty-file): Empty files are not allowed. help: Delete this file or add some code to it.
+src/lib/ingest/parser.ts:406:74: warning eslint(no-unused-vars): Variable 'options' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/visualizations/templates/GraphTemplate.tsx:1:1: warning unicorn(no-empty-file): Empty files are not allowed. help: Delete this file or add some code to it.
+src/visualizations/templates/CyberMatrixTemplate.tsx:1:1: warning unicorn(no-empty-file): Empty files are not allowed. help: Delete this file or add some code to it.
+src/lib/boardroomSessionRegistryPersistence.ts:3:42: warning eslint(no-unused-vars): Type 'FileReadResult' is imported but never used. help: Consider removing this import.
+src/lib/ingest/examples.ts:1:18: warning eslint(no-unused-vars): Identifier 'loadFromFile' is imported but never used. help: Consider removing this import.
+src/lib/ingest/examples.ts:1:32: warning eslint(no-unused-vars): Identifier 'loadFromUrl' is imported but never used. help: Consider removing this import.
+src/lib/ingest/examples.ts:1:70: warning eslint(no-unused-vars): Type 'IngestRequest' is imported but never used. help: Consider removing this import.
+src/lib/ingest/examples.ts:1:90: warning eslint(no-unused-vars): Type 'ParsedData' is imported but never used. help: Consider removing this import.
+src/lib/boardroomSessionRegistry.test.ts:10:8: warning eslint(no-unused-vars): Type 'BoardroomSessionClaim' is imported but never used. help: Consider removing this import.
+src/utils/multiWindow.ts:433:5: warning eslint(no-unused-vars): Variable 'tauriWorkstationUnlisten' is assigned a value but never used. Unused variables should start with a '_'. help: Did you mean to use this variable?
+src/types/constants.ts:1:1: warning unicorn(no-empty-file): Empty files are not allowed. help: Delete this file or add some code to it.
+src/scene/boardroom/universalMonitorAcceptance.test.ts:10:3: warning eslint(no-unused-vars): Identifier 'BOARDROOM_MONITOR_ZONES' is imported but never used. help: Consider removing this import.
+src/scene/boardroom/universalMonitorAcceptance.test.ts:12:3: warning eslint(no-unused-vars): Identifier 'BOARDROOM_CONSOLE_SHELL_SEGMENTS' is imported but never used. help: Consider removing this import.
+src/scene/boardroom/universalMonitorAcceptance.test.ts:14:10: warning eslint(no-unused-vars): Identifier 'resolveMonitorContractSlotId' is imported but never used. help: Consider removing this import.
+src/scene/boardroom/universalMonitorAcceptance.test.ts:23:6: warning eslint(no-unused-vars): Type alias 'UpperMonitorSlotId' is declared but never used. help: Consider removing this declaration.
+src/lib/configWalkthrough.ts:143:7: warning unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+src/lib/configWalkthrough.ts:144:7: warning unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+src/visualizations/types.ts:1:30: warning eslint(no-unused-vars): Type 'ReactNode' is imported but never used. help: Consider removing this import.
+src/lib/monitorSurfacePersistence.test.ts:1:32: warning eslint(no-unused-vars): Identifier 'vi' is imported but never used. help: Consider removing this import.
+src/lib/monitorSurfacePersistence.test.ts:3:3: warning eslint(no-unused-vars): Identifier 'MONITOR_SURFACE_REGISTRY_STORAGE_KEY' is imported but never used. help: Consider removing this import.
+src/lib/monitorSurfacePersistence.test.ts:4:3: warning eslint(no-unused-vars): Identifier 'agentClaimMonitorSurface' is imported but never used. help: Consider removing this import.
+src/lib/monitorSurfacePersistence.test.ts:5:3: warning eslint(no-unused-vars): Identifier 'agentGetMonitorSurfaceRegistry' is imported but never used. help: Consider removing this import.
+src/lib/monitorSurfacePersistence.test.ts:6:3: warning eslint(no-unused-vars): Identifier 'agentReleaseMonitorSurface' is imported but never used. help: Consider removing this import.
+src/lib/monitorSurfacePersistence.test.ts:7:3: warning eslint(no-unused-vars): Identifier 'agentRestoreMonitorSurfaceRegistry' is imported but never used. help: Consider removing this import.
+src/lib/monitorSurfacePersistence.test.ts:10:3: warning eslint(no-unused-vars): Identifier 'rehydrateMonitorSurfaceRegistry' is imported but never used. help: Consider removing this import.
+src/components/arda/modules/LearningLoopSurfaceWrapper.tsx:9:89: warning eslint(no-unused-vars): Parameter 'tag' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.
+src/components/arda/modules/systems/KnowledgeMapPanel.tsx:136:9: warning eslint(no-unused-vars): Variable 'activeLabel' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/components/arda/modules/LearningLoopSurface.tsx:3:10: warning eslint(no-unused-vars): Identifier 'Activity' is imported but never used. help: Consider removing this import.
+src/components/arda/modules/LearningLoopSurface.tsx:3:20: warning eslint(no-unused-vars): Identifier 'BookOpenText' is imported but never used. help: Consider removing this import.
+src/components/arda/modules/LearningLoopSurface.tsx:3:34: warning eslint(no-unused-vars): Identifier 'Briefcase' is imported but never used. help: Consider removing this import.
+src/components/arda/modules/LearningLoopSurface.tsx:3:45: warning eslint(no-unused-vars): Identifier 'FolderKanban' is imported but never used. help: Consider removing this import.
+src/components/arda/modules/LearningLoopSurface.tsx:3:59: warning eslint(no-unused-vars): Identifier 'Settings' is imported but never used. help: Consider removing this import.
+src/components/arda/modules/LearningLoopSurface.tsx:3:69: warning eslint(no-unused-vars): Identifier 'Shield' is imported but never used. help: Consider removing this import.
+src/scene/boardroom/monitorApertureProjection.test.ts:3:15: warning eslint(no-unused-vars): Type 'BoardroomPreviewMode' is imported but never used. help: Consider removing this import.
+src/lib/monitorSurfaceContract.test.ts:82:11: warning eslint(no-unused-vars): Variable 'surfaceSessionId' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/lib/ardaSource.ts:58:7: warning eslint(no-unused-vars): Variable 'timedReadJson' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/lib/ardaSource.ts:63:7: warning eslint(no-unused-vars): Variable 'timedReadJsonLines' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/lib/ardaSource.ts:68:7: warning eslint(no-unused-vars): Variable 'timedReadText' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/lib/ardaSource.ts:965:17: warning eslint(no-unused-vars): Variable 'rootPath' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/lib/ardaSource.ts:965:27: warning eslint(no-unused-vars): Variable 'settings' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/lib/ardaSource.ts:970:27: warning eslint(no-unused-vars): Parameter 'attempt' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.
+src/lib/ardaSource.ts:1142:9: warning unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+src/lib/ardaSource.ts:1143:9: warning unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+src/lib/ardaSource.ts:1160:9: warning unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+src/scene/boardroom/BoardroomViewport.tsx:32:8: warning eslint(no-unused-vars): Type 'BoardroomPreviewMode' is imported but never used. help: Consider removing this import.
+src/scene/boardroom/BoardroomViewport.tsx:918:3: warning eslint(no-unused-vars): Parameter 'onReleaseMonitor' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.
+src/scene/boardroom/BoardroomViewport.tsx:919:3: warning eslint(no-unused-vars): Parameter 'onRefreshMonitor' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.
+src/scene/boardroom/BoardroomViewport.tsx:920:3: warning eslint(no-unused-vars): Parameter 'sourceProvenance' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.
+src/scene/boardroom/BoardroomViewport.tsx:1006:9: warning eslint(no-unused-vars): Variable 'terminalMaterial' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/lib/systemActionBus.ts:706:9: warning unicorn(no-useless-fallback-in-spread): Empty fallbacks in spreads are unnecessary help: Spreading falsy values in object literals won't add any unexpected properties, so it's unnecessary to add an empty object as fallback.
+src/components/arda/modules/HermesDashboardModule.test.tsx:2:26: warning eslint(no-unused-vars): Identifier 'waitFor' is imported but never used. help: Consider removing this import.
+src/lib/boardroomSlotSettings.ts:301:10: warning eslint(no-unused-vars): Function 'isBoardroomSceneSlotId' is declared but never used. help: Consider removing this declaration.
+src/lib/ardaRuntimeMode.ts:1:15: warning eslint(no-unused-vars): Type 'ReactNode' is imported but never used. help: Consider removing this import.
+src/lib/ardaPanelWatch.ts:117:11: warning eslint(no-unused-vars): Variable 'root' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/scene/systems/presenceState.ts:339:16: warning eslint(no-unused-vars): Catch parameter '_error' is caught but never used. help: Consider handling this error.
+src/lib/ardaProvenance.test.ts:2:3: warning eslint(no-unused-vars): Identifier 'ArdaSourceProvenance' is imported but never used. help: Consider removing this import.
+src/lib/ardaProvenance.test.ts:13:7: warning eslint(no-unused-vars): Variable 'tenMinAgo' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/lib/adapters/toolCallStreamAdapter.ts:119:7: warning eslint(no-unused-vars): Variable 'hasAnyLine' is assigned a value but never used. Unused variables should start with a '_'. help: Did you mean to use this variable?
+src/components/arda/WorkstationDock.tsx:3:15: warning eslint(no-unused-vars): Type 'ReactNode' is imported but never used. help: Consider removing this import.
+src/components/arda/WindowControls.tsx:3:15: warning eslint(no-unused-vars): Type 'ReactNode' is imported but never used. help: Consider removing this import.
+src/lib/adapters/toolCallStreamAdapter.test.ts:7:3: warning eslint(no-unused-vars): Identifier 'parseToolCallTail' is imported but never used. help: Consider removing this import.
+src/lib/adapters/diffStreamAdapter.ts:94:7: warning eslint(no-unused-vars): Variable 'hasAnyLine' is assigned a value but never used. Unused variables should start with a '_'. help: Did you mean to use this variable?
+src/components/arda/modules/SettingsModule.tsx:82:10: warning eslint(no-unused-vars): Function 'getNumber' is declared but never used. help: Consider removing this declaration.
+src/lib/adapters/diffStreamAdapter.test.ts:5:3: warning eslint(no-unused-vars): Identifier 'parseFixedLengthTail' is imported but never used. help: Consider removing this import.
+src/scene/boardroom/monitorSurfaceTopology.test.ts:9:8: warning eslint(no-unused-vars): Type 'MonitorSurfaceTopologySlot' is imported but never used. help: Consider removing this import.
+src/lib/learningLoopLoader.ts:72:12: warning eslint(no-unused-vars): Catch parameter 'error' is caught but never used. help: Consider handling this error.
+src/lib/learningLoopLoader.ts:91:12: warning eslint(no-unused-vars): Catch parameter 'error' is caught but never used. help: Consider handling this error.
+src/lib/learningLoopLoader.ts:105:12: warning eslint(no-unused-vars): Catch parameter 'error' is caught but never used. help: Consider handling this error.
+src/lib/learningLoopLoader.ts:114:12: warning eslint(no-unused-vars): Catch parameter 'error' is caught but never used. help: Consider handling this error.
+src/lib/learningLoopLoader.ts:123:12: warning eslint(no-unused-vars): Catch parameter 'error' is caught but never used. help: Consider handling this error.
+src/lib/queueHealthProjection.ts:4:10: warning eslint(no-unused-vars): Identifier 'fetchInventoryTree' is imported but never used. help: Consider removing this import.
+src/App.tsx:17:3: warning eslint(no-unused-vars): Identifier 'ArandurApprovalWorkstation' is imported but never used. help: Consider removing this import.
+src/App.tsx:32:3: warning eslint(no-unused-vars): Identifier 'RuntimeModeBadge' is imported but never used. help: Consider removing this import.
+src/App.tsx:37:3: warning eslint(no-unused-vars): Identifier 'ReviewGateWorkstation' is imported but never used. help: Consider removing this import.
+src/App.tsx:54:3: warning eslint(no-unused-vars): Type 'SourceCoverageBadgeState' is imported but never used. help: Consider removing this import.
+src/App.tsx:77:8: warning eslint(no-unused-vars): Type 'ArdaFleetHealth' is imported but never used. help: Consider removing this import.
+src/App.tsx:82:8: warning eslint(no-unused-vars): Type 'ArdaSection' is imported but never used. help: Consider removing this import.
+src/App.tsx:84:8: warning eslint(no-unused-vars): Type 'JsonRecord' is imported but never used. help: Consider removing this import.
+src/App.tsx:148:60: warning eslint(no-unused-vars): Identifier 'getTimestamp' is imported but never used. help: Consider removing this import.
+src/App.tsx:148:166: warning eslint(no-unused-vars): Identifier 'formatBytes' is imported but never used. help: Consider removing this import.
+src/App.tsx:157:10: warning eslint(no-unused-vars): Identifier 'sortedEntries' is imported but never used. help: Consider removing this import.
+src/App.tsx:159:3: warning eslint(no-unused-vars): Identifier 'isDerivedRecord' is imported but never used. help: Consider removing this import.
+src/App.tsx:169:3: warning eslint(no-unused-vars): Identifier 'buildWorkstationModuleRole' is imported but never used. help: Consider removing this import.
+src/App.tsx:170:3: warning eslint(no-unused-vars): Identifier 'WORKSTATION_FOCUSED_ZONES' is imported but never used. help: Consider removing this import.
+src/App.tsx:172:35: warning eslint(no-unused-vars): Identifier 'ensureHermesRuntimeSpots' is imported but never used. help: Consider removing this import.
+src/App.tsx:172:61: warning eslint(no-unused-vars): Identifier 'describeHermesRuntimeLaunch' is imported but never used. help: Consider removing this import.
+src/App.tsx:181:7: warning eslint(no-unused-vars): Variable 'runtimeModeStatus' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:218:58: warning eslint(no-unused-vars): Variable 'startDragging' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:224:17: warning eslint(no-unused-vars): Variable 'setTheme' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:226:23: warning eslint(no-unused-vars): Variable 'setModuleOrder' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:393:10: warning eslint(no-unused-vars): Variable 'derivedBusy' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:394:33: warning eslint(no-unused-vars): Variable 'setApprovalDecisionClass' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:395:29: warning eslint(no-unused-vars): Variable 'setApprovalApprovers' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:396:28: warning eslint(no-unused-vars): Variable 'setApprovalEvidence' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:397:24: warning eslint(no-unused-vars): Variable 'setApprovalNote' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:402:28: warning eslint(no-unused-vars): Variable 'setCouncilObjective' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:403:28: warning eslint(no-unused-vars): Variable 'setCouncilLoopClass' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:404:32: warning eslint(no-unused-vars): Variable 'setCouncilDecisionClass' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:405:31: warning eslint(no-unused-vars): Variable 'setCouncilParticipants' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:406:28: warning eslint(no-unused-vars): Variable 'setCouncilProposals' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:407:29: warning eslint(no-unused-vars): Variable 'setCouncilObjections' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:408:29: warning eslint(no-unused-vars): Variable 'setCouncilValidators' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:409:30: warning eslint(no-unused-vars): Variable 'setCouncilMemoryLanes' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:410:31: warning eslint(no-unused-vars): Variable 'setCouncilMemoryWrites' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:411:28: warning eslint(no-unused-vars): Variable 'setCouncilSynthesis' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:412:32: warning eslint(no-unused-vars): Variable 'setCouncilTriadRequired' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:413:33: warning eslint(no-unused-vars): Variable 'setCouncilHumanEscalated' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:414:40: warning eslint(no-unused-vars): Variable 'setCouncilPromotedPrivateMemory' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:415:10: warning eslint(no-unused-vars): Variable 'councilBusy' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:416:10: warning eslint(no-unused-vars): Variable 'councilMessage' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:634:9: warning eslint(no-unused-vars): Variable 'ceoCouncil' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:772:9: warning eslint(no-unused-vars): Variable 'worldDistricts' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:830:9: warning eslint(no-unused-vars): Variable 'worldTerminals' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:846:9: warning eslint(no-unused-vars): Variable 'primaryEntrypoint' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:847:9: warning eslint(no-unused-vars): Variable 'toolsObserved' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:848:9: warning eslint(no-unused-vars): Variable 'oversizeFiles' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:849:9: warning eslint(no-unused-vars): Variable 'systemStatus' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:857:9: warning eslint(no-unused-vars): Variable 'governanceTag' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:860:9: warning eslint(no-unused-vars): Variable 'runtimeSettingsTag' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:861:9: warning eslint(no-unused-vars): Variable 'planMapTag' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:910:9: warning eslint(no-unused-vars): Variable 'operatingSurfaceNavItems' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:914:9: warning eslint(no-unused-vars): Variable 'nowReport' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:915:9: warning eslint(no-unused-vars): Variable 'workReport' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:916:9: warning eslint(no-unused-vars): Variable 'decisionsReport' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:917:9: warning eslint(no-unused-vars): Variable 'healthReport' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:918:9: warning eslint(no-unused-vars): Variable 'liveRuntimeRailStatus' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:1693:9: warning eslint(no-unused-vars): Variable 'boardroomDeskSurfaces' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:1727:9: warning eslint(no-unused-vars): Variable 'consoleWidgets' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:1737:9: warning eslint(no-unused-vars): Variable 'consoleSwitches' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:1753:9: warning eslint(no-unused-vars): Variable 'consoleDials' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:1759:9: warning eslint(no-unused-vars): Variable 'boardroomUpperMonitors' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:1883:9: warning eslint(no-unused-vars): Variable 'regenerateDerivedState' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:1944:9: warning eslint(no-unused-vars): Variable 'submitHumanAugmentationApproval' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:1969:9: warning eslint(no-unused-vars): Variable 'submitCeoCouncilSession' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:2176:9: warning eslint(no-unused-vars): Variable 'handleBoardroomMonitorOpen' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:2314:9: warning eslint(no-unused-vars): Variable 'openOperatingSurfaceLane' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/App.tsx:1760:5: warning unicorn(no-useless-spread): Using a spread operator here creates a new array unnecessarily. help: `boardroomMonitors.map` returns a new array. Spreading it into an array expression to create a new array is redundant.
+src/scene/boardroom/boardroomMonitorFocus.test.ts:88:11: warning eslint(no-unused-vars): Variable 'layouts' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.

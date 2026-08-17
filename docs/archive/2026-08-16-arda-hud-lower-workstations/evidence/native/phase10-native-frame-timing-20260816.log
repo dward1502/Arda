@@ -1,0 +1,10 @@
+window_id=35651587
+sample_region=640x360+640+360
+duration_seconds=15.002
+target_sample_hz=60.00
+samples=901
+changed_samples=0
+changed_sample_rate_hz=0.00
+late_samples_over_one_period=0
+method=scheduled XGetImage pixel-hash sampling of animated upper-center viewport
+scope=observable visual-change lower bound; not GPU presentation timestamps

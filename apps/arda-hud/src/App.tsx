@@ -150,6 +150,7 @@ import type { SceneAnchorDefinition, SceneZoneDefinition, WorkstationManifestDef
 import { FleetFocusedWorkstationView } from './scene/workstations/fleetWorkstationView'
 import { RoutingFocusedWorkstationView } from './scene/workstations/routingWorkstationView'
 import { ContinuityFocusedWorkstationView } from './scene/workstations/continuityWorkstationView'
+import { getFocusedWorkstationKind } from './lib/workstationComposition'
 import { getCommandConsoleSurface, getCeoCouncilRuntime, getTaskLifecycleRuntime } from "./lib/reviewGateDerivation"
 import { getKnowledgeMap, getOperatingSurfaceReports } from "./lib/operatingSurfaceDerivation"
 import { sectionToPanelLayout, formatProviderLabel, formatSectionStatus, formatPanelStatus, titleForSectionOrPanel, asModuleId, localStorageOrNull, MODULE_STORAGE_KEY, readStoredModuleOrder } from './lib/settingsLayout'
@@ -1619,6 +1620,7 @@ export default function App() {
 
   const buildWorkstationModules = (manifest: ArdaWorkstationManifest | null) => {
     const sourceZoneId = manifest?.source_zone_id ?? null
+    const focusedWorkstationKind = getFocusedWorkstationKind(sourceZoneId)
     const rejectedPanelIds = manifest?.rejected_panel_ids ?? []
     const adapterMissingModule = rejectedPanelIds.length > 0 ? {
       id: 'section_focus' as ModuleId,
@@ -1631,7 +1633,7 @@ export default function App() {
         </section>
       ),
     } : null
-    if (sourceZoneId === 'systems_health') {
+    if (focusedWorkstationKind === 'fleet') {
       const fleetModule = {
         id: 'systems' as ModuleId,
         title: 'Fleet',
@@ -1642,7 +1644,7 @@ export default function App() {
         ? [...modules.filter((module) => module.id !== adapterMissingModule.id), adapterMissingModule]
         : modules
     }
-    if (sourceZoneId === 'routing_and_comms') {
+    if (focusedWorkstationKind === 'routing') {
       const routingModule = {
         id: 'systems' as ModuleId,
         title: 'Routing + Communications',
@@ -1659,7 +1661,7 @@ export default function App() {
         ? [...modules.filter((module) => module.id !== adapterMissingModule.id), adapterMissingModule]
         : modules
     }
-    if (sourceZoneId === 'human_business_personal') {
+    if (focusedWorkstationKind === 'continuity') {
       const continuityModule = {
         id: 'human_realm' as ModuleId,
         title: 'Human + Business + Personal',

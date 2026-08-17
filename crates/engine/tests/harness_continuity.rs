@@ -4,6 +4,7 @@ use arda_engine::harness::{
 };
 use chrono::{Duration, Utc};
 use serde_json::{json, Value};
+use std::os::unix::fs::PermissionsExt;
 use std::sync::Arc;
 use tempfile::TempDir;
 use tokio::sync::{Notify, RwLock};
@@ -124,6 +125,23 @@ async fn continuity_endpoints_enforce_identity_replay_and_transitions() {
         .unwrap();
     assert_eq!(created.status(), 201);
     let receipts_path = root.path().join("core/state/continuity/receipts.jsonl");
+    let events_path = root.path().join("core/state/continuity/events.jsonl");
+    assert_eq!(
+        std::fs::metadata(&events_path)
+            .unwrap()
+            .permissions()
+            .mode()
+            & 0o777,
+        0o600
+    );
+    assert_eq!(
+        std::fs::metadata(&receipts_path)
+            .unwrap()
+            .permissions()
+            .mode()
+            & 0o777,
+        0o600
+    );
     std::fs::remove_file(&receipts_path).unwrap();
     let replay: Value = client
         .post(format!("http://{bound}/v1/continuity/events"))

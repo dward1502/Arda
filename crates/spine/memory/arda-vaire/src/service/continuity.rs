@@ -8,6 +8,7 @@ use fs2::FileExt;
 use serde::{Deserialize, Serialize};
 use std::fs::{self, OpenOptions};
 use std::io::Write;
+use std::os::unix::fs::PermissionsExt;
 
 pub const VAIRE_CONTINUITY_SCHEMA_VERSION: &str = "arda.vaire-continuity.v1";
 const MAX_ID: usize = 256;
@@ -121,12 +122,14 @@ impl MnemosyneService {
         let path = self.root.join("continuity").join("records.jsonl");
         if let Some(parent) = path.parent() {
             fs::create_dir_all(parent)?;
+            fs::set_permissions(parent, fs::Permissions::from_mode(0o700))?;
         }
         let mut file = OpenOptions::new()
             .create(true)
             .read(true)
             .append(true)
             .open(&path)?;
+        fs::set_permissions(&path, fs::Permissions::from_mode(0o600))?;
         file.lock_exclusive()?;
         let existing = fs::read_to_string(&path).unwrap_or_default();
         for line in existing.lines().filter(|line| !line.trim().is_empty()) {
@@ -233,6 +236,11 @@ mod tests {
         service
             .record_continuity(record(vec![MemoryDomain::Personal]))
             .unwrap();
+        let path = root.path().join("continuity/records.jsonl");
+        assert_eq!(
+            std::fs::metadata(path).unwrap().permissions().mode() & 0o777,
+            0o600
+        );
         let business = ConsumerContext::new("business", vec![MemoryDomain::Business]);
         assert!(service
             .recall_continuity("lineage-1", &business, Utc::now())

@@ -18,6 +18,7 @@ use sha2::{Digest, Sha256};
 use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::net::SocketAddr;
+use std::os::unix::fs::PermissionsExt;
 use std::path::{Path as FsPath, PathBuf};
 use std::sync::Mutex;
 
@@ -743,12 +744,14 @@ fn persist_vaire_continuity(
 fn append_jsonl<T: Serialize>(path: &FsPath, value: &T) -> Result<(), ApiError> {
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent).map_err(io_error)?;
+        fs::set_permissions(parent, fs::Permissions::from_mode(0o700)).map_err(io_error)?;
     }
     let mut file = OpenOptions::new()
         .create(true)
         .append(true)
         .open(path)
         .map_err(io_error)?;
+    fs::set_permissions(path, fs::Permissions::from_mode(0o600)).map_err(io_error)?;
     serde_json::to_writer(&mut file, value)
         .map_err(|error| ApiError::internal(format!("continuity serialization failed: {error}")))?;
     file.write_all(b"\n").map_err(io_error)?;
@@ -758,11 +761,13 @@ fn append_jsonl<T: Serialize>(path: &FsPath, value: &T) -> Result<(), ApiError> 
 fn atomic_json<T: Serialize>(path: &FsPath, value: &T) -> Result<(), ApiError> {
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent).map_err(io_error)?;
+        fs::set_permissions(parent, fs::Permissions::from_mode(0o700)).map_err(io_error)?;
     }
     let temporary = path.with_extension("json.tmp");
     let bytes = serde_json::to_vec_pretty(value)
         .map_err(|error| ApiError::internal(format!("continuity serialization failed: {error}")))?;
     fs::write(&temporary, bytes).map_err(io_error)?;
+    fs::set_permissions(&temporary, fs::Permissions::from_mode(0o600)).map_err(io_error)?;
     fs::rename(&temporary, path).map_err(io_error)
 }
 

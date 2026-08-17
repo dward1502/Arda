@@ -11,6 +11,10 @@ pub use schema::{
     PERSONA_SCHEMA_ID, PERSONA_SCHEMA_VERSION,
 };
 pub use service::{
+    continuity::{
+        ContinuityPrivacyClass, ContinuityProvenance, ContinuityRecord, SurfaceHistoryEntry,
+        VAIRE_CONTINUITY_SCHEMA_VERSION,
+    },
     governed::{
         ApprovedKnowledgeDelta, GovernedKnowledgeReceipt, GOVERNED_KNOWLEDGE_SCHEMA_VERSION,
     },

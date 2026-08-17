@@ -5,9 +5,9 @@ the world. It is a Tauri 2 application with a React + TypeScript + Tailwind v4
 frontend that renders a calm, atmospheric onboarding experience: a starfield, a
 slowly growing world-tree, and a single **Begin** call to action.
 
-This is Arda's read-only front door. The frontend invokes typed Tauri commands
-for registry status, readiness projection, and the human-gated service plan. It
-does not start services, write private configuration, or grant approval.
+This is Arda's ignition and source-truth status surface. The frontend invokes
+typed Tauri commands for lifecycle observation and narrowly allowlisted session,
+recovery, and native HUD actions. It exposes no generic unit or shell authority.
 
 ## Stack
 
@@ -67,16 +67,36 @@ apps/arda-launcher/
 
 ## Command surface
 
-`src-tauri/src/lib.rs` registers exactly three commands:
+`src-tauri/src/lib.rs` registers read-only onboarding commands plus the governed
+lifecycle command set:
 
 | Command | Result | Authority |
 | --- | --- | --- |
 | `registry_status` | Registry load/gate status and track count | Read-only |
 | `readiness_status` | Environment-derived readiness projection | Read-only |
 | `service_plan_status` | Proposed service actions and human-gate metadata | Proposal only |
+| `lifecycle_status` / `hud_status` | Typed source-truth observations | Read-only |
+| `start_arda_session` / `stop_arda_session` | Fixed `arda-session.target` actions | Exact backend policy; stop confirmation required |
+| `recover_component` | Fixed recovery action identities | Backend allowlist only |
+| `launch_native_hud` | Start static native HUD unit | Required-health and native-binary gated |
 
 The frontend wrapper in `src/lib/tauri-core-compat.ts` pins command names,
 arguments, and serialized response shapes. No sample `greet` command remains.
+
+## Linux desktop installation
+
+The canonical private-beta installer installs the launcher binary, symlink,
+desktop entry, and `arda-launcher` icon under the selected XDG home:
+
+```bash
+python3 scripts/arda_beta_ops.py install-launcher \
+  --root "$PWD" --artifact /path/to/arda-launcher
+```
+
+The desktop template is `packaging/linux/io.arda.Launcher.desktop`; its `Exec`
+token is replaced only with the managed `$HOME/.local/lib/arda/arda-launcher`
+identity. Repository build paths and terminal wrappers are rejected by the
+desktop verifier.
 
 ## Getting Started
 

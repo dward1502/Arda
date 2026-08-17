@@ -35,6 +35,17 @@ class PrivateBetaOpsTests(unittest.TestCase):
         (self.root / "scripts/arda_beta_ops.py").write_text("# fixture\n", encoding="utf-8")
         (self.root / "docs/operator").mkdir(parents=True)
         (self.root / "docs/operator/private-beta-install-recovery.md").write_text("fixture\n", encoding="utf-8")
+        desktop = self.root / "apps/arda-launcher/packaging/linux/io.arda.Launcher.desktop"
+        desktop.parent.mkdir(parents=True)
+        desktop.write_text(
+            "[Desktop Entry]\nType=Application\nName=Arda Launcher\n"
+            "Exec=@ARDA_LAUNCHER_EXEC@\nIcon=arda-launcher\nTerminal=false\n"
+            "Categories=Utility;Development;\nStartupNotify=true\n",
+            encoding="utf-8",
+        )
+        icon = self.root / "apps/arda-launcher/src-tauri/icons/128x128.png"
+        icon.parent.mkdir(parents=True)
+        icon.write_bytes(b"fixture-icon")
         self.layout = beta_ops.Layout(
             home=self.home,
             root=self.root,
@@ -189,12 +200,18 @@ class PrivateBetaOpsTests(unittest.TestCase):
         self.assertTrue(Path(installed["launcher"]).is_file())
         self.assertTrue(self.layout.install_bin.is_symlink())
         self.assertTrue(self.layout.desktop_file.is_file())
+        desktop_text = self.layout.desktop_file.read_text(encoding="utf-8")
+        self.assertIn(f"Exec={self.layout.install_lib / 'arda-launcher'}", desktop_text)
+        self.assertIn("Icon=arda-launcher", desktop_text)
+        icon = self.home / ".local/share/icons/hicolor/128x128/apps/arda-launcher.png"
+        self.assertTrue(icon.is_file())
         self.assertEqual(os.spawnv(os.P_WAIT, str(self.layout.install_bin), [str(self.layout.install_bin)]), 0)
 
         removed = beta_ops.uninstall_launcher(self.layout)
         self.assertFalse(self.layout.install_lib.exists())
         self.assertFalse(self.layout.install_bin.exists())
         self.assertFalse(self.layout.desktop_file.exists())
+        self.assertFalse(icon.exists())
         self.assertTrue(state_marker.is_file())
         self.assertTrue(source_marker.is_file())
         self.assertFalse(removed["source_repository_touched"])

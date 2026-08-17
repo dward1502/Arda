@@ -216,6 +216,16 @@ the launcher window. This is a frontend wiring claim, not native acceptance.
 5. Verify the desktop environment indexes the application and its icon.
 6. Commit: `feat(launcher): install Arda desktop entry`.
 
+**Task 6 evidence (2026-08-17):** **Implemented**, **tested**, and installed
+through the canonical private-beta installer. RED failed on the missing desktop
+template. GREEN passes the desktop verifier, `desktop-file-validate`, and all 17
+installer lifecycle tests. A no-bundle native launcher build was installed at
+`$HOME/.local/lib/arda/arda-launcher`; the desktop entry resolves `Exec` to that
+managed binary and installs the existing `arda-launcher` icon under the XDG icon
+tree. The installed artifact SHA-256 is
+`f5db791ce1d766eaa728801d31688a300116071fa0ea451b755c05a65ba78480`.
+This proves install/index mechanics, not post-restart click acceptance.
+
 ## Task 7: Implement health-gated HUD launch and recovery
 
 **Files:**

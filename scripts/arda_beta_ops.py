@@ -900,16 +900,27 @@ def install_launcher(
     layout.install_bin.parent.mkdir(parents=True, exist_ok=True)
     layout.install_bin.unlink(missing_ok=True)
     layout.install_bin.symlink_to(destination)
-    layout.desktop_file.parent.mkdir(parents=True, exist_ok=True)
-    layout.desktop_file.write_text(
-        "[Desktop Entry]\n"
-        "Type=Application\n"
-        "Name=Arda Launcher\n"
-        f"Exec={destination}\n"
-        "Terminal=false\n"
-        "Categories=Development;\n",
-        encoding="utf-8",
+    desktop_template = (
+        layout.root / "apps/arda-launcher/packaging/linux/io.arda.Launcher.desktop"
     )
+    if not desktop_template.is_file():
+        raise BetaOpsError(f"launcher desktop template missing: {desktop_template}")
+    desktop_text = desktop_template.read_text(encoding="utf-8").replace(
+        "@ARDA_LAUNCHER_EXEC@", str(destination)
+    )
+    layout.desktop_file.parent.mkdir(parents=True, exist_ok=True)
+    desktop_temporary = layout.desktop_file.with_suffix(".desktop.tmp")
+    desktop_temporary.write_text(desktop_text, encoding="utf-8")
+    os.replace(desktop_temporary, layout.desktop_file)
+    icon_source = layout.root / "apps/arda-launcher/src-tauri/icons/128x128.png"
+    icon_destination = (
+        layout.desktop_file.parent.parent
+        / "icons/hicolor/128x128/apps/arda-launcher.png"
+    )
+    if not icon_source.is_file():
+        raise BetaOpsError(f"launcher icon missing: {icon_source}")
+    icon_destination.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(icon_source, icon_destination)
     if release_manifest is not None:
         shutil.copy2(release_manifest, layout.install_lib / "release-manifest.json")
     manifest = layout.install_lib / "install-manifest.json"
@@ -917,7 +928,12 @@ def install_launcher(
         "contract": CONTRACT,
         "installed_at_utc": utc_iso(),
         "artifact_sha256": hash_file(destination),
-        "managed_paths": [str(destination), str(layout.install_bin), str(layout.desktop_file)],
+        "managed_paths": [
+            str(destination),
+            str(layout.install_bin),
+            str(layout.desktop_file),
+            str(icon_destination),
+        ],
     }
     if release is not None:
         install_payload.update(
@@ -1062,7 +1078,8 @@ def rollback_launcher(
 def uninstall_launcher(layout: Layout) -> dict[str, Any]:
     validate_layout(layout)
     removed: list[str] = []
-    for path in (layout.install_bin, layout.desktop_file):
+    icon_file = layout.desktop_file.parent.parent / "icons/hicolor/128x128/apps/arda-launcher.png"
+    for path in (layout.install_bin, layout.desktop_file, icon_file):
         if path.exists() or path.is_symlink():
             path.unlink()
             removed.append(str(path))

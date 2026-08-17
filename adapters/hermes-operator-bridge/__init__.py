@@ -184,8 +184,9 @@ def _continuity_payload(event, session_store) -> dict:
         raise ValueError("Hermes session store is unavailable")
     source = event.source
     operator_id = str(event.user_id or source.user_id or "")
+    canonical_operator = os.environ.get("ARDA_OPERATOR_ID", "operator:mythos").strip()
     message_id = str(event.message_id or source.message_id or "")
-    if not operator_id or not message_id or not source.chat_id:
+    if not canonical_operator or not operator_id or not message_id or not source.chat_id:
         raise ValueError("continuity source identity is incomplete")
     entry = session_store.get_or_create_session(source, touch_activity=False)
     session_id = str(getattr(entry, "session_id", "") or "")
@@ -204,7 +205,7 @@ def _continuity_payload(event, session_store) -> dict:
     replay_digest = hashlib.sha256(replay_material.encode("utf-8")).hexdigest()
     return {
         "operator": {
-            "operator_id": operator_id,
+            "operator_id": canonical_operator,
             "authenticated": True,
             "authentication_method": "gateway_identity",
             "authenticated_at": observed_at.isoformat(),
@@ -217,6 +218,7 @@ def _continuity_payload(event, session_store) -> dict:
             "surface_id": surface_id,
             "platform": platform,
             "chat_id": str(source.chat_id),
+            "source_user_ref": operator_id,
             "thread_id": thread_id,
             "privacy_class": privacy_class,
             "authorized_domains": ["system"],

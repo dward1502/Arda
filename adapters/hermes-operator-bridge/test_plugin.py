@@ -204,6 +204,8 @@ class ContinuityEventTests(unittest.IsolatedAsyncioTestCase):
         submit.assert_called_once()
         payload = submit.call_args.args[0]
         self.assertNotIn("text", payload["event"])
+        self.assertEqual(payload["operator"]["operator_id"], "operator:mythos")
+        self.assertEqual(payload["event"]["source_user_ref"], "operator-1")
         self.assertEqual(payload["event"]["current_session_id"], "hermes-session-1")
         self.assertEqual(payload["event"]["privacy_class"], "personal_device")
 

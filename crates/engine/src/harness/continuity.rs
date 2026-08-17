@@ -37,6 +37,8 @@ pub struct ContinuityEvent {
     pub platform: String,
     pub chat_id: String,
     #[serde(default)]
+    pub source_user_ref: Option<String>,
+    #[serde(default)]
     pub thread_id: Option<String>,
     pub privacy_class: PrivacyClass,
     pub authorized_domains: Vec<DataDomain>,
@@ -157,6 +159,15 @@ impl ContinuityEvent {
                     "continuity event identity is missing or out of bounds",
                 ));
             }
+        }
+        if self
+            .source_user_ref
+            .as_ref()
+            .is_some_and(|value| value.trim().is_empty() || value.len() > MAX_ID)
+        {
+            return Err(ApiError::bad_request(
+                "continuity source user reference is out of bounds",
+            ));
         }
         if self.expires_at <= self.observed_at || self.expires_at <= now {
             return Err(ApiError::bad_request("continuity event is expired"));

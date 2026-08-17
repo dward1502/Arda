@@ -188,6 +188,7 @@ fn router(state: HarnessState) -> axum::Router {
             post(operator_messages::ingest_operator_message),
         )
         .route("/v1/continuity/events", post(continuity::ingest_event))
+        .route("/v1/continuity/projection", get(continuity::get_projection))
         .route("/v1/handoffs", post(continuity::create_handoff))
         .route("/v1/handoffs/:id/accept", post(continuity::accept_handoff))
         .route("/v1/handoffs/:id", get(continuity::get_handoff))

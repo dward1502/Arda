@@ -1665,7 +1665,7 @@ export default function App() {
       const continuityModule = {
         id: 'human_realm' as ModuleId,
         title: 'Human + Business + Personal',
-        node: <ContinuityFocusedWorkstationView model={continuityViewModel} />,
+        node: <ContinuityFocusedWorkstationView model={continuityViewModel} session={bundle?.continuityProjection ?? null} />,
       }
       const modules = [continuityModule]
       return adapterMissingModule

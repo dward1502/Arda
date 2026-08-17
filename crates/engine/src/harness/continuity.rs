@@ -104,6 +104,25 @@ pub struct SessionContinuityProjection {
     freshness: &'static str,
 }
 
+#[derive(Debug, Serialize)]
+pub struct HudContinuityProjection {
+    schema_version: &'static str,
+    generated_at: DateTime<Utc>,
+    active: bool,
+    session_lineage_id: Option<String>,
+    current_session_id: Option<String>,
+    surface_id: Option<String>,
+    privacy_class: Option<PrivacyClass>,
+    freshness: &'static str,
+    handoff_id: Option<String>,
+    handoff_state: Option<HandoffState>,
+    action_ids: Vec<&'static str>,
+    private_refs_withheld: bool,
+    topic_refs: Vec<String>,
+    commitment_refs: Vec<String>,
+    memory_scope_refs: Vec<String>,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct TransitionReceipt {
@@ -448,6 +467,86 @@ pub async fn get_session(
             "fresh"
         } else {
             "stale"
+        },
+    }))
+}
+
+pub async fn get_projection(
+    State(state): State<HarnessState>,
+    ConnectInfo(peer): ConnectInfo<SocketAddr>,
+    headers: HeaderMap,
+) -> Result<Json<HudContinuityProjection>, ApiError> {
+    require_loopback(peer)?;
+    require_operator_header(&state, &headers)?;
+    let now = Utc::now();
+    let root = continuity_root(&state);
+    let events = read_events(&root.join("events.jsonl"))?;
+    let latest = events.iter().max_by_key(|event| event.observed_at);
+    let handoff = read_handoffs(&root.join("handoffs"))?
+        .into_iter()
+        .max_by_key(|handoff| handoff.issued_at);
+    let Some(event) = latest else {
+        return Ok(Json(HudContinuityProjection {
+            schema_version: "arda.continuity-projection.v1",
+            generated_at: now,
+            active: false,
+            session_lineage_id: None,
+            current_session_id: None,
+            surface_id: None,
+            privacy_class: None,
+            freshness: "unavailable",
+            handoff_id: handoff.as_ref().map(|value| value.handoff_id.clone()),
+            handoff_state: handoff.as_ref().map(|value| value.state),
+            action_ids: Vec::new(),
+            private_refs_withheld: false,
+            topic_refs: Vec::new(),
+            commitment_refs: Vec::new(),
+            memory_scope_refs: Vec::new(),
+        }));
+    };
+    let private_refs_withheld = matches!(
+        event.privacy_class,
+        PrivacyClass::PublicRoom | PrivacyClass::SharedRoom
+    );
+    let action_ids = if handoff
+        .as_ref()
+        .is_some_and(|value| value.state == HandoffState::Prepared && value.expires_at > now)
+    {
+        vec!["continue_here"]
+    } else {
+        Vec::new()
+    };
+    Ok(Json(HudContinuityProjection {
+        schema_version: "arda.continuity-projection.v1",
+        generated_at: now,
+        active: event.expires_at > now,
+        session_lineage_id: Some(event.session_lineage_id.clone()),
+        current_session_id: Some(event.current_session_id.clone()),
+        surface_id: Some(event.surface_id.clone()),
+        privacy_class: Some(event.privacy_class),
+        freshness: if event.expires_at > now {
+            "fresh"
+        } else {
+            "stale"
+        },
+        handoff_id: handoff.as_ref().map(|value| value.handoff_id.clone()),
+        handoff_state: handoff.as_ref().map(|value| value.state),
+        action_ids,
+        private_refs_withheld,
+        topic_refs: if private_refs_withheld {
+            Vec::new()
+        } else {
+            event.topic_refs.clone()
+        },
+        commitment_refs: if private_refs_withheld {
+            Vec::new()
+        } else {
+            event.commitment_refs.clone()
+        },
+        memory_scope_refs: if private_refs_withheld {
+            Vec::new()
+        } else {
+            event.memory_scope_refs.clone()
         },
     }))
 }

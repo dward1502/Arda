@@ -8,6 +8,8 @@ import { parseJsonOrNull } from './jsonParse'
 import { resolveWorkstationProfile } from './firstLevelTerminalContracts'
 import { reconcileBusinessRuntimeReferences } from './businessReferenceTruth'
 import { parseOperatorProjection } from './operatorProjection'
+import { loadConfiguredOperatorId } from './personalOps'
+import { loadContinuityProjection } from './continuity'
 import {
   collectInventoryPaths,
   filenameFromPath,
@@ -1170,6 +1172,14 @@ export function createCoreStateSource(): ArdaDataSource {
       const operatorProjection = operatorProjectionRaw
         ? parseOperatorProjection(operatorProjectionRaw)
         : null
+      const continuityProjection = await bundleMetric.mark('loadContinuityProjection', async () => {
+        try {
+          const operatorId = await loadConfiguredOperatorId()
+          return await loadContinuityProjection(operatorId)
+        } catch {
+          return null
+        }
+      })
       const finalRemoteConfidenceSnapshot = normalizeRemoteConfidenceSnapshot(remoteConfidenceSnapshot)
       const finalSafeLocalWorkCyclePreflight = normalizeSafeLocalWorkCyclePreflight(safeLocalWorkCyclePreflight)
       const sourceProvenance = await deriveProvenanceRecords(rootPath, sections)
@@ -1200,6 +1210,7 @@ export function createCoreStateSource(): ArdaDataSource {
         settings: asRecord(settings),
         snapshot: finalSnapshot,
         operatorProjection,
+        continuityProjection,
         remoteConfidenceSnapshot: finalRemoteConfidenceSnapshot,
         safeLocalWorkCyclePreflight: finalSafeLocalWorkCyclePreflight,
         l3ReadinessProjection,

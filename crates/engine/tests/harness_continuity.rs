@@ -288,3 +288,52 @@ async fn continuity_rejects_unknown_expired_and_cross_domain_payloads() {
     shutdown.notify_waiters();
     handle.await.unwrap();
 }
+
+#[tokio::test]
+async fn continuity_projection_is_safe_for_empty_and_shared_surfaces() {
+    let root = TempDir::new().unwrap();
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    let client = reqwest::Client::new();
+
+    let empty: Value = client
+        .get(format!("http://{bound}/v1/continuity/projection"))
+        .header("x-arda-operator-id", "operator-1")
+        .send()
+        .await
+        .unwrap()
+        .json()
+        .await
+        .unwrap();
+    assert_eq!(empty["active"], false);
+
+    let mut shared =
+        continuity_event("sha256:1212121212121212121212121212121212121212121212121212121212121212");
+    shared["event"]["privacy_class"] = json!("shared_room");
+    shared["event"]["surface_id"] = json!("discord:shared-room");
+    client
+        .post(format!("http://{bound}/v1/continuity/events"))
+        .json(&shared)
+        .send()
+        .await
+        .unwrap()
+        .error_for_status()
+        .unwrap();
+    let projection: Value = client
+        .get(format!("http://{bound}/v1/continuity/projection"))
+        .header("x-arda-operator-id", "operator-1")
+        .send()
+        .await
+        .unwrap()
+        .json()
+        .await
+        .unwrap();
+    assert_eq!(projection["active"], true);
+    assert_eq!(projection["surface_id"], "discord:shared-room");
+    assert_eq!(projection["private_refs_withheld"], true);
+    assert_eq!(projection["topic_refs"], json!([]));
+    assert_eq!(projection["commitment_refs"], json!([]));
+    assert_eq!(projection["memory_scope_refs"], json!([]));
+
+    shutdown.notify_waiters();
+    handle.await.unwrap();
+}

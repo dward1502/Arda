@@ -3,6 +3,7 @@
 pub mod access;
 pub mod authority;
 pub mod error;
+pub mod mirromere;
 pub mod observation;
 pub mod presence;
 pub mod queue;
@@ -15,6 +16,17 @@ pub use access::{
 };
 pub use authority::AuthorityClass;
 pub use error::OutpostProtocolError;
+pub use mirromere::{
+    MirromereAccessibility, MirromereAvailability, MirromereDisplayRole,
+    MirromereEvidenceReference, MirromereFreshness, MirromereInteractionId, MirromerePresencePhase,
+    MirromerePrivacyClass, MirromerePrivacyPolicy, MirromereReducedMotion, MirromereScene,
+    MirromereSceneId, MirromereSlot, MirromereSlotContent, MirromereSourceMode,
+    MirromereSurfaceProjection, MirromereSurfaceValidationError, MirromereTransitionPolicy,
+    MirromereTransitionStyle, MirromereUrgency, MirromereVectorFieldKind,
+    MirromereVisibilityCeiling, MIRROMERE_MAX_ACCESSIBILITY_BYTES, MIRROMERE_MAX_ATTENTION_BUDGET,
+    MIRROMERE_MAX_PURPOSE_BYTES, MIRROMERE_MAX_SLOTS, MIRROMERE_MAX_TEXT_BYTES,
+    MIRROMERE_MAX_TRANSITION_MS, MIRROMERE_MAX_VECTOR_SAMPLES, MIRROMERE_SURFACE_SCHEMA_VERSION,
+};
 pub use observation::{
     AgentFeedback, ObservationClassification, ObservationScope, OutpostObservation,
 };

@@ -1,0 +1,186 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://arda.local/spec/mirromere-surface/v1/mirromere-surface.schema.json",
+  "title": "Arda Mirromere Surface v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "surface_id", "outpost_id", "display_role", "source_mode",
+    "scene", "slots", "evidence", "generated_at", "expires_at", "freshness",
+    "availability", "privacy", "allowed_interactions", "accessibility", "transition"
+  ],
+  "properties": {
+    "schema_version": { "const": "arda.mirromere.surface.v1" },
+    "surface_id": { "$ref": "#/$defs/id" },
+    "outpost_id": { "$ref": "#/$defs/id" },
+    "display_role": { "enum": ["hud_aperture", "native_outpost"] },
+    "source_mode": { "enum": ["runtime", "fixture"] },
+    "scene": { "$ref": "#/$defs/scene" },
+    "slots": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 12,
+      "items": { "$ref": "#/$defs/slot" }
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/evidence" }
+    },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "expires_at": { "type": "string", "format": "date-time" },
+    "freshness": { "enum": ["fresh", "stale", "unavailable"] },
+    "availability": { "enum": ["available", "unavailable"] },
+    "privacy": { "$ref": "#/$defs/privacy" },
+    "allowed_interactions": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/interactionId" }
+    },
+    "accessibility": { "$ref": "#/$defs/accessibility" },
+    "transition": { "$ref": "#/$defs/transition" }
+  },
+  "$defs": {
+    "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "sceneId": {
+      "enum": [
+        "ambient.idle", "system.starting", "system.degraded", "conversation.presence",
+        "continuity.handoff-ready", "research.focus", "privacy.veil", "offline.local"
+      ]
+    },
+    "interactionId": {
+      "enum": ["inspect_provenance", "continue_handoff", "dismiss_attention"]
+    },
+    "scene": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scene_id", "application_id", "application_version", "purpose"],
+      "properties": {
+        "scene_id": { "$ref": "#/$defs/sceneId" },
+        "application_id": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "application_version": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "purpose": { "type": "string", "minLength": 1, "maxLength": 256 }
+      }
+    },
+    "slot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "content"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "content": { "$ref": "#/$defs/content" }
+      }
+    },
+    "content": {
+      "oneOf": [
+        { "$ref": "#/$defs/statusContent" },
+        { "$ref": "#/$defs/textContent" },
+        { "$ref": "#/$defs/mediaContent" },
+        { "$ref": "#/$defs/vectorContent" },
+        { "$ref": "#/$defs/presenceContent" },
+        { "$ref": "#/$defs/appViewContent" }
+      ]
+    },
+    "statusContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "label", "state"],
+      "properties": {
+        "kind": { "const": "status" },
+        "label": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "state": { "type": "string", "minLength": 1, "maxLength": 128 }
+      }
+    },
+    "textContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "text"],
+      "properties": {
+        "kind": { "const": "text" },
+        "text": { "type": "string", "minLength": 1, "maxLength": 1024 }
+      }
+    },
+    "mediaContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "asset_id", "digest", "mime_type"],
+      "properties": {
+        "kind": { "const": "media_ref" },
+        "asset_id": { "$ref": "#/$defs/id" },
+        "digest": { "type": "string", "pattern": "^sha256:[A-Fa-f0-9]{64}$" },
+        "mime_type": { "enum": ["image/png", "image/jpeg", "video/mp4", "audio/mpeg"] }
+      }
+    },
+    "vectorContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "field", "samples"],
+      "properties": {
+        "kind": { "const": "vector_field" },
+        "field": { "enum": ["vector", "radar", "wave"] },
+        "samples": {
+          "type": "array", "minItems": 1, "maxItems": 256,
+          "items": { "type": "number", "minimum": -1, "maximum": 1 }
+        }
+      }
+    },
+    "presenceContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "participant_ref", "phase"],
+      "properties": {
+        "kind": { "const": "conversation_presence" },
+        "participant_ref": { "$ref": "#/$defs/id" },
+        "phase": { "enum": ["listening", "thinking", "responding", "waiting"] }
+      }
+    },
+    "appViewContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "view_id"],
+      "properties": {
+        "kind": { "const": "app_view" },
+        "view_id": { "enum": ["system_status", "continuity", "research_focus"] }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id", "evidence_ref", "observed_at"],
+      "properties": {
+        "source_id": { "$ref": "#/$defs/id" },
+        "evidence_ref": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "observed_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["privacy_class", "visibility_ceiling"],
+      "properties": {
+        "privacy_class": { "enum": ["public_ambient", "shared_room", "operator_private"] },
+        "visibility_ceiling": { "enum": ["public_ambient", "shared_room", "operator_private"] }
+      }
+    },
+    "accessibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["description", "reduced_motion", "urgency"],
+      "properties": {
+        "description": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "reduced_motion": { "enum": ["freeze", "simplify", "none"] },
+        "urgency": { "enum": ["ambient", "normal", "urgent"] }
+      }
+    },
+    "transition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["style", "duration_ms", "attention_budget"],
+      "properties": {
+        "style": { "enum": ["cut", "fade", "sweep"] },
+        "duration_ms": { "type": "integer", "minimum": 0, "maximum": 2000 },
+        "attention_budget": { "type": "integer", "minimum": 0, "maximum": 3 }
+      }
+    }
+  }
+}

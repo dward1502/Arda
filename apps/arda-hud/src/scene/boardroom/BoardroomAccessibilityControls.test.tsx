@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import type { SceneAnchorDefinition, WorkstationManifestDefinition } from '../systems/runtimeTypes'
 import BoardroomAccessibilityControls from './BoardroomAccessibilityControls'
+import { ambientIdleFixture } from '../../features/mirromere/fixtures'
 
 const anchors: SceneAnchorDefinition[] = [{
   id: 'boardroom.anchor.world',
@@ -67,5 +68,27 @@ describe('BoardroomAccessibilityControls', () => {
 
     expect(screen.getByRole('button', { name: 'Navigate to Sovereign World Workstation' })).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Open Sovereign World Workstation' })).toBeTruthy()
+  })
+
+  it('exposes allowlisted Mirromere inspection with the contract description', () => {
+    const onInspectMirromere = vi.fn()
+    render(<BoardroomAccessibilityControls
+      anchors={[]}
+      workstations={[]}
+      onActivate={vi.fn()}
+      onOpenWorkstation={vi.fn()}
+      onOpenSettings={vi.fn()}
+      onOpenHermesDashboard={vi.fn()}
+      onOpenHermesCli={vi.fn()}
+      mirromereSurface={{ ...ambientIdleFixture, source_mode: 'runtime' }}
+      onInspectMirromere={onInspectMirromere}
+    />)
+
+    const button = screen.getByRole('button', { name: 'Inspect Mirromere ambient.idle' })
+    expect(button.getAttribute('aria-description')).toBe(ambientIdleFixture.accessibility.description)
+    expect(screen.getByText('fixture://mirromere/ambient-idle', { exact: false })).toBeTruthy()
+    expect(screen.getByText('fresh')).toBeTruthy()
+    fireEvent.click(button)
+    expect(onInspectMirromere).toHaveBeenCalledOnce()
   })
 })

@@ -81,6 +81,11 @@ import {
   type MonitorSurfacePayloadEvent,
 } from './monitorSurfaceRuntime'
 import BoardroomAccessibilityControls from './BoardroomAccessibilityControls'
+import MirromereAperture, {
+  isMirromereInspectAllowed,
+  shouldRenderMirromereAperture,
+} from '../../features/mirromere/MirromereAperture'
+import type { MirromereSurface } from '../../features/mirromere/types'
 
 interface BoardroomViewportProps {
   active: boolean
@@ -101,6 +106,7 @@ interface BoardroomViewportProps {
   presenceState?: AgentPresenceState
   presenceStatus?: PresenceLedgerStatus
   rootPath?: string | null
+  mirromereSurface?: MirromereSurface | null
   sceneOverlay?: ReactNode
   onActivate: (anchorId: string) => void
   onOpenWorkstation: (zoneId: string) => void
@@ -923,6 +929,7 @@ function BoardroomScene({
   presenceState = DEFAULT_AGENT_PRESENCE_STATE,
   presenceStatus,
   rootPath = null,
+  mirromereSurface = null,
   debug = false,
   onActivate,
   onOpenWorkstation,
@@ -1093,6 +1100,8 @@ function BoardroomScene({
           ? (agentClaims[monitorSlotId] ?? (monitorSlotSources[monitorSlotId]?.claim ?? null))
           : null
         const displayMode = resolveUpperMonitorDisplayMode(Boolean(typedRecord), Boolean(activeClaim))
+        const renderMirromere = shouldRenderMirromereAperture(monitorSlotId, displayMode, mirromereSurface)
+        const inspectMirromere = Boolean(mirromereSurface && renderMirromere && isMirromereInspectAllowed(mirromereSurface))
         const handleMonitorActivate = () => {
           if (typedRecord && onOpenMonitorSession) {
             onOpenMonitorSession(typedRecord)
@@ -1119,7 +1128,11 @@ function BoardroomScene({
           showHitbox={false}
           draggable={debug}
           onMovePosition={(position) => moveZone(slot.id, position)}
-          onActivate={isUpperMonitorInteractive(displayMode) ? handleMonitorActivate : undefined}
+          onActivate={inspectMirromere
+            ? () => onOpenWorkstation(workstationZoneId)
+            : isUpperMonitorInteractive(displayMode)
+              ? handleMonitorActivate
+              : undefined}
         >
           {displayMode === 'session' && typedRecord ? (
             <BoardroomApertureSurface
@@ -1182,6 +1195,14 @@ function BoardroomScene({
               motionEnabled={renderProfile.motionEnabled}
               active={!!activeClaim}
               onActivate={handleMonitorActivate}
+            />
+          ) : renderMirromere && mirromereSurface ? (
+            <MirromereAperture
+              surface={mirromereSurface}
+              slotId={monitorSlotId}
+              size={slot.size}
+              motionEnabled={renderProfile.motionEnabled}
+              onActivate={inspectMirromere ? () => onOpenWorkstation(workstationZoneId) : undefined}
             />
           ) : (
             <UpperAmbientMonitorScreen
@@ -1412,6 +1433,13 @@ export default function BoardroomViewport(props: BoardroomViewportProps) {
         onOpenHermesDashboard={props.onOpenHermesDashboard}
         onOpenHermesCli={props.onOpenHermesCli}
         onOpenSettings={props.onOpenSettings}
+        mirromereSurface={props.mirromereSurface}
+        onInspectMirromere={props.mirromereSurface?.allowed_interactions.includes('inspect_provenance')
+          ? () => {
+              const zoneId = props.slotAssignments.monitor_3
+              if (zoneId) props.onOpenWorkstation(zoneId)
+            }
+          : undefined}
       />
       {acceptanceEnabled ? (
         <div style={{ position: 'fixed', right: '1rem', top: '3.5rem', zIndex: 10000, color: '#8cffc7', textAlign: 'right' }}>

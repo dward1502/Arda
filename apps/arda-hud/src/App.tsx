@@ -2573,6 +2573,7 @@ export default function App() {
             presenceState={bundle?.agentPresenceState}
             presenceStatus={bundle?.agentPresenceStatus}
             rootPath={bundle?.rootPath ?? null}
+            mirromereSurface={bundle?.mirromereSurface ?? null}
             sceneOverlay={floatingWorkstationSceneOverlay}
             onActivate={handleSceneAnchorActivate}
             onOpenWorkstation={spawnFloatingWorkstation}

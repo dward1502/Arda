@@ -1,6 +1,7 @@
 // sigil: REPAIR
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 mod commands;
+pub mod mirromere;
 
 use base64::{engine::general_purpose, Engine as _};
 use commands::monitor_surface::{
@@ -3074,6 +3075,7 @@ pub fn run() {
             open_hermes_runtime_window,
             open_hermes_terminal_window,
             open_workstation_window,
+            mirromere::get_mirromere_surface,
             close_window,
             minimize_window,
             start_dragging,

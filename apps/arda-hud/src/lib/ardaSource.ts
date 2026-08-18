@@ -10,6 +10,7 @@ import { reconcileBusinessRuntimeReferences } from './businessReferenceTruth'
 import { parseOperatorProjection } from './operatorProjection'
 import { loadConfiguredOperatorId } from './personalOps'
 import { loadContinuityProjection } from './continuity'
+import { loadMirromereSurface } from '../features/mirromere/source'
 import {
   collectInventoryPaths,
   filenameFromPath,
@@ -1180,6 +1181,13 @@ export function createCoreStateSource(): ArdaDataSource {
           return null
         }
       })
+      const mirromereSurface = await bundleMetric.mark('loadMirromereSurface', async () => {
+        try {
+          return await loadMirromereSurface()
+        } catch {
+          return null
+        }
+      })
       const finalRemoteConfidenceSnapshot = normalizeRemoteConfidenceSnapshot(remoteConfidenceSnapshot)
       const finalSafeLocalWorkCyclePreflight = normalizeSafeLocalWorkCyclePreflight(safeLocalWorkCyclePreflight)
       const sourceProvenance = await deriveProvenanceRecords(rootPath, sections)
@@ -1211,6 +1219,7 @@ export function createCoreStateSource(): ArdaDataSource {
         snapshot: finalSnapshot,
         operatorProjection,
         continuityProjection,
+        mirromereSurface,
         remoteConfidenceSnapshot: finalRemoteConfidenceSnapshot,
         safeLocalWorkCyclePreflight: finalSafeLocalWorkCyclePreflight,
         l3ReadinessProjection,

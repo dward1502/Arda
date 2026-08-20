@@ -18,4 +18,16 @@ describe('Mirromere boardroom integration', () => {
     const source = readFileSync(resolve(process.cwd(), 'src/App.tsx'), 'utf8')
     expect(source).toContain('mirromereSurface={bundle?.mirromereSurface ?? null}')
   })
+
+  it('routes Mirromere provenance inspection through backend receipts before opening workstation', () => {
+    const app = readFileSync(resolve(process.cwd(), 'src/App.tsx'), 'utf8')
+    const viewport = readFileSync(resolve(process.cwd(), 'src/scene/boardroom/BoardroomViewport.tsx'), 'utf8')
+    expect(app).toContain('requestMirromereInteraction(')
+    expect(app).toContain('onMirromereInteraction={handleMirromereInteraction}')
+    expect(viewport).toContain("receipt.outcome === 'accepted' && receipt.status === 'requested'")
+    expect(viewport).toContain('requestMirromereInspection(')
+    expect(viewport).toContain('onInspectMirromere={props.mirromereSurface')
+    expect(viewport).not.toContain('onOpenWorkstation(workstationZoneId) : undefined')
+    expect(viewport).not.toContain('if (zoneId) props.onOpenWorkstation(zoneId)')
+  })
 })

@@ -174,6 +174,11 @@ import {
 import { openHermesRuntimeWindow, ensureHermesRuntimeSpots, describeHermesRuntimeLaunch } from './lib/hermesDashboardLauncher'
 import { companyOpsFromProjection } from './lib/companyOps'
 import MirromereNativeSurface from './features/mirromere/MirromereNativeSurface'
+import {
+  requestMirromereInteraction,
+  type MirromereInteractionReceipt,
+} from './features/mirromere/sceneRegistry'
+import type { MirromereInteractionId, MirromereSurface } from './features/mirromere/types'
 const THEMES: ThemeOption[] = [
   { id: 'cyberpunk', label: 'Cyberpunk' },
   { id: 'gibson2', label: 'Gibson 2.0' },
@@ -2407,6 +2412,16 @@ export default function App() {
     return false
   }
 
+  const handleMirromereInteraction = (
+    surface: MirromereSurface,
+    interactionId: MirromereInteractionId,
+    explicitOperatorAction: boolean,
+  ): Promise<MirromereInteractionReceipt> => requestMirromereInteraction(
+    surface,
+    interactionId,
+    explicitOperatorAction,
+  )
+
   const handleSceneAnchorActivate = (anchorId: string) => {
     const anchor = (bundle?.sceneAnchors ?? []).find((candidate) => candidate.id === anchorId) ?? null
     if (!anchor) {
@@ -2600,6 +2615,7 @@ export default function App() {
             presenceStatus={bundle?.agentPresenceStatus}
             rootPath={bundle?.rootPath ?? null}
             mirromereSurface={bundle?.mirromereSurface ?? null}
+            onMirromereInteraction={handleMirromereInteraction}
             sceneOverlay={floatingWorkstationSceneOverlay}
             onActivate={handleSceneAnchorActivate}
             onOpenWorkstation={spawnFloatingWorkstation}

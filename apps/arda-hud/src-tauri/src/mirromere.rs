@@ -5,18 +5,242 @@ use arda_outpost_protocol::{
     MirromereEvidenceReference, MirromereFreshness, MirromereInteractionId, MirromerePresencePhase,
     MirromerePrivacyClass, MirromerePrivacyPolicy, MirromereReducedMotion, MirromereScene,
     MirromereSceneId, MirromereSlot, MirromereSlotContent, MirromereSourceMode,
-    MirromereSurfaceProjection, MirromereTransitionPolicy, MirromereTransitionStyle,
-    MirromereUrgency, MirromereVectorFieldKind, MirromereVisibilityCeiling,
-    MIRROMERE_SURFACE_SCHEMA_VERSION,
+    MirromereSurfaceProjection, MirromereSurfaceValidationError, MirromereTransitionPolicy,
+    MirromereTransitionStyle, MirromereUrgency, MirromereVectorFieldKind,
+    MirromereVisibilityCeiling, MIRROMERE_SURFACE_SCHEMA_VERSION,
 };
 use chrono::{DateTime, Duration as ChronoDuration, Utc};
 use serde::{Deserialize, Serialize};
+use std::collections::{HashMap, VecDeque};
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::Mutex;
 use std::time::Duration;
 use thiserror::Error;
 
 const DEFAULT_HARNESS_URL: &str = "http://127.0.0.1:7878";
 const SOURCE_STALE_AFTER_SECONDS: i64 = 30;
 const SURFACE_TTL_SECONDS: i64 = 30;
+const MIRROMERE_INTERACTION_RECEIPT_SCHEMA_VERSION: &str = "arda.mirromere.interaction-receipt.v1";
+const MIRROMERE_INTERACTION_RECEIPT_LIMIT: usize = 128;
+static MIRROMERE_INTERACTION_RECEIPT_SEQUENCE: AtomicU64 = AtomicU64::new(1);
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct MirromereInteractionRequest {
+    pub surface: MirromereSurfaceProjection,
+    pub interaction_id: MirromereInteractionId,
+    pub requested_at: DateTime<Utc>,
+    pub explicit_operator_action: bool,
+    pub presented_privacy_class: MirromerePrivacyClass,
+    pub visibility_ceiling: MirromereVisibilityCeiling,
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum MirromereInteractionOutcome {
+    Accepted,
+    Rejected,
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum MirromereInteractionStatus {
+    Requested,
+    Rejected,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct MirromereInteractionReceipt {
+    pub schema_version: String,
+    pub receipt_id: String,
+    pub surface_id: String,
+    pub scene_id: MirromereSceneId,
+    pub interaction_id: MirromereInteractionId,
+    pub requested_at: DateTime<Utc>,
+    pub recorded_at: DateTime<Utc>,
+    pub outcome: MirromereInteractionOutcome,
+    pub status: MirromereInteractionStatus,
+    pub requires_operator_action: bool,
+    pub reason: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct MirromereInteractionPolicyDecision {
+    accepted: bool,
+    reason: &'static str,
+    requires_operator_action: bool,
+}
+
+#[derive(Default)]
+pub struct MirromereInteractionReceiptState {
+    receipts: Mutex<VecDeque<MirromereInteractionReceipt>>,
+    issued_surfaces: Mutex<HashMap<String, MirromereSurfaceProjection>>,
+}
+
+impl MirromereInteractionReceiptState {
+    fn remember_surface(&self, surface: MirromereSurfaceProjection) -> Result<(), String> {
+        self.issued_surfaces
+            .lock()
+            .map_err(|_| "Mirromere issued-surface state is unavailable".to_string())?
+            .insert(surface.surface_id.clone(), surface);
+        Ok(())
+    }
+
+    pub fn record(
+        &self,
+        request: MirromereInteractionRequest,
+        now: DateTime<Utc>,
+    ) -> Result<MirromereInteractionReceipt, String> {
+        let authoritative_surface = self
+            .issued_surfaces
+            .lock()
+            .map_err(|_| "Mirromere issued-surface state is unavailable".to_string())?
+            .get(&request.surface.surface_id)
+            .cloned();
+        let decision = if authoritative_surface.as_ref() == Some(&request.surface) {
+            evaluate_mirromere_interaction(&request, now)
+        } else {
+            MirromereInteractionPolicyDecision {
+                accepted: false,
+                reason: "surface_not_current",
+                requires_operator_action: interaction_requires_operator_action(
+                    request.interaction_id,
+                ),
+            }
+        };
+        let sequence = MIRROMERE_INTERACTION_RECEIPT_SEQUENCE.fetch_add(1, Ordering::SeqCst);
+        let receipt = MirromereInteractionReceipt {
+            schema_version: MIRROMERE_INTERACTION_RECEIPT_SCHEMA_VERSION.to_string(),
+            receipt_id: format!(
+                "mirromere-interaction-{}-{sequence}",
+                now.timestamp_micros()
+            ),
+            surface_id: request.surface.surface_id.clone(),
+            scene_id: request.surface.scene.scene_id,
+            interaction_id: request.interaction_id,
+            requested_at: request.requested_at,
+            recorded_at: now,
+            outcome: if decision.accepted {
+                MirromereInteractionOutcome::Accepted
+            } else {
+                MirromereInteractionOutcome::Rejected
+            },
+            status: if decision.accepted {
+                MirromereInteractionStatus::Requested
+            } else {
+                MirromereInteractionStatus::Rejected
+            },
+            requires_operator_action: decision.requires_operator_action,
+            reason: decision.reason.to_string(),
+        };
+        let mut receipts = self
+            .receipts
+            .lock()
+            .map_err(|_| "Mirromere interaction receipt state is unavailable".to_string())?;
+        receipts.push_back(receipt.clone());
+        while receipts.len() > MIRROMERE_INTERACTION_RECEIPT_LIMIT {
+            receipts.pop_front();
+        }
+        Ok(receipt)
+    }
+
+    #[cfg(test)]
+    fn snapshot(&self) -> Result<Vec<MirromereInteractionReceipt>, String> {
+        self.receipts
+            .lock()
+            .map(|receipts| receipts.iter().cloned().collect())
+            .map_err(|_| "Mirromere interaction receipt state is unavailable".to_string())
+    }
+}
+
+fn interaction_requires_operator_action(interaction_id: MirromereInteractionId) -> bool {
+    matches!(
+        interaction_id,
+        MirromereInteractionId::ContinueHandoff | MirromereInteractionId::DismissAttention
+    )
+}
+
+fn registered_scene_interactions(scene_id: MirromereSceneId) -> &'static [MirromereInteractionId] {
+    use MirromereInteractionId::{ContinueHandoff, DismissAttention, InspectProvenance};
+    match scene_id {
+        MirromereSceneId::AmbientIdle
+        | MirromereSceneId::SystemStarting
+        | MirromereSceneId::ConversationPresence
+        | MirromereSceneId::ResearchFocus => &[InspectProvenance],
+        MirromereSceneId::SystemDegraded => &[InspectProvenance, DismissAttention],
+        MirromereSceneId::ContinuityHandoffReady => &[InspectProvenance, ContinueHandoff],
+        MirromereSceneId::PrivacyVeil | MirromereSceneId::OfflineLocal => &[],
+    }
+}
+
+fn evaluate_mirromere_interaction(
+    request: &MirromereInteractionRequest,
+    now: DateTime<Utc>,
+) -> MirromereInteractionPolicyDecision {
+    let requires_operator_action = interaction_requires_operator_action(request.interaction_id);
+    if request.presented_privacy_class != request.surface.privacy.privacy_class
+        || request.visibility_ceiling != request.surface.privacy.visibility_ceiling
+    {
+        return MirromereInteractionPolicyDecision {
+            accepted: false,
+            reason: "privacy_mismatch",
+            requires_operator_action,
+        };
+    }
+    if let Err(error) = request.surface.validate_at(now) {
+        return MirromereInteractionPolicyDecision {
+            accepted: false,
+            reason: match error {
+                MirromereSurfaceValidationError::Expired => "expired_surface",
+                MirromereSurfaceValidationError::PrivacyEscalation => "privacy_mismatch",
+                _ => "invalid_surface",
+            },
+            requires_operator_action,
+        };
+    }
+    if request.requested_at < request.surface.generated_at
+        || request.requested_at > request.surface.expires_at
+        || request.requested_at > now + ChronoDuration::seconds(5)
+    {
+        return MirromereInteractionPolicyDecision {
+            accepted: false,
+            reason: "invalid_request_time",
+            requires_operator_action,
+        };
+    }
+    if !registered_scene_interactions(request.surface.scene.scene_id)
+        .contains(&request.interaction_id)
+    {
+        return MirromereInteractionPolicyDecision {
+            accepted: false,
+            reason: "interaction_not_registered_for_scene",
+            requires_operator_action,
+        };
+    }
+    if !request
+        .surface
+        .allowed_interactions
+        .contains(&request.interaction_id)
+    {
+        return MirromereInteractionPolicyDecision {
+            accepted: false,
+            reason: "interaction_not_registered_on_surface",
+            requires_operator_action,
+        };
+    }
+    if requires_operator_action && !request.explicit_operator_action {
+        return MirromereInteractionPolicyDecision {
+            accepted: false,
+            reason: "explicit_operator_action_required",
+            requires_operator_action,
+        };
+    }
+    MirromereInteractionPolicyDecision {
+        accepted: true,
+        reason: "request_recorded",
+        requires_operator_action,
+    }
+}
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
@@ -572,6 +796,7 @@ fn unavailable_continuity(now: DateTime<Utc>) -> ContinuityProjectionReference {
 
 #[tauri::command]
 pub async fn get_mirromere_surface(
+    state: tauri::State<'_, MirromereInteractionReceiptState>,
     display_role: MirromereDisplayRole,
 ) -> Result<MirromereSurfaceProjection, String> {
     let lifecycle = tauri::async_runtime::spawn_blocking(lifecycle_status)
@@ -588,5 +813,241 @@ pub async fn get_mirromere_surface(
         lifecycle: Some(lifecycle_reference),
         continuity: Some(load_continuity_reference().await),
     };
-    project_mirromere_surface_at(input, Utc::now()).map_err(|error| error.to_string())
+    let surface =
+        project_mirromere_surface_at(input, Utc::now()).map_err(|error| error.to_string())?;
+    state.remember_surface(surface.clone())?;
+    Ok(surface)
+}
+
+#[tauri::command]
+pub fn request_mirromere_interaction(
+    state: tauri::State<'_, MirromereInteractionReceiptState>,
+    request: MirromereInteractionRequest,
+) -> Result<MirromereInteractionReceipt, String> {
+    state.record(request, Utc::now())
+}
+
+#[cfg(test)]
+mod mirromere_interaction_tests {
+    use super::*;
+    use serde_json::json;
+
+    fn surface_at(
+        now: DateTime<Utc>,
+        lifecycle_state: LifecycleAggregateState,
+        continuity: Option<ContinuityProjectionReference>,
+    ) -> MirromereSurfaceProjection {
+        project_mirromere_surface_at(
+            MirromereProjectionInput {
+                display_role: MirromereDisplayRole::NativeOutpost,
+                source_mode: MirromereProjectionSourceMode::Runtime,
+                lifecycle: Some(LifecycleProjectionReference {
+                    aggregate_state: lifecycle_state,
+                    observed_at: now,
+                    evidence_ref: "lifecycle://test".to_string(),
+                }),
+                continuity,
+            },
+            now,
+        )
+        .expect("surface")
+    }
+
+    fn request(
+        surface: MirromereSurfaceProjection,
+        interaction_id: MirromereInteractionId,
+        explicit_operator_action: bool,
+        requested_at: DateTime<Utc>,
+    ) -> MirromereInteractionRequest {
+        MirromereInteractionRequest {
+            presented_privacy_class: surface.privacy.privacy_class,
+            visibility_ceiling: surface.privacy.visibility_ceiling,
+            surface,
+            interaction_id,
+            requested_at,
+            explicit_operator_action,
+        }
+    }
+
+    #[test]
+    fn strict_request_rejects_unknown_scene_id() {
+        let now = DateTime::parse_from_rfc3339("2026-08-19T12:00:00Z")
+            .unwrap()
+            .with_timezone(&Utc);
+        let surface = surface_at(now, LifecycleAggregateState::Healthy, None);
+        let mut value = serde_json::to_value(request(
+            surface,
+            MirromereInteractionId::InspectProvenance,
+            false,
+            now,
+        ))
+        .unwrap();
+        value["surface"]["scene"]["scene_id"] = json!("unknown.scene");
+        assert!(serde_json::from_value::<MirromereInteractionRequest>(value).is_err());
+    }
+
+    #[test]
+    fn rejects_unregistered_privacy_mismatch_and_expired_requests() {
+        let now = DateTime::parse_from_rfc3339("2026-08-19T12:00:00Z")
+            .unwrap()
+            .with_timezone(&Utc);
+        let surface = surface_at(now, LifecycleAggregateState::Healthy, None);
+        let unregistered = evaluate_mirromere_interaction(
+            &request(
+                surface.clone(),
+                MirromereInteractionId::ContinueHandoff,
+                true,
+                now,
+            ),
+            now,
+        );
+        assert_eq!(unregistered.reason, "interaction_not_registered_for_scene");
+
+        let mut privacy = request(
+            surface.clone(),
+            MirromereInteractionId::InspectProvenance,
+            false,
+            now,
+        );
+        privacy.presented_privacy_class = MirromerePrivacyClass::SharedRoom;
+        assert_eq!(
+            evaluate_mirromere_interaction(&privacy, now).reason,
+            "privacy_mismatch"
+        );
+
+        let expired_at = now + ChronoDuration::seconds(SURFACE_TTL_SECONDS + 1);
+        assert_eq!(
+            evaluate_mirromere_interaction(
+                &request(
+                    surface,
+                    MirromereInteractionId::InspectProvenance,
+                    false,
+                    now,
+                ),
+                expired_at,
+            )
+            .reason,
+            "expired_surface"
+        );
+    }
+
+    #[test]
+    fn records_requested_not_success_and_requires_explicit_mutation() {
+        let now = DateTime::parse_from_rfc3339("2026-08-19T12:00:00Z")
+            .unwrap()
+            .with_timezone(&Utc);
+        let store = MirromereInteractionReceiptState::default();
+        let ambient = surface_at(now, LifecycleAggregateState::Healthy, None);
+        store.remember_surface(ambient.clone()).unwrap();
+        let inspect = store
+            .record(
+                request(
+                    ambient,
+                    MirromereInteractionId::InspectProvenance,
+                    false,
+                    now,
+                ),
+                now,
+            )
+            .unwrap();
+        assert_eq!(inspect.outcome, MirromereInteractionOutcome::Accepted);
+        assert_eq!(inspect.status, MirromereInteractionStatus::Requested);
+
+        let handoff = surface_at(
+            now,
+            LifecycleAggregateState::Healthy,
+            Some(ContinuityProjectionReference {
+                generated_at: now,
+                freshness: ContinuityFreshness::Fresh,
+                active: false,
+                privacy_class: Some(ContinuityPrivacyClass::OperatorPrivate),
+                handoff_id: Some("handoff-test".to_string()),
+                handoff_state: Some(HandoffState::Prepared),
+                evidence_ref: "continuity://test".to_string(),
+            }),
+        );
+        store.remember_surface(handoff.clone()).unwrap();
+        let rejected = store
+            .record(
+                request(
+                    handoff.clone(),
+                    MirromereInteractionId::ContinueHandoff,
+                    false,
+                    now,
+                ),
+                now,
+            )
+            .unwrap();
+        assert_eq!(rejected.outcome, MirromereInteractionOutcome::Rejected);
+        assert_eq!(rejected.reason, "explicit_operator_action_required");
+
+        let accepted = store
+            .record(
+                request(handoff, MirromereInteractionId::ContinueHandoff, true, now),
+                now,
+            )
+            .unwrap();
+        assert_eq!(accepted.status, MirromereInteractionStatus::Requested);
+
+        let degraded = surface_at(now, LifecycleAggregateState::Degraded, None);
+        store.remember_surface(degraded.clone()).unwrap();
+        let dismiss = store
+            .record(
+                request(
+                    degraded,
+                    MirromereInteractionId::DismissAttention,
+                    false,
+                    now,
+                ),
+                now,
+            )
+            .unwrap();
+        assert_eq!(dismiss.outcome, MirromereInteractionOutcome::Rejected);
+        assert_eq!(dismiss.reason, "explicit_operator_action_required");
+    }
+
+    #[test]
+    fn receipt_store_is_bounded_to_128_entries() {
+        let now = DateTime::parse_from_rfc3339("2026-08-19T12:00:00Z")
+            .unwrap()
+            .with_timezone(&Utc);
+        let store = MirromereInteractionReceiptState::default();
+        let surface = surface_at(now, LifecycleAggregateState::Healthy, None);
+        store.remember_surface(surface.clone()).unwrap();
+        for _ in 0..140 {
+            store
+                .record(
+                    request(
+                        surface.clone(),
+                        MirromereInteractionId::InspectProvenance,
+                        false,
+                        now,
+                    ),
+                    now,
+                )
+                .unwrap();
+        }
+        assert_eq!(store.snapshot().unwrap().len(), 128);
+    }
+
+    #[test]
+    fn rejects_surface_not_issued_by_backend() {
+        let now = DateTime::parse_from_rfc3339("2026-08-19T12:00:00Z")
+            .unwrap()
+            .with_timezone(&Utc);
+        let store = MirromereInteractionReceiptState::default();
+        let receipt = store
+            .record(
+                request(
+                    surface_at(now, LifecycleAggregateState::Healthy, None),
+                    MirromereInteractionId::InspectProvenance,
+                    false,
+                    now,
+                ),
+                now,
+            )
+            .unwrap();
+        assert_eq!(receipt.outcome, MirromereInteractionOutcome::Rejected);
+        assert_eq!(receipt.reason, "surface_not_current");
+    }
 }

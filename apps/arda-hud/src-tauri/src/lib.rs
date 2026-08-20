@@ -3323,6 +3323,7 @@ pub fn run() {
         .manage(TypedMonitorSurfaceState::new())
         .manage(BrowserCaptureState::default())
         .manage(PtyCaptureState::default())
+        .manage(mirromere::MirromereInteractionReceiptState::default())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             validate_project_contract,
@@ -3376,6 +3377,7 @@ pub fn run() {
             list_mirromere_displays,
             open_mirromere_window,
             mirromere::get_mirromere_surface,
+            mirromere::request_mirromere_interaction,
             close_window,
             minimize_window,
             start_dragging,

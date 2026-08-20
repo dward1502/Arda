@@ -85,7 +85,8 @@ import MirromereAperture, {
   isMirromereInspectAllowed,
   shouldRenderMirromereAperture,
 } from '../../features/mirromere/MirromereAperture'
-import type { MirromereSurface } from '../../features/mirromere/types'
+import type { MirromereInteractionId, MirromereSurface } from '../../features/mirromere/types'
+import type { MirromereInteractionReceipt } from '../../features/mirromere/sceneRegistry'
 
 interface BoardroomViewportProps {
   active: boolean
@@ -107,6 +108,11 @@ interface BoardroomViewportProps {
   presenceStatus?: PresenceLedgerStatus
   rootPath?: string | null
   mirromereSurface?: MirromereSurface | null
+  onMirromereInteraction?: (
+    surface: MirromereSurface,
+    interactionId: MirromereInteractionId,
+    explicitOperatorAction: boolean,
+  ) => Promise<MirromereInteractionReceipt>
   sceneOverlay?: ReactNode
   onActivate: (anchorId: string) => void
   onOpenWorkstation: (zoneId: string) => void
@@ -115,6 +121,16 @@ interface BoardroomViewportProps {
   onOpenHermesDashboard: () => void
   onOpenHermesCli: () => void
   onOpenSettings: () => void
+}
+
+export async function requestMirromereInspection(
+  surface: MirromereSurface,
+  requestInteraction: NonNullable<BoardroomViewportProps['onMirromereInteraction']>,
+  openProvenance: () => void,
+): Promise<MirromereInteractionReceipt> {
+  const receipt = await requestInteraction(surface, 'inspect_provenance', false)
+  if (receipt.outcome === 'accepted' && receipt.status === 'requested') openProvenance()
+  return receipt
 }
 
 function SceneAssetModel({
@@ -930,6 +946,7 @@ function BoardroomScene({
   presenceStatus,
   rootPath = null,
   mirromereSurface = null,
+  onMirromereInteraction,
   debug = false,
   onActivate,
   onOpenWorkstation,
@@ -1102,6 +1119,13 @@ function BoardroomScene({
         const displayMode = resolveUpperMonitorDisplayMode(Boolean(typedRecord), Boolean(activeClaim))
         const renderMirromere = shouldRenderMirromereAperture(monitorSlotId, displayMode, mirromereSurface)
         const inspectMirromere = Boolean(mirromereSurface && renderMirromere && isMirromereInspectAllowed(mirromereSurface))
+        const handleMirromereInspect = inspectMirromere && mirromereSurface && onMirromereInteraction
+          ? () => { void requestMirromereInspection(
+              mirromereSurface,
+              onMirromereInteraction,
+              () => onOpenWorkstation(workstationZoneId),
+            ).catch(() => undefined) }
+          : undefined
         const handleMonitorActivate = () => {
           if (typedRecord && onOpenMonitorSession) {
             onOpenMonitorSession(typedRecord)
@@ -1129,7 +1153,7 @@ function BoardroomScene({
           draggable={debug}
           onMovePosition={(position) => moveZone(slot.id, position)}
           onActivate={inspectMirromere
-            ? () => onOpenWorkstation(workstationZoneId)
+            ? handleMirromereInspect
             : isUpperMonitorInteractive(displayMode)
               ? handleMonitorActivate
               : undefined}
@@ -1202,7 +1226,7 @@ function BoardroomScene({
               slotId={monitorSlotId}
               size={slot.size}
               motionEnabled={renderProfile.motionEnabled}
-              onActivate={inspectMirromere ? () => onOpenWorkstation(workstationZoneId) : undefined}
+              onActivate={handleMirromereInspect}
             />
           ) : (
             <UpperAmbientMonitorScreen
@@ -1435,9 +1459,16 @@ export default function BoardroomViewport(props: BoardroomViewportProps) {
         onOpenSettings={props.onOpenSettings}
         mirromereSurface={props.mirromereSurface}
         onInspectMirromere={props.mirromereSurface?.allowed_interactions.includes('inspect_provenance')
+          && props.onMirromereInteraction
           ? () => {
               const zoneId = props.slotAssignments.monitor_3
-              if (zoneId) props.onOpenWorkstation(zoneId)
+              if (zoneId && props.mirromereSurface && props.onMirromereInteraction) {
+                void requestMirromereInspection(
+                  props.mirromereSurface,
+                  props.onMirromereInteraction,
+                  () => props.onOpenWorkstation(zoneId),
+                ).catch(() => undefined)
+              }
             }
           : undefined}
       />

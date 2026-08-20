@@ -173,6 +173,18 @@ First registered scenes:
 4. Record bounded receipts for interaction requests; UI does not mint success.
 5. Commit: `feat(mirromere): register bounded ambient scenes`.
 
+**Implementation evidence (2026-08-19):**
+
+- Added seven logical scene registrations covering the eight typed scene ids; `system.starting` and `system.degraded` share the single `system.lifecycle` registration. Only `inspect_provenance` is automatic. `continue_handoff` and `dismiss_attention` require explicit operator action.
+- Added strict backend interaction requests and a managed 128-entry receipt ring. Accepted requests are recorded as `status: requested`; rejected requests are recorded as `status: rejected`; neither path mints completion or success.
+- Backend acceptance is bound to the exact latest projection issued by `get_mirromere_surface`. Client-authored or superseded surfaces receive a `surface_not_current` rejection receipt before policy evaluation.
+- Both the in-world aperture and accessibility inspection path now request a backend receipt and open provenance only after an `accepted` / `requested` response. Backend errors fail closed without opening the workstation.
+- RED: focused Vitest failed because `sceneRegistry.ts` was absent; focused Rust compilation failed because the interaction request, evaluator, receipt state, and receipt enums were absent. GREEN: focused frontend registry/wiring coverage passed 9 tests; focused Rust interaction coverage passed 5 tests; full HUD coverage passed 611 tests; full Rust library coverage passed 79 tests with 2 explicitly ignored Chromium-dependent tests.
+- Spec review passed after replacing a broad automatic-read-only flag with explicit automatic interaction ids. Quality review found and then approved the fix binding receipts to backend-issued current surfaces.
+- `pnpm run lint` exited 0 with pre-existing warnings, `pnpm run build` passed, Rust formatting and scoped diff checks passed. The source-current release binary, DEB, and RPM built through `pnpm run tauri build`; the known host linuxdeploy `.relr.dyn` incompatibility remained isolated to AppImage, which succeeded through the validated `lothlorien` distrobox path.
+- Final artifact SHA-256: release binary `7b27fe993637d3b755afe3b12c08e0fc2da9d5acd6b60d3180c5bdcf3e2d1768`; DEB `a719ebf06368e60d7aa6a8948dea0c40e432f044ff1a47d5b68cca34ea0ea937`; RPM `08f8c3ecd37eea1c8245c90d28495cf0d893bba69f130cb613feac5d2898e7fb`; AppImage `b29d60d08adb49e2923e5639c0943fff65bd0034910eef717a0990548a3b224d`.
+- This closes Task 6 implementation/build evidence. Task 7 physical second-monitor, reconnect, semantic-equivalence, performance, and operator-session acceptance remains open.
+
 ## Task 7: Visual, native, and performance acceptance
 
 **Run:**

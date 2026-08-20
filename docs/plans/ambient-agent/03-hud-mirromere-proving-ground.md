@@ -5,17 +5,17 @@ soterion:
   code_point: "U+1F4DC"
   role: "implementation_plan"
   owner: "HERMES"
-  status: "archived"
+  status: "active"
   reviewed: "2026-08-20"
 ---
 
-> 🜏 Soterion: 📜 implementation_plan | owner: HERMES | status: archived | reviewed: 2026-08-20
+> 🜏 Soterion: 📜 implementation_plan | owner: HERMES | status: active | reviewed: 2026-08-20
 
 # Phase 3: HUD and Mirromere Proving Ground Implementation Plan
 
-> **For Hermes:** Use the `subagent-driven-development` skill to implement this plan task-by-task. Preserve the ARDA HUD's agent-native visual language and native acceptance requirements.
+> **For Hermes:** Implement this plan directly. Product behavior is accepted by the human operator; tests and accessibility inspection do not substitute for useful behavior.
 
-**Goal:** Use one governed presentation contract to render a display-only Mirromere simulation inside an existing ARDA HUD monitor aperture and a real Mirromere application on the operator's physical second monitor, without turning the HUD itself into the Mirromere application or a workflow surface.
+**Goal:** Make the standalone second-display Mirromere useful: it must host a real application or continue a real Hermes conversation. Decorative status scenes, radar/vector pictures, labels, and backend projection alone do not satisfy this plan.
 
 **Corrected architecture:** A backend-owned `arda.mirromere.surface.v1` projection describes scene/application state. The in-world HUD aperture is only a simulation/design lens. Operational Mirromere must be a standalone application and process with its own Tauri package, binary, lifecycle, display ownership, close behavior, and packaging. It may reuse shared contract/renderer code, but it must not be a child `WebviewWindow` owned, reopened, or repositioned by `arda_hud`.
 
@@ -24,6 +24,8 @@ soterion:
 ---
 
 ## Product boundary
+
+**Reopened after operator rejection (2026-08-20):** The archived closeout was false at the product level. The standalone app displayed decorative scene projections but did not host an application or provide a usable Hermes conversation. Phase 3 is active again. The first corrective implementation replaces the radar default with the live Hermes dashboard; avatar presence, local voice, and operator acceptance remain open.
 
 The boardroom/HUD remains the operator's desktop embodiment. The HUD World View is display-only and intentionally sparse; it is not acceptance for application workflows. Mirromere is a calm display/application outpost. The useful two-for-one is to reuse the same Mirromere surface contract in:
 
@@ -438,8 +440,8 @@ The intended connection is therefore **shared backend authority, not hidden app-
 
 ## Phase gate
 
-Phase 3 reached implemented, packaged, installed, and native-runtime-observed maturity for the governed dual-consumer scene contract, explicit non-primary display placement, privacy/freshness behavior, reduced motion, and independent lifecycle. It is **not declared fully proven** under the original strict gate because physical disconnect/reconnect and five-minute observation were waived, native Escape delivery was not observed, and no new performance-soak acceptance was performed. A HUD-owned child window remains rejected architecture.
+Phase 3 remains open. The standalone app now opens the real Hermes dashboard on the selected second display instead of rendering the radar scene. It is not complete until the human operator accepts Mirromere as useful. Remaining product work includes avatar presence and local voice behavior from the original Mirromere requirements. A HUD-owned child window remains rejected architecture.
 
 ## Closeout
 
-This implementation plan is archived. The waived/unobserved checks above remain historical evidence limits, not pending implementation tasks and not passes.
+This plan is active. Earlier scene-contract, packaging, and display-placement results remain implementation history only; they are not product acceptance.

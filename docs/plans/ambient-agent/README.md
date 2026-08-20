@@ -68,7 +68,7 @@ flowchart LR
     P5 --> P6
 ```
 
-Phases 0, 1, and 2 are closed. Phase 1's accepted launcher/runtime evidence is
+Phases 0, 1, and 2 are closed. Phase 3 was reopened after the operator rejected the decorative projection as unusable. Phase 1's accepted launcher/runtime evidence is
 retained in the [operations record](../../operations/launcher-local-runtime-acceptance.md)
 and [archived implementation plan](../../archive/2026-08-17-launcher-local-runtime-plan.md).
 Phase 2's accepted phone/desktop continuity evidence is retained in the
@@ -82,7 +82,7 @@ Later implementation phases remain open until their explicit gates pass.
 |---|---|---|---|
 | 1 | [Launcher and Local Runtime — complete](../../archive/2026-08-17-launcher-local-runtime-plan.md) | Restart, click icon, prove services, open HUD | Phase 0 |
 | 2 | [Hermes Continuity and Surface Handoff — complete](../../archive/2026-08-17-hermes-continuity-handoff-plan.md) | Same governed conversation continues across phone/desktop/room | Phase 1 |
-| 3 | [HUD and Mirromere Proving Ground](../../archive/2026-08-20-hud-mirromere-proving-ground.md) | Archived implementation/runtime closeout with explicit physical-proof waivers | Phases 1–2 |
+| 3 | [HUD and Mirromere Proving Ground — active](03-hud-mirromere-proving-ground.md) | A useful second-display application host or live Hermes conversation; decorative scenes are insufficient | Phases 1–2 |
 | 4 | [Presence, Identity, and Privacy](04-presence-identity-privacy.md) | Multi-signal local presence safely prepares/resumes context | Phases 2–3 |
 | 5 | [RELIC Runtime Embodiment](05-relic-runtime-embodiment.md) | Physical display truthfully renders agent flow | Phases 1 and 3 |
 | 6 | [Governed Physical Outposts](06-governed-physical-outposts.md) | Typed proposal/approval/execution protocol for devices | Phases 4–5 |
@@ -101,7 +101,7 @@ The operator speaks to Hermes on the phone, later opens desktop/HUD, and resumes
 
 ### Slice C — embodiment
 
-A typed Mirromere scene/application document renders both inside an ARDA HUD aperture and on the physical second monitor. Source truth, privacy, accessibility, and degraded state are identical across both consumers.
+The standalone Mirromere opens a real application or continues a real Hermes conversation on the physical second monitor. A HUD preview may mirror state, but it is not the product and cannot satisfy this slice.
 
 ### Slice D — arrival
 

@@ -39,7 +39,7 @@ program or create retroactive 0.9 blockers.
 |---|---|---|
 | 1 | [Launcher and local runtime — completed](../archive/2026-08-17-launcher-local-runtime-plan.md) | **Accepted:** post-restart icon → health → native HUD; [operations evidence](../operations/launcher-local-runtime-acceptance.md) |
 | 2 | [Hermes continuity and handoff — completed](../archive/2026-08-17-hermes-continuity-handoff-plan.md) | **Accepted:** same authenticated conversation lineage across phone and desktop; [operations evidence](../operations/hermes-continuity-handoff-acceptance.md) |
-| 3 | [HUD and Mirromere proving ground](../archive/2026-08-20-hud-mirromere-proving-ground.md) | archived implementation/runtime closeout; strict physical-proof exceptions retained |
+| 3 | [HUD and Mirromere proving ground — active](ambient-agent/03-hud-mirromere-proving-ground.md) | real application hosting or live Hermes conversation accepted by the operator; decorative projection is insufficient |
 | 4 | [Presence, identity, and privacy](ambient-agent/04-presence-identity-privacy.md) | expiring multi-signal presence with safe veil and explicit handoff |
 | 5 | [RELIC runtime embodiment](ambient-agent/05-relic-runtime-embodiment.md) | physical receipt-backed agent-flow projection with honest degradation |
 | 6 | [Governed physical outposts](ambient-agent/06-governed-physical-outposts.md) | approved exactly-once simulated device execution before hardware |

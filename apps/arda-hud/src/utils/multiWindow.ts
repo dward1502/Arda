@@ -39,6 +39,27 @@ export interface WorkstationBridgeState {
 }
 
 const WORKSTATION_STATE_STORAGE_KEY = 'arda.workstation.state.v1'
+const MIRROMERE_SELECTED_DISPLAY_STORAGE_KEY = 'arda.mirromere.selected-display.v1'
+
+export interface MirromereSelectedDisplay {
+  selectedDisplayId: string
+}
+
+export interface MirromereWindowResult {
+  available: boolean
+  status: 'opened' | 'updated' | 'unavailable'
+  message: string
+  window_label: string | null
+  display_id: string | null
+  geometry: { x: number; y: number; width: number; height: number } | null
+}
+
+export interface MirromereDisplayObservation {
+  display_id: string
+  geometry: { x: number; y: number; width: number; height: number }
+  primary: boolean
+  connected: boolean
+}
 
 function localStorageOrNull(): Storage | null {
   try {
@@ -46,6 +67,61 @@ function localStorageOrNull(): Storage | null {
   } catch {
     return null
   }
+}
+
+export function persistMirromereSelectedDisplay(selectedDisplayId: string): void {
+  if (!selectedDisplayId.trim()) return
+  try {
+    localStorageOrNull()?.setItem(
+      MIRROMERE_SELECTED_DISPLAY_STORAGE_KEY,
+      JSON.stringify({ selectedDisplayId: selectedDisplayId.trim() } satisfies MirromereSelectedDisplay),
+    )
+  } catch {
+    // Display selection is convenience state; native resolution still fails closed.
+  }
+}
+
+export function getStoredMirromereSelectedDisplay(): MirromereSelectedDisplay | null {
+  try {
+    const raw = localStorageOrNull()?.getItem(MIRROMERE_SELECTED_DISPLAY_STORAGE_KEY)
+    if (!raw) return null
+    const parsed = parseJsonOrNull<unknown>(raw)
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null
+    const selectedDisplayId = (parsed as Record<string, unknown>).selectedDisplayId
+    return typeof selectedDisplayId === 'string' && selectedDisplayId.trim()
+      ? { selectedDisplayId: selectedDisplayId.trim() }
+      : null
+  } catch {
+    return null
+  }
+}
+
+export async function openMirromereNativeWindow(
+  selectedDisplayId: string,
+  persistSelection = true,
+): Promise<MirromereWindowResult> {
+  const stableDisplayId = selectedDisplayId.trim()
+  if (!stableDisplayId) {
+    return {
+      available: false,
+      status: 'unavailable',
+      message: 'A stable Mirromere display selection is required.',
+      window_label: null,
+      display_id: null,
+      geometry: null,
+    }
+  }
+  if (persistSelection) persistMirromereSelectedDisplay(stableDisplayId)
+  return safeTauriInvoke<MirromereWindowResult>('open_mirromere_window', {
+    request: {
+      selected_display_id: stableDisplayId,
+      allow_primary_fallback: false,
+    },
+  })
+}
+
+export function listMirromereDisplays(): Promise<MirromereDisplayObservation[]> {
+  return safeTauriInvoke<MirromereDisplayObservation[]>('list_mirromere_displays')
 }
 
 function readStoredWorkstationStateMap(): Record<string, WorkstationBridgeState> {

@@ -149,6 +149,16 @@ First registered scenes:
 6. Run Rust tests, Vitest, lint, build, then `pnpm run tauri build`.
 7. Commit: `feat(hud): project Mirromere to selected display`.
 
+**Implementation evidence (2026-08-19):**
+
+- Added Tauri-owned stable display enumeration and fail-closed resolution. The native command rejects absent, disconnected, ambiguous, and primary-only selections, closes an existing Mirromere window when the selected display becomes unavailable, and updates physical geometry without focusing the window.
+- Added a persisted stable-id frontend bridge, a two-second topology refresh that re-reads the current operator selection without rewriting storage, and a standalone native route that reuses the in-world aperture's visual model, motion policy, and canvas renderer.
+- RED: the focused Vitest run failed because `MirromereNativeSurface` did not exist. GREEN: the focused frontend matrix passed 13 tests; `cargo test --lib mirromere_window_tests` passed 5 tests; the full HUD suite passed 604 tests; the full Rust library suite passed 74 tests with 2 explicitly ignored Chromium-dependent tests.
+- `pnpm run lint` exited 0 with pre-existing repository warnings. `pnpm run build` completed successfully. `rustfmt --edition 2021 --config skip_children=true --check src/lib.rs` and scoped `git diff --check` passed.
+- `pnpm run tauri build` produced the release binary, DEB, and RPM, then exposed a host AppImage packaging incompatibility: linuxdeploy's bundled `strip` cannot read Fedora `.relr.dyn` sections. The source-current AppImage succeeded through the validated distrobox path: `distrobox enter lothlorien -- bash -lc 'cd /var/home/mythos/Eregion/Arda/apps/arda-hud && pnpm exec tauri build --bundles appimage --verbose'`.
+- Final artifact SHA-256: release binary `19b27dfbee61b9578de7500c3254bf4f68d22cc59ad4778160f038814fb95bb7`; DEB `6cc8691d6839e8b0331ad9e571d675bcf8ad94076f3e7aa984bbe15ec673e2f1`; RPM `c67e93fe7760495cf699f29f60918b4d03d53ab55927d9b8272c7e3287912d5a`; AppImage `0b50377f35e26031bb0db293cd3aa3f95110afaf2befa31e8031d764bb422fa1`.
+- This closes Task 5 implementation/build evidence only. Physical second-monitor behavior, disconnect/reconnect exercise, operator session proof, and FPS acceptance remain Task 7 gates.
+
 ## Task 6: Add scene registration and guarded interaction
 
 **Files:**

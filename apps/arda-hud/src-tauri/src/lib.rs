@@ -35,7 +35,10 @@ use std::time::Instant;
 use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
 use tauri::async_runtime::Mutex as AsyncMutex;
-use tauri::{AppHandle, Emitter, Manager, State, WebviewUrl, WebviewWindowBuilder};
+use tauri::{
+    AppHandle, Emitter, Manager, PhysicalPosition, PhysicalSize, Position, Size, State, WebviewUrl,
+    WebviewWindowBuilder,
+};
 use tauri_plugin_opener::OpenerExt;
 
 const IMAGE_PREVIEW_MAX_BYTES: u64 = 2 * 1024 * 1024;
@@ -2702,6 +2705,301 @@ fn open_workstation_window(
     Ok(request.window_label)
 }
 
+const MIRROMERE_WINDOW_LABEL: &str = "arda-mirromere";
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+struct MirromereDisplayGeometry {
+    x: i32,
+    y: i32,
+    width: u32,
+    height: u32,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+struct MirromereDisplayObservation {
+    display_id: String,
+    geometry: MirromereDisplayGeometry,
+    primary: bool,
+    connected: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+struct MirromereWindowRequest {
+    selected_display_id: String,
+    allow_primary_fallback: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+struct MirromereDisplayResolution {
+    available: bool,
+    message: String,
+    display_id: Option<String>,
+    geometry: Option<MirromereDisplayGeometry>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+struct MirromereWindowResult {
+    available: bool,
+    status: String,
+    message: String,
+    window_label: Option<String>,
+    display_id: Option<String>,
+    geometry: Option<MirromereDisplayGeometry>,
+}
+
+fn resolve_mirromere_display(
+    request: &MirromereWindowRequest,
+    displays: &[MirromereDisplayObservation],
+) -> MirromereDisplayResolution {
+    let matches = displays
+        .iter()
+        .filter(|display| display.display_id == request.selected_display_id)
+        .collect::<Vec<_>>();
+    let Some(display) = matches.first().copied() else {
+        return MirromereDisplayResolution {
+            available: false,
+            message: "Selected Mirromere display is not connected.".to_string(),
+            display_id: Some(request.selected_display_id.clone()),
+            geometry: None,
+        };
+    };
+    if matches.len() > 1 {
+        return MirromereDisplayResolution {
+            available: false,
+            message: "Selected Mirromere display identity is ambiguous.".to_string(),
+            display_id: Some(request.selected_display_id.clone()),
+            geometry: None,
+        };
+    }
+    if !display.connected {
+        return MirromereDisplayResolution {
+            available: false,
+            message: "Selected Mirromere display disconnected.".to_string(),
+            display_id: Some(display.display_id.clone()),
+            geometry: None,
+        };
+    }
+    if display.primary && !request.allow_primary_fallback {
+        return MirromereDisplayResolution {
+            available: false,
+            message: "Primary-display fallback is disabled for Mirromere.".to_string(),
+            display_id: Some(display.display_id.clone()),
+            geometry: None,
+        };
+    }
+    MirromereDisplayResolution {
+        available: true,
+        message: "Selected Mirromere display is available.".to_string(),
+        display_id: Some(display.display_id.clone()),
+        geometry: Some(display.geometry.clone()),
+    }
+}
+
+fn stable_monitor_id(monitor: &tauri::Monitor) -> Option<String> {
+    monitor
+        .name()
+        .map(|name| name.trim())
+        .filter(|name| !name.is_empty())
+        .map(|name| format!("display:{name}"))
+}
+
+fn monitors_match(left: &tauri::Monitor, right: &tauri::Monitor) -> bool {
+    left.name() == right.name()
+        && left.position() == right.position()
+        && left.size() == right.size()
+}
+
+fn observe_mirromere_displays(app: &AppHandle) -> Result<Vec<MirromereDisplayObservation>, String> {
+    let monitors = app
+        .available_monitors()
+        .map_err(|error| error.to_string())?;
+    let primary = app.primary_monitor().map_err(|error| error.to_string())?;
+    Ok(monitors
+        .iter()
+        .filter_map(|monitor| {
+            let display_id = stable_monitor_id(monitor)?;
+            Some(MirromereDisplayObservation {
+                display_id,
+                geometry: MirromereDisplayGeometry {
+                    x: monitor.position().x,
+                    y: monitor.position().y,
+                    width: monitor.size().width,
+                    height: monitor.size().height,
+                },
+                primary: primary
+                    .as_ref()
+                    .is_some_and(|primary_monitor| monitors_match(monitor, primary_monitor)),
+                connected: true,
+            })
+        })
+        .collect())
+}
+
+#[tauri::command]
+fn list_mirromere_displays(app: AppHandle) -> Result<Vec<MirromereDisplayObservation>, String> {
+    observe_mirromere_displays(&app)
+}
+
+#[tauri::command]
+fn open_mirromere_window(
+    app: AppHandle,
+    request: MirromereWindowRequest,
+) -> Result<MirromereWindowResult, String> {
+    let displays = observe_mirromere_displays(&app)?;
+    let resolution = resolve_mirromere_display(&request, &displays);
+    if !resolution.available {
+        if let Some(window) = app.get_webview_window(MIRROMERE_WINDOW_LABEL) {
+            let _ = window.close();
+        }
+        return Ok(MirromereWindowResult {
+            available: false,
+            status: "unavailable".to_string(),
+            message: resolution.message,
+            window_label: None,
+            display_id: resolution.display_id,
+            geometry: None,
+        });
+    }
+
+    let geometry = resolution
+        .geometry
+        .clone()
+        .ok_or_else(|| "Resolved Mirromere display has no geometry.".to_string())?;
+    let position = Position::Physical(PhysicalPosition::new(geometry.x, geometry.y));
+    let size = Size::Physical(PhysicalSize::new(geometry.width, geometry.height));
+    let status = if let Some(window) = app.get_webview_window(MIRROMERE_WINDOW_LABEL) {
+        window
+            .set_position(position)
+            .map_err(|error| error.to_string())?;
+        window.set_size(size).map_err(|error| error.to_string())?;
+        let _ = window.unminimize();
+        window.show().map_err(|error| error.to_string())?;
+        "updated"
+    } else {
+        let path = "index.html?__view=mirromere&__windowId=arda-mirromere&__windowRole=mirromere";
+        let window =
+            WebviewWindowBuilder::new(&app, MIRROMERE_WINDOW_LABEL, WebviewUrl::App(path.into()))
+                .title("Mirromere")
+                .decorations(false)
+                .resizable(false)
+                .focused(false)
+                .visible(false)
+                .build()
+                .map_err(|error| error.to_string())?;
+        window
+            .set_position(position)
+            .map_err(|error| error.to_string())?;
+        window.set_size(size).map_err(|error| error.to_string())?;
+        window.show().map_err(|error| error.to_string())?;
+        "opened"
+    };
+
+    Ok(MirromereWindowResult {
+        available: true,
+        status: status.to_string(),
+        message: resolution.message,
+        window_label: Some(MIRROMERE_WINDOW_LABEL.to_string()),
+        display_id: resolution.display_id,
+        geometry: Some(geometry),
+    })
+}
+
+#[cfg(test)]
+mod mirromere_window_tests {
+    use super::*;
+
+    fn display(
+        display_id: &str,
+        primary: bool,
+        connected: bool,
+        geometry: MirromereDisplayGeometry,
+    ) -> MirromereDisplayObservation {
+        MirromereDisplayObservation {
+            display_id: display_id.to_string(),
+            geometry,
+            primary,
+            connected,
+        }
+    }
+
+    fn request(display_id: &str) -> MirromereWindowRequest {
+        MirromereWindowRequest {
+            selected_display_id: display_id.to_string(),
+            allow_primary_fallback: false,
+        }
+    }
+
+    fn geometry(x: i32, width: u32) -> MirromereDisplayGeometry {
+        MirromereDisplayGeometry {
+            x,
+            y: 0,
+            width,
+            height: 1080,
+        }
+    }
+
+    #[test]
+    fn resolves_requested_connected_secondary_display() {
+        let resolved = resolve_mirromere_display(
+            &request("display:secondary"),
+            &[display(
+                "display:secondary",
+                false,
+                true,
+                geometry(1920, 1920),
+            )],
+        );
+        assert!(resolved.available);
+        assert_eq!(resolved.geometry, Some(geometry(1920, 1920)));
+    }
+
+    #[test]
+    fn rejects_absent_requested_display() {
+        let resolved = resolve_mirromere_display(&request("display:missing"), &[]);
+        assert!(!resolved.available);
+        assert!(resolved.geometry.is_none());
+    }
+
+    #[test]
+    fn rejects_disconnected_selected_display() {
+        let resolved = resolve_mirromere_display(
+            &request("display:secondary"),
+            &[display(
+                "display:secondary",
+                false,
+                false,
+                geometry(1920, 1920),
+            )],
+        );
+        assert!(!resolved.available);
+        assert!(resolved.message.contains("disconnected"));
+    }
+
+    #[test]
+    fn rejects_primary_when_fallback_is_disabled() {
+        let resolved = resolve_mirromere_display(
+            &request("display:primary"),
+            &[display("display:primary", true, true, geometry(0, 1920))],
+        );
+        assert!(!resolved.available);
+        assert!(resolved.message.contains("fallback is disabled"));
+    }
+
+    #[test]
+    fn uses_current_geometry_for_same_stable_display_id() {
+        let resolved = resolve_mirromere_display(
+            &request("display:secondary"),
+            &[display(
+                "display:secondary",
+                false,
+                true,
+                geometry(-2560, 2560),
+            )],
+        );
+        assert_eq!(resolved.geometry, Some(geometry(-2560, 2560)));
+    }
+}
+
 fn resolve_window(
     app: &AppHandle,
     window_label: Option<String>,
@@ -3075,6 +3373,8 @@ pub fn run() {
             open_hermes_runtime_window,
             open_hermes_terminal_window,
             open_workstation_window,
+            list_mirromere_displays,
+            open_mirromere_window,
             mirromere::get_mirromere_surface,
             close_window,
             minimize_window,

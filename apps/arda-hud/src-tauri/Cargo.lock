@@ -147,6 +147,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "arda-mirromere"
+version = "0.1.0"
+dependencies = [
+ "arda-outpost-protocol",
+ "chrono",
+ "reqwest 0.12.28",
+ "serde",
+ "thiserror 1.0.69",
+]
+
+[[package]]
 name = "arda-outpost-protocol"
 version = "0.1.0"
 dependencies = [
@@ -166,6 +177,7 @@ version = "0.1.0"
 dependencies = [
  "arda-core",
  "arda-launcher",
+ "arda-mirromere",
  "arda-outpost-protocol",
  "base64 0.22.1",
  "chrono",

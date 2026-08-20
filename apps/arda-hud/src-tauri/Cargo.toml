@@ -40,6 +40,7 @@ libc = "0.2"
 portable-pty = "0.8"
 tungstenite = { version = "0.26", default-features = false, features = ["handshake"] }
 arda-core = { path = "../../../crates/spine/governance/arda-core" }
+arda-mirromere = { path = "../../../crates/spine/interface/arda-mirromere" }
 arda-outpost-protocol = { path = "../../../outposts/arda-outpost-protocol" }
 arda-launcher = { path = "../../arda-launcher/src-tauri", package = "arda-launcher" }
 

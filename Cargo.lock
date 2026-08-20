@@ -319,6 +319,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "arda-mirromere"
+version = "0.1.0"
+dependencies = [
+ "arda-outpost-protocol",
+ "chrono",
+ "reqwest 0.12.28",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+ "tokio",
+]
+
+[[package]]
 name = "arda-orome"
 version = "0.1.0"
 dependencies = [

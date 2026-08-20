@@ -7,6 +7,7 @@ members = [
     "crates/spine/runtime/manwe",
     "crates/spine/governance/arda-core",
     "crates/spine/governance/arda-governance",
+    "crates/spine/interface/arda-mirromere",
     "crates/spine/interface/arda-orome",
     "crates/spine/observability/arda-aule",
     "apps/arda-launcher/src-tauri",
@@ -27,6 +28,7 @@ default-members = [
     "crates/spine/runtime/manwe",
     "crates/spine/governance/arda-core",
     "crates/spine/governance/arda-governance",
+    "crates/spine/interface/arda-mirromere",
     "crates/spine/interface/arda-orome",
     "crates/spine/observability/arda-aule",
     "crates/spine/runtime/arda-economics",
@@ -94,6 +96,7 @@ serde_yaml = "0.9"
 arda-core = { path = "crates/spine/governance/arda-core" }
 arda-contract-registry = { path = "crates/spine/contract/arda-contract-registry" }
 arda-governance = { path = "crates/spine/governance/arda-governance" }
+arda-mirromere = { path = "crates/spine/interface/arda-mirromere" }
 arda-orome = { path = "crates/spine/interface/arda-orome" }
 arda-vaire = { path = "crates/spine/memory/arda-vaire" }
 arda-aule = { path = "crates/spine/observability/arda-aule" }

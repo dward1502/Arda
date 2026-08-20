@@ -1,11 +1,11 @@
 # Arda Product Plan Suite
 
 **Status:** Active portfolio index<br>
-**Updated:** 2026-08-17<br>
+**Updated:** 2026-08-20<br>
 **Current release baseline:** [Arda 0.9 Baseline](../releases/0.9/BASELINE.md)<br>
 **Completed improvement record:** [Arda 0.9 Baseline and Improvement Plan](../archive/2026-08-12-arda-0.9-baseline-and-improvement-plan.md)<br>
 **Product doctrine:** [Arda Personal Agent Ecosystem](../architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md)<br>
-**Active development program:** [Arda Ambient Agent Program](ambient-agent/README.md)
+**Active planning program:** [Arda Ambient Agent Program](ambient-agent/README.md)
 
 ## Product decision
 
@@ -24,8 +24,9 @@ decision.
 [`ambient-agent/`](ambient-agent/README.md) program. The finite 0.9 improvement
 plan completed its defect, dependency, documentation, measurement, and honest
 Personal Operations disposition work and is retained under `docs/archive/`.
-Further 0.9 implementation remains defect-driven; the ambient-agent program is
-the active post-baseline product-development authority.
+Further 0.9 implementation remains defect-driven. The ambient-agent program is
+planning-only until the operator accepts core Arda capture, next-action, context,
+Personal Operations, research, review, and restart workflows as useful.
 
 Completed Stage 5, system-unification, and HUD convergence plans are historical
 records under `docs/archive/`. The older ecosystem convergence plan and Stage 6
@@ -39,11 +40,11 @@ program or create retroactive 0.9 blockers.
 |---|---|---|
 | 1 | [Launcher and local runtime — completed](../archive/2026-08-17-launcher-local-runtime-plan.md) | **Accepted:** post-restart icon → health → native HUD; [operations evidence](../operations/launcher-local-runtime-acceptance.md) |
 | 2 | [Hermes continuity and handoff — completed](../archive/2026-08-17-hermes-continuity-handoff-plan.md) | **Accepted:** same authenticated conversation lineage across phone and desktop; [operations evidence](../operations/hermes-continuity-handoff-acceptance.md) |
-| 3 | [HUD and Mirromere proving ground — active](ambient-agent/03-hud-mirromere-proving-ground.md) | real application hosting or live Hermes conversation accepted by the operator; decorative projection is insufficient |
-| 4 | [Presence, identity, and privacy](ambient-agent/04-presence-identity-privacy.md) | expiring multi-signal presence with safe veil and explicit handoff |
-| 5 | [RELIC runtime embodiment](ambient-agent/05-relic-runtime-embodiment.md) | physical receipt-backed agent-flow projection with honest degradation |
-| 6 | [Governed physical outposts](ambient-agent/06-governed-physical-outposts.md) | approved exactly-once simulated device execution before hardware |
-| 7 | [Product validation and commercialization](ambient-agent/07-product-validation-commercialization.md) | current competitive evidence, observed repeated value, and real commitment |
+| 3 | [Mirromere embodied assistant — planning hold](ambient-agent/03-mirromere-embodied-assistant.md) | avatar-led text/voice conversation, contextual daily assistance, and deliberate passive/avatar/HUD/private/offline scenes; no dashboard or radar substitution |
+| 4 | [Presence, identity, and privacy — planning hold](ambient-agent/04-presence-identity-privacy.md) | real local arrival/departure moves an already-working avatar between passive/private and a safe personalized greeting without authorizing action |
+| 5 | [RELIC runtime embodiment — planning hold](ambient-agent/05-relic-runtime-embodiment.md) | physical receipt-backed visualization only after genuine operator-used agent flow exists |
+| 6 | [Governed physical outposts — planning hold](ambient-agent/06-governed-physical-outposts.md) | approved exactly-once simulated device execution only after the digital review workflow is useful |
+| 7 | [Product validation and commercialization — planning hold](ambient-agent/07-product-validation-commercialization.md) | external validation only after the operator repeatedly uses the relevant slice |
 
 Parallel implementation and shared-file ownership follow the
 [workstream and branch map](ambient-agent/WORKSTREAMS.md).
@@ -58,7 +59,7 @@ Parallel implementation and shared-file ownership follow the
 | Research/watchlists | bounded implemented workflow | [archived Warden Research record](../archive/2026-07-29-warden-research-application-plan.md) |
 | Personal Operations | implemented; genuine operator acceptance open | [operational acceptance](../operations/personal-operations-private-alpha-acceptance.md) |
 | Rúmil project audit | optional, read-only bounded capability | [Rúmil status](../../crates/spine/runtime/arda-rumil/STATUS.md) |
-| RELIC/CITADEL, Mirromere, presence, extra devices | active post-baseline development; not yet 0.9-supported | [ambient-agent program](ambient-agent/README.md) |
+| RELIC/CITADEL, Mirromere, presence, extra devices | planning-only until core Arda is operator-accepted; not 0.9-supported | [ambient-agent program](ambient-agent/README.md) |
 | Phone continuity | accepted on the declared personal local profile; not public-release qualified | [Phase 2 evidence](../operations/hermes-continuity-handoff-acceptance.md) |
 | Multi-user/remote release profile | unsupported for 0.9 and not implied by the single-operator program | [0.9 limitations](../releases/0.9/BASELINE.md#known-limitations) |
 

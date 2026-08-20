@@ -6,16 +6,18 @@ soterion:
   role: "implementation_plan"
   owner: "HERMES"
   status: "active"
-  reviewed: "2026-08-17"
+  reviewed: "2026-08-20"
 ---
 
-> 🜏 Soterion: 📜 implementation_plan | owner: HERMES | status: active | reviewed: 2026-08-17
+> 🜏 Soterion: 📜 implementation_plan | owner: HERMES | status: active | reviewed: 2026-08-20
 
 # Phase 5: RELIC Runtime Embodiment Implementation Plan
 
-> **For Hermes:** Use the `subagent-driven-development` skill to implement this plan task-by-task. RELIC is a read-only projection; it never becomes runtime or receipt authority.
+> **Planning-only hold:** Do not implement until core Arda produces genuine operator-used work, delegation, waits, approvals, failures, and handoffs. RELIC is a read-only projection; it never becomes runtime or receipt authority.
 
 **Goal:** Make a physical RELIC/CITADEL display truthfully visualize fresh agent execution, delegation, waits, approvals, failures, and handoffs from authenticated Arda runtime events.
+
+RELIC cannot make Arda useful. It may only visualize useful execution that already exists. If the operator is not using those flows, keep RELIC implementation paused rather than building another decorative demonstration.
 
 **Architecture:** Existing runtime-presence contracts and `arda-relic-bridge` remain the transport boundary. The bridge reduces receipt-backed runtime state into bounded scene updates. The external renderer acknowledges scene application but cannot mint execution truth. Disconnect, stale input, and bridge failure visibly degrade.
 

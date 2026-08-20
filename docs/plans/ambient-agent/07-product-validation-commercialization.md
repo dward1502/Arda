@@ -6,18 +6,18 @@ soterion:
   role: "validation_plan"
   owner: "PLUTUS"
   status: "active"
-  reviewed: "2026-08-17"
+  reviewed: "2026-08-20"
 ---
 
-> 🜏 Soterion: 📜 validation_plan | owner: PLUTUS | status: active | reviewed: 2026-08-17
+> 🜏 Soterion: 📜 validation_plan | owner: PLUTUS | status: active | reviewed: 2026-08-20
 
 # Track 7: Product Validation and Commercialization Plan
 
-> **For Hermes:** Use subagents for independent market, user, security, and business-model research. Require current sources and citations; do not infer novelty or willingness to pay from the repository or the operator's enthusiasm.
+> **Planning-only hold:** Do not run external interviews, offers, pricing tests, or commercialization work until the operator repeatedly uses and accepts the relevant Arda slice. Current-source competitive research may be planned later; do not delegate by default.
 
 **Goal:** Determine who values an ambient governed personal-agent system, which outcome they will pay for, and what product/support boundary can be offered without weakening the operator-first vision.
 
-**Architecture:** This track runs alongside technical phases and consumes real demos rather than speculative descriptions. It separates competitive novelty, user desirability, technical feasibility, operational support cost, and willingness to pay. Product decisions are evidence dispositions governed by Varda, not marketing claims produced by implementation agents.
+**Architecture:** This track begins only after a real operator-used slice exists and consumes that behavior rather than speculative descriptions. It separates competitive novelty, user desirability, technical feasibility, operational support cost, and willingness to pay. Product decisions are evidence dispositions governed by Varda, not marketing claims produced by implementation agents.
 
 **Methods:** Current competitive research, structured interviews, observed prototype sessions, willingness-to-pay experiments, privacy/security review, support-cost measurement, and bounded private-alpha offers.
 
@@ -27,7 +27,7 @@ soterion:
 
 1. A segment of technically ambitious operators wants one persistent agent relationship across phone, workstation, room displays, and devices.
 2. Continuity, inspectability, privacy, and governed physical embodiment are more valuable to that segment than a generic voice assistant or dashboard.
-3. The Arda HUD/Mirromere/RELIC aesthetic makes invisible agent state understandable and emotionally compelling rather than merely decorative.
+3. Mirromere's embodied avatar and RELIC's truthful runtime visualization make useful behavior easier to access and understand rather than merely decorating unavailable capabilities.
 4. A staged software-first product can produce value before custom mirror/RELIC hardware exists.
 5. Some users will pay for setup, integration, support, or hardware even if the core software remains local-first.
 
@@ -93,8 +93,8 @@ Create one bounded demo per proven slice:
 
 1. **Ignition:** restart → click icon → health → HUD.
 2. **Continuity:** phone conversation → desktop `Continue here`.
-3. **Embodiment:** one Mirromere scene in HUD aperture and physical second monitor.
-4. **Arrival:** enrolled presence → private-safe greeting → explicit continuation.
+3. **Embodiment:** a sustained text/voice exchange with the Mirromere avatar plus one real context-resume or Personal Operations action; no dashboard, radar, or staged status scene.
+4. **Arrival:** enrolled presence moves an already-working Mirromere from passive/private behavior to a safe greeting and back on departure.
 5. **Runtime visibility:** genuine delegation visible on RELIC.
 6. **Physical action:** approved printer simulation, then attended real device.
 

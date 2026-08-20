@@ -6,16 +6,18 @@ soterion:
   role: "implementation_plan"
   owner: "PROMETHEUS"
   status: "active"
-  reviewed: "2026-08-17"
+  reviewed: "2026-08-20"
 ---
 
-> 🜏 Soterion: 📜 implementation_plan | owner: PROMETHEUS | status: active | reviewed: 2026-08-17
+> 🜏 Soterion: 📜 implementation_plan | owner: PROMETHEUS | status: active | reviewed: 2026-08-20
 
 # Phase 6: Governed Physical Outposts Implementation Plan
 
-> **For Hermes:** Use the `subagent-driven-development` skill to implement this plan task-by-task. Prove the complete protocol with a simulator before connecting a real actuator.
+> **Planning-only hold:** Do not implement until the operator uses and accepts Arda's digital proposal, review, execution, and receipt workflow. Prove the complete protocol with a simulator before connecting a real actuator.
 
 **Goal:** Let Hermes propose and Arda govern typed physical-device work while each outpost enforces identity, capability, exactly-once execution, expiry, local safety, cancellation, revocation, and terminal receipts.
+
+Physical integration cannot compensate for an unusable core Arda workflow. The human review surface and digital proposal/approval experience must work first; otherwise this phase will only produce protocol machinery the operator cannot use.
 
 **Architecture:** Devices enroll through strict manifests and advertise capabilities. Hermes requests outcomes, never arbitrary shell/device commands. Arda classifies authority and produces an approved intent bound to exact artifact/parameter digests. The outpost validates locally, executes once, and returns a terminal observed receipt. Simulation closes the protocol before the first real 3D printer adapter.
 

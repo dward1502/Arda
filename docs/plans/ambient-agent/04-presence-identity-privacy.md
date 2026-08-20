@@ -6,16 +6,16 @@ soterion:
   role: "implementation_plan"
   owner: "HERMES"
   status: "active"
-  reviewed: "2026-08-17"
+  reviewed: "2026-08-20"
 ---
 
-> 🜏 Soterion: 📜 implementation_plan | owner: HERMES | status: active | reviewed: 2026-08-17
+> 🜏 Soterion: 📜 implementation_plan | owner: HERMES | status: active | reviewed: 2026-08-20
 
 # Phase 4: Presence, Identity, and Privacy Implementation Plan
 
-> **For Hermes:** Use the `subagent-driven-development` skill to implement this plan task-by-task. Do not activate camera or biometric collection without a separate explicit operator setup and visible local disable control.
+> **Planning-only hold:** Do not implement until core Arda and the monitor-first Mirromere avatar/voice experience are accepted by the operator. Do not activate camera or biometric collection without separate explicit operator setup and visible local disable control.
 
-**Goal:** Let Mirromere prepare and personalize safely when the operator arrives while preserving strict separation between presence, identity confidence, data visibility, and consequential authorization.
+**Goal:** Let the already-working Mirromere avatar move from passive/private behavior to a privacy-appropriate greeting and personalization when the operator arrives, while preserving strict separation between presence, identity confidence, data visibility, and consequential authorization.
 
 **Architecture:** A local outpost sidecar combines enrolled, revocable signals into short-lived operator-presence claims. Raw sensor material remains local. Arda consumes only typed claims with factor classes, confidence, privacy ceiling, expiry, and provenance. Hermes uses the claim to prepare context; explicit handoff and action gates remain separate.
 
@@ -142,9 +142,9 @@ Add `arda.operator-presence.v1` with:
 - Test cross-phase privacy scenarios
 
 **Steps:**
-1. Write failing tests: weak presence wakes only ambient scene; sufficient identity enables greeting; shared-room signal veils private context; expiry re-veils; explicit handoff still required.
+1. Write failing tests: weak presence wakes only `PassiveMirror`; sufficient identity may enter a privacy-safe `AvatarPresence` greeting; shared-room signal veils private context; expiry returns to passive/private behavior.
 2. Add context preparation by references only; do not expose transcript content before policy allows.
-3. Make `Continue here` an explicit operator action even after arrival recognition.
+3. Presence may wake or personalize the avatar but cannot expose a transcript, approve an action, or create a new conversation identity.
 4. Ensure business/private domain boundaries survive the same physical presence.
 5. Commit: `feat(mirromere): apply bounded presence policy`.
 
@@ -164,4 +164,4 @@ Add `arda.operator-presence.v1` with:
 
 ## Phase gate
 
-Phase 4 is **proven** when a real enrolled non-biometric signal wakes/prepares the second-monitor Mirromere, a combined policy permits a privacy-appropriate greeting, expiry/departure veils it, and conversation transfer still requires explicit operator action. Camera-based recognition is optional and cannot be required to close this phase.
+Phase 4 is **proven** when the operator-approved Mirromere avatar already works, a real enrolled non-biometric signal moves it from passive/private behavior to a privacy-appropriate greeting, and expiry/departure returns it safely. Presence must not expose prior conversation, authorize action, or substitute for the Phase 3 voice/dialogue system. Camera-based recognition is optional and cannot be required to close this phase.

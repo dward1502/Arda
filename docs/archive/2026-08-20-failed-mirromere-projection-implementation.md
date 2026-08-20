@@ -5,13 +5,15 @@ soterion:
   code_point: "U+1F4DC"
   role: "implementation_plan"
   owner: "HERMES"
-  status: "active"
+  status: "archived"
   reviewed: "2026-08-20"
 ---
 
-> 🜏 Soterion: 📜 implementation_plan | owner: HERMES | status: active | reviewed: 2026-08-20
+> 🜏 Soterion: 📜 implementation_plan | owner: HERMES | status: archived | reviewed: 2026-08-20
 
-# Phase 3: HUD and Mirromere Proving Ground Implementation Plan
+# Failed Mirromere Projection Implementation Record
+
+> **Historical warning:** This record implemented a standalone shell, display lifecycle, and decorative status projection, then briefly replaced that projection with the Hermes dashboard. Neither behavior was Mirromere. This file has no active implementation authority; it is retained to prevent the same substitution from being repeated.
 
 > **For Hermes:** Implement this plan directly. Product behavior is accepted by the human operator; tests and accessibility inspection do not substitute for useful behavior.
 

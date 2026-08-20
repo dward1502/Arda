@@ -6,189 +6,100 @@ soterion:
   role: "program_plan"
   owner: "PROMETHEUS"
   status: "active"
-  reviewed: "2026-08-17"
+  reviewed: "2026-08-20"
 ---
 
-> 🜏 Soterion: 📜 program_plan | owner: PROMETHEUS | status: active | reviewed: 2026-08-17
+> 🜏 Soterion: 📜 program_plan | owner: PROMETHEUS | status: active | reviewed: 2026-08-20
 
 # Arda Ambient Agent Program
 
-> **For Hermes:** Use the `subagent-driven-development` skill to execute one work packet at a time. Never infer completion from this plan; prove each gate from source, runtime, native UI, and genuine use as specified.
+## Current decision: do not implement the outposts yet
 
-**Goal:** Build a persistent personal agent relationship that begins in Hermes and continues across desktop, phone, HUD, Mirromere, RELIC, and governed physical outposts.
+Arda's core operator relationship and daily workflows are not accepted as useful. Mirromere, presence hardware, RELIC, printers, and commercialization cannot repair that by adding more surfaces or infrastructure.
 
-**Architecture:** Hermes remains the primary conversational and agentic runtime. Arda supplies continuity, durable intent, Vairë memory, Varda research governance, risk classification, device identity, presence, receipts, and cross-surface orchestration. Deterministic services supervise processes; agents issue typed governed intents rather than raw device commands.
+Until the operator accepts core Arda, this directory is planning authority only. Do not start implementation, launch applications, activate sensors, purchase/connect hardware, delegate coding packets, or call a phase complete from tests or technical evidence.
 
-**Tech stack:** Hermes Agent, Rust, Tokio/Axum, Tauri 2, React 19, TypeScript, Three.js/react-three-fiber, systemd user services, versioned JSON/Serde contracts, Linux desktop entries, authenticated outpost transport.
+## What Arda is supposed to become
 
----
+Arda extends the Hermes relationship into a dependable personal system that:
 
-## 1. Product thesis
+- remembers durable goals, commitments, preferences, and context through Vairë;
+- helps the operator decide and begin one useful next action;
+- captures requests and obligations without requiring internal file/queue management;
+- supports personal routines and Personal Operations without shame or noise;
+- performs source-grounded research through Varda;
+- prepares work and asks for review before consequential action;
+- survives session, model, surface, and restart changes;
+- eventually appears through embodied outposts without creating parallel memories, policies, tasks, or runtimes.
 
-Arda is not another agent harness and not a general-purpose dashboard. It is a bespoke ambient and embodied agent system for one sovereign operator. Its differentiating value is continuity: one governed relationship can remember durable objectives, survive model/session/surface changes, research new interests without displacing commitments, and act through physical or digital capabilities without silently expanding authority.
+Hermes remains the primary conversational and tool runtime. Arda provides durable continuity, memory policy, research governance, task/commitment structure, approvals, receipts, and physical/digital capability boundaries.
 
-The visible embodiments are:
+## Core-Arda prerequisite
 
-- **Arda Launcher:** deterministic ignition, recovery, and source-truth status.
-- **Arda HUD:** desktop command environment and in-world proving ground.
-- **Mirromere:** calm room-scale ambient assistant and application host.
-- **RELIC:** read-only spatial visualization of receipt-backed agent flow.
-- **Outposts:** enrolled displays, sensors, printers, robots, and future devices.
+No ambient phase may begin until the operator can use Arda itself to complete all of these without terminal intervention:
 
-The current `arda-hud` boardroom and the operator's second monitor are the first Mirromere proving ground. A presentation contract must drive both an in-world HUD aperture and a native second-monitor surface so the work validates the future mirror without turning the HUD World View into an operator workspace.
+1. capture a real thought, task, obligation, or question;
+2. see one trustworthy next action derived from real commitments;
+3. resume a project or personal context without re-explaining it;
+4. use a Personal Operations reminder/check-in and correct or defer it;
+5. request research and receive a source-grounded answer;
+6. inspect and approve or reject a consequential proposed action;
+7. restart and return to the same usable state.
 
-## 2. Non-negotiable authority boundaries
+Prior launcher, continuity, contract, test, and packaging work remains technical foundation. It does not prove this prerequisite and must not be described as Arda product completion.
 
-1. Hermes is the primary agent/session/tool/gateway runtime. Arda must not reduce it to a disposable CLI subprocess for the main operator relationship.
-2. Vairë owns provenance-aware continuity and memory policy.
-3. Varda owns research, evidence comparison, epistemic disposition, and governed knowledge adoption.
-4. Durable intent and task authority remain external to model context; curiosity cannot silently replace commitments.
-5. Personal and business data/action authority remain separately governed with explicit overlap.
-6. systemd and deterministic Rust code own process supervision, health, restart, and fail-safe behavior. An LLM is never the watchdog keeping itself alive.
-7. Presence is not identity; identity is not authorization; authorization is not execution proof.
-8. Consequential actions require scoped approval and durable receipts.
-9. RELIC and ambient projections cannot invent activity. Missing, stale, projected, and unavailable remain visible states.
-10. Raw camera/audio/biometric material stays local to the outpost wherever possible. Only bounded, expiring derived claims cross the boundary.
-11. Every outpost has local safety, privacy, degraded behavior, revocation, and physical shutdown controls.
-12. Tests, plans, screenshots, and self-authored receipts are not genuine operator acceptance.
+## Intended embodiments
 
-## 3. Program dependency graph
+- **Launcher:** starts and recovers the supported local system. It is not the product.
+- **Arda HUD:** desktop command environment for real work. World View remains display-only.
+- **Mirromere:** avatar-led, voice-capable room presence on a monitor/mirror. It is not the Hermes dashboard, a radar, or an operator cockpit by default.
+- **RELIC:** read-only physical visualization of real agent activity. It cannot invent work through decorative animation.
+- **Outposts:** separately enrolled sensors and devices with narrow capabilities, local safety, and explicit approval.
 
-```mermaid
-flowchart LR
-    P0[Phase 0\nAuthority reset] --> P1[Phase 1\nLauncher + runtime]
-    P0 --> V[Track 7\nProduct validation]
-    P1 --> P2[Phase 2\nHermes continuity]
-    P1 --> P3[Phase 3\nHUD + Mirromere proving ground]
-    P2 --> P3
-    P2 --> P4[Phase 4\nPresence + identity]
-    P3 --> P4
-    P3 --> P5[Phase 5\nRELIC embodiment]
-    P4 --> P6[Phase 6\nGoverned physical outposts]
-    P5 --> P6
-```
+## Active plan order
 
-Phases 0, 1, and 2 are closed. Phase 3 was reopened after the operator rejected the decorative projection as unusable. Phase 1's accepted launcher/runtime evidence is
-retained in the [operations record](../../operations/launcher-local-runtime-acceptance.md)
-and [archived implementation plan](../../archive/2026-08-17-launcher-local-runtime-plan.md).
-Phase 2's accepted phone/desktop continuity evidence is retained in the
-[continuity operations record](../../operations/hermes-continuity-handoff-acceptance.md)
-and [archived Phase 2 plan](../../archive/2026-08-17-hermes-continuity-handoff-plan.md).
-Later implementation phases remain open until their explicit gates pass.
-
-## 4. Segment plans
-
-| Phase | Plan | Primary result | Depends on |
+| Order | Plan | What the human eventually receives | Start condition |
 |---|---|---|---|
-| 1 | [Launcher and Local Runtime — complete](../../archive/2026-08-17-launcher-local-runtime-plan.md) | Restart, click icon, prove services, open HUD | Phase 0 |
-| 2 | [Hermes Continuity and Surface Handoff — complete](../../archive/2026-08-17-hermes-continuity-handoff-plan.md) | Same governed conversation continues across phone/desktop/room | Phase 1 |
-| 3 | [HUD and Mirromere Proving Ground — active](03-hud-mirromere-proving-ground.md) | A useful second-display application host or live Hermes conversation; decorative scenes are insufficient | Phases 1–2 |
-| 4 | [Presence, Identity, and Privacy](04-presence-identity-privacy.md) | Multi-signal local presence safely prepares/resumes context | Phases 2–3 |
-| 5 | [RELIC Runtime Embodiment](05-relic-runtime-embodiment.md) | Physical display truthfully renders agent flow | Phases 1 and 3 |
-| 6 | [Governed Physical Outposts](06-governed-physical-outposts.md) | Typed proposal/approval/execution protocol for devices | Phases 4–5 |
-| 7 | [Product Validation and Commercialization](07-product-validation-commercialization.md) | Current competitive evidence, observed user value, and paid-commitment tests | Runs alongside proven slices |
-| All | [Workstream and Branch Map](WORKSTREAMS.md) | Non-overlapping agent packets and integration order | This index |
+| 0 | Core-Arda prerequisite above | A genuinely useful personal agent relationship and daily workflow | Now; owned by core Arda product work, not an outpost implementation |
+| 1 | [Mirromere Embodied Assistant](03-mirromere-embodied-assistant.md) | An avatar that can converse by text/voice, present contextual help, and move among passive/avatar/HUD/private/offline scenes | Core-Arda prerequisite accepted |
+| 2 | [Presence, Identity, and Privacy](04-presence-identity-privacy.md) | Privacy-safe arrival/departure and optional personalization using real local signals | Mirromere monitor alpha accepted |
+| 3 | [RELIC Runtime Embodiment](05-relic-runtime-embodiment.md) | Physical visualization of genuine delegation, waits, approvals, failures, and handoffs | Core execution flows are real and repeatedly used |
+| 4 | [Governed Physical Outposts](06-governed-physical-outposts.md) | One simulated, then attended real device job with exact approval and one execution | Digital approval/execution is useful and proven first |
+| 5 | [Product Validation](07-product-validation-commercialization.md) | Evidence about whether anyone else values the already-useful product | Operator repeatedly uses the relevant slice |
+| All | [Execution Order and Ownership](WORKSTREAMS.md) | A prohibition against premature parallel implementation and duplicate authorities | Planning only until Gate 0 passes |
 
-## 5. Minimum credible vertical slices
+## Mirromere definition
 
-### Slice A — ignition
+Mirromere must follow the operator-authored product intent preserved in the original PRD:
 
-After a real restart, the operator clicks one installed Arda icon. Launcher reports source-truth startup state, starts the allowlisted local target, waits for real health, and opens the native HUD. Launcher may close or remain as status without owning child process lifetime.
+- monitor-first, later two-way mirror;
+- Rust-owned scene state;
+- `PassiveMirror`, `AvatarPresence`, explicitly requested `ArdaHudScene`, `HybridMagic`, privacy, and offline behavior;
+- VRM avatar with look-at, gesture, expression, lip-sync, and graceful fallback;
+- local-first Whisper-family speech recognition and Piper-family speech;
+- practical daily assistance and contextual content;
+- optional local sensing only after visible physical/privacy controls exist.
 
-### Slice B — continuity
+Mirromere uses the Arda/Hermes relationship underneath. It must never be reduced to the Hermes dashboard, a service monitor, a status slideshow, or an abstract radar animation.
 
-The operator speaks to Hermes on the phone, later opens desktop/HUD, and resumes the same authenticated session with durable commitments and relevant Vairë context. No copy/paste, synthetic reconstruction, or re-explanation is required.
+## Shared boundaries
 
-### Slice C — embodiment
+1. Presence is not identity; identity is not authorization.
+2. Personal and business authority remain partitioned.
+3. Raw camera/audio/biometric data stays local and ephemeral by default.
+4. Consequential action requires explicit scoped review and durable receipts.
+5. UI and outposts consume Arda authority; they do not create parallel task, memory, policy, research, or approval systems.
+6. Missing/stale/offline state is shown honestly.
+7. The operator determines whether behavior is useful. Tests, screenshots, accessibility probes, labels, and agent-authored receipts are supporting engineering evidence only.
 
-The standalone Mirromere opens a real application or continues a real Hermes conversation on the physical second monitor. A HUD preview may mirror state, but it is not the product and cannot satisfy this slice.
+## Program completion
 
-### Slice D — arrival
+The ambient-agent program is complete only when:
 
-An enrolled local presence signal prepares Mirromere. Combined identity evidence permits a personalized greeting. Explicit operator action transfers the active Hermes conversation to the room. Presence alone cannot expose sensitive content or authorize consequential work.
-
-### Slice E — spatial runtime
-
-RELIC renders fresh receipt-backed agents, delegation, waits, approvals, failures, and handoffs. Disconnect or expiry visibly becomes `idle_degraded`; scripted activity cannot masquerade as live state.
-
-### Slice F — physical action
-
-A simulated 3D printer advertises capabilities. Hermes proposes a job, Arda classifies it, the operator approves the exact artifact and parameters, the outpost executes once, and a terminal receipt records the result. Duplicate, expired, unauthorized, or altered requests fail closed.
-
-## 6. Program evidence ladder
-
-Use these maturity labels exactly:
-
-| Level | Meaning | Minimum evidence |
-|---|---|---|
-| Documented | Requirement/contract written | Reviewed tracked document |
-| Implemented | Source path exists | Diff and compile/typecheck |
-| Tested | Deterministic behavior exercised | Focused tests with expected failure/pass |
-| Wired | Production constructor/call path reaches it | Source trace and integration test |
-| Running | Installed service/window/endpoint is live | Immediate process/unit/listener/native evidence |
-| Proven | End-to-end scenario succeeds after restart/failure | Recorded bounded acceptance run |
-| Used | Operator completed representative work | Genuine-use record, not agent simulation |
-| Supported | Reproducible artifact and recovery contract | Exact bytes, install/upgrade/rollback evidence |
-
-No lower level may be phrased as a higher one.
-
-## 7. Shared contracts to establish before parallel implementation
-
-These are schema responsibilities, not permission to create duplicate authorities:
-
-- `arda.system-lifecycle.v1`: required components, lifecycle, health, source truth, recovery action, observation time.
-- `arda.surface-handoff.v1`: authenticated session lineage, source/destination surface, privacy class, consent, context refs, expiry.
-- `arda.mirromere.surface.v1`: scene/application identity, slots, content refs, provenance, privacy, accessibility, validity window, interaction policy.
-- `arda.operator-presence.v1`: bounded derived signals, confidence, factor classes, TTL, room/outpost, privacy and authorization ceiling.
-- Existing `arda.runtime-presence.v1`: remain the RELIC read-only operational projection.
-- `arda.outpost.manifest.v1`: identity, software, capabilities, authority class, retention, calibration, local safety controls.
-- `arda.outpost.intent.v1`: typed requested outcome, artifact/parameter digests, authority class, approval requirement, expiry, compensation.
-- `arda.outpost.execution-receipt.v1`: accepted/rejected/executed state, exactly-once key, observed result, error, device identity, timestamps.
-
-Schemas must use `deny_unknown_fields` or equivalent strict parsing, explicit versions, bounded payloads, expiry, and deterministic test fixtures.
-
-## 8. Cross-cutting acceptance requirements
-
-Every phase must include:
-
-- focused RED/GREEN tests before implementation;
-- strict unknown/stale/unavailable behavior;
-- production call-path evidence, not constructor presence alone;
-- bounded logs without secrets or raw biometrics;
-- cancellation/restart behavior;
-- exact verification commands and expected results;
-- source-truth status in every UI;
-- keyboard/accessibility and reduced-motion handling where visual;
-- native window or physical display evidence where the claim is native/physical;
-- a genuine operator scenario before marking `proven` or `used`;
-- documentation reconciliation after runtime verification, not before.
-
-## 9. Complexity budget
-
-Do not begin with fleet-wide orchestration, opaque continual model training, medical inference, unrestricted smart-home control, humanoid robotics, payments, or autonomous physical motion. The initial implementations are:
-
-- one operator;
-- one workstation;
-- one Hermes identity/session lineage;
-- one second-monitor Mirromere surface;
-- one CITADEL/RELIC read-only renderer;
-- one simulated printer before real actuation;
-- local-first data and explicit remote boundaries.
-
-Expansion occurs only after the prior vertical slice survives restart, disconnect, stale data, and operator use.
-
-## 10. Program completion
-
-The program is not complete merely because all six plan files are checked. Completion requires:
-
-1. ignition works after a real restart without terminal use;
-2. Hermes conversation continuity works phone-to-desktop-to-room;
-3. HUD and second-monitor Mirromere consume the same governed surface contract;
-4. presence and privacy boundaries survive false/expired/missing signals;
-5. RELIC displays real flow and degrades honestly;
-6. one physical-action class completes proposal → approval → exactly-once execution → terminal receipt;
-7. the operator uses the system repeatedly and chooses to keep it running;
-8. active docs match installed reality.
-
-Commercial completion is evaluated separately: the project must not claim
-novelty, demand, or a scalable offer beyond the evidence ladder in Track 7.
+- core Arda is repeatedly useful in daily work;
+- Mirromere functions as an embodied conversational assistant;
+- real presence signals improve arrival behavior without weakening privacy;
+- RELIC reflects genuine runtime activity and degrades honestly;
+- one physical-action class completes proposal, exact approval, one execution, recovery, and terminal receipt;
+- the operator chooses to keep the system running;
+- active plans match what the installed system actually does.

@@ -37,6 +37,8 @@ product adoption research.
   — completed ambient-agent Phase 1 launcher/runtime implementation and post-restart native acceptance; live evidence remains in the operations acceptance record.
 - [`2026-08-17-hermes-continuity-handoff-plan.md`](2026-08-17-hermes-continuity-handoff-plan.md)
   — completed ambient-agent Phase 2 Hermes phone-to-desktop continuity implementation and genuine operator acceptance; exact identifiers remain private while bounded evidence lives in the operations record.
+- [`2026-08-20-failed-mirromere-projection-implementation.md`](2026-08-20-failed-mirromere-projection-implementation.md)
+  — failed Phase 3 direction retained as a warning: standalone shell and display plumbing were mistaken for Mirromere, first through decorative radar/status scenes and then through an incorrect Hermes-dashboard replacement.
 
 
 ## Deferred future release authorities

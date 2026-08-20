@@ -1,5 +1,7 @@
 mod display;
 
+use arda_launcher::lifecycle::commands::lifecycle_status;
+use arda_launcher::lifecycle::types::AggregateState;
 use arda_mirromere::{
     load_continuity_reference, project_mirromere_surface_at, LifecycleAggregateState,
     LifecycleProjectionReference, MirromereInteractionReceipt, MirromereInteractionReceiptState,
@@ -8,29 +10,26 @@ use arda_mirromere::{
 use arda_outpost_protocol::{MirromereDisplayRole, MirromereSurfaceProjection};
 use chrono::Utc;
 use display::DisplayState;
-use std::process::Command;
 use tauri::Manager;
 
+fn map_lifecycle_state(value: AggregateState) -> LifecycleAggregateState {
+    match value {
+        AggregateState::Stopped => LifecycleAggregateState::Stopped,
+        AggregateState::Starting => LifecycleAggregateState::Starting,
+        AggregateState::Healthy => LifecycleAggregateState::Healthy,
+        AggregateState::Degraded => LifecycleAggregateState::Degraded,
+        AggregateState::Failed => LifecycleAggregateState::Failed,
+        AggregateState::Stopping => LifecycleAggregateState::Stopping,
+        AggregateState::Unknown => LifecycleAggregateState::Unknown,
+    }
+}
+
 fn observe_lifecycle() -> LifecycleProjectionReference {
-    let observed_at = Utc::now();
-    let output = Command::new("systemctl")
-        .args(["--user", "is-active", "arda-agent.target"])
-        .output();
-    let state = match output {
-        Ok(output) => match String::from_utf8_lossy(&output.stdout).trim() {
-            "active" => LifecycleAggregateState::Healthy,
-            "activating" => LifecycleAggregateState::Starting,
-            "deactivating" => LifecycleAggregateState::Stopping,
-            "inactive" => LifecycleAggregateState::Stopped,
-            "failed" => LifecycleAggregateState::Failed,
-            _ => LifecycleAggregateState::Unknown,
-        },
-        Err(_) => LifecycleAggregateState::Unknown,
-    };
+    let lifecycle = lifecycle_status();
     LifecycleProjectionReference {
-        aggregate_state: state,
-        observed_at,
-        evidence_ref: "systemd-user://arda-agent.target".to_string(),
+        aggregate_state: map_lifecycle_state(lifecycle.aggregate_state),
+        observed_at: lifecycle.observed_at,
+        evidence_ref: format!("system-lifecycle://{}", lifecycle.observed_at.to_rfc3339()),
     }
 }
 
@@ -39,10 +38,13 @@ async fn get_mirromere_surface(
     state: tauri::State<'_, MirromereInteractionReceiptState>,
     display_role: MirromereDisplayRole,
 ) -> Result<MirromereSurfaceProjection, String> {
+    let lifecycle = tauri::async_runtime::spawn_blocking(observe_lifecycle)
+        .await
+        .map_err(|error| format!("lifecycle observation failed: {error}"))?;
     let input = MirromereProjectionInput {
         display_role,
         source_mode: MirromereProjectionSourceMode::Runtime,
-        lifecycle: Some(observe_lifecycle()),
+        lifecycle: Some(lifecycle),
         continuity: Some(load_continuity_reference().await),
     };
     let surface =

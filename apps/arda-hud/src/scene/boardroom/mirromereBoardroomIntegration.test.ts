@@ -14,9 +14,11 @@ describe('Mirromere boardroom integration', () => {
     expect(source).toContain("shouldRenderMirromereAperture(monitorSlotId, displayMode, mirromereSurface)")
   })
 
-  it('passes the backend-owned surface from the bundle into the boardroom', () => {
+  it('polls the backend-owned surface independently of the static bundle', () => {
     const source = readFileSync(resolve(process.cwd(), 'src/App.tsx'), 'utf8')
-    expect(source).toContain('mirromereSurface={bundle?.mirromereSurface ?? null}')
+    expect(source).toContain('window.setInterval(refreshMirromereSurface, 5000)')
+    expect(source).toContain('mirromereSurface={mirromereSurface}')
+    expect(source).not.toContain('mirromereSurface={bundle?.mirromereSurface ?? null}')
   })
 
   it('routes Mirromere provenance inspection through backend receipts before opening workstation', () => {

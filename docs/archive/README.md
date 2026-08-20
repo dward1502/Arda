@@ -37,6 +37,8 @@ product adoption research.
   — completed ambient-agent Phase 1 launcher/runtime implementation and post-restart native acceptance; live evidence remains in the operations acceptance record.
 - [`2026-08-17-hermes-continuity-handoff-plan.md`](2026-08-17-hermes-continuity-handoff-plan.md)
   — completed ambient-agent Phase 2 Hermes phone-to-desktop continuity implementation and genuine operator acceptance; exact identifiers remain private while bounded evidence lives in the operations record.
+- [`2026-08-20-hud-mirromere-proving-ground.md`](2026-08-20-hud-mirromere-proving-ground.md)
+  — completed ambient-agent Phase 3 implementation, standalone packaging, explicit non-primary placement, and native semantic walkthrough; cable/five-minute checks were waived and native Escape delivery remains unclaimed.
 
 ## Deferred future release authorities
 

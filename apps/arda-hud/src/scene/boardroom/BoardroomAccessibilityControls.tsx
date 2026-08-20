@@ -53,7 +53,11 @@ export default function BoardroomAccessibilityControls({
         {mirromereSurface ? (
           <li>
             <details>
-              <summary>Mirromere {mirromereSurface.scene.scene_id} details</summary>
+              <summary>
+                Mirromere {mirromereSurface.scene.scene_id};{' '}
+                {mirromereSurface.accessibility.description}; freshness{' '}
+                {mirromereSurface.freshness}; availability {mirromereSurface.availability} details
+              </summary>
               <dl>
                 <div><dt>Freshness</dt><dd>{mirromereSurface.freshness}</dd></div>
                 <div><dt>Availability</dt><dd>{mirromereSurface.availability}</dd></div>

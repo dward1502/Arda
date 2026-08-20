@@ -110,7 +110,7 @@ describe('BoardroomAccessibilityControls', () => {
       }}
     />)
 
-    expect(screen.getByText('Mirromere privacy.veil details')).toBeTruthy()
+    expect(screen.getByText(/Mirromere privacy\.veil;.*freshness fresh; availability available details/)).toBeTruthy()
     expect(screen.queryByRole('button', { name: /Inspect Mirromere/ })).toBeNull()
   })
 })

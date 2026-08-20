@@ -3,6 +3,65 @@ use std::fs;
 use std::path::PathBuf;
 use tauri::{AppHandle, Manager, Monitor, PhysicalPosition, PhysicalSize, WebviewWindow};
 
+#[cfg(target_os = "linux")]
+fn gnome_primary_monitor_name() -> Result<String, String> {
+    let connection = gio::bus_get_sync(gio::BusType::Session, gio::Cancellable::NONE)
+        .map_err(|error| format!("failed to connect to the session bus: {error}"))?;
+    let reply = connection
+        .call_sync(
+            Some("org.gnome.Mutter.DisplayConfig"),
+            "/org/gnome/Mutter/DisplayConfig",
+            "org.gnome.Mutter.DisplayConfig",
+            "GetCurrentState",
+            None,
+            None,
+            gio::DBusCallFlags::NONE,
+            -1,
+            gio::Cancellable::NONE,
+        )
+        .map_err(|error| format!("failed to read GNOME display state: {error}"))?;
+    let logical_monitors = reply.child_value(2);
+    for index in 0..logical_monitors.n_children() {
+        let logical_monitor = logical_monitors.child_value(index);
+        if logical_monitor.child_value(4).get::<bool>() != Some(true) {
+            continue;
+        }
+        let physical_monitors = logical_monitor.child_value(5);
+        if physical_monitors.n_children() == 0 {
+            break;
+        }
+        let identity = physical_monitors.child_value(0);
+        return identity
+            .child_value(2)
+            .get::<String>()
+            .filter(|name| !name.is_empty())
+            .ok_or_else(|| "GNOME primary display has no product name".to_string());
+    }
+    Err("GNOME did not report a primary display".to_string())
+}
+
+fn resolve_primary_id(
+    displays: &[DisplayDescriptor],
+    tauri_primary_id: Option<String>,
+    compositor_primary_name: Option<&str>,
+) -> Result<String, String> {
+    if let Some(primary_id) = tauri_primary_id {
+        return Ok(primary_id);
+    }
+    let primary_name = compositor_primary_name.ok_or_else(|| {
+        "primary display identity is unavailable; projection remains veiled".to_string()
+    })?;
+    displays
+        .iter()
+        .find(|display| display.name == primary_name)
+        .map(|display| display.id.clone())
+        .ok_or_else(|| {
+            format!(
+                "compositor primary display {primary_name:?} did not match the Tauri inventory; projection remains veiled"
+            )
+        })
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct DisplayDescriptor {
     pub id: String,
@@ -120,15 +179,31 @@ pub fn inventory(app: &AppHandle) -> Result<(Vec<Monitor>, Vec<DisplayDescriptor
     let monitors = app
         .available_monitors()
         .map_err(|error| error.to_string())?;
-    let primary_id = app
+    let tauri_primary_id = app
         .primary_monitor()
         .map_err(|error| error.to_string())?
         .as_ref()
         .map(monitor_id);
-    let displays = monitors
+    let mut displays: Vec<_> = monitors
         .iter()
-        .map(|monitor| descriptor(monitor, primary_id.as_deref()))
+        .map(|monitor| descriptor(monitor, None))
         .collect();
+    #[cfg(target_os = "linux")]
+    let compositor_primary_name = if tauri_primary_id.is_none() {
+        Some(gnome_primary_monitor_name()?)
+    } else {
+        None
+    };
+    #[cfg(not(target_os = "linux"))]
+    let compositor_primary_name: Option<String> = None;
+    let primary_id = resolve_primary_id(
+        &displays,
+        tauri_primary_id,
+        compositor_primary_name.as_deref(),
+    )?;
+    for display in &mut displays {
+        display.is_primary = display.id == primary_id;
+    }
     Ok((monitors, displays))
 }
 
@@ -236,6 +311,24 @@ mod tests {
                 .unwrap()
                 .id,
             "secondary"
+        );
+    }
+
+    #[test]
+    fn resolves_compositor_primary_when_tauri_has_none() {
+        let displays = [display("ROG PG248Q", false), display("VX2858Sml", false)];
+        assert_eq!(
+            resolve_primary_id(&displays, None, Some("VX2858Sml")).unwrap(),
+            "VX2858Sml"
+        );
+    }
+
+    #[test]
+    fn fails_closed_when_primary_identity_is_unknown() {
+        assert!(
+            resolve_primary_id(&[display("secondary", false)], None, None)
+                .unwrap_err()
+                .contains("remains veiled")
         );
     }
 }

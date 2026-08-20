@@ -116,6 +116,17 @@ fn stale_and_offline_sources_fail_closed() {
 }
 
 #[test]
+fn lifecycle_starting_precedes_expected_continuity_unavailability() {
+    let mut starting = input(MirromereDisplayRole::HudAperture);
+    starting.lifecycle = Some(lifecycle(LifecycleAggregateState::Starting));
+    starting.continuity.as_mut().expect("continuity").freshness = ContinuityFreshness::Unavailable;
+
+    let starting = project_mirromere_surface_at(starting, now()).expect("starting projection");
+    assert_eq!(starting.scene.scene_id, MirromereSceneId::SystemStarting);
+    assert_eq!(starting.freshness, MirromereFreshness::Unavailable);
+}
+
+#[test]
 fn receipts_require_backend_issued_current_surface_and_explicit_mutation() {
     let state = MirromereInteractionReceiptState::default();
     let surface = project_mirromere_surface_at(input(MirromereDisplayRole::HudAperture), now())

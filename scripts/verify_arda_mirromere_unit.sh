@@ -8,6 +8,7 @@ import sys
 path = Path(sys.argv[1])
 text = path.read_text()
 required = [
+    "Environment=__NV_DISABLE_EXPLICIT_SYNC=1",
     "ExecStart=%h/.local/lib/arda/mirromere/arda_mirromere",
     "Restart=no",
     "PartOf=graphical-session.target",

@@ -53,6 +53,7 @@ require(hud, "After=graphical-session.target arda-session.target", "HUD service"
 require(hud, "PartOf=graphical-session.target", "HUD service")
 require(hud, "ExecStart=%h/.local/lib/arda/hud/arda_hud", "HUD service")
 require(hud, "Environment=__NV_DISABLE_EXPLICIT_SYNC=1", "HUD service")
+require(hud, "Environment=ARDA_OPERATOR_ID=operator:mythos", "HUD service")
 for forbidden in (
     "target/release",
     "/Eregion/Arda",
@@ -68,6 +69,8 @@ if "[Install]" in hud:
     raise SystemExit("HUD service must remain static for health-gated explicit start")
 
 require(mirromere, "ExecStart=%h/.local/lib/arda/mirromere/arda_mirromere", "Mirromere service")
+require(mirromere, "Environment=__NV_DISABLE_EXPLICIT_SYNC=1", "Mirromere service")
+require(mirromere, "Environment=ARDA_OPERATOR_ID=operator:mythos", "Mirromere service")
 require(mirromere, "Restart=no", "Mirromere service")
 forbid(mirromere, "Wants=arda-session.target", "Mirromere service")
 if "[Install]" in mirromere:

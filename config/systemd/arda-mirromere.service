@@ -6,6 +6,8 @@ PartOf=graphical-session.target
 
 [Service]
 Type=simple
+Environment=__NV_DISABLE_EXPLICIT_SYNC=1
+Environment=ARDA_OPERATOR_ID=operator:mythos
 ExecStart=%h/.local/lib/arda/mirromere/arda_mirromere
 Restart=no
 TimeoutStopSec=5

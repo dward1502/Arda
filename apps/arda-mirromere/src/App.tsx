@@ -19,6 +19,9 @@ export default function App() {
   const [surface, setSurface] = useState<MirromereSurface | null>(null)
   const [displayState, setDisplayState] = useState<DisplayState | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(
+    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  )
 
   const refreshDisplays = useCallback(async () => {
     const next = await invoke<DisplayState>('get_display_state')
@@ -39,7 +42,7 @@ export default function App() {
   useEffect(() => {
     void refreshDisplays().catch((cause: unknown) => setError(String(cause)))
     void refreshSurface()
-    const surfaceTimer = window.setInterval(refreshSurface, 1000)
+    const surfaceTimer = window.setInterval(refreshSurface, 5000)
     const displayTimer = window.setInterval(() => {
       void refreshDisplays().catch((cause: unknown) => setError(String(cause)))
     }, 2000)
@@ -48,6 +51,25 @@ export default function App() {
       window.clearInterval(displayTimer)
     }
   }, [refreshDisplays, refreshSurface])
+
+  useEffect(() => {
+    const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const handleMotionPreference = () => setPrefersReducedMotion(motionPreference.matches)
+    motionPreference.addEventListener('change', handleMotionPreference)
+    return () => motionPreference.removeEventListener('change', handleMotionPreference)
+  }, [])
+
+  useEffect(() => {
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return
+      event.preventDefault()
+      void import('@tauri-apps/api/window')
+        .then(({ getCurrentWindow }) => getCurrentWindow().close())
+        .catch((cause: unknown) => setError(String(cause)))
+    }
+    window.addEventListener('keydown', closeOnEscape)
+    return () => window.removeEventListener('keydown', closeOnEscape)
+  }, [])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -59,12 +81,12 @@ export default function App() {
       const scale = window.devicePixelRatio || 1
       canvas.width = Math.max(1, Math.floor(rect.width * scale))
       canvas.height = Math.max(1, Math.floor(rect.height * scale))
-      drawMirromereFrame(canvas, surface, (now - start) / 1000, resolveMirromereMotion(surface, true, window.matchMedia('(prefers-reduced-motion: reduce)').matches))
+      drawMirromereFrame(canvas, surface, (now - start) / 1000, resolveMirromereMotion(surface, true, prefersReducedMotion))
       frame = requestAnimationFrame(render)
     }
     frame = requestAnimationFrame(render)
     return () => cancelAnimationFrame(frame)
-  }, [displayState?.projected, surface])
+  }, [displayState?.projected, prefersReducedMotion, surface])
 
   const selectDisplay = async (displayId: string) => {
     try {
@@ -87,8 +109,11 @@ export default function App() {
   }
 
   const veiled = isProjectionVeiled(displayState, surface)
+  const projectionLabel = surface
+    ? `Mirromere ${surface.scene.scene_id}; ${surface.accessibility.description}; freshness ${surface.freshness}; availability ${surface.availability}; motion ${resolveMirromereMotion(surface, true, prefersReducedMotion) ? 'animated' : 'reduced'}`
+    : 'Mirromere ambient projection unavailable'
   return <main className="mirromere-shell">
-    <canvas ref={canvasRef} aria-label="Mirromere ambient projection" onDoubleClick={() => void inspect()} />
+    <canvas ref={canvasRef} aria-label={projectionLabel} onDoubleClick={() => void inspect()} />
     {veiled && <section className="veil" data-testid="projection-veil" aria-live="polite">
       <div className="veil-mark" aria-hidden="true">◇</div>
       <p>{displayState?.veil_reason ?? error ?? 'Awaiting runtime projection'}</p>

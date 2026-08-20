@@ -7,7 +7,7 @@ use serde_json::Value;
 use std::io::Read;
 use std::time::Duration;
 
-const HEALTH_TIMEOUT: Duration = Duration::from_secs(2);
+const HEALTH_TIMEOUT: Duration = Duration::from_secs(5);
 const MAX_HEALTH_BODY_BYTES: usize = 16 * 1024;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

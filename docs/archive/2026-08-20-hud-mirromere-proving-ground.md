@@ -5,11 +5,11 @@ soterion:
   code_point: "U+1F4DC"
   role: "implementation_plan"
   owner: "HERMES"
-  status: "active"
+  status: "archived"
   reviewed: "2026-08-20"
 ---
 
-> 🜏 Soterion: 📜 implementation_plan | owner: HERMES | status: active | reviewed: 2026-08-20
+> 🜏 Soterion: 📜 implementation_plan | owner: HERMES | status: archived | reviewed: 2026-08-20
 
 # Phase 3: HUD and Mirromere Proving Ground Implementation Plan
 
@@ -412,7 +412,7 @@ The intended connection is therefore **shared backend authority, not hidden app-
 
 ## Task 7: Visual, native, and performance acceptance
 
-**Status:** Ready. Task C produced and lifecycle-proved the standalone Mirromere package. This gate now requires the physical second display and operator observation.
+**Status:** Closed with explicitly recorded exceptions. The implementation and live native walkthrough are complete. Physical cable disconnect/reconnect and the five-minute observation were waived by the operator and were not performed. Escape handling is implemented and release-build verified, but native Escape input was not accepted because the Wayland session did not permit deterministic compositor focus; it is not claimed as observed.
 
 **Run:**
 1. Launch the packaged native HUD and the separately packaged Mirromere application through Phase 1.
@@ -426,10 +426,20 @@ The intended connection is therefore **shared backend authority, not hidden app-
 9. Confirm browser preview or static screenshots are not used as native proof.
 10. Record a real operator session using the second monitor for conversation presence and one Varda research visualization.
 
+**Operator evidence (2026-08-20):**
+
+- Installed release binaries ran as independent `arda_hud` and `arda_mirromere` processes. Mirromere selected explicit non-primary connector `DP-3` at `1920,0 1920x1080`; invalid selection failed closed rather than falling back to the primary display.
+- Backend-authoritative native semantic walkthroughs covered `ambient.idle`, `system.starting`, `system.degraded`, `conversation.presence`, `continuity.handoff-ready`, `research.focus`, `privacy.veil`, stale continuity, and `offline.local`. HUD and standalone Mirromere exposed equivalent scene purpose, freshness, privacy, and availability semantics through AT-SPI.
+- The starting-state walkthrough used a temporary bounded systemd `ExecStartPre` delay. Systemd reported `activating/start-pre`, launcher lifecycle authority reported `aggregate_state: starting`, and both native consumers exposed `system.starting`. The drop-in was removed and `/healthz` was healthy afterward.
+- GNOME's real `enable-animations=false` preference caused standalone Mirromere to expose `motion reduced`; the preference was restored to `true`. Shared renderer tests prove reduced mode disables animation.
+- Ordinary close/remain-closed/explicit-relaunch service semantics were exercised: `arda-mirromere.service` uses `Restart=no`, has no install/autostart membership, remains inactive after an explicit stop, and starts only through explicit launch. HUD remains active independently.
+- Frontend Escape handling closes the current Tauri window and passed TypeScript and release Tauri builds. A native synthesized Escape attempt was rejected as acceptance evidence because AT-SPI could not acquire Wayland compositor focus; no native Escape pass is claimed.
+- Physical cable disconnect/reconnect and the five-minute observation were operator-waived and not performed. Screenshot capture was denied by GNOME, so no screenshot claim is made; native evidence used backend receipts, systemd state, process identity, display geometry, and AT-SPI semantics.
+
 ## Phase gate
 
-Phase 3 is **proven** only when one backend-owned scene contract drives both the in-world HUD aperture and a separately packaged Mirromere application/process on the physical second monitor, including ordinary close semantics, privacy veil, disconnect recovery, source freshness, and no accepted FPS regression. A HUD aperture or HUD-owned child window is a useful testbed but is not physical Mirromere acceptance.
+Phase 3 reached implemented, packaged, installed, and native-runtime-observed maturity for the governed dual-consumer scene contract, explicit non-primary display placement, privacy/freshness behavior, reduced motion, and independent lifecycle. It is **not declared fully proven** under the original strict gate because physical disconnect/reconnect and five-minute observation were waived, native Escape delivery was not observed, and no new performance-soak acceptance was performed. A HUD-owned child window remains rejected architecture.
 
-## New-session continuation
+## Closeout
 
-Continue **Task 7** with the real desk display attached: install the packaged standalone Mirromere, select the explicit non-primary display, run disconnect/reconnect and close/relaunch checks, observe the HUD for five minutes, and record operator evidence without substituting browser or synthetic proof.
+This implementation plan is archived. The waived/unobserved checks above remain historical evidence limits, not pending implementation tasks and not passes.

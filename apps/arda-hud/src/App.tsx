@@ -175,6 +175,7 @@ import {
   requestMirromereInteraction,
   type MirromereInteractionReceipt,
 } from './features/mirromere/sceneRegistry'
+import { loadMirromereSurface } from './features/mirromere/source'
 import type { MirromereInteractionId, MirromereSurface } from './features/mirromere/types'
 const THEMES: ThemeOption[] = [
   { id: 'cyberpunk', label: 'Cyberpunk' },
@@ -236,6 +237,26 @@ export default function App() {
     source,
     onLoaded: onBundleLoaded,
   })
+  const [mirromereSurface, setMirromereSurface] = useState<MirromereSurface | null>(null)
+  useEffect(() => {
+    if (!('__TAURI_INTERNALS__' in window)) return
+    let cancelled = false
+    const refreshMirromereSurface = () => {
+      void loadMirromereSurface()
+        .then((surface) => {
+          if (!cancelled) setMirromereSurface(surface)
+        })
+        .catch(() => {
+          if (!cancelled) setMirromereSurface(null)
+        })
+    }
+    refreshMirromereSurface()
+    const intervalId = window.setInterval(refreshMirromereSurface, 5000)
+    return () => {
+      cancelled = true
+      window.clearInterval(intervalId)
+    }
+  }, [])
   const {
     snapshot: manweLiveSnapshot,
     error: manweLiveError,
@@ -2590,7 +2611,7 @@ export default function App() {
             presenceState={bundle?.agentPresenceState}
             presenceStatus={bundle?.agentPresenceStatus}
             rootPath={bundle?.rootPath ?? null}
-            mirromereSurface={bundle?.mirromereSurface ?? null}
+            mirromereSurface={mirromereSurface}
             onMirromereInteraction={handleMirromereInteraction}
             sceneOverlay={floatingWorkstationSceneOverlay}
             onActivate={handleSceneAnchorActivate}

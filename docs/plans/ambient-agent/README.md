@@ -82,7 +82,7 @@ Later implementation phases remain open until their explicit gates pass.
 |---|---|---|---|
 | 1 | [Launcher and Local Runtime — complete](../../archive/2026-08-17-launcher-local-runtime-plan.md) | Restart, click icon, prove services, open HUD | Phase 0 |
 | 2 | [Hermes Continuity and Surface Handoff — complete](../../archive/2026-08-17-hermes-continuity-handoff-plan.md) | Same governed conversation continues across phone/desktop/room | Phase 1 |
-| 3 | [HUD and Mirromere Proving Ground](03-hud-mirromere-proving-ground.md) | One presentation contract renders in HUD aperture and second-monitor native surface | Phases 1–2 |
+| 3 | [HUD and Mirromere Proving Ground](../../archive/2026-08-20-hud-mirromere-proving-ground.md) | Archived implementation/runtime closeout with explicit physical-proof waivers | Phases 1–2 |
 | 4 | [Presence, Identity, and Privacy](04-presence-identity-privacy.md) | Multi-signal local presence safely prepares/resumes context | Phases 2–3 |
 | 5 | [RELIC Runtime Embodiment](05-relic-runtime-embodiment.md) | Physical display truthfully renders agent flow | Phases 1 and 3 |
 | 6 | [Governed Physical Outposts](06-governed-physical-outposts.md) | Typed proposal/approval/execution protocol for devices | Phases 4–5 |

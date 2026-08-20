@@ -370,9 +370,7 @@ pub fn project_mirromere_surface_at(
         MirromereSceneId::OfflineLocal
     } else if private_for_display {
         MirromereSceneId::PrivacyVeil
-    } else if continuity_unavailable {
-        MirromereSceneId::SystemDegraded
-    } else if lifecycle_stale || continuity_stale {
+    } else if lifecycle_stale {
         MirromereSceneId::SystemDegraded
     } else {
         match lifecycle_state {
@@ -383,7 +381,13 @@ pub fn project_mirromere_surface_at(
             LifecycleAggregateState::Degraded
             | LifecycleAggregateState::Failed
             | LifecycleAggregateState::Unknown => MirromereSceneId::SystemDegraded,
-            LifecycleAggregateState::Healthy => continuity_scene(input.continuity.as_ref()),
+            LifecycleAggregateState::Healthy => {
+                if continuity_unavailable || continuity_stale {
+                    MirromereSceneId::SystemDegraded
+                } else {
+                    continuity_scene(input.continuity.as_ref())
+                }
+            }
         }
     };
 

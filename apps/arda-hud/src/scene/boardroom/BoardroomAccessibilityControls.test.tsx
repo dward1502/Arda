@@ -91,4 +91,26 @@ describe('BoardroomAccessibilityControls', () => {
     fireEvent.click(button)
     expect(onInspectMirromere).toHaveBeenCalledOnce()
   })
+
+
+  it('exposes non-interactive privacy scene truth without minting an inspect control', () => {
+    render(<BoardroomAccessibilityControls
+      anchors={[]}
+      workstations={[]}
+      onActivate={vi.fn()}
+      onOpenWorkstation={vi.fn()}
+      onOpenSettings={vi.fn()}
+      onOpenHermesDashboard={vi.fn()}
+      onOpenHermesCli={vi.fn()}
+      mirromereSurface={{
+        ...ambientIdleFixture,
+        source_mode: 'runtime',
+        scene: { ...ambientIdleFixture.scene, scene_id: 'privacy.veil' },
+        allowed_interactions: [],
+      }}
+    />)
+
+    expect(screen.getByText('Mirromere privacy.veil details')).toBeTruthy()
+    expect(screen.queryByRole('button', { name: /Inspect Mirromere/ })).toBeNull()
+  })
 })

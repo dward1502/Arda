@@ -50,7 +50,7 @@ export default function BoardroomAccessibilityControls({
             </button>
           </li>
         ))}
-        {mirromereSurface && onInspectMirromere && isMirromereInspectAllowed(mirromereSurface) ? (
+        {mirromereSurface ? (
           <li>
             <details>
               <summary>Mirromere {mirromereSurface.scene.scene_id} details</summary>
@@ -67,13 +67,15 @@ export default function BoardroomAccessibilityControls({
                 ))}
               </ul>
             </details>
-            <button
-              type="button"
-              onClick={onInspectMirromere}
-              aria-description={mirromereSurface.accessibility.description}
-            >
-              Inspect Mirromere {mirromereSurface.scene.scene_id}
-            </button>
+            {onInspectMirromere && isMirromereInspectAllowed(mirromereSurface) ? (
+              <button
+                type="button"
+                onClick={onInspectMirromere}
+                aria-description={mirromereSurface.accessibility.description}
+              >
+                Inspect Mirromere {mirromereSurface.scene.scene_id}
+              </button>
+            ) : null}
           </li>
         ) : null}
         <li><button type="button" onClick={onOpenHermesDashboard}>Open Hermes dashboard</button></li>

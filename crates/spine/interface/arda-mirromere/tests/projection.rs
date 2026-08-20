@@ -33,6 +33,7 @@ fn continuity() -> ContinuityProjectionReference {
         privacy_class: Some(ContinuityPrivacyClass::PublicRoom),
         handoff_id: None,
         handoff_state: None,
+        research_focus_ref: None,
         evidence_ref: "continuity://projection/current".to_string(),
     }
 }

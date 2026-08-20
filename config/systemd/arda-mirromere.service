@@ -1,0 +1,15 @@
+[Unit]
+Description=ARDA Mirromere independent projection outpost
+After=graphical-session.target arda.service hermes-gateway.service
+Wants=arda.service hermes-gateway.service
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/lib/arda/mirromere/arda_mirromere
+Restart=no
+TimeoutStopSec=5
+KillMode=mixed
+
+# Deliberately no [Install] section: Mirromere starts only through an explicit
+# operator launch action and remains closed after an operator closes/stops it.

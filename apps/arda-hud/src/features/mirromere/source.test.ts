@@ -12,6 +12,7 @@ describe('Mirromere runtime source', () => {
     expect(surface.source_mode).toBe('runtime')
   })
 
+
   it('never promotes a fixture response into runtime mode', async () => {
     const invoke = vi.fn().mockResolvedValue(ambientIdleFixture)
     await expect(loadMirromereSurface(invoke, fixtureNow)).rejects.toThrow(/fixture/i)

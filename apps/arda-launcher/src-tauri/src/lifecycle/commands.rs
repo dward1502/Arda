@@ -14,8 +14,10 @@ use wait_timeout::ChildExt;
 pub const STOP_SESSION_CONFIRMATION: &str = "stop-arda-session";
 const SESSION_TARGET: &str = "arda-session.target";
 const HUD_UNIT: &str = "arda-hud.service";
+const MIRROMERE_UNIT: &str = "arda-mirromere.service";
 const HERMES_UNIT: &str = "hermes-gateway.service";
 const HUD_BINARY: &str = ".local/lib/arda/hud/arda_hud";
+const MIRROMERE_BINARY: &str = ".local/lib/arda/mirromere/arda_mirromere";
 const CONTROL_TIMEOUT: Duration = Duration::from_secs(3);
 const POLL_TIMEOUT: Duration = Duration::from_secs(5);
 
@@ -34,12 +36,14 @@ pub enum CommandOutcome {
     Stopped,
     Recovered,
     AlreadyRunning,
+    AlreadyStopped,
 }
 
 pub trait LifecycleControl {
     fn execute(&self, action: ControlAction, unit: &str) -> Result<(), String>;
     fn is_active(&self, unit: &str) -> Result<bool, String>;
     fn native_hud_available(&self) -> bool;
+    fn native_mirromere_available(&self) -> bool;
 }
 
 #[derive(Debug, Default, Clone, Copy)]
@@ -47,7 +51,10 @@ pub struct SystemdLifecycleControl;
 
 impl LifecycleControl for SystemdLifecycleControl {
     fn execute(&self, action: ControlAction, unit: &str) -> Result<(), String> {
-        if !matches!(unit, SESSION_TARGET | HUD_UNIT | HERMES_UNIT) {
+        if !matches!(
+            unit,
+            SESSION_TARGET | HUD_UNIT | MIRROMERE_UNIT | HERMES_UNIT
+        ) {
             return Err("unit is not allowlisted".to_string());
         }
         let verb = match action {
@@ -68,7 +75,10 @@ impl LifecycleControl for SystemdLifecycleControl {
     }
 
     fn is_active(&self, unit: &str) -> Result<bool, String> {
-        if !matches!(unit, SESSION_TARGET | HUD_UNIT | HERMES_UNIT) {
+        if !matches!(
+            unit,
+            SESSION_TARGET | HUD_UNIT | MIRROMERE_UNIT | HERMES_UNIT
+        ) {
             return Err("unit is not allowlisted".to_string());
         }
         run_systemctl_status(&["is-active", "--quiet", unit])
@@ -78,6 +88,13 @@ impl LifecycleControl for SystemdLifecycleControl {
         std::env::var_os("HOME")
             .map(std::path::PathBuf::from)
             .map(|home| home.join(HUD_BINARY).is_file())
+            .unwrap_or(false)
+    }
+
+    fn native_mirromere_available(&self) -> bool {
+        std::env::var_os("HOME")
+            .map(std::path::PathBuf::from)
+            .map(|home| home.join(MIRROMERE_BINARY).is_file())
             .unwrap_or(false)
     }
 }
@@ -172,6 +189,31 @@ pub fn launch_native_hud_with<C: LifecycleControl>(
     Ok(CommandOutcome::Started)
 }
 
+pub fn launch_native_mirromere_with<C: LifecycleControl>(
+    control: &C,
+    aggregate_state: AggregateState,
+) -> Result<CommandOutcome, String> {
+    if aggregate_state != AggregateState::Healthy {
+        return Err("required lifecycle health is not healthy".to_string());
+    }
+    if !control.native_mirromere_available() {
+        return Err("Mirromere binary is unavailable".to_string());
+    }
+    if control.is_active(MIRROMERE_UNIT)? {
+        return Ok(CommandOutcome::AlreadyRunning);
+    }
+    control.execute(ControlAction::Start, MIRROMERE_UNIT)?;
+    Ok(CommandOutcome::Started)
+}
+
+pub fn stop_mirromere_with<C: LifecycleControl>(control: &C) -> Result<CommandOutcome, String> {
+    if !control.is_active(MIRROMERE_UNIT)? {
+        return Ok(CommandOutcome::AlreadyStopped);
+    }
+    control.execute(ControlAction::Stop, MIRROMERE_UNIT)?;
+    Ok(CommandOutcome::Stopped)
+}
+
 fn observed<T>(value: T, source_id: &str) -> Observed<T> {
     Observed {
         value,
@@ -240,6 +282,42 @@ pub fn launch_native_hud() -> Result<CommandOutcome, String> {
 }
 
 #[tauri::command]
+pub fn launch_native_mirromere() -> Result<CommandOutcome, String> {
+    let status = lifecycle_status();
+    launch_native_mirromere_with(&SystemdLifecycleControl, status.aggregate_state)
+}
+
+#[tauri::command]
+pub fn stop_mirromere() -> Result<CommandOutcome, String> {
+    stop_mirromere_with(&SystemdLifecycleControl)
+}
+
+#[tauri::command]
+pub fn mirromere_status() -> HudNativeObservation {
+    let control = SystemdLifecycleControl;
+    let available = control.native_mirromere_available();
+    let running = control.is_active(MIRROMERE_UNIT).ok();
+    HudNativeObservation {
+        availability: observed(
+            if available {
+                Availability::Available
+            } else {
+                Availability::Unavailable
+            },
+            MIRROMERE_BINARY,
+        ),
+        running: observed(
+            match running {
+                Some(true) => RunningState::Running,
+                Some(false) => RunningState::Stopped,
+                None => RunningState::Unknown,
+            },
+            MIRROMERE_UNIT,
+        ),
+    }
+}
+
+#[tauri::command]
 pub fn hud_status() -> HudNativeObservation {
     let control = SystemdLifecycleControl;
     let available = control.native_hud_available();
@@ -267,9 +345,9 @@ pub fn hud_status() -> HudNativeObservation {
 #[cfg(test)]
 mod tests {
     use super::{
-        launch_native_hud_with, recover_component_with, start_arda_session_with,
-        stop_arda_session_with, CommandOutcome, ControlAction, LifecycleControl,
-        STOP_SESSION_CONFIRMATION,
+        launch_native_hud_with, launch_native_mirromere_with, recover_component_with,
+        start_arda_session_with, stop_arda_session_with, stop_mirromere_with, CommandOutcome,
+        ControlAction, LifecycleControl, STOP_SESSION_CONFIRMATION,
     };
     use crate::lifecycle::types::AggregateState;
     use std::cell::RefCell;
@@ -279,6 +357,8 @@ mod tests {
         calls: RefCell<Vec<(ControlAction, String)>>,
         hud_active: bool,
         hud_available: bool,
+        mirromere_active: bool,
+        mirromere_available: bool,
     }
 
     impl LifecycleControl for FixtureControl {
@@ -288,11 +368,19 @@ mod tests {
         }
 
         fn is_active(&self, unit: &str) -> Result<bool, String> {
-            Ok(unit == "arda-hud.service" && self.hud_active)
+            Ok(match unit {
+                "arda-hud.service" => self.hud_active,
+                "arda-mirromere.service" => self.mirromere_active,
+                _ => false,
+            })
         }
 
         fn native_hud_available(&self) -> bool {
             self.hud_available
+        }
+
+        fn native_mirromere_available(&self) -> bool {
+            self.mirromere_available
         }
     }
 
@@ -366,5 +454,44 @@ mod tests {
             CommandOutcome::AlreadyRunning
         );
         assert!(control.calls.borrow().is_empty());
+    }
+
+    #[test]
+    fn mirromere_lifecycle_is_explicit_and_closed_means_closed() {
+        let unavailable = FixtureControl::default();
+        assert!(launch_native_mirromere_with(&unavailable, AggregateState::Healthy).is_err());
+
+        let available = FixtureControl {
+            mirromere_available: true,
+            ..Default::default()
+        };
+        assert_eq!(
+            launch_native_mirromere_with(&available, AggregateState::Healthy).unwrap(),
+            CommandOutcome::Started
+        );
+        assert_eq!(
+            available.calls.borrow().as_slice(),
+            &[(ControlAction::Start, "arda-mirromere.service".to_string())]
+        );
+
+        let stopped = FixtureControl::default();
+        assert_eq!(
+            stop_mirromere_with(&stopped).unwrap(),
+            CommandOutcome::AlreadyStopped
+        );
+        assert!(stopped.calls.borrow().is_empty());
+
+        let running = FixtureControl {
+            mirromere_active: true,
+            ..Default::default()
+        };
+        assert_eq!(
+            stop_mirromere_with(&running).unwrap(),
+            CommandOutcome::Stopped
+        );
+        assert_eq!(
+            running.calls.borrow().as_slice(),
+            &[(ControlAction::Stop, "arda-mirromere.service".to_string())]
+        );
     }
 }

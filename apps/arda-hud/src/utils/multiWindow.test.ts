@@ -1,11 +1,7 @@
 // sigil: REPAIR
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
-  getStoredMirromereSelectedDisplay,
   getStoredWorkstationState,
-  listMirromereDisplays,
-  openMirromereNativeWindow,
-  persistMirromereSelectedDisplay,
   syncWorkstationState,
   windowManager,
 } from './multiWindow'
@@ -79,47 +75,5 @@ describe('multiWindow workstation storage bridge', () => {
         source_zone_id: 'monitor_1',
       }),
     })
-  })
-
-  it('persists only the stable Mirromere display id, never transient geometry', () => {
-    persistMirromereSelectedDisplay('display:DELL U2723QE')
-
-    expect(getStoredMirromereSelectedDisplay()).toEqual({ selectedDisplayId: 'display:DELL U2723QE' })
-    const stored = window.localStorage.getItem('arda.mirromere.selected-display.v1') ?? ''
-    expect(stored).not.toContain('width')
-    expect(stored).not.toContain('geometry')
-  })
-
-  it('opens Mirromere with primary fallback explicitly disabled', async () => {
-    vi.mocked(safeTauriInvoke).mockResolvedValueOnce({
-      available: true,
-      status: 'opened',
-      message: 'opened',
-      window_label: 'arda-mirromere',
-      display_id: 'display:DELL U2723QE',
-      geometry: { x: 1920, y: 0, width: 3840, height: 2160 },
-    })
-
-    await openMirromereNativeWindow('display:DELL U2723QE')
-
-    expect(safeTauriInvoke).toHaveBeenCalledWith('open_mirromere_window', {
-      request: {
-        selected_display_id: 'display:DELL U2723QE',
-        allow_primary_fallback: false,
-      },
-    })
-  })
-
-  it('enumerates stable native display ids separately from persisted selection', async () => {
-    vi.mocked(safeTauriInvoke).mockResolvedValueOnce([{
-      display_id: 'display:DELL U2723QE',
-      geometry: { x: 1920, y: 0, width: 3840, height: 2160 },
-      primary: false,
-      connected: true,
-    }])
-
-    await expect(listMirromereDisplays()).resolves.toHaveLength(1)
-    expect(safeTauriInvoke).toHaveBeenCalledWith('list_mirromere_displays')
-    expect(getStoredMirromereSelectedDisplay()).toBeNull()
   })
 })

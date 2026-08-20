@@ -4,6 +4,7 @@ export type AggregateState = 'stopped' | 'starting' | 'healthy' | 'degraded' | '
 export type Freshness = 'fresh' | 'stale' | 'unknown'
 export interface Observation { source: string; source_id: string; observed_at: string; freshness: Freshness }
 export interface Observed<T> { value: T; observation: Observation }
+export interface NativeAppObservation { availability: Observed<string>; running: Observed<string> }
 export interface ComponentObservation {
   component_id: string
   class: 'required' | 'optional'
@@ -17,7 +18,7 @@ export interface LifecycleSnapshot {
   observed_at: string
   aggregate_state: AggregateState
   components: ComponentObservation[]
-  hud_native: { availability: Observed<string>; running: Observed<string> }
+  hud_native: NativeAppObservation
   hermes_gateway: { availability: Observed<string>; protocol_health: Observed<string> }
 }
 export type PrimaryAction = { kind: 'start' | 'open_hud' | 'retry' | 'inspect'; label: string }
@@ -49,3 +50,6 @@ export const invokeLifecycleStatus = () => invoke<LifecycleSnapshot>('lifecycle_
 export const invokeStartSession = () => invoke<string>('start_arda_session')
 export const invokeRecoverComponent = (actionId: string) => invoke<string>('recover_component', { actionId })
 export const invokeLaunchNativeHud = () => invoke<string>('launch_native_hud')
+export const invokeLaunchMirromere = () => invoke<string>('launch_native_mirromere')
+export const invokeStopMirromere = () => invoke<string>('stop_mirromere')
+export const invokeMirromereStatus = () => invoke<NativeAppObservation>('mirromere_status')

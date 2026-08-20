@@ -36,12 +36,17 @@ describe('MirromereAperture visual contract', () => {
   })
 
   it('honors contract and operator reduced-motion controls', () => {
-    expect(resolveMirromereMotion(surface({}), true, false)).toBe(true)
+    expect(resolveMirromereMotion(surface({
+      accessibility: { ...ambientIdleFixture.accessibility, reduced_motion: 'none' },
+    }), true, false)).toBe(true)
     expect(resolveMirromereMotion(surface({}), true, true)).toBe(false)
     expect(resolveMirromereMotion(surface({}), false, false)).toBe(false)
     expect(resolveMirromereMotion(surface({
       accessibility: { ...ambientIdleFixture.accessibility, reduced_motion: 'simplify' },
     }), true, true)).toBe(false)
+    expect(resolveMirromereMotion(surface({
+      accessibility: { ...ambientIdleFixture.accessibility, reduced_motion: 'freeze' },
+    }), true, false)).toBe(false)
   })
 
   it('uses only monitor_3 ambient ownership and backend-allowlisted inspection', () => {

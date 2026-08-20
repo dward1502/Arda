@@ -4,14 +4,14 @@ soterion:
   role: "integration_contract"
   owner: "HERMES"
   status: "active"
-  reviewed: "2026-08-17"
+  reviewed: "2026-08-20"
 ---
 
-> 🜏 Soterion: REPAIR integration_contract | owner: HERMES | status: active | reviewed: 2026-08-17
+> 🜏 Soterion: REPAIR integration_contract | owner: HERMES | status: active | reviewed: 2026-08-20
 
 # Mirromere HUD Integration Seam
 
-This note freezes the Phase 3 integration seam before the shared Mirromere contract and its two renderers are added. It records current source truth only; it does not claim a Mirromere projection, native second-monitor placement, or physical acceptance.
+This note records the current Phase 3 integration seam. The shared contract and both consumers are implemented; native second-monitor operator acceptance remains a separate gate.
 
 ## Live-source discrepancy
 
@@ -42,17 +42,9 @@ Phase 3 reuses these live paths:
 
 Do not add a second boardroom stage, floating-workstation manager, monitor registry, or window manager for Mirromere.
 
-## Native window and route convention
+## Standalone application ownership
 
-`src/utils/multiWindow.ts` is the frontend authority for managed secondary windows:
-
-- `WindowConfig` carries stable id, role, workstation identity, source zone, presentation mode, dimensions, URL, and placement intent.
-- Workstation-role windows invoke Rust command `open_workstation_window` with one nested `request` object.
-- Browser fallback uses the same route keys: `__windowId`, `__windowRole`, `__workstation`, `__section`, `__anchor`, and `__presentation`.
-- `App.tsx` parses `__windowId`, `__windowRole`, `__workstation`, `__section`, and `__view` before composition, while the existing route builder also carries `__anchor` and `__presentation`; persisted `WorkstationBridgeState` is reused through `workstation-sync`.
-- `monitorSessionWorkstationRoute.ts` demonstrates stable session-derived window identity and returns the existing `WindowConfig` shape.
-
-The native Mirromere surface must extend this convention and `WindowManager`; it must not add a parallel JavaScript window registry. Physical monitor selection and fail-closed disconnect behavior belong in the Rust/Tauri window command because browser screen enumeration currently exposes only the active screen and silently falls back to primary.
+`apps/arda-mirromere` is the only owner of the physical Mirromere window and display selection. It persists a stable non-primary display id, verifies current geometry before projection, and veils or reports unavailable when selection is missing or disconnected. HUD `multiWindow.ts`, `App.tsx`, and the HUD Tauri command table contain no Mirromere display enumeration, placement, child label, or `__view=mirromere` route.
 
 ## Frozen source-mode contract
 
@@ -75,13 +67,13 @@ The native Mirromere surface must extend this convention and `WindowManager`; it
 - Canonical boardroom monitor ids are `monitor_1` through `monitor_5`.
 - Session records and active claims outrank passive ambient/Mirromere pixels.
 - The HUD aperture is a simulation/design lens only.
-- Physical Mirromere acceptance requires a separate packaged Tauri window on an explicitly selected non-primary monitor.
+- Physical Mirromere acceptance requires the separately packaged `arda_mirromere` process on an explicitly selected non-primary monitor.
 - Selection must be stable across coordinate changes and must not silently fall back to primary.
 - Disconnect must close or privacy-veil the native surface and report unavailable.
 
 ## Frozen reduced-motion contract
 
-`BoardroomViewport.tsx` observes `(prefers-reduced-motion: reduce)` and passes the result through `resolveBoardroomRenderProfile`. Existing upper ambient rendering also independently suppresses animation under that media query.
+`BoardroomViewport.tsx` observes `(prefers-reduced-motion: reduce)` and passes the result through `resolveBoardroomRenderProfile`. The shared Mirromere renderer independently combines contract policy with the media preference.
 
 Mirromere renderers must consume an explicit reduced-motion behavior from the shared surface contract and combine it with the operator media preference. Reduced motion freezes or simplifies motion without hiding status, provenance, privacy state, or controls. The HUD aperture and native window must resolve the same semantic state.
 
@@ -90,9 +82,9 @@ Mirromere renderers must consume an explicit reduced-motion behavior from the sh
 - HUD World View remains display-only and is not an application-workflow acceptance surface.
 - Browser preview, jsdom, fixtures, and screenshots cannot prove physical Mirromere behavior.
 - The aperture and second-monitor window must consume the same typed surface model and interaction ids.
-- Native proof requires the packaged HUD, selected physical display, privacy veil, disconnect/reconnect, reduced motion, keyboard/escape behavior, and measured frame-time/FPS evidence.
+- Native proof requires the packaged HUD and standalone Mirromere process, selected physical display, privacy veil, disconnect/reconnect, reduced motion, ordinary close behavior, and measured frame-time/FPS evidence.
 
-## Task 1 baseline
+## Historical Task 1 baseline
 
 Executed from `apps/arda-hud` before this file was created:
 

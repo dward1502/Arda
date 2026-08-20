@@ -299,6 +299,7 @@ pub struct ContinuityProjectionReference {
     pub privacy_class: Option<ContinuityPrivacyClass>,
     pub handoff_id: Option<String>,
     pub handoff_state: Option<HandoffState>,
+    pub research_focus_ref: Option<String>,
     pub evidence_ref: String,
 }
 
@@ -460,6 +461,8 @@ fn continuity_scene(continuity: Option<&ContinuityProjectionReference>) -> Mirro
     ) && continuity.handoff_id.is_some()
     {
         MirromereSceneId::ContinuityHandoffReady
+    } else if continuity.research_focus_ref.is_some() {
+        MirromereSceneId::ResearchFocus
     } else if continuity.active {
         MirromereSceneId::ConversationPresence
     } else {
@@ -531,6 +534,13 @@ fn evidence_references(
             },
             observed_at: continuity.generated_at,
         });
+        if let Some(research_focus_ref) = &continuity.research_focus_ref {
+            evidence.push(MirromereEvidenceReference {
+                source_id: "arda.varda.research-focus.v1".to_string(),
+                evidence_ref: research_focus_ref.clone(),
+                observed_at: continuity.generated_at,
+            });
+        }
     }
     evidence
 }
@@ -721,14 +731,31 @@ impl HarnessContinuityProjection {
             .or(self.session_lineage_id.as_deref())
             .unwrap_or("current")
             .to_string();
+        let ambient_idle = self.surface_id.as_deref() == Some("mirromere:ambient:idle");
+        let research_focus_ref = self
+            .surface_id
+            .as_ref()
+            .filter(|reference| reference.starts_with("varda:research:focus/"))
+            .cloned()
+            .or_else(|| {
+                if self.private_refs_withheld {
+                    None
+                } else {
+                    self.topic_refs
+                        .iter()
+                        .find(|reference| reference.starts_with("varda:research:"))
+                        .cloned()
+                }
+            });
         let _bounded_transport_fields = (self.surface_id, self.action_ids);
         Ok(ContinuityProjectionReference {
             generated_at: self.generated_at,
             freshness,
-            active: self.active,
+            active: self.active && !ambient_idle,
             privacy_class,
             handoff_id: self.handoff_id,
             handoff_state,
+            research_focus_ref,
             evidence_ref: format!("continuity://projection/{identity}"),
         })
     }
@@ -776,6 +803,7 @@ fn unavailable_continuity(now: DateTime<Utc>) -> ContinuityProjectionReference {
         privacy_class: None,
         handoff_id: None,
         handoff_state: None,
+        research_focus_ref: None,
         evidence_ref: "continuity://unavailable".to_string(),
     }
 }
@@ -916,6 +944,7 @@ mod mirromere_interaction_tests {
                 privacy_class: Some(ContinuityPrivacyClass::OperatorPrivate),
                 handoff_id: Some("handoff-test".to_string()),
                 handoff_state: Some(HandoffState::Prepared),
+                research_focus_ref: None,
                 evidence_ref: "continuity://test".to_string(),
             }),
         );
@@ -1002,5 +1031,31 @@ mod mirromere_interaction_tests {
             .unwrap();
         assert_eq!(receipt.outcome, MirromereInteractionOutcome::Rejected);
         assert_eq!(receipt.reason, "surface_not_current");
+    }
+
+    #[test]
+    fn ambient_idle_surface_selector_suppresses_presence_without_fixture_mode() {
+        let now = Utc::now();
+        let reference = HarnessContinuityProjection {
+            schema_version: "arda.continuity-projection.v1".to_string(),
+            generated_at: now,
+            active: true,
+            session_lineage_id: Some("task7-idle".to_string()),
+            current_session_id: Some("task7-idle".to_string()),
+            surface_id: Some("mirromere:ambient:idle".to_string()),
+            privacy_class: Some("public_room".to_string()),
+            freshness: "fresh".to_string(),
+            handoff_id: None,
+            handoff_state: None,
+            action_ids: vec![],
+            private_refs_withheld: true,
+            topic_refs: vec![],
+            commitment_refs: vec![],
+            memory_scope_refs: vec![],
+        }
+        .into_reference()
+        .unwrap();
+        assert!(!reference.active);
+        assert!(reference.research_focus_ref.is_none());
     }
 }

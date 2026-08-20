@@ -6,14 +6,16 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 UNIT_DIR="${1:-$ROOT_DIR/config/systemd}"
 TARGET_UNIT="$UNIT_DIR/arda-session.target"
 HUD_UNIT="$UNIT_DIR/arda-hud.service"
+MIRROMERE_UNIT="$UNIT_DIR/arda-mirromere.service"
 
-python3 - "$TARGET_UNIT" "$HUD_UNIT" <<'PY'
+python3 - "$TARGET_UNIT" "$HUD_UNIT" "$MIRROMERE_UNIT" <<'PY'
 from pathlib import Path
 import sys
 
 target_path = Path(sys.argv[1])
 hud_path = Path(sys.argv[2])
-for path in (target_path, hud_path):
+mirromere_path = Path(sys.argv[3])
+for path in (target_path, hud_path, mirromere_path):
     if not path.is_file():
         raise SystemExit(f"missing unit: {path}")
 
@@ -26,6 +28,7 @@ def unit_text(path: Path) -> str:
 
 target = unit_text(target_path)
 hud = unit_text(hud_path)
+mirromere = unit_text(mirromere_path)
 
 def require(text: str, needle: str, label: str) -> None:
     if needle not in text:
@@ -38,6 +41,7 @@ def forbid(text: str, needle: str, label: str) -> None:
 require(target, "Wants=arda.service hermes-gateway.service", "session target")
 require(target, "After=network-online.target arda.service hermes-gateway.service", "session target")
 forbid(target, "arda-hud.service", "session target")
+forbid(target, "arda-mirromere.service", "session target")
 
 root_runtime_path = target_path.parent / "arda.service"
 if root_runtime_path.is_file():
@@ -62,10 +66,18 @@ for forbidden in (
 
 if "[Install]" in hud:
     raise SystemExit("HUD service must remain static for health-gated explicit start")
+
+require(mirromere, "ExecStart=%h/.local/lib/arda/mirromere/arda_mirromere", "Mirromere service")
+require(mirromere, "Restart=no", "Mirromere service")
+forbid(mirromere, "Wants=arda-session.target", "Mirromere service")
+if "[Install]" in mirromere:
+    raise SystemExit("Mirromere service must remain explicit-only")
 PY
 
-if command -v systemd-analyze >/dev/null 2>&1; then
-  systemd-analyze --user verify "$TARGET_UNIT" "$HUD_UNIT"
+if command -v systemd-analyze >/dev/null 2>&1 \
+  && [[ -x "$HOME/.local/lib/arda/hud/arda_hud" ]] \
+  && [[ -x "$HOME/.local/lib/arda/mirromere/arda_mirromere" ]]; then
+  systemd-analyze --user verify "$TARGET_UNIT" "$HUD_UNIT" "$MIRROMERE_UNIT"
 fi
 
 printf 'arda user unit verification: pass unit_dir=%s\n' "$UNIT_DIR"

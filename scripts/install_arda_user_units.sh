@@ -16,9 +16,11 @@ systemctl_user() {
 
 SESSION_DEST="$USER_UNIT_DIR/arda-session.target"
 HUD_UNIT_DEST="$USER_UNIT_DIR/arda-hud.service"
+MIRROMERE_UNIT_DEST="$USER_UNIT_DIR/arda-mirromere.service"
 BACKUP_DIR=""
 SESSION_HAD_PREVIOUS=false
 HUD_UNIT_HAD_PREVIOUS=false
+MIRROMERE_UNIT_HAD_PREVIOUS=false
 HUD_BINARY_HAD_PREVIOUS=false
 HUD_BINARY_CHANGED=false
 TRANSACTION_ACTIVE=false
@@ -66,6 +68,7 @@ cleanup_backup() {
   rm -f \
     "$BACKUP_DIR/arda-session.target" \
     "$BACKUP_DIR/arda-hud.service" \
+    "$BACKUP_DIR/arda-mirromere.service" \
     "$BACKUP_DIR/arda_hud"
   rmdir "$BACKUP_DIR" 2>/dev/null || true
 }
@@ -73,6 +76,7 @@ cleanup_backup() {
 rollback() {
   restore_path "$SESSION_DEST" "$BACKUP_DIR/arda-session.target" "$SESSION_HAD_PREVIOUS" 0644 || true
   restore_path "$HUD_UNIT_DEST" "$BACKUP_DIR/arda-hud.service" "$HUD_UNIT_HAD_PREVIOUS" 0644 || true
+  restore_path "$MIRROMERE_UNIT_DEST" "$BACKUP_DIR/arda-mirromere.service" "$MIRROMERE_UNIT_HAD_PREVIOUS" 0644 || true
   if [[ "$HUD_BINARY_CHANGED" == "true" ]]; then
     restore_path "$HUD_INSTALL_PATH" "$BACKUP_DIR/arda_hud" "$HUD_BINARY_HAD_PREVIOUS" 0755 || true
   fi
@@ -111,6 +115,9 @@ fi
 if backup_path "$HUD_UNIT_DEST" "$BACKUP_DIR/arda-hud.service"; then
   HUD_UNIT_HAD_PREVIOUS=true
 fi
+if backup_path "$MIRROMERE_UNIT_DEST" "$BACKUP_DIR/arda-mirromere.service"; then
+  MIRROMERE_UNIT_HAD_PREVIOUS=true
+fi
 if [[ -n "$HUD_SOURCE" ]] && backup_path "$HUD_INSTALL_PATH" "$BACKUP_DIR/arda_hud"; then
   HUD_BINARY_HAD_PREVIOUS=true
 fi
@@ -125,6 +132,7 @@ fi
 "$ROOT_DIR/scripts/verify_arda_user_units.sh" "$SOURCE_UNIT_DIR"
 atomic_install "$SOURCE_UNIT_DIR/arda-session.target" "$SESSION_DEST" 0644
 atomic_install "$SOURCE_UNIT_DIR/arda-hud.service" "$HUD_UNIT_DEST" 0644
+atomic_install "$SOURCE_UNIT_DIR/arda-mirromere.service" "$MIRROMERE_UNIT_DEST" 0644
 "$ROOT_DIR/scripts/verify_arda_user_units.sh" "$USER_UNIT_DIR"
 
 if [[ "$SKIP_RELOAD" != "true" ]]; then
@@ -144,6 +152,7 @@ if [[ "$SKIP_RELOAD" != "true" ]]; then
   systemctl_user daemon-reload
   [[ "$(systemctl_user show arda-session.target --property=LoadState --value)" == "loaded" ]]
   [[ "$(systemctl_user show arda-hud.service --property=LoadState --value)" == "loaded" ]]
+  [[ "$(systemctl_user show arda-mirromere.service --property=LoadState --value)" == "loaded" ]]
 fi
 
 TRANSACTION_ACTIVE=false

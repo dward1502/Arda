@@ -95,10 +95,8 @@ import {
   type SystemActionId,
 } from './lib/systemActionBus'
 import {
-  getStoredMirromereSelectedDisplay,
   getStoredWorkstationState,
   initWindowBridge,
-  openMirromereNativeWindow,
   syncWorkstationState,
   windowManager,
   type WorkstationBridgeState,
@@ -173,7 +171,6 @@ import {
 } from './components/arda/modules/fleet/focusedWorkstationModuleHelpers'
 import { openHermesRuntimeWindow, ensureHermesRuntimeSpots, describeHermesRuntimeLaunch } from './lib/hermesDashboardLauncher'
 import { companyOpsFromProjection } from './lib/companyOps'
-import MirromereNativeSurface from './features/mirromere/MirromereNativeSurface'
 import {
   requestMirromereInteraction,
   type MirromereInteractionReceipt,
@@ -228,7 +225,6 @@ export default function App() {
   const initialMonitorSessionId = parseMonitorSessionWorkstationId(initialWorkstationId)
   const initialSectionId = searchParams.get('__section')
   const initialView = (searchParams.get('__view') as ViewMode | null) ?? 'boardroom'
-  const isMirromereView = searchParams.get('__view') === 'mirromere'
   const [viewMode, setViewMode] = useState<ViewMode>(initialView)
   const [theme, setTheme] = useState<ThemeId>('gibson2')
   const [activeSectionId, setActiveSectionId] = useState<string | null>(initialSectionId)
@@ -443,17 +439,6 @@ export default function App() {
     initWindowBridge()
   }, [])
 
-  useEffect(() => {
-    if (currentWindowRole === 'mirromere' || !('__TAURI_INTERNALS__' in window)) return
-    const refreshSelectedDisplay = () => {
-      const selection = getStoredMirromereSelectedDisplay()
-      if (!selection) return
-      void openMirromereNativeWindow(selection.selectedDisplayId, false).catch(() => undefined)
-    }
-    refreshSelectedDisplay()
-    const timer = window.setInterval(refreshSelectedDisplay, 2_000)
-    return () => window.clearInterval(timer)
-  }, [currentWindowRole])
 
   useEffect(() => {
     const handleWorkstationSync = (event: Event) => {
@@ -2422,6 +2407,7 @@ export default function App() {
     explicitOperatorAction,
   )
 
+
   const handleSceneAnchorActivate = (anchorId: string) => {
     const anchor = (bundle?.sceneAnchors ?? []).find((candidate) => candidate.id === anchorId) ?? null
     if (!anchor) {
@@ -2484,16 +2470,6 @@ export default function App() {
         sessionId={initialMonitorSessionId}
         record={record}
         rootPath={bundle?.rootPath ?? null}
-      />
-    )
-  }
-
-  if (isMirromereView) {
-    return (
-      <MirromereNativeSurface
-        surface={bundle?.mirromereSurface ?? null}
-        loading={isLoading}
-        error={error}
       />
     )
   }

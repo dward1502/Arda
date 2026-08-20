@@ -31,6 +31,7 @@ fn continuity() -> ContinuityProjectionReference {
         privacy_class: Some(ContinuityPrivacyClass::PublicRoom),
         handoff_id: None,
         handoff_state: None,
+        research_focus_ref: None,
         evidence_ref: "continuity://projection/current".to_string(),
     }
 }
@@ -122,6 +123,19 @@ fn prepared_handoff_preserves_reference_and_requires_explicit_interaction() {
 }
 
 #[test]
+fn research_focus_preserves_varda_provenance() {
+    let mut request = input();
+    request.continuity.as_mut().unwrap().research_focus_ref =
+        Some("varda:research:focus/task7-operator-session".to_string());
+    let surface = project_mirromere_surface_at(request, now()).expect("projection");
+    assert_eq!(surface.scene.scene_id, MirromereSceneId::ResearchFocus);
+    assert!(surface.evidence.iter().any(|evidence| {
+        evidence.source_id == "arda.varda.research-focus.v1"
+            && evidence.evidence_ref == "varda:research:focus/task7-operator-session"
+    }));
+}
+
+#[test]
 fn runtime_backend_rejects_fixture_source_mode() {
     let mut request = input();
     request.source_mode = MirromereProjectionSourceMode::Fixture;
@@ -132,4 +146,7 @@ fn runtime_backend_rejects_fixture_source_mode() {
 fn tauri_handler_registers_the_bounded_projection_command() {
     let lib_source = include_str!("../src/lib.rs");
     assert!(lib_source.contains("mirromere::get_mirromere_surface"));
+    assert!(!lib_source.contains("open_mirromere_window"));
+    assert!(!lib_source.contains("list_mirromere_displays"));
+    assert!(!lib_source.contains("__view=mirromere"));
 }

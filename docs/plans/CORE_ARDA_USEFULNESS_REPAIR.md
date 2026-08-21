@@ -69,17 +69,19 @@ Visible result: Arda says what to do next and why, instead of presenting indepen
 
 Visible result: the operator does not need to remember internal command syntax for ordinary use.
 
+Operator verdict (2026-08-21): the operator confirmed approval of Phase 3's natural-intake behavior. This records human acceptance of the bounded interaction design; it does not replace the still-open authenticated Discord callback, transport metadata, gateway-reload backlog, or replay-proof checks above.
+
 ## Phase 4 — Personal Operations usefulness
 
 - [ ] Prove rapid HUD capture, classification/correction, local scheduling, completion, reminder acknowledge/defer/dismiss, and restart recovery with operator-authored content. The live operator-authored reminder exercised capture, task-to-reminder correction, scheduling, acknowledgement, completion, and gateway restart recovery; native HUD capture plus live defer/dismiss remain unproven.
 - [x] Expose configured/unconfigured calendar and voice adapter status from backend truth rather than static prose. `/v1/personal/capabilities` reads `config/personal_ops.toml`, fails closed when absent or malformed, and the HUD renders returned calendar, voice, reminder transport, quiet-window, attempt-limit, interval, and acknowledgement policy. The live daemon reports Discord DM reminders `configured`; calendar and voice remain honestly `unconfigured`.
 - [x] Connect one actual reminder delivery transport and preserve attempted versus delivered versus acknowledged state. The authorized Discord DM delivery returned a provider message receipt, and the projection preserved one delivered attempt followed by acknowledgement and completion.
 - [x] Keep quiet-window and fatigue policy explicit. Live policy is `22:00`–`08:00` `America/Los_Angeles`, at most three attempts, at least fifteen minutes apart, with acknowledgement required.
-- [ ] Run a bounded private-alpha window; record timings/counts and operator verdict without raw private content. One live item was captured at 20:36 PDT, scheduled for 20:41, delivered once after private destination activation, acknowledged at 20:43, completed, and recovered unchanged after the 20:44 gateway restart. The operator confirmed receipt and selected acknowledgement; the separate burden-reduction verdict timed out and is not inferred.
+- [x] Run a bounded private-alpha window; record timings/counts and operator verdict without raw private content. One live item was captured at 20:36 PDT, scheduled for 20:41, delivered once after private destination activation, acknowledged at 20:43, completed, and recovered unchanged after the 20:44 gateway restart. On 2026-08-21, the operator explicitly approved Phase 4 and directed that this usefulness verdict be recorded while the separate native-HUD and live defer/dismiss proofs remain open.
 
 Visible result: Personal Operations reduces burden rather than being an empty demo module.
 
-Current live state (2026-08-20): one genuine operator-authored item completed the local capture → correction → schedule → Discord DM delivery → acknowledgement → completion path. Its delivery receipt, single-attempt count, acknowledgement, and completed state survived a real Hermes gateway restart. Phase 4 remains open only for native HUD capture, live defer/dismiss behavior, and an explicit operator burden-reduction verdict; engineering success is not substituted for that acceptance.
+Current live state (2026-08-21): one genuine operator-authored item completed the local capture → correction → schedule → Discord DM delivery → acknowledgement → completion path. Its delivery receipt, single-attempt count, acknowledgement, and completed state survived a real Hermes gateway restart. The operator has now approved Phase 4's usefulness and manageability. Phase 4 remains technically open only for native HUD capture and live defer/dismiss proof; those checks are not inferred from the approval verdict.
 
 ## Phase 5 — Source-grounded research and recurring intelligence
 

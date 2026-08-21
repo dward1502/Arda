@@ -174,6 +174,90 @@ async fn personal_ops_projection_endpoint_returns_empty_when_no_events() {
 }
 
 #[tokio::test]
+async fn personal_ops_capabilities_report_backend_configuration_truth() {
+    let root = tempfile::tempdir().unwrap();
+    let state = base_state(root.path().to_path_buf());
+    let shutdown = Arc::new(Notify::new());
+    let (bound, harness_handle) = harness::serve(
+        Some("127.0.0.1:0".parse().unwrap()),
+        state,
+        shutdown.clone(),
+    )
+    .await
+    .expect("start harness");
+
+    let response: Value = authenticated_get(format!("http://{bound}/v1/personal/capabilities"))
+        .await
+        .unwrap()
+        .json()
+        .await
+        .unwrap();
+
+    assert_eq!(response["schema_version"], "arda.personal-capabilities.v1");
+    assert_eq!(response["calendar"]["state"], "unconfigured");
+    assert_eq!(response["calendar"]["adapter"], Value::Null);
+    assert_eq!(response["voice"]["state"], "unconfigured");
+    assert_eq!(response["reminders"]["state"], "unconfigured");
+    assert_eq!(response["reminders"]["max_attempts"], 3);
+    assert_eq!(response["reminders"]["minimum_interval_minutes"], 15);
+    assert_eq!(response["reminders"]["quiet_window"], Value::Null);
+
+    shutdown.notify_waiters();
+    harness_handle.await.unwrap();
+}
+
+#[tokio::test]
+async fn personal_ops_capabilities_do_not_claim_declared_adapters_are_operational() {
+    let root = tempfile::tempdir().unwrap();
+    std::fs::create_dir_all(root.path().join("config")).unwrap();
+    std::fs::write(
+        root.path().join("config/personal_ops.toml"),
+        r#"
+[calendar]
+adapter = "caldav"
+enabled = true
+
+[voice]
+adapter = "microphone"
+enabled = true
+
+[reminders]
+transport = "discord_dm"
+enabled = true
+quiet_start = "22:00"
+quiet_end = "08:00"
+timezone = "America/Los_Angeles"
+"#,
+    )
+    .unwrap();
+    let state = base_state(root.path().to_path_buf());
+    let shutdown = Arc::new(Notify::new());
+    let (bound, harness_handle) = harness::serve(
+        Some("127.0.0.1:0".parse().unwrap()),
+        state,
+        shutdown.clone(),
+    )
+    .await
+    .expect("start harness");
+
+    let response: Value = authenticated_get(format!("http://{bound}/v1/personal/capabilities"))
+        .await
+        .unwrap()
+        .json()
+        .await
+        .unwrap();
+
+    assert_eq!(response["calendar"]["state"], "unavailable");
+    assert_eq!(response["voice"]["state"], "unavailable");
+    assert_eq!(response["reminders"]["state"], "unavailable");
+    assert_eq!(response["reminders"]["quiet_window"]["start"], "22:00");
+    assert_eq!(response["reminders"]["quiet_window"]["end"], "08:00");
+
+    shutdown.notify_waiters();
+    harness_handle.await.unwrap();
+}
+
+#[tokio::test]
 async fn personal_ops_projection_endpoint_reflects_appended_events() {
     let root = tempfile::tempdir().unwrap();
     let store = PersonalOpsLogStore::new(root.path());

@@ -4,6 +4,16 @@ import PersonalOperationsModule from './PersonalOperationsModule'
 import type { PersonalOpsClient, PersonalOpsSnapshot } from '../../../lib/personalOps'
 
 const snapshot: PersonalOpsSnapshot = {
+  capabilities: {
+    schema_version: 'arda.personal-capabilities.v1',
+    calendar: { state: 'unconfigured', adapter: null, detail: 'No calendar adapter is configured.' },
+    voice: { state: 'unconfigured', adapter: null, detail: 'No voice adapter is configured.' },
+    reminders: {
+      state: 'unconfigured', adapter: null, detail: 'No reminder delivery transport is configured.',
+      quiet_window: null, max_attempts: 3, minimum_interval_minutes: 15,
+      acknowledgement_required: true,
+    },
+  },
   nextAction: {
     schema_version: 'arda.next-action.v1',
     generated_at: '2026-08-04T09:00:00Z',
@@ -128,7 +138,10 @@ describe('PersonalOperationsModule', () => {
     expect(screen.getAllByText('Prepare launch checklist')).toHaveLength(1)
     expect(screen.getByText('1 reminder awaiting acknowledgement')).toBeInTheDocument()
     expect(screen.getByText('Quiet mode unavailable')).toBeInTheDocument()
-    expect(screen.getByText(/Calendar sync: not configured/)).toBeInTheDocument()
+    expect(screen.getByText(/Calendar: unconfigured/)).toBeInTheDocument()
+    expect(screen.getByText(/Voice: unconfigured/)).toBeInTheDocument()
+    expect(screen.getByText(/Reminder delivery: unconfigured/)).toBeInTheDocument()
+    expect(screen.getByText(/Maximum 3 attempts; minimum 15 minutes between attempts/)).toBeInTheDocument()
   })
 
   it('submits capture with Enter from the focused textarea and preserves newline with Shift+Enter', async () => {
@@ -160,6 +173,7 @@ describe('PersonalOperationsModule', () => {
   it('announces loading, error, and empty states accessibly', async () => {
     const emptyClient = client({
       loadSnapshot: vi.fn(async () => ({
+        capabilities: snapshot.capabilities,
         nextAction: { schema_version: 'arda.next-action.v1', generated_at: '2026-08-04T09:00:00Z', status: 'empty', selected: null, reason: 'No current trustworthy action is available.', excluded: { stale: 0, terminal: 0, future_gated: 0, inferred_without_review: 0 } } as const,
         inbox: { schema_version: 'arda.harness.personal-ops.v1', inbox: [] },
         resume: { schema_version: 'arda.harness.personal-ops.v1', resume: { summary: 'Nothing in progress. Check your captures or scheduled items.', active_count: 0, inbox_count: 0, today_count: 0, waiting_count: 0, generated_at: '2026-08-04T09:00:00Z' } },

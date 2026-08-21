@@ -72,12 +72,14 @@ Visible result: the operator does not need to remember internal command syntax f
 ## Phase 4 — Personal Operations usefulness
 
 - [ ] Prove rapid HUD capture, classification/correction, local scheduling, completion, reminder acknowledge/defer/dismiss, and restart recovery with operator-authored content.
-- [ ] Expose configured/unconfigured calendar and voice adapter status from backend truth rather than static prose.
+- [x] Expose configured/unconfigured calendar and voice adapter status from backend truth rather than static prose. `/v1/personal/capabilities` now reads `config/personal_ops.toml`, fails closed when absent or malformed, and the HUD renders the returned calendar, voice, reminder transport, quiet-window, attempt-limit, interval, and acknowledgement policy. The source-current daemon was installed and restarted; the live endpoint reports all three adapters honestly `unconfigured`.
 - [ ] Connect one actual reminder delivery transport and preserve attempted versus delivered versus acknowledged state.
 - [ ] Keep quiet-window and fatigue policy explicit.
 - [ ] Run a bounded private-alpha window; record timings/counts and operator verdict without raw private content.
 
 Visible result: Personal Operations reduces burden rather than being an empty demo module.
+
+Current live state (2026-08-20): Personal Operations is honestly empty after the source-current daemon restart (`active=0`, `inbox=0`, `today=0`, `waiting=0`). No reminder delivery transport is configured, so no attempted/delivered/acknowledged delivery or private-alpha verdict is claimed. Completing those gates requires one genuine operator-authored item and schedule; fixture or inferred personal content is not acceptable evidence.
 
 ## Phase 5 — Source-grounded research and recurring intelligence
 

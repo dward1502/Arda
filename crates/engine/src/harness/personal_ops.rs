@@ -613,6 +613,163 @@ pub async fn get_inbox(State(state): State<HarnessState>, headers: HeaderMap) ->
         .into_response()
 }
 
+#[derive(Debug, Serialize)]
+struct PersonalAdapterStatus {
+    state: &'static str,
+    adapter: Option<String>,
+    detail: String,
+}
+
+#[derive(Debug, Serialize)]
+struct ReminderTransportStatus {
+    #[serde(flatten)]
+    adapter_status: PersonalAdapterStatus,
+    quiet_window: Option<QuietWindowStatus>,
+    max_attempts: u32,
+    minimum_interval_minutes: u32,
+    acknowledgement_required: bool,
+}
+
+#[derive(Debug, Serialize)]
+struct QuietWindowStatus {
+    start: String,
+    end: String,
+    timezone: String,
+}
+
+#[derive(Debug, Default, Deserialize)]
+struct PersonalCapabilitiesConfig {
+    calendar: Option<AdapterConfig>,
+    voice: Option<AdapterConfig>,
+    reminders: Option<ReminderTransportConfig>,
+}
+
+#[derive(Debug, Deserialize)]
+struct AdapterConfig {
+    adapter: String,
+    #[serde(default)]
+    enabled: bool,
+}
+
+#[derive(Debug, Deserialize)]
+struct ReminderTransportConfig {
+    transport: String,
+    #[serde(default)]
+    enabled: bool,
+    quiet_start: Option<String>,
+    quiet_end: Option<String>,
+    timezone: Option<String>,
+    #[serde(default = "default_max_attempts")]
+    max_attempts: u32,
+    #[serde(default = "default_minimum_interval_minutes")]
+    minimum_interval_minutes: u32,
+    #[serde(default = "default_acknowledgement_required")]
+    acknowledgement_required: bool,
+}
+
+fn default_max_attempts() -> u32 {
+    3
+}
+
+fn default_minimum_interval_minutes() -> u32 {
+    15
+}
+
+fn default_acknowledgement_required() -> bool {
+    true
+}
+
+fn quiet_window(reminder: &mut ReminderTransportConfig) -> Option<QuietWindowStatus> {
+    match (
+        reminder.quiet_start.take(),
+        reminder.quiet_end.take(),
+        reminder.timezone.take(),
+    ) {
+        (Some(start), Some(end), Some(timezone)) => Some(QuietWindowStatus {
+            start,
+            end,
+            timezone,
+        }),
+        _ => None,
+    }
+}
+
+fn adapter_status(config: Option<AdapterConfig>, kind: &str) -> PersonalAdapterStatus {
+    match config {
+        Some(config) if !config.adapter.trim().is_empty() => PersonalAdapterStatus {
+            state: "unavailable",
+            detail: if config.enabled {
+                format!("The {kind} adapter is declared, but no connected runtime is verified.")
+            } else {
+                format!("The {kind} adapter is configured but disabled.")
+            },
+            adapter: Some(config.adapter),
+        },
+        _ => PersonalAdapterStatus {
+            state: "unconfigured",
+            adapter: None,
+            detail: format!("No {kind} adapter is configured."),
+        },
+    }
+}
+
+/// Publish backend configuration truth for optional Personal Operations adapters.
+pub async fn get_capabilities(
+    State(state): State<HarnessState>,
+    headers: HeaderMap,
+) -> impl IntoResponse {
+    if let Err(error) = operator_from_headers(&state, &headers) {
+        return error.into_response();
+    }
+    let config = std::fs::read_to_string(state.workbench_root.join("config/personal_ops.toml"))
+        .ok()
+        .and_then(|raw| toml::from_str::<PersonalCapabilitiesConfig>(&raw).ok())
+        .unwrap_or_default();
+    let reminders = match config.reminders {
+        Some(mut reminder) if !reminder.transport.trim().is_empty() => {
+            let configured_quiet_window = quiet_window(&mut reminder);
+            ReminderTransportStatus {
+                adapter_status: PersonalAdapterStatus {
+                    state: "unavailable",
+                    adapter: Some(reminder.transport),
+                    detail: if reminder.enabled {
+                        "The reminder transport is declared, but no connected runtime is verified."
+                            .to_owned()
+                    } else {
+                        "The reminder delivery transport is configured but disabled.".to_owned()
+                    },
+                },
+                quiet_window: configured_quiet_window,
+                max_attempts: reminder.max_attempts.clamp(1, 5),
+                minimum_interval_minutes: reminder.minimum_interval_minutes.max(1),
+                acknowledgement_required: reminder.acknowledgement_required,
+            }
+        }
+        _ => ReminderTransportStatus {
+            adapter_status: PersonalAdapterStatus {
+                state: "unconfigured",
+                adapter: None,
+                detail: "No reminder delivery transport is configured.".to_owned(),
+            },
+            quiet_window: None,
+            max_attempts: default_max_attempts(),
+            minimum_interval_minutes: default_minimum_interval_minutes(),
+            acknowledgement_required: default_acknowledgement_required(),
+        },
+    };
+
+    (
+        StatusCode::OK,
+        Json(serde_json::json!({
+            "schema_version": "arda.personal-capabilities.v1",
+            "calendar": adapter_status(config.calendar, "calendar"),
+            "voice": adapter_status(config.voice, "voice"),
+            "reminders": reminders,
+        })),
+    )
+        .into_response()
+}
+
 /// Get a "What was I doing?" resume card based on recent activity.
 #[derive(Debug, Serialize)]
 pub struct ResumeResponse {

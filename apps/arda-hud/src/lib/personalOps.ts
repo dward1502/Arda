@@ -38,6 +38,19 @@ export interface PersonalOpsItem {
   current_state: string
 }
 
+export interface PersonalAdapterStatus {
+  state: 'configured' | 'unconfigured' | 'unavailable'
+  adapter: string | null
+  detail: string
+}
+
+export interface PersonalReminderTransportStatus extends PersonalAdapterStatus {
+  quiet_window: { start: string; end: string; timezone: string } | null
+  max_attempts: number
+  minimum_interval_minutes: number
+  acknowledgement_required: boolean
+}
+
 export interface NextActionCandidate {
   id: string
   title: string
@@ -69,6 +82,12 @@ export interface NextActionProjection {
 }
 
 export interface PersonalOpsSnapshot {
+  capabilities: {
+    schema_version: 'arda.personal-capabilities.v1'
+    calendar: PersonalAdapterStatus
+    voice: PersonalAdapterStatus
+    reminders: PersonalReminderTransportStatus
+  }
   nextAction: NextActionProjection
   inbox: {
     schema_version: string
@@ -171,13 +190,14 @@ export function createPersonalOpsClient(
 
   return {
     async loadSnapshot() {
-      const [nextAction, inbox, resume, todayBrief] = await Promise.all([
+      const [capabilities, nextAction, inbox, resume, todayBrief] = await Promise.all([
+        get<PersonalOpsSnapshot['capabilities']>('/v1/personal/capabilities'),
         get<NextActionProjection>('/v1/next-action'),
         get<PersonalOpsSnapshot['inbox']>('/v1/personal/inbox'),
         get<PersonalOpsSnapshot['resume']>('/v1/personal/resume'),
         get<PersonalOpsSnapshot['todayBrief']>('/v1/personal/briefs/today'),
       ])
-      return { nextAction, inbox, resume, todayBrief }
+      return { capabilities, nextAction, inbox, resume, todayBrief }
     },
     createCapture(text) {
       return fetch(url('/v1/personal/captures'), {

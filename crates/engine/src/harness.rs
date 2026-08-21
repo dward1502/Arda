@@ -142,6 +142,10 @@ fn router(state: HarnessState) -> axum::Router {
         .route("/v1/personal/captures", post(personal_ops::create_capture))
         .route("/v1/personal/inbox", get(personal_ops::get_inbox))
         .route(
+            "/v1/personal/capabilities",
+            get(personal_ops::get_capabilities),
+        )
+        .route(
             "/v1/personal/items/:id/classify",
             post(personal_ops::classify_item),
         )

@@ -183,6 +183,7 @@ export default function PersonalOperationsModule({
   }
 
   const brief = snapshot?.todayBrief.brief
+  const capabilities = snapshot?.capabilities
   const today = brief?.today ?? []
   const waiting = brief?.waiting ?? []
   const inbox = snapshot?.inbox.inbox ?? []
@@ -434,7 +435,19 @@ export default function PersonalOperationsModule({
           : `${brief?.reminders_awaiting_ack ?? 0} reminders awaiting acknowledgement`}
       </div>
       <p className="personal-ops__disclosure">{brief?.uncertainty_disclosure ?? 'Brief reconstructed from the local event log.'}</p>
-      <p className="personal-ops__placeholder">Calendar sync: not configured; only local scheduling is active. Voice: Hermes text capture is active; HUD microphone capture requires an operator-configured audio adapter.</p>
+      <section className="personal-ops__capabilities" aria-labelledby="personal-ops-capabilities">
+        <h3 id="personal-ops-capabilities">Connected capabilities</h3>
+        <p>Calendar: {capabilities?.calendar.state ?? 'unknown'} · {capabilities?.calendar.detail ?? 'Backend status unavailable.'}</p>
+        <p>Voice: {capabilities?.voice.state ?? 'unknown'} · {capabilities?.voice.detail ?? 'Backend status unavailable.'}</p>
+        <p>Reminder delivery: {capabilities?.reminders.state ?? 'unknown'} · {capabilities?.reminders.detail ?? 'Backend status unavailable.'}</p>
+        {capabilities?.reminders ? (
+          <small>
+            Maximum {capabilities.reminders.max_attempts} attempts; minimum {capabilities.reminders.minimum_interval_minutes} minutes between attempts; quiet window {capabilities.reminders.quiet_window
+              ? `${capabilities.reminders.quiet_window.start}–${capabilities.reminders.quiet_window.end} ${capabilities.reminders.quiet_window.timezone}`
+              : 'not configured'}; acknowledgement {capabilities.reminders.acknowledgement_required ? 'required' : 'not required'}.
+          </small>
+        ) : null}
+      </section>
     </ModuleCard>
   )
 }

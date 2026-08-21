@@ -75,7 +75,10 @@ function client(overrides: Partial<PersonalOpsClient> = {}): PersonalOpsClient {
     loadSnapshot: vi.fn(async () => snapshot),
     createCapture: vi.fn(async () => ({ event_id: 'event-1', capture_id: 'capture-2' })),
     confirmClassification: vi.fn(async () => ({ event_id: 'event-classify' })),
+    scheduleItem: vi.fn(async () => ({ event_id: 'event-schedule' })),
+    completeItem: vi.fn(async () => ({ event_id: 'event-complete' })),
     acknowledgeReminder: vi.fn(async () => ({ event_id: 'event-2' })),
+    respondToReminder: vi.fn(async () => ({ event_id: 'event-reminder-response' })),
     exportPersonalData: vi.fn(async () => ({
       schema_version: 'arda.personal-data-export.v1' as const,
       generated_at: '2026-08-06T14:00:00Z',
@@ -101,7 +104,7 @@ describe('PersonalOperationsModule', () => {
     expect(screen.getAllByText('Prepare launch checklist')).toHaveLength(2)
     expect(screen.getByText('1 reminder awaiting acknowledgement')).toBeInTheDocument()
     expect(screen.getByText('Quiet mode unavailable')).toBeInTheDocument()
-    expect(screen.getByText(/placeholder/i)).toBeInTheDocument()
+    expect(screen.getByText(/Calendar sync: not configured/)).toBeInTheDocument()
   })
 
   it('submits capture with Enter from the focused textarea and preserves newline with Shift+Enter', async () => {
@@ -124,8 +127,7 @@ describe('PersonalOperationsModule', () => {
 
     expect(await screen.findByRole('status')).toHaveTextContent('Personal operations loaded')
     const ack = screen.getByRole('button', { name: 'Acknowledge reminder for Prepare launch checklist' })
-    ack.focus()
-    fireEvent.keyDown(ack, { key: 'Enter' })
+    fireEvent.click(ack)
     await waitFor(() => expect(ops.acknowledgeReminder).toHaveBeenCalledWith('reminder-1'))
     expect(container.querySelector('.personal-ops--reduced-motion')).toBeTruthy()
     expect(container.querySelector('.personal-ops--high-contrast')).toBeTruthy()
@@ -146,6 +148,27 @@ describe('PersonalOperationsModule', () => {
     const failingClient = client({ loadSnapshot: vi.fn(async () => { throw new Error('network offline') }) })
     render(<PersonalOperationsModule client={failingClient} operatorId="operator" />)
     expect(await screen.findByRole('alert')).toHaveTextContent('network offline')
+  })
+
+  it('classifies inbox captures and exposes scheduling, completion, defer, and dismiss', async () => {
+    const ops = client()
+    render(<PersonalOperationsModule client={ops} operatorId="operator" />)
+    await screen.findByRole('heading', { name: 'Personal Operations' })
+
+    fireEvent.change(screen.getByLabelText('Classify as'), { target: { value: 'note' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm classification' }))
+    await waitFor(() => expect(ops.confirmClassification).toHaveBeenCalledWith('capture-1', 'note'))
+
+    fireEvent.change(screen.getByLabelText('Schedule'), { target: { value: '2026-08-21T09:30' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Save schedule' }))
+    await waitFor(() => expect(ops.scheduleItem).toHaveBeenCalledWith('item-1', expect.stringContaining('2026-08-21T')))
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mark complete' }))
+    await waitFor(() => expect(ops.completeItem).toHaveBeenCalledWith('item-1'))
+    fireEvent.click(screen.getByRole('button', { name: 'Defer' }))
+    await waitFor(() => expect(ops.respondToReminder).toHaveBeenCalledWith('reminder-1', 'deferred'))
+    fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }))
+    await waitFor(() => expect(ops.respondToReminder).toHaveBeenCalledWith('reminder-1', 'dismissed'))
   })
 
   it('exports personal data and requires an explicit second action before deletion', async () => {

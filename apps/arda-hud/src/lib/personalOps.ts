@@ -78,7 +78,10 @@ export interface PersonalOpsClient {
   loadSnapshot(): Promise<PersonalOpsSnapshot>
   createCapture(text: string): Promise<{ event_id: string; capture_id: string }>
   confirmClassification(itemId: string, kind: string): Promise<{ event_id: string }>
+  scheduleItem(itemId: string, scheduledAt: string): Promise<{ event_id: string }>
+  completeItem(itemId: string): Promise<{ event_id: string }>
   acknowledgeReminder(reminderId: string): Promise<{ event_id: string }>
+  respondToReminder(reminderId: string, state: 'acknowledged' | 'deferred' | 'dismissed'): Promise<{ event_id: string }>
   exportPersonalData(): Promise<PersonalDataExport>
   deletePersonalData(): Promise<{ receipt_id: string; deleted_events: number; system_receipts_modified: false }>
 }
@@ -164,11 +167,36 @@ export function createPersonalOpsClient(
         }),
       }).then(readJson<{ event_id: string }>)
     },
+    scheduleItem(itemId, scheduledAt) {
+      return fetch(url(`/v1/personal/items/${encodeURIComponent(itemId)}/schedule`), {
+        method: 'POST',
+        headers: mutationHeaders('schedule'),
+        body: JSON.stringify({
+          operator_id: configuredOperatorId,
+          scheduled_at: scheduledAt,
+          due_at: null,
+        }),
+      }).then(readJson<{ event_id: string }>)
+    },
+    completeItem(itemId) {
+      return fetch(url(`/v1/personal/items/${encodeURIComponent(itemId)}/complete`), {
+        method: 'POST',
+        headers: mutationHeaders('complete'),
+        body: JSON.stringify({ operator_id: configuredOperatorId }),
+      }).then(readJson<{ event_id: string }>)
+    },
     acknowledgeReminder(reminderId) {
       return fetch(url(`/v1/personal/reminders/${encodeURIComponent(reminderId)}/acknowledge`), {
         method: 'POST',
         headers: mutationHeaders('acknowledge'),
         body: JSON.stringify({ operator_id: configuredOperatorId, state: 'acknowledged' }),
+      }).then(readJson<{ event_id: string }>)
+    },
+    respondToReminder(reminderId, state) {
+      return fetch(url(`/v1/personal/reminders/${encodeURIComponent(reminderId)}/acknowledge`), {
+        method: 'POST',
+        headers: mutationHeaders('acknowledge'),
+        body: JSON.stringify({ operator_id: configuredOperatorId, state }),
       }).then(readJson<{ event_id: string }>)
     },
     async exportPersonalData() {

@@ -31,6 +31,8 @@ export default function PersonalOperationsModule({
   const [capture, setCapture] = useState('')
   const [busy, setBusy] = useState(false)
   const [selectedReviewIds, setSelectedReviewIds] = useState<Set<string>>(new Set())
+  const [inboxKinds, setInboxKinds] = useState<Record<string, string>>({})
+  const [scheduleDrafts, setScheduleDrafts] = useState<Record<string, string>>({})
   const [deletePending, setDeletePending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [status, setStatus] = useState(client || configuredOperatorId
@@ -110,6 +112,71 @@ export default function PersonalOperationsModule({
     } catch (caught) {
       setError(messageOf(caught))
       setStatus('Reminder acknowledgement failed')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const respondToReminder = async (reminderId: string, state: 'deferred' | 'dismissed') => {
+    if (busy || !ops) return
+    setBusy(true)
+    setError(null)
+    try {
+      await ops.respondToReminder(reminderId, state)
+      setStatus(`Reminder ${state}`)
+      await refresh()
+    } catch (caught) {
+      setError(messageOf(caught))
+      setStatus(`Reminder ${state} action failed`)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const classifyInboxItem = async (itemId: string) => {
+    if (busy || !ops) return
+    setBusy(true)
+    setError(null)
+    try {
+      await ops.confirmClassification(itemId, inboxKinds[itemId] ?? 'task')
+      setStatus('Inbox item classified')
+      await refresh()
+    } catch (caught) {
+      setError(messageOf(caught))
+      setStatus('Inbox classification failed')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const completeItem = async (itemId: string) => {
+    if (busy || !ops) return
+    setBusy(true)
+    setError(null)
+    try {
+      await ops.completeItem(itemId)
+      setStatus('Item completed')
+      await refresh()
+    } catch (caught) {
+      setError(messageOf(caught))
+      setStatus('Completion failed')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const scheduleItem = async (itemId: string) => {
+    const draft = scheduleDrafts[itemId]
+    if (!draft || busy || !ops) return
+    setBusy(true)
+    setError(null)
+    try {
+      await ops.scheduleItem(itemId, new Date(draft).toISOString())
+      setStatus('Item scheduled')
+      await refresh()
+    } catch (caught) {
+      setError(messageOf(caught))
+      setStatus('Scheduling failed')
     } finally {
       setBusy(false)
     }
@@ -230,21 +297,29 @@ export default function PersonalOperationsModule({
                     <span>{item.kind} · {formatTime(item.scheduled_at ?? item.due_at)}</span>
                     <small>{item.evidence_class.split('_').join(' ')}</small>
                     {awaitingAck ? (
-                      <button
-                        type="button"
-                        disabled={busy}
-                        aria-label={`Acknowledge reminder for ${item.content || 'Untitled capture'}`}
-                        onClick={() => void acknowledge(item.reminder_id as string)}
-                        onKeyDown={(event) => {
-                          if (event.key === 'Enter' || event.key === ' ') {
-                            event.preventDefault()
-                            void acknowledge(item.reminder_id as string)
-                          }
-                        }}
-                      >
-                        Acknowledge
-                      </button>
+                      <div>
+                        <button
+                          type="button"
+                          disabled={busy}
+                          aria-label={`Acknowledge reminder for ${item.content || 'Untitled capture'}`}
+                          onClick={() => void acknowledge(item.reminder_id as string)}
+                        >
+                          Acknowledge
+                        </button>
+                        <button type="button" disabled={busy} onClick={() => void respondToReminder(item.reminder_id as string, 'deferred')}>Defer</button>
+                        <button type="button" disabled={busy} onClick={() => void respondToReminder(item.reminder_id as string, 'dismissed')}>Dismiss</button>
+                      </div>
                     ) : null}
+                    <label>
+                      Schedule
+                      <input
+                        type="datetime-local"
+                        value={scheduleDrafts[item.item_id] ?? ''}
+                        onChange={(event) => setScheduleDrafts((current) => ({ ...current, [item.item_id]: event.target.value }))}
+                      />
+                    </label>
+                    <button type="button" disabled={busy || !scheduleDrafts[item.item_id]} onClick={() => void scheduleItem(item.item_id)}>Save schedule</button>
+                    <button type="button" disabled={busy} onClick={() => void completeItem(item.item_id)}>Mark complete</button>
                   </li>
                 )
               })}
@@ -256,7 +331,26 @@ export default function PersonalOperationsModule({
           <h3 id="personal-ops-inbox">Inbox</h3>
           {inbox.length === 0 ? <p>Inbox clear.</p> : (
             <ul className="personal-ops__list">
-              {inbox.map((item) => <li key={item.capture_id}>{item.content || 'Audio capture'}</li>)}
+              {inbox.map((item) => (
+                <li key={item.capture_id}>
+                  <span>{item.content || 'Audio capture'}</span>
+                  <label>
+                    Classify as
+                    <select
+                      value={inboxKinds[item.capture_id] ?? 'task'}
+                      onChange={(event) => setInboxKinds((current) => ({ ...current, [item.capture_id]: event.target.value }))}
+                    >
+                      <option value="task">Task</option>
+                      <option value="reminder">Reminder</option>
+                      <option value="note">Note</option>
+                      <option value="appointment">Appointment</option>
+                      <option value="contact">Contact</option>
+                      <option value="health">Health</option>
+                    </select>
+                  </label>
+                  <button type="button" disabled={busy} onClick={() => void classifyInboxItem(item.capture_id)}>Confirm classification</button>
+                </li>
+              ))}
             </ul>
           )}
           <h3>Waiting</h3>
@@ -333,7 +427,7 @@ export default function PersonalOperationsModule({
           : `${brief?.reminders_awaiting_ack ?? 0} reminders awaiting acknowledgement`}
       </div>
       <p className="personal-ops__disclosure">{brief?.uncertainty_disclosure ?? 'Brief reconstructed from the local event log.'}</p>
-      <p className="personal-ops__placeholder">Calendar automation and voice capture remain a supervised-adapter placeholder until configured.</p>
+      <p className="personal-ops__placeholder">Calendar sync: not configured; only local scheduling is active. Voice: Hermes text capture is active; HUD microphone capture requires an operator-configured audio adapter.</p>
     </ModuleCard>
   )
 }

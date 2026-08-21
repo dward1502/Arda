@@ -75,6 +75,12 @@ pub struct SearchResponse {
 }
 
 #[derive(Debug, Serialize)]
+pub struct DiscoveryResponse {
+    pub report: ResearchReport,
+    pub memory: MemoryFallback,
+}
+
+#[derive(Debug, Serialize)]
 pub struct SuggestionResponse {
     pub suggestion: ResearchSuggestion,
     pub status: &'static str,
@@ -102,6 +108,7 @@ struct SurveyResponse {
 pub fn build_runtime_router(state: ScoutRuntimeState) -> Router {
     Router::new()
         .route("/health", get(health))
+        .route("/discover", post(discover))
         .route("/search", post(search))
         .route("/suggestions", post(enqueue_suggestion))
         .route("/dispatch", post(dispatch_next))
@@ -118,6 +125,37 @@ async fn health(State(state): State<ScoutRuntimeState>) -> Json<HealthResponse> 
         source: state.source,
         authority: "advisory",
     })
+}
+
+async fn discover(
+    State(state): State<ScoutRuntimeState>,
+    Json(request): Json<ResearchRequest>,
+) -> Result<Json<DiscoveryResponse>, (StatusCode, Json<Value>)> {
+    request
+        .validate_at(chrono::Utc::now())
+        .map_err(bad_request)?;
+    let report = state
+        .search
+        .search(&request)
+        .await
+        .map_err(internal_error)?;
+    let observation = report.clone().into_observation(&state.source);
+    let memory_state = state.clone();
+    let memory = tokio::task::spawn_blocking(move || {
+        memory_state
+            .memory()
+            .encode_observation_to_memory(&observation)
+    })
+    .await
+    .map_err(internal_error)?
+    .map_err(internal_error)?;
+    if memory.memory_id.is_none() {
+        return Err((
+            StatusCode::SERVICE_UNAVAILABLE,
+            Json(json!({"error": memory.failure_reason, "memory": memory})),
+        ));
+    }
+    Ok(Json(DiscoveryResponse { report, memory }))
 }
 
 async fn search(

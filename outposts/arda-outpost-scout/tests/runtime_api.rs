@@ -43,6 +43,25 @@ fn serve_search_fixture() -> (String, std::thread::JoinHandle<()>) {
     (format!("http://{address}"), handle)
 }
 
+fn serve_discovery_fixture() -> (String, std::thread::JoinHandle<()>) {
+    let listener = TcpListener::bind("127.0.0.1:0").expect("bind discovery fixture");
+    let address = listener.local_addr().expect("discovery fixture address");
+    let handle = std::thread::spawn(move || {
+        let (mut stream, _) = listener.accept().expect("accept discovery request");
+        let mut request = [0_u8; 4096];
+        let _ = stream.read(&mut request).expect("read discovery request");
+        let body = r#"{"results":[{"title":"Agent payments","url":"https://example.com/payments","content":"A current payment protocol","engine":"fixture","score":1.0}]}"#;
+        let response = format!(
+            "HTTP/1.1 200 OK\r\ncontent-type: application/json\r\ncontent-length: {}\r\nconnection: close\r\n\r\n{}",
+            body.len(), body
+        );
+        stream
+            .write_all(response.as_bytes())
+            .expect("write discovery response");
+    });
+    (format!("http://{address}"), handle)
+}
+
 #[tokio::test]
 async fn search_route_persists_and_recall_returns_the_observation() {
     let root = tempfile::tempdir().expect("runtime root");
@@ -112,6 +131,50 @@ async fn search_route_persists_and_recall_returns_the_observation() {
     assert_eq!(
         recall_json["records"][0]["observation"]["scope"]["custom"],
         "internet_research"
+    );
+}
+
+#[tokio::test]
+async fn discover_route_returns_bounded_results_without_canonical_crawl() {
+    let root = tempfile::tempdir().expect("runtime root");
+    let (searxng_url, fixture) = serve_discovery_fixture();
+    let state =
+        ScoutRuntimeState::new(root.path(), searxng_url, "node-pi5-warden").expect("runtime state");
+    let response = build_runtime_router(state)
+        .oneshot(
+            Request::post("/discover")
+                .header("content-type", "application/json")
+                .body(Body::from(
+                    json!({
+                        "query":"agent payments",
+                        "limit":3,
+                        "source_policy":"allowlisted_public_web",
+                        "expires_at": (chrono::Utc::now() + chrono::Duration::minutes(5)).to_rfc3339()
+                    })
+                    .to_string(),
+                ))
+                .unwrap(),
+        )
+        .await
+        .expect("discovery response");
+    assert_eq!(response.status(), StatusCode::OK);
+    fixture.join().expect("discovery fixture");
+    let json: Value = serde_json::from_slice(
+        &to_bytes(response.into_body(), 256 * 1024)
+            .await
+            .expect("discovery body"),
+    )
+    .expect("discovery json");
+    assert_eq!(
+        json["report"]["results"][0]["url"],
+        "https://example.com/payments"
+    );
+    assert!(json["memory"]["memory_id"].is_string());
+    assert!(json.get("research_chain").is_none());
+    assert!(
+        std::fs::read_to_string(root.path().join("data/warden/research_receipts.jsonl"))
+            .expect("empty research receipt ledger")
+            .is_empty()
     );
 }
 

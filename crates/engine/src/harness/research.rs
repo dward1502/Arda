@@ -315,7 +315,7 @@ pub(super) async fn create_brief(
     for attempt in 0..policy.max_attempts {
         let response = state
             .client
-            .post(format!("{}/search", scout_url.trim_end_matches('/')))
+            .post(format!("{}/discover", scout_url.trim_end_matches('/')))
             .timeout(state.warden_scout_timeout)
             .json(&serde_json::json!({
                 "query": request.question,

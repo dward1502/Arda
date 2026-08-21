@@ -83,7 +83,7 @@ Current live state (2026-08-20): one genuine operator-authored item completed th
 
 ## Phase 5 — Source-grounded research and recurring intelligence
 
-- [ ] Prove a genuine operator question is durably saved even when Warden is unavailable.
+- [x] Prove a genuine operator question is durably saved even when Warden is unavailable.
 - [ ] Deliver one current source-grounded answer with citations, uncertainty, contradiction handling, and stale labeling.
 - [ ] Add a recurring-intelligence contract tied to an operator-authored objective, cadence, source policy, budget, dedupe key, expiry, and notification policy.
 - [ ] Emit advisory findings and reviewed task proposals separately; never auto-create commitments.
@@ -91,6 +91,8 @@ Current live state (2026-08-20): one genuine operator-authored item completed th
 - [ ] Research x402, digital services, agent commerce, and lawful earning mechanisms; do not create accounts or move funds.
 
 Visible result: recurring research produces concise reviewed opportunities, not internet noise or autonomous financial behavior.
+
+Current live state (2026-08-20): operator authorization to begin Phase 5 produced durable question `beedb443-b4cf-4c16-87ab-b3a9c591b0d4`, asking for current lawful digital-service and agent-commerce opportunities while explicitly prohibiting accounts, wallets, funds, commitments, and public posting. The registry read-back preserved its objective, source policy, budget, dedupe key, expiry, manual cadence, and disabled notification policy. Warden then returned HTTP 500 because its strict `/search` lane attempted the unavailable canonical-crawl dependency at the SearXNG address. This proved the registry survives provider failure. A focused, tested `/discover` repair now separates bounded source discovery for central Varda canonical evaluation from Warden's strict receipt-producing `/search` lane; it is not live until the Warden runtime is reviewed and updated. A human-readable primary-source answer was delivered separately, but the second acceptance item remains open until the Arda/Varda product path emits and retains that cited brief itself.
 
 ## Phase 6 — Fleet and delivery truth
 

@@ -108,13 +108,15 @@ Current implementation state (2026-08-21): `arda-aule` projects configured nodes
 
 ## Phase 7 — Restart and genuine assessment
 
-- [ ] Restart Arda after one real capture/question/objective journey.
+- [x] Restart Arda after one real capture/question/objective journey.
 - [ ] Reopen through Hermes and HUD and recover the same context and next action.
 - [ ] Confirm exact approval and receipt visibility for any consequential test action.
 - [ ] Ask the operator whether capture, next action, context recovery, Personal Operations, and research were useful and manageable.
 - [ ] Keep every rejected or burdensome behavior as an open defect; do not translate engineering evidence into acceptance.
 
 Visible result: the operator chooses whether core Arda is useful enough to keep running.
+
+Current technical state (2026-08-21): the canonical `arda.service` was restarted through its installed user-systemd authority; PID `1810285` was replaced by PID `1887131`, `/health` returned `ok`, and the same selected next action (`operator-objective-78370a00190fd9b8`), operator question (`8011c200-6743-4816-b100-c6f56e71da69`), and current non-historical brief (`research-497ea63fae507a8b`) remained visible after restart. No consequential action was executed for this check. Mirromere remained stopped, with no matching process and no listener on ports 1420 or 1430. Reopening through the actual Hermes and native HUD surfaces, exact consequential approval/receipt review, and the operator usefulness/manageability verdict remain pending human checks; service health and HTTP recovery do not satisfy them.
 
 ## Future-gated objectives
 

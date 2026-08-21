@@ -320,6 +320,16 @@ async fn gateway_objective_context_status_and_result_use_canonical_state() {
     let personal_ledger = std::fs::read_to_string(root.path().join("data/personal/events.jsonl"))
         .expect("personal ledger");
     assert!(personal_ledger.contains(PROJECT_ID));
+    let task_ledger = std::fs::read_to_string(root.path().join("core/projects/tasks/queue.jsonl"))
+        .expect("canonical project task ledger");
+    let task: Value = serde_json::from_str(task_ledger.trim()).expect("project task record");
+    assert_eq!(task["project_id"], PROJECT_ID);
+    assert_eq!(task["title"], "finish the operator bridge");
+    assert_eq!(task["status"], "pending");
+    assert_eq!(task["meta"]["execution_authority"], "none_until_review");
+    assert!(objective["summary"]
+        .as_str()
+        .is_some_and(|summary| summary.contains("Execution still requires review")));
 
     let context: Value = client
         .post(format!("http://{bound}/v1/operator/messages"))

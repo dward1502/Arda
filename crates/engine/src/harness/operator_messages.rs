@@ -17,9 +17,12 @@ use axum::{
     Json,
 };
 use chrono::{Duration, Utc};
+use fs2::FileExt;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
+use std::fs::OpenOptions;
+use std::io::Write;
 use std::net::SocketAddr;
 
 use crate::orome::OromeOperatorRuntime;
@@ -290,11 +293,23 @@ async fn apply_command(
             )
             .await?;
             let capture_id = required_string(&capture, "capture_id")?;
+            let task_id = append_operator_project_task(
+                state,
+                project_id,
+                text,
+                &incoming.operator.operator_id,
+                message_id,
+                &incoming.event.timestamp,
+                capture_id,
+            )?;
             Ok((
-                format!("Created objective capture {capture_id} for project {project_id}."),
+                format!(
+                    "Created objective capture {capture_id} and proposed project task {task_id} for {project_id}. Execution still requires review."
+                ),
                 vec![
                     format!("arda://personal/captures/{capture_id}"),
                     format!("arda://projects/{project_id}"),
+                    format!("arda://tasks/{task_id}"),
                 ],
             ))
         }
@@ -507,6 +522,80 @@ async fn run_status(state: &HarnessState, run_id: &str) -> Result<(String, Vec<S
         format!("Run {run_id}: {states}."),
         vec![format!("arda://runs/{run_id}")],
     ))
+}
+
+fn append_operator_project_task(
+    state: &HarnessState,
+    project_id: &str,
+    text: &str,
+    operator_id: &str,
+    message_id: &str,
+    timestamp: &str,
+    capture_id: &str,
+) -> Result<String, ApiError> {
+    let queue_path = state.workbench_root.join("core/projects/tasks/queue.jsonl");
+    if let Some(parent) = queue_path.parent() {
+        std::fs::create_dir_all(parent).map_err(|error| {
+            ApiError::internal(format!("create canonical task queue parent: {error}"))
+        })?;
+    }
+    let mut file = OpenOptions::new()
+        .create(true)
+        .read(true)
+        .append(true)
+        .open(&queue_path)
+        .map_err(|error| ApiError::internal(format!("open canonical task queue: {error}")))?;
+    file.lock_exclusive()
+        .map_err(|error| ApiError::internal(format!("lock canonical task queue: {error}")))?;
+
+    let result = (|| {
+        let existing = std::fs::read_to_string(&queue_path)
+            .map_err(|error| ApiError::internal(format!("read canonical task queue: {error}")))?;
+        if let Some(task_id) = existing.lines().find_map(|line| {
+            let value = serde_json::from_str::<Value>(line).ok()?;
+            (value["source_message_id"].as_str() == Some(message_id))
+                .then(|| value["id"].as_str().map(str::to_owned))
+                .flatten()
+        }) {
+            return Ok(task_id);
+        }
+
+        let mut hasher = Sha256::new();
+        hasher.update(project_id.as_bytes());
+        hasher.update([0]);
+        hasher.update(message_id.as_bytes());
+        let digest = format!("{:x}", hasher.finalize());
+        let task_id = format!("operator-task-{}", &digest[..16]);
+        let record = json!({
+            "id": task_id,
+            "source_record_id": task_id,
+            "contract": "arda.operator_project_task.v1",
+            "title": text,
+            "owner": operator_id,
+            "priority": "normal",
+            "status": "pending",
+            "queued_at_utc": timestamp,
+            "project_id": project_id,
+            "source_message_id": message_id,
+            "source_capture_id": capture_id,
+            "meta": {
+                "action_class": "operator_authored_project_objective",
+                "mutation_risk": "review_required",
+                "execution_authority": "none_until_review"
+            }
+        });
+        writeln!(file, "{record}")
+            .map_err(|error| ApiError::internal(format!("append canonical task: {error}")))?;
+        file.sync_data()
+            .map_err(|error| ApiError::internal(format!("sync canonical task queue: {error}")))?;
+        Ok(task_id)
+    })();
+    let unlock = FileExt::unlock(&file)
+        .map_err(|error| ApiError::internal(format!("unlock canonical task queue: {error}")));
+    match (result, unlock) {
+        (Ok(value), Ok(())) => Ok(value),
+        (Err(error), _) | (_, Err(error)) => Err(error),
+    }
 }
 
 fn parse_command(text: &str) -> Result<Command, ApiError> {

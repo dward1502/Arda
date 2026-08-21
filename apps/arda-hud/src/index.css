@@ -1266,6 +1266,105 @@
   color: #ffe5df;
 }
 
+.global-rapid-capture {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: grid;
+  place-items: start center;
+  padding-top: clamp(4rem, 14vh, 10rem);
+  background: rgba(0, 7, 10, 0.58);
+  backdrop-filter: blur(7px);
+}
+
+.global-rapid-capture__dialog {
+  width: min(44rem, calc(100vw - 2rem));
+  display: grid;
+  gap: 0.7rem;
+  padding: 1.1rem;
+  border: 1px solid rgba(122, 255, 197, 0.72);
+  border-radius: 0.7rem;
+  background: rgba(3, 14, 18, 0.98);
+  color: #f4fffb;
+  box-shadow: 0 1.2rem 4rem rgba(0, 0, 0, 0.58), 0 0 2rem rgba(122, 255, 197, 0.12);
+}
+
+.global-rapid-capture__header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.global-rapid-capture__header h2 {
+  margin: 0.15rem 0 0;
+}
+
+.global-rapid-capture__eyebrow {
+  color: rgba(122, 255, 197, 0.78);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.global-rapid-capture__dialog textarea {
+  min-height: 7rem;
+  resize: vertical;
+  border: 1px solid rgba(122, 255, 197, 0.42);
+  border-radius: 0.5rem;
+  padding: 0.8rem;
+  background: rgba(0, 8, 11, 0.82);
+  color: #f4fffb;
+  font: inherit;
+}
+
+.global-rapid-capture__dialog button {
+  min-height: 2.5rem;
+  border: 1px solid rgba(122, 255, 197, 0.46);
+  border-radius: 0.45rem;
+  background: rgba(34, 116, 82, 0.3);
+  color: #eefff7;
+  cursor: pointer;
+}
+
+.global-rapid-capture__header button {
+  width: 2.5rem;
+  padding: 0;
+  border-color: rgba(255, 155, 135, 0.45);
+  background: transparent;
+}
+
+.global-rapid-capture__dialog button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.global-rapid-capture__dialog button:focus-visible,
+.global-rapid-capture__dialog textarea:focus-visible {
+  outline: 3px solid #fff3a8;
+  outline-offset: 2px;
+}
+
+.global-rapid-capture__status,
+.global-rapid-capture__error {
+  padding: 0.55rem 0.7rem;
+  border-left: 3px solid rgba(122, 255, 197, 0.68);
+  background: rgba(5, 18, 21, 0.72);
+}
+
+.global-rapid-capture__error {
+  border-left-color: #ff9b87;
+  color: #ffe5df;
+}
+
+.global-rapid-capture__dialog small {
+  color: rgba(220, 240, 246, 0.72);
+}
+
+.global-rapid-capture__dialog kbd {
+  color: #fff3a8;
+}
+
 @media (max-width: 760px) {
   .personal-ops__grid {
     grid-template-columns: 1fr;

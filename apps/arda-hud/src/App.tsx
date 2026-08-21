@@ -61,6 +61,7 @@ import { adaptBoardroomHudSource } from './scene/boardroom/boardroomHudSourceAda
 import BoardroomViewport from './scene/boardroom/BoardroomViewport'
 import MonitorSurfaceNativeAcceptance from './scene/boardroom/MonitorSurfaceNativeAcceptance'
 import MonitorSessionWorkstation from './scene/boardroom/MonitorSessionWorkstation'
+import GlobalRapidCapture from './components/arda/GlobalRapidCapture'
 import {
   createMonitorSessionWindowConfig,
   findMonitorSessionRecord,
@@ -2753,6 +2754,7 @@ export default function App() {
         <div style={{ height: '100vh' }}>
         </div>
       ) : null}
+      <GlobalRapidCapture />
       <SceneTransitionOverlay active={transitionLabel !== null} label={transitionLabel ?? ''} />
     </div>
   )

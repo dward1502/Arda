@@ -228,6 +228,7 @@ pub(super) fn write_fleet_health_projection(core_root: &Path) {
         fleet_scan.get("connection_cleanup").unwrap_or(&Value::Null),
         &configured_nodes,
     );
+    let operational_states = summarize_operational_states(&merged_nodes);
     let snapshot = json!({
         "schema_version": CORE_STATE_SCHEMA_VERSION,
         "generated_at_utc": Utc::now().to_rfc3339(),
@@ -255,6 +256,7 @@ pub(super) fn write_fleet_health_projection(core_root: &Path) {
         },
         "connection_cleanup": fleet_scan.get("connection_cleanup").cloned().unwrap_or_else(|| json!({})),
         "cleanup_summary": cleanup_summary,
+        "operational_states": operational_states,
         "findings": [
             if fleet_scan
                 .get("network")
@@ -270,6 +272,89 @@ pub(super) fn write_fleet_health_projection(core_root: &Path) {
         snapshot_path,
         serde_json::to_string_pretty(&snapshot).unwrap_or_else(|_| "{}".to_string()) + "\n",
     );
+}
+
+fn summarize_operational_states(merged_nodes: &[Value]) -> Value {
+    let nodes = merged_nodes
+        .iter()
+        .filter(|node| !node.get("configured").is_some_and(Value::is_null))
+        .map(|node| {
+            let configured = node.get("configured").unwrap_or(&Value::Null);
+            let observed = node.get("observed").unwrap_or(&Value::Null);
+            let enrollment = configured
+                .get("enrollment_status")
+                .and_then(Value::as_str)
+                .unwrap_or("unknown");
+            let matched = node.get("matched").and_then(Value::as_bool) == Some(true);
+            let online = node.get("online").and_then(Value::as_bool) == Some(true);
+            let service_status = observed
+                .get("service_status")
+                .and_then(Value::as_str)
+                .unwrap_or("unknown");
+            let routing_status = observed
+                .get("routing_status")
+                .and_then(Value::as_str)
+                .unwrap_or("unknown");
+            let (state, reason) = if enrollment == "offline" {
+                (
+                    "intentional_offline",
+                    "node is explicitly offline in fleet configuration",
+                )
+            } else if !matched {
+                (
+                    "unobserved",
+                    "no current fleet observation matched the configured node",
+                )
+            } else if !online {
+                (
+                    "unreachable",
+                    "fleet observation reports the node unreachable",
+                )
+            } else if service_status == "down" {
+                (
+                    "service_down",
+                    "node is reachable but its configured service is down",
+                )
+            } else if routing_status == "drift" {
+                (
+                    "routing_drift",
+                    "node service is available but routing does not match configuration",
+                )
+            } else {
+                (
+                    "ready",
+                    "node is reachable with no reported service or routing fault",
+                )
+            };
+            json!({
+                "target_id": configured.get("id").cloned().unwrap_or(Value::Null),
+                "display_name": node.get("display_name").cloned().unwrap_or(Value::Null),
+                "state": state,
+                "reason": reason,
+                "enrollment_status": enrollment,
+                "matched": matched,
+                "online": online,
+                "service_status": service_status,
+                "routing_status": routing_status
+            })
+        })
+        .collect::<Vec<_>>();
+
+    let count = |state: &str| {
+        nodes
+            .iter()
+            .filter(|node| node.get("state").and_then(Value::as_str) == Some(state))
+            .count()
+    };
+    json!({
+        "ready_total": count("ready"),
+        "intentional_offline_total": count("intentional_offline"),
+        "unobserved_total": count("unobserved"),
+        "unreachable_total": count("unreachable"),
+        "service_down_total": count("service_down"),
+        "routing_drift_total": count("routing_drift"),
+        "nodes": nodes
+    })
 }
 
 fn summarize_connection_cleanup(connection_cleanup: &Value, configured_nodes: &[Value]) -> Value {
@@ -520,6 +605,18 @@ llm_runtime = "multi_gpu_sovereign_backbone"
         assert_eq!(projection["counts"]["configured_nodes_online"], 1);
         assert_eq!(projection["counts"]["observed_unconfigured_total"], 1);
         assert_eq!(projection["counts"]["stale_candidates_total"], 2);
+        assert_eq!(projection["operational_states"]["ready_total"], 1);
+        assert_eq!(projection["operational_states"]["unreachable_total"], 0);
+        assert_eq!(
+            projection["operational_states"]["intentional_offline_total"],
+            0
+        );
+        assert_eq!(projection["operational_states"]["service_down_total"], 0);
+        assert_eq!(projection["operational_states"]["routing_drift_total"], 0);
+        assert_eq!(
+            projection["operational_states"]["nodes"][0]["state"],
+            "ready"
+        );
         assert_eq!(projection["local_probe"]["tailscale_ok"], true);
         assert_eq!(projection["local_probe"]["ollama_ok"], false);
         assert_eq!(
@@ -541,6 +638,63 @@ llm_runtime = "multi_gpu_sovereign_backbone"
         );
         assert_eq!(projection["findings"][0], "tailscale_mesh_degraded");
         assert_eq!(projection["findings"][1], "local_llm_inventory_unavailable");
+    }
+
+    #[test]
+    fn fleet_health_projection_keeps_failure_classes_distinct() {
+        let dir = tempdir().expect("tempdir");
+        let core_root = dir.path().join("core");
+        fs::create_dir_all(core_root.join("state")).expect("state dir");
+
+        write_file(
+            &dir.path().join("config/fleet.toml"),
+            r#"
+[[nodes]]
+id = "intentional"
+hostname = "intentional"
+enrollment_status = "offline"
+
+[[nodes]]
+id = "unreachable"
+hostname = "unreachable"
+enrollment_status = "active"
+
+[[nodes]]
+id = "service-down"
+hostname = "service-down"
+enrollment_status = "active"
+
+[[nodes]]
+id = "routing-drift"
+hostname = "routing-drift"
+enrollment_status = "active"
+"#,
+        );
+        write_file(
+            &dir.path().join("data/prometheus/fleet_control_last.json"),
+            r#"{
+  "fleet_nodes_full": [
+    { "id": "intentional", "hostname": "intentional", "online": false },
+    { "id": "unreachable", "hostname": "unreachable", "online": false },
+    { "id": "service-down", "hostname": "service-down", "online": true, "service_status": "down" },
+    { "id": "routing-drift", "hostname": "routing-drift", "online": true, "service_status": "ready", "routing_status": "drift" }
+  ]
+}"#,
+        );
+
+        write_fleet_health_projection(&core_root);
+
+        let projection: Value = serde_json::from_str(
+            &fs::read_to_string(core_root.join("state/fleet_health.json"))
+                .expect("read projection"),
+        )
+        .expect("projection json");
+        let states = &projection["operational_states"];
+        assert_eq!(states["intentional_offline_total"], 1);
+        assert_eq!(states["unreachable_total"], 1);
+        assert_eq!(states["service_down_total"], 1);
+        assert_eq!(states["routing_drift_total"], 1);
+        assert_eq!(states["ready_total"], 0);
     }
 
     #[test]

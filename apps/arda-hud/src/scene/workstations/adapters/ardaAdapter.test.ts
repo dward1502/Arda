@@ -1,13 +1,42 @@
 // sigil: REPAIR
 import { describe, expect, it } from 'vitest'
 import type { ArdaBundle } from '../../../lib/ardaSource'
-import { createArdaContinuityViewModel, createArdaFleetViewModel, createArdaRoutingViewModel } from './ardaAdapter'
+import { createArdaContinuityViewModel, createArdaFleetHealth, createArdaFleetViewModel, createArdaRoutingViewModel } from './ardaAdapter'
 
 function bundleWith(overrides: Partial<ArdaBundle>): ArdaBundle {
   return overrides as ArdaBundle
 }
 
 describe('ardaAdapter', () => {
+  it('preserves distinct fleet operational failures from the fleet health authority', () => {
+    const health = createArdaFleetHealth(bundleWith({
+      fleetHealth: {
+        operational_states: {
+          ready_total: 2,
+          intentional_offline_total: 1,
+          unobserved_total: 3,
+          unreachable_total: 4,
+          service_down_total: 5,
+          routing_drift_total: 6,
+        },
+      },
+      operatorRuntimeStatus: {
+        summary: { fleet_routable_local_providers_total: 2 },
+      },
+    }))
+
+    expect(health).toEqual(expect.objectContaining({
+      liveTargets: 13,
+      intentionalOffline: 1,
+      unexpectedOffline: 7,
+      unobserved: 3,
+      unreachable: 4,
+      serviceDown: 5,
+      routingDrift: 6,
+      attentionTotal: 18,
+    }))
+  })
+
   it('maps ARDA fleet projections into the universal Fleet view model', () => {
     const bundle = bundleWith({
       generatedAt: '2026-06-26T00:00:00Z',

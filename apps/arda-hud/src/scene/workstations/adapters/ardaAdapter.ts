@@ -37,6 +37,11 @@ export interface ArdaFleetHealth {
   unexpectedOffline: number
   intentionalOfflineTargets: ArdaFleetTargetSummary[]
   unexpectedOfflineTargets: ArdaFleetTargetSummary[]
+  unobserved: number
+  unreachable: number
+  serviceDown: number
+  routingDrift: number
+  attentionTotal: number
 }
 
 function asRecord(value: unknown): JsonRecord | null {
@@ -220,15 +225,36 @@ export function createArdaFleetHealth(bundle: ArdaBundle): ArdaFleetHealth {
   const fleet = asRecord(operator?.fleet)
   const intentionalOfflineTargets = getOfflineTargets(operator, 'intentional_offline_targets')
   const unexpectedOfflineTargets = getOfflineTargets(operator, 'unexpected_offline_targets')
+  const operationalStates = asRecord(bundle.fleetHealth?.operational_states)
+  const ready = getNumber(operationalStates?.ready_total, 0)
+  const intentionalOffline = getNumber(operationalStates?.intentional_offline_total, intentionalOfflineTargets.length)
+  const unobserved = getNumber(operationalStates?.unobserved_total, 0)
+  const unreachable = getNumber(operationalStates?.unreachable_total, 0)
+  const serviceDown = getNumber(operationalStates?.service_down_total, 0)
+  const routingDrift = getNumber(operationalStates?.routing_drift_total, 0)
+  const hasOperationalStates = operationalStates !== null
+  const unexpectedOffline = hasOperationalStates
+    ? unobserved + unreachable
+    : getNumber(summary?.unexpected_offline_total, unexpectedOfflineTargets.length)
+  const attentionTotal = unexpectedOffline + serviceDown + routingDrift
 
   return {
-    totalTargets: getNumber(fleet?.targets_total, 0),
-    liveTargets: getNumber(summary?.fleet_live_llm_nodes_total, 0),
+    totalTargets: hasOperationalStates
+      ? ready + intentionalOffline + attentionTotal
+      : getNumber(fleet?.targets_total, 0),
+    liveTargets: hasOperationalStates
+      ? ready + serviceDown + routingDrift
+      : getNumber(summary?.fleet_live_llm_nodes_total, 0),
     routableProviders: getNumber(summary?.fleet_routable_local_providers_total, 0),
-    intentionalOffline: intentionalOfflineTargets.length,
-    unexpectedOffline: getNumber(summary?.unexpected_offline_total, unexpectedOfflineTargets.length),
+    intentionalOffline,
+    unexpectedOffline,
     intentionalOfflineTargets,
     unexpectedOfflineTargets,
+    unobserved,
+    unreachable,
+    serviceDown,
+    routingDrift,
+    attentionTotal,
   }
 }
 

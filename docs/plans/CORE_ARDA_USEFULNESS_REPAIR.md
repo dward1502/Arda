@@ -98,11 +98,13 @@ Current live state (2026-08-21): operator authorization produced durable questio
 
 - [x] Probe exact active endpoints from `config/fleet.toml`: core, Warden model/scout, and Beelink answered; both backbone lanes and CITADEL timed out.
 - [x] Expire failed Manwë runtime health before it can show `ready`, including restart rehydration; live ready count fell from six to three.
-- [ ] Keep unreachable, service-down, routing-drift, and intentional-offline states distinct.
+- [x] Keep unreachable, service-down, routing-drift, and intentional-offline states distinct.
 - [x] Require a current RELIC/CITADEL acknowledgement for physical delivery; the bridge now writes an atomic acknowledgement only after confirmed remote install. Current acknowledgement is absent while CITADEL is unreachable.
-- [ ] Verify launcher/HUD consumers show the same truth.
+- [x] Verify launcher/HUD consumers show the same truth.
 
 Visible result: failed or expired providers and renderers cannot remain green indefinitely.
+
+Current implementation state (2026-08-21): `arda-aule` projects configured nodes as `ready`, `intentional_offline`, `unobserved`, `unreachable`, `service_down`, or `routing_drift`, preserving the difference between a missing observation and an observed failed endpoint. Focused fixtures cover each requested operational class. The HUD Fleet Guard consumes these authoritative counts and displays unobserved, unreachable, service-down, and routing-drift traces separately. The launcher lifecycle surface was audited and already keeps process state, protocol health, and evidence freshness separate; it does not ingest or restate fleet-node status. `data/prometheus/fleet_control_last.json` is absent in this checkout, so no current node health or drift acceptance is claimed from stale repository projections.
 
 ## Phase 7 — Restart and genuine assessment
 

@@ -31,6 +31,17 @@ fn write_run(root: &Path, body: &str) {
     let directory = root.join("data/runs/run-api");
     std::fs::create_dir_all(&directory).unwrap();
     std::fs::write(directory.join("checkpoint.json"), body).unwrap();
+    let registry = root.join("data/workbench/current-runs.json");
+    std::fs::create_dir_all(registry.parent().unwrap()).unwrap();
+    std::fs::write(
+        registry,
+        serde_json::to_vec_pretty(&json!({
+            "schema_version": "arda.workbench.current-runs.v1",
+            "run_ids": ["run-api"]
+        }))
+        .unwrap(),
+    )
+    .unwrap();
 }
 
 fn valid_run() -> &'static str {

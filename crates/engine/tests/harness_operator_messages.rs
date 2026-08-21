@@ -226,6 +226,49 @@ async fn authenticated_gateway_capture_is_durable_and_duplicate_safe() {
 }
 
 #[tokio::test]
+async fn gateway_context_returns_the_canonical_cross_domain_next_action() {
+    let root = TempDir::new().expect("root");
+    let queue = root.path().join("core/projects/tasks/queue.jsonl");
+    fs::create_dir_all(queue.parent().unwrap()).unwrap();
+    fs::write(
+        queue,
+        json!({
+            "id": "operator-next",
+            "title": "Review Arda against the operator vision",
+            "status": "pending",
+            "priority": "critical",
+            "owner": "discord-user-1",
+            "origin": "operator-authored-session-objective",
+            "meta": {"mutation_risk": "review_required", "execution_authority": "none_until_review", "lifecycle_phase": "current"}
+        })
+        .to_string()
+            + "\n",
+    )
+    .unwrap();
+    let (bound, shutdown, handle) = start_harness(&root).await;
+
+    let response: Value = reqwest::Client::new()
+        .post(format!("http://{bound}/v1/operator/messages"))
+        .json(&gateway_message("discord-context-next", "arda context"))
+        .send()
+        .await
+        .expect("context")
+        .error_for_status()
+        .expect("context status")
+        .json()
+        .await
+        .expect("context body");
+
+    assert!(response["summary"]
+        .as_str()
+        .is_some_and(|summary| summary.contains("Review Arda against the operator vision")));
+    assert_eq!(response["evidence_refs"][1], "arda://next-action");
+
+    shutdown.notify_waiters();
+    handle.await.expect("harness join");
+}
+
+#[tokio::test]
 async fn authenticated_gateway_approval_cancel_and_resume_use_canonical_runs() {
     let root = TempDir::new().expect("root");
     let (bound, shutdown, handle) = start_harness(&root).await;
@@ -344,7 +387,7 @@ async fn gateway_objective_context_status_and_result_use_canonical_state() {
         .expect("context body");
     assert!(context["summary"]
         .as_str()
-        .is_some_and(|summary| summary.contains("inbox")));
+        .is_some_and(|summary| summary.contains("Next action: objective-phone-status")));
 
     let status: Value = client
         .post(format!("http://{bound}/v1/operator/messages"))

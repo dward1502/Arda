@@ -48,12 +48,12 @@ Visible result: the installed system stops presenting old proof activity as the 
 
 ## Phase 2 — One trustworthy next action
 
-- [ ] Define one typed source-truth next-action projection owned by core Arda, not the HUD.
-- [ ] Read current operator-authored queue tasks, Personal Operations items, active Workbench runs, and current research holds.
-- [ ] Exclude historical, stale, terminal, inferred-without-review, and future-gated objectives from automatic selection.
-- [ ] Return one item with source reference, reason, freshness, authority state, and the smallest next operator action.
-- [ ] Expose it through the harness and consume the same projection in Hermes and HUD.
-- [ ] Add empty, blocked, stale, restart, and conflicting-priority regressions.
+- [x] Define `arda.next-action.v1` and deterministic selection in `arda-core`; the HUD remains a read-only consumer.
+- [x] Read current operator-authored queue tasks, Personal Operations items, explicitly current Workbench runs, and current research questions.
+- [x] Exclude historical/stale, terminal, inferred-without-review, and future-gated candidates from automatic selection.
+- [x] Return one item with source reference, reason, freshness, authority state, priority, and the smallest next operator action.
+- [x] Expose `/v1/next-action`; Hermes `arda context` and the HUD Personal Operations surface consume that same projection. The source-current root and native HUD binaries were installed; native screenshot capture was unavailable and is not claimed as visual acceptance.
+- [x] Add empty, blocked, stale, restart/reopen, conflicting-priority, queue, Personal Operations, Workbench, research, Hermes, and HUD regressions.
 
 Visible result: Arda says what to do next and why, instead of presenting independent subsystem counts.
 

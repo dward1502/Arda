@@ -186,7 +186,7 @@ export default function PersonalOperationsModule({
   const today = brief?.today ?? []
   const waiting = brief?.waiting ?? []
   const inbox = snapshot?.inbox.inbox ?? []
-  const nextAction = today[0] ?? waiting[0] ?? null
+  const nextAction = snapshot?.nextAction.selected ?? null
   const reviewCandidates = [...today, ...waiting]
     .filter((item, index, items) => item.evidence_class !== 'operator_authored'
       && items.findIndex((candidate) => candidate.item_id === item.item_id) === index)
@@ -258,7 +258,14 @@ export default function PersonalOperationsModule({
       <p className="personal-ops__summary">{snapshot?.resume.resume.summary ?? 'Reconstructing local context…'}</p>
       <section className="personal-ops__next" aria-labelledby="personal-ops-next-action">
         <h3 id="personal-ops-next-action">Next action</h3>
-        <p>{nextAction?.content || 'No explicit next action is scheduled.'}</p>
+        <p>{nextAction?.title || snapshot?.nextAction.reason || 'No current trustworthy action is available.'}</p>
+        {nextAction ? (
+          <>
+            <small>{nextAction.source_kind.replace(/_/g, ' ')} · {nextAction.freshness} · {nextAction.authority_state.replace(/_/g, ' ')}</small>
+            <p>{nextAction.next_operator_action}</p>
+            <small>Source: {nextAction.source_ref}</small>
+          </>
+        ) : null}
       </section>
       <div className="personal-ops__capture">
         <label htmlFor="personal-ops-capture">Rapid capture</label>

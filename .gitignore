@@ -48,6 +48,7 @@ data/ceo/autopilot.state.json
 /audit/personal-data-deletions/
 /core/state/continuity/
 /core/state/operator_projection.json
+/core/state/next_action.json
 /core/projects/tasks/.workbench-queue-executor.lock
 npm-debug.log*
 yarn-debug.log*

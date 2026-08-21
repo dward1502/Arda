@@ -38,7 +38,38 @@ export interface PersonalOpsItem {
   current_state: string
 }
 
+export interface NextActionCandidate {
+  id: string
+  title: string
+  source_kind: 'queue' | 'personal_operations' | 'workbench' | 'research'
+  source_ref: string
+  reason: string
+  freshness: 'fresh' | 'stale' | 'unknown'
+  authority_state: 'ready' | 'review_required' | 'blocked' | 'advisory'
+  next_operator_action: string
+  priority: number
+  operator_authored: boolean
+  terminal: boolean
+  future_gated: boolean
+  inferred_without_review: boolean
+}
+
+export interface NextActionProjection {
+  schema_version: 'arda.next-action.v1'
+  generated_at: string
+  status: 'ready' | 'blocked' | 'empty'
+  selected: NextActionCandidate | null
+  reason: string
+  excluded: {
+    stale: number
+    terminal: number
+    future_gated: number
+    inferred_without_review: number
+  }
+}
+
 export interface PersonalOpsSnapshot {
+  nextAction: NextActionProjection
   inbox: {
     schema_version: string
     inbox: PersonalOpsInboxItem[]
@@ -140,12 +171,13 @@ export function createPersonalOpsClient(
 
   return {
     async loadSnapshot() {
-      const [inbox, resume, todayBrief] = await Promise.all([
+      const [nextAction, inbox, resume, todayBrief] = await Promise.all([
+        get<NextActionProjection>('/v1/next-action'),
         get<PersonalOpsSnapshot['inbox']>('/v1/personal/inbox'),
         get<PersonalOpsSnapshot['resume']>('/v1/personal/resume'),
         get<PersonalOpsSnapshot['todayBrief']>('/v1/personal/briefs/today'),
       ])
-      return { inbox, resume, todayBrief }
+      return { nextAction, inbox, resume, todayBrief }
     },
     createCapture(text) {
       return fetch(url('/v1/personal/captures'), {

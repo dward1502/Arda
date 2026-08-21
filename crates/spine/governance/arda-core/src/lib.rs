@@ -22,6 +22,7 @@ pub mod loop_economy;
 pub mod loop_engine;
 pub mod loop_observability;
 pub mod message;
+pub mod next_action;
 pub mod operator_projection;
 pub mod orome_runtime;
 pub mod payment_capability;

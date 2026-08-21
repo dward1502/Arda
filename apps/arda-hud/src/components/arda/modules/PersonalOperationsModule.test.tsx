@@ -4,6 +4,28 @@ import PersonalOperationsModule from './PersonalOperationsModule'
 import type { PersonalOpsClient, PersonalOpsSnapshot } from '../../../lib/personalOps'
 
 const snapshot: PersonalOpsSnapshot = {
+  nextAction: {
+    schema_version: 'arda.next-action.v1',
+    generated_at: '2026-08-04T09:00:00Z',
+    status: 'ready',
+    reason: 'Highest-priority current operator-authored commitment.',
+    excluded: { stale: 0, terminal: 0, future_gated: 2, inferred_without_review: 0 },
+    selected: {
+      id: 'operator-core-review',
+      title: 'Review core Arda against the operator vision',
+      source_kind: 'queue',
+      source_ref: 'core/projects/tasks/queue.jsonl#operator-core-review',
+      reason: 'Highest-priority current operator-authored commitment.',
+      freshness: 'fresh',
+      authority_state: 'review_required',
+      next_operator_action: 'Review this objective and explicitly start, revise, or defer it.',
+      priority: 90,
+      operator_authored: true,
+      terminal: false,
+      future_gated: false,
+      inferred_without_review: false,
+    },
+  },
   inbox: {
     schema_version: 'arda.harness.personal-ops.v1',
     inbox: [
@@ -101,7 +123,9 @@ describe('PersonalOperationsModule', () => {
     expect(await screen.findByRole('heading', { name: 'Personal Operations' })).toBeInTheDocument()
     expect(screen.getByLabelText('Rapid capture')).toBeInTheDocument()
     expect(screen.queryByLabelText(/category/i)).not.toBeInTheDocument()
-    expect(screen.getAllByText('Prepare launch checklist')).toHaveLength(2)
+    expect(screen.getByText('Review core Arda against the operator vision')).toBeInTheDocument()
+    expect(screen.getByText(/queue · fresh · review required/i)).toBeInTheDocument()
+    expect(screen.getAllByText('Prepare launch checklist')).toHaveLength(1)
     expect(screen.getByText('1 reminder awaiting acknowledgement')).toBeInTheDocument()
     expect(screen.getByText('Quiet mode unavailable')).toBeInTheDocument()
     expect(screen.getByText(/Calendar sync: not configured/)).toBeInTheDocument()
@@ -136,6 +160,7 @@ describe('PersonalOperationsModule', () => {
   it('announces loading, error, and empty states accessibly', async () => {
     const emptyClient = client({
       loadSnapshot: vi.fn(async () => ({
+        nextAction: { schema_version: 'arda.next-action.v1', generated_at: '2026-08-04T09:00:00Z', status: 'empty', selected: null, reason: 'No current trustworthy action is available.', excluded: { stale: 0, terminal: 0, future_gated: 0, inferred_without_review: 0 } } as const,
         inbox: { schema_version: 'arda.harness.personal-ops.v1', inbox: [] },
         resume: { schema_version: 'arda.harness.personal-ops.v1', resume: { summary: 'Nothing in progress. Check your captures or scheduled items.', active_count: 0, inbox_count: 0, today_count: 0, waiting_count: 0, generated_at: '2026-08-04T09:00:00Z' } },
         todayBrief: { schema_version: 'arda.harness.personal-ops.v1', brief: { generated_at: '2026-08-04T09:00:00Z', today: [], waiting: [], reminders_awaiting_ack: 0, quiet_mode: false, uncertainty_disclosure: 'Brief reconstructed from local event log.' } },

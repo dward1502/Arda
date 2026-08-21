@@ -315,13 +315,30 @@ async fn apply_command(
         }
         Command::Context => {
             let response =
-                get_operator_json(state, "/v1/personal/resume", &incoming.operator.operator_id)
-                    .await?;
-            let summary = response["resume"]["summary"]
-                .as_str()
-                .unwrap_or("No personal resume context is available.")
-                .to_owned();
-            Ok((summary, vec!["arda://personal/resume".into()]))
+                get_operator_json(state, "/v1/next-action", &incoming.operator.operator_id).await?;
+            let summary = if let Some(selected) = response["selected"].as_object() {
+                format!(
+                    "Next action: {} Why: {} Operator step: {}",
+                    selected
+                        .get("title")
+                        .and_then(Value::as_str)
+                        .unwrap_or("Untitled action."),
+                    selected
+                        .get("reason")
+                        .and_then(Value::as_str)
+                        .unwrap_or("Current source-truth priority."),
+                    selected
+                        .get("next_operator_action")
+                        .and_then(Value::as_str)
+                        .unwrap_or("Open the action for review."),
+                )
+            } else {
+                response["reason"]
+                    .as_str()
+                    .unwrap_or("No current trustworthy action is available.")
+                    .to_owned()
+            };
+            Ok((summary, vec!["arda://next-action".into()]))
         }
         Command::Status { run_id: None } => {
             let response = get_json(state, "/v1/runs").await?;

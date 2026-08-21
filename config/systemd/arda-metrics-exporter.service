@@ -7,7 +7,7 @@ Wants=network-online.target
 Type=simple
 WorkingDirectory=/var/home/mythos/Eregion/Arda
 Environment=ARDA_ROOT=/var/home/mythos/Eregion/Arda
-ExecStart=/var/home/mythos/.local/bin/arda-cli metrics serve --root /var/home/mythos/Eregion/Arda --bind 0.0.0.0 --port 9101 --refresh-secs 15
+ExecStart=%h/.local/bin/arda-cli metrics serve --root %h/Eregion/Arda --bind 127.0.0.1 --port 9101 --refresh-secs 15
 Restart=always
 RestartSec=3
 

@@ -223,7 +223,7 @@ enum MetricsCommands {
         /// Explicit Arda repository or migrated state root.
         #[arg(long, default_value = ".")]
         root: PathBuf,
-        #[arg(long, default_value = "0.0.0.0")]
+        #[arg(long, default_value = "127.0.0.1")]
         bind: String,
         #[arg(long, default_value_t = 9101)]
         port: u16,

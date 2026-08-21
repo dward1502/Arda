@@ -1981,6 +1981,7 @@ fn select_cycle_objectives(
         if let Some(objective) = objective_from_queue_record(&record) {
             let candidate_id = objective.id.clone();
             let title = objective.statement.clone();
+            let requires_review = queue_record_requires_review(&record);
             candidates.push(ObjectiveCandidate {
                 objective,
                 report: ObjectiveCandidateReport {
@@ -1991,7 +1992,11 @@ fn select_cycle_objectives(
                     effective_status: record.status.unwrap_or_else(|| "unknown".into()),
                     owner: record.owner,
                     priority: record.priority,
-                    governance_class: "unclassified".into(),
+                    governance_class: if requires_review {
+                        "operator_authored_review_required".into()
+                    } else {
+                        "unclassified".into()
+                    },
                     review_gate: GovernanceGate::ReviewRequired,
                     blocked_reason_code: None,
                     approval_packet_id: None,
@@ -2001,7 +2006,7 @@ fn select_cycle_objectives(
                 },
                 human_approved: false,
                 human_conditions: Vec::new(),
-                requires_review: false,
+                requires_review,
             });
         }
     }
@@ -2064,19 +2069,30 @@ fn select_cycle_objectives(
         }
 
         if candidate.requires_review {
-            candidate.report.governance_class = "arandur_recommendation".into();
+            let arandur_recommendation =
+                candidate.report.governance_class == "arandur_recommendation";
+            if candidate.report.governance_class == "unclassified" {
+                candidate.report.governance_class = "review_required".into();
+            }
             candidate.report.review_gate = GovernanceGate::ReviewRequired;
-            candidate.report.blocked_reason_code =
-                Some("review_gated_recommendation_requires_operator_review".into());
+            candidate.report.blocked_reason_code = Some(
+                if arandur_recommendation {
+                    "review_gated_recommendation_requires_operator_review"
+                } else {
+                    "review_gated_candidate_requires_operator_review"
+                }
+                .into(),
+            );
             if selected.is_some() {
                 candidate.report.rejection_reason =
                     Some("another higher-priority candidate was selected".into());
             } else {
                 objectives_blocked_by_gate += 1;
-                candidate.report.rejection_reason = Some(
-                    "blocked_by_gate:ReviewRequired:Arandur recommendation requires operator review before canonical selection"
-                        .into(),
-                );
+                candidate.report.rejection_reason = Some(if arandur_recommendation {
+                    "blocked_by_gate:ReviewRequired:Arandur recommendation requires operator review before canonical selection".into()
+                } else {
+                    "blocked_by_gate:ReviewRequired:candidate requires operator review before canonical selection".into()
+                });
             }
             reports.push(candidate.report);
             continue;
@@ -2436,6 +2452,21 @@ fn objective_from_queue_record(record: &QueueRecord) -> Option<Objective> {
         success_criteria: Vec::new(),
         tags,
     })
+}
+
+fn queue_record_requires_review(record: &QueueRecord) -> bool {
+    let meta = record.extra.get("meta").and_then(Value::as_object);
+    let meta_value = |key: &str| meta.and_then(|meta| meta.get(key)).and_then(Value::as_str);
+    let scope = record.extra.get("scope").and_then(Value::as_str);
+
+    record.extra.get("action_class").and_then(Value::as_str) == Some("review_required")
+        || meta_value("mutation_risk") == Some("review_required")
+        || meta_value("execution_authority") == Some("none_until_review")
+        || meta_value("lifecycle_phase") == Some("future-gated")
+        || (meta_value("financial_authority") == Some("none")
+            && scope.is_some_and(|value| value.contains("economic")))
+        || (meta_value("external_account_authority") == Some("none")
+            && scope.is_some_and(|value| value.contains("agent-community")))
 }
 
 fn arandur_recommendation_candidates(path: &Path) -> Vec<ObjectiveCandidate> {
@@ -3577,6 +3608,42 @@ default_policy = "ledger_before_task"
             .as_deref()
             .unwrap_or_default()
             .starts_with("blocked_by_gate:HadesReviewRequired:"));
+    }
+
+    #[test]
+    fn objective_selection_honors_nested_operator_review_and_future_gates() {
+        let dir = tempfile::tempdir().unwrap();
+        let cfg = AutopilotConfig::from_root(dir.path());
+        std::fs::create_dir_all(cfg.queue_path.parent().unwrap()).unwrap();
+        std::fs::write(
+            &cfg.queue_path,
+            r#"{"id":"future-agent","title":"Evaluate an agent community listening post","status":"pending","owner":"operator:mythos","scope":"agent-community-research","meta":{"action_class":"operator_authored_objective","lifecycle_phase":"future-gated","mutation_risk":"review_required","execution_authority":"none_until_review","external_account_authority":"none"}}
+"#,
+        )
+        .unwrap();
+
+        let (objectives, report) = select_cycle_objectives(
+            &cfg,
+            &ObjectiveDecomposer::default(),
+            &GovernancePolicy::default(),
+            Vec::new(),
+            Vec::new(),
+        );
+
+        assert!(objectives.is_empty());
+        assert_eq!(report.status, "blocked");
+        assert_eq!(
+            report.candidates[0].governance_class,
+            "operator_authored_review_required"
+        );
+        assert_eq!(
+            report.candidates[0].review_gate,
+            GovernanceGate::ReviewRequired
+        );
+        assert_eq!(
+            report.candidates[0].blocked_reason_code.as_deref(),
+            Some("review_gated_candidate_requires_operator_review")
+        );
     }
 
     #[test]

@@ -34,6 +34,7 @@ import {
   SceneTransitionOverlay,
   PersonalGrowthModule,
   QueueProvenancePanel,
+  ResearchModule,
   ReviewGateWorkstation,
   buildReviewGateDecisionRecordPreview,
   ServiceEmbedModule,
@@ -953,6 +954,10 @@ export default function App() {
     personal_operations: {
       title: 'Personal Operations',
       node: <PersonalOperationsModule />,
+    },
+    research: {
+      title: 'Governed Research',
+      node: <ResearchModule />,
     },
     operating_surface: {
       title: 'Operating Surface Review',

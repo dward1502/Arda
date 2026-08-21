@@ -70,6 +70,12 @@ const WORKSTATION_COMPOSITIONS: Record<string, WorkstationComposition> = {
     sourcePanelIds: ['personal_growth', 'human_notes', 'boardroom'],
     presentationModes: ['in_scene', 'native_window'],
   },
+  knowledge_and_reasoning: {
+    title: 'Knowledge + Research',
+    moduleIds: ['research', 'human_realm', 'section_focus'],
+    sourcePanelIds: ['research', 'memory', 'knowledge_triage'],
+    presentationModes: ['in_scene', 'native_window'],
+  },
   planning_and_queue: {
     title: 'Planning + Queue',
     moduleIds: ['planning', 'operating_surface'],
@@ -99,6 +105,7 @@ const WORKSTATION_COMPOSITIONS: Record<string, WorkstationComposition> = {
 const HUD_MODULE_IDS = new Set<ModuleId>([
   'executive_overview',
   'operating_surface',
+  'research',
   'section_focus',
   'human_realm',
   'systems',

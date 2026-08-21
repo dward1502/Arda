@@ -6,10 +6,10 @@ soterion:
   role: "implementation_plan"
   owner: "PROMETHEUS"
   status: "active"
-  reviewed: "2026-08-20"
+  reviewed: "2026-08-21"
 ---
 
-> 🜏 Soterion: 📜 implementation_plan | owner: PROMETHEUS | status: active | reviewed: 2026-08-20
+> 🜏 Soterion: 📜 implementation_plan | owner: PROMETHEUS | status: active | reviewed: 2026-08-21
 
 # Core Arda Usefulness Repair
 
@@ -84,7 +84,7 @@ Current live state (2026-08-20): one genuine operator-authored item completed th
 ## Phase 5 — Source-grounded research and recurring intelligence
 
 - [x] Prove a genuine operator question is durably saved even when Warden is unavailable.
-- [ ] Deliver one current source-grounded answer with citations, uncertainty, contradiction handling, and stale labeling.
+- [x] Deliver one current source-grounded answer with citations, uncertainty, contradiction handling, and stale labeling. Brief `research-497ea63fae507a8b` is linked to operator question `8011c200-6743-4816-b100-c6f56e71da69`, remains current after an Arda restart, and exposes two fresh canonical x402 citations with bounded uncertainty and no source failures.
 - [ ] Add a recurring-intelligence contract tied to an operator-authored objective, cadence, source policy, budget, dedupe key, expiry, and notification policy.
 - [ ] Emit advisory findings and reviewed task proposals separately; never auto-create commitments.
 - [ ] Add the economic-intelligence objective as an opt-in watchlist only after the operator reviews allowed sources, cadence, interruption budget, and legal/risk boundaries.
@@ -92,7 +92,7 @@ Current live state (2026-08-20): one genuine operator-authored item completed th
 
 Visible result: recurring research produces concise reviewed opportunities, not internet noise or autonomous financial behavior.
 
-Current live state (2026-08-20): operator authorization to begin Phase 5 produced durable question `8011c200-6743-4816-b100-c6f56e71da69`, asking for current lawful digital-service and agent-commerce opportunities while explicitly prohibiting accounts, wallets, funds, commitments, and public posting. The registry read-back preserved its objective, source policy, budget, expiry, manual cadence, and disabled notification policy. Warden then returned HTTP 500 because its strict `/search` lane attempted the unavailable canonical-crawl dependency at the SearXNG address. This proved the registry survives provider failure. A focused, tested `/discover` repair now separates bounded source discovery for central Varda canonical evaluation from Warden's strict receipt-producing `/search` lane; it is not live until the Warden runtime is reviewed and updated. A human-readable primary-source answer was delivered separately, but the second acceptance item remains open until the Arda/Varda product path emits and retains that cited brief itself.
+Current live state (2026-08-21): operator authorization produced durable question `8011c200-6743-4816-b100-c6f56e71da69`, preserving its objective, source policy, budget, expiry, manual cadence, disabled notifications, and prohibitions on accounts, wallets, funds, commitments, and public posting. The source-current Arda/Varda path now retains current brief `research-497ea63fae507a8b`, linked to that question. After a real Arda restart, the brief remained `historical=false`, was not stale, retained advisory authority with `execution_authorized=false`, and exposed two fresh `reference_only` citations from the canonical x402 facilitator and introduction documentation. The evidence supports only the bounded conclusion that a facilitator verifies payment payloads and settles payments onchain, and that a server may use `/verify` and `/settle` before providing a requested paid resource. Contradictions are empty and the brief reports no additional uncertainty signal inside this two-source evidence set; that does not establish a broad earning opportunity, legal suitability, or permission for any funded action. The native HUD's Knowledge and Reasoning workstation renders the current brief, canonical citation details, freshness, and advisory-only boundary. Recurring watchlists, reviewed opportunity proposals, broader lawful-earning research, and operator usefulness acceptance remain open; no account, wallet, transaction, commitment, or public action occurred.
 
 ## Phase 6 — Fleet and delivery truth
 

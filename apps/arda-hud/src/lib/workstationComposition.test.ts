@@ -52,4 +52,18 @@ describe('workstation composition authority', () => {
     })
     expect(getStaticWorkstationManifest('unknown')).toBeNull()
   })
+
+  it('keeps governed research reachable from the knowledge workstation', () => {
+    expect(resolveWorkstationComposition('knowledge_and_reasoning', [
+      'research',
+      'memory',
+      'knowledge_triage',
+    ])).toMatchObject({
+      moduleIds: ['research', 'human_realm', 'section_focus'],
+      rejectedPanelIds: [],
+      adapted: true,
+    })
+    expect(sectionToPanelLayout('knowledge_and_reasoning'))
+      .toEqual(['research', 'human_realm', 'section_focus'])
+  })
 })

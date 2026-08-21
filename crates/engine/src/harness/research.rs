@@ -39,6 +39,8 @@ const MAX_SOURCES: usize = 5;
 pub struct ResearchBriefRequest {
     run_id: String,
     node_id: String,
+    #[serde(default)]
+    question_id: Option<String>,
     question: String,
     #[serde(default = "default_source_limit")]
     source_limit: usize,
@@ -151,6 +153,8 @@ pub struct ResearchBrief {
     brief_id: String,
     run_id: String,
     node_id: String,
+    #[serde(default)]
+    question_id: Option<String>,
     question: String,
     generated_at_utc: String,
     authority: String,
@@ -455,6 +459,7 @@ pub(super) async fn create_brief(
         brief_id: brief_id.clone(),
         run_id: request.run_id.clone(),
         node_id: request.node_id.clone(),
+        question_id: request.question_id.clone(),
         question: request.question.clone(),
         generated_at_utc: generated_at.to_rfc3339(),
         authority: "advisory_research_evidence".to_string(),
@@ -810,9 +815,17 @@ fn is_private_ip(ip: std::net::IpAddr) -> bool {
 }
 
 fn visible_text(raw: &str) -> String {
-    let mut out = String::with_capacity(raw.len());
+    let mut filtered = html_element_inner(raw, "main").unwrap_or(raw).to_string();
+    for tag in [
+        "head", "script", "style", "noscript", "template", "svg", "header", "nav", "aside",
+        "footer",
+    ] {
+        filtered = strip_html_element(&filtered, tag);
+    }
+
+    let mut out = String::with_capacity(filtered.len());
     let mut in_tag = false;
-    for ch in raw.chars() {
+    for ch in filtered.chars() {
         match ch {
             '<' => in_tag = true,
             '>' => {
@@ -824,6 +837,75 @@ fn visible_text(raw: &str) -> String {
         }
     }
     out.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
+fn html_element_inner<'a>(raw: &'a str, tag: &str) -> Option<&'a str> {
+    let lower = raw.to_ascii_lowercase();
+    let opening = format!("<{tag}");
+    let closing = format!("</{tag}");
+    let mut cursor = 0;
+    while let Some(relative_start) = lower[cursor..].find(&opening) {
+        let start = cursor + relative_start;
+        let boundary = lower[start + opening.len()..]
+            .chars()
+            .next()
+            .is_none_or(|ch| ch.is_ascii_whitespace() || matches!(ch, '>' | '/'));
+        if !boundary {
+            cursor = start + 1;
+            continue;
+        }
+        let open_end = start + lower[start..].find('>')?;
+        let close_start = open_end + 1 + lower[open_end + 1..].find(&closing)?;
+        return Some(&raw[open_end + 1..close_start]);
+    }
+    None
+}
+
+fn strip_html_element(raw: &str, tag: &str) -> String {
+    let lower = raw.to_ascii_lowercase();
+    let opening = format!("<{tag}");
+    let closing = format!("</{tag}");
+    let mut out = String::with_capacity(raw.len());
+    let mut cursor = 0;
+
+    while let Some(relative_start) = lower[cursor..].find(&opening) {
+        let start = cursor + relative_start;
+        let boundary = lower[start + opening.len()..]
+            .chars()
+            .next()
+            .is_none_or(|ch| ch.is_ascii_whitespace() || matches!(ch, '>' | '/'));
+        if !boundary {
+            out.push_str(&raw[cursor..start + 1]);
+            cursor = start + 1;
+            continue;
+        }
+        out.push_str(&raw[cursor..start]);
+        let Some(relative_open_end) = lower[start..].find('>') else {
+            cursor = raw.len();
+            break;
+        };
+        let open_end = start + relative_open_end;
+        if lower[start..=open_end].trim_end().ends_with("/>") {
+            out.push(' ');
+            cursor = open_end + 1;
+            continue;
+        }
+        let Some(relative_close) = lower[open_end + 1..].find(&closing) else {
+            out.push(' ');
+            cursor = raw.len();
+            break;
+        };
+        let close_start = open_end + 1 + relative_close;
+        let Some(relative_close_end) = lower[close_start..].find('>') else {
+            out.push(' ');
+            cursor = raw.len();
+            break;
+        };
+        out.push(' ');
+        cursor = close_start + relative_close_end + 1;
+    }
+    out.push_str(&raw[cursor..]);
+    out
 }
 
 fn citation_excerpt(text: &str, question: &str) -> String {
@@ -1187,6 +1269,80 @@ mod tests {
     }
 
     #[test]
+    fn visible_text_excludes_non_content_html_payloads() {
+        let raw = r#"
+            <html>
+              <head>
+                <style>.hidden { display: none; }</style>
+                <script type="application/json">{"oversized":"payload"}</script>
+              </head>
+              <body>
+                <main>x402 enables paid API access.</main>
+                <noscript>duplicate fallback navigation</noscript>
+                <svg><text>decorative icon label</text></svg>
+              </body>
+            </html>
+        "#;
+
+        assert_eq!(visible_text(raw), "x402 enables paid API access.");
+    }
+
+    #[test]
+    fn visible_text_excludes_repeated_page_chrome() {
+        let raw = r#"
+            <body>
+              <header>Product banner</header>
+              <nav>Docs FAQ Getting Started Facilitator</nav>
+              <aside>On this page</aside>
+              <main>A facilitator verifies payments and submits settlements.</main>
+              <footer>Site links and legal notices</footer>
+            </body>
+        "#;
+
+        assert_eq!(
+            visible_text(raw),
+            "A facilitator verifies payments and submits settlements."
+        );
+    }
+
+    #[test]
+    fn visible_text_prefers_the_document_main_region() {
+        let raw = r#"
+            <body>
+              <div class="sidebar">Welcome FAQ Getting Started Facilitator</div>
+              <main><p>The facilitator verifies payments.</p></main>
+              <div class="assistant">Ask the docs assistant</div>
+            </body>
+        "#;
+
+        assert_eq!(visible_text(raw), "The facilitator verifies payments.");
+    }
+
+    #[test]
+    fn brief_request_accepts_a_durable_question_link() {
+        let request = serde_json::from_value::<ResearchBriefRequest>(serde_json::json!({
+            "run_id": "run-1",
+            "node_id": "research",
+            "question_id": "8011c200-6743-4816-b100-c6f56e71da69",
+            "question": "bounded supporting query",
+            "source_limit": 2,
+            "envelope": {
+                "approval": {
+                    "schema_version": "arda.orome.task_approval.v1",
+                    "proposal_id": "proposal-1",
+                    "approval_id": "approval-1",
+                    "ledger_writes": [],
+                    "decision": "policy_safe",
+                    "created_at_utc": "2026-08-21T00:00:00Z"
+                },
+                "idempotency_key": "research-1"
+            }
+        }));
+
+        assert!(request.is_ok(), "question linkage should be accepted");
+    }
+
+    #[test]
     fn private_fetch_targets_are_rejected() {
         for raw in [
             "http://127.0.0.1/a",
@@ -1275,6 +1431,7 @@ mod tests {
             brief_id: "brief".to_string(),
             run_id: "run".to_string(),
             node_id: "node".to_string(),
+            question_id: None,
             question: "question".to_string(),
             generated_at_utc: "2026-08-02T00:00:00Z".to_string(),
             authority: "advisory_research_evidence".to_string(),

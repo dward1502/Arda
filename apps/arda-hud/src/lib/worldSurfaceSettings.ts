@@ -92,7 +92,7 @@ const DEFAULT_WORLD_SURFACE_METADATA: Record<WorldSceneSurfaceId, Omit<WorldSurf
     source_zone_id: 'knowledge_and_reasoning',
     title: 'Knowledge District',
     role: 'district',
-    module_ids: ['section_focus', 'human_realm'],
+    module_ids: ['research', 'human_realm', 'section_focus'],
     presentation_modes: ['in_scene', 'native_window'],
   },
   district_operations: {

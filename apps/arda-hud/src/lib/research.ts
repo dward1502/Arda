@@ -57,22 +57,37 @@ export interface ResearchWatchlist {
 
 export interface ResearchBriefCitation {
   citation_id: string
-  url: string
+  url?: string
+  discovered_url?: string
+  canonical_url?: string
   title?: string
   source_identity?: string
+  normalized_source_id?: string
   excerpt?: string
   fetch_status?: string
   rejection_reason?: string | null
   failure_reason?: string | null
   quality?: string
+  policy_readiness?: string
   freshness?: string
+  freshness_status?: string
+  confidence?: number
+  fetched_at_utc?: string
+  expires_at_utc?: string
+  receipt_references?: string[]
+  evidence_boundary?: string
+  prompt_injection_detected?: boolean
+  prompt_injection_signals?: string[]
 }
 
 export interface ResearchBriefClaim {
   claim_id: string
   claim: string
-  citation_ids: string[]
+  citation_ids?: string[]
+  evidence_citation_ids?: string[]
   confidence?: string
+  uncertainty?: string
+  stance?: string
   support?: 'supporting' | 'opposing' | 'mixed' | 'unknown'
 }
 
@@ -99,8 +114,12 @@ export interface ResearchBrief {
   question?: string
   scope?: string
   executive_summary?: string
+  summary?: string
+  authority?: string
+  execution_authorized?: boolean
   claims?: ResearchBriefClaim[]
   citations?: ResearchBriefCitation[]
+  source_failures?: string[]
   supporting_citation_ids?: string[]
   opposing_citation_ids?: string[]
   contradictions?: string[]
@@ -108,12 +127,15 @@ export interface ResearchBrief {
   missing_evidence?: string[]
   next_research?: string[]
   next_proposal?: string[]
+  next_research_or_proposal?: string[]
   receipt_references?: string[]
   stale?: boolean
   historical?: boolean
   expires_at_utc?: string
   material_fingerprint?: string
   no_change_receipt?: string
+  no_change_receipt_path?: string
+  change_status?: string
   rumil_evidence?: RumilBriefEvidence
 }
 

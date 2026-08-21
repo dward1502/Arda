@@ -37,12 +37,12 @@ Until the operator accepts the core journey:
 
 ## Phase 1 — Install source truth and remove historical agenda contamination
 
-- [ ] Build and install the current root `arda` binary after the verified queue, Personal Operations, Workbench, and research repairs.
-- [ ] Restart only `arda.service`; verify harness health and exact source-current behavior.
-- [ ] Confirm current Workbench objectives/runs are empty unless explicitly registered, while historical evidence remains stored.
-- [ ] Confirm orphan research briefs are visibly historical/stale.
-- [ ] Refresh queue projections from `core/projects/tasks/queue.jsonl` without staging generated projection files.
-- [ ] Confirm all three operator-authored objectives appear as pending/review-required and non-executable.
+- [x] Build and install the current root `arda` binary after the verified queue, Personal Operations, Workbench, and research repairs; source and installed binary hashes matched.
+- [x] Restart `arda.service`; verify harness health and exact source-current behavior. Mirromere remained stopped.
+- [x] Confirm current Workbench objectives/runs are empty unless explicitly registered, while seven historical checkpoints remain stored outside the current agenda.
+- [x] Confirm the orphan research brief is visibly `historical=true` and `stale=true`.
+- [x] Refresh queue projections from `core/projects/tasks/queue.jsonl` without staging generated projection files.
+- [x] Confirm all three operator-authored objectives appear as pending/review-required and non-executable; the read-only autopilot now selects none.
 
 Visible result: the installed system stops presenting old proof activity as the operator's current agenda and shows the genuine objectives the operator just authored.
 
@@ -92,10 +92,10 @@ Visible result: recurring research produces concise reviewed opportunities, not 
 
 ## Phase 6 — Fleet and delivery truth
 
-- [ ] Probe exact active endpoints from `config/fleet.toml`.
-- [ ] Expire stale Manwë bootstrap/provider-intelligence health before it can show `ready`.
+- [x] Probe exact active endpoints from `config/fleet.toml`: core, Warden model/scout, and Beelink answered; both backbone lanes and CITADEL timed out.
+- [x] Expire failed Manwë runtime health before it can show `ready`, including restart rehydration; live ready count fell from six to three.
 - [ ] Keep unreachable, service-down, routing-drift, and intentional-offline states distinct.
-- [ ] Require a current RELIC/CITADEL acknowledgement for physical delivery; process existence is insufficient.
+- [x] Require a current RELIC/CITADEL acknowledgement for physical delivery; the bridge now writes an atomic acknowledgement only after confirmed remote install. Current acknowledgement is absent while CITADEL is unreachable.
 - [ ] Verify launcher/HUD consumers show the same truth.
 
 Visible result: failed or expired providers and renderers cannot remain green indefinitely.

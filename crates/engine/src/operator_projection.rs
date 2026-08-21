@@ -18,6 +18,7 @@ use crate::personal_ops::{build_projection, PersonalOpsLogStore};
 use crate::runs::RunStore;
 
 pub const OPERATOR_PROJECTION_PATH: &str = "core/state/operator_projection.json";
+pub const CURRENT_RUNS_PATH: &str = "data/workbench/current-runs.json";
 static OPERATOR_PROJECTION_WRITE: Mutex<()> = Mutex::new(());
 
 pub fn publish_operator_projection(
@@ -70,6 +71,25 @@ pub fn publish_operator_projection(
         graphs.push(graph);
     }
 
+    let total_run_count = graphs.len();
+    let current_run_ids = load_current_run_ids(root)?;
+    let mut current_directories = Vec::new();
+    let mut current_graphs = Vec::new();
+    for (directory, graph) in run_directories.iter().zip(graphs.iter()) {
+        if current_run_ids.contains(graph.run_id.as_str())
+            && !matches!(
+                derive_run_status(graph),
+                RunStatus::Succeeded | RunStatus::Failed | RunStatus::Cancelled
+            )
+        {
+            current_directories.push(directory.clone());
+            current_graphs.push(graph.clone());
+        }
+    }
+    let historical_run_count = total_run_count.saturating_sub(current_graphs.len());
+    let graphs = current_graphs;
+    let run_directories = current_directories;
+
     let runs = graphs.iter().map(project_run).collect::<Vec<_>>();
     let objectives = project_objectives(&graphs, &runs);
     let capabilities = project_capabilities(&run_directories)?;
@@ -99,7 +119,10 @@ pub fn publish_operator_projection(
             dependency(
                 "run_store",
                 DependencyHealth::Ready,
-                format!("{} validated checkpoint(s)", graphs.len()),
+                format!(
+                    "{} current validated checkpoint(s); {} historical checkpoint(s) retained outside the current agenda",
+                    graphs.len(), historical_run_count
+                ),
             ),
             dependency(
                 "resource_ledger",
@@ -137,6 +160,38 @@ pub fn publish_operator_projection(
         .map_err(|error| OperatorProjectionPublishError::InvalidProjection(error.to_string()))?;
     atomic_write_projection(root, &projection)?;
     Ok(projection)
+}
+
+fn load_current_run_ids(root: &Path) -> Result<BTreeSet<String>, OperatorProjectionPublishError> {
+    let path = root.join(CURRENT_RUNS_PATH);
+    let raw = match fs::read_to_string(&path) {
+        Ok(raw) => raw,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(BTreeSet::new()),
+        Err(source) => return Err(OperatorProjectionPublishError::Io { path, source }),
+    };
+    let value: serde_json::Value = serde_json::from_str(&raw).map_err(|error| {
+        OperatorProjectionPublishError::InvalidCanonicalInput {
+            path: path.clone(),
+            error: error.to_string(),
+        }
+    })?;
+    if value["schema_version"] != "arda.workbench.current-runs.v1" {
+        return Err(OperatorProjectionPublishError::InvalidCanonicalInput {
+            path,
+            error: "unsupported current-run registry version".to_string(),
+        });
+    }
+    let ids = value["run_ids"].as_array().ok_or_else(|| {
+        OperatorProjectionPublishError::InvalidCanonicalInput {
+            path: root.join(CURRENT_RUNS_PATH),
+            error: "current-run registry requires a run_ids array".to_string(),
+        }
+    })?;
+    Ok(ids
+        .iter()
+        .filter_map(|value| value.as_str())
+        .map(str::to_owned)
+        .collect())
 }
 
 fn project_run(graph: &RunGraph) -> RunProjection {

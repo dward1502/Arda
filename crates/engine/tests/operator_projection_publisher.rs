@@ -39,6 +39,23 @@ fn write_run(root: &std::path::Path, run_id: &str, state: &str) {
         ),
     )
     .unwrap();
+    let registry_path = root.join("data/workbench/current-runs.json");
+    fs::create_dir_all(registry_path.parent().unwrap()).unwrap();
+    let mut run_ids = fs::read_to_string(&registry_path)
+        .ok()
+        .and_then(|raw| serde_json::from_str::<serde_json::Value>(&raw).ok())
+        .and_then(|value| value["run_ids"].as_array().cloned())
+        .unwrap_or_default();
+    run_ids.push(serde_json::Value::String(run_id.to_owned()));
+    fs::write(
+        registry_path,
+        serde_json::to_vec_pretty(&serde_json::json!({
+            "schema_version": "arda.workbench.current-runs.v1",
+            "run_ids": run_ids,
+        }))
+        .unwrap(),
+    )
+    .unwrap();
 }
 
 #[test]
@@ -167,4 +184,30 @@ fn capability_projection_preserves_versions_and_derives_optional_only_from_recei
         .find(|capability| capability.capability_id == "voice")
         .unwrap();
     assert!(voice.optional);
+}
+
+#[test]
+fn historical_terminal_runs_remain_stored_but_are_excluded_from_current_projection() {
+    let root = tempfile::tempdir().unwrap();
+    write_run(root.path(), "run-current", "running");
+    write_run(root.path(), "runtime-proof-20260813-v2", "succeeded");
+
+    let projection = publish_operator_projection(
+        root.path(),
+        Utc.with_ymd_and_hms(2026, 8, 20, 18, 0, 0).unwrap(),
+    )
+    .unwrap();
+
+    assert_eq!(projection.runs.len(), 1);
+    assert_eq!(projection.runs[0].run_id, "run-current");
+    assert!(root
+        .path()
+        .join("data/runs/runtime-proof-20260813-v2/checkpoint.json")
+        .is_file());
+    let run_store = projection
+        .dependencies
+        .iter()
+        .find(|dependency| dependency.dependency_id == "run_store")
+        .unwrap();
+    assert!(run_store.detail.contains("1 historical checkpoint"));
 }

@@ -184,6 +184,50 @@ pub struct ExecuteProviderNodeResponse {
     receipt: HermesExecutionReceipt,
 }
 
+fn mark_current_run(root: &FsPath, run_id: &str) -> Result<(), ApiError> {
+    let path = root.join(crate::operator_projection::CURRENT_RUNS_PATH);
+    let mut run_ids = match std::fs::read_to_string(&path) {
+        Ok(raw) => {
+            let value: serde_json::Value = serde_json::from_str(&raw).map_err(|error| {
+                ApiError::internal(format!("failed to parse current-run registry: {error}"))
+            })?;
+            if value["schema_version"] != "arda.workbench.current-runs.v1" {
+                return Err(ApiError::internal(
+                    "unsupported current-run registry version",
+                ));
+            }
+            value["run_ids"]
+                .as_array()
+                .ok_or_else(|| ApiError::internal("current-run registry requires run_ids"))?
+                .iter()
+                .filter_map(|value| value.as_str())
+                .map(str::to_owned)
+                .collect::<std::collections::BTreeSet<_>>()
+        }
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Default::default(),
+        Err(error) => {
+            return Err(ApiError::internal(format!(
+                "failed to read current-run registry: {error}"
+            )))
+        }
+    };
+    run_ids.insert(run_id.to_owned());
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent).map_err(|error| {
+            ApiError::internal(format!("failed to create current-run registry: {error}"))
+        })?;
+    }
+    let temporary = path.with_extension(format!("tmp.{}", std::process::id()));
+    let bytes = serde_json::to_vec_pretty(&serde_json::json!({
+        "schema_version": "arda.workbench.current-runs.v1",
+        "run_ids": run_ids,
+    }))
+    .map_err(|error| ApiError::internal(format!("serialize current-run registry: {error}")))?;
+    std::fs::write(&temporary, bytes)
+        .and_then(|_| std::fs::rename(&temporary, &path))
+        .map_err(|error| ApiError::internal(format!("write current-run registry: {error}")))
+}
+
 pub(super) async fn plan_run(
     State(state): State<HarnessState>,
     ConnectInfo(peer): ConnectInfo<SocketAddr>,
@@ -214,6 +258,7 @@ pub(super) async fn plan_run(
             .applied_idempotency_keys
             .contains_key(&request.envelope.idempotency_key)
         {
+            mark_current_run(&state.workbench_root, existing.run_id.as_str())?;
             return Ok((StatusCode::OK, Json(run_response(&store, existing)?)));
         }
         return Err(ApiError::conflict(format!(
@@ -251,6 +296,7 @@ pub(super) async fn plan_run(
         })
         .map_err(store_error)?;
     if matches!(outcome, AppendOutcome::Appended { .. }) {
+        mark_current_run(&state.workbench_root, graph.run_id.as_str())?;
         if let Some(plan_node_id) = plan_node_id {
             for (suffix, next) in [
                 ("ready", NodeState::Ready),

@@ -48,6 +48,8 @@ pub(super) struct QuestionCreateResponse {
     question: ResearchQuestion,
     backend_suggestion: ResearchSuggestion,
     backend_status: &'static str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    backend_error: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -87,23 +89,29 @@ pub(super) async fn create_question(
         .cloned()
     {
         let suggestion = intended_suggestion(&existing, &request.envelope.idempotency_key)?;
+        let (backend_status, backend_error) = if request.read_only {
+            ("already_registered", None)
+        } else {
+            match enqueue_suggestion(&state, &suggestion).await {
+                Ok(()) => ("re_enqueued_via_warden_ingress", None),
+                Err(_) => (
+                    "registered_warden_unavailable",
+                    Some("Warden suggestion ingress unavailable".to_string()),
+                ),
+            }
+        };
         return Ok((
             StatusCode::OK,
             Json(QuestionCreateResponse {
                 question: existing,
                 backend_suggestion: suggestion,
-                backend_status: "already_registered",
+                backend_status,
+                backend_error,
             }),
         ));
     }
 
     let suggestion = intended_suggestion(&request.question, &request.envelope.idempotency_key)?;
-    let backend_status = if request.read_only {
-        "read_only_not_enqueued"
-    } else {
-        enqueue_suggestion(&state, &suggestion).await?;
-        "enqueued_via_warden_ingress"
-    };
     registry.push(request.question.clone());
     registry.sort_by(|left, right| left.question_id.cmp(&right.question_id));
     write_json_atomic(
@@ -111,12 +119,24 @@ pub(super) async fn create_question(
         QUESTION_SCHEMA,
         &registry,
     )?;
+    let (backend_status, backend_error) = if request.read_only {
+        ("read_only_not_enqueued", None)
+    } else {
+        match enqueue_suggestion(&state, &suggestion).await {
+            Ok(()) => ("enqueued_via_warden_ingress", None),
+            Err(_) => (
+                "registered_warden_unavailable",
+                Some("Warden suggestion ingress unavailable".to_string()),
+            ),
+        }
+    };
     Ok((
         StatusCode::CREATED,
         Json(QuestionCreateResponse {
             question: request.question,
             backend_suggestion: suggestion,
             backend_status,
+            backend_error,
         }),
     ))
 }
@@ -278,6 +298,10 @@ pub(super) async fn list_briefs(
 ) -> Result<Json<BriefListResponse>, ApiError> {
     require_operator_header(&state, &headers)?;
     let mut briefs = Vec::new();
+    let current_question_ids = load_questions(&state.workbench_root)?
+        .into_iter()
+        .map(|question| question.question_id)
+        .collect::<std::collections::BTreeSet<_>>();
     let runs = state.workbench_root.join("data/runs");
     if let Ok(entries) = fs::read_dir(runs) {
         for run in entries.flatten() {
@@ -294,6 +318,17 @@ pub(super) async fn list_briefs(
                                 .and_then(serde_json::Value::as_str)
                                 == Some("arda.workbench.research-brief.v1")
                             {
+                                let mut value = value;
+                                let historical = value
+                                    .get("question_id")
+                                    .and_then(serde_json::Value::as_str)
+                                    .is_none_or(|id| !current_question_ids.contains(id));
+                                if let Some(object) = value.as_object_mut() {
+                                    object.insert("historical".to_string(), historical.into());
+                                    if historical {
+                                        object.insert("stale".to_string(), true.into());
+                                    }
+                                }
                                 briefs.push(value);
                             }
                         }
@@ -601,5 +636,60 @@ mod tests {
         assert!(!root_path
             .join("data/warden/research_suggestions.jsonl")
             .exists());
+    }
+
+    #[tokio::test]
+    async fn unavailable_warden_does_not_discard_operator_question() {
+        let root = tempdir().expect("temp root");
+        let root_path = root.path().to_path_buf();
+        let request = CreateQuestionRequest {
+            question: question(),
+            read_only: false,
+            envelope: envelope(),
+        };
+        let (status, Json(response)) = create_question(
+            State(state(root_path.clone())),
+            ConnectInfo("127.0.0.1:1234".parse().unwrap()),
+            HeaderMap::from_iter([(
+                "x-arda-operator-id".parse().unwrap(),
+                "operator-0".parse().unwrap(),
+            )]),
+            Json(request),
+        )
+        .await
+        .expect("durable question");
+
+        assert_eq!(status, StatusCode::CREATED);
+        assert_eq!(response.backend_status, "registered_warden_unavailable");
+        assert!(response.backend_error.is_some());
+        assert_eq!(load_questions(&root_path).expect("registry").len(), 1);
+    }
+
+    #[tokio::test]
+    async fn orphaned_brief_is_labeled_historical_and_stale() {
+        let root = tempdir().expect("temp root");
+        let evidence = root.path().join("data/runs/old/evidence");
+        fs::create_dir_all(&evidence).unwrap();
+        fs::write(
+            evidence.join("old.json"),
+            serde_json::to_vec(&serde_json::json!({
+                "schema_version": "arda.workbench.research-brief.v1",
+                "brief_id": "old-brief",
+                "question_id": "missing-question",
+                "stale": false
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+        let headers = HeaderMap::from_iter([(
+            "x-arda-operator-id".parse().unwrap(),
+            "operator-0".parse().unwrap(),
+        )]);
+
+        let Json(response) = list_briefs(State(state(root.path().to_path_buf())), headers)
+            .await
+            .expect("brief list");
+        assert_eq!(response.briefs[0]["historical"], true);
+        assert_eq!(response.briefs[0]["stale"], true);
     }
 }

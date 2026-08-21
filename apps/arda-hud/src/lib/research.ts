@@ -110,6 +110,7 @@ export interface ResearchBrief {
   next_proposal?: string[]
   receipt_references?: string[]
   stale?: boolean
+  historical?: boolean
   expires_at_utc?: string
   material_fingerprint?: string
   no_change_receipt?: string
@@ -123,6 +124,7 @@ export interface QuestionCreateResponse {
   question: ResearchQuestion
   backend_suggestion?: { suggestion_id: string; authority: string; query: string }
   backend_status?: string
+  backend_error?: string
 }
 
 export interface ResearchSurfaceModel {

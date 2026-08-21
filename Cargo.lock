@@ -235,6 +235,7 @@ dependencies = [
  "async-stream",
  "axum 0.7.9",
  "chrono",
+ "fs2",
  "futures-core",
  "libc",
  "manwe",

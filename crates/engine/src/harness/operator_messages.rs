@@ -54,6 +54,7 @@ pub struct GatewayOperatorResponse {
 #[derive(Debug)]
 enum Command {
     Capture(String),
+    Research(String),
     Objective {
         project_id: String,
         text: String,
@@ -118,6 +119,7 @@ pub(super) async fn ingest_operator_message(
     if matches!(
         command,
         Command::Capture(_)
+            | Command::Research(_)
             | Command::Objective { .. }
             | Command::Context
             | Command::Acknowledge { .. }
@@ -262,6 +264,59 @@ async fn apply_command(
             Ok((
                 format!("Captured inbox item {capture_id}."),
                 vec![format!("arda://personal/captures/{capture_id}")],
+            ))
+        }
+        Command::Research(question) => {
+            let digest = format!("{:x}", Sha256::digest(message_id.as_bytes()));
+            let question_id = format!("operator-question-{}", &digest[..16]);
+            let response = post_json(
+                state,
+                "/v1/research/questions",
+                json!({
+                    "question": {
+                        "schema_version": "arda.warden.watchlist.v1",
+                        "question_id": question_id,
+                        "owner": incoming.operator.operator_id,
+                        "question": question,
+                        "rationale": "Explicit operator research request from Hermes Gateway",
+                        "tags": ["operator-authored"],
+                        "cadence": {"kind": "manual"},
+                        "expires_at_utc": (Utc::now() + Duration::days(7)).to_rfc3339(),
+                        "source_policy": {
+                            "policy_id": "public-web",
+                            "allowed_sources": ["https://"],
+                            "max_sources_per_run": 5,
+                            "allow_private_targets": false
+                        },
+                        "evidence_requirements": {
+                            "minimum_canonical_sources": 1,
+                            "require_canonical_fetch": true,
+                            "max_source_age_seconds": 604800
+                        },
+                        "contradiction_policy": "require_disclosure",
+                        "budgets": {
+                            "max_results": 10,
+                            "max_fetch_bytes": 2000000,
+                            "max_tokens": 4000,
+                            "max_attempts": 2
+                        },
+                        "notification_policy": {"enabled": false, "destination": null},
+                        "state": "enabled",
+                        "backend_suggestion_ids": []
+                    },
+                    "read_only": false,
+                    "envelope": envelope
+                }),
+                None,
+                Some(&incoming.operator.operator_id),
+            )
+            .await?;
+            let backend_status = response["backend_status"].as_str().unwrap_or("registered");
+            Ok((
+                format!(
+                    "Research question {question_id} registered; backend status: {backend_status}. No commitment was created."
+                ),
+                vec![format!("arda://research/questions/{question_id}")],
             ))
         }
         Command::Objective { project_id, text } => {
@@ -640,6 +695,13 @@ fn parse_command(text: &str) -> Result<Command, ApiError> {
                 Ok(Command::Capture(args.to_owned()))
             }
         }
+        "research" => {
+            if args.is_empty() {
+                Err(ApiError::bad_request("research question cannot be empty"))
+            } else {
+                Ok(Command::Research(args.to_owned()))
+            }
+        }
         "objective" => {
             let (project_id, text) = take_arg(args, "objective project_id")?;
             if text.is_empty() {
@@ -711,7 +773,7 @@ fn parse_command(text: &str) -> Result<Command, ApiError> {
             run_id: only_arg(args, "council run_id")?,
         }),
         _ => Err(ApiError::bad_request(
-            "unsupported operator command; use capture, objective, context, status, approve, reject, revise, cancel, acknowledge, defer, result, or council",
+            "unsupported operator command; use capture, research, objective, context, status, approve, reject, revise, cancel, acknowledge, defer, result, or council",
         )),
     }
 }
@@ -745,7 +807,9 @@ fn require_no_args(input: &str) -> Result<(), ApiError> {
 
 fn command_operation(command: &Command) -> BridgeOperation {
     match command {
-        Command::Capture(_) | Command::Objective { .. } => BridgeOperation::Capture,
+        Command::Capture(_) | Command::Research(_) | Command::Objective { .. } => {
+            BridgeOperation::Capture
+        }
         Command::Context
         | Command::Status { .. }
         | Command::Result { .. }
@@ -762,6 +826,7 @@ fn command_operation(command: &Command) -> BridgeOperation {
 fn command_run_id(command: &Command) -> Option<&str> {
     match command {
         Command::Capture(_)
+        | Command::Research(_)
         | Command::Objective { .. }
         | Command::Context
         | Command::Status { run_id: None }

@@ -269,6 +269,55 @@ async fn gateway_context_returns_the_canonical_cross_domain_next_action() {
 }
 
 #[tokio::test]
+async fn gateway_research_command_persists_question_without_creating_commitment() {
+    let root = TempDir::new().expect("root");
+    let (bound, shutdown, handle) = start_harness(&root).await;
+    let client = reqwest::Client::new();
+    let body = gateway_message(
+        "discord-research-1",
+        "arda research practical x402 earning opportunities",
+    );
+
+    let response: Value = client
+        .post(format!("http://{bound}/v1/operator/messages"))
+        .json(&body)
+        .send()
+        .await
+        .expect("research")
+        .error_for_status()
+        .expect("research status")
+        .json()
+        .await
+        .expect("research body");
+
+    assert!(response["summary"]
+        .as_str()
+        .is_some_and(|summary| summary.contains("Research question")));
+    let registry: Value = serde_json::from_str(
+        &fs::read_to_string(root.path().join("data/workbench/research/questions.json"))
+            .expect("question registry"),
+    )
+    .expect("question registry json");
+    assert_eq!(registry["records"].as_array().unwrap().len(), 1);
+    assert_eq!(
+        registry["records"][0]["question"],
+        "practical x402 earning opportunities"
+    );
+    assert!(!root.path().join("core/projects/tasks/queue.jsonl").exists());
+
+    let duplicate = client
+        .post(format!("http://{bound}/v1/operator/messages"))
+        .json(&body)
+        .send()
+        .await
+        .expect("duplicate research");
+    assert_eq!(duplicate.status(), 409);
+
+    shutdown.notify_waiters();
+    handle.await.expect("harness join");
+}
+
+#[tokio::test]
 async fn authenticated_gateway_approval_cancel_and_resume_use_canonical_runs() {
     let root = TempDir::new().expect("root");
     let (bound, shutdown, handle) = start_harness(&root).await;

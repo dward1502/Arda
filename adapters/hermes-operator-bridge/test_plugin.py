@@ -164,7 +164,14 @@ class ContinuityEventTests(unittest.IsolatedAsyncioTestCase):
         self.env.stop()
         self.temp.cleanup()
 
-    def event(self, *, chat_type="dm", thread_id=None, message_id="message-1"):
+    def event(
+        self,
+        *,
+        chat_type="dm",
+        thread_id=None,
+        message_id="message-1",
+        text="ordinary private conversation text that must not be copied",
+    ):
         source = SimpleNamespace(
             platform="discord",
             chat_id="private-chat" if thread_id is None else "thread-chat",
@@ -180,7 +187,7 @@ class ContinuityEventTests(unittest.IsolatedAsyncioTestCase):
             user_name="Operator",
             message_id=message_id,
             timestamp=datetime(2026, 8, 17, tzinfo=timezone.utc),
-            text="ordinary private conversation text that must not be copied",
+            text=text,
             message_type="text",
             media_urls=[],
             media_types=[],
@@ -208,6 +215,107 @@ class ContinuityEventTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(payload["event"]["source_user_ref"], "operator-1")
         self.assertEqual(payload["event"]["current_session_id"], "hermes-session-1")
         self.assertEqual(payload["event"]["privacy_class"], "personal_device")
+
+    async def test_private_natural_capture_is_forwarded_as_explicit_fallback_command(self):
+        gateway = _Gateway()
+        event = self.event(text="Remember that I need to renew the prescription")
+        with (
+            patch.object(plugin, "_submit", return_value="Captured.") as submit,
+            patch.object(plugin, "_submit_continuity"),
+        ):
+            result = plugin._pre_gateway_dispatch(
+                event, gateway, session_store=self.session_store()
+            )
+            await asyncio.sleep(0)
+
+        self.assertEqual(result, {"action": "skip"})
+        payload = submit.call_args.args[0]
+        self.assertEqual(
+            payload["event"]["text"],
+            "arda capture I need to renew the prescription",
+        )
+        self.assertEqual(payload["operator"]["operator_id"], "operator:mythos")
+        self.assertEqual(payload["event"]["user_id"], "operator:mythos")
+        self.assertEqual(gateway.notices, ["Captured."])
+
+    async def test_private_context_and_research_intents_are_bounded(self):
+        cases = [
+            ("What should I work on next?", "arda context"),
+            ("Research practical x402 earning opportunities", "arda research practical x402 earning opportunities"),
+        ]
+        for index, (text, expected) in enumerate(cases):
+            with self.subTest(text=text):
+                event = self.event(message_id=f"intent-{index}", text=text)
+                with (
+                    patch.object(plugin, "_submit", return_value="Handled.") as submit,
+                    patch.object(plugin, "_submit_continuity"),
+                ):
+                    result = plugin._pre_gateway_dispatch(
+                        event, _Gateway(), session_store=self.session_store()
+                    )
+                self.assertEqual(result, {"action": "skip"})
+                self.assertEqual(submit.call_args.args[0]["event"]["text"], expected)
+
+    async def test_explicit_arda_command_remains_the_deterministic_fallback(self):
+        event = self.event(text="arda context")
+        with (
+            patch.object(plugin, "_submit", return_value="Handled.") as submit,
+            patch.object(plugin, "_submit_continuity"),
+        ):
+            result = plugin._pre_gateway_dispatch(
+                event, _Gateway(), session_store=self.session_store()
+            )
+        self.assertEqual(result, {"action": "skip"})
+        self.assertEqual(submit.call_args.args[0]["event"]["text"], "arda context")
+
+    async def test_attached_project_objective_requires_explicit_project_identity(self):
+        project_id = "550e8400-e29b-41d4-a716-446655440000"
+        event = self.event(
+            text=f"For project {project_id}, objective finish the release checklist"
+        )
+        with (
+            patch.object(plugin, "_submit", return_value="Objective recorded.") as submit,
+            patch.object(plugin, "_submit_continuity"),
+        ):
+            result = plugin._pre_gateway_dispatch(
+                event, _Gateway(), session_store=self.session_store()
+            )
+
+        self.assertEqual(result, {"action": "skip"})
+        self.assertEqual(
+            submit.call_args.args[0]["event"]["text"],
+            f"arda objective {project_id} finish the release checklist",
+        )
+
+    async def test_consequential_or_ambiguous_intent_requests_clarification_without_mutation(self):
+        gateway = _Gateway()
+        event = self.event(text="Deploy this to production")
+        with (
+            patch.object(plugin, "_submit") as submit,
+            patch.object(plugin, "_submit_continuity"),
+        ):
+            result = plugin._pre_gateway_dispatch(
+                event, gateway, session_store=self.session_store()
+            )
+            await asyncio.sleep(0)
+
+        self.assertEqual(result, {"action": "skip"})
+        submit.assert_not_called()
+        self.assertEqual(len(gateway.notices), 1)
+        self.assertIn("consequential", gateway.notices[0].lower())
+        self.assertIn("nothing was saved", gateway.notices[0].lower())
+
+    async def test_natural_intent_does_not_intercept_shared_rooms(self):
+        event = self.event(chat_type="group", text="Remember that this is casual")
+        with (
+            patch.object(plugin, "_submit") as submit,
+            patch.object(plugin, "_submit_continuity"),
+        ):
+            result = plugin._pre_gateway_dispatch(
+                event, _Gateway(), session_store=self.session_store()
+            )
+        self.assertIsNone(result)
+        submit.assert_not_called()
 
     async def test_thread_and_shared_destination_are_explicit(self):
         payload = plugin._continuity_payload(

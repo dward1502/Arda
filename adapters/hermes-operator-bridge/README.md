@@ -1,12 +1,24 @@
 # Hermes Operator Bridge
 
-Authenticated Discord-to-Arda handoff for concise `arda …` operator commands.
+Authenticated Discord-to-Arda handoff for narrow private-language intents and
+explicit `arda …` fallback commands.
 
 ## Boundary
 
 - Hermes owns Discord credentials, authorization, and replies.
-- Only authorized Discord messages beginning with `arda ` are intercepted.
+- Explicit authorized Discord messages beginning with `arda ` remain the
+  deterministic fallback.
+- Private authorized messages are intercepted only for bounded forms: capture,
+  context recovery, explicit research, or an objective naming an attached
+  project UUID.
+- Consequential verbs without a named target/project produce a clarification;
+  nothing is saved or executed.
+- Ordinary conversation and all natural-language messages in shared rooms stay
+  with normal Hermes dispatch.
 - Arda receives normalized credential-free events over `127.0.0.1:7878` only.
+- The gateway authorization check binds accepted transport identity to the
+  configured canonical `ARDA_OPERATOR_ID`; raw platform user IDs are not used
+  as Arda storage authority.
 - Personal commands are rejected by Arda outside a private conversation.
 - Attachments are rejected.
 
@@ -31,7 +43,7 @@ tools/data/action authority. The existing command path's `_is_user_authorized`
 and `_deliver_platform_notice` calls are compatibility debt; continuity reuses
 only the former because this pre-auth hook has no public authorization callback.
 
-Version `0.3.0` emits only stable operator/session/surface identity, privacy and
+Version `0.4.0` emits only stable operator/session/surface identity, privacy and
 domain classification, bounded reference arrays, timestamps, and an idempotency
 key to `/v1/continuity/events`. Delivery runs asynchronously, persists pending
 events with mode `0600`, and retries boundedly across gateway restarts. Message

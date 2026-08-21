@@ -1,4 +1,4 @@
 name: arda-operator-bridge
-version: 0.3.0
-description: Authenticated commands and transcript-free Hermes continuity metadata for Arda
+version: 0.4.0
+description: Authenticated natural operator intake and transcript-free Hermes continuity metadata for Arda
 entry_point: __init__:register

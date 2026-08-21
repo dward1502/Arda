@@ -7,6 +7,7 @@ import hashlib
 import json
 import logging
 import os
+import re
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.error import HTTPError, URLError
@@ -19,6 +20,32 @@ _PREFIX = "arda "
 _RETRY_DELAYS = (1.0, 2.0, 5.0, 10.0, 30.0)
 _RETRY_TASKS: dict[str, asyncio.Task] = {}
 _CONTINUITY_RETRY_TASKS: dict[str, asyncio.Task] = {}
+
+_PROJECT_OBJECTIVE = re.compile(
+    r"^for\s+project\s+([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\s*,?\s*(?:objective\s+)?(.+)$",
+    re.IGNORECASE,
+)
+_CAPTURE = re.compile(
+    r"^(?:remember\s+that|save\s+this\s+thought\s*:|note\s+that|capture\s+this\s*:?)\s+(.+)$",
+    re.IGNORECASE,
+)
+_REMINDER = re.compile(r"^remind\s+me\s+to\s+(.+)$", re.IGNORECASE)
+_RESEARCH = re.compile(
+    r"^(?:research|look\s+into|find\s+out\s+about)\s+(.+)$", re.IGNORECASE
+)
+_CONSEQUENTIAL = re.compile(
+    r"^(?:deploy|publish|send|buy|purchase|pay|transfer|trade|delete|remove|message|email)\b",
+    re.IGNORECASE,
+)
+_CONTEXT_REQUESTS = {
+    "what should i work on next",
+    "what should i do next",
+    "what's next",
+    "whats next",
+    "what was i doing",
+    "where did i leave off",
+    "resume my context",
+}
 
 
 def _value(value):
@@ -33,9 +60,48 @@ def _iso_timestamp(value) -> str:
     return str(value)
 
 
+def _natural_intent(text: str, source) -> dict | None:
+    """Classify only narrow private-language forms with deterministic authority."""
+    if str(getattr(source, "chat_type", "") or "").lower() not in {"dm", "private"}:
+        return None
+    normalized = " ".join(text.strip().split())
+    if not normalized:
+        return None
+    context_key = normalized.rstrip("?.!").lower()
+    if context_key in _CONTEXT_REQUESTS:
+        return {"kind": "forward", "command": "arda context"}
+    if match := _PROJECT_OBJECTIVE.fullmatch(normalized):
+        objective = match.group(2).strip()
+        if objective:
+            return {
+                "kind": "forward",
+                "command": f"arda objective {match.group(1).lower()} {objective}",
+            }
+    if match := _CAPTURE.fullmatch(normalized):
+        return {"kind": "forward", "command": f"arda capture {match.group(1).strip()}"}
+    if match := _REMINDER.fullmatch(normalized):
+        return {
+            "kind": "forward",
+            "command": f"arda capture Reminder: {match.group(1).strip()}",
+        }
+    if match := _RESEARCH.fullmatch(normalized):
+        return {"kind": "forward", "command": f"arda research {match.group(1).strip()}"}
+    if _CONSEQUENTIAL.match(normalized):
+        return {
+            "kind": "clarify",
+            "summary": (
+                "That request may be consequential. Name the target or attached project and "
+                "confirm whether you want a review-only proposal. Nothing was saved or executed."
+            ),
+        }
+    return None
+
+
 def _payload(event) -> dict:
     source = event.source
-    operator_id = str(event.user_id or source.user_id or "")
+    operator_id = os.environ.get("ARDA_OPERATOR_ID", "operator:mythos").strip()
+    if not operator_id:
+        raise ValueError("ARDA_OPERATOR_ID cannot be empty")
     message_id = str(event.message_id or source.message_id or "")
     timestamp = _iso_timestamp(event.timestamp)
     return {
@@ -352,7 +418,11 @@ def _pre_gateway_dispatch(event, gateway, **_hook_context):
     if source is None:
         return None
     platform = str(_value(source.platform))
-    is_arda_command = platform == "discord" and text.strip().lower().startswith(_PREFIX)
+    explicit_command = platform == "discord" and text.strip().lower().startswith(_PREFIX)
+    natural_intent = (
+        _natural_intent(text, source) if platform == "discord" and not explicit_command else None
+    )
+    is_arda_command = explicit_command or natural_intent is not None
     try:
         if not gateway._is_user_authorized(source):
             return None
@@ -373,11 +443,17 @@ def _pre_gateway_dispatch(event, gateway, **_hook_context):
         _LOG.exception("Hermes continuity metadata emission failed open")
     if not is_arda_command:
         return None
+    if natural_intent and natural_intent["kind"] == "clarify":
+        _reply(gateway, source, natural_intent["summary"])
+        return {"action": "skip"}
     if event.media_urls or event.media_types:
         _reply(gateway, source, "Arda operator commands do not accept attachments.")
         return {"action": "skip"}
 
-    _reply(gateway, source, _submit(_payload(event), gateway, source))
+    payload = _payload(event)
+    if natural_intent:
+        payload["event"]["text"] = natural_intent["command"]
+    _reply(gateway, source, _submit(payload, gateway, source))
     _schedule_backlog(gateway, source)
     return {"action": "skip"}
 

@@ -59,13 +59,13 @@ Visible result: Arda says what to do next and why, instead of presenting indepen
 
 ## Phase 3 — Natural operator intake
 
-- [ ] Inspect the live Hermes Gateway hook/integration path and prove whether messages reach `/v1/operator/messages`.
-- [ ] Preserve explicit `arda ...` commands as a deterministic fallback.
-- [ ] Add bounded intent recognition for ordinary private operator language: capture, question, context, or consequential proposal.
-- [ ] Require clarification when classification changes authority or privacy scope.
-- [ ] Route capture to Personal Operations, attached-project objective to the canonical queue, question to research, and context to the next-action/resume projection.
-- [ ] Never convert advisory research, casual discussion, or inferred personal state into a commitment automatically.
-- [ ] Prove idempotency and restart replay with genuine transport metadata but no committed private content.
+- [ ] The installed Hermes hook invocation, authorization ordering, enabled plugin, active gateway process, and repository/deployed hashes were inspected. The `0.4.0` plugin is deployed, but a fresh gateway reload plus authenticated Discord message is still required to prove the running callback reaches `/v1/operator/messages`.
+- [x] Preserve explicit `arda ...` commands as a deterministic fallback.
+- [x] Add bounded deterministic recognition for ordinary private capture, explicit research, context recovery, and attached-project objective language.
+- [x] Require clarification without mutation for consequential language lacking a named target/project; natural-language interception is disabled in shared rooms.
+- [x] Route capture to Personal Operations, attached-project objective to the canonical queue, research to the durable question registry, and context to `arda.next-action.v1`.
+- [x] Leave ordinary conversation under normal Hermes dispatch and never convert advisory research or inferred/casual language into commitments automatically.
+- [ ] Durable outbox, stable transport identity, duplicate handling, gateway-restart backlog, backend replay rejection, and no-commitment research tests pass. Fresh authenticated transport metadata and same-conversation response after the required gateway reload remain the final live gate.
 
 Visible result: the operator does not need to remember internal command syntax for ordinary use.
 

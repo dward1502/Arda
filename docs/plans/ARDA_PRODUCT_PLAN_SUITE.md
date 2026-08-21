@@ -5,7 +5,8 @@
 **Current release baseline:** [Arda 0.9 Baseline](../releases/0.9/BASELINE.md)<br>
 **Completed improvement record:** [Arda 0.9 Baseline and Improvement Plan](../archive/2026-08-12-arda-0.9-baseline-and-improvement-plan.md)<br>
 **Product doctrine:** [Arda Personal Agent Ecosystem](../architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md)<br>
-**Active planning program:** [Arda Ambient Agent Program](ambient-agent/README.md)
+**Active core repair:** [Core Arda Usefulness Repair](CORE_ARDA_USEFULNESS_REPAIR.md)<br>
+**Planning program on hold:** [Arda Ambient Agent Program](ambient-agent/README.md)
 
 ## Product decision
 
@@ -20,8 +21,9 @@ decision.
 
 ## Active planning authority
 
-`docs/plans/` contains this portfolio index and the segmented
-[`ambient-agent/`](ambient-agent/README.md) program. The finite 0.9 improvement
+`docs/plans/` contains this portfolio index, the active
+[Core Arda Usefulness Repair](CORE_ARDA_USEFULNESS_REPAIR.md), and the segmented
+[`ambient-agent/`](ambient-agent/README.md) program held behind it. The finite 0.9 improvement
 plan completed its defect, dependency, documentation, measurement, and honest
 Personal Operations disposition work and is retained under `docs/archive/`.
 Further 0.9 implementation remains defect-driven. The ambient-agent program is

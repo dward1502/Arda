@@ -36,6 +36,12 @@ Hermes remains the primary conversational and tool runtime. Arda provides durabl
 
 ## Core-Arda prerequisite
 
+The active composition and usefulness work is owned by
+[`../CORE_ARDA_USEFULNESS_REPAIR.md`](../CORE_ARDA_USEFULNESS_REPAIR.md), grounded
+in the current-state
+[`../../audits/2026-08-20-core-arda-usefulness-audit.md`](../../audits/2026-08-20-core-arda-usefulness-audit.md).
+The ambient plans remain on hold while that plan is active.
+
 No ambient phase may begin until the operator can use Arda itself to complete all of these without terminal intervention:
 
 1. capture a real thought, task, obligation, or question;

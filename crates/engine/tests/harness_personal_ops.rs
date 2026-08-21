@@ -249,7 +249,7 @@ timezone = "America/Los_Angeles"
 
     assert_eq!(response["calendar"]["state"], "unavailable");
     assert_eq!(response["voice"]["state"], "unavailable");
-    assert_eq!(response["reminders"]["state"], "unavailable");
+    assert_eq!(response["reminders"]["state"], "configured");
     assert_eq!(response["reminders"]["quiet_window"]["start"], "22:00");
     assert_eq!(response["reminders"]["quiet_window"]["end"], "08:00");
 

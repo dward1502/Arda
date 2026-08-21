@@ -728,11 +728,19 @@ pub async fn get_capabilities(
     let reminders = match config.reminders {
         Some(mut reminder) if !reminder.transport.trim().is_empty() => {
             let configured_quiet_window = quiet_window(&mut reminder);
+            let supported = reminder.transport == "discord_dm";
             ReminderTransportStatus {
                 adapter_status: PersonalAdapterStatus {
-                    state: "unavailable",
+                    state: if reminder.enabled && supported {
+                        "configured"
+                    } else {
+                        "unavailable"
+                    },
                     adapter: Some(reminder.transport),
-                    detail: if reminder.enabled {
+                    detail: if reminder.enabled && supported {
+                        "Discord DM delivery is configured; an authorized private message activates the destination after gateway start."
+                            .to_owned()
+                    } else if reminder.enabled {
                         "The reminder transport is declared, but no connected runtime is verified."
                             .to_owned()
                     } else {

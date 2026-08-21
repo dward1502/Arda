@@ -71,15 +71,15 @@ Visible result: the operator does not need to remember internal command syntax f
 
 ## Phase 4 — Personal Operations usefulness
 
-- [ ] Prove rapid HUD capture, classification/correction, local scheduling, completion, reminder acknowledge/defer/dismiss, and restart recovery with operator-authored content.
-- [x] Expose configured/unconfigured calendar and voice adapter status from backend truth rather than static prose. `/v1/personal/capabilities` now reads `config/personal_ops.toml`, fails closed when absent or malformed, and the HUD renders the returned calendar, voice, reminder transport, quiet-window, attempt-limit, interval, and acknowledgement policy. The source-current daemon was installed and restarted; the live endpoint reports all three adapters honestly `unconfigured`.
-- [ ] Connect one actual reminder delivery transport and preserve attempted versus delivered versus acknowledged state.
-- [ ] Keep quiet-window and fatigue policy explicit.
-- [ ] Run a bounded private-alpha window; record timings/counts and operator verdict without raw private content.
+- [ ] Prove rapid HUD capture, classification/correction, local scheduling, completion, reminder acknowledge/defer/dismiss, and restart recovery with operator-authored content. The live operator-authored reminder exercised capture, task-to-reminder correction, scheduling, acknowledgement, completion, and gateway restart recovery; native HUD capture plus live defer/dismiss remain unproven.
+- [x] Expose configured/unconfigured calendar and voice adapter status from backend truth rather than static prose. `/v1/personal/capabilities` reads `config/personal_ops.toml`, fails closed when absent or malformed, and the HUD renders returned calendar, voice, reminder transport, quiet-window, attempt-limit, interval, and acknowledgement policy. The live daemon reports Discord DM reminders `configured`; calendar and voice remain honestly `unconfigured`.
+- [x] Connect one actual reminder delivery transport and preserve attempted versus delivered versus acknowledged state. The authorized Discord DM delivery returned a provider message receipt, and the projection preserved one delivered attempt followed by acknowledgement and completion.
+- [x] Keep quiet-window and fatigue policy explicit. Live policy is `22:00`–`08:00` `America/Los_Angeles`, at most three attempts, at least fifteen minutes apart, with acknowledgement required.
+- [ ] Run a bounded private-alpha window; record timings/counts and operator verdict without raw private content. One live item was captured at 20:36 PDT, scheduled for 20:41, delivered once after private destination activation, acknowledged at 20:43, completed, and recovered unchanged after the 20:44 gateway restart. The operator confirmed receipt and selected acknowledgement; the separate burden-reduction verdict timed out and is not inferred.
 
 Visible result: Personal Operations reduces burden rather than being an empty demo module.
 
-Current live state (2026-08-20): Personal Operations is honestly empty after the source-current daemon restart (`active=0`, `inbox=0`, `today=0`, `waiting=0`). No reminder delivery transport is configured, so no attempted/delivered/acknowledged delivery or private-alpha verdict is claimed. Completing those gates requires one genuine operator-authored item and schedule; fixture or inferred personal content is not acceptable evidence.
+Current live state (2026-08-20): one genuine operator-authored item completed the local capture → correction → schedule → Discord DM delivery → acknowledgement → completion path. Its delivery receipt, single-attempt count, acknowledgement, and completed state survived a real Hermes gateway restart. Phase 4 remains open only for native HUD capture, live defer/dismiss behavior, and an explicit operator burden-reduction verdict; engineering success is not substituted for that acceptance.
 
 ## Phase 5 — Source-grounded research and recurring intelligence
 

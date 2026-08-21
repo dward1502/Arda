@@ -1,0 +1,17 @@
+[calendar]
+adapter = ""
+enabled = false
+
+[voice]
+adapter = ""
+enabled = false
+
+[reminders]
+transport = "discord_dm"
+enabled = true
+quiet_start = "22:00"
+quiet_end = "08:00"
+timezone = "America/Los_Angeles"
+max_attempts = 3
+minimum_interval_minutes = 15
+acknowledgement_required = true

@@ -26,6 +26,17 @@ explicit `arda …` fallback commands.
 
 The plugin writes each normalized event atomically to `$HERMES_HOME/state/arda-operator-bridge/pending/` with mode `0600` before delivery. Successful and terminal 4xx responses remove it. Network failures and 5xx responses retain it and trigger bounded retries. A later event in the same destination reactivates retained backlog after a gateway restart. Arda's event identity remains authoritative for replay rejection; HTTP 409 duplicate-event responses are treated as an already-completed delivery.
 
+## Reminder delivery
+
+Version `0.5.0` can deliver due reminders to the most recent authorized Discord
+DM after `ARDA_REMINDER_TRANSPORT=discord_dm` is set for Hermes Gateway and the
+backend reports the transport configured. Shared rooms never become reminder
+destinations. The poller respects the backend quiet window, attempt cap, and
+minimum interval. It persists only reminder IDs and attempt timestamps across
+gateway restarts. A reminder is recorded as `delivered` only when Discord
+returns a provider message ID; failures remain `attempted`. Delivered reminders
+are not repeated while acknowledgement is pending.
+
 ## Continuity placement
 
 The audited Phase 2 continuity extension belongs in this plugin rather than a

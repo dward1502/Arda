@@ -8,8 +8,10 @@ import json
 import logging
 import os
 import re
+import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -20,6 +22,9 @@ _PREFIX = "arda "
 _RETRY_DELAYS = (1.0, 2.0, 5.0, 10.0, 30.0)
 _RETRY_TASKS: dict[str, asyncio.Task] = {}
 _CONTINUITY_RETRY_TASKS: dict[str, asyncio.Task] = {}
+_REMINDER_TASK: asyncio.Task | None = None
+_REMINDER_POLL_SECONDS = 30.0
+_REMINDER_NAMESPACE = uuid.UUID("a6f05f68-81dc-4a14-9f1e-4dd8d5efc721")
 
 _PROJECT_OBJECTIVE = re.compile(
     r"^for\s+project\s+([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\s*,?\s*(?:objective\s+)?(.+)$",
@@ -58,6 +63,189 @@ def _iso_timestamp(value) -> str:
             value = value.replace(tzinfo=timezone.utc)
         return value.astimezone(timezone.utc).isoformat()
     return str(value)
+
+
+def _utcnow() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+def _canonical_operator_id() -> str:
+    operator_id = os.environ.get("ARDA_OPERATOR_ID", "operator:mythos").strip()
+    if not operator_id:
+        raise ValueError("ARDA_OPERATOR_ID cannot be empty")
+    return operator_id
+
+
+def _state_root() -> Path:
+    hermes_home = Path(os.environ.get("HERMES_HOME", "~/.hermes")).expanduser()
+    return hermes_home / "state" / "arda-operator-bridge"
+
+
+def _request_json(path, *, method="GET", payload=None, idempotency_key=None):
+    body = None if payload is None else json.dumps(payload).encode("utf-8")
+    headers = {
+        "Accept": "application/json",
+        "x-arda-operator-id": _canonical_operator_id(),
+    }
+    if body is not None:
+        headers["Content-Type"] = "application/json"
+    if idempotency_key:
+        headers["Idempotency-Key"] = idempotency_key
+    request = Request(
+        f"http://127.0.0.1:7878{path}",
+        data=body,
+        headers=headers,
+        method=method,
+    )
+    with urlopen(request, timeout=5.0) as response:
+        return json.loads(response.read().decode("utf-8"))
+
+
+def _reminder_state_path() -> Path:
+    return _state_root() / "reminder-attempts.json"
+
+
+def _load_reminder_attempt_times() -> dict[str, str]:
+    try:
+        value = json.loads(_reminder_state_path().read_text(encoding="utf-8"))
+        return value if isinstance(value, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def _store_reminder_attempt_times(value: dict[str, str]) -> None:
+    path = _reminder_state_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(".tmp")
+    tmp.write_text(json.dumps(value, sort_keys=True), encoding="utf-8")
+    os.chmod(tmp, 0o600)
+    tmp.replace(path)
+
+
+def _parse_time(value) -> datetime | None:
+    if not value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
+    except ValueError:
+        return None
+
+
+def _quiet_window_active(window, now: datetime) -> bool:
+    if not isinstance(window, dict):
+        return False
+    try:
+        local = now.astimezone(ZoneInfo(window["timezone"]))
+        start_h, start_m = map(int, window["start"].split(":"))
+        end_h, end_m = map(int, window["end"].split(":"))
+    except (KeyError, TypeError, ValueError):
+        return True
+    current = local.hour * 60 + local.minute
+    start = start_h * 60 + start_m
+    end = end_h * 60 + end_m
+    return start <= current < end if start < end else current >= start or current < end
+
+
+def _due_reminder(item, reminder_config, now: datetime):
+    scheduled = _parse_time(item.get("scheduled_at") or item.get("due_at"))
+    if scheduled is None or scheduled > now:
+        return None
+    state = item.get("reminder_state") or {}
+    if str(state.get("delivery_state", "")).lower() in {
+        "delivered",
+        "acknowledged",
+        "deferred",
+        "dismissed",
+    }:
+        return None
+    attempts = int(item.get("reminder_attempts") or 0)
+    if attempts >= int(reminder_config.get("max_attempts") or 3):
+        return None
+    if _quiet_window_active(reminder_config.get("quiet_window"), now):
+        return None
+    reminder_id = item.get("reminder_id") or str(
+        uuid.uuid5(_REMINDER_NAMESPACE, str(item["item_id"]))
+    )
+    last = _parse_time(_load_reminder_attempt_times().get(reminder_id))
+    interval = int(reminder_config.get("minimum_interval_minutes") or 15)
+    if last is not None and now - last < timedelta(minutes=max(1, interval)):
+        return None
+    return reminder_id
+
+
+async def _deliver_due_reminders_once(gateway, source) -> None:
+    if str(getattr(source, "chat_type", "") or "").lower() not in {"dm", "private"}:
+        return
+    capabilities, brief = await asyncio.gather(
+        asyncio.to_thread(_request_json, "/v1/personal/capabilities"),
+        asyncio.to_thread(_request_json, "/v1/personal/briefs/today"),
+    )
+    reminder_config = capabilities.get("reminders") or {}
+    if reminder_config.get("state") != "configured" or reminder_config.get(
+        "adapter"
+    ) != "discord_dm":
+        return
+    adapter = gateway._adapter_for_source(source)
+    if adapter is None:
+        return
+    now = _utcnow()
+    for item in (brief.get("brief") or {}).get("today") or []:
+        reminder_id = _due_reminder(item, reminder_config, now)
+        if reminder_id is None:
+            continue
+        result = None
+        try:
+            result = await adapter.send(
+                source.chat_id,
+                f"Arda reminder: {item.get('content', '').strip()}\n\nOpen Personal Operations to acknowledge, defer, dismiss, or complete it.",
+                metadata=gateway._thread_metadata_for_source(source),
+            )
+        except Exception:
+            _LOG.exception("Arda reminder delivery failed")
+        provider_message_id = (
+            str(result.message_id)
+            if result is not None
+            and getattr(result, "success", False)
+            and getattr(result, "message_id", None)
+            else None
+        )
+        attempt_times = _load_reminder_attempt_times()
+        attempt_times[reminder_id] = now.isoformat()
+        _store_reminder_attempt_times(attempt_times)
+        payload = {
+            "operator_id": _canonical_operator_id(),
+            "reminder_id": reminder_id,
+            "item_id": str(item["item_id"]),
+            "state": "delivered" if provider_message_id else "attempted",
+            "provider_message_id": provider_message_id,
+        }
+        await asyncio.to_thread(
+            _request_json,
+            "/v1/personal/reminders/attempt",
+            method="POST",
+            payload=payload,
+            idempotency_key=f"discord-reminder:{reminder_id}:{int(item.get('reminder_attempts') or 0) + 1}",
+        )
+
+
+async def _reminder_loop(gateway, source) -> None:
+    while True:
+        try:
+            await _deliver_due_reminders_once(gateway, source)
+        except asyncio.CancelledError:
+            raise
+        except Exception:
+            _LOG.exception("Arda reminder poll failed")
+        await asyncio.sleep(_REMINDER_POLL_SECONDS)
+
+
+def _ensure_reminder_loop(gateway, source) -> None:
+    global _REMINDER_TASK
+    if os.environ.get("ARDA_REMINDER_TRANSPORT", "").strip().lower() != "discord_dm":
+        return
+    if _REMINDER_TASK is None or _REMINDER_TASK.done():
+        _REMINDER_TASK = asyncio.create_task(_reminder_loop(gateway, source))
 
 
 def _natural_intent(text: str, source) -> dict | None:
@@ -99,9 +287,7 @@ def _natural_intent(text: str, source) -> dict | None:
 
 def _payload(event) -> dict:
     source = event.source
-    operator_id = os.environ.get("ARDA_OPERATOR_ID", "operator:mythos").strip()
-    if not operator_id:
-        raise ValueError("ARDA_OPERATOR_ID cannot be empty")
+    operator_id = _canonical_operator_id()
     message_id = str(event.message_id or source.message_id or "")
     timestamp = _iso_timestamp(event.timestamp)
     return {
@@ -165,13 +351,11 @@ def _post(payload: dict) -> tuple[bool, str]:
 
 
 def _pending_root() -> Path:
-    hermes_home = Path(os.environ.get("HERMES_HOME", "~/.hermes")).expanduser()
-    return hermes_home / "state" / "arda-operator-bridge" / "pending"
+    return _state_root() / "pending"
 
 
 def _continuity_pending_root() -> Path:
-    hermes_home = Path(os.environ.get("HERMES_HOME", "~/.hermes")).expanduser()
-    return hermes_home / "state" / "arda-operator-bridge" / "continuity-pending"
+    return _state_root() / "continuity-pending"
 
 
 def _pending_path(payload: dict) -> Path:
@@ -250,7 +434,7 @@ def _continuity_payload(event, session_store) -> dict:
         raise ValueError("Hermes session store is unavailable")
     source = event.source
     operator_id = str(event.user_id or source.user_id or "")
-    canonical_operator = os.environ.get("ARDA_OPERATOR_ID", "operator:mythos").strip()
+    canonical_operator = _canonical_operator_id()
     message_id = str(event.message_id or source.message_id or "")
     if not canonical_operator or not operator_id or not message_id or not source.chat_id:
         raise ValueError("continuity source identity is incomplete")
@@ -429,6 +613,12 @@ def _pre_gateway_dispatch(event, gateway, **_hook_context):
     except Exception:
         _LOG.exception("Hermes authorization check failed for Arda command")
         return None
+
+    if platform == "discord" and str(getattr(source, "chat_type", "") or "").lower() in {
+        "dm",
+        "private",
+    }:
+        _ensure_reminder_loop(gateway, source)
 
     if not (event.user_id or source.user_id) or not (event.message_id or source.message_id):
         if not is_arda_command:

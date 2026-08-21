@@ -48,7 +48,101 @@ class _Gateway:
         return True
 
 
+class _SendingAdapter:
+    def __init__(self):
+        self.sent: list[str] = []
+
+    async def send(self, _chat_id, text: str, metadata=None):
+        self.sent.append(text)
+        return SimpleNamespace(success=True, message_id="discord-message-1")
+
+
+class _ReminderGateway(_Gateway):
+    def __init__(self):
+        super().__init__()
+        self.adapter = _SendingAdapter()
+
+    def _adapter_for_source(self, _source):
+        return self.adapter
+
+    def _thread_metadata_for_source(self, _source):
+        return {}
+
+
 _SOURCE = SimpleNamespace(platform="discord", chat_id="private-chat", thread_id=None)
+
+
+class ReminderDeliveryTests(unittest.IsolatedAsyncioTestCase):
+    async def asyncSetUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.env = patch.dict(os.environ, {"HERMES_HOME": self.temp.name})
+        self.env.start()
+
+    async def asyncTearDown(self):
+        self.env.stop()
+        self.temp.cleanup()
+
+    async def test_due_reminder_records_delivered_only_with_provider_receipt(self):
+        gateway = _ReminderGateway()
+        source = SimpleNamespace(
+            platform="discord",
+            chat_id="private-chat",
+            chat_type="dm",
+            thread_id=None,
+            user_id="operator-1",
+        )
+        brief = {
+            "brief": {
+                "today": [
+                    {
+                        "item_id": "550e8400-e29b-41d4-a716-446655440000",
+                        "content": "Operator-authored test reminder",
+                        "scheduled_at": "2026-08-20T19:00:00Z",
+                        "due_at": None,
+                        "reminder_id": None,
+                        "reminder_state": None,
+                        "reminder_attempts": 0,
+                    }
+                ]
+            }
+        }
+        capabilities = {
+            "reminders": {
+                "state": "configured",
+                "adapter": "discord_dm",
+                "max_attempts": 3,
+                "minimum_interval_minutes": 15,
+                "quiet_window": None,
+            }
+        }
+        calls: list[tuple[str, str, dict | None]] = []
+
+        def request_json(path, *, method="GET", payload=None, idempotency_key=None):
+            calls.append((path, method, payload))
+            if path == "/v1/personal/capabilities":
+                return capabilities
+            if path == "/v1/personal/briefs/today":
+                return brief
+            if path == "/v1/personal/reminders/attempt":
+                return {"event_id": "event-1"}
+            raise AssertionError(path)
+
+        with (
+            patch.object(plugin, "_request_json", side_effect=request_json),
+            patch.object(
+                plugin,
+                "_utcnow",
+                return_value=datetime(2026, 8, 20, 20, 0, tzinfo=timezone.utc),
+            ),
+        ):
+            await plugin._deliver_due_reminders_once(gateway, source)
+
+        self.assertEqual(len(gateway.adapter.sent), 1)
+        self.assertIn("Operator-authored test reminder", gateway.adapter.sent[0])
+        attempt = next(call for call in calls if call[0].endswith("/attempt"))
+        self.assertIsNotNone(attempt[2])
+        self.assertEqual(attempt[2]["state"], "delivered")
+        self.assertEqual(attempt[2]["provider_message_id"], "discord-message-1")
 
 
 def _payload(message_id: str = "message-1") -> dict:

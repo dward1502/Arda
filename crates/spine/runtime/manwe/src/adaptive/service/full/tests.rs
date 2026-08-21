@@ -643,6 +643,41 @@ async fn provider_result_trips_cooldown_after_failures() {
 }
 
 #[tokio::test]
+async fn provider_failure_expires_optimistic_health_immediately() {
+    let _guard = isolate_env_lock(&ENV_LOCK);
+    let dir = tempdir().expect("tempdir");
+    let svc = CharonService::new(dir.path()).expect("service");
+
+    svc.mark_provider_result(
+        "local_fallback",
+        false,
+        Some(800),
+        Some("endpoint timed out".to_string()),
+    )
+    .await
+    .expect("failed result");
+    let providers = svc.providers().await;
+    let local = providers
+        .iter()
+        .find(|provider| provider.id == "local_fallback")
+        .expect("local provider");
+    assert!(!local.healthy);
+    assert_eq!(local.consecutive_failures, 1);
+    drop(providers);
+
+    svc.mark_provider_result("local_fallback", true, Some(100), None)
+        .await
+        .expect("successful result");
+    let providers = svc.providers().await;
+    let local = providers
+        .iter()
+        .find(|provider| provider.id == "local_fallback")
+        .expect("local provider");
+    assert!(local.healthy);
+    assert_eq!(local.consecutive_failures, 0);
+}
+
+#[tokio::test]
 async fn provider_success_clears_existing_cooldown() {
     let _guard = isolate_env_lock(&ENV_LOCK);
     let dir = tempdir().expect("tempdir");

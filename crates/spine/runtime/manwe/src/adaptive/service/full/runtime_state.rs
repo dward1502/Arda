@@ -21,6 +21,8 @@ pub(super) fn merge_runtime_state(
 ) -> Vec<ProviderState> {
     for provider in &mut loaded {
         if let Some(existing) = current.iter().find(|p| p.id == provider.id) {
+            provider.healthy = existing.healthy
+                && !(existing.consecutive_failures > 0 && existing.last_error.is_some());
             provider.intelligence_refreshed_at_utc = existing.intelligence_refreshed_at_utc.clone();
             provider.probe_model = existing.probe_model.clone();
             provider.probe_profile = existing.probe_profile.clone();
@@ -640,6 +642,27 @@ mod tests {
         );
         assert_eq!(groq.probe_model.as_deref(), Some("llama-3.1-8b-instant"));
         assert_eq!(groq.probe_profile.as_deref(), Some("low_latency_terse"));
+    }
+
+    #[test]
+    fn merge_runtime_state_rejects_optimistic_health_with_unresolved_failures() {
+        let current = vec![ProviderState {
+            healthy: true,
+            consecutive_failures: 2,
+            consecutive_successes: 0,
+            last_error: Some("endpoint timed out".to_string()),
+            ..provider("edge_backbone_long")
+        }];
+        let loaded = vec![ProviderState {
+            healthy: true,
+            ..provider("edge_backbone_long")
+        }];
+
+        let merged = merge_runtime_state(current, loaded);
+
+        assert!(!merged[0].healthy);
+        assert_eq!(merged[0].consecutive_failures, 2);
+        assert_eq!(merged[0].last_error.as_deref(), Some("endpoint timed out"));
     }
 
     #[test]

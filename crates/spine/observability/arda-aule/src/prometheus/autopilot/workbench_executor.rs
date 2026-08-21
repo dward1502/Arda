@@ -502,9 +502,7 @@ mod tests {
     async fn scripted_harness(
         responses: Vec<Option<(u16, String)>>,
     ) -> (String, tokio::task::JoinHandle<Vec<String>>) {
-        let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
-            .await
-            .unwrap();
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
         let address = listener.local_addr().unwrap();
         let server = tokio::spawn(async move {
             let mut requests = Vec::new();
@@ -571,9 +569,7 @@ mod tests {
             .unwrap()
             .expect("initial claim");
         let before = std::fs::read(&queue_path).unwrap();
-        let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
-            .await
-            .unwrap();
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
         let unavailable_url = format!("http://{}", listener.local_addr().unwrap());
         drop(listener);
 
@@ -612,9 +608,8 @@ mod tests {
 
         assert!(format!("{error:#}").contains("dispatch approved Workbench provider"));
         assert_eq!(requests.len(), 4);
-        assert!(requests[3].starts_with(
-            "POST /v1/runs/queue-lost-response-task/nodes/execute/execute-provider "
-        ));
+        assert!(requests[3]
+            .starts_with("POST /v1/runs/queue-lost-response-task/nodes/execute/execute-provider "));
         let effective = super::super::task_queue::TaskQueueAnalyzer::effective_records(
             super::super::task_queue::TaskQueueAnalyzer::new(queue_path)
                 .load()
@@ -682,7 +677,10 @@ mod tests {
 
         assert_eq!(outcome.0, "succeeded");
         assert_eq!(outcome.1.as_deref(), Some("sha256:terminal"));
-        assert_eq!(outcome.2.as_deref(), Some("provider completed before restart"));
+        assert_eq!(
+            outcome.2.as_deref(),
+            Some("provider completed before restart")
+        );
     }
 
     #[test]

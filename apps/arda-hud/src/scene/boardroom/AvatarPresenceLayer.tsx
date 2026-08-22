@@ -10,6 +10,7 @@ import { useGLTF } from '@react-three/drei'
 import { DEFAULT_AGENT_PRESENCE_STATE, presenceVisualState, presenceSupportMarkers } from '../systems/presenceState'
 import { getSceneAssetByBinding } from '../systems/sceneAssets'
 import { ParticleOrb } from './ParticleOrb'
+import PresenceParticleSystem from './PresenceParticleSystem'
 import type { AgentPresenceState, PresenceSupportMarker } from '../systems/presenceTypes'
 
 interface AvatarPresenceLayerProps {
@@ -109,6 +110,12 @@ function HolographicAvatarForm({
   const color = isAlert ? '#ff4f9d' : '#75e9ff'
   const opacity = (isActive ? 0.56 : 0.32) * visualState.ringOpacity
 
+  // Presence lifecycle: agent idle/present → figure assembles; agent active →
+  // figure dissolves into the emitter mount. Mesh opacity follows the same
+  // signal so wireframe and particle cloud never pop against each other.
+  const assembleTarget = useRef(1)
+  assembleTarget.current = isActive ? 0 : 1
+
   useFrame(({ clock }) => {
     if (!groupRef.current || !motionEnabled) return
     const elapsed = clock.getElapsedTime()
@@ -118,7 +125,8 @@ function HolographicAvatarForm({
 
   return (
     <group ref={groupRef} name="arda-holographic-avatar-form" scale={0.95}>
-      <PresenceFigureMesh color={color} opacity={opacity} isAlert={isAlert} />
+      <PresenceFigureMesh color={color} opacity={opacity} isAlert={isAlert} fadeWith={!isActive} />
+      <PresenceParticleSystem assemble={assembleTarget} color={color} />
     </group>
   )
 }
@@ -133,13 +141,18 @@ function PresenceFigureMesh({
   color,
   opacity,
   isAlert,
+  fadeWith,
 }: {
   color: string
   opacity: number
   isAlert: boolean
+  /** When false (agent active) the solid figure fades toward zero. */
+  fadeWith?: boolean
 }) {
   const asset = getSceneAssetByBinding('presence_form')
   const { scene } = useGLTF(asset?.glbUrl ?? '')
+
+  const meshOpacity = fadeWith === false ? 0 : Math.max(opacity * 0.28, 0.1)
 
   const figure = useMemo(() => {
     const clone = scene.clone(true)
@@ -154,12 +167,12 @@ function PresenceFigureMesh({
       new THREE.MeshBasicMaterial({
         color,
         transparent: true,
-        opacity: Math.max(opacity * 0.28, 0.1),
+        opacity: meshOpacity,
         blending: THREE.AdditiveBlending,
         depthWrite: false,
         side: THREE.DoubleSide,
       }),
-    [color, opacity],
+    [color, meshOpacity],
   )
 
   const wireMaterial = useMemo(
@@ -200,7 +213,7 @@ function PresenceFigureMesh({
   return (
     <group name="arda-presence-cortana-figure">
       <primitive object={figure} />
-      <pointLight position={[0, 1.05, 0]} intensity={isAlert ? 0.9 : 0.55} distance={2.4} color={color} />
+      <pointLight position={[0, 1.05, 0]} intensity={isAlert ? 0.5 : 0.28} distance={1.8} color={color} />
     </group>
   )
 }

@@ -1,0 +1,357 @@
+{
+  "schema_version": "arda.digital-organism.authority-transport-map.v1",
+  "generated_at_utc": "2026-08-22T06:23:08Z",
+  "task_id": "digital-organism-s0-authority-transport-map",
+  "repository": {
+    "git_head": "57512ef0",
+    "branch": "plan/ambient-agent-program"
+  },
+  "decision_rules": [
+    "Authority is the durable source that may mint or change canonical state.",
+    "Transport carries canonical references and untrusted payloads but cannot mint authority.",
+    "Projection renders or summarizes authority and cannot promote maturity or health.",
+    "Configured identity is not current observation; current observation is not operator authorization.",
+    "Execution evidence is not approved knowledge; model or council agreement is not approval."
+  ],
+  "identity_namespaces": [
+    {"namespace":"organism_id","canonical_owner":"arda-core","rule":"one stable Arda identity per installation/federation domain"},
+    {"namespace":"operator_id","canonical_owner":"arda root configuration plus authenticated operator contract","rule":"Hermes platform identity must normalize to configured Arda operator identity"},
+    {"namespace":"session_id","canonical_owner":"Hermes Agent","rule":"Arda stores bounded continuity references only"},
+    {"namespace":"objective_id","canonical_owner":"arda-core canonical task/objective authority","rule":"must remain parent identity across plan, run, evidence, outcome and task terminal records"},
+    {"namespace":"run_id","canonical_owner":"arda-engine RunStore","rule":"durable attempt graph for one objective execution"},
+    {"namespace":"run_node_id","canonical_owner":"arda-core run graph","rule":"typed step inside one run"},
+    {"namespace":"worker_id","canonical_owner":"arda-engine work attempt","rule":"one assigned role/attempt; references Hermes/A2A/deterministic executor identity"},
+    {"namespace":"compute_node_id","canonical_owner":"arda-engine using arda-outpost-protocol enrollment and observations","rule":"hardware/process host identity with expiring resource/capability state"},
+    {"namespace":"agent_id","canonical_owner":"Hermes profile or external A2A Agent Card","rule":"conversational/cognitive identity; never substitutes for compute node or Arda worker attempt"},
+    {"namespace":"route_id","canonical_owner":"Manwe","rule":"provider/model route decision inside an engine placement receipt"},
+    {"namespace":"evidence_id","canonical_owner":"Varda or owning typed evidence producer","rule":"source/evaluation identity, advisory until governed use"},
+    {"namespace":"memory_id","canonical_owner":"Vaire","rule":"canonical organism memory and use/correction lineage"},
+    {"namespace":"approval_id","canonical_owner":"Arda governance plus scoped operator decision ledger","rule":"semantic action authority; Hermes tool approval remains a separate host-execution gate"},
+    {"namespace":"receipt_id","canonical_owner":"minting subsystem with aggregate outcome indexed by engine RunStore","rule":"receipts remain typed; one digest alone does not collapse all receipt authorities"}
+  ],
+  "authorities": [
+    {
+      "concern": "organism_identity_and_contract_family",
+      "canonical_owner": "arda-core",
+      "durable_authority": "versioned organism/objective/run/capability contracts",
+      "transport": ["in_process_rust", "harness_http_projection"],
+      "projections": ["contract_registry", "operator_projection", "documentation"],
+      "forbidden_competitors": ["Hermes profile metadata", "HUD state", "legacy world.json"]
+    },
+    {
+      "concern": "operator_authentication",
+      "canonical_owner": "Hermes for platform authentication; Arda root for normalized operator identity",
+      "durable_authority": "Hermes gateway auth/allowlists plus configured ARDA_OPERATOR_ID and Oromë normalized event receipts",
+      "transport": ["hermes_gateway_hook", "loopback_harness_http"],
+      "projections": ["operator_session_projection", "continuity_projection"],
+      "forbidden_competitors": ["display name", "HUD-provided identity", "transport JSON identity without gateway binding"]
+    },
+    {
+      "concern": "conversation_and_session",
+      "canonical_owner": "Hermes Agent",
+      "durable_authority": "Hermes session store and transcript",
+      "transport": ["Hermes CLI/TUI/gateway/API"],
+      "projections": ["Vaire continuity references", "Arda surface handoff"],
+      "forbidden_competitors": ["second Arda transcript database", "Oromë transcript copy"]
+    },
+    {
+      "concern": "objective_and_commitment",
+      "canonical_owner": "arda-core canonical queue/objective contract",
+      "durable_authority": "core/projects/tasks/queue.jsonl latest-by-source-record identity",
+      "transport": ["Hermes operator bridge", "HUD/harness bounded mutation", "operator CLI append API"],
+      "projections": ["next_action", "queue_active", "queue_summary", "Arandur objective packet", "operator_projection"],
+      "forbidden_competitors": ["Bot routine as commitment", "research question as commitment", "Arandur recommendation as commitment"]
+    },
+    {
+      "concern": "run_graph_and_work_attempt",
+      "canonical_owner": "arda-engine RunStore using arda-core run graph",
+      "durable_authority": "data/runs/<run_id>/events.jsonl, checkpoint.json, typed execution receipts",
+      "transport": ["loopback harness run API"],
+      "projections": ["operator_projection", "HUD Workbench", "queue terminal result"],
+      "forbidden_competitors": ["Hermes subagent status as durable run", "A2A task alone", "evidence brief alone"]
+    },
+    {
+      "concern": "compute_node_enrollment_and_observation",
+      "canonical_owner": "arda-engine with arda-outpost-protocol",
+      "durable_authority": "operator-managed enrollment manifest plus append/replace-safe expiring node observations",
+      "transport": ["Tailscale-authenticated bounded node probe", "A2A Agent Card observation", "local system probe"],
+      "projections": ["Aule topology/health", "HUD fleet", "RELIC presence"],
+      "forbidden_competitors": ["config/fleet.toml as live health", "Manwe model catalog as node health", "legacy world roster"]
+    },
+    {
+      "concern": "conversational_agent_and_peer_identity",
+      "canonical_owner": "Hermes profile metadata or external A2A Agent Card",
+      "durable_authority": "Hermes profile/peer registry and A2A card identity",
+      "transport": ["Hermes bot peer", "Linux Foundation A2A"],
+      "projections": ["Arda worker attempt reference", "operator topology"],
+      "forbidden_competitors": ["Oromë generic AgentRegistry as independent peer directory", "Arda mythic crate names as live agents"]
+    },
+    {
+      "concern": "semantic_work_and_handoff_envelope",
+      "canonical_owner": "arda-orome",
+      "durable_authority": "versioned Arda work/handoff envelope carrying Core IDs, authority, expiry, capability request and receipt refs",
+      "transport": ["in_process", "loopback_http", "A2A adapter"],
+      "projections": ["transport receipt", "operator communication projection"],
+      "forbidden_competitors": ["Oromë proprietary network protocol", "free-form A2A prompt as task authority"]
+    },
+    {
+      "concern": "cross_process_agent_wire",
+      "canonical_owner": "Hermes/Linux Foundation A2A implementation",
+      "durable_authority": "A2A task/context state and authenticated peer configuration as transport state only",
+      "transport": ["Linux Foundation A2A v1.0 over authenticated HTTP/SSE/webhooks"],
+      "projections": ["Oromë handoff receipt", "engine attempt status"],
+      "forbidden_competitors": ["Oromë MessageRouter as network wire", "ad hoc SSH command as agent protocol"]
+    },
+    {
+      "concern": "tool_invocation",
+      "canonical_owner": "Hermes tool/MCP runtime and the tool-owning service",
+      "durable_authority": "tool-specific receipt plus enclosing engine attempt when governed",
+      "transport": ["MCP", "Hermes plugin tool", "in_process Rust API"],
+      "projections": ["tool evidence in execution receipt"],
+      "forbidden_competitors": ["MCP call as objective approval", "tool availability as node readiness"]
+    },
+    {
+      "concern": "node_placement_and_execution_lifetime",
+      "canonical_owner": "arda-engine",
+      "durable_authority": "placement receipt and work attempt inside RunStore",
+      "transport": ["in_process deterministic adapter", "Hermes worker", "A2A peer", "systemd/outpost adapter"],
+      "projections": ["worker projection", "Aule topology", "HUD/RELIC"],
+      "forbidden_competitors": ["Arandur raw endpoint choice", "Hermes self-granted authority", "Manwe selecting physical node alone"]
+    },
+    {
+      "concern": "provider_and_model_route",
+      "canonical_owner": "Manwe",
+      "durable_authority": "current provider/model health and route receipt",
+      "transport": ["OpenAI-compatible inference API"],
+      "projections": ["placement receipt", "provider intelligence", "operator status"],
+      "forbidden_competitors": ["fleet configured model as current route", "Arandur hard-coded model", "Bot profile deciding organism placement"]
+    },
+    {
+      "concern": "semantic_approval_and_policy",
+      "canonical_owner": "arda-governance plus scoped operator decision path",
+      "durable_authority": "policy verdict, approval identity/scope/action digest/expiry/single-use receipt",
+      "transport": ["Oromë operator decision envelope", "HUD/Hermes approval projection"],
+      "projections": ["pending approval", "Arandur packet", "operator projection"],
+      "forbidden_competitors": ["Hermes command approval as semantic approval", "MoA/council vote", "client-authored policy_safe label without canonical binding"]
+    },
+    {
+      "concern": "host_tool_approval",
+      "canonical_owner": "Hermes Agent",
+      "durable_authority": "Hermes approval request/response policy",
+      "transport": ["CLI/TUI/gateway approval transport"],
+      "projections": ["Hermes session/tool history"],
+      "forbidden_competitors": ["Arda semantic approval replacing host safety", "plugin auto-allow"]
+    },
+    {
+      "concern": "evidence_and_research",
+      "canonical_owner": "Varda; Warden is discovery/observation; Rumil is audit evidence",
+      "durable_authority": "typed source, evaluation, contradiction and evidence receipts",
+      "transport": ["bounded Warden API", "Varda fetch/evaluate", "RunStore EvidenceLinked"],
+      "projections": ["research brief", "operator evidence", "HUD Research"],
+      "forbidden_competitors": ["search preview as evidence", "brief as completion", "evidence as approval"]
+    },
+    {
+      "concern": "collective_memory_and_context",
+      "canonical_owner": "Vaire",
+      "durable_authority": "scoped memory, correction, supersession, revoke, context/use receipts",
+      "transport": ["in_process Vaire API", "bounded harness context query"],
+      "projections": ["organism context capsule", "continuity projection", "persona/human notes"],
+      "forbidden_competitors": ["Hermes profile memory as organism truth", "Warden remote memory as organism memory", "second context database"]
+    },
+    {
+      "concern": "execution_receipts_and_organism_outcome",
+      "canonical_owner": "minting subsystem for typed receipt; arda-engine for aggregate run outcome",
+      "durable_authority": "RunStore journal/checkpoint/execution receipt and linked downstream typed receipts",
+      "transport": ["append-only local persistence", "A2A result adapter", "provider adapter result"],
+      "projections": ["operator outcome", "queue terminal row", "Vaire use receipt", "Aule metrics"],
+      "forbidden_competitors": ["assistant summary as receipt", "provider HTTP 200 without provider message/result identity", "UI success label"]
+    },
+    {
+      "concern": "health_homeostasis_and_topology",
+      "canonical_owner": "arda-engine direct observations; policy from governance/economics; projection by Aule",
+      "durable_authority": "expiring node/service/route/attempt observations and homeostasis events",
+      "transport": ["local probes", "bounded remote probes", "systemd", "Manwe health", "A2A peer observation"],
+      "projections": ["operator projection", "HUD fleet", "RELIC"],
+      "forbidden_competitors": ["Aule metric as authority", "configured active flag", "stale world.json heartbeat"]
+    },
+    {
+      "concern": "executive_composition",
+      "canonical_owner": "Arandur/Prometheus as planner and consumer, not state owner",
+      "durable_authority": "recommendation and cycle receipts referencing canonical objective/topology/context/run IDs",
+      "transport": ["Aule full-cli cycle", "Hermes/HUD review surface"],
+      "projections": ["Arandur recommendation", "operator next action"],
+      "forbidden_competitors": ["parallel queue", "parallel agent registry", "direct raw endpoint execution", "self-approval"]
+    },
+    {
+      "concern": "communications_and_delivery",
+      "canonical_owner": "Hermes platform adapters for provider delivery; Oromë for normalized semantic/delivery receipt",
+      "durable_authority": "platform provider message ID plus normalized Arda communication receipt",
+      "transport": ["Discord/other gateway adapter"],
+      "projections": ["operator communication state", "reminder state"],
+      "forbidden_competitors": ["active bridge process as delivery proof", "pending operator-session row as delivered"]
+    },
+    {
+      "concern": "operator_and_embodiment_surfaces",
+      "canonical_owner": "none; surfaces are consumers",
+      "durable_authority": "upstream Arda/Hermes authorities only",
+      "transport": ["Hermes Desktop/CLI/gateway", "HUD local/harness reads", "RELIC/Mirromere projection contract"],
+      "projections": ["human-visible state"],
+      "forbidden_competitors": ["HUD queue", "Mirromere memory", "RELIC activity minting", "World View workflow authority"]
+    },
+    {
+      "concern": "contract_catalog",
+      "canonical_owner": "arda-contract-registry as declaration/index only",
+      "durable_authority": "versioned registry of declared schemas/sources/receipts",
+      "transport": ["in_process loader", "CLI/launcher read"],
+      "projections": ["onboarding/status"],
+      "forbidden_competitors": ["registry maturity claim overriding live runtime", "registry as execution admission without fresh validation"]
+    }
+  ],
+  "transport_matrix": [
+    {
+      "transport": "in_process_rust",
+      "use_when": "same root process and stable Rust owner API",
+      "authority_effect": "none; caller retains canonical authority",
+      "required_receipt": "owning mutation/decision receipt when state changes",
+      "not_for": ["cross-machine agent wire", "platform messaging"]
+    },
+    {
+      "transport": "arda_harness_http",
+      "use_when": "bounded local operator/run/research/context integration",
+      "authority_effect": "routes to existing Arda owner after loopback/auth/idempotency checks",
+      "required_receipt": "typed harness response plus durable owner append",
+      "not_for": ["general inference", "internet exposure", "peer discovery"]
+    },
+    {
+      "transport": "hermes_plugin_hook",
+      "use_when": "authenticated conversation ingress, continuity observation, lifecycle observation",
+      "authority_effect": "none until Arda owner validates and appends",
+      "required_receipt": "normalized event/continuity/communication receipt",
+      "not_for": ["canonical transcript copy", "self-approval", "arbitrary route injection"]
+    },
+    {
+      "transport": "linux_foundation_a2a",
+      "use_when": "cross-process/machine/framework agent task and multi-turn peer exchange",
+      "authority_effect": "transport only; Arda envelope and engine attempt bind authority",
+      "required_receipt": "A2A task/result identity plus Oromë handoff and engine attempt receipts",
+      "not_for": ["same-process deterministic calls", "semantic approval", "physical actuation"]
+    },
+    {
+      "transport": "mcp",
+      "use_when": "tool/resource invocation with a configured MCP owner",
+      "authority_effect": "tool-specific only; cannot create objective or approval",
+      "required_receipt": "tool result inside enclosing attempt when governed",
+      "not_for": ["organism task queue", "peer identity", "node health"]
+    },
+    {
+      "transport": "manwe_openai_api",
+      "use_when": "provider/model inference after placement requests a cognitive route",
+      "authority_effect": "model output is advisory/work result, not approval",
+      "required_receipt": "Manwe route/provider/model/latency/usage evidence",
+      "not_for": ["physical node enrollment", "objective identity", "session transport"]
+    },
+    {
+      "transport": "systemd_or_engine_adapter",
+      "use_when": "deterministic process/service/device execution and recovery",
+      "authority_effect": "only after engine/governance admission",
+      "required_receipt": "process/device terminal receipt or compensation receipt",
+      "not_for": ["LLM conversation", "agent deliberation"]
+    },
+    {
+      "transport": "outpost_protocol",
+      "use_when": "typed remote observations, presence and separately approved physical intents",
+      "authority_effect": "observation/advisory by default; exact approved intent for actuation",
+      "required_receipt": "source/expiry/authority observation or terminal device receipt",
+      "not_for": ["general A2A conversation", "canonical memory", "approval minting"]
+    }
+  ],
+  "execution_lifetimes": [
+    {"lifetime":"deterministic_in_process","owner":"arda-engine/tool owner","durable":true,"use_for":"pure local transformations and checks"},
+    {"lifetime":"hermes_conversation","owner":"Hermes","durable":false,"use_for":"interactive reasoning; result must be promoted through Arda receipt to affect organism state"},
+    {"lifetime":"hermes_delegate_task","owner":"Hermes","durable":false,"use_for":"process-local parallel reasoning; process loss becomes unknown"},
+    {"lifetime":"engine_supervised_hermes_worker","owner":"arda-engine","durable":true,"use_for":"approved project work with execution receipts"},
+    {"lifetime":"a2a_peer_task","owner":"remote peer for task state plus arda-engine attempt","durable":"peer-dependent","use_for":"cross-machine/framework agent work; Arda must reconcile peer state"},
+    {"lifetime":"systemd_or_outpost_execution","owner":"arda-engine/device adapter","durable":true,"use_for":"deterministic services and separately approved physical actions"}
+  ],
+  "retirement_map": [
+    {
+      "artifact": "crates/spine/interface/arda-orome/src/registry.rs",
+      "current_state": "feature/test-gated in-memory generic agent registry",
+      "decision": "archive_candidate_after_migration",
+      "successor": "Hermes/A2A peer identity plus engine/outpost compute-node registry",
+      "migration_gate": "Stage 2 proves peer discovery and node enrollment; all symbol consumers migrated; tests retained against successor semantics",
+      "delete_authorized_now": false
+    },
+    {
+      "artifact": "crates/spine/interface/arda-orome/src/router.rs",
+      "current_state": "test-only in-memory message queue/router",
+      "decision": "archive_candidate_after_migration",
+      "successor": "engine placement plus Hermes/Linux Foundation A2A transport",
+      "migration_gate": "Stage 2 A2A exchange and failure/retry semantics proven without this router",
+      "delete_authorized_now": false
+    },
+    {
+      "artifact": "crates/spine/governance/arda-core/src/orome_runtime.rs agent/router state",
+      "current_state": "persistent duplicate AgentRegistry and RouterState; shared router placeholder",
+      "decision": "split_and_archive_candidate",
+      "successor": "Core keeps no peer registry; engine/outpost owns compute nodes; Oromë keeps only bounded semantic envelopes/receipts",
+      "migration_gate": "inventory every public consumer and migrate persisted state or prove unused before removal",
+      "delete_authorized_now": false
+    },
+    {
+      "artifact": "core/state/world.json and core/knowledge/realm/{boot,agents}.toml as current runtime authority",
+      "current_state": "stale legacy roster/world; Arandur ONLINE/READY from expired heartbeat; expected core/realm paths absent",
+      "decision": "archive_candidate_after_live_topology_cutover",
+      "successor": "engine node/service/route observations plus Hermes/A2A agent projections and fresh Arandur cycle state",
+      "migration_gate": "operator projection and Arandur consume accepted fresh topology; no required reader depends on world/realm files",
+      "delete_authorized_now": false
+    },
+    {
+      "artifact": "core/state/queue_active.json and queue_summary.json",
+      "current_state": "generated views that lose gate metadata and call dependency-gated tasks active",
+      "decision": "retain_and_repair",
+      "successor": "same projections with explicit eligibility/dependency/authority fields",
+      "migration_gate": "no new projection path; repair existing writer/consumers",
+      "delete_authorized_now": false
+    },
+    {
+      "artifact": "core/state/contract_registry.json",
+      "current_state": "declarative catalog with stale maturity/source/CLI claims",
+      "decision": "retain_and_refresh",
+      "successor": "same registry regenerated from accepted authority map and verified source/runtime evidence",
+      "migration_gate": "all declared paths/versions/verbs and maturity states pass live validation",
+      "delete_authorized_now": false
+    }
+  ],
+  "stage_1_contract_placement": [
+    {"contract":"arda.organism-manifest.v1","owner":"arda-core","reuse":"service/task/contract identity patterns"},
+    {"contract":"arda.organism-context.v1","owner":"arda-vaire with Core objective/run references","reuse":"continuity and scoped recall"},
+    {"contract":"arda.node-manifest.v1","owner":"arda-outpost-protocol consumed by engine","reuse":"OutpostEnrollment and fleet config"},
+    {"contract":"arda.node-observation.v1","owner":"arda-outpost-protocol consumed by engine","reuse":"OutpostObservation and RuntimePresence freshness"},
+    {"contract":"arda.capability-request.v1","owner":"arda-core","reuse":"CapabilityComposition and worker role contracts"},
+    {"contract":"arda.work-envelope.v1","owner":"arda-orome","reuse":"A2AMessage/Envelope lineage plus Core IDs"},
+    {"contract":"arda.work-attempt.v1","owner":"arda-engine","reuse":"RunNode worker/checkpoint/receipt"},
+    {"contract":"arda.handoff-receipt.v1","owner":"arda-orome plus engine attempt reference","reuse":"operator bridge/provider dispatch/handoff receipts"},
+    {"contract":"arda.placement-receipt.v1","owner":"arda-engine with Manwe route reference","reuse":"worker scheduler and route receipts"},
+    {"contract":"arda.homeostasis-event.v1","owner":"arda-engine","reuse":"service/fleet health classes and run recovery"},
+    {"contract":"arda.organism-outcome.v1","owner":"arda-engine aggregate; typed child receipts retained","reuse":"RunStore terminal and queue projection"}
+  ],
+  "verification": [
+    {"command":"authority-map structural validator","status":"passed","identity_namespaces":14,"authorities":22,"transports":8,"retirements":6,"contracts":11},
+    {"command":"python scripts/hades_markdown_link_check.py --root docs/plans --check-completion-language","status":"passed","local_links_checked":69,"broken_local_links":0},
+    {"command":"python scripts/hades_markdown_link_check.py --root docs/architecture --check-completion-language","status":"passed","local_links_checked":8,"broken_local_links":0},
+    {"command":"cargo check -p arda","status":"passed"},
+    {"command":"cargo check -p arda-orome --all-features","status":"passed"},
+    {"command":"cargo check -p arda-aule --features full-cli","status":"passed"},
+    {"command":"cargo check -p arda-outpost-protocol","status":"passed"},
+    {"command":"queue append-only guard","status":"passed"}
+  ],
+  "acceptance": {
+    "duplicate_canonical_owner_remaining": false,
+    "deletions_performed": false,
+    "new_runtime_authority_created": false,
+    "stage_1_implementation_authorized": false,
+    "operator_acceptance_required_to_enter_stage_1": true,
+    "next_task": "digital-organism-s1-organism-contracts"
+  }
+}

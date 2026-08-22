@@ -74,6 +74,14 @@ Stages do not run in parallel merely because their files differ. Later stages ma
 - [`../ambient-agent/README.md`](../ambient-agent/README.md) remains the downstream embodiment program. Mirromere, RELIC expansion, sensing, and physical outposts remain held until the Stage 7 living-mesh behavior is accepted.
 - [`../ARDA_PRODUCT_PLAN_SUITE.md`](../ARDA_PRODUCT_PLAN_SUITE.md) is the portfolio index and must point to this program as the cohesion authority.
 
+## Stage 0 decision authorities
+
+- [Foundation maturity matrix](../../audits/digital-organism-foundation-matrix.md) — implemented/tested/wired/running/proven maturity and reuse/adapt/hold/archive evidence.
+- [Current objective flow trace](../../audits/digital-organism-current-flow-trace.md) — actual selected-objective and research side-lineage correlation breaks.
+- [Authority and transport map](../../architecture/DIGITAL_ORGANISM_AUTHORITY_TRANSPORT_MAP.md) — canonical owners, identity namespaces, transport stack, execution lifetimes, projection rules, and migration-gated retirement decisions.
+
+The map is active architecture authority. Stage 1 remains operator-gated until its ownership and retirement decisions are explicitly accepted.
+
 ## Shared contracts to converge
 
 The stage plans may refine names after Stage 0, but they must converge on one versioned family:

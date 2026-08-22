@@ -5,11 +5,11 @@ soterion:
   code_point: "U+1F4DC"
   role: "implementation_plan"
   owner: "MANWE"
-  status: "active"
-  reviewed: "2026-08-21"
+  status: "complete"
+  reviewed: "2026-08-22"
 ---
 
-> 🜏 Soterion: 📜 implementation_plan | owner: MANWE | status: active | reviewed: 2026-08-21
+> 🜏 Soterion: 📜 implementation_plan | owner: MANWE | status: complete | reviewed: 2026-08-22
 
 # Stage 3 — Adaptive Cognition and Work Placement
 
@@ -62,3 +62,21 @@ Run the same capability request against a constrained fixture and a stronger nod
 ## Exit gate
 
 One objective is decomposed by role, placed across at least two distinct capability profiles, executed through the correct lifetime, and explained by source-backed placement receipts. Moving a role to a stronger node requires configuration/enrollment only, not workflow code changes.
+
+## Completion evidence — 2026-08-22
+
+- `POST /v1/adaptive-placement/objectives` accepts objective-level requirements and composes deterministic, worker, critic, and adjudicator roles without workflow-owned node, provider, or model names.
+- Composition is bounded: deterministic work uses zero model workers, ordinary reasoning uses one, named material risks add one critic, and adjudication requires an explicit unresolved disagreement.
+- Placement joins the Stage 2 A2A mesh projection (online capability advertisements and current pressure) with live Manwë `/providers?include_models=true` health, model capabilities, access tier, quality band, and catalog cost metadata.
+- Placement receipts record selected node/provider/model, task and provider lifetime, privacy, estimated cost, pressure, health, rejected fallbacks, exact source projections, and the actual Manwë route headers. Model output is represented by digest and length rather than copied into durable evidence.
+- Focused fixtures prove zero/one/critic/adjudicator bounds and the unchanged A2A mesh contract. The live proof executed one unchanged objective as worker → critic → adjudicator across `edge_core` and `edge_beelink_light`; all three task-lifetime requests completed through the exact placed routes.
+
+Evidence: `.hermes/evidence/digital-organism/stage3-live-placement-receipt.json`
+
+Verification:
+
+- `cargo test -p arda-engine --test harness_adaptive_placement` — 3 passed, 1 live test ignored by default.
+- live ignored test with `STAGE3_EVIDENCE_PATH=...` — 1 passed against Manwë `:7171` in 5.84s.
+- `cargo test -p arda-engine --test harness_a2a_mesh` — 4 passed.
+- `cargo build -p arda-engine` — passed.
+- `git diff --check` — passed.

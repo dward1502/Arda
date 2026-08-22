@@ -23,6 +23,7 @@ use tracing::{info, warn};
 
 use crate::supervisor::ServiceRuntimeStatus;
 
+mod adaptive_placement;
 mod continuity;
 mod mesh;
 mod next_action;
@@ -103,6 +104,10 @@ fn router(state: HarnessState) -> axum::Router {
         .route("/v1/mesh/observations", post(mesh::publish_observation))
         .route("/v1/mesh/:node_id/revoke", post(mesh::revoke))
         .route("/v1/mesh/dispatch", post(mesh::dispatch))
+        .route(
+            "/v1/adaptive-placement/objectives",
+            post(adaptive_placement::compose_place_execute),
+        )
         .route("/v1/next-action", get(next_action::get_next_action))
         .route("/v1/organism/manifest", get(organism::get_manifest))
         .route(

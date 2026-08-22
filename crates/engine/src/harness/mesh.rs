@@ -88,18 +88,24 @@ async fn mutate_registry(
     .map_err(map_registry_error)
 }
 
+pub(super) async fn projection_for_state(
+    state: &HarnessState,
+) -> Result<arda_orome::a2a_mesh::MeshProjection, Response> {
+    let path = state.workbench_root.join(REGISTRY_PATH);
+    tokio::task::spawn_blocking(move || {
+        MeshRegistry::open(path).map(|registry| registry.projection(Utc::now()))
+    })
+    .await
+    .map_err(|_| internal("mesh projection worker failed"))?
+    .map_err(map_registry_error)
+}
+
 pub(super) async fn get_projection(
     State(state): State<HarnessState>,
     headers: HeaderMap,
 ) -> Result<Json<Value>, Response> {
     require_operator(&state, &headers)?;
-    let path = state.workbench_root.join(REGISTRY_PATH);
-    let projection = tokio::task::spawn_blocking(move || {
-        MeshRegistry::open(path).map(|registry| registry.projection(Utc::now()))
-    })
-    .await
-    .map_err(|_| internal("mesh projection worker failed"))?
-    .map_err(map_registry_error)?;
+    let projection = projection_for_state(&state).await?;
     serde_json::to_value(projection)
         .map(Json)
         .map_err(|_| internal("mesh projection serialization failed"))
@@ -301,7 +307,7 @@ pub(super) async fn dispatch(
     })))
 }
 
-fn require_operator(state: &HarnessState, headers: &HeaderMap) -> Result<(), Response> {
+pub(super) fn require_operator(state: &HarnessState, headers: &HeaderMap) -> Result<(), Response> {
     let supplied = headers
         .get("x-arda-operator-id")
         .and_then(|value| value.to_str().ok())

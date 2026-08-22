@@ -6,6 +6,7 @@ mod company;
 mod hermes;
 mod jsonl;
 pub mod knowledge_delta;
+pub mod placement_learning;
 
 pub use assimilation::{
     evaluate_nightly_intents, AssimilationCandidate, AssimilationError, AssimilationEvidence,
@@ -26,6 +27,10 @@ pub use jsonl::JsonlAdapter;
 pub use knowledge_delta::{
     GovernedKnowledgeDelta, KnowledgeConsumerOutcome, KnowledgeDeltaError, KnowledgeDeltaLoop,
     KnowledgeOutcomeReceipt, KnowledgePromotionReceipt,
+};
+pub use placement_learning::{
+    PlacementLearningError, PlacementLearningReceipt, PlacementLearningStore,
+    PLACEMENT_LEARNING_SCHEMA_VERSION,
 };
 
 use arda_core::service_registry::CapabilityProvenance;

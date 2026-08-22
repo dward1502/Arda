@@ -1,0 +1,108 @@
+{
+  "context_outcome_receipt": {
+    "capsule_id": "capsule:stage4",
+    "consumer_id": "worker-beelink-reassigned",
+    "context_use_receipt_id": "context-use:stage4",
+    "disposition": "used",
+    "evidence_refs": [
+      "arda://varda/evidence/stage4-terminal"
+    ],
+    "influenced_memory_refs": [
+      "memory-user-correction"
+    ],
+    "objective_id": "objective-stage4",
+    "rationale": "The reassigned worker used the current operator correction; project state was selected but did not influence the terminal result.",
+    "receipt_digest": "sha256:c219d8279bd06e3a7b66e3950f0a38c3042ce364f1ca768408fea867c0829001",
+    "receipt_id": "context-outcome:dd61ca7ff664b251a4b66fedd316a5fd38447cd93876b5dd79dfe0b0e51b89fd",
+    "recorded_at_unix_ms": 2000,
+    "run_id": "run-stage4",
+    "schema_version": "arda.context-outcome-receipt.v1",
+    "selected_memory_refs": [
+      "memory-user-correction",
+      "memory-project-state"
+    ]
+  },
+  "context_use_receipt": {
+    "capsule_digest": "sha256:capsule-stage4",
+    "capsule_id": "capsule:stage4",
+    "consumer_id": "worker-beelink-reassigned",
+    "expires_at_unix_ms": 10000,
+    "memory_refs": [
+      "memory-user-correction",
+      "memory-project-state"
+    ],
+    "objective_id": "objective-stage4",
+    "purpose": "resume objective after node reassignment",
+    "receipt_digest": "sha256:c8b95a714ed35d647cb8877e69bd1610321d849604b9d7ba4c55a668cd59bc0f",
+    "receipt_id": "context-use:stage4",
+    "recorded_at_unix_ms": 1000,
+    "run_id": "run-stage4",
+    "schema_version": "arda.context-use-receipt.v1"
+  },
+  "objective_id": "objective-stage4",
+  "origin_node": "core",
+  "placement_learning_receipt": {
+    "applied_at": "2026-08-22T12:00:00Z",
+    "approval_reference": "operator-policy:safe-local-placement-learning",
+    "learning_id": "learning-stage4-route",
+    "model_id": "stage4-model",
+    "node_id": "beelink",
+    "objective_id": "objective-stage4",
+    "provider_id": "edge_beelink_light",
+    "receipt_digest": "sha256:691b3497d322f338619233b61130d233c17c709e4b20f4c06daa66d19460de15",
+    "receipt_id": "placement-learning:b4074ea42037e7c88d80fe64b01389d2c25685bed7b7088f0e4b640b7487421e",
+    "role": "worker",
+    "schema_version": "arda.placement-learning-receipt.v1",
+    "score_adjustment_millionths": -125000,
+    "task_kind": "context_recovery",
+    "terminal_receipt_refs": [
+      "arda://varda/evidence/stage4-terminal"
+    ],
+    "vaire_receipt_id": "vaire-stage4-learning",
+    "varda_evaluation_digest": "sha256:b3d34a608a101bd9cf1c0a0b76534e2d953f18017553401e0bcd09877ef77786",
+    "varda_evaluation_id": "varda-learning:c7f6ef60bfff791b3c960babdf46e82ae8c424b9a426f57ef37513e872ded848"
+  },
+  "reassigned_node": "beelink",
+  "restart_replay": {
+    "context_outcome_rows": 1,
+    "duplicate_application": false,
+    "effective_score_adjustment": -0.125,
+    "placement_learning_rows": 1,
+    "source_receipts": [
+      "placement-learning:b4074ea42037e7c88d80fe64b01389d2c25685bed7b7088f0e4b640b7487421e"
+    ]
+  },
+  "schema_version": "arda.digital-organism.stage4-proof.v1",
+  "vaire_learning_receipt": {
+    "approval_reference": "operator-policy:safe-local-placement-learning",
+    "correction_of": null,
+    "delta_id": "learning-stage4-route",
+    "ingested_at_utc": "2026-08-22T12:00:00Z",
+    "receipt_id": "vaire-stage4-learning",
+    "schema_version": "arda.vaire.governed_knowledge.v1",
+    "source_reference": "context-outcome:dd61ca7ff664b251a4b66fedd316a5fd38447cd93876b5dd79dfe0b0e51b89fd",
+    "varda_evaluation_id": "varda-learning:c7f6ef60bfff791b3c960babdf46e82ae8c424b9a426f57ef37513e872ded848",
+    "warden_observation_id": "warden-stage4-observation"
+  },
+  "varda_evaluation": {
+    "acceptance_conditions": [
+      "reassigned worker resumes from governed context",
+      "operator correction remains current"
+    ],
+    "decision": "approved_safe_local",
+    "evaluation_digest": "sha256:b3d34a608a101bd9cf1c0a0b76534e2d953f18017553401e0bcd09877ef77786",
+    "evaluation_id": "varda-learning:c7f6ef60bfff791b3c960babdf46e82ae8c424b9a426f57ef37513e872ded848",
+    "learning_id": "learning-stage4-route",
+    "objective_id": "objective-stage4",
+    "proposed_score_adjustment_millionths": -125000,
+    "rationale": "terminal receipts satisfy every named acceptance condition",
+    "satisfied_conditions": [
+      "reassigned worker resumes from governed context",
+      "operator correction remains current"
+    ],
+    "schema_version": "arda.varda.outcome-learning-evaluation.v1",
+    "terminal_receipt_refs": [
+      "arda://varda/evidence/stage4-terminal"
+    ]
+  }
+}

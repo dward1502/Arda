@@ -1,4 +1,5 @@
 use super::{mesh, HarnessState};
+use crate::adapters::PlacementLearningStore;
 use arda_orome::a2a_mesh::{MeshPeerProjection, MeshProjection};
 use axum::{
     extract::State,
@@ -70,6 +71,8 @@ struct Candidate {
     provider: Value,
     model: Value,
     score: f64,
+    learning_adjustment: f64,
+    learning_receipt_refs: Vec<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -86,6 +89,7 @@ struct PlacementReceipt {
     cost_decision: String,
     pressure_decision: String,
     health_decision: String,
+    learning_decision: String,
     fallback_decisions: Vec<String>,
     sources: Vec<String>,
     execution: Value,
@@ -117,11 +121,18 @@ pub(super) async fn compose_place_execute(
 
     let mesh = mesh::projection_for_state(&state).await?;
     let provider_projection = fetch_providers(&state).await?;
+    let learning = PlacementLearningStore::new(&state.workbench_root);
     let mut selected = Vec::new();
     let mut used_profiles = BTreeSet::new();
     for role in &roles {
-        let candidate =
-            choose_candidate(role, &request, &mesh, &provider_projection, &used_profiles)?;
+        let candidate = choose_candidate(
+            role,
+            &request,
+            &mesh,
+            &provider_projection,
+            &used_profiles,
+            &learning,
+        )?;
         used_profiles.insert((
             provider_id(&candidate.provider),
             candidate.node.node_id.clone(),
@@ -279,6 +290,7 @@ fn choose_candidate(
     mesh: &MeshProjection,
     providers: &Value,
     used: &BTreeSet<(String, String)>,
+    learning: &PlacementLearningStore,
 ) -> Result<Candidate, Response> {
     let mut candidates = Vec::new();
     for node in mesh
@@ -348,11 +360,27 @@ fn choose_candidate(
                 } else {
                     0.0
                 };
+                let (learning_adjustment, learning_receipt_refs) = learning
+                    .adjustment(
+                        &request.task_kind,
+                        role_name(&role.role),
+                        &node.node_id,
+                        &pid,
+                        &model_id(model),
+                    )
+                    .map_err(|_| {
+                        error(
+                            StatusCode::INTERNAL_SERVER_ERROR,
+                            "approved placement learning ledger is invalid",
+                        )
+                    })?;
                 candidates.push(Candidate {
                     node: node.clone(),
                     provider: provider.clone(),
                     model: model.clone(),
-                    score: pressure + quality + reuse + cost,
+                    score: pressure + quality + reuse + cost + learning_adjustment,
+                    learning_adjustment,
+                    learning_receipt_refs,
                 });
             }
         }
@@ -525,12 +553,29 @@ fn build_receipt(
         cost_decision: format!("estimated bounded request cost ${:.6} within ${:.6} objective limit", estimated_cost(&candidate.model), request.max_cost_usd),
         pressure_decision: format!("live node pressure score {:.3} from CPU/memory/GPU/queue observation", pressure_score(&candidate.node)),
         health_decision: format!("Manwe reports provider `{pid}` and model `{mid}` healthy, enabled, and outside cooldown"),
+        learning_decision: if candidate.learning_receipt_refs.is_empty() {
+            "no approved Varda/Vairë placement learning matched this role and capability profile".to_owned()
+        } else {
+            format!(
+                "applied score adjustment {:+.6} from approved learning receipts: {}",
+                candidate.learning_adjustment,
+                candidate.learning_receipt_refs.join(", ")
+            )
+        },
         fallback_decisions: rejected,
         sources: vec![
             format!("arda.a2a-mesh-projection.v1 generated {} for node `{}`", mesh.generated_at.to_rfc3339(), candidate.node.node_id),
             format!("Manwe /providers intelligence refreshed {} for provider `{pid}`", candidate.provider["intelligence_refreshed_at_utc"].as_str().unwrap_or("unknown")),
             format!("Manwe model catalog health for `{mid}`"),
-        ],
+        ]
+        .into_iter()
+        .chain(
+            candidate
+                .learning_receipt_refs
+                .iter()
+                .map(|receipt| format!("arda://engine/placement-learning/{receipt}")),
+        )
+        .collect(),
         execution,
     }
 }
@@ -544,6 +589,14 @@ fn provider_id(value: &Value) -> String {
 }
 fn model_id(value: &Value) -> String {
     value["id"].as_str().unwrap_or_default().to_owned()
+}
+fn role_name(role: &AdaptiveRole) -> &'static str {
+    match role {
+        AdaptiveRole::Worker => "worker",
+        AdaptiveRole::Critic => "critic",
+        AdaptiveRole::Adjudicator => "adjudicator",
+        AdaptiveRole::DeterministicTool => "deterministic_tool",
+    }
 }
 fn digest(bytes: &[u8]) -> String {
     format!("sha256:{:x}", Sha256::digest(bytes))

@@ -5,6 +5,7 @@ pub mod benchmark;
 pub mod human;
 pub mod ingest;
 pub mod learning;
+pub mod outcome_learning;
 pub mod rumil;
 pub mod transport;
 

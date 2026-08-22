@@ -5,11 +5,11 @@ soterion:
   code_point: "U+1F4DC"
   role: "implementation_plan"
   owner: "VAIRE"
-  status: "active"
-  reviewed: "2026-08-21"
+  status: "complete"
+  reviewed: "2026-08-22"
 ---
 
-> 🜏 Soterion: 📜 implementation_plan | owner: VAIRE | status: active | reviewed: 2026-08-21
+> 🜏 Soterion: 📜 implementation_plan | owner: VAIRE | status: complete | reviewed: 2026-08-22
 
 # Stage 4 — Organism Memory, Learning, and Context
 
@@ -56,3 +56,19 @@ Node A begins a task and writes an intermediate receipt. Node B receives only a 
 ## Exit gate
 
 A fresh node continues another node’s work after restart using a bounded capsule, records exactly which memory/evidence influenced it, honors a correction/revocation, and improves a later placement or plan only through an approved learning receipt.
+
+## Implemented
+
+- Vairë now appends digest-bound context-outcome receipts distinguishing selected context from memory that actually influenced work. Exact restart replay returns the existing receipt; conflicting replay fails.
+- Varda evaluates terminal receipts against named acceptance conditions and permits only bounded, fully evidenced safe-local placement learning.
+- The engine persists approved placement-learning receipts under the workbench root with a cross-process ledger lock and stable replay identity. Adaptive placement consumes only those Varda/Vairë-linked receipts and explains every applied score adjustment in its placement receipt.
+- No second memory store was introduced. Canonical context, scope policy, correction/revocation, and bounded capsule assembly remain owned by Vairë.
+
+## Evidence
+
+- `.hermes/evidence/digital-organism/stage4-memory-learning-restart-receipt.json` records the core-to-Beelink reassignment, exact context influence, Varda evaluation, Vairë learning provenance, placement adjustment, fresh-service restart, and duplicate counts.
+- `cargo test -p arda-engine --test stage4_memory_learning_context`: 2 passed.
+- `cargo test -p arda-engine --test context_bootstrap_restart`: 1 passed, proving a fresh worker continues after root restart without conversation history.
+- `cargo test -p arda-vaire --test context_capsule`: 3 passed, including restart-stable capsule identity and revoked-memory rejection.
+- Focused correction-chain and idempotent revoke tests passed; `cargo test -p arda-engine --test knowledge_delta_loop`: 3 passed.
+- Stage 3 adaptive-placement regression remained green (3 passed, 1 live-only ignored), and `cargo build -p arda-engine` passed.

@@ -12,6 +12,7 @@ use std::time::Duration as StdDuration;
 // owns the on-disk JSONL layout; `retrieval` owns ranking; `promotion` owns
 // derived semantic/procedural records and their promotion receipts.
 pub mod context_capsule;
+pub mod context_outcome;
 pub mod continuity;
 pub mod governance;
 pub mod governed;

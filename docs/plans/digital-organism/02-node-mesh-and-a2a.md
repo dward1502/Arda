@@ -5,11 +5,11 @@ soterion:
   code_point: "U+1F4DC"
   role: "implementation_plan"
   owner: "HERMES"
-  status: "active"
-  reviewed: "2026-08-21"
+  status: "complete"
+  reviewed: "2026-08-22"
 ---
 
-> 🜏 Soterion: 📜 implementation_plan | owner: HERMES | status: active | reviewed: 2026-08-21
+> 🜏 Soterion: 📜 implementation_plan | owner: HERMES | status: complete | reviewed: 2026-08-22
 
 # Stage 2 — Node Mesh and A2A Interoperability
 
@@ -61,3 +61,12 @@ Cover unknown/revoked peer, token mismatch, untrusted prompt input, stale capabi
 ## Exit gate
 
 Two nodes exchange one real typed task over A2A, with capability discovery, expiry, authentication, correlated delivery proof, and honest offline state visible from the root runtime. No manual file copying may stand in for transport.
+
+## Completion evidence
+
+- Implemented stable identity, enrollment/revocation, expiring capability observations, bounded persistent routing, typed A2A Agent Card/message mapping, bearer-authenticated forwarding, correlation receipts, and root-visible offline projection in `arda-orome` and `arda-engine`.
+- `cargo test -p arda-orome --test a2a_mesh -- --nocapture`: 7/7 passed.
+- `cargo test -p arda-engine --test harness_a2a_mesh -- --nocapture`: 4/4 passed, including a real exchange between two independently started Arda harness nodes.
+- Process-level acceptance used two distinct `arda` daemon PIDs over loopback HTTP: enrollment and observation returned 201, dispatch returned 200, each process persisted one correlated receipt, and the root projection changed the peer to `offline` after observation expiry.
+- Negative coverage rejects replay (including concurrent/stale writers), expiry, revoked peers, forged completion, cross-domain requests, identity rebinding, unsupported capabilities, and message loops.
+- No filesystem copy or shared task file was used as transport; the only cross-node task path was standard A2A HTTP.

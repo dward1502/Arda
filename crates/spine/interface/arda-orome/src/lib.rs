@@ -6,6 +6,7 @@
 
 #[cfg(feature = "service-runtime")]
 pub mod agent;
+pub mod a2a_mesh;
 pub mod comm;
 pub mod commercial;
 #[cfg(feature = "service-runtime")]

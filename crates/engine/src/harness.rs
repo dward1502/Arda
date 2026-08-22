@@ -24,6 +24,7 @@ use tracing::{info, warn};
 use crate::supervisor::ServiceRuntimeStatus;
 
 mod continuity;
+mod mesh;
 mod next_action;
 mod operator_messages;
 mod operator_projection;
@@ -94,7 +95,14 @@ struct Status {
 fn router(state: HarnessState) -> axum::Router {
     axum::Router::new()
         .route("/health", get(health))
+        .route("/.well-known/agent-card.json", get(mesh::agent_card))
+        .route("/v1/a2a", post(mesh::receive))
         .route("/v1/status", get(status))
+        .route("/v1/mesh", get(mesh::get_projection))
+        .route("/v1/mesh/enroll", post(mesh::enroll))
+        .route("/v1/mesh/observations", post(mesh::publish_observation))
+        .route("/v1/mesh/:node_id/revoke", post(mesh::revoke))
+        .route("/v1/mesh/dispatch", post(mesh::dispatch))
         .route("/v1/next-action", get(next_action::get_next_action))
         .route("/v1/organism/manifest", get(organism::get_manifest))
         .route(
@@ -400,6 +408,11 @@ async fn harness_info(State(st): State<HarnessState>) -> impl IntoResponse {
             "routes": [
                 "/health",
                 "/v1/status",
+                "/v1/mesh",
+                "/v1/mesh/enroll",
+                "/v1/mesh/observations",
+                "/v1/mesh/{node_id}/revoke",
+                "/v1/mesh/dispatch",
                 "/v1/operator-projection",
                 "/v1/models",
                 "/v1/scout/health",

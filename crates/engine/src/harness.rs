@@ -25,9 +25,9 @@ use crate::supervisor::ServiceRuntimeStatus;
 
 mod continuity;
 mod next_action;
-mod organism;
 mod operator_messages;
 mod operator_projection;
+mod organism;
 mod personal_briefs;
 pub mod personal_ops;
 pub mod presence;

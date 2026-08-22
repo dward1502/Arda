@@ -1,15 +1,25 @@
+use arda_core::capability_composition::{
+    CompositionAuthorityClass, DataClass, EgressTarget, RoleKind,
+};
+use arda_core::contract::{MemoryKind, MemoryRecord};
 use arda_core::run_graph::{
     AuthorityClass, Budget, CheckpointMetadata, EvidencePolicy, NodeId, NodeKind, NodeState,
-    RetryPolicy, RunId, RunNode, WorkerExecutionSpec, WorkerRole, WorkerRouteClass,
+    ObjectiveId, RetryPolicy, RunId, RunNode, WorkerExecutionSpec, WorkerRole, WorkerRouteClass,
 };
 use arda_engine::adapters::{
     AdapterCancellation, CostMeasurement, HermesAdapter, HermesAdapterConfig, HermesAdapterError,
     HermesNodeTask, HermesReceiptStatus,
 };
+use arda_vaire::service::scope_policy::{ConsumerContext, MemoryDomain};
+use arda_vaire::{
+    ContextAssembly, ContextConsumer, ContextLineage, ContextObjective, ContextReturnContract,
+    MnemosyneService, OrganismContext,
+};
 use std::collections::BTreeMap;
 use std::fs;
 use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
+use std::time::{SystemTime, UNIX_EPOCH};
 use tempfile::TempDir;
 
 fn write_fake_hermes(root: &Path) -> PathBuf {
@@ -210,7 +220,82 @@ fn task(timeout_ms: u64) -> HermesNodeTask {
             "/usr/bin/python3 -c 'assert 2 + 2 == 4'".into(),
         )]),
         project_contract_digest: "sha256:project-contract".into(),
+        context_assembly: None,
     }
+}
+
+fn context_assembly(root: &Path, task: &HermesNodeTask) -> ContextAssembly {
+    let now_ms = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis();
+    let mut consumer =
+        ConsumerContext::new("hermes:fresh-context-worker", vec![MemoryDomain::System]);
+    consumer.purpose = Some(task.objective.clone());
+    let service = MnemosyneService::new(root.join("vaire"))
+        .unwrap()
+        .with_contract_memory_root(root.join("memory"));
+    let mut memory = MemoryRecord::new(
+        "mem-hermes-next-action",
+        MemoryKind::Semantic,
+        "vaire",
+        "Next action: run the declared Python smoke check and report its evidence.",
+    );
+    memory
+        .extensions
+        .insert("memory_domain".into(), serde_json::json!("system"));
+    service
+        .write_governed_memory(memory, Some(&consumer))
+        .unwrap();
+    service
+        .assemble_organism_context(
+            OrganismContext {
+                schema_version: OrganismContext::SCHEMA_VERSION.into(),
+                organism_id: "arda:mythos:primary".into(),
+                generated_at_unix_ms: now_ms,
+                expires_at_unix_ms: now_ms + 60_000,
+                consumer: ContextConsumer {
+                    consumer_id: consumer.consumer_id.clone(),
+                    role: RoleKind::Worker,
+                    authority_ceiling: CompositionAuthorityClass::ExecuteWithApproval,
+                    operator_authorized: false,
+                    memory_domains: vec![MemoryDomain::System],
+                    data_classes: vec![DataClass::Internal],
+                    permitted_egress: vec![EgressTarget::LocalDevice],
+                    compute_node_refs: vec!["node:arda-root".into()],
+                    agent_ref: Some("hermes:attempt-fresh-1".into()),
+                },
+                lineage: ContextLineage {
+                    objective_id: ObjectiveId::new("objective-hermes-context").unwrap(),
+                    project_id: None,
+                    run_id: Some(task.run_id.clone()),
+                    task_id: Some("digital-organism-s1-context-bootstrap".into()),
+                    session_ref: None,
+                    parent_receipts: task.node.parent_receipts.clone(),
+                },
+                objective: ContextObjective {
+                    requested_outcome: task.objective.clone(),
+                    acceptance_conditions: vec!["run the declared check".into()],
+                    required_capabilities: vec!["terminal".into()],
+                    forbidden_capabilities: vec!["ambient-transcript-read".into()],
+                },
+                evidence_refs: vec!["arda://varda/evidence/python-smoke".into()],
+                memory_refs: vec!["mem-hermes-next-action".into()],
+                unresolved_failures: Vec::new(),
+                return_contract: ContextReturnContract {
+                    schema_version: "arda.organism-outcome.v1".into(),
+                    required_receipt_types: vec![
+                        "arda.hermes-execution-receipt.v1".into(),
+                        "arda.context-use-receipt.v1".into(),
+                        "arda.handoff-receipt.v1".into(),
+                    ],
+                    max_output_bytes: 32_768,
+                },
+            },
+            &consumer,
+            now_ms,
+        )
+        .unwrap()
 }
 
 fn worker_contract(toolsets: &[&str], deadline_unix_ms: u128) -> WorkerExecutionSpec {
@@ -360,6 +445,51 @@ async fn graph_node_becomes_bounded_hermes_job_and_canonical_receipt() {
         assert!(environment.contains(&serde_json::json!(expected)));
     }
     assert!(!environment.contains(&serde_json::json!("HOME")));
+}
+
+#[tokio::test]
+async fn governed_capsule_is_injected_and_bound_to_typed_receipts() {
+    let root = TempDir::new().expect("project root");
+    let adapter = adapter(&root, "success");
+    let mut task = task(800);
+    let assembly = context_assembly(root.path(), &task);
+    task.context_assembly = Some(assembly.clone());
+
+    let receipt = adapter
+        .execute(&task, AdapterCancellation::new())
+        .await
+        .expect("execute with governed context");
+
+    assert_eq!(
+        receipt.context_capsule_id.as_deref(),
+        Some(assembly.capsule.capsule_id.as_str())
+    );
+    assert_eq!(
+        receipt.context_capsule_digest.as_deref(),
+        Some(assembly.capsule.capsule_digest.as_str())
+    );
+    assert_eq!(
+        receipt.context_use_receipt_ref.as_deref(),
+        Some(assembly.use_receipt.receipt_ref().as_str())
+    );
+    let handoff = receipt
+        .context_handoff
+        .as_ref()
+        .expect("typed Oromë handoff receipt");
+    assert_eq!(handoff.schema_version, "arda.handoff-receipt.v1");
+    assert!(handoff.has_valid_digest().unwrap());
+    assert_eq!(handoff.capsule_id, assembly.capsule.capsule_id);
+
+    let capture: serde_json::Value = serde_json::from_str(
+        &fs::read_to_string(root.path().join("capture.json")).expect("captured invocation"),
+    )
+    .unwrap();
+    let prompt = capture["prompt"].as_str().unwrap();
+    assert!(prompt.contains("organism_context_capsule"));
+    assert!(prompt.contains("context_use_receipt"));
+    assert!(prompt.contains("mem-hermes-next-action"));
+    assert!(!prompt.contains("\"transcript\":"));
+    assert!(!prompt.contains("\"session_id\":"));
 }
 
 #[tokio::test]

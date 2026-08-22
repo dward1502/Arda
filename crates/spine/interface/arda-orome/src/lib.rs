@@ -12,6 +12,7 @@ pub mod commercial;
 pub mod context_cache;
 #[cfg(feature = "service-runtime")]
 pub mod context_enrichment;
+pub mod context_handoff;
 #[cfg(feature = "service-runtime")]
 pub mod discord_health;
 #[cfg(feature = "service-runtime")]
@@ -44,6 +45,9 @@ pub use comm::{
     A2HMessage, Attachment, AuthPayload, Channel as A2HChannel, ClarifyPayload, CommError,
     CommGovernanceMetadata, HumanResponse, MessageQueue, NotifyPayload, Priority, ResponseAction,
     StatusPayload,
+};
+pub use context_handoff::{
+    WorkerContextHandoffError, WorkerContextHandoffReceipt, WORKER_CONTEXT_HANDOFF_SCHEMA_VERSION,
 };
 pub use governance::GovernanceHooks;
 pub use message::{A2AMessage, A2AMessageType, Envelope};

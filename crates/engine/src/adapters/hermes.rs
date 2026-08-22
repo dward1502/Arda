@@ -9,6 +9,8 @@ use crate::runs::{RunEventDraft, RunEventKind};
 use arda_core::run_graph::{
     AuthorityClass, NodeId, NodeKind, NodeState, RunId, RunNode, WorkerRouteClass,
 };
+use arda_orome::WorkerContextHandoffReceipt;
+use arda_vaire::ContextAssembly;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
@@ -125,6 +127,8 @@ pub struct HermesNodeTask {
     #[serde(default)]
     pub check_commands: BTreeMap<String, String>,
     pub project_contract_digest: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub context_assembly: Option<ContextAssembly>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -204,6 +208,14 @@ pub struct HermesExecutionReceipt {
     pub adapter_version: String,
     pub project_contract_digest: String,
     pub parent_receipts: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub context_capsule_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub context_capsule_digest: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub context_use_receipt_ref: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub context_handoff: Option<WorkerContextHandoffReceipt>,
     pub recorded_at_unix_ms: u128,
 }
 
@@ -505,6 +517,25 @@ impl HermesAdapter {
         let (tool_evidence, test_evidence) =
             translate_actual_evidence(task, &result, &session, &self.cwd)?;
 
+        let recorded_at_unix_ms = unix_time_ms()?;
+        let context_handoff = task
+            .context_assembly
+            .as_ref()
+            .map(|assembly| {
+                WorkerContextHandoffReceipt::issue(
+                    assembly.capsule.context.lineage.objective_id.as_str(),
+                    task.run_id.as_str(),
+                    task.node.id.as_str(),
+                    &assembly.capsule.context.consumer.consumer_id,
+                    &assembly.capsule.capsule_id,
+                    &assembly.capsule.capsule_digest,
+                    assembly.use_receipt.receipt_ref(),
+                    task.node.parent_receipts.clone(),
+                    recorded_at_unix_ms,
+                )
+                .map_err(|error| HermesAdapterError::InvalidResult(error.to_string()))
+            })
+            .transpose()?;
         let mut receipt = HermesExecutionReceipt {
             schema_version: RECEIPT_SCHEMA_VERSION.into(),
             receipt_digest: String::new(),
@@ -521,7 +552,20 @@ impl HermesAdapter {
             adapter_version: self.config.adapter_version.clone(),
             project_contract_digest: task.project_contract_digest.clone(),
             parent_receipts: task.node.parent_receipts.clone(),
-            recorded_at_unix_ms: unix_time_ms()?,
+            context_capsule_id: task
+                .context_assembly
+                .as_ref()
+                .map(|assembly| assembly.capsule.capsule_id.clone()),
+            context_capsule_digest: task
+                .context_assembly
+                .as_ref()
+                .map(|assembly| assembly.capsule.capsule_digest.clone()),
+            context_use_receipt_ref: task
+                .context_assembly
+                .as_ref()
+                .map(|assembly| assembly.use_receipt.receipt_ref()),
+            context_handoff,
+            recorded_at_unix_ms,
         };
         receipt.receipt_digest = digest_serializable(&receipt)?;
         Ok(receipt)
@@ -553,6 +597,31 @@ impl HermesAdapter {
         }
         if matches!(task.node.kind, NodeKind::Approval) {
             return Err(HermesAdapterError::HumanApprovalCannotExecute);
+        }
+        if let Some(assembly) = &task.context_assembly {
+            let now = unix_time_ms()?;
+            assembly
+                .capsule
+                .validate(now)
+                .map_err(|error| HermesAdapterError::InvalidTask(error.to_string()))?;
+            if !assembly
+                .use_receipt
+                .has_valid_digest()
+                .map_err(|error| HermesAdapterError::InvalidTask(error.to_string()))?
+                || assembly.use_receipt.capsule_id != assembly.capsule.capsule_id
+                || assembly.use_receipt.capsule_digest != assembly.capsule.capsule_digest
+                || assembly.use_receipt.consumer_id != assembly.capsule.context.consumer.consumer_id
+                || assembly.use_receipt.objective_id
+                    != assembly.capsule.context.lineage.objective_id.as_str()
+                || assembly.use_receipt.run_id.as_deref() != Some(task.run_id.as_str())
+                || assembly.capsule.context.lineage.run_id.as_ref() != Some(&task.run_id)
+                || assembly.capsule.context.objective.requested_outcome != task.objective
+                || assembly.capsule.context.lineage.parent_receipts != task.node.parent_receipts
+            {
+                return Err(HermesAdapterError::InvalidTask(
+                    "Vairë context assembly does not match the Hermes run node".into(),
+                ));
+            }
         }
         let toolsets = match task.node.authority {
             AuthorityClass::ReadOnly => &self.config.toolsets.read_only,
@@ -602,6 +671,8 @@ impl HermesAdapter {
             "checks": task.checks,
             "project_contract_digest": task.project_contract_digest,
             "project_root": self.project_root,
+            "organism_context_capsule": task.context_assembly.as_ref().map(|assembly| &assembly.capsule),
+            "context_use_receipt": task.context_assembly.as_ref().map(|assembly| &assembly.use_receipt),
         });
         Ok(format!(
             "Execute exactly one approved Arda run-graph node. Stay within the supplied project root, authority, instructions, and checks. Report only tool calls made during this job; Arda will resolve each tool_call_id against Hermes' redacted session export and derive command, exit status, and output digest itself. Include one test_evidence entry for every declared check. Do not return a Hermes session id, transcript path, recovery token, or other vendor session state. Your final response must be one JSON object with no Markdown fences and exactly this shape: {{\"schema_version\":\"{RESULT_SCHEMA_VERSION}\",\"status\":\"succeeded|failed|cancelled\",\"summary\":\"...\",\"tool_evidence\":[{{\"tool_call_id\":\"actual-call-id\"}}],\"test_evidence\":[{{\"check_id\":\"declared-check-id\",\"tool_call_id\":\"actual-terminal-call-id\"}}],\"artifacts\":[{{\"path\":\"project-relative/path\",\"digest\":\"sha256:<64 lowercase hex>\"}}]}}. Canonical node context follows:\n{}",

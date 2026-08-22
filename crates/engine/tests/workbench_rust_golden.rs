@@ -339,6 +339,7 @@ async fn clean_rust_repository_completes_approved_vertical_slice_with_one_run_id
             "Perform only the two bounded string replacements, then run cargo test --quiet.".into(),
         checks: vec!["test".into()],
         check_commands: BTreeMap::from([("test".into(), "cargo test --quiet".into())]),
+        context_assembly: None,
         project_contract_digest: contract_digest.clone(),
     };
 
@@ -513,6 +514,7 @@ async fn clean_rust_repository_completes_approved_vertical_slice_with_one_run_id
         instructions: "Inspect the resulting diff and run the project-native test without relying on the implementer summary.".into(),
         checks: vec!["test".into()],
         check_commands: BTreeMap::from([("test".into(), "cargo test --quiet".into())]),
+        context_assembly: None,
         project_contract_digest: contract_digest.clone(),
     };
     let verifier_receipt = adapter
@@ -766,6 +768,7 @@ compensate_with_approval = ["file", "terminal"]
             "cargo-test".into(),
             "cargo test --quiet".into(),
         )]),
+        context_assembly: None,
         project_contract_digest: contract_digest.clone(),
     };
     let receipt = adapter

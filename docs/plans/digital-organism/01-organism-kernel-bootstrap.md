@@ -47,7 +47,9 @@ It must exclude raw unrelated memory, credentials, broad transcripts, and hidden
 
 **Task 4 verified state:** The manifest is `running`: Core owns `arda.organism-manifest.v1`, the canonical service loads `config/organism.toml`, and the authenticated root endpoint projects it read-only. The context contract is `root-composed`: Vairë owns `arda.organism-context.v1`, and its lineage, expiry, privacy/egress, role, capability, acceptance, and return-receipt validators compile into the root runtime. [Implementation and runtime evidence](../../../.hermes/evidence/digital-organism/organism-contracts.json)
 
-Context assembly, Hermes capsule injection, fresh-worker task proof, memory-use receipts, and restart continuation remain held for Task 5; Task 4 does not claim them.
+**Task 5 verified state:** Vairë assembles bounded capsules exclusively from explicitly referenced canonical memory and persists deterministic use receipts. The existing Hermes adapter injects the structured capsule into each newly spawned CLI process and binds Hermes execution plus Oromë handoff receipts to its digest. The public harness restart fixture stops the first root, reopens Vairë and run state, suppresses exact replay, rejects a mismatched capsule, and gives the second worker explicit lineage to the first durable receipt. A live run used two separate real `hermes chat -Q` processes with no resume/continue/session token and completed the declared read-only check after restart. The installed root binary matches the verified release artifact. [Machine-readable implementation, live-worker, restart, and deployment evidence](../../../.hermes/evidence/digital-organism/context-bootstrap.json)
+
+This proves the bounded Stage 1 context-bootstrap vertical. It does not claim arbitrary model migration, gateway-wide restart behavior, or continuity for workflows outside the tested public run route.
 
 ### S1.3 — Produce capsules through Vairë policy
 

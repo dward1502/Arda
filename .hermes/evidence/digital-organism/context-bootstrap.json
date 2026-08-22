@@ -1,0 +1,142 @@
+{
+  "authority": {
+    "assembly": "vaire",
+    "canonical_contracts": "core",
+    "durable_attempts_and_outcomes": "engine",
+    "parallel_memory_or_queue_created": false,
+    "semantic_handoff": "orome",
+    "transport_and_execution": "hermes"
+  },
+  "base_commit": "f431b85290d9445b45d2c10b4f74196669e000ba",
+  "bounded_claim": "Proves two fresh real Hermes CLI processes complete the declared read-only capsule task across a clean root restart, with durable Vaire use receipts, typed Orome handoff receipts, canonical execution replay, and mismatched-capsule rejection. It does not prove arbitrary model migration, gateway-wide restart behavior, or unrelated workflows.",
+  "deployment": {
+    "artifact_hash": "sha256:14f5d301bda811a8362bb2f75d82b3dd0beee2129759bd0e894e04fd0fc2fea0",
+    "hashes_match": true,
+    "health_endpoint": "http://127.0.0.1:7878/health",
+    "health_result": "ok",
+    "installed_hash": "sha256:14f5d301bda811a8362bb2f75d82b3dd0beee2129759bd0e894e04fd0fc2fea0",
+    "installed_path": "/var/home/mythos/.local/bin/arda",
+    "restart_count_after_install": 0,
+    "service": "arda.service",
+    "service_state": "active/running"
+  },
+  "live_runtime_proof": {
+    "first": {
+      "capsule_digest": "sha256:f298eb1adabd068329750af713b971aaa78f47ad11710ff91682dbab3e09753a",
+      "context_use_receipt_ref": "arda://vaire/context-use/context-use:b61437d50bfcebbb67b42a225170294fa74cf9c745af1111f34ba5a911e2b26e",
+      "handoff_receipt": {
+        "capsule_digest": "sha256:f298eb1adabd068329750af713b971aaa78f47ad11710ff91682dbab3e09753a",
+        "capsule_id": "capsule:f298eb1adabd068329750af713b971aaa78f47ad11710ff91682dbab3e09753a",
+        "context_use_receipt_ref": "arda://vaire/context-use/context-use:b61437d50bfcebbb67b42a225170294fa74cf9c745af1111f34ba5a911e2b26e",
+        "destination_consumer": "execute-first",
+        "node_id": "execute-first",
+        "objective_id": "objective-run-context-first",
+        "parent_receipts": [
+          "approval-context-bootstrap"
+        ],
+        "receipt_digest": "sha256:bf9be277e5f4f3423b84bf9390774ee30d6749fedf9a652bd8ece4f35537e930",
+        "receipt_id": "handoff:91929eee964acee7466197545e1d414b1e7e059498040dee0843da679367be5b",
+        "recorded_at_unix_ms": 1787388189851,
+        "run_id": "run-context-first",
+        "schema_version": "arda.handoff-receipt.v1",
+        "source_authority": "vaire:organism-context"
+      },
+      "receipt_digest": "sha256:b2ce47ba67e66dc1d540d4e8cf6d7b496a214dd0db9948c5374cef83b0c7afed",
+      "run_id": "run-context-first",
+      "worker_id": "execute-first"
+    },
+    "fresh_process_count": 2,
+    "live_hermes": true,
+    "replay": {
+      "canonical_receipt_returned": true,
+      "mismatched_capsule_rejected": true
+    },
+    "restart": {
+      "ambient_conversation_inherited": false,
+      "first_harness_stopped_before_second_started": true,
+      "vaire_context_use_receipt_reopened": true
+    },
+    "schema_version": "arda.context-bootstrap-runtime-proof.v1",
+    "second": {
+      "capsule_digest": "sha256:77088b15e26c339b95675226b578bef7e23b53515e75c0b4f93f06dc4cf60156",
+      "context_use_receipt_ref": "arda://vaire/context-use/context-use:ed6ed8256a387fdf20ccd9e48e3c75f527b77e41343f8faffdacd1e7e1f60f4f",
+      "explicit_parent_receipt": "sha256:b2ce47ba67e66dc1d540d4e8cf6d7b496a214dd0db9948c5374cef83b0c7afed",
+      "handoff_receipt": {
+        "capsule_digest": "sha256:77088b15e26c339b95675226b578bef7e23b53515e75c0b4f93f06dc4cf60156",
+        "capsule_id": "capsule:77088b15e26c339b95675226b578bef7e23b53515e75c0b4f93f06dc4cf60156",
+        "context_use_receipt_ref": "arda://vaire/context-use/context-use:ed6ed8256a387fdf20ccd9e48e3c75f527b77e41343f8faffdacd1e7e1f60f4f",
+        "destination_consumer": "execute-second",
+        "node_id": "execute-second",
+        "objective_id": "objective-run-context-second",
+        "parent_receipts": [
+          "approval-context-bootstrap"
+        ],
+        "receipt_digest": "sha256:ebcb3df8f116700e076878ed205344fe327c5ce8fc0ee8b8dd24f1fcacff9331",
+        "receipt_id": "handoff:e2e01711a02c1c5c1091c3fa25a612a0f53a10db83d5196dc607e94216d94375",
+        "recorded_at_unix_ms": 1787388211564,
+        "run_id": "run-context-second",
+        "schema_version": "arda.handoff-receipt.v1",
+        "source_authority": "vaire:organism-context"
+      },
+      "receipt_digest": "sha256:69de043fb7ca56828af14085c5b344adb7f08d219621d3c32133481a70774f1e",
+      "run_id": "run-context-second",
+      "worker_id": "execute-second"
+    }
+  },
+  "recorded_at_utc": "2026-08-22T08:50:02Z",
+  "schema_version": "arda.context-bootstrap-evidence.v1",
+  "source_sha256": {
+    "crates/engine/src/adapters/hermes.rs": "sha256:a778288009f010e6574eae21177f1ebb53622636872b0fdd4ad0cc5f1e425ed5",
+    "crates/engine/src/harness/runs.rs": "sha256:e61f0e15d26a4cedb3867d1282aace073e5976242ef83a9832584c147fac73da",
+    "crates/engine/tests/context_bootstrap_restart.rs": "sha256:35a552b027b56beb5f0d24b7f0b47801b65daf68caa0c924cc4c450416c29a1a",
+    "crates/spine/interface/arda-orome/src/context_handoff.rs": "sha256:c511b69c6aa6ea5889b36ee6f20a555e75cbac9a2e5fd0b0936ffa05c5d0f7a0",
+    "crates/spine/memory/arda-vaire/src/service/context_capsule.rs": "sha256:9fbb40f016ee64ace74cdb18dacd02353399f7ed4840fdf2e010de5d130d707f"
+  },
+  "status": "verified_and_deployed",
+  "task_id": "digital-organism-s1-context-bootstrap",
+  "verification": {
+    "broad": [
+      {
+        "command": "cargo test --workspace",
+        "result": "passed"
+      }
+    ],
+    "focused": [
+      {
+        "command": "cargo test -p arda-vaire",
+        "result": "passed"
+      },
+      {
+        "command": "cargo test -p arda-orome",
+        "result": "passed"
+      },
+      {
+        "command": "cargo test -p arda-engine",
+        "result": "passed"
+      },
+      {
+        "command": "ARDA_LIVE_HERMES_EXECUTABLE=/var/home/mythos/.local/bin/hermes cargo test -p arda-engine --test context_bootstrap_restart -- --nocapture",
+        "fresh_real_hermes_processes": 2,
+        "result": "passed"
+      }
+    ],
+    "strict": [
+      {
+        "command": "cargo fmt --all -- --check",
+        "result": "passed"
+      },
+      {
+        "command": "cargo clippy -p arda-vaire -p arda-orome -p arda-engine --all-targets --all-features --no-deps -- -D warnings",
+        "result": "passed"
+      },
+      {
+        "command": "cargo doc -p arda-vaire -p arda-orome -p arda-engine --no-deps",
+        "result": "passed"
+      },
+      {
+        "command": "scripts/check_task_queue_append_only.sh",
+        "result": "passed"
+      }
+    ]
+  }
+}

@@ -1,4 +1,5 @@
 use arda_core::run_graph::{NodeId, NodeKind, NodeState, RunGraph, RunId, WorkerRouteClass};
+use arda_vaire::ContextAssembly;
 use axum::{
     extract::{ConnectInfo, Path, State},
     http::StatusCode,
@@ -76,6 +77,8 @@ pub struct CompleteRunNodeRequest {
 pub struct ExecuteProviderNodeRequest {
     envelope: MutationEnvelope,
     objective: String,
+    #[serde(default)]
+    context_assembly: Option<ContextAssembly>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize)]
@@ -686,6 +689,15 @@ pub(super) async fn execute_provider_node(
                 "stored provider receipt failed canonical digest verification",
             ));
         }
+        if let Some(assembly) = &request.context_assembly {
+            if receipt.context_capsule_digest.as_deref()
+                != Some(assembly.capsule.capsule_digest.as_str())
+            {
+                return Err(ApiError::conflict(
+                    "stored provider receipt does not match the requested context capsule",
+                ));
+            }
+        }
         receipt
     } else {
         let cancellation_key = format!("{id}/{}", node_id.as_str());
@@ -820,7 +832,7 @@ pub(super) async fn execute_provider_node(
             node: ready_node,
             objective: request.objective.trim().to_string(),
             instructions: format!(
-                "Work only inside the attached project root. Do not commit. Run every declared check and make no changes outside the objective. Declared checks: {}",
+                "Work only inside the attached project root. Do not commit. Execute every declared check exactly as printed before any optional exploratory command, and make no changes outside the objective. In test_evidence, reference the terminal tool call that ran the exact declared command; never reference an exploratory command. If a declared check succeeds, do not substitute ls, pwd, or inspection output for its evidence. Declared checks: {}",
                 declared_checks.join("; ")
             ),
             checks: attached
@@ -831,6 +843,7 @@ pub(super) async fn execute_provider_node(
                 .collect(),
             check_commands,
             project_contract_digest: graph.provenance.project_contract_digest.clone(),
+            context_assembly: request.context_assembly,
         };
         let attempt = graph
             .nodes

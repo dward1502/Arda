@@ -2,6 +2,13 @@
   "schema_version": "arda.digital-organism.authority-transport-map.v1",
   "generated_at_utc": "2026-08-22T06:23:08Z",
   "task_id": "digital-organism-s0-authority-transport-map",
+  "operator_acceptance": {
+    "accepted": true,
+    "accepted_at_utc": "2026-08-22T06:53:16Z",
+    "scope": "authority ownership and migration-gated retirement decisions",
+    "opens": "digital-organism-s1-organism-contracts",
+    "does_not_authorize": ["retirement", "deletion", "external publication", "accounts", "payments", "physical action"]
+  },
   "repository": {
     "git_head": "57512ef0",
     "branch": "plan/ambient-agent-program"

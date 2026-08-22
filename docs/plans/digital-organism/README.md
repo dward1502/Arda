@@ -80,7 +80,7 @@ Stages do not run in parallel merely because their files differ. Later stages ma
 - [Current objective flow trace](../../audits/digital-organism-current-flow-trace.md) — actual selected-objective and research side-lineage correlation breaks.
 - [Authority and transport map](../../architecture/DIGITAL_ORGANISM_AUTHORITY_TRANSPORT_MAP.md) — canonical owners, identity namespaces, transport stack, execution lifetimes, projection rules, and migration-gated retirement decisions.
 
-The map is active architecture authority. Stage 1 remains operator-gated until its ownership and retirement decisions are explicitly accepted.
+The map is active architecture authority. The operator explicitly accepted its ownership and migration-gated retirement decisions on 2026-08-21, opening Stage 1 contract implementation. Task 4's manifest is `running` and its Vairë context contract is `root-composed`; [the implementation receipt](../../../.hermes/evidence/digital-organism/organism-contracts.json) holds exact tests and runtime proof. Task 5 context assembly is next. Individual retirements and consequential actions remain separately gated.
 
 ## Shared contracts to converge
 

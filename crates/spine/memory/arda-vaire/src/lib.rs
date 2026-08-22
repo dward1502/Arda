@@ -18,5 +18,9 @@ pub use service::{
     governed::{
         ApprovedKnowledgeDelta, GovernedKnowledgeReceipt, GOVERNED_KNOWLEDGE_SCHEMA_VERSION,
     },
+    organism_context::{
+        ContextConsumer, ContextFailure, ContextLineage, ContextObjective, ContextReturnContract,
+        OrganismContext, OrganismContextError,
+    },
     InformantEvent, MnemosyneService,
 };

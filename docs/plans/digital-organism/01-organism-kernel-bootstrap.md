@@ -45,6 +45,10 @@ The capsule must include only:
 
 It must exclude raw unrelated memory, credentials, broad transcripts, and hidden reasoning.
 
+**Task 4 verified state:** The manifest is `running`: Core owns `arda.organism-manifest.v1`, the canonical service loads `config/organism.toml`, and the authenticated root endpoint projects it read-only. The context contract is `root-composed`: Vairë owns `arda.organism-context.v1`, and its lineage, expiry, privacy/egress, role, capability, acceptance, and return-receipt validators compile into the root runtime. [Implementation and runtime evidence](../../../.hermes/evidence/digital-organism/organism-contracts.json)
+
+Context assembly, Hermes capsule injection, fresh-worker task proof, memory-use receipts, and restart continuation remain held for Task 5; Task 4 does not claim them.
+
 ### S1.3 — Produce capsules through Vairë policy
 
 Add a context assembly/query path that resolves current-only records, explicit corrections/revocations, personal/business/system scope, freshness, and use receipts. Do not create a new context database.

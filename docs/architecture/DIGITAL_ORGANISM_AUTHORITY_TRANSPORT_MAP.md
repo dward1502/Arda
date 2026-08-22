@@ -25,7 +25,7 @@ Machine map: `../../.hermes/evidence/digital-organism/authority-transport-map.js
 
 This document is the active Stage 0 architecture decision for authority and transport ownership. It removes ambiguous duplicate canonical owners from the proposed Digital Organism architecture. It does not claim the successor contracts or migrations are implemented.
 
-No registry, router, world file, service, or projection is deleted by this decision. Stage 1 implementation remains operator-gated until the operator accepts this map and the documented retirement successors.
+No registry, router, world file, service, or projection is deleted by this decision. The operator explicitly accepted this map and the documented migration-gated retirement successors on 2026-08-21. That decision opens Stage 1 contract implementation; it does not authorize any retirement, deletion, account, payment, external publication, or physical action.
 
 ## Core distinction
 

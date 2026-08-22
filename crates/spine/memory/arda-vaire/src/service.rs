@@ -14,6 +14,7 @@ use std::time::Duration as StdDuration;
 pub mod continuity;
 pub mod governance;
 pub mod governed;
+pub mod organism_context;
 mod persona_derive;
 mod promotion;
 pub mod retention;

@@ -1,12 +1,13 @@
 # Arda Product Plan Suite
 
 **Status:** Active portfolio index<br>
-**Updated:** 2026-08-20<br>
+**Updated:** 2026-08-21<br>
 **Current release baseline:** [Arda 0.9 Baseline](../releases/0.9/BASELINE.md)<br>
 **Completed improvement record:** [Arda 0.9 Baseline and Improvement Plan](../archive/2026-08-12-arda-0.9-baseline-and-improvement-plan.md)<br>
 **Product doctrine:** [Arda Personal Agent Ecosystem](../architecture/ARDA_1_0_PERSONAL_AGENT_ECOSYSTEM.md)<br>
-**Active core repair:** [Core Arda Usefulness Repair](CORE_ARDA_USEFULNESS_REPAIR.md)<br>
-**Planning program on hold:** [Arda Ambient Agent Program](ambient-agent/README.md)
+**Active cohesion program:** [Arda Digital Organism Program](digital-organism/README.md)<br>
+**Active operator-path evidence:** [Core Arda Usefulness Repair](CORE_ARDA_USEFULNESS_REPAIR.md)<br>
+**Downstream embodiment program on hold:** [Arda Ambient Agent Program](ambient-agent/README.md)
 
 ## Product decision
 
@@ -22,13 +23,29 @@ decision.
 ## Active planning authority
 
 `docs/plans/` contains this portfolio index, the active
-[Core Arda Usefulness Repair](CORE_ARDA_USEFULNESS_REPAIR.md), and the segmented
-[`ambient-agent/`](ambient-agent/README.md) program held behind it. The finite 0.9 improvement
-plan completed its defect, dependency, documentation, measurement, and honest
+[Digital Organism Program](digital-organism/README.md), the
+[Core Arda Usefulness Repair](CORE_ARDA_USEFULNESS_REPAIR.md) operator-path
+evidence track, and the downstream [`ambient-agent/`](ambient-agent/README.md)
+program held behind a proven living mesh. The finite 0.9 improvement plan
+completed its defect, dependency, documentation, measurement, and honest
 Personal Operations disposition work and is retained under `docs/archive/`.
-Further 0.9 implementation remains defect-driven. The ambient-agent program is
-planning-only until the operator accepts core Arda capture, next-action, context,
-Personal Operations, research, review, and restart workflows as useful.
+Further 0.9 implementation remains defect-driven. Digital-organism stages must
+compose existing authorities into one objective → node placement → A2A work →
+recovery → memory → outcome loop before embodiment work resumes.
+
+## Digital-organism stages
+
+| Stage | Plan authority | Required proof |
+|---:|---|---|
+| 0 | [Foundation salvage and alignment](digital-organism/00-foundation-salvage-alignment.md) | source-backed reuse/adapt/archive and actual-vs-intended flow map |
+| 1 | [Organism kernel and bootstrap](digital-organism/01-organism-kernel-bootstrap.md) | bounded context capsule survives session/model/restart changes |
+| 2 | [Node mesh and A2A](digital-organism/02-node-mesh-and-a2a.md) | two real nodes discover capability and exchange correlated work over standard A2A |
+| 3 | [Adaptive cognition and placement](digital-organism/03-adaptive-cognition-and-placement.md) | role-based work moves between capability/resource profiles without workflow rewrites |
+| 4 | [Memory, learning, and context](digital-organism/04-memory-learning-and-context.md) | cross-node continuation and memory-use receipts honor correction/revocation |
+| 5 | [Homeostasis, governance, and recovery](digital-organism/05-homeostasis-governance-and-recovery.md) | real failure is reconciled and eligible work is safely reassigned |
+| 6 | [Arandur/CEO orchestration](digital-organism/06-arandur-ceo-orchestration.md) | one canonical review → record → plan → execute → assess organism cycle |
+| 7 | [Living mesh proof](digital-organism/07-living-mesh-proof.md) | operator-accepted objective crosses heterogeneous roles/nodes and survives failure/restart |
+| 8 | [Hardware portability and embodiment](digital-organism/08-hardware-portability-and-embodiment.md) | stronger/specialized node improves placement without semantic rewrites |
 
 Completed Stage 5, system-unification, and HUD convergence plans are historical
 records under `docs/archive/`. The older ecosystem convergence plan and Stage 6

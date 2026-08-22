@@ -17,7 +17,7 @@ soterion:
 
 Arda's core operator relationship and daily workflows are not accepted as useful. Mirromere, presence hardware, RELIC, printers, and commercialization cannot repair that by adding more surfaces or infrastructure.
 
-Until the operator accepts core Arda, this directory is planning authority only. Do not start implementation, launch applications, activate sensors, purchase/connect hardware, delegate coding packets, or call a phase complete from tests or technical evidence.
+Until the operator accepts the Digital Organism Program’s living-mesh proof and the required core operator path, this directory is planning authority only. Do not start implementation, launch applications, activate sensors, purchase/connect hardware, delegate coding packets, or call a phase complete from tests or technical evidence.
 
 ## What Arda is supposed to become
 
@@ -32,7 +32,7 @@ Arda extends the Hermes relationship into a dependable personal system that:
 - survives session, model, surface, and restart changes;
 - eventually appears through embodied outposts without creating parallel memories, policies, tasks, or runtimes.
 
-Hermes remains the primary conversational and tool runtime. Arda provides durable continuity, memory policy, research governance, task/commitment structure, approvals, receipts, and physical/digital capability boundaries.
+Hermes remains the primary conversational and worker runtime. The active [Digital Organism Program](../digital-organism/README.md) owns cohesion across organism identity, node topology, capability placement, A2A work, continuity, homeostasis, recovery, and Arandur orchestration. This ambient program begins only after that mesh is real and useful; it projects the same authorities into embodiment rather than creating another runtime.
 
 ## Core-Arda prerequisite
 

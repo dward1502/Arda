@@ -41,10 +41,20 @@ boundary no longer limits the meaning of Arda 1.0.
 
 ## Executive definition
 
-**Arda is a local-first, phone-accessible, governed personal agent ecosystem
-that helps an individual organize life, coordinate work, use hosted and local
-models, operate external projects, integrate useful systems, and act
-proactively without taking unearned authority.**
+**Arda is a local-first, phone-accessible, governed digital organism and
+personal agent ecosystem that composes small and medium software or hardware
+nodes into one coherent adaptive system. It helps an individual organize life,
+coordinate work, use hosted and local models, operate external projects,
+integrate useful systems, and act proactively without taking unearned
+authority.**
+
+Hermes instances, profiles, subagents, model workers, and future specialized
+hardware are cognitive cells or organs within that system, not competing
+product identities. Arda owns the organism-level continuity: stable identity,
+node topology, semantic capability requirements, placement policy, collective
+memory, homeostasis, authority, recovery, and cross-node receipts. Standard
+Hermes A2A/MCP/API transports should carry those contracts rather than being
+reimplemented as proprietary wires.
 
 Arda should reduce the operator's cognitive and administrative burden while
 preserving sovereignty, privacy, inspectability, and the ability to stop,

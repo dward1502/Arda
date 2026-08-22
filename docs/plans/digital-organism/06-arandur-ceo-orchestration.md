@@ -1,0 +1,74 @@
+---
+soterion:
+  sigil: "SCROLL"
+  glyph: "📜"
+  code_point: "U+1F4DC"
+  role: "implementation_plan"
+  owner: "PROMETHEUS"
+  status: "active"
+  reviewed: "2026-08-21"
+---
+
+> 🜏 Soterion: 📜 implementation_plan | owner: PROMETHEUS | status: active | reviewed: 2026-08-21
+
+# Stage 6 — Arandur/CEO Unified Orchestration
+
+## Objective
+
+Turn the existing Prometheus/Arandur planner, council, queue analysis, proposal, observability, and review surfaces into one bounded organism-level executive loop instead of a detached autopilot subsystem.
+
+## Role definition
+
+Arandur is the organism’s executive/orchestrator persona and policy consumer. It does not own conversation, memory, task storage, model routing, transport, evidence, governance, or execution. It reads their canonical projections, proposes the smallest composition, watches receipts, reassesses outcomes, and asks the operator when judgment or authority is required.
+
+## Work packets
+
+### S6.1 — Audit and collapse current CEO surfaces
+
+Trace `arda-aule` CEO/autopilot modules, Prometheus service/library code, Arandur recommendation ledgers, HUD review commands, timers, queue analyzer, council, heartbeat, orders, planner, and archived wrapper decisions. Classify duplicate/stale paths before changing code.
+
+### S6.2 — Define one executive cycle
+
+```text
+observe current organism state
+  → recover active objective/context
+  → identify one meaningful gap or next action
+  → compose the smallest capable roles
+  → governance and resource assessment
+  → propose or dispatch through existing authority
+  → monitor receipts and failures
+  → assess acceptance conditions
+  → emit operator update and learning candidate
+```
+
+The cycle must be restart-safe and idempotent.
+
+### S6.3 — Use canonical topology and placement
+
+Arandur requests roles/capabilities; it does not select raw endpoints or hard-code models. Manwë/node placement returns a receipted decision. Arandur may challenge or request review but cannot bypass it.
+
+### S6.4 — Integrate council/MoA deliberately
+
+Council policy is disabled by default. Use critic-only for named risk, adjudication for material unresolved tension, and full deliberation only for explicitly approved cases. Persist opinions and tensions as advisory evidence. Discussion never marks a task approved.
+
+### S6.5 — Unify operator interaction
+
+Hermes carries the live conversation. Arda/HUD presents the same recommendation ID, reason, evidence, resource impact, authority class, proposed workers/nodes, and approve/reject/defer controls. Decisions append to one recommendation/approval lineage.
+
+### S6.6 — Prove assess-and-replan
+
+Run one objective whose first composition encounters a real failed assumption. Arandur must cite the failure receipt, revise the plan within existing authority, avoid repeating failed work blindly, and present the revised next action.
+
+## Verification
+
+- no duplicate CEO/queue/recommendation authority;
+- read-only cycle creates no task/commitment;
+- reviewed cycle appends one canonical decision;
+- restart/idempotency fixture;
+- bounded council and resource budgets;
+- failed assumption triggers evidence-backed replan;
+- operator can understand and stop the cycle.
+
+## Exit gate
+
+Arandur completes one full `review → record → plan → execute → assess` organism cycle through canonical authorities, with node/worker placement and recovery receipts visible through Hermes and the HUD. The operator confirms the behavior reflects the intended executive role.

@@ -1,0 +1,8 @@
+{
+  "id": "hologram_presence_cortana",
+  "domain": "hologram",
+  "scene_binding": "presence_form",
+  "material_family": "hologram_presence",
+  "source": "tools/blender/build_presence_cortana.py",
+  "license": "Internal"
+}

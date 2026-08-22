@@ -15,13 +15,15 @@ describe('boardroom operator composition', () => {
     expect(BOARDROOM_CAMERA_COMPOSITION.target[1]).toBeGreaterThanOrEqual(2)
   })
 
-  it('enlarges the center emitter by a bounded amount beneath the center monitor', () => {
+  it('keeps the emitter a desk-scaled puck beneath the center monitor', () => {
     const emitter = getBoardroomSpatialZone('boardroom.avatar.emitter')!
     const centerMonitor = getBoardroomSpatialZone('boardroom.monitor.center')!
     const geometry = deriveAvatarEmitterGeometry(emitter.size)
 
-    expect(emitter.size[0]).toBeGreaterThanOrEqual(1.16 * 1.2)
-    expect(emitter.size[0]).toBeLessThanOrEqual(1.16 * 1.3)
+    // Emitter is intentionally smaller than the desk consoles (visual pass
+    // 2026-08-22): reads as a projector puck, not a stage.
+    expect(emitter.size[0]).toBeGreaterThanOrEqual(0.8)
+    expect(emitter.size[0]).toBeLessThanOrEqual(1.0)
     expect(geometry.ringRadius).toBeLessThan(emitter.size[0] / 2)
     expect(geometry.baseBottomRadius).toBeLessThan(geometry.ringRadius * 1.1)
     expect(emitter.position[0]).toBe(centerMonitor.position[0])

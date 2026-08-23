@@ -1,0 +1,136 @@
+{
+  "schema_version": "arda.digital-organism.stage5-fleet-probe.v1",
+  "observed_at": "2026-08-22T17:28:03-07:00",
+  "source": "config/fleet.toml",
+  "claim_limit": "Direct health and models GET probes establish configured endpoint state; they do not establish successful minimal inference.",
+  "nodes": [
+    {
+      "node_id": "node-core-hub",
+      "enrollment_status": "active",
+      "health_url": "http://100.78.138.113:9337/v1/models",
+      "models_url": "http://100.78.138.113:9337/v1/models",
+      "direct_probes": {
+        "health_url": {
+          "reachable": true,
+          "http_status": 200,
+          "json": true,
+          "body_bytes": 586
+        },
+        "models_url": {
+          "reachable": true,
+          "http_status": 200,
+          "json": true,
+          "body_bytes": 586
+        }
+      },
+      "classification": "listener_and_models_ready"
+    },
+    {
+      "node_id": "node-pi5-warden",
+      "enrollment_status": "active",
+      "health_url": "http://100.110.85.37:1234/health",
+      "models_url": "http://100.110.85.37:1234/v1/models",
+      "direct_probes": {
+        "health_url": {
+          "reachable": true,
+          "http_status": 200,
+          "json": true,
+          "body_bytes": 15
+        },
+        "models_url": {
+          "reachable": true,
+          "http_status": 200,
+          "json": true,
+          "body_bytes": 582
+        }
+      },
+      "classification": "listener_and_models_ready"
+    },
+    {
+      "node_id": "node-ser9-worker",
+      "enrollment_status": "active",
+      "health_url": "http://100.103.125.88:9337/v1/models",
+      "models_url": "http://100.103.125.88:9337/v1/models",
+      "direct_probes": {
+        "health_url": {
+          "reachable": true,
+          "http_status": 200,
+          "json": true,
+          "body_bytes": 619
+        },
+        "models_url": {
+          "reachable": true,
+          "http_status": 200,
+          "json": true,
+          "body_bytes": 619
+        }
+      },
+      "classification": "listener_and_models_ready"
+    },
+    {
+      "node_id": "node-ser9-carnice",
+      "enrollment_status": "offline",
+      "health_url": "http://100.103.125.88:1234/health",
+      "models_url": "http://100.103.125.88:1234/v1/models",
+      "classification": "intentional_offline"
+    },
+    {
+      "node_id": "node-laptop",
+      "enrollment_status": "offline",
+      "health_url": "http://100.97.15.88:1234/health",
+      "models_url": "http://100.97.15.88:1234/v1/models",
+      "classification": "intentional_offline"
+    },
+    {
+      "node_id": "node-backbone-server",
+      "enrollment_status": "active",
+      "health_url": "http://100.102.250.115:8097/health",
+      "models_url": "http://100.102.250.115:8097/v1/models",
+      "direct_probes": {
+        "health_url": {
+          "reachable": false,
+          "reason": "URLError"
+        },
+        "models_url": {
+          "reachable": false,
+          "reason": "URLError"
+        }
+      },
+      "classification": "unreachable"
+    },
+    {
+      "node_id": "node-backbone-coder",
+      "enrollment_status": "active",
+      "health_url": "http://100.102.250.115:8098/health",
+      "models_url": "http://100.102.250.115:8098/v1/models",
+      "direct_probes": {
+        "health_url": {
+          "reachable": false,
+          "reason": "URLError"
+        },
+        "models_url": {
+          "reachable": false,
+          "reason": "URLError"
+        }
+      },
+      "classification": "unreachable"
+    },
+    {
+      "node_id": "node-pi5-citadel-avatar",
+      "enrollment_status": "active",
+      "health_url": "http://100.119.130.127:8091/",
+      "models_url": "",
+      "direct_probes": {
+        "health_url": {
+          "reachable": false,
+          "reason": "URLError"
+        },
+        "models_url": {
+          "reachable": null,
+          "reason": "not_configured"
+        }
+      },
+      "classification": "unreachable"
+    }
+  ]
+}

@@ -5,11 +5,11 @@ soterion:
   code_point: "U+1F4DC"
   role: "implementation_plan"
   owner: "HADES"
-  status: "active"
-  reviewed: "2026-08-21"
+  status: "complete"
+  reviewed: "2026-08-22"
 ---
 
-> 🜏 Soterion: 📜 implementation_plan | owner: HADES | status: active | reviewed: 2026-08-21
+> 🜏 Soterion: 📜 implementation_plan | owner: HADES | status: complete | reviewed: 2026-08-22
 
 # Stage 5 — Homeostasis, Governance, and Recovery
 
@@ -56,3 +56,17 @@ Inject worker crash, node heartbeat expiry, model timeout, network partition, st
 ## Exit gate
 
 During a real multi-role run, one node/process is stopped. The organism preserves completed evidence, marks the interrupted attempt honestly, reassigns only eligible work, avoids duplicate mutation, completes or fails with a bounded explanation, and remains coherent after root/gateway restart.
+
+## Implemented and verified — 2026-08-22
+
+- `arda-engine::adapters::homeostasis` synthesizes explicit ready, degraded, intentional-offline, unobserved, unreachable, service-down, routing-drift, and unknown states from timestamped direct evidence. Missing or stale evidence never becomes optimistic readiness.
+- Conservation policy explicitly bounds concurrency, retries, elapsed time, context/output tokens, cost, CPU, GPU, RAM, thermal, power, network, storage, and operator attention. Exceeded limits deterministically continue, degrade, shed optional work, pause, request review, or stop.
+- Recovery reconciliation reads durable attempt state before action. Terminal evidence is preserved, uncertain non-idempotent external effects become `mark_unknown`, retry exhaustion stops, and reassignment requires a directly evidenced ready target whose tools, data, egress, and approval class do not widen authority.
+- Recovery decisions are append-only receipts keyed by stable recovery identity and full input digest. A fresh store instance returns byte-stable replay without a second ledger row; changed evidence under the same key fails as a conflict.
+- The Stage 5 fixture launches two real worker processes, kills the active worker, observes its terminal process state as `service_down`, reassigns eligible idempotent work to the still-running worker, reopens the durable store, and proves no duplicate mutation. It also covers terminal preservation, unknown side effects, stale heartbeat, intentional-offline state, resource conservation, and authority widening.
+- Direct probes against every endpoint in `config/fleet.toml` are recorded separately from the process fixture. At proof time: three configured nodes exposed successful health/models GET surfaces, three active nodes were unreachable, and two nodes were intentionally offline. This evidence does not overclaim successful minimal inference.
+
+Evidence:
+
+- `.hermes/evidence/digital-organism/stage5-homeostasis-recovery-receipt.json`
+- `.hermes/evidence/digital-organism/stage5-configured-fleet-probe.json`

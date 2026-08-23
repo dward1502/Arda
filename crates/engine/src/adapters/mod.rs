@@ -4,6 +4,7 @@ pub mod assimilation;
 pub mod catalog;
 mod company;
 mod hermes;
+pub mod homeostasis;
 mod jsonl;
 pub mod knowledge_delta;
 pub mod placement_learning;
@@ -22,6 +23,13 @@ pub use hermes::{
     CostMeasurement, HermesAdapter, HermesAdapterConfig, HermesAdapterError,
     HermesArtifactEvidence, HermesExecutionReceipt, HermesNodeTask, HermesReceiptStatus,
     HermesTestEvidence, HermesToolEvidence, HermesToolsets, NormalizedHermesUsage,
+};
+pub use homeostasis::{
+    evaluate_conservation, synthesize_health, AttemptState, AuthorityEnvelope,
+    ConservationDecision, ConservationDisposition, ConservationLimits, ConservationObservation,
+    DirectHealthEvidence, HomeostasisError, HomeostasisReceipt, HomeostasisStore,
+    InterruptedAttempt, OrganismHealth, OrganismHealthState, RecoveryDisposition, RecoveryRequest,
+    RecoveryTarget, HOMEOSTASIS_RECEIPT_SCHEMA_VERSION, ORGANISM_HEALTH_SCHEMA_VERSION,
 };
 pub use jsonl::JsonlAdapter;
 pub use knowledge_delta::{

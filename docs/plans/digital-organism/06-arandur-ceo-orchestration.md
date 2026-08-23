@@ -5,11 +5,11 @@ soterion:
   code_point: "U+1F4DC"
   role: "implementation_plan"
   owner: "PROMETHEUS"
-  status: "active"
-  reviewed: "2026-08-21"
+  status: "awaiting_operator_acceptance"
+  reviewed: "2026-08-22"
 ---
 
-> 🜏 Soterion: 📜 implementation_plan | owner: PROMETHEUS | status: active | reviewed: 2026-08-21
+> 🜏 Soterion: 📜 implementation_plan | owner: PROMETHEUS | status: awaiting_operator_acceptance | reviewed: 2026-08-22
 
 # Stage 6 — Arandur/CEO Unified Orchestration
 
@@ -72,3 +72,15 @@ Run one objective whose first composition encounters a real failed assumption. A
 ## Exit gate
 
 Arandur completes one full `review → record → plan → execute → assess` organism cycle through canonical authorities, with node/worker placement and recovery receipts visible through Hermes and the HUD. The operator confirms the behavior reflects the intended executive role.
+
+## Engineering evidence (2026-08-22)
+
+Implementation is complete and the plan remains open only for the explicit operator-acceptance gate above.
+
+- `arda.arandur.executive_cycle_receipt.v1` records one governed decision per stable `(cycle_id, phase)` key, rejects conflicting replays, and uses a cross-process lock plus append-only JSONL.
+- The receipt cites objective/context, recommendation, approval/governance, requested role capabilities, placement handoff, execution outcome, failure/replan, council mode, resource use, and operator-facing next actions without storing provider or node identities.
+- Prometheus/Aulë projects this receipt in the canonical `CycleReport`; a live read-only run reported `no_selected_objective`, performed no ledger append, and preserved the review gate.
+- The forced-failure fixture launches a real worker process, terminates it, records the direct process observation, replans using role/capability requests, reopens the store, and proves byte-stable replay with one durable ledger row.
+- Evidence: `.hermes/evidence/digital-organism/stage6-arandur-ceo-cycle-receipt.json` and `.hermes/evidence/digital-organism/stage6-read-only-cycle.json`.
+- Verification: 4 Stage 6 integration tests passed; 29 existing runner tests passed; `cargo build -p arda-aule --features full-cli` passed.
+- Truth boundary: source integration, focused tests, build, and a live read-only projection are proven. The installed timer remains read-only and currently holds all candidate objectives at their review gates; productive autonomous execution and operator acceptance are not claimed.

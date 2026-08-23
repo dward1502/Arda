@@ -1,0 +1,158 @@
+{
+  "claim_limit": "Real local process termination and durable replay prove this bounded executive-cycle contract; they do not prove deployed timer productivity or operator acceptance.",
+  "contract": "arda.digital-organism.stage6-proof.v1",
+  "cycle_receipt": {
+    "acceptance_receipt_refs": [],
+    "approval_packet_id": "operator-approval-stage6",
+    "context_receipt_ref": "data/mnemosyne/context/stage6.json#context-receipt",
+    "contract": "arda.arandur.executive_cycle_receipt.v1",
+    "council_mode": "disabled",
+    "cycle_id": "stage6-real-failure",
+    "disposition": "replanned",
+    "execution_observed": true,
+    "execution_performed_by_arandur": false,
+    "execution_receipt_refs": [
+      "data/runs/stage6/execution.json#attempt-1"
+    ],
+    "failure_receipt_ref": "/tmp/.tmpVDwo08/evidence/worker-failure.json",
+    "full_council_approval_ref": null,
+    "governance_receipt_ref": "data/governance/stage6.json#allow",
+    "input_digest": "sha256:87d29cc56aff8a61513b699858437de540ad134a43bacdba4bf6c503534e3b16",
+    "learning_candidate": "avoid composition sha256:4eba71ebee1868f849bfb7c35a8402106d56ce809be1e55c0a125c4a794b90b5 after failure /tmp/.tmpVDwo08/evidence/worker-failure.json; evaluate revised composition sha256:bee4e0ead90fb8f9ea9b3747609d6e24f9e709e57fe01cd8e82922ae7a0238a1",
+    "objective_id": "objective-stage6-proof",
+    "objective_source_ref": "core/projects/tasks/queue.jsonl#objective-stage6-proof",
+    "operator_can_stop": true,
+    "operator_update": "objective=objective-stage6-proof phase=Assess disposition=Replanned; failure receipt cited; revised action and non-repeating role composition proposed; next=request recovery assessment before retrying the interrupted observation",
+    "parent_receipt_id": null,
+    "phase": "assess",
+    "placement_performed_by_arandur": false,
+    "placement_receipt_refs": [
+      "/tmp/.tmpVDwo08/evidence/placement-receipt.json"
+    ],
+    "proposed_action": "observe worker and collect completion evidence",
+    "queue_handoff_allowed": true,
+    "queue_handoff_receipt_refs": [
+      "core/projects/tasks/queue.jsonl#handoff"
+    ],
+    "queue_mutation_performed_by_arandur": false,
+    "reason": "failure receipt cited; revised action and non-repeating role composition proposed",
+    "receipt_id": "arandur-cycle-sha256:0baedf9b6855e981c",
+    "recommendation_id": "arandur-stage6-recommendation",
+    "recorded_at_utc": "2026-08-23T06:31:49.789350168+00:00",
+    "requested_roles": [
+      {
+        "capabilities": [
+          "process_health",
+          "receipt_read"
+        ],
+        "role": "observer"
+      }
+    ],
+    "resource_budget": {
+      "max_council_opinions": 1,
+      "max_dispatches": 2,
+      "max_joules": 20.0,
+      "max_roles": 3,
+      "requested_council_opinions": 0,
+      "requested_joules": 4.0
+    },
+    "revised_action": "request recovery assessment before retrying the interrupted observation",
+    "revised_requested_roles": [
+      {
+        "capabilities": [
+          "process_health",
+          "receipt_read",
+          "recovery_assessment"
+        ],
+        "role": "recovery_observer"
+      }
+    ]
+  },
+  "durable_ledger_row": {
+    "acceptance_receipt_refs": [],
+    "approval_packet_id": "operator-approval-stage6",
+    "context_receipt_ref": "data/mnemosyne/context/stage6.json#context-receipt",
+    "contract": "arda.arandur.executive_cycle_receipt.v1",
+    "council_mode": "disabled",
+    "cycle_id": "stage6-real-failure",
+    "disposition": "replanned",
+    "execution_observed": true,
+    "execution_performed_by_arandur": false,
+    "execution_receipt_refs": [
+      "data/runs/stage6/execution.json#attempt-1"
+    ],
+    "failure_receipt_ref": "/tmp/.tmpVDwo08/evidence/worker-failure.json",
+    "full_council_approval_ref": null,
+    "governance_receipt_ref": "data/governance/stage6.json#allow",
+    "input_digest": "sha256:87d29cc56aff8a61513b699858437de540ad134a43bacdba4bf6c503534e3b16",
+    "learning_candidate": "avoid composition sha256:4eba71ebee1868f849bfb7c35a8402106d56ce809be1e55c0a125c4a794b90b5 after failure /tmp/.tmpVDwo08/evidence/worker-failure.json; evaluate revised composition sha256:bee4e0ead90fb8f9ea9b3747609d6e24f9e709e57fe01cd8e82922ae7a0238a1",
+    "objective_id": "objective-stage6-proof",
+    "objective_source_ref": "core/projects/tasks/queue.jsonl#objective-stage6-proof",
+    "operator_can_stop": true,
+    "operator_update": "objective=objective-stage6-proof phase=Assess disposition=Replanned; failure receipt cited; revised action and non-repeating role composition proposed; next=request recovery assessment before retrying the interrupted observation",
+    "parent_receipt_id": null,
+    "phase": "assess",
+    "placement_performed_by_arandur": false,
+    "placement_receipt_refs": [
+      "/tmp/.tmpVDwo08/evidence/placement-receipt.json"
+    ],
+    "proposed_action": "observe worker and collect completion evidence",
+    "queue_handoff_allowed": true,
+    "queue_handoff_receipt_refs": [
+      "core/projects/tasks/queue.jsonl#handoff"
+    ],
+    "queue_mutation_performed_by_arandur": false,
+    "reason": "failure receipt cited; revised action and non-repeating role composition proposed",
+    "receipt_id": "arandur-cycle-sha256:0baedf9b6855e981c",
+    "recommendation_id": "arandur-stage6-recommendation",
+    "recorded_at_utc": "2026-08-23T06:31:49.789350168+00:00",
+    "requested_roles": [
+      {
+        "capabilities": [
+          "process_health",
+          "receipt_read"
+        ],
+        "role": "observer"
+      }
+    ],
+    "resource_budget": {
+      "max_council_opinions": 1,
+      "max_dispatches": 2,
+      "max_joules": 20.0,
+      "max_roles": 3,
+      "requested_council_opinions": 0,
+      "requested_joules": 4.0
+    },
+    "revised_action": "request recovery assessment before retrying the interrupted observation",
+    "revised_requested_roles": [
+      {
+        "capabilities": [
+          "process_health",
+          "receipt_read",
+          "recovery_assessment"
+        ],
+        "role": "recovery_observer"
+      }
+    ]
+  },
+  "failure_observation": {
+    "contract": "arda.stage6.real_failure_receipt.v1",
+    "observed_state": "process_terminated",
+    "success": false,
+    "worker_pid": 2097649
+  },
+  "ledger_rows": 1,
+  "placement_observation": {
+    "capabilities": [
+      "process_health",
+      "receipt_read",
+      "recovery_assessment"
+    ],
+    "contract": "arda.manwe.placement_decision.v1",
+    "decision": "fixture_node_selected_by_placement_authority",
+    "requested_role": "recovery_observer"
+  },
+  "restart_replay_suppressed": true,
+  "worker_exit_success": false,
+  "worker_pid": 2097649
+}

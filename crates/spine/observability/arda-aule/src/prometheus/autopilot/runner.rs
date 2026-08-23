@@ -14,6 +14,11 @@ use super::dashboard::{build_snapshot, DashboardSnapshot};
 use super::decomposer::{Objective, ObjectiveDecomposer, PlannedTask, Priority};
 use super::delegation::{delegate_plan, AgentRegistry, DelegationReport};
 use super::evidence_registry::EvidenceRegistry;
+use super::executive_cycle::{
+    CouncilMode, ExecutiveCycleInput, ExecutiveCycleReceipt, ExecutiveCycleStore,
+    ExecutiveDisposition, ExecutivePhase, ExecutiveResourceBudget, RoleRequest,
+    EXECUTIVE_CYCLE_CONTRACT, EXECUTIVE_CYCLE_LEDGER,
+};
 use super::governance_policy::{GovernanceDecision, GovernanceGate, GovernancePolicy};
 use super::learning::LearningStore;
 use super::oracle_gate::{GateDecision, OracleGate};
@@ -130,9 +135,50 @@ pub struct CycleReport {
     pub hades_introspection: HadesIntrospectionProjection,
     pub sovereign_adapters: SovereignAdapterProjection,
     pub council_runtime: CouncilRuntimeProjection,
+    pub executive_cycle: ExecutiveCycleProjection,
     pub autonomy_readiness: AutonomyReadinessGateProjection,
     pub report_path: Option<String>,
     pub weekly_report_path: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ExecutiveCycleProjection {
+    pub contract: String,
+    pub status: String,
+    pub ledger_path: String,
+    pub receipt: Option<ExecutiveCycleReceipt>,
+    pub replayed: bool,
+    pub ledger_appended: bool,
+    pub placement_pending: bool,
+    pub error: Option<String>,
+}
+
+impl Default for ExecutiveCycleProjection {
+    fn default() -> Self {
+        Self {
+            contract: EXECUTIVE_CYCLE_CONTRACT.into(),
+            status: "not_evaluated".into(),
+            ledger_path: EXECUTIVE_CYCLE_LEDGER.into(),
+            receipt: None,
+            replayed: false,
+            ledger_appended: false,
+            placement_pending: false,
+            error: None,
+        }
+    }
+}
+
+impl ExecutiveCycleProjection {
+    fn no_action(root: &Path) -> Self {
+        Self {
+            status: "no_selected_objective".into(),
+            ledger_path: ExecutiveCycleStore::from_root(root)
+                .ledger_path()
+                .display()
+                .to_string(),
+            ..Self::default()
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -524,6 +570,120 @@ pub struct PlanCycle {
     pub a2h_emitted: bool,
     pub joule_limited: bool,
     pub pipeline_submitted: bool,
+}
+
+fn project_executive_cycle(
+    cfg: &AutopilotConfig,
+    selection: &ObjectiveSelectionReport,
+    plans: &[PlanCycle],
+) -> ExecutiveCycleProjection {
+    let Some(objective_id) = selection.selected_objective_id.as_deref() else {
+        return ExecutiveCycleProjection::no_action(&cfg.root);
+    };
+    let Some(plan) = plans.iter().find(|plan| plan.objective_id == objective_id) else {
+        return ExecutiveCycleProjection {
+            status: "selected_objective_has_no_plan".into(),
+            error: Some("no plan cycle matched the selected objective".into()),
+            ..ExecutiveCycleProjection::no_action(&cfg.root)
+        };
+    };
+    let selected_candidate = selection.candidates.iter().find(|candidate| {
+        candidate.candidate_id == objective_id || candidate.source_record_id == objective_id
+    });
+    let objective_source_ref = selected_candidate
+        .map(|candidate| format!("{}#{}", candidate.source_path, candidate.source_record_id))
+        .unwrap_or_else(|| format!("{}#{}", cfg.queue_path.display(), objective_id));
+    let queue_operation = plan.queue_operation.as_ref();
+    let cycle_id = queue_operation
+        .map(|operation| operation.source_objective_packet_id.clone())
+        .unwrap_or_else(|| format!("objective:{objective_id}"));
+    let recommendation_id = selection
+        .next_automation_gate_packet
+        .as_ref()
+        .map(|packet| packet.recommendation_id.clone())
+        .or_else(|| queue_operation.map(|operation| operation.source_objective_packet_id.clone()))
+        .unwrap_or_else(|| format!("recommendation:{objective_id}"));
+    let queue_handoff_receipt_refs = queue_operation
+        .filter(|operation| operation.result_status == QueueOperationStatus::Appended)
+        .map(|operation| vec![operation.operation_id.clone()])
+        .unwrap_or_default();
+    let requested_roles = plan
+        .plan
+        .iter()
+        .map(|task| RoleRequest {
+            role: task
+                .assigned_agent
+                .clone()
+                .unwrap_or_else(|| task.task_type.clone()),
+            capabilities: vec![task.task_type.clone()],
+        })
+        .collect::<Vec<_>>();
+    let input = ExecutiveCycleInput {
+        cycle_id,
+        phase: if queue_handoff_receipt_refs.is_empty() {
+            ExecutivePhase::Plan
+        } else {
+            ExecutivePhase::Execute
+        },
+        objective_id: objective_id.into(),
+        objective_source_ref,
+        context_receipt_ref: format!(
+            "{}#/objective_selection/objective_packet_report",
+            cfg.state_path.display()
+        ),
+        recommendation_id,
+        approval_packet_id: queue_operation
+            .and_then(|operation| operation.approval_packet_id.clone()),
+        proposed_action: selection.next_recommended_action.clone(),
+        requested_roles,
+        governance_receipt_ref: queue_operation
+            .filter(|operation| operation.mutation_authorized)
+            .map(|operation| format!("{}#governance", operation.operation_id)),
+        placement_receipt_refs: Vec::new(),
+        queue_handoff_receipt_refs,
+        execution_receipt_refs: Vec::new(),
+        failure_receipt_ref: None,
+        revised_action: None,
+        revised_requested_roles: Vec::new(),
+        acceptance_receipt_refs: Vec::new(),
+        council_mode: CouncilMode::Disabled,
+        full_council_approval_ref: None,
+        resource_budget: ExecutiveResourceBudget {
+            max_roles: cfg.max_per_agent,
+            max_dispatches: cfg.apollo_max_attempts.max(1) as usize * plan.plan.len().max(1),
+            max_joules: cfg.joule_cycle_limit,
+            requested_joules: plan.plan.iter().map(|task| task.joule_cost).sum(),
+            max_council_opinions: 1,
+            requested_council_opinions: 0,
+        },
+        operator_stop_requested: false,
+        read_only: cfg.read_only,
+        parent_receipt_id: None,
+    };
+    let store = ExecutiveCycleStore::from_root(&cfg.root);
+    match store.evaluate(input, Utc::now()) {
+        Ok(result) => ExecutiveCycleProjection {
+            contract: EXECUTIVE_CYCLE_CONTRACT.into(),
+            status: format!("{:?}", result.receipt.disposition).to_lowercase(),
+            ledger_path: store.ledger_path().display().to_string(),
+            placement_pending: result.receipt.disposition == ExecutiveDisposition::HandedOff
+                && result.receipt.placement_receipt_refs.is_empty(),
+            receipt: Some(result.receipt),
+            replayed: result.replayed,
+            ledger_appended: result.ledger_appended,
+            error: None,
+        },
+        Err(error) => ExecutiveCycleProjection {
+            contract: EXECUTIVE_CYCLE_CONTRACT.into(),
+            status: "error".into(),
+            ledger_path: store.ledger_path().display().to_string(),
+            receipt: None,
+            replayed: false,
+            ledger_appended: false,
+            placement_pending: false,
+            error: Some(error.to_string()),
+        },
+    }
 }
 
 pub struct CeoAutopilot {
@@ -1575,6 +1735,7 @@ impl CeoAutopilot {
             &objective_selection,
             &plans,
         );
+        let executive_cycle = project_executive_cycle(&self.cfg, &objective_selection, &plans);
 
         let mut report = CycleReport {
             timestamp: Utc::now().to_rfc3339(),
@@ -1589,6 +1750,7 @@ impl CeoAutopilot {
             hades_introspection,
             sovereign_adapters,
             council_runtime,
+            executive_cycle,
             autonomy_readiness,
             report_path: None,
             weekly_report_path: None,
@@ -3211,6 +3373,23 @@ default_policy = "ledger_before_task"
             !pc.apollo_dispatches.is_empty(),
             "operational tasks should dispatch through Apollo"
         );
+        let executive = report
+            .executive_cycle
+            .receipt
+            .as_ref()
+            .expect("approved cycle should emit an executive receipt");
+        assert_eq!(executive.disposition, ExecutiveDisposition::HandedOff);
+        assert!(!executive.queue_mutation_performed_by_arandur);
+        assert!(!executive.placement_performed_by_arandur);
+        assert!(!executive.execution_performed_by_arandur);
+        assert!(report.executive_cycle.placement_pending);
+        assert_eq!(
+            std::fs::read_to_string(&report.executive_cycle.ledger_path)
+                .unwrap()
+                .lines()
+                .count(),
+            1
+        );
 
         let inbox = std::fs::read_to_string(&cfg.objectives_path).unwrap();
         assert!(inbox.trim().is_empty());
@@ -3242,6 +3421,18 @@ default_policy = "ledger_before_task"
         let report = auto.run_cycle().await;
         assert!(report.plans[0].apollo_dispatches.is_empty());
         assert!(!report.plans[0].a2h_emitted);
+        assert_eq!(
+            report
+                .executive_cycle
+                .receipt
+                .as_ref()
+                .map(|receipt| receipt.disposition),
+            Some(ExecutiveDisposition::ObservedReadOnly)
+        );
+        assert!(!report.executive_cycle.ledger_appended);
+        assert!(!ExecutiveCycleStore::from_root(dir.path())
+            .ledger_path()
+            .exists());
         assert!(!cfg.a2h_path.exists());
         assert_eq!(report.outcomes_ingested, 0);
         assert!(!cfg.outcome_cursor_path.exists());

@@ -11,6 +11,7 @@ pub mod decomposer;
 pub mod delegation;
 pub mod evidence_registry;
 pub mod execution_outcome;
+pub mod executive_cycle;
 pub mod governance_policy;
 pub mod knowledge_triage;
 pub mod learning;
@@ -49,6 +50,11 @@ pub use delegation::{
 pub use evidence_registry::{EvidenceRecord, EvidenceRegistry, EVIDENCE_REGISTRY_CONTRACT};
 pub use execution_outcome::{
     project_terminal_outcome, ExecutionOutcomeProjectionReceipt, EXECUTION_OUTCOME_CONTRACT,
+};
+pub use executive_cycle::{
+    CouncilMode, ExecutiveCycleError, ExecutiveCycleInput, ExecutiveCycleReceipt,
+    ExecutiveCycleResult, ExecutiveCycleStore, ExecutiveDisposition, ExecutivePhase,
+    ExecutiveResourceBudget, RoleRequest, EXECUTIVE_CYCLE_CONTRACT, EXECUTIVE_CYCLE_LEDGER,
 };
 pub use knowledge_triage::{
     classify_knowledge_source, execute_knowledge_task_queue, promote_knowledge_tasks,

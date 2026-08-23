@@ -5,11 +5,11 @@ soterion:
   code_point: "U+1F4DC"
   role: "implementation_plan"
   owner: "PROMETHEUS"
-  status: "awaiting_operator_acceptance"
-  reviewed: "2026-08-22"
+  status: "complete"
+  reviewed: "2026-08-23"
 ---
 
-> 🜏 Soterion: 📜 implementation_plan | owner: PROMETHEUS | status: awaiting_operator_acceptance | reviewed: 2026-08-22
+> 🜏 Soterion: 📜 implementation_plan | owner: PROMETHEUS | status: complete | reviewed: 2026-08-23
 
 # Stage 6 — Arandur/CEO Unified Orchestration
 
@@ -75,7 +75,7 @@ Arandur completes one full `review → record → plan → execute → assess` o
 
 ## Engineering evidence (2026-08-22)
 
-Implementation is complete and the plan remains open only for the explicit operator-acceptance gate above.
+Implementation is complete and the explicit operator-acceptance gate was satisfied on 2026-08-23.
 
 - `arda.arandur.executive_cycle_receipt.v1` records one governed decision per stable `(cycle_id, phase)` key, rejects conflicting replays, and uses a cross-process lock plus append-only JSONL.
 - The receipt cites objective/context, recommendation, approval/governance, requested role capabilities, placement handoff, execution outcome, failure/replan, council mode, resource use, and operator-facing next actions without storing provider or node identities.
@@ -83,4 +83,5 @@ Implementation is complete and the plan remains open only for the explicit opera
 - The forced-failure fixture launches a real worker process, terminates it, records the direct process observation, replans using role/capability requests, reopens the store, and proves byte-stable replay with one durable ledger row.
 - Evidence: `.hermes/evidence/digital-organism/stage6-arandur-ceo-cycle-receipt.json` and `.hermes/evidence/digital-organism/stage6-read-only-cycle.json`.
 - Verification: 4 Stage 6 integration tests passed; 29 existing runner tests passed; `cargo build -p arda-aule --features full-cli` passed.
-- Truth boundary: source integration, focused tests, build, and a live read-only projection are proven. The installed timer remains read-only and currently holds all candidate objectives at their review gates; productive autonomous execution and operator acceptance are not claimed.
+- Operator acceptance: the operator explicitly approved the bounded executive behavior after reviewing the implementation and evidence summary.
+- Truth boundary: source integration, focused tests, build, a live read-only projection, and operator acceptance are proven. The installed timer remains read-only and currently holds all candidate objectives at their review gates; productive autonomous execution is not claimed.

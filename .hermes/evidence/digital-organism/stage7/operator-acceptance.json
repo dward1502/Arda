@@ -1,0 +1,24 @@
+{
+  "schema_version": "arda.stage7.operator-acceptance.v1",
+  "objective_id": "objective:digital-organism-s7-living-mesh-proof",
+  "run_id": "stage7-living-mesh-20260823",
+  "accepted_at_utc": "2026-08-25T06:30:00Z",
+  "operator_utterance": "Yes — accept Stage 7 and mark it complete",
+  "acceptance_basis": [
+    ".hermes/evidence/digital-organism/stage7/live-placement.json",
+    ".hermes/evidence/digital-organism/stage7/a2a-handoff.json",
+    ".hermes/evidence/digital-organism/stage7/failure-reassignment.json",
+    ".hermes/evidence/digital-organism/stage7/continuation-restart.json",
+    ".hermes/evidence/digital-organism/stage7/live-hermes-continuity.json",
+    ".hermes/evidence/digital-organism/stage7/varda-contradiction.json",
+    ".hermes/evidence/digital-organism/stage7/workbench-receipt.json",
+    ".hermes/evidence/digital-organism/stage7/queue-executor-wedge-repair.json",
+    "data/runs/stage7-living-mesh-20260823/"
+  ],
+  "canonical_task": {
+    "id": "digital-organism-s7-living-mesh-proof",
+    "status": "completed",
+    "completed_at_utc": "2026-08-25T06:23:24.015140249+00:00"
+  },
+  "note": "Operator acceptance recorded in operator session on 2026-08-25; Stage 8 (hardware portability and embodiment) gate is now open."
+}

@@ -5,11 +5,11 @@ soterion:
   code_point: "U+1F4DC"
   role: "acceptance_plan"
   owner: "ARANDUR"
-  status: "active"
-  reviewed: "2026-08-21"
+  status: "complete"
+  reviewed: "2026-08-25"
 ---
 
-> 🜏 Soterion: 📜 acceptance_plan | owner: ARANDUR | status: active | reviewed: 2026-08-21
+> 🜏 Soterion: 📜 acceptance_plan | owner: ARANDUR | status: complete | reviewed: 2026-08-25
 
 # Stage 7 — Living Mesh Vertical Proof
 

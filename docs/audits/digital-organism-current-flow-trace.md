@@ -15,7 +15,7 @@ soterion:
 
 Task: `digital-organism-s0-current-flow-trace`
 
-Program: [`../plans/digital-organism/README.md`](../plans/digital-organism/README.md)
+Program (archived): [`../archive/digital-organism/README.md`](../archive/digital-organism/README.md)
 
 Foundation matrix: [`digital-organism-foundation-matrix.md`](digital-organism-foundation-matrix.md)
 

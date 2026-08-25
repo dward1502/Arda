@@ -32,7 +32,7 @@ Arda extends the Hermes relationship into a dependable personal system that:
 - survives session, model, surface, and restart changes;
 - eventually appears through embodied outposts without creating parallel memories, policies, tasks, or runtimes.
 
-Hermes remains the primary conversational and worker runtime. The active [Digital Organism Program](../digital-organism/README.md) owns cohesion across organism identity, node topology, capability placement, A2A work, continuity, homeostasis, recovery, and Arandur orchestration. This ambient program begins only after that mesh is real and useful; it projects the same authorities into embodiment rather than creating another runtime.
+Hermes remains the primary conversational and worker runtime. The completed [Digital Organism Program](../../archive/digital-organism/README.md) (archived; closeout [synopsis](../../archive/digital-organism/SYNOPSIS.md)) owns cohesion across organism identity, node topology, capability placement, A2A work, continuity, homeostasis, recovery, and Arandur orchestration. This ambient program begins only after that mesh is real and repeatedly useful; it projects the same authorities into embodiment rather than creating another runtime.
 
 ## Core-Arda prerequisite
 

@@ -13,7 +13,7 @@ soterion:
 
 # Digital Organism Authority and Transport Map
 
-Program: [`../plans/digital-organism/README.md`](../plans/digital-organism/README.md)
+Program (archived): [`../../archive/digital-organism/README.md`](../../archive/digital-organism/README.md)
 
 Foundation evidence: [`../audits/digital-organism-foundation-matrix.md`](../audits/digital-organism-foundation-matrix.md)
 

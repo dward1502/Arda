@@ -15,7 +15,7 @@ soterion:
 
 Task: `digital-organism-s0-foundation-matrix`
 
-Program: [`../plans/digital-organism/README.md`](../plans/digital-organism/README.md)
+Program (archived): [`../archive/digital-organism/README.md`](../archive/digital-organism/README.md)
 
 Machine sidecar: `../../.hermes/evidence/digital-organism/foundation-matrix.json`
 

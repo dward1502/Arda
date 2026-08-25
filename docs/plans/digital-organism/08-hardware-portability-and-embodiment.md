@@ -5,13 +5,22 @@ soterion:
   code_point: "U+1F4DC"
   role: "implementation_plan"
   owner: "AULE"
-  status: "active"
-  reviewed: "2026-08-21"
+  status: "complete"
+  reviewed: "2026-08-25"
 ---
 
-> 🜏 Soterion: 📜 implementation_plan | owner: AULE | status: active | reviewed: 2026-08-21
+> 🜏 Soterion: 📜 implementation_plan | owner: AULE | status: complete | reviewed: 2026-08-25
 
 # Stage 8 — Hardware Portability and Embodiment
+
+> Completion note (2026-08-25): read-only portability scope proven live —
+> portable enrollment via `arda.node-enrollment.v1`/`arda.node-capability-observation.v1`,
+> source-backed placement change on enrolling a second specialized node, coherent
+> convergence after its revocation, attested-observation-only pressure truth, and the
+> running RELIC bridge consuming `arda.runtime-presence.v1` read-only.
+> Evidence: `.hermes/evidence/digital-organism/stage8-hardware-portability-receipt.json`.
+> Stronger-GPU transfer and repeated-use evidence remain future work under this plan's
+> hardware evolution path.
 
 ## Objective
 

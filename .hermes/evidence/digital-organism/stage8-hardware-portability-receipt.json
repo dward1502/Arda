@@ -1,0 +1,53 @@
+{
+  "schema_version": "arda.stage8.hardware-portability-receipt.v1",
+  "objective_id": "objective:digital-organism-s8-hardware-portability",
+  "recorded_at_utc": "2026-08-25T06:45:00Z",
+  "boundary": "read-only portability proof; no hardware modification, no fabrication, no new authorities",
+  "s81_portable_enrollment": {
+    "enrollment_contract": "arda.node-enrollment.v1 + arda.node-identity.v1 via POST /v1/mesh/enroll",
+    "observation_contract": "arda.node-capability-observation.v1 via POST /v1/mesh/observations",
+    "note": "declarative manifest + attested observation; endpoints are deployment configuration, not contract identity",
+    "registry_evidence": "core/state/a2a_mesh_registry.jsonl events: node_enrolled x2 (node-core-live, node-beelink-live), capability_observed x2, node_revoked x1"
+  },
+  "s82_heterogeneous_placement": {
+    "before_single_node": {
+      "request": "objective:s8-portability-before (reasoning worker)",
+      "result": [{"role": "worker", "node_id": "node-core-live", "provider_id": "edge_core", "model_id": "Qwen3.5-9B-Q4_K_M"}]
+    },
+    "after_second_specialized_node": {
+      "request": "objective:s8-portability-after (worker + critic + adjudicator)",
+      "profiles_used": [
+        {"node_id": "node-beelink-live", "provider_id": "edge_beelink_light"},
+        {"node_id": "node-core-live", "provider_id": "edge_core"}
+      ],
+      "placements": [
+        {"role": "worker", "node_id": "node-core-live", "provider_id": "edge_core"},
+        {"role": "critic", "node_id": "node-beelink-live", "provider_id": "edge_beelink_light", "model_id": "Ternary-Bonsai-8B-Q2_0"},
+        {"role": "adjudicator", "node_id": "node-core-live", "provider_id": "edge_core"}
+      ],
+      "source_backed_change": true,
+      "note": "enrolling a differently-specialized node changed real placement across two nodes with zero workflow changes; objective, authority, context, and receipt schemas unchanged"
+    },
+    "removal_coherence": {
+      "action": "POST /v1/mesh/node-beelink-live/revoke -> 204, reason 'stage8 removal-coherence proof'",
+      "result": "objective:s8-portability-after-removal converged on the remaining node; mesh projection shows node-beelink-live revoked, node-core-live online",
+      "organism_coherent_after_removal": true
+    }
+  },
+  "s83_physical_state_truth": {
+    "pressure_channel": "placement receipts cite live pressure scores computed from attested CPU/memory/GPU/queue observations (e.g. 'live node pressure score 0.193 from CPU/memory/GPU/queue observation')",
+    "unavailable_stays_unavailable": "no thermal/board/environmental data exists in any projection or receipt; presence snapshot carries empty nodes rather than invented state when no source receipts exist",
+    "fabrication_check": "grep over harness and outpost sources shows no fabricated temperature/board fields in any projection path"
+  },
+  "s84_embodiment_interfaces_read_only": {
+    "service": "arda-relic-bridge.service active (running) since 2026-08-23",
+    "contract_consumed": "arda.runtime-presence.v1 via arda_outpost_protocol::presence",
+    "guarantees": ["display-safe redaction class enforced", "presence projection without verifiable source receipts is rejected", "scene adapter projects only the already-sanitized runtime-presence contract"]
+  },
+  "verification": [
+    {"probe": "GET /v1/mesh with operator identity", "result": "peers reflect enroll/observe/revoke truthfully"},
+    {"probe": "POST /v1/adaptive-placement/objectives before/after enrollment/revocation", "result": "source-backed placement change and coherent convergence"},
+    {"runtime": "systemctl --user is-active arda-relic-bridge.service arda.service arda-varda.service", "result": "active"}
+  ],
+  "maturity_note": "documented -> focused-tested -> root-composed -> installed -> running -> live-probed for this stage's read-only scope. Repeated-use and stronger-GPU transfer remain future evidence per plan boundary."
+}

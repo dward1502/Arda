@@ -5,11 +5,11 @@ soterion:
   code_point: "U+1F4DC"
   role: "program_plan"
   owner: "PROMETHEUS"
-  status: "active"
-  reviewed: "2026-08-21"
+  status: "complete"
+  reviewed: "2026-08-25"
 ---
 
-> 🜏 Soterion: 📜 program_plan | owner: PROMETHEUS | status: active | reviewed: 2026-08-21
+> 🜏 Soterion: 📜 program_plan | owner: PROMETHEUS | status: complete | reviewed: 2026-08-25
 
 # Arda Digital Organism Program
 
@@ -63,8 +63,8 @@ Stage 0 must classify each foundation as **reuse**, **adapt**, or **archive** fr
 | 4 | [Memory, learning, and context](04-memory-learning-and-context.md) | Cross-node results become governed continuity and influence later work only through use receipts | Stage 3 placement receipts proven |
 | 5 | [Homeostasis, governance, and recovery](05-homeostasis-governance-and-recovery.md) | The organism detects degradation, reassigns safe work, fails closed, and recovers without duplicate side effects | Stages 2–4 integrated |
 | 6 | [Arandur/CEO unified orchestration](06-arandur-ceo-orchestration.md) | Arandur observes organism state, proposes bounded compositions, tracks outcomes, and learns without becoming a parallel authority | Stage 5 recovery semantics proven |
-| 7 | [Living mesh proof](07-living-mesh-proof.md) | One real objective crosses at least three heterogeneous roles/nodes, survives failure, converges, persists, and is visibly accepted | Stages 1–6 green |
-| 8 | [Hardware portability and embodiment](08-hardware-portability-and-embodiment.md) | The same node contract transfers to stronger/specialized hardware; physical work remains separately gated | Stage 7 accepted |
+| 7 | [Living mesh proof](07-living-mesh-proof.md) | One real objective crosses at least three heterogeneous roles/nodes, survives failure, converges, persists, and is visibly accepted | Stages 1–6 green — **complete 2026-08-23, operator-accepted 2026-08-25** |
+| 8 | [Hardware portability and embodiment](08-hardware-portability-and-embodiment.md) | The same node contract transfers to stronger/specialized hardware; physical work remains separately gated | Stage 7 accepted — **read-only portability scope complete 2026-08-25** |
 
 Stages do not run in parallel merely because their files differ. Later stages may research or prepare fixtures only when doing so cannot create a second authority or pre-empt an earlier contract decision.
 
@@ -110,6 +110,13 @@ No lower state satisfies a higher one. Simulated nodes prove protocol behavior, 
 
 ## Completion
 
-This program is complete only when the Stage 7 living mesh is repeatedly useful and the Stage 8 node contract has been demonstrated on at least one stronger or differently constrained hardware target without architectural rewrites. Hardware fabrication, public deployment, accounts, payments, and commercialization are not program completion criteria.
+**Program status (2026-08-25):** all eight stages are closed. Stages 0–6 completed
+2026-08-21 through 2026-08-23; the Stage 7 living mesh was operator-accepted on
+2026-08-25 after a queue-executor reconciliation repair
+(`.hermes/evidence/digital-organism/stage7/queue-executor-wedge-repair.json`); Stage 8's
+read-only hardware-portability scope was proven live the same day
+(`.hermes/evidence/digital-organism/stage8-hardware-portability-receipt.json`).
+
+This program is complete only when the Stage 7 living mesh is repeatedly useful and the Stage 8 node contract has been demonstrated on at least one stronger or differently constrained hardware target without architectural rewrites. Hardware fabrication, public deployment, accounts, payments, and commercialization are not program completion criteria. Repeated-use evidence and a stronger-GPU transfer demonstration remain the open follow-ups under the completion definition above; embodiment work beyond read-only projection stays gated by [`../ambient-agent/README.md`](../ambient-agent/README.md).
 
 Implementation ownership, branch order, dirty-worktree protection, and review gates are defined in [WORKSTREAMS.md](WORKSTREAMS.md).
